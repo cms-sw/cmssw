@@ -8,16 +8,11 @@
   <class pattern="ROOT::Math::LorentzVector<*>" />
   <class pattern="ROOT::Math::DisplacementVector3D<*>" />
   <class pattern="ROOT::Math::PositionVector3D<*>" />
-  <class pattern="ROOT::Math::SVector<*>" />
   <class pattern="math::ErrorMatrix<*>" />
   <class pattern="std::vector<ROOT::Math::*>" />
   <class pattern="edm::Wrapper<*>" />
 </selection>
 <exclusion>
-  <class name="ROOT::Math::SVector<float,2>" />
-  <class name="ROOT::Math::SVector<float,3>" />
-  <class name="ROOT::Math::SVector<float,4>" />
-  <class name="ROOT::Math::SVector<float,5>" />
   <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<*>">
     <method name="SetRho" />
     <method name="SetEta" />
@@ -58,9 +53,6 @@
     <method name="SetEta" />
     <method name="SetM" />
     <method name="SetPt" />
-  </class>
-  <class pattern="ROOT::Math::SVector<*>">
-    <method name="SVector" />
   </class>
 </exclusion>
 </lcgdict>

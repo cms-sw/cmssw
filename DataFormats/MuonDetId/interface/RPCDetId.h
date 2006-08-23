@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/06/02 20:41:50 $
- *  \version $Id: RPCDetId.h,v 1.13 2006/06/02 20:41:50 mmaggi Exp $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/27 14:51:41 $
+ *  \version $Id: RPCDetId.h,v 1.15 2006/07/27 14:51:41 segoni Exp $
+ *  $Revision: 1.15 $
  *  \author Ilaria Segoni
  */
 
@@ -41,13 +41,14 @@ class RPCDetId :public DetId {
   /// Built from the trigger det Index
   void buildfromTrIndex(int trIndex);
 
-  /// Region id
+  /// Region id: 0 for Barrel, +/-1 For +/- Endcap
+
   int region() const{
     return int((id_>>RegionStartBit_) & RegionMask_) + minRegionId;
   }
 
 
-  /// Ring id
+  /// Ring id: Wheel number in Barrel (from -2 to +2) Disk Number in Endcap (from 1 to 3)
   int ring() const{
   
     int ring_= (id_>>RingStartBit_) & RingMask_;
@@ -72,29 +73,30 @@ class RPCDetId :public DetId {
     }
   }
 
-  /// Station id
+  /// Station id : the four group of chambers at same r (distance from beam axis) and increasing phi
   int station() const{
     return int((id_>>StationStartBit_) & StationMask_) + minStationId;
   }
 
 
-  /// Sector id
+  /// Sector id: the group of chambers at same phi (and increasing r) 
   int sector() const{
     return int((id_>>SectorStartBit_) & SectorMask_) + minSectorId;
   }
 
-  /// Layer id
+  /// Layer id: each station can have two layers of chambers: layer 1 is the inner chamber and layer 2 is the outer chamber (when present)  
   int layer() const{
     return int((id_>>LayerStartBit_) & LayerMask_) + minLayerId;
   }
 
 
-  /// SubSector id
+  /// SubSector id : some sectors are divided along the phi direction in subsectors (from 1 to 4 in Barrel, from 1 to 6 in Endcap) 
   int subsector() const{
     return int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
   }
 
-  /// Roll id
+  /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
+ ///  two or three parts (rolls)
   int roll() const{
     return int((id_>>RollStartBit_) & RollMask_); // value 0 is used as wild card
   }

@@ -3,6 +3,7 @@
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "DataFormats/HLTReco/interface/HLTPathObject.h"
 #include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
+#include "DataFormats/HLTReco/interface/ModuleTiming.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
@@ -38,5 +39,8 @@ namespace {
     edm::Wrapper<reco::HLTPathObject>            whlt4;
     edm::Wrapper<reco::HLTGlobalObject>          whlt6;
 
+    edm::EventTime                                et0;
+
+    edm::Wrapper<edm::EventTime>                wet10;
   }
 }

@@ -63,12 +63,9 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 				(*currentSeed)->position().Z());
       position_ *= energy_;
 
-      if (verbosity <= INFO)
-	{
-	  std::cout << "*****************************" << std::endl;
-	  std::cout << "******NEW SUPERCLUSTER*******" << std::endl;
-	  std::cout << "Seed R = " << (*currentSeed)->position().Rho() << std::endl;
-	}
+      std::cout << "*****************************" << std::endl;
+      std::cout << "******NEW SUPERCLUSTER*******" << std::endl;
+      std::cout << "Seed R = " << (*currentSeed)->position().Rho() << std::endl;
 
       // and add the matching clusters:
       reco::BasicClusterRefVector constituentClusters;
@@ -82,10 +79,7 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 	      position_ += (*currentCluster)->energy() * math::XYZVector((*currentCluster)->position().X(), 
 									 (*currentCluster)->position().Y(), 
 									 (*currentCluster)->position().Z()); 
-	      if (verbosity <= INFO) 
-		{
-		  std::cout << "Cluster R = " << (*currentCluster)->position().Rho() << std::endl;
-		}
+	      std::cout << "Cluster R = " << (*currentCluster)->position().Rho() << std::endl;
 
 	      clusters_v.erase(currentCluster);
 	    }
@@ -93,11 +87,7 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 	}
 
       position_ /= energy_;
-
-      if (verbosity <= INFO)
-	{
-	  std::cout << "Final SuperCluster R = " << position_.Rho() << std::endl;
-	}
+      std::cout << "Final SuperCluster R = " << position_.Rho() << std::endl;
 
       reco::SuperCluster newSuperCluster(energy_, 
 					 math::XYZPoint(position_.X(), position_.Y(), position_.Z()), 
@@ -106,15 +96,12 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 
       superclusters_v.push_back(newSuperCluster);
 
-      if (verbosity <= INFO)
-	{
-	  std::cout << "created a new supercluster of: " << std::endl;
-	  std::cout << "Energy = " << newSuperCluster.energy() << std::endl;
-	  std::cout << "Position in (R, phi, theta) = (" 
-		    << newSuperCluster.position().Rho() << ", " 
-		    << newSuperCluster.position().phi() << ", "
-		    << newSuperCluster.position().theta() << ")" << std::endl;
-	}
+      std::cout << "created a new supercluster of: " << std::endl;
+      std::cout << "Energy = " << newSuperCluster.energy() << std::endl;
+      std::cout << "Position in (R, phi, theta) = (" 
+		<< newSuperCluster.position().Rho() << ", " 
+		<< newSuperCluster.position().phi() << ", "
+		<< newSuperCluster.position().theta() << ")" << std::endl;
     }
   currentSeed = clusters_v.end();
 }

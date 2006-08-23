@@ -18,7 +18,7 @@ class CocoaMaterialElementary
 
 public:
   //---------- Constructors / Destructor
-  CocoaMaterialElementary( ALIstring name, float density, ALIstring symbol, ALIdouble A, ALIint Z );
+  CocoaMaterialElementary( ALIstring name, float density, ALIstring symbol, ALIint A, ALIint Z );
   ~CocoaMaterialElementary(){ };
 
   ALIstring getName() const {
@@ -27,7 +27,7 @@ public:
     return theDensity; }
   ALIstring getSymbol() const {
     return theSymbol; }
-  ALIdouble getA() const {
+  ALIint getA() const {
     return theA; }
   ALIint getZ() const {
     return theZ; }
@@ -39,7 +39,7 @@ private:
   ALIstring theName;
   float theDensity;
   ALIstring theSymbol;
-  ALIdouble theA;
+  ALIint theA;
   ALIint theZ;
 
 };

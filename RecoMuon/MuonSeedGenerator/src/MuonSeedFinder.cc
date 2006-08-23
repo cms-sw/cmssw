@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/27 13:42:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/16 08:31:27 $
+ *  $Revision: 1.7 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -31,7 +31,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iomanip>
 
@@ -42,12 +41,11 @@ MuonSeedFinder::MuonSeedFinder(){
   // FIXME put it in a pSet
   // theMinMomentum = pset.getParameter<double>("EndCapSeedMinPt");  //3.0
   theMinMomentum = 3.0;
+  debug = true;
 }
 
 
 vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) const {
-
-  std::string metname = "Muon|RecoMuon|MuonSeedFinder";
 
   //  MuonDumper debug;
   vector<TrajectorySeed> theSeeds;
@@ -64,8 +62,8 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   }
 
   if ( num_bar ) {
-    LogDebug(metname)
-      << "Barrel Seeds " << num_bar << endl;
+    if ( debug ) // 5
+      cout << "MuSeedGenByRecHits: Barrel Seeds " << num_bar << endl;
     theSeeds.push_back(barrel.seed(eSetup));
  
     //if ( debug ) //2
@@ -75,7 +73,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   }
   
   // 5
-  else LogDebug(metname) << "Endcap Seed" << endl;
+  if ( debug ) cout << "Endcap Seed" << endl;
 
   //Search ME1  ...
   MuonTransientTrackingRecHit *me1=0, *meit=0;
@@ -148,90 +146,10 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
 }
 
 bool 
-MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *last, 
+MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me, 
 				 vector<TrajectorySeed>& theSeeds,
 				 const edm::EventSetup& eSetup) const {
 
-  std::string metname = "Muon|RecoMuon|MuonSeedFinder";
-  
-  edm::ESHandle<MagneticField> field;
-  eSetup.get<IdealMagneticFieldRecord>().get(field);
-  
-  AlgebraicSymMatrix mat(5,0) ;
-
-  // this perform H.T() * parErr * H, which is the projection of the 
-  // the measurement error (rechit rf) to the state error (TSOS rf)
-  // Legenda:
-  // H => is the 4x5 projection matrix
-  // parError the 4x4 parameter error matrix of the RecHit
-  
-  mat = last->parametersError().similarityT( last->projectionMatrix() );
-  
-  // We want pT but it's not in RecHit interface, so we've put it within this class
-  float momentum = computePt(last,&*field);
-  // FIXME
-  float smomentum = 0.25; // FIXME!!!!
- 
-  MuonSeedFromRecHits seedCreator;
-  TrajectorySeed cscSeed = seedCreator.createSeed(momentum,smomentum,last,eSetup);
-
-  theSeeds.push_back(cscSeed);
-
-  // FIXME
-  return true;
-}
-
-
-float MuonSeedFinder::computePt(const MuonTransientTrackingRecHit *muon, const MagneticField *field) const {
-// assume dZ = dPhi*R*C, here C = pZ/pT
-// =======================================================================
-// ptc: I suspect the following comment should really be
-// dZ/dPsi = 0.5*dz/dPhi
-// which I can derive if I assume the particle has travelled in a circle
-// projected onto the global xy plane, starting at the origin on the z-axis.
-// Here Psi is the angle traced out in the xy plane by the projection of the
-// helical path of the charged particle. The axis of the helix is assumed 
-// parallel to the main B field of the solenoid.
-// =======================================================================
-// dZ/dPhi = 0.5*dZ/dPsi, here phi = atan2(y,x), psi = rho*s
-
-// ptc: If the local direction is effectively (0,0,1) or (0,0,-1)
-// then it's ridiculous to follow this algorithm... just set some
-// arbitrary 'high' value and note the sign is undetermined
-
-//@@ DO SOMETHING SANE WITH THESE TRAP VALUES
-  static float small = 1.e-06;
-  static float big = 1.e+10;
-
-  LocalVector lod = muon->localDirection();
-  if ( fabs(lod.x())<small && fabs(lod.y())<small ) {
-    return big;
-  }
-
-  GlobalPoint gp = muon->globalPosition();
-  GlobalVector gv = muon->globalDirection();
-  float getx0 = gp.x();
-  float getay = gv.y()/gv.z();
-  float gety0 = gp.y();
-  float getax = gv.x()/gv.z();
-  float getz0 = gp.z();
-  
-  float dZdPhi = 0.5f*gp.perp2()/(getx0*getay - gety0*getax);
-  float dZdT = getz0/gp.perp();
-  float rho = dZdT/dZdPhi;
-  
-  // convert to pT (watch the sign !)
-  GlobalVector fld = field->inInverseGeV( gp );
-  return -fld.z()/rho;
-}
-
-bool 
-MuonSeedFinder::createEndcapSeed_OLD(MuonTransientTrackingRecHit *me, 
-				 vector<TrajectorySeed>& theSeeds,
-				 const edm::EventSetup& eSetup) const {
-
-  std::string metname = "Muon|RecoMuon|MuonSeedFinder";
-  
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
   
@@ -241,22 +159,12 @@ MuonSeedFinder::createEndcapSeed_OLD(MuonTransientTrackingRecHit *me,
 
   // seed error = chamber dimension
   AlgebraicSymMatrix mat(5,0) ;
+  mat[1][1] = (300./700.)*(300./700.)/12.;
+  mat[2][2] = (300./700.)*(300./700.)/12.;
+  mat[3][3] = 1.*1.;
+  mat[4][4] = 6.*6.;
 
-  // mat[1][1] = (300./700.)*(300./700.)/12.;
-  // mat[2][2] = (300./700.)*(300./700.)/12.;
-  // mat[3][3] = 1.*1.;
-  // mat[4][4] = 6.*6.;
-
-  // this perform H.T() * parErr * H, which is the projection of the 
-  // the measurement error (rechit rf) to the state error (TSOS rf)
-  // Legenda:
-  // H => is the 4x5 projection matrix
-  // parError the 4x4 parameter error matrix of the RecHit
-  
-  // FIXME Use this!!!!!!!!
-  mat = me->parametersError().similarityT( me->projectionMatrix() );
-  
-  // We want pT but it's not in RecHit interface, so we've put it within this class
+ // We want pT but it's not in RecHit interface, so we've put it within this class
   float momentum = computePt(me,&*field);
 
   // set minimum momentum for endcap seed
@@ -293,7 +201,7 @@ MuonSeedFinder::createEndcapSeed_OLD(MuonTransientTrackingRecHit *me,
   const FreeTrajectoryState state = *(tsos.freeState());
 
   MuonPatternRecoDumper debugDumper;
-  debugDumper.dumpFTS(state,metname);
+  if ( debug ) debugDumper.dumpFTS(state);
 
   float z=0;
   /// magic number: eta=1.479 correspond to upper corner of ME1/1
@@ -342,15 +250,61 @@ MuonSeedFinder::createEndcapSeed_OLD(MuonTransientTrackingRecHit *me,
 
     theSeeds.push_back(seed);
     
-    LogDebug(metname)<<"  Propag.oppositeToMomentum "<<endl;
-    debugDumper.dumpTSOS(trj,metname);
-    LogDebug(metname) << "=== Successfull propagation" << endl;  // +v
-    
+    if ( debug ) {
+     cout<<"  Propag.oppositeToMomentum "<<endl;
+     debugDumper.dumpTSOS(trj);
+     cout << "=== Successfull propagation" << endl;  // +v
+    }
     result=true;
   } else {
-    LogDebug(metname) << "Invalid propagation" << endl;
+    // 4
+    if ( debug )  cout << "Invalid propagation" << endl;
     result=false;
   }
   delete propagator;
   return result;
+}
+
+
+float MuonSeedFinder::computePt(const MuonTransientTrackingRecHit *muon, const MagneticField *field) const {
+// assume dZ = dPhi*R*C, here C = pZ/pT
+// =======================================================================
+// ptc: I suspect the following comment should really be
+// dZ/dPsi = 0.5*dz/dPhi
+// which I can derive if I assume the particle has travelled in a circle
+// projected onto the global xy plane, starting at the origin on the z-axis.
+// Here Psi is the angle traced out in the xy plane by the projection of the
+// helical path of the charged particle. The axis of the helix is assumed 
+// parallel to the main B field of the solenoid.
+// =======================================================================
+// dZ/dPhi = 0.5*dZ/dPsi, here phi = atan2(y,x), psi = rho*s
+
+// ptc: If the local direction is effectively (0,0,1) or (0,0,-1)
+// then it's ridiculous to follow this algorithm... just set some
+// arbitrary 'high' value and note the sign is undetermined
+
+//@@ DO SOMETHING SANE WITH THESE TRAP VALUES
+  static float small = 1.e-06;
+  static float big = 1.e+10;
+
+  LocalVector lod = muon->localDirection();
+  if ( fabs(lod.x())<small && fabs(lod.y())<small ) {
+    return big;
+  }
+
+  GlobalPoint gp = muon->globalPosition();
+  GlobalVector gv = muon->globalDirection();
+  float getx0 = gp.x();
+  float getay = gv.y()/gv.z();
+  float gety0 = gp.y();
+  float getax = gv.x()/gv.z();
+  float getz0 = gp.z();
+  
+  float dZdPhi = 0.5f*gp.perp2()/(getx0*getay - gety0*getax);
+  float dZdT = getz0/gp.perp();
+  float rho = dZdT/dZdPhi;
+  
+  // convert to pT (watch the sign !)
+  GlobalVector fld = field->inInverseGeV( gp );
+  return -fld.z()/rho;
 }

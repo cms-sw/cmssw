@@ -6,50 +6,52 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.11 2006/06/28 19:25:57 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.10 2006/06/28 17:15:29 ewv Exp $
  *
  */
- 
+#include <Rtypes.h>
+#include "DataFormats/Math/interface/Point3D.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Math/interface/Point3D.h"
-
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include <vector>
 
 using edm::SimVertexRef;
 using edm::SimVertexRefVector;
 
-class TrackingVertex {
+namespace HepMC {
+  class GenVertex;
+}
 
+class TrackingParticle;
+
+
+class TrackingVertex {
  public:
   
   typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
   typedef TrackingParticleContainer::iterator                  track_iterator;
-  typedef        GenVertexRefVector::iterator                   genv_iterator;
-  typedef        SimVertexRefVector::iterator                    g4v_iterator;
   
-// Default constructor and constructor from values
+// Default constructor
   TrackingVertex();
-  TrackingVertex(const HepLorentzVector &position, const bool inVolume, 
-                 const int               source,   const int  crossing);
+// Constructor from values
+  TrackingVertex(const HepLorentzVector&, const bool inVolume, 
+                 const int source,        const int  crossing);
 
-// Track and vertex iterators
-  track_iterator     tracks_begin() const; // Ref's to TrackingParticle's
-  track_iterator     tracks_end()   const; // associated with this vertex
-  genv_iterator genVertices_begin() const; // Ref's to HepMC and Geant4
-  genv_iterator genVertices_end()   const; // vertices associated with 
-  g4v_iterator   g4Vertices_begin() const; // this vertex, respectively
-  g4v_iterator   g4Vertices_end()   const; // ....
+// Track iterators
+  track_iterator tracks_begin() const ;
+  track_iterator tracks_end()   const ;
 
-// Add references to TrackingParticle, Geant4, and HepMC vertices to correct containers
-  void add(         const TrackingParticleRef&);
-  void addG4Vertex( const SimVertexRef&       );
-  void addGenVertex(const GenVertexRef&       );
+// Add references to reference containers
+  void add( const TrackingParticleRef & r );
+  void addG4Vertex(const SimVertexRef &r);
+  void addGenVertex(const GenVertexRef&);
   
 // Getters for RefVectors   
   const SimVertexRefVector         g4Vertices()       const;
@@ -65,15 +67,19 @@ class TrackingVertex {
   
  private:
   
-  HepLorentzVector position_; // Vertex position and time
-  bool inVolume_;             // Is it inside tracker volume?
-  int  signalSource_;         // Is it signal or min-bias and in which crossing?
+  /// position
+  HepLorentzVector position_;
   
-// References to G4 and generator vertices and tracks
+  /// reference to tracks
+  TrackingParticleContainer tracks_;
 
+  /// references to G4 and generator vertices
   SimVertexRefVector  g4Vertices_;
   GenVertexRefVector genVertices_;
-  TrackingParticleContainer tracks_;
+  bool inVolume_;          // Is it inside tracker volume?
+  int  signalSource_;      // Is it signal or min-bias and in which crossing?
 };
+
+
 
 #endif

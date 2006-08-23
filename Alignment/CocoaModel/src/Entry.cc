@@ -19,15 +19,17 @@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Constructor
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-Entry::Entry( const ALIstring& type ) : type_(type), fitPos_(-1)
+Entry::Entry( const ALIstring& type ) : type_(type), theFitPos(-1)
 {
   //  std::cout << "entry" << std::endl;
   //---------- Set displacement by fitting to zero
-  valueDisplacementByFitting_ = 0.; 
-  if( ALIUtils::debug >= 5 ) std::cout << this << " theValueDisplacementByFitting set " << valueDisplacementByFitting_ << std::endl;
+  theValueDisplacementByFitting = 0.; 
+  if( ALIUtils::debug >= 5 ) std::cout << this << " theValueDisplacementByFitting set " << theValueDisplacementByFitting  << std::endl;
 }
 
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//@@  Fill the attributes  
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::fill( const std::vector<ALIstring>& wordlist )
 {
@@ -37,7 +39,7 @@ void Entry::fill( const std::vector<ALIstring>& wordlist )
   gomgr->getGlobalOptionValue("reportOutEntriesByShortName", byshort ); 
 
   //----- Check format of input file
-  if (ALIUtils::debug >=4) std::cout << "@@@ Filling entry: " << name() << std::endl;
+  if (ALIUtils::debug >=4) std::cout << "@@@ Filling entry:" << name() << std::endl;
   //--- Check there are 4 attributes
   if ( wordlist.size() != 4 ) {
     ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
@@ -52,11 +54,11 @@ void Entry::fill( const std::vector<ALIstring>& wordlist )
   } else {
     entryData = EntryMgr::getInstance()->findEntryByShortName( OptOCurrent()->longName(), name() );
   }
-  if(ALIUtils::debug >= 5) std::cout << " entryData " << entryData << " " <<  OptOCurrent()->longName() << " " << name() << std::endl;
+  if(ALIUtils::debug >= 5) std::cout << " entryData" << entryData << " " <<  OptOCurrent()->longName() << " " << name() << std::endl;
 
-  if( name_ == "centre_R" || name_ == "centre_PHI" || name_ == "centre_THE" ){
+  if( _name == "centre_R" || _name == "centre_PHI" || _name == "centre_THE" ){
     if( EntryMgr::getInstance()->numberOfEntries() > 0 ) {
-      std::cerr << "!!!!FATAL ERROR:  Filling entry from 'report.out' while entry is in cylindrical or spherical coordinates is not supported yet. " << OptOCurrent()->name() << " " << name_ << std::endl;
+      std::cerr << "!!!!FATAL ERROR:  Filling entry from 'report.out' while entry is in cylindrical or spherical coordinates is not supported yet. " << OptOCurrent()->name() << " " << _name << std::endl;
       abort();
     }
   }
@@ -64,10 +66,10 @@ void Entry::fill( const std::vector<ALIstring>& wordlist )
   ALIdouble fre;
   gomgr->getGlobalOptionValue("reportOutReadValue", fre );
   if( entryData != 0 && fre == 1) {
-    //    std::cout << OptOCurrent()->name() << " " << name_ << "call fillFromReportOutFileValue " << type_ <<  std::endl;
+    //    std::cout << OptOCurrent()->name() << " " << _name << "call fillFromReportOutFileValue " << type_ <<  std::endl;
     fillFromReportOutFileValue( entryData );
   } else {
-    //  std::cout << OptOCurrent()->name() << " " << name_ << "call fillFromInputFileValue " << type_ <<  std::endl;
+    //  std::cout << OptOCurrent()->name() << " " << _name << "call fillFromInputFileValue " << type_ <<  std::endl;
     fillFromInputFileValue( wordlist );
   }
   gomgr->getGlobalOptionValue("reportOutReadSigma", fre );
@@ -85,13 +87,11 @@ void Entry::fill( const std::vector<ALIstring>& wordlist )
 }
 
  
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::fillFromInputFileValue( const std::vector<ALIstring>& wordlist )
 {
 
-  //-  ALIUtils::dumpVS( wordlist, " fillFromInputFileValue " ); //-
   ParameterMgr* parmgr = ParameterMgr::getInstance();
-  //---------- Translate parameter used for value_
+  //---------- Translate parameter used for _value
   ALIdouble val = 0.;
   if ( !ALIUtils::IsNumber( wordlist[1] ) ) {
     if ( parmgr->getParameterValue( wordlist[1], val ) == 0 ) {
@@ -109,8 +109,8 @@ void Entry::fillFromInputFileValue( const std::vector<ALIstring>& wordlist )
     std::cout << "VALUE = " << val << " (ValueDimensionFactor= " << ValueDimensionFactor() <<std::endl;
   }
 
-  value_ = val;
-  valueOriginalOriginal_ = value_;
+  _value = val;
+  _valueOriginalOriginal = _value;
 
 
 }
@@ -120,7 +120,7 @@ void Entry::fillFromInputFileSigma( const std::vector<ALIstring>& wordlist )
 {
 
   ParameterMgr* parmgr = ParameterMgr::getInstance();
-  //---------- translate parameter used for sigma_
+  //---------- translate parameter used for _sigma
   /*  ALIdouble sig;
   char** endptr;
   sig = strtod( wordlist[2].c_str(), endptr );
@@ -152,38 +152,37 @@ void Entry::fillFromInputFileSigma( const std::vector<ALIstring>& wordlist )
   if (ALIUtils::debug >= 4) {
     std::cout << "SIGMA = " << sig << " (SigmaDimensionFactor= " << SigmaDimensionFactor() << std::endl;
   }
-  sigma_ = sig;
-  sigmaOriginalOriginal_ = sigma_;
+  _sigma = sig;
+  _sigmaOriginalOriginal = _sigma;
 
 }
 
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::fillFromInputFileQuality( const std::vector<ALIstring>& wordlist )
 {
   //---------- set _quality
   if( wordlist[3] == ALIstring("unk") ) {
-    quality_ = 2;
+    _quality = 2;
   } else if( wordlist[3] == ALIstring("cal") ) {
-    quality_ = 1;
+    _quality = 1;
     //t  // for range studies, make all 'cal' entries 'fix'
     //t ALIdouble rs;
     //t Model::getGlobalOptionValue("range_studies", rs );
-    //t if(rs == 1) quality_ = 0;
+    //t if(rs == 1) _quality = 0;
   } else if( wordlist[3] == ALIstring("fix") ) { 
-    quality_ = 0;
+    _quality = 0;
   } else {
     ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
     std::cerr << " quality should be 'unk' or 'cal' or 'fix', instead of " << wordlist[3] << std::endl;
     exit(3);
   }
-  //------ If sigma_ = 0 make quality_ 'fix'
-  if( sigma_ == 0) {
+  //------ If _sigma = 0 make _quality 'fix'
+  if( _sigma == 0) {
     //      std::cout << "SIG=0" << std::endl;
-    quality_ = 0;
+    _quality = 0;
   }
-  if ( ALIUtils::debug >= 4 ) std::cout << OptOCurrent()->name() << " " << name() << " " << sigma_ << "QUALITY:" << quality_  << std::endl;
+  if ( ALIUtils::debug >= 4 ) std::cout << OptOCurrent()->name() << " " << name() << " " << _sigma << "QUALITY:" << _quality  << std::endl;
     
-  sigmaOriginalOriginal_ = sigma_;
+  _sigmaOriginalOriginal = _sigma;
 
 }
 
@@ -193,46 +192,45 @@ void Entry::fillFromInputFileQuality( const std::vector<ALIstring>& wordlist )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::fillFromReportOutFileValue( EntryData* entryData )
 {
-  value_ = entryData->valueOriginal();
+  _value = entryData->valueOriginal();
   //---- For extra entries, value is not in proper units, as the 'report.out' file does not have the type (length/angle/nodim)
   EntryMgr* entryMgr = EntryMgr::getInstance();
-  //-  std::cout << OptOCurrent()->name() << " " << name_ << " fillFromReportOutFileValue " << type_ << std::endl;
+  //-  std::cout << OptOCurrent()->name() << " " << _name << " fillFromReportOutFileValue " << type_ << std::endl;
   if( type_ == "centre" || type_ == "length" ) {
-   value_ *= entryMgr->getDimOutLengthVal();
+   _value *= entryMgr->getDimOutLengthVal();
    //set valueDisp as it will be used to displace entries
    entryData->setValueDisplacement( entryData->valueDisplacement() * entryMgr->getDimOutLengthVal());
-   if(ALIUtils::debug >= 5) std::cout << " fillFromReportOut " << OptOCurrent()->name() << " " << name() << "" <<  value_ << " disp " <<  entryData->valueDisplacement() * entryMgr->getDimOutLengthVal() << std::endl;
+   if(ALIUtils::debug >= 5) std::cout << " fillFromReportOut " << OptOCurrent()->name() << " " << name() << "" <<  _value << " disp " <<  entryData->valueDisplacement() * entryMgr->getDimOutLengthVal() << std::endl;
   }else if( type_ == "angles" || type_ == "angle" ) {
-    value_ *= entryMgr->getDimOutAngleVal();
+    _value *= entryMgr->getDimOutAngleVal();
     entryData->setValueDisplacement( entryData->valueDisplacement() * entryMgr->getDimOutAngleVal());
-    if(ALIUtils::debug >= 5) std::cout << " fillFromReportOut " << OptOCurrent()->name() << " " << name() << "" <<  value_ << " disp " <<  entryData->valueDisplacement() * entryMgr->getDimOutAngleVal() << std::endl;
+    if(ALIUtils::debug >= 5) std::cout << " fillFromReportOut " << OptOCurrent()->name() << " " << name() << "" <<  _value << " disp " <<  entryData->valueDisplacement() * entryMgr->getDimOutAngleVal() << std::endl;
   }
 
-  valueOriginalOriginal_ = value_;
+  _valueOriginalOriginal = _value;
 
 }
 
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::fillFromReportOutFileSigma( const EntryData* entryData )
 {
-  sigma_ = entryData->sigma();
+  _sigma = entryData->sigma();
   //---- For extra entries, value is not in proper units, as the 'report.out' file does not have the type (length/angle/nodim)
   EntryMgr* entryMgr = EntryMgr::getInstance();
   if( type_ == "centre" || type_ == "length" ) {
-   sigma_ *= entryMgr->getDimOutLengthSig();
-   //-   std::cout << " fillFromReportOut " << value_ << " +- " << sigma_ << std::endl;
+   _sigma *= entryMgr->getDimOutLengthSig();
+   //-   std::cout << " fillFromReportOut " << _value << " +- " << _sigma << std::endl;
   }else if( type_ == "angles" || type_ == "angle" ) {
-   sigma_ *= entryMgr->getDimOutAngleSig();
+   _sigma *= entryMgr->getDimOutAngleSig();
   }
 
-  sigmaOriginalOriginal_ = sigma_;
+  _sigmaOriginalOriginal = _sigma;
 
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::fillFromReportOutFileQuality( const EntryData* entryData )
 {
-  quality_ = entryData->quality();
+  _quality = entryData->quality();
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -249,11 +247,11 @@ void Entry::fillName( const ALIstring& name )
 void Entry::fillNull()
 {
   //-  fillName( name );
-  value_ = 0.;
-  valueOriginalOriginal_ = value_;
-  sigma_ = 0.;
-  sigmaOriginalOriginal_ = sigma_;
-  quality_ = 0;
+  _value = 0.;
+  _valueOriginalOriginal = _value;
+  _sigma = 0.;
+  _sigmaOriginalOriginal = _sigma;
+  _quality = 0;
 
 }
 
@@ -305,14 +303,14 @@ Entry::~Entry()
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-//@@ Add fitted displacement to value: save it as valueDisplacementByFitting_, as when the value is asked for, it will get the original value + this displacement
+//@@ Add fitted displacement to value: save it as theValueDisplacementByFitting, as when the value is asked for, it will get the original value + this displacement
 //@@ Then update the rmGlob, centreGlob 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::addFittedDisplacementToValue( const ALIdouble val )
 {
-  valueDisplacementByFitting_ += val;
-  lastAdditionToValueDisplacementByFitting_ = val;
-  if( ALIUtils::debug >= 3 ) std::cout << OptOCurrent()->name() << " " << name() << " Entry::addFittedDisplacementToValue " << val << " total= " << valueDisplacementByFitting_ << std::endl;
+  theValueDisplacementByFitting += val;
+  theLastAdditionToValueDisplacementByFitting = val;
+  if( ALIUtils::debug >= 3 ) std::cout << OptOCurrent()->name() << " " << name() << " Entry::addFittedDisplacementToValue " << val << " total= " << theValueDisplacementByFitting << std::endl;
   
   //---------- Displace original centre, rotation matrix, ...
   displaceOriginal( val );
@@ -327,10 +325,10 @@ void Entry::addFittedDisplacementToValue( const ALIdouble val )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::substractToHalfFittedDisplacementToValue()
 {
-  addFittedDisplacementToValue( -lastAdditionToValueDisplacementByFitting_/2. );
+  addFittedDisplacementToValue( -theLastAdditionToValueDisplacementByFitting/2. );
   // addFittedDisplacementToValue( -1.01*theLastAdditionToValueDisplacementByFitting );
   //addFittedDisplacementToValue( -theLastAdditionToValueDisplacementByFitting );
-  lastAdditionToValueDisplacementByFitting_ *= -1;
+  theLastAdditionToValueDisplacementByFitting *= -1;
   //  addFittedDisplacementToValue( 0. );
 
 }
@@ -348,19 +346,6 @@ ALIdouble Entry::valueDisplaced() const
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::resetValueDisplacementByFitting()
 {
-  valueDisplacementByFitting_ = 0.;
+  theValueDisplacementByFitting = 0.;
 }
 
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::ostream& operator << (std::ostream& os, const Entry& c) 
-{
-
-  os << "ENTRY: " << c.name() << " of type: " << c.type() << std::endl
-     << " value " << c.value_ << " original " << c.valueOriginalOriginal_ << std::endl
-     << " sigma " << c.sigma_ << " original " << c.sigmaOriginalOriginal_ << std::endl
-     << " quality " << c.quality_ << " opto " << (c.OptOCurrent_)->name() << std::endl
-     << " fitpos " << c.fitPos_ << " valueDisplacementByFitting " << c.valueDisplacementByFitting_ << " lastAdditionToValueDisplacementByFitting " << c.lastAdditionToValueDisplacementByFitting_ << std::endl;
-
-  return os;
-
-}

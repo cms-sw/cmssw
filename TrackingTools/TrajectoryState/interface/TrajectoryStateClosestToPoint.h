@@ -9,7 +9,6 @@
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 #include "DataFormats/TrackReco/interface/PerigeeParameters.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 /**
  * Trajectory state defined at a given point on the helix, which is 
@@ -34,7 +33,7 @@ public:
    */
 
   TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters,
-    const GlobalPoint& referencePoint, const MagneticField* field);
+    const GlobalPoint& referencePoint);
 
   /**
    * Public constructor, which is used to convert perigee 
@@ -43,17 +42,15 @@ public:
    */
 
   TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters,
-    const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint,
-    const MagneticField* field);
+    const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint);
 
 
   TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar, 
-	const GlobalPoint& referencePoint, const MagneticField* field);
+	const GlobalPoint& referencePoint);
 
 
   TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar, 
-	const reco::perigee::Covariance & perigeeCov, const GlobalPoint& referencePoint,
-	const MagneticField* field);
+	const reco::perigee::Covariance & perigeeCov, const GlobalPoint& referencePoint);
 
 
   /**
@@ -138,7 +135,6 @@ private:
 
   void calculateFTS() const;
 
-  const MagneticField* theField;
 
   mutable FTS theFTS;
   mutable bool theFTSavailable;

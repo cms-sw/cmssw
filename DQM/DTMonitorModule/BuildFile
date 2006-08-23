@@ -7,7 +7,6 @@
 <use name=CondFormats/DataRecord>
 <use name=Geometry/Records>
 <use name=Geometry/DTGeometry>
-<use name=DataFormats/DTRecHit>
 <use name=boost>
 <use name=root>
 
@@ -21,7 +20,6 @@
  <use name=CondFormats/DataRecord>
  <use name=Geometry/Records>
  <use name=Geometry/DTGeometry> 
- <use name=DataFormats/DTRecHit>
  <use name=boost>
  <use name=root>
 </export>

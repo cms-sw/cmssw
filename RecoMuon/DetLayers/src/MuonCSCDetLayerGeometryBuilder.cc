@@ -82,10 +82,8 @@ MuRingForwardLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
     if (geomDets.size()!=0) {
 	precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
       muDetRings.push_back(new MuDetRing(geomDets));
-      LogDebug("Muon|CSC|RecoMuonDetLayers") << "New MuDetRing with " << geomDets.size()
-					     << " chambers at z="<< muDetRings.back()->position().z()
-					     << " R1: " << muDetRings.back()->specificSurface().innerRadius()
-					     << " R2: " << muDetRings.back()->specificSurface().outerRadius(); 
+      LogDebug("Muon|CSC|RecoMuonDetLayers") << "New ring with " << geomDets.size()
+					     << " chambers at z="<< muDetRings.back()->position().z();
     }
   }
   
@@ -93,10 +91,8 @@ MuRingForwardLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
     // How should they be sorted?
     //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());
     result = new MuRingForwardLayer(muDetRings);  
-    LogDebug("Muon|CSC|RecoMuonDetLayers") << "New MuRingForwardLayer with " << muDetRings.size() 
-					   << " rings, at Z " << result->position().z()
-					   << " R1: " << result->specificSurface().innerRadius()
-					   << " R2: " << result->specificSurface().outerRadius(); 
+    LogDebug("Muon|CSC|RecoMuonDetLayers") << "New layer with " << muDetRings.size() 
+					   << " rings, at Z " << result->position().z();
   }
 
   return result;

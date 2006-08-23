@@ -5,54 +5,101 @@
  *  Description:
  *       Class to map read-out channels to physical RPC strips
  *
- *  $Date: 2006/06/30 06:21:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/16 17:09:57 $
+ *  $Revision: 1.1 $
  *  \author Marcello Maggi -- INFN Bari
  *
  */
 
-#include <map>
 #include <vector>
-#include <utility>
+#include <map>
 #include <string>
-#include <boost/cstdint.hpp>
 
-#include "CondFormats/RPCObjects/interface/DccSpec.h"
-#include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
-#include "CondFormats/RPCObjects/interface/ChamberRawDataSpec.h"
-class LinkBoardSpec;
+class RPCdeteIndex;
+class RPCelecIndex;
+class RPCReadOutLink {
+
+ public:
+
+  RPCReadOutLink();
+  ~RPCReadOutLink();
+
+  int       dccId;
+  int        tbId;
+  int      lboxId;
+  int        mbId;
+  int    lboardId;
+  int   channelId;
+  int    regionId;
+  int      diskId;
+  int   stationId;
+  int    sectorId;
+  int     layerId;
+  int subsectorId;
+  int      rollId;
+  int     stripId;
+};    
+
 
 
 class RPCReadOutMapping {
-public:
 
-  RPCReadOutMapping(const std::string & version = ""); 
+ public:
 
-  /// FED identified by ID
-  const DccSpec * dcc( int dccId) const;
+  RPCReadOutMapping();
+  ~RPCReadOutMapping();
 
-  /// Range of FED IDs in map (min and max id) 
-  std::pair<int,int> dccNumberRange() const;
+  /// read and store full content
+  void initSetup();
 
-  /// all FEDs in map
-  std::vector<const DccSpec*> dccList() const;
+  void readOutToGeometry( int        dccId,
+			  int         tbId,
+			  int       lboxId,
+			  int         mbId,
+			  int     lboardId,
+			  int    channelId,
+			  int&    regionId,
+			  int&      diskId,
+			  int&   stationId,
+			  int&    sectorId,
+			  int&     layerId,
+			  int& subsectorId,
+			  int&      rollId,
+			  int&     stripId);
 
-  /// conversion between electronic and detector indexing
-  std::pair< const LinkBoardSpec*, const ChamberLocationSpec* > location (const ChamberRawDataSpec & ele) const;  
+  /// clear map
+  void clear();
 
-  /// attach FED to map
-  void add(const DccSpec & dcc);
+  /// insert connection
+  void insertReadOutGeometryLink( int       dccId,
+				  int        tbId,
+				  int      lboxId,
+				  int        mbId,
+				  int      lboard,
+				  int   channelId,
+				  int    regionId,
+				  int      diskId,
+				  int   stationId,
+				  int    sectorId,
+				  int     layerId,
+				  int subsectorId,
+				  int      rollId,
+				  int     stripId );
+  /// Access methods to the connections
+  typedef std::vector<RPCReadOutLink>::const_iterator const_iterator;
+  const_iterator begin() const;
+  const_iterator end() const;
 
-  /// version as string
-  const std::string & version() const { return theVersion; }
+ public:
+  std::vector<RPCReadOutLink> readOutRPCMap;
 
-private:
-   typedef std::map<int, DccSpec>::const_iterator IMAP;
-   std::map<int, DccSpec> theFeds;
-   std::string theVersion;
+ private:
+  std::map<RPCdeteIndex,RPCelecIndex> dtoe;
+  std::map<RPCelecIndex,RPCdeteIndex> etod;
 
-  
+
 };
+
 
 #endif // RPCReadOutMapping_H
 

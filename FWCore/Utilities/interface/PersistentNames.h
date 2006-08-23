@@ -2,7 +2,7 @@
 #define Utilities_PersistentNames_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PersistentNames.h,v 1.2 2006/07/05 17:56:35 wmtan Exp $
+// $Id: PersistentNames.h,v 1.3 2006/07/06 01:41:03 wmtan Exp $
 //
 // Functions defining tree, branch, and container names.
 // Namespace rootNames. Defined names of ROOT trees and branches
@@ -71,10 +71,20 @@ namespace edm {
     std::string
     runTreeName() { return "Runs"; }
 
+    // Branch on Run Tree
+    inline
+    std::string
+    runBranchName() { return "RunInformation"; }
+
     // Luminosity Block Tree (1 entry per luminosity block)
     inline
     std::string
     luminosityBlockTreeName() { return "LuminosityBlocks"; }
+
+    // Branch on Luminosity Block Tree
+    inline
+    std::string
+    luminosityBlockBranchName() { return "LuminosityInformation"; }
 
 // Obsolete.  Kept for backward compatibility and conversion
     inline

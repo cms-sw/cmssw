@@ -17,8 +17,8 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2005/11/30 19:55:34 $
-   $Revision: 1.5 $
+   $Date: 2006/03/30 14:43:28 $
+   $Revision: 1.6 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
@@ -55,6 +55,8 @@ public:
   bool incIPhi(const HcalDetId& id, HcalDetId &neighbor) const;
   /** Get the neighbor (if present) of the given cell with lower iphi */
   bool decIPhi(const HcalDetId& id, HcalDetId &neighbor) const;
+  /** Get the detector behind this one */
+  bool incrementDepth(HcalDetId& id) const;
 
   int firstHBRing() const {return firstHBRing_;}
   int lastHBRing()  const {return lastHBRing_;}

@@ -129,7 +129,7 @@ RFIOFile::open (const char *name,
 	openflags |= O_TRUNC;
 
     IOFD newfd = IOFD_INVALID;
-    if ((newfd = rfio_open (lname.c_str(), openflags, perms.native ())) == -1)
+    if ((newfd = rfio_open64 (lname.c_str(), openflags, perms.native ())) == -1)
 	throw RFIOError ("rfio_open()", rfio_errno, serrno);
 
     m_fd = newfd;
@@ -141,7 +141,7 @@ RFIOFile::close (void)
 {
     ASSERT (m_fd != IOFD_INVALID);
 
-    if (rfio_close (m_fd) == -1)
+    if (rfio_close64 (m_fd) == -1)
 	throw RFIOError ("rfio_close()", rfio_errno, serrno);
 
     m_close = false;
@@ -152,7 +152,7 @@ void
 RFIOFile::abort (void)
 {
     if (m_fd != IOFD_INVALID)
-	rfio_close (m_fd);
+	rfio_close64 (m_fd);
 
     m_close = false;
     m_fd = IOFD_INVALID;
@@ -164,7 +164,7 @@ RFIOFile::abort (void)
 IOSize
 RFIOFile::read (void *into, IOSize n)
 {
-    ssize_t s = rfio_read (m_fd, into, n);
+    ssize_t s = rfio_read64 (m_fd, into, n);
     if (s == -1)
 	throw RFIOError ("rfio_read()", rfio_errno, serrno);
 
@@ -174,7 +174,7 @@ RFIOFile::read (void *into, IOSize n)
 IOSize
 RFIOFile::write (const void *from, IOSize n)
 {
-    ssize_t s = rfio_write (m_fd, from, n);
+    ssize_t s = rfio_write64 (m_fd, from, n);
     if (s == -1)
 	throw RFIOError ("rfio_write()", rfio_errno, serrno);
 
@@ -195,7 +195,7 @@ RFIOFile::position (IOOffset offset, Relative whence /* = SET */)
 		    	    : whence == CURRENT ? SEEK_CUR
 			    : SEEK_END);
 
-    if ((result = rfio_lseek (m_fd, offset, mywhence)) == -1)
+    if ((result = rfio_lseek64 (m_fd, offset, mywhence)) == -1)
 	throw RFIOError ("rfio_lseek()", rfio_errno, serrno);
 
     return result;

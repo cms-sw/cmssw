@@ -40,6 +40,7 @@ class PixelForwardLayer : public ForwardDetLayer{
   
 
  private:  
+  virtual BoundDisk* computeDisk(const std::vector<const PixelBlade*>& blades) const;    
   // methods for groupedCompatibleDets implementation
   int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
 

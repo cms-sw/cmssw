@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/07/04 18:46:16 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/26 18:12:45 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -16,7 +16,6 @@
 
 #include "TROOT.h"
 #include "TProfile2D.h"
-#include "TProfile.h"
 #include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,7 +38,7 @@ class EBBeamCaloClient : public EBClient {
 public:
 
 /// Constructor
-EBBeamCaloClient(const ParameterSet& ps);
+EBBeamCaloClient(const ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
 virtual ~EBBeamCaloClient();
@@ -53,7 +52,7 @@ void unsubscribe(void);
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
@@ -76,8 +75,6 @@ void htmlOutput(int run, string htmlDir, string htmlName);
 /// WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
 
-template<class T> void AdjustRange(T obj);
-
 private:
  const static int cryInArray_ = 9;
 
@@ -86,7 +83,6 @@ int jevt_;
 
 bool collateSources_;
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 
@@ -99,60 +95,32 @@ vector<int> superModules_;
 MonitorUserInterface* mui_;
 
 //specific task me
-vector<int> checkedSteps_;
-float prescaling_; 
-//specific task me
 
-TH1F* hBGains_[cryInArray_];
-TH1F* hBEne1_;
+TH1D* meBBCaloGains_[cryInArray_];
+TH1D* meBBCaloEne1_;
 
-TH1F* hBGainsMoving_[cryInArray_];
-TH1F* hBEne1Moving_;
+TH1D* meBBCaloGainsMoving_[cryInArray_];
+TH1D* meBBCaloEne1Moving_;
 
 
-TH1F* hBAllNeededCry_;
+TH1D* meBBCaloAllNeededCry_;
 
-TH1F* hBNumReadCry_;
+TH1D* meBBCaloE3x3_;
 
-TH1F* hBE3x3_;
+TH1D* meBBCaloE3x3Moving_;
 
-TH1F* hBE3x3Moving_;
+TH2D* meBBCaloCryOnBeam_;
 
-TH2F* hBCryOnBeam_;
+TH2D* meBBCaloMaxEneCry_;
 
-TH2F* hBMaxEneCry_;
 
-TH1F* hBReadCryErrors_;
+TH1D* meEBBCaloReadCryErrors_;
 
-TH1F* hBE1vsCry_;
+TH1D* meEBBCaloE1vsCry_;
 
-TH1F* hBE3x3vsCry_;
-
-TH1F* hBEntriesvsCry_;
-
-TH1F* hBcryDone_; 
-
-TH2F* hBBeamCentered_;
-
-TH1F* hbTBmoving_;
-
-TProfile* pBCriInBeamEvents_;
-
-TProfile* hBpulse_[cryInArray_];
-
+TH1D* meEBBCaloE3x3vsCry_;
 
 MonitorElement* meEBBCaloRedGreen_;
-MonitorElement* meEBBCaloRedGreenReadCry_;
-MonitorElement* meEBBCaloRedGreenSteps_; 
-// quality check parameters
- int minEvtNum_;
- float aveEne1_;
- float E1Th_;
- float aveEne3x3_;
- float E3x3Th_;
- float RMSEne3x3_;
- float ReadCryErrThr_;
- 
 };
 
 #endif

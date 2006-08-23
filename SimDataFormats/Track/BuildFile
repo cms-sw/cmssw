@@ -2,9 +2,7 @@
  <lib name=SimDataFormatsTrack>
  <use name=DataFormats/Common>
  <use name=clhep>
- <use name=heppdt>
 </export>
 
 <use name=clhep>
-<use name=heppdt>
 <use name=DataFormats/Common>

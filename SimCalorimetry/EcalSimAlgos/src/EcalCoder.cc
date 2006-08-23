@@ -91,6 +91,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
   double widths[NGAINS+1];
   double gains[NGAINS+1];
   double threeSigmaADCNoise[NGAINS+1];
+  int    maxADC[NGAINS+1];
   for(int igain = 0; igain <= NGAINS; ++igain) {
     // fill in the pedestal and width
     findPedestal(detId, igain, pedestals[igain], widths[igain]);
@@ -100,6 +101,8 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
     if ( igain > 0 ) LSB[igain]= Emax/(MAXADC*gains[igain]);
     threeSigmaADCNoise[igain] = 0.;
     if ( igain > 0 ) threeSigmaADCNoise[igain] = widths[igain] * 3.;
+    maxADC[igain] = ADCGAINSWITCH; // saturation at 4080 for middle and high gains x6 & x12
+    if ( igain == NGAINS ) maxADC[igain] = MAXADC; // saturation at 4095 for low gain x1 
   }
 
   CaloSamples noiseframe(detId, caloSamples.size());
@@ -124,7 +127,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
        double signal = ped + caloSamples[i] / LSB[igain];
 
        // see if it's close enough to the boundary that we have to throw noise
-       if(addNoise_ && (signal <= MAXADC+threeSigmaADCNoise[igain]) ) {
+       if(addNoise_ && (signal <= maxADC[igain]+threeSigmaADCNoise[igain]) ) {
          // width is the actual final noise, subtract the additional one from the trivial quantization
          double trueRMS = sqrt(widths[igain]*widths[igain]-1./12.);
          ///ped = RandGauss::shoot(ped, trueRMS);
@@ -137,7 +140,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
                              << " noise " << widths[igain] << " conversion factor " << LSB[igain] 
                              << " result (ped,tmpadc)= " << ped << " " << tmpadc;
          
-       if(tmpadc < ADCGAINSWITCH ) {
+       if(tmpadc <= maxADC[igain] ) {
          adc = tmpadc;
          break ;
        }

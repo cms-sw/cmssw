@@ -1,6 +1,6 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.11 2006/04/13 21:26:02 rpw Exp $
+# $Id: cmsconfig.py,v 1.13 2006/07/23 01:24:36 valya Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -195,6 +195,9 @@ class cmsconfig:
         string."""
         return self.psdata['paths'][name]
 
+    def schedule(self):
+        return self.psdata['schedule']
+
     def sequenceNames(self):
         return self.psdata['sequences'].keys()
 
@@ -215,6 +218,11 @@ class cmsconfig:
         """Return the description of the main input source, as a
         dictionary."""
         return self.psdata['main_input']
+
+    def looper(self):
+        """Return the description of the looper, as a
+        dictionary."""
+        return self.psdata['looper']
 
     def procName(self):
         """Return the process name, a string"""
@@ -264,6 +272,7 @@ class cmsconfig:
         # TODO: introduce, and deal with, top-level PSet objects and
         # top-level block objects.        
         self.__write_main_source(fileobj)
+        self.__write_looper(fileobj)
         self.__write_psets(fileobj)
         self.__write_es_sources(fileobj)        
         self.__write_es_modules(fileobj)
@@ -273,6 +282,7 @@ class cmsconfig:
         self.__write_sequences(fileobj)
         self.__write_paths(fileobj)
         self.__write_endpaths(fileobj)
+        self.__write_schedule(fileobj)
 
     def __write_psets(self, fileobj):
         """Private method.
@@ -363,6 +373,9 @@ class cmsconfig:
         for name in self.endpathNames():
             fileobj.write("endpath %s = {%s}\n" % (name, self.endpath(name)))
 
+    def __write_schedule(self, fileobj):
+        fileobj.write("schedule = {%s}\n" % self.schedule())
+
     def __write_main_source(self, fileobj):
         """Private method.
         Return None
@@ -371,6 +384,17 @@ class cmsconfig:
         mis = self.mainInputSource()  # this is a dictionary
         if mis:
         	fileobj.write('source = %s\n{\n' % mis['@classname'][2])
+        	self.__write_module_guts(mis, fileobj)
+        	fileobj.write('}\n')
+
+    def __write_looper(self, fileobj):
+        """Private method.
+        Return None
+        Write the looper block to the file-like object
+        fileobj."""
+        mis = self.looper()  # this is a dictionary
+        if mis:
+        	fileobj.write('looper = %s\n{\n' % mis['@classname'][2])
         	self.__write_module_guts(mis, fileobj)
         	fileobj.write('}\n')
 

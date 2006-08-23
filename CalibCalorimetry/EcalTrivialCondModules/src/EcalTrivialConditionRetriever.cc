@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.8 2006/06/28 18:00:37 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.9 2006/06/30 08:18:58 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -422,16 +422,16 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   if (!getWeightsFromFile_ && nTDCbins_ == 1)
     {
       std::vector<double> vampl;
-      //Weights from Alex Zabi default for MGPA simulated shape
-      vampl.push_back( -0.3809247 );
-      vampl.push_back( -0.3809247 );
-      vampl.push_back( -0.3809247 );
+      //As default using simple 3+1 weights
+      vampl.push_back( -0.33333 );
+      vampl.push_back( -0.33333 );
+      vampl.push_back( -0.33333 );
       vampl.push_back(  0. );
-      vampl.push_back(  0.2409792 );
-      vampl.push_back(  0.4223992 );
-      vampl.push_back(  0.3276517 );
-      vampl.push_back(  0.1554089 );
-      vampl.push_back(  -0.003664909 );
+      vampl.push_back(  0. );
+      vampl.push_back(  1. );
+      vampl.push_back(  0. );
+      vampl.push_back(  0. );
+      vampl.push_back(  0. );
       vampl.push_back(  0. );
       amplwgtv[0]= ps.getUntrackedParameter< std::vector<double> >("amplWeights", vampl);
     }
@@ -526,16 +526,16 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   if (!getWeightsFromFile_ && nTDCbins_ == 1)
     {
       std::vector<double> vped;
-      vped.push_back( 0.305629 );
-      vped.push_back( 0.305629 );
-      vped.push_back( 0.305629 );
-      vped.push_back( 0.000 );
-      vped.push_back( 0.01073112 );
-      vped.push_back( -0.07529566 );
-      vped.push_back( -0.03036774 );
-      vped.push_back( 0.05130732 );
-      vped.push_back( 0.1267378 );
-      vped.push_back( 0.000 );
+      vped.push_back( 0.33333 );
+      vped.push_back( 0.33333 );
+      vped.push_back( 0.33333 );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
       pedwgtv[0] = ps.getUntrackedParameter< std::vector<double> >("pedWeights", vped);
     }
   else if (getWeightsFromFile_)
@@ -628,15 +628,15 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   if (!getWeightsFromFile_  && nTDCbins_ == 1 )
     {
       std::vector<double> vjitt;
-      vjitt.push_back( 0.03640372 );
-      vjitt.push_back( 0.03640372 );
-      vjitt.push_back( 0.03640372 );
+      vjitt.push_back( 0.04066309 );
+      vjitt.push_back( 0.04066309 );
+      vjitt.push_back( 0.04066309 );
       vjitt.push_back( 0.000 );
-      vjitt.push_back( 1.101994 );
-      vjitt.push_back( -0.05459682 );
-      vjitt.push_back( -0.4206106 );
-      vjitt.push_back( -0.4135085 );
-      vjitt.push_back( -0.3224894 );
+      vjitt.push_back( 1.325176 );
+      vjitt.push_back( -0.04997078 );
+      vjitt.push_back( -0.504338 );
+      vjitt.push_back( -0.5024844 );
+      vjitt.push_back( -0.3903718 );
       vjitt.push_back( 0.000 );
       jittwgtv[0] = ps.getUntrackedParameter< std::vector<double> >("jittWeights", vjitt);
     }
@@ -728,7 +728,7 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
        chi2Matrix[0].resize(10);
        for (int i=0;i<10;i++)
 	 chi2Matrix[0][i].resize(10);
-       
+
        chi2Matrix[0][0][0] = 0.694371;
        chi2Matrix[0][0][1] = -0.305629;  
        chi2Matrix[0][0][2] = -0.305629;

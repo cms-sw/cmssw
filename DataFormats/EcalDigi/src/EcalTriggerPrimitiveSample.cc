@@ -6,7 +6,7 @@ EcalTriggerPrimitiveSample::EcalTriggerPrimitiveSample() : theSample(0) { }
 EcalTriggerPrimitiveSample::EcalTriggerPrimitiveSample(uint16_t data) : theSample(data) { }
 
 EcalTriggerPrimitiveSample::EcalTriggerPrimitiveSample(int encodedEt, bool fineGrain, int ttFlag) { 
-  theSample=((ttFlag&0x3)<<11)|(encodedEt&0xFF)|
+  theSample=((ttFlag&0x7)<<9)|(encodedEt&0xFF)|
     ((fineGrain)?(0x100):(0));
 }
 

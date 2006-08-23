@@ -8,17 +8,24 @@ bool TrackingRecHitLessFromGlobalPosition::insideOutLess(  const TrackingRecHit&
   
   DetId ida(a.geographicalId());
   DetId idb(b.geographicalId());
-  
+
+  if(ida==idb) return false;
+
   if( (ida.subdetId() == StripSubdetector::TIB || ida.subdetId() == StripSubdetector::TOB || ida.subdetId() == PixelSubdetector::PixelBarrel) &&
       (idb.subdetId() == StripSubdetector::TIB || idb.subdetId() == StripSubdetector::TOB || idb.subdetId() == PixelSubdetector::PixelBarrel)) {  // barrel with barrel
-    return  geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).perp()< geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).perp();
-
-
+    float diff = geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).perp() - geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).perp();
+    if (std::abs(diff)<1.0e-9) return false;
+    else return (diff < 0);    
+    //return  geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).perp()< geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).perp();
   }
   
   if( (ida.subdetId() == StripSubdetector::TEC || ida.subdetId() == StripSubdetector::TID || ida.subdetId() == PixelSubdetector::PixelEndcap) &&
       (idb.subdetId() == StripSubdetector::TEC || idb.subdetId() == StripSubdetector::TID || idb.subdetId() == PixelSubdetector::PixelEndcap)) {  // fwd with fwd
-    return std::abs( geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).z()) < std::abs( geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).z());
+    float diff = std::abs( geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).z()) - 
+                 std::abs( geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).z());
+    if (std::abs(diff)<1.0e-9) return false;
+    else return (diff < 0);
+    //return std::abs( geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).z()) < std::abs( geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).z());
   }
   
   //
@@ -45,6 +52,10 @@ bool TrackingRecHitLessFromGlobalPosition::barrelForwardLess(  const TrackingRec
   DetId idb(b.geographicalId());
   BoundPlane s =  geometry->idToDet(ida)->specificSurface();
   const Bounds * bb     = &(s.bounds());
-  
-  return  std::abs( geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).z())+ std::abs(bb->length()/2.) < std::abs( geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).z());
+
+  float diff = std::abs( geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).z())+ std::abs(bb->length()/2.) -
+    std::abs( geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).z());
+  if (std::abs(diff)<1.0e-9) return false;
+  else return (diff < 0);
+  //return  std::abs( geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).z())+ std::abs(bb->length()/2.) < std::abs( geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).z());
 }

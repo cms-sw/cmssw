@@ -11,8 +11,9 @@ namespace edm {
       VPSets hold: ParameterSet nodes or ParameterSet names/IDs stored in Entries
     */
 
-    struct VPSetNode : public CompositeNode
+    class VPSetNode : public CompositeNode
     {
+    public:
       VPSetNode(const std::string& typ,
                 const std::string& name,
                 NodePtrListPtr value,
@@ -20,6 +21,7 @@ namespace edm {
                 int line=-1);
       virtual Node * clone() const { return new VPSetNode(*this);}
       virtual std::string type() const;
+      bool isTracked() const {return tracked_;}
       virtual void print(std::ostream& ost, PrintOptions options) const;
 
       virtual void accept(Visitor& v) const;
@@ -36,7 +38,9 @@ namespace edm {
       virtual void insertInto(edm::ParameterSet & pset) const;
       /// makes a ParameterSet Entry for this Node
       virtual edm::Entry makeEntry() const;
+      virtual void replaceWith(const ReplaceNode * replaceNode);
 
+    private:
       std::string type_;
       bool tracked_;
     };

@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/06/25 15:34:09 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/10 12:30:06 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -33,8 +33,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) {
 
   cout<<"[DTDataIntegrityTask]: Constructor"<<endl;
 
-  neventsDDU = 0;
-  neventsROS25 = 0;
+  nevents = 0;
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
 
@@ -51,7 +50,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) {
 
 DTDataIntegrityTask::~DTDataIntegrityTask() {
  
-  cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsROS25 <<" events"<<endl;
+  cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< nevents <<" events"<<endl;
   sleep(10);
   
   if ( outputFile.size() != 0 ) dbe->save(outputFile);
@@ -80,11 +79,6 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   // DDU Histograms
   if ( folder == "DDU" ) {
     dbe->setCurrentFolder("DT/FED" + dduID_s.str());
-
-    histoType = "DDUChannelStatus";
-    histoName = "FED" + dduID_s.str() + "_DDUChannel" + rosID_s.str() + "_DDUChannelStatus";
-    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,8,0,8);
-
   }
 
   // ROS Histograms
@@ -95,7 +89,6 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoType = "ROSTrailerBits";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSTrailerBits";
     (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,128,0,128);
- 
 
     histoType = "ROSError";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSError";
@@ -132,7 +125,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoType = "TimeBox";
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB" + robID_s.str()+"_TimeBox";
 
-    // used only if they have been set (controlled by the switch during filling)
+    // used only if they have been set (controlled by the switch during fillin)
     stringstream tdcID_s; tdcID_s << code.getTDC();
     stringstream chID_s; chID_s << code.getChannel();
 
@@ -167,44 +160,15 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     
   }
   
-
-  if ( folder == "TDCError") {
-    
-    dbe->setCurrentFolder("DT/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
-
-    histoType = "TDCError";
-    histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_TDCError";
-    (robHistos[histoType])[code.getROBID()] = dbe->book2D(histoName,histoName,3000,0,3000,4,0,4);
-
-  }
-
-
-  // SC Histograms
-  if ( folder == "SC" ) {
-    // Same numbering for SC as for ROS
-    dbe->setCurrentFolder("DT/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
-
-    // the SC histos belong to the ROS map (pay attention) since the data come from the corresponding ROS
-
-    histoType = "SCTriggerBX";
-    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_SCTriggerBX";
-    (rosHistos[histoType])[code.getSCID()] = dbe->book2D(histoName,histoName,128,0,128,5,0,5);
-
-    histoType = "SCTriggerQuality";
-    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_SCTriggerQuality";
-    (rosHistos[histoType])[code.getSCID()] = dbe->book2D(histoName,histoName,5,0,5,7,0,7);
-
-  }
-
 }
 
 
 
 void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   
-  neventsROS25++;
-  if (neventsROS25%1000 == 0) 
-    cout<<"[DTDataIntegrityTask]: "<<neventsROS25<<" events analyzed by processROS25"<<endl;
+  nevents++;
+  if (nevents%1000 == 0) 
+    cout<<"[DTDataIntegrityTask]: "<<nevents<<" events analyzed"<<endl;
   
   DTROChainCoding code;
   code.setDDU(ddu);
@@ -214,30 +178,18 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
   /// ROS Data
   histoType = "ROSTrailerBits";
-
-  // relic
   int datum = 
     data.getROSTrailer().TFF() << (23-16) | 
     data.getROSTrailer().TPX() << (22-16) |
     data.getROSTrailer().ECHO() << (20-16) |
     data.getROSTrailer().ECLO() << (18-16) |
     data.getROSTrailer().BCO()<< (16-16);
-
-  /// FIXME: EC* data are not correctly treated. One histo each is needed
   if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) {
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,data.getROSTrailer().TFF());
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(2,data.getROSTrailer().TPX());
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().ECHO());
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().ECLO());
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().BCO());
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(datum);
   }
   else {
     bookHistos( string("ROS"), code);
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,data.getROSTrailer().TFF());
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(2,data.getROSTrailer().TPX());
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().ECHO());
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().ECLO());
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().BCO());
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(datum);
   }
   
   histoType = "ROSError";
@@ -331,131 +283,8 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     }
   }
 
-
-  /// TDC Error  
-  for (vector<DTTDCError>::const_iterator tdc_it = data.getTDCError().begin();
-       tdc_it != data.getTDCError().end(); tdc_it++) {
-
-    code.setROB((*tdc_it).first);
-
-    histoType = "TDCError";
-    if (robHistos[histoType].find(code.getROBID()) != robHistos[histoType].end()) {
-      (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(((*tdc_it).second).tdcError(), 
-									      ((*tdc_it).second).tdcID());
-    }
-    else {
-      bookHistos( string("TDCError"), code);
-      (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(((*tdc_it).second).tdcError(), 
-									      ((*tdc_it).second).tdcID());
-    }
-
-  }
-
-  /// SC Data
-  for (vector<DTSectorCollectorData>::const_iterator sc_it = data.getSCData().begin();
-       sc_it != data.getSCData().end(); sc_it++) {
-
-    // MB1 and MB2 stay in even numbered 32 bit words; MB3 and MB4 in odd
-    int stationGroup = ((*sc_it).second)%2;
-    
-    // SC Data words are devided into 2 parts each of 8 bits:
-    //  LSB refers to MB1 and MB3
-    //  MSB refers to MB2 and MB4
-
-    // fill only the information regarding SC words with trigger
-    bool hasTrigger_LSB = ((*sc_it).first).hasTrigger(0);
-    bool hasTrigger_MSB = ((*sc_it).first).hasTrigger(1);
-
-    // the quality
-    int quality_LSB = ((*sc_it).first).trackQuality(0);
-    int quality_MSB = ((*sc_it).first).trackQuality(1);
-
-    
-    if (hasTrigger_LSB) {
-
-      histoType = "SCTriggerBX";
-      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
-      else {									       
-	bookHistos( string("SC"), code);
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
-      }										       
-
-      histoType = "SCTriggerQuality";						       
-      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
-      else {									       
-	bookHistos( string("SC"), code);						       
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
-      }
-    }
-    
-    if (hasTrigger_MSB) {
-
-      histoType = "SCTriggerBX";
-      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
-      else {									       
-	bookHistos( string("SC"), code);	
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
-      }										       
-      
-      histoType = "SCTriggerQuality";						       
-      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
-      else {									       
-	bookHistos( string("SC"), code);						       
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
-      }
-    }
- 
-  }
-  
-  
 }
 
 void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
-
-  neventsDDU++;
-  if (neventsDDU%1000 == 0) 
-    cout<<"[DTDataIntegrityTask]: "<<neventsDDU<<" events analyzed by processFED"<<endl;
-
-  DTROChainCoding code;
-  code.setDDU(ddu);
-
-  string histoType;
-
-  int dduChannel=0;
-  for (vector<DTDDUFirstStatusWord>::const_iterator fsw_it = data.getFirstStatusWord().begin();
-       fsw_it != data.getFirstStatusWord().end(); fsw_it++) {
-    
-    // assuming association one-to-one between DDU channel and ROS
-    dduChannel++;
-    code.setROS(dduChannel);
-
-    histoType = "DDUChannelStatus";    
-    if (dduHistos[histoType].find(code.getROSID()) != dduHistos[histoType].end()) {
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,(*fsw_it).channelEnabled());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(2,(*fsw_it).timeout());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,(*fsw_it).eventTrailerLost());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(4,(*fsw_it).opticalFiberSignalLost());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(5,(*fsw_it).tlkPropagationError());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(6,(*fsw_it).tlkPatternError());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*fsw_it).tlkSignalLost());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,(*fsw_it).errorFromROS());
-    }
-    else {
-      bookHistos( string("DDU"), code);
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,(*fsw_it).channelEnabled());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(2,(*fsw_it).timeout());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,(*fsw_it).eventTrailerLost());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(4,(*fsw_it).opticalFiberSignalLost());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(5,(*fsw_it).tlkPropagationError());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(6,(*fsw_it).tlkPatternError());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*fsw_it).tlkSignalLost());
-      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,(*fsw_it).errorFromROS());
-    }
-    
-  }
 
 }

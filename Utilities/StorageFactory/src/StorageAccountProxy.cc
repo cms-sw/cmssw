@@ -22,8 +22,8 @@ StorageAccountProxy::StorageAccountProxy (const std::string &storageClass,
       m_statsWrite (StorageAccount::counter (m_storageClass, "write")),
       m_statsPosition (StorageAccount::counter (m_storageClass, "position"))
 {
-    StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, "construct"));
-    stats.tick ();
+  //  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, "construct"));
+  //  stats.tick ();
 }
 
 StorageAccountProxy::~StorageAccountProxy (void)

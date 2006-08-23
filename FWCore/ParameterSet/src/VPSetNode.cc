@@ -30,7 +30,7 @@ namespace edm {
     {
       assert(nodes()!=0);
 
-      ost << type() << " " << name << " = {\n";
+      ost << type() << " " << name() << " = {\n";
       if(!nodes()->empty())
         {
           //copy(value_->begin(),value_->end(),
@@ -59,7 +59,7 @@ namespace edm {
         if((**nodeItr).type() == "string")
         {
           // find the block
-          string blockName = (**nodeItr).name;
+          string blockName = (**nodeItr).name();
           NodeMap::const_iterator blockPtrItr = blocks.find(blockName);
           if(blockPtrItr == blocks.end()) {
              throw edm::Exception(errors::Configuration,"")
@@ -90,7 +90,7 @@ namespace edm {
       /// which aren't top-level processes should overload this.
     void VPSetNode::insertInto(edm::ParameterSet & pset) const 
     {
-      pset.insert(false, name, makeEntry());
+      pset.insert(false, name(), makeEntry());
     }
 
       /// makes a ParameterSet Entry for this Node
@@ -107,9 +107,20 @@ namespace edm {
         sets.push_back(*pset);
       }
       
-      return Entry(sets, !tracked_); 
+      return Entry(name(), sets, !tracked_); 
     }
 
+
+    void VPSetNode::replaceWith(const ReplaceNode * replaceNode)
+    {
+      assertNotModified();
+      VPSetNode * replacement = replaceNode->value<VPSetNode>();
+      assert(replacement != 0);
+
+      nodes_ = replacement->nodes_;
+      setModified(true);
+
+    }
 
   }
 }

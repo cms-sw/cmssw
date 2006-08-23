@@ -5,7 +5,6 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtMethods.h>
-#include <FWCore/ParameterSet/interface/FileInPath.h>
 
 class CSCTFPtLUT
 {
@@ -34,8 +33,7 @@ class CSCTFPtLUT
   static L1MuTriggerScales trigger_scale;
   static CSCTFPtMethods ptMethods;
   
-  bool read_pt_lut, isBinary;
-  edm::FileInPath pt_lut_file;
+  bool read_pt_lut;
   unsigned pt_method, lowQualityFlag;
   
 

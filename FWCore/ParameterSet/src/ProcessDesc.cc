@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.1 2006/05/29 18:49:14 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.6 2006/08/15 22:34:36 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.1 2006/05/29 18:49:14 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.6 2006/08/15 22:34:36 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
@@ -57,6 +57,7 @@ namespace edm
 
     writeBookkeeping("@all_modules");
     writeBookkeeping("@all_sources");
+    writeBookkeeping("@all_loopers");
     writeBookkeeping("@all_esmodules");
     writeBookkeeping("@all_essources");
     writeBookkeeping("@all_esprefers");
@@ -72,31 +73,30 @@ namespace edm
 	++pathIt){
      
       if ((*pathIt)->type()=="sequence") {
-	sequences[(*pathIt)->name]= (*pathIt);
+	sequences[(*pathIt)->name()]= (*pathIt);
       }
      
       if ((*pathIt)->type()=="path") {
-	sequenceSubstitution((*pathIt)->wrapped_, sequences);
+        //FIXME order-dependent
+	sequenceSubstitution((*pathIt)->wrapped(), sequences);
 	fillPath((*pathIt),triggerpaths);
       }
 
+
       if ((*pathIt)->type()=="endpath") {
-	//cout << "got endpath = " << (*pathIt)->name << endl;
-	//cout << "pointer = " << typeid(*(*pathIt)->wrapped_.get()).name << endl;
-	sequenceSubstitution((*pathIt)->wrapped_, sequences);
+	sequenceSubstitution((*pathIt)->wrapped(), sequences);
 	fillPath((*pathIt),endpaths);
       }
      
      
     } // loop on path fragments
-    
-    Strs pathnames(triggerpaths);
-    pathnames.insert(pathnames.end(),endpaths.begin(),endpaths.end());
+
+    Strs schedule(findSchedule(triggerpaths, endpaths));
 
     if(1 <= edm::debugit())
       {
-	std::cerr << "\npathnames=\n  ";
-	std::copy(pathnames.begin(),pathnames.end(),
+	std::cerr << "\nschedule=\n  ";
+	std::copy(schedule.begin(),schedule.end(),
 		  std::ostream_iterator<std::string>(std::cerr,","));
 	std::cerr << "\ntriggernames=\n  ";
 	std::copy(triggerpaths.begin(),triggerpaths.end(),
@@ -108,17 +108,15 @@ namespace edm
       }
 
     ParameterSet paths_trig;
-    paths_trig.insert(true,"@paths",Entry(triggerpaths,true));
-    paths_trig.insert(true,"@end_paths",Entry(endpaths,true));
+    paths_trig.addParameter("@paths",triggerpaths);
+    paths_trig.addParameter("@end_paths",endpaths);
 
-    pset_->insert(true,"@trigger_paths",Entry(paths_trig,false));
-    pset_->insert(true,"@paths",Entry(pathnames,true));
+    pset_->addUntrackedParameter("@trigger_paths",paths_trig);
+    pset_->addParameter("@paths",schedule);
    
     validator_= 
       new ScheduleValidator(pathFragments_,*pset_); 
-   
     validator_->validate();
-//std::cout << *pset_ << std::endl; 
   }
 
 
@@ -129,18 +127,18 @@ namespace edm
 
   void ProcessDesc::writeBookkeeping(const std::string & name)
   {
-    pset_->insert(true, name, Entry(bookkeeping_[name], true));
+    pset_->addParameter(name, bookkeeping_[name]);
   }
  
 
   void 
-  ProcessDesc::getNames(const edm::pset::Node* n, Strs& out){
+  ProcessDesc::getNames(const edm::pset::Node* n, Strs& out) const {
     if(n->type()=="operand"){ 
-      out.push_back(n->name);
+      out.push_back(n->name());
     } else {	
       const edm::pset::OperatorNode& op = dynamic_cast<const edm::pset::OperatorNode&>(*n);
-      getNames(op.left_.get(),out);
-      getNames(op.right_.get(),out);
+      getNames(op.left().get(),out);
+      getNames(op.right().get(),out);
     }
   } // getNames
 
@@ -149,9 +147,9 @@ namespace edm
   {
   
     Strs names;
-    getNames(n->wrapped_.get(),names);    
-    pset_->insert(true,n->name,Entry(names,true));
-    paths.push_back(n->name); // add to the list of paths
+    getNames(n->wrapped().get(),names);    
+    pset_->addParameter(n->name(),names);
+    paths.push_back(n->name()); // add to the list of paths
   
   } // fillPath(..) 
 
@@ -161,27 +159,28 @@ namespace edm
 						SeqMap&  sequences){
   
     if (node->type()=="operand"){
-      SeqMap::iterator seqIt = sequences.find(node->name); 
+      SeqMap::iterator seqIt = sequences.find(node->name()); 
       if (seqIt!= sequences.end()){
-	node = seqIt->second->wrapped_;
+        node = seqIt->second->wrapped();
+        sequenceSubstitution(node, sequences);
       }
     } // if operator
     else {
       edm::pset::OperatorNode* onode = dynamic_cast<edm::pset::OperatorNode*>(node.get());
     
     
-      SeqMap::iterator seqIt = sequences.find(onode->left_->name); 
+      SeqMap::iterator seqIt = sequences.find(onode->left()->name()); 
       if (seqIt!= sequences.end()) {
-	onode->left_= seqIt->second->wrapped_;
-	onode->left_->setParent(onode);
+        onode->left()= seqIt->second->wrapped();
+        onode->left()->setParent(onode);
       }
-      seqIt = sequences.find(onode->right_->name); 
+      seqIt = sequences.find(onode->right()->name()); 
       if (seqIt!= sequences.end()){
-	onode->right_= seqIt->second->wrapped_; 
-	onode->right_->setParent(onode);
+        onode->right()= seqIt->second->wrapped(); 
+        onode->right()->setParent(onode);
       }
-      sequenceSubstitution(onode->left_, sequences);
-      sequenceSubstitution(onode->right_,sequences);
+      sequenceSubstitution(onode->left(), sequences);
+      sequenceSubstitution(onode->right(),sequences);
     
     }// else (operand)
   
@@ -190,15 +189,15 @@ namespace edm
 
   void ProcessDesc::dumpTree(NodePtr& node){
     if(node->type()=="operand"){ 
-      cout << " Operand " << node->name<< " p:";
-      if (node->getParent()) cout <<  node->getParent()->name;cout<< endl;
+      cout << " Operand " << node->name()<< " p:";
+      if (node->getParent()) cout <<  node->getParent()->name();cout<< endl;
     } else{	
       edm::pset::OperatorNode* op = dynamic_cast<edm::pset::OperatorNode*>(node.get());
-      cout << " Operator: " << op->name<<"["<<op->type()<<"]" 
-	   << " l:" << op->left_ << " r:"<<op->right_<< " p:";
-      if (op->parent_)cout<<  op->parent_->name;cout<< endl;
-      dumpTree(op->left_);
-      dumpTree(op->right_);
+      cout << " Operator: " << op->name()<<"["<<op->type()<<"]" 
+	   << " l:" << op->left() << " r:"<<op->right()<< " p:";
+      if (op->getParent())cout<<  op->getParent()->name() << endl;
+      dumpTree(op->left());
+      dumpTree(op->right());
     }
   } // dumpTree
 
@@ -218,4 +217,55 @@ namespace edm
   ProcessDesc::getServicesPSets() const{
     return services_;
   }
+
+  ProcessDesc::Strs ProcessDesc::findSchedule(const ProcessDesc::Strs & triggerPaths,
+                                              const ProcessDesc::Strs & endPaths) const
+  {
+    Strs result;
+    bool found = false;
+    ProcessDesc::PathContainer::const_iterator pathIt;
+
+    for(pathIt= pathFragments_.begin();
+        pathIt!=pathFragments_.end(); ++pathIt)
+    {
+
+      if ((*pathIt)->type()=="schedule") 
+      {
+        // no duplicates
+        if(found)
+        {
+          std::ostringstream trace;
+          (*pathIt)->printTrace(trace);
+          throw edm::Exception(errors::Configuration,"duplicate schedule")
+             << "Second schedule statement found at " << trace.str();
+        }
+        else 
+        {
+          found = true;
+          getNames((*pathIt)->wrapped().get(), result);
+        }
+      }
+    }
+
+    if(!found)
+    {
+        // only take defaults if there's only one path and at most one endpath
+//        if(triggerPaths.size() > 1 || endPaths.size() > triggerPaths.size())
+//        {
+//          throw edm::Exception(errors::Configuration,"No schedule")
+//             << "More than one path found, so a schedule statement is needed.";
+//        }
+///        else 
+//        {
+          // just take defaults
+          result = triggerPaths;
+          result.insert(result.end(), endPaths.begin(), endPaths.end());
+//        }
+    }
+    return result;
+  }
+
+
+
+
 } // namespace edm

@@ -12,12 +12,11 @@
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "TH1F.h"
 #include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 /** \class Hcaldataformatmonitor
   *  
-  * $Date: 2006/04/18 19:25:00 $
-  * $Revision: 1.5 $
+  * $Date: 2006/02/02 16:32:12 $
+  * $Revision: 1.3 $
   * \author W. Fisher - FNAL
   */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -26,23 +25,18 @@ public:
   ~HcalDataFormatMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
-  void processEvent(const FEDRawDataCollection& rawraw, const HcalElectronicsMap& emap);
-  void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
+  void processEvent(const FEDRawDataCollection& rawraw);
+  void unpack(const FEDRawData& raw);
 
 private: /// Data accessors
-  vector<int> fedUnpackList_;
-  int firstFED_;
-  int ievt_;
+  vector<int> m_fedUnpackList;
+  int m_firstFED;
 
 private:  ///Monitoring elements
 
-  MonitorElement* meEVT_;
-
-  struct{
-    MonitorElement* ERR_MAP;
-    MonitorElement* DCC_ERRWD;
-  } hbHists, hfHists,hoHists;
-
+  MonitorElement* m_ERR_MAP;
+  MonitorElement* m_DCC_ERRWD;
+  
 };
 
 #endif

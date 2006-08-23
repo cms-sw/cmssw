@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.19 2006/06/15 23:13:01 rpw Exp $
+ * $Id: pset_lex.l,v 1.23 2006/08/04 19:25:20 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -54,6 +54,7 @@ comment2        "//".*[\n]?
 
 %x DQ
 %x SQ
+%x CMNT
 
 %%
 
@@ -73,10 +74,12 @@ comment2        "//".*[\n]?
 
 "process"       { return PROCESS_tok; }
 "source"        { return SOURCE_tok; }
+"looper"        { return LOOPER_tok; }
 "secsource"     { return SECSOURCE_tok; }
 "es_source"     { return ES_SOURCE_tok; }
 "path"          { return PATH_tok; }
 "sequence"      { return SEQUENCE_tok; }
+"schedule"      { return SCHEDULE_tok; }
 "block"         { return BLOCK_tok; }
 "endpath"       { return ENDPATH_tok; }
 "using"         { return USING_tok; }
@@ -92,6 +95,7 @@ comment2        "//".*[\n]?
 "es_prefer"     { return ES_PREFER_tok; }
 "mixer"         { return MIXER_tok; }
 "mixer_path"    { return MIXERPATH_tok; }
+"/*"            { BEGIN CMNT; break;}
 
 \&              { return AND_tok; }
 \(		{ return GROUP_START_tok; }
@@ -108,6 +112,7 @@ comment2        "//".*[\n]?
 \'\'		{ yylval.str = stringDupQuoted("",'\''); return SQWORD_tok; }
 \"		{ BEGIN DQ; break;}
 \'		{ BEGIN SQ; break;}
+\+=              { return PLUSEQUAL_tok; }
 =		{ return EQUAL_tok; }
 ,               { return COMMA_tok; }
 \{		{ return SCOPE_START_tok; }
@@ -124,6 +129,10 @@ comment2        "//".*[\n]?
 <SQ>((\\\')*[^\'\n]*(\\\')*)+ { yylval.str = stringDupQuoted(yytext,'\''); return SQWORD_tok; }
 <SQ>\'		{ BEGIN 0; break; }
 <SQ>\n          { BEGIN 0; return ERROR_tok;}
+
+<CMNT>. |
+<CMNT>\n        { break; }
+<CMNT>"*/"	{ BEGIN 0; break; }
 
 
 %%
@@ -202,6 +211,7 @@ namespace edm {
        // Do the parsing; this sets global_gunk. Immediately grab
        // ownership of the created structure.
        pset_parse();
+
        ParseResults ps(global_gunk);
 
        yy_delete_buffer(buf);

@@ -6,7 +6,7 @@
  *  The time box rising edge can be fitted using exactly the same code that is
  *  used by the calibration application.
  *
- *  $Date: 2006/03/13 12:17:38 $
+ *  $Date: 2005/12/13 11:06:41 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -51,8 +51,6 @@ public:
   /// Print all canvases in a pdf file.
   void printPDF();
 
-  /// Set the verbosity of the output: 0 = silent, 1 = info, 2 = debug
-  void setVerbosity(unsigned int lvl);
 
 protected:
 
@@ -79,6 +77,5 @@ private:
 
   DTTimeBoxFitter *theFitter;
   TFile *theFile;
-  unsigned int theVerbosityLevel;
 };
 #endif

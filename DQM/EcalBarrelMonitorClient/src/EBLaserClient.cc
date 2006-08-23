@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/07/03 14:15:04 $
- * $Revision: 1.82 $
+ * $Date: 2006/06/21 17:38:48 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
 */
@@ -38,16 +38,15 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBLaserClient::EBLaserClient(const ParameterSet& ps){
+EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
+
+  mui_ = mui;
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -125,14 +124,44 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
     meaopn03_[ism-1] = 0;
     meaopn04_[ism-1] = 0;
 
-    qth01_[ism-1] = 0;
-    qth02_[ism-1] = 0;
-    qth03_[ism-1] = 0;
-    qth04_[ism-1] = 0;
-
   }
 
   percentVariation_ = 0.4;
+
+  Char_t qtname[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(qtname, "EBLT laser quality SM%02d L1", ism);
+    qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBLT laser quality SM%02d L2", ism);
+    qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBLT laser quality SM%02d L3", ism);
+    qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBLT laser quality SM%02d L4", ism);
+    qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    qth01_[ism-1]->setMeanRange(100., 4096.);
+    qth02_[ism-1]->setMeanRange(100., 4096.);
+    qth02_[ism-1]->setMeanRange(100., 4096.);
+    qth03_[ism-1]->setMeanRange(100., 4096.);
+
+    qth01_[ism-1]->setMinimumEntries(10*1700);
+    qth02_[ism-1]->setMinimumEntries(10*1700);
+    qth03_[ism-1]->setMinimumEntries(10*1700);
+    qth04_[ism-1]->setMinimumEntries(10*1700);
+
+    qth01_[ism-1]->setErrorProb(1.00);
+    qth02_[ism-1]->setErrorProb(1.00);
+    qth03_[ism-1]->setErrorProb(1.00);
+    qth04_[ism-1]->setErrorProb(1.00);
+
+  }
 
 }
 
@@ -140,53 +169,12 @@ EBLaserClient::~EBLaserClient(){
 
 }
 
-void EBLaserClient::beginJob(MonitorUserInterface* mui){
-
-  mui_ = mui;
+void EBLaserClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBLaserClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EBLT laser quality SM%02d L1", ism);
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser quality SM%02d L2", ism);
-      qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser quality SM%02d L3", ism);
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBLT laser quality SM%02d L4", ism);
-      qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      qth01_[ism-1]->setMeanRange(100., 4096.);
-      qth02_[ism-1]->setMeanRange(100., 4096.);
-      qth02_[ism-1]->setMeanRange(100., 4096.);
-      qth03_[ism-1]->setMeanRange(100., 4096.);
-
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-      qth02_[ism-1]->setMinimumEntries(10*1700);
-      qth03_[ism-1]->setMinimumEntries(10*1700);
-      qth04_[ism-1]->setMinimumEntries(10*1700);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-      qth02_[ism-1]->setErrorProb(1.00);
-      qth03_[ism-1]->setErrorProb(1.00);
-      qth04_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -224,7 +212,7 @@ void EBLaserClient::endRun(void) {
 
 void EBLaserClient::setup(void) {
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   mui_->setCurrentFolder( "EcalBarrel/EBLaserClient" );
   
@@ -1161,7 +1149,7 @@ void EBLaserClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBLaserClient: subscribe" << endl;
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1386,32 +1374,32 @@ void EBLaserClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
-      if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+      mui_->useQTest(histo, qth01_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
-      if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+      mui_->useQTest(histo, qth02_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
-      if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+      mui_->useQTest(histo, qth03_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
-      if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+      mui_->useQTest(histo, qth04_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        mui_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+        mui_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+        mui_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
-        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+        mui_->useQTest(histo, qth04_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        mui_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+        mui_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+        mui_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
-        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+        mui_->useQTest(histo, qth04_[ism-1]->getName());
       }
     }
 
@@ -1421,7 +1409,7 @@ void EBLaserClient::subscribe(void){
 
 void EBLaserClient::subscribeNew(void){
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1542,7 +1530,7 @@ void EBLaserClient::unsubscribe(void){
 
   }
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1619,7 +1607,7 @@ void EBLaserClient::analyze(void){
     if ( verbose_ ) cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  Char_t histo[150];
 
   MonitorElement* me;
 

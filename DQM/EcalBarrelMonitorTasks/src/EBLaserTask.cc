@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/07/05 13:14:33 $
- * $Revision: 1.52 $
+ * $Date: 2006/06/17 13:46:21 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -58,23 +58,13 @@ void EBLaserTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBLaserTask");
-    dbe->rmdir("EcalBarrel/EBLaserTask");
-  }
-
 }
 
 void EBLaserTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  Char_t histo[20];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -343,8 +333,6 @@ void EBLaserTask::cleanup(void){
     }
 
   }
-
-  init_ = false;
 
 }
 

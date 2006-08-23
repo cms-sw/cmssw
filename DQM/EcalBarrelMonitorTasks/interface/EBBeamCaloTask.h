@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2006/06/27 08:40:58 $
- * $Revision: 1.8 $
+ * $Date: 2006/06/22 18:43:27 $
+ * $Revision: 1.7 $
  * \author A. Ghezzi
  *
 */
@@ -112,8 +112,6 @@ MonitorElement* meEBBCaloReadCryErrors_;
 MonitorElement* meEBBCaloE1vsCry_;
 
 MonitorElement* meEBBCaloE3x3vsCry_;
-
-MonitorElement* meEBBCaloEntriesVsCry_;
 
 MonitorElement* meEBBCaloBeamCentered_;
 

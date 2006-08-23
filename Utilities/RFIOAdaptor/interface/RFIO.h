@@ -3,6 +3,13 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
+/*
+#include <shift.h>
+# define RFIO_READOPT 1
+inline int   rfio_close64(int s) { return  rfio_close(s);}
+*/
+
+
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -13,17 +20,25 @@
 //<<<<<< PUBLIC VARIABLES                                               >>>>>>
 //<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
 
+
+
 extern "C" {
-    int   rfio_open(const char *filepath, int flags, int mode);
+    int   rfio_open64_v3(const char *filepath, int flags, int mode);
+  //    int   rfio_close64_v3(int s);
+  //  int   rfio_read64_v3(int s, void *ptr, int size);
+  //  int   rfio_write64_v3(int s, const void *ptr, int size);
+
+    int   rfio_open64(const char *filepath, int flags, int mode);
     int   rfio_close(int s);
-    int   rfio_read(int s, void *ptr, int size);
-    int   rfio_write(int s, const void *ptr, int size);
-    int   rfio_lseek(int s, int offset, int how);
+    int   rfio_close64(int s) { return  rfio_close(s);}
+    int   rfio_read64(int s, void *ptr, int size);
+    int   rfio_write64(int s, const void *ptr, int size);
+    int   rfio_lseek64(int s, off64_t  offset, int how);
     int   rfio_access(const char *filepath, int mode);
     int   rfio_unlink(const char *filepath);
     int   rfio_parse(const char *name, char **host, char **path);
-    int   rfio_stat(const char *path, struct stat *statbuf);
-    int   rfio_fstat(int s, struct stat *statbuf);
+    int   rfio_stat64(const char *path, struct stat64 *statbuf);
+    int   rfio_fstat64(int s, struct stat64 *statbuf);
     void  rfio_perror(const char *msg);
     char *rfio_serror();
     int   rfiosetopt(int opt, int *pval, int len);
