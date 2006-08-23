@@ -1,0 +1,32 @@
+<use name=boost>
+<use name=DataFormats/CaloTowers>
+<use name=DataFormats/HcalRecHit>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/DetId>
+<use name=DataFormats/RecoCandidate>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
+<use name=clhep>
+<use name=root>
+<flags SEAL_PLUGIN_NAME="CalibrationHcalAlCaRecoProducers">
+<export>
+   <lib name=CalibrationHcalAlCaRecoProducers>
+   <use name=DataFormats/DetId>
+   <use name=DataFormats/HcalDigi>
+   <use name=DataFormats/HcalRecHit>
+   <use name=DataFormats/EcalDetId>
+   <use name=DataFormats/CaloTowers>
+   <use name=DataFormats/RecoCandidate>
+   <use name=Geometry/CaloTopology>
+   <use name=Geometry/CaloGeometry>
+   <use name=Geometry/CaloEventSetup>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=boost>
+   <use name=root>
+   <use name=clhep>
+</export>
