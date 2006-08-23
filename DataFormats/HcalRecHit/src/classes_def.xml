@@ -25,4 +25,22 @@
    <class name="edm::Wrapper<edm::SortedCollection<HcalCalibRecHit,edm::StrictWeakOrdering<HcalCalibRecHit> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveRecHit,edm::StrictWeakOrdering<HcalTriggerPrimitiveRecHit> > >"/>
    <class name="edm::Wrapper<HcalSourcePositionData>"/>
+   <class name="edm::Ref<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >, HBHERecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >, HBHERecHit> >"/>
+   <class name="edm::Ref<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >, HORecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >, HORecHit> >"/>
+   <class name="edm::Ref<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >, HFRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >, HFRecHit> >"/>
+   <class name="edm::Ref<edm::SortedCollection<ZDCRecHit,edm::StrictWeakOrdering<ZDCRecHit> >, ZDCRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<ZDCRecHit,edm::StrictWeakOrdering<ZDCRecHit> >, ZDCRecHit> >"/>
+   <class name="edm::Ref<edm::SortedCollection<HcalCalibRecHit,edm::StrictWeakOrdering<HcalCalibRecHit> >, HcalCalibRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HcalCalibRecHit,edm::StrictWeakOrdering<HcalCalibRecHit> >, HcalCalibRecHit> >"/>
+   <class name="edm::Ref<edm::SortedCollection<HcalTriggerPrimitiveRecHit,edm::StrictWeakOrdering<HcalTriggerPrimitiveRecHit> >, HcalTriggerPrimitiveRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HcalTriggerPrimitiveRecHit,edm::StrictWeakOrdering<HcalTriggerPrimitiveRecHit> >, HcalTriggerPrimitiveRecHit> >"/>
+   <class name="edm::RefProd<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> > >"/>
+   <class name="edm::RefProd<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> > >"/>
+   <class name="edm::RefProd<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> > >"/>
+   <class name="edm::RefProd<edm::SortedCollection<ZDCRecHit,edm::StrictWeakOrdering<ZDCRecHit> > >"/>
+   <class name="edm::RefProd<edm::SortedCollection<HcalCalibRecHit,edm::StrictWeakOrdering<HcalCalibRecHit> > >"/>
+   <class name="edm::RefProd<edm::SortedCollection<HcalTriggerPrimitiveRecHit,edm::StrictWeakOrdering<HcalTriggerPrimitiveRecHit> > >"/>
+   <class name="edm::RefVector<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >, HBHERecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >, HBHERecHit> >"/>
+   <class name="edm::RefVector<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >, HORecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >, HORecHit> >"/>
+   <class name="edm::RefVector<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >, HFRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >, HFRecHit> >"/>
+   <class name="edm::RefVector<edm::SortedCollection<ZDCRecHit,edm::StrictWeakOrdering<ZDCRecHit> >, ZDCRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<ZDCRecHit,edm::StrictWeakOrdering<ZDCRecHit> >, ZDCRecHit> >"/>
+   <class name="edm::RefVector<edm::SortedCollection<HcalCalibRecHit,edm::StrictWeakOrdering<HcalCalibRecHit> >, HcalCalibRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HcalCalibRecHit,edm::StrictWeakOrdering<HcalCalibRecHit> >, HcalCalibRecHit> >"/>
+   <class name="edm::RefVector<edm::SortedCollection<HcalTriggerPrimitiveRecHit,edm::StrictWeakOrdering<HcalTriggerPrimitiveRecHit> >, HcalTriggerPrimitiveRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HcalTriggerPrimitiveRecHit,edm::StrictWeakOrdering<HcalTriggerPrimitiveRecHit> >, HcalTriggerPrimitiveRecHit> >"/>
 </lcgdict>
