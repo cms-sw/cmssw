@@ -109,6 +109,7 @@ namespace edm
       modules_.insert(make_pair(string("sequence"),emptylist));
       modules_.insert(make_pair(string("path"),emptylist));
       modules_.insert(make_pair(string("endpath"),emptylist));
+      modules_.insert(make_pair(string("schedule"), emptylist));
       modules_.insert(make_pair(string("service"),emptylist));
       modules_.insert(make_pair(string("pset"), emptylist));
     }
@@ -474,12 +475,16 @@ namespace edm
     }
 
 
-    // sequence, path, endpath, come in 'WrapperNode'
+    // sequence, path, endpath, schedule come in 'WrapperNode'
     void
     PythonFormWriter::visitWrapper(const WrapperNode& n)
     {
       ostringstream header;
-      header<<"'"<<n.name()<<"' : '";
+      header << "'";
+      if(n.type() != "schedule")
+      {
+        header<<n.name()<<"' : '";
+      }
       moduleStack_.push(header.str());
       
       //processes the node held by the wrapper
@@ -490,6 +495,15 @@ namespace edm
       moduleStack_.pop();
       MYDEBUG(5) << "Saw a WrapperNode, name: "
 		 << n.name() << '\n';
+      // handle a few special cases
+      if(n.type() == "path")
+      {
+        triggerPaths_.push_back(n.name());
+      }
+      else if(n.type() == "endpath")
+      {
+        endPaths_.push_back(n.name());
+      }
     }
     
     void 
@@ -560,27 +574,15 @@ namespace edm
 
       out << "# output modules (names)\n";
       {
-	out << ", 'output_modules': [ ";
-	list<string>::const_iterator i = outputModuleNames_.begin();
-	list<string>::const_iterator e = outputModuleNames_.end();
-	for ( bool first = true; i !=e; first=false, ++i)
-	  {
-	    if (!first) out << ", ";
-	    out << "'" << *i << "'";
-	  }
-	out << " ]\n" ;
+        out << ", 'output_modules': [ ";
+        writeCommaSeparated(outputModuleNames_, true, out);
+        out << " ]\n" ;
       }
 
       out << "# modules with secsources (names)\n";
       {
         out << ", 'modules_with_secsources': [ ";
-        list<string>::const_iterator i = modulesWithSecSources_.begin();
-        list<string>::const_iterator e = modulesWithSecSources_.end();
-        for ( bool first = true; i !=e; first=false, ++i)
-          {
-            if (!first) out << ", ";
-            out << *i;
-          }
+        writeCommaSeparated(modulesWithSecSources_, false, out);
         out << " ]\n" ;
       }
 
@@ -588,6 +590,7 @@ namespace edm
       writeType("path", out);
       writeType("endpath", out);
       writeType("service", out);
+      doSchedule(out);
       
       out << '}';
     }
@@ -598,22 +601,67 @@ namespace edm
       out << "# " << type << "s\n";
       {
         out << ", '" << type << "s': {\n";
-        list<string> const& mods = modules_[type];
-        list<string>::const_iterator i = mods.begin();
-        list<string>::const_iterator e = mods.end();
-        for ( bool first = true; i!=e; first=false,++i)
-        {
-          if (!first) out << ',';
-          out << *i << '\n';
-        }
+        writeCommaSeparated(modules_[type], false, out);
         out << "} #end of " << type << "s\n";
       }
     }
 
-    void 
-    PythonFormWriter::writeNames(const std::list<std::string> & names,
-	                 	 std::ostream & out)
+    void PythonFormWriter::writeCommaSeparated(const list<string> & input,
+                                               bool addQuotes, ostream & out)
     {
+      list<string>::const_iterator i = input.begin();
+      list<string>::const_iterator e = input.end();
+      for ( bool first = true; i!=e; first=false,++i)
+      {
+        if (!first) out << ',';
+        if(addQuotes) out << "'";
+        out << *i ;
+        if(addQuotes) out << "'";
+        out << '\n';
+      }
+    }
+
+
+    void PythonFormWriter::doSchedule(ostream & out)
+    {
+      int nSchedules = modules_["schedule"].size();
+      if(nSchedules > 1)
+      {
+        throw edm::Exception(errors::Configuration)
+          << "More than one schedule defined in this config file";
+      }
+      // if one is already defined
+      else if(nSchedules == 1)
+      {
+        writeSchedule(out);
+      }
+      // if there's none defined, make one
+      // so that python won't re-order it for us later.
+      else 
+      {
+        //concatenate triggerPath and endPaths in a comma-delimited list
+        string schedule = "'";
+        list<string> parts(triggerPaths_);
+        parts.insert(parts.end(), endPaths_.begin(), endPaths_.end());
+        list<string>::const_iterator i = parts.begin();
+        list<string>::const_iterator e = parts.end();
+        for ( bool first = true; i!=e; first=false,++i)
+        {
+          if (!first) schedule += ',';
+          schedule += *i ;
+        }
+        schedule += "'";
+        modules_["schedule"].push_back(schedule);
+        writeSchedule(out);
+      }
+    }
+
+
+    //  assumes there's just one in the map
+    void PythonFormWriter::writeSchedule(ostream & out)
+    {
+      out << "# schedule\n";
+      out << ", 'schedule': " << modules_["schedule"].front() << "\n";
     }
 
   } // namespace pset

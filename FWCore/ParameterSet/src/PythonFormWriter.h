@@ -3,7 +3,7 @@
 
 
 //------------------------------------------------------------
-// $Id: PythonFormWriter.h,v 1.8 2006/07/05 18:12:38 rpw Exp $
+// $Id: PythonFormWriter.h,v 1.9 2006/07/18 22:46:18 rpw Exp $
 //
 //
 // PythonFormWriter defines a class that is to be used to walk the
@@ -75,14 +75,21 @@ namespace edm
       /// writes each item, separated by a comma
       void writeCommaSeparated(const CompositeNode & n);
 
+      void writeCommaSeparated(const std::list<std::string> & names,
+                               bool addQuotes, std::ostream & out);
+
       /// writes out the information for this type, e.g, "module", "source"
       void writeType(const std::string & type, std::ostream & out);
 
       /// writes out those lists of names
       void writeNames(const std::list<std::string> & names,
                       std::ostream & out);
+     
+      /// if no schedule defined, define one
+      void doSchedule(std::ostream & out);
 
-      // Data accumulated while walking the tree.
+      /// assumes only one entry exist for schedule
+      void writeSchedule(std::ostream & out);
 
       // Mapping type of module to printable contents
       typedef std::map<std::string, std::list<std::string> > ModuleCache;
@@ -92,6 +99,8 @@ namespace edm
       ModuleCache             modules_;
       std::list<std::string>  outputModuleNames_;
       std::list<std::string>  modulesWithSecSources_;
+      std::list<std::string>  triggerPaths_;
+      std::list<std::string>  endPaths_;
       
       bool                    processingVPSet_;
       unsigned int            nVPSetChildren_;
