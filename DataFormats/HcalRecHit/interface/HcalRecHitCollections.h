@@ -7,13 +7,13 @@
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalCalibRecHit.h"
-#include "DataFormats/HcalRecHit/interface/HcalTriggerPrimitiveRecHit.h"
+
+#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
 
 typedef edm::SortedCollection<HBHERecHit> HBHERecHitCollection;
 typedef edm::SortedCollection<HORecHit> HORecHitCollection;
 typedef edm::SortedCollection<HFRecHit> HFRecHitCollection;
 typedef edm::SortedCollection<ZDCRecHit> ZDCRecHitCollection;
 typedef edm::SortedCollection<HcalCalibRecHit> HcalCalibRecHitCollection;
-typedef edm::SortedCollection<HcalTriggerPrimitiveRecHit> HcalTrigPrimRecHitCollection;
 
 #endif
