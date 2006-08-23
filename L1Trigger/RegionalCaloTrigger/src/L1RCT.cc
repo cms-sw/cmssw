@@ -57,7 +57,11 @@ void L1RCT::fileInput(const char* filename){            // added "const" also in
       for(int j = 0; j<7; j++){
 	for(int k = 0; k<64; k++){
 	  if(instream >> x){
-	    barrel.at(i).at(j).at(k) = x;
+	    unsigned short bit = x/256;             // added J.Leonard Aug. 16 06
+	    unsigned short energy = x&255;          //
+	    unsigned short input = energy*2 + bit;  //
+	    //	    barrel.at(i).at(j).at(k) = x;
+	    barrel.at(i).at(j).at(k) = input;
 	    //cout << x;
 	  }
 	  else
