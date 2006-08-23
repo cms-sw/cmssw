@@ -19,6 +19,81 @@
 using namespace std;
 using namespace edm;
 
+//
+// Constructor 
+//
+TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  : 
+  myEvent_(e), 
+  doPixel_( true ),
+  doStrip_( true ) {
+  
+  trackerContainers.clear();
+  //
+  // Take by default all tracker SimHits
+  //
+  trackerContainers.push_back("TrackerHitsTIBLowTof");
+  trackerContainers.push_back("TrackerHitsTIBHighTof");
+  trackerContainers.push_back("TrackerHitsTIDLowTof");
+  trackerContainers.push_back("TrackerHitsTIDHighTof");
+  trackerContainers.push_back("TrackerHitsTOBLowTof");
+  trackerContainers.push_back("TrackerHitsTOBHighTof");
+  trackerContainers.push_back("TrackerHitsTECLowTof");
+  trackerContainers.push_back("TrackerHitsTECHighTof");
+  trackerContainers.push_back("TrackerHitsPixelBarrelLowTof");
+  trackerContainers.push_back("TrackerHitsPixelBarrelHighTof");
+  trackerContainers.push_back("TrackerHitsPixelEndcapLowTof");
+  trackerContainers.push_back("TrackerHitsPixelEndcapHighTof");
+
+  // Step A: Get Inputs
+  edm::Handle<CrossingFrame> cf;
+  e.getByType(cf);
+  
+  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+  
+  //Loop on PSimHit
+  SimHitMap.clear();
+  
+  MixCollection<PSimHit>::iterator isim;
+  for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
+    SimHitMap[(*isim).detUnitId()].push_back((*isim));
+  }
+  
+  if(doStrip_) e.getByLabel("siStripDigis", stripdigisimlink);
+  if(doPixel_) e.getByLabel("siPixelDigis", pixeldigisimlink);
+  
+}
+
+//
+// Constructor with configurables
+//
+TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf)  : 
+  myEvent_(e), 
+  conf_(conf),
+  doPixel_( conf.getParameter<bool>("associatePixel") ),
+  doStrip_( conf.getParameter<bool>("associateStrip") ) {
+
+  
+  trackerContainers.clear();
+  trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
+
+  // Step A: Get Inputs
+  edm::Handle<CrossingFrame> cf;
+  e.getByType(cf);
+  
+  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+  
+  //Loop on PSimHit
+  SimHitMap.clear();
+  
+  MixCollection<PSimHit>::iterator isim;
+  for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
+    SimHitMap[(*isim).detUnitId()].push_back((*isim));
+  }
+  
+  if(doStrip_) e.getByLabel("siStripDigis", stripdigisimlink);
+  if(doPixel_) e.getByLabel("siPixelDigis", pixeldigisimlink);
+  
+}
 
 std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & thit) 
 {
@@ -293,36 +368,6 @@ std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPi
   }
   
   return simtrackid;
-}
-
-//constructor
-TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf)  : 
-  myEvent_(e), 
-  conf_(conf),
-  doPixel_( conf.getParameter<bool>("associatePixel") ),
-  doStrip_( conf.getParameter<bool>("associateStrip") ) {
-
-  
-  trackerContainers.clear();
-  trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
-
-  // Step A: Get Inputs
-  edm::Handle<CrossingFrame> cf;
-  e.getByType(cf);
-  
-  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
-  
-  //Loop on PSimHit
-  SimHitMap.clear();
-  
-  MixCollection<PSimHit>::iterator isim;
-  for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
-    SimHitMap[(*isim).detUnitId()].push_back((*isim));
-  }
-  
-  if(doStrip_) e.getByLabel("siStripDigis", stripdigisimlink);
-  if(doPixel_) e.getByLabel("siPixelDigis", pixeldigisimlink);
-  
 }
 
 

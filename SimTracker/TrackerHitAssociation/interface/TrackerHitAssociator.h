@@ -49,8 +49,12 @@
 class TrackerHitAssociator {
   
  public:
-  
+
+  // Simple constructor
+  TrackerHitAssociator(const edm::Event& e);
+  // Constructor with configurables
   TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf);
+  // Destructor
   virtual ~TrackerHitAssociator(){}
   
   std::vector<PSimHit> associateHit(const TrackingRecHit & thit);
