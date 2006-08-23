@@ -1,4 +1,5 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
+#include <iostream>
 
 void SiStripCommonModeNoiseSubtractor::subtract(std::vector<int16_t>& digis){
   
