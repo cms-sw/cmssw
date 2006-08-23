@@ -63,6 +63,8 @@ class ConsRegResponseBuilder
   uint8* startAddress() { return buf_; }
   uint32 size() const;
 
+  enum STATUS_CODES { ES_NOT_READY = 0x10000 };
+
  private:
   uint8* buf_;
   uint32 bufSize_;
