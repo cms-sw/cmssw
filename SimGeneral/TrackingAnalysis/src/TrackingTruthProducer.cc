@@ -126,16 +126,15 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   
 //Put TrackingParticle here... need charge, momentum, vertex position, time, pdg id
   auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
+  auto_ptr<TrackingVertexCollection>   tVC(new TrackingVertexCollection  );  
 
   edm::RefProd<TrackingParticleCollection> refTPC =
       event.getRefBeforePut<TrackingParticleCollection>("TrackTruth");
   edm::RefProd<TrackingVertexCollection>   refTVC =
       event.getRefBeforePut<TrackingVertexCollection>("VertexTruth");
   
-  map<int,int> g4T_TP;
-  map<int,int> g4T_G4SourceV;
-  map<int,int> g4T_G4DecayV;
-  map<int,int> g4V_TV;
+  map<int,int> g4T_TP;        // Map of SimTrack index to TrackingParticle index
+  map<int,int> g4T_G4SourceV; // Map of SimTrack to (source) SimVertex index
   
   int iG4Track = 0;
   edm::SimTrackContainer::const_iterator itP;
@@ -188,8 +187,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
 // Find and loop over EmbdSimVertex vertices
     
-  auto_ptr<TrackingVertexCollection> tVC( new TrackingVertexCollection );  
-
   int indexG4V = 0;
   for (edm::SimVertexContainer::const_iterator itVtx = G4VtxContainer->begin(); 
        itVtx != G4VtxContainer->end(); 
@@ -201,16 +198,17 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     
     EncodedEventId vertEvtId = itVtx -> eventId();     // May not be right one, get from HepMC?
     
-// Figure out the barcode of the HepMC Vertex if there is one
-    
+// Figure out the barcode of the HepMC Vertex if there is one by
+// getting incoming SimTtrack (if any), finding corresponding HepMC track and
+// then decay (HepMC) vertex of that track    
     int vertexBarcode = 0;       
-    int vtxParent = itVtx -> parentIndex();    // Get incoming SimTtrack
-    if (vtxParent >= 0) {                      // Is there a parent track? 
-      SimTrack est = etc->at(vtxParent);       // Pull track out from vector
-      int partHepMC =     est.genpartIndex();  // Get HepMC particle barcode
-      HepMC::GenParticle *hmp = genEvent -> barcode_to_particle(partHepMC); // Convert barcode
-      if (hmp != 0) {
-        HepMC::GenVertex *hmpv = hmp -> production_vertex(); 
+    int vtxParent = itVtx -> parentIndex();    
+    if (vtxParent >= 0) {                      
+      SimTrack parentTrack = etc->at(vtxParent);       
+      int parentBC = parentTrack.genpartIndex();  
+      HepMC::GenParticle *parentParticle = genEvent -> barcode_to_particle(parentBC);
+      if (parentParticle != 0) {
+        HepMC::GenVertex *hmpv = parentParticle -> end_vertex(); 
         if (hmpv != 0) {
           vertexBarcode = hmpv  -> barcode();
         }  
@@ -244,9 +242,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       (*nearestVertex).addGenVertex(GenVertexRef(hepMC,vertexBarcode)); // Add HepMC vertex
     }
 
-    int indexTV = tVC->size()-1;
-    g4V_TV.insert(pair<int,int>(indexG4V,indexTV));
-    
+    int indexTV = tVC -> size()-1;
+
 // Identify and add child and parent tracks     
 
     for (std::map<int,int>::iterator mapIndex = g4T_G4SourceV.begin(); 
@@ -264,23 +261,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     }  
   }
 
-  
-  
-  
   edm::LogInfo (MessageCategory) << "TrackingTruth found " << tVC->size() << " unique vertices";
 
-// Dump out the results  
-  
-  int index = 0;
-  for (TrackingVertexCollection::const_iterator v =
-       tVC -> begin();
-       v != tVC ->end(); ++v) {
-    edm::LogInfo (MessageCategory) << "TrackingVertex " << index << " has " 
-      << (v -> g4Vertices()).size()  << " G4 vertices, " 
-      << (v -> genVertices()).size() << " HepMC vertices";
-    ++index;  
-  }        
-  
 // Put TrackingParticles and TrackingVertices in event
   event.put(tPC,"TrackTruth");
   event.put(tVC,"VertexTruth");
