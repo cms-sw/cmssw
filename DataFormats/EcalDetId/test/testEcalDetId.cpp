@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.1 2006/03/28 09:01:14 meridian Exp $
+   \version $Id: testEcalDetId.cpp,v 1.2 2006/05/29 09:48:33 meridian Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.1 2006/03/28 09:01:14 meridian Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.2 2006/05/29 09:48:33 meridian Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -17,7 +17,7 @@ static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.1 2006/03/28 09:01:14 me
 #include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
 #include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
 #include <DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h>
-
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 
@@ -99,7 +99,7 @@ void testEcalDetId::testEBDetId(){
 
 	    }
 	  }
-	catch ( std::runtime_error &e ) 
+	catch ( cms::Exception &e ) 
 	  { 
 	  }
       }
@@ -130,7 +130,7 @@ void testEcalDetId::testEEDetId(){
 	      CPPUNIT_ASSERT(aNegativeId.zside()==-1);
 	    }
 	  }
-	catch ( std::runtime_error &e ) 
+	catch ( cms::Exception &e ) 
 	  { 
 	  }
       }
@@ -184,7 +184,7 @@ void testEcalDetId::testESDetId(){
 		CPPUNIT_ASSERT(aNegativeId.zside()==-1);
 	      }
 	    }
-	  catch ( std::runtime_error &e ) 
+	  catch ( cms::Exception &e ) 
 	    { 
 	    }
 	}
@@ -217,7 +217,7 @@ void testEcalDetId::testEcalTrigTowerDetId() {
 	      CPPUNIT_ASSERT(aNegativeId.ietaAbs()==ieta);
 	    }
 	  }
-	catch ( std::runtime_error &e ) 
+	catch ( cms::Exception &e ) 
 	  { 
 	  }
 	try
@@ -239,7 +239,7 @@ void testEcalDetId::testEcalTrigTowerDetId() {
 	      CPPUNIT_ASSERT(aNegativeId.zside()==-1);
 	    }
 	  }
-	catch ( std::runtime_error &e ) 
+	catch ( cms::Exception &e ) 
 	  { 
 	  }
       }
@@ -257,7 +257,7 @@ void testEcalDetId::testEcalElectronicsId() {
 	      CPPUNIT_ASSERT(electronicsId.towerId()==itower);
 	      CPPUNIT_ASSERT(electronicsId.channelId()==ichannel);
 	    }
-	  catch ( std::runtime_error &e ) 
+	  catch ( cms::Exception &e ) 
 	    { 
 	    }
 	}
@@ -279,7 +279,7 @@ void testEcalDetId::testPnDiodeDetId() {
 		CPPUNIT_ASSERT(aId.iPnId()==iPn);
 	      }
 	    }
-	  catch ( std::runtime_error &e ) 
+	  catch ( cms::Exception &e ) 
 	    { 
 	    }
 	}

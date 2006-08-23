@@ -1,4 +1,5 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //#include <iostream>
 const int EEDetId::QuadColLimits[EEDetId::nCols+1] = { 0, 8,17,27,36,45,54,62,70,76,79 };
@@ -35,12 +36,12 @@ EEDetId::EEDetId(int index1, int index2, int iz, int mode) : DetId(Ecal,EcalEndc
     } 
   else 
     {
-      throw(std::runtime_error("EEDetId:  Cannot create object.  Unknown mode for (int, int, int) constructor."));
+      throw cms::Exception("InvalidDetId") << "EEDetId:  Cannot create object.  Unknown mode for (int, int, int) constructor.";
     }
   
   if (!validDetId(crystal_ix,crystal_iy,iz))
     {
-      throw(std::runtime_error("EEDetId:  Cannot create object.  Indexes out of bounds."));
+      throw cms::Exception("InvalidDetId") << "EEDetId:  Cannot create object.  Indexes out of bounds.";
     }
   
   id_|=(crystal_iy&0x7f)|((crystal_ix&0x7f)<<7)|((iz>0)?(0x4000):(0));
@@ -48,14 +49,14 @@ EEDetId::EEDetId(int index1, int index2, int iz, int mode) : DetId(Ecal,EcalEndc
   
 EEDetId::EEDetId(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Ecal || gen.subdetId()!=EcalEndcap)) {
-    throw new std::exception();
+    throw cms::Exception("InvalidDetId"); 
   }
   id_=gen.rawId();
 }
   
 EEDetId& EEDetId::operator=(const DetId& gen) {
   if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalEndcap )) {
-    throw new std::exception();
+    throw cms::Exception("InvalidDetId"); 
   }
   id_=gen.rawId();
   return *this;
@@ -192,11 +193,11 @@ int EEDetId::iquadrant() const {
 }  
 
 int EEDetId::isc() const {
-  throw(std::runtime_error("EEDetId: Method not yet implemented"));
+  throw cms::Exception("MethodNotImplemented") << "EEDetId: Method not yet implemented";
 }  
 
 int EEDetId::ic() const {
-  throw(std::runtime_error("EEDetId: Method not yet implemented"));
+  throw cms::Exception("MethodNotImplemented") << "EEDetId: Method not yet implemented";
 }  
 
 bool EEDetId::validDetId(int crystal_ix, int crystal_iy, int iz) const {

@@ -18,7 +18,7 @@ EBDetId EcalBarrelTopology::incrementIeta(const EBDetId& id) const {
       else
 	return EBDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return EBDetId(0);
     }
@@ -42,7 +42,7 @@ EBDetId EcalBarrelTopology::decrementIeta(const EBDetId& id) const {
       else
 	return EBDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return EBDetId(0);
     }
@@ -69,7 +69,7 @@ EBDetId EcalBarrelTopology::incrementIphi(const EBDetId& id) const {
       else
 	return EBDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return EBDetId(0);
     }
@@ -95,7 +95,7 @@ EBDetId EcalBarrelTopology::decrementIphi(const EBDetId& id) const {
       else
 	return EBDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return EBDetId(0);
     }

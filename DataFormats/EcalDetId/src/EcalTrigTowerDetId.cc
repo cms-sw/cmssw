@@ -1,5 +1,5 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 EcalTrigTowerDetId::EcalTrigTowerDetId() {
@@ -9,7 +9,7 @@ EcalTrigTowerDetId::EcalTrigTowerDetId() {
 EcalTrigTowerDetId::EcalTrigTowerDetId(uint32_t rawid) : DetId(rawid) {
 }
 
-EcalTrigTowerDetId::EcalTrigTowerDetId(int zside, EcalSubdetector subDet, int i, int j, int mode) throw(std::runtime_error) 
+EcalTrigTowerDetId::EcalTrigTowerDetId(int zside, EcalSubdetector subDet, int i, int j, int mode)
   : DetId(Ecal,EcalTriggerTower) 
 {
   int tower_i=0;
@@ -22,13 +22,13 @@ EcalTrigTowerDetId::EcalTrigTowerDetId(int zside, EcalSubdetector subDet, int i,
     }
   else if (mode == SUBDETDCCTTMODE)
     {
-      throw(std::runtime_error("EcalTriggerTowerDetId:  Cannot create object. SUBDETDCCTTMODE not yet implemented."));   
+      throw cms::Exception("InvalidDetId") << "EcalTriggerTowerDetId:  Cannot create object. SUBDETDCCTTMODE not yet implemented.";   
     }
   else
-    throw(std::runtime_error("EcalTriggerTowerDetId:  Cannot create object.  Unknown mode for (int, EcalSubdetector, int, int) constructor."));
+    throw cms::Exception("InvalidDetId") << "EcalTriggerTowerDetId:  Cannot create object.  Unknown mode for (int, EcalSubdetector, int, int) constructor.";
   
   if (tower_i > MAX_I || tower_i < MIN_I  || tower_j > MAX_J || tower_j < MIN_J)
-    throw(std::runtime_error("EcalTriggerTowerDetId:  Cannot create object.  Indexes out of bounds."));
+    throw cms::Exception("InvalidDetId") << "EcalTriggerTowerDetId:  Cannot create object.  Indexes out of bounds.";
   
   id_|= ((zside>0)?(0x8000):(0x0)) | ((subDet == EcalBarrel)?(0x4000):(0x0)) | (tower_i<<7) | (tower_j & 0x7F);
 
@@ -37,21 +37,20 @@ EcalTrigTowerDetId::EcalTrigTowerDetId(int zside, EcalSubdetector subDet, int i,
 EcalTrigTowerDetId::EcalTrigTowerDetId(const DetId& gen) 
 {
   if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalTriggerTower )) {
-    throw new std::exception();
-  }
+    throw cms::Exception("InvalidDetId");  }
   id_=gen.rawId();
 }
   
 EcalTrigTowerDetId& EcalTrigTowerDetId::operator=(const DetId& gen) {
   if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalTriggerTower )) {
-    throw new std::exception();
+    throw cms::Exception("InvalidDetId");
   }
   id_=gen.rawId();
   return *this;
 }
 
 //New SM numbering scheme. Avoids discontinuity in phi crossing \eta=0  
-int EcalTrigTowerDetId::iDCC() const throw(std::runtime_error)
+int EcalTrigTowerDetId::iDCC() const 
 {
   if ( subDet() == EcalBarrel )
     {
@@ -60,10 +59,10 @@ int EcalTrigTowerDetId::iDCC() const throw(std::runtime_error)
       return id;
     }
   else
-    throw(std::runtime_error("EcalTriggerTowerDetId: iDCC not yet implemented"));
+    throw cms::Exception("MethodNotImplemented") << "EcalTriggerTowerDetId: iDCC not yet implemented";
 }
 
-int EcalTrigTowerDetId::iTT() const throw(std::runtime_error)
+int EcalTrigTowerDetId::iTT() const 
 {
   if ( subDet() == EcalBarrel )
     {
@@ -78,15 +77,15 @@ int EcalTrigTowerDetId::iTT() const throw(std::runtime_error)
       return (ie * kEBTowersInPhi) + ip;
     }
   else
-    throw(std::runtime_error("EcalTriggerTowerDetId: iTT not yet implemented"));
+    throw cms::Exception("MethodNotImplemented") << "EcalTriggerTowerDetId: iTT not yet implemented";
 }
 
-int EcalTrigTowerDetId::iquadrant() const throw(std::runtime_error)
+int EcalTrigTowerDetId::iquadrant() const
 {
   if ( subDet() == EcalEndcap )
     return int((iphi()-1)/kEETowersInPhiPerQuadrant)+1;
   else
-    throw(std::runtime_error("EcalTriggerTowerDetId: iquadrant not applicable"));
+    throw cms::Exception("MethodNotApplicable") << "EcalTriggerTowerDetId: iquadrant not applicable";
 }  
 
 int EcalTrigTowerDetId::hashedIndex() const 

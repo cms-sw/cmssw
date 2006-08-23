@@ -2,7 +2,6 @@
 #define ECALDETID_EBDETID_H
 
 #include <ostream>
-#include <stdexcept>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
@@ -12,7 +11,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.8 2006/04/07 02:45:23 mansj Exp $
+ *  $Id: EBDetId.h,v 1.9 2006/08/08 16:04:04 mansj Exp $
  */
 
 
@@ -24,8 +23,7 @@ class EBDetId : public DetId {
   EBDetId(uint32_t rawid);
   /** Constructor from crystal ieta and iphi 
       or from SM# and crystal# */
-  EBDetId(int index1, int index2, int mode = ETAPHIMODE)
-    throw(std::runtime_error);
+  EBDetId(int index1, int index2, int mode = ETAPHIMODE);
   /** Constructor from a generic cell id */
   EBDetId(const DetId& id);
   /** Assignment operator from cell id */

@@ -35,7 +35,7 @@ ESDetId EcalPreshowerTopology::incrementIy(const ESDetId& id) const {
       else
 	return ESDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       //      std::cout << "    Catching: runtime_error " << e.what() << std::endl;
       return ESDetId(0);
@@ -75,7 +75,7 @@ ESDetId EcalPreshowerTopology::decrementIy(const ESDetId& id) const {
       else
 	return ESDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return ESDetId(0);
     }
@@ -114,7 +114,7 @@ ESDetId EcalPreshowerTopology::incrementIx(const ESDetId& id) const {
       else
 	return ESDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return ESDetId(0);
     }
@@ -152,7 +152,7 @@ ESDetId EcalPreshowerTopology::decrementIx(const ESDetId& id) const {
       else
 	return ESDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return ESDetId(0);
     }
@@ -173,7 +173,7 @@ ESDetId EcalPreshowerTopology::incrementIz(const ESDetId& id) const {
       else
 	return ESDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return ESDetId(0);
     }
@@ -194,7 +194,7 @@ ESDetId EcalPreshowerTopology::decrementIz(const ESDetId& id) const {
       else
 	return ESDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return ESDetId(0);
     }

@@ -16,7 +16,7 @@ EEDetId EcalEndcapTopology::incrementIy(const EEDetId& id) const {
       else
 	return EEDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return EEDetId(0);
     }
@@ -36,7 +36,7 @@ EEDetId EcalEndcapTopology::decrementIy(const EEDetId& id) const {
       else
 	return EEDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return EEDetId(0);
     }
@@ -57,7 +57,7 @@ EEDetId EcalEndcapTopology::incrementIx(const EEDetId& id) const {
       else
 	return EEDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return EEDetId(0);
     }
@@ -78,7 +78,7 @@ EEDetId EcalEndcapTopology::decrementIx(const EEDetId& id) const {
       else
 	return EEDetId(0);
     } 
-  catch ( std::runtime_error &e ) 
+  catch ( cms::Exception &e ) 
     { 
       return EEDetId(0);
     }

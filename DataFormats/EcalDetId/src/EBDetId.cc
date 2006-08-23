@@ -1,6 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-#include <stdexcept>
 //#include <iostream>
 
 EBDetId::EBDetId() : DetId() {
@@ -9,7 +9,7 @@ EBDetId::EBDetId() : DetId() {
 EBDetId::EBDetId(uint32_t rawid) : DetId(rawid) {
 }
   
-EBDetId::EBDetId(int index1, int index2, int mode)  throw(std::runtime_error)
+EBDetId::EBDetId(int index1, int index2, int mode) 
   : DetId(Ecal,EcalBarrel)
 {
   int crystal_ieta;
@@ -30,27 +30,27 @@ EBDetId::EBDetId(int index1, int index2, int mode)  throw(std::runtime_error)
       crystal_iphi = ((SM-19) * kCrystalsInPhi) + j+1;
     }
   } else {
-    throw(std::runtime_error("EBDetId:  Cannot create object.  Unknown mode for (int, int) constructor."));
+    throw cms::Exception("InvalidDetId") << "EBDetId:  Cannot create object.  Unknown mode for (int, int) constructor."; 
   }
 
   if (crystal_ieta < -MAX_IETA || crystal_ieta == 0 || crystal_ieta > MAX_IETA ||
       crystal_iphi < MIN_IPHI || crystal_iphi > MAX_IPHI) {
     //    std::cout << "crystal_eta " << crystal_ieta << "crystal_phi " << crystal_iphi << std::endl;
-    throw(std::runtime_error("EBDetId:  Cannot create object.  Indexes out of bounds."));
+    throw cms::Exception("InvalidDetId") << "EBDetId:  Cannot create object.  Indexes out of bounds.";
   }
   id_|=((crystal_ieta>0)?(0x10000|(crystal_ieta<<9)):((-crystal_ieta)<<9))|(crystal_iphi&0x1FF);
 }
   
 EBDetId::EBDetId(const DetId& gen) {
   if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalBarrel )) {
-    throw new std::exception();
+    throw cms::Exception("InvalidDetId");
   }
   id_=gen.rawId();
 }
   
 EBDetId& EBDetId::operator=(const DetId& gen) {
   if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalBarrel )) {
-    throw new std::exception();
+    throw cms::Exception("InvalidDetId");
   }
   id_=gen.rawId();
   return *this;

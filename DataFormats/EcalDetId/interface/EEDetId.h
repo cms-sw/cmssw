@@ -2,7 +2,6 @@
 #define ECALDETID_EEDETID_H
 
 #include <ostream>
-#include <stdexcept>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
@@ -11,7 +10,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.5 2006/05/15 12:49:40 meridian Exp $
+ *  $Id: EEDetId.h,v 1.6 2006/05/25 15:29:36 meridian Exp $
  */
 
 

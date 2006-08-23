@@ -1,6 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-#include <stdexcept>
 #include <iostream>
 
 
@@ -16,7 +16,7 @@ EcalElectronicsId::EcalElectronicsId(int dccid, int towerid, int channelid){
   if ( (dccid < MIN_DCCID) || (dccid > MAX_DCCID) ||  
        (towerid < MIN_TOWERID) || (towerid > MAX_TOWERID) ||  
        (channelid < MIN_CHANNELID) || (channelid > MAX_CHANNELID) )
-    throw(std::runtime_error("EcalElectronicsId:  Cannot create object.  Indexes out of bounds."));
+    throw cms::Exception("InvalidDetId") << "EcalElectronicsId:  Cannot create object.  Indexes out of bounds.";
   EcalElectronicsId_= (channelid&0x1F) | ( (towerid&0x7F) << 5) | ((dccid&0x7F) << 12);
 }
 

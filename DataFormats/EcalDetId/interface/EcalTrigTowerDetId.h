@@ -2,7 +2,6 @@
 #define ECALDETID_ECALTRIGTOWERDETID_H
 
 #include <ostream>
-#include <stdexcept>
 #include <boost/cstdint.hpp>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -12,7 +11,7 @@
     
    DetId for an Ecal Trigger tower
 
-   $Id: EcalTrigTowerDetId.h,v 1.5 2005/12/19 17:50:41 rahatlou Exp $
+   $Id: EcalTrigTowerDetId.h,v 1.6 2006/05/25 15:29:09 meridian Exp $
 */
 
 
@@ -24,7 +23,7 @@ class EcalTrigTowerDetId : public DetId {
   EcalTrigTowerDetId(uint32_t rawid);  
   /** \brief Constructor from signed ieta, iphi
    */
-  EcalTrigTowerDetId(int zside, EcalSubdetector subdet, int i, int j, int mode=SUBDETIJMODE) throw(std::runtime_error);
+  EcalTrigTowerDetId(int zside, EcalSubdetector subdet, int i, int j, int mode=SUBDETIJMODE);
   
   /** Constructor from a generic cell id */
   EcalTrigTowerDetId(const DetId& id);
@@ -66,7 +65,7 @@ class EcalTrigTowerDetId : public DetId {
       
     } 
 
-  int iquadrant() const throw(std::runtime_error);
+  int iquadrant() const ; 
 
 
 /*   /// get the tower ix (Endcap case) */
@@ -92,10 +91,10 @@ class EcalTrigTowerDetId : public DetId {
   int hashedIndex() const;
 
   /// get the ECAL DCC id - in the  barrrel ism == iDCC
-  int iDCC() const throw(std::runtime_error);
+  int iDCC() const ; 
 
   /// sequential index within one DCC
-  int iTT() const throw(std::runtime_error);
+  int iTT() const ; 
 
   static const int MIN_I = 1;
   static const int MIN_J = 1;
