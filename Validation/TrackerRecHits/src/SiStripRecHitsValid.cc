@@ -30,9 +30,9 @@
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   dbe_(0),	
   conf_(ps),
-  matchedRecHits_( ps.getParameter<edm::InputTag>( "matchedRecHits" ) ),
-  rphiRecHits_( ps.getParameter<edm::InputTag>( "rphiRecHits" ) ),
-  stereoRecHits_( ps.getParameter<edm::InputTag>( "stereoRecHits" ) ) {
+  matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
+  rphiRecHits_( ps.getParameter<edm::InputTag>("rphiRecHits") ),
+  stereoRecHits_( ps.getParameter<edm::InputTag>("stereoRecHits") ) {
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "sistriprechitshisto.root");
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
@@ -282,7 +282,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   
   //--- get RecHits
   
-  //  std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
   std::string rechitProducer = "SiStripRecHits2D";
   
   // Step A: Get Inputs 
@@ -292,7 +291,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   e.getByLabel(matchedRecHits_, rechitsmatched);
   e.getByLabel(rphiRecHits_, rechitsrphi);
   e.getByLabel(stereoRecHits_, rechitsstereo);
-  
+
   int numrechitrphi   =0;
   int numrechitsas    =0;
   int numrechitmatched=0;
@@ -313,7 +312,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   int totrechitsas =0;
   int totrechitmatched =0;
   
-  TrackerHitAssociator associate( e, conf_ );
+  TrackerHitAssociator associate(e, conf_);
   
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);

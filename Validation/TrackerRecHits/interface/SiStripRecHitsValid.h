@@ -205,6 +205,7 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   float rechitmatchedresy[MAXHIT];
   float rechitmatchedchi2[MAXHIT];
 
+
   edm::InputTag matchedRecHits_, rphiRecHits_, stereoRecHits_;
 };
 
