@@ -12,6 +12,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <iostream>
 #include <sstream>
 
 using std::cout;
