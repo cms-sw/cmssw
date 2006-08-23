@@ -6,6 +6,7 @@
 <use name=Geometry/TrackerTopology>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiPixelDetId>
+<use name=DataFormats/TrackingRecHit>
 <use name=DetectorDescription/Core>
 <use name=CondFormats/Alignment>
 <use name=clhep>
@@ -18,6 +19,7 @@
 <use name=DetectorDescription/Core>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiPixelDetId>
+<use name=DataFormats/TrackingRecHit>
 <use name=CondFormats/Alignment>
 <use name=clhep>
 <use name=boost>
