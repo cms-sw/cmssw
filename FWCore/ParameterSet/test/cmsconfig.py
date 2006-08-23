@@ -1,6 +1,6 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.12 2006/06/12 22:48:44 rpw Exp $
+# $Id: cmsconfig.py,v 1.13 2006/07/23 01:24:36 valya Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -195,6 +195,9 @@ class cmsconfig:
         string."""
         return self.psdata['paths'][name]
 
+    def schedule(self):
+        return self.psdata['schedule']
+
     def sequenceNames(self):
         return self.psdata['sequences'].keys()
 
@@ -279,6 +282,7 @@ class cmsconfig:
         self.__write_sequences(fileobj)
         self.__write_paths(fileobj)
         self.__write_endpaths(fileobj)
+        self.__write_schedule(fileobj)
 
     def __write_psets(self, fileobj):
         """Private method.
@@ -368,6 +372,9 @@ class cmsconfig:
         fileobj."""
         for name in self.endpathNames():
             fileobj.write("endpath %s = {%s}\n" % (name, self.endpath(name)))
+
+    def __write_schedule(self, fileobj):
+        fileobj.write("schedule = {%s}\n" % self.schedule())
 
     def __write_main_source(self, fileobj):
         """Private method.
