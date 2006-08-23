@@ -10,7 +10,7 @@
  *
  * \author Patrizia Azzi (INFN PD), Vincenzo Chiochia (Uni Zuerich)
  *
- * \version   1st version April 2006  
+ * \version   1st version: April 2006. Add configurable switch: August 2006   
  *
  *
  ************************************************************/
@@ -80,6 +80,7 @@ class TrackerHitAssociator {
   //vector with the trackIds
   std::vector<unsigned int> simtrackid; 
   
+  bool doPixel_, doStrip_;
   
 };  
 

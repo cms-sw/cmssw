@@ -256,7 +256,7 @@ std::vector<unsigned int>  TrackerHitAssociator::associateMatchedRecHit(const Si
 std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit)
 {
   //
-  // Pixel associator: work in progress...
+  // Pixel associator
   //
   DetId detid=  pixelrechit->geographicalId();
   uint32_t detID = detid.rawId();
@@ -296,7 +296,11 @@ std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPi
 }
 
 //constructor
-TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf)  : myEvent_(e), conf_(conf)  {
+TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf)  : 
+  myEvent_(e), 
+  conf_(conf),
+  doPixel_( conf.getParameter<bool>("associatePixel") ),
+  doStrip_( conf.getParameter<bool>("associateStrip") ) {
 
   
   trackerContainers.clear();
@@ -316,66 +320,8 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
     SimHitMap[(*isim).detUnitId()].push_back((*isim));
   }
   
-
-  e.getByLabel("siStripDigis", stripdigisimlink);
-  e.getByLabel("siPixelDigis", pixeldigisimlink);
-  
-//  theStripHits.clear();
-//   edm::Handle<edm::PSimHitContainer> TIBHitsLowTof;
-//   edm::Handle<edm::PSimHitContainer> TIBHitsHighTof;
-//   edm::Handle<edm::PSimHitContainer> TIDHitsLowTof;
-//   edm::Handle<edm::PSimHitContainer> TIDHitsHighTof;
-//   edm::Handle<edm::PSimHitContainer> TOBHitsLowTof;
-//   edm::Handle<edm::PSimHitContainer> TOBHitsHighTof;
-//   edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
-//   edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
-  
-//   e.getByLabel("g4SimHits","TrackerHitsTIBLowTof", TIBHitsLowTof);
-//   e.getByLabel("g4SimHits","TrackerHitsTIBHighTof", TIBHitsHighTof);
-//   e.getByLabel("g4SimHits","TrackerHitsTIDLowTof", TIDHitsLowTof);
-//   e.getByLabel("g4SimHits","TrackerHitsTIDHighTof", TIDHitsHighTof);
-//   e.getByLabel("g4SimHits","TrackerHitsTOBLowTof", TOBHitsLowTof);
-//   e.getByLabel("g4SimHits","TrackerHitsTOBHighTof", TOBHitsHighTof);
-//   e.getByLabel("g4SimHits","TrackerHitsTECLowTof", TECHitsLowTof);
-//   e.getByLabel("g4SimHits","TrackerHitsTECHighTof", TECHitsHighTof);
-  
-//   theStripHits.insert(theStripHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
-//   theStripHits.insert(theStripHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
-//   theStripHits.insert(theStripHits.end(), TIDHitsLowTof->begin(), TIDHitsLowTof->end()); 
-//   theStripHits.insert(theStripHits.end(), TIDHitsHighTof->begin(), TIDHitsHighTof->end());
-//   theStripHits.insert(theStripHits.end(), TOBHitsLowTof->begin(), TOBHitsLowTof->end()); 
-//   theStripHits.insert(theStripHits.end(), TOBHitsHighTof->begin(), TOBHitsHighTof->end());
-//   theStripHits.insert(theStripHits.end(), TECHitsLowTof->begin(), TECHitsLowTof->end()); 
-//   theStripHits.insert(theStripHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
-  
-//   SimHitMap.clear();
-//   for (std::vector<PSimHit>::iterator isim = theStripHits.begin();
-//        isim != theStripHits.end(); ++isim){
-//     SimHitMap[(*isim).detUnitId()].push_back((*isim));
-//   }
-  
-
-//   thePixelHits.clear();
-  
-//   edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
-//   edm::Handle<edm::PSimHitContainer> PixelBarrelHitsHighTof;
-//   edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
-//   edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
-  
-//   e.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
-//   e.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
-//   e.getByLabel("g4SimHits","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
-//   e.getByLabel("g4SimHits","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);
-  
-//   thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsLowTof->begin(), PixelBarrelHitsLowTof->end()); 
-//   thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());
-//   thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsLowTof->begin(), PixelEndcapHitsLowTof->end()); 
-//   thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsHighTof->begin(), PixelEndcapHitsHighTof->end());
-
-//   for (std::vector<PSimHit>::iterator isim = thePixelHits.begin();
-//        isim != thePixelHits.end(); ++isim){
-//     SimHitMap[(*isim).detUnitId()].push_back((*isim));
-//   }
+  if(doStrip_) e.getByLabel("siStripDigis", stripdigisimlink);
+  if(doPixel_) e.getByLabel("siPixelDigis", pixeldigisimlink);
   
 }
 

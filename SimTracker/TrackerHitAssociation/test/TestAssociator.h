@@ -49,7 +49,7 @@ class TestAssociator : public edm::EDAnalyzer
   edm::ParameterSet conf_;
   const StripTopology* topol;
   int numStrips;    // number of strips in the module
-
+  bool doPixel_, doStrip_;
 };
 
 
