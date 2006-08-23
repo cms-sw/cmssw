@@ -29,6 +29,7 @@
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   dbe_(0),	
+  conf_(ps),
   matchedRecHits_( ps.getParameter<edm::InputTag>( "matchedRecHits" ) ),
   rphiRecHits_( ps.getParameter<edm::InputTag>( "rphiRecHits" ) ),
   stereoRecHits_( ps.getParameter<edm::InputTag>( "stereoRecHits" ) ) {
@@ -312,7 +313,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   int totrechitsas =0;
   int totrechitmatched =0;
   
-  TrackerHitAssociator associate(e);
+  TrackerHitAssociator associate( e, conf_ );
   
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);

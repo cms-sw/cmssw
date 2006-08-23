@@ -28,6 +28,7 @@
 
 SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps): 
   dbe_(0), 
+  conf_(ps),
   src_( ps.getParameter<edm::InputTag>( "src" ) ) {
 
    outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixelrechitshisto.root");
@@ -211,7 +212,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
    es.get<TrackerDigiGeometryRecord>().get(geom); 
    const TrackerGeometry& theTracker(*geom);
 
-   TrackerHitAssociator associate(e); 
+   TrackerHitAssociator associate( e, conf_ ); 
 
    //iterate over detunits
    for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++) {
