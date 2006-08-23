@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.7 2006/07/31 21:36:14 tboccali Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.8 2006/08/01 14:33:52 rahatlou Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -191,10 +191,15 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
       //      if (theMode_==offline) {
       //	 cache_.push_back(EPHLTElectronSeed(*v,seedCluster,eleVertex,vertexErr,dir,setup,"oseed")) ;
       // 	 result.push_back(EPHLTElectronSeed(*v,seedCluster,eleVertex,vertexErr,dir,setup,"oseed")) ;
-      prepareElTrackSeed((*v).first.recHit(),(*v).second,eleVertex);
+      //CC prepareElTrackSeed((*v).first.recHit(),(*v).second,eleVertex); 
+      bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,eleVertex);
       //	 result.push_back(EPHLTElectronSeed(seedCluster,(*v).first.dPhi(),*pts_,recHits_,dir));
-      ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);
-      result.push_back(s);
+      //CC ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);
+      //CC result.push_back(s);
+      if (valid) {
+        ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);
+        result.push_back(s);
+      }
       //      } else {
       //	 cache_.push_back(EPHLTElectronSeed(*v,seedCluster,eleVertex,vertexErr,dir,setup)) ;
       //	 result.push_back(EPHLTElectronSeed(*v,seedCluster,eleVertex,vertexErr,dir,setup)) ;
@@ -225,8 +230,9 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
       //        } else {
       // 	 //	 cache_.push_back(EPHLTElectronSeed(*v,seedCluster,posVertex,vertexErr,dir,setup)) ; 
       // 	 result.push_back(EPHLTElectronSeed(*v,seedCluster,posVertex,vertexErr,dir,setup)) ; 
-      prepareElTrackSeed((*v).first.recHit(),(*v).second,posVertex);
-      result.push_back(ElectronPixelSeed(seedCluster,*pts_,recHits_,dir));
+      //CC prepareElTrackSeed((*v).first.recHit(),(*v).second,posVertex);
+      bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,posVertex);
+      if (valid) result.push_back(ElectronPixelSeed(seedCluster,*pts_,recHits_,dir));
       //      }
       //      catch( DetLogicError& err) {
       //        cout << "ElectronPixelSeedGenerator Warning: " << err.what() << endl;
@@ -237,10 +243,12 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
  return ;
 }
 //RC void ElectronPixelSeedGenerator::prepareElTrackSeed(const TSiPixelRecHit& innerhit,const TSiPixelRecHit& outerhit, const GlobalPoint& vertexPos) {
-void ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
+//CC void ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
+bool ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
 						    ConstRecHitPointer outerhit,
 						    const GlobalPoint& vertexPos)
 {
+  
   // debug prints
   //RC
   //LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] inner PixelHit   x,y,z "<<innerhit.globalPosition();
@@ -264,20 +272,23 @@ void ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   //RC FastHelix helix(outerhit.globalPosition(),innerhit.globalPosition(),vertexPos,*theSetup);
   FastHelix helix(outerhit->globalPosition(),innerhit->globalPosition(),vertexPos,*theSetup);
   if ( !helix.isValid()) {
-    throw cms::Exception("DetLogicError")<<" prepareElTrackSeed: invalid helix";
+//CC    throw cms::Exception("DetLogicError")<<" prepareElTrackSeed: invalid helix";
+    return false;
   }
   FreeTrajectoryState fts = helix.stateAtVertex();
   //RC TSOS propagatedState = thePropagator->propagate(fts,innerhit.det()->surface()) ;
   TSOS propagatedState = thePropagator->propagate(fts,innerhit->det()->surface()) ;
   if (!propagatedState.isValid()) 
-    throw cms::Exception("DetLogicError") <<"SeedFromConsecutiveHits propagation failed";
+//CC    throw cms::Exception("DetLogicError") <<"SeedFromConsecutiveHits propagation failed";
+    return false;
   //RC TSOS updatedState = theUpdator->update(propagatedState, innerhit);
   TSOS updatedState = theUpdator->update(propagatedState, *innerhit);
   
   //RC TSOS propagatedState_out = thePropagator->propagate(fts,outerhit.det()->surface()) ;
   TSOS propagatedState_out = thePropagator->propagate(fts,outerhit->det()->surface()) ;
   if (!propagatedState_out.isValid()) 
-    throw cms::Exception("DetLogicError") <<"SeedFromConsecutiveHits propagation failed";
+//CC    throw cms::Exception("DetLogicError") <<"SeedFromConsecutiveHits propagation failed";
+    return false;
   //RC TSOS updatedState_out = theUpdator->update(propagatedState_out, outerhit);
   TSOS updatedState_out = theUpdator->update(propagatedState_out, *outerhit);
   // debug prints
@@ -285,4 +296,7 @@ void ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] final TSOS Pt: "<<updatedState_out.globalMomentum().perp();
   //RC pts_ =  transformer_.persistentState(updatedState_out, outerhit.geographicalId().rawId());
   pts_ =  transformer_.persistentState(updatedState_out, outerhit->geographicalId().rawId());
+
+  return true;
+  
 }
