@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/07/13 18:14:00 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/08/23 19:07:48 $
+ *  $Revision: 1.9 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.8 2006/07/13 18:14:00 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.9 2006/08/23 19:07:48 slava77 Exp $
 //
 //
 
@@ -115,7 +115,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
     ? FreeTrajectoryState(tParsDest, tCovDest) 
     : FreeTrajectoryState(tParsDest);
-  ftsDest.curvilinearError(); //call it so it gets created
+  if (ftsDest.hasError()) ftsDest.curvilinearError(); //call it so it gets created
 
   TrajectoryStateOnSurface tsosDest = TrajectoryStateOnSurface(ftsDest, pDest, side);
   int cInd = cIndex_(nPoints_-1);
@@ -158,7 +158,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
     ? FreeTrajectoryState(tParsDest, tCovDest) 
     : FreeTrajectoryState(tParsDest);
-  ftsDest.curvilinearError(); //call it so it gets created
+  if (ftsDest.hasError()) ftsDest.curvilinearError(); //call it so it gets created
 
   TrajectoryStateOnSurface tsosDest = TrajectoryStateOnSurface(ftsDest, cDest, side);
   int cInd = cIndex_(nPoints_-1);
@@ -201,7 +201,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
     ? FreeTrajectoryState(tParsDest, tCovDest) 
     : FreeTrajectoryState(tParsDest);
-  ftsDest.curvilinearError(); //call it so it gets created
+  if (ftsDest.hasError()) ftsDest.curvilinearError(); //call it so it gets created
   int cInd = cIndex_(nPoints_-1);
 
   return FtsPP(ftsDest, path_[cInd]);
@@ -243,7 +243,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
     ? FreeTrajectoryState(tParsDest, tCovDest) 
     : FreeTrajectoryState(tParsDest);
-  ftsDest.curvilinearError(); //call it so it gets created
+  if (ftsDest.hasError()) ftsDest.curvilinearError(); //call it so it gets created
   int cInd = cIndex_(nPoints_-1);
 
   return FtsPP(ftsDest, path_[cInd]);
