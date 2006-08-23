@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 15:48:48 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/14 16:29:12 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -35,14 +35,20 @@ HLTDoublet::HLTDoublet(const edm::ParameterSet& iConfig) :
   Max_Minv_ (iConfig.getParameter<double>("MaxMinv")),
   Min_N_    (iConfig.getParameter<int>("MinN"))
 {
+   // same collections to be compared?
    same = (inputTag1_.encode()==inputTag2_.encode());
 
-   LogDebug("") << "Inputs and cuts : " 
+   cutdphi = (Min_Dphi_ <= Max_Dphi_); // cut active?
+   cutdeta = (Min_Deta_ <= Max_Deta_); // cut active?
+   cutminv = (Min_Minv_ <= Max_Minv_); // cut active?
+
+   LogDebug("") << "InputTags and cuts : " 
 		<< inputTag1_.encode() << " " << inputTag2_.encode()
 		<< " Dphi [" << Min_Dphi_ << " " << Max_Dphi_ << "]"
                 << " Deta [" << Min_Deta_ << " " << Max_Deta_ << "]"
                 << " Minv [" << Min_Minv_ << " " << Max_Minv_ << "]"
-                << " MinN =" << Min_N_ ;
+                << " MinN =" << Min_N_
+		<< " same/dphi/deta/minv " << same << cutdphi << cutdeta << cutminv;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -95,13 +101,15 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        double Dphi_(abs(p1.phi()-p2.phi()));
        if (Dphi_>M_PI) Dphi_=2.0*M_PI-Dphi_;
+
        double Deta_(abs(p1.eta()-p2.eta()));
        p=ParticleKinematics(math::XYZTLorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
+
        double Minv_(abs(p.mass()));
 
-       if ( (Min_Dphi_ <= Dphi_) && (Dphi_ <= Max_Dphi_) &&
-            (Min_Deta_ <= Deta_) && (Deta_ <= Max_Deta_) &&
-            (Min_Minv_ <= Minv_) && (Minv_ <= Max_Minv_) ){
+       if ( ( (!cutdphi) || (Min_Dphi_ <= Dphi_) && (Dphi_ <= Max_Dphi_) ) &&
+            ( (!cutdeta) || (Min_Deta_ <= Deta_) && (Deta_ <= Max_Deta_) ) &&
+            ( (!cutminv) || (Min_Minv_ <= Minv_) && (Minv_ <= Max_Minv_) ) ) {
 	 n++;
          filterobject->putParticle(r1);
          filterobject->putParticle(r2);
@@ -111,7 +119,7 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // filter decision
-   bool accept(n>=Min_N_);
+   const bool accept(n>=Min_N_);
 
    // put filter object into the Event
    iEvent.put(filterobject);

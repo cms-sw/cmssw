@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 16:29:12 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/08/22 17:20:45 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -33,8 +33,8 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
   unsigned int n(0);
 
   if (byName_) {
-    // have names, need to get slot numbers
-    L1SeedsByName_= iConfig.getParameter<std::vector<std::string > >("L1SeedsByName");
+    // read names, then get slot numbers
+    L1SeedsByName_= iConfig.getParameter<std::vector<std::string > >("L1Seeds");
     n=L1SeedsByName_.size();
     L1SeedsByType_.resize(n);
     std::string name;
@@ -43,8 +43,8 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
       L1SeedsByType_[i]=l1extra::L1ParticleMap::triggerType(name);
     }
   } else {
-    // have slot numbers, need to get names
-    L1SeedsByType_= iConfig.getParameter<std::vector<unsigned int> >("L1SeedsByType");
+    // read slot numbers, then get names
+    L1SeedsByType_= iConfig.getParameter<std::vector<unsigned int> >("L1Seeds");
     n=L1SeedsByType_.size();
     L1SeedsByName_.resize(n);
     for (unsigned int i=0; i!=n; i++) {
