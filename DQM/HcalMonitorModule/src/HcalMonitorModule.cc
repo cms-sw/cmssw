@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/08/22 21:22:16 $
- * $Revision: 1.16 $
+ * $Date: 2006/08/23 15:02:40 $
+ * $Revision: 1.17 $
  * \author W Fisher
  *
 */
@@ -157,14 +157,17 @@ void HcalMonitorModule::endJob(void) {
   if(m_mtccMon!=NULL) m_mtccMon->done();
   cout << "HcalMonitorModule::endJob, done..."<< endl;
 
-  char tmp[150];
-  if ( outputFile_.substr(i, 5) == ".root" )  {
-    tmp = "";
+  char tmp[150]; bool update = true;
+  for ( unsigned int i = 0; i < m_outputFile.size(); i++ ) {
+    if ( m_outputFile.substr(i, 5) == ".root" )  {
+      update = false;
+    }
   }
-  else{
+  string saver = m_outputFile;
+  if(update){
     sprintf(tmp,"%09d.root", m_runNum);
+    saver = m_outputFile+tmp;
   }
-  string saver = m_outputFile+tmp;
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(saver);
   cout << "HcalMonitorModule::endJob, saved..."<< endl;
   
