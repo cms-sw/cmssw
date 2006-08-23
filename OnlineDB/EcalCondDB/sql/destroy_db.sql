@@ -9,6 +9,15 @@ END;
 /
 
 BEGIN
+  FOR result IN (SELECT view_name FROM user_views)
+  LOOP
+    EXECUTE IMMEDIATE 'DROP VIEW ' || result.view_name;
+  END LOOP;
+END;
+/
+
+
+BEGIN
   FOR result IN (SELECT sequence_name FROM user_sequences)
   LOOP
     EXECUTE IMMEDIATE 'DROP SEQUENCE ' || result.sequence_name;
