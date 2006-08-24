@@ -46,9 +46,9 @@ CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
   // since the trapezoids are truncated sectors of circles.
 
 
-  // Radial or Trapezoidal strips?
+  // Radial or Trapezoidal strips? Only radial is realistic
 
-  if ( CSCChamberSpecs::radialStrips() ) {
+  //  if ( CSCChamberSpecs::radialStrips() ) {
 
   // RST more tricky than TST, since we need to enforce the constraint
   // that the subtended angle is exactly the no. of strips * ang width
@@ -63,32 +63,16 @@ CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
         new OffsetRadialStripTopology(nstrips, stripPhiPitch,
 	    2.*apothem, whereStripsMeet, stripOffset );
 
-     if ( gangedME1A )
+     if ( gangedME1A ) {
        theStripTopology = new ORedOffsetRST( *aStripTopology, 16 );
-     else
+       delete aStripTopology;
+     }
+     else {
        theStripTopology = aStripTopology;
-  }
-  else {
+     }
 
-    //@@ TST CODE UNPORTED FROM ORCA
+  //  }
 
-  // For TST, just project extreme edges of chamber
-     whereStripsMeet = apothem * (hTopEdge+hBottomEdge)/(hTopEdge-hBottomEdge);
-
-  // Strip pitch along x axis... 
-  // strictly makes sense only for TrapezoidalStripTopology model
-     //     float stripPitch =  (hTopEdge + hBottomEdge) / nstrips;
-
-     //     AbsOffsetTrapezoidalStripTopology* aStripTopology = 
-     //       new OffsetTrapezoidalStripTopology(nstrips, stripPitch,
-     //            2.*apothem, whereStripsMeet, stripOffset, stripPhiPitch );
-
-     //     if ( gangedME1A )
-     //       theStripTopology = new ORedOffsetTST( *aStripTopology, 16 );
-     //     else
-     //       theStripTopology = aStripTopology;
-
-  }
 
     //@@ HOW TO SET yOfFirstWire ? It should be explicit in the DDD.
     //@@ (To retrieve backward-compatibility I need a calculated value
