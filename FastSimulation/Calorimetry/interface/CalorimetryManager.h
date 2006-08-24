@@ -5,8 +5,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+
 // FastSimulation headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
+#include "FastSimulation/Calorimetry/interface/HCALResponse.h"
+
 // For the uint32_t
 #include <boost/cstdint.hpp>
 #include <map>
@@ -40,12 +46,23 @@ class CalorimetryManager{
 
   void loadFromHcal(edm::PCaloHitContainer & c) const;
 
+  // Exports RecHits to the containers used by JetProducers
+  void loadHits(HBHERecHitCollection *hbheHits, 
+		HORecHitCollection *hoHits,
+		HFRecHitCollection *hfHits, 
+		EcalRecHitCollection *ecalHits);
+
  private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
   void EMShowerSimulation(const FSimTrack& myTrack);
   
   // Simulation of electromagnetic showers in VFCAL
   void reconstructECAL(const FSimTrack& track) ;
+
+  void reconstructHCAL(const FSimTrack& myTrack);
+
+  /// Hadronic Shower Simulation
+  void HDShowerSimulation(const FSimTrack& myTrack);
 
   // Read the parameters 
   void readParameters(const edm::ParameterSet& fastCalo);
@@ -57,6 +74,8 @@ class CalorimetryManager{
   Calorimeter* myCalorimeter_;
 
   Histos * myHistos;
+
+  HCALResponse* myHDResponse;
 
   std::map<unsigned,float> EBMapping_;
   std::map<unsigned,float> EEMapping_;
@@ -76,5 +95,8 @@ class CalorimetryManager{
   double spotFraction_;
   int gridSize_;
   std::vector<double> theCoreIntervals_,theTailIntervals_;
+  //FR
+  int optionHDSim_, hdGridSize_, hdSimMethod_;
+  //RF
 };
 #endif
