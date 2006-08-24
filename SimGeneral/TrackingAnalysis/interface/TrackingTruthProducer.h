@@ -16,9 +16,11 @@ private:
   edm::ParameterSet conf_;
   double                   distanceCut_;
   std::vector<std::string> dataLabels_;
+  std::vector<std::string> hitLabelsVector_;
   double                   volumeRadius_;
   double                   volumeZ_;
   bool                     discardOutVolume_;
+  std::string		   simHitLabel_;		   
   
 };
 
