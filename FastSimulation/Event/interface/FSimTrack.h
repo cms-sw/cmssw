@@ -3,6 +3,7 @@
 
 // CLHEP Headers
 #include "CLHEP/Vector/LorentzVector.h"
+#include <CLHEP/HepPDT/DefaultConfig.hh>
 
 // CMSSW Headers
 #include "SimDataFormats/Track/interface/SimTrack.h"
@@ -14,7 +15,7 @@
 
 class FSimVertex;
 class FBaseSimEvent;
-class HepParticleData;
+class ParticleData;
 
 namespace HepMC {
   class GenParticle;
@@ -39,7 +40,7 @@ class FSimTrack : public SimTrack {
   virtual ~FSimTrack();
 
   /// particle info...
-  const HepParticleData * particleInfo() const;
+  const DefaultConfig::ParticleData* particleInfo() const;
   
   /// four momentum
   //inline HepLorentzVector momentum() const { return me().momentum(); }

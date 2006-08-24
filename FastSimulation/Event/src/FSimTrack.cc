@@ -5,8 +5,7 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 
-#include "SimGeneral/HepPDT/interface/HepPDTable.h"
-#include "SimGeneral/HepPDT/interface/HepParticleData.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 //C++ Headers
 #include <iomanip>
@@ -15,6 +14,7 @@
 #include <string>
 
 using namespace std;
+using namespace HepPDT;
 
 FSimTrack:: FSimTrack() : 
   SimTrack(), mom_(0), id_(-1), endv_(-1),
@@ -34,9 +34,9 @@ FSimTrack::~FSimTrack() {
   theSimHits.clear();
 }
 
-const HepParticleData*
+const DefaultConfig::ParticleData*
 FSimTrack::particleInfo() const {
-  return HepPDT::theTable().getParticleData(type());
+  return mom_->theTable()->particle(ParticleID(type()));
 }
 
 float 
@@ -240,7 +240,7 @@ ostream& operator <<(ostream& o , const FSimTrack& t) {
     << setw(4) << t.genpartIndex() << " " 
     << name;
 
-  for(unsigned int k=0;k<9-name.length() && k<10; k++) o << " ";  
+  for(unsigned int k=0;k<11-name.length() && k<12; k++) o << " ";  
 
   o << setw(6) << setprecision(2) << momentum1.eta() << " " 
     << setw(6) << setprecision(2) << momentum1.phi() << " " 

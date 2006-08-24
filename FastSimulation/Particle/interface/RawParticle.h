@@ -4,7 +4,7 @@
 #include "CLHEP/config/CLHEP.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
-class HepPDTable;
+class ParticleTable;
 
 #include <vector>
 #include <string>
@@ -58,13 +58,13 @@ public:
 
   /** Set identifier for this particle.
    *  This should be a standard HEP-PID number. It will be used to deduce the 
-   *  name and the properties of the particle from a \ref HepPDT table.
+   *  name and the properties of the particle from a particle data table.
    */
 
    void setID(const int id); 
   /** Set identifier for this particle.
    *  This should be a standard HEP-PID name. It will be used to deduce the 
-   *  particle properties from a \ref HepPDT table.
+   *  particle properties from a particle data table.
    */
 
    void setID(const std::string name); 
@@ -167,7 +167,7 @@ public:
    const HepLorentzVector& vertex() const;   //!< the vertex fourvector
 
   /** Print the name of the particle.
-   *  The name is deduced from the particle ID using a \ref HepPDT table.
+   *  The name is deduced from the particle ID using a particle data table.
    *  It is printed with a length of 10 characters. If the id number cannot
    *  be found in the table "unknown" is printed as name.
    */
@@ -193,8 +193,6 @@ public:
    */
    void reUse() { myUsed = 0;}  
 
-   int ntot() const; //!< Get the total number of instatiated RawParticles
-
 private:
 
   void init();
@@ -209,9 +207,7 @@ protected:
   HepDouble myMass;            //!< the RECONSTRUCTED mass
 
 private:
-  static HepPDTable*  tab;
-  static int nParticles;
-  static bool isfirst;
+  ParticleTable* tab;
 };
 
 

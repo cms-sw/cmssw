@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2001/04/11 08:30:55 $
+//  $Date: 2006/03/10 21:23:56 $
 //  $Revision: 1.1 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
@@ -13,9 +13,6 @@
 #include "FastSimulation/Particle/interface/RawParticleTypeFilter.h"
 
 using namespace std;
-
-// init static member
-// HepPDTable & RawParticleTypeFilter::tab = HepPDT::theTable();
 
 RawParticleTypeFilter::RawParticleTypeFilter(const string& particleName) {
   HepLorentzVector one;

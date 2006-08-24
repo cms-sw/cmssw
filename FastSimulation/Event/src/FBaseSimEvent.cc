@@ -5,9 +5,7 @@
 #include "CLHEP/HepMC/GenParticle.h"
 
 // CMSSW Sim headers
-// #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimGeneral/HepPDT/interface/HepPDTable.h"
-#include "SimGeneral/HepPDT/interface/HepParticleData.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
@@ -62,9 +60,6 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   // Initialize the Particle filter
   myFilter = new KineParticleFilter(kine);
 
-  // The particle Data Table
-  tab = & HepPDT::theTable();
-  
   // Get the Famos Histos pointer
   //  myHistos = Histos::instance();
 
@@ -90,14 +85,17 @@ FBaseSimEvent::~FBaseSimEvent(){
   //  delete myHistos;
 }
 
-/*
 void 
 FBaseSimEvent::initializePdt(const DefaultConfig::ParticleDataTable* aPdt) { 
 
   pdt = aPdt; 
 
 }
-*/
+
+const DefaultConfig::ParticleDataTable*
+FBaseSimEvent::theTable() const {
+  return pdt;
+}
 
 void
 FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
@@ -453,19 +451,12 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
      //     const std::string name = (*p)->particledata().name();
     int partId = p->pdg_id();
     std::string name;
-    if (tab->getParticleData(partId) != 0) {
-      name = (tab->getParticleData(partId))->name();
-    } else {
-      name = "none";
-    }
 
-    /*
     if ( pdt->particle(ParticleID(partId)) !=0 ) {
       name = (pdt->particle(ParticleID(partId)))->name();
     } else {
       name = "none";
     }
-    */
        
     HepLorentzVector momentum1 = p->momentum();
     Hep3Vector vertex1 = p->creationVertex().vect();
@@ -479,7 +470,7 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
     cout << setw(4) << p->barcode()-1 << " " 
 	 << name;
     
-    for(unsigned int k=0;k<9-name.length() && k<10; k++) cout << " ";  
+    for(unsigned int k=0;k<11-name.length() && k<12; k++) cout << " ";  
     
     double eta = momentum1.eta();
     if ( eta > +10. ) eta = +10.;

@@ -2,7 +2,6 @@
 <use name=FWCore/ParameterSet>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
-<use name=SimGeneral/HepPDT>
 <use name=SimGeneral/HepPDTRecord>
 <use name=IOMC/GaussianEventVertexGenerator>
 <use name=IOMC/FlatEventVertexGenerator>
@@ -16,7 +15,6 @@
  <use name=FWCore/ParameterSet>
  <use name=SimDataFormats/Track>
  <use name=SimDataFormats/Vertex>
- <use name=SimGeneral/HepPDT>
  <use name=SimGeneral/HepPDTRecord>
  <use name=IOMC/GaussianEventVertexGenerator>
  <use name=IOMC/FlatEventVertexGenerator>
