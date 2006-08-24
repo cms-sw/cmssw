@@ -5,6 +5,9 @@
 #include "HLTrigger/HLTexample/interface/HLTFiltCand.h"
 #include "HLTrigger/HLTexample/interface/HLTAnalFilt.h"
 #include "HLTrigger/HLTexample/interface/HLTSimpleJet.h"
+#include "HLTrigger/HLTexample/interface/HLTLevel1Seed.h"
+#include "HLTrigger/HLTexample/interface/HLTGlobalSums.h"
+#include "HLTrigger/HLTexample/interface/HLTDoublet.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -13,10 +16,6 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-
-#include "HLTrigger/HLTexample/interface/HLTLevel1Seed.h"
-
-#include "HLTrigger/HLTexample/interface/HLTDoublet.h"
 
 #include "HLTrigger/HLTexample/interface/HLTSinglet.h"
 #include "HLTrigger/HLTexample/src/HLTSinglet.cc"
@@ -64,6 +63,7 @@ DEFINE_ANOTHER_FWK_MODULE(HLTFiltCand)
 DEFINE_ANOTHER_FWK_MODULE(HLTAnalFilt)
 DEFINE_ANOTHER_FWK_MODULE(HLTSimpleJet)
 DEFINE_ANOTHER_FWK_MODULE(HLTLevel1Seed)
+DEFINE_ANOTHER_FWK_MODULE(HLTGlobalSums)
 DEFINE_ANOTHER_FWK_MODULE(HLTDoublet)
 
 DEFINE_ANOTHER_FWK_MODULE(HLT1Electron)
