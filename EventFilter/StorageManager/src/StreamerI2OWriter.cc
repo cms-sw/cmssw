@@ -30,6 +30,9 @@
 #include "xdaq/ApplicationContext.h"
 #include "xdaq/ApplicationGroup.h"
 
+#include "xcept/include/xcept/Exception.h"
+#include "toolbox/include/toolbox/fsm/exception/Exception.h"
+
 #include "toolbox/mem/MemoryPoolFactory.h"
 #include "toolbox/mem/HeapAllocator.h"
 #include "toolbox/mem/Reference.h"
@@ -55,6 +58,7 @@
 extern xdaq::Application* getMyXDAQPtr();
 extern toolbox::mem::Pool *getMyXDAQPool();
 extern xdaq::ApplicationDescriptor* getMyXDAQDest();
+extern xdaq::ApplicationDescriptor* getMyXDAQDest(unsigned int);
 
 // for performance measurements
 extern void addMyXDAQMeasurement(unsigned long size);
@@ -78,7 +82,7 @@ namespace edm
 
   struct I2OStreamWorker
   {
-    I2OStreamWorker(const string& s);
+    I2OStreamWorker(const string& s, const int dsi);
 
     string destinationName_;
     xdaq::Application* app_;
@@ -87,12 +91,22 @@ namespace edm
   };
 
   //I2OStreamWorker::I2OStreamWorker(const string& s = "testI2OReceiver" ):
-  I2OStreamWorker::I2OStreamWorker(const string& s = "simpleI2OReceiver" ):
+  I2OStreamWorker::I2OStreamWorker(const string& s = "simpleI2OReceiver", const int dsi = -1):
                       destinationName_(s),
                       app_(getMyXDAQPtr()),
-                      pool_(getMyXDAQPool()),
-                      destination_(getMyXDAQDest())
+                      pool_(getMyXDAQPool())
   {
+    if(dsi<0)
+      destination_ = getMyXDAQDest();
+    else
+      destination_ = getMyXDAQDest(dsi);
+    if(destination_ == 0)
+      {
+	ostringstream os;
+	os << "Could not find instance " << dsi << " for destination " << s;
+	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		     os.str().c_str());
+      }
     //LOG4CPLUS_INFO(app_->getApplicationLogger(),"Making I2OStreamWorker");
     FDEBUG(10) << "StreamerI2OWriter: Making I2OStreamWorker" << std::endl;
   }
@@ -100,7 +114,8 @@ namespace edm
   // ----------------------------------
 
   StreamerI2OWriter::StreamerI2OWriter(edm::ParameterSet const& ps):
-    worker_(new I2OStreamWorker(ps.template getParameter<string>("DestinationName"))),
+    worker_(new I2OStreamWorker(ps.template getParameter<string>("DestinationName"),
+				ps.template getUntrackedParameter<int>("smInstance",-1))),
     i2o_max_size_(ps.template getUntrackedParameter<int>("i2o_max_size",I2O_MAX_SIZE))
   {
     FDEBUG(10) << "StreamerI2OWriter: Constructor" << std::endl;
