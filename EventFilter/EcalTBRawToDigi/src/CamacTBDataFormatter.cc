@@ -377,11 +377,14 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   // skip 10 reserved words
   wordCounter += 10;
   bool ADCIsGood = true;
-  ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
+//  ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
+  ADCIsGood = checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;  // NOT read out
   b = (a&0x00ffffff);
   LogDebug("CamacTBDataFormatter") << "ADC word1: " << a << "\t ADC2: " << b << " word is: " << (wordCounter-1) << endl;
-  ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
+//  ADCIsGood = true;
+//  ADCIsGood = ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
+  ADCIsGood = checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;  // read out
   b = (a&0xffffff);
   LogDebug("CamacTBDataFormatter") << "ADC word2, adc channel 11, ampli S6: " << a << "\t ADC2: " << b << endl;
