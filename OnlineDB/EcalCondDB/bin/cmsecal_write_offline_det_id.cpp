@@ -223,7 +223,7 @@ public:
     description = "DetID rawid() as used in CMSSW";
     vdEditor.insertRow(rowBuffer2);
 
-    vdname = "EB_crystal_angles";
+    vdname = "EB_crystal_angle";
     id1name = "ieta";
     rowBuffer2[ "ID2NAME" ].setNull( false );
     id2name = "iphi";
