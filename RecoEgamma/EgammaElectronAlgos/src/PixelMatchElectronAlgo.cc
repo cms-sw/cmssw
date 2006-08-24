@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.3 2006/07/31 21:36:14 tboccali Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.4 2006/08/01 14:34:42 rahatlou Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -40,6 +40,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CLHEP/Units/PhysicalConstants.h"
+
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -52,11 +54,13 @@ PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverP, double maxHOver
  theInitialState(0), theMeasurementTracker(0), theNavigationSchool(0) {}
 
 PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
-    delete theInitialState;
-    delete theMeasurementTracker;
-    delete theNavigationSchool;
-    delete theCkfTrajectoryBuilder;
-    delete theTrajectoryCleaner;    
+
+  delete theInitialState;
+  delete theMeasurementTracker;
+  delete theNavigationSchool;
+  delete theCkfTrajectoryBuilder;
+  delete theTrajectoryCleaner; 
+    
 }
 
 void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::ParameterSet &conf) {
@@ -231,7 +235,7 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
 	const XYZTLorentzVector momentum(initState.first.globalMomentum().x(),
 	                                initState.first.globalMomentum().y(),
 	                                initState.first.globalMomentum().z(),
-	                                sqrt(initState.first.globalMomentum().mag2() + 0.000511*0.000511) );
+	                                sqrt(initState.first.globalMomentum().mag2() + electron_mass_c2*electron_mass_c2*1.e-6) );
 	XYZPoint vertex( 0, 0, 0 );
 	Electron ele(aTrack.charge(),momentum,vertex);
         ele.setSuperCluster(epseed->superCluster());
@@ -266,7 +270,7 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
   }
   cout << "=================================================" << endl;
   LogInfo("PixelMatchElectronAlgo") << "=================================================";
-        
+     
 }
 
 //bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const ElectronTrack& track) {
