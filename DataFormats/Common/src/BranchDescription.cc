@@ -1,9 +1,10 @@
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Reflex/Type.h"
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.12 2006/08/01 20:54:33 wmtan Exp $
+$Id: BranchDescription.cc,v 1.14 2006/08/22 05:46:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,7 +21,9 @@ namespace edm {
     processConfigurationIDs_(),
     branchAliases_(),
     produced_(false),
-    present_(true)
+    present_(true),
+    provenancePresent_(true),
+    transient_(false)
   { }
 
   BranchDescription::BranchDescription(
@@ -44,7 +47,9 @@ namespace edm {
     processConfigurationIDs_(procConfigIDs),
     branchAliases_(aliases),
     produced_(true),
-    present_(true) {
+    present_(true),
+    provenancePresent_(true),
+    transient_(false) {
     init();
   }
 
@@ -75,6 +80,10 @@ namespace edm {
 
     branchName_ = friendlyClassName() + underscore + moduleLabel() + underscore +
       productInstanceName() + underscore + processName() + period;
+
+    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(fullClassName());
+    ROOT::Reflex::PropertyList p = t.Properties();
+    transient_ = (p.HasKey("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
   }
 
   ParameterSetID const&
