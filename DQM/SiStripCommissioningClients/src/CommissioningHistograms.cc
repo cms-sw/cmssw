@@ -12,6 +12,7 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui )
 {
   cout << "[" << __PRETTY_FUNCTION__ << "]"
        << " Created base object!" << endl;
+  collations_.clear();
 }
 
 // -----------------------------------------------------------------------------
@@ -75,25 +76,34 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       TH1F* his = ExtractTObject<TH1F>().extract( me );
       if ( prof ) { prof->SetErrorOption("s"); } //@@ is this necessary? (until bug fix applied to dqm)...
 
+      static SiStripHistoNamingScheme::HistoTitle title;
+      title = SiStripHistoNamingScheme::histoTitle( *ime );
+      uint32_t key = SiStripControlKey::key( path.fecCrate_,
+					     path.fecSlot_,
+					     path.fecRing_,
+					     path.ccuAddr_,
+					     path.ccuChan_,
+					     title.channel_ );
       // Create collation MEs
-      if ( find( collations_.begin(), collations_.end(), client_dir+(*ime) ) == collations_.end() ) {
-	//cout << "Entry " << client_dir+(*ime) << " is not found in 'collations' vector" << endl;
+      CollationsMap::iterator iter = collations_.find( key );
+      if ( iter == collations_.end() ) {
 	if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); }
 	else if ( his ) { cme = mui()->collate1D( *ime, *ime, client_dir ); }
-	else            { 
-	  cme = 0; 
-	  cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	       << " NULL pointers to histos!" << endl; 
-	}
+	else { cme = 0; cerr << "[" << __PRETTY_FUNCTION__ << "] NULL pointers to histos!" << endl; }
 	if ( cme ) {
 	  mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
-	  collations_.push_back( client_dir+(*ime) ); // record "path + name"
-	  //cout << "Created collate ME with name " << *ime 
-	  //<< " in directory " << client_dir 
-	  //<< " which collates all histos matching string: " 
-	  //<< ( "*/"+client_dir+(*ime) ) << endl;
-	  //cout << "Number of collate MEs is " << collations_.size() << endl;
-	} 
+	  collations_[key].push_back( client_dir+(*ime) ); // store "path + name"
+	}
+      } else {
+	if ( find( iter->second.begin(), iter->second.end(), client_dir+(*ime) ) == iter->second.end() ) {
+	  if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); }
+	  else if ( his ) { cme = mui()->collate1D( *ime, *ime, client_dir ); }
+	  else { cme = 0; cerr << "[" << __PRETTY_FUNCTION__ << "] NULL pointers to histos!" << endl; }
+	  if ( cme ) {
+	    mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
+	    collations_[key].push_back( client_dir+(*ime) ); // store "path + name"
+	  }
+	}
       }
     }
   }
@@ -119,6 +129,14 @@ void CommissioningHistograms::saveHistos( string name ) {
 }
 
 // -----------------------------------------------------------------------------
+/** Wraps other createSummaryHisto() method. */
+void CommissioningHistograms::createSummaryHisto( pair<sistrip::SummaryHisto,
+						  sistrip::SummaryType> summ, 
+						  string directory ) {
+  createSummaryHisto( summ.first, summ.second, directory );
+}
+
+// -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
 						  const sistrip::SummaryType& type, 
@@ -127,12 +145,6 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::SummaryHisto& h
        << " (Derived) implementation to come..." << endl;
 }
 
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::createTrackerMap() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" 
-       << " (Derived) implementation to come..." << endl;
-}
 
 // -----------------------------------------------------------------------------
 /** */

@@ -16,28 +16,44 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   
  public:
   
-  // This line is necessary!
+  //@@ This line is necessary!
   XDAQ_INSTANTIATOR();
   
   SiStripCommissioningClient( xdaq::ApplicationStub* );
   ~SiStripCommissioningClient();
-  
+
+  // ---------- States and monitoring ----------
+
   void configure();
   void newRun();
   void endRun();
   void onUpdate() const;
   
-  /** Friend method to allow web interface access to commissioning histos. */
-  friend CommissioningHistograms* histos( const SiStripCommissioningClient& );
-  
+  // ---------- Web-related ----------
+
   /** Answers all HTTP requests of the form ".../Request?RequestID=..." */
   void handleWebRequest( xgi::Input*, xgi::Output* );
     
   /** Outputs the page with the widgets (declared in DQMBaseClient) */
   void general( xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
 
- private:
+  // ---------- "Actions" ----------
+
+  /** */
+  virtual void saveHistos( std::string filename );
+  /** */
+  virtual void histoAnalysis();
+  /** */
+  virtual void createSummaryHisto( sistrip::SummaryHisto, 
+				   sistrip::SummaryType, 
+				   std::string directory );
+  /** */
+  virtual void uploadToConfigDb();
   
+ private:
+ 
+  // ---------- Private "actions" ----------
+
   /** */
   sistrip::Task extractTask( const std::vector<std::string>& added_contents ) const;
   
@@ -55,8 +71,6 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
 
   mutable sistrip::Task task_;
   
-  mutable bool first_;
-
 };
 
 #endif // DQM_SiStripCommissioningClients_SiStripCommissioningClient_H

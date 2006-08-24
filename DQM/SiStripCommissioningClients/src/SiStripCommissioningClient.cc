@@ -8,6 +8,7 @@
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include <SealBase/Callback.h>
 // #include "FWCore/Utilities/interface/Presence.h"
 // #include "FWCore/Utilities/interface/PresenceFactory.h"
 // #include "FWCore/Utilities/interface/ProblemTracker.h"
@@ -24,8 +25,7 @@ SiStripCommissioningClient::SiStripCommissioningClient( xdaq::ApplicationStub* s
   : DQMBaseClient( stub, "SiStripCommissioningClient", "localhost", 9090 ),
     web_(0),
     histos_(0),
-    task_(sistrip::UNKNOWN_TASK),
-    first_(true)
+    task_(sistrip::UNKNOWN_TASK)
 {
   xgi::bind( this, &SiStripCommissioningClient::handleWebRequest, "Request" );
   
@@ -72,24 +72,8 @@ void SiStripCommissioningClient::onUpdate() const {
   // Subscribe to new monitorables and retrieve updated contents
   if ( mui_ ) { mui_->subscribe( "*" ); }
   vector<string> contents;
-  //   if ( first_ ) { 
   mui_->getContents( contents ); 
-  //     first_ = false; 
-  //   } else { 
-  //mui_->subscribeNew( "*" );
-  //mui_->getAddedContents( contents ); 
-  //mui_->getUpdatedContents( contents ); 
-  //   }
   
-  stringstream ss;
-  ss << "[" << __PRETTY_FUNCTION__ << "]"
-     << " Found " << contents.size() 
-     << " entries in 'contents' vector:" << endl;
-  for ( uint16_t istr = 0; istr < contents.size(); istr++ ) { 
-    ss << " " << istr << ": " << contents[istr] << endl;
-  }
-  cout << ss.str();
-
   if ( contents.empty() ) { return; }
 
   // Extract commissioning task from added contents
@@ -102,7 +86,7 @@ void SiStripCommissioningClient::onUpdate() const {
   if ( histos_ ) { histos_->createCollations( contents ); }
   
   // Update monitorables using histogram analysis
-  if ( histos_ ) { histos_->histoAnalysis(); }
+  //if ( histos_ ) { histos_->histoAnalysis(); }
   
 }
 
@@ -163,16 +147,6 @@ void SiStripCommissioningClient::createHistograms( const sistrip::Task& task ) c
 }
 
 // -----------------------------------------------------------------------------
-/** */
-CommissioningHistograms* histos( const SiStripCommissioningClient& client ) { 
-  if ( !client.histos_ ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to CommissioningHistograms object!" << endl; 
-  }
-  return client.histos_;
-}
-
-// -----------------------------------------------------------------------------
 /** General access to client info. */
 void SiStripCommissioningClient::general( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ) {
   if ( web_ ) { web_->Default( in, out ); }
@@ -186,4 +160,115 @@ void SiStripCommissioningClient::handleWebRequest( xgi::Input* in, xgi::Output* 
   if ( web_ ) { web_->handleRequest(in, out); }
   else { cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	      << " NULL pointer to WebPage!" << endl; }
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::histoAnalysis() {
+
+  if ( !histos_ ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to CommissioningHistograms!" << endl; 
+    return;
+  }
+  
+  seal::Callback action; 
+  action = seal::CreateCallback( histos_, 
+				 &CommissioningHistograms::histoAnalysis 
+				 ); // no arguments
+  
+  if ( mui_ ) { 
+    mui_->addCallback(action); 
+    cout << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Scheduling this action..." << endl;
+  } else { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to MonitorUserInterface!" << endl; 
+    return;
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::saveHistos( string name ) {
+
+  if ( !histos_ ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to CommissioningHistograms!" << endl; 
+    return;
+  }
+  
+  seal::Callback action;
+  action = seal::CreateCallback( histos_, 
+				 &CommissioningHistograms::saveHistos,
+				 name ); //@@ argument list
+  
+  if ( mui_ ) { 
+    mui_->addCallback(action); 
+    cout << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Scheduling this action..." << endl;
+  } else { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to MonitorUserInterface!" << endl; 
+    return;
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::createSummaryHisto( sistrip::SummaryHisto histo, 
+						     sistrip::SummaryType type, 
+						     string directory ) {
+  
+  if ( !histos_ ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to CommissioningHistograms!" << endl; 
+    return;
+  }
+  
+  pair<sistrip::SummaryHisto,sistrip::SummaryType> summ(histo,type);
+  seal::Callback action;
+  action = seal::CreateCallback( histos_, 
+				 &CommissioningHistograms::createSummaryHisto,
+				 summ, directory ); //@@ argument list
+  
+  if ( mui_ ) { 
+    mui_->addCallback(action); 
+    cout << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Scheduling this action..." << endl;
+  } else { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to MonitorUserInterface!" << endl; 
+    return;
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::uploadToConfigDb() {
+
+  if ( !histos_ ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to CommissioningHistograms!" << endl; 
+    return;
+  }
+  
+  seal::Callback action;
+  action = seal::CreateCallback( histos_, 
+				 &CommissioningHistograms::uploadToConfigDb
+				 ); //@@ no arguments
+  
+  if ( mui_ ) { 
+    mui_->addCallback(action); 
+    cout << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Scheduling this action..." << endl;
+  } else { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to MonitorUserInterface!" << endl; 
+    return;
+  }
+
 }

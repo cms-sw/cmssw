@@ -20,13 +20,9 @@ class SiStripCommissioningWebClient : public WebInterface {
   
   virtual void handleCustomRequest( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception );
   
- private: // ----- private methods -----
-  
-  void scheduleCustomRequest( std::multimap<std::string,std::string> ) throw ( xgi::exception::Exception );
+ private:
   
   void defineWidgets();
-  
- private: // ----- private data members -----
   
   /** */
   SiStripCommissioningClient* client_;

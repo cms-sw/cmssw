@@ -1,4 +1,8 @@
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
+#include "DQM/SiStripCommon/interface/SummaryGenerator.h"
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -8,45 +12,51 @@ ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui )
   : CommissioningHistograms(mui),
     factory_( new Factory )
 {
-  cout << "[ApvTimingHistograms::ApvTimingHistograms]"
+  cout << "[" << __PRETTY_FUNCTION__ << "]"
        << " Created object for APV TIMING histograms" << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistograms::~ApvTimingHistograms() {
-  cout << "[ApvTimingHistograms::~ApvTimingHistograms]" << endl;
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 }
 
 // -----------------------------------------------------------------------------	 
 /** */	 
 void ApvTimingHistograms::histoAnalysis() {
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   
   uint32_t cntr = 0;
-  uint32_t nhis = collations().size();
+  uint32_t nchans = collations().size();
   
-  // Iterate through profile histograms in order to to fill delay map 
-  std::vector<std::string>::const_iterator ihis = collations().begin();
-  for ( ; ihis != collations().end(); ihis++ ) {
+  // Iterate through map containing vectors of profile histograms
+  CollationsMap::const_iterator iter = collations().begin();
+  for ( ; iter != collations().end(); iter++ ) {
+    
+    if ( iter->second.empty() ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Zero collation histograms found!" << endl;
+      continue;
+    }
     cntr++;
     cout << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Analyzing " << cntr << " of " << nhis << " histograms..." << endl;
-
-    // Extract profile histo from map	 
-    MonitorElement* me = mui()->get( *ihis );
-    TProfile* prof = ExtractTObject<TProfile>().extract( me );
+	 << " Analyzing histograms from " << cntr
+	 << " of " << nchans << " FED channels..." << endl;
+    
+    // Retrieve pointer to profile histo 
+    TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get(iter->second[0]) );
     if ( !prof ) { 
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " NULL pointer to MonitorElement!" << endl; 
       continue; 
     }
     
-    // Perform histo analysis
-    ApvTimingAnalysis::Monitorables mons;
-    ApvTimingAnalysis::analysis( prof, mons );
-    
     // Retrieve control key
-    SiStripHistoNamingScheme::HistoTitle title = SiStripHistoNamingScheme::histoTitle( prof->GetName() );
+    static SiStripHistoNamingScheme::HistoTitle title;
+    title = SiStripHistoNamingScheme::histoTitle( prof->GetName() );
+    
+    // Some checks
     if ( title.task_ != sistrip::APV_TIMING ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " Unexpected commissioning task!"
@@ -54,21 +64,12 @@ void ApvTimingHistograms::histoAnalysis() {
 	   << endl;
     }
     
+    // Perform histo analysis
+    ApvTimingAnalysis::Monitorables mons;
+    ApvTimingAnalysis::analysis( prof, mons );
+    
     // Store delay in map
-    if ( data_.find( title.keyValue_ ) == data_.end() ) {
-      data_[title.keyValue_] = mons; 
-    } else { 
-      if ( mons.delay_ != data_[title.keyValue_].delay_ ) {
-	stringstream ss;
-	ss << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Monitorable data already exist!" << "\n";
-	ss << "Existing Monitorable data:" << "\n";
-	data_[title.keyValue_].print( ss );
-	ss << "New Monitorable data:" << "\n";
-	mons.print( ss );
-	cerr << ss.str();
-      }
-    }
+    data_[iter->first] = mons; 
     
   }
   
@@ -89,7 +90,7 @@ void ApvTimingHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo
   mui()->setCurrentFolder( directory );
   
   // Create MonitorElement (if it doesn't already exist) and update contents
-  string name = factory_->name( histo, type, view, directory );
+  string name = SummaryGenerator::name( histo, type, view, directory );
   MonitorElement* me = mui()->get( mui()->pwd() + "/" + name );
   if ( !me ) { me = mui()->getBEInterface()->book1D( name, "", 0, 0., 0. ); }
   TH1F* summary = ExtractTObject<TH1F>().extract( me ); 

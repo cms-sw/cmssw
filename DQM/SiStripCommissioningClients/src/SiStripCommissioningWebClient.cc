@@ -36,23 +36,28 @@ void SiStripCommissioningWebClient::defineWidgets() {
   string url = this->getApplicationURL();
   page_p = new WebPage( url );
   
+  // Commissioning-specific buttons 
+  Button* save    = new Button( url, "20px", "20px", "SaveHistos", "Save histos to file" );
+  Button* anal    = new Button( url, "60px", "20px", "HistoAnalysis", "Analyze histograms" );
+  Button* summary = new Button( url, "100px", "20px", "SummaryHisto", "Create summary histo" );
+  Button* upload  = new Button( url, "140px", "20px", "UploadToDb", "Upload to database" );
+  this->add( "SaveHistos", save );
+  this->add( "HistoAnalysis", anal );
+  this->add( "SummaryHisto", summary );
+  this->add( "UploadToDb", upload );
+
   // Collector connection parameters, contents drop-down menu, viewer
-  ContentViewer* con = new ContentViewer( url, "20px", "20px");
+  ContentViewer* con = new ContentViewer( url, "20px", "190px");
   ConfigBox* box = new ConfigBox( url, "20px", "340px");
   GifDisplay* dis = new GifDisplay( url, "170px", "20px", "500px", "700px", "GifDisplay" ); 
   add( "ConfigBox", box );
   add( "ContentViewer", con );
   add( "GifDisplay", dis );
+
+  // drop down menus for summary histos
+  //vector<sistrip::SummaryHisto> histo_list = client_->getSummaryHistoList();
+  //vector<sistrip::SummaryType>  type_list = client_->getSummaryTypeList();
   
-  // Commissioning-specific buttons 
-  Button* save    = new Button( url, "20px", "170px", "SaveHistos", "Save histos to file" );
-  Button* summary = new Button( url, "60px", "170px", "SummaryHisto", "Create summary histo" );
-  Button* tk_map  = new Button( url, "100px", "170px", "TrackerMap", "Create tracker map" );
-  Button* upload  = new Button( url, "140px", "170px", "UploadToDb", "Upload to database" );
-  this->add( "SaveHistos", save );
-  this->add( "SummaryHisto", summary );
-  this->add( "TrackerMap", tk_map );
-  this->add( "UploadToDb", upload );
 
 }
 
@@ -72,21 +77,6 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
     return; 
   }
   
-  // "Schedule" the request with the DQM using seal::Callback
-  seal::Callback action; 
-  action = seal::CreateCallback( this, 
-				 &SiStripCommissioningWebClient::scheduleCustomRequest, 
-				 requests ); // argument list
-  if ( mui_ ) { mui_->addCallback(action); }
-  else { cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	      << " NULL pointer to MonitorUserInterface!" << endl; }
-
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void SiStripCommissioningWebClient::scheduleCustomRequest( multimap<string,string> requests ) throw ( xgi::exception::Exception ) {
-  
   string request = get_from_multimap( requests, "RequestID" );
   if ( request == "" ) { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
@@ -95,27 +85,21 @@ void SiStripCommissioningWebClient::scheduleCustomRequest( multimap<string,strin
     return; 
   }
 
-  // Retrieve pointer to histos object
-  CommissioningHistograms* his = histos( *client_ );
-  if ( !his ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to CommissioningHistograms!" 
-	 << " Cannot handle request: " << request 
-	 << endl;
-    return;
-  }
+  //@@ temporary
+  string filename = "";
+  sistrip::SummaryHisto histo = sistrip::APV_TIMING_DELAY;
+  sistrip::SummaryType type = sistrip::SUMMARY_SIMPLE_DISTR;
+  string dir = "SiStrip/ControlView/FecCrate0/";
   
   // Handle requests
   if ( request == "SaveHistos" ) { 
-    his->saveHistos("");
+    if ( client_ ) { client_->saveHistos( filename ); }
+  } else if ( request == "HistoAnalysis" ) { 
+    if ( client_ ) { client_->histoAnalysis(); }
   } else if ( request == "SummaryHisto" ) { 
-    his->createSummaryHisto( sistrip::APV_TIMING_DELAY,
-			     sistrip::SUMMARY_SIMPLE_DISTR,
-			     string("SiStrip/ControlView/FecCrate0/") );
-  } else if ( request == "TrackerMap" ) {  
-    his->createTrackerMap();
+    if ( client_ ) { client_->createSummaryHisto( histo, type, dir ); }
   } else if ( request == "UploadToDb" ) { 
-    his->uploadToConfigDb();
+    if ( client_ ) { client_->uploadToConfigDb(); }
   } else {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " Unknown request: " << request 
