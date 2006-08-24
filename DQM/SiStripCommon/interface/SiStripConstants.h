@@ -66,6 +66,12 @@ namespace sistrip {
   static const std::string residualsAndNoise_ = "ResidualsAndNoise";
   static const std::string commonMode_        = "CommonMode";
 
+  // summary histogram types
+  static const std::string summarySimpleDistr_    = "SimpleDistr";
+  static const std::string summaryLogicalView_    = "LogicalView";
+  static const std::string unknownSummaryType_   = "UnknownSummaryType";
+  static const std::string undefinedSummaryType_ = "UndefinedSummaryType";
+
   // summary histogram names (general)
   static const std::string summaryHisto_          = "SummaryHisto";
   static const std::string unknownSummaryHisto_   = "UnknownSummaryHisto";
@@ -74,11 +80,45 @@ namespace sistrip {
   // summary histo names (apv timing)
   static const std::string apvTimingCoarse_ = "ApvTimingCoarse";
   static const std::string apvTimingFine_   = "ApvTimingFine";
-  static const std::string apvTimingDelay_  = "apvTimingDelay";
+  static const std::string apvTimingDelay_  = "ApvTimingDelay";
   static const std::string apvTimingError_  = "ApvTimingError";
   static const std::string apvTimingBase_   = "ApvTimingBase";
   static const std::string apvTimingPeak_   = "ApvTimingPeak";
   static const std::string apvTimingHeight_ = "ApvTimingHeight";
+
+  // summary histo names (fed timing)
+  static const std::string fedTimingCoarse_ = "FedTimingCoarse";
+  static const std::string fedTimingFine_   = "FedTimingFine";
+  static const std::string fedTimingDelay_  = "FedTimingDelay";
+  static const std::string fedTimingError_  = "FedTimingError";
+  static const std::string fedTimingBase_   = "FedTimingBase";
+  static const std::string fedTimingPeak_   = "FedTimingPeak";
+  static const std::string fedTimingHeight_ = "FedTimingHeight";
+
+  // summary histo names (opto scan)
+  static const std::string optoScanLldBias_ = "OptoScanLldBias";
+  static const std::string optoScanLldGain_ = "OptoScanLldGain";
+  static const std::string optoScanGain_    = "OptoScanGain";
+  static const std::string optoScanError_   = "OptoScanError";
+  static const std::string optoScanBase_    = "OptoScanBase";
+  static const std::string optoScanPeak_    = "OptoScanPeak";
+  static const std::string optoScanHeight_  = "OptoScanHeight";
+
+  // summary histo names (vpsp scan)
+  static const std::string vpspScanApv0_ = "VpspScanApv0";
+  static const std::string vpspScanApv1_ = "VpspScanApv1";
+
+  // summary histo names (pedestals)
+  static const std::string sistrip::pedestalsMean_   = "PedestalsMean";
+  static const std::string sistrip::pedestalsSpread_ = "PedestalsSpread";
+  static const std::string sistrip::pedestalsMax_    = "PedestalsMax";
+  static const std::string sistrip::pedestalsMin_    = "PedestalsMin";
+  static const std::string sistrip::noiseMean_       = "NoiseMean";
+  static const std::string sistrip::noiseSpread_     = "NoiseSpread";
+  static const std::string sistrip::noiseMax_        = "NoiseMax";
+  static const std::string sistrip::noiseMin_        = "NoiseMin";
+  static const std::string sistrip::numOfDead_       = "NumOfDeadStrips";
+  static const std::string sistrip::numOfNoisy_      = "NumOfNoisyStrips";
   
 }
 

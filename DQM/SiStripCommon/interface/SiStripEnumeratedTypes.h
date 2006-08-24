@@ -34,35 +34,66 @@ namespace sistrip {
 		     APV_PAIR, 
 		     APV 
   };
- 
-  /** Defines the various summary histograms available. */
-  enum SummaryHisto { UNKNOWN_SUMMARY_HISTO, 
-		      UNDEFINED_SUMMARY_HISTO, 
-		      APV_TIMING_COARSE, 
-		      APV_TIMING_FINE, 
-		      APV_TIMING_DELAY, 
-		      APV_TIMING_ERROR, 
-		      APV_TIMING_BASE, 
-		      APV_TIMING_PEAK, 
-		      APV_TIMING_HEIGHT 
-		      //@@ add other summary histos here... 
-  };
-  
-  /** Defines the type of summary histogram. */
-  enum SummaryType { UNKNOWN_SUMMARY_TYPE, 
-		     UNDEFINED_SUMMARY_TYPE, 
-		     SUMMARY_SIMPLE_DISTR,
-		     SUMMARY_LOGICAL_VIEW
-  };
   
   /** Defines action to be taken by web client. */
-  enum Action { UNKNOWN_ACTION, 
-		NO_ACTION, 
-		ANALYZE_HISTOS,
-		SAVE_HISTOS_TO_DISK,
-		CREATE_SUMMARY_HISTOS, 
-		CREATE_TRACKER_MAP,
-		UPLOAD_TO_DATABASE
+  enum Action { UNKNOWN_ACTION = 9999, 
+		NO_ACTION = 0, 
+		ANALYZE_HISTOS = 1,
+		SAVE_HISTOS_TO_DISK = 2,
+		CREATE_SUMMARY_HISTOS = 3, 
+		CREATE_TRACKER_MAP = 4,
+		UPLOAD_TO_DATABASE = 5
+  };
+
+  /** Defines the type of summary histogram. */
+  enum SummaryType { UNKNOWN_SUMMARY_TYPE = 9999, 
+		     UNDEFINED_SUMMARY_TYPE = 0, 
+		     SUMMARY_SIMPLE_DISTR = 1,
+		     SUMMARY_LOGICAL_VIEW = 2
+  };
+ 
+  /** Defines the various summary histograms available. */
+  enum SummaryHisto { UNKNOWN_SUMMARY_HISTO = 9999, 
+		      UNDEFINED_SUMMARY_HISTO = 0, 
+		      // APV TIMING
+		      APV_TIMING_PLL_COARSE = 501, 
+		      APV_TIMING_PLL_FINE = 502, 
+		      APV_TIMING_DELAY = 503, 
+		      APV_TIMING_ERROR = 504, 
+		      APV_TIMING_BASE = 505, 
+		      APV_TIMING_PEAK = 506, 
+		      APV_TIMING_HEIGHT = 507,
+		      // FED TIMING
+		      FED_TIMING_PLL_COARSE = 1201, 
+		      FED_TIMING_PLL_FINE = 1202, 
+		      FED_TIMING_DELAY = 1203, 
+		      FED_TIMING_ERROR = 1204, 
+		      FED_TIMING_BASE = 1205, 
+		      FED_TIMING_PEAK = 1206, 
+		      FED_TIMING_HEIGHT = 1207,
+		      // OPTO SCAN
+		      OPTO_SCAN_LLD_BIAS = 401, 
+		      OPTO_SCAN_LLD_GAIN = 402, 
+		      OPTO_SCAN_GAIN = 403, 
+		      OPTO_SCAN_ERROR = 404, 
+		      OPTO_SCAN_BASE = 405, 
+		      OPTO_SCAN_PEAK = 406, 
+		      OPTO_SCAN_HEIGHT = 407,
+		      // VPSP SCAN
+		      VPSP_SCAN_APV0 = 1401, 
+		      VPSP_SCAN_APV1 = 1402, 
+		      // PEDESTALS / NOISE
+		      PEDESTALS_MEAN = 201, 
+		      PEDESTALS_SPREAD = 202, 
+		      PEDESTALS_MAX = 203, 
+		      PEDESTALS_MIN = 204, 
+		      NOISE_MEAN = 205, 
+		      NOISE_SPREAD = 206, 
+		      NOISE_MAX = 207, 
+		      NOISE_MIN = 208, 
+		      NUM_OF_DEAD = 209, 
+		      NUM_OF_NOISY = 210
+		      //@@ add other summary histos here... 
   };
   
 }
