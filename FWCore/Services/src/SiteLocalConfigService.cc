@@ -119,8 +119,9 @@ edm::service::SiteLocalConfigService::calibCatalog (void) const
 
     if (m_calibCatalog == "")
     {
-	throw cms::Exception ("Incomplete configuration")
-	    << "Did not find catalog in calib-data section in " << m_url ;
+	// None in config file, use default calib catalog.
+	edm::FileInPath fip("FWCore/Services/data/calibcatalog.xml");
+	m_calibCatalog = "file:" + fip.fullPath();
     }
 
     return  m_calibCatalog;    
