@@ -29,11 +29,9 @@ ClusterMTCCFilter::ClusterMTCCFilter(const edm::ParameterSet& ps){
    //
    ModulesToBeExcluded.clear();
    ModulesToBeExcluded = ps.getParameter< std::vector<unsigned> >("ModulesToBeExcluded");
-//   edm::LogInfo("ClusterMTCCFilter")<<"Clusters from "<<ModulesToBeExcluded.size()<<" modules will be ignored in the filter:";
-   std::cout<<"ClusterMTCCFilter"<<" Clusters from "<<ModulesToBeExcluded.size()<<" modules will be ignored in the filter:"<<std::endl;
+   edm::LogInfo("ClusterMTCCFilter")<<"Clusters from "<<ModulesToBeExcluded.size()<<" modules will be ignored in the filter:";
    for( std::vector<uint32_t>::const_iterator imod = ModulesToBeExcluded.begin(); imod != ModulesToBeExcluded.end(); imod++){
-//     edm::LogInfo("ClusterMTCCFilter")<< *imod;
-     std::cout<< *imod<<std::endl;
+     edm::LogInfo("ClusterMTCCFilter")<< *imod;
    }
    //
    ChargeThresholdTIB=ps.getParameter<int>("ChargeThresholdTIB");
@@ -83,7 +81,7 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
              generalized_layer = 10*thedetId.subdetId() + ptib.layer() + ptib.stereo();
   	   if (ptib.layer()==2){
   	     generalized_layer++;
-  	     if (ptib.glued()) cout<<"WRONGGGG"<<endl;
+  	     if (ptib.glued()) edm::LogError("ClusterMTCCFilter")<<"WRONGGGG"<<endl;
   	   }
           }else{
             generalized_layer = 10*thedetId.subdetId();
@@ -108,12 +106,14 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
 
   bool decision=false; // default value, only accept if set true in this loop
   uint nr_of_subcomps_with_clusters=0;
-  if( clusters_in_subcomponents[31].size()>0 ) nr_of_subcomps_with_clusters++; // TIB1
-  if( clusters_in_subcomponents[32].size()>0 ) nr_of_subcomps_with_clusters++; // TIB2
+// dk: 2006.08.24 - change filter decision as proposed by V. Ciulli. || TIB1 TIB2 counted as 1, TEC excluded
+//  if( clusters_in_subcomponents[31].size()>0 ) nr_of_subcomps_with_clusters++; // TIB1
+//  if( clusters_in_subcomponents[32].size()>0 ) nr_of_subcomps_with_clusters++; // TIB2
+//  if( clusters_in_subcomponents[60].size()>0 ) nr_of_subcomps_with_clusters++; // TEC
+  if( clusters_in_subcomponents[31].size()>0 ||  clusters_in_subcomponents[32].size()>0 ) nr_of_subcomps_with_clusters++; // TIB1 || TIB2
   if( clusters_in_subcomponents[33].size()>0 ) nr_of_subcomps_with_clusters++; // TIB3
   if( clusters_in_subcomponents[51].size()>0 ) nr_of_subcomps_with_clusters++; // TOB1
   if( clusters_in_subcomponents[52].size()>0 ) nr_of_subcomps_with_clusters++; // TOB2
-  if( clusters_in_subcomponents[60].size()>0 ) nr_of_subcomps_with_clusters++; // TEC
   if(
      nr_of_subcomps_with_clusters >= MinClustersDiffComponents // more than 'MinClustersDiffComponents' components have at least 1 cluster
      ) {
