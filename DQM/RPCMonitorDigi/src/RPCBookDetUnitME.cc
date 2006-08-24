@@ -45,23 +45,23 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
  /// BEgin booking
  sprintf(meId,"Occupancy_%s",detUnitLabel);
  sprintf(meTitle,"Occupancy_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 100, 0, 100);
+ meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
 
  sprintf(meId,"BXN_%s",detUnitLabel);
  sprintf(meTitle,"BXN_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 100, 0, 100);
+ meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
  
  sprintf(meId,"ClusterSize_%s",detUnitLabel);
  sprintf(meTitle,"ClusterSize_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 11, 0, 11);
+ meMap[meId] = dbe->book1D(meId, meTitle, 11, 0.5, 11.5);
  
  sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
  sprintf(meTitle,"NumberOfClusters_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 10, 0, 10);
+ meMap[meId] = dbe->book1D(meId, meTitle, 10, 0.5, 10.5);
  
  sprintf(meId,"NumberOfDigi_%s",detUnitLabel);
  sprintf(meTitle,"NumberOfDigi_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 10000, 0, 10000);
+ meMap[meId] = dbe->book1D(meId, meTitle, 10, 0.5, 10.5);
  
  
  
