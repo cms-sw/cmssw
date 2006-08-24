@@ -1,7 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.11.2.1 2006/06/30 04:31:26 wmtan Exp $
+$Id: Group.cc,v 1.12 2006/07/06 19:11:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
+#include <string>
 #include "FWCore/Framework/src/Group.h"
 
 namespace edm
@@ -59,7 +60,7 @@ namespace edm
   Group::write(std::ostream& os) const {
     // This is grossly inadequate. It is also not critical for the
     // first pass.
-    os << "Group for product with ID: " << provenance_->conditionsID();
+    os << std::string("Group for product with ID: ") << provenance_->productID();
   }
 
 }
