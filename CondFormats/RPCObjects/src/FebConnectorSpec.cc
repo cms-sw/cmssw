@@ -1,5 +1,6 @@
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include "CondFormats/RPCObjects/interface/DBSpecToDetUnit.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include <iostream>
 
 FebConnectorSpec::FebConnectorSpec(
@@ -37,6 +38,8 @@ void FebConnectorSpec::print(int depth) const
 {
   if(depth<0) return;
   std::cout << "FebConnectorSpec in LinkBoardNum ="<<linkBoardInputNum()<<std::endl;
+  RPCDetId aDet(rawId());
+  std::cout<<aDet;
   std::cout << std::endl;
   depth--;
   theChamber.print(depth);

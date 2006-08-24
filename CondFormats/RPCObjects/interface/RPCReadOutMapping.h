@@ -49,6 +49,9 @@ public:
   /// get RAW data specification for a given CMS strip in given chamber
   std::pair<ChamberRawDataSpec, int> getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip) const;
 
+  /// get strip info for given LB channel in given LB location.
+  std::pair<uint32_t,int> strip(const ChamberRawDataSpec & linkboard, int chanelLB) const;
+
   /// convert strip location as in raw data to detUnit frame
   StripInDetUnit detUnitFrame(const LinkBoardSpec* location, 
       int febInLB, int stripPinInFeb) const;

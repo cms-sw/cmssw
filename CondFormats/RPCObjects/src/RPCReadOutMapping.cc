@@ -1,10 +1,16 @@
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "CondFormats/RPCObjects/interface/TriggerBoardSpec.h"
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
-#include "FWCore/Utilities/interface/Exception.h"
+
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include<iostream>
 
@@ -78,7 +84,6 @@ std::vector<const LinkBoardSpec*> RPCReadOutMapping::getLBforChamber(const std::
  const LinkBoardSpec *location = this->location(linkboard);
  
  for(int k=0;k<18;k++){
-   //std::cout<<std::endl<<"Link number: "<<k<<"-------------------"<<std::endl;
    linkboard.dccInputChannelNum = 1;
    linkboard.tbLinkInputNum = k;
    for(int j=0;j<3;j++){
@@ -113,7 +118,6 @@ RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip) const
  linkboard.dccInputChannelNum = 1;
 
  for(int k=0;k<18;k++){
-   //std::cout<<std::endl<<"Link number: "<<k<<"-------------------"<<std::endl;
    linkboard.dccInputChannelNum = 1;
    linkboard.tbLinkInputNum = k;
    for(int j=0;j<3;j++){
@@ -122,22 +126,12 @@ RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip) const
      if (location) {
        for(int i=1;i<7;i++){	 
 	 const FebConnectorSpec * feb = location->feb(i);
-	 /*
-	 if(feb){
-	 feb->print();
-	 std::cout<<"RPCReadOutMapping raw id: "<<feb->rawId()<<std::endl;
-	 }
-	 */
 	 if(feb && feb->rawId()==detId){
-	   for(int l=0;l<16;l++){
+	   for(int l=1;l<17;l++){
 	     int pin = l;
-	     //if(feb->chamber().barrelOrEndcap=="Endcap") pin = 2*l+1;
-	     //pin = 2*l+1;
 	     const ChamberStripSpec *aStrip = feb->strip(pin);
-	     //if(aStrip) aStrip->print();
 	     if(aStrip && aStrip->cmsStripNumber==strip){
 	       int bitInLink = (i-1)*16+l;
-	       //aStrip->print();
 	       std::pair<ChamberRawDataSpec, int> stripInfo(linkboard,bitInLink);
 	       return stripInfo;
 	     }
@@ -147,9 +141,49 @@ RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip) const
      }
    }
  }
+ RPCDetId aDet(detId);
+ std::cout<<"Strip: "<<strip<<" not found for detector: "<<aDet<<std::endl;
  std::pair<ChamberRawDataSpec, int> dummyStripInfo(linkboard,-99);
  return dummyStripInfo;
 }
+
+
+
+std::pair<uint32_t,int> 
+RPCReadOutMapping::strip(const ChamberRawDataSpec & linkboard, int chanelLB) const{
+ const LinkBoardSpec *location = this->location(linkboard);   
+    const ChamberStripSpec * strip=0;
+
+  int febInputNum = chanelLB/16+1;
+  const FebConnectorSpec * feb = location->feb(febInputNum);
+  if(feb){
+    int pin=chanelLB%16+1;
+    strip = feb->strip(pin);
+    if(strip) {
+      return std::make_pair(feb->rawId(),strip->cmsStripNumber);    
+    }
+    else{ std::cout<<"pin: "<<pin
+		   <<" not found in DB."
+		   <<" for LB channel number: "
+		   <<chanelLB<<std::endl;  
+    feb->print(2);
+    edm::LogError("")<<"pin: "<<pin
+		     <<" not found in DB."
+		     <<" for LB channel number: "
+		     <<chanelLB<<std::endl;
+    }    
+  }
+  else{
+    std::cout<<"feb: "<<febInputNum
+	     <<" not found in DB."
+	     <<" for LB channel number: "
+	     <<chanelLB<<std::endl;  
+    
+  }
+  return std::make_pair((uint32_t)0,(int)0);
+}
+
+
 
 
 RPCReadOutMapping::StripInDetUnit 

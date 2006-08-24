@@ -23,39 +23,6 @@ const FebConnectorSpec * LinkBoardSpec::feb(int febInputNum) const
   return 0;
 }
 
-
-std::pair<uint32_t,int>LinkBoardSpec::strip(int chanelLB) const{
-
-    const ChamberStripSpec * strip=0;
-
-  int febInputNum = chanelLB/16+1;
-  const FebConnectorSpec * feb = this->feb(febInputNum);
-  if(feb){
-    int pin=chanelLB%16+1;
-    strip = feb->strip(pin);
-    if(strip)   return std::make_pair(feb->rawId(),strip->cmsStripNumber);    
-    else{ std::cout<<"pin: "<<pin
-		   <<" not found in DB."
-		   <<" for LB channel number: "
-		   <<chanelLB<<std::endl;  
-    feb->print(2);
-    edm::LogError("")<<"pin: "<<pin
-		     <<" not found in DB."
-		     <<" for LB channel number: "
-		     <<chanelLB<<std::endl;
-    }    
-  }
-  else{
-    std::cout<<"feb: "<<febInputNum
-	     <<" not found in DB."
-	     <<" for LB channel number: "
-	     <<chanelLB<<std::endl;  
-    
-  }
-  return std::make_pair((uint32_t)0,(int)0);
-}
-
-
 void LinkBoardSpec::print(int depth ) const 
 {
   if (depth<0) return;
