@@ -1,4 +1,4 @@
-#include "DQM/SiStripCommissioningSummary/interface/ApvTimingSummaryFactory.h"
+#include "DQM/SiStripCommissioningSummary/interface/FedTimingSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include <iostream>
 #include <sstream>
@@ -7,27 +7,27 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 //
-string SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>::name( const sistrip::SummaryHisto& histo, 
+string SummaryHistogramFactory<FedTimingAnalysis::Monitorables>::name( const sistrip::SummaryHisto& histo, 
 								       const sistrip::SummaryType& type,
 								       const sistrip::View& view, 
 								       const string& directory ) {
   
   stringstream ss;
   ss << sistrip::summaryHisto_ << sistrip::sep_;
-  if ( histo == sistrip::APV_TIMING_PLL_COARSE ) {
-    ss << sistrip::apvTimingCoarse_;
-  } else if ( histo == sistrip::APV_TIMING_PLL_FINE ) { 
-    ss << sistrip::apvTimingFine_;
-  } else if ( histo == sistrip::APV_TIMING_DELAY ) { 
-    ss << sistrip::apvTimingDelay_;
-  } else if ( histo == sistrip::APV_TIMING_ERROR ) { 
-    ss << sistrip::apvTimingError_;
-  } else if ( histo == sistrip::APV_TIMING_BASE ) { 
-    ss << sistrip::apvTimingBase_;
-  } else if ( histo == sistrip::APV_TIMING_PEAK ) { 
-    ss << sistrip::apvTimingPeak_;
-  } else if ( histo == sistrip::APV_TIMING_HEIGHT ) {
-    ss << sistrip::apvTimingHeight_;
+  if ( histo == sistrip::FED_TIMING_PLL_COARSE ) {
+    ss << sistrip::fedTimingCoarse_;
+  } else if ( histo == sistrip::FED_TIMING_PLL_FINE ) { 
+    ss << sistrip::fedTimingFine_;
+  } else if ( histo == sistrip::FED_TIMING_DELAY ) { 
+    ss << sistrip::fedTimingDelay_;
+  } else if ( histo == sistrip::FED_TIMING_ERROR ) { 
+    ss << sistrip::fedTimingError_;
+  } else if ( histo == sistrip::FED_TIMING_BASE ) { 
+    ss << sistrip::fedTimingBase_;
+  } else if ( histo == sistrip::FED_TIMING_PEAK ) { 
+    ss << sistrip::fedTimingPeak_;
+  } else if ( histo == sistrip::FED_TIMING_HEIGHT ) {
+    ss << sistrip::fedTimingHeight_;
   } else { 
     ss << sistrip::unknownSummaryHisto_;
   } 
@@ -38,11 +38,11 @@ string SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>::name( const sis
 
 //------------------------------------------------------------------------------
 //
-void SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>::generate( const sistrip::SummaryHisto& histo, 
+void SummaryHistogramFactory<FedTimingAnalysis::Monitorables>::generate( const sistrip::SummaryHisto& histo, 
 									 const sistrip::SummaryType& type,
 									 const sistrip::View& view, 
 									 const string& directory, 
-									 const map<uint32_t,ApvTimingAnalysis::Monitorables>& data,
+									 const map<uint32_t,FedTimingAnalysis::Monitorables>& data,
 									 TH1& summary_histo ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
@@ -54,21 +54,21 @@ void SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>::generate( const s
   if ( !generator.get() ) { return; }
 
   // Transfer appropriate info from monitorables map to generator object
-  map<uint32_t,ApvTimingAnalysis::Monitorables>::const_iterator iter = data.begin();
+  map<uint32_t,FedTimingAnalysis::Monitorables>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    if ( histo == sistrip::APV_TIMING_PLL_COARSE ) {
+    if ( histo == sistrip::FED_TIMING_PLL_COARSE ) {
       generator->fillMap( directory, iter->first, iter->second.pllCoarse_ ); 
-    } else if ( histo == sistrip::APV_TIMING_PLL_FINE ) { 
+    } else if ( histo == sistrip::FED_TIMING_PLL_FINE ) { 
       generator->fillMap( directory, iter->first, iter->second.pllFine_ ); 
-    } else if ( histo == sistrip::APV_TIMING_DELAY ) { 
+    } else if ( histo == sistrip::FED_TIMING_DELAY ) { 
       generator->fillMap( directory, iter->first, iter->second.delay_ ); 
-    } else if ( histo == sistrip::APV_TIMING_ERROR ) { 
+    } else if ( histo == sistrip::FED_TIMING_ERROR ) { 
       generator->fillMap( directory, iter->first, iter->second.error_ ); 
-    } else if ( histo == sistrip::APV_TIMING_BASE ) { 
+    } else if ( histo == sistrip::FED_TIMING_BASE ) { 
       generator->fillMap( directory, iter->first, iter->second.base_ ); 
-    } else if ( histo == sistrip::APV_TIMING_PEAK ) { 
+    } else if ( histo == sistrip::FED_TIMING_PEAK ) { 
       generator->fillMap( directory, iter->first, iter->second.peak_ ); 
-    } else if ( histo == sistrip::APV_TIMING_HEIGHT ) {
+    } else if ( histo == sistrip::FED_TIMING_HEIGHT ) {
       generator->fillMap( directory, iter->first, iter->second.height_ ); 
     } else { return; } 
   }
@@ -82,18 +82,21 @@ void SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>::generate( const s
 
   // Histogram formatting
   generator->format( histo, type, view, directory, summary_histo );
-  if ( histo == sistrip::APV_TIMING_PLL_COARSE ) {
-  } else if ( histo == sistrip::APV_TIMING_PLL_FINE ) { 
-  } else if ( histo == sistrip::APV_TIMING_DELAY ) { 
-  } else if ( histo == sistrip::APV_TIMING_ERROR ) { 
-  } else if ( histo == sistrip::APV_TIMING_BASE ) { 
-  } else if ( histo == sistrip::APV_TIMING_PEAK ) { 
-  } else if ( histo == sistrip::APV_TIMING_HEIGHT ) {
+//   summary_histo.SetName( name( histo, type, view, directory ).c_str() );
+//   summary_histo.SetTitle( name( histo, type, view, directory ).c_str() );
+//   generator->format( summary_histo );
+  if ( histo == sistrip::FED_TIMING_PLL_COARSE ) {
+  } else if ( histo == sistrip::FED_TIMING_PLL_FINE ) { 
+  } else if ( histo == sistrip::FED_TIMING_DELAY ) { 
+  } else if ( histo == sistrip::FED_TIMING_ERROR ) { 
+  } else if ( histo == sistrip::FED_TIMING_BASE ) { 
+  } else if ( histo == sistrip::FED_TIMING_PEAK ) { 
+  } else if ( histo == sistrip::FED_TIMING_HEIGHT ) {
   } else { return; } 
   
 }
 
 // -----------------------------------------------------------------------------
 //
-template class SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>;
+template class SummaryHistogramFactory<FedTimingAnalysis::Monitorables>;
 

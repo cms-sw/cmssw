@@ -1,11 +1,11 @@
-#ifndef DQM_SiStripCommissioningSummary_CommissioningSummaryFactory_H
-#define DQM_SiStripCommissioningSummary_CommissioningSummaryFactory_H
+#ifndef DQM_SiStripCommissioningSummary_VpspScanSummaryFactory_H
+#define DQM_SiStripCommissioningSummary_VpspScanSummaryFactory_H
 
 #include "DQM/SiStripCommon/interface/SummaryHistogramFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
 
 template<>
-class SummaryHistogramFactory<ApvTimingAnalysis::Monitorables> {
+class SummaryHistogramFactory<VpspScanAnalysis::Monitorables> {
   
  public:
   
@@ -18,9 +18,9 @@ class SummaryHistogramFactory<ApvTimingAnalysis::Monitorables> {
 		 const sistrip::SummaryType& type,
 		 const sistrip::View& view, 
 		 const std::string& directory, 
-		 const std::map<uint32_t,ApvTimingAnalysis::Monitorables>& data,
+		 const std::map<uint32_t,VpspScanAnalysis::Monitorables>& data,
 		 TH1& summary_histo );
   
 };
 
-#endif // DQM_SiStripCommissioningSummary_CommissioningSummaryFactory_H
+#endif // DQM_SiStripCommissioningSummary_VpspScanSummaryFactory_H
