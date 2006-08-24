@@ -1,5 +1,3 @@
-//#include "GeneratorInterface/HepPDT/interface/HepParticleData.h"
-
 #include "FastSimulation/MaterialEffects/interface/MultipleScatteringUpdator.h"
 
 #include "CLHEP/Random/Random.h"
