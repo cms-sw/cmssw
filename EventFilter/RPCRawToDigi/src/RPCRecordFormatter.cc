@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/07/17 06:50:25 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/08/08 12:30:36 $
+ *  $Revision: 1.17 $
  *
  * \author Ilaria Segoni
  */
@@ -90,7 +90,7 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
             uint32_t rawDetId;
             int geomStrip;
             try {
-	      RPCReadOutMapping::StripInDetUnit stripInDetUnit=linkBoard->strip(lbBit);
+	      RPCReadOutMapping::StripInDetUnit stripInDetUnit=readoutMapping->strip(eleIndex,lbBit);
 
                // DetUnit
                rawDetId = stripInDetUnit.first;
