@@ -17,7 +17,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
 
 using namespace std;
@@ -40,6 +40,7 @@ RPCFileReader::RPCFileReader(ParameterSet const& pset,
 
   //register products
   produces<FEDRawDataCollection>();
+  produces<std::vector<L1MuRegionalCand> >("MTCCData");
   //if do put with a label
   //produces<FEDRawDataCollection>("someLabel");
   
@@ -50,6 +51,7 @@ RPCFileReader::RPCFileReader(ParameterSet const& pset,
   isOpen_ = false; noMoreData_ = false; 
   debug_ = pset.getUntrackedParameter<bool>("PrintOut",false);
   saveOutOfTime_ = pset.getUntrackedParameter<bool>("SaveOutOfTimeDigis",false);
+  pacTrigger_ = pset.getUntrackedParameter<bool>("IsPACTrigger",false);
   triggerFedId_  = pset.getUntrackedParameter<unsigned int>("TriggerFedId",790);
   tbNum_ = pset.getUntrackedParameter<unsigned int>("TriggerBoardNum",1);
 }
@@ -60,35 +62,57 @@ RPCFileReader::~RPCFileReader(){}
 // ------------ Method called to set run & event numbers  ------------
 void RPCFileReader::setRunAndEventInfo(){
     
-  if(!isOpen_){
-    if(fileCounter_<(int)fileNames().size()){
-      eventPos_[0]=0; eventPos_[1]=0;
-      isOpen_=true;
-      fileCounter_++;
-      edm::LogInfo("RPCFR")<< "[RPCFileReader::setRunAndEventInfo] "
-			   << "Open for reading file no. " << fileCounter_
-			   << " " << fileNames()[fileCounter_-1].substr(5);  
-    }
-    else{
-      edm::LogInfo("RPCFR")<< "[RPCFileReader::setRunAndEventInfo] "
-			   << "No more events to read. Finishing after " 
-			   << eventCounter_ << " events.";
-      noMoreData_=true;
-      return;
-    }
-  }
+ 
+  bool triggered = false;
+  tm aTime;
 
-  //clear vectors
-  for(int i=0;i<3;i++){
-    for(int j=0;j<18;j++){
-      for(int k=0;k<3;k++){
-	linkData_[i][j][k] = RPCPacData();
+  while(!triggered){
+    if(!isOpen_){
+      if(fileCounter_<(int)fileNames().size()){
+	eventPos_[0]=0; eventPos_[1]=0;
+	isOpen_=true;
+	fileCounter_++;
+	edm::LogInfo("RPCFR")<< "[RPCFileReader::setRunAndEventInfo] "
+			     << "Open for reading file no. " << fileCounter_
+			     << " " << fileNames()[fileCounter_-1].substr(5);  
+      }
+      else{
+	edm::LogInfo("RPCFR")<< "[RPCFileReader::setRunAndEventInfo] "
+			     << "No more events to read. Finishing after " 
+			     << eventCounter_ << " events.";
+	noMoreData_=true;
+	return;
       }
     }
-  }
-  
 
-  readDataFromAsciiFile(fileNames()[fileCounter_-1].substr(5),eventPos_);
+    //clear vectors
+    for(int i=0;i<3;i++){
+      for(int j=0;j<18;j++){
+	for(int k=0;k<3;k++){
+	  linkData_[i][j][k] = RPCPacData();
+	}
+      }
+    }
+  
+    readDataFromAsciiFile(fileNames()[fileCounter_-1].substr(5),eventPos_);
+
+    if(!(pacTrigger_)||
+       theLogCones_[0].ptCode||theLogCones_[1].ptCode||
+       theLogCones_[2].ptCode||theLogCones_[3].ptCode||
+       theLogCones_[4].ptCode||theLogCones_[5].ptCode||
+       theLogCones_[6].ptCode||theLogCones_[7].ptCode||
+       theLogCones_[8].ptCode||theLogCones_[9].ptCode||
+       theLogCones_[10].ptCode||theLogCones_[11].ptCode){
+      //std::cout<<"Event triggered by PAC"<<std::endl;
+      triggered = true;
+    }
+    else{
+      if(debug_)
+	edm::LogInfo("RPCFR")<< "[RPCFileReader::readDataFromAsciiFile] "
+			     << " Data not triggered by PAC!";
+      triggered = false;
+    }
+  }
   unsigned int freq = 100;
   if(debug_) freq = 1;
   if(eventCounter_%freq==0)
@@ -115,7 +139,7 @@ void RPCFileReader::setRunAndEventInfo(){
   if(timeStamp_.month=="Nov") month = 9;
   if(timeStamp_.month=="Oct") month = 10;
   if(timeStamp_.month=="Dec") month = 11;
-  tm aTime;
+  //tm aTime;
   aTime.tm_sec = timeStamp_.sec;
   aTime.tm_min = timeStamp_.min;
   aTime.tm_hour = timeStamp_.hour; //UTC check FIX!!
@@ -156,6 +180,25 @@ bool RPCFileReader::produce(edm::Event &ev) {
   fedRawData = *rawData;
   ev.put(result);
 
+   //Trigger response
+  float phi = 0;
+  float eta = 0;
+  std::vector<L1MuRegionalCand> RPCCand;
+  for(int i=0;i<theLogCones_.size();i++){
+    if(!theLogCones_[i].ptCode) continue;
+    L1MuRegionalCand l1Cand;        
+    l1Cand.setQualityPacked(theLogCones_[i].quality);
+    l1Cand.setPtPacked(theLogCones_[i].ptCode);    
+    l1Cand.setType(0); 
+    l1Cand.setChargePacked(1);
+    l1Cand.setPhiValue(phi);
+    l1Cand.setEtaValue(eta);
+    RPCCand.push_back(l1Cand);
+  }
+  std::auto_ptr<std::vector<L1MuRegionalCand> > candBarell(new std::vector<L1MuRegionalCand>);
+  candBarell->insert(candBarell->end(), RPCCand.begin(), RPCCand.end());
+  ev.put(candBarell, "MTCCData");
+  
   return true;
 }
 
@@ -211,40 +254,53 @@ void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
     else if(isHexNumber(dummy)){
       int bxLocal = atoi(dummy.c_str());
       int bxn4b, bc0, valid;
+      const int valid_mask[18] = {0x20000,0x10000,0x8000,0x4000,
+				  0x2000, 0x1000, 0x800, 0x400,
+				  0x200,  0x100,  0x80,  0x40,
+				  0x20,   0x10,   0x8 ,  0x4,
+				  0x2,    0x1};
       infile >> hex >>  bxn4b >> bc0 >> valid;
-      if(valid==0x3ffff){ 
-	//for(int iL=0; iL<18; iL+=3){//Link data 
-	for(int iL=17; iL>=0; iL-=3){//AK
-	  infile >> dummy;
-	  //for(int iLb=0;iLb<3;iLb++){
-	  for(int iLb=0;iLb>-3;iLb--){//AK
-	    infile >> hex >> idummy;
-	    RPCPacData dummyPartData(idummy);
-	    for(int i=-1;i<2;i++){	     
-	      if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX+i){//Link data collected at L1A bx
-   		linkData_[dummyPartData.lbNum()][iL+iLb][i+1]=dummyPartData;	    	
-	      }
+      for(int iL=17; iL>=0; iL-=3){//Link data 
+	infile >> dummy;
+	for(int iLb=0;iLb>-3;iLb--){
+	  infile >> hex >> idummy;
+	  RPCPacData dummyPartData;
+	  if(((valid&valid_mask[17-(iL+iLb)])>>(iL+iLb))==1){
+	    dummyPartData.fromRaw(idummy);
+	    //std::cout<<"VALID"<<std::endl;
+	  }
+	  else{
+	    if(debug_)
+	      edm::LogInfo("RPCFR")<< "[RPCFileReader::readDataFromAsciiFile] "
+				   << " Not valid data for link no. = " << iL+iLb
+				   << " Zeroing partition data.";
+	  }
+	  for(int i=-1;i<2;i++){	     
+	    if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX+i){//Link data collected at L1A bx
+	      linkData_[dummyPartData.lbNum()][iL+iLb][i+1]=dummyPartData;	    	
 	    }
 	  }
 	}
-	//for(int iC=0; iC<12*3; iC+=3){//LogCones 
-	for(int iC=12*3-1; iC>=0; iC-=3){//AK
-	  infile >> dummy;
-	  LogCone logCone;
-	  infile >> hex >> logCone.quality >> logCone.ptCode >> logCone.sign;
-	  if(bxLocal==RPC_PAC_L1ACCEPT_BX+RPC_PAC_TRIGGER_DELAY){//write LogCones
-	    theLogCones_[iC/3]=logCone;
+      }
+      for(int iC=12*3-1; iC>=0; iC-=3){//LogCones
+	infile >> dummy;
+	LogCone logCone;
+	infile >> hex >> logCone.quality >> logCone.ptCode >> logCone.sign;
+	if(logCone.ptCode){
+	  edm::LogInfo("Any time LogCone")<<"Log cone: Q: "<<logCone.quality
+					  <<" ptCode: "<<logCone.ptCode
+					  <<" sign: "<<logCone.sign<<std::endl;
+	}
+	if(bxLocal==RPC_PAC_L1ACCEPT_BX+RPC_PAC_TRIGGER_DELAY){//write LogCones
+	  theLogCones_[iC/3]=logCone;
+	  if(logCone.ptCode){
+	    edm::LogInfo("In time LogCone")<<"in time Log cone: Q: "<<logCone.quality
+					   <<" ptCode: "<<logCone.ptCode
+					   <<" sign: "<<logCone.sign<<std::endl;
 	  }
 	}
-	infile >> dummy;
       }
-      else{
-	if(debug_)
-	  edm::LogInfo("RPCFR")<< "[RPCFileReader::readDataFromAsciiFile] "
-				<< " Not valid data. Validity bit = " << valid
-				<< " Skipping record.";
-	infile.ignore(10000,10);// 10==\n
-      }
+      infile >> dummy;
       pos[1]=infile.tellg();
     }
     else{

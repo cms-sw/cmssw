@@ -5,8 +5,8 @@
  *
  *  Muxed PAC data
  *
- *  $Date: 2006/07/31 14:47:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/02 12:05:47 $
+ *  $Revision: 1.2 $
  * \author K. Bunkowski & M. Bluj - Warsaw
 */
 
@@ -40,6 +40,7 @@ public:
   void setHalfPartition(unsigned int halfPart) { halfPartition_=halfPart; }
   void setLbNum(unsigned int lbNo) { lbNum_=lbNo; }
 
+  void fromRaw(unsigned int rawData);
   unsigned int toRaw();
   
   std::string toString();

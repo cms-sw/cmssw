@@ -5,8 +5,8 @@
  *
  *  Read PAC data from ASCII files convert them and write as FEDRawData
  *
- *  $Date: 2006/08/03 12:41:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/08 12:28:55 $
+ *  $Revision: 1.4 $
  * \author Michal Bluj - SINS, Warsaw
 */
 #include <memory>
@@ -55,7 +55,7 @@ class RPCFileReader : public ExternalInputSource {
   int eventPos_[2];
   int fileCounter_, eventCounter_;
 
-  bool debug_,saveOutOfTime_;
+  bool debug_,saveOutOfTime_,pacTrigger_;
 
   unsigned int triggerFedId_, tbNum_;
 

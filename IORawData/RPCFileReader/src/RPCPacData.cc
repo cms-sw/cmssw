@@ -16,15 +16,7 @@ RPCPacData::RPCPacData() {
 }
 
 RPCPacData::RPCPacData(unsigned int rawData) {		
-  unsigned int shift = 0;
-  
-  partitionData_  =  rawData &    0xff          ; shift += 8;
-  partitionNum_   = (rawData &   0xf00) >> shift; shift += 4;
-  partitionDelay_ = (rawData &  0x7000) >> shift; shift += 3;
-  endOfData_      = (rawData &  0x8000) >> shift; shift += 1;
-  halfPartition_  = (rawData & 0x10000) >> shift; shift += 1;
-  lbNum_          = (rawData & 0x60000) >> shift; shift += 2;	
-  
+  fromRaw(rawData);
 }
 
 RPCPacData::RPCPacData(unsigned int partData,
@@ -39,6 +31,19 @@ RPCPacData::RPCPacData(unsigned int partData,
   endOfData_      =  eofData;
   halfPartition_  =  halfPart;
   lbNum_          =  lbNo;	
+}
+
+void RPCPacData::fromRaw(unsigned int rawData) {
+  unsigned int shift = 0;
+  
+  partitionData_  =  rawData &    0xff          ; shift += 8;
+  partitionNum_   = (rawData &   0xf00) >> shift; shift += 4;
+  partitionDelay_ = (rawData &  0x7000) >> shift; shift += 3;
+  endOfData_      = (rawData &  0x8000) >> shift; shift += 1;
+  halfPartition_  = (rawData & 0x10000) >> shift; shift += 1;
+  lbNum_          = (rawData & 0x60000) >> shift; shift += 2;
+
+  return;
 }
 
 unsigned int RPCPacData::toRaw() {		
