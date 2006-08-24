@@ -63,10 +63,10 @@ RPCFileReader::~RPCFileReader(){}
 void RPCFileReader::setRunAndEventInfo(){
     
  
-  bool triggered = false;
+  bool triggeredOrEmpty = false;
   tm aTime;
 
-  while(!triggered){
+  while(!triggeredOrEmpty){
     if(!isOpen_){
       if(fileCounter_<(int)fileNames().size()){
 	eventPos_[0]=0; eventPos_[1]=0;
@@ -104,14 +104,19 @@ void RPCFileReader::setRunAndEventInfo(){
        theLogCones_[8].ptCode||theLogCones_[9].ptCode||
        theLogCones_[10].ptCode||theLogCones_[11].ptCode){
       //std::cout<<"Event triggered by PAC"<<std::endl;
-      triggered = true;
+      triggeredOrEmpty = true;
     }
     else{
       if(debug_)
-	edm::LogInfo("RPCFR")<< "[RPCFileReader::readDataFromAsciiFile] "
+	edm::LogInfo("RPCFR")<< "[RPCFileReader::setRunAndEventInfo] "
 			     << " Data not triggered by PAC!";
-      triggered = false;
+      triggeredOrEmpty = false;
     }
+
+    if(!isOpen_){//if eof don't write empty data into event
+      triggeredOrEmpty = false;
+    }
+
   }
   unsigned int freq = 100;
   if(debug_) freq = 1;
@@ -125,7 +130,7 @@ void RPCFileReader::setRunAndEventInfo(){
 			  << " " << timeStamp_.year;
 
 
- //Setting time stamp. To be optimised. AK
+  //Setting time stamp. To be optimised.
   int month = 0;
   if(timeStamp_.month=="Jan") month = 0;
   if(timeStamp_.month=="Feb") month = 1;
@@ -139,14 +144,12 @@ void RPCFileReader::setRunAndEventInfo(){
   if(timeStamp_.month=="Nov") month = 9;
   if(timeStamp_.month=="Oct") month = 10;
   if(timeStamp_.month=="Dec") month = 11;
-  //tm aTime;
   aTime.tm_sec = timeStamp_.sec;
   aTime.tm_min = timeStamp_.min;
   aTime.tm_hour = timeStamp_.hour; //UTC check FIX!!
   aTime.tm_mday = timeStamp_.day;
   aTime.tm_mon = month;
   aTime.tm_year = timeStamp_.year - 1900;
-  //AK
 
 
   setRunNumber(run_);
@@ -180,11 +183,11 @@ bool RPCFileReader::produce(edm::Event &ev) {
   fedRawData = *rawData;
   ev.put(result);
 
-   //Trigger response
+  //Trigger response
   float phi = 0;
   float eta = 0;
   std::vector<L1MuRegionalCand> RPCCand;
-  for(int i=0;i<theLogCones_.size();i++){
+  for(unsigned int i=0;i<theLogCones_.size();i++){
     if(!theLogCones_[i].ptCode) continue;
     L1MuRegionalCand l1Cand;        
     l1Cand.setQualityPacked(theLogCones_[i].quality);
@@ -213,6 +216,17 @@ void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
 
   ifstream infile;
   infile.open(fileName.c_str(),ios::binary);
+
+  //check if file exists
+  if((infile.rdstate()&ifstream::failbit)!= 0){
+    std::cerr << "Error opening " << fileName << std::endl;
+    edm::LogError("RPCFR")<< "[RPCFileReader::readDataFromAsciiFile] "
+			  << "Error opening data file " << fileName;
+    isOpen_=false;
+    infile.close();
+
+    return;
+  }
 
   string dummy;
   int idummy;
