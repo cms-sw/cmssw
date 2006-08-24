@@ -1,6 +1,8 @@
 #include "DQM/SiStripCommon/interface/SummaryGenerator.h"
 #include "DQM/SiStripCommon/interface/SummaryGeneratorControlView.h"
 //#include "DQM/SiStripCommon/interface/SummaryGeneratorReadoutView.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include <sstream>
 
 using namespace std;
 
@@ -16,6 +18,26 @@ auto_ptr<SummaryGenerator> SummaryGenerator::instance( sistrip::View view ) {
     generator = auto_ptr<SummaryGenerator>( NULL );
   }  
   return generator;
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SummaryGenerator::format( const sistrip::SummaryHisto& histo, 
+			       const sistrip::SummaryType& type,
+			       const sistrip::View& view, 
+			       const std::string& directory,
+			       TH1& summary_histo ) {
+
+  // Set name and title
+  stringstream ss;
+  ss << sistrip::summaryHisto_ << sistrip::sep_;
+  ss << SiStripHistoNamingScheme::summaryHisto( histo ) << sistrip::sep_;
+  ss << SiStripHistoNamingScheme::summaryType( type ) << sistrip::sep_; 
+  ss << SiStripHistoNamingScheme::view( view );
+  summary_histo.SetName( ss.str().c_str() );
+  summary_histo.SetTitle( ss.str().c_str() );
+
+  //@@ other stuff here?...
 }
 
 // -----------------------------------------------------------------------------

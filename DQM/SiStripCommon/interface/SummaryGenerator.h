@@ -40,9 +40,16 @@ class SummaryGenerator {
       the logical struture within the tracker, view-dependent. */
   virtual void logicalView( TH1& ) = 0;
 
+  /** Some generic formatting of histogram. */
+  void format( const sistrip::SummaryHisto&, 
+	       const sistrip::SummaryType&,
+	       const sistrip::View&, 
+	       const std::string& directory,
+	       TH1& );
+    
   /** Returns min/max range of values stored in map. */
   std::pair<float,float> range();
-  
+
   protected:
 
   /** A map designed to holds a set of values. The map containing
