@@ -155,7 +155,7 @@ namespace stor
     */
     // note that file is not closed until the writers inside
     // writer_ is destroyed
-    if(streamerOnly_) writer_->stop();
+    if(streamerOnly_ && writer_->get_currfile()!="") writer_->stop();
     
   }
 
