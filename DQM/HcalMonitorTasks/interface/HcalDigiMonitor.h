@@ -6,8 +6,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2006/08/15 19:58:52 $
-  * $Revision: 1.7 $
+  * $Date: 2006/08/22 20:41:01 $
+  * $Revision: 1.8 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -19,6 +19,7 @@ public:
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf);
+  void clearME();
 
 private:  ///Monitoring elements
 

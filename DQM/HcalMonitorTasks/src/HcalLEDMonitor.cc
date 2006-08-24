@@ -3,9 +3,10 @@
 
 HcalLEDMonitor::HcalLEDMonitor() {m_doPerChannel = false;}
 
-HcalLEDMonitor::~HcalLEDMonitor() {
+HcalLEDMonitor::~HcalLEDMonitor() {}
 
-   if ( m_dbe ) {
+void HcalLEDMonitor::clearME(){
+     if ( m_dbe ) {
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor");
     m_dbe->removeContents();
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HBHE");
@@ -15,7 +16,6 @@ HcalLEDMonitor::~HcalLEDMonitor() {
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HO");
     m_dbe->removeContents();
   }
-
 }
 
 void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){

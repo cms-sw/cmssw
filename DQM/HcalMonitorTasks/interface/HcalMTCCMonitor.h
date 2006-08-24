@@ -11,8 +11,8 @@
 
 /** \class HcalMTCCmonitor
   *  
-  * $Date: 2006/06/23 16:08:13 $
-  * $Revision: 1.6 $
+  * $Date: 2006/08/22 20:41:01 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
 class HcalMTCCMonitor: public HcalBaseMonitor {
@@ -25,6 +25,7 @@ public:
   void processEvent(const HBHERecHitCollection& hbHits, 
 		    const HORecHitCollection& hoHits, 
 		    const LTCDigiCollection& ltc);
+  void clearME();
 
 private: 
 

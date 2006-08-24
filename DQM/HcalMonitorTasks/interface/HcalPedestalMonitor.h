@@ -11,8 +11,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2006/06/23 16:08:13 $
-  * $Revision: 1.3 $
+  * $Date: 2006/08/15 19:58:52 $
+  * $Revision: 1.4 $
   * \author W. Fisher - FNAL
   */
 class HcalPedestalMonitor: public HcalBaseMonitor {
@@ -26,6 +26,7 @@ public:
 		    const HFDigiCollection& hf,
 		    const HcalDbService& cond);
   void done();
+  void clearME();
 
 private: 
   void perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, MonitorElement*> > &tool);

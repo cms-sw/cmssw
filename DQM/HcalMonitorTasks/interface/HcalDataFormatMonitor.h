@@ -16,8 +16,8 @@
 
 /** \class Hcaldataformatmonitor
   *  
-  * $Date: 2006/04/18 19:25:00 $
-  * $Revision: 1.5 $
+  * $Date: 2006/06/23 16:08:13 $
+  * $Revision: 1.6 $
   * \author W. Fisher - FNAL
   */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -28,6 +28,7 @@ public:
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
   void processEvent(const FEDRawDataCollection& rawraw, const HcalElectronicsMap& emap);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
+  void clearME();
 
 private: /// Data accessors
   vector<int> fedUnpackList_;

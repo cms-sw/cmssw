@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/08/23 15:02:40 $
- * $Revision: 1.17 $
+ * $Date: 2006/08/23 15:12:07 $
+ * $Revision: 1.18 $
  * \author W Fisher
  *
 */
@@ -20,7 +20,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
   m_dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) {
-    printf("\nGetting the m_dbe!!!\n");
+
     m_dbe = edm::Service<DaqMonitorBEInterface>().operator->();
     m_dbe->setVerbose(0);
   }
@@ -39,7 +39,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   else{
     m_outputFile = "DQM_Hcal_";
   }
-
 
   m_runNum = 0; m_meStatus=0;
   m_meRunNum=0; m_meRunType=0;
@@ -108,9 +107,19 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(m_verbose) printf("HcalMonitorModule: Destructor.....");
 
   if ( offline_ ) sleep(35); 
-  
-  sleep(10);
 
+  if (m_dbe && !offline_){    
+    if(m_digiMon!=NULL) {  m_digiMon->clearME();}
+    if(m_dfMon!=NULL) {  m_dfMon->clearME();}
+    if(m_pedMon!=NULL) {  m_pedMon->clearME();}
+    if(m_ledMon!=NULL) {  m_ledMon->clearME();}
+    if(m_mtccMon!=NULL) {  m_mtccMon->clearME();}
+    if(m_rhMon!=NULL) {  m_rhMon->clearME();}
+    
+    m_dbe->setCurrentFolder("HcalMonitor");
+    m_dbe->removeContents();
+  }
+  
   if(m_digiMon!=NULL) { delete m_digiMon; m_digiMon=NULL; }
   if(m_dfMon!=NULL) { delete m_dfMon; m_dfMon=NULL; }
   if(m_pedMon!=NULL) { delete m_pedMon; m_pedMon=NULL; }
@@ -118,11 +127,6 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(m_mtccMon!=NULL) { delete m_mtccMon; m_mtccMon=NULL; }
   if(m_rhMon!=NULL) { delete m_rhMon; m_rhMon=NULL; }
   delete m_evtSel;
-
-  if ( m_dbe ) {
-    m_dbe->setCurrentFolder("HcalMonitor");
-    m_dbe->removeContents();
-  }
 
   m_logFile.close();
 }
@@ -146,16 +150,13 @@ void HcalMonitorModule::endJob(void) {
   if ( m_meStatus ) m_meStatus->Fill(2);
   if ( m_meRunNum ) m_meRunNum->Fill(m_runNum);
   if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
-  cout << "HcalMonitorModule::endJob, snooze..."<< endl;
-  sleep(10);  
-  cout << "HcalMonitorModule::endJob, AWAKE!!..."<< endl;
+
   if(m_rhMon!=NULL) m_rhMon->done();
   if(m_digiMon!=NULL) m_digiMon->done();
   if(m_dfMon!=NULL) m_dfMon->done();
   if(m_pedMon!=NULL) m_pedMon->done();
   if(m_ledMon!=NULL) m_ledMon->done();
   if(m_mtccMon!=NULL) m_mtccMon->done();
-  cout << "HcalMonitorModule::endJob, done..."<< endl;
 
   char tmp[150]; bool update = true;
   for ( unsigned int i = 0; i < m_outputFile.size(); i++ ) {
@@ -169,8 +170,7 @@ void HcalMonitorModule::endJob(void) {
     saver = m_outputFile+tmp;
   }
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(saver);
-  cout << "HcalMonitorModule::endJob, saved..."<< endl;
-  
+
   return;
 }
 

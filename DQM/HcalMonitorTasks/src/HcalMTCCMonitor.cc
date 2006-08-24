@@ -6,8 +6,10 @@ HcalMTCCMonitor::HcalMTCCMonitor() {
 }
 
 HcalMTCCMonitor::~HcalMTCCMonitor() {
-  printf("HcalMTCCModule: Destructor.....");
-  if(m_dbe){
+}
+
+void HcalMTCCMonitor::clearME(){
+   if(m_dbe){
     m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor");
     m_dbe->removeContents();
     m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HB");
@@ -15,15 +17,10 @@ HcalMTCCMonitor::~HcalMTCCMonitor() {
     m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HE");
     m_dbe->removeContents();
     m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HO");
-    m_dbe->removeContents();
- 
+    m_dbe->removeContents(); 
     meEVT_= 0;
- 
   }
-
 }
-
-
 void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   

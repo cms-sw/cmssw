@@ -11,8 +11,8 @@
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2006/08/15 19:58:52 $
-  * $Revision: 1.2 $
+  * $Date: 2006/08/22 20:41:01 $
+  * $Revision: 1.3 $
   * \author W. Fisher - FNAL
   */
 class HcalLEDMonitor: public HcalBaseMonitor {
@@ -26,6 +26,7 @@ public:
 		    const HFDigiCollection& hf,
 		    const HcalDbService& cond);
   void done();
+  void clearME();
 
 private: 
 

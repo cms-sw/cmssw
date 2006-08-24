@@ -7,8 +7,8 @@
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2006/08/15 19:58:52 $
-  * $Revision: 1.6 $
+  * $Date: 2006/08/22 20:41:01 $
+  * $Revision: 1.7 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -18,7 +18,7 @@ public:
 
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
   void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
-
+  void clearME();
 
 private:  ///Monitoring elements
 

@@ -5,7 +5,10 @@
 
 HcalPedestalMonitor::HcalPedestalMonitor() {m_doPerChannel = false;}
 
-HcalPedestalMonitor::~HcalPedestalMonitor() {
+HcalPedestalMonitor::~HcalPedestalMonitor() {}
+
+void HcalPedestalMonitor::clearME(){
+  
   if ( m_dbe ) {
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor");
     m_dbe->removeContents();
@@ -16,8 +19,8 @@ HcalPedestalMonitor::~HcalPedestalMonitor() {
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HO");
     m_dbe->removeContents();
   }
-}
 
+}
 void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
 

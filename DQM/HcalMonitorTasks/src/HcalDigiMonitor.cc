@@ -6,6 +6,10 @@ HcalDigiMonitor::HcalDigiMonitor() {
 }
 
 HcalDigiMonitor::~HcalDigiMonitor() {
+}
+
+void HcalDigiMonitor::clearME(){
+
   if(m_dbe){
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor");
     m_dbe->removeContents();
@@ -16,7 +20,7 @@ HcalDigiMonitor::~HcalDigiMonitor() {
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HO");
     m_dbe->removeContents();
   }
-
+  return;
 }
 
 static bool bitUpset(int last, int now){
@@ -91,7 +95,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HBHE");
     hbHists.SHAPE =  m_dbe->book1D("HBHE Digi Shape","HBHE Digi Shape",10,-0.5,9.5);
-    hbHists.SHAPE_THR =  m_dbe->book1D("HBHE Digi Shape, over thresh","HBHE Digi Shape, over thresh",10,-0.5,9.5);
+    hbHists.SHAPE_THR =  m_dbe->book1D("HBHE Digi Shape - over thresh","HBHE Digi Shape - over thresh",10,-0.5,9.5);
 
     hbHists.DIGI_NUM =  m_dbe->book1D("HBHE # of Digis","HBHE # of Digis",200,0,1000);
     hbHists.DIGI_SIZE =  m_dbe->book1D("HBHE Digi Size","HBHE Digi Size",50,0,50);
@@ -106,7 +110,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HF");
     hfHists.SHAPE =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",10,-0.5,9.5);
-    hfHists.SHAPE_THR =  m_dbe->book1D("HF Digi Shape, over thresh","HF Digi Shape, over thresh",10,-0.5,9.5);
+    hfHists.SHAPE_THR =  m_dbe->book1D("HF Digi Shape - over thresh","HF Digi Shape - over thresh",10,-0.5,9.5);
     hfHists.DIGI_NUM =  m_dbe->book1D("HF # of Digis","HF # of Digis",200,0,1000);
     hfHists.DIGI_SIZE =  m_dbe->book1D("HF Digi Size","HF Digi Size",50,0,50);
     hfHists.DIGI_PRESAMPLE =  m_dbe->book1D("HF Digi Presamples","HF Digi Presamples",50,0,50);
@@ -120,7 +124,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HO");
     hoHists.SHAPE =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",10,-0.5,9.5);
-    hoHists.SHAPE_THR =  m_dbe->book1D("HO Digi Shape, over thresh","HO Digi Shape, over thresh",10,-0.5,9.5);
+    hoHists.SHAPE_THR =  m_dbe->book1D("HO Digi Shape - over thresh","HO Digi Shape - over thresh",10,-0.5,9.5);
     hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",200,0,1000);
     hoHists.DIGI_SIZE =  m_dbe->book1D("HO Digi Size","HO Digi Size",50,0,50);
     hoHists.DIGI_PRESAMPLE =  m_dbe->book1D("HO Digi Presamples","HO Digi Presamples",50,0,50);

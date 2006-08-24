@@ -7,7 +7,10 @@ HcalRecHitMonitor::HcalRecHitMonitor() {
 }
 
 HcalRecHitMonitor::~HcalRecHitMonitor() {
-  printf("HcalRecHitModule: Destructor.....");
+}
+
+void HcalRecHitMonitor::clearME(){
+
   if(m_dbe){
     m_dbe->setCurrentFolder("HcalMonitor/RecHitMonitor");
     m_dbe->removeContents();
@@ -17,7 +20,7 @@ HcalRecHitMonitor::~HcalRecHitMonitor() {
     m_dbe->removeContents();
     m_dbe->setCurrentFolder("HcalMonitor/RecHitMonitor/HO");
     m_dbe->removeContents();
-    printf("HcalRecHitModule: Destructor 1.....");
+
     hbHists.meOCC_MAP_GEO = 0;
     hbHists.meRECHIT_E_all = 0;
     hbHists.meRECHIT_E_low = 0;
@@ -44,9 +47,9 @@ HcalRecHitMonitor::~HcalRecHitMonitor() {
     meOCC_MAP_all_GEO= 0;
     meRECHIT_E_all= 0;
     meEVT_= 0;
-    printf("HcalRecHitModule: Destructor 2.....");
+
   }
-  printf("HcalRecHitModule: Destructor 3.....");
+
 }
 
 
@@ -136,21 +139,21 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface
     m_dbe->setCurrentFolder("HcalMonitor/RecHitMonitor/HBHE");
     hbHists.meRECHIT_E_tot = m_dbe->book1D("HBHE RecHit Total Energy","HBHE RecHit Total Energy",100,0,2000);
     hbHists.meRECHIT_E_all = m_dbe->book1D("HBHE RecHit Energies","HBHE RecHit Energies",100,0,1000);
-    hbHists.meRECHIT_E_low = m_dbe->book1D("HBHE RecHit Energies, Low Region","HBHE RecHit Energies, Low Region",200,0,10);
+    hbHists.meRECHIT_E_low = m_dbe->book1D("HBHE RecHit Energies - Low Region","HBHE RecHit Energies - Low Region",200,0,10);
     hbHists.meRECHIT_T_tot = m_dbe->book1D("HBHE RecHit Times","HBHE RecHit Times",100,0,500);
     hbHists.meOCC_MAP_GEO = m_dbe->book2D("HBHE RecHit Geo Occupancy Map","HBHE RecHit Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
     m_dbe->setCurrentFolder("HcalMonitor/RecHitMonitor/HF");
     hfHists.meRECHIT_E_tot = m_dbe->book1D("HF RecHit Total Energy","HF RecHit Total Energy",100,0,2000);
     hfHists.meRECHIT_E_all = m_dbe->book1D("HF RecHit Energies","HF RecHit Energies",100,0,1000);
-    hfHists.meRECHIT_E_low = m_dbe->book1D("HF RecHit Energies, Low Region","HF RecHit Energies, Low Region",200,0,10);
+    hfHists.meRECHIT_E_low = m_dbe->book1D("HF RecHit Energies - Low Region","HF RecHit Energies - Low Region",200,0,10);
 hfHists.meRECHIT_T_tot = m_dbe->book1D("HF RecHit Times","HF RecHit Times",100,0,500);
     hfHists.meOCC_MAP_GEO = m_dbe->book2D("HF RecHit Geo Occupancy Map","HF RecHit Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
     m_dbe->setCurrentFolder("HcalMonitor/RecHitMonitor/HO");
     hoHists.meRECHIT_E_tot = m_dbe->book1D("HO RecHit Total Energy","HO RecHit Total Energy",100,0,2000);
     hoHists.meRECHIT_E_all = m_dbe->book1D("HO RecHit Energies","HO RecHit Energies",100,0,1000);
-    hoHists.meRECHIT_E_low = m_dbe->book1D("HO RecHit Energies, Low Region","HO RecHit Energies, Low Region",200,0,10);
+    hoHists.meRECHIT_E_low = m_dbe->book1D("HO RecHit Energies - Low Region","HO RecHit Energies - Low Region",200,0,10);
 hoHists.meRECHIT_T_tot = m_dbe->book1D("HO RecHit Times","HO RecHit Times",100,0,500);
     hoHists.meOCC_MAP_GEO = m_dbe->book2D("HO RecHit Geo Occupancy Map","HO RecHit Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
   }

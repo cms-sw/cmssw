@@ -3,11 +3,14 @@
 HcalDataFormatMonitor::HcalDataFormatMonitor() {}
 
 HcalDataFormatMonitor::~HcalDataFormatMonitor() {
+}
 
+void HcalDataFormatMonitor::clearME(){
   if(m_dbe){
     m_dbe->setCurrentFolder("HcalMonitor/DataFormatMonitor");
     m_dbe->removeContents();
   }
+  return;
 }
 
 void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
