@@ -1,0 +1,10 @@
+DT:
+  //clean up schema CMS_COND_DT 
+  //check out directory CondTools/IntegrationTest and build test directory
+  //get an authentication.xml somewhere
+  cd ${CMSSW_BASE}/src/CondTools/IntegrationTest/test
+  ../../OracleDBA/scripts/cmscond_bootstrap_detector.pl DT
+  $LOCALRT/test/${SCRAM_ARCH}/testWriteDTTtrig
+  $LOCALRT/test/${SCRAM_ARCH}/testWriteDTT0
+  $LOCALRT/test/${SCRAM_ARCH}/testWriteDTMap
+  cmsRun ../data/validate_dt_devdb10.cfg
