@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.8 2006/08/01 14:33:52 rahatlou Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.9 2006/08/23 09:51:31 charlot Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -44,27 +44,27 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-ElectronPixelSeedGenerator::ElectronPixelSeedGenerator( 
-			  float iephimin1,
-			  float iephimax1,
-			  float ipphimin1,
-			  float ipphimax1,
-			  float ipphimin2,
-			  float ipphimax2,
-			  float izmin1,
-			  float izmax1,
-			  float izmin2,
-			  float izmax2
-		):  ephimin1(iephimin1), ephimax1(iephimax1), pphimin1(ipphimin1), pphimax1(ipphimax1), pphimin2(ipphimin2), pphimax2(ipphimax2),zmin1(izmin1),zmax1(izmax1),zmin2(izmin2),zmax2(izmax2), theMode_(unknown), theMeasurementTracker(0)
+ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(float iephimin1, float iephimax1,
+			                               float ipphimin1, float ipphimax1,
+			                               float ipphimin2, float ipphimax2,
+						       float izmin1, float izmax1,
+						       float izmin2, float izmax2)
+ : ephimin1(iephimin1), ephimax1(iephimax1), pphimin1(ipphimin1), pphimax1(ipphimax1), pphimin2(ipphimin2),	
+   pphimax2(ipphimax2),zmin1(izmin1),zmax1(izmax1),zmin2(izmin2),zmax2(izmax2),
+   myMatchEle(0), myMatchPos(0),
+   theMode_(unknown), theUpdator(0), thePropagator(0), theMeasurementTracker(0), 
+   theNavigationSchool(0), theSetup(0), pts_(0)
 {}
 
 ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
+
   delete theMeasurementTracker;
   delete theNavigationSchool;
   delete myMatchEle;
   delete myMatchPos;
   delete thePropagator;
   delete theUpdator;
+
 }
 
 
@@ -75,19 +75,11 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
 //   edm::ValidityInterval v3= setup.get<TrackerRecoGeometryRecord>().validityInterval();
 //   if (v1==vMag && v2==vTrackerDigi && v3==vTrackerReco) return;
 
-   theSetup= &setup;
+  theSetup= &setup;
 //   vMag=v1;
 //   vTrackerDigi=v2;
 //   vTrackerReco=v3;
 
-  //CC
-  // input data
-  // hybrid super clusters
-  //superClusterProducer_ = conf.getParameter<std::string>("HybridClusterProducer"); 
-  //superClusterCollection_ = conf.getParameter<std::string>("superClusterCollection");
-  // corrected hybrid super clusters
-  //std::string clusterProducer = conf.getParameter<std::string>("EgammaSCCorrectionMaker"); 
-   
   setup.get<IdealMagneticFieldRecord>().get(theMagField);
   setup.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
 
@@ -103,8 +95,11 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
   myMatchEle->setES(&(*theMagField),theMeasurementTracker);
   myMatchPos->setES(&(*theMagField),theMeasurementTracker);
 
-  moduleLabel_=conf.getParameter<string>("superClusterProducer");
-  instanceName_=conf.getParameter<string>("superClusterLabel");
+  moduleLabelBarrel_=conf.getParameter<string>("superClusterBarrelProducer");
+  instanceNameBarrel_=conf.getParameter<string>("superClusterBarrelLabel");
+  //CC@@
+  //moduleLabelEndcap_=conf.getParameter<string>("superClusterEndcapProducer");
+  //instanceNameEndcap_=conf.getParameter<string>("superClusterEndcapLabel");
 }
 
 void  ElectronPixelSeedGenerator::run(const edm::Event& e, ElectronPixelSeedCollection & out){
@@ -114,27 +109,38 @@ void  ElectronPixelSeedGenerator::run(const edm::Event& e, ElectronPixelSeedColl
   NavigationSetter setter(*theNavigationSchool);
 
   // get input clusters 
-  edm::Handle<SuperClusterCollection> clusters;
-  //CC use full data specification with getByLabel(ML, IN, result)
-  // specification can be seen from branch name: PT_ML_IN_PN
-  // PT = product type
-  // ML = module label
-  // IN = instance name
-  // PN = process name
-  //e.getByLabel("hybridSuperClusterProducer", "HybridSuperClusterCollection", clusters); 
-  e.getByLabel(moduleLabel_,instanceName_,clusters);
-  for  ( unsigned int i=0;i<clusters.product()->size();++i) {
+  edm::Handle<SuperClusterCollection> bclusters;
+  e.getByLabel(moduleLabelBarrel_,instanceNameBarrel_,bclusters);
 
-    edm::Ref<SuperClusterCollection> theClus(clusters,i);
+  for  (unsigned int i=0;i<bclusters.product()->size();++i) {
+    edm::Ref<SuperClusterCollection> theClusB(bclusters,i);
     // Find the seeds
     recHits_.clear();
     LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
-    seedsFromThisCluster(theClus,out) ;
+    seedsFromThisCluster(theClusB,out) ;
   }
 
   if(theMode_==offline) LogDebug ("run") << "(offline)";
+  
   LogDebug ("run") << ": For event "<<e.id();
-  LogDebug ("run") <<"Nr of superclusters: "<<clusters.product()->size()<<", no. of ElectronPixelSeeds found = " << out.size();
+  LogDebug ("run") <<"Nr of superclusters: "<<bclusters.product()->size()
+   <<", no. of ElectronPixelSeeds found in barrel = " << out.size();
+  
+  // get input clusters 
+  edm::Handle<SuperClusterCollection> eclusters;
+  e.getByLabel("correctedIslandEndcapSuperClusters","",eclusters);
+
+  for  (unsigned int i=0;i<eclusters.product()->size();++i) {
+    edm::Ref<SuperClusterCollection> theClusE(eclusters,i);
+    // Find the seeds
+    recHits_.clear();
+    LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
+    seedsFromThisCluster(theClusE,out) ;
+  }
+
+  LogDebug ("run") << ": For event "<<e.id();
+  LogDebug ("run") <<"Nr of superclusters: "<<eclusters.product()->size()
+   <<",no. of ElectronPixelSeeds found in endcaps = " << out.size();
   
 }
 
@@ -150,11 +156,12 @@ void ElectronPixelSeedGenerator::setup(bool off)
       myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
       if(off) theMode_=offline; else theMode_ = HLT;
     }
+
 }
 
 void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterCollection> seedCluster, ElectronPixelSeedCollection& result)
 {
-  result.clear();
+  //result.clear();
   float clusterEnergy = seedCluster->energy();
   GlobalPoint clusterPos(seedCluster->position().x(),
 			 seedCluster->position().y(), 

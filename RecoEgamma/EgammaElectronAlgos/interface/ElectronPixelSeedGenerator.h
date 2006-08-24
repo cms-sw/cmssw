@@ -83,8 +83,11 @@ public:
   float pphimin2, pphimax2;
   float zmin1, zmax1, zmin2, zmax2;
 
-  std::string moduleLabel_;
-  std::string instanceName_;
+  std::string moduleLabelBarrel_;
+  std::string instanceNameBarrel_;
+  //CC@@ adding these two lines causes a segv at end of job
+  //std::string moduleLabelEndcap_;
+  //std::string instanceNameEndcap_;
 
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
