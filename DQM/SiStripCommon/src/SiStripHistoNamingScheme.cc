@@ -141,177 +141,73 @@ sistrip::Granularity SiStripHistoNamingScheme::granularity( const string& granul
 }  
 
 // -----------------------------------------------------------------------------
-//
-string SiStripHistoNamingScheme::controlPath( uint16_t fec_crate,
-					      uint16_t fec_slot,
-					      uint16_t fec_ring,
-					      uint16_t ccu_addr,
-					      uint16_t ccu_chan ) { 
-  
-  stringstream folder; 
-  //folder.reserve(65536); //@@ possible to reserve space???
-  folder << sistrip::root_ << sistrip::dir_ << sistrip::controlView_ << sistrip::dir_;
-  if ( fec_crate != sistrip::invalid_ ) {
-    folder << sistrip::fecCrate_ << fec_crate << sistrip::dir_;
-    if ( fec_slot != sistrip::invalid_ ) {
-      folder << sistrip::fecSlot_ << fec_slot << sistrip::dir_;
-      if ( fec_ring != sistrip::invalid_ ) {
-	folder << sistrip::fecRing_ << fec_ring << sistrip::dir_;
-	if ( ccu_addr != sistrip::invalid_ ) {
-	  folder << sistrip::ccuAddr_ << ccu_addr << sistrip::dir_;
-	  if ( ccu_chan != sistrip::invalid_ ) {
-	    folder << sistrip::ccuChan_ << ccu_chan << sistrip::dir_;
-	  }
-	}
-      }
-    }
-  }
-//   LogDebug("DQM") << "[" << __PRETTY_FUNCTION__ << "] " << folder.str();
-  return folder.str();
+// 
+string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& histo ) {
+  // APV TIMING
+  if ( histo == sistrip::APV_TIMING_PLL_COARSE ) { return sistrip::apvTimingCoarse_; } 
+  else if ( histo == sistrip::APV_TIMING_PLL_FINE ) { return sistrip::apvTimingFine_; }
+  else if ( histo == sistrip::APV_TIMING_DELAY ) { return sistrip::apvTimingDelay_; }
+  else if ( histo == sistrip::APV_TIMING_ERROR ) { return sistrip::apvTimingError_; }
+  else if ( histo == sistrip::APV_TIMING_BASE ) { return sistrip::apvTimingBase_; }
+  else if ( histo == sistrip::APV_TIMING_PEAK ) { return sistrip::apvTimingPeak_; }
+  else if ( histo == sistrip::APV_TIMING_HEIGHT ) { return sistrip::apvTimingHeight_; }
+  // FED TIMING
+  else if ( histo == sistrip::FED_TIMING_PLL_COARSE ) { return sistrip::fedTimingCoarse_; }
+  else if ( histo == sistrip::FED_TIMING_PLL_FINE ) { return sistrip::fedTimingFine_; }
+  else if ( histo == sistrip::FED_TIMING_DELAY ) { return sistrip::fedTimingDelay_; }
+  else if ( histo == sistrip::FED_TIMING_ERROR ) { return sistrip::fedTimingError_; }
+  else if ( histo == sistrip::FED_TIMING_BASE ) { return sistrip::fedTimingBase_; }
+  else if ( histo == sistrip::FED_TIMING_PEAK ) { return sistrip::fedTimingPeak_; }
+  else if ( histo == sistrip::FED_TIMING_HEIGHT ) { return sistrip::fedTimingHeight_; }
+  // OPTO SCAN
+  else if ( histo == sistrip::OPTO_SCAN_LLD_BIAS ) { return sistrip::optoScanLldBias_; }
+  else if ( histo == sistrip::OPTO_SCAN_LLD_GAIN ) { return sistrip::optoScanLldGain_; }
+  else if ( histo == sistrip::OPTO_SCAN_GAIN ) { return sistrip::optoScanGain_; }
+  else if ( histo == sistrip::OPTO_SCAN_ERROR ) { return sistrip::optoScanError_; }
+  else if ( histo == sistrip::OPTO_SCAN_BASE ) { return sistrip::optoScanBase_; }
+  else if ( histo == sistrip::OPTO_SCAN_PEAK ) { return sistrip::optoScanPeak_; }
+  else if ( histo == sistrip::OPTO_SCAN_HEIGHT ) { return sistrip::optoScanHeight_; }
+  // VPSP SCAN
+  else if ( histo == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv0_; }
+  else if ( histo == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv1_; }
+  // PEDESTALS / NOISE
+  if ( histo == sistrip::PEDESTALS_MEAN ) { return sistrip::pedestalsMean_; }
+  else if ( histo == sistrip::PEDESTALS_SPREAD ) { return sistrip::pedestalsSpread_; }
+  else if ( histo == sistrip::PEDESTALS_MAX ) { return sistrip::pedestalsMax_; }
+  else if ( histo == sistrip::PEDESTALS_MIN ) { return sistrip::pedestalsMin_; }
+  else if ( histo == sistrip::NOISE_MEAN ) { return sistrip::noiseMean_; }
+  else if ( histo == sistrip::NOISE_SPREAD ) { return sistrip::noiseSpread_; }
+  else if ( histo == sistrip::NOISE_MAX ) { return sistrip::noiseMax_; }
+  else if ( histo == sistrip::NOISE_MIN ) { return sistrip::noiseMin_; }
+  else if ( histo == sistrip::NUM_OF_DEAD ) { return sistrip::numOfDead_; }
+  else if ( histo == sistrip::NUM_OF_NOISY ) { return sistrip::numOfNoisy_; }
+  // UNKNOWN / UNDEFINED
+  else if ( histo == sistrip::UNDEFINED_SUMMARY_HISTO ) { return sistrip::undefinedSummaryHisto_; }
+  else { return sistrip::unknownSummaryHisto_; }
 }
 
 // -----------------------------------------------------------------------------
-//
-const SiStripHistoNamingScheme::ControlPath& SiStripHistoNamingScheme::controlPath( const string& directory ) {
+// 
+sistrip::SummaryHisto SiStripHistoNamingScheme::summaryHisto( const string& histo ) {
+  //@@ needs implementation!!!
+  return sistrip::UNDEFINED_SUMMARY_HISTO; 
+}  
 
-  static ControlPath path;
-  path.fecCrate_ = sistrip::invalid_;
-  path.fecSlot_ = sistrip::invalid_;
-  path.fecRing_ = sistrip::invalid_;
-  path.ccuAddr_ = sistrip::invalid_;
-  path.ccuChan_ = sistrip::invalid_;
-
-  uint32_t curr = 0; // current string position
-  uint32_t next = 0; // next string position
-  next = directory.find( sistrip::controlView_, curr );
-  // Extract view 
-  curr = next;
-  if ( curr != string::npos ) { 
-    next = directory.find( sistrip::fecCrate_, curr );
-    string control_view( directory, 
-			 curr+sistrip::controlView_.size(), 
-			 (next-sistrip::dir_.size())-curr );
-    // Extract FEC crate
-    curr = next;
-    if ( curr != string::npos ) { 
-      next = directory.find( sistrip::fecSlot_, curr );
-      string fec_crate( directory, 
-			curr+sistrip::fecCrate_.size(), 
-			(next-sistrip::dir_.size())-curr );
-      path.fecCrate_ = atoi( fec_crate.c_str() );
-      // Extract FEC slot
-      curr = next;
-      if ( curr != string::npos ) { 
-	next = directory.find( sistrip::fecRing_, curr );
-	string fec_slot( directory, 
-			 curr+sistrip::fecSlot_.size(), 
-			 (next-sistrip::dir_.size())-curr );
-	path.fecSlot_ = atoi( fec_slot.c_str() );
-	// Extract FEC ring
-	curr = next;
-	if ( curr != string::npos ) { 
-	  next = directory.find( sistrip::ccuAddr_, curr );
-	  string fec_ring( directory, 
-			   curr+sistrip::fecRing_.size(),
-			   (next-sistrip::dir_.size())-curr );
-	  path.fecRing_ = atoi( fec_ring.c_str() );
-	  // Extract CCU address
-	  curr = next;
-	  if ( curr != string::npos ) { 
-	    next = directory.find( sistrip::ccuChan_, curr );
-	    string ccu_addr( directory, 
-			     curr+sistrip::ccuAddr_.size(), 
-			     (next-sistrip::dir_.size())-curr );
-	    path.ccuAddr_ = atoi( ccu_addr.c_str() );
-	    // Extract CCU channel
-	    curr = next;
-	    if ( curr != string::npos ) { 
-	      next = string::npos;
-	      string ccu_chan( directory, 
-			       curr+sistrip::ccuChan_.size(), 
-			       next-curr );
-	      path.ccuChan_ = atoi( ccu_chan.c_str() );
-	    }
-	  }
-	}
-      }
-    }
-  } else {
-//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
-// 			 << " Unexpected view! Not " << sistrip::controlView_ << "!";
-  }
-  
-//   LogDebug("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
-// 		  << "  FecCrate: " << path.fecCrate_
-// 		  << "  FecSlot: " << path.fecSlot_
-// 		  << "  FecRing: " << path.fecRing_
-// 		  << "  CcuAddr: " << path.ccuAddr_
-// 		  << "  CcuChan: " << path.ccuChan_;
-
-  return path;
-  
+// -----------------------------------------------------------------------------
+// 
+string SiStripHistoNamingScheme::summaryType( const sistrip::SummaryType& type ) {
+  if ( type == sistrip::SUMMARY_SIMPLE_DISTR ) { return sistrip::summarySimpleDistr_; } 
+  else if ( type == sistrip::SUMMARY_LOGICAL_VIEW ) { return sistrip::summaryLogicalView_; }
+  else if ( type == sistrip::UNDEFINED_SUMMARY_TYPE ) { return sistrip::undefinedSummaryType_; }
+  else { return sistrip::unknownSummaryType_; }
 }
 
 // -----------------------------------------------------------------------------
-//
-string SiStripHistoNamingScheme::readoutPath( uint16_t fed_id,
-					      uint16_t fed_channel ) { 
-  
-  stringstream folder;
-  folder << sistrip::root_ << sistrip::dir_ << sistrip::readoutView_ << sistrip::dir_;
-  if ( fed_id != sistrip::invalid_ ) {
-    folder << sistrip::fedId_ << fed_id << sistrip::dir_;
-    if ( fed_channel != sistrip::invalid_ ) {
-      folder << sistrip::fedChannel_ << fed_channel << sistrip::dir_;
-    }
-  }
-  return folder.str();
-}
-
-// -----------------------------------------------------------------------------
-
- std::pair<uint16_t,uint16_t> SiStripHistoNamingScheme::readoutPath( const std::string& directory ) { 
-
-   pair<unsigned int,unsigned int> path;
-   path.first = sistrip::invalid_;
-   path.second = sistrip::invalid_;
-
-  uint32_t curr = 0; // current string position
-  uint32_t next = 0; // next string position
-  next = directory.find( sistrip::readoutView_, curr ) 
-    + sistrip::readoutView_.size();
-  // Extract view 
-  if ( next != string::npos ) { 
-    // Extract FED Id
-    curr = directory.find( sistrip::fedId_, next ) 
-      + sistrip::fedId_.size();
-    next = directory.find( sistrip::dir_, curr);
-    if ( next != string::npos ) { 
-       string fed_id( directory, 
-		      curr, 
-		      next - curr); 
-      path.first = atoi( fed_id.c_str() );
-      // Extract FED Channel
-    curr = directory.find( sistrip::fedChannel_, next ) 
-      + sistrip::fedChannel_.size();
-    next = directory.find( sistrip::dir_, curr);
-      if ( curr != string::npos ) { 
-	string fed_channel( directory, 
-			    curr, 
-			    next - curr );
-	path.second = atoi( fed_channel.c_str() );
-      }
-    }
-  } else {
-//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
-// 			 << " Unexpected view! Not " << sistrip::readoutView_ << "!";
-  }
-  
-//   LogDebug("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
-// 		  << "  FedId: " << path.first
-// 		  << "  FedChannel: " << path.second;
-  return path;
- }
+// 
+sistrip::SummaryType SiStripHistoNamingScheme::summaryType( const string& type ) {
+  //@@ needs implementation!!!
+  return sistrip::UNDEFINED_SUMMARY_TYPE; 
+}  
 
 // -----------------------------------------------------------------------------
 // 
@@ -493,3 +389,176 @@ SiStripHistoNamingScheme::HistoTitle SiStripHistoNamingScheme::histoTitle( strin
   return title;
   
 }
+
+// -----------------------------------------------------------------------------
+//
+string SiStripHistoNamingScheme::controlPath( uint16_t fec_crate,
+					      uint16_t fec_slot,
+					      uint16_t fec_ring,
+					      uint16_t ccu_addr,
+					      uint16_t ccu_chan ) { 
+  
+  stringstream folder; 
+  //folder.reserve(65536); //@@ possible to reserve space???
+  folder << sistrip::root_ << sistrip::dir_ << sistrip::controlView_ << sistrip::dir_;
+  if ( fec_crate != sistrip::invalid_ ) {
+    folder << sistrip::fecCrate_ << fec_crate << sistrip::dir_;
+    if ( fec_slot != sistrip::invalid_ ) {
+      folder << sistrip::fecSlot_ << fec_slot << sistrip::dir_;
+      if ( fec_ring != sistrip::invalid_ ) {
+	folder << sistrip::fecRing_ << fec_ring << sistrip::dir_;
+	if ( ccu_addr != sistrip::invalid_ ) {
+	  folder << sistrip::ccuAddr_ << ccu_addr << sistrip::dir_;
+	  if ( ccu_chan != sistrip::invalid_ ) {
+	    folder << sistrip::ccuChan_ << ccu_chan << sistrip::dir_;
+	  }
+	}
+      }
+    }
+  }
+//   LogDebug("DQM") << "[" << __PRETTY_FUNCTION__ << "] " << folder.str();
+  return folder.str();
+}
+
+// -----------------------------------------------------------------------------
+//
+const SiStripHistoNamingScheme::ControlPath& SiStripHistoNamingScheme::controlPath( const string& directory ) {
+
+  static ControlPath path;
+  path.fecCrate_ = sistrip::invalid_;
+  path.fecSlot_ = sistrip::invalid_;
+  path.fecRing_ = sistrip::invalid_;
+  path.ccuAddr_ = sistrip::invalid_;
+  path.ccuChan_ = sistrip::invalid_;
+
+  uint32_t curr = 0; // current string position
+  uint32_t next = 0; // next string position
+  next = directory.find( sistrip::controlView_, curr );
+  // Extract view 
+  curr = next;
+  if ( curr != string::npos ) { 
+    next = directory.find( sistrip::fecCrate_, curr );
+    string control_view( directory, 
+			 curr+sistrip::controlView_.size(), 
+			 (next-sistrip::dir_.size())-curr );
+    // Extract FEC crate
+    curr = next;
+    if ( curr != string::npos ) { 
+      next = directory.find( sistrip::fecSlot_, curr );
+      string fec_crate( directory, 
+			curr+sistrip::fecCrate_.size(), 
+			(next-sistrip::dir_.size())-curr );
+      path.fecCrate_ = atoi( fec_crate.c_str() );
+      // Extract FEC slot
+      curr = next;
+      if ( curr != string::npos ) { 
+	next = directory.find( sistrip::fecRing_, curr );
+	string fec_slot( directory, 
+			 curr+sistrip::fecSlot_.size(), 
+			 (next-sistrip::dir_.size())-curr );
+	path.fecSlot_ = atoi( fec_slot.c_str() );
+	// Extract FEC ring
+	curr = next;
+	if ( curr != string::npos ) { 
+	  next = directory.find( sistrip::ccuAddr_, curr );
+	  string fec_ring( directory, 
+			   curr+sistrip::fecRing_.size(),
+			   (next-sistrip::dir_.size())-curr );
+	  path.fecRing_ = atoi( fec_ring.c_str() );
+	  // Extract CCU address
+	  curr = next;
+	  if ( curr != string::npos ) { 
+	    next = directory.find( sistrip::ccuChan_, curr );
+	    string ccu_addr( directory, 
+			     curr+sistrip::ccuAddr_.size(), 
+			     (next-sistrip::dir_.size())-curr );
+	    path.ccuAddr_ = atoi( ccu_addr.c_str() );
+	    // Extract CCU channel
+	    curr = next;
+	    if ( curr != string::npos ) { 
+	      next = string::npos;
+	      string ccu_chan( directory, 
+			       curr+sistrip::ccuChan_.size(), 
+			       next-curr );
+	      path.ccuChan_ = atoi( ccu_chan.c_str() );
+	    }
+	  }
+	}
+      }
+    }
+  } else {
+//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
+// 			 << " Unexpected view! Not " << sistrip::controlView_ << "!";
+  }
+  
+//   LogDebug("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
+// 		  << "  FecCrate: " << path.fecCrate_
+// 		  << "  FecSlot: " << path.fecSlot_
+// 		  << "  FecRing: " << path.fecRing_
+// 		  << "  CcuAddr: " << path.ccuAddr_
+// 		  << "  CcuChan: " << path.ccuChan_;
+
+  return path;
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+string SiStripHistoNamingScheme::readoutPath( uint16_t fed_id,
+					      uint16_t fed_channel ) { 
+  
+  stringstream folder;
+  folder << sistrip::root_ << sistrip::dir_ << sistrip::readoutView_ << sistrip::dir_;
+  if ( fed_id != sistrip::invalid_ ) {
+    folder << sistrip::fedId_ << fed_id << sistrip::dir_;
+    if ( fed_channel != sistrip::invalid_ ) {
+      folder << sistrip::fedChannel_ << fed_channel << sistrip::dir_;
+    }
+  }
+  return folder.str();
+}
+
+// -----------------------------------------------------------------------------
+
+ std::pair<uint16_t,uint16_t> SiStripHistoNamingScheme::readoutPath( const std::string& directory ) { 
+
+   pair<unsigned int,unsigned int> path;
+   path.first = sistrip::invalid_;
+   path.second = sistrip::invalid_;
+
+  uint32_t curr = 0; // current string position
+  uint32_t next = 0; // next string position
+  next = directory.find( sistrip::readoutView_, curr ) 
+    + sistrip::readoutView_.size();
+  // Extract view 
+  if ( next != string::npos ) { 
+    // Extract FED Id
+    curr = directory.find( sistrip::fedId_, next ) 
+      + sistrip::fedId_.size();
+    next = directory.find( sistrip::dir_, curr);
+    if ( next != string::npos ) { 
+       string fed_id( directory, 
+		      curr, 
+		      next - curr); 
+      path.first = atoi( fed_id.c_str() );
+      // Extract FED Channel
+    curr = directory.find( sistrip::fedChannel_, next ) 
+      + sistrip::fedChannel_.size();
+    next = directory.find( sistrip::dir_, curr);
+      if ( curr != string::npos ) { 
+	string fed_channel( directory, 
+			    curr, 
+			    next - curr );
+	path.second = atoi( fed_channel.c_str() );
+      }
+    }
+  } else {
+//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
+// 			 << " Unexpected view! Not " << sistrip::readoutView_ << "!";
+  }
+  
+//   LogDebug("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
+// 		  << "  FedId: " << path.first
+// 		  << "  FedChannel: " << path.second;
+  return path;
+ }

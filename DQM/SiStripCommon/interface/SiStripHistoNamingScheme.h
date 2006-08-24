@@ -12,8 +12,26 @@ class SiStripHistoNamingScheme {
   
  public:
 
-  // ----- STRUCTS AND ENUMS -----
-
+  // ---------- CONVERSION BETWEEN ENUMS AND STRINGS ----------
+  
+  static std::string view( const sistrip::View& );
+  static std::string task( const sistrip::Task& );
+  static std::string contents( const sistrip::Contents& );
+  static std::string keyType( const sistrip::KeyType& );
+  static std::string granularity( const sistrip::Granularity& );
+  static std::string summaryHisto( const sistrip::SummaryHisto& );
+  static std::string summaryType( const sistrip::SummaryType& );
+  
+  static sistrip::View view( const std::string& directory );
+  static sistrip::Task task( const std::string& task );
+  static sistrip::Contents contents( const std::string& contents );
+  static sistrip::KeyType keyType( const std::string& key_type );
+  static sistrip::Granularity granularity( const std::string& granularity );
+  static sistrip::SummaryHisto summaryHisto( const std::string& summary_histo );
+  static sistrip::SummaryType summaryType( const std::string& summary_type );
+  
+  // ---------- FORMULATION OF HISTOGRAM TITLES ----------
+  
   /** Simple struct to hold components of histogram title. */
   struct HistoTitle {
     sistrip::Task        task_;
@@ -24,7 +42,27 @@ class SiStripHistoNamingScheme {
     uint16_t             channel_;
     std::string          extraInfo_;
   };
+
+  /** Contructs histogram name based on a general histogram name,
+      histogram contents, a histogram key and a channel id. */
+  inline static std::string histoTitle( HistoTitle title );
   
+  /** Contructs histogram name based on a general histogram name,
+      histogram contents, a histogram key and a channel id. */
+  static std::string histoTitle( sistrip::Task        task,
+				 sistrip::Contents    contents   = sistrip::COMBINED, 
+				 sistrip::KeyType     key_type   = sistrip::NO_KEY, 
+				 uint32_t             key_value  = 0, 
+				 sistrip::Granularity granarity  = sistrip::MODULE,
+				 uint16_t             channel    = 0,
+				 std::string          extra_info = "" );
+  
+  /** Extracts various parameters from histogram name and returns the
+      values in the form of a HistoTitle struct. */
+  static HistoTitle histoTitle( std::string histo_title );  
+
+  // ---------- FORMULATION OF DIRECTORY PATHS ----------
+
   /** Simple struct to hold control path parameters. */
   class ControlPath {
   public:
@@ -40,22 +78,6 @@ class SiStripHistoNamingScheme {
       ccuAddr_(sistrip::invalid_), 
       ccuChan_(sistrip::invalid_) {;} 
   };
-  
-  // ----- METHODS RETURNING SOME GENERIC STRINGS AND ENUMS -----
-  
-  static std::string view( const sistrip::View& );
-  static std::string task( const sistrip::Task& );
-  static std::string contents( const sistrip::Contents& );
-  static std::string keyType( const sistrip::KeyType& );
-  static std::string granularity( const sistrip::Granularity& );
-  
-  static sistrip::View view( const std::string& directory );
-  static sistrip::Task task( const std::string& task );
-  static sistrip::Contents contents( const std::string& contents );
-  static sistrip::KeyType keyType( const std::string& key_type );
-  static sistrip::Granularity granularity( const std::string& granularity );
-  
-  // ----- FORMULATION OF DIRECTORY PATHS -----
 
   /** Returns directory path in the form of a string, based on control
       params (FEC crate, slot and ring, CCU address and channel). */ 
@@ -83,26 +105,6 @@ class SiStripHistoNamingScheme {
       id/channel), based on directory path string of the form
       ReadoutView/FedIdX/FedChannelY/. */
   static std::pair<uint16_t,uint16_t> readoutPath( const std::string& directory );
-  
-  // ----- FORMULATION OF HISTOGRAM TITLES -----
-  
-  /** Contructs histogram name based on a general histogram name,
-      histogram contents, a histogram key and a channel id. */
-  inline static std::string histoTitle( HistoTitle title );
-  
-  /** Contructs histogram name based on a general histogram name,
-      histogram contents, a histogram key and a channel id. */
-  static std::string histoTitle( sistrip::Task        task,
-				 sistrip::Contents    contents   = sistrip::COMBINED, 
-				 sistrip::KeyType     key_type   = sistrip::NO_KEY, 
-				 uint32_t             key_value  = 0, 
-				 sistrip::Granularity granarity  = sistrip::MODULE,
-				 uint16_t             channel    = 0,
-				 std::string          extra_info = "" );
-  
-  /** Extracts various parameters from histogram name and returns the
-      values in the form of a HistoTitle struct. */
-  static HistoTitle histoTitle( std::string histo_title );  
   
 };
 
