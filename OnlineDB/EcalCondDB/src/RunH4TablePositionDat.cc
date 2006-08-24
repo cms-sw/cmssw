@@ -2,13 +2,13 @@
 #include <string>
 #include "occi.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTableDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunH4TablePositionDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
 using namespace std;
 using namespace oracle::occi;
 
-RunTableDat::RunTableDat()
+RunH4TablePositionDat::RunH4TablePositionDat()
 {
   m_env = NULL;
   m_conn = NULL;
@@ -21,41 +21,41 @@ RunTableDat::RunTableDat()
 
 
 
-RunTableDat::~RunTableDat()
+RunH4TablePositionDat::~RunH4TablePositionDat()
 {
 }
 
 
 
-void RunTableDat::prepareWrite()
+void RunH4TablePositionDat::prepareWrite()
   throw(runtime_error)
 {
   this->checkConnection();
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO run_h4table_position_dat (iov_id, logic_id, "
+    m_writeStmt->setSQL("INSERT INTO run_h4_table_position_dat (iov_id, logic_id, "
 			"table_x, table_y, number_of_spills, number_of_events ) "
 			"VALUES (:iov_id, :logic_id, "
 			":table_x, :table_y, :number_of_spills, :number_of_events)");
   } catch (SQLException &e) {
-    throw(runtime_error("RunTableDat::prepareWrite():  "+e.getMessage()));
+    throw(runtime_error("RunH4TablePositionDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
-void RunTableDat::writeDB(const EcalLogicID* ecid, const RunTableDat* item, RunIOV* iov)
+void RunH4TablePositionDat::writeDB(const EcalLogicID* ecid, const RunH4TablePositionDat* item, RunIOV* iov)
   throw(runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("RunTableDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(runtime_error("RunH4TablePositionDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("RunTableDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(runtime_error("RunH4TablePositionDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -67,13 +67,13 @@ void RunTableDat::writeDB(const EcalLogicID* ecid, const RunTableDat* item, RunI
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("RunTableDat::writeDB():  "+e.getMessage()));
+    throw(runtime_error("RunH4TablePositionDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
-void RunTableDat::fetchData(map< EcalLogicID, RunTableDat >* fillMap, RunIOV* iov)
+void RunH4TablePositionDat::fetchData(map< EcalLogicID, RunH4TablePositionDat >* fillMap, RunIOV* iov)
   throw(runtime_error)
 {
   this->checkConnection();
@@ -82,7 +82,7 @@ void RunTableDat::fetchData(map< EcalLogicID, RunTableDat >* fillMap, RunIOV* io
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("RunTableDat::writeDB:  IOV not in DB")); 
+    //  throw(runtime_error("RunH4TablePositionDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -90,14 +90,14 @@ void RunTableDat::fetchData(map< EcalLogicID, RunTableDat >* fillMap, RunIOV* io
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.table_x, d.table_y, d.number_of_spills, d.number_of_events "
-		 "FROM channelview cv JOIN run_h4table_position_dat d "
+		 "FROM channelview cv JOIN run_h4_table_position_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
     stmt->setInt(1, iovID);
     ResultSet* rset = stmt->executeQuery();
     
-    std::pair< EcalLogicID, RunTableDat > p;
-    RunTableDat dat;
+    std::pair< EcalLogicID, RunH4TablePositionDat > p;
+    RunH4TablePositionDat dat;
     while(rset->next()) {
       p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
@@ -115,6 +115,6 @@ void RunTableDat::fetchData(map< EcalLogicID, RunTableDat >* fillMap, RunIOV* io
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("RunTableDat::fetchData():  "+e.getMessage()));
+    throw(runtime_error("RunH4TablePositionDat::fetchData():  "+e.getMessage()));
   }
 }

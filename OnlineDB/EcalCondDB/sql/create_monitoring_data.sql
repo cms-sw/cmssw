@@ -454,3 +454,43 @@ CREATE TABLE mon_laser_ired_dat (
 
 ALTER TABLE mon_laser_ired_dat ADD CONSTRAINT mon_laser_ired_dat_pk PRIMARY KEY (iov_id, logic_id);
 ALTER TABLE mon_laser_ired_dat ADD CONSTRAINT mon_laser_ired_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+
+
+CREATE TABLE mon_h4_table_position_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- SM
+  table_x		BINARY_FLOAT,
+  table_y		BINARY_FLOAT
+);
+
+ALTER TABLE mon_h4_table_position_dat ADD CONSTRAINT mon_h4_table_position_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_h4_table_position_dat ADD CONSTRAINT mon_h4_table_position_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+
+
+CREATE TABLE mon_laser_status_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- SM
+  laser_power		BINARY_FLOAT,
+  laser_filter		BINARY_FLOAT,
+  laser_wavelength	BINARY_FLOAT,
+  laser_fanout		CHAR(1)
+);
+
+ALTER TABLE mon_laser_status_dat ADD CONSTRAINT mon_laser_status_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_laser_status_dat ADD CONSTRAINT mon_laser_status_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
+
+
+
+CREATE TABLE mon_laser_pulse_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10), -- SM
+  pulse_height_mean	BINARY_FLOAT,
+  pulse_height_rms	BINARY_FLOAT,
+  pulse_width_mean	BINARY_FLOAT,
+  pulse_width_rms	BINARY_FLOAT
+);
+
+ALTER TABLE mon_laser_pulse_dat ADD CONSTRAINT mon_laser_pulse_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE mon_laser_pulse_dat ADD CONSTRAINT mon_laser_pulse_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);

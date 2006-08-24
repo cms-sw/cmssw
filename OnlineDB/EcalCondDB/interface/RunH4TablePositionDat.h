@@ -1,5 +1,5 @@
-#ifndef RUNH4TABLEDAT_H
-#define RUNH4TABLEDAT_H
+#ifndef RUNH4TABLEPOSITIONDAT_H
+#define RUNH4TABLEPOSITIONDAT_H
 
 #include <vector>
 #include <stdexcept>
@@ -8,11 +8,11 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
-class RunTableDat : public IDataItem {
+class RunH4TablePositionDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
-  RunTableDat();
-  ~RunTableDat();
+  RunH4TablePositionDat();
+  ~RunH4TablePositionDat();
 
   // User data methods
   inline void setTableX(int num) { m_table_x = num; }
@@ -31,10 +31,10 @@ class RunTableDat : public IDataItem {
   void prepareWrite() 
     throw(std::runtime_error);
 
-  void writeDB(const EcalLogicID* ecid, const RunTableDat* item, RunIOV* iov )
+  void writeDB(const EcalLogicID* ecid, const RunH4TablePositionDat* item, RunIOV* iov )
     throw(std::runtime_error);
 
-  void fetchData(std::map< EcalLogicID, RunTableDat >* fillMap, RunIOV* iov)
+  void fetchData(std::map< EcalLogicID, RunH4TablePositionDat >* fillMap, RunIOV* iov)
      throw(std::runtime_error);
 
   // User data

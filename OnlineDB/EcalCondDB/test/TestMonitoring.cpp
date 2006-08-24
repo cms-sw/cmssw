@@ -240,6 +240,9 @@ public:
     RunConfigDat table01a;
     testTable(&table01a, &runiov, &logicID);
 
+    RunH4TablePositionDat table01b;
+    testTable(&table01b, &runiov, &logicID);
+
     // MonRunIOV tables
     MonRunIOV moniov = this->makeMonRunIOV(&runiov);
 
@@ -329,6 +332,15 @@ public:
 
     MonMemTTConsistencyDat table26;
     testTable(&table26, &moniov, &logicID);
+
+    MonH4TablePositionDat table27;
+    testTable(&table27, &moniov, &logicID);
+
+    MonLaserStatusDat table28;
+    testTable(&table28, &moniov, &logicID);
+
+    MonLaserPulseDat table29;
+    testTable(&table29, &moniov, &logicID);
 
     cout << "Test of writing to all tables complete" << endl;
     cout << tablesOK << " of " << tablesTried << " written to successfully" << endl << endl << endl;

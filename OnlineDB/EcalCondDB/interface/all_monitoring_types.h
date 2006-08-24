@@ -7,6 +7,7 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunConfigDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunH4TablePositionDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
@@ -32,5 +33,8 @@
 #include "OnlineDB/EcalCondDB/interface/MonPNMGPADat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNPedDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNStatusDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonH4TablePositionDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLaserStatusDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLaserPulseDat.h"
 
 #endif
