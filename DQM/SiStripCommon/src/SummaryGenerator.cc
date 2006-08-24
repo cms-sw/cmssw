@@ -27,17 +27,28 @@ void SummaryGenerator::format( const sistrip::SummaryHisto& histo,
 			       const sistrip::View& view, 
 			       const std::string& directory,
 			       TH1& summary_histo ) {
-
+  
   // Set name and title
+  stringstream ss;
+  string name = SummaryGenerator::name( histo, type, view, directory );
+  summary_histo.SetName( name.c_str() );
+  summary_histo.SetTitle( name.c_str() );
+  
+  //@@ other stuff here?...
+}
+
+// -----------------------------------------------------------------------------
+// 
+string SummaryGenerator::name( const sistrip::SummaryHisto& histo, 
+			       const sistrip::SummaryType& type,
+			       const sistrip::View& view, 
+			       const std::string& directory ) {
   stringstream ss;
   ss << sistrip::summaryHisto_ << sistrip::sep_;
   ss << SiStripHistoNamingScheme::summaryHisto( histo ) << sistrip::sep_;
   ss << SiStripHistoNamingScheme::summaryType( type ) << sistrip::sep_; 
   ss << SiStripHistoNamingScheme::view( view );
-  summary_histo.SetName( ss.str().c_str() );
-  summary_histo.SetTitle( ss.str().c_str() );
-
-  //@@ other stuff here?...
+  return ss.str();
 }
 
 // -----------------------------------------------------------------------------

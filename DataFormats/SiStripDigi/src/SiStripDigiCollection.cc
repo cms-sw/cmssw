@@ -94,8 +94,8 @@ SiStripDigiCollection::SiStripDigiCollection( const edm::Handle<FEDRawDataCollec
 	uint16_t fe_offset = 0;
 	for ( uint16_t ii = 0; ii < sistrip::FEUNITS_PER_FED; ii++ ) {
 	  uint16_t index = payload_[*ifed][ii] - sistrip::FULL_DEBUG_HDR_SIZE + sistrip::FE_HDR_SIZE*ii;
-	  uint16_t index0;
-	  uint16_t index1;
+	  uint16_t index0 = 0;
+	  uint16_t index1 = 0;
 	  if ( readoutPath_[*ifed] == sistrip::VME_READOUT ) { 
 	    index0 = index + swap32(14); 
 	    index1 = index + swap32(15); 
@@ -105,7 +105,7 @@ SiStripDigiCollection::SiStripDigiCollection( const edm::Handle<FEDRawDataCollec
 	  }
 	  
 	  uint16_t fe_length = static_cast<uint16_t>( ((data_[*ifed][index0]&0xFF)<<0) | ((data_[*ifed][index1]&0xFF)<<8) );
-	  uint16_t fe_padded = static_cast<uint16_t>( (fe_length+7)&~7 );
+	  //uint16_t fe_padded = static_cast<uint16_t>( (fe_length+7)&~7 );
 	  // 	  cout << "["<<__PRETTY_FUNCTION__<<"]"
 	  // 	       << " FED id: " << *ifed
 	  // 	       << " FE unit: " << ii

@@ -14,7 +14,7 @@ void SummaryGeneratorControlView::fillMap( const string& directory,
 					   const uint32_t& key, 
 					   const float& value,
 					   const float& error ) {
-  
+
   // Create control path structs for both histo level and key
   SiStripHistoNamingScheme::ControlPath level = SiStripHistoNamingScheme::controlPath( directory );
   SiStripControlKey::ControlPath path = SiStripControlKey::path( key );
@@ -43,21 +43,22 @@ void SummaryGeneratorControlView::fillMap( const string& directory,
     } else { /* warning here? */ }
   
   }
-//   cout << "map_.size(): " << map_.size() << endl;
   
 }
 
 //------------------------------------------------------------------------------
 
 void SummaryGeneratorControlView::logicalView( TH1& histo ) {
-  
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+
   // Check number of entries in map
   if ( map_.empty() ) { return; }
   
   // Set histogram number of bins and min/max
   histo.SetBins( map_.size(), 0., (Double_t)map_.size() );
-  
+ 
   // Iterate through map, set bin labels and fill histogram
+  cout << " List of monitorables for " << map_.size() << " devices: ";
   uint16_t ibin = 1;
   map< string, pair<float,float> >::const_iterator idevice = map_.begin();
   for ( ; idevice != map_.end(); idevice++ ) {
@@ -65,14 +66,17 @@ void SummaryGeneratorControlView::logicalView( TH1& histo ) {
     histo.SetBinContent( (Int_t)ibin, idevice->second.first );
     histo.SetBinError( (Int_t)ibin, idevice->second.second );
     ibin++;
+    cout << idevice->second.first << "+/-" << idevice->second.second << ", ";
   }
-  
+  cout << endl;
+
 }
 
 //------------------------------------------------------------------------------
 //
 void SummaryGeneratorControlView::simpleDistr( TH1& histo ) {
-
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  
   // Check number of entries in map
   if ( map_.empty() ) { return; }
   
@@ -87,10 +91,13 @@ void SummaryGeneratorControlView::simpleDistr( TH1& histo ) {
   else { histo.SetBins( 2, low-1., low+1. ); }
   
   // Fill histogram
+  cout << " List of monitorables for " << map_.size() << " devices: ";
   map< string, pair<float,float> >::const_iterator idevice = map_.begin();
   for ( ; idevice != map_.end(); idevice++ ) {
     histo.Fill( (Int_t)(idevice->second.first) );
+    cout << idevice->second.first << "+/-" << idevice->second.second << ", ";
   }
+  cout << endl;
 
 }
 

@@ -13,10 +13,13 @@ void SummaryHistogramFactory<OptoScanAnalysis::Monitorables>::generate( const si
 									const string& directory, 
 									const map<uint32_t,OptoScanAnalysis::Monitorables>& data,
 									TH1& summary_histo ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
   // Check if data are present
-  if ( data.empty() ) { return ; } 
+  if ( data.empty() ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " No data to histogram!" << endl;
+    return ; 
+  } 
   
   // Retrieve utility class used to generate summary histograms
   auto_ptr<SummaryGenerator> generator = SummaryGenerator::instance( view );
@@ -39,7 +42,11 @@ void SummaryHistogramFactory<OptoScanAnalysis::Monitorables>::generate( const si
       generator->fillMap( directory, iter->first, iter->second.peak_ ); 
     } else if ( histo == sistrip::OPTO_SCAN_HEIGHT ) {
       generator->fillMap( directory, iter->first, iter->second.height_ ); 
-    } else { return; } 
+    } else { 
+      cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	   << " Unexpected histogram!" << endl;
+      return; 
+    } 
   }
   
   // Generate appropriate summary histogram 
@@ -51,9 +58,6 @@ void SummaryHistogramFactory<OptoScanAnalysis::Monitorables>::generate( const si
 
   // Histogram formatting
   generator->format( histo, type, view, directory, summary_histo );
-//   summary_histo.SetName( name( histo, type, view, directory ).c_str() );
-//   summary_histo.SetTitle( name( histo, type, view, directory ).c_str() );
-//   generator->format( summary_histo );
   if ( histo == sistrip::OPTO_SCAN_LLD_BIAS ) {
   } else if ( histo == sistrip::OPTO_SCAN_LLD_GAIN ) { 
   } else if ( histo == sistrip::OPTO_SCAN_GAIN ) { 

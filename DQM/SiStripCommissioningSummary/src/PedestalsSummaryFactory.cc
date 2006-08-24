@@ -13,10 +13,13 @@ void SummaryHistogramFactory<PedestalsAnalysis::Monitorables>::generate( const s
 									 const string& directory, 
 									 const map<uint32_t,PedestalsAnalysis::Monitorables>& data,
 									 TH1& summary_histo ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
   // Check if data are present
-  if ( data.empty() ) { return ; } 
+  if ( data.empty() ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " No data to histogram!" << endl;
+    return ; 
+  } 
   
   // Retrieve utility class used to generate summary histograms
   auto_ptr<SummaryGenerator> generator = SummaryGenerator::instance( view );

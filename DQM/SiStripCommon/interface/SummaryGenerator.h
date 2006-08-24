@@ -41,11 +41,17 @@ class SummaryGenerator {
   virtual void logicalView( TH1& ) = 0;
 
   /** Some generic formatting of histogram. */
-  void format( const sistrip::SummaryHisto&, 
-	       const sistrip::SummaryType&,
-	       const sistrip::View&, 
-	       const std::string& directory,
-	       TH1& );
+  static void format( const sistrip::SummaryHisto&, 
+		      const sistrip::SummaryType&,
+		      const sistrip::View&, 
+		      const std::string& directory,
+		      TH1& );
+
+  /** Constructs the summary histogram name. */
+  static std::string name( const sistrip::SummaryHisto&, 
+			   const sistrip::SummaryType&,
+			   const sistrip::View&, 
+			   const std::string& directory );
     
   /** Returns min/max range of values stored in map. */
   std::pair<float,float> range();
