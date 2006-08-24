@@ -77,6 +77,7 @@ void SuperClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   nEvt_++;
 }
 
+
 void SuperClusterProducer::produceSuperclustersForECALPart(edm::Event& evt, 
 							   std::string clusterProducer, 
 							   std::string clusterCollection,
@@ -85,20 +86,20 @@ void SuperClusterProducer::produceSuperclustersForECALPart(edm::Event& evt,
   // get the cluster collection out and turn it to a BasicClusterRefVector:
   reco::BasicClusterRefVector *clusterRefVector = getClusterRefVector(evt, clusterProducer, clusterCollection);
 
-  // run the brem recovery and get the SC collections
-  reco::SuperClusterCollection *
-    superclusterCollection_p = new reco::SuperClusterCollection(bremAlgo_p->makeSuperClusters(*clusterRefVector));
+  // run the brem recovery and get the SC collection
+  std::auto_ptr<reco::SuperClusterCollection> 
+    superclusters_ap(new reco::SuperClusterCollection(bremAlgo_p->makeSuperClusters(*clusterRefVector)));
 
-  std::auto_ptr<reco::SuperClusterCollection> superclusters_ap(new reco::SuperClusterCollection);
-  superclusters_ap->assign(superclusterCollection_p->begin(), superclusterCollection_p->end());
-  evt.put(superclusters_ap, superclusterCollection);
-
+  // count the total energy and the number of superclusters
   reco::SuperClusterCollection::iterator it;
-  for (it = superclusterCollection_p->begin(); it != superclusterCollection_p->end(); it++)
+  for (it = superclusters_ap->begin(); it != superclusters_ap->end(); it++)
     {
       totalE += it->energy();
       noSuperClusters++;
     }
+
+  // put the SC collection in the event
+  evt.put(superclusters_ap, superclusterCollection);
 }
 
 
