@@ -109,9 +109,14 @@ namespace cms
 
 	int cc = 0;	
 	TSOS UpState;
-	if (seedplus)	  UpState=theTraj.lastMeasurement().updatedState();	
-	else      UpState=theTraj.firstMeasurement().updatedState();
-
+	TSOS LowState;
+	if (seedplus){
+          UpState=theTraj.lastMeasurement().updatedState();
+          LowState=theTraj.firstMeasurement().updatedState();
+        }else{
+          UpState=theTraj.firstMeasurement().updatedState();
+          LowState=theTraj.lastMeasurement().updatedState();
+        }
 
 	//Track construction
 	int ndof =theTraj.foundHits()-5;
@@ -137,7 +142,12 @@ namespace cms
 	GlobalVector p=UpState.globalMomentum();
 	math::XYZVector outmom( p.x(), p.y(), p.z() );
 	math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
-	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
+	v=LowState.globalPosition();
+	p=LowState.globalMomentum();
+	math::XYZVector inmom( p.x(), p.y(), p.z() );
+	math::XYZPoint  inpos( v.x(), v.y(), v.z() );   
+//	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
+	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true, inpos, inmom, true);
 	//RC for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
 	for(Trajectory::RecHitContainer::const_iterator j=transHits.begin();
 	    j!=transHits.end(); j++){
