@@ -15,7 +15,7 @@
 <use name=MagneticField/GeomBuilder>
 <use name=MagneticField/VolumeBasedEngine>
 <use name=DataFormats/Common>
-<use name=SimGeneral/HepPDT>
+<use name=SimGeneral/HepPDTRecord>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/HepMCProduct>
@@ -43,7 +43,7 @@
  <use name=MagneticField/GeomBuilder>
  <use name=MagneticField/VolumeBasedEngine>
  <use name=DataFormats/Common>
- <use name=SimGeneral/HepPDT>
+ <use name=SimGeneral/HepPDTRecord>
  <use name=SimDataFormats/Track>
  <use name=SimDataFormats/Vertex>
  <use name=SimDataFormats/HepMCProduct>

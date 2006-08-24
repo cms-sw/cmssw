@@ -7,6 +7,8 @@
 
 #include "DataFormats/Common/interface/EventID.h"
 
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -30,7 +32,7 @@
 #include "FastSimulation/PileUpProducer/interface/PUProducer.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
-
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"  
 #include <iostream>
@@ -77,7 +79,6 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
     myCalorimetry = new CalorimetryManager(mySimEvent,
 					   p.getParameter<edm::ParameterSet>("Calorimetry"));
 
-
 }
 
 FamosManager::~FamosManager()
@@ -90,11 +91,17 @@ FamosManager::~FamosManager()
 
 void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
 {
-    // geometry
+  // Particle data table (from Pythia)
+  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
+  es.getData(pdt);
+  mySimEvent->initializePdt(&(*pdt));
+  ParticleTable::instance(&(*pdt));
+
+  // Geometry
   edm::ESHandle<DDCompactView> pDD;
   es.get<IdealGeometryRecord>().get(pDD);
 
-    // magnetic field
+  // magnetic field
   if (m_pUseMagneticField) {
     edm::ESHandle<MagneticField> pMF;
     es.get<IdealMagneticFieldRecord>().get(pMF);
@@ -110,7 +117,8 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
     edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
     es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
 
-    myTrajectoryManager->initializeRecoGeometry(&(*tracker), &(*theGeomSearchTracker));
+    myTrajectoryManager->initializeRecoGeometry(&(*tracker), 
+						&(*theGeomSearchTracker));
   }
 
 
@@ -136,7 +144,7 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
 
     // Fill the event from the original generated event
     mySimEvent->fill(*evt,id);
-    // mySimEvent->print();
+    //    mySimEvent->printMCTruth(*evt);
 
     // Get the pileup events and add the particles to the main event
     if ( myPileUpProducer ) myPileUpProducer->produce();
