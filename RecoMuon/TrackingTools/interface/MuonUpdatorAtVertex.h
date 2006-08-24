@@ -7,23 +7,20 @@
   *   a given vertex and 
   *   apply a vertex constraint
   *
-  *   $Date: 2006/07/21 04:02:43 $
-  *   $Revision: 1.4 $
+  *   $Date: 2006/07/21 20:22:13 $
+  *   $Revision: 1.5 $
   *
   *   \author   N. Neumeister            Purdue University
   *
   */
 
-
-
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "RecoMuon/TrackingTools/interface/MuonVertexMeasurement.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 class TrajectoryStateOnSurface;
+class Propagator;
 class TransverseImpactPointExtrapolator;
 class KFUpdator;
 class MeasurementEstimator;
@@ -41,7 +38,7 @@ class MuonUpdatorAtVertex {
     MuonUpdatorAtVertex();
 
     /// constructor from propagator
-    MuonUpdatorAtVertex(const Propagator*);
+    MuonUpdatorAtVertex(const Propagator&);
 
     /// destructor
     virtual ~MuonUpdatorAtVertex();
@@ -50,13 +47,10 @@ class MuonUpdatorAtVertex {
     void setES(const edm::EventSetup&);
 
     /// set Propagator directly
-    void setPropagator(Propagator*);
+    void setPropagator(const Propagator&);
 
     /// set Propagator from 2 propagators, tk & gen
-    void setPropagator(Propagator*,Propagator*,const MagneticField*);
-
     void setPropagator(const Propagator&,const Propagator&, const MagneticField*);
-
 
     /// return vertex measurement
     MuonVertexMeasurement update(const TrajectoryStateOnSurface&) const;
@@ -64,7 +58,7 @@ class MuonUpdatorAtVertex {
     /// only return the state on outer tracker surface
     TrajectoryStateOnSurface stateAtTracker(const TrajectoryStateOnSurface&) const;
 
-    void setVertex(const GlobalPoint, const GlobalError);
+    void setVertex(const GlobalPoint&, const GlobalError&);
 
     
   private:
@@ -82,4 +76,3 @@ class MuonUpdatorAtVertex {
 };
 
 #endif
-

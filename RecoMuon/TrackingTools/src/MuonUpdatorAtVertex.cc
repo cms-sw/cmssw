@@ -1,18 +1,18 @@
-#include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 /**  \class MuonUpdatorAtVertex
  *
  *   Extrapolate a muon trajectory to 
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/08/02 02:57:26 $
- *   $Revision: 1.10 $
+ *   $Date: 2006/08/05 00:59:38 $
+ *   $Revision: 1.11 $
  *
  *   \author   N. Neumeister         Purdue University
- *   \porthing author C. Liu         Purdue University 
+ *   \author   C. Liu                Purdue University 
  *
  */
 
+#include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -65,6 +65,7 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par) :
   
 }
 
+
 //
 // default constructor, set propagator name as SteppingHelixPropagator
 //
@@ -85,12 +86,16 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex() :
 
 }
 
-MuonUpdatorAtVertex::MuonUpdatorAtVertex(const Propagator* prop) :
-         theExtrapolator(new TransverseImpactPointExtrapolator(*prop)),
+
+//
+//
+//
+MuonUpdatorAtVertex::MuonUpdatorAtVertex(const Propagator& prop) :
+         theExtrapolator(new TransverseImpactPointExtrapolator(prop)),
          theUpdator(new KFUpdator()),
          theEstimator(new Chi2MeasurementEstimator(150.)) {
 
-  thePropagator = const_cast<Propagator *>(prop);
+  thePropagator = prop.clone();
 //  thePropagatorName = "NOUSE";
   // assume beam spot position with nominal errors
   // sigma(x) = sigma(y) = 15 microns
@@ -113,6 +118,9 @@ MuonUpdatorAtVertex::~MuonUpdatorAtVertex() {
 }
 
 
+//
+//
+//
 void MuonUpdatorAtVertex::setES(const edm::EventSetup& iSetup) {
 
   // get Propagator for outside tracker, SteppingHelixPropagator as default
@@ -142,9 +150,10 @@ void MuonUpdatorAtVertex::setES(const edm::EventSetup& iSetup) {
 //
 // set Propagator directly
 //
-void MuonUpdatorAtVertex::setPropagator(Propagator* prop) {
+void MuonUpdatorAtVertex::setPropagator(const Propagator& prop) {
  
- thePropagator = prop;
+ if ( thePropagator ) delete thePropagator;
+ thePropagator = prop.clone();
 
 }
 
@@ -152,24 +161,23 @@ void MuonUpdatorAtVertex::setPropagator(Propagator* prop) {
 //
 // set Propagator from 2 propagators, tk & gen
 //
-void MuonUpdatorAtVertex::setPropagator(Propagator* aTkProp, Propagator* aGenProp, const MagneticField* field){
-  thePropagator = new SmartPropagator(aTkProp,aGenProp,field);
-}
-
-
-//
-//
-//
 void MuonUpdatorAtVertex::setPropagator(const Propagator& aTkProp, const Propagator& aGenProp, const MagneticField* field){
+
   thePropagator = new SmartPropagator(aTkProp,aGenProp,field);
+
 }
 
 
-void MuonUpdatorAtVertex::setVertex(const GlobalPoint p, const GlobalError e)
-{
+//
+//
+//
+void MuonUpdatorAtVertex::setVertex(const GlobalPoint& p, const GlobalError& e) {
+
   theVertexPos = p;
   theVertexErr = e;
+
 }
+
 
 //
 //
