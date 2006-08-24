@@ -166,8 +166,8 @@ class TrackValidator : public edm::EDAnalyzer {
 	if (abs(tmp)<abs(ptres)) {
 	  ptres=tmp; 
 	  etares=track->eta()-simTrack->momentum().pseudoRapidity();
-	  thetares=(track->theta()-simTrack->momentum().theta())/sqrt(track->thetaError());
- 	  phi0res=(track->phi0()-simTrack->momentum().phi())/sqrt(track->phi0Error());
+	  thetares=(track->theta()-simTrack->momentum().theta())/track->thetaError();
+ 	  phi0res=(track->phi0()-simTrack->momentum().phi())/track->phi0Error();
 	}
       }
       h_pt->Fill(ptres);
