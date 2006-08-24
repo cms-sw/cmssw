@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.32 2006/08/21 13:15:40 llista Exp $
+ * \version $Id: TrackBase.h,v 1.33 2006/08/21 13:59:40 llista Exp $
  *
  */
 
@@ -103,11 +103,11 @@ namespace reco {
     ParameterVector & fill( ParameterVector & v ) const;
     
     /// (i,j)-th element of covarianve matrix ( i, j = 0, ... 4 )
-    double & covariance( int i, int j ) { return covariance_[ idx( i, j ) ]; }
+    double & covariance( int i, int j ) { return covariance_[ covIndex( i, j ) ]; }
     /// (i,j)-th element of covarianve matrix ( i, j = 0, ... 4 )
-    const double & covariance( int i, int j ) const { return covariance_[ idx( i, j ) ]; }
+    const double & covariance( int i, int j ) const { return covariance_[ covIndex( i, j ) ]; }
     /// error on specified element
-    double error( int i ) const { return sqrt( covariance_[ idx( i, i ) ] ); }
+    double error( int i ) const { return sqrt( covariance_[ covIndex( i, i ) ] ); }
     
     /// error on signed transverse curvature
     double transverseCurvatureError() const { return error( i_transverseCurvature ); }
@@ -151,6 +151,11 @@ namespace reco {
     unsigned short numberOfValidHits() const { return hitPattern_.numberOfValidHits(); }
     /// number of hits lost
     unsigned short numberOfLostHits() const { return hitPattern_.numberOfLostHits(); }
+    /// position index 
+    static index covIndex( index i, index j )  {
+      int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
+      return b * ( b + 1 ) / 2 + a;
+    }
     
   private:
     /// chi-squared
@@ -165,11 +170,6 @@ namespace reco {
     Double32_t covariance_[ covarianceSize ];
     /// hit pattern
     HitPattern hitPattern_;
-    /// position index
-    index idx( index i, index j ) const {
-      int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
-      return a * dimension + b - a * ( a + 1 ) / 2;
-    }
   };
   
   inline TrackBase::Vector TrackBase::momentum() const {
