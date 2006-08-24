@@ -13,8 +13,10 @@
   <class name="edm::RefProd<std::vector<reco::TrackCountingTagInfo> > " />
   <class name="edm::RefVector<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo> >" />
 
-<!--  <class name="edm::AssociationMap<std::vector<reco::CaloJet>, std::vector<reco::Track>, edm::OneToMany, unsigned long>" /> -->
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::Track>, unsigned int > >" />
+
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::Track>, unsigned int > >">
+    <field name="transientMap_" transient="true" />
+  </class>
   <class pattern="edm::KeyVal<*>" />
   <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
