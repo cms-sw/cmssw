@@ -40,7 +40,7 @@ namespace edm
 	    const std::string frontierConnect (void) const;
 	    std::string 	m_url;	    
 	    std::string 	m_dataCatalog;
-	    std::string 	m_calibCatalog;
+	    mutable std::string m_calibCatalog;
 	    std::string		m_frontierConnect;
 	    bool		m_connected;	    
 	};
