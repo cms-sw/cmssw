@@ -1,6 +1,9 @@
 #include "FWCore/ParameterSet/interface/Node.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <algorithm>
+
+#include <iostream>
 
 namespace edm {
 
@@ -46,6 +49,17 @@ namespace edm {
         parent_->printTrace(out);
       }
     }     
+
+   
+    void Node::locate(const std::string & s, std::ostream & out) const
+    {
+      if(name().find(s,0) != std::string::npos) 
+      {
+        out << "Found " << name() << "\n";
+        printTrace(out);
+        out << "\n";
+      }
+    }
 
 
     void Node::insertInto(edm::ParameterSet & pset) const

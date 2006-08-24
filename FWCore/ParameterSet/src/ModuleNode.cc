@@ -29,6 +29,22 @@ namespace edm {
       CompositeNode::print(ost, options);
     }
 
+
+    void ModuleNode::locate(const std::string & s, std::ostream & out) const
+    {
+      // will already match name() from Node::locate
+      if(type().find(s,0) != std::string::npos
+        || className().find(s,0) != std::string::npos)
+      {
+        out << "Found " << className() << " " << type() << "\n";
+        printTrace(out);
+        out << "\n";
+      }
+      // pass to children
+      CompositeNode::locate(s, out);
+    }
+
+      
     void ModuleNode::accept(Visitor& v) const
     {
       v.visitModule(*this);

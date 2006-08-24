@@ -22,6 +22,8 @@ namespace edm {
       virtual std::string type() const;
       std::string className() const {return class_;}
       virtual void print(std::ostream& ost, PrintOptions options) const;
+      /// will match name, type, or class
+      virtual void locate(const std::string & s, std::ostream & out) const;
 
       virtual void accept(Visitor& v) const;
       virtual void replaceWith(const ReplaceNode * replaceNode);

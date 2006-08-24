@@ -50,6 +50,19 @@ namespace edm {
     }
 
 
+    void CompositeNode::locate(const std::string & s, std::ostream & out) const
+    {
+      // first check this name
+      Node::locate(s, out);
+      // now all the subnodes
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        (**i).locate(s, out);
+      }
+    }
+
+
     void CompositeNode::setModified(bool value) 
     {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
