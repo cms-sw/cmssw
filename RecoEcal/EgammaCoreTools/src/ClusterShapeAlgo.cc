@@ -106,13 +106,22 @@ void ClusterShapeAlgo::Create_Map()
   EcalRecHit tempEcalRecHit;
   CaloNavigator<DetId> posCurrent;
 
+  std::auto_ptr<const CaloSubdetectorTopology> topology;
   switch(eMaxId_.subdetId())
   {
-     case EcalBarrel:    posCurrent = *(new CaloNavigator<DetId>(eMaxId_, new EcalBarrelTopology(*storedGeoHandle_))); break;
-     case EcalEndcap:    posCurrent = *(new CaloNavigator<DetId>(eMaxId_, new EcalEndcapTopology(*storedGeoHandle_))); break;
-     case EcalPreshower: posCurrent = *(new CaloNavigator<DetId>(eMaxId_, new EcalPreshowerTopology(*storedGeoHandle_))); break;
-     default: throw(std::runtime_error("\n\nClusterShapeAlgo: No known topology for given subdetId. Giving up... =(\n\n"));
+     case EcalBarrel:
+        topology.reset(new EcalBarrelTopology(*storedGeoHandle_));
+        break;
+     case EcalEndcap:
+        topology.reset(new EcalEndcapTopology(*storedGeoHandle_));
+        break;
+     case EcalPreshower:
+        topology.reset(new EcalPreshowerTopology (*storedGeoHandle_));
+         break;
+     default: throw(std::runtime_error("\n\nClusterShapeAlgo: No
+                    known topology for given subdetId. Giving up... =(\n\n"));
   }
+  posCurrent = CaloNavigator<DetId>(eMaxId_,topology.get() );
   
   for(int x = 0; x < 5; x++)
     for(int y = 0; y < 5; y++)
