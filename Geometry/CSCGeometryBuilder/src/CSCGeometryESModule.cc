@@ -53,7 +53,9 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
   if ( useGangedStripsInME1a ) useOnlyWiresInME1a = false; // override possible inconsistentcy
 
   // Switch to apply the alignment corrections
-  applyAlignment_ = p.getParameter<bool>("applyAlignment");
+  //  applyAlignment_ = p.getParameter<bool>("applyAlignment");
+
+   applyAlignment_ = p.getUntrackedParameter<bool>("applyAlignment", false);
 
   // Feed these value to where I need them
   CSCChamberSpecs::setUseRadialStrips( useRadialStrips );
