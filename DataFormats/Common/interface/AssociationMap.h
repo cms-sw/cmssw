@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.16 2006/06/16 22:50:55 wmtan Exp $
+ * $Id: AssociationMap.h,v 1.17 2006/06/22 08:04:38 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -167,7 +167,7 @@ namespace edm {
       return v;
     }
     /// size of data_type
-    static typename map_type::size_type size( const index_type & ) { return 1; }
+    static typename map_type::size_type size( const data_type & ) { return 1; }
   };
 
   template<typename Tag>
