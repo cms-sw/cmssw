@@ -1,12 +1,15 @@
+#include "DataFormats/Common/interface/ModuleDescription.h"
+
+#include "SealZip/MD5Digest.h"
+
+#include <ostream>
 #include <sstream>
 #include <string>
 
-#include "SealZip/MD5Digest.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
 
 /*----------------------------------------------------------------------
 
-$Id: ModuleDescription.cc,v 1.2 2006/07/06 18:34:06 wmtan Exp $
+$Id: ModuleDescription.cc,v 1.3 2006/07/21 21:56:41 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

@@ -17,11 +17,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  8 15:13:14 EDT 2005
-// $Id: EventID.h,v 1.2 2006/07/06 18:34:05 wmtan Exp $
+// $Id: EventID.h,v 1.3 2006/08/22 05:50:16 wmtan Exp $
 //
 
 // system include files
-#include <ostream>
+#include <functional>
+#include <iosfwd>
 
 // user include files
 
@@ -80,23 +81,23 @@ class EventID
          return EventID(0,0);
       }
       
-      bool operator==(const EventID& iRHS) const {
+      bool operator==(EventID const& iRHS) const {
          return iRHS.run_ == run_ && iRHS.event_ == event_;
       }
-      bool operator!=(const EventID& iRHS) const {
+      bool operator!=(EventID const& iRHS) const {
          return ! (*this == iRHS);
       }
       
-      bool operator<(const EventID& iRHS) const {
+      bool operator<(EventID const& iRHS) const {
          return doOp<std::less>(iRHS);
       }
-      bool operator<=(const EventID& iRHS) const {
+      bool operator<=(EventID const& iRHS) const {
          return doOp<std::less_equal>(iRHS);
       }
-      bool operator>(const EventID& iRHS) const {
+      bool operator>(EventID const& iRHS) const {
          return doOp<std::greater>(iRHS);
       }
-      bool operator>=(const EventID& iRHS) const {
+      bool operator>=(EventID const& iRHS) const {
          return doOp<std::greater_equal>(iRHS);
       }
       // ---------- static functions ---------------------------
@@ -112,7 +113,7 @@ class EventID
    
    private:
       template< template <typename> class Op >
-      bool doOp(const EventID& iRHS) const {
+      bool doOp(EventID const& iRHS) const {
          //Run takes presidence for comparisions
          if(run_ == iRHS.run_) {
             Op<EventNumber_t> op_e;
@@ -121,9 +122,9 @@ class EventID
          Op<RunNumber_t> op;
          return op(run_, iRHS.run_) ;
       }
-      //EventID(const EventID&); // stop default
+      //EventID(EventID const&); // stop default
 
-      //const EventID& operator=(const EventID&); // stop default
+      //EventID const& operator=(EventID const&); // stop default
 
       // ---------- member data --------------------------------
       RunNumber_t run_;
@@ -131,11 +132,7 @@ class EventID
       bool simulated_;
 };
 
-inline
-std::ostream& operator<<(std::ostream& oStream, const EventID& iID) {
-   oStream<< "run: "<< iID.run()<<" event: "<<iID.event();
-   return oStream;
-}
+std::ostream& operator<<(std::ostream& oStream, EventID const& iID);
 
 }
 #endif

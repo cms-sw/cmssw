@@ -1,8 +1,9 @@
 #include "DataFormats/Common/interface/Provenance.h"
+#include <ostream>
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.11 2005/10/03 19:04:59 wmtan Exp $
+$Id: Provenance.cc,v 1.1 2006/02/08 00:44:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

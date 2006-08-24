@@ -2,7 +2,7 @@
 #define Common_ProcessConfiguration_h
 
 #include <string>
-#include <ostream>
+#include <iosfwd>
 
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/PassID.h"
@@ -49,15 +49,8 @@ namespace edm {
     return !(a == b);
   }
 
-  inline
   std::ostream&
-  operator<< (std::ostream& os, ProcessConfiguration const& pc) {
-    os << pc.processName_ << ' ' 
-       << pc.parameterSetID_ << ' '
-       << pc.releaseVersion_ << ' '
-       << pc.passID_;
-    return os;
-  }
+  operator<< (std::ostream& os, ProcessConfiguration const& pc);
 }
 
 #endif

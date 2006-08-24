@@ -1,9 +1,10 @@
 #include "DataFormats/Common/interface/EventAux.h"
 #include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
+#include <ostream>
 
 /*----------------------------------------------------------------------
 
-$Id: EventAux.cc,v 1.4 2006/07/20 23:43:34 wmtan Exp $
+$Id: EventAux.cc,v 1.5 2006/07/21 21:56:41 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

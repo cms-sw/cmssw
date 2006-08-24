@@ -1,7 +1,7 @@
 #ifndef Common_ProcessHistory_h
 #define Common_ProcessHistory_h
 
-#include <ostream>
+#include <iosfwd>
 #include <string>
 #include <vector>
 

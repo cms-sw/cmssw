@@ -1,7 +1,7 @@
 #ifndef Common_FileFormatVersion_h
 #define Common_FileFormatVersion_h
 
-#include <ostream>
+#include <iosfwd>
 
 namespace edm 
 {
@@ -26,13 +26,8 @@ namespace edm
     return !(a==b);
   }
 
-  inline
   std::ostream&
-  operator<< (std::ostream& os, FileFormatVersion const& ff)
-  {
-    os << ff.value_;
-    return os;
-  }
+  operator<< (std::ostream& os, FileFormatVersion const& ff);
 
 /*
   inline

@@ -8,11 +8,11 @@ ParameterSetBlob: A string in which to store a parameter set so that it can be m
 The ParameterSetBlob is a concatenation of the names and values of the
 tracked parameters within a ParameterSet,
 
-$Id: ParameterSetBlob.h,v 1.1 2006/03/10 17:54:19 wmtan Exp $
+$Id: ParameterSetBlob.h,v 1.3 2006/08/22 05:50:16 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include <ostream>
+#include <iosfwd>
 #include <string>
 
 namespace edm {
@@ -22,11 +22,7 @@ namespace edm {
     explicit ParameterSetBlob(value_t const& v) : pset_(v) {}
     value_t pset_;
   };
-  inline
   std::ostream&
-  operator<<(std::ostream& os, ParameterSetBlob const& blob) {
-    os << blob.pset_;
-    return os;
-  }
+  operator<<(std::ostream& os, ParameterSetBlob const& blob);
 }
 #endif

@@ -5,11 +5,11 @@
   
 ProductID: A unique identifier for each EDProduct within a process.
 
-$Id: ProductID.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: ProductID.h,v 1.2 2006/08/22 05:50:16 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include <ostream>
+#include <iosfwd>
 
 namespace edm {
   struct ProductID {
@@ -22,11 +22,7 @@ namespace edm {
     bool operator!=(ProductID const& rh) const {return id_ != rh.id_;}
   };
 
-  inline
   std::ostream&
-  operator<<(std::ostream& os, ProductID const& id) {
-    os << id.id_;
-    return os;
-  }
+  operator<<(std::ostream& os, ProductID const& id);
 }
 #endif

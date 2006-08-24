@@ -1,10 +1,11 @@
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Reflex/Type.h"
+#include <ostream>
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.14 2006/08/22 05:46:24 wmtan Exp $
+$Id: BranchDescription.cc,v 1.15 2006/08/24 17:11:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

@@ -1,9 +1,10 @@
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
 #include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
+#include <ostream>
 
 /*----------------------------------------------------------------------
 
-$Id: BranchEntryDescription.cc,v 1.3 2006/07/18 01:47:30 wmtan Exp $
+$Id: BranchEntryDescription.cc,v 1.4 2006/07/20 23:43:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

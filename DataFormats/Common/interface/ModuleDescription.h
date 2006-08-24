@@ -5,10 +5,10 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.5 2006/07/21 21:56:08 wmtan Exp $
+$Id: ModuleDescription.h,v 1.7 2006/08/22 05:50:16 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
-#include <ostream>
+#include <iosfwd>
 
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProcessConfiguration.h"

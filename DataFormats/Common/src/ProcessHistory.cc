@@ -1,4 +1,5 @@
 #include <iterator>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include "SealZip/MD5Digest.h"

@@ -6,9 +6,9 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.17 2006/08/22 05:49:31 wmtan Exp $
+$Id: BranchDescription.h,v 1.18 2006/08/24 17:11:51 wmtan Exp $
 ----------------------------------------------------------------------*/
-#include <ostream>
+#include <iosfwd>
 #include <string>
 #include <set>
 
