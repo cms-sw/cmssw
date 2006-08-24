@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/08/23 19:07:48 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/08/23 22:54:12 $
+ *  $Revision: 1.10 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.9 2006/08/23 19:07:48 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.10 2006/08/23 22:54:12 slava77 Exp $
 //
 //
 
@@ -665,14 +665,17 @@ bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS,
     dCTransform_(6,5) += cotTheta*tauY*epsilonP0;
     dCTransform_(6,6) += tauX*epsilonP0 - 1.;
     
+    //mind the sign of dS and dP (dS*dP < 0 allways)
+    //covariance should grow no matter which direction you propagate
+    //==> take abs values.
     covLoc_[cInd](2,2) += theta02*dS*dS/3.;
     covLoc_[cInd](3,3) += theta02*dS*dS/3.;
     covLoc_[cInd](5,5) += theta02*p0*p0;
     covLoc_[cInd](6,6) += theta02*p0*p0;
-    covLoc_[cInd](2,5) += theta02*dS*p0/2.;
-    covLoc_[cInd](3,6) += theta02*dS*p0/2.;
+    covLoc_[cInd](2,5) += theta02*fabs(dS)*p0/2.;
+    covLoc_[cInd](3,6) += theta02*fabs(dS)*p0/2.;
 
-    covLoc_[cInd](4,4) += dP*dP*1.6/dS*(1.0 + p0*1e-3); 
+    covLoc_[cInd](4,4) += dP*dP*1.6/fabs(dS)*(1.0 + p0*1e-3); 
     //another guess .. makes sense for 1 cm steps 2./dS == 2 [cm] / dS [cm] at low pt
     //double it by 1TeV
     //not gaussian anyways
