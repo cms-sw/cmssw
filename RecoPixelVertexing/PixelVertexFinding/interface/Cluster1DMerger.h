@@ -68,9 +68,8 @@ Cluster1D<T> Cluster1DMerger<T>::operator() ( const Cluster1D<T> & first,
     float sumDown = 0;
     float err = 0;
     for (unsigned int i=0; i<tracks.size(); ++i) {
-      // float err2 = tracks[i]->covariance().dzError(); // well is it?
-      float err2 = tracks[i]->dzError(); // Fix d.k.
-      //      err2 *= err2;
+
+      float err2 = tracks[i]->covariance( reco::TrackBase::i_dz, reco::TrackBase::i_dz );
       if (err2 != 0){
 	sumUp += tracks[i]->dz() * 1/err2; // error-weighted average of Z at IP
 	sumDown += 1/err2;
