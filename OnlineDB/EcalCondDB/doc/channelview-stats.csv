@@ -28,6 +28,8 @@ EE,EE,1,2000000001,2000000001,,,,,,,,,,"The entire ECAL Endcap"
 
 CHANNEL VIEW MAPPINGS
 "name","maps_to","count","min_logic_id","max_logic_id","id1name","min_id1","max_id1","id2name","min_id2","max_id2","id3name","min_id3","max_id3","description"
+Offline_det_id,EB_crystal_number,62900,1011000001,1011361700,det_id,838861313,838970216,,,,,,,"DetID rawid() as used in CMSSW"
+EB_crystal_angle,EB_crystal_number,62900,1011000001,1011361700,ieta,-85,85,iphi,1,360,,,,"Crystals in ECAL barrel super-modules by angle index"
 EB_elec_crystal_number,EB_crystal_number,62900,1011000001,1011361700,SM,0,36,channel,0,1699,,,,"ECAL Barrel crystals, electronics numbering scheme"
 EB_crystal_number,EB_elec_crystal_number,62900,1013000000,1013361699,SM,0,36,crystal_number,1,1700,,,,"Crystals in ECAL barrel super-modules by number"
 EB_crystal_number,EB_trigger_tower,62900,1021000001,1021360068,SM,0,36,crystal_number,1,1700,,,,"Crystals in ECAL barrel super-modules by number"
