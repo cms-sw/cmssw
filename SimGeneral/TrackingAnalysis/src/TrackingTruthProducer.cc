@@ -190,21 +190,24 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     }  
 
 // Find closest vertex to this one in same sub-event, save in nearestVertex
-
+    int indexTV = 0;
     double closest = 9e99;
     TrackingVertexCollection::iterator nearestVertex;
 
-    for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx) {
+    int tmpTV = 0;
+    for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx, ++tmpTV) {
       double distance = HepLorentzVector(iTrkVtx -> position() - position).v().mag();
       if (distance <= closest && vertEvtId == iTrkVtx -> eventId()) { // flag which one so we can associate them
         closest = distance;
-        nearestVertex = iTrkVtx; 
+        nearestVertex = iTrkVtx;
+        indexTV = tmpTV; 
       }   
     }
 
 // If outside cutoff, create another TrackingVertex, set nearestVertex to it
     
     if (closest > distanceCut_) {
+      indexTV = tVC -> size();
       tVC -> push_back(TrackingVertex(position,inVolume,vertEvtId));
       nearestVertex = --(tVC -> end());  // Last entry of vector
     } 
@@ -215,8 +218,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     if (vertexBarcode != 0) {
       (*nearestVertex).addGenVertex(GenVertexRef(hepMC,vertexBarcode)); // Add HepMC vertex
     }
-
-    int indexTV = tVC -> size()-1;
 
 // Identify and add child and parent tracks     
 
@@ -235,8 +236,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     }  
   }
 
-  edm::LogInfo (MessageCategory) << "TrackingTruth found " << tVC->size() << " unique vertices";
-
+  edm::LogInfo(MessageCategory) << "TrackingTruth found "  << tVC -> size() 
+                                << " unique vertices and " << tPC -> size() << " tracks.";
 // Put TrackingParticles and TrackingVertices in event
   event.put(tPC,"TrackTruth");
   event.put(tVC,"VertexTruth");
