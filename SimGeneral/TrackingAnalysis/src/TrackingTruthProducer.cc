@@ -15,8 +15,6 @@
 
 #include <map>
 
-#include "DataFormats/Common/interface/RefVectorBase.h"
-
 using namespace edm;
 using namespace std; 
 using CLHEP::HepLorentzVector;
@@ -33,6 +31,8 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   conf_ = conf;
   distanceCut_      = conf_.getParameter<double>("vertexDistanceCut");
   dataLabels_       = conf_.getParameter<vector<string> >("HepMCDataLabels");
+  simHitLabel_	    = conf_.getParameter<string>("simHitLabel");
+  hitLabelsVector_  = conf_.getParameter<vector<string> >("TrackerHitLabels");
   volumeRadius_     = conf_.getParameter<double>("volumeRadius");   
   volumeZ_          = conf_.getParameter<double>("volumeZ");   
   discardOutVolume_ = conf_.getParameter<bool>("discardOutVolume");     
@@ -58,38 +58,13 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       
     }    
   }
+  
   const edm::HepMCProduct *mcp = hepMC.product();
   
   edm::Handle<SimVertexContainer>      G4VtxContainer;
   edm::Handle<edm::SimTrackContainer>  G4TrkContainer;
   event.getByType(G4VtxContainer);
   event.getByType(G4TrkContainer);
-  
-  edm::Handle<edm::PSimHitContainer> TIBHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TIBHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TIDHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TIDHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TOBHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TOBHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> PixelBarrelHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
-
-  event.getByLabel("g4SimHits","TrackerHitsTIBLowTof", TIBHitsLowTof);
-  event.getByLabel("g4SimHits","TrackerHitsTIBHighTof", TIBHitsHighTof);
-  event.getByLabel("g4SimHits","TrackerHitsTIDLowTof", TIDHitsLowTof);
-  event.getByLabel("g4SimHits","TrackerHitsTIDHighTof", TIDHitsHighTof);
-  event.getByLabel("g4SimHits","TrackerHitsTOBLowTof", TOBHitsLowTof);
-  event.getByLabel("g4SimHits","TrackerHitsTOBHighTof", TOBHitsHighTof);
-  event.getByLabel("g4SimHits","TrackerHitsTECLowTof", TECHitsLowTof);
-  event.getByLabel("g4SimHits","TrackerHitsTECHighTof", TECHitsHighTof);
-  event.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
-  event.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);  
-  event.getByLabel("g4SimHits","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);  
-  event.getByLabel("g4SimHits","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
   
   const HepMC::GenEvent *genEvent = mcp -> GetEvent(); // faster?
 
@@ -102,19 +77,18 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
    
    
   vector<edm::Handle<edm::PSimHitContainer> > AlltheConteiners;
+  for (vector<string>::const_iterator source = hitLabelsVector_.begin(); source !=
+      hitLabelsVector_.end(); ++source){
+      try{
+      edm::Handle<edm::PSimHitContainer> HitContainer;
+      event.getByLabel(simHitLabel_,*source, HitContainer);
+      AlltheConteiners.push_back(HitContainer);
+      } catch (std::exception &e) {
+      
+    }
+      
+  }   
    
-  AlltheConteiners.push_back(TIBHitsLowTof);
-  AlltheConteiners.push_back(TIBHitsHighTof);
-  AlltheConteiners.push_back(TIDHitsLowTof);
-  AlltheConteiners.push_back(TIDHitsHighTof);
-  AlltheConteiners.push_back(TOBHitsLowTof);
-  AlltheConteiners.push_back(TOBHitsHighTof);
-  AlltheConteiners.push_back(TECHitsLowTof);
-  AlltheConteiners.push_back(TECHitsHighTof);
-  AlltheConteiners.push_back(PixelBarrelHitsHighTof);
-  AlltheConteiners.push_back(PixelBarrelHitsLowTof);
-  AlltheConteiners.push_back(PixelEndcapHitsHighTof);
-  AlltheConteiners.push_back(PixelEndcapHitsLowTof);
   
   
 //  genEvent.print();
