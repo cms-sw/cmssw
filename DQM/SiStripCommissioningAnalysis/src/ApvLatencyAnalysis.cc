@@ -20,8 +20,8 @@ void ApvLatencyAnalysis::analysis( const vector<const TProfile*>& histos,
   }
   const TProfile* histo = histos[0];
 
-    //monitorable
-    unsigned short latency;
+  //monitorable
+  unsigned short latency;
 
  vector<unsigned short> binContent; binContent.reserve((unsigned short)histo->GetNbinsX()); binContent.resize((unsigned short)histo->GetNbinsX(), 0);
 

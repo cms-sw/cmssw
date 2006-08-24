@@ -1,16 +1,74 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
 #include "TProfile.h"
-#include <vector>
+#include <iostream>
 #include <cmath>
 
 using namespace std;
 
 // -----------------------------------------------------------------------------
 //
-void VpspScanAnalysis::analysis( const vector<const TProfile*>& histos, 
-			      vector<unsigned short>& monitorables ) {
-  //edm::LogInfo("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]";
+void VpspScanAnalysis::analysis(const TProfiles& histos, Monitorables& mons ) {
+
+  //@@ use matt's method...
+  if (1) { deprecated( histos, mons ); return; }
+
+}
+
+// ----------------------------------------------------------------------------
+// 
+void VpspScanAnalysis::Monitorables::print( stringstream& ss ) { 
+  ss << "VPSP SCAN Monitorables:" << "\n"
+     << " VPSP setting APV0: " << vpsp0_ << "\n" 
+     << " VPSP setting APV1: " << vpsp1_ << "\n" ;
+}
+
+// ----------------------------------------------------------------------------
+// 
+void VpspScanAnalysis::TProfiles::print( stringstream& ss ) { 
+  ss << "TProfile pointers:" << "\n"
+     << " VPSP histo for APV0: " << vpsp0_ << "\n" 
+     << " VPSP histo for APV1: " << vpsp1_ << "\n" ;
+}
+
+// -----------------------------------------------------------------------------
+//
+void VpspScanAnalysis::deprecated(const TProfiles& profs, Monitorables& mons ) {
   
+  vector<const TProfile*> histos; 
+  vector<unsigned short> monitorables;
+  for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
+    
+    histos.clear();
+    if ( iapv == 0 ) {
+      histos.push_back( const_cast<const TProfile*>(profs.vpsp0_) );
+    } else if ( iapv == 1 ) {
+      histos.push_back( const_cast<const TProfile*>(profs.vpsp1_) );
+    } 
+    if ( !histos[0] ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " NULL pointer to VPSP histo for APV" << iapv << endl;
+      continue;
+    }
+    
+    monitorables.clear();
+    analysis( histos, monitorables );
+    
+    if ( iapv == 0 ) {
+      mons.vpsp0_ = monitorables[0];
+    } else if ( iapv == 1 ) {
+      mons.vpsp1_ = monitorables[0];
+    }
+    
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void VpspScanAnalysis::analysis( const vector<const TProfile*>& histos, 
+				 vector<unsigned short>& monitorables ) {
+  //edm::LogInfo("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]";
+
   //extract root histogram
   //check 
   if (histos.size() != 1) { 

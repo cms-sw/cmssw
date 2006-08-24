@@ -4,13 +4,14 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include <boost/cstdint.hpp>
+#include <sstream>
 #include <vector>
 
 class TProfile;
 
 /**
    @class : ApvTimingAnalysis
-   @author : M. Wingham
+   @author : M. Wingham, R.Bainbridge
    @brief : Histogram-based analysis for PLL-skew "monitorables". 
 */
 
@@ -25,18 +26,19 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
       are extracted from the "tick mark" histogram by the analysis. */
   class Monitorables : public CommissioningAnalysis::Monitorables {
   public:
-    uint16_t coarse_; // PLL coarse delay setting
-    uint16_t fine_;   // PLL fine delay setting
-    float delay_;     // Time delay (from coarse and fine values) [ns]
-    float error_;     // Error on time delay [ns]
-    float base_;      // Level of tick mark "base" [adc]
-    float peak_;      // Level of tick mark "peak" [adc]
-    float height_;    // Tick mark height [ADC]
+    uint16_t pllCoarse_; // PLL coarse delay setting
+    uint16_t pllFine_;   // PLL fine delay setting
+    float delay_;        // Time delay (from coarse and fine values) [ns]
+    float error_;        // Error on time delay [ns]
+    float base_;         // Level of tick mark "base" [adc]
+    float peak_;         // Level of tick mark "peak" [adc]
+    float height_;       // Tick mark height [ADC]
     Monitorables() : 
-      coarse_(sistrip::invalid_), fine_(sistrip::invalid_),
+      pllCoarse_(sistrip::invalid_), pllFine_(sistrip::invalid_),
       delay_(sistrip::invalid_), error_(sistrip::invalid_), 
       base_(sistrip::invalid_), peak_(sistrip::invalid_), 
       height_(sistrip::invalid_) {;}
+    virtual ~Monitorables() {;}
     void print( std::stringstream& );
   };
   
@@ -44,8 +46,11 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
       various parameter values from the histogram, and fills the
       Monitorables object. */
   static void analysis( const TProfile* const, Monitorables& ); 
+  static void deprecated( const TProfile* const, Monitorables& ) {;} 
   
-  /** Takes a vector containing one TProfile of a tick mark and fills a vector of 2 unsigned shorts representing the rise time of the tick. The first is a coarse-time measurement (units of 25ns), the second a fine-time (units 1/24th of the coarse). */
+ private:
+
+  /** Deprecated method. */
   static void analysis( const std::vector<const TProfile*>& histos, 
 			std::vector<unsigned short>& monitorables );
   

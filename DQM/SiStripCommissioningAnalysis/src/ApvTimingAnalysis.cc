@@ -9,11 +9,11 @@
 using namespace std;
 
 // ----------------------------------------------------------------------------
-// temporarily is wrapping orginal analysis() method
+// 
 void ApvTimingAnalysis::analysis( const TProfile* const histo, 
 				  ApvTimingAnalysis::Monitorables& mons ) { 
   //cout << DBG << endl;
-  
+
   // Transfer histogram contents/errors/stats to containers
   uint16_t non_zero = 0;
   float max = -1.e9;
@@ -147,13 +147,13 @@ void ApvTimingAnalysis::analysis( const TProfile* const histo,
   
   // Set monitorables
   if ( !edges.empty() ) {
-    mons.coarse_ = edges.begin()->first / 24;
-    mons.fine_   = edges.begin()->first % 24;
-    mons.delay_  = edges.begin()->first;
-    mons.error_  = 0.;
-    mons.base_   = baseline;
-    mons.peak_   = tickmark;
-    mons.height_ = tickmark - baseline;
+    mons.pllCoarse_ = edges.begin()->first / 24;
+    mons.pllFine_   = edges.begin()->first % 24;
+    mons.delay_     = edges.begin()->first;
+    mons.error_     = 0.;
+    mons.base_      = baseline;
+    mons.peak_      = tickmark;
+    mons.height_    = tickmark - baseline;
   } else {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " No tick marks found!" << endl;
@@ -168,13 +168,13 @@ void ApvTimingAnalysis::analysis( const TProfile* const histo,
 // 
 void ApvTimingAnalysis::Monitorables::print( stringstream& ss ) { 
   ss << "APV TIMING Monitorables:" << "\n"
-     << " PLL coarse setting: " << coarse_ << "\n" 
-     << " PLL fine setting  : " << fine_ << "\n"
-     << " Timing delay  [ns]: " << delay_ << "\n" 
-     << " Timing error  [ns]: " << error_ << "\n"
-     << " Baseline     [adc]: " << base_ << "\n" 
-     << " Tick peak    [adc]: " << peak_ << "\n" 
-     << " Tick height  [adc]: " << height_ << "\n";
+     << " PLL coarse setting : " << pllCoarse_ << "\n" 
+     << " PLL fine setting   : " << pllFine_ << "\n"
+     << " Timing delay   [ns]: " << delay_ << "\n" 
+     << " Error on delay [ns]: " << error_ << "\n"
+     << " Baseline      [adc]: " << base_ << "\n" 
+     << " Tick peak     [adc]: " << peak_ << "\n" 
+     << " Tick height   [adc]: " << height_ << "\n";
 }
 
 // ----------------------------------------------------------------------------
@@ -186,7 +186,7 @@ void ApvTimingAnalysis::analysis( const vector<const TProfile*>& histos,
     ApvTimingAnalysis::analysis( histos[0], mons );
   }
   monitorables.resize(2,0);
-  monitorables[0] = mons.coarse_;
-  monitorables[1] = mons.fine_;
+  monitorables[0] = mons.pllCoarse_;
+  monitorables[1] = mons.pllFine_;
   
 }
