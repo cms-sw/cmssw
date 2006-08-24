@@ -36,7 +36,6 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<CaloJetCollection> jets;                        //Define Inputs
    iEvent.getByLabel(mInput, jets);                            //Get Inputs
    auto_ptr<CaloJetCollection> result (new CaloJetCollection); //Corrected jets
-   CaloJetCollection::const_iterator jet = jets->begin ();
    double myvalue = 4.*atan(1.);
    double twomyvalue = 8.*atan(1.); 
    CaloJet fJet1,fJet2;
@@ -44,8 +43,8 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
      fJet1 = (*jets)[0];
      fJet2 = (*jets)[1];
-     double phi1=fabs(fJet1.eta());
-     double phi2=fabs(fJet2.eta());
+     double phi1=fabs(fJet1.phi());
+     double phi2=fabs(fJet2.phi());
      double dphi = fabs(phi1-phi2);
      if (dphi > myvalue) dphi = twomyvalue-dphi;
      double degreedphi = dphi*180./myvalue;
