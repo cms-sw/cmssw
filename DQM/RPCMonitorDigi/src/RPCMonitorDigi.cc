@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/07/04 15:25:28 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/11 16:11:38 $
+ *  $Revision: 1.11 $
  *
  * \author Ilaria Segoni
  */
@@ -33,9 +33,9 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
 
   nameInLog = pset.getUntrackedParameter<std::string>("moduleLogName", "RPC_DQM");
 
-  saveRootFile  = pset.getUntrackedParameter<bool>("DQMSaveRootFileDigi", false); 
-  saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("EventsIntervalForRootFileDigi", 10000); 
-  RootFileName  = pset.getUntrackedParameter<std::string>("RootFileNameDigi", "RPCMonitorModuleDigi.root"); 
+  saveRootFile  = pset.getUntrackedParameter<bool>("DigiDQMSaveRootFile", false); 
+  saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("DigiEventsInterval", 10000); 
+  RootFileName  = pset.getUntrackedParameter<std::string>("RootFileNameDigi", "RPCMonitor.root"); 
   
   /// get hold of back-end interface
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
@@ -54,7 +54,7 @@ RPCMonitorDigi::~RPCMonitorDigi(){
 
 void RPCMonitorDigi::endJob(void)
 {
-  dbe->save("test.root");  
+  if(saveRootFile) dbe->save(RootFileName);
 }
 
 
@@ -129,56 +129,57 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 		
 		RPCRecHitCollection::const_iterator it;
 		int numberOfHits=0;
-
-	for (it = recHitCollection.first; it != recHitCollection.second ; it++){
- 
-		RPCDetId detIdRecHits=it->rpcId();
-		uint32_t idRecHits=detIdRecHits(); 
-		LocalError error=it->localPositionError();//plot of errors/roll => should be gaussian	
-		LocalPoint point=it->localPosition();	  //plot of coordinates/roll =>should be flat
-		int mult=it->clusterSize();		  //cluster size plot => should be within 3-4	
-		int firstStrip=it->firstClusterStrip();    //plot first Strip => should be flat
-		float xposition=point.x();
-		float yposition=point.y();
 	
-		sprintf(meId,"ClusterSize_%s",detUnitLabel);
-		if(mult<=10) meMap[meId]->Fill(mult);
-		if(mult>10)  meMap[meId]->Fill(11);
+		int numbOfClusters(0);
+		for (it = recHitCollection.first; it != recHitCollection.second ; it++){
+ 
+			numbOfClusters++; 
+
+			RPCDetId detIdRecHits=it->rpcId();
+			uint32_t idRecHits=detIdRecHits(); 
+			LocalError error=it->localPositionError();//plot of errors/roll => should be gaussian	
+			LocalPoint point=it->localPosition();	  //plot of coordinates/roll =>should be flat
+			int mult=it->clusterSize();		  //cluster size plot => should be within 3-4	
+			int firstStrip=it->firstClusterStrip();    //plot first Strip => should be flat
+			float xposition=point.x();
+			float yposition=point.y();
+	
+			sprintf(meId,"ClusterSize_%s",detUnitLabel);
+			if(mult<=10) meMap[meId]->Fill(mult);
+			if(mult>10)  meMap[meId]->Fill(11);
 			
-		sprintf(meId,"RecHitXPosition_%s",detUnitLabel);
-		meMap[meId]->Fill(xposition);
+			sprintf(meId,"RecHitXPosition_%s",detUnitLabel);
+			meMap[meId]->Fill(xposition);
  
-		sprintf(meId,"RecHitYPosition_%s",detUnitLabel);
-		meMap[meId]->Fill(yposition);
+			sprintf(meId,"RecHitYPosition_%s",detUnitLabel);
+			meMap[meId]->Fill(yposition);
  
-		sprintf(meId,"RecHitDX_%s",detUnitLabel);
-		meMap[meId]->Fill(error.xx());
+			sprintf(meId,"RecHitDX_%s",detUnitLabel);
+			meMap[meId]->Fill(error.xx());
  
-		sprintf(meId,"RecHitDY_%s",detUnitLabel);
-		meMap[meId]->Fill(error.yy());
+			sprintf(meId,"RecHitDY_%s",detUnitLabel);
+			meMap[meId]->Fill(error.yy());
  
-		sprintf(meId,"RecHitDXDY_%s",detUnitLabel);
-		meMap[meId]->Fill(error.xy());
+			sprintf(meId,"RecHitDXDY_%s",detUnitLabel);
+			meMap[meId]->Fill(error.xy());
 
-		sprintf(meId,"RecHitX_vs_dx_%s",detUnitLabel);
-		meMap[meId]->Fill(xposition,error.xx());
+			sprintf(meId,"RecHitX_vs_dx_%s",detUnitLabel);
+			meMap[meId]->Fill(xposition,error.xx());
 
-		sprintf(meId,"RecHitY_vs_dY_%s",detUnitLabel);
-		meMap[meId]->Fill(yposition,error.yy());
-		numberOfHits++;
+			sprintf(meId,"RecHitY_vs_dY_%s",detUnitLabel);
+			meMap[meId]->Fill(yposition,error.yy());
+			numberOfHits++;
 	
 	}/// loop on RPCRecHits
+	
+		sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
+		meMap[meId]->Fill(numbOfClusters);
 	}
 	
-
+ 
  }/// loop on RPC Det Unit
 
-//	sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
-//	meMap[meId]->Fill(clusterMultiplicities.size());
 
- 
-	//sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
-	//meMap[meId]->Fill(clusterMultiplicities.size());
   
 
   if((!(counter%saveRootFileEventsInterval))&&(saveRootFile) ) {
