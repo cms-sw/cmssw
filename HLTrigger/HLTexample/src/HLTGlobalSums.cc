@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/23 17:03:02 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/08/24 11:43:19 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -104,7 +104,10 @@ HLTGlobalSums::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        value=0.0;
      }
 
-     if ( ((Min_<=value) && (value<=Max_)) ) {
+     value=abs(value);
+
+     if ( ( (Min_<0.0) || (Min_<=value) ) &&
+	  ( (Max_<0.0) || (value<=Max_) ) ) {
        nmets++;
        ref=RefToBase<Candidate>(CaloMETRef(mets,distance(amets,imets)));
        filterobject->putParticle(ref);
