@@ -1,37 +1,37 @@
 # TB unpacers configuration file
-# QDC | channel | pedestal in ADC counts | gain [ADC/GeV]
-QDC 0 0. 1.
-QDC 1 0. 1.
-QDC 2 0. 1.
-QDC 3 0. 1.
-QDC 4 0. 1.
-QDC 5 0. 1.
-QDC 6 0. 1.
-QDC 7 0. 1.
-QDC 8 0. 1.
-QDC 9 0. 1.
-QDC 10 0. 1.
-QDC 11 0. 1.
-QDC 12 0. 1.
-QDC 13 0. 1.
-QDC 14 0. 1.
-QDC 15 0. 1.
-QDC 16 0. 1.
-QDC 17 0. 1.
-QDC 18 0. 1.
-QDC 19 0. 1.
-QDC 20 0. 1.
-QDC 21 0. 1.
-QDC 22 0. 1.
-QDC 23 0. 1.
-QDC 24 0. 1.
-QDC 25 0. 1.
-QDC 26 0. 1.
-QDC 27 0. 1.
-QDC 28 0. 1.
-QDC 29 0. 1.
-QDC 30 0. 1.
-QDC 31 0. 1.
+# QDC | channel | pedestal in ADC counts | "gain"
+QDC 0      0.0  1.
+QDC 1      0.0  1.
+QDC 2      0.0  1.
+QDC 3      0.0  1.
+QDC 4      0.0  1.
+QDC 5      0.0  1.
+QDC 6      0.0  1.
+QDC 7      0.0  1.
+QDC 8      0.0  1.
+QDC 9      0.0  1.
+QDC 10    85.0  1.
+QDC 11   126.5  1.
+QDC 12    80.2  1.
+QDC 13   172.4  1.
+QDC 14   116.8  1.
+QDC 15   138.4  1.
+QDC 16   166.5  1.
+QDC 17    44.2  1.
+QDC 18   421.8  1.
+QDC 19     0.0  1.
+QDC 20    95.3  1.
+QDC 21   179.1  1.
+QDC 22   139.4  1.
+QDC 23    89.1  1.
+QDC 24     0.0  1.
+QDC 25     0.0  1.
+QDC 26     0.0  1.
+QDC 27     0.0  1.
+QDC 28   267.6  1.
+QDC 29   137.7  1.
+QDC 30   308.5  1.
+QDC 31    81.4  1.
 # TDC channels
 #    lc  "ped"  conversion factor [ns/ADC]
 TDC   1   0.0   0.78125
@@ -100,21 +100,23 @@ TDC 113   0.0   0.78125
 TDC 114   0.0   0.78125
 TDC 115   0.0   0.78125
 TDC 116   0.0   0.78125
-TDC 129   0.0   0.058
-TDC 130   0.0   0.058
-TDC 131   0.0   0.058
-TDC 132   0.0   0.058
+TDC 129   0.0   0.035
+TDC 130   0.0   0.035
+TDC 131   0.0   0.035
+TDC 132   0.0   0.035
 #
 # Now for the WC planes...
-# These are TB2004 values.
-#
 #  plane   b0            b1     mean   sigma
-WC   0   -14.27638272   -0.19255386   225.8   10.94
-WC   1    13.39330453   -0.19105790   227.3    5.08
-WC   2   -12.17303438   -0.19168300   223.4    5.47
-WC   3    14.15255469   -0.18769100   235.2    5.08
-WC   4   -11.27802407   -0.17833296   246.1    6.64
-WC   5    13.09533561   -0.18226971   271.1    5.08
+#
+# Calibration constants derived from run 28404 (taken Aug 18)
+# Scintillators are centered, apparent dimensions are 39.53 x 39.92 mm (S2)
+WC   0   -14.1865857   -0.19380783   228.12   13.0
+WC   1    13.1438756   -0.19170381   227.34    6.5
+WC   2   -12.0817860   -0.19168300   224.22    6.5
+WC   3    13.8149246   -0.18769100   235.16    6.0
+WC   4   -11.5639125   -0.18454254   246.09    8.0
+WC   5    12.8824521   -0.18504149   271.09    6.0
+#  TB2004 values WC D-E
 WC  6   -0.6039130   -0.185674  225.0  6.000
 WC  7   -0.4366590   -0.184992  225.0  6.000
 WC  8    1.7016400   -0.185575  225.0  6.000
@@ -126,4 +128,29 @@ WC 12    0.0         -0.19      225.0  6.000
 WC 13    0.0         -0.19      225.0  6.000
 WC 14    0.0         -0.19      225.0  6.000
 WC 15    0.0         -0.19      225.0  6.000
-
+# Distances in Z direction (along beam) in cm
+DistZ   CK-1f   -6392	
+DistZ   CK-1b   -5792	
+DistZ   CK-2f   -6236	
+DistZ   CK-2b   -6036	
+DistZ   WC-F    -6022
+DistZ   SCI_521 -5982
+DistZ   WC-G    -5404
+DistZ   SCI_528 -5316
+DistZ   WC-H    -5296
+DistZ   CK-3f   -769	
+DistZ   CK-3b   -569	
+DistZ   WC-A    -514
+DistZ   WC-B    -404
+DistZ   SC-1    -376
+DistZ   SC-2    -361
+DistZ   SC-3    -344
+DistZ   SC-4    -278
+DistZ   BHalo   -261
+DistZ   WC-C    -200
+DistZ   Pivot    0
+DistZ   MVWall   341
+DistZ   WC-D     850
+DistZ   WC-E     978
+DistZ   MVfront 1015
+DistZ   MVback  1177
