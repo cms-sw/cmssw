@@ -5,37 +5,6 @@
 
 using namespace std;
 
-// -----------------------------------------------------------------------------
-//
-string SummaryHistogramFactory<OptoScanAnalysis::Monitorables>::name( const sistrip::SummaryHisto& histo, 
-								      const sistrip::SummaryType& type,
-								      const sistrip::View& view, 
-								      const string& directory ) {
-  
-  stringstream ss;
-  ss << sistrip::summaryHisto_ << sistrip::sep_;
-  if ( histo == sistrip::OPTO_SCAN_LLD_BIAS ) {
-    ss << sistrip::optoScanLldBias_;
-  } else if ( histo == sistrip::OPTO_SCAN_LLD_GAIN ) { 
-    ss << sistrip::optoScanLldGain_;
-  } else if ( histo == sistrip::OPTO_SCAN_GAIN ) { 
-    ss << sistrip::optoScanGain_;
-  } else if ( histo == sistrip::OPTO_SCAN_ERROR ) { 
-    ss << sistrip::optoScanError_;
-  } else if ( histo == sistrip::OPTO_SCAN_BASE ) { 
-    ss << sistrip::optoScanBase_;
-  } else if ( histo == sistrip::OPTO_SCAN_PEAK ) { 
-    ss << sistrip::optoScanPeak_;
-  } else if ( histo == sistrip::OPTO_SCAN_HEIGHT ) {
-    ss << sistrip::optoScanHeight_;
-  } else { 
-    ss << sistrip::unknownSummaryHisto_;
-  } 
-  ss << sistrip::sep_ << SiStripHistoNamingScheme::view( view );
-  return ss.str(); 
-  
-}
-
 //------------------------------------------------------------------------------
 //
 void SummaryHistogramFactory<OptoScanAnalysis::Monitorables>::generate( const sistrip::SummaryHisto& histo, 

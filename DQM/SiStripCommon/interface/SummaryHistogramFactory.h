@@ -12,11 +12,6 @@ template<class T>
 class SummaryHistogramFactory {
   
  public:
-
-  static std::string name( const sistrip::SummaryHisto& histo, 
-			   const sistrip::SummaryType& type,
-			   const sistrip::View& view, 
-			   const std::string& directory );
   
   void generate( const sistrip::SummaryHisto& histo, 
 		 const sistrip::SummaryType& type,
@@ -28,5 +23,3 @@ class SummaryHistogramFactory {
 };
 
 #endif // DQM_SiStripCommon_SummaryHistogramFactory_H
-
-

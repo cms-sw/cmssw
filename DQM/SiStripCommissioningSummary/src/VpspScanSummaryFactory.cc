@@ -5,27 +5,6 @@
 
 using namespace std;
 
-// -----------------------------------------------------------------------------
-//
-string SummaryHistogramFactory<VpspScanAnalysis::Monitorables>::name( const sistrip::SummaryHisto& histo, 
-								      const sistrip::SummaryType& type,
-								      const sistrip::View& view, 
-								      const string& directory ) {
-  
-  stringstream ss;
-  ss << sistrip::summaryHisto_ << sistrip::sep_;
-  if ( histo == sistrip::VPSP_SCAN_APV0 ) {
-    ss << sistrip::vpspScanApv0_;
-  } else if ( histo == sistrip::VPSP_SCAN_APV0 ) { 
-    ss << sistrip::vpspScanApv1_;
-  } else { 
-    ss << sistrip::unknownSummaryHisto_;
-  } 
-  ss << sistrip::sep_ << SiStripHistoNamingScheme::view( view );
-  return ss.str(); 
-  
-}
-
 //------------------------------------------------------------------------------
 //
 void SummaryHistogramFactory<VpspScanAnalysis::Monitorables>::generate( const sistrip::SummaryHisto& histo, 

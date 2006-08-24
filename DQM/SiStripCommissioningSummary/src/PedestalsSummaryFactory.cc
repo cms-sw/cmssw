@@ -5,43 +5,6 @@
 
 using namespace std;
 
-// -----------------------------------------------------------------------------
-//
-string SummaryHistogramFactory<PedestalsAnalysis::Monitorables>::name( const sistrip::SummaryHisto& histo, 
-								       const sistrip::SummaryType& type,
-								       const sistrip::View& view, 
-								       const string& directory ) {
-
-  stringstream ss;
-  ss << sistrip::summaryHisto_ << sistrip::sep_;
-  if ( histo == sistrip::PEDESTALS_MEAN ) {
-    ss << sistrip::pedestalsMean_;
-  } else if ( histo == sistrip::PEDESTALS_SPREAD ) { 
-    ss << sistrip::pedestalsSpread_;
-  } else if ( histo == sistrip::PEDESTALS_MAX ) { 
-    ss << sistrip::pedestalsMax_;
-  } else if ( histo == sistrip::PEDESTALS_MIN ) { 
-    ss << sistrip::pedestalsMin_;
-  } else if ( histo == sistrip::NOISE_MEAN ) {
-    ss << sistrip::noiseMean_;
-  } else if ( histo == sistrip::NOISE_SPREAD ) { 
-    ss << sistrip::noiseSpread_;
-  } else if ( histo == sistrip::NOISE_MAX ) { 
-    ss << sistrip::noiseMax_;
-  } else if ( histo == sistrip::NOISE_MIN ) { 
-    ss << sistrip::noiseMin_;
-  } else if ( histo == sistrip::NUM_OF_DEAD ) { 
-    ss << sistrip::numOfDead_;
-  } else if ( histo == sistrip::NUM_OF_NOISY ) { 
-    ss << sistrip::numOfNoisy_;
-  } else { 
-    ss << sistrip::unknownSummaryHisto_;
-  } 
-  ss << sistrip::sep_ << SiStripHistoNamingScheme::view( view );
-  return ss.str(); 
-  
-}
-
 //------------------------------------------------------------------------------
 //
 void SummaryHistogramFactory<PedestalsAnalysis::Monitorables>::generate( const sistrip::SummaryHisto& histo, 

@@ -5,37 +5,6 @@
 
 using namespace std;
 
-// -----------------------------------------------------------------------------
-//
-string SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>::name( const sistrip::SummaryHisto& histo, 
-								       const sistrip::SummaryType& type,
-								       const sistrip::View& view, 
-								       const string& directory ) {
-  
-  stringstream ss;
-  ss << sistrip::summaryHisto_ << sistrip::sep_;
-  if ( histo == sistrip::APV_TIMING_PLL_COARSE ) {
-    ss << sistrip::apvTimingCoarse_;
-  } else if ( histo == sistrip::APV_TIMING_PLL_FINE ) { 
-    ss << sistrip::apvTimingFine_;
-  } else if ( histo == sistrip::APV_TIMING_DELAY ) { 
-    ss << sistrip::apvTimingDelay_;
-  } else if ( histo == sistrip::APV_TIMING_ERROR ) { 
-    ss << sistrip::apvTimingError_;
-  } else if ( histo == sistrip::APV_TIMING_BASE ) { 
-    ss << sistrip::apvTimingBase_;
-  } else if ( histo == sistrip::APV_TIMING_PEAK ) { 
-    ss << sistrip::apvTimingPeak_;
-  } else if ( histo == sistrip::APV_TIMING_HEIGHT ) {
-    ss << sistrip::apvTimingHeight_;
-  } else { 
-    ss << sistrip::unknownSummaryHisto_;
-  } 
-  ss << sistrip::sep_ << SiStripHistoNamingScheme::view( view );
-  return ss.str(); 
-  
-}
-
 //------------------------------------------------------------------------------
 //
 void SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>::generate( const sistrip::SummaryHisto& histo, 

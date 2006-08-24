@@ -5,37 +5,6 @@
 
 using namespace std;
 
-// -----------------------------------------------------------------------------
-//
-string SummaryHistogramFactory<FedTimingAnalysis::Monitorables>::name( const sistrip::SummaryHisto& histo, 
-								       const sistrip::SummaryType& type,
-								       const sistrip::View& view, 
-								       const string& directory ) {
-  
-  stringstream ss;
-  ss << sistrip::summaryHisto_ << sistrip::sep_;
-  if ( histo == sistrip::FED_TIMING_PLL_COARSE ) {
-    ss << sistrip::fedTimingCoarse_;
-  } else if ( histo == sistrip::FED_TIMING_PLL_FINE ) { 
-    ss << sistrip::fedTimingFine_;
-  } else if ( histo == sistrip::FED_TIMING_DELAY ) { 
-    ss << sistrip::fedTimingDelay_;
-  } else if ( histo == sistrip::FED_TIMING_ERROR ) { 
-    ss << sistrip::fedTimingError_;
-  } else if ( histo == sistrip::FED_TIMING_BASE ) { 
-    ss << sistrip::fedTimingBase_;
-  } else if ( histo == sistrip::FED_TIMING_PEAK ) { 
-    ss << sistrip::fedTimingPeak_;
-  } else if ( histo == sistrip::FED_TIMING_HEIGHT ) {
-    ss << sistrip::fedTimingHeight_;
-  } else { 
-    ss << sistrip::unknownSummaryHisto_;
-  } 
-  ss << sistrip::sep_ << SiStripHistoNamingScheme::view( view );
-  return ss.str(); 
-  
-}
-
 //------------------------------------------------------------------------------
 //
 void SummaryHistogramFactory<FedTimingAnalysis::Monitorables>::generate( const sistrip::SummaryHisto& histo, 

@@ -8,21 +8,6 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 template<class T> 
-string SummaryHistogramFactory<T>::name( const sistrip::SummaryHisto& histo, 
-					 const sistrip::SummaryType& type,
-					 const sistrip::View& view, 
-					 const string& directory ) {
-  stringstream ss;
-  ss << sistrip::summaryHisto_ << sistrip::sep_;
-  ss << sistrip::unknownSummaryHisto_;
-  ss << sistrip::sep_ << SiStripHistoNamingScheme::view( view );
-  return ss.str(); 
-  
-}
-
-// -----------------------------------------------------------------------------
-//
-template<class T> 
 void SummaryHistogramFactory<T>::generate( const sistrip::SummaryHisto& histo, 
 					   const sistrip::SummaryType& type,
 					   const sistrip::View& view, 
@@ -38,8 +23,7 @@ void SummaryHistogramFactory<T>::generate( const sistrip::SummaryHisto& histo,
   auto_ptr<SummaryGenerator> generator = SummaryGenerator::instance( view );
   if ( !generator.get() ) { return; }
   
-  // Extract parameter to be histogrammed from map
-  // Transfer appropriate data from map to generator object
+  // Transfer appropriate info from monitorables map to generator object
   typename map<uint32_t,T>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
     generator->fillMap( directory, iter->first, (float)iter->second ); // no error here added by default 
@@ -52,7 +36,8 @@ void SummaryHistogramFactory<T>::generate( const sistrip::SummaryHisto& histo,
     generator->logicalView( summary_histo );
   } else { return; }
   
-  //@@ format histogram?...
+  // Histogram formatting
+  generator->format( histo, type, view, directory, summary_histo );
   
 }
 
