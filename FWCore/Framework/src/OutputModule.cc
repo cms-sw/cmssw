@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.17 2006/08/22 05:39:59 wmtan Exp $
+$Id: OutputModule.cc,v 1.18 2006/08/24 17:11:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <vector>
@@ -76,22 +76,22 @@ namespace edm {
     for ( ; it != end; ++it) {
       BranchDescription const& desc = it->second;
       if(desc.transient()) {
-	// If the class of the branch is marked transient, output nothing
-	continue;
+        // If the class of the branch is marked transient, output nothing
+        continue;
       } else if(!desc.provenancePresent() & !desc.produced()) {
-	// else if the branch containing the provenance has been previously dropped,
-	// and the product has not been produced again, output nothing
-	continue;
+        // else if the branch containing the provenance has been previously dropped,
+        // and the product has not been produced again, output nothing
+        continue;
       } else if(!desc.present() & !desc.produced()) {
         // else if the branch containing the product has been previously dropped,
-	// and the product has not been produced again, drop the product branch again.
+        // and the product has not been produced again, drop the product branch again.
         droppedVec_.push_back(&desc);
       } else if (selected(desc)) {
         // else if the branch has been selected, put it in the list of selected branches
-	descVec_.push_back(&desc);
+        descVec_.push_back(&desc);
       } else {
         // otherwise, drop the product branch.
-	droppedVec_.push_back(&desc);
+        droppedVec_.push_back(&desc);
       }
     }
   }
