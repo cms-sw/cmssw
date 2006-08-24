@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/08/11 08:19:33 $
- * $Revision: 1.25 $
+ * $Date: 2006/08/16 16:53:17 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -58,12 +58,12 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   checkedSteps_.reserve(86);
-  // there should be not more than a eta row in an autoscan
+  // there should be not more than a eta row in an autoscan 
   minEvtNum_ = 1800;//
   //FIX ME, this should be configurable and change with the beam energy
-  aveEne1_    = 1800;  E1Th_   = 800;
-  aveEne3x3_  = 2600;  E3x3Th_ = 600;
-  RMSEne3x3_  = 600;
+  aveEne1_    = 1850;  E1Th_   = 900;
+  aveEne3x3_  = 2600;  E3x3Th_ = 2600;
+  RMSEne3x3_  = 800;
 
   ReadCryErrThr_ = 0.01;// 1%
   //FIX ME, this should follow the prescaling in the monitoring
@@ -1163,7 +1163,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->GetYaxis()->SetNdivisions(4);
     can->SetGridx();
     can->SetGridy();
-    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMinimum(0.00000001);
     //obj2f->SetMaximum(2.0);
     obj2f->Draw("colz");
     dummy.Draw("text,same");
@@ -1199,7 +1199,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->GetYaxis()->SetNdivisions(4);
     can->SetGridx();
     can->SetGridy();
-    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMinimum(0.00000001);
     obj2f->Draw("colz");
     dummy.Draw("text,same");
     can->Update();
