@@ -4,9 +4,9 @@ DT:
   //get an authentication.xml from somewhere into the working dir
   cd ${CMSSW_BASE}/src/CondTools/IntegrationTest/test
   ../../OracleDBA/scripts/cmscond_bootstrap_detector.pl --auth ./authentication.xml DT
-  $LOCALRT/test/${SCRAM_ARCH}/testWriteDTTtrig
-  $LOCALRT/test/${SCRAM_ARCH}/testWriteDTT0
-  $LOCALRT/test/${SCRAM_ARCH}/testWriteDTMap
+  $LOCALRT/test/${SCRAM_ARCH}/validateWriteDTTtrig
+  $LOCALRT/test/${SCRAM_ARCH}/validateWriteDTT0
+  $LOCALRT/test/${SCRAM_ARCH}/validateWriteDTMap
   cmsRun ../data/validate_dt_devdb10.cfg
 
 Strip:
