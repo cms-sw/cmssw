@@ -5,8 +5,8 @@
 //   Description:   Build GMT tree
 //                  
 //                
-//   $Date: 2006/08/21 14:23:14 $
-//   $Revision: 1.3 $
+//   $Date: 2006/08/25 15:08:39 $
+//   $Revision: 1.1 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -79,31 +79,38 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   // generetor block
 
-  edm::Handle<edm::SimVertexContainer> simvertices_handle;
-  e.getByLabel("g4SimHits",simvertices_handle);
-  edm::SimVertexContainer const* simvertices = simvertices_handle.product();
+  try {
+    edm::Handle<edm::SimVertexContainer> simvertices_handle;
+    e.getByLabel("g4SimHits",simvertices_handle);
+    edm::SimVertexContainer const* simvertices = simvertices_handle.product();
 
-  edm::Handle<edm::SimTrackContainer> simtracks_handle;
-  e.getByLabel("g4SimHits",simtracks_handle);
-  edm::SimTrackContainer const* simtracks = simtracks_handle.product();
+    edm::Handle<edm::SimTrackContainer> simtracks_handle;
+    e.getByLabel("g4SimHits",simtracks_handle);
+    edm::SimTrackContainer const* simtracks = simtracks_handle.product();
 
-  edm::SimTrackContainer::const_iterator isimtr;
-  int igen = 0;
-  for(isimtr=simtracks->begin(); isimtr!=simtracks->end(); isimtr++) {
-    if(abs((*isimtr).type())!=13 || igen>=MAXGEN) continue;
-    pxgen[igen]=(*isimtr).momentum().px();
-    pygen[igen]=(*isimtr).momentum().py();
-    pzgen[igen]=(*isimtr).momentum().pz();
-    ptgen[igen]=(*isimtr).momentum().perp();
-    etagen[igen]=(*isimtr).momentum().eta();
-    phigen[igen]=(*isimtr).momentum().phi()>0 ? (*isimtr).momentum().phi() : (*isimtr).momentum().phi()+2*3.14159265359;
-    chagen[igen]=(*isimtr).type()>0 ? 1 : -1 ;
-    vxgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().x();
-    vygen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().y();
-    vzgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().z();
-    igen++;
+    edm::SimTrackContainer::const_iterator isimtr;
+    int igen = 0;
+    for(isimtr=simtracks->begin(); isimtr!=simtracks->end(); isimtr++) {
+      if(abs((*isimtr).type())!=13 || igen>=MAXGEN) continue;
+      pxgen[igen]=(*isimtr).momentum().px();
+      pygen[igen]=(*isimtr).momentum().py();
+      pzgen[igen]=(*isimtr).momentum().pz();
+      ptgen[igen]=(*isimtr).momentum().perp();
+      etagen[igen]=(*isimtr).momentum().eta();
+      phigen[igen]=(*isimtr).momentum().phi()>0 ? (*isimtr).momentum().phi() : (*isimtr).momentum().phi()+2*3.14159265359;
+      chagen[igen]=(*isimtr).type()>0 ? 1 : -1 ;
+      vxgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().x();
+      vygen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().y();
+      vzgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().z();
+      igen++;
+    }
+    ngen=igen;  
   }
-  ngen=igen;  
+  catch(...) {
+    edm::LogWarning("BlockMissing") << "Simulated vertex/track block missing" << endl;
+    ngen=0;
+  }
+
 
   // Get GMTReadoutCollection
 
@@ -257,7 +264,7 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
   
     edm::LogVerbatim("GMTDump") << "Number of muons generated: " << ngen << endl;
     edm::LogVerbatim("GMTDump") << "Generated muons:" << endl;
-    for(igen=0; igen<ngen; igen++) {
+    for(int igen=0; igen<ngen; igen++) {
       edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
 				  << setw(2) << igen+1 << " : "
 				  << "pt = " << setw(5) << setprecision(1) << ptgen[igen] << " GeV  "
