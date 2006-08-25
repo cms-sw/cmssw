@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <iostream>
 #include <iterator>
+#include <boost/bind.hpp>
 using std::string;
 
 namespace edm {
@@ -68,19 +69,28 @@ namespace edm {
       }
 
       // ignore second includes at the same level
-      std::list<std::string>::const_iterator twinSister
-        = find(sameLevelIncludes.begin(), sameLevelIncludes.end(), name());
-      if(twinSister != sameLevelIncludes.end())
+      bool ignore = false;
+      if(checkMultipleIncludes())
       {
-        // duplicate.  Remove this one.
-        CompositeNode * parent  = dynamic_cast<CompositeNode *>(getParent());
-        assert(parent != 0);
-        parent->removeChild(this);
+        std::list<std::string>::const_iterator twinSister
+          = std::find(sameLevelIncludes.begin(), sameLevelIncludes.end(), name());
+        if(twinSister != sameLevelIncludes.end())
+        {
+          // duplicate.  Remove this one.
+          CompositeNode * parent  = dynamic_cast<CompositeNode *>(getParent());
+          assert(parent != 0);
+          parent->removeChild(this);
+          ignore = true;
+        }
+        else
+        {
+          sameLevelIncludes.push_back(name());
+        }
       }
-      else 
+
+      if(!ignore)
       {
         openFiles.push_back(name());
-        sameLevelIncludes.push_back(name());
         FileInPath fip(name());
         fullPath_ = fip.fullPath();
         isResolved_ = true;
@@ -104,6 +114,20 @@ namespace edm {
     }
 
 
+    void IncludeNode::filterNodes()
+    {
+      NodePtrListPtr newNodes(new NodePtrList);
+      for(NodePtrList::iterator nodeItr = nodes_->begin();
+          nodeItr != nodes_->end(); ++nodeItr)
+      {
+        if(okToInclude(*nodeItr))
+        {
+          newNodes->push_back(*nodeItr);
+        }
+      }
+      nodes_ = newNodes;
+    }
+      
     void IncludeNode::insertInto(edm::ProcessDesc & procDesc) const
     {
       // maybe refactor this down to CompositeNode, if another

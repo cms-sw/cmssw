@@ -6,7 +6,7 @@ namespace edm {
 
     ImplicitIncludeNode::ImplicitIncludeNode(const std::string & moduleClass, 
                                              const std::string & moduleLabel, int line)
-    : IncludeNode("implicitInclude", "", line),
+    : IncludeNode("includeImplicit", "", line),
     moduleClass_(moduleClass),
     moduleLabel_(moduleLabel)
     {
