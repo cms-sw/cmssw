@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/15 10:57:09 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/08/16 10:07:11 $
+ *  $Revision: 1.18 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -30,28 +30,17 @@
 
 using namespace edm;
 
-
-//
 // constructor
-//
 MuonTrackLoader::MuonTrackLoader() : thePropagator(0) {
 
 }
-
-
-//
-//
-//
+// destructror
 void MuonTrackLoader::setES(const EventSetup& setup) {
 
   setup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", thePropagator);
 
 }
 
-
-//
-//
-//
 edm::OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    edm::Event& event) {
@@ -81,8 +70,11 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
        trajectory != trajectories.end(); ++trajectory) {
     
     // get the transient rechit from the trajectory
-    const Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
-
+    Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
+    
+    if ( (*trajectory)->direction() == oppositeToMomentum)
+      reverse(transHits.begin(),transHits.end());
+    
     // fill the rechit collection
     for(Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
 	recHit != transHits.end(); ++recHit) {
@@ -112,11 +104,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
     // get (again!) the transient rechit from the trajectory	
     const Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
-
+    
     // Fill the track extra with the rec hit (persistent-)reference
     for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
- 	recHit != transHits.end(); ++recHit) {
-      
+	 recHit != transHits.end(); ++recHit) {
       trackExtra.add(TrackingRecHitRef(orphanHandleRecHit,position));
       ++position;
     }
@@ -183,10 +174,6 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
 }
 
-
-//
-//
-//
 edm::OrphanHandle<reco::MuonCollection> 
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 			    edm::Event& event) {
@@ -229,10 +216,6 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
 }
 
-
-//
-//
-//
 reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
@@ -247,13 +230,13 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
     innerTSOS = trajectory.firstMeasurement().updatedState();
   } 
   else if (trajectory.direction() == oppositeToMomentum) { 
-    LogDebug(metname)<<"oppositeToMentum";
+    LogDebug(metname)<<"oppositeToMomentum";
     innerTSOS = trajectory.lastMeasurement().updatedState();
   }
   else edm::LogError(metname)<<"Wrong propagation direction!";
   
   LogDebug(metname) << debug.dumpTSOS(innerTSOS);
-
+  
   // This is needed to extrapolate the tsos at vertex
   GlobalPoint vtx(0,0,0); 
   TransverseImpactPointExtrapolator tipe(*thePropagator);
@@ -284,10 +267,6 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
 }
 
-
-//
-//
-//
 reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) const {
 
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
@@ -307,10 +286,10 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
     innerTSOS = trajectory.firstMeasurement().updatedState();
   } 
   else if(trajectory.direction() == oppositeToMomentum) {
-      LogDebug(metname)<<"oppositeToMentum";
-      outerTSOS = trajectory.firstMeasurement().updatedState();
-      innerTSOS = trajectory.lastMeasurement().updatedState();
-    }
+    LogDebug(metname)<<"oppositeToMomentum";
+    outerTSOS = trajectory.firstMeasurement().updatedState();
+    innerTSOS = trajectory.lastMeasurement().updatedState();
+  }
   else edm::LogError(metname)<<"Wrong propagation direction!";
   
   //build the TrackExtra
