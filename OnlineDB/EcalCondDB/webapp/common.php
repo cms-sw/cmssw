@@ -13,11 +13,15 @@ function get_conn_params() {
 	       'sid'  => "ecalh4db");
 }
 
-function get_dqm_url($location, $run) {
+function get_dqm_url($location, $runtype, $run) {
   if ($location && $location == 'H4B') {
     $url = "http://pctorino1.cern.ch/html/";
   } elseif ($location && $location == 'H2') {
-    $url = "http://pctorino2.cern.ch/html/";
+    if ($runtype == 'BEAM') {
+      $url = "http://cmshcal04.cern.ch/html/";
+    } else {
+      $url = "http://pctorino2.cern.ch/html/";
+    }
   } else {
     $url = "http://lxcms201.cern.ch/html/";
   }

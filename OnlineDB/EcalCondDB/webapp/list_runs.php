@@ -3,7 +3,7 @@
  * list_runs.php
  *
  * List a page of runs and subtables for various data categories
- * $Id: list_runs.php,v 1.1 2006/06/26 17:01:46 egeland Exp $
+ * $Id: list_runs.php,v 1.2 2006/07/23 16:47:58 egeland Exp $
  */
 
 require_once 'common.php';
@@ -40,9 +40,9 @@ function input_errors() {
   return $error;
 }
 
-function draw_data_table($datatype, $run, $run_iov_id) {
+function draw_data_table($datatype, $run, $run_iov_id, $runtype) {
   echo "<table class='$datatype'>";
-  if     ($datatype == 'MON') { fill_monitoring_table($run, $run_iov_id); }
+  if     ($datatype == 'MON') { fill_monitoring_table($run, $run_iov_id, $runtype); }
   elseif ($datatype == 'DCU') { fill_dcu_table($run, $run_iov_id); }
   else { 
     echo "<tr><td class='noresults'>Data type $datatype is not finished</td></tr>";
@@ -50,7 +50,7 @@ function draw_data_table($datatype, $run, $run_iov_id) {
   echo "</table>";
 }
 
-function fill_monitoring_table($run, $run_iov_id) {
+function fill_monitoring_table($run, $run_iov_id, $runtype) {
   $monresults = fetch_mon_data($run_iov_id);
   $nmonrows = count($monresults['SUBRUN_NUM']);
   
@@ -76,7 +76,7 @@ function fill_monitoring_table($run, $run_iov_id) {
       $exists_str = $monresults['DAT_EXISTS'][$i];
       $iov_id = $monresults['IOV_ID'][$i];
       $loc = $_GET['location']; // XXX function argument?
-      $dqm_url = htmlentities(get_dqm_url($loc, $run));
+      $dqm_url = htmlentities(get_dqm_url($loc, $runtype, $run));
       $list_bits = $monresults['TASK_LIST'][$i];
       $outcome_bits = $monresults['TASK_OUTCOME'][$i];
       echo "<td>", draw_tasklist($list_bits, $outcome_bits), "</td>";
@@ -274,7 +274,7 @@ if ($errors = input_errors()) {
       foreach ($datatypes as $name => $prefix) {
 	if (isset($_GET[$prefix])) {
 	  echo "<tr><td colspan='",$nruncols-1, "'>";
-	  draw_data_table($prefix, $run['RUN_NUM'], $run['RUN_IOV_ID']);
+	  draw_data_table($prefix, $run['RUN_NUM'], $run['RUN_IOV_ID'], $run['RUN_TYPE']);
 	  echo "</td></tr>";
 	}
       }
