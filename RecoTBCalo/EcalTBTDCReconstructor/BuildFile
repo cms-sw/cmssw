@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=TBDataFormats/EcalTBObjects>
+<use name=TBDataFormats/HcalTBObjects>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
 <use name=root>
@@ -12,6 +13,7 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=TBDataFormats/EcalTBObjects>
+  <use name=TBDataFormats/HcalTBObjects>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/MessageService>
   <use name=root>
