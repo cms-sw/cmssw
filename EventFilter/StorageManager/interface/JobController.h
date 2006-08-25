@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EPRunner.h"
+#include "EventFilter/StorageManager/interface/EventServer.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 
 // added by HWKC for Event Server
@@ -54,6 +55,12 @@ namespace stor
 //HEREHERE
     void set_oneinN(int N) { collector_->set_esbuf_oneinN(N); }
     edm::ServiceToken getToken() { return ep_runner_->getToken();}
+    void setEventServer(boost::shared_ptr<EventServer>& es)
+    {
+      if (collector_.get() != NULL) collector_->setEventServer(es);
+      eventServer_ = es;
+    }
+    boost::shared_ptr<EventServer>& getEventServer() { return eventServer_; }
 
 //HEREHEREHERE
     // a hack to get hlt and l1 counts into fragColl
@@ -75,6 +82,7 @@ namespace stor
 
     boost::shared_ptr<FragmentCollector> collector_;
     boost::shared_ptr<EPRunner> ep_runner_;
+    boost::shared_ptr<EventServer> eventServer_;
 
     boost::shared_ptr<boost::thread> me_;
   };

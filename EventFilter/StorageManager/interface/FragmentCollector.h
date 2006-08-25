@@ -18,6 +18,7 @@
 #include "DataFormats/Common/interface/ProductRegistry.h"
 // added for Event Server by HWKC
 #include "EventFilter/StorageManager/interface/EvtMsgRingBuffer.h"
+#include "EventFilter/StorageManager/interface/EventServer.h"
 // for hack
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
@@ -56,6 +57,8 @@ namespace stor
 
     edm::EventBuffer& getFragmentQueue() { return *frag_q_; }
     
+    void setEventServer(boost::shared_ptr<EventServer>& es) { eventServer_ = es; }
+
   private:
     static void run(FragmentCollector*);
     void processFragments();
@@ -120,6 +123,7 @@ namespace stor
 //HEREHERE
     int oneinN_;  // place one in every oneinN_ events into the buffer
     int count_4_oneinN_;
+    boost::shared_ptr<EventServer> eventServer_;
   };
 }
 
