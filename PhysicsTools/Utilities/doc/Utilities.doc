@@ -29,13 +29,6 @@ Generic Physics Tools utility classes
   invariant mass of a pair of objects assuming they are massless using the method <tt>momentum()</tt> to retrieve
   their spatial momentum vector.
 
-
-\section other utilities
-- MethodMap: generic map of class methods based on Reflex dictionary. Only selector (i.e.: <tt>const</tt>) 
-  methods with no argument with a return type convertible to <tt>double</tt> are contained in the map.
-  Method from base classes are also contiained.
-
-
 \section status Status and planned development
 To be reviewed.
 
