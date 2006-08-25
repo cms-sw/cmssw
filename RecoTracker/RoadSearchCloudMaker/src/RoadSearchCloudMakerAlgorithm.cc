@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/08/12 00:19:29 $
-// $Revision: 1.19 $
+// $Author: burkett $
+// $Date: 2006/08/21 14:30:43 $
+// $Revision: 1.20 $
 //
 
 #include <vector>
@@ -135,6 +135,12 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 
   // get trajectoryseed collection
   const TrajectorySeedCollection* inputSeeds = input.product();
+
+  // load the DetIds of the hits
+  const std::vector<DetId> availableIDs = rphiRecHits->ids();
+  const std::vector<DetId> availableIDs2 = stereoRecHits->ids();
+  const std::vector<DetId> availableIDs3 = pixRecHits->ids();
+  bool usepixels = conf_.getParameter<bool>("UsePixelsinRS");
 
   // array for layer information
   // information in vector of subdetector layer sizes always:
@@ -280,11 +286,6 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	    double lowerPhiRangeBorder = ringPhi - ringHalfPhiExtension;
 
 	    const double pi = 3.14159265358979312;
-
-	    const std::vector<DetId> availableIDs = rphiRecHits->ids();
-	    const std::vector<DetId> availableIDs2 = stereoRecHits->ids();
-	    const std::vector<DetId> availableIDs3 = pixRecHits->ids();
-	    bool usepixels = conf_.getParameter<bool>("UsePixelsinRS");
 
 	    if ( lowerPhiRangeBorder <= upperPhiRangeBorder ) {
 	      for ( Ring::const_iterator detid = ring->lower_bound(lowerPhiRangeBorder); detid != ring->upper_bound(upperPhiRangeBorder); ++detid) {
