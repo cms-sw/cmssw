@@ -165,7 +165,6 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
   std::vector<Hit>::const_iterator j;
   double trigger_time=0;
   double ttc_l1a_time=0;
-  double beam_coinc=0;
   double laser_flash=0;
   double qie_phase=0;
   double TOF1S_time=0;
@@ -174,13 +173,13 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
   double TOF2J_time=0;
   
   std::vector<double> m1hits, m2hits, m3hits, s1hits, s2hits, s3hits, s4hits,
-                      bh1hits, bh2hits, bh3hits, bh4hits;
+                      bh1hits, bh2hits, bh3hits, bh4hits,beam_coinc;
 
   for (j=hits.begin(); j!=hits.end(); j++) {
     switch (j->channel) {
     case lcTriggerTime:     trigger_time   = j->time-tdc_ped[lcTriggerTime];  break;
     case lcTTCL1ATime:      ttc_l1a_time   = j->time-tdc_ped[lcTTCL1ATime];  break;
-    case lcBeamCoincidence: beam_coinc     = j->time-tdc_ped[lcBeamCoincidence];  break;
+    case lcBeamCoincidence: beam_coinc.push_back(j->time-tdc_ped[lcBeamCoincidence]);  break;
     case lcLaserFlash:      laser_flash    = j->time-tdc_ped[lcLaserFlash];  break;
     case lcQIEPhase:        qie_phase      = j->time-tdc_ped[lcQIEPhase];  break;
     case lcMuon1:           m1hits.push_back(j->time-tdc_ped[lcMuon1]); break;
@@ -202,8 +201,8 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
     }
   }
 
-  timing.setTimes(trigger_time,ttc_l1a_time,beam_coinc,laser_flash,qie_phase,TOF1S_time,TOF1J_time,TOF2S_time,TOF2J_time);
-  timing.setHits (m1hits,m2hits,m3hits,s1hits,s2hits,s3hits,s4hits,bh1hits,bh2hits,bh3hits,bh4hits);
+  timing.setTimes(trigger_time,ttc_l1a_time,laser_flash,qie_phase,TOF1S_time,TOF1J_time,TOF2S_time,TOF2J_time);
+  timing.setHits (m1hits,m2hits,m3hits,s1hits,s2hits,s3hits,s4hits,bh1hits,bh2hits,bh3hits,bh4hits,beam_coinc);
 
 }
 

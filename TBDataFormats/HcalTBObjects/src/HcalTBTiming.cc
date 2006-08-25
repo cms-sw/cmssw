@@ -5,13 +5,13 @@ using namespace std;
   HcalTBTiming::HcalTBTiming() :
     triggerTime_(0),
     ttcL1Atime_(0),
-    beamCoincidence_(0),
     laserFlash_(0),
     qiePhase_(0),
     TOF1Stime_(0),
     TOF1Jtime_(0),
     TOF2Stime_(0),
     TOF2Jtime_(0),
+    beamCoincidenceHits_(),
     m1hits_(),
     m2hits_(),
     m3hits_(),
@@ -27,7 +27,6 @@ using namespace std;
 
   void HcalTBTiming::setTimes (const double trigger_time,
 			       const double ttc_l1a_time,
-			       const double beam_coincidence,
 			       const double laser_flash,
 			       const double qie_phase,
                                const double TOF1S_time,
@@ -36,7 +35,6 @@ using namespace std;
 			       const double TOF2J_time) {
     triggerTime_     = trigger_time;
     ttcL1Atime_      = ttc_l1a_time;
-    beamCoincidence_ = beam_coincidence;
     laserFlash_      = laser_flash;
     qiePhase_        = qie_phase;
     TOF1Stime_       = TOF1S_time;
@@ -55,7 +53,8 @@ using namespace std;
 			       const std::vector<double>& bh1hits,
 			       const std::vector<double>& bh2hits,
 			       const std::vector<double>& bh3hits,
-			       const std::vector<double>& bh4hits) {
+			       const std::vector<double>& bh4hits,
+			       const std::vector<double>& beamCoincidenceHits) {
     m1hits_ = m1hits;
     m2hits_ = m2hits;
     m3hits_ = m3hits;
@@ -69,13 +68,13 @@ using namespace std;
     bh2hits_ = bh2hits;
     bh3hits_ = bh3hits;
     bh4hits_ = bh4hits;
+    beamCoincidenceHits_ = beamCoincidenceHits;
   }
 
   ostream& operator<<(ostream& s, const HcalTBTiming& htbtmg) {
 
     s << "Trigger time     = " << htbtmg.triggerTime() << endl;
     s << "TTC L1A time     = " << htbtmg.ttcL1Atime() << endl;
-    s << "Beam Coincidence = " << htbtmg.beamCoincidence() << endl;
     s << "Laser Flash      = " << htbtmg.laserFlash() << endl;
     s << "QIE Phase        = " << htbtmg.qiePhase() << endl;
     s << "TOF1S            = " << htbtmg.TOF1Stime() << endl;
@@ -157,6 +156,13 @@ using namespace std;
     for (int i=0; i<htbtmg.BH4Count(); i++) {
       if (i) s << ", ";
       s << htbtmg.BH4Hits(i);
+    }
+    s << endl;
+
+    s << "Beam Coincidence hits: ";
+    for (int i=0; i<htbtmg.BeamCoincidenceCount(); i++) {
+      if (i) s << ", ";
+      s << htbtmg.BeamCoincidenceHits(i);
     }
     s << endl;
 

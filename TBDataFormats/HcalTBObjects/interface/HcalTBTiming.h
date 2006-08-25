@@ -11,8 +11,8 @@
 This class contains timing information unpacked from the
 Time-to-Digital Converter (TDC).
       
-  $Date: 2006/08/03 23:50:32 $
-  $Revision: 1.6 $
+  $Date: 2006/08/18 04:34:45 $
+  $Revision: 1.7 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTiming {
@@ -27,8 +27,6 @@ Time-to-Digital Converter (TDC).
     /// Returns the Level 1 Accept time in ns
     double ttcL1Atime()      const { return ttcL1Atime_;      }
 
-    /// Returns the beam coincidence time in ns
-    double beamCoincidence() const { return beamCoincidence_; }
     /// Returns the laser activation time in ns
     double laserFlash()      const { return laserFlash_;      }
     /// Returns the QIE phase for 2003 testbeam data (zero otherwise)
@@ -43,6 +41,8 @@ Time-to-Digital Converter (TDC).
     /// Returns the TOF2J time (zero otherwise)
     double TOF2Jtime()       const { return TOF2Jtime_;       }
 
+    /// Returns the number of hits from Beam Coincidence
+    int    BeamCoincidenceCount()         const { return beamCoincidenceHits_.size();   }
     /// Returns the number of hits from muon veto scintillator M1
     int    M1Count()         const { return m1hits_.size();   }
     /// Returns the number of hits from muon veto scintillator M2
@@ -68,6 +68,8 @@ Time-to-Digital Converter (TDC).
     /// Returns the number of hits from beam halo counter down horizontal
     int    BH4Count()         const { return bh4hits_.size();   }
 
+    /// Returns the indexed hit time from Beam Coincidence
+    double BeamCoincidenceHits(int index) const { return beamCoincidenceHits_[index];   }
     /// Returns the indexed hit time from muon veto scintillator M1
     double M1Hits(int index) const { return m1hits_[index];   }
     /// Returns the indexed hit time from muon veto scintillator M2
@@ -96,7 +98,6 @@ Time-to-Digital Converter (TDC).
     // Setter methods
     void   setTimes (const double trigger_time,
 		     const double ttc_l1a_time,
-		     const double beam_coincidence,
 		     const double laser_flash,
 		     const double qie_phase,
 		     const double TOF1S_time,
@@ -114,18 +115,20 @@ Time-to-Digital Converter (TDC).
 		     const std::vector<double>& bh1hits,
 		     const std::vector<double>& bh2hits,
 		     const std::vector<double>& bh3hits,
-		     const std::vector<double>& bh4hits);
+		     const std::vector<double>& bh4hits,
+		     const std::vector<double>& beamCoincidenceHits);
 
   private:
     double triggerTime_;
     double ttcL1Atime_;
-    double beamCoincidence_;
     double laserFlash_;
     double qiePhase_;
     double TOF1Stime_;
     double TOF1Jtime_;
     double TOF2Stime_;
     double TOF2Jtime_;
+
+    std::vector<double> beamCoincidenceHits_;
 
     std::vector<double> m1hits_;
     std::vector<double> m2hits_;
