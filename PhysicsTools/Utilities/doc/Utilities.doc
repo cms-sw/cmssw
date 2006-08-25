@@ -21,6 +21,28 @@ Generic Physics Tools utility classes
   or false according to selection criterion specified by the user as a string. Mapping of string variables to
   object methods is done using Reflex dictionary. Should be used in conjunction with the function reco::parser::cutParser
   from the package \ref PhysicsTools_Parser "PhysicsTools/Parser".
+  For instance, the following module is a configurable track selector:
+\htmlonly
+<pre>
+  typedef ObjectSelector<
+            SingleElementCollectionSelector<
+              reco::TrackCollection,
+              SingleObjectSelector<reco::Track>
+            >
+          > ConfigTrackSelector;
+</pre>
+\endhtmlonly
+Tracks with <i>p<sub>t</sub></i> greater than 15 GeV/<i>c</i> 
+can be selected with the configuration below:
+\htmlonly
+<pre>
+  module configTracks = ConfigTrackSelector {
+    InputTag src = ctfAnalyticalTracks
+    string cut = "pt > 15.0"
+    bool filter = true
+  }
+</pre>
+\endhtmlonly
 
 \subsection comparators Comparators
 - PtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 

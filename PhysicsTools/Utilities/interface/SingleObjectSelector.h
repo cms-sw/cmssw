@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: SingleObjectSelector.h,v 1.2 2006/08/02 09:54:30 llista Exp $
+ * $Id: SingleObjectSelector.h,v 1.3 2006/08/04 11:56:42 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -16,8 +16,15 @@
 template<typename T>
 struct SingleObjectSelector {
   SingleObjectSelector( const edm::ParameterSet & cfg ) : 
-  type_( ROOT::Reflex::Type::ByTypeInfo( typeid( T ) ) ) {
+    type_( ROOT::Reflex::Type::ByTypeInfo( typeid( T ) ) ) {
     std::string cut = cfg.template getParameter<std::string>( "cut" );
+    if( ! reco::parser::cutParser( cut, reco::MethodMap::methods<T>(), select_ ) ) {
+      throw edm::Exception( edm::errors::Configuration,
+			    "failed to parse \"" + cut + "\"" );
+    }
+  }
+  SingleObjectSelector( const std::string & cut ) : 
+    type_( ROOT::Reflex::Type::ByTypeInfo( typeid( T ) ) ) {
     if( ! reco::parser::cutParser( cut, reco::MethodMap::methods<T>(), select_ ) ) {
       throw edm::Exception( edm::errors::Configuration,
 			    "failed to parse \"" + cut + "\"" );
