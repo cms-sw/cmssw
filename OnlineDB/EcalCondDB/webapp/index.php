@@ -3,7 +3,7 @@
  * index.php
  *
  * Run selection page
- * $Id$
+ * $Id: index.php,v 1.2 2006/07/23 16:47:58 egeland Exp $
  */
 
 require_once 'common.php';
@@ -129,10 +129,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 </table>
 </form>
 
-<h2>Development Note</h2>
-<h3>June 18, 2006</h3>
-
-<p>This web application is in the very early stages of development, so there could be problems.  Send bug reports and feature requests to <a href='mailto:Ricky.Egeland@cern.ch'>Ricky Egeland</a>.</p>
+<p>Send bug reports and feature requests to <a href='mailto:Ricky.Egeland@cern.ch'>Ricky Egeland</a>.</p>
 
 </body>
 </html>
