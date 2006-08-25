@@ -5,8 +5,8 @@
 //   Description:   Dump GMT readout
 //                  
 //                
-//   $Date: 2006/08/17 16:08:16 $
-//   $Revision: 1.2 $
+//   $Date: 2006/08/21 14:23:14 $
+//   $Revision: 1.3 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -34,6 +34,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 //----------------
 // Constructors --
 //----------------
@@ -54,12 +56,6 @@ void L1MuGMTDump::endJob() {
 
 void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
-  //  const int MAXGEN  = 10;
-  const int MAXRPC  = 20;
-  const int MAXDTBX = 20;
-  const int MAXCSC  = 20;    
-  const int MAXGMT  = 20;
-      
   //
   // GENERAL block
   //
@@ -68,8 +64,34 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   edm::LogVerbatim("GMTDump") << "run: " << runn << ", event: " << eventn << endl;
 
+  // generetor block
 
-  
+  edm::Handle<edm::SimVertexContainer> simvertices_handle;
+  e.getByLabel("g4SimHits",simvertices_handle);
+  edm::SimVertexContainer const* simvertices = simvertices_handle.product();
+
+  edm::Handle<edm::SimTrackContainer> simtracks_handle;
+  e.getByLabel("g4SimHits",simtracks_handle);
+  edm::SimTrackContainer const* simtracks = simtracks_handle.product();
+
+  edm::SimTrackContainer::const_iterator isimtr;
+  int igen = 0;
+  for(isimtr=simtracks->begin(); isimtr!=simtracks->end(); isimtr++) {
+    if(abs((*isimtr).type())!=13 || igen>=MAXGEN) continue;
+    pxgen[igen]=(*isimtr).momentum().px();
+    pygen[igen]=(*isimtr).momentum().py();
+    pzgen[igen]=(*isimtr).momentum().pz();
+    ptgen[igen]=(*isimtr).momentum().perp();
+    etagen[igen]=(*isimtr).momentum().eta();
+    phigen[igen]=(*isimtr).momentum().phi()>0 ? (*isimtr).momentum().phi() : (*isimtr).momentum().phi()+2*3.14159265359;
+    chagen[igen]=(*isimtr).type()>0 ? 1 : -1 ;
+    vxgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().x();
+    vygen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().y();
+    vzgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().z();
+    igen++;
+  }
+  ngen=igen;  
+
   // Get GMTReadoutCollection
 
   edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
@@ -208,13 +230,33 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
       }
     }
   }
+  ndt = idt;
+  ncsc = icsc;
+  nrpcb = irpcb;
+  nrpcf = irpcf;
+  ngmt = igmt;
 
+  // Generator print
+  
+  edm::LogVerbatim("GMTDump") << "Number of muons generated: " << ngen << endl;
+  edm::LogVerbatim("GMTDump") << "Generated muons:" << endl;
+  for(igen=0; igen<ngen; igen++) {
+    edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
+         << setw(2) << igen+1 << " : "
+         << "pt = " << setw(5) << setprecision(1) << ptgen[igen] << " GeV  "
+         << "charge = " << setw(2) << chagen[igen] << " "
+         << "eta = " << setw(6) << setprecision(3) << etagen[igen] << "  "
+         << "phi = " << setw(5) << setprecision(3) << phigen[igen] << " rad  "
+	 << "vx = " << setw(5) << setprecision(3) << vxgen[igen] << " cm "
+	 << "vy = " << setw(5) << setprecision(3) << vygen[igen] << " cm "
+	 << "vz = " << setw(5) << setprecision(3) << vzgen[igen] << " cm "
+	 << endl;
+  }
 
   //
   // DT Trigger print
   //
-  ndt = idt;
-  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 DTBX TRIGGER : "
+  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 DTBX TRIGGER: "
        << ndt << endl;
   edm::LogVerbatim("GMTDump") << "L1 DT TRIGGER muons: " << endl;
   for(idt=0; idt<ndt; idt++) {
@@ -231,8 +273,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //
   // CSC Trigger print
   //
-  ncsc = icsc;
-  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 CSC  TRIGGER : "
+  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 CSC  TRIGGER: "
        << ncsc << endl;
   edm::LogVerbatim("GMTDump") << "L1 CSC TRIGGER muons: " << endl;
   for(icsc=0; icsc<ncsc; icsc++) {
@@ -249,8 +290,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //
   // RPCb Trigger print
   //
-  nrpcb = irpcb;
-  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 RPCb  TRIGGER : "
+  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 RPCb  TRIGGER: "
        << nrpcb << endl;
   edm::LogVerbatim("GMTDump") << "L1 RPCb TRIGGER muons: " << endl;
   for(irpcb=0; irpcb<nrpcb; irpcb++) {
@@ -267,8 +307,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //
   // Rpcf Trigger print
   //
-  nrpcf = irpcf;
-  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 RPCf  TRIGGER : "
+  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 RPCf  TRIGGER: "
        << nrpcf << endl;
   edm::LogVerbatim("GMTDump") << "L1 RPCf TRIGGER muons: " << endl;
   for(irpcf=0; irpcf<nrpcf; irpcf++) {
@@ -285,8 +324,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //
   // GMT Trigger print
   //
-  ngmt = igmt;
-  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 Global Muon TRIGGER : "
+  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 Global Muon TRIGGER: "
        << ngmt << endl;
   edm::LogVerbatim("GMTDump") << "L1 GMT muons: " << endl;
   for(igmt=0; igmt<ngmt; igmt++) {
@@ -303,7 +341,6 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
          << "detectors = " << setw(2) << idxDTBX[igmt] << idxRPCb[igmt] 
                                       << idxCSC[igmt] << idxRPCf[igmt] << endl;
   }
-
 
 }
 
