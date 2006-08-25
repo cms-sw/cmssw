@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.8 2006/07/24 06:33:58 llista Exp $
+ * \version $Id: Candidate.h,v 1.9 2006/07/26 08:48:38 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -183,12 +183,12 @@ namespace reco {
       iterator_imp * i;
       friend const_iterator::const_iterator( const iterator & );
     };
-
   private:
-    template<typename T, typename Tag> friend struct component; 
-    friend class OverlapChecker;
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & ) const = 0;
+    template<typename, typename> friend struct component; 
+    friend class OverlapChecker;
+    template<typename> friend class ShallowCloneCandidate;
   };
 
 }
