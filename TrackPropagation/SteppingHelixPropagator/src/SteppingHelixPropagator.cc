@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/08/24 21:20:13 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/08/25 20:58:03 $
+ *  $Revision: 1.12 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.11 2006/08/24 21:20:13 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.12 2006/08/25 20:58:03 slava77 Exp $
 //
 //
 
@@ -317,6 +317,10 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       dStep = fabs(dist*secTheta) -1e-12;
     if (fabs(dist*secTheta) < dStep){
       dStep = fabs(dist*secTheta); 
+      if (type == POINT_PCA_DT){
+	//being lazy here; the best is to take into account the curvature
+	dStep = fabs(dist*secTheta)*0.5; 
+      }
     }
     if (dStep > 1e-10){
       makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
