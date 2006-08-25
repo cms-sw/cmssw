@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/07/10 13:20:35 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/26 18:28:46 $
+ *  $Revision: 1.5 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -48,7 +48,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h" 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 
 //---------------------------------
@@ -114,7 +114,7 @@ void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const edm::Event& i
   if ( !traj.isValid() ) return;
 
   // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm)
-  MuonUpdatorAtVertex updator(theStepPropagator);
+  MuonUpdatorAtVertex updator(*theStepPropagator);
   MuonVertexMeasurement vm = updator.update(traj);
   TrajectoryStateOnSurface traj_trak = vm.stateAtTracker();
 
@@ -138,8 +138,8 @@ void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const edm::Event& i
   float eta2 = 0.0;
   float phi2 = 0.0;
   float theta2 = 0.0;
-  const edm::OwnVector< const TransientTrackingRecHit> recHits = muon.recHits();
-  const TransientTrackingRecHit& r = *(recHits.begin()+1);
+  TransientTrackingRecHit::ConstRecHitContainer recHits = muon.recHits();
+  const TransientTrackingRecHit& r = **(recHits.begin()+1);
   eta2   = r.globalPosition().eta();
   phi2   = r.globalPosition().phi();
   theta2 = r.globalPosition().theta();
@@ -394,35 +394,35 @@ void TrackerSeedGenerator::createSeed(const MuonSeedDetLayer& outer,
     //const std::vector<TransientTrackingRecHit> meas1;// = regionOfInterest.hits(outerlayer);
     //const std::vector<TransientTrackingRecHit> meas2;// = regionOfInterest.hits(innerlayer);
     
-    edm::OwnVector< TransientTrackingRecHit > layerRecHitsA;
-    edm::OwnVector< TransientTrackingRecHit > layerRecHitsB;
+    TransientTrackingRecHit::RecHitContainer layerRecHitsA;
+    TransientTrackingRecHit::RecHitContainer layerRecHitsB;
     
     vector<TrajectoryMeasurement>::const_iterator it;
     for ( it = measA.begin(); it != measA.end(); it++ ) {
       if ( (*it).recHit()->isValid() ) {
-	const HitRZCompatibility *checkRZ = regionOfInterest.checkRZ(&(*outerlayer),(*it).recHit(),iSetup);
+	const HitRZCompatibility *checkRZ = regionOfInterest.checkRZ(&(*outerlayer),&*(*it).recHit(),iSetup);
 	if(!checkRZ) continue;
 	if((*checkRZ)( (*it).recHit()->globalPosition().perp(), (*it).recHit()->globalPosition().z())) {
-	  layerRecHitsA.push_back( ((*it).recHit()->clone()) ); // start from theDirection
+	  layerRecHitsA.push_back( ((*it).recHit()) ); // start from theDirection
 	}
       }
     }
     for ( it = measB.begin(); it != measB.end(); it++ ) {
       if ( (*it).recHit()->isValid() ) {
-	const HitRZCompatibility *checkRZ = regionOfInterest.checkRZ(&(*innerlayer),(*it).recHit(),iSetup);
+	const HitRZCompatibility *checkRZ = regionOfInterest.checkRZ(&(*innerlayer),&*(*it).recHit(),iSetup);
 	if(!checkRZ) continue;
 	if((*checkRZ)( (*it).recHit()->globalPosition().perp(), (*it).recHit()->globalPosition().z())) {	  
-	  layerRecHitsB.push_back( (*it).recHit()->clone() ); // start from theDirection
+	  layerRecHitsB.push_back( (*it).recHit() ); // start from theDirection
 	}
       }
     }
  
-    edm::OwnVector<TransientTrackingRecHit>::const_iterator it1,it2;
+    TransientTrackingRecHit::RecHitContainer::const_iterator it1,it2;
     for ( it1 = layerRecHitsA.begin(); it1 != layerRecHitsA.end(); it1++ ) {
-      if ( !(*it1).isValid() ) continue;
+      if ( !(**it1).isValid() ) continue;
       for ( it2 = layerRecHitsB.begin(); it2 != layerRecHitsB.end(); it2++ ) {
-	if ( !(*it2).isValid() ) continue;
-	MuonSeedFromConsecutiveHits* seed = new MuonSeedFromConsecutiveHits((*it1),(*it2),dir,theVertexPos, theVertexErr, iSetup);
+	if ( !(**it2).isValid() ) continue;
+	MuonSeedFromConsecutiveHits* seed = new MuonSeedFromConsecutiveHits((**it1),(**it2),dir,theVertexPos, theVertexErr, iSetup);
 	if ( seed->recHits().first == seed->recHits().second ) {
 	  delete seed;
 	}
