@@ -18,6 +18,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <boost/shared_ptr.hpp>
 
 class DetLayer;
 class SeedFromConsecutiveHits{
@@ -54,7 +55,7 @@ class SeedFromConsecutiveHits{
 /*   }; */
 
   PTrajectoryStateOnDet trajectoryState(){return *PTraj;};
-  TrajectorySeed *TrajSeed(){return new TrajectorySeed(trajectoryState(),hits(),direction());};
+  TrajectorySeed TrajSeed(){return TrajectorySeed(trajectoryState(),hits(),direction());};
  private:
   //TrajectoryMeasurement theInnerMeas;
   //TrajectoryMeasurement theOuterMeas;
@@ -76,7 +77,7 @@ class SeedFromConsecutiveHits{
   TransientTrackingRecHit::ConstRecHitPointer outrhit;
   TransientTrackingRecHit::ConstRecHitPointer intrhit;
   PropagationDirection _dir;
-  PTrajectoryStateOnDet* PTraj;
+  boost::shared_ptr<PTrajectoryStateOnDet> PTraj;
   recHitContainer _hits;
 
 };
