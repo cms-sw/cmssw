@@ -219,6 +219,10 @@ namespace stor
           evtsrv_area_.push_back(emsg);
           count_4_oneinN_ = 0;
         }
+        if (eventServer_.get() != NULL)
+        {
+          eventServer_->processEvent(emsg);
+        }
 
 	// used to be like next line, but that does decode and send in
 	// one operation, which can cause deadlock with the global junky lock
@@ -312,6 +316,10 @@ namespace stor
         {
           evtsrv_area_.push_back(emsg);
           count_4_oneinN_ = 0;
+        }
+        if (eventServer_.get() != NULL)
+        {
+          eventServer_->processEvent(emsg);
         }
 
 	// see inserter use comment above
