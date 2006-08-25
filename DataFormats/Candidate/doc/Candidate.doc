@@ -59,15 +59,19 @@ intended to be a common class for many Physics Analysis tools.
 \endhtmlonly
 - reco::LeafCandidate: a reco::Candidate with no component nor daughters. 
 Suitable to store just 4-vector, vertex and electric charge.
-- reco::CompositeCandidate: a reco::Candidate composed of daughters. The daughters
+- reco::CompositeCandidate: a composite reco::Candidate where the daughters
 are owned by the composite candidate.
-- reco::CompositeRefCandidate: a reco::Candidate composed of daughters. The daughters
-has persistent references (edm::RefVector <b><...></b>) to reco::Candidate stored in 
+- reco::CompositeRefCandidate: a composite reco::Candidate where the daughters
+have persistent references (edm::RefVector <b><...></b>) to reco::Candidate stored in 
 a separate collection.
+- reco::CompositeRefBaseCandidate: a composite reco::Candidate  where the daughters
+have persistent references (edm::RefToBase <b><...></b>) to reco::Candidate stored in 
+a separate collection of concrete types.
 
 \subsection typedefs 
 - reco::CandidateCollection: collection of reco::Candidate objects
 - reco::CandidateRef: persistent reference to a reco::Candidate object
+- reco::CandidateBaseRef: persistent reference to a reco::Candidate object as base class
 - reco::CandidateRefProd: reference to a reco::Candidate collection
 - reco::CandidateRefVector: vector of references to reco::Candidate objects in the same collection
 - reco::candidate_iterator: iterator over a vector of references to reco::Candidate objects in the same collection
