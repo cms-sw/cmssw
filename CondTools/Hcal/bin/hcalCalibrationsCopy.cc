@@ -14,6 +14,8 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 
+#include "CondCore/IOVService/interface/IOV.h"
+
 // Hcal calibrations
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
@@ -31,6 +33,11 @@
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
 
 //using namespace cms;
+
+
+typedef unsigned long long IOVRun;
+typedef std::map<IOVRun,std::string> IOVCollection;
+
 
 class Args {
  public:
@@ -225,6 +232,8 @@ template <class T> bool copyObject (T* fObject,
 				    unsigned fNread, unsigned fNwrite, unsigned fNtrace,
 				    bool fVerbose
 				    ) {
+  typedef std::vector <std::pair<int, T*> > Objects;
+
   bool result = false;
   time_t t0 = time (0);
   time_t t1 = t0;
@@ -232,6 +241,7 @@ template <class T> bool copyObject (T* fObject,
   HcalDbPool* poolDb = 0;
   HcalDbOnline* onlineDb = 0;
   //  HcalDbPoolOCCI* occiDb = 0;
+  Objects allInstances;
   while (traceCounter < fNread) {
     delete fObject;
     // get input
@@ -248,10 +258,38 @@ template <class T> bool copyObject (T* fObject,
       result = true;
     }
     else if (dbFile (fInput)) {
-      if (!traceCounter) std::cout << "USE INPUT: Pool: " << fInput << std::endl;
+      if (!traceCounter) std::cout << "USE INPUT: Pool: " << fInput << "/" << fInputRun << std::endl;
       if (!poolDb) poolDb = new HcalDbPool (fInput, fVerbose);
-      fObject = new T;
-      result = poolDb->getObject (fObject, fInputTag, fInputRun);
+      if (fInputRun > 0) {
+	fObject = new T;
+	result = poolDb->getObject (fObject, fInputTag, fInputRun);
+      }
+      else { // copy all instances
+	std::cout << "Copy all instances... " << std::endl;
+	cond::IOV iov;
+	if (poolDb->getObject (&iov, fInputTag)) {
+	  IOVCollection::const_iterator iovi = iov.iov.begin ();
+	  for (; iovi != iov.iov.end (); iovi++) {
+	    IOVRun iovMax = iovi->first;
+	    if (fVerbose) {
+	      std::cout << "fetching object for run " << iovMax << std::endl;
+	    }
+	    T* object = new T;
+	    if (!poolDb->getObject (object, fInputTag, iovMax)) {
+	      std::cerr << "Failed to fetch object..." << std::endl;
+	      result = false;
+	      delete object;
+	      break;
+	    }
+	    allInstances.push_back (std::make_pair (iovMax, object));
+	  }
+	  if (iovi == iov.iov.end ()) result = true;
+	}
+	else {
+	  std::cerr << "can not find IOV for tag " << fInputTag << std::endl;
+	  result = false;
+	}
+      }
     }
     else if (onlineFile (fInput)) {
       if (!traceCounter) std::cout << "USE INPUT: Online: " << fInput << std::endl;
@@ -284,7 +322,7 @@ template <class T> bool copyObject (T* fObject,
     T* object = 0;
     while (traceCounter < fNwrite) {
       delete object;
-      object = new T (*fObject); // copy original object
+      object = fObject ? new T (*fObject) : 0; // copy original object
       if (asciiFile (fOutput)) {
 	if (!traceCounter) std::cout << "USE OUTPUT: ASCII: " << fOutput << std::endl;
 	std::ofstream outStream (fOutput.c_str ());
@@ -298,10 +336,21 @@ template <class T> bool copyObject (T* fObject,
 	std::cout << "close file\n";
       }
       else if (dbFile (fOutput)) { //POOL
-	if (!traceCounter) std::cout << "USE OUTPUT: Pool: " << fOutput << std::endl;
+	if (!traceCounter) std::cout << "USE OUTPUT: Pool: " << fOutput << '/' << fOutputRun << std::endl;
 	if (!poolDb) poolDb = new HcalDbPool (fOutput, fVerbose);
-	poolDb->putObject (object, fOutputTag, fOutputRun);
-	object = 0; // owned by POOL
+	if (fOutputRun > 0) {
+	  poolDb->putObject (object, fOutputTag, fOutputRun);
+	  object = 0; // owned by POOL
+	}
+	else {
+ 	  for (unsigned i = 0; i < allInstances.size (); i++) {
+	    if (fVerbose) {
+ 	      std::cout << "Storing object for run " << allInstances[i].first << std::endl;
+	    }
+ 	    poolDb->putObject (allInstances[i].second, fOutputTag, allInstances[i].first);
+ 	    allInstances[i].second = 0;
+ 	  }
+	}
       }
       traceCounter++;
       fOutputRun++;

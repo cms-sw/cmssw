@@ -86,12 +86,12 @@ bool publishObjects (const std::string& fInputDb, const std::string& fInputTag,
     std::vector <IntervalOV> allIOVs = allIOV (inputIov);
     std::cout << " all IOVs available for input tag " << fInputTag << " in CMS POOL DB instance: " << fInputDb << std::endl;
     for (unsigned i = 0; i < allIOVs.size(); i++) {
-      std::cout << "[ " << allIOVs[i].first << " ... " << allIOVs[i].second << " )  " << inputIov.iov [allIOVs[i].second] << std::endl;
+      std::cout << "[ " << allIOVs[i].first << " .. " << allIOVs[i].second << " )  " << inputIov.iov [allIOVs[i].second] << std::endl;
     }
     allIOVs = allIOV (outputIov);
     std::cout << "\n all IOVs available for output tag " << fOutputTag << " in CMS POOL DB instance: " << fInputDb << std::endl;
     for (unsigned i = 0; i < allIOVs.size(); i++) {
-      std::cout << "[ " << allIOVs[i].first << " ... " << allIOVs[i].second << " )" << std::endl;
+      std::cout << "[ " << allIOVs[i].first << " .. " << allIOVs[i].second << " )  " << outputIov.iov [allIOVs[i].second] << std::endl;
     }
   }
   
