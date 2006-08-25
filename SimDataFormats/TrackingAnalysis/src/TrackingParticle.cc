@@ -34,19 +34,19 @@ TrackingParticle::genp_iterator TrackingParticle::genParticle_end() const {
    return genParticles_.end();
 }
 
-TrackingParticle::g4t_iterator TrackingParticle::g4Track_begin()const {
+TrackingParticle::g4t_iterator TrackingParticle::g4Track_begin() const {
     return g4Tracks_.begin();
 }
 
-TrackingParticle::g4t_iterator TrackingParticle::g4Track_end()const {
+TrackingParticle::g4t_iterator TrackingParticle::g4Track_end() const {
     return g4Tracks_.end();
 }
 
-TrackingParticle::pSH_iterator TrackingParticle::pSimHit_begin() const {
+const TrackingParticle::pSH_iterator TrackingParticle::pSimHit_begin() const {
     return trackPSimHit_.begin();
 }
 
-TrackingParticle::pSH_iterator TrackingParticle::pSimHit_end() const {
+const TrackingParticle::pSH_iterator TrackingParticle::pSimHit_end() const {
     return trackPSimHit_.end();
 }
 
