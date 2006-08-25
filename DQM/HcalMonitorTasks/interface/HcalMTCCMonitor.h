@@ -11,8 +11,8 @@
 
 /** \class HcalMTCCmonitor
   *  
-  * $Date: 2006/08/22 20:41:01 $
-  * $Revision: 1.1 $
+  * $Date: 2006/08/24 23:44:59 $
+  * $Revision: 1.2 $
   * \author W. Fisher - FNAL
   */
 class HcalMTCCMonitor: public HcalBaseMonitor {
@@ -47,6 +47,8 @@ private:  ///Monitoring elements
     MonitorElement* RBCTB;
     MonitorElement* NA;
     MonitorElement* OCC;
+    MonitorElement* E;
+    MonitorElement* Etot;
   } hbP, hbM, heP, heM, hoP1, hoM1, hoP2, hoM2; 
 
 };
