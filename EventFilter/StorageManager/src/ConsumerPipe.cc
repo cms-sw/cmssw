@@ -115,6 +115,12 @@ void ConsumerPipe::putEvent(boost::shared_ptr< vector<char> > bufPtr)
  */
 boost::shared_ptr< vector<char> > ConsumerPipe::getEvent()
 {
+  // 25-Aug-2005, KAB: clear out any stale event(s)
+  if (isIdle() || isDisconnected())
+  {
+    latestEvent_.reset();
+  }
+
   // fetch the most recent event
   boost::shared_ptr< vector<char> > bufPtr;
   {
