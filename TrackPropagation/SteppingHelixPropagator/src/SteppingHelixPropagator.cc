@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/08/23 22:54:12 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/24 21:20:13 $
+ *  $Revision: 1.11 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.10 2006/08/23 22:54:12 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.11 2006/08/24 21:20:13 slava77 Exp $
 //
 //
 
@@ -918,6 +918,19 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       result = NOT_IMPLEMENTED;
     }
     break;
+  }
+
+  if (debug_){
+    std::cout<<"refToDest input: dest"<<dest<<" pars[]: ";
+    for (int i = 0; i < 6; i++){
+      std::cout<<", "<<i<<" "<<pars[i];
+    }
+    std::cout<<std::endl;
+    std::cout<<"refToDest output: "
+	     <<"\t dist"<< dist
+	     <<"\t secTheta"<< secTheta      
+      	     <<"\t isIncoming"<< isIncoming
+	     <<std::endl;
   }
 
   return result;
