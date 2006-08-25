@@ -13,12 +13,13 @@ Generic particle candidates. Those packages are also listed under the  \ref Reco
 
 - <b>Utility packages</b><br>
 Common utilities to manipulate and analyze particle candidates
+ - \ref PhysicsTools_Utilities "Utilities": genericl utility classes.<br>
  - \ref PhysicsTools_CandUtils "CandUtils": candidate common utilities.<br>
+ - \ref PhysicsTools_Parser "Parser": cut string parser.<br>
  - \ref PhysicsTools_PythonAnalysis "PythonAnalysis": interactive python analysis tools.<br>
 
 - <b>Framework module packages</b><br>
 Framework module for common particle candidate manupulation
- - \ref PhysicsTools_Utilities "Utilities": genericl utility classes.<br>
  - \ref PhysicsTools_UtilAlgos "UtilAlgos": genericl framework modules.<br>
  - \ref PhysicsTools_CandAlgos "CandAlgos": common framework modules for \ref PhysicsTools_Candidate "particle candidates".<br>
  - \ref PhysicsTools_RecoAlgos "RecoAlgos": common framework modules for \ref RecoPackages "Reco objects".<br>
