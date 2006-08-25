@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/08/21 14:30:43 $
-// $Revision: 1.20 $
+// $Date: 2006/08/25 16:40:05 $
+// $Revision: 1.21 $
 //
 
 #include <vector>
@@ -347,8 +347,9 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	  }
 
 	  if ( checkMinimalNumberOfUsedLayers(usedLayersArray) && 
-	       checkMaximalNumberOfMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) && 
-	       checkMaximalNumberOfConsecutiveMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) ) {
+	       checkMaximalNumberOfMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) ) {
+	       //  checkMaximalNumberOfMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) && 
+	       //  checkMaximalNumberOfConsecutiveMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) ) {
 	    output.push_back(cloud);
 	    
 	    if ( roadType == Roads::RPhi ){ 
