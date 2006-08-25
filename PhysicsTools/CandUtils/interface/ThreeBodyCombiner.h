@@ -6,7 +6,7 @@
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "PhysicsTools/Utilities/interface/SingleObjectSelector.h"
+#include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include <vector>
 
 class ThreeBodyCombiner {

@@ -16,15 +16,15 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.12 $
+ * \version $Revision: 1.13 $
  *
- * $Id: TwoBodyCombiner.h,v 1.12 2006/08/02 09:54:28 llista Exp $
+ * $Id: TwoBodyCombiner.h,v 1.13 2006/08/04 11:56:38 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "PhysicsTools/Utilities/interface/SingleObjectSelector.h"
+#include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 
 class TwoBodyCombiner {
 public:

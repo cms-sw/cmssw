@@ -10,10 +10,10 @@
 #include "PhysicsTools/Utilities/interface/AnySelector.h"
 #include "PhysicsTools/Utilities/interface/PtMinSelector.h"
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
-#include "PhysicsTools/Utilities/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SortCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/WindowCollectionSelector.h"
+#include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 
 namespace reco {

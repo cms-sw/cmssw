@@ -87,7 +87,6 @@ Framework generic utility modules
             >
           > MassWindowTrackSelector;
 </pre>
-\endhtmlonly
 
 \subsection other Other utility modules
 - Merger: merges an arbitrary number of collections into a single collection. 
