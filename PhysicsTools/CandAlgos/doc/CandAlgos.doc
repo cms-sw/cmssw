@@ -16,8 +16,11 @@ generic selector module SelectorProducer.
 
 \subsection modules Modules
 - cand::modules::CandCombiner: combine pairs of candidates. The collection names that
-have to be combined and their charge combination is specified by the user. A string
-can also specify the selection cut on the composite candidates.<br>
+have to be combined and their charge combination is specified by the user. 
+Particle charge is specified using the <tt>@</tt> character. Not specifying
+it is interpreted as particle with charge zero. A string
+can also specify the selection cut on the composite candidates 
+(see \ref PhysicsTools_Parser "Parser" package for more details).<br>
 Examples of configuration for this module are the following:
 \htmlonly
 <pre>
@@ -37,7 +40,8 @@ both decays to <i>x<sup>+</sup>y<sup>-</sup></i> and <i>x<sup>-</sup>y<sup>+</su
 \endhtmlonly
 
 - cand::modules::CandSelector: selects candidates from a collection and saves their clones in 
-a new collection. The selection can be specified by the user as a string. The module can
+a new collection. The selection cut can be specified by the user as a string 
+(see \ref PhysicsTools_Parser "Parser" package for more details).<br> The module can
 also be used as filter specifying the boolean parameter <tt>filter</tt>.<br>
 Examples of configuration for this module are the following:
 \htmlonly
