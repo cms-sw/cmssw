@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: EcalDetIdAssociator.h,v 1.1 2006/06/09 17:30:20 dmytro Exp $
+// $Id: EcalDetIdAssociator.h,v 1.1 2006/06/24 04:56:07 dmytro Exp $
 //
 //
 
@@ -25,28 +25,22 @@ class EcalDetIdAssociator: public CaloDetIdAssociator{
  public:
    EcalDetIdAssociator():CaloDetIdAssociator(180,150,0.04){};
  protected:
-   virtual std::set<DetId> getASetOfValidDetIds(){
-      std::set<DetId> validIds;
-      // EB 3-1
-      uint32_t detIdPrefix = ((3<<3)+1) << 25; 
-      for(uint32_t z=0; z<=1; z++) // eta sign
-	for(uint32_t i=1; i<=360;i++) // phi index range
-	  for(uint32_t j=1; j<=85;j++){ //eta index range
-	     uint32_t rawDetId = detIdPrefix+i+(j<<9)+(z<<16);
-	     validIds.insert(DetId(rawDetId));
-	  }
-/*      
-      // EE 3-2
-      detIdPrefix = ((3<<3)+2) << 25; 
-      for(uint32_t z=0; z<=1; z++) // eta sign
-	for(uint32_t i=1; i<=100;i++) // X index range
-	  for(uint32_t j=1; j<=100;j++){ //Y index range
-	     uint32_t rawDetId = detIdPrefix+i+(j<<7)+(z<<14);
-	     validIds.insert(DetId(rawDetId));
-	  }
-*/
-      return validIds;
 
-   }
+   virtual std::set<DetId> getASetOfValidDetIds(){
+      std::set<DetId> setOfValidIds;
+      std::vector<DetId> vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, 1);//EB
+      for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
+         setOfValidIds.insert(*it);
+
+      /*
+         vectOfValidIds.clear();
+         vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, 2);//EE
+         for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
+         setOfValidIds.insert(*it);
+       */
+
+      return setOfValidIds;
+   };
+
 };
 #endif
