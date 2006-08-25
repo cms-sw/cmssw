@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: tboccali $
-// $Date: 2006/07/24 19:44:41 $
-// $Revision: 1.5 $
+// $Author: noeding $
+// $Date: 2006/08/12 00:30:55 $
+// $Revision: 1.6 $
 //
 
 #include <string>
@@ -32,6 +32,7 @@
 
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/RoadSearchHitAccess/interface/DetHitAccess.h"
@@ -55,6 +56,18 @@ class RoadSearchSeedFinderAlgorithm
 					   const TrackingRecHit* innerHit,
 					   const GlobalPoint& vertexPos,
 					   const GlobalError& vertexErr);
+
+  TrajectorySeed makeSeedFromPair(const TrackingRecHit* innerHit,
+				  const GlobalPoint* innerPos,
+				  const TrackingRecHit* outerHit,
+				  const GlobalPoint* outerPos,
+				  const edm::EventSetup& es);
+
+  TrajectorySeedCollection makeSeedsFromInnerHit(const TrackingRecHit* innerHit,
+						 const edm::OwnVector<TrackingRecHit>* outerHits,
+						 const TrackerGeometry *tracker,const edm::EventSetup& es);
+
+
  private:
   edm::ParameterSet conf_;
 
