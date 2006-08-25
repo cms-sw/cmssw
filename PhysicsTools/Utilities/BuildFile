@@ -1,7 +1,6 @@
 <use name=FWCore/ParameterSet>
 <use name=PhysicsTools/Parser>
 <export>
-  <lib name=PhysicsToolsUtilities>
   <use name=FWCore/ParameterSet>
   <use name=PhysicsTools/Parser>
 </export>
