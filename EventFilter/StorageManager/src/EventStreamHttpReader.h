@@ -43,6 +43,7 @@ namespace edmtestp
     int headerRetryInterval_;
     double minEventRequestInterval_;
     unsigned int consumerId_;
+    struct timeval lastRequestTime_;
   };
 
 }

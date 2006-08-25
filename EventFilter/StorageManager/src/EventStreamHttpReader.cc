@@ -102,6 +102,8 @@ namespace edmtestp
     else {
       minEventRequestInterval_ = 1.0 / maxEventRequestRate;  // seconds
     }
+    lastRequestTime_.tv_sec = 0;
+    lastRequestTime_.tv_usec = 0;
 
     // 16-Aug-2006, KAB: register this consumer with the event server
     consumerId_ = (time(0) & 0xffffff);  // temporary - will get from ES later
@@ -134,6 +136,34 @@ namespace edmtestp
     if(maxEvents() > 0 && events_read_ >= maxEvents()) 
       return std::auto_ptr<edm::EventPrincipal>();
 
+    // check if we need to sleep (to enforce the allowed request rate)
+    struct timeval now;
+    struct timezone dummyTZ;
+    gettimeofday(&now, &dummyTZ);
+    double timeDiff = (double) now.tv_sec;
+    timeDiff -= (double) lastRequestTime_.tv_sec;
+    timeDiff += ((double) now.tv_usec / 1000000.0);
+    timeDiff -= ((double) lastRequestTime_.tv_usec / 1000000.0);
+    //cout << "timeDiff = " << timeDiff
+    //     << ", minTime = " << minEventRequestInterval_ << std::endl;
+    if (timeDiff < minEventRequestInterval_)
+    {
+      double sleepTime = minEventRequestInterval_ - timeDiff;
+      // trim off a little sleep time to account for the time taken by
+      // calling gettimeofday again
+      sleepTime -= 0.01;
+      if (sleepTime < 0.0) {sleepTime = 0.0;}
+      //cout << "sleeping for " << sleepTime << endl;
+      usleep(static_cast<int>(1000000 * sleepTime));
+      gettimeofday(&lastRequestTime_, &dummyTZ);
+    }
+    else
+    {
+      lastRequestTime_ = now;
+    }
+    //cout << "lastRequestTime = " << lastRequestTime_.tv_sec
+    //     << " " << lastRequestTime_.tv_usec << endl;
+
     ReadData data;
     do {
       CURL* han = curl_easy_init();
@@ -149,17 +179,38 @@ namespace edmtestp
       setopt(han,CURLOPT_WRITEFUNCTION,func);
       setopt(han,CURLOPT_WRITEDATA,&data);
 
-      if(curl_easy_perform(han)!=0)
+      // 24-Aug-2006, KAB: send our consumer ID as part of the event request
+      char msgBuff[100];
+      OtherMessageBuilder requestMessage(&msgBuff[0], Header::EVENT_REQUEST,
+                                         sizeof(char_uint32));
+      uint8 *bodyPtr = requestMessage.msgBody();
+      char_uint32 convertedId;
+      convert(consumerId_, convertedId);
+      for (unsigned int idx = 0; idx < sizeof(char_uint32); idx++) {
+        bodyPtr[idx] = convertedId[idx];
+      }
+      setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
+      setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
+      struct curl_slist *headers=NULL;
+      headers = curl_slist_append(headers, "Content-Type: application/octet-stream");
+      headers = curl_slist_append(headers, "Content-Transfer-Encoding: binary");
+      setopt(han, CURLOPT_HTTPHEADER, headers);
+
+      // send the HTTP POST, read the reply, and cleanup before going on
+      CURLcode messageStatus = curl_easy_perform(han);
+      curl_slist_free_all(headers);
+      curl_easy_cleanup(han);
+
+      if(messageStatus!=0)
       {
         cerr << "curl perform failed for event" << endl;
         // this will end cmsRun 
         return std::auto_ptr<edm::EventPrincipal>();
       }
-      curl_easy_cleanup(han);
       if(data.d_.length() == 0)
       {
         std::cout << "...waiting for event from Storage Manager..." << std::endl;
-        // TODO - also throttle cases in which we *do* get an event
+        // sleep for the standard request interval
         usleep(static_cast<int>(1000000 * minEventRequestInterval_));
       }
     } while (data.d_.length() == 0);
@@ -295,7 +346,9 @@ namespace edmtestp
   void EventStreamHttpReader::registerWithEventServer()
   {
     ReadData data;
+    uint32 registrationStatus;
     do {
+      data.d_.clear();
       CURL* han = curl_easy_init();
       if(han==0)
         {
@@ -337,20 +390,27 @@ namespace edmtestp
           << "Could not register: probably XDAQ not running on Storage Manager "
           << "\n";
       }
-      if(data.d_.length() == 0)
+      registrationStatus = ConsRegResponseBuilder::ES_NOT_READY;
+      if(data.d_.length() > 0)
+      {
+        int len = data.d_.length();
+        FDEBUG(9) << "EventStreamHttpReader received len = " << len << std::endl;
+        buf_.resize(len);
+        for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
+
+        ConsRegResponseView respView(&buf_[0]);
+        registrationStatus = respView.getStatus();
+        consumerId_ = respView.getConsumerId();
+      }
+
+      if (registrationStatus == ConsRegResponseBuilder::ES_NOT_READY)
       {
         std::cout << "...waiting for registration response from Storage Manager..." << std::endl;
         // sleep for desired amount of time
         sleep(headerRetryInterval_);
       }
-    } while (data.d_.length() == 0);
+    } while (registrationStatus == ConsRegResponseBuilder::ES_NOT_READY);
 
-    int len = data.d_.length();
-    FDEBUG(9) << "EventStreamHttpReader received len = " << len << std::endl;
-    buf_.resize(len);
-    for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
-
-    ConsRegResponseView respView(&buf_[0]);
-    consumerId_ = respView.getConsumerId();
+    FDEBUG(5) << "Consumer ID = " << consumerId_ << endl;
   }
 }
