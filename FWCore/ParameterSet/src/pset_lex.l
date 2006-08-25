@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.23 2006/08/04 19:25:20 rpw Exp $
+ * $Id: pset_lex.l,v 1.24 2006/08/22 23:36:59 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -73,10 +73,10 @@ comment2        "//".*[\n]?
 "FileInPath"    { return FILEINPATH_tok; }
 
 "process"       { return PROCESS_tok; }
-"source"        { return SOURCE_tok; }
-"looper"        { return LOOPER_tok; }
+"source"        { yylval.str = stringDup(yytext); return SOURCE_tok; }
+"looper"        { yylval.str = stringDup(yytext); return LOOPER_tok; }
 "secsource"     { return SECSOURCE_tok; }
-"es_source"     { return ES_SOURCE_tok; }
+"es_source"     { yylval.str = stringDup(yytext); return ES_SOURCE_tok; }
 "path"          { return PATH_tok; }
 "sequence"      { return SEQUENCE_tok; }
 "schedule"      { return SCHEDULE_tok; }
@@ -87,12 +87,13 @@ comment2        "//".*[\n]?
 "rename"        { return RENAME_tok; }
 "copy"          { return COPY_tok; }
 "include"       { return INCLUDE_tok; }
+"from"          { return FROM_tok; }
 "InputTag"      { return INPUTTAG_tok; }
 "VInputTag"     { return VINPUTTAG_tok; }
-"module"        { return MODULE_tok; }
-"service"       { return SERVICE_tok; }
-"es_module"     { return ES_MODULE_tok; }
-"es_prefer"     { return ES_PREFER_tok; }
+"module"        { yylval.str = stringDup(yytext); return MODULE_tok; }
+"service"       { yylval.str = stringDup(yytext); return SERVICE_tok; }
+"es_module"     { yylval.str = stringDup(yytext); return ES_MODULE_tok; }
+"es_prefer"     { yylval.str = stringDup(yytext); return ES_PREFER_tok; }
 "mixer"         { return MIXER_tok; }
 "mixer_path"    { return MIXERPATH_tok; }
 "/*"            { BEGIN CMNT; break;}
