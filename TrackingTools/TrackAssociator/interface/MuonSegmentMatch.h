@@ -8,12 +8,8 @@ class MuonSegmentMatch {
  public:
    int station() const;
    int detector() const { return id.subdetId(); }
-   double pullX(bool scaled = true) const;
-   double pullY(bool scaled = true) const;
-   double scaledSegmentLocalErrorXX() const;
-   double scaledSegmentLocalErrorYY() const;
-   double scaledTrajectoryLocalErrorXX() const;
-   double scaledTrajectoryLocalErrorYY() const;
+   double pullX() const;
+   double pullY() const;
 
    math::XYZPoint  segmentGlobalPosition;
    math::XYZPoint  segmentLocalPosition;

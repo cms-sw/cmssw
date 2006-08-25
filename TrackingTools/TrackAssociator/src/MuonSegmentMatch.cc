@@ -22,50 +22,18 @@ int MuonSegmentMatch::station() const {
 	return -1;
 }
 
-double MuonSegmentMatch::pullX(bool scaled) const {
-	double deltaX, errorX;
-	deltaX = segmentLocalPosition.X()-trajectoryLocalPosition.X();
+double MuonSegmentMatch::pullX() const {
+   double deltaX, errorX;
+   deltaX = segmentLocalPosition.X()-trajectoryLocalPosition.X();
+   errorX = sqrt(segmentLocalErrorXX+trajectoryLocalErrorXX);
 
-	if(scaled)
-		errorX = sqrt(scaledSegmentLocalErrorXX()+scaledTrajectoryLocalErrorXX());
-	else 
-		errorX = sqrt(segmentLocalErrorXX+trajectoryLocalErrorXX);
-
-	return deltaX/errorX;
+   return deltaX/errorX;
 }
 
-double MuonSegmentMatch::pullY(bool scaled) const {
-	double deltaY, errorY;
-	deltaY = segmentLocalPosition.Y()-trajectoryLocalPosition.Y();
+double MuonSegmentMatch::pullY() const {
+   double deltaY, errorY;
+   deltaY = segmentLocalPosition.Y()-trajectoryLocalPosition.Y();
+   errorY = sqrt(segmentLocalErrorYY+trajectoryLocalErrorYY);
 
-	if(scaled)
-		errorY = sqrt(scaledSegmentLocalErrorYY()+scaledTrajectoryLocalErrorYY());
-	else 
-		errorY = sqrt(segmentLocalErrorYY+trajectoryLocalErrorYY);
-
-	return deltaY/errorY;
-}
-
-double MuonSegmentMatch::scaledSegmentLocalErrorXX() const {
-	double tanTheta = segmentLocalDirection.X()/segmentLocalDirection.Z();
-	double cosTheta2 = 1/(1+tanTheta*tanTheta);
-	return segmentLocalErrorXX/(cosTheta2*cosTheta2);
-}
-
-double MuonSegmentMatch::scaledTrajectoryLocalErrorXX() const {
-	double tanTheta = trajectoryLocalDirection.X()/trajectoryLocalDirection.Z();
-	double cosTheta2 = 1/(1+tanTheta*tanTheta);
-	return trajectoryLocalErrorXX/(cosTheta2*cosTheta2);
-}
-
-double MuonSegmentMatch::scaledSegmentLocalErrorYY() const {
-	double tanTheta = segmentLocalDirection.Y()/segmentLocalDirection.Z();
-	double cosTheta2 = 1/(1+tanTheta*tanTheta);
-	return segmentLocalErrorYY/(cosTheta2*cosTheta2);
-}
-
-double MuonSegmentMatch::scaledTrajectoryLocalErrorYY() const {
-	double tanTheta = trajectoryLocalDirection.Y()/trajectoryLocalDirection.Z();
-	double cosTheta2 = 1/(1+tanTheta*tanTheta);
-	return trajectoryLocalErrorYY/(cosTheta2*cosTheta2);
+   return deltaY/errorY;
 }
