@@ -11,11 +11,11 @@
 Generic Physics Tools utility classes
 
 \subsection selectors Selectors
+- AnySelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on all objects. 
+  It is a trivial selector to be used mainly for tests.
 - PtMinSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on objects 
   that have <tt>pt()</tt> greater than a specified cut. The cut can be specified via edm::ParameterSet or via constructor 
   parameter.
-- AnySelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on all objects. 
-  It is a trivial selector to be used mainly for tests.
 
 \subsection comparators Comparators
 - PtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
