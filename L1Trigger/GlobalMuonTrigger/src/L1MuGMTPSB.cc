@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -89,6 +89,7 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
   for(it=alldata.begin(); it!=alldata.end(); it++) {
     edm::Provenance const* prov = it->provenance();
     if(prov->product.productInstanceName() == "DT")  getDTBX(it->product(),bx);
+    if(prov->product.productInstanceName() == "dt")  getDTBX(it->product(),bx);
     if(prov->product.productInstanceName() == "CSC")  getCSC(it->product(),bx);
     if(prov->product.productInstanceName() == "RPCb")  getRPCb(it->product(),bx);
     if(prov->product.productInstanceName() == "RPCf")  getRPCf(it->product(),bx);
@@ -248,7 +249,7 @@ void L1MuGMTPSB::getRPCb(std::vector<L1MuRegionalCand> const* data, int bx) {
   for ( iter = data->begin(); iter != data->end(); iter++ ) {
     if ( (*iter).bx() != bx ) continue;
     if ( irpcb < (int)L1MuGMTConfig::MAXRPCbarrel ) { 
-      m_RpcMuons[irpcb] = (*iter);
+      if(!(*iter).empty()) m_RpcMuons[irpcb] = (*iter);
       irpcb++;
     }  
   }
@@ -266,7 +267,7 @@ void L1MuGMTPSB::getRPCf(std::vector<L1MuRegionalCand> const* data, int bx) {
   for ( iter = data->begin(); iter != data->end(); iter++ ) {
     if ( (*iter).bx() != bx ) continue;
     if ( irpcf < (int)L1MuGMTConfig::MAXRPCendcap ) { 
-      m_RpcMuons[irpcf+4] = (*iter);
+      if(!(*iter).empty()) m_RpcMuons[irpcf+4] = (*iter);
       irpcf++;
     }  
   }
@@ -279,12 +280,17 @@ void L1MuGMTPSB::getRPCf(std::vector<L1MuRegionalCand> const* data, int bx) {
 //
 void L1MuGMTPSB::getDTBX(std::vector<L1MuRegionalCand> const* data, int bx) {
 
+  // temporary hack with bxoffset - to be removed, trigger bx should be 0
+  int bxoffset = 0;
   int idtbx = 0;
   std::vector<L1MuRegionalCand>::const_iterator iter;
   for ( iter = data->begin(); iter != data->end(); iter++ ) {
-    if ( (*iter).bx() != bx ) continue;
+    if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("") << "DTTF BX: " << (*iter).bx() << " my bx: " << bx << endl;
+    if ( (*iter).bx() > 10) bxoffset=16;
+    if ( (*iter).bx() != bx+bxoffset ) continue;
     if ( idtbx < (int)L1MuGMTConfig::MAXDTBX ) { 
       m_DtbxMuons[idtbx] = (*iter);
+      m_DtbxMuons[idtbx].setBx(bx);
       idtbx++;
     }  
   }
