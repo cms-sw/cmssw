@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 16:03:32 EDT 1998
-// $Id: HCMethods.icc,v 1.4 2005/09/01 05:27:19 wmtan Exp $
+// $Id: HCMethods.icc,v 1.5 2005/09/01 23:30:48 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCMethods.icc,v $
+// Revision 1.5  2005/09/01 23:30:48  wmtan
+// fix rule violations found by rulechecker
+//
 // Revision 1.4  2005/09/01 05:27:19  wmtan
 // Fix Rules violations found by RuleChecker
 //
@@ -83,17 +86,17 @@ namespace edm {
          template< class Key, class ItemType, class Storage, class IdTag >
          ItemType* find(const Storage& iStorage, const IdTag& iIdTag) {
             //The cast should be safe since the Key tells us the type
-            return (ItemType*) iStorage.find(
+            return static_cast<ItemType*>(iStorage.find(
                                                 makeKey<typename type_from_itemtype<Key,
-                                                ItemType>::Type,Key>(iIdTag));
+                                                ItemType>::Type,Key>(iIdTag)));
          }
          
          template< class Key, class ItemType, class Storage>
          ItemType* find(const Storage& iStorage) {
             //The cast should be safe since the Key tells us the type
-            return (ItemType*) iStorage.find(
+            return static_cast<ItemType*>( iStorage.find(
                                                 makeKey<typename type_from_itemtype<Key,
-                                                ItemType>::Type,Key>());
+                                                ItemType>::Type,Key>()));
          }
       }
    }
