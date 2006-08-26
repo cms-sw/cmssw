@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.1 2006/07/06 14:20:46 chrjones Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.2 2006/07/26 12:22:19 chrjones Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@ namespace edm {
   namespace root {
     class FWLiteDelayedReader : public DelayedReader {
      public:
+      FWLiteDelayedReader(): entry_(-1),eventTree_(0),reg_(0) {}
       virtual std::auto_ptr<EDProduct> get(BranchKey const& k, EDProductGetter const* ep) const;
       void setEntry(Long64_t iEntry) { entry_ = iEntry; }
       void setTree(TTree* iTree) {eventTree_ = iTree;}
@@ -100,7 +101,14 @@ namespace edm {
     
     struct TFWLiteSelectorMembers {
       TFWLiteSelectorMembers():
-      tree_(0), reader_(new FWLiteDelayedReader) {
+      tree_(0),
+      metaTree_(0),
+      reg_(),
+      processNames_(),
+      reader_(new FWLiteDelayedReader),
+      productMap_(),
+      prov_()
+      {
         reader_->set(&reg_);}
       void setTree( TTree* iTree) {
         tree_ = iTree;

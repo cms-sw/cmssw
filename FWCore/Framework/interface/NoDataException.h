@@ -60,7 +60,7 @@
 //
 // Author:      Chris D Jones
 // Created:     Tue Dec  7 09:10:34 EST 1999
-// $Id: NoDataException.h,v 1.8 2005/11/12 16:18:04 chrjones Exp $
+// $Id: NoDataException.h,v 1.9 2006/08/16 13:33:18 chrjones Exp $
 //
 
 // system include files
@@ -91,7 +91,8 @@ template <class T>
                       const char* category_name = "NoDataException") : 
         cms::Exception(category_name),
         record_(iRecordKey),
-        dataKey_(iDataKey)
+        dataKey_(iDataKey),
+        dataTypeMessage_()
         {
           this->append(dataTypeMessage()+std::string("\n "));
           this->append(standardMessage(iRecordKey));
@@ -103,7 +104,8 @@ template <class T>
                       const std::string& iExtraInfo ) : 
 	cms::Exception(category_name),
 	record_(iRecordKey),
-	dataKey_(iDataKey)
+	dataKey_(iDataKey),
+        dataTypeMessage_()
       {
         this->append(dataTypeMessage()+std::string("\n "));
 	this->append(iExtraInfo);

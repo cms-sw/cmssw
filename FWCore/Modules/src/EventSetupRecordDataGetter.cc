@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 11:10:24 EDT 2005
-// $Id: EventSetupRecordDataGetter.cc,v 1.1 2005/10/11 17:09:22 wmtan Exp $
+// $Id: EventSetupRecordDataGetter.cc,v 1.2 2005/12/01 21:31:52 chrjones Exp $
 //
 //
 
@@ -51,6 +51,8 @@ namespace edm {
 //
    EventSetupRecordDataGetter::EventSetupRecordDataGetter(const edm::ParameterSet& iConfig):
    pSet_(iConfig),
+   recordToDataKeys_(),
+   recordToIOVSyncValue_(),
    verbose_(iConfig.getUntrackedParameter("verbose",false))
 {
 }
