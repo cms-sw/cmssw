@@ -30,7 +30,8 @@ namespace edm {
 
     void PSetNode::print(ostream& ost, Node::PrintOptions options) const
     {
-      ost << type() << " " << name() << " = ";
+      const char* t = !tracked_ ? "" : "untracked ";
+      ost << t << type() << " " << name() << " = ";
 
       CompositeNode::print(ost, options);
     }
