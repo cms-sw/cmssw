@@ -26,7 +26,7 @@ public:
 private:
 
   TSiStripMatchedRecHit (const GeomDet * geom, const TrackingRecHit * rh) : 
-     GenericTransientTrackingRecHit(geom, rh){}
+     GenericTransientTrackingRecHit(geom, *rh){}
 
   virtual TSiStripMatchedRecHit* clone() const {
     return new TSiStripMatchedRecHit(*this);
