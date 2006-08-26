@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.39 2006/08/25 00:02:41 rpw Exp $
+ * $Id: pset_parse.y,v 1.40 2006/08/25 21:34:46 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -659,7 +659,7 @@ process:         PROCESS_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok procnodes
                    DBPRINT("process: processnodes");
                    string name(toString($<str>2));
                    NodePtrListPtr nodes($<_NodePtrList>5);
-                   NodePtr node(new PSetNode("process",name,nodes,lines));
+                   NodePtr node(new PSetNode("process",name,nodes, false, lines));
                    NodePtrList* p(new NodePtrList);
                    p->push_back(node);
                    $<_NodePtrList>$ = p;
@@ -754,7 +754,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    DBPRINT("procnode:REPLACESCOPE");
                    string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>4);
-                   PSetNode* en(new PSetNode("replace", name, value,lines));
+                   PSetNode* en(new PSetNode("replace", name, value, false, lines));
                    NodePtr psetPtr(en);
                    ReplaceNode* wn(new ReplaceNode("replace", name, psetPtr, lines));
                    $<_Node>$ = wn;
@@ -930,7 +930,7 @@ procinlinenodes: LETTERSTART_tok EQUAL_tok SCOPE_START_tok nodes SCOPE_END_tok
                    DBPRINT("procinlinenodes:NAME");
                    string name(toString($<str>1));
                    NodePtrListPtr value($<_NodePtrList>4);
-                   PSetNode* en(new PSetNode("block",name,value,lines));
+                   PSetNode* en(new PSetNode("block",name,value, false, lines));
                    $<_Node>$ = en;
                  }
                ;
