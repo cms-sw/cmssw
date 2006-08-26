@@ -9,6 +9,7 @@ GlobalValProducer::GlobalValProducer(const edm::ParameterSet& iPSet) :
   // get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
+  frequency = iPSet.getUntrackedParameter<int>("Frequency");
   label = iPSet.getParameter<std::string>("Label");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
@@ -56,6 +57,7 @@ GlobalValProducer::GlobalValProducer(const edm::ParameterSet& iPSet) :
       << "Initialized as EDProducer with parameter values:\n"
       << "    Name          = " << fName << "\n"
       << "    Verbosity     = " << verbosity << "\n"
+      << "    Frequency     = " << frequency << "\n"
       << "    Label         = " << label << "\n"
       << "    GetProv       = " << getAllProvenances << "\n"
       << "    PrintProv     = " << printProvenanceInfo << "\n"
@@ -136,7 +138,7 @@ void GlobalValProducer::produce(edm::Event& iEvent,
     edm::LogInfo(MsgLoggerCat)
       << "Processing run " << nrun << ", event " << nevt;
   } else if (verbosity == 0) {
-    if (nevt%100 == 0 || nevt == 1) {
+    if (nevt%frequency == 0 || nevt == 1) {
       edm::LogInfo(MsgLoggerCat)
 	<< "Processing run " << nrun << ", event " << nevt;
     }
@@ -276,9 +278,9 @@ void GlobalValProducer::fillG4MC(edm::Event& iEvent)
     ++i;
 
     const HepLorentzVector& G4Vtx = itVtx->position();
-    G4VtxX.push_back(G4Vtx[0]/micrometer);
-    G4VtxY.push_back(G4Vtx[1]/micrometer);
-    G4VtxZ.push_back(G4Vtx[2]/millimeter);
+    G4VtxX.push_back(G4Vtx[0]*10000); // cm -> um
+    G4VtxY.push_back(G4Vtx[1]*10000); // cm -> um
+    G4VtxZ.push_back(G4Vtx[2]*10);    // cm -> mm
   }
 
   if (verbosity > 1) {
