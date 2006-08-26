@@ -18,7 +18,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 17:30:46 EDT 2005
-// $Id: ESProducts.h,v 1.8 2005/10/01 18:05:31 chrjones Exp $
+// $Id: ESProducts.h,v 1.9 2006/08/16 13:53:10 chrjones Exp $
 //
 
 // system include files
@@ -103,6 +103,8 @@ namespace edm {
          template<typename T1, typename T2, typename T3> 
             struct ProductHolder : public ProductHolder<T2, T3, Null> {
                typedef ProductHolder<T2, T3, Null> parent_type;
+              
+              ProductHolder() : value() {}
                
                template<typename T>
                   void setAllValues(T& iValuesFrom) {
@@ -134,7 +136,9 @@ namespace edm {
          template<typename T1>
             struct ProductHolder<T1, Null, Null> {
                
-               template<typename T>
+              ProductHolder() : value() {}
+
+              template<typename T>
                void setAllValues(T& iValuesFrom) {
                   iValuesFrom.assignToRecursive(*this);
                }
