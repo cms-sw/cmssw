@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/08/08 21:50:28 $
-// $Revision: 1.16 $
+// $Date: 2006/08/09 19:39:23 $
+// $Revision: 1.17 $
 //
 
 #include <vector>
@@ -128,8 +128,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       recHits.sort(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(&(*tracker))),ref->direction()));
       
       // clone 
-      TrajectorySeed seed = *((*ref).clone());
-      PTrajectoryStateOnDet state = *((*ref).startingState().clone());
+      TrajectorySeed seed = (*ref);
+      PTrajectoryStateOnDet state = (*ref).startingState();
       TrajectoryStateOnSurface firstState;
       
       // check if Trajectory from seed is on first hit of the cloud, if not, propagate
