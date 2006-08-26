@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 14:30:24 EDT 2005
-// $Id: Callback.h,v 1.6 2005/09/01 23:30:48 wmtan Exp $
+// $Id: Callback.h,v 1.7 2006/08/16 13:50:32 chrjones Exp $
 //
 
 // system include files
@@ -55,6 +55,7 @@ namespace edm {
             proxyData_(produce::size< TReturn >::value, static_cast<void*>(0)),
             producer_(iProd), 
             method_(iMethod),
+            wasCalledForThisRecord_(false),
             decorator_(iDec) {}
          
          

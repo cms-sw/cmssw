@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 14:47:35 EST 2005
-// $Id: ESHandle.h,v 1.7 2006/06/06 20:59:51 chrjones Exp $
+// $Id: ESHandle.h,v 1.8 2006/08/10 23:24:42 wmtan Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ class ESHandle
    public:
       typedef T value_type;
    
-      ESHandle() : data_(0) {}
+      ESHandle() : data_(0), description_(0) {}
       ESHandle(const T* iData) : data_(iData), description_(0) {}
 //      { std::cout<<"Call ESHanlde(data) ctor"<<std::endl; }
       ESHandle(const T* iData, const edm::eventsetup::ComponentDescription* description) 
