@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.23 2006/07/23 01:24:33 valya Exp $
+$Id: EventProcessor.h,v 1.24 2006/08/05 18:36:44 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -87,10 +87,6 @@ class EDLooperHelper;
 
   public:
 
-    // Eventually, we might replace StatusCode with a class. This
-    // class should have an automatic conversion to 'int'.
-    typedef int StatusCode ;
-
     // Status codes:
     //   0     successful completion
     //   1     exception of unknown type caught
@@ -99,6 +95,10 @@ class EDLooperHelper;
     //   4     input complete
     enum Status { epSuccess=0, epException=1, epOther=2, epSignal=3,
     epInputComplete=4 };
+
+    // Eventually, we might replace StatusCode with a class. This
+    // class should have an automatic conversion to 'int'.
+    typedef Status StatusCode ;
 
 
     /// The input string contains the entire contents of a

@@ -1186,7 +1186,7 @@ namespace edm {
 
     try
       {
-	rc = (Status)me->run_p(0,mRunAsync);
+	rc = me->run_p(0,mRunAsync);
       }
     catch (cms::Exception& e) {
       edm::LogError("FwkJob") << "cms::Exception caught in "
