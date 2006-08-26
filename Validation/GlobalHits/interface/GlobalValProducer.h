@@ -99,6 +99,7 @@ class GlobalValProducer : public edm::EDProducer
   //  parameter information
   std::string fName;
   int verbosity;
+  int frequency;
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
