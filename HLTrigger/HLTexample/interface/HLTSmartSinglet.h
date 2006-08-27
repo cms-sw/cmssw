@@ -4,12 +4,13 @@
 /** \class HLTSmartSinglet
  *
  *  
- *  This class is an HLTFilter (-> EDFilter) implementing a basic HLT
- *  trigger for single objects of the same physics type, cutting on
+ *  This class is an HLTFilter (-> EDFilter) implementing a smart HLT
+ *  trigger cut, specified as a string such as "pt>15 && -3<eta<3",
+ *  for single objects of the same physics type, allowing to cut on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2006/08/14 15:48:48 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/08/14 16:29:11 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -18,7 +19,7 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<vector>
 
-#include "PhysicsTools/Utilities/interface/SingleObjectSelector.h"
+#include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include<string>
 
 //
