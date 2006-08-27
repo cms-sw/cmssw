@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/31 18:08:19 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/08/01 15:49:41 $
+ *  $Revision: 1.9 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
@@ -16,10 +16,10 @@ typedef MuonTransientTrackingRecHit::RecHitContainer   MuonRecHitContainer;
 
 
 MuonTransientTrackingRecHit::MuonTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh) :
-  GenericTransientTrackingRecHit(geom,rh){}
+  GenericTransientTrackingRecHit(geom,*rh){}
 
 MuonTransientTrackingRecHit::MuonTransientTrackingRecHit( const MuonTransientTrackingRecHit & other ) :
-  GenericTransientTrackingRecHit(other.det(), other.hit()) {}
+  GenericTransientTrackingRecHit(other.det(), *(other.hit())) {}
 
 
 LocalVector MuonTransientTrackingRecHit::localDirection() const
