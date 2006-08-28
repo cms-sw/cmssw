@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/08/11 01:14:22 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/08/28 19:32:59 $
+ *  $Revision: 1.21 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -17,6 +17,7 @@
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
 using namespace std;
 using namespace edm;
@@ -66,8 +67,8 @@ void GlobalMuonTrackMatcher::setES(const edm::EventSetup& setup) {
 // a given standalone Track
 //
 pair<bool, GlobalMuonTrackMatcher::TrackCand> 
-GlobalMuonTrackMatcher::matchOne(TrackCand& staCand, 
-                                 vector<TrackCand>& tkTs) const {
+GlobalMuonTrackMatcher::matchOne(const TrackCand& staCand, 
+                                 const vector<TrackCand>& tkTs) const {
 
   bool hasMatchTk = false;
   TrackCand result = staCand;
@@ -122,7 +123,8 @@ GlobalMuonTrackMatcher::matchOne(TrackCand& staCand,
 // less than theMaxChi2, for a given standalone Track
 //
 vector<GlobalMuonTrackMatcher::TrackCand>
-GlobalMuonTrackMatcher::match(TrackCand& staCand, std::vector<TrackCand>& tkTs) const {
+GlobalMuonTrackMatcher::match(const TrackCand& staCand, 
+                              const std::vector<TrackCand>& tkTs) const {
   
   vector<TrackCand> result;
 
@@ -171,8 +173,8 @@ GlobalMuonTrackMatcher::match(TrackCand& staCand, std::vector<TrackCand>& tkTs) 
 // by comparing their TSOSs on the outer Tracker surface
 //
 pair<bool,double> 
-GlobalMuonTrackMatcher::match(TrackCand& staCand, 
-                              TrackCand& tkCand) const {
+GlobalMuonTrackMatcher::match(const TrackCand& staCand, 
+                              const TrackCand& tkCand) const {
 
   TrajectoryStateOnSurface innerMuTsos;  
   TrajectoryStateOnSurface outerTkTsos;

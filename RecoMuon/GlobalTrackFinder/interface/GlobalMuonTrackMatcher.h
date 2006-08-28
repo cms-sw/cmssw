@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/08/28 19:32:58 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/28 19:59:33 $
+ *  $Revision: 1.11 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -48,12 +48,12 @@ class GlobalMuonTrackMatcher {
     void setES(const edm::EventSetup&);
 
     /// choose the track with smallest matching-chi2
-    std::pair<bool, TrackCand> matchOne(TrackCand&, 
-					std::vector<TrackCand>&) const;
+    std::pair<bool, TrackCand> matchOne(const TrackCand&, 
+					const std::vector<TrackCand>&) const;
     
     /// choose all tracks with a matching-chi2 less than MaxChi2
-    std::vector<TrackCand> match(TrackCand&, 
-				 std::vector<TrackCand>&) const;
+    std::vector<TrackCand> match(const TrackCand&, 
+				 const std::vector<TrackCand>&) const;
     
     /// check if two TrackRefs match
     std::pair<bool,double> match(const TrackCand&,
