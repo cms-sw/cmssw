@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/07/28 16:26:51 $
- * $Revision: 1.4 $
+ * $Date: 2006/08/15 10:29:22 $
+ * $Revision: 1.5 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -25,6 +25,7 @@ DTSegmentCleaner::DTSegmentCleaner(const edm::ParameterSet& pset) {
     {
       cout<<"Warning: wrong segmCleanerMode "<<segmCleanerMode
 	  <<"    ->     default (1) has been chosen"<<endl;
+      segmCleanerMode=1;
     }
 }
 
