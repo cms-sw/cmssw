@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.19 2006/08/25 13:52:12 llista Exp $
+ * $Id: AssociationMap.h,v 1.20 2006/08/28 07:14:24 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -252,7 +252,7 @@ namespace edm {
     /// find element with specified reference key
     const result_type & operator[]( const key_type & k ) const {
       helpers::checkRef( ref_.key, k );
-      return operator[]( k.key() );
+      return operator[]( k.key() ).val;
     }
     /// number of associations to a key
     size_type numberOfAssociations( const key_type & k ) const {
@@ -265,11 +265,11 @@ namespace edm {
   private:
     /// find helper
     struct Find :
-      public std::binary_function<const self&, size_type, const result_type *> {
+      public std::binary_function<const self&, size_type, const value_type *> {
       typedef Find self;
       typename self::result_type operator()( typename self::first_argument_type c,
 					     typename self::second_argument_type i ) {
-	return & c[ i ];
+	return & ( * c.find( i ) );
       }
     };
     /// reference set
@@ -284,8 +284,8 @@ namespace edm {
       if ( f == map_.end() ) return end();
       return const_iterator( this, f );
     }
-    /// return element with key i
-    const result_type & operator[]( size_type i ) const {
+    /// return value_typeelement with key i
+    const value_type & operator[]( size_type i ) const {
       typename transient_map_type::const_iterator tf = transientMap_.find( i );
       if ( tf == transientMap_.end() ) {
 	typename map_type::const_iterator f = map_.find( i );
@@ -295,9 +295,9 @@ namespace edm {
 	value_type v( key_type( ref_.key, i ), Tag::val( ref_, f->second ) );
 	std::pair<typename transient_map_type::const_iterator, bool> ins =
 	  transientMap_.insert( std::make_pair( i, v ) );
-	return ins.first->second.val;
+	return ins.first->second;
       } else {
-	return tf->second.val;
+	return tf->second;
       }
     }
     friend struct const_iterator;
