@@ -73,7 +73,6 @@ Example of configuration for this module is the following:
 </pre>
 \endhtmlonly
 
-
 - cand::modules::CandMerger: merges an arbitray number of candidate collection. 
 Example of configuration for this module is the following:
 \htmlonly
@@ -83,6 +82,10 @@ Example of configuration for this module is the following:
   }
 </pre>
 \endhtmlonly
+
+- ShallowCloneProducer: producer templatr. Produces a reco::CandidateCollection filled 
+with reco::ShallowCloneCandidate that have as master reference the candidate objects 
+form the original collection.
 
 \subsection tests Unit tests and examples
 None.
