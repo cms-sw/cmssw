@@ -67,6 +67,8 @@ a separate collection.
 - reco::CompositeRefBaseCandidate: a composite reco::Candidate  where the daughters
 have persistent references (edm::RefToBase <b><...></b>) to reco::Candidate stored in 
 a separate collection of concrete types.
+- reco::ShallowCloneCandidate: a candidate with a reference to a "master clone". All
+methods, except the kinematics, that is copied, are delegated to the master clone.
 
 \subsection typedefs 
 - reco::CandidateCollection: collection of reco::Candidate objects
