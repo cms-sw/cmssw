@@ -1,5 +1,3 @@
-<use name=root>
-<use name=boost>
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/HcalDigi>
 <use name=TBDataFormats/HcalTBObjects>
@@ -16,8 +14,6 @@
 
 <export>
   <lib name=DQMHcalMonitorTasks>
-  <use name=root>
-  <use name=boost>
   <use name=DataFormats/HcalRecHit>
   <use name=DataFormats/HcalDigi>
   <use name=TBDataFormats/HcalTBObjects>

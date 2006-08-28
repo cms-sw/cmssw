@@ -6,8 +6,6 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/Records>
-<use name=boost>
-<use name=root>
 <export>
  <lib name=DQMHcalMonitorModule>
  <use name=FWCore/Framework>
@@ -17,6 +15,4 @@
  <use name=Geometry/CaloGeometry>
  <use name=Geometry/CaloEventSetup>
  <use name=Geometry/Records>
- <use name=boost>	
- <use name=root>
 </export>
