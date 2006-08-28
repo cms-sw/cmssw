@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 14:28:43 EDT 2006
-// $Id: L1JetParticleFwd.h,v 1.1 2006/07/17 20:35:19 wsun Exp $
+// $Id: L1JetParticleFwd.h,v 1.2 2006/07/26 00:05:39 wsun Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@ namespace l1extra {
 
    typedef edm::Ref< L1JetParticleCollection > L1JetParticleRef ;
    typedef edm::RefVector< L1JetParticleCollection > L1JetParticleRefVector ;
+   typedef std::vector< L1JetParticleRef > L1JetParticleVectorRef ;
 }
 
 #endif

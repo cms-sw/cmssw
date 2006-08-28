@@ -14,13 +14,17 @@
   <class name="edm::Wrapper<l1extra::L1EtMissParticle>"/>
   <class name="edm::Wrapper<std::vector<l1extra::L1ParticleMap> >"/>
 
+  <class name="edm::Ref<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> >"/>
+  <class name="edm::Ref<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> >"/>
+  <class name="edm::Ref<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> >"/>
+
   <class name="edm::RefVector<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> >"/>
   <class name="edm::RefVector<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> >"/>
   <class name="edm::RefVector<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> >"/>
 
-  <class name="edm::Ref<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> >"/>
-  <class name="edm::Ref<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> >"/>
-  <class name="edm::Ref<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> >"/>
+  <class name="std::vector<edm::Ref<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1EmParticle>,l1extra::L1EmParticle> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1JetParticle>,l1extra::L1JetParticle> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1MuonParticle>,l1extra::L1MuonParticle> > >"/>
 
   <class name="edm::RefProd<l1extra::L1EtMissParticle>"/>
 

@@ -16,8 +16,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.8 2006/08/10 18:47:41 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.9 2006/08/23 23:09:04 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.9  2006/08/23 23:09:04  wsun
+// Separated iso/non-iso EM triggers and RefVectors.
+//
 // Revision 1.8  2006/08/10 18:47:41  wsun
 // Removed L1PhysObjectBase; particle classes now derived from LeafCandidate.
 //
@@ -64,10 +67,8 @@ namespace l1extra {
       public:
          enum L1ObjectType
 	 {
-            kIsoEM,
-            kNonIsoEM,
-            kJet,  // = non-tau jets
-            kTau,
+            kEM,   // = isolated or non-isolated
+            kJet,  // = central, forward, or tau
             kMuon,
 	    kEtMiss,
 	    kEtTotal,
@@ -77,12 +78,16 @@ namespace l1extra {
 
 	 // For now, use trigger menu from PTDR:
 	 // http://monicava.web.cern.ch/monicava/hlt_rates.htm#l1bits
+
+	 // RelaxedEM = isolated OR non-isolated
+	 // Jet = central OR forward OR tau
+
 	 enum L1TriggerType
 	 {
 	    kSingleIsoEM,
 	    kDoubleIsoEM,
-	    kSingleNonIsoEM,
-	    kDoubleNonIsoEM,
+	    kSingleRelaxedEM,
+	    kDoubleRelaxedEM,
 	    kSingleMuon,
 	    kDoubleMuon,
 	    kSingleTau,
@@ -118,16 +123,12 @@ namespace l1extra {
 	    L1TriggerType triggerType,
 	    bool triggerDecision,
 	    const L1ObjectTypeVector& objectTypes,
-	    const L1EmParticleRefVector& isoEmParticles =
-	       L1EmParticleRefVector(),
-	    const L1EmParticleRefVector& nonIsoEmParticles =
-	       L1EmParticleRefVector(),
-	    const L1JetParticleRefVector& jetParticles =
-	       L1JetParticleRefVector(),
-	    const L1JetParticleRefVector& tauParticles =
-	       L1JetParticleRefVector(),
-	    const L1MuonParticleRefVector& muonParticles =
-	       L1MuonParticleRefVector(),
+	    const L1EmParticleVectorRef& emParticles =
+	       L1EmParticleVectorRef(),
+	    const L1JetParticleVectorRef& jetParticles =
+	       L1JetParticleVectorRef(),
+	    const L1MuonParticleVectorRef& muonParticles =
+	       L1MuonParticleVectorRef(),
 	    const L1EtMissParticleRefProd& etMissParticle =
 	       L1EtMissParticleRefProd(),
 	    const L1IndexComboVector& indexCombos =
@@ -156,19 +157,13 @@ namespace l1extra {
 	 int numOfObjects() const
 	 { return objectTypes_.size() ; }
 
-	 const L1EmParticleRefVector& isoEmParticles() const
-	 { return isoEmParticles_ ; }
+	 const L1EmParticleVectorRef& emParticles() const
+	 { return emParticles_ ; }
 
-	 const L1EmParticleRefVector& nonIsoEmParticles() const
-	 { return nonIsoEmParticles_ ; }
-
-	 const L1JetParticleRefVector& jetParticles() const
+	 const L1JetParticleVectorRef& jetParticles() const
 	 { return jetParticles_ ; }
 
-	 const L1JetParticleRefVector& tauParticles() const
-	 { return tauParticles_ ; }
-
-	 const L1MuonParticleRefVector& muonParticles() const
+	 const L1MuonParticleVectorRef& muonParticles() const
 	 { return muonParticles_ ; }
 
 	 const L1EtMissParticleRefProd& etMissParticle() const
@@ -184,22 +179,13 @@ namespace l1extra {
 	 // particular entry in a given combination.  The pointer is null
 	 // if an error occurs (e.g. the particle requested does not match
 	 // the type of the function).
-// 	 const reco::ParticleKinematics* particleInCombo(
-// 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
-
 	 const reco::LeafCandidate* candidateInCombo(
 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
-	 const L1EmParticle* isoEmParticleInCombo(
-	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
-
-	 const L1EmParticle* nonIsoEmParticleInCombo(
+	 const L1EmParticle* emParticleInCombo(
 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
 	 const L1JetParticle* jetParticleInCombo(
-	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
-
-	 const L1JetParticle* tauParticleInCombo(
 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
 	 const L1MuonParticle* muonParticleInCombo(
@@ -208,11 +194,6 @@ namespace l1extra {
 	 // This function just returns the single global object.
 	 const L1EtMissParticle* etMissParticleInCombo(
 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
-
-// 	 // For a given particle combination, convert all the particles to
-// 	 // ParticleKinematics pointers.
-// 	 std::vector< const reco::ParticleKinematics* > particleCombo(
-// 	    const L1IndexCombo& aCombo ) const ;
 
 	 // For a given particle combination, convert all the particles to
 	 // reco::LeafCandidate pointers.
@@ -244,11 +225,9 @@ namespace l1extra {
 
 	 // Lists of particles that fired this trigger, perhaps in combination
 	 // with another particle.
-	 L1EmParticleRefVector isoEmParticles_ ;
-	 L1EmParticleRefVector nonIsoEmParticles_ ;
-	 L1JetParticleRefVector jetParticles_ ;
-	 L1JetParticleRefVector tauParticles_ ;
-	 L1MuonParticleRefVector muonParticles_ ;
+	 L1EmParticleVectorRef emParticles_ ;
+	 L1JetParticleVectorRef jetParticles_ ;
+	 L1MuonParticleVectorRef muonParticles_ ;
 
 	 // Global (event-wide) objects.  The Ref is null if the object
 	 // was not used in this trigger.

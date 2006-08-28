@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 14:28:43 EDT 2006
-// $Id: L1MuonParticleFwd.h,v 1.1 2006/07/17 20:35:19 wsun Exp $
+// $Id: L1MuonParticleFwd.h,v 1.2 2006/07/26 00:05:39 wsun Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@ namespace l1extra {
 
    typedef edm::Ref< L1MuonParticleCollection > L1MuonParticleRef ;
    typedef edm::RefVector< L1MuonParticleCollection > L1MuonParticleRefVector ;
+   typedef std::vector< L1MuonParticleRef > L1MuonParticleVectorRef ;
 }
 
 #endif

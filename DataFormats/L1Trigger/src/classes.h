@@ -22,13 +22,16 @@ namespace {
      edm::Wrapper<l1extra::L1EtMissParticle> w_etMiss;
      edm::Wrapper<l1extra::L1ParticleMapCollection> w_mapColl;
 
-     edm::Ref<l1extra::L1EmParticleCollection> refEm ;
-     edm::Ref<l1extra::L1JetParticleCollection> refJet ;
-     edm::Ref<l1extra::L1MuonParticleCollection> refMuon ;
-     edm::RefVector<l1extra::L1EmParticleCollection> refVecEmColl ;
-     edm::RefVector<l1extra::L1JetParticleCollection> refVecJetColl ;
-     edm::RefVector<l1extra::L1MuonParticleCollection> refVecMuonColl ;
-     edm::RefProd<l1extra::L1EtMissParticle> refEtMiss ;
+     l1extra::L1EmParticleRef refEm ;
+     l1extra::L1JetParticleRef refJet ;
+     l1extra::L1MuonParticleRef refMuon ;
+     l1extra::L1EmParticleRefVector refVecEmColl ;
+     l1extra::L1JetParticleRefVector refVecJetColl ;
+     l1extra::L1MuonParticleRefVector refVecMuonColl ;
+     l1extra::L1EmParticleVectorRef vecRefEmColl ;
+     l1extra::L1JetParticleVectorRef vecRefJetColl ;
+     l1extra::L1MuonParticleVectorRef vecRefMuonColl ;
+     l1extra::L1EtMissParticleRefProd refEtMiss ;
 
      edm::reftobase::Holder<reco::Candidate, l1extra::L1EmParticleRef> rtbe;
      edm::reftobase::Holder<reco::Candidate, l1extra::L1MuonParticleRef> rtbm;
