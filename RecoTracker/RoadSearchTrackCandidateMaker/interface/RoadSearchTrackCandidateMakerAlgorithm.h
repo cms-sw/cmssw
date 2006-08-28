@@ -12,8 +12,8 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/22 01:16:14 $
+// $Author: gutsche $
+// $Date: 2006/03/28 23:15:44 $
 // $Revision: 1.1 $
 //
 
@@ -39,6 +39,9 @@ class RoadSearchTrackCandidateMakerAlgorithm
 
  private:
   edm::ParameterSet conf_;
+
+  unsigned int theNumHitCut;
+  double theChi2Cut;
 
 };
 

@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/08/09 19:39:23 $
-// $Revision: 1.17 $
+// $Author: gutsche $
+// $Date: 2006/08/26 03:48:40 $
+// $Revision: 1.18 $
 //
 
 #include <vector>
@@ -61,6 +61,10 @@
 
 
 RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
+
+  theNumHitCut = (unsigned int)conf_.getParameter<int>("NumHitCut");
+  theChi2Cut   = conf_.getParameter<double>("HitChi2Cut");
+
 }
 
 RoadSearchTrackCandidateMakerAlgorithm::~RoadSearchTrackCandidateMakerAlgorithm() {
@@ -84,26 +88,31 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   es.get<TransientRecHitRecord>().get(builderName,theBuilder);
 
-  // Get the cut on number of hits in the cloud
-  int numhitcut = conf_.getParameter<int>("NumHitCut");
-
   // Create the trajectory cleaner 
   TrajectoryCleanerBySharedHits theTrajectoryCleaner;
   vector<Trajectory> FinalTrajectories;
 
   
-    // need this to sort recHits, sorting done after getting seed because propagationDirection is needed
-    // get tracker geometry
-    edm::ESHandle<TrackerGeometry> tracker;
-    es.get<TrackerDigiGeometryRecord>().get(tracker);
- 
-    edm::ESHandle<MagneticField> magField_;
-    es.get<IdealMagneticFieldRecord>().get(magField_);
-      
-    const TrackerGeometry * geom = tracker.product();
-    const MagneticField * magField = magField_.product();
+  // need this to sort recHits, sorting done after getting seed because propagationDirection is needed
+  // get tracker geometry
+  edm::ESHandle<TrackerGeometry> tracker;
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  
+  edm::ESHandle<MagneticField> magField_;
+  es.get<IdealMagneticFieldRecord>().get(magField_);
+  
+  const TrackerGeometry * geom = tracker.product();
+  const MagneticField * magField = magField_.product();
+  
+  PropagatorWithMaterial thePropagator(alongMomentum,.1057,magField); 
+  AnalyticalPropagator prop(magField,anyDirection);
+  TrajectoryStateTransform transformer;
 
-  edm::LogInfo("RoadSearch") << "Clean Clouds input size: " << input->size();
+  Chi2MeasurementEstimator theEstimator(theChi2Cut);
+  KFUpdator theUpdator;
+
+
+  LogDebug("RoadSearch") << "Clean Clouds input size: " << input->size();
 
   int i_c = 0;
   for ( RoadSearchCloudCollection::const_iterator cloud = input->begin(); cloud != input->end(); ++cloud ) {
@@ -120,12 +129,10 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
     RoadSearchCloud::SeedRefs theSeeds = cloud->seeds();
     RoadSearchCloud::SeedRefs::const_iterator iseed;
-
+    recHits.sort(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(&(*tracker))),alongMomentum));
       
     for ( iseed = theSeeds.begin(); iseed != theSeeds.end(); ++iseed ) {
       RoadSearchCloud::SeedRef ref = *iseed;
-      
-      recHits.sort(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(&(*tracker))),ref->direction()));
       
       // clone 
       TrajectorySeed seed = (*ref);
@@ -137,11 +144,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       
       bool valid = true;
       if (recHits.begin()->geographicalId().rawId() != state.detId()) {
-	AnalyticalPropagator prop(magField,anyDirection);
 	const GeomDet* det = geom->idToDet(recHits.begin()->geographicalId());
 	const GeomDet* detState = geom->idToDet(DetId(state.detId())  );
 	
-	TrajectoryStateTransform transformer;
 	TrajectoryStateOnSurface before(transformer.transientState(state,  &(detState->surface()), magField));
 	firstState = prop.propagate(before, det->surface());
 	
@@ -155,7 +160,6 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       else{
 	//const GeomDet* det = geom->idToDet(recHits.begin()->geographicalId());
 	const GeomDet* detState = geom->idToDet(DetId(state.detId())  );
-	TrajectoryStateTransform transformer;
 	TrajectoryStateOnSurface start(transformer.transientState(state,  &(detState->surface()), magField));
 	firstState = start;
       }
@@ -163,11 +167,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       if (!valid) continue;
       
       //Loop over RecHits and propagate trajectory to each hit
-      
-      double chi2cut = conf_.getParameter<double>("HitChi2Cut");
-      Chi2MeasurementEstimator theEstimator(chi2cut);
-      KFUpdator theUpdator;
-      
+            
       Trajectory traj(seed,ref->direction());
       //Trajectory traj( *((*ref).clone()),ref->direction());
       //edm::LogInfo("RoadSearch") << "Loop over hits to check measurements...";
@@ -176,7 +176,6 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
 	//TransientTrackingRecHit* ihit = theBuilder.product()->build(&(*rhit));
 	TransientTrackingRecHit::RecHitPointer ihit = theBuilder.product()->build(&(*rhit));	
-	PropagatorWithMaterial thePropagator(alongMomentum,.1057,magField); 
 	
 	const GeomDetUnit* det = geom->idToDetUnit(rhit->geographicalId());
 	
@@ -204,7 +203,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	
       }
       //std::cout<<"This trajectory has chi2 = "<<my_chi<<std::endl;
-      if (traj.recHits().size()>numhitcut) CloudTrajectories.push_back(traj);
+      if (traj.recHits().size()>theNumHitCut) CloudTrajectories.push_back(traj);
             
     }
 
@@ -242,11 +241,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	DetId FirstHitId = (*(it->recHits().begin()))->geographicalId();
 	if (FirstHitId.rawId() != state.detId()) {
 	  //if (it->recHits().begin()->geographicalId().rawId() != state.detId()) {
-	  AnalyticalPropagator prop(magField,anyDirection);
 	  const GeomDet* det = geom->idToDet(FirstHitId);
 	  const GeomDet* detState = geom->idToDet(DetId(state.detId())  );
 	  
-	  TrajectoryStateTransform transformer;
 	  TrajectoryStateOnSurface before(transformer.transientState(state,  &(detState->surface()), magField));
 	  firstState = prop.propagate(before, det->surface());
 	  
@@ -257,25 +254,19 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	}
 	else{
 	  const GeomDet* detState = geom->idToDet(DetId(state.detId())  );
-	  TrajectoryStateTransform transformer;
 	  TrajectoryStateOnSurface start(transformer.transientState(state,  &(detState->surface()), magField));
 	  firstState = start;
-	  //if (firstState.isValid() == false){
-	  //  valid=false;
-	  // }
 	}
 	
 	if (!valid){
-	  //std::cout<<"Starting State Not Valid!!!"<<std::endl;
 	  continue;
 	}
-	//output.push_back(TrackCandidate(goodHits,it->seed(),state));
 	output.push_back(TrackCandidate(goodHits,it->seed(),state));
       }
     }
 
 
-  edm::LogInfo("RoadSearch") << "Found " << output.size() << " track candidates.";
+  LogDebug("RoadSearch") << "Found " << output.size() << " track candidates.";
 
 };
 
