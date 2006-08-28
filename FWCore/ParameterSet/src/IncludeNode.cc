@@ -14,7 +14,9 @@ namespace edm {
     //make an empty CompositeNode
     IncludeNode::IncludeNode(const string & type, const string & name, int line)
     : CompositeNode(withoutQuotes(name), NodePtrListPtr(new NodePtrList), line),
-      type_(type)
+      type_(type),   
+      fullPath_(""),
+      isResolved_(false)
     {
     }
 

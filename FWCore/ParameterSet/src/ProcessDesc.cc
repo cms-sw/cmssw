@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.6 2006/08/15 22:34:36 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.7 2006/08/22 23:38:15 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.6 2006/08/15 22:34:36 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.7 2006/08/22 23:38:15 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
@@ -42,8 +42,11 @@ namespace edm
   }
 
   ProcessDesc::ProcessDesc(const std::string& config)
-  : pset_(new ParameterSet),
-    services_(new std::vector<ParameterSet>())
+  : validator_(0),
+    pathFragments_(),
+    pset_(new ParameterSet),
+    services_(new std::vector<ParameterSet>()),
+    bookkeeping_()
   {
     edm::pset::ParseResults parsetree = edm::pset::fullParse(config.c_str());
 
