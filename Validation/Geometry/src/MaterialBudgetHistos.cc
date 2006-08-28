@@ -5,7 +5,6 @@
 
 #include "SimG4Core/Notification/interface/Singleton.h"
 
-
 MaterialBudgetHistos::MaterialBudgetHistos(MaterialBudgetData* data, const std::string& fileName ): MaterialBudgetFormat( data )
 {
   hmgr = Singleton<TestHistoMgr>::instance();
@@ -20,10 +19,10 @@ void MaterialBudgetHistos::book()
   std::cout << "=== booking user histos ===" << std::endl;
   hmgr->addHistoProf1( new TProfile("10", "MB prof Eta ", 250, -5., 5. ) );
   hmgr->addHisto1( new TH1F("11", "Eta " , 501, -5., 5. ) );
-  hmgr->addHistoProf1( new TProfile("20", "MB prof Phi ", 100, -180., 180. ) );
-  hmgr->addHisto1( new TH1F("21", "Phi " , 300, -180.01, 179.99 ) );
-  hmgr->addHistoProf2( new TProfile2D("30", "MB prof Eta  Phi ", 250, -5., 5., 100, -180., 180. ) );
-  hmgr->addHisto2( new TH2F("31", "Eta vs Phi " , 501, -5., 5., 300, -180.01, 179.99 ) );
+  hmgr->addHistoProf1( new TProfile("20", "MB prof Phi ", 180, -3.1416, 3.1416 ) );
+  hmgr->addHisto1( new TH1F("21", "Phi " , 360, -3.1416, 3.1416 ) );
+  hmgr->addHistoProf2( new TProfile2D("30", "MB prof Eta  Phi ", 250, -5., 5., 180, -3.1416, 3.1416 ) );
+  hmgr->addHisto2( new TH2F("31", "Eta vs Phi " , 501, -5., 5., 180, -3.1416, 3.1416 ) );
 
   std::cout << "=== booking user histos done ===" << std::endl;
 
