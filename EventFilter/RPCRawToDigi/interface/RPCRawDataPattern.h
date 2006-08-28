@@ -3,7 +3,7 @@
 
 namespace rpcraw{
 	namespace bx{
-		static const int BX_MASK  = 0XFFF;
+		static const int BX_MASK  = 0XC;
 		static const int BX_SHIFT = 0;
 	}
 	

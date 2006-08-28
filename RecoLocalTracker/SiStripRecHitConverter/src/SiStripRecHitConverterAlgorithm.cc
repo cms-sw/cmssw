@@ -143,8 +143,7 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripC
       }
     }
   if (collectorMatched.size()>0){
-    StripSubdetector stripDetId(*detunit_iterator);
-    outmatched.put(DetId(stripDetId.glued()),collectorMatched.begin(),collectorMatched.end());
+    outmatched.put(DetId(*detunit_iterator),collectorMatched.begin(),collectorMatched.end());
   }
   }
   

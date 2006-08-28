@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.30 2006/08/03 14:06:55 vanlaer Exp $
+ * \version $Id: TrackBase.h,v 1.34 2006/08/24 09:28:59 llista Exp $
  *
  */
 
@@ -67,9 +67,12 @@ namespace reco {
     TrackBase( double chi2, double ndof,
 	       const ParameterVector & par, double pt, const CovarianceMatrix & cov );
     /// set hit pattern from vector of hit references
-    void setHitPattern( const TrackingRecHitRefVector & hitlist ) {
-      hitPattern_.set( hitlist );
-    }
+    template<typename C>
+    void setHitPattern( const C & c ) { hitPattern_.set( c.begin(), c.end() ); }
+    template<typename I>
+    void setHitPattern( const I & begin, const I & end ) { hitPattern_.set( begin, end ); }
+    /// set hit pattern for specified hit
+    void setHitPattern( const TrackingRecHit & hit, size_t i ) { hitPattern_.set( hit, i ); }
    
     /// chi-squared of the fit
     double chi2() const { return chi2_; }
@@ -103,22 +106,22 @@ namespace reco {
     ParameterVector & fill( ParameterVector & v ) const;
     
     /// (i,j)-th element of covarianve matrix ( i, j = 0, ... 4 )
-    double & covariance( int i, int j ) { return covariance_[ idx( i, j ) ]; }
+    double & covariance( int i, int j ) { return covariance_[ covIndex( i, j ) ]; }
     /// (i,j)-th element of covarianve matrix ( i, j = 0, ... 4 )
-    const double & covariance( int i, int j ) const { return covariance_[ idx( i, j ) ]; }
+    const double & covariance( int i, int j ) const { return covariance_[ covIndex( i, j ) ]; }
     /// error on specified element
-    double error( int i ) const { return sqrt( covariance_[ idx( i, i ) ] ); }
+    double error( int i ) const { return sqrt( covariance_[ covIndex( i, i ) ] ); }
     
     /// error on signed transverse curvature
-    double transverseCurvatureError() const { return covariance_[ idx( i_transverseCurvature, i_transverseCurvature ) ]; }
+    double transverseCurvatureError() const { return error( i_transverseCurvature ); }
     /// error on theta
-    double thetaError() const { return covariance_[ idx( i_theta, i_theta ) ]; }
+    double thetaError() const { return error( i_theta ); }
     /// error on phi0
-    double phi0Error() const { return covariance_[ idx ( i_phi0, i_phi0 ) ]; }
+    double phi0Error() const { return error( i_phi0 ); }
     /// error on d0
-    double d0Error() const { return covariance_[ idx( i_d0, i_d0 ) ]; }
+    double d0Error() const { return error( i_d0 ); }
     /// error on dx
-    double dzError() const { return covariance_[ idx( i_dz, i_dz ) ]; }
+    double dzError() const { return error( i_dz ); }
     /// return SMatrix
     CovarianceMatrix covariance() const { CovarianceMatrix m; fill( m ); return m; }
     /// fill SMatrix
@@ -151,6 +154,11 @@ namespace reco {
     unsigned short numberOfValidHits() const { return hitPattern_.numberOfValidHits(); }
     /// number of hits lost
     unsigned short numberOfLostHits() const { return hitPattern_.numberOfLostHits(); }
+    /// position index 
+    static index covIndex( index i, index j )  {
+      int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
+      return b * ( b + 1 ) / 2 + a;
+    }
     
   private:
     /// chi-squared
@@ -165,11 +173,6 @@ namespace reco {
     Double32_t covariance_[ covarianceSize ];
     /// hit pattern
     HitPattern hitPattern_;
-    /// position index
-    index idx( index i, index j ) const {
-      int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
-      return a * dimension + b - a * ( a + 1 ) / 2;
-    }
   };
   
   inline TrackBase::Vector TrackBase::momentum() const {

@@ -14,7 +14,8 @@
 //  #include "CommonDet/DetGeometry/interface/ActiveMediaShape.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
 
-//#define DEBUG
+//#define TPDEBUG
+#define CORRECT_FOR_BIG_PIXELS  // Correct the MeasurementPoint & LocalPoint
 
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,21 +30,26 @@ const float PI = 3.141593;
 const float degsPerRad = 57.29578;
 
 //-----------------------------------------------------------------------------
-//  A fairly boring constructor.  All quantities are DetUnit-dependent, and
+//  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf, const MagneticField *mag) 
-{
+CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf, 
+				       const MagneticField *mag) {
   //--- Lorentz angle tangent per Tesla
   theTanLorentzAnglePerTesla =
     conf.getParameter<double>("TanLorentzAnglePerTesla");
 
   //--- Algorithm's verbosity
   theVerboseLevel = 
-    conf.getUntrackedParameter<int>("VerboseLevel",20);
+    conf.getUntrackedParameter<int>("VerboseLevel",0);
 
   //-- Magnetic Field
   magfield_ = mag;
+
+#ifdef CORRECT_FOR_BIG_PIXELS
+  if (theVerboseLevel > 0) 
+    LogDebug("CPEFromDetPosition")<<"Correct the Lorentz shift for big pixels";
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -71,7 +77,7 @@ void CPEFromDetPosition::setTheDet( const GeomDetUnit & det )const {
     break;
   default:
     LogDebug("CPEFromDetPosition") 
-      << "CPEFromDetPosition:: a non-pixel detector type in here? Yuck!" ;
+      << "CPEFromDetPosition:: a non-pixel detector type in here?" ;
     //  &&& Should throw an exception here!
     assert(0);
   }
@@ -115,78 +121,101 @@ void CPEFromDetPosition::setTheDet( const GeomDetUnit & det )const {
   //--- The Lorentz shift.
   theLShift = lorentzShift();
 
-  if (theVerboseLevel > 5) {
-    LogDebug("CPEFromDetPosition") << "***** PIXEL LAYOUT *****" << " theThickness = " << theThickness
-    << " thePitchX  = " << thePitchX 
-    << " thePitchY  = " << thePitchY 
-    << " theOffsetX = " << theOffsetX 
-    << " theOffsetY = " << theOffsetY 
-    << " theLShift  = " << theLShift;
+  if (theVerboseLevel > 1) {
+    LogDebug("CPEFromDetPosition") << "***** PIXEL LAYOUT ***** " 
+				   << " thePart = " << thePart
+				   << " theThickness = " << theThickness
+				   << " thePitchX  = " << thePitchX 
+				   << " thePitchY  = " << thePitchY 
+				   << " theOffsetX = " << theOffsetX 
+				   << " theOffsetY = " << theOffsetY 
+				   << " theLShift  = " << theLShift;
   }
 }
 //----------------------------------------------------------------------
-//
+// Hit rrror in measurement coordinates
 //-----------------------------------------------------------------------
-MeasurementError  
-CPEFromDetPosition::measurementError( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
-{
+MeasurementError 
+CPEFromDetPosition::measurementError( const SiPixelCluster& cluster, 
+				      const GeomDetUnit & det) const {
   LocalPoint lp( localPosition(cluster, det) );
   LocalError le( localError(   cluster, det) );
+
   return theTopol->measurementError( lp, le );
 }
 //-------------------------------------------------------------------------
-//
+//  Hit error in the local frame
 //-------------------------------------------------------------------------
 LocalError  
-CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit & det)const 
-{
+CPEFromDetPosition::localError( const SiPixelCluster& cluster, 
+				const GeomDetUnit & det) const {
   setTheDet( det );
   int sizex = cluster.sizeX();
   int sizey = cluster.sizeY();
   bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow()> theNumOfRow); 
   bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
   //&&& testing...
-  if (theVerboseLevel > 5) {
+  if (theVerboseLevel > 9) {
     LogDebug("CPEFromDetPosition") <<
       "Sizex = " << sizex << 
       " Sizey = " << sizey << 
       " Edgex = " << edgex << 
       " Edgey = " << edgey ;
   }
-  //if (sizex>0) return LocalError( sizex, 0, sizey );
 
   return LocalError( err2X(edgex, sizex), 0, err2Y(edgey, sizey) );
 }
 //---------------------------------------------------------------------------
-//
+// Hit position in the masurement frame (in pixel/pitch units)
 //--------------------------------------------------------------------------
 MeasurementPoint 
-CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
-{
-  if (theVerboseLevel > 15) {
+CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, 
+					 const GeomDetUnit & det) const {
+  if (theVerboseLevel > 9) {
     LogDebug("CPEFromDetPosition") <<
       "X-pos = " << xpos(cluster) << 
       " Y-pos = " << ypos(cluster) << 
       " Lshf = " << theLShift ;
   }
+
+
+  // Fix to take into account the large pixels
+#ifdef CORRECT_FOR_BIG_PIXELS
+  // correct the measurement for Lorentz shift
+  float xPos = xpos(cluster); // x position in the measurement frame
+  float lshift = theLShift; // nominal lorentz shift
+  if(RectangularPixelTopology::isItBigPixelInX(int(xPos))) // if big 
+    lshift = theLShift/2.;  // reduce the shift
+  return MeasurementPoint( xpos(cluster)-lshift,ypos(cluster));
+#else
   return MeasurementPoint( xpos(cluster)-theLShift, 
-  			   ypos(cluster));
+			   ypos(cluster));
+  // skip the correction, do it only for the local position
+  // in this mode the measurements are NOT corrected for the Lorentz shift 
+  //return MeasurementPoint( xpos(cluster),ypos(cluster));
+#endif
+
 }
 //----------------------------------------------------------------------------
-//
+// Hit position in the local frame (in cm)
 //-----------------------------------------------------------------------------
 LocalPoint
-CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const
-{
-  //return theTopol->localPosition(measurementPosition(cluster, det)); 
-  setTheDet( det );
+CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, 
+				  const GeomDetUnit & det) const {
+  setTheDet( det );  // Initlize the det
+
+#ifdef CORRECT_FOR_BIG_PIXELS
+  MeasurementPoint ssss( xpos(cluster),ypos(cluster));
+  LocalPoint lp = theTopol->localPosition(ssss);
+  float lshift = theLShift * thePitchX;  // shift in cm
+  LocalPoint cdfsfs(lp.x()-lshift, lp.y());  
+#else
   MeasurementPoint ssss = measurementPosition(cluster, det);
-
-
   LocalPoint cdfsfs = theTopol->localPosition(ssss);
+#endif
+
   return cdfsfs;
 }
-
 //-----------------------------------------------------------------------------
 // Position error estimate in X (square returned).
 //-----------------------------------------------------------------------------
@@ -578,7 +607,7 @@ CPEFromDetPosition::driftDirection( GlobalVector bfield ) const {
   float dir_z = -1.; // E field always in z direction, so electrons go to -z.
   LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
 
-  if (theVerboseLevel > 0) { 
+  if (theVerboseLevel > 9) { 
     LogDebug("CPEFromDetPosition") 
       << " The drift direction in local coordinate is " 
       << theDriftDirection    ;

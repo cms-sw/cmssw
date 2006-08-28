@@ -107,7 +107,7 @@ namespace edm {
         sets.push_back(*pset);
       }
       
-      return Entry(sets, !tracked_); 
+      return Entry(name(), sets, !tracked_); 
     }
 
 

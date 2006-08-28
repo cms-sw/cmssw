@@ -71,7 +71,7 @@ public:
        return m_producers;
     }
 protected:
-    G4Event * generateEvent(int evt, edm::Event& inpevt);
+    G4Event * generateEvent( edm::Event& inpevt );
 private:
     static RunManager * me;
     explicit RunManager(edm::ParameterSet const & p);
@@ -100,7 +100,6 @@ private:
     bool m_RestorePhysicsTables;
     int m_EvtMgrVerbosity;
     bool m_Override;
-    int m_RunNumber;
     edm::ParameterSet m_pGeometry;
     edm::ParameterSet m_pField;
     edm::ParameterSet m_pGenerator;   

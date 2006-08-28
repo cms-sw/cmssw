@@ -22,25 +22,17 @@ class G4PrimaryParticle;
 class Generator
 {
 public:
-    typedef std::map<HepMC::GenParticle *,HepMCParticle *> ParticleMapType;
-    typedef ParticleMapType::const_iterator PMT;     
     Generator(const edm::ParameterSet & p);
     virtual ~Generator();
-    // temp.method
+    // temp.(?) method
     void setGenEvent( const HepMC::GenEvent* inpevt ) { evt_ = (HepMC::GenEvent*)inpevt; return ; }
-    const HepMC::GenEvent * generateEvent() ;
     void HepMC2G4(const HepMC::GenEvent * g,G4Event * e);
     void nonBeamEvent2G4(const HepMC::GenEvent * g,G4Event * e);
-    // temp.method
-    std::string genInputType() const { return inputFileName ; }
     virtual const HepMC::GenEvent*  genEvent() const { return evt_; }
     virtual const HepLorentzVector* genVertex() const { return vtx_; }
     virtual const double eventWeight() const { return weight_; }
-    virtual void  runNumber(int r) { runNumber_ = r; }
-    virtual const int runNumber() const { return runNumber_; }
 private:
     bool particlePassesPrimaryCuts(const G4PrimaryParticle * p) const;
-    //bool particlePassesPrimaryCuts( const G4LorentzVector& mom ) const ;
     bool particlePassesPrimaryCuts( const HepLorentzVector& mom ) const ;
     void setGenId(G4PrimaryParticle* p, int id) const 
     { p->SetUserInformation(new GenParticleInfo(id)); }
@@ -54,13 +46,10 @@ private:
     double theMaxEtaCut;
     double theMinPtCut;
     double theMaxPtCut;
-    std::string inputFileName;
     int verbose;
     HepMC::GenEvent*  evt_;
     HepLorentzVector* vtx_;
     double weight_;    
-    int runNumber_;
-    ParticleMapType pmap; 
 };
 
 #endif

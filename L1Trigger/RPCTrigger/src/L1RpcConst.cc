@@ -5,7 +5,6 @@
 #include <cmath>
 #include <iostream> 
 #include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
 
 
 
@@ -229,8 +228,8 @@ const double L1RpcConst::etas[L1RpcConst::ITOW_MAX+2]=
 int L1RpcConst::StringToInt(std::string str) {
   for(unsigned int i = 0; i < str.size(); i++)
     if(str[i] < '0' || str[i] > '9' )
-      throw L1RpcException("Error in StringToInt(): the string cannot be converted to a number");
-      //edm::LogError("RPCTrigger")<< "Error in StringToInt(): the string cannot be converted to a number";
+      //throw L1RpcException("Error in StringToInt(): the string cannot be converted to a number");
+      edm::LogError("RPCTrigger")<< "Error in StringToInt(): the string cannot be converted to a number";
   return atoi(str.c_str());
 };
 

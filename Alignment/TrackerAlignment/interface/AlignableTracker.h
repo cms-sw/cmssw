@@ -66,8 +66,6 @@ public:
   AlignablePixelHalfBarrel &pixelHalfBarrel(unsigned int i);
   /// Return endcap at given index
   AlignableTrackerEndcap &endCap(unsigned int i);
-  /// Return Pixel endcap at given index
-  AlignableTrackerEndcap &pixelEndCap(unsigned int i);
   /// Return TID at given index
   AlignableTID &TID(unsigned int i);
 

@@ -42,18 +42,21 @@ L1RpcTriggerBoard::L1RpcTriggerBoard(L1RpcTBGhostBuster* tbGhostBuster,
 
 //---------------------------------------------------------------------------
 bool L1RpcTriggerBoard::RunCone(const L1RpcLogCone& cone)  {
-
     L1RpcTBMuon tbMuon(TriggerConfig->GetPac(cone.GetConeCrdnts())->Run(cone) );
     
+    /* XXX - debug to improve
+    #ifndef _STAND_ALONE
+    if(TriggerConfig->GetDebugLevel() > 6) {
+      cone.Print();
+    edm::LogError("RPCTrigger")<<"Pac "<<tbMuon.ToString();
+    }  
+    #endif
+    */
+    
     if(tbMuon.GetCode() > 0) {
-        PacsMuonsVec.push_back(tbMuon);
-        if (TriggerConfig->GetDebugLevel()!=0){
-            LogDebug("RPCHwDebug") << "before TBGB: "
-                                   << tbMuon.printDebugInfo(TriggerConfig->GetDebugLevel());
-        }
+      PacsMuonsVec.push_back(tbMuon);
       return true;
     }
     else
       return false;
-      
 }

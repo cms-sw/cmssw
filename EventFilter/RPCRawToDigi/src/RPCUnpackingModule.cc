@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/06/30 19:27:58 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/06/07 09:51:57 $
+ *  $Revision: 1.16 $
  *
  * \author Ilaria Segoni
  */
@@ -53,10 +53,8 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
 }
 
 RPCUnpackingModule::~RPCUnpackingModule(){
-
-  if(instatiateDQM) delete monitor;
+  delete monitor;
   monitor = 0;
-
 }
 
 

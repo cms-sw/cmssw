@@ -1,6 +1,5 @@
 #include "FWCore/ParameterSet/src/ParseResultsTweaker.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Nodes.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 

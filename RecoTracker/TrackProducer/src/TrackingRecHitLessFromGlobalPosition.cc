@@ -9,7 +9,7 @@ bool TrackingRecHitLessFromGlobalPosition::insideOutLess(  const TrackingRecHit&
   DetId ida(a.geographicalId());
   DetId idb(b.geographicalId());
 
-  if(ida==idb) return false;
+  //(ida==idb) return false;
 
   if( (ida.subdetId() == StripSubdetector::TIB || ida.subdetId() == StripSubdetector::TOB || ida.subdetId() == PixelSubdetector::PixelBarrel) &&
       (idb.subdetId() == StripSubdetector::TIB || idb.subdetId() == StripSubdetector::TOB || idb.subdetId() == PixelSubdetector::PixelBarrel)) {  // barrel with barrel

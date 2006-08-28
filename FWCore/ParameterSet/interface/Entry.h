@@ -2,7 +2,7 @@
 #define ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.12 2006/06/15 22:07:41 rpw Exp $
+// $Id: Entry.h,v 1.13 2006/06/21 17:54:36 rpw Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -41,66 +41,68 @@ namespace edm {
     //    Entry() : rep(), type('?'), tracked('?') {}
   
     // Bool
-    Entry(bool val, bool is_tracked);
+    Entry(std::string const& name, bool val, bool is_tracked);
     bool  getBool() const;
   
     // Int32
-    Entry(int val, bool is_tracked);
+    Entry(std::string const& name, int val, bool is_tracked);
     int  getInt32() const;
   
     // vInt32
-    Entry(std::vector<int> const& val, bool is_tracked);
+    Entry(std::string const& name, std::vector<int> const& val, bool is_tracked);
     std::vector<int>  getVInt32() const;
   
     // Uint32
-    Entry(unsigned val, bool is_tracked);
+    Entry(std::string const& name, unsigned val, bool is_tracked);
     unsigned  getUInt32() const;
   
     // vUint32
-    Entry(std::vector<unsigned> const& val, bool is_tracked);
+    Entry(std::string const& name, std::vector<unsigned> const& val, bool is_tracked);
     std::vector<unsigned>  getVUInt32() const;
   
     // Double
-    Entry(double val, bool is_tracked);
+    Entry(std::string const& name, double val, bool is_tracked);
     double getDouble() const;
   
     // vDouble
-    Entry(std::vector<double> const& val, bool is_tracked);
+    Entry(std::string const& name, std::vector<double> const& val, bool is_tracked);
     std::vector<double> getVDouble() const;
   
     // String
-    Entry(std::string const& val, bool is_tracked);
+    Entry(std::string const& name, std::string const& val, bool is_tracked);
     std::string getString() const;
   
     // vString
-    Entry(std::vector<std::string> const& val, bool is_tracked);
+    Entry(std::string const& name, std::vector<std::string> const& val, bool is_tracked);
     std::vector<std::string>  getVString() const;
 
     // FileInPath
-    Entry(edm::FileInPath const& val, bool is_tracked);
+    Entry(std::string const& name, edm::FileInPath const& val, bool is_tracked);
     edm::FileInPath getFileInPath() const;
   
     // InputTag
-    Entry(edm::InputTag const & tag, bool is_tracked);
+    Entry(std::string const& name, edm::InputTag const & tag, bool is_tracked);
     edm::InputTag getInputTag() const;
 
     // InputTag
-    Entry(std::vector<edm::InputTag> const & vtag, bool is_tracked);
+    Entry(std::string const& name, std::vector<edm::InputTag> const & vtag, bool is_tracked);
     std::vector<edm::InputTag> getVInputTag() const;
 
     // ParameterSet
-    Entry(ParameterSet const& val, bool is_tracked);
+    Entry(std::string const& name, ParameterSet const& val, bool is_tracked);
     ParameterSet getPSet() const;
   
     // vPSet
-    Entry(std::vector<ParameterSet> const& val, bool is_tracked);
+    Entry(std::string const& name, std::vector<ParameterSet> const& val, bool is_tracked);
   
     std::vector<ParameterSet>  getVPSet() const;
   
     // coded string
-    Entry(std::string const&);
-    Entry(std::string const& type, std::string const& value, bool is_tracked);
-    Entry(std::string const& type, std::vector<std::string> const& value, bool is_tracked);
+    Entry(std::string const& name, std::string const&);
+    Entry(std::string const& name, std::string const& type, 
+          std::string const& value, bool is_tracked);
+    Entry(std::string const& name, std::string const& type, 
+          std::vector<std::string> const& value, bool is_tracked);
     
     // encode
     std::string  toString() const;
@@ -113,6 +115,7 @@ namespace edm {
 
     friend std::ostream& operator<<(std::ostream& ost, const Entry & entry);
   private:
+    std::string name_;
     std::string  rep;
     char         type;
     char         tracked;
@@ -122,6 +125,12 @@ namespace edm {
   
     // decode
     bool fromString(std::string::const_iterator b, std::string::const_iterator e);
+
+    // helpers to throw exceptions
+    void throwValueError(const char* expectedType) const;
+    void throwEntryError(const char* expectedType,std::string const& badRep) const;
+    void throwEncodeError(const char* type) const;
+
   };  // Entry
 
 

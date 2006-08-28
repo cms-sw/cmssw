@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/08/04 14:08:29 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/07/27 08:57:33 $
+ *  $Revision: 1.12 $
  *  \author Tomasz Fruboes
  */
 
@@ -9,7 +9,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "L1Trigger/RPCTrigger/src/RPCTriggerGeo.h"
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
@@ -110,15 +109,13 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
   
   }
     
-  //printRingFromRollsMapInfo();
-  
   // Free memory
   m_RPCRingFromRollsMap.clear();
   m_refRPCRingFromRollsMap.clear();
   m_otherRPCRingFromRollsMap.clear();
     
   m_isGeometryBuilt=true;
-  
+  //printRingFromRollsMapInfo();
 }
 
 //#############################################################################
@@ -200,10 +197,13 @@ L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis
       } 
       // m_detsToIngore fixes problem with two unconnected curls (ORCA consistency)
       else if ( m_detsToIngore.find(rawId)==m_detsToIngore.end() ) { 
-//       RPCDetId missing = RPCDetId(sc.detRawId);
-         
-        throw L1RpcException( "Strip not present in map ");
-//            << missing;
+      // should throw exception
+        RPCDetId missing = RPCDetId(sc.detRawId);
+        edm::LogError("RPCTrigger")
+            << "Strip " << sc.stripNo 
+            << " of det " << sc.detRawId
+            << " not present in map "
+            << missing;
         
         
       }
@@ -259,47 +259,4 @@ void RPCTriggerGeo::printRingFromRollsMapInfo(){ // XXX - Erase ME
   LogDebug("RPCTrigger")  << m_otherRPCRingFromRollsMap.size(); 
   LogDebug("RPCTrigger")  << m_links.size();
 
-}
-//#############################################################################
-/**
-*
-* \brief Util function to print m_links map contents
-*
-*/
-//#############################################################################
-void RPCTriggerGeo::printLinks(){ 
-
-  for(int iTower=0;iTower<17;iTower++){
-    for(int iCone=0;iCone<144;iCone++){
-      for(int iPlane=1;iPlane<7;iPlane++){
-        if(iTower!=0 || iCone!=1) continue;
-        std::cout<<"Tower, cone: "<<iTower<<" "<<iCone<<std::endl;
-        
-        RPCRingFromRolls::RPCLinks::const_iterator CI= m_links.begin();
-        for(;CI!=m_links.end();CI++){
-          RPCRingFromRolls::stripCords aCoords = CI->first;
-          RPCRingFromRolls::RPCConnectionsVec aConnVec = CI->second;
-          
-          RPCRingFromRolls::RPCConnectionsVec::const_iterator aConnCI = aConnVec.begin();
-          for(;aConnCI!=aConnVec.end();aConnCI++){
-            if(aConnCI->tower==iTower && 
-               aConnCI->PAC==iCone &&
-               aConnCI->logplane==iPlane)
-            {
-              std::cout<<"chId: "<<aCoords.detRawId
-                       <<" chStrip: "<<aCoords.stripNo;
-              std::cout<<" PAC: "<<aConnCI->PAC
-                       <<" tower: "<<aConnCI->tower
-                       <<" logPlane: "<<aConnCI->logplane
-                       <<" posInCone: "<<aConnCI->posInCone
-                       <<std::endl;
-              ////////////////////
-            }
-          }
-        }
-      }
-    }
-  }
-     
-     
 }

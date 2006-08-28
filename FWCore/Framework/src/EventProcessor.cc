@@ -598,14 +598,8 @@ namespace edm {
 
     //create the services
     ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets,iToken,iLegacy));
-
-    //using copySlotsTo rather than just connectTo allows a performance improvement
-    // since slots are called directly rather than indirectly through another ActivityRegistry
-    // The downside is if items were added to 'tempToken' then 'actReg_' would not see the changes
-    // However, in this case since tempToken is a temporary, the use of copySlotsTo is safe
-    //tempToken.connectTo(*actReg_);
-    tempToken.copySlotsTo(*actReg_); 
-    
+    tempToken.connectTo(*actReg_);
+     
     //add the ProductRegistry as a service ONLY for the construction phase
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
     shared_ptr<w_CPR>

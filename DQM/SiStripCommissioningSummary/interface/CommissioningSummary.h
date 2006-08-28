@@ -2,9 +2,9 @@
 #define DQM_SiStripCommissioningSummary_CommissioningSummary_H
 
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorControlView.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorReadoutView.h"
-#include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
+#include "DQM/SiStripCommissioningSummary/interface/SiStripControlSummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/SiStripReadoutSummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryFactory.h"
 #include "TH1F.h"
 
 /**
@@ -27,7 +27,7 @@ class CommissioningSummary {
   /** Constructor */
   CommissioningSummary(sistrip::View);
   
-  CommissioningSummary( const CommissioningSummaryFactory::Histo&,
+  CommissioningSummary( const SummaryFactory::Histo&,
 			const std::string& directory ) {;}
   
   /** Destructor */
@@ -63,7 +63,7 @@ class CommissioningSummary {
   TH1F* histogram_;
   
   /** Holds the map and fills the histograms */
-  SummaryGenerator* generator_;
+  SiStripSummaryGenerator* generator_;
   
   /** Readout view */
   sistrip::View view_;

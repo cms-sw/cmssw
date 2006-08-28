@@ -3,12 +3,13 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2005/11/02 21:49:19 $
-$Revision: 1.2 $
+$Date: 2005/12/27 23:50:50 $
+$Revision: 1.3 $
 */
 
 #include <iostream>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
 HcalChannelQuality::HcalChannelQuality() 
@@ -27,7 +28,8 @@ HcalChannelQuality::Quality HcalChannelQuality::quality (unsigned long fId, bool
     if (fWarning) std::cerr << "HcalChannelQuality::quality-> container is not sorted. Sort it to search effectively" << std::endl;
     cell = std::find (mItems.begin(), mItems.end(), target);
   }
-  if (cell == mItems.end() || cell->mId != fId) return UNKNOWN;
+  if (cell == mItems.end() || cell->mId != fId)
+    throw cms::Exception ("Conditions not found") << "Unavailable Quality for cell " << fId;
   return (HcalChannelQuality::Quality) cell->mQuality;
 }
 

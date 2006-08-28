@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.39 2006/08/03 23:03:39 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.40 2006/08/07 22:10:14 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -104,10 +104,11 @@ namespace edm {
       runBlockPlacement_(),
       luminosityBlockPlacement_(),
       om_(om) {
-    std::string const suffix(".root");
+    std::string suffix(".root");
     std::string::size_type offset = om_->fileName_.rfind(suffix);
     bool ext = (offset == om_->fileName_.size() - suffix.size());
-    std::string fileBase(ext ? om_->fileName_.substr(0, offset): om_->fileName_);
+    if (!ext) suffix.clear();
+    std::string fileBase(ext ? om_->fileName_.substr(0, offset) : om_->fileName_);
     if (om_->fileCount_) {
       std::ostringstream ofilename;
       ofilename << fileBase << std::setw(3) << std::setfill('0') << om_->fileCount_ << suffix;

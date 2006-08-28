@@ -41,7 +41,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	{	  
 	  simtrackid = associateSimpleRecHit(rechit);
 	}
-      //check if it is a matched SiStripMatchedRecHit2D
+      //check if it is a matched SiStripRecHit2DMatchedLocalpos
       if(const SiStripMatchedRecHit2D * rechit = 
 	 dynamic_cast<const SiStripMatchedRecHit2D *>(&thit))
 	{	  
@@ -71,35 +71,12 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
       const PSimHit ihit = *simHitIter;
       unsigned int simHitid = ihit.trackId();
       for(size_t i=0; i<simtrackid.size();i++){
-	// cout << " Associator -->  check sihit id's = " << simHitid <<"; compared id's = "<< simtrackid[i] <<endl;
+	//cout << " Associator -->  check sihit id's = " << simHitid << endl;
+	//	if(simHitid == simtrackid[i] && simtrackid[i]!= 65535){ //exclude the geant particles. they all have the same id
 	if(simHitid == simtrackid[i]){ //exclude the geant particles. they all have the same id
-	  //	  cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
-	  //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
+	  // cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
+	  //	   << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl;	    
 	  result.push_back(ihit);
-	}
-      }
-    }
-  }else{
-    /// Check if it's the gluedDet   
-    std::map<unsigned int, std::vector<PSimHit> >::const_iterator itrphi = 
-      SimHitMap.find(detID+2);//iterator to the simhit in the rphi module
-    std::map<unsigned int, std::vector<PSimHit> >::const_iterator itster = 
-      SimHitMap.find(detID+1);//iterator to the simhit in the stereo module
-    if (itrphi!= SimHitMap.end()&&itster!=SimHitMap.end()){
-      simHit = itrphi->second;
-      simHit.insert(simHit.end(),(itster->second).begin(),(itster->second).end());
-      vector<PSimHit>::const_iterator simHitIter = simHit.begin();
-      vector<PSimHit>::const_iterator simHitIterEnd = simHit.end();
-      for (;simHitIter != simHitIterEnd; ++simHitIter) {
-	const PSimHit ihit = *simHitIter;
-	unsigned int simHitid = ihit.trackId();
-	for(size_t i=0; i<simtrackid.size();i++){
-	  //  cout << " GluedDet Associator -->  check sihit id's = " << simHitid <<"; compared id's = "<< simtrackid[i] <<endl;
-	  if(simHitid == simtrackid[i]){ //exclude the geant particles. they all have the same id
-	    //	  cout << "GluedDet Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
-	    //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
-	    result.push_back(ihit);
-	  }
 	}
       }
     }
@@ -130,7 +107,7 @@ std::vector<unsigned int> TrackerHitAssociator::associateHitId(const TrackingRec
 	{	  
 	  simtrackid = associateSimpleRecHit(rechit);
 	}
-      //check if it is a matched SiStripMatchedRecHit2D
+      //check if it is a matched SiStripRecHit2DMatchedLocalpos
       if(const SiStripMatchedRecHit2D * rechit = 
 	 dynamic_cast<const SiStripMatchedRecHit2D *>(&thit))
 	{	  
@@ -193,7 +170,7 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
     float simchg;
     float simfraction;
     std::map<float, unsigned int> temp_map;
-    simchg=0;
+    
     //loop over the unique ID's
     vector<unsigned int>::iterator new_end = unique(cache_simtrackid.begin(),cache_simtrackid.end());
     for(vector<unsigned int>::iterator i=cache_simtrackid.begin(); i != new_end; i++){
@@ -224,30 +201,6 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
 std::vector<unsigned int>  TrackerHitAssociator::associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit)
 {
   //to be written
-  vector<unsigned int> matched_mono;
-  vector<unsigned int> matched_st;
-  matched_mono.clear();
-  matched_st.clear();
-  
-  const SiStripRecHit2D *mono = matchedrechit->monoHit();
-  const SiStripRecHit2D *st = matchedrechit->stereoHit();
-  //associate the two simple hits separately
-  matched_mono = associateSimpleRecHit(mono);
-  matched_st   = associateSimpleRecHit(st);
-  
-  //save in a vector all the simtrack-id's that are common to mono and stereo hits
-  if(!matched_mono.empty() && !matched_st.empty()){
-    simtrackid.clear(); //final result vector
-    unsigned int simtrackid_cache = 9999999;
-    for(vector<unsigned int>::iterator mhit=matched_mono.begin(); mhit != matched_mono.end(); mhit++){
-      if(find(matched_st.begin(), matched_st.end(),(*mhit))!=matched_st.end()){
-	if((*mhit) != simtrackid_cache) {
-	  simtrackid.push_back(*mhit);
-	  simtrackid_cache = (*mhit);
-	}
-      }
-    }
-  }
   return simtrackid;
 }
 
@@ -298,9 +251,6 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  : myEvent_(e)  
   //  using namespace edm;
   
   //get stuff from the event
-  //changed to detsetvector
-  //edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
-  //    e.getByLabel("stripdigi", "stripdigi", stripdigisimlink);
   e.getByLabel("siStripDigis", stripdigisimlink);
   e.getByLabel("siPixelDigis",   pixeldigisimlink);
   //cout << "Associator : get digilink from the event" << endl;

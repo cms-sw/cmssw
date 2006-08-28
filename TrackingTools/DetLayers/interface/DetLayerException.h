@@ -8,15 +8,13 @@
 #include <string>
 
 /// Common base class
+#include "FWCore/Utilities/interface/Exception.h"
 
-class DetLayerException : public std::exception {
+class DetLayerException : public cms::Exception {
 public:
-  DetLayerException() throw() {}
-  DetLayerException( const std::string& message) throw() : theMessage(message) {}
+  DetLayerException( const std::string& message) throw() : cms::Exception(message)  {}
   virtual ~DetLayerException() throw() {}
-  virtual const char* what() const throw() { return theMessage.c_str();}
 private:
-  std::string theMessage;
 };
 
 #endif

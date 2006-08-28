@@ -56,21 +56,16 @@ PixelCPEParmError::~PixelCPEParmError()
 
 //------------------------------------------------------------------
 //  localPosition() calls measurementPosition() and then converts it
-//  to the LocalPoint.
+//  to the LocalPoint. USE THE ONE FROM THE BASE CLASS
 //------------------------------------------------------------------
-LocalPoint
-PixelCPEParmError::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const
-{
-  //return theTopol->localPosition(measurementPosition(cluster, det)); 
-  setTheDet( det );
-  MeasurementPoint ssss = measurementPosition(cluster, det);
-
-
-  LocalPoint cdfsfs = theTopol->localPosition(ssss);
-  return cdfsfs;
-}
-
-
+// LocalPoint
+// PixelCPEParmError::localPosition(const SiPixelCluster& cluster, 
+// 				 const GeomDetUnit & det) const {
+//   setTheDet( det );
+//   MeasurementPoint ssss = measurementPosition(cluster, det);
+//   LocalPoint cdfsfs = theTopol->localPosition(ssss);
+//   return cdfsfs;
+// }
 //------------------------------------------------------------------
 //  localError() calls measurementError() after computing size and 
 //  edge (flag) along x and y.
@@ -102,7 +97,7 @@ PixelCPEParmError::localError( const SiPixelCluster& cluster, const GeomDetUnit 
     if (!edgey) yerr = errPair.second;
   }       
 
-  if (theVerboseLevel > 5) {
+  if (theVerboseLevel > 9) {
     LogDebug("PixelCPEParmError") <<
       "Sizex = " << cluster.sizeX() << " Sizey = " << cluster.sizeY() << 
       " Edgex = " << edgex          << " Edgey = " << edgey << 
@@ -111,17 +106,9 @@ PixelCPEParmError::localError( const SiPixelCluster& cluster, const GeomDetUnit 
   return LocalError(xerr*xerr, 0,yerr*yerr);
 }
 
-
-
 //------------------------------------------------------------------
 //  Helper methods (protected)
 //------------------------------------------------------------------
-
-
-
-
-
-
 
 //-----------------------------------------------------------------------------
 //  Calculates the *corrected* position of the cluster.

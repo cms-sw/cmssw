@@ -54,12 +54,17 @@ namespace cms
   {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
+    //--- Algorithm's verbosity
+    theVerboseLevel = 
+      conf.getUntrackedParameter<int>("VerboseLevel",0);
 
   }
 
 
-  // Virtual destructor needed, just in case.
-  SiPixelRecHitConverter::~SiPixelRecHitConverter() { }  
+  // Destructor
+  SiPixelRecHitConverter::~SiPixelRecHitConverter() { 
+    delete cpe_;
+  }  
 
   //---------------------------------------------------------------------------
   // Begin job: get magnetic field
@@ -174,15 +179,17 @@ namespace cms
       if (recHitsOnDetUnit.size() > 0) {
 	output.put(detIdObject, 
 		   recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
-	LogDebug("SiPixelRecHitConverter") << " Found " 
-					   << recHitsOnDetUnit.size() << " RecHits on " << detid;	
+	if (theVerboseLevel > 2) 
+	  LogDebug("SiPixelRecHitConverter") << " Found " 
+	  << recHitsOnDetUnit.size() << " RecHits on " << detid;	
       }
             
     } //    <-- End loop on DetUnits
     
-    LogDebug ("SiPixelRecHitConverter") 
+    if (theVerboseLevel > 2) LogDebug ("SiPixelRecHitConverter") 
 	      << cpeName_ << " converted " << numberOfClusters 
-	      << " SiPixelClusters into SiPixelRecHits, in " << numberOfDetUnits << " DetUnits."; 
+	      << " SiPixelClusters into SiPixelRecHits, in " 
+	      << numberOfDetUnits << " DetUnits."; 
 	   
   }
 

@@ -22,7 +22,7 @@
 
 using namespace std;
 
-//#define DEBUG
+//#define TPDEBUG
 
 //-----------------------------------------------------------------------------
 //  
@@ -143,11 +143,11 @@ PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
     break;
   default:
     LogDebug("PixelCPEBase") 
-      << "PixelErrorParametrization:: a non-pixel detector type in here? Yuck!" ;
+      << "PixelErrorParametrization:: a non-pixel detector type in here?" ;
     //  &&& Should throw an exception here!
     assert(0);
   }
-  //#ifdef DEBUG
+  //#ifdef TPDEBUG
   //  cout << " ErrorMatrix gives error: " << element.first << " , " 
   //       <<element.second << endl;
   //#endif

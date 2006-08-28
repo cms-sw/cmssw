@@ -12,7 +12,7 @@ class ApvTimingSummary : public CommissioningSummary {
   /** Constructor */
   ApvTimingSummary(sistrip::View);
   
-  ApvTimingSummary( const CommissioningSummaryFactory::Histo&,
+  ApvTimingSummary( const SummaryFactory::Histo&,
 		    const std::string& directory );
   
   /** Destructor */

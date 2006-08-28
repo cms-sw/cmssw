@@ -12,6 +12,13 @@ VolumeBasedMagneticField::VolumeBasedMagneticField( const edm::ParameterSet& con
 
 }
 
+VolumeBasedMagneticField::~VolumeBasedMagneticField(){
+  delete field;
+}
+
+
+
+
 GlobalVector VolumeBasedMagneticField::inTesla ( const GlobalPoint& g) const {
   GlobalVector gv =  field->fieldInTesla(g);
   return gv;

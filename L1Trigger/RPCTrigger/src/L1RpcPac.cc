@@ -10,8 +10,6 @@
 #include "L1Trigger/RPCTrigger/src/L1RpcPac.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
-
 #include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,8 +44,8 @@ L1RpcPac::L1RpcPac(std::string patFilesDir, int tower, int logSector, int logSeg
     Init(parser);
   }
   else {
-    throw L1RpcException("patFilesDir empty (no patterns)");
-    //edm::LogError("RPCTrigger")<< "patFilesDir not containes XML";
+    //throw L1RpcException("patFilesDir not contines XML");
+    edm::LogError("RPCTrigger")<< "patFilesDir not containes XML";
   }
   
   TrackPatternsGroup.SetGroupDescription("Track PatternsGroup");
@@ -71,8 +69,8 @@ int L1RpcPac::GetPatternsGroupCount () {
 L1RpcPattern L1RpcPac::GetPattern(int patNum) const {
   if(PatternsVec.size() == 0) {
   
-    throw L1RpcException("GetPattren(): Patterns vec is empty, mayby it was not filled!");
-    //edm::LogError("RPCTrigger") << "GetPattren(): Patterns vec is empty, mayby it was not filled!";
+    //throw L1RpcException("GetPattren(): Patterns vec is empty, mayby it was not filled!");
+    edm::LogError("RPCTrigger") << "GetPattren(): Patterns vec is empty, mayby it was not filled!";
     
   }
   return PatternsVec[patNum];
@@ -108,8 +106,8 @@ bool L1RpcPac::GetEPatternsGroupShape(int groupNum, int logPlane, int bitNum) {
     if(i == groupNum)
       return iEGroup->GroupShape.GetLogStripState(logPlane, bitNum);
   }
-  throw L1RpcException("GetEPatternsGroupShape(): groupNum to big!");
-  //edm::LogError("RPCTrigger")<< "GetEPatternsGroupShape(): groupNum to big!";
+  //throw L1RpcException("GetEPatternsGroupShape(): groupNum to big!");
+  edm::LogError("RPCTrigger")<< "GetEPatternsGroupShape(): groupNum to big!";
   return false; // XXX - TMF
 }
 
@@ -131,8 +129,8 @@ std::string L1RpcPac::GetPatternsGroupDescription(int patternGroupNum) {
   }
   
   if (ret.empty()){
-      throw L1RpcException("GetEPatternsGroupShape(): groupNum to big!");
-      //edm::LogError("RPCTrigger")<< "GetEPatternsGroupShape(): groupNum to big!";
+      //throw L1RpcException("GetEPatternsGroupShape(): groupNum to big!");
+    edm::LogError("RPCTrigger")<< "GetEPatternsGroupShape(): groupNum to big!";
   }
 
   return ret;
@@ -152,8 +150,8 @@ void L1RpcPac::InsertQualityRecord(unsigned int qualityTabNumber,
     QualityTabsVec[qualityTabNumber][firedPlanes] = quality; 
   }
   else
-    throw L1RpcException("InsertQualityRecord(): wrong qualityTabNumber");
-    //edm::LogError("RPCTrigger") << "InsertQualityRecord(): wrong qualityTabNumber";
+    //throw L1RpcException("InsertQualityRecord(): wrong qualityTabNumber");
+    edm::LogError("RPCTrigger") << "InsertQualityRecord(): wrong qualityTabNumber";
 };
 
 
@@ -184,8 +182,8 @@ void L1RpcPac::InsertPatterns(const L1RpcPatternsVec& patternsVec) {
        iEGroup->AddPattern(patIt);
     }
     else
-      throw L1RpcException("InsertPattern(): unsupported pattern type");
-      //edm::LogError("RPCTrigger") << "InsertPattern(): unsupported pattern type";
+      //throw L1RpcException("InsertPattern(): unsupported pattern type");
+      edm::LogError("RPCTrigger") << "InsertPattern(): unsupported pattern type";
   }  
 
   if(EnergeticPatternsGroupList.size() != 0) {

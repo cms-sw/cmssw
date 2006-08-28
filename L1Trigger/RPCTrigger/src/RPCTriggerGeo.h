@@ -33,7 +33,7 @@ class RPCTriggerGeo {
     bool isGeometryBuilt();
   
     L1RpcLogConesVec getCones(edm::Handle<RPCDigiCollection> rpcDigis);
-    void printLinks();   
+       
 
   private:
     void addDet(RPCRoll* roll);

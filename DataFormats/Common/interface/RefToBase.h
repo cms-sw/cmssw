@@ -19,16 +19,11 @@ within the edm::Event where those objects are only related by a base class, T.
    bars.push_back( edm::RefToBase<Bar>( foo ) );
 \endcode
 
-  Cast to concrete type can be done via the castTo<TRef> 
-  function template. This function throws an exception
-  if the type passed as TRef does not match the concrete
-  reference type.
-
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.3 2006/06/21 17:56:08 chrjones Exp $
+// $Id: RefToBase.h,v 1.2 2006/05/22 19:09:06 chrjones Exp $
 //
 
 // system include files
@@ -36,8 +31,8 @@ within the edm::Event where those objects are only related by a base class, T.
 
 // user include files
 #include "DataFormats/Common/interface/ProductID.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
+// forward declarations
 namespace edm {
   namespace reftobase {
     template <class T>
@@ -58,7 +53,6 @@ namespace edm {
         virtual BaseHolder<T>* clone() const { return new Holder<T,TRef>(*this);}
         virtual const T* getPtr() const { return ref_.operator->(); }
         virtual ProductID id() const {return ref_.id();}
-        const TRef & getRef() const { return ref_; }
        private:
         TRef ref_;
       };
@@ -90,23 +84,12 @@ namespace edm {
       
       /// Accessor for product ID.
       ProductID id() const { 
-        return  0 == holder_ ? ProductID() : holder_->id();
+        if(0 == holder_) { 
+          return ProductID();
+        }
+        return holder_->id();
       }
   
-      /// cast to a concrete type
-      template<typename TRef>
-      TRef castTo() const {
-	typedef reftobase::Holder<T,TRef> Holder;
-	const Holder * h = dynamic_cast<Holder *>( holder_ );
-	if ( h == 0 ) {
-	  throw edm::Exception(errors::InvalidReference) 
-	    << "trying to cast a RefToBase to the wrong type."
-	    << "Catch this exception in case you need to check"
-	    <<"the concrete reference type.";
-	}
-	return h->getRef();
-      }
-
       /// Checks for null
       bool isNull() const {return id() == ProductID();}
   

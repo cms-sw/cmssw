@@ -3,12 +3,13 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2006/05/06 00:33:30 $
-$Revision: 1.3 $
+$Date: 2006/07/29 00:21:33 $
+$Revision: 1.4 $
 */
 
 #include <iostream>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 
 namespace {
@@ -59,7 +60,8 @@ const HcalQIECoder* HcalQIEData::getCoder (DetId fId) const {
     std::cerr << "HcalQIEData::getValues-> container is not sorted. Please sort it to search effectively" << std::endl;
     cell = find (mItems, target.rawId ());
   }
-  if (cell == mItems.end() || cell->rawId () != fId.rawId ()) return 0;
+  if (cell == mItems.end() || cell->rawId () != fId.rawId ())
+    throw cms::Exception ("Conditions not found") << "Unavailable QIE data for cell " << fId.rawId();
   return &(*cell);
 }
 

@@ -127,7 +127,8 @@ int StreamerInputFile::readEventMessage()
 				   hlt_bit_cnt_, l1_bit_cnt_) ;
   
   //This Brings the pointer to end of this Event Msg.
-  eventBuf_.resize(currentEvMsg_->size());
+  // HWKC should not be resizing eventBuf as its assumed to be the max size later!
+  //eventBuf_.resize(currentEvMsg_->size());
   ist_->clear();
   ist_->seekg(last_pos+currentEvMsg_->size());
 

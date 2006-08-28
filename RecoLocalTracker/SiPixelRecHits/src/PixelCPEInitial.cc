@@ -47,21 +47,16 @@ PixelCPEInitial::PixelCPEInitial(edm::ParameterSet const & conf, const MagneticF
 
 //------------------------------------------------------------------
 //  localPosition() calls measurementPosition() and then converts it
-//  to the LocalPoint.
+//  to the LocalPoint. USE THE ONE FROM THE BASE CLASS
 //------------------------------------------------------------------
-LocalPoint
-PixelCPEInitial::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const
-{
-  //return theTopol->localPosition(measurementPosition(cluster, det)); 
-  setTheDet( det );
-  MeasurementPoint ssss = measurementPosition(cluster, det);
-
-
-  LocalPoint cdfsfs = theTopol->localPosition(ssss);
-  return cdfsfs;
-}
-
-
+// LocalPoint
+// PixelCPEInitial::localPosition(const SiPixelCluster& cluster, 
+// 			       const GeomDetUnit & det) const {
+//   setTheDet( det );
+//   MeasurementPoint ssss = measurementPosition(cluster, det);
+//   LocalPoint cdfsfs = theTopol->localPosition(ssss);
+//   return cdfsfs;
+// }
 //------------------------------------------------------------------
 //  localError() calls measurementError() after computing size and 
 //  edge (flag) along x and y.
@@ -75,7 +70,7 @@ PixelCPEInitial::localError( const SiPixelCluster& cluster, const GeomDetUnit & 
   bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow() > theNumOfRow); 
   bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
   //&&& testing...
-  if (theVerboseLevel > 5) {
+  if (theVerboseLevel > 9) {
     LogDebug("PixelCPEInitial") <<
       "Sizex = " << sizex << 
       " Sizey = " << sizey << 

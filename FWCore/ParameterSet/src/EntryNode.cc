@@ -55,32 +55,32 @@ namespace edm {
       if(type()=="string")
        {
          string usethis(withoutQuotes(value_));
-         return Entry(usethis, !tracked_);
+         return Entry(name(), usethis, !tracked_);
        }
      else if (type()=="FileInPath")
        {
          edm::FileInPath fip(withoutQuotes(value_));
-         return Entry(fip, !tracked_);
+         return Entry(name(), fip, !tracked_);
        }
      else if (type()=="InputTag")
        {
          edm::InputTag tag(value_);
-         return Entry(tag, !tracked_);
+         return Entry(name(), tag, !tracked_);
        }
      else if(type()=="double")
        {
          double d = strtod(value_.c_str(),0);
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else if(type()=="int32")
        {
          int d = strtol(value_.c_str(),0,0);
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else if(type()=="uint32")
        {
          unsigned int d = strtoul(value_.c_str(),0,0);
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else if(type()=="bool")
        {
@@ -89,7 +89,7 @@ namespace edm {
             value_=="1" || value_=="on" || value_=="On")
            d = true;
 
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else
        {

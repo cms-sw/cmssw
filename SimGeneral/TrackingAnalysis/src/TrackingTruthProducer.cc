@@ -2,20 +2,17 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackVertexMap.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthProducer.h"
 
 #include <map>
-
-#include "DataFormats/Common/interface/RefVectorBase.h"
 
 using namespace edm;
 using namespace std; 
@@ -66,34 +63,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   
   edm::Handle<SimVertexContainer>      G4VtxContainer;
   edm::Handle<edm::SimTrackContainer>  G4TrkContainer;
+  //edm::Handle<edm::PSimHitContainer>   
   event.getByType(G4VtxContainer);
   event.getByType(G4TrkContainer);
-  
-  edm::Handle<edm::PSimHitContainer> TIBHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TIBHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TIDHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TIDHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TOBHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TOBHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> PixelBarrelHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
-
-  event.getByLabel("SimG4Object","TrackerHitsTIBLowTof", TIBHitsLowTof);
-  event.getByLabel("SimG4Object","TrackerHitsTIBHighTof", TIBHitsHighTof);
-  event.getByLabel("SimG4Object","TrackerHitsTIDLowTof", TIDHitsLowTof);
-  event.getByLabel("SimG4Object","TrackerHitsTIDHighTof", TIDHitsHighTof);
-  event.getByLabel("SimG4Object","TrackerHitsTOBLowTof", TOBHitsLowTof);
-  event.getByLabel("SimG4Object","TrackerHitsTOBHighTof", TOBHitsHighTof);
-  event.getByLabel("SimG4Object","TrackerHitsTECLowTof", TECHitsLowTof);
-  event.getByLabel("SimG4Object","TrackerHitsTECHighTof", TECHitsHighTof);
-  event.getByLabel("SimG4Object","PixelBarrelHitsHighTof", PixelBarrelHitsHighTof);
-  event.getByLabel("SimG4Object","PixelBarrelHitsLowTof", PixelBarrelHitsLowTof);  
-  event.getByLabel("SimG4Object","PixelEndcapHitsHighTof", PixelEndcapHitsHighTof);  
-  event.getByLabel("SimG4Object","PixelEndcapHitsLowTof", PixelEndcapHitsLowTof);
   
 //  const HepMC::GenEvent            &genEvent = hepMC -> getHepMCData();
   const HepMC::GenEvent *genEvent = mcp -> GetEvent(); // faster?
@@ -105,23 +77,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     return;
   }  
    
-   
-  vector<edm::Handle<edm::PSimHitContainer> > AlltheConteiners;
-   
-  AlltheConteiners.push_back(TIBHitsLowTof);
-  AlltheConteiners.push_back(TIBHitsHighTof);
-  AlltheConteiners.push_back(TIDHitsLowTof);
-  AlltheConteiners.push_back(TIDHitsHighTof);
-  AlltheConteiners.push_back(TOBHitsLowTof);
-  AlltheConteiners.push_back(TOBHitsHighTof);
-  AlltheConteiners.push_back(TECHitsLowTof);
-  AlltheConteiners.push_back(TECHitsHighTof);
-  AlltheConteiners.push_back(PixelBarrelHitsHighTof);
-  AlltheConteiners.push_back(PixelBarrelHitsLowTof);
-  AlltheConteiners.push_back(PixelEndcapHitsHighTof);
-  AlltheConteiners.push_back(PixelEndcapHitsLowTof);
-//  
-  
 //  genEvent.print();
 //  genEvent ->  signal_process_id();
   // 13 cosmic muons
@@ -134,14 +89,15 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   std::map<int,int> productionVertex;
   std::multimap<int,int> tmpTrackVertexMap;
   int iG4Track = 0;
-  edm::SimTrackContainer::const_iterator itP;
-  for (itP = G4TrkContainer->begin(); itP !=  G4TrkContainer->end(); ++itP){
+  for (edm::SimTrackContainer::const_iterator itP = G4TrkContainer->begin();
+       itP !=  G4TrkContainer->end(); ++itP){
        TrackingParticle::Charge q = 0;
        CLHEP::HepLorentzVector p = itP -> momentum();
        const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
        double time =  0; 
        int pdgId = 0;
-       EncodedEventId trackEventId = itP->eventId(); 
+       int theSource = 0; 
+       int theCrossing = 0;
        const HepMC::GenParticle * gp = 0;       
        int genPart = itP -> genpartIndex();
        if (genPart >= 0) {
@@ -157,33 +113,14 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 	   theVertex = math::XYZPoint(v.x(), v.y(), v.z());
 	   time = v.t(); 
        }
-       TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, trackEventId);
-       
-      typedef vector<edm::Handle<edm::PSimHitContainer> >::const_iterator cont_iter;
-//      map<int, TrackPSimHitRefVector> trackIdPSimHitMap;
-      int simtrackId = itP -> trackId();
-     for( cont_iter allCont = AlltheConteiners.begin(); allCont != AlltheConteiners.end(); ++allCont ){
-     int  index = 0;
-      	 for (edm::PSimHitContainer::const_iterator hit = (*allCont)->begin(); hit != (*allCont)->end(); ++hit, ++index) {
-     	     if( simtrackId == hit->trackId() && trackEventId == hit->eventId() ){
-     	   tp.addPSimHit(TrackPSimHitRef(*allCont, index));
-//     	   trackIdPSimHitMap[hit->trackId()].push_back(TrackPSimHitRef(*allCont, index));
-      	     }
-      	 }
-      }
-//      int index = 0;
-//      for(edm::PSimHitContainer::const_iterator itSimHit =  TIBHitsLowTof->begin(); itSimHit !=TIBHitsLowTof->end();
-//	 ++itSimHit, ++index){
-//	 tp.addPSimHit(TrackPSimHitRef(TIBHitsLowTof, index));
-//      }
-	
-	tp.addG4Track(SimTrackRef(G4TrkContainer,iG4Track));
-	if (genPart >= 0) {
-	  tp.addGenParticle(GenParticleRef(hepMC,genPart));
-	}
-	productionVertex.insert(pair<int,int>(tPC->size(),genVert));
-	tPC -> push_back(tp);
-	++iG4Track;
+       TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, theSource, theCrossing);
+       tp.addG4Track(SimTrackRef(G4TrkContainer,iG4Track));
+       if (genPart >= 0) {
+         tp.addGenParticle(GenParticleRef(hepMC,genPart));
+       }
+       productionVertex.insert(pair<int,int>(tPC->size(),genVert));
+       tPC -> push_back(tp);
+       ++iG4Track;
   }
 
 // Put TrackingParticles in event and get handle to access them    
@@ -204,7 +141,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     bool inVolume = (position.perp() < volumeRadius_ && abs(position.z()) < volumeZ_); // In or out of Tracker
     if (!inVolume && discardOutVolume_) { continue; }        // Skip if desired
     
-    EncodedEventId vertEvtId = itVtx -> eventId();     // May not be right one, get from HepMC?
+    int crossing = 0;
+    int source   = 0;
     
 // Figure out the barcode of the HepMC Vertex if there is one
     
@@ -222,14 +160,14 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       }  
     }  
 
-// Find closest vertex to this one in same sub-event, save in nearestVertex
+// Find closest vertex to this one, save in nearestVertex
 
     double closest = 9e99;
     TrackingVertexCollection::iterator nearestVertex;
 
     for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx) {
       double distance = HepLorentzVector(iTrkVtx -> position() - position).v().mag();
-      if (distance <= closest && vertEvtId == iTrkVtx -> eventId()) { // flag which one so we can associate them
+      if (distance <= closest) { // flag which one so we can associate them
         closest = distance;
         nearestVertex = iTrkVtx; 
       }   
@@ -238,7 +176,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 // If outside cutoff, create another TrackingVertex, set nearest to it
     
     if (closest > distanceCut_) {
-      tVC -> push_back(TrackingVertex(position,inVolume,vertEvtId));
+      tVC -> push_back(TrackingVertex(position,inVolume,source,crossing));
       nearestVertex = --(tVC -> end());  // Last entry of vector
     } 
      
@@ -255,7 +193,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
          mapIndex != productionVertex.end();
          ++mapIndex) {
       if (mapIndex -> second == index) {
-//        (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
+        (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
         tmpTrackVertexMap.insert(pair<int,int>(mapIndex -> first,tVC->size()-1));
       }
     }
@@ -272,7 +210,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
        v != tVC ->end(); ++v) {
     edm::LogInfo (MessageCategory) << "TrackingVertex " << index << " has " 
       << (v -> g4Vertices()).size()  << " G4 vertices, " 
-      << (v -> genVertices()).size() << " HepMC vertices";
+      << (v -> genVertices()).size() << " HepMC vertices and " 
+      << (v -> trackingParticles()).size() << " tracks";
     ++index;  
   }        
   

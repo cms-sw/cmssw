@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.18 2006/07/27 17:11:30 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.24 2006/08/16 15:15:33 mansj Exp $
 //
 #include <vector>
 #include <string>
@@ -13,6 +13,7 @@
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
   class DetIdLess {
@@ -353,13 +354,27 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size () < 12) {
-      if (items.size () > 0) {
-	std::cerr << "HcalElectronicsMap-> Bad line: " << buffer 
-		  << "\n line must contain 12 items: i  cr sl tb dcc spigot fiber fiberchan subdet ieta iphi depth" << std::endl;
+      if (items.size()==0) continue; // no warning here
+      if (items.size()<9) {
+	edm::LogError("MapFormat") << "HcalElectronicsMap-> line too short: " << buffer;
+	continue;
       }
-      continue;
+      if (items[8]=="NA" || items[8]=="NT") {
+	while (items.size()<12) items.push_back(""); // don't worry here
+      } else if (items[8]=="HT") {
+	if (items.size()==11) items.push_back("");
+	else {
+	  edm::LogError("MapFormat") << "HcalElectronicsMap-> Bad line: " << buffer 
+				     << "\n HT line must contain at least 11 items: i  cr sl tb dcc spigot fiber fiberchan subdet=HT ieta iphi";
+	  continue;
+	}
+      } else {
+	edm::LogError("MapFormat") << "HcalElectronicsMap-> Bad line: " << buffer 
+				   << "\n line must contain 12 items: i  cr sl tb dcc spigot fiber fiberchan subdet ieta iphi depth";
+	continue;
+      }
     }
-    std::cout << "HcalElectronicsMap-> processing line: " << buffer << std::endl;
+    //    std::cout << "HcalElectronicsMap-> processing line: " << buffer << std::endl;
     int crate = atoi (items [1].c_str());
     int slot = atoi (items [2].c_str());
     int top = 1;
@@ -369,24 +384,31 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     int fiber = atoi (items [6].c_str());
     int fiberCh = atoi (items [7].c_str());
 
-    HcalText2DetIdConverter converter (items [8], items [9], items [10], items [11]);
     HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
     elId.setHTR (crate, slot, top);
-    if (converter.isHcalDetId ()) { 
-      fObject->mapEId2chId (elId, converter.getId ());
-    }
-    else if (converter.isHcalTrigTowerDetId ()) {
-	fObject->mapEId2tId (elId, converter.getId ());
-    }
-    else if (converter.isHcalCalibDetId ()) {
-	fObject->mapEId2chId (elId, converter.getId ());
-    }
-    else if (items [8] == "NA") { // undefined channel
+
+    // first, handle undefined cases
+    if (items [8] == "NA") { // undefined channel
       fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
-    }
-    else {
-      std::cerr << "HcalElectronicsMap-> Unknown subdetector: " 
-		<< items [8] << '/' << items [9] << '/' << items [10] << '/' << items [11] << std::endl; 
+      fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
+    } else if (items [8] == "NT") { // undefined trigger channel
+      fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
+    } else {
+    
+      HcalText2DetIdConverter converter (items [8], items [9], items [10], items [11]);
+      if (converter.isHcalDetId ()) { 
+	fObject->mapEId2chId (elId, converter.getId ());
+      }
+      else if (converter.isHcalTrigTowerDetId ()) {
+	fObject->mapEId2tId (elId, converter.getId ());
+      }
+      else if (converter.isHcalCalibDetId ()) {
+	fObject->mapEId2chId (elId, converter.getId ());
+      }
+      else {
+	std::cerr << "HcalElectronicsMap-> Unknown subdetector: " 
+		  << items [8] << '/' << items [9] << '/' << items [10] << '/' << items [11] << std::endl; 
+      }
     }
   }
   fObject->sort ();

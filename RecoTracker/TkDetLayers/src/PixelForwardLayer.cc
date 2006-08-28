@@ -141,6 +141,9 @@ PixelForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
       result = closestResult;
     }
   }
+  else {
+    result = closestResult;
+  }
 
   // only loop over neighbors (other than closest and next) if window is BIG
   if (window > 0.5*detWidth) {

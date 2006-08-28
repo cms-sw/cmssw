@@ -16,14 +16,8 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.6 2006/08/04 03:30:47 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.4 2006/08/02 14:21:33 wsun Exp $
 // $Log: L1ParticleMap.h,v $
-// Revision 1.6  2006/08/04 03:30:47  wsun
-// Separated tau/jet bookkeeping, added static function objectTypeIsGlobal().
-//
-// Revision 1.5  2006/08/02 20:48:55  wsun
-// Added more trigger lines, added mapping for global objects.
-//
 // Revision 1.4  2006/08/02 14:21:33  wsun
 // Added trigger name dictionary, moved particle type enum to L1ParticleMap.
 //
@@ -59,8 +53,7 @@ namespace l1extra {
          enum L1ObjectType
 	 {
             kEM,
-            kJet,  // = non-tau jets
-            kTau,
+            kJet,
             kMuon,
 	    kEtMiss,
 	    kEtTotal,
@@ -72,31 +65,42 @@ namespace l1extra {
 	 // http://monicava.web.cern.ch/monicava/hlt_rates.htm#l1bits
 	 enum L1TriggerType
 	 {
-	    kSingleEM,
-	    kDoubleEM,
+	    kSingleElectron,
+	    kDoubleElectron,
+	    kRelaxedDoubleElectron,
+	    kSinglePhoton,
+	    kPrescaledSinglePhoton,
+	    kDoublePhoton,
+	    kPrescaledDoublePhoton,
+	    kRelaxedDoublePhoton,
+	    kPrescaledRelaxedDoublePhoton,
 	    kSingleMuon,
+	    kRelaxedSingleMuon,
 	    kDoubleMuon,
-	    kSingleTau,
-	    kDoubleTau,
+	    kRelaxedDoubleMuon,
+	    kDoublePixelTauJet,
+	    kDoubleTrackerTauJet,
+	    kElectronTauJet,
+	    kMuonTauJet,
+	    kTauJetMET,
 	    kSingleJet,
+	    kSingleJetPrescale1,
+	    kSingleJetPrescale2,
+	    kSingleJetPrescale3,
 	    kDoubleJet,
 	    kTripleJet,
-	    kQuadJet,
-	    kHT,
+	    kQuadrupleJet,
+	    kAcoplanarDoubleJet,
+	    kSingleJetMETAcoplanar,
+	    kSingleJetMET,
+	    kDoubleJetMET,
+	    kTripleJetMET,
+	    kQuadrupleJetMET,
 	    kMET,
 	    kHTMET,
-	    kJetMET,
-	    kTauMET,
-	    kMuonMET,
-	    kEMMET,
-	    kMuonJet,
-	    kEMJet,
-	    kMuonTau,
-	    kEMTau,
-	    kEMMuon,
-	    kSingleJet140,
-	    kSingleJet60,
-	    kSingleJet20,
+	    kHTSingleElectron,
+	    kBJetsLeadingJet,
+	    kBJetsSecondJet,
 	    kNumOfL1TriggerTypes
 	 } ;
 
@@ -112,8 +116,6 @@ namespace l1extra {
 	    const L1EmParticleRefVector& emParticles =
 	       L1EmParticleRefVector(),
 	    const L1JetParticleRefVector& jetParticles =
-	       L1JetParticleRefVector(),
-	    const L1JetParticleRefVector& tauParticles =
 	       L1JetParticleRefVector(),
 	    const L1MuonParticleRefVector& muonParticles =
 	       L1MuonParticleRefVector(),
@@ -151,17 +153,14 @@ namespace l1extra {
 	 const L1JetParticleRefVector& jetParticles() const
 	 { return jetParticles_ ; }
 
-	 const L1JetParticleRefVector& tauParticles() const
-	 { return tauParticles_ ; }
-
 	 const L1MuonParticleRefVector& muonParticles() const
 	 { return muonParticles_ ; }
 
 	 const L1EtMissParticleRefProd& etMissParticle() const
 	 { return etMissParticle_ ; }
 
-	 // If there are zero or one non-global objects, then there is no need
-	 // to store the object combinations.  In this case, the stored
+	 // If numOfObjects() is 1, then there is no need to
+	 // store the object combinations.  In this case, the stored
 	 // vector m_objectCombinations will be empty, and it will be
 	 // filled upon request at analysis time.
 	 const L1IndexComboVector& indexCombos() const ;
@@ -180,9 +179,6 @@ namespace l1extra {
 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
 	 const L1JetParticle* jetParticleInCombo(
-	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
-
-	 const L1JetParticle* tauParticleInCombo(
 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
 	 const L1MuonParticle* muonParticleInCombo(
@@ -205,7 +201,6 @@ namespace l1extra {
 	 // ---------- static member functions --------------------
 	 static const std::string& triggerName( L1TriggerType type ) ;
 	 static L1TriggerType triggerType( const std::string& name ) ;
-	 static bool objectTypeIsGlobal( L1ObjectType type ) ;
 
 	 // ---------- member functions ---------------------------
 
@@ -229,7 +224,6 @@ namespace l1extra {
 	 // with another particle.
 	 L1EmParticleRefVector emParticles_ ;
 	 L1JetParticleRefVector jetParticles_ ;
-	 L1JetParticleRefVector tauParticles_ ;
 	 L1MuonParticleRefVector muonParticles_ ;
 
 	 // Global (event-wide) objects.  The Ref is null if the object

@@ -2,7 +2,7 @@
 #include "L1Trigger/RPCTrigger/src/L1RpcTBMuon.h"
 //#include "L1Trigger/RPCTrigger/src/L1RpcException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+
 
 #include <sstream>
 #include <iomanip>
@@ -29,32 +29,6 @@ L1RpcTBMuon::L1RpcTBMuon(int ptCode, int quality, int sign,
 
     EtaAddress = 0;
     PhiAddress = 0;
-}
-
-/**
-*
-* \brief Gives debuging info in human readable format (1) or technicall format (2)
-* \note Possible debugFormat codes (1,2) are defined in RPCTrigger constructor
-*
-*/
-std::string L1RpcTBMuon::printDebugInfo(int debugFormat) const{
-
-  std::ostringstream sDebugInfo;
-  if (debugFormat==1){	// Human readable
-  
-    sDebugInfo << "TBMuon: code: " << GetCode() 
-               << " etaAddr: " << GetEtaAddr() 
-               << " phiAddr: " << GetPhiAddr()
-               << " sgAddr: " << GetSegmentAddr()
-               << " scAddr: " << GetSectorAddr()
-               << " gbData: " << GetGBData();
-  }
-  else {	//technicall
-    //sDebugInfo << "Your ad here.";
-  }
-  
-  return sDebugInfo.str();
-
 }
 
 //---------------------------------------------------------------------------
@@ -167,8 +141,8 @@ unsigned int L1RpcTBMuon::ToBits(std::string where) const {
     return FSBOut::toBits(*this);
   }
   else {
-    throw L1RpcException("unknown value of where: " + where);
-    //edm::LogError("RPCTrigger")<<"unknown value of where: " + where;
+  	//throw L1RpcException("unknown value of where: " + where);
+    edm::LogError("RPCTrigger")<<"unknown value of where: " + where;
   } 
   return 0;
 }
@@ -181,8 +155,8 @@ void L1RpcTBMuon::FromBits(std::string where, unsigned int value) {
     FSBOut::fromBits(*this, value);
   }
   else {
-    throw L1RpcException("unknown value of where: " + where);
-    //edm::LogError("RPCTrigger")<< "unknown value of where: " + where;
+  	//throw L1RpcException("unknown value of where: " + where);
+    edm::LogError("RPCTrigger")<< "unknown value of where: " + where;
   }
 }
 

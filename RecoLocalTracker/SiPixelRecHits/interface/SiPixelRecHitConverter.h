@@ -91,6 +91,7 @@ namespace cms
     PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
     bool ready_;                            // needed CPE's valid => good to go!
     edm::InputTag src_;
+    int   theVerboseLevel;              // algorithm's verbosity
   };
 }
 

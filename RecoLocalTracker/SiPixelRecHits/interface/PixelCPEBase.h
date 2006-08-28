@@ -77,7 +77,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   //--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
-  virtual LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const = 0;
+  virtual LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const;  // = 0, tak out dk 8/06
   virtual LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const = 0;
   
 

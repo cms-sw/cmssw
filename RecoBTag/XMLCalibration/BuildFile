@@ -3,5 +3,4 @@
   <use name=xerces-c>
 </export>
 <use name=xerces-c>
-<flags SEAL_PLUGIN_NAME="RecoBTagXMLCalibration">
 

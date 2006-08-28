@@ -3,12 +3,13 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store Pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2006/04/13 22:40:42 $
-$Revision: 1.7 $
+$Date: 2006/07/29 00:21:33 $
+$Revision: 1.8 $
 */
 
 #include <iostream>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 
 namespace {
@@ -44,7 +45,8 @@ const HcalPedestal* HcalPedestals::getValues (DetId fId) const {
     std::cerr << "HcalPedestals::getValues-> container is not sorted. Please sort it to search effectively" << std::endl;
     cell = find (mItems, fId.rawId ());
   }
-  if (cell == mItems.end() || cell->rawId () != target.rawId ()) return 0;
+  if (cell == mItems.end() || cell->rawId () != target.rawId ()) 
+    throw cms::Exception ("Conditions not found") << "Unavailable Pedestals for cell " << target.rawId();
   return &(*cell);
 }
 

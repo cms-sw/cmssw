@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/08/07 21:59:12 $
- * $Revision: 1.55 $
+ * $Date: 2006/07/08 07:22:02 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -133,8 +133,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
     dccMap[dcch.id()] = dcch;
 
-    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-         dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
+    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::COSMIC ) enable = true;
 
   }
 
@@ -164,8 +163,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
     float xie = ie - 0.5;
     float xip = ip - 0.5;
 
-    if ( ! ( dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-             dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
+    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::COSMIC ) continue;
 
     LogDebug("EBCosmicTask") << " det id = " << id;
     LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;

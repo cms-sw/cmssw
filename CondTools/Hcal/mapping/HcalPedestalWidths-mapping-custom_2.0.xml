@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE Mapping SYSTEM "InMemory">
+<Mapping version="2.0" >
+  <Class table="HCALPEDESTALWIDTHS" id_columns="IOV_VALUE_ID" name="HcalPedestalWidths" >
+    <Container table="HCALPEDESTALWIDTHS_1" id_columns="IOV_VALUE_ID" name="mItems" position_column="POS" >
+      <Object table="HCALPEDESTALWIDTHS_1" id_columns="POS IOV_VALUE_ID" name="HcalPedestalWidth" >
+        <Primitive column="HCALPEDESTALWIDTH_MID" name="mId" />
+        <Primitive column="HCALPEDESTALWIDTH_MSI_1" name="mSigma11" />
+        <Primitive column="HCALPEDESTALWIDTH_MSI_2" name="mSigma21" />
+        <Primitive column="HCALPEDESTALWIDTH_MSI_3" name="mSigma22" />
+        <Primitive column="HCALPEDESTALWIDTH_MSI_4" name="mSigma31" />
+        <Primitive column="HCALPEDESTALWIDTH_MSI_5" name="mSigma32" />
+        <Primitive column="HCALPEDESTALWIDTH_MSI_6" name="mSigma33" />
+        <Primitive column="HCALPEDESTALWIDTH_MSI_7" name="mSigma41" />
+        <Primitive column="HCALPEDESTALWIDTH_MSI_8" name="mSigma42" />
+        <Primitive column="HCALPEDESTALWIDTH_MSI_9" name="mSigma43" />
+        <Primitive column="HCALPEDESTALWIDTH_MS_10" name="mSigma44" />
+      </Object >
+    </Container >
+    <Primitive column="MSORTED" name="mSorted" />
+  </Class >
+</Mapping >

@@ -42,7 +42,7 @@ private:
   int sourceIdOffset_; ///< number to subtract from the source id to get the dcc id
   int startSample_; ///< first sample from fed raw data to copy 
   int endSample_; ///< last sample from fed raw data to copy (if present)
-  std::set<HcalElectronicsId> unknownIds_; ///< Recorded to limit number of times a log message is generated
+  std::set<HcalElectronicsId> unknownIds_,unknownIdsTrig_; ///< Recorded to limit number of times a log message is generated
 };
 
 #endif // HcalUnpacker_h_included

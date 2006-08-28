@@ -11,10 +11,8 @@
 #include "CondCore/IOVService/interface/IOV.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "POOLCore/Exception.h"
-#include "FWCore/Framework/interface/SiteLocalConfig.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <exception>
-//#include <iostream>
+#include <iostream>
 #include <sstream>
 //
 // static data member definitions
@@ -145,28 +143,17 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
 // constructors and destructor
 //
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
+  m_con(iConfig.getParameter<std::string>("connect") ),
   m_timetype(iConfig.getParameter<std::string>("timetype") ),
   m_loader(new cond::ServiceLoader),
   m_session( 0 )
 {		
   /*parameter set parsing and pool environment setting
    */
-  bool siteLocalConfig=iConfig.getUntrackedParameter<bool>("siteLocalConfig",false);
-  std::string catconnect;
-  std::string con=iConfig.getParameter<std::string>("connect") ;
-  if( siteLocalConfig ){
-    edm::Service<edm::SiteLocalConfig> localconfservice;
-    if( !localconfservice.isAvailable() ){
-      throw cms::Exception("edm::SiteLocalConfigService is not available");       
-    }
-    m_con=localconfservice->lookupCalibConnect(con);
-    catconnect=localconfservice->calibCatalog();
-  }else{
-    m_con=con;
-    catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
-  }
+  //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   unsigned int auth=iConfig.getUntrackedParameter<unsigned int>("authenticationMethod",0) ;
   bool loadblob=iConfig.getUntrackedParameter<bool>("loadBlobStreamer",false);
+  std::string catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
   unsigned int message_level=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
   try{
     if( auth==1 ){
@@ -174,6 +161,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     }else{
       m_loader->loadAuthenticationService( cond::Env );
     }
+    
     switch (message_level) {
     case 0 :
       m_loader->loadMessageService(cond::Error);

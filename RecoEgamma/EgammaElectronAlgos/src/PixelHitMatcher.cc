@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.3 2006/06/30 14:11:08 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.4 2006/07/31 21:36:14 tboccali Exp $
 //
 //
 
@@ -86,10 +86,25 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
   FreeTrajectoryState fts =myFTS(theMagField,xmeas, vprim, 
 				 energy, charge);
 
-  // We have to propagate to the outermost barrel layer
-  //CC or the outermost endcap layer!! to be added
-  BarrelDetLayer *outermostLayer = (theGeometricSearchTracker->tobLayers())[theGeometricSearchTracker->tobLayers().size() - 1 ];
-  const TrajectoryStateOnSurface tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
+  // We have to propagate to the outermost layer
+  //CC@@
+  //BarrelDetLayer *outermostLayer = (theGeometricSearchTracker->tobLayers())[theGeometricSearchTracker->tobLayers().size() - 1 ];
+  math::XYZPoint geommess(xmeas.x(),xmeas.y(),xmeas.z());
+  TrajectoryStateOnSurface tsos;
+  if (fabs(geommess.eta()) < 1.479) {
+    BarrelDetLayer *outermostLayer = (theGeometricSearchTracker->tobLayers())[theGeometricSearchTracker->tobLayers().size() - 1 ];
+    tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
+    } else {
+   if (xmeas.z() > 0.) {
+     ForwardDetLayer *outermostLayer = (theGeometricSearchTracker->posTecLayers())[theGeometricSearchTracker->posTecLayers().size() - 1 ];
+     tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
+   } else if (xmeas.z() < 0.) {
+     ForwardDetLayer *outermostLayer = (theGeometricSearchTracker->negTecLayers())[theGeometricSearchTracker->negTecLayers().size() - 1 ];
+     tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
+   }
+  }
+  //const TrajectoryStateOnSurface tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
+  
   if (tsos.isValid()) {
     vector<TrajectoryMeasurement> pixelMeasurements = 
       theLayerMeasurements->measurements(**firstLayer,tsos, 

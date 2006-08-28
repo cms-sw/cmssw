@@ -4,19 +4,15 @@
 #ifndef TrajectoryState_Exceptions_H
 #define TrajectoryState_Exceptions_H
 
-#include <exception>
 #include <string>
+#include "FWCore/Utilities/interface/Exception.h"
 
 /// Common base class
 
-class TrajectoryStateException : public std::exception {
+class TrajectoryStateException : public cms::Exception{
 public:
-  TrajectoryStateException() throw() {}
-  TrajectoryStateException( const std::string& message) throw() : theMessage(message) {}
+  TrajectoryStateException( const std::string& message) throw() :  cms::Exception(message){}
   virtual ~TrajectoryStateException() throw() {}
-  virtual const char* what() const throw() { return theMessage.c_str();}
-private:
-  std::string theMessage;
 };
 
 #endif

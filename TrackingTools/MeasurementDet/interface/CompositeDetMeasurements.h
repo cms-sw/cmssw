@@ -88,10 +88,10 @@ public:
    */
   template <class TrajectoryState>
   std::vector<TrajectoryMeasurement> get( const GeometricSearchDet& det,
-				     const std::vector<DetWithState>& compatDets,
-				     const TrajectoryState& ts, 
-				     const Propagator& prop, 
-				     const MeasurementEstimator& est) const;
+					  const std::vector<DetWithState>& compatDets,
+					  const TrajectoryState& ts, 
+					  const Propagator& prop, 
+					  const MeasurementEstimator& est) const;
   /*
   template <class TrajectoryState>
   std::vector<TMG>
@@ -124,10 +124,10 @@ private:
 template <class TrajectoryState>
 std::vector<TrajectoryMeasurement> 
 GeometricSearchDetMeasurements::get( const GeometricSearchDet& det,
-			       const std::vector<DetWithState>& compatDets,
-			       const TrajectoryState& ts, 
-			       const Propagator& prop, 
-			       const MeasurementEstimator& est) const
+				     const std::vector<DetWithState>& compatDets,
+				     const TrajectoryState& ts, 
+				     const Propagator& prop, 
+				     const MeasurementEstimator& est) const
 {
   std::vector<TrajectoryMeasurement> result;
   if (!compatDets.empty()) {

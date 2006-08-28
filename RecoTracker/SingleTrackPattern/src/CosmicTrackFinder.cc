@@ -153,11 +153,11 @@ namespace cms
 	theTrack.setHitPattern((*theTrackExtraRef).recHits());
 
 	output->push_back(theTrack);
-	e.put(output);
 
       }
 
     }
+	e.put(output);
   
   }
 }

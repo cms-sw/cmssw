@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include <ostream>
 
 
 using namespace std;
@@ -70,7 +71,7 @@ namespace edm {
       boost::shared_ptr<ParameterSet> psetPtr(new ParameterSet);
       // do the subnodes
       CompositeNode::insertInto(*psetPtr);
-      return Entry(*psetPtr, !tracked_);
+      return Entry(name(), *psetPtr, !tracked_);
     }
 
     void PSetNode::insertInto(edm::ParameterSet & pset) const
@@ -82,7 +83,7 @@ namespace edm {
 
     void PSetNode::insertInto(edm::ProcessDesc & procDesc) const
     {
-      procDesc.getProcessPSet()->insert(false, name(), makeEntry());
+      insertInto(*(procDesc.getProcessPSet()));
     }
 
 
@@ -95,12 +96,26 @@ namespace edm {
           << "Attempt to make a ProcessDesc with a PSetNode which is not a process";
       }
 
-      procDesc.getProcessPSet()->insert(true, "@process_name", edm::Entry(name(), true));
+      procDesc.getProcessPSet()->addParameter("@process_name", name());
       // insert the subnodes as top-level nodes
       NodePtrList::const_iterator i(nodes()->begin()),e(nodes()->end());
       for(;i!=e;++i)
       {
-         (**i).insertInto(procDesc);
+        try
+        {
+          (**i).insertInto(procDesc);
+        }
+        catch(edm::Exception & e)
+        {
+          // print some extra debugging
+          ostringstream message;
+          message << "In variable " << (**i).name() << "\nIncluded from:\n";
+          (**i).printTrace(message);
+          e.append(message.str());
+         
+          // pass it on(errors::Configuration
+          throw e;
+        }
       }
 
     }

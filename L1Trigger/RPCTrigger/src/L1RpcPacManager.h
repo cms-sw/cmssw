@@ -27,7 +27,7 @@
 #include <vector>
 #include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+//#include "Trigger/L1RpcTrigger/src/L1RpcException.h"
 #include <xercesc/util/PlatformUtils.hpp>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -106,8 +106,8 @@ public:
   //const
   TPacType* GetPac(int tower, int logSector, int logSegment) const {
     if (PacTab.size() <= (unsigned int) abs(tower) )
-     throw L1RpcException("L1RpcPacManager::GetPac: given towerNum to big");
-     // edm::LogError("RPCTrigger") << "L1RpcPacManager::GetPac: given towerNum to big" << std::endl;
+      //throw L1RpcException("L1RpcPacManager::GetPac: given towerNum to big");
+      edm::LogError("RPCTrigger") << "L1RpcPacManager::GetPac: given towerNum to big" << std::endl;
 
     int curLogSector = logSector;
     int curlogSegment = logSegment;

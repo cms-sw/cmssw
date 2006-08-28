@@ -34,9 +34,6 @@ public:
   /// DetUnit to which data belongs
   const uint32_t & rawId() const;
 
-  const ChamberLocationSpec & chamber() const { return theChamber; }
-  const FebLocationSpec     & feb()  const { return theFeb; }
-
   /// debug
   void print(int depth=0) const;
 

@@ -1,7 +1,7 @@
 #ifndef ParameterSet_FileInPath_h
 #define ParameterSet_FileInPath_h
 
-/// $Id: FileInPath.h,v 1.5 2005/11/14 17:37:51 paterno Exp $
+/// $Id: FileInPath.h,v 1.6 2005/11/15 14:38:57 paterno Exp $
 ///
 
 /// Find a non-event-data file, given a relative path.
@@ -102,6 +102,13 @@ namespace edm
     void initialize_();
   };
 
+  // Free swap function
+  inline
+  void
+  swap(FileInPath& a, FileInPath& b) 
+  {
+    a.swap(b);
+  }
 
   inline  std::ostream& 
   operator<< (std::ostream& os, const edm::FileInPath& fip)

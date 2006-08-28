@@ -4,7 +4,7 @@
  * 
  * Common variables and functions for the application (basically a config
  * script)
- * $Id: common.php,v 1.4 2006/07/23 16:53:18 egeland Exp $
+ * $Id: common.php,v 1.1 2006/06/26 17:01:46 egeland Exp $
  */
 
 function get_conn_params() {
@@ -13,13 +13,8 @@ function get_conn_params() {
 	       'sid'  => "__CHANGE_ME__");
 }
 
-function get_dqm_url($location, $run) {
-  if ($location && $location == 'H4B') {
-    $url = "http://pctorino1.cern.ch/html/";
-  } else {
-    $url = "http://lxcms201.cern.ch/html/";
-  }
-  return $url.str_pad($run, 9, '0', STR_PAD_LEFT);
+function get_dqm_url($run) {
+    return "http://lxcms201.cern.ch/html/".str_pad($run, 9, '0', STR_PAD_LEFT);
 }
 
 function get_rootplot_path() {
@@ -39,9 +34,9 @@ function get_datatype_array() {
 }
 
 function get_rootplot_handle($args) {
-  putenv('ROOTSYS=/afs/cern.ch/cms/external/lcg/external/root/5.12.00/slc3_ia32_gcc323/root');
-  putenv('LD_LIBRARY_PATH=/afs/cern.ch/cms/external/lcg/external/root/5.12.00/slc3_ia32_gcc323/root/lib:/afs/cern.ch/cms/external/lcg/external/Boost/1.33.1/slc3_ia32_gcc323/lib:$LD_LIBRARY_PATH');
-  putenv('ROOTPLOT=CMSSW_0_8_0/bin/slc3_ia32_gcc323/cmsecal_rootplot');
+  putenv('ROOTSYS=/afs/cern.ch/cms/external/lcg/external/root/5.11.02/slc3_ia32_gcc323/root');
+  putenv('LD_LIBRARY_PATH=/afs/cern.ch/cms/external/lcg/external/root/5.11.02/slc3_ia32_gcc323/root/lib:/afs/cern.ch/cms/external/lcg/external/Boost/1.33.1/slc3_ia32_gcc323/lib:$LD_LIBRARY_PATH');
+  putenv('ROOTPLOT=CMSSW_0_7_0/bin/slc3_ia32_gcc323/cmsecal_rootplot');
 
   @system('rm rootplot_error.log');
   $handle = popen("\$ROOTPLOT $args > rootplot_error.log 2>&1", "w") or die('Failed to open rootplot program');

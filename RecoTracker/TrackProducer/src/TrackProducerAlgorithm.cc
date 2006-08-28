@@ -43,9 +43,9 @@ void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
       TrajectoryStateTransform transformer;
   
-      DetId * detId = new DetId(state.detId());
+      DetId  detId(state.detId());
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
-								     &(theG->idToDet(*detId)->surface()), 
+								     &(theG->idToDet(detId)->surface()), 
 								     theMF);
 
       LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";

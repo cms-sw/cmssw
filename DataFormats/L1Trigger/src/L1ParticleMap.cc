@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.3 2006/08/02 20:48:56 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.2 2006/08/02 14:21:34 wsun Exp $
 //
 
 // system include files
@@ -28,31 +28,42 @@ using namespace l1extra ;
 
 std::string
 L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
-   "SingleEM",
-      "DoubleEM",
+   "SingleElectron",
+      "DoubleElectron",
+      "RelaxedDoubleElectron",
+      "SinglePhoton",
+      "PrescaledSinglePhoton",
+      "DoublePhoton",
+      "PrescaledDoublePhoton",
+      "RelaxedDoublePhoton",
+      "PrescaledRelaxedDoublePhoton",
       "SingleMuon",
+      "RelaxedSingleMuon",
       "DoubleMuon",
-      "SingleTau",
-      "DoubleTau",
+      "RelaxedDoubleMuon",
+      "DoublePixelTauJet",
+      "DoubleTrackerTauJet",
+      "ElectronTauJet",
+      "MuonTauJet",
+      "TauJetMET",
       "SingleJet",
+      "SingleJetPrescale1",
+      "SingleJetPrescale2",
+      "SingleJetPrescale3",
       "DoubleJet",
       "TripleJet",
-      "QuadJet",
-      "HT",
+      "QuadrupleJet",
+      "AcoplanarDoubleJet",
+      "SingleJetMETAcoplanar",
+      "SingleJetMET",
+      "DoubleJetMET",
+      "TripleJetMET",
+      "QuadrupleJetMET",
       "MET",
-      "HT+MET",
-      "Jet+MET",
-      "Tau+MET",
-      "Muon+MET",
-      "EM+MET",
-      "Muon+Jet",
-      "EM+Jet",
-      "Muon+Tau",
-      "EM+Tau",
-      "EM+Muon",
-      "SingleJet140",
-      "SingleJet60",
-      "SingleJet20"
+      "HTMET",
+      "HTSingleElectron",
+      "BJetsLeadingJet",
+      "BJetsSecondJet"
       } ;
 
 //
@@ -68,7 +79,6 @@ L1ParticleMap::L1ParticleMap(
    const L1ObjectTypeVector& objectTypes,
    const L1EmParticleRefVector& emParticles,
    const L1JetParticleRefVector& jetParticles,
-   const L1JetParticleRefVector& tauParticles,
    const L1MuonParticleRefVector& muonParticles,
    const L1EtMissParticleRefProd& etMissParticle,
    const L1IndexComboVector& indexCombos )
@@ -77,7 +87,6 @@ L1ParticleMap::L1ParticleMap(
      objectTypes_( objectTypes ),
      emParticles_( emParticles ),
      jetParticles_( jetParticles ),
-     tauParticles_( tauParticles ),
      muonParticles_( muonParticles ),
      etMissParticle_( etMissParticle ),
      indexCombos_( indexCombos )
@@ -116,73 +125,33 @@ L1ParticleMap::~L1ParticleMap()
 const L1ParticleMap::L1IndexComboVector&
 L1ParticleMap::indexCombos() const
 {
-   if( indexCombos_.size() == 0 )
+   if( indexCombos_.size() == 0 && numOfObjects() == 1 )
    {
-      // Determine the number of non-global objects.  There should be 0 or 1.
-      int numNonGlobal = 0 ;
-      L1ObjectType nonGlobalType = kNumOfL1ObjectTypes ;
-      int nonGlobalIndex = -1 ;
-      for( int i = 0 ; i < numOfObjects() ; ++i )
+      int nParticles = 0 ;
+      L1ObjectType type = *( objectTypes().begin() ) ;
+
+      if( type == kEM )
       {
-	 if( !objectTypeIsGlobal( objectTypes_[ i ] ) )
-	 {
-	    ++numNonGlobal ;
-	    nonGlobalType = objectTypes_[ i ] ;
-	    nonGlobalIndex = i ;
-	 }
+	 nParticles = emParticles_.size() ;
+      }
+      else if( type == kJet )
+      {
+	 nParticles = jetParticles_.size() ;
+      }
+      else if( type == kMuon )
+      {
+	 nParticles = muonParticles_.size() ;
+      }
+      else if( type == kEtMiss || type == kEtTotal || type == kEtHad )
+      {
+	 nParticles = 1 ;
       }
 
-      if( numNonGlobal == 0 )
+      for( int i = 0 ; i < nParticles ; ++i )
       {
-	 // Dummy entry for each object type.
 	 L1IndexCombo tmpCombo ;
-
-	 for( int i = 0 ; i < numOfObjects() ; ++i )
-	 {
-	    tmpCombo.push_back( 0 ) ;
-	 }
-
+	 tmpCombo.push_back( i ) ;
 	 indexCombos_.push_back( tmpCombo ) ;
-      }
-      else if( numNonGlobal == 1 )
-      {
-	 int nParticles = 0 ;
-
-	 if( nonGlobalType == kEM )
-	 {
-	    nParticles = emParticles_.size() ;
-	 }
-	 else if( nonGlobalType == kJet )
-	 {
-	    nParticles = jetParticles_.size() ;
-	 }
-	 else if( nonGlobalType == kTau )
-	 {
-	    nParticles = tauParticles_.size() ;
-	 }
-	 else if( nonGlobalType == kMuon )
-	 {
-	    nParticles = muonParticles_.size() ;
-	 }
-
-	 for( int i = 0 ; i < nParticles ; ++i )
-	 {
-	    L1IndexCombo tmpCombo ;
-
-	    for( int j = 0 ; j < numOfObjects() ; ++j )
-	    {
-	       if( j == nonGlobalIndex )
-	       {		  
-		  tmpCombo.push_back( i ) ;
-	       }
-	       else
-	       {
-		  tmpCombo.push_back( 0 ) ;
-	       }
-	    }
-
-	    indexCombos_.push_back( tmpCombo ) ;
-	 }
       }
    }
 
@@ -205,11 +174,6 @@ L1ParticleMap::indexCombos() const
 //    {
 //       return dynamic_cast< const reco::ParticleKinematics* >(
 // 	 jetParticles_[ particleInList ].get() ) ;
-//    }
-//    else if( type == L1PhysObjectBase::kTau )
-//    {
-//       return dynamic_cast< const reco::ParticleKinematics* >(
-// 	 tauParticles_[ particleInList ].get() ) ;
 //    }
 //    else if( type == L1PhysObjectBase::kMuon )
 //    {
@@ -238,11 +202,6 @@ L1ParticleMap::physObjectInCombo( int aIndexInCombo,
    {
       return dynamic_cast< const L1PhysObjectBase* >(
 	 jetParticles_[ particleInList ].get() ) ;
-   }
-   else if( type == kTau )
-   {
-      return dynamic_cast< const L1PhysObjectBase* >(
-	 tauParticles_[ particleInList ].get() ) ;
    }
    else if( type == kMuon )
    {
@@ -287,23 +246,6 @@ L1ParticleMap::jetParticleInCombo( int aIndexInCombo,
    if( type == kJet )
    {
       return jetParticles_[ particleInList ].get() ;
-   }
-   else
-   {
-      return 0 ;
-   }
-}
-
-const L1JetParticle*
-L1ParticleMap::tauParticleInCombo( int aIndexInCombo,
-				   const L1IndexCombo& aCombo ) const
-{
-   L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
-   int particleInList = aCombo[ aIndexInCombo ] ;
-
-   if( type == kTau )
-   {
-      return tauParticles_[ particleInList ].get() ;
    }
    else
    {
@@ -391,10 +333,4 @@ L1ParticleMap::triggerType( const std::string& name )
    }
 
    return kNumOfL1TriggerTypes ;
-}
-
-bool
-L1ParticleMap::objectTypeIsGlobal( L1ObjectType type )
-{
-   return type == kEtMiss || type == kEtTotal || type == kEtHad ;
 }

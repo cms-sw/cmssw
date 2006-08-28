@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/07/27 08:44:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/27 08:28:45 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -16,7 +16,6 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include<typeinfo>
@@ -47,10 +46,6 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of products from Event
 
-   edm::Handle<edm::TriggerResults> tref;
-   iEvent.getByType(tref);
-   LogDebug("") << "TriggerResults: " << (*tref);
-
    edm::Handle<HLTFilterObjectWithRefs> ref;
    iEvent.getByLabel(inputTag_,ref);
 
@@ -64,8 +59,7 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      candidate=(ref->getParticleRef(i)).get();
      LogTrace("") << i << " E: " 
                << particle.energy() << " " << candidate->energy() << " "  
-		  << typeid(*candidate).name() << " "
-                  << particle.eta() << " " << particle.phi() ;
+               << typeid(*candidate).name();
    }
 
    return;

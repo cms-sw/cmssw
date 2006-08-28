@@ -4,6 +4,7 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include <vector>
@@ -32,5 +33,8 @@ namespace {
     edm::Wrapper< std::vector<reco::GenMET> > dummy12;
     std::vector<reco::GenMET> dummy13;
     edm::reftobase::Holder<reco::Candidate,reco::GenMETRef> rtb2;
+
+    // used for backward compatibility
+    std::vector<CommonMETData> bcv1;
   }
 }

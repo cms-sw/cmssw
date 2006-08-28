@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.26.2.1 2006/06/29 19:00:19 paterno Exp $
+// $Id: ParameterSet.cc,v 1.27 2006/07/06 18:47:52 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -249,7 +249,7 @@ namespace edm {
         return false;
 
       // form value and insert name/value pair
-      Entry  value(std::string(q+1, b->end()));
+      Entry  value(name, std::string(q+1, b->end()));
       if(! tbl_.insert(std::make_pair(name, value)).second)
         return false;
     }

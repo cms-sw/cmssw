@@ -5,16 +5,6 @@
 
 #include <iostream>
 
-HcalTrigTowerGeometry::HcalTrigTowerGeometry() {
-  useShortFibers_=true;
-  useHFQuadPhiRings_=true;
-}
-
-void HcalTrigTowerGeometry::setupHF(bool useShortFibers, bool useQuadRings) {
-  useShortFibers_=useShortFibers;
-  useHFQuadPhiRings_=useQuadRings;
-}
-
 std::vector<HcalTrigTowerDetId> 
 HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
 
@@ -22,7 +12,7 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
 
   if(cellId.subdet() == HcalForward) {
     // short fibers don't count
-    if(cellId.depth() == 1 || useShortFibers_) {
+    if(cellId.depth() == 1) {
       // first do eta
       int hfRing = cellId.ietaAbs();
       int ieta = firstHFTower(); 
@@ -34,14 +24,13 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       ieta *= cellId.zside();
 
       // now for phi
-      // HF towers are quad, 18 in phi.  
-      // go two cells per trigger tower.  
+      // HF towers are quad, 18 in phi.  If we're only in double-phi regions of HF,
+      // go two cells per trigger tower
       int iphi = cellId.iphi();
       if(cellId.ietaAbs() < theTopology.firstHFQuadPhiRing()) { 
-	iphi = (((iphi+1)/4)* 4 + 1)%72; // 71+1 --> 1, 3+5 --> 5
+        iphi = (iphi-1)/2 + 1;
       }
-      if (useHFQuadPhiRings_ || cellId.ietaAbs() < theTopology.firstHFQuadPhiRing())
-        results.push_back( HcalTrigTowerDetId(ieta, iphi) );
+      results.push_back( HcalTrigTowerDetId(ieta, iphi) );
     }
       
   } else {

@@ -16,27 +16,6 @@ AlignableNavigator::AlignableNavigator( Alignable* alignable )
 
 }
 
-//__________________________________________________________________________________________________
-AlignableNavigator::AlignableNavigator( std::vector<Alignable*> alignables )
-{
-
-  theMap.clear();
- 
-  
-  for ( std::vector<Alignable*>::iterator it = alignables.begin();
-		it != alignables.end(); it++ )
-	recursiveGetId( *it );
-
-
-}
-
-
-//__________________________________________________________________________________________________
-Alignable* AlignableNavigator::alignableFromGeomDet( const GeomDet* geomDet )
-{
-   return alignableFromDetId( geomDet->geographicalId() );
-}
-
 
 //__________________________________________________________________________________________________
 Alignable* AlignableNavigator::alignableFromDetId( const DetId& detid )
@@ -60,10 +39,8 @@ void AlignableNavigator::recursiveGetId( Alignable* alignable )
 
   if ( alignable->geomDetId().rawId() ) 
 	theMap.insert( PairType( alignable->geomDetId(), alignable ) );
-
-  std::vector<Alignable*> comp = alignable->components();
-  if ( comp.size() > 1 ) // Non-glued AlignableDets contain themselves
-	for ( std::vector<Alignable*>::iterator it = comp.begin(); it != comp.end(); it++ )
-	  this->recursiveGetId( *it );
+  for ( std::vector<Alignable*>::iterator it = alignable->components().begin();
+		it != alignable->components().end(); it++ )
+	this->recursiveGetId( *it );
 
 }

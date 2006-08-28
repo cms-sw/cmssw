@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/08/02 05:37:24 $
- * $Revision: 1.40 $
+ * $Date: 2006/07/05 07:52:38 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -81,7 +81,7 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
   }
 
   expectedMean_ = 200.0;
-  discrepancyMean_ = 25.0;
+  discrepancyMean_ = 20.0;
   RMSThreshold_ = 2.0;
 
 }
@@ -259,7 +259,6 @@ void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;

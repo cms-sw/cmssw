@@ -4,19 +4,18 @@
 #ifndef Propagation_Exceptions_H
 #define Propagation_Exceptions_H
 
-#include <exception>
+//#include <exception>
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <string>
 
 /// Common base class
 
-class PropagationException : public std::exception {
+class PropagationException : public cms::Exception {
 public:
-  PropagationException() throw() {}
-  PropagationException( const std::string& message) throw() : theMessage(message) {}
+  PropagationException( const std::string& message) throw() :  cms::Exception(message)  {}
   virtual ~PropagationException() throw() {}
-  virtual const char* what() const throw() { return theMessage.c_str();}
 private:
-  std::string theMessage;
 };
 
 #endif

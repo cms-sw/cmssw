@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/08/09 12:40:38 $
- * $Revision: 1.32 $
+ * $Date: 2006/07/28 14:48:10 $
+ * $Revision: 1.26 $
  * \author A. Ghezzi
  *
  */
@@ -67,7 +67,7 @@ EBBeamCaloTask::~EBBeamCaloTask(){
 void EBBeamCaloTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
-  profileArranged_ = false;
+
   DaqMonitorBEInterface* dbe = 0;
 
   // get hold of back-end interface
@@ -83,7 +83,7 @@ void EBBeamCaloTask::beginJob(const EventSetup& c){
 void EBBeamCaloTask::setup(void){
 
   init_ = true;
-  profileArranged_= false;
+
   Char_t histo[200];
 
   PreviousTableStatus_[0]=0;//let's start with stable...
@@ -91,8 +91,8 @@ void EBBeamCaloTask::setup(void){
 
   PreviousCrystalinBeam_[0] = 0;
   PreviousCrystalinBeam_[1] = 0;
-  PreviousCrystalinBeam_[2] = -1;
-  // PreviousCrystalinBeam_[2] = -1 is needed to have a correct step vs cry matching
+  PreviousCrystalinBeam_[2] = 0;
+
   lastStableStatus_=0;
   for(int u=0;u<10;u++){cib_[u]=0;}
   changed_tb_status_= false;
@@ -170,7 +170,7 @@ void EBBeamCaloTask::setup(void){
     // not all needed cry are readout-> bin 1, all needed cry are readout-> bin 3
     
     sprintf(histo, "EBBCT readout crystals number");
-    meBBNumCaloCryRead_ = dbe->book1D(histo,histo,1701,0.,1701.);
+    meBBNumCaloCryRead_ = dbe->book1D(histo,histo,1700,1.,1701.);
     
     sprintf(histo, "EBBCT rec Ene sum 3x3");
     meBBCaloE3x3_ = dbe->book1D(histo,histo,500,0.,9000.);
@@ -191,13 +191,13 @@ void EBBeamCaloTask::setup(void){
     //table is moving-> bin 2, table is not moving-> bin 1
 
     sprintf(histo, "EBBCT crystals done");
-    CrystalsDone_ = dbe->book1D(histo,histo,1700,1.,1701.);
+    CrystalsDone_ = dbe->book1D(histo,histo,1700,0.,1700.);
     //for a crystal done the corresponing bin is filled with the step in the 
     //autoscan pertainig to the given crystales 
   
     sprintf(histo, "EBBCT crystal in beam vs event");
-    CrystalInBeam_vs_Event_ = dbe->bookProfile(histo, histo, 20000,0.,400000.,1802,-101.,1701.,"s");
-    // 1 bin each 20 events
+    CrystalInBeam_vs_Event_ = dbe->bookProfile(histo, histo, 20000,0.,200000.,1802,-101.,1701.,"s");
+    // 1 bin each 10 events
     // when table is moving for just one events fill with -100
     
 
@@ -206,23 +206,20 @@ void EBBeamCaloTask::setup(void){
 
     sprintf(histo, "EBBCT average rec energy in the single crystal");
     //meEBBCaloE1vsCry_ = dbe->book1D(histo, histo, 85,1.,86.);
-    meEBBCaloE1vsCry_ = dbe->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
+    meEBBCaloE1vsCry_ = dbe->bookProfile(histo, histo, 85,1.,86.,500,0.,9000.,"s");
 
     sprintf(histo, "EBBCT average rec energy in the 3x3 array");
     //meEBBCaloE3x3vsCry_= dbe->book1D(histo, histo,85,1.,86.);
-    meEBBCaloE3x3vsCry_ = dbe->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
+    meEBBCaloE3x3vsCry_ = dbe->bookProfile(histo, histo, 85,1.,86.,500,0.,9000.,"s");
 
     sprintf(histo, "EBBCT number of entries");
-    meEBBCaloEntriesVsCry_ = dbe->book1D(histo, histo,1700,1.,1701.);
+    meEBBCaloEntriesVsCry_ = dbe->book1D(histo, histo,85,1.,86.);
     
     sprintf(histo, "EBBCT energy deposition in the 3x3");
     meEBBCaloBeamCentered_ = dbe->book2D(histo, histo,3,-1.5,1.5,3,-1.5,1.5);
 
     sprintf(histo, "EBBCT E1 in the max cry");
     meEBBCaloE1MaxCry_= dbe->book1D(histo,histo,500,0.,9000.);
-
-    sprintf(histo, "EBBCT Desynchronization vs step");
-    meEBBCaloDesync_= dbe->book1D(histo, histo, 85 ,1.,86.);
   }
   
 }
@@ -299,10 +296,8 @@ void EBBeamCaloTask::cleanup(void){
     meEBBCaloBeamCentered_ = 0;
     if( meEBBCaloE1MaxCry_ ) dbe->removeElement(meEBBCaloE1MaxCry_->getName() );
     meEBBCaloE1MaxCry_ = 0;
-    if( meEBBCaloDesync_ ) dbe->removeElement(meEBBCaloDesync_->getName() );
-    meEBBCaloDesync_ = 0;
   }
-  
+
   init_ = false;
 
 }
@@ -364,20 +359,15 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     cry_in_beam = evtHeader->crystalInBeam(); 
     tb_moving = evtHeader->tableIsMoving();
     event = evtHeader->eventNumber();
-    if( evtHeader->syncError() ) {meEBBCaloDesync_->Fill(crystal_step_);}
   }
   else {
     cry_in_beam =   previous_cry_in_beam_;
     tb_moving = lastStableStatus_;
     event = previous_ev_num_ +10;
   }
-
-  //if(tb_moving){cout<<"evt: "<< event<<" anEvt: "<<ievt_<<" cry_in_beam: "<< cry_in_beam<<" step: "<< crystal_step_<<" Moving"<<endl;}
-  //else {cout<<"evt: "<< event<<" anEvt: "<<ievt_<<" cry_in_beam: "<< cry_in_beam<<" step: "<< crystal_step_<<" Still"<<endl;}
-  
   previous_cry_in_beam_ = cry_in_beam;
   previous_ev_num_ = event;
-  
+
   //cry_in_beam = 702;//just for test, to be filled with info from the event
   
   bool reset_histos_stable = false;
@@ -467,25 +457,15 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
       wasFakeChange_ = true;
     }
     // }
-  
-    PreviousCrystalinBeam_[0] = PreviousCrystalinBeam_[1];
-    PreviousCrystalinBeam_[1] = PreviousCrystalinBeam_[2];
-    PreviousCrystalinBeam_[2] =  cry_in_beam;
   }
+  PreviousCrystalinBeam_[0] = PreviousCrystalinBeam_[1];
+  PreviousCrystalinBeam_[1] = PreviousCrystalinBeam_[2];
+  PreviousCrystalinBeam_[2] =  cry_in_beam;
+
   //if (! changed_tb_status_ && ! changed_cry_in_beam_ ){// standard data taking
     
     if( !tb_moving ) {CrystalInBeam_vs_Event_->Fill(event,float(cry_in_beam));}
     else{CrystalInBeam_vs_Event_->Fill(event,-100); }
-    if ( !profileArranged_ ){
-      float dd=0; 
-      int mbin =0;
-      for( int bin=1; bin < 20001; bin++ ){
-	float temp = CrystalInBeam_vs_Event_->getBinContent(bin);
-	if(temp>0){ dd= temp+0.01; mbin=bin; break;}
-      }
-      if(mbin >0) { CrystalInBeam_vs_Event_->Fill(20*mbin-1,dd);}
-      profileArranged_ = true;
-    }
     
     // }
 //   else{ // here there is either a step or a daq error
@@ -552,7 +532,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
       //       meEBBCaloEntriesVsCry_->setBinContent(crystal_step_ ,  meBBCaloE3x3_->getEntries() );
       
       event_last_reset_ = event;
-      //cout<<" EBBeamCaloTask: event " << event << " resetting stable histos. Cry: "<<cry_in_beam<<" current step: "<<crystal_step_<<endl;
+      //cout<<" EBBeamCaloTask: event " << ievt_ << " setting crystal "<<last_cry_in_beam_<<" as done, for the step: "<<crystal_step_<<endl;
 
       last_cry_in_beam_ = cry_in_beam;
       crystal_step_++;
@@ -579,7 +559,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
  // <5 just to avoid that we skip the event just after the reset and we do not set CrystalsDone_ . 
  // if( ievt_ - event_last_reset_ < 5){ CrystalsDone_->setBinContent(cry_in_beam , crystal_step_ );}
  CrystalsDone_->setBinContent(cry_in_beam , crystal_step_ );
- //cout<<"Event: "<< event <<" Setting cry: "<<cry_in_beam <<" to step: "<< crystal_step_<<endl;
+ 
   int eta_c = ( cry_in_beam-1)/20 ;
   int phi_c = ( cry_in_beam-1)%20 ;
   
@@ -609,7 +589,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   }
   
 
-  meEBBCaloEntriesVsCry_->Fill(cry_in_beam);
+  meEBBCaloEntriesVsCry_->Fill(crystal_step_ );
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -757,8 +737,8 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   if (!tb_moving){
     meBBCaloE3x3_->Fill(ene3x3);
-    meEBBCaloE1vsCry_->Fill(cry_in_beam , cryInBeamEne );
-    meEBBCaloE3x3vsCry_->Fill(cry_in_beam, ene3x3 );
+    meEBBCaloE1vsCry_->Fill(crystal_step_ , cryInBeamEne );
+    meEBBCaloE3x3vsCry_->Fill(crystal_step_, ene3x3 );
     //     if( cry_in_beam > 0 && cry_in_beam < 1701){
     //       meBBCaloE3x3Cry_[cry_in_beam]->Fill(ene3x3);
     //       meBBCaloE1Cry_[cry_in_beam]->Fill(cryInBeamEne);

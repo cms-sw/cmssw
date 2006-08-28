@@ -1,6 +1,8 @@
+//--------------------------------------------
 // File: ReadPixelRecHit.cc
 // Description:  see ReadPixelRecHit.h
 // Author:  J.Sheav (JHU)
+//          11/8/06: New loop over rechits and InputTag, V.Chiochia
 // Creation Date:  OGU Aug. 1 2005 Initial version.
 //
 //--------------------------------------------
@@ -23,7 +25,8 @@
 
 
 ReadPixelRecHit::ReadPixelRecHit(edm::ParameterSet const& conf) : 
-  conf_(conf)
+  conf_(conf),
+  src_( conf.getParameter<edm::InputTag>( "src" ) )
 {
 }
 
@@ -34,16 +37,32 @@ ReadPixelRecHit::~ReadPixelRecHit() { }
 void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   using namespace edm;
-  std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
-  
-  // Step A: Get Inputs 
-  std::string recHitCollLabel = conf_.getUntrackedParameter<std::string>("RecHitCollLabel","pixRecHitConverter");
-  edm::Handle<SiPixelRecHitCollection> recHitColl;
 
-  e.getByLabel(recHitCollLabel, recHitColl);
+  edm::Handle<SiPixelRecHitCollection> recHitColl;
+  e.getByLabel( src_ , recHitColl);
  
   std::cout <<" FOUND "<<(recHitColl.product())->size()<<" Pixel Hits"<<std::endl;
-  
+
+  SiPixelRecHitCollection::id_iterator recHitIdIterator;
+  SiPixelRecHitCollection::id_iterator recHitIdIteratorBegin = (recHitColl.product())->id_begin();
+  SiPixelRecHitCollection::id_iterator recHitIdIteratorEnd   = (recHitColl.product())->id_end();
+
+  // Loop over Detector IDs
+  for ( recHitIdIterator = recHitIdIteratorBegin; recHitIdIterator != recHitIdIteratorEnd; recHitIdIterator++) {
+
+    SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(*recHitIdIterator);
+
+    std::cout <<"     Det ID " << (*recHitIdIterator).rawId() << std::endl;
+    
+    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
+    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
+    SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+    
+    //----Loop over rechits for this detId
+    for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) {
+      std::cout <<"     Position " << pixeliter->localPosition() << std::endl;
+	}
+  }
   
 }
 

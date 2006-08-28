@@ -3,11 +3,13 @@
 <use name=IOPool/Common>
 <use name=boost>
 <use name=rootcore>
+<use name=root>
 <export>
  <lib name=IOPoolInput>
  <use name=FWCore/Framework>
  <use name=IOPool/Common>
  <use name=boost>
  <use name=rootcore>
+ <use name=root>
 </export>
 

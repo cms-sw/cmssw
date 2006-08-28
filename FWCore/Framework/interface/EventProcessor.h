@@ -32,13 +32,13 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.23 2006/07/23 01:24:33 valya Exp $
+$Id: EventProcessor.h,v 1.22 2006/07/06 19:11:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <string>
 
-#include "sigc++/signal.h"
+#include "boost/signal.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
 
@@ -214,12 +214,12 @@ class EDLooperHelper;
 
     /// signal is emitted after the Event has been created by the
     /// InputSource but before any modules have seen the Event
-    ActivityRegistry::PreProcessEvent
+    boost::signal<void (const EventID&, const Timestamp&)> 
     preProcessEventSignal;
 
     /// signal is emitted after all modules have finished processing
     /// the Event
-    ActivityRegistry::PostProcessEvent
+    boost::signal<void (const Event&, const EventSetup&)> 
     postProcessEventSignal;
 
 

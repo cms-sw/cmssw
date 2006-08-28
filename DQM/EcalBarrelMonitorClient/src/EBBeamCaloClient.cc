@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/08/09 08:19:25 $
- * $Revision: 1.23 $
+ * $Date: 2006/07/23 07:23:09 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -61,18 +61,17 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
   // there should be not more than a eta row in an autoscan
   minEvtNum_ = 2000;//FIX ME, change in case of prescaling
   //FIX ME, this should be configurable and change with the beam energy
-  aveEne1_    = 1300;  E1Th_   = 500;
-  aveEne3x3_  = 2000;  E3x3Th_ = 300;
-  RMSEne3x3_  = 500;
+  aveEne1_    = 1500;  E1Th_   = 500;
+  aveEne3x3_  = 2000;  E3x3Th_ = 500;
+  RMSEne3x3_  = 150;
 
   ReadCryErrThr_ = 0.01;// 1%
   //FIX ME, this should follow the prescaling in the monitoring
-  prescaling_ = 50;
+  prescaling_ = 1;
   
   ///////// task specific histos 
   for(int u=0;u<cryInArray_;u++){
     hBGains_[u] = 0;
-    hBpulse_[u] = 0;
     //hBGainsMoving_[u] = 0;
   }
   hBEne1_ = 0;
@@ -91,7 +90,6 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
   hBBeamCentered_ = 0;
   hbTBmoving_ = 0;
   hbE1MaxCry_ = 0;
-  hbDesync_ = 0;
   pBCriInBeamEvents_ = 0;
 
   meEBBCaloRedGreen_ = 0;
@@ -188,7 +186,6 @@ void EBBeamCaloClient::cleanup(void) {
   if ( cloneME_ ) {
     for(int u=0;u<cryInArray_;u++){
       if(hBGains_[u]) delete hBGains_[u];
-      if(hBpulse_[u]) delete hBpulse_[u];
       //if(hBGainsMoving_[u])delete hBGainsMoving_[u];
     }
     if(hBEne1_) delete hBEne1_;
@@ -207,13 +204,11 @@ void EBBeamCaloClient::cleanup(void) {
     if(hBBeamCentered_) delete hBBeamCentered_;
     if(hbTBmoving_) delete hbTBmoving_;
     if(hbE1MaxCry_) delete hbE1MaxCry_;
-    if(hbDesync_) delete hbDesync_;
     if(pBCriInBeamEvents_) delete pBCriInBeamEvents_;
   }
   
   for(int u=0;u<cryInArray_;u++){
     hBGains_[u] = 0;
-    hBpulse_[u] = 0;
     //hBGainsMoving_[u] = 0;
   }
   hBEne1_ = 0;
@@ -232,7 +227,7 @@ void EBBeamCaloClient::cleanup(void) {
   hBBeamCentered_ = 0;
   hbTBmoving_ = 0;
   hbE1MaxCry_ = 0;
-  hbDesync_ = 0;
+  hbE1MaxCry_ = 0;
   pBCriInBeamEvents_ =0;
 
   mui_->setCurrentFolder( "EcalBarrel/EBBeamCaloClient" );
@@ -396,9 +391,7 @@ void EBBeamCaloClient::subscribe(void){
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry");
   mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT Desynchronization vs step");
-  mui_->subscribe(histo);
-  
+
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBBeamCaloClient: collate" << endl;
@@ -472,8 +465,6 @@ void EBBeamCaloClient::subscribeNew(void){
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry");
   mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT Desynchronization vs step");
-  mui_->subscribe(histo);
 }
 
 void EBBeamCaloClient::unsubscribe(void){
@@ -543,8 +534,7 @@ void EBBeamCaloClient::unsubscribe(void){
   mui_->unsubscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry");
   mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT Desynchronization vs step");
-  mui_->unsubscribe(histo);
+
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBBeamCaloClient: uncollate" << endl;
@@ -653,10 +643,6 @@ void EBBeamCaloClient::analyze(void){
   me = mui_->get(histo);
   hbE1MaxCry_ =  EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hbE1MaxCry_);
   
-  if ( collateSources_ ) {;}
-  else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT Desynchronization vs step").c_str() );}
-  me = mui_->get(histo);
-  hbDesync_ =  EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hbDesync_);
 
   if ( collateSources_ ){;}
   else {
@@ -682,13 +668,10 @@ void EBBeamCaloClient::analyze(void){
 	DoneCry++;
 	float E3x3RMS = -1, E3x3 =-1, E1=-1;
 	if(hBE3x3vsCry_){
-	  //E3x3RMS = hBE3x3vsCry_->GetBinError(step);
-	  //E3x3 = hBE3x3vsCry_->GetBinContent(step);
-	  E3x3RMS = hBE3x3vsCry_->GetBinError(cry);
-	  E3x3 = hBE3x3vsCry_->GetBinContent(cry);
+	  E3x3RMS = hBE3x3vsCry_->GetBinError(step);
+	  E3x3 = hBE3x3vsCry_->GetBinContent(step);
 	}
-	//if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
-	if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(cry);}
+	if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
 	bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
 	bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
 	bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
@@ -702,9 +685,8 @@ void EBBeamCaloClient::analyze(void){
 	}
 	
 	float Entries = -1;
-	//if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
-	if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(cry);}
-	bool Nent = ( Entries * prescaling_  > minEvtNum_ );
+	if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
+	bool Nent = ( Entries > minEvtNum_ * prescaling_ );
 	//cout<<"step: "<<step<<" entries: "<<Entries<<endl;
 	//cout<<"step -1 entries: "<<hBEntriesvsCry_->GetBinContent(step-1)<<endl;
 	//cout<<"step +1 entries: "<<hBEntriesvsCry_->GetBinContent(step+1)<<endl;
@@ -859,7 +841,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummyStep.SetMinimum(0.1);
 
   //useful for both autoscan and non autoscan
-  string RedGreenSMImg,RedGreenImg,RedGreenAutoImg, numCryReadImg, cryReadErrImg, E1MaxCryImg, DesyncImg;
+  string RedGreenSMImg,RedGreenImg,RedGreenAutoImg, numCryReadImg, cryReadErrImg, E1MaxCryImg;
   string cryOnBeamImg, cryMaxEneImg, ratioImg;
   // useful for non autoscan
   string ene1Img, ene3x3Img, EBBeamCentered;
@@ -981,8 +963,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     //can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(2.0);
-    obj2f->GetXaxis()->SetTitle("step in the scan");
-    obj2f->GetXaxis()->SetTitleColor(1);
     obj2f->Draw("col");
     dummyStep.Draw("text90,same");
     can->Update();
@@ -1028,8 +1008,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
-    obj1f->GetXaxis()->SetTitle("number of read crystals");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1057,8 +1035,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
-    obj1f->GetXaxis()->SetTitle("step in the scan");
-    obj1f->GetXaxis()->SetTitleColor(1);
     AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
@@ -1089,8 +1065,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     AdjustRange(obj1f);
-    obj1f->GetXaxis()->SetTitle("rec Ene (ADC)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1101,36 +1075,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
- // Desynchronization
-  obj1f = hbDesync_;
-  if ( obj1f ) {
-    TCanvas* can = new TCanvas("can", "Temp", csize, csize);
-    meName = obj1f->GetName();
-    
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
-      }
-    }
-    DesyncImg = meName + ".png";
-    imgName1 = htmlDir +  DesyncImg;
-      
-    can->cd();
-    obj1f->SetStats(kTRUE);
-    gStyle->SetOptStat("e");
-    AdjustRange(obj1f);
-    obj1f->GetXaxis()->SetTitle("step");
-    obj1f->GetXaxis()->SetTitleColor(1);
-    obj1f->GetYaxis()->SetTitle("Desynchronized events");
-    obj1f->Draw();
-    can->Update();
-    can->SaveAs(imgName1.c_str());
-    delete can;
-  }
-  if ( imgName1.size() != 0 )
-    htmlFile << "<td><img src=\"" << DesyncImg  << "\"></td>" << endl;
-  else
-    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  
 
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
@@ -1244,8 +1189,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
-    obj1f->GetXaxis()->SetTitle("rec ene (ADC)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1274,8 +1217,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
-    obj1f->GetXaxis()->SetTitle("rec ene (ADC)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1305,10 +1246,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat(" ");
     obj2f->SetLineColor(kRed);
     obj2f->SetFillColor(kRed);
-    obj2f->GetXaxis()->SetTitle("\\Delta \\eta");
-    obj2f->GetXaxis()->SetTitleColor(1);
-    obj2f->GetYaxis()->SetTitle("\\Delta \\phi");
-
     obj2f->Draw("box");
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1341,9 +1278,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       can->cd();
       objp1->SetStats(kTRUE);
       gStyle->SetOptStat("e");
-      objp1->GetXaxis()->SetTitle("#sample");
-      objp1->GetXaxis()->SetTitleColor(1);
-      objp1->GetYaxis()->SetTitle("ADC");
       objp1->Draw();
       can->Update();
       can->SaveAs( pulseImgF[ind].c_str());
@@ -1366,8 +1300,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       can->cd();
       obj1f->SetStats(kTRUE);
       gStyle->SetOptStat(1110);
-      obj1f->GetXaxis()->SetTitle("gain");
-      obj1f->GetXaxis()->SetTitleColor(1);
       if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
       obj1f->Draw();
       can->Update();
@@ -1449,9 +1381,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
-    obj1f->GetXaxis()->SetTitle("crystal");
-    obj1f->GetYaxis()->SetTitle("step in the scan");
-    obj1f->GetXaxis()->SetTitleColor(1);
     AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
@@ -1480,10 +1409,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
-    obj1f->GetXaxis()->SetTitle("crystal");
-    obj1f->GetXaxis()->SetTitleColor(1);
-    obj1f->GetYaxis()->SetTitle("number of events (prescaled)");
-
     if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
     AdjustRange(obj1f);
     obj1f->Draw();
@@ -1517,9 +1442,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       
     can->cd();
     objp1->SetStats(kTRUE);
-    objp1->GetXaxis()->SetTitle("crystal");
-    objp1->GetXaxis()->SetTitleColor(1);
-    objp1->GetYaxis()->SetTitle("rec energy (ADC)");
     gStyle->SetOptStat("e");
     AdjustRange(objp1);
     objp1->Draw();
@@ -1549,9 +1471,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     objp1->SetStats(kTRUE);
     gStyle->SetOptStat("e");
-    objp1->GetXaxis()->SetTitle("crystal");
-    objp1->GetXaxis()->SetTitleColor(1);
-    objp1->GetYaxis()->SetTitle("rec energy (ADC)");
     AdjustRange(objp1);
     objp1->Draw();
     can->Update();
@@ -1589,18 +1508,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     //objp1->SetStats(kTRUE);
     //gStyle->SetOptStat("e");
-    float dd=0; 
-    int mbin =0;
-    for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
-      float temp = objp1->GetBinContent(bin);
-      if(temp>0){ dd= temp+0.01; mbin=bin; break;}
-    }
-    if(mbin >0) { objp1->Fill(20*mbin-1,dd);}
-
-    objp1->GetXaxis()->SetTitle("event");
-    objp1->GetXaxis()->SetTitleColor(1);
-    objp1->GetYaxis()->SetTitle("crystal in beam");
-
+    float dd = objp1->GetBinContent(2)+0.01;
+    objp1->Fill(21,dd);
     AdjustRange(objp1);
     float Ymin = 1701, Ymax =0;
     for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
@@ -1648,8 +1557,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
-    obj1f->GetXaxis()->SetTitle("table status (0=stable, 1=moving)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1681,8 +1588,8 @@ template<class T> void EBBeamCaloClient::AdjustRange( T obj){
   }
   
   if(first_bin < 1 || last_bin < 1){return;}
-  if(first_bin > 3){first_bin -= 3;}
-  if(last_bin < obj->GetNbinsX() ){last_bin += 3;}
+  if(first_bin > 1){first_bin -= 1;}
+  if(last_bin < obj->GetNbinsX() ){last_bin += 1;}
   
   obj->GetXaxis()->SetRange(first_bin, last_bin);
 }

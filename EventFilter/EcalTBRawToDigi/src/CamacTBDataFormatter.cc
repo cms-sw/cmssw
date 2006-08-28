@@ -107,7 +107,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
   // initializing array of statuses
   for (int wordNumber=0; wordNumber<nWordsPerEvent; wordNumber++)
-    { statusWords[wordNumber ] = true;}
+    { statusWords[wordNumber -1] = true;}
 
   //  for (int wordNumber=0; wordNumber<nWordsPerEvent; wordNumber++)
   //    { checkStatus( buffer[wordNumber],  wordNumber);}
@@ -182,14 +182,11 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   LogDebug("CamacTBDataFormatter") << "vme errors: "<< b << endl;
   b = (a& 0xffff);
   LogDebug("CamacTBDataFormatter") << "camac errors: "<< b << endl;
+  // if any of these numbers >~50% raise alarm
 
-  a = buffer[wordCounter];wordCounter++;
-  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
-  b = a;
-  LogDebug("CamacTBDataFormatter") << "extended (32 bits) run number: "<< b << endl;
 
-  // skip 1 reserved words
-  wordCounter +=1;
+  // skip 2 reserved words
+  wordCounter +=2;
 
   /**********************************
   // acessing the hodoscope block
@@ -353,15 +350,15 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   // acessing table in position bit
   **********************************/
   a = buffer[wordCounter];      wordCounter++;
-  b = (a & 0x00000001);  //1= table is in position; 0=table is moving
+  b = (a & 0x00000001);  //1= table is moving; 0=table is still
   bool tableIsMoving;
   if ( b ){
-    LogDebug("CamacTBDataFormatter") << " table is in position."  << endl;
+    LogDebug("CamacTBDataFormatter") << " table is not in position."  << endl;
     tableIsMoving = false;
   }
   else
     {
-    LogDebug("CamacTBDataFormatter") << " table is moving."  << endl;
+    LogDebug("CamacTBDataFormatter") << " table is in position."  << endl;
     tableIsMoving = true;
     }
   tbEventHeader.setTableIsMoving( tableIsMoving );
@@ -378,13 +375,13 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   wordCounter += 10;
   bool ADCIsGood = true;
   ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
-  a = buffer[wordCounter];      wordCounter++;  // NOT read out
+  a = buffer[wordCounter];      wordCounter++;
   b = (a&0x00ffffff);
   LogDebug("CamacTBDataFormatter") << "ADC word1: " << a << "\t ADC2: " << b << " word is: " << (wordCounter-1) << endl;
   ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
-  a = buffer[wordCounter];      wordCounter++;  // read out
+  a = buffer[wordCounter];      wordCounter++;
   b = (a&0xffffff);
-  LogDebug("CamacTBDataFormatter") << "ADC word2, adc channel 11, ampli S6: " << a << "\t ADC2: " << b << endl;
+  LogDebug("CamacTBDataFormatter") << "ADC word2: " << a << "\t ADC2: " << b << endl;
 
 
   
@@ -431,12 +428,11 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 bool CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
   
 
-  if ( wordNumber < 1 || wordNumber > nWordsPerEvent)
+  if ( wordNumber > nWordsPerEvent)
     { 
       LogWarning("CamacTBDataFormatter::checkStatus") << "checking word number: "
 						    <<  wordNumber << " which is out of allowed range (" 
 						    << nWordsPerEvent << ")" << endl;
-      return false;
     }
 
   bool isOk = true;
@@ -475,15 +471,14 @@ bool CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
       statusWords[wordNumber -1] = false;      
       isOk = false;
     }
-  
-  // camac error check not done on purpose from Aug 8, to speed up Camac communication. This bit status is now ignored.
-  //  if (word & 0x04000000) // no camac check error
-  //    { 
-  //LogWarning("CamacTBDataFormatter::checkStatus") << "no camac check error at word: "<<  wordNumber << endl;
-  //statusWords[wordNumber -1] = false;      
-  //isOk = false;
-  //    }
-  
+ 
+  if (word & 0x04000000) // no camac check error
+    { 
+      LogWarning("CamacTBDataFormatter::checkStatus") << "no camac check error at word: "<<  wordNumber << endl;
+      statusWords[wordNumber -1] = false;      
+      isOk = false;
+    }
+
   return isOk;
 
 }

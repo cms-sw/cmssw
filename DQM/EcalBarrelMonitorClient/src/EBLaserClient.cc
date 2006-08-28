@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/08/03 19:41:25 $
- * $Revision: 1.86 $
+ * $Date: 2006/07/05 07:52:38 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  *
 */
@@ -173,11 +173,6 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       qth02_[ism-1]->setMeanRange(100., 4096.);
       qth02_[ism-1]->setMeanRange(100., 4096.);
       qth03_[ism-1]->setMeanRange(100., 4096.);
-
-      qth01_[ism-1]->setMeanTolerance(percentVariation_);
-      qth02_[ism-1]->setMeanTolerance(percentVariation_);
-      qth02_[ism-1]->setMeanTolerance(percentVariation_);
-      qth03_[ism-1]->setMeanTolerance(percentVariation_);
 
       qth01_[ism-1]->setMinimumEntries(10*1700);
       qth02_[ism-1]->setMinimumEntries(10*1700);
@@ -474,7 +469,6 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -498,7 +492,6 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -522,7 +515,6 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -546,7 +538,6 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;

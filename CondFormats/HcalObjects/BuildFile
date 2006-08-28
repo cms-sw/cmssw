@@ -2,9 +2,11 @@
 <use name=rootrflx>
 <use name=DataFormats/HcalDetId>
 <use name=FWCore/Framework>
+<use name=FWCore/Utilities>
 <export>
   <use name=rootrflx>
   <use name=DataFormats/HcalDetId>
   <use name=FWCore/Framework>
+  <use name=FWCore/Utilities>
   <lib name=CondFormatsHcalObjects>
 </export>
