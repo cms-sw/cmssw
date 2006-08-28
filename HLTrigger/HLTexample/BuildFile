@@ -1,4 +1,4 @@
-<use name=PhysicsTools/Utilities>
+<use name=PhysicsTools/Parser>
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
 <use name=DataFormats/L1Trigger>
