@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.27 2006/08/16 23:40:25 wmtan Exp $
+$Id: RootFile.cc,v 1.28 2006/08/24 17:11:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -105,7 +105,7 @@ namespace edm {
       prod.provenancePresent_ = (eventMetaTree_->GetBranch(prod.branchName().c_str()) != 0);
       TBranch * branch = eventTree_->GetBranch(prod.branchName().c_str());
       prod.present_ = (branch != 0);
-      if (prod.provenancePresent() && !prod.transient()) {
+      if (prod.provenancePresent()) {
         std::string const &name = prod.className();
         std::string const className = wrappedClassName(name);
         if (branch != 0) branches_->insert(std::make_pair(it->first, std::make_pair(className, branch)));
