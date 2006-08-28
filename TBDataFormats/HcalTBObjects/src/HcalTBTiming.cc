@@ -23,6 +23,7 @@ using namespace std;
     bh2hits_(),
     bh3hits_(),
     bh4hits_() {
+    for (int i=0;i<32;i++)V775_[i]=-1;
   }
 
   void HcalTBTiming::setTimes (const double trigger_time,
@@ -71,6 +72,12 @@ using namespace std;
     beamCoincidenceHits_ = beamCoincidenceHits;
   }
 
+    void HcalTBTiming::setV775 (int *V775)
+ {
+    for (int i=0;i<32;i++)V775_[i]=V775[i];
+ }
+
+  
   ostream& operator<<(ostream& s, const HcalTBTiming& htbtmg) {
 
     s << "Trigger time     = " << htbtmg.triggerTime() << endl;

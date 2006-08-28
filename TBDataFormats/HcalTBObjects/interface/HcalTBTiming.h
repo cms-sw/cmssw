@@ -11,8 +11,8 @@
 This class contains timing information unpacked from the
 Time-to-Digital Converter (TDC).
       
-  $Date: 2006/08/18 04:34:45 $
-  $Revision: 1.7 $
+  $Date: 2006/08/25 17:25:30 $
+  $Revision: 1.8 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTiming {
@@ -94,6 +94,8 @@ Time-to-Digital Converter (TDC).
     double BH3Hits(int index) const { return bh3hits_[index];   }
     /// Returns the indexed hit time from beam halo counter DOWN HORZINTAL.
     double BH4Hits(int index) const { return bh4hits_[index];   }
+    /// Returns the hit in the specified channel 
+    int V775(int index)  const {return V775_[index];}
 
     // Setter methods
     void   setTimes (const double trigger_time,
@@ -118,6 +120,9 @@ Time-to-Digital Converter (TDC).
 		     const std::vector<double>& bh4hits,
 		     const std::vector<double>& beamCoincidenceHits);
 
+  void setV775 (int *V775);
+
+
   private:
     double triggerTime_;
     double ttcL1Atime_;
@@ -128,6 +133,7 @@ Time-to-Digital Converter (TDC).
     double TOF2Stime_;
     double TOF2Jtime_;
 
+    int V775_[32];
     std::vector<double> beamCoincidenceHits_;
 
     std::vector<double> m1hits_;

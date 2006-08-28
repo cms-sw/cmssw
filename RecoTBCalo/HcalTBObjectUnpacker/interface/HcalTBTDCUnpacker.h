@@ -8,8 +8,8 @@ using namespace std;
 namespace hcaltb {
 /** \class HcalTBTDCUnpacker
     
-   $Date: 2006/08/03 23:54:33 $
-   $Revision: 1.4 $
+   $Date: 2006/08/04 00:28:00 $
+   $Revision: 1.5 $
    \author J. Mans, P. Dudero - Minnesota
 */
 class HcalTBTDCUnpacker {
@@ -25,7 +25,7 @@ private:
     double time;
   };
   
-  void unpackHits(const FEDRawData& raw, std::vector<Hit>& hits) const;
+  void unpackHits(const FEDRawData& raw, std::vector<Hit>& hits, HcalTBTiming& timing) const;
   void reconstructWC(const std::vector<Hit>& hits,
 		     HcalTBEventPosition& pos) const;
   void reconstructTiming(const std::vector<Hit>& hits,

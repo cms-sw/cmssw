@@ -82,7 +82,7 @@ void HcalTBTDCUnpacker::setCalib(const vector<vector<string> >& calibLines_) {
 			       HcalTBTiming& timing) const {
     std::vector<Hit> hits;
 
-    unpackHits(raw, hits);
+    unpackHits(raw, hits, timing);
     
     reconstructWC(hits, pos);
     reconstructTiming(hits, timing);
@@ -106,7 +106,7 @@ void HcalTBTDCUnpacker::setCalib(const vector<vector<string> >& calibLines_) {
 //static const double CONVERSION_FACTOR=25.0/32.0;
 
 void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
-				   std::vector<Hit>& hits) const {
+				   std::vector<Hit>& hits,HcalTBTiming& timing) const {
   const ClassicTDCDataFormat* tdc=(const ClassicTDCDataFormat*)raw.data();
 
   if (raw.size()<3*8) {
@@ -141,6 +141,8 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
   }
 
   // new TDC (V775)
+  int v775[32];
+  for (int i=0;i<32;i++) v775[i]=-1;
   if (tdc->n_max_hits!=192) {
     const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
     hitbase=(unsigned int*)(qdctdc);
@@ -148,16 +150,18 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
     hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
     hitbase+=(qdctdc->n_tdc_hits&0xFFFF); // same length
     totalhits=(qdctdc->n_tdc_hits&0xFFFF0000)>>16; // mask off high bits    
-    
     for (unsigned int i=0; i<totalhits; i++) {
       Hit h;    
-      h.channel=129+i;
+//      h.channel=129+i;
+      h.channel=129+((hitbase[i]&0x3F0000)>>16);
       h.time=(hitbase[i]&0xFFF)*tdc_convers[h.channel] ;
       hits.push_back(h);
+      if ( (h.channel-129)<32 ) 
+	 v775[(h.channel-129)] = (hitbase[i]&0xFFF);
       //      printf("V775: %d %f\n",h.channel,h.time);
     }
   }
-
+  timing.setV775(v775);
 }
 
 void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
