@@ -22,7 +22,7 @@ namespace edm {
       /// for sorting NodePtrs by name
       typedef std::map<std::string, NodePtr> NodePtrMap;
 
-      ParseResultsTweaker() {}
+      ParseResultsTweaker();
 
       void process(ParseResults & parseResults);
 

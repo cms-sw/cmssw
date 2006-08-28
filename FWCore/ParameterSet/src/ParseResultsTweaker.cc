@@ -13,6 +13,19 @@ using std::map;
 namespace edm {
   namespace pset {
 
+    ParseResultsTweaker::ParseResultsTweaker()
+    : blocks_(),
+      blockCopyNodes_(),
+      blockRenameNodes_(),
+      blockReplaceNodes_(),
+      copyNodes_(),
+      renameNodes_(),
+      replaceNodes_(),
+      modulesAndSources_()
+    {
+    }
+
+
     void ParseResultsTweaker::process(ParseResults & parseResults)
     {
       // find the node that represents the process
