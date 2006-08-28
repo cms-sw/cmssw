@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/08/28 13:39:54 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  A. Everett               Purdue University
@@ -39,7 +39,7 @@ void MuonTransientTrackingRecHitBuilder::setES(const edm::EventSetup& setup) {
 //
 //
 MuonTransientTrackingRecHitBuilder::RecHitPointer
-MuonTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const {
+MuonTransientTrackingRecHitBuilder::build (const TrackingRecHit* p) const {
 
   if ( p->geographicalId().det() == DetId::Muon ) {
     return (MuonTransientTrackingRecHit::specificBuild(theTrackingGeometry->idToDet(p->geographicalId()),p).get());

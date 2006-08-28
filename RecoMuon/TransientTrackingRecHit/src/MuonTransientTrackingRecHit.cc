@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/01 15:49:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/08/27 03:39:22 $
+ *  $Revision: 1.10 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
@@ -15,24 +15,24 @@ typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
 typedef MuonTransientTrackingRecHit::RecHitContainer   MuonRecHitContainer;
 
 
-MuonTransientTrackingRecHit::MuonTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh) :
+MuonTransientTrackingRecHit::MuonTransientTrackingRecHit(const GeomDet* geom, const TrackingRecHit* rh) :
   GenericTransientTrackingRecHit(geom,*rh){}
 
-MuonTransientTrackingRecHit::MuonTransientTrackingRecHit( const MuonTransientTrackingRecHit & other ) :
+MuonTransientTrackingRecHit::MuonTransientTrackingRecHit(const MuonTransientTrackingRecHit& other ) :
   GenericTransientTrackingRecHit(other.det(), *(other.hit())) {}
 
 
-LocalVector MuonTransientTrackingRecHit::localDirection() const
-{
-  if(dynamic_cast<const RecSegment*>(hit()))
+LocalVector MuonTransientTrackingRecHit::localDirection() const {
+
+  if (dynamic_cast<const RecSegment*>(hit()) )
      return dynamic_cast<const RecSegment*>(hit())->localDirection(); 
   else return LocalVector(0.,0.,0.);
 
 }
 
-LocalError MuonTransientTrackingRecHit::localDirectionError() const
-{
-  if(dynamic_cast<const RecSegment*>(hit()))
+LocalError MuonTransientTrackingRecHit::localDirectionError() const {
+
+  if (dynamic_cast<const RecSegment*>(hit()))
      return dynamic_cast<const RecSegment*>(hit())->localDirectionError();
   else return LocalError(0.,0.,0.);
 
@@ -50,14 +50,14 @@ GlobalError MuonTransientTrackingRecHit::globalDirectionError() const
 
 double MuonTransientTrackingRecHit::chi2() const 
 {
-  if(dynamic_cast<const RecSegment*>(hit()))
+  if (dynamic_cast<const RecSegment*>(hit()))
     return dynamic_cast<const RecSegment*>(hit())->chi2();
   else return 0.;
 }
 
 int MuonTransientTrackingRecHit::degreesOfFreedom() const 
 {
-  if(dynamic_cast<const RecSegment*>(hit()))
+  if (dynamic_cast<const RecSegment*>(hit()))
     return dynamic_cast<const RecSegment*>(hit())->degreesOfFreedom();
   else return 0;
 }
