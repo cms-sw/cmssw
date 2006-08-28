@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.18 2006/08/24 13:55:06 llista Exp $
+ * $Id: AssociationMap.h,v 1.19 2006/08/25 13:52:12 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -39,7 +39,7 @@ namespace edm {
     /// throw if r hasn't the same id as rp
     template<typename RP, typename R>
     void checkRef( const RP & rp, const R & r ) {
-      if ( r.id() != r.id() )
+      if ( rp.id() != r.id() )
 	throw edm::Exception( edm::errors::InvalidReference, "invalid reference" );
     }
   }
