@@ -102,7 +102,7 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     reco::Track * theTrack = (*i).second;
     
     //     if( ) {
-    reco::Track t =*theTrack;
+    reco::Track t = * theTrack;
     selTracks->push_back( t );
     
     //sets the outermost and innermost TSOSs
@@ -126,18 +126,19 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     math::XYZPoint  inpos( v.x(), v.y(), v.z() );
 
     reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
-    selTracks->back().setExtra( teref );
-    //    selTracks->back().setHitPattern(teref->recHits());
+    reco::Track & track = selTracks->back();
+    track.setExtra( teref );
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true));
 
     reco::TrackExtra & tx = selTrackExtras->back();
-    for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
-	j!=transHits.end(); j++){
-      selHits->push_back( ( ((**j).hit() )->clone()) );
+    size_t i = 0;
+    for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
+	 j != transHits.end(); j ++ ) {
+      TrackingRecHit * hit = (**j).hit()->clone();
+      selHits->push_back( hit );
+      track.setHitPattern( * hit, i ++ );
       tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
     }
-    //     }
-    //delete theTrackExtra;
     delete theTrack;
     delete theTraj;
   }
