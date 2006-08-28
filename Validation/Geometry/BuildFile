@@ -1,19 +1,19 @@
 <export>
  <lib name=ValidationGeometry>
- <use name=FWCore/EDProduct>
  <use name=root>
  <use name=geant4>
  <use name=boost>
  <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
  <use name=SimG4Core/Notification>
  <use name=SimG4Core/Watcher>
 </export>
 
-<use name=FWCore/EDProduct>
 <use name=root>
 <use name=geant4>
 <use name=boost>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
 
