@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: $
- *  $Revision: $ 
+ *  $Date: 2006/08/28 18:08:31 $
+ *  $Revision: 1.1 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -39,7 +39,7 @@ using namespace std;
 //
 TrackConverter::TrackConverter(const edm::ParameterSet& par) {
 
-  ParameterSet refitterPSet = par.getParameter<ParameterSet>("Refitter");
+  ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new MuonTrackReFitter(refitterPSet);
 
 }
