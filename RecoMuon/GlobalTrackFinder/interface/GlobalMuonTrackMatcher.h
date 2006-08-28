@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/08/03 17:28:50 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/08/09 16:40:28 $
+ *  $Revision: 1.9 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -16,11 +16,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
 class TrajectoryStateOnSurface;
-class MuonUpdatorAtVertex;
 class MagneticField;
 class GlobalTrackingGeometry;
+class Trajectory;
 
 //              ---------------------
 //              -- Class Interface --
@@ -29,6 +30,8 @@ class GlobalTrackingGeometry;
 class GlobalMuonTrackMatcher {
 
   public:
+
+  typedef std::pair<Trajectory*,reco::TrackRef> TrackCand;
 
     /// constructor
     GlobalMuonTrackMatcher(double chi2,
@@ -39,36 +42,28 @@ class GlobalMuonTrackMatcher {
 
     /// destructor
     virtual ~GlobalMuonTrackMatcher() {}
-
+    
     /// set eventsetup
     void setES(const edm::EventSetup&);
 
     /// choose one that with smallest chi2
-    std::pair<bool, reco::TrackRef> matchOne(const reco::TrackRef&, 
-                                             const edm::Handle<reco::TrackCollection>&) const;
-
+    std::pair<bool, TrackCand> matchOne(TrackCand&, 
+					std::vector<TrackCand>&) const;
+    
     /// choose all that has chi2 less than MaxChi2
-    std::vector<reco::TrackRef> match(const reco::TrackRef&, 
-                                      const edm::Handle<reco::TrackCollection>&) const;
-
-    /// choose all that has chi2 less than MaxChi2
-    std::vector<reco::TrackRef> match(const reco::TrackRef&, 
-                                      const std::vector<reco::TrackRef>&) const;
-
+    std::vector<TrackCand> match(TrackCand&, 
+				 std::vector<TrackCand>&) const;
+    
     /// check if two trackRefs are match
-    std::pair<bool,double> match(const reco::TrackRef&,
-                                 const reco::TrackRef&) const;
-
-    /// check if two tracks are match
-    std::pair<bool,double> match(const reco::Track&, 
-                                 const reco::Track&) const; 
-
+    std::pair<bool,double> match(TrackCand&,
+                                 TrackCand&) const;
+    
     /// check if two TSOS are match
     std::pair<bool,double> match(const TrajectoryStateOnSurface&, 
                                  const TrajectoryStateOnSurface&) const;
-
-  private:
-
+    
+ private:
+    
     double theMaxChi2;
     double theMinP;
     double theMinPt;

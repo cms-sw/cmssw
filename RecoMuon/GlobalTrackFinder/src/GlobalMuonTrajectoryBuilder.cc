@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/09 22:36:47 $
- *  $Revision: 1.34 $
+ *  $Date: 2006/08/07 16:36:58 $
+ *  $Revision: 1.33 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -73,13 +73,17 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonSeedCleaner.h"
-#include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonReFitter.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackReFitter.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
+#include "RecoMuon/TrackingTools/interface/TrackConverter.h"
+
 
 using namespace std;
 using namespace edm;
@@ -91,7 +95,7 @@ using namespace edm;
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par) {
   
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-  theRefitter = new GlobalMuonReFitter(refitterPSet);
+  theRefitter = new MuonTrackReFitter(refitterPSet);
   
   ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
   theUpdator = new MuonUpdatorAtVertex(updatorPSet);
@@ -101,10 +105,12 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
   theTTRHBuilderName = par.getParameter<string>("TTRHBuilder");
 
-  theTrackMatcherChi2Cut = par.getParameter<double>("Chi2CutTrackMatcher");
+  ParameterSet muonTTRHBuilderPSet = par.getParameter<ParameterSet>("MuonTTRHBParameters");
+  theMuonTTRHBuilder = new MuonTransientTrackingRecHitBuilder(muonTTRHBuilderPSet);
+  theTrackConverter = new TrackConverter(par);
 
-  //theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut);
-  theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
+  theTrackMatcherChi2Cut = par.getParameter<double>("Chi2CutTrackMatcher");
+  theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theMagField,&*theUpdator);
 
   theMuonHitsOption = par.getParameter<int>("MuonHitsOption");
   theDirection = static_cast<ReconstructionDirection>(par.getParameter<int>("Direction"));
@@ -130,7 +136,9 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theRefitter) delete theRefitter;
   if (theUpdator) delete theUpdator;
   if (theTrackMatcher) delete theTrackMatcher;
-  if (theLayerMeasurements) delete theLayerMeasurements; 
+  if (theLayerMeasurements) delete theLayerMeasurements;
+  if (theMuonTTRHBuilder) delete theMuonTTRHBuilder;
+  if (theTrackConverter) delete theTrackConverter;
 
 }
 
@@ -140,16 +148,19 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
 //
 void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
 
-  setup.get<IdealMagneticFieldRecord>().get(theField);  
+  setup.get<IdealMagneticFieldRecord>().get(theMagField);  
   setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
   
   setup.get<TransientRecHitRecord>().get(theTTRHBuilderName,theTkTransientTrackingRecHitBuilder);
 
   theUpdator->setES(setup);
-  //theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
   theTrackMatcher->setES(setup);
   theRefitter->setES(setup);
+  theMuonTTRHBuilder->setES(setup);
+  theTrackConverter->setES(setup);
+
+  theTrackConverter->setBuilder(const_cast<TransientTrackingRecHitBuilder*>(&*theTkTransientTrackingRecHitBuilder),&*theMuonTTRHBuilder);
 
 }
 
@@ -174,15 +185,29 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 //
 MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const reco::TrackRef& staTrack) {
 
+  // convert the STA track into a Trajectory
+  TC staTrajs = theTrackConverter->convert(staTrack);
+  TrackCand staCand = ( !staTrajs.empty() ) ? TrackCand(new Trajectory(staTrajs.front()),staTrack) : TrackCand(0,staTrack);
+   
+  vector<TrackCand> tkTrajs;
+  for (unsigned int position = 0; position < allTrackerTracks->size(); position++) {
+    reco::TrackRef tkTRef(allTrackerTracks,position);
+    TC tkTrajs_tmpb = theTrackConverter->convert(tkTRef);
+    TrackCand trackCand = ( !tkTrajs_tmpb.empty() ) ? TrackCand(new Trajectory(tkTrajs_tmpb.front()),tkTRef) : TrackCand(new Trajectory(tkTrajs_tmpb.front()),tkTRef);
+    tkTrajs.push_back(trackCand);
+  }
+  
   // select tracker tracks in eta-phi cone around muon
-  vector<reco::TrackRef> regionalTkTracks = chooseRegionalTrackerTracks(staTrack,allTrackerTracks);
+  vector<TrackCand> regionalTkTracks = chooseRegionalTrackerTracks(staCand,tkTrajs);
   LogInfo("GlobalMuonTrajectoryBuilder") << "Found " << regionalTkTracks.size() << " tracks within region of interest" << endl;
 
   // match tracker tracks to muon track
-  vector<reco::TrackRef> trackerTracks = theTrackMatcher->match(staTrack, regionalTkTracks);
+  vector<TrackCand> trackerTracks = theTrackMatcher->match(staCand, regionalTkTracks);
   LogInfo("GlobalMuonTrajectoryBuilder") << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest" << endl;
 
-  CandidateContainer result = build(staTrack, trackerTracks);
+  CandidateContainer result = build(staCand, trackerTracks);
+  tkTrajs.clear();
+  if(staCand.first != 0) delete staCand.first;
 
   return result;
 
@@ -192,33 +217,31 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
 //
 // select tracks within the region of interest
 //
-vector<reco::TrackRef> 
-GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const reco::TrackRef& staTrack, 
-                                                         const edm::Handle<reco::TrackCollection>& tkTs) const {
+vector<GlobalMuonTrajectoryBuilder::TrackCand> 
+GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCand, 
+                                                         const vector<TrackCand>& tkTs) const {
   
   // define eta-phi region
-  RectangularEtaPhiTrackingRegion regionOfInterest = defineRegionOfInterest(staTrack);
+  RectangularEtaPhiTrackingRegion regionOfInterest = defineRegionOfInterest(staCand.second);
 
-  vector<reco::TrackRef> result;
+  vector<TrackCand> result;
 
   int position = 0;
-  reco::TrackCollection::const_iterator is;
-  for ( is = tkTs->begin(); is != tkTs->end(); ++is ) {
+  vector<TrackCand>::const_iterator is;
+  for ( is = tkTs.begin(); is != tkTs.end(); ++is ) {
 
     position++;
 
-    float eta = is->eta();
-    float phi = is->phi();
-    
+    float eta  = is->second->eta();    
+    float phi  = is->second->phi();
+
     float dphi(fabs(Geom::Phi<float>(phi)-Geom::Phi<float>(regionOfInterest.direction().phi())));
 
     bool inEtaRange = regionOfInterest.etaRange().inside(eta);
     bool inPhiRange = false;
     if(dphi < regionOfInterest.phiMargin().right()) inPhiRange = true;
     if( !( inEtaRange && inPhiRange ) ) continue;  
-
-    reco::TrackRef tkTsRef(tkTs,position-1);
-    result.push_back(tkTsRef); 
+    result.push_back(*is); 
 
   }
   
@@ -235,9 +258,9 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
 
   // define tracker region of interest
   const math::XYZVector& mo = staTrack->innerMomentum();
-  GlobalVector mom(mo.x(),mo.y(),mo.z());
-
-  reco::TransientTrack staTT(staTrack,&*theField,theTrackingGeometry);
+  GlobalVector mom(mo.x(),mo.y(),mo.z()); 
+   
+  reco::TransientTrack staTT(staTrack,&*theMagField,theTrackingGeometry);
   TrajectoryStateOnSurface traj_vertex = staTT.impactPointState();
   if ( traj_vertex.isValid() ) mom = traj_vertex.globalMomentum();
   float eta1   = mom.eta();
@@ -248,7 +271,7 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   float phi2 = 0.0;
   float theta2 = 0.0;
   
-  ConstMuonRecHitContainer recHits = getTransientHits(*staTrack);
+  ConstMuonRecHitContainer recHits = theTrackConverter->getTransientMuonRecHits(*staTrack);
   ConstMuonRecHitPointer r = *(recHits.begin()+1);
 
   eta2   = r->globalPosition().eta();
@@ -287,8 +310,8 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
 //
 //
 //
-MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const reco::TrackRef& staTrack, 
-                                                                     const std::vector<reco::TrackRef>& tkMatchedTracks) const {
+MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const TrackCand& staCand, 
+                                                                     const std::vector<TrackCand>& tkMatchedTracks) const {
 
 
   // MuonHitsOption: 0 - tracker only
@@ -299,17 +322,15 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const reco:
   //
 
   //
-  // turn tkMatchedTracks into tkTrajs
+  // turn tkMatchedTracks into MuonCandidates
   //
   CandidateContainer tkTrajs;
  
-  for (vector<reco::TrackRef>::const_iterator tkt = tkMatchedTracks.begin();tkt != tkMatchedTracks.end(); tkt++) {
-    TC tkTrajs_tmp = getTrajFromTrack(*tkt);
-    if ( !tkTrajs_tmp.empty() ) {
-      Trajectory* traj = new Trajectory(tkTrajs_tmp.front());
-      MuonCandidate* muonCand = new MuonCandidate(traj,staTrack,*tkt);
-      tkTrajs.push_back(muonCand);
-    }    
+  for (vector<TrackCand>::const_iterator tkt = tkMatchedTracks.begin();tkt != tkMatchedTracks.end(); tkt++) {
+    if((*tkt).first != 0) {
+      MuonCandidate* muonCand = new MuonCandidate((*tkt).first,staCand.second,(*tkt).second);
+      tkTrajs.push_back(muonCand);    
+    }
   }
   
   if ( tkTrajs.empty() ) return tkTrajs;
@@ -321,7 +342,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const reco:
   vector<int> stationHits(4,0);
   ConstRecHitContainer muonRecHits1; // all muon rechits
   ConstRecHitContainer muonRecHits2; // only first muon rechits
-  if ( theMuonHitsOption > 0 ) checkMuonHits(*staTrack, muonRecHits1, muonRecHits2, stationHits);
+  if ( theMuonHitsOption > 0 ) checkMuonHits(*(staCand.second), muonRecHits1, muonRecHits2, stationHits);
 
   //
   // add muon hits and refit/smooth trajectories
@@ -349,7 +370,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const reco:
       vector<Trajectory*> refit(4);
       MuonCandidate* finalTrajectory = 0;
       // tracker only track
-      refit[0] = (*it)->trajectory();                 
+      refit[0] = (*it)->trajectory();
       
       ConstRecHitContainer rechits(trackerRecHits);
       
@@ -358,6 +379,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const reco:
 	rechits.insert(rechits.end(), muonRecHits1.begin(), muonRecHits1.end());
 	LogInfo("GlobalMuonTrajectoryBuilder") << "Number of hits: " << rechits.size();
 	refitted1 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
+
 	if ( refitted1.size() == 1 ) {
 	  refit[1] = &(*refitted1.begin());
 	  if ( theMuonHitsOption == 1 ) finalTrajectory = new MuonCandidate(new Trajectory(*refitted1.begin()), (*it)->muonTrack(), (*it)->trackerTrack());
@@ -431,6 +453,9 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const reco:
   //from the same seed (RecMuon)
   //FIXME: IMPLEMENT ME
 
+  //FIXME???
+  tkTrajs.clear();
+
   return refittedResult;
 
 }
@@ -447,7 +472,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   int dethits[4];
   for ( int i=0; i<4; i++ ) hits[i]=dethits[i]=0;
   
-  ConstMuonRecHitContainer muonRecHits = getTransientHits(muon);
+  ConstMuonRecHitContainer muonRecHits = theTrackConverter->getTransientMuonRecHits(muon);
   
   // loop through all muon hits and calculate the maximum # of hits in each chamber      
   for (ConstMuonRecHitContainer::const_iterator imrh = muonRecHits.begin(); imrh != muonRecHits.end(); imrh++ ) { 
@@ -629,45 +654,6 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 
 
 //
-//
-//
-MuonTransientTrackingRecHit::ConstMuonRecHitContainer  
-GlobalMuonTrajectoryBuilder::getTransientHits(const reco::Track& track) const {
-
-   ConstMuonRecHitContainer result;
-   for (trackingRecHit_iterator iter = track.recHitsBegin(); iter != track.recHitsEnd(); ++iter) {
-
-     const TrackingRecHit* p = (*iter).get();
-     const GeomDet* gd = theTrackingGeometry->idToDet(p->geographicalId());
-   
-     MuonRecHitPointer mp = MuonTransientTrackingRecHit::specificBuild(gd,p);    
-     result.push_back(mp);
-
-   }
-
-   return result;
-
-}
-
-
-//
-//
-//
-GlobalMuonTrajectoryBuilder::ConstRecHitContainer
-GlobalMuonTrajectoryBuilder::getTkTransientHits(const reco::Track& track) const {
-
-   ConstRecHitContainer result;
-
-   for (trackingRecHit_iterator iter = track.recHitsBegin(); iter != track.recHitsEnd(); ++iter) {;
-     result.push_back(theTkTransientTrackingRecHitBuilder->build(&**iter));
-   }
-
-   return result;
-
-}
-
-
-//
 // select muon hits compatible with trajectory; 
 // check hits in chambers with showers
 //
@@ -810,62 +796,6 @@ double GlobalMuonTrajectoryBuilder::trackProbability(const Trajectory& track) co
   double prob = -LnChiSquaredProbability(track.chiSquared(), nDOF);
   
   return prob;
-
-}
-
-
-//
-// convert a tracker Track into a Trajectory
-//
-GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTrajFromTrack(const reco::TrackRef& tkTrack) const {
-
-  TC result;
-
-  // use TransientTrackingRecHitBuilder to get TransientTrackingRecHits 
-  ConstRecHitContainer hits = getTkTransientHits((*tkTrack));
-
-  // sort RecHits AlongMomentum
-  reverse(hits.begin(),hits.end());
-/*
-  TransientTrackingRecHit::ConstRecHitPointer firstHit;
-  for (ConstRecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++) {
-    if ( (**it).isValid() ) {
-      firstHit = *it;
-      break;
-    }
-  }
-  TransientTrackingRecHit::ConstRecHitPointer lastHit;
-  for (ConstRecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--) {
-    if ( (**it).isValid() ) {
-      lastHit = *it;
-      break;
-    }
-  }
-  if (firstHit->globalPosition().mag2() > (lastHit->globalPosition().mag2()) ) {
-    for (ConstRecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
-      hits.push_back(*it);
-    }
-  } 
-  else {
-    hits = tmp;
-  }
-*/
-  
-  // use TransientTrackBuilder to get a starting TSOS
-  reco::TransientTrack theTT(tkTrack,&*theField,theTrackingGeometry);
-  TrajectoryStateOnSurface firstState = theRefitter->propagator()->propagate(theTT.impactPointState(), hits.front()->det()->surface());
-  AlgebraicSymMatrix C(5,1);
-  C *= 100.;
-  TrajectoryStateOnSurface theTSOS(firstState.localParameters(), LocalTrajectoryError(C),
-                                   firstState.surface(),
-                                   &*theField);
-
-  const TrajectorySeed* seed = new TrajectorySeed();
-  vector<Trajectory> trajs = theRefitter->trajectories(*seed,hits,theTSOS);
-
-  if ( !trajs.empty()) result.push_back(trajs.front()); 
-  
-  return result;
 
 }
 
