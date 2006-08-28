@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.33 2006/08/21 13:59:40 llista Exp $
+ * \version $Id: TrackBase.h,v 1.34 2006/08/24 09:28:59 llista Exp $
  *
  */
 
@@ -67,9 +67,12 @@ namespace reco {
     TrackBase( double chi2, double ndof,
 	       const ParameterVector & par, double pt, const CovarianceMatrix & cov );
     /// set hit pattern from vector of hit references
-    void setHitPattern( const TrackingRecHitRefVector & hitlist ) {
-      hitPattern_.set( hitlist );
-    }
+    template<typename C>
+    void setHitPattern( const C & c ) { hitPattern_.set( c.begin(), c.end() ); }
+    template<typename I>
+    void setHitPattern( const I & begin, const I & end ) { hitPattern_.set( begin, end ); }
+    /// set hit pattern for specified hit
+    void setHitPattern( const TrackingRecHit & hit, size_t i ) { hitPattern_.set( hit, i ); }
    
     /// chi-squared of the fit
     double chi2() const { return chi2_; }

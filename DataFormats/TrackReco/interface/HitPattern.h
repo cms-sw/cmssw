@@ -10,7 +10,7 @@
  *
  * \author Marcel Vos, INFN Pisa
  *
- * \version $Id: HitPattern.h,v 1.5 2006/08/02 09:49:33 llista Exp $
+ * \version $Id: HitPattern.h,v 1.6 2006/08/23 16:20:23 tboccali Exp $
  *
  */
 #include "DataFormats/DetId/interface/DetId.h"
@@ -22,9 +22,24 @@ namespace reco {
   class HitPattern {
   public:
     /// default constructor
-    HitPattern() {}
-    HitPattern( TrackingRecHitRefVector hitlist ); 
-    void set( const TrackingRecHitRefVector & hitlist );
+    HitPattern();
+    /// constructor from iterator (begin, end) pair
+    template<typename I>
+    HitPattern( const I & begin, const I & end ) { set( begin, end ); }
+    /// constructor from hit collection
+    template<typename C>
+    HitPattern( const C & c ) { set( c ); }
+    /// set pattern from iterator (begin, end) pair
+    template<typename I>
+    void set( const I & begin, const I & end ) {
+      for ( int i = 0 ; i < PatternSize ; i++ ) hitPattern_[i] = 0;
+      unsigned int counter = 0;
+      for ( I hit = begin; hit != end && counter < 32 * PatternSize / HitSize;
+	    hit ++, counter ++ ) 
+	set( * hit, counter );
+    }
+    /// set patter for i-th hit
+    void set( const TrackingRecHit &, unsigned int i );
     bool validHitFilter( uint32_t pattern ) const;
     bool trackerHitFilter( uint32_t pattern ) const;
     bool muonHitFilter( uint32_t pattern ) const;
@@ -40,7 +55,6 @@ namespace reco {
     /// return true if a valid hit is found in the first pixel barrel layer
     bool hasValidHitInFirstPixelBarrel() const; 
     uint32_t getHitPattern(int position) const; 
-    void setHitPattern(int position, uint32_t pattern);
 
   private:
     /// number of 32 bit integers to store the full pattern
@@ -65,6 +79,10 @@ namespace reco {
     ///  full hit pattern information is packed in  PatternSize 32 bit words
     ///  each hit is described by HitSize bits. 
     uint32_t hitPattern_[ PatternSize ]; 
+
+    void setHitPattern(int position, uint32_t pattern);
+    /// set patter for i-th hit passign a reference
+    void set( const TrackingRecHitRef & ref, unsigned int i ) { set( * ref, i ); }
   };
 } 
 
