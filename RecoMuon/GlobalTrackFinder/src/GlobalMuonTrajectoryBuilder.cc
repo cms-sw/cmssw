@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/07 16:36:58 $
- *  $Revision: 1.33 $
+ *  $Date: 2006/08/28 19:32:59 $
+ *  $Revision: 1.36 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -103,9 +103,9 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theLayerMeasurements = new MuonDetLayerMeasurements();
   
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
-  theTTRHBuilderName = par.getParameter<string>("TTRHBuilder");
+  theTTRHBuilderName = par.getParameter<string>("TrackRecHitBuilder");
 
-  ParameterSet muonTTRHBuilderPSet = par.getParameter<ParameterSet>("MuonTTRHBParameters");
+  ParameterSet muonTTRHBuilderPSet = par.getParameter<ParameterSet>("MuRecHitBuildPars");
   theMuonTTRHBuilder = new MuonTransientTrackingRecHitBuilder(muonTTRHBuilderPSet);
   theTrackConverter = new TrackConverter(par);
 
