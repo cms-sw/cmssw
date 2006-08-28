@@ -71,16 +71,19 @@ string getPNG(TH1F* hist, int size, string htmlDir, const char* xlab, const char
   return outName;
 }
 
-TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone){
-  TH2F* out = NULL;
+TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone, TH2F* out){
+
+  //  TH2F* out = NULL;
   char title[150];  
   sprintf(title, "Collector/%s/HcalMonitor/%s",process.c_str(),name.c_str());
 
-  MonitorElement* me = mui_->get(title);
+  const MonitorElement* me = mui_->get(title);
 
   if ( me ) {      
     if ( verb) cout << "Found '" << title << "'" << endl;
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+    //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
+
     if ( ob ) {
       if ( clone) {
 	char histo[150];
@@ -93,16 +96,45 @@ TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool ve
   }
   return out;
 }
-
-TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone){
-  TH1F* out = NULL;
+/*
+template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0 ) {
+    if( me ) {
+      // cout << "Found '" << me->getName() <<"'"; 
+      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
+      if( ob ) { 
+        if( clone ) {
+          if( ret ) {
+            delete ret;
+          }
+          std::string s = "ME " + me->getName();
+          ret = dynamic_cast<T>((ob->operator->())->Clone(s.c_str())); 
+          if( ret ) {
+            ret->SetDirectory(0);
+          }
+        } else {
+          ret = dynamic_cast<T>(ob->operator->()); 
+        }
+      } else {
+	ret = 0;
+      }
+    } else {
+      if( !clone ) {
+        ret = 0;
+      }
+    }
+    return ret;
+  }
+*/
+TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone, TH1F* out){
+  //  TH1F* out = NULL;
   char title[150];  
   sprintf(title, "Collector/%s/HcalMonitor/%s",process.c_str(),name.c_str());
 
-  MonitorElement* me = mui_->get(title);
+  const MonitorElement* me = mui_->get(title);
   if ( me ) {      
     if ( verb ) cout << "Found '" << title << "'" << endl;
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+    //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
     if ( ob ) {
       if ( clone ) {
 	char histo[150];
@@ -117,12 +149,12 @@ TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool ver
 }
 
 
-TH2F* getHisto2(MonitorElement* me, bool verb,bool clone){
-  TH2F* out = NULL;
+TH2F* getHisto2(const MonitorElement* me, bool verb,bool clone, TH2F* out){
   
   if ( me ) {      
     if ( verb) cout << "Found '" << me->getName() << "'" << endl;
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+    //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
     if ( ob ) {
       if ( clone ) {
 	char histo[150];
@@ -136,12 +168,13 @@ TH2F* getHisto2(MonitorElement* me, bool verb,bool clone){
   return out;
 }
 
-TH1F* getHisto(MonitorElement* me, bool verb,bool clone){
-  TH1F* out = NULL;
+TH1F* getHisto(const MonitorElement* me, bool verb,bool clone, TH1F* out){
+  //  TH1F* out = NULL;
 
   if ( me ) {      
     if ( verb ) cout << "Found '" << me->getName() << "'" << endl;
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+    //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
     if ( ob ) {
       if ( clone ) {
 	char histo[150];
@@ -326,13 +359,13 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     errorFile << "<br>" << endl;
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
-      TH1F* obj1f = getHisto(substr, process.c_str(), mui,false,false);
-      string save = getPNG(obj1f,1,htmlDir,"X1a","Y1a",false);
+      TH1F* obj1f = getHisto(substr, process.c_str(), mui);
+      string save = getPNG(obj1f,1,htmlDir,"X1a","Y1a");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
-      TH2F* obj2f = getHisto2(substr, process.c_str(), mui,false,false);
-      string save = getPNG2(obj2f,1,htmlDir,"X2a","Y2a",false);
+      TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
+      string save = getPNG2(obj2f,1,htmlDir,"X2a","Y2a");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     errorFile << "<br>" << endl;
@@ -369,13 +402,13 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     errorFile << "<br>" << endl;
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
-      TH1F* obj1f = getHisto(substr, process.c_str(), mui,false,false);
-      string save = getPNG(obj1f,1,htmlDir,"X1b","Y1b",false);
+      TH1F* obj1f = getHisto(substr, process.c_str(), mui);
+      string save = getPNG(obj1f,1,htmlDir,"X1b","Y1b");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
-      TH2F* obj2f = getHisto2(substr, process.c_str(), mui,false,false);
-      string save = getPNG2(obj2f,1,htmlDir,"X2b","Y2b",false);
+      TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
+      string save = getPNG2(obj2f,1,htmlDir,"X2b","Y2b");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     errorFile << "<br>" << endl;
@@ -411,13 +444,13 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     MonitorElement* me = mui->get(meName);
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
-      TH1F* obj1f = getHisto(substr, process.c_str(), mui,false,false);
-      string save = getPNG(obj1f,1,htmlDir,"X1c","Y1c",false);
+      TH1F* obj1f = getHisto(substr, process.c_str(), mui);
+      string save = getPNG(obj1f,1,htmlDir,"X1c","Y1c");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
-      TH2F* obj2f = getHisto2(substr, process.c_str(), mui,false,false);
-      string save = getPNG2(obj2f,1,htmlDir,"X2c","Y2c",false);
+      TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
+      string save = getPNG2(obj2f,1,htmlDir,"X2c","Y2c");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     errorFile << "<br>" << endl;

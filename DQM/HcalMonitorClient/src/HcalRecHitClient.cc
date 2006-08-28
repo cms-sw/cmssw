@@ -199,6 +199,8 @@ void HcalRecHitClient::report(){
     if ( verbose_ ) cout << "Found '" << name << "'" << endl;
   }
 
+  getHistograms();
+
   return;
 }
 
@@ -209,6 +211,11 @@ void HcalRecHitClient::analyze(void){
   if ( updates % 10 == 0 ) {
     if ( verbose_ ) cout << "HcalRecHitClient: " << updates << " updates" << endl;
   }
+
+  return;
+}
+
+void HcalRecHitClient::getHistograms(){
 
   char name[150];    
   for(int i=0; i<3; i++){

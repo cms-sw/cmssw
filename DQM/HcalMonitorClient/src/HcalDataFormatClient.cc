@@ -161,6 +161,10 @@ void HcalDataFormatClient::analyze(void){
     if ( verbose_ ) cout << "HcalDataFormatClient: " << updates << " updates" << endl;
   }
 
+  return;
+}
+
+void HcalDataFormatClient::getHistograms(){
   char name[150];     
   for(int i=0; i<3; i++){
     string type = "HBHE";
@@ -168,7 +172,7 @@ void HcalDataFormatClient::analyze(void){
     if(i==2) type = "HO";
     sprintf(name,"DataFormatMonitor/%s Data Format Error Words", type.c_str());
     dferr[i] = getHisto(name, process_, mui_, verbose_,cloneME_);
-
+    
     labelBits(dferr[i]);
     
     sprintf(name,"DataFormatMonitor/%s Data Format Error Map", type.c_str());
@@ -176,6 +180,7 @@ void HcalDataFormatClient::analyze(void){
   }
   return;
 }
+
 
 void HcalDataFormatClient::labelBits(TH1F* hist){
   
@@ -212,6 +217,8 @@ void HcalDataFormatClient::report(){
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
     if ( verbose_ ) cout << "Found '" << name << "'" << endl;
   }
+
+  getHistograms();
   
   return;
 }

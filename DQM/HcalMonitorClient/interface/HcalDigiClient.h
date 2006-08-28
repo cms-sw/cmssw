@@ -66,6 +66,7 @@ void cleanup(void);
   
   /// WriteDB
   void htmlOutput(int run, string htmlDir, string htmlName);
+  void getHistograms();
 
   void errorOutput();
   void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);

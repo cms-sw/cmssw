@@ -191,6 +191,8 @@ void HcalDigiClient::report(){
     if ( verbose_ ) cout << "Found '" << name << "'" << endl;
   }
 
+  getHistograms();
+
   return;
 }
 
@@ -202,6 +204,10 @@ void HcalDigiClient::analyze(void){
     if ( verbose_ ) cout << "HcalDigiClient: " << updates << " updates" << endl;
   }
   
+  return;
+}
+
+void HcalDigiClient::getHistograms(){
   char name[150];    
   for(int i=0; i<3; i++){
     string type = "HBHE";
@@ -229,7 +235,6 @@ void HcalDigiClient::analyze(void){
     sprintf(name,"DigiMonitor/%s/%s QIE Cap-ID",type.c_str(),type.c_str());
     qie_capid[i] = getHisto(name, process_, mui_,verbose_,cloneME_);
   }
-
   return;
 }
 
@@ -273,6 +278,7 @@ void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
   cout << "Preparing HcalDigiClient html output ..." << endl;
   string client = "DigiMonitor";
   htmlErrors(htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
 

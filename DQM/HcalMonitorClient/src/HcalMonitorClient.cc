@@ -540,7 +540,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
     htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Test Beam Monitor</a></td" << endl;
     if(tb_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
-    else if(tb_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center></td>This monitor task has warnings.</table>" << endl;
+    else if(tb_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(tb_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</table>" << endl;
@@ -551,7 +551,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
     htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Data Format Monitor</a></td" << endl;
     if(dataformat_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
-    else if(dataformat_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center></td>This monitor task has warnings.</table>" << endl;
+    else if(dataformat_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(dataformat_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</table>" << endl;
@@ -562,7 +562,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
     htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Digi Monitor</a></td" << endl;
     if(digi_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
-    else if(digi_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center></td>This monitor task has warnings.</table>" << endl;
+    else if(digi_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(digi_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</table>" << endl;
@@ -573,7 +573,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
     htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">RecHit Monitor</a></td" << endl;
     if(rechit_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
-    else if(rechit_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center></td>This monitor task has warnings.</table>" << endl;
+    else if(rechit_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(rechit_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</table>" << endl;
@@ -586,7 +586,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Pedestal Monitor</a></td" << endl;
     
     if(pedestal_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
-    else if(pedestal_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center></td>This monitor task has warnings.</table>" << endl;
+    else if(pedestal_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(pedestal_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     
@@ -600,7 +600,7 @@ void HcalMonitorClient::htmlOutput(void){
     htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">LED Monitor</a></td" << endl;
     
     if(led_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
-    else if(led_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center></td>This monitor task has warnings.</table>" << endl;
+    else if(led_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(led_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     

@@ -22,11 +22,11 @@
 
 using namespace std;
 
-TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone);
-TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone);
+TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool verb=false, bool clone=false, TH2F* out=NULL);
+TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool verb=false, bool clone=false, TH1F* out=NULL);
 
-TH2F* getHisto2(MonitorElement* me, bool verb, bool clone);
-TH1F* getHisto(MonitorElement* me, bool verb, bool clone);
+TH2F* getHisto2(const MonitorElement* me, bool verb=false, bool clone=false, TH2F* out=NULL);
+TH1F* getHisto(const MonitorElement* me, bool verb=false, bool clone=false, TH1F* out=NULL);
 
 string getPNG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab,bool save=true);
 string getPNG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab,bool save = true);

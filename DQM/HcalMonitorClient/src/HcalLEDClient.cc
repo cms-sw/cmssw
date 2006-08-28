@@ -230,7 +230,12 @@ void HcalLEDClient::report(){
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
     if ( verbose_ ) cout << "Found '" << name << "'" << endl;
   }
+  getHistograms();
+  return;
+}
 
+void HcalLEDClient::getHistograms(){
+  char name[256];
   for(int i=0; i<4; i++){
     string type = "HBHE";
     if(i==1) type = "HO"; 

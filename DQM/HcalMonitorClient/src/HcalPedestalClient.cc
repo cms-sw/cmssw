@@ -217,6 +217,21 @@ void HcalPedestalClient::report(){
   if ( verbose_ ) cout << "HcalPedestalClient: report" << endl;
   this->setup();
   
+    char name[256];    
+  sprintf(name, "Collector/%s/HcalMonitor/PedestalMonitor/Pedestal Task Event Number",process_.c_str());
+  MonitorElement* me = mui_->get(name);
+  if ( me ) {
+    string s = me->valueString();
+    ievt_ = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+    if ( verbose_ ) cout << "Found '" << name << "'" << endl;
+  }
+  getHistograms();
+
+  return;
+}
+  
+void HcalPedestalClient::getHistograms(){
   char name[256];    
   for(int i=0; i<4; i++){
     string type = "HBHE";
@@ -343,15 +358,6 @@ void HcalPedestalClient::analyze(void){
     if ( verbose_ ) cout << "HcalPedestalClient: " << updates << " updates" << endl;
   }
   
-  char name[256];    
-  sprintf(name, "Collector/%s/HcalMonitor/PedestalMonitor/Pedestal Task Event Number",process_.c_str());
-  MonitorElement* me = mui_->get(name);
-  if ( me ) {
-    string s = me->valueString();
-    ievt_ = -1;
-    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( verbose_ ) cout << "Found '" << name << "'" << endl;
-  }
 
   return;
 }

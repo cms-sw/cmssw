@@ -60,10 +60,11 @@ void endRun(void);
 void setup(void);
 
 /// Cleanup
-void cleanup(void);
+  void cleanup(void);
 
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
+  void getHistograms();
 
   void report();
   void errorOutput();

@@ -74,12 +74,10 @@ public:
   
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
+  void getHistograms();
 
   ///process report
   void report();
-  
-  /// WriteDB
-  //void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);
   
   void errorOutput();
   void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);
