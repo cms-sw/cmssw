@@ -278,9 +278,9 @@ void GlobalValProducer::fillG4MC(edm::Event& iEvent)
     ++i;
 
     const HepLorentzVector& G4Vtx = itVtx->position();
-    G4VtxX.push_back(G4Vtx[0]*10000); // cm -> um
-    G4VtxY.push_back(G4Vtx[1]*10000); // cm -> um
-    G4VtxZ.push_back(G4Vtx[2]*10);    // cm -> mm
+    G4VtxX.push_back((G4Vtx[0]*1.)/micrometer);
+    G4VtxY.push_back((G4Vtx[1]*1.)/micrometer);
+    G4VtxZ.push_back((G4Vtx[2]*1.)/millimeter);
   }
 
   if (verbosity > 1) {
