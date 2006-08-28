@@ -31,9 +31,19 @@ class TrackValidator : public edm::EDAnalyzer {
       min(pset.getParameter<double>("min")),
       max(pset.getParameter<double>("max")),
       nint(pset.getParameter<int>("nint"))
-  {}
+  {
+    hFile = new TFile( out.c_str(), "UPDATE" );
+    
+    if ( (TDirectory *) hFile->Get(label.c_str())!=0 ){
+      hFile->Close();
+      hFile = new TFile( out.c_str(), "RECREATE" );
+    }
+    
+  }
 
-  ~TrackValidator(){}
+  ~TrackValidator(){
+    hFile->Close();
+  }
 
   void beginJob( const EventSetup & ) {
     double step=(max-min)/nint;
@@ -216,11 +226,8 @@ class TrackValidator : public edm::EDAnalyzer {
   }
 
   void endJob() {
-    TFile hFile( out.c_str(), "UPDATE" );
 
-//     if ( (TDirectory *) hFile.Get(label.c_str())!=0 ) hFile.SetOption("RECREATE");
-
-    TDirectory * p = hFile.mkdir(label.c_str());
+    TDirectory * p = hFile->mkdir(label.c_str());
 
     //write simulation histos
     TDirectory * simD = p->mkdir("simulation");
@@ -279,7 +286,6 @@ class TrackValidator : public edm::EDAnalyzer {
     h_pullTheta->Write();
     h_pullPhi0->Write();
 
-    hFile.Close();
   }
 
 private:
@@ -294,7 +300,7 @@ private:
   vector<int> totSIM,totREC;
   vector<TH1F*> ptdistrib;
   vector<TH1F*> etadistrib;
- 
+  TFile *  hFile; 
 
 };
 
