@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Forward Muon
  *
- * $Date: 2006/04/24 20:00:12 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/04 18:39:55 $
+ * $Revision: 1.5 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -34,9 +34,7 @@ MuonForwardNavigableLayer::nextLayers(PropagationDirection dir) const {
   }
   else {
     pushResult(result, theInnerEndcapLayers);
-    reverse(result.begin(),result.end());
     pushResult(barrel, theInnerBarrelLayers);
-    reverse(barrel.begin(),barrel.end());
     result.insert(result.end(),barrel.begin(),barrel.end());
   }
 
@@ -58,9 +56,7 @@ MuonForwardNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
   }
   else {
     pushResult(result, theInnerEndcapLayers, fts);
-    reverse(result.begin(),result.end());
     pushResult(result, theInnerBarrelLayers, fts);
-    reverse(barrel.begin(),barrel.end());
     result.insert(result.end(),barrel.begin(),barrel.end());
   }
 
@@ -80,9 +76,7 @@ MuonForwardNavigableLayer::compatibleLayers(PropagationDirection dir) const {
   }
   else {
     pushResult(result, theAllInnerEndcapLayers);
-    reverse(result.begin(),result.end());
     pushResult(barrel, theAllInnerBarrelLayers);
-    reverse(barrel.begin(),barrel.end());
     result.insert(result.end(),barrel.begin(),barrel.end());
   }
 
@@ -100,9 +94,7 @@ MuonForwardNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
   }
   else {
     pushCompatibleResult(result, theAllInnerEndcapLayers, fts);
-    reverse(result.begin(),result.end());
     pushCompatibleResult(result, theAllInnerBarrelLayers, fts);
-    reverse(barrel.begin(),barrel.end());
     result.insert(result.end(),barrel.begin(),barrel.end());
   }
   result.reserve(result.size());
