@@ -9,8 +9,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/08/03 $
- *   $Revision: $
+ *   $Date: 2006/08/09 21:55:59 $
+ *   $Revision: 1.1 $
  *
  *   \author   N. Neumeister            Purdue University
  */
@@ -42,13 +42,16 @@ class MuonTrackReFitter : public TrajectorySmoother {
     typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
     /// default constructor
-    MuonTrackReFitter(const edm::ParameterSet&, const edm::EventSetup&);
+    MuonTrackReFitter(const edm::ParameterSet&);
 
     /// destructor
     virtual ~MuonTrackReFitter();
 
+    /// initialize propagators
+    void setES(const edm::EventSetup&);
+
     /// refit trajectory
-    virtual TrajectoryContainer trajectories(const Trajectory& t) const;
+    virtual TrajectoryContainer trajectories(const Trajectory&) const;
 
     /// refit trajectory
     virtual TrajectoryContainer trajectories(const TrajectorySeed& seed,
@@ -65,12 +68,12 @@ class MuonTrackReFitter : public TrajectorySmoother {
 
   private:    
 
-     std::vector<Trajectory> fit(const Trajectory&) const;
-     std::vector<Trajectory> fit(const TrajectorySeed& seed,
-                                 const ConstRecHitContainer& hits,
-                                 const TrajectoryStateOnSurface& firstPredTsos) const;
-     std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;
-     std::vector<Trajectory> smooth(const Trajectory&) const;
+    std::vector<Trajectory> fit(const Trajectory&) const;
+    std::vector<Trajectory> fit(const TrajectorySeed& seed,
+                                const ConstRecHitContainer& hits,
+                                const TrajectoryStateOnSurface& firstPredTsos) const;
+    std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;
+    std::vector<Trajectory> smooth(const Trajectory&) const;
 
   private:
 
@@ -85,6 +88,10 @@ class MuonTrackReFitter : public TrajectorySmoother {
     const MeasurementEstimator* theEstimator;
     float theErrorRescaling;
 
+    std::string theInPropagatorAlongMom;
+    std::string theOutPropagatorAlongMom;
+    std::string theInPropagatorOppositeToMom;
+    std::string theOutPropagatorOppositeToMom;
     edm::ESHandle<MagneticField> theMagField;
   
 };
