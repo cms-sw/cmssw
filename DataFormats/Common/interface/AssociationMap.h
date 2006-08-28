@@ -267,8 +267,8 @@ namespace edm {
     struct Find :
       public std::binary_function<const self&, size_type, const value_type *> {
       typedef Find self;
-      typename self::result_type operator()( typename self::first_argument_type c,
-					     typename self::second_argument_type i ) {
+      const value_type * operator()( typename self::first_argument_type c,
+				     typename self::second_argument_type i ) {
 	return & ( * c.find( i ) );
       }
     };

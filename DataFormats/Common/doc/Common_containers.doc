@@ -33,10 +33,7 @@ Commonly used persistent containers.
   CaloJetRef rj = ...; 
   TrackRef rt = ...;
   map->insert( rj, rt );
-
-  JetTracksMap::value_type keyval = map[ rj ];
-  const CaloJetRef & jet = keyval.key;
-  const TrackRefVector & tracks = keyval.val;
+  const TrackRefVector & tracks = map[ rj ];
 
   JetTracksMap::const_iterator i = map.find( rj );
   assert( i != map.end() );
