@@ -14,23 +14,23 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 class MuonTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuilder {
   
- public:
+  public:
   
-  typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
+    typedef TransientTrackingRecHit::RecHitPointer          RecHitPointer;
+    typedef MuonTransientTrackingRecHit::MuonRecHitPointer  MuonRecHitPointer;
   
-  MuonTransientTrackingRecHitBuilder( const edm::ParameterSet& );
-  RecHitPointer build (const TrackingRecHit * p) const ;
-  void setES(const edm::EventSetup&);
+    MuonTransientTrackingRecHitBuilder( const edm::ParameterSet& );
+    RecHitPointer build (const TrackingRecHit * p) const ;
+    void setES(const edm::EventSetup&);
 
- private:
+  private:
 
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   
-
 };
-
 
 #endif
