@@ -1,10 +1,11 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/07/27 14:20:40 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/08/04 14:08:29 $
+ *  $Revision: 1.16 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
+#include <FWCore/ParameterSet/interface/FileInPath.h>
 
 //#define ML_DEBUG 
 
@@ -17,8 +18,22 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   produces<std::vector<L1MuRegionalCand> >("RPCb");
   produces<std::vector<L1MuRegionalCand> >("RPCf");
   
-  std::string patternsDirName = iConfig.getParameter<std::string>("RPCPatternsDir");
-  
+  std::string patternsDirNameLocal = iConfig.getParameter<std::string>("RPCPatternsDir");
+  //std::string patternsDirName = patternsDirNameLocal;
+
+
+  // Since fileInPath doesnt allow us to use directory we use this quick and dirty solution
+  edm::FileInPath fp(patternsDirNameLocal+"keepme.txt"); 
+  std::string patternsDirNameUnstriped = fp.fullPath();
+  std::string patternsDirName = patternsDirNameUnstriped.substr(0,patternsDirNameUnstriped.find_last_of("/")+1);
+
+  /*
+  const char * rb = ::getenv("CMSSW_RELEASE_BASE"); 
+  std::string patternsDirName(rb);
+  std::cout << std::endl << patternsDirName << std::endl;
+  patternsDirName+="/src/"+patternsDirNameLocal;
+  std::cout << std::endl << patternsDirName << std::endl;*/
+
   int triggerDebug = iConfig.getUntrackedParameter("RPCTriggerDebug",0);
   
   // 0 - no debug
