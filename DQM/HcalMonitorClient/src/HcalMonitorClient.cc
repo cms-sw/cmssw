@@ -107,7 +107,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   timeout_thresh_ = ps.getUntrackedParameter<int>("Timeout", 100);
 
   // start DQM user interface instance
-  if ( ! mui_ ) mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
+  if ( ! mui_ ) mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
 
 
   if ( verbose_ ) {
