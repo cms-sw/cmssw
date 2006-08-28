@@ -80,8 +80,8 @@ int main()
   if(equal(&buf[0],&buf[0]+view.size(),buf2.begin())==false)
     {
       cerr << "Init buffers not the same!\n";
-      dumpInit(&buf[0],buf.size());
-      dumpInit(&buf2[0],buf2.size());
+      dumpInit(&buf[0]);
+      dumpInit(&buf2[0]);
       abort();
     }
 
@@ -132,8 +132,8 @@ int main()
       cerr << "size 1st=" << emb.size() << "\n"
            << "size 2nd=" << emb2.size() << "\n";
 
-      dumpEvent(&buf[0],buf.size(),hltsize,l1bit.size());
-      dumpEvent(&buf2[0],buf2.size(),hltsize,l1_out.size());
+      dumpEvent(&buf[0]);
+      dumpEvent(&buf2[0]);
       abort();
     }
   return 0;

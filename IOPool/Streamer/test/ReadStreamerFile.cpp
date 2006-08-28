@@ -70,7 +70,7 @@ void useIndexPtr() {
   while( streamer.next() ) {
      cout<<"----------EVENT-----------"<<endl;
      EventMsgView* eview = (EventMsgView*) streamer.currentRecord();
-     dumpEventView(eview, hltsize, l1bit.size());
+     dumpEventView(eview);//, hltsize, l1bit.size());
   }
 
   /******  
@@ -121,7 +121,7 @@ void getIndexPtr() {
   for(it = indexPtr->begin(); it != indexPtr->end(); ++it) {
     cout<<"----------EVENT  INDEX-----------"<<endl;
     EventMsgView* iview = (EventMsgView*) (*it).eview;
-    dumpEventIndex(iview, hltsize, l1bit.size());
+    dumpEventIndex(iview);//, hltsize, l1bit.size());
     cout << "Offset for this event is : "
          << *((*it).offset) << endl;
     }
@@ -145,7 +145,7 @@ void viaIndex() {
   while( readViaIndex.next() ) {
      cout<<"----------EVENT-----------"<<endl;
      EventMsgView* eview = (EventMsgView*) readViaIndex.currentRecord();
-     dumpEventView(eview, hltsize, l1bit.size());
+     dumpEventView(eview);//, hltsize, l1bit.size());
   }
 
   /******  
@@ -218,7 +218,7 @@ void separetly() {
   while( stream_reader.next() ) {
      cout<<"----------EVENT-----------"<<endl;
      EventMsgView* eview = (EventMsgView*) stream_reader.currentRecord();
-     dumpEventView(eview, hltsize, l1bit.size());
+     dumpEventView(eview);//, hltsize, l1bit.size());
   }
 
   // ------- event index
@@ -226,7 +226,7 @@ void separetly() {
   for(it = index_reader.begin(); it != index_reader.end(); ++it) {
     cout<<"----------EVENT  INDEX-----------"<<endl;
     EventMsgView* iview = (EventMsgView*) (*it).eview;
-    dumpEventIndex(iview, hltsize, l1bit.size());
+    dumpEventIndex(iview);//, hltsize, l1bit.size());
     cout << "Offset for this event is : "
          << *((*it).offset) << endl;
     }
