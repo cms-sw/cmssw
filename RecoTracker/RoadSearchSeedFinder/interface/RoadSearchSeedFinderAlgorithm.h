@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/08/12 00:30:55 $
-// $Revision: 1.6 $
+// $Author: burkett $
+// $Date: 2006/08/25 16:20:31 $
+// $Revision: 1.7 $
 //
 
 #include <string>
@@ -63,9 +63,10 @@ class RoadSearchSeedFinderAlgorithm
 				  const GlobalPoint* outerPos,
 				  const edm::EventSetup& es);
 
-  TrajectorySeedCollection makeSeedsFromInnerHit(const TrackingRecHit* innerHit,
-						 const edm::OwnVector<TrackingRecHit>* outerHits,
-						 const TrackerGeometry *tracker,const edm::EventSetup& es);
+  void makeSeedsFromInnerHit(TrajectorySeedCollection* outcoll,
+			     const TrackingRecHit* innerHit,
+			     const edm::OwnVector<TrackingRecHit>* outerHits,
+			     const TrackerGeometry *tracker,const edm::EventSetup& es);
 
 
  private:

@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/08/15 16:44:30 $
-// $Revision: 1.14 $
+// $Author: burkett $
+// $Date: 2006/08/25 16:20:31 $
+// $Revision: 1.15 $
 //
 
 #include <vector>
@@ -124,10 +124,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 		  ++outerRingDetId) {
 	      if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
 		edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
-		TrajectorySeedCollection SeedColl = makeSeedsFromInnerHit(&(*innerSeedDetHit),&outerSeedDetHits,tracker.product(),es);
-		for ( TrajectorySeedCollection::const_iterator is = SeedColl.begin(); is != SeedColl.end(); ++is) {
-		  output.push_back(*is);
-		}
+		makeSeedsFromInnerHit(&output,&(*innerSeedDetHit),&outerSeedDetHits,tracker.product(),es);
 	      }
 	    }
 	  }
@@ -137,10 +134,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 		  ++outerRingDetId) {
 	      if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
 		edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
-		TrajectorySeedCollection SeedColl = makeSeedsFromInnerHit(&(*innerSeedDetHit),&outerSeedDetHits,tracker.product(),es);
-		for ( TrajectorySeedCollection::const_iterator is = SeedColl.begin(); is != SeedColl.end(); ++is) {
-		  output.push_back(*is);
-		}
+		makeSeedsFromInnerHit(&output,&(*innerSeedDetHit),&outerSeedDetHits,tracker.product(),es);
 	      }
 	    }
 	    for ( Ring::const_iterator outerRingDetId = seed.second.lower_bound(0.0); 
@@ -148,10 +142,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 		  ++outerRingDetId) {
 	      if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
 		edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
-		TrajectorySeedCollection SeedColl = makeSeedsFromInnerHit(&(*innerSeedDetHit),&outerSeedDetHits,tracker.product(),es);
-		for ( TrajectorySeedCollection::const_iterator is = SeedColl.begin(); is != SeedColl.end(); ++is) {
-		  output.push_back(*is);
-		}
+		makeSeedsFromInnerHit(&output,&(*innerSeedDetHit),&outerSeedDetHits,tracker.product(),es);
 	      }
 	    }
 	  }
@@ -160,7 +151,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
     }
   }
 
-  edm::LogInfo("RoadSearch") << "Found " << output.size() << " seeds."; 
+  //edm::LogInfo("RoadSearch") << "Found " << output.size() << " seeds."; 
 
 };
 
@@ -266,15 +257,13 @@ makeSeedFromPair(const TrackingRecHit* innerSeedDetHit,
 
 
 
-TrajectorySeedCollection RoadSearchSeedFinderAlgorithm::
-makeSeedsFromInnerHit(const TrackingRecHit* innerSeedDetHit,
+void  RoadSearchSeedFinderAlgorithm::
+makeSeedsFromInnerHit(TrajectorySeedCollection* outputCollection,
+		      const TrackingRecHit* innerSeedDetHit,
 		      const edm::OwnVector<TrackingRecHit>* outerSeedDetHits,
 		      const TrackerGeometry *tracker,
 		      const edm::EventSetup& es)
 {
-
-  TrajectorySeedCollection SColl;
-
 
   // calculate maximal possible delta phi for given delta r and parameter pTmin
   double ptmin = conf_.getParameter<double>("MinimalReconstructedTransverseMomentum");
@@ -368,7 +357,7 @@ makeSeedsFromInnerHit(const TrackingRecHit* innerSeedDetHit,
 	delete PTraj;  
 	
 	// return the seed
-	SColl.push_back(ts);
+	outputCollection->push_back(ts);
 	
 	//edm::LogError("RoadSearch") << "innerSeedDetHits: "  << innerRingDetId->second.rawId() << "; " <<seed.first.print() ;
 	//edm::LogError("RoadSearch") << "outerSeedDetHits: " << outerRingDetId->second.rawId() << "; " << seed.second.print() ;
@@ -379,7 +368,7 @@ makeSeedsFromInnerHit(const TrackingRecHit* innerSeedDetHit,
 
   } // End loop over Outer Seed Hits
 
-  return SColl;
+  //return SColl;
 
 }
 
