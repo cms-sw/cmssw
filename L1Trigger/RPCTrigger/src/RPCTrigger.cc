@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/08/04 14:08:29 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/08/28 11:54:04 $
+ *  $Revision: 1.17 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -128,6 +128,11 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
   
   for(unsigned int iMu = 0; iMu < finalMuons.size(); iMu++)
   {
+
+    if (finalMuons[iMu].GetPtCode()==0){
+      continue; 
+    } 
+
     L1MuRegionalCand l1Cand;
     
     
