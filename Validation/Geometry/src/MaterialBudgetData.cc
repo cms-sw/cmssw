@@ -1,6 +1,9 @@
 //#include "Utilities/UI/interface/SimpleConfigurable.h"
 
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "G4Step.hh"
 #include "G4Material.hh"
 #include "G4EventManager.hh"
@@ -180,8 +183,10 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   theElectronicsFractionMB = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[4];
   theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[5];
   theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[6];
-  if(theOtherFractionMB!=0) std::cout << " material found with no category " << lv->GetMaterial()->GetName() 
-				 << " in volume " << lv->GetName() << std::endl;
+  // if(theOtherFractionMB!=0) std::cout << " material found with no category " << lv->GetMaterial()->GetName() 
+  //				 << " in volume " << lv->GetName() << std::endl;
+  if(theOtherFractionMB!=0) LogDebug("MaterialBudgetData") << " material found with no category " << lv->GetMaterial()->GetName() 
+				 << " in volume " << lv->GetName();
   // rr  
   
   float dmb = steplen/radlen;
