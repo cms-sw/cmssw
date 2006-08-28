@@ -1,5 +1,5 @@
-#ifndef GlobalValProducer_h
-#define GlobalValProducer_h
+#ifndef GlobalHitsProducer_h
+#define GlobalHitsProducer_h
 
 // framework & common header files
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -62,15 +62,15 @@
 
 class PGlobalSimHit;
   
-class GlobalValProducer : public edm::EDProducer
+class GlobalHitsProducer : public edm::EDProducer
 {
   
  public:
 
   typedef std::vector<float> FloatVector;
 
-  explicit GlobalValProducer(const edm::ParameterSet&);
-  virtual ~GlobalValProducer();
+  explicit GlobalHitsProducer(const edm::ParameterSet&);
+  virtual ~GlobalHitsProducer();
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
   virtual void produce(edm::Event&, const edm::EventSetup&);

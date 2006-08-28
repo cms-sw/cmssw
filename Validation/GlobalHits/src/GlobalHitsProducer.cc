@@ -1,10 +1,10 @@
-#include "Validation/GlobalHits/interface/GlobalValProducer.h"
+#include "Validation/GlobalHits/interface/GlobalHitsProducer.h"
 
-GlobalValProducer::GlobalValProducer(const edm::ParameterSet& iPSet) :
+GlobalHitsProducer::GlobalHitsProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), label(""), getAllProvenances(false),
   printProvenanceInfo(false), nRawGenPart(0), count(0)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.GlobalValProducer";
+  std::string MsgLoggerCat = "GlobalHitsProducer.GlobalHitsProducer";
 
   // get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
@@ -103,29 +103,29 @@ GlobalValProducer::GlobalValProducer(const edm::ParameterSet& iPSet) :
   }
 }
 
-GlobalValProducer::~GlobalValProducer() 
+GlobalHitsProducer::~GlobalHitsProducer() 
 {
 }
 
-void GlobalValProducer::beginJob(const edm::EventSetup& iSetup)
+void GlobalHitsProducer::beginJob(const edm::EventSetup& iSetup)
 {
   clear();
   return;
 }
 
-void GlobalValProducer::endJob()
+void GlobalHitsProducer::endJob()
 {
-  std::string MsgLoggerCat = "GlobalValProducer.endJob";
+  std::string MsgLoggerCat = "GlobalHitsProducer.endJob";
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
       << "Terminating having processed " << count << " events.";
   return;
 }
 
-void GlobalValProducer::produce(edm::Event& iEvent, 
+void GlobalHitsProducer::produce(edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.produce";
+  std::string MsgLoggerCat = "GlobalHitsProducer.produce";
 
   // keep track of number of events processed
   ++count;
@@ -220,10 +220,10 @@ void GlobalValProducer::produce(edm::Event& iEvent,
 }
 
 //==================fill and store functions================================
-void GlobalValProducer::fillG4MC(edm::Event& iEvent)
+void GlobalHitsProducer::fillG4MC(edm::Event& iEvent)
 {
 
-  std::string MsgLoggerCat = "GlobalValProducer.fillG4MC";
+  std::string MsgLoggerCat = "GlobalHitsProducer.fillG4MC";
  
   TString eventout;
   if (verbosity > 0)
@@ -321,9 +321,9 @@ void GlobalValProducer::fillG4MC(edm::Event& iEvent)
   return;
 }
 
-void GlobalValProducer::storeG4MC(PGlobalSimHit& product)
+void GlobalHitsProducer::storeG4MC(PGlobalSimHit& product)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.storeG4MC";
+  std::string MsgLoggerCat = "GlobalHitsProducer.storeG4MC";
 
   if (verbosity > 2) {
     TString eventout("\n       nRawGenPart        = ");
@@ -358,10 +358,10 @@ void GlobalValProducer::storeG4MC(PGlobalSimHit& product)
   return;
 }
 
-void GlobalValProducer::fillTrk(edm::Event& iEvent, 
+void GlobalHitsProducer::fillTrk(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.fillTrk";
+  std::string MsgLoggerCat = "GlobalHitsProducer.fillTrk";
 
   TString eventout;
   if (verbosity > 0)
@@ -472,7 +472,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
   iEvent.getByLabel(PxlFwdHighSrc_,PxlFwdHighContainer);
   if (!PxlFwdHighContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer.fillTrk")
+    edm::LogWarning("GlobalHitsProducer.fillTrk")
       << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
     return;
   }
@@ -644,7 +644,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
   iEvent.getByLabel(SiTIDHighSrc_,SiTIDHighContainer);
   if (!SiTIDHighContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer.fillTrk")
+    edm::LogWarning("GlobalHitsProducer.fillTrk")
       << "Unable to find TrackerHitsTIDHighTof in event!";
     return;
   }
@@ -731,9 +731,9 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   return;
 }
 
-void GlobalValProducer::storeTrk(PGlobalSimHit& product)
+void GlobalHitsProducer::storeTrk(PGlobalSimHit& product)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.storeTrk";
+  std::string MsgLoggerCat = "GlobalHitsProducer.storeTrk";
 
   if (verbosity > 2) {
     TString eventout("\n       nPxlBrlHits        = ");
@@ -799,10 +799,10 @@ void GlobalValProducer::storeTrk(PGlobalSimHit& product)
   return;
 }
 
-void GlobalValProducer::fillMuon(edm::Event& iEvent, 
+void GlobalHitsProducer::fillMuon(edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.fillMuon";
+  std::string MsgLoggerCat = "GlobalHitsProducer.fillMuon";
 
   TString eventout;
   if (verbosity > 0)
@@ -1075,9 +1075,9 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
   return;
 }
 
-void GlobalValProducer::storeMuon(PGlobalSimHit& product)
+void GlobalHitsProducer::storeMuon(PGlobalSimHit& product)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.storeMuon";
+  std::string MsgLoggerCat = "GlobalHitsProducer.storeMuon";
 
   if (verbosity > 2) {
     TString eventout("\n       nMuonCSCHits       = ");
@@ -1145,10 +1145,10 @@ void GlobalValProducer::storeMuon(PGlobalSimHit& product)
   return;
 }
 
-void GlobalValProducer::fillECal(edm::Event& iEvent, 
+void GlobalHitsProducer::fillECal(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.fillECal";
+  std::string MsgLoggerCat = "GlobalHitsProducer.fillECal";
 
   TString eventout;
   if (verbosity > 0)
@@ -1318,9 +1318,9 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   return;
 }
 
-void GlobalValProducer::storeECal(PGlobalSimHit& product)
+void GlobalHitsProducer::storeECal(PGlobalSimHit& product)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.storeECal";
+  std::string MsgLoggerCat = "GlobalHitsProducer.storeECal";
 
   if (verbosity > 2) {
     TString eventout("\n       nECalHits          = ");
@@ -1358,10 +1358,10 @@ void GlobalValProducer::storeECal(PGlobalSimHit& product)
   return;
 }
 
-void GlobalValProducer::fillHCal(edm::Event& iEvent, 
+void GlobalHitsProducer::fillHCal(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.fillHCal";
+  std::string MsgLoggerCat = "GlobalHitsProducer.fillHCal";
 
   TString eventout;
   if (verbosity > 0)
@@ -1455,9 +1455,9 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
   return;
 }
 
-void GlobalValProducer::storeHCal(PGlobalSimHit& product)
+void GlobalHitsProducer::storeHCal(PGlobalSimHit& product)
 {
-  std::string MsgLoggerCat = "GlobalValProducer.storeHCal";
+  std::string MsgLoggerCat = "GlobalHitsProducer.storeHCal";
 
   if (verbosity > 2) {
     TString eventout("\n       nHCalHits          = ");
@@ -1481,9 +1481,9 @@ void GlobalValProducer::storeHCal(PGlobalSimHit& product)
   return;
 }
 
-void GlobalValProducer::clear()
+void GlobalHitsProducer::clear()
 {
-  std::string MsgLoggerCat = "GlobalValProducer.clear";
+  std::string MsgLoggerCat = "GlobalHitsProducer.clear";
 
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat)
@@ -1561,4 +1561,4 @@ void GlobalValProducer::clear()
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GlobalValProducer)
+DEFINE_FWK_MODULE(GlobalHitsProducer)
