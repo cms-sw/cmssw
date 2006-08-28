@@ -20,8 +20,8 @@ void MakeValidation()
   MakeHistograms();
 
   // setup names
-  TString sfilename = "GlobalValHistograms.root";
-  TString rfilename = "GlobalValHistograms-reference.root";
+  TString sfilename = "GlobalHitsHistograms.root";
+  TString rfilename = "GlobalHitsHistograms-reference.root";
 
   // clear memory of file names
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
@@ -33,10 +33,10 @@ void MakeValidation()
 
   // create canvas
   Int_t cWidth = 928, cHeight = 1218;
-  TCanvas *myCanvas = new TCanvas("gvp","gvp",cWidth,cHeight);
+  TCanvas *myCanvas = new TCanvas("globalhits","globalhits",cWidth,cHeight);
 
   // open output ps file
-  TString filename = "GlobalValHistogramsCompare";
+  TString filename = "GlobalHitsHistogramsCompare";
   TString psfile = filename+".ps";
   TString psfileopen = filename+".ps[";
   TString psfileclose = filename+".ps]";
