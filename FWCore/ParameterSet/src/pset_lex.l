@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.24 2006/08/22 23:36:59 rpw Exp $
+ * $Id: pset_lex.l,v 1.25 2006/08/25 21:34:59 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -152,7 +152,7 @@ int yywrap() { return 1; }
 
 char* stringDup(const char* s)
 {
-  char* buffer = (char*) malloc(strlen(s)+1);
+  char* buffer = static_cast<char*>(malloc(strlen(s)+1));
   strcpy(buffer, s);
   return buffer;
 }
@@ -160,7 +160,7 @@ char* stringDup(const char* s)
 char* stringDupQuoted(const char* s,char quotetype)
 {
   int len = strlen(s);
-  char* buffer = (char*) malloc(len+1+2);
+  char* buffer = static_cast<char*>(malloc(len+1+2));
   strcpy(buffer+1, s);
   buffer[0]=quotetype;
   buffer[len+1]=quotetype;
