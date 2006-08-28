@@ -6,28 +6,8 @@
   <class name="reco::Candidate">
     <fiels name="hasMasterClone_" transient="true"/>
   </class>
-  <class name="reco::Candidate::const_iterator_imp" />
-  <class name="reco::Candidate::const_iterator" />
-  <class name="reco::Candidate::iterator_imp" />
-  <class name="reco::Candidate::iterator" />
   <class name="reco::LeafCandidate" />
-  <class name="reco::LeafCandidate::const_iterator_leaf" />
-  <class name="reco::LeafCandidate::iterator_leaf" />
   <class name="reco::CompositeCandidate" />
-  <class name="reco::CompositeCandidate::const_iterator_comp">
-    <field name="i" transient="true" />
-  </class>
-  <class name="reco::CompositeCandidate::iterator_comp">
-    <field name="i" transient="true" />
-  </class>
-  <class name="reco::CompositeRefCandidate" />
-  <class name="reco::CompositeRefCandidate::const_iterator_comp">
-    <field name="i" transient="true" />
-  </class>
-  <class name="reco::CompositeRefBaseCandidate" />
-  <class name="reco::CompositeRefBaseCandidate::const_iterator_comp">
-    <field name="i" transient="true" />
-  </class>
   <class name="reco::ShallowCloneCandidate"/>
   <class name="std::vector<reco::Candidate *>" />
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >" />

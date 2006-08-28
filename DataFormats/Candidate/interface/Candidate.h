@@ -77,19 +77,18 @@ namespace reco {
       if ( hasMasterClone() ) return masterClone()->get<T, Tag>( i );
       else return reco::get<T, Tag>( * this, i ); 
     }
-    /// number of component
+    /// number of components
     template<typename T> size_t numberOf() const { 
       if ( hasMasterClone() ) return masterClone()->numberOf<T>();
       else return reco::numberOf<T>( * this ); 
     }
-    /// number of component
+    /// number of components
     template<typename T, typename Tag> size_t numberOf() const { 
       if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>();
       else return reco::numberOf<T, Tag>( * this ); 
     }
-    /// implementation of const_iterator. 
-    /// should be private; declared public only 
-    /// for ROOT reflex dictionay problems
+
+  protected:
     struct const_iterator_imp {
       typedef ptrdiff_t difference_type;
       const_iterator_imp() { } 
@@ -105,9 +104,7 @@ namespace reco {
       virtual const Candidate & deref() const = 0;
       virtual difference_type difference( const const_iterator_imp * ) const = 0;
     };
-    /// implementation of iterator. 
-    /// should be private; declared public only 
-    /// for ROOT reflex dictionay problems
+
     struct iterator_imp {
       typedef ptrdiff_t difference_type;
       iterator_imp() { }
@@ -124,8 +121,8 @@ namespace reco {
       virtual Candidate & deref() const = 0;
       virtual difference_type difference( const iterator_imp * ) const = 0;
     };
-    
-    struct iterator;
+
+  public:
     /// const_iterator over daughters
     struct const_iterator {
       typedef Candidate value_type;
@@ -199,6 +196,7 @@ namespace reco {
       iterator_imp * i;
       friend const_iterator::const_iterator( const iterator & );
     };
+
   private:
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & ) const = 0;
