@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/07/20 17:08:39 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/22 18:20:24 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -64,6 +64,7 @@ public:
   StandAloneMuonSmoother* theSmoother;
 
   bool doBackwardRefit;
+  std::string theBWSeedType;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;

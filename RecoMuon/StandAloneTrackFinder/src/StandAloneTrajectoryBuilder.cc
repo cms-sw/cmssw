@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/08/11 11:06:09 $
- *  $Revision: 1.23 $
+ *  $Date: 2006/08/16 10:07:10 $
+ *  $Revision: 1.24 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -11,6 +11,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonRefitter.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonBackwardFilter.h"
@@ -62,6 +64,8 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
     ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
     //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet); // FIXME
     theBWFilter = new StandAloneMuonRefitter(bwFilterPSet);
+
+    theBWSeedType = bwFilterPSet.getParameter<string>("BWSeedType");
   }
   
   // The outward-inward fitter (starts from theBWFilter innermost state)
@@ -185,7 +189,32 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // fw_low-granularity + bw_high-granularity + smoother (not yet sure...)
 
   // BackwardFiltering
-  Trajectory trajectoryBW(seed,oppositeToMomentum);
+
+  TrajectorySeed seedForBW;
+
+  if(theBWSeedType == "noSeed"){
+    TrajectorySeed seedVoid;
+    seedForBW = seedVoid;
+  }
+  else if (theBWSeedType == "fromFWFit"){
+    
+    TrajectoryStateTransform tsTransform;
+    
+    PTrajectoryStateOnDet *seedTSOS =
+      tsTransform.persistentState( tsosAfterRefit, trajectoryFW.lastMeasurement().recHit()->geographicalId().rawId());
+    
+    edm::OwnVector<TrackingRecHit> recHitsContainer; // FIXME!!
+    TrajectorySeed fwFit(*seedTSOS,recHitsContainer,alongMomentum);
+
+    seedForBW = fwFit;
+  }
+  else if (theBWSeedType == "fromGenerator"){
+    seedForBW = seed;
+  }
+  else
+    LogWarning(metname) << "Wrong seed type for the backward filter!";
+
+  Trajectory trajectoryBW(seedForBW,oppositeToMomentum);
 
   static const string t2 = "StandAloneMuonTrajectoryBuilder::backwardfiltering";
   TimeMe timer2(t2,timing);
