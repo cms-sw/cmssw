@@ -4,10 +4,12 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/08/03 13:17:57 $
- *  $Revision: 1.23 $
- *  \author Norbert Neumeister - Purdue University
- *  \author Chang Liu - Purdue University
+ *  $Date: 2006/08/07 16:36:58 $
+ *  $Revision: 1.24 $
+ *
+ *  \author N. Neumeister 	 Purdue University
+ *  \author C. Liu 		 Purdue University
+ *  \author A. Everett 		 Purdue University
  */
 
 #include "FWCore/Framework/interface/Handle.h"
@@ -26,12 +28,12 @@ class GlobalMuonTrackMatcher;
 class TransientTrackingRecHit;
 class MuonTransientTrackingRecHit;
 class TransientTrackingRecHitBuilder;
+class MuonTransientTrackingRecHitBuilder;
 class GlobalTrackingGeometry;
 class MuonDetLayerGeometry;
-class GlobalMuonReFitter;
-class Propagator;
-class TrajectoryFitter;
 class MuonDetLayerMeasurements;
+class MuonTrackReFitter;
+class TrackConverter;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -39,8 +41,9 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
   public:
 
-    typedef TransientTrackingRecHit::RecHitContainer   RecHitContainer;
-    typedef TransientTrackingRecHit::ConstRecHitContainer  ConstRecHitContainer;
+    typedef std::pair<Trajectory*, reco::TrackRef> TrackCand;
+    typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
+    typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
     typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
     typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
@@ -61,10 +64,10 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     ~GlobalMuonTrajectoryBuilder();
 
     /// reconstruct trajectories from standalone and tracker only Tracks
-    MuonTrajectoryBuilder::CandidateContainer trajectories(const reco::TrackRef&) ;
+    MuonTrajectoryBuilder::CandidateContainer trajectories(const reco::TrackRef&);
 
-    /// reconstruct trajectories from trajectory seed -- method for stand alone trajectory building
-    MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&) { MuonTrajectoryBuilder::TrajectoryContainer result; return result; }
+    /// reconstruct trajectories from trajectory seed
+    MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&);
 
     /// pass the Event Setup to the algo at each event
     virtual void setES(const edm::EventSetup&);
@@ -74,12 +77,16 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
   private:
 
-    std::vector<reco::TrackRef> chooseRegionalTrackerTracks(const reco::TrackRef&, const edm::Handle<reco::TrackCollection>& ) const;
+    /// choose tracker tracks within region of interest
+    std::vector<TrackCand> chooseRegionalTrackerTracks(const TrackCand&, 
+                                                       const std::vector<TrackCand>& ) const;
 
+    /// define region of interest with tracker
     RectangularEtaPhiTrackingRegion defineRegionOfInterest(const reco::TrackRef&) const;
 
     /// build combined trajectory from sta Track and tracker RecHits
-    MuonTrajectoryBuilder::CandidateContainer build(const reco::TrackRef&, const std::vector<reco::TrackRef>&) const;
+    MuonTrajectoryBuilder::CandidateContainer build(const TrackCand&, 
+                                                    const std::vector<TrackCand>&) const;
   
     /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
     void checkMuonHits(const reco::Track&, ConstRecHitContainer&, ConstRecHitContainer&, std::vector<int>&) const;
@@ -87,20 +94,11 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     /// select muon hits compatible with trajectory; check hits in chambers with showers
     ConstRecHitContainer selectMuonHits(const Trajectory&, const std::vector<int>&) const;
  
-    /// get TransientTrackingRecHits from Muon Track
-    ConstMuonRecHitContainer getTransientHits(const reco::Track&) const;
-
-    /// get TransientTrackingRecHits from Tracker Track
-    ConstRecHitContainer getTkTransientHits(const reco::Track&) const;
-
     /// choose final trajectory
     const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
 
     /// calculate chi2 probability (-ln(P))
     double trackProbability(const Trajectory&) const;    
-
-    /// get silicon tracker Trajectories from track Track
-    TC getTrajFromTrack(const reco::TrackRef&) const;
 
     //// print all RecHits of a trajectory
     void printHits(const ConstRecHitContainer&) const;
@@ -111,8 +109,10 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     GlobalError theVertexErr;
     MuonUpdatorAtVertex* theUpdator;
     GlobalMuonTrackMatcher* theTrackMatcher;
-    GlobalMuonReFitter* theRefitter;
+    MuonTrackReFitter* theRefitter;
     MuonDetLayerMeasurements* theLayerMeasurements;
+    MuonTransientTrackingRecHitBuilder* theMuonTTRHBuilder;
+    TrackConverter* theTrackConverter;
 
     float theTrackMatcherChi2Cut;
     int   theMuonHitsOption;
@@ -129,7 +129,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     std::string theTkTrackLabel;
 
-    edm::ESHandle<MagneticField> theField;
+    edm::ESHandle<MagneticField> theMagField;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
     edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
 
