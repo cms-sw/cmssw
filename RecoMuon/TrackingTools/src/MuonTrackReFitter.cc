@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/08/09 21:56:09 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/08/28 16:30:28 $
+ *   $Revision: 1.2 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   C. Liu                   Purdue University
@@ -43,10 +43,10 @@ MuonTrackReFitter::MuonTrackReFitter(const ParameterSet& par) {
   theUpdator     = new KFUpdator;
   theEstimator   = new Chi2MeasurementEstimator(200.0);
 
-  std::string inPropagatorAlongMom = par.getParameter<string>("InPropagatorAlongMom");
-  std::string outPropagatorAlongMom = par.getParameter<string>("OutPropagatorAlongMom");
-  std::string inPropagatorOppositeToMom = par.getParameter<string>("InPropagatorOppositeToMom");
-  std::string outPropagatorOppositeToMom = par.getParameter<string>("OutPropagatorOppositeToMom");
+  theInPropagatorAlongMom = par.getParameter<string>("InPropagatorAlongMom");
+  theOutPropagatorAlongMom = par.getParameter<string>("OutPropagatorAlongMom");
+  theInPropagatorOppositeToMom = par.getParameter<string>("InPropagatorOppositeToMom");
+  theOutPropagatorOppositeToMom = par.getParameter<string>("OutPropagatorOppositeToMom");
 
 }
 
