@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/16 10:07:11 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/08/25 14:46:12 $
+ *  $Revision: 1.19 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -31,14 +31,10 @@
 using namespace edm;
 
 // constructor
-MuonTrackLoader::MuonTrackLoader() : thePropagator(0) {
+MuonTrackLoader::MuonTrackLoader() : thePropagator(0) {}
 
-}
-// destructror
 void MuonTrackLoader::setES(const EventSetup& setup) {
-
   setup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", thePropagator);
-
 }
 
 edm::OrphanHandle<reco::TrackCollection> 
@@ -103,7 +99,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     reco::TrackExtra trackExtra = buildTrackExtra( **trajectory );
 
     // get (again!) the transient rechit from the trajectory	
-    const Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
+    Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
+    
+    if ( (*trajectory)->direction() == oppositeToMomentum)
+      reverse(transHits.begin(),transHits.end());
     
     // Fill the track extra with the rec hit (persistent-)reference
     for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
@@ -236,7 +235,7 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
   else edm::LogError(metname)<<"Wrong propagation direction!";
   
   LogDebug(metname) << debug.dumpTSOS(innerTSOS);
-  
+
   // This is needed to extrapolate the tsos at vertex
   GlobalPoint vtx(0,0,0); 
   TransverseImpactPointExtrapolator tipe(*thePropagator);
