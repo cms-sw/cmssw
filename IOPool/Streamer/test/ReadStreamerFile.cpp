@@ -58,7 +58,7 @@ void useIndexPtr() {
   std::vector<bool> l1bit(11);
   //uint8 hltbits[] = "4567";
   //const int hltsize = (sizeof(hltbits)-1)*4;
-  const int hltsize = 9;
+  //const int hltsize = 9;
 
   string initfilename = "teststreamfile.dat";
   string indexfilename = "testindexfile.ind";
@@ -114,7 +114,7 @@ void getIndexPtr() {
   std::vector<bool> l1bit(11);
   //uint8 hltbits[] = "4567";
   //const int hltsize = (sizeof(hltbits)-1)*4;
-  const int hltsize = 9;
+  //const int hltsize = 9;
 
   // ------- event index
   indexRecIter it;
@@ -135,7 +135,7 @@ void viaIndex() {
   std::vector<bool> l1bit(11);
   //uint8 hltbits[] = "4567";
   //const int hltsize = (sizeof(hltbits)-1)*4;
-  const int hltsize = 9;
+  //const int hltsize = 9;
 
   string initfilename = "teststreamfile.dat";
   string indexfilename = "testindexfile.ind";
@@ -213,7 +213,7 @@ void separetly() {
   std::vector<bool> l1bit(11);
   //uint8 hltbits[] = "4567";
   //const int hltsize = (sizeof(hltbits)-1)*4;
-  const int hltsize = 9;
+  //const int hltsize = 9;
 
   while( stream_reader.next() ) {
      cout<<"----------EVENT-----------"<<endl;
