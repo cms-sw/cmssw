@@ -56,6 +56,3 @@ AlCaElectronsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(AlCaElectronsProducer)
