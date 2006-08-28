@@ -54,19 +54,19 @@ public:
   void interpretRawData( 
       const PixelFEDCabling & fed, const FEDRawData & data, Digis & digis);
 
-  FEDRawData * formatData( PixelFEDCabling & fed, const Digis & digis);
+  FEDRawData * formatData( const PixelFEDCabling & fed, const Digis & digis);
 
 private:
 
   typedef unsigned int Word32;
   typedef long long Word64;
 
-  void roc2words( PixelROC &, 
-                  const Range & range, 
-                  std::vector<Word32> &) const;
-  void word2digi(const PixelFEDCabling& fed, 
-                 const Word32& data, 
-                 Digis & digis) const;
+  void digi2word( int linkid, const PixelROC &roc, 
+                  const PixelDigi& digi, 
+                  std::vector<Word32> & words) const;
+  void word2digi( const PixelFEDCabling& fed, 
+                    const Word32& data, 
+                    Digis & digis) const;
 
   static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits;
   static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift;

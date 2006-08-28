@@ -1,8 +1,8 @@
-using namespace std;
 
 #include "EventFilter/SiPixelRawToDigi/interface/SiPixelDigiToRaw.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -10,12 +10,13 @@ using namespace std;
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "CalibTracker/SiPixelConnectivity/interface/SiPixelFedCablingMapBuilder.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+using namespace std;
 
 SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
   eventCounter_(0),
@@ -62,25 +63,22 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     digis[ di->id] = di->data;
   }
 
-  if( !fedCablingMap_) {
-    fedCablingMap_ = SiPixelFedCablingMapBuilder().produce(es); 
-  }
-
-//  edm::ESHandle<SiPixelFedCabling> cabling;
-//  es.get<SiPixelFedCablingRcd>().get( cabling );
-//  cabling->myprintout();
-  
+  cout << " *** HERE1" << endl;
+  edm::ESHandle<SiPixelFedCablingMap> map;
+  es.get<SiPixelFedCablingMapRcd>().get( map );
+  cout << map->version() << endl;
+  cout << " *** HERE2" << endl;
 
   // create product (raw data)
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
-  vector<PixelFEDCabling *> cabling = fedCablingMap_->cabling();
+  const vector<PixelFEDCabling> & cabling = map->cabling();
 
-  typedef vector<PixelFEDCabling *>::iterator FI;
+  typedef vector<PixelFEDCabling>::const_iterator FI;
   for (FI it = cabling.begin(); it != cabling.end(); it++) {
-    LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (**it).id();
-    FEDRawData * rawData = formatter.formatData( (**it), digis);
-    FEDRawData& fedRawData = buffers->FEDData( (**it).id() ); 
+    LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (*it).id();
+    FEDRawData * rawData = formatter.formatData( (*it), digis);
+    FEDRawData& fedRawData = buffers->FEDData( (*it).id() ); 
     fedRawData = *rawData;
     LogDebug("SiPixelDigiToRaw")<<"size of data in fedRawData: "<<fedRawData.size();
   }

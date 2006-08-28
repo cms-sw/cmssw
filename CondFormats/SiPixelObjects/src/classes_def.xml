@@ -3,6 +3,21 @@
   <class name="SiPixelDbItem"/>
   <class name="std::vector<SiPixelDbItem>"/>
 
+  <class name="PixelROC">
+  <field name="theNRows" transient="true"/>
+  <field name="theNCols" transient="true"/>
+  </class>
+
+  <class name="PixelFEDLink"/>
+  <class name="std::vector<PixelROC>"/> 
+  <class name="std::vector<PixelFEDLink::Connection>"/>
+
+  <class name="PixelFEDCabling"/>
+  <class name="std::vector<PixelFEDLink>"/>
+
+  <class name="SiPixelFedCablingMap"/>
+  <class name="std::vector<PixelFEDCabling>"/>
+
   <class pattern="*pair*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>

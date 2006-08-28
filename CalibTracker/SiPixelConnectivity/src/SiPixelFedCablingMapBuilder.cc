@@ -26,18 +26,14 @@
 using namespace std;
 
 
-SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder()
-{
-}
+SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(const string & associatorName) : theAssociatorName(associatorName)
+{ }
 
 SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
    const edm::EventSetup& setup)
 {
-  SiPixelFedCablingMap * result = new SiPixelFedCablingMap();
    FEDNumbering fednum;
-//   pair<int,int> fedIds = fednum.getSiPixelFEDIds();
-//   cout << "pixel feds: " << fedIds.first<<" "<<fedIds.second << endl;
-//   TRange<int> fedIds = fednum.getSiPixelFEDIds();
+// TRange<int> fedIds = fednum.getSiPixelFEDIds();
    TRange<int> fedIds(0,40);
    edm::LogInfo("SiPixelFedCablingMapBuilder")<<"pixel fedid range: "<<fedIds;
 
@@ -47,14 +43,19 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
      int idx = id - fedIds.min();
      fedSpecs[idx]= fs;
    }
-   PixelToFEDAssociate name2fed;
-   name2fed.init();
+
+  edm::ESHandle<PixelToFEDAssociate> associator;
+  setup.get<TrackerDigiGeometryRecord>().get(theAssociatorName,associator);
+  const PixelToFEDAssociate & name2fed = *associator; 
+  
+  string version = name2fed.version();
+  SiPixelFedCablingMap * result = new SiPixelFedCablingMap(version);
 
 
-//  cout << "read tracker geometry..." << endl;
+  LogDebug("read tracker geometry...");
   edm::ESHandle<TrackerGeometry> pDD;
   setup.get<TrackerDigiGeometryRecord>().get( pDD );
-//  cout <<" There are "<<pDD->dets().size() <<" detectors"<<endl;
+  LogDebug("tracker geometry read")<<"There are: "<<  pDD->dets().size() <<" detectors";
 
   typedef TrackerGeometry::DetContainer::const_iterator ITG;
   int npxdets = 0;
@@ -76,7 +77,7 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
     } else edm::LogError("SiPixelFedCablingMapBuilder")
           <<"problem with numbering! "<<fedId<<" name: " << name->name();
   }
-  //cout << "here, pixels: " <<npxdets << endl;
+  LogDebug("tracker geometry read")<<"There are: "<< npxdets<<" pixel detetors";
 
   // construct FEDs
   typedef vector<FedSpec>::iterator FI;
@@ -85,19 +86,27 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
     vector<PixelModuleName* > names = it->names;
     vector<uint32_t> units = it->rawids;
     if ( names.size() == 0) continue;
-    PixelFEDCabling * fed = new PixelFEDCabling(fedId, names);
+    PixelFEDCabling fed(fedId);
     bool barrel = it->names.front()->isBarrel();
     if (barrel) {
       PixelFEDCabling::Links links = 
-          PixelBarrelLinkMaker(fed).links(names,units);
-      fed->setLinks(links);
+          PixelBarrelLinkMaker(&fed).links(names,units);
+      fed.setLinks(links);
       result->addFed(fed);
     } else {
       PixelFEDCabling::Links links =
-          PixelEndcapLinkMaker(fed).links(names,units);
-      fed->setLinks(links);
+          PixelEndcapLinkMaker(&fed).links(names,units);
+      fed.setLinks(links);
+      result->addFed(fed);
     }
   }
+
+  //clear names:
+  for ( FI it = fedSpecs.begin(); it != fedSpecs.end(); it++) {
+    vector<PixelModuleName* > names = it->names;
+    typedef vector<PixelModuleName* >::const_iterator IN;
+    for (IN name = names.begin(); name != names.end(); name++) delete (*name);
+  } 
 
   return result;
 }

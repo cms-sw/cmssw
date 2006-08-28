@@ -13,14 +13,14 @@
 
 class PixelModuleName;
 class PixelBarrelName;
-class PixelFEDCabling;
-class PixelFEDLink;
+#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+#include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 
 class PixelBarrelLinkMaker {
 public:
   typedef std::vector<PixelModuleName* > Names;
   typedef std::vector<uint32_t> DetUnits;
-  typedef std::vector<PixelFEDLink *> Links;
+  typedef PixelFEDCabling::Links Links;
   typedef TRange<int> Range;
 
   /// ctor from owner

@@ -1,12 +1,13 @@
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 
+#include <sstream>
+using namespace std;
+
 int PixelROC::theNRows = 80;
 int PixelROC::theNCols = 52;
 
-PixelROC::PixelROC(uint32_t du, PixelFEDLink* lk,
-    int idDU, int idLk, int rocInX, int rocInY)
-  : theDetUnit(du), theLink(lk),
-    theIdDU(idDU), theIdLk(idLk),
+PixelROC::PixelROC(uint32_t du, int idDU, int idLk, int rocInX, int rocInY)
+  : theDetUnit(du), theIdDU(idDU), theIdLk(idLk),
     theRocInX(rocInX), theRocInY(rocInY)
 { }
 
@@ -37,3 +38,19 @@ PixelROC::LocalPixel PixelROC::toLocal( const GlobalPixel& glo) const
 
   return loc;
 }
+
+string PixelROC::print(int depth) const
+{
+  ostringstream out;
+  if (depth-- >=0 ) {
+    out <<"======== PixelROC " 
+        <<" idInDU: "<<theIdDU
+        <<" idInLk: "<<theIdLk
+        <<" RocInXOffset: "<<theRocInX
+        <<" RocInYOffset: "<<theRocInY 
+        <<endl;     
+  }
+  return out.str();
+
+}
+

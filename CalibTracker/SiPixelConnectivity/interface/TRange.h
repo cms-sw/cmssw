@@ -7,18 +7,17 @@
 #include <utility>
 #include <algorithm>
 
-using namespace std;
 
-template<class T> class TRange : public pair<T,T> {
+template<class T> class TRange : public std::pair<T,T> {
 public:
 
   TRange() { }
 
   TRange(const T & aMin, const T & aMax) 
-      : pair<T,T> (aMin,aMax) { }
+      : std::pair<T,T> (aMin,aMax) { }
 
-  TRange(const pair<T,T> & aPair ) 
-      : pair<T,T> (aPair) { }  
+  TRange(const std::pair<T,T> & apair ) 
+      : std::pair<T,T> (apair) { }  
 
   /// lower edge of range 
   const T & min() const { return this->first; }
@@ -58,11 +57,11 @@ public:
       (max() < r.max()) ? r.max() : max()); 
   }
 
-  void sort() { if (empty() ) swap(this->first,this->second); }
+  void sort() { if (empty() ) std::swap(this->first,this->second); }
 };
 
-template <class T> ostream & operator<<( 
-    ostream& out, const TRange<T>& r) 
+template <class T> std::ostream & operator<<( 
+    std::ostream& out, const TRange<T>& r) 
 {
   return out << "("<<r.min()<<","<<r.max()<<")";
 }

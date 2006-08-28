@@ -1,34 +1,40 @@
-#include "CalibTracker/SiPixelConnectivity/interface/PixelToFEDAssociate.h"
+#include "CalibTracker/SiPixelConnectivity/interface/PixelToFEDAssociateFromAscii.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-//#include <iostream>
-#include <sstream>
+#include <ostream>
 #include <fstream>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Verbosity.h"
 
 using namespace std;
 
-PixelToFEDAssociate::BarrelConnections PixelToFEDAssociate::theBarrel
-   = PixelToFEDAssociate::BarrelConnections();
-PixelToFEDAssociate::EndcapConnections PixelToFEDAssociate::theEndcap
-   = PixelToFEDAssociate::EndcapConnections();
 
-bool PixelToFEDAssociate::isInitialised = false;
+PixelToFEDAssociateFromAscii::BarrelConnections PixelToFEDAssociateFromAscii::theBarrel
+   = PixelToFEDAssociateFromAscii::BarrelConnections();
+PixelToFEDAssociateFromAscii::EndcapConnections PixelToFEDAssociateFromAscii::theEndcap
+   = PixelToFEDAssociateFromAscii::EndcapConnections();
 
-int PixelToFEDAssociate::operator()(const PixelModuleName & id) const
+
+PixelToFEDAssociateFromAscii::PixelToFEDAssociateFromAscii(const string & fn) {
+  init(fn);
+}
+std::string PixelToFEDAssociateFromAscii::version() const
+{
+  return theVersion; 
+}
+
+int PixelToFEDAssociateFromAscii::operator()(const PixelModuleName & id) const 
 {
   return id.isBarrel() ?
     operator()(dynamic_cast<const PixelBarrelName & >(id)) :
     operator()(dynamic_cast<const PixelEndcapName & >(id)) ;
 }
 
-int PixelToFEDAssociate::operator()(const PixelBarrelName & id) const
+int PixelToFEDAssociateFromAscii::operator()(const PixelBarrelName & id) const
 {
-  if (!isInitialised) init();
   for (BarrelConnections::const_iterator
       ibc = theBarrel.begin(); ibc != theBarrel.end(); ibc++) {
     for (vector<Bdu>::const_iterator
@@ -38,13 +44,13 @@ int PixelToFEDAssociate::operator()(const PixelBarrelName & id) const
            && ibd->f.inside( id.ladderName() ) ) return (*ibc).first; 
     }
   }
-  edm::LogError("** PixelToFEDAssociate WARNING, name: ")
+  edm::LogError("** PixelToFEDAssociateFromAscii WARNING, name: ")
        << id.name()<<" not associated to FED";
   return -1;
 }
-int PixelToFEDAssociate::operator()(const PixelEndcapName & id) const
+
+int PixelToFEDAssociateFromAscii::operator()(const PixelEndcapName & id) const 
 {
-  if (!isInitialised) init();
   for (EndcapConnections::const_iterator
       iec = theEndcap.begin(); iec != theEndcap.end(); iec++) {
     for (vector<Edu>::const_iterator
@@ -54,25 +60,23 @@ int PixelToFEDAssociate::operator()(const PixelEndcapName & id) const
            && ied->b.inside( id.bladeName() ) ) return iec->first; 
     }
   }
-  edm::LogError("** PixelToFEDAssociate WARNING, name: ")
+  edm::LogError("** PixelToFEDAssociateFromAscii WARNING, name: ")
        << id.name()<<" not associated to FED";
   return -1;
 }
 
 
-void PixelToFEDAssociate::init() const 
+void PixelToFEDAssociateFromAscii::init(const string & cfg_name)
 {
-  isInitialised = true;
-  edm::LogInfo("PixelToFEDAssociate init: ");
+  LogDebug("init, input file:") << cfg_name.c_str();
 
-  string cfg_name = "pixelToFED.ascii";
   std::ifstream file( cfg_name.c_str() );
   if ( !file ) {
-    edm::LogError(" ** PixelToFEDAssociate,init ** ")
+    edm::LogError(" ** PixelToFEDAssociateFromAscii,init ** ")
          << " cant open data file: " << cfg_name;
     return;
   } else {
-    edm::LogInfo("PixelToFEDAssociate, read data from: ") <<cfg_name ;
+    edm::LogInfo("PixelToFEDAssociateFromAscii, read data from: ") <<cfg_name ;
   }
 
   string line;
@@ -91,13 +95,14 @@ void PixelToFEDAssociate::init() const
     string::size_type posL = line.find("L:");
     string::size_type posE = line.find("E:");
 
-    //std::cout << "LINE: " << line << endl;
+    LogDebug ( "line read" ) << line;
 
     //
     // treat version lines, reset date
     //
     if (     line.compare(0,3,"VER") == 0 ) { 
-      //uv.infoOut << line << endl;
+      edm::LogInfo("version: ")<<line;
+      theVersion = line;
       send(barCon,endCon);
       theBarrel.clear();
       theEndcap.clear();
@@ -133,7 +138,7 @@ void PixelToFEDAssociate::init() const
   send(barCon,endCon);
   } 
   catch(exception& err) {
-    edm::LogError("**PixelToFEDAssociate**  exception")<<err.what();
+    edm::LogError("**PixelToFEDAssociateFromAscii**  exception")<<err.what();
     theBarrel.clear();
     theEndcap.clear();
   }
@@ -141,32 +146,29 @@ void PixelToFEDAssociate::init() const
   //
   // for debug
   //
-  bool debug = true;
-  if (debug) {
-    std::stringstream str;
-    str <<" **PixelToFEDAssociate ** BARREL FED CONNECTIONS: "<< endl;
-    for (BarrelConnections::const_iterator
-        ibc = theBarrel.begin(); ibc != theBarrel.end(); ibc++) {
-      str << "FED: " << ibc->first << endl;
-      for (vector<Bdu>::const_iterator
-          ibd = (*ibc).second.begin(); ibd != (*ibc).second.end(); ibd++) {
-        str << " l: "<<ibd->l<<" z: "<<ibd->z<<" f: "<<ibd->f<<endl;
-      }
+  std::ostringstream str;
+  str <<" **PixelToFEDAssociateFromAscii ** BARREL FED CONNECTIONS: "<< endl;
+  for (BarrelConnections::const_iterator
+      ibc = theBarrel.begin(); ibc != theBarrel.end(); ibc++) {
+    str << "FED: " << ibc->first << endl;
+    for (vector<Bdu>::const_iterator
+        ibd = (*ibc).second.begin(); ibd != (*ibc).second.end(); ibd++) {
+      str << " l: "<<ibd->l<<" z: "<<ibd->z<<" f: "<<ibd->f<<endl;
     }
-    str <<" **PixelToFEDAssociate ** ENDCAP FED CONNECTIONS: " << endl;
-    for (EndcapConnections::const_iterator
-        iec = theEndcap.begin(); iec != theEndcap.end(); iec++) {
-      str << "FED: " << iec->first << endl;
-      for (vector<Edu>::const_iterator
-          ied = (*iec).second.begin(); ied != (*iec).second.end(); ied++) {
-        str << " e: "<<ied->e<<" d: "<<ied->d<<" b: "<<ied->b<<endl;
-      }
+  }
+  str <<" **PixelToFEDAssociateFromAscii ** ENDCAP FED CONNECTIONS: " << endl;
+  for (EndcapConnections::const_iterator
+    iec = theEndcap.begin(); iec != theEndcap.end(); iec++) {
+    str << "FED: " << iec->first << endl;
+    for (vector<Edu>::const_iterator
+        ied = (*iec).second.begin(); ied != (*iec).second.end(); ied++) {
+      str << " e: "<<ied->e<<" d: "<<ied->d<<" b: "<<ied->b<<endl;
     }
-    edm::LogInfo("PixelToFEDAssociate")<<str.str();
-  } 
+  }
+  edm::LogInfo("PixelToFEDAssociateFromAscii")<<str.str();
 }
 
-void PixelToFEDAssociate::send(
+void PixelToFEDAssociateFromAscii::send(
     pair<int,vector<Bdu> > & b, pair<int,vector<Edu> > & e) const 
 {
   if (b.second.size() > 0) theBarrel.push_back(b);
@@ -175,7 +177,7 @@ void PixelToFEDAssociate::send(
   e.second.clear();
 }
 
-PixelToFEDAssociate::Bdu PixelToFEDAssociate::getBdu( string line) const
+PixelToFEDAssociateFromAscii::Bdu PixelToFEDAssociateFromAscii::getBdu( string line) const
 {
   Bdu result;
   string::size_type pos;
@@ -193,7 +195,7 @@ PixelToFEDAssociate::Bdu PixelToFEDAssociate::getBdu( string line) const
   return result;
 }
 
-PixelToFEDAssociate::Edu PixelToFEDAssociate::getEdu( string line) const
+PixelToFEDAssociateFromAscii::Edu PixelToFEDAssociateFromAscii::getEdu( string line) const
 {
   Edu result;
   string::size_type pos;
@@ -210,8 +212,8 @@ PixelToFEDAssociate::Edu PixelToFEDAssociate::getEdu( string line) const
   return result;
 }
 
-PixelToFEDAssociate::Range 
-    PixelToFEDAssociate::readRange( const string & l) const
+PixelToFEDAssociateFromAscii::Range 
+    PixelToFEDAssociateFromAscii::readRange( const string & l) const
 {
   bool first = true;
   int num1 = -1;
@@ -220,7 +222,7 @@ PixelToFEDAssociate::Range
   while (line) {
     char * evp = 0;
     int num = strtol(line, &evp, 10);
-//    cout <<" read " <<  num <<" from: " <<line <<endl;
+    { stringstream s; s<<"raad from line: "; s<<num; LogDebug(s.str()); }
     if (evp != line) {
       line = evp +1;
       if (first) { num1 = num; first = false; }
@@ -228,16 +230,13 @@ PixelToFEDAssociate::Range
     } else line = 0;
   }
   if (first) {
-    string s = "** PixelToFEDAssociate, read data, cant intrpret: " ;
+    string s = "** PixelToFEDAssociateFromAscii, read data, cant intrpret: " ;
     edm::LogInfo(s) << endl 
               << l << endl 
               <<"=====> send exception " << endl;
     s += l;
     throw cms::Exception(s);
   }
-//  Range result(num1,num2);
-//  cout << " range found : " << result << endl;
-//  return result;
   return Range(num1,num2);
 }
 

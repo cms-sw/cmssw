@@ -2,7 +2,7 @@
 #define PixelROC_H
 
 #include <boost/cstdint.hpp>
-class PixelFEDLink;
+#include <string>
 
 /** \class PixelROC
  * Represents ReadOut Chip of DetUnit. 
@@ -14,11 +14,12 @@ class PixelFEDLink;
 class PixelROC {
 public:
 
+  /// dummy
+  PixelROC(){}
 
   /// ctor with offsets in DU (units of ROC)
   PixelROC( 
-      uint32_t du, PixelFEDLink * lk, 
-      int idDU, int idLk, 
+      uint32_t du, int idDU, int idLk, 
       int rocInX, int rocInY); 
 
 
@@ -28,9 +29,6 @@ public:
 
   /// id of this ROC in parent Link.
   int idInLink() const { return theIdLk; }
-
-  /// the parent link 
-  PixelFEDLink * link() const {return theLink;}
 
   /// return the DetUnit to which this ROC belongs to.
   uint32_t rawId() const { return theDetUnit; }
@@ -69,6 +67,7 @@ public:
   /// check if position inside this ROC
   bool inside(const GlobalPixel & gp) const { return inside(toLocal(gp)); }
 
+  std::string print(int depth = 0) const;
 
 
   /// number of rows in ROC
@@ -78,7 +77,6 @@ public:
 
 private:
   uint32_t theDetUnit;
-  PixelFEDLink * theLink;
   int theIdDU, theIdLk;
   int theRocInX, theRocInY; // offsets in DU (in units of ROC);
   static int theNRows, theNCols; 

@@ -4,7 +4,11 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <ostream>
 using namespace std;
+
 bool PixelBarrelLinkMaker::Order::operator() 
     (const Item &u1, const Item& u2) const
 {
@@ -70,14 +74,14 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
   Order myLess;
   sort( linkItems.begin(), linkItems.end(), myLess );
 
-  bool debug = false;
-  if (debug) {
-    cout  << " sorted: " << endl;
-    for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
-      cout << (*it).name->name() <<" r="<< (*it).rocIds << endl;
-    }
-    cout << endl;
+  //
+  // DEBUG
+  //
+  ostringstream str;
+  for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
+    str << (*it).name->name() <<" r="<< (*it).rocIds << endl;
   }
+  LogDebug(" sorted BARREL links: ") << str.str();
 
 
   //
@@ -87,7 +91,7 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
   result.reserve(linkItems.size());
   for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
     PixelFEDLink::ROCs rocs; 
-    PixelFEDLink * link = new PixelFEDLink(++idLink, theOwner);
+    PixelFEDLink link(++idLink);
     int idRoc = -1;
     for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
        //
@@ -112,14 +116,10 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
            rocInY = 0;
          }
        }
-       rocs.push_back( 
-           new PixelROC( it->unit, link, id, ++idRoc, rocInX, rocInY));
+       rocs.push_back( PixelROC( it->unit, id, ++idRoc, rocInX, rocInY));
     }
-    PixelFEDLink::Connection con;
-    con.name = it->name;
-    con.unit = it->unit;
-    con.rocs = it->rocIds;
-    link->add( con, rocs);
+    PixelFEDLink::Connection connection = {it->unit, it->name->name(),it->rocIds};
+    link.add(connection,rocs);
     result.push_back(link); 
   }
 

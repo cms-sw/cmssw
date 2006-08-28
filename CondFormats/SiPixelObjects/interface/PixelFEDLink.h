@@ -10,26 +10,25 @@
 #include <iostream>
 #include <boost/cstdint.hpp>
 
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 class PixelModuleName;
-class PixelFEDCabling;
-class PixelROC;
 
 class PixelFEDLink {
 public:
 
   typedef std::pair<int,int> Range;
-  typedef std::vector<PixelROC* > ROCs;
+
+  /// ROCs served be this link
+  typedef std::vector<PixelROC> ROCs;
 
   /// specifies minimal object connected to link (ranges of ROCs in module)
-  struct Connection { const PixelModuleName * name;
-                      uint32_t unit;
-                      Range rocs; };
+  struct Connection { uint32_t unit; std::string name; Range rocs; };
+
+  /// all objects connected to link
   typedef std::vector<Connection> Connections;
 
   /// ctor with id of link and parent FED
-  PixelFEDLink(int id, const PixelFEDCabling * fed) : theId(id), theFed(fed) { } 
-
-  ~PixelFEDLink() { clearRocs(); }
+  PixelFEDLink(int id = -1) : theId(id) { } 
 
   ///  add connection (defined by connection spec and ROCs)
   void add(const Connection & con, const ROCs & rocs) {
@@ -40,15 +39,12 @@ public:
   /// link id
   int id() const { return theId; }
 
-  /// parent fed 
-  const PixelFEDCabling * fed() const { return theFed; }
-
   /// number of ROCs in fed
   int numberOfROCs() const { return theROCs.size(); }
 
   /// return ROC identified by id. ROC ids are ranged [0,numberOfROCs)
-  PixelROC * roc(unsigned int id) const 
-    { return (id >= 0 && id < theROCs.size() ) ?  theROCs[id] : 0; }
+  const PixelROC * roc(unsigned int id) const 
+    { return (id >= 0 && id < theROCs.size() ) ?  &theROCs[id] : 0; }
 
   const Connections & connected() const { return theConnections; }
   
@@ -56,12 +52,10 @@ public:
   /// vector is the same as its id. To be called by owner
   bool checkRocNumbering() const;
 
-private:
-  void clearRocs();
+  std::string print(int depth = 0) const;
 
 private:
   int theId;
-  const PixelFEDCabling * theFed;
   ROCs theROCs;
   Connections theConnections;
 };

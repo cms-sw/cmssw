@@ -57,7 +57,7 @@ void PixelDataFormatter::interpretRawData(const PixelFEDCabling& fed, const FEDR
         Word32 w1 =  *word >> 32 & WORD32_mask;
         Word32 w2 =  *word       & WORD32_mask;
         word2digi(fed, w1, digis);
-        word2digi(fed, w2, digis );
+        word2digi(fed, w2, digis);
         word++;
       }
     }
@@ -68,20 +68,24 @@ void PixelDataFormatter::interpretRawData(const PixelFEDCabling& fed, const FEDR
 }
 
 FEDRawData * PixelDataFormatter::formatData( 
-    PixelFEDCabling & fed, 
+    const PixelFEDCabling & fed, 
     const Digis & digis)
 {
 
   vector<Word32> words;
   for (int idxLink = 0; idxLink < fed.numberOfLinks(); idxLink++) {
-    PixelFEDLink * link = fed.link(idxLink);
+    const PixelFEDLink * link = fed.link(idxLink);
+    int linkid = link->id();
     int numberOfRocs = link->numberOfROCs();
     for(int idxRoc = 0; idxRoc < numberOfRocs; idxRoc++) {
-      PixelROC * roc = link->roc(idxRoc);
+      const PixelROC * roc = link->roc(idxRoc);
       Digis::const_iterator im= digis.find(roc->rawId());
       if (im == digis.end() ) continue;
       Range range(im->second.begin(), im->second.end());
-      roc2words(*roc, range, words);
+      for (DetDigis::const_iterator it = range.first; it != range.second;it++) {
+        const PixelDigi & digi = (*it);
+        digi2word(linkid, *roc, digi, words);
+      }
     }
   }
 
@@ -142,27 +146,26 @@ FEDRawData * PixelDataFormatter::formatData(
 }
  
 
-void PixelDataFormatter::roc2words(
-    PixelROC &roc, 
-    const Range & range,
+void PixelDataFormatter::digi2word(
+    int linkId,
+    const PixelROC &roc, 
+    const PixelDigi & pd,
     vector<Word32> &words) const
 {
-  for (DetDigis::const_iterator it = range.first; it != range.second; it++) {
-    const PixelDigi & pd = (*it);
     PixelROC::GlobalPixel glo = { pd.row(), pd.column() };
     PixelROC::LocalPixel  loc = roc.toLocal(glo);
-    if (! roc.inside(loc) ) continue;
+    if (! roc.inside(loc) ) return;
     LogDebug("PixelDataFormatter")<< "DIGI: row: " << pd.row()
                <<", col: " << pd.column()
                <<", adc: " << pd.adc() ;
-    Word32 word;
-    word =   (roc.link()->id() << LINK_shift)
+
+    Word32 word = 
+             (linkId << LINK_shift)
            | (roc.idInLink() << ROC_shift)
            | (loc.dcol << DCOL_shift)
            | (loc.pxid << PXID_shift)
            | (pd.adc() << ADC_shift);
     words.push_back(word);
-  }
 }
 
 void PixelDataFormatter::word2digi(const PixelFEDCabling & fed, 
@@ -185,13 +188,13 @@ void PixelDataFormatter::word2digi(const PixelFEDCabling & fed,
   int adc   = (word >> ADC_shift) & ADC_mask;
 
 
-  PixelFEDLink * link = fed.link(ilink);
+  const PixelFEDLink * link = fed.link(ilink);
   if (!link) {
     stringstream stm;
     stm << "FED shows no link of id= " << ilink;
     throw cms::Exception(stm.str());
   }
-  PixelROC * roc = link->roc(iroc);
+  const PixelROC * roc = link->roc(iroc);
   if (!roc) {
     stringstream stm;
     stm << "Link=" << ilink << " shows no ROC with id=" << iroc;

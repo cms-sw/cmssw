@@ -7,6 +7,10 @@
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiPixelDigi>
 <use name=CalibTracker/SiPixelConnectivity>
+<use name=CondFormats/SiPixelObjects>
+<use name=CondFormats/DataRecord>
+
+
 
 <export>
  <lib name=EventFilterSiPixelRawToDigi>
@@ -17,4 +21,7 @@
  <use name=DataFormats/FEDRawData>
  <use name=DataFormats/SiPixelDigi>
  <use name=CalibTracker/SiPixelConnectivity>
+ <use name=CondFormats/SiPixelObjects>
+ <use name=CondFormats/DataRecord>
+
 </export>

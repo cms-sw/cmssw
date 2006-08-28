@@ -4,8 +4,10 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <ostream>
 
 using namespace std;
+
 bool PixelEndcapLinkMaker::Order::operator()
     (const Item &u1, const Item& u2) const
 {
@@ -72,34 +74,32 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
   //
 
   sort( linkItems.begin(), linkItems.end(), Order() );
-//
-//  bool debug = false;
-//  if (debug) {
-//    cout  << " ** PixelEndcapLinkMaker ** sorted: " << endl;
-//    for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
-//      cout << (*it).name->name() <<" r="<< (*it).rocIds << endl;
-//    }
-//    cout << endl;
-//  }
+
+  //
+  // DEBUG
+  //
+  ostringstream str;
+  for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
+    str << (*it).name->name() <<" r="<< (*it).rocIds << endl;
+  }
+  LogDebug(" sorted ENDCAP links: ") << str.str();
+
 
   result.reserve(36);
-  PixelFEDLink * link = 0;
   int lastPannelId = -1;
   int idLink = -1;
   int idRoc = -1;
+  PixelFEDLink link(idLink); // dummy object, id=-1
+
   for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
     PixelFEDLink::ROCs rocs;
     int pannelId = it->name->pannelName();
-    if (!link) {
-      lastPannelId = pannelId;
-      idRoc = -1;
-      link = new PixelFEDLink(++idLink, theOwner);
-    }
+
     if ( pannelId != lastPannelId ) {
       lastPannelId = pannelId;
-      result.push_back(link);
+      if (idLink >= 0) result.push_back(link);
       idRoc = -1;
-      link = new PixelFEDLink(++idLink, theOwner);
+      link = PixelFEDLink(++idLink); // real link, to be filled
     }
     for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
       int rocInY, rocInX;
@@ -117,21 +117,12 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
           rocInX = (*it).rocIds.max()-id;
         }
       }
-      rocs.push_back(
-           new PixelROC( it->unit, link, id, ++idRoc, rocInX, rocInY));
+      rocs.push_back( PixelROC( it->unit, id, ++idRoc, rocInX, rocInY));
     }
-    PixelFEDLink::Connection con;
-    con.name = it->name;
-    con.unit = it->unit;
-    con.rocs = it->rocIds;
-    link->add( con, rocs);
-    rocs.clear();
+    PixelFEDLink::Connection connection = {it->unit, it->name->name(), it->rocIds};
+    link.add( connection, rocs);
   }
-  if (link) result.push_back(link);
-
-
-
-
+  if (idLink >= 0) result.push_back(link);
   return result;
 }
 

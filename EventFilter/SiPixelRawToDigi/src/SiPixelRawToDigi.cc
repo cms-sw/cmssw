@@ -1,8 +1,8 @@
-using namespace std;
 #include "EventFilter/SiPixelRawToDigi/interface/SiPixelRawToDigi.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
@@ -17,10 +17,11 @@ using namespace std;
 
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "CalibTracker/SiPixelConnectivity/interface/SiPixelFedCablingMapBuilder.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+using namespace std;
 
 
 // -----------------------------------------------------------------------------
@@ -34,8 +35,6 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::~SiPixelRawToDigi() {
-//  delete formatter;
-//  delete connectivity;
   edm::LogInfo("SiPixelRawToDigi")  << " HERE ** SiPixelRawToDigi destructor!";
 }
 
@@ -51,9 +50,12 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 {
   PixelDataFormatter formatter;
 
-  if( !fedCablingMap_) {
-    fedCablingMap_ = SiPixelFedCablingMapBuilder().produce(es);
-  }
+  cout << " *** HERE1" << endl;
+  edm::ESHandle<SiPixelFedCablingMap> map;
+  es.get<SiPixelFedCablingMapRcd>().get( map );
+  cout << map->version() << endl;
+  cout << " *** HERE2" << endl;
+
 
 
   edm::Handle<FEDRawDataCollection> buffers;
@@ -63,15 +65,15 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   // create product (digis)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
 
-  vector<PixelFEDCabling *> cabling = fedCablingMap_->cabling();
-  typedef vector<PixelFEDCabling *>::iterator FI;
+  const vector<PixelFEDCabling> & cabling = map->cabling();
+  typedef vector<PixelFEDCabling>::const_iterator FI;
   for (FI it = cabling.begin(); it != cabling.end(); it++) {
      PixelDataFormatter::Digis digis;
-     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  (**it).id() << endl;
+     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  (*it).id() << endl;
      
-     const FEDRawData& fedRawData = buffers->FEDData( (**it).id() );
+     const FEDRawData& fedRawData = buffers->FEDData( (*it).id() );
      LogDebug("SiPixelRawToDigi")<< "sizeof data buffer: " << fedRawData.size() << endl;
-     formatter.interpretRawData( **it, fedRawData, digis);
+     formatter.interpretRawData( *it, fedRawData, digis);
 
      typedef PixelDataFormatter::Digis::iterator ID;
      for (ID it = digis.begin(); it != digis.end(); it++) {
