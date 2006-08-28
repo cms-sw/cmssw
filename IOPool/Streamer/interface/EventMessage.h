@@ -51,8 +51,8 @@ public:
   void l1TriggerBits(std::vector<bool>& put_here) const;
   void hltTriggerBits(uint8* put_here) const;
 
-  uint32 hltCount() {return hlt_bits_count_;}
-  uint32 l1Count() {return l1_bits_count_;}
+  uint32 hltCount() const {return hlt_bits_count_;}
+  uint32 l1Count() const {return l1_bits_count_;}
 
 private:
   uint8* buf_;
