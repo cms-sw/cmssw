@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: tboccali $
-// $Date: 2006/07/26 13:16:44 $
-// $Revision: 1.10 $
+// $Author: burkett $
+// $Date: 2006/08/21 14:30:42 $
+// $Revision: 1.11 $
 //
 
 #include <string>
@@ -126,12 +126,20 @@ class RoadSearchCloudMakerAlgorithm
  private:
   edm::ParameterSet conf_;
   static double epsilon;
-  static double half_pi;
   double d0h, phi0h, omegah;
   double rphicsq;
   int rphinhits;
  const SiPixelRecHitCollection thePixRecHits;
 
+ double theRPhiRoadSize;
+ double theZPhiRoadSize;
+ double theMinimumHalfRoad;
+ bool UsePixels;
+ bool NoFieldCosmic;
+ unsigned int maxDetHitsInCloudPerDetId;
+ unsigned int minNumberOfUsedLayersPerRoad;
+ unsigned int maxNumberOfMissedLayersPerRoad;
+ unsigned int maxNumberOfConsecutiveMissedLayersPerRoad;
 };
 
 #endif

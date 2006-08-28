@@ -50,7 +50,14 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 
+  const double speedOfLight = 2.99792458e8;
+  const double unitCorrection = speedOfLight * 1e-2 * 1e-9;
+
 RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
+
+  NoFieldCosmic = conf_.getParameter<bool>("StraightLineNoBeamSpotSeed");
+  theMinPt = conf_.getParameter<double>("MinimalReconstructedTransverseMomentum");
+
 }
 
 RoadSearchSeedFinderAlgorithm::~RoadSearchSeedFinderAlgorithm() {
@@ -80,8 +87,6 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
   // initialize general hit access for road search
   DetHitAccess innerSeedHitVector(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
   DetHitAccess outerSeedHitVector(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
-
-  const double pi = 3.14159265358979312;
 
    // loop over seed Ring pairs
   for ( Roads::const_iterator road = roads->begin(); road != roads->end(); ++road ) {
@@ -113,8 +118,8 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 	  double innerphi = inner.phi();
 	  double upperPhiRangeBorder = innerphi + (1.0);
 	  double lowerPhiRangeBorder = innerphi - (1.0);
-	  if (upperPhiRangeBorder>2.0*pi) upperPhiRangeBorder -= 2.0*pi;
-	  if (lowerPhiRangeBorder<0.0) lowerPhiRangeBorder += 2.0*pi;
+	  if (upperPhiRangeBorder>Geom::twoPi()) upperPhiRangeBorder -= Geom::twoPi();
+	  if (lowerPhiRangeBorder<0.0) lowerPhiRangeBorder += Geom::twoPi();
 	  //std::cout<<" Phi Range is " << lowerPhiRangeBorder <<" to "<< upperPhiRangeBorder << " for inner phi ' "<<innerphi <<std::endl;
 
 	  if (lowerPhiRangeBorder <= upperPhiRangeBorder ) {
@@ -130,7 +135,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 	  }
 	  else {
 	    for ( Ring::const_iterator outerRingDetId = seed.second.lower_bound(lowerPhiRangeBorder); 
-		  outerRingDetId != seed.second.upper_bound(2*pi);
+		  outerRingDetId != seed.second.upper_bound(Geom::twoPi());
 		  ++outerRingDetId) {
 	      if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
 		edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
@@ -151,7 +156,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
     }
   }
 
-  //edm::LogInfo("RoadSearch") << "Found " << output.size() << " seeds."; 
+  LogDebug("RoadSearch") << "Found " << output.size() << " seeds."; 
 
 };
 
@@ -193,8 +198,7 @@ makeSeedFromPair(const TrackingRecHit* innerSeedDetHit,
 		      0, 0, std::sqrt(region.originZBound()));
   
   double x0=0.0,y0=0.0,z0=0.0;
-  bool nofieldcosmic = conf_.getParameter<bool>("StraightLineNoBeamSpotSeed");
-  if (nofieldcosmic){
+  if (NoFieldCosmic){
     double phi0=atan2(outer->y()-inner->y(),outer->x()-inner->x());
     double alpha=atan2(inner->y(),inner->x());
     double d1=sqrt(inner->x()*inner->x()+inner->y()*inner->y());
@@ -266,11 +270,10 @@ makeSeedsFromInnerHit(TrajectorySeedCollection* outputCollection,
 {
 
   // calculate maximal possible delta phi for given delta r and parameter pTmin
-  double ptmin = conf_.getParameter<double>("MinimalReconstructedTransverseMomentum");
 
   // correction for B given in T, delta r given in cm, ptmin given in GeV/c
-  double speedOfLight = 2.99792458e8;
-  double unitCorrection = speedOfLight * 1e-2 * 1e-9;
+  //double speedOfLight = 2.99792458e8;
+  //double unitCorrection = speedOfLight * 1e-2 * 1e-9;
 
   // B in T, right now hardcoded, has to come from magnetic field service
   double B = 4.0;
@@ -300,21 +303,19 @@ makeSeedsFromInnerHit(TrajectorySeedCollection* outputCollection,
     
     // calculate deltaPhi in [0,2pi]
     double deltaPhi = std::abs(inner.phi() - outer.phi());
-    double pi = 3.14159265358979312;
-    if ( deltaPhi < 0 ) deltaPhi = 2*pi - deltaPhi;
+    if ( deltaPhi < 0 ) deltaPhi = Geom::twoPi() - deltaPhi;
     
     double innerr = std::sqrt(inner.x()*inner.x()+inner.y()*inner.y());
     double outerr = std::sqrt(outer.x()*outer.x()+outer.y()*outer.y());
     
     // calculate maximal delta phi in [0,2pi]
-    double deltaPhiMax = std::abs( std::asin(unitCorrection * B * innerr / ptmin) - std::asin(unitCorrection * B * outerr / ptmin) );
-    if ( deltaPhiMax < 0 ) deltaPhiMax = 2*pi - deltaPhiMax;
+    double deltaPhiMax = std::abs( std::asin(unitCorrection * B * innerr / theMinPt) - std::asin(unitCorrection * B * outerr / theMinPt) );
+    if ( deltaPhiMax < 0 ) deltaPhiMax = Geom::twoPi() - deltaPhiMax;
     
     if ( deltaPhi <= deltaPhiMax ) {
       
       double x0=0.0,y0=0.0,z0=0.0;
-      bool nofieldcosmic = conf_.getParameter<bool>("StraightLineNoBeamSpotSeed");
-      if (nofieldcosmic){
+      if (NoFieldCosmic){
 	double phi0=atan2(outer.y()-inner.y(),outer.x()-inner.x());
 	double alpha=atan2(inner.y(),inner.x());
 	double d1=sqrt(inner.x()*inner.x()+inner.y()*inner.y());

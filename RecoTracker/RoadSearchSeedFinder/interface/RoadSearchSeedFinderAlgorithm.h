@@ -63,6 +63,9 @@ class RoadSearchSeedFinderAlgorithm
 				  const GlobalPoint* outerPos,
 				  const edm::EventSetup& es);
 
+  //TrajectorySeedCollection makeSeedsFromInnerHit(const TrackingRecHit* innerHit,
+  //						 const edm::OwnVector<TrackingRecHit>* outerHits,
+  //						 const TrackerGeometry *tracker,const edm::EventSetup& es);
   void makeSeedsFromInnerHit(TrajectorySeedCollection* outcoll,
 			     const TrackingRecHit* innerHit,
 			     const edm::OwnVector<TrackingRecHit>* outerHits,
@@ -72,6 +75,8 @@ class RoadSearchSeedFinderAlgorithm
  private:
   edm::ParameterSet conf_;
 
+  bool NoFieldCosmic;
+  double theMinPt;
 };
 
 #endif
