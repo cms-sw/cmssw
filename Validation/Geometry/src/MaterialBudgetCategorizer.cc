@@ -5,6 +5,7 @@
 #include "G4Material.hh"
 
 // rr
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // rr
 
@@ -37,9 +38,8 @@ void MaterialBudgetCategorizer::buildMaps()
   
   // rr
   //----- Build map material name - x0 contributes
-  ifstream theMaterialFile;
-  theMaterialFile.open("../data/trackerMaterials.x0");
-  // fill everything as "other"
+  ifstream theMaterialFile(edm::FileInPath("Validation/Geometry/data/trackerMaterials.x0").fullPath().c_str());
+ // fill everything as "other"
   float sup,sen,cab,col,ele,oth,air;
   for( ii = 0; ii < matSize; ii++ ) {
     sup=sen=cab=col=ele=0.;
