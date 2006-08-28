@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/08/16 10:07:10 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/08/22 09:35:21 $
+ *  $Revision: 1.23 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -86,9 +86,9 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par):thePropa
   thePropagatorName = par.getParameter<string>("Propagator");
 
   // Measurement Extractor: enable the measure for each muon sub detector
-  bool enableDTMeasurement = par.getUntrackedParameter<bool>("EnableDTMeasurement",true);
-  bool enableCSCMeasurement = par.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
-  bool enableRPCMeasurement = par.getUntrackedParameter<bool>("EnableRPCMeasurement",true);
+  bool enableDTMeasurement = par.getParameter<bool>("EnableDTMeasurement");
+  bool enableCSCMeasurement = par.getParameter<bool>("EnableCSCMeasurement");
+  bool enableRPCMeasurement = par.getParameter<bool>("EnableRPCMeasurement");
 
   theMeasurementExtractor = new MuonDetLayerMeasurements(enableDTMeasurement,
 							 enableCSCMeasurement,
@@ -100,11 +100,10 @@ StandAloneMuonRefitter::~StandAloneMuonRefitter(){
   LogDebug("Muon|RecoMuon|StandAloneMuonRefitter")
     <<"StandAloneMuonRefitter destructor called"<<endl;
   
-  // FIXME
-  //delete thePropagator;
   delete theEstimator;
   delete theMuonUpdator;
   delete theMeasurementExtractor;
+  if(theDetLayerGeometry) delete theDetLayerGeometry;
 }
 
 
