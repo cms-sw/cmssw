@@ -16,12 +16,7 @@ namespace {
     reco::CandidateBaseRef r2;
     reco::CandidateRefVector rv1;
     reco::CandidateRefProd rp1;
-
-    reco::ShallowCloneCandidate<reco::CandidateRef> sc1;
-    reco::ShallowCloneCandidate<reco::CandidateBaseRef> sc2;
-
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
-
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
   }
 }

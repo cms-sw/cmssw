@@ -3,7 +3,9 @@
   <class name="reco::ParticleKinematics" />
   <class name="reco::ParticleWithCharge" />
   <class name="reco::Particle" />
-  <class name="reco::Candidate" />
+  <class name="reco::Candidate">
+    <fiels name="hasMasterClone_" transient="true"/>
+  </class>
   <class name="reco::Candidate::const_iterator_imp" />
   <class name="reco::Candidate::const_iterator" />
   <class name="reco::Candidate::iterator_imp" />
@@ -26,8 +28,7 @@
   <class name="reco::CompositeRefBaseCandidate::const_iterator_comp">
     <field name="i" transient="true" />
   </class>
-  <class name="reco::ShallowCloneCandidate<edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > >"/>
-  <class name="reco::ShallowCloneCandidate<edm::RefToBase<reco::Candidate> >" />
+  <class name="reco::ShallowCloneCandidate"/>
   <class name="std::vector<reco::Candidate *>" />
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >" />
   <class name="edm::Wrapper<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> > >" />

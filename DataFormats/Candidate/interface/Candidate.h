@@ -6,11 +6,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.9 2006/07/26 08:48:38 llista Exp $
+ * \version $Id: Candidate.h,v 1.10 2006/08/25 14:36:12 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/component.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include <vector>
 
 namespace reco {
@@ -68,8 +69,12 @@ namespace reco {
     /// number of component
     template<typename T, typename Tag>
     size_t numberOf() const { return reco::numberOf<T, Tag>( * this ); }
-
-  public:
+    /// returns true if this candidate has a reference to a master clone.
+    /// This only happens if the concrete Candidate type is ShallowCloneCandidate
+    bool hasMasterClone() const { return hasMasterClone_; }
+    /// returns reference to master clone, if existing.
+    /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate
+    virtual const CandidateBaseRef & masterClone() const;
     /// implementation of const_iterator. 
     /// should be private; declared public only 
     /// for ROOT reflex dictionay problems
@@ -108,7 +113,6 @@ namespace reco {
       virtual difference_type difference( const iterator_imp * ) const = 0;
     };
     
-  public:
     struct iterator;
     /// const_iterator over daughters
     struct const_iterator {
@@ -186,13 +190,12 @@ namespace reco {
   private:
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & ) const = 0;
+    mutable bool hasMasterClone_;
     template<typename, typename> friend struct component; 
     friend class OverlapChecker;
-    template<typename> friend class ShallowCloneCandidate;
+    friend class ShallowCloneCandidate;
   };
 
 }
-
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #endif

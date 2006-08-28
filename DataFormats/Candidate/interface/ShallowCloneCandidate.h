@@ -7,55 +7,49 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowCloneCandidate.h,v 1.3 2006/07/24 06:33:58 llista Exp $
+ * \version $Id: ShallowCloneCandidate.h,v 1.1 2006/08/25 14:36:12 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace reco {
-  
-  template<typename Ref>
   class ShallowCloneCandidate : public Candidate {
   public:
     /// default constructor
-    ShallowCloneCandidate() : Candidate() { }
+    ShallowCloneCandidate() : Candidate() { hasMasterClone_ = true; }
     /// constructor from Particle
-    explicit ShallowCloneCandidate( const Ref & master ) : 
-      Candidate( * master ), master_( master ) { }
+    explicit ShallowCloneCandidate( const CandidateBaseRef & masterClone ) : 
+      Candidate( * masterClone ), masterClone_( masterClone ) { hasMasterClone_ = true; }
     /// constructor from values
-    ShallowCloneCandidate( const Ref & master, 
+    ShallowCloneCandidate( const CandidateBaseRef & masterClone, 
 			   Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      Candidate( q, p4, vtx ), master_( master ) { }
+      Candidate( q, p4, vtx ), masterClone_( masterClone ) { hasMasterClone_ = true; }
     /// destructor
-    virtual ~ShallowCloneCandidate() { }
+    virtual ~ShallowCloneCandidate();
     /// returns a clone of the Candidate object
-    virtual ShallowCloneCandidate * clone() const { return new ShallowCloneCandidate( *this ); }
+    virtual ShallowCloneCandidate * clone() const;
     /// first daughter const_iterator
-    virtual const_iterator begin() const { return master_->begin(); }
+    virtual const_iterator begin() const;
     /// last daughter const_iterator
-    virtual const_iterator end() const { return master_->end(); }
+    virtual const_iterator end() const;
     /// first daughter iterator
-    virtual iterator begin() { 
-      throw cms::Exception("Invalid Dereference") << "can't have non-const access to master clone\n";      
-    }
+    virtual iterator begin();
     /// last daughter iterator
-    virtual iterator end() { 
-      throw cms::Exception("Invalid Dereference") << "can't have non-const access to master clone\n";      
-    }
+    virtual iterator end();
     /// number of daughters
-    virtual int numberOfDaughters() const { return master_->numberOfDaughters(); }
+    virtual int numberOfDaughters() const;
     /// return daughter at a given position (throws an exception)
-    virtual const Candidate & daughter( size_type i ) const { return master_->daughter( i ); }
+    virtual const Candidate & daughter( size_type i ) const;
     /// return daughter at a given position (throws an exception)
-    virtual Candidate & daughter( size_type i ) { 
-      throw cms::Exception("Invalid Dereference") << "can't have non-const access to master clone\n";      
-    }
+    virtual Candidate & daughter( size_type i );
+    /// returns reference to master clone
+    virtual const CandidateBaseRef & masterClone() const;
+
   private:
     /// check overlap with another Candidate
-    virtual bool overlap( const Candidate & c ) const { return master_->overlap( c ); }
-    /// reference to master clone
-    Ref master_;
+    virtual bool overlap( const Candidate & c ) const { return masterClone_->overlap( c ); }
+    /// CandidateBaseReference to master clone
+    CandidateBaseRef masterClone_;
   };
 
 }
