@@ -16,22 +16,31 @@ using namespace std;
 
 
 
-HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
-
+HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) 
+: theParameterMap(new HcalSimParameterMap()),
+  theHcalShape(new HcalShape()),
+  theHFShape(new HFShape()),
+  theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
+  theHFIntegratedShape(new CaloShapeIntegrator(theHFShape)),
+  theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
+  theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),   
+  theHFResponse(new CaloHitResponse(theParameterMap, theHFIntegratedShape)),
+  theAmplifier(0),
+  theCoderFactory(0),
+  theElectronicsSim(0),
+  theHitCorrection(0),
+  theHBHEDigitizer(0),
+  theHODigitizer(0),
+  theHFDigitizer(0),
+  theHBHEHits(),
+  theHOHits(),
+  theHFHits()
+{
+  
   produces<HBHEDigiCollection>();
   produces<HODigiCollection>();
   produces<HFDigiCollection>();
 
-  theParameterMap = new HcalSimParameterMap();
-  theHcalShape = new HcalShape();
-  theHFShape = new HFShape();
-  theHcalIntegratedShape = new CaloShapeIntegrator(theHcalShape);
-  theHFIntegratedShape = new CaloShapeIntegrator(theHFShape);
-
-
-  theHBHEResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
-  theHOResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
-  theHFResponse = new CaloHitResponse(theParameterMap, theHFIntegratedShape);
 
   theHBHEResponse->setHitFilter(&theHBHEHitFilter);
   theHOResponse->setHitFilter(&theHOHitFilter);
