@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: 2006/08/28 18:08:31 $
- *  $Revision: 1.1 $ 
+ *  $Date: 2006/08/28 20:40:17 $
+ *  $Revision: 1.2 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -104,6 +104,7 @@ vector<Trajectory> TrackConverter::convert(const reco::Track& t) const {
   if ( hits.front()->geographicalId().det() == DetId::Tracker ) {
     reverse(hits.begin(),hits.end());
   }
+  //printHits(hits);
 
   // use TransientTrackBuilder to get a starting TSOS
   reco::TransientTrack theTT(t,&*theMagField,theTrackingGeometry);
@@ -115,7 +116,7 @@ vector<Trajectory> TrackConverter::convert(const reco::Track& t) const {
     firstState = theTT.innermostMeasurementState();
   }
 
-  // cout << "INNER: " << firstState.globalPosition().perp() << " " <<  firstState.globalPosition().z() << " " << firstState.globalMomentum() << endl;
+  //cout << "INNER: " << firstState.globalPosition().perp() << " " <<  firstState.globalPosition().z() << " " << firstState.globalMomentum() << endl;
 
   AlgebraicSymMatrix C(5,1);
   C *= 10.;
@@ -178,5 +179,28 @@ TrackConverter::getTransientMuonRecHits(const reco::Track& track) const {
    }
 
    return result;
+
+}
+
+
+//
+// print RecHits
+//
+void TrackConverter::printHits(const ConstRecHitContainer& hits) const {
+
+  LogInfo("GlobalMuonTrajectoryBuilder") << "Used RecHits: ";
+  for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
+    if ( !(*ir)->isValid() ) {
+      LogInfo("GlobalMuonTrajectoryBuilder") << "invalid RecHit";
+      continue;
+    }
+
+    const GlobalPoint& pos = (*ir)->globalPosition();
+    LogInfo("GlobalMuonTrajectoryBuilder")
+    << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y())     << "  z = " << pos.z()
+    << "  dimension = " << (*ir)->dimension()
+    << "  " << (*ir)->det()->geographicalId().det()
+    << "  " << (*ir)->det()->subDetector();
+  }
 
 }
