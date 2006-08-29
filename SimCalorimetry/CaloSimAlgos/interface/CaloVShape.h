@@ -11,7 +11,7 @@
 class CaloVShape 
 {
 public:
-
+  CaloVShape() : tpeak_(0.) {}
   virtual ~CaloVShape(){}
 
   virtual double operator () (double) const=0;
