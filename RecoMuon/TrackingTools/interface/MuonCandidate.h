@@ -4,8 +4,8 @@
 /** \class MuonCandidate
  *  Auxiliary class for muon candidates
  *
- *  $Date: 2006/07/25 13:10:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/25 19:31:25 $
+ *  $Revision: 1.4 $
  *  \author N. Neumeister	Purdue University 
  */
 
@@ -30,7 +30,7 @@ class MuonCandidate {
       theTrajectory(traj), theMuonTrack(muon), theTrackerTrack(tracker) {} 
   
     /// destructor
-    virtual ~MuonCandidate() {}
+    virtual ~MuonCandidate() { if (theTrajectory) delete theTrajectory; }
   
     /// return trajectory
     Trajectory* trajectory() const { return theTrajectory; }
