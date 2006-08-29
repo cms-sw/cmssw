@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/03/28 23:12:10 $
-// $Revision: 1.1 $
+// $Author: burkett $
+// $Date: 2006/04/10 03:11:51 $
+// $Revision: 1.2 $
 //
 
 #include <vector>
@@ -20,7 +20,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-RoadSearchCloudCleanerAlgorithm::RoadSearchCloudCleanerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
+RoadSearchCloudCleanerAlgorithm::RoadSearchCloudCleanerAlgorithm(const edm::ParameterSet& conf) {
+  
+  // store parameter
+  mergingFraction_ = conf.getParameter<double>("MergingFraction");
+  maxRecHitsInCloud_ = conf.getParameter<int>("MaxRecHitsInCloud");
+
 }
 
 RoadSearchCloudCleanerAlgorithm::~RoadSearchCloudCleanerAlgorithm() {
@@ -35,19 +40,17 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
   //  right now cloud cleaning solely consist of merging clouds based on the number
   //  of shared hits (getting rid of obvious duplicates) - don't need roads and
   //  geometry for this - eventually this stage will become a sub-process (probably
-  //  early on) of cloud cleaning - but for now that's all, folks
+  //  early on) of cloud cleaning
   //
 
-  edm::LogInfo("RoadSearch") << "Raw Clouds input size: " << input->size(); 
+  LogDebug("RoadSearch") << "Raw Clouds input size: " << input->size(); 
 
   //
   //  no raw clouds - nothing to try merging
   //
 
   if ( input->empty() ){
-  //  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-      LogDebug("RoadSearch") << "Found " << output.size() << " clouds.";
-  //  }
+    LogDebug("RoadSearch") << "Found " << output.size() << " clouds.";
     return;  
   }
 
@@ -64,13 +67,9 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
   //
   //  got > 1 raw cloud - something to try merging
   //
-  double mergingFraction = conf_.getParameter<double>("MergingFraction");
-  unsigned int maxRecHitsInCloud = conf_.getParameter<int>("MaxRecHitsInCloud");
-  std::vector<bool> dont_merge;
-  std::vector<bool> already_gone;
+  std::vector<bool> already_gone(input->size());
   for (unsigned int i=0; i<input->size(); ++i) {
-    already_gone.push_back(false); 
-    dont_merge.push_back(false);
+    already_gone[i] = false; 
   }
 
   int raw_cloud_ctr=0;
@@ -82,77 +81,57 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
     LogDebug("RoadSearch") << "number of ref in rawcloud " << raw_cloud->seeds().size(); 
 
     // produce output cloud where other clouds are merged in
-    RoadSearchCloud lone_cloud;
-    RoadSearchCloud::RecHitOwnVector raw_hits = raw_cloud->recHits();
-    for (unsigned int i=0; i<raw_hits.size(); ++i) {
-      lone_cloud.addHit(raw_hits[i].clone());
-    }
-    RoadSearchCloud::SeedRefs raw_seed_refs = raw_cloud->seeds();
-    for ( RoadSearchCloud::SeedRefs::const_iterator rawseedref = raw_seed_refs.begin();
-	  rawseedref != raw_seed_refs.end();
-	  ++rawseedref ) {
-      RoadSearchCloud::SeedRef ref = *rawseedref;
-      lone_cloud.addSeed(ref);
-    }
-
-    int second_cloud_ctr=0;
-    for ( RoadSearchCloudCollection::const_iterator second_cloud = input->begin(); second_cloud != input->end(); ++second_cloud) {
+    RoadSearchCloud lone_cloud = *(raw_cloud->clone());
+    int second_cloud_ctr=raw_cloud_ctr;
+    for ( RoadSearchCloudCollection::const_iterator second_cloud = raw_cloud+1; second_cloud != input->end(); ++second_cloud) {
       second_cloud_ctr++;
 
-      if ( already_gone[second_cloud_ctr-1] || dont_merge[raw_cloud_ctr-1] )continue;
+      std::vector<const TrackingRecHit*> unshared_hits;
+
+      if ( already_gone[second_cloud_ctr-1] )continue;
       LogDebug("RoadSearch") << "number of ref in second_cloud " << second_cloud->seeds().size(); 
 
-      if (second_cloud_ctr > raw_cloud_ctr){
-
-        RoadSearchCloud::RecHitOwnVector lone_cloud_hits = lone_cloud.recHits();
-        RoadSearchCloud::RecHitOwnVector second_cloud_hits = second_cloud->recHits();
-        RoadSearchCloud::RecHitOwnVector unsharedhits;
-        for (unsigned int j=0; j<second_cloud_hits.size(); ++j) {
-          bool is_shared=false;
-          for (unsigned int i=0; i<lone_cloud_hits.size(); ++i) {
-
-	    // compare two TrackingRecHits, if they would be refs, you could compare the refs,
-	    // temp. solution, compare rechits by detid and localposition
-	    // change later
-
-            if (lone_cloud_hits[i].geographicalId() == second_cloud_hits[j].geographicalId())
-	      if (lone_cloud_hits[i].localPosition().x() == second_cloud_hits[j].localPosition().x())
-		if (lone_cloud_hits[i].localPosition().y() == second_cloud_hits[j].localPosition().y())
-		  if (lone_cloud_hits[i].localPosition().z() == second_cloud_hits[j].localPosition().z())
-		    {is_shared=true; break;}
-          }
-          if (!is_shared)unsharedhits.push_back(second_cloud_hits[j].clone());
-        }
-
-        float f_lone_shared=float(second_cloud->size()-unsharedhits.size())/float(lone_cloud.size());
-        float f_second_shared=float(second_cloud->size()-unsharedhits.size())/float(second_cloud->size());
-
-        if ( ( (f_lone_shared > mergingFraction)||(f_second_shared > mergingFraction) ) 
-	     && (lone_cloud.size()+unsharedhits.size() <= maxRecHitsInCloud) ){
-
-	  LogDebug("RoadSearch") << "Add clouds.";
+      for ( RoadSearchCloud::RecHitOwnVector::const_iterator second_cloud_hit = second_cloud->begin_hits();
+	    second_cloud_hit != second_cloud->end_hits();
+	    ++ second_cloud_hit ) {
+	bool is_shared = false;
+	for ( RoadSearchCloud::RecHitOwnVector::const_iterator lone_cloud_hit = lone_cloud.begin_hits();
+	      lone_cloud_hit != lone_cloud.end_hits();
+	      ++ lone_cloud_hit ) {
 	  
-	  //
-	  //  got a cloud to merge
-	  //
-          for (unsigned int k=0; k<unsharedhits.size(); ++k) {
-            lone_cloud.addHit(unsharedhits[k].clone());
-          }
+	  if (lone_cloud_hit->geographicalId() == second_cloud_hit->geographicalId())
+	    if (lone_cloud_hit->localPosition().x() == second_cloud_hit->localPosition().x())
+	      if (lone_cloud_hit->localPosition().y() == second_cloud_hit->localPosition().y())
+		{is_shared=true; break;}
+	}
+	if (!is_shared) unshared_hits.push_back(&(*second_cloud_hit));
+      }
 
-	  // add seed of second_cloud to lone_cloud
-	  RoadSearchCloud::SeedRefs second_seed_refs = second_cloud->seeds();
-	  for ( RoadSearchCloud::SeedRefs::const_iterator secondseedref = second_seed_refs.begin();
-		secondseedref != second_seed_refs.end();
-		++secondseedref ) {
-	    RoadSearchCloud::SeedRef ref = *secondseedref;
-	    lone_cloud.addSeed(ref);
-	  }
+      float f_lone_shared=float(second_cloud->size()-unshared_hits.size())/float(lone_cloud.size());
+      float f_second_shared=float(second_cloud->size()-unshared_hits.size())/float(second_cloud->size());
 
-          already_gone[second_cloud_ctr-1]=true;
+      if ( ( (f_lone_shared > mergingFraction_)||(f_second_shared > mergingFraction_) ) 
+	   && (lone_cloud.size()+unshared_hits.size() <= maxRecHitsInCloud_) ){
 
-        }//end got a cloud to merge
+	LogDebug("RoadSearch") << "Add clouds.";
+	  
+	//
+	//  got a cloud to merge
+	//
+	for (unsigned int k=0; k<unshared_hits.size(); ++k) {
+	  lone_cloud.addHit(unshared_hits[k]->clone());
+	}
 
-      }//second cloud acceptable for inspection
+	// add seed of second_cloud to lone_cloud
+	for ( RoadSearchCloud::SeedRefs::const_iterator secondseedref = second_cloud->begin_seeds();
+	      secondseedref != second_cloud->end_seeds();
+	      ++secondseedref ) {
+	  lone_cloud.addSeed(*secondseedref);
+	}
+
+	already_gone[second_cloud_ctr-1]=true;
+
+      }//end got a cloud to merge
 
     }//interate over all second clouds
 
@@ -162,7 +141,7 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
 
   }//iterate over all raw clouds
 
-  edm::LogInfo("RoadSearch") << "Found " << output.size() << " clouds.";
+  LogDebug("RoadSearch") << "Found " << output.size() << " clouds.";
 
 };
 
