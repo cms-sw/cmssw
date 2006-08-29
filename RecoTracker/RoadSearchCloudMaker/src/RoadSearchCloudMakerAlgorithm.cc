@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/08/25 21:54:06 $
-// $Revision: 1.22 $
+// $Date: 2006/08/28 18:44:39 $
+// $Revision: 1.23 $
 //
 
 #include <vector>
@@ -183,12 +183,13 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
       //DetId mono(innerSeedRingHit->geographicalId().rawId()+1);
       DetId mono(innerSeedRingHit->geographicalId().rawId()+2);
       
-      const Roads::RoadSeed *roadSeed = roads->getRoadSeed(mono,outerSeedRingHit->geographicalId());
-      const Roads::type roadType = roads->getRoadType(roadSeed);
-
-      // get global positions of the hits
+      // get global positions of the hits, calculate before Road lookup to be used
       GlobalPoint innerSeedHitGlobalPosition = tracker->idToDet(innerSeedRingHit->geographicalId())->surface().toGlobal(innerSeedRingHit->localPosition());
       GlobalPoint outerSeedHitGlobalPosition = tracker->idToDet(outerSeedRingHit->geographicalId())->surface().toGlobal(outerSeedRingHit->localPosition());
+
+      // GlobalPoint returns phi in [-pi,pi] but rings are mapped in [0,2pi]
+      const Roads::RoadSeed *roadSeed = roads->getRoadSeed(mono,outerSeedRingHit->geographicalId(),map_phi(innerSeedHitGlobalPosition.phi()),map_phi(outerSeedHitGlobalPosition.phi()));
+      const Roads::type roadType = roads->getRoadType(roadSeed);
 
       // extrapolation parameters, phio: [0,2pi]
       double d0 = 0.0;
@@ -286,8 +287,10 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	    }
 
 	    // calculate range in phi around ringPhi
-	    double upperPhiRangeBorder = ringPhi + theMinimumHalfRoad;
-	    double lowerPhiRangeBorder = ringPhi - theMinimumHalfRoad;
+	    double upperPhiRangeBorder = map_phi(ringPhi + theMinimumHalfRoad);
+	    double lowerPhiRangeBorder = map_phi(ringPhi - theMinimumHalfRoad);
+
+	    LogDebug("RoadSearch") << "lowerPhiRangeBorder: " << lowerPhiRangeBorder << " upperPhiRangeBorder: " << upperPhiRangeBorder;
 
 	    if ( lowerPhiRangeBorder <= upperPhiRangeBorder ) {
 	      for ( Ring::const_iterator detid = ring->lower_bound(lowerPhiRangeBorder); detid != ring->upper_bound(upperPhiRangeBorder); ++detid) {
@@ -309,7 +312,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 
 	      }
 	    } else {
-	      for ( Ring::const_iterator detid = ring->lower_bound(lowerPhiRangeBorder); detid != ring->upper_bound(Geom::twoPi()); ++detid) {
+	      for ( Ring::const_iterator detid = ring->lower_bound(lowerPhiRangeBorder); detid != ring->end(); ++detid) {
 		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second) ) {
 		  FillRecHitsIntoCloud(detid->second,rphiRecHits,d0,phi0,k0,roadType,ringPhi,&(*seed),
                                        usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
@@ -327,7 +330,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 		  }	
 		}
 	      }
-	      for ( Ring::const_iterator detid = ring->lower_bound(0); detid != ring->upper_bound(upperPhiRangeBorder); ++detid) {
+	      for ( Ring::const_iterator detid = ring->begin(); detid != ring->upper_bound(upperPhiRangeBorder); ++detid) {
 		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second) ) {
 		  FillRecHitsIntoCloud(detid->second,rphiRecHits,d0,phi0,k0,roadType,ringPhi,&(*seed),
                                        usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
@@ -353,7 +356,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	       //  checkMaximalNumberOfMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) && 
 	       //  checkMaximalNumberOfConsecutiveMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) ) {
 	    output.push_back(cloud);
-	    
+
 	    if ( roadType == Roads::RPhi ){ 
 	      LogDebug("RoadSearch") << "This r-phi seed yields a cloud with " <<cloud.size() <<" hits";
 	    } else { LogDebug("RoadSearch") << "This z-phi seed yields a cloud with "<<cloud.size() <<" hits";
@@ -378,6 +381,7 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 							 const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
 							 const TrackerGeometry *tracker, RoadSearchCloud &cloud) {
   // retrieve vector<SiStripRecHit2D> for id, loop over SiStripRecHit2D, check if compatible with cloud, fill into cloud
+
 
   const SiStripRecHit2DCollection::range recHitRange = inputRecHits->get(id);
 
