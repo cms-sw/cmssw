@@ -324,6 +324,7 @@ void MakeValidation()
 
       // make plots
       myCanvas->cd(j+1);
+      gPad->SetLogy();
       rh->Draw();
       sh->Draw("sames");
 
