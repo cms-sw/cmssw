@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Forward Muon
  *
- * $Date: 2006/06/04 18:39:55 $
- * $Revision: 1.5 $
+ * $Date: 2006/08/28 19:12:58 $
+ * $Revision: 1.6 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -22,6 +22,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace edm;
 
 vector<const DetLayer*> 
 MuonForwardNavigableLayer::nextLayers(PropagationDirection dir) const {
@@ -34,7 +35,9 @@ MuonForwardNavigableLayer::nextLayers(PropagationDirection dir) const {
   }
   else {
     pushResult(result, theInnerEndcapLayers);
+    reverse(result.begin(),result.end());
     pushResult(barrel, theInnerBarrelLayers);
+    reverse(barrel.begin(),barrel.end());
     result.insert(result.end(),barrel.begin(),barrel.end());
   }
 
@@ -56,7 +59,9 @@ MuonForwardNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
   }
   else {
     pushResult(result, theInnerEndcapLayers, fts);
-    pushResult(result, theInnerBarrelLayers, fts);
+    reverse(result.begin(),result.end());
+    pushResult(barrel, theInnerBarrelLayers, fts);
+    reverse(barrel.begin(),barrel.end());
     result.insert(result.end(),barrel.begin(),barrel.end());
   }
 
@@ -76,7 +81,9 @@ MuonForwardNavigableLayer::compatibleLayers(PropagationDirection dir) const {
   }
   else {
     pushResult(result, theAllInnerEndcapLayers);
+    reverse(result.begin(),result.end());
     pushResult(barrel, theAllInnerBarrelLayers);
+    reverse(barrel.begin(),barrel.end());
     result.insert(result.end(),barrel.begin(),barrel.end());
   }
 
@@ -94,7 +101,9 @@ MuonForwardNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
   }
   else {
     pushCompatibleResult(result, theAllInnerEndcapLayers, fts);
-    pushCompatibleResult(result, theAllInnerBarrelLayers, fts);
+    reverse(result.begin(),result.end());
+    pushCompatibleResult(barrel, theAllInnerBarrelLayers, fts);
+    reverse(barrel.begin(),barrel.end());
     result.insert(result.end(),barrel.begin(),barrel.end());
   }
   result.reserve(result.size());
