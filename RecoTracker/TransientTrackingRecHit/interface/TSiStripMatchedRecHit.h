@@ -2,6 +2,7 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiStripMatchedRecHit_H
 
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 
 class TSiStripMatchedRecHit : public GenericTransientTrackingRecHit{
 public:
@@ -16,6 +17,10 @@ public:
 //   virtual TSiStripMatchedRecHit* clone (const TrajectoryStateOnSurface& ts) const {
 //     return clone();
 //   }
+
+  virtual AlgebraicSymMatrix parametersError() const {
+    return HelpertRecHit2DLocalPos().parError( localPositionError(), *det()); 
+  }
 
   const GeomDetUnit* detUnit() const {return 0;}
 
