@@ -2,7 +2,7 @@
 #define Common_PoolDataSvc_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolDataSvc.h,v 1.2 2006/04/06 23:45:51 wmtan Exp $
+// $Id: PoolDataSvc.h,v 1.3 2006/08/07 22:07:25 wmtan Exp $
 //
 // Class PoolDataSvc. Common services to manage POOL cache
 //
@@ -11,6 +11,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <string>
+#include "boost/shared_ptr.hpp"
 
 namespace pool {
   class IDataSvc;
@@ -30,7 +31,7 @@ namespace edm {
 
     void setCompressionLevel(std::string const& fileName, int value) const;
 
-    pool::IDataSvc *context() {return context_;}
+    pool::IDataSvc *context() const {return context_.get();}
     
   private: 
     template <typename T>
@@ -41,7 +42,7 @@ namespace edm {
     void
     setAttribute(std::string const& attributeName, std::string const& fileName, T const& value) const;
 
-    pool::IDataSvc *context_;
+    boost::shared_ptr<pool::IDataSvc> context_;
   };
 }
 

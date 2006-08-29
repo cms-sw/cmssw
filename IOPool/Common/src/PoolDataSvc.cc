@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolDataSvc.cc,v 1.3 2006/04/06 23:45:51 wmtan Exp $
+// $Id: PoolDataSvc.cc,v 1.4 2006/08/07 22:07:25 wmtan Exp $
 //
 // Author: Luca Lista
 // Co-Author: Bill Tanenbaum
@@ -19,24 +19,24 @@
 #include "DataSvc/DataSvcFactory.h"
 
 namespace edm {
-  PoolDataSvc::PoolDataSvc(InputFileCatalog & catalog_, bool del) : context_(0) {
+  PoolDataSvc::PoolDataSvc(InputFileCatalog & catalog_, bool del) : context_() {
     pool::DataSvcContext ctx;
     ctx.setFileCatalog(&catalog_.catalog());
     pool::ObjectDeletePolicy deletePolicy;
     deletePolicy.setOnCache(del);  // delete on the cache
     deletePolicy.setOnRef(del);    // delete on the 'free' ref
     ctx.setObjectDeletePolicy(deletePolicy);
-    context_ = pool::DataSvcFactory::create(ctx);
+    context_ = boost::shared_ptr<pool::IDataSvc>(pool::DataSvcFactory::create(ctx));
   }
 
-  PoolDataSvc::PoolDataSvc(OutputFileCatalog & catalog_, bool del) : context_(0) {
+  PoolDataSvc::PoolDataSvc(OutputFileCatalog & catalog_, bool del) : context_() {
     pool::DataSvcContext ctx;
     ctx.setFileCatalog(&catalog_.catalog());
     pool::ObjectDeletePolicy deletePolicy;
     deletePolicy.setOnCache(del);  // delete on the cache
     deletePolicy.setOnRef(del);    // delete on the 'free' ref
     ctx.setObjectDeletePolicy(deletePolicy);
-    context_ = pool::DataSvcFactory::create(ctx);
+    context_ = boost::shared_ptr<pool::IDataSvc>(pool::DataSvcFactory::create(ctx));
 
     pool::DatabaseConnectionPolicy policy;
     policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
