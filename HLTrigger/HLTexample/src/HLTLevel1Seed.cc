@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/22 17:20:45 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/08/23 17:03:02 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -178,11 +178,10 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    LogDebug("") << "Accept = " << accept;
 
    // number of of particles of each type eventually recorded in filter object
-   unsigned int ne(0); // em
-   unsigned int nm(0); // muon
-   unsigned int nt(0); // tau
-   unsigned int nj(0); // jets
-   unsigned int nM(0); // mets
+   unsigned int ne(0);  // em (isolated or non-isolated)
+   unsigned int nm(0);  // muon
+   unsigned int nj(0);  // jets (central, forward or tau)
+   unsigned int nM(0);  // mets (in fact only one "global" object)
 
    // in case of accept, record all particles used
    // by any requested L1 triggers which has fired
@@ -192,8 +191,10 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // which L1 particle is used by the requested triggers
      // and then store the used L1 particles only once
 
-     // get hold of overall collections of particles of each type
+     // get hold of overall collections of particles of each type -
      // will check later which are used by which requested L1 trigger
+
+     // em
      Handle<L1EmParticleCollection  > l1eh;
      try {iEvent.getByLabel(L1ExtraTag_,l1eh);} catch(...) {;}
      unsigned int Ne(0);
@@ -202,6 +203,7 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      vector<unsigned int> ve(Ne,0);
      // keeps track how often each Em particle is used
 
+     // muon
      Handle<L1MuonParticleCollection> l1mh;
      try {iEvent.getByLabel(L1ExtraTag_,l1mh);} catch (...) {;}
      unsigned int Nm(0);
@@ -210,24 +212,16 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      vector<unsigned int> vm(Nm,0);
      // keeps track how often each Muon particle is used
 
-     Handle<L1JetParticleCollection>  l1th; // taus are stored as jets
-     InputTag L1ExtraTauTag(InputTag(L1ExtraTag_.label(),"Tau"));
-     try {iEvent.getByLabel(L1ExtraTauTag,l1th);} catch (...) {;}
-     unsigned int Nt(0);
-     if (l1th.isValid()) Nt=l1th->size();
-     //     LogDebug("") << "L1TauParticleCollection size = " << Nt;
-     vector<unsigned int> vt(Nt,0);
-     // keeps track how often each Tau particle is used
-
+     // jets
      Handle<L1JetParticleCollection>  l1jh;
-     InputTag L1ExtraJetTag(InputTag(L1ExtraTag_.label(),"ForCen"));
-     try {iEvent.getByLabel(L1ExtraJetTag,l1jh);} catch (...) {;}
+     try {iEvent.getByLabel(L1ExtraTag_,l1jh);} catch (...) {;}
      unsigned int Nj(0);
      if (l1jh.isValid()) Nj=l1jh->size();
      //     LogDebug("") << "L1JetParticleCollection size = " << Nj;
      vector<unsigned int> vj(Nj,0);
      // keeps track how often each Jet particle is used
 
+     // (global) MET
      Handle<L1EtMissParticle> l1Mh;
      try {iEvent.getByLabel(L1ExtraTag_,l1Mh);} catch (...) {;}
      unsigned int NM(0);
@@ -236,19 +230,22 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      vector<unsigned int> vM(NM,0);
      // keeps track how often the global EtMiss "particle" is used
 
-     // loop over requested triggers
+
+     // loop over requested triggers and record objects for
+     // triggers which fired
      for (unsigned int i=0; i!=n; i++) {
        //       LogDebug("") << "Accessing L1 trigger: " << i
        //		    << "=" << L1SeedsByName_[i]
        //		    << ":" << L1SeedsByType_[i]
        //		    << " " << index[i];
+       //
        // has requested trigger fired?
        if (index[i]>=0) { // requested and fired!
 	 // if yes, count which particles of each type have been used
 	 const L1ParticleMap& l1pm((*l1pmch)[index[i]]);
          unsigned int m(0);
 
-	 // em particles (gamma+electron)
+	 // em particles
 	 m=l1pm.emParticles().size();
 	 //	 LogDebug("") << "e " << m;
          for (unsigned int j=0; j!=m; j++) ve[l1pm.emParticles()[j].key()]++;
@@ -257,11 +254,6 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 m=l1pm.muonParticles().size();
 	 //	 LogDebug("") << "m " << m;
          for (unsigned int j=0; j!=m; j++) vm[l1pm.muonParticles()[j].key()]++;
-
-	 // tau particles
-	 m=l1pm.tauParticles().size();
-	 //	 LogDebug("") << "t " << m;
-         for (unsigned int j=0; j!=m; j++) vt[l1pm.tauParticles()[j].key()]++;
 
 	 // jet particles
 	 m=l1pm.jetParticles().size();
@@ -275,10 +267,10 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
      }
 
-     // record used physics objects in filterobject
+     // record these used physics objects in the filterobject
      //     LogDebug("") << "Inserting into filter object:";
 
-     // em particles (gamma+electron)
+     // em particles
      for (unsigned int i=0; i!=Ne; i++) if (ve[i]>0) {
        ref=RefToBase<Candidate>(L1EmParticleRef  (l1eh,i));
        filterobject->putParticle(ref);
@@ -293,14 +285,6 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        nm++;
      }
      //     LogDebug("") << "Inserted m: " << nm;
-
-     // tau particles (taus are stored as jets!)
-     for (unsigned int i=0; i!=Nt; i++) if (vt[i]>0) {
-       ref=RefToBase<Candidate>(L1JetParticleRef (l1th,i));
-       filterobject->putParticle(ref);
-       nt++;
-     }
-     //     LogDebug("") << "Inserted t: " << nt;
 
      // jet particles
      for (unsigned int i=0; i!=Nj; i++) if (vj[i]>0) {
@@ -320,11 +304,12 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    } // if (accept)
 
+
    // put filter object into the Event
    iEvent.put(filterobject);
 
-   LogDebug("") << "Number of e/m/t/j/M particles used: "
-		<< ne << " " << nm << " " << nt << " " << nj << " " << nM;
+   LogDebug("") << "Number of e/m/j/M particles used: "
+		<< ne << " " << nm << " " << nj << " " << nM;
 
    return accept;
 
