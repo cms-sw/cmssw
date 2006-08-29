@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/08/28 18:36:14 $
- *  $Revision: 1.25 $
+ *  $Date: 2006/08/28 19:32:58 $
+ *  $Revision: 1.26 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -25,8 +25,6 @@ class TrajectoryStateOnSurface;
 class MuonUpdatorAtVertex;
 class MagneticField;
 class GlobalMuonTrackMatcher;
-class TransientTrackingRecHit;
-class MuonTransientTrackingRecHit;
 class TransientTrackingRecHitBuilder;
 class MuonTransientTrackingRecHitBuilder;
 class GlobalTrackingGeometry;
@@ -79,7 +77,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     /// choose tracker tracks within region of interest
     std::vector<TrackCand> chooseRegionalTrackerTracks(const TrackCand&, 
-                                                       const std::vector<TrackCand>& ) const;
+                                                       const edm::Handle<reco::TrackCollection>&) const;
 
     /// define region of interest with tracker
     RectangularEtaPhiTrackingRegion defineRegionOfInterest(const reco::TrackRef&) const;
@@ -123,6 +121,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theDTChi2Cut;
     float theCSCChi2Cut;
     float theRPCChi2Cut;
+    bool convert;
 
     std::string thePropagatorLabel;
     std::string theTTRHBuilderName;   
