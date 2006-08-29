@@ -17,24 +17,25 @@ require CMSDBA;
 
 # Directories used
 my $o2o_dbconfigdir = $cmssw_base.'/src/CondTools/O2OFramework/dbconfig';
-my $o2o_sqldir = $cmssw_base.'/src/CondTools/O2OFramework/sql';
 my $dba_dbconfigdir = $cmssw_base.'/src/CondTools/OracleDBA/dbconfig';
 my $dba_xmldir = $cmssw_base.'/src/CondTools/OracleDBA/xml';
 
 my $usage = basename($0)." [options] [[--all] | [object1 object2 ...]]\n".
     "Options:\n".
-    "--dbaconfig  Offline DB configuration file (hardcoded default in project area)\n".
-    "--o2oconfig  O2O configuration file (hardcoded default in project area)\n".
-    "--auth       DB connection file (hardcoded default in project area)\n".
-    "--offline_db Name of offline DB (default in dbaconfig)\n".
-    "--all        Setup all objects in O2O configuration file\n".
-    "--fake       Don't actually do anything, only print commands\n".
-    "--debug      Print additional debug information\n".
-    "--log        Log file\n".
-    "--help, -h   Print this message and exit\n";
+    "--dbaconfig       Offline DB configuration file (hardcoded default in project area)\n".
+    "--o2oconfig       O2O configuration file (hardcoded default in project area)\n".
+    "--auth            DB connection file (hardcoded default in project area)\n".
+    "--general_connect Connect string to the offline DB general schema (default in dbaconfig)\n".
+    "--offline_connect Connect string to the offline DB detector schema (default in dbaconfig)\n".
+    "--all             Setup all objects in O2O configuration file\n".
+    "--fake            Don't actually do anything, only print commands\n".
+    "--debug           Print additional debug information\n".
+    "--log             Log file\n".
+    "--help, -h        Print this message and exit\n";
 
 
-my $offline_db = '';
+my $cmd_general_connect = '';
+my $cmd_offline_connect = '';
 my $o2o_configfile = $o2o_dbconfigdir.'/o2oconfiguration.xml';
 my $dba_configfile = $dba_dbconfigdir.'/dbconfiguration.xml';
 my $authfile = $dba_dbconfigdir.'/authentication.xml';
@@ -48,7 +49,8 @@ GetOptions('o2oconfig=s' => \$o2o_configfile,
 	   'dbaconfig=s' => \$dba_configfile,
 	   'auth=s' => \$authfile,
 	   'all' => \$doall,
-	   'offline_db=s' => \$offline_db,
+	   'general_connect=s' => \$cmd_general_connect,
+	   'offline_connect=s' => \$cmd_offline_connect,
 	   'fake' => \$fake,
 	   'help|h' => \$help,
 	   'debug' => \$debug,
@@ -75,21 +77,20 @@ print "Result of parsing $dba_configfile:\n".Dumper($dba_config) if $debug;
 my $auth = CMSDBA::parse_authentication($authfile);
 print "Result of parsing $authfile:\n".Dumper($auth) if $debug;
 
-# Determing DB
-if (!$offline_db && exists $dba_config->{general}->{offline_db}) {
-    $offline_db = $dba_config->{general}->{offline_db};
-}
-
-if (!$offline_db) {
-    die "offline_db not defined at command line or at $dba_configfile";
+# Determine General Connect
+my $general_connect;
+if (!$cmd_general_connect && exists $dba_config->{general}->{general_connect}) {
+    $general_connect = $dba_config->{general}->{general_connect};
+} elsif ($cmd_general_connect) {
+    $general_connect = $cmd_general_connect;
+} else {
+    die "general_connect not defined at command line or at $dba_configfile";
 }
 
 # Get connection info
-my $general_schema = $dba_config->{general}->{general_schema};
-my $general_connect = "oracle://".$offline_db.'/'.$general_schema;
-my ($general_user, $general_pass) = CMSDBA::connection_test($auth, $general_connect);
+my ($general_user, $general_pass, $general_db, $general_schema) = CMSDBA::connection_test($auth, $general_connect);
 
-my $catalog = "relationalcatalog_oracle://".$offline_db.'/'.$general_schema; # XXX Add to config?
+my $catalog = "relationalcatalog_oracle://".$general_db.'/'.$general_schema; # XXX Add to config?
 
 
 my @commands;
@@ -130,18 +131,25 @@ print "Object array:  ", Dumper($objects), "\n" if $debug;
 # Begin O2O of objects
 foreach my $detector (keys %{$objects}) {
 
+    my $offline_connect;
+    if (!$cmd_offline_connect && exists $dba_config->{detector}->{$detector}->{offline_connect}) {
+	$offline_connect = $dba_config->{detector}->{$detector}->{offline_connect};
+    } elsif ($cmd_offline_connect) {
+	$offline_connect = $cmd_offline_connect;
+    } else {
+	die "offline_connect not defined at command line or at $dba_configfile";
+    }
+
+    my ($offline_user, $offline_pass, $offline_db, $offline_schema) = CMSDBA::connection_test($auth, $offline_connect);
+
     foreach my $object (@{$objects->{$detector}}) {
 	# Transfer the payload data
 	my $sql = qq[call master_payload_o2o('$object')];
-	$cmd = CMSDBA::get_sqlplus_cmd('user' => $general_user, 'pass' => $general_pass, 'db' => $offline_db, 
+	$cmd = CMSDBA::get_sqlplus_cmd('user' => $general_user, 'pass' => $general_pass, 'db' => $general_db, 
 				       'sql' => $sql);
 	push(@commands, { 'info' => "Executing master_payload_o2o('$object')",
 			  'cmd'  => $cmd });
     }
-
-    my $offline_schema = $dba_config->{detector}->{$detector}->{offline_schema};
-    my $offline_connect = "oracle://".$offline_db.'/'.$offline_schema;
-    my ($offline_user, $offline_pass) = CMSDBA::connection_test($auth, $offline_connect);
 
     # Register the new objects to POOL
     my $library = $dba_config->{detector}->{$detector}->{poolsetup}->{library};
