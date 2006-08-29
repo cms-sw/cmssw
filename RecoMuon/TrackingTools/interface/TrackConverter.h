@@ -6,8 +6,8 @@
 *   Auxillary class to convert a reco::Track into a Trajectory
 *
 *
-*   $Date: 2006/08/28 13:47:13 $
-*   $Revision: 1.1 $
+*   $Date: 2006/08/28 18:07:28 $
+*   $Revision: 1.2 $
 *
 *   \author   N. Neumeister            Purdue University
 *   \author   A. Everett               Purdue University
@@ -66,6 +66,11 @@ class TrackConverter {
 
     /// percolate the Event Setup
     void setES(const edm::EventSetup&);
+
+  private:
+
+    /// print all RecHits of a trajectory
+    void printHits(const ConstRecHitContainer&) const;
 
   private:
   
