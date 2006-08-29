@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: 2006/08/28 20:40:17 $
- *  $Revision: 1.2 $ 
+ *  $Date: 2006/08/29 16:55:38 $
+ *  $Revision: 1.3 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -27,6 +27,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackReFitter.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
+ #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -127,6 +128,10 @@ vector<Trajectory> TrackConverter::convert(const reco::Track& t) const {
   
   theTSOS = firstState;
 // theTSOS.rescaleError(3.);
+
+  if ( hits.front()->geographicalId().det() == DetId::Tracker ) {
+    theTSOS = TrajectoryStateWithArbitraryError()(firstState);
+  }
 
   const TrajectorySeed* seed = new TrajectorySeed();
   vector<Trajectory> trajs = theRefitter->trajectories(*seed,hits,theTSOS);
