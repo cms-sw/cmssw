@@ -1,0 +1,10 @@
+<use name=root>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<flags SEAL_PLUGIN_NAME="RecoJetsJetAnalyzers">
+<export>
+   <lib name=RecoJetsJetAnalyzers>
+   <use name=root>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+</export>
