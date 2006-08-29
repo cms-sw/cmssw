@@ -19,6 +19,7 @@
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 #include "RecoCaloTools/Navigation/interface/EcalEndcapNavigator.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
+#include "RecoCaloTools/Navigation/interface/CaloTowerNavigator.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
