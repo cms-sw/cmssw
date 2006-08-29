@@ -20,10 +20,8 @@ using namespace std;
 namespace edm {
 
   // Constructor 
-  SecondaryProducer::SecondaryProducer(const edm::ParameterSet& ps) {
-    // make secondary input source
-    secInput_ = makeSecInput(ps);
-
+  // make secondary input source
+  SecondaryProducer::SecondaryProducer(const edm::ParameterSet& ps) : secInput_(makeSecInput(ps)) {
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
   }

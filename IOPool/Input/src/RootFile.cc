@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.28 2006/08/24 17:11:53 wmtan Exp $
+$Id: RootFile.cc,v 1.29 2006/08/28 22:32:33 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -38,6 +38,7 @@ namespace edm {
     entries_(0),
     productRegistry_(new ProductRegistry),
     branches_(new BranchMap),
+    productMap_(),
     eventTree_(0),
     eventMetaTree_(0),
     auxBranch_(0),
