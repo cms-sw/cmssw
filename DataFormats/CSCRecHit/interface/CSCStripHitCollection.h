@@ -15,6 +15,7 @@
 #include <DataFormats/Common/interface/ClonePolicy.h>
 #include <DataFormats/Common/interface/OwnVector.h>
 
+
 typedef edm::RangeMap <CSCDetId, edm::OwnVector<CSCStripHit> > CSCStripHitCollection;
 
 #endif

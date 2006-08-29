@@ -36,7 +36,7 @@ public:
   float halfStripPos() const { return theHitHalfStripPosition; }
 
   /// Strip hit timing
-  float tmax() const { return theHitTmax; }
+  int tmax() const { return theHitTmax; }
   
 private:
   CSCDetId theDetId;

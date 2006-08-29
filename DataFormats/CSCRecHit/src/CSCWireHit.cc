@@ -7,9 +7,9 @@ CSCWireHit::CSCWireHit() :
   theHitTmax()
 {}
 
-CSCWireHit::CSCWireHit( const CSCDetId& id, const int& wgroup, const int& tmax) :
+CSCWireHit::CSCWireHit( const CSCDetId& id, const float& wgrouppos, const int& tmax) :
   theDetId( id ), 
-  theHitWirePosition( wgroup ),
+  theHitWirePosition( wgrouppos ),
   theHitTmax ( tmax )
 {}
 

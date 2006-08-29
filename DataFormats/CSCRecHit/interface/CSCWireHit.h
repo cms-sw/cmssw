@@ -22,7 +22,7 @@ class CSCWireHit
 public:
 
   CSCWireHit();
-  CSCWireHit( const CSCDetId& id, const int& wgroup, const int& tmax );
+  CSCWireHit( const CSCDetId& id, const float& wgroup, const int& tmax );
 
   ~CSCWireHit();
 
@@ -33,15 +33,14 @@ public:
   CSCDetId cscDetId() const { return theDetId; }
 
   /// The wire hit position expressed in terms of wiregroup #
-  int wgroup() const { return theHitWirePosition; }
+  float wgrouppos() const { return theHitWirePosition; }
 
   /// The time for the wire hit
   int tmax() const { return theHitTmax; }
  
-
 private:
   CSCDetId theDetId;
-  int theHitWirePosition;
+  float theHitWirePosition;
   int theHitTmax;
 };
 
