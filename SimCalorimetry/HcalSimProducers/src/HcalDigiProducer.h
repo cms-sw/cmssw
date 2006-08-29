@@ -46,17 +46,11 @@ private:
   typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
   typedef CaloTDigitizer<HFDigitizerTraits> HFDigitizer;
 
-  HBHEDigitizer * theHBHEDigitizer;
-  HODigitizer* theHODigitizer;
-  HFDigitizer* theHFDigitizer;
-
   HcalSimParameterMap * theParameterMap;
   CaloVShape * theHcalShape;
   CaloVShape * theHFShape;
   CaloVShape * theHcalIntegratedShape;
   CaloVShape * theHFIntegratedShape;
-
-
 
   CaloHitResponse * theHBHEResponse;
   CaloHitResponse * theHOResponse;
@@ -71,6 +65,11 @@ private:
   HOHitFilter   theHOHitFilter;
 
   HcalHitCorrection * theHitCorrection;
+
+  HBHEDigitizer * theHBHEDigitizer;
+  HODigitizer* theHODigitizer;
+  HFDigitizer* theHFDigitizer;
+
 
   std::vector<PCaloHit> theHBHEHits, theHOHits, theHFHits;
 
