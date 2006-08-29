@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/08/28 19:32:59 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/08/28 20:27:54 $
+ *  $Revision: 1.22 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -47,6 +47,14 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2) {
   theMinPt = 1.0;
   theUpdator = new MuonUpdatorAtVertex();
 
+}
+
+
+//
+//
+//
+GlobalMuonTrackMatcher::~GlobalMuonTrackMatcher() {
+  if(theUpdator) delete theUpdator;
 }
 
 

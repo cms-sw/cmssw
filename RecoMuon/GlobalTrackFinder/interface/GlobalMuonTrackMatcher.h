@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/08/28 19:59:33 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/08/28 20:27:28 $
+ *  $Revision: 1.12 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -42,7 +42,7 @@ class GlobalMuonTrackMatcher {
     GlobalMuonTrackMatcher(double chi2);
 
     /// destructor
-    virtual ~GlobalMuonTrackMatcher() {}
+    virtual ~GlobalMuonTrackMatcher();
     
     /// set event setup
     void setES(const edm::EventSetup&);
