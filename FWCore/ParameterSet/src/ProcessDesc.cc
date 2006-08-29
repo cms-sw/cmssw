@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.7 2006/08/22 23:38:15 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.8 2006/08/28 19:15:19 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.7 2006/08/22 23:38:15 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.8 2006/08/28 19:15:19 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
@@ -221,8 +221,8 @@ namespace edm
     return services_;
   }
 
-  ProcessDesc::Strs ProcessDesc::findSchedule(const ProcessDesc::Strs & triggerPaths,
-                                              const ProcessDesc::Strs & endPaths) const
+  ProcessDesc::Strs ProcessDesc::findSchedule(ProcessDesc::Strs & triggerPaths,
+                                              ProcessDesc::Strs & endPaths) const
   {
     Strs result;
     bool found = false;
@@ -246,6 +246,14 @@ namespace edm
         {
           found = true;
           getNames((*pathIt)->wrapped().get(), result);
+          // now override triggerPaths with everything that
+          // was in the schedule before the first endpath
+            //endOfTriggerPaths = std::find(result.begin(), result.end(), *(endPaths.begin()) );
+          Strs::iterator endOfTriggerPaths = std::find_first_of(result.begin(), result.end(),
+                                                                endPaths.begin(), endPaths.end());
+          // override trigger_paths and endpaths
+          triggerPaths = Strs(result.begin(), endOfTriggerPaths);
+          endPaths = Strs(endOfTriggerPaths, result.end());
         }
       }
     }
