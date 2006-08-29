@@ -85,7 +85,7 @@ namespace edm {
 
       void* buffer() const { return v_.ptr_; }
       int size() const { return v_.len_; }
-      void commit(int size=0) { T::commit(b_,v_.ptr_,size); committed_=true; }
+      void commit(int theSize=0) { T::commit(b_, v_.ptr_, theSize); committed_=true; }
 
     private:
       SingleConsumerQ& b_;

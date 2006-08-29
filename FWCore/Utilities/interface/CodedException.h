@@ -67,26 +67,26 @@ namespace edm
 
 
   template <class Code>
-  CodedException<Code>::CodedException(Code category):
-    cms::Exception(codeToString(category)),
-    category_(category)
+  CodedException<Code>::CodedException(Code aCategory):
+    cms::Exception(codeToString(aCategory)),
+    category_(aCategory)
   {
   }
 
   template <class Code>
-  CodedException<Code>::CodedException(Code category,
+  CodedException<Code>::CodedException(Code aCategory,
 				       const std::string& message):
-    cms::Exception(codeToString(category),message),
-    category_(category)
+    cms::Exception(codeToString(aCategory),message),
+    category_(aCategory)
   {
   }
 
   template <class Code>
-  CodedException<Code>::CodedException(Code category,
+  CodedException<Code>::CodedException(Code aCategory,
 				       const std::string& message,
 				       const cms::Exception& another):
-    cms::Exception(codeToString(category),message,another),
-    category_(category)
+    cms::Exception(codeToString(aCategory),message,another),
+    category_(aCategory)
   {
   }
 

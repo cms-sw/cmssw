@@ -35,8 +35,8 @@ namespace cms
 
   MD5Result Digest::digest() const
   {
-    MD5Result digest;
-    md5_finish(&state_, digest.bytes);
-    return digest;
+    MD5Result aDigest;
+    md5_finish(&state_, aDigest.bytes);
+    return aDigest;
   }
 }
