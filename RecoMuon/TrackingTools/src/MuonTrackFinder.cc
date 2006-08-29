@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/07/31 11:10:39 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/08/16 10:07:11 $
+ *  $Revision: 1.19 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -154,26 +154,21 @@ void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& trac
   // Muon Candidate container
   CandidateContainer muonCandidates;
 
-  // 
-  // reco::MuonCollection muonResult;
-
   // reconstruct the muon candidates
   for (unsigned int position = 0; position != tracks->size(); ++position) {
     LogDebug(metname)<<"+++ New Track +++"<<endl;
     reco::TrackRef staTrack(tracks,position);
 
     CandidateContainer muonCands_temp = theTrajBuilder->trajectories(staTrack);
-    for (CandidateContainer::const_iterator it = muonCands_temp.begin(); it != muonCands_temp.end(); it++) {
-      muonCandidates.push_back(*it); 
-   }
+    muonCandidates.insert(muonCandidates.end(), muonCands_temp.begin(),muonCands_temp.end());
   }                                  
   
   // clean the cloned candidates
-  //IMPLEMENT ME
+  //theTrajCleaner->clean(muonCandidates);
+  theTrajCleaner->checkGhosts(muonCandidates);
 
   // convert the trajectories into tracks and load them into the event
   LogDebug(metname)<<"Load Muon Candidates into the event"<<endl;
-  //  load(muonCandidates,muonResult,event);            
   load(muonCandidates,event);
 
 }
