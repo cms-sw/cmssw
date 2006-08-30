@@ -4,6 +4,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFParticleFwd.h"
 
 // include files used for reconstructed tracks
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -37,6 +39,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "FastSimulation/Event/interface/FSimEvent.h"
 
 using namespace std;
 using namespace edm;
@@ -47,16 +50,26 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
   edm::LogInfo("PFProducer") << "Constructor" << std::endl;
 
   // use configuration file to setup input/output collection names
-  tcCollection_ = iConfig.getParameter<std::string>("TrackCandidateCollection");
-  pfRecTrackCollection_ = iConfig.getParameter<std::string>("PFRecTrackCollection");
+  tcCollection_ 
+    = iConfig.getUntrackedParameter<std::string>("TrackCandidateCollection","TrackCandidateCollection");
+  pfRecTrackCollection_ 
+    = iConfig.getUntrackedParameter<std::string>("PFRecTrackCollection","PFRecTrackCollection");
+  pfParticleCollection_ 
+    = iConfig.getUntrackedParameter<std::string>("PFParticleCollection","PFParticleCollection");
+
+  // register your products
+  produces<reco::PFParticleCollection>(pfParticleCollection_);
+  produces<reco::PFRecTrackCollection>(pfRecTrackCollection_);
 
   // set algorithms used for track reconstruction
   fitterName_ = iConfig.getParameter<std::string>("Fitter");   
   propagatorName_ = iConfig.getParameter<std::string>("Propagator");
   builderName_ = iConfig.getParameter<std::string>("TTRHBuilder");   
 
-  // register your products
-  produces<reco::PFRecTrackCollection>(pfRecTrackCollection_);
+  vertexGenerator_ = iConfig.getParameter<edm::ParameterSet>
+    ( "VertexGenerator" );   
+  particleFilter_ = iConfig.getParameter<edm::ParameterSet>
+    ( "ParticleFilter" );   
 
   // dummy... just to be able to run
   // produces<reco::PFRecHitCollection >();  
@@ -79,7 +92,9 @@ void PFProducer::produce(edm::Event& iEvent,
   // Create empty output collections
   //
   std::auto_ptr< reco::PFRecTrackCollection > pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
-  
+   
+  std::auto_ptr< reco::PFParticleCollection > pOutputPFParticleCollection(new reco::PFParticleCollection ); 
+
   //
   // Declare and get stuff to be retrieved from ES
   //
@@ -256,13 +271,36 @@ void PFProducer::produce(edm::Event& iEvent,
     LogDebug("PFProducer") << "Add a new PFRecTrack " << track << "\n";
   }
 
+  // deal with particles 
+  FSimEvent mySimEvent = 
+    FSimEvent( vertexGenerator_, particleFilter_);
+  
+  edm::Handle<std::vector<SimTrack> > simtracks;
+  iEvent.getByLabel("SimG4Object",simtracks);
+  edm::Handle<std::vector<SimVertex> > simvertices;
+  iEvent.getByLabel("SimG4Object",simvertices);
+
+  for(unsigned it = 0; it<simtracks->size(); it++ ) {
+    cout<<"\t track "<< (*simtracks)[it]<<endl;
+  }
+
+//   mySimEvent.fill( *simtracks, *simvertices );
+
+
+
+  pOutputPFParticleCollection->push_back( reco::PFParticle(-1, 11, 1, 2, 3) );
+
   //
   // Put the products in the event
   //
-  edm::LogInfo("PFProducer") << " Put the PFRecTrackCollection of " 
-			     << pOutputPFRecTrackCollection->size() 
-			     << " candidates in the Event" << std::endl;
+//   edm::LogInfo("PFProducer") << " Put the PFRecTrackCollection of " 
+// 			     << pOutputPFRecTrackCollection->size() 
+// 			     << " candidates in the Event" << std::endl;
+//   pOutputPFRecTrackCollection->assign(outputPFRecTrackCollection.begin(),
+//  				      outputPFRecTrackCollection.end());
   iEvent.put(pOutputPFRecTrackCollection, pfRecTrackCollection_);
+  iEvent.put(pOutputPFParticleCollection, pfParticleCollection_);
+
 }
 
 

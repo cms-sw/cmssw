@@ -41,14 +41,22 @@ class PFProducer : public edm::EDProducer {
   // input collection names
   std::string tcCollection_;
 
-  // output collection names
+  // output collection name for reconstructed tracks
   std::string pfRecTrackCollection_;
 
-  // members used for track reconstruction
+  // output collection name for particles
+  std::string pfParticleCollection_;
+
+  // parameters used for track reconstruction
   TrackProducerAlgorithm trackAlgo_;
-  std::string fitterName_;
-  std::string propagatorName_;
-  std::string builderName_;
+  std::string       fitterName_;
+  std::string       propagatorName_;
+  std::string       builderName_;
+
+  // parameters for retrieving true particles information
+  edm::ParameterSet vertexGenerator_;
+  edm::ParameterSet particleFilter_;
+  
 };
 
 #endif

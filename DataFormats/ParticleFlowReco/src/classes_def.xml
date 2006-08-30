@@ -19,16 +19,20 @@
   </class>
   <class name="std::vector<reco::PFRecHit>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecHit> >"/>
+  <class name="reco::PFTrack"/>
+  <class name="reco::PFTrajectoryPoint">
+    <field name="posrep_" transient="true"/>
+  </class>
+  <class name="std::vector<reco::PFTrajectoryPoint>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFTrajectoryPoint> >"/>
   <class name="reco::PFRecTrack">
     <field name="doPropagation_" transient="true"/>
     <field name="color_" transient="true"/>
   </class>
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
-  <class name="reco::PFTrajectoryPoint">
-    <field name="posrep_" transient="true"/>
-  </class>
-  <class name="std::vector<reco::PFTrajectoryPoint>"/>
-  <class name="edm::Wrapper<std::vector<reco::PFTrajectoryPoint> >"/>
+  <class name="reco::PFParticle"/>
+  <class name="std::vector<reco::PFParticle>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFParticle> >"/>
 </lcgdict>
 
