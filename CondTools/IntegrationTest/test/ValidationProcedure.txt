@@ -3,7 +3,7 @@ DT:
   //check out directory CondTools/IntegrationTest and build test directory
   //get an authentication.xml from somewhere into the working dir
   cd ${CMSSW_BASE}/src/CondTools/IntegrationTest/test
-  ../../OracleDBA/scripts/cmscond_bootstrap_detector.pl --auth ./authentication.xml DT
+  ../../OracleDBA/scripts/cmscond_bootstrap_detector.pl --auth ./authentication.xml --offline_connect oracle://devdb10/CMS_COND_DT DT
   $LOCALRT/test/${SCRAM_ARCH}/validateWriteDTTtrig
   $LOCALRT/test/${SCRAM_ARCH}/validateWriteDTT0
   $LOCALRT/test/${SCRAM_ARCH}/validateWriteDTMap
@@ -21,13 +21,21 @@ Strip:
   compile CalibTracker/SiStripPedestals/test
   compile CommonTools/SiStripZeroSuppression
   cd CalibTracker/SiStripPedestals/test
-  modify SiStripO2O.sh replacing devdb10 with orcon; 
-  modify SiStripCondObjDisplay.sh replacing devdb10 with orcon; use right password
-  ../../../CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --auth ./authentication.xml STRIP 
-  ./SiStripO2O.sh -IOV=1 -ConfigDbVersion=8.189 -doPedNoiseTransfer -doFedCablingTransfer -first_upload -oracle
-  ./SiStripCondObjDisplay.sh -run=10 -oracle
-  ./SiStripO2O.sh -IOV=2 -ConfigDbVersion=8.189 -doPedNoiseTransfer -doFedCablingTransfer  -first_upload
-  ./SiStripCondObjDisplay.sh -run=15 -dbfile=/tmp/${USER}/o2o/dummy_2.db -dbcat
+  #add my private authentication to the official db list
+  cp /afs/cern.ch/cms/DB/conddb/authentication.xml .
+  modify it to include my private test sqlite db
+  #prepare sqlite schema
+  ../../../CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect sqlite_file:pippo.db --auth ./authentication.xml STRIP 
+  #prepare devdb10 schema
+  ../../../CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect oracle://devdb10/CMS_COND_STRIP --auth ./authentication.xml STRIP
+  #write data to devdb10
+  ./SiStripO2O.sh -IOV=1 -ConfigDbVersion=8.189 -doPedNoiseTransfer -doFedCablingTransfer -first_upload -offline_connect=oracle://devdb10/CMS_COND_STRIP
+  #make histogram from oracle data
+  ./SiStripCondObjDisplay.sh -run=10 -offline_connect=oracle://devdb10/CMS_COND_STRIP
+  #write data to private sqlite db
+  ./SiStripO2O.sh -IOV=2 -ConfigDbVersion=8.189 -doPedNoiseTransfer -doFedCablingTransfer  -first_upload -offline_connect=sqlite_file:pippo.db
+  #make histogram from sqlite data
+  ./SiStripCondObjDisplay.sh -run=15 -offline_connect=sqlite_file:pippo.db -catalog=file:whatever.xml
   #compare the histogram on pg2 produced by oracle and sqlite
   gv  /tmp/${USER}/Display/Display_PedNoise_RunNb_10.ps&
   gv  /tmp/${USER}/Display/Display_PedNoise_RunNb_15.ps&
