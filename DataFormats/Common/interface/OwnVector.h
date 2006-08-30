@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.6 2006/05/24 10:31:03 llista Exp $
+// $Id: OwnVector.h,v 1.7 2006/08/10 23:34:53 wmtan Exp $
 #include <vector>
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -101,6 +101,11 @@ namespace edm {
       
       void reserve( size_t );
       void push_back( T * );
+      void pop_back();
+      reference back();
+      const_reference back() const;
+      reference front();
+      const_reference front() const;
       
       void clear();
       template<typename S> 
@@ -212,6 +217,31 @@ namespace edm {
   template<typename T, typename P>
   inline void OwnVector<T, P>::push_back( T * t ) {
     data_.push_back( t );
+  }
+
+  template<typename T, typename P>
+  inline void OwnVector<T, P>::pop_back() {
+    data_.pop_back();
+  }
+
+  template<typename T, typename P>
+  inline typename OwnVector<T, P>::reference OwnVector<T, P>::back() {
+    return data_.back();
+  }
+  
+  template<typename T, typename P>
+  inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::back() const {
+    return data_.back();
+  }
+  
+  template<typename T, typename P>
+  inline typename OwnVector<T, P>::reference OwnVector<T, P>::front() {
+    return data_.front();
+  }
+  
+  template<typename T, typename P>
+  inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::front() const {
+    return data_.front();
   }
   
   template<typename T, typename P>
