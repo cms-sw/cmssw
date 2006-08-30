@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/28 21:36:25 $
- *  $Revision: 1.37 $
+ *  $Date: 2006/08/29 23:14:16 $
+ *  $Revision: 1.38 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -105,7 +105,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
   theTTRHBuilderName = par.getParameter<string>("TrackRecHitBuilder");
 
-  ParameterSet muonTTRHBuilderPSet = par.getParameter<ParameterSet>("MuonRecHitBuildierParameters");
+  ParameterSet muonTTRHBuilderPSet = par.getParameter<ParameterSet>("MuonRecHitBuilderParameters");
   theMuonTTRHBuilder = new MuonTransientTrackingRecHitBuilder(muonTTRHBuilderPSet);
   theTrackConverter = new TrackConverter(par);
 
@@ -213,10 +213,9 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   if ( convert ) {
     if ( staCand.first ) delete staCand.first;
   }
-  for ( vector<TrackCand>::const_iterator is = trackerTracks.begin(); is != trackerTracks.end(); ++is) {
+  for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
     if ( (*is).first ) delete (*is).first;
   }
-
 
   return result;
 
@@ -404,7 +403,8 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	  refit[1] = &(*refitted1.begin());
 	  if ( theMuonHitsOption == 1 ) {
             finalTrajectory = new MuonCandidate(new Trajectory(*refitted1.begin()), (*it)->muonTrack(), (*it)->trackerTrack());
-            delete (*it);
+             if ( (*it)->trajectory() ) delete (*it)->trajectory();
+             if ( *it ) delete (*it);
           }
 	}
       }
@@ -421,7 +421,8 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	  refit[2] = &(*refitted2.begin());
 	  if ( theMuonHitsOption == 2 ) {
             finalTrajectory = new MuonCandidate(new Trajectory(*refitted2.begin()), (*it)->muonTrack(), (*it)->trackerTrack());
-            delete (*it);
+            if ( (*it)->trajectory() ) delete (*it)->trajectory();
+            if ( *it ) delete (*it);
           }
 	}
       } 
@@ -440,14 +441,16 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	  refit[3] = &(*refitted3.begin());
 	  if ( theMuonHitsOption == 3 ) {
             finalTrajectory = new MuonCandidate(new Trajectory(*refitted3.begin()), (*it)->muonTrack(), (*it)->trackerTrack());
-            delete (*it);
+            if ( (*it)->trajectory() ) delete (*it)->trajectory();
+            if ( *it ) delete (*it);
           }
 	}
       }
       
       if ( theMuonHitsOption == 4 ) {
 	finalTrajectory = new MuonCandidate(new Trajectory(*chooseTrajectory(refit)), (*it)->muonTrack(), (*it)->trackerTrack());
-        delete (*it);   
+        if ( (*it)->trajectory() ) delete (*it)->trajectory();
+        if ( *it ) delete (*it);
       } 
       
       if ( finalTrajectory ) {
