@@ -81,7 +81,7 @@ namespace edm
     int ss=resultsim.size();
     for (int ii=0;ii<ss;ii++) {
       edm::BranchDescription desc = resultsim[ii].provenance()->product;
-      LogDebug("addSignals") <<"For "<<desc.productInstanceName_<<resultsim[ii].product()->size()<<" Simhits added";
+      LogDebug("addSignals") <<"For "<<desc.productInstanceName_<<" "<<resultsim[ii].product()->size()<<" Simhits added";
       simcf_->addSignalSimHits(desc.productInstanceName_,resultsim[ii].product());
     }
 
@@ -162,10 +162,12 @@ namespace edm
       // add LowTof pileup to high and low signals
       if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
 	//	const std::vector<PSimHit> * simhitslow = simproducts[(*itstr).second.second];
-	const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
-	simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,eventId, checktof_);
-	simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,eventId, checktof_);
-	LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitslow->size()<<" Simhits added";
+	if (simhitslow) {
+	  const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
+	  simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,eventId, checktof_);
+	  simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,eventId, checktof_);
+	  LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitslow->size()<<" Simhits added";
+	}
       }
     }
 

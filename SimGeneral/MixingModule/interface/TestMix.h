@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.h,v 1.1 2005/10/10 16:32:04 uberthon Exp $
+// $Id: TestMix.h,v 1.2 2006/07/18 16:53:02 uberthon Exp $
 //
 //
 
@@ -45,5 +45,6 @@ namespace edm
   private:
     int level_;
     std::vector<std::string> track_containers_;
+    std::vector<std::string> track_containers2_;
   };
 }//edm

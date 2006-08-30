@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.10 2006/07/18 16:53:03 uberthon Exp $
+// $Id: TestMix.cc,v 1.11 2006/07/21 14:19:57 uberthon Exp $
 //
 //
 
@@ -18,6 +18,7 @@
 // system include files
 #include <memory>
 #include <utility>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -42,6 +43,9 @@ TestMix::TestMix(const edm::ParameterSet& iConfig):
 
   track_containers_.push_back("TrackerHitsTECHighTof");
   track_containers_.push_back("TrackerHitsTECLowTof");
+
+  track_containers2_.push_back("TrackerHitsTECLowTof");
+  track_containers2_.push_back("TrackerHitsTECHighTof");
 
 }
 
@@ -79,7 +83,7 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // test access to SimHits
     const std::string subdet("TrackerHitsTECHighTof");
-    std::cout<<"\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
+    std::cout<<"\n\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
     std::auto_ptr<MixCollection<PSimHit> > col(new MixCollection<PSimHit>(cf.product(), subdet,std::pair<int,int>(-1,2)));
     std::cout<<*(col.get())<<std::endl;
     MixCollection<PSimHit>::iterator cfi;
@@ -113,6 +117,8 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //test MixCollection constructor with several subdetector names
     std::auto_ptr<MixCollection<PSimHit> > all_trackhits(new MixCollection<PSimHit>(cf.product(),track_containers_));
+    std::cout<<"\n=================== Starting test for coll of several ROU-s ==================="<<std::endl;
+
     std::cout <<" \nFor all containers we got "<<all_trackhits->sizeSignal()<<" signal hits and "<<all_trackhits->sizePileup()<<" pileup hits, total: "<<all_trackhits->size()<<std::endl;
     MixCollection<PSimHit>::iterator it;
     int ii=0;
@@ -120,5 +126,28 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::cout<<" Hit "<<ii<<" of all hits has tof "<<it->timeOfFlight()<<" trackid "<<it->trackId() <<" bunchcr "<<it.bunch()<<" trigger "<<it.getTrigger()<<", from EncodedEventId: "<<it->eventId().bunchCrossing() <<" "<<it->eventId().event()<<std::endl;
       ii++;
     }
+
+    //test the same in different order: should be the same sizes, different order
+    std::auto_ptr<MixCollection<PSimHit> > all_trackhits2(new MixCollection<PSimHit>(cf.product(),track_containers2_));
+    std::cout <<" \nSame containers, different order: we got "<<all_trackhits2->sizeSignal()<<" signal hits and "<<all_trackhits2->sizePileup()<<" pileup hits, total: "<<all_trackhits2->size()<<std::endl;
+    MixCollection<PSimHit>::iterator it2;
+    int ii2=0;
+    for (it2=all_trackhits2->begin(); it2!= all_trackhits2->end();it2++) {
+      std::cout<<" Hit "<<ii2<<" of all hits has tof "<<it2->timeOfFlight()<<" trackid "<<it2->trackId() <<" bunchcr "<<it2.bunch()<<" trigger "<<it2.getTrigger()<<", from EncodedEventId: "<<it2->eventId().bunchCrossing() <<" "<<it2->eventId().event()<<std::endl;
+      ii2++;
+    }
+    // for comparison
+    std::cout<<" \nFor comparison: "<<std::endl;
+    for (unsigned int j=0;j<track_containers_.size();++j) {
+      std::auto_ptr<MixCollection<PSimHit> > trackhits(new MixCollection<PSimHit>(cf.product(),track_containers_[j]));
+      std::cout <<track_containers_[j]<<" has "<< trackhits->sizeSignal()<<" signal Hits, and "<<trackhits->sizePileup() <<" pileup Hits, "<<", total "<< trackhits->size() <<std::endl;
+    }
+ 
+    // test reusage of the same iterator
+   int ii3=0;
+   for (it2=all_trackhits2->begin(); it2!= all_trackhits2->end();it2++) ii3++;
+   if (ii3!=ii2) std::cout<<" Problem when re-using iterator!!"<<std::endl;
+   else  std::cout<<" \nNo problem when re-using iterator."<<std::endl;
+
 }
 
