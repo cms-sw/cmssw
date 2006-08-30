@@ -126,7 +126,7 @@ class PFRootEventManager {
 
   /// display a reconstructed calorimeter hit in x/y or r/z view
   void displayRecHit(reco::PFRecHit& rh, unsigned viewType,
-		     double maxe, double thresh, double phi0 = 0.);
+		     double maxe, double phi0 = 0.);
 
   /// display clusters in x/y or r/z view
   void displayClusters(unsigned viewType, double phi0 = 0.);
@@ -153,6 +153,12 @@ class PFRootEventManager {
 
   /// max rechit energy in hcal 
   double getMaxEHcal();
+
+  /// print information
+  void   print() const;
+
+
+  // data members -------------------------------------------------------
 
   /// current event
   int        iEvent_;
@@ -221,8 +227,8 @@ class PFRootEventManager {
 
   /// display pad xy size for (x,y) or (r,z) display
   std::vector<int>      viewSize_;     
- 
-  /// support histogram for x/y or r/z display. COLIN: why a vector ?
+
+  /// support histogram for x/y or r/z display. 
   std::vector<TH2F*>    displayHist_;
 
   /// ECAL in XY view. COLIN: should be attribute ?
@@ -243,6 +249,14 @@ class PFRootEventManager {
   /// max rechit energy in hcal
   double                   maxERecHitHcal_;
 
+  /// print rechits yes/no
+  bool                     printRecHits_;
+
+  /// print clusters yes/no
+  bool                     printClusters_;
+
+  /// print PFBs yes/no
+  bool                     printPFBs_;
 
   //----------------- clustering parameters ---------------------
 
@@ -276,6 +290,13 @@ class PFRootEventManager {
 
   /// hcal number of neighbours
   int    nNeighboursHcal_;
+
+
+  /// ps threshold
+  double threshPS_;
+
+  /// ps seed threshold
+  double threshSeedPS_;
 
 
   // particle flow ------------------------------------------

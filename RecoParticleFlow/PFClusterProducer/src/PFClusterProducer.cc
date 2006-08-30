@@ -491,7 +491,10 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     } catch ( cms::Exception& ex ) {
       edm::LogError("PFClusterProducer") 
-	<<"Error! can't get the preshower rechits"<<endl;
+	<<"Error! can't get the preshower rechits. module: "
+	<<ecalRecHitsESModuleLabel_
+	<<", product instance: "<<ecalRecHitsESProductInstanceName_
+	<<endl;
       return;
     }
     
@@ -568,7 +571,7 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     clusteralgo.init( psrechits ); 
     clusteralgo.allClusters();
     
-    cout<<"store hcal rechits"<<endl;
+    cout<<"store ps rechits"<<endl;
     const map<unsigned, reco::PFRecHit* >& algohits = clusteralgo.getIdRecHits();
     for(PFClusterAlgo::IDH ih=algohits.begin(); ih!=algohits.end(); ih++) {
       result->push_back( reco::PFRecHit( *(ih->second) ) );    

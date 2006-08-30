@@ -215,6 +215,15 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   options_->GetOpt("clustering", "neighbours_Hcal", nNeighboursHcal_);
 
 
+
+  threshPS_ = 0.00001;
+  options_->GetOpt("clustering", "thresh_PS", threshPS_);
+  
+  threshSeedPS_ = 0.0001;
+  options_->GetOpt("clustering", "thresh_Seed_PS", 
+		   threshSeedPS_);
+
+
   // options for particle flow
 
   string map_ECAL_eta;
@@ -275,6 +284,18 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   options_->GetOpt("display", "jet_colors", displayJetColors_);
   
 
+  // print flags -------------
+
+  printRecHits_ = false;
+  options_->GetOpt("print", "rechits", printRecHits_ );
+  
+  printClusters_ = false;
+  options_->GetOpt("print", "clusters", printClusters_ );
+  
+  printPFBs_ = false;
+  options_->GetOpt("print", "PFBs", printPFBs_ );
+  
+  
 }
 
 
@@ -327,6 +348,9 @@ void PFRootEventManager::clustering() {
   clusteralgo.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
 
   clusteralgo.setNNeighboursHcal( nNeighboursHcal_ );
+
+  clusteralgo.setThreshPS( threshPS_ );
+  clusteralgo.setThreshSeedPS( threshSeedPS_ );
 
   clusteralgo.init( rechits ); 
   clusteralgo.allClusters();
@@ -416,7 +440,7 @@ void PFRootEventManager::particleFlow() {
     default:
       break;
     }    
-    cout<<(allPFBs_[iefb])<<endl;
+    // cout<<(allPFBs_[iefb])<<endl;
   }
 
 }
@@ -611,44 +635,45 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0)
   std::vector<reco::PFRecHit>::iterator itRecHit;
   for (itRecHit = rechits_.begin(); itRecHit != rechits_.end(); 
        itRecHit++) {
-    // double maxe = 0;
+    double me = maxe;
     double thresh = 0;
     switch(itRecHit->layer()) {
     case PFLayer::ECAL_BARREL:
-      // maxe = maxee;
       thresh = threshEcalBarrel_;
       break;     
     case PFLayer::ECAL_ENDCAP:
-      // maxe = maxee;
       thresh = threshEcalEndcap_;
       break;     
     case PFLayer::HCAL_BARREL1:
     case PFLayer::HCAL_BARREL2:
-      // maxe = maxeh;
       thresh = threshHcalBarrel_;
       break;           
     case PFLayer::HCAL_ENDCAP:
-      // maxe = maxeh;
       thresh = threshHcalEndcap_;
       break;           
+    case PFLayer::PS1:
+    case PFLayer::PS2:
+      me = -1;
+      thresh = threshPS_; 
+      break;
     default:
       cerr<<"manage other layers"<<endl;
       continue;
     }
 
     if(itRecHit->energy() > thresh )
-      displayRecHit(*itRecHit, viewType, maxe, thresh, phi0);
+      displayRecHit(*itRecHit, viewType, me, phi0);
   }
 }
 
 void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
-				       double maxe, double thresh,
-				       double phi0) 
+				       double maxe, double phi0) 
 {
 
   int layer = rh.layer();
 
-  // on EPH view, draw only ECAL and preshower
+
+  // on EPH view, draw only HCAL
   if(  viewType == EPH && 
        ! (layer == PFLayer::HCAL_BARREL1 || 
 	  layer == PFLayer::HCAL_BARREL2 || 
@@ -659,11 +684,10 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
        (layer == PFLayer::HCAL_BARREL1 || 
 	layer == PFLayer::HCAL_BARREL2 || 
 	layer == PFLayer::HCAL_ENDCAP ) ) return;
-  
-  
+    
 
   // math::XYZPoint vPhi0(cos(phi0), sin(phi0), 0.);
-  if (rh.energy() < thresh ) return;
+  // if (rh.energy() < thresh ) return; // COLIN not necessary ? 
 
 
   double rheta = rh.positionREP().Eta();
@@ -693,9 +717,14 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
   const std::vector< math::XYZPoint >& corners = rh.getCornersXYZ();
   
   assert(corners.size() == 4);
+
+
+  // if(maxe<0) return; // for preshower
   
   double propfact = 0.95; // so that the cells don't overlap ? 
-  double ampl = (log(rh.energy() + 1.)/log(maxe + 1.));
+  
+  double ampl=0;
+  if(maxe>0) ampl = (log(rh.energy() + 1.)/log(maxe + 1.));
   
   for ( unsigned jc=0; jc<4; ++jc ) { 
     phiSize[jc] = rhphi-corners[jc].Phi();
@@ -707,11 +736,11 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 
     math::XYZPoint cornerposxyz = corners[jc];
 
-//     math::XYZPoint cornerposxyz(corners[jc].X()*vPhi0.Y() - 
-// 				corners[jc].Y()*vPhi0.X(), 
-// 				corners[jc].X()*vPhi0.X() + 
-// 				corners[jc].Y()*vPhi0.Y(), 
-// 				corners[jc].Z());
+    //     math::XYZPoint cornerposxyz(corners[jc].X()*vPhi0.Y() - 
+    // 				corners[jc].Y()*vPhi0.X(), 
+    // 				corners[jc].X()*vPhi0.X() + 
+    // 				corners[jc].Y()*vPhi0.Y(), 
+    // 				corners[jc].Z());
     // cornerposxyz.SetPhi( corners[jc]->Y() - phi0 );
 
     x[jc] = cornerposxyz.X();
@@ -728,9 +757,10 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
     if( 
        layer != PFLayer::PS1 && 
        layer != PFLayer::PS2 && 
-       ( viewType == EPE || viewType == EPH || 
+       ( viewType == EPE || 
+	 viewType == EPH || 
 	 ( viewType == XY &&  
-	   ( layer == PFLayer::ECAL_ENDCAP && 
+	   ( layer == PFLayer::ECAL_ENDCAP || 
 	     layer == PFLayer::HCAL_ENDCAP ) ) ) ) {
 
 //        !(layer == PFLayer::ECAL_BARREL || 
@@ -836,11 +866,13 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 	lineSizeXY.SetLineColor(color);
 	lineSizeXY.DrawPolyLine(5,x,y);
 	
-	xprop[4]=xprop[0];
-	yprop[4]=yprop[0]; // closing the polycell    
-	linePropXY.SetLineColor(color);
-	linePropXY.SetFillColor(color);
-	linePropXY.DrawPolyLine(5,xprop,yprop,"F");
+	if( ampl>0 ) { // not for preshower
+	  xprop[4]=xprop[0];
+	  yprop[4]=yprop[0]; // closing the polycell    
+	  linePropXY.SetLineColor(color);
+	  linePropXY.SetFillColor(color);
+	  linePropXY.DrawPolyLine(5,xprop,yprop,"F");
+	}
       }
       break;
     }
@@ -863,12 +895,13 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
       lineSizeEP.SetFillColor(color);
       lineSizeEP.DrawPolyLine(5,eta,phi);
       
-      etaprop[4]=etaprop[0];
-      phiprop[4]=phiprop[0]; // closing the polycell    
-      linePropEP.SetLineColor(color);
-      linePropEP.SetFillColor(color);
-      linePropEP.DrawPolyLine(5,etaprop,phiprop,"F");
-
+      if( ampl>0 ) { // not for preshower
+	etaprop[4]=etaprop[0];
+	phiprop[4]=phiprop[0]; // closing the polycell    
+	linePropEP.SetLineColor(color);
+	linePropEP.SetFillColor(color);
+	linePropEP.DrawPolyLine(5,etaprop,phiprop,"F");
+      }
       break;
     }
   default:
@@ -1127,6 +1160,19 @@ void PFRootEventManager::lookForMaxRecHit(bool ecal) {
 
 
 
+double PFRootEventManager::getMaxE(int layer) const {
+
+  double maxe = -9999;
+
+  for( unsigned i=0; i<rechits_.size(); i++) {
+    if( rechits_[i].layer() != layer ) continue;
+    if( rechits_[i].energy() > maxe)
+      maxe = rechits_[i].energy();
+  }
+
+  return maxe;
+}
+
 
 
 double PFRootEventManager::getMaxEEcal() {
@@ -1154,16 +1200,26 @@ double PFRootEventManager::getMaxEHcal() {
 }
 
 
-double PFRootEventManager::getMaxE(int layer) const {
 
-  double maxe = -9999;
-
-  for( unsigned i=0; i<rechits_.size(); i++) {
-    if( rechits_[i].layer() != layer ) continue;
-    if( rechits_[i].energy() > maxe)
-      maxe = rechits_[i].energy();
+void  PFRootEventManager::print() const {
+  if( printRecHits_ ) {
+    cout<<"RECHITS =============================================="<<endl;
+    for(unsigned i=0; i<rechits_.size(); i++) {
+      cout<<rechits_[i]<<endl;
+    }
   }
+  if( printClusters_ ) {
+    cout<<"CLUSTERS ============================================="<<endl;
+    for(unsigned i=0; i<clusters_.size(); i++) {
+      cout<<clusters_[i]<<endl;
+    }    
+  }
+  if( printPFBs_ ) {
+    cout<<"Particle Flow Blocks ================================="<<endl;
+    for(unsigned i=0; i<allPFBs_.size(); i++) {
+      cout<<allPFBs_[i]<<endl;
+    }    
+  }
+  
 
-  return maxe;
 }
-
