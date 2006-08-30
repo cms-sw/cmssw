@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/07/06 09:19:04 $
- *   $Revision: 1.8 $
+ *   $Date: 2006/08/16 10:07:08 $
+ *   $Revision: 1.9 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -30,17 +30,20 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+
+#include <string>
 
 using namespace edm;
 using namespace std;
 
 /// constructor with config
 L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
+  LogDebug("Muon|RecoMuon|L2MuonProducer")<<"constructor called"<<endl;
 
   // Parameter set for the Builder
   ParameterSet L2_pSet = parameterSet.getParameter<ParameterSet>("L2TrajBuilderParameters");
@@ -48,11 +51,12 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   // MuonSeed Collection Label
   theSeedCollectionLabel = parameterSet.getParameter<string>("MuonSeedCollectionLabel");
 
+  // the services
+  theService = new MuonServiceProxy(parameterSet);
+
   // instantiate the concrete trajectory builder in the Track Finder
-  // FIXME: tmp!
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet));
-
-
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet,theService));
+  
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
@@ -60,6 +64,8 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   
 /// destructor
 L2MuonProducer::~L2MuonProducer(){
+  LogDebug("Muon|RecoMuon|L2eMuonProducer")<<"L2MuonProducer destructor called"<<endl;
+  if (theService) delete theService;
   if (theTrackFinder) delete theTrackFinder;
 }
 
@@ -78,6 +84,9 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
 
+  // Update the services
+  theService->update(eventSetup);
+  
   // Reconstruct 
   LogDebug(metname)<<"Track Reconstruction"<<endl;
   theTrackFinder->reconstruct(seeds,event,eventSetup);

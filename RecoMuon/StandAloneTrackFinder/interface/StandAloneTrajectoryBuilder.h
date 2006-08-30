@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/07/22 18:20:24 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/28 16:17:53 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -30,6 +30,8 @@ public:
   /// Constructor with Parameter set
   StandAloneMuonTrajectoryBuilder(const edm::ParameterSet& par);
           
+  StandAloneMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*) {}
+
   /// Destructor
   virtual ~StandAloneMuonTrajectoryBuilder();
 

@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/07/06 09:19:05 $
- *   $Revision: 1.13 $
+ *   $Date: 2006/08/15 10:58:40 $
+ *   $Revision: 1.14 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -26,8 +26,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
-
-#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 // Input and output collection
 
@@ -50,9 +49,11 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   // MuonSeed Collection Label
   theSeedCollectionLabel = parameterSet.getUntrackedParameter<string>("MuonSeedCollectionLabel");
 
+  // the services
+  theService = new MuonServiceProxy(parameterSet);
+
   // instantiate the concrete trajectory builder in the Track Finder
-  // FIXME: potential memory leak??
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet));
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet,theService));
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -62,9 +63,9 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
 /// destructor
 StandAloneMuonProducer::~StandAloneMuonProducer(){
   LogDebug("Muon|RecoMuon|StandAloneMuonProducer")<<"StandAloneMuonProducer destructor called"<<endl;
+  if (theService) delete theService;
   if (theTrackFinder) delete theTrackFinder;
 }
-
 
 /// reconstruct muons
 void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup){
@@ -77,6 +78,9 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
   LogDebug(metname)<<"Taking the seeds: "<<theSeedCollectionLabel<<endl;
   Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
+
+  // Update the services
+  theService->update(eventSetup);
 
   // Reconstruct 
   LogDebug(metname)<<"Track Reconstruction"<<endl;
