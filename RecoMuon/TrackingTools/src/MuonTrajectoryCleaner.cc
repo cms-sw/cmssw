@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2006/08/16 10:07:11 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/08/29 23:45:13 $
+ *  $Revision: 1.7 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -26,6 +26,9 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   int i(0), j(0);
   int match(0);
 
+  // CAVEAT: vector<bool> is not a vector, its elements are not addressable!
+  // This is fine as long as only operator [] is used as in this case.
+  // cf. par 16.3.11
   vector<bool> mask(trajC.size(),true);
   
   TrajectoryContainer result;
