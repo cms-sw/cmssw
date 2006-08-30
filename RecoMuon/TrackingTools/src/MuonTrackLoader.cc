@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/25 14:46:12 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/08/28 16:20:32 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -42,135 +42,87 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    edm::Event& event) {
   
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
-  
-  // *** first loop: create the full collection of TrackingRecHit ***
-  
-  LogDebug(metname) << 
-    "first loop: create the full collection of TrackingRecHit" << "\n";
-  
-  // the rechit collection, it will be loaded in the event  
-  std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
-
-  // the track extra collection, it will be loaded in the event  
-  std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
 
   // the track collection, it will be loaded in the event  
   std::auto_ptr<reco::TrackCollection> trackCollection( new reco::TrackCollection() );
-
+  
   // don't waste any time...
   if ( trajectories.empty() ) { 
     return event.put(trackCollection);
   }
 
-  for (TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-       trajectory != trajectories.end(); ++trajectory) {
+  // the track extra collection, it will be loaded in the event  
+  std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
+  // ... and its reference into the event
+  reco::TrackExtraRefProd trackExtraCollectionRefProd = event.getRefBeforePut<reco::TrackExtraCollection>();
+  
+  // the rechit collection, it will be loaded in the event  
+  std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
+  // ... and its reference into the event
+  TrackingRecHitRefProd recHitCollectionRefProd = event.getRefBeforePut<TrackingRecHitCollection>();
+
+  LogDebug(metname) << "Create the collection of Tracks";
+
+  reco::TrackExtraRef::key_type trackExtraIndex = 0;
+  TrackingRecHitRef::key_type recHitsIndex = 0;
+
+  for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
+      trajectory != trajectories.end(); ++trajectory){
     
     // get the transient rechit from the trajectory
     Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
     
     if ( (*trajectory)->direction() == oppositeToMomentum)
       reverse(transHits.begin(),transHits.end());
-    
-    // fill the rechit collection
-    for(Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
-	recHit != transHits.end(); ++recHit) {
-      if((**recHit).isValid())
-	recHitCollection->push_back( (**recHit).hit()->clone() );       
-    }
-  }
-  
-  // put the collection of TrackingRecHit in the event
-  LogDebug(metname) << 
-    "put the collection of TrackingRecHit in the event" << "\n";
-  
-  edm::OrphanHandle<TrackingRecHitCollection> orphanHandleRecHit = event.put( recHitCollection );
-  
-  // *** second loop: create the collection of TrackExtra ***
 
-  LogDebug(metname) << 
-    "second loop: create the collection of TrackExtra" << "\n";
+    // build the "bare" track from the trajectory
+    reco::Track track = buildTrack( **trajectory );
 
-  int position = 0;
-	
-  for (TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-       trajectory != trajectories.end(); ++trajectory) {
-    
     // build the "bare" track extra from the trajectory
     reco::TrackExtra trackExtra = buildTrackExtra( **trajectory );
 
-    // get (again!) the transient rechit from the trajectory	
-    Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
-    
-    if ( (*trajectory)->direction() == oppositeToMomentum)
-      reverse(transHits.begin(),transHits.end());
-    
-    // Fill the track extra with the rec hit (persistent-)reference
-    for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
-	 recHit != transHits.end(); ++recHit) {
-      trackExtra.add(TrackingRecHitRef(orphanHandleRecHit,position));
-      ++position;
-    }
-    
-    // fill the TrackExtraCollection
-    trackExtraCollection->push_back(trackExtra);
-  }
-
-  // put the collection of TrackExtra in the event
-  LogDebug(metname) <<  "put the collection of TrackExtra in the event" << "\n";
-  edm::OrphanHandle<reco::TrackExtraCollection> orphanHandleTrackExtra = event.put(trackExtraCollection);
-  
-  // *** third loop: create the collection of Tracks ***
-
-  LogDebug(metname) << "third loop: create the collection of Tracks" << "\n";
-  
-  position = 0;
-
-  for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-      trajectory != trajectories.end(); ++trajectory){
-    
-    // build the "bare" track from the trajectory
-    reco::Track track = buildTrack( **trajectory );
-    
     // get the TrackExtraRef (persitent reference of the track extra)
-    reco::TrackExtraRef trackExtraRef(orphanHandleTrackExtra,position);
+    reco::TrackExtraRef trackExtraRef(trackExtraCollectionRefProd, trackExtraIndex++ );
     
     // set the persistent track-extra reference to the Track
     track.setExtra(trackExtraRef);
 
-    // Hit Pattern
-    //     TrackingRecHitRefVector hitlist;
-    //     for (unsigned int i=0; i<trackExtraRef->recHitsSize(); i++) {
-    // 	    hitlist.push_back(trackExtraRef->recHit(i));
-    //     }
-    
-    //     track.setHitPattern(hitlist);
-    
+    // Fill the track extra with the rec hit (persistent-)reference
+    // size_t i = 0;
+    for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
+	 recHit != transHits.end(); ++recHit) {
+      if((**recHit).isValid()){
+	TrackingRecHit *singleHit = (**recHit).hit()->clone();
+	recHitCollection->push_back( singleHit );  
+	// track.setHitPattern( *singleHit, i ++ );
+	// set the TrackingRecHitRef (persitent reference of the tracking rec hits)
+	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
+      }
+    }
+
+    // fill the TrackExtraCollection
+    trackExtraCollection->push_back(trackExtra);
+
     // fill the TrackCollection
     trackCollection->push_back(track);
 
-    ++position;
-  }
-  
-  // (finally!) put the TrackCollection in the event
-  LogDebug(metname) << "put the TrackCollection in the event" << "\n";
-  edm::OrphanHandle<reco::TrackCollection> orphanHandleTrack = event.put(trackCollection);
-  
-  // clean the memory. FIXME: check this!
-  for (TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-       trajectory != trajectories.end(); ++trajectory) {
-    
+    // clean the memory. FIXME: check this!
     Trajectory::DataContainer dataContainer = (*trajectory)->measurements();
     for (Trajectory::DataContainer::iterator datum = dataContainer.begin(); 
 	 datum != dataContainer.end(); ++datum) 
       delete datum->recHit();
-
-    // delete trajectory
+    
+    // delete the trajectory
     delete *trajectory;
-
   }
-
-  return orphanHandleTrack;
-
+  
+  // Put the Collections in the event
+  LogDebug(metname) << "put the Collections in the event";
+  
+  event.put(recHitCollection);
+  event.put(trackExtraCollection);
+  
+  return event.put(trackCollection);
 }
 
 edm::OrphanHandle<reco::MuonCollection> 
