@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/30 01:43:15 $
- *  $Revision: 1.39 $
+ *  $Date: 2006/08/30 12:58:25 $
+ *  $Revision: 1.40 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -93,7 +93,7 @@ using namespace edm;
 //----------------
 
 //FIXME: remove setES, use MuonServiceProxy instead
-GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,const MuonServiceProxy* service) {
+GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par, const MuonServiceProxy* service) {
   
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new MuonTrackReFitter(refitterPSet);
@@ -397,7 +397,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       // full track with all muon hits
       if ( theMuonHitsOption == 1 || theMuonHitsOption == 3 || theMuonHitsOption == 4 ) {
 	rechits.insert(rechits.end(), muonRecHits1.begin(), muonRecHits1.end());
-	LogInfo("GlobalMuonTrajectoryBuilder") << "Number of hits: " << rechits.size();
+	LogDebug("GlobalMuonTrajectoryBuilder") << "Number of hits: " << rechits.size();
 	refitted1 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
 
 	if ( refitted1.size() == 1 ) {
@@ -415,7 +415,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	rechits = trackerRecHits;
   	rechits.insert(rechits.end(), muonRecHits2.begin(), muonRecHits2.end());
 
-	LogInfo("GlobalMuonTrajectoryBuilder")<< "Number of hits: "<<rechits.size();
+	LogDebug("GlobalMuonTrajectoryBuilder")<< "Number of hits: "<<rechits.size();
 	
 	refitted2 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
 	if ( refitted2.size() == 1 ) {
@@ -435,7 +435,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	rechits = trackerRecHits;
 	rechits.insert(rechits.end(), muonRecHits3.begin(), muonRecHits3.end());
 	
-	edm::LogInfo("GlobalMuonTrajectoryBuilder") << "Number of hits: " << rechits.size();
+	LogDebug("GlobalMuonTrajectoryBuilder") << "Number of hits: " << rechits.size();
 	
 	refitted3 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
 	if ( refitted3.size() == 1 ) {
@@ -553,7 +553,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 	for (ConstRecHitContainer::const_iterator ir = all2dRecHits.begin(); ir != all2dRecHits.end(); ir++ ) {
 	  double rhitDistance = ((*ir)->localPosition()-(**imrh).localPosition()).mag();
 	  if ( rhitDistance < coneSize ) detRecHits++;
-	  edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
+	  LogDebug("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
 						     <<" Distance: "<< rhitDistance<<" recHits: "<< detRecHits;
 	}// end of for all2dRecHits
       }// end of if DT
@@ -567,7 +567,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 	for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
 	  double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
 	  if ( rhitDistance < coneSize ) detRecHits++;
-	  edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<< " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
+	  LogDebug("GlobalMuonTrajectoryBuilder")<<" Station "<<station<< " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
 						     <<" Distance: "<< rhitDistance<<" recHits: "<<detRecHits;
 	}
       }
@@ -579,7 +579,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 	for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
 	  double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
 	  if ( rhitDistance < coneSize ) detRecHits++;
-	  edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" RPC "<<(**ir).dimension()<<" "<< (**ir).localPosition()
+	  LogDebug("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" RPC "<<(**ir).dimension()<<" "<< (**ir).localPosition()
 						     <<" Distance: "<<rhitDistance<<" recHits: "<<detRecHits;
 	}
       }
@@ -597,7 +597,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   } // end of loop over muon rechits
   if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 )  {
     for ( int i = 0; i < 4; i++ ) {
-      edm::LogInfo("GlobalMuonTrajectoryBuilder")<<"Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i]; 
+      LogDebug("GlobalMuonTrajectoryBuilder")<<"Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i]; 
     }
   }     
   
@@ -606,7 +606,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   //
   if ((*all.begin())->globalPosition().mag() >
       (*(all.end()-1))->globalPosition().mag() ) {
-    edm::LogInfo("GlobalMuonTrajectoryBuilder")<< "reverse order: ";
+    LogDebug("GlobalMuonTrajectoryBuilder")<< "reverse order: ";
     sort(all.begin(),all.end(),RecHitLessByDet(alongMomentum));
   }
   
@@ -658,21 +658,21 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
       // 1st hit is in station 1 and second hit is in a different station
       // or an rpc (if station = -999 it could be an rpc hit)
       if ( (station1 != -999) && ((station2 == -999) || (station2 > station1)) ) {
-	edm::LogInfo("GlobalMuonTrajectoryBuilder")<< "checkMuonHits:";
-	edm::LogInfo("GlobalMuonTrajectoryBuilder")<< " station 1 = "<<station1 
+	LogDebug("GlobalMuonTrajectoryBuilder") << "checkMuonHits:";
+	LogDebug("GlobalMuonTrajectoryBuilder") << " station 1 = "<<station1 
 						   <<", r = "<< (*ihit)->globalPosition().perp()
 						   <<", z = "<< (*ihit)->globalPosition().z() << ", "; 
 	
-	edm::LogInfo("GlobalMuonTrajectoryBuilder")<< " station 2 = " << station2
+	LogDebug("GlobalMuonTrajectoryBuilder") << " station 2 = " << station2
 						   <<", r = "<<(*(nexthit))->globalPosition().perp()
 						   <<", z = "<<(*(nexthit))->globalPosition().z() << ", ";
 	return;
       }
     }
     else if ( (nexthit == all.end()) && (station1 != -999) ) {
-      edm::LogInfo("GlobalMuonTrajectoryBuilder")<< "checkMuonHits:";
-      edm::LogInfo("GlobalMuonTrajectoryBuilder")<< " station 1 = "<< station1
-						 << ", r = " << (*ihit)->globalPosition().perp()
+      LogDebug("GlobalMuonTrajectoryBuilder") << "checkMuonHits:";
+      LogDebug("GlobalMuonTrajectoryBuilder") << " station 1 = "<< station1
+                                              << ", r = " << (*ihit)->globalPosition().perp()
 						 << ", z = " << (*ihit)->globalPosition().z() << ", "; 
       return;
     }
