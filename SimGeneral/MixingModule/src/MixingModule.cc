@@ -162,8 +162,8 @@ namespace edm
       // add LowTof pileup to high and low signals
       if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
 	//	const std::vector<PSimHit> * simhitslow = simproducts[(*itstr).second.second];
+	const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
 	if (simhitslow) {
-	  const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
 	  simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,eventId, checktof_);
 	  simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,eventId, checktof_);
 	  LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitslow->size()<<" Simhits added";
