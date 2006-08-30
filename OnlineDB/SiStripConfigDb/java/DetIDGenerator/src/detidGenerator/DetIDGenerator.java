@@ -11,9 +11,12 @@ import java.util.Vector;
 **/
 
 /*
-  $Date: 2006/06/28 11:42:24 $
+  $Date: 2006/06/29 09:19:22 $
   
   $Log: DetIDGenerator.java,v $
+  Revision 1.2  2006/06/29 09:19:22  gbaulieu
+  The database to which we export the data is no more hard coded. The informations are taken from the $CONFDB variable.
+
   Revision 1.1  2006/06/28 11:42:24  gbaulieu
   First import of the sources
 
@@ -107,8 +110,21 @@ public class DetIDGenerator
     public DetIDGenerator(){
 	query = new String();
 	try{
+
 	    c = CDBConnection.getConnection();
-	    
+
+	    if(DetIDGenerator.export){
+		/*
+		  Just to check that we can connect to the export database
+		  Better to see it now rather than after all the computing...
+		*/
+		configureExportDatabaseConnection();
+		c.connect();
+		c.disconnect();
+		
+		//Ok it's working, let's go!
+	    }
+
 	    c.setUser("prod_consult");
 	    c.setUrl("jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = ccdbcl01.in2p3.fr)(PORT = 1521))(ADDRESS = (PROTOCOL = TCP)(HOST = ccdbcl02.in2p3.fr)(PORT = 1521))(LOAD_BALANCE = yes)(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = cccmstrktaf.in2p3.fr)(FAILOVER_MODE =(TYPE = SELECT)(METHOD = BASIC)(RETRIES = 180)(DELAY = 5))))");
 	    c.setPassword("am8bilo8gy");
@@ -364,10 +380,7 @@ public class DetIDGenerator
 	}	
     }
 
-    private void exportData(Vector<Vector<String>> list) throws java.sql.SQLException, ClassNotSupportedException{
-	c.disconnect();
-
-	//Retrieve the connection data
+    private void configureExportDatabaseConnection() throws java.sql.SQLException{
 	String dbString = System.getProperty("CONFDB");
 	if(dbString==null || dbString.equals("") || dbString.indexOf('/')==-1 || dbString.indexOf('@')==-1)
 	    throw new java.sql.SQLException("No valid $CONFDB variable found : can not connect!");
@@ -375,10 +388,14 @@ public class DetIDGenerator
 	String user = dbString.substring(0,dbString.indexOf('/'));
 	String password = dbString.substring(dbString.indexOf('/')+1, dbString.indexOf('@'));
 	String url = dbString.substring(dbString.indexOf('@')+1, dbString.length());
-
+	url = "jdbc:oracle:thin:@"+url;
 	c.setUser(user);
-	c.setUrl("jdbc:oracle:thin:@"+url);
+	c.setUrl(url);
 	c.setPassword(password);
+    }
+
+    private void exportData(Vector<Vector<String>> list) throws java.sql.SQLException, ClassNotSupportedException{
+	c.disconnect();
 
 	if(DetIDGenerator.mtcc){
 	    for(String[] s : TOBMTCC){
@@ -392,6 +409,7 @@ public class DetIDGenerator
 	}
 
 	if(DetIDGenerator.export){
+	    configureExportDatabaseConnection();
 	    c.connect();
 	}
 	
@@ -406,9 +424,17 @@ public class DetIDGenerator
 	    }
 	    else{
 		try{
-		    TECDetIdConverter d = new TECDetIdConverter(detID);
-		    d.compact();
-		    System.out.println(dcuID+","+detID+","+d);
+		    DetIdConverter det = new DetIdConverter(detID);
+		    if(det.getSubDetector()==6){
+			TECDetIdConverter d = new TECDetIdConverter(detID);
+			d.compact();
+			System.out.println(dcuID+","+detID+","+d);
+		    }
+		    if(det.getSubDetector()==5){
+			TOBDetIdConverter d = new TOBDetIdConverter(detID);
+			d.compact();
+			System.out.println(dcuID+","+detID+","+d);
+		    }
 		}
 		catch(Exception e){
 		    

@@ -7,9 +7,12 @@ package detidGenerator;
 **/
 
 /*
-  $Date: 2006/05/05 15:01:56 $
+  $Date: 2006/06/28 11:42:24 $
   
   $Log: TECDetIdConverter.java,v $
+  Revision 1.1  2006/06/28 11:42:24  gbaulieu
+  First import of the sources
+
   Revision 1.5  2006/05/05 15:01:56  baulieu
   Correct the stereo value:
   0 normal mono
@@ -148,7 +151,7 @@ public class TECDetIdConverter extends DetIdConverter{
 	    +getPetal()+
 	    " Ring "+getRing()+
 	    " module "+getModNumber()+
-	    ((getStereo()==1)?" Stereo":"");
+	    ((getStereo()==1)?" Stereo":(getStereo()==0?" Glued":" Mono"));
     }
 
     public static void main(String args[]){

@@ -7,9 +7,12 @@ package detidGenerator;
 **/
 
 /*
-  $Date: 2006/02/08 15:03:00 $
+  $Date: 2006/06/28 11:42:24 $
   
   $Log: TOBDetIdConverter.java,v $
+  Revision 1.1  2006/06/28 11:42:24  gbaulieu
+  First import of the sources
+
   Revision 1.1  2006/02/08 15:03:00  baulieu
   Add the convertion to 32 bits for the TOB
 
@@ -49,19 +52,28 @@ public class TOBDetIdConverter extends DetIdConverter{
 	super(1,5);
 	try{
 	    String[] val = detID.split("\\.");
-	    if(val.length!=8)
+	    if(val.length!=7)
 		throw new Exception("The detID has an invalid format");
 	    else{
-		layer = Integer.parseInt(val[3]);
-		frontBack = Integer.parseInt(val[4]);
-		rod = Integer.parseInt(val[5]);
-		moduleNumber = Integer.parseInt(val[6]);
-		stereo = Integer.parseInt(val[7]);
+		layer = Integer.parseInt(val[2]);
+		frontBack = Integer.parseInt(val[3]);
+		rod = Integer.parseInt(val[4]);
+		moduleNumber = Integer.parseInt(val[5]);
+		stereo = Integer.parseInt(val[6]);
 	    }
 	}
 	catch(NumberFormatException e){
-	    throw new Exception("TECDetIdConverter : \n"+e.getMessage());
+	    throw new Exception("TOBDetIdConverter : \n"+e.getMessage());
 	}
+    }
+
+     public TOBDetIdConverter(int detID) throws Exception{
+	super(detID);
+	layer = getLayer();
+	frontBack = getFrontBack();
+	rod = getRod();
+	moduleNumber = getModNumber();
+	stereo = getStereo();
     }
 
     public int compact(){
@@ -92,6 +104,15 @@ public class TOBDetIdConverter extends DetIdConverter{
 
     public int getStereo(){
 	return (id>>sterStartBit)&sterMask;
+    }
+
+    public String toString(){
+	return "TOB"+
+	    " Layer "+getLayer()+" "+
+	    ((getFrontBack()==1)?"forward":"backward")+" half"+
+	    " Rod "+getRod()+
+	    " module "+getModNumber()+
+	    ((getStereo()==1)?" Stereo":(getStereo()==0?" Glued":" Mono"));
     }
 
 }

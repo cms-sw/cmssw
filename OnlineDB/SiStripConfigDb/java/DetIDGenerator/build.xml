@@ -13,6 +13,9 @@
     <tstamp/>
     <!-- Create the build directory structure used to compile -->
     <mkdir dir="${build}"/>
+    <!-- Create the ressources directory -->
+    <mkdir dir="${build}/ressources"/>
+    <copy file="./RodNumbering.csv" tofile="${build}/ressources/RodNumbering.csv"/>
     <!-- Create the dist directory structure used to store jar file -->
     <mkdir dir="${dist}"/>
   </target>
