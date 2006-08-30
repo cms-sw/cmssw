@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/30 12:58:25 $
- *  $Revision: 1.40 $
+ *  $Date: 2006/08/30 14:53:17 $
+ *  $Revision: 1.41 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -186,7 +186,7 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 //
 MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const reco::TrackRef& staTrack) {
 
-  // cut on lower momentum
+  // cut on muons with low momenta
   if ( (*staTrack).pt() < thePtCut || (*staTrack).innerMomentum().Rho() < thePtCut || (*staTrack).innerMomentum().R() < 2.5 ) return CandidateContainer();
 
   // convert the STA track into a Trajectory
@@ -274,8 +274,7 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
 //
 // define a region of interest within the tracker
 //
-RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInterest(const reco::TrackRef& staTrack) const
-{
+RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInterest(const reco::TrackRef& staTrack) const {
 
   // define tracker region of interest
   const math::XYZVector& mo = staTrack->innerMomentum();
@@ -321,7 +320,8 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
 
   GlobalVector direction(theta,phi,mom.perp());
   RectangularEtaPhiTrackingRegion rectRegion(direction, theVertexPos,
-                                             minPt, 0.2, deltaZ, deltaEta, deltaPhi);
+                                             minPt, 0.2, 
+                                             deltaZ, deltaEta, deltaPhi);
 
   return rectRegion;
 
@@ -357,7 +357,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
  
   //
   // check and select muon measurements and 
-  // measure occupancy of muon stations
+  // measure occupancy in muon stations
   //   
   vector<int> stationHits(4,0);
   ConstRecHitContainer muonRecHits1; // all muon rechits
@@ -553,7 +553,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 	for (ConstRecHitContainer::const_iterator ir = all2dRecHits.begin(); ir != all2dRecHits.end(); ir++ ) {
 	  double rhitDistance = ((*ir)->localPosition()-(**imrh).localPosition()).mag();
 	  if ( rhitDistance < coneSize ) detRecHits++;
-	  LogDebug("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
+	  LogDebug("GlobalMuonTrajectoryBuilder") << " Station "<<station<<" DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
 						     <<" Distance: "<< rhitDistance<<" recHits: "<< detRecHits;
 	}// end of for all2dRecHits
       }// end of if DT
@@ -567,8 +567,8 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 	for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
 	  double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
 	  if ( rhitDistance < coneSize ) detRecHits++;
-	  LogDebug("GlobalMuonTrajectoryBuilder")<<" Station "<<station<< " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
-						     <<" Distance: "<< rhitDistance<<" recHits: "<<detRecHits;
+	  LogDebug("GlobalMuonTrajectoryBuilder") << " Station " << station << " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
+                                                  << " Distance: "<< rhitDistance<<" recHits: "<<detRecHits;
 	}
       }
       // get station of hit if it is in RPC
@@ -673,7 +673,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
       LogDebug("GlobalMuonTrajectoryBuilder") << "checkMuonHits:";
       LogDebug("GlobalMuonTrajectoryBuilder") << " station 1 = "<< station1
                                               << ", r = " << (*ihit)->globalPosition().perp()
-						 << ", z = " << (*ihit)->globalPosition().z() << ", "; 
+                                              << ", z = " << (*ihit)->globalPosition().z() << ", "; 
       return;
     }
   }
@@ -734,8 +734,6 @@ GlobalMuonTrajectoryBuilder::selectMuonHits(const Trajectory& traj,
     }
 
     double chi2ndf = (*im).estimate()/(*im).recHit()->dimension();  
-
-    //LogDebug("GlobalMuonTrajectoryBuilder") << "hit: " << module << " " << station << " " << chi2ndf << " " << hits[station-1] << endl;
 
     bool keep = true;
     if ( (station > 0) && (station < 5) ) {
