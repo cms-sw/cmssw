@@ -31,7 +31,7 @@ namespace edm {
 
   private:
 
-    virtual void put(edm::Event &e) {}
+    virtual void put(edm::Event &) {}
 
     boost::shared_ptr<VectorInputSource> makeSecInput(ParameterSet const& ps);
 
