@@ -36,9 +36,9 @@ private:
   CSCDetectorHit driftElectronsToWire();
 
   // member data
-  CSCDriftSim*  pDriftSim;
+  CSCDriftSim*  theDriftSim;
   CSCGasCollisions* theGasIonizer;
-  std::vector<CSCDetectorHit> newWireHits;
+  std::vector<CSCDetectorHit> theNewWireHits;
 };
 
 #endif
