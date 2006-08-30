@@ -15,7 +15,10 @@ public:
   virtual const_iterator find(const DetId& id) const {
     const_iterator i=end();
     typename C::const_iterator j=coll_.find(id);
-    if (j!=coll_.end()) i=const_iterator(this,j-coll_.begin());
+    if (j!=coll_.end()) {
+      int delta=j-coll_.begin();
+      i=const_iterator(this,delta);
+    }
     return i;
   }
   virtual const CaloRecHit* at(const_iterator::offset_type i) const {
