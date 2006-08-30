@@ -11,14 +11,15 @@
 
 
 CSCWireHitSim::CSCWireHitSim(CSCDriftSim* driftSim) 
-: pDriftSim(driftSim),
-  theGasIonizer( new CSCGasCollisions() ) 
+: theDriftSim(driftSim),
+  theGasIonizer( new CSCGasCollisions() ) ,
+  theNewWireHits()
 {
 }
 
 
 CSCWireHitSim::~CSCWireHitSim() {
-    delete theGasIonizer;
+  delete theGasIonizer;
 }
 
 
@@ -28,7 +29,7 @@ CSCWireHitSim::simulate(const CSCLayer * layer,
 {
   const CSCLayerGeometry * geom = layer->geometry(); 
 
-  newWireHits.clear();
+  theNewWireHits.clear();
   for (edm::PSimHitContainer::const_iterator hitItr = simHits.begin();
        hitItr != simHits.end();  ++hitItr)
   {
@@ -36,7 +37,10 @@ CSCWireHitSim::simulate(const CSCLayer * layer,
     std::vector<LocalPoint> ionClusters 
       = getIonizationClusters(*hitItr, layer);
 
-    for(int icl = 0; icl < int( ionClusters.size() ); ++icl) {
+    unsigned nClusters = ionClusters.size();
+    theNewWireHits.reserve(theNewWireHits.size()+nClusters);
+
+    for(unsigned icl = 0; icl < nClusters; ++icl) {
 
       // Drift the electrons in the cluster to the nearest wire...
       int nearestWire=geom->nearestWire(ionClusters[icl]);
@@ -44,19 +48,19 @@ CSCWireHitSim::simulate(const CSCLayer * layer,
       // The wire hit contains wire# and position measured _along the wire_
       // from where it intersects local y axis.
 
-      newWireHits.push_back( 
-          pDriftSim->getWireHit(ionClusters[icl], layer, nearestWire,
+      theNewWireHits.push_back( 
+          theDriftSim->getWireHit(ionClusters[icl], layer, nearestWire,
           *hitItr) );
 
     }
   } 
-  return newWireHits;
+  return theNewWireHits;
 }
 
 std::vector<LocalPoint> 
 CSCWireHitSim::getIonizationClusters(const PSimHit & simHit, 
-     const CSCLayer * layer) {
-
+     const CSCLayer * layer) 
+{
   const LocalPoint & entryPoint = simHit.entryPoint();
   const LocalPoint & exitPoint  = simHit.exitPoint();
 
@@ -69,20 +73,19 @@ CSCWireHitSim::getIonizationClusters(const PSimHit & simHit,
   std::vector<int> electrons;
   theGasIonizer->simulate( simHit, positions, electrons );
 
-  //  std::vector<LocalPoint> results( positions ); //copy
   std::vector<LocalPoint> results; // start empty
 
   int j = 0;
-  for( std::vector<LocalPoint>::const_iterator i = positions.begin(); 
-                                         i != positions.end(); ++i ) {
+  for( std::vector<LocalPoint>::const_iterator pointItr = positions.begin(); 
+                                         pointItr != positions.end(); ++pointItr ) 
+  {
     ++j;
-    LocalPoint newPoint( *i );
     // some verification
-    if(layer->geometry()->inside(newPoint) ) {
+    if(layer->geometry()->inside(*pointItr) ) {
       // push the point for each electron at this point
       
       for( int ie = 1;  ie <= electrons[j-1]; ++ie ) {
-        results.push_back(newPoint);
+        results.push_back(*pointItr);
       }
     }
   }
