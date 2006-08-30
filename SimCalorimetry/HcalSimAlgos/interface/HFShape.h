@@ -17,28 +17,21 @@ class HFShape : public CaloVShape
 {
 public:
   
-  HFShape()
-  {   setTpeak(2.0); 
-      computeShapeHF();
-  }
-  
-  HFShape(const HFShape&d):
-    CaloVShape(d),nbin(d.nbin),nt(d.nt)
-    {setTpeak(2.0);}
+  HFShape();
+  HFShape(const HFShape&d);
 
-  ~HFShape(){}
+  virtual ~HFShape(){}
   
-  double operator () (double time_) const;
-  void display () const {}
-  double derivative (double time_) const;
+  virtual double operator () (double time) const;
+  double derivative (double time) const;
   double getTpeak () const;
 
-  void computeShapeHF();
 
  private:
+  void computeShapeHF();
   
-  int nbin;
-  std::vector<float> nt;
+  int nbin_;
+  std::vector<float> nt_;
   
 };
 

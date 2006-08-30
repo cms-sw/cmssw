@@ -16,29 +16,23 @@ class HcalShape : public CaloVShape
 {
 public:
   
-  HcalShape()
-  {
-     setTpeak(32.0);
-     computeShape();
-  }
+  HcalShape();
   
-  HcalShape(const HcalShape&d):
-    CaloVShape(d),nbin(d.nbin),nt(d.nt)
-    {setTpeak(32.0);}
+  HcalShape(const HcalShape&d);
 
-  ~HcalShape(){}
+  virtual ~HcalShape(){}
   
-  double operator () (double time_) const;
+  virtual double operator () (double time) const;
   void display () const {}
-  double derivative (double time_) const;
+  double derivative (double time) const;
   double getTpeak () const;
 
   void computeShape();
 
  private:
   
-  int nbin;
-  std::vector<float> nt;
+  int nbin_;
+  std::vector<float> nt_;
   
 };
 
