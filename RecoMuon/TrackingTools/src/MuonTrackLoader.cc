@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/28 16:20:32 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/08/30 08:12:36 $
+ *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -230,16 +230,21 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   // FIXME: check it!
   TrajectoryStateOnSurface outerTSOS;
   TrajectoryStateOnSurface innerTSOS;
+  unsigned int innerId, outerId;
   
-  if(trajectory.direction() == alongMomentum) {
+  if (trajectory.direction() == alongMomentum) {
     LogDebug(metname)<<"alongMomentum";
     outerTSOS = trajectory.lastMeasurement().updatedState();
     innerTSOS = trajectory.firstMeasurement().updatedState();
+    outerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
+    innerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
   } 
-  else if(trajectory.direction() == oppositeToMomentum) {
+  else if (trajectory.direction() == oppositeToMomentum) {
     LogDebug(metname)<<"oppositeToMomentum";
     outerTSOS = trajectory.firstMeasurement().updatedState();
     innerTSOS = trajectory.lastMeasurement().updatedState();
+    outerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
+    innerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
   }
   else edm::LogError(metname)<<"Wrong propagation direction!";
   
@@ -254,7 +259,9 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   math::XYZPoint  inpos( v.x(), v.y(), v.z() );   
   math::XYZVector inmom( p.x(), p.y(), p.z() );
 
-  reco::TrackExtra trackExtra(outpos, outmom, true, inpos, inmom, true);
+  reco::TrackExtra trackExtra(outpos, outmom, true, inpos, inmom, true,
+                              outerTSOS.curvilinearError(), outerId,
+                              innerTSOS.curvilinearError(), innerId);
   
   return trackExtra;
  
