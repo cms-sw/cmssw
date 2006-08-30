@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2006/07/25 12:22:29 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/25 13:39:00 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -14,9 +14,10 @@
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include <vector>
 
-namespace edm {class ParameterSet; class EventSetup; class Event;}
+namespace edm {class EventSetup; class Event;}
 
 class TrajectorySeed;
+class MuonServiceProxy;
 
 class MuonTrajectoryBuilder {
 
@@ -28,9 +29,6 @@ class MuonTrajectoryBuilder {
     /// constructor
     MuonTrajectoryBuilder() {}
   
-    /// constructor with Parameter set
-    MuonTrajectoryBuilder(const edm::ParameterSet&) {}
-
     /// destructor
     virtual ~MuonTrajectoryBuilder() {}
 
