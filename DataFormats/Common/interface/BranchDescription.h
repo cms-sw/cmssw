@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.18 2006/08/24 17:11:51 wmtan Exp $
+$Id: BranchDescription.h,v 1.19 2006/08/24 22:15:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -34,13 +34,13 @@ namespace edm {
 
     BranchDescription();
 
-    explicit BranchDescription(std::string const& moduleLabel, 
-		std::string const& processName, 
+    explicit BranchDescription(std::string const& mdLabel, 
+		std::string const& procName, 
 		std::string const& name, 
 		std::string const& fName, 
 		std::string const& pin, 
 		ModuleDescriptionID const& mdID = ModuleDescriptionID(),
-		std::set<ParameterSetID> const& psetIDs = std::set<ParameterSetID>(),
+		std::set<ParameterSetID> const& psIDs = std::set<ParameterSetID>(),
 		std::set<ProcessConfigurationID> const& procConfigIDs = std::set<ProcessConfigurationID>(),
 		std::set<std::string> const& aliases = std::set<std::string>());
 

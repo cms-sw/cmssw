@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.10 2006/06/17 19:41:32 wmtan Exp $
+$Id: Ref.h,v 1.11 2006/07/18 20:20:13 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -236,8 +236,8 @@ namespace edm {
 
   private:
     // Constructor from member of RefVector
-    Ref(RefCore const& product, RefItem<key_type> const& item) : 
-      ref_(product, item) {
+    Ref(RefCore const& prod, RefItem<key_type> const& item) : 
+      ref_(prod, item) {
     }
 
   private:

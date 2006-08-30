@@ -46,7 +46,7 @@ namespace edm
     AssertHandler();
     ~AssertHandler();
   private:
-    AssertHandler(const AssertHandler&) { }
+    AssertHandler(const AssertHandler&);
     ProblemTracker* pt_;
   };
 

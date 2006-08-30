@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetLazyVector.h,v 1.1 2006/03/30 20:46:58 chrjones Exp $
+$Id: DetSetLazyVector.h,v 1.2 2006/08/10 23:34:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -122,6 +122,7 @@ private:
     DetSetLazyVector() {}
     
     DetSetLazyVector(boost::shared_ptr<dslv::LazyGetter<T> > iGetter, const std::vector<det_id_type>& iDets) :
+    sets_(),
     getter_(iGetter) {
         sets_.reserve(iDets.size());
         det_id_type sanityCheck = 0;

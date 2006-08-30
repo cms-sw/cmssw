@@ -6,8 +6,15 @@ namespace edm
   SingleConsumerQ::SingleConsumerQ(int max_event_size, int max_queue_depth):
     max_event_size_(max_event_size),max_queue_depth_(max_queue_depth),
     pos_(max_queue_depth-1),mem_(max_event_size * max_queue_depth),
+    buffer_pool_(),
     queue_(max_queue_depth),
-    fpos_(),bpos_()
+    fpos_(),
+    bpos_(),
+    pool_lock_(),
+    queue_lock_(),
+    pool_cond_(),
+    pop_cond_(),
+    push_cond_()
   {
     // throw if event size 0 or queue depth 0
 

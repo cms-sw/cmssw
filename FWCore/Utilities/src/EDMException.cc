@@ -7,7 +7,7 @@ namespace edm {
       FilledMap();
       edm::Exception::CodeMap trans_;
     };
-    FilledMap::FilledMap() {
+    FilledMap::FilledMap() : trans_() {
       EDM_MAP_ENTRY_NONS(trans_, Unknown);
       EDM_MAP_ENTRY_NONS(trans_, ProductNotFound);
       EDM_MAP_ENTRY_NONS(trans_, NoProductSpecified);

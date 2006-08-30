@@ -11,6 +11,8 @@ namespace edm {
   {
   public:
 
+    EDAnalyzer() : current_context_(0) {}
+    virtual ~EDAnalyzer();
 
     typedef EDAnalyzer ModuleType;
     
@@ -20,7 +22,6 @@ namespace edm {
     void doBeginJob(EventSetup const&) ;
     void doEndJob() ;
 
-    virtual ~EDAnalyzer();
 
   protected:
     // The returned pointer will be null unless the this is currently

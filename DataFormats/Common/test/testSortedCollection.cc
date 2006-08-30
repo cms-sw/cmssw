@@ -38,7 +38,7 @@ class Value
 
   // This constructor is used for testing; it is not required by the
   // concept VALUE.
-  Value(double d, DetId id) : d_(d), id_(id) { }
+  Value(double d, DetId anId) : d_(d), id_(anId) { }
 
   // This access function is used for testing; it is not required by
   // the concept VALUE.

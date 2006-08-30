@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.47 2006/07/27 18:44:31 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.48 2006/07/28 17:10:22 chrjones Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -190,7 +190,7 @@ private:
     ProductID id = prov->productID();
 
     // Group assumes ownership
-    auto_ptr<Group> g(new Group(edp, prov));
+    std::auto_ptr<Group> g(new Group(edp, prov));
     g->setID(id);
     this->addGroup(g);
   }

@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.7 2006/06/01 20:29:01 chrjones Exp $
+$Id: DetSetVector.h,v 1.8 2006/08/10 23:34:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -414,7 +414,7 @@ namespace edm {
       <<"an edm::Ref to an edm::DetSetVector was given a DetId, "<<iDetID<<", that is not in the DetSetVector";
     }
     index += (itIter- itFound->data.begin());
-    if( index < 0 || index >= itFound->data.size() ) {
+    if( index >= itFound->data.size() ) {
       throw edm::Exception(errors::InvalidReference) 
       <<"an edm::Ref to a edm::DetSetVector is being made with an interator that is not part of the edm::DetSet itself";
     }

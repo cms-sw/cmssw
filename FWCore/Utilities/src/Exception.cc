@@ -3,18 +3,18 @@
 
 namespace cms {
 
-  Exception::Exception(std::string const& category) :
+  Exception::Exception(std::string const& aCategory) :
     std::exception(),
     ost_(),
-    category_(1, category)
+    category_(1, aCategory)
   {
   }
 
-  Exception::Exception(std::string const& category,
+  Exception::Exception(std::string const& aCategory,
 		       std::string const& message) :
     std::exception(),
     ost_(),
-    category_(1, category)
+    category_(1, aCategory)
   {
     ost_ << message;
     if(!message.empty()) {
@@ -23,12 +23,12 @@ namespace cms {
     }
   }
 
-  Exception::Exception(std::string const& category,
+  Exception::Exception(std::string const& aCategory,
 		       std::string const& message,
 		       Exception const& another) :
     std::exception(),
     ost_(),
-    category_(1,category)
+    category_(1, aCategory)
   {
     ost_ << message;
     // check for newline at end of message first

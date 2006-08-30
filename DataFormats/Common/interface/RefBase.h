@@ -5,7 +5,7 @@
   
 RefBase: Base class for a single interproduct reference.
 
-$Id: RefBase.h,v 1.2 2006/03/23 23:58:33 wmtan Exp $
+$Id: RefBase.h,v 1.3 2006/06/14 23:40:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -37,8 +37,8 @@ namespace edm {
       product_(productID, prodPtr, prodGetter), item_(itemKey, itemPtr) {}
 
     /// Constructor from RefVector. 
-    RefBase(RefCore const& product, RefItem<T> const& item) :
-      product_(product), item_(item) {}
+    RefBase(RefCore const& prod, RefItem<T> const& itm) :
+      product_(prod), item_(itm) {}
 
   private:
     RefCore product_;

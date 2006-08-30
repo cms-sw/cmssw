@@ -5,7 +5,7 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.7 2006/05/09 03:19:11 lsexton Exp $
+$Id: ProductRegistryHelper.h,v 1.8 2006/05/24 01:52:51 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -33,7 +33,7 @@ namespace edm {
         branchAlias_() {}
       TypeID typeID_;
       std::string productInstanceName_;
-      std::string mutable branchAlias_;
+      mutable std::string branchAlias_;
       void setBranchAlias(std::string const& alias) const {branchAlias_ = alias;}
     };
 

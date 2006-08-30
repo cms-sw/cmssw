@@ -109,7 +109,7 @@ namespace edm {
 
   private:
     // no copy
-    SingleConsumerQ(const SingleConsumerQ&) { }
+    SingleConsumerQ(const SingleConsumerQ&);
 
     // the memory for the buffers
     typedef std::vector<char> ByteArray;

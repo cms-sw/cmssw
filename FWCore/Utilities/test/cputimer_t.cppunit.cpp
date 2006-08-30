@@ -3,7 +3,7 @@
 Test program for edm::TypeIDBase class.
 Changed by Viji on 29-06-2005
 
-$Id: typeidbase_t.cppunit.cpp,v 1.1 2006/03/24 22:56:25 wmtan Exp $
+$Id: cputimer_t.cppunit.cpp,v 1.1 2006/04/19 17:55:52 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>
@@ -83,10 +83,10 @@ void testCPUTimer::testTiming()
   timer.start();
   struct timeval nowTime;
   do {
-    rusage theUsage;
-    getrusage(RUSAGE_SELF, &theUsage) ;
-    nowTime.tv_sec =theUsage.ru_utime.tv_sec;
-    nowTime.tv_usec =theUsage.ru_utime.tv_usec;
+    rusage theUsage2;
+    getrusage(RUSAGE_SELF, &theUsage2) ;
+    nowTime.tv_sec =theUsage2.ru_utime.tv_sec;
+    nowTime.tv_usec =theUsage2.ru_utime.tv_usec;
   }while(nowTime.tv_sec -startTime.tv_sec +1E-6*(nowTime.tv_usec-startTime.tv_usec) <1);
   timer.stop();
 

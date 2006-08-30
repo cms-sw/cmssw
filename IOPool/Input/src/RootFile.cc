@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.29 2006/08/28 22:32:33 wmtan Exp $
+$Id: RootFile.cc,v 1.30 2006/08/29 22:47:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -151,9 +151,9 @@ namespace edm {
   }
 
   RootFile::EntryNumber
-  RootFile::getEntryNumber(EventID const& eventID) const {
-    RootFile::EntryNumber index = eventTree_->GetEntryNumberWithIndex(eventID.run(), eventID.event());
-    if (index < 0) index = eventTree_->GetEntryNumberWithBestIndex(eventID.run(), eventID.event()) + 1;
+  RootFile::getEntryNumber(EventID const& theEventID) const {
+    RootFile::EntryNumber index = eventTree_->GetEntryNumberWithIndex(theEventID.run(), theEventID.event());
+    if (index < 0) index = eventTree_->GetEntryNumberWithBestIndex(theEventID.run(), theEventID.event()) + 1;
     if (index >= entries_) index = -1;
     return index;
   }

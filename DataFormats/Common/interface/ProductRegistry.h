@@ -7,7 +7,7 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.3 2006/04/19 01:43:50 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.4 2006/08/01 05:34:43 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -76,7 +76,7 @@ namespace edm {
 
     ProductList productList_;
     unsigned long nextID_;
-    bool mutable frozen_;
+    mutable bool frozen_;
   };
 
   inline

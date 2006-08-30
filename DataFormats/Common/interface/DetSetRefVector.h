@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetRefVector.h,v 1.2 2006/06/14 23:42:55 wmtan Exp $
+$Id: DetSetRefVector.h,v 1.3 2006/08/10 23:34:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -115,7 +115,7 @@ namespace edm {
     DetSetRefVector() {}
     
     template <typename THandle>
-      DetSetRefVector(const THandle& iHandle, const std::vector<det_id_type>& iDets) {
+      DetSetRefVector(const THandle& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
         sets_.reserve(iDets.size());
         det_id_type sanityCheck = 0;
         for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin();

@@ -39,8 +39,8 @@ namespace edmtest
 
   struct StringProduct
   {
-    StringProduct(){}
-    explicit StringProduct(const std::string& s):name_(s){}
+    StringProduct() : name_() {}
+    explicit StringProduct(const std::string& s) : name_(s){}
     std::string name_;
   };
 

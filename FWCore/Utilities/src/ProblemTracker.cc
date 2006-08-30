@@ -128,8 +128,6 @@ namespace edm
     dead_ = true;
   }
 
-  ProblemTracker::ProblemTracker(const ProblemTracker&) { }
-
   ProblemTracker* ProblemTracker::instance()
   {
     static ProblemTracker pt;

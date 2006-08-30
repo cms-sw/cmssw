@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.7 2006/06/01 20:29:53 chrjones Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.8 2006/06/14 23:43:43 wmtan Exp $
  *  CMSSW
  *
  */
@@ -194,6 +194,7 @@ namespace
   template<class T>
   struct DSVGetter : edm::EDProductGetter 
   {
+    DSVGetter() : edm::EDProductGetter(), prod_(0) {}
     virtual EDProduct const* 
     getIt(ProductID const&) const { return prod_; }
     edm::Wrapper<T> const* prod_;
@@ -250,9 +251,11 @@ void refTest()
     assert(!(v1<*refDet)&&!(*refDet < v1));
   }
    
-  MyHandle<coll_type> pc2(&c);
-  RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
-  assert(!(v1<*refDet)&&!(*refDet < v1));
+  {
+    MyHandle<coll_type> pc2(&c);
+    RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
+    assert(!(v1<*refDet)&&!(*refDet < v1));
+  }
 
   try {
     //bad detid
@@ -441,19 +444,19 @@ void work()
 	v.push_back(d);
       }
     assert( v.size() == numDetSets );
-    coll_type c(v);
-    c.post_insert();
+    coll_type c3(v);
+    c3.post_insert();
     assert( v.size() == 0 );
-    assert( c.size() == numDetSets );
-    sanity_check(c);
+    assert( c3.size() == numDetSets );
+    sanity_check(c3);
 
-    coll_type c2;
-    c2 = c;
-    assert( c2.size() == numDetSets );
-    sanity_check(c);
-    sanity_check(c2);
+    coll_type c4;
+    c4 = c3;
+    assert( c4.size() == numDetSets );
+    sanity_check(c3);
+    sanity_check(c4);
 
-    check_ids(c);
+    check_ids(c3);
   }
 }
 

@@ -22,17 +22,17 @@ namespace edm
 	time_(),
 	luminosityBlockID_() {}
     //FIXME: keep temporarily for backwards compatibility
-    explicit EventAux(EventID const& id) :
+    explicit EventAux(EventID const& theId) :
 	processHistoryID_(),
 	processHistoryPtr_(),
-	id_(id),
+	id_(theId),
 	time_(),
 	luminosityBlockID_() {}
-    EventAux(EventID id, Timestamp const& time, LuminosityBlockID lb) :
+    EventAux(EventID theId, Timestamp const& theTime, LuminosityBlockID lb) :
 	processHistoryID_(),
 	processHistoryPtr_(),
-	id_(id),
-	time_(time),
+	id_(theId),
+	time_(theTime),
 	luminosityBlockID_(lb) {}
     ~EventAux() {}
     void init() const;

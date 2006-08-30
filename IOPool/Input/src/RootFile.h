@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.9.2.2 2006/06/30 19:25:21 wmtan Exp $
+$Id: RootFile.h,v 1.10 2006/07/06 19:25:00 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,7 +46,7 @@ namespace edm {
     EventID & eventID() {return eventID_;}
     EntryNumber const& entryNumber() const {return entryNumber_;}
     EntryNumber const& entries() const {return entries_;}
-    void setEntryNumber(EntryNumber entryNumber) {entryNumber_ = entryNumber;}
+    void setEntryNumber(EntryNumber theEntryNumber) {entryNumber_ = theEntryNumber;}
     EntryNumber getEntryNumber(EventID const& eventID) const;
 
   private:

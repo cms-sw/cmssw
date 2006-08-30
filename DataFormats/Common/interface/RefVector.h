@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.9 2006/08/10 23:34:53 wmtan Exp $
+$Id: RefVector.h,v 1.10 2006/08/22 18:29:49 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -57,15 +57,15 @@ namespace edm {
     /// Retrieve an element of the RefVector
     Ref<C, T, F> const operator[](size_type idx) const {
       RefItemType const& item = refVector_.items()[idx];
-      RefCore const& product = refVector_.product();
-      return Ref<C, T, F>(product, item);
+      RefCore const& prod = refVector_.product();
+      return Ref<C, T, F>(prod, item);
     }
 
     /// Retrieve an element of the RefVector
     Ref<C, T, F> const at(size_type idx) const {
       RefItemType const& item = refVector_.items().at(idx);
-      RefCore const& product = refVector_.product();
-      return Ref<C, T, F>(product, item);
+      RefCore const& prod = refVector_.product();
+      return Ref<C, T, F>(prod, item);
     }
 
     /// Accessor for all data
@@ -148,8 +148,8 @@ namespace edm {
   typename RefVector<C, T, F>::iterator RefVector<C, T, F>::erase(iterator const& pos) {
     typename RefVectorBase<key_type>::RefItems::size_type index = pos - begin();
     typename RefVectorBase<key_type>::RefItems::iterator newPos = refVector_.eraseAtIndex(index);
-    RefCore const& product = refVector_.product();
-    return typename RefVector<C, T, F>::iterator(product, newPos);
+    RefCore const& prod = refVector_.product();
+    return typename RefVector<C, T, F>::iterator(prod, newPos);
 
   }
 

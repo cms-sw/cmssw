@@ -5,7 +5,7 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.3 2006/06/14 23:40:33 wmtan Exp $
+$Id: RefCore.h,v 1.4 2006/08/24 22:15:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <typeinfo>
@@ -18,9 +18,9 @@ namespace edm {
   class RefCore {
   public:
     RefCore() : id_(), prodPtr_(0), prodGetter_(0) {}
-    RefCore(ProductID const& id, void const *prodPtr, EDProductGetter const* prodGetter) :
-        id_(id), prodPtr_(prodPtr), prodGetter_(prodGetter) {
-      if (id == ProductID()) {badID();}
+    RefCore(ProductID const& theId, void const *prodPtr, EDProductGetter const* prodGetter) :
+        id_(theId), prodPtr_(prodPtr), prodGetter_(prodGetter) {
+      if (theId == ProductID()) {badID();}
     }
     ~RefCore() {}
 

@@ -5,7 +5,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.15 2006/08/24 17:11:52 wmtan Exp $
+$Id: BranchDescription.cc,v 1.16 2006/08/24 22:15:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,6 +21,7 @@ namespace edm {
     psetIDs_(),
     processConfigurationIDs_(),
     branchAliases_(),
+    branchName_(),
     produced_(false),
     present_(true),
     provenancePresent_(true),
@@ -28,25 +29,26 @@ namespace edm {
   { }
 
   BranchDescription::BranchDescription(
-			std::string const& moduleLabel, 
-			std::string const& processName, 
+			std::string const& mdLabel, 
+			std::string const& procName, 
 			std::string const& name, 
 			std::string const& fName, 
 			std::string const& pin, 
 			ModuleDescriptionID const& mdID,
-			std::set<ParameterSetID> const& psetIDs,
+			std::set<ParameterSetID> const& psIDs,
 			std::set<ProcessConfigurationID> const& procConfigIDs,
 			std::set<std::string> const& aliases) :
-    moduleLabel_(moduleLabel),
-    processName_(processName),
+    moduleLabel_(mdLabel),
+    processName_(procName),
     productID_(),
     fullClassName_(name),
     friendlyClassName_(fName),
     productInstanceName_(pin),
     moduleDescriptionID_(mdID),
-    psetIDs_(psetIDs),
+    psetIDs_(psIDs),
     processConfigurationIDs_(procConfigIDs),
     branchAliases_(aliases),
+    branchName_(),
     produced_(true),
     present_(true),
     provenancePresent_(true),
