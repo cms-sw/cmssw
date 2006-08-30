@@ -108,13 +108,18 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     //sets the outermost and innermost TSOSs
     TrajectoryStateOnSurface outertsos;
     TrajectoryStateOnSurface innertsos;
+    unsigned int innerId, outerId;
     if (theTraj->direction() == alongMomentum) {
       outertsos = theTraj->lastMeasurement().updatedState();
       innertsos = theTraj->firstMeasurement().updatedState();
+      outerId = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
+      innerId = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
     } else { 
       outertsos = theTraj->firstMeasurement().updatedState();
       innertsos = theTraj->lastMeasurement().updatedState();
-    }
+      outerId = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
+      innerId = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
+   }
     //build the TrackExtra
     GlobalPoint v = outertsos.globalParameters().position();
     GlobalVector p = outertsos.globalParameters().momentum();
@@ -128,7 +133,9 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
     reco::Track & track = selTracks->back();
     track.setExtra( teref );
-    selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true));
+    selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
+						 outertsos.curvilinearError(), outerId,
+						 innertsos.curvilinearError(), innerId));
 
     reco::TrackExtra & tx = selTrackExtras->back();
     size_t i = 0;
