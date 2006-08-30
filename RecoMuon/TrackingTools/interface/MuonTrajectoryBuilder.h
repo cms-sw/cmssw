@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2006/07/25 13:39:00 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/30 12:28:12 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -17,7 +17,6 @@
 namespace edm {class EventSetup; class Event;}
 
 class TrajectorySeed;
-class MuonServiceProxy;
 
 class MuonTrajectoryBuilder {
 

@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/08/16 10:07:11 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/08/29 23:47:48 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -26,9 +26,7 @@
 
 using namespace std;
 
-//
 // constructor
-//
 MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBuilder) :
   theTrajBuilder(ConcreteMuonTrajectoryBuilder) {
 
@@ -37,10 +35,7 @@ MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBu
 
 }
 
-
-//
 // destructor
-//
 MuonTrackFinder::~MuonTrackFinder() {
 
   LogDebug("Muon|RecoMuon|MuonTrackFinder")<<"MuonTrackFinder destructor called"<<endl;
@@ -50,10 +45,7 @@ MuonTrackFinder::~MuonTrackFinder() {
 
 }
 
-
-//
 // percolate the event setup
-//
 void MuonTrackFinder::setES(const edm::EventSetup& eSetup) {
 
   theTrajBuilder->setES(eSetup);
@@ -61,31 +53,19 @@ void MuonTrackFinder::setES(const edm::EventSetup& eSetup) {
 
 }
 
-
-//
 // percolate the event setup
-//
 void MuonTrackFinder::setEvent(const edm::Event& event) {
-
   theTrajBuilder->setEvent(event);
-
 }
 
-
-//
 // convert the trajectories into tracks and load them in to the event
-//
 void MuonTrackFinder::load(const TrajectoryContainer& trajectories, 
 			   edm::Event& event) {
-                           
-  theTrackLoader->loadTracks(trajectories, event);
 
+  theTrackLoader->loadTracks(trajectories, event);
 }
 
-
-//
 // convert the trajectories into tracks and load them in to the event
-//
 void MuonTrackFinder::load(const CandidateContainer& muonCands,
 			   edm::Event& event) {
                            
@@ -93,10 +73,7 @@ void MuonTrackFinder::load(const CandidateContainer& muonCands,
 
 }
 
-
-//
 // reconstruct trajectories
-//
 void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds,
 				  edm::Event& event,
 				  const edm::EventSetup& eSetup) {
@@ -135,10 +112,7 @@ void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& s
 
 }
 
-
-//
 // reconstruct trajectories
-//
 void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& tracks,
 				  edm::Event& event,
 				  const edm::EventSetup& eSetup) {                       
