@@ -1,10 +1,10 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/08/16 10:07:10 $
- *  $Revision: 1.24 $
- *  \author R. Bellan - INFN Torino
- *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ *  $Date: 2006/08/28 16:19:10 $
+ *  $Revision: 1.25 $
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *  \author Stefano Lacaprara - INFN Legnaro
  */
 
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
@@ -48,13 +48,14 @@
 using namespace edm;
 using namespace std;
 
-StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const ParameterSet& par){
+StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const ParameterSet& par, 
+								 const MuonServiceProxy* service):theService(service){
   LogDebug("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
     << "constructor called" << endl;
 
   // The inward-outward fitter (starts from seed state)
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-  theRefitter = new StandAloneMuonRefitter(refitterPSet);
+  theRefitter = new StandAloneMuonRefitter(refitterPSet,theService);
 
   // Disable/Enable the backward filter
   doBackwardRefit = par.getUntrackedParameter<bool>("DoBackwardRefit",true);
@@ -62,15 +63,15 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   if(doBackwardRefit){
     // The outward-inward fitter (starts from theRefitter outermost state)
     ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
-    //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet); // FIXME
-    theBWFilter = new StandAloneMuonRefitter(bwFilterPSet);
+    //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet,theService); // FIXME
+    theBWFilter = new StandAloneMuonRefitter(bwFilterPSet,theService);
 
     theBWSeedType = bwFilterPSet.getParameter<string>("BWSeedType");
   }
   
   // The outward-inward fitter (starts from theBWFilter innermost state)
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
-  theSmoother = new StandAloneMuonSmoother(smootherPSet);
+  theSmoother = new StandAloneMuonSmoother(smootherPSet,theService);
 } 
 
 void StandAloneMuonTrajectoryBuilder::setES(const EventSetup& setup){

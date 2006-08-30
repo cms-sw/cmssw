@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/07/21 21:53:05 $
- *   $Revision: 1.10 $
+ *   $Date: 2006/08/16 10:07:08 $
+ *   $Revision: 1.11 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -25,6 +25,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrajectoryBuilder.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 // Input and output collection
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -47,8 +48,11 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   // STA Muon Collection Label
   theSTACollectionLabel = parameterSet.getUntrackedParameter<string>("MuonCollectionLabel");
 
+  // the services
+  theService = new MuonServiceProxy(parameterSet);
+  
   // instantiate the concrete trajectory builder in the Track Finder
-  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(GLB_pSet);
+  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(GLB_pSet,theService);
   theTrackFinder = new MuonTrackFinder(gmtb);
   
   produces<reco::TrackCollection>();
@@ -66,6 +70,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
 GlobalMuonProducer::~GlobalMuonProducer() {
 
   LogDebug("Muon|RecoMuon|GlobalMuonProducer") << "destructor called" << endl;
+  if (theService) delete theService;
   if (theTrackFinder) delete theTrackFinder;
 
 }
@@ -83,6 +88,9 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   LogDebug(metname)<<"Taking the Stans Alone Muons: "<<theSTACollectionLabel<<endl; 
   Handle<reco::TrackCollection> staMuons;
   event.getByLabel(theSTACollectionLabel,staMuons);
+  
+  // Update the services
+  theService->update(eventSetup);
   
   // Reconstruct the tracks in the tracker+muon system
   LogDebug(metname)<<"Track Reconstruction"<<endl;

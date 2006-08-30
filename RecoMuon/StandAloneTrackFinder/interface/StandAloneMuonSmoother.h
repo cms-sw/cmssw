@@ -4,17 +4,19 @@
 /** \class StandAloneMuonSmoother
  *  The outward-inward fitter (starts from StandAloneMuonBackwardFilter innermost state).
  *
- *  $Date: 2006/05/19 15:24:35 $
- *  $Revision: 1.4 $
- *  \author R. Bellan - INFN Torino
+ *  $Date: 2006/05/23 17:47:23 $
+ *  $Revision: 1.5 $
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
+
+class MuonServiceProxy;
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
 class StandAloneMuonSmoother {
 public:
   /// Constructor
-  StandAloneMuonSmoother(const edm::ParameterSet& par);
+  StandAloneMuonSmoother(const edm::ParameterSet& par, const MuonServiceProxy* service);
 
   /// Destructor
   virtual ~StandAloneMuonSmoother(){};

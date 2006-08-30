@@ -1,9 +1,9 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/08/22 09:35:21 $
- *  $Revision: 1.23 $
- *  \author R. Bellan - INFN Torino
+ *  $Date: 2006/08/28 16:19:40 $
+ *  $Revision: 1.24 $
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonRefitter.h"
@@ -45,7 +45,8 @@
 using namespace edm;
 using namespace std;
 
-StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par):thePropagator(0),theDetLayerGeometry(0){
+StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
+					       const MuonServiceProxy* service):thePropagator(0),theDetLayerGeometry(0){
   
   // FIXME
   // I am not yet sure if I want to pass it by paset or have it hard-coded...

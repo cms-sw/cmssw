@@ -4,9 +4,9 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/06 08:20:28 $
- *  $Revision: 1.16 $
- *  \author R. Bellan - INFN Torino
+ *  $Date: 2006/07/11 15:01:07 $
+ *  $Revision: 1.17 $
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -20,13 +20,14 @@ class Trajectory;
 class MuonDetLayerMeasurements;
 class MeasurementEstimator;
 class MuonDetLayerGeometry;
+class MuonServiceProxy;
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
 class StandAloneMuonRefitter {
 public:
   /// Constructor
-  StandAloneMuonRefitter(const edm::ParameterSet& par);
+  StandAloneMuonRefitter(const edm::ParameterSet& par, const MuonServiceProxy* service);
 
   /// Destructor
   virtual ~StandAloneMuonRefitter();
