@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/29 23:14:16 $
- *  $Revision: 1.38 $
+ *  $Date: 2006/08/30 01:43:15 $
+ *  $Revision: 1.39 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -80,10 +80,10 @@
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TrackingTools/interface/TrackConverter.h"
-
 
 using namespace std;
 using namespace edm;
@@ -92,7 +92,8 @@ using namespace edm;
 // Constructors --
 //----------------
 
-GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par) {
+//FIXME: remove setES, use MuonServiceProxy instead
+GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,const MuonServiceProxy* service) {
   
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new MuonTrackReFitter(refitterPSet);

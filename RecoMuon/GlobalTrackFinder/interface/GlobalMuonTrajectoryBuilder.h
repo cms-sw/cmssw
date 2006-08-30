@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/08/28 19:32:58 $
- *  $Revision: 1.26 $
+ *  $Date: 2006/08/29 19:46:28 $
+ *  $Revision: 1.27 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -32,6 +32,7 @@ class MuonDetLayerGeometry;
 class MuonDetLayerMeasurements;
 class MuonTrackReFitter;
 class TrackConverter;
+class MuonServiceProxy;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -55,8 +56,8 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
   public:
 
-    /// constructor with Parameter Set
-    GlobalMuonTrajectoryBuilder(const edm::ParameterSet&);
+    /// constructor with Parameter Set and MuonServiceProxy
+    GlobalMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
           
     /// destructor
     ~GlobalMuonTrajectoryBuilder();
