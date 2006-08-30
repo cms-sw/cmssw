@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/08/28 16:30:28 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/08/28 22:22:43 $
+ *   $Revision: 1.3 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   C. Liu                   Purdue University
@@ -83,7 +83,10 @@ void MuonTrackReFitter::setES(const edm::EventSetup& iSetup) {
 
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
+  if ( thePropagator1 ) delete thePropagator1;
   thePropagator1 = new SmartPropagator(*eshPropagator2,*eshPropagator1, &*theMagField);
+
+  if ( thePropagator2 ) delete thePropagator2;
   thePropagator2 = new SmartPropagator(*eshPropagator4,*eshPropagator3, &*theMagField,oppositeToMomentum);
 
 }

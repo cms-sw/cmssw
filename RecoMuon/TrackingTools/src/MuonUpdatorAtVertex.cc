@@ -4,8 +4,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/08/05 00:59:38 $
- *   $Revision: 1.11 $
+ *   $Date: 2006/08/24 20:02:16 $
+ *   $Revision: 1.12 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \author   C. Liu                Purdue University 
@@ -51,8 +51,8 @@ using namespace std;
 MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par) : 
          thePropagator(0), 
          theExtrapolator(0),
-         theUpdator(0),
-         theEstimator(0) {
+         theUpdator(new KFUpdator()),
+         theEstimator(new Chi2MeasurementEstimator(150.)) {
 
   theOutPropagatorName = par.getParameter<string>("OutPropagator");
   theInPropagatorName = par.getParameter<string>("InPropagator");
@@ -72,8 +72,8 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par) :
 MuonUpdatorAtVertex::MuonUpdatorAtVertex() :
          thePropagator(0),
          theExtrapolator(0),
-         theUpdator(0),
-         theEstimator(0) {
+         theUpdator(new KFUpdator()),
+         theEstimator(new Chi2MeasurementEstimator(150.)) {
 
   theOutPropagatorName = "SteppingHelixPropagatorAny";
   theInPropagatorName = "PropagatorWithMaterial";
@@ -96,7 +96,6 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const Propagator& prop) :
          theEstimator(new Chi2MeasurementEstimator(150.)) {
 
   thePropagator = prop.clone();
-//  thePropagatorName = "NOUSE";
   // assume beam spot position with nominal errors
   // sigma(x) = sigma(y) = 15 microns
   // sigma(z) = 5.3 cm
@@ -136,13 +135,9 @@ void MuonUpdatorAtVertex::setES(const edm::EventSetup& iSetup) {
   iSetup.get<IdealMagneticFieldRecord>().get(theField);
 
   if (thePropagator) delete thePropagator;
-
   thePropagator = new SmartPropagator(*eshPropagator2,*eshPropagator1, &*theField);
 
-  theExtrapolator = new TransverseImpactPointExtrapolator(*thePropagator);
-
-  theUpdator = new KFUpdator();
-  theEstimator = new Chi2MeasurementEstimator(150.);
+  if ( theExtrapolator == 0 ) theExtrapolator = new TransverseImpactPointExtrapolator(*thePropagator);
 
 }
 
@@ -198,7 +193,7 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
   TrajectoryStateOnSurface trackerState = stateAtTracker(tsos);
 
   // inside the tracker we can use Gtf propagator
-  TrajectoryStateOnSurface ipState = theExtrapolator->extrapolate(trackerState,theVertexPos);
+  TrajectoryStateOnSurface ipState = theExtrapolator->extrapolate(trackerState,theVertexPos,*thePropagator);
   TrajectoryStateOnSurface vertexState;
   TrajectoryMeasurement vertexMeasurement;
   double chi2 = 0.0;
