@@ -10,7 +10,8 @@
 
 HcalElectronicsSim::HcalElectronicsSim(HcalAmplifier * amplifier, const HcalCoderFactory * coderFactory)
   : theAmplifier(amplifier),
-    theCoderFactory(coderFactory)
+    theCoderFactory(coderFactory),
+    theStartingCapId(0)
 {
 }
 
