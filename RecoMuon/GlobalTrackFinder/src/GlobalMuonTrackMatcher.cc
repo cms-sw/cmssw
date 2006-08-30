@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/08/28 20:27:54 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/08/29 20:17:12 $
+ *  $Revision: 1.23 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -239,7 +239,7 @@ GlobalMuonTrackMatcher::match(const TrajectoryStateOnSurface& tsos1,
   double dy(fabs(tsos1.globalPosition().y() - tsos2.globalPosition().y()));
   double dz(fabs(tsos1.globalPosition().z() - tsos2.globalPosition().z()));
 
-  float dd = 5.0;
+  float dd = 12.0;
   bool goodCoords = ( (dx < dd) && (dy < dd) ) ? true : false;
   bool good = ( goodChi || goodCoords ) ? true : false;
 
