@@ -20,7 +20,7 @@ Framework generic utility modules
     // collection type
     typedef [...] collection;
     // iterator over result type. 
-    // could be std::vector<collection::value_type>::const_iterator
+    // could be std::vector&lt;collection::value_type&gt;::const_iterator
     typedef [...] const_iterator;
     // constructor from parameter set configurability
     MySelection( const edm::ParameterSet & );
