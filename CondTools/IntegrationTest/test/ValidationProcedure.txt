@@ -11,8 +11,6 @@ DT:
 
 Strip:
   Note: work with CMSSW_0_9_0_pre3, doesn't work with CMSSW_1_0_x, authentication problem in accessing omds/configuration db
-  //clean up schema CMS_COND_STRIP
-  //get an authentication.xml somewhere
   cvs co CondCore/DBOutputService 
   cvs co CondTools
   cvs co CalibTracker/SiStripPedestals/test
@@ -27,6 +25,7 @@ Strip:
   #prepare sqlite schema
   ../../../CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect sqlite_file:pippo.db --auth ./authentication.xml STRIP 
   #prepare devdb10 schema
+  //clean up schema CMS_COND_STRIP with nuke_tables.sql
   ../../../CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect oracle://devdb10/CMS_COND_STRIP --auth ./authentication.xml STRIP
   #write data to devdb10
   ./SiStripO2O.sh -IOV=1 -ConfigDbVersion=8.189 -doPedNoiseTransfer -doFedCablingTransfer -first_upload -offline_connect=oracle://devdb10/CMS_COND_STRIP
