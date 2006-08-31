@@ -26,7 +26,7 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
   theBunchSpacing(25.),
   theNoiseWasAdded(false),
   nElements(0),
-  theShapingTime(p.getParameter<double>("shapingTime")),
+  theShapingTime(p.getParameter<int>("shapingTime")),
   theTailShaping(RADICAL),
   theAmpGainVariance(p.getParameter<double>("ampGainVariance")),
   thePeakTimeVariance(p.getParameter<double>("peakTimeVariance")),
