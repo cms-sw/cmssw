@@ -12,17 +12,17 @@ class UpdateTProfile {
   UpdateTProfile();
   ~UpdateTProfile();
   
+  static void setBinContent( TProfile* const profile,
+			     const uint32_t& bin, 
+			     const double& entries, 
+			     const double& mean,
+			     const double& spread );
+  
   static void setBinContents( TProfile* const profile,
 			      const uint32_t& bin, 
-			      const int32_t&  entries, 
-			      const double&   mean,
-			      const double&   spread );
-
-  static void setBinContents( TProfile* const profile,
-			      const uint32_t& bin, 
-			      const int32_t&  num_of_entries, 
-			      const int32_t&  sum_of_contents,
-			      const double&   sum_of_squares );
+			      const double& num_of_entries, 
+			      const double& sum_of_contents,
+			      const double& sum_of_squares );
   
 };
 

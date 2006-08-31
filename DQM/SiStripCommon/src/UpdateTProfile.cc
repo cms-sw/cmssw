@@ -49,11 +49,11 @@ UpdateTProfile::~UpdateTProfile() {;}
     and "mean" = sum / num
 
 */
-void UpdateTProfile::setBinContents( TProfile* const prof,
-				     const uint32_t& bin, 
-				     const int32_t&  num_of_entries, 
-				     const double&   mean,
-				     const double&   spread ) {
+void UpdateTProfile::setBinContent( TProfile* const prof,
+				    const uint32_t& bin, 
+				    const double& num_of_entries, 
+				    const double& mean,
+				    const double& spread ) {
   //   cout << "[UpdateTProfile::setBinContents]" << endl;
 
   // Check histo exists
@@ -71,8 +71,8 @@ void UpdateTProfile::setBinContents( TProfile* const prof,
   }
 
   // Check entries are present
-  if ( !num_of_entries ) { return; }
-  double entries = static_cast<double>(num_of_entries);
+  if ( num_of_entries <= 0. ) { return; } //@@ what about negative weights???
+  double entries = num_of_entries;
   
   // Check error option
   const char* spread_option = "s";
@@ -112,16 +112,16 @@ void UpdateTProfile::setBinContents( TProfile* const prof,
 /** */
 void UpdateTProfile::setBinContents( TProfile* const prof,
 				     const uint32_t& bin, 
-				     const int32_t&  num_of_entries, 
-				     const int32_t&  sum_of_contents,
-				     const double&   sum_of_squares ) {
+				     const double& num_of_entries, 
+				     const double& sum_of_contents,
+				     const double& sum_of_squares ) {
   //   cout << "[UpdateTProfile::setBinContents]" << endl;
   
   double mean = 0.;
   double spread = 0.;
   if ( num_of_entries ) { 
-    mean = static_cast<double>(sum_of_contents) / static_cast<double>(num_of_entries);
-    spread = sqrt( sum_of_squares/static_cast<double>(num_of_entries) - (mean*mean) ); 
+    mean = sum_of_contents / num_of_entries;
+    spread = sqrt( sum_of_squares/ num_of_entries - mean * mean ); 
   }
   
   //   cout << "[UpdateTProfile::setBinContents]"
@@ -133,7 +133,7 @@ void UpdateTProfile::setBinContents( TProfile* const prof,
   //        << " spread: " << spread
   //        << endl;
   
-  UpdateTProfile::setBinContents( prof, bin, num_of_entries, mean, spread );
+  UpdateTProfile::setBinContent( prof, bin, num_of_entries, mean, spread );
   
 }
 
