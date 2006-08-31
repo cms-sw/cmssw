@@ -55,7 +55,7 @@ class SiStripEventSummary {
   inline const uint32_t& vpsp() const { return param0_; }
   /** Returns pair of LLD gain and bias settings. */
   inline pair<uint32_t,uint32_t> opto() { return pair<uint32_t,uint32_t>(param0_,param1_); }
-  /** Returns LLD device id. */
+  /** Returns device id. */
   inline const uint32_t& deviceId() const { return param0_; }
   /** Returns process id. */
   inline const uint32_t& processId() const { return param1_; }
