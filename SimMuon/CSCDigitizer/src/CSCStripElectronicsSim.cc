@@ -88,7 +88,7 @@ int CSCStripElectronicsSim::readoutElement(int strip) const {
 
 CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
   // assume the noise is measured every 50 ns
-  int nNoiseBins = (int)((theSignalStopTime-theSignalStartTime)/sca_time_bin_size);
+  int nNoiseBins = static_cast<int>((theSignalStopTime-theSignalStartTime)/sca_time_bin_size);
   std::vector<float> noiseBins(nNoiseBins);
   CSCAnalogSignal tmpSignal(element, sca_time_bin_size, noiseBins);
   theScaNoiseGenerator->noisify(layerId(), tmpSignal);
@@ -204,7 +204,7 @@ CSCStripElectronicsSim::runComparator() {
 
 void CSCStripElectronicsSim::getReadoutRange(int strip, int & minStrip, int & maxStrip) {
   // read out bunches of 16 strips
-  int bunch = int((strip-1)/16);  //count from zero
+  int bunch = static_cast<int>((strip-1)/16);  //count from zero
   minStrip = 16 * bunch + 1;
   // if it's close to an edge, take the previous group
   if(strip-minStrip < 3 && strip > 16) {
