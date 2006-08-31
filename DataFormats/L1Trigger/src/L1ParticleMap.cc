@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.6 2006/08/23 23:09:05 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.7 2006/08/28 03:10:06 wsun Exp $
 //
 
 // system include files
@@ -56,7 +56,8 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
       "IsoEM+Muon",
       "SingleJet140",
       "SingleJet60",
-      "SingleJet20"
+      "SingleJet20",
+      "MinBias"
       } ;
 
 //

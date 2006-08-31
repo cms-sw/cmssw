@@ -16,8 +16,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.9 2006/08/23 23:09:04 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.10 2006/08/28 03:10:40 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.10  2006/08/28 03:10:40  wsun
+// Revamped L1ParticleMap to handle OR triggers.
+//
 // Revision 1.9  2006/08/23 23:09:04  wsun
 // Separated iso/non-iso EM triggers and RefVectors.
 //
@@ -111,6 +114,7 @@ namespace l1extra {
 	    kSingleJet140,
 	    kSingleJet60,
 	    kSingleJet20,
+	    kMinBias,
 	    kNumOfL1TriggerTypes
 	 } ;
 
