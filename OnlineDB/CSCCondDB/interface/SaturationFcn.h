@@ -1,7 +1,8 @@
 #ifndef SaturationFcn_h
 #define SaturationFcn_h
                                                                
-#include "Minuit2/FCNBase.h"                                                  
+#include "Minuit2/FCNBase.h"  
+#include "OnlineDB/CSCCondDB/interface/CSCSaturationAnalyzer.h"
 #include <vector>
 
 using namespace ROOT::Minuit2;
@@ -10,7 +11,7 @@ class SaturationFcn : public FCNBase{
 
  public:
 
- SaturationFcn(){}
+ SaturationFcn(int N,float *charge_ptr,float *adc_ptr){}
 
  ~SaturationFcn(){}
 

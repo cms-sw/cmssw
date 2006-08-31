@@ -13,7 +13,7 @@ class SaturationFit{
  SaturationFit(){
    double u[3],sigma[3],chisq;  
    VariableMetricMinimizer* pMinimizer=new VariableMetricMinimizer() ; 
-   SaturationFcn* pFcn=new SaturationFcn();
+   SaturationFcn* pFcn=new SaturationFcn(N,charge_ptr,adc_ptr);
    pFcn->set_data();
    std::vector<double> par(4,0);
    std::vector<double> err(4,0);
