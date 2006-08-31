@@ -38,7 +38,7 @@ public class TOBAnalyzer implements IDetIdGenerator{
 	    Vector<Vector<String>> v = c.selectQuery("select object_id from cmstrkdb.object_assembly where object='TOB'");
 	    if(v.size()==1){
 		String tobID = (v.get(0)).get(0);
-		getHalves(tobID);
+		getCoolingSegments(tobID);
 	    }
 	    else{
 		if(v.size()==0)
@@ -46,9 +46,6 @@ public class TOBAnalyzer implements IDetIdGenerator{
 		if(v.size()>1)
 		    throw new java.sql.SQLException("There are "+v.size()+" TOBs in the database!");
 	    }
-	    /****************TEST***************/
-	    //getControlRings("30245000000036", "1.3.1");
-	    /***********************************/
 	}
     }
 
@@ -98,48 +95,19 @@ public class TOBAnalyzer implements IDetIdGenerator{
 	return(dbPos[1]+"."+half+"."+rodPosition);//Layer.backForw.Rod
     }
 
-    /**
-       Search the det_ids for the TOB
-       @param tobId The ID of the TOB in the database
-    **/
-    private void getHalves(String tobId) throws java.sql.SQLException{
-	Vector<Vector<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
-						 "where container_id="+tobId+" and object='TOBH' order by number_in_container");
-	for(Vector<String> element : v){
-	    String tobhID = element.get(0);
-	    String tobhPosition = element.get(1);
-	    getLayers(tobhID, tobhPosition);
-	}
-    }
 
     /**
-       Search the det_ids for a TOB Half
-       @param tobhId The ID of the TOB half
-       @param position The position of the half in the TOB (1 : TOBH+, 2 : TOBH-)
+       Search the det_ids for a TOB
+       @param tobId The ID of the TOB
     **/
-    private void getLayers(String tobhId, String position) throws java.sql.SQLException{
-	Vector<Vector<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
-						 "where container_id="+tobhId+" and object='TOBHL' order by number_in_container");
-	for(Vector<String> element : v){
-	    String tobhlID = element.get(0);
-	    String tobhlPosition = element.get(1);
-	    getCoolingSegments(tobhlID, position+"."+tobhlPosition);
-	}
-    }
-
-
-    /**
-       Search the det_ids for a layer
-       @param tobhlId The ID of the layer
-       @param position The position of the layer in the TOBH (TOBH.L)
-    **/
-    private void getCoolingSegments(String tobhlId, String position) throws java.sql.SQLException{
-	Vector<Vector<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
-						 "where container_id="+tobhlId+" and object='TOBCS' order by number_in_container");
+    private void getCoolingSegments(String tobId) throws java.sql.SQLException{
+	Vector<Vector<String>> v = c.selectQuery("select object_id, type from "+
+						 "cmstrkdb.object_assembly where container_id="+tobId+
+						 " and object='TOBCS' order by number_in_container");
 	for(Vector<String> element : v){
 	    String tobcsID = element.get(0);
-	    String tobcsPosition = element.get(1);
-	    getControlRings(tobcsID, position+"."+tobcsPosition);
+	    String tobcsPosition = element.get(1);// The type of the TOBCS is TOBH.Layer.Position_in_layer
+	    getControlRings(tobcsID, tobcsPosition);
 	}
     }
     
@@ -204,12 +172,12 @@ public class TOBAnalyzer implements IDetIdGenerator{
 	    modPos = modPos%6;//Position 7 in DB is position 1
 	    if(modPos==0)
 		modPos=6;
-	    int stereoFlag = 2; //0 glued, 1 stereo, 2 mono
+	    int stereoFlag = 0; //0 mono, 1 stereo, 2 glued
 	    if(stereo)
 		stereoFlag = 1;
 	    else{
 		if(glued)
-		    stereoFlag = 0;
+		    stereoFlag = 2;
 	    }
 	    
 	    String detId = TOB_PREFIXE+"."+position+"."+modPos+"."+stereoFlag;

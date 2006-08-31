@@ -7,9 +7,12 @@ package detidGenerator;
 **/
 
 /*
-  $Date: 2006/06/28 11:42:24 $
+  $Date: 2006/08/30 15:21:12 $
   
   $Log: TOBDetIdConverter.java,v $
+  Revision 1.2  2006/08/30 15:21:12  gbaulieu
+  Add the TOB analyzer
+
   Revision 1.1  2006/06/28 11:42:24  gbaulieu
   First import of the sources
 
@@ -108,11 +111,32 @@ public class TOBDetIdConverter extends DetIdConverter{
 
     public String toString(){
 	return "TOB"+
+	    ((getFrontBack()==1)?"+":"-")+
 	    " Layer "+getLayer()+" "+
-	    ((getFrontBack()==1)?"forward":"backward")+" half"+
 	    " Rod "+getRod()+
 	    " module "+getModNumber()+
-	    ((getStereo()==1)?" Stereo":(getStereo()==0?" Glued":" Mono"));
+	    ((getStereo()==1)?" Stereo":(getStereo()==0?" Mono":" Glued"));
     }
 
+    public static void main(String args[]){
+	try{
+	    //System.out.println(args[0]);
+	    //TECDetIdConverter d = new TECDetIdConverter(args[0]);
+	    TOBDetIdConverter d = new TOBDetIdConverter(Integer.parseInt(args[0]));
+	    System.out.println("Det ID : "+d.compact());
+	    
+	    System.out.println("Module : "+d.getDetector()+
+			       " - "+d.getSubDetector()+
+			       " - "+d.getLayer()+
+			       " - "+d.getFrontBack()+
+			       " - "+d.getRod()+
+			       " - "+d.getModNumber()+
+			       " - "+d.getStereo()
+			       );
+	    System.out.println(d);
+	}
+	catch(Exception e){
+	    System.out.println(e.getMessage());
+	}
+    }
 }
