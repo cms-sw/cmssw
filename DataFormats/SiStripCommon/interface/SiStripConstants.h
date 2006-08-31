@@ -10,6 +10,7 @@ namespace sistrip {
   
   // Invalid value
   static const uint16_t invalid_ = 0xFFFF;
+  static const uint16_t maximum_ = 1024;
 
 }
 
@@ -33,6 +34,10 @@ namespace sistrip {
   static const uint16_t STRIPS_PER_FEUNIT = STRIPS_PER_FEDCH * FEDCH_PER_FEUNIT; // 3072
   static const uint16_t STRIPS_PER_FED    = STRIPS_PER_FEUNIT * FEUNITS_PER_FED; // 24576
 
+  // LLD = Linear Laser Driver
+  static const uint16_t APVS_PER_CHAN = 2;
+  static const uint16_t CHANS_PER_LLD = 3;
+
   // Constants related to FED buffer formatting
   static const uint16_t DAQ_HDR_SIZE        = 8;
   static const uint16_t TRK_HDR_SIZE        = 8;
@@ -40,6 +45,20 @@ namespace sistrip {
   static const uint16_t APV_ERROR_HDR_SIZE  = 24;
   static const uint16_t FULL_DEBUG_HDR_SIZE = 8 * FE_HDR_SIZE;
   
+  // Constants related to control system
+  static const uint16_t FEC_CRATE_MIN = 1;
+  static const uint16_t FEC_CRATE_MAX = 4;
+  static const uint16_t FEC_SLOT_MIN = 1;
+  static const uint16_t FEC_SLOT_MAX = 20;
+  static const uint16_t FEC_RING_MIN = 1;
+  static const uint16_t FEC_RING_MAX = 8;
+  static const uint16_t CCU_ADDR_MIN = 0;
+  static const uint16_t CCU_ADDR_MAX = 127;
+  static const uint16_t CCU_CHAN_MIN = 0;
+  static const uint16_t CCU_CHAN_MAX = 255;
+  static const uint16_t LLD_CHAN_MIN = 0;
+  static const uint16_t LLD_CHAN_MAX = 2;
+
 }
 
 // -----------------------------------------------------------------------------
