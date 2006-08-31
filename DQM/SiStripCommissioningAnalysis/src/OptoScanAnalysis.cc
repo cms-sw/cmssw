@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/LinearFit.h"
 #include "TProfile.h"
 #include <iostream>
 #include <cmath>
@@ -10,54 +11,293 @@ using namespace std;
 void OptoScanAnalysis::analysis( const TProfiles& histos, 
 				 OptoScanAnalysis::Monitorables& mons ) { 
   
-  //@@ use matt's method...
-  if (1) { deprecated( histos, mons ); return; }
+  if (0) { deprecated( histos, mons ); return; }
 
-  // Target gain
-  float target_gain = 0.8;
-  float minimum_diff = 1.e9;
-  
   // Iterate through four gain settings
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
     
     // Select histos appropriate for gain setting
-    TProfile* base = 0;
-    TProfile* peak = 0;
-    if      ( igain == 0 ) { base = histos.g0d0_; peak = histos.g0d1_; }
-    else if ( igain == 1 ) { base = histos.g1d0_; peak = histos.g1d1_; }
-    else if ( igain == 2 ) { base = histos.g2d0_; peak = histos.g2d1_; }
-    else if ( igain == 3 ) { base = histos.g3d0_; peak = histos.g3d1_; }
-    
-    // Set gain setting in monitorables object
-    mons.lldGain_ = igain;
-    
-    // Checks on whether histos exist
-    if ( !base ) {
+    TProfile* base_histo = 0;
+    TProfile* peak_histo = 0;
+    if      ( igain == 0 ) { base_histo = histos.g0d0_; peak_histo = histos.g0d1_; }
+    else if ( igain == 1 ) { base_histo = histos.g1d0_; peak_histo = histos.g1d1_; }
+    else if ( igain == 2 ) { base_histo = histos.g2d0_; peak_histo = histos.g2d1_; }
+    else if ( igain == 3 ) { base_histo = histos.g3d0_; peak_histo = histos.g3d1_; }
+
+    // Check for valid pointers to histograms
+    if ( !peak_histo ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to 'digital 0' histogram!"
-	   << endl;
+	   << " NULL pointer to 'peak' histogram for gain setting: " 
+	   << igain << endl;
+      continue;
     }
-    if ( !peak ) {
+    if ( !base_histo ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to 'digital 1' histogram!"
-	   << endl;
+	   << " NULL pointer to 'base' histogram for gain setting: " 
+	   << igain << endl;
+      continue;
     }
 
+    // Check histogram binning
+    uint16_t nbins = static_cast<uint16_t>( peak_histo->GetNbinsX() );
+    if ( static_cast<uint16_t>( base_histo->GetNbinsX() ) != nbins ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Inconsistent number of bins for 'peak' and 'base' histograms: "
+	   << nbins << " and " << static_cast<uint16_t>( base_histo->GetNbinsX() )
+	   << endl;
+      if ( static_cast<uint16_t>( base_histo->GetNbinsX() ) < nbins ) {
+	nbins = static_cast<uint16_t>( base_histo->GetNbinsX() );
+      }
+    }
+
+    // Some containers
+    vector<float> peak_contents(0);
+    vector<float> peak_errors(0);
+    vector<float> peak_entries(0);
+    vector<float> base_contents(0);
+    vector<float> base_errors(0);
+    vector<float> base_entries(0);
+    float peak_max = -1.*sistrip::invalid_;
+    float peak_min =  1.*sistrip::invalid_;
+    float base_max = -1.*sistrip::invalid_;
+    float base_min =  1.*sistrip::invalid_;
+
+    // Transfer histogram contents/errors/stats to containers
+    for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
+      // Peak histogram
+//       cout << "ibin: " << ibin
+// 	   << " peak: " << peak_histo->GetBinContent(ibin+1)
+// 	   << " base: " << base_histo->GetBinContent(ibin+1)
+// 	   << endl;
+      peak_contents.push_back( peak_histo->GetBinContent(ibin+1) );
+      peak_errors.push_back( peak_histo->GetBinError(ibin+1) );
+      peak_entries.push_back( peak_histo->GetBinEntries(ibin+1) );
+      if ( peak_entries[ibin] ) { 
+	if ( peak_contents[ibin] > peak_max ) { peak_max = peak_contents[ibin]; }
+	if ( peak_contents[ibin] < peak_min && ibin ) { peak_min = peak_contents[ibin]; }
+      }
+      // Base histogram
+      base_contents.push_back( base_histo->GetBinContent(ibin+1) );
+      base_errors.push_back( base_histo->GetBinError(ibin+1) );
+      base_entries.push_back( base_histo->GetBinEntries(ibin+1) );
+      if ( base_entries[ibin] ) { 
+	if ( base_contents[ibin] > base_max ) { base_max = base_contents[ibin]; }
+	if ( base_contents[ibin] < base_min && ibin ) { base_min = base_contents[ibin]; }
+      }
+    }
+    
+    // Find "zero light" level and error
+    float zero_light_level = sistrip::invalid_;
+    float zero_light_error = sistrip::invalid_;
+    for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
+      if ( base_entries[ibin] ) {
+	zero_light_level = base_contents[ibin];
+	zero_light_error = base_errors[ibin];
+	break;
+      }
+    }
+    float zero_light_thres = sistrip::invalid_;
+    if ( zero_light_level < sistrip::maximum_ && 
+	 zero_light_error < sistrip::maximum_ ) { 
+      zero_light_thres = zero_light_level + 5. * zero_light_error;
+    } else {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unable to find zero_light level."
+	   << " No entries in histogram." << endl;
+      return;
+    }
+//     cout << " zero_light_level: " << zero_light_level
+// 	 << " zero_light_error: " << zero_light_error
+// 	 << " zero_light_thres: " << zero_light_thres
+// 	 << endl;
+
+    // Find range of base histogram
+    float base_range = base_max - base_min;
+
+    // Find overlapping max/min region that constrains range of linear fit
+    float max = peak_max < base_max ? peak_max : base_max;
+    float min = peak_min > base_min ? peak_min : base_min;
+    float range = max - min;
+
+//     cout << " peak_max: " << peak_max
+// 	 << " peak_min: " << peak_min
+// 	 << " base_max: " << base_max
+// 	 << " base_min: " << base_min 
+// 	 << endl;
+//     cout << " max: " << max
+// 	 << " min: " << min
+// 	 << " range: " << range
+// 	 << " base_range: " << base_range
+// 	 << endl;
+      
+    // Container identifying whether samples from 'base' histo are above "zero light" 
+    vector<bool> above_zero_light;
+    above_zero_light.resize(3,true);
+    
+    // Linear fits to top of peak and base curves and one to bottom of base curve
+    LinearFit peak_high;
+    LinearFit base_high;
+    LinearFit base_low;
+
+//     cout << " lower: " << min + 0.2*range
+// 	 << " upper: " << min + 0.8*range
+// 	 << " LOWlower: " << base_min + 0.2*base_range
+// 	 << " LOWupper: " << base_min + 0.6*base_range
+// 	 << endl;
+
+    // Iterate through histogram bins
+    uint16_t peak_bin = 0;
+    uint16_t base_bin = 0;
+    uint16_t low_bin = 0;
+    for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
+      
+      // Record whether consecutive samples from 'base' histo are above the "zero light" level
+      if ( base_entries[ibin] ) {
+	above_zero_light.erase( above_zero_light.begin() );
+	if ( base_contents[ibin] > zero_light_thres ) { above_zero_light.push_back( true ); }
+	else { above_zero_light.push_back( false ); }
+	if ( above_zero_light.size() != 3 ) { above_zero_light.resize(3,false); } 
+      }
+      
+      // Linear fit to peak histogram
+      if ( peak_entries[ibin] &&
+	   peak_contents[ibin] > ( min + 0.2*range ) &&
+	   peak_contents[ibin] < ( min + 0.8*range ) ) {
+	if ( !peak_bin ) { peak_bin = ibin; }
+	if ( ( ibin - peak_bin ) < 10 ) { 
+	  //cout << "peak: ";
+	  peak_high.add( ibin, peak_contents[ibin], peak_entries[ibin] );
+	}
+      }
+      // Linear fit to base histogram
+      if ( base_entries[ibin] &&
+	   base_contents[ibin] > ( min + 0.2*range ) &&
+	   base_contents[ibin] < ( min + 0.8*range ) ) {
+	if ( !base_bin ) { base_bin = ibin; }
+	if ( ( ibin - base_bin ) < 10 ) { 
+	  //cout << "base: ";
+	  base_high.add( ibin, base_contents[ibin], base_entries[ibin] );
+	}
+      }
+      // Low linear fit to base histogram
+      if ( base_entries[ibin] &&
+	   //above_zero_light[0] && above_zero_light[1] && above_zero_light[2] && 
+	   base_contents[ibin] > ( base_min + 0.2*base_range ) &&
+	   base_contents[ibin] < ( base_min + 0.6*base_range ) ) { 
+	if ( !low_bin ) { low_bin = ibin; }
+	if ( ( ibin - low_bin ) < 10 ) { 
+	  //cout << "low: ";
+	  base_low.add( ibin, base_contents[ibin], base_entries[ibin] );
+	}
+      }
+      
+    }
+
+//     cout << " peak_bin: " << peak_bin
+// 	 << " base_bin: " << base_bin
+// 	 << " low_bin: " << low_bin
+// 	 << endl;
+
+    // Extract width between two curves at midpoint within range
+    float mid = min + 0.5*range;
+    LinearFit::Params peak_params;
+    LinearFit::Params base_params;
+    peak_high.fit( peak_params );
+    base_high.fit( base_params );
+    float peak_pos = ( mid - peak_params.a_ ) / peak_params.b_;
+    float base_pos = ( mid - base_params.a_ ) / base_params.b_;
+    float width = base_pos - peak_pos;
+
+//     cout << " peak fit to " << peak_params.n_ << " points:"
+// 	 << " peak intercept: " << peak_params.a_ << "+/-" << peak_params.erra_
+// 	 << " peak gradient: " << peak_params.b_ << "+/-" << peak_params.errb_
+// 	 << endl;
+//     cout << " base fit to " << base_params.n_ << " points:"
+// 	 << " base intercept: " << base_params.a_ << "+/-" << base_params.erra_
+// 	 << " base gradient: " << base_params.b_ << "+/-" << base_params.errb_
+// 	 << endl;
+
+//     cout << " peak_pos: " << peak_pos
+// 	 << " base_pos: " << base_pos
+// 	 << " width: " << width
+// 	 << endl;
+
+    // Extrapolate to zero light to find "lift off"
+    LinearFit::Params low_params;
+    base_low.fit( low_params );
+    float lift_off = ( zero_light_level - low_params.a_ ) / low_params.b_;
+    
+//     cout << " low fit to " << low_params.n_ << " points:"
+// 	 << " low intercept: " << low_params.a_ << "+/-" << low_params.erra_
+// 	 << " low gradient: " << low_params.b_ << "+/-" << low_params.errb_
+// 	 << endl;
+
+//     cout << " lift off: " << lift_off << endl;
+    
+    // ---------- Set all parameters ----------
+
+    // Check "lift off" value and set bias setting accordingly
+    if ( lift_off < sistrip::maximum_ ) {
+      mons.bias_[igain] = static_cast<uint16_t>( lift_off ) + 2;
+    } else { mons.bias_[igain] = 0; } //@@ "default" should be what?
+
+    // Set "zero light" level and link noise
+    mons.zeroLight_[igain] = zero_light_level;
+    mons.linkNoise_[igain] = zero_light_error;
+    
+    // Calculate "lift off" and laser threshold (in mA)
+    mons.liftOff_[igain] = 0.45 * lift_off;
+    mons.threshold_[igain] = 0.45 * ( lift_off - width/2. );
+    
+    // Calculate tick mark height
+    if ( low_params.b_ < sistrip::maximum_ &&
+	 width <  sistrip::maximum_ ) {
+      mons.tickHeight_[igain] = width * low_params.b_;
+    }
+
+    // Set measured gain 
+    if ( mons.tickHeight_[igain] < sistrip::invalid_-1. ) {
+      float adc_gain = 1.024 / 1024.; // Peak-to-peak voltage for FED ADC [V/adc] 
+      mons.measGain_[igain] = mons.tickHeight_[igain] * adc_gain / 0.800;
+    } else { mons.measGain_[igain] = 0.; }
+    
   } // gain loop
+
+  // Iterate through four gain settings and identify optimum gain setting
+  const float target_gain = 0.8;
+  float diff_in_gain = sistrip::invalid_;
+  for ( uint16_t igain = 0; igain < 4; igain++ ) {
+
+    // Check for sensible gain value
+    if ( mons.measGain_[igain] > sistrip::maximum_ ) { continue; }
+
+    // Find optimum gain setting
+    if ( fabs( mons.measGain_[igain] - target_gain ) < diff_in_gain ) {
+      mons.gain_ = static_cast<uint16_t>( igain );
+      diff_in_gain = fabs( mons.measGain_[igain] - target_gain );
+    }
+    
+  } 
+
+  // Check optimum gain setting
+  if ( mons.gain_ > sistrip::maximum_ ) { mons.gain_ = 0; }
 
 }
 
 // ----------------------------------------------------------------------------
 // 
-void OptoScanAnalysis::Monitorables::print( stringstream& ss ) { 
-  ss << "OPTO SCAN Monitorables:" << "\n"
-     << " LLD bias setting  : " << lldBias_ << "\n" 
-     << " LLD gain setting  : " << lldGain_ << "\n"
-     << " Measured gain     : " << gain_ << "\n" 
-     << " Error on meas gain: " << error_ << "\n"
-     << " Baseline     [adc]: " << base_ << "\n" 
-     << " Tick peak    [adc]: " << peak_ << "\n" 
-     << " Tick height  [adc]: " << height_ << "\n";
+void OptoScanAnalysis::Monitorables::print( stringstream& ss,
+					    uint16_t gain ) { 
+  if ( gain >= 4 ) { gain = gain_; }
+  ss << "OPTO SCAN Monitorables for gain setting " << gain << "\n"
+     << " Optimum LLD gain setting : " << gain_ << "\n"
+     << " LLD bias setting         : " << bias_[gain] << "\n"
+     << " Measured gain [V/V]      : " << measGain_[gain] << "\n"
+     << " 'Zero light' level [adc] : " << zeroLight_[gain] << "\n"
+     << " Link noise [adc]         : " << linkNoise_[gain] << "\n"
+     << " Baseline 'lift off' [mA] : " << liftOff_[gain] << "\n"
+     << " Laser threshold [mA]     : " << threshold_[gain] << "\n"
+     << " Tick mark height [adc]   : " << tickHeight_[gain] << "\n";
 }
 
 // ----------------------------------------------------------------------------
@@ -79,18 +319,11 @@ void OptoScanAnalysis::TProfiles::print( stringstream& ss ) {
 void OptoScanAnalysis::deprecated( const TProfiles& profs, 
 				   OptoScanAnalysis::Monitorables& mons ) { 
 
-  //   stringstream ss;
-  //   const_cast<TProfiles&>(profs).print(ss);
-  //   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl
-  //        << ss.str() << endl;
-  
   vector<const TProfile*> histos; 
   vector<float> monitorables;
-  
-  float target_gain = 0.8;
-  float diff_in_gain = 1.e9;
+
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
-    
+
     histos.clear();
     if ( igain == 0 ) {
       histos.push_back( const_cast<const TProfile*>(profs.g0d0_) );
@@ -119,16 +352,36 @@ void OptoScanAnalysis::deprecated( const TProfiles& profs,
 
     monitorables.clear();
     analysis( histos, monitorables );
-
-    if ( fabs(monitorables[0]-target_gain) < diff_in_gain ) {
-      mons.lldGain_ = static_cast<uint16_t>( igain );
-      mons.lldBias_ = static_cast<uint16_t>( monitorables[0] );
-      mons.gain_    = monitorables[1];
-      diff_in_gain = fabs(monitorables[0]-target_gain);
-    }
+    
+    mons.bias_[igain] = static_cast<uint16_t>( monitorables[0] );
+    mons.measGain_[igain] = monitorables[1];
     
   }
+ 
+  // Target gain
+  float target_gain = 0.8;
+  float diff_in_gain = sistrip::invalid_;
   
+  // Iterate through four gain settings
+  for ( uint16_t igain = 0; igain < 4; igain++ ) {
+
+    // Check for sensible gain value
+    if ( mons.measGain_[igain] > sistrip::maximum_ ) { continue; }
+    
+    // Check for sensible bias value
+    if ( mons.bias_[igain] > sistrip::maximum_ ) { mons.bias_[igain] = 30; } //@@ should be what???
+
+    // Find optimum gain setting
+    if ( fabs( mons.measGain_[igain] - target_gain ) < diff_in_gain ) {
+      mons.gain_ = static_cast<uint16_t>( igain );
+      diff_in_gain = fabs( mons.measGain_[igain] - target_gain );
+    }
+    
+  } 
+
+  // Check optimum gain setting
+  if ( mons.gain_ > sistrip::maximum_ ) { mons.gain_ = 0; }
+
 }
 
 // ----------------------------------------------------------------------------
@@ -229,3 +482,10 @@ void OptoScanAnalysis::analysis( const vector<const TProfile*>& histos,
   monitorables.push_back(bias);
 
 }
+
+
+
+
+
+
+

@@ -145,10 +145,8 @@ void ApvTimingAnalysis::analysis( const TProfile* const histo,
   //   }
   //   cout << endl; 
   
-  // Set monitorables
+  // Set monitorables (but not PLL coarse and fine here)
   if ( !edges.empty() ) {
-    mons.pllCoarse_ = edges.begin()->first / 24;
-    mons.pllFine_   = edges.begin()->first % 24;
     mons.delay_     = edges.begin()->first;
     mons.error_     = 0.;
     mons.base_      = baseline;
@@ -170,11 +168,11 @@ void ApvTimingAnalysis::Monitorables::print( stringstream& ss ) {
   ss << "APV TIMING Monitorables:" << "\n"
      << " PLL coarse setting : " << pllCoarse_ << "\n" 
      << " PLL fine setting   : " << pllFine_ << "\n"
-     << " Timing delay   [ns]: " << delay_ << "\n" 
+     << " Timing delay [ns]  : " << delay_ << "\n" 
      << " Error on delay [ns]: " << error_ << "\n"
-     << " Baseline      [adc]: " << base_ << "\n" 
-     << " Tick peak     [adc]: " << peak_ << "\n" 
-     << " Tick height   [adc]: " << height_ << "\n";
+     << " Baseline [adc]     : " << base_ << "\n" 
+     << " Tick peak [adc]    : " << peak_ << "\n" 
+     << " Tick height [adc]  : " << height_ << "\n";
 }
 
 // ----------------------------------------------------------------------------

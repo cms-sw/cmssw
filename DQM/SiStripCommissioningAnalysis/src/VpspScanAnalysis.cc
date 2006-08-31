@@ -8,10 +8,8 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 void VpspScanAnalysis::analysis(const TProfiles& histos, Monitorables& mons ) {
-
   //@@ use matt's method...
-  if (1) { deprecated( histos, mons ); return; }
-
+  deprecated( histos, mons ); 
 }
 
 // ----------------------------------------------------------------------------
