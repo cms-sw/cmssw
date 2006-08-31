@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/08/22 09:34:07 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/08/22 15:18:09 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -34,44 +34,25 @@ namespace edm{class ParameterSet;}
 class MuonTrajectoryUpdator {
  public:
 
-  //<< very temp
-  
-  // FIXME: this c'tor is temp!!
-  // It will that as the Updator will be loaded in the es
-  /// Constructor with Parameter set
-  MuonTrajectoryUpdator(const edm::ParameterSet& par, PropagationDirection fitDirection);
-  // FIXME: this function is temp!!
-  // It will dis as the Updator will be loaded in the es
-  void setPropagator(Propagator* prop) {thePropagator = prop;}
-
-  //>> end tmp
-
   /// Constructor from Propagator and Parameter set
-  MuonTrajectoryUpdator(Propagator *propagator,
-			PropagationDirection fitDirection,
+  MuonTrajectoryUpdator(PropagationDirection fitDirection,
 			const edm::ParameterSet& par);
 
   /// Constructor from Propagator, chi2 and the granularity flag
-  MuonTrajectoryUpdator(Propagator *propagator,
-			PropagationDirection fitDirection,
+  MuonTrajectoryUpdator(PropagationDirection fitDirection,
 			double chi2, int granularity);
-
+  
   /// Destructor
   virtual ~MuonTrajectoryUpdator();
-  
-  //   /// virtual construcor
-  //   virtual MuonTrajectoryUpdator* clone() const {
-  //     return new MuonTrajectoryUpdator(*this);
-  //   }
   
   // Operations
 
   /// update the Trajectory with the TrajectoryMeasurement
   virtual std::pair<bool,TrajectoryStateOnSurface>  update(const TrajectoryMeasurement* theMeas, 
-							   Trajectory& theTraj);
+							   Trajectory& theTraj,
+							   const Propagator *propagator);
   
   /// accasso at the propagator
-  const Propagator *propagator() const {return thePropagator;}
   const MeasurementEstimator *estimator() const {return theEstimator;}
   const TrajectoryStateUpdator *measurementUpdator() const {return theUpdator;}
 
@@ -90,7 +71,8 @@ class MuonTrajectoryUpdator {
   /// the state will be propagated to the surface where lies the "current" rechit 
   TrajectoryStateOnSurface propagateState(const TrajectoryStateOnSurface& state,
 					  const TrajectoryMeasurement* theMeas, 
-					  const TransientTrackingRecHit::ConstRecHitPointer  & current) const;
+					  const TransientTrackingRecHit::ConstRecHitPointer& current,
+					  const Propagator *propagator) const;
   
   ///  the max chi2 allowed
   double theMaxChi2;
@@ -140,7 +122,7 @@ class MuonTrajectoryUpdator {
     }
   };
 
-  void sort(TransientTrackingRecHit::ConstRecHitContainer&, const DetLayer*);
+  void sort(TransientTrackingRecHit::ConstRecHitContainer&, const DetLayer*, PropagationDirection);
   
   /// Return the trajectory measurement. It handles both the fw and the bw propagation
   TrajectoryMeasurement updateMeasurement( const TrajectoryStateOnSurface &propagatedTSOS, 
@@ -150,10 +132,12 @@ class MuonTrajectoryUpdator {
 					   const TrajectoryMeasurement *initialMeasurement);
   
 
-  Propagator *thePropagator;
+  // FIXME: change in a ESHandle
   MeasurementEstimator *theEstimator;
   TrajectoryStateUpdator *theUpdator;
 
+
+  // FIXME: change into an enum
   // The fit direction.This is the global fit direction and it could be (LOCALLY!) different w.r.t. the 
   // propagation direction embeeded in the propagator (i.e. when it is used in the "anyDirection" mode)
   // This data member is not set via parameter set since it must be consistent with the RefitterParameter.

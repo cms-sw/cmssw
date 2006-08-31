@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2006/07/25 12:22:29 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/31 11:09:34 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -22,16 +22,17 @@ namespace edm {class Event; class EventSetup;}
 
 class Trajectory;
 class Propagator;
+class MuonServiceProxy;
 
 class MuonTrackLoader {
   public:
 
     typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
     typedef MuonCandidate::CandidateContainer CandidateContainer;
-    
-    /// Constructor
-    MuonTrackLoader();
 
+    /// Constructor for the STA reco the args must be specify!
+    MuonTrackLoader(std::string trackLoaderPropagatorName =0, const MuonServiceProxy *service =0);
+    
     /// Destructor
     virtual ~MuonTrackLoader() {}
   
@@ -43,17 +44,12 @@ class MuonTrackLoader {
     edm::OrphanHandle<reco::MuonCollection> loadTracks(const CandidateContainer&,
                                                        edm::Event&); 
   
-    /// pass the Event Setup to the algo at each event
-    virtual void setES(const edm::EventSetup&);
-
   private:
  
     reco::Track buildTrack (const Trajectory&) const;
     reco::TrackExtra buildTrackExtra(const Trajectory&) const;
 
-  private:
-
-    edm::ESHandle<Propagator> thePropagator;
-
+    std::string thePropagatorName;
+    const MuonServiceProxy *theService;
 };
 #endif

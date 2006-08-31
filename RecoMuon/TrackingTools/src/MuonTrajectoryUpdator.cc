@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/08/22 09:34:08 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/08/22 15:17:58 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -37,10 +37,8 @@ using namespace edm;
 using namespace std;
 
 /// Constructor from Propagator and Parameter set
-MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
-					     PropagationDirection fitDirection,
-					     const edm::ParameterSet& par):thePropagator(propagator),
-									   theFitDirection(fitDirection){
+MuonTrajectoryUpdator::MuonTrajectoryUpdator( PropagationDirection fitDirection,
+					      const edm::ParameterSet& par): theFitDirection(fitDirection){
   
   // The max allowed chi2 to accept a rechit in the fit
   theMaxChi2 = par.getParameter<double>("MaxChi2");
@@ -53,45 +51,26 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
   theGranularity = par.getParameter<int>("Granularity");
 }
 
-MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
-					     PropagationDirection fitDirection,
-					     double chi2, int granularity):theMaxChi2(chi2),
-									   theGranularity(granularity),
-									   thePropagator(propagator),
-									   theFitDirection(fitDirection){
+MuonTrajectoryUpdator::MuonTrajectoryUpdator( PropagationDirection fitDirection,
+					      double chi2, int granularity): theMaxChi2(chi2),
+									     theGranularity(granularity),
+									     theFitDirection(fitDirection){
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
   
   // The KF updator
   theUpdator= new KFUpdator();
-}
-
-
-
-// FIXME: this c'tor is TMP since it could be dangerous
-/// Constructor with Propagator and Parameter set
-MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par,
-					     PropagationDirection fitDirection):theFitDirection(fitDirection){
-  // The max allowed chi2 to accept a rechit in the fit
-  theMaxChi2 = par.getParameter<double>("MaxChi2");
-  theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
-  
-  // The KF updator
-  theUpdator= new KFUpdator();
-  
-  // The granularity
-  theGranularity = par.getParameter<int>("Granularity");
 }
 
 /// Destructor
 MuonTrajectoryUpdator::~MuonTrajectoryUpdator(){
-  delete thePropagator;
   delete theEstimator;
   delete theUpdator;
 }
 
 pair<bool,TrajectoryStateOnSurface> 
-MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas, 
-			      Trajectory& theTraj){
+MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
+			      Trajectory& theTraj,
+			      const Propagator *propagator){
   
   const std::string metname = "Muon|RecoMuon|MuonTrajectoryUpdator";
   TimeMe t(metname);
@@ -210,7 +189,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
   }
 
   // sort the container in agreement with the porpagation direction
-  sort(recHitsForFit,detLayer);
+  sort(recHitsForFit,detLayer,propagator->propagationDirection());
   
   TrajectoryStateOnSurface lastUpdatedTSOS = theMeas->predictedState();
   
@@ -221,7 +200,8 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
     if ((*recHit)->isValid() ) {
 
       // propagate the TSOS onto the rechit plane
-      TrajectoryStateOnSurface propagatedTSOS  = propagateState(lastUpdatedTSOS, theMeas, *recHit);
+      TrajectoryStateOnSurface propagatedTSOS  = propagateState(lastUpdatedTSOS, theMeas, 
+								*recHit, propagator);
       
       if ( propagatedTSOS.isValid() ) {
         pair<bool,double> thisChi2 = estimator()->estimate(propagatedTSOS, *((*recHit).get()));
@@ -270,7 +250,8 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 TrajectoryStateOnSurface 
 MuonTrajectoryUpdator::propagateState(const TrajectoryStateOnSurface& state,
 				      const TrajectoryMeasurement* theMeas, 
-				      const TransientTrackingRecHit::ConstRecHitPointer  & current) const{
+				      const TransientTrackingRecHit::ConstRecHitPointer  & current,
+				      const Propagator *propagator) const{
 
   string tname1 = "MuonTrajectoryUpdator::propagateState::Total";
   TimeMe timer1(tname1);
@@ -283,7 +264,7 @@ MuonTrajectoryUpdator::propagateState(const TrajectoryStateOnSurface& state,
 
   TimeMe timer2(tname2);
   const TrajectoryStateOnSurface  tsos =
-    propagator()->propagate(state, current->det()->surface());
+    propagator->propagate(state, current->det()->surface());
   return tsos;
 
 }
@@ -323,16 +304,16 @@ void MuonTrajectoryUpdator::insert (TransientTrackingRecHit::ConstRecHitContaine
 }
 
 
-void MuonTrajectoryUpdator::sort(TransientTrackingRecHit::ConstRecHitContainer& recHitsForFit, const DetLayer* detLayer){
+void MuonTrajectoryUpdator::sort(TransientTrackingRecHit::ConstRecHitContainer& recHitsForFit, const DetLayer* detLayer,PropagationDirection propDirection){
 
   if(detLayer->subDetector()==GeomDetEnumerators::DT){
-    if(propagator()->propagationDirection() == alongMomentum)
+    if(propDirection == alongMomentum)
       stable_sort(recHitsForFit.begin(),recHitsForFit.end(), RadiusComparatorInOut() );
-    else if(propagator()->propagationDirection() == oppositeToMomentum)
+    else if(propDirection == oppositeToMomentum)
       stable_sort(recHitsForFit.begin(),recHitsForFit.end(),RadiusComparatorOutIn() );
 
     // If the propagation direction is "undefined" then use the global fit direction to sort the RecHits
-    else if(propagator()->propagationDirection() == anyDirection){
+    else if(propDirection == anyDirection){
       if(theFitDirection == alongMomentum)
 	stable_sort(recHitsForFit.begin(),recHitsForFit.end(), RadiusComparatorInOut() );
       else if(theFitDirection == oppositeToMomentum)
@@ -346,13 +327,13 @@ void MuonTrajectoryUpdator::sort(TransientTrackingRecHit::ConstRecHitContainer& 
     }
   }
   else if(detLayer->subDetector()==GeomDetEnumerators::CSC){
-    if(propagator()->propagationDirection() == alongMomentum)
+    if(propDirection == alongMomentum)
       stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorInOut() );
-    else if(propagator()->propagationDirection() == oppositeToMomentum)
+    else if(propDirection == oppositeToMomentum)
       stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorOutIn() );
 
     // If the propagation direction is "undefined" then use the global fit direction to sort the RecHits
-    else if(propagator()->propagationDirection() == anyDirection){
+    else if(propDirection == anyDirection){
       if(theFitDirection == alongMomentum)
 	stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorInOut() );
       else if(theFitDirection == oppositeToMomentum)

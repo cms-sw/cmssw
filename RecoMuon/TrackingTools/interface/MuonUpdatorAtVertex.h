@@ -7,8 +7,8 @@
   *   a given vertex and 
   *   apply a vertex constraint
   *
-  *   $Date: 2006/07/21 20:22:13 $
-  *   $Revision: 1.5 $
+  *   $Date: 2006/08/24 20:02:46 $
+  *   $Revision: 1.6 $
   *
   *   \author   N. Neumeister            Purdue University
   *
@@ -24,6 +24,7 @@ class Propagator;
 class TransverseImpactPointExtrapolator;
 class KFUpdator;
 class MeasurementEstimator;
+class MuonServiceProxy;
 
 namespace edm {class ParameterSet; class EventSetup;}
 
@@ -31,9 +32,9 @@ class MuonUpdatorAtVertex {
 
   public:
  
-    /// constructor from parameter set
-    MuonUpdatorAtVertex(const edm::ParameterSet&);
-
+  /// constructor from parameter set
+  //    MuonUpdatorAtVertex(const edm::ParameterSet&,const MuonServiceProxy *);
+  MuonUpdatorAtVertex(const edm::ParameterSet&);
     /// default constructor
     MuonUpdatorAtVertex();
 
@@ -73,6 +74,7 @@ class MuonUpdatorAtVertex {
     std::string theOutPropagatorName;
     std::string theInPropagatorName;
 
+    const MuonServiceProxy *theService;
 };
 
 #endif

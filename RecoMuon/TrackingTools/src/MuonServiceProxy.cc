@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/08/30 12:26:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/31 07:53:45 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -76,10 +76,8 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
   NavigationSetter setter(school);
 
   for(propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end();
-      ++prop){
+      ++prop)
     setup.get<TrackingComponentsRecord>().get( prop->first , prop->second );
-  }
-  
 }
 
 // get the propagator

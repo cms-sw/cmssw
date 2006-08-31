@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/08/29 23:47:48 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/08/30 12:56:51 $
+ *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -16,24 +16,25 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 using namespace std;
 
-// constructor
-MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBuilder) :
-  theTrajBuilder(ConcreteMuonTrajectoryBuilder) {
-
-  theTrackLoader = new MuonTrackLoader();
+// constructor. For the STA reconstruction the trackLoader must have the propagator.
+MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBuilder,
+				 MuonTrackLoader *trackLoader) :
+  theTrajBuilder(ConcreteMuonTrajectoryBuilder),
+  theTrackLoader(trackLoader){
+  
   theTrajCleaner = new MuonTrajectoryCleaner();
 
 }
+
 
 // destructor
 MuonTrackFinder::~MuonTrackFinder() {
@@ -42,14 +43,6 @@ MuonTrackFinder::~MuonTrackFinder() {
   delete theTrajBuilder;
   delete theTrajCleaner;
   delete theTrackLoader;
-
-}
-
-// percolate the event setup
-void MuonTrackFinder::setES(const edm::EventSetup& eSetup) {
-
-  theTrajBuilder->setES(eSetup);
-  theTrackLoader->setES(eSetup);
 
 }
 
@@ -75,18 +68,13 @@ void MuonTrackFinder::load(const CandidateContainer& muonCands,
 
 // reconstruct trajectories
 void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds,
-				  edm::Event& event,
-				  const edm::EventSetup& eSetup) {
+				  edm::Event& event){
 
   const std::string metname = "Muon|RecoMuon|MuonTrackFinder";
   
   // Percolate the event 
-  LogDebug(metname)<<"Event setup percolation"<<endl;
+  LogDebug(metname)<<"Event percolation"<<endl;  
   setEvent(event);
-
-  // Percolate the event setup
-  LogDebug(metname)<<"Event percolation"<<endl;
-  setES(eSetup);
   
   // Trajectory container
   TrajectoryContainer muonTrajectories;
@@ -114,17 +102,13 @@ void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& s
 
 // reconstruct trajectories
 void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& tracks,
-				  edm::Event& event,
-				  const edm::EventSetup& eSetup) {                       
+				  edm::Event& event){
 
   const std::string metname = "Muon|RecoMuon|MuonTrackFinder";
 
   // percolate the event 
   setEvent(event);
 
-  // percolate the event setup
-  setES(eSetup);
-  
   // Muon Candidate container
   CandidateContainer muonCandidates;
 

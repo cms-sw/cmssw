@@ -2,13 +2,14 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/30 19:38:12 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/08/31 18:18:20 $
+ *  $Revision: 1.23 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
@@ -22,6 +23,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -31,11 +33,10 @@
 using namespace edm;
 
 // constructor
-MuonTrackLoader::MuonTrackLoader() : thePropagator(0) {}
+MuonTrackLoader::MuonTrackLoader(std::string trackLoaderPropagatorName, const MuonServiceProxy *service): 
+  thePropagatorName(trackLoaderPropagatorName),
+  theService(service){}
 
-void MuonTrackLoader::setES(const EventSetup& setup) {
-  setup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", thePropagator);
-}
 
 edm::OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
@@ -190,7 +191,7 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
   // This is needed to extrapolate the tsos at vertex
   GlobalPoint vtx(0,0,0); 
-  TransverseImpactPointExtrapolator tipe(*thePropagator);
+  TransverseImpactPointExtrapolator tipe( *theService->propagator(thePropagatorName) );
   TrajectoryStateOnSurface tscp = tipe.extrapolate(innerTSOS,vtx);
   
   if ( !tscp.isValid() ) return reco::Track(); // FIXME: how to report this?

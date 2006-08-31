@@ -6,8 +6,8 @@
  *  chi2, but without any cut. The decision whether to use or not the
  *  measurement is taken in the caller class.
  *
- *  $Date: 2006/07/31 22:26:58 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/08/16 10:07:11 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -25,7 +25,7 @@
 // FIXME
 using namespace std;
 
-MuonBestMeasurementFinder::MuonBestMeasurementFinder(Propagator* prop):thePropagator(prop){
+MuonBestMeasurementFinder::MuonBestMeasurementFinder(){
   theEstimator = new Chi2MeasurementEstimator(100000.);
 }
 
@@ -34,7 +34,8 @@ MuonBestMeasurementFinder::~MuonBestMeasurementFinder(){
 }
 
 TrajectoryMeasurement* 
-MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement>& measC){
+MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement>& measC,
+					       const Propagator* propagator){
 
   typedef TransientTrackingRecHit::ConstRecHitContainer MuonRecHitContainer;
     
@@ -95,7 +96,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 
 	// Double FIXME
 	if (!( (*rhit)->geographicalId() == (*measRH).geographicalId() ) ){
-	  predState = propagator()->propagate(*(*measurement)->predictedState().freeState(),
+	  predState = propagator->propagate(*(*measurement)->predictedState().freeState(),
 					      (*rhit)->det()->surface()); 
 	}
 	else predState = (*measurement)->predictedState();  
@@ -126,7 +127,8 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 // OLD ORCA algo. Reported for timing comparison pourpose
 // Will be removed after the comparison!
 TrajectoryMeasurement* 
-MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasurement>& measC){
+MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasurement>& measC,
+						   const Propagator* propagator){
 
   const std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
 
@@ -178,8 +180,8 @@ MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasure
    	  // was (! *rhit == measRH)
 	  if (!( (*rhit)->geographicalId() ==
 		 (*measRH).geographicalId() ) ) {
-	    predState = propagator()->propagate(*(*meas).predictedState().freeState(),
-						(*rhit)->det()->surface()); 
+	    predState = propagator->propagate(*(*meas).predictedState().freeState(),
+					      (*rhit)->det()->surface()); 
 	       // FIXME was (*rhit).det().detUnits()[0]->specificSurface()
 	  }
 	  else {
