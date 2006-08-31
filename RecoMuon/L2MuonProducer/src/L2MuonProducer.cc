@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/08/16 10:07:08 $
- *   $Revision: 1.9 $
+ *   $Date: 2006/08/30 12:27:55 $
+ *   $Revision: 1.10 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -27,9 +27,9 @@
 #include "RecoMuon/L2MuonProducer/src/L2MuonProducer.h"
 
 // TrackFinder and Specific STA/L2 Trajectory Builder
-#include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -51,11 +51,18 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   // MuonSeed Collection Label
   theSeedCollectionLabel = parameterSet.getParameter<string>("MuonSeedCollectionLabel");
 
+  // service parameters
+  ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
+
   // the services
-  theService = new MuonServiceProxy(parameterSet);
+  theService = new MuonServiceProxy(serviceParameters);
+
+  // the propagator name for the track loader
+  string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagatorName");
 
   // instantiate the concrete trajectory builder in the Track Finder
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet,theService));
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet,theService),
+				       new MuonTrackLoader(trackLoaderPropagatorName,theService));
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -89,7 +96,7 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   
   // Reconstruct 
   LogDebug(metname)<<"Track Reconstruction"<<endl;
-  theTrackFinder->reconstruct(seeds,event,eventSetup);
+  theTrackFinder->reconstruct(seeds,event);
   
   LogDebug(metname)<<"Event loaded"
 		   <<"================================"

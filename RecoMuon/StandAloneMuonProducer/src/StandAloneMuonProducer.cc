@@ -6,14 +6,13 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/08/15 10:58:40 $
- *   $Revision: 1.14 $
+ *   $Date: 2006/08/30 12:27:56 $
+ *   $Revision: 1.15 $
  *
  *   \author  R.Bellan - INFN TO
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,9 +22,9 @@
 #include "RecoMuon/StandAloneMuonProducer/src/StandAloneMuonProducer.h"
 
 // TrackFinder and Specific STA Trajectory Builder
-#include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 // Input and output collection
@@ -49,11 +48,18 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   // MuonSeed Collection Label
   theSeedCollectionLabel = parameterSet.getUntrackedParameter<string>("MuonSeedCollectionLabel");
 
+  // service parameters
+  ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
+
   // the services
-  theService = new MuonServiceProxy(parameterSet);
+  theService = new MuonServiceProxy(serviceParameters);
+
+  // the propagator name for the track loader
+  string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagatorName");
 
   // instantiate the concrete trajectory builder in the Track Finder
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet,theService));
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet,theService),
+				       new MuonTrackLoader(trackLoaderPropagatorName,theService));
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -84,7 +90,7 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
 
   // Reconstruct 
   LogDebug(metname)<<"Track Reconstruction"<<endl;
-  theTrackFinder->reconstruct(seeds,event,eventSetup);
+  theTrackFinder->reconstruct(seeds,event);
  
   LogDebug(metname)<<"Event loaded"
 		   <<"================================"
