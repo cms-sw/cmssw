@@ -2,15 +2,26 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cmath>
-#include <iostream>
 #ifndef M_PI_2
 #define M_PI_2 1.57079632679489661923
 #endif
 
 // Author: Rick Wilkinson
 
+CSCGattiFunction::CSCGattiFunction()
+: k1(0.), 
+  k2(0.), 
+  k3(0.), 
+  h(0.),
+  norm(0.),
+  sqrtk3(0.),
+  thePreviousSpecs(0)
+{
+}
+
+
 void CSCGattiFunction::initChamberSpecs(const CSCChamberSpecs & chamberSpecs) {
-  if(&chamberSpecs != previousSpecs) {
+  if(&chamberSpecs != thePreviousSpecs) {
     LogDebug("CSCGattiFunction") << "CSCGattiFunction::initChamberSpecs setting new values.";
     h = chamberSpecs.anodeCathodeSpacing();
     double s = chamberSpecs.wireSpacing();
@@ -23,7 +34,7 @@ void CSCGattiFunction::initChamberSpecs(const CSCChamberSpecs & chamberSpecs) {
     norm = 0.5 / std::atan( sqrtk3 );
     k2 = M_PI_2 * (1. - sqrtk3/2.);
     k1 = 0.25 * k2 * sqrtk3 / std::atan(sqrtk3);
-    previousSpecs = &chamberSpecs;
+    thePreviousSpecs = &chamberSpecs;
   }
 
   LogDebug("CSCGattiFunction")  << "Gatti function constants k1=" << 

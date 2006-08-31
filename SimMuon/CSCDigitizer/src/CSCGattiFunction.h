@@ -37,7 +37,7 @@ class CSCChamberSpecs;
 class CSCGattiFunction
 {
 public:
-  CSCGattiFunction() : previousSpecs(0) {};
+  CSCGattiFunction();
   /// this routine calculates k1, k2, k3, and h, if needed
   void initChamberSpecs(const CSCChamberSpecs &);
 
@@ -53,7 +53,7 @@ private:
 
   double norm, sqrtk3;
 
-  const CSCChamberSpecs * previousSpecs;
+  const CSCChamberSpecs * thePreviousSpecs;
 };
 
 #endif
