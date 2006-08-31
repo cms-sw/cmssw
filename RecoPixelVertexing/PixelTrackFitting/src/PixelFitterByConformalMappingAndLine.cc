@@ -32,7 +32,7 @@ PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine()
 }
 
 
-const reco::Track* PixelFitterByConformalMappingAndLine::run(
+reco::Track* PixelFitterByConformalMappingAndLine::run(
     const edm::EventSetup& es,
     const std::vector<const TrackingRecHit * > & hits,
     const TrackingRegion & region) const

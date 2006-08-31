@@ -16,7 +16,7 @@ Discards tracks with more than one common recHit.
 using namespace std;
 using namespace reco;
 
-typedef pair<const reco::Track*, std::vector<const TrackingRecHit *> > TrackHitsPair;
+typedef pair<reco::Track*, std::vector<const TrackingRecHit *> > TrackHitsPair;
 
 class PixelTrackCleaner {
 

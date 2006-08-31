@@ -79,11 +79,10 @@ void PixelTrackProducer::buildTracks(edm::Event& ev, const edm::EventSetup& es)
     hits.push_back( (*it).inner() );
     hits.push_back( (*it).middle() );
     hits.push_back( (*it).outer() );
-    const reco::Track* track = fitter->run(es, hits, region);
+    reco::Track* track = fitter->run(es, hits, region);
     if (track)
     {
       allTracks.push_back(TrackHitsPair(track, hits));
-      delete track;
     }
   }
 }
@@ -108,11 +107,18 @@ void PixelTrackProducer::addTracks(edm::Event& ev, const edm::EventSetup& es)
 
   for (int i = 0; i < nTracks; i++)
   {
-    const reco::Track* track =  cleanedTracks.at(i).first;
+    reco::Track* track =  cleanedTracks.at(i).first;
     RecHits hits = cleanedTracks.at(i).second;
 
+    for (unsigned int k = 0; k < hits.size(); k++)
+    {
+      TrackingRecHit *hit = (hits.at(k))->clone();
+      recHits->push_back(hit);
+      track->setHitPattern(*hit, k);
+    }
     tracks->push_back(*track);
-    for (unsigned int k = 0; k < hits.size(); k++) recHits->push_back((hits.at(k))->clone());
+    delete track;
+
   }
 
   LogDebug("TrackProducer") << "put the collection of TrackingRecHit in the event" << "\n";

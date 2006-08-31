@@ -24,7 +24,7 @@
 
 PixelFitterByHelixProjections::PixelFitterByHelixProjections() { }
 
-const reco::Track* PixelFitterByHelixProjections::run(
+reco::Track* PixelFitterByHelixProjections::run(
     const edm::EventSetup& es,
     const std::vector<const TrackingRecHit * > & hits,
     const TrackingRegion & region) const

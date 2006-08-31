@@ -48,12 +48,12 @@ vector<TrackHitsPair> PixelTrackCleaner::cleanTracks(vector<TrackHitsPair> track
     }
   }
 
-  vector<TrackHitsPair> CleaneredTracks;
+  vector<TrackHitsPair> cleanedTracks;
 
   for (int i = 0; i < size; i++)
   {
-    if (trackOk.at(i)) CleaneredTracks.push_back(trackHitPairs.at(i));
+    if (trackOk.at(i)) cleanedTracks.push_back(trackHitPairs.at(i));
   }
-  return CleaneredTracks;
+  return cleanedTracks;
 }
 
