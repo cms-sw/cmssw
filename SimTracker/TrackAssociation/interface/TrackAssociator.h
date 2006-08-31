@@ -1,33 +1,54 @@
-#ifndef TrackAssociation_TrackAssociator_h
-#define TrackAssociation_TrackAssociator_h
+#ifndef TrackAssociator_h
+#define TrackAssociator_h
 
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociation.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+
+//reco track
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+//TrackingParticle
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-
-#include <vector>
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 class Track;
 class ParticleTrack;
 
-// Abstract base class for track associators
-
-class TrackAssociator {
- public:
-  typedef 
-    edm::AssociationMap<edm::OneToMany<TrackingParticleCollection, reco::TrackCollection, unsigned int> > SimToRecoCollection;  
-  typedef 
-    edm::AssociationMap<edm::OneToMany<reco::TrackCollection, TrackingParticleCollection, unsigned int> > RecoToSimCollection;  
+class TrackAssociator  {
   
-  TrackAssociator() {}
-  virtual ~TrackAssociator() {}
+ public:
+  explicit TrackAssociator(const edm::Event&, const edm::ParameterSet&);  
+  ~TrackAssociator();
+  
+/* Associate SimTracks to RecoTracks By Hits */
+  reco::RecoToSimCollection * AssociateByHitsRecoTrack(const edm::Handle<reco::TrackCollection> & trackCollection, 
+						 const edm::Handle<TrackingParticleCollection> & TPCollection,
+						 const float minFractionOfHits = 0.) const;
+
+/* Associate SimTracks to RecoTracks By Pulls */
+  reco::RecoToSimCollection * AssociateByPullsRecoTrack() const;
+
+ private:
+  // ----- member data
+  const edm::Event& myEvent_; 
+  const edm::ParameterSet& conf_;
+  const float theMinHitFraction;    
+  TrackerHitAssociator* associate;
+  edm::Handle<TrackingParticleCollection>  TruthTrackContainer;
+  const TrackingParticleCollection *tPC;
+  edm::Handle<reco::TrackCollection> trackCollection;
+  const reco::TrackCollection  *tC;
   
 };
 
-
-
-#endif // TrackAssociation_TrackAssociator_h
+#endif
