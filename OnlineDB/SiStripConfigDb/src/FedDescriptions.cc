@@ -1,5 +1,5 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
-// Latest tag:  $Name: V00-01-01 $
+// Last commit: $Id: FedDescriptions.cc,v 1.2 2006/07/26 11:27:19 bainbrid Exp $
+// Latest tag:  $Name: V00-01-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -11,34 +11,33 @@ using namespace std;
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
-  string method = "SiStripConfigDb::getFedDescriptions";
-  edm::LogInfo(logCategory_) << "["<<method<<"]"
+  edm::LogInfo(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]"
 			     << " Retrieving FED descriptions...";
 
-  // If reset flag set, return contents of local cache
+  if ( !deviceFactory(__FUNCTION__) ) { return feds_; }
   if ( !resetFeds_ ) { return feds_; }
 
   try {
-    deviceFactory(method)->setUsingStrips( usingStrips_ );
-    feds_ = *( deviceFactory(method)->getFed9UDescriptions( partition_.name_, 
-							    partition_.major_, 
-							    partition_.minor_ ) );
+    deviceFactory(__FUNCTION__)->setUsingStrips( usingStrips_ );
+    feds_ = *( deviceFactory(__FUNCTION__)->getFed9UDescriptions( partition_.name_, 
+								  partition_.major_, 
+								  partition_.minor_ ) );
     resetFeds_ = false;
   }
   catch (... ) {
-    handleException( method );
+    handleException( __FUNCTION__ );
   }
   
   stringstream ss; 
   if ( feds_.empty() ) {
-    ss << "["<<method<<"]"
+    ss << "[" << __PRETTY_FUNCTION__ << "]"
        << " No FED descriptions found";
     if ( !usingDb_ ) { ss << " in " << inputFedXml_.size() << " 'fed.xml' file(s)"; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
     edm::LogError(logCategory_) << ss.str();
     throw cms::Exception(logCategory_) << ss.str();
   } else {
-    ss << "["<<method<<"]"
+    ss << "[" << __PRETTY_FUNCTION__ << "]"
        << " Found " << feds_.size() << " FED descriptions";
     if ( !usingDb_ ) { ss << " in " << inputFedXml_.size() << " 'fed.xml' file(s)"; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
@@ -58,22 +57,20 @@ void SiStripConfigDb::resetFedDescriptions() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { //@@ this ok???
-  string method = "SiStripConfigDb::uploadFedDescriptions";
 
+  if ( !deviceFactory(__FUNCTION__) ) { return; }
+  
   try { 
-    if ( !usingDb_ ) {
-      //deviceFactory(method)->addFedOutputFileName( "/tmp/fec.xml" ); //@@ ???
-    }
     SiStripConfigDb::FedDescriptions::iterator ifed = feds_.begin();
     for ( ; ifed != feds_.end(); ifed++ ) {
-      deviceFactory(method)->setFed9UDescription( **ifed, 
-						  (uint16_t*)(&partition_.major_), 
-						  (uint16_t*)(&partition_.minor_),
-						  (new_major_version?1:0) );
+      deviceFactory(__FUNCTION__)->setFed9UDescription( **ifed, 
+							(uint16_t*)(&partition_.major_), 
+							(uint16_t*)(&partition_.minor_),
+							(new_major_version?1:0) );
     }
   }
   catch (...) { 
-    handleException( method ); 
+    handleException( __FUNCTION__ ); 
   }
   
 }
@@ -81,7 +78,6 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { //@@ thi
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::FedDescriptions& SiStripConfigDb::createFedDescriptions( const SiStripFecCabling& fec_cabling ) {
-  string method = "SiStripConfigDb::createFedDescriptions";
   
   // Static container
   static FedDescriptions static_fed_descriptions;
@@ -120,15 +116,14 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::createFedDescriptions( 
     } catch(...) {
       stringstream ss; 
       ss << "Problems creating description for FED id " << *ifed;
-      handleException( method, ss.str() );
+      handleException( __FUNCTION__, ss.str() );
     }
   } 
   
   if ( static_fed_descriptions.empty() ) {
     stringstream ss;
-    ss << "["<<method<<"] No FED connections created!";
+    ss << "[" << __PRETTY_FUNCTION__ << "] No FED connections created!";
     edm::LogError(logCategory_) << ss.str() << "\n";
-    //throw cms::Exception(logCategory_) << ss.str() << "\n";
   }
   
   return static_fed_descriptions;

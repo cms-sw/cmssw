@@ -1,5 +1,5 @@
-// Last commit: $Id: PiaResetDescriptions.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
-// Latest tag:  $Name: V00-01-01 $
+// Last commit: $Id: PiaResetDescriptions.cc,v 1.2 2006/07/26 11:27:19 bainbrid Exp $
+// Latest tag:  $Name: V00-01-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/PiaResetDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -9,19 +9,21 @@ using namespace std;
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::getPiaResetDescriptions() {
-  string method = "SiStripConfigDb::getPiaResetDescriptions";
   
+  if ( !deviceFactory(__FUNCTION__) ) { return piaResets_; }
   if ( !resetPiaResets_ ) { return piaResets_; }
   
   try { 
-    deviceFactory(method)->getPiaResetDescriptions( partition_.name_, piaResets_ );
+    deviceFactory(__FUNCTION__)->getPiaResetDescriptions( partition_.name_, piaResets_ );
     resetPiaResets_ = false;
+  } catch (...) { 
+    handleException( __FUNCTION__ ); 
   }
-  catch (...) { handleException( method ); }
   
   if ( piaResets_.empty() ) {
-    edm::LogError("ConfigDb") << "[SiStripConfigDb::getPiaResetDescriptions]"
-			      << " No PIA reset descriptions found!";
+    edm::LogError(logCategory_)
+      << "[" << __PRETTY_FUNCTION__ << "]"
+      << " No PIA reset descriptions found!";
   }
   
   return piaResets_;
@@ -30,7 +32,6 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::getPiaResetDescrip
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::resetPiaResetDescriptions() {
-  //FecFactory::deleteVector( piaResets_ );
   piaResets_.clear();
   resetPiaResets_ = true;
 }
@@ -38,22 +39,21 @@ void SiStripConfigDb::resetPiaResetDescriptions() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::uploadPiaResetDescriptions() {
-  string method = "SiStripConfigDb::uploadPiaResetDescriptions";
 
-  if ( !deviceFactory(method) ) { return; }
+  if ( !deviceFactory(__FUNCTION__) ) { return; }
   
   try { 
-    deviceFactory(method)->setPiaResetDescriptions( piaResets_, 
-					      partition_.name_ );
+    deviceFactory(__FUNCTION__)->setPiaResetDescriptions( piaResets_, 
+							  partition_.name_ );
+  } catch (...) { 
+    handleException( __FUNCTION__ ); 
   }
-  catch (...) { handleException( method ); }
   
 }
 
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::createPiaResetDescriptions( const SiStripFecCabling& fec_cabling ) {
-  string method = "SiStripConfigDb::createPiaResetDescriptions";
   
   // Container
   static PiaResetDescriptions static_pia_resets;
@@ -84,7 +84,7 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::createPiaResetDesc
 	  pia->setFecHardwareId( fec_hardware_id.str() );
 	  static_pia_resets.push_back( pia );
 	  edm::LogInfo(logCategory_)
-	    << "[SiStripConfigDb::createPartition]" 
+	    << "[" << __PRETTY_FUNCTION__ << "]"
 	    << " Added PIA reset at 'CCU level', with address 0x" 
 	    << hex << setw(8) << setfill('0') << index << dec;
 	  
@@ -95,7 +95,7 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::createPiaResetDesc
 
   if ( static_pia_resets.empty() ) {
     stringstream ss;
-    ss << "["<<method<<"]"
+    ss << "[" << __PRETTY_FUNCTION__ << "]"
        << " No PIA reset descriptions created!";
     edm::LogError(logCategory_) << ss.str() << "\n";
   }

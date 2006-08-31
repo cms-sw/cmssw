@@ -1,5 +1,5 @@
-// Last commit: $Id: DcuConversionFactors.cc,v 1.2 2006/07/03 18:30:00 bainbrid Exp $
-// Latest tag:  $Name: V00-01-01 $
+// Last commit: $Id: DcuConversionFactors.cc,v 1.3 2006/07/26 11:27:19 bainbrid Exp $
+// Latest tag:  $Name: V00-01-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuConversionFactors.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -9,40 +9,29 @@ using namespace std;
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::getDcuConversionFactors() {
-  string method = "SiStripConfigDb::getDcuConversionFactors";
 
-  // If reset flag set, return contents of local cache
+  if ( !deviceFactory(__FUNCTION__) ) { return dcuConversionFactors_; }
   if ( !resetDcuConvs_ ) { return dcuConversionFactors_; }
   
-  if ( usingDb_ ) { 
-    try {
-      deviceFactory(method)->addConversionPartition( partition_.name_ );
-    }
-    catch (...) { 
-      string info = "Problems adding partition!";
-      handleException( method, info ); 
-    }
-  }
   
   try {
-    dcuConversionFactors_ = deviceFactory(method)->getConversionFactors();
+    dcuConversionFactors_ = deviceFactory(__FUNCTION__)->getConversionFactors();
     resetDcuConvs_ = false;
   }
   catch (...) { 
-    string info = "Problems retrieving DCU conversion factors!";
-    handleException( method, info ); 
+    handleException( __FUNCTION__, "Problems retrieving DCU conversion factors!" ); 
   }
   
   stringstream ss; 
   if ( dcuConversionFactors_.empty() ) {
-    ss << "["<<method<<"]"
+    ss << "[" << __PRETTY_FUNCTION__ << "]"
        << " No DCU conversion factors found";
     if ( !usingDb_ ) { ss << " in input 'dcuconv.xml' file " << inputDcuConvXml_; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
     edm::LogError(logCategory_) << ss.str();
     throw cms::Exception(logCategory_) << ss.str();
   } else {
-    ss << "["<<method<<"]"
+    ss << "[" << __PRETTY_FUNCTION__ << "]"
        << " Found " << dcuConversionFactors_.size() << " DCU conversion factors";
     if ( !usingDb_ ) { ss << " in input 'dcuconv.xml' file " << inputDcuConvXml_; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
@@ -75,7 +64,6 @@ void SiStripConfigDb::uploadDcuConversionFactors() {
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversionFactors( const SiStripFecCabling& fec_cabling ) {
-  string method = "SiStripConfigDb::createDcuConversionFactors";
   
   // Static container
   static DcuConversionFactors static_dcu_conversions;
@@ -141,7 +129,7 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	  static_dcu_conversions[dcu_id] = dcu_conv;
 	} else {
 	  stringstream ss;
-	  ss << "["<<method<<"]" << " DCU id " << dcu_id
+	  ss << "[" << __PRETTY_FUNCTION__ << "]" << " DCU id " << dcu_id
 	     << " already exists within map of DCU conversion factors!";
 	  edm::LogError(logCategory_) << ss.str() << "\n";
 	  //throw cms::Exception(logCategory_) << ss.str();
@@ -174,7 +162,7 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	    static_dcu_conversions[dcu_id] = dcu_conv;
 	  } else {
 	    stringstream ss;
-	    ss << "["<<method<<"]" << " DCU id " << dcu_id
+	    ss << "[" << __PRETTY_FUNCTION__ << "]" << " DCU id " << dcu_id
 	       << " already exists within map of DCU conversion factors!";
 	    edm::LogError(logCategory_) << ss.str() << "\n";
 	    //throw cms::Exception(logCategory_) << ss.str();
@@ -207,7 +195,7 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	      static_dcu_conversions[dcu_id] = dcu_conv;
 	    } else {
 	      stringstream ss;
-	      ss << "["<<method<<"]" << " DCU id " << dcu_id
+	      ss << "[" << __PRETTY_FUNCTION__ << "]" << " DCU id " << dcu_id
 		 << " already exists within map of DCU conversion factors!";
 	      edm::LogError(logCategory_) << ss.str() << "\n";
 	      //throw cms::Exception(logCategory_) << ss.str();
@@ -225,7 +213,7 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 
   if ( static_dcu_conversions.empty() ) {
     stringstream ss;
-    ss << "["<<method<<"] No DCU conversion factors created!";
+    ss << "[" << __PRETTY_FUNCTION__ << "] No DCU conversion factors created!";
     edm::LogError(logCategory_) << ss.str() << "\n";
     //throw cms::Exception(logCategory_) << ss.str() << "\n";
   }
