@@ -28,12 +28,11 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
   TTTRHBuilder = theBuilder.product();
 
-
-
   CosmicLayerPairs cosmiclayers;
   cosmiclayers.init(collstereo,collrphi,collmatched,geometry,iSetup);
   thePairGenerator=new CosmicHitPairGenerator(cosmiclayers,iSetup);
-
+  HitPairs.clear();
+  thePairGenerator->hitPairs(region,HitPairs,iSetup);
 }
 
 SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf): SeedGeneratorFromTrackingRegion(conf),
@@ -58,15 +57,16 @@ SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf):
 
 void SeedGeneratorForCosmics::run(TrajectorySeedCollection &output,const edm::EventSetup& iSetup){
   seeds(output,iSetup,region);
+  delete thePairGenerator;
 }
 void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 				    const edm::EventSetup& iSetup,
 				    const TrackingRegion& region){
  
+  
 
-  OrderedHitPairs HitPairs;
-  thePairGenerator->hitPairs(region,HitPairs,iSetup);
-
+  
+ 
   if(HitPairs.size()>0){
 
 
@@ -75,8 +75,8 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     
     GlobalPoint inner = tracker->idToDet(HitPairs[0].inner()->geographicalId())->surface().toGlobal(HitPairs[0].inner()->localPosition());
     GlobalPoint outer = tracker->idToDet(HitPairs[0].outer()->geographicalId())->surface().toGlobal(HitPairs[0].outer()->localPosition());
-  
-
+ 
+    LogDebug("CosmicSeedFinder") <<"inner point of the seed "<<inner <<" outer point of the seed "<<outer; 
     //RC const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[0].outer());  
     TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[0].outer());
 
@@ -111,8 +111,8 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
 	  output.push_back(*trSeed);
 	  
-	}else      edm::LogError("CosmicSeedFinder") << " SeedForCosmics first update failed ";
-      }else      edm::LogError("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
+	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
+      }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
       
       
     }
@@ -139,8 +139,8 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,oppositeToMomentum);
 	  output.push_back(*trSeed);
 	
-	}else      edm::LogError("CosmicSeedFinder") << " SeedForCosmics first update failed ";
-      }else      edm::LogError("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
+	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
+      }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
     }
 
   }

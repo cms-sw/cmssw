@@ -5,6 +5,8 @@
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 class DetLayer;
 class TrackingRegion;
 class LayerWithHits;
@@ -34,20 +36,11 @@ class CosmicHitPairGeneratorFromLayerPair : public HitPairGenerator {
 
 public:
 
-  typedef CombinedHitPairGenerator::LayerCacheType       LayerCacheType;
- 
-
-
 
   CosmicHitPairGeneratorFromLayerPair( 
 				const LayerWithHits* inner, 
 				const LayerWithHits* outer, 
-				LayerCacheType* layerCache, 
-				const edm::EventSetup& iSetup)
-    : theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner) { 
-  
-  }
-
+				const edm::EventSetup& iSetup);
   virtual ~CosmicHitPairGeneratorFromLayerPair() { }
 
   virtual OrderedHitPairs hitPairs( const TrackingRegion& region,const edm::EventSetup& iSetup ) {
@@ -63,8 +56,8 @@ public:
   const LayerWithHits* outerLayer() const { return theOuterLayer; }
 
 private:
-  // all data members are "shallow copy"
-  LayerCacheType & theLayerCache;
+  const TransientTrackingRecHitBuilder * TTRHbuilder;
+  const TrackerGeometry* trackerGeometry;
   const LayerWithHits* theOuterLayer;  
   const LayerWithHits* theInnerLayer; 
   const DetLayer* innerlay;

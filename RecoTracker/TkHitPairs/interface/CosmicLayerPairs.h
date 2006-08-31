@@ -17,7 +17,8 @@
 #include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
 class CosmicLayerPairs : public SeedLayerPairs{
 public:
-  CosmicLayerPairs():SeedLayerPairs(){};
+  CosmicLayerPairs():isFirstCall(true){};
+  ~CosmicLayerPairs();
   //  explicit PixelSeedLayerPairs(const edm::EventSetup& iSetup);
 
 
@@ -34,6 +35,7 @@ private:
   SiStripRecHit2DCollection::range rphi_range1;
   SiStripRecHit2DCollection::range rphi_range2;
   SiStripRecHit2DCollection::range rphi_range3;
+  SiStripRecHit2DCollection::range rphi_range4;
 
   SiStripRecHit2DCollection::range stereo_range1;
   SiStripRecHit2DCollection::range stereo_range2;
@@ -46,11 +48,14 @@ private:
   LayerWithHits *lh1;
   LayerWithHits *lh2;
   LayerWithHits *lh3;
-
+  LayerWithHits *lh4;
 
    vector<BarrelDetLayer*> bl;
    vector<ForwardDetLayer*> fpos;
    vector<ForwardDetLayer*> fneg;
+   //MP
+   vector<LayerWithHits*> allLayersWithHits;
+   bool isFirstCall;
  public:
  
    void init(const SiStripRecHit2DCollection &collstereo,

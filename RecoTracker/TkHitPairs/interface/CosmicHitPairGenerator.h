@@ -4,7 +4,6 @@
 #include <vector>
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/CosmicHitPairGeneratorFromLayerPair.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 class SeedLayerPairs;
@@ -25,14 +24,7 @@ class CosmicHitPairGenerator : public HitPairGenerator{
 public:
   CosmicHitPairGenerator(SeedLayerPairs& layers, const edm::EventSetup& iSetup);
   CosmicHitPairGenerator(SeedLayerPairs& layers);
-  typedef LayerHitMapCache LayerCacheType;
 
-  
-  //  CosmicHitPairGenerator(const SeedLayerPairs & layers);
-  
-
-  // copy configuration but empty cache
-  // CosmicHitPairGenerator(const CosmicHitPairGenerator&);
 
   ~CosmicHitPairGenerator();
 
@@ -52,7 +44,7 @@ public:
 
 private:
 
-  LayerCacheType   theLayerCache;
+
   Container        theGenerators;
 
 };
