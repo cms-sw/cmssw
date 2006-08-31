@@ -326,31 +326,40 @@ void PFProducer::produce(edm::Event& iEvent,
 			   << "\n";    
     
     // Propagate track to HCAL entrance
-    TrajectoryStateOnSurface hcalTSOS = 
-      fwdPropagator.propagate(ecalTSOS, *hcalInnerWall);
-    GlobalPoint vHCAL  = hcalTSOS.globalParameters().position();
-    GlobalVector pHCAL = hcalTSOS.globalParameters().momentum();
-    math::XYZPoint posHCAL(vHCAL.x(), vHCAL.y(), vHCAL.z());       
-    math::XYZTLorentzVector momHCAL(pHCAL.x(), pHCAL.y(), pHCAL.z(), 
-				    pHCAL.mag());
-    reco::PFTrajectoryPoint hcalPt(0, reco::PFTrajectoryPoint::HCALEntrance, 
-				   posHCAL, momHCAL);
-    track.addPoint(hcalPt);
-    LogDebug("PFProducer") << "hcal point " << hcalPt << "\n";    
 
-    // Propagate track to HCAL exit
-    TrajectoryStateOnSurface hcalExitTSOS = 
-      fwdPropagator.propagate(hcalTSOS, *hcalOuterWall);
-    GlobalPoint vHCALExit  = hcalExitTSOS.globalParameters().position();
-    GlobalVector pHCALExit = hcalExitTSOS.globalParameters().momentum();
-    math::XYZPoint posHCALExit(vHCALExit.x(), vHCALExit.y(), vHCALExit.z());
-    math::XYZTLorentzVector momHCALExit(pHCALExit.x(), pHCALExit.y(), 
-					pHCALExit.z(), pHCALExit.mag());
-    reco::PFTrajectoryPoint hcalExitPt(0, reco::PFTrajectoryPoint::HCALExit, 
-				       posHCALExit, momHCALExit);
-    track.addPoint(hcalExitPt);
-    LogDebug("PFProducer") << "hcal exit point " << hcalExitPt << "\n";    
-    
+    try {
+      TrajectoryStateOnSurface hcalTSOS = 
+	fwdPropagator.propagate(ecalTSOS, *hcalInnerWall);
+      GlobalPoint vHCAL  = hcalTSOS.globalParameters().position();
+      GlobalVector pHCAL = hcalTSOS.globalParameters().momentum();
+      math::XYZPoint posHCAL(vHCAL.x(), vHCAL.y(), vHCAL.z());       
+      math::XYZTLorentzVector momHCAL(pHCAL.x(), pHCAL.y(), pHCAL.z(), 
+				      pHCAL.mag());
+      reco::PFTrajectoryPoint hcalPt(0, reco::PFTrajectoryPoint::HCALEntrance, 
+				     posHCAL, momHCAL);
+      track.addPoint(hcalPt);
+      LogDebug("PFProducer") << "hcal point " << hcalPt << "\n";    
+
+      // Propagate track to HCAL exit
+      TrajectoryStateOnSurface hcalExitTSOS = 
+	fwdPropagator.propagate(hcalTSOS, *hcalOuterWall);
+      GlobalPoint vHCALExit  = hcalExitTSOS.globalParameters().position();
+      GlobalVector pHCALExit = hcalExitTSOS.globalParameters().momentum();
+      math::XYZPoint posHCALExit(vHCALExit.x(), vHCALExit.y(), vHCALExit.z());
+      math::XYZTLorentzVector momHCALExit(pHCALExit.x(), pHCALExit.y(), 
+					  pHCALExit.z(), pHCALExit.mag());
+      reco::PFTrajectoryPoint hcalExitPt(0, reco::PFTrajectoryPoint::HCALExit, 
+					 posHCALExit, momHCALExit);
+      track.addPoint(hcalExitPt);
+      LogDebug("PFProducer") << "hcal exit point " << hcalExitPt << "\n";    
+    }
+    catch( std::exception& err) {
+      LogError("PFProducer")<<"Exception : "<<err.what()<<endl;
+      throw err; 
+    }
+
+
+
     pOutputPFRecTrackCollection->push_back(track);
    
     LogDebug("PFProducer") << "Add a new PFRecTrack " << track << "\n";
