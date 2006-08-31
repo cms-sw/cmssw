@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/08/29 20:17:12 $
- *  $Revision: 1.23 $
+ *  $Date: 2006/08/30 01:47:19 $
+ *  $Revision: 1.24 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -33,7 +33,6 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2,
   theMinPt = 1.0;
   theField = field;
   theUpdator = updator;
-
 }
 
 
@@ -46,7 +45,6 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2) {
   theMinP = 2.5;
   theMinPt = 1.0;
   theUpdator = new MuonUpdatorAtVertex();
-
 }
 
 
@@ -54,6 +52,7 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2) {
 //
 //
 GlobalMuonTrackMatcher::~GlobalMuonTrackMatcher() {
+
   if(theUpdator) delete theUpdator;
 }
 
@@ -66,7 +65,6 @@ void GlobalMuonTrackMatcher::setES(const edm::EventSetup& setup) {
   setup.get<IdealMagneticFieldRecord>().get(theField);
   setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   theUpdator->setES(setup);
-
 }
 
 
@@ -82,35 +80,9 @@ GlobalMuonTrackMatcher::matchOne(const TrackCand& staCand,
   TrackCand result = staCand;
   double minChi2 = theMaxChi2;
   
-  TrajectoryStateOnSurface innerMuTsos;
-  if(staCand.first == 0) {
-    reco::TransientTrack staTT(staCand.second,&*theField,theTrackingGeometry);
-    innerMuTsos = staTT.innermostMeasurementState();
-  } else {
-    innerMuTsos = staCand.first->firstMeasurement().updatedState();
-  }
-  // extrapolate innermost standalone TSOS to outer tracker surface
-  TrajectoryStateOnSurface tkTsosFromMu = theUpdator->stateAtTracker(innerMuTsos);
-  if ( !tkTsosFromMu.isValid() ) return pair<bool,TrackCand>(false,result);
- 
   for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
-    TrajectoryStateOnSurface outerTkTsos;
-    if((*is).first == 0) {
-      reco::TrackRef tkTRef(is->second);
-      reco::TransientTrack tkTT(tkTRef,&*theField,theTrackingGeometry);
-      // make sure the tracker Track has enough momentum to reach muon chambers
-      const GlobalVector& mom = tkTT.impactPointState().globalMomentum();
-      if ( mom.mag() < theMinP || mom.perp() < theMinPt ) continue;
-      outerTkTsos = tkTT.outermostMeasurementState();
-    } else {
-      outerTkTsos = (*is).first->lastMeasurement().updatedState();
-    }
-    
-    // extrapolate outermost tracker measurement TSOS to outer tracker surface
-    TrajectoryStateOnSurface tkTsosFromTk = theUpdator->stateAtTracker(outerTkTsos);
-    if ( !tkTsosFromTk.isValid() ) continue; 
-    
-    pair<bool,double> check = match(tkTsosFromMu,tkTsosFromTk);
+
+    pair<bool,double> check = match(staCand,*is);
     
     if (!check.first) continue;
     
@@ -122,7 +94,6 @@ GlobalMuonTrackMatcher::matchOne(const TrackCand& staCand,
   }     
 
   return pair<bool, TrackCand>(hasMatchTk, result);
-
 }
 
 
@@ -134,45 +105,12 @@ vector<GlobalMuonTrackMatcher::TrackCand>
 GlobalMuonTrackMatcher::match(const TrackCand& staCand, 
                               const std::vector<TrackCand>& tkTs) const {
   
-  vector<TrackCand> result;
-
-  TrajectoryStateOnSurface innerMuTsos;
-
-  if(staCand.first == 0) {
-    reco::TransientTrack staTT(staCand.second,&*theField,theTrackingGeometry);
-    innerMuTsos = staTT.innermostMeasurementState();
-  } else {
-    innerMuTsos = staCand.first->firstMeasurement().updatedState();
-  }
-  // extrapolate innermost standalone TSOS to outer tracker surface
-  TrajectoryStateOnSurface tkTsosFromMu = theUpdator->stateAtTracker(innerMuTsos);
-  if ( !tkTsosFromMu.isValid() ) return result;
- 
+  vector<TrackCand> result; 
   for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
-    TrajectoryStateOnSurface outerTkTsos;
-    if((*is).first == 0) {
-      reco::TrackRef tkTRef(is->second);
-      reco::TransientTrack tkTT(tkTRef,&*theField,theTrackingGeometry);
-      // make sure the tracker Track has enough momentum to reach muon chambers
-      const GlobalVector& mom = tkTT.impactPointState().globalMomentum();
-      if ( mom.mag() < theMinP || mom.perp() < theMinPt ) continue; 
-      outerTkTsos = tkTT.outermostMeasurementState();
-    } else {
-      outerTkTsos = (*is).first->lastMeasurement().updatedState();
-    }
-    
-    // extrapolate outermost tracker measurement TSOS to outer tracker surface
-    TrajectoryStateOnSurface tkTsosFromTk = theUpdator->stateAtTracker(outerTkTsos);    
-    if ( !tkTsosFromTk.isValid() ) continue; 
-    
-    pair<bool,double> check = match(tkTsosFromMu,tkTsosFromTk);
-    
+    pair<bool,double> check = match(staCand,*is);    
     if ( check.first ) result.push_back(*is);
-
   }
-  
   return result;
-  
 }
 
 
@@ -202,6 +140,9 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
       return pair<bool,double>(false,0);
     outerTkTsos = tkT.outermostMeasurementState();
   } else {
+    const GlobalVector& mom = tkCand.first->firstMeasurement().updatedState().globalMomentum();
+    if ( mom.mag() < theMinP || mom.perp() < theMinPt )
+      return pair<bool,double>(false,0);
     outerTkTsos = tkCand.first->lastMeasurement().updatedState();
   }
   
@@ -212,6 +153,7 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
   // extrapolate outermost tracker measurement TSOS to outer tracker surface
   TrajectoryStateOnSurface tkTsosFromTk = theUpdator->stateAtTracker(outerTkTsos);
   if ( !tkTsosFromTk.isValid() ) return pair<bool,double>(false,0.);
+
   // compare the TSOSs on outer tracker surface
   return match(tkTsosFromMu,tkTsosFromTk);
   
@@ -238,14 +180,17 @@ GlobalMuonTrackMatcher::match(const TrajectoryStateOnSurface& tsos1,
   double dx(fabs(tsos1.globalPosition().x() - tsos2.globalPosition().x()));
   double dy(fabs(tsos1.globalPosition().y() - tsos2.globalPosition().y()));
   double dz(fabs(tsos1.globalPosition().z() - tsos2.globalPosition().z()));
+  double phi1 = tsos1.globalMomentum().phi();
+  double phi2 = tsos2.globalMomentum().phi();
+  double eta1 = tsos1.globalMomentum().eta();
+  double eta2 = tsos2.globalMomentum().eta();
+  double dphi(fabs(Geom::Phi<double>(phi1)-Geom::Phi<double>(phi2)));
+  double deta(fabs(eta1-eta2));
 
-  float dd = 12.0;
-  bool goodCoords = ( (dx < dd) && (dy < dd) ) ? true : false;
+  float dd = 0.2;
+  bool goodCoords = ( (dphi < dd) && (deta < dd) ) ? true : false;
   bool good = ( goodChi || goodCoords ) ? true : false;
 
   return pair<bool,double>(good,est);
-
-  //return ( est > theMaxChi2 ) ? pair<bool,double>(false,est) : pair<bool,double>(true,est);
-
 }
 
