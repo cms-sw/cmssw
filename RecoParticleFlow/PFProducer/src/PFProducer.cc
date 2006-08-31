@@ -1,7 +1,9 @@
 #include "RecoParticleFlow/PFProducer/interface/PFProducer.h"
+#include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
 
 // #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
@@ -71,6 +73,12 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
   particleFilter_ = iConfig.getParameter<edm::ParameterSet>
     ( "ParticleFilter" );   
 
+  // initialize geometry parameters
+  PFGeometry pfGeometry;
+
+  // register your products
+  produces<reco::PFRecTrackCollection>(pfRecTrackCollection_);
+
   // dummy... just to be able to run
   // produces<reco::PFRecHitCollection >();  
 }
@@ -124,9 +132,12 @@ void PFProducer::produce(edm::Event& iEvent,
   const MagneticField * magField = theMF.product();
   AnalyticalPropagator fwdPropagator(magField, alongMomentum);
   AnalyticalPropagator bkwdPropagator(magField, oppositeToMomentum);
-  ReferenceCountingPointer<Surface> beamPipe(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(2.5, 2.5, -500., 500.)));
-  ReferenceCountingPointer<Surface> ecalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(129., 129., -317., 317.)));
-  ReferenceCountingPointer<Surface> hcalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(183., 183., -388., 388.)));
+  ReferenceCountingPointer<Surface> beamPipe(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::BeamPipe), PFGeometry::innerRadius(PFGeometry::BeamPipe), -1.*PFGeometry::outerZ(PFGeometry::BeamPipe), PFGeometry::outerZ(PFGeometry::BeamPipe))));
+  ReferenceCountingPointer<Surface> ecalInnerWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), PFGeometry::innerRadius(PFGeometry::ECALBarrel), -1.*PFGeometry::innerZ(PFGeometry::ECALEndcap), PFGeometry::innerZ(PFGeometry::ECALEndcap))));
+  ReferenceCountingPointer<Surface> ps1Wall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), PFGeometry::innerRadius(PFGeometry::ECALBarrel), -1.*PFGeometry::innerZ(PFGeometry::PS1), PFGeometry::innerZ(PFGeometry::PS1))));
+  ReferenceCountingPointer<Surface> ps2Wall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), PFGeometry::innerRadius(PFGeometry::ECALBarrel), -1.*PFGeometry::innerZ(PFGeometry::PS2), PFGeometry::innerZ(PFGeometry::PS2))));
+  ReferenceCountingPointer<Surface> hcalInnerWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::HCALBarrel), PFGeometry::innerRadius(PFGeometry::HCALBarrel), -1.*PFGeometry::innerZ(PFGeometry::HCALEndcap), PFGeometry::innerZ(PFGeometry::HCALEndcap))));
+  ReferenceCountingPointer<Surface> hcalOuterWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(PFGeometry::outerRadius(PFGeometry::HCALBarrel), PFGeometry::outerRadius(PFGeometry::HCALBarrel), -1.*PFGeometry::outerZ(PFGeometry::HCALEndcap), PFGeometry::outerZ(PFGeometry::HCALEndcap))));
 
   //
   // Get track candidates and create smoothed tracks
@@ -176,7 +187,7 @@ void PFProducer::produce(edm::Event& iEvent,
     track.addPoint(closestPt);
     LogDebug("PFProducer") << "closest approach point " << closestPt << "\n";
 
-    if (posClosest.Rho() < 2.5) {
+    if (posClosest.Rho() < PFGeometry::innerRadius(PFGeometry::BeamPipe)) {
       // Intersection with beam pipe
       TrajectoryStateOnSurface innerTSOS;
       if (theTraj->direction() == alongMomentum)
@@ -222,20 +233,14 @@ void PFProducer::produce(edm::Event& iEvent,
       LogDebug("PFProducer") << "add measuremnt " << iTraj << " " << trajPt << "\n";
     }
 
-    // add point for PS1 and PS2
-    reco::PFTrajectoryPoint dummyPS1;
-    reco::PFTrajectoryPoint dummyPS2;
-    track.addPoint(dummyPS1);
-    track.addPoint(dummyPS2);
-
-    // Propagate track to ECAL
+    // Propagate track to ECAL entrance
     TrajectoryStateOnSurface outerTSOS;
     if (theTraj->direction() == alongMomentum)
       outerTSOS = measurements[measurements.size() - 1].updatedState();
     else
       outerTSOS = measurements[0].updatedState();
     TrajectoryStateOnSurface ecalTSOS = 
-      fwdPropagator.propagate(outerTSOS, *ecalWall);
+      fwdPropagator.propagate(outerTSOS, *ecalInnerWall);
     GlobalPoint vECAL  = ecalTSOS.globalParameters().position();
     GlobalVector pECAL = ecalTSOS.globalParameters().momentum();
     math::XYZPoint posECAL(vECAL.x(), vECAL.y(), vECAL.z());       
@@ -243,16 +248,86 @@ void PFProducer::produce(edm::Event& iEvent,
 				    pECAL.mag());
     reco::PFTrajectoryPoint ecalPt(0, reco::PFTrajectoryPoint::ECALEntrance, 
 				   posECAL, momECAL);
+    bool isBelowPS = false;
+    if (posECAL.Rho() < PFGeometry::innerRadius(PFGeometry::ECALBarrel)) {
+      // Propagate track to preshower layer1
+      TrajectoryStateOnSurface ps1TSOS = 
+	fwdPropagator.propagate(outerTSOS, *ps1Wall);
+      GlobalPoint vPS1  = ps1TSOS.globalParameters().position();
+      GlobalVector pPS1 = ps1TSOS.globalParameters().momentum();
+      math::XYZPoint posPS1(vPS1.x(), vPS1.y(), vPS1.z());
+      if (posPS1.Rho() >= PFGeometry::innerRadius(PFGeometry::PS1) &&
+	  posPS1.Rho() <= PFGeometry::outerRadius(PFGeometry::PS1)) {
+	isBelowPS = true;
+	math::XYZTLorentzVector momPS1(pPS1.x(), pPS1.y(), pPS1.z(), 
+				       pPS1.mag());
+	reco::PFTrajectoryPoint ps1Pt(0, reco::PFTrajectoryPoint::PS1, 
+				      posPS1, momPS1);
+	track.addPoint(ps1Pt);
+	LogDebug("PFProducer") << "ps1 point " << ps1Pt << "\n";
+      } else {
+	reco::PFTrajectoryPoint dummyPS1;
+	track.addPoint(dummyPS1);
+      }
+
+      // Propagate track to preshower layer2
+      TrajectoryStateOnSurface ps2TSOS = 
+	fwdPropagator.propagate(outerTSOS, *ps2Wall);
+      GlobalPoint vPS2  = ps2TSOS.globalParameters().position();
+      GlobalVector pPS2 = ps2TSOS.globalParameters().momentum();
+      math::XYZPoint posPS2(vPS2.x(), vPS2.y(), vPS2.z());
+      if (posPS2.Rho() >= PFGeometry::innerRadius(PFGeometry::PS2) &&
+	  posPS2.Rho() <= PFGeometry::outerRadius(PFGeometry::PS2)) {
+	isBelowPS = true;
+	math::XYZTLorentzVector momPS2(pPS2.x(), pPS2.y(), pPS2.z(), 
+				       pPS2.mag());
+	reco::PFTrajectoryPoint ps2Pt(0, reco::PFTrajectoryPoint::PS2, 
+				      posPS2, momPS2);
+	track.addPoint(ps2Pt);
+	LogDebug("PFProducer") << "ps2 point " << ps2Pt << "\n";
+      } else {
+	reco::PFTrajectoryPoint dummyPS2;
+	track.addPoint(dummyPS2);
+      }
+    } else {
+      // add dummy point for PS1 and PS2
+      reco::PFTrajectoryPoint dummyPS1;
+      reco::PFTrajectoryPoint dummyPS2;
+      track.addPoint(dummyPS1);
+      track.addPoint(dummyPS2);
+    }
     track.addPoint(ecalPt);
     LogDebug("PFProducer") << "ecal point " << ecalPt << "\n";
 
     // Propage track to ECAL shower max TODO
     // Be careful : the following formula are only valid for electrons !
-    track.addPoint(ecalPt);
+    double ecalShowerDepth = reco::PFCluster::getDepthCorrection(momECAL.E(), 
+								 isBelowPS, 
+								 false);
+    math::XYZPoint showerDirection(momECAL.Px(), momECAL.Py(), momECAL.Pz());
+    showerDirection *= ecalShowerDepth/showerDirection.R();
+    double rCyl = PFGeometry::innerRadius(PFGeometry::ECALBarrel) + 
+      showerDirection.Rho();
+    double zCyl = PFGeometry::innerZ(PFGeometry::ECALEndcap) + 
+      fabs(showerDirection.Z());
+    ReferenceCountingPointer<Surface> showerMaxWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(rCyl, rCyl, -1.*zCyl, zCyl)));
+    TrajectoryStateOnSurface showerMaxTSOS = 
+      fwdPropagator.propagate(ecalTSOS, *showerMaxWall);
+    GlobalPoint vShowerMax  = showerMaxTSOS.globalParameters().position();
+    GlobalVector pShowerMax = showerMaxTSOS.globalParameters().momentum();
+    math::XYZPoint posShowerMax(vShowerMax.x(), vShowerMax.y(), 
+				vShowerMax.z());
+    math::XYZTLorentzVector momShowerMax(pShowerMax.x(), pShowerMax.y(), 
+					 pShowerMax.z(), pShowerMax.mag());
+    reco::PFTrajectoryPoint ecalShowerMaxPt(0, reco::PFTrajectoryPoint::ECALShowerMax, 
+					    posShowerMax, momShowerMax);
+    track.addPoint(ecalShowerMaxPt);
+    LogDebug("PFProducer") << "ecal shower maximum point " << ecalShowerMaxPt 
+			   << "\n";    
     
-    // Propagate track to HCAL
+    // Propagate track to HCAL entrance
     TrajectoryStateOnSurface hcalTSOS = 
-      fwdPropagator.propagate(outerTSOS, *hcalWall);
+      fwdPropagator.propagate(ecalTSOS, *hcalInnerWall);
     GlobalPoint vHCAL  = hcalTSOS.globalParameters().position();
     GlobalVector pHCAL = hcalTSOS.globalParameters().momentum();
     math::XYZPoint posHCAL(vHCAL.x(), vHCAL.y(), vHCAL.z());       
@@ -263,8 +338,18 @@ void PFProducer::produce(edm::Event& iEvent,
     track.addPoint(hcalPt);
     LogDebug("PFProducer") << "hcal point " << hcalPt << "\n";    
 
-    reco::PFTrajectoryPoint dummyHCALExit;
-    track.addPoint(dummyHCALExit);
+    // Propagate track to HCAL exit
+    TrajectoryStateOnSurface hcalExitTSOS = 
+      fwdPropagator.propagate(hcalTSOS, *hcalOuterWall);
+    GlobalPoint vHCALExit  = hcalExitTSOS.globalParameters().position();
+    GlobalVector pHCALExit = hcalExitTSOS.globalParameters().momentum();
+    math::XYZPoint posHCALExit(vHCALExit.x(), vHCALExit.y(), vHCALExit.z());
+    math::XYZTLorentzVector momHCALExit(pHCALExit.x(), pHCALExit.y(), 
+					pHCALExit.z(), pHCALExit.mag());
+    reco::PFTrajectoryPoint hcalExitPt(0, reco::PFTrajectoryPoint::HCALExit, 
+				       posHCALExit, momHCALExit);
+    track.addPoint(hcalExitPt);
+    LogDebug("PFProducer") << "hcal exit point " << hcalExitPt << "\n";    
     
     pOutputPFRecTrackCollection->push_back(track);
    
