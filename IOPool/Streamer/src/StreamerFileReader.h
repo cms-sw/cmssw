@@ -1,7 +1,11 @@
 #ifndef _StreamerFileReader_H
 #define _StreamerFileReader_H
 
-#include "IOPool/Streamer/interface/StreamerFileIO.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
+#include "IOPool/Streamer/interface/StreamerInputFile.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
@@ -15,11 +19,13 @@ namespace edm
     StreamerFileReader(edm::ParameterSet const& pset);
     ~StreamerFileReader();
 
-     std::auto_ptr<InitMsgView> getHeader(); 
-     std::auto_ptr<EventMsgView> getNextEvent();
+     const InitMsgView* getHeader(); 
+     const EventMsgView* getNextEvent();
+     const bool newHeader(); 
 
   private:  
-     string filename_;
+
+     vector<std::string> streamerNames_; /** names of Streamer files */
      std::auto_ptr<StreamerInputFile> stream_reader_;
   };
 

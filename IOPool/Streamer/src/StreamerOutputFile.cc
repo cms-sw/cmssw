@@ -1,4 +1,4 @@
-#include "IOPool/Streamer/interface/StreamerFileIO.h"
+#include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 
   OutputFile::OutputFile(const string& name):

@@ -1,4 +1,4 @@
-#include "IOPool/Streamer/interface/StreamerFileIO.h"
+#include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 
 

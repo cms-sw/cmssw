@@ -8,23 +8,34 @@ using namespace edm;
 namespace edm
 {  
   StreamerFileReader::StreamerFileReader(edm::ParameterSet const& pset):
-    filename_(pset.getParameter<string>("fileName")),
-    stream_reader_(new StreamerInputFile(filename_.c_str()))
+    streamerNames_(pset.getParameter<std::vector<std::string> >("fileNames"))
   {
-
+        if (streamerNames_.size() > 1)
+           stream_reader_ = std::auto_ptr<StreamerInputFile> 
+                          (new StreamerInputFile(streamerNames_));
+        else if (streamerNames_.size() == 1) 
+           stream_reader_ = std::auto_ptr<StreamerInputFile>
+                          (new StreamerInputFile(streamerNames_.at(0)));
+        else {
+           throw cms::Exception("StreamerFileReader","StreamerFileReader")
+              << " Not provided fileNames \n";
+        }
   }
 
   StreamerFileReader::~StreamerFileReader()
   {
-      //delete stream_reader_;
   }
 
-  std::auto_ptr<InitMsgView> StreamerFileReader::getHeader()
+  const bool StreamerFileReader::newHeader() {
+       return stream_reader_->newHeader();
+  }
+
+  const InitMsgView* StreamerFileReader::getHeader()
   {
  
-  std::auto_ptr<InitMsgView> header ( (InitMsgView*) stream_reader_->startMessage() );
+    const InitMsgView* header = stream_reader_->startMessage();
   
-  if(header->code() != Header::INIT) //INIT Msg
+    if(header->code() != Header::INIT) //INIT Msg
       throw cms::Exception("readHeader","StreamerFileReader")
         << "received wrong message type: expected INIT, got "
         << header->code() << "\n";
@@ -32,19 +43,13 @@ namespace edm
    return header;
   }
 
- std::auto_ptr<EventMsgView> StreamerFileReader::getNextEvent()
+ const EventMsgView* StreamerFileReader::getNextEvent()
  {
     if (! stream_reader_->next() )
     {
-        //cerr << "\n\n\n LAST EVENT Read from Input file"<<endl;
-        //Return an empty
-        std::auto_ptr<EventMsgView> eview(0);
-        return eview;
+        return 0;
     }
-
-    std::auto_ptr<EventMsgView> eview ( (EventMsgView*)stream_reader_->currentRecord() );
-      
-    return eview;
+    return stream_reader_->currentRecord();
  } 
 
 } //end-of-namespace

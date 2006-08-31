@@ -66,7 +66,7 @@ void StreamerOutputService::init(string fileName, unsigned long maxFileSize, dou
    InitMsgBuilder init_message(view.startAddress(),view.size(),
                        view.run(),
                        Version(view.protocolVersion(), psetid2),
-                               view.releaseTag().c_str(),
+                       view.releaseTag().c_str(),
                        hlt2,l12);
 
    init_message.setDescLength(desclength);
@@ -189,10 +189,11 @@ void StreamerOutputService::writeEvent(EventMsgView& eview, uint32 hltsize)
              myview.hltTriggerNames(hlt2);
              myview.l1TriggerNames(l12);
              uint32 desclength = myview.descLength();
+
              InitMsgBuilder init_message(myview.startAddress(),myview.size(),
                        myview.run(),
                        Version(myview.protocolVersion(), psetid2),
-                               myview.releaseTag().c_str(),
+                       myview.releaseTag().c_str(),
                        hlt2,l12);
 
              init_message.setDescLength(desclength);

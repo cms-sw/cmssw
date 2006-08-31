@@ -67,4 +67,17 @@ void InitMsgView::getNames(uint8* from, uint32 from_len, Strings& to) const
   std::copy(Iter(ist),Iter(),std::back_inserter(to));
 }
 
+uint32 InitMsgView::eventHeaderSize() const
+{
+  /** This is estimated size of event header for Protocol Version 2. */
+  uint32 hlt_sz = get_hlt_bit_cnt();
+  if (hlt_sz != 0 && hlt_sz < 4) hlt_sz = 1;
+  else  hlt_sz = hlt_sz/4;
+
+  uint32 l1_sz = get_l1_bit_cnt();
+  if (l1_sz != 0 && l1_sz < 8) l1_sz = 1;
+  else l1_sz = get_l1_bit_cnt()/8;
+  
+  return 1+(4*8)+(get_hlt_bit_cnt()/4)+(get_l1_bit_cnt()/8); 
+}
 
