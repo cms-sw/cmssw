@@ -15,21 +15,24 @@
 #include <cmath>
 #include <iostream>
 
+static const int N_INTEGRAL_STEPS = 700;
 
 CSCDriftSim::CSCDriftSim() 
-  : STEP_SIZE(0.01), 
-    ELECTRON_DIFFUSION_COEFF(0.0161), 
-    theMagneticField(0)
+: bz(0.), // should make these local variables
+  ycell(0.),
+  zcell(0.),
+  dNdEIntegral(N_INTEGRAL_STEPS, 0.),
+  STEP_SIZE(0.01),
+  ELECTRON_DIFFUSION_COEFF(0.0161),
+  theMagneticField(0)
 {
   // just initialize avalanche sim.  There has to be a better
   // way to take the integral of a function!
   static const int   N_INTEGRAL_STEPS = 700;
   double sum = 0.;
-  // tmpMap is the unnormalized dNdEIntegral
-  dNdEIntegral.resize(N_INTEGRAL_STEPS);
   int i;
   for(i = 0; i < N_INTEGRAL_STEPS; ++i) {
-    double xx = STEP_SIZE * (double(i) - 0.5 );
+    double xx = STEP_SIZE * (i - 0.5);
     double dNdE = pow( xx, 0.38) * exp(-1.38*xx);
     if(i > 1) {
       sum += dNdE;

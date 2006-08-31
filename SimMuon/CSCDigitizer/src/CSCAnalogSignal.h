@@ -37,7 +37,7 @@ public:
   
   inline CSCAnalogSignal(int element, float binSize, std::vector<float> & binValues, float total=0., float timeOffset=0.)  :
     theElement(element), invBinSize(1./binSize), 
-    theTotal(total), theTimeOffset(timeOffset) {
+    theBinValues(), theTotal(total), theTimeOffset(timeOffset) {
     theBinValues.swap(binValues);
   }
 
