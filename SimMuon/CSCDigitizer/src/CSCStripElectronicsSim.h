@@ -21,7 +21,6 @@
  *
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
@@ -49,8 +48,6 @@ public:
                  CSCComparatorDigiCollection & comparators);
 
 private:
-  // helper functions
-  void init();
   /// initialization for each layer
   void initParameters();
 
@@ -89,7 +86,6 @@ private:
   float theComparatorWait;
   float theComparatorDeadTime;
   float theDaqDeadTime;
-  float theBaselineNoise;
 
   int nScaBins_;
   bool doCrosstalk_;
