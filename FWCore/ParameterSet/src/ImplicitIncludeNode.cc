@@ -21,7 +21,7 @@ namespace edm {
       FileInPath file = finder.find(moduleClass_, moduleLabel_);
 
       // going back to relative path, for coding convenience
-      name = file.relativePath();
+      setName(file.relativePath());
       IncludeNode::resolve(openFiles, sameLevelIncludes);
     }
 

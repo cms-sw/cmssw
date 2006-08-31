@@ -10,21 +10,20 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/07/04 09:27:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/12 13:43:28 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
 
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include <functional>
 
 class Propagator;
 class MeasurementEstimator;
 class TrajectoryMeasurement;
 class Trajectory;
 class TrajectoryStateOnSurface;
+class TransientTrackingRecHit;
 class TrajectoryStateUpdator;
 class DetLayer;
 
@@ -99,49 +98,29 @@ private:
   /// Maybe in a second step there will be more than 3 option
   /// i.e. max granularity for DT but not for the CSC and the viceversa
   int theGranularity; 
+  
   // FIXME: ask Tim if the CSC segments can be used, since in ORCA they wasn't.
+
+  /// I have to use this method since I have to cope with two propagation direction
+  void ownVectorLimits(edm::OwnVector<const TransientTrackingRecHit> &ownvector,
+		       edm::OwnVector<const TransientTrackingRecHit>::iterator &recHitsForFit_begin,
+		       edm::OwnVector<const TransientTrackingRecHit>::iterator &recHitsForFit_end);
+
+  /// I have to use this method since I have to cope with two propagation direction
+  void incrementIterator(edm::OwnVector<const TransientTrackingRecHit>::iterator &recHitIterator);
 
   /// copy objs from an OwnVector to another one
   void insert(edm::OwnVector<const TransientTrackingRecHit> & to,
 	      edm::OwnVector<const TransientTrackingRecHit> & from);
-  
-  /// Ordering along increasing radius (for DT rechits)
-  struct RadiusComparatorInOut{
-    bool operator()(const TransientTrackingRecHit& a, const TransientTrackingRecHit& b) const{ 
-      return a.det()->surface().position().perp() < b.det()->surface().position().perp(); 
-    }
-  };
-  
-  /// Ordering along decreasing radius (for DT rechits)
-  struct RadiusComparatorOutIn{
-    bool operator()(const TransientTrackingRecHit& a, const TransientTrackingRecHit& b) const{ 
-      return a.det()->surface().position().perp() > b.det()->surface().position().perp();
-    }
-  };
-  
-  /// Ordering along increasing zed (for CSC rechits)
-  struct ZedComparatorInOut{  
-    bool operator()(const TransientTrackingRecHit &a, const TransientTrackingRecHit& b) const{ 
-      return a.globalPosition().z() < b.globalPosition().z(); 
-    }
-  };
-  
-  /// Ordering along decreasing zed (for CSC rechits)
-  struct ZedComparatorOutIn{
-    bool operator()(const TransientTrackingRecHit &a, const TransientTrackingRecHit &b) const{ 
-      return a.globalPosition().z() > b.globalPosition().z(); 
-    }
-  };
 
-  void sort(edm::OwnVector<const TransientTrackingRecHit>&, const DetLayer*);
-  
+
   /// Return the trajectory measurement. It handles both the fw and the bw propagation
   TrajectoryMeasurement updateMeasurement( const TrajectoryStateOnSurface &propagatedTSOS, 
 					   const TrajectoryStateOnSurface &lastUpdatedTSOS, 
 					   const TransientTrackingRecHit &recHit,
 					   const double &chi2, const DetLayer *detLayer, 
 					   const TrajectoryMeasurement *initialMeasurement);
-  
+
 
   Propagator *thePropagator;
   MeasurementEstimator *theEstimator;

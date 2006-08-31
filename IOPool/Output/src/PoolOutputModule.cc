@@ -1,11 +1,16 @@
-// $Id: PoolOutputModule.cc,v 1.30.2.7 2006/07/05 03:04:44 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.34 2006/07/11 22:40:57 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 #include "IOPool/Common/interface/RefStreamer.h"
+#include "IOPool/Common/interface/CustomStreamer.h"
 
 #include "DataFormats/Common/interface/BranchKey.h"
+#include "DataFormats/Common/interface/FileFormatVersion.h"
+#include "DataFormats/Common/interface/LuminosityBlock.h"
+#include "DataFormats/Common/interface/RunBlock.h"
+#include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ModuleDescriptionRegistry.h"
 #include "FWCore/Framework/interface/ProcessHistoryRegistry.h"
@@ -27,6 +32,7 @@
 #include "TTree.h"
 #include "TFile.h"
 
+#include <map>
 #include <vector>
 #include <string>
 #include <iomanip>
@@ -43,10 +49,25 @@ namespace edm {
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     fileCount_(0),
     poolFile_() {
+    ClassFiller();
     // We need to set a custom streamer for edm::RefCore so that it will not be split.
     // even though a custom streamer is not otherwise necessary.
-    ClassFiller();
     SetRefStreamer();
+    // We need to set a custom streamer for top level provenance objects so they will not be split,
+    // This facilitates backward compatibility, since custom streamers can be used for reading
+    // if the branch is not split.
+    // Note: The map classes already have a custom streamer, so this is not needed now.
+    // We do this only to protect against future root changes.
+    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
+    SetCustomStreamer<EventAux>();
+    SetCustomStreamer<ProductRegistry>();
+    SetCustomStreamer<ParameterSetMap>();
+    SetCustomStreamer<ProcessHistoryMap>();
+    SetCustomStreamer<ModuleDescriptionMap>();
+    SetCustomStreamer<FileFormatVersion>();
+    SetCustomStreamer<BranchEntryDescription>();
+    SetCustomStreamer<LuminosityBlock>();
+    SetCustomStreamer<RunBlock>();
   }
 
   void PoolOutputModule::beginJob(EventSetup const&) {
@@ -77,6 +98,9 @@ namespace edm {
       parameterSetPlacement_(),
       moduleDescriptionPlacement_(),
       processHistoryPlacement_(),
+      fileFormatVersionPlacement_(),
+      runBlockPlacement_(),
+      luminosityBlockPlacement_(),
       om_(om) {
     std::string const suffix(".root");
     std::string::size_type offset = om_->fileName_.rfind(suffix);
@@ -106,6 +130,10 @@ namespace edm {
 	processHistoryPlacement_);
     makePlacement(poolNames::metaDataTreeName(), poolNames::fileFormatVersionBranchName(),
 	fileFormatVersionPlacement_);
+    makePlacement(poolNames::runTreeName(), poolNames::runBranchName(),
+	runBlockPlacement_);
+    makePlacement(poolNames::luminosityBlockTreeName(), poolNames::luminosityBlockBranchName(),
+	luminosityBlockPlacement_);
     ProductRegistry pReg;
     pReg.setNextID(om_->nextID());
    
@@ -135,14 +163,29 @@ namespace edm {
     pool::Ref<ModuleDescriptionMap const> rmod(om_->context(), &ModuleDescriptionRegistry::instance()->data());
     rmod.markWrite(moduleDescriptionPlacement_);
 
-    typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
-    PsetMap psetMap;
+    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
+    ParameterSetMap psetMap;
     pset::Registry const* psetRegistry = pset::Registry::instance();    
     for (pset::Registry::const_iterator it = psetRegistry->begin(); it != psetRegistry->end(); ++it) {
       psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
     }
-    pool::Ref<PsetMap const> rpparam(om_->context(), &psetMap);
+    pool::Ref<ParameterSetMap const> rpparam(om_->context(), &psetMap);
     rpparam.markWrite(parameterSetPlacement_);
+
+    FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
+
+    pool::Ref<FileFormatVersion const> fft(om_->context(), &fileFormatVersion);
+    fft.markWrite(fileFormatVersionPlacement_);
+
+    // For now, just one run block per file.
+    RunBlock runBlock;
+    pool::Ref<RunBlock const> rblk(om_->context(), &runBlock);
+    rblk.markWrite(runBlockPlacement_);
+
+    // For now, just one luminosity block per file.
+    LuminosityBlock luminosityBlock;
+    pool::Ref<LuminosityBlock const> lblk(om_->context(), &luminosityBlock);
+    lblk.markWrite(luminosityBlockPlacement_);
 
     commitAndFlushTransaction();
     // Register the output file with the JobReport service
@@ -185,7 +228,7 @@ namespace edm {
     aux.id_ = e.id();
     aux.time_ = e.time();
 
-    pool::Ref<const EventAux> ra(context(), &aux);
+    pool::Ref<EventAux const> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_);	
 
     std::list<BranchEntryDescription> dummyProvenances;

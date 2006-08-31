@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.14 2006/06/19 18:50:06 meridian Exp $
-  *  $Date: 2006/06/19 18:50:06 $
-  *  $Revision: 1.14 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.16 2006/07/11 12:21:14 meridian Exp $
+  *  $Date: 2006/07/11 12:21:14 $
+  *  $Revision: 1.16 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -72,8 +72,8 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
    const EEDigiCollection* EEdigis =0;
 
    try {
-     //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
-     evt.getByLabel( digiProducer_, pEBDigis);
+     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
+     //evt.getByLabel( digiProducer_, pEBDigis);
      EBdigis = pEBDigis.product(); // get a ptr to the produc
      edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size() ;
    } catch ( std::exception& ex ) {
@@ -81,8 +81,8 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
    }
 
    try {
-     //     evt.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
-     evt.getByLabel( digiProducer_, pEEDigis);
+     evt.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
+     //evt.getByLabel( digiProducer_, pEEDigis);
      EEdigis = pEEDigis.product(); // get a ptr to the product
      edm::LogInfo("EcalUncalibRecHitInfo") << "total # EEdigis: " << EEdigis->size() ;
    } catch ( std::exception& ex ) {
@@ -145,7 +145,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	   continue;
 	 }
 	 std::vector<double> pedVec;
-	 pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
+	 pedVec.push_back(aped.mean_x12);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x1);
 
 	 // find gain ratios
 	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
@@ -159,7 +159,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	   continue;
 	 }
 	 std::vector<double> gainRatios;
-	 gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
+	 gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
 
 	 // lookup group ID for this channel
 	 EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().find( itdg->id().rawId() );
@@ -249,7 +249,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	   continue;
 	 }
 	 std::vector<double> pedVec;
-	 pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
+	 pedVec.push_back(aped.mean_x12);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x1);
 
 	 // find gain ratios
 	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg->id()) ;
@@ -263,7 +263,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	   continue;
 	 }
 	 std::vector<double> gainRatios;
-	 gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
+	 gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
 	 // lookup group ID for this channel
 	 EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().find( itdg->id().rawId() );
 	 EcalXtalGroupId gid;
@@ -320,7 +320,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 //if(!counterExceeded()) LogDebug("EcalUncalibRecHitDebug") << "chi2 matrix after switch:\n" << clmat4 ;
 
 	 EcalUncalibratedRecHit aHit =
-	   EEalgo_.makeRecHit(*itdg, gainRatios, pedVec, weights, chi2mat);
+	   EEalgo_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
 	 EEuncalibRechits->push_back( aHit );
 
 

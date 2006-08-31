@@ -19,8 +19,13 @@ if cfg1 != cfg2:
     else: 
       print "Keys match "
       for key in k1:
-        if cfg1[key] != cfg2[key]:
-          print "The value of key ", key , " does not match"
+        # skip schedule, because it could get parentheses
+        if cfg1[key] != cfg2[key]: 
+          # skip schedule, because it could get parentheses
+          if key == "schedule":
+            exit(0)
+          else:
+            print "The value of key ", key , " does not match"
 
     exit(-1)
 print "matched"    

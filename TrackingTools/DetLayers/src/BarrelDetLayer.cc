@@ -1,5 +1,4 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
 #include "Geometry/Surface/interface/BoundingBox.h"
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
@@ -31,10 +30,8 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
   vector< const GeometricSearchDet*> comps = components();
 
   // Find extension in Z
-  float theRmin = comps.front()->position().perp();   
-  float theRmax = theRmin;
-  float theZmin = comps.front()->position().z(); 
-  float theZmax = theZmin;
+  theRmin = comps.front()->position().perp();   theRmax = theRmin;
+  theZmin = comps.front()->position().z(); theZmax = theZmin;
   for ( vector< const GeometricSearchDet*>::const_iterator deti = comps.begin(); 
 	deti != comps.end(); deti++) {
     vector<GlobalPoint> corners = 
@@ -74,10 +71,6 @@ BarrelDetLayer::compatible( const TrajectoryStateOnSurface& ts,
 			    const Propagator& prop, 
 			    const MeasurementEstimator& est) const
 {
-  if(theCylinder == 0)  edm::LogError("DetLayers") 
-    << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized" ;
-  // throw an exception? which one?
-
   TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
   if ( !myState.isValid()) return make_pair( false, myState);
 

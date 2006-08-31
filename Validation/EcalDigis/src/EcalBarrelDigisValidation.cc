@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/06/20 16:26:00 $
- * $Revision: 1.5 $
+ * $Date: 2006/07/10 11:31:19 $
+ * $Revision: 1.8 $
  * \author F. Cossutti
  *
 */
@@ -40,7 +40,7 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
 
   gainConv_[0] = 0.;
   gainConv_[1] = 1.;
-  gainConv_[2] = 6.;
+  gainConv_[2] = 2.;
   gainConv_[3] = 12.;
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
@@ -80,16 +80,16 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
     for (int i = 0; i < 10 ; i++ ) {
 
       sprintf (histo, "EcalDigiTask Barrel analog pulse %02d", i+1) ;
-      meEBDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 512, 0., 4096.);
+      meEBDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
 
       sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 1", i+1) ;
-      meEBDigiADCg1_[i] = dbe_->book1D(histo, histo, 512, 0., 4096);
+      meEBDigiADCg1_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
 
       sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 6", i+1) ;
-      meEBDigiADCg6_[i] = dbe_->book1D(histo, histo, 512, 0., 4096);
+      meEBDigiADCg6_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
 
       sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 12", i+1) ;
-      meEBDigiADCg12_[i] = dbe_->book1D(histo, histo, 512, 0., 4096);
+      meEBDigiADCg12_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
 
       sprintf (histo, "EcalDigiTask Barrel gain pulse %02d", i+1) ;
       meEBDigiGain_[i] = dbe_->book1D(histo, histo, 4, 0, 4);
@@ -97,7 +97,7 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
     }
     
     sprintf (histo, "EcalDigiTask Barrel pedestal for pre-sample" ) ;
-    meEBPedestal_ = dbe_->book1D(histo, histo, 512, 0., 4096.) ;
+    meEBPedestal_ = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5) ;
 
     sprintf (histo, "EcalDigiTask Barrel maximum position gt 100 ADC" ) ;
     meEBMaximumgt100ADC_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
@@ -214,8 +214,8 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
       }
 
       if (meEBPedestal_) meEBPedestal_->Fill ( pedestalPreSample ) ;
-      if (meEBMaximumgt10ADC_ && (Emax-pedestalPreSampleAnalog) > 10.*barrelADCtoGeV_) meEBMaximumgt10ADC_->Fill( Pmax ) ;
-      if (meEBMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog) > 100.*barrelADCtoGeV_) meEBMaximumgt100ADC_->Fill( Pmax ) ;
+      if (meEBMaximumgt10ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 10.*barrelADCtoGeV_) meEBMaximumgt10ADC_->Fill( Pmax ) ;
+      if (meEBMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 100.*barrelADCtoGeV_) meEBMaximumgt100ADC_->Fill( Pmax ) ;
       if (meEBnADCafterSwitch_) meEBnADCafterSwitch_->Fill( countsAfterGainSwitch ) ;
         
     } 

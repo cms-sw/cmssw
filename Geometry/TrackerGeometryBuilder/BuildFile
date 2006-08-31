@@ -7,7 +7,6 @@
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiPixelDetId>
 <use name=DetectorDescription/Core>
-<use name=CondFormats/Alignment>
 <use name=clhep>
 </export>
 
@@ -18,7 +17,6 @@
 <use name=DetectorDescription/Core>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiPixelDetId>
-<use name=CondFormats/Alignment>
 <use name=clhep>
 <use name=boost>
 

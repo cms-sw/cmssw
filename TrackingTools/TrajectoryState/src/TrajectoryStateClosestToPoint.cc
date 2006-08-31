@@ -1,4 +1,5 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
 // Private constructor
 
@@ -14,15 +15,13 @@ TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referen
   else {
     errorIsAvailable = false;
   }
-  theField = &(originalFTS.parameters().magneticField());
 }
 
 
 TrajectoryStateClosestToPoint::
 TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar, 
-	const GlobalPoint& referencePoint, const MagneticField* field) :
-  theField(field), theFTSavailable(false), theRefPoint(referencePoint),
-  theParameters(perigeePar), errorIsAvailable(false)
+	const GlobalPoint& referencePoint) :
+  theFTSavailable(false), theRefPoint(referencePoint), theParameters(perigeePar), errorIsAvailable(false)
 {
 //   theParameters = perigeeConversions.helixToPerigeeParameters(helixPar, referencePoint);
 }
@@ -30,9 +29,8 @@ TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar,
 
 TrajectoryStateClosestToPoint::
 TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar, 
-	const reco::perigee::Covariance & perigeeCov, const GlobalPoint& referencePoint,
-	const MagneticField* field) :
-  theField(field), theFTSavailable(false), theRefPoint(referencePoint), theParameters(perigeePar),
+	const reco::perigee::Covariance & perigeeCov, const GlobalPoint& referencePoint) :
+  theFTSavailable(false), theRefPoint(referencePoint), theParameters(perigeePar),
   thePerigeeError(perigeeCov), errorIsAvailable(true)
 {
 //   theParameters = perigeeConversions.helixToPerigeeParameters(helixPar, referencePoint);
@@ -47,8 +45,8 @@ TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar,
 
 TrajectoryStateClosestToPoint::
 TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters,
-  const GlobalPoint& referencePoint, const MagneticField* field) :
-    theField(field), theFTSavailable(false), theRefPoint(referencePoint), 
+  const GlobalPoint& referencePoint) :
+    theFTSavailable(false), theRefPoint(referencePoint), 
     theParameters(perigeeParameters), errorIsAvailable(false)
 {}
 
@@ -60,9 +58,8 @@ TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParamete
 
 TrajectoryStateClosestToPoint::
 TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters,
-  const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint,
-  const MagneticField* field):
-    theField(field), theFTSavailable(false), theRefPoint(referencePoint), theParameters(perigeeParameters),
+  const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint):
+    theFTSavailable(false), theRefPoint(referencePoint), theParameters(perigeeParameters),
     thePerigeeError(perigeeError), errorIsAvailable(true)
     
 {}
@@ -73,7 +70,8 @@ void TrajectoryStateClosestToPoint::calculateFTS() const
   GlobalTrajectoryParameters gtp(
 	    perigeeConversions.positionFromPerigee(theParameters, theRefPoint),
 	    perigeeConversions.momentumFromPerigee(theParameters, theRefPoint),
-	    theParameters.charge(), theField);
+	    theParameters.charge(),
+	    TrackingTools::FakeField::Field::field());
   if (errorIsAvailable) {
     theFTS = FTS(gtp, perigeeConversions.curvilinearError(thePerigeeError, gtp));
   } else {

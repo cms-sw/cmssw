@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2006/07/07 14:21:25 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/17 10:07:48 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -29,23 +29,13 @@ void EBOccupancyTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBOccupancyTask");
-    dbe->rmdir("EcalBarrel/EBOccupancyTask");
-  }
-
 }
 
 void EBOccupancyTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  Char_t histo[20];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -53,8 +43,9 @@ void EBOccupancyTask::setup(void){
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EcalOccupancyTask");
+    dbe->setCurrentFolder("EcalBarrel");
 
+    dbe->setCurrentFolder("EcalBarrel/EcalOccupancy");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBMM occupancy SM%02d", i+1);
       meOccupancy_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -76,8 +67,9 @@ void EBOccupancyTask::cleanup(void){
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EcalOccupancyTask");
+    dbe->setCurrentFolder("EcalBarrel");
 
+    dbe->setCurrentFolder("EcalBarrel/EcalOccupancy");
     for (int i = 0; i < 36; i++) {
       if ( meOccupancy_[i] ) dbe->removeElement( meOccupancy_[i]->getName() );
       meOccupancy_[i] = 0;
@@ -86,8 +78,6 @@ void EBOccupancyTask::cleanup(void){
     }
 
   }
-
-  init_ = false;
 
 }
 

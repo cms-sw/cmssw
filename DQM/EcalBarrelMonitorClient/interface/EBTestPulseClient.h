@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2006/06/29 22:03:24 $
- * $Revision: 1.33 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,7 +38,7 @@ class EBTestPulseClient : public EBClient {
 public:
 
 /// Constructor
-EBTestPulseClient(const ParameterSet& ps);
+EBTestPulseClient(const ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
 virtual ~EBTestPulseClient();
@@ -52,7 +52,7 @@ void unsubscribe(void);
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
@@ -82,7 +82,6 @@ int jevt_;
 
 bool collateSources_;
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 

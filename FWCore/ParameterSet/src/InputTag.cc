@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include <iostream>
 
 namespace edm {
 
@@ -39,6 +40,13 @@ namespace edm {
   {
     return label_ + ":" + instance_;
   }
+}
+
+
+std::ostream& operator<<(std::ostream& ost, const edm::InputTag & tag)
+{
+  ost << "InputTag:  label = " << tag.label() << ", instance = " << tag.instance();
+  return ost;
 }
 
 

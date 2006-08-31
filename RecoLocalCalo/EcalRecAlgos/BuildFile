@@ -4,6 +4,7 @@
 <use name=rootminuit>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
+<use name=Geometry/CaloGeometry>
 <export>
   <lib name=RecoLocalCaloEcalRecAlgos>
   <use name=clhep>
@@ -12,4 +13,5 @@
   <use name=rootminuit>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/MessageService>
+  <use name=Geometry/CaloGeometry>
 </export>

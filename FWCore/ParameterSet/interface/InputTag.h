@@ -2,6 +2,7 @@
 #define ParameterSet_InputTag_h
 
 #include <string>
+#include <iosfwd>
 
 namespace edm {
 
@@ -25,6 +26,8 @@ namespace edm {
   };
 
 }
+
+std::ostream& operator<<(std::ostream& ost, const edm::InputTag & tag);
 
 #endif
 

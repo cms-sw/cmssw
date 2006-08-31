@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/04/18 19:24:15 $
- * $Revision: 1.9 $
+ * $Date: 2006/04/04 19:26:04 $
+ * $Revision: 1.7 $
  * \author W Fisher
  *
 */
@@ -38,7 +38,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_meEvtMask=0;
   
   if ( m_dbe ) {
-    m_dbe->setCurrentFolder("HcalMonitor");
+    m_dbe->setCurrentFolder("Hcal");
     m_meStatus  = m_dbe->bookInt("STATUS");
     m_meRunNum  = m_dbe->bookInt("RUN NUMBER");
     m_meRunType = m_dbe->bookInt("RUN TYPE");
@@ -57,7 +57,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_dfMon = NULL;
   m_rhMon = NULL;
   m_pedMon = NULL;
-  m_ledMon = NULL;
 
   if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) ) {
     m_rhMon = new HcalRecHitMonitor();
@@ -79,11 +78,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     m_pedMon->setup(ps, m_dbe);
   }
 
-  if ( ps.getUntrackedParameter<bool>("LEDMonitor", false) ) {
-    m_ledMon = new HcalLEDMonitor();
-    m_ledMon->setup(ps, m_dbe);
-  }
-  
   if ( m_dbe ) m_dbe->showDirStructure();
   
 }
@@ -93,7 +87,6 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(m_dfMon!=NULL) { delete m_dfMon; m_dfMon=NULL; }
   if(m_rhMon!=NULL) { delete m_rhMon; m_rhMon=NULL; }
   if(m_pedMon!=NULL) { delete m_pedMon; m_pedMon=NULL; }
-  if(m_ledMon!=NULL) { delete m_ledMon; m_ledMon=NULL; }
   delete m_evtSel;
 
   m_logFile.close();
@@ -103,8 +96,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   m_ievt = 0;
   if ( m_meStatus ) m_meStatus->Fill(0);
   if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
-  //if ( m_monitorDaemon ) sleep(10);
-  return;
+  if ( m_monitorDaemon ) sleep(15);
 
 }
 
@@ -113,20 +105,16 @@ void HcalMonitorModule::endJob(void) {
   cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
 
   if ( m_meStatus ) m_meStatus->Fill(2);
-  if ( m_meRunNum) m_meRunNum->Fill(m_runNum);
+  if ( m_meRunNum) m_meRunNum->Fill(m_runNum); //???
   if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
-  //  if ( m_monitorDaemon ){ sleep(10); }
-
-  sleep(30);
+  if ( m_monitorDaemon ) sleep(45);
 
   if(m_digiMon!=NULL) m_digiMon->done();
   if(m_dfMon!=NULL) m_dfMon->done();
   if(m_rhMon!=NULL) m_rhMon->done();
   if(m_pedMon!=NULL) m_pedMon->done();
-  if(m_ledMon!=NULL) m_ledMon->done();
 
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(m_outputFile);
-  return;
 }
 
 void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
@@ -138,13 +126,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   
   // To get information from the event setup, you must request the "Record"
   // which contains it and then extract the object you need
-  //  edm::ESHandle<CaloGeometry> geometry;
-  //  eventSetup.get<IdealGeometryRecord>().get(geometry);
-
-  // get the hcal mapping
-  edm::ESHandle<HcalDbService> pSetup;
-  eventSetup.get<HcalDbRecord>().get( pSetup );
-  const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
+  edm::ESHandle<CaloGeometry> geometry;
+  eventSetup.get<IdealGeometryRecord>().get(geometry);
 
   if ( m_dbe ){ 
     m_meStatus->Fill(1);
@@ -158,9 +141,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     edm::Handle<HBHEDigiCollection> hbhe;
     edm::Handle<HODigiCollection> ho;
     edm::Handle<HFDigiCollection> hf;
-    try{e.getByType(hbhe);} catch(...){};
-    try{e.getByType(hf);} catch(...){};
-    try{e.getByType(ho);} catch(...){};
+    e.getByType(hbhe);
+    e.getByType(hf);
+    e.getByType(ho);
     m_digiMon->processEvent(*hbhe, *ho, *hf);
   }
 
@@ -168,34 +151,21 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     edm::Handle<HBHEDigiCollection> hbhe;
     edm::Handle<HODigiCollection> ho;
     edm::Handle<HFDigiCollection> hf;
-    try{e.getByType(hbhe);} catch(...){};
-    try{e.getByType(hf);} catch(...){};
-    try{e.getByType(ho);} catch(...){};
+    e.getByType(hbhe);
+    e.getByType(hf);
+    e.getByType(ho);
     // get conditions
     edm::ESHandle<HcalDbService> conditions;
     eventSetup.get<HcalDbRecord>().get(conditions);
     m_pedMon->processEvent(*hbhe, *ho, *hf, *conditions);
   }
 
-  if((m_ledMon != NULL) && (evtMask&DO_HCAL_LED_CALIBMON)){
-    edm::Handle<HBHEDigiCollection> hbhe;
-    edm::Handle<HODigiCollection> ho;
-    edm::Handle<HFDigiCollection> hf;
-    try{e.getByType(hbhe);} catch(...){};
-    try{e.getByType(hf);} catch(...){};
-    try{e.getByType(ho);} catch(...){};
-    // get conditions
-    edm::ESHandle<HcalDbService> conditions;
-    eventSetup.get<HcalDbRecord>().get(conditions);
-    m_ledMon->processEvent(*hbhe, *ho, *hf, *conditions);
-  }
-
     
   /////Daata Format monitor stuff
   if((m_dfMon != NULL) && (evtMask&DO_HCAL_DFMON)){
     edm::Handle<FEDRawDataCollection> rawraw;  
-    try{e.getByType(rawraw);} catch(...){};           
-    m_dfMon->processEvent(*rawraw,*readoutMap);
+    e.getByType(rawraw);           
+    m_dfMon->processEvent(*rawraw);
   }
 
   /////Rec Hit monitor stuff
@@ -203,9 +173,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     edm::Handle<HBHERecHitCollection> hb_hits;
     edm::Handle<HORecHitCollection> ho_hits;
     edm::Handle<HFRecHitCollection> hf_hits;
-    try{e.getByType(hb_hits);} catch(...){}; 
-    try{e.getByType(ho_hits);} catch(...){}; 
-    try{e.getByType(hf_hits);} catch(...){}; 
+    e.getByType(hb_hits);
+    e.getByType(ho_hits);
+    e.getByType(hf_hits);
     m_rhMon->processEvent(*hb_hits,*ho_hits,*hf_hits);
   }
 

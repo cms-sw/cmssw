@@ -105,9 +105,11 @@ namespace edm
       modules_.insert(make_pair(string("es_prefer"), emptylist));
       modules_.insert(make_pair(string("module"), emptylist));
       modules_.insert(make_pair(string("source"), emptylist));
+      modules_.insert(make_pair(string("looper"), emptylist));
       modules_.insert(make_pair(string("sequence"),emptylist));
       modules_.insert(make_pair(string("path"),emptylist));
       modules_.insert(make_pair(string("endpath"),emptylist));
+      modules_.insert(make_pair(string("schedule"), emptylist));
       modules_.insert(make_pair(string("service"),emptylist));
       modules_.insert(make_pair(string("pset"), emptylist));
     }
@@ -136,18 +138,18 @@ namespace edm
       ostringstream tuple;
 
       tuple << "'"
-	    << n.name << "': ('"
+	    << n.name() << "': ('"
 	    << n.type() << "', ";
-      write_trackedness(tuple, n.tracked_);
+      write_trackedness(tuple, n.isTracked());
       tuple << ", ";
 
       if (n.type() == "string") 
 	{
-	  write_string_value(tuple, n.value_);
+	  write_string_value(tuple, n.value());
 	}
       else 
 	{
-	  write_other_value(tuple, n.value_);
+	  write_other_value(tuple, n.value());
 	}
 
       tuple  << ')';
@@ -163,15 +165,15 @@ namespace edm
       ostringstream tuple;
 
       tuple << "'"
-	    << n.name << "': ('"
+	    << n.name() << "': ('"
 	    << n.type() << "', ";
 
-      write_trackedness(tuple, n.tracked_);
+      write_trackedness(tuple, n.isTracked());
       tuple << ", ";
 
       // Write out contents of the list...
-      StringList::const_iterator i = n.value_->begin();
-      StringList::const_iterator e = n.value_->end();
+      StringList::const_iterator i = n.value()->begin();
+      StringList::const_iterator e = n.value()->end();
 
       // Figure out which writer to call, so we don't have to do it
       // each time in the loop below.
@@ -212,19 +214,30 @@ namespace edm
       // inside a module (maybe inside something inside of a
       // module). Otherwise, we're working on a top-level PSet (not
       // currently working), or on the process block itself.
-      assert( ! moduleStack_.empty() );
-      if(processingVPSet_ && nVPSetChildren_++) {
-        //if this is actually a PSet embedded in a VPSet then we will need
-        // to comma separate the children
-        moduleStack_.top()+= ",";
+      if(moduleStack_.empty() )
+      {
+         // we don't want commas between top-level nodes
+         n.acceptForChildren(*this);
       }
+      else 
+      {
+ 
+        if(processingVPSet_ && nVPSetChildren_++) {
+          //if this is actually a PSet embedded in a VPSet then we will need
+          // to comma separate the children
+          moduleStack_.top()+= ",";
+        }
          
-      moduleStack_.top() += "{";
+        moduleStack_.top() += "{";
+        writeCommaSeparated(n);
+        moduleStack_.top() += "}";
+      } 
+    }
 
-      // We can't just call acceptForChildren, because we need to
-      // do something between children.
-      //
-      //n.acceptForChildren(*this);
+    void
+    PythonFormWriter::writeCommaSeparated(const CompositeNode & n)
+    {
+      assert(!moduleStack_.empty());
       NodePtrList::const_iterator i = n.nodes()->begin();
       NodePtrList::const_iterator e = n.nodes()->end();
       for ( bool first = true; i != e; first = false, ++i)
@@ -233,22 +246,21 @@ namespace edm
         {
           moduleStack_.top() += ", ";
         }
-        (*i)->accept(*this);	      
+        (*i)->accept(*this);
       }
-
-      //moduleStack_.top() += "}\n";
-      moduleStack_.top() += "}";
     }
-
 
     void 
     PythonFormWriter::visitInclude(const IncludeNode &n)
     {
-      NodePtrList::const_iterator i = n.nodes()->begin();
-      NodePtrList::const_iterator e = n.nodes()->end();
-      for ( ; i != e; ++i)
+      if(moduleStack_.empty() )
       {
-        (*i)->accept(*this);
+         // we don't want commas between top-level nodes
+         n.acceptForChildren(*this);
+      }
+      else
+      {
+        writeCommaSeparated(n);
       }
     }
 
@@ -259,7 +271,7 @@ namespace edm
       MYDEBUG(5) << "Saw a PSetNode\n";
       if ( "process" == n.type() )
 	{
-	  procname_ = n.name;
+	  procname_ = n.name();
 	  n.acceptForChildren(*this);
 
 	  MYDEBUG(4) << "\nprocess name: " << procname_
@@ -274,9 +286,9 @@ namespace edm
 	  // be written a named parameter.
 	  ostringstream out;
 	  out << "'" 
-	      << n.name 
+	      << n.name() 
 	      << "': ('PSet', ";
-          write_trackedness(out, n.tracked_);
+          write_trackedness(out, n.isTracked());
           out << ", ";
 
           bool atTopLevel = (moduleStack_.empty());
@@ -301,7 +313,7 @@ namespace edm
       else
 	{
 	  MYDEBUG(5) << "weird thing: "
-		     << n.type() << " " << n.name << '\n';
+		     << n.type() << " " << n.name() << '\n';
 	}
 
     }
@@ -312,9 +324,9 @@ namespace edm
       MYDEBUG(5) << "Saw a VPSetNode\n";
       ostringstream out;
       out << "'"
-	  << n.name
+	  << n.name()
 	  << "': ('VPSet', ";
-      write_trackedness(out, n.tracked_);
+      write_trackedness(out, n.isTracked());
       out << ", [";
       moduleStack_.top() += out.str();
 
@@ -341,7 +353,7 @@ namespace edm
     PythonFormWriter::visitModule(const ModuleNode& n)
     { 
       MYDEBUG(5) << "Saw a ModuleNode, name: " 
-		 << n.name << '\n';
+		 << n.name() << '\n';
 
       ostringstream header;
 
@@ -357,25 +369,29 @@ namespace edm
           string prefix("");
           string label("");
           string name("@");
-          if((n.type() == "es_module" && n.name!="nameless" ||
-              n.type() == "es_source" && n.name!="main_es_input") ||
-              n.type() == "es_prefer" && n.name!="nameless")
+          if((n.type() == "es_module" && n.name()!="nameless" ||
+              n.type() == "es_source" && n.name()!="main_es_input") ||
+              n.type() == "es_prefer" && n.name()!="nameless")
           {
-             label = n.name;
-             name += n.name;
+             label = n.name();
+             name += n.name();
           }
           if(n.type() =="es_prefer") {
             prefix = "esprefer_";
           }
-	  header <<"'"<< prefix << n.class_ <<name<<"': { '@label': ('string','tracked', '" <<label<<"'), ";
+	  header <<"'"<< prefix << n.className() <<name<<"': { '@label': ('string','tracked', '" <<label<<"'), ";
 	}
-      else if (n.type() == "source" && n.name.empty())
+      else if (n.type() == "source" && n.name().empty())
 	{
 	  // no header to write...
 	}
+      else if (n.type() == "looper" && n.name().empty())
+      {
+        // no header to write...
+      }
       else if(n.type()=="service") 
         {
-          header<<"'"<<n.class_<<"': {";
+          header<<"'"<<n.className()<<"': {";
         }
       else if(n.type()=="secsource")
         {
@@ -387,15 +403,15 @@ namespace edm
           assert(!tokens.empty());
           modulesWithSecSources_.push_back(*(tokens.begin()));
 
-          header<<"'"<<n.name <<"': ('secsource', 'tracked', {";
+          header<<"'"<<n.name() <<"': ('secsource', 'tracked', {";
         }
       else
 	{
-	  header << "'" << n.name << "': {";
+	  header << "'" << n.name() << "': {";
 	}
 
       header << "'@classname': ('string', 'tracked', '"
-	     << n.class_
+	     << n.className()
 	     << "')";
 
       // Remember the names of modules that are output modules...  We
@@ -409,9 +425,9 @@ namespace edm
 //       assert ( !looks_like_an_output_module ("X") );
 
       if ( n.type() == "module" && 
-	   looks_like_an_output_module(n.class_) )
+	   looks_like_an_output_module(n.className()) )
 	{
-	  outputModuleNames_.push_back(n.name);
+	  outputModuleNames_.push_back(n.name());
 	}
 
       // secsource is the only kind of module that can exist inside another module
@@ -459,37 +475,50 @@ namespace edm
     }
 
 
-    // sequence, path, endpath, come in 'WrapperNode'
+    // sequence, path, endpath, schedule come in 'WrapperNode'
     void
     PythonFormWriter::visitWrapper(const WrapperNode& n)
     {
       ostringstream header;
-      header<<"'"<<n.name<<"' : '";
+      header << "'";
+      if(n.type() != "schedule")
+      {
+        header<<n.name()<<"' : '";
+      }
       moduleStack_.push(header.str());
       
       //processes the node held by the wrapper
-      n.wrapped_->accept(*this);
+      n.wrapped()->accept(*this);
 
       moduleStack_.top()+="'";
-      modules_[n.type_].push_back(moduleStack_.top());
+      modules_[n.type()].push_back(moduleStack_.top());
       moduleStack_.pop();
       MYDEBUG(5) << "Saw a WrapperNode, name: "
-		 << n.name << '\n';
+		 << n.name() << '\n';
+      // handle a few special cases
+      if(n.type() == "path")
+      {
+        triggerPaths_.push_back(n.name());
+      }
+      else if(n.type() == "endpath")
+      {
+        endPaths_.push_back(n.name());
+      }
     }
     
     void 
     PythonFormWriter::visitOperator(const OperatorNode& n)
     {
       moduleStack_.top()+="(";
-      n.left_->accept(*this);
-      moduleStack_.top()+=n.type_;
-      n.right_->accept(*this);
+      n.left()->accept(*this);
+      moduleStack_.top()+=n.type();
+      n.right()->accept(*this);
       moduleStack_.top()+=")";
     }
     void 
     PythonFormWriter::visitOperand(const OperandNode& n)
     {
-      moduleStack_.top()+=n.name;
+      moduleStack_.top()+=n.name();
     }
 
 
@@ -522,6 +551,21 @@ namespace edm
       //NOTE: no extra '}' added since it is added in the previous printing
       out << " # end of main_input\n";
 
+      out << ", 'looper': {\n";
+      {
+        list<string> const& input = modules_["looper"];
+        if(input.empty()){
+          out << "}";
+        }
+        else {
+          out << *(input.begin()) << '\n';
+        }
+        // print guts of main input here
+      }
+      //NOTE: no extra '}' added since it is added in the previous printing
+      out << " # end of looper\n";
+      
+      
       writeType("pset", out);
       writeType("module", out);
       writeType("es_module", out);
@@ -530,27 +574,15 @@ namespace edm
 
       out << "# output modules (names)\n";
       {
-	out << ", 'output_modules': [ ";
-	list<string>::const_iterator i = outputModuleNames_.begin();
-	list<string>::const_iterator e = outputModuleNames_.end();
-	for ( bool first = true; i !=e; first=false, ++i)
-	  {
-	    if (!first) out << ", ";
-	    out << "'" << *i << "'";
-	  }
-	out << " ]\n" ;
+        out << ", 'output_modules': [ ";
+        writeCommaSeparated(outputModuleNames_, true, out);
+        out << " ]\n" ;
       }
 
       out << "# modules with secsources (names)\n";
       {
         out << ", 'modules_with_secsources': [ ";
-        list<string>::const_iterator i = modulesWithSecSources_.begin();
-        list<string>::const_iterator e = modulesWithSecSources_.end();
-        for ( bool first = true; i !=e; first=false, ++i)
-          {
-            if (!first) out << ", ";
-            out << *i;
-          }
+        writeCommaSeparated(modulesWithSecSources_, false, out);
         out << " ]\n" ;
       }
 
@@ -558,7 +590,7 @@ namespace edm
       writeType("path", out);
       writeType("endpath", out);
       writeType("service", out);
-
+      doSchedule(out);
       
       out << '}';
     }
@@ -569,22 +601,67 @@ namespace edm
       out << "# " << type << "s\n";
       {
         out << ", '" << type << "s': {\n";
-        list<string> const& mods = modules_[type];
-        list<string>::const_iterator i = mods.begin();
-        list<string>::const_iterator e = mods.end();
-        for ( bool first = true; i!=e; first=false,++i)
-        {
-          if (!first) out << ',';
-          out << *i << '\n';
-        }
+        writeCommaSeparated(modules_[type], false, out);
         out << "} #end of " << type << "s\n";
       }
     }
 
-    void 
-    PythonFormWriter::writeNames(const std::list<std::string> & names,
-	                 	 std::ostream & out)
+    void PythonFormWriter::writeCommaSeparated(const list<string> & input,
+                                               bool addQuotes, ostream & out)
     {
+      list<string>::const_iterator i = input.begin();
+      list<string>::const_iterator e = input.end();
+      for ( bool first = true; i!=e; first=false,++i)
+      {
+        if (!first) out << ',';
+        if(addQuotes) out << "'";
+        out << *i ;
+        if(addQuotes) out << "'";
+        out << '\n';
+      }
+    }
+
+
+    void PythonFormWriter::doSchedule(ostream & out)
+    {
+      int nSchedules = modules_["schedule"].size();
+      if(nSchedules > 1)
+      {
+        throw edm::Exception(errors::Configuration)
+          << "More than one schedule defined in this config file";
+      }
+      // if one is already defined
+      else if(nSchedules == 1)
+      {
+        writeSchedule(out);
+      }
+      // if there's none defined, make one
+      // so that python won't re-order it for us later.
+      else 
+      {
+        //concatenate triggerPath and endPaths in a comma-delimited list
+        string schedule = "'";
+        list<string> parts(triggerPaths_);
+        parts.insert(parts.end(), endPaths_.begin(), endPaths_.end());
+        list<string>::const_iterator i = parts.begin();
+        list<string>::const_iterator e = parts.end();
+        for ( bool first = true; i!=e; first=false,++i)
+        {
+          if (!first) schedule += ',';
+          schedule += *i ;
+        }
+        schedule += "'";
+        modules_["schedule"].push_back(schedule);
+        writeSchedule(out);
+      }
+    }
+
+
+    //  assumes there's just one in the map
+    void PythonFormWriter::writeSchedule(ostream & out)
+    {
+      out << "# schedule\n";
+      out << ", 'schedule': " << modules_["schedule"].front() << "\n";
     }
 
   } // namespace pset

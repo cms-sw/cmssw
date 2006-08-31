@@ -19,7 +19,7 @@ namespace edm {
 
     void WrapperNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
-      ost << type_ << " " << name << " = {\n"
+      ost << type() << " " << name() << " = {\n"
           << wrapped_
           << "\n}\n";
     }

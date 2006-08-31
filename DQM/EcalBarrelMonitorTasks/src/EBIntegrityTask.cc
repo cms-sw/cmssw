@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/07/07 14:38:07 $
- * $Revision: 1.23 $
+ * $Date: 2006/06/17 17:17:11 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
  */
@@ -38,23 +38,13 @@ void EBIntegrityTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
-    dbe->rmdir("EcalBarrel/EBIntegrityTask");
-  }
-
 }
 
 void EBIntegrityTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  Char_t histo[20];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -62,9 +52,10 @@ void EBIntegrityTask::setup(void){
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
+    dbe->setCurrentFolder("EcalBarrel");
 
     // checking when number of towers in data different than expected from header
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
     sprintf(histo, "EBIT DCC size error");
     meIntegrityDCCSize = dbe->book1D(histo, histo, 36, 1, 37.);
 
@@ -152,8 +143,9 @@ void EBIntegrityTask::cleanup(void){
   dbe = Service<DaqMonitorBEInterface>().operator->();
   
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
+    dbe->setCurrentFolder("EcalBarrel");
 
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
     if ( meIntegrityDCCSize ) dbe->removeElement( meIntegrityDCCSize->getName() );
     meIntegrityDCCSize = 0;
 
@@ -218,8 +210,6 @@ void EBIntegrityTask::cleanup(void){
     }
 
   }
-
-  init_ = false;
 
 }
 
@@ -342,10 +332,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int iet = id.ieta();
     int ipt = id.iphi();
 
-    int ismt = id.iDCC();
+    //    int ismt = id.iDCC();
+    int ismt = 1;
 
-    float xiet = iet - 0.5;
-    float xipt = ipt - 0.5;
+    float xiet = iet + 0.5;
+    float xipt = ipt + 0.5;
 
     if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xiet, xipt);
 
@@ -361,12 +352,10 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int iet = id.ieta();
     int ipt = id.iphi();
 
-    int ismt = id.iDCC();
+    //    int ismt = id.ism();
+    int ismt = 1;
 
-    float xiet = iet - 0.5;
-    float xipt = ipt - 0.5;
-
-     if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
+     if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(iet, ipt);
 
    }
 

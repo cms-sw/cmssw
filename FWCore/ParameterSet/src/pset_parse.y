@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.31 2006/06/28 18:58:17 rpw Exp $
+ * $Id: pset_parse.y,v 1.37 2006/08/19 00:15:14 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -102,6 +102,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token PRODUCTTAG_tok
 %token BANGSTART_tok
 %token EQUAL_tok
+%token PLUSEQUAL_tok
 %left COMMA_tok
 %token VALUE_tok
 %token SQWORD_tok
@@ -132,9 +133,11 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 
 %left  AND_tok
 %token SOURCE_tok
+%token LOOPER_tok
 %token SECSOURCE_tok
 %token ES_SOURCE_tok
 %token PATH_tok
+%token SCHEDULE_tok
 %token SEQUENCE_tok
 %token BLOCK_tok
 %token ENDPATH_tok
@@ -158,7 +161,13 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %%
 
 /* set global_gunk to be a NodePtrList pointer */
-main:            process
+main:            /*empty */
+                 {
+                   DBPRINT("main: empty");
+                   NodePtrList* p(new NodePtrList);
+                   global_gunk = p;
+                 }
+               | process
                  {
                    DBPRINT("main: process");
                    global_gunk = $<_NodePtrList>1;
@@ -422,7 +431,7 @@ nodesarray:      nodesarray COMMA_tok scoped
                    $<_NodePtrList>$ = p;
                  }
                |
-                 nodesarray COMMA_tok any
+                 nodesarray COMMA_tok LETTERSTART_tok
                  {
                    NodePtrList* p = $<_NodePtrList>1;
                    string word(toString($<str>3));
@@ -440,7 +449,7 @@ nodesarray:      nodesarray COMMA_tok scoped
                    $<_NodePtrList>$ = p;
                  }
                |
-                 any
+                 LETTERSTART_tok
                  {
                    string word(toString($<str>1));
                    NodePtr n(new StringNode(word,lines));
@@ -698,6 +707,15 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    $<_Node>$ = wn;
                  }
                |
+                 LOOPER_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: initLOOPER");
+                   string type(toString($<str>3));
+                   NodePtrListPtr nodelist($<_NodePtrList>4);
+                   ModuleNode* wn(new ModuleNode("looper", "" ,type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+|
                  ES_SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: initES_SOURCE");
@@ -744,6 +762,17 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    $<_Node>$ = wn;
                  }
                |
+                 REPLACE_tok LETTERSTART_tok PLUSEQUAL_tok replaceEntry
+                 {
+                   DBPRINT("procnode: APPENDVALUE");
+                   string name(toString($<str>2));
+                   string value(toString($<str>4));
+                   EntryNode * entry = new EntryNode("replace",name, value, false, lines);
+                   NodePtr entryPtr(entry);
+                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
                  REPLACE_tok LETTERSTART_tok EQUAL_tok anyarray
                  {
                    DBPRINT("node: REPLACEARRAY");
@@ -752,6 +781,17 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
                    NodePtr entryPtr(en);
                    ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok LETTERSTART_tok PLUSEQUAL_tok anyarray
+                 {
+                   DBPRINT("node: REPLACEARRAY");
+                   string name(toString($<str>2));
+                   StringListPtr value($<_StringList>4);
+                   VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
+                   NodePtr entryPtr(en);
+                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -775,6 +815,17 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    ModuleNode * moduleNode(new ModuleNode("replace",name,type,nodelist,lines));
                    NodePtr entryPtr(moduleNode);
                    ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok nodesarray SCOPE_END_tok
+                 {
+                   DBPRINT("procnode: REPLACE_VPSET");
+                   string name(toString($<str>2));
+                   NodePtrListPtr value($<_NodePtrList>5);
+                   VPSetNode* en(new VPSetNode("VPSet",name,value,false,lines));
+                   NodePtr vpsetNodePtr(en);
+                   ReplaceNode* wn(new ReplaceNode("replace", name, vpsetNodePtr, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -887,6 +938,14 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    string name(toString($<str>2));
                    NodePtr path($<_Node>5);
                    WrapperNode* wn(new WrapperNode("path",name,path,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 SCHEDULE_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
+                 {
+                   DBPRINT("procnode: SCHEDULE");
+                   NodePtr path($<_Node>4);
+                   WrapperNode* wn(new WrapperNode("schedule", "" ,path,lines));
                    $<_Node>$ = wn;
                  }
                |

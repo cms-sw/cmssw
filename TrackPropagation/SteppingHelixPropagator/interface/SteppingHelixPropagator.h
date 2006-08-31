@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2006/07/04 01:20:21 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/03 06:48:55 $
+ *  $Revision: 1.3 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.5 2006/07/04 01:20:21 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.3 2006/05/03 06:48:55 slava77 Exp $
 //
 //
 
@@ -55,9 +55,8 @@ class SteppingHelixPropagator : public Propagator {
     APPROX,
     RANGEOUT,
     INACC,
-    NOT_IMPLEMENTED,
-    UNDEFINED
-  };
+    NOT_IMPLEMENTED
+  } ;
 
   enum Pars {
     RADIUS_P=0,
@@ -71,9 +70,7 @@ class SteppingHelixPropagator : public Propagator {
     PLANE_DT,
     CONE_DT,
     CYLINDER_DT,
-    PATHL_DT,
-    POINT_PCA_DT,
-    LINE_PCA_DT
+    PATHL_DT
   };
 
   enum Fancy {
@@ -98,17 +95,9 @@ class SteppingHelixPropagator : public Propagator {
   /// Propagate to Plane given a starting point
   virtual TrajectoryStateOnSurface 
     propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) const;
-  /// Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0)
+  /// Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0
   virtual TrajectoryStateOnSurface 
     propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const;
-  /// Propagate to PCA to point given a starting point 
-  virtual FreeTrajectoryState 
-    propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
-  /// Propagate to PCA to a line (given by 2 points) given a starting point 
-  virtual FreeTrajectoryState 
-    propagate(const FreeTrajectoryState& ftsStart, 
-	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
-
   /// Propagate to Plane given a starting point: return final 
   /// TrajectoryState and path length from start to this point
   virtual std::pair<TrajectoryStateOnSurface, double> 
@@ -117,13 +106,6 @@ class SteppingHelixPropagator : public Propagator {
   ///and path length from start to this point
   virtual std::pair<TrajectoryStateOnSurface, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const;
-  /// Propagate to PCA to point given a starting point 
-  virtual std::pair<FreeTrajectoryState, double> 
-    propagateWithPath(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
-  /// Propagate to PCA to a line (given by 2 points) given a starting point 
-  virtual std::pair<FreeTrajectoryState, double> 
-    propagateWithPath(const FreeTrajectoryState& ftsStart, 
-	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
   
 
   /// Switch debug printouts (to cout) .. very verbose
@@ -151,10 +133,17 @@ class SteppingHelixPropagator : public Propagator {
   void getFState(SteppingHelixPropagator::Vector& p3, SteppingHelixPropagator::Point& r3,  
 		 HepSymMatrix& cov) const;
 
-  /// propagate: chose stop point by type argument
   /// propagate to fixed radius [ r = sqrt(x**2+y**2) ] with precision epsilon
-  /// propagate to plane by [x0,y0,z0, n_x, n_y, n_z] parameters
-  Result propagate(SteppingHelixPropagator::DestType type, const double pars[6], double epsilon = 1e-3) const;
+  Result propagateToR(double rDest, double epsilon = 1e-2) const;
+  /// propagate to fixed Z with precision epsilon
+  Result propagateToZ(double zDest, double epsilon = 1e-2) const;
+  /// stop when path length sDest is reached with precision epsilon
+  Result propagateByPathLength(double sDest, double epsilon = 1e-2) const;
+  /// propagate: stop when within epsilon from a plane defined 
+  /// by [x0,y0,z0, n_x, n_y, n_z] parameters
+  Result propagateToPlane(const double pars[6], double epsilon = 1e-2) const;
+  /// propagate: chose stop point by type argument
+  Result propagate(SteppingHelixPropagator::DestType type, const double pars[6]) const;
 
   /// (Internals) compute transient values for initial point (resets step counter).
   ///  Called by setIState
@@ -184,8 +173,7 @@ class SteppingHelixPropagator : public Propagator {
   int cIndex_(int ind) const;
 
   /// (Internals) determine distance and direction from the current position to the plane
-  Result refToDest(DestType dest, int ind, const double pars[6], 
-		   double& dist, double& secTheta, bool& isIncoming) const;
+  void refToPlane(int ind, const double pars[6], double& dist, bool& isIncoming) const;
 
   /// Compute covariance matrix rotation given change in basis vectors
   void initCovRotation(const SteppingHelixPropagator::Vector* repI[3], 
@@ -197,7 +185,6 @@ class SteppingHelixPropagator : public Propagator {
 
  private:
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
-  typedef std::pair<FreeTrajectoryState, double> FtsPP;
   static const int MAX_STEPS = 10000;
   static const int MAX_POINTS = 50;
   mutable int nPoints_;

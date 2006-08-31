@@ -1,7 +1,10 @@
-/** \file
+
+
+/*
+ *  See header file for a description of this class.
  *
- *  $Date: 2006/04/05 16:40:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/15 09:24:46 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

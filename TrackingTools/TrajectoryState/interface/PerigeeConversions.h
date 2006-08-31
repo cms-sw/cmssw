@@ -54,8 +54,7 @@ public:
    */
 
   GlobalVector momentumFromPerigee(const AlgebraicVector& momentum, 
-    const TrackCharge& charge, const GlobalPoint& referencePoint,
-    const MagneticField* field)  const;
+    const TrackCharge& charge, const GlobalPoint& referencePoint)  const;
 
   /**
    * This method returns the (Cartesian) momentum from the PerigeeTrajectoryParameters
@@ -84,8 +83,7 @@ public:
    */
   TrajectoryStateClosestToPoint trajectoryStateClosestToPoint
 	(const AlgebraicVector& momentum, const GlobalPoint& referencePoint,
-	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix,
-	 const MagneticField* field) const;
+	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix) const;
 
 
   /**
@@ -95,7 +93,7 @@ public:
 
   AlgebraicMatrix  jacobianParameters2Cartesian
 	(const AlgebraicVector& momentum, const GlobalPoint& position,
-	 const TrackCharge& charge, const MagneticField* field) const;
+	 const TrackCharge& charge) const;
 
 
   /**

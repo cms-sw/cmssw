@@ -16,17 +16,22 @@ namespace edm {
 
   namespace pset {
 
-    struct Visitor;
-    struct ReplaceNode;
+    class Visitor;
+    class ReplaceNode;
 
     // Base type for all nodes.  All nodes have a type associated
     // with them - this is basically the keyword that caused the
     // generation of this node.  All nodes have a name - this is the
     // name assigned to the entity
 
-    struct Node
+    class Node
     {
+    public:
       Node(std::string const& n, int li);
+
+      std::string name() const {return name_;}
+      void setName(const std::string & n) {name_ = n;}
+      int line() const {return line_;}
 
       /// needed for deep copies
       virtual Node * clone() const = 0;
@@ -72,8 +77,9 @@ namespace edm {
       virtual edm::Entry makeEntry() const;
 
 
-      std::string name;
-      int         line;
+    private:
+      std::string name_;
+      int         line_;
       // nodes can only be modified once, so the config files can be order-independent
       bool modified_;
       Node * parent_;

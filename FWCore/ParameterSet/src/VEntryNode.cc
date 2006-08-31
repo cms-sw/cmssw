@@ -2,6 +2,7 @@
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
+#include "FWCore/ParameterSet/interface/EntryNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 
@@ -37,7 +38,7 @@ namespace edm {
     void VEntryNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       const char* t = !tracked_ ? "" : "untracked ";
-      ost << t << type_ << " " << name << " = {\n  ";
+      ost << t << type() << " " << name() << " = {\n  ";
 
       if(!value_->empty())
         {
@@ -59,18 +60,63 @@ namespace edm {
     void VEntryNode::replaceWith(const ReplaceNode * replaceNode)
     {
       assertNotModified();
-      VEntryNode * replacement = dynamic_cast<VEntryNode*>(replaceNode->value_.get());
-      if(replacement == 0) {
-        throw edm::Exception(errors::Configuration)
-          << "Cannot replace entry vector" << name
-          << " with " << replaceNode->type();
+      // see if it's a replace or an append
+      if(replaceNode->type() == "replace")
+      {
+        VEntryNode * replacement = replaceNode->value<VEntryNode>();
+        if(replacement == 0) {
+          throw edm::Exception(errors::Configuration)
+            << "Cannot replace entry vector" << name()
+            <<   " with " << replaceNode->type();
+        }
+        // replace the value, keep the type
+        value_ = replacement->value_;
       }
-      // replace the value, keep the type
-      value_ = replacement->value_;
+      else if(replaceNode->type() == "replaceAppend")
+      {
+        append(replaceNode->value());
+      }
+      else 
+      {
+         throw edm::Exception(errors::Configuration)
+            << "Cannot replace entry vector" << name()
+            <<   " with " << replaceNode->type();
+      }
       setModified(true);
     }
 
 
+    void VEntryNode::append(NodePtr ptr)
+    {  
+      // single or multiple?
+      EntryNode * entryNode =  dynamic_cast<EntryNode*>(ptr.get());
+      if(entryNode != 0)
+      {
+        value_->push_back(entryNode->value());
+      }
+      else 
+      {
+        // try VEntry
+        VEntryNode * ventryNode =  dynamic_cast<VEntryNode*>(ptr.get());
+        if(ventryNode != 0)
+        {
+          StringListPtr entries = ventryNode->value_;
+          for(StringList::const_iterator itr = entries->begin();
+              itr != entries->end(); ++itr)
+          {
+            value_->push_back(*itr);
+          }
+        }
+        // neither Entry or VEntry
+        else 
+        { 
+          throw edm::Exception(errors::Configuration)
+            << "Bad type to append to VEntry " 
+            <<  ptr->type();
+        }
+      }
+    }  
+    
     edm::Entry VEntryNode::makeEntry() const
     {
       vector<string>::const_iterator ib(value_->begin()),
@@ -80,31 +126,31 @@ namespace edm {
        {
          vector<string> usethis;
          for(;ib!=ie;++ib) usethis.push_back(withoutQuotes(*ib));
-         return Entry(usethis, !tracked_);
+         return Entry(name(), usethis, !tracked_);
        }
      else if(type()=="vdouble")
        {
          vector<double> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtod(ib->c_str(),0));
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else if(type()=="vint32")
        {
          vector<int> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(atoi(ib->c_str()));
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else if(type()=="vuint32")
        {
          vector<unsigned int> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else if(type()=="VInputTag")
        {
          vector<InputTag> d ;
          for(ib=k;ib!=ie;++ib) d.push_back( InputTag(withoutQuotes(*ib)) );
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else
        {

@@ -7,8 +7,8 @@
  *  This class is an EDProducer making the HLT summary objects (path
  *  objects and global object).
  *
- *  $Date: 2006/06/26 00:19:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/07 13:24:30 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -28,13 +28,15 @@
 
 class HLTMakeSummaryObjects : public edm::EDProducer {
 
-   public:
-      explicit HLTMakeSummaryObjects(const edm::ParameterSet&);
-      ~HLTMakeSummaryObjects();
+  public:
+    explicit HLTMakeSummaryObjects(const edm::ParameterSet&);
+    ~HLTMakeSummaryObjects();
+    virtual void produce(edm::Event&, const edm::EventSetup&);
 
-   virtual void produce(edm::Event&, const edm::EventSetup&);
-
-   std::vector<std::string> names_; // the (path) names (used as product instance names for path objects)
+  private:
+    // the (path) names (used as product instance names for path objects)
+    // - will be taken from triger names service (tns) in c'tor.
+    std::vector<std::string> names_;
 
 };
 

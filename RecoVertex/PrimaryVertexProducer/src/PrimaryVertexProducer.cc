@@ -14,11 +14,6 @@
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
 using namespace reco;
 
 //
@@ -71,12 +66,11 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
     cout << "got " << (*tks).size() << " tracks " << endl;
-
-
-    edm::ESHandle<TransientTrackBuilder> theB;
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-
-    vector<TransientTrack> t_tks = (*theB).build(tks);
+    vector<TransientTrack> t_tks;
+    for (unsigned int i = 0; i < (*tks).size() ; i++) {
+      TrackRef trkRef(tks, i);
+      t_tks.push_back(trkRef);
+    }
 
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
@@ -98,26 +92,25 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // test with vertex fitter
     if (t_tks.size() > 1) {
       KalmanVertexFitter kvf;
-      Vertex v = kvf.vertex(t_tks);
-//       TransientVertex tv = kvf.vertex(t_tks);
-//       // CachingVertex tv = kvf.vertex(t_tks);
-//       Vertex v(Vertex::Point(tv.position()), 
-// 	       RecoVertex::convertError(tv.positionError()), 
-// 	       // RecoVertex::convertError(tv.error()), 
-// 	       (tv).totalChiSquared(), 
-// 	       (tv).degreesOfFreedom() , 
-// 	       // (tv).tracks().size());
-//       	       (tv).originalTracks().size());
-//       vector<reco::TransientTrack> prongs = (tv).originalTracks();
-//       for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
-// 	   it != prongs.end(); it++) {
-// 	if ((*it).persistentTrackRef()) {
-// 	  v.add(*(*it).persistentTrackRef());
-// 	}
-// 	else {
-// 	  cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
-// 	}
-//       }
+      TransientVertex tv = kvf.vertex(t_tks);
+      // CachingVertex tv = kvf.vertex(t_tks);
+      Vertex v(Vertex::Point(tv.position()), 
+	       RecoVertex::convertError(tv.positionError()), 
+	       // RecoVertex::convertError(tv.error()), 
+	       (tv).totalChiSquared(), 
+	       (tv).degreesOfFreedom() , 
+	       // (tv).tracks().size());
+      	       (tv).originalTracks().size());
+      vector<reco::TransientTrack> prongs = (tv).originalTracks();
+      for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
+	   it != prongs.end(); it++) {
+	if ((*it).persistentTrackRef()) {
+	  v.add(*(*it).persistentTrackRef());
+	}
+	else {
+	  cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
+	}
+      }
 
       vColl.push_back(v);
     }

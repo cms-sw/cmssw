@@ -4,7 +4,7 @@
 // Creation Date:  MFP Apr. 6 2005 Initial version.
 // Revision:  R. Harris,  Oct. 19, 2005 Modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: MidpointJetProducer.cc,v 1.12 2006/04/08 00:37:08 fedor Exp $
+// $Id: MidpointJetProducer.cc,v 1.13 2006/06/30 23:35:44 fedor Exp $
 //
 //--------------------------------------------
 #include <memory>
@@ -49,7 +49,7 @@ namespace cms
   {
     // branch alias
     char label [32];
-    sprintf (label, "IC%d%s", 
+    sprintf (label, "MC%d%s", 
 	     int (floor (conf.getParameter<double>("coneRadius") * 10. + 0.5)), 
 	     jetType_.c_str());
     if (makeCaloJet (jetType_)) produces<CaloJetCollection>().setBranchAlias (label);

@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/07/04 16:53:35 $
- *   $Revision: 1.12 $
+ *   $Date: 2006/06/21 17:11:48 $
+ *   $Revision: 1.10 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -26,8 +26,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
-
-#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonTrackLoader.h"
 
 // Input and output collection
 
@@ -48,15 +47,17 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   ParameterSet STA_pSet = parameterSet.getParameter<ParameterSet>("STATrajBuilderParameters");
   
   // MuonSeed Collection Label
-  theSeedCollectionLabel = parameterSet.getUntrackedParameter<string>("MuonSeedCollectionLabel");
+  theSeedCollectionLabel = parameterSet.getParameter<string>("MuonSeedCollectionLabel");
 
   // instantiate the concrete trajectory builder in the Track Finder
   // FIXME: potential memory leak??
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet));
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet),
+				       new StandAloneMuonTrackLoader());
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  // produces<double>();
 }
   
 /// destructor
@@ -82,6 +83,11 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
   LogDebug(metname)<<"Track Reconstruction"<<endl;
   theTrackFinder->reconstruct(seeds,event,eventSetup);
  
+  // FIXME This is DUMMY!
+  //  auto_ptr<double> recDouble(new double(3.) );
+  // event.put(recDouble);
+  //
+
   LogDebug(metname)<<"Event loaded"
 		   <<"================================"
 		   <<endl<<endl;

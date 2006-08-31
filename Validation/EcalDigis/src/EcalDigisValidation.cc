@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/06/23 17:29:58 $
- * $Revision: 1.9 $
+ * $Date: 2006/07/09 16:49:46 $
+ * $Revision: 1.11 $
  * \author F. Cossutti
  *
 */
@@ -55,7 +55,7 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
 
   gainConv_[0] = 0.;
   gainConv_[1] = 1.;
-  gainConv_[2] = 6.;
+  gainConv_[2] = 2.;
   gainConv_[3] = 12.;
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
@@ -271,13 +271,14 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
           }
         pedestalPreSample /= 3. ; 
         pedestalPreSampleAnalog /= 3. ; 
-        double Erec = Emax - pedestalPreSampleAnalog;
+        double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]];
         
         if ( ebSimMap[ebid.rawId()] != 0. ) {
           LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << ebSimMap[ebid.rawId()] << " gainConv " << gainConv_[(int)ebADCGains[Pmax]];
           if ( meEBDigiSimRatio_ ) meEBDigiSimRatio_->Fill( Erec/ebSimMap[ebid.rawId()] ) ; 
           if ( Erec > 10.*barrelADCtoGeV_  && meEBDigiSimRatiogt10ADC_  ) meEBDigiSimRatiogt10ADC_->Fill( Erec/ebSimMap[ebid.rawId()] );
           if ( Erec > 100.*barrelADCtoGeV_  && meEBDigiSimRatiogt100ADC_  ) meEBDigiSimRatiogt100ADC_->Fill( Erec/ebSimMap[ebid.rawId()] );
+
         }
         
       } 
@@ -358,7 +359,7 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
           }
         pedestalPreSample /= 3. ; 
         pedestalPreSampleAnalog /= 3. ; 
-        double Erec = Emax - pedestalPreSampleAnalog;
+        double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]];
         
         if (eeSimMap[eeid.rawId()] != 0. ) {
           LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << eeSimMap[eeid.rawId()] << " gainConv " << gainConv_[(int)eeADCGains[Pmax]];

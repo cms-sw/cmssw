@@ -7,7 +7,7 @@ namespace edm {
   namespace pset {
 
     /** CompositeNode is meant as a base class */
-    struct CompositeNode : public Node {
+    class CompositeNode : public Node {
     public:
       CompositeNode(const std::string& name, NodePtrListPtr nodes, int line=-1)
       : Node(name, line), nodes_(nodes) {}
@@ -29,6 +29,7 @@ namespace edm {
       bool findChild(const std::string & child, NodePtr & result);
 
       void removeChild(const std::string & child);
+      void removeChild(const Node* child);
 
       /// returns all sub-nodes
       NodePtrListPtr nodes() const {return nodes_;}

@@ -44,7 +44,6 @@ private:
     bool m_pUseMagneticField;
     edm::ParameterSet m_pField;
     bool m_pUseSensitiveDetectors;
-    edm::ParameterSet m_p;    
     SimActivityRegistry m_registry;
     std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
     std::vector<boost::shared_ptr<SimProducer> > m_producers;    
@@ -53,6 +52,7 @@ private:
     AttachSD * m_attach;
     std::vector<SensitiveTkDetector*> m_sensTkDets;
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;
+    edm::ParameterSet m_p;
 };
 
 #endif

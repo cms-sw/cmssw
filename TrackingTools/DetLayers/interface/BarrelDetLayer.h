@@ -21,8 +21,12 @@ class BarrelDetLayer : public DetLayer {
  public:
 
   BarrelDetLayer() : 
-    theCylinder(0){}
+    theCylinder(0), theInitialPosition(0) {}
   
+  BarrelDetLayer( float initPos) : 
+    theCylinder(0), theInitialPosition(initPos) {}
+  
+
   virtual ~BarrelDetLayer();
 
   // GeometricSearchDet interface
@@ -39,21 +43,26 @@ class BarrelDetLayer : public DetLayer {
   // Extension of the interface
   virtual const BoundCylinder&  specificSurface() const { return *theCylinder;}
 
+  void setSurface( BoundCylinder* cp);
+
   bool contains( const Local3DPoint& p) const;
 
+  virtual float initialPosition() const { return theInitialPosition;}
+  
+  virtual void initialize();
+  
 
 
 protected:
-  void setSurface( BoundCylinder* cp);
-
-  virtual void initialize();
 
   virtual BoundCylinder* computeSurface();
 
-
 private:
-  //float theRmin, theRmax, theZmin, theZmax;
+
   ReferenceCountingPointer<BoundCylinder>  theCylinder;
+  float theInitialPosition;
+  
+  float theRmin, theRmax, theZmin, theZmax;
 
 };
 

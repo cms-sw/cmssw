@@ -1,6 +1,5 @@
 #include "FWCore/ParameterSet/src/ParseResultsTweaker.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Nodes.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 
@@ -136,7 +135,7 @@ namespace edm {
       {
         // see what the type is
         string type = (*nodeItr)->type();
-        string name = (*nodeItr)->name;
+        string name = (*nodeItr)->name();
         // see if it's ont of the many types of ModuleNode first
         ModuleNode * moduleNode = dynamic_cast<ModuleNode *>((*nodeItr).get());
         if(moduleNode != 0) 
@@ -148,15 +147,23 @@ namespace edm {
             // unnamed modules are named after class
             if(name == "nameless" || name == "" || name=="main_es_input") 
             {
-              name = moduleNode->class_;
+              name = moduleNode->className();
             }
 
             // double-check that no duplication
             NodePtrMap::iterator moduleMapItr = modulesAndSources_.find(name);
-            if(moduleMapItr != modulesAndSources_.end()) {
+            if(moduleMapItr != modulesAndSources_.end()) 
+            {
+              std::ostringstream firstTrace, secondTrace;
+              moduleNode->printTrace(secondTrace);
+              moduleMapItr->second->printTrace(firstTrace);
+              if(firstTrace.str().empty()) firstTrace << "main config\n";
+              if(secondTrace.str().empty()) secondTrace << "main config\n";
               throw edm::Exception(errors::Configuration,"") 
                << "Duplicate definition of " << name
-               << "\nPlease edit the configuration so it is only defined once";
+               << "\nfirst: " << firstTrace.str()
+               << "second: " << secondTrace.str()
+               << "Please edit the configuration so it is only defined once";
               //edm::LogWarning("ParseResultsTweaker") << "Duplicate definition of "
               //<< name << ". Only last one will be kept.";
             }
@@ -209,7 +216,7 @@ namespace edm {
 
       NodePtr fromPtr = findPtr(copyNode->from(), targetMap);
       NodePtr toPtr(fromPtr->clone());
-      toPtr->name = copyNode->to();
+      toPtr->setName(copyNode->to());
 
       // and add it in the maps here
       targetMap[copyNode->to()] = toPtr;
@@ -224,7 +231,7 @@ namespace edm {
       assert(renameNode != 0);
 
       NodePtr targetPtr = findPtr(renameNode->from(), targetMap);
-      targetPtr->name = renameNode->to();
+      targetPtr->setName(renameNode->to());
 
       // and replace it in the maps here
       targetMap[renameNode->to()] = targetPtr;
@@ -237,7 +244,7 @@ namespace edm {
     void ParseResultsTweaker::processReplaceNode(const NodePtr & n,
                                 ParseResultsTweaker::NodePtrMap  & targetMap)
     {
-      NodePtr targetPtr = findInPath(n->name, targetMap);
+      NodePtr targetPtr = findInPath(n->name(), targetMap);
       const ReplaceNode * replaceNode = dynamic_cast<const ReplaceNode*>(n.get());
       assert(replaceNode != 0);
       // we're here to replace it.  So replace it.
@@ -250,7 +257,7 @@ namespace edm {
     {
       CompositeNode * parent  = dynamic_cast<CompositeNode *>(victim->getParent());
       assert(parent != 0);
-      parent->removeChild(victim->name);
+      parent->removeChild(victim->name());
     }
 
 
@@ -273,12 +280,12 @@ namespace edm {
         if(compositeNode == 0)
         {
           throw edm::Exception(errors::Configuration,"No such element") 
-             << "Not a composite node: " << currentNode->name << " in " << path;
+             << "Not a composite node: " << currentNode->name() << " in " << path;
         }
         if(compositeNode->findChild(*it, currentPtr) == false)
         {
           throw edm::Exception(errors::Configuration,"No such element")
-             << "Could not find: " << *it << " in " << currentNode->name;
+             << "Could not find: " << *it << " in " << currentNode->name();
         }
 
 
@@ -312,7 +319,7 @@ namespace edm {
         ++next;
 
         // see if this name is a block name
-        string topLevel = tokenize((**modifierItr).name, ".")[0];
+        string topLevel = tokenize((**modifierItr).name(), ".")[0];
         if(blocks_.find(topLevel) != blocks_.end())
         {
           blockModifiers.push_back(*modifierItr);

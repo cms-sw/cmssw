@@ -4,6 +4,8 @@
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/GenParticleInfoExtractor.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "G4VProcess.hh"
 
 #include <iostream>
@@ -39,8 +41,8 @@ TrackWithHistory::TrackWithHistory(const G4Track * g4trk)
 	saved_ = false;
 	genParticleID_ = extractGenID( g4trk);
 #ifdef DEBUG	
-	cout << " TrackWithHistory : created history for " << trackID_
-	     << " with mother " << parentID_ << endl;
+	LogDebug("TrackWithHistory") << " TrackWithHistory : created history for " << trackID_
+	     << " with mother " << parentID_;
 #endif
     }
 }

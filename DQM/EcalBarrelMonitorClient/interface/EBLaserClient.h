@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/06/29 22:03:24 $
- * $Revision: 1.35 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -37,7 +37,7 @@ class EBLaserClient : public EBClient {
 public:
 
 /// Constructor
-EBLaserClient(const ParameterSet& ps);
+EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
 virtual ~EBLaserClient();
@@ -51,7 +51,7 @@ void unsubscribe(void);
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
@@ -81,7 +81,6 @@ int jevt_;
 
 bool collateSources_;
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 

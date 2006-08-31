@@ -6,16 +6,6 @@
 
 /**
    @class FedCablingTask
-
-   
-
-   When this CommissioningTask object is created by the
-   CommissioningSource "steering , it is stored in map using FEC key created
-   using the 32-bit device id found within the "trigger FED"
-   buffer. (This is different to the method of using the FED key to
-   identify the CommissioningTask object
-
-
 */
 class FedCablingTask : public CommissioningTask {
 
@@ -30,7 +20,7 @@ class FedCablingTask : public CommissioningTask {
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
-  
+
   /** HistoSet for FED cabling. First element contains histo info for
       FED id, second element contains histo info for FED channel. */
   vector<HistoSet> cabling_;
@@ -38,4 +28,3 @@ class FedCablingTask : public CommissioningTask {
 };
 
 #endif // DQM_SiStripCommissioningSources_FedCablingTask_h
-

@@ -5,7 +5,6 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 #include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
@@ -28,7 +27,7 @@ class TransverseImpactPointExtrapolator {
 public:
 
   /// constructor with default geometrical propagator
-  TransverseImpactPointExtrapolator(const MagneticField* field);
+  TransverseImpactPointExtrapolator();
   /// constructor with user-supplied propagator
   TransverseImpactPointExtrapolator(const Propagator& u);
 

@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2006/06/29 22:03:24 $
- * $Revision: 1.25 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,7 +38,7 @@ class EBCosmicClient : public EBClient {
 public:
 
 /// Constructor
-EBCosmicClient(const ParameterSet& ps);
+EBCosmicClient(const ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
 virtual ~EBCosmicClient();
@@ -52,7 +52,7 @@ void unsubscribe(void);
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
@@ -82,7 +82,6 @@ int jevt_;
 
 bool collateSources_;
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 

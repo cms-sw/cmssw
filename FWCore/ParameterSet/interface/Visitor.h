@@ -4,27 +4,28 @@
 namespace edm {
   namespace pset {
 
-    struct UsingNode;
-    struct StringNode;
-    struct EntryNode;
-    struct VEntryNode;
-    struct PSetRefNode;
-    struct ContentsNode;
+    class UsingNode;
+    class StringNode;
+    class EntryNode;
+    class VEntryNode;
+    class PSetRefNode;
+    class ContentsNode;
     class  IncludeNode;
-    struct PSetNode;
-    struct VPSetNode;
-    struct ModuleNode;
-    struct WrapperNode;
-    struct OperatorNode;
-    struct OperandNode;
+    class PSetNode;
+    class VPSetNode;
+    class ModuleNode;
+    class WrapperNode;
+    class OperatorNode;
+    class OperandNode;
 
     // ------------------------------------------------
     // simple visitor
     // only visits one level.  things that need to descend will call
     // the "acceptForChildren" method
 
-    struct Visitor
+    class Visitor
     {
+    public:
       virtual ~Visitor();
 
       virtual void visitUsing(const UsingNode&);

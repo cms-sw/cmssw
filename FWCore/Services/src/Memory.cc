@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.4 2006/02/07 07:16:46 wmtan Exp $
+// $Id: Memory.cc,v 1.5 2006/02/08 00:44:27 wmtan Exp $
 //
 
 #include "FWCore/Services/src/Memory.h"
@@ -213,7 +213,7 @@ namespace edm {
 
     void SimpleMemoryCheck::postModule(const ModuleDescription& md)
     {
-      swap(current_,previous_);
+      std::swap(current_,previous_);
       *current_ = fetch();
 
       if(*current_ > max_)

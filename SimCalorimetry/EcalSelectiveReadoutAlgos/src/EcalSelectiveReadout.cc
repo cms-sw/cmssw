@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.7 2006/06/14 12:00:30 pgras Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.8 2006/07/07 20:02:25 pgras Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -28,7 +28,6 @@ EcalSelectiveReadout::EcalSelectiveReadout(const vector<double>& thr,
       << "method must a vector of two elements (with the low and the high "
       << "trigger tower Et for the selective readout flags. Aborts.";
   }
-  resetSupercrystalInterest();
 }
 
 void EcalSelectiveReadout::resetSupercrystalInterest(){
@@ -50,35 +49,35 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
   //count number of TT in each interest class for debugging display
   int nTriggerTowerE[] = {0, 0, 0, 0};
   int nTriggerTowerB[] = {0, 0, 0, 0};
-  
-  for(size_t iPhi = 0; iPhi < nTriggerTowersInPhi; ++iPhi){
-    for(size_t iEta = 0; iEta < nTriggerTowersInEta; ++iEta){
-      if(iEta < nEndcapTriggerTowersInEta
-         || iEta >= nBarrelTriggerTowersInEta + nEndcapTriggerTowersInEta){
-        //in endcaps
-        ++nTriggerTowerE[towerInterest[iEta][iPhi]];
-      } else{//in barrel
-        ++nTriggerTowerB[towerInterest[iEta][iPhi]];
-      }
-    }
-  }
 
   static int ncall = 0;
   if(ncall < 10){
     ++ncall;
+    for(size_t iPhi = 0; iPhi < nTriggerTowersInPhi; ++iPhi){
+      for(size_t iEta = 0; iEta < nTriggerTowersInEta; ++iEta){
+        if(iEta < nEndcapTriggerTowersInEta
+         || iEta >= nBarrelTriggerTowersInEta + nEndcapTriggerTowersInEta){
+          //in endcaps
+          ++nTriggerTowerE[towerInterest[iEta][iPhi]];
+        } else{//in barrel
+          ++nTriggerTowerB[towerInterest[iEta][iPhi]];
+        }
+      }
+    }
     edm::LogInfo("EcalSelectiveReadout")
-         << nTriggerTowerB[LOWINTEREST] << " low interest TT in barrel\n"
-         << nTriggerTowerB[SINGLE]      << " single TT in barrel\n"
-         << nTriggerTowerB[NEIGHBOUR]   << " neighbor interest TT in barrel\n"
-         << nTriggerTowerB[CENTER]      << " centre interest TT in barrel\n"
-         << nTriggerTowerE[LOWINTEREST] << " low interest TT in endcap\n"
-         << nTriggerTowerE[SINGLE]      << " single TT in endcap\n"
-         << nTriggerTowerE[NEIGHBOUR]   << " neighbor TT in endcap\n"
-         << nTriggerTowerE[CENTER]      << " center TT in endcap\n";
+      << nTriggerTowerB[LOWINTEREST] << " low interest TT in barrel\n"
+      << nTriggerTowerB[SINGLE]      << " single TT in barrel\n"
+      << nTriggerTowerB[NEIGHBOUR]   << " neighbor interest TT in barrel\n"
+      << nTriggerTowerB[CENTER]      << " centre interest TT in barrel\n"
+      << nTriggerTowerE[LOWINTEREST] << " low interest TT in endcap\n"
+      << nTriggerTowerE[SINGLE]      << " single TT in endcap\n"
+      << nTriggerTowerE[NEIGHBOUR]   << " neighbor TT in endcap\n"
+      << nTriggerTowerE[CENTER]      << " center TT in endcap\n";
   }
   //end TT interest class composition debugging display
   
   //For the endcap the TT classification must be mapped to the SC:
+  resetSupercrystalInterest();
   const std::vector<DetId>& endcapDetIds = theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
   for(std::vector<DetId>::const_iterator eeDetIdItr = endcapDetIds.begin();
       eeDetIdItr != endcapDetIds.end(); ++eeDetIdItr)

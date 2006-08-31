@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.20.2.7 2006/07/04 14:47:52 wmtan Exp $
+$Id: RootFile.cc,v 1.23 2006/07/20 23:43:37 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -22,6 +22,7 @@ $Id: RootFile.cc,v 1.20.2.7 2006/07/04 14:47:52 wmtan Exp $
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "TTree.h"
+#include "Rtypes.h"
 
 namespace edm {
 //---------------------------------------------------------------------
@@ -57,6 +58,7 @@ namespace edm {
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     assert(metaDataTree != 0);
+    metaDataTree->SetMaxTreeSize(kMaxLong64);
 
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
     metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
@@ -82,8 +84,10 @@ namespace edm {
 
     // Read the event and event meta trees.
     eventTree_ = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventTreeName().c_str()));
+    eventTree_->SetMaxTreeSize(kMaxLong64);
     assert(eventTree_ != 0);
     eventMetaTree_ = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventMetaDataTreeName().c_str()));
+    eventMetaTree_->SetMaxTreeSize(kMaxLong64);
     assert(eventMetaTree_ != 0);
     entries_ = eventTree_->GetEntries();
     assert(entries_ == eventMetaTree_->GetEntries());

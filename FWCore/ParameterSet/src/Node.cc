@@ -7,8 +7,8 @@ namespace edm {
   namespace pset {
 
     Node::Node(std::string const& n, int li) 
-    : name(n), 
-      line(li), 
+    : name_(n), 
+      line_(li), 
       modified_(false),
       parent_(0)
     { 
@@ -24,7 +24,7 @@ namespace edm {
 
     void Node::replaceWith(const ReplaceNode *) {
        throw edm::Exception(errors::Configuration)
-          << "No way to replace node " << name;
+          << "No way to replace node " << name();
     }
 
 
@@ -32,7 +32,7 @@ namespace edm {
     {
       if(isModified()) {
        throw edm::Exception(errors::Configuration)
-          << "Cannot replace a node that has already been modified: " << name;
+          << "Cannot replace a node that has already been modified: " << name();
       }
     }
 
@@ -50,7 +50,7 @@ namespace edm {
 
     void Node::insertInto(edm::ParameterSet & pset) const
     {
-      pset.insert(false, name, makeEntry());
+      pset.insert(false, name(), makeEntry());
     }
 
 
@@ -59,7 +59,7 @@ namespace edm {
       // don't want to make this method pure-virtual, so I'll settle
       // for a runtime error if not overloaded
       throw edm::Exception(errors::Configuration)
-         << "No way to convert this node, " <<  name
+         << "No way to convert this node, " <<  name()
          << ", to a ProcessDesc Entry";
     }
 
@@ -69,7 +69,7 @@ namespace edm {
       // don't want to make this method pure-virtual, so I'll settle
       // for a runtime error if not overloaded
       throw edm::Exception(errors::Configuration)
-         << "No way to convert this node, " <<  name
+         << "No way to convert this node, " <<  name()
          << ", to a ParameterSet Entry";
     }
 

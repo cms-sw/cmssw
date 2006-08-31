@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/06/17 21:08:32 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/06/24 21:04:46 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -56,31 +56,15 @@ namespace reco
 
   class HLTFilterObject : public HLTFilterObjectBase {
 
-  typedef edm::hlt::HLTScalar HLTScalar;
-
   private:
-    map<HLTScalar,float>  scalars_;   // scalar quantities used in filter (HT, ...)
     vector<HLTParticle>   particles_; // particles/MET (4-momentum vectors) used by filter
 
   public:
 
     HLTFilterObject(int path=0, int module=0)
-      : HLTFilterObjectBase(path,module), scalars_(), particles_() { }
+      : HLTFilterObjectBase(path,module), particles_() { }
 
-    unsigned int numberScalars  () const { return   scalars_.size();}
-    unsigned int numberParticles() const { return particles_.size();}
-
-    bool getScalar(const HLTScalar scalar, float& value) const {
-      if (scalars_.find(scalar)==scalars_.end()) {
-        return false;
-      } else {
-        value = scalars_.find(scalar)->second;
-        return true;
-      }
-    }
-    void putScalar(const HLTScalar scalar, const float value) {
-      scalars_[scalar] = value;
-    }
+    unsigned int size() const { return particles_.size();}
 
     const HLTParticle& getParticle(const unsigned int i) const {
       return particles_.at(i);

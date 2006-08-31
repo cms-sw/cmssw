@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/05 07:52:39 $
- * $Revision: 1.16 $
+ * $Date: 2006/06/26 22:51:29 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -52,17 +52,6 @@ EBBeamHodoTask::~EBBeamHodoTask(){
 void EBBeamHodoTask::beginJob(const EventSetup& c){
 
   ievt_  = 0;
-
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBBeamHodoTask");
-    dbe->rmdir("EcalBarrel/EBBeamHodoTask");
-  }
-
   LV1_ = 0;
   cryInBeamCounter_ =1;
   resetNow_                =false;
@@ -75,7 +64,7 @@ void EBBeamHodoTask::setup(void){
 
   smId =1;
 
-  Char_t histo[200];
+  Char_t histo[20];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -90,9 +79,9 @@ void EBBeamHodoTask::setup(void){
     //  *** can be filled regardless of the moving/notMoving status of the table
 
     for (int i=0; i<4; i++) {
-      sprintf(histo, "EBBHT occup SM%02d %02d", smId, i+1);
-      meHodoOcc_[i] = dbe->book1D(histo, histo, 30, 0., 30.);
-      sprintf(histo, "EBBHT raw SM%02d %02d", smId, i+1);
+      sprintf(histo, "EBBHT occup SM%02d, %02d", smId, i+1);
+      meHodoOcc_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
+      sprintf(histo, "EBBHT raw SM%02d, %02d", smId, i+1);
       meHodoRaw_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
     }
     
@@ -112,21 +101,21 @@ void EBBeamHodoTask::setup(void){
     meHodoSloYRec_ = dbe->book1D(histo, histo, 50, -0.005, 0.005);
     
     sprintf(histo, "EBBHT QualX SM%02d", smId);
-    meHodoQuaXRec_ = dbe->book1D(histo, histo, 50, 0, 5);
+    meHodoQuaXRec_ = dbe->book1D(histo, histo, 50, 0, 3);
     
     sprintf(histo, "EBBHT QualY SM%02d", smId);
-    meHodoQuaYRec_ = dbe->book1D(histo, histo, 50, 0, 5);
+    meHodoQuaYRec_ = dbe->book1D(histo, histo, 50, 0, 3);
     
     sprintf(histo, "EBBHT TDC rec SM%02d", smId);
     meTDCRec_  = dbe->book1D(histo, histo, 25, 0, 1);
     
-    sprintf(histo, "EBBHT Hodo-Calo X vs Cry SM%02d", smId);
+    sprintf(histo, "EBBHT (Hodo-Calo)XVsCry SM%02d", smId);
     meHodoPosXMinusCaloPosXVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
     
-    sprintf(histo, "EBBHT Hodo-Calo Y vs Cry SM%02d", smId);
+    sprintf(histo, "EBBHT (Hodo-Calo)YVsCry SM%02d", smId);
     meHodoPosYMinusCaloPosYVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
     
-    sprintf(histo, "EBBHT TDC-Calo vs Cry SM%02d", smId);
+    sprintf(histo, "EBBHT (TDC-Calo)VsCry SM%02d", smId);
     meTDCTimeMinusCaloTimeVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
 
     // following ME (type II):
@@ -145,13 +134,13 @@ void EBBeamHodoTask::setup(void){
     sprintf(histo, "EBBHT his E1 vs Y SM%02d", smId);
     meEvsYRecHis_    = dbe-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
 
-    sprintf(histo, "EBBHT PosX Hodo-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT PosX: Hodo-Calo SM%02d", smId);
     meCaloVsHodoXPos_   = dbe->book1D(histo, histo, 40, -20, 20);
 
-    sprintf(histo, "EBBHT PosY Hodo-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT PosY: Hodo-Calo SM%02d", smId);
     meCaloVsHodoYPos_   = dbe->book1D(histo, histo, 40, -20, 20);
 
-    sprintf(histo, "EBBHT TimeMax TDC-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT TimeMax: TDC-Calo SM%02d", smId);
     meCaloVsTDCTime_  = dbe->book1D(histo, histo, 100, -1, 1);//tentative
 
   }
@@ -213,8 +202,6 @@ void EBBeamHodoTask::cleanup(void){
     meTDCTimeMinusCaloTimeVsCry_  = 0;
 
   }
-
-  init_ = false;
 
 }
 

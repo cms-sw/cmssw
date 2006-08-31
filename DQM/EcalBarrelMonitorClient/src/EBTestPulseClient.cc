@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/07/03 14:15:04 $
- * $Revision: 1.85 $
+ * $Date: 2006/06/23 12:24:44 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,16 +34,15 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
+EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterface* mui){
+
+  mui_ = mui;
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -94,15 +93,44 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
     mea02_[ism-1] = 0;
     mea03_[ism-1] = 0;
 
-    qtha01_[ism-1] = 0;
-    qtha02_[ism-1] = 0;
-    qtha03_[ism-1] = 0;
-
   }
 
   amplitudeThreshold_ = 400.0;
   RMSThreshold_ = 300.0;
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
+
+  Char_t qtname[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(qtname, "EBTPT quality SM%02d G01", ism);
+    qtha01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBTPT quality SM%02d G06", ism);
+    qtha02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBTPT quality SM%02d G12", ism);
+    qtha03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+ 
+    qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
+    qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
+    qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
+
+    qtha01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
+    qtha02_[ism-1]->setRMSRange(0.0, RMSThreshold_);
+    qtha03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
+
+    qtha01_[ism-1]->setMinimumEntries(10*1700);
+    qtha02_[ism-1]->setMinimumEntries(10*1700);
+    qtha03_[ism-1]->setMinimumEntries(10*1700);
+
+    qtha01_[ism-1]->setErrorProb(1.00);
+    qtha02_[ism-1]->setErrorProb(1.00);
+    qtha03_[ism-1]->setErrorProb(1.00);
+
+  }
 
 }
 
@@ -110,51 +138,12 @@ EBTestPulseClient::~EBTestPulseClient(){
 
 }
 
-void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
-
-  mui_ = mui;
+void EBTestPulseClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBTestPulseClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EBTPT quality SM%02d G01", ism);
-      qtha01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality SM%02d G06", ism);
-      qtha02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBTPT quality SM%02d G12", ism);
-      qtha03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
- 
-      qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
-      qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
-      qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
-
-      qtha01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-      qtha02_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-      qtha03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-
-      qtha01_[ism-1]->setMinimumEntries(10*1700);
-      qtha02_[ism-1]->setMinimumEntries(10*1700);
-      qtha03_[ism-1]->setMinimumEntries(10*1700);
-
-      qtha01_[ism-1]->setErrorProb(1.00);
-      qtha02_[ism-1]->setErrorProb(1.00);
-      qtha03_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -192,7 +181,7 @@ void EBTestPulseClient::endRun(void) {
 
 void EBTestPulseClient::setup(void) {
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   mui_->setCurrentFolder( "EcalBarrel/EBTestPulseClient" );
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
@@ -667,7 +656,7 @@ void EBTestPulseClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBTestPulseClient: subscribe" << endl;
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -786,26 +775,26 @@ void EBTestPulseClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
-      if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
+      mui_->useQTest(histo, qtha01_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
-      if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
+      mui_->useQTest(histo, qtha02_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
-      if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
+      mui_->useQTest(histo, qtha03_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
-        if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
+        mui_->useQTest(histo, qtha01_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
-        if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
+        mui_->useQTest(histo, qtha02_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
-        if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
+        mui_->useQTest(histo, qtha03_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
-        if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
+        mui_->useQTest(histo, qtha01_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
-        if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
+        mui_->useQTest(histo, qtha02_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
-        if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
+        mui_->useQTest(histo, qtha03_[ism-1]->getName());
       }
     }
 
@@ -815,7 +804,7 @@ void EBTestPulseClient::subscribe(void){
 
 void EBTestPulseClient::subscribeNew(void){
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) { 
 
@@ -890,7 +879,7 @@ void EBTestPulseClient::unsubscribe(void){
 
   }
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -936,7 +925,7 @@ void EBTestPulseClient::analyze(void){
     if ( verbose_ ) cout << "EBTestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  Char_t histo[150];
 
   MonitorElement* me;
 
