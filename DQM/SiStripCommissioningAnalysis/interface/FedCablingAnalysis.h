@@ -37,9 +37,13 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   public:
     uint16_t fedId_; // FED id 
     uint16_t fedCh_; // FED channel
+    float    level_; // Signal level [adc]
+    uint16_t num_;   // Number of candidates for connection
     Monitorables() : 
       fedId_(sistrip::invalid_), 
-      fedCh_(sistrip::invalid_) {;}
+      fedCh_(sistrip::invalid_),
+      level_(sistrip::invalid_),
+      num_(sistrip::invalid_) {;}
     virtual ~Monitorables() {;}
     void print( std::stringstream& );
   };
