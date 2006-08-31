@@ -3,6 +3,7 @@
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
+#include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
 
@@ -71,6 +72,7 @@ void PFRootEventManager::reset() {
 
 
 void PFRootEventManager::readOptions(const char* file, bool refresh) {
+  PFGeometry pfGeometry; // initialize geometry
 
   if( !options_ )
     options_ = new IO(file);
@@ -538,21 +540,16 @@ void PFRootEventManager::displayView(unsigned viewType) {
       // Draw ECAL front face
       frontFaceECALXY_.SetX1(0);
       frontFaceECALXY_.SetY1(0);
-      // COLIN: should not be hardcoded. 
-      // either attribute of this class, or create a 
-      // SimpleGeometry or something like this. 
-      // NB in PFProduced ECAL radius is set to 130 not 129.
-      // same remarks for HCAL
-      frontFaceECALXY_.SetR1(129); // <==== BE CAREFUL, ECAL size is hardcoded !!!!
-      frontFaceECALXY_.SetR2(129);
+      frontFaceECALXY_.SetR1(PFGeometry::innerRadius(PFGeometry::ECALBarrel));
+      frontFaceECALXY_.SetR2(PFGeometry::innerRadius(PFGeometry::ECALBarrel));
       frontFaceECALXY_.SetFillStyle(0);
       frontFaceECALXY_.Draw();
       
       // Draw HCAL front face
       frontFaceHCALXY_.SetX1(0);
       frontFaceHCALXY_.SetY1(0);
-      frontFaceHCALXY_.SetR1(183); // <==== BE CAREFUL, HCAL size is hardcoded !!!!
-      frontFaceHCALXY_.SetR2(183);
+      frontFaceHCALXY_.SetR1(PFGeometry::innerRadius(PFGeometry::HCALBarrel));
+      frontFaceHCALXY_.SetR2(PFGeometry::innerRadius(PFGeometry::HCALBarrel));
       frontFaceHCALXY_.SetFillStyle(0);
       frontFaceHCALXY_.Draw();
       break;
@@ -586,10 +583,12 @@ void PFRootEventManager::displayView(unsigned viewType) {
 	etaLeg.DrawLatex(etaImpact.Z(), etaImpact.Perp(), Form("%2.1f", eta));
       }
       
-      frontFaceECALRZ_.SetX1(-303.16);
-      frontFaceECALRZ_.SetY1(-129.);
-      frontFaceECALRZ_.SetX2(303.16);
-      frontFaceECALRZ_.SetY2(129.);
+      std::cout << "pour info " << PFGeometry::innerZ(PFGeometry::ECALEndcap) << " "
+	   << PFGeometry::innerRadius(PFGeometry::ECALBarrel) << std::endl; 
+      frontFaceECALRZ_.SetX1(-1.*PFGeometry::innerZ(PFGeometry::ECALEndcap));
+      frontFaceECALRZ_.SetY1(-1.*PFGeometry::innerRadius(PFGeometry::ECALBarrel));
+      frontFaceECALRZ_.SetX2(PFGeometry::innerZ(PFGeometry::ECALEndcap));
+      frontFaceECALRZ_.SetY2(PFGeometry::innerRadius(PFGeometry::ECALBarrel));
       frontFaceECALRZ_.SetFillStyle(0);
       frontFaceECALRZ_.Draw();
       break;
