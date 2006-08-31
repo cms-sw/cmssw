@@ -16,7 +16,7 @@ void CSCScaNoiseGaussian::noisify(const CSCDetId & layer,
     // since this is just the analog signal, no pedestals yet.
     // it's in ADC counts, so someone will have to convert to
     // fC or mV later
-    signal[i] += (int)(RandGaussQ::shoot(0., analogNoise_));
+    signal[i] += static_cast<int>(RandGaussQ::shoot(0., analogNoise_));
   }
 }
 
@@ -27,7 +27,7 @@ void CSCScaNoiseGaussian::addPedestal(const CSCDetId & layer,
   fill(layer, digi.getStrip());
   std::vector<int> result = digi.getADCCounts();
   for(unsigned i = 0; i < result.size(); ++i) {
-    result[i] += (int)(RandGaussQ::shoot(pedestal_, pedestalWidth_));
+    result[i] += static_cast<int>(RandGaussQ::shoot(pedestal_, pedestalWidth_));
   }
   digi.setADCCounts(result);
 }

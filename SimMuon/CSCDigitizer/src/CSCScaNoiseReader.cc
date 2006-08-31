@@ -78,7 +78,7 @@ void CSCScaNoiseReader::noisify(const CSCDetId & layer,
                                 CSCAnalogSignal & signal)
 {
   std::vector<int> result(N_SCA_BINS);
-  int iEvent = (int) (RandFlat::shoot() * nStripEvents);
+  int iEvent = static_cast<int>(RandFlat::shoot() * nStripEvents);
   // just to be safe, in case random  # is 1.
   if(iEvent == nStripEvents) iEvent = 0;
   // typically, test beam will have 16 SCA bins, real
