@@ -120,9 +120,12 @@ elif [ "$CondDb" == "sqlite" ]; then
 	then 
 	rm -f ${sqliteDb}
 	rm -f ${sqliteCatalog}
-
+        
 	echo "OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP "
 	../../OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP 
+        if [ "$CondDb" == "sqlite" ]; then
+           pool_insertFileToCatalog -u ${DBcatalog} -t POOL_RDBMS ${DBfile}
+        fi
     fi
 else
     echo "ERROR: wrong argument value: -CondDb=<sqlite>, <devdb10>, <orcon> "
