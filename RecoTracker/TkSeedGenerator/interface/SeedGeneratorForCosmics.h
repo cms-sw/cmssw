@@ -52,6 +52,7 @@ class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
   const TransientTrackingRecHitBuilder *TTTRHBuilder;
   std::string builderName;
   std::string geometry;
+  OrderedHitPairs HitPairs;
 };
 #endif
 
