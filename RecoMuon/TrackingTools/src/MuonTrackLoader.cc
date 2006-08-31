@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/30 08:12:36 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/08/30 19:38:12 $
+ *  $Revision: 1.22 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -230,7 +230,7 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   // FIXME: check it!
   TrajectoryStateOnSurface outerTSOS;
   TrajectoryStateOnSurface innerTSOS;
-  unsigned int innerId, outerId;
+  unsigned int innerId=0, outerId=0;
   
   if (trajectory.direction() == alongMomentum) {
     LogDebug(metname)<<"alongMomentum";
