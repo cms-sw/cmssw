@@ -58,7 +58,7 @@ public:
   uint32 descLength() const { return desc_len_; }
   const uint8* descData() const { return desc_start_; }
   uint32 headerSize() const {return desc_start_-buf_;}
- 
+  uint32 eventHeaderSize() const;
 private:
   void getNames(uint8* from, uint32 from_len, Strings& to) const;
 
