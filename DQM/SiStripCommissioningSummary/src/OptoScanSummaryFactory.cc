@@ -28,20 +28,23 @@ void SummaryHistogramFactory<OptoScanAnalysis::Monitorables>::generate( const si
   // Transfer appropriate info from monitorables map to generator object
   map<uint32_t,OptoScanAnalysis::Monitorables>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    if ( histo == sistrip::OPTO_SCAN_LLD_BIAS ) {
-      generator->fillMap( directory, iter->first, iter->second.lldBias_ ); 
-    } else if ( histo == sistrip::OPTO_SCAN_LLD_GAIN ) { 
-      generator->fillMap( directory, iter->first, iter->second.lldGain_ ); 
-    } else if ( histo == sistrip::OPTO_SCAN_GAIN ) { 
-      generator->fillMap( directory, iter->first, iter->second.gain_ ); 
-    } else if ( histo == sistrip::OPTO_SCAN_ERROR ) { 
-      generator->fillMap( directory, iter->first, iter->second.error_ ); 
-    } else if ( histo == sistrip::OPTO_SCAN_BASE ) { 
-      generator->fillMap( directory, iter->first, iter->second.base_ ); 
-    } else if ( histo == sistrip::OPTO_SCAN_PEAK ) { 
-      generator->fillMap( directory, iter->first, iter->second.peak_ ); 
-    } else if ( histo == sistrip::OPTO_SCAN_HEIGHT ) {
-      generator->fillMap( directory, iter->first, iter->second.height_ ); 
+    uint16_t igain = iter->second.gain_;
+    if ( histo == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { 
+      generator->fillMap( directory, iter->first, igain ); 
+    } else if ( histo == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) {
+      generator->fillMap( directory, iter->first, iter->second.bias_[igain] ); 
+    } else if ( histo == sistrip::OPTO_SCAN_MEASURED_GAIN ) { 
+      generator->fillMap( directory, iter->first, iter->second.measGain_[igain] ); 
+    } else if ( histo == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { 
+      generator->fillMap( directory, iter->first, iter->second.zeroLight_[igain] ); 
+    } else if ( histo == sistrip::OPTO_SCAN_LINK_NOISE ) {
+      generator->fillMap( directory, iter->first, iter->second.linkNoise_[igain] ); 
+    } else if ( histo == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) {
+      generator->fillMap( directory, iter->first, iter->second.liftOff_[igain] ); 
+    } else if ( histo == sistrip::OPTO_SCAN_LASER_THRESHOLD ) {
+      generator->fillMap( directory, iter->first, iter->second.threshold_[igain] ); 
+    } else if ( histo == sistrip::OPTO_SCAN_TICK_HEIGHT ) {
+      generator->fillMap( directory, iter->first, iter->second.tickHeight_[igain] ); 
     } else { 
       cerr << "[" << __PRETTY_FUNCTION__ << "]" 
 	   << " Unexpected histogram!" << endl;
@@ -50,21 +53,24 @@ void SummaryHistogramFactory<OptoScanAnalysis::Monitorables>::generate( const si
   }
   
   // Generate appropriate summary histogram 
-  if ( type == sistrip::SUMMARY_SIMPLE_DISTR ) {
-    generator->simpleDistr( summary_histo );
-  } else if ( type == sistrip::SUMMARY_LOGICAL_VIEW ) {
-    generator->logicalView( summary_histo );
+  if ( type == sistrip::SUMMARY_DISTR ) {
+    generator->summaryDistr( summary_histo );
+  } else if ( type == sistrip::SUMMARY_1D ) {
+    generator->summary1D( summary_histo );
   } else { return; }
+
+
 
   // Histogram formatting
   generator->format( histo, type, view, directory, summary_histo );
-  if ( histo == sistrip::OPTO_SCAN_LLD_BIAS ) {
-  } else if ( histo == sistrip::OPTO_SCAN_LLD_GAIN ) { 
-  } else if ( histo == sistrip::OPTO_SCAN_GAIN ) { 
-  } else if ( histo == sistrip::OPTO_SCAN_ERROR ) { 
-  } else if ( histo == sistrip::OPTO_SCAN_BASE ) { 
-  } else if ( histo == sistrip::OPTO_SCAN_PEAK ) { 
-  } else if ( histo == sistrip::OPTO_SCAN_HEIGHT ) {
+  if ( histo == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { 
+  } else if ( histo == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) {
+  } else if ( histo == sistrip::OPTO_SCAN_MEASURED_GAIN ) { 
+  } else if ( histo == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { 
+  } else if ( histo == sistrip::OPTO_SCAN_LINK_NOISE ) {
+  } else if ( histo == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) {
+  } else if ( histo == sistrip::OPTO_SCAN_LASER_THRESHOLD ) {
+  } else if ( histo == sistrip::OPTO_SCAN_TICK_HEIGHT ) {
   } else { return; } 
   
 }

@@ -52,10 +52,10 @@ void SummaryHistogramFactory<PedestalsAnalysis::Monitorables>::generate( const s
   }
 
   // Generate appropriate summary histogram 
-  if ( type == sistrip::SUMMARY_SIMPLE_DISTR ) {
-    generator->simpleDistr( summary_histo );
-  } else if ( type == sistrip::SUMMARY_LOGICAL_VIEW ) {
-    generator->logicalView( summary_histo );
+  if ( type == sistrip::SUMMARY_DISTR ) {
+    generator->summaryDistr( summary_histo );
+  } else if ( type == sistrip::SUMMARY_1D ) {
+    generator->summary1D( summary_histo );
   } else { return; }
 
   // Histogram formatting
