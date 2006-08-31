@@ -67,7 +67,8 @@ void PFTrack::calculatePositionREP() {
  
 const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) const {
   
-  if( layerid >= reco::PFTrajectoryPoint::NLayers ) {
+  if( layerid >= reco::PFTrajectoryPoint::NLayers ||
+      nTrajectoryMeasurements() + layerid >= trajectoryPoints_.size() ) {
     assert(0);
   }
   if (layerid < indexInnermost_)
