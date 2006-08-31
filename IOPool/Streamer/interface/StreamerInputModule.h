@@ -1,7 +1,6 @@
 #ifndef StreamerInputModule_h
 #define StreamerInputModule_h
 
-
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
@@ -37,8 +36,8 @@ namespace edm
   {
   /**
      Requires the Producer class to provide following functions
-           std::auto_ptr<InitMsgView> getHeader();
-           std::auto_ptr<EventMsgView> getNextEvent();
+           const InitMsgView* getHeader();
+           const EventMsgView* getNextEvent();
   */
   public:  
     explicit StreamerInputModule(edm::ParameterSet const& pset,
@@ -60,8 +59,6 @@ template <class Producer>
 StreamerInputModule<Producer>::~StreamerInputModule()
    {
       delete pr_;
-      cout<<"~StreamerInputModule is DONE"<<endl;
-       
    }
 
 template <class Producer>
@@ -73,7 +70,7 @@ StreamerInputModule<Producer>::StreamerInputModule(
     pr_(new Producer(pset))
     {
       //Get header/init from Producer
-      std::auto_ptr<InitMsgView> header = pr_->getHeader();
+      const InitMsgView* header = pr_->getHeader();
       std::auto_ptr<edm::SendJobHeader> p = StreamTranslator::deserializeRegistry(*header); 
       SendDescs & descs = p->descs_;
       mergeWithRegistry(descs, productRegistry());
@@ -87,12 +84,25 @@ StreamerInputModule<Producer>::StreamerInputModule(
 template <class Producer>
 std::auto_ptr<edm::EventPrincipal> StreamerInputModule<Producer>::read()
   {
-     std::auto_ptr<EventMsgView> eview = pr_->getNextEvent();
-     if (eview.get() == 0)  
-                          {
-                          return  std::auto_ptr<edm::EventPrincipal>();
-                          }
-     return StreamTranslator::deserializeEvent(*eview, productRegistry());
+    const EventMsgView* eview = pr_->getNextEvent();
+
+    if (pr_->newHeader()) {   
+        FDEBUG(6) << "A new file has been opened and we must compare Heraders here !!"<<endl;
+        // A new file has been opened and we must compare Heraders here !!
+        //Get header/init from Producer
+        const InitMsgView* header = pr_->getHeader();
+        std::auto_ptr<edm::SendJobHeader> p = StreamTranslator::deserializeRegistry(*header);
+        if ( registryIsSubset(*p, productRegistry()) ) {
+            std::cout << "\n\nUn matching Init Message Headers found.\n";
+            throw cms::Exception("read","StreamerInputModule")
+                 << "Un matching Headers found.\n";
+        }
+    } 
+    if (eview == 0)  
+    {
+        return  std::auto_ptr<edm::EventPrincipal>();
+    }
+    return StreamTranslator::deserializeEvent(*eview, productRegistry());
   }
 
 template <class Producer>
