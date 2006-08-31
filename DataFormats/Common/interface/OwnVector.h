@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.7 2006/08/10 23:34:53 wmtan Exp $
+// $Id: OwnVector.h,v 1.8 2006/08/30 14:10:41 llista Exp $
 #include <vector>
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -226,22 +226,22 @@ namespace edm {
 
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::back() {
-    return data_.back();
+    return * data_.back();
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::back() const {
-    return data_.back();
+    return * data_.back();
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::front() {
-    return data_.front();
+    return * data_.front();
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::front() const {
-    return data_.front();
+    return * data_.front();
   }
   
   template<typename T, typename P>
