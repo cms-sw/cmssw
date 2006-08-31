@@ -16,6 +16,7 @@
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 #include <map>
 
@@ -46,7 +47,7 @@ public:
 
 protected:
   // constructor protected, so this class must be a base class
-  CSCBaseElectronicsSim();
+  CSCBaseElectronicsSim(const edm::ParameterSet & p);
 
   // initialize things that change from layer to layer
   virtual void initParameters() = 0;
@@ -127,7 +128,7 @@ protected:
   float thePeakTimeVariance;
   // used to correct the bunch timing so that the signal event 
   // comes at BX zero.
-  std::vector<float> theBunchTimingOffsets;
+  std::vector<double> theBunchTimingOffsets;
 
   // when the signal is to be simulated
   float theSignalStartTime;

@@ -16,9 +16,28 @@
 #include<list>
 #include<algorithm>
 
-CSCBaseElectronicsSim::CSCBaseElectronicsSim()
-: theBunchSpacing(25.)
+CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
+: 
+  theSpecs(0),
+  theLayerGeometry(0),
+  theLayer(0),
+  theSignalMap(),
+  theAmpResponse(),
+  theBunchSpacing(25.),
+  theNoiseWasAdded(false),
+  nElements(0),
+  theShapingTime(p.getParameter<double>("shapingTime")),
+  theTailShaping(RADICAL),
+  theAmpGainVariance(p.getParameter<double>("ampGainVariance")),
+  thePeakTimeVariance(p.getParameter<double>("peakTimeVariance")),
+  theBunchTimingOffsets(p.getParameter<std::vector<double> >("bunchTimingOffsets")),
+  theSignalStartTime(p.getParameter<double>("signalStartTime")),
+  theSignalStopTime(p.getParameter<double>("signalStopTime")),
+  theSamplingTime(p.getParameter<double>("samplingTime")),
+  theNumberOfSamples(static_cast<int>((theSignalStopTime-theSignalStartTime)/theSamplingTime)),
+  doNoise_(p.getParameter<bool>("doNoise"))
 {
+  assert(theBunchTimingOffsets.size() == 11);
 }
 
 
