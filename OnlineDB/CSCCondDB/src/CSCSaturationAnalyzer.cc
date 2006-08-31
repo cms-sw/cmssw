@@ -261,6 +261,7 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		  sumOfXY += (charge[ii]*maxmodten[ii][cham][j][k]);
 		  sumx2   += (charge[ii]*charge[ii]);
 		  myCharge[ii] = 22.4 +(22.4*ii);
+		  mySatADC[ii] = maxmodten[ii][cham][j][k];
 		  gain_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
 		  if(cham==0 && j==1 && k==10) {
 		    gain1_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
@@ -272,8 +273,8 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		  if(cham==0 && j==1 && k==50) gain5_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
 		  if(cham==0 && j==1 && k==60) gain6_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
 		  
-		  float (*charge_ptr)[NUMBERPLOTTED_sat] = &charge;
-		  float (*adc_ptr)[NUMBERPLOTTED_sat]    = &maxmodten;
+		  float (*charge_ptr)[NUMBERPLOTTED_sat] = &myCharge;
+		  float (*adc_ptr)[NUMBERPLOTTED_sat]    = &mySatADC;
 
 		  //Fit parameters for straight line
 		  gainSlope     = ((NUMBERPLOTTED_sat*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED_sat*sumx2) - (sumOfX*sumOfX));//k
