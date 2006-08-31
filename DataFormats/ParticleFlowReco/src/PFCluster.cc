@@ -1,5 +1,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace reco;
@@ -428,7 +429,29 @@ PFCluster& PFCluster::operator+=(const PFCluster& other) {
   return *this;
 }
 
-
+double PFCluster::getDepthCorrection(double energy, bool isBelowPS,
+				     bool isHadron)
+{
+  double corrA = depthCorA_;
+  double corrB = depthCorB_;
+  if (isBelowPS) {
+    corrA = depthCorAp_;
+    corrB = depthCorBp_;
+  }
+  double depth = 0;
+  switch(isHadron) {
+  case 0: // e/gamma
+    depth = corrA*(corrB + log(energy)); 
+    break;
+  case 1: // hadrons
+    depth = corrA;
+    break;
+  default:
+    edm::LogError("PFCluster") << "unknown function for depth correction!"
+			       << std::endl;
+  }
+  return depth;
+}
 
 std::ostream& reco::operator<<(std::ostream& out, 
 			       const PFCluster& cluster) {

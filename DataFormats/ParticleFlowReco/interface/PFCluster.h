@@ -95,6 +95,9 @@ namespace reco {
       depthCorBp_ = bp;
     }
 
+    static double getDepthCorrection(double energy, bool isBelowPS = false,
+				     bool isHadron = false);
+
     void         setColor(int color) {color_ = color;}
 
     int          color() const {return color_;}
