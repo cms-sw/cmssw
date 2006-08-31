@@ -19,36 +19,28 @@
 // This is CSCStripElectronicsSim.cc
 
 CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
-  : CSCBaseElectronicsSim()
+: CSCBaseElectronicsSim(p),
+  theComparatorThreshold(20.),
+  theComparatorNoise(0.),
+  theComparatorRMSOffset(2.),
+  theComparatorSaturation(1057.),
+  theComparatorWait(50.),
+  theComparatorDeadTime(100.),
+  theDaqDeadTime(200.),
+  nScaBins_(p.getParameter<int>("nScaBins")),
+  doCrosstalk_(p.getParameter<bool>("doCrosstalk")),
+  theCrosstalkGenerator(0),
+  theScaNoiseGenerator(0),
+  theComparatorClockJump(2),
+  sca_time_bin_size(50.),
+  sca_noise(0.),
+  theAnalogNoise(p.getParameter<double>("analogNoise")),
+  thePedestal(p.getParameter<double>("pedestal")),
+  thePedestalWidth(p.getParameter<double>("pedestalWidth")),
+  sca_peak_bin(p.getParameter<int>("scaPeakBin")),
+  theComparatorTimeBinOffset(5),
+  scaNoiseMode_(p.getParameter<std::string>("scaNoiseMode"))
 {
-  nScaBins_ = p.getParameter<int>("nScaBins");
-  doNoise_ = p.getParameter<bool>("doNoise");
-  doCrosstalk_ = p.getParameter<bool>("doCrosstalk");
-  theSignalStartTime = p.getParameter<double>("stripSignalStartTime");
-  theSignalStopTime = p.getParameter<double>("stripSignalStopTime");
-  theSamplingTime = p.getParameter<double>("stripSamplingTime");
-  sca_peak_bin = p.getParameter<int>("scaPeakBin");
-  scaNoiseMode_ = p.getParameter<std::string>("scaNoiseMode");
-  theAnalogNoise = p.getParameter<double>("analogNoise");
-  thePedestal = p.getParameter<double>("pedestal");
-  thePedestalWidth = p.getParameter<double>("pedestalWidth");
-  init();
-}
-
-
-void CSCStripElectronicsSim::init() {
-  theNumberOfSamples = (int)((theSignalStopTime-theSignalStartTime)/theSamplingTime);
-  theComparatorNoise=0.;
-  theComparatorRMSOffset=2.;
-  theComparatorSaturation=1057.;
-  theComparatorClockJump=2;
-  sca_time_bin_size=50.;
-  theComparatorTimeBinOffset = 5;
-
-  theComparatorWait = 50.;
-  theComparatorDeadTime = 100.;
-  theDaqDeadTime = 200.;
-  sca_noise = 0.;
 
   if(doCrosstalk_) {
     theCrosstalkGenerator = new CSCCrosstalkGenerator();
@@ -65,22 +57,7 @@ void CSCStripElectronicsSim::init() {
     }
   }
 
-  theShapingTime = 100;
-  theTailShaping = RADICAL;
-  theAmpGainVariance = 0.03;
-  thePeakTimeVariance = 3.;
   fillAmpResponse();
-  theBunchTimingOffsets.resize(11);
-  theBunchTimingOffsets[1] = 74.6;
-  theBunchTimingOffsets[2] = 74.1;
-  theBunchTimingOffsets[3] = 72.7;
-  theBunchTimingOffsets[4] = 65.2;
-  theBunchTimingOffsets[5] = 76.2;
-  theBunchTimingOffsets[6] = 70.2;
-  theBunchTimingOffsets[7] = 73.4;
-  theBunchTimingOffsets[8] = 70.3;
-  theBunchTimingOffsets[9] = 72.7;
-  theBunchTimingOffsets[10] = 72.8;
 }
 
 
@@ -418,7 +395,7 @@ CSCStripDigi CSCStripElectronicsSim::createDigi(int channel,
 void CSCStripElectronicsSim::doSaturation(CSCStripDigi & digi)
 {
   std::vector<int> scaCounts(digi.getADCCounts());
-  for(int scaBin = 0; scaBin < scaCounts.size(); ++scaBin) {
+  for(unsigned scaBin = 0; scaBin < scaCounts.size(); ++scaBin) {
     scaCounts[scaBin] = std::min(scaCounts[scaBin], 4095);
   }
   digi.setADCCounts(scaCounts);
