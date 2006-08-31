@@ -26,7 +26,7 @@ class CSCStripHitSim;
 class CSCWireElectronicsSim;
 class CSCStripElectronicsSim;
 class CSCLayer;
-class CSCNeutronFactory;
+class CSCNeutronReader;
 
 class CSCDigitizer 
 {
@@ -58,9 +58,8 @@ private:
   CSCStripHitSim         * theStripHitSim;
   CSCWireElectronicsSim  * theWireElectronicsSim;
   CSCStripElectronicsSim * theStripElectronicsSim;
-  CSCNeutronFactory      * theNeutronFactory;
+  CSCNeutronReader       * theNeutronReader;
   const CSCGeometry      * theCSCGeometry;
-  bool doNeutrons;
 };
 
 #endif
