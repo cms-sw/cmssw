@@ -75,7 +75,7 @@ class SiStripRawToDigiUnpacker {
   /** Catches all possible exceptions and rethrows them as
       cms::Exception's that are caught by the framework. */ 
   void handleException( const std::string& method_name,
-			const std::string& extra_info = "" ) throw (cms::Exception);
+			const std::string& extra_info = "" ); // throw (cms::Exception);
   
  private:
   

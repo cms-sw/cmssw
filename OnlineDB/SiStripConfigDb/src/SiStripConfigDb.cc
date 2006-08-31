@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.14 2006/07/26 11:27:19 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.15 2006/08/03 07:04:08 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
@@ -180,7 +180,7 @@ DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const 
     else { ss << __PRETTY_FUNCTION__; }
     ss << " Null pointer to DeviceFactory API! \n";
     edm::LogError(logCategory_) << ss.str();
-    throw cms::Exception(logCategory_) << ss.str();
+    //throw cms::Exception(logCategory_) << ss.str();
     return 0;
   } else { return factory_; }
 }
@@ -195,7 +195,7 @@ void SiStripConfigDb::usingDatabase() {
     ss << __PRETTY_FUNCTION__
        << " Attempting to use xml files when configured to use database!";
     edm::LogError(logCategory_) << ss.str();
-    throw cms::Exception(logCategory_) << ss.str();
+    //throw cms::Exception(logCategory_) << ss.str();
   }
   
   // Retrieve db connection parameters
@@ -211,7 +211,7 @@ void SiStripConfigDb::usingDatabase() {
 	 << user_ << "/" << passwd_ << "@" << path_
 	 << " Extracted from CONFDB: " << confdb;
       edm::LogError(logCategory_) << ss.str();
-      throw cms::Exception(logCategory_) << ss.str();
+      //throw cms::Exception(logCategory_) << ss.str();
     }
   }
   
@@ -267,7 +267,7 @@ void SiStripConfigDb::usingXmlFiles() {
     ss << __PRETTY_FUNCTION__
        << " Attempting to use database when configured to use xml files! \n";
     edm::LogError(logCategory_) << ss.str();
-    throw cms::Exception(logCategory_) << ss.str();
+    //throw cms::Exception(logCategory_) << ss.str();
   }
 
   // Set "using file"
@@ -290,7 +290,7 @@ void SiStripConfigDb::usingXmlFiles() {
     } else {
       edm::LogError(logCategory_) << __PRETTY_FUNCTION__ << " No 'module.xml' file found at " << inputModuleXml_;
       inputModuleXml_ = ""; 
-      throw cms::Exception(logCategory_) << __PRETTY_FUNCTION__ << " No 'module.xml' file found at " << inputModuleXml_;
+      //throw cms::Exception(logCategory_) << __PRETTY_FUNCTION__ << " No 'module.xml' file found at " << inputModuleXml_;
     }
   }
   
@@ -348,7 +348,7 @@ void SiStripConfigDb::usingXmlFiles() {
       } else {
 	if ( checkFileExists( *iter ) ) { 
 	  try { 
-	    if ( inputFecXml_.size() == 1 ) {
+	    if ( inputFedXml_.size() == 1 ) {
 	      deviceFactory(__PRETTY_FUNCTION__)->setFedInputFileName( *iter ); 
 	    } else {
 	      deviceFactory(__PRETTY_FUNCTION__)->addFedFileName( *iter ); 
@@ -562,12 +562,12 @@ void SiStripConfigDb::createPartition( const string& partition_name,
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::handleException( const string& method_name,
-				       const string& extra_info ) throw (cms::Exception) {
+				       const string& extra_info ) { //throw (cms::Exception) {
   try {
-    throw; // rethrow caught exception to be dealt with below
+    //throw; // rethrow caught exception to be dealt with below
   } 
   catch ( const cms::Exception& e ) { 
-    throw e; // rethrow cms::Exception to be caught by framework
+    //throw e; // rethrow cms::Exception to be caught by framework
   }
   catch ( const oracle::occi::SQLException& e ) { 
     stringstream ss;
@@ -576,7 +576,7 @@ void SiStripConfigDb::handleException( const string& method_name,
        << e.getMessage();
     if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
     edm::LogError(logCategory_) << ss.str() << "\n";
-    throw cms::Exception(logCategory_) << ss.str() << "\n";
+    //throw cms::Exception(logCategory_) << ss.str() << "\n";
   }
   catch ( const FecExceptionHandler& e ) {
     stringstream ss;
@@ -585,7 +585,7 @@ void SiStripConfigDb::handleException( const string& method_name,
        << const_cast<FecExceptionHandler&>(e).getMessage(); //@@ Fred?
     if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
     edm::LogError(logCategory_) << ss.str() << "\n";
-    throw cms::Exception(logCategory_) << ss.str() << "\n";
+    //throw cms::Exception(logCategory_) << ss.str() << "\n";
   }
   catch ( const ICUtils::ICException& e ) {
     stringstream ss;
@@ -594,7 +594,7 @@ void SiStripConfigDb::handleException( const string& method_name,
        << e.what();
     if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
     edm::LogError(logCategory_) << ss.str() << "\n";
-    throw cms::Exception(logCategory_) << ss.str() << "\n";
+    //throw cms::Exception(logCategory_) << ss.str() << "\n";
   }
   catch ( const exception& e ) {
     stringstream ss;
@@ -603,7 +603,7 @@ void SiStripConfigDb::handleException( const string& method_name,
        << e.what();
     if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
     edm::LogError(logCategory_) << ss.str() << "\n";
-    throw cms::Exception(logCategory_) << ss.str() << "\n";
+    //throw cms::Exception(logCategory_) << ss.str() << "\n";
   }
   catch (...) {
     stringstream ss;
@@ -611,7 +611,7 @@ void SiStripConfigDb::handleException( const string& method_name,
        << method_name << "]";
     if ( extra_info != "" ) { ss << "\n" << "Additional info: " << extra_info; }
     edm::LogError(logCategory_) << ss.str() << "\n";
-    throw cms::Exception(logCategory_) << ss.str() << "\n";
+    //throw cms::Exception(logCategory_) << ss.str() << "\n";
   }
 }
 

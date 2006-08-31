@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.11 2006/07/25 10:13:46 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripConfigDb.h,v 1.12 2006/07/26 11:27:19 bainbrid Exp $
+// Latest tag:  $Name: V00-01-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
 #ifndef SiStripConfigDb_H
@@ -261,7 +261,7 @@ class SiStripConfigDb {
   
   /** Handles exceptions thrown by FEC and FED software. */
   void handleException( const std::string& method_name,
-			const std::string& extra_info = "" ) throw (cms::Exception);
+			const std::string& extra_info = "" );// throw (cms::Exception);
   
   /** Checks whether file at "path" exists or not. */
   bool checkFileExists( const std::string& path );

@@ -629,12 +629,12 @@ void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id,
 // -----------------------------------------------------------------------------
 // 
 void SiStripRawToDigiUnpacker::handleException( const string& method_name,
-						const string& extra_info ) throw (cms::Exception) {
+						const string& extra_info ) { // throw (cms::Exception) {
   try {
     throw; // rethrow caught exception to be dealt with below
   } 
   catch ( const cms::Exception& e ) { 
-    throw e; // rethrow cms::Exception to be caught by framework
+    //throw e; // rethrow cms::Exception to be caught by framework
   }
   catch ( const ICUtils::ICException& e ) {
     stringstream ss;

@@ -1,5 +1,5 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
-// Latest tag:  $Name: V00-01-01 $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.2 2006/07/26 11:27:19 bainbrid Exp $
+// Latest tag:  $Name: V00-01-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -23,16 +23,21 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
   // Use static object to hold device description of a particular type
   static SiStripConfigDb::DeviceDescriptions descriptions;
   descriptions.clear();
+
+  // Retrieve device descriptions if necessary
+  if ( devices_.empty() ) { getDeviceDescriptions(); }
   
-  DeviceDescriptions::iterator idevice = devices_.begin();
-  for ( ; idevice != devices_.end(); idevice++ ) {
-    deviceDescription* desc = *idevice;
-    // Extract devices of given type from descriptions found in local cache  
-    if ( !all_devices_except && desc->getDeviceType() == device_type ) { descriptions.push_back( desc ); }
-    // Extract all devices EXCEPT those of given type from descriptions found in local cache  
-    if ( all_devices_except && desc->getDeviceType() != device_type ) { descriptions.push_back( desc ); }
+  if ( !devices_.empty() ) {
+    DeviceDescriptions::iterator idevice = devices_.begin();
+    for ( ; idevice != devices_.end(); idevice++ ) {
+      deviceDescription* desc = *idevice;
+      // Extract devices of given type from descriptions found in local cache  
+      if ( !all_devices_except && desc->getDeviceType() == device_type ) { descriptions.push_back( desc ); }
+      // Extract all devices EXCEPT those of given type from descriptions found in local cache  
+      if ( all_devices_except && desc->getDeviceType() != device_type ) { descriptions.push_back( desc ); }
+    }
   }
-  
+
   stringstream sss; 
   if ( descriptions.empty() ) { 
     sss << "[SiStripConfigDb::getDeviceDescriptions]";
@@ -43,7 +48,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 	  << deviceType( device_type ) << ")";
     }
     edm::LogError(logCategory_) << sss.str();
-    throw cms::Exception(logCategory_) << sss.str();
+    //throw cms::Exception(logCategory_) << sss.str();
   } else {
     sss << "[SiStripConfigDb::getDeviceDescriptions]"
 	<< " Found " << descriptions.size() << " descriptions (for";
@@ -51,7 +56,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
     else { sss << " all devices except " << deviceType( device_type ) << ")"; }
     edm::LogInfo(logCategory_) << sss.str();
   }
-
+  
   return descriptions;
 }
 
@@ -62,9 +67,12 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 			     << " Retrieving device descriptions...";
   string method = "SiStripConfigDb::getDeviceDescriptions";
   
+  cout << "get here 1" << endl;
   if ( !deviceFactory(method) ) { return devices_; }
+  cout << "get here 2" << endl;
 
   if ( !resetDevices_ ) { return devices_; }
+  cout << "get here 3" << endl;
 
   try { 
     
@@ -73,6 +81,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
       getPiaResetDescriptions();
     }
     
+  cout << "get here 4" << endl;
     deviceFactory(method)->getFecDeviceDescriptions( partition_.name_, 
 						     devices_,
 						     partition_.major_,
@@ -80,11 +89,13 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
     deviceFactory(method)->getDcuDescriptions( partition_.name_, 
 					       devices_,
 					       0, 999999 ); // timestamp start/stop
+  cout << "get here 3" << endl;
     resetDevices_ = false;
     
   }
   catch (...) { handleException( method ); }
   
+  cout << "get here 6" << endl;
   stringstream ss; 
   if ( devices_.empty() ) {
     ss << "[SiStripConfigDb::getDeviceDescriptions]"
@@ -92,7 +103,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
     if ( !usingDb_ ) { ss << " in " << inputFecXml_.size() << " 'fec.xml' file(s)"; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
     edm::LogError(logCategory_) << ss.str();
-    throw cms::Exception(logCategory_) << ss.str();
+    //throw cms::Exception(logCategory_) << ss.str();
   } else {
     ss << "[SiStripConfigDb::getDeviceDescriptions]"
        << " Found " << devices_.size() << " device descriptions";
@@ -100,7 +111,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
     else { ss << " in database partition '" << partition_.name_ << "'"; }
     edm::LogInfo(logCategory_) << ss.str();
   }
-  
+    cout << "get here 7" << endl;
+
   return devices_;
 }
 
