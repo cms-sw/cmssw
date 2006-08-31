@@ -62,7 +62,7 @@ class PedestalsAnalysis : public CommissioningAnalysis {
 	dead_[0].reserve(256); dead_[1].reserve(256); 
 	noisy_[0].reserve(256); noisy_[1].reserve(256);
       }
-    void print( std::stringstream& );
+    void print( std::stringstream&, uint16_t apv_number = 0 );
   };
   
   /** Takes TProfile histos containing an APV tick mark, extracts

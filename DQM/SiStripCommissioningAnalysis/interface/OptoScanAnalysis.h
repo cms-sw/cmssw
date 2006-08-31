@@ -42,20 +42,24 @@ class OptoScanAnalysis : public CommissioningAnalysis {
   
   class Monitorables : public CommissioningAnalysis::Monitorables {
   public:
-    uint16_t lldBias_; // LLD bias setting
-    uint16_t lldGain_; // LLD gain setting
-    float gain_;       // Measured gain
-    float error_;      // Error on measured gain
-    float base_;       // Level of "baseline" [adc]
-    float peak_;       // Level of tick mark "peak" [adc]
-    float height_;     // Tick mark height [ADC]
+    typedef std::vector<float> VFloats;
+    typedef std::vector<uint16_t> VInts;
+    uint16_t gain_;       // Optimum LLD gain setting
+    VInts    bias_;       // LLD bias for each gain setting
+    VFloats  measGain_;   // Measured gains [adc]
+    VFloats  zeroLight_;  // "Zero light" level [adc]
+    VFloats  linkNoise_;  // Noise at "zero light" level [adc]
+    VFloats  liftOff_;    // Baseline "lift-off" [mA]
+    VFloats  threshold_;  // Laser threshold [mA]
+    VFloats  tickHeight_; // Tick mark height [adc]
     Monitorables() : 
-      lldBias_(sistrip::invalid_), lldGain_(sistrip::invalid_),
-      gain_(sistrip::invalid_), error_(sistrip::invalid_), 
-      base_(sistrip::invalid_), peak_(sistrip::invalid_), 
-      height_(sistrip::invalid_) {;}
+      gain_(sistrip::invalid_), bias_(4,sistrip::invalid_), 
+      measGain_(4,sistrip::invalid_), 
+      zeroLight_(4,sistrip::invalid_), linkNoise_(4,sistrip::invalid_),
+      liftOff_(4,sistrip::invalid_), threshold_(4,sistrip::invalid_), 
+      tickHeight_(4,sistrip::invalid_) {;}
     virtual ~Monitorables() {;}
-    void print( std::stringstream& );
+    void print( std::stringstream&, uint16_t gain = sistrip::invalid_ );
   };
 
   /** New method. */
@@ -72,7 +76,7 @@ class OptoScanAnalysis : public CommissioningAnalysis {
       second the gain measurement. */
   static void analysis( const std::vector<const TProfile*>& histos, 
 			std::vector<float>& monitorables );
-  
+
 };
 
 #endif // DQM_SiStripCommissioningAnalysis_OptoScanAnalysis_H
