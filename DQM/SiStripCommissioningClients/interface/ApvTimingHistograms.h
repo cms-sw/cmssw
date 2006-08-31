@@ -6,7 +6,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
 
 class MonitorUserInterface;
-class SiStripSummary;
 
 class ApvTimingHistograms : public CommissioningHistograms {
 
@@ -24,12 +23,18 @@ class ApvTimingHistograms : public CommissioningHistograms {
 			   const sistrip::SummaryType&, 
 			   const std::string& directory );
 
- private:
-
+ protected: 
+  
   std::map<uint32_t,ApvTimingAnalysis::Monitorables> data_;
 
   std::auto_ptr<Factory> factory_;
-  
+
+  const float optimumSamplingPoint_;
+  float minDelay_;
+  float maxDelay_; 
+  uint32_t deviceWithMinDelay_;
+  uint32_t deviceWithMaxDelay_;
+ 
 };
 
 #endif // DQM_SiStripCommissioningClients_ApvTimingHistograms_H

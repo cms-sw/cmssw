@@ -104,11 +104,11 @@ void OptoScanHistograms::histoAnalysis() {
 	}
       } else {
 	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unexpected ditigal setting! (" << digital << ")" << endl;
+	     << " Unexpected digital setting! (" << digital << ")" << endl;
       }
       
     }
-     
+    
     // Perform histo analysis
     OptoScanAnalysis::Monitorables mons;
     OptoScanAnalysis::analysis( profs, mons );

@@ -23,7 +23,7 @@ class VpspScanHistograms : public CommissioningHistograms {
 			   const sistrip::SummaryType&, 
 			   const std::string& directory );
 
- private:
+ protected:
 
   std::map<uint32_t,VpspScanAnalysis::Monitorables> data_;
 

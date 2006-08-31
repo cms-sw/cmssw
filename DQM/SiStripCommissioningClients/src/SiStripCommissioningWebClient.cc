@@ -88,7 +88,7 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   //@@ temporary
   string filename = "";
   sistrip::SummaryHisto histo = sistrip::APV_TIMING_DELAY;
-  sistrip::SummaryType type = sistrip::SUMMARY_SIMPLE_DISTR;
+  sistrip::SummaryType type = sistrip::SUMMARY_DISTR;
   string dir = "SiStrip/ControlView/FecCrate0/";
   
   // Handle requests

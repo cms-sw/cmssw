@@ -23,7 +23,7 @@ class PedestalsHistograms : public CommissioningHistograms {
 			   const sistrip::SummaryType&, 
 			   const std::string& directory );
 
- private:
+ protected:
 
   std::map<uint32_t,PedestalsAnalysis::Monitorables> data_;
 

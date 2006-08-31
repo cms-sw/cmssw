@@ -6,7 +6,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
 
 class MonitorUserInterface;
-class SiStripSummary;
 
 class FedTimingHistograms : public CommissioningHistograms {
 
@@ -24,7 +23,7 @@ class FedTimingHistograms : public CommissioningHistograms {
 			   const sistrip::SummaryType&, 
 			   const std::string& directory );
 
- private:
+ protected:
 
   std::map<uint32_t,FedTimingAnalysis::Monitorables> data_;
 

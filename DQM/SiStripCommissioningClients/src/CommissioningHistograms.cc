@@ -23,13 +23,6 @@ CommissioningHistograms::~CommissioningHistograms() {
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::subscribeNew() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
-  if ( mui_ ) { mui_->subscribeNew("*"); }
-}
-
-// -----------------------------------------------------------------------------
-/** */
 void CommissioningHistograms::createCollations( const vector<string>& contents ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
@@ -78,12 +71,19 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 
       static SiStripHistoNamingScheme::HistoTitle title;
       title = SiStripHistoNamingScheme::histoTitle( *ime );
-      uint32_t key = SiStripControlKey::key( path.fecCrate_,
+      uint32_t key = SiStripControlKey::key( sistrip::invalid_, //@@ WARNING: only good for one partition only!!!
 					     path.fecSlot_,
 					     path.fecRing_,
 					     path.ccuAddr_,
 					     path.ccuChan_,
 					     title.channel_ );
+      if ( title.granularity_ != sistrip::LLD_CHAN ) {
+	cerr << "[" << __PRETTY_FUNCTION__ << "] Unexpected histogram granularity: " << title.granularity_ << endl;
+      }
+      
+      // Fill map linking FED key to FEC key
+      mapping_[title.keyValue_] = key;
+
       // Create collation MEs
       CollationsMap::iterator iter = collations_.find( key );
       if ( iter == collations_.end() ) {
@@ -110,22 +110,36 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
   
 }
 
+// // -----------------------------------------------------------------------------
+// /** */
+// void CommissioningHistograms::subscribe( MonitorUserInterface* mui, string pattern ) {
+//   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+//   if ( mui ) { mui->subscribe(pattern); }
+// }
+
+// // -----------------------------------------------------------------------------
+// /** */
+// void CommissioningHistograms::unsubscribe( MonitorUserInterface* mui, string pattern ) {
+//   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+//   if ( mui ) { mui->unsubscribe(pattern); }
+// }
+
+// // -----------------------------------------------------------------------------
+// /** */
+// void CommissioningHistograms::saveHistos( MonitorUserInterface* mui, string name ) {
+//   stringstream ss; 
+//   if ( name == "" ) { ss << "Client.root"; }
+//   else { ss << name; }
+//   cout << "[" << __PRETTY_FUNCTION__ << "]" 
+//        << " Saving histogams to file '" << ss.str() << "'..." << endl;
+//   if ( mui ) { mui->save( ss.str() ); }
+// }
+
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::histoAnalysis() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" 
        << " (Derived) implementation to come..." << endl;
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::saveHistos( string name ) {
-  stringstream ss; 
-  if ( name == "" ) { ss << "Client.root"; }
-  else { ss << name; }
-  cout << "[" << __PRETTY_FUNCTION__ << "]" 
-       << " Saving histogams to file '" << ss.str() << "'..." << endl;
-  if ( mui_ ) { mui_->save( ss.str() ); }
 }
 
 // -----------------------------------------------------------------------------

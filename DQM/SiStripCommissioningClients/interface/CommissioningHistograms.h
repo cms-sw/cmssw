@@ -28,34 +28,39 @@ class CommissioningHistograms {
   
   typedef std::vector<std::string> Collations;
   typedef std::map<uint32_t,Collations> CollationsMap;
+  typedef std::map<uint32_t,uint32_t> FedToFecMap;
   
   /** */
   CommissioningHistograms( MonitorUserInterface* );
   /** */
   virtual ~CommissioningHistograms();
+
+  // ---------- General "actions" ----------
+
+/*   /\** *\/ */
+/*   static void subscribe( MonitorUserInterface*, */
+/* 			 std::string match_pattern ); */
+/*   /\** *\/ */
+/*   static void unsubscribe( MonitorUserInterface*, */
+/* 			   std::string match_pattern ); */
+/*   /\** *\/ */
+/*   static void saveHistos( MonitorUserInterface*, */
+/* 			  std::string filename ); */
   
-  /** */
-  void subscribeNew();
+  // ---------- "Actions" on MonitorElements ----------
+
   /** */
   void createCollations( const std::vector<std::string>& contents );
-
-  // ---------- "Actions" ----------
-
-  /** */
-  virtual void saveHistos( std::string filename );
   /** */
   virtual void histoAnalysis();
-
   /** */
   virtual void createSummaryHisto( const sistrip::SummaryHisto&, 
 				   const sistrip::SummaryType&, 
 				   const std::string& directory );
   /** */
   virtual void uploadToConfigDb();
-
-  // ---------- Misc ----------
   
-  /** Wraps other createSummaryHisto() method for Seal::Callback. */
+  /** Wraps virtual createSummaryHisto() method for Seal::Callback. */
   void createSummaryHisto( std::pair<sistrip::SummaryHisto,
 			   sistrip::SummaryType> summ, 
 			   std::string directory ); 
@@ -66,8 +71,12 @@ class CommissioningHistograms {
   inline MonitorUserInterface* const mui() const;
   /** */
   inline const CollationsMap& collations() const;
-
+  /** */
+  inline const FedToFecMap mapping() const;
+  
  private:
+  
+  CommissioningHistograms();
   
   /** */
   MonitorUserInterface* mui_;
@@ -75,6 +84,9 @@ class CommissioningHistograms {
   /** Record of collation histos that have been created. */
   CollationsMap collations_;
 
+  /** Mapping between FED and FEC keys. */
+  FedToFecMap mapping_;
+  
   /** */
   sistrip::Action action_;
   
@@ -84,6 +96,7 @@ class CommissioningHistograms {
 
 MonitorUserInterface* const CommissioningHistograms::mui() const { return mui_; }
 const CommissioningHistograms::CollationsMap& CommissioningHistograms::collations() const { return collations_; }
+const CommissioningHistograms::FedToFecMap CommissioningHistograms::mapping() const { return mapping_; }
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistograms_H
 

@@ -55,11 +55,13 @@ void SiStripCommissioningClient::configure() {
 /** Called whenever the client enters the "Enabled" state. */
 void SiStripCommissioningClient::newRun() {
   ( this->upd_ )->registerObserver( this ); 
+  subscribeAll();
 }
 
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Halted" state. */
 void SiStripCommissioningClient::endRun() {
+  unsubscribeAll(); 
   if ( histos_ ) { delete histos_; histos_ = 0; }
 }
 
@@ -70,7 +72,7 @@ void SiStripCommissioningClient::onUpdate() const {
        << " Number of updates: " << mui_->getNumUpdates() << endl;
 
   // Subscribe to new monitorables and retrieve updated contents
-  if ( mui_ ) { mui_->subscribe( "*" ); }
+  //if ( mui_ ) { mui_->subscribe( "*" ); }
   vector<string> contents;
   mui_->getContents( contents ); 
   
@@ -191,18 +193,66 @@ void SiStripCommissioningClient::histoAnalysis() {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::saveHistos( string name ) {
+void SiStripCommissioningClient::subscribeAll( string pattern ) {
 
-  if ( !histos_ ) { 
+  seal::Callback action;
+  action = seal::CreateCallback( this, 
+				 &SiStripCommissioningClient::subscribe,
+				 pattern ); //@@ argument list
+
+//   action = seal::CreateCallback( histos_, 
+// 				 &CommissioningHistograms::subscribe,
+// 				 mui_, pattern ); //@@ argument list
+  
+  if ( mui_ ) { 
+    mui_->addCallback(action); 
+    cout << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Scheduling this action..." << endl;
+  } else { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to CommissioningHistograms!" << endl; 
+	 << " NULL pointer to MonitorUserInterface!" << endl; 
     return;
   }
   
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::unsubscribeAll( string pattern ) {
+
   seal::Callback action;
-  action = seal::CreateCallback( histos_, 
-				 &CommissioningHistograms::saveHistos,
+  action = seal::CreateCallback( this, 
+				 &SiStripCommissioningClient::unsubscribe,
+				 pattern ); //@@ argument list
+  
+//   action = seal::CreateCallback( histos_, 
+// 				 &CommissioningHistograms::unsubscribe,
+// 				 mui_, pattern ); //@@ argument list
+  
+  if ( mui_ ) { 
+    mui_->addCallback(action); 
+    cout << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Scheduling this action..." << endl;
+  } else { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to MonitorUserInterface!" << endl; 
+    return;
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::saveHistos( string name ) {
+
+  seal::Callback action;
+  action = seal::CreateCallback( this, 
+				 &SiStripCommissioningClient::save,
 				 name ); //@@ argument list
+
+//   action = seal::CreateCallback( histos_, 
+// 				 &CommissioningHistograms::saveHistos,
+// 				 mui_, name ); //@@ argument list
   
   if ( mui_ ) { 
     mui_->addCallback(action); 
@@ -249,26 +299,31 @@ void SiStripCommissioningClient::createSummaryHisto( sistrip::SummaryHisto histo
 // -----------------------------------------------------------------------------
 /** */
 void SiStripCommissioningClient::uploadToConfigDb() {
+  cout << "[" << __PRETTY_FUNCTION__ << "]" 
+       << " Dervied implementation to come..." << endl; 
+}
 
-  if ( !histos_ ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to CommissioningHistograms!" << endl; 
-    return;
-  }
-  
-  seal::Callback action;
-  action = seal::CreateCallback( histos_, 
-				 &CommissioningHistograms::uploadToConfigDb
-				 ); //@@ no arguments
-  
-  if ( mui_ ) { 
-    mui_->addCallback(action); 
-    cout << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " Scheduling this action..." << endl;
-  } else { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to MonitorUserInterface!" << endl; 
-    return;
-  }
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::subscribe( string pattern ) {
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  if ( mui_ ) { mui_->subscribe(pattern); }
+}
 
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::unsubscribe( string pattern ) {
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  if ( mui_ ) { mui_->unsubscribe(pattern); }
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::save( string name ) {
+  stringstream ss; 
+  if ( name == "" ) { ss << "Client.root"; }
+  else { ss << name; }
+  cout << "[" << __PRETTY_FUNCTION__ << "]" 
+       << " Saving histogams to file '" << ss.str() << "'..." << endl;
+  if ( mui_ ) { mui_->save( ss.str() ); }
 }

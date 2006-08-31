@@ -23,7 +23,7 @@ class OptoScanHistograms : public CommissioningHistograms {
 			   const sistrip::SummaryType&, 
 			   const std::string& directory );
 
- private:
+ protected:
 
   std::map<uint32_t,OptoScanAnalysis::Monitorables> data_;
 

@@ -20,7 +20,7 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   XDAQ_INSTANTIATOR();
   
   SiStripCommissioningClient( xdaq::ApplicationStub* );
-  ~SiStripCommissioningClient();
+  virtual ~SiStripCommissioningClient();
 
   // ---------- States and monitoring ----------
 
@@ -40,27 +40,34 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   // ---------- "Actions" ----------
 
   /** */
-  virtual void saveHistos( std::string filename );
+  void subscribeAll( std::string match_pattern = "*SiStrip*" );
   /** */
-  virtual void histoAnalysis();
+  void unsubscribeAll( std::string match_pattern = "*SiStrip*" );
   /** */
-  virtual void createSummaryHisto( sistrip::SummaryHisto, 
-				   sistrip::SummaryType, 
-				   std::string directory );
+  void saveHistos( std::string filename );
   /** */
-  virtual void uploadToConfigDb();
+  void histoAnalysis();
+  /** */
+  void createSummaryHisto( sistrip::SummaryHisto, 
+			   sistrip::SummaryType, 
+			   std::string directory );
+  /** */
+  virtual void uploadToConfigDb(); 
   
- private:
+ protected:
  
-  // ---------- Private "actions" ----------
+  /** */
+  void subscribe( std::string match_pattern );
+  /** */
+  void unsubscribe( std::string match_pattern );
+  /** */
+  void save( std::string filename );
 
   /** */
   sistrip::Task extractTask( const std::vector<std::string>& added_contents ) const;
   
   /** */
-  void createHistograms( const sistrip::Task& task ) const;
-  
- private:
+  virtual void createHistograms( const sistrip::Task& task ) const;
   
   /** Web-based commissioning client. */
   SiStripCommissioningWebClient* web_;
