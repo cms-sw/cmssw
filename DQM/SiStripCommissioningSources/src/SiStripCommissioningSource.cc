@@ -11,6 +11,7 @@
 // dqm
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DQM/SiStripCommissioningSources/interface/Averages.h"
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
@@ -37,6 +38,8 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+
+#define TEST
 
 using namespace std;
 
@@ -112,7 +115,10 @@ void SiStripCommissioningSource::endJob() {
   else { name = filename_.substr( 0, filename_.find(".root",0) ); }
   stringstream ss; ss << name << "_" << setfill('0') << setw(7) << run_ << ".root";
   dqm()->save( ss.str() ); 
-
+  
+  // Remove all MonitorElements
+  //dqm()->rmdir(sistrip::root_);
+  
 //   // Remove all monitoring elements
 //   vector<string> contents;
 //   dqm()->getContents( contents );
@@ -121,6 +127,7 @@ void SiStripCommissioningSource::endJob() {
 //     string collector_dir = idir->substr( 0, idir->find(":") );
 //     dqm()->setCurrentFolder(collector_dir);
 //     dqm()->removeContents();
+//     dqm()->rmdir(collector_dir);
 //   }
   
   // Delete commissioning task objects
@@ -177,66 +184,65 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   // Generate FEC key (if FED cabling task)
   uint32_t fec_key = 0;
   if ( cablingTask_ ) {
-    uint32_t id = summary->deviceId();
-    fec_key = SiStripControlKey::key( 0,                 // FEC crate  //@@ what to do here???
-				      ((id>>27)&0x1F),   // FEC slot
-				      ((id>>23)&0x0F),   // FEC ring
-				      ((id>>16)&0x7F),   // CCU address
-				      ((id>> 8)&0xFF),   // CCU channel
-				      ((id>> 0)&0x03) ); // LLD channel
-    SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
+    uint32_t lld_chan = summary->deviceId() & 0x3;
+    SiStripModule::FedChannel fed_ch = fecCabling_->module( summary->dcuId() ).fedCh(lld_chan);
+    //cout << " lld " << lld_chan << endl;
+    //cout << " fed_ch: " << fed_ch.first << " " << fed_ch.second << endl;
+    
+#ifdef TEST
+    vector<uint16_t> feds = fedCabling_->feds();
+    fed_ch.first = 6;
+    fed_ch.second = 1;
+    //fed_ch.first = feds[ event.id().event() % feds.size() ];
+    //fed_ch.second = event.id().event() % 96;
+    //cout << "feds " << feds.size() << endl; 
+    //cout << " fed_ch: " << fed_ch.first << " " << fed_ch.second << endl;
+#endif
+    
+    FedChannelConnection conn = fedCabling_->connection( fed_ch.first, fed_ch.second );
+    //cout << "conn " << conn.fedId() << " " << conn.fedCh() << " " << conn.ccuChan() << endl;
+    fec_key = SiStripControlKey::key( conn.fecCrate(),
+				      conn.fecSlot(),
+				      conn.fecRing(),
+				      conn.ccuAddr(),
+				      conn.ccuChan(),
+				      lld_chan );
+
     stringstream ss;
     ss << "[SiStripCommissioningSource::analyze]"
-       << " Device id: " << setfill('0') << setw(8) << hex << id << dec
-       << " FEC key: " << setfill('0') << setw(8) << hex << fec_key << dec
-       << " crate/fec/ring/ccu/module/lld params: " 
-       << path.fecCrate_ << "/"
-       << path.fecSlot_ << "/"
-       << path.fecRing_ << "/"
-       << path.ccuAddr_ << "/"
-       << path.ccuChan_ << "/"
-       << path.channel_;
+       << " DCU id: 0x" << setfill('0') << setw(8) << hex << summary->dcuId() << dec
+       << " LLD channel: " << setfill('0') << setw(8) << hex << lld_chan << dec
+       << " FED id: " << fed_ch.first
+       << " FED ch: " << fed_ch.second
+       << " FEC key: 0x" << setfill('0') << setw(8) << hex << fec_key << dec
+       << " Crate/FEC/Ring/CCU/Module/LLD channel: " 
+       << conn.fecCrate() << "/"
+       << conn.fecSlot() << "/"
+       << conn.fecRing() << "/"
+       << conn.ccuAddr() << "/"
+       << conn.ccuChan() << "/"
+       << lld_chan;
+    cout << ss.str() << endl;
     LogDebug("Commissioning") << ss.str();
   }    
   
   // Iterate through FED ids and channels
   vector<uint16_t>::const_iterator ifed;
   for ( ifed = fedCabling_->feds().begin(); ifed != fedCabling_->feds().end(); ifed++ ) {
-    for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
 
+    // Container to hold median signal level for FED cabling task
+    map<uint16_t,float> medians; medians.clear(); 
+
+    for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
+      
       // Create FED key and check if non-zero
       uint32_t fed_key = SiStripReadoutKey::key( *ifed, ichan );
       if ( fed_key ) { 
-
+	
 	// Retrieve digis for given FED key and check if found
 	vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw->find( fed_key );
 	if ( digis != raw->end() ) { 
-
-	  // Fill histograms for given FEC or FED key, depending on commissioning task
-	  if ( cablingTask_ ) {
-
-	    if ( tasks_.find(fec_key) != tasks_.end() ) { 
-	      tasks_[fec_key]->fedChannel( fed_key );
-	      tasks_[fec_key]->fillHistograms( *summary, *digis );
-	    } else {
-	      SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
-	      stringstream ss;
-	      ss << "[SiStripCommissioningSource::analyze]"
-		 << " Commissioning task with FEC key " 
-		 << setfill('0') << setw(8) << hex << fec_key << dec
-		 << " and crate/fec/ring/ccu/module/lld " 
-		 << path.fecCrate_ << "/"
-		 << path.fecSlot_ << "/"
-		 << path.fecRing_ << "/"
-		 << path.ccuAddr_ << "/"
-		 << path.ccuChan_ << "/"
-		 << path.channel_ 
-		 << " not found in list!"; 
-	      edm::LogError("Commissioning") << ss.str();
-	    }
-
-	  } else {
-
+	  if ( !cablingTask_ ) {
 	    if ( tasks_.find(fed_key) != tasks_.end() ) { 
 	      tasks_[fed_key]->fillHistograms( *summary, *digis );
 	    } else {
@@ -251,12 +257,88 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 		 << " not found in list!"; 
 	      edm::LogError("Commissioning") << ss.str();
 	    }
-
+	  } else { 
+	    Averages ave;
+	    for ( uint16_t idigi = 0; idigi < digis->data.size(); idigi++ ) { ave.add( static_cast<uint32_t>(digis->data[idigi].adc()) ); }
+	    Averages::Params params;
+	    ave.calc(params);
+	    medians[ichan] = params.median_; // Store median signal level
 	  }
 	}
       }
-    }
-  }
+      
+    } // fed channel loop
+
+    // If FED cabling task, identify channels with signal
+    if ( cablingTask_ ) {
+
+      // Calculate max and min (median) signal levels
+      Averages average;
+      map<uint16_t,float>::const_iterator ii = medians.begin();
+      for ( ; ii != medians.end(); ii++ ) { average.add( ii->second ); }
+      Averages::Params tmp;
+      average.calc(tmp);
+
+      // Calculate mean and spread on truncated data
+      Averages truncated;
+      map<uint16_t,float>::const_iterator jj = medians.begin();
+      for ( ; jj != medians.end(); jj++ ) { 
+	if ( jj->second > (tmp.min_+0.2*(tmp.max_-tmp.min_)) && 
+	     jj->second < (tmp.min_+0.8*(tmp.max_-tmp.min_)) ) { 
+	  truncated.add( jj->second ); 
+	}
+      }
+      Averages::Params params;
+      truncated.calc(params);
+      
+      // Identify channels with signal
+      map<uint16_t,float> channels;
+      map<uint16_t,float>::const_iterator ichan = medians.begin();
+      for ( ; ichan != medians.end(); ichan++ ) { 
+	if ( ichan->second > params.mean_ + 5.*params.rms_ ) { 
+	  channels[ichan->first] = params.median_;
+	}
+      }
+      
+      // Fill histogram
+      if ( tasks_.find(fec_key) != tasks_.end() ) { 
+	cout << " found fec key: " << fec_key << endl;
+	tasks_[fec_key]->fillHistograms( *summary, *ifed, channels );
+	SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
+	stringstream ss;
+	ss << "[SiStripCommissioningSource::analyze]"
+	   << " Commissioning task with FEC key " 
+	   << setfill('0') << setw(8) << hex << fec_key << dec
+	   << " and crate/fec/ring/ccu/module/lld " 
+	   << path.fecCrate_ << "/"
+	   << path.fecSlot_ << "/"
+	   << path.fecRing_ << "/"
+	   << path.ccuAddr_ << "/"
+	   << path.ccuChan_ << "/"
+	   << path.channel_ 
+	   << " being filled!"; 
+	cout << ss.str() << endl;
+      } else {
+	SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
+	stringstream ss;
+	ss << "[SiStripCommissioningSource::analyze]"
+	   << " Commissioning task with FEC key " 
+	   << setfill('0') << setw(8) << hex << fec_key << dec
+	   << " and crate/fec/ring/ccu/module/lld " 
+	   << path.fecCrate_ << "/"
+	   << path.fecSlot_ << "/"
+	   << path.fecRing_ << "/"
+	   << path.ccuAddr_ << "/"
+	   << path.ccuChan_ << "/"
+	   << path.channel_ 
+	   << " not found in list!"; 
+	cout << ss.str() << endl;
+	edm::LogError("Commissioning") << ss.str();
+      }
+  
+    } // if cabling task
+    
+  } // fed id loop
   
 }
 
@@ -320,7 +402,7 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
 	      // Retrieve FED channel in order to create key for task map
 	      FedChannelConnection conn = fedCabling_->connection( iconn->second.first,
 								   iconn->second.second );
-
+	      
 	      // Define key (FEC for cabling task, FED for all other tasks) 
 	      uint32_t key;
 	      if ( cablingTask_ ) {
@@ -334,6 +416,9 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
 		key = SiStripReadoutKey::key( conn.fedId(), conn.fedCh() );
 	      }
 	      
+	      // Check key in non zero
+	      if ( !key ) { continue; }
+
 	      // Create commissioning task objects
 	      if ( tasks_.find( key ) == tasks_.end() ) {
 		if      ( task == sistrip::FED_CABLING )    { tasks_[key] = new FedCablingTask( dqm(), conn ); }
@@ -361,6 +446,7 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
 		  }
 		  ss << hex << setfill('0') << setw(8) << key << dec 
 		     << " in directory " << dir; 
+		  cout << ss.str() << endl;
 		  edm::LogInfo("Commissioning") << ss.str();
 		} else {
 		  stringstream ss;

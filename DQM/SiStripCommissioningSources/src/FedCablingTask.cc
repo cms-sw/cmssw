@@ -32,12 +32,12 @@ void FedCablingTask::book() {
   
   string title;
   uint16_t nbins = 0;
-  string info = "";
+  string extra_info = "";
   for ( uint16_t iter = 0; iter < 2; iter++ ) {
     
     // Define number of histo bins and title
-    if ( iter == 0 )      { nbins = 1024; info = sistrip::fedId_; }
-    else if ( iter == 1 ) { nbins = 96;   info = sistrip::fedChannel_; }
+    if ( iter == 0 )      { nbins = 1024; extra_info = sistrip::fedId_; }
+    else if ( iter == 1 ) { nbins = 96;   extra_info = sistrip::fedChannel_; }
     else {
       edm::LogError("Commissioning") << "[FedCablingTask::book]"
 				     << " Unexpected number of HistoSets" << iter;
@@ -49,7 +49,8 @@ void FedCablingTask::book() {
 						  fedKey(),
 						  sistrip::LLD_CHAN, 
 						  connection().lldChannel(),
-						  info );
+						  extra_info );
+
     cabling_[iter].histo_ = dqm()->bookProfile( title, title, 
 						nbins, -0.5, nbins*1.-0.5,
 						1024, 0., 1024. ); //@@ correct range?
@@ -57,15 +58,71 @@ void FedCablingTask::book() {
     cabling_[iter].vNumOfEntries_.resize(nbins,0);
     cabling_[iter].vSumOfContents_.resize(nbins,0);
     cabling_[iter].vSumOfSquares_.resize(nbins,0);
+    //cabling_[iter].isProfile_ = false; //@@ using simple 1D histos
     
   }
   
 }
 
+// // -----------------------------------------------------------------------------
+// //
+// void FedCablingTask::fill( const SiStripEventSummary& summary,
+// 			   const edm::DetSet<SiStripRawDigi>& digis ) {
+//   LogDebug("Commissioning") << "[FedCablingTask::fill]";
+  
+//   stringstream ss; 
+//   ss << "[FedCablingTask::fill] DeviceId: " 
+//      << setfill('0') << setw(8) << hex << summary.deviceId() << dec;
+//   LogDebug("Commissioning") << ss.str();
+  
+//   //@@ if scope mode length is in trigger fed, then 
+//   //@@ can add check here on number of digis
+//   if ( digis.data.empty() ) {
+//     edm::LogError("Commissioning") << "[FedCablingTask::fill]" 
+// 				   << " Unexpected number of digis! " 
+// 				   << digis.data.size(); 
+//   } else {
+    
+//     // Determine ADC median level
+//     vector<uint16_t> level;
+//     level.reserve(128); 
+//     for ( uint16_t idigi = 0; idigi < digis.data.size(); idigi++ ) { level.push_back( digis.data[idigi].adc() ); }
+//     sort( level.begin(), level.end() ); 
+//     uint16_t index = level.size()%2 ? level.size()/2 : level.size()/2-1;
+    
+// #ifdef TEST
+//     if ( connection().fedId() == fedId() &&
+// 	 connection().fedCh() == fedCh() ) { 
+//       level.resize(1,1000); 
+//       index = 0; 
+//     } else { 
+//       level.resize(1,100); 
+//       index = 0; 
+//     }
+// #endif
+    
+//     // Fill FED id and channel histograms
+//     if ( !level.empty() ) {
+//       if ( fedId() < cabling_[0].vNumOfEntries_.size() && 
+// 	   fedCh() < cabling_[1].vNumOfEntries_.size() ) { 
+// 	updateHistoSet( cabling_[0], fedId(), level[index] );
+// 	updateHistoSet( cabling_[1], fedCh(), level[index] );
+//       } else {
+// 	edm::LogError("Commissioning") << "[FedCablingTask::fill]" 
+// 				       << " Unexpected FED id and/or channel " << fedId() << "/" << fedCh();
+// 	return;
+//       }
+//     }
+
+//   }
+  
+// }
+
 // -----------------------------------------------------------------------------
 //
 void FedCablingTask::fill( const SiStripEventSummary& summary,
-			   const edm::DetSet<SiStripRawDigi>& digis ) {
+			   const uint16_t& fed_id,
+			   const map<uint16_t,float>& fed_ch ) {
   LogDebug("Commissioning") << "[FedCablingTask::fill]";
   
   stringstream ss; 
@@ -73,39 +130,19 @@ void FedCablingTask::fill( const SiStripEventSummary& summary,
      << setfill('0') << setw(8) << hex << summary.deviceId() << dec;
   LogDebug("Commissioning") << ss.str();
   
-  //@@ if scope mode length is in trigger fed, then 
-  //@@ can add check here on number of digis
-  if ( digis.data.empty() ) {
-    edm::LogError("Commissioning") << "[FedCablingTask::fill]" 
-				   << " Unexpected number of digis! " 
-				   << digis.data.size(); 
-  } else {
-    // Determine ADC median level
-    vector<uint16_t> level;
-    level.reserve(128); 
-    for ( uint16_t idigi = 0; idigi < digis.data.size(); idigi++ ) { level.push_back( digis.data[idigi].adc() ); }
-    sort( level.begin(), level.end() ); 
-    uint16_t index = level.size()%2 ? level.size()/2 : level.size()/2-1;
-    if ( !level.empty() ) {
-      // Fill FED id histo
-      if ( fedId() < cabling_[0].vNumOfEntries_.size() ) { 
-	updateHistoSet( cabling_[0], fedId(), level[index] );
-      } else {
-	edm::LogError("Commissioning") << "[FedCablingTask::fill]" 
-				       << "  Unexpected FED id! " << fedId();
-	return;
-      }
-      // Fill FED channel histo
-      if ( fedCh() < cabling_[1].vNumOfEntries_.size() ) { 
-	updateHistoSet( cabling_[1], fedCh(), level[index] );
-      } else {
-	edm::LogError("Commissioning") << "[FedCablingTask::fill]" 
-				       << "  Unexpected FED channel! " << fedCh();
-	return;
-      }
-    }
+  if ( !fed_ch.empty() ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " No FED channels with high signal!" << endl;
+    return; 
   }
   
+  // Fill FED id and channel histogram
+  map<uint16_t,float>::const_iterator ichan = fed_ch.begin();
+  for ( ; ichan != fed_ch.end(); ichan++ ) {
+    updateHistoSet( cabling_[0], fed_id, ichan->second );
+    updateHistoSet( cabling_[1], ichan->first, ichan->second );
+  } 
+
 }
 
 // -----------------------------------------------------------------------------

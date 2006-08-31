@@ -25,10 +25,12 @@ class FedCablingTask : public CommissioningTask {
   virtual ~FedCablingTask();
   
  private:
-
+  
+  
   virtual void book();
-  virtual void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& );
+  virtual void fill( const SiStripEventSummary&, 
+		     const uint16_t& fed_id,
+		     const std::map<uint16_t,float>& fed_ch );
   virtual void update();
   
   /** HistoSet for FED cabling. First element contains histo info for

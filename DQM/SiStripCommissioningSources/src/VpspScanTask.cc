@@ -33,13 +33,18 @@ void VpspScanTask::book() {
   vpsp_.resize(2);
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
     if ( connection().i2cAddr(iapv) ) { 
+
+      stringstream extra_info; 
+      extra_info << sistrip::apv_ << iapv;
       
       title = SiStripHistoNamingScheme::histoTitle( sistrip::VPSP_SCAN, 
 						    sistrip::COMBINED, 
 						    sistrip::FED, 
 						    fedKey(),
-						    sistrip::APV, 
-						    connection().i2cAddr(iapv) );
+						    sistrip::LLD_CHAN, 
+						    connection().lldChannel(),
+						    extra_info.str() );
+
       vpsp_[iapv].histo_ = dqm()->bookProfile( title, title, 
 					       nbins, -0.5, nbins*1.-0.5,
 					       1024, 0., 1024. );

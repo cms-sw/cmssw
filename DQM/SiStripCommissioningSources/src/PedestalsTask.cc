@@ -29,15 +29,15 @@ void PedestalsTask::book() {
   
   uint16_t nbins;
   string title;
-  string extra;
+  string extra_info;
 
   // Pedestals and noise histograms
   peds_.resize(2);
   nbins = 256;
   for ( uint16_t ihisto = 0; ihisto < 2; ihisto++ ) { 
     
-    if      ( ihisto == 0 ) { extra = sistrip::pedsAndRawNoise_; } // "PedsAndRawNoise"; }
-    else if ( ihisto == 1 ) { extra = sistrip::residualsAndNoise_; } // "ResidualsAndNoise"; }
+    if      ( ihisto == 0 ) { extra_info = sistrip::pedsAndRawNoise_; } // "PedsAndRawNoise"; }
+    else if ( ihisto == 1 ) { extra_info = sistrip::residualsAndNoise_; } // "ResidualsAndNoise"; }
     else { /**/ }
     
     title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
@@ -46,7 +46,7 @@ void PedestalsTask::book() {
 						  fedKey(),
 						  sistrip::LLD_CHAN, 
 						  connection().lldChannel(),
-						  extra );
+						  extra_info );
     
     peds_[ihisto].histo_ = dqm()->bookProfile( title, title, 
 					       nbins, -0.5, nbins*1.-0.5,

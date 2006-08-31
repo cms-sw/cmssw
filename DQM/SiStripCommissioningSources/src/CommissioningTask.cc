@@ -22,8 +22,8 @@ CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
   fedKey_(0),
   fecKey_(0),
   booked_(false),
-  fedId_(0),
-  fedCh_(0),
+  //fedId_(0),
+  //fedCh_(0),
   myName_(my_name)
 {
   LogDebug("Commissioning") << "[CommissioningTask::CommissioningTask]" 
@@ -53,8 +53,32 @@ CommissioningTask::~CommissioningTask() {
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::book() {
-  edm::LogError("Commissioning") << "[CommissioningTask::book]"
-				 << " This virtual method should always be over-ridden!";
+  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
+				 << " No derived implementation exists!";
+}
+
+// -----------------------------------------------------------------------------
+//
+void CommissioningTask::fill( const SiStripEventSummary& summary,
+			      const edm::DetSet<SiStripRawDigi>& digis ) {
+  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
+				 << " No derived implementation exists!";
+}
+
+// -----------------------------------------------------------------------------
+//
+void CommissioningTask::fill( const SiStripEventSummary& summary,
+			      const uint16_t& fed_id,
+			      const map<uint16_t,float>& fed_ch ) {
+  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
+				 << " No derived implementation exists!";
+}
+
+// -----------------------------------------------------------------------------
+//
+void CommissioningTask::update() {
+  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
+				 << " No derived implementation exists!";
 }
 
 // -----------------------------------------------------------------------------
@@ -91,7 +115,29 @@ void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
   }
   fillCntr_++;
   fill( summary, digis ); 
-  if ( updateFreq_ ) { if ( !(fillCntr_%updateFreq_) ) update(); }
+  if ( updateFreq_ && !(fillCntr_%updateFreq_) ) { 
+    update(); 
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
+					const uint16_t& fed_id,
+					const map<uint16_t,float>& fed_ch ) {
+  LogDebug("Commissioning") << "[CommissioningTask::fillHistograms]";
+  if ( !booked_ ) {
+    edm::LogError("Commissioning") << "[CommissioningTask::fillHistograms]"
+				   << " Attempting to fill histos that haven't been booked yet!";
+    return;
+  }
+  fillCntr_++;
+  fill( summary, fed_id, fed_ch ); 
+  if ( updateFreq_ && !(fillCntr_%updateFreq_) ) { 
+    update(); 
+  }
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -106,8 +152,8 @@ void CommissioningTask::updateHistograms() {
 //
 void CommissioningTask::updateHistoSet( HistoSet& histo_set, 
 					const uint32_t& bin,
-					const uint32_t& value ) {
-   
+					const float& value ) {
+  
   // Check bin number
   if ( bin >= histo_set.vNumOfEntries_.size() ) { 
     edm::LogError("Commissioning") << "[VpspScanTask::fill]" 
@@ -131,7 +177,7 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
   
   // Set sum of contents and squares
   histo_set.vSumOfContents_[bin] += value;
-  histo_set.vSumOfSquares_[bin] += value*value*1.;
+  histo_set.vSumOfSquares_[bin] += value*value;
   
 }
 

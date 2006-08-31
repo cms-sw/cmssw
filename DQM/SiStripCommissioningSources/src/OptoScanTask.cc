@@ -40,9 +40,9 @@ void OptoScanTask::book() {
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
     for ( uint16_t ilevel = 0; ilevel < 2; ilevel++ ) { 
       
-      stringstream ss; 
-      ss << sistrip::gain_ << igain 
-	 << sistrip::digital_ << ilevel;
+      stringstream extra_info; 
+      extra_info << sistrip::gain_ << igain 
+		 << sistrip::digital_ << ilevel;
       
       title = SiStripHistoNamingScheme::histoTitle( sistrip::OPTO_SCAN, 
 						    sistrip::COMBINED, 
@@ -50,7 +50,8 @@ void OptoScanTask::book() {
 						    fedKey(),
 						    sistrip::LLD_CHAN, 
 						    connection().lldChannel(),
-						    ss.str() );
+						    extra_info.str() );
+
       opto_[igain][ilevel].histo_  = dqm()->bookProfile( title, title, 
 							 nbins, -0.5, nbins*1.-0.5,
 							 1024, 0., 1024. );

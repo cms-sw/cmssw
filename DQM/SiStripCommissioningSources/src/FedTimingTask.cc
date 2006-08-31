@@ -36,6 +36,7 @@ void FedTimingTask::book() {
 						fedKey(),
 						sistrip::LLD_CHAN, 
 						connection().lldChannel() );
+
   timing_.histo_ = dqm()->bookProfile( title, title, 
 				       nbins, -0.5, nbins*1.-0.5,
 				       1024, 0., 1024. );
@@ -71,9 +72,6 @@ void FedTimingTask::fill( const SiStripEventSummary& summary,
     for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
       uint16_t fine = (coarse+1)*24 - (skews.second+1);
       updateHistoSet( timing_, fine, digis.data[coarse].adc() );
-//       timing_.vSumOfSquares_[fine] += digis.data[coarse].adc() * digis.data[coarse].adc();
-//       timing_.vSumOfContents_[fine] += digis.data[coarse].adc();
-//       timing_.vNumOfEntries_[fine]++;
     }
   }
 
@@ -84,11 +82,6 @@ void FedTimingTask::fill( const SiStripEventSummary& summary,
 void FedTimingTask::update() {
   LogDebug("Commissioning") << "[FedTimingTask::update]";
   updateHistoSet( timing_ );
-//   for ( uint16_t fine = 0; fine < timing_.vNumOfEntries_.size(); fine++ ) {
-//     timing_.meSumOfSquares_->setBinContent( fine+1, timing_.vSumOfSquares_[fine]*1. );
-//     timing_.meSumOfContents_->setBinContent( fine+1, timing_.vSumOfContents_[fine]*1. );
-//     timing_.meNumOfEntries_->setBinContent( fine+1, timing_.vNumOfEntries_[fine]*1. );
-//   }
 }
 
 

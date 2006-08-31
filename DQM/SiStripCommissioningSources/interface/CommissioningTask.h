@@ -23,6 +23,13 @@ class CommissioningTask {
 
  public: // ----- public interface -----
 
+  /** Constructor. */ 
+  CommissioningTask( DaqMonitorBEInterface*, 
+		     const FedChannelConnection&,
+		     const string& my_name );
+  virtual ~CommissioningTask();
+
+
   /** Simple container class holding pointer to root histogram, and
       vectors in which data are cached and used to update histo. */
   class HistoSet {
@@ -34,22 +41,19 @@ class CommissioningTask {
       histo_(0), 
       isProfile_(true) {;}
     // public data member
-    vector<int32_t> vNumOfEntries_;
-    vector<int32_t> vSumOfContents_;
-    vector<double>  vSumOfSquares_;
+    vector<float> vNumOfEntries_;
+    vector<float> vSumOfContents_;
+    vector<double> vSumOfSquares_;
     MonitorElement* histo_;
     bool isProfile_;
   };
   
-  /** Constructor. */ 
-  CommissioningTask( DaqMonitorBEInterface*, 
-		     const FedChannelConnection&,
-		     const string& my_name );
-  virtual ~CommissioningTask();
-  
   void bookHistograms();
   void fillHistograms( const SiStripEventSummary&, 
 		       const edm::DetSet<SiStripRawDigi>& );
+  void fillHistograms( const SiStripEventSummary&, 
+		       const uint16_t& fed_id,
+		       const std::map<uint16_t,float>& fed_ch );
   
   void updateHistograms();
   
@@ -57,7 +61,7 @@ class CommissioningTask {
   void updateFreq( const uint32_t& freq ) { updateFreq_ = freq; }
   
   /** Set FED id and channel (for FED cabling task). */
-  inline void fedChannel( const uint32_t& fed_key );
+  //inline void fedChannel( const uint32_t& fed_key );
   
   /** Returns the name of this commissioning task. */
   const string& myName() const { return myName_; }
@@ -65,7 +69,7 @@ class CommissioningTask {
  protected: // ----- protected methods -----
   
   /** Updates the vectors of HistoSet. */
-  void updateHistoSet( HistoSet&, const uint32_t& bin, const uint32_t& value );
+  void updateHistoSet( HistoSet&, const uint32_t& bin, const float& value );
   /** Updates the MonitorElements of HistoSet. */
   void updateHistoSet( HistoSet& );
   
@@ -81,9 +85,9 @@ class CommissioningTask {
   inline const uint32_t& fedKey() const;
 
   /** Returns FED id. */
-  inline const uint16_t& fedId() const;
+  //inline const uint16_t& fedId() const;
   /** Returns FED channel. */
-  inline const uint16_t& fedCh() const;
+  //inline const uint16_t& fedCh() const;
   
  private: // ----- private methods -----
   
@@ -91,9 +95,12 @@ class CommissioningTask {
   
   virtual void book();
   virtual void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& ) = 0;
-  virtual void update() = 0;
-
+		     const edm::DetSet<SiStripRawDigi>& );
+  virtual void fill( const SiStripEventSummary&, 
+		     const uint16_t& fed_id,
+		     const std::map<uint16_t,float>& fed_ch );
+  virtual void update();
+  
  private: // ----- private data members -----
 
   DaqMonitorBEInterface* dqm_;
@@ -103,8 +110,8 @@ class CommissioningTask {
   uint32_t fedKey_;
   uint32_t fecKey_;
   bool booked_;
-  uint16_t fedId_;
-  uint16_t fedCh_;
+  //uint16_t fedId_;
+  //uint16_t fedCh_;
   string myName_;
   
 };
@@ -117,13 +124,13 @@ const FedChannelConnection& CommissioningTask::connection() const { return conne
 const uint32_t& CommissioningTask::fecKey() const { return fecKey_; }
 const uint32_t& CommissioningTask::fedKey() const { return fedKey_; }
 
-void CommissioningTask::fedChannel( const uint32_t& fed_key ) { 
-  SiStripReadoutKey::ReadoutPath path = SiStripReadoutKey::path( fed_key ); 
-  fedId_ = path.fedId_; fedCh_ = path.fedCh_;
-}
+//void CommissioningTask::fedChannel( const uint32_t& fed_key ) { 
+//  SiStripReadoutKey::ReadoutPath path = SiStripReadoutKey::path( fed_key ); 
+//  fedId_ = path.fedId_; fedCh_ = path.fedCh_;
+//}
 
-const uint16_t& CommissioningTask::fedId() const { return fedId_; }
-const uint16_t& CommissioningTask::fedCh() const { return fedCh_; }
+//const uint16_t& CommissioningTask::fedId() const { return fedId_; }
+//const uint16_t& CommissioningTask::fedCh() const { return fedCh_; }
 
 #endif // DQM_SiStripCommissioningSources_CommissioningTask_H
 
