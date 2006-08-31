@@ -4,25 +4,25 @@
 #include "SimGeneral/HepPDT/interface/HepParticleData.h"
 #include <cmath>
 
+#include <iostream>
 CSCCrossGap:: CSCCrossGap(int iam, float mom,  LocalVector gap)
-  : theGap( gap )
+: theBeta2(0.),
+  theGamma(1.),
+  loggam(0.),
+  theGap(gap),
+  theParticleData(0),
+  clusters(),
+  electronsInClusters(),
+  steps(),
+  elosses()
 {
   iam = setParticle( iam ); // treat some types as others
-//  theParticleData = HepPDT::getParticleData(iam);
-//  LogDebug("CSCCrossGap") << "output type = " << iam << " pointer " << theParticleData;
-
-  // HepPDT doesn't work at the moment, so hardcode a few masses
-  double mass = 0.105;
-  if(iam == 11 || iam == -11) {
-    mass = 0.000511;
-  }
-  
-//  double mass = theParticleData->mass();
-//  edm::LogWarning("CSCCrossGap") << "Assuming mass = .0.105";
+  theParticleData = HepPDT::getParticleData(iam);
+  double mass = theParticleData->mass();
   
   logGamma( mass, mom);
   LogDebug("CSCCrossGap")
-//     << "CSCCrossGap: simhit due to " << theParticleData->name() << "\n"
+     << "CSCCrossGap: simhit due to " << theParticleData->name() << "\n"
      << "mass = " << mass << "GeV/c2, momentum = " << mom << 
        " GeV/c, gap length = " << length() << " cm \n";
 }
@@ -42,6 +42,7 @@ double CSCCrossGap::logGamma( double mass, float mom )
 
   return loggam;
 }
+
 
 int CSCCrossGap::setParticle(int iam)
 {
