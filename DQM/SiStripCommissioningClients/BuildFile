@@ -8,11 +8,11 @@
 <use name=DQM/SiStripCommissioningSummary>
 <use name=boost>
 <use name=root> 
-<lib name=xdaq>
+<use name=xdaq>
 <lib name=xgi>
 
 <export>
-  <lib name=DQMSiStripMonitorClient>
+  <lib name=DQMSiStripCommissioningClients>
   <use name=FWCore/Utilities>
   <use name=DataFormats/SiStripDetId>
   <use name=DQMServices/Core>
@@ -23,7 +23,7 @@
   <use name=DQM/SiStripCommissioningSummary>
   <use name=boost> 
   <use name=root> 
-  <lib name=xdaq>
+  <use name=xdaq>
   <lib name=xgi>
 </export>
 
