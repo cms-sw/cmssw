@@ -8,6 +8,23 @@
 #include "boost/cstdint.hpp"
 #include <string>
 
+//@@ separate out into three classes dealing with names, paths, enum conversions.
+//@@ control path class should allow use of invalid_
+//@@ and define path up to LLD channel level
+
+/*
+  crate   1-4   3-bits
+  fec     1-20  5-bits
+  ring    1-8   4-bits
+  ccu     0-127 8-bits
+  module  0-255 9-bits
+  channel 0-2   3-bits
+  total:       32-bits!
+*/
+
+//@@ readout path class
+/* fed, feunit, channel ??? */
+
 class SiStripHistoNamingScheme {
   
  public:
@@ -66,11 +83,11 @@ class SiStripHistoNamingScheme {
   /** Simple struct to hold control path parameters. */
   class ControlPath {
   public:
-    uint16_t fecCrate_;
-    uint16_t fecSlot_;
-    uint16_t fecRing_;
-    uint16_t ccuAddr_;
-    uint16_t ccuChan_;
+    uint16_t fecCrate_; // [1-4]     4 requires -bits
+    uint16_t fecSlot_;  // [1-20]   20 requires -bits
+    uint16_t fecRing_;  // [1-8]     8 requires -bits
+    uint16_t ccuAddr_;  // [0-127] 127 requires -bits
+    uint16_t ccuChan_;  // [0-255] 255 requires -bits
     ControlPath() : 
       fecCrate_(sistrip::invalid_), 
       fecSlot_(sistrip::invalid_), 
