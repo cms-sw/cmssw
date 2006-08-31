@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/08/30 12:26:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -46,7 +46,7 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   
   for(vector<string>::iterator propagatorName = propagatorNames.begin();
       propagatorName != propagatorNames.end(); ++propagatorName)
-    thePropagators[ *propagatorName ] = 0;
+    thePropagators[ *propagatorName ] = ESHandle<Propagator>(0);
 }
 		   
 
@@ -83,10 +83,10 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
 }
 
 // get the propagator
-ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName){
+ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) const{
   
   propagators::const_iterator prop = thePropagators.find(propagatorName);
-  
+
   if (prop == thePropagators.end()) return 0;
   
   return prop->second;
