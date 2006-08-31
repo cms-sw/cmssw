@@ -130,15 +130,20 @@ void FedCablingTask::fill( const SiStripEventSummary& summary,
      << setfill('0') << setw(8) << hex << summary.deviceId() << dec;
   LogDebug("Commissioning") << ss.str();
   
-  if ( !fed_ch.empty() ) { 
+  if ( fed_ch.empty() ) { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " No FED channels with high signal!" << endl;
     return; 
   }
   
   // Fill FED id and channel histogram
+  //cout << "Number of FED channels found: " << fed_ch.size() << endl;
   map<uint16_t,float>::const_iterator ichan = fed_ch.begin();
   for ( ; ichan != fed_ch.end(); ichan++ ) {
+//     cout << " FED id: " << fed_id
+// 	 << " FED ch: " << ichan->first
+// 	 << " median: " << ichan->second
+// 	 << endl;
     updateHistoSet( cabling_[0], fed_id, ichan->second );
     updateHistoSet( cabling_[1], ichan->first, ichan->second );
   } 
