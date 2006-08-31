@@ -20,6 +20,7 @@
 <use name=TrackingTools/GeomPropagators>
 <use name=RecoTracker/TrackProducer>
 <use name=FastSimulation/Event>
+<use name=RecoParticleFlow/PFAlgo>
 <flags SEAL_PLUGIN_NAME="RecoParticleFlowPFProducer">
 <export>
    <lib name=RecoParticleFlowPFProducer>
@@ -45,4 +46,5 @@
    <use name=TrackingTools/GeomPropagators>
    <use name=RecoTracker/TrackProducer>
    <use name=FastSimulation/Event>
+   <use name=RecoParticleFlow/PFAlgo>
 </export>
