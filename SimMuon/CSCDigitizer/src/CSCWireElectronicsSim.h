@@ -12,7 +12,6 @@
  *
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 
@@ -29,16 +28,11 @@ public:
   /// configurable parameters
   CSCWireElectronicsSim(const edm::ParameterSet &p);
 
-  /// hardcoed default parameters
-  CSCWireElectronicsSim();
-
   void setFraction(float newFraction)  {theFraction = newFraction;};
 
   void fillDigis(CSCWireDigiCollection & digis);
 
 private:
-  // helper functions
-  void init();
   /// initialization for each layer
   virtual void initParameters();
 

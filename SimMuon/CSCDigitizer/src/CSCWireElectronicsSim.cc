@@ -13,46 +13,14 @@
 
 
 CSCWireElectronicsSim::CSCWireElectronicsSim(const edm::ParameterSet & p) 
- : CSCBaseElectronicsSim()
+ : CSCBaseElectronicsSim(p),
+   theFraction(0.5),
+   theWireNoise(0.0),
+   theWireThreshold(0.),
+   theTimingCalibrationError(p.getParameter<double>("wireTimingError"))
+
 {
-  theSignalStartTime = p.getParameter<double>("wireSignalStartTime");
-  theSignalStopTime = p.getParameter<double>("wireSignalStopTime");
-  theSamplingTime = p.getParameter<double>("wireSamplingTime");
-  theTimingCalibrationError = p.getParameter<double>("wireTimingError");
-  init();
-}
-
-
-CSCWireElectronicsSim::CSCWireElectronicsSim()
- : CSCBaseElectronicsSim()
-{
-  theSignalStartTime = -250.;
-  theSignalStopTime = 500.;
-  theSamplingTime = 2.0;
-  theTimingCalibrationError = 0.;
-  init();
-}
-
-
-void CSCWireElectronicsSim::init() {
   theFraction = 0.5;
-  theShapingTime = 30;
-  theAmpGainVariance = 0.;
-  thePeakTimeVariance = 0.;
-  theTailShaping = RADICAL;
-
-  theBunchTimingOffsets.resize(11);
-  theBunchTimingOffsets[1] = 33.8;
-  theBunchTimingOffsets[2] = 34.8;
-  theBunchTimingOffsets[3] = 42.0;
-  theBunchTimingOffsets[4] = 42.0;
-  theBunchTimingOffsets[5] = 43.6;
-  theBunchTimingOffsets[6] = 42.0;
-  theBunchTimingOffsets[7] = 42.6;
-  theBunchTimingOffsets[8] = 41.5;
-  theBunchTimingOffsets[9] = 43.6;
-  theBunchTimingOffsets[10] = 41.5;
-  theNumberOfSamples = (int)((theSignalStopTime-theSignalStartTime)/theSamplingTime);
   fillAmpResponse();
 }
 
