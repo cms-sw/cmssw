@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: ProducerBase.cc,v 1.8 2005/12/28 00:48:40 wmtan Exp $
+$Id: ProducerBase.cc,v 1.1 2006/04/20 22:34:05 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,7 +20,7 @@ $Id: ProducerBase.cc,v 1.8 2005/12/28 00:48:40 wmtan Exp $
 using namespace std;
 
 namespace edm {
-  ProducerBase::ProducerBase() : ProductRegistryHelper() {}
+  ProducerBase::ProducerBase() : ProductRegistryHelper(), callWhenNewProductsRegistered_() {}
   ProducerBase::~ProducerBase() { }
 
    boost::function<void(const BranchDescription&)> ProducerBase::registrationCallback() const {

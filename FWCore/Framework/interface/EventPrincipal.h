@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.32 2006/07/06 19:11:42 wmtan Exp $
+$Id: EventPrincipal.h,v 1.33 2006/07/12 18:18:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -60,8 +60,8 @@ namespace edm {
     // it, and those tests must be modified.
     EventPrincipal();
     
-    EventPrincipal(EventID const& id,
-                   Timestamp const& time,
+    EventPrincipal(EventID const& evtID,
+                   Timestamp const& theTime,
                    ProductRegistry const& reg,
 		   LuminosityBlockID const& lb = LuminosityBlockID(),
                    ProcessHistoryID const& hist = ProcessHistoryID(),
@@ -86,19 +86,19 @@ namespace edm {
 
     BasicHandle  get(ProductID const& oid) const;
 
-    BasicHandle  getBySelector(TypeID const& id, Selector const& s) const;
+    BasicHandle  getBySelector(TypeID const& tid, Selector const& s) const;
 
-    BasicHandle  getByLabel(TypeID const& id,
+    BasicHandle  getByLabel(TypeID const& tid,
 			    std::string const& label,
                             std::string const& productInstanceName) const;
 
-    void getMany(TypeID const& id, 
+    void getMany(TypeID const& tid, 
 		 Selector const&,
 		 BasicHandleVec& results) const;
 
-    BasicHandle  getByType(TypeID const& id) const;
+    BasicHandle  getByType(TypeID const& tid) const;
 
-    void getManyByType(TypeID const& id, 
+    void getManyByType(TypeID const& tid, 
 		 BasicHandleVec& results) const;
 
     Provenance const&

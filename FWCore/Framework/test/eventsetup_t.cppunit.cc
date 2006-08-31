@@ -152,7 +152,7 @@ void testEventsetup::recordProviderTest()
 
 class DummyFinder : public EventSetupRecordIntervalFinder {
 public:
-   DummyFinder() {
+   DummyFinder() : EventSetupRecordIntervalFinder(), interval_()  {
       this->findingRecord<DummyRecord>();
    }
 
@@ -316,8 +316,8 @@ void testEventsetup::twoSourceTest()
     boost::shared_ptr<edm::DummyEventSetupRecordRetriever> dummyProv(new edm::DummyEventSetupRecordRetriever());
     boost::shared_ptr<eventsetup::DataProxyProvider> providerPtr(dummyProv);
     boost::shared_ptr<edm::EventSetupRecordIntervalFinder> finderPtr(dummyProv);
-    edm::eventsetup::ComponentDescription description("DummyEventSetupRecordRetriever","",true);
-    dummyProv->setDescription(description);
+    edm::eventsetup::ComponentDescription description2("DummyEventSetupRecordRetriever","",true);
+    dummyProv->setDescription(description2);
     provider.add(providerPtr);
     provider.add(finderPtr);
   }

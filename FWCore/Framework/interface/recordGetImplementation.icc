@@ -11,7 +11,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:14 EST 2005
-// $Id: recordGetImplementation.icc,v 1.7 2005/09/01 23:30:49 wmtan Exp $
+// $Id: recordGetImplementation.icc,v 1.8 2006/06/06 20:59:20 chrjones Exp $
 //
 
 // system include files
@@ -31,26 +31,26 @@ EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
                                                      const char* iName,
                                                      const ComponentDescription*& iDesc) const 
 {
-   DataKey key(DataKey::makeTypeTag<DataT>(),
+   DataKey dataKey(DataKey::makeTypeTag<DataT>(),
                iName,
                DataKey::kDoNotCopyMemory);
    
    const DataProxyTemplate<T, DataT>* proxy = 
-      static_cast<const DataProxyTemplate<T, DataT>* >(this->find(key));
+      static_cast<const DataProxyTemplate<T, DataT>* >(this->find(dataKey));
    
    const DataT* hold = 0;
    if(0 != proxy) {
       // add data key to the stack
       //DAExceptionStackEntry stackEntry(d_key);
       
-      hold = proxy->get(static_cast<const T&>(*this), key);
+      hold = proxy->get(static_cast<const T&>(*this), dataKey);
       iDesc = proxy->providerDescription();
    } else {
       // add durable data key to the stack in order to catch it
       //DAExceptionStackEntry stackEntry(d_key,DAExceptionStackEntry::kUseDurable)
       ;
       
-      throw NoProxyException<DataT>(*this, key);
+      throw NoProxyException<DataT>(*this, dataKey);
    }
    iData = hold;
 }

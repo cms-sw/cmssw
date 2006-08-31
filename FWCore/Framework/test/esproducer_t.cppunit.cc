@@ -50,7 +50,7 @@ public:
 private:
 class Test1Producer : public ESProducer {
 public:
-   Test1Producer() {
+   Test1Producer() : ESProducer(), data_() {
       data_.value_ = 0;
       setWhatProduced(this);
    }
@@ -65,7 +65,7 @@ private:
 
 class MultiRegisterProducer : public ESProducer {
 public:
-   MultiRegisterProducer() {
+   MultiRegisterProducer() : ESProducer(), data_() {
       setWhatProduced(this);
       setWhatProduced(this);
    }

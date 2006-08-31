@@ -59,11 +59,11 @@ namespace edm
   }
 
   void
-  CurrentProcessingContext::activate(size_t slotInPath, 
+  CurrentProcessingContext::activate(size_t theSlotInPath, 
 				     ModuleDescription const* mod)
   {
     assert( mod );
-    slotInPath_     = slotInPath;
+    slotInPath_     = theSlotInPath;
     moduleDescription_ = mod;
   }
 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.25 2006/07/06 19:11:43 wmtan Exp $
+$Id: Event.cc,v 1.26 2006/07/19 16:45:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -18,6 +18,8 @@ using namespace std;
 namespace edm {
 
   Event::Event(EventPrincipal& ep, const ModuleDescription& md) :
+    put_products_(),
+    gotProductIDs_(),
     ep_(ep),
     md_(md)
   {  }
@@ -79,38 +81,38 @@ namespace edm {
   }
 
   BasicHandle
-  Event::get_(TypeID const& id, Selector const& sel) const
+  Event::get_(TypeID const& tid, Selector const& sel) const
   {
-    return ep_.getBySelector(id, sel);
+    return ep_.getBySelector(tid, sel);
   }
     
   BasicHandle
-  Event::getByLabel_(TypeID const& id,
+  Event::getByLabel_(TypeID const& tid,
 		     const string& label,
                      const string& productInstanceName) const
   {
-    return ep_.getByLabel(id, label, productInstanceName);
+    return ep_.getByLabel(tid, label, productInstanceName);
   }
 
   void 
-  Event::getMany_(TypeID const& id, 
+  Event::getMany_(TypeID const& tid, 
 		  Selector const& sel,
 		  BasicHandleVec& results) const
   {
-    ep_.getMany(id, sel, results);
+    ep_.getMany(tid, sel, results);
   }
 
   BasicHandle
-  Event::getByType_(TypeID const& id) const
+  Event::getByType_(TypeID const& tid) const
   {
-    return ep_.getByType(id);
+    return ep_.getByType(tid);
   }
 
   void 
-  Event::getManyByType_(TypeID const& id, 
+  Event::getManyByType_(TypeID const& tid, 
 		  BasicHandleVec& results) const
   {
-    ep_.getManyByType(id, results);
+    ep_.getManyByType(tid, results);
   }
 
   Provenance const&

@@ -47,8 +47,8 @@ namespace edm
     Workers::size_type idx = 0;
     // It seems likely that 'nwrwue' and 'idx' can never differ ---
     // if so, we should remove one of them!.
-    for ( Workers::iterator i = workers_.begin(), e = workers_.end();
-          i != e && should_continue;
+    for ( Workers::iterator i = workers_.begin(), end = workers_.end();
+          i != end && should_continue;
           ++i, ++idx ) {
       ++nwrwue;
       assert ( static_cast<int>(idx) == nwrwue );

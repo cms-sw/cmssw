@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Tue Mar 29 16:15:11 EST 2005
-// $Id: EventSetupRecordIntervalFinder.h,v 1.6 2005/09/01 23:30:48 wmtan Exp $
+// $Id: EventSetupRecordIntervalFinder.h,v 1.7 2005/10/03 23:20:51 chrjones Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ class EventSetupRecordIntervalFinder
 {
 
    public:
-      EventSetupRecordIntervalFinder() {}
+      EventSetupRecordIntervalFinder() : intervals_() {}
       virtual ~EventSetupRecordIntervalFinder();
 
       // ---------- const member functions ---------------------

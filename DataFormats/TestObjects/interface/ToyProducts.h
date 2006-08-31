@@ -73,7 +73,7 @@ namespace edmtest
   };
 
   inline
-  bool operator< (Unsortable const& a, Unsortable const& b)
+  bool operator< (Unsortable const&, Unsortable const&)
   {
     throw std::logic_error("operator< called for Unsortable");
   }

@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:31:03 EST 2005
-// $Id: DataKey.h,v 1.5 2005/09/01 23:30:48 wmtan Exp $
+// $Id: DataKey.h,v 1.6 2006/08/10 23:24:42 wmtan Exp $
 //
 
 // system include files
@@ -39,7 +39,10 @@ class DataKey
       DataKey(const TypeTag& iType, 
                const IdTags& iId) :
          type_(iType),
-         name_(iId) { makeCopyOfMemory();}
+         name_(iId),
+         ownMemory_() {
+           makeCopyOfMemory();
+         }
 
       DataKey(const TypeTag& iType, 
                const IdTags& iId,
@@ -50,8 +53,9 @@ class DataKey
       
       DataKey(const DataKey& iRHS) : 
          type_(iRHS.type_),
-         name_(iRHS.name_) {
-            makeCopyOfMemory();
+         name_(iRHS.name_),
+         ownMemory_() {
+           makeCopyOfMemory();
          }
       
       const DataKey& operator=(const DataKey&); // stop default

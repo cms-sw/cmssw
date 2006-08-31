@@ -323,7 +323,7 @@ namespace edmtest {
 
     // Verify that the vector *is* sorted.
     
-    for (size_type i = 1, e = after.size(); i < e; ++i)
+    for (size_type i = 1, end = after.size(); i < end; ++i)
       {
 	assert( after[i-1].id() < after[i].id());
       }
@@ -374,7 +374,7 @@ namespace edmtest {
 
     // Verify that the vector *is* sorted.
     
-    for (size_type i = 1, e = after.size(); i < e; ++i)
+    for (size_type i = 1, end = after.size(); i < end; ++i)
       {
 	assert( after[i-1].data < after[i].data);
       }
@@ -402,7 +402,7 @@ namespace edmtest {
 
     // Verify that the vector is reverse-sorted.
     
-    for (size_type i = 1, e = after.size(); i < e; ++i)
+    for (size_type i = 1, end = after.size(); i < end; ++i)
       {
 	assert( after[i-1].data > after[i].data);
       }

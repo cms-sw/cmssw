@@ -19,7 +19,7 @@ OrphanHandles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: OrphanHandle.h,v 1.2 2006/06/15 00:00:58 wmtan Exp $
+$Id: OrphanHandle.h,v 1.3 2006/08/10 23:24:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -76,9 +76,9 @@ namespace edm {
   { }
 
   template <class T>
-  OrphanHandle<T>::OrphanHandle(T const* product, ProductID const& id) :
-    prod_(product),
-    id_(id) { 
+  OrphanHandle<T>::OrphanHandle(T const* prod, ProductID const& theId) :
+    prod_(prod),
+    id_(theId) { 
       assert(prod_);
       assert(id_ != ProductID());
   }

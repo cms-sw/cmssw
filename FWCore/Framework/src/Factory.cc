@@ -24,7 +24,7 @@ namespace edm {
     for_each(makers_.begin(),makers_.end(),cleanup);
   }
 
-  Factory::Factory(): seal::PluginFactory<Maker* ()>("CMS EDM Framework Module")
+  Factory::Factory(): seal::PluginFactory<Maker* ()>("CMS EDM Framework Module"), makers_()
 
   {
   }

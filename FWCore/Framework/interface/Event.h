@@ -70,7 +70,7 @@ Getting a reference to an event product before that product is put into the even
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.37 2006/06/24 01:46:34 wmtan Exp $
+$Id: Event.h,v 1.38 2006/07/19 16:45:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -131,7 +131,7 @@ namespace edm {
     
     template <typename PROD>
     void 
-    get(ProductID const& id, Handle<PROD>& result) const;
+    get(ProductID const& oid, Handle<PROD>& result) const;
 
     template <typename PROD>
     void 
@@ -163,7 +163,7 @@ namespace edm {
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
     Provenance const&
-    getProvenance(ProductID const& id) const;
+    getProvenance(ProductID const& theID) const;
 
     void
     getAllProvenance(std::vector<Provenance const*> &provenances) const;
@@ -198,23 +198,23 @@ namespace edm {
     get_(ProductID const& oid) const;
 
     BasicHandle 
-    get_(TypeID const& id, Selector const&) const;
+    get_(TypeID const& tid, Selector const&) const;
     
     BasicHandle 
-    getByLabel_(TypeID const& id,
+    getByLabel_(TypeID const& tid,
 		std::string const& label,
 		const std::string& productInstanceName) const;
 
     void 
-    getMany_(TypeID const& id, 
+    getMany_(TypeID const& tid, 
 	     Selector const& sel, 
 	     BasicHandleVec& results) const;
 
     BasicHandle 
-    getByType_(TypeID const& id) const;
+    getByType_(TypeID const& tid) const;
 
     void 
-    getManyByType_(TypeID const& id, 
+    getManyByType_(TypeID const& tid, 
 	     BasicHandleVec& results) const;
 
     // Also isolates the Event class
@@ -407,9 +407,9 @@ namespace edm {
   
   template <typename PROD>
   void
-  Event::get(ProductID const& id, Handle<PROD>& result) const
+  Event::get(ProductID const& oid, Handle<PROD>& result) const
   {
-    BasicHandle bh = this->get_(id);
+    BasicHandle bh = this->get_(oid);
     gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error
   }

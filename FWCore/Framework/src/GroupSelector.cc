@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.18 2006/07/27 06:29:40 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.19 2006/08/24 17:11:52 wmtan Exp $
 
 #include <algorithm>
 #include <iterator>
@@ -177,6 +177,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
 
   GroupSelector::GroupSelector(ParameterSet const& pset) :
     groupsToWrite_(),
+    rules_(),
     initialized_(false)
   {
     // Create a Rule for each command.
@@ -223,7 +224,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   GroupSelector::print(std::ostream& os) const
   {
     os << "GroupSelector at: "
-       << (void const*)this
+       << static_cast<void const*>(this)
        << " has "
        << groupsToWrite_.size()
        << " groups to write:\n";      

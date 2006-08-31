@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.24 2006/08/05 18:36:44 chrjones Exp $
+$Id: EventProcessor.h,v 1.25 2006/08/26 23:44:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -226,6 +226,7 @@ class EDLooperHelper;
     struct CommonParams
     {
       CommonParams():
+	processName_(),
 	releaseVersion_(),
 	passID_()
       { }

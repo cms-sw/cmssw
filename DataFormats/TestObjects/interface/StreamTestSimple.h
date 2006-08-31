@@ -12,8 +12,8 @@ namespace edmtestprod
     double data_;
 
     key_type  id() const { return key_; }
-    bool operator==(const Simple& s) const { return true; }
-    bool operator<(const Simple& s) const { return true; }
+    bool operator==(const Simple&) const { return true; }
+    bool operator<(const Simple&) const { return true; }
   };
 
   typedef edm::SortedCollection<Simple> StreamTestSimple;

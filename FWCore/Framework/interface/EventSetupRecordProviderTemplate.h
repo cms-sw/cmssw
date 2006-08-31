@@ -47,7 +47,7 @@ template<class T>
       DependentEventSetupRecordProviderTemplate<T>,
       EventSetupRecordProvider >::type    BaseType;
    
-   EventSetupRecordProviderTemplate() : BaseType(EventSetupRecordKey::makeKey<T>()) {}
+   EventSetupRecordProviderTemplate() : BaseType(EventSetupRecordKey::makeKey<T>()), record_() {}
       //virtual ~EventSetupRecordProviderTemplate();
 
       // ---------- const member functions ---------------------

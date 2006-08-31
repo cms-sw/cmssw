@@ -39,7 +39,7 @@ namespace edm {
   class WorkerMaker : public Maker
   {
   public:
-    typedef T worker_type;
+    //typedef T worker_type;
     explicit WorkerMaker();
     std::auto_ptr<Worker> makeWorker(const WorkerParams&,
                                      sigc::signal<void, const ModuleDescription&>&,

@@ -8,7 +8,7 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-$Id: EDFilter.h,v 1.9 2006/06/20 23:13:27 paterno Exp $
+$Id: EDFilter.h,v 1.10 2006/06/21 19:03:12 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,7 +21,7 @@ namespace edm {
   public:
     typedef EDFilter ModuleType;
     
-    EDFilter() : ProducerBase() {}
+    EDFilter() : ProducerBase() , current_context_(0) {}
     virtual ~EDFilter();
     bool doFilter(Event& e, EventSetup const& c,
 		  CurrentProcessingContext const* cpc);

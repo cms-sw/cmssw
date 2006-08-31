@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.48 2006/07/28 17:10:22 chrjones Exp $
+$Id: EventPrincipal.cc,v 1.49 2006/08/30 23:34:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -40,24 +40,36 @@ private:
     aux_(),
     groups_(),
     branchDict_(),
+    productDict_(),
     typeDict_(),
+    inactiveGroups_(),
+    inactiveBranchDict_(),
+    inactiveProductDict_(),
+    inactiveTypeDict_(),
     preg_(0),
-    store_()
+    store_(),
+    unscheduledHandler_()
   { }
 
 
-  EventPrincipal::EventPrincipal(EventID const& id,
-				 Timestamp const& time,
+  EventPrincipal::EventPrincipal(EventID const& evtID,
+				 Timestamp const& theTime,
                                  ProductRegistry const& reg,
 				 LuminosityBlockID const& lb,
 				 ProcessHistoryID const& hist,
 				 boost::shared_ptr<DelayedReader> rtrv) :
-   aux_(id,time,lb),
-   groups_(),
-   branchDict_(),
-   typeDict_(),
-   preg_(&reg),
-   store_(rtrv)
+    aux_(evtID, theTime, lb),
+    groups_(),
+    branchDict_(),
+    productDict_(),
+    typeDict_(),
+    inactiveGroups_(),
+    inactiveBranchDict_(),
+    inactiveProductDict_(),
+    inactiveTypeDict_(),
+    preg_(&reg),
+    store_(rtrv),
+    unscheduledHandler_()
   {
     aux_.processHistoryID_ = hist;
     groups_.reserve(reg.productList().size());
@@ -187,11 +199,11 @@ private:
       }
       prov->product.productID_ = it->second.productID_;
     }
-    ProductID id = prov->productID();
+    ProductID oid = prov->productID();
 
     // Group assumes ownership
     std::auto_ptr<Group> g(new Group(edp, prov));
-    g->setID(id);
+    g->setID(oid);
     this->addGroup(g);
   }
 
@@ -244,9 +256,9 @@ private:
   }
 
   BasicHandle
-  EventPrincipal::getBySelector(TypeID const& id, 
+  EventPrincipal::getBySelector(TypeID const& tid, 
 				Selector const& sel) const {
-    TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
+    TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
 
     if(i==typeDict_.end()) {
 	// TODO: Perhaps stuff like this should go to some error
@@ -256,17 +268,17 @@ private:
 	err << "getBySelector: no products found of correct type\n";
 	err << "No products found of correct type\n";
 	err << "We are looking for: '"
-	     << id
+	     << tid
 	     << "'\n";
 	if (typeDict_.empty()) {
 	    err << "typeDict_ is empty!\n";
 	} else {
 	    err << "We found only the following:\n";
-	    TypeDict::const_iterator i = typeDict_.begin();
+	    TypeDict::const_iterator j = typeDict_.begin();
 	    TypeDict::const_iterator e = typeDict_.end();
-	    while (i != e) {
-		err << "...\t" << i->first << '\n';
-		++i;
+	    while (j != e) {
+		err << "...\t" << j->first << '\n';
+		++j;
 	    }
 	}
 	err << ends;
@@ -279,7 +291,7 @@ private:
 	// should never happen!!
 	throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
 	  <<  "getBySelector: no products found for\n"
-	  << id;
+	  << tid;
     }
 
     int found_count = 0;
@@ -300,7 +312,7 @@ private:
 				     "TooManyMatches")
 		  << "getBySelector: too many products found, "
 		  << "expected one, got " << found_count << ", for\n"
-		  << id;
+		  << tid;
 	    }
 	    found_slot = *ib;
 	    this->resolve_(*g);
@@ -312,7 +324,7 @@ private:
     if (found_count == 0) {
 	throw edm::Exception(edm::errors::ProductNotFound,"TooFewProducts")
 	  << "getBySelector: too few products found (zero) for\n"
-	  << id;
+	  << tid;
     }
 
     return result;
@@ -320,7 +332,7 @@ private:
 
     
   BasicHandle
-  EventPrincipal::getByLabel(TypeID const& id, 
+  EventPrincipal::getByLabel(TypeID const& tid, 
 			     string const& label,
 			     string const& productInstanceName) const {
     // The following is not the most efficient way of doing this. It
@@ -336,7 +348,7 @@ private:
     ProcessHistory::const_reverse_iterator eproc = aux_.processHistory().rend();
     while (iproc != eproc) {
 	string const& processName = iproc->processName();
-	BranchKey bk(id.friendlyClassName(), label, productInstanceName, processName);
+	BranchKey bk(tid.friendlyClassName(), label, productInstanceName, processName);
 	BranchDict::const_iterator i = branchDict_.find(bk);
 
 	if (i != branchDict_.end()) {
@@ -354,24 +366,24 @@ private:
     // process name... throw!
     throw edm::Exception(errors::ProductNotFound,"NoMatch")
       << "getByLabel: could not find a product with module label \"" << label
-      << "\"\nof type " << id
+      << "\"\nof type " << tid
       << " with product instance label \"" << (productInstanceName.empty() ? "" : productInstanceName) << "\"\n";
   }
 
   void 
-  EventPrincipal::getMany(TypeID const& id, 
+  EventPrincipal::getMany(TypeID const& tid, 
 			  Selector const& sel,
 			  BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
     // care needs to be taken.
-    TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
+    TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
 
     if(i==typeDict_.end()) {
 	return;
 	// it is not an error to return no items
 	// throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	//   << "getMany: no products found of correct type\n" << id;
+	//   << "getMany: no products found of correct type\n" << tid;
     }
 
     vector<int> const& vint = i->second;
@@ -380,7 +392,7 @@ private:
 	// should never happen!!
 	throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
 	  <<  "getMany: no products found for\n"
-	  << id;
+	  << tid;
     }
 
     vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
@@ -397,13 +409,13 @@ private:
   }
 
   BasicHandle
-  EventPrincipal::getByType(TypeID const& id) const {
+  EventPrincipal::getByType(TypeID const& tid) const {
 
-    TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
+    TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
 
     if(i==typeDict_.end()) {
       throw edm::Exception(errors::ProductNotFound,"NoMatch")
-        << "getByType: no product found of correct type\n" << id;
+        << "getByType: no product found of correct type\n" << tid;
     }
 
     vector<int> const& vint = i->second;
@@ -412,14 +424,14 @@ private:
       // should never happen!!
       throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
         <<  "getByType: no product found for\n"
-        << id;
+        << tid;
     }
 
     if(vint.size() > 1) {
       throw edm::Exception(edm::errors::ProductNotFound, "TooManyMatches")
         << "getByType: too many products found, "
         << "expected one, got " << vint.size() << ", for\n"
-        << id;
+        << tid;
     }
 
     SharedGroupPtr const& g = groups_[vint[0]];
@@ -428,18 +440,18 @@ private:
   }
 
   void 
-  EventPrincipal::getManyByType(TypeID const& id, 
+  EventPrincipal::getManyByType(TypeID const& tid, 
 			  BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
     // care needs to be taken.
-    TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
+    TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
 
     if(i==typeDict_.end()) {
 		return;
       // it is not an error to find no match
       // throw edm::Exception(errors::ProductNotFound,"NoMatch")
-      //   << "getManyByType: no products found of correct type\n" << id;
+      //   << "getManyByType: no products found of correct type\n" << tid;
     }
 
     vector<int> const& vint = i->second;
@@ -448,7 +460,7 @@ private:
       // should never happen!!
       throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
         <<  "getManyByType: no products found for\n"
-        << id;
+        << tid;
     }
 
     vector<int>::const_iterator ib(vint.begin()), ie(vint.end());

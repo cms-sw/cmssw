@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.3 2006/03/31 00:28:55 chrjones Exp $
+// $Id: GenericHandle.h,v 1.4 2006/08/10 23:24:42 wmtan Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@ class Handle<GenericObject> {
 public:
       ///Throws exception if iName is not a known C++ class type
       Handle(const std::string& iName) : 
-        type_(ROOT::Reflex::Type::ByName(iName)),prov_(0),id_(0) {
+        type_(ROOT::Reflex::Type::ByName(iName)), prod_(), prov_(0), id_(0) {
            if(type_ == ROOT::Reflex::Type()) {
               throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> told to use uknown type '"<<iName<<"'.\n Please check spelling or that a module uses this type in the job.";
            }
@@ -61,7 +61,7 @@ public:
    
    ///Throws exception if iType is invalid
    Handle(const ROOT::Reflex::Type& iType):
-      type_(iType),prov_(0),id_(0) {
+      type_(iType), prod_(), prov_(0), id_(0) {
          if(iType == ROOT::Reflex::Type()) {
             throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> given an invalid ROOT::Reflex::Type";
          }

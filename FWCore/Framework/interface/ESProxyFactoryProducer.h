@@ -48,7 +48,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:14:58 CDT 2005
-// $Id: ESProxyFactoryProducer.h,v 1.1 2005/10/03 23:07:37 chrjones Exp $
+// $Id: ESProxyFactoryProducer.h,v 1.2 2006/07/23 01:24:33 valya Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ namespace edm {
       class ProxyFactoryBase;
       
       struct FactoryInfo {
-         FactoryInfo() {}
+         FactoryInfo() : key_(), factory_() {}
          FactoryInfo(const DataKey& iKey, 
                       boost::shared_ptr<ProxyFactoryBase> iFactory)
          : key_(iKey), 

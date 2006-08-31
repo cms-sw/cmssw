@@ -60,7 +60,7 @@ namespace edm
     int slotInPath() const;
 
     /// Set the context to reflect the active state.
-    void activate(std::size_t              slotInPath,
+    void activate(std::size_t theSlotInPath,
 		  ModuleDescription const* mod);
 
     /// Set all data to reflect inactive state.

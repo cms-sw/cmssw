@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.12 2006/07/06 19:11:42 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.13 2006/07/23 01:24:33 valya Exp $
 //
 
 // system include files
@@ -38,12 +38,11 @@ namespace edm {
       class EventSetupProvider;
       
 template< class T>
-class ComponentFactory : public seal::PluginFactory< ComponentMakerBase<T>* ()>
+class ComponentFactory : public seal::PluginFactory<ComponentMakerBase<T>* ()>
 {
 
    public:
-   ComponentFactory() : seal::PluginFactory<ComponentMakerBase<T>* () >(
-                                                                        T::name()) {}
+   ComponentFactory() : seal::PluginFactory<ComponentMakerBase<T>* ()>(T::name()), makers_() {}
    //~ComponentFactory();
 
    typedef  ComponentMakerBase<T> Maker;

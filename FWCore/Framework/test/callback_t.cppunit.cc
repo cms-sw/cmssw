@@ -30,6 +30,7 @@ namespace callbacktest {
    struct Record { };
    
    struct ConstPtrProd {
+      ConstPtrProd() : data_() {}
       const Data* method(const Record&) {
          ++data_.value_;
          return &data_;
@@ -57,6 +58,7 @@ namespace callbacktest {
    };
    
    struct PtrProductsProd {
+      PtrProductsProd() : data_(), double_() {}
       edm::ESProducts<const Data*, const Double*> method(const Record&) {
          using namespace edm::es;
          const Data* dataT = &data_;

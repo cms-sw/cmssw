@@ -567,6 +567,7 @@ namespace edm {
   EventProcessor::EventProcessor(const string& config,
 				const ServiceToken& iToken, 
 				serviceregistry::ServiceLegacy iLegacy) :
+    plug_init_(),
     common_(),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
@@ -577,11 +578,18 @@ namespace edm {
     esp_(),
     act_table_(),
     state_(sInit),
+    event_loop_(),
+    state_lock_(),
+    stop_lock_(),
+    stopper_(),
     stop_count_(),
     last_rc_(epSuccess),
+    last_error_text_(),
     id_set_(false),
+    event_loop_id_(),
     my_sig_num_(getSigNum()),
     looper_()
+
   {
     // TODO: Fix const-correctness. The ParameterSets that are
     // returned here should be const, so that we can be sure they are
