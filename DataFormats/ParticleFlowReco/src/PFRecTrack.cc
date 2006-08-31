@@ -18,6 +18,7 @@ PFRecTrack::PFRecTrack(const PFRecTrack& other) :
   PFTrack(other), 
   algoType_(other.algoType_) {}
 
+
 std::ostream& reco::operator<<(std::ostream& out, 
 			       const PFRecTrack& track) {  
   if (!out) return out;  
@@ -25,7 +26,7 @@ std::ostream& reco::operator<<(std::ostream& out,
   const reco::PFTrajectoryPoint& closestApproach = 
     track.trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach);
 
-  out << "Track charge = " << track.charge() 
+  out << "Reco track charge = " << track.charge() 
       << ", type = " << track.algoType()
       << ", Pt = " << closestApproach.momentum().Pt() 
       << ", P = " << closestApproach.momentum().P() << std::endl
