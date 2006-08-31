@@ -11,7 +11,9 @@ using namespace std;
 const int N_SCA_BINS = 16;
 
 CSCScaNoiseReader::CSCScaNoiseReader(double pedestal, double pedestalWidth)
-: CSCScaNoiseGaussian(0., pedestal, pedestalWidth)
+: CSCScaNoiseGaussian(0., pedestal, pedestalWidth),
+  nStripEvents(0),
+  theData()
 {
 
   string path( getenv( "CMSSW_SEARCH_PATH" ) );
