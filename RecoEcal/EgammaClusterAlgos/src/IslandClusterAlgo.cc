@@ -218,9 +218,9 @@ bool IslandClusterAlgo::shouldBeAdded(EcalRecHitCollection::const_iterator candi
 {
   // crystal should not be included...
   if ((used_s.find(candidate_it->id()) != used_s.end()) || // ...if it already belongs to a cluster
-      (candidate_it == rechitsMap_p->end())              || // ...if it corresponds to a hit
-      (candidate_it->energy() <= 0)               || // ...if it has a negative or zero energy
-      (candidate_it->energy() > previous_it->energy())) // ...or if the previous crystal had lower E
+      (candidate_it == rechitsMap_p->end())             || // ...if it does not correspond to a hit
+      (candidate_it->energy() <= 0)                     || // ...if it has a negative or zero energy
+      (candidate_it->energy() > previous_it->energy()))    // ...or if the previous crystal had lower E
     {
       return false;
     }
