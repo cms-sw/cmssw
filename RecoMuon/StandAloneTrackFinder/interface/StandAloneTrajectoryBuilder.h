@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/08/30 12:27:56 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/30 12:56:18 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -47,9 +47,6 @@ public:
   StandAloneMuonRefitter* bwfilter() const {return theBWFilter;}
   StandAloneMuonSmoother* smoother() const {return theSmoother;}
 
-  // Pass the Event Setup to the algo at each event
-  virtual void setES(const edm::EventSetup& setup);
-  
   /// Pass the Event to the algo at each event
   virtual void setEvent(const edm::Event& event);
   

@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/11 15:01:07 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/08/30 12:56:18 $
+ *  $Revision: 1.18 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -13,14 +13,15 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
+#include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
 class Propagator;
 class DetLayer;
 class MuonTrajectoryUpdator;
 class Trajectory;
 class MuonDetLayerMeasurements;
 class MeasurementEstimator;
-class MuonDetLayerGeometry;
-class MuonServiceProxy;
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
@@ -51,9 +52,6 @@ public:
 
   void reset();
 
-  /// Pass the Event Setup to the algo at each event
-  virtual void setES(const edm::EventSetup& setup);
-
   /// Pass the Event to the algo at each event
   virtual void setEvent(const edm::Event& event);
 
@@ -83,10 +81,7 @@ private:
   
   /// Increment the DT,CSC,RPC counters
   void incrementChamberCounters(const DetLayer *layer);
-
-  /// Extract the Event Setup info at each event. It is called by setES
-  virtual void init(const edm::EventSetup& setup);
-  
+ 
   /// Set the rigth Navigation
   std::vector<const DetLayer*> compatibleLayers(const DetLayer *initialLayer,
 						FreeTrajectoryState& fts,
@@ -100,11 +95,8 @@ private:
   /// The Measurement extractor
   MuonDetLayerMeasurements *theMeasurementExtractor;
   
-  /// The propagator
-  Propagator *thePropagator;
-  
   /// access at the propagator
-  Propagator *propagator() const {return thePropagator;}
+  const Propagator *propagator() const { return &*theService->propagator(thePropagatorName); }
 
   /// The Estimator
   MeasurementEstimator *theEstimator;
@@ -119,6 +111,12 @@ private:
   
   /// access at the muon updator
   MuonTrajectoryUpdator *updator() const {return theMuonUpdator;}
+
+
+/*   /// The best measurement finder: search for the best measurement among the TMs available */
+/*   MuonBestMeasurementFinder theBestMeasurementFinder; */
+/*   /// Access to the best measurement finder */
+/*   MuonBestMeasurementFinder bestMeasurementFinder() const {return theBestMeasurementFinder;} */
 
   /// The max allowed chi2 to accept a rechit in the fit
   double theMaxChi2;
@@ -144,7 +142,7 @@ private:
   int cscChambers;
   int rpcChambers;
 
-  MuonDetLayerGeometry *theDetLayerGeometry;
+  const MuonServiceProxy *theService;
 };
 #endif
 

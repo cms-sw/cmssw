@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/08/28 16:19:10 $
- *  $Revision: 1.25 $
+ *  $Date: 2006/08/30 12:56:19 $
+ *  $Revision: 1.26 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -19,6 +19,7 @@
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonSmoother.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,22 +29,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-
-// FIXME
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <DataFormats/MuonDetId/interface/DTChamberId.h>
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-//
 
 using namespace edm;
 using namespace std;
@@ -73,22 +58,6 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
   theSmoother = new StandAloneMuonSmoother(smootherPSet,theService);
 } 
-
-void StandAloneMuonTrajectoryBuilder::setES(const EventSetup& setup){
-  // Get the Tracking Geometry
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
-  setup.get<IdealMagneticFieldRecord>().get(theMGField);
-  setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
- 
-  // FIXME: move the above lines in the fitters!
-
-  MuonNavigationSchool school(&*theDetLayerGeometry);
-  NavigationSetter setter(school);
-  
-  theRefitter->setES(setup);
-   if(doBackwardRefit) theBWFilter->setES(setup);
-  theSmoother->setES(setup);
-}
 
 void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
   theRefitter->setEvent(event);
@@ -132,15 +101,18 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   DetId seedDetId(pTSOD.detId());
 
-  const GeomDet* gdet = theTrackingGeometry->idToDet( seedDetId );
-  TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMGField);
+  const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
+
+  TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), 
+								 &*theService->magneticField());
+
   LogDebug(metname)<<"Seed Pt: "<<seedTSOS.freeState()->momentum().perp()<<endl;
 
   LogDebug(metname)<< "Seed id in: "<< endl ;
   LogDebug(metname) << debug.dumpMuonId(seedDetId);
   
   // Get the layer from which start the trajectory building
-  const DetLayer *seedDetLayer = theDetLayerGeometry->idToLayer( seedDetId );
+  const DetLayer *seedDetLayer = theService->detLayerGeometry()->idToLayer( seedDetId );
 
   LogDebug(metname)<< "---StandAloneMuonTrajectoryBuilder SEED:" << endl;
   LogDebug(metname) << debug.dumpTSOS(seedTSOS);

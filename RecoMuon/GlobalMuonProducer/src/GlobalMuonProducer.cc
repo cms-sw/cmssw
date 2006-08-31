@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/08/16 10:07:08 $
- *   $Revision: 1.11 $
+ *   $Date: 2006/08/30 12:56:18 $
+ *   $Revision: 1.12 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -22,9 +22,9 @@
 #include "RecoMuon/GlobalMuonProducer/src/GlobalMuonProducer.h"
 
 // TrackFinder and specific GLB Trajectory Builder
-#include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrajectoryBuilder.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 // Input and output collection
@@ -48,12 +48,15 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   // STA Muon Collection Label
   theSTACollectionLabel = parameterSet.getUntrackedParameter<string>("MuonCollectionLabel");
 
+  // service parameters
+  ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
+
   // the services
-  theService = new MuonServiceProxy(parameterSet);
+  theService = new MuonServiceProxy(serviceParameters);
   
   // instantiate the concrete trajectory builder in the Track Finder
   GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(GLB_pSet,theService);
-  theTrackFinder = new MuonTrackFinder(gmtb);
+  theTrackFinder = new MuonTrackFinder(gmtb, new MuonTrackLoader() );
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -94,7 +97,7 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   
   // Reconstruct the tracks in the tracker+muon system
   LogDebug(metname)<<"Track Reconstruction"<<endl;
-  theTrackFinder->reconstruct(staMuons,event,eventSetup);
+  theTrackFinder->reconstruct(staMuons,event);
   
   LogDebug(metname)<<"Event loaded"
                    <<"================================"
