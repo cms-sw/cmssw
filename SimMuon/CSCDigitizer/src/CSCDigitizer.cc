@@ -7,21 +7,30 @@
 #include "SimMuon/CSCDigitizer/src/CSCDriftSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCWireElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripElectronicsSim.h"
+//#include "SimMuon/CSCDigitizer/src/CSCNeutronReader.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 
-CSCDigitizer::CSCDigitizer(const edm::ParameterSet & p) {
-  theDriftSim = new CSCDriftSim();
-  theWireHitSim          = new CSCWireHitSim(theDriftSim);
-  theStripHitSim         = new CSCStripHitSim();
-  theWireElectronicsSim  = new CSCWireElectronicsSim(p);
-  theStripElectronicsSim = new CSCStripElectronicsSim(p);
+CSCDigitizer::CSCDigitizer(const edm::ParameterSet & p)
+: theDriftSim(new CSCDriftSim()),
+  theWireHitSim(new CSCWireHitSim(theDriftSim)),
+  theStripHitSim(new CSCStripHitSim()),
+  theWireElectronicsSim(new CSCWireElectronicsSim(p.getParameter<edm::ParameterSet>("wires"))),
+  theStripElectronicsSim(new CSCStripElectronicsSim(p.getParameter<edm::ParameterSet>("strips"))),
+  theNeutronReader(0),
+  theCSCGeometry(0)
+{
+//  if(p.getParameter<bool>("doNeutrons"))
+//  {
+//    theNeutronReader = new CSCNeutronReader(p);
+//  }
 }
 
 
 CSCDigitizer::~CSCDigitizer() {
+  //delete theNeutronReader;
   delete theStripElectronicsSim;
   delete theWireElectronicsSim;
   delete theStripHitSim;
@@ -54,6 +63,13 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     std::vector<CSCDetectorHit> newWireHits, newStripHits;
   
     LogDebug("CSCDigitizer") << "CSCDigitizer: found " << layerSimHits.size() <<" hit(s) in layer";
+
+    // add neutron background, if needed
+    if(theNeutronReader != 0)
+    {
+      
+      // DAMMIT!  Need to run for the whole chamber
+    }
 
     // turn the edm::PSimHits into WireHits, using the WireHitSim
     {
