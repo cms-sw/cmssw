@@ -260,11 +260,11 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		std::cout <<"Chamber: "<<cham<<" Layer:   "<<j<<" Strip:   "<<k<<"  Slope:    "<<gainSlope <<"    Intercept:    "<<gainIntercept <<"        chi2 "<<chi2<<std::endl;
 		
 
-		if (gainSlope>5.0 || gainSlope<10.0) flagGain=1; // ok
+		if (gainSlope>5.0 && gainSlope<10.0) flagGain=1; // ok
 		if (gainSlope<5.0)                   flagGain=2; // warning fit fails
 		if (gainSlope>10.0)                  flagGain=3; // warning fit fails
 
-		if (gainIntercept> -40. || gainIntercept<15.)  flagIntercept = 1 ;
+		if (gainIntercept> -40. && gainIntercept<15.)  flagIntercept = 1 ;
 		if (gainIntercept< -40.)                       flagIntercept = 2 ;
 		if (gainIntercept> 15.)                        flagIntercept = 3 ;  
 

@@ -303,10 +303,23 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   xtime.Write();
   ped_mean_all.Write();
   maxADC.Write();
+
+  TCanvas c1("c1","Calibration constants",200, 10, 800, 600);
+  c1.Divide(2,2);
+  c1.cd(1);
+  pulse_shape_ch1.Draw();
   pulse_shape_ch1.Write();
+  c1.cd(2);
   pulse_shape_ch2.Write();
+  pulse_shape_ch2.Draw();
+  c1.cd(3);
   pulse_shape_ch3.Write();
+  pulse_shape_ch3.Draw();
+  c1.cd(4);
   pulse_shape_ch4.Write();
+  pulse_shape_ch4.Draw();
+
+
   pulse_shape_ch5.Write();
   pulse_shape_ch6.Write();
   pulse_shape_ch7.Write();
@@ -324,8 +337,6 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   float sum=0.0;
   float mean=0;
 
-  std::cout << "extacting info" << std::endl;
-  
   for (int iii=0; iii<Nddu; iii++){
     
     for (int i=0; i<NChambers; i++){
@@ -512,22 +523,6 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  meanPedestalSquare = arrayOfPedSquare[iii][i][j][k] / evt;
 	  theRMS       = sqrt(abs(meanPedestalSquare - meanPedestal*meanPedestal));
 
-	  //introducing flags for RMS and baseline
-	  if (theRMS>6.0||theRMS<20.0)   flagRMS = 2; // warning high CFEB noise
-	  if (theRMS<1.5)                flagRMS = 3; // warning/failure too low noise
-	  if (theRMS>=20.0)              flagRMS = 4; // warning/failure too high noise
-	  if (theRMS >1.5||theRMS <6.0)  flagRMS = 1; // ok
-	  
-
-	  if (thePedestal <50.)                      flagNoise = 2; // warning/failure too low pedestal 
-	  if (thePedestal>50. || thePedestal<200.)   flagNoise = 3; // warning low pedestal
-	  if (thePedestal >1000.||thePedestal<3000.) flagNoise = 4; // warning high pedstal
-	  if (thePedestal>3000.)                     flagNoise = 5; // warning/failure too high pedestal 
-	  if (thePedestal>200. || thePedestal<1000.) flagNoise = 1; // ok
-	  	  
-	  calib_evt.flagRMS = flagRMS;
-	  calib_evt.flagNoise = flagNoise;
-
 	  newRMS[fff]  = theRMS;
 	  theRSquare   = (thePedestal-meanPedestal)*(thePedestal-meanPedestal)/(theRMS*theRMS*theRMS*theRMS);
 	  thePeak      = arrayPeak[iii][i][j][k];
@@ -539,26 +534,39 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  
 	  theSumFive = arraySumFive[iii][i][j][k];
 	  newSumFive[fff]=theSumFive;
+
+	  //introducing flags for RMS and baseline
+	  if (theRMS >1.5 && theRMS <6.0)  flagRMS = 1; // ok
+	  if (theRMS>6.0 && theRMS<20.0)   flagRMS = 2; // warning high CFEB noise
+	  if (theRMS<1.5)                  flagRMS = 3; // warning/failure too low noise
+	  if (theRMS>=20.0)                flagRMS = 4; // warning/failure too high noise
 	  
-	  calib_evt.pedMean  = newPed[fff];
-	  calib_evt.pedRMS   = newRMS[fff];
-	  calib_evt.peakRMS  = newPeakRMS[fff];
-	  calib_evt.maxADC   = newPeak[fff];
-	  calib_evt.sum      = newSumFive[fff];
+	  if (meanPedestal <50.)                         flagNoise = 2; // warning/failure too low pedestal 
+	  if (meanPedestal>50. && meanPedestal<200.)     flagNoise = 3; // warning low pedestal
+	  if (meanPedestal >1000. && meanPedestal<3000.) flagNoise = 4; // warning high pedstal
+	  if (meanPedestal>3000.)                        flagNoise = 5; // warning/failure too high pedestal 
+	  if (meanPedestal>200. && meanPedestal<1000.)   flagNoise = 1; // ok
+
+	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" flagRMS "<<flagRMS<<std::endl;
+	  calib_evt.xtalk_slope_left  = xtalk_slope_left[iii][i][j][k];
+	  calib_evt.xtalk_slope_right = xtalk_slope_right[iii][i][j][k];
+	  calib_evt.xtalk_int_left    = xtalk_intercept_left[iii][i][j][k];
+	  calib_evt.xtalk_int_right   = xtalk_intercept_right[iii][i][j][k];
+	  calib_evt.xtalk_chi2_left   = xtalk_chi2_left[iii][i][j][k];
+	  calib_evt.xtalk_chi2_right  = xtalk_chi2_right[iii][i][j][k];
+	  calib_evt.peakTime          = myPeakTime[iii][i][j][k];
+	  calib_evt.cham              = i;
+	  calib_evt.ddu               = iii;
+	  calib_evt.layer             = j;
+	  calib_evt.strip             = k;
+	  calib_evt.flagRMS           = flagRMS;
+	  calib_evt.flagNoise         = flagNoise;
+	  calib_evt.pedMean           = newPed[fff];
+	  calib_evt.pedRMS            = newRMS[fff];
+	  calib_evt.peakRMS           = newPeakRMS[fff];
+	  calib_evt.maxADC            = newPeak[fff];
+	  calib_evt.sum               = newSumFive[fff];
 	  
-	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" maxRMS "<<thePeakRMS<<" Sum/peak "<<theSumFive<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" diff "<<the_peakTime-mean<<" flagRMS "<<flagRMS<<" flagNoise "<<flagNoise<<std::endl;
-	  
-	  calib_evt.xtalk_slope_left     = xtalk_slope_left[iii][i][j][k];
-	  calib_evt.xtalk_slope_right    = xtalk_slope_right[iii][i][j][k];
-	  calib_evt.xtalk_int_left       = xtalk_intercept_left[iii][i][j][k];
-	  calib_evt.xtalk_int_right      = xtalk_intercept_right[iii][i][j][k];
-	  calib_evt.xtalk_chi2_left      = xtalk_chi2_left[iii][i][j][k];
-	  calib_evt.xtalk_chi2_right     = xtalk_chi2_right[iii][i][j][k];
-	  calib_evt.peakTime             = myPeakTime[iii][i][j][k];
-	  calib_evt.cham                 = i;
-	  calib_evt.ddu                  = iii;
-	  calib_evt.layer                = j;
-	  calib_evt.strip                = k;
 	  
 	  calibtree.Fill();
 	  cn->obj[layer_id][k].resize(2);
@@ -582,11 +590,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   std::cout<<"Last pedestal record "<<record<<std::endl;
   if(debug) dbon->cdbon_write(cn,"pedestals",11,myTime);
   dbon->cdbon_last_record("crosstalk",&record);
-
-
   if(debug) dbon->cdbon_write(cn1,"crosstalk",11,myTime);
-  
-
   std::cout << "Last crosstalk record " << record << " for run file " << myname <<" saved "<< myTime << std::endl;  
   calibfile.Write();
   calibfile.Close();  

@@ -194,7 +194,7 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
 	for (int max=0; max<12;max++){
 	  tmp=cam[i].autocorrmat(j,k);
 	  
-	  if (tmp[max]>3.0 || tmp[max]<100.0) flagMatrix = 1; // ok
+	  if (tmp[max]>3.0 && tmp[max]<100.0) flagMatrix = 1; // ok
 	  if (tmp[max]>50.0)                  flagMatrix = 2; // warning too high
 	  if (tmp[max]<3.0)                   flagMatrix = 3; // warning too low
 
