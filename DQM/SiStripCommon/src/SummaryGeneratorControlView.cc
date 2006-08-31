@@ -10,28 +10,29 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 // 
-void SummaryGeneratorControlView::fillMap( const string& directory,
+void SummaryGeneratorControlView::fillMap( const string& top_level_dir,
+					   //const string& granularity,
 					   const uint32_t& key, 
 					   const float& value,
 					   const float& error ) {
 
-  // Create control path structs for both histo level and key
-  SiStripHistoNamingScheme::ControlPath level = SiStripHistoNamingScheme::controlPath( directory );
-  SiStripControlKey::ControlPath path = SiStripControlKey::path( key );
+  SiStripHistoNamingScheme::ControlPath top = SiStripHistoNamingScheme::controlPath( top_level_dir );
+  //SiStripHistoNamingScheme::ControlPath gran = SiStripHistoNamingScheme::controlPath( granularity );
+  SiStripControlKey::ControlPath pwd = SiStripControlKey::path( key );
   
-  if ( ( ( path.fecCrate_ == level.fecCrate_ ) || ( level.fecCrate_ == sistrip::invalid_ ) ) &&
-       ( ( path.fecSlot_  == level.fecSlot_  ) || ( level.fecSlot_  == sistrip::invalid_ ) ) &&
-       ( ( path.fecRing_  == level.fecRing_  ) || ( level.fecRing_  == sistrip::invalid_ ) ) && 
-       ( ( path.ccuAddr_  == level.ccuAddr_  ) || ( level.ccuAddr_  == sistrip::invalid_ ) ) &&
-       ( ( path.ccuChan_  == level.ccuChan_  ) || ( level.ccuChan_  == sistrip::invalid_ ) ) ) { 
+  if ( ( ( pwd.fecCrate_ == top.fecCrate_ ) || ( top.fecCrate_ == sistrip::invalid_ ) ) &&
+       ( ( pwd.fecSlot_  == top.fecSlot_  ) || ( top.fecSlot_  == sistrip::invalid_ ) ) &&
+       ( ( pwd.fecRing_  == top.fecRing_  ) || ( top.fecRing_  == sistrip::invalid_ ) ) && 
+       ( ( pwd.ccuAddr_  == top.ccuAddr_  ) || ( top.ccuAddr_  == sistrip::invalid_ ) ) &&
+       ( ( pwd.ccuChan_  == top.ccuChan_  ) || ( top.ccuChan_  == sistrip::invalid_ ) ) ) { 
     
     stringstream bin;
-    if ( path.fecCrate_ != sistrip::invalid_ ) { bin << path.fecCrate_ << sistrip::pipe_; }
-    if ( path.fecSlot_  != sistrip::invalid_ ) { bin << path.fecSlot_  << sistrip::pipe_; }
-    if ( path.fecRing_  != sistrip::invalid_ ) { bin << path.fecRing_  << sistrip::pipe_; }
-    if ( path.ccuAddr_  != sistrip::invalid_ ) { bin << path.ccuAddr_  << sistrip::pipe_; }
-    if ( path.ccuChan_  != sistrip::invalid_ ) { bin << path.ccuChan_  << sistrip::pipe_; }
-    if ( path.channel_  != sistrip::invalid_ ) { bin << path.channel_; }
+    if ( pwd.fecCrate_ != sistrip::invalid_ ) { bin << pwd.fecCrate_ << sistrip::pipe_; }
+    if ( pwd.fecSlot_  != sistrip::invalid_ ) { bin << pwd.fecSlot_  << sistrip::pipe_; }
+    if ( pwd.fecRing_  != sistrip::invalid_ ) { bin << pwd.fecRing_  << sistrip::pipe_; }
+    if ( pwd.ccuAddr_  != sistrip::invalid_ ) { bin << pwd.ccuAddr_  << sistrip::pipe_; }
+    if ( pwd.ccuChan_  != sistrip::invalid_ ) { bin << pwd.ccuChan_  << sistrip::pipe_; }
+    if ( pwd.channel_  != sistrip::invalid_ ) { bin << pwd.channel_; }
 
     if ( map_.find( bin.str() ) == map_.end() ) { 
       map_[bin.str()].first = value; 
@@ -47,34 +48,8 @@ void SummaryGeneratorControlView::fillMap( const string& directory,
 }
 
 //------------------------------------------------------------------------------
-
-void SummaryGeneratorControlView::logicalView( TH1& histo ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
-
-  // Check number of entries in map
-  if ( map_.empty() ) { return; }
-  
-  // Set histogram number of bins and min/max
-  histo.SetBins( map_.size(), 0., (Double_t)map_.size() );
- 
-  // Iterate through map, set bin labels and fill histogram
-  cout << " List of monitorables for " << map_.size() << " devices: ";
-  uint16_t ibin = 1;
-  map< string, pair<float,float> >::const_iterator idevice = map_.begin();
-  for ( ; idevice != map_.end(); idevice++ ) {
-    histo.GetXaxis()->SetBinLabel( (Int_t)ibin, idevice->first.c_str() );
-    histo.SetBinContent( (Int_t)ibin, idevice->second.first );
-    histo.SetBinError( (Int_t)ibin, idevice->second.second );
-    ibin++;
-    cout << idevice->second.first << "+/-" << idevice->second.second << ", ";
-  }
-  cout << endl;
-
-}
-
-//------------------------------------------------------------------------------
 //
-void SummaryGeneratorControlView::simpleDistr( TH1& histo ) {
+void SummaryGeneratorControlView::summaryDistr( TH1& histo ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   
   // Check number of entries in map
@@ -100,6 +75,58 @@ void SummaryGeneratorControlView::simpleDistr( TH1& histo ) {
   cout << endl;
 
 }
+
+//------------------------------------------------------------------------------
+
+void SummaryGeneratorControlView::summary1D( TH1& histo ) {
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+
+  // Check number of entries in map
+  if ( map_.empty() ) { return; }
+  
+  // Set histogram number of bins and min/max
+  histo.SetBins( map_.size(), 0., (Double_t)map_.size() );
+ 
+  // Iterate through map, set bin labels and fill histogram
+  cout << " List of monitorables for " << map_.size() << " devices: ";
+  uint16_t ibin = 1;
+  map< string, pair<float,float> >::const_iterator idevice = map_.begin();
+  for ( ; idevice != map_.end(); idevice++ ) {
+    histo.GetXaxis()->SetBinLabel( (Int_t)ibin, idevice->first.c_str() );
+    histo.SetBinContent( (Int_t)ibin, idevice->second.first );
+    histo.SetBinError( (Int_t)ibin, idevice->second.second );
+    ibin++;
+    cout << idevice->second.first << "+/-" << idevice->second.second << ", ";
+  }
+  cout << endl;
+
+}
+
+// //------------------------------------------------------------------------------
+// //
+// void SummaryGeneratorControlView::summary2D( TH1& histo ) {
+//   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+
+//   // Check number of entries in map
+//   if ( map_.empty() ) { return; }
+  
+//   // Set histogram number of bins and min/max
+//   histo.SetBins( map_.size(), 0., (Double_t)map_.size() );
+ 
+//   // Iterate through map, set bin labels and fill histogram
+//   cout << " List of monitorables for " << map_.size() << " devices: ";
+//   uint16_t ibin = 1;
+//   map< string, pair<float,float> >::const_iterator idevice = map_.begin();
+//   for ( ; idevice != map_.end(); idevice++ ) {
+//     histo.GetXaxis()->SetBinLabel( (Int_t)ibin, idevice->first.c_str() );
+//     histo.SetBinContent( (Int_t)ibin, idevice->second.first );
+//     histo.SetBinError( (Int_t)ibin, idevice->second.second );
+//     ibin++;
+//     cout << idevice->second.first << "+/-" << idevice->second.second << ", ";
+//   }
+//   cout << endl;
+
+// }
 
 
 

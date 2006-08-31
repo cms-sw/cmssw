@@ -25,7 +25,7 @@ class SummaryGenerator {
   static std::auto_ptr<SummaryGenerator> instance( sistrip::View );
   
   /** Fills the map used to generate the histogram. */
-  virtual void fillMap( const std::string& directory_level,
+  virtual void fillMap( const std::string& top_level_dir,
 			const uint32_t& key, 
 			const float& value, 
 			const float& error = 0. ) = 0;
@@ -33,12 +33,17 @@ class SummaryGenerator {
   /** Creates a summary histogram, displaying a simple 1D distribution
       of the monitorables (stored in the map) obtained from a
       commissioning task. */
-  virtual void simpleDistr( TH1& ) = 0; 
+  virtual void summaryDistr( TH1& ) = 0; 
   
   /** Creates a summary histogram, displaying monitorables (stored in
       the map) obtained from a commissioning task, as a function of
       the logical struture within the tracker, view-dependent. */
-  virtual void logicalView( TH1& ) = 0;
+  virtual void summary1D( TH1& ) = 0;
+
+  /** Creates a summary histogram, displaying monitorables (stored in
+      the map) obtained from a commissioning task, as a function of
+      the logical struture within the tracker, view-dependent. */
+  virtual void summary2D( TH1& ) {;}
 
   /** Some generic formatting of histogram. */
   static void format( const sistrip::SummaryHisto&, 

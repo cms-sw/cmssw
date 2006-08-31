@@ -26,16 +26,17 @@ class SummaryGeneratorControlView : public SummaryGenerator {
 		const float& value, 
 		const float& error = 0. );
   
+  /** Histograms the stored values/errors. */
+  void summaryDistr( TH1& );
+
   /** Fills a summary histogram of the stored commissioning values
       (one over the control view and one global). Takes the control
       path string of the region to be histogrammed ( in the form
       FecCrateA/FecSlotB/FecRingC/CcuAddrD/CcuChanE/ or any parent )
       and an optional string defining what to be histogrammed (default
       is "values", this can also be set to "errors"), as arguments. */
-  void logicalView( TH1& );
+  void summary1D( TH1& );
   
-  /** Histograms the stored values/errors. */
-  void simpleDistr( TH1& );
   
  private:
 
