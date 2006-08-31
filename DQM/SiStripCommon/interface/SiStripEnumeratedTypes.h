@@ -48,13 +48,17 @@ namespace sistrip {
   /** Defines the type of summary histogram. */
   enum SummaryType { UNKNOWN_SUMMARY_TYPE = 9999, 
 		     UNDEFINED_SUMMARY_TYPE = 0, 
-		     SUMMARY_SIMPLE_DISTR = 1,
-		     SUMMARY_LOGICAL_VIEW = 2
+		     SUMMARY_DISTR = 1,
+		     SUMMARY_1D = 2,
+		     SUMMARY_2D = 3
   };
  
   /** Defines the various summary histograms available. */
   enum SummaryHisto { UNKNOWN_SUMMARY_HISTO = 9999, 
 		      UNDEFINED_SUMMARY_HISTO = 0, 
+		      // FED CABLING
+		      FED_CABLING_FED_ID = 1301, 
+		      FED_CABLING_FED_CH = 1301, 
 		      // APV TIMING
 		      APV_TIMING_PLL_COARSE = 501, 
 		      APV_TIMING_PLL_FINE = 502, 
@@ -72,13 +76,14 @@ namespace sistrip {
 		      FED_TIMING_PEAK = 1206, 
 		      FED_TIMING_HEIGHT = 1207,
 		      // OPTO SCAN
-		      OPTO_SCAN_LLD_BIAS = 401, 
-		      OPTO_SCAN_LLD_GAIN = 402, 
-		      OPTO_SCAN_GAIN = 403, 
-		      OPTO_SCAN_ERROR = 404, 
-		      OPTO_SCAN_BASE = 405, 
-		      OPTO_SCAN_PEAK = 406, 
-		      OPTO_SCAN_HEIGHT = 407,
+		      OPTO_SCAN_LLD_GAIN_SETTING = 401,
+		      OPTO_SCAN_LLD_BIAS_SETTING = 402,
+		      OPTO_SCAN_MEASURED_GAIN = 403, 
+		      OPTO_SCAN_ZERO_LIGHT_LEVEL = 404, 
+		      OPTO_SCAN_LINK_NOISE = 405,
+		      OPTO_SCAN_BASELINE_LIFT_OFF = 406,
+		      OPTO_SCAN_LASER_THRESHOLD = 407,  
+		      OPTO_SCAN_TICK_HEIGHT = 408,
 		      // VPSP SCAN
 		      VPSP_SCAN_APV0 = 1401, 
 		      VPSP_SCAN_APV1 = 1402, 

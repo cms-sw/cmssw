@@ -160,13 +160,14 @@ string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& hist
   else if ( histo == sistrip::FED_TIMING_PEAK ) { return sistrip::fedTimingPeak_; }
   else if ( histo == sistrip::FED_TIMING_HEIGHT ) { return sistrip::fedTimingHeight_; }
   // OPTO SCAN
-  else if ( histo == sistrip::OPTO_SCAN_LLD_BIAS ) { return sistrip::optoScanLldBias_; }
-  else if ( histo == sistrip::OPTO_SCAN_LLD_GAIN ) { return sistrip::optoScanLldGain_; }
-  else if ( histo == sistrip::OPTO_SCAN_GAIN ) { return sistrip::optoScanGain_; }
-  else if ( histo == sistrip::OPTO_SCAN_ERROR ) { return sistrip::optoScanError_; }
-  else if ( histo == sistrip::OPTO_SCAN_BASE ) { return sistrip::optoScanBase_; }
-  else if ( histo == sistrip::OPTO_SCAN_PEAK ) { return sistrip::optoScanPeak_; }
-  else if ( histo == sistrip::OPTO_SCAN_HEIGHT ) { return sistrip::optoScanHeight_; }
+  else if ( histo == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { return sistrip::optoScanLldGain_; }
+  else if ( histo == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) { return sistrip::optoScanLldBias_; }
+  else if ( histo == sistrip::OPTO_SCAN_MEASURED_GAIN ) { return sistrip::optoScanMeasGain_; }
+  else if ( histo == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { return sistrip::optoScanZeroLight_; }
+  else if ( histo == sistrip::OPTO_SCAN_LINK_NOISE ) { return sistrip::optoScanLinkNoise_; }
+  else if ( histo == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) { return sistrip::optoScanBaseLiftOff_; }
+  else if ( histo == sistrip::OPTO_SCAN_LASER_THRESHOLD ) { return sistrip::optoScanLaserThresh_; }
+  else if ( histo == sistrip::OPTO_SCAN_TICK_HEIGHT ) { return sistrip::optoScanTickHeight_; }
   // VPSP SCAN
   else if ( histo == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv0_; }
   else if ( histo == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv1_; }
@@ -196,8 +197,9 @@ sistrip::SummaryHisto SiStripHistoNamingScheme::summaryHisto( const string& hist
 // -----------------------------------------------------------------------------
 // 
 string SiStripHistoNamingScheme::summaryType( const sistrip::SummaryType& type ) {
-  if ( type == sistrip::SUMMARY_SIMPLE_DISTR ) { return sistrip::summarySimpleDistr_; } 
-  else if ( type == sistrip::SUMMARY_LOGICAL_VIEW ) { return sistrip::summaryLogicalView_; }
+  if ( type == sistrip::SUMMARY_DISTR ) { return sistrip::summaryDistr_; } 
+  else if ( type == sistrip::SUMMARY_1D ) { return sistrip::summary1D_; }
+  else if ( type == sistrip::SUMMARY_2D ) { return sistrip::summary2D_; }
   else if ( type == sistrip::UNDEFINED_SUMMARY_TYPE ) { return sistrip::undefinedSummaryType_; }
   else { return sistrip::unknownSummaryType_; }
 }

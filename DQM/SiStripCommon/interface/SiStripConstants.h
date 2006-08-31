@@ -67,8 +67,9 @@ namespace sistrip {
   static const std::string commonMode_        = "CommonMode";
 
   // summary histogram types
-  static const std::string summarySimpleDistr_    = "SimpleDistr";
-  static const std::string summaryLogicalView_    = "LogicalView";
+  static const std::string summaryDistr_         = "SummaryDistr";
+  static const std::string summary1D_            = "Summary1D";
+  static const std::string summary2D_            = "Summary2D";
   static const std::string unknownSummaryType_   = "UnknownSummaryType";
   static const std::string undefinedSummaryType_ = "UndefinedSummaryType";
 
@@ -96,13 +97,14 @@ namespace sistrip {
   static const std::string fedTimingHeight_ = "FedTimingHeight";
 
   // summary histo names (opto scan)
-  static const std::string optoScanLldBias_ = "OptoScanLldBias";
-  static const std::string optoScanLldGain_ = "OptoScanLldGain";
-  static const std::string optoScanGain_    = "OptoScanGain";
-  static const std::string optoScanError_   = "OptoScanError";
-  static const std::string optoScanBase_    = "OptoScanBase";
-  static const std::string optoScanPeak_    = "OptoScanPeak";
-  static const std::string optoScanHeight_  = "OptoScanHeight";
+  static const std::string optoScanLldBias_     = "OptoScanLldBias";
+  static const std::string optoScanLldGain_     = "OptoScanLldGain";
+  static const std::string optoScanMeasGain_    = "OptoScanMeasuredGain";
+  static const std::string optoScanZeroLight_   = "OptoScanZeroLight";
+  static const std::string optoScanLinkNoise_   = "OptoScanLinkNoise";
+  static const std::string optoScanBaseLiftOff_ = "OptoScanBaseLiftOff";
+  static const std::string optoScanLaserThresh_ = "OptoScanLaserThresh";
+  static const std::string optoScanTickHeight_  = "OptoScanTickHeight";
 
   // summary histo names (vpsp scan)
   static const std::string vpspScanApv0_ = "VpspScanApv0";
