@@ -25,11 +25,9 @@ pair<vector<DetLayer*>, vector<DetLayer*> >
 MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
   
   vector<DetLayer*> result[2];
-  //std::cout<<"I am in the endcap!"<<std::endl;
 
   for (int endcap = -1; endcap<=1; endcap+=2) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
-    std::cout <<"Which endcap am I ? "<<endcap<<" index " <<iendcap<<std::endl;
     
     // ME 1
     int firstStation=1;
@@ -89,7 +87,6 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
     }
     
   }
-  std::cout<<" Results size0 and size1 "<<result[0].size()<<" "<<result[1].size()<<std::endl;
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
   return res_pair;
 
@@ -103,10 +100,7 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
 					   vector<int>& rolls,
 					   const RPCGeometry& geo) {
 
-  std::cout <<"Building an endcap Layer"<<std::endl;
   MuRingForwardLayer* result=0;
-
-  //std::cout<<"Number of rolls "<<rolls.size()<<std::endl;
 
   vector<const ForwardDetRing*> muDetRings;
 
@@ -115,18 +109,11 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
       vector<const GeomDet*> geomDets;
       for(int sector = RPCDetId::minSectorForwardId; sector <= RPCDetId::maxSectorForwardId; ++sector) {
 	for(int subsector = RPCDetId::minSubSectorForwardId; subsector <= RPCDetId::maxSectorForwardId; ++subsector) {
-	  //std::cout<<"ring station, sector, layer"<<ring<<" "<<station<<" "<<sector<<" "<<layer<<std::endl;
 	  const GeomDet* geomDet = geo.idToDet(RPCDetId(endcap,*ring, station,sector,layer,subsector, (*roll)));
-	  //std::cout<<geomDet<<std::endl;
+
 	  if (geomDet) {
 	    
 	    geomDets.push_back(geomDet);
-	    std::cout << "get RPC chamber "
-		      <<  RPCDetId(endcap,*ring, station,sector,layer,subsector, (*roll))
-		      << " at z" << geomDet->position().z()
-		      << ", phi=" << geomDet->position().phi()<<std::endl;
-	    
-	    
 	    LogDebug("Muon|RPC|RecoMuonDetLayers") << "get RPC chamber "
 						   <<  RPCDetId(endcap,*ring, station,sector,layer,subsector, (*roll))
 						   << " at R=" << geomDet->position().perp()
@@ -136,7 +123,6 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
 	}
       }
       if (geomDets.size()!=0) {
-	//std::cout<<"++++++++++ Got "<<geomDets.size()<<" rolls on this layer"<<std::endl;
 	precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
 	muDetRings.push_back(new MuDetRing(geomDets));
 	LogDebug("Muon|RPC|RecoMuonDetLayers") << "New ring with " << geomDets.size()

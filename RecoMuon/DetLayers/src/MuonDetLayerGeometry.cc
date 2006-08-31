@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/31 21:45:49 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/08/31 15:26:49 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - CERN
  */
 
@@ -98,11 +98,7 @@ DetId MuonDetLayerGeometry::makeDetLayerId(DetLayer* detLayer) const{
   else if(detLayer->subDetector()== GeomDetEnumerators::RPCBarrel ||
 	  detLayer->subDetector()== GeomDetEnumerators::RPCEndcap){
     RPCDetId id( detLayer->basicComponents().front()->geographicalId().rawId());
-
-    std::cout<<id<<std::endl;
-
     return RPCDetId(id.region(),0,id.station(),0,id.layer(),0,0);
-    
   }
   else throw cms::Exception("InvalidModuleIdentification"); // << detLayer->module();
 }
