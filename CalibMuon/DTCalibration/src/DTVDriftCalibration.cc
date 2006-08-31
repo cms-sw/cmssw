@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/22 17:40:55 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/07 10:23:50 $
+ *  $Revision: 1.3 $
  *  \author M. Giunta
  */
 
@@ -58,7 +58,7 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
   
-  // the root file which will contain the histos
+  // the txt file which will contain the calibrated constants
   theVDriftOutputFile = pset.getUntrackedParameter<string>("vDriftFileName");
 
   // Get the synchronizer
@@ -107,8 +107,9 @@ DTVDriftCalibration::~DTVDriftCalibration(){
 void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSetup) {
   cout << endl<<"--- [DTVDriftCalibration] Event analysed #Run: " << event.id().run()
        << " #Event: " << event.id().event() << endl;
-
+  theFile->cd();
   DTChamberId chosenChamberId;
+
   if(theCalibChamber != "All") {
     stringstream linestr;
     int selWheel, selStation, selSector;
@@ -117,15 +118,15 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
     chosenChamberId = DTChamberId(selWheel, selStation, selSector);
     cout << "chosen chamber " << chosenChamberId << endl;
   }
- 
+
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
   eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Get the rechit collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel, all4DSegments);
-
+  event.getByLabel(theRecHits4DLabel, all4DSegments); 
+  
   // Set the event setup in the Synchronizer 
   theSync->setES(eventSetup);
 
@@ -188,6 +189,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
 	if(fabs(atan(zSeg2DDirInCham.y()/zSeg2DDirInCham.z())) > theMaxZAngle) continue; // cut on the angle
 
 	h2DSegmRZ->Fill(zSeg2DPosInCham.y(), zSeg2DDirInCham.y()/zSeg2DDirInCham.z());
+
 	hitsBySLMap[zSeg->superLayerId()] = zSeg->specificRecHits();
       }
       //loop over the segments 
@@ -196,6 +198,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
 	DTSuperLayerId slId =  slIdAndHits->first;
 
 	// Create the DTTMax, that computes the 4 TMax
+
 	DTTMax slSeg(slIdAndHits->second, *(chamber->superLayer(slIdAndHits->first)),chamber->toGlobal((*segment).localDirection()), chamber->toGlobal((*segment).localPosition()), theSync);
 
 	if(theGranularity == bySL) {
