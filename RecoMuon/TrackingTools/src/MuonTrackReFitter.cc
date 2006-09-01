@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/08/31 12:37:44 $
- *   $Revision: 1.5 $
+ *   $Date: 2006/09/01 15:47:05 $
+ *   $Revision: 1.6 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   C. Liu                   Purdue University
@@ -34,7 +34,7 @@ using namespace std;
 //
 // constructor
 //
-MuonTrackReFitter::MuonTrackReFitter(const ParameterSet& par, const MuonServiceProxy *service):theService(service) {
+MuonTrackReFitter::MuonTrackReFitter(const ParameterSet& par, const MuonServiceProxy *service) : theService(service) {
 
   theErrorRescaling = 100.0;
  
@@ -58,22 +58,26 @@ MuonTrackReFitter::~MuonTrackReFitter() {
 
 }
 
-/// Get the propagator(s)
-auto_ptr<Propagator> MuonTrackReFitter::propagator(PropagationDirection propagationDirection) const{
+
+//
+// get the propagator(s)
+//
+Propagator* MuonTrackReFitter::propagator(PropagationDirection propagationDirection) const {
   
-  if (propagationDirection == oppositeToMomentum){
-    auto_ptr<Propagator> smartPropagator(new SmartPropagator(*theService->propagator(theInPropagatorOppositeToMom),
-							*theService->propagator(theOutPropagatorOppositeToMom),
-							&*theService->magneticField(),
+  if (propagationDirection == oppositeToMomentum) {
+    Propagator* smartPropagator(new SmartPropagator(*theService->propagator(theInPropagatorOppositeToMom),
+                                                    *theService->propagator(theOutPropagatorOppositeToMom),
+						  	&*theService->magneticField(),
 							propagationDirection));
     return smartPropagator;
   }
-  else{
-    auto_ptr<Propagator> smartPropagator(new SmartPropagator(*theService->propagator(theInPropagatorAlongMom),
-							*theService->propagator(theOutPropagatorAlongMom),
-							&*theService->magneticField() ));
+  else {
+    Propagator* smartPropagator(new SmartPropagator(*theService->propagator(theInPropagatorAlongMom),
+                                                    *theService->propagator(theOutPropagatorAlongMom),
+                                                    &*theService->magneticField() ));
     return smartPropagator;
   }
+
 }
 
 
@@ -83,7 +87,7 @@ auto_ptr<Propagator> MuonTrackReFitter::propagator(PropagationDirection propagat
 vector<Trajectory> MuonTrackReFitter::trajectories(const Trajectory& t) const {
 
   if ( !t.isValid() ) return vector<Trajectory>();
-  
+
   vector<Trajectory> fitted = fit(t);
   return smooth(fitted);
 
@@ -101,7 +105,7 @@ vector<Trajectory> MuonTrackReFitter::trajectories(const TrajectorySeed& seed,
 
   //TSOS firstTsos = TrajectoryStateWithArbitraryError()(firstPredTsos);
   TSOS firstTsos = firstPredTsos;
-  firstTsos.rescaleError(3.);
+  firstTsos.rescaleError(10.);
 
   vector<Trajectory> fitted = fit(seed, hits, firstTsos);
 
@@ -134,7 +138,9 @@ vector<Trajectory> MuonTrackReFitter::fit(const TrajectorySeed& seed,
 
   if ( hits.empty() ) return vector<Trajectory>();
 
-  //Trajectory myTraj(seed, propagator()->propagationDirection());
+  if ( thePropagator1 == 0 ) thePropagator1 = propagator(alongMomentum);
+
+  //Trajectory myTraj(seed, thePropagator1->propagationDirection());
   Trajectory myTraj(seed, alongMomentum);
 
   TSOS predTsos(firstPredTsos);
@@ -155,7 +161,7 @@ vector<Trajectory> MuonTrackReFitter::fit(const TrajectorySeed& seed,
   for ( ConstRecHitContainer::const_iterator ihit = hits.begin() + 1; 
         ihit != hits.end(); ++ihit ) {
 
-    predTsos = propagator()->propagate(currTsos, (**ihit).det()->surface());
+    predTsos = thePropagator1->propagate(currTsos, (**ihit).det()->surface());
 
     if ( !predTsos.isValid() ) {
       //return vector<Trajectory>();
@@ -174,7 +180,6 @@ vector<Trajectory> MuonTrackReFitter::fit(const TrajectorySeed& seed,
   return vector<Trajectory>(1, myTraj);
 
 }
-
 
 
 //
@@ -201,7 +206,9 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
 
   if ( t.empty() ) return vector<Trajectory>();
 
-  //Trajectory myTraj(t.seed(), propagator(oppositeToMomentum)->propagationDirection());
+  if ( thePropagator2 == 0 ) thePropagator2 = propagator(oppositeToMomentum);
+
+  //Trajectory myTraj(t.seed(), thePropagator2->propagationDirection());
   Trajectory myTraj(t.seed(), oppositeToMomentum);
 
   vector<TM> avtm = t.measurements();
@@ -239,7 +246,7 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
   for ( vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
         itm != avtm.rend() - 1; ++itm ) {
 
-    predTsos = propagator(oppositeToMomentum)->propagate(currTsos,(*itm).recHit()->det()->surface());
+    predTsos = thePropagator2->propagate(currTsos,(*itm).recHit()->det()->surface());
 
     if ( !predTsos.isValid() ) {
       //return vector<Trajectory>();
@@ -276,7 +283,7 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
   }
 
   // last smoothed TM is last filtered
-  predTsos = propagator(oppositeToMomentum)->propagate(currTsos, avtm.front().recHit()->det()->surface());
+  predTsos = thePropagator2->propagate(currTsos, avtm.front().recHit()->det()->surface());
   
   if ( !predTsos.isValid() ) return vector<Trajectory>();
 
@@ -300,3 +307,7 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
   return vector<Trajectory>(1, myTraj);
 
 }
+
+// static data members
+Propagator* MuonTrackReFitter::thePropagator1 = 0;
+Propagator* MuonTrackReFitter::thePropagator2 = 0;
