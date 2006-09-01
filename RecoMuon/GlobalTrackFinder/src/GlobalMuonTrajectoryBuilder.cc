@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/30 19:24:04 $
- *  $Revision: 1.42 $
+ *  $Date: 2006/09/01 15:48:54 $
+ *  $Revision: 1.43 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -82,7 +82,7 @@ using namespace edm;
 //----------------
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
-							 const MuonServiceProxy* service): theService(service) {
+							 const MuonServiceProxy* service) : theService(service) {
 
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new MuonTrackReFitter(refitterPSet,theService);
@@ -107,6 +107,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theVertexErr = GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09);
 
   convert = true;
+
 }
 
 
@@ -120,7 +121,9 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theTrackMatcher) delete theTrackMatcher;
   if (theLayerMeasurements) delete theLayerMeasurements;
   if (theTrackConverter) delete theTrackConverter;
+
 }
+
 
 //
 // set Event
@@ -135,6 +138,7 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   theLayerMeasurements->setEvent(event);
 
 }
+
 
 //
 // reconstruct trajectories
@@ -153,7 +157,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
     //cout << " " << (*staTrack).innerPosition() << "  " << (*staTrack).innerMomentum() << endl;
     //cout << staCand.first->lastMeasurement().updatedState().globalPosition() << " " << staCand.first->lastMeasurement().updatedState().globalMomentum() << endl;
   }
-   
+ 
   // select tracker tracks in eta-phi cone around muon
   vector<TrackCand> regionalTkTracks = chooseRegionalTrackerTracks(staCand,allTrackerTracks);
   LogInfo("GlobalMuonTrajectoryBuilder") << "Found " << regionalTkTracks.size() << " tracks within region of interest" << endl;
@@ -309,7 +313,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       tkTrajs.push_back(muonCand);
     }
   }
- 
+
   //
   // check and select muon measurements and 
   // measure occupancy in muon stations
