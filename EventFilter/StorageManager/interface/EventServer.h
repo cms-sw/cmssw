@@ -33,6 +33,7 @@ namespace stor
     ~EventServer();
 
     void addConsumer(boost::shared_ptr<ConsumerPipe> consumer);
+    boost::shared_ptr<ConsumerPipe> getConsumer(uint32 consumerId);
     void processEvent(const EventMsgView &eventView);
     boost::shared_ptr< std::vector<char> > getEvent(uint32 consumerId);
 
@@ -51,7 +52,7 @@ namespace stor
     int disconnectedConsumerTestCounter_;
 
     // consumer lists
-    std::vector< boost::shared_ptr<ConsumerPipe> > consumerList;
+    std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable;
     //std::vector<boost::shared_ptr<ConsumerPipe>> vipConsumerList;
   };
 }
