@@ -40,6 +40,7 @@ namespace edmtestp
     int l1BitCount;
     std::string consumerName_;
     std::string consumerPriority_;
+    std::string consumerPSetString_;
     int headerRetryInterval_;
     double minEventRequestInterval_;
     unsigned int consumerId_;

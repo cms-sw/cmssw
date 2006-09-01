@@ -105,6 +105,11 @@ namespace edmtestp
     lastRequestTime_.tv_sec = 0;
     lastRequestTime_.tv_usec = 0;
 
+    // 28-Aug-2006, KAB: save our parameter set in string format to
+    // be sent to the event server to specify our "request" (that is, which
+    // events we are interested in).
+    consumerPSetString_ = ps.toString();
+
     // 16-Aug-2006, KAB: register this consumer with the event server
     consumerId_ = (time(0) & 0xffffff);  // temporary - will get from ES later
     registerWithEventServer();
@@ -367,7 +372,7 @@ namespace edmtestp
       const int BUFFER_SIZE = 2000;
       char msgBuff[BUFFER_SIZE];
       ConsRegRequestBuilder requestMessage(msgBuff, BUFFER_SIZE, consumerName_,
-                                           consumerPriority_);
+                                       consumerPriority_, consumerPSetString_);
 
       // add the request message as a http post
       setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
