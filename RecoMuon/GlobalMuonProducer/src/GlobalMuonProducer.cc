@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/08/30 12:56:18 $
- *   $Revision: 1.12 $
+ *   $Date: 2006/08/31 18:29:32 $
+ *   $Revision: 1.13 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -54,9 +54,12 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   // the services
   theService = new MuonServiceProxy(serviceParameters);
   
+  // the propagator name for the track loader
+  string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagator");
+
   // instantiate the concrete trajectory builder in the Track Finder
   GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(GLB_pSet,theService);
-  theTrackFinder = new MuonTrackFinder(gmtb, new MuonTrackLoader() );
+  theTrackFinder = new MuonTrackFinder(gmtb, new MuonTrackLoader(trackLoaderPropagatorName,theService) );
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
