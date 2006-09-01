@@ -38,9 +38,12 @@ class PFProducer : public edm::EDProducer {
  private:
   // ----------member data ---------------------------
 
-  // input collection names
-  std::string tcCollection_;
+  // input rec track collection name
+  std::string recTrackModuleLabel_;
 
+  // module label for input simtrack and simvertex
+  std::string simModuleLabel_;  
+  
   // output collection name for reconstructed tracks
   std::string pfRecTrackCollection_;
 
