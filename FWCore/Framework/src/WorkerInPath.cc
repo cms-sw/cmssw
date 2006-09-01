@@ -4,13 +4,13 @@
 
 namespace edm
 {
-  WorkerInPath::WorkerInPath(Worker* w, State state):
+  WorkerInPath::WorkerInPath(Worker* w, State theState):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesVisited_(),
     timesPassed_(),
     timesFailed_(),
     timesExcept_(),
-    state_(state),
+    state_(theState),
     worker_(w)
   {
   }

@@ -15,7 +15,7 @@ namespace edm
   Path::Path(int bitpos, const std::string& path_name,
 	     const Workers& workers,
 	     TrigResPtr trptr,
-	     ParameterSet const& proc_pset,
+	     ParameterSet const&,
 	     ActionTable& actions,
 	     ActivityRegistryPtr areg):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),

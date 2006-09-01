@@ -3,7 +3,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: TriggerNamesService.cc,v 1.4 2006/04/10 22:35:44 jbk Exp $
+// $Id: TriggerNamesService.cc,v 1.5 2006/04/19 20:13:01 wmtan Exp $
 //
 
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
@@ -78,12 +78,18 @@ namespace edm {
     // note: names_ comes from "@trigger_paths", the parameter that has
     // the options applied to it.
 
-    TriggerNamesService::TriggerNamesService(const ParameterSet& pset):
+    TriggerNamesService::TriggerNamesService(const ParameterSet& pset) :
       process_name_(pset.getParameter<string>("@process_name")),
       trig_pset_(getTrigPSetFunc(pset)),
       trignames_(trig_pset_.getUntrackedParameter<vstring>("@trigger_paths")),
+      trigpos_(),
       pathnames_(trig_pset_.getParameter<vstring>("@paths")),
-      end_names_(trig_pset_.getParameter<vstring>("@end_paths"))
+      pathpos_(),
+      end_names_(trig_pset_.getParameter<vstring>("@end_paths")),
+      end_pos_(),
+      modulenames_(),
+      wantSummary_(),
+      makeTriggerResults_()
     {
       ParameterSet defopts;
       ParameterSet opts = 

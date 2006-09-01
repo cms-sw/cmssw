@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.12 2006/06/20 23:13:27 paterno Exp $
+$Id: Worker.cc,v 1.13 2006/08/08 00:41:39 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -52,7 +52,8 @@ namespace edm
     state_(Ready),
     md_(iMD),
     actions_(iWP.actions_),
-    cached_exception_()
+    cached_exception_(),
+    sigs_()
   {
   }
 

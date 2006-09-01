@@ -34,7 +34,8 @@ namespace edm {
 //
 // constructors and destructor
 //
-      EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey) : key_(iKey)
+EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey) : key_(iKey),
+    validityInterval_(), finder_(), providers_()
 {
 }
 

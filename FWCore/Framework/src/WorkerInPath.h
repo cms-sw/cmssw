@@ -5,7 +5,7 @@
 
 	Author: Jim Kowalkowski 28-01-06
 
-	$Id: WorkerInPath.h,v 1.4 2006/04/19 19:48:48 chrjones Exp $
+	$Id: WorkerInPath.h,v 1.5 2006/06/20 23:13:27 paterno Exp $
 
 	A wrapper around a Worker, so that statistics can be managed
 	per path.  A Path holds Workers as these things.
@@ -25,7 +25,7 @@ namespace edm
     enum State { Normal=0, Ignore, Veto };
 
     explicit WorkerInPath(Worker*);
-    WorkerInPath(Worker*, State state);
+    WorkerInPath(Worker*, State theState);
 
     bool runWorker(EventPrincipal&, EventSetup const&,
 		   CurrentProcessingContext const* cpc);

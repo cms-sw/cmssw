@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 23 16:47:10 CEST 2005
-// $Id: SignallingProductRegistry.h,v 1.3 2006/02/08 00:44:25 wmtan Exp $
+// $Id: SignallingProductRegistry.h,v 1.4 2006/08/16 13:35:57 chrjones Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@ namespace edm {
    {
 
    public:
-      SignallingProductRegistry() {}
+      SignallingProductRegistry() : ProductRegistry(), productAddedSignal_(), typeAddedStack_() {}
       sigc::signal<void, BranchDescription const&> productAddedSignal_;
       
    private:

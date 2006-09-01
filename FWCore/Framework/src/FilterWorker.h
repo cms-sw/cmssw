@@ -8,7 +8,7 @@ this object is to call the filter.
 According to our current definition, a single filter can only
 appear in one worker.
 
-$Id: FilterWorker.h,v 1.14 2006/04/24 22:36:30 wmtan Exp $
+$Id: FilterWorker.h,v 1.15 2006/06/20 23:13:27 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -52,7 +52,7 @@ namespace edm
   };
 
   template <class ModType>
-  std::auto_ptr<EDFilter> FilterWorker::makeOne(const ModuleDescription& md,
+  std::auto_ptr<EDFilter> FilterWorker::makeOne(const ModuleDescription&,
 						const WorkerParams& wp)
   {
     return std::auto_ptr<EDFilter>(new ModType(*wp.pset_));

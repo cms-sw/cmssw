@@ -22,7 +22,8 @@ namespace edm
 			       std::string const& process_name,
 			       Strings const& names):
     process_name_(process_name),
-    accept_all_(false)
+    accept_all_(false),
+    decision_bits_()
   {
     edm::ParameterSet def;
     edm::ParameterSet mine =

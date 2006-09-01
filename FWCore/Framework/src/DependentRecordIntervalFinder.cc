@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.4 2005/08/04 15:04:15 chrjones Exp $
+// $Id: DependentRecordIntervalFinder.cc,v 1.5 2006/06/05 18:12:20 chrjones Exp $
 //
 
 // system include files
@@ -30,7 +30,8 @@ namespace edm {
 //
 // constructors and destructor
 //
-DependentRecordIntervalFinder::DependentRecordIntervalFinder(const EventSetupRecordKey& iKey)
+DependentRecordIntervalFinder::DependentRecordIntervalFinder(const EventSetupRecordKey& iKey) :
+  providers_()
 {
    findingRecordWithKey(iKey);
 }

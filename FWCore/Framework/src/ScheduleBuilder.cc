@@ -3,11 +3,11 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.19.2.2 2006/07/05 23:57:18 wmtan Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.20 2006/07/06 19:11:43 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.19.2.2 2006/07/05 23:57:18 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.20 2006/07/06 19:11:43 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
@@ -30,7 +30,8 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
 				 WorkerRegistry& wregistry,
 				 ProductRegistry& pregistry,
 				 ActionTable& actions): 
-  m_processDesc(processDesc) {
+  m_processDesc(processDesc),
+  m_pathList() {
 
 
   seal::PluginManager::get()->initialise();

@@ -158,7 +158,7 @@ namespace edm
   class UnscheduledCallProducer : public UnscheduledHandler
   {
   public:
-    UnscheduledCallProducer() {}
+    UnscheduledCallProducer() : UnscheduledHandler(), labelToWorkers_() {}
     void addWorker(Worker* aWorker) {
       assert(0 != aWorker);
       labelToWorkers_[aWorker->description().moduleLabel_]=aWorker;
@@ -211,8 +211,10 @@ namespace edm
     nontrig_results_(new HLTGlobalStatus(path_name_list_.size())),
     endpath_results_(), // delay!
     results_inserter_(),
+    all_workers_(),
     trig_paths_(),
     end_paths_(),
+    tmp_wrongly_placed_(),
     wantSummary_(tns.wantSummary()),
     makeTriggerResults_(tns.makeTriggerResults()),
     total_events_(),
@@ -812,8 +814,8 @@ namespace edm
   }
 
   void
-  fillModuleInPathSummary(Path const& path, 
-			  ModuleInPathSummary& sum)
+  fillModuleInPathSummary(Path const&, 
+			  ModuleInPathSummary&)
   {
   }
 

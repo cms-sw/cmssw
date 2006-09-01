@@ -149,7 +149,7 @@ namespace edmtest
   {
   }
 
-  bool TestFilterModule::filter(edm::Event& e,edm::EventSetup const&)
+  bool TestFilterModule::filter(edm::Event&, edm::EventSetup const&)
   {
     ++count_;
     assert( currentContext() != 0 );
@@ -161,7 +161,7 @@ namespace edmtest
 
   void TestFilterModule::endJob()
   {
-    assert( currentContext() == 0 );
+    assert(currentContext() == 0);
   }
 
   // ---------
@@ -178,10 +178,10 @@ namespace edmtest
   {
   }
 
-  void SewerModule::write(edm::EventPrincipal const& e)
+  void SewerModule::write(edm::EventPrincipal const&)
   {
     ++total_;
-    assert( currentContext() != 0 );
+    assert(currentContext() != 0);
   }
 
   void SewerModule::endJob()

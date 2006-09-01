@@ -8,7 +8,7 @@ TypeID: A unique identifier for a C++ type.
 The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
 
-$Id: TypeID.h,v 1.11 2005/11/11 20:55:49 chrjones Exp $
+$Id: TypeID.h,v 1.1 2006/02/20 01:51:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
@@ -51,9 +51,9 @@ namespace edm {
   private:
     TypeID& operator=(const TypeID&); // not implemented
    
-    static bool stripTemplate(std::string& name);
+    static bool stripTemplate(std::string& theName);
 
-    static bool stripNamespace(std::string& name);
+    static bool stripNamespace(std::string& theName);
 
   };
 

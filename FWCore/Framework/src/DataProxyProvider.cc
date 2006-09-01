@@ -33,7 +33,7 @@ namespace edm {
 //
 // constructors and destructor
 //
-DataProxyProvider::DataProxyProvider()
+DataProxyProvider::DataProxyProvider() : recordProxies_(), description_()
 {
 }
 

@@ -29,7 +29,7 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupRecordProviderFactoryManager::EventSetupRecordProviderFactoryManager()
+EventSetupRecordProviderFactoryManager::EventSetupRecordProviderFactoryManager() : factories_()
 {
 }
 

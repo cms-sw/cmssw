@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.10.2.1 2006/07/04 14:03:43 wmtan Exp $
+   \version $Id: WorkerRegistry.cc,v 1.11 2006/07/06 19:11:43 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.10.2.1 2006/07/04 14:03:43 wmtan Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.11 2006/07/06 19:11:43 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/PassID.h"
@@ -23,17 +23,19 @@ static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.10.2.1 2006/07/04 14:03:
 using namespace std;
 using namespace edm;
 
-WorkerRegistry::WorkerRegistry():
+WorkerRegistry::WorkerRegistry() :
+  m_workerMap(),
   act_reg_(new ActivityRegistry)
 {
 }
 
-WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg):
+WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg) :
+  m_workerMap(),
   act_reg_(areg)
 {
 }
 
-WorkerRegistry:: ~WorkerRegistry(){
+WorkerRegistry:: ~WorkerRegistry() {
   m_workerMap.clear();
 }
 
@@ -43,7 +45,7 @@ void WorkerRegistry::clear() {
 
 Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
 
-  string workerid= 
+  string workerid =
     mangleWorkerParameters(*p.pset_, p.processName_,
 			   p.releaseVersion_,p.passID_);
 

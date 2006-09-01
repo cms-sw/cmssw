@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 21:36:15 CDT 2005
-// $Id: ESProxyFactoryProducer.cc,v 1.1 2005/10/03 23:07:34 chrjones Exp $
+// $Id: ESProxyFactoryProducer.cc,v 1.2 2006/01/20 21:36:20 chrjones Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@ namespace edm {
 //
 // constructors and destructor
 //
-ESProxyFactoryProducer::ESProxyFactoryProducer()
+ESProxyFactoryProducer::ESProxyFactoryProducer() : record2Factories_()
 {
 }
 

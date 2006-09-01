@@ -29,7 +29,7 @@ namespace edm {
 //
 // constructors and destructor
 //
-   EventSetup::EventSetup() : syncValue_(IOVSyncValue::invalidIOVSyncValue())
+   EventSetup::EventSetup() : syncValue_(IOVSyncValue::invalidIOVSyncValue()), recordMap_()
 {
 }
 

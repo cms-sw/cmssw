@@ -29,7 +29,7 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupRecordKey::EventSetupRecordKey()
+EventSetupRecordKey::EventSetupRecordKey() : type_()
 {
 }
 

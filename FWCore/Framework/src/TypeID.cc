@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.15 2006/03/10 21:14:21 wmtan Exp $
+$Id: TypeID.cc,v 1.16 2006/07/27 21:53:51 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -43,11 +43,11 @@ namespace edm {
   
   std::string 
   TypeID::userClassName() const {
-    std::string name = className();
-    if (name.find("edm::Wrapper") == 0) {
-      stripTemplate(name);
+    std::string theName = className();
+    if (theName.find("edm::Wrapper") == 0) {
+      stripTemplate(theName);
     }
-    return name;
+    return theName;
   }
 
   std::string 
@@ -56,37 +56,37 @@ namespace edm {
   }
 
   bool
-  TypeID::stripTemplate(std::string& name) {
+  TypeID::stripTemplate(std::string& theName) {
     std::string const spec("<,>");
     char const space = ' ';
-    std::string::size_type idx = name.find_first_of(spec);
+    std::string::size_type idx = theName.find_first_of(spec);
     if (idx == std::string::npos) {
       return false;
     }
     std::string::size_type first = 0;
     std::string::size_type after = idx;
-    if (name[idx] == '<') {
-      after = name.rfind('>');
+    if (theName[idx] == '<') {
+      after = theName.rfind('>');
       assert (after != std::string::npos);
       first = ++idx;
     } else {
-      name = name.substr(0, idx);
+      theName = theName.substr(0, idx);
     }
     std::string::size_type idxa = after;
-    while (space == name[--idxa]) --after;
+    while (space == theName[--idxa]) --after;
     std::string::size_type idxf = first;
-    while (space == name[idxf++]) ++first;
-    name = name.substr(first, after - first);
+    while (space == theName[idxf++]) ++first;
+    theName = theName.substr(first, after - first);
     return true;
   }
 
   bool
-  TypeID::stripNamespace(std::string& name) {
-    std::string::size_type idx = name.rfind(':');
+  TypeID::stripNamespace(std::string& theName) {
+    std::string::size_type idx = theName.rfind(':');
     bool ret = (idx != std::string::npos);
     if (ret) {
       ++idx;
-      name = name.substr(idx);
+      theName = theName.substr(idx);
     }
     return ret;
   }

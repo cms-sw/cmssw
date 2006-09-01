@@ -37,7 +37,7 @@ namespace edm {
     }
   }
 
-  ActionTable::ActionTable()
+  ActionTable::ActionTable() : map_()
   {
     addDefaults();
   }
@@ -71,7 +71,7 @@ namespace edm {
     }  
   }
 
-  ActionTable::ActionTable(const ParameterSet& pset)
+  ActionTable::ActionTable(const ParameterSet& pset) : map_()
   {
     addDefaults();
 

@@ -39,6 +39,8 @@ namespace edm {
 // constructors and destructor
 //
 EventSetupProvider::EventSetupProvider(const PreferredProviderInfo* iInfo) :
+eventSetup_(),
+providers_(),
 mustFinishConfiguration_(true),
 preferredProviderInfo_( (0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0)
 {

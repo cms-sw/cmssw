@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:31:13 EST 2005
-// $Id: DataKey.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+// $Id: DataKey.cc,v 1.4 2006/08/10 23:24:42 wmtan Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ namespace edm {
 //
 // constructors and destructor
 //
-DataKey::DataKey(): ownMemory_(false)
+DataKey::DataKey(): type_(), name_(), ownMemory_(false)
 {
 }
 

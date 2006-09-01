@@ -3,11 +3,11 @@
    Test Module for testProductRegistry
 
    \author Stefano ARGIRO
-   \version $Id: TestPRegisterModule2.cc,v 1.5.2.1 2006/07/01 06:23:38 wmtan Exp $
+   \version $Id: TestPRegisterModule2.cc,v 1.6 2006/07/06 19:11:44 wmtan Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: TestPRegisterModule2.cc,v 1.5.2.1 2006/07/01 06:23:38 wmtan Exp $";
+static const char CVSId[] = "$Id: TestPRegisterModule2.cc,v 1.6 2006/07/06 19:11:44 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/Event.h"
@@ -23,7 +23,7 @@ static const char CVSId[] = "$Id: TestPRegisterModule2.cc,v 1.5.2.1 2006/07/01 0
 
 using namespace edm;
 
-TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const& p){
+TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
    produces<edmtest::DoubleProduct>();
 }
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 22 11:02:00 EST 2005
-// $Id: TestESDummyDataAnalyzer.cc,v 1.1 2005/12/22 20:29:28 chrjones Exp $
+// $Id: TestESDummyDataAnalyzer.cc,v 1.2 2006/07/23 01:24:35 valya Exp $
 //
 //
 
@@ -89,7 +89,7 @@ TestESDummyDataAnalyzer::~TestESDummyDataAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-TestESDummyDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+TestESDummyDataAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 

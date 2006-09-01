@@ -32,7 +32,9 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupRecord::EventSetupRecord():
+EventSetupRecord::EventSetupRecord() :
+validity_(),
+proxies_(),
 eventSetup_(0),
 cacheIdentifier_(1) //start with 1 since 0 means we haven't checked yet
 {

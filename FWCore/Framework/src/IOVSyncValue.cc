@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:35 EDT 2005
-// $Id: IOVSyncValue.cc,v 1.2 2005/08/10 02:23:02 chrjones Exp $
+// $Id: IOVSyncValue.cc,v 1.3 2005/09/01 04:30:51 wmtan Exp $
 //
 
 // system include files
@@ -27,25 +27,26 @@ namespace edm {
 // static data member definitions
 //
 
+
 //
 // constructors and destructor
 //
-IOVSyncValue::IOVSyncValue(): haveID_(true), haveTime_(true)
+IOVSyncValue::IOVSyncValue(): eventID_(), time_(),
+haveID_(true), haveTime_(true)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const EventID& iID): eventID_(iID),
+IOVSyncValue::IOVSyncValue(const EventID& iID) : eventID_(iID), time_(),
 haveID_(true), haveTime_(false)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const Timestamp& iTime): time_(iTime),
+IOVSyncValue::IOVSyncValue(const Timestamp& iTime) : eventID_(), time_(iTime),
 haveID_(false), haveTime_(true)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const EventID& iID, const Timestamp& iTime): 
-
+IOVSyncValue::IOVSyncValue(const EventID& iID, const Timestamp& iTime) :
 eventID_(iID), time_(iTime),
 haveID_(true), haveTime_(true)
 {

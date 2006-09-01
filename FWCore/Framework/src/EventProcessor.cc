@@ -567,6 +567,8 @@ namespace edm {
   EventProcessor::EventProcessor(const string& config,
 				const ServiceToken& iToken, 
 				serviceregistry::ServiceLegacy iLegacy) :
+    preProcessEventSignal(),
+    postProcessEventSignal(),
     plug_init_(),
     common_(),
     actReg_(new ActivityRegistry),
@@ -709,7 +711,7 @@ namespace edm {
   }
   
   EventHelperDescription
-  EventProcessor::runOnce(unsigned long numberToProcess)
+  EventProcessor::runOnce(unsigned long /* numberToProcess*/ )
   {
     try {
        // Job should be in sJobReady state, then we send mRunCount message and move job sRunning state
@@ -1049,13 +1051,13 @@ namespace edm {
     return last_rc_;
   }
 
-  void EventProcessor::setRunNumber(RunNumber_t run)
+  void EventProcessor::setRunNumber(RunNumber_t runNumber)
   {
     beginJob();
     changeState(mSetRun);
 
     // interface not correct yet
-    getInputSource().setRunNumber(run);
+    getInputSource().setRunNumber(runNumber);
 
     LogWarning("state")
       << "EventProcessor::setRunNumber not yet implemented\n";

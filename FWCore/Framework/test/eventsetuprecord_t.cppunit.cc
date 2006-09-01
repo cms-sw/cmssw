@@ -129,11 +129,11 @@ public:
     usingRecord<DummyRecord>();
   }
   
-  virtual void newInterval(const EventSetupRecordKey& iRecordType,
-                           const ValidityInterval& iInterval) {}
+  virtual void newInterval(const EventSetupRecordKey&,
+                           const ValidityInterval&) {}
 
 protected:
-  virtual void registerProxies(const EventSetupRecordKey& iRecordKey ,
+  virtual void registerProxies(const EventSetupRecordKey&,
                                KeyedProxies& aProxyList) {
     aProxyList.push_back(std::make_pair(m_key, m_proxy));
   }

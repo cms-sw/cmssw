@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jul 17 09:34:30 EDT 2006
-// $Id$
+// $Id: ESProducerLooper.cc,v 1.1 2006/07/23 01:24:34 valya Exp $
 //
 
 // system include files
@@ -58,8 +58,8 @@ ESProducerLooper::~ESProducerLooper()
 // member functions
 //
 void 
-ESProducerLooper::setIntervalFor(const EventSetupRecordKey& iKey,
-                                 const IOVSyncValue& iTime, 
+ESProducerLooper::setIntervalFor(const EventSetupRecordKey&,
+                                 const IOVSyncValue&, 
                                  ValidityInterval& oInterval)
 {
   //since non of the dependent records are valid, I will create one that is valid
