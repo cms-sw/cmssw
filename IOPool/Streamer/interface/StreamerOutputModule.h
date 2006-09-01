@@ -160,7 +160,7 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     // once available with Utility function etc.
     uint32 run = 1;
     char psetid[] = "1234567890123456";
-    Version v(2,(const uint8*)psetid);
+    Version v(3,(const uint8*)psetid);
     char release_tag[] = "CMSSW_DUMMY";
     Strings hlt_names; //9
     //Strings hlt_names = getTriggerNames();

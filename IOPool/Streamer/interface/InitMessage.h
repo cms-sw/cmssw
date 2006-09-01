@@ -1,5 +1,10 @@
 /** Init Message
-code 1 | size 4 | protocol version 1 | pset 16 | run 4 | releaseTagLength 1 | ReleaseTag var| HLT count 4| HLT Trig Legth 4 | HLT Trig names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
+
+Protocol Versoion 2:
+code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Seize 4| releaseTagLength 1 | ReleaseTag var| HLT count 4| HLT Trig Legth 4 | HLT Trig names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
+
+Protocol Version 3:
+code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| HLT count 4| HLT Trig Legth 4 | HLT Trig names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
 
 */
 
@@ -21,15 +26,20 @@ struct Version
 
 struct InitHeader
 {
-  InitHeader(const Header& h, uint32 run, const Version& v):
+  InitHeader(const Header& h, uint32 run, const Version& v,
+           uint32 init_header_size=0, uint32 event_header_size=0):
     header_(h),version_(v)
   {
    convert(run,run_); 
+   convert(init_header_size, init_header_size_);
+   convert(event_header_size, event_header_size_);
   }
 
   Header header_;
   Version version_;
   char_uint32 run_;
+  char_uint32 init_header_size_;
+  char_uint32 event_header_size_;
 };
 
 class InitMsgView
@@ -50,7 +60,6 @@ public:
   void hltTriggerNames(Strings& save_here) const;
   void l1TriggerNames(Strings& save_here) const;
 
- //HEREHEREHERE a hack where is the const?
   uint32 get_hlt_bit_cnt() const { return hlt_trig_count_; }
   uint32 get_l1_bit_cnt() const { return l1_trig_count_; }
 
