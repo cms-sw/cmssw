@@ -7,8 +7,8 @@
   *   a given vertex and 
   *   apply a vertex constraint
   *
-  *   $Date: 2006/08/31 18:24:17 $
-  *   $Revision: 1.7 $
+  *   $Date: 2006/09/01 15:47:04 $
+  *   $Revision: 1.8 $
   *
   *   \author   N. Neumeister            Purdue University
   *
@@ -39,7 +39,7 @@ class MuonUpdatorAtVertex {
   MuonUpdatorAtVertex();
 
   /// constructor from propagator
-  MuonUpdatorAtVertex(const Propagator&);
+  //MuonUpdatorAtVertex(const Propagator&);
 
   /// destructor
   virtual ~MuonUpdatorAtVertex();
