@@ -15,8 +15,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/08/25 16:20:31 $
-// $Revision: 1.7 $
+// $Date: 2006/08/28 18:44:40 $
+// $Revision: 1.9 $
 //
 
 #include <string>
@@ -68,7 +68,8 @@ class RoadSearchSeedFinderAlgorithm
   //						 const TrackerGeometry *tracker,const edm::EventSetup& es);
   void makeSeedsFromInnerHit(TrajectorySeedCollection* outcoll,
 			     const TrackingRecHit* innerHit,
-			     const edm::OwnVector<TrackingRecHit>* outerHits,
+			     //const edm::OwnVector<TrackingRecHit>* outerHits,
+			     const std::vector<TrackingRecHit*>* outerHits,
 			     const TrackerGeometry *tracker,const edm::EventSetup& es);
 
 

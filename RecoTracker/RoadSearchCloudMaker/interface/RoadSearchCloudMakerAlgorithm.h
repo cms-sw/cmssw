@@ -51,8 +51,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/08/21 14:30:42 $
-// $Revision: 1.11 $
+// $Date: 2006/08/28 18:44:39 $
+// $Revision: 1.12 $
 //
 
 #include <string>
@@ -66,11 +66,13 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
-
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
+
+#include "TrackingTools/RoadSearchHitAccess/interface/DetHitAccess.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -85,9 +87,15 @@ class RoadSearchCloudMakerAlgorithm
   void run(edm::Handle<TrajectorySeedCollection> input,
 	   const SiStripRecHit2DCollection* rphiRecHits,
 	   const SiStripRecHit2DCollection* stereoRecHits,
+	   const SiStripMatchedRecHit2DCollection* matchedRecHits,
 	   const SiPixelRecHitCollection *pixRecHits,
 	   const edm::EventSetup& es,
 	   RoadSearchCloudCollection &output);
+
+  void FillRecHitsIntoCloudGeneral(DetId id, double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
+				   const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, 
+				   Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
+				   const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
   void FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DCollection* inputRecHits, 
 			    double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
@@ -129,7 +137,11 @@ class RoadSearchCloudMakerAlgorithm
   double d0h, phi0h, omegah;
   double rphicsq;
   int rphinhits;
- const SiPixelRecHitCollection thePixRecHits;
+  const SiPixelRecHitCollection thePixRecHits;
+  
+  // general hit access for road search
+  DetHitAccess recHitVectorClass;
+  bool usePixels;
 
  double theRPhiRoadSize;
  double theZPhiRoadSize;

@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/08/25 16:20:31 $
-// $Revision: 1.15 $
+// $Date: 2006/08/28 18:44:40 $
+// $Revision: 1.17 $
 //
 
 #include <vector>
@@ -87,33 +87,29 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
   // initialize general hit access for road search
   DetHitAccess innerSeedHitVector(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
   DetHitAccess outerSeedHitVector(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
+  innerSeedHitVector.setMode(DetHitAccess::rphi);
+  outerSeedHitVector.setMode(DetHitAccess::rphi);
 
    // loop over seed Ring pairs
   for ( Roads::const_iterator road = roads->begin(); road != roads->end(); ++road ) {
 
     Roads::RoadSeed seed = (*road).first;
-    //edm::LogError("RoadSearch") << "ROAD SEEDS: " << seed.first.getindex() << " " << seed.second.getindex();
+  
     // loop over detid's in seed rings
     for ( Ring::const_iterator innerRingDetId = seed.first.begin(); innerRingDetId != seed.first.end(); ++innerRingDetId ) {
 
-      //uint32_t detId_rawid = innerRingDetId->second.rawId();
-      //DetId detId_tmp(detId_rawid);
-
-      //uint32_t detId_tmp = innerRingDetId->second.rawId();
-      StripSubdetector StripDetId(innerRingDetId->second);
+        StripSubdetector StripDetId(innerRingDetId->second);
       DetId tmp(StripDetId.glued());
 
-      //if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),innerRingDetId->second.glued()) ) {
-      if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),tmp) ) {
-      //if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),innerRingDetId->second) ) {
-      
-	edm::OwnVector<TrackingRecHit> innerSeedDetHits = innerSeedHitVector.getHitVector(&(innerRingDetId->second));
+        if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),tmp) ) {
+        
+	  std::vector<TrackingRecHit*> innerSeedDetHits = innerSeedHitVector.getHitVector(&(innerRingDetId->second));
 	    
 	// loop over inner dethits
-	for (edm::OwnVector<TrackingRecHit>::const_iterator innerSeedDetHit = innerSeedDetHits.begin();
+	for (std::vector<TrackingRecHit*>::const_iterator innerSeedDetHit = innerSeedDetHits.begin();
 	     innerSeedDetHit != innerSeedDetHits.end(); ++innerSeedDetHit) {
 	  
-	  GlobalPoint inner = tracker->idToDet(innerSeedDetHit->geographicalId())->surface().toGlobal(innerSeedDetHit->localPosition());
+	  GlobalPoint inner = tracker->idToDet((*innerSeedDetHit)->geographicalId())->surface().toGlobal((*innerSeedDetHit)->localPosition());
 
 	  double innerphi = inner.phi();
 	  double upperPhiRangeBorder = innerphi + (1.0);
@@ -128,8 +124,8 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 		  outerRingDetId != seed.second.upper_bound(upperPhiRangeBorder);
 		  ++outerRingDetId) {
 	      if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
-		edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
-		makeSeedsFromInnerHit(&output,&(*innerSeedDetHit),&outerSeedDetHits,tracker.product(),es);
+		std::vector<TrackingRecHit*> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
+		makeSeedsFromInnerHit(&output,*innerSeedDetHit,&outerSeedDetHits,tracker.product(),es);
 	      }
 	    }
 	  }
@@ -138,16 +134,16 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 		  outerRingDetId != seed.second.upper_bound(Geom::twoPi());
 		  ++outerRingDetId) {
 	      if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
-		edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
-		makeSeedsFromInnerHit(&output,&(*innerSeedDetHit),&outerSeedDetHits,tracker.product(),es);
+		std::vector<TrackingRecHit*> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
+		makeSeedsFromInnerHit(&output,*innerSeedDetHit,&outerSeedDetHits,tracker.product(),es);
 	      }
 	    }
 	    for ( Ring::const_iterator outerRingDetId = seed.second.lower_bound(0.0); 
 		  outerRingDetId != seed.second.upper_bound(upperPhiRangeBorder);
 		  ++outerRingDetId) {
 	      if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
-		edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
-		makeSeedsFromInnerHit(&output,&(*innerSeedDetHit),&outerSeedDetHits,tracker.product(),es);
+		std::vector<TrackingRecHit*> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
+		makeSeedsFromInnerHit(&output,*innerSeedDetHit,&outerSeedDetHits,tracker.product(),es);
 	      }
 	    }
 	  }
@@ -264,7 +260,8 @@ makeSeedFromPair(const TrackingRecHit* innerSeedDetHit,
 void  RoadSearchSeedFinderAlgorithm::
 makeSeedsFromInnerHit(TrajectorySeedCollection* outputCollection,
 		      const TrackingRecHit* innerSeedDetHit,
-		      const edm::OwnVector<TrackingRecHit>* outerSeedDetHits,
+		      //const edm::OwnVector<TrackingRecHit>* outerSeedDetHits,
+		      const std::vector<TrackingRecHit*>* outerSeedDetHits,
 		      const TrackerGeometry *tracker,
 		      const edm::EventSetup& es)
 {
@@ -295,9 +292,10 @@ makeSeedsFromInnerHit(TrajectorySeedCollection* outputCollection,
 		      0, 0, std::sqrt(region.originZBound()));
   
   //loop over outer dethits
-  for (edm::OwnVector<TrackingRecHit>::const_iterator outerSeedDetHit = outerSeedDetHits->begin();
-       outerSeedDetHit != outerSeedDetHits->end(); ++outerSeedDetHit) {
+  for (std::vector<TrackingRecHit*>::const_iterator recHit_iter = outerSeedDetHits->begin();
+       recHit_iter != outerSeedDetHits->end(); ++recHit_iter) {
     
+    TrackingRecHit *outerSeedDetHit = (*recHit_iter);
     GlobalPoint inner = tracker->idToDet(innerSeedDetHit->geographicalId())->surface().toGlobal(innerSeedDetHit->localPosition());
     GlobalPoint outer = tracker->idToDet(outerSeedDetHit->geographicalId())->surface().toGlobal(outerSeedDetHit->localPosition());
     
@@ -345,7 +343,6 @@ makeSeedsFromInnerHit(TrajectorySeedCollection* outputCollection,
 	// create the OwnVector of TrackingRecHits
 	edm::OwnVector<TrackingRecHit> rh;
 	
-
 	// memory leak??? TB
 	rh.push_back(innerSeedDetHit->clone());
 	rh.push_back(outerSeedDetHit->clone());
