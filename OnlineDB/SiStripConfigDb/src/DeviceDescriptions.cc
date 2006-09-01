@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.3 2006/08/31 13:43:20 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.4 2006/08/31 19:49:41 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
@@ -79,9 +79,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 							   devices_,
 							   partition_.major_,
 							   partition_.minor_ );
-    deviceFactory(__FUNCTION__)->getDcuDescriptions( partition_.name_, 
-						     devices_,
-						     0, 999999 ); // timestamp start/stop
+//     deviceFactory(__FUNCTION__)->getDcuDescriptions( partition_.name_, 
+// 						     devices_ );
     resetDevices_ = false;
     
   }
@@ -133,8 +132,8 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
 							   &partition_.minor_,
 							   new_major_version );
     
-    deviceFactory(__FUNCTION__)->setDcuDescriptions( partition_.name_, 
-						     getDeviceDescriptions( DCU ) );
+//     deviceFactory(__FUNCTION__)->setDcuDescriptions( partition_.name_, 
+// 						     getDeviceDescriptions( DCU ) );
     
   }
   catch (...) { 
