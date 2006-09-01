@@ -42,28 +42,32 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
 
   if(!doPixel_ && !doStrip_)  throw edm::Exception(errors::Configuration,"Strip and pixel association disabled");
   
-  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  event.getByType(TPCollectionH);
-  const TrackingParticleCollection * tPC   = TPCollectionH.product();
-  std::cout << "Found " << tPC->size() << " TrackingParticles" << std::endl;
+  TrackAssociator tassociator(event, conf_);
+  
+  const RecoToSimCollection assocmap = tassociator.AssociateByHitsRecoTrack(minHitFraction);
+  //now test map 
+  std::cout << "Found " << assocmap.size() << " matched reco tracks" << std::endl;
+
 
   edm::Handle<reco::TrackCollection> trackCollectionH;
   event.getByType(trackCollectionH);
-  const reco::TrackCollection tC = *(trackCollectionH.product()); 
-  std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
-  for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
-    std::cout << "\tmomentum: " << track->momentum()<< std::endl;
-  }  
+  const  reco::TrackCollection  tC = *(trackCollectionH.product()); 
   
-  
-  TrackAssociator tassociator(event, conf_);
-  const RecoToSimCollection* assocmap = tassociator.AssociateByHitsRecoTrack(trackCollectionH, 
-									      TPCollectionH, minHitFraction);
-  //now test map 
-  std::cout << "Found " << assocmap->size() << " matched reco tracks" << std::endl;
-  
-  std::cout << "\ndone for now!" << std::endl;
-  
+  for(reco::TrackCollection::size_type i=0; i<tC.size(); ++i){
+    reco::TrackRef track(trackCollectionH, i);
+    try{
+      TrackingParticleRefVector tp = assocmap[track];
+      std::cout << "->   Track " << setw(2) << track.index() << " pT: " << setprecision(2) << setw(6) << track->pt() 
+		<<  " matched to " << tp.size() << " MC Tracks" << std::endl;
+      
+      for (TrackingParticleRefVector::const_iterator it = tp.begin(); it != tp.end(); ++it) {
+	std::cout << "   MCTrack " << setw(2) << (*it).index() << " pT: " << setprecision(2) << setw(6) << (**it).pt() << endl;
+      }
+    } catch (edm::Exception event) {
+      std::cout << "->   Track " << setw(2) << track.index() << " pT: " << setprecision(2) << setw(6) << track->pt() 
+		<<  " matched to 0  MC Tracks" << std::endl;
+    }
+  }
   
 }
 
