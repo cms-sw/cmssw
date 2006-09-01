@@ -34,10 +34,9 @@ Examples of configuration for this module are the following:
     string cut = "2.8 < mass < 3.4"
   }
 </pre>
+\endhtmlonly
 Everywhere, charge conjugate final state is implied. E.g.: <tt>"x@+ y@-"</tt> selects
 both decays to <i>x<sup>+</sup>y<sup>-</sup></i> and <i>x<sup>-</sup>y<sup>+</sup></i>.
-
-\endhtmlonly
 
 - cand::modules::CandSelector: selects candidates from a collection and saves their clones in 
 a new collection. The selection cut can be specified by the user as a string 
@@ -59,7 +58,6 @@ Examples of configuration for this module are the following:
   }
 </pre>
 \endhtmlonly
-
 
 - cand::modules::CandReducer: clones a collection of candidates removing all daughters and external
 components, leaving only kinematic information. This is ment to produce a "light" collection
