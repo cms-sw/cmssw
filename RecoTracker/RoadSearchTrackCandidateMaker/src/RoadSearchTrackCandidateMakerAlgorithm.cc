@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/08/26 03:48:40 $
-// $Revision: 1.18 $
+// $Author: burkett $
+// $Date: 2006/08/28 23:05:45 $
+// $Revision: 1.19 $
 //
 
 #include <vector>
@@ -177,7 +177,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	//TransientTrackingRecHit* ihit = theBuilder.product()->build(&(*rhit));
 	TransientTrackingRecHit::RecHitPointer ihit = theBuilder.product()->build(&(*rhit));	
 	
-	const GeomDetUnit* det = geom->idToDetUnit(rhit->geographicalId());
+	const GeomDet* det = geom->idToDet(rhit->geographicalId());
 	
 	TrajectoryStateOnSurface predTsos;
 	TrajectoryStateOnSurface currTsos;
