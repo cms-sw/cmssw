@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.6 2006/07/06 19:11:43 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.7 2006/08/16 23:39:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -63,12 +63,14 @@ namespace edm {
 
   void
   ConfigurableInputSource::setRunAndEventInfo() {
-    if (numberEventsInThisRun_ < numberEventsInRun_) {
+    //NOTE: numberEventsInRun < 0 means go forever in this run
+    if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
       ++numberEventsInThisRun_;
       eventID_ = eventID_.next();
     } else {
       eventID_ = eventID_.nextRunFirstEvent();
-      numberEventsInThisRun_ = 0;
+      //reset this to one since this event is in the new run
+      numberEventsInThisRun_ = 1;
     }
     presentTime_ += timeBetweenEvents_;
   }
