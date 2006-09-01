@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: EcalDetIdAssociator.h,v 1.1 2006/06/24 04:56:07 dmytro Exp $
+// $Id: EcalDetIdAssociator.h,v 1.2 2006/08/25 17:35:06 jribnik Exp $
 //
 //
 
@@ -32,12 +32,10 @@ class EcalDetIdAssociator: public CaloDetIdAssociator{
       for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
          setOfValidIds.insert(*it);
 
-      /*
-         vectOfValidIds.clear();
-         vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, 2);//EE
-         for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
+      vectOfValidIds.clear();
+      vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, 2);//EE
+      for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
          setOfValidIds.insert(*it);
-       */
 
       return setOfValidIds;
    };

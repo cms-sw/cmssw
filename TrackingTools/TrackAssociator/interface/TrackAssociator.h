@@ -16,7 +16,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.h,v 1.2 2006/08/09 14:51:58 dmytro Exp $
+// $Id: TrackAssociator.h,v 1.3 2006/08/16 21:59:27 jribnik Exp $
 //
 //
 
@@ -188,6 +188,7 @@ class TrackAssociator {
    /// Labels of the detector EDProducts (empty by default)
    /// ECAL
    std::vector<std::string> EBRecHitCollectionLabels;
+   std::vector<std::string> EERecHitCollectionLabels;
    /// CaloTowers
    std::vector<std::string> CaloTowerCollectionLabels;
    /// Muons

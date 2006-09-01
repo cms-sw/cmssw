@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.6 2006/08/16 22:02:02 jribnik Exp $
+// $Id: TrackAssociator.cc,v 1.7 2006/08/25 17:39:02 jribnik Exp $
 //
 //
 
@@ -104,6 +104,12 @@ void TrackAssociator::addDataLabels( const std::string className,
 	EBRecHitCollectionLabels.clear();
 	EBRecHitCollectionLabels.push_back(moduleLabel);
 	EBRecHitCollectionLabels.push_back(productInstanceLabel);
+     }
+   if (className == "EERecHitCollection")
+     {
+	EERecHitCollectionLabels.clear();
+	EERecHitCollectionLabels.push_back(moduleLabel);
+	EERecHitCollectionLabels.push_back(productInstanceLabel);
      }
    if (className == "CaloTowerCollection")
      {
@@ -267,9 +273,9 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
    timers.push("TrackAssociator::fillEcal::propagation");
    // ECAL points (EB+EE)
    std::vector<GlobalPoint> ecalPoints;
-   ecalPoints.push_back(GlobalPoint(135.,0,310.));
-   ecalPoints.push_back(GlobalPoint(150.,0,340.));
-   ecalPoints.push_back(GlobalPoint(170.,0,370.));
+   ecalPoints.push_back(GlobalPoint(135.,0,315.));
+   ecalPoints.push_back(GlobalPoint(140.,0,325.));
+   ecalPoints.push_back(GlobalPoint(150.,0,335.));
    
    std::vector<GlobalPoint> ecalTrajectory = ecalDetIdAssociator_.getTrajectory(trajectoryPoint, ecalPoints);
    if(ecalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate a track to ECAL\n";
@@ -285,6 +291,15 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
      iEvent.getByLabel (EBRecHitCollectionLabels[0], EBRecHitCollectionLabels[1], EBRecHits);
    if (!EBRecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EBRecHitCollection in event!\n";
 
+   timers.pop_and_push("TrackAssociator::fillEcal::access::EcalEndcaps");
+   edm::Handle<EERecHitCollection> EERecHits;
+   if (EERecHitCollectionLabels.empty())
+     // iEvent_->getByType (EERecHits);
+     throw cms::Exception("FatalError") << "Module lable is not set for EERecHitCollection.\n";
+   else
+     iEvent.getByLabel (EERecHitCollectionLabels[0], EERecHitCollectionLabels[1], EERecHits);
+   if (!EERecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EERecHitCollection in event!\n";
+
    timers.pop_and_push("TrackAssociator::fillEcal::matching");
    std::set<DetId> ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(ecalTrajectory[0],dR);
    // std::cout << "ecalIdsInRegion.size(): " << ecalIdsInRegion.size() << std::endl;
@@ -296,21 +311,27 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
    // add EcalRecHits
    timers.pop_and_push("TrackAssociator::fillEcal::addEcalRecHits");
    for(std::set<DetId>::const_iterator itr=crossedEcalIds.begin(); itr!=crossedEcalIds.end();itr++)
-     {
-	std::vector<EcalRecHit>::const_iterator hit = (*EBRecHits).find(*itr);
-	if(hit != (*EBRecHits).end()) 
-	  info.crossedEcalRecHits.push_back(*hit);
-	else  
-	   LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
-     }
+   {
+      std::vector<EcalRecHit>::const_iterator ebHit = (*EBRecHits).find(*itr);
+      std::vector<EcalRecHit>::const_iterator eeHit = (*EERecHits).find(*itr);
+      if(ebHit != (*EBRecHits).end()) 
+         info.crossedEcalRecHits.push_back(*ebHit);
+      else if(eeHit != (*EERecHits).end()) 
+         info.crossedEcalRecHits.push_back(*eeHit);
+      else  
+         LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+   }
    for(std::set<DetId>::const_iterator itr=ecalIdsInACone.begin(); itr!=ecalIdsInACone.end();itr++)
-     {
-	std::vector<EcalRecHit>::const_iterator hit = (*EBRecHits).find(*itr);
-	if(hit != (*EBRecHits).end()) 
-	  info.ecalRecHits.push_back(*hit);
-	else 
-	  LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
-     }
+   {
+      std::vector<EcalRecHit>::const_iterator ebHit = (*EBRecHits).find(*itr);
+      std::vector<EcalRecHit>::const_iterator eeHit = (*EERecHits).find(*itr);
+      if(ebHit != (*EBRecHits).end()) 
+         info.ecalRecHits.push_back(*ebHit);
+      else if(eeHit != (*EERecHits).end()) 
+         info.ecalRecHits.push_back(*eeHit);
+      else 
+         LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+   }
 }
 
 void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
