@@ -17,7 +17,7 @@ generic selector module SelectorProducer.
 \subsection modules Modules
 - cand::modules::CandCombiner: combine pairs of candidates. The collection names that
 have to be combined and their charge combination is specified by the user. 
-Particle charge is specified using the <tt>@</tt> character. Not specifying
+Particle charge is specified using the <tt>"@"</tt> character. Not specifying
 it is interpreted as particle with charge zero. A string
 can also specify the selection cut on the composite candidates 
 (see \ref PhysicsTools_Parser "Parser" package for more details).<br>
