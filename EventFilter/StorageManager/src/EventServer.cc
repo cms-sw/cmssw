@@ -79,7 +79,29 @@ EventServer::~EventServer()
  */
 void EventServer::addConsumer(boost::shared_ptr<ConsumerPipe> consumer)
 {
-  consumerList.push_back(consumer);
+  uint32 consumerId = consumer->getConsumerId();
+  consumerTable[consumerId] = consumer;
+}
+
+/**
+ * Returns a shared pointer to the consumer pipe with the specified ID
+ * or an empty pointer if the ID was not found.
+ */
+boost::shared_ptr<ConsumerPipe> EventServer::getConsumer(uint32 consumerId)
+{
+  // initial empty pointer
+  boost::shared_ptr<ConsumerPipe> consPtr;
+
+  // lookup the consumer
+  std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+  consIter = consumerTable.find(consumerId);
+  if (consIter != consumerTable.end())
+  {
+    consPtr = consIter->second;
+  }
+
+  // return the pointer
+  return consPtr;
 }
 
 /**
@@ -132,13 +154,13 @@ void EventServer::processEvent(const EventMsgView &eventView)
   // create a local copy of the event (if not already done) and pass it
   // to the consumer pipe.
   boost::shared_ptr< vector<char> > bufPtr;
-  std::vector< boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
-  for (consIter = consumerList.begin();
-       consIter != consumerList.end();
+  std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+  for (consIter = consumerTable.begin();
+       consIter != consumerTable.end();
        consIter++)
   {
     // test if the consumer is ready and wants the event
-    boost::shared_ptr<ConsumerPipe> consPipe = *consIter;
+    boost::shared_ptr<ConsumerPipe> consPipe = consIter->second;
     FDEBUG(5) << "Checking if consumer " << consPipe->getConsumerId() <<
       " wants event " << eventView.event() << std::endl;
     if (consPipe->isReadyForEvent() &&
@@ -182,67 +204,51 @@ void EventServer::processEvent(const EventMsgView &eventView)
     // reset counter
     disconnectedConsumerTestCounter_ = 0;
 
-#if 0
-// 24-Aug-2006, KAB - need to understand std::vector.erase better so we
-// can use it instead of the vector copy below
-
-    // loop over the list of consumers in reverse order so that when
-    // we remove an element from the list, it only affects the position
-    // of elements that we've already processed
-    std::vector< boost::shared_ptr<ConsumerPipe> >::reverse_iterator revIter;
-    for (revIter = consumerList.rbegin();
-         revIter != consumerList.rend();
-         revIter++)
+    // determine which consumers have disconnected
+    std::vector<uint32> disconnectList;
+    std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+    for (consIter = consumerTable.begin();
+         consIter != consumerTable.end();
+         consIter++)
     {
-      // test if the consumer has disconnected
-      boost::shared_ptr<ConsumerPipe> consPipe = *revIter;
+      boost::shared_ptr<ConsumerPipe> consPipe = consIter->second;
       FDEBUG(5) << "Checking if consumer " << consPipe->getConsumerId() <<
         " has disconnected " << std::endl;
       if (consPipe->isDisconnected())
       {
-        consumerList.erase(revIter);
+        disconnectList.push_back(consIter->first);
       }
     }
-#endif
 
-    std::vector< boost::shared_ptr<ConsumerPipe> > activeList;
-    std::vector< boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
-    for (consIter = consumerList.begin();
-         consIter != consumerList.end();
-         consIter++)
+    // remove disconnected consumers from the consumer table
+    std::vector<uint32>::const_iterator listIter;
+    for (listIter = disconnectList.begin();
+         listIter != disconnectList.end();
+         listIter++)
     {
-      boost::shared_ptr<ConsumerPipe> consPipe = *consIter;
-      FDEBUG(5) << "Checking if consumer " << consPipe->getConsumerId() <<
-        " has disconnected " << std::endl;
-      if (! (consPipe->isDisconnected()))
-      {
-        activeList.push_back(consPipe);
-      }
+      uint32 consumerId = *listIter;
+      consumerTable.erase(consumerId);
     }
-    consumerList = activeList;
   }
 }
 
 /**
  * Returns the next event for the specified consumer.
  */
-boost::shared_ptr< std::vector<char> >
-  EventServer::getEvent(uint32 consumerId)
+boost::shared_ptr< std::vector<char> > EventServer::getEvent(uint32 consumerId)
 {
-  // TODO - convert to a hashtable so that we can look up the consumer
-  // by its ID
+  // initial empty buffer
   boost::shared_ptr< vector<char> > bufPtr;
-  std::vector< boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
-  for (consIter = consumerList.begin();
-       consIter != consumerList.end();
-       consIter++)
+
+  // lookup the consumer
+  std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+  consIter = consumerTable.find(consumerId);
+  if (consIter != consumerTable.end())
   {
-    boost::shared_ptr<ConsumerPipe> consPipe = *consIter;
-    if (consPipe->getConsumerId() == consumerId)
-    {
-      bufPtr = consPipe->getEvent();
-      break;
-    }
+    boost::shared_ptr<ConsumerPipe> consPipe = consIter->second;
+    bufPtr = consPipe->getEvent();
   }
+
+  // return the event buffer
   return bufPtr;
 }
