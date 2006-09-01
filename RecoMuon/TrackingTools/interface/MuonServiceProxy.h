@@ -7,8 +7,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/08/31 07:52:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/09/01 15:46:24 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -48,7 +48,7 @@ public:
   edm::ESHandle<Propagator> propagator(std::string propagatorName) const;
 
   /// get the whole EventSetup
-  const edm::EventSetup &eventSetup() const {return theEventSetup;}
+  const edm::EventSetup &eventSetup() const {return *theEventSetup;}
 
 protected:
 
@@ -58,7 +58,7 @@ private:
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
   edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
-  const edm::EventSetup &theEventSetup;
+  const edm::EventSetup *theEventSetup;
 
   propagators thePropagators;
 

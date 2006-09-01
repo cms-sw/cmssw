@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/08/31 07:53:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/31 18:24:18 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -33,7 +33,7 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeometry(0),theMGField(0),theDetLayerGeometry(0){
+MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeometry(0),theMGField(0),theDetLayerGeometry(0),theEventSetup(0){
 
   // load the propagators map
   vector<string> noPropagators;
@@ -66,6 +66,8 @@ MuonServiceProxy::~MuonServiceProxy(){
 
 // update the services each event
 void MuonServiceProxy::update(const edm::EventSetup& setup){
+
+  theEventSetup = &setup;
 
     // Get the Tracking Geometry
   setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
