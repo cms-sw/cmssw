@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/08/22 17:22:59 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/09/01 21:16:13 $
+ *  $Revision: 1.11 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -97,7 +97,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   for ( vector<const DetLayer*>::const_iterator rnxtlayer = navLayerCBack.begin(); rnxtlayer!= navLayerCBack.end(); ++rnxtlayer) {
 
      vector<TrajectoryMeasurement> measL =
-        theLayerMeasurements->measurements(*rnxtlayer, lastTsos, *propagator(), *estimator());
+        theLayerMeasurements->measurements(*rnxtlayer, lastTsos, *propagator(), *(updator()->estimator()));
 edm::LogInfo("CosmicMuonTrajectoryBuilder")<<"measurements in DetLayer "<<measL.size();
 
      if (measL.size()==0 ) continue;

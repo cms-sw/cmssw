@@ -6,8 +6,8 @@
  *
  * Implementation:
  *
- * $Date: 2006/09/01 13:11:53 $
- * $Revision: 1.8 $
+ * $Date: 2006/09/01 16:17:12 $
+ * $Revision: 1.9 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -65,6 +65,7 @@ CosmicMuonProducer::CosmicMuonProducer(const edm::ParameterSet& iConfig)
 
 CosmicMuonProducer::~CosmicMuonProducer()
 {
+  if (theService) delete theService;
   if (theTrackFinder) delete theTrackFinder;
 }
 
