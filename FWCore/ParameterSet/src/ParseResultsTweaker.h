@@ -24,6 +24,11 @@ namespace edm {
 
       ParseResultsTweaker();
 
+      /// the names of all the modules we see
+      std::vector<std::string> modules() const;
+      /// all modules of a given type: service, es_source, looper, etc
+      std::vector<std::string> modulesOfType(const std::string & s) const;
+
       void process(ParseResults & parseResults);
 
     private:

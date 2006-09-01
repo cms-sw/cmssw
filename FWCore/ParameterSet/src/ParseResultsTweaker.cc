@@ -26,6 +26,35 @@ namespace edm {
     }
 
 
+    std::vector<std::string> ParseResultsTweaker::modules() const
+    {
+      std::vector<std::string> result;
+      result.reserve(modulesAndSources_.size());
+      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin();
+          moduleMapItr != modulesAndSources_.end(); ++moduleMapItr)
+      {
+        result.push_back(moduleMapItr->first);
+      }
+      return result;
+    }
+
+
+    std::vector<std::string> ParseResultsTweaker::modulesOfType(const std::string & s) const
+    {
+      std::vector<std::string> result;
+      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin();
+          moduleMapItr != modulesAndSources_.end(); ++moduleMapItr)
+      {
+        if(moduleMapItr->second->type() == s)
+        {
+          result.push_back(moduleMapItr->first);
+        }
+      }
+      return result;
+    }
+
+
+
     void ParseResultsTweaker::process(ParseResults & parseResults)
     {
       // find the node that represents the process
