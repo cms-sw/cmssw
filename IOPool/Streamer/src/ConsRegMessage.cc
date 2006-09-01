@@ -16,7 +16,8 @@ using namespace std;
  */
 ConsRegRequestBuilder::ConsRegRequestBuilder(void* buf, uint32 bufSize,
                                              string const& consumerName,
-                                             string const& consumerPriority):
+                                             string const& consumerPriority,
+                                             string const& requestParamSet):
   buf_((uint8*)buf),bufSize_(bufSize)
 {
   uint8* bufPtr;
@@ -43,6 +44,14 @@ ConsRegRequestBuilder::ConsRegRequestBuilder(void* buf, uint32 bufSize,
   convert(len, bufPtr);
   bufPtr += sizeof(uint32);
   consumerPriority.copy((char *) bufPtr, len);
+  bufPtr += len;
+
+  // copy the request parameter set into the message
+  len = requestParamSet.length();
+  assert(((uint32) (bufPtr + len + sizeof(uint32) - buf_)) <= bufSize_);
+  convert(len, bufPtr);
+  bufPtr += sizeof(uint32);
+  requestParamSet.copy((char *) bufPtr, len);
   bufPtr += len;
 
   // create the message header now that we now the full size
@@ -102,6 +111,24 @@ ConsRegRequestView::ConsRegRequestView(void* buf):
           consumerPriority_.append((char *) bufPtr, len);
         }
       bufPtr += len;
+    }
+
+  // determine the request parameter set (maintain backward compatibility
+  // with sources of registration requests that don't have the param set)
+  if (bufPtr < (buf_ + this->size()))
+    {
+      len = convert32(bufPtr);
+      bufPtr += sizeof(uint32);
+      if (len >= 0)
+        {
+          // what is a reasonable limit?  This is just to prevent
+          // a bogus, really large value from being used...
+          if (len <= 65000)
+            {
+              requestParameterSet_.append((char *) bufPtr, len);
+            }
+          bufPtr += len;
+        }
     }
 }
 
