@@ -31,12 +31,10 @@ class TrackAssociator  {
   ~TrackAssociator();
   
 /* Associate SimTracks to RecoTracks By Hits */
-  reco::RecoToSimCollection * AssociateByHitsRecoTrack(const edm::Handle<reco::TrackCollection> & trackCollection, 
-						 const edm::Handle<TrackingParticleCollection> & TPCollection,
-						 const float minFractionOfHits = 0.) const;
+  reco::RecoToSimCollection  AssociateByHitsRecoTrack(const float minFractionOfHits = 0.) const;
 
 /* Associate SimTracks to RecoTracks By Pulls */
-  reco::RecoToSimCollection * AssociateByPullsRecoTrack() const;
+  reco::RecoToSimCollection  AssociateByPullsRecoTrack() const;
 
  private:
   // ----- member data
@@ -44,11 +42,6 @@ class TrackAssociator  {
   const edm::ParameterSet& conf_;
   const float theMinHitFraction;    
   TrackerHitAssociator* associate;
-  edm::Handle<TrackingParticleCollection>  TruthTrackContainer;
-  const TrackingParticleCollection *tPC;
-  edm::Handle<reco::TrackCollection> trackCollection;
-  const reco::TrackCollection  *tC;
-  
 };
 
 #endif

@@ -28,10 +28,10 @@ TrackAssociator::TrackAssociator(const edm::Event& e, const edm::ParameterSet& c
 {
   //  std::cout << "\nEvent ID = "<< e.id() << std::endl ;
   
+  std::cout << "TrackAssociator Constructor " << std::endl;
+
   //prepare hit based association
-  std::cout << " TrackAssociator Constructor " << std::endl;
   associate = new TrackerHitAssociator::TrackerHitAssociator(e, conf);
-  std::cout << " prepared HitBased Associator " << std:endl;
 }
 
 
@@ -46,16 +46,28 @@ TrackAssociator::~TrackAssociator()
 //---member functions
 //
 
-RecoToSimCollection * TrackAssociator::AssociateByHitsRecoTrack(const edm::Handle<reco::TrackCollection> & trackCollection, 
-								const edm::Handle<TrackingParticleCollection> & TPCollection, 
-								const float minHitFraction) const 
+RecoToSimCollection  TrackAssociator::AssociateByHitsRecoTrack(const float minHitFraction) const 
 {    
+
+  
   std::vector<unsigned int> SimTrackIds;
   std::vector<unsigned int> matchedIds; 
-  RecoToSimCollection * outputCollection = new RecoToSimCollection();
+  RecoToSimCollection  outputCollection;
+  
+  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
+  myEvent_.getByType(TPCollectionH);
+  const TrackingParticleCollection tPC   = *(TPCollectionH.product());
+  std::cout << "Found " << tPC.size() << " TrackingParticles" << std::endl;
+
+  edm::Handle<reco::TrackCollection> trackCollectionH;
+  myEvent_.getByType(trackCollectionH);
+  const  reco::TrackCollection  tC = *(trackCollectionH.product()); 
+  std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
+
+
   //get the ID of the recotrack  by hits 
   int tindex=0;
-  for (reco::TrackCollection::const_iterator track=tC->begin(); track!=tC->end(); track++, tindex++)
+  for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++)
     {
       std::cout <<"\n Track # " << tindex << "\tNumber of RecHits "<<track->recHitsSize()<<std::endl;
       matchedIds.clear();
@@ -75,8 +87,6 @@ RecoToSimCollection * TrackAssociator::AssociateByHitsRecoTrack(const edm::Handl
 	    for(size_t j=0; j<SimTrackIds.size(); j++){
 	      int n =0;
 	      n = std::count(SimTrackIds.begin(), SimTrackIds.end(), SimTrackIds[j]);
-	      //    std::cout << " Rechit = " << ri << " matches = " << SimTrackIds.size() 
-	      //		<< " sim ID = " << SimTrackIds[j] << " Occurrence = " << n << std::endl; 
 	      if(n>nmax){
 		nmax = n;
 		idmax = SimTrackIds[j];
@@ -108,14 +118,14 @@ RecoToSimCollection * TrackAssociator::AssociateByHitsRecoTrack(const edm::Handl
       }
       //now loop over TPcollection and save the appropriate tracks
       int tpindex =0;
-      for (TrackingParticleCollection::const_iterator t = tPC -> begin(); t != tPC -> end(); ++t, ++tpindex) {
+      for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();
 	     g4T !=  t -> g4Track_end(); ++g4T) {
 	  if((*g4T)->trackId() == (tidmax-1)){
-	    std::cout << " found match " << std::endl;
+	    //	    std::cout << " found match " << std::endl;
 	    std::cout << "  G4  Track Momentum " << (*g4T)->momentum() << std::endl;   
 	    std::cout << "  reco Track Momentum " << track->momentum() << std::endl;   
-	    outputCollection->insert(reco::TrackRef(trackCollection,tindex), edm::Ref<TrackingParticleCollection>(TruthTrackContainer, tpindex));
+	    outputCollection.insert(reco::TrackRef(trackCollectionH,tindex), edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex));
 	  }
 	}
       }
