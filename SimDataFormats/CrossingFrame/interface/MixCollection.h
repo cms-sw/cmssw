@@ -13,6 +13,7 @@ private:
 
  public:
   typedef std::pair<int,int> range;
+  MixCollection();
   MixCollection(const CrossingFrame *cf, 
 		const std::string subdet="", const range bunchRange =range(-999,999));
   MixCollection(const CrossingFrame *cf, 
@@ -89,19 +90,23 @@ private:
 };
 
 
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 //
 // Exceptions
 //
 #include "FWCore/Utilities/interface/Exception.h"
+template <class T> 
+MixCollection<T>::MixCollection() : 
+  cf_(0),bunchRange_(0,0), nrDets_(0)
+{
+}
 
 
 template <class T> 
 MixCollection<T>::MixCollection(const CrossingFrame *cf, const std::string subdet, const std::pair<int,int> bunchRange) : 
   cf_(const_cast<CrossingFrame*>(cf))
 {
-
   init(bunchRange);
 
   //set necessary variables
@@ -119,16 +124,17 @@ MixCollection<T>::MixCollection(const CrossingFrame *cf, std::vector<std::string
   //set necessary variables
   nrDets_=subdets.size();
   
-  std::vector<std::vector<T> > *pils=0;
+  //  std::vector<std::vector<T> > *pils=0;
   for (int i=0;i<nrDets_;++i) {
     subdets_.push_back(subdets[i]);
-    cf_->getPileups(subdets_[i],pils);
+    //    cf_->getPileups(subdets_[i],pils);
   }
 }
 
 template <class T> 
 void MixCollection<T>::init( const std::pair<int,int> bunchRange) {
 
+  nrDets_=0;
   bunchRange_=bunchRange;
 
   //verify whether bunchrange is ok
@@ -168,7 +174,7 @@ template <class T>
 std::vector<T> * MixCollection<T>::getNewSignal(int signal) {
   // gets signal collection 
   // at the same time we verify that input is coherent
-  //  for (int i=iSignal_;i<nrDets_;i++) {
+
     if (signal>=nrDets_) return NULL;
 
     //verify whether detector is known
@@ -238,34 +244,30 @@ typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
       pMixItrEnd_=(p->end());
       return *this;  
     }
+    trigger_=false;
+    curBunchCrossing_=lastBunchCrossing_;
   }
 
   // pileup container changes
-  if(trigger_) {
-    trigger_=false;
-    pileupItr_=getNewPileups()->begin();
+  unsigned int coll_size=0;
+  while (coll_size==0) {
+    if (curBunchCrossing_==lastBunchCrossing_) {
+      std::vector<std::vector<T> > *p =this->getNewPileups();
+      if (!p) return pMixItrEnd_;
+      pileupItr_=p->begin();
+      curBunchCrossing_=mixCol_->bunchrange().first;
+    } else {
+      pileupItr_++;
+      curBunchCrossing_++;
+    }
     pMixItr_=(*pileupItr_).begin();
     pMixItrEnd_=(*pileupItr_).end();  // end of this container
-  } else {
-    unsigned int coll_size=0;
-    while (coll_size==0) {
-      if (curBunchCrossing_==lastBunchCrossing_) {
-	std::vector<std::vector<T> > *p =this->getNewPileups();
-	if (!p) return pMixItrEnd_;
-	pileupItr_=p->begin();
-	curBunchCrossing_=mixCol_->bunchrange().first;
-      } else {
-	pileupItr_++;
-	curBunchCrossing_++;
-      }
-      pMixItr_=(*pileupItr_).begin();
-      pMixItrEnd_=(*pileupItr_).end();  // end of this container
-      coll_size=(*pileupItr_).size();
-    }
+    coll_size=(*pileupItr_).size();
   }
 
   return *this;
 }
+
 template <class T>
 typename MixCollection<T>::MixItr MixCollection<T>::begin() {
   return MixItr(this,bunchRange_.first,bunchRange_.second)++;
