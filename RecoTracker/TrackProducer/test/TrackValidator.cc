@@ -31,7 +31,8 @@ class TrackValidator : public edm::EDAnalyzer {
       open(pset.getParameter<string>("open")),
       min(pset.getParameter<double>("min")),
       max(pset.getParameter<double>("max")),
-      nint(pset.getParameter<int>("nint"))
+      nint(pset.getParameter<int>("nint")),
+      partId(pset.getParameter<int>("partId"))
   {
     hFile = new TFile( out.c_str(), open.c_str() );
   }
@@ -135,7 +136,7 @@ class TrackValidator : public edm::EDAnalyzer {
 	h_ptSIM[w]->Fill(simTrack->momentum().perp());
 	h_etaSIM[w]->Fill(simTrack->momentum().pseudoRapidity());
 
-	if (simTrack->type()!=13) continue;
+	if (simTrack->type()!=partId) continue;
 	//compute number of tracks per eta interval
 	int i=0;
 	for (vector<double>::iterator h=etaintervals[w].begin(); h!=etaintervals[w].end()-1; h++){
@@ -184,7 +185,7 @@ class TrackValidator : public edm::EDAnalyzer {
 	double dzres=1000;
 	double kres=1000;
 	for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
-	  if (simTrack->type()!=13) continue;
+	  if (simTrack->type()!=partId) continue;
 	  double tmp=track->pt()-simTrack->momentum().perp();
 	  if (tC.size()>1) h_pt2[w]->Fill(tmp);
 	  if (abs(tmp)<abs(ptres)) {
@@ -194,7 +195,7 @@ class TrackValidator : public edm::EDAnalyzer {
 	    phi0res=(track->phi0()-simTrack->momentum().phi())/track->phi0Error();
 	    d0res=track->d0()/track->d0Error();
 	    dzres=track->dz()/track->dzError();
-	    kres=(track->transverseCurvature()-(2.99792458e-3 * 4./simTrack->momentum().perp()))/
+	    kres=(track->transverseCurvature()-(-track->charge()*2.99792458e-3 * 4./simTrack->momentum().perp()))/
 	      track->transverseCurvatureError();
 	  }
 	}
@@ -213,7 +214,7 @@ class TrackValidator : public edm::EDAnalyzer {
 	int i=0;
 	for (vector<TH1F*>::iterator h=ptdistrib[w].begin(); h!=ptdistrib[w].end(); h++){
 	  for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
-	    if (simTrack->type()!=13) continue;
+	    if (simTrack->type()!=partId) continue;
 	    ptres=1000;
 	    if (abs(simTrack->momentum().pseudoRapidity())>etaintervals[w][i]&&
 		abs(simTrack->momentum().pseudoRapidity())<etaintervals[w][i+1]) {
@@ -228,7 +229,7 @@ class TrackValidator : public edm::EDAnalyzer {
 	i=0;
 	for (vector<TH1F*>::iterator h=etadistrib[w].begin(); h!=etadistrib[w].end(); h++){
 	  for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
-	    if (simTrack->type()!=13) continue;
+	    if (simTrack->type()!=partId) continue;
 	    etares=1000; 
 	    ptres =1000;
 	    if (abs(simTrack->momentum().pseudoRapidity())>etaintervals[w][i]&&
@@ -318,9 +319,9 @@ class TrackValidator : public edm::EDAnalyzer {
 private:
   string sim;
   vector<string> label;
-  string out,open;
-  double  min,max;
-  int nint;
+  string out, open;
+  double  min, max;
+  int nint, partId;
 
   vector<TH1F*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
   vector<TH1F*> h_tracks, h_nchi2, h_hits, h_effic, h_ptrmsh, h_deltaeta, h_charge;
