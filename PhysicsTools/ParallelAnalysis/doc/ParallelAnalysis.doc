@@ -52,7 +52,7 @@ None.
    events.Process( selector );
 </pre>
 </ol>
-This will create on output tho histograms.
+This will create on output two histograms.
 \endhtmlonly
 
 \section status Status and planned development
