@@ -72,7 +72,8 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 
     if (accessMode_ == standard ) {
       
-      //return r-phi RecHits for single modules and matched RecHits for double modules
+      //single modules: return r-phi RecHits
+      //double modules: return matched RecHits + r-phi RecHits that are not used by matched RecHits
 
       if( !StripDetId.glued() ) {
 	DetId useDetId(StripDetId.rawId());
@@ -86,11 +87,36 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
       if( StripDetId.glued() ) {
 	DetId useDetId(StripDetId.glued());
 	SiStripMatchedRecHit2DCollection::range matchedDetHits = matchedHits_->get(useDetId);
-	
+
+	//temporary vectors to store rphi & stereo RecHits that are associated with matched RecHits
+	std::vector<TrackingRecHit*> matched_rphi;
+	std::vector<TrackingRecHit*> matched_stereo;
+
 	for ( SiStripMatchedRecHit2DCollection::const_iterator matchedDetHit = matchedDetHits.first;
 	      matchedDetHit != matchedDetHits.second; ++matchedDetHit ) {
 	  RecHitVec.push_back((TrackingRecHit*)(&(*matchedDetHit)));
+	  matched_rphi.push_back((TrackingRecHit*)matchedDetHit->monoHit());
+	  matched_stereo.push_back((TrackingRecHit*)matchedDetHit->stereoHit());
 	}
+	
+	//check for additional r-phi RecHits (not used by matched RecHits)
+	DetId rphiDetId(StripDetId.glued()+2);
+	SiStripRecHit2DCollection::range rphiDetHits = rphiHits_->get(rphiDetId);
+	for ( SiStripRecHit2DCollection::const_iterator rphiDetHit = rphiDetHits.first;
+	      rphiDetHit != rphiDetHits.second; ++rphiDetHit ) {
+	  std::vector<TrackingRecHit*>::const_iterator result = find(matched_rphi.begin(),matched_rphi.end(),(TrackingRecHit*)(&(*rphiDetHit)));
+	  if( result==matched_rphi.end() ) {RecHitVec.push_back((TrackingRecHit*)(&(*rphiDetHit)));}
+	}
+
+	//check for additional stereo RecHits (not used by matched RecHits)
+	DetId stereoDetId(StripDetId.glued()+1);
+	SiStripRecHit2DCollection::range stereoDetHits = stereoHits_->get(stereoDetId);
+	for ( SiStripRecHit2DCollection::const_iterator stereoDetHit = stereoDetHits.first;
+	      stereoDetHit != stereoDetHits.second; ++stereoDetHit ) {
+	  std::vector<TrackingRecHit*>::const_iterator result = find(matched_stereo.begin(),matched_stereo.end(),(TrackingRecHit*)(&(*stereoDetHit)));
+	  if( result==matched_stereo.end() ) {RecHitVec.push_back((TrackingRecHit*)(&(*stereoDetHit)));}
+	}
+
       } 
 
     }
