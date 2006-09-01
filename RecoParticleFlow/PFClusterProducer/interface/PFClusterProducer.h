@@ -17,9 +17,11 @@
 
 
 /**\class PFClusterProducer 
-\brief Producer for particle flow rechits (PFRecHit) and clusters (PFCluster). 
+\brief Producer for particle flow rechits (PFRecHit) 
+and clusters (PFCluster). 
 
-This producer makes use of PFClusterAlgo, the clustering algorithm for particle flow clusters.
+This producer makes use of PFClusterAlgo, the clustering algorithm 
+for particle flow clusters.
 
 \author Colin Bernet
 \date   July 2006
@@ -42,16 +44,13 @@ class PFClusterProducer : public edm::EDProducer {
  private:
 
   /// find and set the neighbours to a given rechit
-  void findRecHitNeighbours( reco::PFRecHit* rh, 
-			     const std::map<unsigned,  reco::PFRecHit* >& rechits, 
-			     const CaloSubdetectorTopology& barrelTopology,
-			     const CaloSubdetectorGeometry& barrelGeometry, 
-			     const CaloSubdetectorTopology& endcapTopology,
-			     const CaloSubdetectorGeometry& endcapGeometry );
- 
-/* 			     const CaloSubdetectorTopology& hcalTopology, */
-/* 			     const CaloSubdetectorGeometry& hcalBarrelGeometry, */
-/* 			     const CaloSubdetectorGeometry& hcalEndcapGeometry ); */
+  void 
+    findRecHitNeighbours( reco::PFRecHit* rh, 
+			  const std::map<unsigned,reco::PFRecHit* >& hits, 
+			  const CaloSubdetectorTopology& barrelTopo,
+			  const CaloSubdetectorGeometry& barrelGeom, 
+			  const CaloSubdetectorTopology& endcapTopo,
+			  const CaloSubdetectorGeometry& endcapGeom );
   
   reco::PFRecHit*  createHcalRecHit( const DetId& detid, 
 				     double energy,
