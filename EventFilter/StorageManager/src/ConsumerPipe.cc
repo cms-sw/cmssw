@@ -27,8 +27,10 @@ boost::mutex ConsumerPipe::rootIdLock_;
  * ConsumerPipe constructor.
  */
 ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
-                           int activeTimeout, int idleTimeout):
-  consumerName_(name),consumerPriority_(priority)
+                           int activeTimeout, int idleTimeout,
+                           boost::shared_ptr<edm::ParameterSet> parameterSet):
+  consumerName_(name),consumerPriority_(priority),
+  requestParamSet_(parameterSet)
 {
   // initialize the time values we use for defining "states"
   timeToIdleState_ = activeTimeout;
@@ -56,6 +58,30 @@ ConsumerPipe::~ConsumerPipe()
 uint32 ConsumerPipe::getConsumerId() const
 {
   return consumerId_;
+}
+
+/**
+ * Initializes the event selection for this consumer based on the
+ * list of available triggers stored in the specified InitMsgView
+ * and the request ParameterSet that was specified in the constructor.
+ */
+void ConsumerPipe::initializeSelection(InitMsgView const& initView)
+{
+  FDEBUG(5) << "Initializing consumer pipe, ID = " <<
+    consumerId_ << std::endl;
+
+  // TODO: fetch the list of trigger names from the init message
+  std::vector<std::string> triggerNameList;
+  triggerNameList.push_back("kab1");
+  triggerNameList.push_back("kab2");
+  triggerNameList.push_back("kab3");
+
+  // fake the process name (not yet available from the init message?)
+  std::string processName = "HLT";
+
+  // create our event selector
+  eventSelector_.reset(new EventSelector(*requestParamSet_, processName,
+                                         triggerNameList));
 }
 
 /**
@@ -92,16 +118,17 @@ bool ConsumerPipe::isReadyForEvent() const
 /**
  * Tests if the consumer wants the specified event.
  */
-bool ConsumerPipe::wantsEvent(const EventMsgView &eventView) const
+bool ConsumerPipe::wantsEvent(EventMsgView const& eventView) const
 {
   // for now, take every event
+  // TODO - start using eventSelector_
   return true;
 }
 
 /**
  * Adds the specified event to this consumer pipe.
  */
-void ConsumerPipe::putEvent(boost::shared_ptr< vector<char> > bufPtr)
+void ConsumerPipe::putEvent(boost::shared_ptr< std::vector<char> > bufPtr)
 {
   // update the local pointer to the most recent event
   boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
@@ -113,7 +140,7 @@ void ConsumerPipe::putEvent(boost::shared_ptr< vector<char> > bufPtr)
  * If there are no events in the pipe, an empty shared_ptr will be returned
  * (ptr.get() == NULL).
  */
-boost::shared_ptr< vector<char> > ConsumerPipe::getEvent()
+boost::shared_ptr< std::vector<char> > ConsumerPipe::getEvent()
 {
   // 25-Aug-2005, KAB: clear out any stale event(s)
   if (isIdle() || isDisconnected())
@@ -122,7 +149,7 @@ boost::shared_ptr< vector<char> > ConsumerPipe::getEvent()
   }
 
   // fetch the most recent event
-  boost::shared_ptr< vector<char> > bufPtr;
+  boost::shared_ptr< std::vector<char> > bufPtr;
   {
     boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
     //bufPtr_ = latestEvent_;
