@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.9 2006/07/18 16:17:32 namapane Exp $
+ * \version $Id: TrackExtra.h,v 1.10 2006/08/30 19:08:06 todorov Exp $
  *
  */
 #include <Rtypes.h>
@@ -21,6 +21,10 @@
 namespace reco {
   class TrackExtra : public TrackExtraBase {
   public:
+    /// parameter dimension
+    enum { dimension = 5 };
+    /// error matrix size
+    enum { covarianceSize = dimension * ( dimension + 1 ) / 2 };
     /// point in the space
     typedef math::XYZPoint Point;
     /// spatial vector
@@ -33,8 +37,6 @@ namespace reco {
     /// default constructor
     TrackExtra() { }
     /// constructor from outermost position and momentum
-    TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok,
-		const CovarianceMatrix& outerState, unsigned int outerId);
     TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok ,
 		const Point & innerPosition, const Vector & innerMomentum, bool iok,
 		const CovarianceMatrix& outerState, unsigned int outerId,
@@ -77,14 +79,17 @@ namespace reco {
     double outerRadius() const { return outerPosition().Rho(); }
 
     /// outermost trajectory state curvilinear errors
-    CovarianceMatrix outerStateCovariance() const { return covariance( outerCovariance_);}
+    CovarianceMatrix outerStateCovariance() const;
     /// innermost trajectory state curvilinear errors
-    CovarianceMatrix innerStateCovariance() const { return covariance( innerCovariance_);}
-
+    CovarianceMatrix innerStateCovariance() const;
+    /// fill outermost trajectory state curvilinear errors
+    CovarianceMatrix & fillOuter( CovarianceMatrix & v ) const;
+    /// fill outermost trajectory state curvilinear errors
+    CovarianceMatrix & fillInner( CovarianceMatrix & v ) const;
     /// DetId of the detector on which surface the outermost state is located
-    unsigned int outerDetId() const {return  outerDetId_;}
+    unsigned int outerDetId() const { return outerDetId_; }
     /// DetId of the detector on which surface the innermost state is located
-    unsigned int innerDetId() const {return  innerDetId_;}
+    unsigned int innerDetId() const { return innerDetId_; }
 
   private:
     /// outermost point
@@ -94,7 +99,7 @@ namespace reco {
     /// outermost point validity flag
     bool outerOk_;
     /// outermost trajectory state curvilinear errors 
-    Double32_t outerCovariance_[15];
+    Double32_t outerCovariance_[ covarianceSize ];
     unsigned int outerDetId_;
 
 
@@ -105,12 +110,8 @@ namespace reco {
     /// innermost point validity flag
     bool innerOk_;
     /// innermost trajectory state 
-    Double32_t innerCovariance_[15];
+    Double32_t innerCovariance_[ covarianceSize ];
     unsigned int innerDetId_;
-    
-
-    CovarianceMatrix covariance( const Double32_t * data) const;
-
   };
 
 }
