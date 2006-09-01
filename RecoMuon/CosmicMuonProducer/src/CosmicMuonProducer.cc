@@ -6,8 +6,8 @@
  *
  * Implementation:
  *
- * $Date: 2006/07/06 09:19:03 $
- * $Revision: 1.7 $
+ * $Date: 2006/09/01 13:11:53 $
+ * $Revision: 1.8 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -42,7 +42,7 @@ CosmicMuonProducer::CosmicMuonProducer(const edm::ParameterSet& iConfig)
 {
 
   edm::ParameterSet tbpar = iConfig.getParameter<edm::ParameterSet>("TrajectoryBuilderParameters");
-  theSeedCollectionLabel = iConfig.getParameter<std::string>("MuonSeedCollectionLabel");
+  theSeedCollectionLabel = iConfig.getUntrackedParameter<std::string>("MuonSeedCollectionLabel");
 
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -53,14 +53,12 @@ CosmicMuonProducer::CosmicMuonProducer(const edm::ParameterSet& iConfig)
   // the propagator name for the track loader
   std::string trackLoaderPropagatorName = iConfig.getParameter<std::string>("TrackLoaderPropagatorName");
   
-  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar),
+  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar,theService),
 				       new MuonTrackLoader(trackLoaderPropagatorName,theService));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
-
-  edm::LogInfo("CosmicMuonProducer")<<"CosmicMuonProducer begin";
 
 }
 
@@ -77,13 +75,11 @@ CosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::LogInfo("CosmicMuonProducer") << "Analyzing event number: " << iEvent.id();
 
-
   edm::Handle<TrajectorySeedCollection> seeds; 
   iEvent.getByLabel(theSeedCollectionLabel,seeds);
 
   // Update the services
   theService->update(iSetup);
-
   theTrackFinder->reconstruct(seeds,iEvent);
 
 }
