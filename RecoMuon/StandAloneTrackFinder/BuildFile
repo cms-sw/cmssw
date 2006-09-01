@@ -10,14 +10,4 @@
 
 <export>
    <lib name=RecoMuonStandAloneTrackFinder>
-
-   <use name=RecoMuon/TrackingTools>
-   <use name=RecoMuon/DetLayers>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-
-   <use name=RecoMuon/MeasurementDet>
-
-   <use name=TrackingTools/KalmanUpdators>
-
 </export>
