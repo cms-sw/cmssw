@@ -11,7 +11,7 @@
 Framework generic utility modules
 
 \subsection selectors Selector modules
-- ObjectSelector<b><S></b>: generic object selection module. <br>
+- ObjectSelector<b>&lt;S&gt;</b>: generic object selection module. <br>
   The <a name="sel_algo"><b>Selection Algorithm</b></a> <tt>S</tt> should
   define the following interface:
 \htmlonly
@@ -87,6 +87,7 @@ Framework generic utility modules
             >
           > MassWindowTrackSelector;
 </pre>
+\endhtmlonly
 
 \subsection other Other utility modules
 - Merger: merges an arbitrary number of collections into a single collection. 
@@ -94,15 +95,6 @@ No overlap is checked, so if the same object appears in more than one collection
 it is saved more than once in the output collection.
 - ObjectCounter: counts the number of objects in a collection and prints a
 summary report at the end of a job.
-
-\subsection modules Modules
-None.
-
-\subsection tests Unit tests and examples
-None.
-
-\section status Status and planned development
-To be reviewed.
 
 <hr>
 Last updated: @DATE@ L. Lista
