@@ -25,6 +25,14 @@ public:
 	PixelTrackCleaner();
 
 	vector<TrackHitsPair> cleanTracks(vector<TrackHitsPair> trackHitPairs);
+  void cleanTrack();
+  bool RecHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2);
+
+private:
+
+  vector<bool> trackOk;
+  reco::Track *track1, *track2;
+  int iTrack1, iTrack2;
 
 };
 
