@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/07 10:23:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/31 12:10:11 $
+ *  $Revision: 1.4 $
  *  \author M. Giunta
  */
 
@@ -38,6 +38,11 @@ using namespace dttmaxenums;
 
 
 DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
+  // the root file which will contain the histos
+  string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
+  theFile = new TFile(rootFileName.c_str(), "RECREATE");
+  theFile->cd();
+
   hChi2 = new TH1F("hChi2","Chi squared tracks",100,0,100);
   h2DSegmRPhi = new h2DSegm("SLRPhi");
   h2DSegmRZ = new h2DSegm("SLRZ");
@@ -53,10 +58,6 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
   // the name of the 4D rec hits collection
   theRecHits4DLabel = pset.getUntrackedParameter<string>("recHits4DLabel");
 
-  // the root file which will contain the histos
-  string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
-  theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  theFile->cd();
   
   // the txt file which will contain the calibrated constants
   theVDriftOutputFile = pset.getUntrackedParameter<string>("vDriftFileName");
