@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: 2006/08/29 22:11:21 $
- *  $Revision: 1.4 $ 
+ *  $Date: 2006/09/01 15:47:05 $
+ *  $Revision: 1.1 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -88,9 +88,6 @@ vector<Trajectory> MuonTrackConverter::convert(const reco::Track& t) const {
   TrajectoryStateOnSurface firstState = theTT.innermostMeasurementState();
   if ( hits.front()->geographicalId().det() == DetId::Tracker ) {
 
-    // RB: before the MuonServiceProxy migration propagator() returned the "propagator1", which was the
-    // alongMomentum smart pointer. Now should be OK as well, but check it!
-
     firstState = theRefitter->propagator()->propagate(theTT.impactPointState(), hits.front()->det()->surface());
   }
   else {
@@ -107,7 +104,6 @@ vector<Trajectory> MuonTrackConverter::convert(const reco::Track& t) const {
                                    &*theService->magneticField());
   
   theTSOS = firstState;
-// theTSOS.rescaleError(3.);
 
   if ( hits.front()->geographicalId().det() == DetId::Tracker ) {
     theTSOS = TrajectoryStateWithArbitraryError()(firstState);
