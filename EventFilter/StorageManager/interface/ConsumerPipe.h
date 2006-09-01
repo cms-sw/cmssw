@@ -28,7 +28,10 @@
 
 #include <string>
 #include "IOPool/Streamer/interface/MsgTools.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
+#include "FWCore/Framework/interface/EventSelector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
 
@@ -38,22 +41,29 @@ namespace stor
   {
   public:
     ConsumerPipe(std::string name, std::string priority,
-                 int activeTimeout, int idleTimeout);
+                 int activeTimeout, int idleTimeout,
+                 boost::shared_ptr<edm::ParameterSet> parameterSet);
+
     ~ConsumerPipe();
 
     uint32 getConsumerId() const;
+    void initializeSelection(InitMsgView const& initView);
     bool isIdle() const;
     bool isDisconnected() const;
     bool isReadyForEvent() const;
-    bool wantsEvent(const EventMsgView &eventView) const;
-    void putEvent(boost::shared_ptr< vector<char> > bufPtr);
-    boost::shared_ptr< vector<char> > getEvent();
+    bool wantsEvent(EventMsgView const& eventView) const;
+    void putEvent(boost::shared_ptr< std::vector<char> > bufPtr);
+    boost::shared_ptr< std::vector<char> > getEvent();
 
   private:
     // characteristics of the consumer
     uint32 consumerId_;
     std::string consumerName_;
     std::string consumerPriority_;
+    boost::shared_ptr<edm::ParameterSet> requestParamSet_;
+
+    // event selector that does the work of accepting/rejecting events
+    boost::shared_ptr<edm::EventSelector> eventSelector_;
 
     // data members for tracking active and idle states
     int timeToIdleState_;          // seconds
@@ -61,7 +71,7 @@ namespace stor
     time_t lastEventRequestTime_;
 
     // for consumers with normal priority, we keep only the most recent event
-    boost::shared_ptr< vector<char> > latestEvent_;
+    boost::shared_ptr< std::vector<char> > latestEvent_;
 
     // lock for controlling access to the most recent event
     boost::mutex latestEventLock_;
