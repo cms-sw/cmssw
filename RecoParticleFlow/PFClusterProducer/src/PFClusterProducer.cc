@@ -35,34 +35,14 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-//
-// constants, enums and typedefs
-//
 
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 
 using namespace std;
 
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 {
-  //register your products
-  // produces<reco::PFClusterCollection>();
-  produces< reco::PFRecHitCollection >();
   
-  /* Examples
-     produces<ExampleData2>();
 
-     //if do put with a label
-     produces<ExampleData2>("label");
-  */
-  //now do what ever other initialization is needed
 
   processEcal_ = 
     iConfig.getUntrackedParameter<bool>("process_Ecal",true);
@@ -156,28 +136,34 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     iConfig.getUntrackedParameter<string>("hcalRecHitsHBHEProductInstanceName",
 					  "");
 
+  produceRecHits_ = 
+    iConfig.getUntrackedParameter<bool>("produceRecHits", false );
+    
+//   produceClusters_ = 
+//     iConfig.getUntrackedParameter<bool>("produceClusters", true );
+    
+
+  //register products
+  if(produceRecHits_) produces<reco::PFRecHitCollection>();
+  produces<reco::PFClusterCollection>();
+
 }
 
 
-PFClusterProducer::~PFClusterProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  
-  
-}
+PFClusterProducer::~PFClusterProducer() {}
 
 
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void PFClusterProducer::produce(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup) {
 
   using namespace edm;
   
-  auto_ptr< vector<reco::PFRecHit> > result(new vector<reco::PFRecHit> ); 
+  // for output  
+  auto_ptr< vector<reco::PFRecHit> > 
+    allRecHits( new vector<reco::PFRecHit> ); 
+  
+  auto_ptr< vector<reco::PFCluster> > 
+    allClusters( new vector<reco::PFCluster> ); 
   
 
   if( processEcal_ ) {
@@ -246,9 +232,11 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	}
       
     
-	reco::PFRecHit *rh = new reco::PFRecHit( detid.rawId(), PFLayer::ECAL_BARREL, energy, 
-						 position.x(), position.y(), position.z(), 
-						 axis.x(), axis.y(), axis.z() );
+	reco::PFRecHit *rh 
+	  = new reco::PFRecHit( detid.rawId(), PFLayer::ECAL_BARREL, 
+				energy, 
+				position.x(), position.y(), position.z(), 
+				axis.x(), axis.y(), axis.z() );
       
 	ecalrechits.insert( make_pair(detid.rawId(), rh) ); 
       }      
@@ -266,7 +254,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 			ecalRecHitsEEProductInstanceName_,
 			rhcHandle);
       if (!(rhcHandle.isValid())) {
-	LogError("PFClusterProducer")<<"could not get a handle on EcalRecHitsEE!"<<endl;
+	LogError("PFClusterProducer")
+	  <<"could not get a handle on EcalRecHitsEE!"<<endl;
 	return;
       }
     
@@ -278,7 +267,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	if(energy < threshEcalEndcap_ ) continue;
       
 	const DetId& detid = (*rhcHandle)[i].detid();
-	const CaloCellGeometry *thisCell = endcapGeometry->getGeometry(detid);
+	const CaloCellGeometry *thisCell 
+	  = endcapGeometry->getGeometry(detid);
       
 	if(!thisCell) {
 	  LogError("PFClusterProducer")
@@ -299,9 +289,11 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	}
       
       
-	reco::PFRecHit *rh = new reco::PFRecHit( detid.rawId(),  PFLayer::ECAL_ENDCAP, energy, 
-						 position.x(), position.y(), position.z(), 
-						 axis.x(), axis.y(), axis.z() );
+	reco::PFRecHit *rh 
+	  = new reco::PFRecHit( detid.rawId(),  PFLayer::ECAL_ENDCAP, 
+				energy, 
+				position.x(), position.y(), position.z(), 
+				axis.x(), axis.y(), axis.z() );
       
 	ecalrechits.insert( make_pair(detid.rawId(), rh) ); 
       }
@@ -314,7 +306,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
 
     // find rechits neighbours
-    for( PFClusterAlgo::IDH ih = ecalrechits.begin(); ih != ecalrechits.end(); ih++) {
+    for( PFClusterAlgo::IDH ih = ecalrechits.begin(); 
+	 ih != ecalrechits.end(); ih++) {
       findRecHitNeighbours( ih->second, ecalrechits, 
 			    ecalBarrelTopology, 
 			    *ecalBarrelGeometry, 
@@ -333,15 +326,24 @@ void PFClusterProducer::produce(edm::Event& iEvent,
     clusteralgo.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
     
     clusteralgo.init( ecalrechits ); 
-    clusteralgo.allClusters();
+    clusteralgo.doClustering();
     
-    const map<unsigned, reco::PFRecHit* >& algohits = clusteralgo.getIdRecHits();
-    for(PFClusterAlgo::IDH ih=algohits.begin(); ih!=algohits.end(); ih++) {
-      result->push_back( reco::PFRecHit( *(ih->second) ) );    
-    }
+    // if requested, get rechits passing the threshold from algo, 
+    // and pass them to the event.
+    if(produceRecHits_) {
 
+      const map<unsigned, reco::PFRecHit* >& 
+	algohits = clusteralgo.idRecHits();
+      
+      for(PFClusterAlgo::IDH ih=algohits.begin(); 
+	  ih!=algohits.end(); ih++) {
+	allRecHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+      }
+    }
+    
     // clear all 
-    for( PFClusterAlgo::IDH ih = ecalrechits.begin(); ih != ecalrechits.end(); ih++) {  
+    for( PFClusterAlgo::IDH ih = ecalrechits.begin(); 
+	 ih != ecalrechits.end(); ih++) {  
       delete ih->second;
     }
   }
@@ -416,7 +418,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  }
 	}
   
-	for( PFClusterAlgo::IDH ih = hcalrechits.begin(); ih != hcalrechits.end(); ih++) {
+	for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
+	     ih != hcalrechits.end(); ih++) {
 	  findRecHitNeighbours( ih->second, hcalrechits, 
 				hcalTopology, 
 				*hcalBarrelGeometry, 
@@ -433,21 +436,30 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	clusteralgo.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
     
 	clusteralgo.init( hcalrechits ); 
-	clusteralgo.allClusters();
+	clusteralgo.doClustering();
 
-	const map<unsigned, reco::PFRecHit* >& algohits = clusteralgo.getIdRecHits();
-	for(PFClusterAlgo::IDH ih=algohits.begin(); ih!=algohits.end(); ih++) {
-	  result->push_back( reco::PFRecHit( *(ih->second) ) );    
+	// if requested, get rechits passing the threshold from algo, 
+	// and pass them to the event.
+	if(produceRecHits_) {
+	  const map<unsigned, reco::PFRecHit* >& 
+	    algohits = clusteralgo.idRecHits();
+	  
+	  for(PFClusterAlgo::IDH ih=algohits.begin(); 
+	      ih!=algohits.end(); ih++) {
+	    allRecHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+	  }
 	}
 
 	// clear all 
-	for( PFClusterAlgo::IDH ih = hcalrechits.begin(); ih != hcalrechits.end(); ih++) {
+	for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
+	     ih != hcalrechits.end(); ih++) {
 	
 	  delete ih->second;
 	}
       }      
     } catch (...) {
-      LogError("PFClusterProducer")<<"could not get handles on HBHERecHits!"<< endl;
+      LogError("PFClusterProducer")
+	<<"could not get handles on HBHERecHits!"<< endl;
     }
   } // process HCAL
 
@@ -482,8 +494,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 			ecalRecHitsESProductInstanceName_,
 			pRecHits);
       if (!(pRecHits.isValid())) {
-	LogError("PFClusterProducer")<<"could not get a handle on preshower rechits!" 
-				     <<endl;
+	LogError("PFClusterProducer")
+	  <<"could not get a handle on preshower rechits!"<<endl;
 	return;
       }
 
@@ -556,25 +568,27 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 			      *psGeometry);
       }
 
-      // cout<<"perform clustering"<<endl;
       PFClusterAlgo clusteralgo; 
     
       clusteralgo.setThreshPS( threshPS_ );
       clusteralgo.setThreshSeedPS( threshSeedPS_ );
        
       clusteralgo.init( psrechits ); 
-      clusteralgo.allClusters();
+      clusteralgo.doClustering();
     
-//       cout<<"store ps rechits"<<endl;
-      const map<unsigned, reco::PFRecHit* >& algohits = 
-	clusteralgo.getIdRecHits();
-
-      for(PFClusterAlgo::IDH ih=algohits.begin(); ih!=algohits.end(); ih++) {
-	result->push_back( reco::PFRecHit( *(ih->second) ) );    
+      // if requested, get rechits passing the threshold from algo, 
+      // and pass them to the event.
+      if(produceRecHits_) {
+	const map<unsigned, reco::PFRecHit* >& algohits = 
+	  clusteralgo.idRecHits();
+	
+	for(PFClusterAlgo::IDH ih=algohits.begin(); 
+	    ih!=algohits.end(); ih++) {
+	  allRecHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+	}
       }
 
       // clear all 
-      // cout<<"clearing"<<endl;
       for( PFClusterAlgo::IDH ih = psrechits.begin(); 
 	   ih != psrechits.end(); ih++) {  
 	delete ih->second;
@@ -590,35 +604,19 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   }
   
   
-  iEvent.put( result );
- 
-
-  /* This is an event example
-  //Read 'ExampleData' from the Event
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example",pIn);
-
-  //Use the ExampleData to create an ExampleData2 which 
-  // is put into the Event
-  auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-  iEvent.put(pOut);
-  */
-
-  /* this is an EventSetup example
-  //Read SetupData from the SetupRecord in the EventSetup
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-  */
+  if( produceRecHits_) iEvent.put( allRecHits );
+  iEvent.put( allClusters );
 }
 
 void 
-PFClusterProducer::findRecHitNeighbours( reco::PFRecHit* rh, 
-					 const map<unsigned,  
-					 reco::PFRecHit* >& rechits, 
-					 const CaloSubdetectorTopology& barrelTopology, 
-					 const CaloSubdetectorGeometry& barrelGeometry, 
-					 const CaloSubdetectorTopology& endcapTopology, 
-					 const CaloSubdetectorGeometry& endcapGeometry ) {
+PFClusterProducer::findRecHitNeighbours
+( reco::PFRecHit* rh, 
+  const map<unsigned,  
+  reco::PFRecHit* >& rechits, 
+  const CaloSubdetectorTopology& barrelTopology, 
+  const CaloSubdetectorGeometry& barrelGeometry, 
+  const CaloSubdetectorTopology& endcapTopology, 
+  const CaloSubdetectorGeometry& endcapGeometry ) {
   
   
 
@@ -655,18 +653,21 @@ PFClusterProducer::findRecHitNeighbours( reco::PFRecHit* rh,
   case PFLayer::HCAL_ENDCAP:
     navigator = new CaloNavigator<DetId>(detid, &endcapTopology);
     geometry = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
-    othergeometry = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
+    othergeometry 
+      = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
     break;
   case PFLayer::HCAL_BARREL1:
     navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
     geometry = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
-    othergeometry = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
+    othergeometry 
+      = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
     break;
   case PFLayer::PS1:
   case PFLayer::PS2:
     navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
     geometry = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
-    othergeometry = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
+    othergeometry 
+      = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
     break;
   default:
     assert(0);
@@ -706,9 +707,10 @@ PFClusterProducer::findRecHitNeighbours( reco::PFRecHit* rh,
 	
 	rh->setNECorner( cposx, cposy, cposz );
       }
-      else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
-			 <<"geometry not found for detid "<<northeast.rawId()
-			 <<" NE corner not set"<<endl;
+      else if(debug) 
+	cerr<<cpos.Eta()<<" "<<cpos.Phi()
+	    <<"geometry not found for detid "<<northeast.rawId()
+	    <<" NE corner not set"<<endl;
     }
     else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
 			 <<"invalid detid NE corner not set"<<endl;
@@ -752,9 +754,10 @@ PFClusterProducer::findRecHitNeighbours( reco::PFRecHit* rh,
 	
 	rh->setSWCorner( cposx, cposy, cposz );
       }
-      else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
-			 <<"geometry not found for detid "<<southwest.rawId()
-			 <<" SW corner not set"<<endl;
+      else if(debug) 
+	cerr<<cpos.Eta()<<" "<<cpos.Phi()
+	    <<"geometry not found for detid "<<southwest.rawId()
+	    <<" SW corner not set"<<endl;
     }
     else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
 			 <<"invalid detid SW corner not set"<<endl;

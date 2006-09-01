@@ -355,9 +355,9 @@ void PFRootEventManager::clustering() {
   clusteralgo.setThreshSeedPS( threshSeedPS_ );
 
   clusteralgo.init( rechits ); 
-  clusteralgo.allClusters();
+  clusteralgo.doClustering();
 
-  clusters_ = clusteralgo.getClusters();
+  clusters_ = clusteralgo.clusters();
 }
 
 

@@ -103,6 +103,10 @@ class PFClusterProducer : public edm::EDProducer {
   double threshSeedHcalEndcap_;
 
 
+  /// produce rechits yes/no 
+  bool   produceRecHits_;
+  
+
   // ----------access to event data
   std::string ecalRecHitsEBModuleLabel_;
   std::string ecalRecHitsEBProductInstanceName_;
