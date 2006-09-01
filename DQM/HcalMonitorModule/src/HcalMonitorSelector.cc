@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorSelector.cc
  * 
- * $Date: 2006/08/16 15:29:57 $
- * $Revision: 1.4 $
+ * $Date: 2006/08/21 20:03:49 $
+ * $Revision: 1.5 $
  * \author W Fisher
  *
 */
@@ -40,11 +40,13 @@ void HcalMonitorSelector::processEvent(const edm::Event& e){
   m_runNum = trigger.runNumber();
 
   // check trigger contents
-  if (trigger.wasBeamTrigger()) m_eventMask = m_eventMask|HCAL_BEAM_TRIGGER;
+  if (trigger.wasBeamTrigger())             m_eventMask = m_eventMask|HCAL_BEAM_TRIGGER;
   if (trigger.wasOutSpillPedestalTrigger()) m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON;
-  if (trigger.wasInSpillPedestalTrigger()) m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON;
-  if (trigger.wasLEDTrigger()) m_eventMask = m_eventMask|DO_HCAL_LED_CALIBMON;
-  if (trigger.wasLaserTrigger()) m_eventMask = m_eventMask|DO_HCAL_LASER_CALIBMON;
+  if (trigger.wasInSpillPedestalTrigger())  m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON;
+  if (trigger.wasLEDTrigger())              m_eventMask = m_eventMask|DO_HCAL_LED_CALIBMON;
+  if (trigger.wasLaserTrigger())            m_eventMask = m_eventMask|DO_HCAL_LASER_CALIBMON;
+
+  if(m_eventMask&DO_HCAL_PED_CALIBMON) m_eventMask = m_eventMask^DO_HCAL_RECHITMON;
 
   return;
 }

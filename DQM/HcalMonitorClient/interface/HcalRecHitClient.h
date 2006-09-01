@@ -15,6 +15,7 @@
 
 #include "TROOT.h"
 #include "TStyle.h"
+#include "TFile.h"
 
 #include <memory>
 #include <iostream>
@@ -32,6 +33,7 @@ public:
 
 /// Constructor
 HcalRecHitClient(const ParameterSet& ps, MonitorUserInterface* mui);
+HcalRecHitClient();
 
 /// Destructor
 virtual ~HcalRecHitClient();
@@ -65,6 +67,7 @@ void setup(void);
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
   void getHistograms();
+  void loadHistograms(TFile* f);
 
   void report();
   void errorOutput();

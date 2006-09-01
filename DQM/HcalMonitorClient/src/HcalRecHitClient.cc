@@ -33,6 +33,26 @@ HcalRecHitClient::HcalRecHitClient(const ParameterSet& ps, MonitorUserInterface*
 
 }
 
+HcalRecHitClient::HcalRecHitClient(){
+
+  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
+  dqmQtests_.clear();
+
+  mui_ = 0;
+  for(int i=0; i<3; i++){
+    occ[i]=0;
+    energy[i]=0;
+    energyT[i]=0;
+    time[i]=0;
+  }
+  tot_occ=0;
+  tot_energy=0;
+
+  // verbosity switch
+  verbose_ = false;
+
+}
+
 HcalRecHitClient::~HcalRecHitClient(){
 
   this->cleanup();
@@ -112,29 +132,34 @@ void HcalRecHitClient::cleanup(void) {
 void HcalRecHitClient::subscribe(void){
 
   if ( verbose_ ) cout << "HcalRecHitClient: subscribe" << endl;
-  mui_->subscribe("*/HcalMonitor/RecHitMonitor/*");
-  mui_->subscribe("*/HcalMonitor/RecHitMonitor/HBHE/*");
-  mui_->subscribe("*/HcalMonitor/RecHitMonitor/HF/*");
-  mui_->subscribe("*/HcalMonitor/RecHitMonitor/HO/*");
-
+  if(mui_){
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/*");
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/HBHE/*");
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/HF/*");
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/HO/*");
+  }
   return;
 }
 
 void HcalRecHitClient::subscribeNew(void){
-  mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/*");
-  mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HBHE/*");
-  mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HF/*");
-  mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HO/*");
+  if(mui_){
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/*");
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HBHE/*");
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HF/*");
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HO/*");
+  }
   return;
 }
 
 void HcalRecHitClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "HcalRecHitClient: unsubscribe" << endl;
-  mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/*");
-  mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HBHE/*");
-  mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HF/*");
-  mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HO/*");
+  if(mui_){
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/*");
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HBHE/*");
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HF/*");
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HO/*");
+  }
   return;
 }
 
@@ -309,7 +334,7 @@ void HcalRecHitClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal RecHits</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
   htmlFile << "<hr>" << endl;
   htmlFile << "<table border=1><tr>" << endl;
@@ -422,5 +447,41 @@ void HcalRecHitClient::createTests(){
     }
   }
   
+  return;
+}
+
+void HcalRecHitClient::loadHistograms(TFile* infile){
+
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/RecHitMonitor/RecHit Event Number");
+  string s =tnd->GetTitle();
+  ievt_ = -1;
+  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+
+  char name[150];    
+  for(int i=0; i<3; i++){
+    string type = "HBHE";
+    if(i==1) type = "HO"; 
+    if(i==2) type = "HF"; 
+    
+    sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
+    energy[i] = (TH1F*)infile->Get(name);
+    
+    sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Total Energy",type.c_str(),type.c_str());      
+    energyT[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
+    time[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",type.c_str(),type.c_str());
+    occ[i] = (TH2F*)infile->Get(name);
+    
+  }
+
+  sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/RecHit Geo Occupancy Map");
+  tot_occ = (TH2F*)infile->Get(name);
+  
+  sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/RecHit Total Energy");   
+  tot_energy = (TH1F*)infile->Get(name);
+
   return;
 }

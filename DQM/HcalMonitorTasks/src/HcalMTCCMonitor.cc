@@ -46,84 +46,84 @@ void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     meEVT_->Fill(ievt_);
  
     m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HB");
-    hbP.DT = m_dbe->book1D("HB Top DT Trigger Time","HB Top DT Trigger Time",100,0,500);
-    hbP.CSC = m_dbe->book1D("HB Top CSC Trigger Time","HB Top CSC Trigger Time",100,0,500);
-    hbP.RBC1 = m_dbe->book1D("HB Top RBC1 Trigger Time","HB Top RBC1 Trigger Time",100,0,500);
-    hbP.RBC2 = m_dbe->book1D("HB Top RBC2 Trigger Time","HB Top RBC2 Trigger Time",100,0,500);
-    hbP.RBCTB = m_dbe->book1D("HB Top RBCTB Trigger Time","HB Top RBCTB Trigger Time",100,0,500);
-    hbP.NA = m_dbe->book1D("HB Top NA Trigger Time","HB Top NA Trigger Time",100,0,500);
+    hbP.DT = m_dbe->book1D("HB Top DT Trigger Time","HB Top DT Trigger Time",150,-150,150);
+    hbP.CSC = m_dbe->book1D("HB Top CSC Trigger Time","HB Top CSC Trigger Time",150,-150,150);
+    hbP.RBC1 = m_dbe->book1D("HB Top RBC1 Trigger Time","HB Top RBC1 Trigger Time",150,-150,150);
+    hbP.RBC2 = m_dbe->book1D("HB Top RBC2 Trigger Time","HB Top RBC2 Trigger Time",150,-150,150);
+    hbP.RBCTB = m_dbe->book1D("HB Top RBCTB Trigger Time","HB Top RBCTB Trigger Time",150,-150,150);
+    hbP.NA = m_dbe->book1D("HB Top NA Trigger Time","HB Top NA Trigger Time",150,-150,150);
     hbP.E = m_dbe->book1D("HB Top Hit Energy","HB Top Hit Energy",100,0,50);
     hbP.Etot = m_dbe->book1D("HB Top Total Energy","HB Top Total Energy",100,0,100);
     hbP.OCC = m_dbe->book2D("HB Top Geo Occupancy Map","HB Top Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
-    hbM.DT = m_dbe->book1D("HB Bottom DT Trigger Time","HB Bottom DT Trigger Time",100,0,500);
-    hbM.CSC = m_dbe->book1D("HB Bottom CSC Trigger Time","HB Bottom CSC Trigger Time",100,0,500);
-    hbM.RBC1 = m_dbe->book1D("HB Bottom RBC1 Trigger Time","HB Bottom RBC1 Trigger Time",100,0,500);
-    hbM.RBC2 = m_dbe->book1D("HB Bottom RBC2 Trigger Time","HB Bottom RBC2 Trigger Time",100,0,500);
-    hbM.RBCTB = m_dbe->book1D("HB Bottom RBCTB Trigger Time","HB Bottom RBCTB Trigger Time",100,0,500);
-    hbM.NA = m_dbe->book1D("HB Bottom NA Trigger Time","HB Bottom NA Trigger Time",100,0,500);
+    hbM.DT = m_dbe->book1D("HB Bottom DT Trigger Time","HB Bottom DT Trigger Time",150,-150,150);
+    hbM.CSC = m_dbe->book1D("HB Bottom CSC Trigger Time","HB Bottom CSC Trigger Time",150,-150,150);
+    hbM.RBC1 = m_dbe->book1D("HB Bottom RBC1 Trigger Time","HB Bottom RBC1 Trigger Time",150,-150,150);
+    hbM.RBC2 = m_dbe->book1D("HB Bottom RBC2 Trigger Time","HB Bottom RBC2 Trigger Time",150,-150,150);
+    hbM.RBCTB = m_dbe->book1D("HB Bottom RBCTB Trigger Time","HB Bottom RBCTB Trigger Time",150,-150,150);
+    hbM.NA = m_dbe->book1D("HB Bottom NA Trigger Time","HB Bottom NA Trigger Time",150,-150,150);
     hbM.E = m_dbe->book1D("HB Bottom Hit Energy","HB Bottom Hit Energy",100,0,50);
     hbM.Etot = m_dbe->book1D("HB Bottom Total Energy","HB Bottom Total Energy",100,0,100);
     hbM.OCC = m_dbe->book2D("HB Bottom Geo Occupancy Map","HB Bottom Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
     m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HE");
-    heP.DT = m_dbe->book1D("HE Top DT Trigger Time","HE Top DT Trigger Time",100,0,500);
-    heP.CSC = m_dbe->book1D("HE Top CSC Trigger Time","HE Top CSC Trigger Time",100,0,500);
-    heP.RBC1 = m_dbe->book1D("HE Top RBC1 Trigger Time","HE Top RBC1 Trigger Time",100,0,500);
-    heP.RBC2 = m_dbe->book1D("HE Top RBC2 Trigger Time","HE Top RBC2 Trigger Time",100,0,500);
-    heP.RBCTB = m_dbe->book1D("HE Top RBCTB Trigger Time","HE Top RBCTB Trigger Time",100,0,500);
-    heP.NA = m_dbe->book1D("HE Top NA Trigger Time","HE Top NA Trigger Time",100,0,500);
+    heP.DT = m_dbe->book1D("HE Top DT Trigger Time","HE Top DT Trigger Time",150,-150,150);
+    heP.CSC = m_dbe->book1D("HE Top CSC Trigger Time","HE Top CSC Trigger Time",150,-150,150);
+    heP.RBC1 = m_dbe->book1D("HE Top RBC1 Trigger Time","HE Top RBC1 Trigger Time",150,-150,150);
+    heP.RBC2 = m_dbe->book1D("HE Top RBC2 Trigger Time","HE Top RBC2 Trigger Time",150,-150,150);
+    heP.RBCTB = m_dbe->book1D("HE Top RBCTB Trigger Time","HE Top RBCTB Trigger Time",150,-150,150);
+    heP.NA = m_dbe->book1D("HE Top NA Trigger Time","HE Top NA Trigger Time",150,-150,150);
     heP.E = m_dbe->book1D("HE Top Hit Energy","HE Top Hit Energy",100,0,50);
     heP.Etot = m_dbe->book1D("HE Top Total Energy","HE Top Total Energy",100,0,100);
     heP.OCC = m_dbe->book2D("HE Top Geo Occupancy Map","HE Top Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
-    heM.DT = m_dbe->book1D("HE Bottom DT Trigger Time","HE Bottom DT Trigger Time",100,0,500);
-    heM.CSC = m_dbe->book1D("HE Bottom CSC Trigger Time","HE Bottom CSC Trigger Time",100,0,500);
-    heM.RBC1 = m_dbe->book1D("HE Bottom RBC1 Trigger Time","HE Bottom RBC1 Trigger Time",100,0,500);
-    heM.RBC2 = m_dbe->book1D("HE Bottom RBC2 Trigger Time","HE Bottom RBC2 Trigger Time",100,0,500);
-    heM.RBCTB = m_dbe->book1D("HE Bottom RBCTB Trigger Time","HE Bottom RBCTB Trigger Time",100,0,500);
-    heM.NA = m_dbe->book1D("HE Bottom NA Trigger Time","HE Bottom NA Trigger Time",100,0,500);
+    heM.DT = m_dbe->book1D("HE Bottom DT Trigger Time","HE Bottom DT Trigger Time",150,-150,150);
+    heM.CSC = m_dbe->book1D("HE Bottom CSC Trigger Time","HE Bottom CSC Trigger Time",150,-150,150);
+    heM.RBC1 = m_dbe->book1D("HE Bottom RBC1 Trigger Time","HE Bottom RBC1 Trigger Time",150,-150,150);
+    heM.RBC2 = m_dbe->book1D("HE Bottom RBC2 Trigger Time","HE Bottom RBC2 Trigger Time",150,-150,150);
+    heM.RBCTB = m_dbe->book1D("HE Bottom RBCTB Trigger Time","HE Bottom RBCTB Trigger Time",150,-150,150);
+    heM.NA = m_dbe->book1D("HE Bottom NA Trigger Time","HE Bottom NA Trigger Time",150,-150,150);
     heM.E = m_dbe->book1D("HE Bottom Hit Energy","HE Bottom Hit Energy",100,0,50);
     heM.Etot = m_dbe->book1D("HE Bottom Total Energy","HE Bottom Total Energy",100,0,100);
     heM.OCC = m_dbe->book2D("HE Bottom Geo Occupancy Map","HE Bottom Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
     m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HO");
-    hoP1.DT = m_dbe->book1D("HO YB2 Top DT Trigger Time","HO YB2 Top DT Trigger Time",100,0,500);
-    hoP1.CSC = m_dbe->book1D("HO YB2 Top CSC Trigger Time","HO YB2 Top CSC Trigger Time",100,0,500);
-    hoP1.RBC1 = m_dbe->book1D("HO YB2 Top RBC1 Trigger Time","HO YB2 Top RBC1 Trigger Time",100,0,500);
-    hoP1.RBC2 = m_dbe->book1D("HO YB2 Top RBC2 Trigger Time","HO YB2 Top RBC2 Trigger Time",100,0,500);
-    hoP1.RBCTB = m_dbe->book1D("HO YB2 Top RBCTB Trigger Time","HO YB2 Top RBCTB Trigger Time",100,0,500);
-    hoP1.NA = m_dbe->book1D("HO YB2 Top NA Trigger Time","HO YB2 Top NA Trigger Time",100,0,500);
+    hoP1.DT = m_dbe->book1D("HO YB2 Top DT Trigger Time","HO YB2 Top DT Trigger Time",150,-150,150);
+    hoP1.CSC = m_dbe->book1D("HO YB2 Top CSC Trigger Time","HO YB2 Top CSC Trigger Time",150,-150,150);
+    hoP1.RBC1 = m_dbe->book1D("HO YB2 Top RBC1 Trigger Time","HO YB2 Top RBC1 Trigger Time",150,-150,150);
+    hoP1.RBC2 = m_dbe->book1D("HO YB2 Top RBC2 Trigger Time","HO YB2 Top RBC2 Trigger Time",150,-150,150);
+    hoP1.RBCTB = m_dbe->book1D("HO YB2 Top RBCTB Trigger Time","HO YB2 Top RBCTB Trigger Time",150,-150,150);
+    hoP1.NA = m_dbe->book1D("HO YB2 Top NA Trigger Time","HO YB2 Top NA Trigger Time",150,-150,150);
     hoP1.E = m_dbe->book1D("HO YB2 Top Hit Energy","HO YB2 Top Hit Energy",100,0,50);
     hoP1.Etot = m_dbe->book1D("HO YB2 Top Total Energy","HO YB2 Top Total Energy",100,0,100);
     hoP1.OCC = m_dbe->book2D("HO YB2 Top Geo Occupancy Map","HO YB2 Top Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
-    hoM1.DT = m_dbe->book1D("HO YB2 Bottom DT Trigger Time","HO YB2 Bottom DT Trigger Time",100,0,500);
-    hoM1.CSC = m_dbe->book1D("HO YB2 Bottom CSC Trigger Time","HO YB2 Bottom CSC Trigger Time",100,0,500);
-    hoM1.RBC1 = m_dbe->book1D("HO YB2 Bottom RBC1 Trigger Time","HO YB2 Bottom RBC1 Trigger Time",100,0,500);
-    hoM1.RBC2 = m_dbe->book1D("HO YB2 Bottom RBC2 Trigger Time","HO YB2 Bottom RBC2 Trigger Time",100,0,500);
-    hoM1.RBCTB = m_dbe->book1D("HO YB2 Bottom RBCTB Trigger Time","HO YB2 Bottom RBCTB Trigger Time",100,0,500);
-    hoM1.NA = m_dbe->book1D("HO YB2 Bottom NA Trigger Time","HO YB2 Bottom NA Trigger Time",100,0,500);
+    hoM1.DT = m_dbe->book1D("HO YB2 Bottom DT Trigger Time","HO YB2 Bottom DT Trigger Time",150,-150,150);
+    hoM1.CSC = m_dbe->book1D("HO YB2 Bottom CSC Trigger Time","HO YB2 Bottom CSC Trigger Time",150,-150,150);
+    hoM1.RBC1 = m_dbe->book1D("HO YB2 Bottom RBC1 Trigger Time","HO YB2 Bottom RBC1 Trigger Time",150,-150,150);
+    hoM1.RBC2 = m_dbe->book1D("HO YB2 Bottom RBC2 Trigger Time","HO YB2 Bottom RBC2 Trigger Time",150,-150,150);
+    hoM1.RBCTB = m_dbe->book1D("HO YB2 Bottom RBCTB Trigger Time","HO YB2 Bottom RBCTB Trigger Time",150,-150,150);
+    hoM1.NA = m_dbe->book1D("HO YB2 Bottom NA Trigger Time","HO YB2 Bottom NA Trigger Time",150,-150,150);
     hoM1.E = m_dbe->book1D("HO YB2 Bottom Hit Energy","HO YB2 Bottom Hit Energy",100,0,50);
     hoM1.Etot = m_dbe->book1D("HO YB2 Bottom Total Energy","HO YB2 Bottom Total Energy",100,0,100);
     hoM1.OCC = m_dbe->book2D("HO YB2 Bottom Geo Occupancy Map","HO YB2 Bottom Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
-    hoP2.DT = m_dbe->book1D("HO YB1/0 Top DT Trigger Time","HO YB1/0 Top DT Trigger Time",100,0,500);
-    hoP2.CSC = m_dbe->book1D("HO YB1/0 Top CSC Trigger Time","HO YB1/0 Top CSC Trigger Time",100,0,500);
-    hoP2.RBC1 = m_dbe->book1D("HO YB1/0 Top RBC1 Trigger Time","HO YB1/0 Top RBC1 Trigger Time",100,0,500);
-    hoP2.RBC2 = m_dbe->book1D("HO YB1/0 Top RBC2 Trigger Time","HO YB1/0 Top RBC2 Trigger Time",100,0,500);
-    hoP2.RBCTB = m_dbe->book1D("HO YB1/0 Top RBCTB Trigger Time","HO YB1/0 Top RBCTB Trigger Time",100,0,500);
-    hoP2.NA = m_dbe->book1D("HO YB1/0 Top NA Trigger Time","HO YB1/0 Top NA Trigger Time",100,0,500);
+    hoP2.DT = m_dbe->book1D("HO YB1/0 Top DT Trigger Time","HO YB1/0 Top DT Trigger Time",150,-150,150);
+    hoP2.CSC = m_dbe->book1D("HO YB1/0 Top CSC Trigger Time","HO YB1/0 Top CSC Trigger Time",150,-150,150);
+    hoP2.RBC1 = m_dbe->book1D("HO YB1/0 Top RBC1 Trigger Time","HO YB1/0 Top RBC1 Trigger Time",150,-150,150);
+    hoP2.RBC2 = m_dbe->book1D("HO YB1/0 Top RBC2 Trigger Time","HO YB1/0 Top RBC2 Trigger Time",150,-150,150);
+    hoP2.RBCTB = m_dbe->book1D("HO YB1/0 Top RBCTB Trigger Time","HO YB1/0 Top RBCTB Trigger Time",150,-150,150);
+    hoP2.NA = m_dbe->book1D("HO YB1/0 Top NA Trigger Time","HO YB1/0 Top NA Trigger Time",150,-150,150);
     hoP2.E = m_dbe->book1D("HO YB1/0 Top Hit Energy","HO YB1/0 Top Hit Energy",100,0,50);
     hoP2.Etot = m_dbe->book1D("HO YB1/0 Top Total Energy","HO YB1/0 Top Total Energy",100,0,100);
     hoP2.OCC = m_dbe->book2D("HO YB1/0 Top Geo Occupancy Map","HO YB1/0 Top Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
-    hoM2.DT = m_dbe->book1D("HO YB1/0 Bottom DT Trigger Time","HO YB1/0 Bottom DT Trigger Time",100,0,500);
-    hoM2.CSC = m_dbe->book1D("HO YB1/0 Bottom CSC Trigger Time","HO YB1/0 Bottom CSC Trigger Time",100,0,500);
-    hoM2.RBC1 = m_dbe->book1D("HO YB1/0 Bottom RBC1 Trigger Time","HO YB1/0 Bottom RBC1 Trigger Time",100,0,500);
-    hoM2.RBC2 = m_dbe->book1D("HO YB1/0 Bottom RBC2 Trigger Time","HO YB1/0 Bottom RBC2 Trigger Time",100,0,500);
-    hoM2.RBCTB = m_dbe->book1D("HO YB1/0 Bottom RBCTB Trigger Time","HO YB1/0 Bottom RBCTB Trigger Time",100,0,500);
-    hoM2.NA = m_dbe->book1D("HO YB1/0 Bottom NA Trigger Time","HO YB1/0 Bottom NA Trigger Time",100,0,500);
+    hoM2.DT = m_dbe->book1D("HO YB1/0 Bottom DT Trigger Time","HO YB1/0 Bottom DT Trigger Time",150,-150,150);
+    hoM2.CSC = m_dbe->book1D("HO YB1/0 Bottom CSC Trigger Time","HO YB1/0 Bottom CSC Trigger Time",150,-150,150);
+    hoM2.RBC1 = m_dbe->book1D("HO YB1/0 Bottom RBC1 Trigger Time","HO YB1/0 Bottom RBC1 Trigger Time",150,-150,150);
+    hoM2.RBC2 = m_dbe->book1D("HO YB1/0 Bottom RBC2 Trigger Time","HO YB1/0 Bottom RBC2 Trigger Time",150,-150,150);
+    hoM2.RBCTB = m_dbe->book1D("HO YB1/0 Bottom RBCTB Trigger Time","HO YB1/0 Bottom RBCTB Trigger Time",150,-150,150);
+    hoM2.NA = m_dbe->book1D("HO YB1/0 Bottom NA Trigger Time","HO YB1/0 Bottom NA Trigger Time",150,-150,150);
     hoM2.E = m_dbe->book1D("HO YB1/0 Bottom Hit Energy","HO YB1/0 Bottom Hit Energy",100,0,50);
     hoM2.Etot = m_dbe->book1D("HO YB1/0 Bottom Total Energy","HO YB1/0 Bottom Total Energy",100,0,100);
     hoM2.OCC = m_dbe->book2D("HO YB1/0 Bottom Geo Occupancy Map","HO YB1/0 Bottom Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -143,19 +143,19 @@ void HcalMTCCMonitor::processEvent(const HBHERecHitCollection& hbHits, const HOR
 
   if(ltc.size()<1) return;
   
-  LTCDigi trig; 
-  LTCDigiCollection::const_iterator digiItr = ltc.begin();
-  trig = *digiItr;
-  
-  for(int t = 0; t<6; t++){
-    if(trig.HasTriggered(t)) meTrig_->Fill(t);
-  }
-  
-  HBHERecHitCollection::const_iterator _ib;
-  HORecHitCollection::const_iterator _io;
-  
-  float hoP1tot=0, hoM1tot=0, hoP2tot=0,hoM2tot=0;
   if ( m_dbe !=NULL ) {
+    LTCDigi trig; 
+    LTCDigiCollection::const_iterator digiItr = ltc.begin();
+    trig = *digiItr;
+    
+    for(int t = 0; t<6; t++){
+      if(trig.HasTriggered(t)) meTrig_->Fill(t);
+    }
+    
+    HBHERecHitCollection::const_iterator _ib;
+    HORecHitCollection::const_iterator _io;
+    
+    float hoP1tot=0, hoM1tot=0, hoP2tot=0,hoM2tot=0;
     if(hbHits.size()>0){      
       float hbPtot=0, hbMtot=0, hePtot=0,heMtot=0;
       for (_ib=hbHits.begin(); _ib!=hbHits.end(); _ib++) { // loop over all hits   	

@@ -23,12 +23,10 @@
 #include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalPedestalClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
-
 #include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
 
 #include "TROOT.h"
 #include "TTree.h"
-#include "TFile.h"
 #include "TGaxis.h"
 
 #include <memory>
@@ -44,8 +42,8 @@ class HcalMonitorClient: public EDAnalyzer{
   
 public:
   
-  
   /// Constructor
+  HcalMonitorClient();
   HcalMonitorClient(const ParameterSet& ps);
   HcalMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui);
   
@@ -59,7 +57,8 @@ public:
   
   // Initialize
   void initialize(const ParameterSet& ps);
-  
+  void offlineSetup();
+
   /// Analyze
   void analyze(const Event& evt, const EventSetup& es);
   
@@ -90,6 +89,8 @@ public:
   /// Create tests
   void createTests(void);
 
+  void loadHistograms(TFile* infile);
+
   
 private:
   
@@ -102,6 +103,8 @@ private:
 
   bool collateSources_;
   bool cloneME_;
+  bool offline_;
+
   MonitorUserInterface* mui_;
   string clientName_;
   string hostName_;

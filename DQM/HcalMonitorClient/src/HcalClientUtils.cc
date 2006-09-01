@@ -1,64 +1,79 @@
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include <sys/time.h>
 
-string getPNG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab, bool save){
+string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab, bool save){
+  //  timeval a,b;
+  //  gettimeofday(&a,NULL);
 
   if(hist==NULL) {
-    printf("getPNG2:  This histo is NULL, %s, %s\n",xlab,ylab);
+    printf("getIMG2:  This histo is NULL, %s, %s\n",xlab,ylab);
     return "";
   }
   
-  string meName = hist->GetTitle();
-  int xwid = 1250; int ywid =750;
+  string title = hist->GetTitle();
+  int xwid = 900; int ywid =540;
   if(size==1){
-    meName = meName+"_tmb";
-    xwid = 625; ywid = 375;
+    title = title+"_tmb";
+    xwid = 600; ywid = 360;
   }
-  TCanvas* can = new TCanvas(meName.c_str(), "tmp can2", xwid, ywid);
+  TCanvas* can = new TCanvas(title.c_str(), "tmp can2", xwid, ywid);
 
-  for ( unsigned int i = 0; i < meName.size(); i++ ) {
-    if ( meName.substr(i, 1) == " " )  {
-      meName.replace(i, 1, "_");
+  for ( unsigned int i = 0; i < title.size(); i++ ) {
+    if ( title.substr(i, 1) == " " )  {
+      title.replace(i, 1, "_");
     }
-    if ( meName.substr(i, 1) == "#" )  {
-      meName.replace(i, 1, "N");
+    if ( title.substr(i, 1) == "#" )  {
+      title.replace(i, 1, "N");
     }
   }
 
-  string outName = meName + ".png";
+  string outName = title + ".png";
   if(!save) return outName;
 
   string saveName = htmlDir + outName;
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
+  hist->SetDrawOption("box");
   hist->Draw();
   can->SaveAs(saveName.c_str());  
+  delete can;
+  /*
+  gettimeofday(&b,NULL);
+  double t1=a.tv_sec+(a.tv_usec/1000000.0);
+  double t2=b.tv_sec+(b.tv_usec/1000000.0);
+  printf("\ngetIMG2:  %s\n",title.c_str());
+  printf("getIMG2:  %.6f seconds elapsed\n", t2-t1);
+  */
   return outName;
 }
 
-string getPNG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab, bool save){
+string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab, bool save){
+  //  timeval a,b;
+  //  gettimeofday(&a,NULL);
+
   if(hist==NULL) {
-    printf("getPNG:  This histo is NULL, %s, %s\n",xlab,ylab);
+    printf("getIMG:  This histo is NULL, %s, %s\n",xlab,ylab);
     return "";
   }
 
-  string meName = hist->GetTitle();
-  int xwid = 1250; int ywid =750;
+  string title = hist->GetTitle();
+  int xwid = 900; int ywid =540;
   if(size==1){
-    meName = meName+"_tmb";
-    xwid = 625; ywid = 375;
+    title = title+"_tmb";
+    xwid = 600; ywid = 360;
   }
-  TCanvas* can = new TCanvas(meName.c_str(), "tmp can", xwid, ywid);
+  TCanvas* can = new TCanvas(title.c_str(), "tmp can", xwid, ywid);
   
-  for ( unsigned int i = 0; i < meName.size(); i++ ) {
-    if ( meName.substr(i, 1) == " " )  {
-      meName.replace(i, 1, "_");
+  for ( unsigned int i = 0; i < title.size(); i++ ) {
+    if ( title.substr(i, 1) == " " )  {
+      title.replace(i, 1, "_");
     }
-    if ( meName.substr(i, 1) == "#" )  {
-      meName.replace(i, 1, "N");
+    if ( title.substr(i, 1) == "#" )  {
+      title.replace(i, 1, "N");
     }
   }
   
-  string outName = meName + ".png";
+  string outName = title + ".png";
   if(!save) return outName;
   
   string saveName = htmlDir + outName;
@@ -67,13 +82,18 @@ string getPNG(TH1F* hist, int size, string htmlDir, const char* xlab, const char
   hist->Draw();
   can->SaveAs(saveName.c_str());  
   delete can;
-  
+  /*
+  gettimeofday(&b,NULL);
+  double t1=a.tv_sec+(a.tv_usec/1000000.0);
+  double t2=b.tv_sec+(b.tv_usec/1000000.0);
+  printf("\ngetIMG:  %s\n",title.c_str());
+  printf("getIMG:  %.6f seconds elapsed\n", t2-t1);
+  */
   return outName;
 }
 
 TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone, TH2F* out){
 
-  //  TH2F* out = NULL;
   char title[150];  
   sprintf(title, "Collector/%s/HcalMonitor/%s",process.c_str(),name.c_str());
 
@@ -96,37 +116,9 @@ TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool ve
   }
   return out;
 }
-/*
-template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0 ) {
-    if( me ) {
-      // cout << "Found '" << me->getName() <<"'"; 
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
-      if( ob ) { 
-        if( clone ) {
-          if( ret ) {
-            delete ret;
-          }
-          std::string s = "ME " + me->getName();
-          ret = dynamic_cast<T>((ob->operator->())->Clone(s.c_str())); 
-          if( ret ) {
-            ret->SetDirectory(0);
-          }
-        } else {
-          ret = dynamic_cast<T>(ob->operator->()); 
-        }
-      } else {
-	ret = 0;
-      }
-    } else {
-      if( !clone ) {
-        ret = 0;
-      }
-    }
-    return ret;
-  }
-*/
+
 TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool verb, bool clone, TH1F* out){
-  //  TH1F* out = NULL;
+
   char title[150];  
   sprintf(title, "Collector/%s/HcalMonitor/%s",process.c_str(),name.c_str());
 
@@ -190,12 +182,11 @@ TH1F* getHisto(const MonitorElement* me, bool verb,bool clone, TH1F* out){
 
 
 void histoHTML(TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir){
-  if(hist!=NULL){
-
+  if(hist!=NULL){    
     string imgNameTMB = "";   
-    imgNameTMB = getPNG(hist,1,htmlDir,xlab,ylab); 
+    imgNameTMB = getIMG(hist,1,htmlDir,xlab,ylab); 
     string imgName = "";   
-    imgName = getPNG(hist,2,htmlDir,xlab,ylab);  
+    imgName = getIMG(hist,2,htmlDir,xlab,ylab);  
     if (imgName.size() != 0 )
       htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
     else
@@ -207,11 +198,10 @@ void histoHTML(TH1F* hist, const char* xlab, const char* ylab, int width, ofstre
 
 void histoHTML2(TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir){
   if(hist!=NULL){
-
     string imgNameTMB = "";
-    imgNameTMB = getPNG2(hist,1,htmlDir,xlab,ylab);  
+    imgNameTMB = getIMG2(hist,1,htmlDir,xlab,ylab);  
     string imgName = "";
-    imgName = getPNG2(hist,2,htmlDir,xlab,ylab);  
+    imgName = getIMG2(hist,2,htmlDir,xlab,ylab);  
     if (imgName.size() != 0 )
       htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
     else
@@ -360,12 +350,12 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), mui);
-      string save = getPNG(obj1f,1,htmlDir,"X1a","Y1a");
+      string save = getIMG(obj1f,1,htmlDir,"X1a","Y1a");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
       TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
-      string save = getPNG2(obj2f,1,htmlDir,"X2a","Y2a");
+      string save = getIMG2(obj2f,1,htmlDir,"X2a","Y2a");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     errorFile << "<br>" << endl;
@@ -403,12 +393,12 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), mui);
-      string save = getPNG(obj1f,1,htmlDir,"X1b","Y1b");
+      string save = getIMG(obj1f,1,htmlDir,"X1b","Y1b");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
       TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
-      string save = getPNG2(obj2f,1,htmlDir,"X2b","Y2b");
+      string save = getIMG2(obj2f,1,htmlDir,"X2b","Y2b");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     errorFile << "<br>" << endl;
@@ -445,12 +435,12 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), mui);
-      string save = getPNG(obj1f,1,htmlDir,"X1c","Y1c");
+      string save = getIMG(obj1f,1,htmlDir,"X1c","Y1c");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
       TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
-      string save = getPNG2(obj2f,1,htmlDir,"X2c","Y2c");
+      string save = getIMG2(obj2f,1,htmlDir,"X2c","Y2c");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     errorFile << "<br>" << endl;

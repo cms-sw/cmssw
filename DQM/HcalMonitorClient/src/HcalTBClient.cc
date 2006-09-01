@@ -29,6 +29,28 @@ HcalTBClient::HcalTBClient(const ParameterSet& ps, MonitorUserInterface* mui){
   process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
 }
 
+
+HcalTBClient::HcalTBClient(){
+  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
+  dqmQtests_.clear();
+  verbose_ =false;
+
+  mui_ = 0;
+  for(int i=0; i<3; i++){
+    CHK[i] = 0;
+    TOFT_S[i] = 0;
+    TOFT_J[i] = 0;
+  }
+  for(int i=0; i<4; i++) DT[i]=0;
+  for(int i=0; i<8; i++){
+    WC[i]=0;
+    WCX[i]=0;
+    WCY[i]=0;
+  }
+  TOFQ[0] = 0;  TOFQ[1] = 0;
+
+}
+
 HcalTBClient::~HcalTBClient(){
 
   this->cleanup();
@@ -119,35 +141,41 @@ void HcalTBClient::cleanup(void) {
 void HcalTBClient::subscribe(void){
 
   if ( verbose_ ) cout << "HcalTBClient: subscribe" << endl;
-  mui_->subscribe("*/TBMonitor/*");
-  mui_->subscribe("*/TBMonitor/QADCMonitor/*");
-  mui_->subscribe("*/TBMonitor/TimingMonitor/*");
-  mui_->subscribe("*/TBMonitor/EventPositionMonitor/*");
+  if(mui_){
+    mui_->subscribe("*/TBMonitor/*");
+    mui_->subscribe("*/TBMonitor/QADCMonitor/*");
+    mui_->subscribe("*/TBMonitor/TimingMonitor/*");
+    mui_->subscribe("*/TBMonitor/EventPositionMonitor/*");
+  }
   return;
 }
 
 void HcalTBClient::subscribeNew(void){
-  mui_->subscribeNew("*/TBMonitor/*");
-  mui_->subscribeNew("*/TBMonitor/QADCMonitor/*");
-  mui_->subscribeNew("*/TBMonitor/TimingMonitor/*");
-  mui_->subscribeNew("*/TBMonitor/EventPositionMonitor/*");
+   if(mui_){
+     mui_->subscribeNew("*/TBMonitor/*");
+     mui_->subscribeNew("*/TBMonitor/QADCMonitor/*");
+     mui_->subscribeNew("*/TBMonitor/TimingMonitor/*");
+     mui_->subscribeNew("*/TBMonitor/EventPositionMonitor/*");
+   }
   return;
 }
 
 void HcalTBClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "HcalTBClient: unsubscribe" << endl;
-  mui_->unsubscribe("*/TBMonitor/*");
-  mui_->unsubscribe("*/TBMonitor/QADCMonitor/*");
-  mui_->unsubscribe("*/TBMonitor/TimingMonitor/*");
-  mui_->unsubscribe("*/TBMonitor/EventPositionMonitor/*");
+   if(mui_){
+     mui_->unsubscribe("*/TBMonitor/*");
+     mui_->unsubscribe("*/TBMonitor/QADCMonitor/*");
+     mui_->unsubscribe("*/TBMonitor/TimingMonitor/*");
+     mui_->unsubscribe("*/TBMonitor/EventPositionMonitor/*");
+   }
   return;
 }
 
 void HcalTBClient::errorOutput(){
   
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  
+  if(!mui_) return;
   for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
     string testName = testsMap->first;
     string meName = testsMap->second;
@@ -504,7 +532,7 @@ void HcalTBClient::timingHTML(string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Timing Monitor</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
   htmlFile << "<hr>" << endl;
   
@@ -549,3 +577,61 @@ void HcalTBClient::createTests(){
   return;
 }
 
+void HcalTBClient::loadHistograms(TFile* infile){
+  char name[150];     
+  
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/TBMonitor/EventPositionMonitor/Event Position Event Number");
+  if(tnd){
+    string s =tnd->GetTitle();
+    ievt_ = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+  }
+  for(int i=0; i<3; i++){
+    sprintf(name,"DQMData/TBMonitor/QADCMonitor/Cherenkov QADC %d", i+1);
+     CHK[i] = (TH1F*)infile->Get(name);
+  }
+  for(int i=0; i<2; i++){
+    sprintf(name,"DQMData/TBMonitor/QADCMonitor/TOF QADC %d", i+1);
+    TOFQ[i] =(TH1F*)infile->Get(name);
+    
+    sprintf(name,"DQMData/TBMonitor/TimingMonitor/TOF TDC %d - Saleve", i+1);
+    TOFT_S[i] =(TH1F*)infile->Get(name);
+    
+    sprintf(name,"DQMData/TBMonitor/TimingMonitor/TOF TDC %d - Jura", i+1);
+    TOFT_J[i] =(TH1F*)infile->Get(name);
+  }
+  
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/TOF Time - Saleve");
+  TOFT_S[2] =(TH1F*)infile->Get(name);
+ 
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/TOF Time - Jura");
+  TOFT_J[2] =(TH1F*)infile->Get(name);
+
+  int i = 0;
+  for(char c = 'A'; c<='H'; c++){
+    sprintf(name,"DQMData/TBMonitor/EventPositionMonitor/Wire Chamber %c Hits", c);
+    WC[i] =(TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/TBMonitor/EventPositionMonitor/Wire Chamber %c X Hits", c);
+    WCX[i] =(TH1F*)infile->Get(name);
+ 
+    sprintf(name,"DQMData/TBMonitor/EventPositionMonitor/Wire Chamber %c Y Hits", c);
+    WCY[i] =(TH1F*)infile->Get(name);
+
+    i++;
+  }
+  
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/L1A-BC Phase");
+  DT[0] =(TH1F*)infile->Get(name);
+
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/TOF TDC - Delta 1");
+  DT[1] =(TH1F*)infile->Get(name);
+
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/TOF TDC - Delta 2");
+  DT[2] =(TH1F*)infile->Get(name);
+
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/TOF Time - Delta");
+  DT[3] =(TH1F*)infile->Get(name);
+
+  return;
+}

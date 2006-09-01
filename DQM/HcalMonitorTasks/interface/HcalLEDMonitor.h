@@ -11,8 +11,8 @@
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2006/08/22 20:41:01 $
-  * $Revision: 1.3 $
+  * $Date: 2006/08/24 23:44:59 $
+  * $Revision: 1.4 $
   * \author W. Fisher - FNAL
   */
 class HcalLEDMonitor: public HcalBaseMonitor {
@@ -23,8 +23,8 @@ public:
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
-		    const HFDigiCollection& hf,
-		    const HcalDbService& cond);
+		    const HFDigiCollection& hf);
+
   void done();
   void clearME();
 

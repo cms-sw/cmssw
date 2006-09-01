@@ -27,6 +27,7 @@
 
 #include "TROOT.h"
 #include "TStyle.h"
+#include "TFile.h"
 
 #include <memory>
 #include <iostream>
@@ -44,6 +45,7 @@ public:
   
   /// Constructor
   HcalPedestalClient(const ParameterSet& ps, MonitorUserInterface* mui);
+  HcalPedestalClient();
   
   /// Destructor
   virtual ~HcalPedestalClient();
@@ -77,6 +79,7 @@ public:
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
   void getHistograms();
+  void loadHistograms(TFile* f);
 
   ///process report
   void report();
@@ -101,6 +104,7 @@ private:
   bool collateSources_;
   bool cloneME_;
   bool verbose_;
+  bool offline_;
   bool doPerChanTests_;
   string process_;
   

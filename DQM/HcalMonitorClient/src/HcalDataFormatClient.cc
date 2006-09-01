@@ -21,6 +21,18 @@ HcalDataFormatClient::HcalDataFormatClient(const ParameterSet& ps, MonitorUserIn
   process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
 }
 
+HcalDataFormatClient::HcalDataFormatClient(){
+  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
+  dqmQtests_.clear();
+  verbose_ =false;
+  mui_ = 0;
+  for(int i=0; i<3; i++){
+    dferr[i] = 0;
+    dfmap[i] = 0;
+  }
+  
+}
+
 HcalDataFormatClient::~HcalDataFormatClient(){
 
   this->cleanup();
@@ -92,19 +104,19 @@ void HcalDataFormatClient::cleanup(void) {
 void HcalDataFormatClient::subscribe(void){
 
   if ( verbose_ ) cout << "HcalDataFormatClient: subscribe" << endl;
-  mui_->subscribe("*/HcalMonitor/DataFormatMonitor/*");
+  if(mui_) mui_->subscribe("*/HcalMonitor/DataFormatMonitor/*");
   return;
 }
 
 void HcalDataFormatClient::subscribeNew(void){
-  mui_->subscribeNew("*/HcalMonitor/DataFormatMonitor/*");
+  if(mui_) mui_->subscribeNew("*/HcalMonitor/DataFormatMonitor/*");
   return;
 }
 
 void HcalDataFormatClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "HcalDataFormatClient: unsubscribe" << endl;
-  mui_->unsubscribe("*/HcalMonitor/DataFormatMonitor/*");
+  if(mui_) mui_->unsubscribe("*/HcalMonitor/DataFormatMonitor/*");
   return;
 }
 
@@ -267,7 +279,7 @@ void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Data Format</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
   htmlFile << "<hr>" << endl;
   htmlFile << "<table border=1><tr>" << endl;
@@ -335,3 +347,25 @@ void HcalDataFormatClient::createTests(){
   return;
 }
 
+void HcalDataFormatClient::loadHistograms(TFile* infile){
+
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/DataFormatMonitor/Data Format Task Event Number");
+  string s =tnd->GetTitle();
+  ievt_ = -1;
+  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+
+  char name[150]; 
+  for(int i=0; i<3; i++){
+    string type = "HBHE";
+    if(i==1) type = "HF";
+    if(i==2) type = "HO";
+    sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Error Words", type.c_str());
+    dferr[i] = (TH1F*)infile->Get(name);
+    
+    labelBits(dferr[i]);
+    
+    sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Error Map", type.c_str());
+    dfmap[i] = (TH2F*)infile->Get(name);
+  }
+  return;
+}

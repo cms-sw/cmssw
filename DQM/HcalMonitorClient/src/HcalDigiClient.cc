@@ -24,6 +24,23 @@ HcalDigiClient::HcalDigiClient(const ParameterSet& ps, MonitorUserInterface* mui
 
 }
 
+HcalDigiClient::HcalDigiClient(){
+  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
+  dqmQtests_.clear();
+
+  mui_ = 0;
+  for(int i=0; i<3; i++){
+    occ_geo[i]=0;  occ_elec[i]=0;
+    err_geo[i]=0;  err_elec[i]=0;
+    qie_adc[i]=0;  num_digi[i]=0;
+    qie_capid[i]=0; 
+  }
+
+  // verbosity switch
+  verbose_ = false;
+
+}
+
 HcalDigiClient::~HcalDigiClient(){
 
   this->cleanup();
@@ -105,28 +122,34 @@ void HcalDigiClient::cleanup(void) {
 void HcalDigiClient::subscribe(void){
 
   if ( verbose_ ) cout << "HcalDigiClient: subscribe" << endl;
-  mui_->subscribe("*/HcalMonitor/DigiMonitor/*");
-  mui_->subscribe("*/HcalMonitor/DigiMonitor/HBHE/*");
-  mui_->subscribe("*/HcalMonitor/DigiMonitor/HF/*");
-  mui_->subscribe("*/HcalMonitor/DigiMonitor/HO/*");
-  return;
+  if(mui_){
+    mui_->subscribe("*/HcalMonitor/DigiMonitor/*");
+    mui_->subscribe("*/HcalMonitor/DigiMonitor/HBHE/*");
+    mui_->subscribe("*/HcalMonitor/DigiMonitor/HF/*");
+    mui_->subscribe("*/HcalMonitor/DigiMonitor/HO/*");
+  }
+    return;
 }
 
 void HcalDigiClient::subscribeNew(void){
-  mui_->subscribeNew("*/HcalMonitor/DigiMonitor/*");
-  mui_->subscribeNew("*/HcalMonitor/DigiMonitor/HBHE/*");
-  mui_->subscribeNew("*/HcalMonitor/DigiMonitor/HF/*");
-  mui_->subscribeNew("*/HcalMonitor/DigiMonitor/HO/*");
+  if(mui_){
+    mui_->subscribeNew("*/HcalMonitor/DigiMonitor/*");
+    mui_->subscribeNew("*/HcalMonitor/DigiMonitor/HBHE/*");
+    mui_->subscribeNew("*/HcalMonitor/DigiMonitor/HF/*");
+    mui_->subscribeNew("*/HcalMonitor/DigiMonitor/HO/*");
+  }
   return;
 }
 
 void HcalDigiClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "HcalDigiClient: unsubscribe" << endl;
-  mui_->unsubscribe("*/HcalMonitor/DigiMonitor/*");
-  mui_->unsubscribe("*/HcalMonitor/DigiMonitor/HBHE/*");
-  mui_->unsubscribe("*/HcalMonitor/DigiMonitor/HF/*");
-  mui_->unsubscribe("*/HcalMonitor/DigiMonitor/HO/*");
+  if(mui_){
+    mui_->unsubscribe("*/HcalMonitor/DigiMonitor/*");
+    mui_->unsubscribe("*/HcalMonitor/DigiMonitor/HBHE/*");
+    mui_->unsubscribe("*/HcalMonitor/DigiMonitor/HF/*");
+    mui_->unsubscribe("*/HcalMonitor/DigiMonitor/HO/*");
+  }
   return;
 }
 
@@ -299,7 +322,7 @@ void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Digis</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
   htmlFile << "<hr>" << endl;
   htmlFile << "<table border=1><tr>" << endl;
@@ -418,5 +441,42 @@ void HcalDigiClient::createTests(){
     
   }
 
+  return;
+}
+
+void HcalDigiClient::loadHistograms(TFile* infile){
+  char name[150];    
+
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/DigiMonitor/Digi Task Event Number");
+  string s =tnd->GetTitle();
+  ievt_ = -1;
+  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+
+  for(int i=0; i<3; i++){
+    string type = "HBHE";
+    if(i==1) type = "HO"; 
+    if(i==2) type = "HF"; 
+
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Geo Error Map",type.c_str(),type.c_str());
+    err_geo[i] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Elec Error Map",type.c_str(),type.c_str());
+    err_elec[i] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Geo Occupancy Map",type.c_str(),type.c_str());
+    occ_geo[i] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Elec Occupancy Map",type.c_str(),type.c_str());
+    occ_elec[i] = (TH2F*)infile->Get(name);
+    
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s QIE ADC Value",type.c_str(),type.c_str());
+    qie_adc[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s # of Digis",type.c_str(),type.c_str());
+    num_digi[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s QIE Cap-ID",type.c_str(),type.c_str());
+    qie_capid[i] = (TH1F*)infile->Get(name);
+  }
   return;
 }

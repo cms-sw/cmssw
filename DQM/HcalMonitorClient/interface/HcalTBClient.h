@@ -12,6 +12,7 @@
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 #include "TROOT.h"
+#include "TFile.h"
 #include "TStyle.h"
 
 #include <memory>
@@ -30,6 +31,7 @@ public:
 
 /// Constructor
 HcalTBClient(const ParameterSet& ps, MonitorUserInterface* mui);
+HcalTBClient();
 
 /// Destructor
 virtual ~HcalTBClient();
@@ -65,6 +67,7 @@ void setup(void);
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
   void getHistograms();
+  void loadHistograms(TFile* infile);
 
   void qadcHTML(string htmlDir, string htmlName);
   void timingHTML(string htmlDir, string htmlName);

@@ -90,10 +90,8 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
 }
 
 void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
-				       const HODigiCollection& ho,
-				       const HFDigiCollection& hf,
-				       const HcalDbService& conditions)
-{
+				  const HODigiCollection& ho,
+				  const HFDigiCollection& hf){
   
 
   ievt_++;

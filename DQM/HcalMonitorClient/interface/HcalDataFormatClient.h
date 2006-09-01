@@ -15,6 +15,7 @@
 
 #include "TROOT.h"
 #include "TStyle.h"
+#include "TFile.h"
 
 #include <memory>
 #include <iostream>
@@ -32,6 +33,7 @@ public:
 
 /// Constructor
 HcalDataFormatClient(const ParameterSet& ps, MonitorUserInterface* mui);
+HcalDataFormatClient();
 
 /// Destructor
 virtual ~HcalDataFormatClient();
@@ -67,6 +69,7 @@ void cleanup(void);
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
   void getHistograms();
+  void loadHistograms(TFile* f);
   
   void errorOutput();
   void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);

@@ -57,6 +57,53 @@ HcalLEDClient::HcalLEDClient(const ParameterSet& ps, MonitorUserInterface* mui){
   process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
 }
 
+HcalLEDClient::HcalLEDClient(){
+  
+  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
+  dqmQtests_.clear();
+
+  mui_ = 0;
+
+   ///HB ieta/iphi/depths
+  etaMin[0]=1; etaMax[0]=16;
+  phiMin[0]=1; phiMax[0]=71;
+  depMin[0]=1; depMax[0]=2;
+  
+  ///HO ieta/iphi/depths
+  etaMin[1]=1; etaMax[1]=15;
+  phiMin[1]=1; phiMax[1]=71;
+  depMin[1]=1; depMax[1]=1;
+
+  ///HF ieta/iphi/depths
+  etaMin[2]=29; etaMax[2]=41;
+  phiMin[2]=1; phiMax[2]=71;
+  depMin[2]=1; depMax[2]=1;
+
+  ///HE ieta/iphi/depths
+  etaMin[3]=16; etaMax[3]=29;
+  phiMin[3]=1; phiMax[3]=71;
+  depMin[3]=1; depMax[3]=3;
+
+  for(int i=0; i<3; i++){    
+    rms_ped[i]=0;
+    mean_ped[i]=0;
+    rms_sig[i]=0;
+    mean_sig[i]=0;
+    rms_tail[i]=0;
+    mean_tail[i]=0;
+    rms_time[i]=0;
+    mean_time[i]=0;
+    err_map_geo[i]=0;
+    err_map_elec[i]=0;
+    avg_shape[i] = 0;
+    avg_time[i] = 0;
+  }
+
+  // verbosity switch
+  verbose_ = false;
+
+}
+
 HcalLEDClient::~HcalLEDClient(){
   this->cleanup();
 }
@@ -154,19 +201,19 @@ void HcalLEDClient::cleanup(void) {
 void HcalLEDClient::subscribe(void){
 
   if ( verbose_ ) cout << "HcalLEDClient: subscribe" << endl;
-  mui_->subscribe("*/HcalMonitor/LEDMonitor/*");
+  if(mui_) mui_->subscribe("*/HcalMonitor/LEDMonitor/*");
   return;
 }
 
 void HcalLEDClient::subscribeNew(void){
-  mui_->subscribeNew("*/HcalMonitor/LEDMonitor/*");
+  if(mui_) mui_->subscribeNew("*/HcalMonitor/LEDMonitor/*");
   return;
 }
 
 void HcalLEDClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "HcalLEDClient: unsubscribe" << endl;
-  mui_->unsubscribe("*/HcalMonitor/LEDMonitor/*");
+  if(mui_) mui_->unsubscribe("*/HcalMonitor/LEDMonitor/*");
   return;
 }
 
@@ -478,7 +525,7 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal LEDs</span></h2> " << endl;
 
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
 
   htmlFile << "<hr>" << endl;
@@ -536,8 +583,6 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
      htmlFile << "</tr>" << endl;
    }
 
-
-
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
@@ -546,6 +591,51 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</html> " << endl;
 
   htmlFile.close();
+
+  return;
+}
+
+
+void HcalLEDClient::loadHistograms(TFile* infile){
+
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/LEDMonitor/LED Task Event Number");
+  string s =tnd->GetTitle();
+  ievt_ = -1;
+  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+
+  char name[256];
+  for(int i=0; i<3; i++){
+    string type = "HBHE";
+    if(i==1) type = "HO"; 
+    if(i==2) type = "HF";
+
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s Average Pulse Shape",type.c_str(),type.c_str());      
+    avg_shape[i] = (TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s Average Pulse Time",type.c_str(),type.c_str());      
+    avg_time[i] = (TH1F*)infile->Get(name);
+    
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Ped Region RMS Values",type.c_str(),type.c_str());
+    rms_ped[i]=(TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Ped Region Mean Values",type.c_str(),type.c_str());
+    mean_ped[i]=(TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Sig Region RMS Values",type.c_str(),type.c_str());
+    rms_sig[i]=(TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Sig Region Mean Values",type.c_str(),type.c_str());
+    mean_sig[i]=(TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Tail Region RMS Values",type.c_str(),type.c_str());
+    rms_tail[i]=(TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Tail Region Mean Values",type.c_str(),type.c_str());
+    mean_tail[i]=(TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Time RMS Values",type.c_str(),type.c_str());
+    rms_time[i]=(TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Time Mean Values",type.c_str(),type.c_str());
+    mean_time[i]=(TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Geo Error Map",type.c_str(),type.c_str());
+    err_map_geo[i]=(TH2F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Elec Error Map",type.c_str(),type.c_str());
+    err_map_elec[i]=(TH2F*)infile->Get(name);
+
+  }
 
   return;
 }

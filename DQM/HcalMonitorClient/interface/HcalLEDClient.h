@@ -25,6 +25,7 @@
 
 #include "TROOT.h"
 #include "TStyle.h"
+#include "TFile.h"
 
 #include <memory>
 #include <iostream>
@@ -42,6 +43,7 @@ public:
   
   /// Constructor
   HcalLEDClient(const ParameterSet& ps, MonitorUserInterface* mui);
+  HcalLEDClient();
   
   /// Destructor
   virtual ~HcalLEDClient();
@@ -75,6 +77,8 @@ public:
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
   void getHistograms();
+  void loadHistograms(TFile* f);
+
 
   ///process report
   void report();
