@@ -4,24 +4,23 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/08/28 20:27:28 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/29 20:17:11 $
+ *  $Revision: 1.13 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 
 class TrajectoryStateOnSurface;
-class MagneticField;
-class GlobalTrackingGeometry;
+class MuonServiceProxy;
 class Trajectory;
 class MuonUpdatorAtVertex;
 
-namespace edm {class EventSetup;}
+
+namespace edm {class ParameterSet;}
 
 
 //              ---------------------
@@ -35,18 +34,15 @@ class GlobalMuonTrackMatcher {
     typedef std::pair<Trajectory*,reco::TrackRef> TrackCand;
 
     /// constructor
-    GlobalMuonTrackMatcher(double chi2,
-                           const edm::ESHandle<MagneticField>,
-                           MuonUpdatorAtVertex*);
+    GlobalMuonTrackMatcher(const edm::ParameterSet& par,
+                           const MuonServiceProxy*);
+
 
     GlobalMuonTrackMatcher(double chi2);
 
     /// destructor
     virtual ~GlobalMuonTrackMatcher();
     
-    /// set event setup
-    void setES(const edm::EventSetup&);
-
     /// choose the track with smallest matching-chi2
     std::pair<bool, TrackCand> matchOne(const TrackCand&, 
 					const std::vector<TrackCand>&) const;
@@ -71,9 +67,8 @@ class GlobalMuonTrackMatcher {
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
     MuonUpdatorAtVertex* theUpdator;
-    edm::ESHandle<MagneticField> theField;
-    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
 
+    const MuonServiceProxy *theService;
 };
 
 #endif

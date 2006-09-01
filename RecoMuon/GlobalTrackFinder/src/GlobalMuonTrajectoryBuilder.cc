@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/30 14:53:17 $
- *  $Revision: 1.41 $
+ *  $Date: 2006/08/30 19:24:04 $
+ *  $Revision: 1.42 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -39,21 +39,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
+
 #include "TrackingTools/TrackFitters/interface/RecHitLessByDet.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -63,27 +53,26 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
+
+#include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonSeedCleaner.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrackReFitter.h"
+
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackReFitter.h"
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
-#include "RecoMuon/TrackingTools/interface/TrackConverter.h"
+
+#include "RecoMuon/TrackingTools/interface/MuonTrackConverter.h"
 
 using namespace std;
 using namespace edm;
@@ -92,26 +81,18 @@ using namespace edm;
 // Constructors --
 //----------------
 
-//FIXME: remove setES, use MuonServiceProxy instead
-GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par, const MuonServiceProxy* service) {
-  
+GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
+							 const MuonServiceProxy* service): theService(service) {
+
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-  theRefitter = new MuonTrackReFitter(refitterPSet);
-  
-  ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
-  theUpdator = new MuonUpdatorAtVertex(updatorPSet);
+  theRefitter = new MuonTrackReFitter(refitterPSet,theService);
 
   theLayerMeasurements = new MuonDetLayerMeasurements();
-  
+
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
-  theTTRHBuilderName = par.getParameter<string>("TrackRecHitBuilder");
 
-  ParameterSet muonTTRHBuilderPSet = par.getParameter<ParameterSet>("MuonRecHitBuilderParameters");
-  theMuonTTRHBuilder = new MuonTransientTrackingRecHitBuilder(muonTTRHBuilderPSet);
-  theTrackConverter = new TrackConverter(par);
-
-  theTrackMatcherChi2Cut = par.getParameter<double>("Chi2CutTrackMatcher");
-  theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theMagField,&*theUpdator);
+  theTrackConverter = new MuonTrackConverter(par,theService);
+  theTrackMatcher = new GlobalMuonTrackMatcher(par,theService);
 
   theMuonHitsOption = par.getParameter<int>("MuonHitsOption");
   theDirection = static_cast<ReconstructionDirection>(par.getParameter<int>("Direction"));
@@ -126,7 +107,6 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theVertexErr = GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09);
 
   convert = true;
-
 }
 
 
@@ -139,32 +119,8 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theRefitter) delete theRefitter;
   if (theTrackMatcher) delete theTrackMatcher;
   if (theLayerMeasurements) delete theLayerMeasurements;
-  if (theMuonTTRHBuilder) delete theMuonTTRHBuilder;
   if (theTrackConverter) delete theTrackConverter;
-
 }
-
-
-//
-// set EventSetup
-//
-void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
-
-  setup.get<IdealMagneticFieldRecord>().get(theMagField);  
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
-  setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
-  
-  setup.get<TransientRecHitRecord>().get(theTTRHBuilderName,theTkTransientTrackingRecHitBuilder);
-
-  theTrackMatcher->setES(setup);
-  theRefitter->setES(setup);
-  theMuonTTRHBuilder->setES(setup);
-  theTrackConverter->setES(setup);
-
-  theTrackConverter->setBuilder(const_cast<TransientTrackingRecHitBuilder*>(&*theTkTransientTrackingRecHitBuilder),&*theMuonTTRHBuilder);
-
-}
-
 
 //
 // set Event
@@ -179,7 +135,6 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   theLayerMeasurements->setEvent(event);
 
 }
-
 
 //
 // reconstruct trajectories
@@ -280,7 +235,7 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   const math::XYZVector& mo = staTrack->innerMomentum();
   GlobalVector mom(mo.x(),mo.y(),mo.z()); 
    
-  reco::TransientTrack staTT(staTrack,&*theMagField,theTrackingGeometry);
+  reco::TransientTrack staTT(staTrack,&*theService->magneticField(),theService->trackingGeometry() );
   TrajectoryStateOnSurface traj_vertex = staTT.impactPointState();
   if ( traj_vertex.isValid() ) mom = traj_vertex.globalMomentum();
   float eta1   = mom.eta();
@@ -515,7 +470,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
       
       DetId id = (*imrh)->geographicalId();
       
-      const DetLayer* layer = theDetLayerGeometry->idToLayer(id);
+      const DetLayer* layer = theService->detLayerGeometry()->idToLayer(id);
       MuonRecHitContainer dRecHits = theLayerMeasurements->recHits(layer);
       
       // get station of hit if it is in DT

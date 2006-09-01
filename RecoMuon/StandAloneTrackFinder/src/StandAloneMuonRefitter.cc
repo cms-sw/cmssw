@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/08/30 12:56:19 $
- *  $Revision: 1.25 $
+ *  $Date: 2006/08/31 18:28:04 $
+ *  $Revision: 1.26 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -208,13 +208,8 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 
     LogDebug(metname) << "Number of Trajectory Measurement: " << measL.size();
         
-    LogDebug(metname) << "Pippo 0 -> "<< propagator();
-
     TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL,
 										       propagator());
-
-    LogDebug(metname) << "Pippo 1";
-    
     // RB: Different ways can be choosen if no bestMeasurement is available:
     // 1- check on lastTSOS-initialTSOS eta difference
     // 2- check on lastTSOS-lastButOneUpdatedTSOS eta difference
@@ -240,8 +235,6 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
       bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL,propagator());
     }
     
-    LogDebug(metname) << "Pippo 2";
-
     //if no measurement found and the current FTS has an eta very different
     //wrt the initial one (i.e. seed), then try to find the measurements
     //according to the initial FTS. (1A)
@@ -259,8 +252,6 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
       bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL, propagator());
     }
     
-    LogDebug(metname) << "Pippo 3";
-
     // FIXME: uncomment this line!!
     // if(!bestMeasurement && firstTime) break;
 

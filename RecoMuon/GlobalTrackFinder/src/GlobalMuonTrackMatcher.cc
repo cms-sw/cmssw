@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/08/30 01:47:19 $
- *  $Revision: 1.24 $
+ *  $Date: 2006/08/31 05:56:48 $
+ *  $Revision: 1.25 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -11,34 +11,35 @@
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 using namespace std;
 using namespace edm;
 //
 // constructor
 //
-GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2, 
-                                               const edm::ESHandle<MagneticField> field, 
-                                               MuonUpdatorAtVertex* updator) {
-
-  theMaxChi2 = chi2;
+GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par, 
+                                               const MuonServiceProxy *service): theService(service){
+  
+  ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
+  theUpdator = new MuonUpdatorAtVertex(updatorPSet,theService);
+  
+  theMaxChi2 =  par.getParameter<double>("Chi2CutTrackMatcher");
   theMinP = 2.5;
   theMinPt = 1.0;
-  theField = field;
-  theUpdator = updator;
 }
 
 
 //
 //
 //
+
+// FIXME!! fix the updator!
 GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2) {
 
   theMaxChi2 = chi2;
@@ -55,18 +56,6 @@ GlobalMuonTrackMatcher::~GlobalMuonTrackMatcher() {
 
   if(theUpdator) delete theUpdator;
 }
-
-
-//
-//
-//
-void GlobalMuonTrackMatcher::setES(const edm::EventSetup& setup) {
-
-  setup.get<IdealMagneticFieldRecord>().get(theField);
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
-  theUpdator->setES(setup);
-}
-
 
 //
 // choose the tracker Track from a TrackCollection which has smallest chi2 with
@@ -126,14 +115,14 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
   TrajectoryStateOnSurface outerTkTsos;
 
   if(staCand.first == 0) {
-    reco::TransientTrack staT(staCand.second,&*theField,theTrackingGeometry);  
+    reco::TransientTrack staT(staCand.second,&*theService->magneticField(),theService->trackingGeometry());  
     innerMuTsos = staT.innermostMeasurementState();
   } else {
     innerMuTsos = staCand.first->firstMeasurement().updatedState();
   }
   
   if(tkCand.first == 0) {
-    reco::TransientTrack tkT(tkCand.second,&*theField,theTrackingGeometry);
+    reco::TransientTrack tkT(tkCand.second,&*theService->magneticField(),theService->trackingGeometry());
     // make sure the tracker Track has enough momentum to reach muon chambers
     const GlobalVector& mom = tkT.impactPointState().globalMomentum();
     if ( mom.mag() < theMinP || mom.perp() < theMinPt )

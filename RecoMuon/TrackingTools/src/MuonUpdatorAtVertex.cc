@@ -4,8 +4,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/08/24 20:02:16 $
- *   $Revision: 1.12 $
+ *   $Date: 2006/08/30 20:36:07 $
+ *   $Revision: 1.13 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \author   C. Liu                Purdue University 
@@ -22,7 +22,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoMuon/TrackingTools/interface/VertexRecHit.h"
 #include "RecoMuon/TrackingTools/interface/DummyDet.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
@@ -36,9 +36,7 @@
 #include "Geometry/Surface/interface/Plane.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 
 using namespace edm;
@@ -48,11 +46,11 @@ using namespace std;
 // Constructors --
 //----------------
 
-MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par) : 
-         thePropagator(0), 
-         theExtrapolator(0),
-         theUpdator(new KFUpdator()),
-         theEstimator(new Chi2MeasurementEstimator(150.)) {
+MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par, const MuonServiceProxy* service) : 
+  theService(service),
+  theExtrapolator( new TransverseImpactPointExtrapolator() ),
+  theUpdator(new KFUpdator()),
+  theEstimator(new Chi2MeasurementEstimator(150.)) {
 
   theOutPropagatorName = par.getParameter<string>("OutPropagator");
   theInPropagatorName = par.getParameter<string>("InPropagator");
@@ -70,8 +68,7 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par) :
 // default constructor, set propagator name as SteppingHelixPropagator
 //
 MuonUpdatorAtVertex::MuonUpdatorAtVertex() :
-         thePropagator(0),
-         theExtrapolator(0),
+         theExtrapolator( new TransverseImpactPointExtrapolator() ),
          theUpdator(new KFUpdator()),
          theEstimator(new Chi2MeasurementEstimator(150.)) {
 
@@ -90,19 +87,19 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex() :
 //
 //
 //
-MuonUpdatorAtVertex::MuonUpdatorAtVertex(const Propagator& prop) :
-         theExtrapolator(new TransverseImpactPointExtrapolator(prop)),
-         theUpdator(new KFUpdator()),
-         theEstimator(new Chi2MeasurementEstimator(150.)) {
+// MuonUpdatorAtVertex::MuonUpdatorAtVertex(const Propagator& prop) :
+//          theExtrapolator(new TransverseImpactPointExtrapolator(prop)),
+//          theUpdator(new KFUpdator()),
+//          theEstimator(new Chi2MeasurementEstimator(150.)) {
 
-  thePropagator = prop.clone();
-  // assume beam spot position with nominal errors
-  // sigma(x) = sigma(y) = 15 microns
-  // sigma(z) = 5.3 cm
-  theVertexPos = GlobalPoint(0.0,0.0,0.0);
-  theVertexErr = GlobalError(0.00000225, 0., 0.00000225, 0., 0., 28.09);
+//   thePropagator = prop.clone();
+//   // assume beam spot position with nominal errors
+//   // sigma(x) = sigma(y) = 15 microns
+//   // sigma(z) = 5.3 cm
+//   theVertexPos = GlobalPoint(0.0,0.0,0.0);
+//   theVertexErr = GlobalError(0.00000225, 0., 0.00000225, 0., 0., 28.09);
 
-}
+// }
 
 //---------------
 // Destructor  --
@@ -112,56 +109,19 @@ MuonUpdatorAtVertex::~MuonUpdatorAtVertex() {
   if (theEstimator) delete theEstimator;
   if (theUpdator) delete theUpdator;
   if (theExtrapolator) delete theExtrapolator;
-  if (thePropagator) delete thePropagator;
+
 
 }
 
+// get Propagator for outside tracker, SteppingHelixPropagator as default
+// anyDirection
+auto_ptr<Propagator> MuonUpdatorAtVertex::propagator() const{
 
-//
-//
-//
-void MuonUpdatorAtVertex::setES(const edm::EventSetup& iSetup) {
-
-  // get Propagator for outside tracker, SteppingHelixPropagator as default
-  // anyDirection
-  edm::ESHandle<Propagator> eshPropagator1;
-  iSetup.get<TrackingComponentsRecord>().get(theOutPropagatorName, eshPropagator1);
-
-  // get Propagator for inside tracker, PropagatorWithMaterial as default
-  edm::ESHandle<Propagator> eshPropagator2;
-  iSetup.get<TrackingComponentsRecord>().get(theInPropagatorName, eshPropagator2);
-
-  edm::ESHandle<MagneticField> theField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theField);
-
-  if (thePropagator) delete thePropagator;
-  thePropagator = new SmartPropagator(*eshPropagator2,*eshPropagator1, &*theField);
-
-  if ( theExtrapolator == 0 ) theExtrapolator = new TransverseImpactPointExtrapolator(*thePropagator);
-
+    auto_ptr<Propagator> smartPropagator(new SmartPropagator(*theService->propagator(theInPropagatorName),
+							     *theService->propagator(theOutPropagatorName),
+							     &*theService->magneticField() ));
+    return smartPropagator;
 }
-
-
-//
-// set Propagator directly
-//
-void MuonUpdatorAtVertex::setPropagator(const Propagator& prop) {
- 
- if ( thePropagator ) delete thePropagator;
- thePropagator = prop.clone();
-
-}
-
-
-//
-// set Propagator from 2 propagators, tk & gen
-//
-void MuonUpdatorAtVertex::setPropagator(const Propagator& aTkProp, const Propagator& aGenProp, const MagneticField* field){
-
-  thePropagator = new SmartPropagator(aTkProp,aGenProp,field);
-
-}
-
 
 //
 //
@@ -179,11 +139,6 @@ void MuonUpdatorAtVertex::setVertex(const GlobalPoint& p, const GlobalError& e) 
 //
 MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface& tsos) const {
   
-  if ( !thePropagator ) {
-    edm::LogError("MuonUpdatorAtVertex") << "Error please initialize Propagator before using ";
-    return MuonVertexMeasurement();
-  }
-
   if ( !tsos.isValid() ) {
     edm::LogError("MuonUpdatorAtVertex") << "Error invalid TrajectoryStateOnSurface";
     return MuonVertexMeasurement();
@@ -193,7 +148,7 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
   TrajectoryStateOnSurface trackerState = stateAtTracker(tsos);
 
   // inside the tracker we can use Gtf propagator
-  TrajectoryStateOnSurface ipState = theExtrapolator->extrapolate(trackerState,theVertexPos,*thePropagator);
+  TrajectoryStateOnSurface ipState = theExtrapolator->extrapolate(trackerState,theVertexPos, *propagator() );
   TrajectoryStateOnSurface vertexState;
   TrajectoryMeasurement vertexMeasurement;
   double chi2 = 0.0;
@@ -242,18 +197,13 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
 //
 TrajectoryStateOnSurface MuonUpdatorAtVertex::stateAtTracker(const TrajectoryStateOnSurface& tsos) const {
 
-  if ( !thePropagator ) {
-    edm::LogError("MuonUpdatorAtVertex") << "Error please initialize before using ";
-    return TrajectoryStateOnSurface();
-  }
-
   if ( !tsos.isValid() ) {
     edm::LogError("MuonUpdatorAtVertex") << "Error invalid TrajectoryStateOnSurface";
     return TrajectoryStateOnSurface();
   }
   
   // get state at outer tracker surface
-  StateOnTrackerBound tracker(thePropagator);
+  StateOnTrackerBound tracker( &*propagator() );
 
   TrajectoryStateOnSurface result = tracker(tsos);
 

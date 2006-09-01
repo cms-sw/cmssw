@@ -7,8 +7,8 @@
   *   a given vertex and 
   *   apply a vertex constraint
   *
-  *   $Date: 2006/08/24 20:02:46 $
-  *   $Revision: 1.6 $
+  *   $Date: 2006/08/31 18:24:17 $
+  *   $Revision: 1.7 $
   *
   *   \author   N. Neumeister            Purdue University
   *
@@ -30,51 +30,45 @@ namespace edm {class ParameterSet; class EventSetup;}
 
 class MuonUpdatorAtVertex {
 
-  public:
+ public:
  
-  /// constructor from parameter set
-  //    MuonUpdatorAtVertex(const edm::ParameterSet&,const MuonServiceProxy *);
-  MuonUpdatorAtVertex(const edm::ParameterSet&);
-    /// default constructor
-    MuonUpdatorAtVertex();
+  /// constructor from parameter set and MuonServiceProxy
+  MuonUpdatorAtVertex(const edm::ParameterSet&,const MuonServiceProxy *);
+  
+  /// default constructor
+  MuonUpdatorAtVertex();
 
-    /// constructor from propagator
-    MuonUpdatorAtVertex(const Propagator&);
+  /// constructor from propagator
+  MuonUpdatorAtVertex(const Propagator&);
 
-    /// destructor
-    virtual ~MuonUpdatorAtVertex();
+  /// destructor
+  virtual ~MuonUpdatorAtVertex();
 
-    /// initialize propagator EventSetup
-    void setES(const edm::EventSetup&);
+  /// get Propagator for outside tracker, SteppingHelixPropagator as default
+  /// anyDirection
+  std::auto_ptr<Propagator> propagator() const;
+    
+  /// return vertex measurement
+  MuonVertexMeasurement update(const TrajectoryStateOnSurface&) const;
 
-    /// set Propagator directly
-    void setPropagator(const Propagator&);
+  /// only return the state on outer tracker surface
+  TrajectoryStateOnSurface stateAtTracker(const TrajectoryStateOnSurface&) const;
 
-    /// set Propagator from 2 propagators, tk & gen
-    void setPropagator(const Propagator&,const Propagator&, const MagneticField*);
-
-    /// return vertex measurement
-    MuonVertexMeasurement update(const TrajectoryStateOnSurface&) const;
-
-    /// only return the state on outer tracker surface
-    TrajectoryStateOnSurface stateAtTracker(const TrajectoryStateOnSurface&) const;
-
-    void setVertex(const GlobalPoint&, const GlobalError&);
+  void setVertex(const GlobalPoint&, const GlobalError&);
 
     
-  private:
+ private:
+
+  const MuonServiceProxy *theService;
  
-    GlobalPoint theVertexPos;
-    GlobalError theVertexErr;
+  GlobalPoint theVertexPos;
+  GlobalError theVertexErr;
 
-    Propagator* thePropagator;
-    TransverseImpactPointExtrapolator* theExtrapolator;
-    KFUpdator* theUpdator;
-    MeasurementEstimator* theEstimator;
-    std::string theOutPropagatorName;
-    std::string theInPropagatorName;
-
-    const MuonServiceProxy *theService;
+  TransverseImpactPointExtrapolator* theExtrapolator;
+  KFUpdator* theUpdator;
+  MeasurementEstimator* theEstimator;
+  std::string theOutPropagatorName;
+  std::string theInPropagatorName;
 };
 
 #endif

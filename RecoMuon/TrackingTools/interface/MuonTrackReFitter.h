@@ -1,5 +1,5 @@
-#ifndef TrackingTools_MuonTrackReFitter_H
-#define TrackingTools_MuonTrackReFitter_H
+#ifndef RecoMuon_TrackingTools_MuonTrackReFitter_H
+#define RecoMuon_TrackingTools_MuonTrackReFitter_H
 
 /**  \class MuonTrackReFitter
  *
@@ -9,8 +9,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/08/09 21:55:59 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/08/28 14:43:31 $
+ *   $Revision: 1.2 $
  *
  *   \author   N. Neumeister            Purdue University
  */
@@ -22,11 +22,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 class Propagator;
 class TrajectoryStateUpdator;
-class MagneticField;
+class MuonServiceProxy;
 class MeasurementEstimator;
 
 namespace edm {class ParameterSet; class EventSetup;}
@@ -42,13 +41,10 @@ class MuonTrackReFitter : public TrajectorySmoother {
     typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
     /// default constructor
-    MuonTrackReFitter(const edm::ParameterSet&);
+    MuonTrackReFitter(const edm::ParameterSet&, const MuonServiceProxy*);
 
     /// destructor
     virtual ~MuonTrackReFitter();
-
-    /// initialize propagators
-    void setES(const edm::EventSetup&);
 
     /// refit trajectory
     virtual TrajectoryContainer trajectories(const Trajectory&) const;
@@ -58,8 +54,8 @@ class MuonTrackReFitter : public TrajectorySmoother {
 				             const ConstRecHitContainer& hits, 
 				             const TrajectoryStateOnSurface& firstPredTsos) const;
 
-    /// return propagator
-    Propagator* propagator() const { return thePropagator1; }
+    /// Get the propagator(s)
+    std::auto_ptr<Propagator> propagator(PropagationDirection propagationDirection = alongMomentum) const;
 
     /// clone
     MuonTrackReFitter* clone() const {
@@ -82,8 +78,8 @@ class MuonTrackReFitter : public TrajectorySmoother {
 
   private:
 
-    Propagator* thePropagator1;
-    Propagator* thePropagator2;
+    const MuonServiceProxy *theService;
+
     const TrajectoryStateUpdator* theUpdator;
     const MeasurementEstimator* theEstimator;
     float theErrorRescaling;
@@ -92,8 +88,6 @@ class MuonTrackReFitter : public TrajectorySmoother {
     std::string theOutPropagatorAlongMom;
     std::string theInPropagatorOppositeToMom;
     std::string theOutPropagatorOppositeToMom;
-    edm::ESHandle<MagneticField> theMagField;
-  
 };
 
 #endif

@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/08/30 20:32:43 $
- *   $Revision: 1.4 $
+ *   $Date: 2006/08/31 12:37:44 $
+ *   $Revision: 1.5 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   C. Liu                   Purdue University
@@ -15,10 +15,10 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonTrackReFitter.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
@@ -26,8 +26,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
@@ -36,15 +34,13 @@ using namespace std;
 //
 // constructor
 //
-MuonTrackReFitter::MuonTrackReFitter(const ParameterSet& par) {
+MuonTrackReFitter::MuonTrackReFitter(const ParameterSet& par, const MuonServiceProxy *service):theService(service) {
 
   theErrorRescaling = 100.0;
  
   theUpdator     = new KFUpdator;
   theEstimator   = new Chi2MeasurementEstimator(200.0);
-  thePropagator1 = 0;
-  thePropagator2 = 0;
-
+ 
   theInPropagatorAlongMom = par.getParameter<string>("InPropagatorAlongMom");
   theOutPropagatorAlongMom = par.getParameter<string>("OutPropagatorAlongMom");
   theInPropagatorOppositeToMom = par.getParameter<string>("InPropagatorOppositeToMom");
@@ -52,45 +48,32 @@ MuonTrackReFitter::MuonTrackReFitter(const ParameterSet& par) {
 
 }
 
-
 //
 // destructor
 //
 MuonTrackReFitter::~MuonTrackReFitter() {
 
-  if ( thePropagator2 ) delete thePropagator2;
-  if ( thePropagator1 ) delete thePropagator1;
   if ( theUpdator ) delete theUpdator;
   if ( theEstimator ) delete theEstimator;
 
 }
 
-
-//
-// initialize propagators
-//
-void MuonTrackReFitter::setES(const edm::EventSetup& iSetup) {
-
-  ESHandle<Propagator> eshPropagator1;
-  iSetup.get<TrackingComponentsRecord>().get(theOutPropagatorAlongMom, eshPropagator1);
-
-  ESHandle<Propagator> eshPropagator2;
-  iSetup.get<TrackingComponentsRecord>().get(theInPropagatorAlongMom, eshPropagator2);
-
-  ESHandle<Propagator> eshPropagator3;
-  iSetup.get<TrackingComponentsRecord>().get(theOutPropagatorOppositeToMom, eshPropagator3);
- 
-  ESHandle<Propagator> eshPropagator4;
-  iSetup.get<TrackingComponentsRecord>().get(theInPropagatorOppositeToMom, eshPropagator4);
-
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-
-  if ( thePropagator1 ) delete thePropagator1;
-  thePropagator1 = new SmartPropagator(*eshPropagator2,*eshPropagator1, &*theMagField);
-
-  if ( thePropagator2 ) delete thePropagator2;
-  thePropagator2 = new SmartPropagator(*eshPropagator4,*eshPropagator3, &*theMagField,oppositeToMomentum);
-
+/// Get the propagator(s)
+auto_ptr<Propagator> MuonTrackReFitter::propagator(PropagationDirection propagationDirection) const{
+  
+  if (propagationDirection == oppositeToMomentum){
+    auto_ptr<Propagator> smartPropagator(new SmartPropagator(*theService->propagator(theInPropagatorOppositeToMom),
+							*theService->propagator(theOutPropagatorOppositeToMom),
+							&*theService->magneticField(),
+							propagationDirection));
+    return smartPropagator;
+  }
+  else{
+    auto_ptr<Propagator> smartPropagator(new SmartPropagator(*theService->propagator(theInPropagatorAlongMom),
+							*theService->propagator(theOutPropagatorAlongMom),
+							&*theService->magneticField() ));
+    return smartPropagator;
+  }
 }
 
 
@@ -151,7 +134,7 @@ vector<Trajectory> MuonTrackReFitter::fit(const TrajectorySeed& seed,
 
   if ( hits.empty() ) return vector<Trajectory>();
 
-  //Trajectory myTraj(seed, thePropagator1->propagationDirection());
+  //Trajectory myTraj(seed, propagator()->propagationDirection());
   Trajectory myTraj(seed, alongMomentum);
 
   TSOS predTsos(firstPredTsos);
@@ -172,7 +155,7 @@ vector<Trajectory> MuonTrackReFitter::fit(const TrajectorySeed& seed,
   for ( ConstRecHitContainer::const_iterator ihit = hits.begin() + 1; 
         ihit != hits.end(); ++ihit ) {
 
-    predTsos = thePropagator1->propagate(currTsos, (**ihit).det()->surface());
+    predTsos = propagator()->propagate(currTsos, (**ihit).det()->surface());
 
     if ( !predTsos.isValid() ) {
       //return vector<Trajectory>();
@@ -218,7 +201,7 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
 
   if ( t.empty() ) return vector<Trajectory>();
 
-  //Trajectory myTraj(t.seed(), thePropagator2->propagationDirection());
+  //Trajectory myTraj(t.seed(), propagator(oppositeToMomentum)->propagationDirection());
   Trajectory myTraj(t.seed(), oppositeToMomentum);
 
   vector<TM> avtm = t.measurements();
@@ -256,7 +239,7 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
   for ( vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
         itm != avtm.rend() - 1; ++itm ) {
 
-    predTsos = thePropagator2->propagate(currTsos,(*itm).recHit()->det()->surface());
+    predTsos = propagator(oppositeToMomentum)->propagate(currTsos,(*itm).recHit()->det()->surface());
 
     if ( !predTsos.isValid() ) {
       //return vector<Trajectory>();
@@ -293,7 +276,7 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
   }
 
   // last smoothed TM is last filtered
-  predTsos = thePropagator2->propagate(currTsos, avtm.front().recHit()->det()->surface());
+  predTsos = propagator(oppositeToMomentum)->propagate(currTsos, avtm.front().recHit()->det()->surface());
   
   if ( !predTsos.isValid() ) return vector<Trajectory>();
 

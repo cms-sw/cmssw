@@ -1,11 +1,11 @@
-#ifndef GlobalTrackFinder_GlobalMuonTrajectoryBuilder_H
-#define GlobalTrackFinder_GlobalMuonTrajectoryBuilder_H
+#ifndef RecoMuon_GlobalTrackFinder_GlobalMuonTrajectoryBuilder_H
+#define RecoMuon_GlobalTrackFinder_GlobalMuonTrajectoryBuilder_H
 
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/08/29 19:46:28 $
- *  $Revision: 1.27 $
+ *  $Date: 2006/08/30 12:58:24 $
+ *  $Revision: 1.28 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -23,15 +23,14 @@
 class RectangularEtaPhiTrackingRegion;
 class TrajectoryStateOnSurface;
 class MuonUpdatorAtVertex;
-class MagneticField;
+
 class GlobalMuonTrackMatcher;
 class TransientTrackingRecHitBuilder;
 class MuonTransientTrackingRecHitBuilder;
-class GlobalTrackingGeometry;
-class MuonDetLayerGeometry;
+
 class MuonDetLayerMeasurements;
 class MuonTrackReFitter;
-class TrackConverter;
+class MuonTrackConverter;
 class MuonServiceProxy;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
@@ -68,9 +67,6 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     /// reconstruct trajectories from trajectory seed
     MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&){ MuonTrajectoryBuilder::TrajectoryContainer result; return result; }
 
-    /// pass the Event Setup to the algo at each event
-    virtual void setES(const edm::EventSetup&);
-  
     /// pass the Event to the algo at each event
     virtual void setEvent(const edm::Event&);
 
@@ -110,10 +106,9 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     GlobalMuonTrackMatcher* theTrackMatcher;
     MuonTrackReFitter* theRefitter;
     MuonDetLayerMeasurements* theLayerMeasurements;
-    MuonTransientTrackingRecHitBuilder* theMuonTTRHBuilder;
-    TrackConverter* theTrackConverter;
 
-    float theTrackMatcherChi2Cut;
+    MuonTrackConverter* theTrackConverter;
+
     int   theMuonHitsOption;
     ReconstructionDirection theDirection;
     float thePtCut;
@@ -125,17 +120,12 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     bool convert;
 
     std::string thePropagatorLabel;
-    std::string theTTRHBuilderName;   
 
     std::string theTkTrackLabel;
 
-    edm::ESHandle<MagneticField> theMagField;
-    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-    edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
-
     edm::Handle<reco::TrackCollection> allTrackerTracks;
 
-    edm::ESHandle<TransientTrackingRecHitBuilder> theTkTransientTrackingRecHitBuilder;
-
+    const MuonServiceProxy *theService;
+    
 };
 #endif
