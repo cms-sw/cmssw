@@ -93,13 +93,14 @@ void dumpEventHeader(const EventMsgView* eview)
 
   cout << "\nl1 size= " << l1_out.size() << "\n l1 bits=\n";
   copy(l1_out.begin(),l1_out.end(),ostream_iterator<bool>(cout," "));
-   
-  unsigned int bytesForHLT = 1 + (eview->hltCount())/4;
-
+  
+  unsigned int bytesForHLT = eview->hltCount();   
+  cout<<"eview->hltCount():::::::::::::::"<<eview->hltCount()<<endl;
+  if (eview->hltCount() !=0)  bytesForHLT = 1 + (eview->hltCount()-1)/4;
   cout << "\nBytes used by hlt = " << bytesForHLT <<endl; 
 
   cout << "\nhlt bits=\n(";
-  copy(&hlt_out[0],&hlt_out[0]+(bytesForHLT-1),ostream_iterator<char>(cout,""));
+  copy(&hlt_out[0],&hlt_out[0]+bytesForHLT,ostream_iterator<char>(cout,""));
   cout << ")\n";
  }
 
