@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/08/15 00:58:36 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/16 10:07:09 $
+ *  $Revision: 1.6 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -130,23 +130,23 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   MuonRecHitContainer RHMB2 = muonMeasurements.recHits(MB2DL);
   MuonRecHitContainer RHMB1 = muonMeasurements.recHits(MB1DL);
 
-  edm::LogInfo("CosmicMuonSeedGenerator")<<"RecHits: Barrel outsideIn "
-                                         <<RHMB4.size()<<" : "
-                                         <<RHMB3.size()<<" : "
-                                         <<RHMB2.size()<<" : "
-                                         <<RHMB1.size()<<" .\n"
-                                         <<"RecHits: Forward Endcap outsideIn "
-                                         <<RHFME4.size()<<" : "
-                                         <<RHFME3.size()<<" : "
-                                         <<RHFME2.size()<<" : "
-                                         <<RHFME12.size()<<" : "
-                                         <<RHFME11.size()<<" .\n"
-                                         <<"RecHits: Backward Endcap outsideIn "
-                                         <<RHFME4.size()<<" : "
-                                         <<RHFME3.size()<<" : "
-                                         <<RHFME2.size()<<" : "
-                                         <<RHFME12.size()<<" : "
-                                         <<RHFME11.size()<<" .\n"; 
+  LogDebug("CosmicMuonSeedGenerator")<<"RecHits: Barrel outsideIn "
+                                     <<RHMB4.size()<<" : "
+                                     <<RHMB3.size()<<" : "
+                                     <<RHMB2.size()<<" : "
+                                     <<RHMB1.size()<<" .\n"
+                                     <<"RecHits: Forward Endcap outsideIn "
+                                     <<RHFME4.size()<<" : "
+                                     <<RHFME3.size()<<" : "
+                                     <<RHFME2.size()<<" : "
+                                     <<RHFME12.size()<<" : "
+                                     <<RHFME11.size()<<" .\n"
+                                     <<"RecHits: Backward Endcap outsideIn "
+                                     <<RHBME4.size()<<" : "
+                                     <<RHBME3.size()<<" : "
+                                     <<RHBME2.size()<<" : "
+                                     <<RHBME12.size()<<" : "
+                                     <<RHBME11.size()<<" .\n"; 
 
   // generate Seeds upside-down (try the nnermost first)
   // only lower part works now
@@ -158,21 +158,21 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   createSeeds(theSeeds,RHFME11,eSetup);
   createSeeds(theSeeds,RHBME11,eSetup);
 
+  createSeeds(theSeeds,RHFME2,eSetup);
+  createSeeds(theSeeds,RHBME2,eSetup);
+
+  createSeeds(theSeeds,RHFME3,eSetup);
+  createSeeds(theSeeds,RHBME3,eSetup);
+
   if ( theSeeds.empty() ) {
 
     createSeeds(theSeeds,RHMB2,eSetup);
-    createSeeds(theSeeds,RHFME2,eSetup);
-    createSeeds(theSeeds,RHBME2,eSetup);
 
-    if ( theSeeds.empty() ) {
-       createSeeds(theSeeds,RHMB3,eSetup);
-       createSeeds(theSeeds,RHFME3,eSetup);
-       createSeeds(theSeeds,RHBME3,eSetup);
+    createSeeds(theSeeds,RHMB3,eSetup);
 
-       createSeeds(theSeeds,RHMB4,eSetup);
-       createSeeds(theSeeds,RHFME4,eSetup);
-       createSeeds(theSeeds,RHBME4,eSetup);
-    }
+    createSeeds(theSeeds,RHMB4,eSetup);
+    createSeeds(theSeeds,RHFME4,eSetup);
+    createSeeds(theSeeds,RHBME4,eSetup);
 
   }
 
@@ -184,7 +184,6 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
 
 bool CosmicMuonSeedGenerator::checkQuality(MuonRecHitPointer hit) const {
-//  return true; //FIXME
 
   // only use 4D segments ?  try another way for 2D segments
 //  if (hit->degreesOfFreedom() < 4) {
@@ -192,11 +191,11 @@ bool CosmicMuonSeedGenerator::checkQuality(MuonRecHitPointer hit) const {
 //    return false;
 //  }
   if (hit->isDT() && ( hit->chi2()> theMaxDTChi2 )) {
-    edm::LogInfo("CosmicMuonSeedGenerator")<<"DT chi2 too large";
+    LogDebug("CosmicMuonSeedGenerator")<<"DT chi2 too large";
     return false;
   }
   else if (hit->isCSC() &&( hit->chi2()> theMaxCSCChi2 ) ) {
-    edm::LogInfo("CosmicMuonSeedGenerator")<<"CSC chi2 too large";
+    LogDebug("CosmicMuonSeedGenerator")<<"CSC chi2 too large";
      return false;
   }
   return true;
@@ -211,7 +210,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
   for (MuonRecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
     if ( !checkQuality(*ihit)) continue;
     const std::vector<TrajectorySeed>& sds = createSeed((*ihit),eSetup);
-    edm::LogInfo("CosmicMuonSeedGenerator")<<"created seeds from rechit "<<sds.size();
+    LogDebug("CosmicMuonSeedGenerator")<<"created seeds from rechit "<<sds.size();
     results.insert(results.end(),sds.begin(),sds.end());
   }
   return;
@@ -252,7 +251,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   polar *=fabs(pt)/polar.perp();
   LocalVector segDir =hit->det()->toLocal(polar);
 
-  int charge= -1; //(int)(pt/fabs(pt)); //FIXME
+  int charge= 1; //more mu+ than mu- in natural  //(int)(pt/fabs(pt)); //FIXME
 
   LocalTrajectoryParameters param(segPos,segDir, charge);
 
@@ -266,15 +265,15 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, hit->det()->surface(), &*field);
 
-  edm::LogInfo(metname)<<"Trajectory State on Surface before the extrapolation";
-  edm::LogInfo(metname)<<"mom: "<<tsos.globalMomentum();
-  edm::LogInfo(metname)<<"pos: " << tsos.globalPosition(); 
+  LogDebug(metname)<<"Trajectory State on Surface before the extrapolation";
+  LogDebug(metname)<<"mom: "<<tsos.globalMomentum();
+  LogDebug(metname)<<"pos: " << tsos.globalPosition(); 
 
  // ask for compatible layers
   DirectMuonNavigation theNavigation(&*theMuonLayers);
   vector<const DetLayer*> detLayers = theNavigation.compatibleLayers(*(tsos.freeState()),oppositeToMomentum);
   
-  edm::LogInfo(metname) << "There are "<< detLayers.size() <<" compatible layers"<<endl;
+  LogDebug(metname) << "There are "<< detLayers.size() <<" compatible layers"<<endl;
   
   vector<DetWithState> detsWithStates;
 
@@ -282,10 +281,10 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
     
     // ask for compatible dets
     detsWithStates = detLayers.back()->compatibleDets(tsos, *propagator, *estimator);
-    edm::LogInfo(metname)<<"Number of compatible dets: "<<detsWithStates.size()<<endl;
+    LogDebug(metname)<<"Number of compatible dets: "<<detsWithStates.size()<<endl;
   }
   else
-    LogInfo(metname)<<"No compatible layers found"<<endl;
+    LogDebug(metname)<<"No compatible layers found"<<endl;
 
   if(detsWithStates.size()){
     // get the updated TSOS
