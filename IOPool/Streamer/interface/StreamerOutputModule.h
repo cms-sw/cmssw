@@ -169,15 +169,10 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     hlt_names.push_back("e");  hlt_names.push_back("f");
     hlt_names.push_back("g");  hlt_names.push_back("h");
     hlt_names.push_back("i");
-    Strings l1_names;  //11
+    Strings l1_names;  //3
     l1_names.push_back("t1");  l1_names.push_back("t10");
-    l1_names.push_back("t2");  l1_names.push_back("t3");
-    l1_names.push_back("t4");  l1_names.push_back("t5");
-    l1_names.push_back("t6");  l1_names.push_back("t7");
-    l1_names.push_back("t8");  l1_names.push_back("t9");
-    l1_names.push_back("t11");
+    l1_names.push_back("t2");  
     //end-of-dummy-values
-
     std::auto_ptr<InitMsgBuilder> init_message(
                                 new InitMsgBuilder(&prod_reg_buf_[0], prod_reg_buf_.size(),
                                       run, v, release_tag, hlt_names,
@@ -198,11 +193,10 @@ std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
     //Following is strictly DUMMY Data, and will be replaced with actual
     // once figured out, there is no logic involved here.
     uint32 lumi=2;
-    std::vector<bool> l1bit(11);
-    l1bit[0]=true;  l1bit[4]=true;  l1bit[8]=false;
-    l1bit[1]=true;  l1bit[5]=false;  l1bit[9]=false;
-    l1bit[2]=false;  l1bit[6]=true;  l1bit[10]=true;
-    l1bit[3]=false;  l1bit[7]=false;  l1bit[11]=true;
+    std::vector<bool> l1bit(3);
+    l1bit[0]=true;  
+    l1bit[1]=true; 
+    l1bit[2]=false;
     uint8 hltbits[] = "4567";
     const int hltsize = 9;//(sizeof(hltbits)-1)*4;
     uint32 reserved=0; // no compression as default value - we need this!

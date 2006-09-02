@@ -64,6 +64,7 @@ private:
   uint32 l1_bits_count_;
   uint8* event_start_;
   uint32 event_len_;
+  bool v2Detected_;
 };
 
 #endif

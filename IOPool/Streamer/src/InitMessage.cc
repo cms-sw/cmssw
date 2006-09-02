@@ -1,11 +1,19 @@
 #include "IOPool/Streamer/interface/InitMessage.h"
 
-
 InitMsgView::InitMsgView(void* buf):
   buf_((uint8*)buf),head_(buf)
 {
-
-  release_start_ = buf_ + sizeof(InitHeader);
+  if (protocolVersion() == 2) 
+     {
+      std::cout<<"Protocol Version 2 encountered"<<endl; 
+      release_start_ = buf_ + sizeof(InitHeader) - (sizeof(uint32)*2);
+      // Minus the size for Init and Event Header size fileds
+      // in the InitHeader
+     }
+  else 
+     { //For version 3 
+      release_start_ = buf_ + sizeof(InitHeader);
+     }
   release_len_ = *release_start_;
   release_start_ += sizeof(uint8);
 
@@ -46,7 +54,6 @@ void InitMsgView::pset(uint8* put_here) const
 std::string InitMsgView::releaseTag() const
 {
   return std::string((char*)release_start_,release_len_);
-                                                                      
 }
 
 void InitMsgView::hltTriggerNames(Strings& save_here) const
@@ -69,15 +76,28 @@ void InitMsgView::getNames(uint8* from, uint32 from_len, Strings& to) const
 
 uint32 InitMsgView::eventHeaderSize() const
 {
-  /** This is estimated size of event header for Protocol Version 2. */
-  uint32 hlt_sz = get_hlt_bit_cnt();
-  if (hlt_sz != 0 && hlt_sz < 4) hlt_sz = 1;
-  else  hlt_sz = hlt_sz/4;
+  if (protocolVersion() == 2) 
+     {
+       /** This is estimated size of event header for Protocol Version 2. */
 
-  uint32 l1_sz = get_l1_bit_cnt();
-  if (l1_sz != 0 && l1_sz < 8) l1_sz = 1;
-  else l1_sz = get_l1_bit_cnt()/8;
-  
-  return 1+(4*8)+(get_hlt_bit_cnt()/4)+(get_l1_bit_cnt()/8); 
+       uint32 hlt_sz = get_hlt_bit_cnt();
+       if (hlt_sz != 0 ) hlt_sz = 1+ ((hlt_sz-1)/4);
+
+       uint32 l1_sz = get_l1_bit_cnt();
+       if (l1_sz != 0) l1_sz = 1 + ((l1_sz-1)/8);
+
+       return 1+(4*8)+hlt_sz+l1_sz; 
+     }
+
+   InitHeader* h = (InitHeader*)buf_;
+   return convert32(h->event_header_size_);
 }
+
+/***
+uint32 InitMsgView::initHeaderSize() const
+{
+  InitHeader* h = (InitHeader*)buf_;
+  return convert32(h->init_header_size_);
+} **/
+
 
