@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: 2006/09/01 15:47:05 $
- *  $Revision: 1.1 $ 
+ *  $Date: 2006/09/01 21:11:05 $
+ *  $Revision: 1.2 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -173,15 +173,15 @@ MuonTrackConverter::getTransientMuonRecHits(const reco::Track& track) const {
 //
 void MuonTrackConverter::printHits(const ConstRecHitContainer& hits) const {
 
-  LogInfo("GlobalMuonTrajectoryBuilder") << "Used RecHits: ";
+  LogInfo("MuonTrackConverter") << "Used RecHits: ";
   for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
     if ( !(*ir)->isValid() ) {
-      LogInfo("GlobalMuonTrajectoryBuilder") << "invalid RecHit";
+      LogInfo("MuonTrackConverter") << "invalid RecHit";
       continue;
     }
 
     const GlobalPoint& pos = (*ir)->globalPosition();
-    LogInfo("GlobalMuonTrajectoryBuilder")
+    LogInfo("MuonTrackConverter")
     << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y())     << "  z = " << pos.z()
     << "  dimension = " << (*ir)->dimension()
     << "  " << (*ir)->det()->geographicalId().det()
