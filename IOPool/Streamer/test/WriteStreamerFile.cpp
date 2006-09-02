@@ -60,7 +60,7 @@ int main()
   char reltag[]="CMSSW_0_6_0_pre45";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(2,(const uint8*)psetid),
+                      Version(3,(const uint8*)psetid),
                       (const char*)reltag,
                       hlt_names,l1_names);
 
