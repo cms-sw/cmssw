@@ -225,7 +225,7 @@ try{
   StreamerInputIndexFile index_reader(indexfilename);
 
   const StartIndexRecord* startindx = index_reader.startMessage();
-
+  cout <<"---------------------Start Message-------------"<<endl;
   cout<<"Dump the Start Message from Index:-"<<endl;
   cout<<"Magic Number is: "<<startindx->getMagic()<<endl;
   cout<<"Reserved filed is: "<<startindx->getReserved()<<endl;
@@ -312,7 +312,6 @@ int main(int argc, char* argv[]){
    if(doThis == "all" || doThis == "multi") readMultipleStreams();
    cout <<"\n\nReadStreamerFile TEST DONE\n"<<endl;
    
-   help();
    return 0;
 }
 
