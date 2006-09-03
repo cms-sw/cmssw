@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/08/22 15:18:09 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/31 18:24:17 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -52,6 +52,12 @@ class MuonTrajectoryUpdator {
 							   Trajectory& theTraj,
 							   const Propagator *propagator);
   
+  /// update the Trajectory with the TrajectoryMeasurement
+  virtual std::pair<bool,TrajectoryStateOnSurface>  update(const TrajectoryMeasurement* theMeas,
+                                                           Trajectory& theTraj,
+                                                           const Propagator *propagator,
+ 							   PropagationDirection fitDir);
+
   /// accasso at the propagator
   const MeasurementEstimator *estimator() const {return theEstimator;}
   const TrajectoryStateUpdator *measurementUpdator() const {return theUpdator;}

@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/08/22 15:17:58 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/08/31 18:24:18 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -190,6 +190,186 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 
   // sort the container in agreement with the porpagation direction
   sort(recHitsForFit,detLayer,propagator->propagationDirection());
+  
+  TrajectoryStateOnSurface lastUpdatedTSOS = theMeas->predictedState();
+  
+  LogDebug(metname)<<"Own vector size: "<<recHitsForFit.size()<<endl;
+ 
+  TransientTrackingRecHit::ConstRecHitContainer::iterator recHit;
+  for(recHit = recHitsForFit.begin(); recHit != recHitsForFit.end(); ++recHit ) {
+    if ((*recHit)->isValid() ) {
+
+      // propagate the TSOS onto the rechit plane
+      TrajectoryStateOnSurface propagatedTSOS  = propagateState(lastUpdatedTSOS, theMeas, 
+								*recHit, propagator);
+      
+      if ( propagatedTSOS.isValid() ) {
+        pair<bool,double> thisChi2 = estimator()->estimate(propagatedTSOS, *((*recHit).get()));
+
+	LogDebug(metname) << "Estimation for Kalman Fit. Chi2: " << thisChi2.second;
+	
+        // The Chi2 cut was already applied in the estimator, which
+        // returns 0 if the chi2 is bigger than the cut defined in its
+        // constructor
+        if ( thisChi2.first ) {
+          updated=true;
+	  
+          LogDebug(metname) << endl 
+			    << "     Kalman Start" << "\n" << "\n";
+          LogDebug(metname) << "  Meas. Position : " << (**recHit).globalPosition() << "\n"
+			    << "  Pred. Position : " << propagatedTSOS.globalPosition()
+			    << "  Pred Direction : " << propagatedTSOS.globalDirection()<< endl;
+
+          lastUpdatedTSOS = measurementUpdator()->update(propagatedTSOS,*((*recHit).get()));
+
+          LogDebug(metname) << "  Fit   Position : " << lastUpdatedTSOS.globalPosition()
+			    << "  Fit  Direction : " << lastUpdatedTSOS.globalDirection()
+			    << "\n"
+			    << "  Fit position radius : " 
+			    << lastUpdatedTSOS.globalPosition().perp()
+			    << "filter updated" << endl;
+	  
+	  LogDebug(metname) << muonDumper.dumpTSOS(lastUpdatedTSOS);
+	  
+	  LogDebug(metname) << "\n\n     Kalman End" << "\n" << "\n";	      
+	  
+	  TrajectoryMeasurement updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
+									*recHit,thisChi2.second,detLayer, 
+									theMeas);
+	  // FIXME: check!
+	  theTraj.push(updatedMeasurement, thisChi2.second);	  
+	}
+      }
+    }
+  }
+  return pair<bool,TrajectoryStateOnSurface>(updated,lastUpdatedTSOS);
+}
+
+
+pair<bool,TrajectoryStateOnSurface> 
+MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
+			      Trajectory& theTraj,
+			      const Propagator *propagator,
+                              PropagationDirection fitDir){
+  
+  const std::string metname = "Muon|RecoMuon|MuonTrajectoryUpdator";
+  TimeMe t(metname);
+  MuonPatternRecoDumper muonDumper;
+
+  // Status of the updating
+  bool updated=false;
+  
+  // FIXM put a warning
+  if(!theMeas) return pair<bool,TrajectoryStateOnSurface>(updated,TrajectoryStateOnSurface() );
+
+  // measurement layer
+  const DetLayer* detLayer=theMeas->layer();
+
+  // Must be an own vector.
+  // The KFUpdator takes TransientTrackingRecHits as arg.
+  TransientTrackingRecHit::ConstRecHitContainer recHitsForFit;
+ 
+  // this are the 4D segment for the CSC/DT and a point for the RPC 
+  TransientTrackingRecHit::ConstRecHitPointer muonRecHit=  ((theMeas->recHit()));
+ 
+  //   LogDebug(metname)<<"The granulaity is "<<theGranularity;
+  //   LogDebug(metname)<<"The detLayer type is ";
+ 
+  //   if(detLayer->module() == dt)
+  //     LogDebug(metname)<<"DT"<<endl;
+  //   else if(detLayer->module() == csc)
+  //     LogDebug(metname)<<"CSC"<<endl;
+  //   else if(detLayer->module() == rpc)
+  //     LogDebug(metname)<<"RPC"<<endl;
+  //   else 
+  //     LogDebug(metname)<<"I don't know!"<<endl;
+ 
+  switch(theGranularity){
+  case 0:
+    {
+      // Asking for 4D segments for the CSC/DT and a point for the RPC
+      //     recHitsForFit.push_back( muonRecHit->clone() );
+      recHitsForFit.push_back( muonRecHit );
+      break;
+    }
+  case 1:
+    {
+      if (detLayer->subDetector()==GeomDetEnumerators::DT ) {
+	// Asking for 2D segments. theMeas->recHit() returns a 4D segment
+	TransientTrackingRecHit::ConstRecHitContainer segments2D = muonRecHit->transientHits();
+	// FIXME: this function is not yet available!
+	// recHitsForFit.insert(recHitsForFit.end(), segments2D.begin(), segments2D.end());
+	
+	// FIXME: remove this as insert will be available
+	insert(recHitsForFit,segments2D);
+      }
+      
+      else if(detLayer->subDetector()==GeomDetEnumerators::RPCBarrel || detLayer->subDetector()==GeomDetEnumerators::RPCEndcap)
+	recHitsForFit.push_back( muonRecHit);
+
+
+      
+      else if(detLayer->subDetector()==GeomDetEnumerators::CSC) {
+	// Asking for 2D points. theMeas->recHit() returns a 4D segment
+	TransientTrackingRecHit::ConstRecHitContainer rechit2D = muonRecHit->transientHits();
+	// FIXME: this function is not yet available!
+	// recHitsForFit.insert(recHitsForFit.end(), rechit2D.begin(), rechit2D.end());
+
+	// FIXME: remove this as insert will be available
+	insert(recHitsForFit,rechit2D);
+      }
+      break;
+    }
+    
+  case 2:
+    {
+      if (detLayer->subDetector()==GeomDetEnumerators::DT ) {
+	// Asking for 2D segments. theMeas->recHit() returns a 4D segment
+	// I have to use OwnVector, since this container must be passed to the
+	// KFUpdator, which takes TransientTrackingRecHits...
+	TransientTrackingRecHit::ConstRecHitContainer segments2D = muonRecHit->transientHits();
+	
+	// loop over segment
+	for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator segment = segments2D.begin(); 
+	     segment != segments2D.end();++segment ){
+
+	  // asking for 1D Rec Hit
+	  TransientTrackingRecHit::ConstRecHitContainer rechit1D = (**segment).transientHits();
+	  
+	  // FIXME: this function is not yet available!
+	  // recHitsForFit.insert(recHitsForFit.end(), rechit1D.begin(), rechit1D.end());
+
+	  // FIXME: remove this as insert will be available
+	  insert(recHitsForFit,rechit1D);	  
+	}
+      }
+      else if(detLayer->subDetector()==GeomDetEnumerators::RPCBarrel || detLayer->subDetector()==GeomDetEnumerators::RPCEndcap)
+	recHitsForFit.push_back(muonRecHit  );
+      
+      else if(detLayer->subDetector()==GeomDetEnumerators::CSC) {
+	// Asking for 2D points. theMeas->recHit() returns a 4D segment
+	TransientTrackingRecHit::ConstRecHitContainer rechit2D = (*muonRecHit).transientHits();
+
+	// FIXME: this function is not yet available!
+	// recHitsForFit.insert(recHitsForFit.end(), rechit2D.begin(), rechit2D.end());
+	
+	// FIXME: remove this as insert will be available
+	insert(recHitsForFit,rechit2D);
+      }
+      
+      break;
+    }
+
+  default:
+    {
+      throw cms::Exception(metname) <<"Wrong granularity chosen!"
+				    <<"it will be set to 0";
+      break;
+    }
+  }
+
+  // sort the container in agreement with the porpagation direction
+  sort(recHitsForFit,detLayer,fitDir);
   
   TrajectoryStateOnSurface lastUpdatedTSOS = theMeas->predictedState();
   
