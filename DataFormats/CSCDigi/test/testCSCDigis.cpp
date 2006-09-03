@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/04/26 20:30:52 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/23 14:29:58 $
+ * $Revision: 1.8 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.7 2006/04/26 20:30:52 tumanov Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.8 2006/06/23 14:29:58 lgray Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -88,7 +88,7 @@ void testCSCDigis::fillCSCWireDigi(CSCWireDigiCollection & collection){
        std::vector<CSCWireDigi> digivec;
        for (int i=10; i<11; ++i){
            int wire=i;
-           int tbin=5;
+           int tbin=104; /// (Time bins 3,5,6 - Bits 3,5,6 ON)
            CSCWireDigi digi(wire,tbin);
            digivec.push_back(digi);
         }
@@ -321,8 +321,12 @@ void testCSCDigis::readCSCWireDigi(CSCWireDigiCollection & collection){
   
               count++;
               CPPUNIT_ASSERT((*digiIt).getWireGroup()==10);
-              CPPUNIT_ASSERT((*digiIt).getTimeBin()==5);
- printf("CSC Wire - endcap station ring csc plane wire tbin: %3d %3d %3d %3d %3d %3d  %3d\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).getWireGroup(),(*digiIt).getBeamCrossingTag());
+              CPPUNIT_ASSERT((*digiIt).getTimeBin()==3);
+ printf("CSC Wire - endcap station ring csc plane wire tbin: %3d %3d %3d %3d %3d %3d  %3d\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).getWireGroup(),(*digiIt).getTimeBin());
+std::cout << " CSC Time Bins On ";
+std::vector<int> tbins=(*digiIt).getTimeBinsOn();
+for(unsigned int i=0; i<tbins.size();i++) std::cout<<tbins[i]<<" ";
+std::cout<<std::endl; 
   
     }// for digis in layer
    }// end of for (detUnitIt=...

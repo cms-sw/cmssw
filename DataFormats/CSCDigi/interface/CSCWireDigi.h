@@ -8,7 +8,7 @@
  * \author N. Terentiev, CMU
  */
 
-
+#include <vector>
 #include <boost/cstdint.hpp>
 
 class CSCWireDigi{
@@ -17,16 +17,18 @@ public:
 
   /// Constructors
   
-  CSCWireDigi (int wire, int tbin);  /// from the wiregroup#, tbin#
-  CSCWireDigi ();                             /// default
+  CSCWireDigi (int wire, int tbinb);  /// wiregroup#, tbin bit word
+  CSCWireDigi ();                     /// default
 
 
   /// return wiregroup number
   int getWireGroup() const {return wire_;}
-  /// return tbin number
-  int getBeamCrossingTag() const {return tbin_;}
-  /// return tbin number, consider getBeamCrossingTag() obsolete
-  int getTimeBin()         const {return tbin_;}
+  /// return tbin number, (obsolete, use getTimeBin() instead)
+  int getBeamCrossingTag() const;
+  /// return first tbin ON number
+  int getTimeBin()         const;
+  /// return vector of time bins ON
+  std::vector<int> getTimeBinsOn() const;
 
   /// Print content of digi
   void print() const;
@@ -38,14 +40,18 @@ public:
 private:
   friend class testCSCDigis; //@@ Do we really want friend access for a test?
   uint16_t wire_;
-  uint16_t tbin_;
+  uint16_t tbinb_;
 
 };
 
 #include<iostream>
 
 inline std::ostream & operator<<(std::ostream & o, const CSCWireDigi& digi) {
-  return o << " CSC Wire " << digi.getWireGroup()
-	   << " CSC Wire Time Bin " << digi.getTimeBin();
+  o << " CSC Wire " << digi.getWireGroup()
+	   << " CSC Wire First Time Bin On " << digi.getTimeBin()
+           << " CSC Time Bins On ";
+  for (unsigned int i = 0; i<digi.getTimeBinsOn().size(); ++i ){
+    o <<" " <<digi.getTimeBinsOn()[i]; }
+  return o;         
 }
 #endif
