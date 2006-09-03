@@ -76,6 +76,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   // create product (digis)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
   static int ndigis = 0;
+  static int nwords = 0;
 
   PixelDataFormatter formatter(map.product());
 {
@@ -106,10 +107,12 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   }
 }
   cout << "TIMING IS: (real)" << timer.lastMeasurement().real() << endl;
-  ndigis += formatter.ndigis();
-  cout << "this ev: "<<formatter.ndigis()<< "--- ndigis :"<<ndigis<<endl;
+  ndigis += formatter.nDigis();
+  nwords += formatter.nWords();
+  cout << " (Words/Digis) this ev: "<<formatter.nWords()<<"/"<<formatter.nDigis()
+       << "--- all :"<<nwords<<"/"<<ndigis<<endl;
   hCPU->Fill( timer.lastMeasurement().real() ); 
-  hDigi->Fill(formatter.ndigis());
+  hDigi->Fill(formatter.nDigis());
 
   //send digis back to framework 
   ev.put( collection );

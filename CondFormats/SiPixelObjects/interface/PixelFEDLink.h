@@ -46,6 +46,8 @@ public:
   /// return ROC identified by id. ROC ids are ranged [0,numberOfROCs)
   const PixelROC * roc(unsigned int id) const;
 
+  /// return DetUnit to which ROC belongs
+  uint32_t rocDetUnit(unsigned int id) const;
   const Connections & connected() const { return theConnections; }
   
   /// check ROC in link numbering consistency, ie. that ROC position in

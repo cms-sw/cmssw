@@ -38,53 +38,16 @@ public:
   int idInLink() const { return theIdLk; }
 
   /// return the DetUnit to which this ROC belongs to.
-  uint32_t rawId() const { return theDetUnit; }
+  // uint32_t rawId() const { return theDetUnit; }
 
-  /// local coordinates in this ROC (double column, pixelid in double column) 
-  struct LocalPixel { int dcol; int pxid; };
-  /// global coordinates (row and column in DetUnit, as in PixelDigi)
-  struct GlobalPixel { int row; int col; };
-
-  /// converts DU position to local. 
-  /// If GlobalPixel is outside ROC the resulting LocalPixel is not inside ROC.
-  /// (call to inside(..) recommended)
-  LocalPixel  toLocal(const GlobalPixel & gp) const;
-
-  /// converts LocalPixel in ROC to DU coordinates. 
-  /// LocalPixel must be inside ROC. Otherwise result is meaningless
-  GlobalPixel toGlobal(const LocalPixel & loc) const {
-    int icol, irow;
-    if (loc.pxid < theNRows) {
-      icol = 0;
-      irow = loc.pxid;
-    }
-    else {
-      icol = 1;
-      irow = 2*theNRows - loc.pxid-1;
-    }
-    GlobalPixel res;
-    res.row = theNRows*theRocInY + irow;
-    res.col = theNCols*theRocInX + loc.dcol * 2 + icol;
-    return res;
-  }
-
-  /// check if position is inside this ROC
-  bool inside(const LocalPixel & lp) const;
   bool inside(int dcol, int pxid) const;
-  
-  
-
-  /// check if position inside this ROC
-  bool inside(const GlobalPixel & gp) const { return inside(toLocal(gp)); }
 
   std::string print(int depth = 0) const;
-
 
   /// number of rows in ROC
   static int rows() { return theNRows; }
   /// number of columns in ROC 
   static int cols() { return theNCols; }
-
 
 private:
   uint32_t theDetUnit;

@@ -24,8 +24,8 @@ bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
     const PixelFEDLink * link = theFed.link(idxLink);
     int numberOfRocs = link->numberOfROCs();
     for(int idxRoc = 0; idxRoc < numberOfRocs; idxRoc++) {
-      const PixelROC * roc = link->roc(idxRoc);
-      if (rawId == roc->rawId()) return true;
+      if (rawId == link->rocDetUnit(idxRoc) ) return true;
+//      if ( rawId == link->roc(idxRoc)->rawId() ) return true;
     }
   }
   return false;
@@ -50,7 +50,8 @@ SiPixelFrameConverter::DetectorIndex SiPixelFrameConverter::
   LocalPixel local = {cabling.dcol, cabling.pxid};
   GlobalPixel global = toGlobal(*roc, local);
 
-  DetectorIndex detIdx = {roc->rawId(),  global.row, global.col}; 
+  DetectorIndex detIdx = {link->rocDetUnit(cabling.roc),  global.row, global.col}; 
+//  DetectorIndex detIdx = {link->roc(cabling.roc)->rawId(),  global.row, global.col}; 
   return detIdx;
 }
 
@@ -81,7 +82,8 @@ SiPixelFrameConverter::CablingIndex SiPixelFrameConverter::
     int numberOfRocs = link->numberOfROCs();
     for(int idxRoc = 0; idxRoc < numberOfRocs; idxRoc++) {
       const PixelROC * roc = link->roc(idxRoc);
-      if (detector.rawId == roc->rawId()) {
+    if (detector.rawId == link->rocDetUnit(idxRoc)) {
+//      if (detector.rawId == link->roc(idxRoc)->rawId() ) {
         GlobalPixel global = {detector.row, detector.col};
         LocalPixel local = toLocal(*roc, global);
         if(! (*roc).inside(local.dcol, local.pxid) ) continue;

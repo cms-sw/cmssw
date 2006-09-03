@@ -27,18 +27,19 @@ bool PixelFEDLink::checkRocNumbering() const
   return result;
 }
 
+uint32_t PixelFEDLink::rocDetUnit(unsigned int id) const
+{
+  return (id >= 0 && id < theIndices.size()) ?
+      theConnections[theIndices[id].first].unit : 0;
+}
+
 const PixelROC * PixelFEDLink::roc(unsigned int id) const
 {
 // return & theConnections[theIndices[id].first].rocs[theIndices[id].second];
 
  if (id < 0 || id >= theIndices.size()) return 0;
  const ConnectionIndex & conIdx = theIndices[id];
-
- if (conIdx.first < theConnections.size() &&
-     conIdx.second < theConnections[conIdx.first].rocs.size() )
-   return &(theConnections[conIdx.first].rocs[conIdx.second]);
-
-  return 0;
+ return &(theConnections[conIdx.first].rocs[conIdx.second]);
 }
 
 void PixelFEDLink::add(const Connection & con)
@@ -59,7 +60,7 @@ string PixelFEDLink::print(int depth) const
   if (depth-- >=0 ) {
     out <<"====== PixelFEDLink, ID: "<<id()<< endl;
     for (IT ic=theConnections.begin(); ic != theConnections.end(); ic++) {
-      out <<"       "<<(*ic).name
+      out <<"       "<<(*ic).name<<" ("<<(*ic).unit<<") "
           <<",r=("<< (*ic).range.first<<","<<(*ic).range.second<<")"
           <<"  ids:";
       for (int i = (*ic).range.first; i <= (*ic).range.second; i++) {

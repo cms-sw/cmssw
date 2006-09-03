@@ -44,26 +44,29 @@ void SiPixelDigiToRaw::beginJob(const edm::EventSetup& setup)
 void SiPixelDigiToRaw::produce( edm::Event& ev,
                               const edm::EventSetup& es)
 {
+  using namespace sipixelobjects;
+
   eventCounter_++;
   edm::LogInfo("SiPixelDigiToRaw") << "[SiPixelDigiToRaw::produce] "
                         << "event number: "
                         << eventCounter_;
-
-  static int ndigis = 0;
 
   edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
   ev.getByLabel( src_ , digiCollection);
 
   PixelDataFormatter::Digis digis;
   typedef vector< edm::DetSet<PixelDigi> >::const_iterator DI;
-  
-  int nd2 = 0;
+
+  static int allDigiCounter = 0;  
+  static int allWordCounter = 0;
+         int digiCounter = 0; 
   for (DI di=digiCollection->begin(); di != digiCollection->end(); di++) {
-    nd2 += (di->data).size(); 
+    digiCounter += (di->data).size(); 
     digis[ di->id] = di->data;
   }
+  allDigiCounter += digiCounter;
 
-  cout << " *** HERE1" << endl;
+  cout << " -- event:" << eventCounter_ << endl;
   edm::ESHandle<SiPixelFedCablingMap> map;
   es.get<SiPixelFedCablingMapRcd>().get( map );
   cout << map->version() << endl;
@@ -83,9 +86,10 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     fedRawData = *rawData;
     LogDebug("SiPixelDigiToRaw")<<"size of data in fedRawData: "<<fedRawData.size();
   }
-
-  ndigis += formatter.ndigis();
-  cout << "this ev: "<<formatter.ndigis()<<" nd2: "<< nd2 << "--- ndigis :"<<ndigis<<endl;
+  allWordCounter += formatter.nWords();
+  cout << "Words/Digis this ev: "<<digiCounter<<"(fm:"<<formatter.nDigis()<<")/"
+        <<formatter.nWords()
+       <<"  all: "<< allDigiCounter <<"/"<<allWordCounter<<endl;
   
   ev.put( buffers );
   
