@@ -118,8 +118,8 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
        }
        rocs.push_back( PixelROC( it->unit, id, ++idRoc, rocInX, rocInY));
     }
-    PixelFEDLink::Connection connection = {it->unit, it->name->name(),it->rocIds};
-    link.add(connection,rocs);
+    PixelFEDLink::Connection connection = {it->unit, it->name->name(),it->rocIds, rocs};
+    link.add(connection);
     result.push_back(link); 
   }
 

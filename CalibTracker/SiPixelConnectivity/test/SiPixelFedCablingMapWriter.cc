@@ -31,6 +31,7 @@
 
 using namespace std;
 using namespace edm;
+using namespace sipixelobjects;
 
 class SiPixelFedCablingMapWriter : public edm::EDAnalyzer {
  public:

@@ -1,5 +1,5 @@
-#ifndef PixelROC_H
-#define PixelROC_H
+#ifndef SiPixelObjects_PixelROC_H
+#define SiPixelObjects_PixelROC_H
 
 #include <boost/cstdint.hpp>
 #include <string>
@@ -10,6 +10,8 @@
  * The Local coordinates are double column (dcol) and pixel index in dcol.
  * The Global coordinates are row and column in DetUnit.
  */
+
+namespace sipixelobjects {
 
 class PixelROC {
 public:
@@ -22,6 +24,11 @@ public:
       uint32_t du, int idDU, int idLk, 
       int rocInX, int rocInY); 
 
+  /// x position of this ROC in DetUnit (in units of ROCs)
+  int x() const { return theRocInX; }
+
+  /// y position of this ROC in DetUnit (in units of ROCs)
+  int y() const { return theRocInY; }
 
   /// id of this ROC in DetUnit (representing pixel module) according 
   /// to PixelDatabase. 
@@ -34,7 +41,7 @@ public:
   uint32_t rawId() const { return theDetUnit; }
 
   /// local coordinates in this ROC (double column, pixelid in double column) 
-  struct LocalPixel { int dcol, pxid; };
+  struct LocalPixel { int dcol; int pxid; };
   /// global coordinates (row and column in DetUnit, as in PixelDigi)
   struct GlobalPixel { int row; int col; };
 
@@ -63,6 +70,9 @@ public:
 
   /// check if position is inside this ROC
   bool inside(const LocalPixel & lp) const;
+  bool inside(int dcol, int pxid) const;
+  
+  
 
   /// check if position inside this ROC
   bool inside(const GlobalPixel & gp) const { return inside(toLocal(gp)); }
@@ -75,11 +85,14 @@ public:
   /// number of columns in ROC 
   static int cols() { return theNCols; }
 
+
 private:
   uint32_t theDetUnit;
   int theIdDU, theIdLk;
   int theRocInX, theRocInY; // offsets in DU (in units of ROC);
   static int theNRows, theNCols; 
 };
+
+}
 
 #endif

@@ -6,6 +6,7 @@
 
 #include <sstream>
 using namespace std;
+using namespace sipixelobjects;
 
 void PixelFEDCabling::setLinks(Links & links) 
 {

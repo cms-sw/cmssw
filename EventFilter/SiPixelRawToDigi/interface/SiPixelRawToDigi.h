@@ -12,6 +12,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class SiPixelFedCablingMap;
+class TH1D;
+class TFile;
+
 
 class SiPixelRawToDigi : public edm::EDProducer {
 public:
@@ -34,6 +37,9 @@ public:
 private:
 
   unsigned long eventCounter_;
+  edm::InputTag theLabel;
   SiPixelFedCablingMap * fedCablingMap_;
+  TH1D *hCPU, *hDigi;
+  TFile * rootFile;
 };
 #endif

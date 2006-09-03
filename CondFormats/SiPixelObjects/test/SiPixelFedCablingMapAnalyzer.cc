@@ -21,6 +21,7 @@
 
 using namespace std;
 using namespace edm;
+using namespace sipixelobjects;
 
 // class declaration
 class SiPixelFedCablingMapAnalyzer : public edm::EDAnalyzer {

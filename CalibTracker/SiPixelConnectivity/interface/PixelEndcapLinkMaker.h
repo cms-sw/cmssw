@@ -13,6 +13,11 @@ class PixelEndcapName;
 
 class PixelEndcapLinkMaker {
 public:
+
+  typedef sipixelobjects::PixelFEDCabling  PixelFEDCabling;
+  typedef sipixelobjects::PixelFEDLink PixelFEDLink;
+  typedef sipixelobjects::PixelROC PixelROC;
+
   typedef std::vector<PixelModuleName* > Names;
   typedef std::vector<uint32_t> DetUnits;
   typedef PixelFEDCabling::Links  Links;

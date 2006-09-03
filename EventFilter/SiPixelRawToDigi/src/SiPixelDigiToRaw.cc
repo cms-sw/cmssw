@@ -1,4 +1,3 @@
-
 #include "EventFilter/SiPixelRawToDigi/interface/SiPixelDigiToRaw.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -50,8 +49,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
                         << "event number: "
                         << eventCounter_;
 
-
-  PixelDataFormatter formatter;
+  static int ndigis = 0;
 
   edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
   ev.getByLabel( src_ , digiCollection);
@@ -59,7 +57,9 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   PixelDataFormatter::Digis digis;
   typedef vector< edm::DetSet<PixelDigi> >::const_iterator DI;
   
+  int nd2 = 0;
   for (DI di=digiCollection->begin(); di != digiCollection->end(); di++) {
+    nd2 += (di->data).size(); 
     digis[ di->id] = di->data;
   }
 
@@ -67,21 +67,25 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   edm::ESHandle<SiPixelFedCablingMap> map;
   es.get<SiPixelFedCablingMapRcd>().get( map );
   cout << map->version() << endl;
-  cout << " *** HERE2" << endl;
+  
+  PixelDataFormatter formatter(map.product());
 
   // create product (raw data)
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
-  const vector<PixelFEDCabling> & cabling = map->cabling();
+  const vector<const PixelFEDCabling *>  cabling = map->fedList();
 
-  typedef vector<PixelFEDCabling>::const_iterator FI;
+  typedef vector<const PixelFEDCabling *>::const_iterator FI;
   for (FI it = cabling.begin(); it != cabling.end(); it++) {
-    LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (*it).id();
-    FEDRawData * rawData = formatter.formatData( (*it), digis);
-    FEDRawData& fedRawData = buffers->FEDData( (*it).id() ); 
+    LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (**it).id();
+    FEDRawData * rawData = formatter.formatData( (**it).id(), digis);
+    FEDRawData& fedRawData = buffers->FEDData( (**it).id() ); 
     fedRawData = *rawData;
     LogDebug("SiPixelDigiToRaw")<<"size of data in fedRawData: "<<fedRawData.size();
   }
+
+  ndigis += formatter.ndigis();
+  cout << "this ev: "<<formatter.ndigis()<<" nd2: "<< nd2 << "--- ndigis :"<<ndigis<<endl;
   
   ev.put( buffers );
   

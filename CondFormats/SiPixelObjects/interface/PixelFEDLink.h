@@ -13,16 +13,20 @@
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 class PixelModuleName;
 
+namespace sipixelobjects {
+
 class PixelFEDLink {
 public:
 
   typedef std::pair<int,int> Range;
 
+  typedef std::pair<unsigned int,unsigned int> ConnectionIndex;
+
   /// ROCs served be this link
   typedef std::vector<PixelROC> ROCs;
 
   /// specifies minimal object connected to link (ranges of ROCs in module)
-  struct Connection { uint32_t unit; std::string name; Range rocs; };
+  struct Connection { uint32_t unit; std::string name; Range range; ROCs rocs; };
 
   /// all objects connected to link
   typedef std::vector<Connection> Connections;
@@ -31,20 +35,16 @@ public:
   PixelFEDLink(int id = -1) : theId(id) { } 
 
   ///  add connection (defined by connection spec and ROCs)
-  void add(const Connection & con, const ROCs & rocs) {
-    theConnections.push_back(con);
-    theROCs.insert( theROCs.end(), rocs.begin(), rocs.end() );
-  }
+  void add(const Connection & con);
 
   /// link id
   int id() const { return theId; }
 
   /// number of ROCs in fed
-  int numberOfROCs() const { return theROCs.size(); }
+  int numberOfROCs() const { return theIndices.size(); }
 
   /// return ROC identified by id. ROC ids are ranged [0,numberOfROCs)
-  const PixelROC * roc(unsigned int id) const 
-    { return (id >= 0 && id < theROCs.size() ) ?  &theROCs[id] : 0; }
+  const PixelROC * roc(unsigned int id) const;
 
   const Connections & connected() const { return theConnections; }
   
@@ -56,10 +56,12 @@ public:
 
 private:
   int theId;
-  ROCs theROCs;
+  std::vector<ConnectionIndex> theIndices;
   Connections theConnections;
 };
 
-std::ostream & operator<<( std::ostream& out, const PixelFEDLink & l);
+}
+
+//std::ostream & operator<<( std::ostream& out, const PixelFEDLink & l);
 
 #endif

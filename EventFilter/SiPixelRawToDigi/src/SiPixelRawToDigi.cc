@@ -11,31 +11,44 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 using namespace std;
+
+#include "R2DTimerObserver.h"
+
+#include "TH1D.h"
+#include "TFile.h"
+#include "TROOT.h"
 
 
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
-  : eventCounter_(0), fedCablingMap_(0)
+  : eventCounter_(0), 
+    theLabel( conf.getParameter<edm::InputTag>( "src") ),
+    fedCablingMap_(0)
 {
   edm::LogInfo("SiPixelRawToDigi")<< " HERE ** constructor!" << endl;
   produces< edm::DetSetVector<PixelDigi> >();
+
+  rootFile = new TFile("analysis.root", "RECREATE", "my histograms");
+  hCPU = new TH1D ("hCPU","hCPU",50,0.,0.025);
+  hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
 }
 
 
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::~SiPixelRawToDigi() {
   edm::LogInfo("SiPixelRawToDigi")  << " HERE ** SiPixelRawToDigi destructor!";
+  rootFile->Write();
+  cout << " end.."<<endl;
 }
 
 
@@ -48,33 +61,42 @@ void SiPixelRawToDigi::beginJob(const edm::EventSetup& c)
 void SiPixelRawToDigi::produce( edm::Event& ev,
                               const edm::EventSetup& es) 
 {
-  PixelDataFormatter formatter;
 
-  cout << " *** HERE1" << endl;
   edm::ESHandle<SiPixelFedCablingMap> map;
   es.get<SiPixelFedCablingMapRcd>().get( map );
   cout << map->version() << endl;
-  cout << " *** HERE2" << endl;
 
-
+  static  R2DTimerObserver timer("**** MY TIMING REPORT ***");
 
   edm::Handle<FEDRawDataCollection> buffers;
-//  ev.getByLabel("PixelDaqRawData", rawdata);
-  ev.getByType(buffers);
+  ev.getByLabel(theLabel, buffers);
+//ev.getByType(buffers);
+
 
   // create product (digis)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
+  static int ndigis = 0;
 
-  const vector<PixelFEDCabling> & cabling = map->cabling();
-  typedef vector<PixelFEDCabling>::const_iterator FI;
-  for (FI it = cabling.begin(); it != cabling.end(); it++) {
+  PixelDataFormatter formatter(map.product());
+{
+  TimeMe t(timer.item(),false);
+  FEDNumbering fednum;
+  pair<int,int> fedIds = fednum.getSiPixelFEDIds();
+  fedIds.first = 1;
+  fedIds.second = 40; //  temporary FIX !!!!
+  
+
+  for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
      PixelDataFormatter::Digis digis;
-     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  (*it).id() << endl;
+     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
      
-     const FEDRawData& fedRawData = buffers->FEDData( (*it).id() );
-     LogDebug("SiPixelRawToDigi")<< "sizeof data buffer: " << fedRawData.size() << endl;
-     formatter.interpretRawData( *it, fedRawData, digis);
+     //get event data for this fed
+     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
+     //convert data to digi
+     formatter.interpretRawData( fedId, fedRawData, digis);
+
+     //pack digi into collection
      typedef PixelDataFormatter::Digis::iterator ID;
      for (ID it = digis.begin(); it != digis.end(); it++) {
        uint32_t detid = it->first;
@@ -82,7 +104,14 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
        detSet.data = it->second;
      } 
   }
+}
+  cout << "TIMING IS: (real)" << timer.lastMeasurement().real() << endl;
+  ndigis += formatter.ndigis();
+  cout << "this ev: "<<formatter.ndigis()<< "--- ndigis :"<<ndigis<<endl;
+  hCPU->Fill( timer.lastMeasurement().real() ); 
+  hDigi->Fill(formatter.ndigis());
 
+  //send digis back to framework 
   ev.put( collection );
 }
 

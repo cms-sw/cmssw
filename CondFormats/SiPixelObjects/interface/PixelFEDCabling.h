@@ -10,10 +10,12 @@
 
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 class PixelModuleName;
-class PixelROC;
+
+namespace sipixelobjects {
 
 class PixelFEDCabling {
 public:
+
   typedef std::vector<PixelFEDLink> Links;
   
   PixelFEDCabling(int id = -1) : theFedId(id) { }
@@ -45,5 +47,6 @@ private:
   Links theLinks;
 
 }; 
+}
 
 #endif

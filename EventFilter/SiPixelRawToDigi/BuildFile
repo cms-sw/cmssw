@@ -6,9 +6,11 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiPixelDigi>
-<use name=CalibTracker/SiPixelConnectivity>
 <use name=CondFormats/SiPixelObjects>
 <use name=CondFormats/DataRecord>
+<use name=Utilities/Timing>
+<use name=boost>
+<use name=root>
 
 
 
@@ -20,8 +22,7 @@
  <use name=FWCore/ParameterSet>
  <use name=DataFormats/FEDRawData>
  <use name=DataFormats/SiPixelDigi>
- <use name=CalibTracker/SiPixelConnectivity>
  <use name=CondFormats/SiPixelObjects>
  <use name=CondFormats/DataRecord>
-
+ <use name=Utilities/Timing>
 </export>

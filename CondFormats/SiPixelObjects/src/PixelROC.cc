@@ -2,6 +2,7 @@
 
 #include <sstream>
 using namespace std;
+using namespace sipixelobjects;
 
 int PixelROC::theNRows = 80;
 int PixelROC::theNCols = 52;
@@ -15,6 +16,12 @@ bool PixelROC::inside(const LocalPixel & lp) const
 {
   return (     0 <= lp.dcol && lp.dcol < theNCols/2
            &&  0 <= lp.pxid && lp.pxid < 2*theNRows );
+}
+
+bool PixelROC::inside( int dcol, int pxid) const 
+{
+  return (     0 <= dcol && dcol < theNCols/2
+           &&  0 <= pxid && pxid < 2*theNRows );
 }
 
 PixelROC::LocalPixel PixelROC::toLocal( const GlobalPixel& glo) const

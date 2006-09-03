@@ -7,16 +7,16 @@ namespace{
 
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 namespace{
-  std::vector<PixelROC> theROCs;
-  std::vector<PixelFEDLink::Connection> theConnections;
+  std::vector<sipixelobjects::PixelROC> theROCs;
+  std::vector<sipixelobjects::PixelFEDLink::Connection> theConnections;
 }
 
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 namespace{
-  std::vector<PixelFEDLink> theLinks;
+  std::vector<sipixelobjects::PixelFEDLink> theLinks;
 }
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 namespace{
-  std::vector<PixelFEDCabling> theFedCablings;
+  std::vector<sipixelobjects::PixelFEDCabling> theFedCablings;
 }

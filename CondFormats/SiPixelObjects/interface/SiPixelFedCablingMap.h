@@ -2,22 +2,24 @@
 #define SiPixelFedCablingMap_H
 
 #include <vector>
+#include <map>
 #include <string>
 
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 
 class SiPixelFedCablingMap {
 public:
+  typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;
+
   SiPixelFedCablingMap(const std::string & version="") : theVersion(version) {}
 
   /// add cabling for one fed
   void addFed(const PixelFEDCabling& f);
 
-  /// get defined  cabling for all feds
-  const std::vector<PixelFEDCabling> & cabling() const { return theFedCablings; }
-
   /// get fed identified by its id
   const PixelFEDCabling * fed(unsigned int idFed) const;
+
+  std::vector<const PixelFEDCabling *> fedList() const;
 
   ///map version
   const std::string & version() const { return theVersion; }
@@ -26,6 +28,6 @@ public:
 
 private:
   std::string theVersion; 
-  std::vector<PixelFEDCabling> theFedCablings;
+  std::map<int, PixelFEDCabling> theFedCablings;
 };
 #endif

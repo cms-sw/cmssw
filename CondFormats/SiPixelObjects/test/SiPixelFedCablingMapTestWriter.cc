@@ -32,6 +32,7 @@
 
 using namespace std;
 using namespace edm;
+using namespace sipixelobjects;
 
 class SiPixelFedCablingMapTestWriter : public edm::EDAnalyzer {
  public:
@@ -132,13 +133,15 @@ void SiPixelFedCablingMapTestWriter::beginJob( const edm::EventSetup& iSetup ) {
    cout << "BeginJob method " << endl;
    cout<<"Building FED Cabling"<<endl;   
    cabling =  new SiPixelFedCablingMap("My map V-TEST");
+  
 
    PixelROC r1(0,1,2,3,4);
    PixelROC r2(1,12,13,14,15);
+
    PixelFEDLink link(0);
    PixelFEDLink::ROCs rocs; rocs.push_back(r1); rocs.push_back(r2);
-   PixelFEDLink::Connection  con = {0, "det_name", make_pair<int,int>(0,1) };
-   link.add(con,rocs);
+   PixelFEDLink::Connection  con = {0, "det_name", make_pair<int,int>(0,1), rocs };
+   link.add(con);
 
    PixelFEDCabling fed(0);
    fed.addLink(link);

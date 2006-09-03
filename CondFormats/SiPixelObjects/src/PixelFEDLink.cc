@@ -8,22 +8,46 @@
 #include <iostream>
 
 using namespace std;
+using namespace sipixelobjects;
 
 
 bool PixelFEDLink::checkRocNumbering() const
 {
   bool result = true;
-  int idx_expected = -1;
-  typedef ROCs::const_iterator CIR;
-  for (CIR it = theROCs.begin(); it != theROCs.end(); it++) {
-    idx_expected++;
-    if (idx_expected != (*it).idInLink() ) {
+  for (int idx = 0; idx < numberOfROCs();  idx++) {
+    int co = theIndices[idx].first;
+    int ro = theIndices[idx].second;
+    const PixelROC & roc = theConnections[co].rocs[ro];
+    if (idx != roc.idInLink() ) {
       result = false;
       cout << "** PixelFEDLink, idInLink in ROC, expected: "
-           << idx_expected <<" has: "<<(*it).idInLink() << endl;
+           << idx <<" has: "<< roc.idInLink() << endl;
     }
   }
   return result;
+}
+
+const PixelROC * PixelFEDLink::roc(unsigned int id) const
+{
+// return & theConnections[theIndices[id].first].rocs[theIndices[id].second];
+
+ if (id < 0 || id >= theIndices.size()) return 0;
+ const ConnectionIndex & conIdx = theIndices[id];
+
+ if (conIdx.first < theConnections.size() &&
+     conIdx.second < theConnections[conIdx.first].rocs.size() )
+   return &(theConnections[conIdx.first].rocs[conIdx.second]);
+
+  return 0;
+}
+
+void PixelFEDLink::add(const Connection & con)
+{
+  theConnections.push_back(con);
+  unsigned int connection_id = theConnections.size()-1;
+  unsigned int nrocs = con.rocs.size();
+  for (unsigned int idx=0; idx < nrocs; idx++) 
+    theIndices.push_back( ConnectionIndex(connection_id,idx) ); 
 }
 
 string PixelFEDLink::print(int depth) const
@@ -36,20 +60,17 @@ string PixelFEDLink::print(int depth) const
     out <<"====== PixelFEDLink, ID: "<<id()<< endl;
     for (IT ic=theConnections.begin(); ic != theConnections.end(); ic++) {
       out <<"       "<<(*ic).name
-          <<",r=("<< (*ic).rocs.first<<","<<(*ic).rocs.second<<")"
+          <<",r=("<< (*ic).range.first<<","<<(*ic).range.second<<")"
           <<"  ids:";
-      int idx_tmp = idx;
-      for (int i = (*ic).rocs.first; i <= (*ic).rocs.second; i++) {
+      for (int i = (*ic).range.first; i <= (*ic).range.second; i++) {
         idx++;
-        if (idx < numberOfROCs() ) out <<"_" << roc(idx)->idInLink();
+        out <<"_" << idx;
       }
       out << endl;
       if (idx != numberOfROCs()) edm::LogError(" problem with ROC numbering!"); 
-      idx = idx_tmp;
-      for (int i = (*ic).rocs.first; i <= (*ic).rocs.second; i++) {
-        idx++;
-        if (idx < numberOfROCs()) out << roc(idx)->print(depth);
-      }
+      const ROCs & rocs = (*ic).rocs;
+      typedef ROCs::const_iterator CIR;
+      for (CIR ir = rocs.begin(); ir != rocs.end(); ir++) out<< (ir)->print(depth); 
     }
     out <<"       total number of ROCs: "<< numberOfROCs() << endl;
   }
@@ -58,34 +79,3 @@ string PixelFEDLink::print(int depth) const
 
 }
 
-ostream & operator<<(
-    ostream& out, const PixelFEDLink & l)
-{
-/*  
-  typedef PixelFEDLink::Connections Con;
-  typedef Con::const_iterator IC;
-  const Con & con = l.connected();
-
-  int numberOfROCs = l.numberOfROCs();
-  int idx = -1;
-  out <<"id="<<l.id();
-  for (IC ic = con.begin(); ic != con.end(); ic++) {
-    out <<" "<<(*ic).name->name()
-//      <<",r="<< (*ic).rocs 
-        <<",ids:";
-    for(int i = (*ic).rocs.first; i <= (*ic).rocs.second; i++) {
-      idx++;
-      if (idx < numberOfROCs ) out <<"_"
-//                                 << l.roc(idx)->idInLink() 
-//                                 <<"("
-                                   << l.roc(idx)->idInDetUnit()
-//                                 <<")"
-                                   ;
-    }
-  }
-  if (idx != numberOfROCs-1) out << "PROBLEM, sizes: " 
-                                << idx <<" "<< numberOfROCs <<endl;
-
-*/
-  return out;
-}
