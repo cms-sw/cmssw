@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2006/07/26 17:46:48 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/09/01 21:17:14 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -42,10 +42,12 @@ public:
 
   const Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
   MuonTrajectoryUpdator* updator() const {return theUpdator;}
+  MuonTrajectoryUpdator* backwardUpdator() const {return theBKUpdator;}
 
 private:
 
   MuonTrajectoryUpdator* theUpdator;
+  MuonTrajectoryUpdator* theBKUpdator;
   MuonDetLayerMeasurements* theLayerMeasurements;
 
   const MuonServiceProxy *theService;
