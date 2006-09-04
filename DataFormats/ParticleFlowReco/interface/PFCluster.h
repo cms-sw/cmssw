@@ -43,6 +43,9 @@ namespace reco {
     /// copy constructor
     PFCluster(const PFCluster& other);
 
+    /// destructor
+    ~PFCluster();
+
     /// resets clusters parameters
     void reset();
    
@@ -108,10 +111,12 @@ namespace reco {
 
     friend    std::ostream& operator<<(std::ostream& out, 
 				       const PFCluster& cluster);
+    /// counter
+    static unsigned     instanceCounter_;
 
   private:
   
-    /// vector of rechit fractions
+    /// vector of rechit fractions (transient)
     std::vector< reco::PFRecHitFraction >  rechits_;
 
     /// cluster id
@@ -129,7 +134,7 @@ namespace reco {
     /// cluster position: cartesian
     math::XYZPoint      posxyz_;
 
-    /// cluster position: rho, eta, phi
+    /// cluster position: rho, eta, phi (transient)
     REPPoint            posrep_;
 
     /// keep track of the mode (lin or log E weighting) for position calculation
@@ -160,6 +165,7 @@ namespace reco {
 
     /// B parameter for depth correction (under preshower)
     static double       depthCorBp_;
+
   };
 
 }

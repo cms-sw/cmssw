@@ -11,6 +11,8 @@ double PFCluster::depthCorB_ = 7.3;
 double PFCluster::depthCorAp_ = 0.89;
 double PFCluster::depthCorBp_ = 4.0;
 
+unsigned PFCluster::instanceCounter_ = 0;
+
 
 PFCluster::PFCluster() :
   id_(0),
@@ -21,7 +23,10 @@ PFCluster::PFCluster() :
   posCalcP1_(0),
   posCalcDepthCor_(false),
   color_(1)
-{}
+{ 
+  // cout<<"PFCluster default"<<endl;
+  instanceCounter_++;
+}
 
 
 PFCluster::PFCluster(unsigned id, int type) : 
@@ -33,7 +38,10 @@ PFCluster::PFCluster(unsigned id, int type) :
   posCalcP1_(0),
   posCalcDepthCor_(false),
   color_(1)
-{}
+{  
+  // cout<<"PFCluster"<<endl;
+  instanceCounter_++;
+}
   
 
 PFCluster::PFCluster(const PFCluster& other) :
@@ -48,8 +56,15 @@ PFCluster::PFCluster(const PFCluster& other) :
   posCalcP1_(other.posCalcP1_),
   posCalcDepthCor_(other.posCalcDepthCor_),
   color_(other.color_)
-{}
+{
+  // cout<<"PFCluster copy"<<endl;
+  instanceCounter_++;
+}
 
+PFCluster::~PFCluster() {
+// cout<<"~PFCluster"<<endl;  
+  instanceCounter_--;
+}
 
 void PFCluster::reset() {
   

@@ -1,4 +1,14 @@
 <lcgdict>
+  <class name="reco::PFCluster">
+    <field name="rechits_" transient="true"/>
+    <field name="posrep_" transient="true"/>
+    <field name="color_" transient="true"/>
+    <field name="depthCorMode_" transient="true"/>
+    <field name="depthCorA_" transient="true"/>
+    <field name="depthCorB_" transient="true"/>
+    <field name="depthCorAp_" transient="true"/>
+    <field name="depthCorBp_" transient="true"/>
+  </class>
   <class name="std::vector<reco::PFCluster>"/>
     <field name="posrep_" transient="true"/>
     <field name="depthCorMode_" transient="true"/>
