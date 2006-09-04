@@ -145,8 +145,9 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 
   //register products
   if(produceRecHits_) produces<reco::PFRecHitCollection>();
-  produces<reco::PFClusterCollection>();
-
+  produces<reco::PFClusterCollection>("PS");
+  produces<reco::PFClusterCollection>("ECAL");
+  produces<reco::PFClusterCollection>("HCAL");
 }
 
 
@@ -158,12 +159,18 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
   using namespace edm;
   
+  cout<<"IN number of PFClusters :"<<reco::PFCluster::instanceCounter_<<endl;
+
   // for output  
   auto_ptr< vector<reco::PFRecHit> > 
     allRecHits( new vector<reco::PFRecHit> ); 
   
   auto_ptr< vector<reco::PFCluster> > 
-    allClusters( new vector<reco::PFCluster> ); 
+    outClustersECAL( new vector<reco::PFCluster> ); 
+  auto_ptr< vector<reco::PFCluster> > 
+    outClustersHCAL( new vector<reco::PFCluster> ); 
+  auto_ptr< vector<reco::PFCluster> > 
+    outClustersPS( new vector<reco::PFCluster> ); 
   
 
   if( processEcal_ ) {
@@ -341,6 +348,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       }
     }
     
+    outClustersECAL = clusteralgo.clusters();
+
     // clear all 
     for( PFClusterAlgo::IDH ih = ecalrechits.begin(); 
 	 ih != ecalrechits.end(); ih++) {  
@@ -449,6 +458,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	    allRecHits->push_back( reco::PFRecHit( *(ih->second) ) );    
 	  }
 	}
+
+	outClustersHCAL = clusteralgo.clusters();
 
 	// clear all 
 	for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
@@ -588,6 +599,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	}
       }
 
+      outClustersPS = clusteralgo.clusters();
+
       // clear all 
       for( PFClusterAlgo::IDH ih = psrechits.begin(); 
 	   ih != psrechits.end(); ih++) {  
@@ -605,7 +618,15 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   
   
   if( produceRecHits_) iEvent.put( allRecHits );
-  iEvent.put( allClusters );
+
+  //  cout<<"allClusters->size() "<<allClusters->size()<<endl;
+  // if(!allClusters->empty()) cout<<allClusters->back()<<endl;
+  iEvent.put( outClustersECAL, "ECAL");
+  iEvent.put( outClustersHCAL, "HCAL" );
+  iEvent.put( outClustersPS, "PS");
+
+  cout<<"OUT number of PFClusters :"<<reco::PFCluster::instanceCounter_<<endl;
+
 }
 
 void 

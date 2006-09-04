@@ -45,7 +45,13 @@ PFRootEventManager::~PFRootEventManager() {
 }
 
 
-PFRootEventManager::PFRootEventManager(const char* file) {  
+PFRootEventManager::PFRootEventManager(const char* file)
+  :
+  clusters_(new vector<reco::PFCluster>),
+  clustersECAL_(new vector<reco::PFCluster>),
+  clustersHCAL_(new vector<reco::PFCluster>),
+  clustersPS_(new vector<reco::PFCluster>) {
+  
   options_ = 0;
   readOptions(file);
   iEvent_=0;
@@ -65,7 +71,13 @@ PFRootEventManager::PFRootEventManager(const char* file) {
 void PFRootEventManager::reset() { 
   maxERecHitEcal_ = -1;
   maxERecHitHcal_ = -1;  
-  clusters_.clear();
+//   if( clusters_.get() ) {
+//     for(unsigned i=0; i<clusters_->size(); i++) {
+//       reco::PFCluster& cluster = (*clusters_)[i];
+//       delete &cluster;
+//     }
+//     clusters_->clear();
+//   }
   rechits_.clear();
   recTracks_.clear();
 }
@@ -103,6 +115,45 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     // cout << "Set branch " << hitbranchname << endl;
   }
 
+
+  string clustersECALbranchname;
+  options_->GetOpt("root","clusters_ECAL_branch", clustersECALbranchname);
+
+  clustersECALBranch_ = tree_->GetBranch(clustersECALbranchname.c_str());
+  if(!clustersECALBranch_) {
+    cerr <<"PFRootEventManager::ReadOptions : branch not found : "
+	 << clustersECALbranchname << endl;
+  }
+  else {
+    clustersECALBranch_->SetAddress( clustersECAL_.get() );
+  }    
+  
+  string clustersHCALbranchname;
+  options_->GetOpt("root","clusters_HCAL_branch", clustersHCALbranchname);
+
+  clustersHCALBranch_ = tree_->GetBranch(clustersHCALbranchname.c_str());
+  if(!clustersHCALBranch_) {
+    cerr <<"PFRootEventManager::ReadOptions : branch not found : "
+	 << clustersHCALbranchname << endl;
+  }
+  else {
+    clustersHCALBranch_->SetAddress( clustersHCAL_.get() );
+  }    
+  
+  string clustersPSbranchname;
+  options_->GetOpt("root","clusters_PS_branch", clustersPSbranchname);
+
+  clustersPSBranch_ = tree_->GetBranch(clustersPSbranchname.c_str());
+  if(!clustersPSBranch_) {
+    cerr <<"PFRootEventManager::ReadOptions : branch not found : "
+	 << clustersPSbranchname << endl;
+  }
+  else {
+    clustersPSBranch_->SetAddress( clustersPS_.get() );
+  }    
+  
+
+
   string recTracksbranchname;
   options_->GetOpt("root","recTracks_branch", recTracksbranchname);
 
@@ -113,8 +164,8 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   }
   else {
     recTracksBranch_->SetAddress(&recTracks_);
-    // cout << "Set branch " << recTracksbranchname << " " << recTracksBranch_->GetEntries() << endl;
   }    
+
 
   vector<int> algos;
   options_->GetOpt("display", "algos", algos);
@@ -155,6 +206,22 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 
   displayZoomFactor_ = 10;  
   options_->GetOpt("display", "zoom_factor", displayZoomFactor_);
+
+
+  // clustering parameters 
+  clusteringIsOn_ = true;
+  options_->GetOpt("clustering", "on/off", clusteringIsOn_);
+  if(clusteringIsOn_ && !hitsBranch_ ) {
+    cerr<<"Clustering is enabled, but rechits cannot be found in the TTree. "
+	<<" Clustering is thus disabled"<<endl;
+    clusteringIsOn_ = false;
+  }
+  if(!clusteringIsOn_ && 
+     ( !clustersECALBranch_ || 
+       !clustersHCALBranch_ ||
+       !clustersPSBranch_ ) ) {
+    cerr<<"Clustering is disabled, but one or more cluster collections cannot be found in the TTree."<<endl;
+  }
 
   threshEcalBarrel_ = 0.1;
   options_->GetOpt("clustering", "thresh_Ecal_Barrel", threshEcalBarrel_);
@@ -307,25 +374,46 @@ bool PFRootEventManager::processEntry(int entry) {
 
   cout<<"process entry "<< entry << endl;
   
-  if(hitsBranch_) hitsBranch_->GetEntry(entry);
+  if(hitsBranch_) { 
+    hitsBranch_->GetEntry(entry);
+    for(unsigned i=0; i<rechits_.size(); i++) 
+      rechits_[i].calculatePositionREP();
+  }
+
+  if(clustersECALBranch_) clustersECALBranch_->GetEntry(entry);
+  if(clustersHCALBranch_) clustersHCALBranch_->GetEntry(entry);
+  if(clustersPSBranch_) clustersPSBranch_->GetEntry(entry);
   if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
 
   cout<<"number of rechits : "<<rechits_.size()<<endl;
+  
+  if(clustersECAL_.get() ) {
+    cout<<"number of ECAL clusters : "<<clustersECAL_->size()<<endl;
+  }
+  if(clustersHCAL_.get() ) {
+    cout<<"number of HCAL clusters : "<<clustersHCAL_->size()<<endl;
+  }
+  if(clustersPS_.get() ) {
+    cout<<"number of PS clusters : "<<clustersPS_->size()<<endl;
+  }
   cout<<"number of recTracks : "<<recTracks_.size()<<endl;
 
-  clustering(); 
-  particleFlow();
+  if( clusteringIsOn_ ) clustering(); 
+  // particleFlow();
 
+  cout<<"number of PFCluster instances: "<<reco::PFCluster::instanceCounter_<<endl;
+  
   return false;
 }
 
 
 void PFRootEventManager::clustering() {
   
+  cout<<"clustering"<<endl;
+
   std::map<unsigned,  reco::PFRecHit* > rechits;
    
   for(unsigned i=0; i<rechits_.size(); i++) {
-    rechits_[i].calculatePositionREP();
     rechits.insert( make_pair(rechits_[i].detId(), &rechits_[i] ) );
   }
 
@@ -333,6 +421,7 @@ void PFRootEventManager::clustering() {
     ih->second->findPtrsToNeighbours( rechits );
   }
 
+  //TODO the setting of the cluster algo parameters can be done in the constructor
   PFClusterAlgo clusteralgo; 
 
   clusteralgo.setThreshEcalBarrel( threshEcalBarrel_ );
@@ -357,15 +446,22 @@ void PFRootEventManager::clustering() {
   clusteralgo.init( rechits ); 
   clusteralgo.doClustering();
 
+  cout<<"clustering done"<<endl;
+
   clusters_ = clusteralgo.clusters();
+
+  cout<<"clusters retrieved"<<endl;
 }
 
 
 void PFRootEventManager::particleFlow() {
   
+  cout<<"particleFlow"<<endl;
+
   // clear stuff from previous call
 
-  for(PFBlock::IT ie = allElements_.begin(); ie!=  allElements_.end(); ie++ ) {
+  for(PFBlock::IT ie = allElements_.begin(); 
+      ie!=  allElements_.end(); ie++ ) {
     delete *ie;
   } 
   allElements_.clear();
@@ -374,25 +470,25 @@ void PFRootEventManager::particleFlow() {
 
   // create PFBlockElements from clusters and rectracks
 
-  for(unsigned i=0; i<clusters_.size(); i++) {
-   
-    if( clusters_[i].type() != reco::PFCluster::TYPE_PF ) continue;
+  for(unsigned i=0; i<clusters_->size(); i++) {
 
-    int layer = clusters_[i].layer();
+    if( (*clusters_)[i].type() != reco::PFCluster::TYPE_PF ) continue;
+
+    int layer = (*clusters_)[i].layer();
       
     switch( layer ) {
     case PFLayer::ECAL_BARREL:
     case PFLayer::ECAL_ENDCAP:
-      allElements_.insert( new PFBlockElementECAL( & clusters_[i] ) );
+      allElements_.insert( new PFBlockElementECAL( & (*clusters_)[i] ) );
       break;
     case PFLayer::PS1:
     case PFLayer::PS2:
-      allElements_.insert( new PFBlockElementPS( & clusters_[i] ) );
+      allElements_.insert( new PFBlockElementPS( & (*clusters_)[i] ) );
       break;
     case PFLayer::HCAL_BARREL1:
     case PFLayer::HCAL_BARREL2:
     case PFLayer::HCAL_ENDCAP:
-      allElements_.insert( new PFBlockElementHCAL( & clusters_[i] ) );
+      allElements_.insert( new PFBlockElementHCAL( & (*clusters_)[i] ) );
       break;
     default:
       break;
@@ -445,6 +541,7 @@ void PFRootEventManager::particleFlow() {
     // cout<<(allPFBs_[iefb])<<endl;
   }
 
+  cout<<"particle flow done"<<endl;
 }
 
 
@@ -583,8 +680,11 @@ void PFRootEventManager::displayView(unsigned viewType) {
 	etaLeg.DrawLatex(etaImpact.Z(), etaImpact.Perp(), Form("%2.1f", eta));
       }
       
-      std::cout << "pour info " << PFGeometry::innerZ(PFGeometry::ECALEndcap) << " "
-	   << PFGeometry::innerRadius(PFGeometry::ECALBarrel) << std::endl; 
+//       std::cout << "pour info " 
+// 		<< PFGeometry::innerZ(PFGeometry::ECALEndcap) << " "
+// 		<< PFGeometry::innerRadius(PFGeometry::ECALBarrel) 
+// 		<< std::endl; 
+
       frontFaceECALRZ_.SetX1(-1.*PFGeometry::innerZ(PFGeometry::ECALEndcap));
       frontFaceECALRZ_.SetY1(-1.*PFGeometry::innerRadius(PFGeometry::ECALBarrel));
       frontFaceECALRZ_.SetX2(PFGeometry::innerZ(PFGeometry::ECALEndcap));
@@ -911,47 +1011,57 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 
 void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
   
-  std::vector<reco::PFCluster>::iterator itCluster;
-  for(itCluster = clusters_.begin(); itCluster != clusters_.end(); 
-      itCluster++) {
-    
-    int type = itCluster->type();
-    if(algosToDisplay_.find(type) == algosToDisplay_.end() )
-      continue;
-    
-    TMarker m;
+  // std::vector<reco::PFCluster>::iterator itCluster;
+  // for(itCluster = clusters_->begin(); itCluster != clusters_->end(); 
+  //     itCluster++) {
+  for(unsigned i=0; i<clustersECAL_->size(); i++) 
+    displayCluster( (*clustersECAL_)[i], viewType, phi0);
+  for(unsigned i=0; i<clustersHCAL_->size(); i++) 
+    displayCluster( (*clustersHCAL_)[i], viewType, phi0);
+  for(unsigned i=0; i<clustersPS_->size(); i++) 
+    displayCluster( (*clustersPS_)[i], viewType, phi0);
+}
 
-    int color = 4;
-    if( displayColorClusters_ ) 
-      color = itCluster->type();
 
-    m.SetMarkerColor(color);
-    m.SetMarkerStyle(20);
+void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
+					unsigned viewType, double phi0) {
+  
+  int type = cluster.type();
+  if(algosToDisplay_.find(type) == algosToDisplay_.end() )
+    return;
+
+  TMarker m;
+
+  int color = 4;
+  if( displayColorClusters_ ) 
+    color = cluster.type();
+
+  m.SetMarkerColor(color);
+  m.SetMarkerStyle(20);
     
-    math::XYZPoint xyzPos = itCluster->positionXYZ();
+  math::XYZPoint xyzPos = cluster.positionXYZ();
 
-    switch(viewType) {
-    case XY:
-      m.DrawMarker(xyzPos.X(), xyzPos.Y());
+  switch(viewType) {
+  case XY:
+    m.DrawMarker(xyzPos.X(), xyzPos.Y());
+    break;
+  case RZ:
+    {
+      double sign = 1.;
+      if (cos(phi0 - cluster.positionXYZ().Phi()) < 0.)
+	sign = -1.;
+      m.DrawMarker(xyzPos.Z(), sign*xyzPos.Rho());
       break;
-    case RZ:
-      {
-	double sign = 1.;
-	if (cos(phi0 - itCluster->positionXYZ().Phi()) < 0.)
-	  sign = -1.;
-	m.DrawMarker(xyzPos.Z(), sign*xyzPos.Rho());
-	break;
-      }
-    case EPE:
-      if(itCluster->layer()<0)
-	m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
-      break;
-    case EPH:
-      if(itCluster->layer()>0)
-	m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
-      break;
-    }      
-  }
+    }
+  case EPE:
+    if(cluster.layer()<0)
+      m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
+    break;
+  case EPH:
+    if(cluster.layer()>0)
+      m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
+    break;
+  }      
 }
 
 void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0) 
@@ -1209,8 +1319,8 @@ void  PFRootEventManager::print() const {
   }
   if( printClusters_ ) {
     cout<<"CLUSTERS ============================================="<<endl;
-    for(unsigned i=0; i<clusters_.size(); i++) {
-      cout<<clusters_[i]<<endl;
+    for(unsigned i=0; i<clusters_->size(); i++) {
+      cout<<(*clusters_)[i]<<endl;
     }    
   }
   if( printPFBs_ ) {

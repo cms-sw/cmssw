@@ -15,6 +15,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <memory>
 
 class TTree;
 class TBranch;
@@ -131,6 +132,11 @@ class PFRootEventManager {
   /// display clusters in x/y or r/z view
   void displayClusters(unsigned viewType, double phi0 = 0.);
 
+  /// display one cluster
+  void displayCluster(const reco::PFCluster& cluster,
+		      unsigned viewType, double phi0 = 0.);
+  
+
   /// display reconstructed tracks in x/y or r/z view
   void displayRecTracks(unsigned viewType, double phi0 = 0.);
 
@@ -169,9 +175,19 @@ class PFRootEventManager {
   /// input tree  
   TTree*     tree_;          
   
-  /// cluster branch  
+  /// rechits branch  
   TBranch*   hitsBranch_;          
   
+  /// ECAL clusters branch  
+  TBranch*   clustersECALBranch_;          
+  
+  /// HCAL clusters branch  
+  TBranch*   clustersHCALBranch_;          
+   
+  /// PS clusters branch  
+  TBranch*   clustersPSBranch_;          
+  
+
   /// reconstructed tracks branch  
   TBranch*   recTracksBranch_;          
   
@@ -179,7 +195,16 @@ class PFRootEventManager {
   std::vector<reco::PFRecHit> rechits_;
 
   /// clusters
-  std::vector<reco::PFCluster> clusters_;
+  std::auto_ptr< std::vector<reco::PFCluster> > clusters_;
+
+  /// clusters
+  std::auto_ptr< std::vector<reco::PFCluster> > clustersECAL_;
+
+  /// clusters
+  std::auto_ptr< std::vector<reco::PFCluster> > clustersHCAL_;
+
+  /// clusters
+  std::auto_ptr< std::vector<reco::PFCluster> > clustersPS_;
 
   /// reconstructed tracks
   std::vector<reco::PFRecTrack> recTracks_;
@@ -259,6 +284,10 @@ class PFRootEventManager {
   bool                     printPFBs_;
 
   //----------------- clustering parameters ---------------------
+
+  /// clustering on/off. If on, rechits from tree are used to form 
+  /// clusters. If off, clusters from tree are used.
+  bool   clusteringIsOn_;
 
   /// ecal barrel threshold
   double threshEcalBarrel_;
