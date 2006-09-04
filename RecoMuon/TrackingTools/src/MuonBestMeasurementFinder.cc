@@ -1,31 +1,35 @@
-
 /** \class MuonBestMeasurementFinder
  *  Algorithmic class to get best measurement from a list of TM
  *  the chi2 cut for the MeasurementEstimator is huge since should not be used.
  *  The aim of this class is to return the "best" measurement according to the
  *  chi2, but without any cut. The decision whether to use or not the
  *  measurement is taken in the caller class.
+ *  The evaluation is made (in hard-code way) with the granularity = 1. Where
+ *  the granularity is the one defined in the MuonTrajectoyUpdatorClass.
  *
- *  $Date: 2006/08/16 10:07:11 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/08/31 18:24:18 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "Utilities/Timing/interface/TimingReport.h"
+
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
-// FIXME
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Utilities/Timing/interface/TimingReport.h"
+
 using namespace std;
 
 MuonBestMeasurementFinder::MuonBestMeasurementFinder(){
+  
   theEstimator = new Chi2MeasurementEstimator(100000.);
 }
 
@@ -36,9 +40,7 @@ MuonBestMeasurementFinder::~MuonBestMeasurementFinder(){
 TrajectoryMeasurement* 
 MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement>& measC,
 					       const Propagator* propagator){
-
-  typedef TransientTrackingRecHit::ConstRecHitContainer MuonRecHitContainer;
-    
+  
   const std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
 
   TimeMe time(metname);
@@ -72,21 +74,18 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
   // if there are more than one valid measurement, then sort them.
   for ( measurement = validMeasurements.begin(); measurement!= validMeasurements.end(); measurement++ ) {
 
-    // FIXME: is it right??
-    const MuonTransientTrackingRecHit *measRH = 
-      dynamic_cast<const MuonTransientTrackingRecHit*> ( ((*measurement)->recHit()).get() ); 
+    TransientTrackingRecHit::ConstRecHitPointer muonRecHit = (*measurement)->recHit();
     
     unsigned int npts=0;
     double thisChi2 = 0.;
     
-    // ask for the 2D-segments
-    MuonRecHitContainer rhits_list = measRH->transientHits();
+    // ask for the 2D-segments/2D-rechit
+    TransientTrackingRecHit::ConstRecHitContainer rhits_list = muonRecHit->transientHits();
 
     LogDebug(metname)<<"Number of rechits in the measurement rechit: "<<rhits_list.size()<<endl;
     
     // loop over them
-    for (MuonRecHitContainer::const_iterator rhit = rhits_list.begin(); 
-	 // for (vector<const TrackingRecHit*>::const_iterator rhit = rhits_list.begin(); 
+    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit = rhits_list.begin(); 
 	 rhit!= rhits_list.end(); rhit++ ) {
       if ((*rhit)->isValid() ) {
 	LogDebug(metname)<<"Rechit dimension: "<<(*rhit)->dimension()<<endl;
@@ -94,8 +93,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 	  
 	TrajectoryStateOnSurface predState;
 
-	// Double FIXME
-	if (!( (*rhit)->geographicalId() == (*measRH).geographicalId() ) ){
+	if (!( (*rhit)->geographicalId() == (*muonRecHit).geographicalId() ) ){
 	  predState = propagator->propagate(*(*measurement)->predictedState().freeState(),
 					      (*rhit)->det()->surface()); 
 	}
