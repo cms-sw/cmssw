@@ -1,6 +1,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 
-CurvilinearTrajectoryError::CurvilinearTrajectoryError( const MathCovarianceMatrix & cov)
+CurvilinearTrajectoryError::CurvilinearTrajectoryError( const MathCovarianceMatrix & cov) :
+  theCovarianceMatrix(dimension)
 {
   for (int i=0; i<dimension; i++) {
     for (int j=0; j<=i; j++) {
