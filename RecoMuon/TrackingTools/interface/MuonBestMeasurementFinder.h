@@ -3,9 +3,15 @@
 
 /** \class MuonBestMeasurementFinder
  *  Algorithmic class to get best measurement from a list of TM
+ *  the chi2 cut for the MeasurementEstimator is huge since should not be used.
+ *  The aim of this class is to return the "best" measurement according to the
+ *  chi2, but without any cut. The decision whether to use or not the
+ *  measurement is taken in the caller class.
+ *  The evaluation is made (in hard-code way) with the granularity = 1. Where
+ *  the granularity is the one defined in the MuonTrajectoyUpdatorClass.
  *
- *  $Date: 2006/06/21 17:36:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/31 18:24:17 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
