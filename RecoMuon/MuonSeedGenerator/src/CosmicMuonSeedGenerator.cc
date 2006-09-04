@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/08/16 10:07:09 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/09/02 21:52:41 $
+ *  $Revision: 1.7 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -212,6 +212,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
     const std::vector<TrajectorySeed>& sds = createSeed((*ihit),eSetup);
     LogDebug("CosmicMuonSeedGenerator")<<"created seeds from rechit "<<sds.size();
     results.insert(results.end(),sds.begin(),sds.end());
+    if ( results.size() >= theMaxSeeds ) break;
   }
   return;
 }
