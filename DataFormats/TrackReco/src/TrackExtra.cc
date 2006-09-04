@@ -22,13 +22,11 @@ TrackExtra::TrackExtra( const Point & outerPosition, const Vector & outerMomentu
 }
 
 TrackExtra::CovarianceMatrix TrackExtra::outerStateCovariance() const {
-  CovarianceMatrix v;
-  return fillCovariance( v, outerCovariance_ );
+  CovarianceMatrix v; fillCovariance( v, outerCovariance_ ); return v;
 }
 
 TrackExtra::CovarianceMatrix TrackExtra::innerStateCovariance() const {
-  CovarianceMatrix v;
-  return fillCovariance( v, innerCovariance_ );
+  CovarianceMatrix v; fillCovariance( v, innerCovariance_ ); return v;
 }
 
 TrackExtra::CovarianceMatrix & TrackExtra::fillOuter( CovarianceMatrix & v ) const {
