@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/31 18:18:20 $
- *  $Revision: 1.23 $
+ *  $Date: 2006/08/31 18:24:18 $
+ *  $Revision: 1.24 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -89,13 +89,13 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     track.setExtra(trackExtraRef);
 
     // Fill the track extra with the rec hit (persistent-)reference
-    // size_t i = 0;
+    size_t i = 0;
     for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
 	 recHit != transHits.end(); ++recHit) {
       if((**recHit).isValid()){
 	TrackingRecHit *singleHit = (**recHit).hit()->clone();
 	recHitCollection->push_back( singleHit );  
-	// track.setHitPattern( *singleHit, i ++ );
+	track.setHitPattern( *singleHit, i ++ );
 	// set the TrackingRecHitRef (persitent reference of the tracking rec hits)
 	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
       }
