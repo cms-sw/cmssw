@@ -342,7 +342,7 @@ void SiStripRecHitsPlots()
  SiStrip->cd(6);
  Chi2_matched_layer2tob->Draw();
  
- SiStrip->Print("MatcheResdOfTOB.eps");
+ SiStrip->Print("MatcheResOfTOB.eps");
 
 ////////////////////////////////////
 //            TID                 //
