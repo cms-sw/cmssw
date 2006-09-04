@@ -1,4 +1,4 @@
-// $Id: testValueMap.cc,v 1.9 2006/08/27 20:25:31 wmtan Exp $
+// $Id: testValueMap.cc,v 1.10 2006/08/28 07:17:01 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -43,4 +43,5 @@ void  testValueMap::dummy() {
   edm::Ref<Assoc> r;
   v.erase( edm::Ref<CKey>() );
   v.clear();
+  CPPUNIT_ASSERT( v.size() == 0 );
 }
