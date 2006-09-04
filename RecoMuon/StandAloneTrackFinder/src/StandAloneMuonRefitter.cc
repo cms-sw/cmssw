@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/09/01 15:48:55 $
- *  $Revision: 1.27 $
+ *  $Date: 2006/09/04 13:28:44 $
+ *  $Revision: 1.28 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -73,6 +73,8 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
   
   thePropagatorName = par.getParameter<string>("Propagator");
 
+  theBestMeasurementFinder = new MuonBestMeasurementFinder();
+
   // Muon trajectory updator parameters
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
   
@@ -98,6 +100,7 @@ StandAloneMuonRefitter::~StandAloneMuonRefitter(){
   delete theEstimator;
   delete theMuonUpdator;
   delete theMeasurementExtractor;
+  delete theBestMeasurementFinder;
 }
 
 /// Return the propagation direction
@@ -173,8 +176,6 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
   LogDebug(metname) << "Starting the refit"<<endl; 
   TimeMe t(metname,timing);
 
-  MuonBestMeasurementFinder bestMeasurementFinder;
-  
   // this is the most outward TSOS updated with a recHit onto a DetLayer
   TrajectoryStateOnSurface lastUpdatedTSOS;
   // this is the last but one most outward TSOS updated with a recHit onto a DetLayer
@@ -208,8 +209,8 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 
     LogDebug(metname) << "Number of Trajectory Measurement: " << measL.size();
         
-    TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL,
-										       propagator());
+    TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL, propagator());
+
     // RB: Different ways can be choosen if no bestMeasurement is available:
     // 1- check on lastTSOS-initialTSOS eta difference
     // 2- check on lastTSOS-lastButOneUpdatedTSOS eta difference
@@ -232,7 +233,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 						   lastButOneUpdatedTSOS, 
 						   *propagator(), 
 						   *estimator());
-      bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL,propagator());
+      bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL, propagator());
     }
     
     //if no measurement found and the current FTS has an eta very different
@@ -249,7 +250,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 						   initialTSOS, 
 						   *propagator(), 
 						   *estimator());
-      bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL, propagator());
+      bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL, propagator());
     }
     
     // FIXME: uncomment this line!!
@@ -274,9 +275,9 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 	lastUpdatedTSOS = lastTSOS;
       }
     }
-    //SL in case no valid mesurement is found, still I want to use the predicted
-    //state for the following measurement serches. I take the first in the
-    //container. FIXME!!! I want to carefully check this!!!!!
+    // SL in case no valid mesurement is found, still I want to use the predicted
+    // state for the following measurement serches. I take the first in the
+    // container. FIXME!!! I want to carefully check this!!!!!
     else{
       LogDebug(metname)<<"No best measurement found"<<endl;
       if (measL.size()>0){

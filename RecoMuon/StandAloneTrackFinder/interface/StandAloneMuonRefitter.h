@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/08/31 18:28:04 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/09/04 13:28:43 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -118,11 +118,10 @@ private:
   /// access at the muon updator
   MuonTrajectoryUpdator *updator() const {return theMuonUpdator;}
 
-
-/*   /// The best measurement finder: search for the best measurement among the TMs available */
-/*   MuonBestMeasurementFinder theBestMeasurementFinder; */
-/*   /// Access to the best measurement finder */
-/*   MuonBestMeasurementFinder bestMeasurementFinder() const {return theBestMeasurementFinder;} */
+  /// The best measurement finder: search for the best measurement among the TMs available
+  MuonBestMeasurementFinder *theBestMeasurementFinder;
+  /// Access to the best measurement finder
+  MuonBestMeasurementFinder *bestMeasurementFinder() const {return theBestMeasurementFinder;}
 
   /// The max allowed chi2 to accept a rechit in the fit
   double theMaxChi2;
