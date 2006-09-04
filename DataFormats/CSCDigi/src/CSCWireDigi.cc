@@ -3,8 +3,8 @@
  * Digi for CSC anode wires.
  * Based on modified DTDigi.
  *
- * $Date: 2006/04/06 11:18:37 $
- * $Revision: 1.3 $
+ * $Date: 2006/09/03 15:41:03 $
+ * $Revision: 1.4 $
  *
  * \author N. Terentiev, CMU
  */
@@ -53,10 +53,12 @@ int CSCWireDigi::getTimeBin()         const {
   /// return vector of time bins ON
 std::vector<int> CSCWireDigi::getTimeBinsOn() const {
   std::vector<int> tbins;
-  uint16_t tbit=1;
+  uint16_t tbit=tbinb_;
+  uint16_t one=1;
   for(int i=0;i<16;i++) {
-    if(tbit & tbinb_) tbins.push_back(i);
-    tbit=tbit<<1;
+    if(tbit & one) tbins.push_back(i);
+    tbit=tbit>>1;
+    if(tbit==0) break;
   }
   return tbins;
 }
