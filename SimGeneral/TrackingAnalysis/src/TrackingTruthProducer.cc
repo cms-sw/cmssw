@@ -59,22 +59,24 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   }
   
   const edm::HepMCProduct *mcp = hepMC.product();
-  
-  edm::Handle<SimVertexContainer>      G4VtxContainer;
-  edm::Handle<edm::SimTrackContainer>  G4TrkContainer;
-  event.getByType(G4VtxContainer);
-  event.getByType(G4TrkContainer);
-  
-  const HepMC::GenEvent *genEvent = mcp -> GetEvent(); // faster?
-
-  const edm::SimTrackContainer      *etc = G4TrkContainer.product();
-
   if (mcp == 0) {
     edm::LogWarning (MessageCategory) << "No HepMC source found";
     return;
   }  
+  const HepMC::GenEvent *genEvent = mcp -> GetEvent();
    
-   
+  edm::Handle<SimVertexContainer>      G4VtxContainer;
+  edm::Handle<edm::SimTrackContainer>  G4TrkContainer;
+  try {
+    event.getByType(G4VtxContainer);
+    event.getByType(G4TrkContainer);
+  } catch (std::exception &e) {
+    edm::LogWarning (MessageCategory) << "Geant tracks and/or vertices not found.";
+    return;
+  }    
+
+  const edm::SimTrackContainer      *etc = G4TrkContainer.product();
+
   vector<edm::Handle<edm::PSimHitContainer> > AlltheConteiners;
   for (vector<string>::const_iterator source = hitLabelsVector_.begin(); source !=
       hitLabelsVector_.end(); ++source){
