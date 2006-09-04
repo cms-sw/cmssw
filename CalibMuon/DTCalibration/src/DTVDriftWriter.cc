@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/07 12:20:44 $
+ *  $Date: 2006/08/31 15:30:32 $
  *  $Revision: 1.1 $
  *  \author M. Giunta
  */
@@ -207,14 +207,14 @@ vector<float> DTVDriftWriter::evaluateVDriftAndReso (const DTWireId& wireId) {
   
     //calculate total mean and sigma
     for(int i=0; i<=5; i++) {
-      if(count[i]<10) continue;
+      if(count[i]<200) continue;
       tMaxMean  += mean[i]*(count[i]/(sigma[i]*sigma[i]));
       wTMaxSum  += count[i]/(sigma[i]*sigma[i]);
       sigmaT    += count[i]*factor[i]*sigma[i];
       wSigmaSum += count[i];
-      cout << "TMaxMean "<<i<<": "<< mean[i] << " entries: " << count[i] 
-	   << " sigma: " << sigma[i] 
-	   << " weight: " << (count[i]/(sigma[i]*sigma[i])) << endl; 
+      //cout << "TMaxMean "<<i<<": "<< mean[i] << " entries: " << count[i] 
+      //	   << " sigma: " << sigma[i] 
+      //   << " weight: " << (count[i]/(sigma[i]*sigma[i])) << endl; 
     }
     tMaxMean /= wTMaxSum;
     sigmaT /= wSigmaSum;
@@ -268,7 +268,7 @@ vector<float> DTVDriftWriter::evaluateVDriftAndReso (const DTWireId& wireId) {
     }
     
     for(int it0=0; it0<=2; it0++) {      
-      if((countT0[it0] > 5) && (countT0[it0+1] > 5)) {
+      if((countT0[it0] > 200) && (countT0[it0+1] > 200)) {
 	Double_t deltaT0 = meanT0[it0] - meanT0[it0+1];	
 	vDriftAndReso.push_back(deltaT0);
       }  
@@ -276,7 +276,7 @@ vector<float> DTVDriftWriter::evaluateVDriftAndReso (const DTWireId& wireId) {
  	vDriftAndReso.push_back(999.);
     }
     //deltat0 using hists with max nr. of entries
-    if((countT0[4] > 5) && (countT0[5] > 5)) {
+    if((countT0[4] > 200) && (countT0[5] > 200)) {
       Double_t t0Diff = histos->GetT0Factor(hT0[4]) - histos->GetT0Factor(hT0[5]);
       Double_t deltaT0MaxEntries =  (meanT0[4] - meanT0[5])/ t0Diff;
       vDriftAndReso.push_back(deltaT0MaxEntries);
