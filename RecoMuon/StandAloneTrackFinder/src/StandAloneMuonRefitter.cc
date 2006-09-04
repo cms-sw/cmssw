@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/08/31 18:28:04 $
- *  $Revision: 1.26 $
+ *  $Date: 2006/09/01 15:48:55 $
+ *  $Revision: 1.27 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -41,17 +41,18 @@ using namespace std;
 StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
 					       const MuonServiceProxy* service):theService(service){
   
-  // Propagation direction
-  string propagationName = par.getParameter<string>("PropagationDirection");
-  if (propagationName == "alongMomentum" ) thePropagationDirection = alongMomentum;
-  else if (propagationName == "oppositeToMomentum" ) thePropagationDirection = oppositeToMomentum;
+  // Fit direction
+  string fitDirectionName = par.getParameter<string>("FitDirection");
+
+  if (fitDirectionName == "insideOut" ) theFitDirection = recoMuon::insideOut;
+  else if (fitDirectionName == "outsideIn" ) theFitDirection = recoMuon::outsideIn;
   else 
     throw cms::Exception("StandAloneMuonRefitter constructor") 
-      <<"Wrong propagation direction chosen in StandAloneMuonRefitter::StandAloneMuonRefitter ParameterSet"
+      <<"Wrong fit direction chosen in StandAloneMuonRefitter::StandAloneMuonRefitter ParameterSet"
       << "\n"
       << "Possible choices are:"
       << "\n"
-      << "PropagationDirection = alongMomentum or PropagationDirection = oppositeToMomentum";
+      << "FitDirection = insideOut or FitDirection = outsideIn";
   
   // The max allowed chi2 to accept a rechit in the fit
   theMaxChi2 = par.getParameter<double>("MaxChi2");
@@ -72,13 +73,12 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
   
   thePropagatorName = par.getParameter<string>("Propagator");
 
-  // FIXME: check if the propagatore is updated each event!!!  
+  // Muon trajectory updator parameters
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
-  // thePropagator = &*theService->propagator(thePropagatorName);
   
-  theMuonUpdator = new MuonTrajectoryUpdator( propagationDirection(), 
-					      muonUpdatorPSet);
-
+  // the updator needs the fit direction
+  theMuonUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet,
+					     fitDirection() );
 
   // Measurement Extractor: enable the measure for each muon sub detector
   bool enableDTMeasurement = par.getParameter<bool>("EnableDTMeasurement");
@@ -100,6 +100,13 @@ StandAloneMuonRefitter::~StandAloneMuonRefitter(){
   delete theMeasurementExtractor;
 }
 
+/// Return the propagation direction
+PropagationDirection StandAloneMuonRefitter::propagationDirection() const{
+  if( fitDirection() == 0 ) return alongMomentum;
+  else if ( fitDirection() == 1 ) return oppositeToMomentum;
+  else return anyDirection;
+}
+
 
 void StandAloneMuonRefitter::reset(){
   totalChambers = dtChambers = cscChambers = rpcChambers = 0;
@@ -109,11 +116,9 @@ void StandAloneMuonRefitter::reset(){
   theDetLayers.clear();
 }
 
-
 void StandAloneMuonRefitter::setEvent(const Event& event){
   theMeasurementExtractor->setEvent(event);
 }
-
 
 
 void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
@@ -130,9 +135,10 @@ void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
   totalChambers++;
 }
 
+
 vector<const DetLayer*> StandAloneMuonRefitter::compatibleLayers(const DetLayer *initialLayer,
 								 FreeTrajectoryState& fts,
-								 PropagationDirection &propDir){
+								 PropagationDirection propDir){
   vector<const DetLayer*> detLayers;
 
   if(theNavigationType == "Standard"){
@@ -151,7 +157,6 @@ vector<const DetLayer*> StandAloneMuonRefitter::compatibleLayers(const DetLayer 
   
   return detLayers;
 }
-
 
 
 void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
@@ -179,19 +184,14 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
   
   lastUpdatedTSOS = lastButOneUpdatedTSOS = lastTSOS = initialTSOS;
   
-  // ask for compatible layers
-  vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(*initialTSOS.freeTrajectoryState(),
-								     propagationDirection());  
-    
-  // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
-  // In fact the first layer is not returned by initialLayer->compatibleLayers.
-  detLayers.insert(detLayers.begin(),initialLayer);
+  vector<const DetLayer*> detLayers = compatibleLayers(initialLayer,*initialTSOS.freeTrajectoryState(),
+						       propagationDirection());  
   
   LogDebug(metname)<<"compatible layers found: "<<detLayers.size()<<endl;
   
   vector<const DetLayer*>::const_iterator layer;
 
-  // the layers are ordered in agreement with the propagation direction 
+  // the layers are ordered in agreement with the fit/propagation direction 
   for ( layer = detLayers.begin(); layer!= detLayers.end(); ++layer ) {
     
     //    bool firstTime = true;

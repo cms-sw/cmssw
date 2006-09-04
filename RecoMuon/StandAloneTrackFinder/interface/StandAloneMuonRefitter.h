@@ -4,14 +4,15 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/08/30 12:56:18 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/08/31 18:28:04 $
+ *  $Revision: 1.19 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "RecoMuon/TrackingTools/interface/FitDirection.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -26,8 +27,9 @@ class MeasurementEstimator;
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
 class StandAloneMuonRefitter {
-public:
-  /// Constructor
+
+ public:
+    /// Constructor
   StandAloneMuonRefitter(const edm::ParameterSet& par, const MuonServiceProxy* service);
 
   /// Destructor
@@ -67,7 +69,11 @@ public:
   const DetLayer* lastDetLayer() const {return theDetLayers.back();}
 
   /// Return the propagation direction
-  PropagationDirection propagationDirection() const {return thePropagationDirection;}
+  PropagationDirection propagationDirection() const;
+
+  /// Return the fit direction
+  recoMuon::FitDirection fitDirection() const {return theFitDirection;}
+
 
 protected:
 
@@ -85,7 +91,7 @@ private:
   /// Set the rigth Navigation
   std::vector<const DetLayer*> compatibleLayers(const DetLayer *initialLayer,
 						FreeTrajectoryState& fts,
-						PropagationDirection &propDir);
+						PropagationDirection propDir);
   
   /// the trajectory state on the last available surface
   TrajectoryStateOnSurface theLastUpdatedTSOS;
@@ -125,7 +131,7 @@ private:
   double theNSigma;
 
   /// the propagation direction
-  PropagationDirection thePropagationDirection;
+  recoMuon::FitDirection theFitDirection;
 
   /// the det layer used in the reconstruction
   std::vector<const DetLayer*> theDetLayers;

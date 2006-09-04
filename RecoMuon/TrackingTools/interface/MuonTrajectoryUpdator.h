@@ -10,15 +10,15 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/08/31 18:24:17 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/09/03 02:44:34 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
 
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "RecoMuon/TrackingTools/interface/FitDirection.h"
+
 #include <functional>
 
 class Propagator;
@@ -32,14 +32,15 @@ class DetLayer;
 namespace edm{class ParameterSet;}
 
 class MuonTrajectoryUpdator {
+  
  public:
 
   /// Constructor from Propagator and Parameter set
-  MuonTrajectoryUpdator(PropagationDirection fitDirection,
-			const edm::ParameterSet& par);
+  MuonTrajectoryUpdator(const edm::ParameterSet& par,
+			recoMuon::FitDirection fitDirection);
 
   /// Constructor from Propagator, chi2 and the granularity flag
-  MuonTrajectoryUpdator(PropagationDirection fitDirection,
+  MuonTrajectoryUpdator(recoMuon::FitDirection fitDirection,
 			double chi2, int granularity);
   
   /// Destructor
@@ -51,12 +52,6 @@ class MuonTrajectoryUpdator {
   virtual std::pair<bool,TrajectoryStateOnSurface>  update(const TrajectoryMeasurement* theMeas, 
 							   Trajectory& theTraj,
 							   const Propagator *propagator);
-  
-  /// update the Trajectory with the TrajectoryMeasurement
-  virtual std::pair<bool,TrajectoryStateOnSurface>  update(const TrajectoryMeasurement* theMeas,
-                                                           Trajectory& theTraj,
-                                                           const Propagator *propagator,
- 							   PropagationDirection fitDir);
 
   /// accasso at the propagator
   const MeasurementEstimator *estimator() const {return theEstimator;}
@@ -65,8 +60,14 @@ class MuonTrajectoryUpdator {
   /// get the max chi2 allowed
   double maxChi2() const {return theMaxChi2 ;}
   
+  /// get the fit direction
+  recoMuon::FitDirection fitDirection() {return theFitDirection;}
+
   /// set max chi2
-  void setMaxChi2(double chi2) { theMaxChi2=chi2; }
+  void setMaxChi2(double chi2) {theMaxChi2 = chi2;}
+
+  /// set fit direction
+  void setFitDirection(recoMuon::FitDirection fitDirection) {theFitDirection = fitDirection;}
 
  protected:
   
@@ -91,10 +92,6 @@ class MuonTrajectoryUpdator {
   /// i.e. max granularity for DT but not for the CSC and the viceversa
   int theGranularity; 
   // FIXME: ask Tim if the CSC segments can be used, since in ORCA they wasn't.
-
-  /// copy objs from an OwnVector to another one
-  void insert (TransientTrackingRecHit::ConstRecHitContainer & to,
-	       TransientTrackingRecHit::ConstRecHitContainer & from);
 
   /// Ordering along increasing radius (for DT rechits)
   struct RadiusComparatorInOut{
@@ -128,7 +125,7 @@ class MuonTrajectoryUpdator {
     }
   };
 
-  void sort(TransientTrackingRecHit::ConstRecHitContainer&, const DetLayer*, PropagationDirection);
+  void sort(TransientTrackingRecHit::ConstRecHitContainer&, const DetLayer*);
   
   /// Return the trajectory measurement. It handles both the fw and the bw propagation
   TrajectoryMeasurement updateMeasurement( const TrajectoryStateOnSurface &propagatedTSOS, 
@@ -142,12 +139,10 @@ class MuonTrajectoryUpdator {
   MeasurementEstimator *theEstimator;
   TrajectoryStateUpdator *theUpdator;
 
-
-  // FIXME: change into an enum
   // The fit direction.This is the global fit direction and it could be (LOCALLY!) different w.r.t. the 
   // propagation direction embeeded in the propagator (i.e. when it is used in the "anyDirection" mode)
   // This data member is not set via parameter set since it must be consistent with the RefitterParameter.
-  PropagationDirection theFitDirection;
+  recoMuon::FitDirection theFitDirection;
 };
 #endif
 
