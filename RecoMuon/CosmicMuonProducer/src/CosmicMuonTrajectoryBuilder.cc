@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/09/03 03:04:34 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/09/04 01:15:16 $
+ *  $Revision: 1.14 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -34,6 +34,7 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoMuon/TrackingTools/interface/FitDirection.h"
 
 using namespace edm;
 
@@ -52,11 +53,11 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
   // FIXME: check if the propagator is updated each event!!!  
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
   
-  theUpdator = new MuonTrajectoryUpdator(alongMomentum, muonUpdatorPSet);
+  theUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet, recoMuon::insideOut);
 
   ParameterSet muonBackwardUpdatorPSet = par.getParameter<ParameterSet>("BackwardMuonTrajectoryUpdatorParameters");
 
-  theBKUpdator = new MuonTrajectoryUpdator(oppositeToMomentum, muonBackwardUpdatorPSet);
+  theBKUpdator = new MuonTrajectoryUpdator(muonBackwardUpdatorPSet, recoMuon::outsideIn);
 
 }
 
@@ -150,19 +151,20 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // set fit direction for MuonTrajectoryUpdator
   // it's not the same as propagation!!!
 
-  PropagationDirection fitDir = oppositeToMomentum;
-
   GlobalPoint lastPos = lastTsos.globalPosition();
   GlobalPoint secondLastPos = secondLast.globalPosition();
   GlobalVector momDir(secondLastPos.x()-lastPos.x(),
                       secondLastPos.y()-lastPos.y(),
                       secondLastPos.z()-lastPos.z());
-
+  LogDebug("CosmicMuonTrajectoryBuilder")<<"lastTsos"<<lastTsos;
+  LogDebug("CosmicMuonTrajectoryBuilder")<<"secondLast"<<secondLast;
+  LogDebug("CosmicMuonTrajectoryBuilder")<<"momDir"<<momDir;
   if ( lastPos.x() * momDir.x()
       +lastPos.y() * momDir.y()
       +lastPos.z() * momDir.z() > 0 ){
-      fitDir = alongMomentum;
-    }
+      LogDebug("CosmicMuonTrajectoryBuilder")<<"Fit direction changed to insideOut";
+      theBKUpdator->setFitDirection(recoMuon::insideOut);
+    } else theBKUpdator->setFitDirection(recoMuon::outsideIn);
 
   navLayerCBack = navigation.compatibleLayers(*(lastTsos.freeState()), oppositeToMomentum);
 
@@ -197,13 +199,13 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
             if ( thisPos.x() * momDir.x() 
                 +thisPos.y() * momDir.y()
                 +thisPos.z() * momDir.z() > 0 ){
-                 fitDir = alongMomentum;
-              } else fitDir = oppositeToMomentum;
+                 theBKUpdator->setFitDirection(recoMuon::insideOut);
+              } else theBKUpdator->setFitDirection(recoMuon::outsideIn);
           }
        }
  
        pair<bool,TrajectoryStateOnSurface> bkresult
-            = backwardUpdator()->update(theMeas, *myTraj, propagator(),fitDir);
+            = backwardUpdator()->update(theMeas, *myTraj, propagator());
 
        if (bkresult.first ) {
           if((*rnxtlayer)-> subDetector() == GeomDetEnumerators::DT) DTChamberUsedBack++;
