@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/09/03 02:44:34 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/09/04 13:28:44 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -49,8 +49,8 @@ class MuonTrajectoryUpdator {
   // Operations
 
   /// update the Trajectory with the TrajectoryMeasurement
-  virtual std::pair<bool,TrajectoryStateOnSurface>  update(const TrajectoryMeasurement* theMeas, 
-							   Trajectory& theTraj,
+  virtual std::pair<bool,TrajectoryStateOnSurface>  update(const TrajectoryMeasurement* measurement, 
+							   Trajectory& trajectory,
 							   const Propagator *propagator);
 
   /// accasso at the propagator
@@ -77,7 +77,7 @@ class MuonTrajectoryUpdator {
   /// i.e.: if "current" is a sub-rechit of the mesurement (i.e. a 1/2D RecHit)
   /// the state will be propagated to the surface where lies the "current" rechit 
   TrajectoryStateOnSurface propagateState(const TrajectoryStateOnSurface& state,
-					  const TrajectoryMeasurement* theMeas, 
+					  const TrajectoryMeasurement* measurement, 
 					  const TransientTrackingRecHit::ConstRecHitPointer& current,
 					  const Propagator *propagator) const;
   

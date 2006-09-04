@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/09/03 02:46:39 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/09/04 13:29:16 $
+ *  $Revision: 1.19 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -68,8 +68,8 @@ MuonTrajectoryUpdator::~MuonTrajectoryUpdator(){
 }
 
 pair<bool,TrajectoryStateOnSurface> 
-MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
-			      Trajectory& theTraj,
+MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
+			      Trajectory& trajectory,
 			      const Propagator *propagator){
   
   const std::string metname = "Muon|RecoMuon|MuonTrajectoryUpdator";
@@ -79,16 +79,16 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
   // Status of the updating
   bool updated=false;
   
-  if(!theMeas) return pair<bool,TrajectoryStateOnSurface>(updated,TrajectoryStateOnSurface() );
+  if(!measurement) return pair<bool,TrajectoryStateOnSurface>(updated,TrajectoryStateOnSurface() );
 
   // measurement layer
-  const DetLayer* detLayer=theMeas->layer();
+  const DetLayer* detLayer=measurement->layer();
 
   // The KFUpdator takes TransientTrackingRecHits as arg.
   TransientTrackingRecHit::ConstRecHitContainer recHitsForFit;
  
   // this are the 4D segment for the CSC/DT and a point for the RPC 
-  TransientTrackingRecHit::ConstRecHitPointer muonRecHit = ((theMeas->recHit()));
+  TransientTrackingRecHit::ConstRecHitPointer muonRecHit = measurement->recHit();
  
   switch(theGranularity){
   case 0:
@@ -101,7 +101,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
     {
       if (detLayer->subDetector()==GeomDetEnumerators::DT ||
 	  detLayer->subDetector()==GeomDetEnumerators::CSC) 
-	// theMeas->recHit() returns a 4D segment, then
+	// measurement->recHit() returns a 4D segment, then
 	// DT case: asking for 2D segments.
 	// CSC case: asking for 2D points.
 	recHitsForFit = muonRecHit->transientHits();
@@ -117,7 +117,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
     {
       if (detLayer->subDetector()==GeomDetEnumerators::DT ) {
 
-	// Asking for 2D segments. theMeas->recHit() returns a 4D segment
+	// Asking for 2D segments. measurement->recHit() returns a 4D segment
 	TransientTrackingRecHit::ConstRecHitContainer segments2D = muonRecHit->transientHits();
 	
 	// loop over segment
@@ -137,7 +137,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	recHitsForFit.push_back(muonRecHit);
       
       else if(detLayer->subDetector()==GeomDetEnumerators::CSC)	
-	// Asking for 2D points. theMeas->recHit() returns a 4D segment
+	// Asking for 2D points. measurement->recHit() returns a 4D segment
 	recHitsForFit = (*muonRecHit).transientHits();
       
       break;
@@ -154,16 +154,16 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
   // sort the container in agreement with the porpagation direction
   sort(recHitsForFit,detLayer);
   
-  TrajectoryStateOnSurface lastUpdatedTSOS = theMeas->predictedState();
+  TrajectoryStateOnSurface lastUpdatedTSOS = measurement->predictedState();
   
-  LogDebug(metname)<<"Own vector size: "<<recHitsForFit.size()<<endl;
+  LogDebug(metname)<<"Number of rechits for the fit: "<<recHitsForFit.size()<<endl;
  
   TransientTrackingRecHit::ConstRecHitContainer::iterator recHit;
   for(recHit = recHitsForFit.begin(); recHit != recHitsForFit.end(); ++recHit ) {
     if ((*recHit)->isValid() ) {
 
       // propagate the TSOS onto the rechit plane
-      TrajectoryStateOnSurface propagatedTSOS  = propagateState(lastUpdatedTSOS, theMeas, 
+      TrajectoryStateOnSurface propagatedTSOS  = propagateState(lastUpdatedTSOS, measurement, 
 								*recHit, propagator);
       
       if ( propagatedTSOS.isValid() ) {
@@ -198,9 +198,9 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	  
 	  TrajectoryMeasurement updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
 									*recHit,thisChi2.second,detLayer, 
-									theMeas);
+									measurement);
 	  // FIXME: check!
-	  theTraj.push(updatedMeasurement, thisChi2.second);	  
+	  trajectory.push(updatedMeasurement, thisChi2.second);	  
 	}
       }
     }
@@ -210,16 +210,16 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 
 TrajectoryStateOnSurface 
 MuonTrajectoryUpdator::propagateState(const TrajectoryStateOnSurface& state,
-				      const TrajectoryMeasurement* theMeas, 
+				      const TrajectoryMeasurement* measurement, 
 				      const TransientTrackingRecHit::ConstRecHitPointer  & current,
 				      const Propagator *propagator) const{
 
   string tname1 = "MuonTrajectoryUpdator::propagateState::Total";
   TimeMe timer1(tname1);
-  const TransientTrackingRecHit::ConstRecHitPointer mother = theMeas->recHit();
+  const TransientTrackingRecHit::ConstRecHitPointer mother = measurement->recHit();
 
   if( current->geographicalId() == mother->geographicalId() )
-    return theMeas->predictedState();
+    return measurement->predictedState();
   
   string tname2 = "MuonTrajectoryUpdator::propagateState::Propagation";
 
