@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/09/01 21:23:34 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/09/03 03:04:34 $
+ *  $Revision: 1.13 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -64,6 +64,7 @@ CosmicMuonTrajectoryBuilder::~CosmicMuonTrajectoryBuilder() {
   LogDebug("CosmicMuonTrajectoryBuilder")<< "CosmicMuonTrajectoryBuilder end";
   if (theUpdator) delete theUpdator;
   if (theBKUpdator) delete theBKUpdator;
+  if (theLayerMeasurements) delete theLayerMeasurements;
 }
 
 void CosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
@@ -197,7 +198,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
                 +thisPos.y() * momDir.y()
                 +thisPos.z() * momDir.z() > 0 ){
                  fitDir = alongMomentum;
-              }
+              } else fitDir = oppositeToMomentum;
           }
        }
  
@@ -237,7 +238,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     << "r = "<<sqrt(pos.x() * pos.x() + pos.y() * pos.y())<<"  z = "<<pos.z()
     << "  dimension = " << (*ir)->dimension()
     << "  det " << (*ir)->det()->geographicalId().det()
-    << "  subDetector " << (*ir)->det()->subDetector();
+    << "  sub detector " << (*ir)->det()->subDetector();
   }
 
   return trajL;
