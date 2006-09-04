@@ -671,7 +671,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    mePosxRphiTOB[ilay]->Fill(rechitrphix[k]);
 	    meErrxRphiTOB[ilay]->Fill(sqrt(rechitrphierrx[k]));
 	    meResRphiTOB[ilay]->Fill(rechitrphires[k]);
-	    meChi2RphiTOB[ilay]->Fill(chi2rphi[k]);
 	  }
 	  for(int l = 0; l<Tobnumrechitrphi2; l++){
 	    meChi2RphiTOB[ilay]->Fill(chi2rphi[l]);
@@ -684,7 +683,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      mePosxSasTOB[ilay]->Fill(rechitsasx[kk]);
 	      meErrxSasTOB[ilay]->Fill(sqrt(rechitsaserrx[kk]));
 	      meResSasTOB[ilay]->Fill(rechitsasres[kk]);
-	      meChi2SasTOB[ilay]->Fill(chi2sas[kk]);
 	    }
 	  for(int l = 0; l<Tobnumrechitsas2; l++){
 	    meChi2SasTOB[ilay]->Fill(chi2sas[l]);
@@ -700,7 +698,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      meErryMatchedTOB[ilay]->Fill(sqrt(rechitmatchederryy[kkk]));
 	      meResxMatchedTOB[ilay]->Fill(rechitmatchedresx[kkk]);
 	      meResyMatchedTOB[ilay]->Fill(rechitmatchedresy[kkk]);
-	      meChi2MatchedTOB[ilay]->Fill(chi2matched[kkk]);
 	    }	  
 	  for(int l = 0; l<Tobnumrechitmatched2; l++){
 	    meChi2MatchedTOB[ilay]->Fill(chi2matched[l]);
@@ -730,7 +727,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    mePosxRphiTID[ilay]->Fill(rechitrphix[k]);
 	    meErrxRphiTID[ilay]->Fill(sqrt(rechitrphierrx[k]));
 	    meResRphiTID[ilay]->Fill(rechitrphires[k]);
-	    meChi2RphiTID[ilay]->Fill(chi2rphi[k]);
 	  }
 	  for(int l = 0; l<Tidnumrechitrphi2; l++){
 	    meChi2RphiTID[ilay]->Fill(chi2rphi[l]);
@@ -744,7 +740,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      mePosxSasTID[ilay]->Fill(rechitsasx[kk]);
 	      meErrxSasTID[ilay]->Fill(sqrt(rechitsaserrx[kk]));
 	      meResSasTID[ilay]->Fill(rechitsasres[kk]);
-	      meChi2SasTID[ilay]->Fill(chi2sas[kk]);
 	    }	  
 	  for(int l = 0; l<Tidnumrechitsas2; l++){
 	    meChi2SasTID[ilay]->Fill(chi2sas[l]);
@@ -760,7 +755,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      meErryMatchedTID[ilay]->Fill(sqrt(rechitmatchederryy[kkk]));
 	      meResxMatchedTID[ilay]->Fill(rechitmatchedresx[kkk]);
 	      meResyMatchedTID[ilay]->Fill(rechitmatchedresy[kkk]);
-	      meChi2MatchedTID[ilay]->Fill(chi2matched[kkk]);
 	    }
 	  for(int l = 0; l<Tidnumrechitmatched2; l++){
 	    meChi2MatchedTID[ilay]->Fill(chi2matched[l]);
@@ -790,7 +784,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    mePosxRphiTEC[ilay]->Fill(rechitrphix[k]);
 	    meErrxRphiTEC[ilay]->Fill(sqrt(rechitrphierrx[k]));
 	    meResRphiTEC[ilay]->Fill(rechitrphires[k]);
-	    meChi2RphiTEC[ilay]->Fill(chi2rphi[k]);
 	  }
 	  for(int l = 0; l<Tecnumrechitrphi2; l++){
 	    meChi2RphiTEC[ilay]->Fill(chi2rphi[l]);
@@ -804,7 +797,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      mePosxSasTEC[ilay]->Fill(rechitsasx[kk]);
 	      meErrxSasTEC[ilay]->Fill(sqrt(rechitsaserrx[kk]));
 	      meResSasTEC[ilay]->Fill(rechitsasres[kk]);
-	      meChi2SasTEC[ilay]->Fill(chi2sas[kk]);
 	    }	  
 	  for(int l = 0; l<Tecnumrechitsas2; l++){
 	    meChi2SasTEC[ilay]->Fill(chi2sas[l]);
@@ -820,7 +812,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      meErryMatchedTEC[ilay]->Fill(sqrt(rechitmatchederryy[kkk]));
 	      meResxMatchedTEC[ilay]->Fill(rechitmatchedresx[kkk]);
 	      meResyMatchedTEC[ilay]->Fill(rechitmatchedresy[kkk]);
-	      meChi2MatchedTEC[ilay]->Fill(chi2matched[kkk]);
 	    }	  
 	  for(int l = 0; l<Tecnumrechitmatched2; l++){
 	    meChi2MatchedTEC[ilay]->Fill(chi2matched[l]);
