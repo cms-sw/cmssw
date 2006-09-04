@@ -62,7 +62,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Res_rphi_layer%dtib",i+1);
     meResRphiTIB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
     sprintf(histo,"Chi2_rphi_layer%dtib",i+1);
-    meChi2RphiTIB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+    meChi2RphiTIB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
 
   //one histo per Layer stereo and matched hits
@@ -79,7 +79,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Res_sas_layer%dtib",i+1);
     meResSasTIB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
     sprintf(histo,"Chi2_sas_layer%dtib",i+1);
-    meChi2SasTIB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+    meChi2SasTIB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
 
     sprintf(histo,"Posx_matched_layer%dtib",i+1);
     mePosxMatchedTIB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
@@ -94,7 +94,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Resy_matched_layer%dtib",i+1);
     meResyMatchedTIB[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-1., +1.);  
     sprintf(histo,"Chi2_matched_layer%dtib",i+1);
-    meChi2MatchedTIB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+    meChi2MatchedTIB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
 
   dbe_->setCurrentFolder("TOB");
@@ -115,7 +115,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Res_rphi_layer%dtob",i+1);
     meResRphiTOB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
     sprintf(histo,"Chi2_rphi_layer%dtob",i+1);
-    meChi2RphiTOB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+    meChi2RphiTOB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
 
   //one histo per Layer stereo and matched hits
@@ -132,7 +132,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Res_sas_layer%dtob",i+1);
     meResSasTOB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
     sprintf(histo,"Chi2_sas_layer%dtob",i+1);
-    meChi2SasTOB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+    meChi2SasTOB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
 
     sprintf(histo,"Posx_matched_layer%dtob",i+1);
     mePosxMatchedTOB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
@@ -147,7 +147,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Resy_matched_layer%dtob",i+1);
     meResyMatchedTOB[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-1., +1.);  
     sprintf(histo,"Chi2_matched_layer%dtob",i+1);
-    meChi2MatchedTOB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+    meChi2MatchedTOB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
 
   dbe_->setCurrentFolder("TID");
@@ -169,7 +169,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Res_rphi_layer%dtid",i+1);
     meResRphiTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
     sprintf(histo,"Chi2_rphi_layer%dtid",i+1);
-    meChi2RphiTID[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+    meChi2RphiTID[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
 
   //one histo per Ring stereo and matched hits
@@ -186,7 +186,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Res_sas_layer%dtid",i+1);
     meResSasTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
     sprintf(histo,"Chi2_sas_layer%dtid",i+1);
-    meChi2SasTID[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+    meChi2SasTID[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
 
     sprintf(histo,"Posx_matched_layer%dtid",i+1);
     mePosxMatchedTID[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
@@ -201,7 +201,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Resy_matched_layer%dtid",i+1);
     meResyMatchedTID[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-1., +1.);  
     sprintf(histo,"Chi2_matched_layer%dtid",i+1);
-    meChi2MatchedTID[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+    meChi2MatchedTID[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
 
   dbe_->setCurrentFolder("TEC");
@@ -223,7 +223,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Res_rphi_layer%dtec",i+1);
     meResRphiTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
     sprintf(histo,"Chi2_rphi_layer%dtec",i+1);
-    meChi2RphiTEC[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+    meChi2RphiTEC[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
 
   //one histo per Layer stereo and matched hits: rings 1,2,5 are double sided
@@ -241,7 +241,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
       sprintf(histo,"Res_sas_layer%dtec",i+1);
       meResSasTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
       sprintf(histo,"Chi2_sas_layer%dtec",i+1);
-      meChi2SasTEC[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+      meChi2SasTEC[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
       
       sprintf(histo,"Posx_matched_layer%dtec",i+1);
       mePosxMatchedTEC[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
@@ -256,7 +256,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
       sprintf(histo,"Resy_matched_layer%dtec",i+1);
       meResyMatchedTEC[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-1., +1.);  
       sprintf(histo,"Chi2_matched_layer%dtec",i+1);
-      meChi2MatchedTEC[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 10);  
+      meChi2MatchedTEC[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
     }
   }
 }
@@ -361,9 +361,12 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     
     numrechitrphi = rechitrphiRangeIteratorEnd - rechitrphiRangeIteratorBegin;   
          
+
+    int i=0;
+    int i2=0;
+
     if(numrechitrphi > 0 ){
       totrechitrphi+=numrechitrphi;
-      int i=0;
       for(iterrphi=rechitrphiRangeIteratorBegin; iterrphi!=rechitrphiRangeIteratorEnd;++iterrphi){
 	SiStripRecHit2D const rechit=*iterrphi;
 	LocalPoint position=rechit.localPosition();
@@ -408,18 +411,22 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  int ierr; 
 	  R.invert(ierr); // if (ierr != 0) throw exception;
 	  double est = R.similarity(r);
-// 	  std::cout << " ====== Chi2 test rphi hits ====== " << std::endl;
-// 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
-// 	  std::cout << "RecHit errors = " << R << std::endl;
-// 	  std::cout << "SimHit param. = " << shparameters << std::endl;
-// 	  std::cout << " chi2  = " << est << std::endl;
-	  chi2rphi[i] = est;
+	  // 	  std::cout << " ====== Chi2 test rphi hits ====== " << std::endl;
+	  // 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
+	  // 	  std::cout << "RecHit errors = " << R << std::endl;
+	  //	  std::cout << "SimHit param. = " << shparameters << std::endl;
+	  //	  std::cout << " chi2  = " << est << std::endl;
+	  //	  std::cout << "DEBUG BORIS,filling chi2rphi[i],i: " << i << std::endl;
+	  chi2rphi[i2] = est;
+	  i2++;
 	}
 	i++;
       }
     }
     
     //loop over rechits-sas in the same subdetector
+    int j=0;
+    int j2=0;
     numrechitsas=0;
     SiStripRecHit2DCollection::range rechitsasRange = rechitsstereo->get(detid);
     SiStripRecHit2DCollection::const_iterator rechitsasRangeIteratorBegin = rechitsasRange.first;
@@ -428,7 +435,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     numrechitsas = rechitsasRangeIteratorEnd - rechitsasRangeIteratorBegin;   
     if(numrechitsas > 0){
       totrechitsas+=numrechitsas;
-      int j=0;
       for(itersas=rechitsasRangeIteratorBegin; itersas!=rechitsasRangeIteratorEnd;++itersas){
 	SiStripRecHit2D const rechit=*itersas;
 	LocalPoint position=rechit.localPosition();
@@ -473,18 +479,23 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  int ierr; 
 	  R.invert(ierr); // if (ierr != 0) throw exception;
 	  double est = R.similarity(r);
-// 	  std::cout << " ====== Chi2 test sas hits ====== " << std::endl;
-// 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
-// 	  std::cout << "RecHit errors = " << R << std::endl;
-// 	  std::cout << "SimHit param. = " << shparameters << std::endl;
-// 	  std::cout << " chi2  = " << est << std::endl;
-	  chi2sas[j] = est;
+	  // 	  std::cout << " ====== Chi2 test sas hits ====== " << std::endl;
+	  //	  std::cout << "RecHit param. = " << rhparameters << std::endl;
+	  // 	  std::cout << "RecHit errors = " << R << std::endl;
+	  // 	  std::cout << "SimHit param. = " << shparameters << std::endl;
+	  // 	  std::cout << " chi2  = " << est << std::endl;
+	  //	  std::cout << "DEBUG BORIS,filling chi2sas[j],j: " << i << std::endl;
+	  chi2sas[j2] = est;
+	  j2++;
 	}
 	j++;
       }
     }
     
     //now matched hits
+
+    int k=0;
+    int k2=0;
     
     //loop over rechits-matched in the same subdetector
     numrechitmatched=0;
@@ -495,7 +506,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     numrechitmatched = rechitmatchedRangeIteratorEnd - rechitmatchedRangeIteratorBegin;   
     if(numrechitmatched > 0){
       totrechitmatched +=numrechitmatched;
-      int j=0;
+
       for(itermatched=rechitmatchedRangeIteratorBegin; itermatched!=rechitmatchedRangeIteratorEnd;++itermatched){
 	SiStripMatchedRecHit2D const rechit=*itermatched;
 	LocalPoint position=rechit.localPosition();
@@ -512,12 +523,12 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	//	LocalPoint monopos = mono->localPosition();
 	//	LocalPoint stpos   = st->localPosition();
 	
-	rechitmatchedx[j] = position.x();
-	rechitmatchedy[j] = position.y();
-	rechitmatchedz[j] = position.z();
-	rechitmatchederrxx[j] = error.xx();
-	rechitmatchederrxy[j] = error.xy();
-	rechitmatchederryy[j] = error.yy();
+	rechitmatchedx[k] = position.x();
+	rechitmatchedy[k] = position.y();
+	rechitmatchedz[k] = position.z();
+	rechitmatchederrxx[k] = error.xx();
+	rechitmatchederrxy[k] = error.xy();
+	rechitmatchederryy[k] = error.yy();
 
 	std::cout << " before association " << std::endl;
 	matched = associate.associateHit(rechit);
@@ -534,8 +545,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    //project simhit;
 	    hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
-	    distx = fabs(rechitmatchedx[j] - hitPair.first.x());
-	    disty = fabs(rechitmatchedy[j] - hitPair.first.y());
+	    distx = fabs(rechitmatchedx[k] - hitPair.first.x());
+	    disty = fabs(rechitmatchedy[k] - hitPair.first.y());
 	    dist = sqrt(distx*distx+disty*disty);
 	    std::cout << " Simhit position x = " << hitPair.first.x() 
 		      << " y = " << hitPair.first.y() << " dist = " << dist << std::endl;	  
@@ -546,8 +557,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  }
 	  std::cout << " Closest position x = " << closestPair.first.x() 
 		      << " y = " << closestPair.first.y() << " dist = " << dist << std::endl;	  
-	  rechitmatchedresx[j] = rechitmatchedx[j] - closestPair.first.x();
-	  rechitmatchedresy[j] = rechitmatchedy[j] - closestPair.first.y();
+	  rechitmatchedresx[k] = rechitmatchedx[k] - closestPair.first.x();
+	  rechitmatchedresy[k] = rechitmatchedy[k] - closestPair.first.y();
 
  	  //chi2test compare rechit errors with the simhit position ( using null matrix for the simhit). 
  	  //Can spot problems in the geometry better than a simple residual. (thanks to BorisM)
@@ -562,15 +573,16 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  int ierr; 
 	  R.invert(ierr); // if (ierr != 0) throw exception;
 	  double est = R.similarity(r);
- 	  std::cout << " ====== Chi2 test matched ====== " << std::endl;
- 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
- 	  std::cout << "RecHit errors = " << R << std::endl;
- 	  std::cout << "SimHit param. = " << shparameters << std::endl;
- 	  std::cout << " chi2  = " << est << std::endl;
-	  chi2matched[j] = est;
+	  // 	  std::cout << " ====== Chi2 test matched ====== " << std::endl;
+	  // 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
+	  // 	  std::cout << "RecHit errors = " << R << std::endl;
+	  // 	  std::cout << "SimHit param. = " << shparameters << std::endl;
+	  // 	  std::cout << " chi2  = " << est << std::endl;
+	  chi2matched[k2] = est;
+	  k2++;
 	}
 	
-	j++;
+	k++;
       }
     }
     
@@ -581,6 +593,11 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	int Tibnumrechitrphi    = numrechitrphi;
 	int Tibnumrechitsas     = numrechitsas;
 	int Tibnumrechitmatched = numrechitmatched;
+
+	int Tibnumrechitrphi2    = i2;
+	int Tibnumrechitsas2     = j2;
+	int Tibnumrechitmatched2 = k2;
+
 	totTibnumrechitrphi +=numrechitrphi;
 	totTibnumrechitsas +=numrechitsas;
 	totTibnumrechitmatched +=numrechitmatched;
@@ -588,36 +605,46 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	int ilay = tibid.layer() - 1; //for histogram filling
 	
 	if(tibid.stereo()==0){
-	  for(int k = 0; k<Tibnumrechitrphi; k++){
-	    meNstpRphiTIB[ilay]->Fill(clusizrphi[k]);
-	    meAdcRphiTIB[ilay]->Fill(cluchgrphi[k]);
-	    mePosxRphiTIB[ilay]->Fill(rechitrphix[k]);
-	    meErrxRphiTIB[ilay]->Fill(sqrt(rechitrphierrx[k]));
-	    meResRphiTIB[ilay]->Fill(rechitrphires[k]);
-	    meChi2RphiTIB[ilay]->Fill(chi2rphi[k]);
+	  for(int l = 0; l<Tibnumrechitrphi; l++){
+	    meNstpRphiTIB[ilay]->Fill(clusizrphi[l]);
+	    meAdcRphiTIB[ilay]->Fill(cluchgrphi[l]);
+	    mePosxRphiTIB[ilay]->Fill(rechitrphix[l]);
+	    meErrxRphiTIB[ilay]->Fill(sqrt(rechitrphierrx[l]));
+	    meResRphiTIB[ilay]->Fill(rechitrphires[l]);
 	  }
+
+	  for(int l = 0; l<Tibnumrechitrphi2; l++){
+	    meChi2RphiTIB[ilay]->Fill(chi2rphi[l]);
+	  }
+
 	} else  if(tibid.stereo()==1){
-	  for(int kk = 0; kk < Tibnumrechitsas; kk++)	    
+	  for(int ll = 0; ll < Tibnumrechitsas; ll++)	    
 	    {
-	      meNstpSasTIB[ilay]->Fill(clusizsas[kk]);
-	      meAdcSasTIB[ilay]->Fill(cluchgsas[kk]);
-	      mePosxSasTIB[ilay]->Fill(rechitsasx[kk]);
-	      meErrxSasTIB[ilay]->Fill(sqrt(rechitsaserrx[kk]));
-	      meResSasTIB[ilay]->Fill(rechitsasres[kk]);
-	      meChi2SasTIB[ilay]->Fill(chi2sas[kk]);
+	      meNstpSasTIB[ilay]->Fill(clusizsas[ll]);
+	      meAdcSasTIB[ilay]->Fill(cluchgsas[ll]);
+	      mePosxSasTIB[ilay]->Fill(rechitsasx[ll]);
+	      meErrxSasTIB[ilay]->Fill(sqrt(rechitsaserrx[ll]));
+	      meResSasTIB[ilay]->Fill(rechitsasres[ll]);
 	    }	  
+	  for(int l = 0; l<Tibnumrechitsas2; l++){
+	    meChi2SasTIB[ilay]->Fill(chi2sas[l]);
+	  }
+
 	}
 	if(Tibnumrechitmatched>0){
-	  for(int kkk = 0; kkk<Tibnumrechitmatched; kkk++)
+	  for(int lll = 0; lll<Tibnumrechitmatched; lll++)
 	    {
-	      mePosxMatchedTIB[ilay]->Fill(rechitmatchedx[kkk]);
-	      mePosyMatchedTIB[ilay]->Fill(rechitmatchedy[kkk]);
-	      meErrxMatchedTIB[ilay]->Fill(sqrt(rechitmatchederrxx[kkk]));
-	      meErryMatchedTIB[ilay]->Fill(sqrt(rechitmatchederryy[kkk]));
-	      meResxMatchedTIB[ilay]->Fill(rechitmatchedresx[kkk]);
-	      meResyMatchedTIB[ilay]->Fill(rechitmatchedresy[kkk]);
-	      meChi2MatchedTIB[ilay]->Fill(chi2matched[kkk]);
+	      mePosxMatchedTIB[ilay]->Fill(rechitmatchedx[lll]);
+	      mePosyMatchedTIB[ilay]->Fill(rechitmatchedy[lll]);
+	      meErrxMatchedTIB[ilay]->Fill(sqrt(rechitmatchederrxx[lll]));
+	      meErryMatchedTIB[ilay]->Fill(sqrt(rechitmatchederryy[lll]));
+	      meResxMatchedTIB[ilay]->Fill(rechitmatchedresx[lll]);
+	      meResyMatchedTIB[ilay]->Fill(rechitmatchedresy[lll]);
 	    }	  
+	  for(int l = 0; l<Tibnumrechitmatched2; l++){
+	    meChi2MatchedTIB[ilay]->Fill(chi2matched[l]);
+	  }
+
 	}
       }
 
@@ -631,6 +658,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	totTobnumrechitsas +=numrechitsas;
 	totTobnumrechitmatched +=numrechitmatched;
 
+	int Tobnumrechitrphi2    = i2;
+	int Tobnumrechitsas2     = j2;
+	int Tobnumrechitmatched2 = k2;
+
 	int ilay = tobid.layer() - 1; //for histogram filling
 	
 	if(tobid.stereo()==0){
@@ -642,6 +673,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    meResRphiTOB[ilay]->Fill(rechitrphires[k]);
 	    meChi2RphiTOB[ilay]->Fill(chi2rphi[k]);
 	  }
+	  for(int l = 0; l<Tobnumrechitrphi2; l++){
+	    meChi2RphiTOB[ilay]->Fill(chi2rphi[l]);
+	  }
 	} else  if(tobid.stereo()==1){
 	  for(int kk = 0; kk < Tobnumrechitsas; kk++)	    
 	    {
@@ -651,7 +685,11 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      meErrxSasTOB[ilay]->Fill(sqrt(rechitsaserrx[kk]));
 	      meResSasTOB[ilay]->Fill(rechitsasres[kk]);
 	      meChi2SasTOB[ilay]->Fill(chi2sas[kk]);
-	    }	  
+	    }
+	  for(int l = 0; l<Tobnumrechitsas2; l++){
+	    meChi2SasTOB[ilay]->Fill(chi2sas[l]);
+	  }
+	  
 	}
 	if(Tobnumrechitmatched>0){
 	  for(int kkk = 0; kkk<Tobnumrechitmatched; kkk++)
@@ -664,6 +702,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      meResyMatchedTOB[ilay]->Fill(rechitmatchedresy[kkk]);
 	      meChi2MatchedTOB[ilay]->Fill(chi2matched[kkk]);
 	    }	  
+	  for(int l = 0; l<Tobnumrechitmatched2; l++){
+	    meChi2MatchedTOB[ilay]->Fill(chi2matched[l]);
+	  }
+
 	}
       }
       if (detid.subdetId() == int(StripSubdetector::TID)){
@@ -674,6 +716,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	totTidnumrechitrphi +=numrechitrphi;
 	totTidnumrechitsas +=numrechitsas;
 	totTidnumrechitmatched +=numrechitmatched;
+
+	int Tidnumrechitrphi2    = i2;
+	int Tidnumrechitsas2     = j2;
+	int Tidnumrechitmatched2 = k2;
 
 	int ilay = tidid.ring() - 1; //for histogram filling
 	
@@ -686,6 +732,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    meResRphiTID[ilay]->Fill(rechitrphires[k]);
 	    meChi2RphiTID[ilay]->Fill(chi2rphi[k]);
 	  }
+	  for(int l = 0; l<Tidnumrechitrphi2; l++){
+	    meChi2RphiTID[ilay]->Fill(chi2rphi[l]);
+	  }
+
 	} else  if(tidid.stereo()==1){
 	  for(int kk = 0; kk < Tidnumrechitsas; kk++)	    
 	    {
@@ -696,6 +746,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      meResSasTID[ilay]->Fill(rechitsasres[kk]);
 	      meChi2SasTID[ilay]->Fill(chi2sas[kk]);
 	    }	  
+	  for(int l = 0; l<Tidnumrechitsas2; l++){
+	    meChi2SasTID[ilay]->Fill(chi2sas[l]);
+	  }
+
 	}
 	if(Tidnumrechitmatched>0){
 	  for(int kkk = 0; kkk<Tidnumrechitmatched; kkk++)
@@ -707,7 +761,11 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      meResxMatchedTID[ilay]->Fill(rechitmatchedresx[kkk]);
 	      meResyMatchedTID[ilay]->Fill(rechitmatchedresy[kkk]);
 	      meChi2MatchedTID[ilay]->Fill(chi2matched[kkk]);
-	    }	  
+	    }
+	  for(int l = 0; l<Tidnumrechitmatched2; l++){
+	    meChi2MatchedTID[ilay]->Fill(chi2matched[l]);
+	  }
+	  
 	}
       }
       if (detid.subdetId() == int(StripSubdetector::TEC)){
@@ -718,6 +776,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	totTecnumrechitrphi +=numrechitrphi;
 	totTecnumrechitsas +=numrechitsas;
 	totTecnumrechitmatched +=numrechitmatched;
+
+	int Tecnumrechitrphi2    = i2;
+	int Tecnumrechitsas2     = j2;
+	int Tecnumrechitmatched2 = k2;
 
 	int ilay = tecid.ring() - 1; //for histogram filling
 	
@@ -730,6 +792,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    meResRphiTEC[ilay]->Fill(rechitrphires[k]);
 	    meChi2RphiTEC[ilay]->Fill(chi2rphi[k]);
 	  }
+	  for(int l = 0; l<Tecnumrechitrphi2; l++){
+	    meChi2RphiTEC[ilay]->Fill(chi2rphi[l]);
+	  }
+
 	} else  if(tecid.stereo()==1){
 	  for(int kk = 0; kk < Tecnumrechitsas; kk++)	    
 	    {
@@ -740,6 +806,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      meResSasTEC[ilay]->Fill(rechitsasres[kk]);
 	      meChi2SasTEC[ilay]->Fill(chi2sas[kk]);
 	    }	  
+	  for(int l = 0; l<Tecnumrechitsas2; l++){
+	    meChi2SasTEC[ilay]->Fill(chi2sas[l]);
+	  }
+
 	}
 	if(Tecnumrechitmatched>0){
 	  for(int kkk = 0; kkk<Tecnumrechitmatched; kkk++)
@@ -752,6 +822,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      meResyMatchedTEC[ilay]->Fill(rechitmatchedresy[kkk]);
 	      meChi2MatchedTEC[ilay]->Fill(chi2matched[kkk]);
 	    }	  
+	  for(int l = 0; l<Tecnumrechitmatched2; l++){
+	    meChi2MatchedTEC[ilay]->Fill(chi2matched[l]);
+	  }
+
 	}
       }
 
