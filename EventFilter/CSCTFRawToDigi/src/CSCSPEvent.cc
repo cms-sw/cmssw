@@ -67,7 +67,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 					if( tbin==0 && track.MB_tbin() ) unpackError |= true;
 					// Need to ask Lev if this is correct (but so far we don't care about this):
 					std::vector<CSCSP_MBblock> stubs = ( (track.MB_id()%2?0:1) ? record_[tbin-1].mbStubs() : record_[tbin].mbStubs() );
-					if( track.MB_id()>2 && stubs.size()!=2 ) ; // DQM error ?
+					if( (track.MB_id()<3 && stubs.size()!=1) || (track.MB_id()>2 && stubs.size()!=2) ) unpackError = true;
 					else {
 						track.dt_ = stubs[(track.MB_id()-1)/2];
 						track.dtFilled = true;
