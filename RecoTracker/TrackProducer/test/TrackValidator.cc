@@ -162,7 +162,7 @@ class TrackValidator : public edm::EDAnalyzer {
 	  i++;
 	}
       }
-      h_tracksSIM[w]->Fill(st);
+      if (st!=0) h_tracksSIM[w]->Fill(st);
 
       //       for (SimVertexContainer::const_iterator simVertex=simVC.begin();simVertex!=simVC.end();simVertex++){
       // 	h_vertposSIM[w]->Fill(simVertex->position().perp());
@@ -264,7 +264,7 @@ class TrackValidator : public edm::EDAnalyzer {
 	  i++;
 	}
       }
-      h_tracks[w]->Fill(rt);
+      if (rt!=0) h_tracks[w]->Fill(rt);
 
     }
 
