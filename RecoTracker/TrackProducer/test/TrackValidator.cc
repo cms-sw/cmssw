@@ -10,6 +10,9 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h" 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+
 #include <iostream>
 #include <string>
 
@@ -44,7 +47,7 @@ class TrackValidator : public edm::EDAnalyzer {
     }
   }
 
-  void beginJob( const EventSetup & ) {
+  void beginJob( const EventSetup & setup) {
 
     for (unsigned int j=0;j<label.size();j++){
       
@@ -83,7 +86,7 @@ class TrackValidator : public edm::EDAnalyzer {
       h_vertposSIM.push_back( new TH1F("vertposSIM","Transverse position of sim vertices",1000,-0.5,10000.5) );
       
       //     h_pt     = new TH1F("pt", "p_{t} residue", 2000, -500, 500 );
-      h_pt.push_back( new TH1F("pt", "p_{t} residue", 200, -2, 2 ) );
+      h_pt.push_back( new TH1F("pullPt", "pull of p_{t}", 100, -10, 10 ) );
       h_pt2.push_back( new TH1F("pt2", "p_{t} residue (#tracks>1)", 300, -15, 15 ) );
       h_eta.push_back( new TH1F("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
       h_tracks.push_back( new TH1F("tracks","number of reconstructed tracks",10,-0.5,9.5) );
@@ -95,7 +98,7 @@ class TrackValidator : public edm::EDAnalyzer {
       h_charge.push_back( new TH1F("charge","charge",3,-1.5,1.5) );
       
       h_pullTheta.push_back( new TH1F("pullTheta","pull of theta parameter",100,-10,10) );
-      h_pullPhi0.push_back( new TH1F("pullPhi0","pull of phi0 parameter",1000,-10,10) );
+      h_pullPhi0.push_back( new TH1F("pullPhi0","pull of phi0 parameter",100,-10,10) );
       h_pullD0.push_back( new TH1F("pullD0","pull of d0 parameter",100,-10,10) );
       h_pullDz.push_back( new TH1F("pullDz","pull of dz parameter",100,-10,10) );
       h_pullK.push_back( new TH1F("pullK","pull of k parameter",100,-10,10) );
@@ -106,6 +109,8 @@ class TrackValidator : public edm::EDAnalyzer {
       ptres_vs_eta.push_back( new TH2F("ptres_vs_eta","ptresidue vs eta",nint,min,max,200,-2,2) );
       etares_vs_eta.push_back( new TH2F("etares_vs_eta","etaresidue vs eta",nint,min,max,200,-0.1,0.1) );
     }
+
+    setup.get<IdealMagneticFieldRecord>().get(theMF);  
 
   }
 
@@ -131,11 +136,16 @@ class TrackValidator : public edm::EDAnalyzer {
       //
       //fill simulation histograms
       //
-      h_tracksSIM[w]->Fill(simTC.size());
+      int st=0;
       for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
+	if (abs(simTrack->momentum().pseudoRapidity())>max || 
+	    abs(simTrack->momentum().pseudoRapidity())<min) continue;
+	st++;
 	h_ptSIM[w]->Fill(simTrack->momentum().perp());
 	h_etaSIM[w]->Fill(simTrack->momentum().pseudoRapidity());
 
+	h_vertposSIM[w]->Fill(simVC[simTrack->vertIndex()].position().perp());
+	
 	if (simTrack->type()!=partId) continue;
 	//compute number of tracks per eta interval
 	int i=0;
@@ -152,22 +162,22 @@ class TrackValidator : public edm::EDAnalyzer {
 	  i++;
 	}
       }
+      h_tracksSIM[w]->Fill(st);
 
-      for (SimVertexContainer::const_iterator simVertex=simVC.begin();simVertex!=simVC.end();simVertex++){
-	h_vertposSIM[w]->Fill(simVertex->position().perp());
-	if (0.5 < simVertex->position().perp() && simVertex->position().perp() < 1000) {
-	  cout << "" << endl;
-	  cout << "simVertex->position().perp(): " << simVertex->position().perp() << endl;
-	  cout << "simVertex->position().z()   : " << simVertex->position().z() << endl;
-	}
-      }
-
+      //       for (SimVertexContainer::const_iterator simVertex=simVC.begin();simVertex!=simVC.end();simVertex++){
+      // 	h_vertposSIM[w]->Fill(simVertex->position().perp());
+//       }
+      
       //
       //fill reconstructed track histograms
       //
-      h_tracks[w]->Fill(tC.size());
+      int rt=0;
       for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
       
+	if (abs(track->eta())>max || abs(track->eta())<min) continue;
+
+	rt++;
+
 	//nchi2 and hits global distributions
 	h_nchi2[w]->Fill(track->normalizedChi2());
 	h_hits[w]->Fill(track->numberOfValidHits());
@@ -193,13 +203,25 @@ class TrackValidator : public edm::EDAnalyzer {
 	    etares=track->eta()-simTrack->momentum().pseudoRapidity();
 	    thetares=(track->theta()-simTrack->momentum().theta())/track->thetaError();
 	    phi0res=(track->phi0()-simTrack->momentum().phi())/track->phi0Error();
-	    d0res=track->d0()/track->d0Error();
-	    dzres=track->dz()/track->dzError();
-	    kres=(track->transverseCurvature()-(-track->charge()*2.99792458e-3 * 4./simTrack->momentum().perp()))/
-	      track->transverseCurvatureError();
+	    d0res=(track->d0()-simVC[simTrack->vertIndex()].position().perp())/track->d0Error();
+	    dzres=(track->dz()-simVC[simTrack->vertIndex()].position().z())/track->dzError();
+	    const HepLorentzVector vertexPosition = simVC[simTrack->vertIndex()].position(); 
+	    GlobalVector magField=theMF->inTesla(GlobalPoint(vertexPosition.x(),vertexPosition.y(),vertexPosition.z()));
+	    kres=(track->transverseCurvature()-(-track->charge()*2.99792458e-3 * magField.z()/simTrack->momentum().perp()))/track->transverseCurvatureError();
+// 	    cout << "track->d0(): " << track->d0() << endl;
+// 	    cout << "simVC[simTrack->vertIndex()].position().perp(): " << simVC[simTrack->vertIndex()].position().perp() << endl;
+// 	    cout << "track->dz(): " << track->dz() << endl;
+// 	    cout << "simVC[simTrack->vertIndex()].position().z(): " << simVC[simTrack->vertIndex()].position().z() << endl;
+// 	    cout << "track->transverseCurvature(): " << track->transverseCurvature() << endl;
+
+// 	    cout << "-track->charge()*2.99792458e-3 * 4./simTrack->momentum().perp(): " << -track->charge()*2.99792458e-3 * 4./simTrack->momentum().perp() << endl;
+// 	    cout << "-track->charge()*2.99792458e-3 * 4./simTrack->momentum().perp(): " << -track->charge()*2.99792458e-3 * magField.z()/simTrack->momentum().perp() << endl;
+
+
 	  }
 	}
-	h_pt[w]->Fill(ptres);
+	h_pt[w]->Fill(ptres/(track->transverseCurvatureError()
+			     /track->transverseCurvature()*track-> pt()));
 	h_eta[w]->Fill(etares);
 	ptres_vs_eta[w]->Fill(track->eta(),ptres);
 	etares_vs_eta[w]->Fill(track->eta(),etares);
@@ -208,7 +230,7 @@ class TrackValidator : public edm::EDAnalyzer {
 	h_pullD0[w]->Fill(d0res);
 	h_pullDz[w]->Fill(dzres);
 	h_pullK[w]->Fill(kres);
-
+	
 
 	//pt residue distribution per eta interval
 	int i=0;
@@ -242,6 +264,8 @@ class TrackValidator : public edm::EDAnalyzer {
 	  i++;
 	}
       }
+      h_tracks[w]->Fill(rt);
+
     }
 
   }
@@ -333,7 +357,9 @@ private:
 
   vector< vector<TH1F*> > ptdistrib;
   vector< vector<TH1F*> > etadistrib;
-  TFile *  hFile; 
+  TFile *  hFile;  
+
+  edm::ESHandle<MagneticField> theMF;
 
 };
 
