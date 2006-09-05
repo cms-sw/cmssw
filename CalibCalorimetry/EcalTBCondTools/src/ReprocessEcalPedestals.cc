@@ -13,23 +13,40 @@
 
 #include <map>
 #include <set>
+#include <fstream>
+
 
 
 ReprocessEcalPedestals::ReprocessEcalPedestals(const edm::ParameterSet& iConfig) {
-  m_cacheID = 0;
-  /*  
-  EBpedMeanX12_ = ps.getUntrackedParameter<double>("EBpedMeanX12", 200.);
-  EBpedRMSX12_  = ps.getUntrackedParameter<double>("EBpedRMSX12",  1.10);
-  EBpedMeanX6_  = ps.getUntrackedParameter<double>("EBpedMeanX6",  200.);
-  EBpedRMSX6_   = ps.getUntrackedParameter<double>("EBpedRMSX6",   0.90);
-  EBpedMeanX1_  = ps.getUntrackedParameter<double>("EBpedMeanX1",  200.);
-  EBpedRMSX1_   = ps.getUntrackedParameter<double>("EBpedRMSX1",   0.62);
-  */
+  m_cacheID = 99199; // Will not be the first one returned (we hope)
+  m_isFirstRun = true;
+  m_startFile = iConfig.getUntrackedParameter< std::string >("startfile", "");
+  m_endFile = iConfig.getUntrackedParameter< std::string >("endfile", "");
+  m_appendMode = iConfig.getParameter< bool > ("append");
+  bool runUnsafe = iConfig.getUntrackedParameter< bool > ("unsafe", false);
+
+  // Sanity checks
+  if (!runUnsafe && m_endFile == "") {
+    throw(cms::Exception("No endfile provided to use for further reprocessing.  Use unsafe mode if you are sure about this!"));
+  }
+  
+  if (!runUnsafe && m_appendMode && m_startFile == "") {
+    throw(cms::Exception("No startfile provided to initialize first set of EcalPedstals.  Use unsafe mode if you are sure about this!"));
+  }
+
+  // Initialize the pedCache with values from the file
+  if (m_startFile != "") {
+    loadCacheFromFile(m_startFile);
+  }
 }
+
+
 
 ReprocessEcalPedestals::~ReprocessEcalPedestals() {
 
 }
+
+
 
 void ReprocessEcalPedestals::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) {
 
@@ -58,7 +75,7 @@ void ReprocessEcalPedestals::analyze( const edm::Event& evt, const edm::EventSet
   EBDetId detId;
   uint32_t rawId;
 
-  if (m_pedCache.m_pedestals.size() == 0) {
+  if (m_isFirstRun) {
     // Make a list of SM we are dealing with    
     EcalPedestalsMapIterator detId_iter;
     for (detId_iter = peds->m_pedestals.begin(); detId_iter != peds->m_pedestals.end(); detId_iter++) {
@@ -71,7 +88,17 @@ void ReprocessEcalPedestals::analyze( const edm::Event& evt, const edm::EventSet
     for (sm_iter = m_smSet.begin(); sm_iter != m_smSet.end(); sm_iter++) {
       edm::LogInfo("ReprocessEcalPedestals") << "SMset has SM:  " << *sm_iter;
     }
-      
+  } else {
+    // Write the cache to the DB.
+    // If appendIOV is false, then the till time of the cache is
+    // currentTime-1.
+    // If appendIOV is true, then the till time of the PREVIOUS iov in
+    // the target tag is set to set to currentTime-1, but the cache is 
+    // written with an infinite iov.
+    // We use curretnTime-1 because we are one run past where the
+    // data changed in the source tag.
+    dbOutput->newValidityForNewPayload<EcalPedestals>(new EcalPedestals(m_pedCache), currentTime-1, callbackToken);
+    edm::LogInfo("ReprocessEcalPedestals") << "Wrote new set of pedestals for run " << currentTime-1;
   }
 
   // Merge the retrieved EcalPedestals with the one in the cache
@@ -108,22 +135,95 @@ void ReprocessEcalPedestals::analyze( const edm::Event& evt, const edm::EventSet
     }
   }
 
-  edm::LogInfo("ReprocessEcalPedestals") << msg.str();
-
+  LogDebug("ReprocessEcalPedestals") << msg.str();
 
   // Check that we have #sm * 1700 channels
   if (m_pedCache.m_pedestals.size() != m_smSet.size() * 1700) {
     throw cms::Exception("Pedestals object was not filled with enough channels");
   }
 
-  // Write the cache to the DB
-  dbOutput->newValidityForNewPayload<EcalPedestals>(new EcalPedestals(m_pedCache), currentTime, callbackToken);
-  edm::LogInfo("ReprocessEcalPedestals") << "Wrote new set of pedestals";
-
   m_cacheID = cacheID;
-  
+  m_isFirstRun = false;
 }
+
+
 
 void ReprocessEcalPedestals::endJob() {
 
+  if (!m_appendMode) {
+    // Write the last cache of pedestals to the DB with an infinite IOV
+    edm::Service<cond::service::PoolDBOutputService> dbOutput;
+    if ( !dbOutput.isAvailable() ) {
+      edm::LogError("ReprocessEcalPedestals") << "PoolDBOUtputService is not available";
+      return;
+    }
+    size_t callbackToken = dbOutput->callbackToken("EcalPedestals");
+    dbOutput->newValidityForNewPayload<EcalPedestals>(new EcalPedestals(m_pedCache), dbOutput->endOfTime(), callbackToken);
+    edm::LogInfo("ReprocessEcalPedestals") << "Wrote new set of pedestals for run (inf)";
+  } 
+    
+  // Write the pedestals in the cache to a file
+  if (m_endFile != "") {
+    dumpCacheToFile(m_endFile);
+  }
+}
+
+
+
+void ReprocessEcalPedestals::loadCacheFromFile(std::string file) {
+  edm::LogInfo("ReprocessEcalPedestals") << "Initializing cache with pedestals from "
+					 << file;
+  std::ifstream fileIn(file.c_str());
+  if (!fileIn.good()) {
+    throw cms::Exception("Could not open file for input");
+  }
+  
+  uint32_t rawId;
+  EcalPedestals::Item item;
+  EBDetId detId;
+  std::ostringstream msg;
+  while (fileIn.good()) {
+    fileIn >> rawId 
+		>> item.mean_x1 >> item.rms_x1 
+		>> item.mean_x6 >> item.rms_x6 
+		>> item.mean_x12 >> item.rms_x12;
+    if (fileIn.eof()) { break; }
+    
+    detId = EBDetId(rawId);
+    msg << "Setting cache SM " << detId.ism() << " crystal " << detId.ic() 
+	<< " from file" << std::endl;
+    m_pedCache.m_pedestals[rawId] = item;
+  }
+  fileIn.close();
+  LogDebug("ReprocessEcalPedestals") << msg.str();
+}
+
+
+
+void ReprocessEcalPedestals::dumpCacheToFile(std::string file) {
+  edm::LogInfo("ReprocessEcalPedestals") << "Writing cache to "
+					 << file;
+  std::ofstream fileOut(file.c_str(), ios::out);
+  if (!fileOut.good()) {
+    throw cms::Exception("Could not open file for output");
+  }
+  
+  uint32_t rawId;
+  EcalPedestals::Item item;
+  EBDetId detId;
+  std::ostringstream msg;
+  EcalPedestalsMapIterator detId_iter;
+  for (detId_iter = m_pedCache.m_pedestals.begin(); detId_iter != m_pedCache.m_pedestals.end(); detId_iter++) {
+    rawId = (*detId_iter).first;
+    item = (*detId_iter).second;
+    detId = EBDetId(rawId);
+    msg << "Dumping SM " << detId.ism() << " crystal " << detId.ic() 
+	<< " to file" << std::endl;
+    fileOut << rawId << " "
+	       << item.mean_x1 << " " << item.rms_x1 << " "
+	       << item.mean_x6 << " " << item.rms_x6 << " "
+	       << item.mean_x12 << " " << item.rms_x12 << std::endl;
+  }
+  fileOut.close();
+  LogDebug("ReprocessEcalPedestals") << msg.str();
 }

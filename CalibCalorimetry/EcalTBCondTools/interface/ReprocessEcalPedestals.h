@@ -38,9 +38,16 @@ class  ReprocessEcalPedestals : public edm::EDAnalyzer {
   virtual void endJob();
 
  private:
+  void loadCacheFromFile(std::string file);
+  void dumpCacheToFile(std::string file);
+
   unsigned long long m_cacheID;
+  bool m_isFirstRun;
   std::set<int> m_smSet;
   EcalPedestals m_pedCache;
+  std::string m_startFile;
+  std::string m_endFile;
+  bool m_appendMode;
 
 };
 #endif
