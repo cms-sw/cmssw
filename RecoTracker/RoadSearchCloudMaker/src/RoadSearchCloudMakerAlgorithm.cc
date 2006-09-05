@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/08/29 14:49:32 $
-// $Revision: 1.24 $
+// $Author: noeding $
+// $Date: 2006/09/01 21:12:47 $
+// $Revision: 1.25 $
 //
 
 #include <vector>
@@ -78,7 +78,6 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
-
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
@@ -96,7 +95,9 @@ double RoadSearchCloudMakerAlgorithm::epsilon      =   0.000000001;
 
 RoadSearchCloudMakerAlgorithm::RoadSearchCloudMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
   recHitVectorClass.setMode(DetHitAccess::standard);    
-  
+  recHitVectorClass.use_rphiRecHits(true);
+  recHitVectorClass.use_stereoRecHits(true);
+
   theRPhiRoadSize =  conf_.getParameter<double>("RPhiRoadSize");
   theZPhiRoadSize =  conf_.getParameter<double>("ZPhiRoadSize");
   UsePixels = conf_.getParameter<bool>("UsePixelsinRS");
@@ -604,8 +605,9 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id, double
 	  }
 	}
       }
-    } else if (    ((unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel 
-		    || (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap) && usePixels ) {
+    } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel 
+		|| (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap) {
+      if ( usePixels ) {
 
       const SiPixelRecHit *recHit = (SiPixelRecHit*)(*recHitIterator);
 
@@ -677,9 +679,9 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id, double
 	  setLayerNumberArray(id,usedLayersArray,numberOfLayersPerSubdetector);	  
 	}
       }
-       
+      }
     } else {
-      edm::LogError("RoadSearch") << "recHitVector from general hit access function contains unknown detector id";
+      edm::LogError("RoadSearch") << "recHitVector from general hit access function contains unknown detector id: " << (unsigned int)id.subdetId() << " rawId: " << id.rawId();
     }
 
   } //for loop over all recHits
