@@ -94,8 +94,6 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	}
 	
 	
-	//edm::LogError("RoadSearch") << "matched (total): " << RecHitVec.size();
-
 	//check for additional r-phi RecHits (not used by matched RecHits)
 	if(use_rphiRecHits_) {
 	  DetId rphiDetId(StripDetId.glued()+2);
@@ -105,7 +103,7 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	    bool use_rphi=true;
 	    for ( SiStripMatchedRecHit2DCollection::const_iterator matchedDetHit = matchedDetHits.first;
 		  matchedDetHit != matchedDetHits.second; ++matchedDetHit ) { 
-	      //edm::LogError("RoadSearch") << "COMPARE (x/y): " << rphiDetHit->localPosition().x() << ";" <<  matchedDetHit->monoHit()->localPosition().x() << " / " << rphiDetHit->localPosition().y() << "-" <<  matchedDetHit->monoHit()->localPosition().y();
+	      //edm::LogError("RoadSearch") << "COMPARE rphi (x/y): " << rphiDetHit->localPosition().x() << ";" <<  matchedDetHit->monoHit()->localPosition().x() << " / " << rphiDetHit->localPosition().y() << "-" <<  matchedDetHit->monoHit()->localPosition().y();
 	      if (rphiDetHit->localPosition().x()==matchedDetHit->monoHit()->localPosition().x() 
 		  && rphiDetHit->localPosition().y()==matchedDetHit->monoHit()->localPosition().y() )
 		use_rphi=false;
@@ -123,7 +121,6 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	    bool use_stereo=true;
 	    for ( SiStripMatchedRecHit2DCollection::const_iterator matchedDetHit = matchedDetHits.first;
 		  matchedDetHit != matchedDetHits.second; ++matchedDetHit ) { 
-	      //edm::LogError("RoadSearch") << "COMPARE (x/y): " << stereoDetHit->localPosition().x() << ":" <<  matchedDetHit->monoHit()->localPosition().x() << " / " << stereoDetHit->localPosition().y() << ":" <<  matchedDetHit->monoHit()->localPosition().y();
 	      if (stereoDetHit->localPosition().x()==matchedDetHit->monoHit()->localPosition().x() 
 		  && stereoDetHit->localPosition().y()==matchedDetHit->monoHit()->localPosition().y() )
 		use_stereo=false;
@@ -151,8 +148,6 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 
   }
 
-
-  //edm::LogError("RoadSearch") << "RecHitVec.size(): " << RecHitVec.size();
 
   return RecHitVec;
 
