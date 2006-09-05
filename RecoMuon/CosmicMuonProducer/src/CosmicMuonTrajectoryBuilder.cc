@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/09/04 01:15:16 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/09/04 21:41:10 $
+ *  $Revision: 1.15 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -156,13 +156,13 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   GlobalVector momDir(secondLastPos.x()-lastPos.x(),
                       secondLastPos.y()-lastPos.y(),
                       secondLastPos.z()-lastPos.z());
-  LogDebug("CosmicMuonTrajectoryBuilder")<<"lastTsos"<<lastTsos;
-  LogDebug("CosmicMuonTrajectoryBuilder")<<"secondLast"<<secondLast;
-  LogDebug("CosmicMuonTrajectoryBuilder")<<"momDir"<<momDir;
+//  LogDebug("CosmicMuonTrajectoryBuilder")<<"lastTsos"<<lastPos;
+//  LogDebug("CosmicMuonTrajectoryBuilder")<<"secondLast"<<secondLastPos;
+//  LogDebug("CosmicMuonTrajectoryBuilder")<<"momDir"<<momDir;
   if ( lastPos.x() * momDir.x()
       +lastPos.y() * momDir.y()
       +lastPos.z() * momDir.z() > 0 ){
-      LogDebug("CosmicMuonTrajectoryBuilder")<<"Fit direction changed to insideOut";
+//      LogDebug("CosmicMuonTrajectoryBuilder")<<"Fit direction changed to insideOut";
       theBKUpdator->setFitDirection(recoMuon::insideOut);
     } else theBKUpdator->setFitDirection(recoMuon::outsideIn);
 
@@ -195,15 +195,21 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
             GlobalVector momDir(thisPos.x()-lastPos.x(),
                                 thisPos.y()-lastPos.y(),
                                 thisPos.z()-lastPos.z());
+//          LogDebug("CosmicMuonTrajectoryBuilder")<<"momDir "<<momDir;
 
-            if ( thisPos.x() * momDir.x() 
-                +thisPos.y() * momDir.y()
-                +thisPos.z() * momDir.z() > 0 ){
-                 theBKUpdator->setFitDirection(recoMuon::insideOut);
-              } else theBKUpdator->setFitDirection(recoMuon::outsideIn);
+            if ( momDir.mag()>0.01 ) { //if lastTsos is on the surface, no need
+              if ( thisPos.x() * momDir.x() 
+                  +thisPos.y() * momDir.y()
+                  +thisPos.z() * momDir.z() > 0 ){
+                   theBKUpdator->setFitDirection(recoMuon::insideOut);
+                } else theBKUpdator->setFitDirection(recoMuon::outsideIn);
+            }
           }
        }
- 
+//       if (theBKUpdator->fitDirection() == recoMuon::insideOut) 
+//          LogDebug("CosmicMuonTrajectoryBuilder")<<"Fit direction insideOut";
+//       else LogDebug("CosmicMuonTrajectoryBuilder")<<"Fit direction outsideIn";
+
        pair<bool,TrajectoryStateOnSurface> bkresult
             = backwardUpdator()->update(theMeas, *myTraj, propagator());
 
