@@ -1,7 +1,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Thu Aug 10 16:21:22 CEST 2006
-// $Id$
+// $Id: IsTBH4Type.cc,v 1.1 2006/08/15 09:32:35 govoni Exp $
 //
 //
 
@@ -15,7 +15,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoTBCalo/EcalTBRecProducers/interface/IsTBH4Type.h"
@@ -66,7 +66,7 @@ IsTBH4Type::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.getByLabel ( eventHeaderProducer_ , pEventHeader ) ;
      evtHeader = pEventHeader.product () ; // get a ptr to the product
    } catch ( std::exception& ex ) {
-     std::cerr << ex.what () << std::endl ;
+     edm::LogError("IsTBH4Type") << "Event Header collection not found" ;
    }
    if (!evtHeader) return notFound_ ;
 //   std::cout << "PIETRO " << evtHeader->eventType () << std::endl ;
