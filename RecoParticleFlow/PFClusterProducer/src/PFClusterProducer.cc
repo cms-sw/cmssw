@@ -178,9 +178,10 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   
 
   if( processEcal_ ) {
+    
 
-    map<unsigned,  reco::PFRecHit* > ecalrechits;
-
+    map<unsigned,  reco::PFRecHit* > idSortedRecHits;
+    
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<IdealGeometryRecord>().get(geoHandle);
     
@@ -200,7 +201,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
 
          
-    // get the ecal ecalBarrel rechits
+    // get the ecalBarrel rechits
 
     edm::Handle<EcalRecHitCollection> rhcHandle;
     try {
@@ -249,7 +250,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 				position.x(), position.y(), position.z(), 
 				axis.x(), axis.y(), axis.z() );
       
-	ecalrechits.insert( make_pair(detid.rawId(), rh) ); 
+	idSortedRecHits.insert( make_pair(detid.rawId(), rh) ); 
       }      
     }
     catch ( cms::Exception& ex ) {
@@ -306,7 +307,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 				position.x(), position.y(), position.z(), 
 				axis.x(), axis.y(), axis.z() );
       
-	ecalrechits.insert( make_pair(detid.rawId(), rh) ); 
+	idSortedRecHits.insert( make_pair(detid.rawId(), rh) ); 
       }
     }
     catch ( cms::Exception& ex ) {
@@ -317,9 +318,9 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
 
     // find rechits neighbours
-    for( PFClusterAlgo::IDH ih = ecalrechits.begin(); 
-	 ih != ecalrechits.end(); ih++) {
-      findRecHitNeighbours( ih->second, ecalrechits, 
+    for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
+	 ih != idSortedRecHits.end(); ih++) {
+      findRecHitNeighbours( ih->second, idSortedRecHits, 
 			    ecalBarrelTopology, 
 			    *ecalBarrelGeometry, 
 			    endcapTopology,
@@ -336,24 +337,26 @@ void PFClusterProducer::produce(edm::Event& iEvent,
     clusteralgo.setThreshEcalEndcap( threshEcalEndcap_ );
     clusteralgo.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
     
-    clusteralgo.init( ecalrechits ); 
+    clusteralgo.init( idSortedRecHits ); 
     clusteralgo.doClustering();
     
     // if requested, get rechits passing the threshold from algo, 
     // and pass them to the event.
     if(produceRecHits_) {
       
-      auto_ptr< vector<reco::PFRecHit> > 
-	recHits( new vector<reco::PFRecHit> ); 
-
       const map<unsigned, reco::PFRecHit* >& 
 	algohits = clusteralgo.idRecHits();
+
+      auto_ptr< vector<reco::PFRecHit> > 
+	recHits( new vector<reco::PFRecHit> ); 
+      
+      recHits->reserve( algohits.size() ); 
       
       for(PFClusterAlgo::IDH ih=algohits.begin(); 
 	  ih!=algohits.end(); ih++) {
 	recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
       }
-
+      
       iEvent.put( recHits, "ECAL" );
     }
     
@@ -362,8 +365,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
     iEvent.put( outClustersECAL, "ECAL");
     
     // clear all 
-    for( PFClusterAlgo::IDH ih = ecalrechits.begin(); 
-	 ih != ecalrechits.end(); ih++) {  
+    for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
+	 ih != idSortedRecHits.end(); ih++) {  
       delete ih->second;
     }
 
@@ -464,11 +467,12 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	// and pass them to the event.
 	if(produceRecHits_) {
 
-	  auto_ptr< vector<reco::PFRecHit> > 
-	    recHits( new vector<reco::PFRecHit> ); 
-	  
 	  const map<unsigned, reco::PFRecHit* >& 
 	    algohits = clusteralgo.idRecHits();
+	  
+	  auto_ptr< vector<reco::PFRecHit> > 
+	    recHits( new vector<reco::PFRecHit> ); 
+	  recHits->reserve( algohits.size() );
 	  
 	  for(PFClusterAlgo::IDH ih=algohits.begin(); 
 	      ih!=algohits.end(); ih++) {
@@ -614,11 +618,12 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       // and pass them to the event.
       if(produceRecHits_) {
 
-	auto_ptr< vector<reco::PFRecHit> > 
-	  recHits( new vector<reco::PFRecHit> ); 
-
 	const map<unsigned, reco::PFRecHit* >& algohits = 
 	  clusteralgo.idRecHits();
+
+	auto_ptr< vector<reco::PFRecHit> > 
+	  recHits( new vector<reco::PFRecHit> ); 
+	recHits->reserve( algohits.size() );
 	
 	for(PFClusterAlgo::IDH ih=algohits.begin(); 
 	    ih!=algohits.end(); ih++) {

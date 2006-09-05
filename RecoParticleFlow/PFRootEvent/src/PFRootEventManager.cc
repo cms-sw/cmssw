@@ -530,7 +530,6 @@ void PFRootEventManager::clustering() {
   
   cout<<"clustering HCAL"<<endl;
 
-
   PFClusterAlgo clusterAlgoHCAL;
 
   clusterAlgoHCAL.setThreshEcalBarrel( threshEcalBarrel_ );
