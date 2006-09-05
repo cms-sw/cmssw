@@ -3,11 +3,13 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/ModuleType.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <ostream>
 using namespace std;
+using namespace sipixelobjects;
 
 bool PixelBarrelLinkMaker::Order::operator() 
     (const Item &u1, const Item& u2) const
@@ -96,29 +98,19 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
     for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
        //
        //
-       int rocInX, rocInY;
-       if (it->name->moduleName() < 0) { // negative barrel
-         if (id <= 7) {
-           rocInX = id;
-           rocInY = 0;
-         } 
-         else {
-           rocInX = 15-id;
-           rocInY = 1;
-         } 
-       } else {
-         if (id <=7) {
-           rocInX = 7-id; 
-           rocInY = 1;
-         }
-         else {
-           rocInX = id-8;
-           rocInY = 0;
-         }
+       int rocInY, rocInX;
+       if (id <= 7) {
+         rocInY = id;
+         rocInX = 0;
+       }
+       else {
+         rocInY = 15-id;
+         rocInX = 1;
        }
        rocs.push_back( PixelROC( it->unit, id, ++idRoc, rocInX, rocInY));
     }
-    PixelFEDLink::Connection connection = {it->unit, it->name->name(),it->rocIds, rocs};
+    ModuleType type = it->name->isFullModule() ?  v2x8 : v1x8;
+    PixelFEDLink::Connection connection = {it->unit, type, it->name->name(),it->rocIds, rocs};
     link.add(connection);
     result.push_back(link); 
   }

@@ -1,6 +1,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
 #include <sstream>
+#include <iostream>
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -17,21 +18,26 @@ PixelBarrelName::PixelBarrelName(const DetId & id)
   theLayer = cmssw_numbering.layer();
   theModule = cmssw_numbering.module() -4; if (theModule<=0) theModule--;
   theLadder = cmssw_numbering.ladder();
+//  static int myNumber[45] = {0};
   if (theLayer == 1) {
-    if (theLadder <= 5) theLadder -=6;
-    else if (theLadder >= 6 && theLadder <= 15 ) theLadder -= 5;
-    else if (theLadder >= 16) theLadder -= 26;
+    if (theLadder <= 5) theLadder = 6-theLadder;
+    else if (theLadder >= 6 && theLadder <= 15 ) theLadder = 5-theLadder;
+    else if (theLadder >= 16) theLadder = 26-theLadder;
   } 
   else if (theLayer == 2) {
-    if (theLadder <= 8) theLadder -= 9;
-    else if (theLadder >= 9 && theLadder <= 24) theLadder -= 8;
-    else if (theLadder >= 25) theLadder -= 41; 
+    if (theLadder <= 8) theLadder = 9-theLadder;
+    else if (theLadder >= 9 && theLadder <= 24) theLadder = 8-theLadder;
+    else if (theLadder >= 25) theLadder = 41-theLadder; 
   } 
   else if (theLayer == 3) {
-    if (theLadder <= 11) theLadder -= 12;
-    else if (theLadder >= 12 && theLadder <= 33) theLadder -= 11;
-    else if (theLadder >= 34) theLadder -= 56;
-  } else {
+    if (theLadder <= 11) theLadder = 12-theLadder;
+    else if (theLadder >= 12 && theLadder <= 33) theLadder = 11-theLadder;
+    else if (theLadder >= 34) theLadder = 56-theLadder;
+//    myNumber[cmssw_numbering.ladder()] = theLadder;
+//    cout <<"numbering, layer 3: "<< endl;
+//    for (int i=1; i<= 44; i++) cout <<" "<<myNumber[i];
+//    cout << endl; 
+//  } else {
 //    cout << " PROBLEM, no such layer " << endl;
   } 
 }
@@ -57,7 +63,7 @@ string PixelBarrelName::name() const
    if (isFullModule() ) stm <<"F"; else stm <<"H";
 
    stm << "Z";
-   if ( theLadder < 0) stm <<"-"; else stm <<"+";
+   if ( theModule < 0) stm <<"-"; else stm <<"+";
    stm << abs(theModule);
 
    return stm.str();

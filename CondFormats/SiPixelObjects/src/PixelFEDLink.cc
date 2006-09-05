@@ -1,6 +1,7 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/ModuleType.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -27,11 +28,16 @@ bool PixelFEDLink::checkRocNumbering() const
   return result;
 }
 
-uint32_t PixelFEDLink::rocDetUnit(unsigned int id) const
+std::pair<uint32_t,ModuleType> PixelFEDLink::rocDetUnit(unsigned int id) const
 {
-  return (id >= 0 && id < theIndices.size()) ?
-      theConnections[theIndices[id].first].unit : 0;
+  if (id >= 0 && id < theIndices.size()) { 
+    const Connection & con = theConnections[theIndices[id].first];
+    return make_pair( con.unit, static_cast<ModuleType>(con.type) ); 
+  }
+  else return make_pair(0,static_cast<ModuleType>(1));
 }
+
+
 
 const PixelROC * PixelFEDLink::roc(unsigned int id) const
 {
@@ -60,7 +66,8 @@ string PixelFEDLink::print(int depth) const
   if (depth-- >=0 ) {
     out <<"====== PixelFEDLink, ID: "<<id()<< endl;
     for (IT ic=theConnections.begin(); ic != theConnections.end(); ic++) {
-      out <<"       "<<(*ic).name<<" ("<<(*ic).unit<<") "
+      out <<"       "<<(*ic).name
+          <<" ("<< static_cast<ModuleType>(ic->type) <<","<<(*ic).unit<<") "
           <<",r=("<< (*ic).range.first<<","<<(*ic).range.second<<")"
           <<"  ids:";
       for (int i = (*ic).range.first; i <= (*ic).range.second; i++) {
@@ -68,11 +75,11 @@ string PixelFEDLink::print(int depth) const
         out <<"_" << idx;
       }
       out << endl;
-      if (idx != numberOfROCs()) edm::LogError(" problem with ROC numbering!"); 
       const ROCs & rocs = (*ic).rocs;
       typedef ROCs::const_iterator CIR;
       for (CIR ir = rocs.begin(); ir != rocs.end(); ir++) out<< (ir)->print(depth); 
     }
+    if (idx != numberOfROCs()-1) edm::LogError(" problem with ROC numbering!"); 
     out <<"       total number of ROCs: "<< numberOfROCs() << endl;
   }
   out << endl;

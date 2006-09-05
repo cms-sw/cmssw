@@ -28,6 +28,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
+#include "CondFormats/SiPixelObjects/interface/ModuleType.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 
 using namespace std;
@@ -140,7 +141,7 @@ void SiPixelFedCablingMapTestWriter::beginJob( const edm::EventSetup& iSetup ) {
 
    PixelFEDLink link(0);
    PixelFEDLink::ROCs rocs; rocs.push_back(r1); rocs.push_back(r2);
-   PixelFEDLink::Connection  con = {0, "det_name", make_pair<int,int>(0,1), rocs };
+   PixelFEDLink::Connection  con = {0, v2x8, "det_name", make_pair<int,int>(0,1), rocs };
    link.add(con);
 
    PixelFEDCabling fed(0);

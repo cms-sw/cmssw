@@ -7,6 +7,7 @@
 #include <ostream>
 
 using namespace std;
+using namespace sipixelobjects;
 
 bool PixelEndcapLinkMaker::Order::operator()
     (const Item &u1, const Item& u2) const
@@ -102,24 +103,24 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
       link = PixelFEDLink(++idLink); // real link, to be filled
     }
     for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
-      int rocInY, rocInX;
+      int rocInX, rocInY;
       if ( (*it).type < v2x3) {    //narrow modules
-        rocInY = 0;
-        rocInX = (*it).rocIds.max()-id;
+        rocInX = 0;
+        rocInY = id;
       }
       else {
         if (2*id < (*it).rocIds.max()) {
-          rocInY = 0;
-          rocInX = id;
+          rocInX = 0;
+          rocInY = id;
         }
         else {
-          rocInY = 1;
-          rocInX = (*it).rocIds.max()-id;
+          rocInX = 1;
+          rocInY = (*it).rocIds.max()-id;
         }
       }
-      rocs.push_back( PixelROC( it->unit, id, ++idRoc, rocInX, rocInY));
+      rocs.push_back( PixelROC( it->unit, id, ++idRoc, rocInX, rocInY) );
     }
-    PixelFEDLink::Connection connection = {it->unit, it->name->name(), it->rocIds, rocs};
+    PixelFEDLink::Connection connection = {it->unit, it->type, it->name->name(), it->rocIds, rocs};
     link.add( connection);
   }
   if (idLink >= 0) result.push_back(link);

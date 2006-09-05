@@ -169,9 +169,10 @@ void PixelDataFormatter::word2digi(const SiPixelFrameConverter& converter,
 
   PixelDigi pd(detIdx.row, detIdx.col,  adc);
   digis[detIdx.rawId].push_back(pd);
-  theDigiCounter++;
 
+  theDigiCounter++;
   LogDebug("PixelDataFormatter") << print(pd);
+
 }
 
 std::string PixelDataFormatter::print(const PixelDigi & digi) const
@@ -184,6 +185,7 @@ std::string PixelDataFormatter::print(const PixelDigi & digi) const
 std::string PixelDataFormatter::print(const  Word64 & word) const
 {
   ostringstream str;
-  str  <<"word64:  " << *reinterpret_cast<const bitset<64>*> (&word);
+  //str  <<"word64:  " << *reinterpret_cast<const bitset<64>*> (&word);
+  str  <<"word64:  " << reinterpret_cast<const bitset<64>&> (word);
   return str.str();
 }

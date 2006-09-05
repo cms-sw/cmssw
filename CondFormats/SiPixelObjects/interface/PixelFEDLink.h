@@ -11,6 +11,7 @@
 #include <boost/cstdint.hpp>
 
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/ModuleType.h"
 class PixelModuleName;
 
 namespace sipixelobjects {
@@ -26,7 +27,7 @@ public:
   typedef std::vector<PixelROC> ROCs;
 
   /// specifies minimal object connected to link (ranges of ROCs in module)
-  struct Connection { uint32_t unit; std::string name; Range range; ROCs rocs; };
+  struct Connection { uint32_t unit; int type; std::string name; Range range; ROCs rocs; };
 
   /// all objects connected to link
   typedef std::vector<Connection> Connections;
@@ -47,7 +48,8 @@ public:
   const PixelROC * roc(unsigned int id) const;
 
   /// return DetUnit to which ROC belongs
-  uint32_t rocDetUnit(unsigned int id) const;
+  std::pair<uint32_t,ModuleType> rocDetUnit(unsigned int id) const;
+
   const Connections & connected() const { return theConnections; }
   
   /// check ROC in link numbering consistency, ie. that ROC position in

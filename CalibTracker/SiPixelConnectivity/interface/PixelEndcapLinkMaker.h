@@ -10,6 +10,7 @@ class PixelModuleName;
 class PixelEndcapName;
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
+#include "CondFormats/SiPixelObjects/interface/ModuleType.h"
 
 class PixelEndcapLinkMaker {
 public:
@@ -37,7 +38,7 @@ private:
   const PixelFEDCabling * theOwner;
 
   /// plaquette types. The order matters (first narrow modules than wider)
-  enum Plaquette { v1x2, v1x5, v2x3, v2x4, v2x5 } ;
+  typedef sipixelobjects::ModuleType Plaquette;
 
   /// link item.
   /// defined by DetUnit with name (representing Pixel Detector module)

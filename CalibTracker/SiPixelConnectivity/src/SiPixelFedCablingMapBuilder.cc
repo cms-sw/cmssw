@@ -20,6 +20,15 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CalibTracker/SiPixelConnectivity/interface/PixelBarrelLinkMaker.h"
 #include "CalibTracker/SiPixelConnectivity/interface/PixelEndcapLinkMaker.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
+#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/Vector/interface/GlobalVector.h"
+#include "Geometry/Vector/interface/LocalPoint.h"
+#include "Geometry/Vector/interface/LocalVector.h"
+
+#include <bitset>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -61,14 +70,42 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
   typedef TrackerGeometry::DetContainer::const_iterator ITG;
   int npxdets = 0;
   for (ITG it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-    if (dynamic_cast<PixelGeomDetUnit*>(*it) ==0 ) continue;
+    const PixelGeomDetUnit * pxUnit = dynamic_cast<const PixelGeomDetUnit*>(*it);
+    if (pxUnit  ==0 ) continue;
     npxdets++;
-    DetId geomid = (*it)->geographicalId();
+    DetId geomid = pxUnit->geographicalId();
+//    uint32_t bits = geomid.rawId();
+//      int b1 = (bits>>28);
+//      int b2 = ((bits>>25)&0xF7);
+//      int b3 = ((bits)&0xFFFFFF); 
+//      int barrel = (bits>>25)&0x7;
+//      int zet = (bits>>2)&0xF;
+//      cout 
+//           <<" bits  "<<*reinterpret_cast<const bitset<32>* >(&bits) << endl
+//           <<" bits: "<<reinterpret_cast<const bitset<32>& >(b1)<<endl
+//           <<" bits: "<<reinterpret_cast<const bitset<32>& >(b2)<<endl
+//           <<" bits:         "<<reinterpret_cast<const bitset<24>& >(b3)<<endl;
+//     cout      <<" part: "<<barrel<<" zet: "<<zet<<endl;
     PixelModuleName * name =  0;
     if (1 == geomid.subdetId()) {
       name = new PixelBarrelName(geomid);
+//      const PixelTopology & tpl = pxUnit->specificTopology();
+//      cout <<" NAME: "<<name->name()<<" rows, columns: "<< tpl.nrows()<<","<<tpl.ncolumns()<<endl;
+//      LocalPoint local;
+//      local = LocalPoint(0,0,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      local = LocalPoint(1,0,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      local = LocalPoint(0,1,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      local = LocalPoint(0,0,1); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+      
     } else {
       name = new PixelEndcapName(geomid);
+//      const PixelTopology & tpl = pxUnit->specificTopology();
+//      cout <<" NAME: "<<name->name()<<" rows, columns: "<< tpl.nrows()<<","<<tpl.ncolumns()<<endl;
+//      LocalPoint local;
+//      local = LocalPoint(0,0,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      local = LocalPoint(1,0,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      local = LocalPoint(0,1,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      local = LocalPoint(0,0,1); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
     } 
     int fedId = name2fed( *name);
     if ( fedIds.inside(fedId) ) {
