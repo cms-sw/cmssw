@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/08/28 18:44:39 $
-// $Revision: 1.12 $
+// $Author: noeding $
+// $Date: 2006/09/01 21:12:47 $
+// $Revision: 1.13 $
 //
 
 #include <string>
@@ -141,17 +141,16 @@ class RoadSearchCloudMakerAlgorithm
   
   // general hit access for road search
   DetHitAccess recHitVectorClass;
-  bool usePixels;
-
- double theRPhiRoadSize;
- double theZPhiRoadSize;
- double theMinimumHalfRoad;
- bool UsePixels;
- bool NoFieldCosmic;
- unsigned int maxDetHitsInCloudPerDetId;
- unsigned int minNumberOfUsedLayersPerRoad;
- unsigned int maxNumberOfMissedLayersPerRoad;
- unsigned int maxNumberOfConsecutiveMissedLayersPerRoad;
+  
+  double theRPhiRoadSize;
+  double theZPhiRoadSize;
+  double theMinimumHalfRoad;
+  bool UsePixels;
+  bool NoFieldCosmic;
+  unsigned int maxDetHitsInCloudPerDetId;
+  unsigned int minNumberOfUsedLayersPerRoad;
+  unsigned int maxNumberOfMissedLayersPerRoad;
+  unsigned int maxNumberOfConsecutiveMissedLayersPerRoad;
 };
 
 #endif

@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2006/09/01 21:12:47 $
-// $Revision: 1.25 $
+// $Date: 2006/09/05 20:42:58 $
+// $Revision: 1.26 $
 //
 
 #include <vector>
@@ -95,8 +95,11 @@ double RoadSearchCloudMakerAlgorithm::epsilon      =   0.000000001;
 
 RoadSearchCloudMakerAlgorithm::RoadSearchCloudMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
   recHitVectorClass.setMode(DetHitAccess::standard);    
-  recHitVectorClass.use_rphiRecHits(true);
-  recHitVectorClass.use_stereoRecHits(true);
+  //recHitVectorClass.use_rphiRecHits(true);
+  //recHitVectorClass.use_stereoRecHits(true);
+  recHitVectorClass.use_rphiRecHits(conf_.getParameter<bool>("UseRphiRecHits"));
+  recHitVectorClass.use_stereoRecHits(conf_.getParameter<bool>("UseStereoRecHits"));
+
 
   theRPhiRoadSize =  conf_.getParameter<double>("RPhiRoadSize");
   theZPhiRoadSize =  conf_.getParameter<double>("ZPhiRoadSize");
@@ -607,7 +610,7 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id, double
       }
     } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel 
 		|| (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap) {
-      if ( usePixels ) {
+      if ( UsePixels ) {
 
       const SiPixelRecHit *recHit = (SiPixelRecHit*)(*recHitIterator);
 
