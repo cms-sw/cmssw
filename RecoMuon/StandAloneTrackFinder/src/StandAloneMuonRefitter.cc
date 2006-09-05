@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/09/04 13:28:44 $
- *  $Revision: 1.28 $
+ *  $Date: 2006/09/04 17:11:49 $
+ *  $Revision: 1.29 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -11,8 +11,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // FIXME: remove this
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
