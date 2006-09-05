@@ -6,6 +6,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
+#include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 
 #include <TObject.h>
 #include "TEllipse.h"
@@ -178,6 +179,15 @@ class PFRootEventManager {
   /// rechits branch  
   TBranch*   hitsBranch_;          
   
+  /// ECAL rechits branch  
+  TBranch*   rechitsECALBranch_;          
+  
+  /// HCAL rechits branch  
+  TBranch*   rechitsHCALBranch_;          
+  
+  /// PS rechits branch  
+  TBranch*   rechitsPSBranch_;          
+
   /// ECAL clusters branch  
   TBranch*   clustersECALBranch_;          
   
@@ -194,16 +204,25 @@ class PFRootEventManager {
   /// rechits
   std::vector<reco::PFRecHit> rechits_;
 
+  /// rechits
+  std::vector<reco::PFRecHit> rechitsECAL_;
+
+  /// rechits
+  std::vector<reco::PFRecHit> rechitsHCAL_;
+
+  /// rechits
+  std::vector<reco::PFRecHit> rechitsPS_;
+
   /// clusters
   std::auto_ptr< std::vector<reco::PFCluster> > clusters_;
 
-  /// clusters
+  /// clusters ECAL
   std::auto_ptr< std::vector<reco::PFCluster> > clustersECAL_;
 
-  /// clusters
+  /// clusters HCAL
   std::auto_ptr< std::vector<reco::PFCluster> > clustersHCAL_;
 
-  /// clusters
+  /// clusters PS
   std::auto_ptr< std::vector<reco::PFCluster> > clustersPS_;
 
   /// reconstructed tracks
@@ -227,6 +246,14 @@ class PFRootEventManager {
   /// output filename
   std::string     outFileName_;   
 
+  /// clustering algorithm for ECAL
+  PFClusterAlgo   clusterAlgoECAL_;
+
+  /// clustering algorithm for ECAL
+  PFClusterAlgo   clusterAlgoHCAL_;
+
+  /// clustering algorithm for ECAL
+  PFClusterAlgo   clusterAlgoPS_;
 
   /// canvases for eta/phi display, one per algo
   /// each is split in 2 : HCAL, ECAL

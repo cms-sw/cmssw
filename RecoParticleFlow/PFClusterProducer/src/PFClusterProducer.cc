@@ -144,10 +144,14 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     
 
   //register products
-  if(produceRecHits_) produces<reco::PFRecHitCollection>();
-  produces<reco::PFClusterCollection>("PS");
+  if(produceRecHits_) {
+    produces<reco::PFRecHitCollection>("ECAL");
+    produces<reco::PFRecHitCollection>("HCAL");
+    produces<reco::PFRecHitCollection>("PS");
+  }
   produces<reco::PFClusterCollection>("ECAL");
   produces<reco::PFClusterCollection>("HCAL");
+  produces<reco::PFClusterCollection>("PS");
 }
 
 
@@ -162,15 +166,15 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   cout<<"IN number of PFClusters :"<<reco::PFCluster::instanceCounter_<<endl;
 
   // for output  
-  auto_ptr< vector<reco::PFRecHit> > 
-    allRecHits( new vector<reco::PFRecHit> ); 
+  //   auto_ptr< vector<reco::PFRecHit> > 
+  //     allRecHits( new vector<reco::PFRecHit> ); 
   
-  auto_ptr< vector<reco::PFCluster> > 
-    outClustersECAL( new vector<reco::PFCluster> ); 
-  auto_ptr< vector<reco::PFCluster> > 
-    outClustersHCAL( new vector<reco::PFCluster> ); 
-  auto_ptr< vector<reco::PFCluster> > 
-    outClustersPS( new vector<reco::PFCluster> ); 
+  //   auto_ptr< vector<reco::PFCluster> > 
+  //     outClustersECAL( new vector<reco::PFCluster> ); 
+  //   auto_ptr< vector<reco::PFCluster> > 
+  //     outClustersHCAL( new vector<reco::PFCluster> ); 
+  //   auto_ptr< vector<reco::PFCluster> > 
+  //     outClustersPS( new vector<reco::PFCluster> ); 
   
 
   if( processEcal_ ) {
@@ -338,23 +342,32 @@ void PFClusterProducer::produce(edm::Event& iEvent,
     // if requested, get rechits passing the threshold from algo, 
     // and pass them to the event.
     if(produceRecHits_) {
+      
+      auto_ptr< vector<reco::PFRecHit> > 
+	recHits( new vector<reco::PFRecHit> ); 
 
       const map<unsigned, reco::PFRecHit* >& 
 	algohits = clusteralgo.idRecHits();
       
       for(PFClusterAlgo::IDH ih=algohits.begin(); 
 	  ih!=algohits.end(); ih++) {
-	allRecHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+	recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
       }
+
+      iEvent.put( recHits, "ECAL" );
     }
     
-    outClustersECAL = clusteralgo.clusters();
-
+    auto_ptr< vector<reco::PFCluster> > 
+      outClustersECAL( clusteralgo.clusters() ); 
+    iEvent.put( outClustersECAL, "ECAL");
+    
     // clear all 
     for( PFClusterAlgo::IDH ih = ecalrechits.begin(); 
 	 ih != ecalrechits.end(); ih++) {  
       delete ih->second;
     }
+
+    
   }
   
 
@@ -450,17 +463,27 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	// if requested, get rechits passing the threshold from algo, 
 	// and pass them to the event.
 	if(produceRecHits_) {
+
+	  auto_ptr< vector<reco::PFRecHit> > 
+	    recHits( new vector<reco::PFRecHit> ); 
+	  
 	  const map<unsigned, reco::PFRecHit* >& 
 	    algohits = clusteralgo.idRecHits();
 	  
 	  for(PFClusterAlgo::IDH ih=algohits.begin(); 
 	      ih!=algohits.end(); ih++) {
-	    allRecHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+	    recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
 	  }
+
+	  iEvent.put( recHits, "HCAL" );
 	}
 
-	outClustersHCAL = clusteralgo.clusters();
+	auto_ptr< vector<reco::PFCluster> > 
+	  outClustersHCAL( clusteralgo.clusters() ); 
+// 	outClustersHCAL = clusteralgo.clusters();
+	iEvent.put( outClustersHCAL, "HCAL");
 
+	
 	// clear all 
 	for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
 	     ih != hcalrechits.end(); ih++) {
@@ -590,16 +613,25 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       // if requested, get rechits passing the threshold from algo, 
       // and pass them to the event.
       if(produceRecHits_) {
+
+	auto_ptr< vector<reco::PFRecHit> > 
+	  recHits( new vector<reco::PFRecHit> ); 
+
 	const map<unsigned, reco::PFRecHit* >& algohits = 
 	  clusteralgo.idRecHits();
 	
 	for(PFClusterAlgo::IDH ih=algohits.begin(); 
 	    ih!=algohits.end(); ih++) {
-	  allRecHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+	  recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
 	}
+	
+	iEvent.put( recHits, "PS" );
       }
 
-      outClustersPS = clusteralgo.clusters();
+      auto_ptr< vector<reco::PFCluster> > 
+	outClustersPS( clusteralgo.clusters() ); 
+//       outClustersPS = clusteralgo.clusters();
+      iEvent.put( outClustersPS, "PS");
 
       // clear all 
       for( PFClusterAlgo::IDH ih = psrechits.begin(); 
@@ -617,13 +649,13 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   }
   
   
-  if( produceRecHits_) iEvent.put( allRecHits );
+  // if( produceRecHits_) iEvent.put( allRecHits );
 
   //  cout<<"allClusters->size() "<<allClusters->size()<<endl;
   // if(!allClusters->empty()) cout<<allClusters->back()<<endl;
-  iEvent.put( outClustersECAL, "ECAL");
-  iEvent.put( outClustersHCAL, "HCAL" );
-  iEvent.put( outClustersPS, "PS");
+  //   iEvent.put( outClustersECAL, "ECAL");
+  //   iEvent.put( outClustersHCAL, "HCAL" );
+  //   iEvent.put( outClustersPS, "PS");
 
   cout<<"OUT number of PFClusters :"<<reco::PFCluster::instanceCounter_<<endl;
 
