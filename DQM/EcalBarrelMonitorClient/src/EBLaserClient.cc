@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/08/03 19:41:25 $
- * $Revision: 1.86 $
+ * $Date: 2006/08/04 11:49:15 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  *
 */
@@ -80,6 +80,11 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
     h10_[ism-1] = 0;
     h11_[ism-1] = 0;
     h12_[ism-1] = 0;
+
+    hs01_[ism-1] = 0;
+    hs02_[ism-1] = 0;
+    hs03_[ism-1] = 0;
+    hs04_[ism-1] = 0;
 
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
@@ -353,6 +358,11 @@ void EBLaserClient::cleanup(void) {
       if ( h11_[ism-1] ) delete h11_[ism-1];
       if ( h12_[ism-1] ) delete h12_[ism-1];
 
+      if ( hs01_[ism-1] ) delete hs01_[ism-1];
+      if ( hs02_[ism-1] ) delete hs02_[ism-1];
+      if ( hs03_[ism-1] ) delete hs03_[ism-1];
+      if ( hs04_[ism-1] ) delete hs04_[ism-1];
+
       if ( i01_[ism-1] ) delete i01_[ism-1];
       if ( i02_[ism-1] ) delete i02_[ism-1];
       if ( i03_[ism-1] ) delete i03_[ism-1];
@@ -385,6 +395,11 @@ void EBLaserClient::cleanup(void) {
     h10_[ism-1] = 0;
     h11_[ism-1] = 0;
     h12_[ism-1] = 0;
+
+    hs01_[ism-1] = 0;
+    hs02_[ism-1] = 0;
+    hs03_[ism-1] = 0;
+    hs04_[ism-1] = 0;
 
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
@@ -1201,6 +1216,15 @@ void EBLaserClient::subscribe(void){
     sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
     mui_->subscribe(histo);
 
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4", ism);
+    mui_->subscribe(histo);
+
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
     mui_->subscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
@@ -1304,6 +1328,26 @@ void EBLaserClient::subscribe(void){
       me_h12_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
       sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
       mui_->add(me_h12_[ism-1], histo);
+
+      sprintf(histo, "EBLT shape SM%02d L1", ism);
+      me_hs01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1", ism);
+      mui_->add(me_hs01_[ism-1], histo);
+
+      sprintf(histo, "EBLT shape SM%02d L2", ism);
+      me_hs02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2", ism);
+      mui_->add(me_hs02_[ism-1], histo);
+
+      sprintf(histo, "EBLT shape SM%02d L3", ism);
+      me_hs03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3", ism);
+      mui_->add(me_hs03_[ism-1], histo);
+
+      sprintf(histo, "EBLT shape SM%02d L4", ism);
+      me_hs04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4", ism);
+      mui_->add(me_hs04_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L1", ism);
       me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01");
@@ -1461,6 +1505,15 @@ void EBLaserClient::subscribeNew(void){
     sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
     mui_->subscribeNew(histo);
 
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4", ism);
+    mui_->subscribeNew(histo);
+
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
     mui_->subscribeNew(histo);
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
@@ -1527,6 +1580,11 @@ void EBLaserClient::unsubscribe(void){
         mui_->removeCollate(me_h11_[ism-1]);
         mui_->removeCollate(me_h12_[ism-1]);
 
+	mui_->removeCollate(me_hs01_[ism-1]);
+        mui_->removeCollate(me_hs02_[ism-1]);
+        mui_->removeCollate(me_hs03_[ism-1]);
+        mui_->removeCollate(me_hs04_[ism-1]);
+
         mui_->removeCollate(me_i01_[ism-1]);
         mui_->removeCollate(me_i02_[ism-1]);
         mui_->removeCollate(me_i03_[ism-1]);
@@ -1580,6 +1638,15 @@ void EBLaserClient::unsubscribe(void){
     sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
     mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+    mui_->unsubscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4", ism);
     mui_->unsubscribe(histo);
 
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
@@ -1731,6 +1798,38 @@ void EBLaserClient::analyze(void){
     }
     me = mui_->get(histo);
     h12_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT shape SM%02d L1", ism);
+    } else {
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1").c_str(), ism);
+    }
+    me = mui_->get(histo);
+    hs01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT shape SM%02d L2", ism);
+    } else {
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2").c_str(), ism);
+    }
+    me = mui_->get(histo);
+    hs02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT shape SM%02d L3", ism);
+    } else {
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3").c_str(), ism);
+    }
+    me = mui_->get(histo);
+    hs03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT shape SM%02d L4", ism);
+    } else {
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4").c_str(), ism);
+    }
+    me = mui_->get(histo);
+    hs04_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs04_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
@@ -2218,11 +2317,12 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy.SetMarkerSize(2);
   dummy.SetMinimum(0.1);
 
-  string imgNameQual[4], imgNameAmp[4], imgNameTim[4], imgNameAmpoPN[4], imgNameMEPnG01[4], imgNameMEPnPedG01[4], imgNameMEPnG16[4], imgNameMEPnPedG16[4], imgName, meName;
+  string imgNameQual[4], imgNameAmp[4], imgNameTim[4], imgNameShape[4], imgNameAmpoPN[4], imgNameMEPnG01[4], imgNameMEPnPedG01[4], imgNameMEPnG16[4], imgNameMEPnPedG16[4], imgName, meName;
 
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
   TCanvas* cTim = new TCanvas("cTim", "Temp", csize, csize);
+  TCanvas* cShape = new TCanvas("cShape", "Temp", csize, csize);
   TCanvas* cAmpoPN = new TCanvas("cAmpoPN", "Temp", csize, csize);
   TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);
 
@@ -2385,6 +2485,56 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTim->Update();
         cTim->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
+
+      }
+
+      // Shape distributions
+
+      imgNameShape[iCanvas-1] = "";
+
+      obj1d = 0;
+      switch ( iCanvas ) {
+        case 1:
+          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 2:
+          if ( hs02_[ism-1] ) obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 3:
+          if ( hs03_[ism-1] ) obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 4: 
+          if ( hs04_[ism-1] ) obj1d = hs04_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1d ) {
+        meName = obj1d->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1, "_");
+          }
+        }
+        imgNameShape[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameShape[iCanvas-1];
+
+        cShape->cd();
+        gStyle->SetOptStat("euomr");
+        obj1d->SetStats(kTRUE);
+//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        obj1d->Draw();
+        cShape->Update();
+        cShape->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+        delete obj1d;
 
       }
 
@@ -2690,9 +2840,14 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
       if ( imgNameTim[iCanvas-1].size() != 0 )
-        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameTim[iCanvas-1] << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameTim[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+      if ( imgNameShape[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameShape[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
     }
 
@@ -2745,6 +2900,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   delete cQual;
   delete cAmp;
   delete cTim;
+  delete cShape;
   delete cAmpoPN;
   delete cPed;
 
