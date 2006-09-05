@@ -390,7 +390,7 @@ double EcalShape::computeTimeOfMaximum() const {
 
   int imax = 0;
   double tmax = -999.;
-  for ( int i = 0; i <= nsamp*tconv+1; ++i ) {
+  for ( int i = 0; i < nsamp*tconv; i++ ) {
     if ( nt[i] >= tmax ) {
       imax = i;
       tmax = nt[i];
@@ -406,7 +406,7 @@ double EcalShape::computeT0() const {
 
   int istart = 0;
   int i = 1;
-  while ( istart == 0 && i <= nsamp*tconv ) {
+  while ( istart == 0 && i < nsamp*tconv ) {
     
     if (nt[i] >threshold && i > 0) istart = i-1;
     
