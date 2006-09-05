@@ -39,14 +39,18 @@ class DetHitAccess {
 		      const SiStripMatchedRecHit2DCollection* matchedRecHits,
 		      const SiPixelRecHitCollection* pixelRecHits);
 
-  //edm::OwnVector<TrackingRecHit> getHitVector(const DetId* detid);
   std::vector<TrackingRecHit*> getHitVector(const DetId* detid);
 
   inline void setMode(accessMode input) { accessMode_ = input; }
+  inline void use_rphiRecHits(bool input) {use_rphiRecHits_ = input;}
+  inline void use_stereoRecHits(bool input) {use_stereoRecHits_ = input;}
 
  private:
 
   accessMode accessMode_;
+
+  bool use_rphiRecHits_;
+  bool use_stereoRecHits_;
 
   const SiStripRecHit2DCollection* rphiHits_;
   const SiStripRecHit2DCollection* stereoHits_;

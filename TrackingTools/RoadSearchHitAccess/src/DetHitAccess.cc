@@ -61,7 +61,6 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 
 	for ( SiStripMatchedRecHit2DCollection::const_iterator matchedDetHit = matchedDetHits.first;
 	      matchedDetHit != matchedDetHits.second; ++matchedDetHit ) {
-	  //edm::LogError("RoadSearch") << "in LOOP " << (TrackingRecHit*)matchedDetHit->monoHit() ;//->geographicalId()).rawId(); 
 	  std::vector<TrackingRecHit*>::const_iterator result = find(RecHitVec.begin(),RecHitVec.end(),(TrackingRecHit*)matchedDetHit->monoHit());
 	  if( result==RecHitVec.end() ) {RecHitVec.push_back((TrackingRecHit*)matchedDetHit->monoHit());}
 	}
@@ -88,37 +87,52 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	DetId useDetId(StripDetId.glued());
 	SiStripMatchedRecHit2DCollection::range matchedDetHits = matchedHits_->get(useDetId);
 
-	//temporary vectors to store rphi & stereo RecHits that are associated with matched RecHits
-	std::vector<TrackingRecHit*> matched_rphi;
-	std::vector<TrackingRecHit*> matched_stereo;
 
 	for ( SiStripMatchedRecHit2DCollection::const_iterator matchedDetHit = matchedDetHits.first;
 	      matchedDetHit != matchedDetHits.second; ++matchedDetHit ) {
 	  RecHitVec.push_back((TrackingRecHit*)(&(*matchedDetHit)));
-	  matched_rphi.push_back((TrackingRecHit*)matchedDetHit->monoHit());
-	  matched_stereo.push_back((TrackingRecHit*)matchedDetHit->stereoHit());
 	}
 	
+	
+	//edm::LogError("RoadSearch") << "matched (total): " << RecHitVec.size();
+
 	//check for additional r-phi RecHits (not used by matched RecHits)
-	DetId rphiDetId(StripDetId.glued()+2);
-	SiStripRecHit2DCollection::range rphiDetHits = rphiHits_->get(rphiDetId);
-	for ( SiStripRecHit2DCollection::const_iterator rphiDetHit = rphiDetHits.first;
-	      rphiDetHit != rphiDetHits.second; ++rphiDetHit ) {
-	  std::vector<TrackingRecHit*>::const_iterator result = find(matched_rphi.begin(),matched_rphi.end(),(TrackingRecHit*)(&(*rphiDetHit)));
-	  if( result==matched_rphi.end() ) {RecHitVec.push_back((TrackingRecHit*)(&(*rphiDetHit)));}
+	if(use_rphiRecHits_) {
+	  DetId rphiDetId(StripDetId.glued()+2);
+	  SiStripRecHit2DCollection::range rphiDetHits = rphiHits_->get(rphiDetId);
+	  for ( SiStripRecHit2DCollection::const_iterator rphiDetHit = rphiDetHits.first;
+		rphiDetHit != rphiDetHits.second; ++rphiDetHit ) {
+	    bool use_rphi=true;
+	    for ( SiStripMatchedRecHit2DCollection::const_iterator matchedDetHit = matchedDetHits.first;
+		  matchedDetHit != matchedDetHits.second; ++matchedDetHit ) { 
+	      //edm::LogError("RoadSearch") << "COMPARE (x/y): " << rphiDetHit->localPosition().x() << ";" <<  matchedDetHit->monoHit()->localPosition().x() << " / " << rphiDetHit->localPosition().y() << "-" <<  matchedDetHit->monoHit()->localPosition().y();
+	      if (rphiDetHit->localPosition().x()==matchedDetHit->monoHit()->localPosition().x() 
+		  && rphiDetHit->localPosition().y()==matchedDetHit->monoHit()->localPosition().y() )
+		use_rphi=false;
+	    }
+	    if(use_rphi) RecHitVec.push_back((TrackingRecHit*)(&(*rphiDetHit)));
+	  }
 	}
 
 	//check for additional stereo RecHits (not used by matched RecHits)
-	DetId stereoDetId(StripDetId.glued()+1);
-	SiStripRecHit2DCollection::range stereoDetHits = stereoHits_->get(stereoDetId);
-	for ( SiStripRecHit2DCollection::const_iterator stereoDetHit = stereoDetHits.first;
-	      stereoDetHit != stereoDetHits.second; ++stereoDetHit ) {
-	  std::vector<TrackingRecHit*>::const_iterator result = find(matched_stereo.begin(),matched_stereo.end(),(TrackingRecHit*)(&(*stereoDetHit)));
-	  if( result==matched_stereo.end() ) {RecHitVec.push_back((TrackingRecHit*)(&(*stereoDetHit)));}
+	if(use_stereoRecHits_) {
+	  DetId stereoDetId(StripDetId.glued()+1);
+	  SiStripRecHit2DCollection::range stereoDetHits = stereoHits_->get(stereoDetId);
+	  for ( SiStripRecHit2DCollection::const_iterator stereoDetHit = stereoDetHits.first;
+		stereoDetHit != stereoDetHits.second; ++stereoDetHit ) {
+	    bool use_stereo=true;
+	    for ( SiStripMatchedRecHit2DCollection::const_iterator matchedDetHit = matchedDetHits.first;
+		  matchedDetHit != matchedDetHits.second; ++matchedDetHit ) { 
+	      //edm::LogError("RoadSearch") << "COMPARE (x/y): " << stereoDetHit->localPosition().x() << ":" <<  matchedDetHit->monoHit()->localPosition().x() << " / " << stereoDetHit->localPosition().y() << ":" <<  matchedDetHit->monoHit()->localPosition().y();
+	      if (stereoDetHit->localPosition().x()==matchedDetHit->monoHit()->localPosition().x() 
+		  && stereoDetHit->localPosition().y()==matchedDetHit->monoHit()->localPosition().y() )
+		use_stereo=false;
+	    }
+	    if(use_stereo) RecHitVec.push_back((TrackingRecHit*)(&(*stereoDetHit)));
+	  }
 	}
-
       } 
-
+      
     }
     
   } else if (    (unsigned int)detid->subdetId() == PixelSubdetector::PixelBarrel 
@@ -137,11 +151,8 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 
   }
 
-  //edm::LogError("RoadSearch") << " DetHitAccess: size " << RecHitVec.size();
-  //for (std::vector<TrackingRecHit*>::const_iterator testcn = RecHitVec.begin();
-  //     testcn != RecHitVec.end(); ++testcn) {
-  //edm::LogError("RoadSearch") << " DetHitAccess: " << (*testcn)->geographicalId().rawId();
-  //}
+
+  //edm::LogError("RoadSearch") << "RecHitVec.size(): " << RecHitVec.size();
 
   return RecHitVec;
 
