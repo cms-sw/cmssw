@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/07/27 14:51:41 $
- *  \version $Id: RPCDetId.h,v 1.15 2006/07/27 14:51:41 segoni Exp $
- *  $Revision: 1.15 $
+ *  $Date: 2006/07/27 14:57:49 $
+ *  \version $Id: RPCDetId.h,v 1.16 2006/07/27 14:57:49 segoni Exp $
+ *  $Revision: 1.16 $
  *  \author Ilaria Segoni
  */
 
@@ -81,7 +81,7 @@ class RPCDetId :public DetId {
 
   /// Sector id: the group of chambers at same phi (and increasing r) 
   int sector() const{
-    return int((id_>>SectorStartBit_) & SectorMask_) + minSectorId;
+    return int((id_>>SectorStartBit_) & SectorMask_) + (minSectorId+1);
   }
 
   /// Layer id: each station can have two layers of chambers: layer 1 is the inner chamber and layer 2 is the outer chamber (when present)  
@@ -92,7 +92,7 @@ class RPCDetId :public DetId {
 
   /// SubSector id : some sectors are divided along the phi direction in subsectors (from 1 to 4 in Barrel, from 1 to 6 in Endcap) 
   int subsector() const{
-    return int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
+    return int((id_>>SubSectorStartBit_) & SubSectorMask_) + (minSubSectorId+1);
   }
 
   /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
@@ -118,7 +118,7 @@ class RPCDetId :public DetId {
   static const int minStationId=     1;
   static const int maxStationId=     4;
 
-  static const int minSectorId=     1;
+  static const int minSectorId=     0;
   static const int maxSectorId=     12;
   static const int minSectorBarrelId=     1;
   static const int maxSectorBarrelId=     12;
@@ -128,7 +128,7 @@ class RPCDetId :public DetId {
   static const int minLayerId=     1;
   static const int maxLayerId=     2;
 
-  static const int minSubSectorId=	 1;
+  static const int minSubSectorId=	 0;
   static const int maxSubSectorId=	 6;
   static const int minSubSectorBarrelId=	 1;
   static const int maxSubSectorBarrelId=	 4;

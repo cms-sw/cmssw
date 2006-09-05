@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.15 2006/06/02 20:41:50 mmaggi Exp $
+ * \version $Id: RPCDetId.cc,v 1.16 2006/06/06 16:08:32 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
@@ -94,7 +94,7 @@ void
 RPCDetId::init(int region,int ring,int station,int sector,
 	       int layer,int subsector,int roll)
 {
-  int minRing=RPCDetId::minRingForwardId;
+  int minRing=0;
   int maxRing=RPCDetId::maxRingForwardId;
   if (!region) 
     {
@@ -128,9 +128,9 @@ RPCDetId::init(int region,int ring,int station,int sector,
   if(!region) ringInBits = ring + RingBarrelOffSet - minRingBarrelId;
   
   int stationInBits=station-minStationId;
-  int sectorInBits=sector-minSectorId;
+  int sectorInBits=sector-(minSectorId+1);
   int layerInBits=layer-minLayerId;
-  int subSectorInBits=subsector-minSubSectorId;
+  int subSectorInBits=subsector-(minSubSectorId+1);
   int rollInBits=roll;
   
   id_ |= ( regionInBits    & RegionMask_)    << RegionStartBit_    | 
