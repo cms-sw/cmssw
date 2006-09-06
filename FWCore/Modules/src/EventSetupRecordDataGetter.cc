@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 11:10:24 EDT 2005
-// $Id: EventSetupRecordDataGetter.cc,v 1.2 2005/12/01 21:31:52 chrjones Exp $
+// $Id: EventSetupRecordDataGetter.cc,v 1.3 2006/08/26 18:41:19 chrjones Exp $
 //
 //
 
@@ -52,7 +52,7 @@ namespace edm {
    EventSetupRecordDataGetter::EventSetupRecordDataGetter(const edm::ParameterSet& iConfig):
    pSet_(iConfig),
    recordToDataKeys_(),
-   recordToIOVSyncValue_(),
+   recordToCacheIdentifier_(),
    verbose_(iConfig.getUntrackedParameter("verbose",false))
 {
 }
@@ -106,7 +106,7 @@ EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::Eve
             dataKeys.push_back(datumKey); 
          }
          recordToDataKeys_.insert(std::make_pair(recordKey, dataKeys));
-         recordToIOVSyncValue_.insert(std::make_pair(recordKey, new IOVSyncValue(IOVSyncValue::invalidIOVSyncValue())));
+         recordToCacheIdentifier_.insert(std::make_pair(recordKey, 0));
       }
    }
    
@@ -120,8 +120,8 @@ EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::Eve
         ++itRecord) {
       const EventSetupRecord* pRecord = iSetup.find(itRecord->first);
       
-      if(0 != pRecord && pRecord->validityInterval().first() != *(recordToIOVSyncValue_[itRecord->first])) {
-         *(recordToIOVSyncValue_[itRecord->first]) = pRecord->validityInterval().first();
+      if(0 != pRecord && pRecord->cacheIdentifier() != recordToCacheIdentifier_[itRecord->first]) {
+         recordToCacheIdentifier_[itRecord->first] = pRecord->cacheIdentifier();
          typedef std::vector< DataKey > Keys;
          const Keys& keys = itRecord->second;
          for(Keys::const_iterator itKey = keys.begin();

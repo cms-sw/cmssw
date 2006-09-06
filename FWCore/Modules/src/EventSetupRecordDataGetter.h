@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 13:45:06 EDT 2005
-// $Id: EventSetupRecordDataGetter.h,v 1.4 2005/09/01 03:12:50 wmtan Exp $
+// $Id: EventSetupRecordDataGetter.h,v 1.1 2005/10/11 17:09:22 wmtan Exp $
 //
 
 // system include files
@@ -47,9 +47,7 @@ private:
       
       typedef std::map<edm::eventsetup::EventSetupRecordKey, std::vector<edm::eventsetup::DataKey> > RecordToDataKeys;
       RecordToDataKeys recordToDataKeys_;
-      //NOTE: forced to use shared_ptr<IOVSyncValue> instead of just IOVSyncValue since insertion into the map
-      //  requires the presence of a default constructor which IOVSyncValue does not have
-      std::map<eventsetup::EventSetupRecordKey, boost::shared_ptr<edm::IOVSyncValue> > recordToIOVSyncValue_;
+      std::map<eventsetup::EventSetupRecordKey, unsigned long long > recordToCacheIdentifier_;
       bool verbose_;
    };
 }
