@@ -3,6 +3,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 CaloTowerConstituentsMap::CaloTowerConstituentsMap() :
   standardHB_(false),
@@ -47,7 +48,6 @@ void CaloTowerConstituentsMap::assign(const DetId& cell, const CaloTowerDetId& t
   if (m_items.find(cell)!=m_items.end()) {
     throw cms::Exception("CaloTowers") << "Cell with id " << std::hex << cell.rawId() << std::dec << " is already mapped to a CaloTower " << m_items.find(cell)->tower << std::endl;
   }
-  
   m_items.push_back(MapItem(cell,tower));
 }
 
@@ -58,8 +58,59 @@ void CaloTowerConstituentsMap::sort() {
 std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId& id) const {
   std::vector<DetId> items;
 
+  // build reverse map if needed
+  if (!m_items.empty() && m_reverseItems.empty()) {
+    for (edm::SortedCollection<MapItem>::const_iterator i=m_items.begin(); i!=m_items.end(); i++)
+      m_reverseItems.insert(std::pair<CaloTowerDetId,DetId>(i->tower,i->cell));
+  }
+
+  /// copy from the items map
+  std::multimap<CaloTowerDetId,DetId>::const_iterator j;
+  std::pair<std::multimap<CaloTowerDetId,DetId>::const_iterator,std::multimap<CaloTowerDetId,DetId>::const_iterator> range=m_reverseItems.equal_range(id);
+  for (j=range.first; j!=range.second; j++)
+    items.push_back(j->second);
+
   // dealing with topo dependency...
-  
+  static HcalTopology htopo;
+  int nd, sd;
+
+  if (standardHB_) {
+    if (id.ietaAbs()<=htopo.lastHBRing()) {
+      htopo.depthBinInformation(HcalBarrel,id.ietaAbs(),nd,sd);
+      for (int i=0; i<nd; i++)
+	items.push_back(HcalDetId(HcalBarrel,id.ieta(),id.iphi(),i+sd));
+    }
+  }
+  if (standardHO_) {
+    if (id.ietaAbs()<=htopo.lastHORing()) {
+      htopo.depthBinInformation(HcalOuter,id.ietaAbs(),nd,sd);
+      for (int i=0; i<nd; i++)
+	items.push_back(HcalDetId(HcalOuter,id.ieta(),id.iphi(),i+sd));
+    }
+  }
+  if (standardHE_) {
+    if (id.ietaAbs()>=htopo.firstHERing() && id.ietaAbs()<=htopo.lastHERing()) {
+      htopo.depthBinInformation(HcalEndcap,id.ietaAbs(),nd,sd);
+      for (int i=0; i<nd; i++)
+	items.push_back(HcalDetId(HcalEndcap,id.ieta(),id.iphi(),i+sd));
+    }
+  }
+  if (standardHF_) {
+    if (id.ietaAbs()>=htopo.firstHFRing() && id.ietaAbs()<=htopo.lastHFRing()) { 
+      int ieta=id.ieta();
+      if (id.ietaAbs()==29) ieta=id.zside()*30;
+      htopo.depthBinInformation(HcalForward,id.ietaAbs(),nd,sd);
+      for (int i=0; i<nd; i++)
+	items.push_back(HcalDetId(HcalForward,ieta,id.iphi(),i+sd));
+    }
+  }
+  if (standardEB_ && id.ietaAbs()<EBDetId::MAX_IETA/5) {
+    HcalDetId hid(HcalBarrel,id.ieta(),id.iphi(),1); // for the limits
+    for (int ie=hid.crystal_ieta_low(); ie<=hid.crystal_ieta_high(); ie++)
+      for (int ip=hid.crystal_iphi_low(); ip<=hid.crystal_iphi_high(); ip++)
+	items.push_back(EBDetId(ie,ip));
+  }
+
   return items;
 }
 
