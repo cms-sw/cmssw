@@ -84,6 +84,8 @@ class EventSetupRecord
          the job has gone to a new Record and then come back to the
          previous SyncValue and your algorithm didn't see the intervening
          Record.
+        The value of '0' will never be returned so you can use that to 
+        denote that you have not yet checked the value.
         */
         unsigned long long cacheIdentifier() const {
         return cacheIdentifier_;
