@@ -5,7 +5,7 @@
 #include "boost/thread.hpp"
 
 // ----------------------------------------------------------------------
-// $Id: ThreadSafeRegistry.h,v 1.2 2006/07/05 17:56:35 wmtan Exp $
+// $Id: ThreadSafeRegistry.h,v 1.3 2006/09/06 19:16:30 paterno Exp $
 
 /// A ThreadSafeRegistry is used to keep track of the instances of
 /// some type 'mapped_typed'.  These objects are each associated with
@@ -81,7 +81,7 @@ namespace edm
       /// ThreadSafeRegistry doesn't know what this is for, but
       /// instantiations of the template can use it.
       extra_type& extra();
-      
+      extra_type const& extra() const;      
 
     private:
       ThreadSafeRegistry();
@@ -214,6 +214,13 @@ namespace edm
     template <class KEY, class T, class E>
     typename ThreadSafeRegistry<KEY,T,E>::extra_type&
     ThreadSafeRegistry<KEY,T,E>::extra()
+    {
+      return extra_;
+    }
+
+    template <class KEY, class T, class E>
+    typename ThreadSafeRegistry<KEY,T,E>::extra_type const&
+    ThreadSafeRegistry<KEY,T,E>::extra() const
     {
       return extra_;
     }
