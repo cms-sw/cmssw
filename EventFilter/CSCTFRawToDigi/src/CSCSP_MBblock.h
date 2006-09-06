@@ -33,6 +33,7 @@ private:
 	unsigned int valid_quality;   // valid quality
 	unsigned int alignment_fifo;  // AF error
 	unsigned int bxBit;           // monitors the MB(DT) timing
+	unsigned int id_;             // stub id (1-MB1a, 2-MB1d)
 
 public:
 	bool check(void) const throw() { return zero_1!=0||zero_2!=0||zero_3!=0||zero_4!=0||zero_5!=0||zero_6!=0||spare_1!=0||spare_2!=0; }
@@ -47,6 +48,7 @@ public:
 	unsigned int bc0(void) const throw() { return bc0_;    }
 	unsigned int BXN(void) const throw() { return mb_bxn_; }
 
+	unsigned int id  (void) const throw() { return id_;           }
 	unsigned int tbin(void) const throw() { return tbin_;         }
 	unsigned int vq  (void) const throw() { return valid_quality; }
 	unsigned int af  (void) const throw() { return alignment_fifo;}
