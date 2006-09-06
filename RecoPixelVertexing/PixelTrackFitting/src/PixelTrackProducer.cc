@@ -23,7 +23,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
 
-typedef PixelTrackCleaner::TrackHitsPair TrackHitsPair;
+typedef PixelTrackCleaner::TrackWithRecHits TrackWithRecHits;
 
 PixelTrackProducer::PixelTrackProducer(const edm::ParameterSet& conf)
   : theConfig(conf)
@@ -83,7 +83,7 @@ void PixelTrackProducer::buildTracks(edm::Event& ev, const edm::EventSetup& es)
     reco::Track* track = fitter->run(es, hits, region);
     if (track)
     {
-      allTracks.push_back(TrackHitsPair(track, hits));
+      allTracks.push_back(TrackWithRecHits(track, hits));
     }
   }
 }

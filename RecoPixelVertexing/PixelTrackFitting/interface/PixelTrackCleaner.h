@@ -21,13 +21,13 @@ class PixelTrackCleaner {
 
 public:
 
-  typedef std::pair<reco::Track*, std::vector<const TrackingRecHit *> > TrackHitsPair;
+  typedef std::pair<reco::Track*, std::vector<const TrackingRecHit *> > TrackWithRecHits;
 
 	PixelTrackCleaner();
 
-	std::vector<TrackHitsPair> cleanTracks(std::vector<TrackHitsPair> trackHitPairs);
+	std::vector<TrackWithRecHits> cleanTracks(std::vector<TrackWithRecHits> trackWithRecHits);
   void cleanTrack();
-  bool RecHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2);
+  bool recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2);
 
 private:
 

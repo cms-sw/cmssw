@@ -15,7 +15,7 @@ PixelTrackCleaner::PixelTrackCleaner()
 }
 
 
-vector<PixelTrackCleaner::TrackHitsPair> PixelTrackCleaner::cleanTracks(vector<TrackHitsPair> trackHitPairs)
+vector<PixelTrackCleaner::TrackWithRecHits> PixelTrackCleaner::cleanTracks(vector<TrackWithRecHits> trackHitPairs)
 {
   typedef std::vector<const TrackingRecHit *> RecHits;
 
@@ -42,14 +42,14 @@ vector<PixelTrackCleaner::TrackHitsPair> PixelTrackCleaner::cleanTracks(vector<T
       {
         for (int iRecHit2 = 0; iRecHit2 < (int)recHits2.size(); iRecHit2++)
         {
-          if (RecHitsAreEqual(recHits1.at(iRecHit1), recHits2.at(iRecHit2))) commonRecHits++;
+          if (recHitsAreEqual(recHits1.at(iRecHit1), recHits2.at(iRecHit2))) commonRecHits++;
         }
       }
       if (commonRecHits > 1) cleanTrack();
     }
   }
 
-  vector<TrackHitsPair> cleanedTracks;
+  vector<TrackWithRecHits> cleanedTracks;
 
   for (int i = 0; i < size; i++)
   {
@@ -66,7 +66,7 @@ void PixelTrackCleaner::cleanTrack()
 }
 
 
-bool PixelTrackCleaner::RecHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2)
+bool PixelTrackCleaner::recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2)
 {
   if (recHit1->geographicalId() != recHit2->geographicalId()) return false;
   LocalPoint pos1 = recHit1->localPosition();

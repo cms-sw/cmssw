@@ -24,7 +24,7 @@ public:
 private:
 
   edm::ParameterSet theConfig;
-  std::vector <PixelTrackCleaner::TrackHitsPair> allTracks, cleanedTracks;
+  std::vector <PixelTrackCleaner::TrackWithRecHits> allTracks, cleanedTracks;
 
 };
 #endif
