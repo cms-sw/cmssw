@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.7 2006/08/23 16:10:07 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.8 2006/09/06 17:11:28 chrjones Exp $
 //
 
 // system include files
@@ -154,7 +154,7 @@ void registerTypes() {
       //std::cout <<"namespace "<<className.substr(0,pos).c_str()<<std::endl;
       pos +=2;
     }
-    G__set_class_autoloading_table(const_cast<char*>( className.c_str()),kDummyLibName);
+    G__set_class_autoloading_table(const_cast<char*>( className.c_str()), const_cast<char*>(kDummyLibName));
     //std::cout <<"class "<<className.c_str()<<std::endl;
   }
 }
