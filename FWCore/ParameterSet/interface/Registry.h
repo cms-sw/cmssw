@@ -2,7 +2,7 @@
 #define ParameterSet_Registry_h
 
 // ----------------------------------------------------------------------
-// $Id: Registry.h,v 1.6.2.2 2006/06/29 21:55:16 paterno Exp $
+// $Id: Registry.h,v 1.7 2006/07/06 18:47:51 wmtan Exp $
 //
 // Declaration for pset::Registry. This is an implementation detail of
 // the ParameterSet library.
@@ -27,8 +27,20 @@ namespace edm
   namespace pset
   {
 
+    class ProcessParameterSetIDCache
+    {
+    public:
+      ProcessParameterSetIDCache() : id_() { }
+      edm::ParameterSetID id() const { return id_; }
+      void setID(ParameterSetID const& id) { id_ = id; }
+    private:
+      edm::ParameterSetID id_;      
+    };
+
     typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID,
-					    edm::ParameterSet>  Registry;
+    					    edm::ParameterSet,
+					    ProcessParameterSetIDCache>
+                                            Registry;
 
     /// Associated free functions.
 
