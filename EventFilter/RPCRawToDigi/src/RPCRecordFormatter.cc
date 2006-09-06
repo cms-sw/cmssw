@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/08/08 12:30:36 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/08/25 11:10:10 $
+ *  $Revision: 1.19 $
  *
  * \author Ilaria Segoni
  */
@@ -42,7 +42,7 @@ RPCRecordFormatter::~RPCRecordFormatter(){
 /// Note that it takes a reference to std::auto_ptr<RPCDigiCollection> because
 /// I don't want to transfer ownership of RPCDigiCollection (I.S.)
 void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
-		std::auto_ptr<RPCDigiCollection> & prod, RPCFEDData & rawData){
+		std::auto_ptr<RPCDigiCollection> & prod, RPCFEDData & rawData, int triggerBX){
     
    enum RPCRecord::recordTypes typeOfRecord = theRecord.type();
    const unsigned int* recordIndexInt= theRecord.buf();
@@ -112,7 +112,8 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 
 
 		/// Creating RPC digi
-		RPCDigi digi(geomStrip,currentBX);
+	    std::cout<<"Current BX: "<<currentBX<<std::endl;
+	    RPCDigi digi(geomStrip,currentBX-triggerBX);
 
 		/// Committing digi to the product
 		prod->insertDigi(RPCDetId(rawDetId),digi);

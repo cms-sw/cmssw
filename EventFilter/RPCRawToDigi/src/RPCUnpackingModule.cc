@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/06/30 19:27:58 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/08/08 12:30:36 $
+ *  $Revision: 1.18 $
  *
  * \author Ilaria Segoni
  */
@@ -97,6 +97,8 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
        
       			/// Unpack FED Header(s)
       			int numberOfHeaders= this->unpackHeader(index, rpcRawData);
+			int currentBX = rpcRawData.fedHeaders()[numberOfHeaders-1].bxID(); 
+			std::cout<<"currentBX: "<<currentBX<<std::endl;
  
       			/// Unpack FED Trailer(s)
       			const unsigned char* trailerIndex=index+fedData.size()- rpc::unpacking::SLINK_WORD_SIZE;
@@ -136,7 +138,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 					/// Check Record is of expected type
 	 				bool missingRecord = theRecord.check();
 	  				/// Unpack the Record 	  
-	  				interpreter.recordUnpack(theRecord,producedRPCDigis,rpcRawData);	  
+	  				interpreter.recordUnpack(theRecord,producedRPCDigis,rpcRawData,currentBX);	  
 	 		 	}
           
           			///Go to beginning of next word

@@ -4,8 +4,8 @@
 
 /** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
  *
- *  $Date: 2006/05/29 08:38:38 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/30 19:27:57 $
+ *  $Revision: 1.10 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -27,7 +27,7 @@ class RPCRecordFormatter{
 	   /// Record Unpacker driver
 	   /// Takes a reference to std::auto_ptr<RPCDigiCollection> because
 	   /// I don't want to transfer ownership of RPCDigiCollection (I.S.)
-	   void recordUnpack(RPCRecord & theRecord,std::auto_ptr<RPCDigiCollection> & prod, RPCFEDData & rawData);
+	   void recordUnpack(RPCRecord & theRecord,std::auto_ptr<RPCDigiCollection> & prod, RPCFEDData & rawData, int triggerBX);
            
 	   ///Unpack record type Start of BX Data and returns BXN
            int unpackBXRecord(const unsigned int* recordIndex); 
