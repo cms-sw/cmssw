@@ -23,6 +23,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
 
+typedef PixelTrackCleaner::TrackHitsPair TrackHitsPair;
 
 PixelTrackProducer::PixelTrackProducer(const edm::ParameterSet& conf)
   : theConfig(conf)

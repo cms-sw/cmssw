@@ -6,12 +6,16 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace std;
+using namespace reco;
+
+
 PixelTrackCleaner::PixelTrackCleaner()
 {
 }
 
 
-vector<TrackHitsPair> PixelTrackCleaner::cleanTracks(vector<TrackHitsPair> trackHitPairs)
+vector<PixelTrackCleaner::TrackHitsPair> PixelTrackCleaner::cleanTracks(vector<TrackHitsPair> trackHitPairs)
 {
   typedef std::vector<const TrackingRecHit *> RecHits;
 

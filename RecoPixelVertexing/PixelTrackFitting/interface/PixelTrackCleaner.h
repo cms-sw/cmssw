@@ -6,6 +6,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
+#include <utility>
+#include <vector>
+
 /*
 PixelTrackCleaner:
 
@@ -13,24 +16,22 @@ Discards tracks with more than one common recHit.
 
 */
 
-using namespace std;
-using namespace reco;
-
-typedef pair<reco::Track*, std::vector<const TrackingRecHit *> > TrackHitsPair;
 
 class PixelTrackCleaner {
 
 public:
 
+  typedef std::pair<reco::Track*, std::vector<const TrackingRecHit *> > TrackHitsPair;
+
 	PixelTrackCleaner();
 
-	vector<TrackHitsPair> cleanTracks(vector<TrackHitsPair> trackHitPairs);
+	std::vector<TrackHitsPair> cleanTracks(std::vector<TrackHitsPair> trackHitPairs);
   void cleanTrack();
   bool RecHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2);
 
 private:
 
-  vector<bool> trackOk;
+  std::vector<bool> trackOk;
   reco::Track *track1, *track2;
   int iTrack1, iTrack2;
 
