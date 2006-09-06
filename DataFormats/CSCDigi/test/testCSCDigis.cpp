@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/06/23 14:29:58 $
- * $Revision: 1.8 $
+ * $Date: 2006/09/03 15:40:26 $
+ * $Revision: 1.9 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.8 2006/06/23 14:29:58 lgray Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.9 2006/09/03 15:40:26 teren Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -38,8 +38,13 @@ static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.8 2006/06/23 14:29:58 lgr
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 
+#include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h>
+
 #include <stdio.h>
 #include <boost/cstdint.hpp>
+
+using namespace std;
 
 class testCSCDigis: public CppUnit::TestFixture {
 
@@ -59,6 +64,7 @@ public:
   void fillCSCALCTDigi(CSCALCTDigiCollection &);
   void fillCSCCLCTDigi(CSCCLCTDigiCollection &);
   void fillCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection &);
+  void fillCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection &);
 
   void readCSCWireDigi(CSCWireDigiCollection &);
   void readCSCComparatorDigi(CSCComparatorDigiCollection &);
@@ -67,6 +73,7 @@ public:
   void readCSCALCTDigi(CSCALCTDigiCollection &);
   void readCSCCLCTDigi(CSCCLCTDigiCollection &);
   void readCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection &);
+  void readCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection &);
 
   void testDigiCollectionPut();
 }; 
@@ -271,6 +278,39 @@ void testCSCDigis::fillCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection & collectio
 	      collection.put(std::make_pair(digivec.begin(),digivec.end()),detid);
 	    }
 }
+
+void testCSCDigis::fillCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection & collection){
+
+  for(int endcp=1; endcp<3; endcp++)
+   for(int stn=1; stn<5; stn++)
+    for(int rng=1; rng<4; rng++)
+      for(int csc=1; csc<37; csc++) {
+ 
+       CSCDetId detid(endcp,stn,rng,csc,0);
+ 
+       std::vector<CSCCFEBStatusDigi> digivec;
+       for (int i=1; i<6; ++i) // loop over cfeb=1-5
+       {
+           int aCfeb = i;
+           CSCCFEBStatusDigi digi(aCfeb);
+           digi.setL1AOverlap(1);
+           digi.setSCAFull(2);
+           digi.setFPGAFIFOFull(3);
+           std::vector<uint16_t> crc(8,0); crc[0]=1;crc[7]=8;
+           digi.setCRC(crc);
+           std::vector<uint16_t> scac(8,0); scac[0]=11;scac[7]=18;
+           scac[0]=scac[0]+256+2048+4096+8192+16384+32768;
+           scac[7]=scac[7]+256+2048+4096+8192+16384+32768;
+           digi.setSCAC(scac);
+
+           digivec.push_back(digi);
+       }
+ 
+        collection.put(std::make_pair(digivec.begin(), digivec.end()),detid);
+ 
+      } // end of for(int endcp=1 ...for(int csc=1 ...) 
+}
+
 
 void testCSCDigis::readCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection & collection)
 {
@@ -482,6 +522,52 @@ void testCSCDigis::readCSCCLCTDigi(CSCCLCTDigiCollection & collection){
     printf("CSC CLCT count:  %3d \n", count);
 }
 
+void testCSCDigis::readCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection & collection) {
+
+  CSCCFEBStatusDigiCollection::DigiRangeIterator detUnitIt;
+  for (detUnitIt=collection.begin();
+       detUnitIt!=collection.end();
+       ++detUnitIt){
+ 
+    const CSCDetId& id = (*detUnitIt).first;
+ 
+    const CSCCFEBStatusDigiCollection::Range& range = (*detUnitIt).second;
+
+    int cfebcount=0;
+    for (CSCCFEBStatusDigiCollection::const_iterator digiIt =
+           range.first; digiIt!=range.second; ++digiIt){
+      cfebcount++;
+      CPPUNIT_ASSERT((*digiIt).getCFEBNmb()==cfebcount);
+      printf("CSC CFEBStatus - endcap station ring csc cfeb L1Aoverlap SCACapFull FPGAFull: %3d %3d %3d %3d %3d %3d %3d %3d \n",id.endcap(),id.station(),id.ring(),id.chamber(),(*digiIt).getCFEBNmb(),(*digiIt).getL1AOverlap(),(*digiIt).getSCACapFull(),(*digiIt).getFPGAFIFOFull());
+
+      std::cout<<"CSC CFEBStatus - CRC:";
+      for(int i=0;i<8;i++) std::cout<<" "<<(*digiIt).getCRC()[i];
+      std::cout<<std::endl;
+      std::cout<<"CSC CFEBStatus - TS_FLAG:";
+      for(int i=0;i<8;i++) std::cout<<" "<<(*digiIt).getTS_FLAG()[i];
+      std::cout<<std::endl;
+      std::cout<<"CSC CFEBStatus - SCA_FULL:";
+      for(int i=0;i<8;i++) std::cout<<" "<<(*digiIt).getSCA_FULL()[i];
+      std::cout<<std::endl;
+      std::cout<<"CSC CFEBStatus - LCT_PHASE:";
+      for(int i=0;i<8;i++) std::cout<<" "<<(*digiIt).getLCT_PHASE()[i];
+      std::cout<<std::endl;
+      std::cout<<"CSC CFEBStatus - L1A_PHASE:";
+      for(int i=0;i<8;i++) std::cout<<" "<<(*digiIt).getL1A_PHASE()[i];
+      std::cout<<std::endl;
+      std::cout<<"CSC CFEBStatus - SCA_BLK:";
+      for(int i=0;i<8;i++) std::cout<<" "<<(*digiIt).getSCA_BLK()[i];
+      std::cout<<std::endl;
+      std::cout<<"CSC CFEBStatus - TRIGGER_TIME:";
+      for(int i=0;i<8;i++) std::cout<<" "<<(*digiIt).getTRIG_TIME()[i];
+      std::cout<<std::endl;
+
+    }// for digis in collection
+  }// end of for (detUnitIt=...
+   
+}
+
+
 void testCSCDigis::testDigiCollectionPut(){
 
 /************           Filling collections             *****************/
@@ -508,6 +594,9 @@ void testCSCDigis::testDigiCollectionPut(){
        CSCCorrelatedLCTDigiCollection corrlctdigiCollection;
        fillCSCCorrLCTDigi(corrlctdigiCollection);
 
+       CSCCFEBStatusDigiCollection cfebstatusdigiCollection;
+       fillCSCCFEBStatusDigi(cfebstatusdigiCollection);
+
 /************           Reading collections             *****************/
 
        readCSCWireDigi(wiredigiCollection);
@@ -517,5 +606,6 @@ void testCSCDigis::testDigiCollectionPut(){
        readCSCALCTDigi(alctdigiCollection);
        readCSCCLCTDigi(clctdigiCollection);
        readCSCCorrLCTDigi(corrlctdigiCollection);
+       readCSCCFEBStatusDigi(cfebstatusdigiCollection);
 }
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
