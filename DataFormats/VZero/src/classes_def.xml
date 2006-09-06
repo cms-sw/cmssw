@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="reco::VZero"/>
+  <class name="std::vector<reco::VZero>"/>
+  <class name="edm::Wrapper<std::vector<reco::VZero> >"/>
+</lcgdict>
+
