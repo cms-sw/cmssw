@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.8 2006/09/06 17:11:28 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.9 2006/09/06 17:19:40 chrjones Exp $
 //
 
 // system include files
@@ -84,6 +84,15 @@ static int ALL_AutoLoadCallback(char *c, char *l) {
   G__setgvp(G__PVOID);
   int result = loadLibraryForClass(c) ? 1:0;
   G__setgvp(varp);
+  //NOTE: the check for the library is done since we can have a failure
+  // if a CMS library has an incomplete set of Reflex dictionaries where 
+  // the remaining dictionaries can be found by Cint.  If the library with
+  // the Reflex dictionaries is loaded first, then the Cint library then any
+  // requests for a Reflex::Type from the Reflex library will fail because for
+  // some reason the loading of the Cint library causes Reflex to forget about
+  // what types it already loaded from the Reflex library.  This problem was
+  // seen for libDataFormatsMath and libMathCore.  I do not print an error message
+  // since the dictionaries are actually loaded so things work fine.
   if(!result && 0 != strcmp(l,kDummyLibName) && gPrevious) {
     result = gPrevious(c,l);
   }
