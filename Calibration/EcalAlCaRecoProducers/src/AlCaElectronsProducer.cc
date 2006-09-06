@@ -1,17 +1,28 @@
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsProducer.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 AlCaElectronsProducer::AlCaElectronsProducer(const edm::ParameterSet& iConfig)
 {
-electronsProducer_ = iConfig.getParameter< edm::InputTag > ("electronsProducer");
+
+pixelMatchElectronProducer_ = iConfig.getParameter< std::string > ("pixelMatchElectronProducer");
+siStripElectronProducer_ = iConfig.getParameter< std::string > ("siStripElectronProducer");
+
+pixelMatchElectronCollection_ = iConfig.getParameter<std::string>("pixelMatchElectronCollection");
+siStripElectronCollection_ = iConfig.getParameter<std::string>("siStripElectronCollection");
+
+alcaPixelMatchElectronCollection_ = iConfig.getParameter<std::string>("alcaPixelMatchElectronCollection");
+alcaSiStripElectronCollection_ = iConfig.getParameter<std::string>("alcaSiStripElectronCollection");
+
 ptCut_ = iConfig.getParameter< double > ("ptCut");
 
-LogDebug("") << "producer: " << electronsProducer_.encode() ;
 
    //register your products
-   produces<reco::ElectronCollection>();
+   produces<reco::SiStripElectronCollection>(alcaSiStripElectronCollection_);
+   produces<reco::ElectronCollection>(alcaPixelMatchElectronCollection_);
+
 }
 
 
@@ -29,30 +40,49 @@ AlCaElectronsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    using namespace edm;
    using namespace std;
 
-   Handle<reco::ElectronCollection> pElectrons;
+
+   Handle<reco::SiStripElectronCollection> pSiStripElectrons;
+   Handle<reco::ElectronCollection> pPixelMatchElectrons;
+
+//   std::cout << "pixelMatchElectronProducer: "<< pixelMatchElectronProducer_<<std::endl;
+//   std::cout << "pixelMatchElectronCollection: "<< pixelMatchElectronCollection_<<std::endl;
+//   std::cout << "siStripElectronProducer: "<< siStripElectronProducer_<<std::endl;
+//   std::cout << "siStripElectronCollection: "<< siStripElectronCollection_<<std::endl;
+
 
    try {
-     iEvent.getByLabel(electronsProducer_,pElectrons);
+     iEvent.getByLabel(pixelMatchElectronProducer_, pixelMatchElectronCollection_, pPixelMatchElectrons);
+     iEvent.getByLabel(siStripElectronProducer_, siStripElectronCollection_, pSiStripElectrons);
    } catch ( std::exception& ex ) {
      LogDebug("") << "AlCaElectronsProducer: Error! can't get product!" << std::endl;
+//     std::cout <<  "AlCaElectronsProducer: Error! can't get product!" << std::endl;
    }
 
   //Create empty output collections
 
-    std::auto_ptr<reco::ElectronCollection> miniElectronCollection(new reco::ElectronCollection);
+    std::auto_ptr<reco::SiStripElectronCollection> miniSiStripElectronCollection(new reco::SiStripElectronCollection);
+    std::auto_ptr<reco::ElectronCollection> miniPixelMatchElectronCollection(new reco::ElectronCollection);
 
   //Select interesting electrons
-    reco::ElectronCollection::const_iterator eleIt;
+    reco::SiStripElectronCollection::const_iterator siStripEleIt;
 
-    for (eleIt=pElectrons->begin(); eleIt!=pElectrons->end(); eleIt++) {
-      if (eleIt->pt() >= ptCut_) {
-        miniElectronCollection->push_back(*eleIt);
+    for (siStripEleIt=pSiStripElectrons->begin(); siStripEleIt!=pSiStripElectrons->end(); siStripEleIt++) {
+      if (siStripEleIt->pt() >= ptCut_) {
+        miniSiStripElectronCollection->push_back(*siStripEleIt);
       }
     }
 
+    reco::ElectronCollection::const_iterator pixelMatchEleIt;
+
+    for (pixelMatchEleIt=pPixelMatchElectrons->begin(); pixelMatchEleIt!=pPixelMatchElectrons->end(); pixelMatchEleIt++) {
+      if (pixelMatchEleIt->pt() >= ptCut_) {
+        miniPixelMatchElectronCollection->push_back(*pixelMatchEleIt);
+      }
+    }
 
   //Put selected information in the event
-  iEvent.put( miniElectronCollection, "ElectronCollection");
+  iEvent.put( miniPixelMatchElectronCollection,alcaPixelMatchElectronCollection_ );
+  iEvent.put( miniSiStripElectronCollection,alcaSiStripElectronCollection_ );
   
-  
+ 
 }

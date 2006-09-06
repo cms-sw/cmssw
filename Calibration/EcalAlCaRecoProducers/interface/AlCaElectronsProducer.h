@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id$
+// $Id: AlCaElectronsProducer.h,v 1.1 2006/07/24 10:03:26 lorenzo Exp $
 //
 //
 
@@ -44,6 +44,15 @@ class AlCaElectronsProducer : public edm::EDProducer {
    private:
       // ----------member data ---------------------------
 
- edm::InputTag electronsProducer_;
+
+ std::string pixelMatchElectronProducer_;
+ std::string siStripElectronProducer_;
+ 
+ std::string pixelMatchElectronCollection_;
+ std::string siStripElectronCollection_;
+
+ std::string alcaPixelMatchElectronCollection_;
+ std::string alcaSiStripElectronCollection_;
+ 
  double ptCut_;  
 };
