@@ -277,7 +277,6 @@ RFIOFile::position (IOOffset offset, Relative whence /* = SET */)
     if ((result = rfio_lseek64 (m_fd, offset, mywhence)) == -1)
 	throw RFIOError ("rfio_lseek()", rfio_errno, serrno);
 
-    std::cerr << "VI position " << sizeof(IOOffset) << " " << result << std::endl;
     m_currentPosition = result;
     return result;
 }
