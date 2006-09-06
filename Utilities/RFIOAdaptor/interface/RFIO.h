@@ -42,7 +42,7 @@ extern "C" {
     int   rfio_close64(int s) { return  rfio_close(s);}
     int   rfio_read64(int s, void *ptr, int size);
     int   rfio_write64(int s, const void *ptr, int size);
-    int   rfio_lseek64(int s, off64_t  offset, int how);
+    off64_t   rfio_lseek64(int s, off64_t  offset, int how);
     int   rfio_access(const char *filepath, int mode);
     int   rfio_unlink(const char *filepath);
     int   rfio_parse(const char *name, char **host, char **path);
