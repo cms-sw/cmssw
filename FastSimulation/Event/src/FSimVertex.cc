@@ -7,7 +7,7 @@ FSimVertex::FSimVertex() : SimVertex(), mom_(0), id_(-1) {;}
   
   /// constructor from the embedded vertex index in the FBaseSimEvent
 FSimVertex::FSimVertex(const HepLorentzVector& v, int im, int id, FBaseSimEvent* mom) : 
-    SimVertex(v.vect(),v.e(),im), mom_(mom), id_(id) {;}
+    SimVertex(v.vect()*10.,v.e()*10.,im), mom_(mom), id_(id) {;}
 
 const FSimTrack&
 FSimVertex::parent() const { return mom_->track(parentIndex()); }

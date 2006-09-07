@@ -122,6 +122,9 @@ void
 FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks, 
 		    const std::vector<SimVertex>& simVertices) {
 
+  // Watch out there ! A SimVertex is in mm (stupid), 
+  //            while a FSimVertex is in cm (clever).
+
   clear();
 
   unsigned nVtx = simVertices.size();
@@ -135,7 +138,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   vector<int> myTracks(nTks,-1);
 
   // Set the main vertex for the kine particle filter
-  HepLorentzVector primaryVertex = simVertices[0].position();
+  HepLorentzVector primaryVertex = simVertices[0].position()/10.;
   myFilter->setMainVertex(primaryVertex);
   // Add the main vertex to the list.
   addSimVertex(myFilter->vertex());
@@ -155,14 +158,14 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     int originId = motherId == - 1 ? -1 : myTracks[motherId];
 
     // Add the vertex (if it does not already exist!)
-    if ( myVertices[vertexId] == -1 ) 
-      myVertices[vertexId] = addSimVertex(vertex.position(),originId);
-      
+    if ( myVertices[vertexId] == -1 )
+      myVertices[vertexId] = addSimVertex(vertex.position()/10.,originId); 
+
     // Add the track (with protection for brem'ing electrons)
     int motherType = motherId == -1 ? 0 : simTracks[motherId].type();
     
-    if ( motherType != track.type() ) {
-      RawParticle part(track.momentum(), simVertices[vertexId].position());
+    if ( abs(motherType) != 11 || motherType != track.type() ) {
+      RawParticle part(track.momentum(), vertex.position()/10.);
       part.setID(track.type()); 
       myTracks[trackId] = addSimTrack(&part,myVertices[vertexId]);
     } else {
@@ -185,7 +188,8 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 
     // Add the vertex (if it does not already exist!)
     if ( motherId != -1 && myVertices[vertexId] == -1 ) 
-      myVertices[vertexId] = addSimVertex(vertex.position(),myTracks[motherId]);
+      myVertices[vertexId] = 
+	addSimVertex(vertex.position()/10.,myTracks[motherId]);
   }
 
   // Finally, propagate all particles to the calorimeters

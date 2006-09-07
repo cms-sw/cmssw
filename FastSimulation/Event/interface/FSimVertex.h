@@ -29,8 +29,8 @@ public:
   /// constructor from the embedded vertex index in the FBaseSimEvent
   FSimVertex(const HepLorentzVector& v, int im, int id, FBaseSimEvent* mom);
 
-  /// retruns the vertex position
-  //  inline HepLorentzVector position() const { return me().position(); }
+  /// retruns the vertex position (in cm !)
+  inline HepLorentzVector position() const { return SimVertex::position()/10.; }
   
   /// parent track
   const FSimTrack& parent() const; 
