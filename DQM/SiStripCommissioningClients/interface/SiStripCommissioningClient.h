@@ -40,9 +40,9 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   // ---------- "Actions" ----------
 
   /** */
-  void subscribeAll( std::string match_pattern = "*SiStrip*" );
+  void subscribeAll( std::string match_pattern = "" );
   /** */
-  void unsubscribeAll( std::string match_pattern = "*SiStrip*" );
+  void unsubscribeAll( std::string match_pattern = "" );
   /** */
   void saveHistos( std::string filename );
   /** */
@@ -50,7 +50,8 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   /** */
   void createSummaryHisto( sistrip::SummaryHisto, 
 			   sistrip::SummaryType, 
-			   std::string directory );
+			   std::string top_level_dir,
+			   sistrip::Granularity );
   /** */
   virtual void uploadToConfigDb(); 
   
