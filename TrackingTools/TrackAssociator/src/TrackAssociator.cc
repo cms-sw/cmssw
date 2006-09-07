@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.7 2006/08/25 17:39:02 jribnik Exp $
+// $Id: TrackAssociator.cc,v 1.8 2006/09/01 17:24:08 jribnik Exp $
 //
 //
 
@@ -441,6 +441,11 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
       }
       tSOSDest = ivProp_->Propagator::propagate(trajectoryPoint, surf);
 
+      if (! tSOSDest.isValid()) {
+         std::cout << "Failed to propagate track to DTChamber" << std::endl;
+         return;
+      }
+
       // Get the range for the corresponding LayerId
       DTRecSegment4DCollection::range  range = dtSegments->get((*detUnitIt));
       // Loop over the rechits of this DetUnit
@@ -544,6 +549,11 @@ void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
          std::cout<<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<std::endl;
       }
       tSOSDest = ivProp_->Propagator::propagate(trajectoryPoint, surf);
+
+      if (! tSOSDest.isValid()) {
+         std::cout << "Failed to propagate track to CSCChamber" << std::endl;
+         return;
+      }
 
       // Get the range for the corresponding LayerId
       CSCSegmentCollection::range  range = cscSegments->get((*detUnitIt));
