@@ -1,13 +1,13 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.3 2006/07/19 08:43:51 meridian Exp $
-  *  $Date: 2006/07/19 08:43:51 $
-  *  $Revision: 1.3 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.4 2006/07/25 11:26:54 azabi Exp $
+  *  $Date: 2006/07/25 11:26:54 $
+  *  $Revision: 1.4 $
   *
   *  $Alex Zabi$
-  *  $Date: $
-  *  $Revision: $
+  *  $Date: 2006/07/25 11:26:54 $
+  *  $Revision: 1.4 $
   *  Modification to detect first sample to switch gain.
   *  used for amplitude recontruction at high energy
   *  Add TDC convention option (P. Meridiani)
@@ -143,7 +143,17 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
    EcalGainRatios::EcalGainRatioMap::const_iterator gainIter; // gain iterator
    EcalMGPAGainRatio aGain; // gain object for a single xtal
    // loop over EB digis
-
+     //Getting the TDC bin
+   EcalTBWeights::EcalTDCId tdcid(int(nbTimeBin_/2)+1);
+   
+     if (recTDC)
+       if (recTDC->offset() == -999.)
+	 {
+	   edm::LogError("EcalUncalibRecHitError") << "TDC bin completely out of range. Returning" ;
+	   return;
+	 }
+   
+   
    for(EBDigiCollection::const_iterator itdg = EBdigis->begin(); itdg != EBdigis->end(); ++itdg) {
      
      //     counter_++; // verbosity counter
@@ -199,36 +209,34 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	 if(gainSample != sampleGainRef) {sampleGainRef = gainSample; sampleSwitch = sample;}
        }//loop sample
      ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-     //Getting the TDC bin
-     EcalTBWeights::EcalTDCId tdcid(int(nbTimeBin_/2)+1);
-
+     
      if (recTDC)
-       {
-	 int tdcBin=0;
-	 if (recTDC->offset() == 0.)
-	   tdcBin = 1;
-	 if (recTDC->offset() == 1.)
-	   tdcBin = nbTimeBin_;
-	 else
-	   tdcBin = int(recTDC->offset()*float(nbTimeBin_))+1;
+     {
+       int tdcBin=0;
+       if (recTDC->offset() <= 0.)
+	 tdcBin = 1;
+       if (recTDC->offset() >= 1.)
+	 tdcBin = nbTimeBin_;
+       else
+	 tdcBin = int(recTDC->offset()*float(nbTimeBin_))+1;
+       
+       if (tdcBin < 1 || tdcBin > nbTimeBin_ )
+	 {
+	   edm::LogError("EcalUncalibRecHitError") << "TDC bin out of range " << tdcBin << " offset " << recTDC->offset();
+	   continue;
+	 }
 
-	 if (tdcBin < 1 || tdcBin > nbTimeBin_ )
-	   {
-	     edm::LogError("EcalUncalibRecHitError") << "TDC bin out of range " << tdcBin << " offset " << recTDC->offset();
-	     continue;
-	   }
-	 // In case gain switching happens at the sample 4 (5th sample) 
-	 // (sample 5 (6th sample) in 2004 TDC convention) an extra
-	 // set of weights has to be used. This set of weights is assigned to 
-	 // TDC values going from 25 and up.
-	 if (use2004OffsetConvention_ && sampleSwitch == 5)
-	   tdcid=EcalTBWeights::EcalTDCId(tdcBin+25);
-	 else if (!use2004OffsetConvention_ && sampleSwitch == 4)
-	   tdcid=EcalTBWeights::EcalTDCId(tdcBin+25);
-	 else 
-	   tdcid=EcalTBWeights::EcalTDCId(tdcBin);
-       }//check TDC
+       // In case gain switching happens at the sample 4 (5th sample) 
+       // (sample 5 (6th sample) in 2004 TDC convention) an extra
+       // set of weights has to be used. This set of weights is assigned to 
+       // TDC values going from 25 and up.
+       if (use2004OffsetConvention_ && sampleSwitch == 5)
+	 tdcid=EcalTBWeights::EcalTDCId(tdcBin+25);
+       else if (!use2004OffsetConvention_ && sampleSwitch == 4)
+	 tdcid=EcalTBWeights::EcalTDCId(tdcBin+25);
+       else 
+	 tdcid=EcalTBWeights::EcalTDCId(tdcBin);
+     }//check TDC     
      
      // now lookup the correct weights in the map
      EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().find( std::make_pair(gid,tdcid) );
@@ -280,7 +288,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 					  << EBDetId(itdg->id()) << "\n"
 					  << "uncalib rechit amplitude: " << aHit.amplitude()
 	 ;
-     }
+      }
    }
    // put the collection of recunstructed hits in the event
    evt.put( EBuncalibRechits, EBhitCollection_ );
