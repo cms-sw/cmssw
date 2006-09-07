@@ -2,6 +2,7 @@
 #define GEOMETRY_CALOTOPOLOGY_CALOTOPOLOGY_H 1
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include <map>
 #include <vector>
 
@@ -9,8 +10,8 @@ class CaloSubdetectorTopology;
 
 /** \class CaloTopology
       
-$Date: 2006/03/30 14:43:28 $
-$Revision: 1.1 $
+$Date: 2006/05/12 18:22:28 $
+$Revision: 1.2 $
 
 \author J. Mans and P. Meridiani
 */
@@ -41,6 +42,12 @@ public:
   std::vector<DetId> up(const DetId& id) const;
   /** Get the neighbors of the given cell in down direction (inward)*/
   std::vector<DetId> down(const DetId& id) const;
+  /** Get the neighbors of the given cell given direction*/
+  std::vector<DetId> getNeighbours(const DetId& id, const CaloDirection& dir) const;
+  /** Get the neighbors of the given cell in a window of given size*/
+  std::vector<DetId> getWindow(const DetId& id, const int& northSouthSize, const int& eastWestSize) const;
+  /** Get all the neighbors of the given cell*/
+  std::vector<DetId> getAllNeighbours(const DetId& id) const;
 
 private:
   std::map<int, const CaloSubdetectorTopology*> theTopologies_;

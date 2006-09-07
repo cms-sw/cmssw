@@ -56,6 +56,21 @@ std::vector<DetId> CaloTopology::down(const DetId& id) const {
     return (topology==0) ? (emptyDetIdVector):(topology->down(id));
 }
 
+std::vector<DetId> CaloTopology::getNeighbours(const DetId& id,const CaloDirection& dir) const {
+    const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
+    return (topology==0) ? (emptyDetIdVector):(topology->getNeighbours(id,dir));
+}
+
+std::vector<DetId> CaloTopology::getWindow(const DetId& id, const int& northSouthSize, const int& eastWestSize) const {
+    const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
+    return (topology==0) ? (emptyDetIdVector):(topology->getWindow(id,northSouthSize, eastWestSize));
+}
+
+std::vector<DetId> CaloTopology::getAllNeighbours(const DetId& id) const {
+    const CaloSubdetectorTopology* topology=getSubdetectorTopology(id);
+    return (topology==0) ? (emptyDetIdVector):(topology->getAllNeighbours(id));
+}
+
 bool CaloTopology::valid(const DetId& id) const {
   const CaloSubdetectorTopology* geom=getSubdetectorTopology(id);
   return (geom==0)?(false):(geom->valid(id));
