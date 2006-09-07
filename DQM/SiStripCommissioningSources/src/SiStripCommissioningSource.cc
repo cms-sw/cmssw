@@ -96,6 +96,9 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   // Retrieve pointer to DQM back-end interface 
   dqm_ = edm::Service<DaqMonitorBEInterface>().operator->();
   dqm("SiStripCommissioningSource::beginJob");
+
+  // Reset flag
+  createTask_ = true;
   
 }
 
@@ -116,19 +119,8 @@ void SiStripCommissioningSource::endJob() {
   stringstream ss; ss << name << "_" << setfill('0') << setw(7) << run_ << ".root";
   dqm()->save( ss.str() ); 
   
-  // Remove all MonitorElements
-  //dqm()->rmdir(sistrip::root_);
-  
-//   // Remove all monitoring elements
-//   vector<string> contents;
-//   dqm()->getContents( contents );
-//   vector<string>::const_iterator idir;
-//   for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
-//     string collector_dir = idir->substr( 0, idir->find(":") );
-//     dqm()->setCurrentFolder(collector_dir);
-//     dqm()->removeContents();
-//     dqm()->rmdir(collector_dir);
-//   }
+  // Remove all MonitorElements in "SiStrip" dir and below
+  dqm()->rmdir(sistrip::root_);
   
   // Delete commissioning task objects
   for ( TaskMap::iterator itask = tasks_.begin(); itask != tasks_.end(); itask++ ) { 
@@ -158,21 +150,6 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
   //edm::Handle< edm::DetSetVector<SiStripDigi> > zs;
-  
-  if ( summary->fedReadoutMode() == sistrip::VIRGIN_RAW ) {
-    event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
-  } else if ( summary->fedReadoutMode() == sistrip::PROC_RAW ) {
-    event.getByLabel( inputModuleLabel_, "ProcessedRaw", raw );
-  } else if ( summary->fedReadoutMode() == sistrip::SCOPE_MODE ) {
-    event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
-  } else if ( summary->fedReadoutMode() == sistrip::ZERO_SUPPR ) {
-    //event.getByLabel( inputModuleLabel_, "ZeroSuppressed", zs );
-  } else {
-    edm::LogError("SiStripCommissioningSource") << "[SiStripCommissioningSource::analyze]"
-						<< " Unknown FED readout mode!";
-    //throw cms::Exception("BLAH") << "BLAH";
-    //return;
-  }
   
   if ( &(*raw) == 0 ) {
     edm::LogError("SiStripCommissioningSource")
@@ -353,11 +330,18 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
   // Override task with configurable (if set)
   sistrip::Task configurable = SiStripHistoNamingScheme::task( task_ );
   if ( configurable != sistrip::UNDEFINED_TASK ) { task = configurable; }
-
+  
   // Create ME (string) that identifies commissioning task
   dqm()->setCurrentFolder( sistrip::root_ );
   string task_str = SiStripHistoNamingScheme::task( task );
   dqm()->bookString( sistrip::commissioningTask_ + sistrip::sep_ + task_str, task_str ); 
+  
+  // Check commissioning task is known
+  if ( task == sistrip::UNKNOWN_TASK ) {
+    edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
+				   << " Unknown commissioning task!"; 
+    return; 
+  }
 
   // Check commissioning task is known
   if ( task == sistrip::UNKNOWN_TASK ) {
@@ -416,8 +400,11 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
 		else if ( task == sistrip::OPTO_SCAN )      { tasks_[key] = new OptoScanTask( dqm(), conn ); }
 		else if ( task == sistrip::VPSP_SCAN )      { tasks_[key] = new VpspScanTask( dqm(), conn ); }
 		else if ( task == sistrip::FED_TIMING )     { tasks_[key] = new FedTimingTask( dqm(), conn ); }
-		else if ( task == sistrip::UNDEFINED_TASK ) { tasks_[key] = 0; } // new DefaultTask( dqm(), conn ); }
-		else { 
+		else if ( task == sistrip::UNDEFINED_TASK ) { //tasks_[key] = 0; // new DefaultTask( dqm(), conn ); }
+		  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
+						 << " Undefined commissioning task";
+		  
+		} else { 
 		  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
 						 << " Cannot (yet) handle this commissioning task: " << task;
 		}
