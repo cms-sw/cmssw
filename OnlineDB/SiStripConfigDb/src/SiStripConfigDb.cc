@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.16 2006/08/31 13:43:20 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.17 2006/08/31 19:49:41 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
@@ -131,32 +131,6 @@ SiStripConfigDb::~SiStripConfigDb() {
 // 
 void SiStripConfigDb::openDbConnection() {
   
-  // If partition name not set, attempt to retrieve from env var
-  if ( partition_.name_ == "" ) {
-    stringstream ss;
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Database partition name not specified!"
-       << " Attempting to read 'ENV_CMS_TK_PARTITION' env. var...";
-    edm::LogWarning(logCategory_) << ss.str(); 
-    if ( getenv("ENV_CMS_TK_PARTITION") != NULL ) { 
-      partition_.name_ = getenv("ENV_CMS_TK_PARTITION"); 
-      stringstream ss;
-      ss  << "[" << __PRETTY_FUNCTION__ << "]"
-	  << " Database partition name set using 'ENV_CMS_TK_PARTITION' env. var: "
-	  << partition_.name_;
-      edm::LogVerbatim(logCategory_) << ss.str();
-    } 
-    else { 
-      stringstream ss;
-      ss  << "[" << __PRETTY_FUNCTION__ << "]"
-	  << " Unable to retrieve database partition name!"
-	  << " 'ENV_CMS_TK_PARTITION' env var not specified!"
-	  << " Aborting connection to database...";
-      edm::LogError(logCategory_) << ss.str();
-      return;
-    } 
-  }
-
   // Establish database connection
   if ( usingDb_ ) { 
     usingDatabase(); 
@@ -219,9 +193,9 @@ void SiStripConfigDb::usingDatabase() {
   }
 
   // Check TNS_ADMIN env var
-  if ( getenv("TNS_ADMIN") == NULL ) { 
+  if ( getenv("TNS_ADMIN") != NULL ) { 
     string tns_admin = getenv("TNS_ADMIN"); 
-    if ( tns_admin == "." ) {
+    if ( tns_admin == "." ) { 
       stringstream ss;
       ss << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " Env. var. TNS_ADMIN is set to '.' (pwd)!"
@@ -241,6 +215,32 @@ void SiStripConfigDb::usingDatabase() {
        << " Aborting connection to database...";
     edm::LogError(logCategory_) << ss.str();
     return;
+  }
+
+  // Retrieve partition name
+  if ( partition_.name_ == "" ) {
+    stringstream ss;
+    ss << "[" << __PRETTY_FUNCTION__ << "]"
+       << " Database partition name not specified!"
+       << " Attempting to read 'ENV_CMS_TK_PARTITION' env. var...";
+    edm::LogWarning(logCategory_) << ss.str(); 
+    if ( getenv("ENV_CMS_TK_PARTITION") != NULL ) { 
+      partition_.name_ = getenv("ENV_CMS_TK_PARTITION"); 
+      stringstream ss;
+      ss  << "[" << __PRETTY_FUNCTION__ << "]"
+	  << " Database partition name set using 'ENV_CMS_TK_PARTITION' env. var: "
+	  << partition_.name_;
+      edm::LogVerbatim(logCategory_) << ss.str();
+    } 
+    else { 
+      stringstream ss;
+      ss  << "[" << __PRETTY_FUNCTION__ << "]"
+	  << " Unable to retrieve database partition name!"
+	  << " 'ENV_CMS_TK_PARTITION' env var not specified!"
+	  << " Aborting connection to database...";
+      edm::LogError(logCategory_) << ss.str();
+      return;
+    } 
   }
 
   // Create device factory object
@@ -269,6 +269,7 @@ void SiStripConfigDb::usingDatabase() {
     ss << "[" << __PRETTY_FUNCTION__ << "]" 
        << " NULL pointer to DeviceFactory!"
        << " Unable to connect to database!";
+    edm::LogError(logCategory_) << ss.str();
     return; 
   }
   
@@ -307,7 +308,7 @@ void SiStripConfigDb::usingDatabase() {
   
   // DCU conversion factors
   try {
-    deviceFactory(__FUNCTION__)->addConversionPartition( partition_.name_ );
+    //deviceFactory(__FUNCTION__)->addConversionPartition( partition_.name_ );
   } catch (...) { 
     stringstream ss;
     ss << "Attempted to 'addConversionPartition; for partition: " << partition_.name_;
