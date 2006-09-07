@@ -5,8 +5,8 @@
  *  This class defines which DetLayers are reacheable from each Muon DetLayer
  *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
  *
- * $Date: 2006/04/24 20:00:38 $
- * $Revision: 1.3 $
+ * $Date: 2006/07/26 08:34:47 $
+ * $Revision: 1.4 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -199,8 +199,8 @@ void MuonNavigationSchool::linkBarrelLayers() {
     }
 
     theBarrelNLC.push_back(new MuonBarrelNavigableLayer(
-                       const_cast<BarrelDetLayer*>((*bl).first),
-                       outerBarrel, outerBackward, outerForward, allOuterBarrel,allOuterBackward,allOuterForward));
+                       (*bl).first,outerBarrel, outerBackward, outerForward,
+                       allOuterBarrel,allOuterBackward,allOuterForward));
 
   }
 
@@ -240,8 +240,7 @@ void MuonNavigationSchool::linkEndcapLayers(const MapE& layers,
     }
     
     result.push_back(new MuonForwardNavigableLayer(
-                   const_cast<ForwardDetLayer*>((*el).first),
-                   outerLayers, allOuterLayers));
+                   (*el).first,outerLayers, allOuterLayers));
   }
 
 }
