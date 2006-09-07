@@ -22,17 +22,18 @@ namespace sistrip {
   /** Key type used as an identifier. */
   enum KeyType { UNKNOWN_KEY, 
 		 NO_KEY, 
-		 FED, 
-		 FEC, 
-		 DET 
+		 FED_KEY, 
+		 FEC_KEY, 
+		 DET_KEY 
   };
   
   /** Histogram granularity. */
-  enum Granularity { UNKNOWN_GRAN, 
-		     MODULE, 
-		     LLD_CHAN, 
-		     APV_PAIR, 
-		     APV 
+  enum Granularity { UNKNOWN_GRAN=9999, UNDEFINED_GRAN=0, NO_GRAN=999999,
+		     TRACKER=1, PARTITION=2, TIB=3, TOB=4, TEC=5, // System level
+		     FEC_CRATE=6, FEC_SLOT=7, FEC_RING=8, CCU_ADDR=9, CCU_CHAN=10, // Control
+		     FED=11, FE_UNIT=12, FED_FE_CHAN=13, FED_CHANNEL=14, // Readout 
+		     LAYER=15, ROD=16, STRING=17, DISK=18, PETAL=19, RING=20, // Detector sub-structures 
+		     MODULE=21, LLD_CHAN=22, APV=23 // Module and below
   };
   
   /** Defines action to be taken by web client. */
@@ -44,13 +45,14 @@ namespace sistrip {
 		CREATE_TRACKER_MAP = 4,
 		UPLOAD_TO_DATABASE = 5
   };
-
+  
   /** Defines the type of summary histogram. */
   enum SummaryType { UNKNOWN_SUMMARY_TYPE = 9999, 
 		     UNDEFINED_SUMMARY_TYPE = 0, 
 		     SUMMARY_DISTR = 1,
 		     SUMMARY_1D = 2,
-		     SUMMARY_2D = 3
+		     SUMMARY_2D = 3,
+		     SUMMARY_PROF = 4
   };
  
   /** Defines the various summary histograms available. */
