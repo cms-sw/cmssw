@@ -26,6 +26,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RZLine.h"
 #include "CircleFromThreePoints.h"
@@ -98,7 +99,13 @@ reco::Track* PixelFitterByHelixProjections::run(
   RZLine rzLine(points,errors,isBarrel);
   float cottheta, intercept, covss, covii, covsi; 
   rzLine.fit(cottheta, intercept, covss, covii, covsi);
-  float chi2 = rzLine.chi2(valCotTheta,valZip);
+  float chi2 = rzLine.chi2(cottheta, intercept);         //FIXME: check which intercept to use!
+
+//  float chi2 = rzLine.chi2(valCotTheta,valZip);
+//  float chi2_1 = rzLine.chi2(valCotTheta,0.);
+//  float chi2_2 = rzLine.chi2(cottheta,intercept);
+//  float chi2_3 =  rzLine.chi2(cottheta,0.);
+//  edm::LogInfo("** CHI2 **")<<"chi0,1,2,3 "<<chi2<<" "<<chi2_1<<" "<<chi2_2<<" "<<chi2_3<<endl;
 //  cout <<"simple cot: "<<valCotTheta<<" from fit: "<<cottheta<<" chi2: "<<chi2<< endl;
   
 

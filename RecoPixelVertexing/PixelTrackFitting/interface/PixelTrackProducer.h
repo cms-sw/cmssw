@@ -7,6 +7,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 
+class PixelFitter;
+class PixelTrackFilter;
+
 #include<vector>
 
 class PixelTrackProducer :  public edm::EDProducer {
@@ -25,6 +28,9 @@ private:
 
   edm::ParameterSet theConfig;
   std::vector <PixelTrackCleaner::TrackWithRecHits> allTracks, cleanedTracks;
+
+  const PixelFitter      * theFitter;
+  const PixelTrackFilter * theFilter;
 
 };
 #endif

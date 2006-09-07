@@ -11,6 +11,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -26,7 +27,7 @@
 typedef PixelTrackCleaner::TrackWithRecHits TrackWithRecHits;
 
 PixelTrackProducer::PixelTrackProducer(const edm::ParameterSet& conf)
-  : theConfig(conf)
+  : theConfig(conf), theFitter(0), theFilter(0)
 {
   edm::LogInfo("PixelTrackProducer")<<" construction...";
   produces<reco::TrackCollection>();
@@ -64,10 +65,19 @@ void PixelTrackProducer::buildTracks(edm::Event& ev, const edm::EventSetup& es)
   tripGen.hitTriplets(region,triplets,es);
   edm::LogInfo("PixelTrackProducer") << "number of triplets: " << triplets.size();
 
-  // get fitter
-  std::string fitterName = theConfig.getParameter<std::string>("Fitter");
-  edm::ESHandle<PixelFitter> fitter;
-  es.get<TrackingComponentsRecord>().get(fitterName,fitter);
+  if (!theFitter) {
+    std::string fitterName = theConfig.getParameter<std::string>("Fitter");
+    edm::ESHandle<PixelFitter> fitterESH;
+    es.get<TrackingComponentsRecord>().get(fitterName,fitterESH);
+    theFitter = fitterESH.product();
+  }
+
+  if (!theFilter) {
+    std::string filterName = theConfig.getParameter<std::string>("Filter");
+    edm::ESHandle<PixelTrackFilter> filterESH;
+    es.get<TrackingComponentsRecord>().get(filterName,filterESH);
+    theFilter = filterESH.product();
+  }
 
   typedef OrderedHitTriplets::const_iterator IT;
 
@@ -80,10 +90,12 @@ void PixelTrackProducer::buildTracks(edm::Event& ev, const edm::EventSetup& es)
     hits.push_back( (*it).inner() );
     hits.push_back( (*it).middle() );
     hits.push_back( (*it).outer() );
-    reco::Track* track = fitter->run(es, hits, region);
-    if (track)
-    {
+    reco::Track* track = theFitter->run(es, hits, region);
+    
+    if ( (*theFilter)(track) ) {
       allTracks.push_back(TrackWithRecHits(track, hits));
+    } else {
+      delete track;
     }
   }
 }
