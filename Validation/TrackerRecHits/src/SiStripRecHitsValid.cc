@@ -58,7 +58,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Posx_rphi_layer%dtib",i+1);
     mePosxRphiTIB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
     sprintf(histo,"Errx_rphi_layer%dtib",i+1);
-    meErrxRphiTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.05);  
+    meErrxRphiTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.01); //<error>~20micron  
     sprintf(histo,"Res_rphi_layer%dtib",i+1);
     meResRphiTIB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
     sprintf(histo,"Chi2_rphi_layer%dtib",i+1);
@@ -75,7 +75,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Posx_sas_layer%dtib",i+1);
     mePosxSasTIB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
     sprintf(histo,"Errx_sas_layer%dtib",i+1);
-    meErrxSasTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.05);  
+    meErrxSasTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.01);  
     sprintf(histo,"Res_sas_layer%dtib",i+1);
     meResSasTIB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
     sprintf(histo,"Chi2_sas_layer%dtib",i+1);
@@ -86,7 +86,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Posy_matched_layer%dtib",i+1);
     mePosyMatchedTIB[i] = dbe_->book1D(histo,"RecHit y coord.",100,-6.0, +6.0);  
     sprintf(histo,"Errx_matched_layer%dtib",i+1);
-    meErrxMatchedTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
+    meErrxMatchedTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.01);  
     sprintf(histo,"Erry_matched_layer%dtib",i+1);
     meErryMatchedTIB[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.05);  
     sprintf(histo,"Resx_matched_layer%dtib",i+1);
@@ -111,7 +111,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Posx_rphi_layer%dtob",i+1);
     mePosxRphiTOB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
     sprintf(histo,"Errx_rphi_layer%dtob",i+1);
-    meErrxRphiTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.05);  
+    meErrxRphiTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.01);  
     sprintf(histo,"Res_rphi_layer%dtob",i+1);
     meResRphiTOB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
     sprintf(histo,"Chi2_rphi_layer%dtob",i+1);
@@ -128,7 +128,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Posx_sas_layer%dtob",i+1);
     mePosxSasTOB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
     sprintf(histo,"Errx_sas_layer%dtob",i+1);
-    meErrxSasTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.05);  
+    meErrxSasTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.01);  
     sprintf(histo,"Res_sas_layer%dtob",i+1);
     meResSasTOB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
     sprintf(histo,"Chi2_sas_layer%dtob",i+1);
@@ -139,7 +139,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Posy_matched_layer%dtob",i+1);
     mePosyMatchedTOB[i] = dbe_->book1D(histo,"RecHit y coord.",100,-10.0, +10.0);  
     sprintf(histo,"Errx_matched_layer%dtob",i+1);
-    meErrxMatchedTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
+    meErrxMatchedTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.01);  
     sprintf(histo,"Erry_matched_layer%dtob",i+1);
     meErryMatchedTOB[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.1);  
     sprintf(histo,"Resx_matched_layer%dtob",i+1);
@@ -193,9 +193,9 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     sprintf(histo,"Posy_matched_layer%dtid",i+1);
     mePosyMatchedTID[i] = dbe_->book1D(histo,"RecHit y coord.",100,-6.0, +6.0);  
     sprintf(histo,"Errx_matched_layer%dtid",i+1);
-    meErrxMatchedTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 1.0);  
+    meErrxMatchedTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
     sprintf(histo,"Erry_matched_layer%dtid",i+1);
-    meErryMatchedTID[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 1.0);  
+    meErryMatchedTID[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.1);  
     sprintf(histo,"Resx_matched_layer%dtid",i+1);
     meResxMatchedTID[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.2, +0.2);  
     sprintf(histo,"Resy_matched_layer%dtid",i+1);
@@ -248,9 +248,9 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
       sprintf(histo,"Posy_matched_layer%dtec",i+1);
       mePosyMatchedTEC[i] = dbe_->book1D(histo,"RecHit y coord.",100,-8.0, +8.0);  
       sprintf(histo,"Errx_matched_layer%dtec",i+1);
-      meErrxMatchedTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 1.0);  
+      meErrxMatchedTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
       sprintf(histo,"Erry_matched_layer%dtec",i+1);
-      meErryMatchedTEC[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 1.0);  
+      meErryMatchedTEC[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.1);  
       sprintf(histo,"Resx_matched_layer%dtec",i+1);
       meResxMatchedTEC[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.2, +0.2);  
       sprintf(histo,"Resy_matched_layer%dtec",i+1);
@@ -530,9 +530,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	rechitmatchederrxy[k] = error.xy();
 	rechitmatchederryy[k] = error.yy();
 
-	std::cout << " before association " << std::endl;
+	//	std::cout << " before association " << std::endl;
 	matched = associate.associateHit(rechit);
-	std::cout << " after association size = " << matched.size() << std::endl;
+	//std::cout << " after association size = " << matched.size() << std::endl;
 
 	if(!matched.empty()){
 	  //project simhit;
@@ -540,7 +540,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
 	  std::pair<LocalPoint,LocalVector> hitPair;
 
-	  std::cout << " RECHIT position = " << position << std::endl;	  
+	  //std::cout << " RECHIT position = " << position << std::endl;	  
 	  
 	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    //project simhit;
@@ -548,15 +548,15 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    distx = fabs(rechitmatchedx[k] - hitPair.first.x());
 	    disty = fabs(rechitmatchedy[k] - hitPair.first.y());
 	    dist = sqrt(distx*distx+disty*disty);
-	    std::cout << " Simhit position x = " << hitPair.first.x() 
-		      << " y = " << hitPair.first.y() << " dist = " << dist << std::endl;	  
+	    // std::cout << " Simhit position x = " << hitPair.first.x() 
+	    //      << " y = " << hitPair.first.y() << " dist = " << dist << std::endl;	  
 	    if(dist<mindist){
 	      mindist = dist;
 	      closestPair = hitPair;
 	    }
 	  }
-	  std::cout << " Closest position x = " << closestPair.first.x() 
-		      << " y = " << closestPair.first.y() << " dist = " << dist << std::endl;	  
+	  //std::cout << " Closest position x = " << closestPair.first.x() 
+	  //      << " y = " << closestPair.first.y() << " dist = " << dist << std::endl;	  
 	  rechitmatchedresx[k] = rechitmatchedx[k] - closestPair.first.x();
 	  rechitmatchedresy[k] = rechitmatchedy[k] - closestPair.first.y();
 
