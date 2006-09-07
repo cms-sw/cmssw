@@ -90,6 +90,7 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   sistrip::SummaryHisto histo = sistrip::APV_TIMING_DELAY;
   sistrip::SummaryType type = sistrip::SUMMARY_DISTR;
   string dir = "SiStrip/ControlView/FecCrate0/";
+  sistrip::Granularity gran = sistrip::MODULE;
   
   // Handle requests
   if ( request == "SaveHistos" ) { 
@@ -97,7 +98,7 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   } else if ( request == "HistoAnalysis" ) { 
     if ( client_ ) { client_->histoAnalysis(); }
   } else if ( request == "SummaryHisto" ) { 
-    if ( client_ ) { client_->createSummaryHisto( histo, type, dir ); }
+    if ( client_ ) { client_->createSummaryHisto( histo, type, dir, gran ); }
   } else if ( request == "UploadToDb" ) { 
     if ( client_ ) { client_->uploadToConfigDb(); }
   } else {
