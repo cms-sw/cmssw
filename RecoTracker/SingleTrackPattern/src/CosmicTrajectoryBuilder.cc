@@ -16,7 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) : conf_(conf) { 
   //minimum number of hits per tracks
 
@@ -251,6 +251,10 @@ CosmicTrajectoryBuilder::startingTSOS(const TrajectorySeed& seed)const
 void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 				     vector<const TrackingRecHit*>Hits){
 
+
+  unsigned int icosm2;
+  unsigned int ibestdet;
+  float chi2min;
   for (unsigned int icosmhit=0;icosmhit<Hits.size();icosmhit++){
     GlobalPoint gphit=RHBuilder->build(Hits[icosmhit])->globalPosition();
     unsigned int iraw= Hits[icosmhit]->geographicalId().rawId();
@@ -259,24 +263,51 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
     TransientTrackingRecHit::RecHitPointer tmphit=RHBuilder->build(Hits[icosmhit]);
      TSOS prSt= thePropagator->propagate(traj.lastMeasurement().updatedState(),
  					tracker->idToDet(Hits[icosmhit]->geographicalId())->surface());
+
+    //After propagating the trajectory to a detector,
+    //find the most compatible hit in the det
+    chi2min=20000000;
+    ibestdet=1000;
      
      if (prSt.isValid()){
-       LogDebug("CosmicTrackFinder") <<"STATE PROPAGATED AT DET "<<iraw<<prSt;
-       float contr= theEstimator->estimate(prSt, *tmphit).second;
-       if (contr<chi2cut)
-	 {	 
-	   TSOS UpdatedState= theUpdator->update( prSt, *tmphit);
-	   if (UpdatedState.isValid()){
-	     LogDebug("CosmicTrackFinder") <<"STATE UPDATED WITH HIT AT POSITION "<<gphit<<UpdatedState;
-	     traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[icosmhit])
-			  , contr));
-	     hits.push_back(&(*tmphit));
-	     LogDebug("CosmicTrackFinder") <<"HIT SELECTED  position" <<gphit
-					   <<" traj Chi2= "<<traj.chiSquared();
-	     
+       LogDebug("CosmicTrackFinder") <<"STATE PROPAGATED AT DET "<<iraw<<" "<<prSt;
+       for(icosm2=icosmhit;icosm2<Hits.size();icosm2++){
+
+	 if (iraw==Hits[icosm2]->geographicalId().rawId()){	  
+	   TransientTrackingRecHit::RecHitPointer tmphit=RHBuilder->build(Hits[icosm2]);
+	   float contr= theEstimator->estimate(prSt, *tmphit).second;
+	   if (contr<chi2min) {
+	     chi2min=contr;
+	     ibestdet=icosm2;
 	   }
-	 }else edm::LogError("CosmicTrackFinder")<<" State can not be updated with hit at position "<<gphit;
-     }else edm::LogError("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
+	   if (icosm2!=icosmhit)	icosmhit++;
+
+	 }
+	 else  icosm2=Hits.size();
+       }
+       LogDebug("CosmicTrackFinder")<<"Chi2 contribution for hit at "
+				    <<RHBuilder->build(Hits[ibestdet])->globalPosition()
+				    <<" is "<<chi2min;
+       if (chi2min<chi2cut)
+	 {	 
+	   TransientTrackingRecHit::RecHitPointer tmphitbestdet=RHBuilder->build(Hits[ibestdet]);
+	   TSOS UpdatedState= theUpdator->update( prSt, *tmphitbestdet);
+	   if (UpdatedState.isValid()){
+
+	     traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[ibestdet])
+			  , chi2min));
+
+	     LogDebug("CosmicTrackFinder") <<
+	       "STATE UPDATED WITH HIT AT POSITION "
+					   <<tmphitbestdet->globalPosition()
+					   <<UpdatedState<<" "
+					   <<traj.chiSquared();
+
+	     hits.push_back(&(*tmphitbestdet));
+	   }
+	 }else edm::LogWarning("CosmicTrackFinder")<<" State can not be updated with hit at position "
+						   <<gphit;
+     }else edm::LogWarning("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
      
      
   }
@@ -286,7 +317,7 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
   if ( qualityFilter( traj)){
     const TrajectorySeed& tmpseed=traj.seed();
-    TSOS startingState=startingTSOS(tmpseed);     
+    TSOS startingState=TrajectoryStateWithArbitraryError()(startingTSOS(tmpseed));     
     trajFit = theFitter->fit(tmpseed,hits, startingState );
   }
   

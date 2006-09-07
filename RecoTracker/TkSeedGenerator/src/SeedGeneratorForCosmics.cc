@@ -82,7 +82,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 
     edm::OwnVector<TrackingRecHit> hits;
     hits.push_back(HitPairs[0].outer()->clone());
-    hits.push_back(HitPairs[0].inner()->clone());
+    //    hits.push_back(HitPairs[0].inner()->clone());
     
 
     if((outer.y()-inner.y())>0){
