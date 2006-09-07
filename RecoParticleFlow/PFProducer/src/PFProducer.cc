@@ -41,7 +41,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 using namespace std;
 using namespace edm;
@@ -79,13 +81,26 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
   particleFilter_ = iConfig.getParameter<ParameterSet>
     ( "ParticleFilter" );   
 
+  mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
+
   // initialize geometry parameters
   PFGeometry pfGeometry;
 }
 
 
-PFProducer::~PFProducer() {}
+PFProducer::~PFProducer() { delete mySimEvent; }
 
+void 
+PFProducer::beginJob(const edm::EventSetup & es)
+{
+
+    // Particle data table (from Pythia)
+    edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
+    es.getData(pdt);
+    if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
+    mySimEvent->initializePdt(&(*pdt));
+
+}
 
 void PFProducer::produce(Event& iEvent, 
 			 const EventSetup& iSetup) 
@@ -416,9 +431,6 @@ void PFProducer::produce(Event& iEvent,
   }
 
   // deal with true particles 
-  FSimEvent simEvent = 
-    FSimEvent( vertexGenerator_, particleFilter_);
-  
   Handle<vector<SimTrack> > simTracks;
   iEvent.getByLabel(simModuleLabel_,simTracks);
   Handle<vector<SimVertex> > simVertices;
@@ -430,10 +442,10 @@ void PFProducer::produce(Event& iEvent,
 	<<(*simTracks)[it].momentum().e()<<endl;
   }
 
-  simEvent.fill( *simTracks, *simVertices );
-  simEvent.print();
-  cout<<"ntracks   = "<<simEvent.nTracks()<<endl;
-  cout<<"ngenparts = "<<simEvent.nGenParts()<<endl;
+  mySimEvent->fill( *simTracks, *simVertices );
+  mySimEvent->print();
+  cout<<"ntracks   = "<<mySimEvent->nTracks()<<endl;
+  cout<<"ngenparts = "<<mySimEvent->nGenParts()<<endl;
 
 
   iEvent.put(pOutputPFRecTrackCollection, pfRecTrackCollection_);

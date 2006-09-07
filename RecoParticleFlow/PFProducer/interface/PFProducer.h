@@ -27,6 +27,7 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 \date   July 2006
 */
 
+class FSimEvent;
 
 class PFProducer : public edm::EDProducer {
  public:
@@ -34,6 +35,7 @@ class PFProducer : public edm::EDProducer {
   ~PFProducer();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void beginJob(const edm::EventSetup & c);
 
  private:
   // ----------member data ---------------------------
@@ -59,6 +61,7 @@ class PFProducer : public edm::EDProducer {
   // parameters for retrieving true particles information
   edm::ParameterSet vertexGenerator_;
   edm::ParameterSet particleFilter_;
+  FSimEvent* mySimEvent;
   
 };
 
