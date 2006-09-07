@@ -4,8 +4,8 @@
 #include "Geometry/Vector/interface/Basic2DVector.h"
 #include "Geometry/Vector/interface/Basic3DVector.h"
 #include "Geometry/Surface/interface/TkRotation.h"
+#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
 #include "ParabolaFit.h"
-#include "Measurement1D.h"
 #include <vector>
 
 using namespace std;

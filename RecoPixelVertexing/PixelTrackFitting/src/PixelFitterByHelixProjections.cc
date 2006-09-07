@@ -17,12 +17,22 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-#include "Measurement1D.h"
+#include "CommonTools/Statistics/interface/LinearFit.h"
+#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+
+
+#include "RZLine.h"
 #include "CircleFromThreePoints.h"
 #include "PixelTrackBuilder.h"
 
-PixelFitterByHelixProjections::PixelFitterByHelixProjections() { }
+PixelFitterByHelixProjections::PixelFitterByHelixProjections() 
+  : theTracker(0), theField(0), theTTRecHitBuilder(0) { }
 
 reco::Track* PixelFitterByHelixProjections::run(
     const edm::EventSetup& es,
@@ -33,19 +43,34 @@ reco::Track* PixelFitterByHelixProjections::run(
   if (nhits < 3) return 0;
 
   vector<GlobalPoint> points;
+  vector<GlobalError> errors;
+  vector<bool> isBarrel;
   
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  if (!theField || !theTracker || !theTTRecHitBuilder) {
 
-  edm::ESHandle<MagneticField> field;
-  es.get<IdealMagneticFieldRecord>().get(field);
+    edm::ESHandle<TrackerGeometry> trackerESH;
+    es.get<TrackerDigiGeometryRecord>().get(trackerESH);
+    theTracker = trackerESH.product();
 
+    edm::ESHandle<MagneticField> fieldESH;
+    es.get<IdealMagneticFieldRecord>().get(fieldESH);
+    theField = fieldESH.product();
 
-  for ( vector<const TrackingRecHit *>::const_iterator
-        ih = hits.begin();  ih != hits.end(); ih++) {
-    const GeomDet * det = tracker->idToDet( (**ih).geographicalId());
-    GlobalPoint p = det->surface().toGlobal( (**ih).localPosition());
-    points.push_back(p);
+    edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
+    es.get<TransientRecHitRecord>().get("WithoutRefit",ttrhbESH);
+    theTTRecHitBuilder = ttrhbESH.product();
+
+  }
+
+  for ( vector<const TrackingRecHit*>::const_iterator ih = hits.begin(); ih != hits.end(); ih++) {
+
+//    const GeomDet * det = theTracker->idToDet( (**ih).geographicalId());
+//    GlobalPoint p = det->surface().toGlobal( (**ih).localPosition());
+
+    TransientTrackingRecHit::RecHitPointer recHit = theTTRecHitBuilder->build(*ih);
+    points.push_back( recHit->globalPosition());
+    errors.push_back( recHit->globalPositionError());
+    isBarrel.push_back( recHit->detUnit()->type().isBarrel() );
   }
   
   CircleFromThreePoints circle(points[0],points[1],points[2]);
@@ -56,8 +81,6 @@ reco::Track* PixelFitterByHelixProjections::run(
   float invPt = PixelRecoUtilities::inversePt( circle.curvature(), es);
   float valPt = (invPt > 1.e-4) ? 1./invPt : 1.e4;
   float errPt = 0.055*valPt + 0.017*valPt*valPt;
-
-
 
   CircleFromThreePoints::Vector2D center = circle.center();
   float valTip = charge * (center.mag()-1/curvature);
@@ -71,7 +94,13 @@ reco::Track* PixelFitterByHelixProjections::run(
 
   float valCotTheta = PixelFitterByHelixProjections::cotTheta(points);
   float errCotTheta = 0.002;
-  float chi2 = 0;
+
+  RZLine rzLine(points,errors,isBarrel);
+  float cottheta, intercept, covss, covii, covsi; 
+  rzLine.fit(cottheta, intercept, covss, covii, covsi);
+  float chi2 = rzLine.chi2(valCotTheta,valZip);
+//  cout <<"simple cot: "<<valCotTheta<<" from fit: "<<cottheta<<" chi2: "<<chi2<< endl;
+  
 
   PixelTrackBuilder builder;
   Measurement1D pt(valPt, errPt);
@@ -80,7 +109,7 @@ reco::Track* PixelFitterByHelixProjections::run(
   Measurement1D tip(valTip, errTip);
   Measurement1D zip(valZip, errZip);
 
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, field.product());
+  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, theField);
 }
 
 int PixelFitterByHelixProjections::charge(const vector<GlobalPoint> & points) const

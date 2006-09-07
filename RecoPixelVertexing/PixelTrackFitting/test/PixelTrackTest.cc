@@ -63,6 +63,7 @@ void PixelTrackTest::myprint(const reco::Track & track) const
     cout << "\tvertex: " << track.vertex()
          << "\t zip: " <<  track.dz()<<"+/-"<<track.dzError()
          << "\t tip: " << track.d0()<<"+/-"<<track.d0Error()<< endl;
+    cout << "\t chi2: "<< track.chi2()<<endl;
     cout << "\tcharge: " << track.charge()<< endl;
 }
 

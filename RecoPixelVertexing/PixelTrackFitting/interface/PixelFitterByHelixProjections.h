@@ -9,6 +9,10 @@
 
 #include <vector>
 
+class TransientTrackingRecHitBuilder;
+class TrackerGeometry;
+class MagneticField;
+
 class PixelFitterByHelixProjections : public PixelFitter {
 public:
   PixelFitterByHelixProjections();
@@ -26,5 +30,11 @@ private:
     const GlobalPoint& pinner, const GlobalPoint& pouter) const;
   double errZip2(float apt, float eta) const;
   double errTip2(float apt, float eta) const;
+
+private:
+  mutable const TrackerGeometry * theTracker;
+  mutable const MagneticField * theField;
+  mutable const TransientTrackingRecHitBuilder * theTTRecHitBuilder;
+
 };
 #endif

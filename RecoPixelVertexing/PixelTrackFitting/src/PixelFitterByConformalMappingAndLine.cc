@@ -12,15 +12,14 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-//#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "CommonTools/Statistics/interface/LinearFit.h"
+#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
 
-#include "Measurement1D.h"
 #include "ConformalMappingFit.h"
-#include "LinearFit.h"
 #include "PixelTrackBuilder.h"
 
 template <class T> T sqr( T t) {return t*t;}
