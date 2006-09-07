@@ -110,7 +110,11 @@ void CaloGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, in
 	    f << "  // Return position is " << EBDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(5.))) << std::endl;
 	  }
 	if (subdetn == EcalEndcap)
-	  f << "  // " << EEDetId(*i) << std::endl;
+	  {
+	    f << "  // " << EEDetId(*i) << std::endl;
+	    f << "  // Checking getClosestCell for position " << dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.) << std::endl;
+	    f << "  // Return position is " << EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.))) << std::endl;
+	  }
 	if (subdetn == EcalPreshower) 
 	  {
 	    f << "  // " << ESDetId(*i) << std::endl;
