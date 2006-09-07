@@ -45,6 +45,7 @@ SiStripCommissioningClient::~SiStripCommissioningClient() {
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Configured" state. */
 void SiStripCommissioningClient::configure() {
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   web_ = new SiStripCommissioningWebClient( this,
 					    getContextURL(),
 					    getApplicationURL(), 
@@ -54,13 +55,14 @@ void SiStripCommissioningClient::configure() {
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Enabled" state. */
 void SiStripCommissioningClient::newRun() {
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   ( this->upd_ )->registerObserver( this ); 
-  subscribeAll();
 }
 
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Halted" state. */
 void SiStripCommissioningClient::endRun() {
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   unsubscribeAll(); 
   if ( histos_ ) { delete histos_; histos_ = 0; }
 }
@@ -70,9 +72,9 @@ void SiStripCommissioningClient::endRun() {
 void SiStripCommissioningClient::onUpdate() const {
   cout << "[" << __PRETTY_FUNCTION__ << "]"
        << " Number of updates: " << mui_->getNumUpdates() << endl;
-
-  // Subscribe to new monitorables and retrieve updated contents
-  //if ( mui_ ) { mui_->subscribe( "*" ); }
+  
+  // Retrieve a list of all subscribed histograms
+  if ( mui_ ) { mui_->subscribe( "*" ); }
   vector<string> contents;
   mui_->getContents( contents ); 
   
@@ -87,14 +89,12 @@ void SiStripCommissioningClient::onUpdate() const {
   // Create collation histograms based on added contents
   if ( histos_ ) { histos_->createCollations( contents ); }
   
-  // Update monitorables using histogram analysis
-  //if ( histos_ ) { histos_->histoAnalysis(); }
-  
 }
 
 // -----------------------------------------------------------------------------
 /** Extract "commissioning task" string from "added contents". */
 sistrip::Task SiStripCommissioningClient::extractTask( const vector<string>& contents ) const {
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   
   // Iterate through added contents
   vector<string>::const_iterator istr = contents.begin();
@@ -195,6 +195,8 @@ void SiStripCommissioningClient::histoAnalysis() {
 /** */
 void SiStripCommissioningClient::subscribeAll( string pattern ) {
 
+  if ( pattern == "" ) { pattern = "*/" + sistrip::root_ + "/*"; }
+
   seal::Callback action;
   action = seal::CreateCallback( this, 
 				 &SiStripCommissioningClient::subscribe,
@@ -220,14 +222,12 @@ void SiStripCommissioningClient::subscribeAll( string pattern ) {
 /** */
 void SiStripCommissioningClient::unsubscribeAll( string pattern ) {
 
+  if ( pattern == "" ) { pattern = "*/" + sistrip::root_ + "/*"; }
+
   seal::Callback action;
   action = seal::CreateCallback( this, 
 				 &SiStripCommissioningClient::unsubscribe,
 				 pattern ); //@@ argument list
-  
-//   action = seal::CreateCallback( histos_, 
-// 				 &CommissioningHistograms::unsubscribe,
-// 				 mui_, pattern ); //@@ argument list
   
   if ( mui_ ) { 
     mui_->addCallback(action); 
@@ -250,10 +250,6 @@ void SiStripCommissioningClient::saveHistos( string name ) {
 				 &SiStripCommissioningClient::save,
 				 name ); //@@ argument list
 
-//   action = seal::CreateCallback( histos_, 
-// 				 &CommissioningHistograms::saveHistos,
-// 				 mui_, name ); //@@ argument list
-  
   if ( mui_ ) { 
     mui_->addCallback(action); 
     cout << "[" << __PRETTY_FUNCTION__ << "]" 
@@ -270,7 +266,8 @@ void SiStripCommissioningClient::saveHistos( string name ) {
 /** */
 void SiStripCommissioningClient::createSummaryHisto( sistrip::SummaryHisto histo, 
 						     sistrip::SummaryType type, 
-						     string directory ) {
+						     string top_level_dir,
+						     sistrip::Granularity gran ) {
   
   if ( !histos_ ) { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
@@ -278,11 +275,12 @@ void SiStripCommissioningClient::createSummaryHisto( sistrip::SummaryHisto histo
     return;
   }
   
-  pair<sistrip::SummaryHisto,sistrip::SummaryType> summ(histo,type);
+  pair<sistrip::SummaryHisto,sistrip::SummaryType> summ0(histo,type);
+  pair<string,sistrip::Granularity> summ1(top_level_dir,gran);
   seal::Callback action;
   action = seal::CreateCallback( histos_, 
 				 &CommissioningHistograms::createSummaryHisto,
-				 summ, directory ); //@@ argument list
+				 summ0, summ1 ); //@@ argument list
   
   if ( mui_ ) { 
     mui_->addCallback(action); 
@@ -293,7 +291,7 @@ void SiStripCommissioningClient::createSummaryHisto( sistrip::SummaryHisto histo
 	 << " NULL pointer to MonitorUserInterface!" << endl; 
     return;
   }
-
+  
 }
 
 // -----------------------------------------------------------------------------
