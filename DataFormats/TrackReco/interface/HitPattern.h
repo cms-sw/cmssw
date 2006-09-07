@@ -10,7 +10,7 @@
  *
  * \author Marcel Vos, INFN Pisa
  *
- * \version $Id: HitPattern.h,v 1.6 2006/08/23 16:20:23 tboccali Exp $
+ * \version $Id: HitPattern.h,v 1.7 2006/08/28 11:24:58 llista Exp $
  *
  */
 #include "DataFormats/DetId/interface/DetId.h"
@@ -58,7 +58,7 @@ namespace reco {
 
   private:
     /// number of 32 bit integers to store the full pattern
-    const static unsigned short PatternSize = 10; 
+    const static unsigned short PatternSize = 20; 
     /// number of bits used for each hit
     const static unsigned short HitSize = 9;     
     /// 1 bit to distinguish tracker and muon subsystems
