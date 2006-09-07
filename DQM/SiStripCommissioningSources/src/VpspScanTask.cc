@@ -39,15 +39,15 @@ void VpspScanTask::book() {
       
       title = SiStripHistoNamingScheme::histoTitle( sistrip::VPSP_SCAN, 
 						    sistrip::COMBINED, 
-						    sistrip::FED, 
+						    sistrip::FED_KEY, 
 						    fedKey(),
 						    sistrip::LLD_CHAN, 
 						    connection().lldChannel(),
 						    extra_info.str() );
-
+      
       vpsp_[iapv].histo_ = dqm()->bookProfile( title, title, 
 					       nbins, -0.5, nbins*1.-0.5,
-					       1024, 0., 1024. );
+					       1025, 0., 1025. );
       
       vpsp_[iapv].vNumOfEntries_.resize(nbins,0);
       vpsp_[iapv].vSumOfContents_.resize(nbins,0);

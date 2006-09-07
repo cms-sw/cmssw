@@ -32,14 +32,14 @@ void ApvTimingTask::book() {
   
   title = SiStripHistoNamingScheme::histoTitle( sistrip::APV_TIMING, 
 						sistrip::COMBINED, 
-						sistrip::FED, 
+						sistrip::FED_KEY, 
 						fedKey(),
 						sistrip::LLD_CHAN, 
 						connection().lldChannel() );
   
   timing_.histo_ = dqm()->bookProfile( title, title, 
 				       nbins, -0.5, nBins_*25.-0.5,
-				       1024, 0., 1024. );
+				       1025, 0., 1025. );
   
   timing_.vNumOfEntries_.resize(nbins,0);
   timing_.vSumOfContents_.resize(nbins,0);

@@ -42,7 +42,7 @@ void PedestalsTask::book() {
     
     title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
 						  sistrip::COMBINED, 
-						  sistrip::FED, 
+						  sistrip::FED_KEY, 
 						  fedKey(),
 						  sistrip::LLD_CHAN, 
 						  connection().lldChannel(),
@@ -50,7 +50,7 @@ void PedestalsTask::book() {
     
     peds_[ihisto].histo_ = dqm()->bookProfile( title, title, 
 					       nbins, -0.5, nbins*1.-0.5,
-					       1024, 0., 1024. );
+					       1025, 0., 1025. );
     
     peds_[ihisto].vNumOfEntries_.resize(nbins,0);
     peds_[ihisto].vSumOfContents_.resize(nbins,0);
@@ -65,7 +65,7 @@ void PedestalsTask::book() {
 
     title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
 						  sistrip::COMBINED, 
-						  sistrip::FED, 
+						  sistrip::FED_KEY, 
 						  fedKey(),
 						  sistrip::APV, 
 						  connection().i2cAddr(iapv),

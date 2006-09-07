@@ -46,7 +46,7 @@ void OptoScanTask::book() {
       
       title = SiStripHistoNamingScheme::histoTitle( sistrip::OPTO_SCAN, 
 						    sistrip::COMBINED, 
-						    sistrip::FED, 
+						    sistrip::FED_KEY, 
 						    fedKey(),
 						    sistrip::LLD_CHAN, 
 						    connection().lldChannel(),
@@ -54,7 +54,7 @@ void OptoScanTask::book() {
 
       opto_[igain][ilevel].histo_  = dqm()->bookProfile( title, title, 
 							 nbins, -0.5, nbins*1.-0.5,
-							 1024, 0., 1024. );
+							 1025, 0., 1025. );
 
       opto_[igain][ilevel].vNumOfEntries_.resize(nbins,0);
       opto_[igain][ilevel].vSumOfContents_.resize(nbins,0);
