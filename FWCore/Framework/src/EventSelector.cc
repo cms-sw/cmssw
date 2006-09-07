@@ -94,20 +94,47 @@ namespace edm
 	  if(not_star_done && star_done)
 	  	accept_all_ = true;
   }
-  
+
   bool EventSelector::acceptEvent(TriggerResults const& tr) const
   {
     Bits::const_iterator i(decision_bits_.begin()),e(decision_bits_.end());
     for(;i!=e;++i)
       {
-        if ( ((tr[i->pos_].state()==hlt::Pass) &&  (i->accept_state_)) ||
-	     ((tr[i->pos_].state()==hlt::Fail) && !(i->accept_state_)) ||
-             ((tr[i->pos_].state()==hlt::Exception)) )
-	  return true;
+        if ( this->acceptTriggerPath(tr[i->pos_], *i) )
+          {
+            return true;
+          }
       }
     return false;
   }
 
+  bool EventSelector::acceptEvent(unsigned char const* array_of_trigger_results, int number_of_trigger_paths) const
+  {
+    Bits::const_iterator i(decision_bits_.begin()),e(decision_bits_.end());
+    for(;i!=e;++i)
+      {
+        int pathIndex = i->pos_;
+        if (pathIndex < number_of_trigger_paths)
+          {
+            int byteIndex = ((int) pathIndex / 4);
+            int subIndex = pathIndex % 4;
+            int state = array_of_trigger_results[byteIndex] >> (subIndex * 2);
+            state &= 0x3;
+            HLTPathStatus pathStatus(static_cast<hlt::HLTState>(state));
+            if ( this->acceptTriggerPath(pathStatus, *i) )
+              {
+                return true;
+              }
+          }
+      }
+    return false;
+  }
 
+  bool EventSelector::acceptTriggerPath(HLTPathStatus const& pathStatus,
+                                        BitInfo const& pathInfo) const
+  {
+    return ( ((pathStatus.state()==hlt::Pass) &&  (pathInfo.accept_state_)) ||
+             ((pathStatus.state()==hlt::Fail) && !(pathInfo.accept_state_)) ||
+             ((pathStatus.state()==hlt::Exception)) );
+  }
 }
-
