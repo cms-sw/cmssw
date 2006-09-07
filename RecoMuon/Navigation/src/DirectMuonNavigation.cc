@@ -2,8 +2,8 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: 2006/07/26 08:36:27 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/09/01 19:13:15 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -183,9 +183,9 @@ bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const 
   float rm = fts.momentum().perp();
   float slope = zm/rm; 
   if (!outward(fts) ) slope = -slope;
-  const BoundCylinder* bc = dynamic_cast<const BoundCylinder*>(&dl->surface());
-  float radius = bc->radius();
-  float length = bc->bounds().length()/2.;
+  const BoundCylinder bc = dl->specificSurface();
+  float radius = bc.radius();
+  float length = bc.bounds().length()/2.;
 
   float z1 = slope*(radius - r0) + z0;
   return ( fabs(z1) <= fabs(length)+epsilon_ );
@@ -202,11 +202,11 @@ bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const 
 
   if (!outward(fts) ) slope = -slope;
 
-  const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&dl->surface());
+  const BoundDisk bd = dl->specificSurface();
 
-  float outRadius = bd->outerRadius();
-  float inRadius = bd->innerRadius();
-  float z = bd->position().z();
+  float outRadius = bd.outerRadius();
+  float inRadius = bd.innerRadius();
+  float z = bd.position().z();
 
   float r1 = slope*(z - z0) + r0;
   return (r1 >= inRadius-epsilon_ && r1 <= outRadius+epsilon_);
