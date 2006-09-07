@@ -22,7 +22,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
 				   << " Unknown commissioning task! " 
 				   << buffer[10];
   }
-
+  
   // Set FED readout mode
   if      ( buffer[15] == 0 ) { fedReadoutMode_ = sistrip::SCOPE_MODE; }
   else if ( buffer[15] == 1 ) { fedReadoutMode_ = sistrip::VIRGIN_RAW; }
@@ -81,8 +81,8 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
     //@@ do anything?...
 
   } else { // Unknown commissioning task
-
-    task_ = static_cast<sistrip::Task>( 0 );
+    
+    //task_ = static_cast<sistrip::Task>( 0 );
     edm::LogError("RawToDigi") << "[SiStripEventSummary::commissioningInfo]"
 			       << " Unknown commissioning task! "
 			       << buffer[10];
