@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/31 18:24:18 $
- *  $Revision: 1.24 $
+ *  $Date: 2006/09/04 17:06:11 $
+ *  $Revision: 1.25 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -194,7 +194,10 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
   TransverseImpactPointExtrapolator tipe( *theService->propagator(thePropagatorName) );
   TrajectoryStateOnSurface tscp = tipe.extrapolate(innerTSOS,vtx);
   
-  if ( !tscp.isValid() ) return reco::Track(); // FIXME: how to report this?
+  if ( !tscp.isValid() ) {
+     edm::LogError(metname)<<"Extrapolation to vertex failed!";
+     return reco::Track(); // FIXME: how to report this?
+  }
   PerigeeConversions conv;
   double pt = 0.0;
   PerigeeTrajectoryParameters perigeeParameters = conv.ftsToPerigeeParameters(*tscp.freeState(),vtx,pt);
