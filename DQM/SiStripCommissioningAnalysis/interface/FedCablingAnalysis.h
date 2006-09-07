@@ -11,49 +11,57 @@ class TProfile;
 
 /** 
    @class FedCablingAnalysis
-   @author : R.Bainbridge
-   @brief : Histogram-based analysis for FED cabling
+   @author R.Bainbridge
+   @brief Histogram-based analysis for connection loop.
 */
 class FedCablingAnalysis : public CommissioningAnalysis {
   
  public:
-
-  FedCablingAnalysis() {;}
+  
+  FedCablingAnalysis();
   virtual ~FedCablingAnalysis() {;}
   
-  class TProfiles {
-  public:
-    TProfile* fedId_; // Histo containing FED id
-    TProfile* fedCh_; // Histo containing FED channel
-    TProfiles() : 
-      fedId_(0), fedCh_(0) {;}
-    ~TProfiles() {;}
-    void print( std::stringstream& );
-  };
+  inline const uint16_t& fedId() const;
+  inline const uint16_t& fedCh() const; 
+  inline const float& level() const;
+  inline const uint16_t& num() const; 
+
+  inline const Histo& hFedId() const;
+  inline const Histo& hFedCh() const;
   
-  /** Simple container class that holds various parameter values that
-      are extracted from the histogram(s) by the analysis. */
-  class Monitorables : public CommissioningAnalysis::Monitorables {
-  public:
-    uint16_t fedId_; // FED id 
-    uint16_t fedCh_; // FED channel
-    float    level_; // Signal level [adc]
-    uint16_t num_;   // Number of candidates for connection
-    Monitorables() : 
-      fedId_(sistrip::invalid_), 
-      fedCh_(sistrip::invalid_),
-      level_(sistrip::invalid_),
-      num_(sistrip::invalid_) {;}
-    virtual ~Monitorables() {;}
-    void print( std::stringstream& );
-  };
+  void print( std::stringstream&, uint32_t not_used = 0 );
   
-  /** Takes a TProfile histo containing an APV tick mark, extracts
-      various parameter values from the histogram, and fills the
-      Monitorables object. */
-  static void analysis( const TProfiles&, Monitorables& ); 
+ private:
   
+  void reset();
+  void extract( const std::vector<TProfile*>& );
+  void analyse();
+
+ private:
+  
+  /** FED id */
+  uint16_t fedId_;
+  /** FED channel */
+  uint16_t fedCh_;
+  /** Signal level [adc] */
+  float    level_;
+  /** Number of candidates for connection */
+  uint16_t num_;
+  
+  /** Histo containing FED id */
+  Histo hFedId_;
+  /** Histo containing FED channel */
+  Histo hFedCh_;
+
 };
+  
+const uint16_t& FedCablingAnalysis::fedId() const { return fedId_; }
+const uint16_t& FedCablingAnalysis::fedCh() const { return fedCh_; } 
+const float& FedCablingAnalysis::level() const { return level_; }
+const uint16_t& FedCablingAnalysis::num() const { return num_; } 
+
+const FedCablingAnalysis::Histo& FedCablingAnalysis::hFedId() const { return hFedId_; }
+const FedCablingAnalysis::Histo& FedCablingAnalysis::hFedCh() const { return hFedCh_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_FedCablingAnalysis_H
 

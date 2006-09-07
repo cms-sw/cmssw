@@ -1,14 +1,107 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvLatencyAnalysis.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
-#include <vector>
+#include <iostream>
 #include <cmath>
 
 using namespace std;
 
+// ----------------------------------------------------------------------------
+// 
+ApvLatencyAnalysis::ApvLatencyAnalysis() 
+  : CommissioningAnalysis(),
+    latency_(sistrip::invalid_),
+    histo_(0,"")
+{;}
+
+// ----------------------------------------------------------------------------
+// 
+void ApvLatencyAnalysis::print( stringstream& ss, uint32_t not_used ) { 
+  ss << "APV LATENCY Monitorables:" << "\n"
+     << " APV latency setting : " << latency_ << "\n";
+}
+
+// ----------------------------------------------------------------------------
+// 
+void ApvLatencyAnalysis::reset() {
+  latency_ = sistrip::invalid_; 
+  histo_ = Histo(0,"");
+}
+
+// ----------------------------------------------------------------------------
+// 
+void ApvLatencyAnalysis::extract( const vector<TProfile*>& histos ) { 
+  
+  // Check
+  if ( histos.size() != 1 ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " Unexpected number of histograms: " 
+	 << histos.size()
+	 << endl;
+  }
+  
+  // Extract
+  vector<TProfile*>::const_iterator ihis = histos.begin();
+  for ( ; ihis != histos.end(); ihis++ ) {
+    
+    // Check pointer
+    if ( !(*ihis) ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " NULL pointer to histogram!" << endl;
+      continue;
+    }
+    
+    // Check name
+    static SiStripHistoNamingScheme::HistoTitle title;
+    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
+    if ( title.task_ != sistrip::APV_LATENCY ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unexpected commissioning task!"
+	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
+	   << endl;
+      continue;
+    }
+
+    // Extract timing histo
+    histo_.first = *ihis;
+    histo_.second = (*ihis)->GetName();
+    
+  }
+
+}
+
+// ----------------------------------------------------------------------------
+// 
+void ApvLatencyAnalysis::analyse() { 
+  deprecated(); //@@ use matt's method...
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+//
+void ApvLatencyAnalysis::deprecated() {
+  
+  vector<const TProfile*> histos; 
+  vector<unsigned short> monitorables;
+    
+  histos.clear();
+  histos.push_back( const_cast<const TProfile*>(histo_.first) );
+  if ( !histos[0] ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " NULL pointer to latency histo!" << endl;
+  }
+  
+  monitorables.clear();
+  analysis( histos, monitorables );
+  latency_ = monitorables[0];
+  
+}
+
 // -----------------------------------------------------------------------------
 //
 void ApvLatencyAnalysis::analysis( const vector<const TProfile*>& histos, 
-			      vector<unsigned short>& monitorables ) {
+				   vector<unsigned short>& monitorables ) {
   //edm::LogInfo("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]";
 
     //extract root histogram

@@ -10,51 +10,55 @@
 class TProfile;
 
 /** 
-   @class : VpspScanAnalysis
-   @author : M. Wingham, R.Bainbridge
-   @brief : Histogram-based analysis for VPSP "monitorables". 
+   @class VpspScanAnalysis
+   @author M. Wingham, R.Bainbridge
+   @brief Histogram-based analysis for VPSP scan.
 */
 class VpspScanAnalysis : public CommissioningAnalysis {
   
  public:
 
-  VpspScanAnalysis() {;}
+  VpspScanAnalysis();
   virtual ~VpspScanAnalysis() {;}
 
-  class TProfiles {
-  public:
-    TProfile* vpsp0_; // "VPSP scan" histo for APV0 of pair
-    TProfile* vpsp1_; // "VPSP scan" histo for APV1 of pair
-    TProfiles() : 
-      vpsp0_(0), vpsp1_(0) {;}
-    ~TProfiles() {;}
-    void print( std::stringstream& );
-  };
+  inline const uint16_t& vpsp0() const;
+  inline const uint16_t& vpsp1() const; 
+
+  inline const Histo& hVpsp0() const;
+  inline const Histo& hVpsp1() const;
   
-  /** Simple container class that holds various parameter values that
-      are extracted from the "VPSP scan" histogram by the analysis. */
-  class Monitorables : public CommissioningAnalysis::Monitorables {
-  public:
-    uint16_t vpsp0_; // VPSP setting for APV0
-    uint16_t vpsp1_; // VPSP setting for APV1
-    Monitorables() : 
-      vpsp0_(sistrip::invalid_), 
-      vpsp1_(sistrip::invalid_) {;}
-    virtual ~Monitorables() {;}
-    void print( std::stringstream& );
-  };
-  
-  /** */
-  static void analysis(const TProfiles&, Monitorables& );
-  static void deprecated(const TProfiles&, Monitorables& );
+  void print( std::stringstream&, uint32_t not_used = 0 );
   
  private:
   
-  /** Deprecated. */
-  static void analysis(const std::vector<const TProfile*>& histos, 
-		       std::vector<unsigned short>& monitorables);
+  void reset();
+  void extract( const std::vector<TProfile*>& );
+  void analyse();
+
+ private:
+  
+  /** VPSP setting for APV0 */
+  uint16_t vpsp0_; // 
+  /** VPSP setting for APV1 */
+  uint16_t vpsp1_;
+  
+  /** "VPSP scan" histo for APV0 */
+  Histo hVpsp0_;
+  /** "VPSP scan" histo for APV1 */
+  Histo hVpsp1_;
+
+ private:
+
+  void deprecated();
+  void anal(const std::vector<const TProfile*>& histos, 
+	    std::vector<unsigned short>& monitorables);
   
 };
+
+const uint16_t& VpspScanAnalysis::vpsp0() const { return vpsp0_; }
+const uint16_t& VpspScanAnalysis::vpsp1() const { return vpsp1_; }
+const VpspScanAnalysis::Histo& VpspScanAnalysis::hVpsp0() const { return hVpsp0_; }
+const VpspScanAnalysis::Histo& VpspScanAnalysis::hVpsp1() const { return hVpsp1_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_VpspScanAnalysis_H
 

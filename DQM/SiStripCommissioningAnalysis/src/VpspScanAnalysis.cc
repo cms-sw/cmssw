@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
 #include <iostream>
 #include <cmath>
@@ -7,54 +8,83 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 //
-void VpspScanAnalysis::analysis(const TProfiles& histos, Monitorables& mons ) {
-  //@@ use matt's method...
-  deprecated( histos, mons ); 
-}
+VpspScanAnalysis::VpspScanAnalysis()
+  : CommissioningAnalysis(),
+    vpsp0_(sistrip::invalid_), 
+    vpsp1_(sistrip::invalid_),
+    hVpsp0_(0,""), 
+    hVpsp1_(0,"")
+{;}
 
 // ----------------------------------------------------------------------------
 // 
-void VpspScanAnalysis::Monitorables::print( stringstream& ss ) { 
+void VpspScanAnalysis::print( stringstream& ss, uint32_t not_used ) { 
   ss << "VPSP SCAN Monitorables:" << "\n"
      << " VPSP setting APV0: " << vpsp0_ << "\n" 
      << " VPSP setting APV1: " << vpsp1_ << "\n" ;
 }
 
-// ----------------------------------------------------------------------------
-// 
-void VpspScanAnalysis::TProfiles::print( stringstream& ss ) { 
-  ss << "TProfile pointers:" << "\n"
-     << " VPSP histo for APV0: " << vpsp0_ << "\n" 
-     << " VPSP histo for APV1: " << vpsp1_ << "\n" ;
-}
-
 // -----------------------------------------------------------------------------
 //
-void VpspScanAnalysis::deprecated(const TProfiles& profs, Monitorables& mons ) {
+void VpspScanAnalysis::reset() {
+  vpsp0_ = sistrip::invalid_;
+  vpsp1_ = sistrip::invalid_;
+  hVpsp0_ = Histo(0,"");
+  hVpsp1_ = Histo(0,"");
+}
+
+// ----------------------------------------------------------------------------
+// 
+void VpspScanAnalysis::extract( const vector<TProfile*>& histos ) { 
+
+  // Check
+  if ( histos.size() != 8 ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " Unexpected number of histograms: " 
+	 << histos.size()
+	 << endl;
+  }
   
-  vector<const TProfile*> histos; 
-  vector<unsigned short> monitorables;
-  for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
+  // Extract
+  vector<TProfile*>::const_iterator ihis = histos.begin();
+  for ( ; ihis != histos.end(); ihis++ ) {
     
-    histos.clear();
-    if ( iapv == 0 ) {
-      histos.push_back( const_cast<const TProfile*>(profs.vpsp0_) );
-    } else if ( iapv == 1 ) {
-      histos.push_back( const_cast<const TProfile*>(profs.vpsp1_) );
-    } 
-    if ( !histos[0] ) {
+    // Check pointer
+    if ( !(*ihis) ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to VPSP histo for APV" << iapv << endl;
+	   << " NULL pointer to histogram!" << endl;
       continue;
     }
     
-    monitorables.clear();
-    analysis( histos, monitorables );
+    // Check name
+    static SiStripHistoNamingScheme::HistoTitle title;
+    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
+    if ( title.task_ != sistrip::VPSP_SCAN ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unexpected commissioning task!"
+	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
+	   << endl;
+      continue;
+    }
     
-    if ( iapv == 0 ) {
-      mons.vpsp0_ = monitorables[0];
-    } else if ( iapv == 1 ) {
-      mons.vpsp1_ = monitorables[0];
+    // Extract APV number
+    uint16_t apv = sistrip::invalid_; 
+    if ( title.extraInfo_.find(sistrip::apv_) != string::npos ) {
+      stringstream ss;
+      ss << title.extraInfo_.substr( title.extraInfo_.find(sistrip::apv_) + sistrip::apv_.size(), 1 );
+      ss >> dec >> apv;
+    }
+    
+    // Store vpsp scan histos
+    if ( apv == 0 ) { 
+      hVpsp0_.first = *ihis; 
+      hVpsp0_.second = (*ihis)->GetName();
+    } else if ( apv == 1 ) { 
+      hVpsp1_.first = *ihis; 
+      hVpsp1_.second = (*ihis)->GetName();
+    } else {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unexpected APV number! (" << apv << ")" << endl;
     }
     
   }
@@ -63,8 +93,49 @@ void VpspScanAnalysis::deprecated(const TProfiles& profs, Monitorables& mons ) {
 
 // -----------------------------------------------------------------------------
 //
-void VpspScanAnalysis::analysis( const vector<const TProfile*>& histos, 
-				 vector<unsigned short>& monitorables ) {
+void VpspScanAnalysis::analyse() {
+  deprecated(); //@@ use matt's method...
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+//
+void VpspScanAnalysis::deprecated() {
+  
+  vector<const TProfile*> histos; 
+  vector<unsigned short> monitorables;
+  for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
+    
+    histos.clear();
+    if ( iapv == 0 ) {
+      histos.push_back( const_cast<const TProfile*>(hVpsp0_.first) );
+    } else if ( iapv == 1 ) {
+      histos.push_back( const_cast<const TProfile*>(hVpsp1_.first) );
+    } 
+    if ( !histos[0] ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " NULL pointer to VPSP histo for APV" << iapv << endl;
+      continue;
+    }
+    
+    monitorables.clear();
+    anal( histos, monitorables );
+    
+    if ( iapv == 0 ) {
+      vpsp0_ = monitorables[0];
+    } else if ( iapv == 1 ) {
+      vpsp1_ = monitorables[0];
+    }
+    
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void VpspScanAnalysis::anal( const vector<const TProfile*>& histos, 
+			     vector<unsigned short>& monitorables ) {
   //edm::LogInfo("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]";
 
   //extract root histogram

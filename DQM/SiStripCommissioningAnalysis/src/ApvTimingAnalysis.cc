@@ -1,24 +1,109 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-#define DBG "FILE: " << __FILE__ << "\n" << "FUNC: " << __PRETTY_FUNCTION__ 
-
 using namespace std;
 
 // ----------------------------------------------------------------------------
 // 
-void ApvTimingAnalysis::analysis( const TProfile* const histo, 
-				  ApvTimingAnalysis::Monitorables& mons ) { 
-  //cout << DBG << endl;
+ApvTimingAnalysis::ApvTimingAnalysis() 
+  : CommissioningAnalysis(),
+    pllCoarse_(sistrip::invalid_), 
+    pllFine_(sistrip::invalid_),
+    delay_(sistrip::invalid_), 
+    error_(sistrip::invalid_), 
+    base_(sistrip::invalid_), 
+    peak_(sistrip::invalid_), 
+    height_(sistrip::invalid_),
+    histo_(0,"")
+{;}
 
+// ----------------------------------------------------------------------------
+// 
+void ApvTimingAnalysis::print( stringstream& ss, uint32_t not_used ) { 
+  ss << "APV TIMING Monitorables:" << "\n"
+     << " PLL coarse setting : " << pllCoarse_ << "\n" 
+     << " PLL fine setting   : " << pllFine_ << "\n"
+     << " Timing delay [ns]  : " << delay_ << "\n" 
+     << " Error on delay [ns]: " << error_ << "\n"
+     << " Baseline [adc]     : " << base_ << "\n" 
+     << " Tick peak [adc]    : " << peak_ << "\n" 
+     << " Tick height [adc]  : " << height_ << "\n";
+}
+
+// ----------------------------------------------------------------------------
+// 
+void ApvTimingAnalysis::reset() {
+  pllCoarse_ = sistrip::invalid_; 
+  pllFine_ = sistrip::invalid_;
+  delay_ = sistrip::invalid_; 
+  error_ = sistrip::invalid_; 
+  base_ = sistrip::invalid_; 
+  peak_ = sistrip::invalid_; 
+  height_ = sistrip::invalid_;
+  histo_ = Histo(0,"");
+}
+
+// ----------------------------------------------------------------------------
+// 
+void ApvTimingAnalysis::extract( const vector<TProfile*>& histos ) { 
+  
+  // Check
+  if ( histos.size() != 1 ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " Unexpected number of histograms: " 
+	 << histos.size()
+	 << endl;
+  }
+  
+  // Extract
+  vector<TProfile*>::const_iterator ihis = histos.begin();
+  for ( ; ihis != histos.end(); ihis++ ) {
+    
+    // Check pointer
+    if ( !(*ihis) ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " NULL pointer to histogram!" << endl;
+      continue;
+    }
+    
+    // Check name
+    static SiStripHistoNamingScheme::HistoTitle title;
+    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
+    if ( title.task_ != sistrip::APV_TIMING ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unexpected commissioning task!"
+	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
+	   << endl;
+      continue;
+    }
+
+    // Extract timing histo
+    histo_.first = *ihis;
+    histo_.second = (*ihis)->GetName();
+    
+  }
+
+}
+
+// ----------------------------------------------------------------------------
+// 
+void ApvTimingAnalysis::analyse() { 
+
+  if ( !histo_.first ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " NULL pointer to histogram!" << endl;
+    return;
+  }
+  
   // Transfer histogram contents/errors/stats to containers
   uint16_t non_zero = 0;
   float max = -1.e9;
   float min =  1.e9;
-  uint16_t nbins = static_cast<uint16_t>( histo->GetNbinsX() );
+  uint16_t nbins = static_cast<uint16_t>( histo_.first->GetNbinsX() );
   vector<float> bin_contents; 
   vector<float> bin_errors;
   vector<float> bin_entries;
@@ -26,9 +111,9 @@ void ApvTimingAnalysis::analysis( const TProfile* const histo,
   bin_errors.reserve( nbins );
   bin_entries.reserve( nbins );
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
-    bin_contents.push_back( histo->GetBinContent(ibin+1) );
-    bin_errors.push_back( histo->GetBinError(ibin+1) );
-    bin_entries.push_back( histo->GetBinEntries(ibin+1) );
+    bin_contents.push_back( histo_.first->GetBinContent(ibin+1) );
+    bin_errors.push_back( histo_.first->GetBinError(ibin+1) );
+    bin_entries.push_back( histo_.first->GetBinEntries(ibin+1) );
     if ( bin_entries[ibin] ) { 
       if ( bin_contents[ibin] > max ) { max = bin_contents[ibin]; }
       if ( bin_contents[ibin] < min ) { min = bin_contents[ibin]; }
@@ -147,44 +232,17 @@ void ApvTimingAnalysis::analysis( const TProfile* const histo,
   
   // Set monitorables (but not PLL coarse and fine here)
   if ( !edges.empty() ) {
-    mons.delay_     = edges.begin()->first;
-    mons.error_     = 0.;
-    mons.base_      = baseline;
-    mons.peak_      = tickmark;
-    mons.height_    = tickmark - baseline;
+    delay_     = edges.begin()->first;
+    error_     = 0.;
+    base_      = baseline;
+    peak_      = tickmark;
+    height_    = tickmark - baseline;
   } else {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " No tick marks found!" << endl;
-    mons.base_   = baseline;
-    mons.peak_   = tickmark;
-    mons.height_ = tickmark - baseline;
+    base_   = baseline;
+    peak_   = tickmark;
+    height_ = tickmark - baseline;
   }
-  
-}
-
-// ----------------------------------------------------------------------------
-// 
-void ApvTimingAnalysis::Monitorables::print( stringstream& ss ) { 
-  ss << "APV TIMING Monitorables:" << "\n"
-     << " PLL coarse setting : " << pllCoarse_ << "\n" 
-     << " PLL fine setting   : " << pllFine_ << "\n"
-     << " Timing delay [ns]  : " << delay_ << "\n" 
-     << " Error on delay [ns]: " << error_ << "\n"
-     << " Baseline [adc]     : " << base_ << "\n" 
-     << " Tick peak [adc]    : " << peak_ << "\n" 
-     << " Tick height [adc]  : " << height_ << "\n";
-}
-
-// ----------------------------------------------------------------------------
-// old analysis method, wrapping new one for backward compatibilty
-void ApvTimingAnalysis::analysis( const vector<const TProfile*>& histos, 
-				  vector<unsigned short>& monitorables ) {
-  ApvTimingAnalysis::Monitorables mons;
-  if ( !histos.empty() ) {
-    ApvTimingAnalysis::analysis( histos[0], mons );
-  }
-  monitorables.resize(2,0);
-  monitorables[0] = mons.pllCoarse_;
-  monitorables[1] = mons.pllFine_;
   
 }

@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAnalysis.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
 #include <iostream>
 #include <iomanip>
@@ -6,36 +7,155 @@
 
 using namespace std;
 
+// ----------------------------------------------------------------------------
+// 
+PedestalsAnalysis::PedestalsAnalysis() 
+  : CommissioningAnalysis(),
+    peds_(2,VFloats(128,sistrip::invalid_)), 
+    noise_(2,VFloats(128,sistrip::invalid_)), 
+    dead_(2,VInts(0,sistrip::invalid_)), 
+    noisy_(2,VInts(0,sistrip::invalid_)),
+    pedsMean_(2,sistrip::invalid_), 
+    pedsSpread_(2,sistrip::invalid_), 
+    noiseMean_(2,sistrip::invalid_), 
+    noiseSpread_(2,sistrip::invalid_), 
+    pedsMax_(2,sistrip::invalid_), 
+    pedsMin_(2,sistrip::invalid_), 
+    noiseMax_(2,sistrip::invalid_), 
+    noiseMin_(2,sistrip::invalid_),
+    hPeds_(0,""),
+    hNoise_(0,"")
+{
+  dead_[0].reserve(256); dead_[1].reserve(256); 
+  noisy_[0].reserve(256); noisy_[1].reserve(256);
+}
+
+// ----------------------------------------------------------------------------
+// 
+void PedestalsAnalysis::print( stringstream& ss, uint32_t iapv ) { 
+  if ( iapv != 0 && iapv != 1 ) { iapv = 0; }
+  ss << "FED calibration constants for APV" << iapv << "\n"
+     << " Number of pedestal values   : " << peds_[iapv].size() << "\n"
+     << " Number of noise values      : " << noise_[iapv].size() << "\n"
+     << " Dead strips  (>5s) [strip]  : (" << dead_[iapv].size() << " in total) ";
+  for ( uint16_t ii = 0; ii < dead_[iapv].size(); ii++ ) { 
+    ss << dead_[iapv][ii] << " "; }
+  
+  ss << "\n";
+  ss << " Noisy strips (<5s) [strip]  : (" << noisy_[iapv].size() << " in total) ";
+  for ( uint16_t ii = 0; ii < noisy_[iapv].size(); ii++ ) { 
+    ss << noisy_[iapv][ii] << " "; 
+  } 
+  ss << "\n";
+  ss << " Mean peds +/- spread [adc]  : " << pedsMean_[iapv] << " +/- " << pedsSpread_[iapv] << "\n" 
+     << " Max/Min pedestal [adc]      : " << pedsMax_[iapv] << " <-> " << pedsMin_[iapv] << "\n"
+     << " Mean noise +/- spread [adc] : " << noiseMean_[iapv] << " +/- " << noiseSpread_[iapv] << "\n" 
+     << " Max/Min noise [adc]         : " << noiseMax_[iapv] << " <-> " << noiseMin_[iapv] << "\n"
+     << " Normalised noise (to come!) : " << "\n";
+}
+
+// ----------------------------------------------------------------------------
+// 
+void PedestalsAnalysis::reset() {
+  peds_        = VVFloats(2,VFloats(128,sistrip::invalid_)); 
+  noise_       = VVFloats(2,VFloats(128,sistrip::invalid_)); 
+  dead_        = VVInts(2,VInts(0,sistrip::invalid_)); 
+  noisy_       = VVInts(2,VInts(0,sistrip::invalid_));
+  pedsMean_    = VFloats(2,sistrip::invalid_); 
+  pedsSpread_  = VFloats(2,sistrip::invalid_); 
+  noiseMean_   = VFloats(2,sistrip::invalid_); 
+  noiseSpread_ = VFloats(2,sistrip::invalid_); 
+  pedsMax_     = VFloats(2,sistrip::invalid_); 
+  pedsMin_     = VFloats(2,sistrip::invalid_); 
+  noiseMax_    = VFloats(2,sistrip::invalid_); 
+  noiseMin_    = VFloats(2,sistrip::invalid_);
+  dead_[0].reserve(256); 
+  dead_[1].reserve(256); 
+  noisy_[0].reserve(256); 
+  noisy_[1].reserve(256);
+  hPeds_ = Histo(0,"");
+  hNoise_ = Histo(0,"");
+}
+
+// ----------------------------------------------------------------------------
+// 
+void PedestalsAnalysis::extract( const vector<TProfile*>& histos ) { 
+
+  // Check
+  if ( histos.size() != 2 ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " Unexpected number of histograms: " 
+	 << histos.size()
+	 << endl;
+  }
+  
+  // Extract
+  vector<TProfile*>::const_iterator ihis = histos.begin();
+  for ( ; ihis != histos.end(); ihis++ ) {
+    
+    // Check pointer
+    if ( !(*ihis) ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " NULL pointer to histogram!" << endl;
+      continue;
+    }
+    
+    // Check name
+    static SiStripHistoNamingScheme::HistoTitle title;
+    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
+    if ( title.task_ != sistrip::PEDESTALS ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unexpected commissioning task!"
+	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
+	   << endl;
+      continue;
+    }
+    
+    // Extract peds and noise histos
+    if ( title.extraInfo_.find(sistrip::pedsAndRawNoise_) != string::npos ) {
+      hPeds_.first = *ihis;
+      hPeds_.second = (*ihis)->GetName();
+    } else if ( title.extraInfo_.find(sistrip::residualsAndNoise_) != string::npos ) {
+      hNoise_.first = *ihis;
+      hNoise_.second = (*ihis)->GetName();
+    } else { 
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unexpected 'extra info': " << title.extraInfo_ << endl;
+    }
+    
+  }
+
+}
+
 // -----------------------------------------------------------------------------
 // 
-void PedestalsAnalysis::analysis( const TProfiles& profs, 
-				  PedestalsAnalysis::Monitorables& mons ) {
+void PedestalsAnalysis::analyse() {
 
   // Checks on whether histos exist
-  if ( !profs.peds_ ) {
+  if ( !hPeds_.first ) {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " NULL pointer to 'peds and raw noise' histogram!"
 	 << endl;
   }
-  if ( !profs.noise_ ) {
+  if ( !hNoise_.first ) {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " NULL pointer to 'residuals and noise' histogram!"
 	 << endl;
   }
   
-  //profs.peds_->SetErrorOption("s");
-  //profs.noise_->SetErrorOption("s");
+  //hPeds_.first->SetErrorOption("s");
+  //hNoise_.first->SetErrorOption("s");
 
   // Checks on size of histos
-  if ( profs.peds_->GetNbinsX() != 256 ) {
+  if ( hPeds_.first->GetNbinsX() != 256 ) {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " Unexpected number of bins for 'peds and raw noise' histogram: "
-	 << profs.peds_->GetNbinsX() << endl;
+	 << hPeds_.first->GetNbinsX() << endl;
   }
-  if ( profs.noise_->GetNbinsX() != 256 ) {
+  if ( hNoise_.first->GetNbinsX() != 256 ) {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " Unexpected number of bins for 'residuals and noise' histogram: "
-	 << profs.noise_->GetNbinsX() << endl;
+	 << hNoise_.first->GetNbinsX() << endl;
   }
 
   // Iterate through APVs 
@@ -48,61 +168,61 @@ void PedestalsAnalysis::analysis( const TProfiles& profs,
       static uint16_t strip;
       strip = iapv*2 + istr;
       // Pedestals 
-      if ( profs.peds_ ) {
-	if ( profs.peds_->GetBinEntries(strip+1) ) {
-	  mons.peds_[iapv][istr] = profs.peds_->GetBinContent(strip+1);
-	  p_sum += mons.peds_[iapv][istr];
-	  p_sum2 += mons.peds_[iapv][istr] * mons.peds_[iapv][istr];
-	  if ( mons.peds_[iapv][istr] > p_max ) { p_max = mons.peds_[iapv][istr]; }
-	  if ( mons.peds_[iapv][istr] < p_min ) { p_min = mons.peds_[iapv][istr]; }
+      if ( hPeds_.first ) {
+	if ( hPeds_.first->GetBinEntries(strip+1) ) {
+	  peds_[iapv][istr] = hPeds_.first->GetBinContent(strip+1);
+	  p_sum += peds_[iapv][istr];
+	  p_sum2 += peds_[iapv][istr] * peds_[iapv][istr];
+	  if ( peds_[iapv][istr] > p_max ) { p_max = peds_[iapv][istr]; }
+	  if ( peds_[iapv][istr] < p_min ) { p_min = peds_[iapv][istr]; }
 	}
       } 
       // Noise
-      if ( profs.noise_ ) {
-	if ( profs.noise_->GetBinEntries(strip+1) ) {
-	  mons.noise_[iapv][istr] = profs.noise_->GetBinError(strip+1);
-	  n_sum += mons.noise_[iapv][istr];
-	  n_sum2 += mons.noise_[iapv][istr] * mons.noise_[iapv][istr];
-	  if ( mons.noise_[iapv][istr] > n_max ) { n_max = mons.noise_[iapv][istr]; }
-	  if ( mons.noise_[iapv][istr] < n_min ) { n_min = mons.noise_[iapv][istr]; }
+      if ( hNoise_.first ) {
+	if ( hNoise_.first->GetBinEntries(strip+1) ) {
+	  noise_[iapv][istr] = hNoise_.first->GetBinError(strip+1);
+	  n_sum += noise_[iapv][istr];
+	  n_sum2 += noise_[iapv][istr] * noise_[iapv][istr];
+	  if ( noise_[iapv][istr] > n_max ) { n_max = noise_[iapv][istr]; }
+	  if ( noise_[iapv][istr] < n_min ) { n_min = noise_[iapv][istr]; }
 	}
       }
 
     } // strip loop
     
     // Calc mean and rms for peds
-    if ( !mons.peds_[iapv].empty() ) { 
-      p_sum /= static_cast<float>( mons.peds_[iapv].size() );
-      p_sum2 /= static_cast<float>( mons.peds_[iapv].size() );
-      mons.pedsMean_[iapv] = p_sum;
+    if ( !peds_[iapv].empty() ) { 
+      p_sum /= static_cast<float>( peds_[iapv].size() );
+      p_sum2 /= static_cast<float>( peds_[iapv].size() );
+      pedsMean_[iapv] = p_sum;
       if ( p_sum2 >= p_sum*p_sum ) { 
-	mons.pedsSpread_[iapv] = sqrt( p_sum2 - p_sum*p_sum );
+	pedsSpread_[iapv] = sqrt( p_sum2 - p_sum*p_sum );
       }
     }
     
     // Calc mean and rms for noise
-    if ( !mons.noise_[iapv].empty() ) { 
-      n_sum /= static_cast<float>( mons.noise_[iapv].size() );
-      n_sum2 /= static_cast<float>( mons.noise_[iapv].size() );
-      mons.noiseMean_[iapv] = n_sum;
+    if ( !noise_[iapv].empty() ) { 
+      n_sum /= static_cast<float>( noise_[iapv].size() );
+      n_sum2 /= static_cast<float>( noise_[iapv].size() );
+      noiseMean_[iapv] = n_sum;
       if ( n_sum2 >= n_sum*n_sum ) { 
-	mons.noiseSpread_[iapv] = sqrt( n_sum2 - n_sum*n_sum );
+	noiseSpread_[iapv] = sqrt( n_sum2 - n_sum*n_sum );
       } 
     }
     
     // Set max and min values for both peds and noise
-    if ( p_max > -1024. ) { mons.pedsMax_[iapv] = p_max; }
-    if ( p_min < 1024. )  { mons.pedsMin_[iapv] = p_min; }
-    if ( n_max > -1024. ) { mons.noiseMax_[iapv] = n_max; }
-    if ( n_min < 1024. )  { mons.noiseMin_[iapv] = n_min; }
+    if ( p_max > -1024. ) { pedsMax_[iapv] = p_max; }
+    if ( p_min < 1024. )  { pedsMin_[iapv] = p_min; }
+    if ( n_max > -1024. ) { noiseMax_[iapv] = n_max; }
+    if ( n_min < 1024. )  { noiseMin_[iapv] = n_min; }
 
     // Set dead and noisy strips
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
-      if ( mons.noise_[iapv][istr] < (mons.noiseMean_[iapv] - 5.*mons.noiseSpread_[iapv]) ) {
-	mons.dead_[iapv].push_back(istr); //@@ valid threshold???
+      if ( noise_[iapv][istr] < (noiseMean_[iapv] - 5.*noiseSpread_[iapv]) ) {
+	dead_[iapv].push_back(istr); //@@ valid threshold???
       } 
-      else if ( mons.noise_[iapv][istr] > (mons.noiseMean_[iapv] + 5.*mons.noiseSpread_[iapv]) ) {
-	mons.noisy_[iapv].push_back(istr); //@@ valid threshold???
+      else if ( noise_[iapv][istr] > (noiseMean_[iapv] + 5.*noiseSpread_[iapv]) ) {
+	noisy_[iapv].push_back(istr); //@@ valid threshold???
       }
     }
   
@@ -110,47 +230,3 @@ void PedestalsAnalysis::analysis( const TProfiles& profs,
   
 }
 
-// ----------------------------------------------------------------------------
-// 
-void PedestalsAnalysis::Monitorables::print( stringstream& ss, 
-					     uint16_t iapv ) { 
-  if ( iapv != 0 && iapv != 1 ) { iapv = 0; }
-  ss << "FED calibration constants for APV" << iapv << "\n"
-     << " Number of pedestal values   : " << peds_[iapv].size() << "\n"
-     << " Number of noise values      : " << noise_[iapv].size() << "\n"
-     << " Dead strips  (>5s) [strip]  : (" << dead_[iapv].size() << " in total) ";
-  for ( uint16_t ii = 0; ii < dead_[iapv].size(); ii++ ) { ss << dead_[iapv][ii] << " "; } 
-  ss << "\n";
-  ss << " Noisy strips (<5s) [strip]  : (" << noisy_[iapv].size() << " in total) ";
-  for ( uint16_t ii = 0; ii < noisy_[iapv].size(); ii++ ) { ss << noisy_[iapv][ii] << " "; } 
-  ss << "\n";
-  ss << " Mean peds +/- spread [adc]  : " << pedsMean_[iapv] << " +/- " << pedsSpread_[iapv] << "\n" 
-     << " Max/Min pedestal [adc]      : " << pedsMax_[iapv] << " <-> " << pedsMin_[iapv] << "\n"
-     << " Mean noise +/- spread [adc] : " << noiseMean_[iapv] << " +/- " << noiseSpread_[iapv] << "\n" 
-     << " Max/Min noise [adc]         : " << noiseMax_[iapv] << " <-> " << noiseMin_[iapv] << "\n"
-     << " Normalised noise (to come!) : " << "\n";
-    ;
-}
-
-// -----------------------------------------------------------------------------
-//
-void PedestalsAnalysis::analysis( const vector<const TProfile*>& histos, 
-				  vector< vector<float> >& monitorables ) {
-  //edm::LogInfo("Commissioning|Analysis") << "[PedestalsAnalysis::analysis]";
-  
-  if (histos.size() != 2) { 
-    // edm::LogError("Commissioning|Analysis") << "[PedestalsAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 2. Actual size: " << histos.size() << ". Monitorables set to 0."; 
-    monitorables.push_back(vector<float>(1,0.)); monitorables.push_back(vector<float>(1,0.));
-    return; 
-  }
-  monitorables.resize(2,vector<float>());
-  
-  // Retrieve histogram contents and set monitorables
-  vector<float>& peds = monitorables[0]; 
-  vector<float>& noise = monitorables[1]; 
-  for ( int ibin = 0; ibin < histos[0]->GetNbinsX(); ibin++ ) {
-    peds.push_back( histos[0]->GetBinContent(ibin+1) );
-    noise.push_back( histos[1]->GetBinError(ibin+1) );
-  }
-
-}

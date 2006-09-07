@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAnalysis.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/LinearFit.h"
 #include "TProfile.h"
 #include <iostream>
@@ -8,21 +9,170 @@ using namespace std;
 
 // ----------------------------------------------------------------------------
 // 
-void OptoScanAnalysis::analysis( const TProfiles& histos, 
-				 OptoScanAnalysis::Monitorables& mons ) { 
-  
-  if (0) { deprecated( histos, mons ); return; }
+OptoScanAnalysis::OptoScanAnalysis() 
+  : gain_(sistrip::invalid_), 
+    bias_(4,sistrip::invalid_), 
+    measGain_(4,sistrip::invalid_), 
+    zeroLight_(4,sistrip::invalid_), 
+    linkNoise_(4,sistrip::invalid_),
+    liftOff_(4,sistrip::invalid_), 
+    threshold_(4,sistrip::invalid_), 
+    tickHeight_(4,sistrip::invalid_),
+    g0d0_(0,""), 
+    g0d1_(0,""), 
+    g1d0_(0,""), 
+    g1d1_(0,""), 
+    g2d0_(0,""), 
+    g2d1_(0,""), 
+    g3d0_(0,""), 
+    g3d1_(0,"")
+{;}
 
+// ----------------------------------------------------------------------------
+// 
+void OptoScanAnalysis::print( stringstream& ss, uint32_t gain ) { 
+  if ( gain >= 4 ) { gain = gain_; }
+  ss << "OPTO SCAN Monitorables for gain setting " << gain << "\n"
+     << " Optimum LLD gain setting : " << gain_ << "\n"
+     << " LLD bias setting         : " << bias_[gain] << "\n"
+     << " Measured gain [V/V]      : " << measGain_[gain] << "\n"
+     << " 'Zero light' level [adc] : " << zeroLight_[gain] << "\n"
+     << " Link noise [adc]         : " << linkNoise_[gain] << "\n"
+     << " Baseline 'lift off' [mA] : " << liftOff_[gain] << "\n"
+     << " Laser threshold [mA]     : " << threshold_[gain] << "\n"
+     << " Tick mark height [adc]   : " << tickHeight_[gain] << "\n";
+}
+
+// ----------------------------------------------------------------------------
+// 
+void OptoScanAnalysis::reset() {
+  gain_       = sistrip::invalid_; 
+  bias_       = VInts(4,sistrip::invalid_); 
+  measGain_   = VFloats(4,sistrip::invalid_); 
+  zeroLight_  = VFloats(4,sistrip::invalid_); 
+  linkNoise_  = VFloats(4,sistrip::invalid_);
+  liftOff_    = VFloats(4,sistrip::invalid_); 
+  threshold_  = VFloats(4,sistrip::invalid_); 
+  tickHeight_ = VFloats(4,sistrip::invalid_);
+  g0d0_ = Histo(0,""); 
+  g0d1_ = Histo(0,""); 
+  g1d0_ = Histo(0,""); 
+  g1d1_ = Histo(0,""); 
+  g2d0_ = Histo(0,""); 
+  g2d1_ = Histo(0,""); 
+  g3d0_ = Histo(0,""); 
+  g3d1_ = Histo(0,"");
+}
+  
+// ----------------------------------------------------------------------------
+// 
+void OptoScanAnalysis::extract( const vector<TProfile*>& histos ) { 
+
+  // Check
+  if ( histos.size() != 8 ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " Unexpected number of histograms: " 
+	 << histos.size()
+	 << endl;
+  }
+  
+  // Extract
+  vector<TProfile*>::const_iterator ihis = histos.begin();
+  for ( ; ihis != histos.end(); ihis++ ) {
+    
+    // Check pointer
+    if ( !(*ihis) ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " NULL pointer to histogram!" << endl;
+      continue;
+    }
+    
+    // Check name
+    static SiStripHistoNamingScheme::HistoTitle title;
+    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
+    if ( title.task_ != sistrip::OPTO_SCAN ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unexpected commissioning task!"
+	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
+	   << endl;
+      continue;
+    }
+    
+
+    // Extract gain setting and digital high/low info
+    uint16_t gain = sistrip::invalid_; 
+    if ( title.extraInfo_.find(sistrip::gain_) != string::npos ) {
+      stringstream ss;
+      ss << title.extraInfo_.substr( title.extraInfo_.find(sistrip::gain_) + sistrip::gain_.size(), 1 );
+      ss >> dec >> gain;
+    }
+    uint16_t digital = sistrip::invalid_; 
+    if ( title.extraInfo_.find(sistrip::digital_) != string::npos ) {
+      stringstream ss;
+      ss << title.extraInfo_.substr( title.extraInfo_.find(sistrip::digital_) + sistrip::digital_.size(), 1 );
+      ss >> dec >> digital;
+    }
+
+    // Store opto scan histos
+    if ( digital == 0 ) { 
+      if ( gain == 0 ) { 
+	g0d0_.first = *ihis; 
+	g0d0_.second = (*ihis)->GetName();
+      } else if ( gain == 1 ) { 
+	g1d0_.first = *ihis; 
+	g1d0_.second = (*ihis)->GetName();
+      } else if ( gain == 2 ) { 
+	g2d0_.first = *ihis; 
+	g2d0_.second = (*ihis)->GetName();
+      } else if ( gain == 3 ) { 
+	g3d0_.first = *ihis; 
+	g3d0_.second = (*ihis)->GetName();
+      } else {
+	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " Unexpected gain setting! (" << gain << ")" << endl;
+      }
+    } else if ( digital == 1 ) { 
+      if ( gain == 0 ) { 
+	g0d1_.first = *ihis; 
+	g0d1_.second = (*ihis)->GetName();
+      } else if ( gain == 1 ) { 
+	g1d1_.first = *ihis; 
+	g1d1_.second = (*ihis)->GetName();
+      } else if ( gain == 2 ) { 
+	g2d1_.first = *ihis; 
+	g2d1_.second = (*ihis)->GetName();
+      } else if ( gain == 3 ) { 
+	g3d1_.first = *ihis; 
+	g3d1_.second = (*ihis)->GetName();
+      } else {
+	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " Unexpected gain setting! (" << gain << ")" << endl;
+      }
+    } else {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unexpected ditigal setting! (" << digital << ")" << endl;
+    }
+    
+  }
+
+}
+
+// ----------------------------------------------------------------------------
+// 
+void OptoScanAnalysis::analyse() { 
+  
+  if (0) { deprecated(); return; }
+  
   // Iterate through four gain settings
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
     
     // Select histos appropriate for gain setting
     TProfile* base_histo = 0;
     TProfile* peak_histo = 0;
-    if      ( igain == 0 ) { base_histo = histos.g0d0_; peak_histo = histos.g0d1_; }
-    else if ( igain == 1 ) { base_histo = histos.g1d0_; peak_histo = histos.g1d1_; }
-    else if ( igain == 2 ) { base_histo = histos.g2d0_; peak_histo = histos.g2d1_; }
-    else if ( igain == 3 ) { base_histo = histos.g3d0_; peak_histo = histos.g3d1_; }
+    if      ( igain == 0 ) { base_histo = g0d0_.first; peak_histo = g0d1_.first; }
+    else if ( igain == 1 ) { base_histo = g1d0_.first; peak_histo = g1d1_.first; }
+    else if ( igain == 2 ) { base_histo = g2d0_.first; peak_histo = g2d1_.first; }
+    else if ( igain == 3 ) { base_histo = g3d0_.first; peak_histo = g3d1_.first; }
 
     // Check for valid pointers to histograms
     if ( !peak_histo ) {
@@ -238,28 +388,28 @@ void OptoScanAnalysis::analysis( const TProfiles& histos,
 
     // Check "lift off" value and set bias setting accordingly
     if ( lift_off < sistrip::maximum_ ) {
-      mons.bias_[igain] = static_cast<uint16_t>( lift_off ) + 2;
-    } else { mons.bias_[igain] = 0; } //@@ "default" should be what?
+      bias_[igain] = static_cast<uint16_t>( lift_off ) + 2;
+    } else { bias_[igain] = 0; } //@@ "default" should be what?
 
     // Set "zero light" level and link noise
-    mons.zeroLight_[igain] = zero_light_level;
-    mons.linkNoise_[igain] = zero_light_error;
+    zeroLight_[igain] = zero_light_level;
+    linkNoise_[igain] = zero_light_error;
     
     // Calculate "lift off" and laser threshold (in mA)
-    mons.liftOff_[igain] = 0.45 * lift_off;
-    mons.threshold_[igain] = 0.45 * ( lift_off - width/2. );
+    liftOff_[igain] = 0.45 * lift_off;
+    threshold_[igain] = 0.45 * ( lift_off - width/2. );
     
     // Calculate tick mark height
     if ( low_params.b_ < sistrip::maximum_ &&
 	 width <  sistrip::maximum_ ) {
-      mons.tickHeight_[igain] = width * low_params.b_;
+      tickHeight_[igain] = width * low_params.b_;
     }
 
     // Set measured gain 
-    if ( mons.tickHeight_[igain] < sistrip::invalid_-1. ) {
+    if ( tickHeight_[igain] < sistrip::invalid_-1. ) {
       float adc_gain = 1.024 / 1024.; // Peak-to-peak voltage for FED ADC [V/adc] 
-      mons.measGain_[igain] = mons.tickHeight_[igain] * adc_gain / 0.800;
-    } else { mons.measGain_[igain] = 0.; }
+      measGain_[igain] = tickHeight_[igain] * adc_gain / 0.800;
+    } else { measGain_[igain] = 0.; }
     
   } // gain loop
 
@@ -269,56 +419,28 @@ void OptoScanAnalysis::analysis( const TProfiles& histos,
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
 
     // Check for sensible gain value
-    if ( mons.measGain_[igain] > sistrip::maximum_ ) { continue; }
+    if ( measGain_[igain] > sistrip::maximum_ ) { continue; }
 
     // Find optimum gain setting
-    if ( fabs( mons.measGain_[igain] - target_gain ) < diff_in_gain ) {
-      mons.gain_ = static_cast<uint16_t>( igain );
-      diff_in_gain = fabs( mons.measGain_[igain] - target_gain );
+    if ( fabs( measGain_[igain] - target_gain ) < diff_in_gain ) {
+      gain_ = static_cast<uint16_t>( igain );
+      diff_in_gain = fabs( measGain_[igain] - target_gain );
     }
     
   } 
 
   // Check optimum gain setting
-  if ( mons.gain_ > sistrip::maximum_ ) { mons.gain_ = 0; }
+  if ( gain_ > sistrip::maximum_ ) { gain_ = 0; }
 
 }
 
-// ----------------------------------------------------------------------------
-// 
-void OptoScanAnalysis::Monitorables::print( stringstream& ss,
-					    uint16_t gain ) { 
-  if ( gain >= 4 ) { gain = gain_; }
-  ss << "OPTO SCAN Monitorables for gain setting " << gain << "\n"
-     << " Optimum LLD gain setting : " << gain_ << "\n"
-     << " LLD bias setting         : " << bias_[gain] << "\n"
-     << " Measured gain [V/V]      : " << measGain_[gain] << "\n"
-     << " 'Zero light' level [adc] : " << zeroLight_[gain] << "\n"
-     << " Link noise [adc]         : " << linkNoise_[gain] << "\n"
-     << " Baseline 'lift off' [mA] : " << liftOff_[gain] << "\n"
-     << " Laser threshold [mA]     : " << threshold_[gain] << "\n"
-     << " Tick mark height [adc]   : " << tickHeight_[gain] << "\n";
-}
 
 // ----------------------------------------------------------------------------
-// 
-void OptoScanAnalysis::TProfiles::print( stringstream& ss ) { 
-  ss << "TProfile pointers:" << "\n"
-     << " Gain 0, Digital 0: " << g0d0_ << "\n"
-     << " Gain 0, Digital 1: " << g0d1_ << "\n"
-     << " Gain 1, Digital 0: " << g1d0_ << "\n"
-     << " Gain 1, Digital 1: " << g1d1_ << "\n"
-     << " Gain 2, Digital 0: " << g2d0_ << "\n"
-     << " Gain 2, Digital 1: " << g2d1_ << "\n"
-     << " Gain 3, Digital 0: " << g3d0_ << "\n"
-     << " Gain 3, Digital 1: " << g3d1_ << "\n";
-}
-
+// ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 // 
-void OptoScanAnalysis::deprecated( const TProfiles& profs, 
-				   OptoScanAnalysis::Monitorables& mons ) { 
-
+void OptoScanAnalysis::deprecated() { 
+  
   vector<const TProfile*> histos; 
   vector<float> monitorables;
 
@@ -326,17 +448,17 @@ void OptoScanAnalysis::deprecated( const TProfiles& profs,
 
     histos.clear();
     if ( igain == 0 ) {
-      histos.push_back( const_cast<const TProfile*>(profs.g0d0_) );
-      histos.push_back( const_cast<const TProfile*>(profs.g0d1_) );
+      histos.push_back( const_cast<const TProfile*>(g0d0_.first) );
+      histos.push_back( const_cast<const TProfile*>(g0d1_.first) );
     } else if ( igain == 1 ) {
-      histos.push_back( const_cast<const TProfile*>(profs.g1d0_) );
-      histos.push_back( const_cast<const TProfile*>(profs.g1d1_) );
+      histos.push_back( const_cast<const TProfile*>(g1d0_.first) );
+      histos.push_back( const_cast<const TProfile*>(g1d1_.first) );
     } else if ( igain == 2 ) {
-      histos.push_back( const_cast<const TProfile*>(profs.g2d0_) );
-      histos.push_back( const_cast<const TProfile*>(profs.g2d1_) );
+      histos.push_back( const_cast<const TProfile*>(g2d0_.first) );
+      histos.push_back( const_cast<const TProfile*>(g2d1_.first) );
     } else if ( igain == 3 ) {
-      histos.push_back( const_cast<const TProfile*>(profs.g3d0_) );
-      histos.push_back( const_cast<const TProfile*>(profs.g3d1_) );
+      histos.push_back( const_cast<const TProfile*>(g3d0_.first) );
+      histos.push_back( const_cast<const TProfile*>(g3d1_.first) );
     } 
     
     if ( !histos[0] ) {
@@ -351,10 +473,10 @@ void OptoScanAnalysis::deprecated( const TProfiles& profs,
     }
 
     monitorables.clear();
-    analysis( histos, monitorables );
+    anal( histos, monitorables );
     
-    mons.bias_[igain] = static_cast<uint16_t>( monitorables[0] );
-    mons.measGain_[igain] = monitorables[1];
+    bias_[igain] = static_cast<uint16_t>( monitorables[0] );
+    measGain_[igain] = monitorables[1];
     
   }
  
@@ -366,28 +488,28 @@ void OptoScanAnalysis::deprecated( const TProfiles& profs,
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
 
     // Check for sensible gain value
-    if ( mons.measGain_[igain] > sistrip::maximum_ ) { continue; }
+    if ( measGain_[igain] > sistrip::maximum_ ) { continue; }
     
     // Check for sensible bias value
-    if ( mons.bias_[igain] > sistrip::maximum_ ) { mons.bias_[igain] = 30; } //@@ should be what???
+    if ( bias_[igain] > sistrip::maximum_ ) { bias_[igain] = 30; } //@@ should be what???
 
     // Find optimum gain setting
-    if ( fabs( mons.measGain_[igain] - target_gain ) < diff_in_gain ) {
-      mons.gain_ = static_cast<uint16_t>( igain );
-      diff_in_gain = fabs( mons.measGain_[igain] - target_gain );
+    if ( fabs( measGain_[igain] - target_gain ) < diff_in_gain ) {
+      gain_ = static_cast<uint16_t>( igain );
+      diff_in_gain = fabs( measGain_[igain] - target_gain );
     }
     
   } 
 
   // Check optimum gain setting
-  if ( mons.gain_ > sistrip::maximum_ ) { mons.gain_ = 0; }
+  if ( gain_ > sistrip::maximum_ ) { gain_ = 0; }
 
 }
 
 // ----------------------------------------------------------------------------
 //
-void OptoScanAnalysis::analysis( const vector<const TProfile*>& histos, 
-				 vector<float>& monitorables ) {
+void OptoScanAnalysis::anal( const vector<const TProfile*>& histos, 
+			     vector<float>& monitorables ) {
   //edm::LogInfo("Commissioning|Analysis") << "[OptoScanAnalysis::analysis]";
   
   //extract root histograms
