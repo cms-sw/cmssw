@@ -1,83 +1,169 @@
 #include "DQM/SiStripCommissioningSummary/interface/PedestalsSummaryFactory.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include <iostream>
 #include <sstream>
 
 using namespace std;
 
+// -----------------------------------------------------------------------------
+//
+SummaryHistogramFactory<PedestalsAnalysis>::SummaryHistogramFactory() :
+  histo_(sistrip::UNKNOWN_SUMMARY_HISTO),
+  type_(sistrip::UNKNOWN_SUMMARY_TYPE),
+  view_(sistrip::UNKNOWN_VIEW),
+  level_(sistrip::root_),
+  gran_(sistrip::UNKNOWN_GRAN),
+  generator_(0) 
+{
+} 
+
+
+// -----------------------------------------------------------------------------
+//
+SummaryHistogramFactory<PedestalsAnalysis>::~SummaryHistogramFactory() {
+  if ( generator_ ) { delete generator_; }
+}
+
+// -----------------------------------------------------------------------------
+//
+void SummaryHistogramFactory<PedestalsAnalysis>::init( const sistrip::SummaryHisto& histo, 
+						       const sistrip::SummaryType& type,
+						       const sistrip::View& view, 
+						       const string& top_level_dir, 
+						       const sistrip::Granularity& gran ) {
+  histo_ = histo;
+  type_ = type;
+  view_ = view;
+  level_ = top_level_dir;
+  gran_ = gran;
+
+  // Retrieve utility class used to generate summary histograms
+  if ( generator_ ) { delete generator_; generator_ = 0; }
+  generator_ = SummaryGenerator::instance( view );
+  
+}
+
 //------------------------------------------------------------------------------
 //
-void SummaryHistogramFactory<PedestalsAnalysis::Monitorables>::generate( const sistrip::SummaryHisto& histo, 
-									 const sistrip::SummaryType& type,
-									 const sistrip::View& view, 
-									 const string& directory, 
-									 const map<uint32_t,PedestalsAnalysis::Monitorables>& data,
-									 TH1& summary_histo ) {
-
+uint32_t SummaryHistogramFactory<PedestalsAnalysis>::extract( const map<uint32_t,PedestalsAnalysis>& data ) {
+  
   // Check if data are present
   if ( data.empty() ) { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " No data to histogram!" << endl;
-    return ; 
-  } 
+	 << " No data in monitorables map!" << endl;
+    return 0; 
+  }
   
-  // Retrieve utility class used to generate summary histograms
-  auto_ptr<SummaryGenerator> generator = SummaryGenerator::instance( view );
-  if ( !generator.get() ) { return; }
-
-  // Transfer appropriate info from monitorables map to generator object
-  map<uint32_t,PedestalsAnalysis::Monitorables>::const_iterator iter = data.begin();
+  // Check if instance of generator class exists
+  if ( !generator_ ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!" << endl;
+    return 0;
+  }
+  
+  // Transfer appropriate monitorables info to generator object
+  generator_->clearMap();
+  map<uint32_t,PedestalsAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    if ( histo == sistrip::PEDESTALS_MEAN ) {
-      generator->fillMap( directory, iter->first, iter->second.pedsMean_[0], iter->second.pedsSpread_[0] ); 
-    } else if ( histo == sistrip::PEDESTALS_SPREAD ) { 
-      generator->fillMap( directory, iter->first, iter->second.pedsSpread_[0] ); 
-    } else if ( histo == sistrip::PEDESTALS_MAX ) { 
-      generator->fillMap( directory, iter->first, iter->second.pedsMax_[0] ); 
-    } else if ( histo == sistrip::PEDESTALS_MIN ) { 
-      generator->fillMap( directory, iter->first, iter->second.pedsMin_[0] ); 
-    } else if ( histo == sistrip::NOISE_MEAN ) {
-      generator->fillMap( directory, iter->first, iter->second.noiseMean_[0], iter->second.noiseSpread_[0] ); 
-    } else if ( histo == sistrip::NOISE_SPREAD ) { 
-      generator->fillMap( directory, iter->first, iter->second.noiseSpread_[0] ); 
-    } else if ( histo == sistrip::NOISE_MAX ) { 
-      generator->fillMap( directory, iter->first, iter->second.noiseMax_[0] ); 
-    } else if ( histo == sistrip::NOISE_MIN ) { 
-      generator->fillMap( directory, iter->first, iter->second.noiseMin_[0] ); 
-    } else if ( histo == sistrip::NUM_OF_DEAD ) { 
-      generator->fillMap( directory, iter->first, iter->second.dead_.size() ); 
-    } else if ( histo == sistrip::NUM_OF_NOISY ) { 
-      generator->fillMap( directory, iter->first, iter->second.noise_.size() ); 
-    } else { return; } 
+    if ( histo_ == sistrip::PEDESTALS_MEAN ) {
+      generator_->fillMap( level_, gran_, iter->first, iter->second.pedsMean()[0], iter->second.pedsSpread()[0] ); 
+    } else if ( histo_ == sistrip::PEDESTALS_SPREAD ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.pedsSpread()[0] ); 
+    } else if ( histo_ == sistrip::PEDESTALS_MAX ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.pedsMax()[0] ); 
+    } else if ( histo_ == sistrip::PEDESTALS_MIN ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.pedsMin()[0] ); 
+    } else if ( histo_ == sistrip::NOISE_MEAN ) {
+      generator_->fillMap( level_, gran_, iter->first, iter->second.noiseMean()[0], iter->second.noiseSpread()[0] ); 
+    } else if ( histo_ == sistrip::NOISE_SPREAD ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.noiseSpread()[0] ); 
+    } else if ( histo_ == sistrip::NOISE_MAX ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.noiseMax()[0] ); 
+    } else if ( histo_ == sistrip::NOISE_MIN ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.noiseMin()[0] ); 
+    } else if ( histo_ == sistrip::NUM_OF_DEAD ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.dead().size() ); 
+    } else if ( histo_ == sistrip::NUM_OF_NOISY ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.noise().size() ); 
+    } else { 
+      cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	   << " Unexpected SummaryHisto value:"
+	   << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
+	   << endl;
+      continue;
+    }
   }
 
-  // Generate appropriate summary histogram 
-  if ( type == sistrip::SUMMARY_DISTR ) {
-    generator->summaryDistr( summary_histo );
-  } else if ( type == sistrip::SUMMARY_1D ) {
-    generator->summary1D( summary_histo );
-  } else { return; }
+  return generator_->size();
 
+}
+
+//------------------------------------------------------------------------------
+//
+void SummaryHistogramFactory<PedestalsAnalysis>::fill( TH1& summary_histo ) {
+
+  // Check if instance of generator class exists
+  if ( !generator_ ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!" << endl;
+    return;
+  }
+
+  // Check if instance of generator class exists
+  if ( !(&summary_histo) ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!" << endl;
+    return;
+  }
+
+  // Check if map is filled
+  if ( !generator_->size() ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " No data in the monitorables map!" << endl;
+    return; 
+  } 
+
+  // Generate appropriate summary histogram 
+  if ( type_ == sistrip::SUMMARY_DISTR ) {
+    generator_->summaryDistr( summary_histo );
+  } else if ( type_ == sistrip::SUMMARY_1D ) {
+    generator_->summary1D( summary_histo );
+  } else if ( type_ == sistrip::SUMMARY_2D ) {
+    generator_->summary2D( summary_histo );
+  } else if ( type_ == sistrip::SUMMARY_PROF ) {
+    generator_->summaryProf( summary_histo );
+  } else { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Unexpected SummaryType value:"
+	 << SiStripHistoNamingScheme::summaryType( type_ ) 
+	 << endl;
+    return; 
+  }
+  
   // Histogram formatting
-  generator->format( histo, type, view, directory, summary_histo );
-//   summary_histo.SetName( name( histo, type, view, directory ).c_str() );
-//   summary_histo.SetTitle( name( histo, type, view, directory ).c_str() );
-//   generator->format( summary_histo );
-  if ( histo == sistrip::PEDESTALS_MEAN ) {
-  } else if ( histo == sistrip::PEDESTALS_SPREAD ) { 
-  } else if ( histo == sistrip::PEDESTALS_MAX ) { 
-  } else if ( histo == sistrip::PEDESTALS_MIN ) { 
-  } else if ( histo == sistrip::NOISE_MEAN ) {
-  } else if ( histo == sistrip::NOISE_SPREAD ) { 
-  } else if ( histo == sistrip::NOISE_MAX ) { 
-  } else if ( histo == sistrip::NOISE_MIN ) { 
-  } else if ( histo == sistrip::NUM_OF_DEAD ) { 
-  } else if ( histo == sistrip::NUM_OF_NOISY ) { 
-  } else { return; } 
+  generator_->format( histo_, type_, view_, level_, summary_histo );
+  if ( histo_ == sistrip::PEDESTALS_MEAN ) {
+  } else if ( histo_ == sistrip::PEDESTALS_SPREAD ) { 
+  } else if ( histo_ == sistrip::PEDESTALS_MAX ) { 
+  } else if ( histo_ == sistrip::PEDESTALS_MIN ) { 
+  } else if ( histo_ == sistrip::NOISE_MEAN ) {
+  } else if ( histo_ == sistrip::NOISE_SPREAD ) { 
+  } else if ( histo_ == sistrip::NOISE_MAX ) { 
+  } else if ( histo_ == sistrip::NOISE_MIN ) { 
+  } else if ( histo_ == sistrip::NUM_OF_DEAD ) { 
+  } else if ( histo_ == sistrip::NUM_OF_NOISY ) { 
+  } else { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Unexpected SummaryHisto value:"
+	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
+	 << endl;
+    return; 
+  } 
 
 }
 
 // -----------------------------------------------------------------------------
 //
-template class SummaryHistogramFactory<PedestalsAnalysis::Monitorables>;
+template class SummaryHistogramFactory<PedestalsAnalysis>;
 
