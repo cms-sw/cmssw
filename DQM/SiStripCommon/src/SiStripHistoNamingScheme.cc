@@ -94,9 +94,9 @@ sistrip::Contents SiStripHistoNamingScheme::contents( const string& contents ) {
 // 
 string SiStripHistoNamingScheme::keyType( const sistrip::KeyType& key_type ) {
   if      ( key_type == sistrip::NO_KEY )       { return ""; }
-  else if ( key_type == sistrip::FED )          { return sistrip::fedKey_; }
-  else if ( key_type == sistrip::FEC )          { return sistrip::fecKey_; }
-  else if ( key_type == sistrip::DET )          { return sistrip::detKey_; }
+  else if ( key_type == sistrip::FED_KEY )          { return sistrip::fedKey_; }
+  else if ( key_type == sistrip::FEC_KEY )          { return sistrip::fecKey_; }
+  else if ( key_type == sistrip::DET_KEY )          { return sistrip::detKey_; }
   else if ( key_type == sistrip::UNKNOWN_KEY )  { return sistrip::unknownKey_; }
   else { 
 //     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
@@ -109,23 +109,39 @@ string SiStripHistoNamingScheme::keyType( const sistrip::KeyType& key_type ) {
 // 
 sistrip::KeyType SiStripHistoNamingScheme::keyType( const string& key_type ) {
   if      ( key_type == "" )               { return sistrip::NO_KEY; }
-  else if ( key_type == sistrip::fedKey_ ) { return sistrip::FED; }
-  else if ( key_type == sistrip::fecKey_ ) { return sistrip::FEC; }
-  else if ( key_type == sistrip::detKey_ ) { return sistrip::DET; }
+  else if ( key_type == sistrip::fedKey_ ) { return sistrip::FED_KEY; }
+  else if ( key_type == sistrip::fecKey_ ) { return sistrip::FEC_KEY; }
+  else if ( key_type == sistrip::detKey_ ) { return sistrip::DET_KEY; }
   else { return sistrip::UNKNOWN_KEY; }
 }  
 
 // -----------------------------------------------------------------------------
 // 
 string SiStripHistoNamingScheme::granularity( const sistrip::Granularity& granularity ) {
-  if      ( granularity == sistrip::MODULE )       { return ""; }
-  else if ( granularity == sistrip::LLD_CHAN )     { return sistrip::lldChan_; }
-  else if ( granularity == sistrip::APV_PAIR )     { return sistrip::apvPair_; }
-  else if ( granularity == sistrip::APV )          { return sistrip::apv_; }
+  // System
+  if      ( granularity == sistrip::TRACKER )     { return sistrip::tracker_; }
+  else if ( granularity == sistrip::PARTITION )   { return sistrip::partition_; }
+  // Control
+  else if ( granularity == sistrip::FEC_CRATE )   { return sistrip::fecCrate_; }
+  else if ( granularity == sistrip::FEC_SLOT )    { return sistrip::fecSlot_; }
+  else if ( granularity == sistrip::FEC_RING )    { return sistrip::fecRing_; }
+  else if ( granularity == sistrip::CCU_ADDR )    { return sistrip::ccuAddr_; }
+  else if ( granularity == sistrip::CCU_CHAN )    { return sistrip::ccuChan_; }
+  // Readout
+  else if ( granularity == sistrip::FED )         { return sistrip::fedId_; }
+  else if ( granularity == sistrip::FE_UNIT )     { return sistrip::feUnit_; }
+  else if ( granularity == sistrip::FED_FE_CHAN ) { return sistrip::fedFeChan_; }
+  else if ( granularity == sistrip::FED_CHANNEL ) { return sistrip::fedChannel_; }
+  // Module and below
+  else if ( granularity == sistrip::MODULE )      { return sistrip::module_; }
+  else if ( granularity == sistrip::LLD_CHAN )    { return sistrip::lldChan_; }
+  else if ( granularity == sistrip::APV )         { return sistrip::apv_; }
+  // Unknown
+  else if ( granularity == sistrip::NO_GRAN )      { return ""; }
   else if ( granularity == sistrip::UNKNOWN_GRAN ) { return sistrip::unknownGranularity_; }
   else { 
-//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
-// 			 << " Unexpected histogram granularity!"; 
+    //     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
+    // 			 << " Unexpected histogram granularity!"; 
     return "";
   }
 }
@@ -135,9 +151,10 @@ string SiStripHistoNamingScheme::granularity( const sistrip::Granularity& granul
 sistrip::Granularity SiStripHistoNamingScheme::granularity( const string& granularity ) {
   if      ( granularity == "" )                { return sistrip::MODULE; }
   else if ( granularity == sistrip::lldChan_ ) { return sistrip::LLD_CHAN; }
-  else if ( granularity == sistrip::apvPair_ ) { return sistrip::APV_PAIR; }
+  //else if ( granularity == sistrip::apvPair_ ) { return sistrip::APV_PAIR; }
   else if ( granularity == sistrip::apv_ )     { return sistrip::APV; }
   else { return sistrip::UNKNOWN_GRAN; }
+  //@@ need to add new constants here!!!
 }  
 
 // -----------------------------------------------------------------------------
@@ -197,9 +214,10 @@ sistrip::SummaryHisto SiStripHistoNamingScheme::summaryHisto( const string& hist
 // -----------------------------------------------------------------------------
 // 
 string SiStripHistoNamingScheme::summaryType( const sistrip::SummaryType& type ) {
-  if ( type == sistrip::SUMMARY_DISTR ) { return sistrip::summaryDistr_; } 
-  else if ( type == sistrip::SUMMARY_1D ) { return sistrip::summary1D_; }
-  else if ( type == sistrip::SUMMARY_2D ) { return sistrip::summary2D_; }
+  if      ( type == sistrip::SUMMARY_DISTR ) { return sistrip::summaryDistr_; } 
+  else if ( type == sistrip::SUMMARY_1D )    { return sistrip::summary1D_; }
+  else if ( type == sistrip::SUMMARY_2D )    { return sistrip::summary2D_; }
+  else if ( type == sistrip::SUMMARY_PROF )  { return sistrip::summaryProf_; }
   else if ( type == sistrip::UNDEFINED_SUMMARY_TYPE ) { return sistrip::undefinedSummaryType_; }
   else { return sistrip::unknownSummaryType_; }
 }
@@ -248,9 +266,9 @@ string SiStripHistoNamingScheme::histoTitle( sistrip::Task        histo_task,
   title << contents.str();
   
   stringstream key;
-  if      ( key_type == sistrip::FED )         { key << sistrip::sep_ << sistrip::fedKey_ << setfill('0') << setw(8) << hex << key_value; }
-  else if ( key_type == sistrip::FEC )         { key << sistrip::sep_ << sistrip::fecKey_ << setfill('0') << setw(8) << hex << key_value; }
-  else if ( key_type == sistrip::DET )         { key << sistrip::sep_ << sistrip::detKey_ << setfill('0') << setw(8) << hex << key_value; }
+  if      ( key_type == sistrip::FED_KEY )     { key << sistrip::sep_ << sistrip::fedKey_ << setfill('0') << setw(8) << hex << key_value; }
+  else if ( key_type == sistrip::FEC_KEY )     { key << sistrip::sep_ << sistrip::fecKey_ << setfill('0') << setw(8) << hex << key_value; }
+  else if ( key_type == sistrip::DET_KEY )     { key << sistrip::sep_ << sistrip::detKey_ << setfill('0') << setw(8) << hex << key_value; }
   else if ( key_type == sistrip::NO_KEY )      { /* add nothing */ }
   else if ( key_type == sistrip::UNKNOWN_KEY ) { key << sistrip::sep_ << sistrip::unknownKey_; }
 //   else { edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
@@ -259,7 +277,7 @@ string SiStripHistoNamingScheme::histoTitle( sistrip::Task        histo_task,
 
   stringstream gran;
   if      ( granularity == sistrip::LLD_CHAN )     { gran << sistrip::sep_ << sistrip::lldChan_ << channel; }
-  else if ( granularity == sistrip::APV_PAIR )     { gran << sistrip::sep_ << sistrip::apvPair_ << channel; }
+  //else if ( granularity == sistrip::APV_PAIR )     { gran << sistrip::sep_ << sistrip::apvPair_ << channel; }
   else if ( granularity == sistrip::APV )          { gran << sistrip::sep_ << sistrip::apv_     << channel; }
   else if ( granularity == sistrip::MODULE )       { /* add nothing */ }
   else if ( granularity == sistrip::UNKNOWN_GRAN ) { gran << sistrip::sep_ << sistrip::unknownGranularity_; }
@@ -337,13 +355,13 @@ SiStripHistoNamingScheme::HistoTitle SiStripHistoNamingScheme::histoTitle( strin
   
   // Extract key type and value
   if ( histo_title.find( sistrip::fedKey_, position ) != string::npos ) { 
-    title.keyType_ = sistrip::FED; 
+    title.keyType_ = sistrip::FED_KEY; 
     position = histo_title.find( sistrip::fedKey_, position ) + sistrip::fedKey_.size();
   } else if ( histo_title.find( sistrip::fecKey_, position ) != string::npos ) { 
-    title.keyType_ = sistrip::FEC; 
+    title.keyType_ = sistrip::FEC_KEY; 
     position = histo_title.find( sistrip::fecKey_, position ) + sistrip::fecKey_.size();
   } else if ( histo_title.find( sistrip::detKey_, position ) != string::npos ) { 
-    title.keyType_ = sistrip::DET; 
+    title.keyType_ = sistrip::DET_KEY; 
     position = histo_title.find( sistrip::detKey_, position ) + sistrip::detKey_.size();
   } else if ( histo_title.find( sistrip::unknownKey_, position ) != string::npos ) { 
     title.keyType_ = sistrip::UNKNOWN_KEY; 
@@ -362,9 +380,9 @@ SiStripHistoNamingScheme::HistoTitle SiStripHistoNamingScheme::histoTitle( strin
   if ( histo_title.find( sistrip::lldChan_, position ) != string::npos ) { 
     title.granularity_ = sistrip::LLD_CHAN; 
     position = histo_title.find( sistrip::lldChan_, position ) + sistrip::lldChan_.size();
-  } else if ( histo_title.find( sistrip::apvPair_, position ) != string::npos ) { 
-    title.granularity_ = sistrip::APV_PAIR; 
-    position = histo_title.find( sistrip::apvPair_, position ) + sistrip::apvPair_.size();
+    //} else if ( histo_title.find( sistrip::apvPair_, position ) != string::npos ) { 
+    //title.granularity_ = sistrip::APV_PAIR; 
+    //position = histo_title.find( sistrip::apvPair_, position ) + sistrip::apvPair_.size();
   } else if ( histo_title.find( sistrip::apv_, position ) != string::npos ) { 
     title.granularity_ = sistrip::APV; 
     position = histo_title.find( sistrip::apv_, position ) + sistrip::apv_.size();
