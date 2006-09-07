@@ -52,23 +52,29 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader & header ,
 
 std::vector<CSCWireDigi> CSCAnodeData::wireDigis(int layer) const {
   std::vector<CSCWireDigi> digis;
+  uint16_t tbinbits=0;
+  uint16_t wireGroup=0;
   for(int afeb = 0; afeb < nAFEBs_; ++afeb) {
-    for(int tbin = 0; tbin < nTimeBins_; ++tbin) {
-      for(int halfLayer = 0; halfLayer <2; ++halfLayer) {
-        const CSCAnodeDataFrame & frame = rawHit(afeb,tbin,layer, halfLayer);
-        // see if there's anything in 1st 8 bits.  Usually zero
-        if(frame.data() != 0) {
-          for (int j=0;j<8;j++) {
+    for(int halfLayer = 0; halfLayer <2; ++halfLayer) {
+      for (int j=0;j<8;j++) {
+	for(int tbin = 0; tbin < nTimeBins_; ++tbin) {
+	  const CSCAnodeDataFrame & frame = rawHit(afeb,tbin,layer, halfLayer);
+	  // see if there's anything in 1st 8 bits.  Usually zero
+	  if(frame.data() != 0) {
             if(frame.isHit(j)) {
 	      // wireGroup; 5th e time; FD time; beamCrossingTag; adcCounts
-              int wireGroup = (afeb*16+halfLayer*8+j)+1;
-              CSCWireDigi digi(wireGroup, tbin);
-              if (debug) 
-		edm::LogInfo ("CSCAnodeData") << "Layer " << layer << " " << digi;
-              digis.push_back(digi);
+              wireGroup = (afeb*16+halfLayer*8+j)+1;
+	      tbinbits=tbinbits + 1<<tbin;      
             }
           }
-        }
+        }//end of tbin loop
+	if (tbinbits !=0 ) {
+	  CSCWireDigi digi(wireGroup, tbinbits);
+	  if (debug)
+	    edm::LogInfo ("CSCAnodeData") << "Layer " << layer << " " << digi;
+	  digis.push_back(digi);
+	  tbinbits=0;
+	}
       }
     }
   }
