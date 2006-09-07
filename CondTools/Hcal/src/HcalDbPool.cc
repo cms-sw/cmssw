@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.14 2006/08/10 23:13:36 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.15 2006/08/11 20:50:27 fedor Exp $
 */
 
 // pool
@@ -52,6 +52,7 @@
 // Seal
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
+#include "SealKernel/IMessageService.h"
 
 
 // conditions
@@ -67,7 +68,7 @@ namespace {
   pool::Ref<cond::IOV> iovCache;
 }
 
-typedef std::map<unsigned long long,std::string> IOVCollection;
+typedef std::map<HcalDbPool::IOVRun,std::string> IOVCollection;
 
 template <class T>
 bool HcalDbPool::storeObject (T* fObject, const std::string& fContainer, pool::Ref<T>* fRef) {
@@ -78,20 +79,13 @@ bool HcalDbPool::storeObject (T* fObject, const std::string& fContainer, pool::R
   }
   try {
     service ()->transaction().update();
-    if (mVerbose) std::cout << "transaction is active: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
     if (mVerbose) std::cout << "transaction ---> start" << std::endl;
     service ()->transaction().start(pool::ITransaction::UPDATE);
-    if (mVerbose) std::cout << "transaction is active1: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
-    
     *fRef = pool::Ref <T> (service (), fObject);
-    if (mVerbose) std::cout << "transaction is active2: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
     mPlacement->setContainerName (fContainer);
-    if (mVerbose) std::cout << "transaction is active3: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
     fRef->markWrite (*mPlacement);
-    if (mVerbose) std::cout << "transaction is active4: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
     service ()->transaction().commit();
     if (mVerbose) std::cout << "transaction ---> commit" << std::endl;
-    if (mVerbose) std::cout << "transaction is active5: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
   }
   catch (pool::Exception& e) {
     std::cerr << "storeObject->  POOL error: "  << e.what() << std::endl;
@@ -135,6 +129,30 @@ bool HcalDbPool::updateObject (T* fObject, pool::Ref<T>* fUpdate) {
 }
 
 template <class T>
+bool HcalDbPool::deleteObject (pool::Ref<T>* fRef) {
+  if (mVerbose) std::cout << "HcalDbPool::deleteObject-> start..." << std::endl;
+  try {
+    if (mVerbose) std::cout << "transaction ---> start" << std::endl;
+    service ()->transaction().start(pool::ITransaction::UPDATE);
+    fRef->markDelete();
+    service ()->transaction().commit();
+    if (mVerbose) std::cout << "transaction ---> commit" << std::endl;
+  }
+  catch (const pool::Exception& e) {
+    std::cerr<<"HcalDbPool::deleteObject-> POOL error: " << e.what() << std::endl;
+  }
+  catch (std::exception& e) {
+    std::cerr << "HcalDbPool::deleteObject->  error: " << e.what () << std::endl;
+    return false;
+  }
+  catch (...) {
+    std::cerr << "HcalDbPool::deleteObject-> General error" << std::endl;
+  }
+  if (mVerbose) std::cout << "HcalDbPool::deleteObject-> end..." << std::endl;
+  return true;
+}
+
+template <class T>
 bool HcalDbPool::updateObject (pool::Ref<T>* fUpdate) {
   return updateObject ((T*)0, fUpdate);
 }
@@ -145,7 +163,7 @@ bool HcalDbPool::storeIOV (const pool::Ref<T>& fObject, unsigned fMaxRun, pool::
   if (fIov->isNull ()) {
     cond::IOV* newIov = new cond::IOV ();
     newIov->iov.insert (std::make_pair (maxRun, fObject.toString ()));
-    return storeObject (newIov, "IOV", fIov);
+    return storeObject (newIov, "cond::IOV", fIov);
   }
   else {
     (*fIov)->iov.insert (std::make_pair (maxRun, fObject.toString ()));
@@ -196,7 +214,7 @@ bool HcalDbPool::getObject (const std::string& fToken, pool::Ref<T>* fObject) {
 }
 
 template <class T>
-bool HcalDbPool::getObject_ (T* fObject, const std::string& fTag, int fRun) {
+bool HcalDbPool::getObject_ (T* fObject, const std::string& fTag, IOVRun fRun) {
   std::string metadataToken = metadataGetToken (fTag);
   if (metadataToken.empty ()) {
     std::cerr << "HcalDbPool::getObject ERROR-> Can not find metadata for tag " << fTag << std::endl;
@@ -218,7 +236,7 @@ bool HcalDbPool::getObject_ (T* fObject, const std::string& fTag, int fRun) {
 }
 
 template <class T>
-bool HcalDbPool::putObject_ (T* fObject, const std::string& fClassName, const std::string& fTag, int fRun) {
+bool HcalDbPool::putObject_ (T* fObject, const std::string& fClassName, const std::string& fTag, IOVRun fRun) {
   std::string metadataToken = metadataGetToken (fTag);
   pool::Ref<cond::IOV> iov;
   if (!metadataToken.empty ()) {
@@ -242,6 +260,65 @@ bool HcalDbPool::putObject_ (T* fObject, const std::string& fClassName, const st
   return true;
 }
 
+template <class T>
+bool HcalDbPool::deleteObject_ (T* fObject, const std::string& fTag, IOVRun fRun) {
+  std::string metadataToken = metadataGetToken (fTag);
+  pool::Ref<cond::IOV> iov;
+  if (!metadataToken.empty () && iovCache.toString () != metadataToken) {
+    getObject (metadataToken, &iovCache);
+    if (iovCache.isNull ()) {
+      std::cerr << "HcalDbPool::deleteObject ERROR: can not find IOV for token " << metadataToken << std::endl;;
+      return false;
+    }
+  }
+  pool::Ref<T> ref;
+  if (getObject (iovCache, fRun, &ref)) {
+    metadataToken = ref.toString ();
+    if (deleteObject (&ref) && cleanAllIov (metadataToken)) {
+      return true;
+    }
+    else {
+      std::cerr << "HcalDbPool::deleteObject ERROR: can not clearly delete object for token " << metadataToken << std::endl;;
+    }
+  }
+  return false;
+}
+
+bool HcalDbPool::cleanAllIov (const std::string& fToken) {
+  std::vector<std::string> tags = metadataAllTags ();
+  for (unsigned i = 0; i < tags.size (); i++) {
+    if (mVerbose) std::cout << "HcalDbPool::cleanAllIov-> processing tag " << tags [i] << std::endl;
+    std::string token = metadataGetToken (tags [i]);
+    pool::Ref<cond::IOV> iov;
+    if (getObject (token, &iov)) {
+      bool tbUpdated = false;
+      // search for object's token
+      IOVCollection::iterator iovi = iov->iov.begin ();
+      while (iovi != iov->iov.end ()) {
+	IOVCollection::iterator tmpiov = iovi;
+	iovi++;
+	if (tmpiov->second == fToken) {
+	  std::cerr << "HcalDbPool::cleanAllIov-> CONSISTENCY WARNING: removing run " << tmpiov->first
+		    << ", tag " << tags [i] << " reference for object " << fToken 
+		    << " may make data internally inconsistent." << std::endl;
+	  iov->iov.erase (tmpiov);
+	  tbUpdated = true;
+	}
+      }
+      if (tbUpdated) {
+	if (mVerbose) std::cout << "HcalDbPool::cleanAllIov-> updating IOV for tag" << tags [i] << std::endl;
+	if (!updateObject (&iov)) {
+	  std::cerr << "HcalDbPool::cleanAllIov-> Can not update IOV for tag " << tags [i] << std::endl;
+	}
+      }
+    }
+    else {
+      std::cerr << "HcalDbPool::cleanAllIov-> Can not get IOV for token " << token << std::endl;
+    }
+  }
+  return true;
+}
+
 HcalDbPool::HcalDbPool (const std::string& fConnect, bool fVerbose)
   : mConnect (fConnect),
     mVerbose (fVerbose) {
@@ -254,7 +331,12 @@ HcalDbPool::HcalDbPool (const std::string& fConnect, bool fVerbose)
   loader->load( "CORAL/Services/RelationalService");
   mTag.clear ();
   if (!::getenv("CORAL_AUTH_USER")) ::putenv("CORAL_AUTH_USER=blah");
-  if (!::getenv("CORAL_AUTH_PASSWORD")) ::putenv("CORAL_AUTH_PASSWORD=blah"); 
+  if (!::getenv("CORAL_AUTH_PASSWORD")) ::putenv("CORAL_AUTH_PASSWORD=blah");
+  // set verbose level
+  std::vector< seal::IHandle<seal::IMessageService> > msgSvc;
+  mContext->query (msgSvc);
+  msgSvc.front ()->setOutputLevel (mVerbose ? seal::Msg::Debug : seal::Msg::Error);
+
   service ();
   if (mVerbose) std::cout << "HcalDbPool::HcalDbPool done..." << std::endl;
 }
@@ -390,9 +472,7 @@ const std::string& HcalDbPool::metadataGetToken (const std::string& fTag) {
       coralSession = session ();
       if (mVerbose) std::cout << "HcalDbPool::metadataGetToken->connecting..." << std::endl;
       if (mVerbose) std::cout << "transaction ---> start" << std::endl;
-      if (mVerbose) std::cout << "metadataGetToken->transaction is active1: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
       coralSession->transaction().start(true);
-      if (mVerbose) std::cout << "metadataGetToken->transaction is active2: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
       if (coralSession->nominalSchema().existsTable(METADATA_TABLE)) {
 	coral::ITable& mytable=coralSession->nominalSchema().tableHandle (METADATA_TABLE);
 	std::auto_ptr< coral::IQuery > query(mytable.newQuery());
@@ -408,9 +488,7 @@ const std::string& HcalDbPool::metadataGetToken (const std::string& fTag) {
 	  break; // ignore other tokens
 	}
       }
-      if (mVerbose) std::cout << "metadataGetToken->transaction is active3: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
       coralSession->transaction().commit();
-      if (mVerbose) std::cout << "metadataGetToken->transaction is active4: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
       if (mVerbose) std::cout << "transaction ---> commit" << std::endl;
       coralSession->disconnect ();
       if (mVerbose) std::cout << "HcalDbPool::metadataGetToken->disconnecting..." << std::endl;
@@ -509,7 +587,7 @@ bool HcalDbPool::putObject (cond::IOV* fObject, const std::string& fTag) {
   std::string metadataToken = metadataGetToken (fTag);
   if (metadataToken.empty ()) {
     pool::Ref<cond::IOV> iov;
-    if (storeObject (fObject, "IOV", &iov)) {
+    if (storeObject (fObject, "cond::IOV", &iov)) {
       metadataToken = iov.toString ();
       return metadataSetTag (fTag, metadataToken);
     }
@@ -527,19 +605,20 @@ bool HcalDbPool::putObject (cond::IOV* fObject, const std::string& fTag) {
   return updateObject (fObject, &iovCache);
 }
 
-bool HcalDbPool::getObject (HcalPedestals* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbPool::putObject (HcalPedestals* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalPedestals", fTag, fRun);}
-bool HcalDbPool::getObject (HcalPedestalWidths* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbPool::putObject (HcalPedestalWidths* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalPedestalWidths", fTag, fRun);}
-bool HcalDbPool::getObject (HcalGains* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbPool::putObject (HcalGains* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalGains", fTag, fRun);}
-bool HcalDbPool::getObject (HcalGainWidths* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbPool::putObject (HcalGainWidths* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalGainWidths", fTag, fRun);}
-bool HcalDbPool::getObject (HcalQIEData* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbPool::putObject (HcalQIEData* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalQIEData", fTag, fRun);}
-bool HcalDbPool::getObject (HcalCalibrationQIEData* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbPool::putObject (HcalCalibrationQIEData* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalQIEData", fTag, fRun);}
-bool HcalDbPool::getObject (HcalChannelQuality* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbPool::putObject (HcalChannelQuality* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalChannelQuality", fTag, fRun);}
-bool HcalDbPool::getObject (HcalElectronicsMap* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbPool::putObject (HcalElectronicsMap* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalElectronicsMap", fTag, fRun);}
+bool HcalDbPool::getObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
+bool HcalDbPool::putObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalPedestals", fTag, fRun);}
+bool HcalDbPool::deleteObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun) {return deleteObject_ (fObject, fTag, fRun);}
+bool HcalDbPool::getObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
+bool HcalDbPool::putObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalPedestalWidths", fTag, fRun);}
+bool HcalDbPool::getObject (HcalGains* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
+bool HcalDbPool::putObject (HcalGains* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalGains", fTag, fRun);}
+bool HcalDbPool::getObject (HcalGainWidths* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
+bool HcalDbPool::putObject (HcalGainWidths* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalGainWidths", fTag, fRun);}
+bool HcalDbPool::getObject (HcalQIEData* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
+bool HcalDbPool::putObject (HcalQIEData* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalQIEData", fTag, fRun);}
+bool HcalDbPool::getObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
+bool HcalDbPool::putObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalQIEData", fTag, fRun);}
+bool HcalDbPool::getObject (HcalChannelQuality* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
+bool HcalDbPool::putObject (HcalChannelQuality* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalChannelQuality", fTag, fRun);}
+bool HcalDbPool::getObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
+bool HcalDbPool::putObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalElectronicsMap", fTag, fRun);}

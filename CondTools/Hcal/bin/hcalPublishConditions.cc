@@ -12,7 +12,7 @@
 #include "CondTools/Hcal/interface/HcalDbPool.h"
 
 namespace {
-  typedef unsigned long long IOVRun;
+  typedef HcalDbPool::IOVRun IOVRun;
   typedef std::map<IOVRun,std::string> IOVCollection;
   typedef std::pair<IOVRun,IOVRun> IntervalOV;
 

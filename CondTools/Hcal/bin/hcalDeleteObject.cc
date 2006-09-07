@@ -7,25 +7,37 @@
 #include <algorithm>
 #include <string>
 
+// other
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+
+
 #include "CondCore/IOVService/interface/IOV.h"
+
+// Hcal calibrations
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
+#include "CondTools/Hcal/interface/HcalDbOnline.h"
 #include "CondTools/Hcal/interface/HcalDbPool.h"
+#include "CondTools/Hcal/interface/HcalDbPoolOCCI.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalGains.h"
+#include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
 
-namespace {
-  typedef HcalDbPool::IOVRun IOVRun;
-  typedef std::map<IOVRun,std::string> IOVCollection;
-  typedef std::pair<IOVRun,IOVRun> IntervalOV;
+//using namespace cms;
 
-  std::vector <IntervalOV> allIOV (const cond::IOV& fIOV) {
-    std::vector <IntervalOV> result;
-    IOVRun iovMin = 0;
-    for (IOVCollection::const_iterator iovi = fIOV.iov.begin (); iovi != fIOV.iov.end (); iovi++) {
-      IOVRun iovMax = iovi->first;
-      result.push_back (std::make_pair (iovMin, iovMax));
-      iovMin = iovMax;
-    }
-    return result;
-  }
-}
+
+typedef HcalDbPool::IOVRun IOVRun;
+typedef std::map<IOVRun,std::string> IOVCollection;
+
 
 class Args {
  public:
@@ -50,46 +62,29 @@ class Args {
 
 void printHelp (const Args& args) {
   char buffer [1024];
-  std::cout << "Tool to manipulate by IOV of Hcal Calibrations" << std::endl;
+  std::cout << "Tool to delete object from Hcal Calibrations" << std::endl;
+  std::cout << "CAUTION: Could cause inconsistency for running jobs using DB" << std::endl;
   std::cout << "    feedback -> ratnikov@fnal.gov" << std::endl;
   std::cout << "Use:" << std::endl;
   sprintf (buffer, " %s <what> <options> <parameters>\n", args.command ().c_str());
   std::cout << buffer;
-  std::cout << "  where <what> is: \n    tag\n    iov" << std::endl;
+  std::cout << "  where <what> is: \n    pedestals\n    gains\n    pwidths\n    gwidths\n    emap\n    qie\n    calibqie" << std::endl;
   args.printOptionsHelp ();
 }
 
-void printTags (const std::string& fDb, bool fVerbose) {
-  HcalDbPool poolDb (fDb, fVerbose);
-  std::vector<std::string> allTags = poolDb.metadataAllTags ();
-  std::cout << "Tags available in CMS POOL DB instance: " << fDb << std::endl;
-  for (unsigned i = 0; i < allTags.size(); i++) {
-    std::cout << allTags[i] << std::endl;
-  }
-}
-
-void printRuns (const std::string& fDb, const std::string fTag, bool fVerbose) {
-  HcalDbPool poolDb (fDb, fVerbose);
-  cond::IOV iov;
-  if (poolDb.getObject (&iov, fTag)) {
-    std::vector <IntervalOV> allIOVs = allIOV (iov);
-    std::cout << "IOVs available for tag " << fTag << " in CMS POOL DB instance: " << fDb << std::endl;
-    for (unsigned i = 0; i < allIOVs.size(); i++) {
-      std::cout << "[ " << allIOVs[i].first << " ... " << allIOVs[i].second << " )" << std::endl;
-    }
-  }
-  else {
-    std::cerr << "printRuns-> can not find IOV for tag " << fTag << std::endl;
-  }
+template <class T> bool deleteObject (T* fObject, 
+				      const std::string& fInput, const std::string& fInputTag, HcalDbPool::IOVRun fInputRun, bool fVerbose) {
+  HcalDbPool poolDb (fInput, fVerbose);
+  return poolDb.deleteObject (fObject, fInputTag, fInputRun);
 }
 
 int main (int argn, char* argv []) {
 
   Args args;
-  args.defineParameter ("-db", "DB connection string, POOL format, or .txt file, or defaults");
-  args.defineParameter ("-tag", "DB connection string, POOL format, or .txt, or .xml file");
-  args.defineOption ("-help", "this help");
-  args.defineOption ("-verbose", "this help");
+  args.defineParameter ("-db", "DB connection string, POOL format");
+  args.defineParameter ("-run", "run # for which constands should be deleted");
+  args.defineParameter ("-tag", "tag for the input constants set");
+  args.defineOption ("-verbose", "makes program verbose");
   
   args.parse (argn, argv);
   
@@ -100,20 +95,38 @@ int main (int argn, char* argv []) {
     return -1;
   }
 
-  std::string db = args.getParameter ("-db");
-  std::string tag = args.getParameter ("-tag");
+  std::string input = args.getParameter ("-db");
+  
+  unsigned inputRun = args.getParameter ("-run").empty () ? 0 : strtoull (args.getParameter ("-run").c_str (), 0, 0);
+  std::string inputTag = args.getParameter ("-tag");
+
   bool verbose = args.optionIsSet ("-verbose");
+
 
   std::string what = arguments [0];
 
-  if (what == "tag") {
-    printTags (db, verbose);
+  if (what == "pedestals") {
+    HcalPedestals* object = 0;
+    deleteObject (object, input, inputTag, inputRun, verbose);
   }
-  else if (what == "iov") {
-    printRuns (db, tag, verbose);
+  else if (what == "gains") {
+    HcalGains* object = 0;
   }
-  std::cout << "Program has completed successfully" << std::endl;
-  return 0;
+  else if (what == "pwidths") {
+    HcalPedestalWidths* object = 0;
+  }
+  else if (what == "gwidths") {
+    HcalGainWidths* object = 0;
+  }
+  else if (what == "emap") {
+    HcalElectronicsMap* object = 0;
+  }
+  else if (what == "qie") {
+    HcalQIEData* object = 0;
+  }
+  else if (what == "calibqie") {
+    HcalCalibrationQIEData* object = 0;
+  }
 }
 
 

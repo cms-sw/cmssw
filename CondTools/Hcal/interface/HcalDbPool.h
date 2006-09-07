@@ -13,7 +13,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.h,v 1.6 2006/08/10 23:13:35 fedor Exp $
+   $Id: HcalDbPool.h,v 1.7 2006/08/11 20:50:27 fedor Exp $
 */
 
 namespace cond {
@@ -37,6 +37,7 @@ namespace pool {
    
 class HcalDbPool {
  public:
+  typedef unsigned long long IOVRun;
   HcalDbPool (const std::string& fConnect, bool fVerbose = false);
   ~HcalDbPool ();
 
@@ -47,22 +48,23 @@ class HcalDbPool {
   bool metadataSetTag (const std::string& fTag, const std::string& fToken);
   std::vector<std::string> metadataAllTags ();
 
-  bool getObject (HcalPedestals* fObject, const std::string& fTag, int fRun);
-  bool putObject (HcalPedestals* fObject, const std::string& fTag, int fRun);
-  bool getObject (HcalPedestalWidths* fObject, const std::string& fTag, int fRun);
-  bool putObject (HcalPedestalWidths* fObject, const std::string& fTag, int fRun);
-  bool getObject (HcalGains* fObject, const std::string& fTag, int fRun);
-  bool putObject (HcalGains* fObject, const std::string& fTag, int fRun);
-  bool getObject (HcalGainWidths* fObject, const std::string& fTag, int fRun);
-  bool putObject (HcalGainWidths* fObject, const std::string& fTag, int fRun);
-  bool getObject (HcalQIEData* fObject, const std::string& fTag, int fRun);
-  bool putObject (HcalQIEData* fObject, const std::string& fTag, int fRun);
-  bool getObject (HcalCalibrationQIEData* fObject, const std::string& fTag, int fRun);
-  bool putObject (HcalCalibrationQIEData* fObject, const std::string& fTag, int fRun);
-  bool getObject (HcalChannelQuality* fObject, const std::string& fTag, int fRun);
-  bool putObject (HcalChannelQuality* fObject, const std::string& fTag, int fRun);
-  bool getObject (HcalElectronicsMap* fObject, const std::string& fTag, int fRun);
-  bool putObject (HcalElectronicsMap* fObject, const std::string& fTag, int fRun);
+  bool getObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun);
+  bool deleteObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun);
+  bool getObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVRun fRun);
+  bool getObject (HcalGains* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalGains* fObject, const std::string& fTag, IOVRun fRun);
+  bool getObject (HcalGainWidths* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalGainWidths* fObject, const std::string& fTag, IOVRun fRun);
+  bool getObject (HcalQIEData* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalQIEData* fObject, const std::string& fTag, IOVRun fRun);
+  bool getObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVRun fRun);
+  bool getObject (HcalChannelQuality* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalChannelQuality* fObject, const std::string& fTag, IOVRun fRun);
+  bool getObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVRun fRun);
   bool getObject (cond::IOV* fObject, const std::string& fTag);
   bool putObject (cond::IOV* fObject, const std::string& fTag);
  private:
@@ -85,6 +87,9 @@ class HcalDbPool {
   bool updateObject (pool::Ref<T>* fUpdate);
 
   template <class T>
+  bool deleteObject (pool::Ref<T>* fObject);
+
+  template <class T>
   bool storeIOV (const pool::Ref<T>& fObject, unsigned fMaxRun, pool::Ref<cond::IOV>* fIov);
 
   template <class T>
@@ -94,10 +99,14 @@ class HcalDbPool {
   bool getObject (const std::string& fToken, pool::Ref<T>* fObject);
 
   template <class T>
-  bool getObject_ (T* fObject, const std::string& fTag, int fRun);
+  bool getObject_ (T* fObject, const std::string& fTag, IOVRun fRun);
 
   template <class T>
-  bool putObject_ (T* fObject, const std::string& fClassName, const std::string& fTag, int fRun);
+  bool putObject_ (T* fObject, const std::string& fClassName, const std::string& fTag, IOVRun fRun);
 
+  template <class T>
+  bool deleteObject_ (T* fObject, const std::string& fTag, IOVRun fRun);
+
+  bool cleanAllIov (const std::string& fToken);
 };
 #endif

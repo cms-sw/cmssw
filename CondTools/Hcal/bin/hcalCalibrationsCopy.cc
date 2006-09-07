@@ -35,7 +35,7 @@
 //using namespace cms;
 
 
-typedef unsigned long long IOVRun;
+typedef HcalDbPool::IOVRun IOVRun;
 typedef std::map<IOVRun,std::string> IOVCollection;
 
 
@@ -226,13 +226,13 @@ bool onlineFile (const std::string fParam) {
 }
 
 template <class T> bool copyObject (T* fObject, 
-				    const std::string& fInput, const std::string& fInputTag, int fInputRun,
-				    const std::string& fOutput, const std::string& fOutputTag, int fOutputRun,
-				    unsigned fVersion, unsigned long fIovgmtbegin, unsigned long fIovgmtend,
+				    const std::string& fInput, const std::string& fInputTag, HcalDbPool::IOVRun fInputRun,
+				    const std::string& fOutput, const std::string& fOutputTag, HcalDbPool::IOVRun fOutputRun,
+				    unsigned fVersion, unsigned long long fIovgmtbegin, unsigned long long fIovgmtend,
 				    unsigned fNread, unsigned fNwrite, unsigned fNtrace,
 				    bool fVerbose
 				    ) {
-  typedef std::vector <std::pair<int, T*> > Objects;
+  typedef std::vector <std::pair<HcalDbPool::IOVRun, T*> > Objects;
 
   bool result = false;
   time_t t0 = time (0);
@@ -282,6 +282,7 @@ template <class T> bool copyObject (T* fObject,
 	      break;
 	    }
 	    allInstances.push_back (std::make_pair (iovMax, object));
+	    std::cout << '.';
 	  }
 	  if (iovi == iov.iov.end ()) result = true;
 	}
@@ -349,6 +350,7 @@ template <class T> bool copyObject (T* fObject,
 	    }
  	    poolDb->putObject (allInstances[i].second, fOutputTag, allInstances[i].first);
  	    allInstances[i].second = 0;
+	    if (!fVerbose) std::cerr << '.';
  	  }
 	}
       }
@@ -397,13 +399,13 @@ int main (int argn, char* argv []) {
   std::string input = args.getParameter ("-input");
   std::string output = args.getParameter ("-output");
   
-  unsigned inputRun = args.getParameter ("-inputrun").empty () ? 0 : atoi (args.getParameter ("-inputrun").c_str ());
-  unsigned outputRun = args.getParameter ("-outputrun").empty () ? 0 : atoi (args.getParameter ("-outputrun").c_str ());
+  HcalDbPool::IOVRun inputRun = args.getParameter ("-inputrun").empty () ? 0 : strtoull (args.getParameter ("-inputrun").c_str (), 0, 0);
+  HcalDbPool::IOVRun outputRun = args.getParameter ("-outputrun").empty () ? 0 : strtoll (args.getParameter ("-outputrun").c_str (), 0, 0);
   std::string inputTag = args.getParameter ("-inputtag");
   std::string outputTag = args.getParameter ("-outputtag");
 
-  unsigned long iovgmtbegin = args.getParameter ("-iovgmtbegin").empty () ? 0 : atol (args.getParameter ("-iovgmtbegin").c_str ());
-  unsigned long iovgmtend = args.getParameter ("-iovgmtend").empty () ? 0 : atol (args.getParameter ("-iovgmtend").c_str ());
+  unsigned long long iovgmtbegin = args.getParameter ("-iovgmtbegin").empty () ? 0 : strtoull (args.getParameter ("-iovgmtbegin").c_str (), 0, 0);
+  unsigned long long iovgmtend = args.getParameter ("-iovgmtend").empty () ? 0 : strtoull (args.getParameter ("-iovgmtend").c_str (), 0, 0);
   unsigned  version = args.getParameter ("-version").empty () ? 0 : atoi (args.getParameter ("-version").c_str ());
 
   unsigned nread = args.getParameter ("-nread").empty () ? 1 : atoi (args.getParameter ("-nread").c_str ());
