@@ -14,18 +14,20 @@ class OptoScanHistograms : public CommissioningHistograms {
   OptoScanHistograms( MonitorUserInterface* );
   virtual ~OptoScanHistograms();
 
-  typedef SummaryHistogramFactory<OptoScanAnalysis::Monitorables> Factory;
+  typedef SummaryHistogramFactory<OptoScanAnalysis> Factory;
   
   /** */
   void histoAnalysis();
+
   /** */
-  void createSummaryHisto( const sistrip::SummaryHisto&, 
-			   const sistrip::SummaryType&, 
-			   const std::string& directory );
+  void createSummaryHisto( const sistrip::SummaryHisto&,
+			   const sistrip::SummaryType&,
+			   const std::string& top_level_dir,
+			   const sistrip::Granularity& );
 
  protected:
 
-  std::map<uint32_t,OptoScanAnalysis::Monitorables> data_;
+  std::map<uint32_t,OptoScanAnalysis> data_;
 
   std::auto_ptr<Factory> factory_;
 

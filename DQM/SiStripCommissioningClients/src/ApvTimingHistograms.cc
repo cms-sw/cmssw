@@ -1,5 +1,5 @@
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
-#include "DQM/SiStripCommon/interface/SummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -37,84 +37,101 @@ void ApvTimingHistograms::histoAnalysis() {
   maxDelay_ = -1. * sistrip::invalid_;
 
   // Iterate through map containing vectors of profile histograms
-  uint32_t cntr = 0;
-  uint32_t nchans = collations().size();
   CollationsMap::const_iterator iter = collations().begin();
   for ( ; iter != collations().end(); iter++ ) {
     
+    // Check vector of histos is not empty (should be 1 histo)
     if ( iter->second.empty() ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " Zero collation histograms found!" << endl;
       continue;
     }
-    cntr++;
-    cout << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Analyzing histograms from " << cntr
-	 << " of " << nchans << " FED channels..." << endl;
     
-    // Retrieve pointer to profile histo 
-    TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get(iter->second[0]) );
-    if ( !prof ) { 
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to MonitorElement!" << endl; 
-      continue; 
-    }
-    
-    // Retrieve control key
-    static SiStripHistoNamingScheme::HistoTitle title;
-    title = SiStripHistoNamingScheme::histoTitle( prof->GetName() );
-    
-    // Some checks
-    if ( title.task_ != sistrip::APV_TIMING ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected commissioning task!"
-	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
-	   << endl;
-    }
+    // Retrieve pointerd to profile histos for this FED channel 
+    vector<TProfile*> profs;
+    Collations::const_iterator ihis = iter->second.begin(); 
+    for ( ; ihis != iter->second.end(); ihis++ ) {
+      TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( *ihis ) );
+      if ( !prof ) { 
+	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " NULL pointer to MonitorElement!" << endl; 
+	continue; 
+      }
+      profs.push_back(prof);
+    } 
     
     // Perform histo analysis
-    ApvTimingAnalysis::Monitorables mons;
-    ApvTimingAnalysis::analysis( prof, mons );
-    
-    // Store delay in map
-    data_[iter->first] = mons; 
+    ApvTimingAnalysis anal;
+    anal.analysis( profs );
+    data_[iter->first] = anal; 
+    //stringstream ss;
+    //anal.print( ss ); 
+    //cout << ss.str() << endl;
 
     // Check tick height is valid
-    if ( mons.height_ < 100. ) { continue; }
+    if ( anal.height() < 100. ) { continue; }
     
     // Set maximum delay
-    if ( mons.delay_ < sistrip::maximum_ && 
-	 mons.delay_ > maxDelay_ ) { 
-      maxDelay_ = mons.delay_; 
+    if ( anal.delay() < sistrip::maximum_ && 
+	 anal.delay() > maxDelay_ ) { 
+      maxDelay_ = anal.delay(); 
       deviceWithMaxDelay_ = iter->first;
     }
 
     // Set minimum delay
-    if ( mons.delay_ < sistrip::maximum_ && 
-	 mons.delay_ < minDelay_ ) { 
-      minDelay_ = mons.delay_; 
+    if ( anal.delay() < sistrip::maximum_ && 
+	 anal.delay() < minDelay_ ) { 
+      minDelay_ = anal.delay(); 
       deviceWithMinDelay_ = iter->first;
     }
     
   }
   
+  cout << "[" << __PRETTY_FUNCTION__ << "]"
+       << " Analyzed histograms for " 
+       << collations().size() 
+       << " FED channels" << endl;
+
   // Adjust maximum (and minimum) delay(s) to find optimum sampling point(s)
   if ( maxDelay_ > 0. ) { 
+
     SiStripControlKey::ControlPath max = SiStripControlKey::path( deviceWithMaxDelay_ );
     SiStripControlKey::ControlPath min = SiStripControlKey::path( deviceWithMinDelay_ );
-    cout << " Device (FEC/slot/ring/CCU/module/channel) " << deviceWithMaxDelay_
-      //<< max.fecCrate_ << "/" << max.fecSlot_ << "/" max.fecRing_ << "/" << max.
+    cout << " Device (FEC/slot/ring/CCU/module/channel) " 
+	 << max.fecCrate_ << "/" 
+	 << max.fecSlot_ << "/" 
+	 << max.fecRing_ << "/" 
+	 << max.ccuAddr_ << "/"
+	 << max.ccuChan_ << "/"
 	 << " has maximum delay (rising edge) [ns]:" << maxDelay_ << endl;
-    cout << " Device (FEC/slot/ring/CCU/module/channel): " << deviceWithMinDelay_
+    cout << " Device (FEC/slot/ring/CCU/module/channel): " 
+	 << min.fecCrate_ << "/" 
+	 << min.fecSlot_ << "/" 
+	 << min.fecRing_ << "/" 
+	 << min.ccuAddr_ << "/"
+	 << min.ccuChan_ << "/"
 	 << " has minimum delay (rising edge) [ns]:" << minDelay_ << endl;
+
     float adjustment = 25 - int( rint(maxDelay_+optimumSamplingPoint_) ) % 25;
     cout << " Adjustment required to find optimum sampling point: " << adjustment << endl;
     maxDelay_ += adjustment;
     minDelay_ += adjustment;
-    cout << " Device (FEC/slot/ring/CCU/module/channel): " << deviceWithMaxDelay_
+
+    cout << " Device (FEC/slot/ring/CCU/module/channel) " 
+	 << max.fecCrate_ << "/" 
+	 << max.fecSlot_ << "/" 
+	 << max.fecRing_ << "/" 
+	 << max.ccuAddr_ << "/"
+	 << max.ccuChan_ << "/"
 	 << " has maximum delay (sampling point) [ns]:" << maxDelay_ << endl;
-    cout << " Device (FEC/slot/ring/CCU/module/channel): " << deviceWithMinDelay_
+    cout << " Device (FEC/slot/ring/CCU/module/channel): " 
+	 << min.fecCrate_ << "/" 
+	 << min.fecSlot_ << "/" 
+	 << min.fecRing_ << "/" 
+	 << min.ccuAddr_ << "/"
+	 << min.ccuChan_ << "/"
 	 << " has minimum delay (sampling point) [ns]:" << minDelay_ << endl;
+    
   }
   
 }
@@ -123,27 +140,25 @@ void ApvTimingHistograms::histoAnalysis() {
 /** */
 void ApvTimingHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
 					      const sistrip::SummaryType& type, 
-					      const string& directory ) {
+					      const string& directory,
+					      const sistrip::Granularity& gran ) {
   cout << "[" << __PRETTY_FUNCTION__ <<"]" << endl;
   
   // Check view 
   sistrip::View view = SiStripHistoNamingScheme::view(directory);
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
-  // Change to appropriate directory
-  mui()->setCurrentFolder( directory );
-  
-  // Create MonitorElement (if it doesn't already exist) and update contents
-  string name = SummaryGenerator::name( histo, type, view, directory );
-  MonitorElement* me = mui()->get( mui()->pwd() + "/" + name );
-  if ( !me ) { me = mui()->getBEInterface()->book1D( name, "", 0, 0., 0. ); }
-  TH1F* summary = ExtractTObject<TH1F>().extract( me ); 
-  factory_->generate( histo, 
-		      type, 
-		      view, 
-		      directory, 
-		      data_,
-		      *summary );
+  // Analyze histograms
+  histoAnalysis();
+
+  // Extract data to be histogrammed
+  factory_->init( histo, type, view, directory, gran );
+  uint32_t xbins = factory_->extract( data_ );
+
+  // Create summary histogram (if it doesn't already exist)
+  TH1* summary = histogram( histo, type, view, directory, xbins );
+
+  // Fill histogram with data
+  factory_->fill( *summary );
   
 }
-

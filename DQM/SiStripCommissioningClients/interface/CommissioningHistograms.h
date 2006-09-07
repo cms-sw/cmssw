@@ -5,13 +5,9 @@
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
-//#include "DQM/SiStripCommon/interface/SummaryHistogramFactory.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-//#include "DQM/SiStripCommissioningSummary/src/CommissioningSummaryFactory.cc"
-//#include "DQM/SiStripCommissioningSummary/interface/SummaryHistogram.h"
-//#include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
 #include <boost/cstdint.hpp>
 #include "TProfile.h"
 #include "TH1.h"
@@ -35,18 +31,6 @@ class CommissioningHistograms {
   /** */
   virtual ~CommissioningHistograms();
 
-  // ---------- General "actions" ----------
-
-/*   /\** *\/ */
-/*   static void subscribe( MonitorUserInterface*, */
-/* 			 std::string match_pattern ); */
-/*   /\** *\/ */
-/*   static void unsubscribe( MonitorUserInterface*, */
-/* 			   std::string match_pattern ); */
-/*   /\** *\/ */
-/*   static void saveHistos( MonitorUserInterface*, */
-/* 			  std::string filename ); */
-  
   // ---------- "Actions" on MonitorElements ----------
 
   /** */
@@ -56,14 +40,16 @@ class CommissioningHistograms {
   /** */
   virtual void createSummaryHisto( const sistrip::SummaryHisto&, 
 				   const sistrip::SummaryType&, 
-				   const std::string& directory );
+				   const std::string& top_level_dir,
+				   const sistrip::Granularity& );
   /** */
   virtual void uploadToConfigDb();
   
   /** Wraps virtual createSummaryHisto() method for Seal::Callback. */
   void createSummaryHisto( std::pair<sistrip::SummaryHisto,
-			   sistrip::SummaryType> summ, 
-			   std::string directory ); 
+			   sistrip::SummaryType>, 
+			   std::pair<std::string,
+			   sistrip::Granularity> ); 
   
  protected:
   
@@ -74,6 +60,12 @@ class CommissioningHistograms {
   /** */
   inline const FedToFecMap mapping() const;
   
+  TH1* histogram( const sistrip::SummaryHisto&, 
+		  const sistrip::SummaryType&, 
+		  const sistrip::View&,
+		  const string& directory,
+		  const uint32_t& xbins );
+
  private:
   
   CommissioningHistograms();
@@ -99,32 +91,6 @@ const CommissioningHistograms::CollationsMap& CommissioningHistograms::collation
 const CommissioningHistograms::FedToFecMap CommissioningHistograms::mapping() const { return mapping_; }
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistograms_H
-
-
-
-/* /\** Simple container class to hold summary histo criteria. *\/ */
-/* class Summary { */
-/*   sistrip::SummaryHisto histo_; */
-/*   sistrip::SummaryType type_; */
-/*   std::string dir_; */
-/*  public: */
-/*   Summary( sistrip::SummaryHisto histo, */
-/* 	   sistrip::SummaryType type, */
-/* 	   std::string dir ) :  */
-/*     histo_(histo), type_(type), dir_(dir) {;} */
-/*   Summary( const Summary& s ) {  */
-/*     histo_ = s.histo_;  */
-/*     type_ = s.type_;  */
-/*     dir_ = s.dir_; */
-/*   }  */
-/*   Summary() :  */
-/*     histo_(sistrip::UNKNOWN_SUMMARY_HISTO), */
-/*     type_(sistrip::UNKNOWN_SUMMARY_TYPE), */
-/*     dir_("") {;} */
-/*   Summary& operator= ( const Summary& s ) { return *this; } */
-/* }; */
-
-/* void createSummaryHisto( CommissioningHistograms::Summary ) {;}  */
 
 
 

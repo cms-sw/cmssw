@@ -14,18 +14,20 @@ class VpspScanHistograms : public CommissioningHistograms {
   VpspScanHistograms( MonitorUserInterface* );
   virtual ~VpspScanHistograms();
   
-  typedef SummaryHistogramFactory<VpspScanAnalysis::Monitorables> Factory;
+  typedef SummaryHistogramFactory<VpspScanAnalysis> Factory;
   
   /** */
   void histoAnalysis();
+
   /** */
-  void createSummaryHisto( const sistrip::SummaryHisto&, 
-			   const sistrip::SummaryType&, 
-			   const std::string& directory );
+  void createSummaryHisto( const sistrip::SummaryHisto&,
+			   const sistrip::SummaryType&,
+			   const std::string& top_level_dir,
+			   const sistrip::Granularity& );
 
  protected:
 
-  std::map<uint32_t,VpspScanAnalysis::Monitorables> data_;
+  std::map<uint32_t,VpspScanAnalysis> data_;
 
   std::auto_ptr<Factory> factory_;
 

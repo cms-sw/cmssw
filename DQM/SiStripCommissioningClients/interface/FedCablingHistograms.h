@@ -14,18 +14,20 @@ class FedCablingHistograms : public CommissioningHistograms {
   FedCablingHistograms( MonitorUserInterface* );
   virtual ~FedCablingHistograms();
   
-  typedef SummaryHistogramFactory<FedCablingAnalysis::Monitorables> Factory;
+  typedef SummaryHistogramFactory<FedCablingAnalysis> Factory;
 
   /** */
   void histoAnalysis();
+
   /** */
-  void createSummaryHisto( const sistrip::SummaryHisto&, 
-			   const sistrip::SummaryType&, 
-			   const std::string& directory );
+  void createSummaryHisto( const sistrip::SummaryHisto&,
+			   const sistrip::SummaryType&,
+			   const std::string& top_level_dir,
+			   const sistrip::Granularity& );
 
  protected: 
   
-  std::map<uint32_t,FedCablingAnalysis::Monitorables> data_;
+  std::map<uint32_t,FedCablingAnalysis> data_;
   
   std::auto_ptr<Factory> factory_;
 

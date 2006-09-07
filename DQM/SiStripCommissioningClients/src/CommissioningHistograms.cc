@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include <sstream>
 
 using namespace std;
@@ -110,31 +111,6 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
   
 }
 
-// // -----------------------------------------------------------------------------
-// /** */
-// void CommissioningHistograms::subscribe( MonitorUserInterface* mui, string pattern ) {
-//   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
-//   if ( mui ) { mui->subscribe(pattern); }
-// }
-
-// // -----------------------------------------------------------------------------
-// /** */
-// void CommissioningHistograms::unsubscribe( MonitorUserInterface* mui, string pattern ) {
-//   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
-//   if ( mui ) { mui->unsubscribe(pattern); }
-// }
-
-// // -----------------------------------------------------------------------------
-// /** */
-// void CommissioningHistograms::saveHistos( MonitorUserInterface* mui, string name ) {
-//   stringstream ss; 
-//   if ( name == "" ) { ss << "Client.root"; }
-//   else { ss << name; }
-//   cout << "[" << __PRETTY_FUNCTION__ << "]" 
-//        << " Saving histogams to file '" << ss.str() << "'..." << endl;
-//   if ( mui ) { mui->save( ss.str() ); }
-// }
-
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::histoAnalysis() {
@@ -143,26 +119,54 @@ void CommissioningHistograms::histoAnalysis() {
 }
 
 // -----------------------------------------------------------------------------
-/** Wraps other createSummaryHisto() method. */
-void CommissioningHistograms::createSummaryHisto( pair<sistrip::SummaryHisto,
-						  sistrip::SummaryType> summ, 
-						  string directory ) {
-  createSummaryHisto( summ.first, summ.second, directory );
-}
-
-// -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
 						  const sistrip::SummaryType& type, 
-						  const string& directory ) {
+						  const string& directory,
+						  const sistrip::Granularity& gran ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" 
        << " (Derived) implementation to come..." << endl;
 }
-
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::uploadToConfigDb() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" 
        << " (Derived) implementation to come..." << endl;
+}
+
+// -----------------------------------------------------------------------------
+/** Wraps other createSummaryHisto() method. */
+void CommissioningHistograms::createSummaryHisto( pair<sistrip::SummaryHisto,
+						  sistrip::SummaryType> summ0, 
+						  pair<string,
+						  sistrip::Granularity> summ1 ) {
+  createSummaryHisto( summ0.first, summ0.second, summ1.first, summ1.second );
+}
+
+// -----------------------------------------------------------------------------
+// 
+TH1* CommissioningHistograms::histogram( const sistrip::SummaryHisto& histo, 
+					 const sistrip::SummaryType& type, 
+					 const sistrip::View& view,
+					 const string& directory,
+					 const uint32_t& xbins ) {
+  
+  string name = SummaryGenerator::name( histo, type, view, directory );
+  mui()->setCurrentFolder( directory );
+  MonitorElement* me = mui()->get( mui()->pwd() + "/" + name );
+  if ( !me ) { 
+    if ( type == sistrip::SUMMARY_DISTR ) { 
+      me = mui()->getBEInterface()->book1D( name, name, xbins, 0., static_cast<float>(xbins) ); 
+    } else if ( type == sistrip::SUMMARY_1D ) { 
+      me = mui()->getBEInterface()->book1D( name, name, xbins, 0., static_cast<float>(xbins) ); 
+    } else if ( type == sistrip::SUMMARY_2D ) { 
+      me = mui()->getBEInterface()->book2D( name, name, xbins, 0., static_cast<float>(xbins), 1025, 0., 1025 ); 
+    } else if ( type == sistrip::SUMMARY_PROF ) { 
+      me = mui()->getBEInterface()->bookProfile( name, name, xbins, 0., static_cast<float>(xbins), 1025, 0., 1025 ); 
+    } else { me = 0; 
+    }
+  }
+  TH1F* summary = ExtractTObject<TH1F>().extract( me ); 
+  return summary;
 }

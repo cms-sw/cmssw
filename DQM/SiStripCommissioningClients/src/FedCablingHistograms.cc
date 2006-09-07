@@ -1,5 +1,5 @@
 #include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
-#include "DQM/SiStripCommon/interface/SummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -27,72 +27,44 @@ FedCablingHistograms::~FedCablingHistograms() {
 void FedCablingHistograms::histoAnalysis() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
-  uint32_t cntr = 0;
-  uint32_t nchans = collations().size();
-
   // Iterate through map containing vectors of profile histograms
   CollationsMap::const_iterator iter = collations().begin();
   for ( ; iter != collations().end(); iter++ ) {
     
+    // Check vector of histos is not empty (should be 1 histo)
     if ( iter->second.empty() ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " Zero collation histograms found!" << endl;
       continue;
     }
-    cntr++;
-    cout << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Analyzing histograms from " << cntr
-	 << " of " << nchans << " FED channels..." << endl;
     
-    // Iterate through vector of histos
-    FedCablingAnalysis::TProfiles profs;
+    // Retrieve pointerd to profile histos for this FED channel 
+    vector<TProfile*> profs;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
-      
-      // Retrieve pointer to profile histo 
-      TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get(iter->second[0]) );
+      TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( *ihis ) );
       if ( !prof ) { 
 	cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	     << " NULL pointer to MonitorElement!" << endl; 
 	continue; 
       }
-      
-      // Retrieve control key
-      static SiStripHistoNamingScheme::HistoTitle title;
-      title = SiStripHistoNamingScheme::histoTitle( prof->GetName() );
-    
-      // Some checks
-      if ( title.task_ != sistrip::APV_TIMING ) {
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unexpected commissioning task!"
-	     << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
-	     << endl;
-      }
-      
-      // Extract FED id and channel histos
-      if ( title.extraInfo_.find(sistrip::fedId_) != string::npos ) {
-	profs.fedId_ = prof;
-      } else if ( title.extraInfo_.find(sistrip::fedChannel_) != string::npos ) {
-	profs.fedCh_ = prof;
-      } else { 
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unexpected 'extra info': " << title.extraInfo_ << endl;
-      }
-
-    }
+      profs.push_back(prof);
+    } 
     
     // Perform histo analysis
-    FedCablingAnalysis::Monitorables mons;
-    FedCablingAnalysis::analysis( profs, mons );
-    
-    stringstream ss;
-    mons.print( ss ); 
-    cout << ss.str() << endl;
-    
-    // Store delay in map
-    data_[iter->first] = mons; 
-    
+    FedCablingAnalysis anal;
+    anal.analysis( profs );
+    data_[iter->first] = anal; 
+    //stringstream ss;
+    //anal.print( ss ); 
+    //cout << ss.str() << endl;
+
   }
+  
+  cout << "[" << __PRETTY_FUNCTION__ << "]"
+       << " Analyzed histograms for " 
+       << collations().size() 
+       << " FED channels" << endl;
   
 }
 
@@ -100,29 +72,29 @@ void FedCablingHistograms::histoAnalysis() {
 /** */
 void FedCablingHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
 					       const sistrip::SummaryType& type, 
-					       const string& directory ) {
+					       const string& directory,
+					       const sistrip::Granularity& gran ) {
   cout << "[" << __PRETTY_FUNCTION__ <<"]" << endl;
   
   // Check view 
   sistrip::View view = SiStripHistoNamingScheme::view(directory);
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
-  // Change to appropriate directory
-  mui()->setCurrentFolder( directory );
-  
-  // Create MonitorElement (if it doesn't already exist) and update contents
-  string name = SummaryGenerator::name( histo, type, view, directory );
-  MonitorElement* me = mui()->get( mui()->pwd() + "/" + name );
-  if ( !me ) { me = mui()->getBEInterface()->book1D( name, "", 0, 0., 0. ); }
-  TH1F* summary = ExtractTObject<TH1F>().extract( me ); 
-  factory_->generate( histo, 
-		      type, 
-		      view, 
-		      directory, 
-		      data_,
-		      *summary );
+  // Analyze histograms
+  histoAnalysis();
+
+  // Extract data to be histogrammed
+  factory_->init( histo, type, view, directory, gran );
+  uint32_t xbins = factory_->extract( data_ );
+
+  // Create summary histogram (if it doesn't already exist)
+  TH1* summary = histogram( histo, type, view, directory, xbins );
+
+  // Fill histogram with data
+  factory_->fill( *summary );
   
 }
+
 
 
 

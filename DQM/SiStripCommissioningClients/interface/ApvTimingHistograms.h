@@ -14,21 +14,23 @@ class ApvTimingHistograms : public CommissioningHistograms {
   ApvTimingHistograms( MonitorUserInterface* );
   virtual ~ApvTimingHistograms();
 
-  typedef SummaryHistogramFactory<ApvTimingAnalysis::Monitorables> Factory;
+  typedef SummaryHistogramFactory<ApvTimingAnalysis> Factory;
   
   /** */
   void histoAnalysis();
+
   /** */
-  void createSummaryHisto( const sistrip::SummaryHisto&, 
-			   const sistrip::SummaryType&, 
-			   const std::string& directory );
+  void createSummaryHisto( const sistrip::SummaryHisto&,
+			   const sistrip::SummaryType&,
+			   const std::string& top_level_dir,
+			   const sistrip::Granularity& );
 
  protected: 
   
-  std::map<uint32_t,ApvTimingAnalysis::Monitorables> data_;
+  std::map<uint32_t,ApvTimingAnalysis> data_;
 
   std::auto_ptr<Factory> factory_;
-
+  
   const float optimumSamplingPoint_;
   float minDelay_;
   float maxDelay_; 

@@ -14,18 +14,20 @@ class PedestalsHistograms : public CommissioningHistograms {
   PedestalsHistograms( MonitorUserInterface* );
   virtual ~PedestalsHistograms();
 
-  typedef SummaryHistogramFactory<PedestalsAnalysis::Monitorables> Factory;
+  typedef SummaryHistogramFactory<PedestalsAnalysis> Factory;
   
   /** */
   void histoAnalysis();
+
   /** */
-  void createSummaryHisto( const sistrip::SummaryHisto&, 
-			   const sistrip::SummaryType&, 
-			   const std::string& directory );
+  void createSummaryHisto( const sistrip::SummaryHisto&,
+			   const sistrip::SummaryType&,
+			   const std::string& top_level_dir,
+			   const sistrip::Granularity& );
 
  protected:
 
-  std::map<uint32_t,PedestalsAnalysis::Monitorables> data_;
+  std::map<uint32_t,PedestalsAnalysis> data_;
 
   std::auto_ptr<Factory> factory_;
 

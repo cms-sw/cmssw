@@ -14,21 +14,29 @@ class FedTimingHistograms : public CommissioningHistograms {
   FedTimingHistograms( MonitorUserInterface* );
   virtual ~FedTimingHistograms();
 
-  typedef SummaryHistogramFactory<FedTimingAnalysis::Monitorables> Factory;
+  typedef SummaryHistogramFactory<FedTimingAnalysis> Factory;
   
   /** */
   void histoAnalysis();
+
   /** */
-  void createSummaryHisto( const sistrip::SummaryHisto&, 
-			   const sistrip::SummaryType&, 
-			   const std::string& directory );
+  void createSummaryHisto( const sistrip::SummaryHisto&,
+			   const sistrip::SummaryType&,
+			   const std::string& top_level_dir,
+			   const sistrip::Granularity& );
 
  protected:
 
-  std::map<uint32_t,FedTimingAnalysis::Monitorables> data_;
+  std::map<uint32_t,FedTimingAnalysis> data_;
 
   std::auto_ptr<Factory> factory_;
   
+  const float optimumSamplingPoint_;
+  float minDelay_;
+  float maxDelay_; 
+  uint32_t deviceWithMinDelay_;
+  uint32_t deviceWithMaxDelay_;
+
 };
 
 #endif // DQM_SiStripCommissioningClients_FedTimingHistograms_H
