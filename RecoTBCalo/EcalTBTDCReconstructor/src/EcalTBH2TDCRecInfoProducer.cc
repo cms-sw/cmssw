@@ -73,7 +73,7 @@ void EcalTBH2TDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& e
    
    if (!h2TriggerData->wasBeamTrigger())
      {
-       std::auto_ptr<EcalTBTDCRecInfo> recInfo(new EcalTBTDCRecInfo(-1.));
+       std::auto_ptr<EcalTBTDCRecInfo> recInfo(new EcalTBTDCRecInfo(0.5));
        e.put(recInfo,recInfoCollection_);
      }
    else
