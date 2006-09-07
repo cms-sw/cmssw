@@ -58,12 +58,12 @@ namespace edm {
       if(options == COMPRESSED  && !isModified())
       {
         out << targetType_ << " " << newName_ << " = " << targetName_ 
-            << " from " << name() << "\n";
+            << " from \"" << name() << "\"\n";
       }
       else
       {
         // expand
-        nodes_->front()->print(out, options);
+        IncludeNode::print(out, options);
       }
     }
 
