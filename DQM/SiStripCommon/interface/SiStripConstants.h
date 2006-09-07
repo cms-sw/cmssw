@@ -13,6 +13,7 @@ namespace sistrip {
   static const std::string dir_  = "/";
   static const std::string sep_  = "_";
   static const std::string pipe_ = "|";
+  static const std::string dot_  = ".";
   static const std::string commissioningTask_ = "SiStripCommissioningTask";
   
   // views
@@ -28,6 +29,8 @@ namespace sistrip {
   static const std::string ccuAddr_     = "CcuAddr";
   static const std::string ccuChan_     = "CcuChan";
   static const std::string fedId_       = "FedId";
+  static const std::string feUnit_      = "FedFeUnit";
+  static const std::string fedFeChan_   = "FedFeChan";
   static const std::string fedChannel_  = "FedChannel";
 
   // commissioning task
@@ -54,8 +57,11 @@ namespace sistrip {
   static const std::string unknownKey_ = "UnknownKey";
 
   // granularity
+  static const std::string tracker_            = "Tracker";
+  static const std::string partition_          = "Partition";
+  static const std::string module_             = "Module";
   static const std::string lldChan_            = "LldChan";
-  static const std::string apvPair_            = "ApvPair";
+  //static const std::string apvPair_            = "ApvPair";
   static const std::string apv_                = "Apv";
   static const std::string unknownGranularity_ = "UnknownGranularity";
 
@@ -70,6 +76,7 @@ namespace sistrip {
   static const std::string summaryDistr_         = "SummaryDistr";
   static const std::string summary1D_            = "Summary1D";
   static const std::string summary2D_            = "Summary2D";
+  static const std::string summaryProf_          = "SummaryProfile";
   static const std::string unknownSummaryType_   = "UnknownSummaryType";
   static const std::string undefinedSummaryType_ = "UndefinedSummaryType";
 
