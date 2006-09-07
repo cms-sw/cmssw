@@ -5,8 +5,8 @@
  *  This class defines which DetLayers are reacheable from each Muon DetLayer
  *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
  *
- * $Date: 2006/07/26 08:34:47 $
- * $Revision: 1.4 $
+ * $Date: 2006/09/07 18:44:41 $
+ * $Revision: 1.5 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -101,9 +101,9 @@ MuonNavigationSchool::navigableLayers() const {
 /// create barrel layer map
 void MuonNavigationSchool::addBarrelLayer(BarrelDetLayer* mbp) {
 
-  BoundCylinder* bc = dynamic_cast<BoundCylinder*>(const_cast<BoundSurface*>(&(mbp->surface())));
-  float radius = bc->radius();
-  float length = bc->bounds().length()/2.;
+  BoundCylinder bc = mbp->specificSurface();
+  float radius = bc.radius();
+  float length = bc.bounds().length()/2.;
 
   float eta_max = calculateEta(radius, length);
   float eta_min = -eta_max;
@@ -116,11 +116,11 @@ void MuonNavigationSchool::addBarrelLayer(BarrelDetLayer* mbp) {
 /// create forwrad/backward layer maps
 void MuonNavigationSchool::addEndcapLayer(ForwardDetLayer* mep) {
 
-  BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&(mep->surface())));
-  float outRadius = bd->outerRadius();
-  float inRadius = bd->innerRadius();
-  float thick = bd->bounds().length()/2.;
-  float z = bd->position().z();
+  BoundDisk bd = mep->specificSurface();
+  float outRadius = bd.outerRadius();
+  float inRadius = bd.innerRadius();
+  float thick = bd.bounds().length()/2.;
+  float z = bd.position().z();
 
   if ( z > 0. ) {
     float eta_min = calculateEta(outRadius, z-thick);
