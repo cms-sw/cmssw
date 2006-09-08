@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/PythonParseTreeSummary.h"
 #include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/ParameterSet/interface/PSetNode.h"
 
 using namespace boost::python;
 using std::string;
@@ -102,6 +103,14 @@ boost::python::list PythonParseTreeSummary::children(const std::string & dotDeli
 }
 
 
+std::string PythonParseTreeSummary::dumpTree() const
+{
+  std::ostringstream ost;
+  theTree.top()->print(ost, edm::pset::Node::COMPRESSED);
+  return ost.str();
+}
+
+
 BOOST_PYTHON_MODULE(libFWCoreParameterSet)
 {
 
@@ -115,6 +124,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
        .def("value",         &PythonParseTreeSummary::value)
        .def("values",        &PythonParseTreeSummary::values)
        .def("children",      &PythonParseTreeSummary::children)
+       .def("dumpTree",      &PythonParseTreeSummary::dumpTree)
    ;
 
      

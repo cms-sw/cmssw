@@ -41,8 +41,8 @@ public:
   /// names of the nodes below this one.  Includes are transparent
   boost::python::list children(const std::string & dotDelimitedNode) const;
 
-
-
+  /// dump the tree to a string, to be written to a file.
+  std::string dumpTree() const;
 
 private:
 
