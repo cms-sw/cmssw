@@ -56,6 +56,12 @@ class DetHitAccess {
   const SiStripRecHit2DCollection* stereoHits_;
   const SiStripMatchedRecHit2DCollection * matchedHits_;
   const SiPixelRecHitCollection *pixelHits_;
+
+  std::vector<DetId> matchedHitsDetIds_;
+  std::vector<DetId> rphiHitsDetIds_;
+  std::vector<DetId> stereoHitsDetIds_;
+  std::vector<DetId> pixelHitsDetIds_;
+
 };
 
 #endif
