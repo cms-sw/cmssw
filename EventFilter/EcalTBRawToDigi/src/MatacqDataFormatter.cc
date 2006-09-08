@@ -1,10 +1,11 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id$
+// $Id: MatacqDataFormatter.cc,v 1.1 2006/09/08 09:51:48 pgras Exp $
 
 #include "EventFilter/EcalTBRawToDigi/src/MatacqDataFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "EventFilter/EcalTBRawToDigi/src/MatacqRawEvent.h"
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include <algorithm>
 #include <iomanip>
@@ -17,6 +18,12 @@ using namespace std;
 //#define MATACQ_DEBUG
 
 void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqDigi& matacqDigi ) {
+  EcalMatacqDigiCollection digiColl;
+  interpretRawData(data, digiColl);
+  matacqDigi.swap(digiColl.front());
+}
+
+void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqDigiCollection& matacqDigiCollection ) {
 #if MATACQ_DEBUG
   cout << "****************************************************************\n";
   cout << "********************** MATACQ decoder **************************\n";
@@ -43,23 +50,23 @@ void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqD
   double tTrig = matacq.getTTrigPs()<.5*numeric_limits<int>::max()?
     ps*matacq.getTTrigPs():999.;
   int version = matacq.getMatacqDataFormatVersion();
-
+  
   vector<int16_t> samples;
   //FIXME: the interpretRawData method should fill an EcalMatacqDigiCollection
   //instead of an EcalMatacqDigi because Matacq channels are several.
   //In the meamtime copy only the first channel appearing in data:
-  const int iCh=0;
   const vector<MatacqRawEvent::ChannelData>& chData = matacq.getChannelData();
-  int chId = -1;
-  if(chData.size()>0){//at least one channel present
+  for(unsigned iCh=0; iCh < chData.size(); ++iCh){
     //copy time samples into a vector:
     samples.resize(chData[iCh].nSamples);
     copy(chData[iCh].samples, chData[iCh].samples+chData[iCh].nSamples,
 	 samples.begin());
-    chId = chData[iCh].chId;
+    int chId = chData[iCh].chId;
+    vector<int16_t> empty;
+    EcalMatacqDigi matacqDigi(empty, chId, ts, version, tTrig);
+    matacqDigiCollection.push_back(matacqDigi);
+    matacqDigiCollection.back().swap(samples); //swap is more efficient than a copy
   }
-  matacqDigi = EcalMatacqDigi(vector<int16_t>(), chId, ts, version, tTrig);
-  matacqDigi.swap(samples); //swap is more efficient than a copy
 }
 
 void MatacqDataFormatter::printData(ostream& out, const MatacqRawEvent& matacq) const{
