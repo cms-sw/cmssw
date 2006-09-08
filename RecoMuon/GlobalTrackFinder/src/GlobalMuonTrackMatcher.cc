@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/08/31 05:56:48 $
- *  $Revision: 1.25 $
+ *  $Date: 2006/09/01 15:48:54 $
+ *  $Revision: 1.26 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -155,7 +155,7 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
 pair<bool,double> 
 GlobalMuonTrackMatcher::match(const TrajectoryStateOnSurface& tsos1, 
                               const TrajectoryStateOnSurface& tsos2) const {
-
+  if( !tsos1.isValid() || !tsos2.isValid() ) return pair<bool,double>(false,0.0);
   AlgebraicVector v(tsos1.localParameters().vector() - tsos2.localParameters().vector());
   AlgebraicSymMatrix m(tsos1.localError().matrix() + tsos2.localError().matrix());
   int ierr;
