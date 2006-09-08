@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.41 2006/08/26 00:16:32 rpw Exp $
+ * $Id: pset_parse.y,v 1.42 2006/09/08 01:11:40 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -721,7 +721,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    DBPRINT("procnode: APPENDVALUE");
                    string name(toString($<str>2));
                    string value(toString($<str>4));
-                   EntryNode * entry = new EntryNode("replace",name, value, false, lines);
+                   EntryNode * entry = new EntryNode("replace",name, value, true, lines);
                    NodePtr entryPtr(entry);
                    ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, false, lines));
                    $<_Node>$ = wn;
@@ -743,7 +743,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    DBPRINT("node: REPLACEARRAY");
                    string name(toString($<str>2));
                    StringListPtr value($<_StringList>4);
-                   VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
+                   VEntryNode* en(new VEntryNode("replace",name,value, true,lines));
                    NodePtr entryPtr(en);
                    ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, false, lines));
                    $<_Node>$ = wn;
