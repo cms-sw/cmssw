@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: 2006/09/02 21:57:11 $
- *  $Revision: 1.3 $ 
+ *  $Date: 2006/09/08 18:24:46 $
+ *  $Revision: 1.4 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -90,7 +90,6 @@ vector<Trajectory> MuonTrackConverter::convert(const reco::Track& t) const {
   // use TransientTrackBuilder to get a starting TSOS
   reco::TransientTrack theTT(t,&*theService->magneticField(),theService->trackingGeometry());
   TrajectoryStateOnSurface firstState = theTT.innermostMeasurementState();
-  if ( !firstState.isValid() ) return result;
 
   if ( hits.front()->geographicalId().det() == DetId::Tracker ) {
 
@@ -101,6 +100,8 @@ vector<Trajectory> MuonTrackConverter::convert(const reco::Track& t) const {
   }
 
   //cout << "INNER: " << firstState.globalPosition().perp() << " " <<  firstState.globalPosition().z() << " " << firstState.globalMomentum() << endl;
+
+  if ( !firstState.isValid() ) return result;
 
   AlgebraicSymMatrix C(5,1);
   C *= 10.;
