@@ -9,7 +9,7 @@
 #include <memory>
 #include <map>
 
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalChannelCoder.h"
 #include "CalibFormats/HcalObjects/interface/QieShape.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
@@ -36,13 +36,13 @@ class HcalDbService {
  public:
   HcalDbService ();
 
-  bool makeHcalCalibration (const HcalDetId& fId, HcalCalibrations* fObject) const;
-  bool makeHcalCalibrationWidth (const HcalDetId& fId, HcalCalibrationWidths* fObject) const;
-  const HcalPedestal* getPedestal (const HcalDetId& fId) const;
-  const HcalPedestalWidth* getPedestalWidth (const HcalDetId& fId) const;
-  const HcalGain* getGain (const HcalDetId& fId) const;
-  const HcalGainWidth* getGainWidth (const HcalDetId& fId) const;
-  const HcalQIECoder* getHcalCoder (const HcalDetId& fId) const;
+  bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject) const;
+  bool makeHcalCalibrationWidth (const HcalGenericDetId& fId, HcalCalibrationWidths* fObject) const;
+  const HcalPedestal* getPedestal (const HcalGenericDetId& fId) const;
+  const HcalPedestalWidth* getPedestalWidth (const HcalGenericDetId& fId) const;
+  const HcalGain* getGain (const HcalGenericDetId& fId) const;
+  const HcalGainWidth* getGainWidth (const HcalGenericDetId& fId) const;
+  const HcalQIECoder* getHcalCoder (const HcalGenericDetId& fId) const;
   const HcalQIEShape* getHcalShape () const;
   const HcalElectronicsMap* getHcalMapping () const;
   

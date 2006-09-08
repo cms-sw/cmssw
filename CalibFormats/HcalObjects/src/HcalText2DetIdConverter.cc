@@ -1,13 +1,13 @@
 /** \class HcalText2DetIdConverter
     \author F.Ratnikov, UMd
-    $Id$
+    $Id: HcalText2DetIdConverter.cc,v 1.1 2006/07/31 19:51:50 fedor Exp $
 */
 #include <stdlib.h>
 #include <iostream>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CondFormats/HcalObjects/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"

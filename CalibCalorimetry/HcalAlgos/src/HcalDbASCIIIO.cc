@@ -1,12 +1,12 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.24 2006/08/16 15:15:33 mansj Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.25 2006/08/16 15:17:26 mansj Exp $
 //
 #include <vector>
 #include <string>
 
-#include "CondFormats/HcalObjects/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"

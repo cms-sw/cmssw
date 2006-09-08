@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.13 2006/06/20 19:23:15 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.14 2006/07/29 00:21:32 fedor Exp $
 //
 //
 
@@ -44,7 +44,7 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
-#include "CondFormats/HcalObjects/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
