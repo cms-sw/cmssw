@@ -3,7 +3,7 @@
 
 
 //------------------------------------------------------------
-// $Id: PythonFormWriter.h,v 1.9 2006/07/18 22:46:18 rpw Exp $
+// $Id: PythonFormWriter.h,v 1.10 2006/08/23 05:15:23 rpw Exp $
 //
 //
 // PythonFormWriter defines a class that is to be used to walk the
@@ -33,13 +33,15 @@
 #include <string>
 
 #include "FWCore/ParameterSet/interface/Visitor.h"
-#include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/Nodes.h"
 
 namespace edm
 {
   namespace pset
   {
+
+    class ParseTree;
+
     class PythonFormWriter : public Visitor
     {
     public:
@@ -66,7 +68,7 @@ namespace edm
       // Function to be called from the 'outside', to walk the given
       // node tree and write the Python format of this configuration
       // to the given ostream.
-      void write(ParseResults& parsetree, std::ostream& out);
+      void write(ParseTree& parsetree, std::ostream& out);
 
     private:
       // common code for PSet & ContentsNodes

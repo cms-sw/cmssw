@@ -3,16 +3,16 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.8 2006/08/28 19:15:19 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.9 2006/08/29 22:59:06 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.8 2006/08/28 19:15:19 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.9 2006/08/29 22:59:06 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
 #include "FWCore/ParameterSet/interface/Makers.h"
-#include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
 
@@ -48,14 +48,8 @@ namespace edm
     services_(new std::vector<ParameterSet>()),
     bookkeeping_()
   {
-    edm::pset::ParseResults parsetree = edm::pset::fullParse(config.c_str());
-
-    // top node should be the PSetNode representing the process
-    pset::NodePtr processPSetNodePtr = parsetree->front();
-    edm::pset::PSetNode * processPSetNode 
-      = dynamic_cast<edm::pset::PSetNode*>(processPSetNodePtr.get());
-    assert(processPSetNode != 0);
-    processPSetNode->fillProcess(*this);
+    edm::pset::ParseTree parsetree(config.c_str());
+    parsetree.top()->fillProcess(*this);
 
 
     writeBookkeeping("@all_modules");
