@@ -3,16 +3,18 @@
 
 #include <string>
 
-namespace evf{
+namespace evf {
   
-  class ParameterSetRetriever{
-    
+  class ParameterSetRetriever
+  {
   public:
-    ParameterSetRetriever(std::string &);
+    ParameterSetRetriever(const std::string& in);
     std::string getAsString() const; 
+
   private:
     std::string pset;
-
   };
-}
+
+} // evf
+
 #endif
