@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/08/28 18:44:40 $
-// $Revision: 1.9 $
+// $Author: noeding $
+// $Date: 2006/09/01 21:15:30 $
+// $Revision: 1.10 $
 //
 
 #include <string>
@@ -28,11 +28,16 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "RecoTracker/RoadMapRecord/interface/Roads.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/RoadSearchHitAccess/interface/DetHitAccess.h"
@@ -62,22 +67,25 @@ class RoadSearchSeedFinderAlgorithm
 				  const TrackingRecHit* outerHit,
 				  const GlobalPoint* outerPos,
 				  const edm::EventSetup& es);
-
-  //TrajectorySeedCollection makeSeedsFromInnerHit(const TrackingRecHit* innerHit,
-  //						 const edm::OwnVector<TrackingRecHit>* outerHits,
-  //						 const TrackerGeometry *tracker,const edm::EventSetup& es);
+  
   void makeSeedsFromInnerHit(TrajectorySeedCollection* outcoll,
 			     const TrackingRecHit* innerHit,
-			     //const edm::OwnVector<TrackingRecHit>* outerHits,
 			     const std::vector<TrackingRecHit*>* outerHits,
-			     const TrackerGeometry *tracker,const edm::EventSetup& es);
-
+			     const edm::EventSetup& es);
+  
 
  private:
-  edm::ParameterSet conf_;
 
-  bool NoFieldCosmic;
-  double theMinPt;
+  bool NoFieldCosmic_;
+  double theMinPt_;
+
+  DetHitAccess innerSeedHitVector_;
+  DetHitAccess outerSeedHitVector_;
+
+  const TrackerGeometry *tracker_;
+  const Roads           *roads_;
+  const MagneticField   *magnet_;
+
 };
 
 #endif
