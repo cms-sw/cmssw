@@ -172,13 +172,8 @@ void CSCGainsStudy::analyze(const Event & event, const EventSetup& eventSetup){
   HCSCGains *histo = 0;
   
   TString prefix = "ME_";
-  TString endcap;
-  TString station;
-  TString ring;
-  TString chamber;
-  TString layer;
-  float thegain = -1.;
-  float weight = -1.;
+  float thegain = -10.;
+  float weight = -10.;
   float weight0 = 1.;
   
   // Build iterator which loops on all layer id:
@@ -190,16 +185,18 @@ void CSCGainsStudy::analyze(const Event & event, const EventSetup& eventSetup){
     // chId=220000000 + ec*100000 + st*10000 + rg*1000 + ch*10 + la;
     
     const unsigned ChId = it->first;
-    
     unsigned offset = (ChId - 220000000);
     unsigned ec = offset/100000;                                     // endcap
     unsigned st = (offset - ec*100000)/10000;                        // station
     unsigned rg = (offset - ec*100000 - st*10000)/1000;              // ring
     unsigned ch = (offset - ec*100000 - st*10000 - rg*1000)/10;      // chamber
-//    unsigned la = (offset - ec*100000 - st*10000 - rg*1000 - ch*10); // layer
-    
+    unsigned la = (offset - ec*100000 - st*10000 - rg*1000 - ch*10); // layer
 
-    // Build iterator which loops on all channels and finds desired channel:
+    if ( la == 0) continue;                                          // layer == 0 means whole chamber...    
+
+    int channel = 1;
+
+    // Build iterator which loops on all channels:
     vector<CSCGains::Item>::const_iterator gain_i;
     
     for ( gain_i=it->second.begin(); gain_i!=it->second.end(); ++gain_i ) {
@@ -207,12 +204,14 @@ void CSCGainsStudy::analyze(const Event & event, const EventSetup& eventSetup){
       weight = AvgStripGain / thegain;
 
 //      if (debug) std::cout << "the weight is " << weight << std::endl;
+
       
-      if ( weight <= 0.) weight = -1.; 
+      if ( weight <= 0.) weight = -10.;            // ignore strips with no gain computed
+      if ( channel%100 == 1 ) weight0 = weight;    // can't make comparison with first strip, so set diff to zero
       
       // Fill corrections factor for all strip at once
       histo = All_CSC;
-      histo->Fill( weight, weight0 );
+      histo->Fill( weight, weight0, channel, la );
       
       // Now fill correction factor for given chamber    
       // Get station   
@@ -232,7 +231,7 @@ void CSCGainsStudy::analyze(const Event & event, const EventSetup& eventSetup){
 	  } else {
 	    histo = ME_11_32;
 	  }      
-	} else {	             // ring 2
+	} else if (rg == 2) {	             // ring 2
 	  if ( ch == 27 ) {
 	    histo = ME_12_27;	  
 	  } else if ( ch == 28 ) {
@@ -246,6 +245,20 @@ void CSCGainsStudy::analyze(const Event & event, const EventSetup& eventSetup){
 	  } else {
 	    histo = ME_12_32;
 	  }
+        } else {                            // ring 3
+          if ( ch == 27 ) {
+            histo = ME_13_27;
+          } else if ( ch == 28 ) {
+            histo = ME_13_28;
+          } else if ( ch == 29 ) {
+            histo = ME_13_29;
+          } else if ( ch == 30 ) {
+            histo = ME_13_30;
+          } else if ( ch == 31 ) { 
+            histo = ME_13_31;
+          } else {
+            histo = ME_13_32;
+          }
 	}
 	
       } else if ( st == 2 ) {        // station 2
@@ -273,6 +286,7 @@ void CSCGainsStudy::analyze(const Event & event, const EventSetup& eventSetup){
 	    histo = ME_22_32;
 	  }
 	}
+
       } else {                       // station 3
 	
 	if ( rg == 1 ) {             // ring 1
@@ -299,8 +313,9 @@ void CSCGainsStudy::analyze(const Event & event, const EventSetup& eventSetup){
 	  }
 	}
       }
-      histo->Fill(weight, weight0 );
+      histo->Fill(weight, weight0, channel, la);
       weight0 = weight;
+      channel++;
     }  
   }
 }
@@ -312,13 +327,25 @@ void CSCGainsStudy::analyze(const Event & event, const EventSetup& eventSetup){
 float CSCGainsStudy::getStripGainAvg() {
 
   int n_strip    = 0;
-  float gain_avg = -1.;
   float gain_tot = 0.;                
+  float gain_avg = -1.;
   
   // Build iterator which loops on all layer id:
   map<int,vector<CSCGains::Item> >::const_iterator it;
   
   for ( it=pGains->gains.begin(); it!=pGains->gains.end(); ++it ) {
+
+
+    const unsigned ChId = it->first;  
+    unsigned offset = (ChId - 220000000);
+    unsigned ec = offset/100000;                                     // endcap
+    unsigned st = (offset - ec*100000)/10000;                        // station
+    unsigned rg = (offset - ec*100000 - st*10000)/1000;              // ring
+    unsigned ch = (offset - ec*100000 - st*10000 - rg*1000)/10;      // chamber
+    unsigned la = (offset - ec*100000 - st*10000 - rg*1000 - ch*10); // layer
+            
+    if ( la == 0) continue; // layer == 0 means whole chamber...
+
     
     // Build iterator which loops on all channels:
     vector<CSCGains::Item>::const_iterator gain_i;

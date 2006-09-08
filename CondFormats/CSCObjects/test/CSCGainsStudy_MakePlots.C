@@ -12,7 +12,7 @@ void CSCGainsStudy_MakePlots(int debug){
   TString suffixps = ".jpg";
   
   
-  for (int i = 0; i < 37; i++ ) {
+  for (int i = 1; i < 37; i++ ) {
     int j = 0;
     if (  j == i ) TString chamber = "All_CSC";
     if (++j == i ) TString chamber = "ME_11_27";
@@ -52,15 +52,20 @@ void CSCGainsStudy_MakePlots(int debug){
     if (++j == i ) TString chamber = "ME_32_31";
     if (++j == i ) TString chamber = "ME_32_32";
 
+
     // Set pointers to histograms
     hGains = (TH1F *) file->Get("hGain_"+chamber);
     hGaindiff = (TH1F *) file->Get("hGaindiff_"+chamber); 
+    hGainvsch = (TH2F *) file->Get("hGainvsch_"+chamber);
+
+    gStyle->SetOptFit(0111);
 
     // 1) weight
     TString plot1 = "strip_weight_"+chamber+suffixps;
     gStyle->SetOptStat(kTRUE);
     TCanvas *c1 = new TCanvas("c1","");
     c1->SetFillColor(10);
+    c1->SetLogy(1);
     hGains->Draw();
     c1->Print(plot1); 
     
@@ -69,10 +74,24 @@ void CSCGainsStudy_MakePlots(int debug){
     TString plot2 = "delta_strip_weight_"+chamber+suffixps;
     gStyle->SetOptStat(kTRUE);
     TCanvas *c1 = new TCanvas("c1","");
+    c1->SetLogy(1);
     c1->SetFillColor(10);
     hGaindiff->Draw();
+    hGaindiff->Fit("gaus");
     c1->Print(plot2);
+
+    if (i > 0) {
+       // 3) strip weight vs channel #
+       TString plot3 = "strip_weight_vs_channel_"+chamber+suffixps;
+       gStyle->SetOptStat(kTRUE);
+       TCanvas *c1 = new TCanvas("c1","");
+       c1->SetLogy(0);
+       c1->SetFillColor(10);
+       hGainvsch->Draw("BOX");
+       c1->Print(plot3); 
+    }
   }
-  gROOT->ProcessLine(".q");
+
+//  gROOT->ProcessLine(".q");
   
 }
