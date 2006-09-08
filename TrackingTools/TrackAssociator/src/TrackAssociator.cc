@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.8 2006/09/01 17:24:08 jribnik Exp $
+// $Id: TrackAssociator.cc,v 1.9 2006/09/07 21:21:54 jribnik Exp $
 //
 //
 
@@ -443,7 +443,7 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
 
       if (! tSOSDest.isValid()) {
          std::cout << "Failed to propagate track to DTChamber" << std::endl;
-         return;
+         continue;
       }
 
       // Get the range for the corresponding LayerId
@@ -552,7 +552,7 @@ void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
 
       if (! tSOSDest.isValid()) {
          std::cout << "Failed to propagate track to CSCChamber" << std::endl;
-         return;
+         continue;
       }
 
       // Get the range for the corresponding LayerId
