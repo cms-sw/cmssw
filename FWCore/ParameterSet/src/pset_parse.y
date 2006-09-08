@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.40 2006/08/25 21:34:46 rpw Exp $
+ * $Id: pset_parse.y,v 1.41 2006/08/26 00:16:32 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -712,7 +712,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    string value(toString($<str>4));
                    EntryNode * entry = new EntryNode("replace",name, value, false, lines);
                    NodePtr entryPtr(entry);
-                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, false, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -723,7 +723,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    string value(toString($<str>4));
                    EntryNode * entry = new EntryNode("replace",name, value, false, lines);
                    NodePtr entryPtr(entry);
-                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, false, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -734,7 +734,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    StringListPtr value($<_StringList>4);
                    VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
                    NodePtr entryPtr(en);
-                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, false, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -745,7 +745,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    StringListPtr value($<_StringList>4);
                    VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
                    NodePtr entryPtr(en);
-                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, false, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -756,7 +756,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    NodePtrListPtr value($<_NodePtrList>4);
                    PSetNode* en(new PSetNode("replace", name, value, false, lines));
                    NodePtr psetPtr(en);
-                   ReplaceNode* wn(new ReplaceNode("replace", name, psetPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replace", name, psetPtr, false, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -768,7 +768,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    NodePtrListPtr nodelist($<_NodePtrList>5);
                    ModuleNode * moduleNode(new ModuleNode("replace",name,type,nodelist,lines));
                    NodePtr entryPtr(moduleNode);
-                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, false, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -779,7 +779,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    NodePtrListPtr value($<_NodePtrList>5);
                    VPSetNode* en(new VPSetNode("VPSet",name,value,false,lines));
                    NodePtr vpsetNodePtr(en);
-                   ReplaceNode* wn(new ReplaceNode("replace", name, vpsetNodePtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replace", name, vpsetNodePtr, false, lines));
                    $<_Node>$ = wn;
                  }
                |
