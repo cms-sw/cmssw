@@ -102,7 +102,6 @@ TStorageFactoryFile::TStorageFactoryFile (const char *path,
     Bool_t recreate	= (fOption == "RECREATE");
     Bool_t update	= (fOption == "UPDATE");
     Bool_t read		= (fOption == "READ");
-    int    openFlags	= seal::IOFlags::OpenRead;
 
     if (!create && !recreate && !update && !read)
     {
@@ -110,8 +109,17 @@ TStorageFactoryFile::TStorageFactoryFile (const char *path,
 	fOption = "READ";
     }
 
-    if (! read)
-	goto zombie;
+    int    openFlags	= seal::IOFlags::OpenRead;
+    if (!read)  openFlags |= seal::IOFlags::OpenWrite;
+    if (create)        openFlags |= seal::IOFlags::OpenCreate;
+    else if (recreate)  openFlags  |= seal::IOFlags::OpenCreate | seal::IOFlags::OpenTruncate;
+    //   else if (update)    openFlags |= seal::IOFlags::OpenAppend;
+
+    //    int    openFlags	= seal::IOFlags::OpenRead;
+    //if (! read)
+    //	goto zombie;
+
+
 
     // Set flags.  If we are caching ourselves, turn off lower-level
     // buffering.  This is somewhat of an abuse of the flag (docs say
@@ -303,12 +311,14 @@ TStorageFactoryFile::SysOpen (const char *pathname, Int_t flags, UInt_t mode)
 {
     StorageAccount::Stamp stats (storageCounter (0, "open"));
 
+    /**
     // Don't accept write or creation requests
-    if (flags & (O_WRONLY | O_RDWR | O_APPEND | O_CREAT | O_TRUNC | O_EXCL))
+       if (flags & (O_WRONLY | O_RDWR | O_APPEND | O_CREAT | O_TRUNC | O_EXCL))
     {
 	gSystem->SetErrorStr ("TStorageFactoryFile: write and creation unsupported");
 	return -1;
     }
+    **/
 
     if (m_storage)
     {
@@ -317,9 +327,23 @@ TStorageFactoryFile::SysOpen (const char *pathname, Int_t flags, UInt_t mode)
 	m_storage = 0;
     }
 
+    int    openFlags	= seal::IOFlags::OpenRead;
+    if (flags & O_WRONLY) openFlags = seal::IOFlags::OpenWrite;
+    else if (flags & O_RDWR) openFlags |= seal::IOFlags::OpenWrite;
+
+    if (flags & O_CREAT) openFlags |= seal::IOFlags::OpenCreate;
+    if (flags & O_APPEND) openFlags |= seal::IOFlags::OpenAppend;
+    if (flags & O_EXCL) openFlags |= seal::IOFlags::OpenExclusive;
+    if (flags & O_TRUNC) openFlags |= seal::IOFlags::OpenTruncate;
+    if (flags & O_NONBLOCK) openFlags |= seal::IOFlags::OpenNonBlock;
+
+    if (s_cacheDefaultCacheSize || ! s_bufferDefault)
+	openFlags |= seal::IOFlags::OpenUnbuffered;
+
+
     try
     {
-	if (! (m_storage = StorageFactory::get ()->open (pathname)))
+      if (! (m_storage = StorageFactory::get ()->open (pathname,openFlags)))
 	    throw std::string ("can't instantiate file");
     }
     catch (seal::Error &e)
