@@ -1,7 +1,6 @@
 <lcgdict>
    <class name="EcalMGPASample"/>
    <class name="EcalFEMSample"/>
-   <class name="EcalMatacqSample"/>
    <class name="ESSample"/>
    <class name="EcalDataFrame"/>
    <class name="EBDataFrame"/>
@@ -13,7 +12,6 @@
    <class name="EcalMatacqDigi"/>
    <class name="std::vector<EcalMGPASample>"/>
    <class name="std::vector<EcalFEMSample>"/>
-   <class name="std::vector<EcalMatacqSample>"/>
    <class name="std::vector<ESSample>"/>
    <class name="std::vector<EcalTriggerPrimitiveSample>"/>
    <class name="std::vector<EBDataFrame>"/>
