@@ -109,6 +109,18 @@ TStorageFactoryFile::TStorageFactoryFile (const char *path,
 	fOption = "READ";
     }
 
+    if (recreate) {
+      if (!gSystem->AccessPathName(path, kFileExists))
+	gSystem->Unlink(path);
+      recreate = false;
+      create   = true;
+      fOption  = "CREATE";
+    }
+     if (update && gSystem->AccessPathName(path, kFileExists)) {
+       update = kFALSE;
+       create = kTRUE;
+     }
+
     int    openFlags	= seal::IOFlags::OpenRead;
     if (!read)  openFlags |= seal::IOFlags::OpenWrite;
     if (create)        openFlags |= seal::IOFlags::OpenCreate;
@@ -139,10 +151,10 @@ TStorageFactoryFile::TStorageFactoryFile (const char *path,
 
     fRealName = path;
     fD = 0; // sorry, meaningless
-    fWritable = kFALSE;
+    fWritable = read ? kFALSE : kTRUE;
     
     UseCache (s_cacheDefaultCacheSize, s_cacheDefaultPageSize);
-    Init (false);
+    Init (create);
 
     stats.tick (0);
     return;
@@ -270,6 +282,7 @@ TStorageFactoryFile::WriteBuffer (const char *buf, Int_t len)
     // Write specified byte range to the storage.  Returns kTRUE in
     // case of error.
 
+
     StorageAccount::Stamp stats (storageCounter (&s_statsWrite, "write"));
 
     if (! IsOpen () || !fWritable)
@@ -310,6 +323,8 @@ Int_t
 TStorageFactoryFile::SysOpen (const char *pathname, Int_t flags, UInt_t mode)
 {
     StorageAccount::Stamp stats (storageCounter (0, "open"));
+
+
 
     /**
     // Don't accept write or creation requests
