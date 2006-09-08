@@ -40,8 +40,8 @@ namespace helper {
 	selTracks_->back().setExtra( TrackExtraRef( rTrackExtras, idx ++ ) );
 	selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
 						trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
-						trk.extra()->outerStateCovariance(), trk.extra()->outerDetId(),
-						trk.extra()->innerStateCovariance(), trk.extra()->innerDetId() ) );
+						trk.outerStateCovariance(), trk.outerDetId(),
+						trk.innerStateCovariance(), trk.innerDetId() ) );
 	TrackExtra & tx = selTrackExtras_->back();
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	  selHits_->push_back( (*hit)->clone() );
