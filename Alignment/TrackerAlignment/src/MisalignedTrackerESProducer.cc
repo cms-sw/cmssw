@@ -69,8 +69,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   // Create misalignment scenario, apply to geometry
   MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
   scenarioBuilder.applyScenario( theParameterSet );
-  std::auto_ptr<Alignments> alignments( theAlignableTracker->alignments() );
-  std::auto_ptr<AlignmentErrors> alignmentErrors( theAlignableTracker->alignmentErrors() );
+  Alignments* alignments =  theAlignableTracker->alignments();
+  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
   
   // Write alignments to DB: have to sort beforhand!
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) )
