@@ -32,7 +32,7 @@ namespace edm {
     }
 
 
-    PSetNode * ParseTree::top()
+    PSetNode * ParseTree::top() const
     {
       NodePtr processPSetNodePtr = nodes_->front();
       edm::pset::PSetNode * processPSetNode

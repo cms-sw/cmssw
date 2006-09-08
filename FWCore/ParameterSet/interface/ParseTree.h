@@ -27,7 +27,7 @@ namespace edm {
       ParseTree(const std::string & configString);
 
       /// the top-level process PSetNode
-      PSetNode * top();
+      PSetNode * top() const;
 
       /// the names of all the modules we see
       std::vector<std::string> modules() const;
