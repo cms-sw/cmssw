@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id: EcalMatacqDigi.h,v 1.1 2006/07/21 12:35:04 meridian Exp $
+//$Id: EcalMatacqDigi.h,v 1.2 2006/09/08 09:50:06 pgras Exp $
 
 #ifndef ECALMATACQDIGI_H
 #define ECALMATACQDIGI_H 1
@@ -23,12 +23,19 @@ public:
   static const int MAXSAMPLES = 2560;
 
 public:
+  typedef int key_type; //matacq channel id used as key for edm::SortedCollection
+
+public:
   /** Default constructor.
    */
   EcalMatacqDigi(): chId_(-1), ts_(0.), tTrigS_(999.), version_(-1){}; 
   
-  /** This constructor is here to satisfy reflex (see persistancy and dictionnary).
-   * It will be remove as soon as it is no more reqired by reflex.
+  /** Constructor
+   * @param samples adc time samples
+   * @param chId Matacq channel ID
+   * @param ts sampling time in seconds
+   * @param version Matacq raw data private version
+   * @param tTrigg time position of the trigger in seconds
    */
   EcalMatacqDigi(const std::vector<Short_t>& samples, int chId, double ts,
 		 short version=-1, double tTrig=999.)
@@ -49,6 +56,11 @@ public:
   /** Gets Matacq electronics channel id
    */
   int chId() const{ return chId_;}
+
+  /** For edm::SortedCollection.
+   * @return as key the matacq channel id
+   */
+  int id() const { return chId_;}
 
 //   /** Sets Matacq electronics channel id
 //    */

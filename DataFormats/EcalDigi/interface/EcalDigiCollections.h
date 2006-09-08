@@ -14,5 +14,6 @@ typedef edm::SortedCollection<EEDataFrame> EEDigiCollection;
 typedef edm::SortedCollection<ESDataFrame> ESDigiCollection;
 typedef edm::SortedCollection<EcalTriggerPrimitiveDigi> EcalTrigPrimDigiCollection;
 typedef edm::SortedCollection<EcalPnDiodeDigi> EcalPnDiodeDigiCollection;
+typedef edm::SortedCollection<EcalMatacqDigi> EcalMatacqDigiCollection;
 
 #endif
