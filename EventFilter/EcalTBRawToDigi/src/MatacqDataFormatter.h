@@ -2,31 +2,26 @@
 #define MatacqDataFormatter_H
 /** \class MatacqDataFormatter
  *
- *  $Id: $
+ *  $Id: MatacqDataFormatter.h,v 1.1 2006/07/21 12:36:25 meridian Exp $
  */
 
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
-#include <vector> 
-#include <map>
-#include <iostream>
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include <ostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace edm;
-using namespace std;
-
+class MatacqRawEvent;
 class FEDRawData;
-class MatacqDataFormatter   {
+class EcalMatacqDigi;
 
- public:
-
+class MatacqDataFormatter{
+public:
   MatacqDataFormatter() {};
   virtual ~MatacqDataFormatter(){LogDebug("EcalTBRawToDigi") << "@SUB=MatacqDataFormatter" << "\n"; };
-
+  
   //Method to be implemented
-  void  interpretRawData( const FEDRawData & data, EcalMatacqDigi& matacqDigi ) {};
- private:
-
+  void  interpretRawData(const FEDRawData & data, EcalMatacqDigi& matacqDigi);
+  
+private:
+  void printData(std::ostream& out, const MatacqRawEvent& event) const;
 };
 #endif
+
