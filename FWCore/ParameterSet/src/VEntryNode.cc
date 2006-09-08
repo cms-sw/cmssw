@@ -59,7 +59,6 @@ namespace edm {
 
     void VEntryNode::replaceWith(const ReplaceNode * replaceNode)
     {
-      assertNotModified();
       // see if it's a replace or an append
       if(replaceNode->type() == "replace")
       {

@@ -50,7 +50,6 @@ namespace edm {
 
     void PSetNode::replaceWith(const ReplaceNode * replaceNode)
     {
-      assertNotModified();
       PSetNode * replacement = replaceNode->value<PSetNode>();
       assert(replacement != 0);
 

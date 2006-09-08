@@ -37,7 +37,6 @@ namespace edm {
 
 
     void EntryNode::replaceWith(const ReplaceNode * replaceNode) {
-      assertNotModified();
       EntryNode * replacement = replaceNode->value<EntryNode>();
       if(replacement == 0) {
         throw edm::Exception(errors::Configuration)
