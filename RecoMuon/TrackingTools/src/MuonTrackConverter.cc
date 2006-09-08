@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: 2006/09/01 21:11:05 $
- *  $Revision: 1.2 $ 
+ *  $Date: 2006/09/02 21:57:11 $
+ *  $Revision: 1.3 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -76,16 +76,22 @@ vector<Trajectory> MuonTrackConverter::convert(const reco::Track& t) const {
   
   // use TransientTrackingRecHitBuilder to get TransientTrackingRecHits
   ConstRecHitContainer hits = getTransientRecHits(t);
+  if ( hits.empty() ) return result;
   
   // sort RecHits AlongMomentum
+  if ( !hits.front()->isValid() ) return result;
+
   if ( hits.front()->geographicalId().det() == DetId::Tracker ) {
     reverse(hits.begin(),hits.end());
   }
+  
   //printHits(hits);
 
   // use TransientTrackBuilder to get a starting TSOS
   reco::TransientTrack theTT(t,&*theService->magneticField(),theService->trackingGeometry());
   TrajectoryStateOnSurface firstState = theTT.innermostMeasurementState();
+  if ( !firstState.isValid() ) return result;
+
   if ( hits.front()->geographicalId().det() == DetId::Tracker ) {
 
     firstState = theRefitter->propagator()->propagate(theTT.impactPointState(), hits.front()->det()->surface());
@@ -108,6 +114,7 @@ vector<Trajectory> MuonTrackConverter::convert(const reco::Track& t) const {
   if ( hits.front()->geographicalId().det() == DetId::Tracker ) {
     theTSOS = TrajectoryStateWithArbitraryError()(firstState);
   }
+  if ( !theTSOS.isValid() ) return result;
 
   const TrajectorySeed* seed = new TrajectorySeed();
   vector<Trajectory> trajs = theRefitter->trajectories(*seed,hits,theTSOS);
