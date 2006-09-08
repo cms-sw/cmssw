@@ -39,7 +39,7 @@
 #include <sstream>
 #include <iomanip>
 
-#define TEST
+//#define TEST
 
 using namespace std;
 
@@ -150,6 +150,19 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
   //edm::Handle< edm::DetSetVector<SiStripDigi> > zs;
+
+  if ( summary->fedReadoutMode() == sistrip::VIRGIN_RAW ) {
+    event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
+  } else if ( summary->fedReadoutMode() == sistrip::PROC_RAW ) {
+    event.getByLabel( inputModuleLabel_, "ProcessedRaw", raw );
+  } else if ( summary->fedReadoutMode() == sistrip::SCOPE_MODE ) {
+    event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
+  } else if ( summary->fedReadoutMode() == sistrip::ZERO_SUPPR ) {
+    //event.getByLabel( inputModuleLabel_, "ZeroSuppressed", zs );
+  } else {
+    edm::LogError("SiStripCommissioningSource") << "[SiStripCommissioningSource::analyze]"
+						<< " Unknown FED readout mode!";
+  }
   
   if ( &(*raw) == 0 ) {
     edm::LogError("SiStripCommissioningSource")
