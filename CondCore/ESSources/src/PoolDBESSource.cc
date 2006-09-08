@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <exception>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include <iostream>
 #include <sstream>
 //
@@ -86,6 +87,7 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 }
 
 void PoolDBESSource::initPool(const std::string& catcontact){
+  LogDebug ("")<<"initPool "<<catcontact;
   try{
     m_session->setCatalog(catcontact);
     m_session->connect( cond::ReadOnly );
@@ -99,13 +101,13 @@ void PoolDBESSource::initPool(const std::string& catcontact){
 }
 
 void PoolDBESSource::closePool(){
-  //std::cout<<"PoolDBESSource::closePool disconnect"<<std::endl; 
+  LogDebug ("")<<"closePool"; 
   //m_session->commit();
   m_session->disconnect();
 }
 
 bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::string> >& recordToTag ){
-  //std::cout<<"PoolDBESSource::initIOV"<<std::endl;
+  LogDebug ("")<<"initIOV";
   cond::MetaData meta(m_con, *m_loader);
   std::vector< std::pair<std::string, std::string> >::const_iterator it;
   try{
@@ -307,7 +309,7 @@ PoolDBESSource::~PoolDBESSource()
 //
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) {
-  //std::cout<<"PoolDBESSource::setIntervalFor"<<std::endl;
+  LogDebug ("")<<"setIntervalFor";
   RecordToTypes::iterator itRec = m_recordToTypes.find( iKey.name() );
   //std::cout<<"setIntervalFor "<<iKey.name()<<std::endl;
   if( itRec == m_recordToTypes.end() ) {
@@ -339,8 +341,6 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   //valid time check
   //check if current run exceeds iov upperbound
   unsigned long long myendoftime=myiov->iov.rbegin()->first;
-  //std::cout<<"current time "<<abtime<<std::endl;
-  //std::cout<<"myendoftime "<<myendoftime<<std::endl;
   if( myendoftime!=endOftime && abtime>myendoftime ){
     std::ostringstream os;
     os<<abtime;
@@ -365,8 +365,10 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
       starttime = (*iStart).first+beginOftime;
     }
     payloadToken = (*iEnd).second;
-    //std::cout<<"valid time "<<(*iEnd).first<<std::endl;
-    //std::cout<<"payloadToken "<<payloadToken<<std::endl;
+    LogDebug ("")<<" current time "<<abtime
+		 <<" ; found validity "<<(*iEnd).first
+                 <<" ; end of time "<<myendoftime
+                 <<" ; payloadToken "<<payloadToken;
     //edm::IOVSyncValue start( edm::EventID(0,0) );
     edm::IOVSyncValue start;
     if( m_timetype == "timestamp" ){
@@ -374,15 +376,18 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     }else{
       start=edm::IOVSyncValue( edm::EventID(starttime,0) );
     }
-    //std::cout<<"starttime "<<edm::EventID(starttime,0)<<std::endl;
-    //std::cout<<"stop time "<<edm::EventID((*iEnd).first,0)<<std::endl;
     //edm::IOVSyncValue stop ( edm::EventID((*iEnd).first+edm::IOVSyncValue::beginOfTime().eventID().run(),0) );
     edm::IOVSyncValue stop;
     if( m_timetype == "timestamp" ){
       stop=edm::IOVSyncValue( edm::Timestamp((*iEnd).first) );
+      LogDebug ("")<<" set start time "<<start.time().value()
+		   <<" ; set stop time "<<stop.time().value();
     }else{
-      stop=edm::IOVSyncValue( edm::EventID((*iEnd).first).run(),0 );
+      stop=edm::IOVSyncValue( edm::EventID((*iEnd).first,0) );
+      LogDebug ("")<<" set start run "<<start.eventID().run()
+		   <<" ; set stop run "<<stop.eventID().run();
     }
+    
     oInterval = edm::ValidityInterval( start, stop );
   }
   m_proxyToToken[buildName(itRec->first ,itRec->second)]=payloadToken;  
@@ -391,18 +396,18 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 void 
 PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) 
 {
-  //std::cout<<"Entering PoolDBESSource::registerProxies"<<std::endl;
-   using namespace edm;
-   using namespace edm::eventsetup;
-   using namespace std;
-   //cout <<string("registering Proxies for ") + iRecordKey.name() << endl;
-   //For each data type in this Record, create the proxy by dynamically loading it
-   std::pair< RecordToTypes::iterator,RecordToTypes::iterator > typeItrs = m_recordToTypes.equal_range( iRecordKey.name() );
-   //loop over types in the same record
-   for( RecordToTypes::iterator itType = typeItrs.first; itType != typeItrs.second; ++itType ) {
-     //std::cout<<"Entering loop PoolDBESSource::registerProxies"<<std::endl;
-     //std::cout<<std::string("   ") + itType->second <<std::endl;
-     static eventsetup::TypeTag defaultType;
+  LogDebug ("")<<"registerProxies";
+  using namespace edm;
+  using namespace edm::eventsetup;
+  using namespace std;
+  //cout <<string("registering Proxies for ") + iRecordKey.name() << endl;
+  //For each data type in this Record, create the proxy by dynamically loading it
+  std::pair< RecordToTypes::iterator,RecordToTypes::iterator > typeItrs = m_recordToTypes.equal_range( iRecordKey.name() );
+  //loop over types in the same record
+  for( RecordToTypes::iterator itType = typeItrs.first; itType != typeItrs.second; ++itType ) {
+    //std::cout<<"Entering loop PoolDBESSource::registerProxies"<<std::endl;
+    //std::cout<<std::string("   ") + itType->second <<std::endl;
+    static eventsetup::TypeTag defaultType;
      eventsetup::TypeTag type = eventsetup::TypeTag::findType( itType->second );
      if( type != defaultType ) {
        pProxyToToken pos=m_proxyToToken.find(buildName(iRecordKey.name(), type.name()));
@@ -425,9 +430,8 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
 void 
 PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,const edm::ValidityInterval& iInterval) 
 {
-  //std::cout<<"PoolDBESSource::newInterval "<<iRecordType.name()<<std::endl;
+  LogDebug ("")<<"newInterval";
   invalidateProxies(iRecordType);
-  //std::cout<<"invalidated "<<std::endl;
 }
 
 // ------------ method called to produce the data  ------------
