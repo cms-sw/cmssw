@@ -18,30 +18,87 @@ boost::python::list toPythonList(const std::vector<std::string> & v)
   return result;
 }
 
+// and back.  Destroys the input via pop()s
+std::vector<std::string> toVector(boost::python::list & l)
+{
+  std::vector<std::string> result;
+  bool is_ok = true;
+  while( is_ok ) {
+    boost::python::extract<std::string>  x( l.pop( 0 ));
+
+    if( x.check()) {
+        result.push_back( x());
+    } else {
+        is_ok = false;
+    }
+  }
+  return result;
+}
+
 
 PythonParseTreeSummary::PythonParseTreeSummary(const string & filename)
+:  theTree(edm::pset::read_whole_file(filename))
 {
-  string configString;
-  edm::pset::read_whole_file(filename, configString);
 
-  boost::shared_ptr<edm::pset::NodePtrList> parsetree =
-    edm::pset::parse(configString.c_str());
-
-  theTweaker.process(parsetree);
+  theTree.process();
 }
 
 
 boost::python::list 
 PythonParseTreeSummary::modules() const
 {
-  return toPythonList(theTweaker.modules());
+  return toPythonList(theTree.modules());
 }
 
 
 boost::python::list 
 PythonParseTreeSummary::modulesOfType(const std::string & type) const
 {
-  return toPythonList(theTweaker.modulesOfType(type));
+  return toPythonList(theTree.modulesOfType(type));
+}
+
+
+void PythonParseTreeSummary::process()
+{
+  theTree.process();
+}
+
+
+void PythonParseTreeSummary::replaceValue(const std::string & dotDelimitedNode,
+                 const std::string & value)
+{
+  theTree.replace(dotDelimitedNode, value);
+}
+
+
+void PythonParseTreeSummary::replaceValues(const std::string & dotDelimitedNode,
+                                           boost::python::list & values)
+{
+  theTree.replace(dotDelimitedNode, toVector(values));
+}
+
+
+void PythonParseTreeSummary::dump(const std::string & dotDelimitedNode) const
+{
+  theTree.print(dotDelimitedNode);
+}
+
+
+std::string PythonParseTreeSummary::value(const std::string & dotDelimitedNode) const
+{
+  return theTree.value(dotDelimitedNode);
+}
+
+
+boost::python::list PythonParseTreeSummary::values(const std::string & dotDelimitedNode) const
+{
+  return toPythonList(theTree.values(dotDelimitedNode));
+}
+
+
+boost::python::list PythonParseTreeSummary::children(const std::string & dotDelimitedNode) const
+{
+  return toPythonList(theTree.children(dotDelimitedNode));
 }
 
 
@@ -49,9 +106,18 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
 {
 
    class_<PythonParseTreeSummary>("PythonParseTreeSummary", init<std::string>())
-       .def("modules", &PythonParseTreeSummary::modules)
+       .def("modules",       &PythonParseTreeSummary::modules)
        .def("modulesOfType", &PythonParseTreeSummary::modulesOfType)
-        ;
+       .def("process",       &PythonParseTreeSummary::process)
+       .def("replaceValue",  &PythonParseTreeSummary::replaceValue)
+       .def("replaceValues", &PythonParseTreeSummary::replaceValues)
+       .def("dump",          &PythonParseTreeSummary::dump)
+       .def("value",         &PythonParseTreeSummary::value)
+       .def("values",        &PythonParseTreeSummary::values)
+       .def("children",      &PythonParseTreeSummary::children)
+   ;
+
+     
 }
 
 
