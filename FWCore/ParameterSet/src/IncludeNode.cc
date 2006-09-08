@@ -96,8 +96,7 @@ namespace edm {
         FileInPath fip(name());
         fullPath_ = fip.fullPath();
         isResolved_ = true;
-        string configuration;
-        read_whole_file(fip.fullPath(), configuration);
+        string configuration = read_whole_file(fip.fullPath());
         // save the name of the file
         extern string currentFile;
         string oldFile = currentFile;
