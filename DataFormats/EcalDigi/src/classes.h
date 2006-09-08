@@ -5,7 +5,6 @@ namespace {
   namespace {
     std::vector<EcalMGPASample> vMGPA_;
     std::vector<EcalFEMSample> vFEM_;
-    std::vector<EcalMatacqSample> vMatacq_;
     std::vector<ESSample> vESSample_;
     std::vector<EcalTriggerPrimitiveSample> vETPS_;
 
