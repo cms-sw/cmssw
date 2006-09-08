@@ -1,4 +1,5 @@
-#include "RecoTracker/TrackProducer/test/TrackAssociatorByChi2.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
 using namespace edm;
 using namespace reco;
@@ -76,7 +77,7 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
   return outputVec;
 }
 
-
+#if 0
 RecoToSimCollection TrackAssociatorByChi2::compareTracksParam(edm::Handle<reco::TrackCollection>& tCH, 
 							      edm::Handle<TrackingParticleCollection>& tPCH){
 
@@ -137,3 +138,4 @@ RecoToSimCollection TrackAssociatorByChi2::compareTracksParam(edm::Handle<reco::
   return outputCollection;
 
 }
+#endif

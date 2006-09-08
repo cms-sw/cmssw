@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociation.h"
 
 #include<map>
