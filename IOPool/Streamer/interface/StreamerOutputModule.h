@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
 
 
 #include "TBuffer.h"
@@ -34,6 +35,40 @@
 #include <vector>
 #include <utility>
 #include <iostream>
+
+namespace 
+{
+   //A utility function that packs bits from source into bytes, with 
+   // packInOneByte as the numeber of bytes that are packed from source to dest.
+   void printBits(unsigned char c){
+ 
+        for (int i=7; i>=0; i--) {
+            int bit = ((c >> i) & 1);
+            cout << " "<<bit; 
+        } 
+   }   
+    
+   void packIntoString(vector<unsigned char> const& source,
+                    vector<unsigned char>& package)
+   {   
+   unsigned int packInOneByte = 4; 
+   unsigned int sizeOfPackage = 1+((source.size()-1)/packInOneByte); //Two bits per HLT
+    
+   package.resize(sizeOfPackage); 
+   memset(&package[0], 0x00, sizeOfPackage);
+ 
+   for (unsigned int i=0; i != source.size() ; ++i)
+   { 
+      unsigned int whichByte = i/packInOneByte;
+      unsigned int indxWithinByte = i % packInOneByte;
+      package[whichByte] = package[whichByte] | (source[i] << (indxWithinByte*2));
+   }
+  //for (unsigned int i=0; i !=package.size() ; ++i)
+  //   printBits(package[i]);
+  // cout<<endl;
+
+   }
+}
 
 namespace edm
 {
@@ -61,9 +96,9 @@ namespace edm
 
     std::auto_ptr<InitMsgBuilder> serializeRegistry();
     std::auto_ptr<EventMsgBuilder> serializeEvent(EventPrincipal const& e); 
-     
-    Strings getTriggerNames(); 
 
+    void setHltMask(EventPrincipal const& e);
+     
   private:
     Selections const* selections_;
 
@@ -76,6 +111,14 @@ namespace edm
 
     Consumer* c_;
     StreamTranslator* translator_;
+
+    //Event variables, made class memebers to avoid re instatiation for each event.
+    unsigned int hltsize_;
+    uint32 lumi_;
+    std::vector<bool> l1bit_;
+    std::vector<unsigned char> hltbits_;
+    uint32 reserved_;
+
   }; //end-of-class-def
 
  
@@ -89,7 +132,12 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
   useCompression_(ps.template getParameter<bool>("use_compression")),
   compressionLevel_(ps.template getParameter<int>("compression_level")),
   c_(new Consumer(ps)),   //Try auto_ptr with this ?
-  translator_(new StreamTranslator(selections_))
+  translator_(new StreamTranslator(selections_)),
+  hltsize_(0),
+  lumi_(2), //a dummy value of 2.
+  l1bit_(0),
+  hltbits_(0),
+  reserved_(0) // no compression as default value - we need this!
   {
     if(useCompression_ == true)
     {
@@ -137,21 +185,6 @@ void StreamerOutputModule<Consumer>::write(EventPrincipal const& e)
                               // in StreamerOutputModule after this point
   }
 
-// This functionality can actullay be provided by OutputModule
-// Its moved here as it is not currently there.
-
-template <class Consumer>
-Strings StreamerOutputModule<Consumer>::getTriggerNames() {
-  edm::Service<edm::service::TriggerNamesService> tns;
-  std::vector<std::string> allTriggerNames = tns->getTrigPaths();
-  
-  //for (unsigned int i=0; i!=allTriggerNames.size() ;++i) 
-        //cout<<"TriggerName: "<<allTriggerNames.at(i);
-    
-  int hltsize_ = allTriggerNames.size();
-  return allTriggerNames;
-  }
-
 template <class Consumer>
 std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry()
   {
@@ -159,23 +192,28 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     //Following values are strictly DUMMY and will be replaced
     // once available with Utility function etc.
     uint32 run = 1;
+
+  /** FWCore/ParameterSet/Registry.h
+  edm::pset::Registry* reg = edm::pset::Registry::instance();
+  edm::ParameterSetID toplevel =
+  edm::ParameterSetID psetid = edm::pset::getProcessParameterSetID(reg); **/
+
     char psetid[] = "1234567890123456";
+
+    //Setting protocol version III
     Version v(3,(const uint8*)psetid);
-    char release_tag[] = "CMSSW_DUMMY";
-    Strings hlt_names; //9
-    //Strings hlt_names = getTriggerNames();
-    hlt_names.push_back("a");  hlt_names.push_back("b");
-    hlt_names.push_back("c");  hlt_names.push_back("d");
-    hlt_names.push_back("e");  hlt_names.push_back("f");
-    hlt_names.push_back("g");  hlt_names.push_back("h");
-    hlt_names.push_back("i");
+
+    Strings hlt_names = edm::getAllTriggerNames();
+    hltsize_ = hlt_names.size();
+
+    //L1 stays dummy as of today
     Strings l1_names;  //3
     l1_names.push_back("t1");  l1_names.push_back("t10");
     l1_names.push_back("t2");  
-    //end-of-dummy-values
+
     std::auto_ptr<InitMsgBuilder> init_message(
                                 new InitMsgBuilder(&prod_reg_buf_[0], prod_reg_buf_.size(),
-                                      run, v, release_tag, hlt_names,
+                                      run, v, edm::getReleaseVersion().c_str() , hlt_names,
                                       l1_names));
 
     // the translator already has the product registry (selections_),
@@ -185,31 +223,68 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     return init_message;
 }
 
+
+template <class Consumer>
+void StreamerOutputModule<Consumer>::setHltMask(EventPrincipal const& e)
+   {
+
+    hltbits_.clear();  // If there was something left over from last event
+
+    const Trig& prod = getTrigMask(e);
+    vector<unsigned char> vHltState; 
+    
+    if (prod.isValid())
+    {
+      for(unsigned int i=0; i != hltsize_ ; ++i) {
+        vHltState.push_back(((prod->at(i)).state()));
+      }
+    }
+    else 
+    {
+     // We fill all Trigger bits to valid state.
+     for(unsigned int i=0; i != hltsize_ ; ++i)
+        {
+           vHltState.push_back(hlt::Pass);
+        }
+    }
+    
+    //Pack into member hltbits_
+    packIntoString(vHltState, hltbits_);
+
+
+    //This is Just a printing code.
+    //cout <<"Size of hltbits:"<<hltbits_.size()<<endl;
+    //for(unsigned int i=0; i != hltbits_.size() ; ++i) {
+    //  printBits(hltbits_[i]);
+    //}
+    //cout<<"\n";
+
+   }
+
 template <class Consumer>
 std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
                                                  EventPrincipal const& e)
   {
     //Lets Build the Event Message first 
-    //Following is strictly DUMMY Data, and will be replaced with actual
+
+    //Following is strictly DUMMY Data for L! Trig and will be replaced with actual
     // once figured out, there is no logic involved here.
-    uint32 lumi=2;
-    std::vector<bool> l1bit(3);
-    l1bit[0]=true;  
-    l1bit[1]=true; 
-    l1bit[2]=false;
-    uint8 hltbits[] = "4567";
-    const int hltsize = 9;//(sizeof(hltbits)-1)*4;
-    uint32 reserved=0; // no compression as default value - we need this!
+    l1bit_.push_back(true);
+    l1bit_.push_back(true);
+    l1bit_.push_back(false);
     //End of dummy data
+
+    setHltMask(e);
 
     std::auto_ptr<EventMsgBuilder> msg( 
                            new EventMsgBuilder(&bufs_[0], bufs_.size(),
-                           e.id().run(), e.id().event(), lumi,
-                           l1bit, hltbits, hltsize) );
-    msg->setReserved(reserved); // we need this set to zero
+                           e.id().run(), e.id().event(), lumi_,
+                           l1bit_, (uint8*)&hltbits_[0], hltsize_) );
+    msg->setReserved(reserved_); // we need this set to zero
 
     translator_->serializeEvent(e, *msg, useCompression_, compressionLevel_);
 
+    l1bit_.clear();  //Clear up for the next event to come.
     return msg;
 }
 
