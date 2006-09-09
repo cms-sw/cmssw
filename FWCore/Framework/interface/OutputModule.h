@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.24.2.2 2006/07/01 06:23:36 wmtan Exp $
+$Id: OutputModule.h,v 1.25 2006/07/06 19:11:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,7 +21,13 @@ $Id: OutputModule.h,v 1.24.2.2 2006/07/01 06:23:36 wmtan Exp $
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/Selector.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/Handle.h"
+
 namespace edm {
+   
+  typedef edm::Handle<edm::TriggerResults> Trig;
+  std::vector<std::string> const& getAllTriggerNames();
 
   class OutputModule {
   public:
@@ -38,6 +44,8 @@ namespace edm {
 
     unsigned long nextID() const;
     void selectProducts();
+
+    const Trig& getTrigMask(EventPrincipal const& ep) const;
 
   protected:
     // The returned pointer will be null unless the this is currently
@@ -83,7 +91,7 @@ namespace edm {
     };
 
     virtual void write(EventPrincipal const& e) = 0;
-    bool wantEvent(EventPrincipal const& e, ModuleDescription const&);
+    bool wantEvent(EventPrincipal const& e);
 
     std::string process_name_;
     GroupSelector groupSelector_;
@@ -92,6 +100,13 @@ namespace edm {
 
     // We do not own the pointed-to CurrentProcessingContext.
     CurrentProcessingContext const* current_context_;
+
+    //This var will store Trigger Bit mask
+    mutable Trig prod_;
+
+    //Store the current Module Desc
+    ModuleDescription const* current_md_;  
+
   };
 }
 

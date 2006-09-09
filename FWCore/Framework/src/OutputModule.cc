@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.19 2006/08/24 18:18:11 wmtan Exp $
+$Id: OutputModule.cc,v 1.20 2006/08/28 22:32:33 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <vector>
@@ -19,7 +19,7 @@ $Id: OutputModule.cc,v 1.19 2006/08/24 18:18:11 wmtan Exp $
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/src/CPCSentry.h"
 
-namespace
+namespace edm
 {
   // This grotesque little function exists just to allow calling of
   // ConstProductRegistry::allBranchDescriptions in the context of
@@ -39,10 +39,10 @@ namespace
     return tns->getTrigPaths();
   }
 
-}
+//}
 
 
-namespace edm {
+//namespace edm {
   OutputModule::OutputModule(ParameterSet const& pset) : 
     nextID_(),
     descVec_(),
@@ -103,17 +103,41 @@ namespace edm {
 
   void OutputModule::endJob() { }
 
-  void OutputModule::writeEvent(EventPrincipal const& ep,
-				ModuleDescription const& md,
-				CurrentProcessingContext const* c)
+ const Trig& OutputModule::getTrigMask(EventPrincipal const& ep) const
   {
-    detail::CPCSentry sentry(current_context_, c);
-    FDEBUG(2) << "writeEvent called\n";
-    if(eventSelector_.wantAll() || wantEvent(ep,md)) write(ep);
+    if (! prod_.isValid())
+    {
+      // use module description and const_cast unless interface to
+      // event is changed to just take a const EventPrincipal
+      Event e(const_cast<EventPrincipal&>(ep), *current_md_);
+      try {
+         e.get(selectResult_, prod_);
+      } catch(cms::Exception& e){
+         FDEBUG(2) << e.what();
+         //prod_ stays empty
+      }
+    }
+    return  prod_;
   }
 
-  bool OutputModule::wantEvent(EventPrincipal const& ep,
-			       ModuleDescription const& md)
+  void OutputModule::writeEvent(EventPrincipal const& ep,
+                                ModuleDescription const& md,
+                                CurrentProcessingContext const* c)
+  {
+    detail::CPCSentry sentry(current_context_, c);
+    //Save the current Mod Desc
+    current_md_ = &md;
+
+    FDEBUG(2) << "writeEvent called\n";
+    if(eventSelector_.wantAll() || wantEvent(ep)) {
+         write(ep);
+    }
+    //Clean up the TriggerResult handle immediately
+    // for next event should get it empty (inValid() returning true)
+    prod_ = edm::Handle<edm::TriggerResults>();
+  }
+
+  bool OutputModule::wantEvent(EventPrincipal const& ep)
   {
     // this implementation cannot deal with doing event selection
     // based on any previous TriggerResults.  It can only select
@@ -121,14 +145,13 @@ namespace edm {
 
     // use module description and const_cast unless interface to
     // event is changed to just take a const EventPrincipal
-    Event e(const_cast<EventPrincipal&>(ep),md);
-    typedef edm::Handle<edm::TriggerResults> Trig;
-    Trig prod;
-    e.get(selectResult_,prod);
-    bool rc = eventSelector_.acceptEvent(*prod);
-	FDEBUG(2) << "Accept event " << ep.id() << " " << rc << "\n";
-	FDEBUG(2) << "Mask: " << *prod << "\n";
-	return rc;
+
+    getTrigMask(ep);
+
+    bool rc = eventSelector_.acceptEvent(*prod_);
+    FDEBUG(2) << "Accept event " << ep.id() << " " << rc << "\n";
+    FDEBUG(2) << "Mask: " << *prod_ << "\n";
+    return rc;
   }
 
   CurrentProcessingContext const*
