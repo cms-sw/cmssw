@@ -22,15 +22,10 @@ void dumpInitHeader(const InitMsgView* view)
 
   cout << "pset = " << vpset << "\n";
 
-  //cout<<"headerSize::::::"<<view->headerSize()<<endl;
-  //cout << "Size of INIT Header: "<< view->initHeaderSize() << endl; 
-  //cout << "Size of EVENT Header: "<< view->eventHeaderSize() << endl;  
-
-  cout<<"# of HLT Bits: "<<vhltnames.size()<<endl;
-  cout << "\nHLT names = \n";
+  cout << "HLT names = \n";
   copy(vhltnames.begin(),vhltnames.end(),ostream_iterator<string>(cout,"\n"));
-  cout<<"# of L1 Bits: "<<vl1names.size()<<endl;
-  cout << "\nL1 names = \n";
+
+  cout << "L1 names = \n";
   copy(vl1names.begin(),vl1names.end(),ostream_iterator<string>(cout,"\n"));
   cout << "\n";
 
@@ -84,7 +79,7 @@ void dumpEventHeader(const EventMsgView* eview)
 
   std::vector<bool> l1_out;
   std::vector<unsigned char> hlt_out;
-  hlt_out.resize(1 + (eview->hltCount())/4);
+  hlt_out.resize(1 + (eview->hltCount()-1)/4);
 
   //uint8 hlt_out[100];
   eview->l1TriggerBits(l1_out);
@@ -95,12 +90,13 @@ void dumpEventHeader(const EventMsgView* eview)
   copy(l1_out.begin(),l1_out.end(),ostream_iterator<bool>(cout," "));
   
   unsigned int bytesForHLT = eview->hltCount();   
-  cout<<"eview->hltCount():::::::::::::::"<<eview->hltCount()<<endl;
+  cout<<"\nhlt Count:"<<eview->hltCount()<<endl;
   if (eview->hltCount() !=0)  bytesForHLT = 1 + (eview->hltCount()-1)/4;
-  cout << "\nBytes used by hlt = " << bytesForHLT <<endl; 
 
   cout << "\nhlt bits=\n(";
-  copy(&hlt_out[0],&hlt_out[0]+bytesForHLT,ostream_iterator<char>(cout,""));
+  for(unsigned int i=((unsigned int)hlt_out.size()-1); i != -1 ; --i) 
+     printBits(hlt_out[i]);
+  //copy(&hlt_out[0],&hlt_out[0]+bytesForHLT,ostream_iterator<char>(cout,""));
   cout << ")\n";
  }
 
