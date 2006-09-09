@@ -5,7 +5,7 @@ function usage () {
     echo -e " -IOV=<runNb> (default is $default_IOV )"
     echo -e " -ConfigDb=<user/passwd@path> (default is ${default_ConfigDb} )"
     echo -e " -ConfigDbVersion=<Major.Minor> (default is ${default_ConfigDb} )"
-    echo -e " -ConfigDbPartition=<partitionName> (default is ${default_ConfigDbPartition} )"
+    echo -e " -ConfigDbPartition=<partitionName> (default is 8.189 )"
     echo -e " -doPedNoiseTransfer (default is $default_doPedNoiseTransfer )"
     echo -e " -doFedCablingTransfer (default is $default_doFedCablingTransfer )" 
     echo -e " -CondDb=<sqlite>, <devdb10>, <orcon> (default is sqlite)"
@@ -24,7 +24,7 @@ function getParameter(){
     where=$@
     if [ `echo $where | grep -c "\-$what="` = 1 ]; then
         eval $what=`echo $where | awk -F"${what}=" '{print $2}' | awk '{print $1}'`
-    elif [ `echo $where | grep -c "\-$what"` = 1 ]; then
+    elif [ `echo $where | grep -c "\-$what "` = 1 ]; then
 	eval $what=1
     fi
 }
@@ -95,13 +95,6 @@ settings "$@"
 
 [ ! -e ${test_area} ] && mkdir -p ${test_area}
 
-scramv1 setup -i oracle <<EOF > /dev/null
-
-
-
-/afs/cern.ch/project/oracle/admin
-
-EOF
 
 eval `scramv1 runtime -sh`
 
@@ -122,10 +115,8 @@ elif [ "$CondDb" == "sqlite" ]; then
 	rm -f ${sqliteCatalog}
         
 	echo "OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP "
-	../../OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP 
-        if [ "$CondDb" == "sqlite" ]; then
-           pool_insertFileToCatalog -u ${DBcatalog} -t POOL_RDBMS ${DBfile}
-        fi
+	$CMSSW_BASE/src/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP 
+	pool_insertFileToCatalog -u ${DBcatalog} -t POOL_RDBMS ${DBfile}
     fi
 else
     echo "ERROR: wrong argument value: -CondDb=<sqlite>, <devdb10>, <orcon> "

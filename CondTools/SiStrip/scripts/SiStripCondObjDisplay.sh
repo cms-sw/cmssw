@@ -4,8 +4,8 @@ function usage(){
     echo -e "\n[usage] SiStripCondObjDisplay.sh [options]"
     echo -e " -run=<runNb>"
     echo -e " -CondDb=<sqlite>, <devdb10>, <orcon> (default is sqlite)"
-    echo -e " -dbfile=<dbfile> (needed for CondDb=sqlite)"
-    echo -e " -dbcatalog=<dbcatalog> (needed for CondDb=sqlite)"
+    echo -e " -dbfile=<dbfile> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db)"
+    echo -e " -dbcatalog=<dbcatalog> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db )"
     exit
 }
 
@@ -27,10 +27,14 @@ function getParameter(){
 
 [ `echo $@ | grep -c "\-help"` = 1 ] && usage;
 
-getParameter run  $@ 1
-getParameter dbfile $@ ""
-getParameter dbcatalog $@ ""
-getParameter CondDb $@ sqlite
+test_area=/tmp/$USER/Display
+[ ! -e ${test_area} ] && mkdir -p ${test_area}
+
+getParameter run       $@ 1
+getParameter CondDb    $@ sqlite
+getParameter dbfile    $@ ${test_area}/dummy_${run}.db
+getParameter dbcatalog $@ ${test_area}/dummy_${run}.xml
+
 
 if [ "$CondDb" == "sqlite" ] && [ "$dbfile" != "" ] && [ "$dbcatalog" != "" ]; 
     then
@@ -43,13 +47,11 @@ elif [ "$CondDb" == "orcon" ]; then
     DBfile="oracle://orcon/CMS_COND_STRIP"
     DBcatalog="relationalcatalog_oracle://orcon/CMS_COND_GENERAL"
 else
-    echo -e "\nWrong options"
+    echo -e "\nERROR: Wrong options"
     usage
 fi
 
 
-test_area=/tmp/$USER/Display
-[ ! -e ${test_area} ] && mkdir -p ${test_area}
 
 output_file_name=${test_area}/Display_PedNoise_RunNb_${run}.root 
 ps_file_name=${test_area}/Display_PedNoise_RunNb_${run}.ps 
@@ -59,14 +61,6 @@ echo ${cfg_file}
 
 export TNS_ADMIN=/afs/cern.ch/project/oracle/admin
 export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
-
-# scramv1 setup -i oracle <<EOF > /dev/null
-
-
-
-# /afs/cern.ch/project/oracle/admin
-
-# EOF 
 
 eval `scramv1 runtime -sh`
 
