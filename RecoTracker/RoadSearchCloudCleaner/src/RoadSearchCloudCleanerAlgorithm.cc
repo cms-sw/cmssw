@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/04/10 03:11:51 $
-// $Revision: 1.2 $
+// $Author: gutsche $
+// $Date: 2006/08/29 22:18:39 $
+// $Revision: 1.3 $
 //
 
 #include <vector>
@@ -98,23 +98,32 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
 	for ( RoadSearchCloud::RecHitOwnVector::const_iterator lone_cloud_hit = lone_cloud.begin_hits();
 	      lone_cloud_hit != lone_cloud.end_hits();
 	      ++ lone_cloud_hit ) {
-	  
+
 	  if (lone_cloud_hit->geographicalId() == second_cloud_hit->geographicalId())
 	    if (lone_cloud_hit->localPosition().x() == second_cloud_hit->localPosition().x())
 	      if (lone_cloud_hit->localPosition().y() == second_cloud_hit->localPosition().y())
 		{is_shared=true; break;}
 	}
-	if (!is_shared) unshared_hits.push_back(&(*second_cloud_hit));
-      }
+	if (!is_shared)  unshared_hits.push_back(&(*second_cloud_hit));
 
+	if ( ((float(unshared_hits.size())/float(lone_cloud.size())) > 
+	      ((float(second_cloud->size())/float(lone_cloud.size()))-mergingFraction_)) &&
+	     ((float(unshared_hits.size())/float(second_cloud->size())) > (1-mergingFraction_))){
+	  // You'll never merge these clouds..... Could quit now!
+	  break;
+	}
+
+      }
+      
       float f_lone_shared=float(second_cloud->size()-unshared_hits.size())/float(lone_cloud.size());
       float f_second_shared=float(second_cloud->size()-unshared_hits.size())/float(second_cloud->size());
 
       if ( ( (f_lone_shared > mergingFraction_)||(f_second_shared > mergingFraction_) ) 
 	   && (lone_cloud.size()+unshared_hits.size() <= maxRecHitsInCloud_) ){
 
-	LogDebug("RoadSearch") << "Add clouds.";
-	  
+	LogDebug("RoadSearch") << " Merge CloudA: " << raw_cloud_ctr << " with  CloudB: " << second_cloud_ctr 
+			       << " Shared fractions are " << f_lone_shared << " and " << f_second_shared;
+
 	//
 	//  got a cloud to merge
 	//
@@ -131,17 +140,17 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
 
 	already_gone[second_cloud_ctr-1]=true;
 
-      }//end got a cloud to merge
+	}//end got a cloud to merge
 
     }//interate over all second clouds
 
     LogDebug("RoadSearch") << "number of ref in cloud " << lone_cloud.seeds().size(); 
 
     output.push_back(lone_cloud);
-
+    
   }//iterate over all raw clouds
 
-  LogDebug("RoadSearch") << "Found " << output.size() << " clouds.";
+  LogDebug("RoadSearch") << "Found " << output.size() << " clean clouds.";
 
 };
 
