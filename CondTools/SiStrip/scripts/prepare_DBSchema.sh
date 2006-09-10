@@ -17,7 +17,7 @@ function getParameter(){
     where=$@
     if [ `echo $where | grep -c "\-$what="` = 1 ]; then
         eval $what=`echo $where | awk -F"${what}=" '{print $2}' | awk '{print $1}'`
-    elif [ `echo $where | grep -c "\-$what"` = 1 ]; then
+    elif [ `echo $where | grep -c "\-$what "` = 1 ]; then
 	eval $what=1
     fi
 }

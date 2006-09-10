@@ -2,6 +2,7 @@
 
 function usage(){
     echo -e "\n[usage] SiStripCondObjDisplay.sh [options]"
+    echo -e " -help  this message"
     echo -e " -run=<runNb>"
     echo -e " -CondDb=<sqlite>, <devdb10>, <orcon> (default is sqlite)"
     echo -e " -dbfile=<dbfile> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db)"
@@ -30,11 +31,12 @@ function getParameter(){
 test_area=/tmp/$USER/Display
 [ ! -e ${test_area} ] && mkdir -p ${test_area}
 
-getParameter run       $@ 1
+getParameter run       $@ -1
 getParameter CondDb    $@ sqlite
 getParameter dbfile    $@ ${test_area}/dummy_${run}.db
 getParameter dbcatalog $@ ${test_area}/dummy_${run}.xml
 
+[ "$run" == "-1" ] && echo -e "\nWORNING: please specify a run number" && usage
 
 if [ "$CondDb" == "sqlite" ] && [ "$dbfile" != "" ] && [ "$dbcatalog" != "" ]; 
     then
@@ -78,5 +80,5 @@ echo "Pedestal Histos with all channel at zero" `grep "All channel at zero in Pe
 echo "Noise Histos with all channel at zero" `grep "All channel at zero in Nois"  ${test_area}/out_diplay_${run} | wc -l`
 echo "BadStrips Histos with all channel at zero" `grep "All channel at zero in Bad"  ${test_area}/out_diplay_${run} | wc -l`
 
-echo -e "\nroot file and postscript file with histos can be found in  ${test_area}"
-echo -e "to see .ps file do\ngv  ${ps_file_name}&"
+echo -e "\nroot file and postscript file with histos can be found in  ${test_area}\n\t ${output_file_name} \n\t ${ps_file_name}" 
+echo -e "\nto see .ps file do\ngv  ${ps_file_name}&"
