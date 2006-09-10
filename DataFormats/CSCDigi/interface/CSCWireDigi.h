@@ -20,9 +20,10 @@ public:
   CSCWireDigi (int wire, int tbinb);  /// wiregroup#, tbin bit word
   CSCWireDigi ();                     /// default
 
-
   /// return wiregroup number
   int getWireGroup() const {return wire_;}
+  /// return the word with time bins bits
+  int getTimeBinWord() const {return tbinb_;}
   /// return tbin number, (obsolete, use getTimeBin() instead)
   int getBeamCrossingTag() const;
   /// return first tbin ON number
