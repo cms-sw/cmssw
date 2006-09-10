@@ -11,6 +11,8 @@ drop table DETREGISTRYINDEX_NOISE;
 drop table SISTRIPFEDCABLING;
 drop table COND__IOV_IOV;
 drop table COND__IOV;
+drop table IOV_DATA;
+drop table IOV;
 drop table METADATA;
 
 
