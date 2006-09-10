@@ -53,7 +53,7 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
     item.name = b;
     item.unit = d;
 
-    if (! b->isFullModule()) {
+    if ( b->isHalfModule()) {
       item.rocIds = Range(0,7);      // half modules 
       linkItems.push_back(item);
     } else if(b->layerName() <= 2) {
@@ -109,7 +109,7 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
        }
        rocs.push_back( PixelROC( it->unit, id, ++idRoc, rocInX, rocInY));
     }
-    ModuleType type = it->name->isFullModule() ?  v2x8 : v1x8;
+    ModuleType type = it->name->isHalfModule() ?  v1x8 : v2x8;
     PixelFEDLink::Connection connection = {it->unit, type, it->name->name(),it->rocIds, rocs};
     link.add(connection);
     result.push_back(link); 

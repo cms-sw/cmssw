@@ -1,5 +1,5 @@
-#ifndef PixelModuleName_H
-#define PixelModuleName_H
+#ifndef SiPixelDetId_PixelModuleName_H
+#define SiPixelDetId_PixelModuleName_H
 
 #include <string>
 

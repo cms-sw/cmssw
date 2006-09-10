@@ -46,8 +46,23 @@ SiPixelFrameConverter::DetectorIndex SiPixelFrameConverter::
     stm << "Link=" <<  cabling.link << " shows no ROC with id=" << cabling.roc;
     throw cms::Exception(stm.str());
   }
+
+  uint32_t detId = roc->rawId();
+  PixelROC::LocalPixel local = {cabling.dcol, cabling.pxid};
+  PixelROC::GlobalPixel global = roc->toGlobal(local); 
+
+  PixelROC::LocalPixel aLocal = roc->toLocal(global);
+  if (local.pxid != aLocal.pxid || local.dcol != aLocal.dcol) {
+    ostringstream out;
+    out<<"PROBLEM with inversion: Local1: "<<local.pxid<<","<<local.dcol
+                              <<" Local2: "<<aLocal.pxid<<","<<aLocal.dcol;
+    LogDebug("** HERE**")<<out.str();
+  }
+
+/*
   pair<uint32_t,ModuleType> detSpec = link->rocDetUnit(cabling.roc);
   const uint32_t & detId = detSpec.first;
+//  pair<int,int> result = roc->convert(cabling.dcol, cabling.pxid);
   const ModuleType & detType = detSpec.second;
   
   
@@ -55,14 +70,16 @@ SiPixelFrameConverter::DetectorIndex SiPixelFrameConverter::
   const int & nRows = topolygy.first;
   const int & nCols = topolygy.second;
 
-  LocalPixel local = {cabling.dcol, cabling.pxid};
-
   GlobalPixel global = toGlobal(*roc, local);
   convertModuleToDetUnit(detType,nRows,nCols, global);
   reverseDetUnitFrame(detId,nRows,nCols, global);
+//  uint32_t detId = link->rocDetUnit2(cabling.roc);
+  GlobalPixel global = {0,0};
+
+*/
 
   DetectorIndex detIdx = {detId,  global.row, global.col}; 
-  CablingIndex c = toCabling(detIdx);
+  // CablingIndex c = toCabling(detIdx);
   return detIdx;
 }
 
@@ -107,8 +124,27 @@ SiPixelFrameConverter::CablingIndex SiPixelFrameConverter::
     const PixelFEDLink * link = theFed.link(idxLink);
     int linkid = link->id();
     int numberOfRocs = link->numberOfROCs();
+    LogDebug("************************************************* HERE**");
     for(int idxRoc = 0; idxRoc < numberOfRocs; idxRoc++) {
       const PixelROC * roc = link->roc(idxRoc);
+      if (detector.rawId == roc->rawId() ) {
+        PixelROC::GlobalPixel global = {detector.row, detector.col};
+        PixelROC::LocalPixel local = roc->toLocal(global);
+        if(! roc->inside(local)) continue;
+        CablingIndex cabIdx = {linkid, idxRoc, local.dcol, local.pxid};
+        PixelROC::GlobalPixel global2 = roc->toGlobal(local);
+
+        if (global.row != global2.row || global.col != global2.col) {
+         ostringstream out;
+        out<<"PROBLEM with inversion:"
+          <<" Global1: "<<global.row<<","<<global.col
+          <<" Local:   "<<local.pxid<<","<<local.dcol
+          <<" Global2: "<<global2.row<<","<<global2.col<<std::endl;
+         LogDebug("** HERE**")<<out.str();
+
+        }
+        return cabIdx;
+/*
       pair<uint32_t,ModuleType> detSpec = link->rocDetUnit(idxRoc);
       const uint32_t & detId = detSpec.first;
       if (detector.rawId == detId) {
@@ -126,7 +162,6 @@ SiPixelFrameConverter::CablingIndex SiPixelFrameConverter::
         if(! (*roc).inside(local.dcol, local.pxid) ) continue;
         CablingIndex cabIdx = {linkid, idxRoc, local.dcol, local.pxid};
 
-/*
         cout <<"Detector: " << "det: "<<detector.rawId
                             <<" row: "<<detector.row
                             <<" col: "<<detector.col
@@ -135,8 +170,8 @@ SiPixelFrameConverter::CablingIndex SiPixelFrameConverter::
         cout <<"Detectr2: " << "det: "<<detector2.rawId
                             <<" row: "<<detector2.row
                             <<" col: "<<detector2.col<<endl;
-*/
         return cabIdx;
+*/
       }
     }
   }

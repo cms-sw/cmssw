@@ -17,6 +17,7 @@ class PixelEndcapName;
 class PixelModuleName;
 
 
+
 class PixelToFEDAssociateFromAscii : public PixelToFEDAssociate {
 public:
 
@@ -44,11 +45,11 @@ private:
 
   /// define allowed (layer,module,ladder) ranges for barrel units,
   /// check if module represented by name falls in allowed ranges
-  struct Bdu { Range l,z,f; bool operator()(const PixelBarrelName&) const;};
+  struct Bdu { int b; Range l,z,f; bool operator()(const PixelBarrelName&) const;};
 
   /// define allowed (endcap,disk,blade) ranges for endcap units,
   /// check if module represented by name falls in allowed ranges
-  struct Edu { Range e,d,b; bool operator()(const PixelEndcapName&) const;};
+  struct Edu { int e; Range d,b; bool operator()(const PixelEndcapName&) const;};
 
   typedef std::vector< std::pair< int, std::vector<Bdu> > > BarrelConnections;
   typedef std::vector< std::pair< int, std::vector<Edu> > > EndcapConnections;

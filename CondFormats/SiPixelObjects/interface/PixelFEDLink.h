@@ -49,6 +49,9 @@ public:
 
   /// return DetUnit to which ROC belongs
   std::pair<uint32_t,ModuleType> rocDetUnit(unsigned int id) const;
+  uint32_t rocDetUnit2(unsigned int id) const {
+    return theConnections[theIndices[id].first].unit;
+}
 
   const Connections & connected() const { return theConnections; }
   

@@ -11,9 +11,27 @@ PixelEndcapName::PixelEndcapName(const DetId & id)
   : PixelModuleName(false)
 {
   PXFDetId cmssw_numbering(id);
-  theEndCap = cmssw_numbering.side();
+  int side = cmssw_numbering.side();
+
+  int tmpBlade = cmssw_numbering.blade();
+  bool outer = false;
+  if (tmpBlade >= 7 && tmpBlade <= 18) {
+    outer = true;
+    theBlade = tmpBlade-6;
+  } else if( tmpBlade <=6 ) { 
+    theBlade = 7-tmpBlade; 
+  } else if( tmpBlade >= 19) { 
+    theBlade = 31-tmpBlade; 
+  } 
+
+
+       if( side == 1 &&  outer ) thePart = mO;
+  else if( side == 1 && !outer ) thePart = mI;
+  else if( side == 2 &&  outer ) thePart = pO;
+  else if( side == 2 && !outer ) thePart = pI;
+ 
+
   theDisk = cmssw_numbering.disk();
-  theBlade = cmssw_numbering.blade();
   thePannel = cmssw_numbering.panel();
   thePlaquette = cmssw_numbering.module();
 }
@@ -22,11 +40,19 @@ PixelEndcapName::PixelEndcapName(const DetId & id)
 string PixelEndcapName::name() const 
 {
   std::ostringstream stm;
-  stm << "E" << theEndCap;
-  stm << "D" << theDisk;
-  stm << "B" << theBlade;
-  stm << "P" << thePannel;
-  stm << "Q" << thePlaquette;
+  stm <<"FPix_B:"<<thePart<<"_D:"<<theDisk<<"_BLD:"<<theBlade<<"_PNL:"<<thePannel<<"_PLQ:"<<thePlaquette;
   return stm.str();
+}
+
+std::ostream & operator<<( std::ostream& out, const PixelEndcapName::HalfCylinder& t)
+{
+  switch (t) {
+    case(PixelEndcapName::pI) : {out << "pI"; break;}
+    case(PixelEndcapName::pO) : {out << "pO"; break;}
+    case(PixelEndcapName::mI) : {out << "mI"; break;}
+    case(PixelEndcapName::mO) : {out << "mO"; break;}
+    default: out << "unknown";
+  };
+  return out;
 }
 

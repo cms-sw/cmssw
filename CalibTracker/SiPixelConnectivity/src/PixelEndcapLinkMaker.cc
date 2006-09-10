@@ -16,8 +16,8 @@ bool PixelEndcapLinkMaker::Order::operator()
   const PixelEndcapName & n1 = *u1.name;
   const PixelEndcapName & n2 = *u2.name;
 
-  if (n1.endcapName() < n2.endcapName() ) res = true;
-  else if(n1.endcapName() > n2.endcapName() ) res = false;
+  if (n1.halfCylinder() < n2.halfCylinder() ) res = true;
+  else if(n1.halfCylinder() > n2.halfCylinder() ) res = false;
   else if (n1.diskName() < n2.diskName() ) res =  true;
   else if (n1.diskName() > n2.diskName() ) res =  false;
   else if (n1.bladeName() < n2.bladeName() ) res =  true;

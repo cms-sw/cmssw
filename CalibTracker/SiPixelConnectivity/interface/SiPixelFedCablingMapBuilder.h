@@ -9,6 +9,7 @@
 #include <string>
 
 class PixelModuleName;
+class PixelGeomDetUnit;
 
 class SiPixelFedCablingMapBuilder{
 public:
@@ -21,6 +22,7 @@ private:
       std::vector<uint32_t> rawids;          // modules corresponding to names
   };
   std::string theAssociatorName;
+  std::string myprint(const PixelGeomDetUnit * pxUnit);
 };
 
 #endif

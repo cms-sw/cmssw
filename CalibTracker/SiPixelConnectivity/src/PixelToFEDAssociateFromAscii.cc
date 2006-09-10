@@ -39,7 +39,8 @@ int PixelToFEDAssociateFromAscii::operator()(const PixelBarrelName & id) const
       ibc = theBarrel.begin(); ibc != theBarrel.end(); ibc++) {
     for (vector<Bdu>::const_iterator
         ibd = (*ibc).second.begin(); ibd != (*ibc).second.end(); ibd++) {
-      if (    ibd->l.inside( id.layerName() )
+      if (    ibd->b == id.shell() 
+           && ibd->l.inside( id.layerName() )
            && ibd->z.inside( id.moduleName() )
            && ibd->f.inside( id.ladderName() ) ) return (*ibc).first; 
     }
@@ -55,7 +56,7 @@ int PixelToFEDAssociateFromAscii::operator()(const PixelEndcapName & id) const
       iec = theEndcap.begin(); iec != theEndcap.end(); iec++) {
     for (vector<Edu>::const_iterator
         ied = (*iec).second.begin(); ied != (*iec).second.end(); ied++) {
-      if (    ied->e.inside( id.endcapName() )
+      if (    ied->e == id.halfCylinder() 
            && ied->d.inside( id.diskName() )
            && ied->b.inside( id.bladeName() ) ) return iec->first; 
     }
@@ -92,7 +93,7 @@ void PixelToFEDAssociateFromAscii::init(const string & cfg_name)
     if (pos != string::npos) line = line.erase(pos);
 
     string::size_type posF = line.find("FED:");
-    string::size_type posL = line.find("L:");
+    string::size_type posB = line.find("S:");
     string::size_type posE = line.find("E:");
 
     LogDebug ( "line read" ) << line;
@@ -122,8 +123,8 @@ void PixelToFEDAssociateFromAscii::init(const string & cfg_name)
     //
     // barrel connections
     //
-    else if ( posL != string::npos) {
-      line = line.substr(posL+2);
+    else if ( posB != string::npos) {
+      line = line.substr(posB+2);
       barCon.second.push_back( getBdu(line) );
     }
 
@@ -153,7 +154,7 @@ void PixelToFEDAssociateFromAscii::init(const string & cfg_name)
     str << "FED: " << ibc->first << endl;
     for (vector<Bdu>::const_iterator
         ibd = (*ibc).second.begin(); ibd != (*ibc).second.end(); ibd++) {
-      str << " l: "<<ibd->l<<" z: "<<ibd->z<<" f: "<<ibd->f<<endl;
+      str << "b: "<<ibd->b<<" l: "<<ibd->l<<" z: "<<ibd->z<<" f: "<<ibd->f<<endl;
     }
   }
   str <<" **PixelToFEDAssociateFromAscii ** ENDCAP FED CONNECTIONS: " << endl;
@@ -182,6 +183,10 @@ PixelToFEDAssociateFromAscii::Bdu PixelToFEDAssociateFromAscii::getBdu( string l
   Bdu result;
   string::size_type pos;
 
+  result.b =  readRange(line).first;
+
+  pos = line.find("L:");
+  if (pos != string::npos) line = line.substr(pos+2);
   result.l = readRange(line);
 
   pos = line.find("Z:");
@@ -200,7 +205,8 @@ PixelToFEDAssociateFromAscii::Edu PixelToFEDAssociateFromAscii::getEdu( string l
   Edu result;
   string::size_type pos;
 
-  result.e = readRange(line);
+  result.e = readRange(line).first;
+
   pos = line.find("D:");
   if (pos != string::npos) line = line.substr(pos+2);
   result.d = readRange(line);

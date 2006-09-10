@@ -74,38 +74,12 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
     if (pxUnit  ==0 ) continue;
     npxdets++;
     DetId geomid = pxUnit->geographicalId();
-//    uint32_t bits = geomid.rawId();
-//      int b1 = (bits>>28);
-//      int b2 = ((bits>>25)&0xF7);
-//      int b3 = ((bits)&0xFFFFFF); 
-//      int barrel = (bits>>25)&0x7;
-//      int zet = (bits>>2)&0xF;
-//      cout 
-//           <<" bits  "<<*reinterpret_cast<const bitset<32>* >(&bits) << endl
-//           <<" bits: "<<reinterpret_cast<const bitset<32>& >(b1)<<endl
-//           <<" bits: "<<reinterpret_cast<const bitset<32>& >(b2)<<endl
-//           <<" bits:         "<<reinterpret_cast<const bitset<24>& >(b3)<<endl;
-//     cout      <<" part: "<<barrel<<" zet: "<<zet<<endl;
     PixelModuleName * name =  0;
     if (1 == geomid.subdetId()) {
       name = new PixelBarrelName(geomid);
-//      const PixelTopology & tpl = pxUnit->specificTopology();
-//      cout <<" NAME: "<<name->name()<<" rows, columns: "<< tpl.nrows()<<","<<tpl.ncolumns()<<endl;
-//      LocalPoint local;
-//      local = LocalPoint(0,0,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
-//      local = LocalPoint(1,0,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
-//      local = LocalPoint(0,1,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
-//      local = LocalPoint(0,0,1); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
-      
     } else {
       name = new PixelEndcapName(geomid);
-//      const PixelTopology & tpl = pxUnit->specificTopology();
-//      cout <<" NAME: "<<name->name()<<" rows, columns: "<< tpl.nrows()<<","<<tpl.ncolumns()<<endl;
-//      LocalPoint local;
-//      local = LocalPoint(0,0,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
-//      local = LocalPoint(1,0,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
-//      local = LocalPoint(0,1,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
-//      local = LocalPoint(0,0,1); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      cout << " NAME: "<<name->name()<<myprint(pxUnit)<<endl;
     } 
     int fedId = name2fed( *name);
     if ( fedIds.inside(fedId) ) {
@@ -116,7 +90,6 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
           <<"problem with numbering! "<<fedId<<" name: " << name->name();
   }
   LogDebug("tracker geometry read")<<"There are: "<< npxdets<<" pixel detetors";
-
   // construct FEDs
   typedef vector<FedSpec>::iterator FI;
   for ( FI it = fedSpecs.begin(); it != fedSpecs.end(); it++) {
@@ -145,6 +118,25 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
     typedef vector<PixelModuleName* >::const_iterator IN;
     for (IN name = names.begin(); name != names.end(); name++) delete (*name);
   } 
-
   return result;
+}
+std::string SiPixelFedCablingMapBuilder::myprint(const PixelGeomDetUnit * pxUnit)
+{
+  std::ostringstream str;
+  const PixelTopology & tpl = pxUnit->specificTopology();
+  LocalPoint local;
+  GlobalPoint global;
+
+  local = LocalPoint(0,0,0); global = (*pxUnit).toGlobal(local);
+  float phi = 180*atan2(global.x(),global.y())/M_PI; if (phi > 180.) phi = 360-phi;
+  float r = global.perp();
+  float z = global.z();
+  str <<"    GEOMETRY: "<<" r="<<r<<" phi="<<phi<<" z="<<z;
+  str <<"   top:"<<tpl.nrows()<<","<<tpl.ncolumns();
+      
+//      local = LocalPoint(1,0,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      local = LocalPoint(0,1,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      local = LocalPoint(0,0,1); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+      
+  return str.str();
 }
