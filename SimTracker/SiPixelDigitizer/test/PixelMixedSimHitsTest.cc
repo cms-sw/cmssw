@@ -14,7 +14,7 @@
 //
 // Original Author:  V.Chiochia
 //         Created:   CET 2006
-// $Id: PixelMixedSimHitsTest.cc,v 1.4 2006/08/04 09:29:46 chiochia Exp $
+// $Id: PixelMixedSimHitsTest.cc,v 1.1 2006/09/11 13:04:58 chiochia Exp $
 //
 //
 // system include files
@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Handle.h"
 
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -74,6 +75,7 @@ public:
 private:
   // ----------member data ---------------------------
   edm::ParameterSet conf_;
+  edm::InputTag src_;
   const static bool PRINT = false;
   typedef std::vector<std::string> vstring;
   vstring trackerContainers;
@@ -134,7 +136,8 @@ void PixelMixedSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
    cout << "Initialize PixelSimHitsTest " <<endl;
 
    // put here whatever you want to do at the beginning of the job
-   hFile = new TFile ( "simhistos.root", "RECREATE" );
+   std::string outputFile = conf_.getParameter<std::string>("OutputFile");
+   hFile = new TFile ( outputFile.c_str(), "RECREATE" );
 
    const float max_charge = 200.; // in ke 
    hBunchCrossing = new TH1F( "hBunchCrossing", "Bunch Crossing", 10, -5., 5.);

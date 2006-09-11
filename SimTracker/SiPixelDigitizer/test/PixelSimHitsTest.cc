@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelSimHitsTest.cc,v 1.3 2006/08/02 08:17:36 llista Exp $
+// $Id: PixelSimHitsTest.cc,v 1.4 2006/08/04 09:29:46 chiochia Exp $
 //
 //
 // system include files
@@ -74,6 +74,8 @@ public:
 
 private:
   // ----------member data ---------------------------
+  edm::ParameterSet conf_;
+  std::string src_;
   const static bool PRINT = false;
 
   TFile* hFile;
@@ -109,7 +111,9 @@ private:
 
 };
 //
-PixelSimHitsTest::PixelSimHitsTest(const edm::ParameterSet& iConfig) {
+PixelSimHitsTest::PixelSimHitsTest(const edm::ParameterSet& iConfig) :
+  conf_(iConfig),
+  src_( iConfig.getParameter<std::string>( "src" ) ) {
   //We put this here for the moment since there is no better place 
   //edm::Service<MonitorDaemon> daemon;
   //daemon.operator->();
@@ -132,7 +136,8 @@ void PixelSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
    cout << "Initialize PixelSimHitsTest " <<endl;
 
    // put here whatever you want to do at the beginning of the job
-   hFile = new TFile ( "simhistos.root", "RECREATE" );
+   std::string outputFile = conf_.getParameter<std::string>("OutputFile");
+   hFile = new TFile ( outputFile.c_str() , "RECREATE" );
 
    const float max_charge = 200.; // in ke 
    heloss1 = new TH1F( "heloss1", "Eloss l1", 100, 0., max_charge);
@@ -287,8 +292,8 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
    Handle<PSimHitContainer> PixelBarrelHitsLowTof;
    Handle<PSimHitContainer> PixelBarrelHitsHighTof;
 
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof",PixelBarrelHitsLowTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof",PixelBarrelHitsHighTof);
+   iEvent.getByLabel( src_ ,"TrackerHitsPixelBarrelLowTof" ,PixelBarrelHitsLowTof);
+   iEvent.getByLabel( src_ ,"TrackerHitsPixelBarrelHighTof",PixelBarrelHitsHighTof);
 
    for(vector<PSimHit>::const_iterator isim = PixelBarrelHitsLowTof->begin();
        isim != PixelBarrelHitsLowTof->end(); ++isim){
