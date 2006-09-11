@@ -20,6 +20,7 @@
 
 class TrackerHitAssociator;
 class TrackAssociator;
+class TrackAssociatorByChi2;
 
 class testTrackAssociator : public edm::EDAnalyzer {
   
@@ -27,12 +28,15 @@ class testTrackAssociator : public edm::EDAnalyzer {
   explicit testTrackAssociator(const edm::ParameterSet& conf);
   
   virtual ~testTrackAssociator();
+
+  virtual void beginJob(const EventSetup&);
   
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
  private:
   edm::ParameterSet conf_;
-  bool doPixel_, doStrip_;
+  bool doPixel_, doStrip_; 
+  TrackAssociatorByChi2 * associator;
 };
 
 #endif
