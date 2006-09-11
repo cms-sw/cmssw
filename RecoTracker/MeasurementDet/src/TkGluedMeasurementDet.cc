@@ -5,7 +5,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoTracker/MeasurementDet/interface/NonPropagatingDetMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "RecoTracker/MeasurementDet/interface/ReferenceHitMatcher.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet, 
 					      const SiStripRecHitMatcher* matcher,
@@ -29,20 +29,16 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 
   if (monoHits.empty()) return stereoHits;
   else if (stereoHits.empty()) return monoHits;
-  else {
-    ReferenceHitMatcher referenceMatcher;
-    result = referenceMatcher.match( monoHits, stereoHits, specificGeomDet(), tkDir);
-
-    /*
+  else {    
     // convert stereo hits to type expected by matcher
     SiStripRecHitMatcher::SimpleHitCollection  vsStereoHits;
     for (RecHitContainer::const_iterator stereoHit = stereoHits.begin();
 	 stereoHit != stereoHits.end(); stereoHit++) {
       const TrackingRecHit* tkhit = (**stereoHit).hit();
-      const SiStripRecHit2DLocalPos* verySpecificStereoHit =
-	dynamic_cast<const SiStripRecHit2DLocalPos*>(tkhit);
+      const SiStripRecHit2D* verySpecificStereoHit =
+	dynamic_cast<const SiStripRecHit2D*>(tkhit);
       if (verySpecificStereoHit == 0) {
-	throw MeasurementDetException("TkGluedMeasurementDet ERROR: stereoHit is not SiStripRecHit2DLocalPos");
+	throw MeasurementDetException("TkGluedMeasurementDet ERROR: stereoHit is not SiStripRecHit2D");
       }
       vsStereoHits.push_back( verySpecificStereoHit);
     }
@@ -51,22 +47,26 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
     for (RecHitContainer::const_iterator monoHit = monoHits.begin();
 	 monoHit != monoHits.end(); monoHit++) {
       const TrackingRecHit* tkhit = (**monoHit).hit();
-      const SiStripRecHit2DLocalPos* verySpecificMonoHit =
-	dynamic_cast<const SiStripRecHit2DLocalPos*>(tkhit);
+      const SiStripRecHit2D* verySpecificMonoHit =
+	dynamic_cast<const SiStripRecHit2D*>(tkhit);
       if (verySpecificMonoHit == 0) {
-	throw MeasurementDetException("TkGluedMeasurementDet ERROR: monoHit is not SiStripRecHit2DLocalPos");
+	throw MeasurementDetException("TkGluedMeasurementDet ERROR: monoHit is not SiStripRecHit2D");
       }
 
-      edm::OwnVector<SiStripRecHit2DMatchedLocalPos> tmp =
+      edm::OwnVector<SiStripMatchedRecHit2D> tmp =
 	theMatcher->match( verySpecificMonoHit, vsStereoHits.begin(), vsStereoHits.end(),
 			  &specificGeomDet(), tkDir);
 
-      for (edm::OwnVector<SiStripRecHit2DMatchedLocalPos>::const_iterator i=tmp.begin();
-	   i != tmp.end(); i++) {
-	result.push_back( new TSiStripMatchedRecHit( &geomDet(), &(*i)));
+      if(tmp.size()){
+	for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator i=tmp.begin();
+	     i != tmp.end(); i++) {
+	  result.push_back( TSiStripMatchedRecHit::build( &geomDet(), &(*i)));
+	}
+      }else{
+	LogDebug("MeasurementDet") << "in TkGluedMeasurementDet, no stereo hit matched with the mono one" ;
+	result.push_back(*monoHit);
       }
     }
-    */
   }
   return result;
 }
