@@ -6,6 +6,7 @@
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/HcalObjects>
 <use name=DataFormats/DetId>
+<use name=DataFormats/EcalRecHit>
 <Use name=xerces-c>
 <flags SEAL_PLUGIN_NAME="CalibCalorimetryCaloMiscalibTools">
 <export>
@@ -13,10 +14,11 @@
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
-<use name=CondFormats/DataRecord>
-<use name=DataFormats/EcalDetId>
-<use name=CondFormats/EcalObjects>
-<use name=CondFormats/HcalObjects>
-<use name=DataFormats/DetId>
-<Use name=xerces-c>
+   <use name=CondFormats/DataRecord> 
+   <use name=DataFormats/EcalDetId> 
+   <use name=CondFormats/EcalObjects>
+   <use name=CondFormats/HcalObjects>
+   <use name=DataFormats/DetId>
+   <use name=DataFormats/EcalRecHit>
+   <Use name=xerces-c>
 </export>
