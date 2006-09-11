@@ -153,98 +153,114 @@ void CrossingFrame::print(int level) const {
   //FIXME to be corrected for higher levels
   std::cout<<*this<<std::endl;
   //
-  // signals
-  cout<<"\nSignals:"<<endl;
-  for(map<string,PSimHitContainer>::const_iterator it = signalSimHits_.begin(); it != signalSimHits_.end(); ++it) {
-    cout<< " Subdetector "<<(*it).first <<", signal size "<<(*it).second.size()<<endl;
-    if (level>=2) {
-      for (unsigned int j=0;j<(*it).second.size();++j) {
-        cout<<" SimHit "<<j<<" has track pointer "<< (*it).second[j].trackId() <<" ,tof "<<(*it).second[j].tof()<<", energy loss "<< (*it).second[j].energyLoss()<<endl;
-      }
-    }
+  // first, give a summary
+  cout<<"\nLoop over all detectors:"<<endl;
+  for (map<string,std::vector<PSimHitContainer> >::const_iterator it = pileupSimHits_.begin(); it != pileupSimHits_.end(); ++it) {
+    int sig=0;
+    const std::string sub=(*it).first;
+    //    PSimHitContainer signals=signalSimHits_[sub];
+    //    sig=sig+signals.size();
+    //cout<< " Subdetector "<<(*it).first <<", signal size "<<signalSimHits_[(*it).first].size();
+    //??    cout<< " Subdetector "<<(*it).first <<", signal size "<<(signalSimHits_[sub]).size();
+    int pileupHits=0;
+    for (unsigned int j=0;j<(*it).second.size();++j)      pileupHits=pileupHits+((*it).second)[j].size() ;
+    cout<< " Subdetector "<<(*it).first<<", pileup size "<<pileupHits<<endl;
   }
-
-  for(map<string,PCaloHitContainer>::const_iterator it = signalCaloHits_.begin(); it != signalCaloHits_.end(); ++it) {
-    cout<< " Subdetector "<<(*it).first <<", signal size "<<(*it).second.size()<<endl;
-    if (level>=2) {
-      for (unsigned int j=0;j<(*it).second.size();++j) {
-        HcalDetId detid = (HcalDetId)(*it).second[j].id();
-	cout << (*it).second[j]  << ", detid: "<< detid << endl;
-//	cout<<" CaloHit "<<j<<" has track pointer "<< (*it).second[j].geantTrackId() <<" ,tof "<<(*it).second[j].time()<<", energy loss "<< (*it).second[j].energy()<<endl;
-      }
-    }
-  }
-
-  cout <<" Number of tracks in signal: "<< signalTracks_.size()<<endl;
-  if (level>=2) {
-    for (unsigned int j=0;j<signalTracks_.size();++j) 
-      cout<<" track "<<j<<" has vertex pointer "<< signalTracks_[j].vertIndex()<<" and genpartindex "<<signalTracks_[j].genpartIndex()<<endl;
-  }
+  
+  
+  cout <<"\n Number of tracks in signal: "<< signalTracks_.size()<<endl;
   cout <<" Number of vertices in signal: "<< signalVertices_.size()<<endl;
-  	if (level>=2) {
-  	  for (unsigned int j=0;j<signalVertices_.size();++j) 
-   	    cout<<" vertex "<<j<<" has track pointer "<< signalVertices_[j].parentIndex()<<endl;
-  	}
+  if (level<=1) return;
+
+  //   for(map<string,PSimHitContainer>::const_iterator it = signalSimHits_.begin(); it != signalSimHits_.end(); ++it) {
+//     cout<< " Subdetector "<<(*it).first <<", signal size "<<(*it).second.size()<<endl;
+//     if (level>=2) {
+//       for (unsigned int j=0;j<(*it).second.size();++j) {
+//         cout<<" SimHit "<<j<<" has track pointer "<< (*it).second[j].trackId() <<" ,tof "<<(*it).second[j].tof()<<", energy loss "<< (*it).second[j].energyLoss()<<endl;
+//       }
+//     }
+//   }
+
+//   for(map<string,PCaloHitContainer>::const_iterator it = signalCaloHits_.begin(); it != signalCaloHits_.end(); ++it) {
+//     cout<< " Subdetector "<<(*it).first <<", signal size "<<(*it).second.size()<<endl;
+//     if (level>=2) {
+//       for (unsigned int j=0;j<(*it).second.size();++j) {
+//         HcalDetId detid = (HcalDetId)(*it).second[j].id();
+// 	cout << (*it).second[j]  << ", detid: "<< detid << endl;
+// //	cout<<" CaloHit "<<j<<" has track pointer "<< (*it).second[j].geantTrackId() <<" ,tof "<<(*it).second[j].time()<<", energy loss "<< (*it).second[j].energy()<<endl;
+//       }
+//     }
+//   }
+
+//   cout <<" Number of tracks in signal: "<< signalTracks_.size()<<endl;
+//   if (level>=2) {
+//     for (unsigned int j=0;j<signalTracks_.size();++j) 
+//       cout<<" track "<<j<<" has vertex pointer "<< signalTracks_[j].vertIndex()<<" and genpartindex "<<signalTracks_[j].genpartIndex()<<endl;
+//   }
+//   cout <<" Number of vertices in signal: "<< signalVertices_.size()<<endl;
+//   	if (level>=2) {
+//   	  for (unsigned int j=0;j<signalVertices_.size();++j) 
+//    	    cout<<" vertex "<<j<<" has track pointer "<< signalVertices_[j].parentIndex()<<endl;
+//   	}
 
   
 	//  print for next higher level (pileups)
   
-  if (level<1) return;
-  cout<<"\nPileups:"<<endl;
-  map<string,vector<PSimHitContainer> >::const_iterator itsim;
-  for(itsim = pileupSimHits_.begin(); itsim != pileupSimHits_.end(); ++itsim){ 
-    cout<< endl<<" Nr Hits for "<<(*itsim).first<<":";
-    for (unsigned int i=0;i<(*itsim).second.size();++i) {
-      int bcr=firstCrossing_+i;
-      cout <<" bcr="<<bcr<<": "<<(*itsim).second[i].size()<<", ";
-//       if (level>=3) {
-// 	for (unsigned int j=0;j<(*itsim).second[i].size();++j) 
-// 	  cout<<" SimHit "<<j<<" has track pointer "<< ((*itsim).second[i])[j].trackId() <<" ,tof "<<((*itsim).second[i])[j].tof()<<", energy loss "<< ((*itsim).second[i])[j].energyLoss()<<endl;
-//       }
-    }
-    cout <<endl;
-  }
+//   if (level<1) return;
+//   cout<<"\nPileups:"<<endl;
+//   map<string,vector<PSimHitContainer> >::const_iterator itsim;
+//   for(itsim = pileupSimHits_.begin(); itsim != pileupSimHits_.end(); ++itsim){ 
+//     cout<< endl<<" Nr Hits for "<<(*itsim).first<<":";
+//     for (unsigned int i=0;i<(*itsim).second.size();++i) {
+//       int bcr=firstCrossing_+i;
+//       cout <<" bcr="<<bcr<<": "<<(*itsim).second[i].size()<<", ";
+// //       if (level>=3) {
+// // 	for (unsigned int j=0;j<(*itsim).second[i].size();++j) 
+// // 	  cout<<" SimHit "<<j<<" has track pointer "<< ((*itsim).second[i])[j].trackId() <<" ,tof "<<((*itsim).second[i])[j].tof()<<", energy loss "<< ((*itsim).second[i])[j].energyLoss()<<endl;
+// //       }
+//     }
+//     cout <<endl;
+//   }
   
 
-  map<string,vector<PCaloHitContainer> >::const_iterator it;
-  for(it = pileupCaloHits_.begin(); it != pileupCaloHits_.end(); ++it){ 
-    cout<< endl<<" Nr Hits for "<<(*it).first<<":";
-    for (unsigned int i=0;i<(*it).second.size();++i) {
-      int bcr=firstCrossing_+i;
-       cout <<" bcr="<<bcr<<": "<<(*it).second[i].size()<<", ";
-//       if (level>=3) {
-// 	for (unsigned int j=0;j<(*it).second[i].size();++j) {
-// 	  //          cout<<" CaloHit "<<j<<" has track pointer "<< ((*it).second[i])[j].geantTrackId() <<" ,tof "<<((*it).second[i])[j].time()<<"energy "<< ((*it).second[i])[j].energy()<<endl;
-// 	  HcalDetId detid = (HcalDetId)((*it).second[i])[j].id();
-// 	  cout << ((*it).second[i])[j]  << ", detid: "<< detid << endl;
-// 	}
-//       }
-    }
-    cout<<endl;
-  }
-
-  cout <<"\n Tracks "<<endl;
-  for (unsigned int i=0;i<pileupTracks_.size();++i) {
-    int bcr=firstCrossing_+i;
-    cout <<" bcr="<<bcr<<": Nr tracks "<<pileupTracks_[i].size()<<",";
-//     if (level>=3) {
-//       cout<<endl;
-//       for (unsigned int j=0;j<pileupTracks_[i].size();++j) 
-// 	cout<<" track "<<j<<" has vertex pointer "<< (pileupTracks_[i])[j].vertIndex()<<" and genpartindex "<<(pileupTracks_[i])[j].genpartIndex()<<endl;
+//   map<string,vector<PCaloHitContainer> >::const_iterator it;
+//   for(it = pileupCaloHits_.begin(); it != pileupCaloHits_.end(); ++it){ 
+//     cout<< endl<<" Nr Hits for "<<(*it).first<<":";
+//     for (unsigned int i=0;i<(*it).second.size();++i) {
+//       int bcr=firstCrossing_+i;
+//        cout <<" bcr="<<bcr<<": "<<(*it).second[i].size()<<", ";
+// //       if (level>=3) {
+// // 	for (unsigned int j=0;j<(*it).second[i].size();++j) {
+// // 	  //          cout<<" CaloHit "<<j<<" has track pointer "<< ((*it).second[i])[j].geantTrackId() <<" ,tof "<<((*it).second[i])[j].time()<<"energy "<< ((*it).second[i])[j].energy()<<endl;
+// // 	  HcalDetId detid = (HcalDetId)((*it).second[i])[j].id();
+// // 	  cout << ((*it).second[i])[j]  << ", detid: "<< detid << endl;
+// // 	}
+// //       }
 //     }
-  }
-  cout<<endl;
-  cout <<"\n Verticess "<<endl;
-  for (unsigned int i=0;i<pileupVertices_.size();++i) {
-    int bcr=firstCrossing_+i;
-    cout <<" bcr="<<bcr<<", Nr vtces="<<pileupVertices_[i].size();
-    // 	  if (level>=3) {
-    // 	  for (unsigned int j=0;j<pileupVertices_[i].size();++j) 
-    // 	    cout<<" vertex "<<j<<" has track pointer "<< (pileupVertices_[i])[j].parentIndex()<<endl;
-    // 	  }
-  }
-   
+//     cout<<endl;
+//   }
+
+//   cout <<"\n Tracks "<<endl;
+//   for (unsigned int i=0;i<pileupTracks_.size();++i) {
+//     int bcr=firstCrossing_+i;
+//     cout <<" bcr="<<bcr<<": Nr tracks "<<pileupTracks_[i].size()<<",";
+// //     if (level>=3) {
+// //       cout<<endl;
+// //       for (unsigned int j=0;j<pileupTracks_[i].size();++j) 
+// // 	cout<<" track "<<j<<" has vertex pointer "<< (pileupTracks_[i])[j].vertIndex()<<" and genpartindex "<<(pileupTracks_[i])[j].genpartIndex()<<endl;
+// //     }
+//   }
+//   cout<<endl;
+//   cout <<"\n Verticess "<<endl;
+//   for (unsigned int i=0;i<pileupVertices_.size();++i) {
+//     int bcr=firstCrossing_+i;
+//     cout <<" bcr="<<bcr<<", Nr vtces="<<pileupVertices_[i].size();
+//     // 	  if (level>=3) {
+//     // 	  for (unsigned int j=0;j<pileupVertices_[i].size();++j) 
+//     // 	    cout<<" vertex "<<j<<" has track pointer "<< (pileupVertices_[i])[j].parentIndex()<<endl;
+//     // 	  }
 }
+
 
 std::ostream &operator<<(std::ostream& o, const CrossingFrame &cf)
 {

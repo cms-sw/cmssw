@@ -58,7 +58,8 @@ using namespace edm;
       edm::EventID getEventID() const {return id_;}
       std::pair<int,int> getBunchRange() const {return std::pair<int,int>(firstCrossing_,lastCrossing_);}
       int getBunchSpace() const {return bunchSpace_;}
-      bool knownDetector  (const std::string subdet) const {return signalSimHits_.count(subdet) ? true : signalCaloHits_.count(subdet);}
+      //signal???      bool knownDetector  (const std::string subdet) const {return signalSimHits_.count(subdet) ? true : signalCaloHits_.count(subdet);}
+      bool knownDetector  (const std::string subdet) const {return pileupSimHits_.count(subdet) ? true : pileupCaloHits_.count(subdet);}
       std::string getType(std::string subdet) {
 	if (signalSimHits_.count(subdet)) return std::string("PSimHit");
         else if (signalCaloHits_.count(subdet)) return std::string("PCaloHit"); 

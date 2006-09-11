@@ -18,12 +18,13 @@ private:
 		const std::string subdet="", const range bunchRange =range(-999,999));
   MixCollection(const CrossingFrame *cf, 
 		std::vector<std::string> subdets, const range bunchRange =range(-999,999));
-  void init( const range bunchRange);
 
   range bunchrange() const {return bunchRange_;}
   int size() const {return sizeSignal() + sizePileup();}
   int sizePileup() const;
   int sizeSignal() const;
+  // false if at least one of the subdetectors was not found in registry
+  bool inRegistry() const {return inRegistry_;}
 
   class MixItr;
   friend class MixItr;
@@ -77,20 +78,22 @@ private:
   iterator end() ;
 
  private:
-       std::vector<T>  *signals_;
-       std::vector<std::vector<T> > *pileups_;
-       CrossingFrame *cf_;
-       range bunchRange_;
-       std::vector<T>  *getSignal() {return signals_;}
-       std::vector<T>  *getNewSignal(int signal);
-       std::vector<std::vector<T> > *getPileups() {return pileups_;}
-       std::vector<std::vector<T> > *getNewPileups(int pileup);
-       int nrDets_;
-       std::vector<std::string> subdets_;
+  void init( const range bunchRange);
+  bool testSubdet( const std::string subdet);
+  std::vector<T>  *getSignal() {return signals_;}
+  std::vector<T>  *getNewSignal(int signal);
+  std::vector<std::vector<T> > *getPileups() {return pileups_;}
+  std::vector<std::vector<T> > *getNewPileups(int pileup);
+  std::vector<T>  *signals_;
+  std::vector<std::vector<T> > *pileups_;
+  CrossingFrame *cf_;
+  range bunchRange_;
+  bool inRegistry_;
+  int nrDets_;
+  std::vector<std::string> subdets_;
 };
 
 
-//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 //
 // Exceptions
@@ -98,36 +101,39 @@ private:
 #include "FWCore/Utilities/interface/Exception.h"
 template <class T> 
 MixCollection<T>::MixCollection() : 
-  cf_(0),bunchRange_(0,0), nrDets_(0)
+  cf_(0),bunchRange_(0,0), nrDets_(0),inRegistry_(false)
 {
 }
 
 
 template <class T> 
 MixCollection<T>::MixCollection(const CrossingFrame *cf, const std::string subdet, const std::pair<int,int> bunchRange) : 
-  cf_(const_cast<CrossingFrame*>(cf))
+  cf_(const_cast<CrossingFrame*>(cf)),inRegistry_(false)
 {
   init(bunchRange);
 
   //set necessary variables
-  nrDets_=1;
-  subdets_.push_back(subdet);
+  if (testSubdet(subdet) ) {
+    nrDets_=1;
+    subdets_.push_back(subdet);
+    inRegistry_=true; 
+   }
 } 
 
 template <class T> 
 MixCollection<T>::MixCollection(const CrossingFrame *cf, std::vector<std::string> subdets, const std::pair<int,int> bunchRange) : 
-  cf_(const_cast<CrossingFrame*>(cf))
+  cf_(const_cast<CrossingFrame*>(cf)),inRegistry_(false)
 {
 
   init(bunchRange);
 
   //set necessary variables
-  nrDets_=subdets.size();
-  
-  //  std::vector<std::vector<T> > *pils=0;
-  for (int i=0;i<nrDets_;++i) {
-    subdets_.push_back(subdets[i]);
-    //    cf_->getPileups(subdets_[i],pils);
+  for (unsigned int i=0;i<subdets.size();++i) {
+    if (testSubdet(subdets[i])) {
+      nrDets_++;
+      subdets_.push_back(subdets[i]);
+      inRegistry_=true;  // true if at least one is present
+    }
   }
 }
 
@@ -146,6 +152,29 @@ void MixCollection<T>::init( const std::pair<int,int> bunchRange) {
     if (bunchRange_.first<defaultrange.first || bunchRange_.second>defaultrange.second )  throw cms::Exception("BadRunRange")<<" You are asking for a runrange ("<<bunchRange_.first<<","<<bunchRange_.second<<"), outside of the existing runrange ("<<defaultrange.first<<", "<<defaultrange.second<<")\n";
     bunchRange_=range(first,last);
   }
+}
+
+template <class T> 
+bool MixCollection<T>::testSubdet( const std::string subdet) {
+  //verify whether detector is known
+  //???????  if ( strstr(typeid(T).name(),"Hit")  && !cf_->knownDetector(subdet)) {
+    //      throw cms::Exception("UnknownSubdetector")<< " No detector '"<<subdets_[signal]<<"' for hits known in CrossingFrame (must be non-blank)\n";
+  // known detector has a meaning only for PSimHit/PCaloHit type
+  if (!cf_->knownDetector(subdet) && strstr(typeid(T).name(),"Hit")) {
+    std::cout<<"Warning: detector type "<<subdet<<" is unknown!"<<std::endl;
+    return false;
+  } else {
+
+    //verify whether detector/T type correspond
+    std::string type=cf_->getType(subdet);
+
+    if (!type.empty()) { //test valid only for SimHits and CaloHits
+      if (!strstr(typeid(T).name(),type.c_str()))
+	throw cms::Exception("TypeMismatch")<< "Given template type "<<type<<" does not correspond to detector "<<subdet<<"\n";
+    }
+  }
+  return true;
+
 }
 
 template <class T>  int  MixCollection<T>::sizePileup() const {
@@ -275,6 +304,7 @@ typename MixCollection<T>::MixItr MixCollection<T>::begin() {
 
 template <class T>
 typename  MixCollection<T>::MixItr MixCollection<T>::end() {
+  if (nrDets_<=0)   return this->begin();
   std::vector<std::vector<T> > * pil;
   cf_->getPileups(subdets_[nrDets_-1],pil);
   typename std::vector<std::vector<T> >::iterator it=pil->begin();
