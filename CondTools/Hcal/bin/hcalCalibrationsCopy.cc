@@ -91,7 +91,7 @@ void fillDefaults (HcalPedestals*& fPedestals) {
   }
   std::vector<HcalDetId> cells = undefinedCells (*fPedestals);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    HcalPedestal item = HcalDbHardcode::makePedestal (*cell, true); // smear
+    HcalPedestal item = HcalDbHardcode::makePedestal (*cell, false); // smear
     fPedestals->addValue (*cell, item.getValues ());
   }
   fPedestals->sort ();
