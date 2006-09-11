@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.11 2006/07/21 14:19:57 uberthon Exp $
+// $Id: TestMix.cc,v 1.12 2006/08/30 16:11:01 uberthon Exp $
 //
 //
 
@@ -148,6 +148,51 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (it2=all_trackhits2->begin(); it2!= all_trackhits2->end();it2++) ii3++;
    if (ii3!=ii2) std::cout<<" Problem when re-using iterator!!"<<std::endl;
    else  std::cout<<" \nNo problem when re-using iterator."<<std::endl;
+
+   // test access to non-filled collections
+   //cases:   0) ok, collection has members
+   //         1) bunchrange given outside of existent bunchcrossing numbers ==>exc
+   //         2)collection not found in the registry of the input file ==> no exc
+   //         3)for CaloHits/SimHits: template type does not correspond to subdetector given ==>exc
+    std::cout<<"\n=================== Starting tests for abnormal conditions ==================="<<std::endl;
+
+   // test case 0
+      std::cout<<"\n[ Testing abnormal conditions case 0]Should be all ok: registry: "<<all_trackhits->inRegistry()<<" size: "<<all_trackhits->size()<<std::endl;
+
+   // test case 1
+   MixCollection<PSimHit> * col21=0;
+   try {
+     col21=new MixCollection<PSimHit>(cf.product(), subdet,std::pair<int,int>(-10,20));
+   } catch ( cms::Exception &e ) { std::cout<<" [Testing abnormal conditions case2] exception bad runrange ok "<<std::endl; }
+
+
+   // test case 2
+   // first, on non-existing
+   MixCollection<PSimHit> * col22=0;
+   MixCollection<PSimHit>::iterator it22;
+   std::string subdet_nonex("TrackerHitsTECHighToff");
+   col22=new  MixCollection<PSimHit>(cf.product(), subdet_nonex,std::pair<int,int>(-1,2));
+   std::cout<<" [Testing abnormal conditions case2]Non-existing subdetector: registry: "<<col22->inRegistry()<<" size: "<<col22->size()<<std::endl;
+   int jj=0;
+   for (it22=col22->begin(); it22!= col22->end();it22++) jj++;
+   if (jj)       std::cout<<" [Testing abnormal conditions case2]Non-existing subdetector: iterator not ok!"<<std::endl;
+   else  std::cout<<" [Testing abnormal conditions case2]Non-existing subdetector: iterator ok."<<std::endl;
+   // second, vector
+   //   const std::vector<std::string> subdet_nonexv("TrackerHitsTECHighToff","TrackerHitsTECLowTof");
+   std::vector<std::string> subdet_nonexv(2);
+   subdet_nonexv[0]="TrackerHitsTECHighToff";
+   subdet_nonexv[1]="TrackerHitsTECLowTof";
+   col22=new  MixCollection<PSimHit>(cf.product(), subdet_nonexv,std::pair<int,int>(-1,2));
+   std::cout<<" [Testing abnormal conditions case2]Non-existing subdetector vector: registry: "<<col22->inRegistry()<<" size: "<<col22->size()<<std::endl;
+   jj=0;
+   for (it22=col22->begin(); it22!= col22->end();it22++) jj++;
+   std::cout<<" [Testing abnormal conditions case2]Non-existing subdetector vector: iterator gives "<<jj<<" elements"<<std::endl;
+
+   // test case 3
+   MixCollection<PCaloHit>*  col23=0;
+   try {
+     col23=new MixCollection<PCaloHit>(cf.product(), subdet,std::pair<int,int>(-1,2));
+   } catch ( cms::Exception &e ) { std::cout<<" [Testing abnormal conditions case3]bad template type exception ok"<<std::endl; }
 
 }
 
