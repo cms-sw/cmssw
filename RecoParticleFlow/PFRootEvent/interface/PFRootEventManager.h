@@ -5,6 +5,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 
@@ -138,8 +139,17 @@ class PFRootEventManager {
 		      unsigned viewType, double phi0 = 0.);
   
 
-  /// display reconstructed tracks in x/y or r/z view
+  /// display reconstructed tracks
   void displayRecTracks(unsigned viewType, double phi0 = 0.);
+
+  /// display true particles
+  void displayTrueParticles(unsigned viewType, double phi0 = 0.);
+
+  /// display track (for rectracks and particles)
+  void displayTrack(const std::vector<reco::PFTrajectoryPoint>& points, 
+		    unsigned viewType, double phi0 = 0., 
+		    double sign=1, int linestyle=1, int color=1);  
+
 
   /// unzooms all support histograms
   void unZoom();
@@ -197,20 +207,23 @@ class PFRootEventManager {
   /// PS clusters branch  
   TBranch*   clustersPSBranch_;          
   
-
   /// reconstructed tracks branch  
   TBranch*   recTracksBranch_;          
   
+  /// true particles branch
+  TBranch*   trueParticlesBranch_;          
+  
+
   /// rechits
   std::vector<reco::PFRecHit> rechits_;
 
-  /// rechits
+  /// rechits ECAL
   std::vector<reco::PFRecHit> rechitsECAL_;
 
-  /// rechits
+  /// rechits HCAL
   std::vector<reco::PFRecHit> rechitsHCAL_;
 
-  /// rechits
+  /// rechits PS 
   std::vector<reco::PFRecHit> rechitsPS_;
 
   /// clusters
@@ -227,6 +240,9 @@ class PFRootEventManager {
 
   /// reconstructed tracks
   std::vector<reco::PFRecTrack> recTracks_;
+  
+  /// true particles
+  std::vector<reco::PFParticle> trueParticles_;
   
   /// all pfblock elements
   std::set< PFBlockElement* > allElements_; 
@@ -265,14 +281,22 @@ class PFRootEventManager {
   /// display pad xy size for eta/phi view
   std::vector<int>         viewSizeEtaPhi_;        
 
+  //------------ display settings -----------------------------
+
   /// display cluster color ? (then color = cluster type )
   bool displayColorClusters_;
+
+  /// display rectracks ? 
+  bool displayRecTracks_;
+
+  /// display true particles ? 
+  bool displayTrueParticles_;
 
   /// size of view in number of cells when centering on a rechit
   double displayZoomFactor_;
 
   /// support histogram for eta/phi display
-  TH2F*                    displayHistEtaPhi_;
+  // TH2F*                    displayHistEtaPhi_;
 
   /// vector of canvas for x/y or r/z display
   std::vector<TCanvas*> displayView_;
@@ -292,14 +316,18 @@ class PFRootEventManager {
   /// HCAL in XY view. COLIN: should be attribute ?
   TEllipse frontFaceHCALXY_;
 
-  /// vector of TGraph used to represent the track in XY or RZ view. COLIN: should be attribute ?  
-  std::vector< std::vector<TGraph*> > graphTrack_;
+  /// vector of TGraph used to represent the track in XY or RZ view. 
+  // COLIN: should be attribute ?  
+/*   std::vector< std::vector<TGraph*> > graphTrack_; */
 
   /// max rechit energy in ecal
   double                   maxERecHitEcal_;
 
   /// max rechit energy in hcal
   double                   maxERecHitHcal_;
+
+
+  //----------------- print flags --------------------------------
 
   /// print rechits yes/no
   bool                     printRecHits_;
@@ -309,6 +337,9 @@ class PFRootEventManager {
 
   /// print PFBs yes/no
   bool                     printPFBs_;
+
+  /// print true particles yes/no
+  bool                     printTrueParticles_;
 
   //----------------- clustering parameters ---------------------
 

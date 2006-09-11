@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
+using namespace std;
 
 const unsigned PFTrack::nMaxTrackingLayers_ = 17;
 
@@ -45,8 +46,8 @@ void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
 	for (unsigned iPt = trajectoryPoints_.size(); iPt < PFTrajectoryPoint::BeamPipe + 1; iPt++)
 	  trajectoryPoints_.push_back(dummyPt);
       } else if (trajectoryPoints_.size() > PFTrajectoryPoint::BeamPipe + 1) {
-	edm::LogError("PFTrack") << "trajectoryPoints_.size() is too large = " 
-				    << trajectoryPoints_.size() << "\n";
+	edm::LogError("PFTrack")<<"trajectoryPoints_.size() is too large = " 
+				<<trajectoryPoints_.size()<<"\n";
       }
       indexOutermost_ = indexInnermost_ = PFTrajectoryPoint::BeamPipe + 1;
     } else 
@@ -78,20 +79,23 @@ const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) cons
 }
 
 
-std::ostream& reco::operator<<(std::ostream& out, 
-			       const PFTrack& track) {  
+ostream& reco::operator<<(ostream& out, 
+			  const PFTrack& track) {  
   if (!out) return out;  
 
   const reco::PFTrajectoryPoint& closestApproach = 
     track.trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach);
 
-  out << "Track charge = " << track.charge() 
-      << ", Pt = " << closestApproach.momentum().Pt() 
-      << ", P = " << closestApproach.momentum().P() << std::endl
-      << "\tR0 = " << closestApproach.positionXYZ().Rho()
-      <<" Z0 = " << closestApproach.positionXYZ().Z() << std::endl
-      << "\tnumber of tracker measurements = " 
-      << track.nTrajectoryMeasurements() << std::endl;
+  out<<"Track charge = "<<track.charge() 
+     <<", Pt = "<<closestApproach.momentum().Pt() 
+     <<", P = "<<closestApproach.momentum().P()<<endl
+     <<"\tR0 = "<<closestApproach.positionXYZ().Rho()
+     <<" Z0 = "<<closestApproach.positionXYZ().Z()<<endl
+     <<"\tnumber of tracker measurements = " 
+     <<track.nTrajectoryMeasurements()<<endl;
+  for(unsigned i=0; i<track.trajectoryPoints_.size(); i++) 
+    out<<track.trajectoryPoints_[i]<<endl;
+  
 
   return out;
 }

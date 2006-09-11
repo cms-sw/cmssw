@@ -20,7 +20,8 @@ namespace reco {
     PFParticle();
   
     PFParticle(double charge, int pdgCode, 
-	       unsigned id, unsigned daughter1Id, unsigned daughter2Id);
+	       unsigned id, int motherId,
+	       const std::vector<int>& daughterIds);
 
     PFParticle(const PFParticle& other);
 
@@ -30,22 +31,29 @@ namespace reco {
     /// \return id
     unsigned id() const { return id_; }
 
-    /// \return id of first daughter
-    unsigned daughter1Id() const { return daughter1Id_; }
+    /// \return mother id
+    int motherId() const { return motherId_; }
 
-    /// \return id of second daughter
-    unsigned daughter2Id() const { return daughter2Id_; }
+    /// \return vector of daughter ids
+    const std::vector<int>& daughterIds() const {return daughterIds_;}
 
 
     friend  std::ostream& operator<<(std::ostream& out, 
 				     const PFParticle& track);
 
   private:
-
+    
+    /// pdg code 
     int       pdgCode_;
+
+    /// position in particle vector
     unsigned  id_;
-    unsigned  daughter1Id_;
-    unsigned  daughter2Id_;
+
+    /// id of mother particle. -1 if no mother
+    int  motherId_;
+
+    /// id of daughter particles (can be > 2 in hadron showers)
+    std::vector<int> daughterIds_;
   };
 
 }

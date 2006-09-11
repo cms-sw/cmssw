@@ -61,21 +61,23 @@ namespace reco {
     const reco::PFTrajectoryPoint& extrapolatedPoint(unsigned layerid) const; 
 
     /// iterator on innermost tracker measurement
-    std::vector< reco::PFTrajectoryPoint >::const_iterator innermostMeasurement() const
+    std::vector< reco::PFTrajectoryPoint >::const_iterator 
+      innermostMeasurement() const
       { return trajectoryPoints_.begin() + indexInnermost_; }
     
     /// iterator on outermost tracker measurement
-    std::vector< reco::PFTrajectoryPoint >::const_iterator outermostMeasurement() const
+    std::vector< reco::PFTrajectoryPoint >::const_iterator 
+      outermostMeasurement() const
       { return trajectoryPoints_.begin() + indexOutermost_; }
-  
+    
     void         setColor(int color) {color_ = color;}
-
+    
     int          color() const { return color_; }    
 
     friend  std::ostream& operator<<(std::ostream& out, 
 				     const PFTrack& track);
 
-  private:
+  protected:
 
     /// maximal number of tracking layers
     static const unsigned int nMaxTrackingLayers_;

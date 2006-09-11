@@ -16,7 +16,9 @@ namespace reco {
 
   /**\class PFTrajectoryPoint
      \brief Trajectory point (a PFRecTrack holds several trajectory points)
-          
+     
+     \todo   deal with origin and end vertices of PFParticles
+     \todo   remove HCAL exit
      \author Renaud Bruneliere
      \date   July 2006
   */
@@ -43,7 +45,8 @@ namespace reco {
     /// default constructor. Set variables at default dummy values
     PFTrajectoryPoint();
 
-    /// constructor from values
+    /// constructor from values. set detId to 0 if this point is not from a 
+    /// tracker layer
     PFTrajectoryPoint(unsigned detId,
 		      unsigned layer,
 		      const math::XYZPoint& posxyz, 
@@ -80,6 +83,8 @@ namespace reco {
 
     /// 4-momenta quadrivector
     const math::XYZTLorentzVector& momentum() const    { return momentum_; }
+
+    bool   operator==(const reco::PFTrajectoryPoint& other) const;
 
     friend std::ostream& operator<<(std::ostream& out, const reco::PFTrajectoryPoint& trajPoint);
 

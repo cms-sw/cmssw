@@ -40,17 +40,22 @@ PFTrajectoryPoint::~PFTrajectoryPoint()
 {}
 
 
+bool   PFTrajectoryPoint::operator==(const reco::PFTrajectoryPoint& other) const {
+  if( posxyz_ == other.posxyz_ && 
+      momentum_ == other.momentum_ ) return true;
+  else return false;
+}
+
 std::ostream& reco::operator<<(std::ostream& out, 
 			       const reco::PFTrajectoryPoint& trajPoint) {
   if(!out) return out;
 
   const math::XYZPoint& posxyz = trajPoint.positionXYZ();
 
-  out << "Trajectory point id = " << trajPoint.detId()
-      << ", layer = " << trajPoint.layer()
-      << ", Pt = " << trajPoint.momentum().Pt() 
-      << ", Eta = " << posxyz.Eta()
-      << ", R = " << posxyz.Rho() << ", Z = " << posxyz.Z() << std::endl;
+  out<<"Traj point id = "<<trajPoint.detId()
+     <<", layer = "<<trajPoint.layer()
+     <<"Eta,Phi = "<<posxyz.Eta()<<","<<posxyz.Phi()
+     <<"X,Y = "<<posxyz.X()<<","<<posxyz.Y();
   
   return out;
 }

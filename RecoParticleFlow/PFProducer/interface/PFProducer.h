@@ -19,7 +19,8 @@
 
 
 /**\class PFProducer 
-\brief Producer for particle flow tracks, particles and reconstructed particles 
+\brief Producer for particle flow tracks, particles and 
+reconstructed particles 
 
 This producer makes use of PFAlgo, the particle flow algorithm.
 
@@ -40,28 +41,46 @@ class PFProducer : public edm::EDProducer {
  private:
   // ----------member data ---------------------------
 
-  // input rec track collection name
+  /// module label for retrieving input rec tracks 
   std::string recTrackModuleLabel_;
 
-  // module label for input simtrack and simvertex
+  /// module label for retrieving input simtrack and simvertex
   std::string simModuleLabel_;  
   
-  // output collection name for reconstructed tracks
+  /// output collection name for reconstructed tracks
   std::string pfRecTrackCollection_;
 
-  // output collection name for particles
+  /// output collection name for particles
   std::string pfParticleCollection_;
 
-  // parameters used for track reconstruction
+  // parameters used for track reconstruction --------------
+
   TrackProducerAlgorithm trackAlgo_;
   std::string       fitterName_;
   std::string       propagatorName_;
   std::string       builderName_;
 
-  // parameters for retrieving true particles information
+  // geometry, for track and particle extrapolation --------
+
+  ReferenceCountingPointer<Surface> beamPipe_;
+  ReferenceCountingPointer<Surface> ps1Wall_;
+  ReferenceCountingPointer<Surface> ps2Wall_;
+  ReferenceCountingPointer<Surface> ecalInnerWall_;
+  ReferenceCountingPointer<Surface> hcalInnerWall_;
+
+  // parameters for retrieving true particles information --
+
   edm::ParameterSet vertexGenerator_;
   edm::ParameterSet particleFilter_;
   FSimEvent* mySimEvent;
+
+  // flags for the various tasks
+
+  /// process RecTracks on/off
+  bool   processRecTracks_;
+  
+  /// process particles on/off
+  bool   processParticles_;
   
 };
 
