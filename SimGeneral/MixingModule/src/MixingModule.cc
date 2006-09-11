@@ -178,7 +178,7 @@ namespace edm
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product;
       LogDebug("addPileups") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
-      simcf_->addPileupCaloHits(bcr,desc.productInstanceName_,resultcalo[ii].product());
+      simcf_->addPileupCaloHits(bcr,desc.productInstanceName_,resultcalo[ii].product(),eventId);
     }
  
 //     //tracks and vertices

@@ -79,7 +79,7 @@ void CrossingFrame::addSignalVertices(const SimVertexContainer *simvertices) {
 void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, const PSimHitContainer *simhits, int evtId, bool checkTof) { 
   // add individual PSimHits to this bunchcrossing
   // eliminate those which a TOF outside of the bounds to be considered for corresponding detectors only
-
+  // fill EncodedEventId
   int count=0;
   EncodedEventId id(bcr,evtId);
   for (unsigned int i=0;i<simhits->size();++i) {
@@ -102,11 +102,11 @@ void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, co
   }
 }
 
-//shifted version:  void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int trackoffset) { 
- void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits) { 
-    for (unsigned int i=0;i<calohits->size();++i) {
-      //shifted version:    PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energy(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId()+trackoffset);
+void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int evtId) { 
+  EncodedEventId id(bcr,evtId);
+  for (unsigned int i=0;i<calohits->size();++i) {
     PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energy(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId());
+    hit.setEventId(id);
     (pileupCaloHits_[subdet])[bcr-firstCrossing_].push_back(hit);
   }
 }

@@ -93,6 +93,18 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       count++;
      }
 
+    // test access to CaloHits
+    const std::string subdetcalo("EcalHitsEB");
+    std::cout<<"\n\n=================== Starting CaloHit access, subdet "<<subdetcalo<<"  ==================="<<std::endl;
+    std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(), subdetcalo,std::pair<int,int>(-1,2)));
+    std::cout<<*(colcalo.get())<<std::endl;
+    MixCollection<PCaloHit>::iterator cficalo;
+    count=0;
+    for (cficalo=colcalo->begin(); cficalo!=colcalo->end();cficalo++) {
+      std::cout<<" CaloHit "<<count<<" has tof "<<cficalo->time()<<" trackid "<<cficalo->geantTrackId() <<" bunchcr "<<cficalo.bunch()<<" trigger "<<cficalo.getTrigger()<<", from EncodedEventId: "<<cficalo->eventId().bunchCrossing()<<" " <<cficalo->eventId().event() <<std::endl;
+      count++;
+     }
+
     // test access to SimTracks
     std::cout<<"\n=================== Starting SimTrack access ==================="<<std::endl;
     std::auto_ptr<MixCollection<SimTrack> > col2(new MixCollection<SimTrack>(cf.product()));
