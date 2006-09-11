@@ -10,6 +10,7 @@ GlobalHitsProducer::GlobalHitsProducer(const edm::ParameterSet& iPSet) :
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
+  vtxunit = iPSet.getUntrackedParameter<int>("VtxUnit");
   label = iPSet.getParameter<std::string>("Label");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
@@ -58,6 +59,7 @@ GlobalHitsProducer::GlobalHitsProducer(const edm::ParameterSet& iPSet) :
       << "    Name          = " << fName << "\n"
       << "    Verbosity     = " << verbosity << "\n"
       << "    Frequency     = " << frequency << "\n"
+      << "    VtxUnit       = " << vtxunit << "\n"
       << "    Label         = " << label << "\n"
       << "    GetProv       = " << getAllProvenances << "\n"
       << "    PrintProv     = " << printProvenanceInfo << "\n"
@@ -263,6 +265,11 @@ void GlobalHitsProducer::fillG4MC(edm::Event& iEvent)
   ////////////////////////////
   // get G4Vertex information
   ////////////////////////////
+  // convert unit stored in SimVertex to mm
+  float unit;
+  if (vtxunit == 0) unit = 1.;  // already in mm
+  if (vtxunit == 1) unit = 10.; // stored in cm, convert to mm
+
   edm::Handle<edm::SimVertexContainer> G4VtxContainer;
   iEvent.getByType(G4VtxContainer);
   if (!G4VtxContainer.isValid()) {
@@ -278,9 +285,9 @@ void GlobalHitsProducer::fillG4MC(edm::Event& iEvent)
     ++i;
 
     const HepLorentzVector& G4Vtx = itVtx->position();
-    G4VtxX.push_back((G4Vtx[0]*1.)/micrometer);
-    G4VtxY.push_back((G4Vtx[1]*1.)/micrometer);
-    G4VtxZ.push_back((G4Vtx[2]*1.)/millimeter);
+    G4VtxX.push_back((G4Vtx[0]*unit)/micrometer);
+    G4VtxY.push_back((G4Vtx[1]*unit)/micrometer);
+    G4VtxZ.push_back((G4Vtx[2]*unit)/millimeter);
   }
 
   if (verbosity > 1) {

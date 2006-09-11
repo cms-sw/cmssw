@@ -100,6 +100,7 @@ class GlobalHitsProducer : public edm::EDProducer
   std::string fName;
   int verbosity;
   int frequency;
+  int vtxunit;
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
