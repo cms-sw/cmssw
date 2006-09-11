@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.36 2006/09/01 09:38:11 llista Exp $
+ * \version $Id: TrackBase.h,v 1.35 2006/08/28 11:24:58 llista Exp $
  *
  */
 
@@ -40,12 +40,12 @@ namespace reco {
   public:
     /// parameter dimension
     enum { dimension = 5 };
-    /// error matrix size
-    enum { covarianceSize = dimension * ( dimension + 1 ) / 2 };
     /// parameter vector
     typedef math::Vector<dimension>::type ParameterVector;
     /// 5 parameter covariance matrix
     typedef math::Error<dimension>::type CovarianceMatrix;
+    /// matrix size
+    enum { covarianceSize = dimension * ( dimension + 1 ) / 2 };
     /// position-momentum covariance matrix (6x6)
     typedef math::Error<6>::type PosMomError;
     /// spatial vector
@@ -54,7 +54,7 @@ namespace reco {
     typedef math::XYZPoint Point;
     /// enumerator provided indices to the five parameters
     enum { i_transverseCurvature = 0 , i_theta, i_phi0, i_d0, i_dz }; 
-    /// spatial vector
+     /// spatial vector
     typedef math::XYZVector Vector;
     /// point in the space
     typedef math::XYZPoint Point;
@@ -122,8 +122,6 @@ namespace reco {
     double d0Error() const { return error( i_d0 ); }
     /// error on dx
     double dzError() const { return error( i_dz ); }
-    /// error on pt
-    double ptError() const { return transverseCurvatureError() / transverseCurvature() * pt(); }
     /// return SMatrix
     CovarianceMatrix covariance() const { CovarianceMatrix m; fill( m ); return m; }
     /// fill SMatrix

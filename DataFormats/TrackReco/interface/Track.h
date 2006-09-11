@@ -41,22 +41,10 @@ namespace reco {
     const math::XYZPoint & outerPosition()  const { return extra_->outerPosition(); }
     /// momentum vector at the outermost point
     const math::XYZVector & outerMomentum() const { return extra_->outerMomentum(); }
-    /// outermost trajectory state curvilinear errors
-    CovarianceMatrix outerStateCovariance() const { return extra_->outerStateCovariance(); }
-    /// innermost trajectory state curvilinear errors
-    CovarianceMatrix innerStateCovariance() const { return extra_->innerStateCovariance(); }
-    /// fill outermost trajectory state curvilinear errors
-    CovarianceMatrix & fillOuter( CovarianceMatrix & v ) const { return extra_->fillOuter( v ); }
-    /// fill outermost trajectory state curvilinear errors
-    CovarianceMatrix & fillInner( CovarianceMatrix & v ) const { return extra_->fillInner( v ); }
-    /// DetId of the detector on which surface the outermost state is located
-    unsigned int outerDetId() const { return extra_->outerDetId(); }
-    /// DetId of the detector on which surface the innermost state is located
-    unsigned int innerDetId() const { return extra_->innerDetId(); }
     /// first iterator to RecHits
     trackingRecHit_iterator recHitsBegin() const { return extra_->recHitsBegin(); }
     /// last iterator to RecHits
-    trackingRecHit_iterator recHitsEnd() const { return extra_->recHitsEnd(); }
+    trackingRecHit_iterator recHitsEnd()   const { return extra_->recHitsEnd(); }
     /// get n-th recHit
     TrackingRecHitRef recHit( size_t i ) const { return extra_->recHit( i ); }
     /// number of RecHits

@@ -58,7 +58,7 @@ namespace reco {
 
   private:
     /// number of 32 bit integers to store the full pattern
-    const static unsigned short PatternSize = 20; 
+    const static unsigned short PatternSize = 25;
     /// number of bits used for each hit
     const static unsigned short HitSize = 9;     
     /// 1 bit to distinguish tracker and muon subsystems
