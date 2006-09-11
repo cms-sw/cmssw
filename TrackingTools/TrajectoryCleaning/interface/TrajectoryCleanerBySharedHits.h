@@ -17,12 +17,12 @@ class TrajectoryCleanerBySharedHits : public TrajectoryCleaner {
 
  public:
 
-  typedef std::vector<Trajectory> 	TrajectoryContainer;
+  typedef std::vector<Trajectory*> 	TrajectoryPointerContainer;
 
   TrajectoryCleanerBySharedHits(){};
   virtual ~TrajectoryCleanerBySharedHits(){};
 
-  virtual void clean( TrajectoryContainer&) const;
+  virtual void clean( TrajectoryPointerContainer&) const;
 };
 
 #endif
