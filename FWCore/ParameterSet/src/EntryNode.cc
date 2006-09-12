@@ -63,7 +63,7 @@ namespace edm {
        }
      else if (type()=="InputTag")
        {
-         edm::InputTag tag(value_);
+         edm::InputTag tag(withoutQuotes(value_));
          return Entry(name(), tag, !tracked_);
        }
      else if(type()=="double")
