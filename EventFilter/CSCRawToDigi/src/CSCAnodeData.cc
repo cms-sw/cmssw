@@ -64,7 +64,7 @@ std::vector<CSCWireDigi> CSCAnodeData::wireDigis(int layer) const {
             if(frame.isHit(j)) {
 	      // wireGroup; 5th e time; FD time; beamCrossingTag; adcCounts
               wireGroup = (afeb*16+halfLayer*8+j)+1;
-	      tbinbits=tbinbits + 1<<tbin;      
+	      tbinbits=tbinbits + (1<<tbin);      
             }
           }
         }//end of tbin loop
