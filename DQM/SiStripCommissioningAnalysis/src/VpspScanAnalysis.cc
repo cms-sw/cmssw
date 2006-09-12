@@ -38,7 +38,7 @@ void VpspScanAnalysis::reset() {
 void VpspScanAnalysis::extract( const vector<TProfile*>& histos ) { 
 
   // Check
-  if ( histos.size() != 8 ) {
+  if ( histos.size() != 2 ) {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " Unexpected number of histograms: " 
 	 << histos.size()
