@@ -18,7 +18,7 @@ class TrajectoryCleaner {
   TrajectoryCleaner(){};
   virtual ~TrajectoryCleaner(){};
 
-  virtual void clean( TrajectoryContainer&);
+  virtual void clean( TrajectoryContainer&) const;
   virtual void clean( TrajectoryPointerContainer&) const = 0;
 
 };

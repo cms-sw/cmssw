@@ -22,7 +22,9 @@ class TrajectoryCleanerBySharedHits : public TrajectoryCleaner {
   TrajectoryCleanerBySharedHits(){};
   virtual ~TrajectoryCleanerBySharedHits(){};
 
+  using TrajectoryCleaner::clean;
   virtual void clean( TrajectoryPointerContainer&) const;
+
 };
 
 #endif
