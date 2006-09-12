@@ -44,10 +44,7 @@ PFRootEventManager::~PFRootEventManager() {
 //   }
   
   for( unsigned i=0; i<displayView_.size(); i++) {
-    cout<<"deleting displayView_[i] "<<i<<" "<<displayView_[i]<<endl;
-    cout<<displayView_[i]->GetName()<<endl;
     delete displayView_[i];
-    cout<<"done"<<endl;
   }
     
 
@@ -139,6 +136,9 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 //     // cout << "Set branch " << hitbranchname << endl;
 //   }
 
+  clusteringIsOn_ = true;
+  options_->GetOpt("clustering", "on/off", clusteringIsOn_);
+  
   // hits branches ----------------------------------------------
 
   string rechitsECALbranchname;
@@ -188,7 +188,8 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     cerr <<"PFRootEventManager::ReadOptions : clusters_ECAL_branch not found : "
 	 <<clustersECALbranchname<<endl;
   }
-  else {
+  else if(!clusteringIsOn_) {
+    cout<<"clusters ECAL : SetAddress"<<endl;
     clustersECALBranch_->SetAddress( clustersECAL_.get() );
   }    
   
@@ -200,7 +201,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     cerr<<"PFRootEventManager::ReadOptions : clusters_HCAL_branch not found : "
         <<clustersHCALbranchname<<endl;
   }
-  else {
+  else if(!clusteringIsOn_) {
     clustersHCALBranch_->SetAddress( clustersHCAL_.get() );
   }    
   
@@ -212,7 +213,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     cerr<<"PFRootEventManager::ReadOptions : clusters_PS_branch not found : "
 	<<clustersPSbranchname<<endl;
   }
-  else {
+  else if(!clusteringIsOn_) {
     clustersPSBranch_->SetAddress( clustersPS_.get() );
   }    
   
@@ -247,15 +248,15 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   options_->GetOpt("display", "algos", algos);
   algosToDisplay_.clear();
   for(unsigned i=0; i< algos.size(); i++) algosToDisplay_.insert( algos[i] );
-  typedef map<int, TCanvas * >::iterator IT;
-  for(IT it = displayEtaPhi_.begin(); it!=displayEtaPhi_.end(); it++) {
-    if( algosToDisplay_.find(it->first) == algosToDisplay_.end() ) {
-      it->second->Close();
-      displayEtaPhi_.erase(it);
-      if(displayEtaPhi_.empty() ) break;
-      it++;
-    }    
-  }  
+//   typedef map<int, TCanvas * >::iterator IT;
+//   for(IT it = displayEtaPhi_.begin(); it!=displayEtaPhi_.end(); it++) {
+//     if( algosToDisplay_.find(it->first) == algosToDisplay_.end() ) {
+//       it->second->Close();
+//       displayEtaPhi_.erase(it);
+//       if(displayEtaPhi_.empty() ) break;
+//       it++;
+//     }    
+//   }  
 
   viewSizeEtaPhi_.clear();
   options_->GetOpt("display", "viewsize_etaphi", viewSizeEtaPhi_);
@@ -291,20 +292,6 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 
 
   // clustering parameters 
-  clusteringIsOn_ = true;
-  options_->GetOpt("clustering", "on/off", clusteringIsOn_);
-  if(clusteringIsOn_ && 
-     ( !rechitsECALBranch_ || 
-       !rechitsHCALBranch_ ||
-       !rechitsPSBranch_ ) ) {
-    cerr<<"Clustering is enabled, but some rechits cannot be found in the TTree."<<endl;
-  }
-  if(!clusteringIsOn_ && 
-     ( !clustersECALBranch_ || 
-       !clustersHCALBranch_ ||
-       !clustersPSBranch_ ) ) {
-    cerr<<"Clustering is disabled, but one or more cluster collections cannot be found in the TTree."<<endl;
-  }
 
   threshEcalBarrel_ = 0.1;
   options_->GetOpt("clustering", "thresh_Ecal_Barrel", threshEcalBarrel_);
@@ -503,9 +490,14 @@ bool PFRootEventManager::processEntry(int entry) {
       rechitsPS_[i].calculatePositionREP();
   }
 
-  if(clustersECALBranch_) clustersECALBranch_->GetEntry(entry);
-  if(clustersHCALBranch_) clustersHCALBranch_->GetEntry(entry);
-  if(clustersPSBranch_) clustersPSBranch_->GetEntry(entry);
+  if(clustersECALBranch_ && !clusteringIsOn_) {
+    cout<<"clusters ECAL :GetEntry"<<endl;
+    clustersECALBranch_->GetEntry(entry);
+  }
+  if(clustersHCALBranch_ && !clusteringIsOn_) 
+    clustersHCALBranch_->GetEntry(entry);
+  if(clustersPSBranch_ && !clusteringIsOn_) 
+    clustersPSBranch_->GetEntry(entry);
 
   if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
   if(trueParticlesBranch_) trueParticlesBranch_->GetEntry(entry);
@@ -545,7 +537,7 @@ void PFRootEventManager::clustering() {
 
   std::map<unsigned,  reco::PFRecHit* > rechits;
    
-  cout<<"clustering ECAL"<<endl;
+  // cout<<"clustering ECAL"<<endl;
 
   PFClusterAlgo clusterAlgoECAL;
 
@@ -573,7 +565,7 @@ void PFRootEventManager::clustering() {
 
   // cout<<clustersECAL_->size()<<endl;
   
-  cout<<"clustering HCAL"<<endl;
+  // cout<<"clustering HCAL"<<endl;
 
   PFClusterAlgo clusterAlgoHCAL;
 
@@ -600,7 +592,7 @@ void PFRootEventManager::clustering() {
 
   // cout<<clustersHCAL_->size()<<endl;
 
-  cout<<"clustering PS"<<endl;
+  // cout<<"clustering PS"<<endl;
 
   PFClusterAlgo clusterAlgoPS;
 
@@ -750,12 +742,18 @@ void PFRootEventManager::particleFlow() {
 void PFRootEventManager::display(int ientry) {
   
   processEntry(ientry);
-  //  displayEtaPhi();
   displayView(RZ);
   displayView(XY);
   displayView(EPE);
   displayView(EPH);
+
+  // displayXY();
 }
+
+
+// void PFRootEventManager::displayXY() {
+  
+// }
 
 
 void PFRootEventManager::displayView(unsigned viewType) {
@@ -933,35 +931,6 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0)
   double maxee = getMaxEEcal();
   double maxeh = getMaxEHcal();
   double maxe = maxee>maxeh ? maxee : maxeh;
-  
-//   std::vector<reco::PFRecHit>::iterator itRecHit;
-//   for (itRecHit = rechits_.begin(); itRecHit != rechits_.end(); 
-//        itRecHit++) {
-//     double me = maxe;
-//     double thresh = 0;
-//     switch(itRecHit->layer()) {
-//     case PFLayer::ECAL_BARREL:
-//       thresh = threshEcalBarrel_;
-//       break;     
-//     case PFLayer::ECAL_ENDCAP:
-//       thresh = threshEcalEndcap_;
-//       break;     
-//     case PFLayer::HCAL_BARREL1:
-//     case PFLayer::HCAL_BARREL2:
-//       thresh = threshHcalBarrel_;
-//       break;           
-//     case PFLayer::HCAL_ENDCAP:
-//       thresh = threshHcalEndcap_;
-//       break;           
-//     case PFLayer::PS1:
-//     case PFLayer::PS2:
-//       me = -1;
-//       thresh = threshPS_; 
-//       break;
-//     default:
-//       cerr<<"manage other layers"<<endl;
-//       continue;
-//     }
 
   for(unsigned i=0; i<rechitsECAL_.size(); i++) { 
     // if(itRecHit->energy() > thresh )
@@ -1327,8 +1296,8 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0)
       itRecTrack->trajectoryPoints();
 
     int color = 103;
-    displayTrack( points, viewType, phi0, 
-		  sign, itRecTrack->algoType(), color );
+    displayTrack( points, viewType, phi0, sign, false,
+		  itRecTrack->algoType(), color );
 
     // Check number of measurements with non-zero momentum
     // COLIN: this was a copy ! should pass a reference
@@ -1433,7 +1402,7 @@ void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
     
     const reco::PFParticle& ptc = trueParticles_[i];
     
-    cout<<"display particle : "<<ptc<<endl;
+    // cout<<"display particle : "<<ptc<<endl;
 
     double sign = 1.;
     
@@ -1449,8 +1418,10 @@ void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
 
     int color = 4;
     int linestyle = 2;
+    bool displayInitial=true;
+    if( ptc.motherId() < 0 ) displayInitial=false; 
     displayTrack( points, viewType, phi0, 
-		  sign, linestyle, color );
+		  sign, displayInitial, linestyle, color );
 
     // Check number of measurements with non-zero momentum
     // COLIN: this was a copy ! should pass a reference
@@ -1548,7 +1519,7 @@ void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
 
 void PFRootEventManager::displayTrack 
 (const std::vector<reco::PFTrajectoryPoint>& points, 
- unsigned viewType, double phi0, double sign, 
+ unsigned viewType, double phi0, double sign, bool displayInitial,
  int linestyle, int color) {
   
   // math::XYZPoint vPhi0(cos(phi0), sin(phi0), 0.);
@@ -1612,8 +1583,8 @@ void PFRootEventManager::displayTrack
     case XY:
       xPos.push_back(xyzPos.X());
       yPos.push_back(xyzPos.Y());
-      cout << "\t" << xyzPos.X() << " " 
-	   << xyzPos.Y() << endl;
+//       cout << "\t" << xyzPos.X() << " " 
+// 	   << xyzPos.Y() << endl;
       break;
     case RZ:
       xPos.push_back(xyzPos.Z());
@@ -1621,8 +1592,9 @@ void PFRootEventManager::displayTrack
       break;
     case EPE:
     case EPH:	 
-      // closest approach is meaningless in eta/phi
-      if( points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach) {
+      // closest approach is meaningless in eta/phi     
+      if(!displayInitial && 
+	 points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach ) {
 	const math::XYZTLorentzVector& mom = points[i].momentum();
 	xPos.push_back(mom.Eta());
 	yPos.push_back(mom.Phi());	  
@@ -1683,15 +1655,15 @@ void PFRootEventManager::unZoom() {
 
 void PFRootEventManager::updateDisplay() {
 
-  typedef map<int, TCanvas * >::iterator IT;
-  for(IT it = displayEtaPhi_.begin(); it!=displayEtaPhi_.end(); it++) {
-    if( gROOT->GetListOfCanvases()->FindObject(it->second) ) {
-      it->second->cd(1);
-      gPad->Modified();
-      it->second->cd(2);
-      gPad->Modified();
-    }
-  }
+//   typedef map<int, TCanvas * >::iterator IT;
+//   for(IT it = displayEtaPhi_.begin(); it!=displayEtaPhi_.end(); it++) {
+//     if( gROOT->GetListOfCanvases()->FindObject(it->second) ) {
+//       it->second->cd(1);
+//       gPad->Modified();
+//       it->second->cd(2);
+//       gPad->Modified();
+//     }
+//   }
 
   for( unsigned i=0; i<displayView_.size(); i++) {
     if( gROOT->GetListOfCanvases()->FindObject(displayView_[i]) )

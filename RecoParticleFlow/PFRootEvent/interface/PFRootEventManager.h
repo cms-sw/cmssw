@@ -121,6 +121,18 @@ class PFRootEventManager {
   /// display one entry 
   void display(int ientry);
 
+/*   void displayXY(); */
+/*   void displayRecHitsXY(); */
+/*   void displayClustersXY(); */
+/*   void displayRecTracksXY(); */
+/*   void displayTrueParticlesXY(); */
+  
+/*   void displayRZ(); */
+/*   void displayEtaPhiE(); */
+/*   void displayEtaPhiH(); */
+  
+ 
+
   /// display x/y or r/z
   void displayView(unsigned viewType);
 
@@ -148,7 +160,9 @@ class PFRootEventManager {
   /// display track (for rectracks and particles)
   void displayTrack(const std::vector<reco::PFTrajectoryPoint>& points, 
 		    unsigned viewType, double phi0 = 0., 
-		    double sign=1, int linestyle=1, int color=1);  
+		    double sign=1, bool displayInitial=true, 
+		    int linestyle=1, 
+		    int color=1);  
 
 
   /// unzooms all support histograms
@@ -273,7 +287,7 @@ class PFRootEventManager {
 
   /// canvases for eta/phi display, one per algo
   /// each is split in 2 : HCAL, ECAL
-  std::map<int, TCanvas* > displayEtaPhi_;        
+  // std::map<int, TCanvas* > displayEtaPhi_;        
 
   /// algos to display
   std::set<int>            algosToDisplay_;  
