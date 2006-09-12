@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/12 13:01:16 $
- * $Revision: 1.1 $
+ * $Date: 2006/09/12 13:05:44 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -71,8 +71,9 @@ void EBTriggerTowerTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel/EBTriggerTowerTask/EnergyMaps");
     for (int i = 0; i < 36 ; i++) {
       for (int j = 0; j < 68 ; j++) {
-        sprintf(histo, "EBTTT Et SM%02d TT%02d", i+1, j+1);
+        sprintf(histo, "EBTTT Et T SM%02d TT%02d", i+1, j+1);
         meEtMapT_[i][j] = dbe->book1D(histo, histo, 4096, 0., 4096.);
+        sprintf(histo, "EBTTT Et R SM%02d TT%02d", i+1, j+1);
         meEtMapR_[i][j] = dbe->book1D(histo, histo, 4096, 0., 4096.);
       }
     }
