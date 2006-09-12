@@ -8,11 +8,19 @@
  */
 
 #include "CalibMuon/DTCalibration/src/DTVDriftWriter.h"
+#include "CalibMuon/DTCalibration/src/vDriftHistos.h"
+#include "CalibMuon/DTCalibration/src/DTCalibrationMap.h"
 #include "RecoLocalMuon/DTSegment/test/DTRecSegment4DReader.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+#include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 /* C++ Headers */
 #include <map>
@@ -24,6 +32,7 @@
 #include "TH1.h"
 #include "TF1.h"
 #include "TROOT.h"
+#include "TFile.h"
 
 using namespace std;
 using namespace edm;
@@ -46,6 +55,11 @@ DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset) {
 
   // the granularity to be used for calib constants evaluation
   theGranularity = pset.getUntrackedParameter<string>("calibGranularity","bySL");
+  
+  //tag for the DB
+  string tag = pset.getUntrackedParameter<string>("meanTimerTag", "vDrift");
+  theMTime = new DTMtime(tag);
+
   if(debug)
     cout << "[DTVDriftWriter]Constructor called!" << endl;
 }
@@ -99,9 +113,18 @@ void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) 
 	newConstants.push_back(vDriftAndReso[ivd]); 
       }
       calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
+
+      theMTime->setSLMtime(slId,
+			   vDriftAndReso[0],
+			   vDriftAndReso[1],
+			   DTTimeUnits::ns);
+      if(debug) {
+	cout << " SL: " << slId
+	     << " vDrift = " << vDriftAndReso[0]
+	     << " reso = " << vDriftAndReso[1] << endl;
+      }
     }
   }
-
   // to be implemented: granularity different from bySL
 
   //   if(theGranularity == "byChamber") {
@@ -136,7 +159,29 @@ void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) 
   calibValuesFile.writeConsts(theVDriftOutputFile);
 }
 
-void DTVDriftWriter::endJob() {}
+void DTVDriftWriter::endJob() {
+
+if(debug) 
+   cout << "[DTVDriftWriter]Writing vdrift object to DB!" << endl;
+
+  // Write the ttrig object to DB
+  edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
+  if( dbOutputSvc.isAvailable() ){
+    size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
+    try{
+      dbOutputSvc->newValidityForNewPayload<DTMtime>(theMTime, dbOutputSvc->endOfTime(), callbackToken);
+    }catch(const cond::Exception& er){
+      cout << er.what() << endl;
+    }catch(const std::exception& er){
+      cout << "[DTVDriftWriter] caught std::exception " << er.what() << endl;
+    }catch(...){
+      cout << "[DTVDriftWriter] Funny error" << endl;
+    }
+  }else{
+    cout << "Service PoolDBOutputService is unavailable" << endl;
+  }
+
+}
 
 vector<float> DTVDriftWriter::evaluateVDriftAndReso (const DTWireId& wireId) {
   TString N=(((((TString) "TMax"+(long) wireId.wheel()) +(long) wireId.station())
@@ -213,7 +258,7 @@ vector<float> DTVDriftWriter::evaluateVDriftAndReso (const DTWireId& wireId) {
       sigmaT    += count[i]*factor[i]*sigma[i];
       wSigmaSum += count[i];
       //cout << "TMaxMean "<<i<<": "<< mean[i] << " entries: " << count[i] 
-      //	   << " sigma: " << sigma[i] 
+      //   << " sigma: " << sigma[i] 
       //   << " weight: " << (count[i]/(sigma[i]*sigma[i])) << endl; 
     }
     tMaxMean /= wTMaxSum;

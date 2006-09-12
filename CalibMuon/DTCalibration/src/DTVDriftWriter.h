@@ -4,7 +4,7 @@
 /* Program to evaluate v_drift and t0 from TMax histograms
  *  and write the results to a file for each SL
  
- *  $Date: 2006/08/07 12:20:39 $
+ *  $Date: 2006/08/31 15:30:25 $
  *  $Revision: 1.1 $
  *  \author M. Giunta - e-mail:marina.giunta@cern.ch
  */
@@ -12,11 +12,8 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibMuon/DTCalibration/src/DTCalibrationMap.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "CalibMuon/DTCalibration/src/vDriftHistos.h"
 
-#include "TFile.h"
 #include <string>
 #include <vector> 
 
@@ -27,6 +24,8 @@ namespace edm {
   class EventSetup;
 }
 
+class TFile;
+class DTMtime;
 
 class DTVDriftWriter : public edm::EDAnalyzer {
 public:
@@ -62,5 +61,9 @@ private:
   
   // the granularity to be used for calib consts evaluation
   std::string theGranularity;
+
+  // The object to be written to DB
+  DTMtime* theMTime;
+
 };
 #endif
