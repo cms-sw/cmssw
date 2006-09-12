@@ -131,7 +131,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
     for (vector<TransientVertex>::const_iterator ipv = pvCand.begin();
 	 ipv != pvCand.end(); ipv++) {
       //cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv << " sel=" <<
-	 theVertexSelector(*ipv) << "   z="  << ipv->position().z() << endl;
+      // theVertexSelector(*ipv) << "   z="  << ipv->position().z() << endl;
       //if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
       pvs.push_back(*ipv);
       npv++;
