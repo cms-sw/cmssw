@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/08/03 19:41:25 $
- * $Revision: 1.41 $
+ * $Date: 2006/09/12 15:35:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,8 +25,6 @@
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-
-#include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
@@ -451,7 +449,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<head>  " << endl;
   htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
   htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor:PedestalOnlineTask output</title> " << endl;
+  htmlFile << "  <title>Monitor:TriggerTowerTask output</title> " << endl;
   htmlFile << "</head>  " << endl;
   htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
   htmlFile << "<body>  " << endl;
@@ -460,7 +458,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">PEDESTAL ONLINE</span></h2> " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">TRIGGER TOWER</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
   htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
