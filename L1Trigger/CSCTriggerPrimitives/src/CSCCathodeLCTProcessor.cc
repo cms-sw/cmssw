@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/06/20 14:52:44 $
-//   $Revision: 1.4 $
+//   $Date: 2006/07/03 16:12:58 $
+//   $Revision: 1.5 $
 //
 //   Modifications: 
 //
@@ -341,8 +341,10 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
       int diStrip = thisStrip/2; // [0-39]
 
       // Get Bx of this Digi and check that it is within the bounds
-      int thisDigiBx = thisDigi.getTimeBin() - 9; // temp hack for MC
-      //int thisDigiBx = thisDigi.getTimeBin(); // for data
+      int thisDigiBx = thisDigi.getTimeBin();
+#ifndef TB
+      thisDigiBx -= 9; // temp hack for MC
+#endif
       //note: MIN_BUNCH = -6, MAX_BUNCH = 6, TOT_BUNCH = 13
 #ifndef TB2004
       if (thisDigiBx >= CSCConstants::MIN_BUNCH &&
@@ -444,9 +446,11 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
     for (j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++){
       if (time[i][j] >= 0) {
 	i_distrip = j/2;
-	if (j%2 == 1 && triad[i][j] == 1 && stagger[i] == 1)
+	if (j%2 == 1 && triad[i][j] == 1 && stagger[i] == 1) {
 	  // @@ Needs to be checked.
-	  distripStagger(triad[i], time[i], digiNum[i], j);
+	  bool stagger_debug = (infoV > 2);
+	  distripStagger(triad[i], time[i], digiNum[i], j, stagger_debug);
+	}
 	// triad[i][j] == 1	: hit on right half-strip.
 	// stagger[i] == 1	: half-strips are shifted by 1.
 	// if these conditions are met add 1; otherwise add 0.
@@ -627,7 +631,7 @@ void CSCCathodeLCTProcessor::getDigis(const std::vector<std::vector<CSCComparato
 void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::NUM_DI_STRIPS],
 				    int stag_time[CSCConstants::NUM_DI_STRIPS],
 				    int stag_digi[CSCConstants::NUM_DI_STRIPS],
-				    int i_strip) {
+				    int i_strip, bool debug) {
   // Author: Jason Mumford (mumford@physics.ucla.edu)
   // This routine takes care of the stagger situation where there is a hit
   // on the right half-strip of a di-strip.  If there is a stagger, then
@@ -646,7 +650,7 @@ void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::NUM_DI_
       << "+++ Found wrong strip number = " << i_strip << " +++" << std::endl;
   }
 
-  if (infoV > 2)
+  if (debug)
     LogDebug("CSCCathodeLCTProcessor")
       << " Enter distripStagger: i_strip = " << i_strip
       << " stag_triad[i_strip] = "   << stag_triad[i_strip]
@@ -684,7 +688,7 @@ void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::NUM_DI_
   stag_triad[i_strip] =    4;
   stag_digi[i_strip]  = -999;
 
-  if (infoV > 2)
+  if (debug)
     LogDebug("CSCCathodeLCTProcessor")
       << " Exit  distripStagger: i_strip = " << i_strip
       << " stag_triad[i_strip] = "   << stag_triad[i_strip]
@@ -1758,6 +1762,7 @@ void CSCCathodeLCTProcessor::testDistripStagger() {
   // Author: Jason Mumford (mumford@physics.ucla.edu)
   // This routine tests the distripStagger routine.
   // @@
+  bool debug = true;
   int test_triad[CSCConstants::NUM_DI_STRIPS], test_time[CSCConstants::NUM_DI_STRIPS];
   int test_digi[CSCConstants::NUM_DI_STRIPS];
   int distrip = 0;
@@ -1793,7 +1798,7 @@ void CSCCathodeLCTProcessor::testDistripStagger() {
     std::cout << "test_triad[" << i << "] = " << test_triad[i];
     std::cout << "   test_time[" << i << "] = " << test_time[i] << std::endl;
   }
-  distripStagger(test_triad, test_time, test_digi, distrip);
+  distripStagger(test_triad, test_time, test_digi, distrip, debug);
   std::cout << "Values after distripStagger routine:" << std::endl;
   for (int i=distrip; i<distrip+11; i++){
     std::cout << "test_triad[" << i << "] = " << test_triad[i];

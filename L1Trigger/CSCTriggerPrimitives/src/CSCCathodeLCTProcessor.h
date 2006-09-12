@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/06/14 09:31:45 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/20 14:49:12 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -83,10 +83,10 @@ class CSCCathodeLCTProcessor
   /** Access to time on single distrip on any layer. */
   int diStripHit(const int layer, const int strip) const;
 
-  void distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS],
-		      int stag_time[CSCConstants::MAX_NUM_STRIPS],
-		      int stag_digi[CSCConstants::MAX_NUM_STRIPS],
-		      int i_distrip);
+  static void distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS],
+			     int stag_time[CSCConstants::MAX_NUM_STRIPS],
+			     int stag_digi[CSCConstants::MAX_NUM_STRIPS],
+			     int i_distrip, bool debug = false);
 
   /** Pre-defined patterns. */
   enum {NUM_PATTERN_STRIPS = 36};
