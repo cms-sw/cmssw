@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/12 14:58:49 $
- * $Revision: 1.4 $
+ * $Date: 2006/09/12 15:22:03 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -147,13 +147,39 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
     int iet = id.ieta();
     int ipt = id.iphi();
 
+    // phi_tower: change the range from global to SM-local
+    ipt     = ( (ipt-1) % 4) +1;
+
+    // phi_tower: range matters too
+    //    if ( id.zside() >0)
+    //      { ipt = 5 - ipt;      }
+
     int ismt = id.iDCC();
+
+    int itt = 4*(iet-1)+(ipt-1)+1;
 
     float xiet = iet - 0.5;
     float xipt = ipt - 0.5;
 
     LogDebug("EBTriggerTowerTask") << " det id = " << id;
     LogDebug("EBTriggerTowerTask") << " sm, eta, phi " << ismt << " " << iet << " " << ipt;
+
+    float xval;
+
+    xval = data.compressedEt();
+    if ( meEtMap_[ismt-1] ) meEtMap_[ismt-1]->Fill(xiet, xipt, xval);
+
+    xval = data.fineGrain();
+    if ( meVeto_[ismt-1] ) meVeto_[ismt-1]->Fill(xiet, xipt, xval);
+
+    xval = data.ttFlag();
+    if ( meFlags_[ismt-1] ) meFlags_[ismt-1]->Fill(xiet, xipt, xval);
+
+    xval = data.compressedEt();
+    if ( meEtMapT_[ismt-1][itt-1] ) meEtMapT_[ismt-1][itt-1]->Fill(xval);
+
+    xval = 0.;
+    if ( meEtMapR_[ismt-1][itt-1] ) meEtMapR_[ismt-1][itt-1]->Fill(xval);
 
   }
 
