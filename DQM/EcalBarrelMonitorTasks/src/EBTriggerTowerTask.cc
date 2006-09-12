@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/12 13:05:44 $
- * $Revision: 1.2 $
+ * $Date: 2006/09/12 14:47:44 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -69,6 +69,7 @@ void EBTriggerTowerTask::setup(void){
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTriggerTowerTask/EnergyMaps");
+
     for (int i = 0; i < 36 ; i++) {
       for (int j = 0; j < 68 ; j++) {
         sprintf(histo, "EBTTT Et T SM%02d TT%02d", i+1, j+1);
@@ -99,6 +100,11 @@ void EBTriggerTowerTask::cleanup(void){
       meVeto_[i] = 0; 
       if ( meFlags_[i] ) dbe->removeElement( meFlags_[i]->getName() );
       meFlags_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBTriggerTowerTask/EnergyMaps");
+
+    for ( int i = 0; i < 36; i++ ) {
       for ( int j = 0; j < 36; j++ ) {
         if ( meEtMapT_[i][j] ) dbe->removeElement( meEtMapT_[i][j]->getName() );
         meEtMapT_[i][j] = 0;
