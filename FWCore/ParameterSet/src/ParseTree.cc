@@ -187,7 +187,12 @@ namespace edm {
       string result = "";
       NodePtr nodePtr = findInPath(dotDelimitedNode, modulesAndSources_);
       EntryNode * entryNode = dynamic_cast<EntryNode *>(nodePtr.get());
-      if(entryNode != 0)
+      if(entryNode == 0)
+      {
+        throw edm::Exception(errors::Configuration,"")
+        << dotDelimitedNode << " is not a single entry";
+      }
+      else
       {
         result = entryNode->value();
       }
@@ -201,7 +206,13 @@ namespace edm {
       std::vector<std::string> result;
       NodePtr nodePtr = findInPath(dotDelimitedNode, modulesAndSources_);
       VEntryNode * vEntryNode = dynamic_cast<VEntryNode *>(nodePtr.get());
-      if(vEntryNode != 0)
+       
+      if(vEntryNode == 0)
+      {
+        throw edm::Exception(errors::Configuration,"")
+        << dotDelimitedNode << " is not a vector of values";
+      }
+      else 
       {
         result = *(vEntryNode->value());
       }
