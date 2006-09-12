@@ -46,8 +46,12 @@ class FamosManager
   /// The real thing is done here
   void reconstruct(const HepMC::GenEvent* evt);
 
+  /// The tracker 
+  TrajectoryManager * trackerManager() const {return myTrajectoryManager;}
+
   /// The calorimeter 
   CalorimetryManager * calorimetryManager() const {return myCalorimetry;}
+
   
  private:   
 

@@ -20,6 +20,7 @@
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/TrackingHit>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=RecoTracker/TkDetLayers>
@@ -48,6 +49,7 @@
  <use name=SimDataFormats/Vertex>
  <use name=SimDataFormats/HepMCProduct>
  <use name=SimDataFormats/CaloHit>
+ <use name=SimDataFormats/TrackingHit>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
  <use name=RecoTracker/TkDetLayers>

@@ -6,6 +6,7 @@
 
 //DataFormats
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 //FAMOS Headers
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
@@ -75,7 +76,7 @@ class TrajectoryManager
   void createPSimHits(const TrackerLayer& layer,
 		      ParticlePropagator& P_before,
 		      ParticlePropagator& P_after,
-		      int TrackID);
+		      int trackID, int partID);
 
 /// Propagate the particle through the calorimeters
   void propagateToCalorimeters(ParticlePropagator& PP, 
@@ -93,6 +94,8 @@ class TrajectoryManager
   void initializeRecoGeometry(const TrackerGeometry* geomTracker,
 			      const GeometricSearchTracker* geomSearchTracker);
 
+  // load container from edm::Event
+  void loadSimHits(edm::PSimHitContainer & c) const;
 
  private:
 
@@ -109,14 +112,11 @@ class TrajectoryManager
 
   /// and there
   void makePSimHits( const GeomDet* det, const TrajectoryStateOnSurface& ts,
-		     std::vector<PSimHit>& result) const;
+		     std::vector<PSimHit>& result, int tkID, float el, int pID) const;
 
   /// and there
   PSimHit makeSinglePSimHit( const GeomDetUnit& det,
-			     const TrajectoryStateOnSurface& ts) const;
-
-  /// and there
-  const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
+			     const TrajectoryStateOnSurface& ts, int tkID, float el, int pID) const;
 
  private:
 

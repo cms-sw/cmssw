@@ -7,11 +7,13 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "FastSimulation/EventProducer/interface/FamosProducer.h"
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
+#include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 
 #include "CLHEP/HepMC/GenEvent.h"
 
@@ -23,6 +25,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     produces<edm::HepMCProduct>();
     produces<edm::SimTrackContainer>();
     produces<edm::SimVertexContainer>();
+    produces<edm::PSimHitContainer>("TrackerHits");
     produces<edm::PCaloHitContainer>("EcalHitsEB");
     produces<edm::PCaloHitContainer>("HcalHits");
     famosManager_ = new FamosManager(p);
@@ -61,24 +64,29 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    FSimEvent* fevt = famosManager_->simEvent();
 
    CalorimetryManager * calo = famosManager_->calorimetryManager();
-   
+   TrajectoryManager * tracker = famosManager_->trackerManager();
+
    std::auto_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
    std::auto_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
-   std::auto_ptr<edm::PCaloHitContainer> p3(new edm::PCaloHitContainer);
+   std::auto_ptr<edm::PSimHitContainer> p3(new edm::PSimHitContainer);
    std::auto_ptr<edm::PCaloHitContainer> p4(new edm::PCaloHitContainer);
+   std::auto_ptr<edm::PCaloHitContainer> p5(new edm::PCaloHitContainer);
 
    fevt->load(*p1);
    fevt->load(*p2);
 
+   tracker->loadSimHits(*p3);
+
    if ( calo ) {  
-     calo->loadFromEcalBarrel(*p3);
-     calo->loadFromHcal(*p4);
+     calo->loadFromEcalBarrel(*p4);
+     calo->loadFromHcal(*p5);
    }
 
    iEvent.put(p1);
    iEvent.put(p2);
-   iEvent.put(p3,"EcalHitsEB");
-   iEvent.put(p4,"HcalHits");
+   iEvent.put(p3,"TrackerHits");
+   iEvent.put(p4,"EcalHitsEB");
+   iEvent.put(p5,"HcalHits");
 
 }
 
