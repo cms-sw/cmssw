@@ -8,6 +8,67 @@
 #include <string>
 
 using namespace dttmaxenums;
+// A set of histograms on chamber angle and position
+class h4DSegm{
+ public:
+  h4DSegm(std::string name_){
+    TString N = name_.c_str();
+    name=name_.c_str();
+    h4DSegmXPosInCham     = new TH1F(N+"_h4DSegmXPosInCham", 
+				    "4D Segment x position (cm) in Chamber RF", 200, -200, 200); 
+    h4DSegmYPosInCham     = new TH1F(N+"_h4DSegmYPosInCham", 
+				    "4D Segment y position (cm) in Chamber RF", 200, -200, 200); 
+    h4DSegmPhiAngleInCham   = new TH1F(N+"_h4DSegmPhiAngleInCham",  
+ 				    "4D Segment phi angle (rad) in Chamber RF", 180, -180, 180); 
+    h4DSegmThetaAngleInCham   = new TH1F(N+"_h4DSegmThetaAngleInCham",  
+ 				    "4D Segment theta angle (rad) in Chamber RF", 180, -180, 180); 
+    h4DSegmImpactAngleInCham   = new TH1F(N+"_h4DSegmImpactAngleInCham",  
+ 				    "4D Segment impact angle (rad) in Chamber RF", 180, -180, 180); 
+  }
+ h4DSegm(TString name_, TFile* file){
+    name=name_;
+    h4DSegmXPosInCham  = (TH1F *) file->Get(name+"_h4DSegmXPosInCham"); 
+    h4DSegmYPosInCham  = (TH1F *) file->Get(name+"_h4DSegmYPosInCham"); 
+    h4DSegmPhiAngleInCham  = (TH1F *) file->Get(name+"_h4DSegmPhiAngleInCham"); 
+    h4DSegmThetaAngleInCham  = (TH1F *) file->Get(name+"_h4DSegmThetaAngleInCham"); 
+    h4DSegmImpactAngleInCham  = (TH1F *) file->Get(name+"_h4DSegmImpactAngleInCham"); 
+ }
+ ~h4DSegm(){
+    delete h4DSegmXPosInCham;     
+    delete h4DSegmYPosInCham;     
+    delete h4DSegmPhiAngleInCham;   
+    delete h4DSegmThetaAngleInCham;   
+    delete h4DSegmImpactAngleInCham;   
+ } 
+void Fill(float x, float y, float phi, float theta, float impact) {
+    h4DSegmXPosInCham->Fill(x); 
+    h4DSegmYPosInCham->Fill(y); 
+    h4DSegmPhiAngleInCham->Fill(phi);   
+    h4DSegmThetaAngleInCham->Fill(theta);   
+    h4DSegmImpactAngleInCham->Fill(impact);   
+} 
+void Fill(float x, float phi) {
+    h4DSegmXPosInCham->Fill(x); 
+    h4DSegmPhiAngleInCham->Fill(phi);   
+} 
+ void Write() {
+    h4DSegmXPosInCham->Write();     
+    h4DSegmYPosInCham->Write();     
+    h4DSegmPhiAngleInCham->Write();   
+    h4DSegmThetaAngleInCham->Write();   
+    h4DSegmImpactAngleInCham->Write();   
+  }
+ public:
+
+  TH1F *h4DSegmXPosInCham;     
+  TH1F *h4DSegmYPosInCham;     
+  TH1F *h4DSegmPhiAngleInCham;   
+  TH1F *h4DSegmThetaAngleInCham;   
+  TH1F *h4DSegmImpactAngleInCham;   
+
+  TString name;
+};
+
 
 // A set of histograms on SL angle and position
 class h2DSegm{
@@ -15,11 +76,11 @@ class h2DSegm{
   h2DSegm(std::string name_){
     TString N = name_.c_str();
     name=name_.c_str();
-    h2DSegmPosInCham     = new TH1F(N+"_h2DSegmPosInCham1", 
+    h2DSegmPosInCham     = new TH1F(N+"_h2DSegmPosInCham", 
 				    "2D Segment position (cm) in Chamber RF", 200, -200, 200); 
-    h2DSegmAngleInCham   = new TH1F(N+"_h2DSegmAngleInCham1",  
+    h2DSegmAngleInCham   = new TH1F(N+"_h2DSegmAngleInCham",  
  				    "2D Segment angle (rad) in Chamber RF", 200, -2, 2); 
-    h2DSegmCosAngleInCham   = new TH1F(N+"_h2DSegmCosAngleInCham1",  
+    h2DSegmCosAngleInCham   = new TH1F(N+"_h2DSegmCosAngleInCham",  
  				       "2D Segment cos(angle) in Chamber RF", 200, -2, 2); 
   }
   h2DSegm(TString name_, TFile* file){
