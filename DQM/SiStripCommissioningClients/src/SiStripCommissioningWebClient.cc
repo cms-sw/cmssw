@@ -38,14 +38,12 @@ void SiStripCommissioningWebClient::defineWidgets() {
   
   // Commissioning-specific buttons 
   Button* subsc   = new Button( url, "20px", "20px", "SubscribeAll", "Subscribe all" );
-  Button* update  = new Button( url, "50px", "20px", "UpdateHistos", "Update histograms" );
-  Button* unsub   = new Button( url, "80px", "20px", "UnsubscribeAll", "Unsubscribe all" );
-  Button* save    = new Button( url, "110px", "20px", "SaveHistos", "Save histos to file" );
-  Button* anal    = new Button( url, "140px", "20px", "HistoAnalysis", "Analyze histograms" );
-  Button* summary = new Button( url, "170px", "20px", "SummaryHisto", "Create summary histo" );
-  Button* upload  = new Button( url, "200px", "20px", "UploadToDb", "Upload to database" );
+  Button* unsub   = new Button( url, "50px", "20px", "UnsubscribeAll", "Unsubscribe all" );
+  Button* save    = new Button( url, "80px", "20px", "SaveHistos", "Save histos to file" );
+  Button* anal    = new Button( url, "110px", "20px", "HistoAnalysis", "Analyze histograms" );
+  Button* summary = new Button( url, "140px", "20px", "SummaryHisto", "Create summary histo" );
+  Button* upload  = new Button( url, "170px", "20px", "UploadToDb", "Upload to database" );
   this->add( "SubscribeAll", subsc );
-  this->add( "UpdateHistos", update );
   this->add( "UnsubscribeAll", unsub );
   this->add( "SaveHistos", save );
   this->add( "HistoAnalysis", anal );
@@ -55,7 +53,7 @@ void SiStripCommissioningWebClient::defineWidgets() {
   // Collector connection parameters, contents drop-down menu, viewer
   ContentViewer* con = new ContentViewer( url, "20px", "190px");
   ConfigBox* box = new ConfigBox( url, "20px", "340px");
-  GifDisplay* dis = new GifDisplay( url, "170px", "20px", "500px", "700px", "GifDisplay" ); 
+  GifDisplay* dis = new GifDisplay( url, "200px", "20px", "500px", "700px", "GifDisplay" ); 
   add( "ConfigBox", box );
   add( "ContentViewer", con );
   add( "GifDisplay", dis );
@@ -63,7 +61,6 @@ void SiStripCommissioningWebClient::defineWidgets() {
   // drop down menus for summary histos
   //vector<sistrip::SummaryHisto> histo_list = client_->getSummaryHistoList();
   //vector<sistrip::SummaryType>  type_list = client_->getSummaryTypeList();
-  
 
 }
 
@@ -99,9 +96,7 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   sistrip::Granularity gran = sistrip::MODULE;
   
   // Handle requests
-  if ( request == "UpdateHistos" ) { 
-    if ( client_ ) { client_->updateHistos(); }
-  } else if ( request == "SubscribeAll" ) { 
+  if ( request == "SubscribeAll" ) { 
     if ( client_ ) { client_->subscribeAll( "*" ); }
   } else if ( request == "UnsubscribeAll" ) { 
     if ( client_ ) { client_->unsubscribeAll( "*" ); }
