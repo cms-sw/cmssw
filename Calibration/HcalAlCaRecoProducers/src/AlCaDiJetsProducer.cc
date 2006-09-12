@@ -5,8 +5,8 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-namespace cms
-{
+//namespace cms
+//{
 
 AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig):
        mInput(iConfig.getParameter<std::string>("src"))
@@ -91,4 +91,4 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put( outputTColl, "JetTracksCollection");
   iEvent.put( result, "DijetBackToBackCollection");
 }
-}
+//}
