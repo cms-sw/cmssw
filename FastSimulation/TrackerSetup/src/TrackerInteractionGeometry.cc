@@ -176,10 +176,10 @@ TrackerInteractionGeometry::TrackerInteractionGeometry()
 
 
   // Tracker Inner Barrel : thin detectors (300 microns)
-  const SimpleCylinderBounds  TIB1( 27.3305, 27.6305, -70.0, 70.0);
-  const SimpleCylinderBounds  TIB2( 32.379, 32.679,   -70.0, 70.0);
-  const SimpleCylinderBounds  TIB3( 43.5397, 43.8397, -70.0, 70.0);
-  const SimpleCylinderBounds  TIB4( 48.3112, 48.6112, -70.0, 70.0);
+  const SimpleCylinderBounds  TIB1( 25.3305, 25.6305, -70.0, 70.0);
+  const SimpleCylinderBounds  TIB2( 33.979, 34.279,   -70.0, 70.0);
+  const SimpleCylinderBounds  TIB3( 41.7397, 42.0397, -70.0, 70.0);
+  const SimpleCylinderBounds  TIB4( 49.7112, 50.0112, -70.0, 70.0);
 
   // Inner Barrel Cylinder & Ends
 
