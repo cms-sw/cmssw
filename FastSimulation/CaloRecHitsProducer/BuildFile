@@ -1,0 +1,33 @@
+<flags SEAL_PLUGIN_NAME="FastSimulationCaloRecHitsProducer">
+<use name=Utilities/Notification>
+<use name=Foundation/PluginManager>
+<use name=DataFormats/HcalRecHit>
+<use name=DataFormats/EcalRecHit>
+<use name=DataFormats/Common>
+<use name=SimDataFormats/CaloHit>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+
+#<use name=Geometry/CaloTopology>
+#<use name=DataFormats/CaloTowers>
+#<use name=Geometry/CaloEventSetup>
+
+<export>
+ <lib name=FastSimulationRecHitsProducer>
+ <use name=Utilities/Notification>
+ <use name=DataFormats/HcalRecHit>
+ <use name=DataFormats/EcalRecHit>
+ <use name=DataFormats/Common>
+ <use name=SimDataFormats/CaloHit>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/Framework>
+
+# <use name=Geometry/CaloTopology>
+# <use name=DataFormats/CaloTowers>
+# <use name=Geometry/CaloEventSetup>
+
+</export>
+
+<use name=seal>
+<use name=clhep>
+
