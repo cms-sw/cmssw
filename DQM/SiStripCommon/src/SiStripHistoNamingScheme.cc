@@ -161,8 +161,8 @@ sistrip::Granularity SiStripHistoNamingScheme::granularity( const string& granul
 // 
 string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& histo ) {
   // APV TIMING
-  if ( histo == sistrip::APV_TIMING_PLL_COARSE ) { return sistrip::apvTimingCoarse_; } 
-  else if ( histo == sistrip::APV_TIMING_PLL_FINE ) { return sistrip::apvTimingFine_; }
+  if ( histo == sistrip::APV_TIMING_TIME ) { return sistrip::apvTimingTime_; } 
+  else if ( histo == sistrip::APV_TIMING_MAX_TIME ) { return sistrip::apvTimingMax_; }
   else if ( histo == sistrip::APV_TIMING_DELAY ) { return sistrip::apvTimingDelay_; }
   else if ( histo == sistrip::APV_TIMING_ERROR ) { return sistrip::apvTimingError_; }
   else if ( histo == sistrip::APV_TIMING_BASE ) { return sistrip::apvTimingBase_; }

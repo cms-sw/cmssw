@@ -86,8 +86,8 @@ namespace sistrip {
   static const std::string undefinedSummaryHisto_ = "UndefinedSummaryHisto";
   
   // summary histo names (apv timing)
-  static const std::string apvTimingCoarse_ = "ApvTimingCoarse";
-  static const std::string apvTimingFine_   = "ApvTimingFine";
+  static const std::string apvTimingTime_   = "ApvTimingTime";
+  static const std::string apvTimingMax_    = "ApvTimingMax";
   static const std::string apvTimingDelay_  = "ApvTimingDelay";
   static const std::string apvTimingError_  = "ApvTimingError";
   static const std::string apvTimingBase_   = "ApvTimingBase";

@@ -62,8 +62,8 @@ namespace sistrip {
 		      FED_CABLING_FED_ID = 1301, 
 		      FED_CABLING_FED_CH = 1301, 
 		      // APV TIMING
-		      APV_TIMING_PLL_COARSE = 501, 
-		      APV_TIMING_PLL_FINE = 502, 
+		      APV_TIMING_TIME = 501, 
+		      APV_TIMING_MAX_TIME = 502, 
 		      APV_TIMING_DELAY = 503, 
 		      APV_TIMING_ERROR = 504, 
 		      APV_TIMING_BASE = 505, 
