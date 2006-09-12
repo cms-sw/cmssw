@@ -6,6 +6,9 @@
 //#include "DataFormats/Common/interface/Timestamp.h"
 
 namespace cond {
+  class DBSession;
+  class ServiceLoader;
+  class IOV;
   class IOVSource : public edm::ConfigurableInputSource {
   public:
     IOVSource(edm::ParameterSet const&, edm::InputSourceDescription const&);
@@ -13,8 +16,11 @@ namespace cond {
   private:
     virtual bool produce(edm::Event & e);
     virtual void setRunAndEventInfo();
+    void getIOV();
   private:
+    cond::ServiceLoader* m_loader;
     std::string m_connect;
+    std::string m_tag;
     std::string m_catconnect;
     std::string m_timeType;
     unsigned int m_firstValid;
