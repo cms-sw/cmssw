@@ -4,8 +4,8 @@
 /** \class DTVDriftCalibration
  *  No description available.
  *
- *  $Date: 2006/06/22 17:40:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/07 10:23:50 $
+ *  $Revision: 1.3 $
  *  \author M. Giunta
  */
 
@@ -73,8 +73,8 @@ private:
   };
 
   h2DSegm *h2DSegmRZ;
-
   h2DSegm *h2DSegmRPhi;
+  h4DSegm *h4DSegmAllCh;
 
 //   //Divide cellInfo by given granularity (to be implemented)
 //   DTVDriftCalibration::cellInfo* partition(const DTWireId& wireId); 
@@ -105,6 +105,9 @@ private:
   // Map of wires and cellInfo with coarse granularity
   std::map<DTWireId, cellInfo*> theWireIdAndCellMap;
 
+  // Switch for checking of noisy channels
+  bool checkNoisyChannels;
+
   // The module for t0 subtraction
   DTTTrigBaseSync *theSync;//FIXME: should be const
 
@@ -122,6 +125,9 @@ private:
 
   // Choose the chamber you want to calibrate
   std::string theCalibChamber;
+
+  // Tag for the DB
+  std::string theTag;
 
 };
 #endif

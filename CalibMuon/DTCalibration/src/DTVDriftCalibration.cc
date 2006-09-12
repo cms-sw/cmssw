@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/31 12:10:11 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/09/01 09:09:34 $
+ *  $Revision: 1.5 $
  *  \author M. Giunta
  */
 
@@ -16,6 +16,11 @@
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 /* C++ Headers */
 #include <map>
@@ -46,6 +51,7 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
   hChi2 = new TH1F("hChi2","Chi squared tracks",100,0,100);
   h2DSegmRPhi = new h2DSegm("SLRPhi");
   h2DSegmRZ = new h2DSegm("SLRZ");
+  h4DSegmAllCh = new h4DSegm("AllCh");
   bookHistos();
 
   debug = pset.getUntrackedParameter<bool>("debug", "false");
@@ -57,12 +63,14 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
  
   // the name of the 4D rec hits collection
   theRecHits4DLabel = pset.getUntrackedParameter<string>("recHits4DLabel");
-
   
   // the txt file which will contain the calibrated constants
   theVDriftOutputFile = pset.getUntrackedParameter<string>("vDriftFileName");
 
-  // Get the synchronizer
+  //get the switch to check the noisy channels
+  checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");
+
+ // Get the synchronizer
   theSync = DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
 					      pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
 
@@ -77,6 +85,9 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
 
   // Maximum incidence angle for Theta SL 
   theMaxZAngle =  pset.getParameter<double>("maxAngleZ");
+  
+  //tag fro the DB
+  theTag = pset.getUntrackedParameter<string>("meanTimerTag", "vDrift");
   
   // the granularity to be used for tMax
   string tMaxGranularity = pset.getUntrackedParameter<string>("tMaxGranularity","bySL");
@@ -128,7 +139,13 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
   Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel, all4DSegments); 
   
-  // Set the event setup in the Synchronizer 
+  // Get the map of noisy channels
+  ESHandle<DTStatusFlag> statusMap;
+  if(checkNoisyChannels) {
+    eventSetup.get<DTStatusFlagRcd>().get(statusMap);
+  }
+
+ // Set the event setup in the Synchronizer 
   theSync->setES(eventSetup);
 
   // Loop over segments by chamber
@@ -153,14 +170,14 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
     // Loop over the rechits of this DetUnit
     for (DTRecSegment4DCollection::const_iterator segment = range.first;
 	 segment!=range.second; ++segment){
-      if(debug) {
+    
+	if(debug) {
 	cout << "Segment local pos (in chamber RF): " << (*segment).localPosition() << endl;
 	cout << "Segment global pos: " << chamber->toGlobal((*segment).localPosition()) << endl;;
       }
 
       //get the segment chi2
       double chiSquare = ((*segment).chi2()/(*segment).degreesOfFreedom());
-      hChi2->Fill(chiSquare);
       // cut on the segment chi2 
       if(chiSquare > theMaxChi2) continue;
 
@@ -168,38 +185,92 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
       const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();  // phiSeg lives in the chamber RF
       LocalPoint phiSeg2DPosInCham = phiSeg->localPosition();  
       LocalVector phiSeg2DDirInCham = phiSeg->localDirection();
-
-      if(fabs(atan(phiSeg2DDirInCham.x()/phiSeg2DDirInCham.z())) > theMaxPhiAngle) continue; // cut on the angle
-
-      h2DSegmRPhi->Fill(phiSeg2DPosInCham.x(), phiSeg2DDirInCham.x()/phiSeg2DDirInCham.z());
       
-      vector<DTRecHit1D> hits = phiSeg->specificRecHits();
+      bool segmNoisy = false;
+      vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
       map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
-      for(vector<DTRecHit1D>::const_iterator hit = hits.begin();
-	  hit != hits.end(); ++hit) {
-	DTSuperLayerId slId =  (*hit).wireId().superlayerId();
+      for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
+	  hit != phiHits.end(); ++hit) {
+	DTWireId wireId = (*hit).wireId();
+	DTSuperLayerId slId =  wireId.superlayerId();
 	hitsBySLMap[slId].push_back(*hit); 
+
+	// Check for noisy channels to skip them
+	if(checkNoisyChannels) {
+	  bool isNoisy = false;
+	  bool isFEMasked = false;
+	  bool isTDCMasked = false;
+	  bool isTrigMask = false;
+	  bool isDead = false;
+	  bool isNohv = false;
+	  statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	  if(isNoisy) {
+	    if(debug)
+	      cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+	    segmNoisy = true;
+	  }      
+	}
       }
-     // get the Theta 2D segment and plot the angle in the chamber RF
+
+      // get the Theta 2D segment and plot the angle in the chamber RF
+      LocalVector zSeg2DDirInCham;
+      LocalPoint zSeg2DPosInCham;
       if((*segment).hasZed()) {
 	const DTSLRecSegment2D* zSeg = (*segment).zSegment();  // zSeg lives in the SL RF
 	const DTSuperLayer* sl = chamber->superLayer(zSeg->superLayerId());
-	LocalPoint zSeg2DPosInCham = chamber->toLocal(sl->toGlobal((*zSeg).localPosition())); 
-	LocalVector zSeg2DDirInCham = chamber->toLocal(sl->toGlobal((*zSeg).localDirection()));
-
-	if(fabs(atan(zSeg2DDirInCham.y()/zSeg2DDirInCham.z())) > theMaxZAngle) continue; // cut on the angle
-
-	h2DSegmRZ->Fill(zSeg2DPosInCham.y(), zSeg2DDirInCham.y()/zSeg2DDirInCham.z());
-
+	zSeg2DPosInCham = chamber->toLocal(sl->toGlobal((*zSeg).localPosition())); 
+	zSeg2DDirInCham = chamber->toLocal(sl->toGlobal((*zSeg).localDirection()));
 	hitsBySLMap[zSeg->superLayerId()] = zSeg->specificRecHits();
-      }
+
+	// Check for noisy channels to skip them
+	vector<DTRecHit1D> zHits = zSeg->specificRecHits();
+    	for(vector<DTRecHit1D>::const_iterator hit = zHits.begin();
+	    hit != zHits.end(); ++hit) {
+	  DTWireId wireId = (*hit).wireId();
+	  if(checkNoisyChannels) {
+	    bool isNoisy = false;
+	    bool isFEMasked = false;
+	    bool isTDCMasked = false;
+	    bool isTrigMask = false;
+	    bool isDead = false;
+	    bool isNohv = false;
+	    statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	    if(isNoisy) {
+	      if(debug)
+		cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+	      segmNoisy = true;
+	    }      
+	  }
+	}
+      } 
+
+      if (segmNoisy) continue;
+    
+      LocalPoint segment4DLocalPos = (*segment).localPosition();
+      LocalVector segment4DLocalDir = (*segment).localDirection();
+      if(fabs(atan(segment4DLocalDir.y()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxZAngle) continue; // cut on the angle
+      if(fabs(atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxPhiAngle) continue; // cut on the angle
+    
+      hChi2->Fill(chiSquare);
+      h2DSegmRPhi->Fill(phiSeg2DPosInCham.x(), phiSeg2DDirInCham.x()/phiSeg2DDirInCham.z());
+      if((*segment).hasZed())
+	  h2DSegmRZ->Fill(zSeg2DPosInCham.y(), zSeg2DDirInCham.y()/zSeg2DDirInCham.z());
+
+      if((*segment).hasZed()) 
+       h4DSegmAllCh->Fill(segment4DLocalPos.x(), 
+			  segment4DLocalPos.y(),
+			  atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi(),
+			  atan(segment4DLocalDir.y()/segment4DLocalDir.z())* 180./Geom::pi(),
+			  180 - segment4DLocalDir.theta()* 180./Geom::pi());
+     else h4DSegmAllCh->Fill(segment4DLocalPos.x(), 
+			     atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi());
+
       //loop over the segments 
       for(map<DTSuperLayerId,vector<DTRecHit1D> >::const_iterator slIdAndHits = hitsBySLMap.begin(); slIdAndHits != hitsBySLMap.end();  ++slIdAndHits) {
 	if (slIdAndHits->second.size() < 3) continue;
 	DTSuperLayerId slId =  slIdAndHits->first;
 
 	// Create the DTTMax, that computes the 4 TMax
-
 	DTTMax slSeg(slIdAndHits->second, *(chamber->superLayer(slIdAndHits->first)),chamber->toGlobal((*segment).localDirection()), chamber->toGlobal((*segment).localPosition()), theSync);
 
 	if(theGranularity == bySL) {
@@ -250,9 +321,13 @@ void DTVDriftCalibration::endJob() {
   gROOT->GetList()->Write();
   h2DSegmRPhi->Write();
   h2DSegmRZ->Write();
+  h4DSegmAllCh->Write();
   hChi2->Write();
   // Instantiate a DTCalibrationMap object if you want to calculate the calibration constants
   DTCalibrationMap calibValuesFile(theCalibFilePar);  
+  // Create the object to be written to DB
+  DTMtime* mTime = new DTMtime(theTag);
+  
   // write the TMax histograms of each SL to the root file
   if(theGranularity == bySL) {
     for(map<DTWireId, cellInfo*>::const_iterator  wireCell = theWireIdAndCellMap.begin();
@@ -282,7 +357,18 @@ void DTVDriftCalibration::endJob() {
 	  //  4=(1deltat0-0deltat0), 5=deltat0 from hists with max entries,
 	  newConstants.push_back(vDriftAndReso[ivd]); 
 	}
+
 	calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
+
+	mTime->setSLMtime((wireId.layerId()).superlayerId(),
+			  vDriftAndReso[0],
+			  vDriftAndReso[1],
+			  DTTimeUnits::ns);
+    	if(debug) {
+	  cout << " SL: " << (wireId.layerId()).superlayerId()
+	       << " vDrift = " << vDriftAndReso[0]
+	       << " reso = " << vDriftAndReso[1] << endl;
+	}
       }
     }
   }
@@ -320,6 +406,26 @@ void DTVDriftCalibration::endJob() {
 
   //write values to a table  
   calibValuesFile.writeConsts(theVDriftOutputFile);
+
+  if(debug) 
+   cout << "[DTVDriftCalibration]Writing vdrift object to DB!" << endl;
+
+  // Write the ttrig object to DB
+  edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
+  if( dbOutputSvc.isAvailable() ){
+    size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
+    try{
+      dbOutputSvc->newValidityForNewPayload<DTMtime>(mTime, dbOutputSvc->endOfTime(), callbackToken);
+    }catch(const cond::Exception& er){
+      cout << er.what() << endl;
+    }catch(const std::exception& er){
+      cout << "[DTVDriftCalibration] caught std::exception " << er.what() << endl;
+    }catch(...){
+      cout << "[DTVDriftCalibration] Funny error" << endl;
+    }
+  }else{
+    cout << "Service PoolDBOutputService is unavailable" << endl;
+  }
 }
 
 vector<float> DTVDriftCalibration::evaluateVDriftAndReso (const DTWireId& wireId) {
