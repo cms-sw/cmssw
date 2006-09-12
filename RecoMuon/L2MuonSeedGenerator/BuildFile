@@ -1,0 +1,28 @@
+<use name=Foundation/PluginManager>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/TrajectoryState>
+<use name=DataFormats/L1GlobalMuonTrigger>
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackingTools/TrajectoryState>
+<use name=Geometry/Surface>
+<use name=TrackPropagation/SteppingHelixPropagator>
+
+<use name=CLHEP>
+<use name=root>
+
+<flags SEAL_PLUGIN_NAME="RecoMuonL2MuonSeedGenerator">
+<export>
+   <lib name=RecoMuonL2MuonSeedGenerator>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/TrajectorySeed>
+   <use name=DataFormats/TrajectoryState>
+   <use name=DataFormats/L1GlobalMuonTrigger>
+   <use name=TrackingTools/TrajectoryParametrization>
+   <use name=TrackingTools/TrajectoryState>
+   <use name=Geometry/Surface>
+   <use name=TrackPropagation/SteppingHelixPropagator>
+</export>
