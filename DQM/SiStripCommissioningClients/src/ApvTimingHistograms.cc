@@ -10,12 +10,7 @@ using namespace std;
 /** */
 ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui ) 
   : CommissioningHistograms(mui),
-    factory_( new Factory ),
-    optimumSamplingPoint_(15.),
-    minDelay_(sistrip::invalid_),
-    maxDelay_(-1.*sistrip::invalid_),
-    deviceWithMinDelay_(sistrip::invalid_),
-    deviceWithMaxDelay_(sistrip::invalid_)
+    factory_( new Factory )
 {
   cout << "[" << __PRETTY_FUNCTION__ << "]"
        << " Created object for APV TIMING histograms" << endl;
@@ -29,13 +24,17 @@ ApvTimingHistograms::~ApvTimingHistograms() {
 
 // -----------------------------------------------------------------------------	 
 /** */	 
-void ApvTimingHistograms::histoAnalysis() {
+void ApvTimingHistograms::histoAnalysis( bool debug ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
+  data_.clear();
+  
   // Reset minimum / maximum delays
-  minDelay_ =  1. * sistrip::invalid_;
-  maxDelay_ = -1. * sistrip::invalid_;
-
+  float time_min =  1. * sistrip::invalid_;
+  float time_max = -1. * sistrip::invalid_;
+  uint32_t device_min = sistrip::invalid_;
+  uint32_t device_max = sistrip::invalid_;
+  
   // Iterate through map containing vectors of profile histograms
   CollationsMap::const_iterator iter = collations().begin();
   for ( ; iter != collations().end(); iter++ ) {
@@ -64,25 +63,26 @@ void ApvTimingHistograms::histoAnalysis() {
     ApvTimingAnalysis anal;
     anal.analysis( profs );
     data_[iter->first] = anal; 
-    //stringstream ss;
-    //anal.print( ss ); 
-    //cout << ss.str() << endl;
-
-    // Check tick height is valid
-    if ( anal.height() < 100. ) { continue; }
     
-    // Set maximum delay
-    if ( anal.delay() < sistrip::maximum_ && 
-	 anal.delay() > maxDelay_ ) { 
-      maxDelay_ = anal.delay(); 
-      deviceWithMaxDelay_ = iter->first;
+    // Check tick height is valid
+    if ( anal.height() < 100. ) { 
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Tick mark height too small: " << anal.height() << endl;
+      continue; 
+    }
+    
+    // Find maximum time
+    if ( anal.time() < sistrip::maximum_ && 
+	 anal.time() > time_max ) { 
+      time_max = anal.time(); 
+      device_max = iter->first;
     }
 
-    // Set minimum delay
-    if ( anal.delay() < sistrip::maximum_ && 
-	 anal.delay() < minDelay_ ) { 
-      minDelay_ = anal.delay(); 
-      deviceWithMinDelay_ = iter->first;
+    // Find minimum time
+    if ( anal.time() < sistrip::maximum_ && 
+	 anal.time() < time_min ) { 
+      time_min = anal.time(); 
+      device_min = iter->first;
     }
     
   }
@@ -91,47 +91,45 @@ void ApvTimingHistograms::histoAnalysis() {
        << " Analyzed histograms for " 
        << collations().size() 
        << " FED channels" << endl;
-
+  
   // Adjust maximum (and minimum) delay(s) to find optimum sampling point(s)
-  if ( maxDelay_ > 0. ) { 
-
-    SiStripControlKey::ControlPath max = SiStripControlKey::path( deviceWithMaxDelay_ );
-    SiStripControlKey::ControlPath min = SiStripControlKey::path( deviceWithMinDelay_ );
-    cout << " Device (FEC/slot/ring/CCU/module/channel) " 
-	 << max.fecCrate_ << "/" 
-	 << max.fecSlot_ << "/" 
-	 << max.fecRing_ << "/" 
-	 << max.ccuAddr_ << "/"
-	 << max.ccuChan_ << "/"
-	 << " has maximum delay (rising edge) [ns]:" << maxDelay_ << endl;
-    cout << " Device (FEC/slot/ring/CCU/module/channel): " 
-	 << min.fecCrate_ << "/" 
-	 << min.fecSlot_ << "/" 
-	 << min.fecRing_ << "/" 
-	 << min.ccuAddr_ << "/"
-	 << min.ccuChan_ << "/"
-	 << " has minimum delay (rising edge) [ns]:" << minDelay_ << endl;
-
-    float adjustment = 25 - int( rint(maxDelay_+optimumSamplingPoint_) ) % 25;
-    cout << " Adjustment required to find optimum sampling point: " << adjustment << endl;
-    maxDelay_ += adjustment;
-    minDelay_ += adjustment;
-
-    cout << " Device (FEC/slot/ring/CCU/module/channel) " 
-	 << max.fecCrate_ << "/" 
-	 << max.fecSlot_ << "/" 
-	 << max.fecRing_ << "/" 
-	 << max.ccuAddr_ << "/"
-	 << max.ccuChan_ << "/"
-	 << " has maximum delay (sampling point) [ns]:" << maxDelay_ << endl;
-    cout << " Device (FEC/slot/ring/CCU/module/channel): " 
-	 << min.fecCrate_ << "/" 
-	 << min.fecSlot_ << "/" 
-	 << min.fecRing_ << "/" 
-	 << min.ccuAddr_ << "/"
-	 << min.ccuChan_ << "/"
-	 << " has minimum delay (sampling point) [ns]:" << minDelay_ << endl;
+  if ( time_max > 0. ) { 
     
+    SiStripControlKey::ControlPath max = SiStripControlKey::path( device_max );
+    cout << " Device (FEC/slot/ring/CCU/module/channel) " 
+	 << max.fecCrate_ << "/" 
+	 << max.fecSlot_ << "/" 
+	 << max.fecRing_ << "/" 
+	 << max.ccuAddr_ << "/"
+	 << max.ccuChan_ << "/"
+	 << " has maximum delay (rising edge) [ns]:" << time_max << endl;
+    
+    SiStripControlKey::ControlPath min = SiStripControlKey::path( device_min );
+    cout << " Device (FEC/slot/ring/CCU/module/channel): " 
+	 << min.fecCrate_ << "/" 
+	 << min.fecSlot_ << "/" 
+	 << min.fecRing_ << "/" 
+	 << min.ccuAddr_ << "/"
+	 << min.ccuChan_ << "/"
+	 << " has minimum delay (rising edge) [ns]:" << time_min << endl;
+    
+  } else {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " Negative value for maximum time: "
+	 << time_max << endl;
+  }
+  
+  map<uint32_t,ApvTimingAnalysis>::iterator ianal = data_.begin();
+  for ( ; ianal != data_.end(); ianal++ ) { 
+    ianal->second.max( time_max ); 
+    static uint16_t cntr = 0;
+    if ( debug ) {
+      stringstream ss;
+      ss << " ControlKey: " << hex << setw(8) << setfill('0') << ianal->first << dec << endl;
+      ianal->second.print( ss ); 
+      cout << ss.str() << endl;
+      cntr++;
+    }
   }
   
 }
@@ -149,7 +147,7 @@ void ApvTimingHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
   // Analyze histograms
-  histoAnalysis();
+  histoAnalysis( false );
 
   // Extract data to be histogrammed
   factory_->init( histo, type, view, directory, gran );
