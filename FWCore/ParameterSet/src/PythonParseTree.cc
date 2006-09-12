@@ -24,15 +24,23 @@ std::vector<std::string> toVector(boost::python::list & l)
 {
   std::vector<std::string> result;
   bool is_ok = true;
-  while( is_ok ) {
-    boost::python::extract<std::string>  x( l.pop( 0 ));
+  try 
+  {
+    while( is_ok ) {
+      boost::python::extract<std::string>  x( l.pop( 0 ));
 
-    if( x.check()) {
+      if( x.check()) {
         result.push_back( x());
-    } else {
+      } else {
         is_ok = false;
+      }
     }
   }
+  // the pop will end in an exception
+  catch(...)
+  {
+  }
+
   return result;
 }
 
@@ -113,7 +121,7 @@ std::string PythonParseTree::dumpTree() const
 
 void PythonParseTree::exceptionTranslator(const edm::Exception & e)
 {
-  PyErr_SetString(PyExc_UserWarning, e.what());
+  PyErr_SetString(PyExc_RuntimeError, e.what());
 }
 
 
