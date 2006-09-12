@@ -6,7 +6,7 @@
 
 /**
  * \file
- * Implementation of the MaacqRawEvent class
+ * Implementation of the MatacqRawEvent class
  */
 
 #include <unistd.h>
@@ -18,7 +18,7 @@
 #include <ctime>
 #include <limits>
 #include <stdexcept>
-#include "MatacqRawEvent.h"
+#include "EventFilter/EcalTBRawToDigi/src/MatacqRawEvent.h"
 
 using namespace std;
 
@@ -67,7 +67,7 @@ void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   if(padding<0) padding+=4;
   pData16 += padding;
   uint32le_t* trailer32 = (uint32le_t*)(pData16);
-  int fragLen = trailer32[1]&0xFFFFFF;
+  fragLen = trailer32[1]&0xFFFFFF;
   
   //cout << "Event fragment length including headers: " << fragLen
   //	 << " 64-bit words\n";
@@ -86,6 +86,8 @@ void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   const int trailerLen = 4;
   pData16 += trailerLen;
   
+  parsedLen = (pData16-begin16) / 4;
+
   if((pData16-begin16)!=(4*fragLen)){
     error |= errorLength;
   }

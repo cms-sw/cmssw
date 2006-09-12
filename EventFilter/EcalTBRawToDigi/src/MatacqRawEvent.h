@@ -1,19 +1,25 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id$
+//$Id: MatacqRawEvent.h,v 1.1 2006/09/12 17:22:39 pgras Exp $
 
 #ifndef MATACQRAWEVENT_H
 #define MATACQRAWEVENT_H
 
 #include <inttypes.h>
-//#include "i2o/utils/endian.h" from XDAQ
 
-//FIXME should be defined according to machine endianness
-//can use i2odecedx methods from i2o/utils/endian.h this xdaq header is
-//available. Would also be cleaner to use inline functions.
-#define UINT32_FROM_LE //i2odecodel
-#define UINT16_FROM_LE //i2odecodes
-#define INT16_FROM_LE //i2odecodes
+#if 0 //replace 1 by 0 to remove XDAQ dependency. In this case it is assumed
+      //the machine is little endian.
+#include "i2o/utils/endian.h" //from XDAQ
+#define UINT32_FROM_LE i2odecodel
+#define UINT16_FROM_LE i2odecodes
+#define INT16_FROM_LE i2odecodes
 
+#else //assuming little endianness of the machine
+
+#define UINT32_FROM_LE
+#define UINT16_FROM_LE
+#define INT16_FROM_LE
+
+#endif
 
 /** Wrapper for matacq raw event fragments. This class provides the
  * method to interpret the data. 
@@ -157,6 +163,12 @@ public:
    */
   unsigned getDccLen() const { return read32(daqHeader, dccLen32);}
 
+  /** Gets the event length specifies in the DAQ trailer
+   * @return event length
+   */
+  unsigned getDaqLen() const { return fragLen;}
+
+
   /** Gets the contents of the DCC error field. Currently Not used for Matacq.
    * @return dcc error
    */
@@ -202,6 +214,12 @@ public:
   const std::vector<ChannelData>& getChannelData() const{
     return channelData;
   }
+
+  /** Gets the data length in number of 64-bit words computed by the data
+   * parser.
+   * @return event length
+   */
+  int getParsedLen() {  return parsedLen; }
   
   /** Gets the matacq data timestamp field contents: 
    * @return acquisition date of the data expressed in number of "elapsed"
@@ -280,6 +298,10 @@ private:
    */
   int fov;
 
+  /** event fragment length as read in the std DAQ trailer. In 64-bit words
+   */
+  int fragLen;
+
   /** MATACQ sampling frequency in GHz
    */
   int freqGHz;
@@ -295,6 +317,10 @@ private:
   /** MATACQ data format internal version
    */
   int matacqDataFormatVersion;
+
+  /** event lenght computed by the raw data parser
+   */
+  int parsedLen;
 
   /** Pointer to MATACQ samples block
    */
