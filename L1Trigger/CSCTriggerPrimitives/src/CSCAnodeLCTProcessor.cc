@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/06/14 09:31:05 $
-//   $Revision: 1.3 $
+//   $Date: 2006/06/27 14:25:50 $
+//   $Revision: 1.4 $
 //
 //   Modifications: 
 //
@@ -353,7 +353,7 @@ void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCC
       if (i_wire < 0 || i_wire >= numWireGroups) {
 	throw cms::Exception("CSCAnodeLCTProcessor")
 	  << "+++ Found wire digi with wrong wire number = " << i_wire
-	  << " +++" << std::endl;
+	  << ", max wires = " << numWireGroups << " +++" << std::endl;
       }
       if (bx_time >= bxwin_min && bx_time < bxwin_max) {
 	if (infoV > 2) LogDebug("CSCAnodeLCTProcessor")
