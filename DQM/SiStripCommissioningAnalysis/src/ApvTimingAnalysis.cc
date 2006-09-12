@@ -11,40 +11,53 @@ using namespace std;
 // 
 ApvTimingAnalysis::ApvTimingAnalysis() 
   : CommissioningAnalysis(),
-    pllCoarse_(sistrip::invalid_), 
-    pllFine_(sistrip::invalid_),
+    time_(sistrip::invalid_), 
+    max_(sistrip::invalid_), 
     delay_(sistrip::invalid_), 
     error_(sistrip::invalid_), 
     base_(sistrip::invalid_), 
     peak_(sistrip::invalid_), 
     height_(sistrip::invalid_),
-    histo_(0,"")
+    histo_(0,""),
+    optimumSamplingPoint_(15.)
 {;}
 
 // ----------------------------------------------------------------------------
 // 
 void ApvTimingAnalysis::print( stringstream& ss, uint32_t not_used ) { 
   ss << "APV TIMING Monitorables:" << "\n"
-     << " PLL coarse setting : " << pllCoarse_ << "\n" 
-     << " PLL fine setting   : " << pllFine_ << "\n"
-     << " Timing delay [ns]  : " << delay_ << "\n" 
-     << " Error on delay [ns]: " << error_ << "\n"
-     << " Baseline [adc]     : " << base_ << "\n" 
-     << " Tick peak [adc]    : " << peak_ << "\n" 
-     << " Tick height [adc]  : " << height_ << "\n";
+     << " Time of tick rising edge [ns]      : " << time_ << "\n" 
+     << " Maximum time (sampling point) [ns] : " << max_ << "\n" 
+     << " Delay required wrt max time [ns]   : " << delay_ << "\n" 
+     << " Error on delay [ns]                : " << error_ << "\n"
+     << " Baseline [adc]                     : " << base_ << "\n" 
+     << " Tick peak [adc]                    : " << peak_ << "\n" 
+     << " Tick height [adc]                  : " << height_ << "\n";
 }
 
 // ----------------------------------------------------------------------------
 // 
 void ApvTimingAnalysis::reset() {
-  pllCoarse_ = sistrip::invalid_; 
-  pllFine_ = sistrip::invalid_;
+  time_ = sistrip::invalid_; 
+  max_ = sistrip::invalid_; 
   delay_ = sistrip::invalid_; 
   error_ = sistrip::invalid_; 
   base_ = sistrip::invalid_; 
   peak_ = sistrip::invalid_; 
   height_ = sistrip::invalid_;
   histo_ = Histo(0,"");
+}
+
+// ----------------------------------------------------------------------------
+// 
+void ApvTimingAnalysis::max( const float& max ) { 
+  if ( max > sistrip::maximum_ ||
+       max < -1.*sistrip::maximum_ ) { return; }
+  max_ = max;
+  if ( time_ > sistrip::maximum_ ) { return; }
+  int32_t adjustment = 25 - static_cast<int32_t>( rint( max_ + optimumSamplingPoint_ ) ) % 25;
+  max_ += adjustment;
+  delay_ = max_ - time_; 
 }
 
 // ----------------------------------------------------------------------------
@@ -80,19 +93,18 @@ void ApvTimingAnalysis::extract( const vector<TProfile*>& histos ) {
 	   << endl;
       continue;
     }
-
+    
     // Extract timing histo
     histo_.first = *ihis;
     histo_.second = (*ihis)->GetName();
     
   }
-
+  
 }
 
 // ----------------------------------------------------------------------------
 // 
 void ApvTimingAnalysis::analyse() { 
-
   if ( !histo_.first ) {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " NULL pointer to histogram!" << endl;
@@ -230,9 +242,9 @@ void ApvTimingAnalysis::analyse() {
   //   }
   //   cout << endl; 
   
-  // Set monitorables (but not PLL coarse and fine here)
+  // Set monitorables
   if ( !edges.empty() ) {
-    delay_     = edges.begin()->first;
+    time_      = edges.begin()->first;
     error_     = 0.;
     base_      = baseline;
     peak_      = tickmark;
