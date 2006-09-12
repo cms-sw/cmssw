@@ -24,13 +24,13 @@ PedestalsHistograms::~PedestalsHistograms() {
 
 // -----------------------------------------------------------------------------	 
 /** */	 
-void PedestalsHistograms::histoAnalysis() {
+void PedestalsHistograms::histoAnalysis( bool debug ) {
   
   // Iterate through map containing vectors of profile histograms
   CollationsMap::const_iterator iter = collations().begin();
   for ( ; iter != collations().end(); iter++ ) {
     
-    // Check vector of histos is not empty (should be 2 histos)
+    // Check vector of histos is not empty (should be 4 histos)
     if ( iter->second.empty() ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " Zero collation histograms found!" << endl;
@@ -42,21 +42,22 @@ void PedestalsHistograms::histoAnalysis() {
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
       TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( *ihis ) );
-      if ( !prof ) { 
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " NULL pointer to MonitorElement!" << endl; 
-	continue; 
-      }
-      profs.push_back(prof);
+      if ( prof ) { profs.push_back(prof); }
     } 
     
     // Perform histo analysis
     PedestalsAnalysis anal;
     anal.analysis( profs );
     data_[iter->first] = anal; 
-    //stringstream ss;
-    //anal.print( ss ); 
-    //cout << ss.str() << endl;
+    if ( debug ) {
+      static uint16_t cntr = 0;
+      stringstream ss;
+      ss << " ControlKey: " << hex << setw(8) << setfill('0') << iter->first << dec << endl;
+      anal.print( ss, 0 ); 
+      anal.print( ss, 1 ); 
+      cout << ss.str() << endl;
+      cntr++;
+    }
     
   }
 
@@ -80,7 +81,7 @@ void PedestalsHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
   // Analyze histograms
-  histoAnalysis();
+  histoAnalysis( false );
 
   // Extract data to be histogrammed
   factory_->init( histo, type, view, directory, gran );

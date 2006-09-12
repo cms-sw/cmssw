@@ -34,31 +34,22 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
     
     // Extract directory paths
     string collector_dir = idir->substr( 0, idir->find(":") );
-    //cout << "Collector dir: " << collector_dir << endl;
     const SiStripHistoNamingScheme::ControlPath& path = SiStripHistoNamingScheme::controlPath( collector_dir );
-    //     cout << "ControlPath: " 
-    // 	 << path.fecCrate_ << "/" 
-    // 	 << path.fecSlot_ << "/" 
-    // 	 << path.fecRing_ << "/" 
-    // 	 << path.ccuAddr_ << "/" 
-    // 	 << path.ccuChan_ << endl;
     string client_dir = SiStripHistoNamingScheme::controlPath( path.fecCrate_,
 							       path.fecSlot_,
 							       path.fecRing_,
 							       path.ccuAddr_,
 							       path.ccuChan_ );
-    //cout << "Client dir: " << collector_dir << endl;
     
     if ( path.fecCrate_ == sistrip::invalid_ ||
 	 path.fecSlot_ == sistrip::invalid_ ||
 	 path.fecRing_ == sistrip::invalid_ ||
 	 path.ccuAddr_ == sistrip::invalid_ ||
 	 path.ccuChan_ == sistrip::invalid_ ) { continue; } 
-
+    
     // Retrieve MonitorElements from pwd directory
     mui()->setCurrentFolder( collector_dir );
     vector<string> me_list = mui()->getMEs();
-    //cout << "Found " << me_list.size() << " MEs in Collector dir " << collector_dir << endl;
     
     CollateMonitorElement* cme = 0;
     vector<string>::iterator ime = me_list.begin(); 
@@ -72,19 +63,28 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 
       static SiStripHistoNamingScheme::HistoTitle title;
       title = SiStripHistoNamingScheme::histoTitle( *ime );
+      
+      uint16_t channel;
+      if ( title.granularity_ == sistrip::APV ) {
+	channel = (title.channel_-32)/2;
+      } else if ( title.granularity_ == sistrip::LLD_CHAN ) {
+	channel = title.channel_;
+      } else {
+	channel = 0;
+	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " Unexpected histogram granularity: "
+	     << title.granularity_ << endl;
+      }
       uint32_t key = SiStripControlKey::key( sistrip::invalid_, //@@ WARNING: only good for one partition only!!!
 					     path.fecSlot_,
 					     path.fecRing_,
 					     path.ccuAddr_,
 					     path.ccuChan_,
-					     title.channel_ );
-      if ( title.granularity_ != sistrip::LLD_CHAN ) {
-	cerr << "[" << __PRETTY_FUNCTION__ << "] Unexpected histogram granularity: " << title.granularity_ << endl;
-      }
+					     channel );
       
       // Fill map linking FED key to FEC key
       mapping_[title.keyValue_] = key;
-
+      
       // Create collation MEs
       CollationsMap::iterator iter = collations_.find( key );
       if ( iter == collations_.end() ) {
@@ -93,6 +93,7 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 	else { cme = 0; cerr << "[" << __PRETTY_FUNCTION__ << "] NULL pointers to histos!" << endl; }
 	if ( cme ) {
 	  mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
+	  if ( collations_[key].capacity() != 10 ) { collations_[key].reserve(10); }
 	  collations_[key].push_back( client_dir+(*ime) ); // store "path + name"
 	}
       } else {
@@ -102,6 +103,7 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 	  else { cme = 0; cerr << "[" << __PRETTY_FUNCTION__ << "] NULL pointers to histos!" << endl; }
 	  if ( cme ) {
 	    mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
+	    if ( collations_[key].capacity() != 10 ) { collations_[key].reserve(10); }
 	    collations_[key].push_back( client_dir+(*ime) ); // store "path + name"
 	  }
 	}
@@ -113,7 +115,7 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::histoAnalysis() {
+void CommissioningHistograms::histoAnalysis( bool debug ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" 
        << " (Derived) implementation to come..." << endl;
 }

@@ -24,7 +24,7 @@ OptoScanHistograms::~OptoScanHistograms() {
 
 // -----------------------------------------------------------------------------	 
 /** */	 
-void OptoScanHistograms::histoAnalysis() {
+void OptoScanHistograms::histoAnalysis( bool debug ) {
   
   // Iterate through map containing vectors of profile histograms
   CollationsMap::const_iterator iter = collations().begin();
@@ -54,17 +54,21 @@ void OptoScanHistograms::histoAnalysis() {
     OptoScanAnalysis anal;
     anal.analysis( profs );
     data_[iter->first] = anal; 
-    //stringstream ss;
-    //anal.print( ss ); 
-    //cout << ss.str() << endl;
-    
-  }
+    if ( debug ) {
+      static uint16_t cntr = 0;
+      stringstream ss;
+      anal.print( ss ); 
+      cout << ss.str() << endl;
+      cntr++;
+    }
 
+  }
+  
   cout << "[" << __PRETTY_FUNCTION__ << "]"
        << " Analyzed histograms for " 
        << collations().size() 
        << " FED channels" << endl;
-
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -80,7 +84,7 @@ void OptoScanHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo,
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
   // Analyze histograms
-  histoAnalysis();
+  histoAnalysis( false );
 
   // Extract data to be histogrammed
   factory_->init( histo, type, view, directory, gran );

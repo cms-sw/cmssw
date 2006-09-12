@@ -24,7 +24,7 @@ FedCablingHistograms::~FedCablingHistograms() {
 
 // -----------------------------------------------------------------------------	 
 /** */	 
-void FedCablingHistograms::histoAnalysis() {
+void FedCablingHistograms::histoAnalysis( bool debug ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
   // Iterate through map containing vectors of profile histograms
@@ -55,10 +55,14 @@ void FedCablingHistograms::histoAnalysis() {
     FedCablingAnalysis anal;
     anal.analysis( profs );
     data_[iter->first] = anal; 
-    //stringstream ss;
-    //anal.print( ss ); 
-    //cout << ss.str() << endl;
-
+    if ( debug ) {
+      static uint16_t cntr = 0;
+      stringstream ss;
+      anal.print( ss ); 
+      cout << ss.str() << endl;
+      cntr++;
+    }
+    
   }
   
   cout << "[" << __PRETTY_FUNCTION__ << "]"
@@ -81,7 +85,7 @@ void FedCablingHistograms::createSummaryHisto( const sistrip::SummaryHisto& hist
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
   // Analyze histograms
-  histoAnalysis();
+  histoAnalysis( false );
 
   // Extract data to be histogrammed
   factory_->init( histo, type, view, directory, gran );

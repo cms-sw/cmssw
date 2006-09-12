@@ -29,12 +29,12 @@ FedTimingHistograms::~FedTimingHistograms() {
 
 // -----------------------------------------------------------------------------	 
 /** */	 
-void FedTimingHistograms::histoAnalysis() {
+void FedTimingHistograms::histoAnalysis( bool debug ) {
   
   // Reset minimum / maximum delays
   minDelay_ =  1. * sistrip::invalid_;
   maxDelay_ = -1. * sistrip::invalid_;
-
+  
   // Iterate through map containing vectors of profile histograms
   CollationsMap::const_iterator iter = collations().begin();
   for ( ; iter != collations().end(); iter++ ) {
@@ -63,9 +63,13 @@ void FedTimingHistograms::histoAnalysis() {
     FedTimingAnalysis anal;
     anal.analysis( profs );
     data_[iter->first] = anal; 
-    //stringstream ss;
-    //anal.print( ss ); 
-    //cout << ss.str() << endl;
+    if ( debug ) {
+      static uint16_t cntr = 0;
+      stringstream ss;
+      anal.print( ss ); 
+      cout << ss.str() << endl;
+      cntr++;
+    }
     
     // Check tick height is valid
     if ( anal.height() < 100. ) { continue; }
@@ -149,7 +153,7 @@ void FedTimingHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
   
   // Analyze histograms
-  histoAnalysis();
+  histoAnalysis( false );
 
   // Extract data to be histogrammed
   factory_->init( histo, type, view, directory, gran );

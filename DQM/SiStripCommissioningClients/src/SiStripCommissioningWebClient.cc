@@ -37,10 +37,16 @@ void SiStripCommissioningWebClient::defineWidgets() {
   page_p = new WebPage( url );
   
   // Commissioning-specific buttons 
-  Button* save    = new Button( url, "20px", "20px", "SaveHistos", "Save histos to file" );
-  Button* anal    = new Button( url, "60px", "20px", "HistoAnalysis", "Analyze histograms" );
-  Button* summary = new Button( url, "100px", "20px", "SummaryHisto", "Create summary histo" );
-  Button* upload  = new Button( url, "140px", "20px", "UploadToDb", "Upload to database" );
+  Button* subsc   = new Button( url, "20px", "20px", "SubscribeAll", "Subscribe all" );
+  Button* update  = new Button( url, "50px", "20px", "UpdateHistos", "Update histograms" );
+  Button* unsub   = new Button( url, "80px", "20px", "UnsubscribeAll", "Unsubscribe all" );
+  Button* save    = new Button( url, "110px", "20px", "SaveHistos", "Save histos to file" );
+  Button* anal    = new Button( url, "140px", "20px", "HistoAnalysis", "Analyze histograms" );
+  Button* summary = new Button( url, "170px", "20px", "SummaryHisto", "Create summary histo" );
+  Button* upload  = new Button( url, "200px", "20px", "UploadToDb", "Upload to database" );
+  this->add( "SubscribeAll", subsc );
+  this->add( "UpdateHistos", update );
+  this->add( "UnsubscribeAll", unsub );
   this->add( "SaveHistos", save );
   this->add( "HistoAnalysis", anal );
   this->add( "SummaryHisto", summary );
@@ -93,10 +99,16 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   sistrip::Granularity gran = sistrip::MODULE;
   
   // Handle requests
-  if ( request == "SaveHistos" ) { 
+  if ( request == "UpdateHistos" ) { 
+    if ( client_ ) { client_->updateHistos(); }
+  } else if ( request == "SubscribeAll" ) { 
+    if ( client_ ) { client_->subscribeAll( "*" ); }
+  } else if ( request == "UnsubscribeAll" ) { 
+    if ( client_ ) { client_->unsubscribeAll( "*" ); }
+  } else if ( request == "SaveHistos" ) { 
     if ( client_ ) { client_->saveHistos( filename ); }
   } else if ( request == "HistoAnalysis" ) { 
-    if ( client_ ) { client_->histoAnalysis(); }
+    if ( client_ ) { client_->histoAnalysis( true ); }
   } else if ( request == "SummaryHisto" ) { 
     if ( client_ ) { client_->createSummaryHisto( histo, type, dir, gran ); }
   } else if ( request == "UploadToDb" ) { 

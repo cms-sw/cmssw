@@ -90,6 +90,7 @@ void ApvLatencyAnalysis::deprecated() {
   if ( !histos[0] ) {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " NULL pointer to latency histo!" << endl;
+    return;
   }
   
   monitorables.clear();

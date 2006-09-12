@@ -187,7 +187,7 @@ void OptoScanAnalysis::analyse() {
 	   << igain << endl;
       continue;
     }
-
+    
     // Check histogram binning
     uint16_t nbins = static_cast<uint16_t>( peak_histo->GetNbinsX() );
     if ( static_cast<uint16_t>( base_histo->GetNbinsX() ) != nbins ) {
