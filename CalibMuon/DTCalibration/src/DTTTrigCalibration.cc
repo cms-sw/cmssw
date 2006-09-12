@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/04 09:31:24 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/08/22 14:41:10 $
+ *  $Revision: 1.16 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -49,7 +49,10 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   // Get the label to retrieve digis from the event
   digiLabel = pset.getUntrackedParameter<string>("digiLabel");
 
-  // the TDC time-window (ns)
+  // Switch on/off the DB writing
+  findTMeanAndSigma = pset.getUntrackedParameter<bool>("findTMeanAndSigma", "false");
+
+  // The TDC time-window (ns)
   maxTDCCounts = 5000 * pset.getUntrackedParameter<int>("tdcRescale", 1);
 
   // The root file which will contain the histos
@@ -78,17 +81,17 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
 
 
 
-// DEstructor
+// Destructor
 DTTTrigCalibration::~DTTTrigCalibration(){
   if(debug) 
     cout << "[DTTTrigCalibration]Destructor called!" << endl;
 
-//   // Delete all histos
-//   for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
-//       slHisto != theHistoMap.end();
-//       slHisto++) {
-//     delete (*slHisto).second;
-//   }
+  //   // Delete all histos
+  //   for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
+  //       slHisto != theHistoMap.end();
+  //       slHisto++) {
+  //     delete (*slHisto).second;
+  //   }
 
   theFile->Close();
   delete theFitter;
@@ -98,6 +101,10 @@ DTTTrigCalibration::~DTTTrigCalibration(){
 
 /// Perform the real analysis
 void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {
+
+  if(debug) 
+    cout << "[DTTTrigCalibration] #Event: " << event.id().event() << endl;
+  
   // Get the digis from the event
   Handle<DTDigiCollection> digis; 
   event.getByLabel(digiLabel, digis);
@@ -128,6 +135,7 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
       // Book the histogram
       theFile->cd();
       hTBox = new TH1F(getTBoxName(slId).c_str(), "Time box (ns)", int(maxTDCCounts/2.5), 0, maxTDCCounts);
+    
       if(debug)
 	cout << "  New Time Box: " << hTBox->GetName() << endl;
       theHistoMap[slId] = hTBox;
@@ -141,8 +149,6 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
 	cout << "  New Time Box: " << hO->GetName() << endl;
       theOccupancyMap[layerId] = hO;
     }
-
-
 
     // Get the iterators over the digis associated with this LayerId
     const DTDigiCollection::Range& digiRange = (*dtLayerIt).second;
@@ -204,53 +210,55 @@ void DTTTrigCalibration::endJob() {
     (*slHisto).second->Write();
   }
 
-  
-  // Create the object to be written to DB
-  DTTtrig* tTrig = new DTTtrig(theTag);
+  if(findTMeanAndSigma)
+    {
+      // Create the object to be written to DB
+      DTTtrig* tTrig = new DTTtrig(theTag);
 
-  // Loop over the map, fit the histos and write the resulting values to the DB
-  for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
-      slHisto != theHistoMap.end();
-      slHisto++) {
-    pair<double, double> meanAndSigma = theFitter->fitTimeBox((*slHisto).second);
-    tTrig->setSLTtrig((*slHisto).first,
-		      meanAndSigma.first,
-		      meanAndSigma.second,
-		      DTTimeUnits::ns);
+      // Loop over the map, fit the histos and write the resulting values to the DB
+      for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
+	  slHisto != theHistoMap.end();
+	  slHisto++) {
+	pair<double, double> meanAndSigma = theFitter->fitTimeBox((*slHisto).second);
+	tTrig->setSLTtrig((*slHisto).first,
+			  meanAndSigma.first,
+			  meanAndSigma.second,
+			  DTTimeUnits::ns);
     
-    if(debug) {
-      cout << " SL: " << (*slHisto).first
-	   << " mean = " << meanAndSigma.first
-	   << " sigma = " << meanAndSigma.second << endl;
-    }
-  }
+	if(debug) {
+	  cout << " SL: " << (*slHisto).first
+	       << " mean = " << meanAndSigma.first
+	       << " sigma = " << meanAndSigma.second << endl;
+	}
+      }
 
-  // Print the ttrig map
-  dumpTTrigMap(tTrig);
+      // Print the ttrig map
+      dumpTTrigMap(tTrig);
   
-  // Plot the tTrig
-  plotTTrig(tTrig);
+      // Plot the tTrig
+      plotTTrig(tTrig);
 
-  if(debug) 
-   cout << "[DTTTrigCalibration]Writing ttrig object to DB!" << endl;
+      if(debug) 
+	cout << "[DTTTrigCalibration]Writing ttrig object to DB!" << endl;
 
-  // Write the ttrig object to DB
-  edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
-  if( dbOutputSvc.isAvailable() ){
-    size_t callbackToken = dbOutputSvc->callbackToken("DTTtrig");
-    try{
-      dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime(), callbackToken);
-    }catch(const cond::Exception& er){
-      cout << er.what() << endl;
-    }catch(const std::exception& er){
-      cout << "[DTTTrigCalibration] caught std::exception " << er.what() << endl;
-    }catch(...){
-      cout << "[DTTTrigCalibration] Funny error" << endl;
-    }
-  }else{
-    cout << "Service PoolDBOutputService is unavailable" << endl;
-  }
-  
+      // Write the ttrig object to DB
+      edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
+      if( dbOutputSvc.isAvailable() ){
+	//size_t callbackToken = dbOutputSvc->callbackToken("DTTtrig");
+	size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
+	try{
+	  dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime(), callbackToken);
+	}catch(const cond::Exception& er){
+	  cout << er.what() << endl;
+	}catch(const std::exception& er){
+	  cout << "[DTTTrigCalibration] caught std::exception " << er.what() << endl;
+	}catch(...){
+	  cout << "[DTTTrigCalibration] Funny error" << endl;
+	}
+      }else{
+	cout << "Service PoolDBOutputService is unavailable" << endl;
+      }
+    }  
 
 
 }
