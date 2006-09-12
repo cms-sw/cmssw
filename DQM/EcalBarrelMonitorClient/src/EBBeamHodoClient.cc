@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/08/07 17:35:16 $
- * $Revision: 1.24 $
+ * $Date: 2006/08/20 10:48:36 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -234,20 +234,6 @@ void EBBeamHodoClient::cleanup(void) {
 }
 
 void EBBeamHodoClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
-
-  EcalLogicID ecid;
-  MonOccupancyDat o;
-  map<EcalLogicID, MonOccupancyDat> dataset;
-
-  if ( econn ) {
-    try {
-      cout << "Inserting MonOccupancyDat ..." << flush;
-      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
-      cout << "done." << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
 
 }
 
