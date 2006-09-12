@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.10 2006/08/25 14:36:12 llista Exp $
+ * \version $Id: Candidate.h,v 1.13 2006/08/28 08:31:29 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -27,12 +27,12 @@ namespace reco {
     struct iterator;
 
     /// default constructor
-    Candidate() : Particle() { }
+    Candidate() : Particle(), hasMasterClone_( false ) { }
     /// constructor from a Particle
-    explicit Candidate( const Particle & p ) : Particle( p ) { }
+    explicit Candidate( const Particle & p ) : Particle( p ), hasMasterClone_( false ) { }
     /// constructor from values
     Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      Particle( q, p4, vtx ) { }
+      Particle( q, p4, vtx ), hasMasterClone_( false ) { }
     /// destructor
     virtual ~Candidate();
     /// returns a clone of the Candidate object
