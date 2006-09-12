@@ -8,9 +8,11 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include <string>
 #include <vector>
+#include <BSem.h>
 
 class SiStripCommissioningWebClient;
 class CommissioningHistograms;
+class HistogramDisplayHandler;
 
 class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObserver {
   
@@ -33,20 +35,25 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
 
   /** Answers all HTTP requests of the form ".../Request?RequestID=..." */
   void handleWebRequest( xgi::Input*, xgi::Output* );
-    
+  
   /** Outputs the page with the widgets (declared in DQMBaseClient) */
   void general( xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
 
+  /** */
+  void CBHistogramViewer( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception );
+  
   // ---------- "Actions" ----------
-
+  
   /** */
   void subscribeAll( std::string match_pattern = "" );
+  /** */
+  void updateHistos();
   /** */
   void unsubscribeAll( std::string match_pattern = "" );
   /** */
   void saveHistos( std::string filename );
   /** */
-  void histoAnalysis();
+  void histoAnalysis( bool debug );
   /** */
   void createSummaryHisto( sistrip::SummaryHisto, 
 			   sistrip::SummaryType, 
@@ -54,11 +61,13 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
 			   sistrip::Granularity );
   /** */
   virtual void uploadToConfigDb(); 
-  
+
  protected:
  
   /** */
   void subscribe( std::string match_pattern );
+  /** */
+  void update();
   /** */
   void unsubscribe( std::string match_pattern );
   /** */
@@ -79,6 +88,12 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
 
   mutable sistrip::Task task_;
   
+  mutable bool first_;
+
+  BSem* fCallBack;
+
+  HistogramDisplayHandler* hdis_;
+
 };
 
 #endif // DQM_SiStripCommissioningClients_SiStripCommissioningClient_H

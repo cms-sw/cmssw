@@ -7,12 +7,14 @@
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/HistogramDisplayHandler.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include <SealBase/Callback.h>
-// #include "FWCore/Utilities/interface/Presence.h"
-// #include "FWCore/Utilities/interface/PresenceFactory.h"
-// #include "FWCore/Utilities/interface/ProblemTracker.h"
-// #include <boost/shared_ptr.hpp>
+#include "cgicc/CgiDefs.h"
+#include "cgicc/Cgicc.h"
+#include "cgicc/CgiUtils.h"
+#include "cgicc/HTTPResponseHeader.h"
+#include "cgicc/HTMLClasses.h"
 
 // This line is necessary
 XDAQ_INSTANTIATOR_IMPL(SiStripCommissioningClient);
@@ -25,14 +27,14 @@ SiStripCommissioningClient::SiStripCommissioningClient( xdaq::ApplicationStub* s
   : DQMBaseClient( stub, "SiStripCommissioningClient", "localhost", 9090 ),
     web_(0),
     histos_(0),
-    task_(sistrip::UNKNOWN_TASK)
+    task_(sistrip::UNKNOWN_TASK),
+    first_(true)
 {
   xgi::bind( this, &SiStripCommissioningClient::handleWebRequest, "Request" );
-  
-  //   // Service allows use of MessageLogger
-  //   edm::AssertHandler ah;
-  //   boost::shared_ptr<edm::Presence> message = boost::shared_ptr<edm::Presence>( edm::PresenceFactory::get()->makePresence("MessageServicePresence").release() );
-  
+  xgi::bind( this, &SiStripCommissioningClient::CBHistogramViewer, "HistogramViewer" );
+  fCallBack=new BSem(BSem::EMPTY);
+  fCallBack->give();
+  hdis_=NULL;
 }
 
 // -----------------------------------------------------------------------------
@@ -50,6 +52,7 @@ void SiStripCommissioningClient::configure() {
 					    getContextURL(),
 					    getApplicationURL(), 
 					    &mui_ );
+  hdis_ =new HistogramDisplayHandler(mui_,fCallBack);
 }
 
 // -----------------------------------------------------------------------------
@@ -57,6 +60,8 @@ void SiStripCommissioningClient::configure() {
 void SiStripCommissioningClient::newRun() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   ( this->upd_ )->registerObserver( this ); 
+  subscribeAll(); 
+  first_ = true;
 }
 
 // -----------------------------------------------------------------------------
@@ -65,24 +70,37 @@ void SiStripCommissioningClient::endRun() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   unsubscribeAll(); 
   if ( histos_ ) { delete histos_; histos_ = 0; }
+  if (hdis_!=NULL) {delete hdis_;hdis_=NULL;}
 }
 
 // -----------------------------------------------------------------------------
 /** Called by the "Updater" following each update. */
 void SiStripCommissioningClient::onUpdate() const {
+  
+  if ( !mui_ ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " NULL pointer to MonitorUserInterface!" << endl;
+    return;
+  }
+
+  // Print number of updates
   cout << "[" << __PRETTY_FUNCTION__ << "]"
        << " Number of updates: " << mui_->getNumUpdates() << endl;
   
   // Retrieve a list of all subscribed histograms
-  if ( mui_ ) { mui_->subscribe( "*" ); }
+  //if ( first_ ) { mui_->subscribe( "*" ); first_ = false; }
   vector<string> contents;
   mui_->getContents( contents ); 
   
-  if ( contents.empty() ) { return; }
-
+  if ( contents.empty() ) { 
+    cout << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " Request for 'Contents': vector is empty!" << endl;
+    return; 
+  }
+  
   // Extract commissioning task from added contents
   if ( task_ == sistrip::UNKNOWN_TASK ) { task_ = extractTask( contents ); }
-
+  
   // Create histograms for given commissioning task
   createHistograms( task_ );
   
@@ -166,7 +184,35 @@ void SiStripCommissioningClient::handleWebRequest( xgi::Input* in, xgi::Output* 
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::histoAnalysis() {
+void SiStripCommissioningClient::CBHistogramViewer( xgi::Input* in, xgi::Output* out )  throw (xgi::exception::Exception) {
+
+  if ( !hdis_ ) { return; }
+  fCallBack ->take();
+
+  seal::Callback action;
+  action = seal::CreateCallback( hdis_, 
+				 &HistogramDisplayHandler::HistogramViewer,
+				 in, out ); 
+
+  if ( mui_ ) { 
+    mui_->addCallback(action); 
+    cout << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Scheduling this action..." << endl;
+    
+    fCallBack->take();
+    fCallBack->give();
+  } else { 
+    *out << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to MonitorUserInterface!" << endl; 
+    fCallBack->give();
+    return;
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::histoAnalysis( bool debug ) {
 
   if ( !histos_ ) { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
@@ -176,8 +222,8 @@ void SiStripCommissioningClient::histoAnalysis() {
   
   seal::Callback action; 
   action = seal::CreateCallback( histos_, 
-				 &CommissioningHistograms::histoAnalysis 
-				 ); // no arguments
+				 &CommissioningHistograms::histoAnalysis,
+				 debug ); // no arguments
   
   if ( mui_ ) { 
     mui_->addCallback(action); 
@@ -202,9 +248,25 @@ void SiStripCommissioningClient::subscribeAll( string pattern ) {
 				 &SiStripCommissioningClient::subscribe,
 				 pattern ); //@@ argument list
 
-//   action = seal::CreateCallback( histos_, 
-// 				 &CommissioningHistograms::subscribe,
-// 				 mui_, pattern ); //@@ argument list
+  if ( mui_ ) { 
+    mui_->addCallback(action); 
+    cout << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Scheduling this action..." << endl;
+  } else { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to MonitorUserInterface!" << endl; 
+    return;
+  }
+  
+}
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::updateHistos() {
+
+  seal::Callback action;
+  action = seal::CreateCallback( this, 
+				 &SiStripCommissioningClient::update
+				 ); //@@ argument list
   
   if ( mui_ ) { 
     mui_->addCallback(action); 
@@ -221,9 +283,9 @@ void SiStripCommissioningClient::subscribeAll( string pattern ) {
 // -----------------------------------------------------------------------------
 /** */
 void SiStripCommissioningClient::unsubscribeAll( string pattern ) {
-
+  
   if ( pattern == "" ) { pattern = "*/" + sistrip::root_ + "/*"; }
-
+  
   seal::Callback action;
   action = seal::CreateCallback( this, 
 				 &SiStripCommissioningClient::unsubscribe,
@@ -298,7 +360,7 @@ void SiStripCommissioningClient::createSummaryHisto( sistrip::SummaryHisto histo
 /** */
 void SiStripCommissioningClient::uploadToConfigDb() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" 
-       << " Dervied implementation to come..." << endl; 
+       << " Derived implementation to come..." << endl; 
 }
 
 // -----------------------------------------------------------------------------
@@ -306,6 +368,12 @@ void SiStripCommissioningClient::uploadToConfigDb() {
 void SiStripCommissioningClient::subscribe( string pattern ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   if ( mui_ ) { mui_->subscribe(pattern); }
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::update() {
+  onUpdate();
 }
 
 // -----------------------------------------------------------------------------
