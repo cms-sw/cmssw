@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/12 14:47:44 $
- * $Revision: 1.3 $
+ * $Date: 2006/09/12 14:58:49 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -60,11 +60,11 @@ void EBTriggerTowerTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel/EBTriggerTowerTask");
 
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBTTT Et map SM%02d G12", i+1);
+      sprintf(histo, "EBTTT Et map SM%02d", i+1);
       meEtMap_[i] = dbe->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 4096, 0., 4096., "s");
-      sprintf(histo, "EBTTT FineGrainVeto SM%02d G12", i+1);
+      sprintf(histo, "EBTTT FineGrainVeto SM%02d", i+1);
       meVeto_[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      sprintf(histo, "EBTTT Flags SM%02d G12", i+1);
+      sprintf(histo, "EBTTT Flags SM%02d", i+1);
       meFlags_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 7, 0., 7.);
     }
 
