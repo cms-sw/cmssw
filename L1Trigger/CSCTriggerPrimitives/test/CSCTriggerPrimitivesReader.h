@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2006/06/20 14:55:46 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/27 15:05:07 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -18,12 +18,19 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/InputTag.h>
+
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 #include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
+#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
+#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
 
+#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
+
+class CSCGeometry;
 class TFile;
 class TH1F;
 
@@ -47,8 +54,13 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   bool debug;               // on/off switch
   //std::string rootFileName; // root file name
 
-  // Module label
-  std::string lctProducer_;
+  // Cache geometry for current event
+  const CSCGeometry* geom_;
+
+  // Module labels
+  std::string   lctProducer_;
+  edm::InputTag wireDigiProducer_;
+  edm::InputTag compDigiProducer_;
 
   // The file which will store the histos
   // TFile *theFile;
@@ -72,6 +84,8 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static bool bookedLCTTMBHistos;
   static bool bookedLCTMPCHistos;
 
+  static bool bookedResolHistos;
+
   void setRootStyle();
 
   void bookALCTHistos();
@@ -86,6 +100,9 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   void drawCLCTHistos();
   void drawLCTTMBHistos();
   void drawLCTMPCHistos();
+
+  void bookResolHistos();
+  void drawResolHistos();
   void drawHistosForTalks();
 
   int getCSCType(const CSCDetId& id);
@@ -93,6 +110,16 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   void compare(const edm::Event& ev);
   void compareALCTs(const CSCALCTDigiCollection* alcts_data,
 		    const CSCALCTDigiCollection* alcts_emul);
+
+  void MCStudies(const edm::Event& ev,
+		 const CSCALCTDigiCollection* alcts,
+		 const CSCCLCTDigiCollection* clcts);
+
+  void calcResolution(const CSCALCTDigiCollection* alcts,
+		      const CSCCLCTDigiCollection* clcts,
+		      const CSCWireDigiCollection* wiredc,
+		      const CSCComparatorDigiCollection* compdc,
+		      const edm::PSimHitContainer* allSimHits);
 
   // Histograms
   // ALCTs
@@ -119,6 +146,9 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hLctMPCValid, *hLctMPCQuality, *hLctMPCKeyGroup;
   TH1F *hLctMPCKeyStrip, *hLctMPCStripType;
   TH1F *hLctMPCPattern, *hLctMPCBend, *hLctMPCBXN;
+  // Resolution histograms
+  TH1F *hResolDeltaWG, *hResolDeltaEta;
+  TH1F *hResolDeltaHS, *hResolDeltaDS, *hResolDeltaPhiHS, *hResolDeltaPhiDS;
 };
 
 #endif
