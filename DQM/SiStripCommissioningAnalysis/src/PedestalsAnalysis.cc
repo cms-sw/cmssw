@@ -94,6 +94,7 @@ void PedestalsAnalysis::extract( const vector<TProfile*>& histos ) {
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
+    //cout << "[" << __PRETTY_FUNCTION__ << "] ptr: " << *ihis << endl;
     if ( !(*ihis) ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " NULL pointer to histogram!" << endl;
@@ -115,9 +116,11 @@ void PedestalsAnalysis::extract( const vector<TProfile*>& histos ) {
     if ( title.extraInfo_.find(sistrip::pedsAndRawNoise_) != string::npos ) {
       hPeds_.first = *ihis;
       hPeds_.second = (*ihis)->GetName();
+      //cout << "pedsAndRawNoise name: " << hPeds_.second << endl;
     } else if ( title.extraInfo_.find(sistrip::residualsAndNoise_) != string::npos ) {
       hNoise_.first = *ihis;
       hNoise_.second = (*ihis)->GetName();
+      //cout << "residualsAndNoise name: " << hPeds_.second << endl;
     } else { 
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " Unexpected 'extra info': " << title.extraInfo_ << endl;
@@ -130,34 +133,33 @@ void PedestalsAnalysis::extract( const vector<TProfile*>& histos ) {
 // -----------------------------------------------------------------------------
 // 
 void PedestalsAnalysis::analyse() {
-
-  // Checks on whether histos exist
-  if ( !hPeds_.first ) {
+  
+  // Checks on whether pedestals histo exists and if binning is correct
+  if ( hPeds_.first ) {
+    if ( hPeds_.first->GetNbinsX() != 256 ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unexpected number of bins for 'peds and raw noise' histogram: "
+	   << hPeds_.first->GetNbinsX() << endl;
+    }
+  } else { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " NULL pointer to 'peds and raw noise' histogram!"
 	 << endl;
   }
-  if ( !hNoise_.first ) {
+  
+  // Checks on whether noise histo exists and if binning is correct
+  if ( hNoise_.first ) {
+    if ( hNoise_.first->GetNbinsX() != 256 ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Unexpected number of bins for 'residuals and noise' histogram: "
+	   << hNoise_.first->GetNbinsX() << endl;
+    }
+  } else {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " NULL pointer to 'residuals and noise' histogram!"
 	 << endl;
   }
   
-  //hPeds_.first->SetErrorOption("s");
-  //hNoise_.first->SetErrorOption("s");
-
-  // Checks on size of histos
-  if ( hPeds_.first->GetNbinsX() != 256 ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Unexpected number of bins for 'peds and raw noise' histogram: "
-	 << hPeds_.first->GetNbinsX() << endl;
-  }
-  if ( hNoise_.first->GetNbinsX() != 256 ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Unexpected number of bins for 'residuals and noise' histogram: "
-	 << hNoise_.first->GetNbinsX() << endl;
-  }
-
   // Iterate through APVs 
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
     // Used to calc mean and rms for peds and noise
