@@ -17,7 +17,7 @@ class FedTimingHistograms : public CommissioningHistograms {
   typedef SummaryHistogramFactory<FedTimingAnalysis> Factory;
   
   /** */
-  void histoAnalysis();
+  void histoAnalysis( bool debug );
 
   /** */
   void createSummaryHisto( const sistrip::SummaryHisto&,

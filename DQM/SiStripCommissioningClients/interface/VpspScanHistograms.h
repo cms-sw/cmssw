@@ -17,7 +17,7 @@ class VpspScanHistograms : public CommissioningHistograms {
   typedef SummaryHistogramFactory<VpspScanAnalysis> Factory;
   
   /** */
-  void histoAnalysis();
+  void histoAnalysis( bool debug );
 
   /** */
   void createSummaryHisto( const sistrip::SummaryHisto&,

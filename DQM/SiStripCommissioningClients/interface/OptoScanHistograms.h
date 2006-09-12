@@ -17,7 +17,7 @@ class OptoScanHistograms : public CommissioningHistograms {
   typedef SummaryHistogramFactory<OptoScanAnalysis> Factory;
   
   /** */
-  void histoAnalysis();
+  void histoAnalysis( bool debug );
 
   /** */
   void createSummaryHisto( const sistrip::SummaryHisto&,

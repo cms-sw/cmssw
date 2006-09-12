@@ -17,7 +17,7 @@ class PedestalsHistograms : public CommissioningHistograms {
   typedef SummaryHistogramFactory<PedestalsAnalysis> Factory;
   
   /** */
-  void histoAnalysis();
+  void histoAnalysis( bool debug );
 
   /** */
   void createSummaryHisto( const sistrip::SummaryHisto&,

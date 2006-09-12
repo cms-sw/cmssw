@@ -36,7 +36,7 @@ class CommissioningHistograms {
   /** */
   void createCollations( const std::vector<std::string>& contents );
   /** */
-  virtual void histoAnalysis();
+  virtual void histoAnalysis( bool debug );
   /** */
   virtual void createSummaryHisto( const sistrip::SummaryHisto&, 
 				   const sistrip::SummaryType&, 
@@ -75,7 +75,7 @@ class CommissioningHistograms {
 
   /** Record of collation histos that have been created. */
   CollationsMap collations_;
-
+  
   /** Mapping between FED and FEC keys. */
   FedToFecMap mapping_;
   

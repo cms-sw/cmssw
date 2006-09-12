@@ -17,7 +17,7 @@ class FedCablingHistograms : public CommissioningHistograms {
   typedef SummaryHistogramFactory<FedCablingAnalysis> Factory;
 
   /** */
-  void histoAnalysis();
+  void histoAnalysis( bool debug );
 
   /** */
   void createSummaryHisto( const sistrip::SummaryHisto&,

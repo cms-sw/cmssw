@@ -13,30 +13,24 @@ class ApvTimingHistograms : public CommissioningHistograms {
   
   ApvTimingHistograms( MonitorUserInterface* );
   virtual ~ApvTimingHistograms();
-
+  
   typedef SummaryHistogramFactory<ApvTimingAnalysis> Factory;
   
   /** */
-  void histoAnalysis();
+  void histoAnalysis( bool debug );
 
   /** */
   void createSummaryHisto( const sistrip::SummaryHisto&,
 			   const sistrip::SummaryType&,
 			   const std::string& top_level_dir,
 			   const sistrip::Granularity& );
-
+  
  protected: 
   
   std::map<uint32_t,ApvTimingAnalysis> data_;
-
+  
   std::auto_ptr<Factory> factory_;
   
-  const float optimumSamplingPoint_;
-  float minDelay_;
-  float maxDelay_; 
-  uint32_t deviceWithMinDelay_;
-  uint32_t deviceWithMaxDelay_;
- 
 };
 
 #endif // DQM_SiStripCommissioningClients_ApvTimingHistograms_H
