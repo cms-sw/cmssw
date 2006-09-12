@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/07/10 12:40:04 $
- * $Revision: 1.54 $
+ * $Date: 2006/07/10 15:11:38 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,6 +36,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
 
 using namespace cms;
 using namespace std;
