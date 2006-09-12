@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/07/08 09:28:52 $
- * $Revision: 1.14 $
+ * $Date: 2006/09/12 13:01:16 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -65,7 +65,7 @@ void EBTriggerTowerTask::setup(void){
       sprintf(histo, "EBTTT FineGrainVeto SM%02d G12", i+1);
       meVeto_[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
       sprintf(histo, "EBTTT Flags SM%02d G12", i+1);
-      meFlags_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 7, 0., 7.,);
+      meFlags_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 7, 0., 7.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTriggerTowerTask/EnergyMaps");
@@ -99,9 +99,9 @@ void EBTriggerTowerTask::cleanup(void){
       if ( meFlags_[i] ) dbe->removeElement( meFlags_[i]->getName() );
       meFlags_[i] = 0;
       for ( int j = 0; j < 36; j++ ) {
-        if ( meEtMapT_[i][j] ) dbe->removeElement( meEtMapT_[i,j]->getName() );
+        if ( meEtMapT_[i][j] ) dbe->removeElement( meEtMapT_[i][j]->getName() );
         meEtMapT_[i][j] = 0;
-        if ( meEtMapR[i][j] ) dbe->removeElement( meEtMapR_[i,j]->getName() );
+        if ( meEtMapR_[i][j] ) dbe->removeElement( meEtMapR_[i][j]->getName() );
         meEtMapR_[i][j] = 0;
       }      
     }
@@ -135,16 +135,18 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
   for ( EcalTrigPrimDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
     EcalTriggerPrimitiveDigi data = (*digiItr);
-    EBDetId id = data.id();
+    EcalTrigTowerDetId id = data.id();
 
     int iet = id.ieta();
     int ipt = id.iphi();
+
+    int ismt = id.iDCC();
 
     float xiet = iet - 0.5;
     float xipt = ipt - 0.5;
 
     LogDebug("EBTriggerTowerTask") << " det id = " << id;
-    LogDebug("EBTriggerTowerTask") << " sm, eta, phi " << ism << " " << iet << " " << ipt;
+    LogDebug("EBTriggerTowerTask") << " sm, eta, phi " << ismt << " " << iet << " " << ipt;
 
   }
 
