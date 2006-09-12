@@ -5,9 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
 
 // FastSimulation headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
@@ -44,13 +41,10 @@ class CalorimetryManager{
   // load container from edm::Event
   void loadFromEcalBarrel(edm::PCaloHitContainer & c) const;
 
+  void loadFromEcalEndcap(edm::PCaloHitContainer & c) const;
+
   void loadFromHcal(edm::PCaloHitContainer & c) const;
 
-  // Exports RecHits to the containers used by JetProducers
-  void loadHits(HBHERecHitCollection *hbheHits, 
-		HORecHitCollection *hoHits,
-		HFRecHitCollection *hfHits, 
-		EcalRecHitCollection *ecalHits);
 
  private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL

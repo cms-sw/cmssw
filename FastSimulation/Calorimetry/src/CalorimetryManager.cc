@@ -225,7 +225,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   HepPoint3D meanShower=ecalentrance+myPart.vect().unit()*depth;
 
   
-  if(onEcal!=1) return ; 
+  //  if(onEcal!=1) return ; 
 
   // The closest crystal
   //  std::cout << " Before getClosestCell " << myCalorimeter_ <<std::endl;
@@ -619,6 +619,19 @@ void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
     }
 }
 
+
+void CalorimetryManager::loadFromEcalEndcap(edm::PCaloHitContainer & c) const
+{
+  std::map<unsigned,float>::const_iterator cellit;
+  std::map<unsigned,float>::const_iterator endcapEnd=EEMapping_.end();
+  
+  for(cellit=EEMapping_.begin();cellit!=endcapEnd;++cellit)
+    {
+      // Add the PCaloHit. No time, no track number 
+      c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
+    }
+}
+
 void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
 {
   std::map<unsigned,float>::const_iterator cellit;
@@ -631,45 +644,5 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
     }
 }
 
-void CalorimetryManager::loadHits(HBHERecHitCollection *hbheHits, 
-				  HORecHitCollection *hoHits,
-				  HFRecHitCollection *hfHits, 
-				  EcalRecHitCollection *ecalHits)
-{
-  std::map<unsigned,float>::const_iterator cellit;
-  std::map<unsigned,float>::const_iterator endit=HMapping_.end();
-  
-  for(cellit=HMapping_.begin();cellit!=endit; ++cellit)
-    {
-      HcalDetId detid(cellit->first);
-      switch(detid.subdet())
-	{
-	case HcalBarrel: 
-	case HcalEndcap: 
-	  hbheHits->push_back(HBHERecHit(detid,cellit->second,0)); 
-	  break;
-	case HcalOuter: 
-	  hoHits->push_back(HORecHit(detid,cellit->second,0));
-	  break;		     
-	case HcalForward: 
-	  hfHits->push_back(HFRecHit(detid,cellit->second,0));
-	  break;
-	default:
-	  LogWarning("FastCalorimetry") << "RecHit not registered\n";
-	}
-    }  
-  
-  endit = EBMapping_.end();
-  for(cellit=EBMapping_.begin(); cellit != endit; cellit++)
-    ecalHits->push_back(EcalRecHit(DetId(cellit->first), cellit->second, 0));
-
-  endit = EEMapping_.end();
-  for(cellit=EEMapping_.begin(); cellit != endit; cellit++)
-    ecalHits->push_back(EcalRecHit(DetId(cellit->first), cellit->second, 0));
-
-  endit = ESMapping_.end();
-  for(cellit=ESMapping_.begin(); cellit != endit; cellit++)
-    ecalHits->push_back(EcalRecHit(DetId(cellit->first), cellit->second, 0));
-}
 
 
