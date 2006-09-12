@@ -37,6 +37,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
     << "Initializing PV producer " << "\n";
+  fVerbose=conf.getUntrackedParameter<bool>("verbose", false);
 
   //  produces<VertexCollection>("PrimaryVertex");
   produces<VertexCollection>();
@@ -55,6 +56,7 @@ void
 PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+  cout << "RecoVertex/PrimaryVertexProducer: 0" << endl;
 
   std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
   reco::VertexCollection vColl;
@@ -71,7 +73,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // interface RECO tracks to vertex reconstruction
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
-    cout << "got " << (*tks).size() << " tracks " << endl;
+    if (fVerbose) {cout << "RecoVertex/PrimaryVertexProducer:got " << (*tks).size() << " tracks " << endl;}
 
 
     edm::ESHandle<TransientTrackBuilder> theB;
@@ -79,12 +81,16 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     vector<TransientTrack> t_tks = (*theB).build(tks);
 
-    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
     
     // here call vertex reconstruction
-    /*
+    
     vector<TransientVertex> t_vts = theAlgo.vertices(t_tks);
+    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+      << "Found: " << t_vts.size() << " reconstructed vertices" << "\n";
+
+    // convert transient vertices returned by the theAlgo to (reco) vertices
     for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
 	 iv != t_vts.end(); iv++) {
       Vertex v(Vertex::Point((*iv).position()), 
@@ -94,8 +100,9 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       (*iv).originalTracks().size());
       vColl.push_back(v);
     }
-    */
-    
+    if(fVerbose){cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;}
+   
+    /*  
     // test with vertex fitter
     if (t_tks.size() > 1) {
       KalmanVertexFitter kvf;
@@ -122,7 +129,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
       vColl.push_back(v);
     }
-    
+    */
   }
 
   catch (std::exception & err) {

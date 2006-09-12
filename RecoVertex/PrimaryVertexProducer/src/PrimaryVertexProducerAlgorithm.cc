@@ -88,34 +88,56 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 {
   vector<TransientVertex> pvs;
   try {
-    
     // select tracks
     vector<reco::TransientTrack> seltks;
+    cout << "PrimaryVertexProducerAlgorithm::vertices  input tracks="<<tracks.size() << endl;
     for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
 	 itk != tracks.end(); itk++) {
       if (theTrackFilter(*itk)) seltks.push_back(*itk);
     }
+    //cout << "PrimaryVertexProducerAlgorithm::vertices  selected tracks=" << seltks.size() << endl;
 
     // clusterize tracks in Z
     vector< vector<reco::TransientTrack> > clusters = 
       theTrackClusterizer.clusterize(seltks);
 
+    //cout << "PrimaryVertexProducerAlgorithm::vertices  clusters =" << clusters.size() << endl;
+
     // look for primary vertices in each cluster
     vector<TransientVertex> pvCand;
+    int nclu=0;
     for (vector< vector<reco::TransientTrack> >::const_iterator iclus
 	   = clusters.begin(); iclus != clusters.end(); iclus++) {
+      //cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" << nclu << "  tracks" << (*iclus).size() << endl;
 
+      /*
       vector<TransientVertex> pvFromClus = theFinder.vertices(*iclus);
       pvCand.reserve(pvCand.size() + pvFromClus.size());
       std::copy(pvFromClus.begin(), pvFromClus.end(), pvCand.end());
+      */
+
+      if((*iclus).size()>1){
+	KalmanVertexFitter kvf;
+	TransientVertex v = kvf.vertex(*iclus);  // CachingVertex, converted by operater ?
+	pvCand.push_back(v);
+      }
+      nclu++;
     }
 
+    //cout << "PrimaryVertexProducerAlgorithm::vertices  candidates =" << pvCand.size() << endl;
+
     // select vertices compatible with beam
+    int npv=0;
     for (vector<TransientVertex>::const_iterator ipv = pvCand.begin();
-	 ipv != pvCand.begin(); ipv++) {
-      if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
+	 ipv != pvCand.end(); ipv++) {
+      //cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv << " sel=" <<
+	 theVertexSelector(*ipv) << "   z="  << ipv->position().z() << endl;
+      //if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
+      pvs.push_back(*ipv);
+      npv++;
     }
       
+    //cout << "PrimaryVertexProducerAlgorithm::vertices  vertices =" << pvs.size() << endl;
 
     /*
     // test with vertex fitter
@@ -131,7 +153,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
     edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
       << "Exception while reconstructing tracker PV: " 
       << "\n" << err.what() << "\n";
-  }
+  } 
 
   return pvs;
   
