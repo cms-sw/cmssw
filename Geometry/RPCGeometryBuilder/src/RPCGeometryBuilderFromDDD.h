@@ -9,14 +9,18 @@
  *
  */
 
+#include "Geometry/Surface/interface/BoundPlane.h"
+
 #include <string>
-//#include <vector>
+#include <vector>
 
 
 class DDCompactView;
 class DDFilteredView;
 class RPCGeometry;
-//class RPCChamber;
+class RPCChamber;
+class RPCRoll;
+class Bounds;
 
 class RPCGeometryBuilderFromDDD 
 { 
@@ -30,13 +34,21 @@ class RPCGeometryBuilderFromDDD
 
 
  private:
-  RPCGeometry* buildGeometry(DDFilteredView& fview);
-  
-  //  RPCChamber* buildChamber(DDFileterView& fview,
-  //			   RPCGeometry& geometry,
-  //			   const std::string& type);
 
-  //std::vector<double> extractParameters(DDFilteredView& fview);
+  RPCChamber* buildChamber(DDFilteredView& fview) const;
+  
+  RPCRoll* buildRoll(DDFilteredView& fview,
+		     RPCChamber* ch) const;
+
+  /// get parameter also for boolean solid.
+  std::vector<double> extractParameters(DDFilteredView& fview) const ;
+  
+/*   typedef ReferenceCountingPointer<BoundPlane> RCPPlane; */
+
+/*   RCPPlane plane(const DDFilteredView& fview,  */
+/* 		 const Bounds& bound) const; */
+
+  RPCGeometry* buildGeometry(DDFilteredView& fview) const;
 
 };
 

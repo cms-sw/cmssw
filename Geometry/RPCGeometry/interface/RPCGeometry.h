@@ -11,14 +11,15 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
+#include "RPCChamber.h"
 #include <vector>
 #include <map>
+
 
 class GeomDetType;
 class GeomDetUnit;
 
 class RPCGeometry : public TrackingGeometry {
-  typedef std::map<DetId, RPCRoll*> RPCRollMap;
 
  public:
   /// Default constructor
@@ -51,14 +52,14 @@ class RPCGeometry : public TrackingGeometry {
 
   //---- Extension of the interface
 
-  // Return a vector of all RPC chambers
-  //const std::vector<RPCChamber*>& chambers() const;
+  /// Return a vector of all RPC chambers
+  const std::vector<RPCChamber*>& chambers() const;
 
   /// Return a vector of all RPC rolls
   const std::vector<RPCRoll*>& rolls() const;
 
   // Return a RPCChamber given its id
-  //const RPCChamber* chamber(RPCDetId id) const;
+  const RPCChamber* chamber(RPCDetId id) const;
 
   /// Return a roll given its id
   const RPCRoll* roll(RPCDetId id) const;
@@ -66,14 +67,21 @@ class RPCGeometry : public TrackingGeometry {
   /// Add a RPC roll to the Geometry
   void add(RPCRoll* roll);
 
+  /// Add a RPC roll to the Geometry
+  void add(RPCChamber* ch);
+
  private:
   DetUnitContainer theRolls;
   DetContainer theDets;
   DetTypeContainer theRollTypes;
   DetIdContainer theRollIds;
-  mapIdToDet     idtoDet;
-  mapIdToDetUnit idtoRoll;
-  std::vector<RPCRoll*> allRolls;
+  DetIdContainer theDetIds;
+  
+  // Map for efficient lookup by DetId 
+  mapIdToDet theMap;
+
+  std::vector<RPCRoll*> allRolls; // Are not owned by this class; are owned by their chamber.
+  std::vector<RPCChamber*> allChambers; // Are owned by this class.
 
 };
 

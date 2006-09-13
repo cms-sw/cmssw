@@ -70,8 +70,11 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 
 
   std::cout << " Geometry node for RPCGeom is  " << &(*pDD) << std::endl;   
-  std::cout << " I have "<<pDD->dets().size() << " detectors" << std::endl;
-  std::cout << " I have "<<pDD->detTypes().size() << " types" << "\n" << std::endl;
+  cout << " I have "<<pDD->detTypes().size()    << " detTypes" << endl;
+  cout << " I have "<<pDD->detUnits().size()    << " detUnits" << endl;
+  cout << " I have "<<pDD->dets().size()        << " dets" << endl;
+  cout << " I have "<<pDD->rolls().size()       << " rolls" << endl;
+  cout << " I have "<<pDD->chambers().size()    << " chambers" << endl;
 
   std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
   std::cout << "iter " << dashedLine_ << std::endl;
@@ -81,7 +84,7 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
     "  phi(0)  phi(s1)  phi(sN)    dphi    dphi'      ds     off"
     "       uR       uL       lR       lL" << std::endl;
 
-  int icount = 0;
+  int icount = 0, iRPCCHcount = 0;
 
    const double dPi = 3.14159265358;
    const double radToDeg = 180. / dPi; //@@ Where to get pi from?
@@ -97,8 +100,27 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    vlp.push_back(LocalPoint( 0, 0,-1));
    vlp.push_back(LocalPoint( 0, 0, 0));
    vlp.push_back(LocalPoint( 0, 0, 1));
+
    for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
 
+     //----------------------- RPCCHAMBER TEST -------------------------------------------------------
+
+     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+       ++iRPCCHcount;
+       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );       
+       RPCDetId detId=ch->id();
+       int idRaf = detId.rawId();
+       //       RPCRoll* rollRaf = ch->roll(1);
+       std::cout<<"Num = "<<iRPCCHcount<<"  "<<"RPCDet = "<<idRaf<<std::endl;
+       //	 "  "<<"Roll 1 = "<<(rollRaf->id()).rawId()<<std::endl;
+
+       std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
+       for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
+	   r != rollsRaf.end(); ++r){
+	 std::cout<<"scemo"<<(*r)->id().rawId()<<std::endl;
+       }
+     }
+     //_______________________________________________________________________________________________
 
      // Do we really have a RPC Roll?
 

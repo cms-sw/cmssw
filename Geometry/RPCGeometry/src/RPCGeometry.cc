@@ -3,20 +3,20 @@
  *  \author M. Maggi - INFN Bari
  */
 
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "../interface/RPCGeometry.h"
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
-
+#include "/afs/cern.ch/user/t/trentad/scratch0/CMSSW_0_8_0_pre3/src/Geometry/RPCGeometry/interface/RPCChamber.h"
 
 RPCGeometry::RPCGeometry(){}
 
 
 RPCGeometry::~RPCGeometry()
 {
-  // delete all the roll associated to the geometry
-  for (std::vector<RPCRoll*>::const_iterator iroll = allRolls.begin();
-       iroll != allRolls.end(); ++iroll){
-    delete (*iroll);
+  // delete all the chamber associated to the geometry
+  for (std::vector<RPCChamber*>::const_iterator ich = allChambers.begin();
+       ich != allChambers.end(); ++ich){
+    delete (*ich);
   }
 }  
 
@@ -42,52 +42,56 @@ const RPCGeometry::DetIdContainer& RPCGeometry::detUnitIds() const{
 
 
 const RPCGeometry::DetIdContainer& RPCGeometry::detIds() const{
-  return theRollIds;
+  return theDetIds;
 }
 
 
 const GeomDetUnit* RPCGeometry::idToDetUnit(DetId id) const{
-  if (idtoRoll.find(id) != idtoRoll.end())
-    return (idtoRoll.find(id))->second;
-  else
-    return 0;
+  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
 }
 
 
 const GeomDet* RPCGeometry::idToDet(DetId id) const{
-//   if (idtoDet.find(id) != idtoDet.end())
-//     return (idtoDet.find(id))->second;
-//   else
-//     return 0;
-
-  // For the time being, the only RPC dets are the rolls...
-  return idToDetUnit(id);
+  mapIdToDet::const_iterator i = theMap.find(id);
+  return (i != theMap.end()) ?
+    i->second : 0 ;
 }
 
+const std::vector<RPCChamber*>& RPCGeometry::chambers() const {
+  return allChambers;
+}
 
 const std::vector<RPCRoll*>& RPCGeometry::rolls() const{
   return allRolls;
 }
 
-
-
-const RPCRoll* RPCGeometry::roll(RPCDetId id) const{
-  return (const RPCRoll*)(idToDetUnit(id));
+const RPCChamber* RPCGeometry::chamber(RPCDetId id) const{
+  return dynamic_cast<const RPCChamber*>(idToDet(id.chamberId()));
 }
 
-
-
+const RPCRoll* RPCGeometry::roll(RPCDetId id) const{
+  return dynamic_cast<const RPCRoll*>(idToDetUnit(id));
+}
 
 
 void
 RPCGeometry::add(RPCRoll* roll){
+  theDets.push_back(roll);
   allRolls.push_back(roll);
   theRolls.push_back(roll);
   theRollIds.push_back(roll->geographicalId());
+  theDetIds.push_back(roll->geographicalId());
   GeomDetType* _t = const_cast<GeomDetType*>(&roll->type());
   theRollTypes.push_back(_t);
-  idtoRoll.insert(std::pair<DetId,GeomDetUnit*>
-		  (roll->geographicalId(),roll));
-  theDets.push_back(roll);
+  theMap.insert(std::pair<DetId,GeomDetUnit*>
+		(roll->geographicalId(),roll));
 }
 
+void
+RPCGeometry::add(RPCChamber* chamber){
+  allChambers.push_back(chamber);
+  theDets.push_back(chamber);
+  theDetIds.push_back(chamber->geographicalId());
+  theMap.insert(std::pair<DetId,GeomDet*>
+		(chamber->geographicalId(),chamber));
+}

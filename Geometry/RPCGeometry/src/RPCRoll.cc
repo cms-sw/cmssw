@@ -1,18 +1,19 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
+#include "Geometry/RPCGeometry/interface/RPCChamber.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 
-RPCRoll::RPCRoll( BoundPlane* bp, RPCRollSpecs* rrs, RPCDetId id) :
-  GeomDetUnit(bp), top_(0), _id(id),_rrs(rrs)
+RPCRoll::RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs, const RPCChamber* ch) :
+  GeomDetUnit(bp), _id(id),_rrs(rrs), theCh(ch)
 {
   
 }
 
 RPCRoll::~RPCRoll()
 {
-
+  delete _rrs; //Assume the roll owns it specs (specs are not shared)
 }
 
 const  RPCRollSpecs*
@@ -45,50 +46,53 @@ RPCRoll::type() const
   return (*_rrs);
 }
 
+const RPCChamber* RPCRoll::chamber() const {
+  return theCh;
+}
 
 int 
 RPCRoll::nstrips() const
 {
-  return this->striptopology()->nstrips();
+  return this->specificTopology().nstrips();
 }
 
 LocalPoint
 RPCRoll::centreOfStrip(int strip) const
 {
   float s = static_cast<float>(strip)-0.5;
-  return this->striptopology()->localPosition(s);
+  return this->specificTopology().localPosition(s);
 }
 
 LocalPoint
 RPCRoll::centreOfStrip(float strip) const
 {
-  return this->striptopology()->localPosition(strip);
+  return this->specificTopology().localPosition(strip);
 }
 
 LocalError
 RPCRoll::localError(float strip) const
 {
-  return this->striptopology()->localError(strip,1./sqrt(12.));
+  return this->specificTopology().localError(strip,1./sqrt(12.));
 }
 
 float
 RPCRoll::strip(const LocalPoint& lp) const
 { 
-  return this->striptopology()->strip(lp);
+  return this->specificTopology().strip(lp);
 
 }
 
 float
 RPCRoll::localPitch(const LocalPoint& lp) const
 { 
-  return this->striptopology()->localPitch(lp);
+  return this->specificTopology().localPitch(lp);
 
 }
 
 float
 RPCRoll::pitch() const
 { 
-  return this->striptopology()->pitch();
+  return this->specificTopology().pitch();
 
 }
 
@@ -107,16 +111,8 @@ RPCRoll::isForward() const
 
 
 
-const StripTopology* 
-RPCRoll::striptopology() const
+const StripTopology&
+RPCRoll::specificTopology() const
 {
-  if(!top_){
-    if (this->isBarrel()){
-      top_ = dynamic_cast<const RectangularStripTopology*>(&this->topology());
-    }else{
-      top_ = dynamic_cast<const TrapezoidalStripTopology*>(&this->topology());
-      
-    }
-  }
-  return top_;
+  return _rrs->specificTopology();
 }
