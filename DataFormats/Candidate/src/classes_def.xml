@@ -8,6 +8,7 @@
   </class>
   <class name="reco::LeafCandidate" />
   <class name="reco::CompositeCandidate" />
+  <class name="reco::CompositeRefCandidate" />
   <class name="reco::ShallowCloneCandidate"/>
   <class name="std::vector<reco::Candidate *>" />
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >" />
