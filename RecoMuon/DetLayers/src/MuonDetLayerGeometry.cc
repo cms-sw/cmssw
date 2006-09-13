@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/31 15:26:49 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/08/31 15:37:30 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - CERN
  */
 
@@ -50,25 +50,31 @@ void MuonDetLayerGeometry::addRPCLayers(vector<DetLayer*> barrelLayers, pair<vec
   for (it=barrelLayers.begin();it!=barrelLayers.end();it++){
     rpcLayers_barrel.push_back(*it);
     rpcLayers_all.push_back(*it);
-    //    allBarrel.push_back(*it);
-    //    allDetLayers.push_back(*it);
+    allBarrel.push_back(*it);
+    allDetLayers.push_back(*it);
+
+    detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
   for (it=endcapLayers.first.begin(); it!=endcapLayers.first.end(); it++){
     rpcLayers_fw.push_back(*it);
     rpcLayers_all.push_back(*it);
     rpcLayers_endcap.push_back(*it);
-    //  allForward.push_back(*it);
-    // allEndcap.push_back(*it);
-    // allDetLayers.push_back(*it);
+    allForward.push_back(*it);
+    allEndcap.push_back(*it);
+    allDetLayers.push_back(*it);
+
+    detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
   
   for (it=endcapLayers.second.begin(); it!=endcapLayers.second.end(); it++){
     rpcLayers_bk.push_back(*it);
     rpcLayers_all.push_back(*it);
     rpcLayers_endcap.push_back(*it);
-    // allBackward.push_back(*it);
-    // allEndcap.push_back(*it);
-    // allDetLayers.push_back(*it);
+    allBackward.push_back(*it);
+    allEndcap.push_back(*it);
+    allDetLayers.push_back(*it);
+
+    detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
   
 }    
@@ -80,6 +86,7 @@ void MuonDetLayerGeometry::addDTLayers(vector<DetLayer*> dtlayers) {
         dtLayers.push_back(*it);
         allBarrel.push_back(*it);
         allDetLayers.push_back(*it);
+
 	detLayersMap[ makeDetLayerId(*it) ] = *it;
     }
 }    
@@ -94,7 +101,6 @@ DetId MuonDetLayerGeometry::makeDetLayerId(DetLayer* detLayer) const{
     DTChamberId id( detLayer->basicComponents().front()->geographicalId().rawId() ) ;
     return  DTChamberId(0,id.station(),0);
   }
-  
   else if(detLayer->subDetector()== GeomDetEnumerators::RPCBarrel ||
 	  detLayer->subDetector()== GeomDetEnumerators::RPCEndcap){
     RPCDetId id( detLayer->basicComponents().front()->geographicalId().rawId());
@@ -198,7 +204,11 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(DetId &detId) const{
     DTChamberId dtId( detId.rawId() );
     id = DTChamberId(0,dtId.station(),0);
   }
-  
+  else if (detId.subdetId() == MuonSubdetId::RPC){
+    RPCDetId rpcId(detId.rawId() );
+    id = RPCDetId(rpcId.region(),0,rpcId.station(),0,rpcId.layer(),0,0);
+  }
+
   else throw cms::Exception("InvalidSubdetId")<< detId.subdetId();
 
   std::map<DetId,DetLayer*>::const_iterator layer = detLayersMap.find(id);
