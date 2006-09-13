@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id: AlCaElectronsProducer.h,v 1.1 2006/07/24 10:03:26 lorenzo Exp $
+// $Id: AlCaElectronsProducer.h,v 1.2 2006/09/06 16:08:17 lorenzo Exp $
 //
 //
 
@@ -51,8 +51,49 @@ class AlCaElectronsProducer : public edm::EDProducer {
  std::string pixelMatchElectronCollection_;
  std::string siStripElectronCollection_;
 
+ std::string BarrelHitsCollection_;
+ std::string EndcapHitsCollection_;
+ std::string ecalHitsProducer_;
+
+ std::string basicClusterCollection_;
+ std::string basicClusterProducer_;
+
+// std::string islandBarrelBasicClusterCollection_;
+// std::string islandBarrelBasicClusterProducer_;
+
+// std::string islandBarrelSuperClusterCollection_;
+// std::string islandBarrelSuperClusterProducer_;
+
+// std::string correctedIslandBarrelSuperClusterCollection_;
+ //std::string correctedIslandBarrelSuperClusterProducer_;
+
+ std::string hybridSuperClusterCollection_;
+ std::string hybridSuperClusterProducer_;
+ 
+ std::string correctedHybridSuperClusterCollection_;
+ std::string correctedHybridSuperClusterProducer_ ;
+
+// output collections
+
  std::string alcaPixelMatchElectronCollection_;
+
  std::string alcaSiStripElectronCollection_;
  
- double ptCut_;  
+ std::string alcaBarrelHitsCollection_;
+
+// std::string alcaEndcapHitsCollection_;
+ 
+ std::string alcaBasicClusterCollection_;
+ 
+// std::string alcaIslandBarrelSuperClusterCollection_;
+ 
+// std::string alcaCorrectedIslandBarrelSuperClusterCollection_;
+ 
+ std::string alcaHybridSuperClusterCollection_;
+ 
+ std::string alcaCorrectedHybridSuperClusterCollection_;
+ 
+ double ptCut_;
+   
+// int evento;
 };
