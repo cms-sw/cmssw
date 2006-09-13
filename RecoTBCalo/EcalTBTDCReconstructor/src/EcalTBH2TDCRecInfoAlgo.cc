@@ -13,7 +13,23 @@ EcalTBH2TDCRecInfoAlgo::EcalTBH2TDCRecInfoAlgo(const double& tdcZero):
 EcalTBTDCRecInfo EcalTBH2TDCRecInfoAlgo::reconstruct(const HcalTBTiming& TDCRawInfo) const 
 {
 
-  double tdcd = TDCRawInfo.ttcL1Atime() - TDCRawInfo.beamCoincidence();
+  int ntdc = TDCRawInfo.BeamCoincidenceCount();
+  edm::LogInfo("") << "EcalTBH2TDCRecInfoAlgo::reconstruct # tdc hits: " << ntdc << std::endl;;
+  if(ntdc>1) {
+    for(int i=0; i<ntdc; ++i) {
+      edm::LogInfo("") << "hit i: " << i << " tdc: " << TDCRawInfo.BeamCoincidenceHits(i) << std::endl;
+    }
+  }
+
+
+  if(ntdc==0) {
+     edm::LogError("NoTDCHits") << "no TDC hits. TDC info not reliable" << std::endl;
+     return EcalTBTDCRecInfo(-999.);
+  }
+
+
+  //double tdcd = TDCRawInfo.ttcL1Atime() - TDCRawInfo.beamCoincidence();
+  double tdcd = TDCRawInfo.ttcL1Atime() - TDCRawInfo.BeamCoincidenceHits(0);
 
   if( //!tdcRangeErrorMessageAlreadyDisplayed_  && 
      (tdcd < tdcZero_ -1 || tdcd > tdcZero_ + 26) )
