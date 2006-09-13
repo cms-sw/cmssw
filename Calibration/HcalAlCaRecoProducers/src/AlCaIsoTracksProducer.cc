@@ -7,7 +7,8 @@
 
 AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
 { 
-  m_file=new TFile("IsoHists.root","RECREATE");
+  m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
+  m_Hfile=new TFile("IsoHists.root","RECREATE");
   IsoHists.Ntrk = new TH1F("Ntrk","Number of tracks",51,-0.5,50.5);
   IsoHists.vx = new TH1F("Vertexx","Track vertex x",100,-0.25,0.25);
   IsoHists.vy = new TH1F("Vertexy","Track vertex y",100,-0.25,0.25);
@@ -60,8 +61,8 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    edm::Handle<reco::TrackCollection> trackCollection;
    edm::Handle<reco::TrackExtraCollection> trackExtraCollection;
 
-   iEvent.getByType(trackCollection);
-   iEvent.getByType(trackExtraCollection);
+   iEvent.getByLabel(m_inputTrackLabel,trackCollection);
+   iEvent.getByLabel(m_inputTrackLabel,trackExtraCollection);
 //   try {
 //     iEvent.getByType(trackCollection);
 //   } catch ( std::exception& ex ) {
@@ -144,6 +145,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 void AlCaIsoTracksProducer::endJob(void) {
+  m_Hfile->cd();
   IsoHists.Ntrk->Write();
   IsoHists.vx->Write();
   IsoHists.vy->Write();
@@ -160,5 +162,5 @@ void AlCaIsoTracksProducer::endJob(void) {
   IsoHists.Dphi->Write();
   IsoHists.Ddir->Write();
   IsoHists.Nisotr->Write();
-  m_file->Close();
+  m_Hfile->Close();
 }
