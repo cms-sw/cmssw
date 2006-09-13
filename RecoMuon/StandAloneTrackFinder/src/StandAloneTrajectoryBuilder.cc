@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/08/30 12:56:19 $
- *  $Revision: 1.26 $
+ *  $Date: 2006/08/31 18:28:05 $
+ *  $Revision: 1.27 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -45,6 +45,9 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   // Disable/Enable the backward filter
   doBackwardRefit = par.getUntrackedParameter<bool>("DoBackwardRefit",true);
   
+  // Disable/Enable the smoothing of the trajectory
+  doSmoothing = par.getUntrackedParameter<bool>("DoSmoothing",true);
+  
   if(doBackwardRefit){
     // The outward-inward fitter (starts from theRefitter outermost state)
     ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
@@ -53,16 +56,17 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
 
     theBWSeedType = bwFilterPSet.getParameter<string>("BWSeedType");
   }
-  
-  // The outward-inward fitter (starts from theBWFilter innermost state)
-  ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
-  theSmoother = new StandAloneMuonSmoother(smootherPSet,theService);
+
+  if(doSmoothing){
+    // The outward-inward fitter (starts from theBWFilter innermost state)
+    ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
+    theSmoother = new StandAloneMuonSmoother(smootherPSet,theService);
+  }
 } 
 
 void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
   theRefitter->setEvent(event);
    if(doBackwardRefit) theBWFilter->setEvent(event);
-  theSmoother->setEvent(event);
 }
 
 StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
@@ -72,7 +76,7 @@ StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
   
   if(theRefitter) delete theRefitter;
   if(doBackwardRefit && theBWFilter) delete theBWFilter;
-  if(theSmoother) delete theSmoother;
+  if(doSmoothing && theSmoother) delete theSmoother;
 }
 
 
@@ -146,10 +150,21 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     LogDebug(metname) << "Only forward refit requested. Any backward refit will be performed!"<<endl;
     
     if (  refitter()->getTotalChamberUsed() >= 2 && 
-	  (refitter()->getDTChamberUsed() + refitter()->getCSCChamberUsed()) >0 ){
+	  ((refitter()->getDTChamberUsed() + refitter()->getCSCChamberUsed()) >0 ||
+	   refitter()->onlyRPC()) ){
+
+      // Smoothing
+      if (doSmoothing && !trajectoryFW.empty()){
+	pair<bool,Trajectory> smoothingResult = smoother()->smooth(trajectoryFW);
+	if (smoothingResult.first)
+	  //FIXME! creating with new!
+	  trajectoryContainer.push_back(new Trajectory(smoothingResult.second));
+      }
+      else
+	//FIXME! creating with new!
+	trajectoryContainer.push_back(new Trajectory(trajectoryFW));
+      
       LogDebug(metname)<< "Trajectory saved" << endl;
-      //FIXME! creating with new!
-      trajectoryContainer.push_back(new Trajectory(trajectoryFW));
     }
     else LogDebug(metname)<< "Trajectory NOT saved. No enough number of tracking chamber used!" << endl;
     
@@ -201,6 +216,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
   LogDebug(metname) << debug.dumpTSOS(tsosAfterBWRefit);
+
   LogDebug(metname) 
     << "Number of RecHits: " << trajectoryBW.foundHits() << "\n"
     << "Number of DT/CSC/RPC chamber used (bw): " 
@@ -211,10 +227,21 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // The trajectory is good if there are at least 2 chamber used in total and at
   // least 1 "tracking" (DT or CSC)
   if (  bwfilter()->getTotalChamberUsed() >= 2 && 
-	(bwfilter()->getDTChamberUsed() + bwfilter()->getCSCChamberUsed()) >0 ){
+	((bwfilter()->getDTChamberUsed() + bwfilter()->getCSCChamberUsed()) >0 ||
+	 bwfilter()->onlyRPC()) ) {
+    
+    if (doSmoothing && !trajectoryBW.empty()){
+      pair<bool,Trajectory> smoothingResult = smoother()->smooth(trajectoryBW);
+      if (smoothingResult.first)
+	// 	//FIXME! creating with new!
+     	trajectoryContainer.push_back(new Trajectory(smoothingResult.second));
+    }
+    else
+      //FIXME! creating with new!
+      trajectoryContainer.push_back(new Trajectory(trajectoryBW));
+    
     LogDebug(metname)<< "Trajectory saved" << endl;
-     //FIXME! creating with new!
-    trajectoryContainer.push_back(new Trajectory(trajectoryBW));
+
   }
   //if the trajectory is not saved, but at least two chamber are used in the
   //forward filtering, try to build a new trajectory starting from the old
@@ -232,6 +259,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     TimeMe timer2a(t2a,timing);
 
   }
-  // smoother()->trajectories(trajectoryBW);
+  else
+    LogDebug(metname)<< "Trajectory NOT saved" << endl;
   return trajectoryContainer;
 }
