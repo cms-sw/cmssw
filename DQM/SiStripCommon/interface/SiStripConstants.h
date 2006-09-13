@@ -114,6 +114,7 @@ namespace sistrip {
   static const std::string optoScanTickHeight_  = "OptoScanTickHeight";
 
   // summary histo names (vpsp scan)
+  static const std::string vpspScan_     = "VpspScan";
   static const std::string vpspScanApv0_ = "VpspScanApv0";
   static const std::string vpspScanApv1_ = "VpspScanApv1";
 

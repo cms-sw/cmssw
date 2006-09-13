@@ -87,8 +87,9 @@ namespace sistrip {
 		      OPTO_SCAN_LASER_THRESHOLD = 407,  
 		      OPTO_SCAN_TICK_HEIGHT = 408,
 		      // VPSP SCAN
-		      VPSP_SCAN_APV0 = 1401, 
-		      VPSP_SCAN_APV1 = 1402, 
+		      VPSP_SCAN = 1401, 
+		      VPSP_SCAN_APV0 = 1402, 
+		      VPSP_SCAN_APV1 = 1403, 
 		      // PEDESTALS / NOISE
 		      PEDESTALS_MEAN = 201, 
 		      PEDESTALS_SPREAD = 202, 
