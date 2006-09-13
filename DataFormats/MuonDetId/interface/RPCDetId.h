@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/07/27 14:57:49 $
- *  \version $Id: RPCDetId.h,v 1.16 2006/07/27 14:57:49 segoni Exp $
- *  $Revision: 1.16 $
+ *  $Date: 2006/09/05 17:31:37 $
+ *  \version $Id: RPCDetId.h,v 1.17 2006/09/05 17:31:37 mmaggi Exp $
+ *  $Revision: 1.17 $
  *  \author Ilaria Segoni
  */
 
@@ -62,11 +62,9 @@ class RPCDetId :public DetId {
 					 << " region "<< this->region()
 					 << " ring "<<ring_
 					 << std::endl;
-    
-         }
+	}
 	 
     	return int(ring_ + minRingForwardId);
-
 
     } else { // if(ring_ >= RingBarrelOffSet) 
       return int(ring_ - RingBarrelOffSet + minRingBarrelId);
@@ -105,6 +103,12 @@ class RPCDetId :public DetId {
   int trIndex() const{
     return trind;
   }
+
+  /// Return the corresponding ChamberId
+  RPCDetId chamberId() const {
+    return RPCDetId(id_ & chamberIdMask_);
+  }
+
 
   static const int minRegionId=     -1;
   static const int maxRegionId=      1;
@@ -169,6 +173,8 @@ class RPCDetId :public DetId {
   static const int RollStartBit_ =  SubSectorStartBit_+SubSectorNumBits_;  
   static const unsigned int RollMask_     =  0X7;
  
+  static const uint32_t chamberIdMask_ = ~(RollMask_<<RollStartBit_);
+
  private:
   void init(int region, 
 	    int ring,

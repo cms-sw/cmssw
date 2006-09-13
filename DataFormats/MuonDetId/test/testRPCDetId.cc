@@ -3,7 +3,7 @@
    test file for RPCDetId
 
    \author Stefano ARGIRO
-   \version $Id: testRPCDetId.cc,v 1.2 2005/10/28 08:10:37 segoni Exp $
+   \version $Id: testRPCDetId.cc,v 1.3 2005/11/01 15:17:30 segoni Exp $
    \date 27 Jul 2005
 */
 
@@ -110,5 +110,11 @@ void testRPCDetId::testMemberOperators(){
   RPCDetId unit2=unit1;
   
   CPPUNIT_ASSERT(unit2==unit1);
+
+  RPCDetId chamber = unit1.chamberId();
+  RPCDetId unit3(0,-2,1,2,2,1,0);
+
+  CPPUNIT_ASSERT(chamber==unit3);
+  
 
 }
