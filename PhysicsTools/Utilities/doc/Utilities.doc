@@ -8,7 +8,7 @@
 </center>
 
 \section desc Description
-Generic Physics Tools utility classes
+Generic Physics Tools utility classes.
 
 \subsection selectors Selectors
 - AnySelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on all objects. 
@@ -28,9 +28,6 @@ Generic Physics Tools utility classes
 - MasslessInvariantMass: <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> that computes
   invariant mass of a pair of objects assuming they are massless using the method <tt>momentum()</tt> to retrieve
   their spatial momentum vector.
-
-\section status Status and planned development
-To be reviewed.
 
 <hr>
 Last updated: @DATE@ L. Lista
