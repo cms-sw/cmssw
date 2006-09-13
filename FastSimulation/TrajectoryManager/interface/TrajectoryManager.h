@@ -118,6 +118,9 @@ class TrajectoryManager
   PSimHit makeSinglePSimHit( const GeomDetUnit& det,
 			     const TrajectoryStateOnSurface& ts, int tkID, float el, int pID) const;
 
+  /// Returns the DetLayer pointer corresponding to the FAMOS layer 
+  const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
+
  private:
 
   /// Add a RecHit

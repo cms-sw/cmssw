@@ -57,7 +57,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   myDecayEngine(0), 
   theGeomTracker(0),
   theGeomSearchTracker(0),
-  theLayerMap(47, static_cast<const DetLayer*>(0)), // reserve space for layers here
+  theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
   theNegLayerOffset(27)
 
 {
@@ -95,7 +95,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   //  myHistos = Histos::instance();
 
   // Initialize a few histograms
-  /*
+  /* 
   myHistos->book("h300",1210,-121.,121.,1210,-121.,121.);
   myHistos->book("h301",1200,-300.,300.,1210,-121.,121.);
   */
@@ -263,7 +263,8 @@ TrajectoryManager::reconstruct()
 	    // Return one or two (for overlap regions) PSimHits in the full 
 	    // tracker geometry
 
-	    if ( theGeomTracker ) createPSimHits(*cyliter, P_before, PP, fsimi,myTrack.type());
+	    if ( theGeomTracker ) 
+	      createPSimHits(*cyliter, P_before, PP, fsimi,myTrack.type());
 
 	  }
 	}
@@ -452,11 +453,15 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
   InsideBoundsMeasurementEstimator est;
 
   typedef GeometricSearchDet::DetWithState   DetWithState;
-  const DetLayer* tkLayer = theLayerMap[layer.layerNumber()];
-
+  const DetLayer* tkLayer = detLayer(layer,P_before.z());
   const ParticlePropagator& cpp(P_before);
   TrajectoryStateOnSurface trajState = makeTrajectoryState( tkLayer, cpp, &mf);
-  std::vector<DetWithState> compat = tkLayer->compatibleDets( trajState, alongProp, est);
+
+  // Find, in the corresponding layers, the detectors compatible with the current track 
+  std::vector<DetWithState> compat 
+    = tkLayer->compatibleDets( trajState, alongProp, est);
+
+  // And create the corresponding PSimHits
   for (std::vector<DetWithState>::const_iterator i=compat.begin(); i!=compat.end(); i++) {
     makePSimHits( i->first, i->second, *thePSimHits, trackID, eloss, partID);
   }
@@ -577,10 +582,11 @@ TrajectoryManager::makeTrajectoryState( const DetLayer* layer,
     (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.charge()), field), *plane);
 }
 
-void TrajectoryManager::makePSimHits( const GeomDet* det, 
-				      const TrajectoryStateOnSurface& ts,
-				      std::vector<PSimHit>& result, int tkID, 
-				      float el, int pID) const
+void 
+TrajectoryManager::makePSimHits( const GeomDet* det, 
+				 const TrajectoryStateOnSurface& ts,
+				 std::vector<PSimHit>& result, int tkID, 
+				 float el, int pID) const
 {
   std::vector< const GeomDet*> comp = det->components();
   if (!comp.empty()) {
@@ -596,9 +602,10 @@ void TrajectoryManager::makePSimHits( const GeomDet* det,
   }
 }
 
-PSimHit TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
-					      const TrajectoryStateOnSurface& ts, int tkID, 
-					      float el, int pID) const
+PSimHit 
+TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
+				      const TrajectoryStateOnSurface& ts, 
+				      int tkID, float el, int pID) const
 {
   const float onSurfaceTolarance = 0.01; // 10 microns
 
@@ -635,14 +642,27 @@ PSimHit TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
 		  det.geographicalId().rawId(), tkID,
 		  lmom.theta(),
 		  lmom.phi());
+  // Fill Histos (~poor man event display)
+  /*
   GlobalPoint gpos( det.toGlobal(hit.localPosition()));
+  myHistos->fill("h300",gpos.x(),gpos.y());
+  if ( sin(gpos.phi()) > 0. ) 
+    myHistos->fill("h301",gpos.z(),gpos.perp());
+  else
+    myHistos->fill("h301",gpos.z(),-gpos.perp());
+  */
+
+  /*
   LogDebug("FastTracker") << "PSimHit crated at pos " << gpos
 			  << " (r,phi) " << gpos.perp() << ", " << gpos.phi()
 			  << " with momentum " << det.toGlobal(hit.momentumAtEntry());
+  */
+
   return hit;
 }
 
-void TrajectoryManager::initializeLayerMap()
+void 
+TrajectoryManager::initializeLayerMap()
 {
 
 // These are the BoundSurface&, the BoundDisk* and the BoundCylinder* for that layer
@@ -730,18 +750,33 @@ void TrajectoryManager::initializeLayerMap()
     }
   }
 
-  // put the negative layers in the same map but with an offset
+  // Put the negative layers in the same map but with an offset
   std::vector< ForwardDetLayer*>  negForwardLayers = theGeomSearchTracker->negForwardLayers();
-  int negFNum = 0;
   for (std::vector< ForwardDetLayer*>::const_iterator nl=negForwardLayers.begin();
        nl != negForwardLayers.end(); ++nl) {
-    negFNum++;
-    theLayerMap[negFNum+theNegLayerOffset] = *nl;
-  }
+    for (int i=0; i<=theNegLayerOffset; i++) {
+      if (theLayerMap[i] == 0) continue;
+      if ( fabs( (**nl).surface().position().z() +theLayerMap[i]-> surface().position().z()) < zTolerance) {
+	theLayerMap[i+theNegLayerOffset] = *nl;
+	//	cout << "Layer Number " << i << " " << i+theNegLayerOffset <<endl;
+	break;
+      }
+    }
+  }  
 
 }
 
-void TrajectoryManager::loadSimHits(edm::PSimHitContainer & c) const
+const DetLayer*  
+TrajectoryManager::detLayer( const TrackerLayer& layer, float zpos) const
 {
-  for(std::vector<PSimHit>::const_iterator it = thePSimHits->begin();it!= thePSimHits->end();it++) c.push_back(*it);
+  if (zpos > 0 || !layer.forward() ) return theLayerMap[layer.layerNumber()];
+  else return theLayerMap[layer.layerNumber()+theNegLayerOffset];
+}
+
+void 
+TrajectoryManager::loadSimHits(edm::PSimHitContainer & c) const
+{
+  for(std::vector<PSimHit>::const_iterator 
+	it = thePSimHits->begin();
+        it!= thePSimHits->end();it++) c.push_back(*it);
 }
