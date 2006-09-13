@@ -10,7 +10,7 @@
  *  offset = t0 + tTrig + wirePropCorr - tofCorr 
  *  <br>
  *  where: <br>
- *     - t0 from test pulses (taken from DB, it is assumed to be in TDC Counts)
+ *     - t0 from test pulses (taken from DB, it is assumed to be in ns; can be switched off)
  *     - ttrig from the fit of time boxrising edge (taken from DB, it is assumed to be in ns)
  *       (At the moment a single value is read for ttrig offset 
  *       but this may change in the future)
@@ -25,8 +25,8 @@
  *       NOTE: particles are assumed as coming from the IP.
  *
  *
- *  $Date: 2006/05/22 10:57:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/24 13:44:36 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -79,6 +79,8 @@ public:
   double theVPropWire;
    // The ttrig is defined as mean + kFactor * sigma
   double kFactor;
+  // Switch on/off the T0 correction from pulses
+  bool doT0Correction;
   // Switch on/off the TOF correction for particles from IP
   bool doTOFCorrection;
   // Switch on/off the correction for the signal propagation along the wire

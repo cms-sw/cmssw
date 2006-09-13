@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/06 14:47:33 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/03 15:37:53 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -32,6 +32,8 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config){
   kFactor = config.getParameter<double>("kFactor");
   // The velocity of signal propagation along the wire (cm/ns)
   theVPropWire = config.getParameter<double>("vPropWire");
+  // Switch on/off the T0 correction from pulses
+  doT0Correction = config.getParameter<bool>("doT0Correction");
   // Switch on/off the TOF correction for particles from IP
   doTOFCorrection = config.getParameter<bool>("doTOFCorrection");
   // Switch on/off the correction for the signal propagation along the wire
@@ -45,11 +47,15 @@ DTTTrigSyncFromDB::~DTTTrigSyncFromDB(){}
 
 
 void DTTTrigSyncFromDB::setES(const EventSetup& setup) {
-  // Get the map of t0 from pulses from the Setup
-  ESHandle<DTT0> t0Handle;
-  setup.get<DTT0Rcd>().get(t0Handle);
-  tZeroMap = &*t0Handle;
-  
+ 
+  if(doT0Correction)
+    {
+      // Get the map of t0 from pulses from the Setup
+      ESHandle<DTT0> t0Handle;
+      setup.get<DTT0Rcd>().get(t0Handle);
+      tZeroMap = &*t0Handle;
+    }
+
   // Get the map of ttrig from the Setup
   ESHandle<DTTtrig> ttrigHandle;
   setup.get<DTTtrigRcd>().get(ttrigHandle);
@@ -76,13 +82,16 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
   // FIXME: this should disappear as soon as the ttrig object will become a float
   //   static const float f2i_convCorr = (25./64.); // ns //FIXME: check how the conversion is performed
 
-  // Read the t0 from pulses for this wire (ns)
   float t0 = 0;
   float t0rms = 0;
-  tZeroMap->cellT0(wireId,
-		   t0,
-		   t0rms,
-		   DTTimeUnits::ns);
+  if(doT0Correction)
+    {
+      // Read the t0 from pulses for this wire (ns)
+        tZeroMap->cellT0(wireId,
+		       t0,
+		       t0rms,
+		       DTTimeUnits::ns);
+    }
 
   // Read the ttrig for this wire
   float ttrigMean = 0;
@@ -104,8 +113,6 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
     wirePropCorr = -wireCoord/theVPropWire;
     // FIXME: What if hits used for the time box are not distributed uniformly along the wire?
   }
-
-
 
   // Compute TOF correction:
   // Also in this case the TOF correction is already accounted on average in the ttrig
