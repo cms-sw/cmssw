@@ -6,6 +6,7 @@
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitAlgoFactory.h"
 #include "RecoLocalMuon/DTRecHit/src/DTLinearDriftAlgo.h"
+#include "RecoLocalMuon/DTRecHit/src/DTLinearDriftFromDBAlgo.h"
 #include "RecoLocalMuon/DTRecHit/src/DTParametrizedDriftAlgo.h"
 
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
@@ -16,6 +17,7 @@
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DTRecHitProducer);
 DEFINE_SEAL_PLUGIN (DTRecHitAlgoFactory, DTLinearDriftAlgo, "DTLinearDriftAlgo");
+DEFINE_SEAL_PLUGIN (DTRecHitAlgoFactory, DTLinearDriftFromDBAlgo, "DTLinearDriftFromDBAlgo");
 DEFINE_SEAL_PLUGIN (DTRecHitAlgoFactory, DTParametrizedDriftAlgo, "DTParametrizedDriftAlgo");
 DEFINE_SEAL_PLUGIN (DTTTrigSyncFactory, DTTTrigSyncTOFCorr, "DTTTrigSyncTOFCorr");
 DEFINE_SEAL_PLUGIN (DTTTrigSyncFactory, DTTTrigSyncT0Only, "DTTTrigSyncT0Only");
