@@ -67,10 +67,10 @@ uint32_t SummaryHistogramFactory<FedTimingAnalysis>::extract( const map<uint32_t
   generator_->clearMap();
   map<uint32_t,FedTimingAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    if ( histo_ == sistrip::FED_TIMING_PLL_COARSE ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.pllCoarse() ); 
-    } else if ( histo_ == sistrip::FED_TIMING_PLL_FINE ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.pllFine() ); 
+    if ( histo_ == sistrip::FED_TIMING_TIME ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.time() ); 
+    } else if ( histo_ == sistrip::FED_TIMING_MAX_TIME ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.max() ); 
     } else if ( histo_ == sistrip::FED_TIMING_DELAY ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.delay() ); 
     } else if ( histo_ == sistrip::FED_TIMING_ERROR ) { 
@@ -136,8 +136,8 @@ void SummaryHistogramFactory<FedTimingAnalysis>::fill( TH1& summary_histo ) {
   
   // Histogram formatting
   generator_->format( histo_, type_, view_, level_, summary_histo );
-  if ( histo_ == sistrip::FED_TIMING_PLL_COARSE ) {
-  } else if ( histo_ == sistrip::FED_TIMING_PLL_FINE ) { 
+  if ( histo_ == sistrip::FED_TIMING_TIME ) {
+  } else if ( histo_ == sistrip::FED_TIMING_MAX_TIME ) { 
   } else if ( histo_ == sistrip::FED_TIMING_DELAY ) { 
   } else if ( histo_ == sistrip::FED_TIMING_ERROR ) { 
   } else if ( histo_ == sistrip::FED_TIMING_BASE ) { 
