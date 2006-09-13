@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/12 17:04:08 $
- * $Revision: 1.6 $
+ * $Date: 2006/09/13 08:21:28 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -61,7 +61,7 @@ void EBTriggerTowerTask::setup(void){
 
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBTTT Et map SM%02d", i+1);
-      meEtMap_[i] = dbe->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 4096, 0., 4096., "s");
+      meEtMap_[i] = dbe->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 128, 0., 4096., "s");
       sprintf(histo, "EBTTT FineGrainVeto SM%02d", i+1);
       meVeto_[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
       sprintf(histo, "EBTTT Flags SM%02d", i+1);
@@ -73,9 +73,9 @@ void EBTriggerTowerTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       for (int j = 0; j < 68 ; j++) {
         sprintf(histo, "EBTTT Et T SM%02d TT%02d", i+1, j+1);
-        meEtMapT_[i][j] = dbe->book1D(histo, histo, 4096, 0., 4096.);
+        meEtMapT_[i][j] = dbe->book1D(histo, histo, 128, 0., 4096.);
         sprintf(histo, "EBTTT Et R SM%02d TT%02d", i+1, j+1);
-        meEtMapR_[i][j] = dbe->book1D(histo, histo, 4096, 0., 4096.);
+        meEtMapR_[i][j] = dbe->book1D(histo, histo, 128, 0., 4096.);
       }
     }
 
@@ -133,97 +133,6 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  float xmap[36][68];
-  int nmap[36][68];
-
-  for (int i = 0; i < 36 ; i++) {
-    for (int j = 0; j < 68 ; j++) {
-      xmap[i][j] = 0.;
-      nmap[i][j] = 0;
-    }
-  }
-
-  try {
-
-    Handle<EBDigiCollection> digis;
-    e.getByLabel("ecalEBunpacker", digis);
-
-    int nebd = digis->size();
-    LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
-
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
-
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
-
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
-
-      int ism = id.ism();
-
-      int iet = 1 + ((ie-1)/5);
-      int ipt = 1 + ((ip-1)/5);
-
-      int itt = 4*(iet-1)+(ipt-1)+1;
-
-      LogDebug("EBTriggerTowerTask") << " det id = " << id;
-      LogDebug("EBTriggerTowerTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-      float xvalped = 0.; 
-      float xvalmax = 0.;
-
-      for (int i = 0; i < 10; i++) {
-
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
-        float gain = 1.;
-
-        if ( sample.gainId() == 1 ) gain = 1./12.;
-        if ( sample.gainId() == 2 ) gain = 1./ 6.;
-        if ( sample.gainId() == 3 ) gain = 1./ 1.;
-
-        float xval = float(adc) * gain;
-
-        if ( i < 3 ) xvalped = xvalped + xval;
-
-        if ( xval >= xvalmax ) xvalmax = xval;
-
-      }
-
-      xvalped = xvalped / 3;
-
-      xvalmax = xvalmax - xvalped;
-
-      float rms = 2.0;
-
-      if ( xvalmax >= rms ) {
-
-        xmap[ism-1][itt-1] = xmap[ism-1][itt-1] + xvalmax;
-        nmap[ism-1][itt-1] = nmap[ism-1][itt-1] + 1;
-
-      }
-
-    }
-
-    for (int i = 0; i < 36 ; i++) {
-      for (int j = 0; j < 68 ; j++) {
-
-         if ( nmap[i][j] > 0 ) {
-
-           float xval = xmap[i][j] / nmap[i][j];
-
-           if ( meEtMapR_[i][j] && xval != 0 ) meEtMapR_[i][j]->Fill(xval);
-
-         }
-
-      }
-    }
-
-  } catch ( std::exception& ex) {
-    LogDebug("EBTriggerTowerTask") << " EBDigiCollection not in event.";
-  }
-
   try {
 
     Handle<EcalTrigPrimDigiCollection> tpdigis;
@@ -275,6 +184,78 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( std::exception& ex) {
     LogDebug("EBTriggerTowerTask") << " EcalTrigPrimDigiCollection not in event.";
+  }
+
+  float xmap[36][68];
+
+  for (int i = 0; i < 36 ; i++) {
+    for (int j = 0; j < 68 ; j++) {
+      xmap[i][j] = 0.;
+    }
+  }
+
+  try {
+
+    Handle<EBDigiCollection> digis;
+    e.getByLabel("ecalEBunpacker", digis);
+
+    int nebd = digis->size();
+    LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
+
+    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+
+      EBDataFrame dataframe = (*digiItr);
+      EBDetId id = dataframe.id();
+
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
+
+      int ism = id.ism();
+
+      int iet = 1 + ((ie-1)/5);
+      int ipt = 1 + ((ip-1)/5);
+
+      int itt = 4*(iet-1) + (ipt-1) + 1;
+
+      LogDebug("EBTriggerTowerTask") << " det id = " << id;
+      LogDebug("EBTriggerTowerTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+
+      float xvalped = 0.; 
+      float xvalmax = 0.;
+
+      for (int i = 0; i < 10; i++) {
+
+        EcalMGPASample sample = dataframe.sample(i);
+        int adc = sample.adc();
+
+        float xval = float(adc);
+
+        if ( i < 3 ) xvalped = xvalped + xval;
+        if ( xval >= xvalmax ) xvalmax = xval;
+
+      }
+
+      xvalped = xvalped / 3;
+      xvalmax = xvalmax - xvalped;
+
+      float rms = 2.0;
+
+      if ( xvalmax > rms ) {
+        xmap[ism-1][itt-1] = xmap[ism-1][itt-1] + xvalmax;
+      }
+
+    }
+
+    for (int i = 0; i < 36 ; i++) {
+      for (int j = 0; j < 68 ; j++) {
+         float xval = xmap[i][j];
+         if ( meEtMapR_[i][j] && xval != 0 ) meEtMapR_[i][j]->Fill(xval);
+      }
+    }
+
+  } catch ( std::exception& ex) {
+    LogDebug("EBTriggerTowerTask") << " EBDigiCollection not in event.";
   }
 
 }
