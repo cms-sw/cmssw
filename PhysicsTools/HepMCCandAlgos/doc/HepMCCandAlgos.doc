@@ -28,12 +28,6 @@ Examples of configuration for the modules is the following:
 \htmlinclude genCandidates.cfi
 </pre>
 
-\subsection tests Unit tests and examples
-None.
-
-\section status Status and planned development
-To be reviewed.
-
 <hr>
 Last updated: @DATE@ L. Lista
 */
