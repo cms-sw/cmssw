@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.43 2006/09/08 17:29:44 rpw Exp $
+ * $Id: pset_parse.y,v 1.44 2006/09/11 17:51:20 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -99,6 +99,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token ERROR_tok
 %token TYPE_tok
 %token LETTERSTART_tok
+%token DOTDELIMITED_tok
 %token PRODUCTTAG_tok
 %token BANGSTART_tok
 %token EQUAL_tok
@@ -705,7 +706,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    $<_Node>$ = $<_PSetNode>2;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok replaceEntry
+                 REPLACE_tok DOTDELIMITED_tok EQUAL_tok replaceEntry
                  {
                    DBPRINT("procnode: REPLACEVALUE");
                    string name(toString($<str>2));
@@ -716,7 +717,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    $<_Node>$ = wn;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok PLUSEQUAL_tok replaceEntry
+                 REPLACE_tok DOTDELIMITED_tok PLUSEQUAL_tok replaceEntry
                  {
                    DBPRINT("procnode: APPENDVALUE");
                    string name(toString($<str>2));
@@ -727,7 +728,18 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    $<_Node>$ = wn;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok anyarray
+                 REPLACE_tok DOTDELIMITED_tok PLUSEQUAL_tok DOTDELIMITED_tok
+                 {
+                   DBPRINT("procnode: APPENDNODE");
+                   string name(toString($<str>2));
+                   string value(toString($<str>4));
+                   EntryNode * entry = new EntryNode("dotdelimited",value, value, false, lines);
+                   NodePtr entryPtr(entry);
+                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, true, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok DOTDELIMITED_tok EQUAL_tok anyarray
                  {
                    DBPRINT("node: REPLACEARRAY");
                    string name(toString($<str>2));
@@ -738,9 +750,9 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    $<_Node>$ = wn;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok PLUSEQUAL_tok anyarray
+                 REPLACE_tok DOTDELIMITED_tok PLUSEQUAL_tok anyarray
                  {
-                   DBPRINT("node: REPLACEARRAY");
+                   DBPRINT("node: APPENDARRAY");
                    string name(toString($<str>2));
                    StringListPtr value($<_StringList>4);
                    VEntryNode* en(new VEntryNode("replace",name,value, false,lines));
@@ -749,9 +761,20 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    $<_Node>$ = wn;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok nonblankscoped
+                 REPLACE_tok DOTDELIMITED_tok EQUAL_tok nonblankscoped
                  {
                    DBPRINT("procnode:REPLACESCOPE");
+                   string name(toString($<str>2));
+                   NodePtrListPtr value($<_NodePtrList>4);
+                   PSetNode* en(new PSetNode("replace", name, value, false, lines));
+                   NodePtr psetPtr(en);
+                   ReplaceNode* wn(new ReplaceNode("replace", name, psetPtr, false, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok nonblankscoped
+                 {
+                   DBPRINT("procnode:REPLACETOPLEVELPSET");
                    string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>4);
                    PSetNode* en(new PSetNode("replace", name, value, false, lines));
@@ -772,7 +795,7 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    $<_Node>$ = wn;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok nodesarray SCOPE_END_tok
+                 REPLACE_tok DOTDELIMITED_tok EQUAL_tok SCOPE_START_tok nodesarray SCOPE_END_tok
                  {
                    DBPRINT("procnode: REPLACE_VPSET");
                    string name(toString($<str>2));

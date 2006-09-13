@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.25 2006/08/25 21:34:59 rpw Exp $
+ * $Id: pset_lex.l,v 1.26 2006/08/28 19:08:47 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -45,9 +45,10 @@
 %}
 
 
-letterstart	[a-zA-Z]+[a-zA-Z0-9\-_\.]*
-producttag      [a-zA-Z]+[a-zA-Z0-9\-_\.:]*
-bangstart	\![a-zA-Z]+[a-zA-Z0-9\-_\.]*
+letterstart	[a-zA-Z]+[a-zA-Z0-9\-_]*
+dotdelimited    ([a-zA-Z]+[a-zA-Z0-9\-_]*+\.)+[a-zA-Z]+[a-zA-Z0-9\-_]*
+producttag      [a-zA-Z]+[a-zA-Z0-9\-_:]*
+bangstart	\![a-zA-Z]+[a-zA-Z0-9\-_]*
 alphanumeric	[^\'\"\{\}\(\)\&=\n\t\r ,;:`]+
 comment	        #.*[\n]?
 comment2        "//".*[\n]?
@@ -103,6 +104,7 @@ comment2        "//".*[\n]?
 \)		{ return GROUP_END_tok; }
 
 {letterstart}	{ yylval.str = stringDup(yytext); return LETTERSTART_tok; }
+{dotdelimited}  { yylval.str = stringDup(yytext); return DOTDELIMITED_tok; }
 {producttag}    { yylval.str = stringDup(yytext); return PRODUCTTAG_tok; }
 {bangstart}	{ yylval.str = stringDup(yytext); return BANGSTART_tok; }
 {alphanumeric}	{ yylval.str = stringDup(yytext); return VALUE_tok; }
