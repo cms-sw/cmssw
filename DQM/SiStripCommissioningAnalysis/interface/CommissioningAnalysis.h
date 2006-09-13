@@ -21,7 +21,8 @@ class CommissioningAnalysis {
 
  public:
   
-  CommissioningAnalysis() {;}
+  CommissioningAnalysis( const uint32_t& key );
+  CommissioningAnalysis();
   virtual ~CommissioningAnalysis() {;}
   
   typedef std::vector<float> VFloats;
@@ -38,6 +39,7 @@ class CommissioningAnalysis {
  protected:
   
   typedef std::pair<TProfile*,std::string> Histo;
+  inline uint32_t key() const;
   
  private:
   
@@ -45,7 +47,11 @@ class CommissioningAnalysis {
   virtual void extract( const std::vector<TProfile*>& ) = 0; 
   virtual void analyse() = 0; 
   
+  uint32_t key_;
+  
 };
+
+uint32_t CommissioningAnalysis::key() const { return key_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_CommissioningAnalysis_H
 

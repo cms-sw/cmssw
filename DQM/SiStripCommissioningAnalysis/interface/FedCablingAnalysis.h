@@ -18,6 +18,7 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   
  public:
   
+  FedCablingAnalysis( const uint32_t& key );
   FedCablingAnalysis();
   virtual ~FedCablingAnalysis() {;}
   

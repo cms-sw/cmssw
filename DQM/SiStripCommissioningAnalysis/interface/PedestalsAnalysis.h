@@ -18,6 +18,7 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   
  public:
 
+  PedestalsAnalysis( const uint32_t& key );
   PedestalsAnalysis();
   virtual ~PedestalsAnalysis() {;}
   

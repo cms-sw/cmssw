@@ -3,9 +3,33 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/LinearFit.h"
 #include "TProfile.h"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <cmath>
 
 using namespace std;
+
+// ----------------------------------------------------------------------------
+// 
+OptoScanAnalysis::OptoScanAnalysis( const uint32_t& key ) 
+  : CommissioningAnalysis(key),
+    gain_(sistrip::invalid_), 
+    bias_(4,sistrip::invalid_), 
+    measGain_(4,sistrip::invalid_), 
+    zeroLight_(4,sistrip::invalid_), 
+    linkNoise_(4,sistrip::invalid_),
+    liftOff_(4,sistrip::invalid_), 
+    threshold_(4,sistrip::invalid_), 
+    tickHeight_(4,sistrip::invalid_),
+    g0d0_(0,""), 
+    g0d1_(0,""), 
+    g1d0_(0,""), 
+    g1d1_(0,""), 
+    g2d0_(0,""), 
+    g2d1_(0,""), 
+    g3d0_(0,""), 
+    g3d1_(0,"")
+{;}
 
 // ----------------------------------------------------------------------------
 // 
@@ -32,8 +56,14 @@ OptoScanAnalysis::OptoScanAnalysis()
 // 
 void OptoScanAnalysis::print( stringstream& ss, uint32_t gain ) { 
   if ( gain >= 4 ) { gain = gain_; }
-  ss << "OPTO SCAN Monitorables for gain setting " << gain << "\n"
-     << " Optimum LLD gain setting : " << gain_ << "\n"
+  if ( key() ) {
+    ss << "OPTO SCAN monitorables for channel key 0x"
+       << hex << setw(8) << setfill('0') << key() << dec 
+       << " and gain" << gain << "\n";
+  } else {
+    ss << "OPTO SCAN monitorables for gain " << gain << "\n";
+  }
+  ss << " Optimum LLD gain setting : " << gain_ << "\n"
      << " LLD bias setting         : " << bias_[gain] << "\n"
      << " Measured gain [V/V]      : " << measGain_[gain] << "\n"
      << " 'Zero light' level [adc] : " << zeroLight_[gain] << "\n"

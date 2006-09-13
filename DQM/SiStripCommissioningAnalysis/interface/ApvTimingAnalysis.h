@@ -19,6 +19,7 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   
  public:
   
+  ApvTimingAnalysis( const uint32_t& key );
   ApvTimingAnalysis();
   virtual ~ApvTimingAnalysis() {;}
   

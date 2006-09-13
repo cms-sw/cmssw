@@ -11,6 +11,18 @@ using namespace std;
 
 // ----------------------------------------------------------------------------
 // 
+FedCablingAnalysis::FedCablingAnalysis( const uint32_t& key ) 
+  : CommissioningAnalysis(key),
+    fedId_(sistrip::invalid_), 
+    fedCh_(sistrip::invalid_),
+    level_(sistrip::invalid_),
+    num_(sistrip::invalid_),
+    hFedId_(0,""),
+    hFedCh_(0,"")
+{;}
+
+// ----------------------------------------------------------------------------
+// 
 FedCablingAnalysis::FedCablingAnalysis() 
   : CommissioningAnalysis(),
     fedId_(sistrip::invalid_), 
@@ -24,8 +36,13 @@ FedCablingAnalysis::FedCablingAnalysis()
 // ----------------------------------------------------------------------------
 // 
 void FedCablingAnalysis::print( stringstream& ss, uint32_t not_used ) { 
-  ss << "FED CABLING Monitorables:" << "\n"
-     << " FED id              : " << fedId_ << "\n" 
+  if ( key() ) {
+    ss << "FED CABLING monitorables for channel key 0x"
+       << hex << setw(8) << setfill('0') << key() << dec << "\n";
+  } else {
+    ss << "FED CABLING monitorables" << "\n";
+  }
+  ss << " FED id              : " << fedId_ << "\n" 
      << " FED channel         : " << fedCh_ << "\n"
      << " Signal level [adc]  : " << level_ << "\n"
      << " Number of candidates: " << num_ << "\n";

@@ -2,9 +2,21 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <cmath>
 
 using namespace std;
+
+// -----------------------------------------------------------------------------
+//
+VpspScanAnalysis::VpspScanAnalysis( const uint32_t& key )
+  : CommissioningAnalysis(key),
+    vpsp0_(sistrip::invalid_), 
+    vpsp1_(sistrip::invalid_),
+    hVpsp0_(0,""), 
+    hVpsp1_(0,"")
+{;}
 
 // -----------------------------------------------------------------------------
 //
@@ -19,8 +31,13 @@ VpspScanAnalysis::VpspScanAnalysis()
 // ----------------------------------------------------------------------------
 // 
 void VpspScanAnalysis::print( stringstream& ss, uint32_t not_used ) { 
-  ss << "VPSP SCAN Monitorables:" << "\n"
-     << " VPSP setting APV0: " << vpsp0_ << "\n" 
+  if ( key() ) {
+    ss << "VPSP SCAN monitorables for channel key 0x"
+       << hex << setw(8) << setfill('0') << key() << dec << "\n";
+  } else {
+    ss << "VPSP SCAN monitorables" << "\n";
+  }
+  ss << " VPSP setting APV0: " << vpsp0_ << "\n" 
      << " VPSP setting APV1: " << vpsp1_ << "\n" ;
 }
 

@@ -9,6 +9,29 @@ using namespace std;
 
 // ----------------------------------------------------------------------------
 // 
+PedestalsAnalysis::PedestalsAnalysis( const uint32_t& key ) 
+  : CommissioningAnalysis(key),
+    peds_(2,VFloats(128,sistrip::invalid_)), 
+    noise_(2,VFloats(128,sistrip::invalid_)), 
+    dead_(2,VInts(0,sistrip::invalid_)), 
+    noisy_(2,VInts(0,sistrip::invalid_)),
+    pedsMean_(2,sistrip::invalid_), 
+    pedsSpread_(2,sistrip::invalid_), 
+    noiseMean_(2,sistrip::invalid_), 
+    noiseSpread_(2,sistrip::invalid_), 
+    pedsMax_(2,sistrip::invalid_), 
+    pedsMin_(2,sistrip::invalid_), 
+    noiseMax_(2,sistrip::invalid_), 
+    noiseMin_(2,sistrip::invalid_),
+    hPeds_(0,""),
+    hNoise_(0,"")
+{
+  dead_[0].reserve(256); dead_[1].reserve(256); 
+  noisy_[0].reserve(256); noisy_[1].reserve(256);
+}
+
+// ----------------------------------------------------------------------------
+// 
 PedestalsAnalysis::PedestalsAnalysis() 
   : CommissioningAnalysis(),
     peds_(2,VFloats(128,sistrip::invalid_)), 
@@ -34,8 +57,15 @@ PedestalsAnalysis::PedestalsAnalysis()
 // 
 void PedestalsAnalysis::print( stringstream& ss, uint32_t iapv ) { 
   if ( iapv != 0 && iapv != 1 ) { iapv = 0; }
-  ss << "FED calibration constants for APV" << iapv << "\n"
-     << " Number of pedestal values   : " << peds_[iapv].size() << "\n"
+  
+  if ( key() ) {
+    ss << "FED calibration constants for channel key 0x"
+       << hex << setw(8) << setfill('0') << key() << dec 
+       << " and APV" << iapv << "\n";
+  } else {
+    ss << "FED calibration constants for APV" << iapv << "\n";
+  }
+  ss << " Number of pedestal values   : " << peds_[iapv].size() << "\n"
      << " Number of noise values      : " << noise_[iapv].size() << "\n"
      << " Dead strips  (>5s) [strip]  : (" << dead_[iapv].size() << " in total) ";
   for ( uint16_t ii = 0; ii < dead_[iapv].size(); ii++ ) { 

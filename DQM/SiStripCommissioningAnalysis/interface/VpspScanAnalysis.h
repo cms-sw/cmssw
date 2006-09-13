@@ -18,6 +18,7 @@ class VpspScanAnalysis : public CommissioningAnalysis {
   
  public:
 
+  VpspScanAnalysis( const uint32_t& key );
   VpspScanAnalysis();
   virtual ~VpspScanAnalysis() {;}
 

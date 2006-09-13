@@ -18,6 +18,7 @@ class OptoScanAnalysis : public CommissioningAnalysis {
   
  public:
   
+  OptoScanAnalysis( const uint32_t& key );
   OptoScanAnalysis();
   virtual ~OptoScanAnalysis() {;}
   
