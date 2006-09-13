@@ -9,6 +9,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class Alignable;
+class AlignableDet;
 
 /// A class to navigate from a DetId to an Alignable
 /// A map is created at construction time from all
