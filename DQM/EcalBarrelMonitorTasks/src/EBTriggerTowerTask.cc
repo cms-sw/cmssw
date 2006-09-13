@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/13 10:39:39 $
- * $Revision: 1.8 $
+ * $Date: 2006/09/13 14:34:21 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -239,7 +239,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       xvalped = xvalped / 3;
       xvalmax = xvalmax - xvalped;
 
-      xvalmax = xvalmax * 2 * TMath::ATan(TMath::Exp(-0.0174*ie));
+      xvalmax = xvalmax * 2 * TMath::ATan(TMath::Exp(-0.0174*(ie-0.5)));
 
       xmap[ism-1][itt-1] = xmap[ism-1][itt-1] + xvalmax;
 
