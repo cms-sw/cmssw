@@ -115,9 +115,7 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 
 Trajectory CosmicTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& seed) const
 {
- 
   Trajectory result( seed, seed.direction());
-
   std::vector<TM> seedMeas = seedMeasurements(seed);
   if ( !seedMeas.empty()) {
     for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++){
@@ -133,21 +131,18 @@ std::vector<TrajectoryMeasurement>
 CosmicTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
 {
   std::vector<TrajectoryMeasurement> result;
-
   TrajectorySeed::range hitRange = seed.recHits();
   for (TrajectorySeed::const_iterator ihit = hitRange.first; 
        ihit != hitRange.second; ihit++) {
- 
     //RC TransientTrackingRecHit* recHit = RHBuilder->build(&(*ihit));
     TransientTrackingRecHit::RecHitPointer recHit = RHBuilder->build(&(*ihit));
-    
     const GeomDet* hitGeomDet = (&(*tracker))->idToDet( ihit->geographicalId());
     TSOS invalidState( new BasicSingleTrajectoryState( hitGeomDet->surface()));
 
     if (ihit == hitRange.second - 1) {
       TSOS  updatedState=startingTSOS(seed);
       result.push_back(TM( invalidState, updatedState, recHit));
-      
+
     } 
     else {
       result.push_back(TM( invalidState, recHit));
@@ -218,14 +213,14 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
     }
   }
 
-  SiStripMatchedRecHit2DCollection::const_iterator istripm;
-  if ((&collmatched)!=0){
-    for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
-      float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
-      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	allHits.push_back(&(*istripm));
-    }
-  }
+//   SiStripMatchedRecHit2DCollection::const_iterator istripm;
+//   if ((&collmatched)!=0){
+//     for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
+//       float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
+//       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+// 	allHits.push_back(&(*istripm));
+//     }
+//   }
 
   if (seed_plus){
     stable_sort(allHits.begin(),allHits.end(),CompareHitY_plus(*tracker));
@@ -317,7 +312,11 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
   if ( qualityFilter( traj)){
     const TrajectorySeed& tmpseed=traj.seed();
-    TSOS startingState=TrajectoryStateWithArbitraryError()(startingTSOS(tmpseed));     
+
+    TSOS startingState=  TrajectoryStateWithArbitraryError()
+      (thePropagatorOp->propagate(traj.lastMeasurement().updatedState(),
+				  tracker->idToDet((*hits.begin())->geographicalId())->surface()));
+
     trajFit = theFitter->fit(tmpseed,hits, startingState );
   }
   

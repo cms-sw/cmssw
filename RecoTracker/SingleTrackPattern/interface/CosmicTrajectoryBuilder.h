@@ -86,10 +86,10 @@ class CosmicTrajectoryBuilder
 	     vector<Trajectory> &trajoutput);
 
     void init(const edm::EventSetup& es,bool);
-
+    Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
  private:
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
-    Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
+ 
  
     vector<const TrackingRecHit*> SortHits(const SiStripRecHit2DCollection &collstereo,
 					   const SiStripRecHit2DCollection &collrphi ,

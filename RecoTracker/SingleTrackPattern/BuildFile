@@ -13,6 +13,7 @@
 <use name=RecoTracker/GeometryESProducer>
 
 <export>
+<lib name=RecoTrackerSingleTrackPattern>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/MessageLogger>
