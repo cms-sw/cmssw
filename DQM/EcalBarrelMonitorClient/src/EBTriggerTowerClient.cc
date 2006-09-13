@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/12 15:35:35 $
- * $Revision: 1.1 $
+ * $Date: 2006/09/12 15:40:35 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -265,7 +265,7 @@ void EBTriggerTowerClient::subscribe(void){
       mui_->add(me_h01_[ism-1], histo);
 
       sprintf(histo, "EBTTT FineGrainVeto SM%02d", ism);
-      me_i01_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTriggerTowerTask");
+      me_i01_[ism-1] = mui_->collate3D(histo, histo, "EcalBarrel/Sums/EBTriggerTowerTask");
       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EBTTT FineGrainVeto SM%02d", ism);
       mui_->add(me_i01_[ism-1], histo);
 
@@ -397,7 +397,7 @@ void EBTriggerTowerClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EBTTT FineGrainVeto SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    i01_[ism-1] = EBMUtilsClient::getHisto<TH2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = EBMUtilsClient::getHisto<TH3D*>( me, cloneME_, i01_[ism-1] );
     mei01_[ism-1] = me;
 
     if ( collateSources_ ) {

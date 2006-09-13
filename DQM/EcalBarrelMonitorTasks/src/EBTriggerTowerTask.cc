@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/13 14:34:21 $
- * $Revision: 1.9 $
+ * $Date: 2006/09/13 14:46:33 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -63,7 +63,7 @@ void EBTriggerTowerTask::setup(void){
       sprintf(histo, "EBTTT Et map SM%02d", i+1);
       meEtMap_[i] = dbe->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 128, 0., 8192., "s");
       sprintf(histo, "EBTTT FineGrainVeto SM%02d", i+1);
-      meVeto_[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      meVeto_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 2, 0., 2.);
       sprintf(histo, "EBTTT Flags SM%02d", i+1);
       meFlags_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 7, 0., 7.);
     }
@@ -171,10 +171,10 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       xval = data.compressedEt();
       if ( meEtMap_[ismt-1] ) meEtMap_[ismt-1]->Fill(xiet, xipt, xval);
 
-      xval = data.fineGrain();
+      xval = 0.5 + data.fineGrain();
       if ( meVeto_[ismt-1] ) meVeto_[ismt-1]->Fill(xiet, xipt, xval);
 
-      xval = data.ttFlag();
+      xval = 0.5 + data.ttFlag();
       if ( meFlags_[ismt-1] ) meFlags_[ismt-1]->Fill(xiet, xipt, xval);
 
       xval = data.compressedEt();
