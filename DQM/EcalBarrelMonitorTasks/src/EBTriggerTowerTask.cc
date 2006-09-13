@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/13 14:46:33 $
- * $Revision: 1.10 $
+ * $Date: 2006/09/13 19:22:00 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -65,7 +65,7 @@ void EBTriggerTowerTask::setup(void){
       sprintf(histo, "EBTTT FineGrainVeto SM%02d", i+1);
       meVeto_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 2, 0., 2.);
       sprintf(histo, "EBTTT Flags SM%02d", i+1);
-      meFlags_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 7, 0., 7.);
+      meFlags_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 8, 0., 8.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTriggerTowerTask/EnergyMaps");
