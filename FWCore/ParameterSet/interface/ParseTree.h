@@ -73,11 +73,13 @@ namespace edm {
 
       void processRenameNode(const NodePtr & n, NodePtrMap & targetMap);
 
-      void processReplaceNode(const NodePtr & n, NodePtrMap & targetMap);
+      void processReplaceNode(NodePtr & n, NodePtrMap & targetMap);
 
       /// once we're done with a rename/replace node, we throw it away
       void removeNode(const NodePtr & victim);
 
+      /// finds a node in a dot-delimited path in some different maps
+      NodePtr findInPath(const std::string & path) const;
       /// parameters are specified by dot-delimited names.
       /// this method walks the tree 
       NodePtr findInPath(const std::string & path, const NodePtrMap & nodeMap) const;
