@@ -30,6 +30,7 @@ namespace edm {
       virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual void accept(Visitor& v) const;
       NodePtr value() const {return value_;}
+      void setValue(const NodePtr & n) {value_ = n;}
       /// get the value, cast as a pointer
       template<class T> T* value() const {
         return dynamic_cast<T*>(value().get());
