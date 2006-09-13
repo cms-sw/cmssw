@@ -26,6 +26,9 @@ PedestalsHistograms::~PedestalsHistograms() {
 /** */	 
 void PedestalsHistograms::histoAnalysis( bool debug ) {
   
+  // Clear map holding analysis objects
+  data_.clear();
+
   // Iterate through map containing vectors of profile histograms
   CollationsMap::const_iterator iter = collations().begin();
   for ( ; iter != collations().end(); iter++ ) {
@@ -37,7 +40,7 @@ void PedestalsHistograms::histoAnalysis( bool debug ) {
       continue;
     }
     
-    // Retrieve pointerd to profile histos for this FED channel 
+    // Retrieve pointers to profile histos for this FED channel 
     vector<TProfile*> profs;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
@@ -46,13 +49,12 @@ void PedestalsHistograms::histoAnalysis( bool debug ) {
     } 
     
     // Perform histo analysis
-    PedestalsAnalysis anal;
+    PedestalsAnalysis anal( iter->first );
     anal.analysis( profs );
     data_[iter->first] = anal; 
     if ( debug ) {
       static uint16_t cntr = 0;
       stringstream ss;
-      ss << " ControlKey: " << hex << setw(8) << setfill('0') << iter->first << dec << endl;
       anal.print( ss, 0 ); 
       anal.print( ss, 1 ); 
       cout << ss.str() << endl;

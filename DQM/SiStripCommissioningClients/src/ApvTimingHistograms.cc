@@ -25,8 +25,8 @@ ApvTimingHistograms::~ApvTimingHistograms() {
 // -----------------------------------------------------------------------------	 
 /** */	 
 void ApvTimingHistograms::histoAnalysis( bool debug ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
+  // Clear map holding analysis objects
   data_.clear();
   
   // Reset minimum / maximum delays
@@ -46,21 +46,16 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
       continue;
     }
     
-    // Retrieve pointerd to profile histos for this FED channel 
+    // Retrieve pointers to profile histos for this FED channel 
     vector<TProfile*> profs;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
       TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( *ihis ) );
-      if ( !prof ) { 
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " NULL pointer to MonitorElement!" << endl; 
-	continue; 
-      }
-      profs.push_back(prof);
+      if ( prof ) { profs.push_back(prof); }
     } 
-    
+
     // Perform histo analysis
-    ApvTimingAnalysis anal;
+    ApvTimingAnalysis anal( iter->first );
     anal.analysis( profs );
     data_[iter->first] = anal; 
     
@@ -70,17 +65,18 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
 	   << " Tick mark height too small: " << anal.height() << endl;
       continue; 
     }
+
+    // Check time of rising edge
+    if ( anal.time() > sistrip::maximum_ ) { continue; }
     
     // Find maximum time
-    if ( anal.time() < sistrip::maximum_ && 
-	 anal.time() > time_max ) { 
+    if ( anal.time() > time_max ) { 
       time_max = anal.time(); 
       device_max = iter->first;
     }
-
+    
     // Find minimum time
-    if ( anal.time() < sistrip::maximum_ && 
-	 anal.time() < time_min ) { 
+    if ( anal.time() < time_min ) { 
       time_min = anal.time(); 
       device_min = iter->first;
     }
@@ -93,39 +89,39 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
        << " FED channels" << endl;
   
   // Adjust maximum (and minimum) delay(s) to find optimum sampling point(s)
-  if ( time_max > 0. ) { 
-    
-    SiStripControlKey::ControlPath max = SiStripControlKey::path( device_max );
-    cout << " Device (FEC/slot/ring/CCU/module/channel) " 
-	 << max.fecCrate_ << "/" 
-	 << max.fecSlot_ << "/" 
-	 << max.fecRing_ << "/" 
-	 << max.ccuAddr_ << "/"
-	 << max.ccuChan_ << "/"
-	 << " has maximum delay (rising edge) [ns]:" << time_max << endl;
-    
-    SiStripControlKey::ControlPath min = SiStripControlKey::path( device_min );
-    cout << " Device (FEC/slot/ring/CCU/module/channel): " 
-	 << min.fecCrate_ << "/" 
-	 << min.fecSlot_ << "/" 
-	 << min.fecRing_ << "/" 
-	 << min.ccuAddr_ << "/"
-	 << min.ccuChan_ << "/"
-	 << " has minimum delay (rising edge) [ns]:" << time_min << endl;
-    
-  } else {
+  if ( time_max > sistrip::maximum_ ||
+       time_max < -1.*sistrip::maximum_ ) { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Negative value for maximum time: "
+	 << " Unable to set maximum time! Found unexpected value: "
 	 << time_max << endl;
+    return; 
   }
   
+  SiStripControlKey::ControlPath max = SiStripControlKey::path( device_max );
+  cout << " Device (FEC/slot/ring/CCU/module/channel) " 
+       << max.fecCrate_ << "/" 
+       << max.fecSlot_ << "/" 
+       << max.fecRing_ << "/" 
+       << max.ccuAddr_ << "/"
+	 << max.ccuChan_ << "/"
+       << " has maximum delay (rising edge) [ns]:" << time_max << endl;
+  
+  SiStripControlKey::ControlPath min = SiStripControlKey::path( device_min );
+  cout << " Device (FEC/slot/ring/CCU/module/channel): " 
+       << min.fecCrate_ << "/" 
+       << min.fecSlot_ << "/" 
+       << min.fecRing_ << "/" 
+       << min.ccuAddr_ << "/"
+       << min.ccuChan_ << "/"
+       << " has minimum delay (rising edge) [ns]:" << time_min << endl;
+  
+  // Set maximum time for all analysis objects
   map<uint32_t,ApvTimingAnalysis>::iterator ianal = data_.begin();
   for ( ; ianal != data_.end(); ianal++ ) { 
     ianal->second.max( time_max ); 
     static uint16_t cntr = 0;
     if ( debug ) {
       stringstream ss;
-      ss << " ControlKey: " << hex << setw(8) << setfill('0') << ianal->first << dec << endl;
       ianal->second.print( ss ); 
       cout << ss.str() << endl;
       cntr++;

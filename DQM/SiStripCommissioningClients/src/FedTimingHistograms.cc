@@ -31,9 +31,14 @@ FedTimingHistograms::~FedTimingHistograms() {
 /** */	 
 void FedTimingHistograms::histoAnalysis( bool debug ) {
   
+  // Clear map holding analysis objects
+  data_.clear();
+
   // Reset minimum / maximum delays
-  minDelay_ =  1. * sistrip::invalid_;
-  maxDelay_ = -1. * sistrip::invalid_;
+  float time_min =  1. * sistrip::invalid_;
+  float time_max = -1. * sistrip::invalid_;
+  uint32_t device_min = sistrip::invalid_;
+  uint32_t device_max = sistrip::invalid_;
   
   // Iterate through map containing vectors of profile histograms
   CollationsMap::const_iterator iter = collations().begin();
@@ -46,46 +51,39 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
       continue;
     }
     
-    // Retrieve pointerd to profile histos for this FED channel 
+    // Retrieve pointers to profile histos for this FED channel 
     vector<TProfile*> profs;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
       TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( *ihis ) );
-      if ( !prof ) { 
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " NULL pointer to MonitorElement!" << endl; 
-	continue; 
-      }
-      profs.push_back(prof);
+      if ( prof ) { profs.push_back(prof); }
     } 
     
     // Perform histo analysis
-    FedTimingAnalysis anal;
+    FedTimingAnalysis anal( iter->first );
     anal.analysis( profs );
     data_[iter->first] = anal; 
-    if ( debug ) {
-      static uint16_t cntr = 0;
-      stringstream ss;
-      anal.print( ss ); 
-      cout << ss.str() << endl;
-      cntr++;
-    }
     
     // Check tick height is valid
-    if ( anal.height() < 100. ) { continue; }
-    
-    // Set maximum delay
-    if ( anal.delay() < sistrip::maximum_ && 
-	 anal.delay() > maxDelay_ ) { 
-      maxDelay_ = anal.delay(); 
-      deviceWithMaxDelay_ = iter->first;
+    if ( anal.height() < 100. ) { 
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Tick mark height too small: " << anal.height() << endl;
+      continue; 
     }
 
-    // Set minimum delay
-    if ( anal.delay() < sistrip::maximum_ && 
-	 anal.delay() < minDelay_ ) { 
-      minDelay_ = anal.delay(); 
-      deviceWithMinDelay_ = iter->first;
+    // Check time of rising edge
+    if ( anal.time() > sistrip::maximum_ ) { continue; }
+    
+    // Find maximum time
+    if ( anal.time() > time_max ) { 
+      time_max = anal.time(); 
+      device_max = iter->first;
+    }
+    
+    // Find minimum time
+    if ( anal.time() < time_min ) { 
+      time_min = anal.time(); 
+      device_min = iter->first;
     }
 
   }
@@ -95,47 +93,44 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
        << collations().size() 
        << " FED channels" << endl;
 
-
   // Adjust maximum (and minimum) delay(s) to find optimum sampling point(s)
-  if ( maxDelay_ > 0. ) { 
-
-    SiStripControlKey::ControlPath max = SiStripControlKey::path( deviceWithMaxDelay_ );
-    SiStripControlKey::ControlPath min = SiStripControlKey::path( deviceWithMinDelay_ );
-    cout << " Device (FEC/slot/ring/CCU/module/channel) " 
-	 << max.fecCrate_ << "/" 
-	 << max.fecSlot_ << "/" 
-	 << max.fecRing_ << "/" 
-	 << max.ccuAddr_ << "/"
+  if ( time_max > sistrip::maximum_ ||
+       time_max < -1.*sistrip::maximum_ ) { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " Unable to set maximum time! Found unexpected value: "
+	 << time_max << endl;
+    return; 
+  }
+  
+  SiStripControlKey::ControlPath max = SiStripControlKey::path( device_max );
+  cout << " Device (FEC/slot/ring/CCU/module/channel) " 
+       << max.fecCrate_ << "/" 
+       << max.fecSlot_ << "/" 
+       << max.fecRing_ << "/" 
+       << max.ccuAddr_ << "/"
 	 << max.ccuChan_ << "/"
-	 << " has maximum delay (rising edge) [ns]:" << maxDelay_ << endl;
-    cout << " Device (FEC/slot/ring/CCU/module/channel): " 
-	 << min.fecCrate_ << "/" 
-	 << min.fecSlot_ << "/" 
-	 << min.fecRing_ << "/" 
-	 << min.ccuAddr_ << "/"
-	 << min.ccuChan_ << "/"
-	 << " has minimum delay (rising edge) [ns]:" << minDelay_ << endl;
-
-    float adjustment = 25 - int( rint(maxDelay_+optimumSamplingPoint_) ) % 25;
-    cout << " Adjustment required to find optimum sampling point: " << adjustment << endl;
-    maxDelay_ += adjustment;
-    minDelay_ += adjustment;
-
-    cout << " Device (FEC/slot/ring/CCU/module/channel) " 
-	 << max.fecCrate_ << "/" 
-	 << max.fecSlot_ << "/" 
-	 << max.fecRing_ << "/" 
-	 << max.ccuAddr_ << "/"
-	 << max.ccuChan_ << "/"
-	 << " has maximum delay (sampling point) [ns]:" << maxDelay_ << endl;
-    cout << " Device (FEC/slot/ring/CCU/module/channel): " 
-	 << min.fecCrate_ << "/" 
-	 << min.fecSlot_ << "/" 
-	 << min.fecRing_ << "/" 
-	 << min.ccuAddr_ << "/"
-	 << min.ccuChan_ << "/"
-	 << " has minimum delay (sampling point) [ns]:" << minDelay_ << endl;
-
+       << " has maximum delay (rising edge) [ns]:" << time_max << endl;
+  
+  SiStripControlKey::ControlPath min = SiStripControlKey::path( device_min );
+  cout << " Device (FEC/slot/ring/CCU/module/channel): " 
+       << min.fecCrate_ << "/" 
+       << min.fecSlot_ << "/" 
+       << min.fecRing_ << "/" 
+       << min.ccuAddr_ << "/"
+       << min.ccuChan_ << "/"
+       << " has minimum delay (rising edge) [ns]:" << time_min << endl;
+  
+  // Set maximum time for all analysis objects
+  map<uint32_t,FedTimingAnalysis>::iterator ianal = data_.begin();
+  for ( ; ianal != data_.end(); ianal++ ) { 
+    ianal->second.max( time_max ); 
+    static uint16_t cntr = 0;
+    if ( debug ) {
+      stringstream ss;
+      ianal->second.print( ss ); 
+      cout << ss.str() << endl;
+      cntr++;
+    }
   }
 
 }

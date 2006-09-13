@@ -26,6 +26,9 @@ VpspScanHistograms::~VpspScanHistograms() {
 /** */	 
 void VpspScanHistograms::histoAnalysis( bool debug ) {
   
+  // Clear map holding analysis objects
+  data_.clear();
+
   // Iterate through map containing vectors of profile histograms
   CollationsMap::const_iterator iter = collations().begin();
   for ( ; iter != collations().end(); iter++ ) {
@@ -37,21 +40,16 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
       continue;
     }
     
-    // Retrieve pointerd to profile histos for this FED channel 
+    // Retrieve pointers to profile histos for this FED channel 
     vector<TProfile*> profs;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
       TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( *ihis ) );
-      if ( !prof ) { 
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " NULL pointer to MonitorElement!" << endl; 
-	continue; 
-      }
-      profs.push_back(prof);
+      if ( prof ) { profs.push_back(prof); }
     } 
     
     // Perform histo analysis
-    VpspScanAnalysis anal;
+    VpspScanAnalysis anal( iter->first );
     anal.analysis( profs );
     data_[iter->first] = anal; 
     if ( debug ) {
