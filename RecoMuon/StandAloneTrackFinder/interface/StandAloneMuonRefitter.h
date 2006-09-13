@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/09/04 13:28:43 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/09/04 17:11:48 $
+ *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -15,7 +15,6 @@
 #include "RecoMuon/TrackingTools/interface/FitDirection.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 class Propagator;
 class DetLayer;
@@ -23,6 +22,7 @@ class MuonTrajectoryUpdator;
 class Trajectory;
 class MuonDetLayerMeasurements;
 class MeasurementEstimator;
+class MuonServiceProxy;
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
@@ -73,7 +73,10 @@ class StandAloneMuonRefitter {
 
   /// Return the fit direction
   recoMuon::FitDirection fitDirection() const {return theFitDirection;}
-
+  
+  /// True if there are only the RPC measurements
+  bool onlyRPC() {return theRPCLoneliness;}
+  
 
 protected:
 
@@ -102,7 +105,7 @@ private:
   MuonDetLayerMeasurements *theMeasurementExtractor;
   
   /// access at the propagator
-  const Propagator *propagator() const { return &*theService->propagator(thePropagatorName); }
+  const Propagator *propagator() const;
 
   /// The Estimator
   MeasurementEstimator *theEstimator;
@@ -141,6 +144,9 @@ private:
   /// Navigation type
   /// "Direct","Standard"
   std::string theNavigationType;
+
+  /// True if there are only the RPC measurements
+  bool theRPCLoneliness;
 
   int totalChambers;
   int dtChambers;
