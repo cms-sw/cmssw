@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.38 2006/09/11 19:44:42 vos Exp $
+ * \version $Id: TrackBase.h,v 1.39 2006/09/13 08:42:00 llista Exp $
  *
  */
 
@@ -97,9 +97,9 @@ namespace reco {
     /// z coordniate of point of closest approach to beamline
     double dz() const { return parameters_[ i_dz ]; }
     /// track momentum vector
-    Vector momentum() const;
+    Vector momentum() const { return Vector( px(), py(), pz() ); }
     /// position of point of closest approach to the beamline
-    Point vertex() const;
+    Point vertex() const { return Point( vx(), vy(), vz() ); }
     /// return a SVector
     ParameterVector parameters() const { ParameterVector v; fill( v ); return v; }
     /// fill a SVector
@@ -132,21 +132,21 @@ namespace reco {
     /// track transverse momentum
     double pt() const { return pt_; }
     /// x coordinate of momentum vector
-    double px() const { return momentum().X(); }
+    double px() const { return pt() * cos( phi0() ); }
     /// y coordinate of momentum vector
-    double py() const { return momentum().Y(); }
+    double py() const { return pt() * sin( phi0() ); }
     /// z coordinate of momentum vector
-    double pz() const { return momentum().Z(); }
+    double pz() const { return pt() / tan( theta() ); }
     /// azimuthal angle of momentum vector
     double phi() const { return momentum().Phi(); }
     /// pseudorapidity of momentum vector
     double eta() const { return momentum().Eta(); }
     /// x coordinate of point of closest approach to the beamline
-    double vx() const { return vertex().X(); }
+    double vx() const { return d0() * sin( phi0() ); }
     /// y coordinate of point of closest approach to the beamline
-    double vy() const { return vertex().Y(); }
+    double vy() const { return - d0() * cos( phi0() ); }
     /// z coordinate of point of closest approach to the beamline
-    double vz() const { return vertex().Z(); }
+    double vz() const { return dz(); }
     /// x coordinate of point of closest approach to the beamline
     double x() const { return vx(); }
     /// y coordinate of point of closest approach to the beamline
@@ -180,14 +180,6 @@ namespace reco {
     /// hit pattern
     HitPattern hitPattern_;
   };
-  
-  inline TrackBase::Vector TrackBase::momentum() const {
-    return Vector( pt() * cos( phi0() ), pt() * sin( phi0() ), pt() / tan( theta() ) );
-  }
-  
-  inline TrackBase::Point TrackBase::vertex() const {
-    return Point( d0() * sin( phi0() ), - d0() * cos( phi0() ), dz() );
-  }
     
 }
 
