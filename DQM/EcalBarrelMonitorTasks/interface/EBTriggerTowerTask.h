@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2006/06/17 10:07:47 $
- * $Revision: 1.7 $
+ * $Date: 2006/09/12 13:01:16 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -22,7 +22,11 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
