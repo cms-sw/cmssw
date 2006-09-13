@@ -1,0 +1,35 @@
+<use name=FWCore/Utilities>
+<use name=FWCore/Framework>
+<use name=DataFormats/TrackReco>
+<use name=clhep>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/Records>
+<use name=MagneticField/Records>
+<use name=MagneticField/Engine>
+<use name=SimDataFormats/Vertex>
+<use name=SimDataFormats/TrackingAnalysis>
+<use name=rootcintex>
+<use name=root>
+<use name=SimTracker/TrackAssociation>
+
+<export>
+<lib name=ValidationRecoTrack>
+   <use name=FWCore/Utilities>
+   <use name=FWCore/Framework>
+   <use name=DataFormats/TrackReco>
+   <use name=clhep>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=Geometry/TrackerGeometryBuilder>
+   <use name=Geometry/Records>
+   <use name=MagneticField/Records>
+   <use name=MagneticField/Engine>
+   <use name=SimDataFormats/Vertex>
+   <use name=SimDataFormats/TrackingAnalysis>
+   <use name=rootcintex>
+   <use name=root>
+   <use name=SimTracker/TrackAssociation>
+</export>
+<flags SEAL_PLUGIN_NAME="ValidationRecoTrack">
