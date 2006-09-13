@@ -186,7 +186,7 @@ string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& hist
   else if ( histo == sistrip::OPTO_SCAN_LASER_THRESHOLD ) { return sistrip::optoScanLaserThresh_; }
   else if ( histo == sistrip::OPTO_SCAN_TICK_HEIGHT ) { return sistrip::optoScanTickHeight_; }
   // VPSP SCAN
-  else if ( histo == sistrip::VPSP_SCAN ) { return sistrip::vpspScan_; }
+  else if ( histo == sistrip::VPSP_SCAN_BOTH_APVS ) { return sistrip::vpspScanBothApvs_; }
   else if ( histo == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv0_; }
   else if ( histo == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv1_; }
   // PEDESTALS / NOISE

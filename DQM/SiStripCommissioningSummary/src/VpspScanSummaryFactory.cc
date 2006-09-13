@@ -66,7 +66,7 @@ uint32_t SummaryHistogramFactory<VpspScanAnalysis>::extract( const map<uint32_t,
   generator_->clearMap();
   map<uint32_t,VpspScanAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    if ( histo_ == sistrip::VPSP_SCAN ) {
+    if ( histo_ == sistrip::VPSP_SCAN_BOTH_APVS ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp0() ); 
       generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp1() ); 
     } else if ( histo_ == sistrip::VPSP_SCAN_APV0 ) {
@@ -128,7 +128,8 @@ void SummaryHistogramFactory<VpspScanAnalysis>::fill( TH1& summary_histo ) {
   
   // Histogram formatting
   generator_->format( histo_, type_, view_, level_, summary_histo );
-  if ( histo_ == sistrip::VPSP_SCAN_APV0 ) {
+  if ( histo_ == sistrip::VPSP_SCAN_BOTH_APVS ) {
+  } else if ( histo_ == sistrip::VPSP_SCAN_APV0 ) { 
   } else if ( histo_ == sistrip::VPSP_SCAN_APV1 ) {
   } else { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
