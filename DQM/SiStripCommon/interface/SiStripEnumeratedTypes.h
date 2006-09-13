@@ -70,8 +70,8 @@ namespace sistrip {
 		      APV_TIMING_PEAK = 506, 
 		      APV_TIMING_HEIGHT = 507,
 		      // FED TIMING
-		      FED_TIMING_PLL_COARSE = 1201, 
-		      FED_TIMING_PLL_FINE = 1202, 
+		      FED_TIMING_TIME = 501, 
+		      FED_TIMING_MAX_TIME = 502, 
 		      FED_TIMING_DELAY = 1203, 
 		      FED_TIMING_ERROR = 1204, 
 		      FED_TIMING_BASE = 1205, 

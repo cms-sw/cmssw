@@ -95,8 +95,8 @@ namespace sistrip {
   static const std::string apvTimingHeight_ = "ApvTimingHeight";
 
   // summary histo names (fed timing)
-  static const std::string fedTimingCoarse_ = "FedTimingCoarse";
-  static const std::string fedTimingFine_   = "FedTimingFine";
+  static const std::string fedTimingTime_   = "FedTimingTime";
+  static const std::string fedTimingMax_    = "FedTimingMax";
   static const std::string fedTimingDelay_  = "FedTimingDelay";
   static const std::string fedTimingError_  = "FedTimingError";
   static const std::string fedTimingBase_   = "FedTimingBase";

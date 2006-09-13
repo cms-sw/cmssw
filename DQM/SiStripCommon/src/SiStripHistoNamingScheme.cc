@@ -169,8 +169,8 @@ string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& hist
   else if ( histo == sistrip::APV_TIMING_PEAK ) { return sistrip::apvTimingPeak_; }
   else if ( histo == sistrip::APV_TIMING_HEIGHT ) { return sistrip::apvTimingHeight_; }
   // FED TIMING
-  else if ( histo == sistrip::FED_TIMING_PLL_COARSE ) { return sistrip::fedTimingCoarse_; }
-  else if ( histo == sistrip::FED_TIMING_PLL_FINE ) { return sistrip::fedTimingFine_; }
+  else if ( histo == sistrip::FED_TIMING_TIME ) { return sistrip::fedTimingTime_; } 
+  else if ( histo == sistrip::FED_TIMING_MAX_TIME ) { return sistrip::fedTimingMax_; }
   else if ( histo == sistrip::FED_TIMING_DELAY ) { return sistrip::fedTimingDelay_; }
   else if ( histo == sistrip::FED_TIMING_ERROR ) { return sistrip::fedTimingError_; }
   else if ( histo == sistrip::FED_TIMING_BASE ) { return sistrip::fedTimingBase_; }
