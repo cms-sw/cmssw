@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/09/04 17:11:49 $
- *  $Revision: 1.29 $
+ *  $Date: 2006/09/05 08:17:53 $
+ *  $Revision: 1.30 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -16,6 +16,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 
@@ -88,6 +89,8 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
   theMeasurementExtractor = new MuonDetLayerMeasurements(enableDTMeasurement,
 							 enableCSCMeasurement,
 							 enableRPCMeasurement);
+
+  theRPCLoneliness = (!(enableDTMeasurement && enableCSCMeasurement)) ? enableRPCMeasurement : false;
 }
 
 StandAloneMuonRefitter::~StandAloneMuonRefitter(){
@@ -99,6 +102,10 @@ StandAloneMuonRefitter::~StandAloneMuonRefitter(){
   delete theMuonUpdator;
   delete theMeasurementExtractor;
   delete theBestMeasurementFinder;
+}
+
+const Propagator* StandAloneMuonRefitter::propagator() const { 
+  return &*theService->propagator(thePropagatorName); 
 }
 
 /// Return the propagation direction
@@ -263,7 +270,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 								     propagator());
       LogDebug(metname)<<"trajectory updated: "<<result.first<<endl;
       LogDebug(metname) << debug.dumpTSOS(result.second);
-
+      
       if(result.first){ 
 	lastTSOS = result.second;
 	incrementChamberCounters(*layer);
