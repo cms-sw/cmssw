@@ -102,7 +102,7 @@ namespace edm {
         findBlockModifiers(renameNodes_, blockRenameNodes_);
         findBlockModifiers(replaceNodes_, blockReplaceNodes_);
         
-        NodePtrList::const_iterator nodeItr;
+        NodePtrList::iterator nodeItr;
         // do copies
         for(nodeItr = blockCopyNodes_.begin();
             nodeItr != blockCopyNodes_.end(); ++nodeItr)
@@ -177,7 +177,7 @@ namespace edm {
 
     void ParseTree::print(const std::string & dotDelimitedNode) const
     {
-      NodePtr nodePtr = findInPath(dotDelimitedNode, modulesAndSources_);
+      NodePtr nodePtr = findInPath(dotDelimitedNode);
       nodePtr->print(std::cout, Node::EXPANDED);
     }
 
@@ -185,7 +185,7 @@ namespace edm {
     std::string ParseTree::value(const std::string & dotDelimitedNode) const
     {
       string result = "";
-      NodePtr nodePtr = findInPath(dotDelimitedNode, modulesAndSources_);
+      NodePtr nodePtr = findInPath(dotDelimitedNode);
       EntryNode * entryNode = dynamic_cast<EntryNode *>(nodePtr.get());
       if(entryNode == 0)
       {
@@ -204,7 +204,7 @@ namespace edm {
     std::vector<std::string> ParseTree::values(const std::string & dotDelimitedNode) const
     {
       std::vector<std::string> result;
-      NodePtr nodePtr = findInPath(dotDelimitedNode, modulesAndSources_);
+      NodePtr nodePtr = findInPath(dotDelimitedNode);
       VEntryNode * vEntryNode = dynamic_cast<VEntryNode *>(nodePtr.get());
        
       if(vEntryNode == 0)
@@ -363,12 +363,18 @@ namespace edm {
     }
 
 
-    void ParseTree::processReplaceNode(const NodePtr & n,
+    void ParseTree::processReplaceNode(NodePtr & n,
                                 ParseTree::NodePtrMap  & targetMap)
     {
       NodePtr targetPtr = findInPath(n->name(), targetMap);
-      const ReplaceNode * replaceNode = dynamic_cast<const ReplaceNode*>(n.get());
+      ReplaceNode * replaceNode = dynamic_cast<ReplaceNode*>(n.get());
       assert(replaceNode != 0);
+      // see if we need to resolve this replace node
+      if(replaceNode->value()->type() == "dotdelimited")
+      {
+        NodePtr newValue( findInPath(replaceNode->value()->name()) );
+        replaceNode->setValue(newValue);
+      }
       checkOkToModify(replaceNode, targetPtr);
       // we're here to replace it.  So replace it.
       targetPtr->replaceWith(replaceNode);
@@ -381,6 +387,23 @@ namespace edm {
       CompositeNode * parent  = dynamic_cast<CompositeNode *>(victim->getParent());
       assert(parent != 0);
       parent->removeChild(victim->name());
+    }
+
+
+    NodePtr ParseTree::findInPath(const std::string & path) const
+    {
+      // try blocks_, then modulesAndSources_
+      NodePtr result;
+      try 
+      {
+        result = findInPath(path, modulesAndSources_);
+      }
+      catch(const edm::Exception & e)
+      {   
+        // may throw... that's OK.
+        result = findInPath(path, blocks_);
+      }
+      return result;
     }
 
 
