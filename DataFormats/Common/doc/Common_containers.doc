@@ -15,14 +15,16 @@ Commonly used persistent containers.
   or one-to-value association based on edm::Ref. Objects in a EDM collection 
   are associated to one or many objects in another EDM collection or to
   values of a specified type.<br><br>
-  The template <tt>Tag</tt> should be either edm::OneToOne <b><CKey, CVal, index></b> for
-  one-to-one maps, or edm::OneToMany <b><CKey, CVal, index></b> for one-to-many maps or
-  edm::OneToValue <b><CKey, Val, index></b> for associatin by value. <b>CKey</b> is the
-  collection type of the object to be associated, <b>CVal</b> is the collection of 
-  associated objects, <b>Val</b> is the associated value type. References are stored as indices of type 
-  <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
-  <tt>unsigned short</tt> for collections with less than 65535 objects
-  or <tt>unsigned char</tt> for collections with less than 255 objects.<br><br>
+  The template <tt>Tag</tt> should be one of the following:
+  - edm::OneToValue <b><CKey, Val, index></b> for associations by value
+  - edm::OneToOne <b><CKey, CVal, index></b> for one-to-one maps by reference
+  - edm::OneToMany <b><CKey, CVal, index></b> for one-to-many maps by reference
+  - edm::OneToManyWithQuality <b><CKey, CVal, Q, index></b>
+  <b>CKey</b> is the collection type of the object to be associated, <b>CVal</b> is the collection of 
+  associated objects, <b>Val</b> is the associated value type and <b>Q</b> is the data type describing
+  the match quality. References are stored as indices of type <tt>index</tt>, that is by default 
+  <tt>unsigned long</tt>, but could be <tt>unsigned short</tt> for collections with less than 65535 
+  objects or <tt>unsigned char</tt> for collections with less than 255 objects.<br><br>
   One example of basic usage is presented below:
 \htmlonly
 <pre>
