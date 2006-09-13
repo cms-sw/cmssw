@@ -1,0 +1,84 @@
+#!/usr/bin/perl -w
+#
+# Created by: Shahram Rahatlou
+#             University of Rome & INFN
+#             11 September 2006
+#
+use strict;
+use Getopt::Long;
+use Cwd;
+
+
+my $file;
+my $doHelp;
+my $test;
+
+GetOptions("file|f=s" => \$file,
+           "test|t" => \$test,
+           "help|h" => \$doHelp);
+
+#-- main start here
+
+if( defined $doHelp )   {  usage(); }
+
+if(defined $test) {
+  print STDOUT "--test: Will not execute the CVS commands.\n";
+}
+
+# make sure cvs is setup
+unless(defined $ENV{"CVSROOT"} ) {
+  die "CVS not set. Do |project CMSSW| first\n";
+}
+
+# for now a file must be always provided
+unless(defined $file) {
+  die "no tags provided. use -f <file> or see --help\n";
+}
+
+# make sure file exists
+unless(-f $file) {
+  die "file <$file> does not exist\n";
+}
+
+# read in packages and tags from file
+my %tags;
+open IN, "<$file";
+while(my $line = <IN>) {
+  chomp $line;
+  (my $tag,my $package) = split '\s+', $line;
+
+  #print STDOUT "<$package> <$tag>\n";
+
+  unless( $package =~ m#(.*)\/(.*)# ) {
+    print STDERR "bad package name <$package> not of the form Subsystem/Package.. skipping this one\n";
+    next;
+  }
+
+  $tags{$package} = $tag;
+
+  # run the cvs command
+  my $cmd = "cvs co -r $tag $package";
+  if(defined $test) {
+    print STDOUT "$cmd\n";
+  } else {
+    system("$cmd");
+  }
+
+}
+
+# -- main ends here
+
+#-----------
+sub usage {
+#-----------
+print STDOUT <<ENDHELP;
+addpkg [option]
+
+  usage:      --help|-h          print this message
+              --test|-t          do not run the actual cvs command. simple printout
+              --file|-f <file>   checkout tags in <file>. Each line must be \"tag   subsystem/package\"
+                                 as provided by showtags
+
+ENDHELP
+exit 0;
+}
