@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/13 19:22:36 $
- * $Revision: 1.3 $
+ * $Date: 2006/09/14 12:12:38 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -149,28 +149,28 @@ void EBTriggerTowerClient::endRun(void) {
 
 void EBTriggerTowerClient::setup(void) {
 
-  Char_t histo[200];
-
-  mui_->setCurrentFolder( "EcalBarrel/EBTriggerTowerClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
-
-      }
-    }
-
-  }
+//  Char_t histo[200];
+//
+//  mui_->setCurrentFolder( "EcalBarrel/EBTriggerTowerClient" );
+//  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+//
+//  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+//
+//    int ism = superModules_[i];
+//
+//  }
+//
+//  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+//
+//    int ism = superModules_[i];
+//
+//    for ( int ie = 1; ie <= 85; ie++ ) {
+//      for ( int ip = 1; ip <= 20; ip++ ) {
+//
+//      }
+//    }
+//
+//  }
 
 }
 
@@ -211,14 +211,14 @@ void EBTriggerTowerClient::cleanup(void) {
 
   }
 
-  mui_->setCurrentFolder( "EcalBarrel/EBTriggerTowerClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-  }
+//  mui_->setCurrentFolder( "EcalBarrel/EBTriggerTowerClient" );
+//  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+//
+//  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+//
+//    int ism = superModules_[i];
+//
+//  }
 
 }
 
@@ -336,6 +336,18 @@ void EBTriggerTowerClient::unsubscribe(void){
         int ism = superModules_[i];
 
         mui_->removeCollate(me_h01_[ism-1]);
+
+        mui_->removeCollate(me_i01_[ism-1]);
+
+        mui_->removeCollate(me_j01_[ism-1]);
+
+        for (int j = 0; j < 68 ; j++) {
+
+          mui_->removeCollate(me_k01_[ism-1][j]);
+
+          mui_->removeCollate(me_k02_[ism-1][j]);
+
+        }
 
       }
 
@@ -470,7 +482,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const int csize = 500;
 
-  const double histMax = 1.e15;
+  //const double histMax = 1.e15;
 
   //int pCol3[3] = { 2, 3, 5 };
 
