@@ -1,17 +1,38 @@
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcalNominalTPGCoder.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 
-HcalNominalTPGCoder::HcalNominalTPGCoder(double LSB_GeV) {
+
+HcalNominalTPGCoder::HcalNominalTPGCoder(double LSB_GeV, bool doET) {
   lsbGeV_=LSB_GeV;
   gain_=-1.0;
   pedestal_=0;
   service_=0;
   perpIeta_.reserve(42);
-  for (int i=0; i<42; i++) perpIeta_.push_back(1.0);
+  perpIeta_.push_back(1.0); // zero
+  // HB+HE
+  for (int i=1; i<29; i++) 
+    if (doET) perpIeta_.push_back(1.0/cosh((theHBHEEtaBounds[i-1]+theHBHEEtaBounds[i])/2));
+    else perpIeta_.push_back(1.0);
+  // HF
+  for (int i=1; i<13; i++) 
+    if (doET) perpIeta_.push_back(1.0/cosh((theHFEtaBounds[i]+theHFEtaBounds[i+1])/2));
+    else perpIeta_.push_back(1.0);
+}
+
+void HcalNominalTPGCoder::getConditions(const edm::EventSetup& es) {
+  edm::ESHandle<HcalDbService> conditions;
+  es.get<HcalDbRecord>().get(conditions);
+  service_=conditions.product();
+}
+
+void HcalNominalTPGCoder::releaseConditions() {
+  service_=0;
 }
 
 void HcalNominalTPGCoder::setupForChannel(const HcalCalibrations& calib) {
@@ -22,26 +43,12 @@ void HcalNominalTPGCoder::setupForAuto(const HcalDbService* service) {
   service_=service;
 }
 
-void HcalNominalTPGCoder::setupGeometry(const CaloGeometry& geom) {
-  int iphi=1, depth=1;
-  
-  for (int ieta=1; ieta<=41; ieta++) {
-    HcalSubdetector sd=(ieta<17)?(HcalBarrel):((ieta<29)?(HcalEndcap):(HcalForward));
-    HcalDetId id(sd,ieta,iphi,depth);
-    const CaloCellGeometry* cell=geom.getGeometry(id);
-    if (cell==0) {
-      throw cms::Exception("NullPointer") << "No geometry information for " << id;
-    }
-    perpIeta_[ieta]=1.0/cosh(cell->getPosition().eta());
-  }
-}
-
 void HcalNominalTPGCoder::determineGainPedestal(const HcalCalibrations& calib, double& gain, int& pedestal) const {
   gain=(calib.gain(0)+calib.gain(1)+calib.gain(2)+calib.gain(3))/4;
   pedestal=int((calib.pedestal(0)+calib.pedestal(1)+calib.pedestal(2)+calib.pedestal(3))/4+0.5);
 }
 
-void HcalNominalTPGCoder::adc2ET(const HBHEDataFrame& df, IntegerCaloSamples& ics) const {
+void HcalNominalTPGCoder::adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const {
   double g;
   int p;
   if (service_!=0) {
@@ -67,7 +74,7 @@ void HcalNominalTPGCoder::adc2ET(const HBHEDataFrame& df, IntegerCaloSamples& ic
   
 }
 
-void HcalNominalTPGCoder::adc2ET(const HFDataFrame& df, IntegerCaloSamples& ics) const {
+void HcalNominalTPGCoder::adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const {
   double g;
   int p;
   if (service_!=0) {
