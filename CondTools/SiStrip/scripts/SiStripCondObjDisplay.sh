@@ -5,8 +5,8 @@ function usage(){
     echo -e " -help  this message"
     echo -e " -run=<runNb>"
     echo -e " -CondDb=<sqlite>, <devdb10>, <orcon> (default is sqlite)"
-    echo -e " -dbfile=<dbfile> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db)"
-    echo -e " -dbcatalog=<dbcatalog> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db )"
+    echo -e " -sqliteDb=<dbfile> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db)"
+    echo -e " -sqliteCatalog=<dbcatalog> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db )"
     exit
 }
 
@@ -33,15 +33,15 @@ test_area=/tmp/$USER/Display
 
 getParameter run       $@ -1
 getParameter CondDb    $@ sqlite
-getParameter dbfile    $@ ${test_area}/dummy_${run}.db
-getParameter dbcatalog $@ ${test_area}/dummy_${run}.xml
+getParameter sqliteDb    $@ ${test_area}/dummy_${run}.db
+getParameter sqliteCatalog $@ ${test_area}/dummy_${run}.xml
 
 [ "$run" == "-1" ] && echo -e "\nWORNING: please specify a run number" && usage
 
-if [ "$CondDb" == "sqlite" ] && [ "$dbfile" != "" ] && [ "$dbcatalog" != "" ]; 
+if [ "$CondDb" == "sqlite" ] && [ "$sqliteDb" != "" ] && [ "$sqliteCatalog" != "" ]; 
     then
-    DBfile="sqlite_file:${dbfile}"
-    DBcatalog="file:${dbcatalog}"
+    DBfile="sqlite_file:${sqliteDb}"
+    DBcatalog="file:${sqliteCatalog}"
 elif [ "$CondDb" == "devdb10" ];  then
     DBfile="oracle://devdb10/CMS_COND_STRIP"
     DBcatalog="relationalcatalog_oracle://devdb10/CMS_COND_GENERAL"
@@ -53,7 +53,13 @@ else
     usage
 fi
 
-
+    echo -e " -run=$run"
+    echo -e " -CondDb=$CondDb"
+    if [ "$CondDb" = "sqlite" ]; then
+	echo -e " -sqliteDb=${sqliteDb}"
+	echo -e " -sqliteCatalog=${sqliteCatalog}"
+    fi
+    echo " "
 
 output_file_name=${test_area}/Display_PedNoise_RunNb_${run}.root 
 ps_file_name=${test_area}/Display_PedNoise_RunNb_${run}.ps 
