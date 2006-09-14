@@ -16,6 +16,7 @@
 <use name=RecoLocalMuon/DTSegment>
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
+<use name=Geometry/RPCGeometry>
 <export>
 <lib name=DQMRPCMonitorDigi>
 <use name=FWCore/Framework>
@@ -35,5 +36,6 @@
 <use name=RecoLocalMuon/DTSegment>
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
+<use name=Geometry/RPCGeometry>
 </export>
 
