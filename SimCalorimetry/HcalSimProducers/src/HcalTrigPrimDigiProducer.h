@@ -18,11 +18,9 @@ public:
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
 private:
-
   HcalCoderFactory theCoderFactory;
   HcalTriggerPrimitiveAlgo theAlgo;
   edm::InputTag inputLabel_;
-  int hcalScale_, emScale_, jetScale_;
 };
 
 #endif
