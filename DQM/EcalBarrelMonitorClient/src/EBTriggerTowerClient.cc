@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/14 13:25:12 $
- * $Revision: 1.7 $
+ * $Date: 2006/09/14 14:03:02 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -448,6 +448,16 @@ void EBTriggerTowerClient::analyze(void){
 
 }
 
+std::string binary( int i ) {
+  if( i == 0 ) return( "0" );
+  std::string s;
+  while( i > 0 ) {
+    s = char( 48 + (i&1) ) + s;
+    i = i >> 1;
+  }
+  return s;
+}
+
 void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBTriggerTowerClient html output ..." << std::endl;
@@ -639,6 +649,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	rectsmall->SetGridx();
 	rectsmall->SetGridy();
 	objp->SetMinimum(-0.00000001);
+	std::stringstream title; 
+	if( j < 6 ) { title << "EBTTT Flags SM" << ism << ", bit " << binary(j); }
+	else        { title << "EBTTT Flags SM" << ism << " bits 110+111"; }
+	objp->SetTitle( title.str().c_str() );
 	objp->Draw("col");
 	dummy.Draw("text,same");
 	rectsmall->Update();
@@ -678,6 +692,9 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	rectsmall->SetGridx();
 	rectsmall->SetGridy();
 	objp->SetMinimum(-0.00000001);
+	std::stringstream title; 
+	title << "EBTTT FineGrainVeto SM" << ism << ", FineGrainVeto = " << j;
+	objp->SetTitle( title.str().c_str() );
 	objp->Draw("col");
 	dummy.Draw("text,same");
 	rectsmall->Update();
