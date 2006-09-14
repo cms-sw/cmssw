@@ -3,8 +3,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(const HcalCoderFactory * coderFactory)
-  : incoder_(0), outcoder_(0), theCoderFactory(coderFactory), theThreshold(0.5)
+HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(const HcalCoderFactory * coderFactory,
+						   bool pf, const std::vector<double>& w,
+						   int latency)
+  : incoder_(0), outcoder_(0), theCoderFactory(coderFactory), theThreshold(0),
+    peakfind_(pf), weights_(w), latency_(latency)
 {
 }
 
@@ -42,7 +45,10 @@ void HcalTriggerPrimitiveAlgo::run(const HBHEDigiCollection & hbheDigis,
   for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr)
     {
       result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
-      analyze(mapItr->second, result.back());
+      HcalTrigTowerDetId detId(mapItr->second.id());
+      if(detId.ietaAbs() >= theTrigTowerGeometry.firstHFTower())
+	{ analyzeHF(mapItr->second, result.back());}
+      else{analyze(mapItr->second, result.back());}
     }
 
   theSumMap.clear();  
@@ -57,7 +63,7 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
   IntegerCaloSamples samples1(ids[0], int(frame.size()));
 
   samples1.setPresamples(frame.presamples());
-  incoder_->adc2ET(frame, samples1);
+  incoder_->adc2Linear(frame, samples1);
   
   if(ids.size() == 2) {
     // make a second trigprim for the other one, and split the energy
@@ -82,7 +88,7 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
     assert(ids.size() == 1);
     IntegerCaloSamples samples(ids[0], frame.size());
     
-    incoder_->adc2ET(frame, samples);
+    incoder_->adc2Linear(frame, samples);
     
     addSignal(samples);
   }
@@ -106,48 +112,72 @@ void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples & samples) {
 void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, 
 				       HcalTriggerPrimitiveDigi & result)
 {
-  int outlen=samples.size()-2; // cannot calculate for
-  std::vector<bool> finegrain(outlen,false);
-  IntegerCaloSamples sum(samples.id(),samples.size());
-  IntegerCaloSamples output(samples.id(),outlen);
-  output.setPresamples(samples.presamples()-1); // one fewer presample...
+  // HcalTrigTowerDetId detId(samples.id());
+  //find output samples length and new presamples
+  int shrink = weights_.size()-1; //REAL LINE
+  int outlength=samples.size() - shrink;
+  int newprelength = ((samples.presamples()+1)-weights_.size())+latency_;
+  std::vector<bool> finegrain(outlength,false);
+  IntegerCaloSamples sum(samples.id(), outlength);
 
-  HcalTrigTowerDetId detId(samples.id());
-  
-  for(int ibin = 0; ibin < samples.size()-1; ++ibin)
+  //slide algo window
+  for(int ibin = 0; ibin < int(samples.size())- shrink; ++ibin)
     {
-      if(detId.ietaAbs() >= theTrigTowerGeometry.firstHFTower())
-	sum[ibin]=samples[ibin];
-      else
-	{sum[ibin] = samples[ibin]+samples[ibin+1];}
-      // sampEt[ibin] = samples[ibin]+samples[ibin+1];
-    }
-  
-  for(int ibin2 = 1; ibin2 < (samples.size())-1; ++ibin2) 
-    {
-      if ( sum[ibin2] > sum[ibin2-1] && 
-	   sum[ibin2] >= sum[ibin2+1] && 
-	   sum[ibin2] > theThreshold) 
-	output[ibin2-1]=sum[ibin2];
-      else output[ibin2-1]=0;
+      uint32_t algosumvalue = 0;
+	for(unsigned int i = 0; i < weights_.size(); i++)
+	  {algosumvalue += uint32_t(samples[ibin+1] * weights_[i]);}//add up value * scale factor
+      sum[ibin] = algosumvalue;//assign value to sum[]
     }
 
-  outputMaker(output, result, finegrain);
+  //Do peak finding if requested
+  if(peakfind_)
+    {
+      IntegerCaloSamples output(samples.id(),outlength-2);
+      output.setPresamples(newprelength-1);
+      for(int ibin2 = 1; ibin2 < (sum.size())-2; ++ibin2) 
+	{
+	  //use if peak finding true
+	  if ( sum[ibin2] > sum[ibin2-1] && 
+	       sum[ibin2] >= sum[ibin2+1] && 
+	       sum[ibin2] > theThreshold) 
+	    {
+	      output[ibin2-1]=sum[ibin2];//if peak found
+	    }
+	  else{output[ibin2-1]=0;}//if no peak
+	}
+      outcoder_->compress(output, finegrain, result);//send to transcoder
+    }
   
+  else//No peak finding
+    {
+      IntegerCaloSamples output(samples.id(),outlength);
+      output.setPresamples(newprelength);
+      for(int ibin2 = 0; ibin2<sum.size(); ++ibin2) 
+	{
+	  output[ibin2]=sum[ibin2];//just pass value
+	}
+      outcoder_->compress(output, finegrain, result);
+    }   
 }
 
 
-void HcalTriggerPrimitiveAlgo::outputMaker(const IntegerCaloSamples & samples, 
-					   HcalTriggerPrimitiveDigi & result, 
-					   const std::vector<bool> & finegrain)
+void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, 
+				       HcalTriggerPrimitiveDigi & result)
 {
-  result.setSize(samples.size());
-  for(int ibin = 1; ibin < samples.size()-1; ++ibin)
-    {
-      outcoder_->htrCompress(samples, finegrain, result); 
-    }
-
+  std::vector<bool> finegrain(samples.size(),false);
+  IntegerCaloSamples sum(samples.id(), samples.size());
+  
+  
+  IntegerCaloSamples output(samples.id(),samples.size());
+  output.setPresamples(samples.presamples());
+  
+  for(int ibin2 = 0; ibin2 < samples.size(); ++ibin2) 
+    {output[ibin2]=sum[ibin2];}
+  outcoder_->compress(output, finegrain, result);
 }
+
+
+
 
 
 

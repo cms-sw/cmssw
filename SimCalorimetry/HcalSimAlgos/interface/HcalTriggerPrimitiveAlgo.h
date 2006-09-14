@@ -7,7 +7,7 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "CalibFormats/CaloObjects/interface/IntegerCaloSamples.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
-#include "CalibFormats/CaloTPG/interface/HcalTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/HcalTPGCompressor.h"
 
 #include <map>
 #include <vector>
@@ -18,14 +18,14 @@ class HcalCoderFactory;
 
 class HcalTriggerPrimitiveAlgo {
 public:
-  HcalTriggerPrimitiveAlgo(const HcalCoderFactory * coderFactory);
+  HcalTriggerPrimitiveAlgo(const HcalCoderFactory * coderFactory, bool pf, 
+			   const std::vector<double>& w, int latency);
   ~HcalTriggerPrimitiveAlgo();
 
   void run(const HBHEDigiCollection & hbheDigis,
            const HFDigiCollection & hfDigis,
            HcalTrigPrimDigiCollection & result);
-
-private:
+ private:
 
   /// adds the signal to the map
   void addSignal(const HBHEDataFrame & frame);
@@ -34,16 +34,14 @@ private:
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
-  void outputMaker(const IntegerCaloSamples & samples, 
-		   HcalTriggerPrimitiveDigi & result, 
-		   const std::vector<bool> & finegrain);
-
+  void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
+ 
   std::vector<HcalTrigTowerDetId> towerIds(const HcalDetId & id) const;
 
   HcalTrigTowerGeometry theTrigTowerGeometry; // from event setup eventually?
 
   const HcalTPGCoder * incoder_;
-  HcalTPGTranscoder * outcoder_;
+  const HcalTPGCompressor * outcoder_;
 
   const HcalCoderFactory * theCoderFactory;
 
@@ -51,6 +49,9 @@ private:
   SumMap theSumMap;  
 
   double theThreshold;
+  bool peakfind_;
+  std::vector<double> weights_;
+  int latency_;
 };
 
 
