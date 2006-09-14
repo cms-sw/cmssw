@@ -110,17 +110,30 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 	   = clusters.begin(); iclus != clusters.end(); iclus++) {
       //cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" << nclu << "  tracks" << (*iclus).size() << endl;
 
+      
       /*
-      vector<TransientVertex> pvFromClus = theFinder.vertices(*iclus);
-      pvCand.reserve(pvCand.size() + pvFromClus.size());
-      std::copy(pvFromClus.begin(), pvFromClus.end(), pvCand.end());
+      if((*iclus).size()>1){
+	vector<TransientVertex> pvFromClus = theFinder.vertices(*iclus);
+	//cout << "PrimaryVertexProducerAlgorithm::vertices  finder found "  
+	//     <<pvFromClus.size()
+	//     << endl;
+	//pvCand.reserve(pvCand.size() + pvFromClus.size());
+	//std::copy(pvFromClus.begin(), pvFromClus.end(), pvCand.end());
+
+	for (vector<TransientVertex>::const_iterator ipv = pvFromClus.begin();
+	     ipv != pvFromClus.end(); ipv++) {
+	  pvCand.push_back(*ipv);
+	}
+      }
       */
+
 
       if((*iclus).size()>1){
 	KalmanVertexFitter kvf;
 	TransientVertex v = kvf.vertex(*iclus);  // CachingVertex, converted by operater ?
 	pvCand.push_back(v);
       }
+
       nclu++;
     }
 

@@ -56,7 +56,6 @@ void
 PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  cout << "RecoVertex/PrimaryVertexProducer: 0" << endl;
 
   std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
   reco::VertexCollection vColl;
