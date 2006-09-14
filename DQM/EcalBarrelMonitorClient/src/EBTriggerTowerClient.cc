@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/14 12:12:38 $
- * $Revision: 1.4 $
+ * $Date: 2006/09/14 12:40:25 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -425,18 +425,18 @@ void EBTriggerTowerClient::analyze(void){
     for (int j = 0; j < 68 ; j++) {
 
       if ( collateSources_ ) {
-        sprintf(histo, "EcalBarrel/Sums/EBTriggerTowerTask/EBTTT Et T SM%02d TT%02d", ism, j+1);;
+        sprintf(histo, "EcalBarrel/Sums/EBTriggerTowerTask/EnergyMaps/EBTTT Et T SM%02d TT%02d", ism, j+1);;
       } else {
-        sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EBTTT Et T SM%02d TT%02d").c_str(), ism, j+1);
+        sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T SM%02d TT%02d").c_str(), ism, j+1);
       }
       me = mui_->get(histo);
       k01_[ism-1][j] = EBMUtilsClient::getHisto<TH1D*>( me, cloneME_, k01_[ism-1][j] );
       mek01_[ism-1][j] = me;
 
       if ( collateSources_ ) {
-        sprintf(histo, "EcalBarrel/Sums/EBTriggerTowerTask/EBTTT Et R SM%02d TT%02d", ism, j+1);;
+        sprintf(histo, "EcalBarrel/Sums/EBTriggerTowerTask/EnergyMaps/EBTTT Et R SM%02d TT%02d", ism, j+1);;
       } else {
-        sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EBTTT Et R SM%02d TT%02d").c_str(), ism, j+1);
+        sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R SM%02d TT%02d").c_str(), ism, j+1);
       }
       me = mui_->get(histo);
       k02_[ism-1][j] = EBMUtilsClient::getHisto<TH1D*>( me, cloneME_, k02_[ism-1][j] );
