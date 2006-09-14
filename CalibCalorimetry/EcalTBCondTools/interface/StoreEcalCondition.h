@@ -70,6 +70,7 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   std::vector< std::string > inpFileName_ ;
   std::string prog_name_ ;
   int sm_constr_;  // SM number from data file
+  int sm_slot_;  // SM slot to map data to
   std::vector< unsigned long long > since_; // beginning IOV for objects
   std::string logfile_;
 

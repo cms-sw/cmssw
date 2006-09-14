@@ -8,6 +8,9 @@ $|++;
 
 use File::Spec;
 
+# Options
+my $smSlot = 1;
+
 # Connection and resource locations
 my $connect = "oracle://cmsr/CMS_ECAL_H4_COND";
 my $catalog = "relationalcatalog_oracle://cmsr/CMS_ECAL_H4_COND";
@@ -110,6 +113,7 @@ $essource
     module ecalModule = StoreEcalCondition
     {
         string logfile = "$logfile"
+        untracked uint32 smSlot = $smSlot
 	VPSet toPut =
 	{
 	    {

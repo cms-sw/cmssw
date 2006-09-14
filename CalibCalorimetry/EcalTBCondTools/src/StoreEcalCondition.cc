@@ -17,6 +17,7 @@ StoreEcalCondition::StoreEcalCondition(const edm::ParameterSet& iConfig) {
   prog_name_ = "StoreEcalCondition";
 
   logfile_ = iConfig.getParameter< std::string >("logfile");
+  sm_slot_ = iConfig.getUntrackedParameter< unsigned int >("smSlot", 1);
 
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toPut=iConfig.getParameter<Parameters>("toPut");
@@ -126,8 +127,8 @@ void StoreEcalCondition::writeToLogFile(string a, string b, unsigned long long s
     else
       sprintf(appendMode,"create");
 
-    fprintf(outFile, "%s %s condition from file %s written into DB for SM %d in %s mode (since run %u)\n", 
-	    header, a.c_str(),b .c_str(), sm_constr_, appendMode, (unsigned int)since);
+    fprintf(outFile, "%s %s condition from file %s written into DB for SM %d (mapped to SM %d) in %s mode (since run %u)\n", 
+	    header, a.c_str(),b .c_str(), sm_constr_, sm_slot_, appendMode, (unsigned int)since);
 
     fclose(outFile);           // close out file
 
@@ -241,8 +242,7 @@ StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const char* inputFile) {
 				       << " GROUP=" << groupID ;
 
     //EBDetId ebid(ieta,iphi);	
-    // Creating DetId for SM #1
-    EBDetId ebid(1,xtal,EBDetId::SMCRYSTALMODE);	
+    EBDetId ebid(sm_slot_,xtal,EBDetId::SMCRYSTALMODE);	
     // xtalGroups->setValue(ebid.rawId(), EcalXtalGroupId( ebid.hashedIndex()) );
     xtalGroups->setValue(ebid.rawId(), EcalXtalGroupId( groupID ) );
     xtals++;
@@ -545,18 +545,12 @@ StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile) {
     sm_constr_ = sm_number;
 
     // Set the data
-    
- 
-    // DB supermodule always set to 1 
-    
-    int sm_db=1;
-
     for(int i=0; i<1700; i++){
     
     // EBDetId(int index1, int index2, int mode = ETAPHIMODE)
     // sm and crys index SMCRYSTALMODE index1 is SM index2 is crystal number a la H4
     
-      EBDetId ebid(sm_db,cry_num[i],EBDetId::SMCRYSTALMODE);
+      EBDetId ebid(sm_slot_,cry_num[i],EBDetId::SMCRYSTALMODE);
 
       ical->setValue( ebid.rawId(), calib[i]  );
    
@@ -639,12 +633,10 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
     // Get channel ID 
     sm_constr_ = sm_number;
 
-    // DB supermodule always set to 1 
-    int sm_db=1;
     for(int i=0; i<1700; i++){
       // EBDetId(int index1, int index2, int mode = ETAPHIMODE)
       // sm and crys index SMCRYSTALMODE index1 is SM index2 is crystal number a la H4
-      EBDetId ebid(sm_db,cry_num[i],EBDetId::SMCRYSTALMODE);
+      EBDetId ebid(sm_slot_,cry_num[i],EBDetId::SMCRYSTALMODE);
       // cout << "ebid.rawId()"<< ebid.rawId()<< endl;
       EcalMGPAGainRatio gr;
       gr.setGain12Over6( g6_g12[i] );
