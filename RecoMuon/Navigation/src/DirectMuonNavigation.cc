@@ -2,8 +2,8 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: 2006/09/01 19:13:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/09/07 19:23:20 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -34,7 +34,7 @@ DirectMuonNavigation::compatibleLayers( const FreeTrajectoryState& fts,
 
   float z0 = fts.position().z();
   float zm = fts.momentum().z();
-  float x0 = fts.position().x();
+//  float x0 = fts.position().x();
 
   bool inOut = outward(fts);
 
@@ -65,7 +65,7 @@ DirectMuonNavigation::compatibleLayers( const FreeTrajectoryState& fts,
    }
 // assume cosmic rays are coming from above. (true for most of them)
 // so for top part, go outside in, for bottom part go inside out.
-  if (x0 > 0) std::reverse(output.begin(),output.end());
+//  if (x0 > 0) std::reverse(output.begin(),output.end());
 
   return output;
 }
