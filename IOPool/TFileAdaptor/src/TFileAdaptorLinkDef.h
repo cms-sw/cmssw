@@ -1,3 +1,5 @@
+#include "IOPool/TFileAdaptor/interface/TStorageFactoryFile.h"
+#include "IOPool/TFileAdaptor/interface/TStorageFactorySystem.h"
 #include <boost/shared_ptr.hpp>
 class TFileAdaptor;
 
@@ -21,5 +23,8 @@ private:
 
 #pragma link C++ class TFileAdaptorUI;
 
-#endif
+#pragma link C++ class TStorageFactoryFile;
+#pragma link C++ class TStorageFactorySystem;
+
+#endif // __CINT__
 
