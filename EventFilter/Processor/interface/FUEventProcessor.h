@@ -59,6 +59,9 @@ namespace evf
 	{css_.css(in,out);}
       void moduleWeb
 	(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
+
+      bool hasRawInputSource();
+
 	  
       xdata::String offConfig_;
       xdata::String seal_plugins_;
