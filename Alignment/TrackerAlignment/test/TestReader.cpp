@@ -93,29 +93,16 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 									  fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
 									  fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
 
-	  std::cout << (*it).rawId()
+	  edm::LogVerbatim("DumpAlignments") << (*it).rawId()
 				<< "  " << (*it).translation().x()
 				<< " " << (*it).translation().y()
 				<< " " << (*it).translation().z()
 				<< "  " << rotation.xx() << " " << rotation.xy() << " " << rotation.xz()
 				<< " " << rotation.yx() << " " << rotation.yy() << " " << rotation.yz()
-				<< " " << rotation.zx() << " " << rotation.zy() << " " << rotation.zz()
-				<< std::endl;
+				<< " " << rotation.zx() << " " << rotation.zy() << " " << rotation.zz();
 
 	}
-  std::cout << std::endl << "----------------------" << std::endl;
-
-  for ( std::vector<AlignTransformError>::const_iterator it = alignmentErrors->m_alignError.begin();
-		it != alignmentErrors->m_alignError.end(); it++ )
-	{
-	  HepSymMatrix error = (*it).matrix();
-	  std::cout << (*it).rawId() << " ";
-	  for ( int i=0; i<error.num_row(); i++ )
-		for ( int j=0; j<=i; j++ ) 
-		  std::cout << " " << error[i][j];
-	  std::cout << std::endl;
-	}
-
+  edm::LogVerbatim("DumpAlignments")  << "\n----------------------\n";
 
   edm::LogInfo("TrackerAlignment") << "Done!";
 
