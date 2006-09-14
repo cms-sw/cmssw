@@ -61,6 +61,8 @@ function settings (){
     getParameter sqliteCatalog        $@ ${default_sqliteCatalog}
 
 
+    [ ! -e ${sqliteDb} ] && firstUpload=1
+
     append=1
     [ "$firstUpload" = 1 ] && append=0
     export append
@@ -110,7 +112,7 @@ elif [ "$CondDb" == "sqlite" ]; then
     DBfile="sqlite_file:${sqliteDb}"
     DBcatalog="file:${sqliteCatalog}"
 
-    if [ "${append}" == 0 ];
+    if [ "${append}" == 0 ] ;
 	then 
 	rm -f ${sqliteDb}
 	rm -f ${sqliteCatalog}
