@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/12 15:40:35 $
- * $Revision: 1.2 $
+ * $Date: 2006/09/13 19:22:36 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -11,6 +11,7 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include "TStyle.h"
 
@@ -437,59 +438,54 @@ void EBTriggerTowerClient::analyze(void){
 
 void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
-  cout << "Preparing EBTriggerTowerClient html output ..." << endl;
+  cout << "Preparing EBTriggerTowerClient html output ..." << std::endl;
 
-  ofstream htmlFile;
+  std::ofstream htmlFile[37];
 
-  htmlFile.open((htmlDir + htmlName).c_str());
+  htmlFile[0].open((htmlDir + htmlName).c_str());
 
   // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  htmlFile << "<html>  " << endl;
-  htmlFile << "<head>  " << endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor:TriggerTowerTask output</title> " << endl;
-  htmlFile << "</head>  " << endl;
-  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  htmlFile << "<body>  " << endl;
-  htmlFile << "<br>  " << endl;
-  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
-  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">TRIGGER TOWER</span></h2> " << endl;
-  htmlFile << "<hr>" << endl;
-  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
-  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile[0] << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+  htmlFile[0] << "<html>  " << std::endl;
+  htmlFile[0] << "<head>  " << std::endl;
+  htmlFile[0] << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+  htmlFile[0] << " http-equiv=\"content-type\">  " << std::endl;
+  htmlFile[0] << "  <title>Monitor:TriggerTowerTask output</title> " << std::endl;
+  htmlFile[0] << "</head>  " << std::endl;
+  htmlFile[0] << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+  htmlFile[0] << "<body>  " << std::endl;
+  htmlFile[0] << "<br>  " << std::endl;
+  htmlFile[0] << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile[0] << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile[0] << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << std::endl;
+  htmlFile[0] << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile[0] << " style=\"color: rgb(0, 0, 153);\">TRIGGER TOWER</span></h2> " << std::endl;
+  htmlFile[0] << "<hr>" << std::endl;
+  //htmlFile[0] << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << std::endl;
+  //htmlFile[0] << "<td bgcolor=lime>channel has NO problems</td>" << std::endl;
+  //htmlFile[0] << "<td bgcolor=yellow>channel is missing</td></table>" << std::endl;
+  //htmlFile[0] << "<hr>" << std::endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  const int csize = 250;
+  const int csize = 500;
 
   const double histMax = 1.e15;
 
-  int pCol3[3] = { 2, 3, 5 };
+  //int pCol3[3] = { 2, 3, 5 };
 
-  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
+  TH2C dummy( "dummy", "dummy for sm", 17, 0., 17., 4, 0., 4. );
   for ( int i = 0; i < 68; i++ ) {
-    int a = 2 + ( i/4 ) * 5;
-    int b = 2 + ( i%4 ) * 5;
-    dummy.Fill( a, b, i+1 );
+    dummy.Fill( i/4, i%4, i+1 );
   }
   dummy.SetMarkerSize(2);
   dummy.SetMinimum(0.1);
 
-  string imgNameQual, imgNameMean, imgNameRMS, imgName, meName;
+  string imgName, meName, imgFullName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
-  TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
-  TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
-
-  TH2F* obj2f = 0;
-  TH1F* obj1f = 0;
+  TCanvas* rectangle = new TCanvas("rectangle", "Temp", csize, csize/2);
+  TCanvas* rectsmall = new TCanvas("rectangle small", "Temp", csize/2, csize/2);
+  TCanvas* square    = new TCanvas("square small", "Temp", csize/4, csize/4);
 
   // Loop on barrel supermodules
 
@@ -497,145 +493,237 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     int ism = superModules_[i];
 
-    // Quality plots
+    htmlFile[0] << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << std::endl;
 
-    imgNameQual = "";
+////  --------> no quality plot yet... 
+//     // Quality plot
 
-//    obj2f = EBMUtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
+//     imgName = "";
+//     TH2F* obj2f = EBMUtilsClient::getHisto<TH2F*>( meg???_[ism-1] );
+//     if ( obj2f ) {
+//       meName = obj2f->GetName();
+//       for ( unsigned int i = 0; i < meName.size(); i++ ) {
+//         if ( meName.substr(i, 1) == " " )  {
+//           meName.replace(i, 1, "_");
+//         }
+//       }
+//       imgName = meName + ".png";
+//       imgFullName = htmlDir + imgName;
+//       rectangle->cd();
+//       gStyle->SetOptStat(" ");
+//       gStyle->SetPalette(3, pCol3);
+//       obj2f->GetXaxis()->SetNdivisions(17);
+//       obj2f->GetYaxis()->SetNdivisions(4);
+//       rectangle->SetGridx();
+//       rectangle->SetGridy();
+//       obj2f->SetMinimum(-0.00000001);
+//       obj2f->SetMaximum(2.0);
+//       obj2f->Draw("col");
+//       dummy.Draw("text,same");
+//       rectangle->Update();
+//       rectangle->SaveAs(imgName.c_str());
+//     }
 
-    if ( obj2f ) {
+    
+    // ---------------------------  Et plot
 
-      meName = obj2f->GetName();
+    imgName = "";
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
-      imgNameQual = meName + ".png";
-      imgName = htmlDir + imgNameQual;
-
-      cQual->cd();
-      gStyle->SetOptStat(" ");
-      gStyle->SetPalette(3, pCol3);
-      obj2f->GetXaxis()->SetNdivisions(17);
-      obj2f->GetYaxis()->SetNdivisions(4);
-      cQual->SetGridx();
-      cQual->SetGridy();
-      obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(2.0);
-      obj2f->Draw("col");
-      dummy.Draw("text,same");
-      cQual->Update();
-      cQual->SaveAs(imgName.c_str());
-
-    }
-
-    // Mean distributions
-
-    imgNameMean = "";
-
-//    obj1f = EBMUtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
-
-    if ( obj1f ) {
-
-      meName = obj1f->GetName();
-
+    TProfile2D* objp = h01_[ism-1];
+    if ( objp ) {
+      meName = objp->GetName();
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
         if ( meName.substr(i, 1) == " " )  {
           meName.replace(i, 1 ,"_" );
         }
       }
-      imgNameMean = meName + ".png";
-      imgName = htmlDir + imgNameMean;
-
-      cMean->cd();
-      gStyle->SetOptStat("euomr");
-      obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
-      obj1f->Draw();
-      cMean->Update();
-      cMean->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
+      imgName = meName + ".png";
+      imgFullName = htmlDir + imgName;
+      rectangle->cd();
+      gStyle->SetOptStat(" ");
+      gStyle->SetPalette( 1 );
+      objp->GetXaxis()->SetNdivisions(17);
+      objp->GetYaxis()->SetNdivisions(4);
+      rectangle->SetGridx();
+      rectangle->SetGridy();
+      objp->SetMinimum(-0.00000001);
+      objp->Draw("col");
+      dummy.Draw("text,same");
+      rectangle->Update();
+      rectangle->SaveAs(imgFullName.c_str());
     }
 
-    // RMS distributions
+    htmlFile[0] << "<img src=\"" << imgName << "\"><br>" << std::endl;
 
-//    obj1f = EBMUtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
+    std::stringstream subpage;
+    subpage << htmlName.substr( 0, htmlName.find( ".html" ) ) << "_SM" << ism << ".html" << std::ends;
+    htmlFile[0] << "<a href=" << subpage.str() << ">SM" << ism << " details</a><br>" << std::endl; 
+    htmlFile[0] << "<hr>" << std::endl;
 
-    imgNameRMS = "";
 
-    if ( obj1f ) {
+    htmlFile[ism].open((htmlDir + subpage.str()).c_str());
 
-      meName = obj1f->GetName();
+    // html page header
+    htmlFile[ism] << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+    htmlFile[ism] << "<html>  " << std::endl;
+    htmlFile[ism] << "<head>  " << std::endl;
+    htmlFile[ism] << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+    htmlFile[ism] << " http-equiv=\"content-type\">  " << std::endl;
+    htmlFile[ism] << "  <title>Monitor:TriggerTowerTask output SM" << ism << "</title> " << std::endl;
+    htmlFile[ism] << "</head>  " << std::endl;
+    htmlFile[ism] << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+    htmlFile[ism] << "<body>  " << std::endl;
+    htmlFile[ism] << "<br>  " << std::endl;
+    htmlFile[ism] << "<h3>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+    htmlFile[ism] << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+    htmlFile[ism] << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h3>" << std::endl;
+    htmlFile[ism] << "<h3>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+    htmlFile[ism] << " style=\"color: rgb(0, 0, 153);\">TRIGGER TOWER</span></h3> " << std::endl;
+    htmlFile[ism] << "<h3>SM:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+    htmlFile[ism] << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+    htmlFile[ism] << " style=\"color: rgb(0, 0, 153);\">" << ism << "</span></h3>" << std::endl;
+    htmlFile[ism] << "<hr>" << std::endl;
+    
+    // ---------------------------  Flag bits plots
+    
+    htmlFile[ism] << "<h3><strong>Trigger Tower Flags</strong></h3>" << std::endl;
+    htmlFile[ism] << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+    htmlFile[ism] << "cellpadding=\"10\" align=\"center\"> " << std::endl;
+    htmlFile[ism] << "<tr align=\"center\">" << std::endl;
 
+    TH3D* obj3d = j01_[ism-1];
+    if ( obj3d ) {
+      imgName = "";
+      meName = obj3d->GetName();
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
+	if ( meName.substr(i, 1) == " " )  {
+	  meName.replace(i, 1 ,"_" );
+	}
       }
-      imgNameRMS = meName + ".png";
-      imgName = htmlDir + imgNameRMS;
+      int counter = 0;
+      for( int j=0; j<7; j++ ) {
+	if( j == 3 ) continue;   //  011 bits combination is not used 
+	counter++;
+	if( j < 6 ) {
+	  imgName = meName + char(48+j) + ".png";
+	}
+	else {
+	  imgName = meName + "6-7.png";
+	}
+	imgFullName = htmlDir + imgName;
+	
+	if( j != 6 ) {
+	  obj3d->GetZaxis()->SetRange( j, j );
+	}
+	else {
+	  obj3d->GetZaxis()->SetRange( j, j+1 );    
+	}
+	objp = obj3d->Project3DProfile( "xy" );
+	rectsmall->cd();
+	gStyle->SetOptStat(" ");
+	gStyle->SetPalette( 1 );
+	objp->GetXaxis()->SetNdivisions(17);
+	objp->GetYaxis()->SetNdivisions(4);
+	rectsmall->SetGridx();
+	rectsmall->SetGridy();
+	objp->SetMinimum(-0.00000001);
+	objp->Draw("col");
+	dummy.Draw("text,same");
+	rectsmall->Update();
+	rectsmall->SaveAs(imgFullName.c_str()); 
+	htmlFile[ism] << "<td><img src=\"" << imgFullName << "\"></td>" << std::endl;
+	if( counter%2 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl; 
+      }      
+    }      
+    htmlFile[ism] << "</tr>" << std::endl << "</table>" << std::endl;
 
-      cRMS->cd();
-      gStyle->SetOptStat("euomr");
-      obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
+    // ---------------------------  Fine Grain Veto
+      
+    htmlFile[ism] << "<h3><strong>Fine Grain Veto</strong></h3>" << std::endl;
+    htmlFile[ism] << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+    htmlFile[ism] << "cellpadding=\"10\" align=\"center\"> " << std::endl;
+    htmlFile[ism] << "<tr align=\"center\">" << std::endl;
+    
+    obj3d = i01_[ism-1];
+    if ( obj3d ) {
+      imgName = "";
+      meName = obj3d->GetName();
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	if ( meName.substr(i, 1) == " " )  {
+	  meName.replace(i, 1 ,"_" );
+	}
       }
-      obj1f->Draw();
-      cRMS->Update();
-      cRMS->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
+      for( int j=0; j<2; j++ ) {
+	imgName = meName + char(48+j) + ".png";
+	imgFullName = htmlDir + imgName;
+	obj3d->GetZaxis()->SetRange( j, j );
+	objp = obj3d->Project3DProfile( "xy" );
+	rectsmall->cd();
+	gStyle->SetOptStat(" ");
+	gStyle->SetPalette( 1 );
+	objp->GetXaxis()->SetNdivisions(17);
+	objp->GetYaxis()->SetNdivisions(4);
+	rectsmall->SetGridx();
+	rectsmall->SetGridy();
+	objp->SetMinimum(-0.00000001);
+	objp->Draw("col");
+	dummy.Draw("text,same");
+	rectsmall->Update();
+	rectsmall->SaveAs(imgFullName.c_str()); 
+	htmlFile[ism] << "<td><img src=\"" << imgFullName << "\"></td>" << std::endl;
+      }
     }
+    htmlFile[ism] << "</tr>" << std::endl << "</table>" << std::endl;
 
-    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
-    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-    htmlFile << "<tr align=\"center\">" << endl;
 
-    if ( imgNameQual.size() != 0 )
-      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual << "\"></td>" << endl;
-    else
-      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+    // ---------------------------  Et plots per Tower
+      
+    htmlFile[ism] << "<h3><strong>Et</strong></h3>" << std::endl;
+    htmlFile[ism] << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+    htmlFile[ism] << "cellpadding=\"10\" align=\"center\"> " << std::endl;
+    htmlFile[ism] << "<tr align=\"center\">" << std::endl;
+    
 
-    htmlFile << "</tr>" << endl;
-    htmlFile << "<tr>" << endl;
+    for( int j=0; j<68; j++ ) {
+      TH1D* obj1d1 = k01_[ism-1][j];
+      TH1D* obj1d2 = k02_[ism-1][j];
+      if ( obj1d1 ) {
+	imgName = "";
+	meName = obj1d1->GetName();
+	for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	  if ( meName.substr(i, 1) == " " )  {
+	    meName.replace(i, 1 ,"_" );
+	  }
+	}
+	imgName = meName + char(48+j) + ".png";
+	imgFullName = htmlDir + imgName;
+	square->cd();
+	gStyle->SetOptStat(" ");
+	gStyle->SetPalette( 1 );
+	obj1d1->Draw();
+	if( obj1d2 ) obj1d2->Draw( "same" );
+	square->Update();
+	square->SaveAs(imgFullName.c_str()); 
+	htmlFile[ism] << "<td><img src=\"" << imgFullName << "\"></td>" << std::endl;
+      }
+      if( (j+1)%4 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;
+    }
+    htmlFile[ism] << "</tr>" << std::endl << "</table>" << std::endl;
 
-    if ( imgNameMean.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameMean << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-    if ( imgNameRMS.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameRMS << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "</table>" << endl;
-    htmlFile << "<br>" << endl;
-
+    // html page footer
+    htmlFile[ism] << "</body> " << std::endl;
+    htmlFile[ism] << "</html> " << std::endl;
+    htmlFile[ism].close();
   }
 
-  delete cQual;
-  delete cMean;
-  delete cRMS;
+  delete rectangle;
+  delete rectsmall;
+  delete square;
 
   // html page footer
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
-
-  htmlFile.close();
+  htmlFile[0] << "</body> " << std::endl;
+  htmlFile[0] << "</html> " << std::endl;
+  htmlFile[0].close();
 
 }
 
