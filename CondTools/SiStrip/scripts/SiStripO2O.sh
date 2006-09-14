@@ -5,12 +5,12 @@ function usage () {
     echo -e " -IOV=<runNb> (default is $default_IOV )"
     echo -e " -ConfigDb=<user/passwd@path> (default is ${default_ConfigDb} )"
     echo -e " -ConfigDbVersion=<Major.Minor> (default is ${default_ConfigDb} )"
-    echo -e " -ConfigDbPartition=<partitionName> (default is 8.189 )"
+    echo -e " -ConfigDbPartition=<partitionName> (default is ${default_ConfigDbPartition} )"
     echo -e " -doPedNoiseTransfer (default is $default_doPedNoiseTransfer )"
     echo -e " -doFedCablingTransfer (default is $default_doFedCablingTransfer )" 
     echo -e " -CondDb=<sqlite>, <devdb10>, <orcon> (default is sqlite)"
-    echo -e " -sqliteDb=<path_name> (default is /tmp/\$user/o2o/dummy_IOV.db)"
-    echo -e " -sqliteCatalog=<path_name> (default is /tmp/\$user/o2o/dummy_IOV.xml)"
+    echo -e " -sqliteDb=<path_name> (default is /tmp/$USER/o2o/dummy_<IOV>.db)"
+    echo -e " -sqliteCatalog=<path_name> (default is /tmp/$USER/o2o/dummy_<IOV>.xml)"
     echo -e " -firstUpload (otherwise works in append mode) "
 
     
@@ -55,8 +55,8 @@ function settings (){
     getParameter CondDb               $@ ${default_CondDb}
     getParameter firstUpload          $@ ${default_firstUpload} 
 
-    default_sqliteDb=${test_area}/dummy_${default_IOV}.db
-    default_sqliteCatalog=${test_area}/dummy_${default_IOV}.xml
+    default_sqliteDb=${test_area}/dummy_${IOV}.db
+    default_sqliteCatalog=${test_area}/dummy_${IOV}.xml
     getParameter sqliteDb             $@ ${default_sqliteDb}
     getParameter sqliteCatalog        $@ ${default_sqliteCatalog}
 
@@ -83,6 +83,7 @@ function settings (){
 	echo -e " -sqliteDb=${sqliteDb}"
 	echo -e " -sqliteCatalog=${sqliteCatalog}"
     fi
+    echo " "
 }
 
 #################
@@ -114,9 +115,10 @@ elif [ "$CondDb" == "sqlite" ]; then
 	rm -f ${sqliteDb}
 	rm -f ${sqliteCatalog}
         
-	echo "OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP "
-	$CMSSW_BASE/src/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP 
+	echo "CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP "
+	$CMSSW_BASE/src/CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP 
 	pool_insertFileToCatalog -u ${DBcatalog} -t POOL_RDBMS ${DBfile}
+	echo " " 
     fi
 else
     echo "ERROR: wrong argument value: -CondDb=<sqlite>, <devdb10>, <orcon> "
@@ -147,7 +149,7 @@ cat template_SiStripO2O.cfg | sed -e "s#insert_DBfile#$DBfile#g" -e "s#insert_DB
 
 
 
-echo "cmsRun ${cfg_file}"
+echo -e "\ncmsRun ${cfg_file}"
 cmsRun ${cfg_file} > ${test_area}/out_o2o_${IOV}
 
 
