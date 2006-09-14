@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/07/28 16:26:51 $
- * $Revision: 1.4 $
+ * $Date: 2006/08/28 09:36:41 $
+ * $Revision: 1.6 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -11,6 +11,7 @@
 
 /* Collaborating Class Header */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /* C++ Headers */
 using namespace std;
@@ -20,12 +21,12 @@ using namespace std;
 /* Constructor */ 
 DTSegmentCleaner::DTSegmentCleaner(const edm::ParameterSet& pset) {
   nSharedHitsMax = pset.getParameter<int>("nSharedHitsMax");
+
   segmCleanerMode = pset.getParameter<int>("segmCleanerMode");
+ 
   if((segmCleanerMode!=1)&&(segmCleanerMode!=2)&&(segmCleanerMode!=3))
-    {
-      cout<<"Warning: wrong segmCleanerMode "<<segmCleanerMode
-	  <<"    ->     default (1) has been chosen"<<endl;
-    }
+    edm::LogError("Muon|RecoLocalMuon|DTSegmentCleaner")
+      << "Wrong segmCleanerMode! It must be 1,2 or 3. The default is 1";
 }
 
 /* Destructor */ 
@@ -35,23 +36,9 @@ DTSegmentCleaner::~DTSegmentCleaner() {
 /* Operations */ 
 vector<DTSegmentCand*> DTSegmentCleaner::clean(vector<DTSegmentCand*> inputCands) const {
   if (inputCands.size()<2) return inputCands;
-
  
   vector<DTSegmentCand*> result = solveConflict(inputCands);
 
-  /*cout << "No conflict --------------" << endl;
-  for (vector<DTSegmentCand*>::const_iterator seg=result.begin();
-       seg!=result.end(); ++seg) {
-    cout << *(*seg) << endl;
-      AssPointCont myAssPointCont = (*seg)->hits();
-      for (set<AssPoint, DTSegmentCand::AssPointLessZ>::const_iterator hits=myAssPointCont.begin();
-	   hits!=myAssPointCont.end(); ++hits) 
-	{	
-	  cout<<(*hits).second<<endl;
-	  cout<<(*hits).first->id()<<endl;
-	}
-	}*/
-  
   result = ghostBuster(result);
   
   return result;
@@ -61,14 +48,17 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(vector<DTSegmentCand*> in
   vector<DTSegmentCand*> result;
 
   vector<DTSegmentCand*> ghosts;
+
   for (vector<DTSegmentCand*>::iterator cand=inputCands.begin();
        cand!=inputCands.end(); ++cand) {
     for (vector<DTSegmentCand*>::iterator cand2=cand+1;
          cand2!=inputCands.end(); ++cand2) {
+
       DTSegmentCand::AssPointCont confHits=(*cand)->conflictingHitPairs(*(*cand2));
-      if ((confHits.size())==((*cand)->nHits()) && (confHits.size())==((*cand2)->nHits())
-	  &&(fabs((*cand)->chi2()-(*cand2)->chi2())<0.1)
-	  &&(segmCleanerMode!=1))
+      
+      if ( segmCleanerMode != 1
+	   && (confHits.size())==((*cand)->nHits()) && (confHits.size())==((*cand2)->nHits())
+	   && (fabs((*cand)->chi2()-(*cand2)->chi2())<0.1))
 	{
 	  if(segmCleanerMode==2)
 	    {	
@@ -89,7 +79,8 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(vector<DTSegmentCand*> in
 		}
 	    }
 	  else 
-	    cout<<"keep both segment candidates "<<*(*cand)<<" and "<<*(*cand2)<<endl;
+	    LogDebug("Muon|RecoLocalMuon|DTSegmentCleaner")
+	      << "keep both segment candidates "<<*(*cand)<<" and "<<*(*cand2)<<endl;
 	}
       else if (confHits.size()) {
         for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;

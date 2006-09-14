@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.3 2006/06/14 23:57:11 wmtan Exp $
+// $Id: BareRootProductGetter.cc,v 1.4 2006/06/28 16:15:17 wmtan Exp $
 //
 
 // system include files
@@ -85,11 +85,11 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
     setupNewFile(gFile);
   } else {
     //could still have a new TFile which just happens to share the same memory address as the previous file
-    //will assume that if the Event tree's address and entry are the same as before then we do not have
+    //will assume that if the Event tree's address and UUID are the same as before then we do not have
     // to treat this like a new file
     TTree* eventTreeTemp = dynamic_cast<TTree*>(gFile->Get(edm::poolNames::eventTreeName().c_str()));
     if(eventTreeTemp != eventTree_ ||
-       eventTree_->GetReadEntry() != eventEntry_) {
+       fileUUID_ != gFile->GetUUID() ) {
       setupNewFile(gFile);
     }
   }
@@ -149,6 +149,7 @@ void
 BareRootProductGetter::setupNewFile(TFile* iFile) const
 {
   presentFile_ = iFile;
+  fileUUID_ = iFile->GetUUID();
   eventTree_= dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventTreeName().c_str()));
   
   if(0!= eventTree_) {

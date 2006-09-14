@@ -139,8 +139,7 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
   if (cluster_phi < -M_PI)
     cluster_phi += 2.*M_PI;
 
-  double cluster_eta = -log(tan(cluster_theta*0.5));
-
+  //double cluster_eta = -log(tan(cluster_theta*0.5));
   //std::cout << "Cluster eta = " << cluster_eta << std::endl;
   //std::cout << "Cluster phi = " << cluster_phi << std::endl;
 

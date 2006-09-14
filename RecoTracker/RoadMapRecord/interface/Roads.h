@@ -16,8 +16,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 01:01:25 $
+// $Revision: 1.2 $
 //
 
 #include <vector>
@@ -73,7 +73,8 @@ class Roads {
 
   void readInFromAsciiFile(std::string ascii_file, unsigned int verbosity);
 
-  const RoadSeed* getRoadSeed(DetId fromInnerSeedRing, DetId fromOuterSeedRing) const;
+  const RoadSeed* getRoadSeed(DetId InnerSeedRing, DetId OuterSeedRing, 
+			      double InnerSeedRingPhi = 999999., double OuterSeedRingPhi = 999999.) const;
 
   inline RoadMapConstRange getRoadSet(const RoadSeed *const seed) const { return roadMap_.equal_range(*seed); }
 
@@ -82,6 +83,8 @@ class Roads {
   inline NumberOfLayersPerSubdetector getNumberOfLayersPerSubdetector() const { return numberOfLayers_; }
 
   inline void setNumberOfLayersPerSubdetector(NumberOfLayersPerSubdetector input) { numberOfLayers_ = input; }
+
+  const Ring::type getRingType(DetId id) const;
 
  private:
 

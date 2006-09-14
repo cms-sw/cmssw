@@ -2,6 +2,7 @@
 #define TestObjects_StreamTestSimple_h
 
 #include "DataFormats/Common/interface/SortedCollection.h"
+#include <vector>
 
 namespace edmtestprod
 {

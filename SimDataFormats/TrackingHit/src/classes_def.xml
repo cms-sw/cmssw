@@ -42,4 +42,11 @@
   <class name="edm::Wrapper<std::vector<PSimHit> >" id="9B228D09-A609-35A4-24E8-96837A1C243F"/>
   <class name="edm::RefProd<std::vector<PSimHit> >"/>
   <class name="edm::Ref<std::vector<PSimHit>,PSimHit,edm::refhelper::FindUsingAdvance<std::vector<PSimHit>,PSimHit> >"/>
+
+
+<class name="edm::RefToBase<PSimHit>"/>
+<class name="std::vector<edm::RefToBase<PSimHit> >"/>
+<class name="edm::reftobase::BaseHolder<PSimHit>" />
+<class name="edm::reftobase::Holder<PSimHit,  edm::Ref<std::vector<PSimHit>, PSimHit,edm::refhelper::FindUsingAdvance<std::vector<PSimHit>, PSimHit> > >" />
+
 </lcgdict>

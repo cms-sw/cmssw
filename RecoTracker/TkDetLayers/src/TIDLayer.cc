@@ -47,6 +47,17 @@ TIDLayer::TIDLayer(vector<const TIDRing*>& rings):
 			 (**it).basicComponents().end());
   }
 
+ 
+  LogDebug("TkDetLayers") << "==== DEBUG TIDLayer =====" ; 
+  LogDebug("TkDetLayers") << "r,zed pos  , thickness, innerR, outerR: " 
+			  << this->position().perp() << " , "
+			  << this->position().z() << " , "
+			  << this->specificSurface().bounds().thickness() << " , "
+			  << this->specificSurface().innerRadius() << " , "
+			  << this->specificSurface().outerRadius() ;
+
+
+
 }
 
 

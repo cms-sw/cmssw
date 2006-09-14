@@ -4,22 +4,23 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/07/20 17:08:39 $
- *  $Revision: 1.9 $
- *  \author R. Bellan - INFN Torino
+ *  $Date: 2006/08/30 12:56:18 $
+ *  $Revision: 1.13 $
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
+
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 class TrajectorySeed;
 class StandAloneMuonRefitter;
 class StandAloneMuonBackwardFilter;
 class StandAloneMuonSmoother;
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+class MuonServiceProxy;
 
 namespace edm {class ParameterSet;}
 
@@ -27,9 +28,9 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 
 public:
     
-  /// Constructor with Parameter set
-  StandAloneMuonTrajectoryBuilder(const edm::ParameterSet& par);
-          
+  /// Constructor with Parameter set and MuonServiceProxy
+  StandAloneMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
+
   /// Destructor
   virtual ~StandAloneMuonTrajectoryBuilder();
 
@@ -40,16 +41,12 @@ public:
   // FIXME: not relevant here?
   virtual CandidateContainer trajectories(const reco::TrackRef&) {return CandidateContainer();}
 
-
   StandAloneMuonRefitter* refitter() const {return theRefitter;}
   //FIXME
   //  StandAloneMuonBackwardFilter* bwfilter() const {return theBWFilter;}
   StandAloneMuonRefitter* bwfilter() const {return theBWFilter;}
   StandAloneMuonSmoother* smoother() const {return theSmoother;}
 
-  // Pass the Event Setup to the algo at each event
-  virtual void setES(const edm::EventSetup& setup);
-  
   /// Pass the Event to the algo at each event
   virtual void setEvent(const edm::Event& event);
   
@@ -64,6 +61,9 @@ public:
   StandAloneMuonSmoother* theSmoother;
 
   bool doBackwardRefit;
+  std::string theBWSeedType;
+
+  const MuonServiceProxy *theService;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;

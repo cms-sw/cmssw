@@ -16,12 +16,14 @@ class TrackingRegion;
 class LayerWithHits;
 class DetLayer;
 class HitTripletGeneratorFromPairAndLayers;
+class PixelLayerTriplets;
 
 class PixelHitTripletGenerator : public HitTripletGenerator {
 
   typedef vector<HitTripletGeneratorFromPairAndLayers* > GeneratorContainer;
 
 public:
+  PixelHitTripletGenerator();
 
   typedef LayerHitMapCache  LayerCacheType;
 
@@ -37,6 +39,7 @@ private:
 
   LayerCacheType            theLayerCache;
   GeneratorContainer        theGenerators;
+  PixelLayerTriplets * thePixel;
 
 };
 #endif

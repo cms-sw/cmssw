@@ -1,15 +1,6 @@
 #ifndef Alignment_MisalignedMuonESProducer_MisalignedMuonESProducerESProducer_h
 #define Alignment_MisalignedMuonESProducer_MisalignedMuonESProducerESProducer_h
 
-/** \class MisalignedMuonESProducer
- *  The misaligned muon ES producer.
- *
- *  $Date: 2006/8/4 10:00:01 $
- *  $Revision: 1.0 $
- *  \author Andre Sznajder - UERJ(Brazil)
- */
-
-
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

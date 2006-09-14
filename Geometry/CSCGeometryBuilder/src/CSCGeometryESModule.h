@@ -31,9 +31,6 @@ public:
 
 private:  
 
-  boost::shared_ptr<CSCGeometry> _cscGeometry;
-  bool applyAlignment_; // Switch to apply alignment corrections
-
 };
 #endif
 

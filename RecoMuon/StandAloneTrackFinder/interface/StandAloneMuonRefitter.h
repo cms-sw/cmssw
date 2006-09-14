@@ -4,14 +4,18 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/06 08:20:28 $
- *  $Revision: 1.16 $
- *  \author R. Bellan - INFN Torino
+ *  $Date: 2006/09/04 13:28:43 $
+ *  $Revision: 1.20 $
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "RecoMuon/TrackingTools/interface/FitDirection.h"
+
+#include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 class Propagator;
 class DetLayer;
@@ -19,14 +23,14 @@ class MuonTrajectoryUpdator;
 class Trajectory;
 class MuonDetLayerMeasurements;
 class MeasurementEstimator;
-class MuonDetLayerGeometry;
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
 class StandAloneMuonRefitter {
-public:
-  /// Constructor
-  StandAloneMuonRefitter(const edm::ParameterSet& par);
+
+ public:
+    /// Constructor
+  StandAloneMuonRefitter(const edm::ParameterSet& par, const MuonServiceProxy* service);
 
   /// Destructor
   virtual ~StandAloneMuonRefitter();
@@ -50,9 +54,6 @@ public:
 
   void reset();
 
-  /// Pass the Event Setup to the algo at each event
-  virtual void setES(const edm::EventSetup& setup);
-
   /// Pass the Event to the algo at each event
   virtual void setEvent(const edm::Event& event);
 
@@ -68,7 +69,11 @@ public:
   const DetLayer* lastDetLayer() const {return theDetLayers.back();}
 
   /// Return the propagation direction
-  PropagationDirection propagationDirection() const {return thePropagationDirection;}
+  PropagationDirection propagationDirection() const;
+
+  /// Return the fit direction
+  recoMuon::FitDirection fitDirection() const {return theFitDirection;}
+
 
 protected:
 
@@ -82,14 +87,11 @@ private:
   
   /// Increment the DT,CSC,RPC counters
   void incrementChamberCounters(const DetLayer *layer);
-
-  /// Extract the Event Setup info at each event. It is called by setES
-  virtual void init(const edm::EventSetup& setup);
-  
+ 
   /// Set the rigth Navigation
   std::vector<const DetLayer*> compatibleLayers(const DetLayer *initialLayer,
 						FreeTrajectoryState& fts,
-						PropagationDirection &propDir);
+						PropagationDirection propDir);
   
   /// the trajectory state on the last available surface
   TrajectoryStateOnSurface theLastUpdatedTSOS;
@@ -99,11 +101,8 @@ private:
   /// The Measurement extractor
   MuonDetLayerMeasurements *theMeasurementExtractor;
   
-  /// The propagator
-  Propagator *thePropagator;
-  
   /// access at the propagator
-  Propagator *propagator() const {return thePropagator;}
+  const Propagator *propagator() const { return &*theService->propagator(thePropagatorName); }
 
   /// The Estimator
   MeasurementEstimator *theEstimator;
@@ -119,6 +118,11 @@ private:
   /// access at the muon updator
   MuonTrajectoryUpdator *updator() const {return theMuonUpdator;}
 
+  /// The best measurement finder: search for the best measurement among the TMs available
+  MuonBestMeasurementFinder *theBestMeasurementFinder;
+  /// Access to the best measurement finder
+  MuonBestMeasurementFinder *bestMeasurementFinder() const {return theBestMeasurementFinder;}
+
   /// The max allowed chi2 to accept a rechit in the fit
   double theMaxChi2;
   /// The errors of the trajectory state are multiplied by nSigma 
@@ -126,7 +130,7 @@ private:
   double theNSigma;
 
   /// the propagation direction
-  PropagationDirection thePropagationDirection;
+  recoMuon::FitDirection theFitDirection;
 
   /// the det layer used in the reconstruction
   std::vector<const DetLayer*> theDetLayers;
@@ -143,7 +147,7 @@ private:
   int cscChambers;
   int rpcChambers;
 
-  MuonDetLayerGeometry *theDetLayerGeometry;
+  const MuonServiceProxy *theService;
 };
 #endif
 

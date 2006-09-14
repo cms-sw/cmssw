@@ -17,7 +17,7 @@
 
 
 DDTECOptoHybAlgo::DDTECOptoHybAlgo(): angles(0) {
-  LogDebug("TECGeom") << "DDTECOptoHybAlgo info: Creating an instance";
+  edm::LogInfo("TECGeom") << "DDTECOptoHybAlgo info: Creating an instance";
 }
 
 DDTECOptoHybAlgo::~DDTECOptoHybAlgo() {}

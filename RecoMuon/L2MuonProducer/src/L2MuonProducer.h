@@ -1,3 +1,6 @@
+#ifndef RecoMuon_L2MuonProducer_L2MuonProducer_H
+#define RecoMuon_L2MuonProducer_L2MuonProducer_H
+
 //-------------------------------------------------
 //
 /**  \class L2MuonProducer
@@ -8,22 +11,20 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/04/26 06:57:51 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/05/19 15:23:20 $
+ *   $Revision: 1.2 $
  *
  *   \author  R.Bellan - INFN TO
  */
 //
 //--------------------------------------------------
 
-#ifndef RecoMuon_L2MuonProducer_H
-#define RecoMuon_L2MuonProducer_H
-
 #include "FWCore/Framework/interface/EDProducer.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonTrackFinder;
+class MuonServiceProxy;
 
 class L2MuonProducer : public edm::EDProducer {
 
@@ -44,7 +45,11 @@ class L2MuonProducer : public edm::EDProducer {
   // MuonSeed Collection Label
   std::string theSeedCollectionLabel;
 
+  /// the track finder
   MuonTrackFinder* theTrackFinder; //It isn't the same as in ORCA
+
+  /// the event setup proxy, it takes care the services update
+  MuonServiceProxy *theService;
 };
 
 #endif

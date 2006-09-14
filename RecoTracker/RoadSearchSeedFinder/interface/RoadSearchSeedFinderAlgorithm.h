@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: tboccali $
-// $Date: 2006/07/24 19:44:41 $
-// $Revision: 1.5 $
+// $Author: noeding $
+// $Date: 2006/09/01 21:15:30 $
+// $Revision: 1.10 $
 //
 
 #include <string>
@@ -28,10 +28,16 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "RecoTracker/RoadMapRecord/interface/Roads.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/RoadSearchHitAccess/interface/DetHitAccess.h"
@@ -55,8 +61,30 @@ class RoadSearchSeedFinderAlgorithm
 					   const TrackingRecHit* innerHit,
 					   const GlobalPoint& vertexPos,
 					   const GlobalError& vertexErr);
+
+  TrajectorySeed makeSeedFromPair(const TrackingRecHit* innerHit,
+				  const GlobalPoint* innerPos,
+				  const TrackingRecHit* outerHit,
+				  const GlobalPoint* outerPos,
+				  const edm::EventSetup& es);
+  
+  void makeSeedsFromInnerHit(TrajectorySeedCollection* outcoll,
+			     const TrackingRecHit* innerHit,
+			     const std::vector<TrackingRecHit*>* outerHits,
+			     const edm::EventSetup& es);
+  
+
  private:
-  edm::ParameterSet conf_;
+
+  bool NoFieldCosmic_;
+  double theMinPt_;
+
+  DetHitAccess innerSeedHitVector_;
+  DetHitAccess outerSeedHitVector_;
+
+  const TrackerGeometry *tracker_;
+  const Roads           *roads_;
+  const MagneticField   *magnet_;
 
 };
 

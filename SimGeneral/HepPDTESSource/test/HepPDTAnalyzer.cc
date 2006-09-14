@@ -41,14 +41,12 @@ HepPDTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //   iSetup.get<SetupRecord>().get(pSetup);
 
 // getting the table from the EventSource es and filling it into pdt
- 
-
- ESHandle < ParticleDataTable > pdt;
+ ESHandle < DefaultConfig::ParticleDataTable > pdt;
  iSetup.getData( pdt );
  
 // for( vstring::const_iterator e = pname.begin(); 
 //       e != pname.end(); ++ e ) {
-  const ParticleData * part = pdt->particle( pName );     // get the particle data  
+  const DefaultConfig::ParticleData * part = pdt->particle( pName );     // get the particle data  
   cout << " Particle properties of the " <<  part->name() << " are:" << endl;  
   cout << " Particle ID = " <<  part->pid() <<  endl;  
   cout << " Charge = " <<  part->charge() << endl;  

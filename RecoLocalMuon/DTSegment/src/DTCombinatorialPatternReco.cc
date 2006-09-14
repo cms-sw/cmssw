@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/28 15:21:52 $
- * $Revision: 1.10 $
+ * $Date: 2006/05/04 09:14:06 $
+ * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -123,11 +123,11 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
        ++firstHit) {
     for (hitCont::const_reverse_iterator lastHit=hits.rbegin(); 
          (*lastHit)!=(*firstHit); ++lastHit) {
-      if ((*lastHit)->id()==(*firstHit)->id()) continue; // hits in different layers!
+      if ( (*lastHit)->id().layerId() == (*firstHit)->id().layerId() ) continue; // hits must be in different layers!
       if(debug) {
         cout << "Selected these two hits pair " << endl;
-        cout << "First " << *(*firstHit) << endl;
-        cout << "Last " << *(*lastHit) << endl;
+        cout << "First " << *(*firstHit) << " Layer Id: " << (*firstHit)->id().layerId() << endl;
+        cout << "Last "  << *(*lastHit)  << " Layer Id: " << (*lastHit)->id().layerId()  << endl;
       }
 
       GlobalPoint IP;

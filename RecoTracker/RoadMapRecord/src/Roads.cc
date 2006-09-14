@@ -13,8 +13,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:01:25 $
-// $Revision: 1.2 $
+// $Date: 2006/03/28 22:50:12 $
+// $Revision: 1.3 $
 //
 
 #include <iostream>
@@ -25,6 +25,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 Roads::Roads() : numberOfLayers_(0) {
 
@@ -270,18 +272,28 @@ void Roads::dumpHeader(std::ofstream &stream) const {
   
 }
 
-const Roads::RoadSeed* Roads::getRoadSeed(DetId fromInnerSeedRing, DetId fromOuterSeedRing) const {
+const Roads::RoadSeed* Roads::getRoadSeed(DetId InnerSeedRing, DetId OuterSeedRing, double InnerSeedRingPhi,double OuterSeedRingPhi) const {
 
   // loop over seed Ring pairs
+
+  // determine ringtype for inner seed ring detid
+  Ring::type innerSeedRingType = getRingType(InnerSeedRing);
+  Ring::type outerSeedRingType = getRingType(OuterSeedRing);
+
   for ( const_iterator road = roadMap_.begin(); road != roadMap_.end(); ++road ) {
-    if ( road->first.first.containsDetId(fromInnerSeedRing) &&
-	 road->first.second.containsDetId(fromOuterSeedRing) ) {
-      return &(road->first);
+    if ( road->first.first.getType() == innerSeedRingType &&
+	 road->first.second.getType() == outerSeedRingType ) {
+      if ( road->first.first.containsDetId(InnerSeedRing,InnerSeedRingPhi) &&
+	   road->first.second.containsDetId(OuterSeedRing,OuterSeedRingPhi) ) {
+	return &(road->first);
+      }
     }
   }
       
-  edm::LogError("RoadSearch") << "RoadSeed could not be found for inner SeedRing DetId: " << fromInnerSeedRing.rawId() 
-	    << " and outer SeedRing DetID: " << fromOuterSeedRing.rawId(); 
+  edm::LogError("RoadSearch") << "RoadSeed could not be found for inner SeedRing type: " << innerSeedRingType << " DetId: " << InnerSeedRing.rawId() 
+			      << " at " << InnerSeedRingPhi
+			      << " and outer SeedRing type : " << outerSeedRingType << " DetID: " << OuterSeedRing.rawId() 
+			      << " at " << OuterSeedRingPhi;
   return 0;
 }
 
@@ -298,3 +310,24 @@ const Roads::type Roads::getRoadType(const RoadSeed *const seed) const {
 }
 
 
+const Ring::type Roads::getRingType(DetId id) const {
+
+  Ring::type type = Ring::Unspecified;
+
+  if ( (unsigned int)id.subdetId() == StripSubdetector::TIB ) {
+    type = Ring::TIBRing;
+  } else if ( (unsigned int)id.subdetId() == StripSubdetector::TOB ) {
+    type = Ring::TOBRing;
+  } else if ( (unsigned int)id.subdetId() == StripSubdetector::TID ) {
+    type = Ring::TIDRing;
+  } else if ( (unsigned int)id.subdetId() == StripSubdetector::TEC ) {
+    type = Ring::TECRing;
+  } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel ) {
+    type = Ring::PXBRing;
+  } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap ) {
+    type = Ring::PXFRing;
+  }
+
+  return type;
+
+}

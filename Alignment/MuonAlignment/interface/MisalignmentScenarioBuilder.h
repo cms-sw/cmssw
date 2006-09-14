@@ -1,14 +1,6 @@
 #ifndef Alignment_MuonAlignment_MisalignmentScenarioBuilder_h
 #define Alignment_MuonAlignment_MisalignmentScenarioBuilder_h
 
-/** \class MisalignmentScenarioBuilder
- *  The misalignment scenario builder.
- *
- *  $Date: 2006/8/4 10:00:01 $
- *  $Revision: 1.0 $
- *  \author Andre Sznajder - UERJ(Brazil)
- */
-
 
 #include <vector>
 
