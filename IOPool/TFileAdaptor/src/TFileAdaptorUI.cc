@@ -1,6 +1,4 @@
 #include "IOPool/TFileAdaptor/interface/TFileAdaptor.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include <iostream>
 #include <boost/shared_ptr.hpp>
 
