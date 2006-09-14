@@ -61,7 +61,7 @@ function settings (){
     getParameter sqliteCatalog        $@ ${default_sqliteCatalog}
 
 
-    [ ! -e ${sqliteDb} ] && firstUpload=1
+    [ ! -e ${sqliteDb} ] && [ "$CondDb" == "sqlite" ] && firstUpload=1
 
     append=1
     [ "$firstUpload" = 1 ] && append=0
