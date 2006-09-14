@@ -372,7 +372,7 @@ namespace edm {
       // see if we need to resolve this replace node
       if(replaceNode->value()->type() == "dotdelimited")
       {
-        NodePtr newValue( findInPath(replaceNode->value()->name()) );
+        NodePtr newValue( findInPath(replaceNode->value()->name(), blocks_) );
         replaceNode->setValue(newValue);
       }
       checkOkToModify(replaceNode, targetPtr);
