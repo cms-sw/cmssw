@@ -25,13 +25,13 @@ HcalNominalTPGCoder::HcalNominalTPGCoder(double LSB_GeV, bool doET) {
     else perpIeta_.push_back(1.0);
 }
 
-void HcalNominalTPGCoder::getConditions(const edm::EventSetup& es) {
+void HcalNominalTPGCoder::getConditions(const edm::EventSetup& es) const {
   edm::ESHandle<HcalDbService> conditions;
   es.get<HcalDbRecord>().get(conditions);
   service_=conditions.product();
 }
 
-void HcalNominalTPGCoder::releaseConditions() {
+void HcalNominalTPGCoder::releaseConditions() const {
   service_=0;
 }
 

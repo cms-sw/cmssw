@@ -13,16 +13,16 @@ class HcalDbService;
   * then uses the averaged gain and pedestal values to convert to GeV (Energy)
   * and the ideal geometry to apply Energy -> ET.
   *
-  * $Date: 2006/04/28 02:32:36 $
-  * $Revision: 1.3 $
+  * $Date: 2006/09/14 19:41:18 $
+  * $Revision: 1.4 $
   * \author J. Mans - Minnesota
   */
 class HcalNominalTPGCoder : public HcalTPGCoder {
 public:
   HcalNominalTPGCoder(double LSB_GeV, bool doEt);
   virtual ~HcalNominalTPGCoder() {}
-  virtual void getConditions(const edm::EventSetup& es);
-  virtual void releaseConditions();
+  virtual void getConditions(const edm::EventSetup& es) const;
+  virtual void releaseConditions() const;
   void setupForChannel(const HcalCalibrations& calib);
   void setupForAuto(const HcalDbService* service=0);
   virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const;
@@ -35,7 +35,7 @@ private:
   int pedestal_;
   bool doET_;
   std::vector<double> perpIeta_;
-  const HcalDbService* service_;
+  mutable const HcalDbService* service_;
 };
 
 #endif
