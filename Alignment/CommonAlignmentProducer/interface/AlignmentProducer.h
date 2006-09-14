@@ -36,7 +36,7 @@
 #include "TTree.h"
 
 
-class AlignmentProducer :  public TrackProducerBase, public edm::ESProducerLooper
+class AlignmentProducer : public edm::ESProducerLooper
 {
 
  public:
@@ -52,9 +52,6 @@ class AlignmentProducer :  public TrackProducerBase, public edm::ESProducerLoope
 
   /// Produce the geometry
   virtual ReturnType produce( const TrackerDigiGeometryRecord& iRecord );
-
-  /// Dummy implementation (job done in duringLoop)
-  virtual void produce(edm::Event&, const edm::EventSetup&) {};
 
   /// Called at beginning of job
   virtual void beginOfJob(const edm::EventSetup&);
@@ -88,7 +85,7 @@ class AlignmentProducer :  public TrackProducerBase, public edm::ESProducerLoope
 
 
   AlignableTracker* theAlignableTracker;
-  TrackProducerAlgorithm theRefitterAlgo;
+
   ReturnType theTracker;
   int nevent;
 
@@ -98,23 +95,12 @@ class AlignmentProducer :  public TrackProducerBase, public edm::ESProducerLoope
 
   unsigned int theMaxLoops;     // Number of loops to loop
 
-  std::string theSrc; // For local use (bypass TrackerProducerBase)
-
   std::string stParameterSelector;
   std::string stAlignableSelector;
   std::string stAlgorithm;
   int stNFixAlignables;
   double stRandomShift,stRandomRotation;
-  bool debug,doMisalignmentScenario,saveToDB;
-
-  // root trees  
-  TFile* theFile;
-  TTree* theTree;
-  static const int MAXREC = 99;
-  int m_Ntracks,m_Nhits[MAXREC];
-  float m_Pt[MAXREC],m_Eta[MAXREC],m_Phi[MAXREC],m_Chi2n[MAXREC];
-  int m_FitNtracks,m_FitNhits[MAXREC];
-  float m_FitPt[MAXREC],m_FitEta[MAXREC],m_FitPhi[MAXREC],m_FitChi2n[MAXREC];
+  bool doMisalignmentScenario,saveToDB;
 
 };
 

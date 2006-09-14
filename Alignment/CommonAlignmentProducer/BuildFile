@@ -8,13 +8,10 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/Math>
-<use name=MagneticField/Engine>
-<use name=MagneticField/Records>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=RecoTracker/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
-<use name=RecoTracker/TrackProducer>
+<use name=RecoTracker/TransientTrackingRecHit> 
 <use name=rootrflx>
 
 <export>
@@ -32,7 +29,6 @@
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/Math>
    <use name=MagneticField/Engine>
-   <use name=RecoTracker/TrackProducer>
    <use name=MagneticField/Records>
    <use name=rootrflx>
 </export>
