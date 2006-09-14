@@ -21,11 +21,6 @@
 
 namespace reco {
 
-  class MuIsoSimpleDeposit {
-  public:
-      double deposit;
-  };
-
   class MuIsoDeposit {
   public:
     /// Default constructor

@@ -44,12 +44,22 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& parameterSe
 
   etaBounds_  = parameterSet.getParameter<std::vector<double> > ("EtaBounds");
   coneCuts_  = parameterSet.getParameter<std::vector<double> > ("ConeCuts");
+  edepCuts_  = parameterSet.getParameter<std::vector<double> > ("EdepCuts");
+
   if (etaBounds_.size()==0) etaBounds_.push_back(999.9); // whole eta range if no input
+
   if (coneCuts_.size()==0) coneCuts_.push_back(0.0); // no isolation if no input
   if (coneCuts_.size()<etaBounds_.size()) {
       double conelast = coneCuts_[coneCuts_.size()-1];
       int nadd = etaBounds_.size()-coneCuts_.size();
       for (int i=0; i<nadd; i++) coneCuts_.push_back(conelast);
+  }  
+
+  if (edepCuts_.size()==0) edepCuts_.push_back(0.0); // no isolation if no input
+  if (edepCuts_.size()<etaBounds_.size()) {
+      double edeplast = edepCuts_[edepCuts_.size()-1];
+      int nadd = etaBounds_.size()-edepCuts_.size();
+      for (int i=0; i<nadd; i++) edepCuts_.push_back(edeplast);
   }  
 
   ecalWeight_  = parameterSet.getParameter<double> ("EcalWeight");
@@ -89,16 +99,19 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
       depCollection->push_back(depE);
       depCollection->push_back(depH);
 
-      MuIsoSimpleDeposit dephlt;
       double abseta = fabs(tk->eta());
       int ieta = etaBounds_.size()-1;
       for (unsigned int i=0; i<etaBounds_.size(); i++) {
             if (abseta<etaBounds_[i]) { ieta = i; break; }
       }
       double conesize = coneCuts_[ieta];
-      dephlt.deposit = ecalWeight_*depE.depositWithin(conesize)
+      double dephlt = ecalWeight_*depE.depositWithin(conesize)
                        + depH.depositWithin(conesize);
-      depMap->insert(tk, dephlt);
+      if (dephlt<edepCuts_[ieta]) {
+            depMap->insert(tk, true);
+      } else {
+            depMap->insert(tk, false);
+      }
   }
   //LogDebug(metname) << " dep Collections: " << depCollection->size();
   event.put(depCollection);

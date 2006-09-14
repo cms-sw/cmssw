@@ -24,13 +24,7 @@ namespace {
     edm::RefProd<std::vector<reco::MuIsoDeposit> > rp2;
     edm::RefVector<std::vector<reco::MuIsoDeposit> > rv2;
 
-    std::vector<reco::MuIsoSimpleDeposit> v3;
-    edm::Wrapper<std::vector<reco::MuIsoSimpleDeposit> > c3;
-    edm::Ref<std::vector<reco::MuIsoSimpleDeposit> > r3;
-    edm::RefProd<std::vector<reco::MuIsoSimpleDeposit> > rp3;
-    edm::RefVector<std::vector<reco::MuIsoSimpleDeposit> > rv3;
-
-    std::map<unsigned int, reco::MuIsoSimpleDeposit> m4;
+    std::map<unsigned int, bool> m4;
     reco::MuIsoAssociationMap v4;
     edm::Wrapper<reco::MuIsoAssociationMap> w4;
     edm::helpers::Key<edm::RefProd<std::vector<reco::Track> > > h4;

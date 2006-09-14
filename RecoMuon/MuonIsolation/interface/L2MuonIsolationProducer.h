@@ -60,6 +60,7 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   bool vertexConstraintFlag_Z;
 
   std::vector<double> coneCuts_;
+  std::vector<double> edepCuts_;
   std::vector<double> etaBounds_;
   double ecalWeight_;
 

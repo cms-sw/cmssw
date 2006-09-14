@@ -20,8 +20,7 @@ namespace reco {
   typedef MuIsoDepositRefVector::iterator MuIsoDeposit_iterator;
 
   /// Map
-  class MuIsoSimpleDeposit;
-  typedef edm::AssociationMap<edm::OneToValue<TrackCollection,MuIsoSimpleDeposit> > MuIsoAssociationMap;
+  typedef edm::AssociationMap<edm::OneToValue<TrackCollection,bool> > MuIsoAssociationMap;
 }
 
 #endif
