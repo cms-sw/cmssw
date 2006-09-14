@@ -21,8 +21,12 @@ class CSCStripHit
 
 public:
 
+  typedef std::vector<float> StripHitADCContainer;
+
+
   CSCStripHit();
-  CSCStripHit( const CSCDetId& id, const float& halfStripPos, const int& tmax );
+  CSCStripHit( const CSCDetId& id, const float& sHitPos, const int& tmax, 
+               const float& tpeak, const int& clusterSize, const StripHitADCContainer& s_adc );
 
   ~CSCStripHit();
 
@@ -33,19 +37,33 @@ public:
     CSCDetId cscDetId() const { return theDetId; }
 
   /// Strip hit position expressed in terms of 1/2 strip #
-  float halfStripPos() const { return theHitHalfStripPosition; }
+  float sHitPos() const { return theStripHitPosition; }
 
-  /// Strip hit timing
-  int tmax() const { return theHitTmax; }
+  /// Strip hit maximum time bin
+  int tmax() const { return theStripHitTmax; }
+
+  /// Strip hit fitted peaking time
+  float tpeak() const { return theStripHitTpeak; }
+
+  /// Number of strips in cluster to produce strip hit
+  int clusterSize() const { return theStripHitClusterSize; }
+
+
+  /// the ADC counts for each of the strip within cluster
+  const StripHitADCContainer& s_adc() const { return theStripHitADCs; }
+
+
   
 private:
   CSCDetId theDetId;
-  float theHitHalfStripPosition;
-  int theHitTmax;
+  float theStripHitPosition;
+  int theStripHitTmax;
+  float theStripHitTpeak;
+  int theStripHitClusterSize;
+  StripHitADCContainer theStripHitADCs;  
+
 };
 
-// Output operator for CSCStripHit
-//std::ostream& operator<<(std::ostream& os, const CSCStripHit& rh);
 
 
 #endif

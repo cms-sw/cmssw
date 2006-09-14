@@ -3,14 +3,21 @@
 
 CSCStripHit::CSCStripHit() :
   theDetId(),
-  theHitHalfStripPosition(),
-  theHitTmax()     
+  theStripHitPosition(),
+  theStripHitTmax(),     
+  theStripHitTpeak(),     
+  theStripHitClusterSize(),
+  theStripHitADCs()
 {}
 
-CSCStripHit::CSCStripHit( const CSCDetId& id, const float& halfStripPos, const int& tmax) :
+CSCStripHit::CSCStripHit( const CSCDetId& id, const float& sHitPos, const int& tmax, 
+                          const float& tpeak, const int& clusterSize, const StripHitADCContainer& s_adc) :
   theDetId( id ), 
-  theHitHalfStripPosition( halfStripPos ),
-  theHitTmax( tmax )
+  theStripHitPosition( sHitPos ),
+  theStripHitTmax( tmax ),
+  theStripHitTpeak( tpeak ),
+  theStripHitClusterSize( clusterSize ),
+  theStripHitADCs( s_adc )
 {}
 
 CSCStripHit::~CSCStripHit() {}
