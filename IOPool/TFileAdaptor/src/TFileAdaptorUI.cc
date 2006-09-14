@@ -2,9 +2,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include <iostream>
-#include <vector>
-#include <string>
-#include <algorithm>
 #include <boost/shared_ptr.hpp>
 
 
@@ -20,7 +17,7 @@ private:
 };
 
 TFileAdaptorUI::TFileAdaptorUI() {
-  TFileAdaptorParam param;
+  TFileAdaptorParams param;
   param.mode = "default";
   me.reset(new TFileAdaptor(param));
 }

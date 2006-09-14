@@ -118,7 +118,7 @@ TFileAdaptor::~TFileAdaptor () {}
 void TFileAdaptor::stats(std::ostream& co) const
 {
   co << "\n\n"
-     << "Storage parameters: adaptor:" << (m_params.doAdaptor ? "true" : "false")
+     << "Storage parameters: adaptor: true"
      << " Stats:" << (m_params.doStats ? "true" : "false")
      << " Buffering:" << (m_params.doBuffering ? "true" : "false")
      << " Caching:" << m_params.cacheSize << "," << m_params.cachePageSize << '\n';

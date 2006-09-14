@@ -1,5 +1,5 @@
 #include <boost/shared_ptr.hpp>
-class TFileAdaptorUI;
+class TFileAdaptor;
 
 class TFileAdaptorUI {
 public:
