@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/09/02 21:52:41 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/09/04 23:50:10 $
+ *  $Revision: 1.8 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -186,10 +186,10 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 bool CosmicMuonSeedGenerator::checkQuality(MuonRecHitPointer hit) const {
 
   // only use 4D segments ?  try another way for 2D segments
-//  if (hit->degreesOfFreedom() < 4) {
-//    edm::LogInfo("CosmicMuonSeedGenerator")<<"dim < 4";
-//    return false;
-//  }
+  if (hit->degreesOfFreedom() < 4) {
+    LogDebug("CosmicMuonSeedGenerator")<<"dim < 4";
+    return false;
+  }
   if (hit->isDT() && ( hit->chi2()> theMaxDTChi2 )) {
     LogDebug("CosmicMuonSeedGenerator")<<"DT chi2 too large";
     return false;
@@ -269,6 +269,8 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   LogDebug(metname)<<"Trajectory State on Surface before the extrapolation";
   LogDebug(metname)<<"mom: "<<tsos.globalMomentum();
   LogDebug(metname)<<"pos: " << tsos.globalPosition(); 
+  LogDebug(metname) << "The RecSegment relies on: "<<endl;
+  LogDebug(metname) << debug.dumpMuonId(hit->geographicalId());
 
  // ask for compatible layers
   DirectMuonNavigation theNavigation(&*theMuonLayers);
@@ -279,9 +281,19 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   vector<DetWithState> detsWithStates;
 
   if(detLayers.size()){
+    LogDebug(metname) <<"Compatible layers:"<<endl;
+    for( vector<const DetLayer*>::const_iterator layer = detLayers.begin(); 
+	 layer != detLayers.end(); layer++){
+      LogDebug(metname) << debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId());
+      LogDebug(metname) << debug.dumpLayer(*layer);
+    }
     
     // ask for compatible dets
-    detsWithStates = detLayers.back()->compatibleDets(tsos, *propagator, *estimator);
+    // ask for compatible dets
+    LogDebug(metname) <<"first one:"<<endl;
+    LogDebug(metname) << debug.dumpLayer(detLayers.front());
+
+    detsWithStates = detLayers.front()->compatibleDets(tsos, *propagator, *estimator);
     LogDebug(metname)<<"Number of compatible dets: "<<detsWithStates.size()<<endl;
   }
   else
@@ -294,6 +306,14 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
     
     if ( newTSOS.isValid() ) {
       
+      LogDebug(metname)<<"New TSOS is on det: "<<endl;
+      LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
+
+      LogDebug(metname) << "Trajectory State on Surface after the extrapolation"<<endl;
+      LogDebug(metname)<<"mom: "<<newTSOS.globalMomentum();
+      LogDebug(metname)<<"pos: " << newTSOS.globalPosition();
+
+
       // Transform it in a TrajectoryStateOnSurface
       TrajectoryStateTransform tsTransform;
       
@@ -319,10 +339,5 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
     result.push_back(theSeed); 
   }
 
-/*
-  // set backup seeds with guessed directions 
-  // for DT Segment that only hasZed or hasPhi
-  // FIXME
-*/
   return result;
 }
