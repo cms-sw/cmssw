@@ -22,7 +22,8 @@ private:
   void endJob();
 
   // Parameters passed via the config file
-  double PtHistMax;
+  double PtHistMax;      // Maximum edge of Pt histograms
+  int    diagPrintNum;   // Number of events for diagnostic printout
   
   // Root objects
   
@@ -37,7 +38,9 @@ private:
   //Calorimeter Sub-System Analysis Histograms for IC5 CaloJets only
   TH1F emEnergyFraction, emEnergyInEB, emEnergyInEE, emEnergyInHF;
   TH1F hadEnergyInHB, hadEnergyInHE, hadEnergyInHF, hadEnergyInHO;
-
+  TProfile EBfractionVsEta, EEfractionVsEta, HBfractionVsEta;
+  TProfile HOfractionVsEta, HEfractionVsEta, HFfractionVsEta; 
+  
   //Matched jets Analysis Histograms for MC5 CaloJets only
   TH1F dR, dRcor;
   TProfile respVsPt, corRespVsPt;
@@ -46,7 +49,7 @@ private:
   TFile* m_file;
 
   //Internal parameters
-  //char* algName[3];
+  int evtCount;
 
 };
 

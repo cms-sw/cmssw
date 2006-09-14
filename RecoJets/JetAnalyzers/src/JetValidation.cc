@@ -23,13 +23,16 @@ using namespace std;
 // Get the algorithm of the jet collections we will read from the .cfg file 
 // which defines the value of the strings CaloJetAlgorithm and GenJetAlgorithm.
 JetValidation::JetValidation( const ParameterSet & cfg ) :
-  PtHistMax( cfg.getParameter<double>( "PtHistMax" ) )
-  
+  PtHistMax( cfg.getParameter<double>( "PtHistMax" ) ),
+  diagPrintNum( cfg.getParameter<int>( "diagPrintNum" ) )
   {
 }
 
 void JetValidation::beginJob( const EventSetup & ) {
   cout << "JetValidation: Maximum bin edge for Pt Hists = " << PtHistMax << endl;
+
+  //Initialize some stuff
+  evtCount = 0;
 
   // Open the histogram file and book some associated histograms
   m_file=new TFile("JetValidationHistos.root","RECREATE"); 
@@ -73,7 +76,7 @@ void JetValidation::beginJob( const EventSetup & ) {
   m2jKT10gen = TH1F("m2jKT10gen","Dijet Mass of leading GenJets (KT10)",100,0.0,2*PtHistMax);
 
   //Calorimeter Sub-System Analysis Histograms for IC5 CaloJets only
-  emEnergyFraction =  TH1F("emEnergyFraction","Leading Jets EM Fraction",100,0.0,1.0);
+  emEnergyFraction =  TH1F("emEnergyFraction","Leading Jets EM Fraction",100,0.0,1.00001);
   emEnergyInEB = TH1F("emEnergyInEB","Leading Jets emEnergyInEB",100,0.0,2*PtHistMax);
   emEnergyInEE = TH1F("emEnergyInEE","Leading Jets emEnergyInEE",100,0.0,2*PtHistMax);
   emEnergyInHF = TH1F("emEnergyInHF","Leading Jets emEnergyInHF",100,0.0,2*PtHistMax);
@@ -81,16 +84,24 @@ void JetValidation::beginJob( const EventSetup & ) {
   hadEnergyInHE = TH1F("hadEnergyInHE","Leading Jets hadEnergyInHE",100,0.0,2*PtHistMax);
   hadEnergyInHF = TH1F("hadEnergyInHF","Leading Jets hadEnergyInHF",100,0.0,2*PtHistMax);
   hadEnergyInHO = TH1F("hadEnergyInHO","Leading Jets hadEnergyInHO",100,0.0,0.5*PtHistMax);
-  
+
+  EBfractionVsEta = TProfile("EBfractionVsEta","Leading Jets EBfraction vs #eta",100,0.0,5.0);
+  EEfractionVsEta = TProfile("EEfractionVsEta","Leading Jets EEfraction vs #eta",100,0.0,5.0);
+  HBfractionVsEta = TProfile("HBfractionVsEta","Leading Jets HBfraction vs #eta",100,0.0,5.0);
+  HOfractionVsEta = TProfile("HOfractionVsEta","Leading Jets HOfraction vs #eta",100,0.0,5.0);
+  HEfractionVsEta = TProfile("HEfractionVsEta","Leading Jets HEfraction vs #eta",100,0.0,5.0);
+  HFfractionVsEta = TProfile("HFfractionVsEta","Leading Jets HFfraction vs #eta",100,0.0,5.0);
+
   //Matched jets Analysis Histograms for MC5 CaloJets only
   dR = TH1F("dR","Leading GenJets dR with matched CaloJet",100,0,0.5);
   respVsPt = TProfile("respVsPt","CaloJet Response of Leading GenJets in Barrel",100,0.0,PtHistMax/2); 
   dRcor = TH1F("dRcor","CorJets dR with matched CaloJet",100,0.0,0.01);
   corRespVsPt = TProfile("corRespVsPt","Corrected CaloJet Response of Leading GenJets in Barrel",100,0.0,PtHistMax/2); 
-
 }
 
 void JetValidation::analyze( const Event& evt, const EventSetup& es ) {
+
+  evtCount++;
   math::XYZTLorentzVector p4jet[2], p4gen[2], p4cal[2], p4cor[2];
   int jetInd;
   Handle<CaloJetCollection> caloJets;
@@ -182,7 +193,14 @@ void JetValidation::analyze( const Event& evt, const EventSetup& es ) {
     hadEnergyInHE.Fill(cal->hadEnergyInHE()); 
     hadEnergyInHF.Fill(cal->hadEnergyInHF()); 
     hadEnergyInHO.Fill(cal->hadEnergyInHO()); 
-    jetInd++;
+
+    EBfractionVsEta.Fill(fabs(cal->eta()),cal->emEnergyInEB()/cal->energy());
+    EEfractionVsEta.Fill(fabs(cal->eta()),cal->emEnergyInEE()/cal->energy());
+    HBfractionVsEta.Fill(fabs(cal->eta()),cal->hadEnergyInHB()/cal->energy());
+    HOfractionVsEta.Fill(fabs(cal->eta()),cal->hadEnergyInHO()/cal->energy());
+    HEfractionVsEta.Fill(fabs(cal->eta()),cal->hadEnergyInHE()/cal->energy());
+    HFfractionVsEta.Fill(fabs(cal->eta()), (cal->hadEnergyInHF()+cal->emEnergyInHF())/cal->energy());
+   jetInd++;
   }
 
   //Matching for MC5 Jets: leading genjets matched to any CaloJet
@@ -233,6 +251,29 @@ void JetValidation::analyze( const Event& evt, const EventSetup& es ) {
     }
   }
    
+
+  //Diagnostic Printout
+  if(evtCount<=diagPrintNum){
+
+    // Printout the uncorrected calojets for midpoint cone size 0.5
+    evt.getByLabel( "midPointCone5CaloJets", caloJets );
+    jetInd=0;
+    for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++ cal ) {
+     cout <<"CaloJet "<< jetInd << ", pt=" <<cal->pt()<<", eta="<<cal->eta()<<", phi="<<cal->phi()<<endl;
+     jetInd++;
+    }
+
+    // Printout the Corrected jets for midpoint cone size 0.5
+    evt.getByLabel( "corJetMcone5", caloJets );
+    jetInd=0;
+    for( CaloJetCollection::const_iterator cor = caloJets->begin(); cor != caloJets->end(); ++ cor ) { 
+     cout <<"CorJet "<< jetInd << ", pt=" <<cor->pt()<<", eta="<<cor->eta()<<", phi="<<cor->phi()<<endl;
+     jetInd++;
+    }
+
+  }
+
+
 }
 
 void JetValidation::endJob() {
