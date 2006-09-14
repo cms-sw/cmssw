@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2006/06/06 13:48:26 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/27 07:57:31 $
+ *  $Revision: 1.3 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -39,19 +39,27 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         
 	/// Booking of MonitoringElemnt for one RPCDetId (= roll)
 	std::map<std::string, MonitorElement*> bookDetUnitME(RPCDetId & detId);
+	
+	/// Booking of MonitoringElemnt at Wheel/Disk level
+	std::map<std::string, MonitorElement*> bookRegionRing(int region, int ring);
 
    private:
 	
 	int counter;
 	/// back-end interface
 	DaqMonitorBEInterface * dbe;
-        MonitorElement * h1;
-        std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
+        MonitorElement * GlobalZYHitCoordinates;
+        MonitorElement * GlobalZXHitCoordinates;
+        MonitorElement * GlobalZPhiHitCoordinates;
+        
+	std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
+        std::map<std::pair<int,int>, std::map<std::string, MonitorElement*> >  meWheelDisk;
 	
 	std::string nameInLog;
 	bool saveRootFile;
 	int  saveRootFileEventsInterval;
 	std::string RootFileName;
+	std::string GlobalHistogramsFolder;
 };
 
 #endif
