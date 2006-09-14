@@ -10,19 +10,29 @@
 class HcalTPGCompressor;
 class EcalTPGCompressor;
 
+namespace edm {
+  class EventSetup; 
+}
+
 /** \class CaloTPGTranscoder
   *  
   * Abstract interface for the mutual transcoder required for compressing
   * and uncompressing the ET stored in HCAL and ECAL Trigger Primitives
   * 
-  * $Date: 2006/04/03 20:57:07 $
-  * $Revision: 1.2 $
+  * $Date: 2006/09/14 16:24:10 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoder {
 public:
   CaloTPGTranscoder();
   virtual ~CaloTPGTranscoder(); 
+
+  enum Mode { All=0, RCT=1, HcalTPG=2, EcalTPG=3 };
+  /// Obtain any needed objects from the EventSetup
+  virtual void setup(const edm::EventSetup& es, Mode mode=All);
+  /// Release any objects obtained from the EventSetup
+  virtual void releaseSetup();
   /** \brief Compression from linear samples+fine grain in the HTR */
   virtual HcalTriggerPrimitiveSample hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const = 0;
   /** \brief Compression from linear samples+fine grain in the ECAL */
