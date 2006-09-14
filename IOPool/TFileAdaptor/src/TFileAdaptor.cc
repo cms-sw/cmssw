@@ -19,7 +19,7 @@ void  TFileAdaptorParams::init() const {
 
 void  TFileAdaptorParams::pinit() {
 
-  if (doCashing)
+  if (doCaching)
     {
       cacheSize = cachePageSize = 0;
     }
@@ -34,7 +34,7 @@ void  TFileAdaptorParams::pinit() {
     {
       doStats = true;
       doBuffering = false;
-      doCashing = false;
+      doCaching = false;
       cacheSize = TStorageFactoryFile::kDefaultCacheSize;
       cachePageSize = TStorageFactoryFile::kDefaultPageSize;
     }
@@ -42,7 +42,7 @@ void  TFileAdaptorParams::pinit() {
     { 
       doStats = true;
       doBuffering = false;
-      doCashing = false;
+      doCaching = false;
       cacheSize = 0;
       cachePageSize = 0;
     }

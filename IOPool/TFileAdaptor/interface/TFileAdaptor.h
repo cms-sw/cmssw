@@ -15,7 +15,7 @@ class TPluginManager;
 struct TFileAdaptorParams {
   bool doStats;
   bool doBuffering;
-  bool doCashing;
+  bool doCaching;
   std::string mode;
   int  cacheSize;
   int  cachePageSize;
