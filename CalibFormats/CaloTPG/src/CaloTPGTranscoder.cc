@@ -10,8 +10,8 @@ CaloTPGTranscoder::CaloTPGTranscoder() :
 CaloTPGTranscoder::~CaloTPGTranscoder() {
 }
 
-void CaloTPGTranscoder::setup(const edm::EventSetup& es, CaloTPGTranscoder::Mode mode) {
+void CaloTPGTranscoder::setup(const edm::EventSetup& es, CaloTPGTranscoder::Mode mode) const {
 }
 
-void CaloTPGTranscoder::releaseSetup() {
+void CaloTPGTranscoder::releaseSetup() const {
 }
