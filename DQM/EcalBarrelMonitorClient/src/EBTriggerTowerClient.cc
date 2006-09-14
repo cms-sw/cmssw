@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/14 12:40:25 $
- * $Revision: 1.5 $
+ * $Date: 2006/09/14 13:02:16 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -410,7 +410,7 @@ void EBTriggerTowerClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EBTTT FineGrainVeto SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    i01_[ism-1] = EBMUtilsClient::getHisto<TH3D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = EBMUtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
     mei01_[ism-1] = me;
 
     if ( collateSources_ ) {
@@ -419,7 +419,7 @@ void EBTriggerTowerClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EBTTT Flags SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    j01_[ism-1] = EBMUtilsClient::getHisto<TH3D*>( me, cloneME_, j01_[ism-1] );
+    j01_[ism-1] = EBMUtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
     mej01_[ism-1] = me;
 
     for (int j = 0; j < 68 ; j++) {
@@ -430,7 +430,7 @@ void EBTriggerTowerClient::analyze(void){
         sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T SM%02d TT%02d").c_str(), ism, j+1);
       }
       me = mui_->get(histo);
-      k01_[ism-1][j] = EBMUtilsClient::getHisto<TH1D*>( me, cloneME_, k01_[ism-1][j] );
+      k01_[ism-1][j] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
       mek01_[ism-1][j] = me;
 
       if ( collateSources_ ) {
@@ -439,7 +439,7 @@ void EBTriggerTowerClient::analyze(void){
         sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R SM%02d TT%02d").c_str(), ism, j+1);
       }
       me = mui_->get(histo);
-      k02_[ism-1][j] = EBMUtilsClient::getHisto<TH1D*>( me, cloneME_, k02_[ism-1][j] );
+      k02_[ism-1][j] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
       mek02_[ism-1][j] = me;
 
     }
@@ -603,10 +603,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[ism] << "cellpadding=\"10\" align=\"center\"> " << std::endl;
     htmlFile[ism] << "<tr align=\"center\">" << std::endl;
 
-    TH3D* obj3d = j01_[ism-1];
-    if ( obj3d ) {
+    TH3F* obj3f = j01_[ism-1];
+    if ( obj3f ) {
       imgName = "";
-      meName = obj3d->GetName();
+      meName = obj3f->GetName();
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
 	if ( meName.substr(i, 1) == " " )  {
 	  meName.replace(i, 1 ,"_" );
@@ -625,12 +625,12 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	imgFullName = htmlDir + imgName;
 	
 	if( j != 6 ) {
-	  obj3d->GetZaxis()->SetRange( j, j );
+	  obj3f->GetZaxis()->SetRange( j, j );
 	}
 	else {
-	  obj3d->GetZaxis()->SetRange( j, j+1 );    
+	  obj3f->GetZaxis()->SetRange( j, j+1 );    
 	}
-	objp = obj3d->Project3DProfile( "xy" );
+	objp = obj3f->Project3DProfile( "xy" );
 	rectsmall->cd();
 	gStyle->SetOptStat(" ");
 	gStyle->SetPalette( 1 );
@@ -656,10 +656,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[ism] << "cellpadding=\"10\" align=\"center\"> " << std::endl;
     htmlFile[ism] << "<tr align=\"center\">" << std::endl;
     
-    obj3d = i01_[ism-1];
-    if ( obj3d ) {
+    obj3f = i01_[ism-1];
+    if ( obj3f ) {
       imgName = "";
-      meName = obj3d->GetName();
+      meName = obj3f->GetName();
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
 	if ( meName.substr(i, 1) == " " )  {
 	  meName.replace(i, 1 ,"_" );
@@ -668,8 +668,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       for( int j=0; j<2; j++ ) {
 	imgName = meName + char(48+j) + ".png";
 	imgFullName = htmlDir + imgName;
-	obj3d->GetZaxis()->SetRange( j, j );
-	objp = obj3d->Project3DProfile( "xy" );
+	obj3f->GetZaxis()->SetRange( j, j );
+	objp = obj3f->Project3DProfile( "xy" );
 	rectsmall->cd();
 	gStyle->SetOptStat(" ");
 	gStyle->SetPalette( 1 );
@@ -697,11 +697,11 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     
 
     for( int j=0; j<68; j++ ) {
-      TH1D* obj1d1 = k01_[ism-1][j];
-      TH1D* obj1d2 = k02_[ism-1][j];
-      if ( obj1d1 ) {
+      TH1F* obj1f1 = k01_[ism-1][j];
+      TH1F* obj1f2 = k02_[ism-1][j];
+      if ( obj1f1 ) {
 	imgName = "";
-	meName = obj1d1->GetName();
+	meName = obj1f1->GetName();
 	for ( unsigned int i = 0; i < meName.size(); i++ ) {
 	  if ( meName.substr(i, 1) == " " )  {
 	    meName.replace(i, 1 ,"_" );
@@ -712,8 +712,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	square->cd();
 	gStyle->SetOptStat(" ");
 	gStyle->SetPalette( 1 );
-	obj1d1->Draw();
-	if( obj1d2 ) obj1d2->Draw( "same" );
+	obj1f1->Draw();
+	if( obj1f2 ) obj1f2->Draw( "same" );
 	square->Update();
 	square->SaveAs(imgFullName.c_str()); 
 	htmlFile[ism] << "<td><img src=\"" << imgFullName << "\"></td>" << std::endl;
