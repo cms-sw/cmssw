@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/14 13:02:16 $
- * $Revision: 1.6 $
+ * $Date: 2006/09/14 13:25:12 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -480,7 +480,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  const int csize = 500;
+  const int csize = 800;
 
   //const double histMax = 1.e15;
 
@@ -496,7 +496,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgName, meName, imgFullName;
 
   TCanvas* rectangle = new TCanvas("rectangle", "Temp", csize, csize/2);
-  TCanvas* rectsmall = new TCanvas("rectangle small", "Temp", csize/2, csize/2);
+  TCanvas* rectsmall = new TCanvas("rectangle small", "Temp", csize/2, csize/4);
   TCanvas* square    = new TCanvas("square small", "Temp", csize/4, csize/4);
 
   // Loop on barrel supermodules
@@ -617,10 +617,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	if( j == 3 ) continue;   //  011 bits combination is not used 
 	counter++;
 	if( j < 6 ) {
-	  imgName = meName + char(48+j) + ".png";
+	  imgName = meName + "_" + char(48+j) + ".png";
 	}
 	else {
-	  imgName = meName + "6-7.png";
+	  imgName = meName + "_6-7.png";
 	}
 	imgFullName = htmlDir + imgName;
 	
@@ -630,7 +630,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	else {
 	  obj3f->GetZaxis()->SetRange( j, j+1 );    
 	}
-	objp = obj3f->Project3DProfile( "xy" );
+	objp = obj3f->Project3DProfile( "yx" );
 	rectsmall->cd();
 	gStyle->SetOptStat(" ");
 	gStyle->SetPalette( 1 );
@@ -643,7 +643,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	dummy.Draw("text,same");
 	rectsmall->Update();
 	rectsmall->SaveAs(imgFullName.c_str()); 
-	htmlFile[ism] << "<td><img src=\"" << imgFullName << "\"></td>" << std::endl;
+	htmlFile[ism] << "<td><img src=\"" << imgName << "\"></td>" << std::endl;
 	if( counter%2 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl; 
       }      
     }      
@@ -669,7 +669,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	imgName = meName + char(48+j) + ".png";
 	imgFullName = htmlDir + imgName;
 	obj3f->GetZaxis()->SetRange( j, j );
-	objp = obj3f->Project3DProfile( "xy" );
+	objp = obj3f->Project3DProfile( "yx" );
 	rectsmall->cd();
 	gStyle->SetOptStat(" ");
 	gStyle->SetPalette( 1 );
@@ -682,7 +682,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	dummy.Draw("text,same");
 	rectsmall->Update();
 	rectsmall->SaveAs(imgFullName.c_str()); 
-	htmlFile[ism] << "<td><img src=\"" << imgFullName << "\"></td>" << std::endl;
+	htmlFile[ism] << "<td><img src=\"" << imgName << "\"></td>" << std::endl;
       }
     }
     htmlFile[ism] << "</tr>" << std::endl << "</table>" << std::endl;
@@ -707,7 +707,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	    meName.replace(i, 1 ,"_" );
 	  }
 	}
-	imgName = meName + char(48+j) + ".png";
+	imgName = meName + ".png";
 	imgFullName = htmlDir + imgName;
 	square->cd();
 	gStyle->SetOptStat(" ");
@@ -716,7 +716,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	if( obj1f2 ) obj1f2->Draw( "same" );
 	square->Update();
 	square->SaveAs(imgFullName.c_str()); 
-	htmlFile[ism] << "<td><img src=\"" << imgFullName << "\"></td>" << std::endl;
+	htmlFile[ism] << "<td><img src=\"" << imgName << "\"></td>" << std::endl;
       }
       if( (j+1)%4 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;
     }
