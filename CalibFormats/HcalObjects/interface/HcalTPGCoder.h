@@ -7,16 +7,19 @@
 
 /** \class HcalTPGCoder
   *  
-  * Converts ADC to ET for use in the TPG path
+  * Converts ADC to linear E or ET for use in the TPG path
+  * 
+  * Note : whether the coder produces E or ET is determined by the specific
+  * implementation of the coder.
   *
-  * $Date: 2006/03/27 21:05:12 $
-  * $Revision: 1.1 $
+  * $Date: 2006/03/30 16:49:18 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class HcalTPGCoder {
 public:
-  virtual void adc2ET(const HBHEDataFrame& df, IntegerCaloSamples& ics) const = 0;
-  virtual void adc2ET(const HFDataFrame& df, IntegerCaloSamples& ics) const = 0;
+  virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const = 0;
+  virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const = 0;
 };
 
 #endif
