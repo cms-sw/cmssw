@@ -122,7 +122,7 @@ int main()
     cout<<"Writting Event Index :" << eventId 
         <<" with offset# : " << offset << " To Index file" 
                              <<endl;
-    index_writer.write(emb, (long long)offset);
+    index_writer.write(emb, offset);
   }
 
 

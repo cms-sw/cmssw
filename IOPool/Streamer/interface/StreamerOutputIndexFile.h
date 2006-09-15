@@ -22,7 +22,7 @@
      //Magic# and Reserved fileds
      void writeIndexFileHeader(uint32 magicNumber, uint64 reserved);
      void write(InitMsgBuilder&);
-     void write(EventMsgBuilder&, long long);
+     void write(EventMsgBuilder&, uint64);
      void writeEOF(uint32 statusCode,
                     std::vector<uint32>& hltStats);
     

@@ -1,5 +1,6 @@
-#include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
+#include "IOPool/Streamer/interface/EventStreamOutput.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
 
 #include <iostream>
 #include <vector>
@@ -53,7 +54,7 @@ void StreamerFileWriter::doOutputHeader(std::auto_ptr<InitMsgBuilder> init_messa
 void StreamerFileWriter::doOutputEvent(std::auto_ptr<EventMsgBuilder> msg)
   {
     //Write the Event Message to Streamer file
-    long long int event_offset = stream_writer_->write(*msg);
+    uint64 event_offset = stream_writer_->write(*msg);
 
     index_writer_->write(*msg, event_offset);
   }

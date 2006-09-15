@@ -3,8 +3,9 @@
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
-
+#include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/DumpTools.h"
+
 
 #include <iostream>
 #include <vector>
@@ -220,7 +221,7 @@ void StreamerOutputService::writeEvent(EventMsgView& eview, uint32 hltsize)
            msg.setEventLength(len);
 
            //Write the Event Message to Streamer file
-           long long int event_offset = stream_writer_->write(msg);
+           uint64 event_offset = stream_writer_->write(msg);
 
            index_writer_->write(msg, event_offset);
            eventsInFile_++;

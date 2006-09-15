@@ -1,5 +1,7 @@
 #include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
+
 
  StreamerOutputIndexFile::StreamerOutputIndexFile(const std::string& name): 
  indexfile_(name)
@@ -23,7 +25,7 @@
   }
 
   void StreamerOutputIndexFile::write(EventMsgBuilder& ineview, 
-                                                   long long offset)
+                                                   uint64 offset)
   {
     /** Write the Event Header */
     indexfile_.ost()->write((const char*)
