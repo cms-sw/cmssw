@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.9 2006/09/07 21:21:54 jribnik Exp $
+// $Id: TrackAssociator.cc,v 1.10 2006/09/08 01:06:50 jribnik Exp $
 //
 //
 
@@ -75,6 +75,7 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
 
+#include "CLHEP/HepPDT/ParticleID.hh"
 //
 // class declaration
 //
@@ -626,7 +627,10 @@ FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSet
    GlobalVector vector( track.momentum().x(), track.momentum().y(), track.momentum().z() );
    // convert mm to cm
    GlobalPoint point( vertex.position().x()*.1, vertex.position().y()*.1, vertex.position().z()*.1 );
-   int charge = track.type( )> 0 ? -1 : 1;
+
+   HepPDT::ParticleID id(track.type());
+   int charge = id.threeCharge() < 0 ? -1 : 1;
+
    GlobalTrajectoryParameters tPars(point, vector, charge, &*bField);
    
    HepSymMatrix covT(6,1); covT *= 1e-6; // initialize to sigma=1e-3
