@@ -87,8 +87,8 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
        << " Analyzed histograms for " 
        << collations().size() 
        << " FED channels" << endl;
-  
-  // Adjust maximum (and minimum) delay(s) to find optimum sampling point(s)
+
+  // Check max time
   if ( time_max > sistrip::maximum_ ||
        time_max < -1.*sistrip::maximum_ ) { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
@@ -118,7 +118,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   // Set maximum time for all analysis objects
   map<uint32_t,ApvTimingAnalysis>::iterator ianal = data_.begin();
   for ( ; ianal != data_.end(); ianal++ ) { 
-    ianal->second.max( time_max ); 
+    ianal->second.maxTime( time_max ); 
     static uint16_t cntr = 0;
     if ( debug ) {
       stringstream ss;
