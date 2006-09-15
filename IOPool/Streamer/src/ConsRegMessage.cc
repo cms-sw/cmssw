@@ -15,9 +15,9 @@ using namespace std;
  * Constructor for the consumer registration request builder.
  */
 ConsRegRequestBuilder::ConsRegRequestBuilder(void* buf, uint32 bufSize,
-                                             string const& consumerName,
-                                             string const& consumerPriority,
-                                             string const& requestParamSet):
+                                             std::string const& consumerName,
+                                             std::string const& consumerPriority,
+                                             std::string const& requestParamSet):
   buf_((uint8*)buf),bufSize_(bufSize)
 {
   uint8* bufPtr;

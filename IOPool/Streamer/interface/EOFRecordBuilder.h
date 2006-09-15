@@ -23,7 +23,7 @@ public:
   uint32 size() const {return (uint32) buf_.size(); }
 
 private:
-  vector<uint8> buf_;
+  std::vector<uint8> buf_;
 };
 
 #endif

@@ -18,7 +18,7 @@
   */
   {
   public:
-     explicit StreamerOutputFile(const string& name);
+     explicit StreamerOutputFile(const std::string& name);
      /**
       CTOR, takes file path name as argument
      */

@@ -1,12 +1,17 @@
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-  OutputFile::OutputFile(const string& name):
+  OutputFile::OutputFile(const std::string& name):
   current_offset_(1), 
   events_(0),
   ost_(new ofstream(name.c_str(), ios_base::binary | ios_base::out)),
   filename_(name)
   {
+   if(!ost_->is_open()) {
+          throw cms::Exception("OutputFile","OutputFile")
+          << "Error Opening Output File: "<<name<<"\n";
+   }
   }
 
   OutputFile::~OutputFile() 
@@ -19,7 +24,7 @@
     streamerfile_.ost()->close();
   }
 
-  StreamerOutputFile::StreamerOutputFile(const string& name):
+  StreamerOutputFile::StreamerOutputFile(const std::string& name):
   streamerfile_(name)
   {
   }

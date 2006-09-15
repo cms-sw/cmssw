@@ -166,7 +166,7 @@ namespace edm
     //   as double compression can have problems
     if(use_compression)
     {
-      vector<unsigned char> dest;
+      std::vector<unsigned char> dest;
       //unsigned long dest_size = 7008*1000; //(should be > rootbuf.Length()*1.001 + 12)
       unsigned long dest_size = (unsigned long)(double(rootbuf.Length())*1.002 + 1.0) + 12;
       FDEBUG(10) << "rootbuf size = " << rootbuf.Length() << " dest_size = "
@@ -256,7 +256,7 @@ namespace edm
     // need to get rid of this when 090 MTCC streamers are gotten rid of
     unsigned long origsize = eventView.reserved();
     ///unsigned char dest[7008*1000];
-    vector<unsigned char> dest;
+    std::vector<unsigned char> dest;
     unsigned long dest_size = 7008*1000; //(should be >= eventView.reserved() )
     if(eventView.reserved() != 78 && eventView.reserved() != 0)
     {

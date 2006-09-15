@@ -16,17 +16,17 @@ class StreamerInputIndexFile;
   public:
 
     /**Reads a Streamer file */
-    explicit StreamerInputFile(const string& name);
+    explicit StreamerInputFile(const std::string& name);
 
     /** Reads a Streamer file and browse it through an index file */
     /** Index file name provided here */
-    explicit StreamerInputFile(const string& name, const string& order);
+    explicit StreamerInputFile(const std::string& name, const std::string& order);
 
     /** Index file reference is provided */
-    explicit StreamerInputFile(const string& name, const StreamerInputIndexFile& order);
+    explicit StreamerInputFile(const std::string& name, const StreamerInputIndexFile& order);
 
     /** Multiple Index files for Single Streamer file */
-    explicit StreamerInputFile(const vector<string>& names);
+    explicit StreamerInputFile(const std::vector<std::string>& names);
 
     ~StreamerInputFile();
 
@@ -63,11 +63,11 @@ class StreamerInputIndexFile;
     InitMsgView* startMsg_;
     EventMsgView* currentEvMsg_;
 
-    vector<char> headerBuf_; /** Buffer to store file Header */
-    vector<char> eventBuf_;  /** Buffer to store Event Data */
+    std::vector<char> headerBuf_; /** Buffer to store file Header */
+    std::vector<char> eventBuf_;  /** Buffer to store Event Data */
 
     unsigned int currentFile_; /** keeps track of which file is in use at the moment*/
-    vector<std::string> streamerNames_; /** names of Streamer files */
+    std::vector<std::string> streamerNames_; /** names of Streamer files */
     bool multiStreams_;  /** True if Multiple Streams are Read */
 
     uint32 currRun_;

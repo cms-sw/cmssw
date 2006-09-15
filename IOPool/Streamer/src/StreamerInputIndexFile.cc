@@ -19,7 +19,7 @@ StreamerInputIndexFile::~StreamerInputIndexFile()
      }
 }
 
-StreamerInputIndexFile::StreamerInputIndexFile(const string& name):
+StreamerInputIndexFile::StreamerInputIndexFile(const std::string& name):
   ist_(new ifstream(name.c_str(), ios_base::binary | ios_base::in)),
   startMsg_(0),
   eof_(false),
@@ -31,6 +31,11 @@ StreamerInputIndexFile::StreamerInputIndexFile(const string& name):
 {
 
   FDEBUG(10) <<"Opening Index file"<<endl;
+  if (!ist_->is_open()) 
+     {
+       throw cms::Exception ("StreamerInputIndexFile","StreamerInputIndexFile")
+          << "Error Opening Input File: "<< name<< "\n";
+     } 
   readStartMessage();
   while (readEventMessage()) {
       ;
@@ -41,7 +46,7 @@ StreamerInputIndexFile::StreamerInputIndexFile(const string& name):
 }
 
 
-StreamerInputIndexFile::StreamerInputIndexFile(const vector<string>& names):
+StreamerInputIndexFile::StreamerInputIndexFile(const std::vector<std::string>& names):
   startMsg_(0),
   eof_(false),
   eventBufPtr_(0),
@@ -52,8 +57,12 @@ StreamerInputIndexFile::StreamerInputIndexFile(const vector<string>& names):
 {
    for (unsigned int i=0; i!=names.size(); ++i) 
    {
-       ist_ = new ifstream(names.at(i).c_str(), ios_base::binary | ios_base::in);
-
+     ist_ = new ifstream(names.at(i).c_str(), ios_base::binary | ios_base::in);
+     if (!ist_->is_open())
+     {
+       throw cms::Exception ("StreamerInputIndexFile","StreamerInputIndexFile")
+          << "Error Opening Input File: "<< names.at(i) << "\n";
+     }
 
        readStartMessage();
        while (readEventMessage()) {

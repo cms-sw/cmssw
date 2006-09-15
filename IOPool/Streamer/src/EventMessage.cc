@@ -98,7 +98,7 @@ void EventMsgView::l1TriggerBits(std::vector<bool>& put_here) const
   put_here.clear();
   put_here.resize(l1_bits_count_);
 
-  for(unsigned int i=0;i<l1_bits_count_;++i)
+  for(std::vector<bool>::size_type  i=0 ; i<l1_bits_count_ ; ++i)
     put_here[i] = (bool)(l1_bits_start_[i/8] & (1<<((i&0x07))));
 }
 

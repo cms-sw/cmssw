@@ -127,7 +127,7 @@ void StreamerInputModule<Producer>::declareStreamers(const SendDescs& descs)
 
     for(; i != e; ++i) {
         //pi->init();
-        string real_name = edm::wrappedClassName(i->className());
+        std::string real_name = edm::wrappedClassName(i->className());
         FDEBUG(6) << "declare: " << real_name << endl;
         edm::loadCap(real_name);
     }
@@ -141,7 +141,7 @@ void StreamerInputModule<Producer>::buildClassCache(const SendDescs& descs)
 
     for(; i != e; ++i) {
         //pi->init();
-        string real_name = edm::wrappedClassName(i->className());
+        std::string real_name = edm::wrappedClassName(i->className());
         FDEBUG(6) << "BuildReadData: " << real_name << endl;
         edm::doBuildRealData(real_name);
     }

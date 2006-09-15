@@ -20,14 +20,14 @@ Class representing Output (Streamer/Index) file.
   */
   {
   public:
-     explicit OutputFile(const string& name);
+     explicit OutputFile(const std::string& name);
      /**
       CTOR, takes file path name as argument
      */
      ~OutputFile();
 
       ofstream* ost() {return ost_;}
-      string fileName() const {return filename_;}
+      std::string fileName() const {return filename_;}
 
       uint64 current_offset_;  /** Location of current ioptr */
       uint64 first_event_offset_;
@@ -37,7 +37,7 @@ Class representing Output (Streamer/Index) file.
 
    private:
      ofstream* ost_;
-     string filename_; 
+     std::string filename_; 
   };
 
 #endif

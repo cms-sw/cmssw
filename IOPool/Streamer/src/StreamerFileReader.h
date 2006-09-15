@@ -25,7 +25,7 @@ namespace edm
 
   private:  
 
-     vector<std::string> streamerNames_; /** names of Streamer files */
+     std::vector<std::string> streamerNames_; /** names of Streamer files */
      std::auto_ptr<StreamerInputFile> stream_reader_;
   };
 

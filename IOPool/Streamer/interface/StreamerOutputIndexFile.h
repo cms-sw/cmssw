@@ -15,7 +15,7 @@
   /** Class for doing Index write operations. */
   {
   public:
-     explicit StreamerOutputIndexFile(const string& name);
+     explicit StreamerOutputIndexFile(const std::string& name);
 
      ~StreamerOutputIndexFile();
 

@@ -24,7 +24,7 @@ EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
  
   uint8* pos_end = pos + l1_sz;
   memset(pos,0x00, pos_end-pos); // clear the bits
-  for(unsigned int i=0;i<l1_bits.size();++i)
+  for(std::vector<bool>::size_type  i=0;i<l1_bits.size();++i)
     {
       uint8 v = l1_bits[i] ? 1:0;
       pos[i/8] |= (v << (i&0x07));

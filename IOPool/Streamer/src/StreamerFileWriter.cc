@@ -11,9 +11,9 @@ using namespace std;
 namespace edm
 {
 StreamerFileWriter::StreamerFileWriter(edm::ParameterSet const& ps):
-  stream_writer_(new StreamerOutputFile(ps.template getParameter<string>("fileName"))),
+  stream_writer_(new StreamerOutputFile(ps.template getParameter<std::string>("fileName"))),
   index_writer_(new StreamerOutputIndexFile(
-                    ps.template getParameter<string>("indexFileName")))
+                    ps.template getParameter<std::string>("indexFileName")))
   {
   }
 

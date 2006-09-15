@@ -16,10 +16,10 @@ using namespace std;
 namespace edm
 {
 
-string itoa(int i){
+std::string itoa(int i){
         char temp[20];
         sprintf(temp,"%d",i);
-        return((string)temp);
+        return((std::string)temp);
 }
 
  //StreamerOutputService::StreamerOutputService(edm::ParameterSet const& ps):
@@ -40,7 +40,7 @@ string itoa(int i){
     
   }
 
-void StreamerOutputService::init(string fileName, unsigned long maxFileSize, double highWaterMark,
+void StreamerOutputService::init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
                                  std::string path, std::string mpath, InitMsgView& view)
   { 
    maxFileSize_ = maxFileSize;
@@ -52,7 +52,7 @@ void StreamerOutputService::init(string fileName, unsigned long maxFileSize, dou
    indexFileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
    stream_writer_ = std::auto_ptr<StreamerOutputFile>(new StreamerOutputFile(fileName_));
    index_writer_ =  std::auto_ptr<StreamerOutputIndexFile>(new StreamerOutputIndexFile(indexFileName_));
-   
+
    // rebuild (should not be doing this!!)
    //dumpInitHeader(&view);
    
@@ -86,7 +86,7 @@ StreamerOutputService::~StreamerOutputService()
    // stop();   //Remove this from destructor if you want higher class to do that at its will.
               // and if stop() is ever made Public.
    writeToMailBox();
-   ostringstream entry;
+   std::ostringstream entry;
    entry << fileNameCounter_ << " "
          << fileName_
          << " " << eventsInFile_
@@ -96,7 +96,7 @@ StreamerOutputService::~StreamerOutputService()
    closedFiles_ += fileName_;
    // HEREHERE for test
    std::cout << "#    name                             evt        size     " << endl;
-   for(list<string>::const_iterator it = files_.begin(); it != files_.end(); it++)
+   for(std::list<std::string>::const_iterator it = files_.begin(); it != files_.end(); it++)
      std::cout << *it << endl;
    std::cout << "Disk Usage = " << diskUsage_ << endl;
    std::cout << "Closed files = " << closedFiles_ << endl;
@@ -164,7 +164,7 @@ void StreamerOutputService::writeEvent(EventMsgView& eview, uint32 hltsize)
              index_writer_.reset( new StreamerOutputIndexFile(indexFileN));
 
              // write out the summary line for this last file
-             ostringstream entry;
+             std::ostringstream entry;
              entry << (fileNameCounter_ - 1) << " " 
                    << fileName_
                    << " " << eventsInFile_
@@ -237,7 +237,7 @@ void StreamerOutputService::writeEvent(EventMsgView& eview, uint32 hltsize)
   
   void StreamerOutputService::writeToMailBox()
   {
-    ostringstream ofilename;
+    std::ostringstream ofilename;
     ofilename << mpath_ << "/" << filen_ << "." << fileNameCounter_ << ".smry";
     ofstream of(ofilename.str().c_str());
     of << fileName_;

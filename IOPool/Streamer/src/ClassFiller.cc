@@ -21,7 +21,7 @@ using namespace std;
 namespace edm {
 namespace {
 
-  string getName(ROOT::Reflex::Type& cc)
+  std::string getName(ROOT::Reflex::Type& cc)
   {
     return cc.Name(ROOT::Reflex::SCOPED);
   }

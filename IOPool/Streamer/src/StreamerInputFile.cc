@@ -26,7 +26,7 @@ StreamerInputFile::~StreamerInputFile()
   
 }
 
-StreamerInputFile::StreamerInputFile(const string& name):
+StreamerInputFile::StreamerInputFile(const std::string& name):
   ist_(new ifstream(name.c_str(), ios_base::binary | ios_base::in)),
   useIndex_(false),
   startMsg_(0),
@@ -36,11 +36,17 @@ StreamerInputFile::StreamerInputFile(const string& name):
   multiStreams_(false),
   newHeader_(false)
 {
-  readStartMessage();
+  if (!ist_->is_open())
+     {
+      throw cms::Exception("StreamerInputFile","StreamerInputFile")
+              << "Error Opening Input File: "<< name << "\n";
+     } 
+  else 
+    readStartMessage();
 }
 
-StreamerInputFile::StreamerInputFile(const string& name, 
-                                     const string& order):
+StreamerInputFile::StreamerInputFile(const std::string& name, 
+                                     const std::string& order):
   ist_(new ifstream(name.c_str(), ios_base::binary | ios_base::in)),
   useIndex_(true),
   index_(new StreamerInputIndexFile(order)),
@@ -54,10 +60,16 @@ StreamerInputFile::StreamerInputFile(const string& name,
   multiStreams_(false),
   newHeader_(false)
 {
-  readStartMessage(); 
+  if (!ist_->is_open())
+     {
+      throw cms::Exception("StreamerInputFile","StreamerInputFile")
+              << "Error Opening Input File: "<< name << "\n";
+     }
+  else
+    readStartMessage();
 }
 
-StreamerInputFile::StreamerInputFile(const string& name,
+StreamerInputFile::StreamerInputFile(const std::string& name,
                                      const StreamerInputIndexFile& order):
   ist_(new ifstream(name.c_str(), ios_base::binary | ios_base::in)),
   useIndex_(true),
@@ -72,11 +84,17 @@ StreamerInputFile::StreamerInputFile(const string& name,
   multiStreams_(false),
   newHeader_(false)
 {
-  readStartMessage(); 
+  if (!ist_->is_open())
+     {
+      throw cms::Exception("StreamerInputFile","StreamerInputFile")
+              << "Error Opening Input File: "<< name << "\n";
+     }
+  else
+    readStartMessage();
 }
 
 
-StreamerInputFile::StreamerInputFile(const vector<string>& names):
+StreamerInputFile::StreamerInputFile(const std::vector<std::string>& names):
  useIndex_(false),
  startMsg_(0),
  currentEvMsg_(0),
@@ -90,15 +108,19 @@ StreamerInputFile::StreamerInputFile(const vector<string>& names):
  newHeader_(false)
 {
   ist_ =new ifstream(names.at(0).c_str(), ios_base::binary | ios_base::in);
-
-  currentFile_++;
-  
-  readStartMessage();
-  
-  currRun_ = startMsg_->run();
-  currProto_ = startMsg_->protocolVersion();
+  if (ist_->is_open())
+     {
+      currentFile_++;
+      readStartMessage();
+      currRun_ = startMsg_->run();
+      currProto_ = startMsg_->protocolVersion();
+      }
+  else
+     {
+      throw cms::Exception("StreamerInputFile","StreamerInputFile")
+              << "Error Opening Input File: "<< names.at(0) << "\n";
+     }
 }
-
 
 const StreamerInputIndexFile* StreamerInputFile::index() {
   return index_;
@@ -180,6 +202,13 @@ bool StreamerInputFile::openNextFile() {
 
      ist_ = new ifstream(streamerNames_.at(currentFile_).c_str(),
                                  ios_base::binary | ios_base::in);
+     if (!ist_->is_open())
+     {
+      throw cms::Exception("StreamerInputFile","openNextFile")
+          << "Error Opening Input File: "<< streamerNames_.at(currentFile_) << "\n";
+      return false;
+     }
+
      //if start message was already there, lets see if the new one is similar
      if (startMsg_ != NULL ) {  //There was a previous file opened, must compare headers
         FDEBUG(10) << "Comparing Header"<<endl;

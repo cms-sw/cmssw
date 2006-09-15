@@ -48,8 +48,8 @@ namespace
         } 
    }   
     
-   void packIntoString(vector<unsigned char> const& source,
-                    vector<unsigned char>& package)
+   void packIntoString(std::vector<unsigned char> const& source,
+                    std::vector<unsigned char>& package)
    {   
    unsigned int packInOneByte = 4; 
    unsigned int sizeOfPackage = 1+((source.size()-1)/packInOneByte); //Two bits per HLT
@@ -57,7 +57,7 @@ namespace
    package.resize(sizeOfPackage); 
    memset(&package[0], 0x00, sizeOfPackage);
  
-   for (unsigned int i=0; i != source.size() ; ++i)
+   for (std::vector<unsigned char>::size_type i=0; i != source.size() ; ++i)
    { 
       unsigned int whichByte = i/packInOneByte;
       unsigned int indxWithinByte = i % packInOneByte;
@@ -231,18 +231,18 @@ void StreamerOutputModule<Consumer>::setHltMask(EventPrincipal const& e)
     hltbits_.clear();  // If there was something left over from last event
 
     const Trig& prod = getTrigMask(e);
-    vector<unsigned char> vHltState; 
+    std::vector<unsigned char> vHltState; 
     
     if (prod.isValid())
     {
-      for(unsigned int i=0; i != hltsize_ ; ++i) {
+      for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i) {
         vHltState.push_back(((prod->at(i)).state()));
       }
     }
     else 
     {
      // We fill all Trigger bits to valid state.
-     for(unsigned int i=0; i != hltsize_ ; ++i)
+     for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i)
         {
            vHltState.push_back(hlt::Pass);
         }

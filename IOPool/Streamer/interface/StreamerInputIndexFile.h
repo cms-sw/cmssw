@@ -9,8 +9,8 @@
   {
   /** Class for doing Index Read Operations. */
   public:
-    explicit StreamerInputIndexFile(const string& name);
-    explicit StreamerInputIndexFile(const vector<string>& names);
+    explicit StreamerInputIndexFile(const std::string& name);
+    explicit StreamerInputIndexFile(const std::vector<std::string>& names);
 
     ~StreamerInputIndexFile();
 
@@ -35,8 +35,8 @@
 
     uint64 eventBufPtr_;
 
-    vector<char> headerBuf_;
-    vector<char> eventBuf_;
+    std::vector<char> headerBuf_;
+    std::vector<char> eventBuf_;
     uint32 eventHeaderSize_;
 
     std::vector<EventIndexRecord*> indexes_;

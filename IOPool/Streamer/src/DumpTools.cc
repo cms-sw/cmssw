@@ -23,10 +23,10 @@ void dumpInitHeader(const InitMsgView* view)
   cout << "pset = " << vpset << "\n";
 
   cout << "HLT names = \n";
-  copy(vhltnames.begin(),vhltnames.end(),ostream_iterator<string>(cout,"\n"));
+  copy(vhltnames.begin(),vhltnames.end(),ostream_iterator<std::string>(cout,"\n"));
 
   cout << "L1 names = \n";
-  copy(vl1names.begin(),vl1names.end(),ostream_iterator<string>(cout,"\n"));
+  copy(vl1names.begin(),vl1names.end(),ostream_iterator<std::string>(cout,"\n"));
   cout << "\n";
 
 }

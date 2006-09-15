@@ -1,8 +1,7 @@
 #include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 
-
- StreamerOutputIndexFile::StreamerOutputIndexFile(const string& name): 
+ StreamerOutputIndexFile::StreamerOutputIndexFile(const std::string& name): 
  indexfile_(name)
   {
   

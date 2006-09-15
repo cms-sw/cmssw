@@ -36,7 +36,7 @@ public:
   uint64 firstEventOffset() {return first_event_offset_; }
   uint64 lastEventOffset() {return last_event_offset_; }
 
-  void hltStats(vector<uint32>& put_here); /** Gives the total number of events that
+  void hltStats(std::vector<uint32>& put_here); /** Gives the total number of events that
                               were accepted for each HLT path, one
                               32-bit (4-byte) integer for each HLT path.
                               What order ???? */
