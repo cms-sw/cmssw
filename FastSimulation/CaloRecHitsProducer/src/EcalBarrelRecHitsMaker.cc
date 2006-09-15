@@ -10,7 +10,6 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p)
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("ECALBarrel");
   noise_ = RecHitsParameters.getParameter<double>("Noise");
   threshold_ = RecHitsParameters.getParameter<double>("Threshold");
-  barrelhits_.resize(61200,0.);
 }
 
 EcalBarrelRecHitsMaker::~EcalBarrelRecHitsMaker()
