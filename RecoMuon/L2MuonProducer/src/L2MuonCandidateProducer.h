@@ -19,6 +19,7 @@
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -38,7 +39,7 @@ class L2MuonCandidateProducer : public edm::EDProducer {
  private:
   
   // StandAlone Collection Label
-  std::string theSACollectionLabel; 
+  edm::InputTag theSACollectionLabel; 
 };
 
 #endif

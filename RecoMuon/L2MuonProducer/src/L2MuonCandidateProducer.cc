@@ -41,7 +41,7 @@ L2MuonCandidateProducer::L2MuonCandidateProducer(const ParameterSet& parameterSe
   LogDebug("Muon|RecoMuon|L2MuonCandidateProducer")<<" constructor called";
 
   // StandAlone Collection Label
-  theSACollectionLabel = parameterSet.getUntrackedParameter<string>("StandAloneCollectionLabel");
+  theSACollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
 
   produces<RecoChargedCandidateCollection>();
 }
@@ -57,7 +57,7 @@ void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   const string metname = "Muon|RecoMuon|L2MuonCandidateProducer";
   
   // Take the SA container
-  LogDebug(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel;
+  LogDebug(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel.label();
   Handle<TrackCollection> tracks; 
   event.getByLabel(theSACollectionLabel,tracks);
 

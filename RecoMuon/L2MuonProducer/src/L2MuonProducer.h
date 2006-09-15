@@ -11,8 +11,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/05/19 15:23:20 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/08/30 12:27:55 $
+ *   $Revision: 1.3 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -20,6 +20,7 @@
 //--------------------------------------------------
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -38,12 +39,11 @@ class L2MuonProducer : public edm::EDProducer {
   
   /// reconstruct muons
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  // ex virtual void reconstruct();
-  
+    
  private:
 
   // MuonSeed Collection Label
-  std::string theSeedCollectionLabel;
+  edm::InputTag theSeedCollectionLabel;
 
   /// the track finder
   MuonTrackFinder* theTrackFinder; //It isn't the same as in ORCA
