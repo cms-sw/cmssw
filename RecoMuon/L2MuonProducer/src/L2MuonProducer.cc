@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/08/30 12:27:55 $
- *   $Revision: 1.10 $
+ *   $Date: 2006/08/31 18:23:06 $
+ *   $Revision: 1.11 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -49,7 +49,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   ParameterSet L2_pSet = parameterSet.getParameter<ParameterSet>("L2TrajBuilderParameters");
 
   // MuonSeed Collection Label
-  theSeedCollectionLabel = parameterSet.getParameter<string>("MuonSeedCollectionLabel");
+  theSeedCollectionLabel = parameterSet.getUntrackedParameter<string>("MuonSeedCollectionLabel");
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
@@ -86,7 +86,6 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   LogDebug(metname)<<"L2 Muon Reconstruction Started"<<endl;
   
   // Take the seeds container
-  // FIXME: Change in the L1 container!
   LogDebug(metname)<<"Taking the seeds: "<<theSeedCollectionLabel<<endl;
   Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
