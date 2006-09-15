@@ -102,7 +102,7 @@ std::vector<CSCRPCDigi> CSCRPCData::digis() const {
     bxnnew = (((theData[pos+1] >> 8)  & 0x3 )<<2) | ((theData[pos+1]>>6)&0x3) ;
     if ( linePair == 0 ) bxnold = bxnnew;
     if ( bxnnew - bxnold > 1 ) 
-      edm::LogError ("CSCRPCData") << "+++ CSCRPCData warning: RPC BXN is incrementing by more than 1 clock cycle";
+      edm::LogWarning ("CSCRPCData") << "+++ CSCRPCData warning: RPC BXN is incrementing by more than 1 clock cycle";
     bxnold = bxnnew;
 
     if(pad != 0) {
