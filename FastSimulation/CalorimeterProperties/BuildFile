@@ -1,6 +1,8 @@
 <use name=clhep>
 <use name=FastSimulation/Event>
 <use name=Geometry/CaloGeometry>
+<use name=Geometry/EcalBarrelAlgo>
+<use name=Geometry/EcalEndcapAlgo>
 <use name=DataFormats/EcalDetId>
 <use name=Geometry/HcalTowerAlgo>
 <export>
@@ -8,5 +10,7 @@
  <use name=FastSimulation/Event>
  <use name=Geometry/CaloGeometry>	
  <use name=DataFormats/EcalDetId>
- <use name=Geometry/HcalTowerAlgo> 	
+ <use name=Geometry/HcalTowerAlgo>
+ <use name=Geometry/EcalBarrelAlgo>
+ <use name=Geometry/EcalEndcapAlgo> 	
 </export>

@@ -1,7 +1,8 @@
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
+#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
 #include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
 
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer1Properties.h"
@@ -12,6 +13,8 @@
 #include "FastSimulation/CalorimeterProperties/interface/HCALEndcapProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALForwardProperties.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
+
+
 
 #include <iostream>
 
@@ -114,8 +117,8 @@ Calorimeter::layer2Properties(int onLayer2) const {
 void Calorimeter::setupGeometry(const edm::ESHandle<CaloGeometry>& pG)
 {
   std::cout << " setupGeometry " << std::endl;
-  EcalBarrelGeometry_ = pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  EcalEndcapGeometry_ = pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+  EcalBarrelGeometry_ = dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+  EcalEndcapGeometry_ = dynamic_cast<const EcalEndcapGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
   HcalGeometry_ = pG->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
 
   // Takes a lot of time

@@ -17,6 +17,8 @@ class HCALBarrelProperties;
 class HCALEndcapProperties;
 class HCALForwardProperties;
 class CaloSubdetectorGeometry;
+class EcalBarrelGeometry;
+class EcalEndcapGeometry;
 
 class Calorimeter{
  public:
@@ -62,13 +64,9 @@ class Calorimeter{
   double psLayer1Z_,psLayer2Z_;
 
   // The subdetectors geometry
-  const CaloSubdetectorGeometry* EcalBarrelGeometry_;
-  const CaloSubdetectorGeometry* EcalEndcapGeometry_;
+  const EcalBarrelGeometry* EcalBarrelGeometry_;
+  const EcalEndcapGeometry* EcalEndcapGeometry_;
   const CaloSubdetectorGeometry* HcalGeometry_;
-//  const CaloSubdetectorGeometry* HcalBarrelGeometry_;
-//  const CaloSubdetectorGeometry* HcalEndcapGeometry_;
-//  const CaloSubdetectorGeometry* HcalOuterGeometry_;
-//  const CaloSubdetectorGeometry* HcalForwardGeometry_;
   const CaloSubdetectorGeometry* PreshowerGeometry_;
 
 };
