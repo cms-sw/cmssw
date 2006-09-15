@@ -3,38 +3,52 @@
 use warnings;
 use strict;
 $|++;
+use File::Basename;
+use Getopt::Long;
+
+my $usage = basename($0)." --source_connect  --dest_connect time \n".
+    "Options:\n".
+    "--source_connect  source connect string: user/pass\@db(required)\n".
+    "--dest_connect    destination database: user/pass\@db(required) \n".
+    "--help, -h        Print this message and exit\n";
+
+my $source_connect='' ;
+my $dest_connect='' ;
+my $help = 0;
+GetOptions('source_connect=s' => \$source_connect,
+	   'dest_connect=s' => \$dest_connect,
+	   'help|h' => \$help );
+if ($help) {
+    print "$usage";
+    exit;
+}
 
 my $time = shift @ARGV;
 
-die "Provide time."  unless $time;
+die "Must provide polling time interval in second."  unless $time;
 
-my $orcon_user = "CMS_COND_CSC";
-my $orcon_pass = "__CHANGE_ME__";
-my $orcoff_user = "CMS_COND_CSC";
-my $orcoff_pass = "__CHANGE_ME__";
-
-my $conn_orcon = "sqlplus -SL ${orcon_user}/${orcon_pass}\@orcon";
-my $conn_orcoff = "sqlplus -SL ${orcoff_user}/${orcoff_pass}\@cms_orcoff";
+my $conn_source = "sqlplus -SL ${source_connect}";
+my $conn_dest = "sqlplus -SL ${dest_connect}";
 
 print "Opening pipes to sqlplus...";
-open ORCON, "| $conn_orcon >> orcon_poll.txt" or die $!;
-print ORCON "set serveroutput on;\nset echo off;\n";
+open SOURCE, "| $conn_source >> source_poll.txt" or die $!;
+print SOURCE "set serveroutput on;\nset echo off;\n";
 
-open ORCOFF, "| $conn_orcoff >> orcoff_poll.txt" or die $!;
-print ORCOFF "set serveroutput on;\nset echo off;\n";
+open DEST, "| $conn_dest >> dest_poll.txt" or die $!;
+print DEST "set serveroutput on;\nset echo off;\n";
 print "Done.\n";
 
 print "Beginning polling every $time s, use Ctl-c to stop\n\n";
 
 while (1) {
-    print ORCON "call poll_db();\n";
-    print ORCOFF "call poll_db();\n";
+    print SOURCE "call poll_db();\n";
+    print DEST "call poll_db();\n";
     sleep($time);
     print `echo -n`; # I don't know why, but this program doesn't work with out this line
 }
 
 END {
     print "Closing pipes.\n";
-    close ORCON;
-    close ORCOFF;
+    close SOURCE;
+    close DEST;
 }
