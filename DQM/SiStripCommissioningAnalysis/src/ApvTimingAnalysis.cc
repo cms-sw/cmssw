@@ -12,7 +12,7 @@ using namespace std;
 ApvTimingAnalysis::ApvTimingAnalysis( const uint32_t& key ) 
   : CommissioningAnalysis(key),
     time_(sistrip::invalid_), 
-    max_(sistrip::invalid_), 
+    maxTime_(sistrip::invalid_), 
     delay_(sistrip::invalid_), 
     error_(sistrip::invalid_), 
     base_(sistrip::invalid_), 
@@ -26,7 +26,7 @@ ApvTimingAnalysis::ApvTimingAnalysis( const uint32_t& key )
 ApvTimingAnalysis::ApvTimingAnalysis() 
   : CommissioningAnalysis(),
     time_(sistrip::invalid_), 
-    max_(sistrip::invalid_), 
+    maxTime_(sistrip::invalid_), 
     delay_(sistrip::invalid_), 
     error_(sistrip::invalid_), 
     base_(sistrip::invalid_), 
@@ -45,20 +45,24 @@ void ApvTimingAnalysis::print( stringstream& ss, uint32_t not_used ) {
   } else {
     ss << "APV TIMING monitorables" << "\n";
   }
-  ss << " Time of tick rising edge [ns]      : " << time_ << "\n" 
-     << " Maximum time (sampling point) [ns] : " << max_ << "\n" 
-     << " Delay required wrt max time [ns]   : " << delay_ << "\n" 
-     << " Error on delay [ns]                : " << error_ << "\n"
-     << " Baseline [adc]                     : " << base_ << "\n" 
-     << " Tick peak [adc]                    : " << peak_ << "\n" 
-     << " Tick height [adc]                  : " << height_ << "\n";
+  float adjust = sistrip::invalid_;
+  if ( time_ < sistrip::maximum_ && 
+       delay_ < sistrip::maximum_ ) { adjust = time_ + delay_; }
+  ss << " Time of tick mark rising edge [ns]        : " << time_ << "\n" 
+     << " Error on time of rising edge [ns]         : " << error_ << "\n"
+     << " Sampling point of last tick mark [ns]     : " << maxTime_ + optimumSamplingPoint_ << "\n" 
+     << " Adjusted sampling point of last tick [ns] : " << adjust << "\n" 
+     << " Delay required to synchronise [ns]        : " << delay_ << "\n" 
+     << " Baseline level [adc]                      : " << base_ << "\n" 
+     << " Tick peak level [adc]                     : " << peak_ << "\n" 
+     << " Tick mark height [adc]                    : " << height_ << "\n";
 }
 
 // ----------------------------------------------------------------------------
 // 
 void ApvTimingAnalysis::reset() {
   time_ = sistrip::invalid_; 
-  max_ = sistrip::invalid_; 
+  maxTime_ = sistrip::invalid_; 
   delay_ = sistrip::invalid_; 
   error_ = sistrip::invalid_; 
   base_ = sistrip::invalid_; 
@@ -68,13 +72,15 @@ void ApvTimingAnalysis::reset() {
 }
 
 // ----------------------------------------------------------------------------
-// 
-void ApvTimingAnalysis::max( const float& max ) { 
-  max_ = max;
+// 1) Calculates position of "sampling point" of last tick; 2) then
+// adjusts so that it is multiple of 25, ie, synched with FED
+// sampling; 3) then calculates delay required to synchronise with
+// this adjusted sampling position.
+void ApvTimingAnalysis::maxTime( const float& time ) { 
+  maxTime_ = time;
   if ( time_ > sistrip::maximum_ ) { return; }
-  int32_t adjustment = 25 - static_cast<int32_t>( rint( max_ + optimumSamplingPoint_ ) ) % 25;
-  max_ += adjustment;
-  delay_ = max_ - time_; 
+  float adjustment = 25 - static_cast<int32_t>( rint(maxTime_+optimumSamplingPoint_) ) % 25;
+  delay_ = ( maxTime_ + adjustment ) - time_; 
 }
 
 // ----------------------------------------------------------------------------

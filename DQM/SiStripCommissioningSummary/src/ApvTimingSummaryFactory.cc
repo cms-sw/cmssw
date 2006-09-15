@@ -69,7 +69,7 @@ uint32_t SummaryHistogramFactory<ApvTimingAnalysis>::extract( const map<uint32_t
     if ( histo_ == sistrip::APV_TIMING_TIME ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.time() ); 
     } else if ( histo_ == sistrip::APV_TIMING_MAX_TIME ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.max() ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.maxTime() ); 
     } else if ( histo_ == sistrip::APV_TIMING_DELAY ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.delay() ); 
     } else if ( histo_ == sistrip::APV_TIMING_ERROR ) { 
@@ -80,13 +80,7 @@ uint32_t SummaryHistogramFactory<ApvTimingAnalysis>::extract( const map<uint32_t
       generator_->fillMap( level_, gran_, iter->first, iter->second.peak() ); 
     } else if ( histo_ == sistrip::APV_TIMING_HEIGHT ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.height() ); 
-    } else { 
-      cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	   << " Unexpected SummaryHisto value:"
-	   << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
-	   << endl;
-      continue;
-    }
+    } else { continue; }
   }
   return generator_->size();
 }

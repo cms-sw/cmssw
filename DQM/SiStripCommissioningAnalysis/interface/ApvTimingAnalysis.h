@@ -24,7 +24,7 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   virtual ~ApvTimingAnalysis() {;}
   
   inline const float& time() const; 
-  inline const float& max() const; 
+  inline const float& maxTime() const; 
   inline const float& delay() const; 
   inline const float& error() const; 
   inline const float& base() const; 
@@ -33,7 +33,7 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   
   inline const Histo& histo() const;
   
-  void max( const float& ); 
+  void maxTime( const float& time ); 
   
   void print( std::stringstream&, uint32_t not_used = 0 );
   
@@ -47,9 +47,9 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   
   /** Time of tick mark rising edge [ns] */
   float time_;
-  /** Maximum time set [ns] */
-  float max_;
-  /** Delay required, relative to maximum time [ns] */
+  /** Time of sampling point of last tick mark [ns] */
+  float maxTime_;
+  /** Delay required to synchronise */ 
   float delay_;
   /** Error on time delay [ns] */
   float error_;
@@ -69,7 +69,7 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
 };
 
 const float& ApvTimingAnalysis::time() const { return time_; }
-const float& ApvTimingAnalysis::max() const { return max_; }
+const float& ApvTimingAnalysis::maxTime() const { return maxTime_; }
 const float& ApvTimingAnalysis::delay() const { return delay_; }
 const float& ApvTimingAnalysis::error() const { return error_; }
 const float& ApvTimingAnalysis::base() const { return base_; }
