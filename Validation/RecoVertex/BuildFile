@@ -6,7 +6,7 @@
 <use name=SimGeneral/HepPDT>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="ValidationVertexReco">
+<flags SEAL_PLUGIN_NAME="ValidationRecoVertex">
 <export>
    <lib name=ValidationVertexReco>
    <use name=FWCore/Framework>
