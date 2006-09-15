@@ -97,38 +97,22 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	       (*iv).totalChiSquared(), 
 	       (*iv).degreesOfFreedom() , 
       (*iv).originalTracks().size());
+      vector<reco::TransientTrack> prongs = (*iv).originalTracks();
+
+      // store link to tracks
+      for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
+ 	   it != prongs.end(); it++) {
+ 	if ((*it).persistentTrackRef()) {
+ 	  v.add(*(*it).persistentTrackRef());
+ 	}
+ 	else {
+ 	  cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
+ 	}
+      }
       vColl.push_back(v);
     }
     if(fVerbose){cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;}
    
-    /*  
-    // test with vertex fitter
-    if (t_tks.size() > 1) {
-      KalmanVertexFitter kvf;
-      Vertex v = kvf.vertex(t_tks);
-//       TransientVertex tv = kvf.vertex(t_tks);
-//       // CachingVertex tv = kvf.vertex(t_tks);
-//       Vertex v(Vertex::Point(tv.position()), 
-// 	       RecoVertex::convertError(tv.positionError()), 
-// 	       // RecoVertex::convertError(tv.error()), 
-// 	       (tv).totalChiSquared(), 
-// 	       (tv).degreesOfFreedom() , 
-// 	       // (tv).tracks().size());
-//       	       (tv).originalTracks().size());
-//       vector<reco::TransientTrack> prongs = (tv).originalTracks();
-//       for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
-// 	   it != prongs.end(); it++) {
-// 	if ((*it).persistentTrackRef()) {
-// 	  v.add(*(*it).persistentTrackRef());
-// 	}
-// 	else {
-// 	  cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
-// 	}
-//       }
-
-      vColl.push_back(v);
-    }
-    */
   }
 
   catch (std::exception & err) {
