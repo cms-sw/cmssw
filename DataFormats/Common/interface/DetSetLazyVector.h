@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetLazyVector.h,v 1.2 2006/08/10 23:34:53 wmtan Exp $
+$Id: DetSetLazyVector.h,v 1.3 2006/08/30 23:28:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -74,7 +74,9 @@ public:
         const DetSet<T>& operator()(const DetSet<T>& iUpdate) const {
           if(iUpdate.data.empty() && getter_) {
             //NOTE: because this is 'updating a cache' we need to cast away the const
-            getter_->fill( const_cast< DetSet<T>& >( iUpdate ) );
+	    DetSet<T>& temp = const_cast< DetSet<T>& >( iUpdate );
+            getter_->fill(temp);
+	    std::sort(temp.begin(),temp.end());
           }
           return iUpdate;
         }
@@ -179,6 +181,7 @@ private:
   DetSetLazyVector<T>::swap(DetSetLazyVector<T>& other) 
   {
     sets_.swap(other.sets_);
+    std::swap(getter_,other.getter_);
   }
 
   template <class T>
