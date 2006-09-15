@@ -14,7 +14,6 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetfwd.h"
 
-
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -29,8 +28,8 @@
 
 /** \class JetAnalysis
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/08/31 15:08:26 $
+  * $Revision: 1.1 $
   * \author L. Apanasevich - UIC and Anwar Bhatti
   */
 class JetAnalysis {
@@ -104,9 +103,8 @@ private:
 
   // input variables
   string _HistName; // Name of histogram file
-  bool _Monte;
+  bool _Monte,_PlotRecHits,_PlotDigis;
   double _EtaMin,_EtaMax;
-
 
   int evtCounter;
   bool doGenJets, doGenMets, doMCTruth, doTBTrigger;

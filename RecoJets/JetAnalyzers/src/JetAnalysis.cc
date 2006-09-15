@@ -35,12 +35,13 @@ JetAnalysis::JetAnalysis() {
   _Monte=false;
   _EtaMin=-5.2;
   _EtaMax=5.2;
-  _HistName="test.root";
+  _HistName="test.root"; 
+  _PlotRecHits=false; 
+  _PlotDigis=false; 
   
 }
 
 void JetAnalysis::setup(const edm::ParameterSet& pSet) {
-
 
   edm::ParameterSet myJetParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
   vector<std::string> parameterNames = myJetParams.getParameterNames() ;
@@ -51,6 +52,8 @@ void JetAnalysis::setup(const edm::ParameterSet& pSet) {
     else if ( (*iParam) == "EtaMin" ) _EtaMin =  myJetParams.getParameter<double>( *iParam );
     else if ( (*iParam) == "EtaMax" ) _EtaMax =  myJetParams.getParameter<double>( *iParam );
     else if ( (*iParam) == "HistogramFile" ) _HistName =  myJetParams.getParameter<string>( *iParam );
+    else if ( (*iParam) == "PlotRecHits" ) _PlotRecHits =  myJetParams.getParameter<bool>( *iParam );
+    else if ( (*iParam) == "PlotDigis" ) _PlotDigis =  myJetParams.getParameter<bool>( *iParam );
   }
 
   cout << "---------- Input Parameters ---------------------------" << endl;
@@ -174,15 +177,17 @@ void JetAnalysis::analyze( const CaloJetCollection& calojets,
   if (doMCTruth)fillMCParticles(mctruth);
 
   // Plot RecHits
-  if (&hbhe_hits) fillRecHits(hbhe_hits);
-  if (&ho_hits) fillRecHits(ho_hits);
-  if (&hf_hits) fillRecHits(hf_hits);
-
+  if (_PlotRecHits){
+    if (&hbhe_hits) fillRecHits(hbhe_hits);
+    if (&ho_hits) fillRecHits(ho_hits);
+    if (&hf_hits) fillRecHits(hf_hits);
+  }
   // Plot Digis
-  if (&hbhe_digis) fillDigis(hbhe_digis);
-  if (&ho_digis) fillDigis(ho_digis);
-  if (&hf_digis) fillDigis(hf_digis);
-
+  if (_PlotDigis){
+    if (&hbhe_digis) fillDigis(hbhe_digis);
+    if (&ho_digis) fillDigis(ho_digis);
+    if (&hf_digis) fillDigis(hf_digis);
+  }
 
 }
 
