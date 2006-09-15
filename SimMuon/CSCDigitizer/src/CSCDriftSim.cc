@@ -28,18 +28,19 @@ CSCDriftSim::CSCDriftSim()
 {
   // just initialize avalanche sim.  There has to be a better
   // way to take the integral of a function!
-  static const int   N_INTEGRAL_STEPS = 700;
   double sum = 0.;
   int i;
   for(i = 0; i < N_INTEGRAL_STEPS; ++i) {
-    double xx = STEP_SIZE * (i - 0.5);
-    double dNdE = pow( xx, 0.38) * exp(-1.38*xx);
     if(i > 1) {
+      double xx = STEP_SIZE * (double(i) - 0.5 );
+      double dNdE = pow( xx, 0.38) * exp(-1.38*xx);
+
       sum += dNdE;
     }
     // store this value in the map
     dNdEIntegral[i] = sum;
   }
+
   // now normalize the whole map
   for(i =  0; i < N_INTEGRAL_STEPS; ++i) {
     dNdEIntegral[i] /= sum;
