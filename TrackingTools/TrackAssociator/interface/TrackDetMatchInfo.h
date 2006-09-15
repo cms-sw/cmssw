@@ -3,6 +3,8 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "TrackingTools/TrackAssociator/interface/MuonSegmentMatch.h"
 
 class TrackDetMatchInfo {
@@ -51,6 +53,9 @@ class TrackDetMatchInfo {
    std::vector<CaloTower> crossedTowers;
    
    std::vector<MuonSegmentMatch> segments;
+
+   SimTrackRef simTrackRef_;
+   reco::TrackRef trackRef_;
 };
 
 #endif
