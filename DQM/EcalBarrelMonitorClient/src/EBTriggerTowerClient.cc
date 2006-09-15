@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/15 07:59:18 $
- * $Revision: 1.10 $
+ * $Date: 2006/09/15 08:28:06 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -490,7 +490,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  const int csize = 800;
+  const int csize = 250;
 
   //const double histMax = 1.e15;
 
@@ -505,9 +505,9 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgName, meName, imgFullName;
 
-  TCanvas* rectangle = new TCanvas("rectangle", "Temp", csize, csize/2);
-  TCanvas* rectsmall = new TCanvas("rectangle small", "Temp", csize/2, csize/4);
-  TCanvas* square    = new TCanvas("square small", "Temp", csize/4, csize/4);
+  TCanvas* rectangle = new TCanvas("rectangle", "Temp", 2*csize, csize);
+  TCanvas* rectsmall = new TCanvas("rectangle small", "Temp", 1.6*csize, 0.8*csize);
+  TCanvas* square    = new TCanvas("square small", "Temp", 0.8*csize, 0.8*csize);
 
   // Loop on barrel supermodules
 
