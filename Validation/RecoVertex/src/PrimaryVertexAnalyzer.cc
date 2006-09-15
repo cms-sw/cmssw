@@ -1,4 +1,4 @@
-#include "Validation/VertexReco/interface/PrimaryVertexAnalyzer.h"
+#include "Validation/RecoVertex/interface/PrimaryVertexAnalyzer.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
