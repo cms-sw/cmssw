@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "FWCore/Framework/interface/Event.h"
+#include <vector>
 
 class EcalBarrelRecHitsMaker
 {
@@ -17,7 +18,9 @@ class EcalBarrelRecHitsMaker
   // poor-man Selective Readout
   double threshold_;
   double noise_;
-  
+  std::vector<float> barrelhits_;
+  std::vector<bool> saved_;
+  std::vector<int> hittosave_;
 };
 
 #endif
