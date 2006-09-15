@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/08/31 18:28:05 $
- *  $Revision: 1.27 $
+ *  $Date: 2006/09/13 10:45:50 $
+ *  $Revision: 1.28 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -43,10 +43,10 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   theRefitter = new StandAloneMuonRefitter(refitterPSet,theService);
 
   // Disable/Enable the backward filter
-  doBackwardRefit = par.getUntrackedParameter<bool>("DoBackwardRefit",true);
+  doBackwardRefit = par.getParameter<bool>("DoBackwardRefit");
   
   // Disable/Enable the smoothing of the trajectory
-  doSmoothing = par.getUntrackedParameter<bool>("DoSmoothing",true);
+  doSmoothing = par.getParameter<bool>("DoSmoothing");
   
   if(doBackwardRefit){
     // The outward-inward fitter (starts from theRefitter outermost state)
