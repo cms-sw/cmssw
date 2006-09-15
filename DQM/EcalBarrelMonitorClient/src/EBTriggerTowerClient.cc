@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/14 14:03:02 $
- * $Revision: 1.8 $
+ * $Date: 2006/09/14 14:38:00 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -726,12 +726,26 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	}
 	imgName = meName + ".png";
 	imgFullName = htmlDir + imgName;
+
 	square->cd();
-	gStyle->SetOptStat(" ");
-	gStyle->SetPalette( 1 );
+	gStyle->SetOptStat("euomr");
+	if( obj1f2 ) {
+	  float m = TMath::Max( obj1f1->GetMaximum(), obj1f2->GetMaximum() );
+	  obj1f1->SetMaximum( m + 1. );
+	}
+	obj1f1->SetStats(kTRUE);
 	obj1f1->Draw();
-	if( obj1f2 ) obj1f2->Draw( "same" );
 	square->Update();
+	if( obj1f2 ) {
+	  gStyle->SetStatY( gStyle->GetStatY() - gStyle->GetStatH() );
+	  gStyle->SetStatTextColor( kRed );
+	  obj1f2->SetStats(kTRUE);
+	  obj1f2->SetLineColor( kRed );
+	  obj1f2->Draw( "sames" );
+	  square->Update();
+	  gStyle->SetStatY( gStyle->GetStatY() + gStyle->GetStatH() );
+	  gStyle->SetStatTextColor( kBlack );
+	}
 	square->SaveAs(imgFullName.c_str()); 
 	htmlFile[ism] << "<td><img src=\"" << imgName << "\"></td>" << std::endl;
       }
