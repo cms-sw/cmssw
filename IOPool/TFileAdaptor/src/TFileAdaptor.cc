@@ -51,6 +51,8 @@ void  TFileAdaptorParams::pinit() {
 
 
 bool TFileAdaptorParams::native(const char * prot) const {
+  static bool all =  std::find(m_native.begin(),m_native.end(),"all")!=m_native.end();
+  if (all) return true;
   return std::find(m_native.begin(),m_native.end(),prot)!=m_native.end();
 }
 
