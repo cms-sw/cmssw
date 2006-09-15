@@ -14,6 +14,7 @@ void HcaluLUTTPGCoder::loadLUTs(const char* filename){
   int tool;
   std::ifstream userfile;
   userfile.open(filename);
+
   if( userfile ) {
     int nluts;
     std::vector<int> loieta,hiieta;
@@ -39,6 +40,15 @@ void HcaluLUTTPGCoder::loadLUTs(const char* filename){
     }
     
     userfile.close();
+    /*
+    std::cout << nluts << std::endl;
+
+    for(int i = 0; i <nluts; i++) {
+      for (int j=0; j<LUT_SIZE; j++) { 
+	std::cout << i << "[" << j << "] = "<< luts_[i][j] << std::endl;
+      }
+    }
+    */
 
     // map |ieta| to LUT
     for (int j=1; j<=41; j++) {
@@ -50,6 +60,7 @@ void HcaluLUTTPGCoder::loadLUTs(const char* filename){
 	// TODO: log warning
       }
       else ietaLutMap_[j-1]=&(luts_[ilut]);
+      //      std::cout << j << "->" << ilut << std::endl;
     }    
   }
 
