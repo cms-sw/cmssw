@@ -1,4 +1,4 @@
-#include "Validation/VertexReco/interface/TrackParameterAnalyzer.h"
+#include "Validation/RecoVertex/interface/TrackParameterAnalyzer.h"
 #include <string>
 #include <vector>
 #include "SimGeneral/HepPDT/interface/HepPDTable.h"
