@@ -19,7 +19,7 @@
 // Hcal calibrations
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
+#include "CondTools/Hcal/interface/HcalDbXml.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 #include "CondTools/Hcal/interface/HcalDbPool.h"
 #include "CondTools/Hcal/interface/HcalDbPoolOCCI.h"
@@ -91,7 +91,7 @@ void fillDefaults (HcalPedestals*& fPedestals) {
   }
   std::vector<HcalDetId> cells = undefinedCells (*fPedestals);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    HcalPedestal item = HcalDbHardcode::makePedestal (*cell, false); // smear
+    HcalPedestal item = HcalDbHardcode::makePedestal (*cell, false); // do not smear
     fPedestals->addValue (*cell, item.getValues ());
   }
   fPedestals->sort ();
@@ -117,7 +117,7 @@ void fillDefaults (HcalGains*& fGains) {
   }
   std::vector<HcalDetId> cells = undefinedCells (*fGains);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    HcalGain item = HcalDbHardcode::makeGain (*cell, true); // smear
+    HcalGain item = HcalDbHardcode::makeGain (*cell, false); // do not smear
     fGains->addValue (*cell, item.getValues ());
   }
   fGains->sort ();

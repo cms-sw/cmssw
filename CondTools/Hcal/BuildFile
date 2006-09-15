@@ -3,9 +3,11 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/HcalDetId>
 <use name=CondFormats/HcalObjects>
+<use name=CalibFormats/HcalObjects>
 <use name=CondCore/IOVService>
 <use name=CORALRelationalAccess>
 <use name=DataSvc> 
+<use name=xerces-c> 
 <export>
   <lib name=CondToolsHcal>
   <use name=boost>
@@ -14,7 +16,9 @@
   <use name=Foundation/PluginManager>
   <use name=DataFormats/HcalDetId>
   <use name=CondFormats/HcalObjects>
+  <use name=CalibFormats/HcalObjects>
   <use name=CondCore/IOVService>
   <use name=CORALRelationalAccess>
   <use name=DataSvc> 
+  <use name=xerces-c> 
 </export>
