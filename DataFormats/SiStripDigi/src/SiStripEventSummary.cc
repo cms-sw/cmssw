@@ -1,11 +1,46 @@
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+// -----------------------------------------------------------------------------
+//
+void SiStripEventSummary::print( stringstream& ss  ) const {
+  ss << "SiStripEventSummary:" << endl
+     << " Event: " << event_ << endl 
+     << " BX: " << bx_ << endl
+     << " CommissioningTask: " << task_ << endl
+     << " CommissioningParams: "
+     << hex 
+     << " 0x" << setw(8) << setfill('0') << param0_ 
+     << " 0x" << setw(8) << setfill('0') << param1_ 
+     << " 0x" << setw(8) << setfill('0') << param2_ 
+     << " 0x" << setw(8) << setfill('0') << param3_ 
+     << dec << endl
+     << " FedReadoutMode" << fedReadoutMode_ << endl;
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripEventSummary::check() const {
+  if ( ( task_ == sistrip::UNDEFINED_TASK ||
+	 task_ == sistrip::UNKNOWN_TASK ) &&
+       ( !param0_ && !param1_ && 
+	 !param2_ && !param3_ ) ) {
+    stringstream ss;
+    ss << "[" << __PRETTY_FUNCTION__ << "]"
+       << " Unknown/undefined commissioning task and NULL parameter values!"
+       << " It may be that the 'trigger FED' information was not found!"; 
+    edm::LogWarning("SiStripEventSummary") << ss.str() << endl;
+  }
+}
 
 // -----------------------------------------------------------------------------
 //
 void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
-
+  
   // Set commissioning task
   if      ( buffer[10] == 13 ) { task_ = sistrip::FED_CABLING; }
   else if ( buffer[10] ==  5 ) { task_ = sistrip::APV_TIMING; }
@@ -87,5 +122,5 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
 			       << " Unknown commissioning task! "
 			       << buffer[10];
   }
-  
+
 }

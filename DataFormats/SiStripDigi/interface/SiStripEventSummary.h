@@ -3,8 +3,7 @@
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "boost/cstdint.hpp"
-
-using namespace std;
+#include <sstream>
 
 /**  
      @brief A container class for generic event-related info.
@@ -37,6 +36,10 @@ class SiStripEventSummary {
   inline const uint32_t& event() const { return event_; }
   inline const uint32_t& bx() const { return bx_; }
 
+  /** Some debug */
+  void print( std::stringstream& ) const;
+  void check() const;
+
   // ----- Commissioning information -----
 
   /** Sets commissioning-related information. */
@@ -45,16 +48,16 @@ class SiStripEventSummary {
   /** Returns commissioning task. */ 
   inline const sistrip::Task& task() const { return task_; }
   /** Returns pair of PLL coarse and fine delay settings. */
-  inline pair<uint32_t,uint32_t> pll() { return pair<uint32_t,uint32_t>(param0_,param1_); }
+  inline std::pair<uint32_t,uint32_t> pll() { return std::pair<uint32_t,uint32_t>(param0_,param1_); }
   inline const uint32_t& latency() const { return param0_; }
   /** Returns pair of APV calibration chan and select. */
-  inline pair<uint32_t,uint32_t> calibration() { return pair<uint32_t,uint32_t>(param1_,param2_); }
+  inline std::pair<uint32_t,uint32_t> calibration() { return std::pair<uint32_t,uint32_t>(param1_,param2_); }
   /** Returns TTCrx delay setting. */
   inline const uint32_t& ttcrx() const { return param0_; }
   /** Returns APV VPSP setting. */
   inline const uint32_t& vpsp() const { return param0_; }
   /** Returns pair of LLD gain and bias settings. */
-  inline pair<uint32_t,uint32_t> opto() { return pair<uint32_t,uint32_t>(param0_,param1_); }
+  inline std::pair<uint32_t,uint32_t> opto() { return std::pair<uint32_t,uint32_t>(param0_,param1_); }
   /** Returns device id. */
   inline const uint32_t& deviceId() const { return param0_; }
   /** Returns process id. */
@@ -100,7 +103,7 @@ class SiStripEventSummary {
   uint32_t nApvsInSync_;
   uint32_t nApvsOutOfSync_;
   uint32_t nApvsErrors_;
-  
+
 };
 
 #endif // DataFormats_SiStripEventSummary_SiStripEventSummary_H
