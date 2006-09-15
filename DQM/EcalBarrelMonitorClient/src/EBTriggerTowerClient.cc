@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/15 08:28:06 $
- * $Revision: 1.11 $
+ * $Date: 2006/09/15 09:27:00 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -506,8 +506,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgName, meName, imgFullName;
 
   TCanvas* rectangle = new TCanvas("rectangle", "Temp", 2*csize, csize);
-  TCanvas* rectsmall = new TCanvas("rectangle small", "Temp", 1.6*csize, 0.8*csize);
-  TCanvas* square    = new TCanvas("square small", "Temp", 0.8*csize, 0.8*csize);
+  TCanvas* rectsmall = new TCanvas("rectangle small", "Temp", int(1.6*csize), int(0.8*csize));
+  TCanvas* square    = new TCanvas("square small", "Temp", int(0.8*csize), int(0.8*csize));
 
   // Loop on barrel supermodules
 
