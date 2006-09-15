@@ -41,12 +41,12 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
 					     trigger_fed_id,
 					     using_fed_key );
   
+  produces< SiStripEventSummary >();
   produces< edm::DetSetVector<SiStripRawDigi> >("ScopeMode");
   produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
   produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
   produces< edm::DetSetVector<SiStripDigi> >("ZeroSuppressed");
   produces< SiStripDigiCollection >("SiStripDigiCollection");
-  produces< SiStripEventSummary >();
   
 }
 
@@ -75,27 +75,27 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   edm::Handle<FEDRawDataCollection> buffers;
   iEvent.getByType( buffers ); 
   
-  // Create auto pointers for products
+  // Populate SiStripEventSummary object with "trigger FED" info
+  auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
+  rawToDigi_->triggerFed( buffers, summary ); 
+  
+  // Create auto pointers for digi products
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripDigi> > zs( new edm::DetSetVector<SiStripDigi> );
-  auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
   auto_ptr<SiStripDigiCollection> digis( new SiStripDigiCollection() );
 
   // Create "real" or "pseudo" digis
   if ( !createDigis_ ) { rawToDigi_->createDigis( cabling, buffers, digis ); }
   else { rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs ); }
-
-  // Populate SiStripEventSummary object with "trigger FED" info
-  rawToDigi_->triggerFed( buffers, summary ); 
   
+  iEvent.put( summary );
   iEvent.put( sm, "ScopeMode" );
   iEvent.put( vr, "VirginRaw" );
   iEvent.put( pr, "ProcessedRaw" );
   iEvent.put( zs, "ZeroSuppressed" );
   iEvent.put( digis, "SiStripDigiCollection" );
-  iEvent.put( summary );
   
 }
 

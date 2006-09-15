@@ -345,7 +345,7 @@ void SiStripRawToDigiUnpacker::createDigis( const FedCabling& cabling,
 /** */
 void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
 					   auto_ptr<SiStripEventSummary>& summary ) {
-
+  
   // Pointer to data (recast as 32-bit words) and number of 32-bit words
   uint32_t* data_u32 = 0;
   uint32_t  size_u32 = 0;
@@ -398,32 +398,33 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
     size_u32 = 0;
   }
   
+  // Some checks
+  if ( !data_u32 ) {
+    stringstream ss;
+    ss << "["<<__PRETTY_FUNCTION__<<"]"
+       << " NULL pointer to 'trigger FED' data";
+    edm::LogWarning("RawToDigi") << ss.str();
+    return;
+  } 
+  if ( size_u32 < sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
+    stringstream ss;
+    ss << "["<<__PRETTY_FUNCTION__<<"]"
+       << " Unexpected 'Trigger FED' data size [32-bit words]: " << size_u32;
+    edm::LogWarning("RawToDigi") << ss.str();
+    return;
+  }
+
   // Populate summary object with commissioning information
-  if ( triggerFedId_ > 0 &&
-       data_u32 &&
-       size_u32 > sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
-    
+  if ( triggerFedId_ > 0 ) { 
     // Write event-specific data to event
     TFHeaderDescription* header = (TFHeaderDescription*) data_u32;
     summary->event( static_cast<uint32_t>( header->getFedEventNumber()) );
     summary->bx( static_cast<uint32_t>( header->getBunchCrossing()) );
-      
+    
     // Write commissioning information to event 
     uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);
     uint32_t* head = &data_u32[hsize];
     summary->commissioningInfo( head );
-
-    //     stringstream ss;
-    //     ss << "["<<__PRETTY_FUNCTION__<<"]"
-    //        << "  getBunchCrossing: " << header->getBunchCrossing()
-    //        << "  getNumberOfChannels: " << header->getNumberOfChannels() 
-    //        << "  getNumberOfSamples: " << header->getNumberOfSamples()
-    //        << "  getFedType: 0x" 
-    //        << hex << setw(8) << setfill('0') << header->getFedType() << dec
-    //        << "  getFedId: " << header->getFedId()
-    //        << "  getFedEventNumber: " << header->getFedEventNumber();
-    //     LogDebug("RawToDigi") << ss.str();
-      
   }
   
 }
