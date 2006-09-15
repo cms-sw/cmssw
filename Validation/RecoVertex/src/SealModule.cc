@@ -1,7 +1,7 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "Validation/VertexReco/interface/TrackParameterAnalyzer.h"
-#include "Validation/VertexReco/interface/PrimaryVertexAnalyzer.h"
+#include "Validation/RecoVertex/interface/TrackParameterAnalyzer.h"
+#include "Validation/RecoVertex/interface/PrimaryVertexAnalyzer.h"
 
 DEFINE_SEAL_MODULE();
 
