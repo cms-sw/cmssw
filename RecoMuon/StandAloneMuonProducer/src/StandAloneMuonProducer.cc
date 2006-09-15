@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/08/30 12:27:56 $
- *   $Revision: 1.15 $
+ *   $Date: 2006/08/31 18:23:42 $
+ *   $Revision: 1.16 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -46,7 +46,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   ParameterSet STA_pSet = parameterSet.getParameter<ParameterSet>("STATrajBuilderParameters");
   
   // MuonSeed Collection Label
-  theSeedCollectionLabel = parameterSet.getUntrackedParameter<string>("MuonSeedCollectionLabel");
+  theSeedCollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
@@ -81,7 +81,7 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
   LogDebug(metname)<<"Stand Alone Muon Reconstruction Started"<<endl;
 
   // Take the seeds container
-  LogDebug(metname)<<"Taking the seeds: "<<theSeedCollectionLabel<<endl;
+  LogDebug(metname)<<"Taking the seeds: "<<theSeedCollectionLabel.label()<<endl;
   Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
 
