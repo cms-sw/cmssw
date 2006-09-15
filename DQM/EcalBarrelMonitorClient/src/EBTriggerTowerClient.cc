@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/14 14:38:00 $
- * $Revision: 1.9 $
+ * $Date: 2006/09/15 07:59:18 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -737,13 +737,13 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	obj1f1->Draw();
 	square->Update();
 	if( obj1f2 ) {
-	  gStyle->SetStatY( gStyle->GetStatY() - gStyle->GetStatH() );
+	  gStyle->SetStatY( gStyle->GetStatY() - 1.25*gStyle->GetStatH() );
 	  gStyle->SetStatTextColor( kRed );
 	  obj1f2->SetStats(kTRUE);
 	  obj1f2->SetLineColor( kRed );
 	  obj1f2->Draw( "sames" );
 	  square->Update();
-	  gStyle->SetStatY( gStyle->GetStatY() + gStyle->GetStatH() );
+	  gStyle->SetStatY( gStyle->GetStatY() + 1.25*gStyle->GetStatH() );
 	  gStyle->SetStatTextColor( kBlack );
 	}
 	square->SaveAs(imgFullName.c_str()); 
