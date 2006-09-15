@@ -8,7 +8,6 @@
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
  
-
 void TrackValidator::beginJob( const EventSetup & setup) {
 
   for (unsigned int j=0;j<label.size();j++){
@@ -280,8 +279,3 @@ void TrackValidator::endJob() {
   hFile->Close();
 
 }
-
-
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TrackValidator);
-
