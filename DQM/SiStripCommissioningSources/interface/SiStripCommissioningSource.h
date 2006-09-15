@@ -3,6 +3,7 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include <string>
@@ -46,8 +47,10 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   std::string inputModuleLabel_;
   /** Interface to Data Quality Monitoring framework. */
   DaqMonitorBEInterface* dqm_;
+  /** Identifies commissioning task read from cfg file. */
+  std::string taskFromCfg_; 
   /** Identifies commissioning task. */
-  std::string task_; 
+  sistrip::Task task_; 
   /** Map of task objects, identified through FedChanKey. */
   TaskMap tasks_;
   /** */
@@ -67,6 +70,9 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   SiStripFecCabling* fecCabling_;
   /** */
   bool cablingTask_;
+
+  /** Defines the MessageLogger category for this class. */
+  static const std::string logCategory_;
   
 };
 
