@@ -91,12 +91,28 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
       v!=recVtxs->end(); ++v){
     std::cout << "recvtx " 
+              << v->tracksSize() 
 	      << v->chi2() << " " 
 	      << v->ndof() << " " 
 	      << v->position().x() << " " << v->position().x()/sqrt(v->error(0,0)) << " " 
 	      << v->position().y() << " " << v->position().y()/sqrt(v->error(1,1)) << " " 
 	      << v->position().z() << " " << v->position().z()/sqrt(v->error(2,2)) << " " 
 	      << std::endl;
+
+    int ok=1;
+    for ( reco::track_iterator t = v->tracks_begin(); t!=v->tracks_end(); t++ )
+	  {
+      if ( (**t).charge() < -1 || (**t).charge() > 1 )
+	    {
+        std::cout << "Error: illegal track charge " << (**t).charge()
+                  << "!" << std::endl;
+        ok=0;
+        break;
+      }
+    }
+
+    std::cout << "[OVAL] see if vertex track links work: " << ok;
+
     h1_nbvtx_in_event_->Fill(recVtxs->size()*1.);
     h1_nbtks_in_vtx_->Fill(v->tracksSize());
     h1_resx_->Fill(v->position().x());
