@@ -44,10 +44,7 @@ void DoCompare( char* Sample ){
    htemp1[i]->Draw();
    htemp2[i]->Draw("Same"); 
    myPV->PVCompute(htemp1[i],htemp2[i], te);
-   sprintf(title,"%s%s%s%s", Sample, label[i],".eps");
+   sprintf(title,"%s%s%s", Sample, label[i],".eps");
    c1.Print(title);
  }
- 
 }
-
-
