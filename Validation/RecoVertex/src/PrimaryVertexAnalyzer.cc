@@ -91,7 +91,7 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
       v!=recVtxs->end(); ++v){
     std::cout << "recvtx " 
-              << v->tracksSize() 
+              << v->tracksSize() << " "
 	      << v->chi2() << " " 
 	      << v->ndof() << " " 
 	      << v->position().x() << " " << v->position().x()/sqrt(v->error(0,0)) << " " 
@@ -111,7 +111,7 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
 
-    std::cout << "[OVAL] see if vertex track links work: " << ok;
+    std::cout << "[OVAL] see if vertex track links work: " << ok << std::endl;
 
     h1_nbvtx_in_event_->Fill(recVtxs->size()*1.);
     h1_nbtks_in_vtx_->Fill(v->tracksSize());
