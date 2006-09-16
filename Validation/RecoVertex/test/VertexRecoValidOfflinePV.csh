@@ -16,4 +16,4 @@ root -b -p -q DoCompare.C\(\"_10muons\"\)
 rm -f simplePersistentVertexAnalyzer.root
 cmsRun analyzePersistentPrimaryVertex.cfg
 setenv CURFILE "simplePersistentVertexAnalyzer.root"
-root -b -p -q DoCompare.C\(\"persistent_10muons\" \)
+root -b -p -q DoCompare.C\(\"persistent_10muons\"\)
