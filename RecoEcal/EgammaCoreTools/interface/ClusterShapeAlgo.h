@@ -7,7 +7,7 @@
  *
  * \author Michael A. Balazs, UVa
  * 
- * \version $Id: ClusterShapeAlgo.h,v 1.8 2006/08/10 13:42:59 mbalazs Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.9 2006/08/14 13:43:56 mabalazs Exp $
  *
  */
 
@@ -43,6 +43,7 @@ class ClusterShapeAlgo
   void Calculate_e5x5();
   void Calculate_Location(); 
   void Calculate_Covariances();
+  void Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster, const int EtaPhi);
   
   static const edm::ESHandle<CaloGeometry> *storedGeoHandle_;
   static const EcalRecHitCollection *storedRecHitsMap_;
@@ -52,8 +53,12 @@ class ClusterShapeAlgo
   double covEtaEta_, covEtaPhi_, covPhiPhi_;
   double eMax_, e2nd_, e2x2_, e3x2_, e3x3_, e5x5_;
   double e3x2Ratio_;
+  std::vector<double> energyBasketFractionEta_;
+  std::vector<double> energyBasketFractionPhi_;
   math::XYZPoint location_; 
   DetId eMaxId_, e2ndId_;
+  
+  enum { Eta, Phi };
 
 };
 

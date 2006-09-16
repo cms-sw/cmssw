@@ -3,6 +3,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
@@ -33,6 +34,8 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedC
   dataHolder.Calculate_e5x5();
   dataHolder.Calculate_Location();
   dataHolder.Calculate_Covariances();
+  //dataHolder.Calculate_BarrelBasketEnergyFraction(passedCluster, Eta);
+  //dataHolder.Calculate_BarrelBasketEnergyFraction(passedCluster, Phi);
    
   return reco::ClusterShape( dataHolder.covEtaEta_, 
 			     dataHolder.covEtaPhi_,dataHolder.covPhiPhi_, 
@@ -40,7 +43,9 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedC
 			     dataHolder.e2nd_, dataHolder.e2ndId_,
 			     dataHolder.e2x2_, dataHolder.e3x2_, 
 			     dataHolder.e3x3_, dataHolder.e5x5_,
-			     dataHolder.e3x2Ratio_, dataHolder.location_);
+			     dataHolder.e3x2Ratio_, dataHolder.location_,
+			     dataHolder.energyBasketFractionEta_,
+			     dataHolder.energyBasketFractionPhi_);
 }
 
 void ClusterShapeAlgo::Calculate_TopEnergy(const reco::BasicCluster &passedCluster)
@@ -132,10 +137,13 @@ void ClusterShapeAlgo::Create_Map()
       {
 	EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(*posCurrent);
 	tempEcalRecHit = *itt;
-	energyMap_[y][x] =  std::make_pair(tempEcalRecHit.id(),tempEcalRecHit.energy());
+	//if(tempEcalRecHit.energy() >= 0) 
+		energyMap_[y][x] = std::make_pair(tempEcalRecHit.id(),tempEcalRecHit.energy()); 
+	//else 	
+	//	energyMap_[y][x] = std::make_pair(tempEcalRecHit.id(),0.0);
       }
       else
-	energyMap_[y][x] = std::make_pair(DetId(0), 0);  
+		energyMap_[y][x] = std::make_pair(DetId(0), 0);  
     }
   
   /*
@@ -275,5 +283,62 @@ void ClusterShapeAlgo::Calculate_Covariances()
   covEtaEta_ = covReturned.find("covEtaEta")->second;
   covEtaPhi_ = covReturned.find("covEtaPhi")->second;
   covPhiPhi_ = covReturned.find("covPhiPhi")->second;
+}
+
+void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster, const int EtaPhi)
+{  
+  std::map<int,double> indexedBasketEnergy;
+  std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
+  const EcalBarrelGeometry *subDetGeometry = new EcalBarrelGeometry(); 
+  
+  for(std::vector<DetId>::iterator posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
+  {
+  	int basketIndex = 999;
+  	
+	if(EtaPhi == Eta)
+	{
+	    int unsignedIEta = abs(EBDetId(*posCurrent).ieta());    
+	    std::vector<int> etaBasketSize = subDetGeometry->getEtaBaskets();
+
+	    for(unsigned int i = 0; i < etaBasketSize.size(); i++)
+	    {
+			unsignedIEta -= etaBasketSize[i];
+			if(unsignedIEta - 1 < 0)
+			{
+		  		basketIndex = i;
+		  		break;
+			}
+	    }
+	    
+	    basketIndex = (basketIndex+1)*(EBDetId(*posCurrent).ieta() > 0 ? 1 : -1);
+	}
+	else if(EtaPhi == Phi)
+	{
+		int halfNumBasketInPhi = (EBDetId::MAX_IPHI - EBDetId::MIN_IPHI + 1)/subDetGeometry->getBasketSizeInPhi()/2;
+		
+        basketIndex = (EBDetId(*posCurrent).iphi() - 1)/subDetGeometry->getBasketSizeInPhi() 
+        				- (EBDetId(clusterDetIds[0]).iphi() - 1)/subDetGeometry->getBasketSizeInPhi();
+
+    	if(basketIndex >= halfNumBasketInPhi)			basketIndex -= 2*halfNumBasketInPhi;
+    	else if(basketIndex <  -1*halfNumBasketInPhi)	basketIndex += 2*halfNumBasketInPhi;    	
+	}
+	else throw(std::runtime_error("\n\nOh No! Calculate_BarrelBasketEnergyFraction called on invalid index.\n\n"));
+	
+    indexedBasketEnergy[basketIndex] += (storedRecHitsMap_->find(*posCurrent))->energy();
+  }
+    
+  std::vector<double> energyFraction;
+  
+  for(std::map<int,double>::iterator posCurrent = indexedBasketEnergy.begin(); posCurrent != indexedBasketEnergy.end(); posCurrent++)
+  {
+  	energyFraction.push_back(indexedBasketEnergy[posCurrent->first]/passedCluster.energy());
+  }  
+
+  switch(EtaPhi)
+  {
+  	case 0: energyBasketFractionEta_ = energyFraction; break;
+  	case 1: energyBasketFractionPhi_ = energyFraction; break;
+  }
+
 }
 
