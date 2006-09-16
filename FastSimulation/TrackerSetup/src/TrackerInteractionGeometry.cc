@@ -210,9 +210,9 @@ TrackerInteractionGeometry::TrackerInteractionGeometry()
 
   // Pixel disks : thin detectors (300 microns)
   const SimpleDiskBounds PIXD1(6.0,15.001,-0.015,0.015);
-  const Surface::PositionType PPIXD1(0.0,0.0,35.5029); 
+  const Surface::PositionType PPIXD1(0.0,0.0,35.50); 
   const SimpleDiskBounds PIXD2(6.0,15.002,-0.015,0.015);
-  const Surface::PositionType PPIXD2(0.0,0.0,48.5029); 
+  const Surface::PositionType PPIXD2(0.0,0.0,48.50); 
   // Tracker Inner disks : thin detectors (300 microns)
   const SimpleDiskBounds TID1(23.3,54.001,-0.15,0.15);
   const Surface::PositionType PTID1(0.0,0.0,78.445); 
@@ -239,7 +239,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry()
   const SimpleDiskBounds TEC5(28.0,109.505,-0.25,0.25);
   const Surface::PositionType PTEC5(0.0,0.0,187.892);
   const SimpleDiskBounds TEC6(28.0,109.506,-0.25,0.25);
-  const Surface::PositionType PTEC6(0.0,0.0,205.892);
+  const Surface::PositionType PTEC6(0.0,0.0,205.392);
   const SimpleDiskBounds TEC7(28.0,109.507,-0.25,0.25);
   const Surface::PositionType PTEC7(0.0,0.0,224.121);
   const SimpleDiskBounds TEC8(28.0,109.508,-0.25,0.25);
