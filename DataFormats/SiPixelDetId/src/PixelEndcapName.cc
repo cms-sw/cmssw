@@ -36,6 +36,23 @@ PixelEndcapName::PixelEndcapName(const DetId & id)
   thePlaquette = cmssw_numbering.module();
 }
 
+PixelModuleName::ModuleType  PixelEndcapName::moduleType() const
+{
+  ModuleType type = v1x2;
+  if (pannelName() == 1) {
+    if (plaquetteName() == 1)      { type = v1x2; }
+    else if (plaquetteName() == 2) { type = v2x3; }
+    else if (plaquetteName() == 3) { type = v2x4; }
+    else if (plaquetteName() == 4) { type = v1x5; }
+  }
+  else {
+    if (plaquetteName() == 1)      { type = v2x3; }
+    else if (plaquetteName() == 2) { type = v2x4; }
+    else if (plaquetteName() == 3) { type = v2x5; }
+  }
+  return type;
+}
+
 
 string PixelEndcapName::name() const 
 {

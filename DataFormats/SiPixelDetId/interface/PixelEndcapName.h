@@ -47,6 +47,10 @@ public:
   /// plaquetteId (in pannel)
   int plaquetteName() const { return thePlaquette; }
 
+  /// module Type
+   virtual PixelModuleName::ModuleType  moduleType() const;
+
+
 private:
   HalfCylinder thePart;
   int theDisk, theBlade, thePannel, thePlaquette;

@@ -46,6 +46,8 @@ public:
   /// full or half module
   bool isHalfModule() const { return halfModule; };
   
+  /// module Type
+   virtual PixelModuleName::ModuleType  moduleType() const;
 
 private:
   Shell thePart;

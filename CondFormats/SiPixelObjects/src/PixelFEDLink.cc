@@ -1,7 +1,6 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "CondFormats/SiPixelObjects/interface/ModuleType.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

@@ -28,7 +28,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
-#include "CondFormats/SiPixelObjects/interface/ModuleType.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 
 using namespace std;

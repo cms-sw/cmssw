@@ -110,6 +110,11 @@ PixelBarrelName::PixelBarrelName(const DetId & id)
   }
 }
 
+PixelModuleName::ModuleType  PixelBarrelName::moduleType() const 
+{
+  return isHalfModule() ? PixelBarrelName::v1x8 : PixelBarrelName::v2x8;
+}
+
 string PixelBarrelName::name() const 
 {
    std::ostringstream stm;

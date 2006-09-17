@@ -52,23 +52,17 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
     item.name = e;
     item.unit = d;
     Range rocIds(-1,-1);
-    Plaquette type = v1x2;
-
-    if (e->pannelName() == 1) {
-      if (e->plaquetteName() == 1)      { rocIds = Range(0,1); type = v1x2; }
-      else if (e->plaquetteName() == 2) { rocIds = Range(0,5); type = v2x3; }
-      else if (e->plaquetteName() == 3) { rocIds = Range(0,7); type = v2x4; }
-      else if (e->plaquetteName() == 4) { rocIds = Range(0,4); type = v1x5; }
-      else { edm::LogError("PixelEndcapLinkMaker")<< " *** UNEXPECTED roc: " << e->name() ; }
-    }
-    else {
-      if (e->plaquetteName() == 1)      { rocIds = Range(0,5); type = v2x3; }
-      else if (e->plaquetteName() == 2) { rocIds = Range(0,7); type = v2x4; }
-      else if (e->plaquetteName() == 3) { rocIds = Range(0,9); type = v2x5; }
-      else { edm::LogError("PixelEndcapLinkMaker")<< " *** UNEXPECTED roc: " << e->name() ; }
-    }
+    PixelModuleName::ModuleType type = e->moduleType(); 
+    switch (type) {
+      case(PixelModuleName::v1x2) : { rocIds = Range(0,1); break; }
+      case(PixelModuleName::v1x5) : { rocIds = Range(0,4); break; }
+      case(PixelModuleName::v2x3) : { rocIds = Range(0,5); break; }
+      case(PixelModuleName::v2x4) : { rocIds = Range(0,7); break; }
+      case(PixelModuleName::v2x5) : { rocIds = Range(0,9); break; }
+      default:
+        edm::LogError("PixelEndcapLinkMaker")<< " *** UNEXPECTED roc: " << e->name() ;
+    };
     item.rocIds = rocIds;
-    item.type = type;
     linkItems.push_back(item);
   }
   //

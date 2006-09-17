@@ -10,7 +10,6 @@ class PixelModuleName;
 class PixelEndcapName;
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
-#include "CondFormats/SiPixelObjects/interface/ModuleType.h"
 
 class PixelEndcapLinkMaker {
 public:
@@ -37,9 +36,6 @@ public:
 private:
   const PixelFEDCabling * theOwner;
 
-  /// plaquette types. The order matters (first narrow modules than wider)
-  typedef sipixelobjects::ModuleType Plaquette;
-
   /// link item.
   /// defined by DetUnit with name (representing Pixel Detector module)
   /// and Ids of associated ROCs. The Id is the ROC number in module according
@@ -48,8 +44,7 @@ private:
   /// and associated ROCs Ids given explicitly (Id is the ROC number in module)
   struct Item { const PixelEndcapName * name;
                 uint32_t unit;
-                Range rocIds;
-                Plaquette type; };
+                Range rocIds; };
 
   /// define order of link components.
   /// Highest priority to Endcap id (forward or backward endcpa)

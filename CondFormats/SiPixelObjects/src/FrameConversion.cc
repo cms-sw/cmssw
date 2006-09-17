@@ -39,7 +39,20 @@ FrameConversion::FrameConversion( const PixelBarrelName & name, int rocIdInDetUn
       colOffset = (16-rocIdInDetUnit)*PixelROC::cols()-1; 
     }
   } 
+
+  //
   // FIX for negative barrel (not inverted modules)
+  //
+  PixelBarrelName::Shell shell = name.shell();
+  if (shell == PixelBarrelName::mO || shell == PixelBarrelName::mI) {
+    slopeRow *= -1;
+    slopeCol *= -1;
+    colOffset = 8*PixelROC::cols()-colOffset-1;
+    switch(name.moduleType()) {
+      case(PixelModuleName::v1x8) : { rowOffset =   PixelROC::rows()-rowOffset-1; break; }
+      default:                      { rowOffset = 2*PixelROC::rows()-rowOffset-1; break; }
+    }
+  } 
 
   theRowConversion      = LinearConversion(rowOffset,slopeRow);
   theCollumnConversion =  LinearConversion(colOffset, slopeCol);
