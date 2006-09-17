@@ -3,6 +3,7 @@
 <use name=DataFormats/Math>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
+<use name=Geometry/EcalBarrelAlgo>
 <use name=clhep>
 
 <export>
@@ -12,5 +13,6 @@
   <use name=DataFormats/Math>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
+  <use name=Geometry/EcalBarrelAlgo>
   <use name=clhep>
 </export>
