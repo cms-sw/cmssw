@@ -60,7 +60,7 @@ void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const&){
   h1_pullz_ = new TH1F("pullz","pull z",100,-25.,25.);
   h1_vtx_chi2_  = new TH1F("vtxchi2","chi squared",100,0.,1000.);
   h1_vtx_ndf_ = new TH1F("vtxndf","degrees of freedom",100,0.,100.);
-  h1_tklinks_ = new TH1F("tklinks","fraction of usable track links",2,-0.5,1.5);
+  h1_tklinks_ = new TH1F("tklinks","Usable track links",2,-0.5,1.5);
   h1_nans_ = new TH1F("nans","Nan values for x,y,z,xx,xy,xz,yy,yz,zz",9,0.5,9.5);
 }
 
@@ -98,9 +98,12 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
               << v->tracksSize() << " "
 	      << v->chi2() << " " 
 	      << v->ndof() << " " 
-	      << v->position().x() << " " << v->covariance(0, 0) << " " 
-	      << v->position().y() << " " << v->covariance(1, 1) << " " 
-	      << v->position().z() << " " << v->covariance(2, 2) << " " 
+      //	      << v->position().x() << " " << v->covariance(0, 0) << " " 
+      //	      << v->position().y() << " " << v->covariance(1, 1) << " " 
+      //	      << v->position().z() << " " << v->covariance(2, 2) << " " 
+      	      << v->position().x() << " " << sqrt(v->covariance(0, 0)) << " " 
+	      << v->position().y() << " " << sqrt(v->covariance(1, 1)) << " " 
+	      << v->position().z() << " " << sqrt(v->covariance(2, 2)) << " " 
 	      << std::endl;
 
     for(reco::track_iterator t = v->tracks_begin(); t!=v->tracks_end(); t++ ) {
