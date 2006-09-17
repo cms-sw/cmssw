@@ -1,6 +1,6 @@
 void DoCompare( char* Sample ){
 
- static const int NHisto = 10;
+ static const int NHisto = 12;
 
  TText* te = new TText();
  te->SetTextSize(0.1);
@@ -26,6 +26,8 @@ void DoCompare( char* Sample ){
  label[7] = "pullz";
  label[8] = "vtxchi2";
  label[9] = "vtxndf";
+ label[10] = "tklinks";
+ label[11] = "nans";
 
  TH1F* htemp1[NHisto];
  TH1F* htemp2[NHisto];

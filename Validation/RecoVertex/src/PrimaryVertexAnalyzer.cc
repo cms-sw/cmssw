@@ -12,7 +12,7 @@
 #include <TH1.h>
 #include <TFile.h>
  
-
+#include <cmath>
 
 //
 // constants, enums and typedefs
@@ -58,8 +58,10 @@ void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const&){
   h1_pullx_ = new TH1F("pullx","pull x",100,-25.,25.);
   h1_pully_ = new TH1F("pully","pull y",100,-25.,25.);
   h1_pullz_ = new TH1F("pullz","pull z",100,-25.,25.);
-  h1_vtx_chi2_  = new TH1F("vtxchi2", "chisqu",100,0.,1000.);
-  h1_vtx_ndf_ = new TH1F("vtxndf", "ndf",100,0.,100.);
+  h1_vtx_chi2_  = new TH1F("vtxchi2","chi squared",100,0.,1000.);
+  h1_vtx_ndf_ = new TH1F("vtxndf","degrees of freedom",100,0.,100.);
+  h1_tklinks_ = new TH1F("tklinks","fraction of usable track links",2,-0.5,1.5);
+  h1_nans_ = new TH1F("nans","Nan values for x,y,z,xx,xy,xz,yy,yz,zz",9,0.5,9.5);
 }
 
 
@@ -75,6 +77,8 @@ void PrimaryVertexAnalyzer::endJob() {
   h1_pullz_->Write();
   h1_vtx_chi2_->Write();
   h1_vtx_ndf_->Write();
+  h1_tklinks_->Write();
+  h1_nans_->Write();
 }
 
 
@@ -94,20 +98,17 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
               << v->tracksSize() << " "
 	      << v->chi2() << " " 
 	      << v->ndof() << " " 
-	      << v->position().x() << " " << v->position().x()/sqrt(v->error(0,0)) << " " 
-	      << v->position().y() << " " << v->position().y()/sqrt(v->error(1,1)) << " " 
-	      << v->position().z() << " " << v->position().z()/sqrt(v->error(2,2)) << " " 
+	      << v->position().x() << " " << v->covariance(0, 0) << " " 
+	      << v->position().y() << " " << v->covariance(1, 1) << " " 
+	      << v->position().z() << " " << v->covariance(2, 2) << " " 
 	      << std::endl;
 
-    int ok=1;
-    for ( reco::track_iterator t = v->tracks_begin(); t!=v->tracks_end(); t++ )
-	  {
-      if ( (**t).charge() < -1 || (**t).charge() > 1 )
-	    {
-        std::cout << "Error: illegal track charge " << (**t).charge()
-                  << "!" << std::endl;
-        ok=0;
-        break;
+    for(reco::track_iterator t = v->tracks_begin(); t!=v->tracks_end(); t++ ) {
+      if ( (**t).charge() < -1 || (**t).charge() > 1 ) {
+	h1_tklinks_->Fill(0.);
+      }
+      else {
+	h1_tklinks_->Fill(1.);
       }
     }
 
@@ -118,13 +119,21 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     h1_resx_->Fill(v->position().x());
     h1_resy_->Fill(v->position().y());
     h1_resz_->Fill(v->position().z());
-    h1_pullx_->Fill(v->position().x()/sqrt(v->error(0,0)));
-    h1_pully_->Fill(v->position().y()/sqrt(v->error(1,1)));
-    h1_pullz_->Fill(v->position().z()/sqrt(v->error(2,2)));
+    h1_pullx_->Fill(v->position().x()/v->xError());
+    h1_pully_->Fill(v->position().y()/v->yError());
+    h1_pullz_->Fill(v->position().z()/v->zError());
     h1_vtx_chi2_->Fill(v->chi2());
     h1_vtx_ndf_->Fill(v->ndof());
+
+    h1_nans_->Fill(1.,isnan(v->position().x()));
+    h1_nans_->Fill(1.,isnan(v->position().y()));
+    h1_nans_->Fill(1.,isnan(v->position().z()));
+    int index = 0;
+    for (int i = 0; i != 3; i++) {
+      for (int j = i; j != 3; j++) {
+	index++;
+	h1_nans_->Fill(index*1.,isnan(v->covariance(i, j)));
+      }
+    }
   }
-
-
 }
-

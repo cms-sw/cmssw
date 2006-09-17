@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: PrimaryVertexAnalyzer.h,v 1.4 2006/09/15 13:18:02 vanlaer Exp $
+// $Id: PrimaryVertexAnalyzer.h,v 1.3 2006/09/15 15:42:04 vanlaer Exp $
 //
 //
 
@@ -72,5 +72,7 @@ class PrimaryVertexAnalyzer : public edm::EDAnalyzer {
       TH1*   h1_pullz_;
       TH1*   h1_vtx_chi2_;
       TH1*   h1_vtx_ndf_;
+      TH1*   h1_tklinks_;
+      TH1*   h1_nans_;
 };
 
