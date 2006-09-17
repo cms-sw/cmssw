@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.18 2006/08/02 11:12:39 llista Exp $
+ * \version $Id: Vertex.h,v 1.19 2006/09/17 12:20:03 vanlaer Exp $
  *
  */
 #include <Rtypes.h>
@@ -67,11 +67,11 @@ namespace reco {
     /// y coordinate 
     double z() const { return position_.Z(); }
     /// error on x
-    double xError() const { return sqrt( error( 0, 0 ) ); }
+    double xError() const { return sqrt( covariance(0, 0) ); }
     /// error on y
-    double yError() const { return sqrt( error( 1, 1 ) ); }
+    double yError() const { return sqrt( covariance(1, 1) ); }
     /// error on z
-    double zError() const { return sqrt( error( 2, 2 ) ); }
+    double zError() const { return sqrt( covariance(2, 2) ); }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
     double error( int i, int j ) const {
       std::cout << "reco::Vertex::error(i, j) OBSOLETE, use covariance(i, j)"
