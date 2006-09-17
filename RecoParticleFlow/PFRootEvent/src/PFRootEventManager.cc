@@ -44,7 +44,7 @@ PFRootEventManager::~PFRootEventManager() {
 //   }
   
   for( unsigned i=0; i<displayView_.size(); i++) {
-    delete displayView_[i];
+    if(displayView_[i]) delete displayView_[i];
   }
     
 
@@ -245,7 +245,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 
 
   vector<int> algos;
-  options_->GetOpt("display", "algos", algos);
+  options_->GetOpt("display", "cluster_algos", algos);
   algosToDisplay_.clear();
   for(unsigned i=0; i< algos.size(); i++) algosToDisplay_.insert( algos[i] );
 //   typedef map<int, TCanvas * >::iterator IT;
@@ -278,6 +278,16 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     viewSize_.push_back(600); 
   }
 
+  displayXY_ = true;
+  options_->GetOpt("display", "x/y", displayXY_);
+  
+  displayEtaPhi_ = true;
+  options_->GetOpt("display", "eta/phi", displayEtaPhi_);
+
+  displayRZ_ = true;
+  options_->GetOpt("display", "r/z", displayRZ_);
+
+ 
   displayColorClusters_ = false;
   options_->GetOpt("display", "color_clusters", displayColorClusters_);
  
@@ -742,10 +752,12 @@ void PFRootEventManager::particleFlow() {
 void PFRootEventManager::display(int ientry) {
   
   processEntry(ientry);
-  displayView(RZ);
-  displayView(XY);
-  displayView(EPE);
-  displayView(EPH);
+  if(displayRZ_) displayView(RZ);
+  if(displayXY_) displayView(XY);
+  if(displayEtaPhi_) { 
+    displayView(EPE);
+    displayView(EPH);
+  }
 
   // displayXY();
 }

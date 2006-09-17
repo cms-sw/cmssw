@@ -297,6 +297,15 @@ class PFRootEventManager {
 
   //------------ display settings -----------------------------
 
+  /// display x/y ?
+  bool displayXY_;
+
+  /// display eta/phi ?
+  bool displayEtaPhi_;
+
+  /// display r/z ?
+  bool displayRZ_;  
+  
   /// display cluster color ? (then color = cluster type )
   bool displayColorClusters_;
 
