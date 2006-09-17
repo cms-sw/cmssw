@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: PrimaryVertexAnalyzer.h,v 1.3 2006/09/15 15:42:04 vanlaer Exp $
+// $Id: PrimaryVertexAnalyzer.h,v 1.4 2006/09/17 12:20:39 vanlaer Exp $
 //
 //
 
@@ -58,6 +58,7 @@ class PrimaryVertexAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       // root file to store histograms
       std::string outputFile_; // output file
+      std::string vtxSample_; // which vertices to analyze
       TFile*  rootFile_;
   //      TH1*   h1_nbtks_in_event_; 
   //      TH1*   h1_tks_chi2_;

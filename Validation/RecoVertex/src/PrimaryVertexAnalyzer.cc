@@ -33,7 +33,8 @@ PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
 
   // open output file to store histograms}
-  outputFile_   = iConfig.getUntrackedParameter<std::string>("outputFile");
+  outputFile_  = iConfig.getUntrackedParameter<std::string>("outputFile");
+  vtxSample_   = iConfig.getUntrackedParameter<std::string>("vtxSample");
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); 
 }
 
@@ -92,8 +93,7 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    using namespace edm;
    
   Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByLabel("offlinePrimaryVerticesFromCTFTracks", 
-		    recVtxs);
+  iEvent.getByLabel(vtxSample_, recVtxs);
   std::cout << "vertices " << recVtxs->size() << std::endl;
 
   for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
@@ -154,19 +154,22 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
 
-    if (problem) {
+    //    if (problem) {
       // analyze track parameter covariance definiteness
       double data[25];
       try {
 	int itk = 0;
 	for(reco::track_iterator t = v->tracks_begin(); 
 	    t!=v->tracks_end(); t++) {
+	  std::cout << "Track " << itk++ << std::endl;
 	  int i2 = 0;
 	  for (int i = 0; i != 5; i++) {
 	    for (int j = 0; j != 5; j++) {
 	      data[i2] = (**t).covariance(i, j);
+	      std::cout << data[i2] << " ";
 	      i2++;
 	    }
+	    std::cout << std::endl;
 	  }
 	  gsl_matrix_view m 
 	    = gsl_matrix_view_array (data, 5, 5);
@@ -186,7 +189,6 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  
 	  // print sorted eigenvalues
 	  {
-	    std::cout << "Track " << itk++ << std::endl;
 	    int i;
 	    for (i = 0; i < 5; i++) {
 	      double eval_i 
@@ -206,6 +208,6 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	// exception thrown when trying to use linked track
 	break;
       }
-    }
+      //}
   }
 }
