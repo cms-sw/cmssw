@@ -13,6 +13,9 @@
 #include <TFile.h>
  
 #include <cmath>
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_eigen.h>
+
 
 //
 // constants, enums and typedefs
@@ -132,18 +135,76 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     h1_vtx_chi2_->Fill(v->chi2());
     h1_vtx_ndf_->Fill(v->ndof());
 
+    bool problem = false;
     h1_nans_->Fill(1.,isnan(v->position().x())*1.);
     h1_nans_->Fill(2.,isnan(v->position().y())*1.);
     h1_nans_->Fill(3.,isnan(v->position().z())*1.);
+
     int index = 3;
     for (int i = 0; i != 3; i++) {
       for (int j = i; j != 3; j++) {
 	index++;
 	h1_nans_->Fill(index*1., isnan(v->covariance(i, j))*1.);
+	if (isnan(v->covariance(i, j))) problem = true;
 	// in addition, diagonal element must be positive
 	if (j == i && v->covariance(i, j) < 0) {
 	  h1_nans_->Fill(index*1., 1.);
+	  problem = true;
 	}
+      }
+    }
+
+    if (problem) {
+      // analyze track parameter covariance definiteness
+      double data[25];
+      try {
+	int itk = 0;
+	for(reco::track_iterator t = v->tracks_begin(); 
+	    t!=v->tracks_end(); t++) {
+	  int i2 = 0;
+	  for (int i = 0; i != 5; i++) {
+	    for (int j = 0; j != 5; j++) {
+	      data[i2] = (**t).covariance(i, j);
+	      i2++;
+	    }
+	  }
+	  gsl_matrix_view m 
+	    = gsl_matrix_view_array (data, 5, 5);
+	  
+	  gsl_vector *eval = gsl_vector_alloc (5);
+	  gsl_matrix *evec = gsl_matrix_alloc (5, 5);
+	  
+	  gsl_eigen_symmv_workspace * w = 
+	    gsl_eigen_symmv_alloc (5);
+	  
+	  gsl_eigen_symmv (&m.matrix, eval, evec, w);
+	  
+	  gsl_eigen_symmv_free (w);
+	  
+	  gsl_eigen_symmv_sort (eval, evec, 
+				GSL_EIGEN_SORT_ABS_ASC);
+	  
+	  // print sorted eigenvalues
+	  {
+	    std::cout << "Track " << itk++ << std::endl;
+	    int i;
+	    for (i = 0; i < 5; i++) {
+	      double eval_i 
+		= gsl_vector_get (eval, i);
+	      gsl_vector_view evec_i 
+		= gsl_matrix_column (evec, i);
+	      
+	      printf ("eigenvalue = %g\n", eval_i);
+	      //	      printf ("eigenvector = \n");
+	      //	      gsl_vector_fprintf (stdout, 
+	      //				  &evec_i.vector, "%g");
+	    }
+	  }
+	}
+      }
+      catch (...) {
+	// exception thrown when trying to use linked track
+	break;
       }
     }
   }

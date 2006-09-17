@@ -6,6 +6,7 @@
 <use name=SimGeneral/HepPDT>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=root>
+<use name=gsl>
 <flags SEAL_PLUGIN_NAME="ValidationRecoVertex">
 <export>
    <lib name=ValidationVertexReco>
@@ -17,4 +18,5 @@
    <use name=SimGeneral/HepPDT>
    <use name=RecoVertex/PrimaryVertexProducer>
    <use name=root>
+   <use name=gsl>
 </export>
