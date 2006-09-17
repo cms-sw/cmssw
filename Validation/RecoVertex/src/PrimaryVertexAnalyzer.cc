@@ -128,9 +128,9 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     h1_vtx_ndf_->Fill(v->ndof());
 
     h1_nans_->Fill(1.,isnan(v->position().x()));
-    h1_nans_->Fill(1.,isnan(v->position().y()));
-    h1_nans_->Fill(1.,isnan(v->position().z()));
-    int index = 0;
+    h1_nans_->Fill(2.,isnan(v->position().y()));
+    h1_nans_->Fill(3.,isnan(v->position().z()));
+    int index = 3;
     for (int i = 0; i != 3; i++) {
       for (int j = i; j != 3; j++) {
 	index++;
