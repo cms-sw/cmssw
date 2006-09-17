@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.17 2006/07/28 12:13:00 llista Exp $
+ * \version $Id: Vertex.h,v 1.18 2006/08/02 11:12:39 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -15,6 +15,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include <iostream>
 
 namespace reco {
 
@@ -72,11 +73,25 @@ namespace reco {
     /// error on z
     double zError() const { return sqrt( error( 2, 2 ) ); }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double error( int i, int j ) const { return covariance_[ idx( i, j ) ]; }
+    double error( int i, int j ) const {
+      std::cout << "reco::Vertex::error(i, j) OBSOLETE, use covariance(i, j)"
+		<< std::endl;
+      return covariance_[ idx( i, j ) ]; 
+    }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double & error( int i, int j ) { return covariance_[ idx( i, j ) ]; }
+    double & error( int i, int j ) { 
+      std::cout << "reco::Vertex::error(i, j) & NON-CONST, use covariance(i, j)"
+		<< std::endl;
+      return covariance_[ idx( i, j ) ]; 
+    }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double & covariance( int i, int j ) { return covariance_[ idx( i, j ) ]; }
+    double & covariance( int i, int j ) {
+      std::cout << "reco::Vertex::covariance(i, j) & NON-CONST, use covariance(i, j)" << std::endl;
+      return covariance_[ idx( i, j ) ];
+    }
+    double covariance( int i, int j ) const { 
+      return covariance_[ idx( i, j ) ]; 
+    }
     /// return SMatrix
     CovarianceMatrix covariance() const { Error m; fill( m ); return m; }
     /// return SMatrix
