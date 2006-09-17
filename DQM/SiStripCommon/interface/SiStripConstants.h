@@ -86,7 +86,7 @@ namespace sistrip {
   static const std::string undefinedSummaryHisto_ = "UndefinedSummaryHisto";
   
   // summary histo names (apv timing)
-  static const std::string apvTimingTime_   = "ApvTimingTime";
+  static const std::string apvTimingTime_   = "TimingDelay";
   static const std::string apvTimingMax_    = "ApvTimingMax";
   static const std::string apvTimingDelay_  = "ApvTimingDelay";
   static const std::string apvTimingError_  = "ApvTimingError";
@@ -119,16 +119,18 @@ namespace sistrip {
   static const std::string vpspScanApv1_ = "VpspScanApv1";
 
   // summary histo names (pedestals)
-  static const std::string sistrip::pedestalsMean_   = "PedestalsMean";
-  static const std::string sistrip::pedestalsSpread_ = "PedestalsSpread";
-  static const std::string sistrip::pedestalsMax_    = "PedestalsMax";
-  static const std::string sistrip::pedestalsMin_    = "PedestalsMin";
-  static const std::string sistrip::noiseMean_       = "NoiseMean";
-  static const std::string sistrip::noiseSpread_     = "NoiseSpread";
-  static const std::string sistrip::noiseMax_        = "NoiseMax";
-  static const std::string sistrip::noiseMin_        = "NoiseMin";
-  static const std::string sistrip::numOfDead_       = "NumOfDeadStrips";
-  static const std::string sistrip::numOfNoisy_      = "NumOfNoisyStrips";
+  static const std::string sistrip::pedestalsAllStrips_ = "Pedestals_AllStrips";
+  static const std::string sistrip::pedestalsMean_      = "Pedestals_Mean";
+  static const std::string sistrip::pedestalsSpread_    = "Pedestals_Spread";
+  static const std::string sistrip::pedestalsMax_       = "Pedestals_Max";
+  static const std::string sistrip::pedestalsMin_       = "Pedestals_Min";
+  static const std::string sistrip::noiseAllStrips_     = "Noise_AllStrips";
+  static const std::string sistrip::noiseMean_          = "Noise_Mean";
+  static const std::string sistrip::noiseSpread_        = "Noise_Spread";
+  static const std::string sistrip::noiseMax_           = "Noise_Max";
+  static const std::string sistrip::noiseMin_           = "Noise_Min";
+  static const std::string sistrip::numOfDead_          = "NumOfDead_Strips";
+  static const std::string sistrip::numOfNoisy_         = "NumOfNoisy_Strips";
   
 }
 

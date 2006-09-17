@@ -91,16 +91,18 @@ namespace sistrip {
 		      VPSP_SCAN_APV0 = 1402, 
 		      VPSP_SCAN_APV1 = 1403, 
 		      // PEDESTALS / NOISE
-		      PEDESTALS_MEAN = 201, 
-		      PEDESTALS_SPREAD = 202, 
-		      PEDESTALS_MAX = 203, 
-		      PEDESTALS_MIN = 204, 
-		      NOISE_MEAN = 205, 
-		      NOISE_SPREAD = 206, 
-		      NOISE_MAX = 207, 
-		      NOISE_MIN = 208, 
-		      NUM_OF_DEAD = 209, 
-		      NUM_OF_NOISY = 210
+		      PEDESTALS_ALL_STRIPS = 201, 
+		      PEDESTALS_MEAN = 202, 
+		      PEDESTALS_SPREAD = 203, 
+		      PEDESTALS_MAX = 204, 
+		      PEDESTALS_MIN = 205, 
+		      NOISE_ALL_STRIPS = 206, 
+		      NOISE_MEAN = 207, 
+		      NOISE_SPREAD = 208, 
+		      NOISE_MAX = 209, 
+		      NOISE_MIN = 210, 
+		      NUM_OF_DEAD = 211, 
+		      NUM_OF_NOISY = 212
 		      //@@ add other summary histos here... 
   };
   

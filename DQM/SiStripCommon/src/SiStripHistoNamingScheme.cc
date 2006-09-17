@@ -190,10 +190,12 @@ string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& hist
   else if ( histo == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv0_; }
   else if ( histo == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv1_; }
   // PEDESTALS / NOISE
-  if ( histo == sistrip::PEDESTALS_MEAN ) { return sistrip::pedestalsMean_; }
+  if ( histo == sistrip::PEDESTALS_ALL_STRIPS ) { return sistrip::pedestalsAllStrips_; }
+  else if ( histo == sistrip::PEDESTALS_MEAN ) { return sistrip::pedestalsMean_; }
   else if ( histo == sistrip::PEDESTALS_SPREAD ) { return sistrip::pedestalsSpread_; }
   else if ( histo == sistrip::PEDESTALS_MAX ) { return sistrip::pedestalsMax_; }
   else if ( histo == sistrip::PEDESTALS_MIN ) { return sistrip::pedestalsMin_; }
+  else if ( histo == sistrip::NOISE_ALL_STRIPS ) { return sistrip::noiseAllStrips_; }
   else if ( histo == sistrip::NOISE_MEAN ) { return sistrip::noiseMean_; }
   else if ( histo == sistrip::NOISE_SPREAD ) { return sistrip::noiseSpread_; }
   else if ( histo == sistrip::NOISE_MAX ) { return sistrip::noiseMax_; }
@@ -278,7 +280,6 @@ string SiStripHistoNamingScheme::histoTitle( sistrip::Task        histo_task,
 
   stringstream gran;
   if      ( granularity == sistrip::LLD_CHAN )     { gran << sistrip::sep_ << sistrip::lldChan_ << channel; }
-  //else if ( granularity == sistrip::APV_PAIR )     { gran << sistrip::sep_ << sistrip::apvPair_ << channel; }
   else if ( granularity == sistrip::APV )          { gran << sistrip::sep_ << sistrip::apv_     << channel; }
   else if ( granularity == sistrip::MODULE )       { /* add nothing */ }
   else if ( granularity == sistrip::UNKNOWN_GRAN ) { gran << sistrip::sep_ << sistrip::unknownGranularity_; }
