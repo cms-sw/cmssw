@@ -36,10 +36,12 @@ double ParametrizationMCJet::value(double e)const{
       double JetCalibrEt = e;
       double x=e;
 
-      if ( e<10 ) JetCalibrEt=10.;
+      if ( e<10. ) JetCalibrEt=10.;
 
            for (int ie=0; ie<10; ie++) {
-	   
+
+	   if ( JetCalibrEt<10. ) JetCalibrEt=10.; 
+
 	     if (JetCalibrEt < p[1]) {
 	      koef = p[3]*sqrt(JetCalibrEt +p[4]) + p[5];
 	     }
