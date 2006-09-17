@@ -9,7 +9,7 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 FedCablingHistograms::FedCablingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms(mui),
+  : CommissioningHistograms( mui, sistrip::FED_CABLING ),
     factory_( new Factory )
 {
   cout << "[FedCablingHistograms::FedCablingHistograms]"

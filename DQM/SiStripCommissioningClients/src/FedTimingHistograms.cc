@@ -9,7 +9,7 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 FedTimingHistograms::FedTimingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms(mui),
+  : CommissioningHistograms( mui, sistrip::FED_TIMING ),
     factory_( new Factory ),
     optimumSamplingPoint_(15.),
     minDelay_(sistrip::invalid_),

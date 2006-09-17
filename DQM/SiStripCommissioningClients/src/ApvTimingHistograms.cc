@@ -9,7 +9,7 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms(mui),
+  : CommissioningHistograms( mui, sistrip::APV_TIMING ),
     factory_( new Factory )
 {
   cout << "[" << __PRETTY_FUNCTION__ << "]"

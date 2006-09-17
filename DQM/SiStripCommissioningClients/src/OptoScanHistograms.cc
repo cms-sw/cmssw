@@ -9,7 +9,7 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 OptoScanHistograms::OptoScanHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms(mui),
+  : CommissioningHistograms( mui, sistrip::OPTO_SCAN ),
     factory_( new Factory )
 {
   cout << "[" << __PRETTY_FUNCTION__ << "]"

@@ -9,7 +9,7 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 VpspScanHistograms::VpspScanHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms(mui),
+  : CommissioningHistograms( mui, sistrip::VPSP_SCAN ),
     factory_( new Factory )
 {
   cout << "[" << __PRETTY_FUNCTION__ << "]"
