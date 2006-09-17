@@ -1,7 +1,7 @@
 void DoCompare( char* Sample ){
 
   static const int NHisto = 12;
-  static const int NPages = 6;
+  static const int NPages = 12;
 
   TText* te = new TText();
   te->SetTextSize(0.1);
@@ -33,7 +33,7 @@ void DoCompare( char* Sample ){
   TH1F* htemp1[NHisto];
   TH1F* htemp2[NHisto];
   TCanvas* c1 = new TCanvas();
-  c1->Divide(3, 2);
+  c1->Divide(4, 3);
   for ( int i = 0; i < NHisto ; i++ ) {
     char title[50];
     htemp1[i]  = dynamic_cast<TH1F*>(reffile->Get(label[i]));

@@ -92,6 +92,7 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByLabel("offlinePrimaryVerticesFromCTFTracks", 
 		    recVtxs);
   std::cout << "vertices " << recVtxs->size() << std::endl;
+
   for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
       v!=recVtxs->end(); ++v){
     std::cout << "recvtx " 
@@ -101,19 +102,23 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       	      << v->position().x() << " " << v->covariance(0, 0) << " " 
       	      << v->position().y() << " " << v->covariance(1, 1) << " " 
       	      << v->position().z() << " " << v->covariance(2, 2) << " " 
-      //      	      << " pos x " << v->position().x() << " cov x " << v->covariance(0, 0) << " sqrt(cov x) " << std::sqrt(double(v->covariance(0, 0))) << " pow(cov x, 0.5) " << std::pow(double(v->covariance(0, 0)), 0.5) 
-      //      	      << " pos y " << v->position().y() << " cov y " << v->covariance(1, 1) << " sqrt(cov y) " << std::sqrt(double(v->covariance(1, 1))) << " pow(cov y, 0.5) " << std::pow(double(v->covariance(1, 1)), 0.5) 
-
-      //      	      << " pos z " << v->position().z() << " cov z " << v->covariance(2, 2) << " " 
 	      << std::endl;
 
-    for(reco::track_iterator t = v->tracks_begin(); t!=v->tracks_end(); t++ ) {
-      if ( (**t).charge() < -1 || (**t).charge() > 1 ) {
-	h1_tklinks_->Fill(0.);
+    try {
+      for(reco::track_iterator t = v->tracks_begin(); 
+	  t!=v->tracks_end(); t++) {
+	// illegal charge
+        if ( (**t).charge() < -1 || (**t).charge() > 1 ) {
+	  h1_tklinks_->Fill(0.);
+        }
+        else {
+	  h1_tklinks_->Fill(1.);
+        }
       }
-      else {
-	h1_tklinks_->Fill(1.);
-      }
+    }
+    catch (...) {
+      // exception thrown when trying to use linked track
+      h1_tklinks_->Fill(0.);
     }
 
     h1_nbvtx_in_event_->Fill(recVtxs->size()*1.);
