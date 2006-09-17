@@ -112,8 +112,6 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
 
-    std::cout << "[OVAL] see if vertex track links work: " << ok << std::endl;
-
     h1_nbvtx_in_event_->Fill(recVtxs->size()*1.);
     h1_nbtks_in_vtx_->Fill(v->tracksSize());
     h1_resx_->Fill(v->position().x());
