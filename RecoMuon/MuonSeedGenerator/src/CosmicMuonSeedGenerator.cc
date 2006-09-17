@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/09/04 23:50:10 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/09/14 23:51:03 $
+ *  $Revision: 1.9 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -246,10 +246,17 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
 
   // Fill the LocalTrajectoryParameters
   LocalPoint segPos=hit->localPosition();
+
+  
   GlobalVector polar(GlobalVector::Spherical(hit->globalDirection().theta(),
                                              hit->globalDirection().phi(),
                                              1.));
+  // Force all track downward
+
+  if (hit->globalDirection().phi() > 0 )  polar = - polar;
+
   polar *=fabs(pt)/polar.perp();
+
   LocalVector segDir =hit->det()->toLocal(polar);
 
   int charge= 1; //more mu+ than mu- in natural  //(int)(pt/fabs(pt)); //FIXME
@@ -267,7 +274,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   TrajectoryStateOnSurface tsos(param, error, hit->det()->surface(), &*field);
 
   LogDebug(metname)<<"Trajectory State on Surface before the extrapolation";
-  LogDebug(metname)<<"mom: "<<tsos.globalMomentum();
+  LogDebug(metname)<<"mom: "<<tsos.globalMomentum()<<" phi: "<<tsos.globalMomentum().phi();
   LogDebug(metname)<<"pos: " << tsos.globalPosition(); 
   LogDebug(metname) << "The RecSegment relies on: "<<endl;
   LogDebug(metname) << debug.dumpMuonId(hit->geographicalId());
