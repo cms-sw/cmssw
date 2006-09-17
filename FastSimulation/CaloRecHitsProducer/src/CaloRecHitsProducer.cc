@@ -11,6 +11,8 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalBarrelRecHitsMaker.h"
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalEndcapRecHitsMaker.h"
 
+#include <iostream>
+
 CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p):HcalRecHitsMaker_(NULL)
 {    
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("RecHitsFactory");
