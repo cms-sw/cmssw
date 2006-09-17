@@ -127,17 +127,17 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     h1_vtx_chi2_->Fill(v->chi2());
     h1_vtx_ndf_->Fill(v->ndof());
 
-    h1_nans_->Fill(1.,isnan(v->position().x()));
-    h1_nans_->Fill(2.,isnan(v->position().y()));
-    h1_nans_->Fill(3.,isnan(v->position().z()));
+    h1_nans_->Fill(1.,isnan(v->position().x())*1.);
+    h1_nans_->Fill(2.,isnan(v->position().y())*1.);
+    h1_nans_->Fill(3.,isnan(v->position().z())*1.);
     int index = 3;
     for (int i = 0; i != 3; i++) {
       for (int j = i; j != 3; j++) {
 	index++;
-	h1_nans_->Fill(index*1.,isnan(v->covariance(i, j)));
+	h1_nans_->Fill(index*1., isnan(v->covariance(i, j))*1.);
 	// in addition, diagonal element must be positive
 	if (j == i && v->covariance(i, j) < 0) {
-	  h1_nans_->Fill(index*1., 1);
+	  h1_nans_->Fill(index*1., 1.);
 	}
       }
     }
