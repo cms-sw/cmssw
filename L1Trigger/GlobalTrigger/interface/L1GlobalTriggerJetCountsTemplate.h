@@ -13,8 +13,8 @@
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -28,14 +28,16 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 // forward declarations
+class L1GlobalTrigger;
 
+// class declaration
 class L1GlobalTriggerJetCountsTemplate : public L1GlobalTriggerConditions 
 {
 
 public:
 
     // constructor
-    L1GlobalTriggerJetCountsTemplate(const std::string &name);
+    L1GlobalTriggerJetCountsTemplate(const L1GlobalTrigger&, const std::string&);
   
     // copy constructor
     L1GlobalTriggerJetCountsTemplate( const L1GlobalTriggerJetCountsTemplate& );

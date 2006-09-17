@@ -12,8 +12,8 @@
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -26,6 +26,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConditions.h"
 
 // forward declarations
+class L1GlobalTrigger;
 
 //class interface
 class L1GlobalTriggerEsumsTemplate : public L1GlobalTriggerConditions
@@ -34,7 +35,7 @@ class L1GlobalTriggerEsumsTemplate : public L1GlobalTriggerConditions
 public:
 
     // constructor
-    L1GlobalTriggerEsumsTemplate(const std::string &name);
+    L1GlobalTriggerEsumsTemplate(const L1GlobalTrigger&, const std::string&);
     
     // copy constructor
     L1GlobalTriggerEsumsTemplate( const L1GlobalTriggerEsumsTemplate& );

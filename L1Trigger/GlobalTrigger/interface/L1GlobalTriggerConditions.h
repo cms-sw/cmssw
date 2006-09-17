@@ -13,8 +13,8 @@
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -29,7 +29,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // forward declarations
-//class L1TriggerObject;
+class L1GlobalTrigger;
 
 // class interface
 class L1GlobalTriggerConditions 
@@ -38,7 +38,7 @@ class L1GlobalTriggerConditions
 public:
 
     /// constructor
-    L1GlobalTriggerConditions(const std::string& );
+    L1GlobalTriggerConditions(const L1GlobalTrigger&, const std::string& );
 
     /// copy constructor
     L1GlobalTriggerConditions(L1GlobalTriggerConditions& );
@@ -99,6 +99,7 @@ protected:
         const bool checkBit(Type1 const &mask, unsigned int bitNumber) const;
         
    
+    const L1GlobalTrigger& m_GT;
 
 };
  
@@ -112,30 +113,33 @@ template<class Type1, class Type2>
 
     if (p_ge_eq) {
         if ( value > 0 ) {
-            edm::LogVerbatim("L1GlobalTriggerConditions") 
-                << " p_ge_eq threshold CHECK " 
-                << " hex " << std::hex << threshold << " " << value << " DEC " << std::dec 
-                << threshold << " "  << value << std::endl;
+            LogTrace("L1GlobalTriggerConditions") 
+                << "  p_ge_eq threshold check:" 
+                << "\n    hex: " << std::hex << "threshold = " << threshold << " value = " << value 
+                << "\n    dec: " << std::dec << "threshold = " << threshold << " value = " << value
+                << std::endl;
         }
         
         if ( value >= threshold ) {
-            edm::LogVerbatim("L1GlobalTriggerConditions") << " CHECK  triggered p_ge_eq " 
-                << std::dec << std::endl;
+            LogTrace("L1GlobalTriggerConditions") << "    p_ge_eq: value >= threshold" 
+                << std::endl;
         }
         
         return (value >= threshold);
         
     } else {
-        edm::LogVerbatim("L1GlobalTriggerConditions")  
-            << " p       threshold CHECK" 
-            << " hex " << threshold << " " << value << " dec " << std::dec 
-            << threshold << " " << value << std::endl;
+        LogTrace("L1GlobalTriggerConditions") 
+            << "  p threshold check:" 
+            << "\n    hex: " << std::hex << "threshold = " << threshold << " value = " << value 
+            << "\n    dec: " << std::dec << "threshold = " << threshold << " value = " << value
+            << std::endl;
         if ( value > threshold ) {
-            edm::LogVerbatim("L1GlobalTriggerConditions") << " CHECK triggered " << std::endl;
+            LogTrace("L1GlobalTriggerConditions") << "    p: value > threshold" 
+                << std::endl;
         }
         
         return (value > threshold);
-    }
+    } 
 }
 
 
@@ -149,24 +153,16 @@ template<class Type1>
     u_int64_t oneBit = 1;
     oneBit <<= bitNumber;  
         
-    bool mask1one = mask & oneBit;
-    
-    edm::LogVerbatim("L1GlobalTriggerConditions") 
-        << " checkBit " 
-        << &mask << " " << mask << " " << oneBit << " " << bitNumber 
-        << " result " << mask1one 
+    LogTrace("L1GlobalTriggerConditions") 
+        << "  checkBit " 
+        << "\n     mask address = " << &mask
+        << std::dec  
+        << "\n     dec: mask = " << mask << " oneBit = " << oneBit << " bitNumber = " << bitNumber 
+        << std::hex 
+        << "\n     hex: mask = " << mask << " oneBit = " << oneBit << " bitNumber = " << bitNumber
+        << std::dec 
+        << "\n     mask & oneBit result = " << bool ( mask & oneBit ) 
         << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerConditions") 
-        << " checkBit hex " 
-        << std::hex << mask <<" " << std::dec 
-        << std::endl;
-    
-    if (mask1one == 0 ) { 
-        edm::LogVerbatim("L1GlobalTriggerConditions") << " zero result " << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerConditions") << std::hex << mask << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerConditions") << std::hex << oneBit  << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerConditions") << std::dec << std::endl;
-    }
     
     return (mask & oneBit);
 }

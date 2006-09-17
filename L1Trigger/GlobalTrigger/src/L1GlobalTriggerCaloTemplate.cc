@@ -10,8 +10,8 @@
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -30,18 +30,21 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
-//#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
+
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 // constructor
 L1GlobalTriggerCaloTemplate::L1GlobalTriggerCaloTemplate( 
-    const std::string &name)
-    : L1GlobalTriggerConditions(name) {
+    const L1GlobalTrigger& gt,
+    const std::string& name)
+    : L1GlobalTriggerConditions(gt, name) {
 
-    LogDebug ("Trace") 
-        << "****Entering " << __PRETTY_FUNCTION__ << " name= " << p_name << std::endl;
+//    LogDebug ("Trace") 
+//        << "****Entering " << __PRETTY_FUNCTION__ << " name= " << p_name << std::endl;
 
 }
 
@@ -60,8 +63,9 @@ void L1GlobalTriggerCaloTemplate::copy(const L1GlobalTriggerCaloTemplate &cp) {
 
 L1GlobalTriggerCaloTemplate::L1GlobalTriggerCaloTemplate(
     const L1GlobalTriggerCaloTemplate& cp) 
-    : L1GlobalTriggerConditions(cp.p_name) {
+    : L1GlobalTriggerConditions(cp.m_GT, cp.p_name) {
 
+//    m_GT = cp.m_GT; // TODO uncomment ???
     copy(cp);
 }
 
@@ -112,15 +116,19 @@ void L1GlobalTriggerCaloTemplate::setConditionParameter(
 
 const bool L1GlobalTriggerCaloTemplate::blockCondition() const {
 
-   // the candidates
-    L1GctCand (*v[4]) = { (getCandidate(0)),
-                             (getCandidate(1)),
-                             (getCandidate(2)),
-                             (getCandidate(3)) };
+    // maximum number of candidates 
+    // TODO take it from L1GlobalTriggerReadoutRecord, depending on particle type??    
+    const int maxNumberCands = 4;
 
-    // indices
-    int index[4] = {0, 1, 2, 3};
-  
+   // the candidates
+    L1GctCand* v[maxNumberCands];
+    int index[maxNumberCands];
+    
+    for (int i = 0; i < maxNumberCands; ++i) {
+	   v[i] = getCandidate(i);
+       index[i] = i;	
+	}
+      
     bool tmpResult;
   
     // first check if there is a permutation that matches
@@ -134,132 +142,161 @@ const bool L1GlobalTriggerCaloTemplate::blockCondition() const {
     } while (std::next_permutation(index, index + p_number) );
 
     if (tmpResult == false) {
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << " CALO checking for 4 failed total " 
+        LogTrace("L1GlobalTriggerCaloTemplate") 
+            << "  L1GlobalTriggerCaloTemplate: no permutation match for all four calo candidates.\n" 
             << std::endl;
         return false;
     }
 
-    unsigned int deltaeta;
-    unsigned int deltaphi;  
-  
-    //TODO: signs and correlations!!!! this code is wrong!
-
+    //TODO: check signs and correlations for p_wsc
+    
+    // compute spatial correlations between all candidate pairs
     if (p_wsc) { 
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << " wsc check " 
-            << std::endl;
         
-        if (v[0]->etaIndex() > v[1]->etaIndex()) {
-             deltaeta = v[0]->etaIndex() - v[1]->etaIndex();
-        } else {
-            deltaeta = v[1]->etaIndex() - v[0]->etaIndex();
-        }
-        
-        if (v[0]->phiIndex() > v[1]->phiIndex()) {
-            deltaphi = v[0]->phiIndex() - v[1]->phiIndex();
-        } else {
-            deltaphi = v[1]->phiIndex() - v[0]->phiIndex();
-        }
-    
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << " deltaeta " << deltaeta << " "  
-            << v[0]-> etaIndex() << " " 
-            << v[1]-> etaIndex() 
-            << std::endl;
-            
-        if (!checkBit(p_conditionparameter.delta_eta, deltaeta)) {
-            return false;
-        }
-    
-        //deltaphi needs to be checked if its >180
-        if (deltaphi > p_conditionparameter.delta_phi_maxbits) {
-            edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-                << "  phi 180 " << deltaphi 
-                << " p_conditionparameter.delta_phi_maxbits " 
-                << std::endl;
-            //if deltaphi > 180 take 360 - deltaphi
-            deltaphi = (p_conditionparameter.delta_phi_maxbits-1)*2 - deltaphi;   
-            edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-                << " deltaphi change " <<  deltaphi 
-                << std::endl;
-        }
-     
-    
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            <<  std::dec << " deltaphi " << deltaphi << " " 
-            << v[0]->phiIndex() << " " 
-            << v[1]->phiIndex() 
+        LogTrace("L1GlobalTriggerCaloTemplate") 
+            << " spatial correlations: check " 
             << std::endl;
 
-        if ( deltaphi >= 10 ) {
-            edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-                << " deltaphi big range " << deltaphi 
-                << std::endl;
-            deltaphi = 18 - deltaphi;
-        }
-    
-        if (!checkBit(p_conditionparameter.delta_phi, deltaphi)) {
-            return false;
-        }
-    }
+        unsigned int deltaeta;
+        unsigned int deltaphi;  
+
+        for (int i = 0; i < maxNumberCands; ++i) {
+            for (int k = i + 1; k < maxNumberCands; ++k) {
+                
+                // check deltaeta
+
+                // absolute value of eta difference (... could use abs() ) 
+                if (v[i]->etaIndex() > v[k]->etaIndex()) {
+                    deltaeta = v[i]->etaIndex() - v[k]->etaIndex();
+                } else {
+                    deltaeta = v[k]->etaIndex() - v[i]->etaIndex();
+                }
+                                
+                LogTrace("L1GlobalTriggerCaloTemplate") 
+                    << "  deltaeta = " << deltaeta << " for "  
+                    << "v[" << i <<"]->etaIndex() = " << v[i]->etaIndex() << ", " 
+                    << "v[" << k <<"]->etaIndex() = " << v[k]->etaIndex()  
+                    << std::endl;
+                
+                if (!checkBit(p_conditionparameter.delta_eta, deltaeta)) {
+                    return false;
+                }
+                
+                // check deltaphi
+
+                // absolute value of phi difference 
+                if (v[i]->phiIndex() > v[k]->phiIndex()) {
+                    deltaphi = v[i]->phiIndex() - v[k]->phiIndex();
+                } else {
+                    deltaphi = v[k]->phiIndex() - v[i]->phiIndex();
+                }
+
+                LogTrace("L1GlobalTriggerCaloTemplate") 
+                    << std::dec << "  deltaphi = " << deltaphi << " for " 
+                    << "v[" << i <<"]->phiIndex() = " << v[i]->phiIndex() << ", " 
+                    << "v[" << k <<"]->phiIndex() = " << v[k]->phiIndex()  
+                    << std::endl;
+
+                // check if deltaphi > 180 (aka delta_phi_maxbits) 
+                if (deltaphi > p_conditionparameter.delta_phi_maxbits) {
+                    LogTrace("L1GlobalTriggerCaloTemplate") 
+                        << "  deltaphi = " << deltaphi 
+                        << " > p_conditionparameter.delta_phi_maxbits ==> needs re-scaling" 
+                        << std::endl;
+                        
+                    // deltaphi > 180 ==> take 360 - deltaphi
+                    deltaphi = (p_conditionparameter.delta_phi_maxbits - 1)*2 - deltaphi;   
+                    LogTrace("L1GlobalTriggerCaloTemplate") 
+                        << "  deltaphi changed to: " <<  deltaphi 
+                        << std::endl;
+                }
+                
+                // TODO FIXME review phi range and get rid of hard-coded numbers 10, 18                
+                if ( deltaphi >= 10 ) {
+                    LogTrace("L1GlobalTriggerCaloTemplate") 
+                        << "  big range deltaphi = " << deltaphi 
+                        << std::endl;
+
+                    deltaphi = 18 - deltaphi;
+
+                    LogTrace("L1GlobalTriggerCaloTemplate") 
+                        << "  re-scaled to deltaphi = " << deltaphi 
+                        << std::endl;
+                }
+            
+                if (!checkBit(p_conditionparameter.delta_phi, deltaphi)) {
+                    return false;
+                }			
+            }			            
+        }         
+    } // end if(p_wsc)
     
     return tmpResult;
 }
 
 void L1GlobalTriggerCaloTemplate::printThresholds() const {
 
-    std::cout << "L1GlobalTriggerCaloTemplate: Threshold values " << std::endl;
-    std::cout << "Condition Name: " << getName() << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+        << "L1GlobalTriggerCaloTemplate: Threshold values " << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+        << "Condition Name: " << getName() << std::endl;
 
-    std::cout << "Particle: ";
     switch (p_particletype) {
         case EG:        
-            std::cout << "eg";
+            edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << "Particle: " << "eg";
             break;
         case IEG:       
-            std::cout << "ieg";
+            edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << "Particle: " << "ieg";
             break;
-        case JET:       
-        case FWDJET:    
-        case TAU:      
-            std::cout << "jet";
+        case CJET:       
+        case FJET:    
+        case TJET:      
+            edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << "Particle: " << "jet";
             break;
         default:
             // write nothing - should not arrive here
             break;
     }
-    std::cout << std::endl;
 
-    std::cout << "Greater equal bit: " << p_ge_eq << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+        << "\ngreater or equal bit: " << p_ge_eq << std::endl;
 
     for(unsigned int i = 0; i < p_number; i++) {
 
-        std::cout << "\nTEMPLATE " << i << std::endl;
-        std::cout << "et_threshold          " 
-            <<  std::hex << p_particleparameter[i].et_threshold 
+        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << "\n  TEMPLATE " << i 
             << std::endl;
-        std::cout << "eta                   " 
+        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+            << "    et_threshold          " 
+            << std::hex << p_particleparameter[i].et_threshold 
+            << std::endl;
+        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+            << "    eta                   " 
             <<  std::hex << p_particleparameter[i].eta 
             << std::endl;
-        std::cout << "phi                   " 
-        <<  std::hex << p_particleparameter[i].phi << std::endl;
+        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+            << "    phi                   " 
+            <<  std::hex << p_particleparameter[i].phi << std::endl;
     }
 
     if (p_wsc) {
-        std::cout << "///CORRELATION PARAMETERS" << std::endl;
-        std::cout << "delta_eta             " << 
-            std::hex << p_conditionparameter.delta_eta << std::endl; 
-        std::cout << "delta_eta_maxbits     " 
+        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+            << "    Correlation parameters:" << std::endl;
+        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+            << "    delta_eta             " 
+            << std::hex << p_conditionparameter.delta_eta << std::endl; 
+        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+            << "    delta_eta_maxbits     " 
             << std::dec << p_conditionparameter.delta_eta_maxbits << std::endl;
-        std::cout << "delta_phi 	           " 
+        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+            << "    delta_phi             " 
             << std::hex << p_conditionparameter.delta_phi << std::endl; 
-        std::cout << "delta_phi_maxbits     " 
+        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
+            << "    delta_phi_maxbits     " 
             << std::dec << p_conditionparameter.delta_phi_maxbits << std::endl;
     }
 
     //reset to decimal output
-    std::cout << std::dec << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << std::dec << std::endl;
     
 }
 
@@ -274,27 +311,21 @@ void L1GlobalTriggerCaloTemplate::printThresholds() const {
 
 L1GctCand* L1GlobalTriggerCaloTemplate::getCandidate (int indexCand) const {
 
-// TODO uncomment
     switch (p_particletype) {
         case EG:        
-//            return (*PSB->getElectronList())[indexCand];      
-            return 0;
+            return (*m_GT.gtPSB()->getElectronList())[indexCand];      
             break;
         case IEG:       
-//            return (*PSB->getIsolElectronList())[indexCand];
-            return 0;
+            return (*m_GT.gtPSB()->getIsolatedElectronList())[indexCand];
             break;
-        case JET:       
-//            return (*PSB->getCentralJetList())[indexCand];
-            return 0;
+        case CJET:       
+            return (*m_GT.gtPSB()->getCentralJetList())[indexCand];
             break;
-        case FWDJET:    
-//            return (*PSB->getForwardJetList())[indexCand];
-            return 0;
+        case FJET:    
+            return (*m_GT.gtPSB()->getForwardJetList())[indexCand];
             break;
-        case TAU:      
-//        return (*PSB->getTauJetList())[indexCand];
-            return 0;
+        case TJET:      
+        return (*m_GT.gtPSB()->getTauJetList())[indexCand];
             break;
         default:
             return 0;
@@ -314,59 +345,83 @@ L1GctCand* L1GlobalTriggerCaloTemplate::getCandidate (int indexCand) const {
 const bool L1GlobalTriggerCaloTemplate::checkParticle(
     int ncondition, L1GctCand &cand) const {
 
-    if (ncondition >= (int) p_number || ncondition < 0) return false;
+    std::string checkFalse = "\n  ==> checkParticle = false ";        
 
-    // check threshold
-    int ADHOC_SCALING_FACTOR = 5; // TODO why one needs such a hack -> look where the problem is!!!
-    if (!checkThreshold(p_particleparameter[ncondition].et_threshold, cand.rank()/ADHOC_SCALING_FACTOR)) {
+    if (ncondition >= (int) p_number || ncondition < 0) {
+        LogTrace("L1GlobalTriggerCaloTemplate")
+            << "L1GlobalTriggerCaloTemplate:" 
+            << "  Number of condition outside [0, p_number) interval." 
+            << "  checkParticle = false "
+            << std::endl;
         return false;
     }
-    
+
+    // empty candidates can not be compared
+    if (cand.empty()) {
+        LogTrace("L1GlobalTriggerCaloTemplate") 
+            << "  Empty calo candidate (" << &cand << ")." 
+            << "  checkParticle = false "
+            << std::endl;
+        return false;
+    }
+
+    LogTrace("L1GlobalTriggerCaloTemplate") 
+        << "\n  Non-empty calorimeter object: checkParticle starting" 
+        << std::endl;
+
+    // check threshold
+    if ( !checkThreshold(p_particleparameter[ncondition].et_threshold, cand.rank()) ) {
+        LogTrace("L1GlobalTriggerCaloTemplate") 
+            << "  calo et_threshold: failed" 
+            << checkFalse 
+            << std::endl;
+        return false;
+    }
+
     // check eta
-    edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << " CALO ETA CHECK " << std::endl;
-    // TODO  eta = 0 !!!
+    LogTrace("L1GlobalTriggerCaloTemplate") 
+        << "  L1GlobalTriggerCaloTemplate: checking eta " 
+        << std::endl;
 
-    // NENTCHEV UNITS 
+    // TODO check this stuff: eta in hw, eta in CMSSW
     
-    int etanentch = 0;
-    if (cand.etaIndex() == 0) {
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << " zero eta region !!! " << std::endl;
+    // TODO  eta = +-0 !!!
 
-        etanentch = etaconvvtt(cand.etaIndex());
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << "eta conversion " 
-            << cand.etaIndex() << " " 
-            << etanentch << " " 
+    if (cand.etaIndex() == 0) {
+        LogTrace("L1GlobalTriggerCaloTemplate") << "  zero eta region !!! " << std::endl;
+
+        LogTrace("L1GlobalTriggerCaloTemplate") 
+            << "  etaIndex() = "
+            << cand.etaIndex() 
             << std::endl;
 
-        if (!checkBit(p_particleparameter[ncondition].eta, etanentch)) {
+        if ( !checkBit(p_particleparameter[ncondition].eta, cand.etaIndex()) ) {
             return false;
         }
-    }
-    
-    if (cand.etaIndex() != 0 ) {
+    } else {
 
-        etanentch = etaconvvtt(cand.etaIndex());
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << "eta conversion " 
-            << cand.etaIndex() << " " 
-            << etanentch << " " 
+        LogTrace("L1GlobalTriggerCaloTemplate") 
+            << "  etaIndex() = "
+            << cand.etaIndex() 
             << std::endl;
 
-        if (!checkBit(p_particleparameter[ncondition].eta, etanentch)) return false;
+        if (!checkBit(p_particleparameter[ncondition].eta, cand.etaIndex())) return false;
     }
     
     // check phi 
-    edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << " CALO PHI CHECK " << std::endl;
-    // TODO  phi = 0 !!!
+    LogTrace("L1GlobalTriggerCaloTemplate") 
+        << " L1GlobalTriggerCaloTemplate: checking phi " 
+        << std::endl;
+
     if (cand.phiIndex() == 0 ) { 
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << " phi region zero " << std::endl;
-        
-        // ???? until solved, go to <= case
+        LogTrace("L1GlobalTriggerCaloTemplate") << "  phi region zero " << std::endl;
+        // TODO  phi = 0 !!!        
     }
     
     if (cand.phiIndex() > 8 ) {
         
         int phichange = 18 - cand.phiIndex();
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << " phi region is gt 8 " << " reformatted " 
+        LogTrace("L1GlobalTriggerCaloTemplate") << "  phi region is gt 8 " << " reformatted " 
             << phichange << std::endl;
         if (!checkBit(p_particleparameter[ncondition].phi, phichange )) {
             return false;
@@ -379,108 +434,11 @@ const bool L1GlobalTriggerCaloTemplate::checkParticle(
         }
     }
 
+    // particle matches if we get here
+    LogTrace("L1GlobalTriggerCaloTemplate") 
+        << "  checkParticle: calorimeter object OK, passes all requirements\n" 
+        << std::endl;
+
     return true;
 }
 
-// eta conversions
-// TODO sort out this stuff
-
-//  convert ORCA input to FIERRO/TAUROCK schema  for etadifferences
-const int L1GlobalTriggerCaloTemplate::etaconv(int abs_eta) const {
-
-    int etac = -300;
-    if ( abs_eta == 0)  etac    =  8;
-    if ( abs_eta == 1)  etac    =  6;
-    if ( abs_eta == 2)  etac    =  5;
-    if ( abs_eta == 3)  etac    =  4;
-    if ( abs_eta == 4)  etac    =  3;
-    if ( abs_eta == 5)  etac    =  2;
-    if ( abs_eta == 6)  etac    =  1;
-
-    // eta value negative
-    if ( abs_eta == 7)  etac    =  1;
-    if ( abs_eta == 8)  etac    =  2;
-    if ( abs_eta == 9)  etac    =  3;
-    if ( abs_eta == 10) etac    =  4;
-    if ( abs_eta == 11) etac    =  5;
-    if ( abs_eta == 12) etac    =  6;
-    if ( abs_eta == 13) etac    =  8;
-    if ( abs_eta == 14) etac    =  10;
-    if ( abs_eta == 15) etac    =  11;
-
-    if ( abs_eta == 16) etac    =  13;
-
-    return etac;
-
-}
-
-//  convert ORCA input to FIERRO/TAUROCK schema  for etadifferences
-const int L1GlobalTriggerCaloTemplate::etaconvwind(int abs_eta) const {
-    
-    int abswind = -300;
-    
-    if ( abs_eta == 0)  abswind = 12;
-    if ( abs_eta == 1)  abswind = 10;
-    if ( abs_eta == 2)  abswind =  9;
-    if ( abs_eta == 3)  abswind =  8;
-    if ( abs_eta == 4)  abswind =  7;
-    if ( abs_eta == 5)  abswind =  6;
-    if ( abs_eta == 6)  abswind =  5;
-    if ( abs_eta == 7)  abswind =  5;
-    if ( abs_eta == 8)  abswind =  6;
-    if ( abs_eta == 9)  abswind =  7;
-    if ( abs_eta == 10) abswind =  8;
-    if ( abs_eta == 11) abswind =  9;
-    if ( abs_eta == 12) abswind = 10;
-    if ( abs_eta == 13) abswind = 12;
-
-    return abswind;
-}
-
-//  convert ORCA input to TAUROCK schema  for eta
-const  int L1GlobalTriggerCaloTemplate::etaconvv(int abs_eta) const {
-
-    int eta_taur = -300;
-    // eta_taur in agrred units -7 < etahardware < + 7
-    // abs_eta = eta - 4 von Hidas PAL conversion
-
-    if ( abs_eta == 0)  eta_taur= -6;
-    if ( abs_eta == 1)  eta_taur= -5;
-    if ( abs_eta == 2)  eta_taur= -4;
-    if ( abs_eta == 3)  eta_taur= -3;
-    if ( abs_eta == 4)  eta_taur= -2;
-    if ( abs_eta == 5)  eta_taur= -1;
-    if ( abs_eta == 6)  eta_taur=  -0;
-    if ( abs_eta == 7)  eta_taur=  +0;
-    if ( abs_eta == 8)  eta_taur=  1;
-    if ( abs_eta == 9)  eta_taur=  2;
-    if ( abs_eta == 10) eta_taur=  3;
-    if ( abs_eta == 11) eta_taur=  4;
-    if ( abs_eta == 12) eta_taur=  5;
-    if ( abs_eta == 13) eta_taur=  6;
-
-    return eta_taur;
-}
-
-//  convert ORCA input to TAUROCK schema  for eta
-const int L1GlobalTriggerCaloTemplate::etaconvvtt(int abs_eta) const { 
-
-    int eta_taus = -300;
-
-    if ( abs_eta == 0)  eta_taus= 14;
-    if ( abs_eta == 1)  eta_taus= 13;
-    if ( abs_eta == 2)  eta_taus= 12;
-    if ( abs_eta == 3)  eta_taus= 11;
-    if ( abs_eta == 4)  eta_taus= 10;
-    if ( abs_eta == 5)  eta_taus=  9;
-    if ( abs_eta == 6)  eta_taus=  8;
-    if ( abs_eta == 7)  eta_taus=  7;
-    if ( abs_eta == 8)  eta_taus=  6;
-    if ( abs_eta == 9)  eta_taus=  5;
-    if ( abs_eta == 10) eta_taus=  4;
-    if ( abs_eta == 11) eta_taus=  3;
-    if ( abs_eta == 12) eta_taus=  2;
-    if ( abs_eta == 13) eta_taus=  1;
-
-    return eta_taus;
-}

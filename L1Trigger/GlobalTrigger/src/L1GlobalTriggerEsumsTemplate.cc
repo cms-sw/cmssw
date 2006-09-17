@@ -10,8 +10,8 @@
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -26,7 +26,9 @@
 // user include files
 //   base class
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-//#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
+
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -35,12 +37,13 @@
 
 // constructor
 L1GlobalTriggerEsumsTemplate::L1GlobalTriggerEsumsTemplate( 
-    const std::string &name)
-    : L1GlobalTriggerConditions(name) {
+    const L1GlobalTrigger& gt,
+    const std::string& name)
+    : L1GlobalTriggerConditions(gt, name) {
 
-    LogDebug ("Trace") 
-        << "****Entering " << __PRETTY_FUNCTION__ << " name= " << p_name 
-        << std::endl;
+//    LogDebug ("Trace") 
+//        << "****Entering " << __PRETTY_FUNCTION__ << " name= " << p_name 
+//        << std::endl;
 
 }
 
@@ -57,7 +60,7 @@ void L1GlobalTriggerEsumsTemplate::copy(const L1GlobalTriggerEsumsTemplate &cp) 
 
 L1GlobalTriggerEsumsTemplate::L1GlobalTriggerEsumsTemplate(
     const L1GlobalTriggerEsumsTemplate& cp) 
-    : L1GlobalTriggerConditions(cp.p_name) {
+    : L1GlobalTriggerConditions(cp.m_GT, cp.p_name) {
 
     copy(cp);
 
@@ -73,7 +76,9 @@ L1GlobalTriggerEsumsTemplate::~L1GlobalTriggerEsumsTemplate() {
 L1GlobalTriggerEsumsTemplate& L1GlobalTriggerEsumsTemplate::operator= (
     const L1GlobalTriggerEsumsTemplate& cp) {
 
+//    m_GT = cp.m_GT; // TODO uncomment ???
     copy(cp);
+
     return *this;
 }
 
@@ -105,13 +110,11 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const {
     unsigned int candPhi = 0;
 
     // get energy and phi (ETM only) for the trigger object 
-    // TODO put back the candidates when PSB available
 
     switch (p_sumtype) {
 		case ETT:
         {
-//          L1GctEtTotal* cand1 = PSB->getCaloTotalEtList();
-            L1GctEtTotal* cand1 = 0;        
+            L1GctEtTotal* cand1 = m_GT.gtPSB()->getCaloTotalEtList();
             if (cand1 == 0) return false;
             
             candEt = cand1->et();			
@@ -119,8 +122,7 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const {
         }
         case ETM:
         {
-//        L1GctEtMiss* cand2 = PSB()->getCaloMissingEtList();
-            L1GctEtMiss* cand2 = 0;        
+            L1GctEtMiss* cand2 = m_GT.gtPSB()->getCaloMissingEtList();
             if (cand2 == 0) return false;
             
             candEt  = cand2->et();
@@ -129,8 +131,7 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const {
         }
         case HTT:
         {
-//        L1GctEtHad* cand3 = PSB()->getCaloHadEtList();
-            L1GctEtHad* cand3 = 0;        
+            L1GctEtHad* cand3 = m_GT.gtPSB()->getCaloTotalHtList();
             if (cand3 == 0) return false;
             
             candEt = cand3->et();            
@@ -157,40 +158,46 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const {
 
 void L1GlobalTriggerEsumsTemplate::printThresholds() const {
 
-    std::cout << "L1GlobalTriggerEsumsTemplate: Threshold values " << std::endl;
-    std::cout << "Condition Name: " << getName() << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
+        << "L1GlobalTriggerEsumsTemplate: Threshold values " << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
+        << "Condition Name: " << getName() << std::endl;
 
-    std::cout << "Type of Sum: ";
     switch (p_sumtype) {
 		case ETM:
-            std::cout << "etm";			
+            edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") << "Type of Sum: " << "etm";			
 			break;
         case ETT:
-            std::cout << "ett";         
+            edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") << "Type of Sum: " << "ett";         
             break;
         case HTT:
-            std::cout << "htt";         
+            edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") << "Type of Sum: " << "htt";         
             break;
 		default:
             // nothing
 			break;
 	}
-    std::cout << std::endl;
 
-    std::cout << "Greater equal bit: " << p_ge_eq << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
+        << "\ngreater or equal bit: " << p_ge_eq << std::endl;
 
-    std::cout << "et_threshold          " 
-        << std::hex << p_conditionparameter.et_threshold << std::endl; 
-    std::cout << "en_overflow           " 
+    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") << "\n  TEMPLATE " << "0" // only one  
+        << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
+        << "    et_threshold          " 
+        << std::hex << p_conditionparameter.et_threshold 
+        << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
+        << "    en_overflow           " 
         << std::hex << p_conditionparameter.en_overflow << std::endl; 
-
     if (p_sumtype == ETM) {
-        std::cout << "phi               " 
+        edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
+            << "    phi                   " 
             << std::hex << p_conditionparameter.phi << std::endl;
     }
       
      // reset to decimal output
-     std::cout << std::dec << std::endl;      
+     edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") << std::dec << std::endl;      
 }
 
 

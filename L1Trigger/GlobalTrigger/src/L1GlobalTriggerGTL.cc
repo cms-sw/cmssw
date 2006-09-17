@@ -10,8 +10,8 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -36,6 +36,7 @@
 
 #include "L1Trigger/GlobalMuonTrigger/interface/L1MuGlobalMuonTrigger.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // forward declarations
@@ -75,62 +76,155 @@ L1GlobalTriggerGTL::~L1GlobalTriggerGTL() {
 
 // operations
 
+// receive input data
+
+void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent) {
+
+    reset(); 
+    
+    // disabling Global Muon input 
+
+    const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
+
+    if ( gtConf != 0 ) { 
+        if ( gtConf->getInputMask()[1] ) {
+
+            LogDebug("L1GlobalTriggerGTL") 
+                << "\n**** Global Muon input disabled! \n  inputMask[1] = " 
+                << gtConf->getInputMask()[1]
+                << "     All candidates empty." << "\n**** \n"
+                << std::endl;
+
+            // set all muon candidates empty                
+            for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutRecord::NumberL1Muons; iMuon++ ) {
+        
+                L1GlobalTriggerGTL::MuonDataWord dataword = 0; 
+                (*glt_muonCand)[iMuon] = new L1MuGMTCand( dataword );
+            }
+            return;
+            
+        }
+    } else {
+        throw cms::Exception("L1GtConfiguration")
+         << "**** No configuration file exists! \n";
+    }
+
+    LogDebug("L1GlobalTriggerGTL") 
+        << "**** L1GlobalTriggerGTL receiving muon data" 
+        << std::endl;
+    
+
+    // get data from Global Muon Trigger
+    // the GLT receives 4 * 26 bits from the Global Muon Trigger
+
+    edm::Handle<std::vector<L1MuGMTCand> > muonData;
+    iEvent.getByLabel("gmt", muonData);
+
+    for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutRecord::NumberL1Muons; iMuon++ ) {
+
+        L1GlobalTriggerGTL::MuonDataWord dataword = 0; 
+        unsigned int nMuon = 0;
+
+        for ( std::vector<L1MuGMTCand>::const_iterator itMuon = muonData->begin(); 
+            itMuon != muonData->end(); itMuon++ ) {
+            
+            // retrieving info for BX = 0 only !!
+            if ( (*itMuon).bx() == 0 ) {
+                if ( nMuon == iMuon ) {
+                    dataword = (*itMuon).getDataWord();
+                    break;
+                }
+                nMuon++;
+            }
+        }
+        (*glt_muonCand)[iMuon] = new L1MuGMTCand( dataword );
+    }
+    
+    printGmtData();    
+
+}
+
 // run GTL
 void L1GlobalTriggerGTL::run() {
         
-    LogDebug ("Trace") << "**** L1GlobalTriggerGTL run " << std::endl;
+//    LogDebug ("Trace") << "**** L1GlobalTriggerGTL run " << std::endl;
 
     // try xml conditions
     const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
      
-    if (gtConf != NULL) {
+    if (gtConf != 0) {
         unsigned int chipnr;
-        edm::LogInfo("L1GlobalTriggerGTL") 
-            << "***** Result of the XML-conditions " 
+        LogDebug("L1GlobalTriggerGTL") 
+            << "\n***** Result of the XML-conditions \n" 
             << std::endl;
 
         for (chipnr = 0; chipnr < L1GlobalTriggerConfig::max_chips; chipnr++) { 
-            edm::LogInfo("L1GlobalTriggerGTL") 
-                << "---------Chip " << chipnr + 1 << " ----------" 
+            LogTrace("L1GlobalTriggerGTL") 
+                << "\n---------Chip " << chipnr + 1 << " ----------\n" 
                 << std::endl; 
     
             for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
                 itxml = gtConf->conditionsmap[chipnr].begin(); 
                 itxml != gtConf->conditionsmap[chipnr].end(); itxml++) {
 
-            	edm::LogInfo("L1GlobalTriggerGTL") 
-                    << itxml->first << ": " << itxml->second->blockCondition_sr() 
+                std::string condName = itxml->first;
+
+                LogTrace("L1GlobalTriggerGTL") 
+                    << "\n===============================================\n" 
+                    << "Evaluating condition: " << condName 
+                    << "\n" 
+                    << std::endl;
+
+                bool condResult = itxml->second->blockCondition_sr(); 
+                
+                LogTrace("L1GlobalTriggerGTL")
+                    << condName << " result: " << condResult 
                     << std::endl;
             
             }
         }
         
-        edm::LogInfo("L1GlobalTriggerGTL") 
-            << "---------- Prealgos ---------" 
+        LogTrace("L1GlobalTriggerGTL") 
+            << "\n---------- Prealgorithms: evaluation ---------\n" 
             << std::endl;
         for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
             itxml = gtConf->prealgosmap.begin(); 
             itxml!= gtConf->prealgosmap.end(); itxml++) {
-                
-            edm::LogInfo("L1GlobalTriggerGTL") 
-                << itxml->first << ": " << itxml->second->blockCondition_sr() 
-                << " = " << itxml->second->getNumericExpression() << std::endl;
-                
-        }
+                                
+            std::string prealgoName = itxml->first;
+            bool prealgoResult = itxml->second->blockCondition_sr(); 
+            std::string prealgoExpression = itxml->second->getNumericExpression();
+            
+            LogTrace("L1GlobalTriggerGTL")
+                << "  " << prealgoName << " : " << prealgoResult 
+                << " = " << prealgoExpression
+                << std::endl;
 
-        edm::LogInfo("L1GlobalTriggerGTL") 
-            << "---------- Algos ----------" 
+        }
+        LogTrace("L1GlobalTriggerGTL") 
+            << "\n---------- End of prealgorithm list ---------\n" 
+            << std::endl;
+
+        LogTrace("L1GlobalTriggerGTL") 
+            << "\n---------- Algorithms: evaluation ----------\n" 
             << std::endl;
         for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
             itxml  = gtConf->algosmap.begin(); 
             itxml != gtConf->algosmap.end(); itxml++) {
             
-            edm::LogInfo("L1GlobalTriggerGTL") 
-                << itxml->first << ": " << itxml->second->blockCondition_sr() 
-                << " = " << itxml->second->getNumericExpression() 
+            std::string algoName = itxml->first;
+            bool algoResult = itxml->second->blockCondition_sr(); 
+            std::string algoExpression = itxml->second->getNumericExpression();
+            
+            LogTrace("L1GlobalTriggerGTL")
+                << "  " << algoName << " : " << algoResult 
+                << " = " << algoExpression
                 << std::endl;
 
         }
+        LogTrace("L1GlobalTriggerGTL") 
+            << "\n---------- End of algorithm list ----------\n" 
+            << std::endl;
 
         // set the pins
         if (gtConf->getVersion() == L1GlobalTriggerConfig::VERSION_PROTOTYPE) {
@@ -186,46 +280,22 @@ void L1GlobalTriggerGTL::reset() {
 
 // print Global Muon Trigger data
 
-void L1GlobalTriggerGTL::print() const {
+void L1GlobalTriggerGTL::printGmtData() const {
     
-    edm::LogInfo("L1GlobalTriggerGTL") << " muon data :" << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerGTL") 
+        << "\nMuon data received by GTL:" << std::endl;
     
     for ( GMTVector::iterator iter = glt_muonCand->begin(); 
             iter < glt_muonCand->end(); iter++ ) {
 
-        edm::LogInfo("L1GlobalTriggerGTL") << " iter = " << (*iter) << std::endl;
+        LogTrace("L1GlobalTriggerGTL") 
+            << "\nIterator value = " << (*iter) << std::endl;
+
         (*iter)->print();
+
     }
 
-    edm::LogInfo("L1GlobalTriggerGTL") << std::endl;
-
-}
-
-// receive input data
-
-void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent) {
-
-    reset(); 
-    
-    // disabling Global Muon input 
-
-    const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
-
-    if ( gtConf != NULL) { 
-        if ( !gtConf->inputMask()[1] ) {
-            return;
-        }
-    }
-
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL receiving muon data" 
-        << std::endl;
-    
-
-    // TODO add the code
-    
-    // get data from Global Muon Trigger
-    // the GLT receives 4 * 26 bits from the Global Muon Trigger
+    edm::LogVerbatim("L1GlobalTriggerGTL") << std::endl;
 
 }
 
@@ -240,135 +310,3 @@ const std::vector<L1GlobalTriggerGTL::MuonDataWord> L1GlobalTriggerGTL::getMuons
 
     return muon;
 }
-
-void L1GlobalTriggerGTL::defineConditions() {
-
-    
-    // muon particle condition blocks
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL: Building Muon Particle Condition Blocks" 
-        << std::endl;
-
-    for (particleBlock::const_iterator iter = (glt_algos[0]).begin(); 
-    iter != (glt_algos[0]).end(); 
-    iter++ ) {
-
-    // TODO test here
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** ITERATOR " << *iter 
-        << std::endl;
-        
-//        (*glt_particleConditions[0])[(*iter)] = new L1GlobalTriggerMuonTemplate( (*iter) );
-    }
-    
-    // non-isolated electron particle blocks
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL: Building Non Isolated Electron Particle Condition Blocks" 
-        << std::endl;
-    
-    for (particleBlock::const_iterator iter = (glt_algos[1]).begin(); 
-        iter != (glt_algos[1]).end();  
-        iter++ ) {
-        
-//        (*glt_particleConditions[1])[(*iter)] = new L1GlobalTriggerCaloTemplate( (*iter) ); 
-    }
-            
-    // isolated electron particle blocks
-   
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL: Building Isolated Electron Particle Condition Blocks" 
-        << std::endl;
-    
-    for (particleBlock::const_iterator iter = (glt_algos[2]).begin(); 
-        iter != (glt_algos[2]).end(); 
-        iter++ ) {
-
-//        (*glt_particleConditions[2])[(*iter)] = new L1GlobalTriggerCaloTemplate( (*iter) ); 
-    }
-        
-    // central jet particle blocks
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL: Building Central Jet Particle Condition Blocks" 
-        << std::endl;
-    
-    for (particleBlock::const_iterator iter = (glt_algos[3]).begin(); 
-        iter != (glt_algos[3]).end(); 
-        iter++ ) {
-        
-//        (*glt_particleConditions[3])[(*iter)] = new L1GlobalTriggerCaloTemplate( (*iter) ); 
-    }
-        
-    // forward jet particle blocks
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL: Building Forward Jet Particle Condition Blocks" 
-        << std::endl;
-    
-    for (particleBlock::const_iterator iter = (glt_algos[4]).begin(); 
-        iter != (glt_algos[4]).end(); 
-        iter++ ) {
-    
-//        (*glt_particleConditions[4])[(*iter)] = new L1GlobalTriggerCaloTemplate( (*iter) ); 
-    }
-        
-    // tau jet particle blocks
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL: Building Tau Jet Particle Condition Blocks" 
-        << std::endl;
-    
-    for (particleBlock::const_iterator iter = (glt_algos[5]).begin(); 
-        iter != (glt_algos[5]).end(); 
-        iter++ ) {
-        
-//        (*glt_particleConditions[5])[(*iter)] = new L1GlobalTriggerCaloTemplate( (*iter) ); 
-    }
- 
-    // total Et condition blocks
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL: Building Total Et Condition Blocks" 
-        << std::endl;
-    
-    for (particleBlock::const_iterator iter = (glt_algos[6]).begin(); 
-        iter != (glt_algos[6]).end(); 
-        iter++ ) { 
-        
-//        (*glt_particleConditions[6])[(*iter)] = new L1GlobalTriggerEsumsTemplate( (*iter) );
-    }
-
-    // missing Et condition blocks
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL: Building Missing Et Condition Blocks" 
-        << std::endl;
-    
-    for (particleBlock::const_iterator iter = (glt_algos[7]).begin();
-        iter != (glt_algos[7]).end(); 
-        iter++ ) {         
-        
-//        (*glt_particleConditions[7])[(*iter)] = new L1GlobalTriggerEsumsTemplate( (*iter) );
-    }
-    
-    // total hadron Et condition blocks
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL: Building TotalHadron Et Condition Blocks" 
-        << std::endl;
-    
-    for (particleBlock::const_iterator iter = (glt_algos[8]).begin();
-        iter != (glt_algos[8]).end(); 
-        iter++ ) {         
-        
-//        (*glt_particleConditions[8])[(*iter)] = new L1GlobalTriggerEsumsTemplate( (*iter) );
-    }
-    
-    // jet counts condition blocks
-    edm::LogInfo("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL: Building Jet Counts Condition Blocks" 
-        << std::endl;
-
-    for (particleBlock::const_iterator iter = (glt_algos[9]).begin(); 
-        iter != (glt_algos[9]).end(); 
-        iter++ ) {
-        
-//        (*glt_particleConditions[9])[(*iter)] = new L1GlobalTriggerJetCountsTemplate( (*iter) );
-    }
-}
-
-

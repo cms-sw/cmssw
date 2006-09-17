@@ -13,8 +13,8 @@
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -29,6 +29,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 
 // forward declarations
+class L1GlobalTrigger;
 
 // class declaration
 class L1GlobalTriggerCaloTemplate : public L1GlobalTriggerConditions 
@@ -37,7 +38,7 @@ class L1GlobalTriggerCaloTemplate : public L1GlobalTriggerConditions
 public:
 
     // constructor
-    L1GlobalTriggerCaloTemplate(const std::string &name);
+    L1GlobalTriggerCaloTemplate(const L1GlobalTrigger&, const std::string&);
     
     // copy constructor
     L1GlobalTriggerCaloTemplate( const L1GlobalTriggerCaloTemplate& );
@@ -70,9 +71,9 @@ public:
     enum ParticleType {
         EG=0,
         IEG,
-        JET,
-        FWDJET,
-        TAU
+        CJET,
+        FJET,
+        TJET
     };       
    
     // set functions
@@ -88,13 +89,6 @@ public:
  
 //    virtual const bool blockCondition() const;
     const bool blockCondition() const;
-
-    // help for conversion FIERRO units to ORCA unit in eta 
-    // TODO can be done differently?  
-    const int etaconv(int eta1) const;
-    const int etaconvwind(int eta1) const;
-    const int etaconvv   (int eta1) const;
-    const int etaconvvtt (int eta1) const;
 
     // print thresholds
     void printThresholds() const;

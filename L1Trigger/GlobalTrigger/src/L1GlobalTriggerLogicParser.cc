@@ -10,8 +10,8 @@
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -23,21 +23,24 @@
 #include <stack>
 
 // user include files
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
-//#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 // constructor
-L1GlobalTriggerLogicParser::L1GlobalTriggerLogicParser(const std::string &name)
-    : L1GlobalTriggerConditions(name) {
+L1GlobalTriggerLogicParser::L1GlobalTriggerLogicParser(
+    const L1GlobalTrigger& gt,
+    const std::string& name)
+    : L1GlobalTriggerConditions(gt, name) {
         
-    LogDebug ("Trace") << "****Entering " << __PRETTY_FUNCTION__ 
-        << " name= " << p_name << std::endl;
+//    LogDebug ("Trace") << "****Entering " << __PRETTY_FUNCTION__ 
+//        << " name= " << p_name << std::endl;
     p_expression.clear();
     p_rpnexpression.clear();
-    p_operandmap = NULL;
+    p_operandmap = 0;
     p_rpnvector.clear();
     p_nummap = 0;
 
@@ -126,7 +129,7 @@ L1GlobalTriggerLogicParser::OperationType
     // check if a operand exists in the operandmap
     if (actoperation == OP_OPERAND) {
         
-        tokenrpn.operand = NULL;
+        tokenrpn.operand = 0;
         for (unsigned int ui = 0; ui < p_nummap; ui++) {
             if (p_operandmap[ui].count(tokenstr) != 0) {	// TODO: unique test?
                 tokenrpn.operand = p_operandmap[ui][tokenstr];    // fill in the operand
@@ -134,12 +137,12 @@ L1GlobalTriggerLogicParser::OperationType
         }
         
         // if no operand found with this name
-        if (tokenrpn.operand==NULL) {
+        if (tokenrpn.operand==0) {
             return OP_INVALID;
         }
 
     } else {
-        tokenrpn.operand=NULL;
+        tokenrpn.operand=0;
     }
 
     tokenrpn.operation = actoperation;
@@ -154,7 +157,7 @@ L1GlobalTriggerLogicParser::OperationType
  *
  * @param t The type of the operation.
  *
- * @return The reference to the entry or NULL if the Rule was not found.
+ * @return The reference to the entry or 0 if the Rule was not found.
  *
  */
 
@@ -168,7 +171,7 @@ const L1GlobalTriggerLogicParser::OperationRule*
     }
 
     if (p_operationrules[i].optype == OP_NULL) {
-        return NULL;
+        return 0;
     }
     
     return &(p_operationrules[i]);
@@ -509,15 +512,15 @@ const bool L1GlobalTriggerLogicParser::blockCondition() const {
 void L1GlobalTriggerLogicParser::printThresholds() const {
 
     edm::LogVerbatim("L1GlobalTriggerLogicParser") 
-        << "L1GlobalTriggerLogicParser: Threshold values " << std::endl;
+        << "\nL1GlobalTriggerLogicParser: Threshold values " << std::endl;
     edm::LogVerbatim("L1GlobalTriggerLogicParser") 
-        << "Condition Name:     " << getName() << std::endl;
+        << "  Condition Name:     " << getName() << std::endl;
     edm::LogVerbatim("L1GlobalTriggerLogicParser") 
-        << "Output pin:         " << getOutputPin() << std::endl;
+        << "  Output pin:         " << getOutputPin() << std::endl;
     edm::LogVerbatim("L1GlobalTriggerLogicParser") 
-        << "Expression:         " << p_expression << std::endl;
+        << "  Expression:         " << p_expression << std::endl;
     edm::LogVerbatim("L1GlobalTriggerLogicParser") 
-        << "Postfix expression: " << p_rpnexpression << std::endl 
+        << "  Postfix expression: " << p_rpnexpression << "\n "<< std::endl 
         << std::endl;
 }
 

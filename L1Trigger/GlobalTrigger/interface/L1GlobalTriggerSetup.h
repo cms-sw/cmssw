@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
+class L1GlobalTrigger;
 class L1GlobalTriggerConfig;
 
 // class interface
@@ -32,7 +33,7 @@ class L1GlobalTriggerSetup
 public:
 
     // constructor
-	L1GlobalTriggerSetup(const edm::ParameterSet&);
+	L1GlobalTriggerSetup(L1GlobalTrigger&, const edm::ParameterSet&);
     
     // destructor
 	virtual ~L1GlobalTriggerSetup();
@@ -51,6 +52,8 @@ public:
     
 private:
     
+    L1GlobalTrigger& m_GT;
+
     static const edm::ParameterSet* m_pSet;
     static L1GlobalTriggerConfig* m_gtConfig;
     

@@ -10,8 +10,8 @@
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -26,21 +26,22 @@
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
-//#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
+
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-
 
 // forward declarations
 
 // constructor
 L1GlobalTriggerJetCountsTemplate::L1GlobalTriggerJetCountsTemplate(
-    const std::string &name)
-    : L1GlobalTriggerConditions(name) {
+    const L1GlobalTrigger& gt,
+    const std::string& name)
+    : L1GlobalTriggerConditions(gt, name) {
 
-    LogDebug ("Trace") 
-        << "****Entering " << __PRETTY_FUNCTION__ << " name= " << p_name << std::endl;
+//    LogDebug ("Trace") 
+//        << "****Entering " << __PRETTY_FUNCTION__ << " name= " << p_name << std::endl;
 
 }
 
@@ -56,7 +57,7 @@ void L1GlobalTriggerJetCountsTemplate::copy(const L1GlobalTriggerJetCountsTempla
 
 L1GlobalTriggerJetCountsTemplate::L1GlobalTriggerJetCountsTemplate(
     const L1GlobalTriggerJetCountsTemplate& cp) 
-    : L1GlobalTriggerConditions(cp.p_name) {
+    : L1GlobalTriggerConditions(cp.m_GT, cp.p_name) {
 
     copy(cp);
 
@@ -71,7 +72,9 @@ L1GlobalTriggerJetCountsTemplate::~L1GlobalTriggerJetCountsTemplate() {
 L1GlobalTriggerJetCountsTemplate& L1GlobalTriggerJetCountsTemplate::operator= (
     const L1GlobalTriggerJetCountsTemplate& cp) {
 
+//    m_GT = cp.m_GT; // TODO uncomment ???
     copy(cp);
+
     return *this;
 }
 
@@ -98,8 +101,7 @@ void L1GlobalTriggerJetCountsTemplate::setConditionParameter(
 
 const bool L1GlobalTriggerJetCountsTemplate::blockCondition() const {
 
-//    L1GctJetCounts* jetNr = PSB()->getCountList();
-    L1GctJetCounts* jetNr = 0; // TODO un-comment
+    L1GctJetCounts* jetNr = m_GT.gtPSB()->getJetCountsList();
 
     const unsigned int nJetCounts = L1GlobalTriggerReadoutRecord::NumberL1JetCounts;
      
@@ -121,19 +123,25 @@ const bool L1GlobalTriggerJetCountsTemplate::blockCondition() const {
   
 void L1GlobalTriggerJetCountsTemplate::printThresholds() const {
 
-    std::cout << "L1GlobalTriggerJetCountsTemplate: Threshold values " << std::endl;
-    std::cout << "Condition Name: " << getName() << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") 
+        << "L1GlobalTriggerJetCountsTemplate: Threshold values " << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") 
+        << "Condition Name: " << getName() << std::endl;
 
-    std::cout << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") << std::endl;
 
-    std::cout << "Greater equal bit:    " << p_ge_eq << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") 
+        << "Greater equal bit:    " 
+        << p_ge_eq << std::endl;
 
-    std::cout << "et_threshold          " << 
+    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") 
+        << "et_threshold          " << 
         std::hex << p_conditionparameter.et_threshold << std::endl; 
-    std::cout << "type		         " 
+    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") 
+        << "type		         " 
         << std::dec << p_conditionparameter.type << std::endl; 
 
     //reset to decimal output
-    std::cout << std::dec << std::endl;
+    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") << std::dec << std::endl;
         
 }

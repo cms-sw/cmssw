@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  * The CMSSW implementation of the L1 Global Trigger emulator
  * uses concepts and code from the ORCA L1 Global Trigger simulation,
@@ -37,9 +37,9 @@
 
 // forward classes
 class L1GlobalTriggerSetup;
-//class L1GlobalTriggerPSB;
+class L1GlobalTriggerPSB;
 class L1GlobalTriggerGTL;
-//class L1GlobalTriggerFDL;
+class L1GlobalTriggerFDL;
 class L1GlobalTriggerReadoutRecord;
 
 
@@ -56,19 +56,24 @@ public:
 
     // return pointer to setup
     inline const L1GlobalTriggerSetup* gtSetup() const { return m_gtSetup; }    
+
+    // return pointer to PSB
+    inline const L1GlobalTriggerPSB* gtPSB() const { return m_gtPSB; }
   
-    
+    // return pointer to GTL
+    inline const L1GlobalTriggerGTL* gtGTL() const { return m_gtGTL; }
+  
+    // return pointer to FDL
+    inline const L1GlobalTriggerFDL* gtFDL() const { return m_gtFDL; }
+      
 private:
 
     static L1GlobalTriggerSetup* m_gtSetup;
 
-//    L1GlobalTriggerPSB* m_gtPSB;
+    L1GlobalTriggerPSB* m_gtPSB;
     L1GlobalTriggerGTL* m_gtGTL;
-//    L1GlobalTriggerFDL* m_gtFDL;
-    
-    
-    
+    L1GlobalTriggerFDL* m_gtFDL;
+        
 };
-
 
 #endif /*GlobalTrigger_L1GlobalTrigger_h*/

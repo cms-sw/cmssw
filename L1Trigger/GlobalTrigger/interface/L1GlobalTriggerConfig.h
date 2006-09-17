@@ -13,8 +13,8 @@
  * \author  M. Eder      - HEPHY Vienna - ORCA version
  * \author  Vasile Ghete - HEPHY Vienna - CMSSW version
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -36,16 +36,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
+class L1GlobalTrigger;
 
 
 XERCES_CPP_NAMESPACE_USE
 
+// class declaration
 class L1GlobalTriggerConfig {
 
 public:
 
     // constructors
-    L1GlobalTriggerConfig(std::string&, std::string&);
+    L1GlobalTriggerConfig(L1GlobalTrigger*, std::string&, std::string&);
      
     // destructor 
     virtual ~L1GlobalTriggerConfig();
@@ -55,8 +57,10 @@ public:
     // number of maximum chips defined in the xml file
     static const unsigned int max_chips = 2;
     // number of maximum pins
-    static const unsigned int max_pins = L1GlobalTriggerReadoutRecord::NumberPhysTriggers;	
-    
+    static const unsigned int max_pins = L1GlobalTriggerReadoutRecord::NumberPhysTriggers;	    
+    // number of input modules: 2 (GMT, GCT)
+    static const unsigned int NumberInputModules = 2;  
+
     // map containing the conditions from the xml file
     typedef std::map<std::string, L1GlobalTriggerConditions*> ConditionsMap;
     ConditionsMap conditionsmap[max_chips];
@@ -75,23 +79,21 @@ public:
 
     virtual void parseTriggerMenu(std::string&, std::string&);
     
-////    // return mask to block output pins
-////    inline const std::bitset<max_pins>& triggerMask() const { return p_triggermask; }
+    // return / set mask to block output pins
+    inline const std::bitset<max_pins>& getTriggerMask() const { return p_triggermask; }
+    void setTriggerMask(std::bitset<max_pins> trigMask) { p_triggermask = trigMask; }
 
-    // return mask to block input: bit 1 GMT, bit 2 GCT
-    inline const std::bitset<2>& inputMask() const { return p_inputmask; }
+    // return / set mask to block input: bit 0 GCT, bit 1 GMT 
+    inline const std::bitset<NumberInputModules>& getInputMask() const { return p_inputmask; }
+    void setInputMask(std::bitset<NumberInputModules> inMask) { p_inputmask = inMask; }
 
     // return time of the vme bus preamble
     inline double getVmePreambleTime() const { return p_vmePreambleTime; }
     
 private:
 
-////     //for compatibility with the old configuration system
-////     //maybe this should be moved to a seperate independent configuration object
-////     std::bitset<max_pins> p_triggermask;
-
-    // TODO is this really needed?
-    std::bitset<2> p_inputmask;
+    std::bitset<max_pins> p_triggermask;
+    std::bitset<NumberInputModules> p_inputmask;
  
     // strings for the xml-syntax
     static const std::string xml_condition_attr_condition;
@@ -214,7 +216,8 @@ private:
     // get the version of the xml file
     int checkVersion(XercesDOMParser* parser);
 
-    // get bit from a bit node
+    // get bit from a bit node        menuDir = m_pSet->getParameter<std::string>("triggerMenu");    
+    
     int getBitFromNode(DOMNode* node);    
 
     // get mip and iso bits from a muon
@@ -286,6 +289,9 @@ private:
         
     // print all thresholds from conditions
     void printThresholds();
+    
+    L1GlobalTrigger* m_GT;
+    
 
 };
 

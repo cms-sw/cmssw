@@ -13,8 +13,8 @@
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -27,20 +27,22 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
 
 // forward declarations
+class L1GlobalTrigger;
 
+// class declaration 
 class L1GlobalTriggerLogicParser : public L1GlobalTriggerConditions
 {
 
 public:
 
     /// constructor
-    L1GlobalTriggerLogicParser(const std::string& name);
+    L1GlobalTriggerLogicParser(const L1GlobalTrigger&, const std::string& name);
 
     /// destructor
     virtual ~L1GlobalTriggerLogicParser();
 
 //    /// get candidates (we need no candidates for an algo)
-//    virtual L1TriggerObject* getCandidate( int i ) const {return NULL; }
+//    virtual L1TriggerObject* getCandidate( int i ) const {return 0; }
 
     ///
     virtual const bool blockCondition() const;
@@ -84,7 +86,7 @@ private:
 
       ///we need to define constructors and copy-operation to use this with vector and stack
       //constructor
-      TokenRPN() { operation=OP_NULL; operand=NULL; }
+      TokenRPN() { operation=OP_NULL; operand=0; }
       ///copy-constructor
       TokenRPN( const TokenRPN& cp ) { operation=cp.operation; operand=cp.operand; }
       ///copy assignmend

@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -30,7 +30,11 @@
 // forward declarations
 
 // constructor
-L1GlobalTriggerSetup::L1GlobalTriggerSetup(const edm::ParameterSet& iConfig) {
+L1GlobalTriggerSetup::L1GlobalTriggerSetup(
+    L1GlobalTrigger& gt, 
+    const edm::ParameterSet& iConfig) 
+    : m_GT(gt)
+    {
     LogDebug ("Trace") << "Entering " << __PRETTY_FUNCTION__ << std::endl; 
     
     m_pSet = &iConfig;
@@ -58,7 +62,9 @@ void L1GlobalTriggerSetup::setTriggerMenu(std::string& menuDir) {
     std::string defXmlFile = f1.fullPath();
     
     if (f1.isLocal()) {
-        std::cout << "FileInPath: XML configuration file: \n  " << defXmlFile << std::endl;        
+        LogDebug("L1GlobalTriggerSetup") 
+            << "FileInPath: XML configuration file: \n  " << defXmlFile 
+            << std::endl;        
 	} else {
         // FileInPath throw exception if the file is not found;
         // here the exception is thrown only if the file was deleted in the meantime
@@ -76,7 +82,9 @@ void L1GlobalTriggerSetup::setTriggerMenu(std::string& menuDir) {
         vmeXmlFile = f2.fullPath();
 
         if (f2.isLocal()) {
-            std::cout << "FileInPath: XML File for VME-bus preamble: \n  " << vmeXmlFile << std::endl;        
+            LogDebug("L1GlobalTriggerSetup") 
+                << "FileInPath: XML File for VME-bus preamble: \n  " << vmeXmlFile 
+                << std::endl;        
         } else {
             // FileInPath throw exception if the file is not found;
             // here the exception is thrown only if the file was deleted in the meantime
@@ -87,7 +95,38 @@ void L1GlobalTriggerSetup::setTriggerMenu(std::string& menuDir) {
     } 
 
     // get the new trigger configuration
-    if(!m_gtConfig) m_gtConfig = new L1GlobalTriggerConfig(defXmlFile, vmeXmlFile);
+    if(!m_gtConfig) m_gtConfig = new L1GlobalTriggerConfig(&m_GT, defXmlFile, vmeXmlFile);
+
+    // set the input mask: bit 0 GCT, bit 1 GMT
+    // one converts from vector as there is no "bitset" parameter type
+    std::vector<unsigned int> inMaskV = m_pSet->getParameter<std::vector<unsigned int> >("inputMask");
+    
+    std::bitset<L1GlobalTriggerConfig::NumberInputModules> inMask;
+    for (unsigned int i = 0; i < L1GlobalTriggerConfig::NumberInputModules; ++i) {
+		if ( inMaskV[i] ) inMask.set(i);
+	}
+    
+    m_gtConfig->setInputMask(inMask);
+
+    if ( m_gtConfig->getInputMask()[0] ) {
+
+        edm::LogVerbatim("L1GlobalTriggerSetup") 
+            << "\n**** Calorimeter input disabled! \n     inputMask[0] = " 
+            << m_gtConfig->getInputMask()[0] 
+            << "     All candidates empty." << "\n**** \n"
+            << std::endl;
+    } 
+    
+    if ( m_gtConfig->getInputMask()[1] ) {
+
+        edm::LogVerbatim("L1GlobalTriggerSetup") 
+            << "\n**** Global Muon input disabled! \n  inputMask[1] = " 
+            << m_gtConfig->getInputMask()[1]
+            << "     All candidates empty." << "\n**** \n"
+            << std::endl;
+    }     
+    
+    // TODO FIXME add triggerMask stuff
             
 }
 

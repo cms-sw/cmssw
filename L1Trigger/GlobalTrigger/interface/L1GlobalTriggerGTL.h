@@ -12,8 +12,8 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -36,7 +36,8 @@ class L1GlobalTriggerConditions;
 class L1GlobalTriggerConfig;
 
 // class declaration
-class L1GlobalTriggerGTL {
+class L1GlobalTriggerGTL 
+{
 
 public:
 
@@ -52,7 +53,7 @@ public:
     
     typedef std::vector<L1MuGMTCand*> GMTVector;
 
-    // TODO why is particleBlock a set of unsigned int instead of std::string?
+    // TODO particleBlock: set of unsigned int instead of std::string?
     typedef std::set<unsigned int> particleBlock; 
 //    typedef std::set<std::string> particleBlock; 
 
@@ -74,7 +75,7 @@ public:
     void reset(); 
     
     /// print received Muon dataWord
-    void print() const;
+    void printGmtData() const;
 
     /// return decision
     inline const std::bitset<L1GlobalTriggerReadoutRecord::NumberPhysTriggers>& getDecision() const { return glt_decision; }
@@ -121,12 +122,8 @@ public:
 
     /// return global muon trigger candidate  
     inline const GMTVector* getMuonCandidates() const { return glt_muonCand; }
-
-private:
     
-    void defineConditions();
-
- private:
+private:
 
     const L1GlobalTrigger& m_GT;
 

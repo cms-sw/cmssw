@@ -10,8 +10,8 @@
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -23,13 +23,19 @@
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // constructor
-L1GlobalTriggerConditions::L1GlobalTriggerConditions(const std::string& name) {
+L1GlobalTriggerConditions::L1GlobalTriggerConditions(
+    const L1GlobalTrigger& gt, const std::string& name) 
+    :m_GT(gt) 
+    {
 
-    LogDebug ("Trace") << "Entering " << __PRETTY_FUNCTION__ << std::endl; 
+//    LogDebug ("Trace") << "Entering " << __PRETTY_FUNCTION__ 
+//        << " condition name: " << name 
+//        << std::endl; 
     
      p_name = name; 
      p_lastresult = false;
@@ -37,11 +43,12 @@ L1GlobalTriggerConditions::L1GlobalTriggerConditions(const std::string& name) {
 }
 
 // copy constructor
-L1GlobalTriggerConditions::L1GlobalTriggerConditions(L1GlobalTriggerConditions& cp) {
+L1GlobalTriggerConditions::L1GlobalTriggerConditions(L1GlobalTriggerConditions& cp) 
+    : m_GT(cp.m_GT)
+    {
 
     p_name = cp.getName(); 
-    
-    
+        
 } 
 
 // destructor

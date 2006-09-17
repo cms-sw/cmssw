@@ -13,8 +13,8 @@
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -30,16 +30,16 @@
 
  
 // forward declarations
-//class L1GlobalTriggerGTL;
-//class L1GlobalTrigger;
+class L1GlobalTrigger;
 
+// class declaration
 class L1GlobalTriggerMuonTemplate : public L1GlobalTriggerConditions 
 {
 
 public:
 
     // constructor
-    L1GlobalTriggerMuonTemplate(const std::string &name);
+    L1GlobalTriggerMuonTemplate(const L1GlobalTrigger&, const std::string&);
   
     // copy constructor
     L1GlobalTriggerMuonTemplate( const L1GlobalTriggerMuonTemplate& );
@@ -48,12 +48,10 @@ public:
     virtual ~L1GlobalTriggerMuonTemplate();
   
     // assign operator
-    L1GlobalTriggerMuonTemplate& operator = (const L1GlobalTriggerMuonTemplate&);
+    L1GlobalTriggerMuonTemplate& operator= (const L1GlobalTriggerMuonTemplate&);
 
-// TODO correct it  when GTL available
     // load muon candidates
-//    L1MuGMTCand* getCandidate( int indexCand ) const { return (*glt_gt.GTL()->getMuonCandidates())[indexCand]; }
-    L1MuGMTCand* getCandidate( int indexCand ) const { return 0;}
+    L1MuGMTCand* getCandidate( int indexCand ) const;
 
 public:
 
