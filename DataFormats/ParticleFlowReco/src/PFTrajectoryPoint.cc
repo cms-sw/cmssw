@@ -54,8 +54,9 @@ std::ostream& reco::operator<<(std::ostream& out,
 
   out<<"Traj point id = "<<trajPoint.detId()
      <<", layer = "<<trajPoint.layer()
-     <<"Eta,Phi = "<<posxyz.Eta()<<","<<posxyz.Phi()
-     <<"X,Y = "<<posxyz.X()<<","<<posxyz.Y();
+     <<", Eta,Phi = "<<posxyz.Eta()<<","<<posxyz.Phi()
+     <<", X,Y = "<<posxyz.X()<<","<<posxyz.Y()
+     <<", R,Z = "<<posxyz.R()<<","<<posxyz.Z();
   
   return out;
 }
