@@ -136,13 +136,12 @@ void SiPixelFedCablingMapTestWriter::beginJob( const edm::EventSetup& iSetup ) {
    cabling =  new SiPixelFedCablingMap("My map V-TEST");
   
 
-   PixelROC r1(0,1,2,3,4);
-   PixelROC r2(1,12,13,14,15);
+   PixelROC r1;
+   PixelROC r2;
 
    PixelFEDLink link(0);
    PixelFEDLink::ROCs rocs; rocs.push_back(r1); rocs.push_back(r2);
-   PixelFEDLink::Connection  con = {0, v2x8, "det_name", make_pair<int,int>(0,1), rocs };
-   link.add(con);
+   link.add(rocs);
 
    PixelFEDCabling fed(0);
    fed.addLink(link);

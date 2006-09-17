@@ -73,10 +73,14 @@ FEDRawData * PixelDataFormatter::formatData(int fedId, const Digis & digis)
 {
   vector<Word32> words;
 
+  static int allDetDigis = 0;
+  static int hasDetDigis = 0;
   SiPixelFrameConverter converter(theCablingMap, fedId);
   for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
+    allDetDigis++;
     uint32_t rawId = im->first;
     if ( !converter.hasDetUnit(rawId) ) continue;
+    hasDetDigis++;
     const DetDigis & detDigis = im->second;
     for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
       theDigiCounter++;
@@ -90,6 +94,7 @@ FEDRawData * PixelDataFormatter::formatData(int fedId, const Digis & digis)
       }
     }
   }
+  LogTrace(" allDetDigis/hasDetDigis : ") << allDetDigis<<"/"<<hasDetDigis;
 
   //
   // since digis are writted in the form og 64-bit packets

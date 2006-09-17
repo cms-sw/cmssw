@@ -3,6 +3,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <ostream>
 
@@ -85,7 +86,6 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
   }
   LogDebug(" sorted ENDCAP links: ") << str.str();
 
-
   result.reserve(36);
   int lastPannelId = -1;
   int idLink = -1;
@@ -102,27 +102,16 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
       idRoc = -1;
       link = PixelFEDLink(++idLink); // real link, to be filled
     }
-    for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
-      int rocInX, rocInY;
-      if ( (*it).type < v2x3) {    //narrow modules
-        rocInX = 0;
-        rocInY = id;
-      }
-      else {
-        if (2*id < (*it).rocIds.max()) {
-          rocInX = 0;
-          rocInY = id;
-        }
-        else {
-          rocInX = 1;
-          rocInY = (*it).rocIds.max()-id;
-        }
-      }
-      rocs.push_back( PixelROC( it->unit, id, ++idRoc, rocInX, rocInY) );
+
+    for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) { 
+     ++idRoc;
+     FrameConversion frame( *(it->name), id);
+     rocs.push_back( PixelROC( it->unit, id, idRoc, frame) );
     }
-    PixelFEDLink::Connection connection = {it->unit, it->type, it->name->name(), it->rocIds, rocs};
-    link.add( connection);
+
+    link.add( rocs);
   }
+
   if (idLink >= 0) result.push_back(link);
   return result;
 }

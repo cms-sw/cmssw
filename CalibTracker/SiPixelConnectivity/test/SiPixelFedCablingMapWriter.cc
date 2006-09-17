@@ -136,7 +136,7 @@ SiPixelFedCablingMapWriter::~SiPixelFedCablingMapWriter(){
 void SiPixelFedCablingMapWriter::beginJob( const edm::EventSetup& iSetup ) {
    edm::LogInfo("BeginJob method ");
    cabling = SiPixelFedCablingMapBuilder(pixelToFedAssociator_).produce(iSetup);
-   edm::LogInfo("PRINTING MAP:") << cabling->print(10) << endl;
+   edm::LogInfo("PRINTING MAP:") << cabling->print(4) << endl;
    edm::LogInfo("BeginJob method .. end");
 }
 

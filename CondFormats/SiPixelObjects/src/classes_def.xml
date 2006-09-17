@@ -10,7 +10,6 @@
 
   <class name="sipixelobjects::PixelFEDLink"/>
   <class name="std::vector<sipixelobjects::PixelROC>"/> 
-  <class name="std::vector<sipixelobjects::PixelFEDLink::Connection>"/>
 
   <class name="sipixelobjects::PixelFEDCabling"/>
   <class name="std::vector<sipixelobjects::PixelFEDLink>"/>

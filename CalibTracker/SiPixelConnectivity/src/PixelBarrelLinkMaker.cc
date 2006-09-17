@@ -3,6 +3,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 #include "CondFormats/SiPixelObjects/interface/ModuleType.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -96,22 +97,11 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
     PixelFEDLink link(++idLink);
     int idRoc = -1;
     for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
-       //
-       //
-       int rocInY, rocInX;
-       if (id <= 7) {
-         rocInY = id;
-         rocInX = 0;
-       }
-       else {
-         rocInY = 15-id;
-         rocInX = 1;
-       }
-       rocs.push_back( PixelROC( it->unit, id, ++idRoc, rocInX, rocInY));
+      idRoc++;
+      FrameConversion frame(*(it->name), id);
+      rocs.push_back( PixelROC( it->unit, id, idRoc, frame) ); 
     }
-    ModuleType type = it->name->isHalfModule() ?  v1x8 : v2x8;
-    PixelFEDLink::Connection connection = {it->unit, type, it->name->name(),it->rocIds, rocs};
-    link.add(connection);
+    link.add(rocs);
     result.push_back(link); 
   }
 

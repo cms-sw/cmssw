@@ -11,25 +11,33 @@
  * The Global coordinates are row and column in DetUnit.
  */
 
+
 namespace sipixelobjects {
+
+class FrameConversion;
 
 class PixelROC {
 public:
 
   /// dummy
-  PixelROC(){}
+  PixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0), 
+               theRowOffset(0),theRowSlopeSign(0), theColOffset(0), theColSlopeSign(0) 
+  { }
 
-  /// ctor with offsets in DU (units of ROC)
-  PixelROC( 
-      uint32_t du, int idDU, int idLk, 
-      int rocInX, int rocInY); 
-
-  /// id of this ROC in DetUnit (representing pixel module) according 
-  /// to PixelDatabase. 
-  int idInDetUnit() const { return theIdDU; }
+  /// ctor with DetUnit id, 
+  /// ROC number in DU (given by token passage), 
+  /// ROC number in Link (given by token passage),
+  /// conversion of this  ROC do DetUnit 
+  PixelROC( uint32_t du, int idInDU, int idLk, const FrameConversion & frame);
 
   /// return the DetUnit to which this ROC belongs to.
   uint32_t rawId() const { return theDetUnit; }
+
+  /// id of this ROC in DetUnit etermined by token path 
+  int idInDetUnit() const { return theIdDU; }
+
+  /// id of this ROC in parent Link.
+  int idInLink() const { return theIdLk; }
 
   /// local coordinates in this ROC (double column, pixelid in double column) 
   struct LocalPixel { int dcol, pxid; };
@@ -51,18 +59,7 @@ public:
   /// check if position inside this ROC
   bool inside(const GlobalPixel & gp) const { return inside(toLocal(gp)); }
 
-  bool inside(int dcol, int pxid) const;
-  /// id of this ROC in parent Link.
-  int idInLink() const { return theIdLk; }
-
-  /// x position of this ROC in DetUnit (in units of ROCs)
-  int x() const { return theRocInX; }
-
-  /// y position of this ROC in DetUnit (in units of ROCs)
-  int y() const { return theRocInY; }
-
-
-
+  /// printout for debug
   std::string print(int depth = 0) const;
 
   /// number of rows in ROC
@@ -73,12 +70,10 @@ public:
 private:
   uint32_t theDetUnit;
   int theIdDU, theIdLk;
-  int theRocInX, theRocInY; // offsets in DU (in units of ROC);
-  static int theNRows, theNCols; 
-
   int theRowOffset, theRowSlopeSign; 
   int theColOffset, theColSlopeSign; 
 
+  static int theNRows, theNCols; 
 };
 
 }

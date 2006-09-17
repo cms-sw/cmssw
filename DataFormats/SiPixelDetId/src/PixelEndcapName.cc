@@ -40,7 +40,7 @@ PixelEndcapName::PixelEndcapName(const DetId & id)
 string PixelEndcapName::name() const 
 {
   std::ostringstream stm;
-  stm <<"FPix_B:"<<thePart<<"_D:"<<theDisk<<"_BLD:"<<theBlade<<"_PNL:"<<thePannel<<"_PLQ:"<<thePlaquette;
+  stm <<"FPix_B"<<thePart<<"_D"<<theDisk<<"_BLD"<<theBlade<<"_PNL"<<thePannel<<"_PLQ"<<thePlaquette;
   return stm.str();
 }
 

@@ -114,9 +114,9 @@ string PixelBarrelName::name() const
 {
    std::ostringstream stm;
    
-   stm<<"BPix_B:"<<thePart<<"_SEC:"<<theSector<<"_LYR:"<<theLayer<<"_LDR:"<<theLadder;
+   stm<<"BPix_B"<<thePart<<"_SEC"<<theSector<<"_LYR"<<theLayer<<"_LDR"<<theLadder;
    if (halfModule) stm <<"H"; else stm <<"F";
-   stm << "_MOD:" << theModule;
+   stm << "_MOD" << theModule;
 
    return stm.str();
 }

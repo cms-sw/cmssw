@@ -4,12 +4,17 @@
 #include "CondFormats/SiPixelObjects/interface/LinearConversion.h"
 #include <boost/cstdint.hpp>
 
+class PixelEndcapName;
+class PixelBarrelName;
+
 namespace sipixelobjects {
 
 class FrameConversion {
 public:
-  FrameConversion( uint32_t detUnit, int rocIdInDetUnit);
+  FrameConversion( const PixelEndcapName & name, int rocIdInDetUnit);
+  FrameConversion( const PixelBarrelName & name, int rocIdInDetUnit);
   FrameConversion( int rowOffset, int rowSlopeSign, int colOffset, int colSlopeSign);
+
   const sipixelobjects::LinearConversion & row() const { return theRowConversion; }
   const sipixelobjects::LinearConversion & collumn() const { return theCollumnConversion;}
 

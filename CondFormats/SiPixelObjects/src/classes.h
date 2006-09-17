@@ -8,7 +8,7 @@ namespace{
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 namespace{
   std::vector<sipixelobjects::PixelROC> theROCs;
-  std::vector<sipixelobjects::PixelFEDLink::Connection> theConnections;
+//  std::vector<sipixelobjects::PixelFEDLink::Connection> theConnections;
 }
 
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
