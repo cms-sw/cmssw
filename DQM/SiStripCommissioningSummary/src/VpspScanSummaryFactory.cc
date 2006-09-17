@@ -127,7 +127,6 @@ void SummaryHistogramFactory<VpspScanAnalysis>::fill( TH1& summary_histo ) {
   }
   
   // Histogram formatting
-  generator_->format( histo_, type_, view_, level_, summary_histo );
   if ( histo_ == sistrip::VPSP_SCAN_BOTH_APVS ) {
   } else if ( histo_ == sistrip::VPSP_SCAN_APV0 ) { 
   } else if ( histo_ == sistrip::VPSP_SCAN_APV1 ) {
@@ -136,8 +135,8 @@ void SummaryHistogramFactory<VpspScanAnalysis>::fill( TH1& summary_histo ) {
 	 << " Unexpected SummaryHisto value:"
 	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
 	 << endl;
-    return; 
   } 
+  generator_->format( sistrip::VPSP_SCAN, histo_, type_, view_, level_, gran_, summary_histo );
   
 }
 

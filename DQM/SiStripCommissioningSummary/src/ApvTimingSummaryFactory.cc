@@ -128,8 +128,8 @@ void SummaryHistogramFactory<ApvTimingAnalysis>::fill( TH1& summary_histo ) {
   }
   
   // Histogram formatting
-  generator_->format( histo_, type_, view_, level_, summary_histo );
   if ( histo_ == sistrip::APV_TIMING_TIME ) {
+    generator_->axisLabel( "Timing delay [ns]" );
   } else if ( histo_ == sistrip::APV_TIMING_MAX_TIME ) { 
   } else if ( histo_ == sistrip::APV_TIMING_DELAY ) { 
   } else if ( histo_ == sistrip::APV_TIMING_ERROR ) { 
@@ -141,8 +141,8 @@ void SummaryHistogramFactory<ApvTimingAnalysis>::fill( TH1& summary_histo ) {
 	 << " Unexpected SummaryHisto value:"
 	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
 	 << endl;
-    return; 
   } 
+  generator_->format( sistrip::APV_TIMING, histo_, type_, view_, level_, gran_, summary_histo );
   
 }
 

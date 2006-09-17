@@ -124,7 +124,6 @@ void SummaryHistogramFactory<FedCablingAnalysis>::fill( TH1& summary_histo ) {
   }
   
   // Histogram formatting
-  generator_->format( histo_, type_, view_, level_, summary_histo );
   if ( histo_ == sistrip::FED_CABLING_FED_ID ) {
   } else if ( histo_ == sistrip::FED_CABLING_FED_ID ) { 
   } else { 
@@ -132,8 +131,8 @@ void SummaryHistogramFactory<FedCablingAnalysis>::fill( TH1& summary_histo ) {
 	 << " Unexpected SummaryHisto value:"
 	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
 	 << endl;
-    return; 
   } 
+  generator_->format( sistrip::FED_CABLING, histo_, type_, view_, level_, gran_, summary_histo );
   
 }
 

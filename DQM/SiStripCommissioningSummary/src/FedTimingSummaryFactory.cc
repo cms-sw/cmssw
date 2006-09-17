@@ -135,7 +135,6 @@ void SummaryHistogramFactory<FedTimingAnalysis>::fill( TH1& summary_histo ) {
   }
   
   // Histogram formatting
-  generator_->format( histo_, type_, view_, level_, summary_histo );
   if ( histo_ == sistrip::FED_TIMING_TIME ) {
   } else if ( histo_ == sistrip::FED_TIMING_MAX_TIME ) { 
   } else if ( histo_ == sistrip::FED_TIMING_DELAY ) { 
@@ -148,8 +147,8 @@ void SummaryHistogramFactory<FedTimingAnalysis>::fill( TH1& summary_histo ) {
 	 << " Unexpected SummaryHisto value:"
 	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
 	 << endl;
-    return; 
   } 
+  generator_->format( sistrip::FED_TIMING, histo_, type_, view_, level_, gran_, summary_histo );
   
 }
 

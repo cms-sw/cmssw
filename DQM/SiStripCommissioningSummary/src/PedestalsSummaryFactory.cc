@@ -66,7 +66,17 @@ uint32_t SummaryHistogramFactory<PedestalsAnalysis>::extract( const map<uint32_t
   generator_->clearMap();
   map<uint32_t,PedestalsAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    if ( histo_ == sistrip::PEDESTALS_MEAN ) {
+    if ( histo_ == sistrip::PEDESTALS_ALL_STRIPS ) {
+      uint16_t bins = 0;
+      if ( iter->second.peds()[0].size() < 
+	   iter->second.peds()[1].size() ) 
+	{ bins = iter->second.peds()[0].size(); } 
+      else { bins = iter->second.peds()[0].size(); }
+      for ( uint16_t iped = 0; iped < bins; iped++ ) {
+	generator_->fillMap( level_, gran_, iter->first, iter->second.peds()[0][iped] ); 
+	generator_->fillMap( level_, gran_, iter->first, iter->second.peds()[1][iped] ); 
+      }
+    } else if ( histo_ == sistrip::PEDESTALS_MEAN ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.pedsMean()[0], iter->second.pedsSpread()[0] ); 
     } else if ( histo_ == sistrip::PEDESTALS_SPREAD ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.pedsSpread()[0] ); 
@@ -74,6 +84,16 @@ uint32_t SummaryHistogramFactory<PedestalsAnalysis>::extract( const map<uint32_t
       generator_->fillMap( level_, gran_, iter->first, iter->second.pedsMax()[0] ); 
     } else if ( histo_ == sistrip::PEDESTALS_MIN ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.pedsMin()[0] ); 
+    } else if ( histo_ == sistrip::NOISE_ALL_STRIPS ) {
+      uint16_t bins = 0;
+      if ( iter->second.noise()[0].size() < 
+	   iter->second.noise()[1].size() ) 
+	{ bins = iter->second.noise()[0].size(); } 
+      else { bins = iter->second.noise()[0].size(); }
+      for ( uint16_t inoise = 0; inoise < bins; inoise++ ) {
+	generator_->fillMap( level_, gran_, iter->first, iter->second.noise()[0][inoise] ); 
+	generator_->fillMap( level_, gran_, iter->first, iter->second.noise()[1][inoise] ); 
+      }
     } else if ( histo_ == sistrip::NOISE_MEAN ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.noiseMean()[0], iter->second.noiseSpread()[0] ); 
     } else if ( histo_ == sistrip::NOISE_SPREAD ) { 
@@ -142,11 +162,14 @@ void SummaryHistogramFactory<PedestalsAnalysis>::fill( TH1& summary_histo ) {
   }
   
   // Histogram formatting
-  generator_->format( histo_, type_, view_, level_, summary_histo );
-  if ( histo_ == sistrip::PEDESTALS_MEAN ) {
+  if ( histo_ == sistrip::PEDESTALS_ALL_STRIPS ) {
+    generator_->axisLabel( "Pedestal value [adc]" );
+  } else if ( histo_ == sistrip::PEDESTALS_MEAN ) {
   } else if ( histo_ == sistrip::PEDESTALS_SPREAD ) { 
   } else if ( histo_ == sistrip::PEDESTALS_MAX ) { 
   } else if ( histo_ == sistrip::PEDESTALS_MIN ) { 
+  } else if ( histo_ == sistrip::NOISE_ALL_STRIPS ) {
+    generator_->axisLabel( "Noise [adc]" );
   } else if ( histo_ == sistrip::NOISE_MEAN ) {
   } else if ( histo_ == sistrip::NOISE_SPREAD ) { 
   } else if ( histo_ == sistrip::NOISE_MAX ) { 
@@ -158,8 +181,8 @@ void SummaryHistogramFactory<PedestalsAnalysis>::fill( TH1& summary_histo ) {
 	 << " Unexpected SummaryHisto value:"
 	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
 	 << endl;
-    return; 
   } 
+  generator_->format( sistrip::PEDESTALS, histo_, type_, view_, level_, gran_, summary_histo );
 
 }
 

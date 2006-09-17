@@ -124,7 +124,7 @@ void SummaryHistogramFactory<T>::fill( TH1& summary_histo ) {
   } else { return; }
   
   // Histogram formatting
-  generator_->format( histo_, type_, view_, level_, summary_histo );
+  generator_->format( sistrip::UNKNOWN_TASK, histo_, type_, view_, level_, gran_, summary_histo );
   
 }
 
