@@ -1,11 +1,12 @@
 /*----------------------------------------------------------------------
-$Id: EDInputSource.cc,v 1.2 2006/04/13 22:24:08 wmtan Exp $
+$Id: EDInputSource.cc,v 1.3 2006/04/24 22:35:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace edm {
   
@@ -20,9 +21,8 @@ namespace edm {
 
   void
   EDInputSource::setRun(RunNumber_t) {
-      throw edm::Exception(edm::errors::LogicError)
+      LogWarning("IllegalCall")
         << "EDInputSource::setRun()\n"
-        << "Run number cannot be modified for an EDInputSource\n"
-        << "Contact a Framework Developer\n";
+        << "Run number cannot be modified for an EDInputSource\n";
   }
 }
