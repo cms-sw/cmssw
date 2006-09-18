@@ -123,10 +123,13 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
   //slide algo window
   for(int ibin = 0; ibin < int(samples.size())- shrink; ++ibin)
     {
-      uint32_t algosumvalue = 0;
-	for(unsigned int i = 0; i < weights_.size(); i++)
-	  {algosumvalue += uint32_t(samples[ibin+1] * weights_[i]);}//add up value * scale factor
-      sum[ibin] = algosumvalue;//assign value to sum[]
+      int algosumvalue = 0;
+      for(unsigned int i = 0; i < weights_.size(); i++) {
+	algosumvalue += int(samples[ibin+i] * weights_[i]);
+      }//add up value * scale factor
+      if (algosumvalue<0) sum[ibin]=0; // low-side
+      else if (algosumvalue>0x3FF) sum[ibin]=0x3FF;  //high-side
+      else sum[ibin] = algosumvalue;//assign value to sum[]
     }
 
   //Do peak finding if requested
