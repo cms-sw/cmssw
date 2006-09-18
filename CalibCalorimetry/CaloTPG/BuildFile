@@ -1,0 +1,11 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=CalibFormats/CaloTPG>
+<flags SEAL_PLUGIN_NAME="CalibCalorimetryCaloTPG">
+<export>
+   <lib name=CalibCalorimetryCaloTPG>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+</export>
