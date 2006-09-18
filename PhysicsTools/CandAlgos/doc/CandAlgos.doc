@@ -46,13 +46,13 @@ Examples of configuration for this module are the following:
 \htmlonly
 <pre>
   module goodMuons = CandSelector {
-    string src = "allMuons"
+    InputTag src = allMuons
     string cut = "pt > 5.0"
     bool filter = false
   }
 
   module goodZ = CandSelector {
-    string src = "allZ"
+    InputTag src = allZ
     string cut = "86.0 < mass < 96.0"
     bool filter = false
   }
@@ -76,7 +76,7 @@ Example of configuration for this module is the following:
 \htmlonly
 <pre>
   module Ztoll = CandMerger {
-    vstring src = { "Ztoee", "Ztomumu" }
+    vInputTag src = { Ztoee, Ztomumu }
   }
 </pre>
 \endhtmlonly
