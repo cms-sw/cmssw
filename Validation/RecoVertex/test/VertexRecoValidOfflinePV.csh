@@ -3,7 +3,7 @@
 eval `scramv1 runtime -csh`
 
 pushd ../
-#scramv1 b -r
+scramv1 b -r
 popd
 
 echo "===========> Validating Offline Primary Vertex Reco with 10-muon samples......."
