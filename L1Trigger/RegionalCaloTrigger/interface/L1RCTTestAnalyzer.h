@@ -13,14 +13,14 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id$
+// $Id: L1RCTTestAnalyzer.h,v 1.1 2006/07/18 21:48:47 jleonard Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-
+#include <iostream>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
