@@ -57,7 +57,7 @@ public:
   virtual 
   AlgoProductCollection refitTracks( const edm::Event& event, const edm::EventSetup& setup );
 
-private:
+protected:
 
   TrackProducerAlgorithm theRefitterAlgo;
 
