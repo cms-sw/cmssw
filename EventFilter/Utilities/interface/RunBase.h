@@ -1,4 +1,4 @@
-#include "xdata/include/xdata/UnsignedLong.h"
+#include "xdata/include/xdata/UnsignedInteger32.h"
 #include <string>
 
 namespace evf
@@ -6,7 +6,7 @@ namespace evf
   class RunBase
     {
     public:
-      static xdata::UnsignedLong runNumber_;
+      static xdata::UnsigneInteger32 runNumber_;
       static std::string sourceId_;
     };
 
