@@ -1,0 +1,103 @@
+//-------------------------------------------------
+//
+/**  \class DTTrigFineSync
+ *
+ *   Analyzer used to generate BTI fine sync
+ *   parameters
+ *
+ *
+ *   $Date: 2006/09/12 $
+ *   $Revision: 1.1 $
+ *
+ *   \author C. Battilana
+ */
+//
+//--------------------------------------------------
+
+#ifndef L1Trigger_DTTrigger_DTTrigFineSync_h
+#define L1Trigger_DTTrigger_DTTrigFineSync_h
+
+// Framework related headers
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+// Muon and Trigger headers
+#include "L1Trigger/DTTrigger/interface/DTTrig.h"
+#include "Geometry/DTGeometry/interface/DTChamber.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
+
+// Root related headers
+#include "TROOT.h"
+#include "TH1F.h"
+#include "TFile.h"
+
+using namespace std;
+using namespace edm;
+
+
+//! Structure used to store sync information
+struct QualArr {
+  
+  int nHH[25];     // number of HH
+  int nHL[25];     // number of HL
+  int nBX[25][25]; // bx distribution for HH trigs
+
+};
+
+typedef map< DTChamberId,QualArr,less<DTChamberId> > DelayContainer;
+typedef DelayContainer::iterator DelayIterator;
+
+class DTTrigFineSync: public EDAnalyzer{
+
+public:
+
+  //! Constructor
+  DTTrigFineSync (const ParameterSet& pset);
+
+  //! Destructor
+  ~DTTrigFineSync();
+
+  //! Executed at the end of the job
+  void endJob();
+
+  //! Executed at the begin of the job
+  void beginJob(const EventSetup & iEventSetup);
+
+  //! Executed every on event
+  void analyze(const Event & iEvent, const EventSetup& iEventSetup);
+
+private :
+
+   // Trigger istance
+  DTTrig* MyTrig;
+
+  // Delay calculations variable
+  DelayContainer QualMap;
+
+  // Correct BX identifier
+  int CorrectBX;
+  
+  // Outputfile
+  fstream *txtfile;
+  
+  // Cfg file
+  fstream *cfgfile;
+  
+  // Root File
+  TFile *rootfile;
+
+  // time to TDC_time conversion
+  static const double myTtoTDC;
+
+  // BTI ofsett step in ns
+  double FTStep;
+
+};
+ 
+#endif
+
