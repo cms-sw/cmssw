@@ -9,6 +9,8 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
+<use name=SimDataFormats/HepMCProduct>
+<use name=clhep>
 
 <flags SEAL_PLUGIN_NAME="L1TriggerRegionalCaloTrigger">
 
@@ -24,4 +26,6 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
+<use name=SimDataFormats/HepMCProduct>
+<use name=clhep>
 </export>

@@ -65,13 +65,13 @@ void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
 //    hcalMuon.at(i) = (input.at(i+32)>>8)&1;  //
 
     ecalInput.at(i) = input.at(i)/2;
-    cout << i << " ECAL energy: " << ecalInput.at(i) << "\t";
+//    cout << i << " ECAL energy: " << ecalInput.at(i) << "\t";
     ecalFG.at(i) = input.at(i)%2;
-    cout << "FG: " << ecalFG.at(i) << "\t";
+//    cout << "FG: " << ecalFG.at(i) << "\t";
     hcalInput.at(i) = input.at(i+32)/2;
-    cout << "HCAL energy: " << hcalInput.at(i) << "\t";
+//    cout << "HCAL energy: " << hcalInput.at(i) << "\t";
     hcalMuon.at(i) = input.at(i+32)%2;
-    cout << "Muon: " << hcalMuon.at(i) << endl;
+//    cout << "Muon: " << hcalMuon.at(i) << endl;
 
     unsigned long lookup = lut.lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i));
     unsigned short etIn7Bits = lookup&127;

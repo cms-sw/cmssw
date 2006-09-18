@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTTestAnalyzer.h,v 1.1 2006/07/18 21:48:47 jleonard Exp $
+// $Id: L1RCTTestAnalyzer.h,v 1.2 2006/09/18 12:59:04 dasu Exp $
 //
 //
 
@@ -32,6 +32,7 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
+using std::string;
 using std::cout;
 using std::endl;
 
@@ -48,6 +49,7 @@ class L1RCTTestAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
+      string m_HepMCProduct;
 };
 
 //

@@ -91,25 +91,25 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
   //unsigned short x;
 
-  // ecal:
-  cout << "\n\nECAL" << endl;
-  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
+// ecal:
+//  cout << "\n\nECAL" << endl;
+//  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
   for (int i = 0; i < nEcalDigi; i++){
     short ieta = (short) ecalCollection[i].id().ieta(); 
 //     if (ecalCollection[i].compressedEt()>0) { 
-    cout << "Energy " << ecalCollection[i].compressedEt()
-	   <<" eta " << ieta; 
+//    cout << "Energy " << ecalCollection[i].compressedEt()
+//	   <<" eta " << ieta; 
 //     }
     unsigned short absIeta = (unsigned short) abs(ieta);
     unsigned short iphi = (unsigned short) ecalCollection[i].id().iphi(); 
 //     if (ecalCollection[i].compressedEt()>0) { 
-    cout << " raw phi " << iphi ; 
+//    cout << " raw phi " << iphi ; 
 //     }
     iphi = (72 + 20 - iphi) % 72;         //    transform TOWERS (not regions) into local rct (intuitive) phi bins
 //     if (ecalCollection[i].compressedEt()>0) { 
-    cout << " rct phi " << iphi << "  "; 
+//    cout << " rct phi " << iphi << "  "; 
 //     }
     unsigned short regionPhi = (iphi % 8)/4;
 
@@ -146,23 +146,23 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       barrel.at(crate).at(card).at(tower - 1) = ecalInput;        // 
     }
     else { cout << "out of range!"; }
-    cout << crate << "\t" << card << "\t" << tower << "\t" << ecalInput << endl;
+//    cout << crate << "\t" << card << "\t" << tower << "\t" << ecalInput << endl;
   }
 
-  //same for hcal, once we get the hcal digis, just need to add 32 to towers:
-  // just copied and pasted and changed names where necessary
-  cout << "\n\nHCAL" << endl;
+//same for hcal, once we get the hcal digis, just need to add 32 to towers:
+// just copied and pasted and changed names where necessary
+//  cout << "\n\nHCAL" << endl;
   cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
   for (int i = 0; i < 4176; i++){                        // ARE THERE 4032?? think not -- incl HF 4032 + 144 = 4176
     short ieta = (short) hcalCollection[i].id().ieta(); 
 //     if (hcalCollection[i].SOI_compressedEt()>0) { 
-    cout << "Energy " << hcalCollection[i].SOI_compressedEt()
- 	 << " eta " << ieta; 
+//    cout << "Energy " << hcalCollection[i].SOI_compressedEt()
+// 	 << " eta " << ieta; 
 //     }
     unsigned short absIeta = (unsigned short) abs(ieta);
     unsigned short iphi = (unsigned short) hcalCollection[i].id().iphi();
 //     if (hcalCollection[i].SOI_compressedEt()>0) { 
-    cout << " raw phi " << iphi; 
+//    cout << " raw phi " << iphi; 
 //     }
     // All Hcal primitives (including HF) are reported
     // with phi bin numbering in the range 0-72.
@@ -178,7 +178,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       iphi = iphi/4;
     }
 //     if (hcalCollection[i].SOI_compressedEt()>0) { 
-    cout << " rct phi " << iphi << "  "; 
+//    cout << " rct phi " << iphi << "  "; 
 //     }
 
     //map digis to crates, cards, and towers
@@ -219,7 +219,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       barrel.at(crate).at(card).at(tower - 1 + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
       }
       else { cout << "out of range!"; }
-      cout << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
+//      cout << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
     }
     else if ((absIeta >= 29) && (absIeta <= 32)){
       // put input into correct crate/region of HF
@@ -227,7 +227,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       hf.at(crate).at(tower) = hcalInput;
       }
       else { cout << "out of range!"; }
-      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
+//      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
     }
   }
 
