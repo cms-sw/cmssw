@@ -16,6 +16,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <iostream>
 #include <strstream>
 
 CSCFileDumper::CSCFileDumper(const edm::ParameterSet & pset){
