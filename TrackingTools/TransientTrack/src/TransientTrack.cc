@@ -13,7 +13,7 @@ using namespace reco;
 
 TransientTrack::TransientTrack( const Track & tk , const MagneticField* field) : 
   //  Track(tk), tk_(&tk), tkr_(0), stateAtVertexAvailable(false) 
-  Track(tk), tkr_(0), theField(field), stateAtVertexAvailable(false) 
+  Track(tk), tkr_(), theField(field), stateAtVertexAvailable(false) 
 {
   originalTSCP = TrajectoryStateClosestToPoint
     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
@@ -22,23 +22,21 @@ TransientTrack::TransientTrack( const Track & tk , const MagneticField* field) :
 
 TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field) : 
   //  Track(*tk), tk_(&(*tk)), tkr_(&tk), stateAtVertexAvailable(false) 
-  Track(*tk), tkr_(&tk), theField(field), stateAtVertexAvailable(false) 
+  Track(*tk), tkr_(tk), theField(field), stateAtVertexAvailable(false) 
 {
   originalTSCP = TrajectoryStateClosestToPoint
     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
 TransientTrack::TransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  //  Track(*tk), tk_(&(*tk)), tkr_(&tk), stateAtVertexAvailable(false)
-  Track(tk), tkr_(0), theField(field), stateAtVertexAvailable(false), theTrackingGeometry(tg)
+  Track(tk), tkr_(), theField(field), stateAtVertexAvailable(false), theTrackingGeometry(tg)
 {
   originalTSCP = TrajectoryStateClosestToPoint
     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
 TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  //  Track(*tk), tk_(&(*tk)), tkr_(&tk), stateAtVertexAvailable(false)
-  Track(*tk), tkr_(&tk), theField(field), stateAtVertexAvailable(false), theTrackingGeometry(tg)
+  Track(*tk), tkr_(tk), theField(field), stateAtVertexAvailable(false), theTrackingGeometry(tg)
 {
   originalTSCP = TrajectoryStateClosestToPoint
     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
@@ -57,8 +55,7 @@ TransientTrack::TransientTrack( const TransientTrack & tt ) :
 }
 
 
-TransientTrack& TransientTrack::operator=(const TransientTrack & tt)
-{
+TransientTrack& TransientTrack::operator=(const TransientTrack & tt) {
 //   std::cout << "assign op." << std::endl;
   if (this == &tt) return *this;
   //
