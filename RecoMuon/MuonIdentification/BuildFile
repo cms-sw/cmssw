@@ -1,0 +1,22 @@
+# -*-SH-*-
+<flags SEAL_PLUGIN_NAME="RecoMuonMuonIdentification">
+<use name=DataFormats/Common>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/MuonReco>
+<use name=TrackingTools/TrackAssociator>
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=boost>
+
+<export>
+   <lib name=TrackingToolsTrackAssociator>
+   <use name=DataFormats/TrackReco>
+   <use name=DataFormats/MuonReco>
+   <use name=TrackingTools/TrackAssociator>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+</export>
+   
+# add debug symbols
+# <Flags CXXFLAGS=-g>
