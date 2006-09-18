@@ -46,21 +46,18 @@ TrackAssociator::~TrackAssociator()
 //---member functions
 //
 
-RecoToSimCollection  TrackAssociator::AssociateByHitsRecoTrack(const float minHitFraction) const 
+RecoToSimCollection  TrackAssociator::associateRecoToSim(edm::Handle<reco::TrackCollection>& trackCollectionH,
+							       edm::Handle<TrackingParticleCollection>&  TPCollectionH)
 {    
 
-  
+  const float minHitFraction = 0;
   std::vector<unsigned int> SimTrackIds;
   std::vector<unsigned int> matchedIds; 
   RecoToSimCollection  outputCollection;
   
-  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  myEvent_.getByType(TPCollectionH);
   const TrackingParticleCollection tPC   = *(TPCollectionH.product());
   std::cout << "Found " << tPC.size() << " TrackingParticles" << std::endl;
 
-  edm::Handle<reco::TrackCollection> trackCollectionH;
-  myEvent_.getByType(trackCollectionH);
   const  reco::TrackCollection  tC = *(trackCollectionH.product()); 
   std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
 

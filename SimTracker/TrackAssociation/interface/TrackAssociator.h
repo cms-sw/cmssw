@@ -18,20 +18,29 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 //TrackingParticle
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
-class Track;
-class ParticleTrack;
+/* class Track; */
+/* class ParticleTrack; */
 
-class TrackAssociator  {
+class TrackAssociator : public TrackAssociatorBase {
   
  public:
   explicit TrackAssociator(const edm::Event&, const edm::ParameterSet&);  
   ~TrackAssociator();
   
 /* Associate SimTracks to RecoTracks By Hits */
-  reco::RecoToSimCollection  AssociateByHitsRecoTrack(const float minFractionOfHits = 0.) const;
+/*   reco::RecoToSimCollection  AssociateByHitsRecoTrack(const float minFractionOfHits = 0.) const; */
+
+  reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>&, 
+						edm::Handle<TrackingParticleCollection>& ) ;
+
+  reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
+						edm::Handle<TrackingParticleCollection>& ) {
+    reco::SimToRecoCollection p;
+    return p;
+  }
 
 /* Associate SimTracks to RecoTracks By Pulls */
   reco::RecoToSimCollection  AssociateByPullsRecoTrack() const;

@@ -1,29 +1,25 @@
-#ifndef TRACKASSOCIATORBYCHI2_H
-#define TRACKASSOCIATORBYCHI2_H
+#ifndef TrackAssociatorByChi2_h
+#define TrackAssociatorByChi2_h
 
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "MagneticField/Engine/interface/MagneticField.h" 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociation.h"
 
 #include<map>
 
-class TrackAssociatorByChi2 {
+class TrackAssociatorByChi2 : public TrackAssociatorBase {
 
  public:
   typedef std::map<double,  SimTrack> Chi2SimMap;
   typedef std::pair< reco::Track, Chi2SimMap> RecoToSimPair;
   typedef std::vector< RecoToSimPair > RecoToSimPairAssociation;
 
-  TrackAssociatorByChi2(const edm::EventSetup& es){
-    es.get<IdealMagneticFieldRecord>().get(theMF);  
+  TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF){
+    theMF=mF;  
   }
 
   ~TrackAssociatorByChi2(){
@@ -39,15 +35,17 @@ class TrackAssociatorByChi2 {
 					      const edm::SimTrackContainer&, 
 					      const edm::SimVertexContainer&) ;
  
-  reco::RecoToSimCollection compareTracksParam (edm::Handle<reco::TrackCollection>&, 
+  reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>&, 
 						edm::Handle<TrackingParticleCollection>& ) ;
-  
 
+  reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
+						edm::Handle<TrackingParticleCollection>& ) {
+    reco::SimToRecoCollection p;
+    return p;
+  }
 
  private:
   edm::ESHandle<MagneticField> theMF;
 };
-
-
 
 #endif

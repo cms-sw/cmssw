@@ -77,8 +77,8 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
   return outputVec;
 }
 
-#if 0
-RecoToSimCollection TrackAssociatorByChi2::compareTracksParam(edm::Handle<reco::TrackCollection>& tCH, 
+
+RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::TrackCollection>& tCH, 
 							      edm::Handle<TrackingParticleCollection>& tPCH){
 
   RecoToSimCollection  outputCollection;
@@ -94,6 +94,8 @@ RecoToSimCollection TrackAssociatorByChi2::compareTracksParam(edm::Handle<reco::
     TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
     recoTrackCovMatrix.Invert();
 
+//     cout << "Reco Track : " << rt->x() << " " << rt->y() << " " << rt->z() << " " << endl;
+
     int tpindex =0;
     for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
       for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
@@ -106,6 +108,7 @@ RecoToSimCollection TrackAssociatorByChi2::compareTracksParam(edm::Handle<reco::
 	const TrackingVertex * tv = &(*(tp->parentVertex()));
 	int vind=0;
 	for (TrackingVertex::g4v_iterator v=tv->g4Vertices_begin(); v!=tv->g4Vertices_end(); v++){
+// 	  cout << "Sim Track " << (*v)->position().x() << " " << (*v)->position().y() << " " <<(*v)->position().z() << " " << endl;
 	  if (vind==(*t)->vertIndex()) vert=GlobalPoint((*v)->position().x(),(*v)->position().y(),(*v)->position().z());
 	  vind++;
 	}
@@ -138,4 +141,4 @@ RecoToSimCollection TrackAssociatorByChi2::compareTracksParam(edm::Handle<reco::
   return outputCollection;
 
 }
-#endif
+

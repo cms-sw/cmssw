@@ -20,7 +20,7 @@
 
 class TrackerHitAssociator;
 class TrackAssociator;
-class TrackAssociatorByChi2;
+class TrackAssociatorBase;
 
 class testTrackAssociator : public edm::EDAnalyzer {
   
@@ -36,7 +36,8 @@ class testTrackAssociator : public edm::EDAnalyzer {
  private:
   edm::ParameterSet conf_;
   bool doPixel_, doStrip_; 
-  TrackAssociatorByChi2 * associator;
+  TrackAssociatorBase * associator;
+  TrackAssociatorBase * tassociator;
 };
 
 #endif
