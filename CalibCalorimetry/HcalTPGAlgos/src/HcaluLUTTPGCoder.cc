@@ -69,17 +69,19 @@ void HcaluLUTTPGCoder::loadLUTs(const char* filename){
 void HcaluLUTTPGCoder::adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const{
   const InputLUT* lut=ietaLutMap_[df.id().ietaAbs()-1];
   if (lut==0) {
-    // log warning!
+    throw cms::Exception("Missing Data") << "No LUT for " << df.id();
   } else {
-    for (int i=0; i<df.size(); i++)
+    for (int i=0; i<df.size(); i++) {
       ics[i]=(*lut)[df[i].adc()];
+      //      std::cout << df.id() << '[' << i <<']' << df[i].adc() << "->" << ics[i] << std::endl;
+    }
   }
 }
 
 void HcaluLUTTPGCoder::adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics)  const{
   const InputLUT* lut=ietaLutMap_[df.id().ietaAbs()-1];
   if (lut==0) {
-    // log warning!
+    throw cms::Exception("Missing Data") << "No LUT for " << df.id();
   } else {
     for (int i=0; i<df.size(); i++)
       ics[i]=(*lut)[df[i].adc()];
