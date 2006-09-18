@@ -1,3 +1,17 @@
+//-------------------------------------------------
+//
+//   Class: DTUtilTest
+//
+//   Description: Preliminary test class for DTUtilities
+//
+//
+//   Author List:
+//   C. Battilana
+//   Modifications: 
+//   
+//
+//--------------------------------------------------
+
 #ifndef L1Trigger_DTUtilities_DTUtilTest_h
 #define L1Trigger_DTUtilities_DTUtilTest_h
 
@@ -27,14 +41,18 @@ using namespace edm;
 
 class DTUtilTest: public EDAnalyzer{
 public:
+
+  /// Constructor
   DTUtilTest(const ParameterSet& pset){
     cout << "constructor executed!!!" << endl;
   }
 
+  /// Destructor
   ~DTUtilTest(){
     cout << "destructor executed!!!" << endl;
   }
 
+  /// Analyze function
   void analyze(const Event & event, const EventSetup& eventSetup){
     cout << "--- Run: " << event.id().run()
 	 << " Event: " << event.id().event() << endl;

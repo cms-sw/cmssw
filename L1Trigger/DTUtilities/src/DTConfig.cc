@@ -12,8 +12,9 @@
 //   12/XI/02 Sara Vanini: 4ST3 and 4RE3 parameters added instead of tmax
 //   24/III/03 Sara Vanini: traco geometry configuration parameters added
 //   10/III/04 Stefano Marcellini: sector collector and TSM back up mode added
-//   22/VI/04 SV: last trigger code update
-//   17/VI/05 SV: bti mask in traco 
+//   22/VI/04 Sara Vanini: last trigger code update
+//   17/VI/05 Sara Vanini: bti mask in traco 
+//   15/VII/06 Carlo Battilana: Bti synchronization parameters added
 //-----------------------------------------------------------------------
 
 //-----------------------
@@ -26,7 +27,7 @@
 //-------------------------------
 #include "L1Trigger/DTUtilities/interface/DTParameterValue.h"
 #include "VisFramework/VisUtilities/interface/SimpleConfigurable.h"
-//#include "Utilities/UI/interface/SimpleConfigurable.h"
+// #include "Utilities/UI/interface/SimpleConfigurable.h"
 // #include "CARF/G3Interface/interface/CMSIMHead.h"
 // #include "Utilities/Notification/interface/TimingReport.h"
 
@@ -71,7 +72,8 @@ DTConfig::DTConfig() {
   createParametersTS();
   createParametersBTInew();    //SV BTI parameters added
   createParametersTRACOnew();  //SV TRACO parameters added
-  createParametersSC();       //SM Sector Collector parameters (S. Marcellini)
+  createParametersSC();        //SM Sector Collector parameters (S. Marcellini)
+  createParametersBTISync();   //CB Trigger sync parameters
   readParameters();
 
 //pz   if( trigSetupGeom() ){
@@ -835,6 +837,20 @@ DTConfig::createParametersSC() {
  addParam(par);
  par.clear();
 
+
+}
+void
+DTConfig::createParametersBTISync() {
+
+  // create all the parameters and store them in the vectors
+  DTParameter par;
+
+  // Progammable drift delay value  - 131
+  par.setName("prdelay","Programmable Dealy");
+  par.addValidParam("0",0);
+  par.addValidParam("500",500);
+  addParam(par);
+  par.clear();
 
 }
 
