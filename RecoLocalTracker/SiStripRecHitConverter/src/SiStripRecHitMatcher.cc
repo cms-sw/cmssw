@@ -80,7 +80,7 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2D *monoRH,
 
   //error calculation (the part that depends on mono RH only)
   LocalVector  RPHIpositiononGluedendvector=projectedstripmono.second-projectedstripmono.first;
-  double c1=sin(RPHIpositiononGluedendvector.phi()); double s1=cos(RPHIpositiononGluedendvector.phi());
+  double c1=sin(RPHIpositiononGluedendvector.phi()); double s1=-cos(RPHIpositiononGluedendvector.phi());
   MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),monoRH->localPositionError());
   double sigmap12=errormonoRH.uu()*pow(topol.localPitch(monoRH->localPosition()),2);
   SimpleHitIterator seconditer;  
@@ -111,7 +111,7 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2D *monoRH,
 
     // then calculate the error
     LocalVector  stereopositiononGluedendvector=projectedstripstereo.second-projectedstripstereo.first;
-    double c2=sin(stereopositiononGluedendvector.phi()); double s2=cos(stereopositiononGluedendvector.phi());
+    double c2=sin(stereopositiononGluedendvector.phi()); double s2=-cos(stereopositiononGluedendvector.phi());
     MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPosition(),(*seconditer)->localPositionError());
     double sigmap22=errorstereoRH.uu()*pow(partnertopol.localPitch((*seconditer)->localPosition()),2);
     double invdet2=1/pow((c1*s2-c2*s1),2);
