@@ -62,7 +62,98 @@ DTTrig::DTTrig() {
     std::cout << std::endl;
   }
 
+  for(int iwh=-2;iwh<=2;iwh++){ 
+    for(int ist=1;ist<=4;ist++){ 
+      for(int ise=1;ise<=12;ise++){
+	DTChamberId chid(iwh,ist,ise);
+	// create varous config files
+	Conf_iterator cit = _localconf.find(chid);
+	if ( cit != _localconf.end()) {
+	  std::cout << "DTTrig::init: Local Config File already exists" << std::endl;
+	  continue;
+	}
+	_localconf[chid] = _config;
+      }
+    }
+  }
+  for(int iwh=-2;iwh<=2;iwh++){  
+    for(int ise=13;ise<=14;ise++){
+      int ist=4;
+      DTChamberId chid(iwh,ist,ise);
+      // create varous config files
+      Conf_iterator cit = _localconf.find(chid);
+      if ( cit != _localconf.end()) {
+	std::cout << "DTTrig::init: Local Config File already exists" << std::endl;
+	continue;
+      }
+      _localconf[chid] = _config;
+    }
+  }
+  
+
 }
+
+
+DTTrig::DTTrig(const edm::ParameterSet& pset, std::string mysync) {
+
+
+  // Set configuration parameters
+  _config = new DTConfig();
+
+  if(config()->debug()>3){
+    std::cout << std::endl;
+    std::cout << "**** Initialization of DTTrigger ****" << std::endl;
+    std::cout << std::endl;
+  }
+
+  for(int iwh=-2;iwh<=2;iwh++){ 
+    for(int ist=1;ist<=4;ist++){ 
+      for(int ise=1;ise<=12;ise++){
+	DTChamberId chid(iwh,ist,ise);
+	// create varous config files
+	Conf_iterator cit = _localconf.find(chid);
+	if ( cit != _localconf.end()) {
+	  std::cout << "DTTrig::init: Local Config File already exists" << std::endl;
+	  continue;
+	}
+	DTConfig *conf = new DTConfig();
+	std::stringstream os;
+	os << "wh" << chid.wheel()
+	   << "se" << chid.sector()
+	   << "st" << chid.station();
+	double ftdelay = pset.getParameter<double>(os.str());
+	conf->setParamValue("BTI setup time","psetdelay",ftdelay*32./25.);
+	//conf->setParam("BTI setup time","psetdelay");
+	conf->setParam("Programmable Dealy",mysync);
+	_localconf[chid] = conf;
+      }
+    }
+  }
+  for(int iwh=-2;iwh<=2;iwh++){  
+    for(int ise=13;ise<=14;ise++){
+      int ist=4;
+      DTChamberId chid(iwh,ist,ise);
+      // create varous config files
+      Conf_iterator cit = _localconf.find(chid);
+      if ( cit != _localconf.end()) {
+	std::cout << "DTTrig::init: Local Config File already exists" << std::endl;
+	continue;
+      }
+      DTConfig *conf = new DTConfig();
+      std::stringstream os;
+      os << "wh" << chid.wheel()
+	 << "se" << chid.sector()
+	 << "st" << chid.station();
+      double ftdelay = pset.getParameter<double>(os.str());
+      conf->setParamValue("BTI setup time","psetdelay",ftdelay*32./25.);
+      //conf->setParam("BTI Fine sync delay","psetdelay");
+      conf->setParam("Programmable Dealy",mysync);
+      _localconf[chid] = conf;
+    }
+  }
+  
+}
+
 
 //--------------
 // Destructor --
@@ -87,17 +178,16 @@ struct TmpSort :
 void 
 //DTTrig::createTUs(TBSetUp* run){   //SV: for TestBeams setup
 // DTTrig::createTUs(G3SetUp* run){
-DTTrig::createTUs(const edm::EventSetup& iSetup){
+DTTrig::createTUs(const edm::EventSetup& iSetup ){
   
   // build up Sector Collectors and then
   // build the trrigger units (one for each chamber)
   //     for(int iwh=1;iwh<=5;iwh++){ 
   for(int iwh=-2;iwh<=2;iwh++){ 
-    for(int ist=1;ist<=4;ist++){ 
-      
+    for(int ist=1;ist<=4;ist++){    
       for(int ise=1;ise<=12;ise++){ 
-  if(config()->debug()>3){
-    std::cout << "calling sectcollid wh st sc " << iwh << " " <<ist << " " << ise << std::endl;}
+	if(config()->debug()>3){
+	  std::cout << "calling sectcollid wh st sc " << iwh << " " <<ist << " " << ise << std::endl;}
 	DTSectCollId scid(iwh, ist, ise);
 	SC_iterator it =  _cache1.find(scid);
 	if ( it != _cache1.end()) {
@@ -106,15 +196,15 @@ DTTrig::createTUs(const edm::EventSetup& iSetup){
 	}    
 	// add a sector collector to the map
 	DTSectColl* sc = new DTSectColl( config());
-  if(config()->debug()>3){
-        std::cout << " DTTrig::createTUs new SC sc = " << sc << " at scid.station() " << scid.station() 
-	     << " at scid.sector() " << scid.sector() << " at scid.wheel() " << scid.wheel()   << std::endl;}
+	if(config()->debug()>3){
+	  std::cout << " DTTrig::createTUs new SC sc = " << sc << " at scid.station() " << scid.station() 
+		    << " at scid.sector() " << scid.sector() << " at scid.wheel() " << scid.wheel()   << std::endl;}
 	_cache1[scid] = sc; 
 	
       }
     }
   }
-
+  
   // ---------------  
   
   // build the trigger units (one for each chamber)
@@ -138,8 +228,15 @@ DTTrig::createTUs(const edm::EventSetup& iSetup){
       std::cout << "DTTrig::init: Trigger unit already exists" << std::endl;
       continue;
     }    
+    Conf_iterator cit = _localconf.find(chid);
+      if ( cit == _localconf.end()) {
+	std::cout << "DTTrig::init: Local Config File already existsnot found using default congig" << std::endl;
+	DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,config());
+	_cache[chid] = tru;
+	continue;
+      }
     // add a trigger unit to the map with a link to the station
-    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb, config());
+    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,(*cit).second);
     _cache[chid] = tru;
     
     //----------- add TU to corresponding SC
@@ -253,12 +350,12 @@ DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   //Run reconstruct for single trigger subsystem (Bti, Traco TS)
   for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
-    DTDigiCollection dummydigicoll;
+    //DTDigiCollection dummydigicoll;
     DTSCTrigUnit* thisTU=(*it).second;
     DTChamberId chid=thisTU->statId();
     DTDigiMap_iterator dmit = digiMap.find(chid);
     if (dmit !=digiMap.end()) {thisTU->BtiTrigs()->reconstruct((*dmit).second);}
-    else {thisTU->BtiTrigs()->reconstruct(dummydigicoll);}
+    else {thisTU->BtiTrigs()->clearCache();}
     thisTU->TSThTrigs()->reconstruct();
     thisTU->TracoTrigs()->reconstruct();
     thisTU->TSPhTrigs()->reconstruct();
