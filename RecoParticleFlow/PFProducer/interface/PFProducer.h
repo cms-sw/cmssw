@@ -16,7 +16,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
-
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
 
 /**\class PFProducer 
 \brief Producer for particle flow tracks, particles and 
@@ -37,6 +39,10 @@ class PFProducer : public edm::EDProducer {
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup & c);
+
+ private:
+  /// Get position of track on a given surface
+   TrajectoryStateOnSurface getStateOnSurface(PFGeometry::Surface_t iSurf, const TrajectoryStateOnSurface& tsos, const Propagator& propagator, int& side);
 
  private:
   // ----------member data ---------------------------
@@ -62,11 +68,12 @@ class PFProducer : public edm::EDProducer {
 
   // geometry, for track and particle extrapolation --------
 
-  ReferenceCountingPointer<Surface> beamPipe_;
-  ReferenceCountingPointer<Surface> ps1Wall_;
-  ReferenceCountingPointer<Surface> ps2Wall_;
-  ReferenceCountingPointer<Surface> ecalInnerWall_;
-  ReferenceCountingPointer<Surface> hcalInnerWall_;
+  //Renaud: Surfaces are now accessed from PFAlgo/interface/PFGeometry.h
+/*   ReferenceCountingPointer<Surface> beamPipe_; */
+/*   ReferenceCountingPointer<Surface> ps1Wall_; */
+/*   ReferenceCountingPointer<Surface> ps2Wall_; */
+/*   ReferenceCountingPointer<Surface> ecalInnerWall_; */
+/*   ReferenceCountingPointer<Surface> hcalInnerWall_; */
 
   // parameters for retrieving true particles information --
 
