@@ -5,7 +5,7 @@
  *   Auxiliary class to handle Look-up table files
  *
  *
- *   $Date: 2003/10/17 12:39:42 $
+ *   $Date: 2006/07/19 10:32:51 $
  *   $Revision: 1.1 $
  *
  *   \author   N. Neumeister            CERN EP
@@ -78,8 +78,8 @@ class L1TriggerLutFile {
 	std::string readString();
 
   private:
-
-    std::ifstream m_fin;	  // input file stream
+ 
+	std::ifstream m_fin;	   // input file stream
 	std::string   m_file;      // file name
 
 }; 

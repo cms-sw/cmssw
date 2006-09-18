@@ -6,19 +6,20 @@
  *   for Level-1 Muon DT Trigger 
  *
  *
- *   $Date: 2004/07/14 14:20:25 $
- *   $Revision: 1.20 $
+ *   $Date: 2006/07/19 10:32:51 $
+ *   $Revision: 1.1 $
  *
  *   \author  C. Grandi, S. Vanini, S. Marcellini, D. Bonacorsi
  *
  *   Modifications: 
- *   23/X/02  SV : AC1,AC2,ACH,ACL added
- *   12/XI/02 SV : 4ST3 and 4RE3 added
- *   15/XI/02 SV : setParamValue method added
- +   10/II/04 SM : Incluide TSM back up mode stuff
- *   22/VI/04 SV : ST43 and RE43 - digi offset moved to BtiCard
- *   27/V/05  SV : testbeam 2004 update
- *   17/VI/05 SV : bti mask in traco
+ *   23/X/02   SV : AC1,AC2,ACH,ACL added
+ *   12/XI/02  SV : 4ST3 and 4RE3 added
+ *   15/XI/02  SV : setParamValue method added
+ +   10/II/04  SM : Incluide TSM back up mode stuff
+ *   22/VI/04  SV : ST43 and RE43 - digi offset moved to BtiCard
+ *   27/V/05   SV : testbeam 2004 update
+ *   17/VI/05  SV : bti mask in traco
+ *   15/VII/06 CB: Bti synchronization parameters added
  */
 //
 //--------------------------------------------------
@@ -471,6 +472,9 @@ class DTConfig {
   //! Enabling Carry in Sector Collector (1 means enabled, 0 disabled)
   inline int  SCGetCarryFlag() const { return (int)paramValue(126); }
 
+  //! Progammable drift delay value
+  inline double  SyncDelay() const { return paramValue(131); }
+
   //! print the setup
   void print() const ;
 
@@ -506,6 +510,9 @@ private:
 
   //! Create parameters for Sector Collector - (S. Marcellini)
   void createParametersSC();
+
+  //! Create parameters for BTI synchronization
+  void createParametersBTISync();
 
   //! Read the parameters from .orcarc and set the others to the defaults
   void readParameters();

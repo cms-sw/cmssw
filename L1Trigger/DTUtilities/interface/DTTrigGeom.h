@@ -4,8 +4,8 @@
  *     Muon Barrel Trigger Geometry
  *
  *
- *   $Date: 2003/10/17 10:06:10 $
- *   $Revision: 1.12 $
+ *   $Date: 2006/07/19 10:32:51 $
+ *   $Revision: 1.1 $
  *
  *   \author C.Grandi
  *   \modifications S.Vanini
@@ -124,9 +124,7 @@ class DTTrigGeom {
     /// Go to Local coordinate system for a vector
     LocalVector toLocal(const GlobalVector v) const { return _stat->surface().toLocal(v); }
 
-    /// Local position in chamber of a BTI
-    LocalPoint localPosition(const DTBtiId) const;
-  /*!
+/*!
     \verbatim
 
     NB: attention: in NEWGEO definition has changed:
@@ -145,10 +143,10 @@ class DTTrigGeom {
          x=0
     \endverbatim
   */
+    /// Local position in chamber of a BTI
+    LocalPoint localPosition(const DTBtiId) const;
 
-    /// Local position in chamber of a TRACO
-    LocalPoint localPosition(const DTTracoId) const;
-  /*!
+ /*!
     \verbatim
 
     NB: attention: in NEWGEO definition has changed:
@@ -178,6 +176,8 @@ class DTTrigGeom {
  
    \endverbatim
    */
+    /// Local position in chamber of a TRACO
+    LocalPoint localPosition(const DTTracoId) const;
 
     /// CMS position of a BTI
     inline GlobalPoint CMSPosition(const DTBtiId obj) const { 
