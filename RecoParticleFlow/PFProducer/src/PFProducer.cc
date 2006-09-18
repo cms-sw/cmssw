@@ -1,5 +1,5 @@
 #include "RecoParticleFlow/PFProducer/interface/PFProducer.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
+// #include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
 
 // #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
@@ -29,12 +29,12 @@
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/TkRotation.h"
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
+#include "Geometry/Surface/interface/SimpleDiskBounds.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -109,44 +109,44 @@ PFProducer::beginJob(const edm::EventSetup & es)
 
 
   // initialize simple geometry
-  beamPipe_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-				TkRotation<float>(), 
-				SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::BeamPipe), 
-						     PFGeometry::innerRadius(PFGeometry::BeamPipe), 
-						     -1.*PFGeometry::outerZ(PFGeometry::BeamPipe), 
-						     PFGeometry::outerZ(PFGeometry::BeamPipe)));
+//   beamPipe_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 				TkRotation<float>(), 
+// 				SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::BeamPipe), 
+// 						     PFGeometry::innerRadius(PFGeometry::BeamPipe), 
+// 						     -1.*PFGeometry::outerZ(PFGeometry::BeamPipe), 
+// 						     PFGeometry::outerZ(PFGeometry::BeamPipe)));
   
   
 	  
-  ecalInnerWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-				     TkRotation<float>(), 
-				     SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-							  PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-							  -1.*PFGeometry::innerZ(PFGeometry::ECALEndcap), 
-							  PFGeometry::innerZ(PFGeometry::ECALEndcap)));
+//   ecalInnerWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 				     TkRotation<float>(), 
+// 				     SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 							  PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 							  -1.*PFGeometry::innerZ(PFGeometry::ECALEndcap), 
+// 							  PFGeometry::innerZ(PFGeometry::ECALEndcap)));
   
 
-  ps1Wall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-			       TkRotation<float>(), 
-			       SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-						    PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-						    -1.*PFGeometry::innerZ(PFGeometry::PS1), 
-						    PFGeometry::innerZ(PFGeometry::PS1)));
+//   ps1Wall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 			       TkRotation<float>(), 
+// 			       SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 						    PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 						    -1.*PFGeometry::innerZ(PFGeometry::PS1), 
+// 						    PFGeometry::innerZ(PFGeometry::PS1)));
   
   
-  ps2Wall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-			       TkRotation<float>(), 
-			       SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-						    PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-						    -1.*PFGeometry::innerZ(PFGeometry::PS2), 
-						    PFGeometry::innerZ(PFGeometry::PS2)));
+//   ps2Wall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 			       TkRotation<float>(), 
+// 			       SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 						    PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 						    -1.*PFGeometry::innerZ(PFGeometry::PS2), 
+// 						    PFGeometry::innerZ(PFGeometry::PS2)));
   
-  hcalInnerWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-				     TkRotation<float>(), 
-				     SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
-							  PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
-							  -1.*PFGeometry::innerZ(PFGeometry::HCALEndcap), 
-							  PFGeometry::innerZ(PFGeometry::HCALEndcap)));
+//   hcalInnerWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 				     TkRotation<float>(), 
+// 				     SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
+// 							  PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
+// 							  -1.*PFGeometry::innerZ(PFGeometry::HCALEndcap), 
+// 							  PFGeometry::innerZ(PFGeometry::HCALEndcap)));
   
   
 //   hcalOuterWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
@@ -297,6 +297,7 @@ void PFProducer::produce(Event& iEvent,
       // 			   reco::PFRecTrack::KF);
       reco::PFRecTrack track(theTrack->charge(), 
 			     reco::PFRecTrack::KF);
+      int side = 100;
 
       // Closest approach of the beamline
       math::XYZPoint posClosest(theTrack->x(), theTrack->y(), theTrack->z());
@@ -319,7 +320,9 @@ void PFProducer::produce(Event& iEvent,
 	  innerTSOS = measurements[measurements.size() - 1].updatedState();
 
 	TrajectoryStateOnSurface beamPipeTSOS = 
-	  bkwdPropagator.propagate(innerTSOS, *beamPipe_);
+	  getStateOnSurface(PFGeometry::BeamPipeWall, innerTSOS, 
+			    bkwdPropagator, side);
+	  //	  bkwdPropagator.propagate(innerTSOS, *beamPipe_);
 
 	GlobalPoint vBeamPipe  = beamPipeTSOS.globalParameters().position();
 	GlobalVector pBeamPipe = beamPipeTSOS.globalParameters().momentum();
@@ -366,8 +369,11 @@ void PFProducer::produce(Event& iEvent,
 	outerTSOS = measurements[measurements.size() - 1].updatedState();
       else
 	outerTSOS = measurements[0].updatedState();
+      int ecalSide = 100;
       TrajectoryStateOnSurface ecalTSOS = 
-	fwdPropagator.propagate(outerTSOS, *ecalInnerWall_);
+	getStateOnSurface(PFGeometry::ECALInnerWall, outerTSOS, 
+			  fwdPropagator, ecalSide);
+      //fwdPropagator.propagate(outerTSOS, *ecalInnerWall_);
       GlobalPoint vECAL  = ecalTSOS.globalParameters().position();
       GlobalVector pECAL = ecalTSOS.globalParameters().momentum();
       math::XYZPoint posECAL(vECAL.x(), vECAL.y(), vECAL.z());       
@@ -379,7 +385,9 @@ void PFProducer::produce(Event& iEvent,
       if (posECAL.Rho() < PFGeometry::innerRadius(PFGeometry::ECALBarrel)) {
 	// Propagate track to preshower layer1
 	TrajectoryStateOnSurface ps1TSOS = 
-	  fwdPropagator.propagate(outerTSOS, *ps1Wall_);
+	  getStateOnSurface(PFGeometry::PS1Wall, outerTSOS, 
+			    fwdPropagator, side);
+	//  fwdPropagator.propagate(outerTSOS, *ps1Wall_);
 	GlobalPoint vPS1  = ps1TSOS.globalParameters().position();
 	GlobalVector pPS1 = ps1TSOS.globalParameters().momentum();
 	math::XYZPoint posPS1(vPS1.x(), vPS1.y(), vPS1.z());
@@ -399,7 +407,9 @@ void PFProducer::produce(Event& iEvent,
 
 	// Propagate track to preshower layer2
 	TrajectoryStateOnSurface ps2TSOS = 
-	  fwdPropagator.propagate(outerTSOS, *ps2Wall_);
+	  getStateOnSurface(PFGeometry::PS2Wall, outerTSOS, 
+			    fwdPropagator, side);
+	//  fwdPropagator.propagate(outerTSOS, *ps2Wall_);
 	GlobalPoint vPS2  = ps2TSOS.globalParameters().position();
 	GlobalVector pPS2 = ps2TSOS.globalParameters().momentum();
 	math::XYZPoint posPS2(vPS2.x(), vPS2.y(), vPS2.z());
@@ -437,9 +447,17 @@ void PFProducer::produce(Event& iEvent,
 	showerDirection.Rho();
       double zCyl = PFGeometry::innerZ(PFGeometry::ECALEndcap) + 
 	fabs(showerDirection.Z());
-      ReferenceCountingPointer<Surface> showerMaxWall(new BoundCylinder(GlobalPoint(0.,0.,0.), 
-									TkRotation<float>(), 
-									SimpleCylinderBounds(rCyl, rCyl, -1.*zCyl, zCyl)));
+      ReferenceCountingPointer<Surface> showerMaxWall;
+      const float epsilon = 0.001; // should not matter at all
+      switch (side) {
+      case 0: showerMaxWall = ReferenceCountingPointer<Surface>(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(rCyl, rCyl, -zCyl, zCyl))); break;
+      case +1: showerMaxWall = ReferenceCountingPointer<Surface>(new BoundPlane(Surface::PositionType(0,0,zCyl),
+					      TkRotation<float>(), 
+										SimpleDiskBounds(0., rCyl, -epsilon, epsilon))); break;
+      case -1: showerMaxWall = ReferenceCountingPointer<Surface>(new BoundPlane(Surface::PositionType(0,0,-zCyl),
+					      TkRotation<float>(), 
+										SimpleDiskBounds(0., rCyl, -epsilon, epsilon))); break;
+      }
       TrajectoryStateOnSurface showerMaxTSOS = 
 	fwdPropagator.propagate(ecalTSOS, *showerMaxWall);
       GlobalPoint vShowerMax  = showerMaxTSOS.globalParameters().position();
@@ -458,7 +476,9 @@ void PFProducer::produce(Event& iEvent,
 
       try {
 	TrajectoryStateOnSurface hcalTSOS = 
-	  fwdPropagator.propagate(ecalTSOS, *hcalInnerWall_);
+	  getStateOnSurface(PFGeometry::HCALInnerWall, ecalTSOS, 
+			    fwdPropagator, side);
+	//  fwdPropagator.propagate(ecalTSOS, *hcalInnerWall_);
 	GlobalPoint vHCAL  = hcalTSOS.globalParameters().position();
 	GlobalVector pHCAL = hcalTSOS.globalParameters().momentum();
 	math::XYZPoint posHCAL(vHCAL.x(), vHCAL.y(), vHCAL.z());       
@@ -649,6 +669,41 @@ void PFProducer::produce(Event& iEvent,
   }
 }
 
+
+TrajectoryStateOnSurface PFProducer::getStateOnSurface(PFGeometry::Surface_t iSurf, const TrajectoryStateOnSurface& tsos, const Propagator& propagator, int& side)
+{
+  GlobalVector p = tsos.globalParameters().momentum();
+  TrajectoryStateOnSurface finalTSOS;
+  side = -100;
+  if (fabs(p.perp()/p.z()) > PFGeometry::tanTh(iSurf)) {
+    finalTSOS = propagator.propagate(tsos, PFGeometry::barrelBound(iSurf));
+    side = 0;
+    if (!finalTSOS.isValid()) {
+      if (p.z() > 0.) {
+	finalTSOS = propagator.propagate(tsos, PFGeometry::positiveEndcapDisk(iSurf));
+	side = 1;
+      } else {
+	finalTSOS = propagator.propagate(tsos, PFGeometry::negativeEndcapDisk(iSurf));
+	side = -1;
+      }
+    }
+  } else if (p.z() > 0.) {
+    finalTSOS = propagator.propagate(tsos, PFGeometry::positiveEndcapDisk(iSurf));
+    side = 1;
+    if (!finalTSOS.isValid()) {
+      finalTSOS = propagator.propagate(tsos, PFGeometry::barrelBound(iSurf));
+      side = 0;
+    }
+  } else {
+    finalTSOS = propagator.propagate(tsos, PFGeometry::negativeEndcapDisk(iSurf));
+    side = -1;
+    if (!finalTSOS.isValid()) {
+      finalTSOS = propagator.propagate(tsos, PFGeometry::barrelBound(iSurf));
+      side = 0;
+    }
+  }
+  return finalTSOS;
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PFProducer)
