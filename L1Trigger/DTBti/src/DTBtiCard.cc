@@ -215,7 +215,10 @@ void
 DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
   
   localClear();
+  //double ftdelay = config()->FTStep()*config()->FTStepW();
+  double delay   = config()->SyncDelay();
   
+
   if(config()->debug()>2){
     std::cout << "DTBtiCard::loadBTI called for wheel=" << wheel() ;
     std::cout <<                                ", station=" << station();
@@ -242,9 +245,7 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
 	 ++digiIt){
       if((*digiIt).time()<1000 &&(*digiIt).time()>0){
 	if(config()->debug()>0) (*digiIt).print();
-	
-	float tdrift = (*digiIt).time()+6;//-500;//-1.0*theSync->emulatorOffset(&idwire); // What to do with this offset?
-	
+	float tdrift = (*digiIt).time() - delay; //-1.0*theSync->emulatorOffset(&idwire); // CB Up to now the offset is read from .cfg file 07/09/06
 	DTDigi* pdigi = new DTDigi((*digiIt).wire(),tdrift);
 	_digis.push_back(const_cast<DTDigi*>(pdigi) );
 	

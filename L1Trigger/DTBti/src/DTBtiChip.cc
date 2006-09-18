@@ -110,41 +110,80 @@ _geom(geom) {
 	   cout << endl ; */
 	   
 	   
-    // theta bti acceptance cut is in bti chip (no traco in theta!)
-    // acceptance from orca geom: bti theta angle in CMS frame +-2 in K units 
+//     // theta bti acceptance cut is in bti chip (no traco in theta!)
+//     // acceptance from orca geom: bti theta angle in CMS frame +-2 in K units 
+//     if(_id.superlayer()==2){
+//       float distp2 = (int)(2*_geom->cellH()*config()->lstep()/_geom->cellPitch());
+//       float K0 = config()->ST();
+
+// /*      DTBtiId _id1 = DTBtiId(sid,supl,1);
+      
+//       cout << "BTI1   " <<  _id1.bti() << endl;
+//       cout << "BTICur " << _id.bti() <<endl;
+//       GlobalPoint gp1 = _geom->CMSPosition(_id1);
+//       cout << "pos of BTI 1 " << gp1 <<endl;*/
+	  
+//       // K of tracks from vertex
+//       GlobalPoint gp = CMSPosition();
+//       if(config()->debug()>3){
+//         cout << "Position: R=" << gp.perp() << "cm, Phi=" << gp.phi()*180/3.14159;
+//         cout << " deg, Z=" << gp.z() << " cm" << endl;
+//       }
+//       // CB TEST WITH NEW GEOMETRY
+//       // new geometry: modified wrt old due to specularity of theta SLs (still to understand on wheel zero) 19/06/06
+//       float theta;
+//       if (_id.wheel()==0){ 
+// 	if(_id.sector()%4>1) theta = atan( gp.z()/gp.perp() );
+// 	else theta = atan( -gp.z()/gp.perp() );
+//       }
+//       else theta = atan( fabs(gp.z())/gp.perp() );
+//       // .11 =TAN(6.3 deg) ==> k=2 (e' ancora vero? forse questa parte va aggiornata sena ripassare per gli angoli) 19/6/06
+//       float thetamin = theta-config()->KAccTheta()*0.055;
+//       float thetamax = theta+config()->KAccTheta()*0.055;
+
+//       float fktmin = tan(thetamin)*distp2 + K0;
+//       int ktmin = (fktmin>0) ? (int)(fktmin+0.5) : (int)(fktmin-0.5);
+//       float fktmax = tan(thetamax)*distp2 + K0;
+//       int ktmax = (fktmax>0) ? (int)(fktmax+0.5) : (int)(fktmax-0.5);
+// //      float fkbti = -gp.z()/gp.perp()*distp2;
+// //      int kbti = (fkbti>0) ? (int)(fkbti+0.5) : (int)(fkbti-0.5);
+// //      // K acceptance to point to vertex
+// //      int ktmin = kbti-config()->KAccTheta();  // minimum
+// //      int ktmax = kbti+config()->KAccTheta();  // maximum
+//       if(ktmin>_MinKAcc)_MinKAcc=ktmin;
+//       if(ktmax<_MaxKAcc)_MaxKAcc=ktmax;
+//     }
+
+//     // debugging
+//     if(config()->debug()>2){
+//       cout << "CMS position:" << CMSPosition() << endl;
+//       cout << "K acceptance:" << _MinKAcc << "," << _MaxKAcc << endl;
+//     }
+//     // end debugging
+// theta bti acceptance cut is in bti chip (no traco in theta!)
+    // acceptance is determined about BTI angle wrt vertex with programmable value 
     if(_id.superlayer()==2){
       float distp2 = (int)(2*_geom->cellH()*config()->lstep()/_geom->cellPitch());
       float K0 = config()->ST();
 
-/*      DTBtiId _id1 = DTBtiId(sid,supl,1);
-      
-      cout << "BTI1   " <<  _id1.bti() << endl;
-      cout << "BTICur " << _id.bti() <<endl;
-      GlobalPoint gp1 = _geom->CMSPosition(_id1);
-      cout << "pos of BTI 1 " << gp1 <<endl;*/
-	  
-      // K of tracks from vertex
+	  // position of BTI 1 and of current one
+      DTBtiId _id1 = DTBtiId(sid,supl,1);
+	  GlobalPoint gp1 = _geom->CMSPosition(_id1); 
       GlobalPoint gp = CMSPosition();
       if(config()->debug()>3){
         cout << "Position: R=" << gp.perp() << "cm, Phi=" << gp.phi()*180/3.14159;
         cout << " deg, Z=" << gp.z() << " cm" << endl;
       }
-// new geometry: modified wrt old due to specularity of theta SLs (still to understand on wheel zero) 19/06/06
-      float theta = atan( fabs(gp.z())/gp.perp() );
-      // .11 =TAN(6.3 deg) ==> k=2 (e' ancora vero? forse questa parte va aggiornata sena ripassare per gli angoli) 19/6/06
-      float thetamin = theta-config()->KAccTheta()*0.055;
-      float thetamax = theta+config()->KAccTheta()*0.055;
+// new geometry: modified wrt old due to specularity of theta SLs --> fixed 6/9/06 
+	    float theta;
+	    if(gp1.z() < 0.0) theta = atan( -(gp.z())/gp.perp() );				
+		else theta = atan( (gp.z())/gp.perp() );
 
-      float fktmin = tan(thetamin)*distp2 + K0;
-      int ktmin = (fktmin>0) ? (int)(fktmin+0.5) : (int)(fktmin-0.5);
-
-      float fktmax = tan(thetamax)*distp2 + K0;
-      int ktmax = (fktmax>0) ? (int)(fktmax+0.5) : (int)(fktmax-0.5);
-//      float fkbti = -gp.z()/gp.perp()*distp2;
-//      int kbti = (fkbti>0) ? (int)(fkbti+0.5) : (int)(fkbti-0.5);
-//      // K acceptance to point to vertex
-//      int ktmin = kbti-config()->KAccTheta();  // minimum
-//      int ktmax = kbti+config()->KAccTheta();  // maximum
+// set BTI acceptance window : fixed wrt ORCA on 6/9/06  
+      float fktmin = tan(theta)*distp2+K0 ;
+	  int ktmin = static_cast<int>(fktmin)-config()->KAccTheta();
+      float fktmax = tan(theta)*distp2+K0+1;
+	  int ktmax = static_cast<int>(fktmax)+config()->KAccTheta();
       if(ktmin>_MinKAcc)_MinKAcc=ktmin;
       if(ktmax<_MaxKAcc)_MaxKAcc=ktmax;
     }
@@ -152,7 +191,7 @@ _geom(geom) {
     // debugging
     if(config()->debug()>2){
       cout << "CMS position:" << CMSPosition() << endl;
-      cout << "K acceptance:" << _MinKAcc << "," << _MaxKAcc << endl;
+      cout << "K acceptance:" << _MinKAcc << "," << _MaxKAcc  << endl;
     }
     // end debugging
   }
