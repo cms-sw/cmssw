@@ -266,7 +266,7 @@ void GlobalHitsProducer::fillG4MC(edm::Event& iEvent)
   // get G4Vertex information
   ////////////////////////////
   // convert unit stored in SimVertex to mm
-  float unit;
+  float unit = 0.;
   if (vtxunit == 0) unit = 1.;  // already in mm
   if (vtxunit == 1) unit = 10.; // stored in cm, convert to mm
 
