@@ -4,8 +4,8 @@
  *     Steering routine for L1 trigger simulation in a muon barrel station
  *
  *
- *   $Date: 2005/03/04 18:59:34 $
- *   $Revision: 1.33 $
+ *   $Date: 2006/07/19 10:49:05 $
+ *   $Revision: 1.1 $
  *
  *   \author C.Grandi
  */
@@ -18,7 +18,7 @@
 // C++ Headers --
 //---------------
 #include<map>
-
+#include<string>
 //----------------------
 // Base Class Headers --
 //----------------------
@@ -64,6 +64,9 @@ class DTTrig {
     typedef std::map< DTChamberId,DTSCTrigUnit*,std::less<DTChamberId> > TUcontainer;
     typedef TUcontainer::iterator TU_iterator;
     typedef TUcontainer::const_iterator TU_const_iterator;
+    typedef std::map< DTChamberId,DTConfig*,std::less<DTChamberId> > Confcontainer;
+    typedef Confcontainer::iterator Conf_iterator;
+    typedef Confcontainer::const_iterator Conf_const_iterator;
     typedef std::map< DTSectCollId,DTSectColl*,std::less<DTSectCollId> > SCcontainer;
     typedef SCcontainer::iterator SC_iterator;
     typedef SCcontainer::const_iterator SC_const_iterator;
@@ -77,7 +80,9 @@ class DTTrig {
   
     /// Constructors
     DTTrig();
-
+    
+    DTTrig(const edm::ParameterSet& pset, std::string mysync);
+    
     /// Destructor
     ~DTTrig();
 
@@ -250,10 +255,10 @@ class DTTrig {
  
   private:
 
-    TUcontainer _cache;      // Trigger units
-    SCcontainer _cache1;     // Sector Collector units
-    DTConfig* _config;   // Configuration parameters
-
+    TUcontainer _cache;       // Trigger units
+    SCcontainer _cache1;      // Sector Collector units
+    DTConfig* _config;        // Configuration parameters
+    Confcontainer _localconf; // CB Local configuration parameters
 };
 
 #endif
