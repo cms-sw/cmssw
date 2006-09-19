@@ -30,17 +30,18 @@ Global.cfg uses evtgen_detsim.root (or any file which contains
 
 There are two macros to process the data.
 
-MakeHistograms.C is a macro that processes GlobalHits.root creating a 
-	GlobalHitsHistograms.ps file with formatted histograms as 
-	well as a GlobalHitsHistograms.root file holding the same histograms. 
-	This macro makes use of the PGlobalSimHit accessor methods, so a 
-	.rootrc and rootlogon.C file is provided to load the FWLite package to 
+MakeHistograms.C(src,out) is a macro that processes 
+	src input file (default GlobalHits.root) creating an output 
+	(default GlobalHitsHistograms) ps file with formatted histograms 
+	as well as a root file holding the same histograms. This macro makes 
+	use of the PGlobalSimHit accessor methods, so a .rootrc and 
+	rootlogon.C file is provided to load the FWLite package to 
 	provide this functionality.
-MakeValidation.C is a macro that processes GlobalHits.root using 
-	the MakeHistograms.C macro. It then compares the new 
-	GlobalHitsHistograms.root file against the reference 
-	GlobalHitsHistograms-reference.root from a previous release using the 
-	Chi2Test method and produces a GlobalHitsHistogramsCompare.ps file 
+MakeValidation.C(src,ref,out) is a macro that processes src input file
+	(default GlobalHitsHistograms.root) comparing it against the reference 
+	file (default GlobalHitsHistograms-reference.root) from a previous 
+	release using the Chi2Test method and produces a 
+	out (default GlobalHitsHistogramsCompare) ps file 
         with the superimposed plots (dashed blue for reference, solid red for 
         new) and the returned value of the Chi2Test.
 

@@ -13,8 +13,10 @@ if ( -e FrameworkJobReport.xml ) rm FrameworkJobReport.xml
 #comment out if RefPoolSource.cfi modified to use /afs location directly
 #cp ${GLBLREFDIR}/MC_010p2_minbias.root .
 cmsRun -p DetSim+Global.cfg >& output.log
+echo "......creating histogram file with this release"
+root -b -q MakeHistograms.C\(\"GlobalHits.root\",\"GlobalHitsHistograms\"\)
 echo "......comparing against reference file from previous release"
 cp ${LOCLREFDIR}/GlobalHitsHistograms-reference.root .
-root -b -q MakeValidation.C
+root -b -q MakeValidation.C\(\"GlobalHitsHistograms.root\",\"GlobalHitsHistograms-reference.root\",\"GlobalHitsHistogramsCompare\"\)
 echo "......results of validation in GlobalHitsHistogramsCompare.ps"
 echo "============> Validating Global Sim Hits <============"
