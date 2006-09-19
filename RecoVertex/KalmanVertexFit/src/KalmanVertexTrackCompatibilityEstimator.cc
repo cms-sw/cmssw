@@ -56,7 +56,7 @@ KalmanVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
   CachingVertex cachingVertex(linP, err, initialTracks,
   			    vertex.chi2());
   // FIXME: this should work also for tracks without a persistent ref.
-  if (find(vertex.tracks_begin(), vertex.tracks_end(), *track.persistentTrackRef()) != vertex.tracks_end())
+  if (find(vertex.tracks_begin(), vertex.tracks_end(), track.persistentTrackRef()) != vertex.tracks_end())
   {
     return estimateFittedTrack(cachingVertex, vertexTrack);
   } else {
