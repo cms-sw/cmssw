@@ -8,7 +8,7 @@
  * \author Michael A. Balazs, UVa
  * \author Luca Lista, INFN
  *
- * \version $Id: ClusterShape.h,v 1.4 2006/09/15 16:26:53 askew Exp $
+ * \version $Id: ClusterShape.h,v 1.3 2006/09/16 01:43:43 mabalazs Exp $
  *
  */
 
@@ -25,7 +25,7 @@ namespace reco {
     ClusterShape() { }
     ClusterShape( double cEE, double cEP, double cPP, 
                   double eMax, DetId eMaxId, double e2nd, DetId e2ndId,
-		  double e2x2, double e3x2, double e3x3, double e5x5,
+		  						double e2x2, double e3x2, double e3x3, double e4x4, double e5x5,
                   double e3x2Ratio, math::XYZPoint location,
                   std::vector<double> energyBasketFractionEta_,
                   std::vector<double> energyBasketFractionPhi_);
@@ -34,6 +34,7 @@ namespace reco {
     double e2x2() const { return e2x2_; }
     double e3x2() const { return e3x2_; }
     double e3x3() const { return e3x3_; }
+    double e4x4() const { return e4x4_; }
     double e5x5() const { return e5x5_; }
     double e3x2Ratio() const { return e3x2Ratio_; }
     math::XYZPoint location() const { return location_; }
@@ -47,7 +48,7 @@ namespace reco {
 
   private:
     Double32_t covEtaEta_, covEtaPhi_, covPhiPhi_;
-    Double32_t eMax_, e2nd_, e2x2_, e3x2_, e3x3_, e5x5_;
+    Double32_t eMax_, e2nd_, e2x2_, e3x2_, e3x3_, e4x4_, e5x5_;
     Double32_t e3x2Ratio_;
     std::vector<double> energyBasketFractionEta_;
     std::vector<double> energyBasketFractionPhi_;
