@@ -21,6 +21,7 @@ namespace reco {
   public:
 
     // constructor from persistent track
+    TransientTrack(); 
     TransientTrack( const Track & tk , const MagneticField* field); 
     TransientTrack( const TrackRef & tk , const MagneticField* field); 
 

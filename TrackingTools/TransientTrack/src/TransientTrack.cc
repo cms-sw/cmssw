@@ -11,6 +11,14 @@
 
 using namespace reco;
 
+TransientTrack::TransientTrack() : 
+  //  Track(tk), tk_(&tk), tkr_(0), stateAtVertexAvailable(false) 
+  Track(), tkr_(), theField(0), stateAtVertexAvailable(false) 
+{
+  originalTSCP = TrajectoryStateClosestToPoint
+    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
+}
+
 TransientTrack::TransientTrack( const Track & tk , const MagneticField* field) : 
   //  Track(tk), tk_(&tk), tkr_(0), stateAtVertexAvailable(false) 
   Track(tk), tkr_(), theField(field), stateAtVertexAvailable(false) 
