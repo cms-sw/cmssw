@@ -4,4 +4,11 @@
 <class name="std::map<DTLayerId,std::vector<DTDigi> >"/>
 <class name="MuonDigiCollection<DTLayerId,DTDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<DTLayerId,DTDigi>>"/> 
+
+<class name="DTLocalTrigger"/>
+<class name="std::vector<DTLocalTrigger>"/>
+<class name="std::map<DTChamberId,std::vector<DTLocalTrigger> >"/>
+<class name="MuonDigiCollection<DTChamberId,DTLocalTrigger>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<DTChamberId,DTLocalTrigger>>"/> 
+
 </lcgdict>
