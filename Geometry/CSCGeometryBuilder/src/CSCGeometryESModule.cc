@@ -52,6 +52,9 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
 
   if ( useGangedStripsInME1a ) useOnlyWiresInME1a = false; // override possible inconsistentcy
 
+  // Use the backed-out offsets that correct the CTI
+  bool useCentreTIOffsets = p.getParameter<bool>("useCentreTIOffsets"); 
+
   // Switch to apply the alignment corrections
   //  applyAlignment_ = p.getParameter<bool>("applyAlignment");
 
@@ -62,6 +65,7 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
   CSCChamberSpecs::setUseRealWireGeometry( useRealWireGeometry );
   CSCChamberSpecs::setOnlyWiresInME1a( useOnlyWiresInME1a );
   CSCChamberSpecs::setGangedStripsInME1a( useGangedStripsInME1a );
+  CSCChamberSpecs::setUseCentreTIOffsets( useCentreTIOffsets );
 
 }
 
