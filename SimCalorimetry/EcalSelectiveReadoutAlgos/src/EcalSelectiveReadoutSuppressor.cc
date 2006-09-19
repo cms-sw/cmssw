@@ -123,19 +123,19 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
     throw cms::Exception("EcalSelectiveReadoutSuppressor: unexpected subdetector id in a dataframe. Only EB and EE data frame are expected.");
   }
   
-  double thr_ = lround(threshold * eGeV2ADC * 4.);
+  double thr_ = threshold * eGeV2ADC * 4.;
   //treating over- and underflows, threshold is coded on 11+1 signed bits
   //an underflow threshold is considered here as if NoRO DCC switch is on
   //an overflow threshold is considered here as if ForcedRO DCC switch in on
   //Beware that conparison must be done on a double type, because conversion
   //cast to an int of a double higher than MAX_INT is undefined.
   int thr;
-  if(thr_>0x7FF){
+  if(thr_>=0x7FF+.5){
     thr = numeric_limits<int>::max();
-  } else if(thr_<-0x7FF){
+  } else if(thr_<=-0x7FF-.5){
     thr = -numeric_limits<int>::min();
   } else{
-    thr = (int) thr_;
+    thr = lround(thr_);
   }
   
 
