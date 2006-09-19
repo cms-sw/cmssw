@@ -4,6 +4,8 @@
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+
 /**
  * What to do in the destructor?
  * For the moment nothing, I do not want to destroy all the daughters!
@@ -22,6 +24,13 @@ GeometricDet::GeometricDet(nav_type navtype, GeometricEnumType type) : _ddd(navt
   _rot = ev.rotation();
   _shape = ((ev.logicalPart()).solid()).shape();
   _ddname = ((ev.logicalPart()).ddname()).name();
+  _parents = ev.geoHistory();
+  _volume   = ((ev.logicalPart()).solid()).volume();
+  _density  = ((ev.logicalPart()).material()).density();
+  //  _weight  = (ev.logicalPart()).weight();
+  _weight   = _density * ( _volume / 1000.); // volume mm3->cm3
+  _copy     = ev.copyno();
+  _material = ((ev.logicalPart()).material()).name();
 }
 
 GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(type) {
@@ -34,6 +43,13 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
   _rot = fv->rotation();
   _shape = ((fv->logicalPart()).solid()).shape();
   _ddname = ((fv->logicalPart()).ddname()).name();
+  _parents = fv->geoHistory();
+  _volume   = ((fv->logicalPart()).solid()).volume();  
+  _density  = ((fv->logicalPart()).material()).density();
+  //  _weight   = (fv->logicalPart()).weight();  
+  _weight   = _density * ( _volume / 1000.); // volume mm3->cm3
+  _copy     = fv->copyno();
+  _material = ((fv->logicalPart()).material()).name();
 }
 
 GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : _type(type){
@@ -46,6 +62,13 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : _type(t
   _rot = fv->rotation();
   _shape = ((fv->logicalPart()).solid()).shape();
   _ddname = ((fv->logicalPart()).ddname()).name();
+  _parents = fv->geoHistory();
+  _volume   = ((fv->logicalPart()).solid()).volume();
+  _density  = ((fv->logicalPart()).material()).density();
+  //  _weight   = (fv->logicalPart()).weight();
+  _weight   = _density * ( _volume / 1000.); // volume mm3->cm3
+  _copy     = fv->copyno();
+  _material = ((fv->logicalPart()).material()).name();
 }
 
 GeometricDet::ConstGeometricDetContainer GeometricDet::components() const{
