@@ -28,6 +28,9 @@ namespace cms
     // 'unsigned char [16]'
     std::string compactForm() const;
 
+    // Set our data from the given hexdigest string.
+    void fromHexifiedString(std::string const& s);
+
     bool isValid() const;
   };
 
