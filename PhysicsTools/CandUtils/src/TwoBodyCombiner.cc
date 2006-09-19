@@ -1,4 +1,4 @@
-// $Id: TwoBodyCombiner.cc,v 1.14 2006/07/31 13:30:47 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.15 2006/08/04 11:56:39 llista Exp $
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 using namespace reco;
@@ -17,7 +17,7 @@ bool TwoBodyCombiner::preselect( const Candidate & c1, const Candidate & c2 ) co
   return true;
 }
 
-Candidate * TwoBodyCombiner::combine( const Candidate & c1, const Candidate & c2 ) {
+Candidate * TwoBodyCombiner::combine( const Candidate & c1, const Candidate & c2 ) const {
   CompositeCandidate * cmp( new CompositeCandidate );
   cmp->addDaughter( c1 );
   cmp->addDaughter( c2 );
@@ -26,7 +26,7 @@ Candidate * TwoBodyCombiner::combine( const Candidate & c1, const Candidate & c2
 }
 
 auto_ptr<CandidateCollection> 
-TwoBodyCombiner::combine( const CandidateCollection * src1, const CandidateCollection * src2 ) {
+TwoBodyCombiner::combine( const CandidateCollection * src1, const CandidateCollection * src2 ) const {
   auto_ptr<CandidateCollection> comps( new CandidateCollection );
   if ( src1 == src2 ) {
     const CandidateCollection & cands = * src1;

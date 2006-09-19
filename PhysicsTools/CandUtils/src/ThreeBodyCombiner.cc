@@ -27,7 +27,7 @@ bool ThreeBodyCombiner::preselect( const Candidate & c0, const Candidate & c1,
 }
 
 Candidate * ThreeBodyCombiner::combine( const Candidate & c0, const Candidate & c1,
-					const Candidate & c2 ) {
+					const Candidate & c2 ) const{
   CompositeCandidate * cmp( new CompositeCandidate );
   cmp->addDaughter( c0 );
   cmp->addDaughter( c1 );
@@ -39,7 +39,7 @@ Candidate * ThreeBodyCombiner::combine( const Candidate & c0, const Candidate & 
 auto_ptr<CandidateCollection> 
 ThreeBodyCombiner::combine( const CandidateCollection * src1, 
 			    const CandidateCollection * src2,
-			    const CandidateCollection * src3 ) {
+			    const CandidateCollection * src3 ) const {
 
   auto_ptr<CandidateCollection> comps( new CandidateCollection );
 
@@ -94,7 +94,7 @@ ThreeBodyCombiner::combine( const CandidateCollection * src1,
 
 void ThreeBodyCombiner::combineWithTwoEqualCollection( const CandidateCollection * equalSrc,
 						       const CandidateCollection * diffSrc,
-						       auto_ptr<CandidateCollection> comps ) {
+						       auto_ptr<CandidateCollection> & comps ) const {
   const CandidateCollection & cands = * equalSrc;
   const CandidateCollection & candsDiff = * diffSrc;
   const int n = cands.size();

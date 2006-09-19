@@ -7,16 +7,16 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: AddFourMomenta.h,v 1.6 2006/06/21 09:36:47 llista Exp $
+ * $Id: AddFourMomenta.h,v 1.7 2006/07/26 08:48:05 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 struct AddFourMomenta {
   /// set up a candidate
-  void set( reco::Candidate& c );
+  void set( reco::Candidate& c ) const;
 };
 
 #endif

@@ -2,6 +2,8 @@
 #define CandUtils_ThreeBodyCombiner_h
 /** \class ThreeBodyCombiner
  *
+ * \author Francesco Fabozzi, INFN
+ *
  */
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
@@ -18,17 +20,17 @@ public:
   /// return all selected candidate pairs
   std::auto_ptr<reco::CandidateCollection> 
     combine( const reco::CandidateCollection *, const reco::CandidateCollection *,
-	     const reco::CandidateCollection * );
+	     const reco::CandidateCollection * ) const;
   void combineWithTwoEqualCollection( const reco::CandidateCollection *, 
 				      const reco::CandidateCollection *,
-				      std::auto_ptr<reco::CandidateCollection> );
+				      std::auto_ptr<reco::CandidateCollection> & ) const;
 protected:
   /// verify that the two candidate don't overlap and check charge
   bool preselect( const reco::Candidate &, const reco::Candidate &,
 		  const reco::Candidate & ) const;
   /// returns a composite candidate combined from two daughters
   reco::Candidate * combine( const reco::Candidate &, const reco::Candidate &,
-			     const reco::Candidate & );
+			     const reco::Candidate & ) const;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
   /// electric charges of the daughters

@@ -1,47 +1,37 @@
-#ifndef CandUtils_TwoBodyCombiner_h
-#define CandUtils_TwoBodyCombiner_h
-/** \class TwoBodyCombiner
- *
- * Performs all possible combination of candidate pairs,
- * selects the combinations via a specified CandSelector,
- * with the possibility to check the composite candidate
- * electric charge. The algorithm also checks that the
- * paired candidates do not overlap.
- * 
- * If the same input collection is passed twice, the 
- * algorithm avoids double counting the candidate pairs
- *
- * The composite candidate kinematics is set up 
- * adding the two daughters four-momenta
- *
- * \author Luca Lista, INFN
- *
- * \version $Revision: 1.14 $
- *
- * $Id: TwoBodyCombiner.h,v 1.14 2006/08/25 10:22:58 llista Exp $
+#ifndef CandUtils_NBodyCombiner_h
+#define CandUtils_NBodyCombiner_h
+/** \class ThreeBodyCombiner
  *
  */
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
+#include <vector>
 
-class TwoBodyCombiner {
+class NBodyCombiner {
 public:
   /// constructor from a selector, specifying optionally to check for charge
-  TwoBodyCombiner( const reco::parser::SelectorPtr &, 
-		   bool checkCharge, int charge = 0 );
+  NBodyCombiner( const reco::parser::SelectorPtr &, 
+		 bool checkCharge, const std::vector <int> & );
   /// return all selected candidate pairs
   std::auto_ptr<reco::CandidateCollection> 
-  combine( const reco::CandidateCollection *, const reco::CandidateCollection * ) const;
-
+    combine( const std::vector<const reco::CandidateCollection *> & ) const;
 protected:
   /// verify that the two candidate don't overlap and check charge
   bool preselect( const reco::Candidate &, const reco::Candidate & ) const;
   /// returns a composite candidate combined from two daughters
   reco::Candidate * combine( const reco::Candidate &, const reco::Candidate & ) const;
+  /// returns a composite candidate combined from two daughters
+  void combine( size_t collectionIndex, bool sameCharge, std::vector<const reco::Candidate *> cv,
+		const std::vector<const reco::CandidateCollection * >::const_iterator begin,
+		const std::vector<const reco::CandidateCollection * >::const_iterator end,
+		std::auto_ptr<reco::CandidateCollection> & comps
+		) const;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
+  /// electric charges of the daughters
+  std::vector<int> dauCharge_;
   /// electric charge of the composite
   int charge_;
   /// utility to setup composite candidate kinematics from daughters
