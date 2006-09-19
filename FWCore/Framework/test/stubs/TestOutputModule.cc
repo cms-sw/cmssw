@@ -96,10 +96,10 @@ namespace edmtest
     const Trig& prod = getTrigMask(e);
 
     if (!prod.isValid()) 
-       {
+    {
          cout << "NO BITs FOUND...Returning..."<<endl;
          return ;
-       }
+    }
 
     vector<unsigned char> vHltState;
 
@@ -114,11 +114,10 @@ namespace edmtest
     }
     else
     {
-     // We fill all Trigger bits to valid state.
-     for(unsigned int i=0; i != hltSize ; ++i)
-        {
-           vHltState.push_back(hlt::Pass);
-        }
+      // We fill all Trigger bits to valid state.
+      for(unsigned int i=0; i != hltSize ; ++i) {
+        vHltState.push_back(hlt::Pass);
+      }
     }
 
     //Pack into member hltbits_
@@ -130,10 +129,9 @@ namespace edmtest
     char* intp = (char*)&bitMask_;
     bool matched = false;
 
-    for(unsigned int i=((unsigned int)hltbits_.size()-1); i != -1 ; --i) {
-    //for(unsigned int i=0; i != hltbits_.size() ; ++i) {
+    for(int i = hltbits_.size() - 1; i != -1 ; --i) {
       cout<<endl<<"Current Bits Mask byte:";printBits(hltbits_[i]);
-      unsigned char tmp = (unsigned char) *(intp+i);
+      unsigned char tmp = static_cast<unsigned char>(*(intp+i));
       cout<<endl<<"Original Byte:";printBits(tmp);cout<<endl;
 
       if (tmp == hltbits_[i]) matched = true;
