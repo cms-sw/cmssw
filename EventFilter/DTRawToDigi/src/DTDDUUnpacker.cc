@@ -1,8 +1,9 @@
 /** \file
  *
- *  $Date: 2006/07/28 18:01:52 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/08/01 17:54:36 $
+ *  $Revision: 1.14 $
  *  \author  M. Zanetti - INFN Padova 
+ * FRC 060906
  */
 
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
@@ -45,6 +46,7 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 				     int dduID,
 				     edm::ESHandle<DTReadOutMapping>& mapping, 
 				     std::auto_ptr<DTDigiCollection>& product,
+				     std::auto_ptr<DTLocalTriggerCollection>& product2,
 				     uint16_t rosList) {
 
   // Definitions
@@ -144,6 +146,6 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   datasize -= 4*wordSize_64; 
 
   // unpacking the ROS payload
-  ros25Unpacker->interpretRawData(index32, datasize, dduID, mapping, product, theROSList);
+  ros25Unpacker->interpretRawData(index32, datasize, dduID, mapping, product, product2, theROSList);
   
 }

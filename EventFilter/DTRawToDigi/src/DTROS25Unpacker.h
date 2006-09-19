@@ -5,9 +5,10 @@
  *  The unpacker for DTs' ROS25: 
  *  final version of Read Out Sector board with 25 channels.
  *
- *  $Date: 2006/04/13 17:14:29 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/28 17:59:27 $
+ *  $Revision: 1.10 $
  * \author M. Zanetti INFN Padova
+ * FRC 060906
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,6 +32,7 @@ public:
 				int dduID,
 				edm::ESHandle<DTReadOutMapping>& mapping, 
 				std::auto_ptr<DTDigiCollection>& product,
+				std::auto_ptr<DTLocalTriggerCollection>& product2,
 				uint16_t rosList = 0);
 
 private:
@@ -42,6 +44,7 @@ private:
   const edm::ParameterSet pset;
 
   bool debug;
+  bool writeSC;
 
   DTDataMonitorInterface * dataMonitor;
 
