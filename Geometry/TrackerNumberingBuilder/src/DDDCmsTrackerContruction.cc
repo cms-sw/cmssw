@@ -21,11 +21,13 @@ const GeometricDet* DDDCmsTrackerContruction::construct(const DDCompactView* cpv
   
   DDFilteredView fv(*cpv); 
   fv.addFilter(filter);
-  fv.firstChild();
-  
   if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker){
-     throw cms::Exception("NoTrackerDDD") <<" The first child of the DDFilteredView is not what is expected \""<<ExtractStringFromDDD::getString(attribute,&fv)<<"\"";
+    fv.firstChild();
+    if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker){
+      
+      throw cms::Exception("NoTrackerDDD") <<" The first child of the DDFilteredView is not what is expected \""<<ExtractStringFromDDD::getString(attribute,&fv)<<"\"";
     abort();
+    }
   }
   
   GeometricDet* tracker  = new GeometricDet(&fv,GeometricDet::Tracker);
