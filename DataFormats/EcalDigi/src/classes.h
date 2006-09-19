@@ -7,12 +7,14 @@ namespace {
     std::vector<EcalFEMSample> vFEM_;
     std::vector<ESSample> vESSample_;
     std::vector<EcalTriggerPrimitiveSample> vETPS_;
+    std::vector<EcalMatacqDigi> vMD_;
 
     edm::SortedCollection<EBDataFrame> vEB_;
     edm::SortedCollection<EEDataFrame> vEE_;
     edm::SortedCollection<ESDataFrame> vES_;
     edm::SortedCollection<EcalTriggerPrimitiveDigi> vETP_;
     edm::SortedCollection<EcalPnDiodeDigi> vEPN_;
+    edm::SortedCollection<EcalMatacqDigi> vMDS_;
     EcalMatacqDigi Matacq_;
 
     EBDigiCollection theEB_;
@@ -20,19 +22,21 @@ namespace {
     ESDigiCollection theES_;
     EcalTrigPrimDigiCollection theETP_;
     EcalPnDiodeDigiCollection theEPN_;
+    EcalMatacqDigiCollection theMD_;
 
     edm::Wrapper<EBDigiCollection> anotherEBw_;
     edm::Wrapper<EEDigiCollection> anotherEEw_;
     edm::Wrapper<ESDigiCollection> anotherESw_;
     edm::Wrapper<EcalTrigPrimDigiCollection> anotherETPw_;
     edm::Wrapper<EcalPnDiodeDigiCollection> anotherEPNw_;
+    edm::Wrapper<EcalMatacqDigiCollection> anotherMDw_;
 
     edm::Wrapper< edm::SortedCollection<EBDataFrame> > theEBw_;
     edm::Wrapper< edm::SortedCollection<EEDataFrame> > theEEw_;
     edm::Wrapper< edm::SortedCollection<ESDataFrame> > theESw_;
     edm::Wrapper< edm::SortedCollection<EcalTriggerPrimitiveDigi> > theETPw_; 
     edm::Wrapper< edm::SortedCollection<EcalPnDiodeDigi> > theEPNw_; 
-    edm::Wrapper< EcalMatacqDigi > theMatacq_;
+    edm::Wrapper< edm::SortedCollection<EcalMatacqDigi> > theMDw_; 
  }
 }
 
