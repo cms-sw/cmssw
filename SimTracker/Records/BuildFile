@@ -1,0 +1,15 @@
+<use name=boost>
+<use name=root>
+<use name=clhep>
+<use name=FWCore/Framework>
+<use name=MagneticField/Records>
+
+<export>
+  <lib name=SimTrackerRecords>
+  <use name=boost>
+  <use name=root>
+  <use name=clhep>
+  <use name=FWCore/Framework>
+  <use name=MagneticField/Records>
+</export>
+

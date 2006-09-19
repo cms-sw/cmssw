@@ -8,6 +8,7 @@
 <use name=SimDataFormats/Track>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/TrackReco>
+<use name=SimTracker/Records>
 <use name=clhep>
 <use name=boost>
 <use name=root>
@@ -23,6 +24,7 @@
 <use name=SimDataFormats/Track>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/TrackReco>
+<use name=SimTracker/Records>
 <use name=clhep>
 <use name=boost>
 <use name=root>
