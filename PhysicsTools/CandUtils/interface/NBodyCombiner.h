@@ -22,8 +22,9 @@ protected:
   bool preselect( const reco::Candidate &, const reco::Candidate & ) const;
   /// returns a composite candidate combined from two daughters
   reco::Candidate * combine( const reco::Candidate &, const reco::Candidate & ) const;
+  enum chargeInfo { undetermined, same, opposite };
   /// returns a composite candidate combined from two daughters
-  void combine( size_t collectionIndex, bool sameCharge, std::vector<const reco::Candidate *> cv,
+  void combine( size_t collectionIndex, chargeInfo ch, std::vector<const reco::Candidate *> cv,
 		const std::vector<const reco::CandidateCollection * >::const_iterator begin,
 		const std::vector<const reco::CandidateCollection * >::const_iterator end,
 		std::auto_ptr<reco::CandidateCollection> & comps
@@ -32,8 +33,6 @@ protected:
   bool checkCharge_;
   /// electric charges of the daughters
   std::vector<int> dauCharge_;
-  /// electric charge of the composite
-  int charge_;
   /// utility to setup composite candidate kinematics from daughters
   AddFourMomenta addp4_;
   /// utility to check candidate daughters overlap

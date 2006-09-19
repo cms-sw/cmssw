@@ -4,12 +4,15 @@ using namespace reco;
 using namespace std;
 
 NBodyCombiner::NBodyCombiner( const parser::SelectorPtr & sel, bool ck, const vector<int> & dauCharge ) :
-  checkCharge_( ck ), dauCharge_( dauCharge ), charge_( 0 ), overlap_(), select_( sel ) {
+  checkCharge_( ck ), dauCharge_( dauCharge ), overlap_(), select_( sel ) {
 }
 
 bool NBodyCombiner::preselect( const Candidate & c1, const Candidate & c2 ) const {
   if ( checkCharge_ ) {
-    if ( charge_ != abs( c1.charge() + c2.charge() ) ) return false;
+    if ( ! ( ( c1.charge() == dauCharge_[ 0 ] && 
+	       c2.charge() == dauCharge_[ 1 ] ) ||
+	     ( - c1.charge() == dauCharge_[ 0 ] && 
+	       - c2.charge() == dauCharge_[ 1 ] ) ) ) return false;
   }
   if ( overlap_( c1, c2 ) ) return false;
   return true;
@@ -61,10 +64,15 @@ NBodyCombiner::combine( const vector<const CandidateCollection * > & src ) const
   } else {
     const CandidateCollection & src0 = * src[ 0 ];
     for( CandidateCollection::const_iterator  c = src0.begin(); c != src0.end(); ++ c ) {
-      bool sameCharge = ( c->charge() == dauCharge_[ 0 ] );
+      chargeInfo ch = undetermined;
+      int q = dauCharge_[ 0 ];
+      bool sameCh = ( c->charge() == q ), oppositeCh = ( c->charge() == - q );
+      if ( ! ( sameCh || oppositeCh ) ) continue;
+      if ( c->charge() != 0 ) 
+	ch = sameCh ? same : opposite;
       vector<const Candidate *> cv;
       cv.push_back( & * c );
-      combine( 1, sameCharge, cv, src.begin() + 1, src.end(), comps );
+      combine( 1, ch, cv, src.begin() + 1, src.end(), comps );
     }
   }
 
@@ -72,7 +80,7 @@ NBodyCombiner::combine( const vector<const CandidateCollection * > & src ) const
 }
 
 
-void NBodyCombiner::combine( size_t collectionIndex, bool sameCharge, vector<const Candidate *> cv,
+void NBodyCombiner::combine( size_t collectionIndex, chargeInfo ch, vector<const Candidate *> cv,
 			     const vector<const CandidateCollection * >::const_iterator begin,
 			     const vector<const CandidateCollection * >::const_iterator end,
 			     auto_ptr<CandidateCollection> & comps
@@ -86,12 +94,21 @@ void NBodyCombiner::combine( size_t collectionIndex, bool sameCharge, vector<con
   } else {
     const CandidateCollection & src = * * begin;
     for( CandidateCollection::const_iterator  c = src.begin(); c != src.end(); ++ c ) {
-      bool same = ( c->charge() == dauCharge_[ collectionIndex ] );
-      if ( sameCharge == same ) {
+      bool chargeOk = true;
+      if ( checkCharge_ ) {
+	int q = dauCharge_[ collectionIndex ];
+	bool sameCh = ( c->charge() == q ), oppositeCh = ( c->charge() == - q );
+	if( ! ( sameCh || oppositeCh ) ) continue;
+	if ( ch == undetermined && c->charge() != 0 )
+	  ch = sameCh ? same : opposite;
+	else
+	  chargeOk = ( ch == undetermined || ch == same && sameCh || ch == opposite && oppositeCh );
+      }
+      if ( chargeOk ) {
 	for( vector<const Candidate *>::const_iterator i = cv.begin(); i != cv.end(); ++i )
 	  if ( overlap_( * c, ** i ) ) return;
 	cv.push_back( & * c );
-	combine( collectionIndex + 1, sameCharge, cv, begin + 1, end, comps );
+	combine( collectionIndex + 1, ch, cv, begin + 1, end, comps );
       }
     }
   }

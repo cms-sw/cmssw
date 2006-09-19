@@ -8,15 +8,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: CandCombiner.h,v 1.7 2006/04/10 08:28:01 llista Exp $
+ * $Id: CandCombiner.h,v 1.8 2006/07/21 10:35:14 fabozzi Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
-#include "PhysicsTools/CandUtils/interface/ThreeBodyCombiner.h"
+#include "PhysicsTools/CandUtils/interface/NBodyCombiner.h"
 #include "PhysicsTools/CandAlgos/src/decayParser.h"
 #include <string>
 
@@ -39,9 +38,8 @@ namespace cand {
       void produce( edm::Event& e, const edm::EventSetup& );
       /// label vector
       std::vector<cand::parser::ConjInfo> labels_;
-      /// combiner utilities
-      std::auto_ptr<TwoBodyCombiner> combiner2_;
-      std::auto_ptr<ThreeBodyCombiner> combiner3_;
+      /// combiner utility
+      std::auto_ptr<NBodyCombiner> combiner_;
     };
   }
 }

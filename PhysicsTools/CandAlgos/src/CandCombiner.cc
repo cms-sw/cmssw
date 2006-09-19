@@ -1,4 +1,4 @@
-// $Id: CandCombiner.cc,v 1.11 2006/07/31 13:30:46 llista Exp $
+// $Id: CandCombiner.cc,v 1.12 2006/08/04 11:56:38 llista Exp $
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -13,21 +13,20 @@ using namespace std;
 using namespace cand::parser;
 using namespace cand::modules;
 
-CandCombiner::CandCombiner( const ParameterSet & cfg ) :
-  combiner2_( 0 ), combiner3_( 0 ) {
+CandCombiner::CandCombiner( const ParameterSet & cfg ) : 
+  combiner_( 0 ) {
   string decay ( cfg.getParameter<std::string>( "decay" ) );
-  int charge = 0;
   vector<int> dauCharge;
   if( decayParser( decay, labels_ ) ) {
     for( vector<ConjInfo>::iterator label = labels_.begin();
          label != labels_.end(); ++label ) {
       if( label->mode_ == ConjInfo::kPlus ){
-	charge += 1;
 	dauCharge.push_back( 1 );
       }
       else if ( label->mode_ == ConjInfo::kMinus ) {
-	charge -= 1;
 	dauCharge.push_back( -1 );
+      } else {
+	dauCharge.push_back( 0 );
       }
     }
   } else {
@@ -52,10 +51,7 @@ CandCombiner::CandCombiner( const ParameterSet & cfg ) :
 			  "invalid number of collections" );
   }
 
-  if( lists == 2 )
-    combiner2_.reset( new TwoBodyCombiner( select, true, charge ) );
-  else if( lists == 3 )
-    combiner3_.reset( new ThreeBodyCombiner( select, true, dauCharge, charge ) );
+  combiner_.reset( new NBodyCombiner( select, true, dauCharge ) );
 
   produces<CandidateCollection>();
 }
@@ -65,18 +61,15 @@ CandCombiner::~CandCombiner() {
 
 void CandCombiner::produce( Event& evt, const EventSetup& ) {
   int n = labels_.size();
-  assert( n == 2 || n == 3 );
   std::vector<Handle<CandidateCollection> > colls( n );
   for( int i = 0; i < n; ++i ) {
     evt.getByLabel( labels_[ i ].tag_, colls[ i ] );
   }
+  
+  std::vector<const CandidateCollection *> cv;
+  for( std::vector<Handle<CandidateCollection> >::const_iterator c = colls.begin();
+       c != colls.end(); ++ c )
+    cv.push_back( & * * c );
 
-  if( n == 2 ) {
-    const CandidateCollection * c1 = & * colls[ 0 ], * c2 = & * colls[ 1 ];
-    evt.put( combiner2_->combine( c1, c2 ) );
-  } else if( n == 3 ) {
-    const CandidateCollection * c1 = & * colls[ 0 ],
-      * c2 = & * colls[ 1 ], * c3 = & * colls[ 2 ];
-    evt.put( combiner3_->combine( c1, c2, c3 ) );
-  }
+  evt.put( combiner_->combine( cv ) );
 }
