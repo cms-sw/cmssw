@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and RPCRecHit.
  *
- *  $Date: 2006/06/27 07:57:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/15 09:29:50 $
+ *  $Revision: 1.3 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -35,10 +35,15 @@
 #include <Geometry/Surface/interface/BoundPlane.h>
 #include <MagneticField/Engine/interface/MagneticField.h>
 
+#include <TrackingTools/GeomPropagators/interface/Propagator.h>//
 
 class RPCDetId;
 class TFile;
 class TH1F;
+class TFile;
+class TCanvas;
+class TH2F;
+
 
 class RPCMonitorEfficiency : public edm::EDAnalyzer {
  public:
@@ -51,23 +56,36 @@ class RPCMonitorEfficiency : public edm::EDAnalyzer {
   
   //Operations
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  //  virtual void beginJob(const edm::EventSetup &);
   virtual void endJob(void);
   
+  std::map<std::string, MonitorElement*> bookDetUnitMEEff(RPCDetId & detId);
+
   const BoundPlane makeSurface(const edm::EventSetup & eventSetup,const DTRecSegment4D & theSegment);
   const MagneticField *makeMagneticField(const edm::EventSetup& eventSetup);
 	
  private:
   int counter;
   std::string nameInLog;
-  bool saveRootFile;
-  int  saveRootFileEventsInterval;
-  std::string RootFileName;
+  bool EffSaveRootFile;
+  int  EffSaveRootFileEventsInterval;
+  std::string EffRootFileName;
+
   /// back-end interface
+
   DaqMonitorBEInterface * dbe;
+  MonitorElement * h1;
+
   LocalTrajectoryParameters makeLocalTrajectory(DTRecSegment4D theSegment);
   bool debug;
   TFile* theFile;
   std::string theRecHits4DLabel;
+  std::string digiLabel;
+  PropagationDirection theDir;
+  std::string HistoOutFile;
+
+  std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
+	
   TH1F *hPositionX;
 };
 
