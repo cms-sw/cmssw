@@ -27,6 +27,7 @@ class SuperClusterProducer : public edm::EDProducer
       ~SuperClusterProducer();
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endJob();
 
    private:
 
