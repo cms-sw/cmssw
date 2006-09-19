@@ -23,6 +23,8 @@
 
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/Handle.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 
@@ -68,6 +70,7 @@ namespace
   // cout<<endl;
 
    }
+
 }
 
 namespace edm
@@ -230,7 +233,8 @@ void StreamerOutputModule<Consumer>::setHltMask(EventPrincipal const& e)
 
     hltbits_.clear();  // If there was something left over from last event
 
-    const Trig& prod = getTrigMask(e);
+    const edm::Handle<edm::TriggerResults>& prod = getTrigMask(e);
+    //const Trig& prod = getTrigMask(e);
     std::vector<unsigned char> vHltState; 
     
     if (prod.isValid())
