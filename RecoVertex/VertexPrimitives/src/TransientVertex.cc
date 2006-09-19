@@ -186,9 +186,9 @@ void TransientVertex::addTracks(const vector<TransientTrack> & tracks)
 {
   for (vector<TransientTrack>::const_iterator i = tracks.begin();
        i != tracks.end(); ++i) {
-    if ( (*i).persistentTrackRef() )
+    if ((*i).persistentTrackRef().isNonnull())
     {
-      add(*(*i).persistentTrackRef());
+      add((*i).persistentTrackRef());
     }
   }
 }
