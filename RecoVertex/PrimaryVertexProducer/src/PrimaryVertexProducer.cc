@@ -102,8 +102,11 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       // store link to tracks
       for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
  	   it != prongs.end(); it++) {
- 	if ((*it).persistentTrackRef()) {
- 	  v.add(*(*it).persistentTrackRef());
+ 	if ((*it).persistentTrackRef().isNonnull()) {
+	  cout << (*it).persistentTrackRef().id() << ", "
+	       << (*it).persistentTrackRef().key() << endl;
+
+ 	  v.add((*it).persistentTrackRef());
  	}
  	else {
  	  cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
