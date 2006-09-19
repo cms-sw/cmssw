@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.19 2006/09/17 12:20:03 vanlaer Exp $
+ * \version $Id: Vertex.h,v 1.20 2006/09/17 13:25:11 vanlaer Exp $
  *
  */
 #include <Rtypes.h>
@@ -113,7 +113,7 @@ namespace reco {
     /// position index
     index idx( index i, index j ) const {
       int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
-      return a * dimension + b - a * ( a + 1 ) / 2;
+      return b * ( b + 1 ) / 2 + a;
     }
   };
   
