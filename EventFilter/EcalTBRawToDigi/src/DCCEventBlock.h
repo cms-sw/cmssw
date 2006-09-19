@@ -36,7 +36,8 @@ class DCCEventBlock : public DCCBlockPrototype {
 		DCCSRPBlock               * srpBlock();
 		DCCTrailerBlock           * trailerBlock();
 		vector< DCCTowerBlock * >   towerBlocksById(ulong towerId);
-		
+		pair<bool,string> compare(DCCEventBlock * );
+
 		bool eventHasErrors();
 		string eventErrorString();
 		void displayEvent(ostream & os=cout);
@@ -62,7 +63,7 @@ class DCCEventBlock : public DCCBlockPrototype {
 			DCCERROR_EMPTYEVENT  = 0x1, 
 			
 			TOWERHEADER_SIZE     = 8, 
-			TRAILER_SIZE         = 8
+			TRAILER_SIZE         = 8,
 	
 		
 		};		

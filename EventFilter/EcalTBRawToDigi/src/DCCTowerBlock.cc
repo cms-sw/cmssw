@@ -5,7 +5,7 @@
 #include "DCCEventBlock.h"
 #include "DCCDataMapper.h"
 #include "ECALParserBlockException.h"
-#include <stdio.h>
+#include <stdio>
 
 
 
@@ -49,7 +49,7 @@ DCCTowerBlock::DCCTowerBlock(
 	
 	if( length > 0 ){ numbOfXtalBlocks = (length-1)/numbDWInXtalBlock; }
 	ulong xtalBlockSize     =  numbDWInXtalBlock*8;
-	//ulong pIncrease         =  numbDWInXtalBlock*2;
+	ulong pIncrease         =  numbDWInXtalBlock*2;
 	
 	//cout<<"\n DEBUG::numbDWInXtal Block "<<dec<<numbDWInXtalBlock<<endl;
 	//cout<<"\n DEBUG::length             "<<length<<endl;
@@ -136,7 +136,8 @@ void DCCTowerBlock::dataCheck(){
 	//if(!res.first){ checkErrors += res.second; (errors_["FE::HEADER"])++; }
 	////////////////////////////////////////////////////////////////////////////
 	
-	res = checkDataField("LV1", L1MASK & (dccBlock_->getDataField("LV1"))); 
+        // mod to account for ECAL counters starting from 0 in the front end N. Almeida
+	res = checkDataField("LV1", L1MASK &  (dccBlock_->getDataField("LV1")  -1)   ); 
 	if(!res.first){ checkErrors += res.second; (errors_["FE::HEADER"])++; }
 	
 	
@@ -146,8 +147,10 @@ void DCCTowerBlock::dataCheck(){
 	}
 	
 	if( checkErrors !="" ){
+		string myTowerId;
+		
 		errorString_ +="\n ======================================================================\n"; 
-		errorString_ += string(" ") + name_ + string(" data fields checks errors : ") ;
+		errorString_ += string(" ") + name_ + string("( ID = ")+parser_->getDecString((ulong)(expectedTowerID_))+string(" ) errors : ") ;
 		errorString_ += checkErrors ;
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;	
@@ -172,8 +175,6 @@ vector< DCCXtalBlock * > DCCTowerBlock::xtalBlocksById(ulong stripId, ulong xtal
 	
 	return myVector;
 }
-
-
 
 int DCCTowerBlock::towerID() {
   int result=-1;

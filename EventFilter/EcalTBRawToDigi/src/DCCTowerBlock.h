@@ -35,8 +35,8 @@ class DCCTowerBlock : public DCCBlockPrototype {
 		~DCCTowerBlock();
 		
 		void parseXtalData();
-                int towerID();
- 		
+		int towerID();
+
 		vector< DCCXtalBlock * > & xtalBlocks();
 		
 		vector< DCCXtalBlock * > xtalBlocksById(ulong stripId, ulong xtalId);

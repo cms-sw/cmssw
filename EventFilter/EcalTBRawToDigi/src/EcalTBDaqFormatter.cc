@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/04/27 21:56:57 $
- *  $Revision: 1.25 $
+ *  $Date: 2006/07/06 23:19:41 $
+ *  $Revision: 1.26 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -21,6 +21,7 @@
 #include "DCCDataParser.h"
 #include "DCCEventBlock.h"
 #include "DCCTowerBlock.h"
+#include "DCCTCCBlock.h"
 #include "DCCXtalBlock.h"
 #include "DCCDataMapper.h"
 
@@ -34,7 +35,7 @@ EcalTBDaqFormatter::EcalTBDaqFormatter () {
   LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter";
   vector<ulong> parameters;
   parameters.push_back(10); // parameters[0] is the xtal samples 
-  parameters.push_back(1);  // parameters[1] is the number of trigger time samples
+  parameters.push_back(1);  // parameters[1] is the number of trigger time samples for TPG's
   parameters.push_back(68); // parameters[2] is the number of TT
   parameters.push_back(68); // parameters[3] is the number of SR Flags
   parameters.push_back(1);  // parameters[4] is the dcc id
@@ -84,10 +85,6 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
   for( vector< DCCEventBlock * >::iterator itEventBlock = dccEventBlocks.begin(); 
        itEventBlock != dccEventBlocks.end(); 
        itEventBlock++){
-      
-    //cout << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID") << endl; 
-    //cout << " BX number " << (*itEventBlock)->getDataField("BX") << endl;
-    //cout << " RUN NUMBER  " <<  (*itEventBlock)->getDataField("RUN NUMBER") << endl;
 
     bool _displayParserMessages = false;
     if( (*itEventBlock)->eventHasErrors() && _displayParserMessages)
@@ -121,6 +118,30 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       theTCCs.push_back ((*itEventBlock)->getDataField(TCCnumS) );
     }
     theDCCheader.setTccStatus(theTCCs);
+
+    // mod to go on
+    vector< DCCTCCBlock * > tccBlocks = (*itEventBlock)->tccBlocks();
+    // cout <<  " tccBlocks size " << tccBlocks.size() << endl;
+    // mod to go on
+    
+    for(    vector< DCCTCCBlock * >::iterator itTCCBlock = tccBlocks.begin(); 
+	    itTCCBlock != tccBlocks.end(); 
+	    itTCCBlock ++)
+      {
+	vector<int> TpSamples = (* itTCCBlock) -> triggerSamples() ;
+	vector<int> TpFlags      = (* itTCCBlock) -> triggerFlags() ;
+
+	for(int i=0; i<TpSamples.size(); i++)	
+	  {
+	    LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"
+					<< "tower: " << (i+1) << " primitive: " << TpSamples[i] << endl;
+	    LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"<<
+	      "tower: " << (i+1) << " flag: " << TpFlags[i] << endl;
+	  }
+
+      }
+
+
 
     short TowerStatus[MAX_TT_SIZE+1];
     char buffer[20];

@@ -22,11 +22,10 @@ class DCCXtalBlock : public DCCBlockPrototype {
 		);
 		
 		void dataCheck(); 
-                int xtalID();
-                int stripID();
+		int xtalID();
+                                int stripID();
 		vector<int> xtalDataSamples();
-		
-		
+
 	protected :
 		
 		void increment(ulong numb);
