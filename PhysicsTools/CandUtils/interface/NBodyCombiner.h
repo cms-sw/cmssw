@@ -22,9 +22,12 @@ protected:
   bool preselect( const reco::Candidate &, const reco::Candidate & ) const;
   /// returns a composite candidate combined from two daughters
   reco::Candidate * combine( const reco::Candidate &, const reco::Candidate & ) const;
-  enum chargeInfo { undetermined, same, opposite };
+  /// charge information flag
+  enum ChargeInfo { undetermined, same, opposite, invalid };
+  /// return charge information
+  static ChargeInfo chargeInfo( int q1, int q2 ); 
   /// returns a composite candidate combined from two daughters
-  void combine( size_t collectionIndex, chargeInfo ch, std::vector<const reco::Candidate *> cv,
+  void combine( size_t collectionIndex, ChargeInfo ch, std::vector<const reco::Candidate *> cv,
 		const std::vector<const reco::CandidateCollection * >::const_iterator begin,
 		const std::vector<const reco::CandidateCollection * >::const_iterator end,
 		std::auto_ptr<reco::CandidateCollection> & comps

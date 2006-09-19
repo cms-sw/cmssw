@@ -7,12 +7,20 @@ NBodyCombiner::NBodyCombiner( const parser::SelectorPtr & sel, bool ck, const ve
   checkCharge_( ck ), dauCharge_( dauCharge ), overlap_(), select_( sel ) {
 }
 
+NBodyCombiner::ChargeInfo NBodyCombiner::chargeInfo( int q1, int q2 ) {
+  if ( q1 == q2 ) return same;
+  if ( q1 == - q2 ) return opposite;
+  return invalid;
+}
+
+
 bool NBodyCombiner::preselect( const Candidate & c1, const Candidate & c2 ) const {
   if ( checkCharge_ ) {
-    if ( ! ( ( c1.charge() == dauCharge_[ 0 ] && 
-	       c2.charge() == dauCharge_[ 1 ] ) ||
-	     ( - c1.charge() == dauCharge_[ 0 ] && 
-	       - c2.charge() == dauCharge_[ 1 ] ) ) ) return false;
+    ChargeInfo ch1 = chargeInfo( c1.charge(), dauCharge_[ 0 ] );
+    if ( ch1 == invalid ) return false;
+    ChargeInfo ch2 = chargeInfo( c2.charge(), dauCharge_[ 1 ] );
+    if ( ch2 == invalid ) return false;
+    if ( ch1 != ch2 ) return false;
   }
   if ( overlap_( c1, c2 ) ) return false;
   return true;
@@ -64,15 +72,16 @@ NBodyCombiner::combine( const vector<const CandidateCollection * > & src ) const
   } else {
     const CandidateCollection & src0 = * src[ 0 ];
     for( CandidateCollection::const_iterator  c = src0.begin(); c != src0.end(); ++ c ) {
-      chargeInfo ch = undetermined;
-      int q = dauCharge_[ 0 ];
-      bool sameCh = ( c->charge() == q ), oppositeCh = ( c->charge() == - q );
-      if ( ! ( sameCh || oppositeCh ) ) continue;
-      if ( c->charge() != 0 ) 
-	ch = sameCh ? same : opposite;
+      ChargeInfo chkCharge = undetermined;
+      if ( checkCharge_ ) {
+	int q = c->charge();
+	ChargeInfo ch = chargeInfo( q, dauCharge_[ 0 ] );
+	if ( ch == invalid ) continue;
+	if ( q != 0 ) chkCharge = ch;
+      }
       vector<const Candidate *> cv;
       cv.push_back( & * c );
-      combine( 1, ch, cv, src.begin() + 1, src.end(), comps );
+      combine( 1, chkCharge, cv, src.begin() + 1, src.end(), comps );
     }
   }
 
@@ -80,7 +89,7 @@ NBodyCombiner::combine( const vector<const CandidateCollection * > & src ) const
 }
 
 
-void NBodyCombiner::combine( size_t collectionIndex, chargeInfo ch, vector<const Candidate *> cv,
+void NBodyCombiner::combine( size_t collectionIndex, ChargeInfo chkCharge, vector<const Candidate *> cv,
 			     const vector<const CandidateCollection * >::const_iterator begin,
 			     const vector<const CandidateCollection * >::const_iterator end,
 			     auto_ptr<CandidateCollection> & comps
@@ -94,22 +103,16 @@ void NBodyCombiner::combine( size_t collectionIndex, chargeInfo ch, vector<const
   } else {
     const CandidateCollection & src = * * begin;
     for( CandidateCollection::const_iterator  c = src.begin(); c != src.end(); ++ c ) {
-      bool chargeOk = true;
       if ( checkCharge_ ) {
-	int q = dauCharge_[ collectionIndex ];
-	bool sameCh = ( c->charge() == q ), oppositeCh = ( c->charge() == - q );
-	if( ! ( sameCh || oppositeCh ) ) continue;
-	if ( ch == undetermined && c->charge() != 0 )
-	  ch = sameCh ? same : opposite;
-	else
-	  chargeOk = ( ch == undetermined || ch == same && sameCh || ch == opposite && oppositeCh );
+	int q = c->charge();
+	ChargeInfo ch = chargeInfo( q, dauCharge_[ collectionIndex ] );
+	if( ch == invalid ) continue;
+	if ( chkCharge == undetermined && q != 0 ) chkCharge = ch;
       }
-      if ( chargeOk ) {
-	for( vector<const Candidate *>::const_iterator i = cv.begin(); i != cv.end(); ++i )
-	  if ( overlap_( * c, ** i ) ) return;
-	cv.push_back( & * c );
-	combine( collectionIndex + 1, ch, cv, begin + 1, end, comps );
-      }
+      for( vector<const Candidate *>::const_iterator i = cv.begin(); i != cv.end(); ++i )
+	if ( overlap_( * c, ** i ) ) return;
+      cv.push_back( & * c );
+      combine( collectionIndex + 1, chkCharge, cv, begin + 1, end, comps );
     }
   }
 }
