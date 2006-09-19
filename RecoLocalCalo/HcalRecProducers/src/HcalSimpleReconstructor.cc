@@ -30,6 +30,14 @@ using namespace std;
       } else if (!strcasecmp(subd.c_str(),"HF")) {
 	subdet_=HcalForward;
 	produces<HFRecHitCollection>();
+      } else if (!strcasecmp(subd.c_str(),"ZDC")) {
+	subdet_=HcalOther;
+	subdetOther_=HcalZDC;
+	produces<ZDCRecHitCollection>();
+      } else if (!strcasecmp(subd.c_str(),"CALIB")) {
+	subdet_=HcalOther;
+	subdetOther_=HcalCalibration;
+	produces<HcalCalibRecHitCollection>();
       } else {
 	std::cout << "HcalSimpleReconstructor is not associated with a specific subdetector!" << std::endl;
       }       
@@ -93,6 +101,40 @@ using namespace std;
 	HFDigiCollection::const_iterator i;
 	for (i=digi->begin(); i!=digi->end(); i++) {
 	  HcalDetId cell = i->id();	  
+	  conditions->makeHcalCalibration (cell, &calibrations);
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+	  rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+	}
+	// return result
+	e.put(rec);     
+      } else if (subdet_==HcalOther && subdetOther_==HcalZDC) {
+	edm::Handle<ZDCDigiCollection> digi;
+	e.getByLabel(inputLabel_,digi);
+	
+	// create empty output
+	std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
+	// run the algorithm
+	ZDCDigiCollection::const_iterator i;
+	for (i=digi->begin(); i!=digi->end(); i++) {
+	  HcalZDCDetId cell = i->id();	  
+	  conditions->makeHcalCalibration (cell, &calibrations);
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+	  rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+	}
+	// return result
+	e.put(rec);     
+      } else if (subdet_==HcalOther && subdetOther_==HcalCalibration) {
+	edm::Handle<HcalCalibDigiCollection> digi;
+	e.getByLabel(inputLabel_,digi);
+	
+	// create empty output
+	std::auto_ptr<HcalCalibRecHitCollection> rec(new HcalCalibRecHitCollection);
+	// run the algorithm
+	HcalCalibDigiCollection::const_iterator i;
+	for (i=digi->begin(); i!=digi->end(); i++) {
+	  HcalCalibDetId cell = i->id();	  
 	  conditions->makeHcalCalibration (cell, &calibrations);
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *shape);

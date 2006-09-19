@@ -14,8 +14,8 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2006/03/15 23:40:27 $
-    $Revision: 1.5 $
+    $Date: 2006/08/17 15:20:57 $
+    $Revision: 1.6 $
     \author J. Mans - Minnesota
     */
     class HcalSimpleReconstructor : public edm::EDProducer {
@@ -26,6 +26,7 @@
     private:
       HcalSimpleRecAlgo reco_;
       HcalSubdetector subdet_;
+      HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
     };
 
