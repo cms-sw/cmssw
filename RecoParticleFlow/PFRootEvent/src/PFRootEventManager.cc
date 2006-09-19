@@ -501,13 +501,20 @@ bool PFRootEventManager::processEntry(int entry) {
   }
 
   if(clustersECALBranch_ && !clusteringIsOn_) {
-    cout<<"clusters ECAL :GetEntry"<<endl;
     clustersECALBranch_->GetEntry(entry);
+    for(unsigned i=0; i<clustersECAL_->size(); i++) 
+      (*clustersECAL_)[i].calculatePositionREP();
   }
-  if(clustersHCALBranch_ && !clusteringIsOn_) 
+  if(clustersHCALBranch_ && !clusteringIsOn_) {
     clustersHCALBranch_->GetEntry(entry);
-  if(clustersPSBranch_ && !clusteringIsOn_) 
+    for(unsigned i=0; i<clustersHCAL_->size(); i++) 
+      (*clustersHCAL_)[i].calculatePositionREP();    
+  }
+  if(clustersPSBranch_ && !clusteringIsOn_) {
     clustersPSBranch_->GetEntry(entry);
+    for(unsigned i=0; i<clustersPS_->size(); i++) 
+      (*clustersPS_)[i].calculatePositionREP();    
+  }
 
   if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
   if(trueParticlesBranch_) trueParticlesBranch_->GetEntry(entry);
@@ -521,7 +528,7 @@ bool PFRootEventManager::processEntry(int entry) {
   cout<<"number of PS rechits     : "<<rechitsPS_.size()<<endl;
   
   if( clusteringIsOn_ ) clustering(); 
-  
+
   if(clustersECAL_.get() ) {
     cout<<"number of ECAL clusters : "<<clustersECAL_->size()<<endl;
   }
@@ -533,7 +540,7 @@ bool PFRootEventManager::processEntry(int entry) {
   }
 
 
-  // particleFlow();
+  particleFlow();
 
   cout<<"number of PFCluster instances: "<<reco::PFCluster::instanceCounter_<<endl;
   
@@ -674,32 +681,18 @@ void PFRootEventManager::particleFlow() {
 
   // create PFBlockElements from clusters and rectracks
 
-  for(unsigned i=0; i<clusters_->size(); i++) {
-
-    if( (*clusters_)[i].type() != reco::PFCluster::TYPE_PF ) continue;
-
-    int layer = (*clusters_)[i].layer();
-      
-    switch( layer ) {
-    case PFLayer::ECAL_BARREL:
-    case PFLayer::ECAL_ENDCAP:
-      allElements_.insert( new PFBlockElementECAL( & (*clusters_)[i] ) );
-      break;
-    case PFLayer::PS1:
-    case PFLayer::PS2:
-      allElements_.insert( new PFBlockElementPS( & (*clusters_)[i] ) );
-      break;
-    case PFLayer::HCAL_BARREL1:
-    case PFLayer::HCAL_BARREL2:
-    case PFLayer::HCAL_ENDCAP:
-      allElements_.insert( new PFBlockElementHCAL( & (*clusters_)[i] ) );
-      break;
-    default:
-      break;
-    }    
+  for(unsigned i=0; i<clustersECAL_->size(); i++) {
+    if( (*clustersECAL_)[i].type() != reco::PFCluster::TYPE_PF ) continue;
+    allElements_.insert( new PFBlockElementECAL( & (*clustersECAL_)[i] ) );
   }
-
-
+  for(unsigned i=0; i<clustersHCAL_->size(); i++) {
+    if( (*clustersHCAL_)[i].type() != reco::PFCluster::TYPE_PF ) continue;
+    allElements_.insert( new PFBlockElementHCAL( & (*clustersHCAL_)[i] ) );
+  }
+  for(unsigned i=0; i<clustersPS_->size(); i++) {
+    if( (*clustersPS_)[i].type() != reco::PFCluster::TYPE_PF ) continue;
+    allElements_.insert( new PFBlockElementPS( & (*clustersPS_)[i] ) );
+  }
 
   for(unsigned i=0; i<recTracks_.size(); i++) {
     recTracks_[i].calculatePositionREP();
@@ -1808,25 +1801,41 @@ double PFRootEventManager::getMaxEHcal() {
 
 void  PFRootEventManager::print() const {
   if( printRecHits_ ) {
-    cout<<"RECHITS =============================================="<<endl;
-    for(unsigned i=0; i<rechits_.size(); i++) {
-      cout<<rechits_[i]<<endl;
+    cout<<"ECAL RecHits =============================================="<<endl;
+    for(unsigned i=0; i<rechitsECAL_.size(); i++) {
+      cout<<rechitsECAL_[i]<<endl;
+    }
+    cout<<"HCAL RecHits =============================================="<<endl;
+    for(unsigned i=0; i<rechitsHCAL_.size(); i++) {
+      cout<<rechitsHCAL_[i]<<endl;
+    }
+    cout<<"PS RecHits ================================================"<<endl;
+    for(unsigned i=0; i<rechitsPS_.size(); i++) {
+      cout<<rechitsPS_[i]<<endl;
     }
   }
   if( printClusters_ ) {
-    cout<<"CLUSTERS ============================================="<<endl;
-    for(unsigned i=0; i<clusters_->size(); i++) {
-      cout<<(*clusters_)[i]<<endl;
+    cout<<"ECAL Clusters ============================================="<<endl;
+    for(unsigned i=0; i<clustersECAL_->size(); i++) {
+      cout<<(*clustersECAL_)[i]<<endl;
+    }    
+    cout<<"HCAL Clusters ============================================="<<endl;
+    for(unsigned i=0; i<clustersHCAL_->size(); i++) {
+      cout<<(*clustersHCAL_)[i]<<endl;
+    }    
+    cout<<"PS Clusters   ============================================="<<endl;
+    for(unsigned i=0; i<clustersPS_->size(); i++) {
+      cout<<(*clustersPS_)[i]<<endl;
     }    
   }
   if( printPFBs_ ) {
-    cout<<"Particle Flow Blocks ================================="<<endl;
+    cout<<"Particle Flow Blocks ======================================"<<endl;
     for(unsigned i=0; i<allPFBs_.size(); i++) {
       cout<<allPFBs_[i]<<endl;
     }    
   }
   if( printTrueParticles_ ) {
-    cout<<"true particles ===== ================================="<<endl;
+    cout<<"True Particles ===== ======================================"<<endl;
     for(unsigned i=0; i<trueParticles_.size(); i++) {
       cout<<trueParticles_[i]<<endl;
     }    

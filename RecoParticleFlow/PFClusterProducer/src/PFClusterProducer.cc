@@ -54,48 +54,48 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   // parameters for ecal clustering
   
   threshEcalBarrel_ = 
-    iConfig.getUntrackedParameter<double>("thresh_Ecal_Barrel",0.5);
+    iConfig.getParameter<double>("thresh_Ecal_Barrel");
   threshSeedEcalBarrel_ = 
-    iConfig.getUntrackedParameter<double>("thresh_Seed_Ecal_Barrel",0.3);
+    iConfig.getParameter<double>("thresh_Seed_Ecal_Barrel");
 
   threshEcalEndcap_ = 
-    iConfig.getUntrackedParameter<double>("thresh_Ecal_Endcap",0.3);
+    iConfig.getParameter<double>("thresh_Ecal_Endcap");
   threshSeedEcalEndcap_ = 
-    iConfig.getUntrackedParameter<double>("thresh_Seed_Ecal_Endcap",0.8);
+    iConfig.getParameter<double>("thresh_Seed_Ecal_Endcap");
 
   // parameters for preshower clustering 
 
   threshPS_ = 
-    iConfig.getUntrackedParameter<double>("thresh_PS",0.0007);
+    iConfig.getParameter<double>("thresh_PS");
   threshSeedPS_ = 
-    iConfig.getUntrackedParameter<double>("thresh_Seed_PS",0.01);
+    iConfig.getParameter<double>("thresh_Seed_PS");
   
 
   // parameters for hcal clustering
 
   threshHcalBarrel_ = 
-    iConfig.getUntrackedParameter<double>("thresh_Hcal_Barrel",1);
+    iConfig.getParameter<double>("thresh_Hcal_Barrel");
   threshSeedHcalBarrel_ = 
-    iConfig.getUntrackedParameter<double>("thresh_Seed_Hcal_Barrel",1.4);
+    iConfig.getParameter<double>("thresh_Seed_Hcal_Barrel");
 
   threshHcalEndcap_ = 
-    iConfig.getUntrackedParameter<double>("thresh_Hcal_Endcap",1);
+    iConfig.getParameter<double>("thresh_Hcal_Endcap");
   threshSeedHcalEndcap_ = 
-    iConfig.getUntrackedParameter<double>("thresh_Seed_Hcal_Endcap",1.4);
+    iConfig.getParameter<double>("thresh_Seed_Hcal_Endcap");
 
   
 
   int    dcormode = 
-    iConfig.getUntrackedParameter<int>("depthCor_Mode",-1);
+    iConfig.getParameter<int>("depthCor_Mode");
   
   double dcora = 
-    iConfig.getUntrackedParameter<double>("depthCor_A",-1);
+    iConfig.getParameter<double>("depthCor_A");
   double dcorb = 
-    iConfig.getUntrackedParameter<double>("depthCor_B",-1);
+    iConfig.getParameter<double>("depthCor_B");
   double dcorap = 
-    iConfig.getUntrackedParameter<double>("depthCor_A_preshower",-1);
+    iConfig.getParameter<double>("depthCor_A_preshower");
   double dcorbp = 
-    iConfig.getUntrackedParameter<double>("depthCor_B_preshower",-1);
+    iConfig.getParameter<double>("depthCor_B_preshower");
 
   if( dcormode > -0.5 && 
       dcora > -0.5 && 

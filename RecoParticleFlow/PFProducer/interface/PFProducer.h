@@ -41,23 +41,38 @@ class PFProducer : public edm::EDProducer {
   virtual void beginJob(const edm::EventSetup & c);
 
  private:
-  /// Get position of track on a given surface
-   TrajectoryStateOnSurface getStateOnSurface(PFGeometry::Surface_t iSurf, const TrajectoryStateOnSurface& tsos, const Propagator& propagator, int& side);
 
- private:
-  // ----------member data ---------------------------
+  // ----------member data ---------------------------------
+  /// Get position of track on a given surface
+  TrajectoryStateOnSurface 
+    getStateOnSurface(PFGeometry::Surface_t iSurf, 
+		      const TrajectoryStateOnSurface& tsos, 
+		      const Propagator& propagator, 
+		      int& side);
 
   /// module label for retrieving input rec tracks 
   std::string recTrackModuleLabel_;
 
+  /// module label for retrieving PFClusters
+  std::string pfClusterModuleLabel_;
+
+  /// instance name for retrieving ECAL PFClusters
+  std::string pfClusterECALInstanceName_;
+
+  /// instance name for retrieving HCAL PFClusters
+  std::string pfClusterHCALInstanceName_;
+
+  /// instance name for retrieving PS PFClusters
+  std::string pfClusterPSInstanceName_;
+
   /// module label for retrieving input simtrack and simvertex
   std::string simModuleLabel_;  
-  
+
   /// output collection name for reconstructed tracks
-  std::string pfRecTrackCollection_;
+  // std::string pfRecTrackCollection_;
 
   /// output collection name for particles
-  std::string pfParticleCollection_;
+  // std::string pfParticleCollection_;
 
   // parameters used for track reconstruction --------------
 
@@ -81,13 +96,19 @@ class PFProducer : public edm::EDProducer {
   edm::ParameterSet particleFilter_;
   FSimEvent* mySimEvent;
 
-  // flags for the various tasks
+  // flags for the various tasks ---------------------------
 
   /// process RecTracks on/off
   bool   processRecTracks_;
   
   /// process particles on/off
   bool   processParticles_;
+  
+  /// particle flow on/off
+  bool   doParticleFlow_;
+
+  // particle flow parameters ------------------------------
+  int pfReconMethod_;
   
 };
 
