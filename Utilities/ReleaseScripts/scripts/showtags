@@ -60,9 +60,9 @@ my $c2 = cwd();
 my @f1 = `ls`;
 
 if(defined $tagCollector) {
-  print "-------- Package -----\t\t ----  Tag ----\n";
+  printf '%-40s %s', "-------- Package --------", "--- Tag ---\n";
 } else {
-  print "-- Tag --\t ---------- Package ----------\n";
+  printf '%-14s %s', "--- Tag ---", "---------- Package ----------\n";
 }
 
 for my $f (@f1) {
@@ -86,9 +86,9 @@ for my $f (@f1) {
         }
         #print "package: $pack\ttag: $tag\n";
         if(defined $tagCollector) {
-          print "$pack\t $tag\n";
+          printf '%-40s %s',"$pack", "$tag\n";
         } else {
-          print "$tag\t $pack\t\n";
+          printf '%-14s %s', $tag, "$pack\n";
         }
 
         $tagMap{"$pack"} = $tag;
