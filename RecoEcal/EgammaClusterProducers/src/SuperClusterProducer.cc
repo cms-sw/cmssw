@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <sstring>
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -59,13 +60,21 @@ SuperClusterProducer::SuperClusterProducer(const edm::ParameterSet& ps)
 
 SuperClusterProducer::~SuperClusterProducer()
 {
-  double averEnergy = totalE / noSuperClusters;
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
-  edm::LogInfo("SuperClusterProducerInfo") << "average SuperCluster energy = " << averEnergy;
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
   delete bremAlgo_p;
+}
+
+void
+SuperClusterProducer::endJob() {
+  double averEnergy = totalE / noSuperClusters;
+  std::ostringstream str;
+  str << "-------------------------------------------------------\n";
+  str << "-------------------------------------------------------\n";
+  str << "average SuperCluster energy = " << averEnergy << "\n";
+  str << "-------------------------------------------------------\n";
+  str << "-------------------------------------------------------\n";
+
+  edm::LogInfo("SuperClusterProducerInfo") << str.str() << "\n";
+
 }
 
 
