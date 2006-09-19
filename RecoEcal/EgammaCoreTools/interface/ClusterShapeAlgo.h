@@ -21,19 +21,17 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 class ClusterShapeAlgo
 {
 
  public:
-  static void Initialize(const EcalRecHitCollection *passedRecHitsMap,
-			 const edm::ESHandle<CaloGeometry> *geoHandle);
-  static reco::ClusterShape Calculate(const reco::BasicCluster &passedCluster );
+  ClusterShapeAlgo(PositionCalc *passedPositionCalc, const EcalRecHitCollection *passedRecHitsMap, const edm::ESHandle<CaloGeometry> *geoHandle);
+  reco::ClusterShape Calculate(const reco::BasicCluster &passedCluster);
  
   private:
-  ClusterShapeAlgo(){};
-
   void Calculate_TopEnergy(const reco::BasicCluster &passedCluster);
   void Calculate_2ndEnergy(const reco::BasicCluster &passedCluster);
   void Create_Map(); 
@@ -46,8 +44,9 @@ class ClusterShapeAlgo
   void Calculate_Covariances();
   void Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster, const int EtaPhi);
   
-  static const edm::ESHandle<CaloGeometry> *storedGeoHandle_;
-  static const EcalRecHitCollection *storedRecHitsMap_;
+  const edm::ESHandle<CaloGeometry> *storedGeoHandle_;
+  const EcalRecHitCollection *storedRecHitsMap_;
+  PositionCalc *storedPositionCalc_;
 
   std::pair<DetId, double> energyMap_[5][5];
   int e2x2_Diagonal_X_, e2x2_Diagonal_Y_; 

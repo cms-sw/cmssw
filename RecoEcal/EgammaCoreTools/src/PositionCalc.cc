@@ -2,16 +2,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 
-
-//Set Default Values 
-bool        PositionCalc::param_LogWeighted_;
-Double32_t  PositionCalc::param_X0_;
-Double32_t  PositionCalc::param_T0_; 
-Double32_t  PositionCalc::param_W0_;
-const EcalRecHitCollection *PositionCalc::storedRecHitsMap_ = NULL;
-const CaloSubdetectorGeometry *PositionCalc::storedSubdetectorGeometry_ = NULL;
-
-void PositionCalc::Initialize(std::map<std::string,double> providedParameters, 
+PositionCalc::PositionCalc(std::map<std::string,double> providedParameters, 
 			      EcalRecHitCollection const *passedRecHitsMap,
 			      const CaloSubdetectorGeometry *passedGeometry) 
 {
@@ -23,8 +14,6 @@ void PositionCalc::Initialize(std::map<std::string,double> providedParameters,
   storedRecHitsMap_ = passedRecHitsMap;
   storedSubdetectorGeometry_ = passedGeometry;
 }
-
-
 
 math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
 {

@@ -2,52 +2,40 @@
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 
-const edm::ESHandle<CaloGeometry> *ClusterShapeAlgo::storedGeoHandle_ = NULL;
-const EcalRecHitCollection  *ClusterShapeAlgo::storedRecHitsMap_ = NULL;
-
-void ClusterShapeAlgo::Initialize(EcalRecHitCollection const *passedRecHitsMap,
-				  												const edm::ESHandle<CaloGeometry> *geoHandle)
+ClusterShapeAlgo::ClusterShapeAlgo(PositionCalc *passedPositionCalc, const EcalRecHitCollection *passedRecHitsMap, const edm::ESHandle<CaloGeometry> *geoHandle)
 {
+	if(storedRecHitsMap_ == NULL || storedGeoHandle_ == NULL)
+  	throw(std::runtime_error("\n\nOh No! ClusterShapeAlgo created with invalid parameters.\n\n"));
+ 
+	storedPositionCalc_ = passedPositionCalc;
   storedRecHitsMap_ = passedRecHitsMap;
   storedGeoHandle_ = geoHandle;
 }
 
 reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedCluster)
 {
-	if(storedRecHitsMap_ == NULL || storedGeoHandle_ == NULL)
-  	throw(std::runtime_error("\n\nOh No! ClusterShapeAlgo::Calculate called unitialized.\n\n"));
-   
-  ClusterShapeAlgo dataHolder;
-  
-  dataHolder.Calculate_TopEnergy(passedCluster);
-  dataHolder.Calculate_2ndEnergy(passedCluster);
-  dataHolder.Create_Map();
-  dataHolder.Calculate_e2x2();
-  dataHolder.Calculate_e3x2();
-  dataHolder.Calculate_e3x3();
-  dataHolder.Calculate_e4x4();
-  dataHolder.Calculate_e5x5();
-  dataHolder.Calculate_Location();
-  dataHolder.Calculate_Covariances();
-  dataHolder.Calculate_BarrelBasketEnergyFraction(passedCluster, Eta);
-	dataHolder.Calculate_BarrelBasketEnergyFraction(passedCluster, Phi);
+  Calculate_TopEnergy(passedCluster);
+  Calculate_2ndEnergy(passedCluster);
+  Create_Map();
+  Calculate_e2x2();
+  Calculate_e3x2();
+  Calculate_e3x3();
+  Calculate_e4x4();
+  Calculate_e5x5();
+  Calculate_Location();
+  Calculate_Covariances();
+  Calculate_BarrelBasketEnergyFraction(passedCluster, Eta);
+	Calculate_BarrelBasketEnergyFraction(passedCluster, Phi);
 	
-  return reco::ClusterShape(dataHolder.covEtaEta_, 
-			     									dataHolder.covEtaPhi_,dataHolder.covPhiPhi_, 
-			     									dataHolder.eMax_, dataHolder.eMaxId_, 
-									  		    dataHolder.e2nd_, dataHolder.e2ndId_,
-			     									dataHolder.e2x2_, dataHolder.e3x2_, dataHolder.e3x3_,
-			     									dataHolder.e4x4_, dataHolder.e5x5_,
-			     									dataHolder.e3x2Ratio_, dataHolder.location_,
-			     									dataHolder.energyBasketFractionEta_,
-			     									dataHolder.energyBasketFractionPhi_);
+  return reco::ClusterShape(covEtaEta_, covEtaPhi_, covPhiPhi_, eMax_, eMaxId_, e2nd_, e2ndId_,
+			     									e2x2_, e3x2_, e3x3_,e4x4_, e5x5_, e3x2Ratio_, location_,
+			     									energyBasketFractionEta_, energyBasketFractionPhi_);
 }
 
 void ClusterShapeAlgo::Calculate_TopEnergy(const reco::BasicCluster &passedCluster)
@@ -294,7 +282,7 @@ void ClusterShapeAlgo::Calculate_Location()
     for(int j = 0; j <= 4; j++)
       if(!energyMap_[i][j].first.null()) usedDetIds.push_back(energyMap_[i][j].first);
 
-  location_ = PositionCalc::Calculate_Location(usedDetIds);
+  location_ = storedPositionCalc_->Calculate_Location(usedDetIds);
 }
 
 
@@ -306,7 +294,7 @@ void ClusterShapeAlgo::Calculate_Covariances()
     for(int j = 0; j <= 4; j++)
       if(!energyMap_[i][j].first.null()) usedDetIds.push_back(energyMap_[i][j].first);
 
-  std::map<std::string,double> covReturned = PositionCalc::Calculate_Covariances(location_,usedDetIds);
+  std::map<std::string,double> covReturned = storedPositionCalc_->Calculate_Covariances(location_,usedDetIds);
 
   covEtaEta_ = covReturned.find("covEtaEta")->second;
   covEtaPhi_ = covReturned.find("covEtaPhi")->second;
