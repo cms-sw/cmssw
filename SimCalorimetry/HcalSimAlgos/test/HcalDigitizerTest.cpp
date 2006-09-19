@@ -95,7 +95,10 @@ i*/
   vector<PCaloHit> pileups;
   pileups.push_back(barrelPileup);
   pileups.push_back(forwardPileup);
-  crossingFrame.addPileupCaloHits(-3, hitsName, &pileups);
+  ///TODO fix once the new crossingframe is released
+  //crossingFrame.addPileupCaloHits(-3, hitsName, &pileups);
+  // -or -
+  // crossingFrame.addPileupCaloHits(-3, hitsName, &pileups, 0);
 
   HcalSimParameterMap parameterMap;
   HcalShape hcalShape;
