@@ -109,10 +109,16 @@ void NBodyCombiner::combine( size_t collectionIndex, ChargeInfo chkCharge, vecto
 	if( ch == invalid ) continue;
 	if ( chkCharge == undetermined && q != 0 ) chkCharge = ch;
       }
-      for( vector<const Candidate *>::const_iterator i = cv.begin(); i != cv.end(); ++i )
-	if ( overlap_( * c, ** i ) ) return;
-      cv.push_back( & * c );
-      combine( collectionIndex + 1, chkCharge, cv, begin + 1, end, comps );
+      bool noOverlap = true;
+      for( vector<const Candidate *>::const_iterator i = cv.begin(); i != cv.end(); ++i ) 
+	if ( overlap_( * c, ** i ) ) { 
+	  noOverlap = false; 
+	  break; 
+	}
+      if ( noOverlap ) {
+	cv.push_back( & * c );
+	combine( collectionIndex + 1, chkCharge, cv, begin + 1, end, comps );
+      }
     }
   }
 }
