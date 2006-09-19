@@ -7,6 +7,7 @@
 #include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
 
 #include <iostream>
 #include <vector>
@@ -27,9 +28,12 @@ namespace edm
     void stop();
  
   private:
+    void updateHLTStats(std::vector<uint8> const& packedHlt);
 
     std::auto_ptr<StreamerOutputFile> stream_writer_;
     std::auto_ptr<StreamerOutputIndexFile> index_writer_; 
+    uint32 hltCount_;
+    std::vector<uint32> hltStats_;
   };
 }
 #endif
