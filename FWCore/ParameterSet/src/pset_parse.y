@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.44 2006/09/11 17:51:20 rpw Exp $
+ * $Id: pset_parse.y,v 1.45 2006/09/13 22:03:38 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -357,6 +357,17 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                  {
                    DBPRINT("node: PSET (scoped)");
 		   bool tr = $<_bool>1;
+                   string name(toString($<str>3));
+                   NodePtrListPtr value($<_NodePtrList>5);
+                   PSetNode* en(new PSetNode("PSet",name,value,tr,lines));
+                   $<_Node>$ = en;
+                 }
+               |
+                 untracked PSET_tok DOTDELIMITED_tok EQUAL_tok scoped
+                 {
+                   /* TEMPORARILY allow dots in names, for MessageLogger */
+                   DBPRINT("node: PSET (scoped)");
+                   bool tr = $<_bool>1;
                    string name(toString($<str>3));
                    NodePtrListPtr value($<_NodePtrList>5);
                    PSetNode* en(new PSetNode("PSet",name,value,tr,lines));
