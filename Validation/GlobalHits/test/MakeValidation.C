@@ -8,7 +8,9 @@
 #include "TBranch.h"
 #include "TString.h"
 
-void MakeValidation()
+void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
+		    TString rfilename = "GlobalHitsHistograms-reference.root",
+		    TString filename = "GlobalHitsHistogramsCompare")
 {
   gROOT->Reset();
 
@@ -16,12 +18,12 @@ void MakeValidation()
   bool zoomx = false;
 
   // create new histograms for comparison
-  gROOT->LoadMacro("MakeHistograms.C");
-  MakeHistograms();
+  //gROOT->LoadMacro("MakeHistograms.C");
+  //MakeHistograms();
 
   // setup names
-  TString sfilename = "GlobalHitsHistograms.root";
-  TString rfilename = "GlobalHitsHistograms-reference.root";
+  //TString sfilename = "GlobalHitsHistograms.root";
+  //TString rfilename = "GlobalHitsHistograms-reference.root";
 
   // clear memory of file names
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
@@ -36,7 +38,7 @@ void MakeValidation()
   TCanvas *myCanvas = new TCanvas("globalhits","globalhits",cWidth,cHeight);
 
   // open output ps file
-  TString filename = "GlobalHitsHistogramsCompare";
+  //TString filename = "GlobalHitsHistogramsCompare";
   TString psfile = filename+".ps";
   TString psfileopen = filename+".ps[";
   TString psfileclose = filename+".ps]";
