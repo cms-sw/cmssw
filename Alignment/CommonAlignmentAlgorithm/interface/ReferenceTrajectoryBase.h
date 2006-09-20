@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2006/09/17 19:05:47 $
+ * last update: $Date: 2006/09/20 08:10:11 $
  * by         : $Author: flucke $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
@@ -64,6 +64,8 @@ class ReferenceTrajectoryBase : public ReferenceCounted
 {
 
 public:
+
+  typedef ReferenceCountingPointer<ReferenceTrajectoryBase> ReferenceTrajectoryPtr;
 
   enum MaterialEffects { none, multipleScattering, energyLoss, combined };
 
