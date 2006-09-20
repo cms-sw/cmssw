@@ -280,15 +280,41 @@ void ApvTimingAnalysis::analyse() {
 
     iter++;
   }
-
-  //   cout << " Identified " << edges.size() << " edges followed by tick! #/bin/derivative: ";
-  //   uint16_t cntr = 0;
-  //   for ( map<uint16_t,float>::const_iterator iter = edges.begin();
-  // 	iter != edges.end(); iter++ ) {
-  //     cout << cntr++ << "/" << iter->first << "/" << iter->second << ", ";
-  //   }
-  //   cout << endl; 
   
+  // Alternative code...//////////////////
+  /*
+ float maxdev=-9999;
+ float mindev=9999;
+ int ideriv=1;
+ int idevmin=1;
+ for (int is=10;is<histo_.first->GetNbinsX()-10;is++)
+   {
+     float deriv = (histo_.first->GetBinContent(is+1)-histo_.first->GetBinContent(is-1));
+     if (deriv>maxdev)
+       {
+	 maxdev=deriv;
+	 ideriv=is;
+       }
+     if (deriv<mindev)
+       {
+	 mindev=deriv;
+	 idevmin=is;
+       }
+   }
+ 
+ if (maxdev>10.) {
+ deriv_bin = ideriv;
+ baseline = histo_.first->GetBinContent(ideriv-10);
+ tickmark = histo_.first->GetBinContent(ideriv+10);}
+
+ else {deriv_bin = 0;
+ baseline = 0;
+ tickmark = 0;}
+  */
+  
+ /////////////////////////////////
+
+
   // Set monitorables
   if ( deriv_bin < sistrip::maximum_ ) {
     time_      = deriv_bin * 25. / 24.;
