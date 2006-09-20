@@ -1107,13 +1107,13 @@
    <rParent name="mf:ME1Ring"/>
    <rChild name="mf:ME11Space"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="5.8545*m  " />
+  <Translation x="0*fm " y="0*fm " z="6.1815*m  " />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mf:ME1Ring"/>
    <rChild name="mf:ME11Space"/>
   <rRotation name="rotations:R010"/>
-  <Translation x="0*fm " y="0*fm " z="6.1815*m  " />
+  <Translation x="0*fm " y="0*fm " z="5.8545*m  " />
  </PosPart>
  <Division name="ME11SpaceDivision" parent="ME11Space" axis="phi" offset="-10*deg" width="20*deg"/>
  <PosPart copyNumber="1">
