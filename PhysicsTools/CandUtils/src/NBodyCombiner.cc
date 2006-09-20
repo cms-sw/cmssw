@@ -94,7 +94,7 @@ void NBodyCombiner::combine( size_t collectionIndex, ChargeInfo chkCharge, CandS
     const CandidateCollection & src = * * collBegin;
     CandidateCollection::const_iterator candBegin = src.begin(), candEnd = src.end();
     for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i ) 
-      if ( collBegin == i->second ) 
+      if ( * collBegin == * i->second ) 
 	candBegin = i->first + 1;
     for( CandidateCollection::const_iterator  cand = candBegin; cand != candEnd; ++ cand ) {
       if ( checkCharge_ ) {
