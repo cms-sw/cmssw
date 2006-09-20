@@ -94,7 +94,7 @@ void dumpEventHeader(const EventMsgView* eview)
   if (eview->hltCount() !=0)  bytesForHLT = 1 + (eview->hltCount()-1)/4;
 
   cout << "\nhlt bits=\n(";
-  for(unsigned int i=((unsigned int)hlt_out.size()-1); i != -1 ; --i) 
+  for(int i=(hlt_out.size()-1); i != -1 ; --i) 
      printBits(hlt_out[i]);
   //copy(&hlt_out[0],&hlt_out[0]+bytesForHLT,ostream_iterator<char>(cout,""));
   cout << ")\n";
