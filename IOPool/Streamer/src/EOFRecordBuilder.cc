@@ -3,7 +3,7 @@
 
 EOFRecordBuilder::EOFRecordBuilder(uint32 run, uint32 events,
                    uint32 statusCode,
-                   std::vector<uint32>& hltStats,
+                   const std::vector<uint32>& hltStats,
                    uint64 first_event_offset,
                    uint64 last_event_offset)
 {
