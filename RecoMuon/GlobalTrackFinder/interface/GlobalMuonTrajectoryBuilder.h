@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/08/30 12:58:24 $
- *  $Revision: 1.28 $
+ *  $Date: 2006/09/01 15:48:53 $
+ *  $Revision: 1.29 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -22,7 +22,6 @@
 
 class RectangularEtaPhiTrackingRegion;
 class TrajectoryStateOnSurface;
-class MuonUpdatorAtVertex;
 
 class GlobalMuonTrackMatcher;
 class TransientTrackingRecHitBuilder;
@@ -65,7 +64,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     MuonTrajectoryBuilder::CandidateContainer trajectories(const reco::TrackRef&);
 
     /// reconstruct trajectories from trajectory seed
-    MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&){ MuonTrajectoryBuilder::TrajectoryContainer result; return result; }
+    MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&){ return MuonTrajectoryBuilder::TrajectoryContainer(); }
 
     /// pass the Event to the algo at each event
     virtual void setEvent(const edm::Event&);
@@ -102,7 +101,6 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
-    MuonUpdatorAtVertex* theUpdator;
     GlobalMuonTrackMatcher* theTrackMatcher;
     MuonTrackReFitter* theRefitter;
     MuonDetLayerMeasurements* theLayerMeasurements;
@@ -118,8 +116,6 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theCSCChi2Cut;
     float theRPCChi2Cut;
     bool convert;
-
-    std::string thePropagatorLabel;
 
     std::string theTkTrackLabel;
 
