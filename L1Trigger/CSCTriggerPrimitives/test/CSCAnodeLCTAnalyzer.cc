@@ -4,7 +4,7 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/09/12 15:51:21 $
+ * $Date: 2006/09/12 09:00:29 $
  * $Revision: 1.1 $
  *
  */
@@ -203,8 +203,8 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info,
 	double bestHitEta  = 999.;
 	PSimHit* bestHit   = 0;
 
-	int wiregroup = prd->getWireGroup();
-	double digiEta = getWGEta(layerId, wiregroup);
+	int wiregroup = prd->getWireGroup(); // counted from 1
+	double digiEta = getWGEta(layerId, wiregroup-1);
 
 	const CSCLayer* csclayer = geom_->layer(layerId);
 	for (vector <PSimHit>::iterator psh = simHits.begin();
@@ -227,6 +227,7 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info,
 	  strstrm << "\nDigi eta: " << digiEta
 		  << ", closest SimHit eta: " << bestHitEta
 		  << ", particle type: " << bestHit->particleType();
+	  //strstrm << "\nlocal position:" << bestHit->localPosition();
 	}
 	info.addComponent(*bestHit);
       }
@@ -275,7 +276,7 @@ int CSCAnodeLCTAnalyzer::nearestWG(
     }
   }
 
-  if (hit_found == false) {
+  if (!hit_found) {
     for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) {
       // if there is any occurrence of simHit size greater that zero, use this.
       if ((pli->getRecDigis()).size() > 0 && (pli->getSimHits()).size() > 0) {
@@ -334,16 +335,20 @@ void CSCAnodeLCTAnalyzer::setGeometry(const CSCGeometry* geom) {
 double CSCAnodeLCTAnalyzer::getWGEta(const CSCDetId& layerId,
 				     const int wiregroup) {
   // Returns eta position of a given wiregroup.
-  if (wiregroup < 1 || wiregroup > CSCConstants::MAX_NUM_WIRES) {
+  if (wiregroup < 0 || wiregroup >= CSCConstants::MAX_NUM_WIRES) {
     edm::LogWarning("getWGEta")
       << "+++ Warning: wire group, " << wiregroup
-      << ", is not in [1-" << CSCConstants::MAX_NUM_WIRES
-      << "] interval +++\n";
+      << ", is not in [0-" << CSCConstants::MAX_NUM_WIRES
+      << ") interval +++\n";
   }
 
   const CSCLayer* csclayer = geom_->layer(layerId);
   const CSCLayerGeometry* layerGeom = csclayer->geometry();
-  LocalPoint  digiLP = layerGeom->localCenterOfWireGroup(wiregroup);
+  LocalPoint  digiLP = layerGeom->localCenterOfWireGroup(wiregroup+1);
+  //int wirePerWG = layerGeom->numberOfWiresPerGroup(wiregroup+1);
+  //float middleW = layerGeom->middleWireOfGroup(wiregroup+1);
+  //float ywire = layerGeom->yOfWire(middleW, 0.);
+  //digiLP = LocalPoint(0., ywire);
   GlobalPoint digiGP = csclayer->toGlobal(digiLP);
   double eta = digiGP.eta();
 
