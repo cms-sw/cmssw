@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/src/ConfigurationPreprocessor.h"
-#include "FWCore/ParameterSet/src/ParseResultsTweaker.h"
+#include "FWCore/ParameterSet/interface/ParseTree.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include <boost/tokenizer.hpp>
 #include <fstream>
 #include <iostream>
@@ -11,37 +12,22 @@ using namespace std;
 namespace edm {
   namespace pset {
 
-    ParseResults fullParse(const string & input) 
+    string  read_whole_file(string const& filename)
     {
-      // preprocess, for things like 'include'
-      string preprocessedConfigString;
-      //ConfigurationPreprocessor preprocessor;
-      //preprocessor.process(input, preprocessedConfigString);
-      preprocessedConfigString = input;
-
-      boost::shared_ptr<edm::pset::NodePtrList> parsetree =
-      edm::pset::parse(preprocessedConfigString.c_str());
-
-       // postprocess, for things like replace and rename
-      ParseResultsTweaker tweaker;
-      tweaker.process(parsetree);
-    
-      return parsetree;
-    }
-
-
-    bool read_whole_file(string const& filename, string& output)
-    {
+      string result;
       ifstream input(filename.c_str());
-      if (!input) return false;
+      if (!input) {
+       throw edm::Exception(errors::Configuration,"MissingFile")
+         << "Cannot read file " << filename;
+      }
       string buffer;
       while (getline(input, buffer))
         {
           // getline strips newlines; we have to put them back by hand.
-          output += buffer;
-          output += '\n';
+          result += buffer;
+          result += '\n';
         }
-      return true;
+      return result; 
     }
 
 

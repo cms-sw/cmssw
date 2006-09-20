@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Barrel Muon 
  *
- *  $Date: 2006/04/24 19:59:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/28 19:13:05 $
+ *  $Revision: 1.6 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *

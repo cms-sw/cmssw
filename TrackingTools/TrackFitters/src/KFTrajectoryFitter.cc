@@ -105,7 +105,7 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   for(RecHitContainer::const_iterator ihit = hits.begin() + 1; 
       ihit != hits.end(); ihit++) {
     if ((**ihit).isValid() == false && (**ihit).det() == 0) {
-      edm::LogError("TrackingTools/TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
+      LogDebug("TrackingTools/TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
 

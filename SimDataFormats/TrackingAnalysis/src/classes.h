@@ -1,6 +1,5 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackVertexMap.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -27,18 +26,5 @@ namespace {
     TrackingVertexRefVector tv_rv;
     TrackingVertexRefProd   tv_rp;
     
-    TrackVertexAssociation                         tva;
-    TrackVertexAssociationRef                      tva_r;
-    TrackVertexAssociationRefVector                tva_rv;
-    TrackVertexAssociationRefProd                  tva_rp;
-    TrackVertexAssociationCollection               tva_c;
-    edm::Wrapper<TrackVertexAssociationCollection> tva_w;
-
-    VertexTrackAssociation                         vta;
-    VertexTrackAssociationRef                      vta_r;
-    VertexTrackAssociationRefVector                vta_rv;
-    VertexTrackAssociationRefProd                  vta_rp;
-    VertexTrackAssociationCollection               vta_c;
-    edm::Wrapper<VertexTrackAssociationCollection> vta_w;
   }
 }

@@ -7,12 +7,12 @@
 
 #include <tree.h>
 
-#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaFit/interface/Fit.h"
 
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
@@ -27,7 +27,7 @@
 #include "Alignment/CocoaModel/interface/ErrorCorrelationMgr.h"
 #include "Alignment/CocoaModel/interface/ErrorCorrelation.h"
 #include "Alignment/CocoaModel/interface/FittedEntriesReader.h"
-#include "Alignment/CocoaDaq/interface/CocoaDaqReader.h"
+
 #include <stdlib.h>
 #include <iomanip>
 #include <math.h>
@@ -125,11 +125,7 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
   ALIbool lastEvent = 0;
 
   //-    DeviationsFromFileSensor2D::setApply( 1 );
-
-  //m  ALIbool moreDataSets = Model::readMeasurementsFromFile( Measurement::only1Date, Measurement::only1Time );
-
-  ALIbool moreDataSets = 1;
-  if(CocoaDaqReader::GetDaqReader() != 0) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
+  ALIbool moreDataSets = Model::readMeasurementsFromFile( Measurement::only1Date, Measurement::only1Time );
 
   //-    if(ALIUtils::debug >= 3)  std::cout << "$$$$$$$$$$$$$$$ moreData Sets " << moreDataSets << std::endl;
   if( moreDataSets ) {
@@ -190,8 +186,7 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     
     //---- If no measurement file, break after looping once
     //-      std::cout << " Measurement::measurementsFileName() " << Measurement::measurementsFileName() << " Measurement::measurementsFileName()" <<std::endl;
-    if( CocoaDaqReader::GetDaqReader() == 0 ) {
-      //m    if( Measurement::measurementsFileName() == "" ) {
+    if( Measurement::measurementsFileName() == "" ) {
       lastEvent = 1;
       return lastEvent;
     }
@@ -503,7 +498,7 @@ void Fit::CreateMatrices()
     vmcite != Model::MeasurementList().end(); vmcite++ ) {
     NoMeas += (*vmcite)->dim();
   }
-  if( ALIUtils::debug >= 9) std::cout << "NOMEAS" << NoMeas << std::endl;
+   if( ALIUtils::debug >= 99) std::cout << "NOMEAS" << NoMeas << std::endl;
 
    //-------- Count number of 'cal'ibrated parameters
   ALIint NoEnt_cal = 0;
@@ -614,7 +609,7 @@ void Fit::FillMatricesWithMeasurements()
 	//----- Fill W Matrix with inverse of sigma squared
 	// multiply error by cameraScaleFactor
 	ALIdouble sigmanew = sigma * Measurement::cameraScaleFactor;
-	//	std::cout << Aline+jj << " WMATRIX FILLING " << sigmanew << " * " << Measurement::cameraScaleFactor << std::endl;
+	//-	std::cout << Aline+jj << " WMATRIX FILLING " << sigmanew << Measurement::cameraScaleFactor << std::endl;
 	WMatrix->AddData( Aline+jj, Aline+jj, (sigmanew*sigmanew) );
       }
       //op //----- Fill Matrices y with measurement value 
@@ -623,7 +618,6 @@ void Fit::FillMatricesWithMeasurements()
       //op fMatrix->AddData( Aline+jj, 0, (*vmcite)->valueSimulated_orig(jj) );
       //----- Fill Matrix y - f with measurement value - simulated value
       yfMatrix->AddData( Aline+jj, 0, (*vmcite)->value()[jj] - (*vmcite)->valueSimulated_orig(jj) );
-      //      std::cout << " yfMatrix FILLING " << Aline+jj << " + " << (*vmcite)->value()[jj] - (*vmcite)->valueSimulated_orig(jj) << " meas " << (*vmcite)->name() << " val " << (*vmcite)->value()[jj] << " simu val " << (*vmcite)->valueSimulated_orig(jj) << std::endl;
     }
     if ( ALIUtils::debug >= 99) std::cout << "change line" << Aline << std::endl;
     Aline += measdim;
@@ -788,7 +782,7 @@ void Fit::multiplyMatrices()
   std::vector< Entry* >::const_iterator vecite;
  
   if( ALIUtils::debug >= 4 ) {
-    std::cout << "PARAM" << "        Optical Object " << "   entry name " << "      Param.Value " 
+    std::cout << "PARAM" << "        Optical Object " << " entry name " << "    Param.Value " 
          << " Prog.Error" << " Orig.Error" << std::endl;
   }
 
@@ -805,8 +799,8 @@ void Fit::multiplyMatrices()
 	     << std::setw(8) << " " << (*vecite)->name().c_str() << " " 
 	     << std::setw(8) << " " << (*vecite)->value() << " " 
 	     << std::setw(8) << sqrt(AtWAMatrix->Mat()->me[NoEnt][NoEnt]) / 
-                (*vecite)->OutputSigmaDimensionFactor() 
-	     << " " << (*vecite)->sigma() / (*vecite)->OutputSigmaDimensionFactor() 
+                (*vecite)->SigmaDimensionFactor() 
+	     << " " << (*vecite)->sigma() / (*vecite)->SigmaDimensionFactor() 
              << " Q" << (*vecite)->quality() << std::endl;
       }
       NoEnt++;
@@ -1014,8 +1008,8 @@ void Fit::addDaMatrixToEntries()
         ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
         fileout << "dd" << std::setw(30) << (*vecite)->OptOCurrent()->name() 
                 << std::setw(8) << " " << (*vecite)->name() << " " 
-                << std::setw(8) << " " << (*DaMatrix)(NoEnt,0) / (*vecite)->OutputValueDimensionFactor()
-	        << " " << (*vecite)->valueDisplacementByFitting() / (*vecite)->OutputValueDimensionFactor() << " fitpos " << (*vecite)->fitPos()
+                << std::setw(8) << " " << (*DaMatrix)(NoEnt,0) / (*vecite)->ValueDimensionFactor()
+	        << " " << (*vecite)->valueDisplacementByFitting() / (*vecite)->ValueDimensionFactor() << " fitpos " << (*vecite)->fitPos()
                 << std::endl;
 		}*/
 

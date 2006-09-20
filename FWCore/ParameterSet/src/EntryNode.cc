@@ -37,7 +37,6 @@ namespace edm {
 
 
     void EntryNode::replaceWith(const ReplaceNode * replaceNode) {
-      assertNotModified();
       EntryNode * replacement = replaceNode->value<EntryNode>();
       if(replacement == 0) {
         throw edm::Exception(errors::Configuration)
@@ -64,7 +63,7 @@ namespace edm {
        }
      else if (type()=="InputTag")
        {
-         edm::InputTag tag(value_);
+         edm::InputTag tag(withoutQuotes(value_));
          return Entry(name(), tag, !tracked_);
        }
      else if(type()=="double")

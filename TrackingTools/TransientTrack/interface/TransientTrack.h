@@ -21,6 +21,7 @@ namespace reco {
   public:
 
     // constructor from persistent track
+    TransientTrack(); 
     TransientTrack( const Track & tk , const MagneticField* field); 
     TransientTrack( const TrackRef & tk , const MagneticField* field); 
 
@@ -52,7 +53,7 @@ namespace reco {
 
     // access to original persistent track
     //    const Track & persistentTrack() const { return *tk_; }
-    const TrackRef * persistentTrackRef() const { return tkr_; }
+    TrackRef persistentTrackRef() const { return tkr_; }
 
     TrackCharge charge() const {return Track::charge();}
 
@@ -67,8 +68,7 @@ namespace reco {
 
     void calculateStateAtVertex() const;
 
-    //    const Track * tk_;
-    const TrackRef * tkr_;
+    TrackRef tkr_;
     const MagneticField* theField;
 
     TrajectoryStateClosestToPoint originalTSCP;

@@ -7,10 +7,8 @@
 
 // Alignments
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometryAligner.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,10 +46,8 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord){
   if ( applyAlignment_ ) {
     edm::ESHandle<Alignments> alignments;
     iRecord.getRecord<TrackerAlignmentRcd>().get( alignments );
-    edm::ESHandle<AlignmentErrors> alignmentErrors;
-    iRecord.getRecord<TrackerAlignmentErrorRcd>().get( alignmentErrors );
-    GeometryAligner aligner;
-    aligner.applyAlignments<TrackerGeometry>( &(*_tracker), &(*alignments), &(*alignmentErrors) );
+    TrackerGeometryAligner aligner;
+    aligner.applyAlignments( &(*_tracker), &(*alignments) );
   }
 
   return _tracker;

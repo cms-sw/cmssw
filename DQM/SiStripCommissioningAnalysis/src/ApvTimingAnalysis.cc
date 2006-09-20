@@ -1,192 +1,182 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <cmath>
-
-#define DBG "FILE: " << __FILE__ << "\n" << "FUNC: " << __PRETTY_FUNCTION__ 
 
 using namespace std;
 
 // ----------------------------------------------------------------------------
-// 
+// temporarily is wrapping orginal analysis() method
 void ApvTimingAnalysis::analysis( const TProfile* const histo, 
 				  ApvTimingAnalysis::Monitorables& mons ) { 
-  //cout << DBG << endl;
-
-  // Transfer histogram contents/errors/stats to containers
-  uint16_t non_zero = 0;
-  float max = -1.e9;
-  float min =  1.e9;
-  uint16_t nbins = static_cast<uint16_t>( histo->GetNbinsX() );
-  vector<float> bin_contents; 
-  vector<float> bin_errors;
-  vector<float> bin_entries;
-  bin_contents.reserve( nbins );
-  bin_errors.reserve( nbins );
-  bin_entries.reserve( nbins );
-  for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
-    bin_contents.push_back( histo->GetBinContent(ibin+1) );
-    bin_errors.push_back( histo->GetBinError(ibin+1) );
-    bin_entries.push_back( histo->GetBinEntries(ibin+1) );
-    if ( bin_entries[ibin] ) { 
-      if ( bin_contents[ibin] > max ) { max = bin_contents[ibin]; }
-      if ( bin_contents[ibin] < min ) { min = bin_contents[ibin]; }
-      non_zero++;
-    }
-  }
-  bin_contents.resize( nbins, 0. );
-  bin_errors.resize( nbins, 0. );
-  bin_entries.resize( nbins, 0. );
-  //cout << " Number of bins with non-zero entries: " << non_zero << endl;
-  if ( bin_contents.size() < 100 ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
- 	 << " Too few bins! Number of bins: " 
- 	 << bin_contents.size() << endl;
-    return; 
-  }
-  
-  // Calculate range (max-min) and threshold level (range/2)
-  float range = max - min;
-  float threshold = min + range / 2.;
-  if ( range < 50. ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
- 	 << " Signal range (max - min) is too small: " << range << endl;
-    return; 
-  }
-  //cout << " ADC samples: max/min/range/threshold: " 
-  //<< max << "/" << min << "/" << range << "/" << threshold << endl;
-  
-  // Associate samples with either "tick mark" or "baseline"
-  vector<float> tick;
-  vector<float> base;
-  for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) { 
-    if ( bin_entries[ibin] ) {
-      if ( bin_contents[ibin] < threshold ) { 
-	base.push_back( bin_contents[ibin] ); 
-      } else { 
-	tick.push_back( bin_contents[ibin] ); 
-      }
-    }
-  }
-  //cout << " Number of 'tick mark' samples: " << tick.size() 
-  //<< " Number of 'baseline' samples: " << base.size() << endl;
-  
-  // Find median level of tick mark and baseline
-  float tickmark = 0.;
-  float baseline = 0.;
-  sort( tick.begin(), tick.end() );
-  sort( base.begin(), base.end() );
-  if ( !tick.empty() ) { tickmark = tick[ tick.size()%2 ? tick.size()/2 : tick.size()/2 ]; }
-  if ( !base.empty() ) { baseline = base[ base.size()%2 ? base.size()/2 : base.size()/2 ]; }
-  //cout << " Tick mark level: " << tickmark << " Baseline level: " << baseline
-  //<< " Range: " << (tickmark-baseline) << endl;
-  if ( (tickmark-baseline) < 50. ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
- 	 << " Range b/w tick mark height ("  << tickmark
-	 << ") and baseline ("  << baseline
-	 << ") is too small ("  << (tickmark-baseline)
-	 << ")." << endl;
-    return; 
-  }
-  
-  // Find rms spread in "baseline" samples
-  float mean = 0.;
-  float mean2 = 0.;
-  for ( uint16_t ibin = 0; ibin < base.size(); ibin++ ) {
-    mean += base[ibin];
-    mean2 += base[ibin] * base[ibin];
-  }
-  if ( !base.empty() ) { 
-    mean = mean / base.size();
-    mean2 = mean2 / base.size();
-  } else { 
-    mean = 0.; 
-    mean2 = 0.; 
-  }
-  float baseline_rms = 0.;
-  if (  mean2 > mean*mean ) { baseline_rms = sqrt( mean2 - mean*mean ); }
-  else { baseline_rms = 0.; }
-  //cout << " Spread in baseline samples: " << baseline_rms << endl;
-  
-  // Find rising edges (derivative across two bins > range/2) 
-  map<uint16_t,float> edges;
-  for ( uint16_t ibin = 1; ibin < nbins-1; ibin++ ) {
-    if ( bin_entries[ibin+1] && 
-	 bin_entries[ibin-1] ) {
-      float derivative = bin_contents[ibin+1] - bin_contents[ibin-1];
-      if ( derivative > 5.*baseline_rms ) {
-	edges[ibin] = derivative;
-	//cout << " Found edge #" << edges.size() << " at bin " << ibin 
-	//<< " and with derivative " << derivative << endl;
-      }
-    }
-  }
-  
-  // Check samples following edges (+10 to +40) are "high"
-  for ( map<uint16_t,float>::iterator iter = edges.begin();
-	iter != edges.end(); iter++ ) {
-    bool valid = true;
-    for ( uint16_t ii = 10; ii < 40; ii++ ) {
-      if ( bin_entries[iter->first+ii] &&
-	   bin_contents[iter->first+ii] < baseline + 5*baseline_rms ) { valid = false; }
-    }
-    if ( !valid ) {
-      edges.erase(iter);
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Found samples below threshold following a rising edge!" << endl;
-    }
-  }
-  //   cout << " Identified " << edges.size() << " edges followed by tick! #/bin/derivative: ";
-  //   uint16_t cntr = 0;
-  //   for ( map<uint16_t,float>::const_iterator iter = edges.begin();
-  // 	iter != edges.end(); iter++ ) {
-  //     cout << cntr++ << "/" << iter->first << "/" << iter->second << ", ";
-  //   }
-  //   cout << endl; 
-  
-  // Set monitorables
-  if ( !edges.empty() ) {
-    mons.pllCoarse_ = edges.begin()->first / 24;
-    mons.pllFine_   = edges.begin()->first % 24;
-    mons.delay_     = edges.begin()->first;
-    mons.error_     = 0.;
-    mons.base_      = baseline;
-    mons.peak_      = tickmark;
-    mons.height_    = tickmark - baseline;
-  } else {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " No tick marks found!" << endl;
-    mons.base_   = baseline;
-    mons.peak_   = tickmark;
-    mons.height_ = tickmark - baseline;
-  }
-  
+  vector<const TProfile*> histos; 
+  histos.push_back( const_cast<const TProfile*>(histo) );
+  vector<unsigned short> monitorables;
+  analysis( histos, monitorables );
+  mons.coarse_ = monitorables[0];
+  mons.fine_   = monitorables[1];
+  mons.delay_  = 24*monitorables[0] + monitorables[0];
 }
 
 // ----------------------------------------------------------------------------
-// 
+// temporarily is wrapping orginal analysis() method
 void ApvTimingAnalysis::Monitorables::print( stringstream& ss ) { 
-  ss << "APV TIMING Monitorables:" << "\n"
-     << " PLL coarse setting : " << pllCoarse_ << "\n" 
-     << " PLL fine setting   : " << pllFine_ << "\n"
-     << " Timing delay   [ns]: " << delay_ << "\n" 
-     << " Error on delay [ns]: " << error_ << "\n"
-     << " Baseline      [adc]: " << base_ << "\n" 
-     << " Tick peak     [adc]: " << peak_ << "\n" 
-     << " Tick height   [adc]: " << height_ << "\n";
+  ss << " PLL coarse/fine delays:  " 
+     << coarse_ << "/" 
+     << fine_ << "\n"
+     << " Timing delay/error [ns]: " 
+     << setprecision(1) << delay_ << "+/-" 
+     << setprecision(1) << error_ << "\n"
+     << " Base/Peak/Height [adc]:  " 
+     << setprecision(1) << base_ << "/" 
+     << setprecision(1) << peak_ << "/" 
+     << setprecision(1) << height_ << "\n";
 }
 
 // ----------------------------------------------------------------------------
-// old analysis method, wrapping new one for backward compatibilty
-void ApvTimingAnalysis::analysis( const vector<const TProfile*>& histos, 
-				  vector<unsigned short>& monitorables ) {
-  ApvTimingAnalysis::Monitorables mons;
-  if ( !histos.empty() ) {
-    ApvTimingAnalysis::analysis( histos[0], mons );
-  }
-  monitorables.resize(2,0);
-  monitorables[0] = mons.pllCoarse_;
-  monitorables[1] = mons.pllFine_;
+
+void ApvTimingAnalysis::analysis( const vector<const TProfile*>& histos, vector<unsigned short>& monitorables ) {
   
+   edm::LogInfo("Commissioning|Analysis") << "[ApvTimingAnalysis::analysis]";
+
+  //extract root histogram
+  //check 
+  if (histos.size() != 1) { edm::LogError("Commissioning|Analysis") << "[ApvTimingAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
+  
+  monitorables.clear(); monitorables.reserve(2); monitorables.push_back(0); monitorables.push_back(0);
+  return; }
+
+   //containers
+  pair< unsigned short, unsigned short > coarse_fine = pair< unsigned short, unsigned short >(0,0);
+  const TProfile* histo = histos[0];
+
+ //check 
+  if ((unsigned short)histo->GetNbinsX() <= 2) { edm::LogError("Commissioning|Analysis") << "[ApvTimingAnalysis::analysis]: Too few bins in histogram. Number of bins: " << (unsigned short)histo->GetNbinsX() << ". Minimum required: 2.";
+  monitorables.clear(); monitorables.push_back(0); monitorables.push_back(0);
+  return; }
+
+  vector<unsigned short> binContent; binContent.reserve(((unsigned short)histo->GetNbinsX() - 2)); binContent.resize(((unsigned short)histo->GetNbinsX() - 2), 0);
+  
+  float maxderiv=-9999.;
+  unsigned short ideriv = 0;
+
+  for (unsigned short k = 2; k < (unsigned short)histo->GetNbinsX(); k++) { // k is bin number
+    
+    //fill vector with histogram contents
+    binContent.push_back((unsigned int)(histo->GetBinContent(k)));
+    
+    //calculate the 2nd derivative of the readout...
+    
+    float deriv = (unsigned int)histo->GetBinContent(k+1) - (unsigned int)histo->GetBinContent(k-1);
+    	if (deriv>maxderiv)
+     {
+       maxderiv=deriv;
+       ideriv=k;
+     }
+  }
+
+ //calculate median
+  sort(binContent.begin(), binContent.end());
+
+  //calculate mean and mean2 of the readout within cutoffs
+
+  float meanNoise = 0.;
+  float mean2Noise = 0.;
+
+  for (unsigned short k = (unsigned short)(binContent.size()*.1); k < (unsigned short)(binContent.size()*.9); k++) {
+    meanNoise += binContent[k];
+    mean2Noise += binContent[k]*binContent[k];
+ }
+
+  meanNoise = meanNoise / (binContent.size() * 0.8);
+  mean2Noise = mean2Noise / (binContent.size() * 0.8);
+  float sigmaNoise = sqrt(fabs(meanNoise*meanNoise - mean2Noise));
+
+    // check 35 elements after max dervivative are > meanNoise + 2*sigmaNoise
+  for (unsigned short ii = 0; ii < 35; ii++) {
+    if ((short)histo->GetBinContent(ideriv + ii) < (meanNoise + 2*sigmaNoise)) {
+      LogDebug("Commissioning|Analysis") << "[ApvTimingAnalysis::analysis]: Warning: large noise levels or no ticks.";}
+continue;
+
 }
+  
+  ////Method 1: Take start of tick as the max derivative
+  /*
+  coarse_fine.first = (ideriv - 1)/24;
+  coarse_fine.second = (ideriv - 1)%24;
+  */
+
+  unsigned short counter = 0;
+  vector<unsigned short> ticks; //records bin number of first position of tick > 2*sigma
+
+  ////Method 2: Take start of tick as start of 35 bins above mean + 2*SD of noise.
+  /*
+  // find tick positions..
+
+  for (unsigned short k = 1; k < ((unsigned short)histo->GetNbinsX() + 1); k++) { // k is bin number
+
+    if ((short)histo->GetBinContent(k) > (meanNoise + 2*sigmaNoise)) counter++;
+    else {counter = 0;}
+ 
+    if (counter > 35) { ticks.push_back(k-35); counter = 0; }
+  }
+  */
+////Method 3: Take start of tick as position of max derivative within 35 bins above mean + 1*SD of noise.
+  
+  maxderiv = -9999.;
+  ideriv = 0;
+
+// find tick positions..
+
+  for (unsigned short k = 2; k < (unsigned short)histo->GetNbinsX(); k++) { // k is bin number
+
+    if ((short)histo->GetBinContent(k) > (meanNoise + 2.*sigmaNoise)) {
+      counter++;
+
+      //find the maximum derivative within the window...
+      float deriv = (unsigned int)histo->GetBinContent(k+1) - (unsigned int)histo->GetBinContent(k-1);
+      if (deriv > maxderiv) {maxderiv = deriv; ideriv = k;}
+    }
+    else {counter = 0; maxderiv = -9999.; ideriv = 0;}
+ 
+    if (counter > 35) { ticks.push_back(ideriv); counter = 0; maxderiv = -9999.; ideriv = 0; }
+  }
+
+  // notify user if more than one tick is present in sample
+
+  if (ticks.size() > 1) { 
+
+  stringstream os;
+
+  for (unsigned short num = 0; num < (ticks.size() - 1); num++) {os << ticks[num + 1] - ticks[num];
+  if (num != (ticks.size() - 2)) os << ", ";
+}
+
+  if (ticks.size() > 2) {os << " PLL fine delay settings, respectively.";}
+  else { os << " PLL fine delay settings.";}
+
+  LogDebug("Commissioning|Analysis") << "[ApvTimingAnalysis::analysis]: Multiple ticks found in sample. Number of ticks: " << ticks.size() << " at a separation: " << os.str();
+}
+
+  else if (ticks.size() == 1) {
+  coarse_fine.first = (ticks[0] - 1)/24;
+  coarse_fine.second = (ticks[0] - 1)%24;
+  }
+
+  // or no ticks...
+  else { 
+    LogDebug("Commissioning|Analysis") << "[ApvTimingAnalysis::analysis]: No ticks found in sample.";
+    coarse_fine.first = 0;
+    coarse_fine.second = 0;
+  }
+
+  // set monitorables
+  monitorables.resize(2,0);
+  monitorables[0] = coarse_fine.first;
+  monitorables[1] = coarse_fine.second;
+}
+
+

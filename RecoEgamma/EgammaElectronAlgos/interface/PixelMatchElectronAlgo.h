@@ -31,6 +31,8 @@
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
+//CC@@
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 //class TransientInitialStateEstimator;
 
@@ -71,7 +73,7 @@ public:
 
   CkfTrajectoryBuilder*  theCkfTrajectoryBuilder;
   TrajectoryCleaner*               theTrajectoryCleaner;
-  TransientInitialStateEstimator*  theInitialState;
+  TransientInitialStateEstimator*  theInitialStateEstimator;
   
   ESHandle<MagneticField>                theMagField;
   ESHandle<GeometricSearchTracker>       theGeomSearchTracker;

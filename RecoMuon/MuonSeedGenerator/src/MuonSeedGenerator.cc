@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/07/12 15:41:13 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/08/01 15:53:04 $
+ *  $Revision: 1.10 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -56,10 +56,10 @@ MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset){
   produces<TrajectorySeedCollection>(); 
 
   // enable the DT chamber
-  enableDTMeasurement = pset.getUntrackedParameter<bool>("EnableDTMeasurement",true);
+  enableDTMeasurement = pset.getParameter<bool>("EnableDTMeasurement");
 
   // enable the CSC chamber
-  enableCSCMeasurement = pset.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
+  enableCSCMeasurement = pset.getParameter<bool>("EnableCSCMeasurement");
 
   if(enableDTMeasurement)
     // the name of the DT rec hits collection

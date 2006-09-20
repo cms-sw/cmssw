@@ -401,26 +401,29 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   
   //Add the extra 'wing' cells.  Remember, we haven't sent the navigator home,
   //we're still on the DownEta cell.
-  DetId ieta3 = navigator.east(); //Take another step downward.
-  EcalRecHitCollection::const_iterator eta3_it = rechits_m->find(ieta3);
-  if (eta3_it != rechits_m->end()){
-    EcalRecHit DownEta2 = *eta3_it;
-    if (useddetids.find(ieta3)==useddetids.end()){
-      Etot+=DownEta2.energy();
-      cells.push_back(DownEta2);
+  if (ieta2 != DetId(0)){
+    DetId ieta3 = navigator.east(); //Take another step downward.
+    EcalRecHitCollection::const_iterator eta3_it = rechits_m->find(ieta3);
+    if (eta3_it != rechits_m->end()){
+      EcalRecHit DownEta2 = *eta3_it;
+      if (useddetids.find(ieta3)==useddetids.end()){
+        Etot+=DownEta2.energy();
+        cells.push_back(DownEta2);
+      }
     }
   }
-  
   //Now send the navigator home.
   navigator.home();
   navigator.west(); //Now you're on eta1_it
-  DetId ieta4 = navigator.west(); //Take another step upward.
-  EcalRecHitCollection::const_iterator eta4_it = rechits_m->find(ieta4);
-  if (eta4_it != rechits_m->end()){
-    EcalRecHit UpEta2 = *eta4_it;
-    if (useddetids.find(ieta4) == useddetids.end()){
-      Etot+=UpEta2.energy();
-      cells.push_back(UpEta2);
+  if (ieta1 != DetId(0)){
+    DetId ieta4 = navigator.west(); //Take another step upward.
+    EcalRecHitCollection::const_iterator eta4_it = rechits_m->find(ieta4);
+    if (eta4_it != rechits_m->end()){
+      EcalRecHit UpEta2 = *eta4_it;
+      if (useddetids.find(ieta4) == useddetids.end()){
+        Etot+=UpEta2.energy();
+        cells.push_back(UpEta2);
+      }
     }
   }
   navigator.home();

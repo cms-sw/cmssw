@@ -11,7 +11,7 @@
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2006/08/15 19:58:52 $
+  * $Date: 2006/04/10 16:31:26 $
   * $Revision: 1.2 $
   * \author W. Fisher - FNAL
   */
@@ -35,9 +35,6 @@ private:
   bool m_doPerChannel;
   map<HcalDetId, MonitorElement*>::iterator _meo;
 
-  double etaMax_, etaMin_, phiMax_, phiMin_;
-  int etaBins_, phiBins_;
-  
   int ievt_, jevt_;
   MonitorElement* meEVT_;
 
@@ -48,7 +45,6 @@ private:
     map<HcalDetId,MonitorElement*> sigRange;
     map<HcalDetId,MonitorElement*> tailRange;
 
-    MonitorElement* shapePED;
     MonitorElement* shapeALL;
     MonitorElement* timeALL;
     MonitorElement* rms_ped;

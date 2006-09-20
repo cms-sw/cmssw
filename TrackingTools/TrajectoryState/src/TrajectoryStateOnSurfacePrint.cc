@@ -1,9 +1,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include <iostream>
+#include <ostream>
 
 using namespace std;
 
-ostream& operator<<(ostream& os, const TrajectoryStateOnSurface& tsos) {
+ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos) {
   os << "global parameters" << endl;
   {
     AlgebraicVector v = tsos.globalParameters().vector();
@@ -57,10 +57,10 @@ ostream& operator<<(ostream& os, const TrajectoryStateOnSurface& tsos) {
       }
     }
   }
-  cout << "Defined at ";
-  if ( tsos.surfaceSide()==beforeSurface )  cout << "beforeSurface";
-  else if ( tsos.surfaceSide()==afterSurface )  cout << "afterSurface";
-  else  cout << "atCenterOfSurface";
-  cout << endl;
+  os << "Defined at ";
+  if ( tsos.surfaceSide()==beforeSurface )  os << "beforeSurface";
+  else if ( tsos.surfaceSide()==afterSurface )  os << "afterSurface";
+  else  os << "atCenterOfSurface";
+  os << endl;
   return os;
 }

@@ -12,7 +12,8 @@
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+//#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometryAligner.h"
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -95,8 +96,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 	}
   
   // Store result to EventSetup
-  GeometryAligner aligner;
-  aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors) );
+  TrackerGeometryAligner aligner;
+  aligner.applyAlignments( &(*theTracker), &(*alignments) );
 
   edm::LogInfo("MisalignedTracker") << "Producer done";
   return theTracker;

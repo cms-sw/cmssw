@@ -32,8 +32,10 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
+#include "TH1F.h"
+
 //
-// class decleration
+// class declaration
 //
 
 class AlCaIsoTracksProducer : public edm::EDProducer {
@@ -41,9 +43,28 @@ class AlCaIsoTracksProducer : public edm::EDProducer {
       explicit AlCaIsoTracksProducer(const edm::ParameterSet&);
       ~AlCaIsoTracksProducer();
 
-
       virtual void produce(edm::Event &, const edm::EventSetup&);
+      void endJob(void);
+
    private:
-      // ----------member data ---------------------------
+      TFile* m_file;
+      struct{
+        TH1F* Ntrk;
+        TH1F* vx;
+        TH1F* vy;
+        TH1F* vz;
+        TH1F* eta;
+        TH1F* phi;
+        TH1F* p;
+        TH1F* pt;
+        TH1F* Dvertx;
+        TH1F* Dverty;
+        TH1F* Dvertz;
+        TH1F* Dvert;
+        TH1F* Deta;
+        TH1F* Dphi;
+        TH1F* Ddir;
+        TH1F* Nisotr;
+      } IsoHists;
 
 };

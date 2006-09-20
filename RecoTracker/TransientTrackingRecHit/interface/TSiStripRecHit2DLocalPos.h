@@ -4,6 +4,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 
 class TSiStripRecHit2DLocalPos : public TransientTrackingRecHit{
 public:
@@ -33,7 +34,11 @@ public:
 //   }
 
   virtual AlgebraicVector parameters() const {return theHitData->parameters();}
-  virtual AlgebraicSymMatrix parametersError() const {return theHitData->parametersError();}
+  virtual AlgebraicSymMatrix parametersError() const {
+    return HelpertRecHit2DLocalPos().parError( theHitData->localPositionError(), *det()); 
+    //    return theHitData->parametersError();
+  }
+  
   virtual DetId geographicalId() const {return theHitData->geographicalId();}
   virtual AlgebraicMatrix projectionMatrix() const {return theHitData->projectionMatrix();}
   virtual int dimension() const {return theHitData->dimension();}

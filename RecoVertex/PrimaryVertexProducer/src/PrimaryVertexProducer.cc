@@ -37,6 +37,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
     << "Initializing PV producer " << "\n";
+  fVerbose=conf.getUntrackedParameter<bool>("verbose", false);
 
   //  produces<VertexCollection>("PrimaryVertex");
   produces<VertexCollection>();
@@ -71,7 +72,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // interface RECO tracks to vertex reconstruction
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
-    cout << "got " << (*tks).size() << " tracks " << endl;
+    if (fVerbose) {cout << "RecoVertex/PrimaryVertexProducer:got " << (*tks).size() << " tracks " << endl;}
 
 
     edm::ESHandle<TransientTrackBuilder> theB;
@@ -79,12 +80,16 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     vector<TransientTrack> t_tks = (*theB).build(tks);
 
-    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
     
     // here call vertex reconstruction
-    /*
+    
     vector<TransientVertex> t_vts = theAlgo.vertices(t_tks);
+    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+      << "Found: " << t_vts.size() << " reconstructed vertices" << "\n";
+
+    // convert transient vertices returned by the theAlgo to (reco) vertices
     for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
 	 iv != t_vts.end(); iv++) {
       Vertex v(Vertex::Point((*iv).position()), 
@@ -92,37 +97,25 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	       (*iv).totalChiSquared(), 
 	       (*iv).degreesOfFreedom() , 
       (*iv).originalTracks().size());
-      vColl.push_back(v);
-    }
-    */
-    
-    // test with vertex fitter
-    if (t_tks.size() > 1) {
-      KalmanVertexFitter kvf;
-      Vertex v = kvf.vertex(t_tks);
-//       TransientVertex tv = kvf.vertex(t_tks);
-//       // CachingVertex tv = kvf.vertex(t_tks);
-//       Vertex v(Vertex::Point(tv.position()), 
-// 	       RecoVertex::convertError(tv.positionError()), 
-// 	       // RecoVertex::convertError(tv.error()), 
-// 	       (tv).totalChiSquared(), 
-// 	       (tv).degreesOfFreedom() , 
-// 	       // (tv).tracks().size());
-//       	       (tv).originalTracks().size());
-//       vector<reco::TransientTrack> prongs = (tv).originalTracks();
-//       for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
-// 	   it != prongs.end(); it++) {
-// 	if ((*it).persistentTrackRef()) {
-// 	  v.add(*(*it).persistentTrackRef());
-// 	}
-// 	else {
-// 	  cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
-// 	}
-//       }
+      vector<reco::TransientTrack> prongs = (*iv).originalTracks();
 
+      // store link to tracks
+      for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
+ 	   it != prongs.end(); it++) {
+ 	if ((*it).persistentTrackRef().isNonnull()) {
+	  cout << (*it).persistentTrackRef().id() << ", "
+	       << (*it).persistentTrackRef().key() << endl;
+
+ 	  v.add((*it).persistentTrackRef());
+ 	}
+ 	else {
+ 	  cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
+ 	}
+      }
       vColl.push_back(v);
     }
-    
+    if(fVerbose){cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;}
+   
   }
 
   catch (std::exception & err) {

@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.4 2006/08/01 14:34:42 rahatlou Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.6 2006/08/27 16:43:18 charlot Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -42,6 +42,8 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include <sstream>
+
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -51,11 +53,11 @@ PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverP, double maxHOver
                                                double maxDeltaEta, double maxDeltaPhi):  
  maxEOverP_(maxEOverP), maxHOverE_(maxHOverE), maxDeltaEta_(maxDeltaEta), 
  maxDeltaPhi_(maxDeltaPhi), theCkfTrajectoryBuilder(0), theTrajectoryCleaner(0),
- theInitialState(0), theMeasurementTracker(0), theNavigationSchool(0) {}
+ theInitialStateEstimator(0), theMeasurementTracker(0), theNavigationSchool(0) {}
 
 PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
 
-  delete theInitialState;
+  delete theInitialStateEstimator;
   delete theMeasurementTracker;
   delete theNavigationSchool;
   delete theCkfTrajectoryBuilder;
@@ -71,7 +73,7 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
 
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-  theInitialState       = new TransientInitialStateEstimator( es,tise_params);
+  theInitialStateEstimator       = new TransientInitialStateEstimator( es,tise_params);
 
   // get nested parameter set for the MeasurementTracker
   ParameterSet mt_params = conf.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
@@ -84,7 +86,7 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
 
   theCkfTrajectoryBuilder = new CkfTrajectoryBuilder(conf,es,theMeasurementTracker);
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
-  
+
   inputDataModuleLabel_=conf.getParameter<string>("SeedProducer");
   //inputDataInstanceName_=conf.getParameter<string>("seedLabel");
   
@@ -99,13 +101,10 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
   Handle<ElectronPixelSeedCollection> collseed;
   LogDebug("") << 
    "PixelMatchElectronAlgo::run, getting input seeds : " << inputDataModuleLabel_ ;
-  std::cout << "PixelMatchElectronAlgo::run, getting input seeds : " <<
-   inputDataModuleLabel_ <<std::endl;
   e.getByLabel(inputDataModuleLabel_, collseed);
   ElectronPixelSeedCollection theSeedColl = *collseed;
   LogDebug("") << 
    "PixelMatchElectronAlgo::run, got " << (*collseed).size()<< " input seeds ";
-  std::cout << "PixelMatchElectronAlgo::run, got " << (*collseed).size()<< " input seeds " << std::endl;
 
   // this is needed because lack of polymorphism
   map<const ElectronPixelSeed*, const Trajectory*> seedMap;
@@ -118,7 +117,6 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
       
     vector<Trajectory> rawResult;
 
-    cout << "Starting loop over seeds." << endl;
     LogDebug("") << "Starting loop over seeds ";
     for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
       LogDebug("") << "new seed ";
@@ -138,7 +136,6 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
       LogDebug("PixelMatchElectronAlgoCkfPattern") << "Number of trajectories after cleaning " << rawResult.size();
     }
     LogDebug("") << "End loop over seeds";
-    cout << "End loop over seeds." << endl;
 
     vector<Trajectory> unsmoothedResult;
     LogDebug("") << "Starting second cleaning..." << std::endl;
@@ -148,7 +145,6 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
 	 itraw != rawResult.end(); itraw++) {
       if((*itraw).isValid()) unsmoothedResult.push_back( *itraw);
     }
-    cout << "Number of trajectories after second cleaning " << rawResult.size() <<endl;
     LogDebug("PixelMatchElectronAlgoCkfPattern") << "Number of trajectories after second cleaning " << rawResult.size();
     //analyseCleanedTrajectories(unsmoothedResult);
 
@@ -168,7 +164,7 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
       
       //PTrajectoryStateOnDet state = *(it->seed().startingState().clone());
       std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
-	theInitialState->innerState( *it);
+	theInitialStateEstimator->innerState( *it);
 
       // temporary protection againt invalid initial states
       if (! initState.first.isValid() || initState.second == 0) {
@@ -182,7 +178,6 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
       //	fitTester.fit( *it);
 
       TrackCandidate aTrackCandidate(recHits,*(it->seed().clone()),*state);
-      cout << "New track candidate created" << std::endl;
       LogDebug("") << "New track candidate created";
       LogDebug("") << "n valid and invalid hit, chi2 : " 
 	 << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared();
@@ -196,13 +191,8 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
     
       TrajectoryStateClosestToPoint tscp = tscpBuilder(*(initState.first.freeState()), Global3DPoint(0,0,0) );
 
-      //reco::perigee::Parameters param = tscp.perigeeParameters();
-      //reco::perigee::Covariance covar = tscp.perigeeError();
-
       PerigeeTrajectoryParameters::ParameterVector param = tscp.perigeeParameters();
       PerigeeTrajectoryError::CovarianceMatrix covar = tscp.perigeeError();
-
-
 
       Track aTrack(it->chiSquared(),
        int(ndof), //FIXME fix weight() in TrackingRecHit
@@ -210,15 +200,12 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
        //0, //FIXME no corresponding method in trajectory.h
        //it->lostHits(),//FIXME to be fixed in Trajectory.h
        param, tscp.pt(), covar);
-      cout << "New track created" << std::endl;
-      LogDebug("") << "New track created";
-      cout << "n valid and invalid hit, chi2 : " 
-	 << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared() << endl;
-      LogDebug("") << "n valid and invalid hit, chi2 : " 
-	 << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared();
+       
+      LogDebug("") << "New track created" << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared() << "\n"
+                   << "n valid and invalid hit, chi2 : " << it->foundHits() << " , " << it->lostHits() <<" , "
+                   <<it->chiSquared();
 
       // now build electrons
- 
       //This one is not polymorphic, access by value!!
       //Uggly code to retreive the supercluster pointer     
       //const ElectronPixelSeed* epseed = dynamic_cast<ElectronPixelSeed *>((it->seed().clone()));
@@ -228,52 +215,41 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
 	if (itmap->second == &(*it)) break;
       }
 
-      if (preSelection(*(epseed->superCluster()),aTrack)) {      
-	cout << "Creating new electron " << std::endl;
+      if (preSelection(*(epseed->superCluster()),aTrack)) {
 	
-	// for the time being take the momentum from the innermost state
-	const XYZTLorentzVector momentum(initState.first.globalMomentum().x(),
-	                                initState.first.globalMomentum().y(),
-	                                initState.first.globalMomentum().z(),
-	                                sqrt(initState.first.globalMomentum().mag2() + electron_mass_c2*electron_mass_c2*1.e-6) );
-	XYZPoint vertex( 0, 0, 0 );
-	Electron ele(aTrack.charge(),momentum,vertex);
-        ele.setSuperCluster(epseed->superCluster());
-        // an electron can be built from several tracks, strange!
-	// cannot pass the Track to the Electron as it should be persistent (TrackRef)
-	//TrackCollection aTrackColl;
-	//aTrackColl.push_back(aTrack)
-	//Ref<TrackCollection> aTrackRef; 
-	//ele.setTrack(aTrackRef);
-	cout << "New electron created " << std::endl;
+	// for the time being take the momentum from the track 
+	const XYZTLorentzVector momentum(tscp.momentum().x(),
+	                                 tscp.momentum().y(),
+	                                 tscp.momentum().z(),
+	                                 sqrt(tscp.momentum().mag2() + electron_mass_c2*electron_mass_c2*1.e-6) );
+	
+	Electron ele(aTrack.charge(),momentum,XYZPoint( 0, 0, 0 ));
+	LogDebug("") << "electron energy " << epseed->superCluster()->energy();
+      ele.setSuperCluster(epseed->superCluster());
+
 	outEle.push_back(ele);
-        LogDebug("PixelMatchElectronAlgoCkfPattern") << "New electron created";
+      LogDebug("PixelMatchElectronAlgoCkfPattern") << "New electron created";
       }
 
     }
-  
   }
-    
-  cout << "========== PixelMatchElectronAlgo Info ==========" << endl;
-  LogInfo("PixelMatchElectronAlgo") << "========== PixelMatchElectronAlgo Info ==========";
-  LogInfo("PixelMatchElectronAlgo") << "Event " << e.id();
-  LogInfo("PixelMatchElectronAlgo") << "Number of seeds: " << theSeedColl.size();
-  cout << "Number of final electron tracks: " << outTk.size() << endl;
-  LogInfo("PixelMatchElectronAlgo") << "Number of final electron tracks: " << outTk.size();
-  cout << "Number of final electrons: " << outEle.size() << endl;
-  LogInfo("PixelMatchElectronAlgo") << "Number of final electrons: " << outEle.size();
+
+
+  std::ostringstream str;
+
+  str << "========== PixelMatchElectronAlgo Info ==========";
+  str << "Event " << e.id();
+  str << "Number of seeds: " << theSeedColl.size();
+  str << "Number of final electron tracks: " << outTk.size();
+  str << "Number of final electrons: " << outEle.size();
   for (vector<Electron>::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
-    cout << "New electron with charge, pt, eta, phi " 
-	 << it->charge() << " , " << it->pt() << " , " << it->eta() << " , " << it->phi() << endl;
-    LogInfo("PixelMatchElectronAlgo") << "New electron with charge, pt, eta, phi : " 
-	 << it->charge() << " , " << it->pt() << " , " << it->eta() << " , " << it->phi();
+    str << "New electron with charge, pt, eta, phi : "  << it->charge() << " , " 
+        << it->pt() << " , " << it->eta() << " , " << it->phi();
   }
-  cout << "=================================================" << endl;
-  LogInfo("PixelMatchElectronAlgo") << "=================================================";
-     
+  str << "=================================================";
+  LogDebug("PixelMatchElectronAlgo") << str.str();
 }
 
-//bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const ElectronTrack& track) {
 bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Track& track) 
 {
   // to be implemented

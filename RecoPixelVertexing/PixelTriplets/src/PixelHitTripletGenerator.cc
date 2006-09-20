@@ -4,6 +4,9 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/PixelLayerTriplets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 
+PixelHitTripletGenerator::PixelHitTripletGenerator() : thePixel(0)
+{}
+
 void PixelHitTripletGenerator::
     hitTriplets( const TrackingRegion& region, OrderedHitTriplets & result, const edm::EventSetup& iSetup) 
 {
@@ -21,14 +24,15 @@ PixelHitTripletGenerator::~PixelHitTripletGenerator()
   for (ig = theGenerators.begin(); ig != theGenerators.end(); ig++) {
     delete (*ig);
   }
+  delete thePixel;
 }
 
 void PixelHitTripletGenerator::init(const SiPixelRecHitCollection &coll,const edm::EventSetup& iSetup)
 {
-  PixelLayerTriplets pixel;
-  pixel.init(coll, iSetup);
+  if (!thePixel) thePixel = new PixelLayerTriplets;
+  thePixel->init(coll, iSetup);
   vector<PixelLayerTriplets::LayerPairAndLayers>::const_iterator it;
-  vector<PixelLayerTriplets::LayerPairAndLayers> trilayers=pixel.layers();
+  vector<PixelLayerTriplets::LayerPairAndLayers> trilayers=thePixel->layers();
   for (it = trilayers.begin(); it != trilayers.end(); it++) {
     const LayerWithHits * first = (*it).first.first;
     const LayerWithHits * second = (*it).first.second;

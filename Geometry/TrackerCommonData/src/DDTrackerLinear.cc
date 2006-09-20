@@ -16,7 +16,7 @@
 
 
 DDTrackerLinear::DDTrackerLinear() {
-  LogDebug("TrackerGeom") << "DDTrackerLinear info: Creating an instance";
+  edm::LogInfo("TrackerGeom") << "DDTrackerLinear info: Creating an instance";
 }
 
 DDTrackerLinear::~DDTrackerLinear() {}

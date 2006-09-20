@@ -23,24 +23,26 @@ EvtGen+DetSim.cfg runs the event generation and detector simulation
 	evtgen_detsim.root which can then be processed by GlobalValProducer.cfg
  	to produce the same GlobalValProducer.root as the full chain, but 
 	allowing for faster turn-around while debugging the code
+EvtGen.cfg just creates a reference MC sample
 Global.cfg uses evtgen_detsim.root (or any file which contains
 	the output of SimG4Core) to add the PGlobalSimHit object
 
+
 There are two macros to process the data.
 
-MakeHistograms.C is a macro that processes GlobalValProducer.root creating a 
-	GlobalValHistograms.ps file with formatted histograms as 
-	well as a GlobalValHistograms.root file holding the same histograms. 
+MakeHistograms.C is a macro that processes GlobalHits.root creating a 
+	GlobalHitsHistograms.ps file with formatted histograms as 
+	well as a GlobalHitsHistograms.root file holding the same histograms. 
 	This macro makes use of the PGlobalSimHit accessor methods, so a 
 	.rootrc and rootlogon.C file is provided to load the FWLite package to 
 	provide this functionality.
-MakeValidation.C is a macro that processes GlobalValProducer.root using 
+MakeValidation.C is a macro that processes GlobalHits.root using 
 	the MakeHistograms.C macro. It then compares the new 
-	GlobalValHistograms.root file against the reference 
-	GlobalValHistograms-reference.root from a previous release using the 
-	Chi2Test method and produces a GlobalValHistogramsCompare.ps file with 
-	the superimposed plots (solid blue for reference, dashed red for new)
-	and the returned value of the Chi2Test.
+	GlobalHitsHistograms.root file against the reference 
+	GlobalHitsHistograms-reference.root from a previous release using the 
+	Chi2Test method and produces a GlobalHitsHistogramsCompare.ps file 
+        with the superimposed plots (dashed blue for reference, solid red for 
+        new) and the returned value of the Chi2Test.
 
 valid_global.csh is a script to run all of the necesary packages in order to
 	perform a validation of a new release

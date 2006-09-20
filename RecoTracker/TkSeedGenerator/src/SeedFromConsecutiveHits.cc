@@ -110,7 +110,7 @@ construct( const TrackingRecHit* outerHit,
 
     _hits.push_back(innerHit->clone());
     _hits.push_back(outerHit->clone());
-     PTraj=  transformer.persistentState(outerUpdated, outerHit->geographicalId().rawId());
+    PTraj = boost::shared_ptr<PTrajectoryStateOnDet>( transformer.persistentState(outerUpdated, outerHit->geographicalId().rawId()) );
 
 }
 

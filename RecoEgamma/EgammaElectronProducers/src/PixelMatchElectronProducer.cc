@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronProducer.cc,v 1.3 2006/06/08 16:54:41 uberthon Exp $
+// $Id: PixelMatchElectronProducer.cc,v 1.1 2006/07/12 15:10:48 charlot Exp $
 //
 //
 
@@ -71,8 +71,8 @@ void PixelMatchElectronProducer::produce(edm::Event& e, const edm::EventSetup& i
   // get the input 
   edm::Handle<ElectronPixelSeedCollection> seeds;
   e.getByType(seeds);
-  std::cout<<" =================> Treating event "<<e.id()<<", Number of seeds "<<seeds.product()->size()
-  <<std::endl;
+  LogDebug("") << " =================> Treating event "<<e.id()
+               <<", Number of seeds "<<seeds.product()->size() << "\n";
 
   // Create the output collections   
 //  std::auto_ptr<ElectronTrackCollection> pOutTk(new ElectronTrackCollection);

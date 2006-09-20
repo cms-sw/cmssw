@@ -3,8 +3,6 @@
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
-#include "DQM/SiStripCommon/interface/SiStripConstants.h"
-#include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "boost/cstdint.hpp"
 #include <string>
 
@@ -12,26 +10,8 @@ class SiStripHistoNamingScheme {
   
  public:
 
-  // ---------- CONVERSION BETWEEN ENUMS AND STRINGS ----------
-  
-  static std::string view( const sistrip::View& );
-  static std::string task( const sistrip::Task& );
-  static std::string contents( const sistrip::Contents& );
-  static std::string keyType( const sistrip::KeyType& );
-  static std::string granularity( const sistrip::Granularity& );
-  static std::string summaryHisto( const sistrip::SummaryHisto& );
-  static std::string summaryType( const sistrip::SummaryType& );
-  
-  static sistrip::View view( const std::string& directory );
-  static sistrip::Task task( const std::string& task );
-  static sistrip::Contents contents( const std::string& contents );
-  static sistrip::KeyType keyType( const std::string& key_type );
-  static sistrip::Granularity granularity( const std::string& granularity );
-  static sistrip::SummaryHisto summaryHisto( const std::string& summary_histo );
-  static sistrip::SummaryType summaryType( const std::string& summary_type );
-  
-  // ---------- FORMULATION OF HISTOGRAM TITLES ----------
-  
+  // ----- STRUCTS AND ENUMS -----
+
   /** Simple struct to hold components of histogram title. */
   struct HistoTitle {
     sistrip::Task        task_;
@@ -42,7 +22,49 @@ class SiStripHistoNamingScheme {
     uint16_t             channel_;
     std::string          extraInfo_;
   };
+  
+  /** Simple struct to hold control path parameters. */
+  class ControlPath {
+  public:
+    uint16_t fecCrate_;
+    uint16_t fecSlot_;
+    uint16_t fecRing_;
+    uint16_t ccuAddr_;
+    uint16_t ccuChan_;
+  };
+  
+  // ----- METHODS RETURNING SOME GENERIC STRINGS AND CONSTANTS -----
 
+  static sistrip::View view( const std::string& directory );
+  static const std::string& view( const sistrip::View& );
+  
+  // ----- FORMULATION OF DIRECTORY PATHS -----
+
+  /** Returns directory path in the form of a string, based on control
+      params (FEC crate, slot and ring, CCU address and channel). */ 
+  static std::string controlPath( uint16_t fec_crate = sistrip::all_, 
+				  uint16_t fec_slot  = sistrip::all_, 
+				  uint16_t fec_ring  = sistrip::all_, 
+				  uint16_t ccu_addr  = sistrip::all_, 
+				  uint16_t ccu_chan  = sistrip::all_ );
+  
+  /** Returns control parameters in the form of a "ControlPath" struct,
+      based on directory path string of the form
+      ControlView/FecCrateA/FecSlotA/FecRingC/CcuAddrD/CcuChanE/. */
+  static const ControlPath& controlPath( const std::string& path );
+  
+  /** Returns directory path in the form of a string, based on readout
+      parameters (FED id and channel). */ 
+  static std::string readoutPath( uint16_t fed_id = sistrip::all_, 
+				  uint16_t fed_channel = sistrip::all_ );
+  
+  /** Returns readout parameters in the form of a pair (FED
+      id/channel), based on directory path string of the form
+      ReadoutView/FedIdX/FedChannelY/. */
+  static std::pair<uint16_t,uint16_t> readoutPath( const std::string& directory );
+  
+  // ----- FORMULATION OF HISTOGRAM TITLES -----
+  
   /** Contructs histogram name based on a general histogram name,
       histogram contents, a histogram key and a channel id. */
   inline static std::string histoTitle( HistoTitle title );
@@ -60,72 +82,23 @@ class SiStripHistoNamingScheme {
   /** Extracts various parameters from histogram name and returns the
       values in the form of a HistoTitle struct. */
   static HistoTitle histoTitle( std::string histo_title );  
-
-  // ---------- FORMULATION OF DIRECTORY PATHS ----------
-
-  /** Simple struct to hold control path parameters. */
-  class ControlPath {
-  public:
-    uint16_t fecCrate_;
-    uint16_t fecSlot_;
-    uint16_t fecRing_;
-    uint16_t ccuAddr_;
-    uint16_t ccuChan_;
-    ControlPath() : 
-      fecCrate_(sistrip::invalid_), 
-      fecSlot_(sistrip::invalid_), 
-      fecRing_(sistrip::invalid_), 
-      ccuAddr_(sistrip::invalid_), 
-      ccuChan_(sistrip::invalid_) {;} 
-  };
-
-  /** Returns directory path in the form of a string, based on control
-      params (FEC crate, slot and ring, CCU address and channel). */ 
-  static std::string controlPath( uint16_t fec_crate = sistrip::invalid_, 
-				  uint16_t fec_slot  = sistrip::invalid_, 
-				  uint16_t fec_ring  = sistrip::invalid_, 
-				  uint16_t ccu_addr  = sistrip::invalid_, 
-				  uint16_t ccu_chan  = sistrip::invalid_ );
-
-  /** Returns directory path in the form of a string, based on control
-      path (FEC crate, slot and ring, CCU address and channel). */ 
-  inline static std::string controlPath( const ControlPath& );
   
-  /** Returns control parameters in the form of a "ControlPath" struct,
-      based on directory path string of the form
-      ControlView/FecCrateA/FecSlotA/FecRingC/CcuAddrD/CcuChanE/. */
-  static const ControlPath& controlPath( const std::string& path );
-  
-  /** Returns directory path in the form of a string, based on readout
-      parameters (FED id and channel). */ 
-  static std::string readoutPath( uint16_t fed_id = sistrip::invalid_, 
-				  uint16_t fed_ch = sistrip::invalid_ );
-  
-  /** Returns readout parameters in the form of a pair (FED
-      id/channel), based on directory path string of the form
-      ReadoutView/FedIdX/FedChannelY/. */
-  static std::pair<uint16_t,uint16_t> readoutPath( const std::string& directory );
+  static std::string task( sistrip::Task task );
+  static std::string contents( sistrip::Contents contents );
+  static std::string keyType( sistrip::KeyType key_type );
+  static std::string granularity( sistrip::Granularity Granularity );
+
+  static sistrip::Task task( std::string task );
+  static sistrip::Contents contents( std::string contents );
+  static sistrip::KeyType keyType( std::string key_type );
+  static sistrip::Granularity granularity( std::string granularity );
   
 };
 
-// ---------- inline methods ----------
-
+// inline method
 std::string SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::HistoTitle title ) {
-  return histoTitle( title.task_, 
-		     title.contents_, 
-		     title.keyType_, 
-		     title.keyValue_, 
-		     title.granularity_, 
-		     title.channel_, 
-		     title.extraInfo_ );
-}
-  
-std::string SiStripHistoNamingScheme::controlPath( const ControlPath& path ) {
-  return controlPath( path.fecCrate_,
-		      path.fecSlot_,
-		      path.fecRing_,
-		      path.ccuAddr_,
-		      path.ccuChan_ );
+  return histoTitle( title.task_, title.contents_, title.keyType_, title.keyValue_, 
+		     title.granularity_, title.channel_, title.extraInfo_ );
 }
 
 #endif // DQM_SiStripCommon_SiStripHistoNamingScheme_H

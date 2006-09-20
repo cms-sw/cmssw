@@ -29,13 +29,10 @@ using namespace std;
     if(calibFile_.size()>0){
       parseCalib();
     //  printf("I got %d lines!\n",calibLines_.size());
-    if(calibLines_.size()==0)
-	throw cms::Exception("Incomplete configuration") << 
-	  "HcalTBObjectUnpacker: TDC/QADC/WC configuration file not found or is empty: "<<calibFile_<<endl;
     }
     else{
-	throw cms::Exception("Incomplete configuration") << 
-	  "HcalTBObjectUnpacker: TDC/QADC/WC configuration file not found: "<<calibFile_<<endl;
+      printf("HcalTBObjectUnpacker thinks your calibration file stinks....\n");
+      ///throw an exception here when we're ready with the calib file..
     }
 
     if (triggerFed_ >=0) {
