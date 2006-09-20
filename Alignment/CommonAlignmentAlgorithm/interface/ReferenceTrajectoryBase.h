@@ -4,24 +4,61 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date$
- * by         : $Author$
+ * last update: $Date: 2006/09/17 19:05:47 $
+ * by         : $Author: flucke $
  *
+ * Base class for reference 'trajectories' of single- or multiparticles
+ * stated.
+ * Inheriting classes have to calculate all relevant quantities accessed
+ * through member functions of this base class:
  *
+ * The local measured x/y coordinates on all crossed detectors as vector:
  *
+ * m = (x1, y1, x2, y2, ..., xN, yN) [transposed vector shown]
+ *
+ * their covariance matrix (possibly containing correlations between hits
+ * due to material effects which are not taken into account by the ideal
+ * trajectory parametrisation, cf. below),
+ *
+ * similarly the local x/y cordinates of the reference trajectory with covariance,
+ *
+ * the parameters of the (ideal) 'trajectory' 
+ * (e.g. 5 values for a single track or 9 for a two-track-state with vertex constraint),
+ *
+ * the derivatives of the local coordinates of the reference trajectory
+ * with respect to the initial 'trajectory'-parameters, 
+ * e.g. for n parameters 'p' and N hits with 'x/y' coordinates:
+ * 
+ *  D = ( dx1/dp1, dx1/dp2, ..., dx1/dpn,
+ *
+ *        dy1/dp1, dy1/dp2, ..., dy1/dpn,
+ *
+ *        dx2/dp1, dx2/dp2, ..., dx2/dpn,
+ *
+ *        dy2/dp1, dy2/dp2, ..., dy2/dpn,
+ *
+ *           .        .             .
+ *
+ *           .        .             .
+ *
+ *        dxN/dp1, dxN/dp2, ..., dxN/dpn,
+ *
+ *        dyN/dp1, dyN/dp2, ..., dyN/dpn )
+ *
+ * and finally the TrajectoryStateOnSurface's of the reference trajectory.
+ * 
+ * Take care to check validity of the calculation (isValid()) before using the results.
  *
  */
 
 #include "Geometry/Surface/interface/ReferenceCounted.h"
 
-// AlgebraicVector, -Matrix and -SymMatrix
+// for AlgebraicVector, -Matrix and -SymMatrix:
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include <vector>
-
-
-class TrajectoryStateOnSurface; // FIXME: should not work, need include
 
 class ReferenceTrajectoryBase : public ReferenceCounted
 {
@@ -48,22 +85,17 @@ public:
   const AlgebraicVector& trajectoryPositions() const { return theTrajectoryPositions; }
 
   /** Returns the covariance matrix of the reference trajectory.
-      FIXME: what is that? Not in ORCA. @Edumnd: trajectoryErrors()
    */
   const AlgebraicSymMatrix& trajectoryPositionErrors() const { return theTrajectoryPositionCov; }
 
   /** Returns the derivatives of the local coordinates of the reference
-   *  trajectory (i.e. trajectoryPositions) w.r.t. the initial 'track'-parameters.
+   *  trajectory (i.e. trajectoryPositions) w.r.t. the initial 'trajectory'-parameters.
    */
   const AlgebraicMatrix& derivatives() const { return theDerivatives; }
 
   /** Returns the set of 'track'-parameters.
    */
   const AlgebraicVector& parameters() const { return theParameters; }
-  /** Returns the (input) hits
-   */
-/*   const TransientTrackingRecHit::ConstRecHitContainer& recHits() const { */
-/*     return theRecHits;} */
 
   /** Returns the Tsos at the surfaces of the hits
    */
@@ -74,7 +106,7 @@ public:
 protected:
 
   explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0)
-    : theValidityFlag(false), theTsosVec(nHits), /* theRecHits(nHits), */
+    : theValidityFlag(false), theTsosVec(nHits),
     theMeasurements(nMeasPerHit * nHits), theMeasurementsCov(nMeasPerHit * nHits, 0),
     theTrajectoryPositions(nMeasPerHit * nHits), 
     theTrajectoryPositionCov(nMeasPerHit * nHits,0),
@@ -83,14 +115,13 @@ protected:
 
   bool theValidityFlag;
 
-  std::vector<TrajectoryStateOnSurface> theTsosVec; // was theTsos
-  //  TransientTrackingRecHit::ConstRecHitContainer theRecHits; // FIXME: would like to remove
+  std::vector<TrajectoryStateOnSurface> theTsosVec;
 
   AlgebraicVector     theMeasurements;
   AlgebraicSymMatrix  theMeasurementsCov;
 
-  AlgebraicVector     theTrajectoryPositions;   // was theTrajectory
-  AlgebraicSymMatrix  theTrajectoryPositionCov; // was theTrajectoryCov; 
+  AlgebraicVector     theTrajectoryPositions;
+  AlgebraicSymMatrix  theTrajectoryPositionCov;
 
   AlgebraicVector     theParameters;
   AlgebraicMatrix     theDerivatives;
