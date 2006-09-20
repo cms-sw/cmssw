@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/06/27 15:05:07 $
-//   $Revision: 1.3 $
+//   $Date: 2006/09/12 09:36:50 $
+//   $Revision: 1.4 $
 //
 //   Modifications:
 //
@@ -35,6 +35,8 @@
 // MC tests
 #include <L1Trigger/CSCTriggerPrimitives/test/CSCAnodeLCTAnalyzer.h>
 #include <L1Trigger/CSCTriggerPrimitives/test/CSCCathodeLCTAnalyzer.h>
+#include <Geometry/CSCGeometry/interface/CSCLayer.h>
+#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
 #include "TCanvas.h"
 #include "TFile.h"
@@ -51,9 +53,12 @@ using namespace std;
 //-----------------
 
 // Various useful constants
+const double CSCTriggerPrimitivesReader::TWOPI = 2.*M_PI;
 const string CSCTriggerPrimitivesReader::csc_type[CSC_TYPES] = {
   "ME1/1", "ME1/2", "ME1/3", "ME1/A", "ME2/1", "ME2/2", "ME3/1", "ME3/2",
   "ME4/1", "ME4/2"};
+const int CSCTriggerPrimitivesReader::MAX_WG[CSC_TYPES] = {
+   48,  64,  32,  48, 112,  64,  96,  64,  96,  64};//max. number of wiregroups
 const int CSCTriggerPrimitivesReader::MAX_HS[CSC_TYPES] = {
   128, 160, 128,  96, 160, 160, 160, 160, 160, 160}; // max. # of halfstrips
 const int CSCTriggerPrimitivesReader::ptype[CSCConstants::NUM_CLCT_PATTERNS]= {
@@ -71,6 +76,7 @@ bool CSCTriggerPrimitivesReader::bookedLCTTMBHistos = false;
 bool CSCTriggerPrimitivesReader::bookedLCTMPCHistos = false;
 
 bool CSCTriggerPrimitivesReader::bookedResolHistos  = false;
+bool CSCTriggerPrimitivesReader::bookedEfficHistos  = false;
 
 //----------------
 // Constructor  --
@@ -157,6 +163,7 @@ void CSCTriggerPrimitivesReader::endJob() {
   if (bookedLCTMPCHistos)  drawLCTMPCHistos();
 
   if (bookedResolHistos)   drawResolHistos();
+  if (bookedEfficHistos)   drawEfficHistos();
   //drawHistosForTalks();
 
   //theFile->cd();
@@ -176,6 +183,65 @@ void CSCTriggerPrimitivesReader::endJob() {
   edm::LogInfo("CSCTriggerPrimitivesReader")
     << "  Average number of MPC LCTs/event = "
     << static_cast<float>(numLCTMPC)/eventsAnalyzed << endl;
+
+  if (bookedEfficHistos) {
+    {
+      edm::LogInfo("CSCTriggerPrimitivesReader") << "\n  ALCT efficiencies:";
+      double tot_simh = 0.0, tot_alct = 0.0;
+      for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+	double simh = hEfficHitsEtaCsc[idh]->Integral();
+	double alct = hEfficALCTEtaCsc[idh]->Integral();
+	double eff  = 0.;
+	if (simh > 0) eff = alct/simh;
+	edm::LogInfo("CSCTriggerPrimitivesReader")
+	  << "    " << csc_type[idh]
+	  << ": alct = " << alct << ", simh = " << simh << " eff = " << eff;
+	tot_simh += simh;
+	tot_alct += alct;
+      }
+      edm::LogInfo("CSCTriggerPrimitivesReader")
+	<< "    overall: alct = " << tot_alct << ", simh = " << tot_simh
+	<< " eff = " << tot_alct/tot_simh;
+    }
+
+    {
+      edm::LogInfo("CSCTriggerPrimitivesReader") << "\n  CLCT efficiencies:";
+      double tot_simh = 0.0, tot_clct = 0.0;
+      for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+	double simh = hEfficHitsEtaCsc[idh]->Integral();
+	double clct = hEfficCLCTEtaCsc[idh]->Integral();
+	double eff  = 0.;
+	if (simh > 0.) eff = clct/simh;
+	edm::LogInfo("CSCTriggerPrimitivesReader")
+	  << "    " << csc_type[idh] 
+	  << ": clct = " << clct << ", simh = " << simh << " eff = " << eff;
+	tot_simh += simh;
+	tot_clct += clct;
+      }
+      edm::LogInfo("CSCTriggerPrimitivesReader")
+	<< "    overall: clct = " << tot_clct << ", simh = " << tot_simh
+	<< " eff = " << tot_clct/tot_simh;
+    }
+  }
+
+  if (bookedResolHistos) {
+    double cor = 0.0, tot = 0.0;
+    cor = hResolDeltaHS->GetBinContent(hResolDeltaHS->FindBin(0.));
+    tot = hResolDeltaHS->GetEntries();
+    edm::LogInfo("CSCTriggerPrimitivesReader")
+      << "\n  Correct half-strip assigned in " << cor << "/" << tot
+      << " = " << cor/tot << " of half-strip CLCTs";
+    cor = hResolDeltaDS->GetBinContent(hResolDeltaDS->FindBin(0.));
+    tot = hResolDeltaDS->GetEntries();
+    edm::LogInfo("CSCTriggerPrimitivesReader")
+      << "  Correct di-strip assigned in " << cor << "/" << tot
+      << " = " << cor/tot << " of di-strip CLCTs";
+    cor = hResolDeltaWG->GetBinContent(hResolDeltaWG->FindBin(0.));
+    tot = hResolDeltaWG->GetEntries();
+    edm::LogInfo("CSCTriggerPrimitivesReader")
+      << "  Correct wire group assigned in " << cor << "/" << tot
+      << " = " << cor/tot << " of ALCTs";
+  }
 }
 
 //---------------
@@ -199,6 +265,8 @@ void CSCTriggerPrimitivesReader::setRootStyle() {
   gStyle->SetStatH(0.10); // height of statistics box; default is 0.1
   gStyle->SetStatFormat("6.4g");  // leave default format for now
   gStyle->SetTitleSize(0.055, "");   // size for pad title; default is 0.02
+  // Really big; useful for talks.
+  //gStyle->SetTitleSize(0.1, "");   // size for pad title; default is 0.02
   gStyle->SetLabelSize(0.05, "XYZ"); // size for axis labels; default is 0.04
   gStyle->SetStatFontSize(0.06);     // size for stat. box
   gStyle->SetTitleFont(32, "XYZ"); // times-bold-italic font (p. 153) for axes
@@ -240,7 +308,7 @@ void CSCTriggerPrimitivesReader::bookCLCTHistos() {
   hClctPattern[0]  = new TH1F("","CLCT pattern, distrips",    10, -0.5,   9.5);
   hClctPattern[1]  = new TH1F("","CLCT pattern, halfstrips",  10, -0.5,   9.5);
 
-  for (Int_t i = 0; i < CSC_TYPES; i++) {
+  for (int i = 0; i < CSC_TYPES; i++) {
     string s1 = "Pattern number, " + csc_type[i];
     hClctPatternCsc[i][0] = new TH1F("", s1.c_str(),  9, -4.5, 4.5);
     hClctPatternCsc[i][1] = new TH1F("", s1.c_str(),  9, -4.5, 4.5);
@@ -273,7 +341,7 @@ void CSCTriggerPrimitivesReader::bookLCTTMBHistos() {
 
   // LCT quantities per station
   char histname[60];
-  for (Int_t istat = 0; istat < MAX_STATIONS; istat++) {
+  for (int istat = 0; istat < MAX_STATIONS; istat++) {
     sprintf(histname, "CSCId, station %d", istat+1);
     hLctTMBChamber[istat] = new TH1F("", histname,  10, -0.5, 9.5);
   }
@@ -301,7 +369,7 @@ void CSCTriggerPrimitivesReader::bookLCTMPCHistos() {
 
   // LCT quantities per station
   char histname[60];
-  for (Int_t istat = 0; istat < MAX_STATIONS; istat++) {
+  for (int istat = 0; istat < MAX_STATIONS; istat++) {
     sprintf(histname, "CSCId, station %d", istat+1);
     hLctMPCChamber[istat] = new TH1F("", histname,  10, -0.5, 9.5);
   }
@@ -310,18 +378,110 @@ void CSCTriggerPrimitivesReader::bookLCTMPCHistos() {
 }
 
 void CSCTriggerPrimitivesReader::bookResolHistos() {
-  hResolDeltaWG = new TH1F("", "Delta key wiregroup",         10, -5., 5.);
 
-  hResolDeltaHS = new TH1F("", "Delta key strip, halfstrips", 10, -5., 5.);
-  hResolDeltaDS = new TH1F("", "Delta key strip, distrips",   10, -5., 5.);
+  // Limits for resolution histograms
+  const double EDMIN = -0.05; // eta min
+  const double EDMAX =  0.05; // eta max
+  const double PDMIN = -5.0;  // phi min (mrad)
+  const double PDMAX =  5.0;  // phi max (mrad)
 
-  hResolDeltaEta   = new TH1F("", "Delta eta",               100, -0.1, 0.1);
-  hResolDeltaPhiHS = new TH1F("", "Delta phi (mrad), halfstrips",
+  hResolDeltaWG = new TH1F("", "Delta key wiregroup", 10, -5., 5.);
+
+  hResolDeltaHS = new TH1F("", "Delta key halfstrip", 10, -5., 5.);
+  hResolDeltaDS = new TH1F("", "Delta key distrip",   10, -5., 5.);
+
+  hResolDeltaEta   = new TH1F("", "#eta_rec-#eta_sim", 100, EDMIN, EDMAX);
+  hResolDeltaPhi   = new TH1F("", "#phi_rec-#phi_sim (mrad)", 100, -10., 10.);
+  hResolDeltaPhiHS = new TH1F("", "#phi_rec-#phi_sim (mrad), halfstrips",
 			      100, -10., 10.);
-  hResolDeltaPhiDS = new TH1F("", "Delta phi (mrad), distrips",
+  hResolDeltaPhiDS = new TH1F("", "#phi_rec-#phi_sim (mrad), distrips",
 			      100, -10., 10.);
+
+  hEtaRecVsSim = new TH2F("", "#eta_rec vs #eta_sim",
+			  64, 0.9,  2.5,  64, 0.9,  2.5);
+  hPhiRecVsSim = new TH2F("", "#phi_rec vs #phi_sim",
+			 100, 0., TWOPI, 100, 0., TWOPI);
+
+  // LCT quantities per station
+  char histname[60];
+  for (int i = 0; i < MAX_STATIONS; i++) {
+    sprintf(histname, "ALCTs vs eta, station %d", i+1);
+    hAlctVsEta[i]    = new TH1F("", histname, 66, 0.875, 2.525);
+
+    sprintf(histname, "CLCTs vs phi, station %d", i+1);
+    hClctVsPhi[i]    = new TH1F("", histname, 100, 0.,   TWOPI);
+
+    sprintf(histname, "#LT#eta_rec-#eta_sim#GT, station %d", i+1);
+    hEtaDiffVsEta[i] = new TH1F("", histname, 66, 0.875, 2.525);
+
+    sprintf(histname, "#LT#phi_rec-#phi_sim#GT, station %d", i+1);
+    hPhiDiffVsPhi[i] = new TH1F("", histname, 100, 0.,   TWOPI);
+  }
+
+  for (int i = 0; i < CSC_TYPES; i++) {
+    string t0 = "#eta_rec-#eta_sim, " + csc_type[i];
+    hEtaDiffCsc[i][0] = new TH1F("", t0.c_str(), 100, EDMIN, EDMAX);
+    string t1 = t0 + ", endcap1";
+    hEtaDiffCsc[i][1] = new TH1F("", t1.c_str(), 100, EDMIN, EDMAX);
+    string t2 = t0 + ", endcap2";
+    hEtaDiffCsc[i][2] = new TH1F("", t2.c_str(), 100, EDMIN, EDMAX);
+
+    string t4 = "#eta_rec-#eta_sim vs wiregroup, " + csc_type[i];
+    hEtaDiffVsWireCsc[i] =
+      new TH2F("", t4.c_str(), MAX_WG[i], 0., MAX_WG[i], 100, EDMIN, EDMAX);
+
+    string u0 = "#phi_rec-#phi_sim, " + csc_type[i];
+    hPhiDiffCsc[i][0] = new TH1F("", u0.c_str(), 100, PDMIN, PDMAX);
+    string u1 = u0 + ", endcap1";
+    hPhiDiffCsc[i][1] = new TH1F("", u1.c_str(), 100, PDMIN, PDMAX);
+    string u2 = u0 + ", endcap2";
+    hPhiDiffCsc[i][2] = new TH1F("", u2.c_str(), 100, PDMIN, PDMAX);
+    hPhiDiffCsc[i][3] = new TH1F("", u0.c_str(), 100, PDMIN, PDMAX);
+    hPhiDiffCsc[i][4] = new TH1F("", u0.c_str(), 100, PDMIN, PDMAX);
+
+    int MAX_DS = MAX_HS[i]/4;
+    string u5 = "#phi_rec-#phi_sim (mrad) vs distrip, " + csc_type[i];
+    hPhiDiffVsStripCsc[i][0] =
+      new TH2F("", u5.c_str(), MAX_DS,    0., MAX_DS,    100, PDMIN, PDMAX);
+    string u6 = "#phi_rec-#phi_sim (mrad) vs halfstrip, " + csc_type[i];
+    hPhiDiffVsStripCsc[i][1] =
+      new TH2F("", u6.c_str(), MAX_HS[i], 0., MAX_HS[i], 100, PDMIN, PDMAX);
+  }
+
+  for (int i = 0; i < 9; i++) {
+    sprintf(histname, "#phi_rec-#phi_sim, bend = %d", i-4);
+    hPhiDiffPattern[i] = new TH1F("", histname, 100, PDMIN, PDMAX);
+  }
 
   bookedResolHistos = true;
+}
+
+void CSCTriggerPrimitivesReader::bookEfficHistos() {
+
+  // Efficiencies per station.
+  char histname[60];
+  for (int i = 0; i < MAX_STATIONS; i++) {
+    sprintf(histname, "SimHits vs eta, station %d", i+1);
+    hEfficHitsEta[i] = new TH1F("", histname, 66, 0.875, 2.525);
+
+    sprintf(histname, "ALCTs vs eta, station %d", i+1);
+    hEfficALCTEta[i] = new TH1F("", histname, 66, 0.875, 2.525);
+
+    sprintf(histname, "CLCTs vs eta, station %d", i+1);
+    hEfficCLCTEta[i] = new TH1F("", histname, 66, 0.875, 2.525);
+  }
+
+  // Efficiencies per chamber type.
+  for (int i = 0; i < CSC_TYPES; i++) {
+    string t0 = "SimHits vs eta, " + csc_type[i];
+    hEfficHitsEtaCsc[i] = new TH1F("", t0.c_str(), 66, 0.875, 2.525);
+    string t1 = "ALCTs vs eta, " + csc_type[i];
+    hEfficALCTEtaCsc[i] = new TH1F("", t1.c_str(), 66, 0.875, 2.525);
+    string t2 = "CLCTs vs eta, " + csc_type[i];
+    hEfficCLCTEtaCsc[i] = new TH1F("", t1.c_str(), 66, 0.875, 2.525);
+  }
+
+  bookedEfficHistos = true;
 }
 
 void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alcts) {
@@ -688,6 +848,9 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
     // MC-based resolution studies.
     calcResolution(alcts, clcts, wireDigis.product(), compDigis.product(),
 		   simHits.product());
+
+    // MC-based efficiency studies.
+    calcEfficiency(alcts, clcts, simHits.product());
   }
 }
 
@@ -720,10 +883,14 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	if (hitWG >= 0.) {
 	  // Key wire group and key layer id.
 	  int wiregroup = (*digiIt).getKeyWG();
+
 	  CSCDetId layerId(id.endcap(), id.station(), id.ring(),
 			   id.chamber(), 3);
+	  int endc    = id.endcap();
+	  int stat    = id.station();
+	  int csctype = getCSCType(id);
 
-	  double alctEta  = alct_analyzer.getWGEta(layerId, wiregroup+1);
+	  double alctEta  = alct_analyzer.getWGEta(layerId, wiregroup);
 	  double deltaEta = alctEta - hitEta;
 	  hResolDeltaEta->Fill(deltaEta);
 
@@ -732,6 +899,13 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	    << "WG: MC = " << hitWG << " rec = " << wiregroup
 	    << " delta = " << deltaWG;
 	  hResolDeltaWG->Fill(deltaWG);
+
+	  hEtaRecVsSim->Fill(fabs(hitEta), fabs(alctEta));
+	  hEtaDiffCsc[csctype][0]->Fill(deltaEta);
+	  hEtaDiffCsc[csctype][endc]->Fill(deltaEta);
+	  hAlctVsEta[stat-1]->Fill(fabs(alctEta));
+	  hEtaDiffVsEta[stat-1]->Fill(fabs(alctEta), fabs(deltaEta));
+	  hEtaDiffVsWireCsc[csctype]->Fill(wiregroup, deltaEta);
 	}
 	else {
 	  edm::LogWarning("CSCTriggerPrimitivesReader")
@@ -763,29 +937,67 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	  // Key strip and key layer id.
 	  int halfstrip = (*digiIt).getKeyStrip();
 	  int strip     = halfstrip/2;
+	  int distrip   = halfstrip/4;
+	  int stripType = (*digiIt).getStripType();
+
 	  CSCDetId layerId(id.endcap(), id.station(), id.ring(),
 			   id.chamber(), CSCConstants::KEY_LAYER);
+	  int endc    = id.endcap();
+	  int stat    = id.station();
+	  int csctype = getCSCType(id);
 
-	  double clctPhi = clct_analyzer.getStripPhi(layerId, strip+1);
+	  // 'float strip' is in the units of 'strip', i.e., angular
+	  // widths of each strip. The counting is from 0.0 at the extreme
+	  // edge of the 'first' strip at one edge of the detector.
+	  float fstrip = -999.;
+	  if (stripType == 0) { // di-strip CLCT
+	    fstrip = strip + 1.;
+	  }
+	  else {                // half-strip CLCT
+	    fstrip = strip + 0.5*(halfstrip%2) + 0.25;
+	  }
+	  double clctPhi = clct_analyzer.getStripPhi(layerId, fstrip);
 	  double deltaPhi = clctPhi - hitPhi;
 	  if      (deltaPhi < -M_PI) deltaPhi += 2.*M_PI;
 	  else if (deltaPhi >  M_PI) deltaPhi -= 2.*M_PI;
 	  deltaPhi *= 1000; // in mrad
+	  if      (hitPhi  < 0) hitPhi  += 2.*M_PI;
+	  if      (clctPhi < 0) clctPhi += 2.*M_PI;
 
-	  if ((*digiIt).getStripType() == 0) { // di-strip CLCT
-	    deltaStrip = halfstrip/4 - hitHS/4;
+	  hResolDeltaPhi->Fill(deltaPhi);
+	  if (stripType == 0) { // di-strip CLCT
+	    deltaStrip = distrip - hitHS/4;
 	    hResolDeltaDS->Fill(deltaStrip);
 	    hResolDeltaPhiDS->Fill(deltaPhi);
+	    hPhiDiffVsStripCsc[csctype][0]->Fill(distrip,   deltaPhi);
 	  }
-	  else {                              // half-strip CLCT
+	  else {                // half-strip CLCT
 	    deltaStrip = halfstrip - hitHS;
 	    hResolDeltaHS->Fill(deltaStrip);
 	    hResolDeltaPhiHS->Fill(deltaPhi);
+	    hPhiDiffVsStripCsc[csctype][1]->Fill(halfstrip, deltaPhi);
 	  }
 	  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 	    << "Half-strip: MC = " << hitHS << " rec = " << halfstrip
-	    << " pattern type = " << (*digiIt).getStripType()
-	    << " delta = " << deltaStrip;
+	    << " pattern type = " << stripType << " delta = " << deltaStrip;
+
+	  hPhiRecVsSim->Fill(hitPhi, clctPhi);
+	  hPhiDiffCsc[csctype][0]->Fill(deltaPhi);
+	  hPhiDiffCsc[csctype][endc]->Fill(deltaPhi);
+	  hPhiDiffCsc[csctype][stripType+3]->Fill(deltaPhi);
+	  hClctVsPhi[stat-1]->Fill(clctPhi);
+	  hPhiDiffVsPhi[stat-1]->Fill(clctPhi, fabs(deltaPhi));
+
+	  // Histograms to check phi offsets for various pattern types
+	  if (stripType == 1) { // half-strips
+	    double hsperrad = getHsPerRad(csctype); // halfstrips-per-radian
+	    if((endc == 1 && (stat == 1 || stat == 2)) ||
+	       (endc == 2 && (stat == 3 || stat == 4))) {
+	      int phibend = ptype[(*digiIt).getPattern()];
+	      hPhiDiffPattern[phibend+4]->Fill(deltaPhi/1000*hsperrad);
+	    }
+	  }
+
 	}
 	else {
 	  edm::LogWarning("CSCTriggerPrimitivesReader")
@@ -797,21 +1009,175 @@ void CSCTriggerPrimitivesReader::calcResolution(
   }
 }
 
+void CSCTriggerPrimitivesReader::calcEfficiency(
+    const CSCALCTDigiCollection* alcts, const CSCCLCTDigiCollection* clcts,
+    const edm::PSimHitContainer* allSimHits) {
+
+  edm::PSimHitContainer::const_iterator simHitIt;
+
+  // Book histos when called for the first time.
+  if (!bookedEfficHistos) bookEfficHistos();
+
+  // Create list of chambers having SimHits.
+  vector<CSCDetId> chamberIds;
+  vector<CSCDetId>::const_iterator chamberIdIt;
+  for (simHitIt = allSimHits->begin(); simHitIt != allSimHits->end();
+       simHitIt++) {
+    // Find detId where simHit is located.
+    bool sameId = false;
+    CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
+    if (hitId.ring() == 4) continue; // skip ME1/A for now.
+    for (chamberIdIt = chamberIds.begin(); chamberIdIt != chamberIds.end();
+	 chamberIdIt++) {
+      if ((*chamberIdIt).endcap()  == hitId.endcap() &&
+	  (*chamberIdIt).station() == hitId.station() &&
+	  (*chamberIdIt).ring()    == hitId.ring() &&
+	  (*chamberIdIt).chamber() == hitId.chamber()) {
+	sameId = true;
+	break;
+      }
+    }
+    if (!sameId) {
+      CSCDetId newChamberId(hitId.endcap(), hitId.station(), hitId.ring(),
+			    hitId.chamber(), 0);
+      chamberIds.push_back(newChamberId);
+    }
+  }
+  LogDebug("CSCTriggerPrimitivesReader")
+    << "Found SimHits in " << chamberIds.size() << " CSCs";
+
+  bool used[CSCConstants::NUM_LAYERS];
+  vector<PSimHit> simHitsV[CSCConstants::NUM_LAYERS];
+  for (chamberIdIt = chamberIds.begin(); chamberIdIt != chamberIds.end();
+       chamberIdIt++) {
+    // Find out how many layers of this chamber have SimHits.
+    int nLayers = 0;
+    for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
+      used[ilayer] = false;
+      simHitsV[ilayer].clear();
+    }
+
+    int endcap  = (*chamberIdIt).endcap();
+    int station = (*chamberIdIt).station();
+    int ring    = (*chamberIdIt).ring();
+    int chamber = (*chamberIdIt).chamber();
+    for (simHitIt = allSimHits->begin(); simHitIt != allSimHits->end();
+	 simHitIt++) {
+      CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
+      if (hitId.endcap() == endcap && hitId.station() == station &&
+	  hitId.ring()   == ring   && hitId.chamber() == chamber) {
+	int layer = hitId.layer() - 1;
+	if (!used[layer] && abs((*simHitIt).particleType()) == 13) {
+	  nLayers++;
+	  used[layer] = true;
+	  simHitsV[layer].push_back(*simHitIt);
+	}
+      }
+    }
+    LogDebug("CSCTriggerPrimitivesReader")
+      << "CSC in endcap " << endcap << " station " << station
+      << " ring " << ring << " chamber " << chamber
+      << " has hits in " << nLayers << " layers";
+
+    // If the number of layers with hits is above threshold, look for
+    // a presence of LCTs.
+    if (nLayers > 3) { // Should be a parameter.
+      // Start with the key layer and take the eta of the first hit.
+      // Really crude; should be improved.
+      double hitEta = -999.;
+      for (int ilayer = 2; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
+	vector<PSimHit> layerSimHitsV = simHitsV[ilayer];
+	if (layerSimHitsV.size() > 0) {
+	  LocalPoint hitLP = layerSimHitsV[0].localPosition();
+	  CSCDetId layerId = (CSCDetId)(layerSimHitsV[0]).detUnitId();
+	  const CSCLayer* csclayer = geom_->layer(layerId);
+	  GlobalPoint hitGP = csclayer->toGlobal(hitLP);
+	  hitEta = hitGP.eta();
+	  break;
+	}
+      }
+      if (hitEta < -3.) {
+	edm::LogWarning("CSCTriggerPrimitivesReader")
+	  << "+++ Warning in calcEfficiency(): no SimHit found"
+	  << " where there must be at least " << nLayers << "! +++\n";
+	continue;
+      }
+      int csctype = getCSCType(*chamberIdIt);
+      hEfficHitsEta[station-1]->Fill(fabs(hitEta));
+      hEfficHitsEtaCsc[csctype]->Fill(fabs(hitEta));
+
+      bool isALCT = false;
+      CSCALCTDigiCollection::DigiRangeIterator adetUnitIt;
+      for (adetUnitIt = alcts->begin(); adetUnitIt != alcts->end();
+	   adetUnitIt++) {
+	const CSCDetId& id = (*adetUnitIt).first;
+	if (id == (*chamberIdIt)) {
+	  const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
+	  for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
+	       digiIt != range.second; digiIt++) {
+	    if (digiIt->isValid()) {
+	      // Check the distance??
+	      LogDebug("CSCTriggerPrimitivesReader") << "ALCT was found";
+	      isALCT = true;
+	      break;
+	    }
+	  }
+	}
+	if (isALCT) break;
+      }
+      if (isALCT) {
+	hEfficALCTEta[station-1]->Fill(fabs(hitEta));
+	hEfficALCTEtaCsc[csctype]->Fill(fabs(hitEta));
+      }
+      else {
+	LogDebug("CSCTriggerPrimitivesReader") << "ALCT was not found";
+      }
+
+      bool isCLCT = false;
+      CSCCLCTDigiCollection::DigiRangeIterator cdetUnitIt;
+      for (cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end();
+	   cdetUnitIt++) {
+	const CSCDetId& id = (*cdetUnitIt).first;
+	if (id == (*chamberIdIt)) {
+	  const CSCCLCTDigiCollection::Range& range = (*cdetUnitIt).second;
+	  for (CSCCLCTDigiCollection::const_iterator digiIt = range.first;
+	       digiIt != range.second; digiIt++) {
+	    if (digiIt->isValid()) {
+	      // Check the distance??
+	      LogDebug("CSCTriggerPrimitivesReader") << "CLCT was found";
+	      isCLCT = true;
+	      break;
+	    }
+	  }
+	}
+	if (isCLCT) break;
+      }
+      if (isCLCT) {
+	hEfficCLCTEta[station-1]->Fill(fabs(hitEta));
+	hEfficCLCTEtaCsc[csctype]->Fill(fabs(hitEta));
+      }
+      else {
+	LogDebug("CSCTriggerPrimitivesReader") << "CLCT was not found";
+      }
+
+    }
+  }
+}
 
 void CSCTriggerPrimitivesReader::drawALCTHistos() {
   TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
   TPostScript *ps = new TPostScript("alcts.ps", 111);
 
   TPad *pad[MAXPAGES];
-  for (Int_t i_page = 0; i_page < MAXPAGES; i_page++) {
+  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
     pad[i_page] = new TPad("", "", .05, .05, .93, .93);
   }
 
-  Int_t page = 1;
+  int page = 1;
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  Char_t pagenum[6];
+  char pagenum[6];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -854,15 +1220,15 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   TPostScript *ps = new TPostScript("clcts.ps", 111);
 
   TPad *pad[MAXPAGES];
-  for (Int_t i_page = 0; i_page < MAXPAGES; i_page++) {
+  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
     pad[i_page] = new TPad("", "", .05, .05, .93, .93);
   }
 
-  Int_t page = 1;
+  int page = 1;
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  Char_t pagenum[6];
+  char pagenum[6];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -921,7 +1287,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   gStyle->SetOptStat(110);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (Int_t idh = 0; idh < CSC_TYPES; idh++) {
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     pad[page]->cd(idh+1);
     hClctPatternCsc[idh][1]->GetXaxis()->SetTitle("Pattern number");
     hClctPatternCsc[idh][1]->GetYaxis()->SetTitle("Number of LCTs");
@@ -936,7 +1302,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (Int_t idh = 0; idh < CSC_TYPES; idh++) {
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     pad[page]->cd(idh+1);
     hClctPatternCsc[idh][0]->GetXaxis()->SetTitle("Pattern number");
     hClctPatternCsc[idh][0]->GetYaxis()->SetTitle("Number of LCTs");
@@ -952,7 +1318,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (Int_t idh = 0; idh < CSC_TYPES; idh++) {
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     pad[page]->cd(idh+1);
     hClctKeyStripCsc[idh]->GetXaxis()->SetTitle("Key distrip");
     hClctKeyStripCsc[idh]->GetXaxis()->SetTitleOffset(1.2);
@@ -969,15 +1335,15 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   TPostScript *ps = new TPostScript("lcts_tmb.ps", 111);
 
   TPad *pad[MAXPAGES];
-  for (Int_t i_page = 0; i_page < MAXPAGES; i_page++) {
+  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
     pad[i_page] = new TPad("", "", .05, .05, .93, .93);
   }
 
-  Int_t page = 1;
+  int page = 1;
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  Char_t pagenum[6];
+  char pagenum[6];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -1012,7 +1378,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   pad[page]->cd(2);  hLctTMBStation->Draw();
   pad[page]->cd(3);  hLctTMBSector->Draw();
   pad[page]->cd(4);  hLctTMBRing->Draw();
-  for (Int_t istat = 0; istat < MAX_STATIONS; istat++) {
+  for (int istat = 0; istat < MAX_STATIONS; istat++) {
     pad[page]->cd(istat+5);  hLctTMBChamber[istat]->Draw();
   }
   page++;  c1->Update();
@@ -1042,15 +1408,15 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   TPostScript *ps = new TPostScript("lcts_mpc.ps", 111);
 
   TPad *pad[MAXPAGES];
-  for (Int_t i_page = 0; i_page < MAXPAGES; i_page++) {
+  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
     pad[i_page] = new TPad("", "", .05, .05, .93, .93);
   }
 
-  Int_t page = 1;
+  int page = 1;
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  Char_t pagenum[6];
+  char pagenum[6];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -1083,7 +1449,7 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   pad[page]->cd(2);  hLctMPCStation->Draw();
   pad[page]->cd(3);  hLctMPCSector->Draw();
   pad[page]->cd(4);  hLctMPCRing->Draw();
-  for (Int_t istat = 0; istat < MAX_STATIONS; istat++) {
+  for (int istat = 0; istat < MAX_STATIONS; istat++) {
     pad[page]->cd(istat+5);  hLctMPCChamber[istat]->Draw();
   }
   page++;  c1->Update();
@@ -1113,15 +1479,15 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   TPostScript *ps = new TPostScript("lcts_resol.ps", 111);
 
   TPad *pad[MAXPAGES];
-  for (Int_t i_page = 0; i_page < MAXPAGES; i_page++) {
+  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
     pad[i_page] = new TPad("", "", .05, .05, .93, .93);
   }
 
-  Int_t page = 1;
+  int page = 1;
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  Char_t pagenum[6];
+  char pagenum[6];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -1131,23 +1497,441 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
-  pad[page]->Divide(1,2);
-  pad[page]->cd(1);  hResolDeltaWG->Draw();
-  pad[page]->cd(2);  hResolDeltaEta->Draw();
+  pad[page]->Divide(2,2);
+  gStyle->SetStatX(1.00);  gStyle->SetStatY(0.65);
+  pad[page]->cd(1);  hEtaRecVsSim->SetMarkerSize(0.2);  hEtaRecVsSim->Draw();
+  gPad->Update();  gStyle->SetStatX(1.00);  gStyle->SetStatY(0.995);
+  hResolDeltaWG->GetXaxis()->SetTitle("WG_{rec} - WG_{sim}");
+  hResolDeltaWG->GetXaxis()->SetTitleOffset(1.2);
+  hResolDeltaWG->GetYaxis()->SetTitle("Entries");
+  hResolDeltaWG->GetYaxis()->SetTitleOffset(1.9);
+  hResolDeltaWG->GetXaxis()->SetLabelSize(0.03);
+  hResolDeltaWG->GetYaxis()->SetLabelSize(0.03);
+  pad[page]->cd(3);  hResolDeltaWG->Draw();
+  hResolDeltaEta->GetXaxis()->SetNdivisions(505); // twice fewer divisions
+  hResolDeltaEta->GetXaxis()->SetLabelSize(0.04);
+  hResolDeltaEta->GetYaxis()->SetLabelSize(0.04);
+  pad[page]->cd(4);  hResolDeltaEta->Draw();  hResolDeltaEta->Fit("gaus","Q");
   page++;  c1->Update();
 
   ps->NewPage();
   c1->Clear();  c1->cd(0);
-  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT resolution");
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "#eta_rec-#eta_sim");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hEtaDiffCsc[idh][0]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hEtaDiffCsc[idh][0]->GetYaxis()->SetLabelSize(0.07);
+    pad[page]->cd(idh+1);  hEtaDiffCsc[idh][0]->Draw();
+    if (hEtaDiffCsc[idh][0]->GetEntries() > 1)
+      hEtaDiffCsc[idh][0]->Fit("gaus","Q");
+  }
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "#eta_rec-#eta_sim, endcap1");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hEtaDiffCsc[idh][1]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hEtaDiffCsc[idh][1]->GetYaxis()->SetLabelSize(0.07);
+    pad[page]->cd(idh+1);  hEtaDiffCsc[idh][1]->Draw();
+    if (hEtaDiffCsc[idh][1]->GetEntries() > 1)
+      hEtaDiffCsc[idh][1]->Fit("gaus","Q");
+  }
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "#eta_rec-#eta_sim, endcap2");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hEtaDiffCsc[idh][2]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hEtaDiffCsc[idh][2]->GetYaxis()->SetLabelSize(0.07);
+    pad[page]->cd(idh+1);  hEtaDiffCsc[idh][2]->Draw();
+    if (hEtaDiffCsc[idh][2]->GetEntries() > 1)
+      hEtaDiffCsc[idh][2]->Fit("gaus","Q");
+  }
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "#LT#eta_rec-#eta_sim#GT vs #eta_rec");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  //gStyle->SetOptStat(0);
+  pad[page]->Draw();
+  pad[page]->Divide(2,2);
+  TH1F *hMeanEtaDiffVsEta[MAX_STATIONS];
+  for (int istation = 0; istation < MAX_STATIONS; istation++) {
+    hMeanEtaDiffVsEta[istation] = (TH1F*)hEtaDiffVsEta[istation]->Clone();
+    hMeanEtaDiffVsEta[istation]->Divide(hEtaDiffVsEta[istation],
+					hAlctVsEta[istation], 1., 1.);
+    hMeanEtaDiffVsEta[istation]->GetXaxis()->SetTitleOffset(1.2);
+    hMeanEtaDiffVsEta[istation]->GetXaxis()->SetTitle("#eta");
+    hMeanEtaDiffVsEta[istation]->SetMaximum(0.05);
+    pad[page]->cd(istation+1);  hMeanEtaDiffVsEta[istation]->Draw();
+  }
+  page++;  c1->Update();
+
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "#eta_rec-#eta_sim vs wiregroup");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    pad[page]->cd(idh+1);  hEtaDiffVsWireCsc[idh]->SetMarkerSize(0.2);
+    hEtaDiffVsWireCsc[idh]->GetXaxis()->SetTitle("Wiregroup");
+    hEtaDiffVsWireCsc[idh]->GetXaxis()->SetTitleSize(0.07);
+    hEtaDiffVsWireCsc[idh]->GetXaxis()->SetTitleOffset(1.2);
+    hEtaDiffVsWireCsc[idh]->GetYaxis()->SetTitle("#eta_rec-#eta_sim");
+    hEtaDiffVsWireCsc[idh]->GetYaxis()->SetTitleSize(0.07);
+    hEtaDiffVsWireCsc[idh]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hEtaDiffVsWireCsc[idh]->GetYaxis()->SetLabelSize(0.07);
+    hEtaDiffVsWireCsc[idh]->Draw();
+  }
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "#phi resolution");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(2,2);
-  pad[page]->cd(1);  hResolDeltaHS->Draw();
-  pad[page]->cd(2);  hResolDeltaDS->Draw();
-  pad[page]->cd(3);  hResolDeltaPhiHS->Draw();
-  pad[page]->cd(4);  hResolDeltaPhiDS->Draw();
+  gStyle->SetStatX(1.00);  gStyle->SetStatY(0.65);
+  pad[page]->cd(1);  hPhiRecVsSim->SetMarkerSize(0.2);  hPhiRecVsSim->Draw();
+  gPad->Update();  gStyle->SetStatX(1.00);  gStyle->SetStatY(0.995);
+  hResolDeltaPhi->GetXaxis()->SetLabelSize(0.04);
+  hResolDeltaPhi->GetYaxis()->SetLabelSize(0.04);
+  pad[page]->cd(2);  hResolDeltaPhi->Draw();  hResolDeltaPhi->Fit("gaus","Q");
+  hResolDeltaHS->GetXaxis()->SetTitle("HS_{rec} - HS_{sim}");
+  hResolDeltaHS->GetXaxis()->SetTitleOffset(1.2);
+  hResolDeltaHS->GetYaxis()->SetTitle("Entries");
+  hResolDeltaHS->GetYaxis()->SetTitleOffset(1.7);
+  hResolDeltaHS->GetXaxis()->SetLabelSize(0.03);
+  hResolDeltaHS->GetYaxis()->SetLabelSize(0.03);
+  pad[page]->cd(3);  hResolDeltaHS->Draw();
+  hResolDeltaDS->GetXaxis()->SetTitle("DS_{rec} - DS_{sim}");
+  hResolDeltaDS->GetXaxis()->SetTitleOffset(1.2);
+  hResolDeltaDS->GetYaxis()->SetTitle("Entries");
+  hResolDeltaDS->GetYaxis()->SetTitleOffset(1.6);
+  hResolDeltaDS->GetXaxis()->SetLabelSize(0.04);
+  hResolDeltaDS->GetYaxis()->SetLabelSize(0.04);
+  pad[page]->cd(4);  hResolDeltaDS->Draw();
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "#phi_rec-#phi_sim (mrad)");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hPhiDiffCsc[idh][0]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hPhiDiffCsc[idh][0]->GetYaxis()->SetLabelSize(0.07);
+    pad[page]->cd(idh+1);  hPhiDiffCsc[idh][0]->Draw();
+    if (hPhiDiffCsc[idh][0]->GetEntries() > 1)
+      hPhiDiffCsc[idh][0]->Fit("gaus","Q");
+  }
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "#phi_rec-#phi_sim (mrad), halfstrips only");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hPhiDiffCsc[idh][4]->GetYaxis()->SetTitle("Entries");
+    hPhiDiffCsc[idh][4]->GetYaxis()->SetTitleSize(0.07);
+    hPhiDiffCsc[idh][4]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hPhiDiffCsc[idh][4]->GetYaxis()->SetLabelSize(0.07);
+    pad[page]->cd(idh+1);  hPhiDiffCsc[idh][4]->Draw();
+    if (hPhiDiffCsc[idh][4]->GetEntries() > 1)
+      hPhiDiffCsc[idh][4]->Fit("gaus","Q");
+  }
+  pad[page]->cd(10);  hResolDeltaPhiHS->Draw();
+  hResolDeltaPhiHS->Fit("gaus","Q");
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "#phi_rec-#phi_sim (mrad), distrips only");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hPhiDiffCsc[idh][3]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hPhiDiffCsc[idh][3]->GetYaxis()->SetLabelSize(0.07);
+    pad[page]->cd(idh+1);  hPhiDiffCsc[idh][3]->Draw();
+    if (hPhiDiffCsc[idh][3]->GetEntries() > 1)
+      hPhiDiffCsc[idh][3]->Fit("gaus","Q");
+  }
+  pad[page]->cd(10);  hResolDeltaPhiDS->Draw();
+  hResolDeltaPhiDS->Fit("gaus","Q");
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "#phi_rec-#phi_sim (mrad), endcap1");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hPhiDiffCsc[idh][1]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hPhiDiffCsc[idh][1]->GetYaxis()->SetLabelSize(0.07);
+    pad[page]->cd(idh+1);  hPhiDiffCsc[idh][1]->Draw();
+    if (hPhiDiffCsc[idh][1]->GetEntries() > 1)
+      hPhiDiffCsc[idh][1]->Fit("gaus","Q");
+  }
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "#phi_rec-#phi_sim (mrad), endcap2");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hPhiDiffCsc[idh][2]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hPhiDiffCsc[idh][2]->GetYaxis()->SetLabelSize(0.07);
+    pad[page]->cd(idh+1);  hPhiDiffCsc[idh][2]->Draw();
+    if (hPhiDiffCsc[idh][2]->GetEntries() > 1)
+      hPhiDiffCsc[idh][2]->Fit("gaus","Q");
+  }
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "#LT#phi_rec-#phi_sim#GT (mrad) vs #phi_rec");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  gStyle->SetOptStat(0);
+  pad[page]->Draw();
+  pad[page]->Divide(2,2);
+  TH1F *hMeanPhiDiffVsPhi[MAX_STATIONS];
+  for (int istation = 0; istation < MAX_STATIONS; istation++) {
+    hMeanPhiDiffVsPhi[istation] = (TH1F*)hPhiDiffVsPhi[istation]->Clone();
+    hMeanPhiDiffVsPhi[istation]->Divide(hPhiDiffVsPhi[istation],
+					hClctVsPhi[istation], 1., 1.);
+    hMeanPhiDiffVsPhi[istation]->GetXaxis()->SetTitleOffset(1.2);
+    hMeanPhiDiffVsPhi[istation]->GetYaxis()->SetTitleOffset(1.7);
+    hMeanPhiDiffVsPhi[istation]->GetXaxis()->SetTitle("#phi");
+    hMeanPhiDiffVsPhi[istation]->GetYaxis()->SetTitle("#LT#phi_rec-#phi_sim#GT (mrad)");
+    hMeanPhiDiffVsPhi[istation]->SetMaximum(5.);
+    pad[page]->cd(istation+1);  hMeanPhiDiffVsPhi[istation]->Draw();
+  }
+  page++;  c1->Update();
+
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "#phi_rec-#phi_sim (mrad) vs halfstrip #");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  gStyle->SetOptStat(0);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    pad[page]->cd(idh+1);  hPhiDiffVsStripCsc[idh][1]->SetMarkerSize(0.2);
+    hPhiDiffVsStripCsc[idh][1]->GetXaxis()->SetTitle("Halfstrip");
+    hPhiDiffVsStripCsc[idh][1]->GetXaxis()->SetTitleOffset(1.4);
+    hPhiDiffVsStripCsc[idh][1]->GetYaxis()->SetTitle("#phi_rec-#phi_sim (mrad)");
+    hPhiDiffVsStripCsc[idh][1]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hPhiDiffVsStripCsc[idh][1]->GetYaxis()->SetLabelSize(0.07);
+    hPhiDiffVsStripCsc[idh][1]->Draw();
+  }
+  page++;  c1->Update();
+
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			 "#phi_rec-#phi_sim (mrad) vs distrip #");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    pad[page]->cd(idh+1);  hPhiDiffVsStripCsc[idh][0]->SetMarkerSize(0.2);
+    hPhiDiffVsStripCsc[idh][0]->GetXaxis()->SetTitle("Distrip");
+    hPhiDiffVsStripCsc[idh][0]->GetXaxis()->SetTitleOffset(1.4);
+    hPhiDiffVsStripCsc[idh][0]->GetYaxis()->SetTitle("#phi_rec-#phi_sim (mrad)");
+    hPhiDiffVsStripCsc[idh][0]->GetXaxis()->SetLabelSize(0.07); // default=0.04
+    hPhiDiffVsStripCsc[idh][0]->GetYaxis()->SetLabelSize(0.07);
+    hPhiDiffVsStripCsc[idh][0]->Draw();
+  }
+  page++;  c1->Update();
+
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+		     "#phi_rec-#phi_sim, halfstrips only, different patterns");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  gStyle->SetOptStat(111110);
+  pad[page]->Draw();
+  pad[page]->Divide(3,3);
+  for (int idh = 0; idh < 9; idh++) {
+    hPhiDiffPattern[idh]->GetXaxis()->SetTitle("Halfstrip");
+    hPhiDiffPattern[idh]->GetXaxis()->SetTitleOffset(1.2);
+    pad[page]->cd(idh+1);  hPhiDiffPattern[idh]->Draw();
+    // if (hPhiDiffPattern[idh]->GetEntries() > 1)
+    //   hPhiDiffPattern[idh]->Fit("gaus","Q");
+  }
+  page++;  c1->Update();
+
+  ps->Close();
+}
+
+void CSCTriggerPrimitivesReader::drawEfficHistos() {
+  TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 700);
+  TPostScript *ps = new TPostScript("lcts_effic.ps", 111);
+
+  TPad *pad[MAXPAGES];
+  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
+    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  }
+
+  int page = 1;
+  TText t;
+  t.SetTextFont(32);
+  t.SetTextSize(0.025);
+  char pagenum[6];
+  TPaveLabel *title;
+  char histtitle[60];
+  
+  gStyle->SetOptDate(0);
+  gStyle->SetTitleSize(0.1, "");   // size for pad title; default is 0.02
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "ALCT efficiency vs #eta");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  gStyle->SetOptStat(0);
+  pad[page]->Draw();
+  pad[page]->Divide(2,2);
+  TH1F *hALCTEffVsEta[MAX_STATIONS];
+  for (int istation = 0; istation < MAX_STATIONS; istation++) {
+    hALCTEffVsEta[istation] = (TH1F*)hEfficHitsEta[istation]->Clone();
+    hALCTEffVsEta[istation]->Divide(hEfficALCTEta[istation],
+				    hEfficHitsEta[istation], 1., 1., "B");
+    hALCTEffVsEta[istation]->GetXaxis()->SetTitleOffset(1.2);
+    hALCTEffVsEta[istation]->GetXaxis()->SetTitle("#eta");
+    hALCTEffVsEta[istation]->SetMaximum(1.05);
+    sprintf(histtitle, "ALCT efficiency vs #eta, station %d", istation+1);
+    hALCTEffVsEta[istation]->SetTitle(histtitle);
+    pad[page]->cd(istation+1);  hALCTEffVsEta[istation]->Draw();
+  }
+  page++;  c1->Update();
+
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "ALCT efficiency vs #eta");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  gStyle->SetOptStat(11111);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  TH1F *hALCTEffVsEtaCsc[CSC_TYPES];
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hALCTEffVsEtaCsc[idh] = (TH1F*)hEfficHitsEtaCsc[idh]->Clone();
+    hALCTEffVsEtaCsc[idh]->Divide(hEfficALCTEtaCsc[idh],
+				  hEfficHitsEtaCsc[idh], 1., 1., "B");
+    if (idh == 4 || idh == 6 || idh == 8) {
+      gPad->Update();  gStyle->SetStatX(0.43);
+    }
+    else {
+      gPad->Update();  gStyle->SetStatX(1.00);
+    }
+    hALCTEffVsEtaCsc[idh]->GetXaxis()->SetTitle("#eta");
+    hALCTEffVsEtaCsc[idh]->GetXaxis()->SetTitleOffset(0.8);
+    hALCTEffVsEtaCsc[idh]->GetXaxis()->SetTitleSize(0.07); // default=0.05
+    hALCTEffVsEtaCsc[idh]->GetXaxis()->SetLabelSize(0.10); // default=0.04
+    hALCTEffVsEtaCsc[idh]->GetYaxis()->SetLabelSize(0.10);
+    hALCTEffVsEtaCsc[idh]->SetLabelOffset(0.012, "XY");
+    hALCTEffVsEtaCsc[idh]->SetMinimum(0.50);
+    hALCTEffVsEtaCsc[idh]->SetMaximum(1.05);
+    hALCTEffVsEtaCsc[idh]->SetTitle(csc_type[idh].c_str());
+    hALCTEffVsEtaCsc[idh]->SetTitleSize(0.1, "");
+    hALCTEffVsEtaCsc[idh]->SetLineWidth(2);
+    hALCTEffVsEtaCsc[idh]->SetLineColor(4);
+    pad[page]->cd(idh+1);  gPad->SetGrid(1);  hALCTEffVsEtaCsc[idh]->Draw();
+  }
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT efficiency vs #eta");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  gStyle->SetOptStat(0);
+  pad[page]->Draw();
+  pad[page]->Divide(2,2);
+  TH1F *hCLCTEffVsEta[MAX_STATIONS];
+  for (int istation = 0; istation < MAX_STATIONS; istation++) {
+    hCLCTEffVsEta[istation] = (TH1F*)hEfficHitsEta[istation]->Clone();
+    hCLCTEffVsEta[istation]->Divide(hEfficCLCTEta[istation],
+				    hEfficHitsEta[istation], 1., 1., "B");
+    hCLCTEffVsEta[istation]->GetXaxis()->SetTitleOffset(1.2);
+    hCLCTEffVsEta[istation]->GetXaxis()->SetTitle("#eta");
+    hCLCTEffVsEta[istation]->SetMaximum(1.05);
+    sprintf(histtitle, "CLCT efficiency vs #eta, station %d", istation+1);
+    hCLCTEffVsEta[istation]->SetTitle(histtitle);
+    pad[page]->cd(istation+1);  hCLCTEffVsEta[istation]->Draw();
+  }
+  page++;  c1->Update();
+
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT efficiency vs #eta");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  gStyle->SetOptStat(111110);
+  pad[page]->Draw();
+  pad[page]->Divide(2,5);
+  TH1F *hCLCTEffVsEtaCsc[CSC_TYPES];
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    hCLCTEffVsEtaCsc[idh] = (TH1F*)hEfficHitsEtaCsc[idh]->Clone();
+    hCLCTEffVsEtaCsc[idh]->Divide(hEfficCLCTEtaCsc[idh],
+				  hEfficHitsEtaCsc[idh], 1., 1., "B");
+    if (idh == 4 || idh == 6 || idh == 8) {
+      gPad->Update();  gStyle->SetStatX(0.43);
+    }
+    else {
+      gPad->Update();  gStyle->SetStatX(1.00);
+    }
+    hCLCTEffVsEtaCsc[idh]->GetXaxis()->SetTitle("#eta");
+    hCLCTEffVsEtaCsc[idh]->GetXaxis()->SetTitleOffset(0.8);
+    hCLCTEffVsEtaCsc[idh]->GetXaxis()->SetTitleSize(0.07); // default=0.05
+    hCLCTEffVsEtaCsc[idh]->GetXaxis()->SetLabelSize(0.10); // default=0.04
+    hCLCTEffVsEtaCsc[idh]->GetYaxis()->SetLabelSize(0.10);
+    hCLCTEffVsEtaCsc[idh]->SetLabelOffset(0.012, "XY");
+    hCLCTEffVsEtaCsc[idh]->SetMinimum(0.50);
+    hCLCTEffVsEtaCsc[idh]->SetMaximum(1.05);
+    hCLCTEffVsEtaCsc[idh]->SetTitle(csc_type[idh].c_str());
+    hCLCTEffVsEtaCsc[idh]->SetLineWidth(2);
+    hCLCTEffVsEtaCsc[idh]->SetLineColor(4);
+    pad[page]->cd(idh+1);  gPad->SetGrid(1);  hCLCTEffVsEtaCsc[idh]->Draw();
+  }
   page++;  c1->Update();
 
   ps->Close();
@@ -1155,17 +1939,19 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
 
 void CSCTriggerPrimitivesReader::drawHistosForTalks() {
   TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
-  TPostScript *ps = new TPostScript("clcts.eps", 113);
+  TCanvas *c2 = new TCanvas("c2", "", 0, 0, 540, 540);
 
   TPad *pad[MAXPAGES];
-  for (Int_t i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
+    pad[i_page] = new TPad("", "", .07, .07, .93, .93);
   }
 
-  Int_t page = 1;
+  int page = 1;
   TPaveLabel *title;
+  gStyle->SetOptDate(0);
 
-  ps->NewPage();
+  TPostScript *eps1 = new TPostScript("clcts.eps", 113);
+  eps1->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT quantities");
   title->SetFillColor(10);  title->Draw();
@@ -1186,8 +1972,148 @@ void CSCTriggerPrimitivesReader::drawHistosForTalks() {
   hClctKeyStripTot->Add(hClctKeyStrip[0], hClctKeyStrip[1], 1., 1.);
   pad[page]->cd(6);  hClctKeyStripTot->Draw();
   page++;  c1->Update();
+  eps1->Close();
 
-  ps->Close();
+  // Resolution histograms.
+  if (bookedResolHistos) {
+    gStyle->SetTitleSize(0.055, "");   // size for pad title; default is 0.02
+
+    TPostScript *eps2 = new TPostScript("alct_deltaWG.eps", 113);
+    eps2->NewPage();
+    c2->Clear();  c2->cd(0);
+    gStyle->SetOptStat(0);
+    pad[page]->Draw();
+    pad[page]->Divide(1,1);
+    hResolDeltaWG->GetXaxis()->SetTitle("WG_{rec} - WG_{sim}");
+    hResolDeltaWG->GetXaxis()->SetTitleOffset(1.2);
+    hResolDeltaWG->GetYaxis()->SetTitle("Entries");
+    hResolDeltaWG->GetYaxis()->SetTitleOffset(1.9);
+    hResolDeltaWG->GetXaxis()->SetLabelSize(0.04);
+    hResolDeltaWG->GetYaxis()->SetLabelSize(0.04);
+    pad[page]->cd(1);  hResolDeltaWG->Draw();
+    page++;  c2->Update();
+    eps2->Close();
+
+    TPostScript *eps3 = new TPostScript("clct_deltaHS.eps", 113);
+    eps3->NewPage();
+    c2->Clear();  c2->cd(0);
+    pad[page]->Draw();
+    pad[page]->Divide(1,1);
+    hResolDeltaHS->GetXaxis()->SetTitle("HS_{rec} - HS_{sim}");
+    hResolDeltaHS->GetXaxis()->SetTitleOffset(1.2);
+    hResolDeltaHS->GetYaxis()->SetTitle("Entries");
+    hResolDeltaHS->GetYaxis()->SetTitleOffset(1.7);
+    hResolDeltaHS->GetXaxis()->SetLabelSize(0.04); // default=0.04
+    hResolDeltaHS->GetYaxis()->SetLabelSize(0.04);
+    pad[page]->cd(1);  hResolDeltaHS->Draw();
+    page++;  c2->Update();
+    eps3->Close();
+
+    TPostScript *eps4 = new TPostScript("clct_deltaDS.eps", 113);
+    eps4->NewPage();
+    c2->Clear();  c2->cd(0);
+    gStyle->SetOptStat(0);
+    pad[page]->Draw();
+    pad[page]->Divide(1,1);
+    hResolDeltaDS->GetXaxis()->SetTitle("DS_{rec} - DS_{sim}");
+    hResolDeltaDS->GetXaxis()->SetTitleOffset(1.2);
+    hResolDeltaDS->GetYaxis()->SetTitle("Entries");
+    hResolDeltaDS->GetYaxis()->SetTitleOffset(1.6);
+    hResolDeltaDS->GetXaxis()->SetLabelSize(0.04); // default=0.04
+    hResolDeltaDS->GetYaxis()->SetLabelSize(0.04);
+    pad[page]->cd(1);  hResolDeltaDS->Draw();
+    page++;  c2->Update();
+    eps4->Close();
+
+    TPostScript *eps5 = new TPostScript("clct_deltaPhi_hs.eps", 113);
+    eps5->NewPage();
+    c1->Clear();  c1->cd(0);
+    title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
+			   "#phi_rec-#phi_sim (mrad), halfstrips only");
+    title->SetFillColor(10);  title->Draw();
+    gStyle->SetTitleSize(0.1, "");   // size for pad title; default is 0.02
+    gStyle->SetOptStat(111110);
+    pad[page]->Draw();
+    pad[page]->Divide(2,5);
+    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+      pad[page]->cd(idh+1);  hPhiDiffCsc[idh][4]->Draw();
+      //if (hPhiDiffCsc[idh][4]->GetEntries() > 1)
+      //hPhiDiffCsc[idh][4]->Fit("gaus","Q");
+      //hPhiDiffCsc[idh][4]->GetXaxis()->SetTitle("#phi_{rec} - #phi_{sim} (mrad)");
+      //hPhiDiffCsc[idh][4]->GetXaxis()->SetTitleSize(0.06);
+      //hPhiDiffCsc[idh][4]->GetXaxis()->SetTitleOffset(0.9);
+      hPhiDiffCsc[idh][4]->GetYaxis()->SetTitle("Entries        ");
+      hPhiDiffCsc[idh][4]->GetYaxis()->SetTitleSize(0.07);
+      hPhiDiffCsc[idh][4]->GetYaxis()->SetTitleOffset(1.0);
+      hPhiDiffCsc[idh][4]->GetXaxis()->SetLabelSize(0.10); // default=0.04
+      hPhiDiffCsc[idh][4]->GetYaxis()->SetLabelSize(0.10);
+      hPhiDiffCsc[idh][4]->SetLabelOffset(0.012, "XY");
+    }
+    page++;  c1->Update();
+    eps5->Close();
+  }
+
+  // Efficiency histograms.
+  if (bookedEfficHistos) {
+    TPostScript *eps6 = new TPostScript("alct_effic.eps", 113);
+    eps6->NewPage();
+    c1->Clear();  c1->cd(0);
+    title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "ALCT efficiency vs #eta");
+    title->SetFillColor(10);  title->Draw();
+    gStyle->SetOptStat(0);
+    pad[page]->Draw();
+    pad[page]->Divide(2,5);
+    TH1F *hALCTEffVsEtaCsc[CSC_TYPES];
+    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+      hALCTEffVsEtaCsc[idh] = (TH1F*)hEfficHitsEtaCsc[idh]->Clone();
+      hALCTEffVsEtaCsc[idh]->Divide(hEfficALCTEtaCsc[idh],
+				    hEfficHitsEtaCsc[idh], 1., 1., "B");
+      hALCTEffVsEtaCsc[idh]->GetXaxis()->SetTitle("#eta");
+      hALCTEffVsEtaCsc[idh]->GetXaxis()->SetTitleOffset(0.8);
+      hALCTEffVsEtaCsc[idh]->GetXaxis()->SetTitleSize(0.07); // default=0.05
+      hALCTEffVsEtaCsc[idh]->GetXaxis()->SetLabelSize(0.10); // default=0.04
+      hALCTEffVsEtaCsc[idh]->GetYaxis()->SetLabelSize(0.10);
+      hALCTEffVsEtaCsc[idh]->SetLabelOffset(0.012, "XY");
+      hALCTEffVsEtaCsc[idh]->SetMinimum(0.50);
+      hALCTEffVsEtaCsc[idh]->SetMaximum(1.05);
+      hALCTEffVsEtaCsc[idh]->SetTitle(csc_type[idh].c_str());
+      hALCTEffVsEtaCsc[idh]->SetTitleSize(0.1, "");
+      hALCTEffVsEtaCsc[idh]->SetLineWidth(2);
+      hALCTEffVsEtaCsc[idh]->SetLineColor(4);
+      pad[page]->cd(idh+1);  gPad->SetGrid(1);  hALCTEffVsEtaCsc[idh]->Draw();
+    }
+    page++;  c1->Update();
+    eps6->Close();
+
+    TPostScript *eps7 = new TPostScript("clct_effic.eps", 113);
+    eps7->NewPage();
+    c1->Clear();  c1->cd(0);
+    title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT efficiency vs #eta");
+    title->SetFillColor(10);  title->Draw();
+    gStyle->SetOptStat(0);
+    pad[page]->Draw();
+    pad[page]->Divide(2,5);
+    TH1F *hCLCTEffVsEtaCsc[CSC_TYPES];
+    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+      hCLCTEffVsEtaCsc[idh] = (TH1F*)hEfficHitsEtaCsc[idh]->Clone();
+      hCLCTEffVsEtaCsc[idh]->Divide(hEfficCLCTEtaCsc[idh],
+				    hEfficHitsEtaCsc[idh], 1., 1., "B");
+      hCLCTEffVsEtaCsc[idh]->GetXaxis()->SetTitle("#eta");
+      hCLCTEffVsEtaCsc[idh]->GetXaxis()->SetTitleOffset(0.8);
+      hCLCTEffVsEtaCsc[idh]->GetXaxis()->SetTitleSize(0.07); // default=0.05
+      hCLCTEffVsEtaCsc[idh]->GetXaxis()->SetLabelSize(0.10); // default=0.04
+      hCLCTEffVsEtaCsc[idh]->GetYaxis()->SetLabelSize(0.10);
+      hCLCTEffVsEtaCsc[idh]->SetLabelOffset(0.012, "XY");
+      hCLCTEffVsEtaCsc[idh]->SetMinimum(0.50);
+      hCLCTEffVsEtaCsc[idh]->SetMaximum(1.05);
+      hCLCTEffVsEtaCsc[idh]->SetTitle(csc_type[idh].c_str());
+      hCLCTEffVsEtaCsc[idh]->SetLineWidth(2);
+      hCLCTEffVsEtaCsc[idh]->SetLineColor(4);
+      pad[page]->cd(idh+1);  gPad->SetGrid(1);  hCLCTEffVsEtaCsc[idh]->Draw();
+    }
+    page++;  c1->Update();
+    eps7->Close();
+  }
 }
 
 // Returns chamber type (0-9) according to the station and ring number
@@ -1195,7 +2121,7 @@ int CSCTriggerPrimitivesReader::getCSCType(const CSCDetId& id) {
   int type = -999;
 
   if (id.station() == 1) {
-    type = id.triggerCscId()/3;
+    type = (id.triggerCscId()-1)/3;
   }
   else { // stations 2-4
     type = 3 + id.ring() + 2*(id.station()-2);
@@ -1203,6 +2129,18 @@ int CSCTriggerPrimitivesReader::getCSCType(const CSCDetId& id) {
 
   assert(type >= 0 && type < CSC_TYPES-1); // no ME4/2
   return type;
+}
+
+// Returns halfstrips-per-radian for different CSC types
+double CSCTriggerPrimitivesReader::getHsPerRad(const int idh) {
+
+  int nchambers;
+  if (idh == 4 || idh == 6 || idh == 8) // inner ring of stations 2, 3, and 4
+    nchambers = 18;
+  else
+    nchambers = 36;
+
+  return (nchambers*MAX_HS[idh]/TWOPI);
 }
 
 DEFINE_FWK_MODULE(CSCTriggerPrimitivesReader)
