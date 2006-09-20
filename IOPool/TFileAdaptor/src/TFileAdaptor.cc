@@ -64,7 +64,7 @@ void TFileAdaptor::addFileType (TPluginManager *mgr, const char *type)
   mgr->AddHandler ("TFile", 
 		   type, 
 		   "TStorageFactoryFile", 
-		   "TFileAdaptorModule",
+		   "IOPoolTFileAdaptor",
 		   "TStorageFactoryFile(const char*,Option_t*,const char*,Int_t)"); 
 }
 
@@ -73,7 +73,7 @@ void TFileAdaptor::addSystemType (TPluginManager *mgr, const char *type)
   mgr->AddHandler ("TSystem", 
 		   type, 
 		   "TStorageFactorySystem", 
-		   "TFileAdaptorModule",
+		   "IOPoolTFileAdaptor",
 		   "TStorageFactorySystem()"); 
 }
 

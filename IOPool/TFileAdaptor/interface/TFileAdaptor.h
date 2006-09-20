@@ -12,6 +12,9 @@ namespace edm {
 
 class TPluginManager;
 
+/* 
+ * configuration parameters of TFileAdaptor
+ */
 struct TFileAdaptorParams {
   bool doStats;
   bool doBuffering;
@@ -28,6 +31,10 @@ private:
   
 };
 
+
+/*  
+ * driver for configuring root plugin manager to use TStorageFactoryFile 
+ */
 class TFileAdaptor {
 private:
   TFileAdaptorParams const m_params;
@@ -43,6 +50,7 @@ public:
   TFileAdaptor (const TFileAdaptorParams& iparams);
   ~TFileAdaptor ();
 
+  // Write current Storage statistics on a ostream
   void stats(std::ostream& co) const;
 
 
