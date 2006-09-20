@@ -11,7 +11,14 @@
   
 Hash:
 
-$Id: Hash.h,v 1.6 2006/09/20 16:07:08 paterno Exp $
+$Id: Hash.h,v 1.7 2006/09/20 16:42:12 paterno Exp $
+
+  Note: The call to 'fixup' in every member function is a temporary
+  measure for backwards compatibility. It is necessary in every function
+  because Root creates instances of the class *without* using the
+  interface of the class, thus making it insufficient to assure that
+  all constructors make corrected instances.
+
 ----------------------------------------------------------------------*/
 namespace edm {
 
@@ -90,6 +97,7 @@ namespace edm {
   bool 
   Hash<I>::isValid() const
   {
+    fixup();
     return hash_ != edm::detail::InvalidHash();
   }
 
@@ -98,6 +106,7 @@ namespace edm {
   bool
   Hash<I>::operator< (Hash<I> const& other) const
   {
+    fixup();
     return hash_ < other.hash_; 
   }
 
@@ -106,6 +115,7 @@ namespace edm {
   bool 
   Hash<I>::operator> (Hash<I> const& other) const 
   {
+    fixup();
     return other.hash_ < hash_;
   }
 
@@ -114,6 +124,7 @@ namespace edm {
   bool 
   Hash<I>::operator== (Hash<I> const& other) const 
   {
+    fixup();
     return hash_ == other.hash_;
   }
 
@@ -122,6 +133,7 @@ namespace edm {
   bool 
   Hash<I>::operator!= (Hash<I> const& other) const 
   {
+    fixup();
     return !(hash_ == other.hash_);
   }
 
@@ -130,6 +142,7 @@ namespace edm {
   std::ostream& 
   Hash<I>::print(std::ostream& os) const
   {
+    fixup();
     cms::MD5Result temp;
     std::copy(hash_.begin(), hash_.end(), temp.bytes);
     os << temp.toString();
@@ -141,7 +154,9 @@ namespace edm {
   void 
   Hash<I>::swap(Hash<I>& other) 
   {
+    fixup();
     hash_.swap(other.hash_);
+    fixup();
   }
 
   template <int I>
@@ -149,6 +164,7 @@ namespace edm {
   typename Hash<I>::value_type
   Hash<I>::compactForm() const
   {
+    fixup();
     return hash_;
   }
 
@@ -157,6 +173,7 @@ namespace edm {
   void 
   Hash<I>::throwIfIllFormed() const 
   {
+    // Fixup not needed here.
     if ( hash_.size() % 2 == 1 )
       {
 	throw edm::Exception(edm::errors::LogicError)
