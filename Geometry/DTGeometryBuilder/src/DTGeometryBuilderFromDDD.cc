@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/20 14:05:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/27 11:01:30 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -241,7 +241,10 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   bool doWire = fv.firstChild();
   int WCounter=0;
   int firstWire=fv.copyno();
-  //cout << " first wire: " << fv.copyno();
+  par = extractParameters(fv);
+  float wireLength = par[1]/cm;
+//   cout << " first wire: " << firstWire << " " << fv.logicalPart().name().name();
+//   cout << " lenght: " << wireLength << " layer lenght: " << length;
   while (doWire) {
     WCounter++;
     doWire = fv.nextSibling(); // next wire
@@ -249,7 +252,7 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   //int lastWire=fv.copyno();
   // cout << " last wire: " << fv.copyno()
   //   << " total: " << WCounter << endl;
-  DTTopology topology(firstWire, WCounter, length);
+  DTTopology topology(firstWire, WCounter, wireLength);
 
   DTLayerType layerType;
 
