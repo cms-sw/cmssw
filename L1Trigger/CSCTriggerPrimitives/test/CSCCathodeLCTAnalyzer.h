@@ -8,7 +8,7 @@
  * \author Slava Valuev  26 May 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/09/12 15:51:21 $
+ * $Date: 2006/09/12 09:00:29 $
  * $Revision: 1.1 $
  *
  */
@@ -43,7 +43,7 @@ class CSCCathodeLCTAnalyzer
   void setGeometry(const CSCGeometry* geom);
 
   /** Returns phi position of a given strip. */
-  double getStripPhi(const CSCDetId& layerId, const int strip);
+  double getStripPhi(const CSCDetId& layerId, const float strip);
 
   /** Turns on the debug flag for this class. */
   static void setDebug() {debug = true;}

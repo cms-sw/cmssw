@@ -4,7 +4,7 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/09/12 15:51:21 $
+ * $Date: 2006/09/12 09:00:29 $
  * $Revision: 1.1 $
  *
  */
@@ -256,7 +256,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
 	PSimHit* bestHit   = 0;
 
 	int strip = prd->getStrip();
-	double digiPhi = getStripPhi(layerId, strip);
+	double digiPhi = getStripPhi(layerId, strip-0.5);
 
 	const CSCLayer* csclayer = geom_->layer(layerId);
 	for (vector <PSimHit>::iterator psh = simHits.begin();
@@ -357,16 +357,22 @@ int CSCCathodeLCTAnalyzer::nearestHS(
     //nearestStrip = layerGeom->nearestStrip(matchedHit.localPosition());
     const RadialStripTopology* topology =
       (const RadialStripTopology*)layerGeom->topology();
-    // Float in units of the strip (angular) width.
+    // Float in units of the strip (angular) width.  From RadialStripTopology
+    // comments: "Strip in which a given LocalPoint lies. This is a float
+    // which represents the fractional strip position within the detector.
+    // Returns zero if the LocalPoint falls at the extreme low edge of the
+    // detector or BELOW, and float(nstrips) if it falls at the extreme high
+    // edge or ABOVE."
     float strip = topology->strip(matchedHit.localPosition());
 
-    // Should be counted from 0.
+    // Should be in the interval [0-MAX_STRIPS).  I see (rarely) cases when
+    // strip = nearestStrip = MAX_STRIPS; do not know how to handle them.
     int nearestStrip = static_cast<int>(strip);
     if (nearestStrip < 0 || nearestStrip >= CSCConstants::MAX_NUM_STRIPS) {
       edm::LogWarning("nearestStrip")
 	<< "+++ Warning: nearest strip, " << nearestStrip
 	<< ", is not in [0-" << CSCConstants::MAX_NUM_STRIPS
-	<< ") interval +++\n";
+	<< ") interval; strip = " << strip << " +++\n";
     }
     // Left/right half of the strip.
     int comp = ((strip - nearestStrip) < 0.5) ? 0 : 1;
@@ -399,13 +405,13 @@ void CSCCathodeLCTAnalyzer::setGeometry(const CSCGeometry* geom) {
 }
 
 double CSCCathodeLCTAnalyzer::getStripPhi(const CSCDetId& layerId,
-					  const int strip) {
+					  const float strip) {
   // Returns phi position of a given strip.
-  if (strip < 1 || strip > CSCConstants::MAX_NUM_STRIPS) {
+  if (strip < 0. || strip >= CSCConstants::MAX_NUM_STRIPS) {
     edm::LogWarning("getStripPhi")
       << "+++ Warning: strip, " << strip
-      << ", is not in [1-" << CSCConstants::MAX_NUM_STRIPS
-      << "] interval +++\n";
+      << ", is not in [0-" << CSCConstants::MAX_NUM_STRIPS
+      << ") interval +++\n";
   }
 
   const CSCLayer* csclayer = geom_->layer(layerId);
@@ -414,7 +420,7 @@ double CSCCathodeLCTAnalyzer::getStripPhi(const CSCDetId& layerId,
     (const RadialStripTopology*)layerGeom->topology();
 
   // Position at the center of the strip.
-  LocalPoint  digiLP = topology->localPosition(strip-0.5);
+  LocalPoint  digiLP = topology->localPosition(strip);
   // The alternative calculation gives exactly the same answer.
   // double ystrip = 0.0;
   // double xstrip = topology->xOfStrip(strip, ystrip);
