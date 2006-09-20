@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/31 16:14:00 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/09/20 09:46:38 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -104,6 +104,7 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
+   // report on what is finally used
    LogDebug("") << "HLT trigger paths: " +TriggerResultsTag_.encode()
 		<< " - Number requested: " << n
 		<< " - andOr mode: " << andOr_
@@ -127,8 +128,9 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
+   // Boolean filter result
    const bool accept( ((!andOr_) && (fired==n)) ||
-		      (( andOr_) && (fired!=0 )) );
+		      (( andOr_) && (fired!=0)) );
    LogDebug("") << "Accept = " << accept;
 
    return accept;
