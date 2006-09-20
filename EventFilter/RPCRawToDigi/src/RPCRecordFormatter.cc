@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/08/25 11:10:10 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/09/06 10:54:24 $
+ *  $Revision: 1.20 $
  *
  * \author Ilaria Segoni
  */
@@ -112,7 +112,6 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 
 
 		/// Creating RPC digi
-	    std::cout<<"Current BX: "<<currentBX<<std::endl;
 	    RPCDigi digi(geomStrip,currentBX-triggerBX);
 
 		/// Committing digi to the product

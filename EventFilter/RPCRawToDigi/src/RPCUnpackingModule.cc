@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/08/08 12:30:36 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/09/06 10:54:24 $
+ *  $Revision: 1.19 $
  *
  * \author Ilaria Segoni
  */
@@ -98,7 +98,6 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
       			/// Unpack FED Header(s)
       			int numberOfHeaders= this->unpackHeader(index, rpcRawData);
 			int currentBX = rpcRawData.fedHeaders()[numberOfHeaders-1].bxID(); 
-			std::cout<<"currentBX: "<<currentBX<<std::endl;
  
       			/// Unpack FED Trailer(s)
       			const unsigned char* trailerIndex=index+fedData.size()- rpc::unpacking::SLINK_WORD_SIZE;
