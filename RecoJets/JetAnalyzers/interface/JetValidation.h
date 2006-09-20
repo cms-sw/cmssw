@@ -2,6 +2,7 @@
 #define RecoExamples_JetValidation_h
 #include <TH1.h>
 #include <TProfile.h>
+#include <TH2.h>
 /* \class JetValidation
  *
  * \author Robert Harris
@@ -40,7 +41,14 @@ private:
   TH1F hadEnergyInHB, hadEnergyInHE, hadEnergyInHF, hadEnergyInHO;
   TProfile EBfractionVsEta, EEfractionVsEta, HBfractionVsEta;
   TProfile HOfractionVsEta, HEfractionVsEta, HFfractionVsEta; 
-  
+  TProfile CaloEnergyVsEta, GenEnergyVsEta, emEnergyVsEta, hadEnergyVsEta;
+  TProfile CaloErespVsEta, emErespVsEta, hadErespVsEta;
+  TProfile WindowEBfractionVsEta, WindowEEfractionVsEta, WindowHBfractionVsEta;
+  TProfile WindowHOfractionVsEta, WindowHEfractionVsEta, WindowHFfractionVsEta; 
+  TProfile WindowCaloErespVsEta, WindowEmErespVsEta, WindowHadErespVsEta;
+  TProfile WindowCaloEnergyVsEta, WindowGenEnergyVsEta, WindowEmEnergyVsEta, WindowHadEnergyVsEta;
+  TH2F GenEnergyVsEta2D, AllGenEnergyVsEta2D;
+
   //Matched jets Analysis Histograms for MC5 CaloJets only
   TH1F dR, dRcor;
   TProfile respVsPt, corRespVsPt;
