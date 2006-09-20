@@ -162,7 +162,10 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       throw cms::Exception("edm::SiteLocalConfigService is not available");       
     }
     m_con=localconfservice->lookupCalibConnect(con);
-    catconnect=localconfservice->calibCatalog();
+    catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
+    if(catconnect.empty()){
+      catconnect=localconfservice->calibCatalog();
+    }
   }else{
     m_con=con;
     catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
