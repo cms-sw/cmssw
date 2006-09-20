@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2006/05/24 17:21:37 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/27 16:37:51 $
+ * $Revision: 1.5 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -17,6 +17,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
@@ -57,11 +59,14 @@ protected:
   void beginJob(const edm::EventSetup& c);
 
   /// Book the ME
-  void bookHistos(const DTLayerId& dtLayer, string folder, string histoTag);
+  void bookHistos(const DTLayerId& dtLayer, string histoTag);
+  void bookHistos(const DTSuperLayerId& dtSL, string folder, string histoTag);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
+  /// get the L1A source
+  string triggerSource();
 
 private:
 
@@ -73,6 +78,8 @@ private:
   /// tTrig from the DB
   float tTrig;
   float tTrigRMS;
+
+  edm::Handle<LTCDigiCollection> ltcdigis;
 
   DaqMonitorBEInterface* dbe;
 
