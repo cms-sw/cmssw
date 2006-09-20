@@ -1,51 +1,32 @@
 #ifndef REFERENCE_TRAJECTORY_H
 #define REFERENCE_TRAJECTORY_H
 
-/** Class which calculates all relevant properties of a reference
- *  trajectory, given the initial TrajectoryStateOnSurface, the RecHits
- *  of the corresponding reconstructed track and a mass hypothesis.
- *  By default, the mass is assumed to be the muon-mass, but can be
- *  changed via a SimpleConfigurable ( TkReferenceTrajectory:Mass ). No
- *  check whether the RecHits are valid is performed.
- *
- *  The covariance-matrix may include multiple-scattering or energy-
- *  loss effects or both. This can be defined in the constructor via
- *  the variable MaterialEffects materialEffects:
- *
- *  materialEffects =  none/multipleScattering/energyLoss/combined
- *
- *
- *  The coordinates of the measurements and the reference track are
- *  returned in the order ( here the transposed vector is shown ) 
- *
- *  m = ( x1, y1, x2, y2, ..., xN, yN ),
- *
- *  whereas the matrix, holding the derivatives of the measurements
- *  w.r.t. the initial track-parameters (p1,..., p5), is of the form
- *
- *  D = ( dx1/dp1, dx1/dp2, ..., dx1/dp5,
- *
- *        dy1/dp1, dy1/dp2, ..., dy1/dp5,
- *
- *        dx2/dp1, dx2/dp2, ..., dx2/dp5,
- *
- *        dy2/dp1, dy2/dp2, ..., dy2/dp5,
- *
- *           .        .             .
- *
- *           .        .             .
- *
- *        dxN/dp1, dxN/dp2, ..., dxN/dp5,
- *
- *        dyN/dp1, dyN/dp2, ..., dyN/dp5 )
- *
- * FIXME: comments about accessors and parameters...
- *
- *
+/**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
  * last update: $Date$
  * by         : $Author$
+ *
+ *  Class implementing the reference trajectory of a single charged
+ *  particle, i.e. a helix with 5 parameters. Given the
+ *  TrajectoryStateOnSurface at the first hit and the list of all hits
+ *  the local measurements, derivatives etc. as described in (and
+ *  accessed via) ReferenceTrajectoryBase are calculated.
+ * 
+ *  The covariance-matrix of the measurements may include effects of
+ *  multiple-scattering or energy-loss effects or both. This can be
+ *  defined in the constructor via the variable 'materialEffects
+ *  (cf. ReferenceTrajectoryBase):
+ *
+ *  materialEffects =  none/multipleScattering/energyLoss/combined
+ *
+ *  By default, the mass is assumed to be the muon-mass, but can be
+ *  changed via a constructor argument.
+ *
+ *
+ * LIMITATIONS:
+ *  So far all input hits are have to be valid, but invalid hits
+ *  would be needed to take into account the material effects in them...
  *
  */
 
@@ -69,11 +50,10 @@ public:
 		      const TransientTrackingRecHit::ConstRecHitContainer &recHits,
 		      const MagneticField *magField, 
 		      MaterialEffects materialEffects = combined, 
-		      double mass = 0.10565836); // FIXME: muon mass
-
+		      double mass = 0.10565836); // FIXME: ugly hard coded muon mass
   virtual ~ReferenceTrajectory() {}
 
-  virtual ReferenceTrajectory* clone() const // FIXME: verify copy constructor
+  virtual ReferenceTrajectory* clone() const
     { return new ReferenceTrajectory(*this); }
 
 private:
@@ -88,17 +68,31 @@ private:
    */
   MaterialEffectsUpdator* createUpdator(MaterialEffects materialEffects, double mass) const;
 
+  /** internal method to calculate jacobian
+   */
   bool propagate(const TrajectoryStateOnSurface &previousTsos, const BoundPlane &surface,
 		 const MagneticField *magField,
 		 AlgebraicMatrix &newJacobian, TrajectoryStateOnSurface &newTsos) const;
   
+  /** internal method to fill measurement and error matrix for hit iRow/2
+   */
   void fillMeasurementAndError(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
-			       unsigned int iRow);
+			       unsigned int iRow,
+			       const TrajectoryStateOnSurface &updatedTsos);
+
+  /** internal method to fill derivatives for hit iRow/2
+   */
   void fillDerivatives(const AlgebraicMatrix &projection,
 		       const AlgebraicMatrix &fullJacobian, unsigned int iRow);
+
+  /** internal method to fill the trajectory positions for hit iRow/2
+   */
   void fillTrajectoryPositions(const AlgebraicMatrix &projection, 
 			       const AlgebraicVector &mixedLocalParams, 
 			       unsigned int iRow);
+
+  /** internal method to add material effects to measurments covariance matrix
+   */
   void addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
 			     const std::vector<AlgebraicMatrix> &allProjections,
 			     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
