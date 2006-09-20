@@ -81,6 +81,10 @@ class L1RCT {
   void configureCards();
   void shareNeighbors();
 
+  unsigned short calcCrate(unsigned short rct_iphi, short ieta);
+  unsigned short calcCard(unsigned short rct_iphi, unsigned short absIeta);
+  unsigned short calcTower(unsigned short rct_iphi, unsigned short absIeta);
+
   L1RCTRegion empty;
 
   //Helper class containing information to set all the neighbors for
