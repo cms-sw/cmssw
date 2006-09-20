@@ -7,6 +7,7 @@
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/JetReco>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 
@@ -20,6 +21,7 @@
   <use name=DataFormats/VertexReco>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/JetReco>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
 </export>
