@@ -49,6 +49,7 @@ string SummaryGenerator::name( const sistrip::Task& task,
   }
   ss << SiStripHistoNamingScheme::view( view ) << sistrip::sep_;
   ss << SiStripHistoNamingScheme::summaryHisto( histo );
+
   return ss.str();
 }
 
@@ -113,10 +114,37 @@ void SummaryGenerator::format( const sistrip::Task& task,
   // Formatting for 2D plots
   if ( type == sistrip::SUMMARY_2D ) { 
     // Markers (open circles)
-    summary_histo.SetMarkerStyle(4);
-    summary_histo.SetMarkerSize(0.5);
+    summary_histo.SetMarkerStyle(2);
+    summary_histo.SetMarkerSize(0.6);
   }
-  
+
+  // Semi-generic formatting
+  if ((type == sistrip::SUMMARY_1D) || 
+      (type == sistrip::SUMMARY_2D) ||
+      (type == sistrip::SUMMARY_PROF)) {
+    /*
+    //put solid and dotted lines on summary to separate top- and
+    //2nd-from-top- level bin groups.
+
+    uint16_t topLevel = 0, topLevelOld = 0, secondLevel = 0, secondLevelOld = 0;
+    string::size_type pos = 0;
+    for ( HistoData::iterator ibin = map_.begin(); ibin != map_.end(); ibin++) {
+
+      //draw line if top and second level numbers change.
+      pos = ibin->first.find(sistrip::dot_,0);
+      if (pos != string::npos) {
+	if ((topLevel=atoi(string(ibin->first,0,pos).c_str())) != topLevelOld) {
+	  topLevel = topLevelOld;
+	  //
+	}
+	else if (ibin->first.find(sistrip::dot_,pos+1) != string::npos) {
+	    if ((secondLevelOld=atoi(string(ibin->first,pos+1,(ibin->first.find(sistrip::dot_,pos+1)- (pos+1))).c_str())) != secondLevel) {
+	      secondLevel = secondLevelOld;
+	      //
+	    }}}
+    }
+    */
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -255,11 +283,12 @@ void SummaryGenerator::summary1D( TH1& his ) {
   uint16_t bin = 0;
   HistoData::const_iterator ibin = map_.begin();
   for ( ; ibin != map_.end(); ibin++ ) {
-    histo->GetXaxis()->SetBinLabel( static_cast<Int_t>(bin+1), ibin->first.c_str() );
+    bin++;
+    histo->GetXaxis()->SetBinLabel( static_cast<Int_t>(bin), ibin->first.c_str() );
     if ( ibin->second.empty() ) { continue; }
     BinData::const_iterator ii = ibin->second.begin();
     for ( ; ii != ibin->second.end(); ii++ ) { 
-      histo->AddBinContent( bin+1, ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
+      histo->Fill( (Double_t)(bin-.5), (Double_t)ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
       //histo->Fill( ibin->first.c_str(), ii->first ); // x (bin) and weight (value)
 //       cout << "temp " << bin << " " 
 // 	   << ii->first << " "
@@ -270,7 +299,6 @@ void SummaryGenerator::summary1D( TH1& his ) {
 // 	 << " contents to bin " << bin
 // 	 << " with bin label '" << ibin->first.c_str()
 // 	 << endl;
-    bin++;
   }
   
 }
@@ -295,35 +323,29 @@ void SummaryGenerator::summary2D( TH1& his ) {
   }
   
   // Set histogram number of bins and min/max
-  //histo->SetBins( 100*map_.size(), 0., Double_t(100*map_.size()) );
-  //histo->GetXaxis()->Set( map_.size(), 0., static_cast<Double_t>(100*map_.size()) );
-  //histo->GetYaxis()->Set( 1025, 0., 1025. );
-  histo->Dump();
+  histo->GetXaxis()->Set( 100*map_.size(), 0., 100.*static_cast<Double_t>(map_.size()) );
+  histo->GetYaxis()->Set( 1025, 0., 1025. );
 
-  //cout << "binsX: " << histo->GetNbinsX() << endl;
-  //cout << "binsY: " << histo->GetNbinsY() << endl;
+  //histo->Dump();
 
   // Iterate through map, set bin labels and fill histogram
   uint16_t bins = 0;
   HistoData::const_iterator ibin = map_.begin();
   for ( ; ibin != map_.end(); ibin++ ) {
     uint16_t bin = 100*bins+50;
-    histo->GetXaxis()->SetBinLabel( static_cast<Int_t>(bin), ibin->first.c_str() );
+    histo->GetXaxis()->SetBinLabel( (Int_t)(bin), ibin->first.c_str() );
     //if ( ibin->second.empty() ) { continue; }
     BinData::const_iterator ii = ibin->second.begin();
     for ( ; ii != ibin->second.end(); ii++ ) { 
-      //cout << " bin: " << bin
-      //<< " value: " << ii->first
-      //<< " error: " << ii->second
-      //<< endl;
-      histo->Fill( float(bin), ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
+      histo->Fill( (Double_t)(bin-.5), (Double_t)ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
     }
     bins++;
-    cout << "[" << __PRETTY_FUNCTION__ << "]"
+    /* cout << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " Added " << ibin->second.size() 
 	 << " contents to bin " << bin
  	 << " with bin label '" << ibin->first.c_str()
  	 << endl;
+    */
   }
   
 }
@@ -367,8 +389,8 @@ void SummaryGenerator::summaryProf( TH1& his ) {
 // 	   << endl;
       //float wei = ii->second = 0 ? 
       //histo->AddBinContent( bin+1, ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
-      //histo->Fill( bin+1, ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
-      histo->Fill( ibin->first.c_str(), ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
+      histo->Fill( (Double_t)(bin-.5), (Double_t)ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
+      //histo->Fill( ibin->first.c_str(), ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
     }
 //     cout << "[" << __PRETTY_FUNCTION__ << "]"
 // 	 << " Added " << ibin->second.size() 
