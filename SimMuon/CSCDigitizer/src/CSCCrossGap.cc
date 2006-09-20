@@ -10,19 +10,18 @@ CSCCrossGap:: CSCCrossGap(int iam, float mom,  LocalVector gap)
   theGamma(1.),
   loggam(0.),
   theGap(gap),
-  theParticleData(0),
   clusters(),
   electronsInClusters(),
   steps(),
   elosses()
 {
   iam = setParticle( iam ); // treat some types as others
-  theParticleData = HepPDT::getParticleData(iam);
-  double mass = theParticleData->mass();
+  HepParticleData * particleData = HepPDT::getParticleData(iam);
+  double mass = particleData->mass();
   
   logGamma( mass, mom);
   LogDebug("CSCCrossGap")
-     << "CSCCrossGap: simhit due to " << theParticleData->name() << "\n"
+     << "CSCCrossGap: simhit due to " << particleData->name() << "\n"
      << "mass = " << mass << "GeV/c2, momentum = " << mom << 
        " GeV/c, gap length = " << length() << " cm \n";
 }

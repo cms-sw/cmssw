@@ -18,7 +18,6 @@
 #include <vector>
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
-class HepParticleData;
 
 class CSCCrossGap {
 public:
@@ -62,8 +61,6 @@ private:
   double theGamma; // Lorentz gamma
   double loggam; 
   LocalVector theGap;
-
-  const HepParticleData * theParticleData; // buffer for incident charged particle
 
   std::vector<LocalPoint> clusters;
   std::vector<int> electronsInClusters;
