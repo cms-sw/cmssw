@@ -17,7 +17,7 @@
 #include "PhysicsTools/UtilAlgos/interface/SortCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/WindowCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectCountFilter.h"
-#include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
+#include "PhysicsTools/Utilities/interface/SingleObjectSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 
 namespace reco {
