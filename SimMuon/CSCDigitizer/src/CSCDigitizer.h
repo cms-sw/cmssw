@@ -18,7 +18,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
+#include <boost/utility.hpp>
 
 class CSCDriftSim;
 class CSCWireHitSim;
@@ -28,7 +28,7 @@ class CSCStripElectronicsSim;
 class CSCLayer;
 class CSCNeutronReader;
 
-class CSCDigitizer 
+class CSCDigitizer : public boost::noncopyable
 {
 public:
   /// configurable parameters
@@ -53,6 +53,7 @@ public:
   const CSCLayer * findLayer(int detId) const;
 
 private:
+
   CSCDriftSim            * theDriftSim;
   CSCWireHitSim          * theWireHitSim;
   CSCStripHitSim         * theStripHitSim;
