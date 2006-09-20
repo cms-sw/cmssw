@@ -12,6 +12,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
@@ -336,7 +338,9 @@ void testEventsetup::provenanceTest()
    try {
       {
          edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
-         description.pid_ = ParameterSetID("test11");
+	 edm::ParameterSet ps;
+	 ps.addParameter<std::string>("name", "test11");
+         description.pid_ = ps.id();
          description.releaseVersion_ = "CMSSW_11_0_0";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
          dummyProv->setDescription(description);
@@ -344,7 +348,9 @@ void testEventsetup::provenanceTest()
       }
       {
          edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
-         description.pid_ = ParameterSetID("test22");
+	 edm::ParameterSet ps;
+	 ps.addParameter<std::string>("name", "test22");
+         description.pid_ = ps.id();
          description.releaseVersion_ = "CMSSW_12_0_0";
          description.processName_ = "UnitTest";
          description.passID_ = "22";
