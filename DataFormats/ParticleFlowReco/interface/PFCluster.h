@@ -56,7 +56,7 @@ namespace reco {
     void calculatePosition( int algo, double p1 = 0, bool depcor = true);
 
     /// vector of rechit fractions
-    const std::vector< reco::PFRecHitFraction >& getRecHitFractions() const 
+    const std::vector< reco::PFRecHitFraction >& recHitFractions() const 
       { return rechits_; }
 
     /// set cluster id

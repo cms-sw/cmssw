@@ -475,17 +475,19 @@ std::ostream& reco::operator<<(std::ostream& out,
   
   const PFCluster::REPPoint&  pos = cluster.positionREP();
   const std::vector< reco::PFRecHitFraction >& fracs = 
-    cluster.getRecHitFractions();
+    cluster.recHitFractions();
 
   out<<"cluster "<<cluster.id()
      <<"\ttype: "<<cluster.type()
+     <<"\tlayer: "<<cluster.layer()
      <<"\tenergy: "<<cluster.energy()
      <<"\tposition: "
-     <<pos.Rho()<<","<<pos.Eta()<<","<<pos.Phi()<<endl;
-  out<<"\t"<<fracs.size()<<" rechits: "<<endl;
-  for(unsigned i=0; i<fracs.size(); i++) {
-    out<<fracs[i]<<endl;
-  }
+     <<pos.Rho()<<","<<pos.Eta()<<","<<pos.Phi();
+  // out<<endl;
+  //   out<<"\t"<<fracs.size()<<" rechits: "<<endl;
+  //   for(unsigned i=0; i<fracs.size(); i++) {
+  //     out<<fracs[i]<<endl;
+  //   }
 
   return out;
 }
