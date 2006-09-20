@@ -15,9 +15,9 @@ public:
                  const Strings& hlt_names,
                  const Strings& l1_names);
 
-  uint8* startAddress() { return buf_; }
+  uint8* startAddress() const { return buf_; }
   void setDescLength(uint32 registry_length);
-  uint8* dataAddress() { return desc_addr_; }
+  uint8* dataAddress() const  { return desc_addr_; }
   uint32 headerSize() const {return desc_addr_-buf_;}
   uint32 size() const ;
   uint32 run() const;  /** Required by EOF Record Builder */  

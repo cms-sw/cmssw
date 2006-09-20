@@ -4,7 +4,11 @@
 #define _StreamerOutputIndexFile_h
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
+
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
+
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 
@@ -21,13 +25,18 @@
 
      //Magic# and Reserved fileds
      void writeIndexFileHeader(uint32 magicNumber, uint64 reserved);
-     void write(InitMsgBuilder&);
-     void write(EventMsgBuilder&, uint64);
-     void writeEOF(uint32 statusCode,
-                    std::vector<uint32>& hltStats);
+
+     void write(const InitMsgBuilder&);
+     void write(const InitMsgView&);
+
+     void write(const EventMsgBuilder&, uint64);
+     void write(const EventMsgView&, uint64);
+
+     uint32 writeEOF(uint32 statusCode,
+                    const std::vector<uint32>& hltStats);
     
   private:
-    OutputFile indexfile_;
+    OutputFile* indexfile_;
 
   };
 #endif
