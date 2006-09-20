@@ -12,6 +12,10 @@
 #include "PhysicsTools/Utilities/interface/MasslessInvariantMass.h"
 #include "PhysicsTools/Utilities/interface/AnySelector.h"
 #include "PhysicsTools/Utilities/interface/PtMinSelector.h"
+#include "PhysicsTools/Utilities/interface/EtMinSelector.h"
+#include "PhysicsTools/Utilities/interface/EtaRangeSelector.h"
+#include "PhysicsTools/Utilities/interface/AndSelector.h"
+#include "PhysicsTools/Utilities/interface/OrSelector.h"
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SortCollectionSelector.h"
@@ -54,6 +58,33 @@ namespace reco {
 
     /// filter on muon number
     typedef ObjectCountFilter<reco::MuonCollection, PtMinSelector<reco::Muon> > PtMinMuonCountFilter;
+
+    /// filter on calo jets
+    typedef ObjectCountFilter<reco::CaloJetCollection, EtMinSelector<reco::CaloJet> > EtMinCaloJetCountFilter;
+
+    /// filter on basic jets
+    typedef ObjectCountFilter<reco::BasicJetCollection, EtMinSelector<reco::BasicJet> > EtMinBasicJetCountFilter;
+
+    /// filter on generator jets
+    typedef ObjectCountFilter<reco::GenJetCollection, EtMinSelector<reco::GenJet> > EtMinGenJetCountFilter;
+
+    /// filter on calo jets
+    typedef ObjectCountFilter<reco::CaloJetCollection, 
+			      AndSelector<EtMinSelector<reco::CaloJet>,
+					  EtaRangeSelector<reco::CaloJet> > 
+                             > EtaEtMinCaloJetCountFilter;
+
+    /// filter on basic jets
+    typedef ObjectCountFilter<reco::BasicJetCollection, 
+			      AndSelector<EtMinSelector<reco::BasicJet>,
+					  EtaRangeSelector<reco::BasicJet> > 
+                             > EtaEtMinBasicJetCountFilter;
+
+    /// filter on generator jets
+    typedef ObjectCountFilter<reco::GenJetCollection, 
+			      AndSelector<EtMinSelector<reco::GenJet>,
+					  EtaRangeSelector<reco::GenJet> > 
+                             > EtaEtMinGenJetCountFilter;
 
     /// select all tracks
     typedef ObjectSelector<
@@ -115,6 +146,13 @@ DEFINE_ANOTHER_FWK_MODULE( PtMinTrackCountFilter );
 DEFINE_ANOTHER_FWK_MODULE( PtMinElectronCountFilter );
 DEFINE_ANOTHER_FWK_MODULE( PtMinPhotonCountFilter );
 DEFINE_ANOTHER_FWK_MODULE( PtMinMuonCountFilter );
+DEFINE_ANOTHER_FWK_MODULE( EtMinCaloJetCountFilter );
+DEFINE_ANOTHER_FWK_MODULE( EtMinBasicJetCountFilter );
+DEFINE_ANOTHER_FWK_MODULE( EtMinGenJetCountFilter );
+DEFINE_ANOTHER_FWK_MODULE( EtaEtMinCaloJetCountFilter );
+DEFINE_ANOTHER_FWK_MODULE( EtaEtMinBasicJetCountFilter );
+DEFINE_ANOTHER_FWK_MODULE( EtaEtMinGenJetCountFilter );
+
 DEFINE_ANOTHER_FWK_MODULE( AnyTrackSelector );
 DEFINE_ANOTHER_FWK_MODULE( PtMinTrackSelector );
 DEFINE_ANOTHER_FWK_MODULE( LargestPtTrackSelector )
