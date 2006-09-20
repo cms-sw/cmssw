@@ -867,6 +867,7 @@ namespace edm {
       }
 
     toerror.succeeded();
+    changeState(mFinished);
     return rc;
   }
 
@@ -888,10 +889,8 @@ namespace edm {
       changeState(mCountComplete);
       toerror.succeeded();
     }
-    // IMPORTANT: it is terrible to process the next event after the skip,
-    // this needs to be changed. (dual purpose function with name that does
-    // not indicate this)
-    return run(1);
+    changeState(mFinished);
+    return epSuccess;
   }
 
   void
