@@ -4,8 +4,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/08/30 20:36:07 $
- *   $Revision: 1.13 $
+ *   $Date: 2006/09/01 15:47:05 $
+ *   $Revision: 1.14 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \author   C. Liu                Purdue University 
@@ -63,43 +63,6 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par, const Muo
   
 }
 
-
-//
-// default constructor, set propagator name as SteppingHelixPropagator
-//
-MuonUpdatorAtVertex::MuonUpdatorAtVertex() :
-         theExtrapolator( new TransverseImpactPointExtrapolator() ),
-         theUpdator(new KFUpdator()),
-         theEstimator(new Chi2MeasurementEstimator(150.)) {
-
-  theOutPropagatorName = "SteppingHelixPropagatorAny";
-  theInPropagatorName = "PropagatorWithMaterial";
-
-  // assume beam spot position with nominal errors
-  // sigma(x) = sigma(y) = 15 microns
-  // sigma(z) = 5.3 cm
-  theVertexPos = GlobalPoint(0.0,0.0,0.0);
-  theVertexErr = GlobalError(0.00000225, 0., 0.00000225, 0., 0., 28.09);
-
-}
-
-
-//
-//
-//
-// MuonUpdatorAtVertex::MuonUpdatorAtVertex(const Propagator& prop) :
-//          theExtrapolator(new TransverseImpactPointExtrapolator(prop)),
-//          theUpdator(new KFUpdator()),
-//          theEstimator(new Chi2MeasurementEstimator(150.)) {
-
-//   thePropagator = prop.clone();
-//   // assume beam spot position with nominal errors
-//   // sigma(x) = sigma(y) = 15 microns
-//   // sigma(z) = 5.3 cm
-//   theVertexPos = GlobalPoint(0.0,0.0,0.0);
-//   theVertexErr = GlobalError(0.00000225, 0., 0.00000225, 0., 0., 28.09);
-
-// }
 
 //---------------
 // Destructor  --

@@ -7,8 +7,8 @@
   *   a given vertex and 
   *   apply a vertex constraint
   *
-  *   $Date: 2006/09/01 15:47:04 $
-  *   $Revision: 1.8 $
+  *   $Date: 2006/09/01 21:49:45 $
+  *   $Revision: 1.9 $
   *
   *   \author   N. Neumeister            Purdue University
   *
@@ -35,12 +35,6 @@ class MuonUpdatorAtVertex {
   /// constructor from parameter set and MuonServiceProxy
   MuonUpdatorAtVertex(const edm::ParameterSet&,const MuonServiceProxy *);
   
-  /// default constructor
-  MuonUpdatorAtVertex();
-
-  /// constructor from propagator
-  //MuonUpdatorAtVertex(const Propagator&);
-
   /// destructor
   virtual ~MuonUpdatorAtVertex();
 
