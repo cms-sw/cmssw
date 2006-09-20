@@ -75,8 +75,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     return;
   }    
 
-  const edm::SimTrackContainer      *etc = G4TrkContainer.product();
-
   vector<edm::Handle<edm::PSimHitContainer> > AlltheConteiners;
   for (vector<string>::const_iterator source = hitLabelsVector_.begin(); source !=
       hitLabelsVector_.end(); ++source){
@@ -179,15 +177,20 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     int vertexBarcode = 0;       
     int vtxParent = itVtx -> parentIndex();    
     if (vtxParent >= 0) {                      
-      SimTrack parentTrack = etc->at(vtxParent);       
-      int parentBC = parentTrack.genpartIndex();  
-      HepMC::GenParticle *parentParticle = genEvent -> barcode_to_particle(parentBC);
-      if (parentParticle != 0) {
-        HepMC::GenVertex *hmpv = parentParticle -> end_vertex(); 
-        if (hmpv != 0) {
-          vertexBarcode = hmpv  -> barcode();
-        }  
-      }  
+      edm::SimTrackContainer::const_iterator itP;
+      for (itP = G4TrkContainer->begin(); itP !=  G4TrkContainer->end(); ++itP){
+	if(vtxParent==itP->trackId()){
+	  int parentBC = itP->genpartIndex();  
+	  HepMC::GenParticle *parentParticle = genEvent -> barcode_to_particle(parentBC);
+	  if (parentParticle != 0) {
+	    HepMC::GenVertex *hmpv = parentParticle -> end_vertex(); 
+	    if (hmpv != 0) {
+	      vertexBarcode = hmpv  -> barcode();
+	    }  
+	  }
+	  break;
+	}
+      }
     }  
 
 // Find closest vertex to this one in same sub-event, save in nearestVertex
