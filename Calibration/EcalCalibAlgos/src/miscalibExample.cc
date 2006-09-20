@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: miscalibExample.cc,v 1.2 2006/09/11 12:44:58 malgeri Exp $
+// $Id: miscalibExample.cc,v 1.1 2006/09/19 08:38:05 lorenzo Exp $
 //
 //
 
@@ -99,8 +99,8 @@ miscalibExample::beginJob(edm::EventSetup const& iSetup) {
 //========================================================================
 
   // Book histograms 
-  scEnergy = new TH1F("scEnergy","SuperCluster energy", 300, 0., 60.);
-
+  scEnergy = new TH1F("scEnergy","SuperCluster energy", 100, 20., 80.);
+  read_events=0;
  
  }
 
