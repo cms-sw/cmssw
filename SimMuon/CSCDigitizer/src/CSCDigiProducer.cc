@@ -11,16 +11,12 @@
 
 
 
-CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) {
-  theDigitizer = new CSCDigitizer(ps);
+CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) 
+:  theDigitizer(ps)
+{
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
-}
-
-
-CSCDigiProducer::~CSCDigiProducer() {
-  delete theDigitizer;
 }
 
 
@@ -47,17 +43,17 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
   const CSCGeometry *pGeom = &*hGeom;
 
-  theDigitizer->setGeometry( pGeom );
+  theDigitizer.setGeometry( pGeom );
 
 
   // find the magnetic field
   edm::ESHandle<MagneticField> magfield;
   eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
 
-  theDigitizer->setMagneticField(&*magfield);
+  theDigitizer.setMagneticField(&*magfield);
 
   // run the digitizer
-  theDigitizer->doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis);
+  theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis);
 
 
   // store them in the event
