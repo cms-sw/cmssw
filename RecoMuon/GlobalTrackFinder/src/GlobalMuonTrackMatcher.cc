@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/09/01 15:48:54 $
- *  $Revision: 1.26 $
+ *  $Date: 2006/09/08 18:00:26 $
+ *  $Revision: 1.27 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -33,21 +33,6 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
   theMinP = 2.5;
   theMinPt = 1.0;
 }
-
-
-//
-//
-//
-
-// FIXME!! fix the updator!
-GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2) {
-
-  theMaxChi2 = chi2;
-  theMinP = 2.5;
-  theMinPt = 1.0;
-  theUpdator = new MuonUpdatorAtVertex();
-}
-
 
 //
 //
