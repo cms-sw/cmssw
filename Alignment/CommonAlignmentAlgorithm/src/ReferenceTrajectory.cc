@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2006/09/17 19:05:47 $
+//  last update: $Date: 2006/09/20 08:19:32 $
 //  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
@@ -70,49 +70,39 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     const TransientTrackingRecHit::ConstRecHitPointer &hitPtr = *itRecHit;
     if (!hitPtr->isValid()) return false;
     // GF FIXME: We have to care about invalid hits since also tracks with holes might be useful!
-    TrajectoryStateOnSurface tmpTsos;
     if (0 == iRow) { 
       // compute the derivatives of the reference-track's parameters w.r.t. the initial ones
       // derivative of the initial reference-track parameters w.r.t. themselves is of course the identity 
       fullJacobian = AlgebraicMatrix(parameters().num_row(), parameters().num_row(), 1);
       allJacobians.push_back(fullJacobian);
-      theTsosVec.push_back(TrajectoryStateOnSurface(refTsos.globalParameters(),
-						    refTsos.surface(), beforeSurface));
-      // GF: why not just push_back(refTsos)? due to 'beforeSurface'? what about errors? 
-      // we might be able to remove tmpTsos and use theTsosVec.back() instead later on?
-
-      // take material effects into account. since trajectory-state is constructed with errors equal zero,
-      // the updated state contains only the uncertainties due to interactions in the current layer.
-      tmpTsos = TrajectoryStateOnSurface(refTsos.localParameters(), zeroErrors,
-					 refTsos.surface(), magField, beforeSurface);
+      theTsosVec.push_back(refTsos);
     } else {
       AlgebraicMatrix nextJacobian;
       TrajectoryStateOnSurface nextTsos;
-      if (!this->propagate(previousTsos, hitPtr->det()->surface(), magField, nextJacobian, nextTsos)) {
+      if (!this->propagate(previousTsos, hitPtr->det()->surface(), magField,
+			   nextJacobian, nextTsos)) {
 	return false; // stop if problem...
       }
 
       allJacobians.push_back(nextJacobian);
       fullJacobian = nextJacobian * previousChangeInCurvature * fullJacobian;
       theTsosVec.push_back(nextTsos);
-
-      // take material effects into account. since trajectory-state is constructed with errors equal zero,
-      // the updated state contains only the uncertainties due to interactions in the current layer.
-      tmpTsos = TrajectoryStateOnSurface(nextTsos.localParameters(), zeroErrors,
-					 nextTsos.surface(), magField, beforeSurface);
     }
 
-    // GF: all 'previous' settings originally duplicated in if () {} else {}
-    const TrajectoryStateOnSurface updatedTsos = aMaterialEffectsUpdator->updateState(tmpTsos, alongMomentum);
+    // take material effects into account. since trajectory-state is constructed with errors equal zero,
+    // the updated state contains only the uncertainties due to interactions in the current layer.
+    const TrajectoryStateOnSurface tmpTsos(theTsosVec.back().localParameters(), zeroErrors,
+					   theTsosVec.back().surface(), magField, beforeSurface);
+    const TrajectoryStateOnSurface updatedTsos =
+      aMaterialEffectsUpdator->updateState(tmpTsos, alongMomentum);
     previousChangeInCurvature[0][0] = updatedTsos.localParameters().signedInverseMomentum() 
       / theTsosVec.back().localParameters().signedInverseMomentum();
     allCurvatureChanges.push_back(previousChangeInCurvature);
-    // set start-parameters for next propagation. trajectory-state without error - no error propagation
-    // needed here.
+    // set start-parameters for next propagation. trajectory-state without error
+    //  - no error propagation needed here.
     previousHitPtr = hitPtr;
-    previousTsos   = TrajectoryStateOnSurface(updatedTsos.globalParameters(), // GF why not copy? beforeSurface?
+    previousTsos   = TrajectoryStateOnSurface(updatedTsos.globalParameters(),
 					      updatedTsos.surface(), beforeSurface);
-    // GF: end of original duplication
 
 
     // projection-matrix tsos-parameters -> measurement-coordinates
