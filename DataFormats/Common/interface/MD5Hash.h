@@ -1,5 +1,9 @@
+#error THIS FILE IS OBSOLETE
+
 #ifndef Common_MD5Hash_h
 #define Common_MD5Hash_h
+
+#include <string>
 
 #include "DataFormats/Common/interface/Hash.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -7,7 +11,7 @@
   
 MD5Hash:
 
-$Id: MD5Hash.h,v 1.2 2006/07/06 18:34:05 wmtan Exp $
+$Id: MD5Hash.h,v 1.3 2006/09/11 21:28:34 paterno Exp $
 ----------------------------------------------------------------------*/
 namespace edm {
   struct MD5Hash {

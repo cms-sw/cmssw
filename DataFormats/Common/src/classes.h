@@ -12,7 +12,7 @@
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "DataFormats/Common/interface/LuminosityBlock.h"
 #include "DataFormats/Common/interface/LuminosityBlockID.h"
-#include "DataFormats/Common/interface/MD5Hash.h"
+//#include "DataFormats/Common/interface/MD5Hash.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/ModuleDescriptionID.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
