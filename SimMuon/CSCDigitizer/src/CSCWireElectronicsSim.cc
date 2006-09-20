@@ -18,9 +18,7 @@ CSCWireElectronicsSim::CSCWireElectronicsSim(const edm::ParameterSet & p)
    theWireNoise(0.0),
    theWireThreshold(0.),
    theTimingCalibrationError(p.getParameter<double>("wireTimingError"))
-
 {
-  theFraction = 0.5;
   fillAmpResponse();
 }
 
