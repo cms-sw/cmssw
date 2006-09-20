@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date$
-//  by         : $Author$
+//  last update: $Date: 2006/09/17 19:05:47 $
+//  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
 
@@ -35,7 +35,7 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
 					 MaterialEffects materialEffects, double mass) 
   : ReferenceTrajectoryBase(refTsos.localParameters().mixedFormatVector().num_row(), recHits.size())
 {
-  //  theRecHits    = recHits; // FIXME: do not want to copy!
+
   theParameters = refTsos.localParameters().mixedFormatVector();
 
   theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects, magField);
@@ -55,25 +55,26 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   AlgebraicMatrix                 fullJacobian(parameters().num_row(), parameters().num_row());
   std::vector<AlgebraicMatrix>    allJacobians(recHits.size());
 
-  TransientTrackingRecHit::ConstRecHitPointer  previousHitPtr; // was 'startRec'...
-  TrajectoryStateOnSurface                     previousTsos;   // was 'startTsos'...
-  AlgebraicSymMatrix              previousChangeInCurvature(parameters().num_row(), 1); // was 'changeInCurvature'
+  TransientTrackingRecHit::ConstRecHitPointer  previousHitPtr;
+  TrajectoryStateOnSurface                     previousTsos;
+  AlgebraicSymMatrix              previousChangeInCurvature(parameters().num_row(), 1);
   std::vector<AlgebraicSymMatrix> allCurvatureChanges(recHits.size());
 
   const LocalTrajectoryError zeroErrors(0., 0., 0., 0., 0.);
 
   std::vector<AlgebraicMatrix> allProjections(recHits.size());
-  std::vector<AlgebraicSymMatrix> allDeltaParameterCovs(recHits.size()); // was deltaParameterCov
+  std::vector<AlgebraicSymMatrix> allDeltaParameterCovs(recHits.size());
 
   TransientTrackingRecHit::ConstRecHitContainer::const_iterator itRecHit = recHits.begin();
   for (unsigned int iRow = 0; itRecHit != recHits.end(); ++itRecHit, iRow += nMeasPerHit) { 
     const TransientTrackingRecHit::ConstRecHitPointer &hitPtr = *itRecHit;
-    // GF FIXME: we have to care about invalid hits since also tracks with holes might be useful!
+    if (!hitPtr->isValid()) return false;
+    // GF FIXME: We have to care about invalid hits since also tracks with holes might be useful!
     TrajectoryStateOnSurface tmpTsos;
     if (0 == iRow) { 
       // compute the derivatives of the reference-track's parameters w.r.t. the initial ones
       // derivative of the initial reference-track parameters w.r.t. themselves is of course the identity 
-      fullJacobian = AlgebraicSymMatrix(parameters().num_row(), 1); // FIXME: why 'Sym'?
+      fullJacobian = AlgebraicMatrix(parameters().num_row(), parameters().num_row(), 1);
       allJacobians.push_back(fullJacobian);
       theTsosVec.push_back(TrajectoryStateOnSurface(refTsos.globalParameters(),
 						    refTsos.surface(), beforeSurface));
@@ -116,13 +117,13 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 
     // projection-matrix tsos-parameters -> measurement-coordinates
     allProjections.push_back(hitPtr->projectionMatrix());
-    // get multiple-scattering covariance-matrix GF: what is that? meaning 'material effects' instead of MS?
+    // get multiple-scattering covariance-matrix
     allDeltaParameterCovs.push_back(updatedTsos.localError().matrix());
 
     this->fillDerivatives(allProjections.back(), fullJacobian, iRow);
     this->fillTrajectoryPositions(allProjections.back(),
 				  theTsosVec.back().localParameters().mixedFormatVector(), iRow);
-    this->fillMeasurementAndError(hitPtr, iRow);//, updatedTsos); FIXME: tsos needed?
+    this->fillMeasurementAndError(hitPtr, iRow, updatedTsos);
 
   } // end of loop on hits
 
@@ -168,11 +169,11 @@ bool ReferenceTrajectory::propagate(const TrajectoryStateOnSurface &previousTsos
 {
   // propagate to next layer
   AnalyticalPropagator aPropagator(magField);
-  const std::pair<TrajectoryStateOnSurface, double> tsosWithPath = // was 'endTsosWithPath'
+  const std::pair<TrajectoryStateOnSurface, double> tsosWithPath =
     aPropagator.propagateWithPath(previousTsos, surface);
 
   // stop if propagation wasn't successful
-  if (!tsosWithPath.first.isValid()) return false; // GF FIXME: what does that mean?
+  if (!tsosWithPath.first.isValid()) return false;
 
   // calculate derivative of reference-track parameters on the actual layer w.r.t. the ones
   // on the previous layer (both in global coordinates)
@@ -202,12 +203,15 @@ bool ReferenceTrajectory::propagate(const TrajectoryStateOnSurface &previousTsos
 //__________________________________________________________________________________
 
 void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
-						  unsigned int iRow) 
-//const TrajectoryStateOnSurface &updatedTsos) FIXME: needed?
+						  unsigned int iRow,
+						  const TrajectoryStateOnSurface &updatedTsos)
 {
-  // get the measurements and their errors FIXME: ORCA had these 'updatedTsos' as argument...???
-  const LocalPoint localMeasurement    = hitPtr->localPosition();// updatedTsos); 
-  const LocalError localMeasurementCov = hitPtr->localPositionError(); // updatedTsos);
+  // get the measurements and their errors, use information updated with tsos 
+  // (GF: Also for measurements or only for errors or do the former not change?)
+  TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->clone(updatedTsos));
+
+  const LocalPoint localMeasurement    = newHitPtr->localPosition();
+  const LocalError localMeasurementCov = newHitPtr->localPositionError();
 
   theMeasurements[iRow]   = localMeasurement.x();
   theMeasurements[iRow+1] = localMeasurement.y();
@@ -262,18 +266,16 @@ void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatri
   AlgebraicMatrix tempParameterCov;
   AlgebraicMatrix tempMeasurementCov;
 
-  // GF: all following '2' should probably become 'nMeasPerHit'...
-
   for (unsigned int k = 1; k < allJacobians.size(); ++k) {
     // error-propagation to next layer
     paramMaterialEffectsCov = paramMaterialEffectsCov.similarity(allJacobians[k]);
 
     // get dependences for the measurements
     deltaMaterialEffectsCov = paramMaterialEffectsCov.similarity(allProjections[k]);
-    materialEffectsCov[2*k  ][2*k  ] = deltaMaterialEffectsCov[0][0];
-    materialEffectsCov[2*k  ][2*k+1] = deltaMaterialEffectsCov[0][1];
-    materialEffectsCov[2*k+1][2*k  ] = deltaMaterialEffectsCov[1][0];
-    materialEffectsCov[2*k+1][2*k+1] = deltaMaterialEffectsCov[1][1];
+    materialEffectsCov[nMeasPerHit*k  ][nMeasPerHit*k  ] = deltaMaterialEffectsCov[0][0];
+    materialEffectsCov[nMeasPerHit*k  ][nMeasPerHit*k+1] = deltaMaterialEffectsCov[0][1];
+    materialEffectsCov[nMeasPerHit*k+1][nMeasPerHit*k  ] = deltaMaterialEffectsCov[1][0];
+    materialEffectsCov[nMeasPerHit*k+1][nMeasPerHit*k+1] = deltaMaterialEffectsCov[1][1];
 
     // add uncertainties for the following layers due to scattering at this layer
     paramMaterialEffectsCov += allDeltaParameterCovs[k];
@@ -285,17 +287,17 @@ void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatri
       tempParameterCov   = allJacobians[l]   * allCurvatureChanges[l] * tempParameterCov;
       tempMeasurementCov = allProjections[l] * tempParameterCov       * allProjections[k].T();
 
-      materialEffectsCov[2*l][2*k] = tempMeasurementCov[0][0];
-      materialEffectsCov[2*k][2*l] = tempMeasurementCov[0][0];
+      materialEffectsCov[nMeasPerHit*l][nMeasPerHit*k] = tempMeasurementCov[0][0];
+      materialEffectsCov[nMeasPerHit*k][nMeasPerHit*l] = tempMeasurementCov[0][0];
 
-      materialEffectsCov[2*l][2*k+1] = tempMeasurementCov[0][1];
-      materialEffectsCov[2*k+1][2*l] = tempMeasurementCov[0][1];
+      materialEffectsCov[nMeasPerHit*l][nMeasPerHit*k+1] = tempMeasurementCov[0][1];
+      materialEffectsCov[nMeasPerHit*k+1][nMeasPerHit*l] = tempMeasurementCov[0][1];
 
-      materialEffectsCov[2*l+1][2*k] = tempMeasurementCov[1][0];
-      materialEffectsCov[2*k][2*l+1] = tempMeasurementCov[1][0];
+      materialEffectsCov[nMeasPerHit*l+1][nMeasPerHit*k] = tempMeasurementCov[1][0];
+      materialEffectsCov[nMeasPerHit*k][nMeasPerHit*l+1] = tempMeasurementCov[1][0];
 
-      materialEffectsCov[2*l+1][2*k+1] = tempMeasurementCov[1][1];
-      materialEffectsCov[2*k+1][2*l+1] = tempMeasurementCov[1][1];
+      materialEffectsCov[nMeasPerHit*l+1][nMeasPerHit*k+1] = tempMeasurementCov[1][1];
+      materialEffectsCov[nMeasPerHit*k+1][nMeasPerHit*l+1] = tempMeasurementCov[1][1];
     }
 
     // error-propagation to state after energy loss
