@@ -6,6 +6,7 @@
 #include "HLTrigger/HLTexample/interface/HLTAnalFilt.h"
 #include "HLTrigger/HLTexample/interface/HLTSimpleJet.h"
 #include "HLTrigger/HLTexample/interface/HLTLevel1Seed.h"
+#include "HLTrigger/HLTexample/interface/HLTHighLevel.h"
 #include "HLTrigger/HLTexample/interface/HLTGlobalSums.h"
 #include "HLTrigger/HLTexample/interface/HLTDoublet.h"
 
@@ -63,6 +64,7 @@ DEFINE_ANOTHER_FWK_MODULE(HLTFiltCand)
 DEFINE_ANOTHER_FWK_MODULE(HLTAnalFilt)
 DEFINE_ANOTHER_FWK_MODULE(HLTSimpleJet)
 DEFINE_ANOTHER_FWK_MODULE(HLTLevel1Seed)
+DEFINE_ANOTHER_FWK_MODULE(HLTHighLevel)
 DEFINE_ANOTHER_FWK_MODULE(HLTGlobalSums)
 DEFINE_ANOTHER_FWK_MODULE(HLTDoublet)
 
