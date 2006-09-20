@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include <sstring>
+#include <sstream>
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
