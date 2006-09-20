@@ -1,18 +1,9 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//Set Default Values 
-bool        PositionCalc::param_LogWeighted_;
-Double32_t  PositionCalc::param_X0_;
-Double32_t  PositionCalc::param_T0_; 
-Double32_t  PositionCalc::param_W0_;
-const EcalRecHitCollection *PositionCalc::storedRecHitsMap_ = NULL;
-const CaloSubdetectorGeometry *PositionCalc::storedSubdetectorGeometry_ = NULL;
-
-void PositionCalc::Initialize(std::map<std::string,double> providedParameters, 
+PositionCalc::PositionCalc(std::map<std::string,double> providedParameters, 
 			      EcalRecHitCollection const *passedRecHitsMap,
 			      const CaloSubdetectorGeometry *passedGeometry) 
 {
@@ -24,8 +15,6 @@ void PositionCalc::Initialize(std::map<std::string,double> providedParameters,
   storedRecHitsMap_ = passedRecHitsMap;
   storedSubdetectorGeometry_ = passedGeometry;
 }
-
-
 
 math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
 {
@@ -71,9 +60,10 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
       eMax = e_i;
       maxId_ = id_;
     }
+    
     eTot += e_i;
   }
-
+  
   // Calculate shower depth
   float depth = 0.;
   if(eTot<=0.) {
@@ -109,16 +99,17 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
     double e_j = itj->energy();
 
     if (param_LogWeighted_) {
-       if(eTot<=0.) {
-         weight = 0.;
-       } else {
-         weight = max(0., param_W0_ + log( fabs(e_j)/eTot) );
-       }
+      if(eTot<=0.) {
+        weight = 0.;
+      } else {
+        weight = max(0., param_W0_ + log( fabs(e_j)/eTot) );
+      }
     } else {
       weight = e_j/eTot;
     }
+    
     total_weight += weight;
-
+  
     const CaloCellGeometry* jth_cell = 
       storedSubdetectorGeometry_->getGeometry(id_);
     GlobalPoint jth_pos = 
@@ -133,12 +124,12 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
     if (dphi < -M_PI)
       dphi += 2.*M_PI;
 
-    delta_phi += dphi*weight;
+    delta_phi += dphi*weight;    
   }
 
   delta_theta /= total_weight;
   delta_phi /= total_weight;
-
+  
   double cluster_theta = center_theta + delta_theta;
   double cluster_phi = center_phi + delta_phi;
 
@@ -147,10 +138,6 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
     cluster_phi -= 2.*M_PI;
   if (cluster_phi < -M_PI)
     cluster_phi += 2.*M_PI;
-
-  //double cluster_eta = -log(tan(cluster_theta*0.5));
-  //std::cout << "Cluster eta = " << cluster_eta << std::endl;
-  //std::cout << "Cluster phi = " << cluster_phi << std::endl;
 
   double radius = sqrt(center_pos.x()*center_pos.x()
 		       + center_pos.y()*center_pos.y()
@@ -161,7 +148,7 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
   double zpos = radius*cos(cluster_theta);
 
   return math::XYZPoint(xpos, ypos, zpos);
-
+  
 }
 
 std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint passedPoint,
@@ -187,13 +174,10 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
     throw(std::runtime_error("\n\nPositionCalc::Calculate_Covariance called uninitialized or wrong initialization.\n\n"));
 
   // Init cov variable
-
   double covEtaEta=0, covEtaPhi=0, covPhiPhi=0;
-
-
+  double eTot = 0.;
 
   // Sum total energy for weighting
-  double eTot = 0.;
   std::vector<DetId>::iterator n;
 
   for (n = passedDetIds.begin(); n != passedDetIds.end(); n++) {
@@ -202,8 +186,8 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
   }
 
   // Main loop to calculate covariances
-
-  if (eTot > 0.) {
+    
+  if (eTot > 0.) {  
 
     // Find eta, phi of passedPoint 
     double pX = passedPoint.x();
@@ -214,15 +198,14 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
 
     // Init variables for kth cell
     double kX = 0., kY = 0., kZ = 0., kEta = 0., kPhi = 0., weight = 0., wTot = 0., w_min = 0.;
-    std::vector<DetId>::iterator k;
 
+    std::vector<DetId>::iterator k;
     for (k = passedDetIds.begin(); k != passedDetIds.end(); k++) {
 
       // Find out what the physical location of the kth cell is
       DetId id_ = *k;
       const CaloCellGeometry *this_cell = storedSubdetectorGeometry_->getGeometry(id_);
       GlobalPoint posi = this_cell->getPosition();
-
       math::XYZPoint posi2(posi.x(),posi.y(),posi.z());
 
       kX = posi.x();
@@ -231,7 +214,6 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
 
       kEta = posi2.Eta();
       kPhi = atan2(kY,kX);
-
       EcalRecHitCollection::const_iterator itk = storedRecHitsMap_->find(*k);
       double e_k = itk->energy();
 
@@ -239,16 +221,11 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
 
       if (param_LogWeighted_) {
         weight = std::max(w_min, param_W0_ + log( fabs(e_k)/eTot ) );
-      }
-
-      // Or else arithmetic weighting
-
-      else {
+      } else { // Or else arithmetic weighting
         weight = e_k;
       }
 
       // Increment covariances
-
       covEtaEta += (kEta - pEta)*(kEta - pEta);
       covEtaPhi += (kEta - pEta)*(kPhi - pPhi);
       covPhiPhi += (kPhi - pPhi)*(kPhi - pPhi);
@@ -260,12 +237,12 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
     covEtaEta /= wTot;
     covEtaPhi /= wTot;
     covPhiPhi /= wTot;
-  }
-  else {
+
+  } else {
 
     // Warn the user if there was no energy in the cells and return zeroes.
 
-    edm::LogError("PositionCalc") << "\nPositionCalc::Calculate_Covariances:  no energy in supplied cells.\n";
+    std::cout << "\nPositionCalc::Calculate_Covariances:  no energy in supplied cells.\n";
 
     covEtaEta = 0;
     covEtaPhi = 0;
