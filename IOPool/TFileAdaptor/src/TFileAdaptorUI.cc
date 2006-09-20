@@ -31,5 +31,5 @@ TFileAdaptorUI::TFileAdaptorUI() {
 TFileAdaptorUI::~TFileAdaptorUI() {}
 
 void TFileAdaptorUI::stats() const {
-  me->stats(std::cout);
+  me->stats(std::cout); std::cout << std::endl;
 }

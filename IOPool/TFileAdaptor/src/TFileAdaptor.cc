@@ -119,7 +119,7 @@ TFileAdaptor::~TFileAdaptor () {}
 
 void TFileAdaptor::stats(std::ostream& co) const
 {
-  co << "\n\n"
+  co << ""
      << "Storage parameters: adaptor: true"
      << " Stats:" << (m_params.doStats ? "true" : "false")
      << " Buffering:" << (m_params.doBuffering ? "true" : "false")
@@ -128,6 +128,6 @@ void TFileAdaptor::stats(std::ostream& co) const
   co << "Storage statistics: "
      << StorageAccount::summaryText ()
      << "; tfile/read=?/?/" << (TFile::GetFileBytesRead () / 1048576.0) << "MB/?ms/?ms/?ms"
-     << "; tfile/write=?/?/" << (TFile::GetFileBytesWritten () / 1048576.0) << "MB/?ms/?ms/?ms\n"
-     << "\n\n";
+     << "; tfile/write=?/?/" << (TFile::GetFileBytesWritten () / 1048576.0) << "MB/?ms/?ms/?ms"
+     << "";
 }
