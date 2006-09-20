@@ -8,6 +8,7 @@
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include <vector>
+#include <utility>
 
 class NBodyCombiner {
 public:
@@ -26,10 +27,14 @@ protected:
   enum ChargeInfo { undetermined, same, opposite, invalid };
   /// return charge information
   static ChargeInfo chargeInfo( int q1, int q2 ); 
+  /// temporary candidate stack
+  typedef std::vector<std::pair<reco::CandidateCollection::const_iterator, 
+                                std::vector<const reco::CandidateCollection *>::const_iterator> 
+                     > CandStack;
   /// returns a composite candidate combined from two daughters
-  void combine( size_t collectionIndex, ChargeInfo ch, std::vector<const reco::Candidate *> cv,
-		const std::vector<const reco::CandidateCollection * >::const_iterator begin,
-		const std::vector<const reco::CandidateCollection * >::const_iterator end,
+  void combine( size_t collectionIndex, ChargeInfo ch, CandStack &, 
+		std::vector<const reco::CandidateCollection * >::const_iterator begin,
+		std::vector<const reco::CandidateCollection * >::const_iterator end,
 		std::auto_ptr<reco::CandidateCollection> & comps
 		) const;
   /// flag to specify the checking of electric charge
