@@ -117,7 +117,7 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   float t = simHit.tof() + driftTime;
   LogDebug("CSCDriftSim") << "CSCDriftSim: tof = " << simHit.tof() << 
       " driftTime = " << driftTime <<
-      " MEDH = " << CSCDetectorHit(nearestWire, charge, x, t);
+      " MEDH = " << CSCDetectorHit(nearestWire, charge, x, t, &simHit);
   return CSCDetectorHit(nearestWire, charge, x, t, &simHit);
 }
 
