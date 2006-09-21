@@ -1,7 +1,7 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
 
 /**
- * $Id$
+ * $Id: EcalMatacqHist.h,v 1.1 2006/09/08 09:51:49 pgras Exp $
  *
  * Test module for matacq data producing some histograms.
  *
@@ -18,12 +18,12 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <DataFormats/EcalDigi/interface/EcalMatacqDigi.h>
 
 #include <TFile.h>
 #include <memory>
 
 class TProfile;
+class TH1D;
 
 class EcalMatacqHist: public edm::EDAnalyzer{  
  public:
@@ -41,8 +41,13 @@ private:
   int nTimePlots;
   int firstTimePlotEvent;
   int iEvent;
-  TProfile* profile;
+  double hTTrigMin;
+  double hTTrigMax;
   std::auto_ptr<TFile> outFile;
+  std::vector<TProfile> profiles;
+  //profile->MATACQ CH ID map
+  std::vector<int> profChId;
+  TH1D* hTTrig;
 };
 
 
