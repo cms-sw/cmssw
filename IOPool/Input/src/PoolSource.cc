@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.33 2006/08/01 05:39:24 wmtan Exp $
+$Id: PoolSource.cc,v 1.34 2006/08/16 23:40:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -16,7 +16,7 @@ $Id: PoolSource.cc,v 1.33 2006/08/01 05:39:24 wmtan Exp $
 namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
-    fileIter_(fileNames().begin()),
+    fileIter_(fileCatalogItems().begin()),
     rootFile_(),
     origRootFile_(),
     origEntryNumber_(),
@@ -66,7 +66,7 @@ namespace edm {
     origEntryNumber_ = rootFile_->entryNumber();
   }
 
-  void PoolSource::init(std::string const& file) {
+  void PoolSource::init(FileCatalogItem const& file) {
 
     rootFile_ = RootFileSharedPtr(new RootFile(file, catalog().url()));
   }
@@ -85,11 +85,11 @@ namespace edm {
   bool PoolSource::next() {
     if(rootFile_->next()) return true;
     ++fileIter_;
-    if(fileIter_ == fileNames().end()) {
+    if(fileIter_ == fileCatalogItems().end()) {
       if (mainInput_) {
 	return false;
       } else {
-	fileIter_ = fileNames().begin();
+	fileIter_ = fileCatalogItems().begin();
       }
     }
 
@@ -105,18 +105,18 @@ namespace edm {
     // make sure the new product registry is compatible with the main one
     if (!preg->merge(rootFile_->productRegistry(), matchMode_)) {
       throw cms::Exception("MismatchedInput","PoolSource::next()")
-	<< "File " << *fileIter_ << "\nhas different product registry than previous files\n";
+	<< "File " << fileIter_->fileName() << "\nhas different product registry than previous files\n";
     }
     return next();
   }
 
   bool PoolSource::previous() {
     if(rootFile_->previous()) return true;
-    if(fileIter_ == fileNames().begin()) {
+    if(fileIter_ == fileCatalogItems().begin()) {
       if (mainInput_) {
 	return false;
       } else {
-	fileIter_ = fileNames().end();
+	fileIter_ = fileCatalogItems().end();
       }
     }
     --fileIter_;
@@ -133,7 +133,7 @@ namespace edm {
     // make sure the new product registry is compatible to the main one
     if (!preg->merge(rootFile_->productRegistry(), matchMode_)) {
       throw cms::Exception("MismatchedInput","PoolSource::previous()")
-	<< "File " << *fileIter_ << "\nhas different product registry than previous files\n";
+	<< "File " << fileIter_->fileName() << "\nhas different product registry than previous files\n";
     }
     rootFile_->setEntryNumber(rootFile_->entries());
     return previous();

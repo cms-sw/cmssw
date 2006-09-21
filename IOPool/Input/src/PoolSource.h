@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.24 2006/08/01 05:39:24 wmtan Exp $
+$Id: PoolSource.h,v 1.25 2006/08/16 23:40:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,6 +25,7 @@ $Id: PoolSource.h,v 1.24 2006/08/01 05:39:24 wmtan Exp $
 namespace edm {
 
   class RootFile;
+  class FileCatalogItem;
   class PoolSource : public VectorInputSource {
   public:
     explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
@@ -43,13 +44,13 @@ namespace edm {
     virtual void skip(int offset);
     virtual void rewind_();
     virtual void readMany_(int number, EventPrincipalVector& result);
-    void init(std::string const& file);
+    void init(FileCatalogItem const& file);
     void updateProductRegistry() const;
     void setInitialPosition(ParameterSet const& pset);
     bool next();
     bool previous();
 
-    std::vector<std::string>::const_iterator fileIter_;
+    std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
     RootFileSharedPtr origRootFile_;
     EntryNumber origEntryNumber_;

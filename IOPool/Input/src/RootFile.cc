@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.30 2006/08/29 22:47:52 wmtan Exp $
+$Id: RootFile.cc,v 1.31 2006/08/30 23:39:15 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -10,6 +10,7 @@ $Id: RootFile.cc,v 1.30 2006/08/29 22:47:52 wmtan Exp $
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
 #include "DataFormats/Common/interface/EventAux.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/FileCatalog.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
@@ -26,8 +27,9 @@ $Id: RootFile.cc,v 1.30 2006/08/29 22:47:52 wmtan Exp $
 
 namespace edm {
 //---------------------------------------------------------------------
-  RootFile::RootFile(std::string const& fileName, std::string const& catalogName) :
-    file_(fileName),
+  RootFile::RootFile(FileCatalogItem const& file, std::string const& catalogName) :
+    file_(file.fileName()),
+    logicalFile_(file.logicalFileName()),
     catalog_(catalogName),
     branchNames_(),
     eventProvenance_(),
@@ -132,10 +134,9 @@ namespace edm {
     // Report file opened.
     std::string const label = "source";
     std::string moduleName = "PoolSource";
-    std::string logicalFileName = "";
     Service<JobReport> reportSvc;
     reportToken_ = reportSvc->inputFileOpened(file_,
-               logicalFileName,
+               logicalFile_,
                catalog_,
                moduleName,
                label,

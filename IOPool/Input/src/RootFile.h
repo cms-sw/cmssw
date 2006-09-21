@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.10 2006/07/06 19:25:00 wmtan Exp $
+$Id: RootFile.h,v 1.11 2006/08/30 23:39:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,13 +27,14 @@ namespace edm {
   //------------------------------------------------------------
   // Class RootFile: supports file reading.
 
+  class FileCatalogItem;
   class RootFile {
   public:
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
     typedef std::map<ProductID, BranchDescription> ProductMap;
     BranchMap const& branches() const {return *branches_;}
-    explicit RootFile(std::string const& fileName, std::string const& catalogName);
+    explicit RootFile(FileCatalogItem const& file, std::string const& catalogName);
     ~RootFile();
     void open();
     void close();
@@ -53,6 +54,7 @@ namespace edm {
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;
+    std::string const logicalFile_;
     std::string const catalog_;
     std::vector<std::string> branchNames_;
     std::vector<BranchEntryDescription> eventProvenance_;
