@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ObjectSelector.h,v 1.3 2006/07/26 09:10:47 llista Exp $
+ * $Id: ObjectCountFilter.h,v 1.1 2006/09/20 12:56:23 llista Exp $
  *
  */
 
@@ -27,14 +27,14 @@ public:
   /// constructor 
   explicit ObjectCountFilterBase( const edm::ParameterSet & cfg ) :
     src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
-    min_( cfg.template getParameter<unsigned int>( "min" ) ) {
+    minNumber_( cfg.template getParameter<unsigned int>( "minNumber" ) ) {
   }
   
 protected:
   /// source collection label
   edm::InputTag src_;
   /// minimum number of entries in a collection
-  unsigned int min_;
+  unsigned int minNumber_;
 };
 
 template<typename C, typename S = AnySelector<typename C::value_type> >
@@ -56,7 +56,7 @@ private:
     for( typename C::const_iterator i = source->begin(); i != source->end(); ++ i ) {
       if ( select_( * i ) ) n ++;
     }
-    return n >= min_;
+    return n >= minNumber_;
   }
   /// object filter
   S select_;
@@ -77,7 +77,7 @@ private:
   bool filter( edm::Event& evt, const edm::EventSetup& ) {
     edm::Handle<C> source;
     evt.getByLabel( src_, source );
-    return source->size() >= min_;
+    return source->size() >= minNumber_;
   }
 };
 
