@@ -1,6 +1,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonId.h"
+#include "DataFormats/MuonReco/interface/ExtrapolatedMuon.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
@@ -30,13 +30,11 @@ namespace {
     edm::Wrapper<reco::MuIsoAssociationMap> w4;
     edm::helpers::Key<edm::RefProd<std::vector<reco::Track> > > h4;
 
-    std::vector<reco::MuonId> v3;
-    edm::Wrapper<std::vector<reco::MuonId> > c3;
-    edm::Ref<std::vector<reco::MuonId> > r3;
-    edm::RefProd<std::vector<reco::MuonId> > rp3;
-    edm::RefVector<std::vector<reco::MuonId> > rv3;
-    reco::MuonId::MuonMatch mm1;
-    std::vector<reco::MuonId::MuonMatch> vmm1;
-    reco::MuonId::MuonEnergy me1;
+    std::vector<reco::ExtrapolatedMuon> v3;
+    edm::Wrapper<std::vector<reco::ExtrapolatedMuon> > c3;
+    edm::Ref<std::vector<reco::ExtrapolatedMuon> > r3;
+    edm::RefProd<std::vector<reco::ExtrapolatedMuon> > rp3;
+    edm::RefVector<std::vector<reco::ExtrapolatedMuon> > rv3;
+    std::vector<reco::ExtrapolatedMuon::MuonMatch> vmm1;
   }
 }
