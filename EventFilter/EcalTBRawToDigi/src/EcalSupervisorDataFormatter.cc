@@ -15,14 +15,14 @@ void EcalSupervisorDataFormatter::interpretRawData( const FEDRawData & fedData,
   int fedLenght                        = fedData.size(); // in Bytes
   
   // check ultimate fed size and strip off fed-header and -trailer
-  if (fedLenght != (nWordsPerEvent *4) )
-    {
-      LogError("EcalSupervisorDataFormatter") << "EcalSupervisorData has size "  <<  fedLenght
-				       <<" Bytes as opposed to expected " 
-				       << (nWordsPerEvent *4)
-				       << ". Returning."<< endl;
-      return;
-    }
+   if (fedLenght < (nWordsPerEvent *4) )
+     {
+       LogError("EcalSupervisorDataFormatter") << "EcalSupervisorData has size "  <<  fedLenght
+ 				       <<" Bytes as opposed to expected " 
+ 				       << (nWordsPerEvent *4)
+ 				       << ". Returning."<< endl;
+       return;
+     }
 
   ulong a=1; // used to extract an 8 Bytes word from fed 
   ulong b=1; // used to manipulate the 8 Bytes word and get what needed
@@ -76,4 +76,40 @@ void EcalSupervisorDataFormatter::interpretRawData( const FEDRawData & fedData,
   b = (a& 0xffffffff);
   tbEventHeader.setEndBurstLV1A(b);
   LogDebug("EcalSupervisorDataFormatter") << "EndBurstLV1A:\t" << b << endl;
+  if (version >= 11)
+    {
+      wordCounter+=4;
+      a = buffer[wordCounter];wordCounter++;
+      b = (a& 0xffffffff);
+      tbEventHeader.setNominalMagnet6SetAmpere(b);
+      LogDebug("EcalSupervisorDataFormatter") << "NominalMagnet6SetAmpere:\t" << b << endl;
+      a = buffer[wordCounter];wordCounter++;
+      b = (a& 0xffffffff);
+      tbEventHeader.setNominalMagnet6ReadAmpere(b);
+      LogDebug("EcalSupervisorDataFormatter") << "NominalMagnet6ReadAmpere:\t" << b << endl;
+      a = buffer[wordCounter];wordCounter++;
+      b = (a& 0xffffffff);
+      tbEventHeader.setNominalMagnet7SetAmpere(b);
+      LogDebug("EcalSupervisorDataFormatter") << "NominalMagnet7SetAmpere:\t" << b << endl;
+      a = buffer[wordCounter];wordCounter++;
+      b = (a& 0xffffffff);
+      tbEventHeader.setNominalMagnet7ReadAmpere(b);
+      LogDebug("EcalSupervisorDataFormatter") << "NominalMagnet7ReadAmpere:\t" << b << endl;
+      a = buffer[wordCounter];wordCounter++;
+      b = (a& 0xffffffff);
+      tbEventHeader.setMeasuredMagnet7MicroAmpere(b);
+      LogDebug("EcalSupervisorDataFormatter") << "MeasuredMagnet7MicroAmpere:\t" << b << endl;
+      a = buffer[wordCounter];wordCounter++;
+      b = (a& 0xffffffff);
+      tbEventHeader.setMeasuredMagnet7Volt(b);
+      LogDebug("EcalSupervisorDataFormatter") << "MeasuredMagnet7Volt:\t" << b << endl;
+      a = buffer[wordCounter];wordCounter++;
+      b = (a& 0xffffffff);
+      tbEventHeader.setMeasuredMagnet6MicroAmpere(b);
+      LogDebug("EcalSupervisorDataFormatter") << "MeasuredMagnet6MicroAmpere:\t" << b << endl;
+      a = buffer[wordCounter];wordCounter++;
+      b = (a& 0xffffffff);
+      tbEventHeader.setMeasuredMagnet6Volt(b);
+      LogDebug("EcalSupervisorDataFormatter") << "MeasuredMagnet6Volt:\t" << b << endl;
+    }
 }
