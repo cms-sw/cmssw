@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.46 2006/09/19 19:11:37 rpw Exp $
+ * $Id: pset_parse.y,v 1.47 2006/09/21 18:46:48 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -867,6 +867,15 @@ toplevelnode:    BLOCK_tok procinlinenodes
                    string label(toString($<str>2));
                    string classname(toString($<str>4));
                    ImplicitIncludeNode* wn(new ImplicitIncludeNode(classname, label, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 unnamedmodule EQUAL_tok LETTERSTART_tok
+                 {
+                   DBPRINT("procnode: UNNAMED IMPLICITINCLUDE_MODULE");
+                   string type(toString($<str>1));
+                   string classname(toString($<str>3));
+                   ImplicitIncludeNode* wn(new ImplicitIncludeNode(classname, classname, lines));
                    $<_Node>$ = wn;
                  }
                |
