@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.13 2006/06/21 17:54:37 rpw Exp $
+// $Id: Entry.cc,v 1.14 2006/08/16 17:14:15 rpw Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -41,6 +41,10 @@ namespace edm {
       table_['I'] = "int32";
       table_['u'] = "vuint32";
       table_['U'] = "uint32";
+      table_['l'] = "vint64";
+      table_['L'] = "int64";
+      table_['x'] = "vuint64";
+      table_['X'] = "uint64";
       table_['s'] = "vstring";
       table_['S'] = "string";
       table_['d'] = "vdouble";
@@ -103,6 +107,26 @@ namespace edm {
       case 'u':  {  // vUint32
         std::vector<unsigned>  val;
         if(!decode(val, rep)) throwEntryError("vector<unsigned int>", rep);
+        break;
+      }
+      case 'L':  {  // Int64
+        int  val;
+        if(!decode(val, rep)) throwEntryError("int64", rep);
+        break;
+      }
+      case 'l':  {  // vInt64
+        std::vector<int>  val;
+        if(!decode(val, rep)) throwEntryError("vector<int64>", rep);
+        break;
+      }
+      case 'X':  {  // Uint64
+        unsigned  val;
+        if(!decode(val, rep)) throwEntryError("unsigned int64", rep);
+        break;
+      }
+      case 'x':  {  // vUint64
+        std::vector<unsigned>  val;
+        if(!decode(val, rep)) throwEntryError("vector<unsigned int64>", rep);
         break;
       }
       case 'S':  {  // String
@@ -210,6 +234,46 @@ namespace edm {
    name_(name), rep(), type('u'), tracked(is_tracked ? '+' : '-') 
  {
    if(!encode(rep, val)) throwEncodeError("vector<unsigned int>");
+    validate();
+  }
+
+// ----------------------------------------------------------------------
+// Int64
+
+  Entry::Entry(std::string const& name, boost::int64_t val, bool is_tracked) :
+    name_(name), rep(), type('L'), tracked(is_tracked ? '+' : '-')
+  {
+    if(!encode(rep, val)) throwEncodeError("int64");
+    validate();
+  }
+
+// ----------------------------------------------------------------------
+// vInt64
+
+  Entry::Entry(std::string const& name, std::vector<boost::int64_t> const& val, bool is_tracked) :
+    name_(name), rep(), type('l'), tracked(is_tracked ? '+' : '-')
+  {
+    if(!encode(rep, val)) throwEncodeError("vector<int64>");
+    validate();
+  }
+
+// ----------------------------------------------------------------------
+// Uint64
+
+  Entry::Entry(std::string const& name, boost::uint64_t val, bool is_tracked) :
+    name_(name), rep(), type('X'), tracked(is_tracked ? '+' : '-')
+  {
+    if(!encode(rep, val)) throwEncodeError("unsigned int64");
+    validate();
+  }
+
+// ----------------------------------------------------------------------
+// vUint64
+
+ Entry::Entry(std::string const& name, std::vector<boost::uint64_t> const& val, bool is_tracked) :
+   name_(name), rep(), type('x'), tracked(is_tracked ? '+' : '-')
+ {
+   if(!encode(rep, val)) throwEncodeError("vector<unsigned int64>");
     validate();
   }
 

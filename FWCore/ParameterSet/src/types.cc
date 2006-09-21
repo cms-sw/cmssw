@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.6 2006/06/20 04:22:37 wmtan Exp $
+// $Id: types.cc,v 1.7 2006/06/21 17:54:28 rpw Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -182,6 +182,49 @@ bool
   return true;
 }  // encode from int
 
+// ----------------------------------------------------------------------
+// Int64
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(boost::int64_t & to, std::string const& from)
+{
+  std::string::const_iterator  b = from.begin()
+                            ,  e = from.end();
+
+  if(*b != '+' && *b != '-')
+    return false;
+  int  sign = (*b == '+') ? +1 : -1;
+
+  to = 0;
+  while(++b != e)  {
+    if(! std::isdigit(*b))
+      return false;
+    to = 10 * to + (*b - '0');
+  }
+  to *= sign;
+
+  return true;
+}  // decode to int
+
+// ----------------------------------------------------------------------
+
+bool
+  edm::encode(std::string & to, boost::int64_t from)
+{
+  bool is_negative = (from < 0);
+  if(is_negative)
+    from = - from;  // TODO: work around this for most negative integer
+
+  to.clear();
+  do  {
+    to = static_cast<char>(from % 10 + '0') + to;
+    from /= 10;
+  }  while(from > 0);
+  to = (is_negative ? '-' : '+') + to;
+
+  return true;
+}  // encode from int
 
 // ----------------------------------------------------------------------
 // vInt32
@@ -232,6 +275,54 @@ bool
   return true;
 }  // encode from vector<int>
 
+// ----------------------------------------------------------------------
+// vInt64
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(std::vector<boost::int64_t> & to, std::string const& from)
+{
+  std::vector<std::string> temp;
+  if(! split(std::back_inserter(temp), from, '{', ',', '}'))
+    return false;
+
+  to.clear();
+  for(std::vector<std::string>::const_iterator  b = temp.begin()
+                                             ,  e = temp.end()
+      ; b != e ; ++b)
+  {
+    boost::int64_t val;
+    if(! decode(val, *b))
+      return false;
+    to.push_back(val);
+  }
+
+  return true;
+}  // decode to vector<int>
+
+// ----------------------------------------------------------------------
+
+bool
+  edm::encode(std::string & to, std::vector<boost::int64_t> const& from)
+{
+  to = "{";
+
+  std::string  converted;
+  for(std::vector<boost::int64_t>::const_iterator b = from.begin()
+                                      , e = from.end()
+     ; b != e ; ++b)
+  {
+    if(! encode(converted, *b))
+      return false;
+
+    if(b != from.begin())
+      to += ",";
+    to += converted;
+  }
+
+  to += '}';
+  return true;
+}  // encode from vector<int>
 
 // ----------------------------------------------------------------------
 // Uint32
@@ -269,6 +360,41 @@ bool
   return true;
 }  // encode from unsigned
 
+// ----------------------------------------------------------------------
+// Uint64
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(boost::uint64_t & to, std::string const& from)
+{
+  std::string::const_iterator  b = from.begin()
+                            ,  e = from.end();
+
+  to = 0u;
+  for(; b != e; ++b)  {
+    if(*b == 'u' || *b == 'U')
+      return true;
+    if(! std::isdigit(*b))
+      return false;
+    to = 10u * to + (*b - '0');
+  }
+
+  return true;
+}  // decode to unsigned
+
+// ----------------------------------------------------------------------
+
+bool
+  edm::encode(std::string & to, boost::uint64_t from)
+{
+  to.clear();
+  do  {
+    to = static_cast<char>(from % 10 + '0') + to;
+    from /= 10u;
+  }  while(from > 0u);
+
+  return true;
+}  // encode from unsigned
 
 // ----------------------------------------------------------------------
 // vUint32
@@ -311,6 +437,55 @@ bool
       return false;
 
     if(b != from.begin()) 
+      to += ",";
+    to += converted;
+  }
+
+  to += '}';
+  return true;
+}  // encode from vector<unsigned>
+
+// ----------------------------------------------------------------------
+// vUint64
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(std::vector<boost::uint64_t> & to, std::string const& from)
+{
+  std::vector<std::string> temp;
+  if(! split(std::back_inserter(temp), from, '{', ',', '}'))
+    return false;
+
+  to.clear();
+  for(std::vector<std::string>::const_iterator  b = temp.begin()
+                                             ,  e = temp.end()
+      ; b != e ; ++b)
+  {
+    boost::uint64_t val;
+    if(! decode(val, *b))
+      return false;
+    to.push_back(val);
+  }
+
+  return true;
+}  // decode to vector<unsigned>
+
+// ----------------------------------------------------------------------
+
+bool
+  edm::encode(std::string & to, std::vector<boost::uint64_t> const& from)
+{
+  to = "{";
+
+  std::string  converted;
+  for(std::vector<boost::uint64_t>::const_iterator b = from.begin()
+                                           , e = from.end()
+     ; b != e ; ++b)
+  {
+    if(! encode(converted, *b))
+      return false;
+
+    if(b != from.begin())
       to += ",";
     to += converted;
   }
