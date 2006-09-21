@@ -8,7 +8,7 @@
 /** \class EcalTBEventHeader
  *  Container for event ancilllary informations defined in TB raw data formats  
  *
- *  $Id: EcalTBEventHeader.h,v 1.4 2006/08/03 17:21:04 meridian Exp $
+ *  $Id: EcalTBEventHeader.h,v 1.5 2006/08/10 16:20:39 govoni Exp $
  */
 
 
@@ -154,6 +154,23 @@ class EcalTBEventHeader {
     return S6ADC_ ; 
     }
 
+  int  nominalMagnet6ReadAmpere() const { return nominalMagnet6ReadAmpere_; }
+
+  int  nominalMagnet7ReadAmpere() const { return nominalMagnet7ReadAmpere_; }
+
+  int  nominalMagnet6SetAmpere() const { return nominalMagnet6SetAmpere_; }
+
+  int  nominalMagnet7SetAmpere() const { return nominalMagnet7SetAmpere_; }
+
+  int  measuredMagnet6MicroAmpere() const { return measuredMagnet6MicroAmpere_; }
+
+  int  measuredMagnet7MicrodAmpere() const { return measuredMagnet7MicroAmpere_; }
+
+  int  measuredMagnet6Volt() const { return measuredMagnet6Volt_; }
+
+  int  measuredMagnet7Volt() const { return measuredMagnet7Volt_; }
+
+
   ///////////////
   //Set Methods
 
@@ -203,6 +220,17 @@ class EcalTBEventHeader {
 
   void setS6ADC (const int& S6ADC) { S6ADC_ = S6ADC ; }
 
+  void setNominalMagnet6ReadAmpere(const int& nominalMagnet6ReadAmpere) { nominalMagnet6ReadAmpere_ = nominalMagnet6ReadAmpere;}
+  void setNominalMagnet7ReadAmpere(const int& nominalMagnet7ReadAmpere) { nominalMagnet7ReadAmpere_ = nominalMagnet7ReadAmpere;}
+  void setNominalMagnet6SetAmpere(const int& nominalMagnet6SetAmpere) { nominalMagnet6SetAmpere_ = nominalMagnet6SetAmpere;}
+  void setNominalMagnet7SetAmpere(const int& nominalMagnet7SetAmpere) { nominalMagnet7SetAmpere_ = nominalMagnet7SetAmpere;}
+  void setMeasuredMagnet6MicroAmpere(const int& measuredMagnet6MicroAmpere) { measuredMagnet6MicroAmpere_ = measuredMagnet6MicroAmpere;}
+  void setMeasuredMagnet7MicroAmpere(const int& measuredMagnet7MicroAmpere) { measuredMagnet7MicroAmpere_ = measuredMagnet7MicroAmpere;}
+  void setMeasuredMagnet6Volt(const int& measuredMagnet6Volt) { measuredMagnet6Volt_ = measuredMagnet6Volt; }
+  void setMeasuredMagnet7Volt(const int& measuredMagnet7Volt) { measuredMagnet7Volt_ = measuredMagnet7Volt; }
+
+
+
  private:
 
   int      eventNumber_;      ///< The numner of the event 
@@ -218,8 +246,20 @@ class EcalTBEventHeader {
   int      begBurstLV1A_;
   int      endBurstLV1A_;
 
+
   int      triggerMask_;      ///< The trigger mask 
-  
+
+  /// Magnet currents 
+  int      nominalMagnet6ReadAmpere_;
+  int      nominalMagnet7ReadAmpere_;
+  int      nominalMagnet6SetAmpere_;
+  int      nominalMagnet7SetAmpere_;
+  int      measuredMagnet6MicroAmpere_;
+  int      measuredMagnet7MicroAmpere_;
+  int      measuredMagnet6Volt_;
+  int      measuredMagnet7Volt_;
+
+
   int      date_;             ///< The date when the run was taken
 
   /// Information from the table Supervisor  
