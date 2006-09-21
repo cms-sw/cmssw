@@ -28,30 +28,15 @@ using namespace std;
 
 
 
-PFRootEventManager::PFRootEventManager() {
-  // graphTrack_.resize(NViews);
-}
+PFRootEventManager::PFRootEventManager() {}
 
 
 PFRootEventManager::~PFRootEventManager() {
-  // Clear TGraph if needed
-//   for (unsigned iView = 0; iView < graphTrack_.size(); iView++) {
-//     if (graphTrack_[iView].size()) {
-//       for (unsigned iGraph = 0; iGraph < graphTrack_[iView].size(); iGraph++)
-// 	delete graphTrack_[iView][iGraph];
-//       graphTrack_[iView].clear();
-//     }
-//   }
-  
+
   for( unsigned i=0; i<displayView_.size(); i++) {
     if(displayView_[i]) delete displayView_[i];
   }
-    
-
-//   for( unsigned i=0; i<displayHist_.size(); i++) {
-//     delete displayHist_[i];      
-//   }
-  
+      
   for(PFBlock::IT ie = allElements_.begin(); 
       ie!=  allElements_.end(); ie++ ) {
     delete *ie;
@@ -63,16 +48,14 @@ PFRootEventManager::~PFRootEventManager() {
 
 
 PFRootEventManager::PFRootEventManager(const char* file)
-  :
-  clusters_(new vector<reco::PFCluster>),
-  clustersECAL_(new vector<reco::PFCluster>),
-  clustersHCAL_(new vector<reco::PFCluster>),
-  clustersPS_(new vector<reco::PFCluster>) {
+  : clusters_(new vector<reco::PFCluster>),
+    clustersECAL_(new vector<reco::PFCluster>),
+    clustersHCAL_(new vector<reco::PFCluster>),
+    clustersPS_(new vector<reco::PFCluster>) {
   
   options_ = 0;
   readOptions(file);
   iEvent_=0;
-//   displayHistEtaPhi_=0;
 
 
   displayView_.resize(NViews);
@@ -91,14 +74,9 @@ PFRootEventManager::PFRootEventManager(const char* file)
 void PFRootEventManager::reset() { 
   maxERecHitEcal_ = -1;
   maxERecHitHcal_ = -1;  
-//   if( clusters_.get() ) {
-//     for(unsigned i=0; i<clusters_->size(); i++) {
-//       reco::PFCluster& cluster = (*clusters_)[i];
-//       delete &cluster;
-//     }
-//     clusters_->clear();
-//   }
-  rechits_.clear();
+  rechitsECAL_.clear();
+  rechitsHCAL_.clear();
+  rechitsPS_.clear();
   recTracks_.clear();
 }
 
@@ -123,22 +101,12 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   tree_ = (TTree*) file_->Get("Events");
   
 
-//   string hitbranchname;
-//   options_->GetOpt("root","hits_branch", hitbranchname);
-  
-//   hitsBranch_ = tree_->GetBranch(hitbranchname.c_str());
-//   if(!hitsBranch_) {
-//     cerr<<"PFRootEventManager::ReadOptions : branch not found : "
-// 	<<hitbranchname<<endl;
-//   }
-//   else {
-//     hitsBranch_->SetAddress(&rechits_);
-//     // cout << "Set branch " << hitbranchname << endl;
-//   }
-
   clusteringIsOn_ = true;
   options_->GetOpt("clustering", "on/off", clusteringIsOn_);
   
+  clusteringDebug_ = false;
+  options_->GetOpt("clustering", "debug", clusteringDebug_);
+
   // hits branches ----------------------------------------------
 
   string rechitsECALbranchname;
@@ -248,15 +216,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   options_->GetOpt("display", "cluster_algos", algos);
   algosToDisplay_.clear();
   for(unsigned i=0; i< algos.size(); i++) algosToDisplay_.insert( algos[i] );
-//   typedef map<int, TCanvas * >::iterator IT;
-//   for(IT it = displayEtaPhi_.begin(); it!=displayEtaPhi_.end(); it++) {
-//     if( algosToDisplay_.find(it->first) == algosToDisplay_.end() ) {
-//       it->second->Close();
-//       displayEtaPhi_.erase(it);
-//       if(displayEtaPhi_.empty() ) break;
-//       it++;
-//     }    
-//   }  
+
 
   viewSizeEtaPhi_.clear();
   options_->GetOpt("display", "viewsize_etaphi", viewSizeEtaPhi_);
@@ -372,26 +332,6 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   options_->GetOpt("clustering", "thresh_Seed_PS", 
 		   threshSeedPS_);
 
-
-
-//   clusterAlgoECAL_.setThreshEcalBarrel( threshEcalBarrel_ );
-//   clusterAlgoECAL_.setThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
-  
-//   clusterAlgoECAL_.setThreshEcalEndcap( threshEcalEndcap_ );
-//   clusterAlgoECAL_.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
-
-//   clusterAlgoECAL_.setNNeighboursEcal( nNeighboursEcal_  );
-  
-//   clusterAlgoHCAL_.setThreshHcalBarrel( threshHcalBarrel_ );
-//   clusterAlgoHCAL_.setThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
-  
-//   clusterAlgoHCAL_.setThreshHcalEndcap( threshHcalEndcap_ );
-//   clusterAlgoHCAL_.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
-
-//   clusterAlgoHCAL_.setNNeighboursHcal( nNeighboursHcal_ );
-
-//   clusterAlgoPS_.setThreshPS( threshPS_ );
-//   clusterAlgoPS_.setThreshSeedPS( threshSeedPS_ );
 
 
 
@@ -557,6 +497,7 @@ void PFRootEventManager::clustering() {
   // cout<<"clustering ECAL"<<endl;
 
   PFClusterAlgo clusterAlgoECAL;
+  clusterAlgoECAL.enableDebugging( clusteringDebug_ ); 
 
   clusterAlgoECAL.setThreshEcalBarrel( threshEcalBarrel_ );
   clusterAlgoECAL.setThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
@@ -628,40 +569,6 @@ void PFRootEventManager::clustering() {
   clusterAlgoPS.init( rechits ); 
   clusterAlgoPS.doClustering();
   clustersPS_ = clusterAlgoPS.clusters();
-  
-  //  cout<<clustersPS_->size()<<endl;
-
-
-  //TODO the setting of the cluster algo parameters can be done in the constructor
-  //   PFClusterAlgo clusterAlgo; 
-  
-  //   clusterAlgo.setThreshEcalBarrel( threshEcalBarrel_ );
-  //   clusterAlgo.setThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
-  
-  //   clusterAlgo.setThreshEcalEndcap( threshEcalEndcap_ );
-  //   clusterAlgo.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
-  
-  //   clusterAlgo.setNNeighboursEcal( nNeighboursEcal_  );
-  
-  //   clusterAlgo.setThreshHcalBarrel( threshHcalBarrel_ );
-  //   clusterAlgo.setThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
-  
-  //   clusterAlgo.setThreshHcalEndcap( threshHcalEndcap_ );
-  //   clusterAlgo.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
-  
-  //   clusterAlgo.setNNeighboursHcal( nNeighboursHcal_ );
-  
-  //   clusterAlgo.setThreshPS( threshPS_ );
-  //   clusterAlgo.setThreshSeedPS( threshSeedPS_ );
-
-  //   clusterAlgo.init( rechits ); 
-  //   clusterAlgo.doClustering();
-  
-  //   cout<<"clustering done"<<endl;
-  
-  //   clusters_ = clusterAlgo.clusters();
-  
-  //   cout<<"clusters retrieved"<<endl;
 }
 
 
@@ -751,24 +658,12 @@ void PFRootEventManager::display(int ientry) {
     displayView(EPE);
     displayView(EPH);
   }
-
-  // displayXY();
 }
 
-
-// void PFRootEventManager::displayXY() {
-  
-// }
 
 
 void PFRootEventManager::displayView(unsigned viewType) {
   
-  // Clear TGraph if needed
-//   if (graphTrack_[viewType].size()) {
-//     for (unsigned iGraph = 0; iGraph < graphTrack_[viewType].size(); iGraph++)
-//       delete graphTrack_[viewType][iGraph];
-//     graphTrack_[viewType].clear();
-//   }
 
   // display or clear canvas
   if(!displayView_[viewType] || !gROOT->GetListOfCanvases()->FindObject(displayView_[viewType]) ) {
@@ -885,11 +780,6 @@ void PFRootEventManager::displayView(unsigned viewType) {
 	etaLeg.DrawLatex(etaImpact.Z(), etaImpact.Perp(), Form("%2.1f", eta));
       }
       
-//       std::cout << "pour info " 
-// 		<< PFGeometry::innerZ(PFGeometry::ECALEndcap) << " "
-// 		<< PFGeometry::innerRadius(PFGeometry::ECALBarrel) 
-// 		<< std::endl; 
-
       frontFaceECALRZ_.SetX1(-1.*PFGeometry::innerZ(PFGeometry::ECALEndcap));
       frontFaceECALRZ_.SetY1(-1.*PFGeometry::innerRadius(PFGeometry::ECALBarrel));
       frontFaceECALRZ_.SetX2(PFGeometry::innerZ(PFGeometry::ECALEndcap));
@@ -903,23 +793,7 @@ void PFRootEventManager::displayView(unsigned viewType) {
     break;
   }
 
-  // Put highest Pt reconstructed track along phi = pi/2
   double phi0 = 0.;
-//   double ptMax = 0.;
-//   double pxMax = 0.;
-//   double pyMax = 0.;
-//   std::vector<reco::PFRecTrack>::iterator itRecTrack;
-//   for (itRecTrack = recTracks_.begin(); itRecTrack != recTracks_.end();
-//        itRecTrack++) {
-//     double pt = itRecTrack->trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach).momentum().Pt();
-//     if (pt > ptMax) {
-//       ptMax = pt;
-//       phi0 = itRecTrack->trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach).momentum().Phi();
-//       pxMax = itRecTrack->trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach).momentum().Px();
-//       pyMax = itRecTrack->trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach).momentum().Py();
-//     }
-//   }
-
 
   // display reconstructed objects
   displayView_[viewType]->cd();
@@ -1001,9 +875,6 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 	layer == PFLayer::HCAL_ENDCAP ) ) return;
     
 
-  // math::XYZPoint vPhi0(cos(phi0), sin(phi0), 0.);
-  // if (rh.energy() < thresh ) return; // COLIN not necessary ? 
-
 
   double rheta = rh.positionREP().Eta();
   double rhphi = rh.positionREP().Phi();
@@ -1033,8 +904,6 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
   
   assert(corners.size() == 4);
 
-
-  // if(me<0) return; // for preshower
   
   double propfact = 0.95; // so that the cells don't overlap ? 
   
@@ -1050,13 +919,6 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
     etaSize[jc] *= propfact;
 
     math::XYZPoint cornerposxyz = corners[jc];
-
-    //     math::XYZPoint cornerposxyz(corners[jc].X()*vPhi0.Y() - 
-    // 				corners[jc].Y()*vPhi0.X(), 
-    // 				corners[jc].X()*vPhi0.X() + 
-    // 				corners[jc].Y()*vPhi0.Y(), 
-    // 				corners[jc].Z());
-    // cornerposxyz.SetPhi( corners[jc]->Y() - phi0 );
 
     x[jc] = cornerposxyz.X();
     y[jc] = cornerposxyz.Y();
@@ -1078,17 +940,6 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 	   ( layer == PFLayer::ECAL_ENDCAP || 
 	     layer == PFLayer::HCAL_ENDCAP ) ) ) ) {
 
-//        !(layer == PFLayer::ECAL_BARREL || 
-// 	 layer == PFLayer::HCAL_BARREL1 || 
-// 	 layer == PFLayer::HCAL_BARREL2)
-//       ) {
-      
-//       math::XYZPoint centreXYZrot(rh.positionXYZ().X()*vPhi0.Y() - 
-// 				  rh.positionXYZ().Y()*vPhi0.X(), 
-// 				  rh.positionXYZ().X()*vPhi0.X() + 
-// 				  rh.positionXYZ().Y()*vPhi0.Y(), 
-// 				  rh.positionXYZ().Z());
-      // centreXYZrot.SetPhi( fCentre.Y() - phi0 );
       
       math::XYZPoint centreXYZrot = rh.positionXYZ();
 
@@ -1117,7 +968,6 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
     // we are in the barrel. Determining which corners to shift 
     // away from the center to represent the cell energy
     
-    // this has to be done also for endcap rz !
     int i1 = -1;
     int i2 = -1;
 
@@ -1225,6 +1075,7 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
   }
 }
 
+
 void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
   
   // std::vector<reco::PFCluster>::iterator itCluster;
@@ -1237,6 +1088,7 @@ void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
   for(unsigned i=0; i<clustersPS_->size(); i++) 
     displayCluster( (*clustersPS_)[i], viewType, phi0);
 }
+
 
 
 void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
@@ -1280,9 +1132,9 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
   }      
 }
 
-void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0) 
-{
-  // math::XYZPoint vPhi0(cos(phi0), sin(phi0), 0.);
+
+
+void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0) {
 
   std::vector<reco::PFRecTrack>::iterator itRecTrack;
   for (itRecTrack = recTracks_.begin(); itRecTrack != recTracks_.end();
@@ -1300,114 +1152,23 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0)
     const std::vector<reco::PFTrajectoryPoint>& points = 
       itRecTrack->trajectoryPoints();
 
+    int linestyle = itRecTrack->algoType(); 
+    int markerstyle = 8;
     int color = 103;
+    
     displayTrack( points, viewType, phi0, sign, false,
-		  itRecTrack->algoType(), color );
-
-    // Check number of measurements with non-zero momentum
-    // COLIN: this was a copy ! should pass a reference
-    //     std::vector<reco::PFTrajectoryPoint> trajectoryPoints = 
-    //       itRecTrack->getTrajectoryPoints();
-    
-    // COLIN: iterator uninitialized 
-    //     std::vector<reco::PFTrajectoryPoint>::iterator itTrajPt;
-    //     unsigned nValidPts = 0;
-    
-    // COLIN: unnecessary loop
-    //     for (itTrajPt = trajectoryPoints.begin(); 
-    // 	 itTrajPt != trajectoryPoints.end(); itTrajPt++)
-    //       if (itTrajPt->getMomentum().P() > 0.) nValidPts++;
-    //     if (!nValidPts) continue;
-
-
-    // reserving space. nb not all trajectory points are valid
-    
-//     const std::vector<reco::PFTrajectoryPoint>& trajectoryPoints = 
-//       itRecTrack->trajectoryPoints();
-
-//     vector<double> xPos;
-//     xPos.reserve( itRecTrack->nTrajectoryPoints() );
-//     vector<double> yPos;
-//     yPos.reserve( itRecTrack->nTrajectoryPoints() );
-    
-//     // COLIN: avoid double* 
-//     //     double* xPos = new double[itTrajPt->getNTrajectoryPoints()];
-//     //     double* yPos = new double[itTrajPt->getNTrajectoryPoints()];
-//     //     unsigned iValid = 0;
-    
-//     // cout << "Draw a new track " << nValidPts << endl;
-
-//     typedef vector<reco::PFTrajectoryPoint>::const_iterator IPT;
-    
-//     for (IPT itTrajPt = trajectoryPoints.begin(); 
-// 	 itTrajPt != trajectoryPoints.end(); itTrajPt++ ) {
-
-//       if (itTrajPt->momentum().P() > 0.) {
-
-// 	// COLIN: this is bugged
-// 	// math::XYZPoint xyzPos(itTrajPt->xyzPosition().X()*vPhi0.Y() - itTrajPt->xyzPosition().Y()*vPhi0.X(), itTrajPt->xyzPosition().X()*vPhi0.X() + itTrajPt->xyzPosition().Y()*vPhi0.Y(), itTrajPt->xyzPosition().Z());
-// 	// xyzPos.SetPhi(xyzPos.Phi()); // <=== Does not work ??? why ???
-	
-// 	math::XYZPoint xyzPos = itTrajPt->positionXYZ();
-	
-// 	switch(viewType) {
-// 	case XY:
-// 	  xPos.push_back(xyzPos.X());
-// 	  yPos.push_back(xyzPos.Y());
-// 	  // cout << "\t" << itTrajPt->xyzPosition().X() << " " 
-// 	  //     << itTrajPt->xyzPosition().Y() << endl;
-// 	  break;
-// 	case RZ:
-// 	  xPos.push_back(xyzPos.Z());
-// 	  yPos.push_back(sign*xyzPos.Rho());
-// 	  break;
-// 	case EPE:
-// 	case EPH:	 
-// 	  // closest approach is meaningless in eta/phi
-// 	  if( itTrajPt->layer() == reco::PFTrajectoryPoint::ClosestApproach)
-// 	    continue;
-	  
-// 	  // 	  cout<<itTrajPt->positionXYZ().Eta()<<" "
-// 	  // 	      <<itTrajPt->positionXYZ().Phi()<<" "
-// 	  // 	      <<itTrajPt->positionXYZ().X()<<" "
-// 	  // 	      <<itTrajPt->positionXYZ().Y()<<endl;
-// 	  // 	  cout<<xyzPos.Eta()<<" "<<xyzPos.Phi()<<" "<<xyzPos.X()<<" "<<xyzPos.Y()<<endl;
-	  
-// 	  xPos.push_back(xyzPos.Eta());
-// 	  yPos.push_back(xyzPos.Phi());
-// 	  break;
-// 	}
-//       }
-//     }  
-
-//     graphTrack_[viewType].push_back(new TGraph(xPos.size(), &xPos[0], &yPos[0]));
-//     int color = 103;
- 
-//     unsigned lastHisto = graphTrack_[viewType].size() - 1;
-
-//     graphTrack_[viewType][lastHisto]->SetMarkerColor(color);
-//     graphTrack_[viewType][lastHisto]->SetMarkerStyle(8);
-//     graphTrack_[viewType][lastHisto]->SetMarkerSize(0.5);
-//     graphTrack_[viewType][lastHisto]->SetLineColor(color);
-//     graphTrack_[viewType][lastHisto]->SetLineStyle(itRecTrack->algoType());
-//     graphTrack_[viewType][lastHisto]->Draw("pl");
-
+		  linestyle, markerstyle, color );
   }
 }
 
 
-void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
-  // math::XYZPoint vPhi0(cos(phi0), sin(phi0), 0.);
 
-//   std::vector<reco::PFRecTrack>::iterator itRecTrack;
-//   for (itRecTrack = recTracks_.begin(); itRecTrack != recTracks_.end();
-//        itRecTrack++) {
+void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
 
   for(unsigned i=0; i<trueParticles_.size(); i++) {
     
     const reco::PFParticle& ptc = trueParticles_[i];
     
-    // cout<<"display particle : "<<ptc<<endl;
 
     double sign = 1.;
     
@@ -1421,101 +1182,27 @@ void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
     const std::vector<reco::PFTrajectoryPoint>& points = 
       ptc.trajectoryPoints();
 
+    int markerstyle;
+    switch( abs(ptc.pdgCode() ) ) {
+    case 22:   markerstyle = 3 ;   break; // photons
+    case 11:   markerstyle = 5 ;   break; // electrons 
+    case 13:   markerstyle = 2 ;   break; // muons 
+    case 130:  
+    case 321:  markerstyle = 24;  break; // K
+    case 211:  markerstyle = 25;  break; // pi+/pi-
+    case 2212: markerstyle = 26;  break; // protons
+    case 2112: markerstyle = 27;  break; // neutrons  
+    default:   markerstyle = 30;  break; 
+    }
+   
     int color = 4;
     int linestyle = 2;
     bool displayInitial=true;
-    if( ptc.motherId() < 0 ) displayInitial=false; 
+    if( ptc.motherId() < 0 ) displayInitial=false;
+
     displayTrack( points, viewType, phi0, 
-		  sign, displayInitial, linestyle, color );
-
-    // Check number of measurements with non-zero momentum
-    // COLIN: this was a copy ! should pass a reference
-    //     std::vector<reco::PFTrajectoryPoint> trajectoryPoints = 
-    //       itRecTrack->getTrajectoryPoints();
-    
-    // COLIN: iterator uninitialized 
-    //     std::vector<reco::PFTrajectoryPoint>::iterator itTrajPt;
-    //     unsigned nValidPts = 0;
-    
-    // COLIN: unnecessary loop
-    //     for (itTrajPt = trajectoryPoints.begin(); 
-    // 	 itTrajPt != trajectoryPoints.end(); itTrajPt++)
-    //       if (itTrajPt->getMomentum().P() > 0.) nValidPts++;
-    //     if (!nValidPts) continue;
-
-    
-    // reserving space. nb not all trajectory points are valid
-    
-    //     const std::vector<reco::PFTrajectoryPoint>& trajectoryPoints = 
-    //       itRecTrack->trajectoryPoints();
-    
-    //     vector<double> xPos;
-    //     xPos.reserve( itRecTrack->nTrajectoryPoints() );
-    //     vector<double> yPos;
-    //     yPos.reserve( itRecTrack->nTrajectoryPoints() );
-    
-    //     // COLIN: avoid double* 
-    //     //     double* xPos = new double[itTrajPt->getNTrajectoryPoints()];
-    //     //     double* yPos = new double[itTrajPt->getNTrajectoryPoints()];
-    //     //     unsigned iValid = 0;
-    
-    //     // cout << "Draw a new track " << nValidPts << endl;
-    
-    //     typedef vector<reco::PFTrajectoryPoint>::const_iterator IPT;
-    
-    //     for (IPT itTrajPt = trajectoryPoints.begin(); 
-    // 	 itTrajPt != trajectoryPoints.end(); itTrajPt++ ) {
-    
-    //       if (itTrajPt->momentum().P() > 0.) {
-    
-    // 	// COLIN: this is bugged
-    // 	// math::XYZPoint xyzPos(itTrajPt->xyzPosition().X()*vPhi0.Y() - itTrajPt->xyzPosition().Y()*vPhi0.X(), itTrajPt->xyzPosition().X()*vPhi0.X() + itTrajPt->xyzPosition().Y()*vPhi0.Y(), itTrajPt->xyzPosition().Z());
-    // 	// xyzPos.SetPhi(xyzPos.Phi()); // <=== Does not work ??? why ???
-    
-    // 	math::XYZPoint xyzPos = itTrajPt->positionXYZ();
-    
-    // 	switch(viewType) {
-    // 	case XY:
-    // 	  xPos.push_back(xyzPos.X());
-    // 	  yPos.push_back(xyzPos.Y());
-    // 	  // cout << "\t" << itTrajPt->xyzPosition().X() << " " 
-    // 	  //     << itTrajPt->xyzPosition().Y() << endl;
-    // 	  break;
-    // 	case RZ:
-    // 	  xPos.push_back(xyzPos.Z());
-    // 	  yPos.push_back(sign*xyzPos.Rho());
-    // 	  break;
-    // 	case EPE:
-    // 	case EPH:	 
-    // 	  // closest approach is meaningless in eta/phi
-    // 	  if( itTrajPt->layer() == reco::PFTrajectoryPoint::ClosestApproach)
-    // 	    continue;
-    
-    // 	  // 	  cout<<itTrajPt->positionXYZ().Eta()<<" "
-    // 	  // 	      <<itTrajPt->positionXYZ().Phi()<<" "
-    // 	  // 	      <<itTrajPt->positionXYZ().X()<<" "
-    // 	  // 	      <<itTrajPt->positionXYZ().Y()<<endl;
-    // 	  // 	  cout<<xyzPos.Eta()<<" "<<xyzPos.Phi()<<" "<<xyzPos.X()<<" "<<xyzPos.Y()<<endl;
-    
-    // 	  xPos.push_back(xyzPos.Eta());
-    // 	  yPos.push_back(xyzPos.Phi());
-    // 	  break;
-    // 	}
-    //       }
-    //     }  
-
-    //     graphTrack_[viewType].push_back(new TGraph(xPos.size(), &xPos[0], &yPos[0]));
-    //     int color = 103;
- 
-    //     unsigned lastHisto = graphTrack_[viewType].size() - 1;
-
-    //     graphTrack_[viewType][lastHisto]->SetMarkerColor(color);
-    //     graphTrack_[viewType][lastHisto]->SetMarkerStyle(8);
-    //     graphTrack_[viewType][lastHisto]->SetMarkerSize(0.5);
-    //     graphTrack_[viewType][lastHisto]->SetLineColor(color);
-    //     graphTrack_[viewType][lastHisto]->SetLineStyle(itRecTrack->algoType());
-    //     graphTrack_[viewType][lastHisto]->Draw("pl");
-
+		  sign, displayInitial, 
+		  linestyle, markerstyle, color );
   }
 }
 
@@ -1525,62 +1212,19 @@ void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
 void PFRootEventManager::displayTrack 
 (const std::vector<reco::PFTrajectoryPoint>& points, 
  unsigned viewType, double phi0, double sign, bool displayInitial,
- int linestyle, int color) {
-  
-  // math::XYZPoint vPhi0(cos(phi0), sin(phi0), 0.);
-  
-  //   std::vector<reco::PFRecTrack>::iterator itRecTrack;
-  //   for (itRecTrack = recTracks_.begin(); itRecTrack != recTracks_.end();
-  //        itRecTrack++) {
-  
-  //     double sign = 1.;
-  
-  //     const reco::PFTrajectoryPoint& tpatecal 
-  //       = itRecTrack->trajectoryPoint(itRecTrack->nTrajectoryMeasurements() +
-  // 				    reco::PFTrajectoryPoint::ECALEntrance );
-  
-  //     if ( cos(phi0 - tpatecal.momentum().Phi()) < 0.)
-  //       sign = -1.;
-
-  // Check number of measurements with non-zero momentum
-  // COLIN: this was a copy ! should pass a reference
-  //     std::vector<reco::PFTrajectoryPoint> trajectoryPoints = 
-  //       itRecTrack->getTrajectoryPoints();
-    
-  // COLIN: iterator uninitialized 
-  //     std::vector<reco::PFTrajectoryPoint>::iterator itTrajPt;
-  //     unsigned nValidPts = 0;
-    
-  // COLIN: unnecessary loop
-  //     for (itTrajPt = trajectoryPoints.begin(); 
-  // 	 itTrajPt != trajectoryPoints.end(); itTrajPt++)
-  //       if (itTrajPt->getMomentum().P() > 0.) nValidPts++;
-  //     if (!nValidPts) continue;
-
+ int linestyle, int markerstyle, int color) {
 
   // reserving space. nb not all trajectory points are valid
-    
 
   vector<double> xPos;
   xPos.reserve( points.size() );
   vector<double> yPos;
   yPos.reserve( points.size() );
-    
-  // COLIN: avoid double* 
-  //     double* xPos = new double[itTrajPt->getNTrajectoryPoints()];
-  //     double* yPos = new double[itTrajPt->getNTrajectoryPoints()];
-  //     unsigned iValid = 0;
-    
-  // cout << "Draw a new track " << nValidPts << endl;
 
     
   for(unsigned i=0; i<points.size(); i++) {
     
-    if( points[i] == reco::PFTrajectoryPoint() ) continue;
-
-    // COLIN: this is bugged
-    // math::XYZPoint xyzPos(points[i].xyzPosition().X()*vPhi0.Y() - points[i].xyzPosition().Y()*vPhi0.X(), points[i].xyzPosition().X()*vPhi0.X() + points[i].xyzPosition().Y()*vPhi0.Y(), points[i].xyzPosition().Z());
-    // xyzPos.SetPhi(xyzPos.Phi()); // <=== Does not work ??? why ???
+    if( !points[i].isValid() ) continue;
 	
     const math::XYZPoint& xyzPos = points[i].positionXYZ();
 
@@ -1588,8 +1232,6 @@ void PFRootEventManager::displayTrack
     case XY:
       xPos.push_back(xyzPos.X());
       yPos.push_back(xyzPos.Y());
-//       cout << "\t" << xyzPos.X() << " " 
-// 	   << xyzPos.Y() << endl;
       break;
     case RZ:
       xPos.push_back(xyzPos.Z());
@@ -1603,14 +1245,7 @@ void PFRootEventManager::displayTrack
 	const math::XYZTLorentzVector& mom = points[i].momentum();
 	xPos.push_back(mom.Eta());
 	yPos.push_back(mom.Phi());	  
-      }
-	  
-      // 	  cout<<points[i].positionXYZ().Eta()<<" "
-      // 	      <<points[i].positionXYZ().Phi()<<" "
-      // 	      <<points[i].positionXYZ().X()<<" "
-      // 	      <<points[i].positionXYZ().Y()<<endl;
-      // 	  cout<<xyzPos.Eta()<<" "<<xyzPos.Phi()<<" "<<xyzPos.X()<<" "<<xyzPos.Y()<<endl;
-	  
+      }	  
       else {
 	xPos.push_back(xyzPos.Eta());
 	yPos.push_back(xyzPos.Phi());
@@ -1620,35 +1255,23 @@ void PFRootEventManager::displayTrack
   }  
 
 
-//   graphTrack_[viewType].push_back(new TGraph(xPos.size(), &xPos[0], &yPos[0]));
-    
-//   unsigned lastHisto = graphTrack_[viewType].size() - 1;
-
-//   graphTrack_[viewType][lastHisto]->SetMarkerColor(color);
-//   graphTrack_[viewType][lastHisto]->SetMarkerStyle(8);
-//   graphTrack_[viewType][lastHisto]->SetMarkerSize(0.5);
-//   graphTrack_[viewType][lastHisto]->SetLineColor(color);
-//   graphTrack_[viewType][lastHisto]->SetLineStyle(linestyle);
-//   graphTrack_[viewType][lastHisto]->Draw("pl");
-
   TGraph graph;
-  graph.SetMarkerColor(color);
-  graph.SetMarkerStyle(8);
-  graph.SetMarkerSize(0.5);
-  graph.SetLineColor(color);
   graph.SetLineStyle(linestyle);
+  graph.SetMarkerStyle(markerstyle);
+  graph.SetMarkerColor(color);
+  graph.SetMarkerSize(0.8);
+  graph.SetLineColor(color);
   graph.DrawGraph( xPos.size(), &xPos[0], &yPos[0], "pl" );
 }
 
 
 void PFRootEventManager::unZoom() {
-//   if(displayHistEtaPhi_) {
-//     displayHistEtaPhi_->GetXaxis()->UnZoom();
-//     displayHistEtaPhi_->GetYaxis()->UnZoom();
-//   }
-  
+
   for( unsigned i=0; i<displayHist_.size(); i++) {
-    assert( displayHist_[i] );
+
+    // the corresponding view was not requested
+    if( ! displayHist_[i] ) continue;
+
     displayHist_[i]->GetXaxis()->UnZoom();
     displayHist_[i]->GetYaxis()->UnZoom();
   }
@@ -1659,16 +1282,6 @@ void PFRootEventManager::unZoom() {
 
 
 void PFRootEventManager::updateDisplay() {
-
-//   typedef map<int, TCanvas * >::iterator IT;
-//   for(IT it = displayEtaPhi_.begin(); it!=displayEtaPhi_.end(); it++) {
-//     if( gROOT->GetListOfCanvases()->FindObject(it->second) ) {
-//       it->second->cd(1);
-//       gPad->Modified();
-//       it->second->cd(2);
-//       gPad->Modified();
-//     }
-//   }
 
   for( unsigned i=0; i<displayView_.size(); i++) {
     if( gROOT->GetListOfCanvases()->FindObject(displayView_[i]) )
@@ -1683,23 +1296,18 @@ void PFRootEventManager::lookForMaxRecHit(bool ecal) {
   double maxe = -999;
   reco::PFRecHit* maxrh = 0;
 
-  for(unsigned i=0; i<rechits_.size(); i++) {
+  vector<reco::PFRecHit>* rechits = 0;
+  if(ecal) rechits = &rechitsECAL_;
+  else rechits = &rechitsHCAL_;
+  assert(rechits);
 
-    if(ecal &&
-       rechits_[i].layer() != PFLayer::ECAL_BARREL && 
-       rechits_[i].layer() != PFLayer::ECAL_ENDCAP )
-      continue;
+  for(unsigned i=0; i<(*rechits).size(); i++) {
 
-    if(!ecal &&
-       rechits_[i].layer() != PFLayer::HCAL_BARREL1 && 
-       rechits_[i].layer() != PFLayer::HCAL_ENDCAP )
-      continue;
-
-    double energy = rechits_[i].energy();
+    double energy = (*rechits)[i].energy();
 
     if(energy > maxe ) {
       maxe = energy;
-      maxrh = &(rechits_[i]);
+      maxrh = &((*rechits)[i]);
     }      
   }
   
