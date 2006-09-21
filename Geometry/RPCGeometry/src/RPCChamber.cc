@@ -1,16 +1,16 @@
 /** \file
  *
- *  $Date: 2006/07/14 14:45:17 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/09/21 15:33:47 $
+ *  $Revision: 1.1 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  */
 
 /* This Class Header */
-#include "../interface/RPCChamber.h"
+#include "Geometry/RPCGeometry/interface/RPCChamber.h"
 
 /* Collaborating Class Header */
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "/afs/cern.ch/user/t/trentad/scratch0/CMSSW_0_8_0_pre3/src/DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 /* C++ Headers */

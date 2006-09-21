@@ -3,10 +3,10 @@
  *  \author M. Maggi - INFN Bari
  */
 
-#include "../interface/RPCGeometry.h"
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
-#include "/afs/cern.ch/user/t/trentad/scratch0/CMSSW_0_8_0_pre3/src/Geometry/RPCGeometry/interface/RPCChamber.h"
+#include <Geometry/RPCGeometry/interface/RPCChamber.h>
 
 RPCGeometry::RPCGeometry(){}
 

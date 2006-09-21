@@ -11,7 +11,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "RPCChamber.h"
+#include "Geometry/RPCGeometry/interface/RPCChamber.h"
 #include <vector>
 #include <map>
 
