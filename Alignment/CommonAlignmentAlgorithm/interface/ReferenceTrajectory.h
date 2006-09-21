@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date$
- * by         : $Author$
+ * last update: $Date: 2006/09/20 08:15:38 $
+ * by         : $Author: flucke $
  *
  *  Class implementing the reference trajectory of a single charged
  *  particle, i.e. a helix with 5 parameters. Given the
@@ -42,13 +42,15 @@ class ReferenceTrajectory : public ReferenceTrajectoryBase
 {
 
 public:
-  /**Constructor with Tsos at first hit and list of hits,
-     the material effects to be considered and a particle mass
-     FIXME: explain magField
+  /**Constructor with Tsos at first hit (in physical order) and list of hits 
+     [if (hitsAreReverse) ==> order of hits is in against direction of flight of particle],
+     the material effects to be considered and a particle mass,
+     the magnetic field of the event is needed for propagations etc.
    */
   ReferenceTrajectory(const TrajectoryStateOnSurface &referenceTsos,
 		      const TransientTrackingRecHit::ConstRecHitContainer &recHits,
-		      const MagneticField *magField, 
+		      bool hitsAreReverse,
+		      const MagneticField *magField,
 		      MaterialEffects materialEffects = combined, 
 		      double mass = 0.10565836); // FIXME: ugly hard coded muon mass
   virtual ~ReferenceTrajectory() {}
