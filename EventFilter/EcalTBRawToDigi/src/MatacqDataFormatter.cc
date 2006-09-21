@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id: MatacqDataFormatter.cc,v 1.1 2006/09/08 09:51:48 pgras Exp $
+// $Id: MatacqDataFormatter.cc,v 1.2 2006/09/08 13:23:38 pgras Exp $
 
 #include "EventFilter/EcalTBRawToDigi/src/MatacqDataFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -17,13 +17,7 @@ using namespace std;
 
 //#define MATACQ_DEBUG
 
-void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqDigi& matacqDigi ) {
-  EcalMatacqDigiCollection digiColl;
-  interpretRawData(data, digiColl);
-  matacqDigi.swap(digiColl.front());
-}
-
-void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqDigiCollection& matacqDigiCollection ) {
+void  MatacqDataFormatter::interpretRawData(const FEDRawData & data, EcalMatacqDigiCollection& matacqDigiCollection) {
 #if MATACQ_DEBUG
   cout << "****************************************************************\n";
   cout << "********************** MATACQ decoder **************************\n";
