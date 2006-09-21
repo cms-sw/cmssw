@@ -8,7 +8,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociation.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
@@ -122,7 +121,8 @@ RecoToSimCollection  TrackAssociator::associateRecoToSim(edm::Handle<reco::Track
 	    //	    std::cout << " found match " << std::endl;
 	    std::cout << "  G4  Track Momentum " << (*g4T)->momentum() << std::endl;   
 	    std::cout << "  reco Track Momentum " << track->momentum() << std::endl;   
-	    outputCollection.insert(reco::TrackRef(trackCollectionH,tindex), edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex));
+	    outputCollection.insert(reco::TrackRef(trackCollectionH,tindex), 
+				    std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),0));
 	  }
 	}
       }

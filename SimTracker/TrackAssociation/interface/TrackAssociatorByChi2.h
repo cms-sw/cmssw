@@ -39,10 +39,7 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 						edm::Handle<TrackingParticleCollection>& ) ;
 
   reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
-						edm::Handle<TrackingParticleCollection>& ) {
-    reco::SimToRecoCollection p;
-    return p;
-  }
+						edm::Handle<TrackingParticleCollection>& );
 
  private:
   edm::ESHandle<MagneticField> theMF;

@@ -2,18 +2,20 @@
 #define TrackAssociatorBase_h
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociation.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "DataFormats/Common/interface/OneToManyWithQuality.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "FWCore/Framework/interface/Handle.h"
 
 
 namespace reco{
 
-  typedef 
-    edm::AssociationMap<edm::OneToMany<TrackingParticleCollection, reco::TrackCollection, unsigned int> > SimToRecoCollection;  
-  typedef 
-    edm::AssociationMap<edm::OneToMany<reco::TrackCollection, TrackingParticleCollection, unsigned int> > RecoToSimCollection;  
+  typedef edm::AssociationMap<edm::OneToManyWithQuality
+    <TrackingParticleCollection, reco::TrackCollection, double> >
+    SimToRecoCollection;  
+  typedef edm::AssociationMap<edm::OneToManyWithQuality 
+    <reco::TrackCollection, TrackingParticleCollection, double> >
+    RecoToSimCollection;  
   
 }
 

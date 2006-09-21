@@ -10,8 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 //add simhit info
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociation.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociator.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 
 #include <iostream>
 #include <string>
@@ -36,7 +35,7 @@ class testTrackAssociator : public edm::EDAnalyzer {
  private:
   edm::ParameterSet conf_;
   bool doPixel_, doStrip_; 
-  TrackAssociatorBase * associator;
+  TrackAssociatorByChi2 * associator;
   TrackAssociatorBase * tassociator;
 };
 
