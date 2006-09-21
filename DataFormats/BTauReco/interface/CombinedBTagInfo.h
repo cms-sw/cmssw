@@ -112,7 +112,7 @@ namespace reco {
     std::vector<reco::TrackRef> tracksAboveCharm() const;
     std::vector<reco::TrackRef> tracksAtSecondaryVertex() const;
     int          nSecVertices() const;
-    reco::CombinedBTagEnums::VertexType   vertexType() const;
+    reco::CombinedBTagEnums::VertexType vertexType() const;
     double       vertexMass() const;
     int          vertexMultiplicity() const;
     double       eSVXOverE() const;
