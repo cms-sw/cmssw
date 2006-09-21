@@ -108,3 +108,24 @@ AlignableNavigator::alignableDetsFromHits( const std::vector<const TransientTrac
 
 }
 
+//_____________________________________________________________________________
+
+std::vector<AlignableDet*>
+AlignableNavigator::alignableDetsFromHits
+(const TransientTrackingRecHit::ConstRecHitContainer &hitVec)
+{
+
+  std::vector<AlignableDet*> alidetvec(hitVec.size());
+
+  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator it
+	 = hitVec.begin(); it != hitVec.end(); ++it) {
+    AlignableDet* aliDet = this->alignableDetFromDetId((*it)->geographicalId());
+    if (aliDet) {
+      alidetvec.push_back(aliDet);
+    } else {
+      throw cms::Exception("BadAssociation") << "[AlignableNavigator::alignableDetsFromHits] find no AlignableDet associated to hit!";
+    }
+  }
+
+  return alidetvec;
+}
