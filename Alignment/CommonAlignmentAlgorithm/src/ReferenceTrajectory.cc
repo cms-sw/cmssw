@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2006/09/20 08:19:32 $
+//  last update: $Date: 2006/09/20 08:36:23 $
 //  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
@@ -29,16 +29,28 @@
 //__________________________________________________________________________________
 
 ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos,
-					 const TransientTrackingRecHit::ConstRecHitContainer 
-					 &recHits,
+					 const TransientTrackingRecHit::ConstRecHitContainer
+					 &recHits, bool hitsAreReverse,
 					 const MagneticField *magField, 
 					 MaterialEffects materialEffects, double mass) 
   : ReferenceTrajectoryBase(refTsos.localParameters().mixedFormatVector().num_row(), recHits.size())
 {
+  // no check against magField == 0
 
   theParameters = refTsos.localParameters().mixedFormatVector();
 
-  theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects, magField);
+  if (hitsAreReverse) {
+    TransientTrackingRecHit::ConstRecHitContainer fwdRecHits;
+    fwdRecHits.reserve(recHits.size());
+    for (TransientTrackingRecHit::ConstRecHitContainer::const_reverse_iterator it=recHits.rbegin();
+	 it != recHits.rend(); ++it) {
+      fwdRecHits.push_back(*it);
+    }
+    theValidityFlag = this->construct(refTsos, fwdRecHits, mass, materialEffects, magField);
+  } else {
+    theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects, magField);
+  }
+
 }
 
 //__________________________________________________________________________________
@@ -48,28 +60,33 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 				    double mass, MaterialEffects materialEffects,
 				    const MagneticField *magField)
 {
-
   MaterialEffectsUpdator *aMaterialEffectsUpdator = this->createUpdator(materialEffects, mass);
   if (!aMaterialEffectsUpdator) return false;
 
   AlgebraicMatrix                 fullJacobian(parameters().num_row(), parameters().num_row());
-  std::vector<AlgebraicMatrix>    allJacobians(recHits.size());
+  std::vector<AlgebraicMatrix>    allJacobians; 
+  allJacobians.reserve(recHits.size());
 
   TransientTrackingRecHit::ConstRecHitPointer  previousHitPtr;
   TrajectoryStateOnSurface                     previousTsos;
   AlgebraicSymMatrix              previousChangeInCurvature(parameters().num_row(), 1);
-  std::vector<AlgebraicSymMatrix> allCurvatureChanges(recHits.size());
+  std::vector<AlgebraicSymMatrix> allCurvatureChanges; 
+  allCurvatureChanges.reserve(recHits.size());
 
   const LocalTrajectoryError zeroErrors(0., 0., 0., 0., 0.);
 
-  std::vector<AlgebraicMatrix> allProjections(recHits.size());
-  std::vector<AlgebraicSymMatrix> allDeltaParameterCovs(recHits.size());
+  std::vector<AlgebraicMatrix> allProjections;
+  allProjections.reserve(recHits.size());
+  std::vector<AlgebraicSymMatrix> allDeltaParameterCovs;
+  allDeltaParameterCovs.reserve(recHits.size());
 
   TransientTrackingRecHit::ConstRecHitContainer::const_iterator itRecHit = recHits.begin();
   for (unsigned int iRow = 0; itRecHit != recHits.end(); ++itRecHit, iRow += nMeasPerHit) { 
     const TransientTrackingRecHit::ConstRecHitPointer &hitPtr = *itRecHit;
+
     if (!hitPtr->isValid()) return false;
     // GF FIXME: We have to care about invalid hits since also tracks with holes might be useful!
+
     if (0 == iRow) { 
       // compute the derivatives of the reference-track's parameters w.r.t. the initial ones
       // derivative of the initial reference-track parameters w.r.t. themselves is of course the identity 
@@ -102,8 +119,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     //  - no error propagation needed here.
     previousHitPtr = hitPtr;
     previousTsos   = TrajectoryStateOnSurface(updatedTsos.globalParameters(),
-					      updatedTsos.surface(), beforeSurface);
-
+ 					      updatedTsos.surface(), beforeSurface);
 
     // projection-matrix tsos-parameters -> measurement-coordinates
     allProjections.push_back(hitPtr->projectionMatrix());
@@ -128,7 +144,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   }
 
   delete aMaterialEffectsUpdator;
-  return false;
+  return true;
 }
 
 //__________________________________________________________________________________
