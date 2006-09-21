@@ -203,7 +203,8 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
   if (num_fit_max>= C::MAXSAMPLES ) {num_fit_max = C::MAXSAMPLES-1 ;}
   //
   if(fAmp_max_ < 8.) {
-    std::cout<<"amplitude less than 8 ADC counts, no fit performed"<<std::endl; return -1;
+    //std::cout<<"amplitude less than 8 ADC counts, no fit performed"<<std::endl; 
+    return -1;
   }
 
   double func,delta ;
