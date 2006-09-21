@@ -1,5 +1,7 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalBarrelRecHitsMaker.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "CLHEP/Random/RandGaussQ.h"
 
 #include <iostream>
 
@@ -17,18 +19,53 @@ EcalBarrelRecHitsMaker::~EcalBarrelRecHitsMaker()
 }
 
 
+void EcalBarrelRecHitsMaker::clean()
+{
+  std::cout << " Before the clean " << ecalbRecHits_.size() << std::endl;
+  ecalbRecHits_.clear();
+}
+
 void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCollection & ecalHits)
 {
+
+  clean();
+  loadPSimHits(iEvent);
+  
+  std::map<uint32_t,float>::const_iterator it=ecalbRecHits_.begin();
+  std::map<uint32_t,float>::const_iterator itend=ecalbRecHits_.end();
+  
+  for(;it!=itend;++it)
+    {
+      ecalHits.push_back(EcalRecHit(EBDetId(it->first),it->second,0.));
+    }
+}
+
+void EcalBarrelRecHitsMaker::loadPSimHits(const edm::Event & iEvent)
+{
+
   edm::Handle<edm::PCaloHitContainer> pcalohits;
   iEvent.getByLabel("Famos","EcalHitsEB",pcalohits);
 
   edm::PCaloHitContainer::const_iterator it=pcalohits.product()->begin();
   edm::PCaloHitContainer::const_iterator itend=pcalohits.product()->end();
-  unsigned counter=0;
   for(;it!=itend;++it)
     {
-      ecalHits.push_back(EcalRecHit(DetId(it->id()),it->energy(),0.)); 
-      ++counter;
+      EBDetId detid(it->id());      
+      noisifyAndFill(detid.rawId(),it->energy(),ecalbRecHits_);
     }
-  //  std::cout << " Ecal Barrel. RecHits created " << counter << std::endl;
+}
+
+// Takes a hit (from a PSimHit) and fills a map with it after adding the noise. 
+void EcalBarrelRecHitsMaker::noisifyAndFill(uint32_t id,float energy, std::map<uint32_t,float>& myHits)
+{
+
+
+  if (noise_>0.) energy +=   RandGaussQ::shoot(0.,noise_);
+
+  // If the energy+noise is below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
+  // is afterwards put in this cell which would not be correct. 
+  if ( energy <threshold_ ) energy=0.;
+  // No double counting check. Depending on how the pile-up is implemented , this can be a problem.
+  // Fills the map giving a "hint", in principle, the objets have already been ordered in CalorimetryManager
+  myHits.insert(myHits.end(),std::pair<uint32_t,float>(id,energy));
 }

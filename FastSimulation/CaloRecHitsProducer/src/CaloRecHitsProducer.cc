@@ -28,13 +28,13 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p):HcalRecHit
 
   HcalRecHitsMaker_ = new HcalRecHitsMaker(RecHitsParameters);
   EcalBarrelRecHitsMaker_ = new EcalBarrelRecHitsMaker(RecHitsParameters);
-    //    EcalEndcapRecHitsMaker_ = new EcalEndcapRecHitsMaker(RecHitsParameters);
+  EcalEndcapRecHitsMaker_ = new EcalEndcapRecHitsMaker(RecHitsParameters);
 }
 
 CaloRecHitsProducer::~CaloRecHitsProducer() 
 { 
   if (EcalBarrelRecHitsMaker_) delete EcalBarrelRecHitsMaker_;
-  //  if (EcalEndcapRecHitsMaker_) delete EcalEndcapRecHitsMaker_;
+  if (EcalEndcapRecHitsMaker_) delete EcalEndcapRecHitsMaker_;
   if (HcalRecHitsMaker_) delete HcalRecHitsMaker_; 
 }
 
@@ -53,7 +53,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 {
   // create empty outputs for HCAL 
   // see RecoLocalCalo/HcalRecProducers/src/HcalSimpleReconstructor.cc
-  
+  std::cout << " CaloRecHitsProducer : produce " << std::endl;
   std::auto_ptr<EBRecHitCollection> receb(new EBRecHitCollection);  // ECAL Barrel
   std::auto_ptr<EERecHitCollection> recee(new EERecHitCollection);  // ECAL Endcap
 
@@ -62,6 +62,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
   std::auto_ptr<HFRecHitCollection> rec3(new HFRecHitCollection);     // Forward
 
   EcalBarrelRecHitsMaker_->loadEcalBarrelRecHits(iEvent,*receb);
+
   EcalEndcapRecHitsMaker_->loadEcalEndcapRecHits(iEvent,*recee);
 
   HcalRecHitsMaker_->loadHcalRecHits(iEvent,*rec1,*rec2,*rec3);

@@ -3,14 +3,14 @@
 <use name=Foundation/PluginManager>
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/EcalRecHit>
+<use name=DataFormats/EcalDetId>
 <use name=DataFormats/Common>
 <use name=SimDataFormats/CaloHit>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
-
-#<use name=Geometry/CaloTopology>
-#<use name=DataFormats/CaloTowers>
-#<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
+<use name=FastSimulation/Utilities>
 
 <export>
  <lib name=FastSimulationRecHitsProducer>
@@ -18,14 +18,13 @@
  <use name=DataFormats/HcalRecHit>
  <use name=DataFormats/EcalRecHit>
  <use name=DataFormats/Common>
+<use name=DataFormats/EcalDetId>
  <use name=SimDataFormats/CaloHit>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
-
-# <use name=Geometry/CaloTopology>
-# <use name=DataFormats/CaloTowers>
-# <use name=Geometry/CaloEventSetup>
-
+ <use name=Geometry/CaloGeometry>
+ <use name=Geometry/CaloEventSetup>
+ <use name=FastSimulation/Utilities>
 </export>
 
 <use name=seal>
