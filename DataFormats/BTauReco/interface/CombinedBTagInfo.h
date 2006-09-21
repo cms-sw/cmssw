@@ -9,36 +9,11 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/CombinedBTagEnums.h"
 
 namespace reco {
   class CombinedBTagInfo  {
   public:
-    /** Type of secondary vertex found in jet:
-     *  - RecoVertex   : a secondary vertex has been fitted from
-     *                   a selection of tracks
-     *  - PseudoVertex : no RecoVertex has been found but tracks
-     *                   with significant impact parameter could be
-     *                   combined to a "pseudo" vertex
-     *  - NoVertex     : neither of the above attemps were successfull
-     *  - NotDefined   : if anything went wrong, set to this value
-     */
-    enum VertexType {RecoVertex, PseudoVertex, NoVertex, NotDefined};
-
-    /** Type of parton from which the jet originated
-     */
-    enum PartonType {B, C, UDSG};
-
-    /** list of all variables used to construct the
-     *  combined b-tagging discriminator
-     */
-    enum TaggingVariable{Category,
-       VertexMass,
-       VertexMultiplicity,
-       FlightDistance2DSignificance,
-       ESVXOverE,
-       TrackRapidity,
-       TrackIP2DSignificance,
-       TrackIP2DSignificanceAboveCharm};
 
     /**
      * store all information regarding individual tracks
@@ -137,7 +112,7 @@ namespace reco {
     std::vector<reco::TrackRef> tracksAboveCharm() const;
     std::vector<reco::TrackRef> tracksAtSecondaryVertex() const;
     int          nSecVertices() const;
-    VertexType   vertexType() const;
+    reco::CombinedBTagEnums::VertexType   vertexType() const;
     double       vertexMass() const;
     int          vertexMultiplicity() const;
     double       eSVXOverE() const;
@@ -175,7 +150,7 @@ namespace reco {
     void setPrimaryVertex( const reco::Vertex & pv );
     void addSecondaryVertex( const reco::Vertex & sv );
     void addTrackAtSecondaryVertex(reco::TrackRef trackRef);
-    void setVertexType( VertexType type);
+    void setVertexType( reco::CombinedBTagEnums::VertexType type);
     void setVertexMass( double mass);
     void setVertexMultiplicity(int mult);
     void setESVXOverE( double e);
@@ -230,8 +205,6 @@ namespace reco {
               const CombinedBTagInfo::VertexData& vertexData);
     int               sizeVertexData() const;
     VertexData*       getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) const;
-
-    std::string       getTaggingVarName( reco::CombinedBTagInfo::TaggingVariable t ) const;
     std::string       getVertexTypeName() const;
 
   private:
@@ -253,7 +226,7 @@ namespace reco {
      * if at least one secondary vertex has been found, jet has type "RecoVertex", otherwise
      * "PseudoVertex" or "NoVertex"
      */
-    VertexType  vertexType_;
+    reco::CombinedBTagEnums::VertexType  vertexType_;
 
 
     /**
@@ -376,7 +349,6 @@ namespace reco {
 
     TrackDataAssociation                                                                 trackDataMap_;
     mutable std::map <std::vector<reco::Vertex>::const_iterator, CombinedBTagInfo::VertexData> vertexDataMap_;
-    mutable std::map <reco::CombinedBTagInfo::TaggingVariable, std::string>                   taggingVarName_;
 
 
   }; // class

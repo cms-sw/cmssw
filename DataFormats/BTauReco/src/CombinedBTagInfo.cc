@@ -121,20 +121,8 @@ void reco::CombinedBTagInfo::TrackData::print() const
 }
 
 reco::CombinedBTagInfo::CombinedBTagInfo() {
-
   // reset everything
   reset();
-
-  // name of tagging variable
-  taggingVarName_[Category]                        = "Category";
-  taggingVarName_[VertexMass]                      = "VertexMass";
-  taggingVarName_[VertexMultiplicity]              = "VertexMultiplicity";
-  taggingVarName_[FlightDistance2DSignificance]    = "FlightDistance2DSignificance";
-  taggingVarName_[ESVXOverE]                       = "ESVXOverE";
-  taggingVarName_[TrackRapidity]                   = "TrackRapidity";
-  taggingVarName_[TrackIP2DSignificance]           = "TrackIP2DSignificance";
-  taggingVarName_[TrackIP2DSignificanceAboveCharm] = "TrackIP2DSignificanceAboveCharm";
-  
 }
 
 reco::CombinedBTagInfo::~CombinedBTagInfo() { }
@@ -142,16 +130,6 @@ reco::CombinedBTagInfo::~CombinedBTagInfo() { }
 //
 // map related
 //
-
-string reco::CombinedBTagInfo::getTaggingVarName(TaggingVariable taggingVar) const
-{
-  map <TaggingVariable, string>::const_iterator iter = taggingVarName_.find(taggingVar);
-
-  if (iter != taggingVarName_.end())
-    return taggingVarName_[taggingVar];
-  else
-    return "notFound";
-} // void printTaggingVarName
 
 bool reco::CombinedBTagInfo::existTrackData( const reco::TrackRef & trackRef)
 {
@@ -265,7 +243,7 @@ void reco::CombinedBTagInfo::reset()
   tracksAtSecondaryVertex_.clear();
   
   // reset variables
-  vertexType_                       = NotDefined;
+  vertexType_                       = reco::CombinedBTagEnums::NotDefined;
   jetPt_                            = -999;
   jetEta_                           = -999;
   pB_                               = resetVector;
@@ -330,7 +308,7 @@ int reco::CombinedBTagInfo::nSecVertices() const
   return secondaryVertices_.size();
 }
 
-reco::CombinedBTagInfo::VertexType reco::CombinedBTagInfo::vertexType() const
+reco::CombinedBTagEnums::VertexType reco::CombinedBTagInfo::vertexType() const
 {
   return vertexType_;
 }
@@ -403,7 +381,7 @@ void reco::CombinedBTagInfo::addSecondaryVertex( const reco::Vertex & sv) {secon
 void reco::CombinedBTagInfo::addTrackAtSecondaryVertex(reco::TrackRef trackRef)
   {tracksAtSecondaryVertex_.push_back(trackRef);}
 
-void reco::CombinedBTagInfo::setVertexType( VertexType type) {vertexType_ = type;}
+void reco::CombinedBTagInfo::setVertexType( reco::CombinedBTagEnums::VertexType type) {vertexType_ = type;}
 void reco::CombinedBTagInfo::setVertexMass( double mass) {vertexMass_ = mass;}
 void reco::CombinedBTagInfo::setVertexMultiplicity( int mult ) {vertexMultiplicity_ = mult;}
 void reco::CombinedBTagInfo::setESVXOverE( double e) {eSVXOverE_ = e; }
@@ -431,17 +409,7 @@ void reco::CombinedBTagInfo::setFlightDistance3DMean(double value) {flightDistan
 void reco::CombinedBTagInfo::setFlightDistanceSignificance3DMean (double value) {flightDistanceSignificance3DMean_ = value;}
 void reco::CombinedBTagInfo::setFirst2DSignedIPSigniAboveCut(double ipSignificance) {first2DSignedIPSigniAboveCut_ = ipSignificance;} 
 
-string reco::CombinedBTagInfo::getVertexTypeName() const
+std::string reco::CombinedBTagInfo::getVertexTypeName() const
 {
-  switch (vertexType_)
-  {
-    case NoVertex:
-      return "NoVertex";
-    case PseudoVertex:
-      return "PseudoVertex";
-    case RecoVertex:
-      return "RecoVertex";
-    default:
-      return "???";
-  }
+  return reco::CombinedBTagEnums::typeOfVertex ( vertexType_ );
 }
