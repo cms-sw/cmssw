@@ -4,7 +4,8 @@
 
 namespace evf
 {
-  unsigned short compute_crc(unsigned short crc,unsigned char data);
+  unsigned short compute_crc(unsigned char* buffer,unsigned int bufSize);
+  unsigned short compute_crc_8bit(unsigned short crc,unsigned char data);
   unsigned short compute_crc_64bit(unsigned short crc,unsigned char* p);
   
   
@@ -57,7 +58,19 @@ namespace evf
 
 //______________________________________________________________________________
 inline
-unsigned short evf::compute_crc(unsigned short crc,unsigned char data)
+unsigned short evf::compute_crc(unsigned char* buffer,unsigned int bufSize)
+{
+  assert(0==bufSize%8);
+  unsigned short crc(0xffff);
+  bufSize/=8;
+  for (unsigned int i=0;i<bufSize;i++) crc=evf::compute_crc_64bit(crc,&buffer[i*8]);
+  return crc;
+}
+
+
+//______________________________________________________________________________
+inline
+unsigned short evf::compute_crc_8bit(unsigned short crc,unsigned char data)
 {
   return (evf::crc_table[((crc >> 8) ^ data) & 0xFF] ^ (crc << 8));
 }
@@ -68,6 +81,6 @@ inline
 unsigned short evf::compute_crc_64bit(unsigned short crc,unsigned char *p64)
 {
   unsigned short result(crc);
-  for (int i=7;i>=0;i--) result=evf::compute_crc(result,p64[i]);
+  for (int i=7;i>=0;i--) result=evf::compute_crc_8bit(result,p64[i]);
   return result;
 }
