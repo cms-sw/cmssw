@@ -9,11 +9,21 @@
 
 
 class EcalTBTDCRecInfoAlgo {
+  
 
  public:
+
+
   EcalTBTDCRecInfoAlgo() : tdcRangeErrorMessageAlreadyDisplayed_(false) {};
 
-  explicit EcalTBTDCRecInfoAlgo(const std::vector<int>& tdcMin, const std::vector<int>& tdcMax);
+  struct EcalTBTDCRanges
+  {
+    std::pair<int,int> runRanges;
+    std::vector<double> tdcMin;
+    std::vector<double> tdcMax;
+  };
+
+  explicit EcalTBTDCRecInfoAlgo(const std::vector<EcalTBTDCRanges>& tdcRanges);
 
   ~EcalTBTDCRecInfoAlgo() 
     {
@@ -23,10 +33,10 @@ class EcalTBTDCRecInfoAlgo {
 
  private:
 
-  std::vector<int> tdcMin_;
-  std::vector<int> tdcMax_;
+  std::vector<EcalTBTDCRanges> tdcRanges_;
   mutable bool tdcRangeErrorMessageAlreadyDisplayed_;
-
+  mutable int actualRun_;
+  mutable int actualRange_;
 };
 
 #endif

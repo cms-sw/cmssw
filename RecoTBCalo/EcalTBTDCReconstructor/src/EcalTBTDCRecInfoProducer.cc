@@ -22,20 +22,32 @@ EcalTBTDCRecInfoProducer::EcalTBTDCRecInfoProducer(edm::ParameterSet const& ps)
 //   planeShift_def.push_back( -0.333 );
 //   planeShift_def.push_back( -0.333 );
 //   planeShift_def.push_back( -0.333 );
-  std::vector<int> tdcMin = ps.getParameter< std::vector<int> >("tdcMin");
+
 
 //   std::vector<double> zPosition_def;
 //   zPosition_def.push_back( -0.333 );
 //   zPosition_def.push_back( -0.333 );
 //   zPosition_def.push_back( -0.333 );
 //   zPosition_def.push_back( -0.333 );
-  std::vector<int> tdcMax = ps.getParameter< std::vector<int> >("tdcMax");
+  std::vector<EcalTBTDCRecInfoAlgo::EcalTBTDCRanges> tdcRanges;
+
+  typedef std::vector< edm::ParameterSet > Parameters;
+  Parameters ranges=ps.getParameter<Parameters>("tdcRanges");
+  for(Parameters::iterator itRanges = ranges.begin(); itRanges != ranges.end(); ++itRanges) 
+    {
+      EcalTBTDCRecInfoAlgo::EcalTBTDCRanges aRange;
+      aRange.runRanges.first = itRanges->getParameter<int>("startRun");
+      aRange.runRanges.second = itRanges->getParameter<int>("endRun");
+      aRange.tdcMin = itRanges->getParameter< std::vector<double> >("tdcMin");
+      aRange.tdcMax = itRanges->getParameter< std::vector<double> >("tdcMax");
+      tdcRanges.push_back(aRange);
+    }
   
   use2004OffsetConvention_ = ps.getUntrackedParameter< bool >("use2004OffsetConvention",false);
 
   produces<EcalTBTDCRecInfo>(recInfoCollection_);
-  
-  algo_ = new EcalTBTDCRecInfoAlgo(tdcMin,tdcMax);
+
+  algo_ = new EcalTBTDCRecInfoAlgo(tdcRanges);
 }
 
 EcalTBTDCRecInfoProducer::~EcalTBTDCRecInfoProducer() {
