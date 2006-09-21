@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2006/09/20 08:10:11 $
+ * last update: $Date: 2006/09/20 16:06:35 $
  * by         : $Author: flucke $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
@@ -107,13 +107,7 @@ public:
 
 protected:
 
-  explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0)
-    : theValidityFlag(false), theTsosVec(nHits),
-    theMeasurements(nMeasPerHit * nHits), theMeasurementsCov(nMeasPerHit * nHits, 0),
-    theTrajectoryPositions(nMeasPerHit * nHits), 
-    theTrajectoryPositionCov(nMeasPerHit * nHits,0),
-    theParameters(nPar), theDerivatives(nMeasPerHit * nHits, nPar, 0) {}
- 
+  explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0);
 
   bool theValidityFlag;
 
