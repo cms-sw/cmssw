@@ -53,7 +53,6 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 {
   // create empty outputs for HCAL 
   // see RecoLocalCalo/HcalRecProducers/src/HcalSimpleReconstructor.cc
-  std::cout << " CaloRecHitsProducer : produce " << std::endl;
   std::auto_ptr<EBRecHitCollection> receb(new EBRecHitCollection);  // ECAL Barrel
   std::auto_ptr<EERecHitCollection> recee(new EERecHitCollection);  // ECAL Endcap
 
