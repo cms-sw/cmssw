@@ -19,12 +19,18 @@ void PixelVertexVal::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   ev.getByLabel("pixelVertices",vertexCollection);
   const reco::VertexCollection vertexes = *(vertexCollection.product());
   if (verbose_ > 0) {
-    (*out_) << *(vertexCollection.provenance()) << std::endl;
-    (*out_) << "Reconstructed "<< vertexes.size() << " vertexes" << std::endl;
+    //    (*out_) << "[OVAL] " << *(vertexCollection.provenance()) << std::endl;
+    (*out_) << "[OVAL] " << "Reconstructed "<< vertexes.size() << " vertexes" << std::endl;
   }
-  for(reco::VertexCollection::const_iterator v=vertexes.begin(); 
-      v!=vertexes.end(); ++v){
-    (*out_) << v->position().z() << " += " << v->zError() << std::endl;
+  for (reco::VertexCollection::const_iterator v=vertexes.begin(); 
+       v!=vertexes.end(); ++v){
+    (*out_) << "[OVAL] " << v->position().z() << " += " << v->zError() << std::endl;
+    (*out_) << "[OVAL] " << "Has " << v->tracksSize() << " associated tracks with the following z's: ";
+    for (reco::track_iterator t = v->tracks_begin(); t != v->tracks_end(); ++t) {
+      (*out_) << (*t)->dz() << " +- " << (*t)->dzError() << " ";
+    }
+    (*out_) << std::endl;
+
   }
   (*out_) << std::endl;
 }
