@@ -2,7 +2,7 @@
 #define Framework_FileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.h,v 1.3 2006/08/03 23:01:24 wmtan Exp $
+// $Id: FileCatalog.h,v 1.4 2006/08/14 23:27:48 wmtan Exp $
 //
 // Class FileCatalog. Common services to manage File catalog
 //
@@ -15,6 +15,17 @@
 #include "FileCatalog/IFileCatalog.h"
 
 namespace edm {
+
+  class FileCatalogItem {
+  public:
+    FileCatalogItem() : pfn_(0), lfn_(0) {}
+    FileCatalogItem(std::string const& pfn, std::string const& lfn) : pfn_(&pfn), lfn_(&lfn) {}
+    std::string const& fileName() const {return *pfn_;}
+    std::string const& logicalFileName() const {return *lfn_;}
+  private:
+    std::string const* pfn_;
+    std::string const* lfn_;
+  };
 
   class ParameterSet;
   class FileCatalog {
@@ -40,18 +51,16 @@ namespace edm {
 
   class InputFileCatalog : public FileCatalog {
   public:
-    explicit InputFileCatalog(ParameterSet const& pset);
+    explicit InputFileCatalog(ParameterSet const& pset, bool noThrow = false);
     virtual ~InputFileCatalog();
-    std::vector<std::string> const& logicalFileNames() const {
-      return logicalFileNames_;
-    }
-    std::vector<std::string> const& fileNames() const {
-      return fileNames_;
-    }
+    std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
+    std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
+    std::vector<std::string> const& fileNames() const {return fileNames_;}
   private:
-    void findFile(std::string & pfn, std::string const& lfn);
+    void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
     std::vector<std::string> logicalFileNames_;
     std::vector<std::string> fileNames_;
+    std::vector<FileCatalogItem> fileCatalogItems_;
   };
 
   class OutputFileCatalog : public FileCatalog {

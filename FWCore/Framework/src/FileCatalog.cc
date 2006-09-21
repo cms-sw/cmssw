@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.5 2006/08/04 16:24:10 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.6 2006/08/14 23:27:49 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -38,10 +38,11 @@ namespace edm {
     catalog_.start();
   }
 
-  InputFileCatalog::InputFileCatalog(ParameterSet const& pset) :
+  InputFileCatalog::InputFileCatalog(ParameterSet const& pset, bool noThrow) :
     FileCatalog(pset),
     logicalFileNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
-    fileNames_(logicalFileNames_) {
+    fileNames_(logicalFileNames_),
+    fileCatalogItems_() {
 
     if (url().empty()) {
       // For reading use the catalog specified in the site-local config file
@@ -59,30 +60,38 @@ namespace edm {
     // Starting the catalog will write a catalog out if it does not exist.
     // So, do not start the catalog unless it is needed.
 
+    fileCatalogItems_.reserve(fileNames_.size());
     typedef std::vector<std::string>::iterator iter;
-    for(iter it = fileNames_.begin(); it != fileNames_.end(); ++it) {
-      if (!isPhysical(*it)) {
+    for(iter it = fileNames_.begin(), lt = logicalFileNames_.begin(); it != fileNames_.end(); ++it, ++lt) {
+      if (isPhysical(*it)) {
+        lt->clear();
+      } else {
 	if (!active()) {
           catalog().start();
 	  setActive();
         }
-	findFile(*it, *it);
+	findFile(*it, *lt, noThrow);
       }
+      fileCatalogItems_.push_back(FileCatalogItem(*it, *lt));
     }
   }
 
   InputFileCatalog::~InputFileCatalog() {}
 
-  void InputFileCatalog::findFile(std::string & pfn, std::string const& lfn) {
+  void InputFileCatalog::findFile(std::string & pfn, std::string const& lfn, bool noThrow) {
     pool::FClookup action;
     catalog().setAction(action);
     pool::FileCatalog::FileID fid;
     action.lookupFileByLFN(lfn, fid);
     if (fid == pool::FileCatalog::FileID()) {
-      throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
-        << "Logical file name " << lfn << " was not found in the file catalog.\n"
-	<< "If you wanted a local file, you forgot the 'file:' prefix\n"
-	<< "before the file name in your configuration file.\n";
+      if (noThrow) {
+	pfn.clear();
+      } else {
+        throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
+	  << "Logical file name " << lfn << " was not found in the file catalog.\n"
+	  << "If you wanted a local file, you forgot the 'file:' prefix\n"
+	  << "before the file name in your configuration file.\n";
+      }
     } else {
       std::string fileType;
       action.lookupBestPFN(fid, pool::FileCatalog::READ, pool::FileCatalog::SEQUENTIAL, pfn, fileType);

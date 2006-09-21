@@ -2,7 +2,7 @@
 #define Framework_EDInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: EDInputSource.h,v 1.2 2006/04/13 22:24:07 wmtan Exp $
+$Id: EDInputSource.h,v 1.3 2006/08/14 23:27:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -20,6 +20,7 @@ namespace edm {
 
     std::vector<std::string> const& logicalFileNames() const {return catalog_.logicalFileNames();}
     std::vector<std::string> const& fileNames() const {return catalog_.fileNames();}
+    std::vector<FileCatalogItem> const& fileCatalogItems() const {return catalog_.fileCatalogItems();}
     InputFileCatalog& catalog() {return catalog_;}
 
   private:
