@@ -4,6 +4,10 @@
 //#include <math>
 #include <vector>
 #include <bitset>
+#include <iostream>
+//#include <fstream>
+#include <iomanip>
+
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTNeighborMap.h"
 

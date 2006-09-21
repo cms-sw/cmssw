@@ -45,6 +45,7 @@ void L1RCTCrate::fillJetSummaryCard(){
   vector<unsigned short> nonIsoElectrons(14);
   vector<unsigned short> mipBits(14);
   vector<unsigned short> overFlowBits(14);
+  vector<unsigned short> tauBits(14);
   for(int i = 0; i<7;i++){
     mipBits.at(2*i) = receiverCards.at(i).getMuonBitRegion(0);
     mipBits.at(2*i+1) = receiverCards.at(i).getMuonBitRegion(1);
@@ -56,11 +57,15 @@ void L1RCTCrate::fillJetSummaryCard(){
     barrelSums.at(2*i+1) = receiverCards.at(i).getEtIn10BitsRegion(1);
     overFlowBits.at(2*i) = receiverCards.at(i).getOverFlowBitRegion(0);
     overFlowBits.at(2*i+1) = receiverCards.at(i).getOverFlowBitRegion(1);
+    tauBits.at(2*i) = receiverCards.at(i).getTauBitRegion(0);
+    tauBits.at(2*i+1) = receiverCards.at(i).getTauBitRegion(1);
   }
   jetSummaryCard.fillIsolatedEGObjects(isoElectrons);
   jetSummaryCard.fillNonIsolatedEGObjects(nonIsoElectrons);
   jetSummaryCard.fillRegionSums(barrelSums);
   jetSummaryCard.fillMIPBits(mipBits);
+  jetSummaryCard.fillTauBits(tauBits);
+  jetSummaryCard.fillOverFlowBits(overFlowBits);
 }
 void L1RCTCrate::processJetSummaryCard(){
   jetSummaryCard.fillJetRegions();

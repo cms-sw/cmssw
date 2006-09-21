@@ -180,6 +180,8 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region){
     etaPattern[i] = region.getActivityBit(0,i) || region.getActivityBit(1,i) ||
       region.getActivityBit(2,i) || region.getActivityBit(3,i);
   }
+
+  bool answer;
   
   if(etaPattern != badPattern5 && etaPattern != badPattern7 && 
      etaPattern != badPattern10 && etaPattern != badPattern11 &&
@@ -187,9 +189,16 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region){
      etaPattern != badPattern15 && phiPattern != badPattern5 && 
      phiPattern != badPattern7 && phiPattern != badPattern10 && 
      phiPattern != badPattern11 && phiPattern != badPattern13 && 
-     phiPattern != badPattern14 && phiPattern != badPattern15)
-    return false;
-  else return true;
+     phiPattern != badPattern14 && phiPattern != badPattern15){
+    //return false;
+    answer = false;
+  }
+  //else return true;
+  else {
+    answer = true;
+  }
+  cout << "Tau veto set to " << answer << endl;
+  return answer;
 }
 
 void L1RCTReceiverCard::fillRegionSums(){
