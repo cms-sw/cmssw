@@ -87,9 +87,8 @@ void HepMCCandidateSelector::produce( Event & evt, const EventSetup & ) {
     bool selected = false;
     if ( abs( g->pdg_id() ) == particleType_ ) {
       if ( selectMother_  && g->hasParents() ) {
-	const HepMC::GenParticle * mother = g->mother(), * secondMother = g->secondMother();
-	if ( mother->pdg_id() == motherType_ ) selected = true;
-	if ( secondMother != 0 && abs( secondMother->pdg_id() ) == motherType_ ) selected = true;
+	const HepMC::GenParticle * mother = g->mother();
+	if ( abs( mother->pdg_id() ) == motherType_ ) selected = true;
       }
     }
     if ( selected ) 
