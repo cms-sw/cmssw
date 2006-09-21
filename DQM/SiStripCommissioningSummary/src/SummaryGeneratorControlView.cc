@@ -77,7 +77,7 @@ void SummaryGeneratorControlView::fill( const string& top_level_dir,
 
       if (pos != string::npos) {
       sub_dir = pwd.substr( 0, pwd.find(sistrip::dir_,pos) );}
-
+ 
     SiStripHistoNamingScheme::ControlPath sub_path = SiStripHistoNamingScheme::controlPath( sub_dir );
     
     // Construct bin label

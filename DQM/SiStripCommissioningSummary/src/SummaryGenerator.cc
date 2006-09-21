@@ -65,8 +65,8 @@ TH1* SummaryGenerator::histogram( const sistrip::SummaryType& type,
   TH1* summary;
   if      ( type == sistrip::SUMMARY_DISTR ) { summary = new TH1F( "", "", 1024, 0., static_cast<float>(1024) ); } 
   else if ( type == sistrip::SUMMARY_1D )    { summary = new TH1F( "", "", xbins, 0., static_cast<float>(xbins) ); }
-  else if ( type == sistrip::SUMMARY_2D )    { summary = new TH2F( "", "", 100*xbins, 0., static_cast<float>(100*xbins), 1025, 0., 1025 ); }
-  else if ( type == sistrip::SUMMARY_PROF )  { summary = new TProfile( "", "", xbins, 0., static_cast<float>(xbins), 0., 1025 ); }
+  else if ( type == sistrip::SUMMARY_2D )    { summary = new TH2F( "", "", 100*xbins, 0., static_cast<float>(100*xbins), 1025, 0., 1025. ); }
+  else if ( type == sistrip::SUMMARY_PROF )  { summary = new TProfile( "", "", xbins, 0., static_cast<float>(xbins), 0., 1025. ); }
   else { summary = 0; }
   return summary;
 }
