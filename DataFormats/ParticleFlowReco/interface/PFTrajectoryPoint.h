@@ -45,10 +45,11 @@ namespace reco {
     /// default constructor. Set variables at default dummy values
     PFTrajectoryPoint();
 
-    /// constructor from values. set detId to 0 if this point is not from a 
-    /// tracker layer
-    PFTrajectoryPoint(unsigned detId,
-		      unsigned layer,
+    /// constructor from values. 
+    /// set detId to -1 if this point is not from a tracker layer
+    /// set layer to -1 if this point is not from a tracker layer
+    PFTrajectoryPoint(int detId,
+		      int layer,
 		      const math::XYZPoint& posxyz, 
 		      const math::XYZTLorentzVector& momentum); 
 
@@ -58,17 +59,24 @@ namespace reco {
     /// destructor
     virtual ~PFTrajectoryPoint();
 
-    /// is this point corresponding to an intersection with a tracker layer ?
-    bool isTrackerLayer() const { return isTrackerLayer_; }
 
     /// measurement detId
-    unsigned detId() const    { return detId_; }
+    int detId() const    { return detId_; }
 
     /// trajectory point layer
-    unsigned layer() const    { return layer_; }
+    int layer() const    { return layer_; }
 
     /// is this point valid ? 
-    bool     isValid() const {return static_cast<bool>(layer_);}
+    bool     isValid() const {
+      if( layer_ == -1 && detId_ == -1 ) return false;
+      else return true;
+    }
+
+    /// is this point corresponding to an intersection with a tracker layer ?
+    bool isTrackerLayer() const {
+      if(detId_ >= 0 ) return true; 
+      else return false;
+    }
 
     /// cartesian position (x, y, z)
     const math::XYZPoint& positionXYZ() const { return posxyz_; }
@@ -95,10 +103,10 @@ namespace reco {
     bool isTrackerLayer_;
 
     /// detid if measurement is corresponding to a tracker layer
-    unsigned int detId_;             
+    int detId_;             
 
     /// propagated layer
-    unsigned int layer_;
+    int layer_;
 
     /// cartesian position (x, y, z)
     math::XYZPoint          posxyz_;

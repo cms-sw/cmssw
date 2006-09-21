@@ -51,7 +51,6 @@ ostream& reco::operator<<(ostream& out,
     out<<particle.daughterIds_[i]<<" ";
   
   out<<endl;
-  out<<"\ttrajpoints : ";
   for(unsigned i=0; i<particle.trajectoryPoints_.size(); i++) 
     out<<particle.trajectoryPoints_[i]<<endl;
 

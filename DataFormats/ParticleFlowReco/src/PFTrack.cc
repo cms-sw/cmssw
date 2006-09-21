@@ -39,6 +39,8 @@ PFTrack::PFTrack(const PFTrack& other) :
 
 void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
   
+//   cout<<"add point "<<trajPt<<endl;
+
   if (trajPt.isTrackerLayer()) {
     if (!indexOutermost_) { // first time a measurement is added
       if (trajectoryPoints_.size() < PFTrajectoryPoint::BeamPipe + 1) {
@@ -55,6 +57,8 @@ void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
   }
   // Use push_back instead of insert in order to gain time
   trajectoryPoints_.push_back(trajPt);
+
+//   cout<<*this<<endl;
 }
 
 
@@ -70,6 +74,9 @@ const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) cons
   
   if( layerid >= reco::PFTrajectoryPoint::NLayers ||
       nTrajectoryMeasurements() + layerid >= trajectoryPoints_.size() ) {
+
+    cout<<(*this)<<endl;
+    cout<<"lid "<<layerid<<" "<<nTrajectoryMeasurements()<<" "<<trajectoryPoints_.size()<<endl;
     assert(0);
   }
   if (layerid < indexInnermost_)

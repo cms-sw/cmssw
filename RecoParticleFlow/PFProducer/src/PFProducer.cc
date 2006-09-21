@@ -343,7 +343,7 @@ void PFProducer::produce(Event& iEvent,
       math::XYZTLorentzVector momClosest(theTrack->px(), theTrack->py(), 
 					 theTrack->pz(), theTrack->p());
       reco::PFTrajectoryPoint 
-	closestPt(0, 
+	closestPt(-1, 
 		  reco::PFTrajectoryPoint::ClosestApproach,
 		  posClosest, momClosest);
       track.addPoint(closestPt);
@@ -372,7 +372,7 @@ void PFProducer::produce(Event& iEvent,
 					    pBeamPipe.y(), 
 					    pBeamPipe.z(), 
 					    pBeamPipe.mag());
-	reco::PFTrajectoryPoint beamPipePt(0, 
+	reco::PFTrajectoryPoint beamPipePt(-1, 
 					   reco::PFTrajectoryPoint::BeamPipe, 
 					   posBeamPipe, momBeamPipe);
 
@@ -400,8 +400,7 @@ void PFProducer::produce(Event& iEvent,
 	math::XYZTLorentzVector mom(p.x(), p.y(), p.z(), p.mag());
 	unsigned int detId = 
 	  measurements[iTraj].recHit()->det()->geographicalId().rawId();
-	reco::PFTrajectoryPoint trajPt(detId, 
-				       reco::PFTrajectoryPoint::NLayers, 
+	reco::PFTrajectoryPoint trajPt(detId, -1, 
 				       pos, mom);
 	track.addPoint(trajPt);
 	LogDebug("PFProducer")<<"add measuremnt "<<iTraj<<" "<<trajPt<<endl;
@@ -423,7 +422,7 @@ void PFProducer::produce(Event& iEvent,
       math::XYZPoint posECAL(vECAL.x(), vECAL.y(), vECAL.z());       
       math::XYZTLorentzVector momECAL(pECAL.x(), pECAL.y(), pECAL.z(), 
 				      pECAL.mag());
-      reco::PFTrajectoryPoint ecalPt(0, reco::PFTrajectoryPoint::ECALEntrance, 
+      reco::PFTrajectoryPoint ecalPt(-1, reco::PFTrajectoryPoint::ECALEntrance, 
 				     posECAL, momECAL);
       bool isBelowPS = false;
       if (posECAL.Rho() < PFGeometry::innerRadius(PFGeometry::ECALBarrel)) {
@@ -440,7 +439,7 @@ void PFProducer::produce(Event& iEvent,
 	  isBelowPS = true;
 	  math::XYZTLorentzVector momPS1(pPS1.x(), pPS1.y(), pPS1.z(), 
 					 pPS1.mag());
-	  reco::PFTrajectoryPoint ps1Pt(0, reco::PFTrajectoryPoint::PS1, 
+	  reco::PFTrajectoryPoint ps1Pt(-1, reco::PFTrajectoryPoint::PS1, 
 					posPS1, momPS1);
 	  track.addPoint(ps1Pt);
 	  LogDebug("PFProducer")<<"ps1 point "<<ps1Pt<<endl;
@@ -462,7 +461,7 @@ void PFProducer::produce(Event& iEvent,
 	  isBelowPS = true;
 	  math::XYZTLorentzVector momPS2(pPS2.x(), pPS2.y(), pPS2.z(), 
 					 pPS2.mag());
-	  reco::PFTrajectoryPoint ps2Pt(0, reco::PFTrajectoryPoint::PS2, 
+	  reco::PFTrajectoryPoint ps2Pt(-1, reco::PFTrajectoryPoint::PS2, 
 					posPS2, momPS2);
 	  track.addPoint(ps2Pt);
 	  LogDebug("PFProducer")<<"ps2 point "<<ps2Pt<<endl;
@@ -516,7 +515,7 @@ void PFProducer::produce(Event& iEvent,
 				  vShowerMax.z());
       math::XYZTLorentzVector momShowerMax(pShowerMax.x(), pShowerMax.y(), 
 					   pShowerMax.z(), pShowerMax.mag());
-      reco::PFTrajectoryPoint eSMaxPt(0, 
+      reco::PFTrajectoryPoint eSMaxPt(-1, 
 				      reco::PFTrajectoryPoint::ECALShowerMax, 
 				      posShowerMax, momShowerMax);
       track.addPoint(eSMaxPt);
@@ -535,7 +534,7 @@ void PFProducer::produce(Event& iEvent,
 	math::XYZPoint posHCAL(vHCAL.x(), vHCAL.y(), vHCAL.z());       
 	math::XYZTLorentzVector momHCAL(pHCAL.x(), pHCAL.y(), pHCAL.z(), 
 					pHCAL.mag());
-	reco::PFTrajectoryPoint hcalPt(0, 
+	reco::PFTrajectoryPoint hcalPt(-1, 
 				       reco::PFTrajectoryPoint::HCALEntrance, 
 				       posHCAL, momHCAL);
 	track.addPoint(hcalPt);
@@ -601,47 +600,46 @@ void PFProducer::produce(Event& iEvent,
 				  motherId,
 				  fst.daughters() );
 
-//       cout<<"particle "<<particle<<endl;
+      cout<<"start particle "<<particle<<endl;
 
       const FSimVertex& originVtx = fst.vertex();
 
       math::XYZPoint          posOrig( originVtx.position().x(), 
 				       originVtx.position().y(), 
 				       originVtx.position().z() );
-//       cout<<"origin : "
-// 	  <<originVtx.position().x()<<" "
-// 	  <<originVtx.position().y()<<endl;
 
       math::XYZTLorentzVector momOrig( fst.momentum().px(), 
 				       fst.momentum().py(), 
 				       fst.momentum().pz(), 
 				       fst.momentum().e() );
       reco::PFTrajectoryPoint 
-	pointOrig(0, 
+	pointOrig(-1, 
 		  reco::PFTrajectoryPoint::ClosestApproach,
 		  posOrig, momOrig);
       particle.addPoint(pointOrig);
     
+      cout<<"orig  particle "<<particle<<endl;
 
-      const FSimVertex& endVtx = fst.endVertex();
-
-      math::XYZPoint          posEnd( endVtx.position().x(), 
-				      endVtx.position().y(), 
-				      endVtx.position().z() );
-
-//       cout<<"end vertex : "
-// 	  <<endVtx.position().x()<<" "
-// 	  <<endVtx.position().y()<<endl;
-
-      
-      math::XYZTLorentzVector momEnd;
-
-      reco::PFTrajectoryPoint 
-	pointEnd( 1, reco::PFTrajectoryPoint::NLayers,
-		 posEnd, momEnd);
-	       
-      particle.addPoint(pointEnd);
-    
+      if( ! fst.noEndVertex() ) {
+	const FSimVertex& endVtx = fst.endVertex();
+	
+	math::XYZPoint          posEnd( endVtx.position().x(), 
+					endVtx.position().y(), 
+					endVtx.position().z() );
+	//       cout<<"end vertex : "
+	// 	  <<endVtx.position().x()<<" "
+	// 	  <<endVtx.position().y()<<endl;
+	
+	
+	math::XYZTLorentzVector momEnd;
+	
+	reco::PFTrajectoryPoint 
+	  pointEnd( 1, -1,
+		    posEnd, momEnd);
+	
+	particle.addPoint(pointEnd);
+      }
+      cout<<"end  particle "<<particle<<endl;
 
 
       if( fst.onLayer1() ) { // PS layer1
@@ -649,7 +647,7 @@ void PFProducer::produce(Event& iEvent,
       
 	math::XYZPoint posLayer1( rp.x(), rp.y(), rp.z() );
 	math::XYZTLorentzVector momLayer1( rp.px(), rp.py(), rp.pz(), rp.e() );
-	reco::PFTrajectoryPoint layer1Pt(0, reco::PFTrajectoryPoint::PS1, 
+	reco::PFTrajectoryPoint layer1Pt(-1, reco::PFTrajectoryPoint::PS1, 
 					 posLayer1, momLayer1);
 	
 	particle.addPoint( layer1Pt ); 
@@ -661,7 +659,7 @@ void PFProducer::produce(Event& iEvent,
       
 	math::XYZPoint posLayer2( rp.x(), rp.y(), rp.z() );
 	math::XYZTLorentzVector momLayer2( rp.px(), rp.py(), rp.pz(), rp.e() );
-	reco::PFTrajectoryPoint layer2Pt(0, reco::PFTrajectoryPoint::PS2, 
+	reco::PFTrajectoryPoint layer2Pt(-1, reco::PFTrajectoryPoint::PS2, 
 					 posLayer2, momLayer2);
 	
 	particle.addPoint( layer2Pt ); 
@@ -673,7 +671,7 @@ void PFProducer::produce(Event& iEvent,
 	
 	math::XYZPoint posECAL( rp.x(), rp.y(), rp.z() );
 	math::XYZTLorentzVector momECAL( rp.px(), rp.py(), rp.pz(), rp.e() );
-	reco::PFTrajectoryPoint ecalPt(0, 
+	reco::PFTrajectoryPoint ecalPt(-1, 
 				       reco::PFTrajectoryPoint::ECALEntrance, 
 				       posECAL, momECAL);
 	
@@ -688,7 +686,7 @@ void PFProducer::produce(Event& iEvent,
 	math::XYZPoint posHCALin( rpin.x(), rpin.y(), rpin.z() );
 	math::XYZTLorentzVector momHCALin( rpin.px(), rpin.py(), rpin.pz(), 
 					   rpin.e() );
-	reco::PFTrajectoryPoint hcalPtin(0, 
+	reco::PFTrajectoryPoint hcalPtin(-1, 
 					 reco::PFTrajectoryPoint::HCALEntrance,
 					 posHCALin, momHCALin);
 	
@@ -870,8 +868,11 @@ void PFProducer::produce(Event& iEvent,
 }
 
 
-TrajectoryStateOnSurface PFProducer::getStateOnSurface(PFGeometry::Surface_t iSurf, const TrajectoryStateOnSurface& tsos, const Propagator& propagator, int& side)
-{
+TrajectoryStateOnSurface 
+PFProducer::getStateOnSurface( PFGeometry::Surface_t iSurf, 
+			       const TrajectoryStateOnSurface& tsos, 
+			       const Propagator& propagator, int& side) {
+
   GlobalVector p = tsos.globalParameters().momentum();
   TrajectoryStateOnSurface finalTSOS;
   side = -100;
