@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/07/06 23:19:41 $
- *  $Revision: 1.26 $
+ *  $Date: 2006/09/19 15:39:46 $
+ *  $Revision: 1.27 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -17,6 +17,8 @@
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 
 #include <EventFilter/EcalTBRawToDigi/interface/EcalDCCHeaderRuntypeDecoder.h>
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 
 #include "DCCDataParser.h"
 #include "DCCEventBlock.h"
@@ -57,7 +59,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 					  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, 
 					  EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection, 
 					  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
-					  EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection)
+					  EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection,
+					  EcalTrigPrimDigiCollection &tpcollection)
 {
 
 
@@ -85,7 +88,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
   for( vector< DCCEventBlock * >::iterator itEventBlock = dccEventBlocks.begin(); 
        itEventBlock != dccEventBlocks.end(); 
        itEventBlock++){
-
+    
     bool _displayParserMessages = false;
     if( (*itEventBlock)->eventHasErrors() && _displayParserMessages)
       {
@@ -111,6 +114,9 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     theDCCheader.setTestZeroSuppression((*itEventBlock)->getDataField("TZS"));
     theDCCheader.setSrpStatus((*itEventBlock)->getDataField("SR_CHSTATUS"));
 
+
+
+
     vector<short> theTCCs;
     for(int i=0; i<MAX_TCC_SIZE; i++){
       
@@ -119,10 +125,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     }
     theDCCheader.setTccStatus(theTCCs);
 
-    // mod to go on
+
     vector< DCCTCCBlock * > tccBlocks = (*itEventBlock)->tccBlocks();
-    // cout <<  " tccBlocks size " << tccBlocks.size() << endl;
-    // mod to go on
     
     for(    vector< DCCTCCBlock * >::iterator itTCCBlock = tccBlocks.begin(); 
 	    itTCCBlock != tccBlocks.end(); 
@@ -133,6 +137,19 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 	for(int i=0; i<TpSamples.size(); i++)	
 	  {
+	    
+	    int etaTT = (i)  / kTowersInPhi +1;
+	    int phiTT = (i) % kTowersInPhi +1;
+
+	    EcalTriggerPrimitiveSample theSample( TpSamples[i]  );
+
+	    EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
+	    EcalTriggerPrimitiveDigi thePrimitive(idtt);
+	    thePrimitive.setSize(1);                          // hard coded
+	    thePrimitive.setSample(0, theSample);
+	    
+	    tpcollection.push_back(thePrimitive);
+
 	    LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"
 					<< "tower: " << (i+1) << " primitive: " << TpSamples[i] << endl;
 	    LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"<<
@@ -140,6 +157,9 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	  }
 
       }
+
+
+
 
 
 

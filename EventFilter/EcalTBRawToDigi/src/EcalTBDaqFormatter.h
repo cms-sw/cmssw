@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2006/04/27 13:22:15 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/04/27 21:56:57 $
+ *  $Revision: 1.13 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -42,7 +42,8 @@ class EcalTBDaqFormatter   {
 			  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection ,
 			  EBDetIdCollection & gainswitchcollection , EBDetIdCollection & gainswitchstaycollection,
 			  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
-			  EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection);
+			  EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection,
+			  EcalTrigPrimDigiCollection &tpcollection);
  
 
  private:

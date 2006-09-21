@@ -3,9 +3,9 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/03/20 22:28:31 $
- * $Revision: 1.6 $
- * \author N. Amapane - S. Argiro'
+ * $Date: 2006/06/24 13:45:49 $
+ * $Revision: 1.7 $
+1 * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
  */
@@ -15,6 +15,10 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
+
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
+
 #include <iostream>
 #include <vector>
 
@@ -131,7 +135,24 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 	}
       }
     
+   
+
+    // retrieving crystal TP from the Event
+    edm::Handle<EcalTrigPrimDigiCollection>  primitives;
+    e.getByLabel("ecalEBunpacker", primitives);
     
+    cout << " \n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi TP collection.  Size: " << primitives->size() << endl;
+    cout << "                                  [EcalDigiDumperModule]  dumping primitives "  << endl;
+    if (verbosity>0)
+      {
+	for ( EcalTrigPrimDigiCollection::const_iterator TPtr = primitives->begin(); TPtr != primitives->end(); ++TPtr ) {
+	  cout << "[EcalDigiDumperModule] tower: " << ( (TPtr-primitives->begin()) +1) 
+	       << "\n" << (*TPtr) << endl;
+	}
+      }
+
+
+ 
   } // produce
 
 };// class EcalDigiDumperModule

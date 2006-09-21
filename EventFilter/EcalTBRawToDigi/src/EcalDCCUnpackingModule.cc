@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2006/07/27 23:44:29 $
- *  $Revision: 1.27 $
+ *  $Date: 2006/09/19 14:31:52 $
+ *  $Revision: 1.28 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -53,6 +53,7 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
   produces<EcalMatacqDigiCollection>();
   produces<EcalPnDiodeDigiCollection>();
   produces<EcalRawDataCollection>();
+  produces<EcalTrigPrimDigiCollection>();
 
   //TB specifics data
   produces<EcalTBHodoscopeRawInfo>();
@@ -109,6 +110,8 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   //create the collection of Ecal DCC Header
   auto_ptr<EcalRawDataCollection> productDCCHeader(new EcalRawDataCollection);
 
+  // create the collection with trigger primitives, bits and flags
+  auto_ptr<EcalTrigPrimDigiCollection> productTriggerPrimitives(new EcalTrigPrimDigiCollection);
 
   // create the collection of Ecal Integrity DCC Size
   auto_ptr<EBDetIdCollection> productDCCSize(new EBDetIdCollection);
@@ -139,7 +142,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   // create the collection of Ecal Integrity Mem gain errors
   auto_ptr< EcalElectronicsIdCollection> productMemGain(new EcalElectronicsIdCollection);
-
+  
   // create the collection of Ecal Integrity Mem ch_id errors
   auto_ptr<EcalElectronicsIdCollection> productMemChIdErrors(new EcalElectronicsIdCollection);
   
@@ -181,7 +184,8 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 				       *productTTId, *productBlockSize, 
 				       *productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
 				       *productMemTtId,  *productMemBlockSize,
-				       *productMemGain,  *productMemChIdErrors);
+				       *productMemGain,  *productMemChIdErrors,
+				       *productTriggerPrimitives);
 	  int runType = (*productDCCHeader)[0].getRunType();
 	  if ( runType == EcalDCCHeaderBlock::COSMIC || runType == EcalDCCHeaderBlock::BEAMH4 ) 
 	    (*productHeader).setTriggerMask(0x1);
@@ -208,6 +212,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(productEb);
   e.put(productMatacq);
   e.put(productDCCHeader);
+  e.put(productTriggerPrimitives);
 
   e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");
   e.put(productTTId,"EcalIntegrityTTIdErrors");
