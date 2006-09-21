@@ -39,6 +39,8 @@
   </SpecPar>
   <SpecPar name="tracker-dead-pixel">
     <PartSelector path="//PixelBarrel" />
+    <PartSelector path="//PixelForwardZPlus" />
+    <PartSelector path="//PixelForwardZMinus" />
     <Parameter name="CMSCutsRegion" value="TrackerPixelDeadRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
@@ -48,13 +50,16 @@
   <SpecPar name="tracker-sens-pixel">
     <PartSelector path="//PixelBarrelActiveFull" />
     <PartSelector path="//PixelBarrelActiveHalf" />
+    <PartSelector path="//PixelForwardActive1x2" />
+    <PartSelector path="//PixelForwardActive1x5" />
+    <PartSelector path="//PixelForwardActive2x3" />
+    <PartSelector path="//PixelForwardActive2x4" />
+    <PartSelector path="//PixelForwardActive2x5" />
     <Parameter name="CMSCutsRegion" value="TrackerPixelSensRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
     <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
   </SpecPar>
-
-
 
   <SpecPar name="BeamPipe">
     <PartSelector path="//BEAM" />
