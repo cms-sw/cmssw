@@ -19,7 +19,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.1 2006/06/09 17:30:20 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.1 2006/06/24 04:56:07 dmytro Exp $
 //
 //
 
@@ -86,11 +86,16 @@ class DetIdAssociator{
    virtual std::vector<GlobalPoint> getDetIdPoints(const DetId&) = 0;
    
    virtual bool insideElement(const GlobalPoint&, const DetId&) = 0;
-   virtual bool nearElement(const GlobalPoint& point, const DetId& id, const double distance)
-     {
-	GlobalPoint center = getPosition(id);
-	return sqrt(pow(point.eta()-center.eta(),2)+pow(point.phi()-center.phi(),2)) < distance;
-     };
+   virtual bool nearElement(const GlobalPoint& point, const DetId& id, const double distance) {
+     GlobalPoint center = getPosition(id);
+
+     double pi = 3.1415926535;
+
+     double deltaPhi(fabs(point.phi()-center.phi()));
+     if(deltaPhi>pi) deltaPhi = fabs(deltaPhi-pi*2.);
+
+     return sqrt(pow(point.eta()-center.eta(),2)+deltaPhi*deltaPhi) < distance;
+   };
    
    std::vector<std::vector<std::set<DetId> > >* theMap_;
    const int nPhi_;
