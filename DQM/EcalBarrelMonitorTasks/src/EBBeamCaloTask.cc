@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/08/09 12:40:38 $
- * $Revision: 1.32 $
+ * $Date: 2006/08/09 15:03:55 $
+ * $Revision: 1.33 $
  * \author A. Ghezzi
  *
  */
@@ -57,6 +57,7 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
 //     meBBCaloE1Cry_[u]=0;
 //   }
   
+  meEBBCaloDesync_ = 0;
 
 }
 
