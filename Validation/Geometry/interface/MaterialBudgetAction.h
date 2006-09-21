@@ -9,6 +9,7 @@
 #include "Validation/Geometry/interface/MaterialBudgetFormat.h"
 #include "Validation/Geometry/interface/MaterialBudgetHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetTrackerHistos.h"
+#include "Validation/Geometry/interface/MaterialBudgetEcalHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetTxt.h"
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
@@ -67,6 +68,8 @@ class MaterialBudgetAction : public SimProducer,
 
   std::vector<G4String> theVolumeList; 
   G4String theProcessToStop;
+  std::string theHistoList;
+
 };
 
 #endif

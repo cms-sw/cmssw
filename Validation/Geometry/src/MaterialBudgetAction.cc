@@ -29,13 +29,12 @@
 //-------------------------------------------------------------------------
 MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) 
 {
-  bool isTracker=false;
-  
   theData = new MaterialBudgetData;
   
   edm::ParameterSet m_Anal = iPSet.getParameter<edm::ParameterSet>("MaterialBudgetAction");
   
   //---- Accumulate material budget only inside selected volumes
+  std::string theHistoList = m_Anal.getParameter<std::string>("HistogramList");
   std::vector<std::string> volList = m_Anal.getParameter< std::vector<std::string> >("SelectedVolumes");
   std::vector<std::string>::const_iterator ite;
   std::cout << "TestGeometry: List of the selected volumes: " << std::endl;
@@ -44,20 +43,15 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
       theVolumeList.push_back( *ite );
       std::cout << (*ite) << std::endl;
     }
-    if(
-       (*ite) == "TrackerScreenCont" || (*ite) == "TrackerPatchPanel"
-       || (*ite) == "PixelBarrel"    || (*ite) == "PixelForwardZPlus" || (*ite) == "PixelForwardZMinus" 
-       || (*ite) == "TIB" 
-       || (*ite) == "TIDF"           || (*ite) == "TIDB" 
-       || (*ite) == "TOB" 
-       || (*ite) == "TEC"
-       || (*ite) == "Tracker"
-       ) isTracker=true;
   }
   // log
-  if(isTracker) {
+  if(theHistoList == "Tracker" ) {
     std::cout << "TestGeometry: MaterialBudgetAction running in Tracker Mode" << std::endl;
-  } else {
+  } 
+  else if(theHistoList == "ECAL" ) {
+    std::cout << "TestGeometry: MaterialBudgetAction running in Ecal Mode" << std::endl;
+  } 
+  else {
     std::cout << "TestGeometry: MaterialBudgetAction running in General Mode" << std::endl;
   }
   //
@@ -72,9 +66,15 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
     saveToHistos = true;
     std::cout << "TestGeometry: saving histograms to " << saveToHistosFile << std::endl;
     // rr
-    if(isTracker) {
+    if(theHistoList == "Tracker" ) {
       theHistos = new MaterialBudgetTrackerHistos( theData, saveToHistosFile );
-    } else theHistos = new MaterialBudgetHistos( theData, saveToHistosFile );
+    } 
+    else if (theHistoList == "ECAL") {
+      theHistos = new MaterialBudgetEcalHistos( theData, saveToHistosFile );
+    }
+    else {
+      theHistos = new MaterialBudgetHistos( theData, saveToHistosFile );
+    }
       // rr
   } else {
     saveToHistos = false;

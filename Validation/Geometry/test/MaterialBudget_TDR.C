@@ -331,7 +331,7 @@ MaterialBudget_TDR() {
   
   // First Plot: BeamPipe + Pixel + TIB/TID + TOB + TEC + Outside
   // stack
-  TString stackTitle_SubDetectors = "Tracker Material Budget;#eta;X/X_{0}";
+  TString stackTitle_SubDetectors = "Tracker Material Budget;#eta;x/X_{0}";
   THStack stack_x0_SubDetectors("stack_x0",stackTitle_SubDetectors);
   stack_x0_SubDetectors.Add(hist_x0_BeamPipe);
   stack_x0_SubDetectors.Add(hist_x0_Pixel);
@@ -375,7 +375,7 @@ MaterialBudget_TDR() {
   
   // Second Plot: BeamPipe + SEN + ELE + CAB + COL + SUP + OTH/AIR + Outside
   // stack
-  TString stackTitle_Materials = "Tracker Material Budget;#eta;X/X_{0}";
+  TString stackTitle_Materials = "Tracker Material Budget;#eta;x/X_{0}";
   THStack stack_x0_Materials("stack_x0",stackTitle_Materials);
   stack_x0_Materials.Add(hist_x0_BeamPipe);
   stack_x0_Materials.Add(hist_x0_SEN);
