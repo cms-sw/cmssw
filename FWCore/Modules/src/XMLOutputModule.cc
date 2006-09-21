@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  4 20:45:44 EDT 2006
-// $Id$
+// $Id: XMLOutputModule.cc,v 1.1 2006/08/25 14:36:07 chrjones Exp $
 //
 
 // system include files
@@ -213,8 +213,15 @@ static void printObject(std::ostream& oStream,
   }
   
   //see if we are dealing with a typedef
-  if(objectToPrint.TypeOf().IsTypedef()){
-    objectToPrint = Object(objectToPrint.TypeOf().ToType(),objectToPrint.Address());
+  ROOT::Reflex::Type objectType = objectToPrint.TypeOf();
+  bool wasTypedef = false;
+  while(objectType.IsTypedef()) {
+     objectType = objectType.ToType();
+     wasTypedef = true;
+  }
+  if(wasTypedef){
+     Object tmp(objectType,objectToPrint.Address());
+     objectToPrint = tmp;
   } 
   if(printAsBuiltin(oStream,iPrefix,iPostfix,objectToPrint,indent)) {
     return;
@@ -224,7 +231,7 @@ static void printObject(std::ostream& oStream,
   }
   
   oStream<<indent<<iPrefix<<formatXML(typeName)<<"\">\n";
-  printDataMembers(oStream,objectToPrint,objectToPrint.TypeOf(),indent+iIndentDelta,iIndentDelta);
+  printDataMembers(oStream,objectToPrint,objectType,indent+iIndentDelta,iIndentDelta);
   oStream<<indent<<iPostfix<<"\n";
   
 };
