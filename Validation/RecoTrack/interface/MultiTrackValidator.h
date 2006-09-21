@@ -22,6 +22,7 @@
 #include <TROOT.h>
 #include <TFile.h>
 #include <TCanvas.h>
+#include <TGraphErrors.h>
 
 using namespace edm;
 using namespace std;

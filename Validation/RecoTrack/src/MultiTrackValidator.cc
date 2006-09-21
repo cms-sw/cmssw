@@ -6,6 +6,8 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+
 #include "Math/ProbFuncMathMore.h"
 
 using namespace ROOT::Math;
@@ -82,18 +84,22 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
   }
 
   setup.get<IdealMagneticFieldRecord>().get(theMF);  
-  associator = new TrackAssociatorByChi2(setup);
+  associator = new TrackAssociatorByChi2(theMF);
 }
 
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
-  edm::Handle<SimTrackContainer> simTrackCollection;
-  event.getByLabel(sim, simTrackCollection);
-  const SimTrackContainer simTC = *(simTrackCollection.product());
+  //   edm::Handle<SimTrackContainer> simTrackCollection;
+  //   event.getByLabel(sim, simTrackCollection);
+  //   const SimTrackContainer simTC = *(simTrackCollection.product());
   
-  edm::Handle<SimVertexContainer> simVertexCollection;
-  event.getByLabel(sim, simVertexCollection);
-  const SimVertexContainer simVC = *(simVertexCollection.product());
+  //   edm::Handle<SimVertexContainer> simVertexCollection;
+  //   event.getByLabel(sim, simVertexCollection);
+  //   const SimVertexContainer simVC = *(simVertexCollection.product());
+
+  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
+  event.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
+  const TrackingParticleCollection tPC = *(TPCollectionH.product());
   
   for (unsigned int w=0;w<label.size();w++){
     //
@@ -103,24 +109,22 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     event.getByLabel(label[w], trackCollection);
     const reco::TrackCollection tC = *(trackCollection.product());
 
-    //     edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-    //     event.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
-    //     const TrackingParticleCollection tPC = *(TPCollectionH.product());
-      
-    //       reco::RecoToSimCollection p = associator->compareTracksParam(trackCollection,TPCollectionH);
-    TrackAssociatorByChi2::RecoToSimPairAssociation q =  associator->compareTracksParam(tC,simTC,simVC);
+    reco::RecoToSimCollection p = associator->associateRecoToSim(trackCollection,TPCollectionH);
+    //     TrackAssociatorByChi2::RecoToSimPairAssociation q =  associator->compareTracksParam(tC,simTC,simVC);
 
     //
     //fill simulation histograms
     //
     int st=0;
-    for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
+    //    for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
+    for (TrackingParticleCollection::const_iterator it=tPC.begin();it!=tPC.end();++it){
+      const SimTrack * simTrack = &(**it->g4Track_begin());
       if (abs(simTrack->momentum().pseudoRapidity())>max || 
 	  abs(simTrack->momentum().pseudoRapidity())<min) continue;
       st++;
       h_ptSIM[w]->Fill(simTrack->momentum().perp());
       h_etaSIM[w]->Fill(simTrack->momentum().pseudoRapidity());
-      h_vertposSIM[w]->Fill(simVC[simTrack->vertIndex()].position().perp());
+      h_vertposSIM[w]->Fill(it->parentVertex()->position().perp());
 	
     }
     if (st!=0) h_tracksSIM[w]->Fill(st);
@@ -129,20 +133,29 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     //fill reconstructed track histograms
     //
     int rt=0;
-    for (TrackAssociatorByChi2::RecoToSimPairAssociation::iterator vit=q.begin();vit!=q.end();++vit){
+    for(reco::TrackCollection::size_type i=0; i<tC.size(); ++i){
+      //     for (TrackAssociatorByChi2::RecoToSimPairAssociation::iterator vit=q.begin();vit!=q.end();++vit){
 
-      if (vit->second.size()==0) continue;
+      reco::TrackRef track(trackCollection, i);
+      std::vector<std::pair<TrackingParticleRef, double> > tp = p[track];
 
-      reco::Track * track = &(vit->first);
-      SimTrack * assocTrack = &(vit->second.begin()->second);
+      if (tp.size()==0) continue;
 
-      h_assochi2[w]->Fill(vit->second.begin()->first);//chi2 of best association
-      h_assochi2_prob[w]->Fill(chisquared_prob((vit->second.begin()->first)*5,5));
+      //       reco::Track * track = &(vit->first);
+      //       for (SimTrackRefVector::iterator it=(*tp.begin())->g4Track_begin();it!=(*tp.begin())->g4Track_end();++it){
+      TrackingParticleRef tpr = tp.begin()->first;
+      SimTrackRefVector::iterator it=tpr->g4Track_begin();
+      const SimTrack * assocTrack = &(**it);
 
+      //association chi2
+      double assocChi2 = tp.begin()->second;
+      h_assochi2[w]->Fill(assocChi2);
+      h_assochi2_prob[w]->Fill(chisquared_prob((assocChi2)*5,5));
+	
       if (abs(track->eta())>max || abs(track->eta())<min) continue;
-
+      
       rt++;
-
+      
       //nchi2 and hits global distributions
       h_nchi2[w]->Fill(track->normalizedChi2());
       h_nchi2_prob[w]->Fill(chisquared_prob(track->chi2(),track->ndof()));
@@ -152,19 +165,21 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       nhits_vs_eta[w]->Fill(track->eta(),track->numberOfValidHits());
       //       h_hits_eta[w]->Fill(track->eta(),track->numberOfValidHits());
       h_charge[w]->Fill( track->charge() );
-
+	
       //pt, eta residue, theta, phi0, d0, dz pull
       double ptres=track->pt()-assocTrack->momentum().perp(); 
       double etares=track->eta()-assocTrack->momentum().pseudoRapidity();
       double thetares=(track->theta()-assocTrack->momentum().theta())/track->thetaError();
       double phi0res=(track->phi0()-assocTrack->momentum().phi())/track->phi0Error();
-      double d0res=(track->d0()-simVC[assocTrack->vertIndex()].position().perp())/track->d0Error();
-      double dzres=(track->dz()-simVC[assocTrack->vertIndex()].position().z())/track->dzError();
-      const HepLorentzVector vertexPosition = simVC[assocTrack->vertIndex()].position(); 
+      double d0res=(track->d0()-tpr->parentVertex()->position().perp())/track->d0Error();
+      double dzres=(track->dz()-tpr->parentVertex()->position().z())/track->dzError();
+      // 	double d0res=(track->d0()-simVC[assocTrack->vertIndex()].position().perp())/track->d0Error();
+      // 	double dzres=(track->dz()-simVC[assocTrack->vertIndex()].position().z())/track->dzError();
+      const HepLorentzVector vertexPosition = tpr->parentVertex()->position(); 
       GlobalVector magField=theMF->inTesla(GlobalPoint(vertexPosition.x(),vertexPosition.y(),vertexPosition.z()));
       double simTrCurv = -track->charge()*2.99792458e-3 * magField.z()/assocTrack->momentum().perp();
       double kres=(track->transverseCurvature()-simTrCurv)/track->transverseCurvatureError();
-
+      
       h_pt[w]->Fill(ptres/(track->transverseCurvatureError()
 			   /track->transverseCurvature()*track-> pt()));
       h_eta[w]->Fill(etares);
@@ -175,7 +190,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       h_pullD0[w]->Fill(d0res);
       h_pullDz[w]->Fill(dzres);
       h_pullK[w]->Fill(kres);
-	
+      
       //pt residue distribution per eta interval
       int i=0;
       for (vector<TH1F*>::iterator h=ptdistrib[w].begin(); h!=ptdistrib[w].end(); h++){
@@ -185,7 +200,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 	i++;
       }
-	
+      
       //eta residue distribution per eta interval
       i=0;
       for (vector<TH1F*>::iterator h=etadistrib[w].begin(); h!=etadistrib[w].end(); h++){
@@ -195,7 +210,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 	i++;
       }
-
+      
       //compute number of tracks per eta interval with pt residue better than 10% pt simulated
       i=0;
       for (vector<double>::iterator h=etaintervals[w].begin(); h!=etaintervals[w].end()-1; h++){
@@ -209,6 +224,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 	i++;
       }
+       
     }
     
     if (rt!=0) h_tracks[w]->Fill(rt);
@@ -263,7 +279,7 @@ void MultiTrackValidator::endJob() {
 
     for (unsigned int rr=0; rr<hitseta[w].size(); rr++){
       if (totREC[w][rr])
-      h_hits_eta[w]->Fill(etaintervals[w][rr+1]-0.00001,((double)  hitseta[w][rr])/((double) totREC[w][rr]));
+	h_hits_eta[w]->Fill(etaintervals[w][rr+1]-0.00001,((double)  hitseta[w][rr])/((double) totREC[w][rr]));
       else h_effic[w]->Fill(etaintervals[w][j+1]-0.00001, 0);
       rr++;
     }
@@ -293,6 +309,10 @@ void MultiTrackValidator::endJob() {
 
     h_assochi2[w]->Write();
     h_assochi2_prob[w]->Write();
+
+    //     for (int point=0;point<nint;point++){
+    //       h_hits_eta[w]->SetBinError(point,1);
+    //     }
     h_hits_eta[w]->Write();
   }
 
