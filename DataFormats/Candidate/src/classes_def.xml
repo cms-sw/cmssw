@@ -1,10 +1,14 @@
 <lcgdict>
 <selection>
-  <class name="reco::ParticleKinematics" />
+  <class name="reco::ParticleKinematics">
+    <field name="p4_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<Double32_t> >" /> 
+  </class>
   <class name="reco::ParticleWithCharge" />
-  <class name="reco::Particle" />
+  <class name="reco::Particle">
+    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
+  </class>
   <class name="reco::Candidate">
-    <fiels name="hasMasterClone_" transient="true"/>
+    <fiels name="hasMasterClone_" transient="true" />
   </class>
   <class name="reco::LeafCandidate" />
   <class name="reco::CompositeCandidate" />
