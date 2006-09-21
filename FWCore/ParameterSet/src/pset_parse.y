@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.45 2006/09/13 22:03:38 rpw Exp $
+ * $Id: pset_parse.y,v 1.46 2006/09/19 19:11:37 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -113,11 +113,15 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token UNTRACKED_tok
 %token UINT32_tok
 %token INT32_tok
+%token UINT64_tok
+%token INT64_tok
 %token BOOL_tok
 %token STRING_tok
 %token DOUBLE_tok
 %token VUINT32_tok
 %token VINT32_tok
+%token VUINT64_tok
+%token VINT64_tok
 %token VSTRING_tok
 
 %token VDOUBLE_tok

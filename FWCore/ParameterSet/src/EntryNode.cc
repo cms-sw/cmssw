@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include <boost/cstdint.hpp>
 
 using std::string;
 
@@ -79,6 +80,16 @@ namespace edm {
      else if(type()=="uint32")
        {
          unsigned int d = strtoul(value_.c_str(),0,0);
+         return Entry(name(), d, !tracked_);
+       }
+     else if(type()=="int64")
+       {
+         boost::int64_t d = strtol(value_.c_str(),0,0);
+         return Entry(name(), d, !tracked_);
+       }
+     else if(type()=="uint64")
+       {
+         boost::int64_t d = strtoul(value_.c_str(),0,0);
          return Entry(name(), d, !tracked_);
        }
      else if(type()=="bool")

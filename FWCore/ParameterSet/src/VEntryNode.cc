@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/EntryNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/parse.h"
-
+#include <boost/cstdint.hpp>
 #include <ostream>
 #include <iterator>
 using std::string;
@@ -142,6 +142,18 @@ namespace edm {
      else if(type()=="vuint32")
        {
          vector<unsigned int> d ;
+         for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
+         return Entry(name(), d, !tracked_);
+       }
+     else if(type()=="vint64")
+       {
+         vector<boost::int64_t> d ;
+         for(ib=k;ib!=ie;++ib) d.push_back(atoi(ib->c_str()));
+         return Entry(name(), d, !tracked_);
+       }
+     else if(type()=="vuint64")
+       {
+         vector<boost::uint64_t> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
          return Entry(name(), d, !tracked_);
        }

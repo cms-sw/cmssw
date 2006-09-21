@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.26 2006/08/28 19:08:47 rpw Exp $
+ * $Id: pset_lex.l,v 1.27 2006/09/13 22:03:34 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -64,6 +64,10 @@ comment2        "//".*[\n]?
 "vint32"	{ yylval.str=stringDup("vint32"); return VTYPE_tok; }
 "uint32"	{ yylval.str=stringDup("uint32"); return TYPE_tok; } 
 "vuint32"	{ yylval.str=stringDup("vuint32"); return VTYPE_tok; } 
+"int64"         { yylval.str=stringDup("int64"); return TYPE_tok; }
+"vint64"        { yylval.str=stringDup("vint64"); return VTYPE_tok; }
+"uint64"        { yylval.str=stringDup("uint64"); return TYPE_tok; }
+"vuint64"       { yylval.str=stringDup("vuint64"); return VTYPE_tok; }
 "string"	{ return STRING_tok; }
 "vstring"	{ return VSTRING_tok; }
 "double"	{ yylval.str=stringDup("double"); return TYPE_tok; }
