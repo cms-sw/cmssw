@@ -538,7 +538,7 @@ vector<L1CaloRegion> L1RCT::getRegions(int crate){
     }
     unsigned short fineGrain = hfFineGrainBits.at(i);
     unsigned short energy = hfEnergies.at(i);
-    L1CaloRegion hfRegion(energy, fineGrain, crate, hfRgn);  // no overflow
+    L1CaloRegion hfRegion(energy, fineGrain, crate, i);  // no overflow  // CHANGED hfRgn to i !!  to match rest of hf mapping Sept. 22 J. Leonard
     regionCollection.push_back(hfRegion);
   }
   return regionCollection;

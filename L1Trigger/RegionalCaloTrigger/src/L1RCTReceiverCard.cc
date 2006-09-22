@@ -168,6 +168,7 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region){
 
   bitset<4> badPattern5(string("0101"));
   bitset<4> badPattern7(string("0111"));
+  bitset<4> badPattern9(string("1001"));
   bitset<4> badPattern10(string("1010"));
   bitset<4> badPattern11(string("1011"));
   bitset<4> badPattern13(string("1101"));
@@ -189,7 +190,8 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region){
      etaPattern != badPattern15 && phiPattern != badPattern5 && 
      phiPattern != badPattern7 && phiPattern != badPattern10 && 
      phiPattern != badPattern11 && phiPattern != badPattern13 && 
-     phiPattern != badPattern14 && phiPattern != badPattern15){
+     phiPattern != badPattern14 && phiPattern != badPattern15 &&
+     etaPattern != badPattern9 && phiPattern != badPattern9){       // adding in "9"
     //return false;
     answer = false;
   }
