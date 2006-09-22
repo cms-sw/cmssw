@@ -92,8 +92,9 @@ bool MiscalibReaderFromXML::parseXMLMiscalibFile(std::string configFile){
 unsigned int linkTagsNum = doc->getElementsByTagName(_toDOMS("Cell"))->getLength();
         std::cout << "Number of Cells = " << linkTagsNum << std::endl;
         
-	
+        int count=0;	
 	for (unsigned int i=0; i<linkTagsNum; i++){
+			
 		
 		DOMNode* linkNode = doc->getElementsByTagName(_toDOMS("Cell"))->item(i);
 		///Get ME name
@@ -112,12 +113,21 @@ unsigned int linkTagsNum = doc->getElementsByTagName(_toDOMS("Cell"))->getLength
 		double scalingfactor= getScalingFactor(attributes);
 		
 		
+		
 		DetId cell = parseCellEntry(attributes);
+		
+		if(cell!= (DetId) NULL) 
+		{ 
+		count++;
 		caloMap_.addCell(cell,scalingfactor);
+		} else  
+		{
+		std::cout << "Null received" << std::endl;
+		}
 		
 	}
-
-
+ 
+        std::cout << "Numero celle =" << count << std::endl;
 	return false;
 
 }
