@@ -83,8 +83,8 @@ namespace edm
   {
 
   /** Consumers are suppose to provide
-         void doOutputHeader(std::auto_ptr<InitMsgBuilder> init_message)
-         void doOutputEvent(std::auto_ptr<EventMsgBuilder> msg)
+         void doOutputHeader(const InitMsgBuilder& init_message)
+         void doOutputEvent(const EventMsgBuilder& msg)
          void stop()
   **/
         
@@ -170,7 +170,7 @@ template <class Consumer>
 void StreamerOutputModule<Consumer>::beginJob(EventSetup const&)
   {
     std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry(); 
-    c_->doOutputHeader(init_message);  // You can't use init_message 
+    c_->doOutputHeader(*init_message);  // You can't use init_message 
                                            // in StreamerOutputModule after this point
   }
 
@@ -184,7 +184,7 @@ template <class Consumer>
 void StreamerOutputModule<Consumer>::write(EventPrincipal const& e)
   {
     std::auto_ptr<EventMsgBuilder> msg = serializeEvent(e);
-    c_->doOutputEvent(msg); // You can't use msg
+    c_->doOutputEvent(*msg); // You can't use msg
                               // in StreamerOutputModule after this point
   }
 
