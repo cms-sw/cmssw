@@ -47,6 +47,8 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet& iConfig)
   }
   
   label_= iConfig.getParameter<std::string>("Label");
+  instanceNameEB_ = iConfig.getParameter<std::string>("InstanceEB");;
+  instanceNameEE_ = iConfig.getParameter<std::string>("InstanceEE");;
   fgvbMinEnergy_=  iConfig.getParameter<int>("FgvbMinEnergy");
   ttfThreshLow_ =  iConfig.getParameter<double>("TTFLowEnergy");
   ttfThreshHigh_=  iConfig.getParameter<double>("TTFHighEnergy");
@@ -100,9 +102,9 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 {
 
   edm::Handle<EBDigiCollection> ebDigis;
-  e.getByLabel(label_,ebDigis);
+  e.getByLabel(label_,instanceNameEB_,ebDigis);
   edm::Handle<EEDigiCollection> eeDigis;
-  e.getByLabel(label_,eeDigis);
+  e.getByLabel(label_,instanceNameEE_,eeDigis);
 
   LogDebug("Startproduce") <<" =================> Treating event "<<e.id()<<", Number of EBDFataFrames "<<ebDigis.product()->size() ;
   std::auto_ptr<EcalTrigPrimDigiCollection> pOut(new EcalTrigPrimDigiCollection);

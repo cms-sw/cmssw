@@ -48,6 +48,8 @@ class EcalTrigPrimProducer : public edm::EDProducer
   TTree *valTree_;
   bool valid_;
   std::string label_;
+  std::string instanceNameEB_;
+  std::string instanceNameEE_;
   int fgvbMinEnergy_;
   double ttfThreshLow_;
   double ttfThreshHigh_;
