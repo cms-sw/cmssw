@@ -18,9 +18,6 @@
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 
 namespace helper {
-  template<typename C>
-  struct CollectionStoreManager;
-
   struct PhotonCollectionStoreManager {
     PhotonCollectionStoreManager() :
       selPhotons_( new reco::PhotonCollection ),

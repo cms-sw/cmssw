@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ElectronSelector.h,v 1.1 2006/09/22 10:06:29 llista Exp $
+ * $Id: ElectronSelector.h,v 1.2 2006/09/22 10:39:03 llista Exp $
  *
  */
 
@@ -21,9 +21,6 @@
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 
 namespace helper {
-  template<typename C>
-  struct CollectionStoreManager;
-
   struct ElectronCollectionStoreManager {
     ElectronCollectionStoreManager() :
       selElectrons_( new reco::ElectronCollection ),

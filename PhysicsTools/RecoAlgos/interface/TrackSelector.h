@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.11 $
  *
- * $Id: TrackSelector.h,v 1.9 2006/09/01 09:42:24 llista Exp $
+ * $Id: TrackSelector.h,v 1.11 2006/09/08 09:38:31 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -18,9 +18,6 @@
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 
 namespace helper {
-  template<typename C>
-  struct CollectionStoreManager;
-
   struct TrackCollectionStoreManager {
     TrackCollectionStoreManager() :
       selTracks_( new reco::TrackCollection ),
