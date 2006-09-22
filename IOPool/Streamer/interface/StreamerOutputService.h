@@ -3,8 +3,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "IOPool/Streamer/interface/StreamerOutputFile.h"
-#include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
+//#include "IOPool/Streamer/interface/StreamerOutputFile.h"
+//#include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
+#include "IOPool/Streamer/src/StreamerFileWriter.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -13,6 +14,8 @@
 #include <vector>
 #include <memory>
 #include <string>
+
+#include <boost/shared_ptr.hpp>
 
 namespace edm
 {
@@ -26,15 +29,21 @@ namespace edm
 
     void init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
               std::string path, std::string mpath, InitMsgView& init_message) ;
-    void writeEvent(EventMsgView& msg, uint32 hlt_trig_count);
 
+    //By defaulting hlt_trig_count, i don't need to provide any value
+    // for hlt_trig_count, which is actually NO MORE used,
+    //I will actualy remove this parameter soon, keeping it
+    // ONLY for backward compatability
+    // AA - 09/22/2006 
+    void writeEvent(EventMsgView& msg, uint32 hlt_trig_count=0);
+    
     void stop(); // shouldn't be called from destructor.
 
     std::list<std::string> get_filelist() { return files_; }
     std::string get_currfile() { return fileName_;}
 
   private:
-    void writeHeader(InitMsgBuilder& init_message);
+    void writeHeader(InitMsgView& init_message);
  
      unsigned long maxFileSize_;
      unsigned long maxFileEventCount_;
@@ -60,8 +69,10 @@ namespace edm
      std::string fileName_;
      std::string indexFileName_;
 
-     std::auto_ptr<StreamerOutputFile> stream_writer_;
-     std::auto_ptr<StreamerOutputIndexFile> index_writer_;
+     boost::shared_ptr<StreamerFileWriter> streamNindex_writer_;
+ 
+     //std::auto_ptr<StreamerOutputFile> stream_writer_;
+     //std::auto_ptr<StreamerOutputIndexFile> index_writer_;
 
   };
 }
