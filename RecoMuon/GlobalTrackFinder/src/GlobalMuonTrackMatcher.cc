@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/09/08 18:00:26 $
- *  $Revision: 1.27 $
+ *  $Date: 2006/09/20 16:37:57 $
+ *  $Revision: 1.28 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -80,10 +80,36 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
                               const std::vector<TrackCand>& tkTs) const {
   
   vector<TrackCand> result; 
+  float pt = 0.0;
+  TrackCand index;
   for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
     pair<bool,double> check = match(staCand,*is);    
     if ( check.first ) result.push_back(*is);
+    
+    float pt_tmp = (*is).second->pt();
+    if(pt_tmp > pt) {
+      pt = pt_tmp;
+      index = *is;
+    }
   }
+
+  //If there are no matches, return the TkTrack closest to STACandin eta-phi space
+  if( result.size() == 0 ) {
+    float deltaR = 1000.0;
+    
+    for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
+      double deltaEta = staCand.second->eta() - (*is).second->eta();
+      double deltaPhi = staCand.second->phi() - (*is).second->phi();
+      double deltaR_tmp = sqrt(pow(deltaEta,2.) + pow(deltaPhi,2.));
+      
+      if(deltaR_tmp < deltaR) {
+	deltaR = deltaR_tmp;
+	index = *is;
+      }
+    }    
+    result.push_back(index);
+  }
+  
   return result;
 }
 
@@ -122,10 +148,10 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
   
   // extrapolate innermost standalone TSOS to outer tracker surface
   TrajectoryStateOnSurface tkTsosFromMu = theUpdator->stateAtTracker(innerMuTsos);
-  if ( !tkTsosFromMu.isValid() ) return pair<bool,double>(false,0.);
- 
   // extrapolate outermost tracker measurement TSOS to outer tracker surface
   TrajectoryStateOnSurface tkTsosFromTk = theUpdator->stateAtTracker(outerTkTsos);
+
+  if ( !tkTsosFromMu.isValid() ) return pair<bool,double>(false,0.);
   if ( !tkTsosFromTk.isValid() ) return pair<bool,double>(false,0.);
 
   // compare the TSOSs on outer tracker surface
@@ -162,7 +188,7 @@ GlobalMuonTrackMatcher::match(const TrajectoryStateOnSurface& tsos1,
   double deta(fabs(eta1-eta2));
 
   float dd = 0.2;
-  bool goodCoords = ( (dphi < dd) && (deta < dd) ) ? true : false;
+  bool goodCoords = ( (dphi < dd) || (deta < dd) ) ? true : false;
   bool good = ( goodChi || goodCoords ) ? true : false;
 
   return pair<bool,double>(good,est);
