@@ -25,6 +25,8 @@
 #include <iomanip>
 #include <set>
 
+using namespace std;
+
 class RPCGeometryAnalyzer : public edm::EDAnalyzer {
 
  public: 
