@@ -1,6 +1,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=DataFormats/L1Trigger>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/TrajectoryState>
 <use name=DataFormats/L1GlobalMuonTrigger>
