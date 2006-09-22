@@ -13,8 +13,8 @@
 
 #include "i2o/include/i2o/Method.h"
 #include "i2o/utils/include/i2o/utils/AddressMap.h"
-
-#include "xdata/include/xdata/UnsignedLong.h"
+#include "xdata/include/xdata/SimpleType.h"
+#include "xdata/include/xdata/UnsignedInteger32.h"
 #include "xdata/include/xdata/Boolean.h"
 #include "xdata/include/xdata/String.h"
 
@@ -116,11 +116,11 @@ private:
 
     U32 eventHandle_;
 
-    xdata::UnsignedLong dataBufSize_;   ///< Exported parameter
-    xdata::UnsignedLong fragSize_;      ///< Exported parameter
-    xdata::UnsignedLong nbRUs_;         ///< Exported parameter
-    xdata::UnsignedLong buCapacity_;    ///< Exported parameter
-    xdata::UnsignedLong nbEventsSent_;  ///< Exported parameter
+    xdata::UnsignedInteger32 dataBufSize_;   ///< Exported parameter
+    xdata::UnsignedInteger32 fragSize_;      ///< Exported parameter
+    xdata::UnsignedInteger32 nbRUs_;         ///< Exported parameter
+    xdata::UnsignedInteger32 buCapacity_;    ///< Exported parameter
+    xdata::UnsignedInteger32 nbEventsSent_;  ///< Exported parameter
     xdata::Boolean      useSimulInput_; ///< Exported parameter
     xdata::String       simulInputFile_;///< Exported parameter
     xdata::Boolean      useFixedSize_;  ///< Exported parameter
