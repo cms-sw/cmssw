@@ -1,6 +1,6 @@
 #ifndef Math_Vector3D_h
 #define Math_Vector3D_h
-// $Id: Vector3D.h,v 1.9 2006/09/21 08:11:21 llista Exp $
+// $Id: Vector3D.h,v 1.10 2006/09/22 07:48:49 llista Exp $
 #include <Rtypes.h>
 #include <Math/Cartesian3D.h>
 #include <Math/Polar3D.h>
@@ -35,6 +35,8 @@ namespace math {
   typedef XYZVectorD XYZVector;
   /// spatial vector with cylindrical internal representation using pseudorapidity
   typedef RhoEtaPhiVectorD RhoEtaPhiVector;
+  /// spatial vector with polar internal representation
+  typedef RThetaPhiVectorD RThetaPhiVector;
 }
 
 #endif
