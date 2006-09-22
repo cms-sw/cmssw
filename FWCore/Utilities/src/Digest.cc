@@ -12,10 +12,12 @@ namespace cms
 {
   namespace
   {
-    MD5Result invalidResult = Digest().digest();
+    MD5Result const& invalidResult()
+    {
+      static const MD5Result val;      
+      return val;
+    }
 
-
-    
     char unhexify(char hexed)
     {
       switch (hexed) 
@@ -43,11 +45,29 @@ namespace cms
   // MD5Result and associated free functions
   //
 
+  void set_to_default(MD5Result& val)
+  {
+    val.bytes[0] = 0xd4;
+    val.bytes[1] = 0x1d;
+    val.bytes[2] = 0x8c;
+    val.bytes[3] = 0xd9;
+    val.bytes[4] = 0x8f;
+    val.bytes[5] = 0x00;
+    val.bytes[6] = 0xb2;
+    val.bytes[7] = 0x04;
+    val.bytes[8] = 0xe9;
+    val.bytes[9] = 0x80;
+    val.bytes[10] = 0x09;
+    val.bytes[11] = 0x98;
+    val.bytes[12] = 0xec;
+    val.bytes[13] = 0xf8;
+    val.bytes[14] = 0x42;
+    val.bytes[15] = 0x7e;
+  }
+
   MD5Result::MD5Result() 
   {
-    std::copy(invalidResult.bytes,
-	      invalidResult.bytes + sizeof(invalidResult.bytes),
-	      bytes);
+    set_to_default(*this);
   }
 
 
@@ -75,7 +95,7 @@ namespace cms
       {
       case 0:
 	{
-	  *this = invalidResult;
+	  set_to_default(*this);
 	}
 	break;
       case 32:
@@ -103,7 +123,7 @@ namespace cms
 
   bool MD5Result::isValid() const
   {
-    return (*this != invalidResult);
+    return (*this != invalidResult());
   }
 
   bool operator==(MD5Result const& a, MD5Result const& b)
