@@ -80,7 +80,8 @@ void ApvTimingAnalysis::maxTime( const float& time ) {
   maxTime_ = time;
   if ( time_ > sistrip::maximum_ ) { return; }
   float adjustment = 25 - static_cast<int32_t>( rint(maxTime_+optimumSamplingPoint_) ) % 25;
-  delay_ = ( maxTime_ + adjustment ) - time_; 
+  maxTime_ += adjustment;
+  delay_ = maxTime_ - time_; 
 }
 
 // ----------------------------------------------------------------------------
