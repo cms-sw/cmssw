@@ -42,7 +42,7 @@ class TrackLocalAngle
 
   std::vector<std::pair<const TrackingRecHit *,float> > findtrackangle(const reco::Track & theT);
   std::vector<std::pair<const TrackingRecHit *,float> > buildTrack(TransientTrackingRecHit::RecHitContainer& hits,
-								   TrajectoryStateOnSurface& theTSOS,
+								   const TrajectoryStateOnSurface& theTSOS,
 								   const TrajectorySeed& seed);
   TrajectoryStateOnSurface  startingTSOS(const TrajectorySeed& seed)const;
 
@@ -55,11 +55,12 @@ class TrackLocalAngle
   KFUpdator *theUpdator;
   Chi2MeasurementEstimator *theEstimator;
   const TransientTrackingRecHitBuilder *RHBuilder;
-  const KFTrajectorySmoother * theSmoother;
+  //  const KFTrajectorySmoother * theSmoother;
   const TrajectoryFitter * theFitter;
   const TrackerGeometry * tracker;
   const MagneticField * magfield;
   TrajectoryStateTransform tsTransform;
+  //  TransientTrackingRecHit::RecHitContainer hits;
 };
 
 
