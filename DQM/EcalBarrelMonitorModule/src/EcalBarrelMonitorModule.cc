@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/07/08 09:28:15 $
- * $Revision: 1.111 $
+ * $Date: 2006/07/08 11:12:05 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -224,7 +224,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   sleep(5);
 
-  this->cleanup();
+  if ( init_ ) this->cleanup();
 
 }
 

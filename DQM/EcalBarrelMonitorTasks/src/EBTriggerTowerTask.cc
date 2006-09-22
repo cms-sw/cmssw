@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/14 06:49:35 $
- * $Revision: 1.13 $
+ * $Date: 2006/09/15 13:58:02 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -123,7 +123,7 @@ void EBTriggerTowerTask::endJob(void){
 
   LogInfo("EBTriggerTowerTask") << "analyzed " << ievt_ << " events";
 
-  this->cleanup();
+  if ( init_ ) this->cleanup();
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2006/07/08 07:22:02 $
- * $Revision: 1.13 $
+ * $Date: 2006/07/08 09:28:52 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -89,7 +89,7 @@ void EBPedestalOnlineTask::endJob(void){
 
   LogInfo("EBPedestalOnlineTask") << "analyzed " << ievt_ << " events";
 
-  this->cleanup();
+  if ( init_ ) this->cleanup();
 
 }
 

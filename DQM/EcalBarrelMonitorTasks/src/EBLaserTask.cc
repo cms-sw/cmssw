@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/07/08 09:28:52 $
- * $Revision: 1.55 $
+ * $Date: 2006/09/13 07:31:40 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -352,7 +352,7 @@ void EBLaserTask::endJob(void){
 
   LogInfo("EBLaserTask") << "analyzed " << ievt_ << " events";
 
-  this->cleanup();
+  if ( init_ ) this->cleanup();
 
 }
 

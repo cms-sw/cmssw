@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/08/07 21:59:12 $
- * $Revision: 1.55 $
+ * $Date: 2006/08/08 09:07:34 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -115,7 +115,7 @@ void EBCosmicTask::endJob(void){
 
   LogInfo("EBCosmicTask") << "analyzed " << ievt_ << " events";
 
-  this->cleanup();
+  if ( init_ ) this->cleanup();
 
 }
 
