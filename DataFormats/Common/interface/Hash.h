@@ -11,7 +11,7 @@
   
 Hash:
 
-$Id: Hash.h,v 1.7 2006/09/20 16:42:12 paterno Exp $
+$Id: Hash.h,v 1.8 2006/09/20 18:32:13 paterno Exp $
 
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function
@@ -191,7 +191,31 @@ namespace edm {
     switch (hash_.size() ) {
     case 0:
       {
-	hash_ = edm::detail::InvalidHash();
+	// The next line is correct C++, but fails because of a bug in
+	// Root, in which the constness of a string is cast away.
+	// When the Root bug is fixed, this should be changed back to
+	// the single line below...
+	//
+	//hash_ = edm::detail::InvalidHash();
+	//
+	// Temporary work-around to Root bug follows...
+	hash_.resize(16);
+	hash_[0] = 0xd4;
+	hash_[1] = 0x1d;
+	hash_[2] = 0x8c;
+	hash_[3] = 0xd9;
+	hash_[4] = 0x8f;
+	hash_[5] = 0x00;
+	hash_[6] = 0xb2;
+	hash_[7] = 0x04;
+	hash_[8] = 0xe9;
+	hash_[9] = 0x80;
+	hash_[10] = 0x09;
+	hash_[11] = 0x98;
+	hash_[12] = 0xec;
+	hash_[13] = 0xf8;
+	hash_[14] = 0x42;
+	hash_[15] = 0x7e;
 	break;
       }	
     case 16: 
