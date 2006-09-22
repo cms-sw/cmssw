@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ElectronSelector.h,v 1.9 2006/09/01 09:42:24 llista Exp $
+ * $Id: ElectronSelector.h,v 1.1 2006/09/22 10:06:29 llista Exp $
  *
  */
 
@@ -69,7 +69,7 @@ namespace helper {
       evt.put( selTrackExtras_ );
       evt.put( selHits_ );
     }
-    bool empty() const { return selTracks_->empty(); }
+    bool empty() const { return selElectrons_->empty(); }
   private:
     std::auto_ptr<reco::ElectronCollection> selElectrons_;
     std::auto_ptr<reco::SuperClusterCollection> selSuperClusters_;

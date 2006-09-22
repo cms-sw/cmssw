@@ -24,6 +24,7 @@
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/ElectronSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/PhotonSelector.h"
 
 namespace reco {
   namespace modules {
@@ -132,6 +133,14 @@ namespace reco {
               >
             > PtMinElectronSelector;
 
+    /// select photons above a give pt
+    typedef ObjectSelector<
+              SingleElementCollectionSelector<
+                reco::PhotonCollection,
+                EtMinSelector<reco::Photon>
+              >
+            > EtMinPhotonSelector;
+
      /// select electrons above a give pt
     typedef ObjectSelector<
               SingleElementCollectionSelector<
@@ -178,7 +187,9 @@ DEFINE_ANOTHER_FWK_MODULE( PtMinTrackSelector );
 DEFINE_ANOTHER_FWK_MODULE( LargestPtTrackSelector )
 DEFINE_ANOTHER_FWK_MODULE( MassWindowTrackSelector )
 DEFINE_ANOTHER_FWK_MODULE( PtMinElectronSelector );
+DEFINE_ANOTHER_FWK_MODULE( EtMinPhotonSelector );
 DEFINE_ANOTHER_FWK_MODULE( EtaPtMinElectronSelector );
+
 DEFINE_ANOTHER_FWK_MODULE( TrackMerger );
 DEFINE_ANOTHER_FWK_MODULE( MuonMerger );
 DEFINE_ANOTHER_FWK_MODULE( ElectronMerger );
