@@ -6,16 +6,29 @@ DetId MiscalibReaderFromXMLEcalEndcap::parseCellEntry(XERCES_CPP_NAMESPACE::DOMN
 {
 
 EEDetId cell= MiscalibReaderFromXMLEcalEndcap::getCellFromAttributes(
-                                            getIntAttribute(attribute,"module_index"),
-                                            getIntAttribute(attribute,"crystal_index"),
+                                            getIntAttribute(attribute,"x_index"),
+                                            getIntAttribute(attribute,"y_index"),
                                             getIntAttribute(attribute,"z_index")
                                             );
 return cell;
 }
 
-EEDetId MiscalibReaderFromXMLEcalEndcap::getCellFromAttributes(int isc, int ic, int iz)
+EEDetId MiscalibReaderFromXMLEcalEndcap::getCellFromAttributes(int ix, int iy, int iz)
 {
-EEDetId cell(isc,ic,iz,1);
-return cell;
+
+       try 
+         {
+           EEDetId cell(ix,iy,iz);
+           return cell;
+         }
+    
+           catch (...)
+	  
+        {
+          std::cout << "Null coordinates = "<< ix << "," << iy << "," << iz << std::endl;
+	  return (EEDetId) NULL;
+        }
+	    
+	    
 }
 
