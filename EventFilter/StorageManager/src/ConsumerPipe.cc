@@ -148,7 +148,7 @@ bool ConsumerPipe::wantsEvent(EventMsgView const& eventView) const
   cout << ")\n";
   */
   int num_paths = eventView.hltCount();
-  bool rc = eventSelector_->acceptEvent(&hlt_out[0], num_paths);
+  bool rc = (eventSelector_->wantAll() || eventSelector_->acceptEvent(&hlt_out[0], num_paths));
   //std::cout << "====================== " << std::endl;
   //std::cout << "return selector code = " << rc << std::endl;
   //std::cout << "====================== " << std::endl;
