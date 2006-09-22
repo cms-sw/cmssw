@@ -48,6 +48,7 @@ class AlCaIsoTracksProducer : public edm::EDProducer {
 
    private:
       std::string m_inputTrackLabel;
+      int m_histoFlag;
       TFile* m_Hfile;
       struct{
         TH1F* Ntrk;
