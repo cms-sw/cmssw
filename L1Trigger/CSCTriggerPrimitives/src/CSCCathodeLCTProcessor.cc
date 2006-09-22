@@ -22,18 +22,14 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/07/03 16:12:58 $
-//   $Revision: 1.5 $
+//   $Date: 2006/09/12 08:56:16 $
+//   $Revision: 1.6 $
 //
 //   Modifications: 
 //
 //-----------------------------------------------------------------------------
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h>
-
-//#ifdef MC
-//#include "Muon/MESimHitLoader/interface/MuEndSimHit.h"
-//#endif
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
@@ -53,82 +49,30 @@ int  CSCCathodeLCTProcessor::test_iteration = 0;
 // This is the strip pattern that we use for pretrigger.
 // pre_hit_pattern[0][i] = layer. pre_hit_pattern[1][i] = key_strip offset.
 const int CSCCathodeLCTProcessor::pre_hit_pattern[2][NUM_PATTERN_STRIPS]= {
-  {  999,  999,  0,  0,  0,  999,  999,  
-     999,  999,  1,  1,  1,  999,  999,
-     999,  999,  2,  2,  2,  999,  999,
-                     3,                      // layer
-     999,  999,  4,  4,  4,  999,  999,  
-     999,  999,  5,  5,  5,  999,  999}, 
+  { 999,  999,  0,  0,  0,  999,  999,
+    999,  999,  1,  1,  1,  999,  999,
+    999,  999,  2,  2,  2,  999,  999,
+                    3,                      // layer
+    999,  999,  4,  4,  4,  999,  999,
+    999,  999,  5,  5,  5,  999,  999},
   //-------------------------------------------------
-  {  999,  999, -1,  0,  1,  999,  999, 
-     999,  999, -1,  0,  1,  999,  999,
-     999,  999, -1,  0,  1,  999,  999, 
-                     0,                      // offset
-     999,  999, -1,  0,  1,  999,  999, 
-     999,  999, -1,  0,  1,  999,  999}
+  { 999,  999, -1,  0,  1,  999,  999,
+    999,  999, -1,  0,  1,  999,  999,
+    999,  999, -1,  0,  1,  999,  999,
+                    0,                      // offset
+    999,  999, -1,  0,  1,  999,  999,
+    999,  999, -1,  0,  1,  999,  999}
 };
 
-// Every pattern the CathodeLCTProcessor uses is defined below.  For the
-// given pattern, set the unused parts of the pattern to 999.  Pattern[i][16]
-// contains pt bend value. JM
+// The standard set of patterns the CathodeLCTProcessor uses is defined below.
+// For the given pattern, set the unused parts of the pattern to 999.
+// Pattern[i][16] contains pt bend value. JM
 // bend of 0 is left/straight and bend of 1 is right bht 21 June 2001
 // note that the left/right-ness of this is exactly opposite of what one would
 // expect naively (at least it was for me). The only way to make sure you've
 // got the patterns you want is to use the printPatterns() method to dump
 // them. BHT 21 June 2001
 const int CSCCathodeLCTProcessor::pattern[CSCConstants::NUM_CLCT_PATTERNS][NUM_PATTERN_STRIPS+1] = {
-  //patterns.
-
-  /*  {999, 999, 999,   0, 999, 999, 999,
-   999, 999, 999,   1, 999, 999, 999,
-   999, 999, 999,   2, 999, 999, 999,   
-                    3,                 // straight through pattern
-   999, 999, 999,   4, 999, 999, 999,
-   999, 999, 999,   5, 999, 999, 999, 0},
-  //-------------------------------------------------------------
-  {999, 999,   0, 999, 999, 999, 999,   
-   999, 999,   1, 999, 999, 999, 999,  
-   999, 999,   2,   2, 999, 999, 999,  
-                    3,                 // left bending pattern (small)
-   999, 999, 999,   4,   4, 999, 999, 
-   999, 999, 999, 999,   5, 999, 999, 0},
-  //-------------------------------------------------------------
-  {999, 999, 999, 999,   0, 999, 999, 
-   999, 999, 999, 999,   1, 999, 999,
-   999, 999, 999,   2,   2, 999, 999,  
-                    3,                 // right bending pattern (small)
-   999, 999,   4,   4, 999, 999, 999, 
-   999, 999,   5, 999, 999, 999, 999, 1},
-  //-------------------------------------------------------------
-  {999,   0,   0, 999, 999, 999, 999, 
-   999,   1,   1, 999, 999, 999, 999,
-   999, 999,   2,   2, 999, 999, 999,   
-                    3,                 // left bending pattern (medium)
-   999, 999, 999,   4,   4, 999, 999,
-   999, 999, 999, 999,   5,   5, 999, 0},
-  //-------------------------------------------------------------
-  {999, 999, 999, 999,   0,   0, 999, 
-   999, 999, 999, 999,   1,   1, 999, 
-   999, 999, 999,   2,   2, 999, 999,  
-                    3,                 // right bending pattern (medium)
-   999, 999,   4,   4, 999, 999, 999,  
-   999,   5,   5, 999, 999, 999, 999, 1}, 
-  //-------------------------------------------------------------
-  {  0,   0, 999, 999, 999, 999, 999,   
-   999,   1,   1, 999, 999, 999, 999,  
-   999, 999,   2,   2, 999, 999, 999,  
-                    3,                 // left bending pattern (large)
-   999, 999, 999, 999,   4,   4, 999,
-   999, 999, 999, 999, 999,   5,   5, 0}, 
-  //-------------------------------------------------------------
-  {999, 999, 999, 999, 999,   0,   0, 
-   999, 999, 999, 999,   1,   1, 999,
-   999, 999, 999,   2,   2, 999, 999,  
-                    3,                 // right bending pattern (large)
-   999,   4,   4, 999, 999, 999, 999,   
-     5,   5, 999, 999, 999, 999, 999, 1}*/
-
-  ///// The standard set of patterns
   {999, 999, 999, 999, 999, 999, 999,
    999, 999, 999, 999, 999, 999, 999,
    999, 999, 999, 999, 999, 999, 999,
@@ -503,10 +447,6 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
   // closest SimHits.
   if (bestCLCT.isValid()) {
     bestCLCT.setTrknmb(1);
-    //#ifdef MC
-    // L1MuCSCCathodeLCTAnalyzer analyzer;
-    // bestCLCT.simInfo = analyzer.getSimInfo(bestCLCT, theChamber);
-    //#endif
     if (infoV > 0) {
       LogDebug("CSCCathodeLCTProcessor")
 	<< bestCLCT << " found in endcap " << theEndcap
@@ -518,21 +458,10 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
 	<< CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
                               theSubsector, theStation, theTrigChamber)
 	<< " (trig id. " << theTrigChamber << ")" << "\n";
-      /* IMPROVE LATER
-      #ifdef MC
-      if (bestCLCT.simInfo != 0) {
-	LogDebug("CSCCathodeLCTProcessor")
-	  << "Best CLCT values: phi = " << bestCLCT.simInfo->phi()
-	  << " eta = " << bestCLCT.simInfo->eta();
-      }
-      #endif */
     }
   }
   if (secondCLCT.isValid()) {
     secondCLCT.setTrknmb(2);
-    //#ifdef MC
-    // secondCLCT.simInfo = analyzer.getSimInfo(secondCLCT, theChamber);
-    //#endif
     if (infoV > 0) {
       LogDebug("CSCCathodeLCTProcessor")
 	<< secondCLCT << " found in endcap " << theEndcap
@@ -544,14 +473,6 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
 	<< CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
                               theSubsector, theStation, theTrigChamber)
 	<< " (trig id. " << theTrigChamber << ")" << "\n";
-      /* IMPROVE LATER
-      #ifdef MC
-      if (secondCLCT.simInfo != 0) {
-	LogDebug("CSCCathodeLCTProcessor")
-	  << "Second best CLCT values: phi = " << secondCLCT.simInfo->phi()
-	  << " eta = " << secondCLCT.simInfo->eta();
-      }
-      #endif */
     }
   }
   // Now that we have our 2 best CLCTs, they get correlated with the 2 best
@@ -585,23 +506,6 @@ void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
 	 digiIt != rcompd.second; ++digiIt) {
       digiV[i_layer].push_back(*digiIt);
     }
-
-    /* if (infoV > 2){
-      if(digiV[i_layer].size() > 0){
-	for (std::vector<CSCComparatorDigi>::iterator pdigi = digiV[i_layer].begin(); 
-	     pdigi != digiV[i_layer].end(); pdigi++){
-	  std::vector<int> trackIds = 
-	    pLayer->simDet()->simTrackIds(pdigi->getStripNumber());
-	  cout << "Track Ids for Layer " << i_layer << ", Strip " 
-	       << pdigi->getStripNumber() << ": ";
-	  for (std::vector<int>::iterator p = trackIds.begin(); 
-	       p!=trackIds.end(); p++){
-	    cout << *p << " ";
-	  }
-	  cout << endl;
-	}
-      } 
-    }*/
   }
 }
 
@@ -614,17 +518,16 @@ void CSCCathodeLCTProcessor::getDigis(const std::vector<std::vector<CSCComparato
 
   if (infoV > 1) {
     std::vector<CSCComparatorDigi>::const_iterator idigi;
-    char str_digis[7*CSCConstants::MAX_NUM_STRIPS] = "", tmp[1];
+    std::ostringstream strstrm;
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
       for (idigi = digiV[i_layer].begin(); idigi < digiV[i_layer].end();
 	   idigi++) {
-	sprintf(tmp, "%d", idigi->getComparator());
-	strcat(str_digis, tmp);
-	strcat(str_digis, " ");
+	strstrm << idigi->getComparator();
+	strstrm << " ";
       }
-      strcat(str_digis, "\n");
+      strstrm << "\n";
     }
-    LogDebug("CSCCathodeLCTProcessor") << str_digis;
+    LogDebug("CSCCathodeLCTProcessor") << strstrm.str();
   }
 }
 
@@ -1291,18 +1194,16 @@ void CSCCathodeLCTProcessor::priorityEncode(
   if (infoV > 1) {
     LogDebug("CSCCathodeLCTProcessor")
       << ".....................PriorityEncode.......................";
-    char str_out[80] = "", tmp[5] = "";
-    strcat(str_out, "hkeys:");
+    std::ostringstream strstrm;
+    strstrm << "hkeys:";
     for (int icfeb = 0; icfeb < NUM_CFEBS; icfeb++) {
-      sprintf(tmp, "%4d", h_keyStrip[icfeb]);
-      strcat(str_out, tmp);
+      strstrm << std::setw(4) << h_keyStrip[icfeb];
     }
-    strcat(str_out, "\ndkeys:");
+    strstrm << "\ndkeys:";
     for (int icfeb = 0; icfeb < NUM_CFEBS; icfeb++) {
-      sprintf(tmp, "%4d", d_keyStrip[icfeb]);
-      strcat(str_out, tmp);
+      strstrm << std::setw(4) << d_keyStrip[icfeb];
     }
-    LogDebug("CSCCathodeLCTProcessor") << str_out;
+    LogDebug("CSCCathodeLCTProcessor") << strstrm.str();
   }
 
   // Loop over CFEBs and determine better of half- or di- strip pattern.
@@ -1398,14 +1299,13 @@ void CSCCathodeLCTProcessor::priorityEncode(
       ihits[0] = key_phits[icfeb];
       cfebs[0] = icfeb;
       if (infoV > 1) {
-	char str_out[30] = "", tmp[5] = "";
+	std::ostringstream strstrm;
 	for (int icfeb = 0; icfeb < NUM_CFEBS; icfeb++) {
-	  sprintf(tmp, "%4d", strip_type[icfeb]);
-	  strcat(str_out, tmp);
+	  strstrm << std::setw(4) << strip_type[icfeb];
 	}
 	LogDebug("CSCCathodeLCTProcessor")
 	  << "cfebs " << cfebs[0] << " " << cfebs[1] << "\n"
-	  << "strip_type" << str_out << " " << "\n"
+	  << "strip_type" << strstrm.str() << " " << "\n"
 	  << "top: ihits " << ihits[0] << " cfeb " << cfebs[0]
 	  <<" strip_type " << strip_type[cfebs[0]] << "\n"
 	  << "nxt: ihits " << ihits[1] << " cfeb " << cfebs[1]
@@ -1591,44 +1491,42 @@ void CSCCathodeLCTProcessor::getPattern(int pattern_num,
 // Reasonably nice dump of digis on half-strips and di-strips.
 void CSCCathodeLCTProcessor::dumpDigis(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], const int stripType, const int nStrips) const
 {
-  char str_digis[9*CSCConstants::NUM_HALF_STRIPS] = "", tmp[1];
-  int space = nStrips/NUM_CFEBS;
   LogDebug("CSCCathodeLCTProcessor")
-    << "Endcap " << theEndcap << " station "<< theStation
+    << "Endcap " << theEndcap << " station " << theStation << " ring "
+    << CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber)
     << " chamber "
-    << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                                      theSubsector, theStation, theTrigChamber)
+    << CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
+						    theStation, theTrigChamber)
     << " strip type " << stripType << " nStrips " << nStrips;
 
+  std::ostringstream strstrm;
+  int space = nStrips/NUM_CFEBS;
   for (int i_strip = 0; i_strip < nStrips; i_strip++) {
     if (i_strip%10 == 0) {
-      if (i_strip < 100) sprintf(tmp, "%d", i_strip/10);
-      else               sprintf(tmp, "%d", (i_strip-100)/10);
-      strcat(str_digis, tmp);
+      if (i_strip < 100) strstrm << i_strip/10;
+      else               strstrm << (i_strip-100)/10;
     }
-    else                 strcat(str_digis, " ");
-    if ((i_strip+1)%space == 0) strcat(str_digis, " ");
+    else                 strstrm << " ";
+    if ((i_strip+1)%space == 0) strstrm << " ";
   }
-  strcat(str_digis, "\n");
+  strstrm << "\n";
   for (int i_strip = 0; i_strip < nStrips; i_strip++) {
-    sprintf(tmp, "%d", i_strip%10);
-    strcat(str_digis, tmp);
-    if ((i_strip+1)%space == 0) strcat(str_digis, " ");
+    strstrm << i_strip%10;
+    if ((i_strip+1)%space == 0) strstrm << " ";
   }
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    strcat(str_digis, "\n");
+    strstrm << "\n";
     for (int i_strip = 0; i_strip < nStrips; i_strip++) {
       if (strip[i_layer][i_strip] >= 0) {
-	sprintf(tmp, "%x", strip[i_layer][i_strip]);
-	strcat(str_digis, tmp);
+	strstrm << std::hex << strip[i_layer][i_strip] << std::dec;
       }
       else {
-	strcat(str_digis, "-");
+	strstrm << "-";
       }
-      if ((i_strip+1)%space == 0) strcat(str_digis, " ");
+      if ((i_strip+1)%space == 0) strstrm << " ";
     }
   }
-  LogDebug("CSCCathodeLCTProcessor") << str_digis;
+  LogDebug("CSCCathodeLCTProcessor") << strstrm.str();
 }
 
 // Returns vector of found CLCTs, if any.

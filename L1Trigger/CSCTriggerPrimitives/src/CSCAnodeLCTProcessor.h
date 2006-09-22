@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2005/05/31 18:52:28 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/06 15:51:21 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -114,6 +114,9 @@ class CSCAnodeLCTProcessor
   void lctSearch();
   void trigMode(const int key_wire);
   void alctAmode(const int key_wire);
+
+  /** Dump digis on wire groups. */
+  void dumpDigis(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
 
   /** Set times on all layers for all wires. */
   void saveAllHits(const int wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);

@@ -20,18 +20,14 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/06/27 14:25:50 $
-//   $Revision: 1.4 $
+//   $Date: 2006/09/12 08:53:21 $
+//   $Revision: 1.5 $
 //
 //   Modifications: 
 //
 //-----------------------------------------------------------------------------
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h>
-//#ifdef MC
-//#include "Muon/MESimHitLoader/interface/MuEndSimHit.h"
-//#include "Trigger/L1CSCTrigger/interface/L1MuCSCAnodeLCTAnalyzer.h"
-//#endif
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
@@ -66,7 +62,7 @@ const int CSCAnodeLCTProcessor::pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS
             0,  1,
             0,  1,  2,
             0,  1,  2},
- 
+
   //Keywire offset for ME3 and ME4
   {2,  1,  0,
        1,  0,
@@ -87,7 +83,7 @@ const int CSCAnodeLCTProcessor::pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NU
            1,  0,
            1,  0,  0,
            1,  0,  0},
-  
+
   // Collision pattern A
   {0,  1,  0,
        1,  1,
@@ -115,7 +111,7 @@ const int CSCAnodeLCTProcessor::pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NU
            1,  0,
            1,  0,  0,
            1,  0,  0},
-  
+
   // Collision pattern A
   {1,  1,  1,
        1,  1,
@@ -153,7 +149,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   alct_amode   = conf.getParameter<int>("alctMode");        // def = 1
   bx_width     = conf.getParameter<int>("alctBxWidth");     // def = 6
 
-  // Only for test-beam mode.
+  // Currently used only in the test-beam mode.
   fifo_tbins   = conf.getParameter<int>("alctFifoTbins");   // def = 8
   l1a_window   = conf.getParameter<int>("alctL1aWindow");   // def = 5
 
@@ -387,10 +383,10 @@ void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCC
 
 bool CSCAnodeLCTProcessor::pulseExtension(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]){
   /* A pulse array will be used as a bit representation of hit times.
-  For example: if a keywire has a bx_time of 3, then 1 shifted
-  left 3 will be bit pattern 0000000000001000.  Bits are then added to
-  signify the duration of a signal (bx_width).  So for the pulse with a
-  bx_width of 6 will look like 0000000111111000.*/
+     For example: if a keywire has a bx_time of 3, then 1 shifted
+     left 3 will be bit pattern 0000000000001000.  Bits are then added to
+     signify the duration of a signal (bx_width).  So for the pulse with a
+     bx_width of 6 will look like 0000000111111000.*/
 
   bool chamber_empty = true;
   int i_wire, i_layer, digi_num;
@@ -422,12 +418,11 @@ bool CSCAnodeLCTProcessor::pulseExtension(const int wire[CSCConstants::NUM_LAYER
 	    << " digi #" << ++digi_num << " wire group " << i_wire
 	    << " time " << wire[i_layer][i_wire];
 	  if (infoV > 2) {
-	    char str_pulse[33] = "", tmp[1];
+	    std::ostringstream strstrm;
 	    for (int i = 1; i <= 32; i++) {
-	      sprintf(tmp, "%d", (pulse[i_layer][i_wire]>>(32-i)) & 1);
-	      strcat(str_pulse, tmp);
+	      strstrm << ((pulse[i_layer][i_wire]>>(32-i)) & 1);
 	    }
-	   LogDebug("CSCAnodeLCTProcessor") << "  Pulse: " << str_pulse;
+	   LogDebug("CSCAnodeLCTProcessor") << "  Pulse: " << strstrm.str();
 	  }
 	}
       }
@@ -435,42 +430,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(const int wire[CSCConstants::NUM_LAYER
   }
 
   if (infoV > 1 && !chamber_empty) {
-    // str_digis contains 7 lines of wires (header plus 6 layers) and
-    // newline characters.
-    char str_digis[9*CSCConstants::MAX_NUM_WIRES] = "", tmp[1];
-    LogDebug("CSCAnodeLCTProcessor")
-    << "Endcap " << theEndcap << " station "<< theStation
-    << " chamber "
-    << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                                      theSubsector, theStation, theTrigChamber)
-    << " nWiregroups " << numWireGroups;
-
-    for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
-      if (i_wire%10 == 0) {
-	if (i_wire < 100) sprintf(tmp, "%d", i_wire/10);
-	else              sprintf(tmp, "%d", (i_wire-100)/10);
-	strcat(str_digis, tmp);
-      }
-      else                strcat(str_digis, " ");
-    }
-    strcat(str_digis, "\n");
-    for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
-      sprintf(tmp, "%d", i_wire%10);
-      strcat(str_digis, tmp);
-    }
-    for (i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-      strcat(str_digis, "\n");
-      for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
-	if (wire[i_layer][i_wire] >= 0) {
-	  sprintf(tmp, "%x", wire[i_layer][i_wire]);
-	  strcat(str_digis, tmp);
-	}
-	else {
-	  strcat(str_digis, ".");
-	}
-      }
-    }
-    LogDebug("CSCAnodeLCTProcessor") << str_digis;
+    dumpDigis(wire);
   }
 
   return chamber_empty;
@@ -736,10 +696,6 @@ void CSCAnodeLCTProcessor::lctSearch() {
 
   if (bestALCT.isValid()) {
     bestALCT.setTrknmb(1);
-    //#ifdef MC
-    // L1MuCSCAnodeLCTAnalyzer analyzer;
-    // bestALCT.simInfo = analyzer.getSimInfo(bestALCT, theChamber);
-    //#endif
     if (infoV > 0) {
       LogDebug("CSCAnodeLCTProcessor")
 	<< bestALCT << " found in endcap " << theEndcap
@@ -751,21 +707,9 @@ void CSCAnodeLCTProcessor::lctSearch() {
 	<< CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
                               theSubsector, theStation, theTrigChamber)
 	<< " (trig id. " << theTrigChamber << ")" << "\n";
-      /* IMPROVE LATER
-      #ifdef MC
-      if (bestALCT.simInfo != 0) {
-        LogDebug("CSCAnodeLCTProcessor")
-          << " Best ALCT values: phi = " << bestALCT.simInfo->phi()
-          << " eta = " << bestALCT.simInfo->eta();
-      }
-      #endif */
     }
     if (secondALCT.isValid()) {
       secondALCT.setTrknmb(2);
-      //#ifdef MC
-      // Store MC information.
-      // secondALCT.simInfo = analyzer.getSimInfo(secondALCT, theChamber);
-      //#endif
       if (infoV > 0) {
 	LogDebug("CSCAnodeLCTProcessor")
 	  << secondALCT << " found in endcap " << theEndcap
@@ -777,14 +721,6 @@ void CSCAnodeLCTProcessor::lctSearch() {
 	  << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
                              theSubsector, theStation, theTrigChamber)
 	  << " (trig id. " << theTrigChamber << ")" << "\n";
-	/* IMPROVE LATER
-        #ifdef MC
-	if (secondALCT.simInfo != 0) {
-	  LogDebug("CSCAnodeLCTProcessor")
-	    << " Second best ALCT values: phi = " << secondALCT.simInfo->phi()
-	   << " eta = " << secondALCT.simInfo->eta();
-	}
-        #endif */
       }
     }
   }
@@ -870,6 +806,42 @@ void CSCAnodeLCTProcessor::alctAmode(const int key_wire) {
   }
 }
 
+// Dump of digis on wire groups.
+void CSCAnodeLCTProcessor::dumpDigis(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const {
+  LogDebug("CSCAnodeLCTProcessor")
+    << "Endcap " << theEndcap << " station " << theStation << " ring "
+    << CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber)
+    << " chamber "
+    << CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
+						    theStation, theTrigChamber)
+    << " nWiregroups " << numWireGroups;
+
+  std::ostringstream strstrm;
+  for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
+    if (i_wire%10 == 0) {
+      if (i_wire < 100) strstrm << i_wire/10;
+      else              strstrm << (i_wire-100)/10;
+    }
+    else                strstrm << " ";
+  }
+  strstrm << "\n";
+  for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
+    strstrm << i_wire%10;
+  }
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    strstrm << "\n";
+    for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
+      if (wire[i_layer][i_wire] >= 0) {
+	strstrm << std::hex << wire[i_layer][i_wire] << std::dec;
+      }
+      else {
+	strstrm << ".";
+      }
+    }
+  }
+  LogDebug("CSCAnodeLCTProcessor") << strstrm.str();
+}
+
 // Returns vector of found ALCTs, if any.
 std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
   std::vector<CSCALCTDigi> tmpV;
@@ -941,25 +913,23 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
   /* Method to test the pretrigger */
   for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS;
        i_pattern++) {
-    char str_header[33] = "", tmp[1];
+    std::ostringstream strstrm_header;
     LogDebug("CSCAnodeLCTProcessor")
       << "\n" << "Pattern: " << i_pattern << " Key wire: " << key_wire;
     for (int i = 1; i <= 32; i++) {
-      sprintf(tmp, "%d", (32-i)%10);
-      strcat(str_header, tmp);
+      strstrm_header << ((32-i)%10);
     }
-    LogDebug("CSCAnodeLCTProcessor") << str_header;
+    LogDebug("CSCAnodeLCTProcessor") << strstrm_header.str();
     for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++) {
       if (pattern_mask[i_pattern][i_wire] != 0) {
-	char str_pulse[33] = "";
+	std::ostringstream strstrm_pulse;
 	int this_layer = pattern_envelope[0][i_wire];
 	int this_wire  = pattern_envelope[1+MESelection][i_wire]+key_wire;
 	for (int i = 1; i <= 32; i++) {
-	  sprintf(tmp, "%d", (pulse[this_layer][this_wire]>>(32-i)) & 1);
-	  strcat(str_pulse, tmp);
+	  strstrm_pulse << ((pulse[this_layer][this_wire]>>(32-i)) & 1);
 	}
 	LogDebug("CSCAnodeLCTProcessor")
-	  << str_pulse << " on layer " << this_layer;
+	  << strstrm_pulse.str() << " on layer " << this_layer;
       }
     }
     LogDebug("CSCAnodeLCTProcessor")
