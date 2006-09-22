@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/09/15 09:27:00 $
- * $Revision: 1.12 $
+ * $Date: 2006/09/15 09:33:53 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -521,7 +521,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 //     // Quality plot
 
 //     imgName = "";
-//     TH2F* obj2f = EBMUtilsClient::getHisto<TH2F*>( meg???_[ism-1] );
+    TH2F* obj2f;
+//     obj2f = EBMUtilsClient::getHisto<TH2F*>( meg???_[ism-1] );
 //     if ( obj2f ) {
 //       meName = obj2f->GetName();
 //       for ( unsigned int i = 0; i < meName.size(); i++ ) {
@@ -568,8 +569,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       objp->GetYaxis()->SetNdivisions(4);
       rectangle->SetGridx();
       rectangle->SetGridy();
-      objp->SetMinimum(-0.00000001);
-      objp->Draw("col");
+      objp->SetMinimum(0.00000001);
+      objp->Draw("colz");
       dummy.Draw("text,same");
       rectangle->Update();
       rectangle->SaveAs(imgFullName.c_str());
@@ -623,10 +624,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	}
       }
       int counter = 0;
-      for( int j=0; j<7; j++ ) {
-	if( j == 3 ) continue;   //  011 bits combination is not used 
+      for( int j=1; j<=7; j++ ) {
+	if( j == 3 ) continue;   //  010 bits combination is not used 
 	counter++;
-	if( j < 6 ) {
+	if( j <= 6 ) {
 	  imgName = meName + "_" + char(48+j) + ".png";
 	}
 	else {
@@ -638,22 +639,22 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  obj3f->GetZaxis()->SetRange( j, j );
 	}
 	else {
-	  obj3f->GetZaxis()->SetRange( j, j+1 );    
+	  obj3f->GetZaxis()->SetRange( j, j );    
 	}
-	objp = obj3f->Project3DProfile( "yx" );
+	obj2f = (TH2F*) obj3f->Project3D( "yx" );
 	rectsmall->cd();
 	gStyle->SetOptStat(" ");
 	gStyle->SetPalette( 1 );
-	objp->GetXaxis()->SetNdivisions(17);
-	objp->GetYaxis()->SetNdivisions(4);
+	obj2f->GetXaxis()->SetNdivisions(17);
+	obj2f->GetYaxis()->SetNdivisions(4);
 	rectsmall->SetGridx();
 	rectsmall->SetGridy();
-	objp->SetMinimum(-0.00000001);
+	obj2f->SetMinimum(0.00000001);
 	std::stringstream title; 
-	if( j < 6 ) { title << "EBTTT Flags SM" << ism << ", bit " << binary(j); }
-	else        { title << "EBTTT Flags SM" << ism << " bits 110+111"; }
-	objp->SetTitle( title.str().c_str() );
-	objp->Draw("col");
+	if( j <= 6 ) { title << "EBTTT Flags SM" << ism << ", bit " << binary(j-1); }
+	else         { title << "EBTTT Flags SM" << ism << " bits 110+111"; }
+	obj2f->SetTitle( title.str().c_str() );
+	obj2f->Draw("colz");
 	dummy.Draw("text,same");
 	rectsmall->Update();
 	rectsmall->SaveAs(imgFullName.c_str()); 
@@ -679,23 +680,23 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  meName.replace(i, 1 ,"_" );
 	}
       }
-      for( int j=0; j<2; j++ ) {
+      for( int j=1; j<=2; j++ ) {
 	imgName = meName + char(48+j) + ".png";
 	imgFullName = htmlDir + imgName;
 	obj3f->GetZaxis()->SetRange( j, j );
-	objp = obj3f->Project3DProfile( "yx" );
+	obj2f = (TH2F*) obj3f->Project3D( "yx" );
 	rectsmall->cd();
 	gStyle->SetOptStat(" ");
 	gStyle->SetPalette( 1 );
-	objp->GetXaxis()->SetNdivisions(17);
-	objp->GetYaxis()->SetNdivisions(4);
+	obj2f->GetXaxis()->SetNdivisions(17);
+	obj2f->GetYaxis()->SetNdivisions(4);
 	rectsmall->SetGridx();
 	rectsmall->SetGridy();
-	objp->SetMinimum(-0.00000001);
+	obj2f->SetMinimum(0.00000001);
 	std::stringstream title; 
-	title << "EBTTT FineGrainVeto SM" << ism << ", FineGrainVeto = " << j;
-	objp->SetTitle( title.str().c_str() );
-	objp->Draw("col");
+	title << "EBTTT FineGrainVeto SM" << ism << ", FineGrainVeto = " << j-1;
+	obj2f->SetTitle( title.str().c_str() );
+	obj2f->Draw("colz");
 	dummy.Draw("text,same");
 	rectsmall->Update();
 	rectsmall->SaveAs(imgFullName.c_str()); 
