@@ -32,15 +32,15 @@ namespace edm
     StreamerI2OWriter(edm::ParameterSet const& ps);
     ~StreamerI2OWriter();
 
-    void doOutputHeader(std::auto_ptr<InitMsgBuilder> initMessage);
-    void doOutputEvent(std::auto_ptr<EventMsgBuilder> eventMessage);
+    void doOutputHeader(InitMsgBuilder const& initMessage);
+    void doOutputEvent(EventMsgBuilder const& eventMessage);
     void stop();
 
   private:
 
     I2OStreamWorker* worker_;
-    void writeI2ORegistry(InitMsgBuilder& initMessage);
-    void writeI2OData(std::auto_ptr<EventMsgBuilder> eventMessage);
+    void writeI2ORegistry(InitMsgBuilder const& initMessage);
+    void writeI2OData(EventMsgBuilder const& eventMessage);
     // and for sending the Storage Manager other commands
     //void writeI2OOther(OtherMessageBuilder& otherMsg);
     void writeI2OOther(OtherMessageBuilder otherMsg);

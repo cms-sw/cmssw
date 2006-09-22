@@ -161,16 +161,16 @@ namespace edm
     return 0;
   }
 
-  void StreamerI2OWriter::doOutputHeader(std::auto_ptr<InitMsgBuilder> initMessage)
+  void StreamerI2OWriter::doOutputHeader(InitMsgBuilder const& initMessage)
   {
-    writeI2ORegistry(*initMessage);
+    writeI2ORegistry(initMessage);
   }
 
-  void StreamerI2OWriter::doOutputEvent(std::auto_ptr<EventMsgBuilder> eventMessage)
+  void StreamerI2OWriter::doOutputEvent(EventMsgBuilder const& eventMessage)
   {
     // First test if memory pool can hold another event
     FDEBUG(10) << "StreamerI2OWriter: write event to destination" << std::endl;
-    int sz = eventMessage->size();
+    int sz = eventMessage.size();
     FDEBUG(10) << "StreamerI2OWriter: event sz = " << sz << std::endl;
     // Should block if memory pool is too full until it has more room
     // (Is this the only thread posting frames to do with this process?)
@@ -230,7 +230,7 @@ namespace edm
   }
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  void StreamerI2OWriter::writeI2ORegistry(InitMsgBuilder& initMessage)
+  void StreamerI2OWriter::writeI2ORegistry(InitMsgBuilder const& initMessage)
   {
     char* buffer = (char*) initMessage.startAddress();
     unsigned int size = initMessage.size();
@@ -419,15 +419,15 @@ namespace edm
 
 #include "xcept/include/xcept/tools.h"
 
-  void StreamerI2OWriter::writeI2OData(std::auto_ptr<EventMsgBuilder> eventMessage)
+  void StreamerI2OWriter::writeI2OData(EventMsgBuilder const& eventMessage)
   //
   // function to write the data buffer in I2O frames. If more than one
   // frame is needed a chain is created and then posted.
   {
-    char* buffer = (char*) eventMessage->startAddress();
-    unsigned int size = eventMessage->size();
+    char* buffer = (char*) eventMessage.startAddress();
+    unsigned int size = eventMessage.size();
     // don't have hlt and l1 trigger bit counts
-    EventMsgView eventView(eventMessage->startAddress(), 0, 0);
+    EventMsgView eventView(eventMessage.startAddress(), 0, 0);
     edm::RunNumber_t runid = eventView.run();
     edm::EventNumber_t eventid = eventView.event();
 
