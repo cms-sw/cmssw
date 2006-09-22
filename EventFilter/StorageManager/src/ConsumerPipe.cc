@@ -9,6 +9,9 @@
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
+// keep this for debugging
+//#include "IOPool/Streamer/interface/DumpTools.h"
+
 using namespace std;
 using namespace stor;
 using namespace edm;
@@ -71,14 +74,21 @@ void ConsumerPipe::initializeSelection(InitMsgView const& initView)
     consumerId_ << std::endl;
 
   // TODO: fetch the list of trigger names from the init message
-  std::vector<std::string> triggerNameList;
-  triggerNameList.push_back("kab1");
-  triggerNameList.push_back("kab2");
-  triggerNameList.push_back("kab3");
+  //std::vector<std::string> triggerNameList;
+  //triggerNameList.push_back("kab1");
+  //triggerNameList.push_back("kab2");
+  //triggerNameList.push_back("kab3");
+  Strings triggerNameList;
+  initView.hltTriggerNames(triggerNameList);
 
   // fake the process name (not yet available from the init message?)
   std::string processName = "HLT";
 
+  /* ---printout the trigger names in the INIT message
+  std::cout << ">>>>>>>>>>>Trigger names:" << std::endl;
+  for(int i=0; i< triggerNameList.size(); ++i)
+    std::cout<< ">>>>>>>>>>>  name = " << triggerNameList[i] << std::endl;
+  */
   // create our event selector
   eventSelector_.reset(new EventSelector(*requestParamSet_, processName,
                                          triggerNameList));
@@ -122,7 +132,28 @@ bool ConsumerPipe::wantsEvent(EventMsgView const& eventView) const
 {
   // for now, take every event
   // TODO - start using eventSelector_
-  return true;
+  std::vector<unsigned char> hlt_out;
+  hlt_out.resize(1 + (eventView.hltCount()-1)/4);
+  eventView.hltTriggerBits(&hlt_out[0]);
+  /* --- print the trigger bits from the event header
+  std::cout << ">>>>>>>>>>>Trigger bits:" << std::endl;
+  for(int i=0; i< hlt_out.size(); ++i)
+  {
+    unsigned test = (unsigned int)hlt_out[i];
+    std::cout<< hex << ">>>>>>>>>>>  bits = " << test << " " << hlt_out[i] << std::endl;
+  }
+  cout << "\nhlt bits=\n(";
+  for(int i=(hlt_out.size()-1); i != -1 ; --i) 
+     printBits(hlt_out[i]);
+  cout << ")\n";
+  */
+  int num_paths = eventView.hltCount();
+  bool rc = eventSelector_->acceptEvent(&hlt_out[0], num_paths);
+  //std::cout << "====================== " << std::endl;
+  //std::cout << "return selector code = " << rc << std::endl;
+  //std::cout << "====================== " << std::endl;
+  //return true;
+  return rc;
 }
 
 /**
