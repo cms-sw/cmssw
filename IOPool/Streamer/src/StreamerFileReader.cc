@@ -8,7 +8,7 @@ using namespace edm;
 namespace edm
 {  
   StreamerFileReader::StreamerFileReader(edm::ParameterSet const& pset):
-    streamerNames_(pset.getParameter<std::vector<std::string> >("fileNames"))
+    streamerNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"))
   {
         if (streamerNames_.size() > 1)
            stream_reader_ = std::auto_ptr<StreamerInputFile> 
