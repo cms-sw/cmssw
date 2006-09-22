@@ -23,6 +23,7 @@
 #include "PhysicsTools/UtilAlgos/interface/ObjectCountFilter.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/ElectronSelector.h"
 
 namespace reco {
   namespace modules {
@@ -123,6 +124,25 @@ namespace reco {
               >
             > ConfigTrackSelector;
 
+    /// select electrons above a give pt
+    typedef ObjectSelector<
+              SingleElementCollectionSelector<
+                reco::ElectronCollection,
+                PtMinSelector<reco::Electron> 
+              >
+            > PtMinElectronSelector;
+
+     /// select electrons above a give pt
+    typedef ObjectSelector<
+              SingleElementCollectionSelector<
+                reco::ElectronCollection,
+		AndSelector<
+  		  EtaRangeSelector<reco::Electron>,
+                  PtMinSelector<reco::Electron> 
+                >
+              >
+            > EtaPtMinElectronSelector;
+
     /// Framework module to merge an arbitray number of reco::TrackCollection
     typedef Merger<reco::TrackCollection>    TrackMerger;
     /// Framework module to merge an arbitray number of reco::MuonCollection
@@ -157,6 +177,8 @@ DEFINE_ANOTHER_FWK_MODULE( AnyTrackSelector );
 DEFINE_ANOTHER_FWK_MODULE( PtMinTrackSelector );
 DEFINE_ANOTHER_FWK_MODULE( LargestPtTrackSelector )
 DEFINE_ANOTHER_FWK_MODULE( MassWindowTrackSelector )
+DEFINE_ANOTHER_FWK_MODULE( PtMinElectronSelector );
+DEFINE_ANOTHER_FWK_MODULE( EtaPtMinElectronSelector );
 DEFINE_ANOTHER_FWK_MODULE( TrackMerger );
 DEFINE_ANOTHER_FWK_MODULE( MuonMerger );
 DEFINE_ANOTHER_FWK_MODULE( ElectronMerger );
