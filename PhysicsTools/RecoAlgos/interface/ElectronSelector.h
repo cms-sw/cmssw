@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: ElectronSelector.h,v 1.2 2006/09/22 10:39:03 llista Exp $
+ * $Id: ElectronSelector.h,v 1.3 2006/09/22 10:46:43 llista Exp $
  *
  */
 
@@ -37,26 +37,28 @@ namespace helper {
       TrackRefProd rTracks = evt.template getRefBeforePut<TrackCollection>();      
       ElectronRefProd rElectrons = evt.template getRefBeforePut<ElectronCollection>();      
       SuperClusterRefProd rSuperClusters = evt.template getRefBeforePut<SuperClusterCollection>();      
-      size_t idx = 0, hidx = 0;
+      size_t idx = 0, tidx = 0, hidx = 0;
       for( I i = begin; i != end; ++ i ) {
 	const Electron & ele = * * i;
 	selElectrons_->push_back( Electron( ele ) );
 	selElectrons_->back().setTrack( TrackRef( rTracks, idx ) );
-	selElectrons_->back().setSuperCluster( SuperClusterRef( rSuperClusters, idx ) );
+	selElectrons_->back().setSuperCluster( SuperClusterRef( rSuperClusters, idx ++ ) );
 	selSuperClusters_->push_back( SuperCluster( * ( ele.superCluster() ) ) );
-	selTracks_->push_back( Track( * ( ele.track() ) ) );
-	Track & trk = selTracks_->back();
-	trk.setExtra( TrackExtraRef( rTrackExtras, idx ) );
-	selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
-						trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
-						trk.outerStateCovariance(), trk.outerDetId(),
-						trk.innerStateCovariance(), trk.innerDetId() ) );
-	TrackExtra & tx = selTrackExtras_->back();
-	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
-	  selHits_->push_back( (*hit)->clone() );
-	  tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+	TrackRef trkRef = ele.track();
+	if ( trkRef.isNonnull() ) {
+	  selTracks_->push_back( Track( * trkRef ) );
+  	  Track & trk = selTracks_->back();
+	  trk.setExtra( TrackExtraRef( rTrackExtras, tidx ++ ) );
+	  selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
+						  trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
+						  trk.outerStateCovariance(), trk.outerDetId(),
+						  trk.innerStateCovariance(), trk.innerDetId() ) );
+	  TrackExtra & tx = selTrackExtras_->back();
+	  for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
+	    selHits_->push_back( (*hit)->clone() );
+	    tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+	  }
 	}
-	idx ++;
       }
     }
     void put( edm::Event & evt ) {
