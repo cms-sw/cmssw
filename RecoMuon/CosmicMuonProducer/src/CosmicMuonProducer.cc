@@ -6,8 +6,8 @@
  *
  * Implementation:
  *
- * $Date: 2006/09/01 16:17:12 $
- * $Revision: 1.9 $
+ * $Date: 2006/09/01 21:23:44 $
+ * $Revision: 1.10 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -84,6 +84,3 @@ CosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   theTrackFinder->reconstruct(seeds,iEvent);
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(CosmicMuonProducer)
