@@ -63,7 +63,7 @@ class DCCEventBlock : public DCCBlockPrototype {
 			DCCERROR_EMPTYEVENT  = 0x1, 
 			
 			TOWERHEADER_SIZE     = 8, 
-			TRAILER_SIZE         = 8,
+			TRAILER_SIZE         = 8
 	
 		
 		};		

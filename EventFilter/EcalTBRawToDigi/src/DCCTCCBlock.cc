@@ -104,13 +104,14 @@ void  DCCTCCBlock::increment(ulong numb){
 
 
 
-vector<int> DCCTCCBlock::triggerSamples() {
-  vector<int> data;
+vector< pair<int,bool> > DCCTCCBlock::triggerSamples() {
+  vector< pair<int,bool> > data;
 
   for(unsigned int i=1;i <= parser_->numbTTs();i++){
     string name = string("TPG#") + parser_->getDecString(i);
-    
-    data.push_back ( getDataField( name )  );
+    int tpgValue = getDataField( name ) ;
+                 pair<int,bool> tpg( tpgValue&ETMASK, bool(tpgValue>>BPOSITION_FGVB));
+    data.push_back (tpg);
      
   }
 
@@ -132,5 +133,7 @@ vector<int> DCCTCCBlock::triggerFlags() {
 
   return data;
 }
+
+
 
 

@@ -157,7 +157,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
 
     //for debug purposes
     //cout << "-> processedBytes.  =   " << dec << processedBytes << endl;
-    cout << " -> Processed Event index =   " << dec << processedEvent_ << endl;
+    //cout << " -> Processed Event index =   " << dec << processedEvent_ << endl;
     //cout << "-> First ev.word    = 0x" << hex << (*myPointer) << endl;
     //cout << "-> word index       =   " << dec << wordIndex << endl;
     
@@ -168,8 +168,8 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
     errorMask                = eventD.first;
     //////////////////////////////////////////////////////////////////////////////
      
-	 //for debug purposes
-    cout <<" -> EventSizeBytes        =   " << dec << eventLength*8 << endl;
+    //for debug purposes
+    //cout <<" -> EventSizeBytes        =   " << dec << eventLength*8 << endl;
    
 	  
 	     

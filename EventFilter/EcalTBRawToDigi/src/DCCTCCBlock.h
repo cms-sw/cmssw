@@ -37,7 +37,7 @@ public :
   
   
 
-  vector<int> triggerSamples();
+  vector< pair<int, bool> > triggerSamples();
   
   vector<int> triggerFlags();
   
@@ -63,7 +63,9 @@ protected :
     BXMASK = 0xFFF,
     L1MASK = 0xFFF, 
     BPOSITION_BLOCKID = 29,
-    BLOCKID = 3                  
+    BLOCKID = 3,
+    BPOSITION_FGVB = 8,
+    ETMASK = 0xFF                  
   };
   
   DCCEventBlock * dccBlock_;

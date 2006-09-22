@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/09/19 15:39:46 $
- *  $Revision: 1.27 $
+ *  $Date: 2006/09/21 15:22:16 $
+ *  $Revision: 1.28 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -132,37 +132,50 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    itTCCBlock != tccBlocks.end(); 
 	    itTCCBlock ++)
       {
-	vector<int> TpSamples = (* itTCCBlock) -> triggerSamples() ;
+
+	vector< pair<int,bool> > TpSamples = (* itTCCBlock) -> triggerSamples() ;
+
+	  //	vector<int> TpSamples = (* itTCCBlock) -> triggerSamples() ;
+	// vector of 3 bits
 	vector<int> TpFlags      = (* itTCCBlock) -> triggerFlags() ;
-
-	for(int i=0; i<TpSamples.size(); i++)	
+	
+	// there have always to be 68 primitives and flags, per FED
+	if (TpSamples.size()==68   && TpFlags.size()==68)
 	  {
+	    for(int i=0; i<((int)TpSamples.size()); i++)	
+	      {
+		
+		int etaTT = (i)  / kTowersInPhi +1;
+		int phiTT = (i) % kTowersInPhi +1;
+
+		EcalTriggerPrimitiveSample theSample(TpSamples[i].first, TpSamples[i].second, TpFlags[i]);
+		
+		EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
+		EcalTriggerPrimitiveDigi thePrimitive(idtt);
+		thePrimitive.setSize(1);                          // hard coded
+		thePrimitive.setSample(0, theSample);
+		
+		tpcollection.push_back(thePrimitive);
+		
+		LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"
+					    << "tower: " << (i+1) 
+					    << " primitive: " << TpSamples[i].first
+					    << " flag: " << TpSamples[i].second
+					    << endl;
+		LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"<<
+		  "tower: " << (i+1) << " flag: " << TpFlags[i] << endl;
+	      }// end loop on tower primitives
 	    
-	    int etaTT = (i)  / kTowersInPhi +1;
-	    int phiTT = (i) % kTowersInPhi +1;
-
-	    EcalTriggerPrimitiveSample theSample( TpSamples[i]  );
-
-	    EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
-	    EcalTriggerPrimitiveDigi thePrimitive(idtt);
-	    thePrimitive.setSize(1);                          // hard coded
-	    thePrimitive.setSample(0, theSample);
-	    
-	    tpcollection.push_back(thePrimitive);
-
-	    LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"
-					<< "tower: " << (i+1) << " primitive: " << TpSamples[i] << endl;
-	    LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"<<
-	      "tower: " << (i+1) << " flag: " << TpFlags[i] << endl;
+	  }// end if
+	else
+	  {
+	    LogWarning("EcalTBRawToDigi") << "68 elements not found for TpFlags or TpSamples, collection will be empty";
 	  }
-
-      }
-
-
-
-
-
-
+      }  
+    
+    
+    
+    
     short TowerStatus[MAX_TT_SIZE+1];
     char buffer[20];
     vector<short> theTTstatus;
@@ -175,7 +188,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	//cout << "tower " << i << " has status " <<  TowerStatus[i] << endl;  
       }
     theDCCheader.setTriggerTowerStatus(theTTstatus);
-
+    
     EcalDCCHeaderRuntypeDecoder theRuntypeDecoder;
     ulong DCCruntype = (*itEventBlock)->getDataField("RUN TYPE");
     theRuntypeDecoder.Decode(DCCruntype, &theDCCheader);
