@@ -2,7 +2,7 @@
 import commands,string,time,thread,random,math,sys
 
 #global variables
-MINRES=0.02
+MINRES=0.04
 ENDCAPSINGLE=0
 NPOINT=3
 eta=[]
@@ -77,6 +77,8 @@ if len(sys.argv)!=4:
     print 'Usage: '+sys.argv[0]+' <barrel|endcap> <lumi> <filename>'
     print '       put lumi=0 for precalibration values'
     sys.exit(1)
+# set random seed
+#random.seed(123455);
 
 if sys.argv[1]=='barrel':
     endcap=0
@@ -92,16 +94,17 @@ if endcap==1:
     ne_mod=[]
     ne_xtal=[]
     necells=0
-    necell=open('non_existing_cell_endcap','r')
 
-    for line in necell:
-        necells=necells+1
-        curr_list=line.split()
-        ne_z.append(string.atoi(curr_list[0]))
-        ne_mod.append(string.atoi(curr_list[1]))
-        ne_xtal.append(string.atoi(curr_list[2]))
-    necell.close()
-    print 'Read ',necells,' non-existing cells for endcap'
+#    necell=open('non_existing_cell_endcap','r')
+
+#    for line in necell:
+#        necells=necells+1
+#        curr_list=line.split()
+#        ne_z.append(string.atoi(curr_list[0]))
+#        ne_mod.append(string.atoi(curr_list[1]))
+#        ne_xtal.append(string.atoi(curr_list[2]))
+#    necell.close()
+#    print 'Read ',necells,' non-existing cells for endcap'
 
     
 lumi=string.atof(sys.argv[2])
@@ -129,8 +132,8 @@ if endcap==0:
     maxeta=85
     maxphi=360
 else:
-    maxeta=319
-    maxphi=25
+    maxeta=100
+    maxphi=100
 
 count=0
 for zindex in (-1,1):
@@ -150,21 +153,24 @@ for zindex in (-1,1):
             else:
                 goodxtal=1
                 # check if it exists
-                for bad in range(0,necells):
-                    if ne_xtal[bad]==phiindex:
-                        if ne_mod[bad]==etaindex:
-                            if ne_z[bad]==zindex:
-                                goodxtal=0
-                                break
-                if goodxtal==1:
-		   if zindex==-1:
-                      line='        <Cell module_index="'+str(-etaindex)+'" crystal_index="'+str(phiindex)+'" scale_factor="'+str(miscal_fac)+'"/>\n'
-		      xmlfile.write(line)
-                      count=count+1
-                   else :
-                      line='        <Cell module_index="'+str(etaindex)+'" crystal_index="'+str(phiindex)+'"  scale_factor="'+str(miscal_fac)+'"/>\n'
-		      xmlfile.write(line)
-                      count=count+1
+#                for bad in range(0,necells):
+#                    if ne_xtal[bad]==phiindex:
+#                        if ne_mod[bad]==etaindex:
+#                            if ne_z[bad]==zindex:
+#                                goodxtal=0
+#                                break
+#                if goodxtal==1:
+#		   if zindex==-1:
+
+#                line='        <Cell module_index="'+str(etaindex)+'" crystal_index="'+str(phiindex)+'"  scale_factor="'+str(miscal_fac)+'"/>\n'
+                line='        <Cell x_index="'+str(etaindex)+'" y_index="'+str(phiindex)+'" z_index="'+str(zindex)+'" scale_factor="'+str(miscal_fac)+'"/>\n'
+
+                xmlfile.write(line)
+                count=count+1
+                #                   else :
+                #                      line='        <Cell module_index="'+str(etaindex)+'" crystal_index="'+str(phiindex)+'"  scale_factor="'+str(miscal_fac)+'"/>\n'
+                #		      xmlfile.write(line)
+                #                      count=count+1
 
 # write footer
 if endcap==0:
