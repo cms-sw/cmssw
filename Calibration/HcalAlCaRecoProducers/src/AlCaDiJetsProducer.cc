@@ -11,11 +11,11 @@ using namespace reco;
 AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig):
        mInput(iConfig.getParameter<std::string>("src"))
 {
-   
+   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks"); 
    //register your products
 
-   produces<reco::TrackCollection>();
-   produces<CaloJetCollection>();
+   produces<reco::TrackCollection>("JetTracksCollection");
+   produces<CaloJetCollection>("DijetBackToBackCollection");
 }
 
 
@@ -59,18 +59,19 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // Track Collection    
    edm::Handle<reco::TrackCollection> trackCollection;
 
-   try {
-     iEvent.getByType(trackCollection);
-   } catch ( std::exception& ex ) {
-     LogDebug("") << "AlCaIsoTracksProducer: Error! can't get product!" << std::endl;
-   }
+//   try {
+//     iEvent.getByType(trackCollection);
+//   } catch ( std::exception& ex ) {
+//     LogDebug("") << "AlCaIsoTracksProducer: Error! can't get product!" << std::endl;
+//   }
+   iEvent.getByLabel(m_inputTrackLabel,trackCollection);
    const reco::TrackCollection tC = *(trackCollection.product());
   
    //Create empty output collections
 
    std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
 
-   for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end()-1; track++)
+   for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++)
    {
                
                double deta = track->momentum().eta() - fJet1.eta();  

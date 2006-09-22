@@ -59,6 +59,7 @@ class AlCaDiJetsProducer : public edm::EDProducer {
    private:
       // ----------member data ---------------------------
    std::string mInput;
+   std::string m_inputTrackLabel;
 };
 //}// end namespace cms
 #endif
