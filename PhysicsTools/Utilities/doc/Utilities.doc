@@ -14,8 +14,16 @@ Generic Physics Tools utility classes.
 - AnySelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on all objects. 
   It is a trivial selector to be used mainly for tests.
 - PtMinSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on objects 
-  that have <tt>pt()</tt> greater than a specified cut. The cut can be specified via edm::ParameterSet or via constructor 
+  that have <tt>pt()</tt> greater than a specified cut. The cut can be specified via edm::ParameterSet (<tt>ptMin</tt>) or via constructor 
   parameter.
+- EtMinSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on objects 
+  that have <tt>et()</tt> greater than a specified cut. The cut can be specified via edm::ParameterSet (<tt>etMin</tt>)or via constructor 
+  parameter.
+- EtaRangeSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on objects 
+  that have <tt>eta()</tt> within a specified range. The range can be specified via edm::ParameterSet (<tt>etaMin</tt>, <tt>etaMax</tt>) or via constructor 
+  parameter.
+- AndSelector: selector make of logical AND composition of any two selectors.
+- OrSelector: selector make of logical OR composition of any two selectors.
 
 \subsection comparators Comparators
 - PtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
