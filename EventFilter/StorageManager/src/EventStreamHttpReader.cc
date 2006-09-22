@@ -403,9 +403,27 @@ namespace edmtestp
         buf_.resize(len);
         for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
 
-        ConsRegResponseView respView(&buf_[0]);
-        registrationStatus = respView.getStatus();
-        consumerId_ = respView.getConsumerId();
+        try {
+          ConsRegResponseView respView(&buf_[0]);
+          registrationStatus = respView.getStatus();
+          consumerId_ = respView.getConsumerId();
+        }
+        catch (cms::Exception excpt) {
+          const unsigned int MAX_DUMP_LENGTH = 1000;
+          std::cout << "========================================" << std::endl;
+          std::cout << "* Exception decoding the registerWithEventServer response!" << std::endl;
+          if (data.d_.length() <= MAX_DUMP_LENGTH) {
+            std::cout << "* Here is the raw text that was returned:" << std::endl;
+            std::cout << data.d_ << std::endl;
+          }
+          else {
+            std::cout << "* Here are the first " << MAX_DUMP_LENGTH <<
+              " characters of the raw text that was returned:" << std::endl;
+            std::cout << (data.d_.substr(0, MAX_DUMP_LENGTH)) << std::endl;
+          }
+          std::cout << "========================================" << std::endl;
+          throw excpt;
+        }
       }
 
       if (registrationStatus == ConsRegResponseBuilder::ES_NOT_READY)
