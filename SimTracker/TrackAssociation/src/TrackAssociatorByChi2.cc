@@ -79,7 +79,8 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 
 
 RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::TrackCollection>& tCH, 
-							      edm::Handle<TrackingParticleCollection>& tPCH){
+							      edm::Handle<TrackingParticleCollection>& tPCH,
+							      edm::Event * e ){
 
   RecoToSimCollection  outputCollection;
   double chi2;
@@ -144,7 +145,8 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 
 
 SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::TrackCollection>& tCH, 
-							      edm::Handle<TrackingParticleCollection>& tPCH){
+							      edm::Handle<TrackingParticleCollection>& tPCH,
+							      edm::Event * e ){
 
   SimToRecoCollection  outputCollection;
   double chi2;

@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
 
 
 namespace reco{
@@ -24,11 +25,13 @@ class TrackAssociatorBase {
  public:
   TrackAssociatorBase() {;} 
   virtual ~TrackAssociatorBase() {;}
-  virtual  reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>&, 
-							 edm::Handle<TrackingParticleCollection>& ) = 0;
-  virtual  reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
-							 edm::Handle<TrackingParticleCollection>& ) = 0;
 
+  virtual  reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>& tc, 
+							 edm::Handle<TrackingParticleCollection>& tpc,
+							 edm::Event * event = 0 ) = 0;
+  virtual  reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>& tc, 
+							 edm::Handle<TrackingParticleCollection> & tpc ,  
+							 edm::Event * event = 0 ) = 0;
 };
 
 
