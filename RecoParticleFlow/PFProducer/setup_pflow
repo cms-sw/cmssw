@@ -1,0 +1,5 @@
+#!/bin/csh
+
+cd ..
+cvs co -r V01-00-09 Geometry/TrackerRecoData/data/trackerRecoGeometryXML.cfi
+cp -r ~cbern/public/CMSCommonData  Geometry/
