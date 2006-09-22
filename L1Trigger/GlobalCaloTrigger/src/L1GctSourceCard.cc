@@ -172,7 +172,7 @@ void L1GctSourceCard::setNonIsoEm(vector<L1CaloEmCand> nonIsoEm) {
   }
   else {
     if (nonIsoEm.size()==4) {
-      m_isoElectrons = nonIsoEm;
+      m_nonIsoElectrons = nonIsoEm;
     }
     else {
     throw cms::Exception("L1GctSetupError")
@@ -474,3 +474,4 @@ L1CaloEmCand L1GctSourceCard::makeEmCand(ULong rctFileData, bool iso) {
 
     return L1CaloEmCand(rank, rgn, card, crate, iso);
 }
+
