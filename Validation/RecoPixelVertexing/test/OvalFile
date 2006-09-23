@@ -1,2 +1,4 @@
 <config name="run tool" value="oval">
+
 <executable name="PixelVertexVal.sh"></executable>
+<executable name="RecoPixelVertexingValid.csh"></executable>

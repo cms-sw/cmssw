@@ -1,12 +1,14 @@
-void DoCompare( char* Sample ){
+void DoCompare(char *Sample){
 
-  static const int NHisto = 12;
-  static const int NPages = 12;
+  static const int NPages = 6;
 
   TText* te = new TText();
   te->SetTextSize(0.1);
   
   gROOT->ProcessLine(".x HistoCompare.C");
+  gStyle->SetCanvasColor(0);
+  gStyle->SetOptStat(111111);
+
   HistoCompare * myPV = new HistoCompare();
   
   char*  reffilename  = "${REFFILE}";
@@ -14,45 +16,43 @@ void DoCompare( char* Sample ){
   
   TFile * reffile = new TFile(reffilename);
   TFile * curfile = new TFile(curfilename);
+  reffile->ls();
+  curfile->ls();
+
   
-  //1-Dimension Histogram
-  char* label[NHisto];
-  label[0] = "nbvtx";
-  label[1] = "nbtksinvtx";
-  label[2] = "resx";
-  label[3] = "resy";
-  label[4] = "resz";
-  label[5] = "pullx";
-  label[6] = "pully";
-  label[7] = "pullz";
-  label[8] = "vtxchi2";
-  label[9] = "vtxndf";
-  label[10] = "tklinks";
-  label[11] = "nans";
-  
-  TH1F* htemp1[NHisto];
-  TH1F* htemp2[NHisto];
-  TCanvas* c1 = new TCanvas();
-  c1->Divide(4, 3);
-  for ( int i = 0; i < NHisto ; i++ ) {
-    char title[50];
-    htemp1[i]  = dynamic_cast<TH1F*>(reffile->Get(label[i]));
-    htemp2[i]  = dynamic_cast<TH1F*>(curfile->Get(label[i]));
-    if( htemp1[i] == 0 || htemp2[i] == 0) continue;
-    htemp1[i]->SetLineColor(2);
-    htemp2[i]->SetLineColor(4);
-    htemp1[i]->SetLineStyle(3);
-    htemp2[i]->SetLineStyle(5);
-    if (i>14 && i<19 || i>29 && i< 34 || i == 13) c1->SetLogy();
-    
-    c1->cd(i % NPages + 1);
-    htemp1[i]->Draw();
-    htemp2[i]->Draw("Same"); 
-    myPV->PVCompute(htemp1[i],htemp2[i], te);
-    
-    if (((i+1) % NPages) == 0) {
-      sprintf(title,"%s%s%s", Sample, label[i], ".eps");
-      c1->Print(title);
+  TCanvas* c1 = new TCanvas("c1","c1");
+  c1->Divide(3,2); c1->cd(1); 
+
+  TList* list = reffile->GetListOfKeys();  
+  TObject*  object = list->First();
+  int iHisto = 0; char title[50];
+  while (object) {
+    TH1F * h1 = dynamic_cast<TH1F*>( reffile->Get(object->GetName()));
+    TH1F * h2 = dynamic_cast<TH1F*>( curfile->Get(object->GetName()));
+    bool isHisto = (reffile->Get(object->GetName()))->InheritsFrom("TH1F");
+
+    if (isHisto && h1 && h2 && *h1->GetName()== *h2->GetName()) {
+      iHisto++;
+      c1->cd( (iHisto-1) % NPages + 1);
+      //cout <<"--------- PROC, ihisto: "<<iHisto<<" name:"<<h1->GetName()<<endl;
+      h1->SetLineColor(2);
+      h2->SetLineColor(4);
+      h1->SetLineStyle(3);
+      h2->SetLineStyle(5);
+      h1->DrawCopy();
+      h2->DrawCopy("Same"); 
+      myPV->PVCompute(h1,h2, te);
+      if ((iHisto % NPages) == 0) {
+        sprintf(title,"%s%s%d%s", Sample, "_", iHisto/NPages-1, ".eps");
+        c1->Print(title);
+      }
     }
+    delete h1;
+    delete h2;
+    object = list->After(object);
+  }
+  if ((iHisto % NPages) != 0) {
+    sprintf(title,"%s%s%d%s", Sample, "_", iHisto/NPages, ".eps");
+    c1->Print(title);
   }
 }
