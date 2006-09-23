@@ -1,8 +1,0 @@
-  <bin file=WriteEcalMiscalibConstants.cpp>
-  <use name=CondFormats/EcalObjects>
-  <use name=CondCore/DBCommon>
-  <use name=CondCore/IOVService>
-  <use name=CondCore/MetaDataService>
-  <lib name=CalibCalorimetryCaloMiscalibTools>
-  <Use name=xerces-c>
-  </bin>
