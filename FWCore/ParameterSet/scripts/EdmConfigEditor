@@ -88,6 +88,34 @@ class CmsBuilder(cmd.Cmd):
         r = re.compile(text+'.*')
         return [x for x in self.cfg.moduleNames() if r.match(x) ]
 
+    def __print_output_modules(self,line):
+        """List output module labels in the configuration"""
+        if(self.cfg):
+            names = self.cfg.outputModuleNames()
+            names.sort()
+            self.columnize(names)
+    def do_output_module(self,line):
+        """Description: Show information about output modules
+        Commands:
+        output_module          list the labels for all modules
+        output_module <label>  print the configuration of the module"""
+        if 0 == len(line):
+            self.__print_output_modules(line)
+            return
+        if(self.cfg):
+            try:
+                self.__print_output_module(line)
+            except BadLabelException,e:
+                print "no output module named '"+e.label+"'"
+
+    def complete_output_module(self,text,line,begidx,endidx):
+        #if the separator is not a space then no match
+        # note: 6 is the length of the string 'module'
+        if line[6] != ' ':
+            return []
+        r = re.compile(text+'.*')
+        return [x for x in self.cfg.outputModuleNames() if r.match(x) ]
+
     def __print_es_modules(self,line):
         """List es_module labels in the configuration"""
         if(self.cfg):
@@ -186,8 +214,12 @@ class CmsBuilder(cmd.Cmd):
         self.__remove_labels()
         for label in self.cfg.moduleNames():
             self.__add_module_label(label)
+        for label in self.cfg.sequenceNames():
+            self.__add_sequence_label(label)
         for label in self.cfg.pathNames():
             self.__add_path_label(label)
+        for label in self.cfg.endpathNames():
+            self.__add_endpath_label(label)
         self.__add_source_label(self.cfg.mainInputSource()['@classname'][2])
         self._esModuleLabels=dict()
         for label in self.cfg.esModuleNames():
@@ -257,6 +289,68 @@ class CmsBuilder(cmd.Cmd):
             except KeyError:
                 raise BadLabelException(pathName)
             
+    def do_endpath(self,line,dummy=''):
+        """Description: Show the configuration of an endpath
+        Commands:
+        endpath         list all endpath labels in the configuration
+        endpath <epth>  prints the description of the endpath <epth> """
+        if not self.cfg:
+            print "no configuration has been read"
+            return
+        if 0 == len(line):
+            self.__print_endpaths()
+        else:
+            try:
+                self.__print_endpath(line)
+            except BadLabelException, e:
+                print "no endpath named '"+e.label+"'"
+
+    def __print_endpaths(self):
+        """Print the list of endpath labels"""
+        if self.cfg:
+            paths = self.cfg.endpathNames()
+            paths.sort()
+            self.columnize(paths)
+            
+    def __print_endpath(self,pathName):
+        """Prints the configuration of just one endpath"""
+        if self.cfg:
+            try:
+                print "endpath: "+self.cfg.endpath(pathName)
+            except KeyError:
+                raise BadLabelException(pathName)
+            
+    def do_sequence(self,line,dummy=''):
+        """Description: Show the configuration of a sequence
+        Commands:
+        sequence       list all path labels in the configuration
+        sequence <seq> prints the description of the sequence <seq> """
+        if not self.cfg:
+            print "no configuration has been read"
+            return
+        if 0 == len(line):
+            self.__print_sequences()
+        else:
+            try:
+                self.__print_sequence(line)
+            except BadLabelException, e:
+                print "no sequence named '"+e.label+"'"
+
+    def __print_sequences(self):
+        """Print the list of sequence labels"""
+        if self.cfg:
+            seqs = self.cfg.sequenceNames()
+            seqs.sort()
+            self.columnize(seqs)
+            
+    def __print_sequence(self,seqName):
+        """Prints the configuration of just one sequence"""
+        if self.cfg:
+            try:
+                print "sequence: "+self.cfg.sequence(seqName)
+            except KeyError:
+                raise BadLabelException(seqName)
+            
     def do_quit(self,line):
         """Description: quit application"""
         return True
@@ -268,8 +362,14 @@ class CmsBuilder(cmd.Cmd):
         print "source: "+self.cfg.mainInputSource()['@classname'][2]
         print "module:"
         self.do_module('')
+        print "output_module:"
+        self.do_output_module('')
         print "path:"
         self.do_path('')
+        print "endpath:"
+        self.do_path('')
+        print "sequence:"
+        self.do_sequence('')
         if len(self._esModuleLabels) != 0:
             print "es_module:"
             self.do_es_module('')
@@ -375,6 +475,32 @@ class CmsBuilder(cmd.Cmd):
     def __module_help(self,label):
         self.__pset_help(label,'module')
 
+    def __print_output_module(self,label,line=''):
+        try:
+            info = self.cfg.module(label)
+        except KeyError:
+            raise BadLabelException(label)
+
+        if 0 == len(line):
+            print "output_module: "+info['@classname'][2]
+            self.__print_pset(info,"  ")
+        else:
+            self.__print_module_param(label,line)
+
+    def __add_output_module_label(self,label):
+        """create new commands for the new output module label"""
+        self.__add_new_label(label,CmsBuilder.__output_module_help,
+                             CmsBuilder.__print_output_module,
+                             CmsBuilder.__output_module_complete)
+
+    def __output_module_complete(self,label,text,line,begidx,endidx):
+        """gives list of completions possible for this label"""
+        mod = self.cfg.module(label)
+        return self.__pset_complete(label,mod,text,line,begidx,endidx)
+
+    def __output_module_help(self,label):
+        self.__pset_help(label,'output_module')
+
     def __add_es_module_label(self,label):
         """create new commands for the new es_module label"""
         self.__add_new_label(label,CmsBuilder.__es_module_help,CmsBuilder.__print_es_module,CmsBuilder.__es_module_complete)
@@ -415,6 +541,16 @@ class CmsBuilder(cmd.Cmd):
         print "Description: retrieve information about path "+label
         print "Commands:"
         print label+"    prints path description"
+    
+    def __endpath_help(self,label):
+        print "Description: retrieve information about endpath "+label
+        print "Commands:"
+        print label+"    prints endpath description"
+    
+    def __sequence_help(self,label):
+        print "Description: retrieve information about sequence "+label
+        print "Commands:"
+        print label+"    prints sequence description"
     
     def __pset_help(self,label,lType):
         print "Description: retrieve information about "+lType+" "+label
@@ -469,6 +605,38 @@ class CmsBuilder(cmd.Cmd):
             return []
         r = re.compile(text+'.*')
         return [x for x in self.cfg.pathNames() if r.match(x) ]
+
+    def __add_endpath_label(self,label):
+        """create new commands for the new endpath label"""
+        self.__add_new_label(label,CmsBuilder.__endpath_help,CmsBuilder.do_endpath,CmsBuilder.__endpath_complete)
+
+    def __endpath_complete(self,label,text,line,begidx,endidx):
+        #print '"'+text+'"'
+        return []
+    
+    def complete_endpath(self,text,line,begidx,endidx):
+        #if the separator is not a space then no match
+        # note: 4 is the length of the string 'path'
+        if line[4] != ' ':
+            return []
+        r = re.compile(text+'.*')
+        return [x for x in self.cfg.endpathNames() if r.match(x) ]
+
+    def __add_sequence_label(self,label):
+        """create new commands for the new sequence label"""
+        self.__add_new_label(label,CmsBuilder.__sequence_help,CmsBuilder.do_sequence,CmsBuilder.__sequence_complete)
+
+    def __sequence_complete(self,label,text,line,begidx,endidx):
+        #print '"'+text+'"'
+        return []
+    
+    def complete_sequence(self,text,line,begidx,endidx):
+        #if the separator is not a space then no match
+        # note: 4 is the length of the string 'path'
+        if line[4] != ' ':
+            return []
+        r = re.compile(text+'.*')
+        return [x for x in self.cfg.sequenceNames() if r.match(x) ]
 
 if __name__=="__main__":
     import sys
