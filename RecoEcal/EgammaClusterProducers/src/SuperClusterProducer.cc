@@ -65,14 +65,15 @@ SuperClusterProducer::~SuperClusterProducer()
 
 void
 SuperClusterProducer::endJob() {
-  double averEnergy = totalE / noSuperClusters;
+  double averEnergy = 0.;
   std::ostringstream str;
-  str << "-------------------------------------------------------\n";
-  str << "-------------------------------------------------------\n";
-  str << "average SuperCluster energy = " << averEnergy << "\n";
-  str << "-------------------------------------------------------\n";
-  str << "-------------------------------------------------------\n";
-
+  str << "SuperClusterProducer::endJob()\n"
+      << "  total # reconstructed super clusters: " << noSuperClusters << "\n"
+      << "  total energy of all clusters: " << totalE << "\n";
+  if(noSuperClusters>0) { 
+    averEnergy = totalE / noSuperClusters;
+    str << "  average SuperCluster energy = " << averEnergy << "\n";
+  }
   edm::LogInfo("SuperClusterProducerInfo") << str.str() << "\n";
 
 }

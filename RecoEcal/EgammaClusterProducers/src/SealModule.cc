@@ -7,7 +7,7 @@
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSCCorrectionMaker.h"
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSimpleAnalyzer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterProducer.h"
-#include "RecoEcal/EgammaClusterProducers/interface/PreshowerPi0NNProducer.h"
+#include "RecoEcal/EgammaClusterProducers/interface/PiZeroDiscriminatorProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/RecHitFilter.h"
 
 DEFINE_SEAL_MODULE();
@@ -19,5 +19,5 @@ DEFINE_ANOTHER_FWK_MODULE(SuperClusterProducer);
 DEFINE_ANOTHER_FWK_MODULE(EgammaSCCorrectionMaker);
 DEFINE_ANOTHER_FWK_MODULE(EgammaSimpleAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(PreshowerClusterProducer);
-DEFINE_ANOTHER_FWK_MODULE(PreshowerPi0NNProducer);
+DEFINE_ANOTHER_FWK_MODULE(PiZeroDiscriminatorProducer);
 DEFINE_ANOTHER_FWK_MODULE(RecHitFilter);
