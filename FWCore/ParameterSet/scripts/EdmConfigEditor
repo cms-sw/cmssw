@@ -17,10 +17,32 @@ class BadLabelException:
         self.label = label
         return
 
+class PrintWrapper(object):
+    def __init__(self,stream):
+        self.__stream = stream
+    def write(self,info):
+        self.__stream.write(info)
+    def setStream(self,stream):
+        old = self.__stream
+        self.__stream = stream
+        return old
+
+class PrintIntercept:
+    def __init__(self):
+        self.__lastPrint = []
+    def lastPrint(self):
+        return self.__lastPrint
+    def write(self,info):
+        self.__lastPrint.append(info)
+    def clear(self):
+        self.__lastPrint=[]
+
 class CmsBuilder(cmd.Cmd):
 
     def __init__(self,fileName):
-        cmd.Cmd.__init__(self)
+        #use this so we can intercept the output from the base class
+        self.__wrapper=PrintWrapper(sys.stdout)
+        cmd.Cmd.__init__(self,stdout=self.__wrapper)
         readline.set_completer_delims(readline.get_completer_delims()+'.')
         self.prompt = "[no file]>"
         self.cfg = None
@@ -147,7 +169,7 @@ class CmsBuilder(cmd.Cmd):
 
     def __print_es_module(self,label,line=''):
         if 0 == len(line):
-            print "module: "+self.__find_es_module(label)['@classname'][2]
+            print "es_module: "+self.__find_es_module(label)['@classname'][2]
             self.__print_pset(self.__find_es_module(label),"  ")
         else:
             self.__print_pset_param(label,line,self.__find_es_module(label))
@@ -160,7 +182,7 @@ class CmsBuilder(cmd.Cmd):
         return self.cfg.esModule(self._esModuleLabels[label])
 
     def __print_es_sources(self,line):
-        """List es_module labels in the configuration"""
+        """List es_source labels in the configuration"""
         if(self.cfg):
             names = self._esSourceLabels.keys()
             names.sort()
@@ -355,27 +377,50 @@ class CmsBuilder(cmd.Cmd):
         """Description: quit application"""
         return True
 
+    def __print_with_indent(self,func):
+        stdout_hold = sys.stdout
+        printIntercept = PrintIntercept()
+        old = self.__wrapper.setStream(printIntercept)
+        sys.stdout = printIntercept
+        try:
+            func('')
+            sys.stdout = stdout_hold
+            for line in printIntercept.lastPrint():
+                if line[-1] == '\n':
+                    line = line[:-1]
+                print "   "+line
+        finally:
+            self.__wrapper.setStream(old)
+            sys.stdout = stdout_hold
+
     def __print_process_summary(self):
         """print a high level overview of the job configuration"""
         print "---Process Summary---"
         print "process: "+self.cfg.procName()
         print "source: "+self.cfg.mainInputSource()['@classname'][2]
         print "module:"
-        self.do_module('')
+        self.__print_with_indent(self.do_module)
+        #self.do_module('')
         print "output_module:"
-        self.do_output_module('')
+        self.__print_with_indent(self.do_output_module)
+        #self.do_output_module('')
         print "path:"
-        self.do_path('')
+        #self.do_path('')
+        self.__print_with_indent(self.do_path)
         print "endpath:"
-        self.do_path('')
+        #self.do_endpath('')
+        self.__print_with_indent(self.do_endpath)
         print "sequence:"
-        self.do_sequence('')
+        #self.do_sequence('')
+        self.__print_with_indent(self.do_sequence)
         if len(self._esModuleLabels) != 0:
             print "es_module:"
-            self.do_es_module('')
+            #self.do_es_module('')
+            self.__print_with_indent(self.do_es_module)
         if len(self._esSourceLabels) != 0:
             print "es_source:"
-            self.do_es_source('')
+            #self.do_es_source('')
+            self.__print_with_indent(self.do_es_source)
         
     def __print_pset(self,psetDict,indent):
         """print the contents of a pset"""
