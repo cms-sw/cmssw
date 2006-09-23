@@ -309,7 +309,7 @@ EventSetupProvider::finishConfiguration()
          if(!foundAllProviders) {
             edm::LogWarning("EventSetupDependency")<<"The EventSetup record "<<itProvider->second->key().name()
             <<" depends on at least one Record \n ("<<missingRecords<<") which is not present in the job."
-           "\n This may lead to failures during event processing.";
+           "\n This may lead to an exception begin thrown during event processing.\n If no exception occurs during the job than it is usually safe to ignore this message.";
 
             //depProviders.clear();
            //NOTE: should provide a warning
