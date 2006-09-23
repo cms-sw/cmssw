@@ -1,23 +1,24 @@
 #ifndef RecoEcal_EgammaClusterAlgos_EndcapPiZeroDiscriminatorAlgo_h
 #define RecoEcal_EgammaClusterAlgos_EndcapPiZeroDiscriminatorAlgo_h
 //
-// $Id: EndcapPiZeroDiscriminatorAlgo.h,v 1.1 2006/09/11 12:17:30 futyand Exp $
+// $Id: EndcapPiZeroDiscriminatorAlgo.h,v 1.1 2006/09/22 16:04:17 rahatlou Exp $
 //
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Math/interface/Point3D.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
+//#include "DataFormats/Math/interface/Point3D.h"
+//#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+//#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+//#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 
 
 // C/C++ headers
 #include <string>
 #include <vector>
-#include <set>
-#include <fstream>
+#include <map>
+//#include <set>
 
 class EndcapPiZeroDiscriminatorAlgo {
 
@@ -25,20 +26,21 @@ class EndcapPiZeroDiscriminatorAlgo {
  
    enum DebugLevel_pi0 { pDEBUG = 0, pINFO = 1, pERROR = 2 };
 
-   typedef math::XYZPoint Point;
+   //typedef math::XYZPoint Point;
 
    typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
    EndcapPiZeroDiscriminatorAlgo() : 
-   preshStripEnergyCut_(0.), preshSeededNstr_(5), debugLevel_(pINFO)
+   preshStripEnergyCut_(0.), preshSeededNstr_(5), debugLevel_(pINFO), pathToFiles_("")
    {}
 
-   EndcapPiZeroDiscriminatorAlgo(double stripEnergyCut, int nStripCut, DebugLevel_pi0 debugLevel = pINFO ) :
-   preshStripEnergyCut_(stripEnergyCut),  preshSeededNstr_(nStripCut), debugLevel_(debugLevel)
+   EndcapPiZeroDiscriminatorAlgo(double stripEnergyCut, int nStripCut, const std::string& path, 
+                                 DebugLevel_pi0 debugLevel = pINFO ) :
+   preshStripEnergyCut_(stripEnergyCut),  preshSeededNstr_(nStripCut), debugLevel_(debugLevel), pathToFiles_(path)
    {}
 
    ~EndcapPiZeroDiscriminatorAlgo() {};
-   
+
 // Aris 10/7/2006
 // ---------------
    std::vector<float>  findPreshVector(ESDetId strip, RecHitsMap *rechits_map,
@@ -46,11 +48,11 @@ class EndcapPiZeroDiscriminatorAlgo {
 //   void findPreshVector(ESDetId strip, RecHitsMap *rechits_map,
 //					 CaloSubdetectorTopology *topology_p, std::vector<float>& vout_stripE);
 
-   void findPi0Road(ESDetId strip, EcalPreshowerNavigator theESNav, int plane, std::vector<ESDetId>& vout);
+   void findPi0Road(ESDetId strip, EcalPreshowerNavigator& theESNav, int plane, std::vector<ESDetId>& vout);
 
    bool goodPi0Strip(RecHitsMap::iterator candidate_it, ESDetId lastID);
 
-   void readWeightFile(char *WFile);
+   void readWeightFile(const char *WFile);
 
    float Activation_fun(float SUM);
 
@@ -78,6 +80,9 @@ class EndcapPiZeroDiscriminatorAlgo {
 
    // The map of hits
    RecHitsMap *rechits_map;
+
+   // path to weight files
+  std::string pathToFiles_;
 
 };
 #endif

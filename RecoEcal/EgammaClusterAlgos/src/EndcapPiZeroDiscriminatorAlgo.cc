@@ -1,12 +1,14 @@
 
-#include <vector>
-#include <map>
-
 #include "RecoEcal/EgammaClusterAlgos/interface/EndcapPiZeroDiscriminatorAlgo.h"
-#include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
-//#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+//#include "FWCore/MessageService/interface/MessageLogger.h"
+//using edm::LogInfo;
+//#include <sstream>
+#include <fstream>
+#include <iostream>
 
 
 // Aris 10/7/2006
@@ -25,9 +27,9 @@ std::vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,
 
   int plane = strip.plane();
 
-  if ( debugLevel_ <= pINFO ) {
-    std::cout << "findPreshVectors: Preshower Seeded Algorithm - looking for clusters" << std::endl;
-    std::cout << "findPreshVectors: Preshower is intersected at strip " << strip.strip() << ", at plane " << plane << std::endl;
+  if ( debugLevel_ <= pDEBUG ) {
+    std::cout << "findPreshVectors: Preshower Seeded Algorithm - looking for clusters" << "n"
+              << "findPreshVectors: Preshower is intersected at strip " << strip.strip() << ", at plane " << plane << std::endl;
   }
 
   if ( strip == ESDetId(0) ) { //works in case of no intersected strip found
@@ -44,7 +46,7 @@ std::vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,
   navigator.setHome(strip);
  //search for neighbours in the central road
   findPi0Road(strip, navigator, plane, road_2d);
-  if ( debugLevel_ <= pINFO ) std::cout << "findPreshVectors: Total number of strips in the central road: " << road_2d.size() << std::endl;
+  if ( debugLevel_ <= pDEBUG ) std::cout << "findPreshVectors: Total number of strips in the central road: " << road_2d.size() << std::endl;
 
   // Find the energy of each strip 
   RecHitsMap::iterator final_strip =  rechits_map->end();
@@ -89,14 +91,14 @@ bool EndcapPiZeroDiscriminatorAlgo::goodPi0Strip(RecHitsMap::iterator candidate_
 }
 
 // find strips in the road of size +/- preshSeededNstr_ from the central strip
-void EndcapPiZeroDiscriminatorAlgo::findPi0Road(ESDetId strip, EcalPreshowerNavigator theESNav, 
+void EndcapPiZeroDiscriminatorAlgo::findPi0Road(ESDetId strip, EcalPreshowerNavigator& theESNav, 
                                                                 int plane, std::vector<ESDetId>& vout) {
   if ( strip == ESDetId(0) ) return;
 //   int preshSeededNstr_ = 5; 
    ESDetId next;
    theESNav.setHome(strip);
 
-   if ( debugLevel_ <= pINFO ) std::cout << "findPi0Road: starts from strip " << strip << std::endl;  
+   if ( debugLevel_ <= pDEBUG ) std::cout << "findPi0Road: starts from strip " << strip << std::endl;  
    if (plane == 1) {
      // east road
      int n_east= 0;
@@ -154,7 +156,7 @@ void EndcapPiZeroDiscriminatorAlgo::findPi0Road(ESDetId strip, EcalPreshowerNavi
 // INPUT: Weights_file
 // OUTPUT: I_H_Weight, H_Thresh, H_O_Weight, O_Thresh arrays
 //===================================================================
-void EndcapPiZeroDiscriminatorAlgo::readWeightFile(char *Weights_file){
+void EndcapPiZeroDiscriminatorAlgo::readWeightFile(const char *Weights_file){
    FILE *weights;
 
    char *line;
@@ -165,7 +167,7 @@ void EndcapPiZeroDiscriminatorAlgo::readWeightFile(char *Weights_file){
 // in the nodes and weights
 //*******************************************************	
   weights = fopen(Weights_file, "r");
-  std::cout << " I opeded the Weights file  = " << Weights_file << std::endl;
+  if ( debugLevel_ <= pDEBUG ) std::cout << " I opeded the Weights file  = " << Weights_file << std::endl;
   while( !feof(weights) ){
 	fscanf(weights, "%s", line);
   	if (line[0] == 'A') { //Read in ANN nodes: Layers, Input , Hidden, Output
@@ -242,7 +244,7 @@ float EndcapPiZeroDiscriminatorAlgo::getNNoutput(float *input)
   }
   nnout = Activation_fun(OUT[0]);
 
-  std::cout << "getNNoutput :: -> NNout = " <<  nnout << std::endl;
+  if ( debugLevel_ <= pDEBUG ) std::cout << "getNNoutput :: -> NNout = " <<  nnout << std::endl;
 
   return (nnout);
 }
@@ -267,17 +269,19 @@ void EndcapPiZeroDiscriminatorAlgo::calculateNNInputVariables(std::vector<float>
                                            float *nn_invar)
 {
 
-   std::cout << "Energies of the Preshower Strips in X plane = ( "; 
-   for(int i = 0; i<11;i++) {
-      std::cout << " " << vph1[i];
+   if ( debugLevel_ <= pDEBUG ) {
+     std::cout << "Energies of the Preshower Strips in X plane = ( "; 
+     for(int i = 0; i<11;i++) {
+        std::cout << " " << vph1[i];
+     }
+     std::cout << std::endl;
+     std::cout << "Energies of the Preshower Strips in Y plane = ( "; 
+     for(int i = 0; i<11;i++) {
+        std::cout << " " << vph2[i];
+     }
+     std::cout << std::endl;
    }
-   std::cout << std::endl;
-   std::cout << "Energies of the Preshower Strips in Y plane = ( "; 
-   for(int i = 0; i<11;i++) {
-      std::cout << " " << vph2[i];
-   }
-   std::cout << std::endl;
-   
+
 // FIRST : Produce the 22 NN variables related with the Preshower 
 // --------------------------------------------------------------
 // New normalization of the preshower strip energies Aris 8/11/2004
@@ -299,9 +303,11 @@ void EndcapPiZeroDiscriminatorAlgo::calculateNNInputVariables(std::vector<float>
       nn_invar[23] = pS9_max/500.;
       nn_invar[24] = pS25_max/500.;
 
-      std::cout << "S1/500. = " << nn_invar[22] << std::endl;
-      std::cout << "S9/500. = " << nn_invar[23] << std::endl;
-      std::cout << "S25/500. = " << nn_invar[24] << std::endl;
+      if ( debugLevel_ <= pDEBUG ) {
+        std::cout << "S1/500. = " << nn_invar[22] << std::endl;
+        std::cout << "S9/500. = " << nn_invar[23] << std::endl;
+        std::cout << "S25/500. = " << nn_invar[24] << std::endl;
+      }
 }
 
 float EndcapPiZeroDiscriminatorAlgo::GetNNOutput(float Et_SE, float *nn_invar_presh) 
@@ -310,30 +316,25 @@ float EndcapPiZeroDiscriminatorAlgo::GetNNOutput(float Et_SE, float *nn_invar_pr
     float input_var[25]; // array with the 25 variables to be used as input in NN
 // Print the 25 NN input variables that are related to the Preshower + ECAL
 // ------------------------------------------------------------------------
-     std::cout << " PreshNNoutput :nn_invar_presh = " ;
+     if ( debugLevel_ <= pDEBUG )std::cout << " PreshNNoutput :nn_invar_presh = " ;
      for(int k1=0;k1<25;k1++) {
         input_var[k1] = nn_invar_presh[k1];
-        std::cout << input_var[k1] << " " ;
+        if ( debugLevel_ <= pDEBUG )std::cout << input_var[k1] << " " ;
      }
-     std::cout << std::endl;
-               
-     char* pc=getenv("LOCALRT");
-     std::string LocalRT(pc);
-               
-//     std::string LocalRT = "/afs/cern.ch/user/a/akyriaki/scratch0";
+     if ( debugLevel_ <= pDEBUG )std::cout << std::endl;
 
-     std::string nn_paterns_file  = "/src/RecoEcal/EgammaClusterProducers/data/";
+     // Choose the correct file according to the cluster's energy
+     std::string nn_paterns_file  = "";
+     if(Et_SE<25.0)                     {nn_paterns_file = "endcapPiZeroDiscriminatorWeights_et20.wts"; }
+     else if(Et_SE>=25.0 && Et_SE<35.0) {nn_paterns_file = "endcapPiZeroDiscriminatorWeights_et30.wts"; }
+     else if(Et_SE>=35.0 && Et_SE<45.0) {nn_paterns_file = "endcapPiZeroDiscriminatorWeights_et40.wts"; }
+     else if(Et_SE>=45.0 && Et_SE<55.0) {nn_paterns_file = "endcapPiZeroDiscriminatorWeights_et50.wts"; }
+     else                               {nn_paterns_file = "endcapPiZeroDiscriminatorWeights_et60.wts"; }
 
-// Choose the correct file according to the cluster's energy
-     if(Et_SE<25.0)                     {nn_paterns_file = LocalRT + nn_paterns_file + "endcapPiZeroDiscriminatorWeights_et20.wts"; }
-     else if(Et_SE>=25.0 && Et_SE<35.0) {nn_paterns_file = LocalRT + nn_paterns_file + "endcapPiZeroDiscriminatorWeights_et30.wts"; }
-     else if(Et_SE>=35.0 && Et_SE<45.0) {nn_paterns_file = LocalRT + nn_paterns_file + "endcapPiZeroDiscriminatorWeights_et40.wts"; }
-     else if(Et_SE>=45.0 && Et_SE<55.0) {nn_paterns_file = LocalRT + nn_paterns_file + "endcapPiZeroDiscriminatorWeights_et50.wts"; }
-     else                               {nn_paterns_file = LocalRT + nn_paterns_file + "endcapPiZeroDiscriminatorWeights_et60.wts"; }
+     edm::FileInPath WFile(pathToFiles_+nn_paterns_file);
+     readWeightFile(WFile.fullPath().c_str()); // read the weights' file
 
-    char *WFile  = nn_paterns_file.c_str();
-     readWeightFile(WFile); // read the weights' file
      nnout = getNNoutput(input_var); // calculate the nnoutput for the given ECAL object
-     std::cout << "***************PreshNNoutput : NNout = " << nnout <<  std::endl;  
+     if ( debugLevel_ <= pDEBUG ) std::cout << "***************PreshNNoutput : NNout = " << nnout <<  std::endl;  
    return nnout;
 }
