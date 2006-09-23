@@ -54,7 +54,7 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
   for (currentSeed = clusters_v.begin(); !clusters_v.empty(); clusters_v.erase(currentSeed))
     {
       // Does our highest energy cluster have high enough energy?
-      if ((*currentSeed)->energy() < seedEnergyThreshold) break;
+      if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) break;
 
       // if yes, make it a seed for a new SuperCluster:
       double energy_ = (*currentSeed)->energy();

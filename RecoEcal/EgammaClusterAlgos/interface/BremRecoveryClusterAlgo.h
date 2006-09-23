@@ -28,7 +28,7 @@ class BremRecoveryClusterAlgo
 			  double eb_sc_road_phisize = 0.80, // Search window in phi - Barrel
 			  double ec_sc_road_etasize = 0.14, // Search window in eta - Endcap
 			  double ec_sc_road_phisize = 0.40, // Search window in eta - Endcap
-			  double theSeedEnergyThreshold = 0.40,
+			  double theSeedTransverseEnergyThreshold = 0.40,
 			  VerbosityLevel the_verbosity = pERROR
 			  )
     {
@@ -36,7 +36,7 @@ class BremRecoveryClusterAlgo
       eb_rdphi_ = eb_sc_road_phisize;
       ec_rdeta_ = ec_sc_road_etasize;
       ec_rdphi_ = ec_sc_road_phisize;
-      seedEnergyThreshold = theSeedEnergyThreshold;
+      seedTransverseEnergyThreshold = theSeedTransverseEnergyThreshold;
       verbosity = the_verbosity;
     }
 
@@ -71,7 +71,7 @@ class BremRecoveryClusterAlgo
   double ec_rdeta_;
   double ec_rdphi_;
   
-  double seedEnergyThreshold;
+  double seedTransverseEnergyThreshold;
   
   reco::SuperClusterCollection superclusters_v;
   

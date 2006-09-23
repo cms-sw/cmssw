@@ -43,11 +43,11 @@ SuperClusterProducer::SuperClusterProducer(const edm::ParameterSet& ps)
   barrelPhiSearchRoad_ = ps.getParameter<double>("barrelPhiSearchRoad");
   endcapEtaSearchRoad_ = ps.getParameter<double>("endcapEtaSearchRoad");
   endcapPhiSearchRoad_ = ps.getParameter<double>("endcapPhiSearchRoad");
-  seedEnergyThreshold_ = ps.getParameter<double>("seedEnergyThreshold");
+  seedTransverseEnergyThreshold_ = ps.getParameter<double>("seedTransverseEnergyThreshold");
 
   bremAlgo_p = new BremRecoveryClusterAlgo(barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
 					 endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
-					 seedEnergyThreshold_, verbosity);
+					 seedTransverseEnergyThreshold_, verbosity);
 
   produces< reco::SuperClusterCollection >(endcapSuperclusterCollection_);
   produces< reco::SuperClusterCollection >(barrelSuperclusterCollection_);
