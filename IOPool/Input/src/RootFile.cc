@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.31 2006/08/30 23:39:15 wmtan Exp $
+$Id: RootFile.cc,v 1.32 2006/09/21 19:40:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -27,9 +27,11 @@ $Id: RootFile.cc,v 1.31 2006/08/30 23:39:15 wmtan Exp $
 
 namespace edm {
 //---------------------------------------------------------------------
-  RootFile::RootFile(FileCatalogItem const& file, std::string const& catalogName) :
-    file_(file.fileName()),
-    logicalFile_(file.logicalFileName()),
+  RootFile::RootFile(std::string const& fileName,
+		     std::string const& catalogName,
+		     std::string const& logicalFileName) :
+    file_(fileName),
+    logicalFile_(logicalFileName),
     catalog_(catalogName),
     branchNames_(),
     eventProvenance_(),
