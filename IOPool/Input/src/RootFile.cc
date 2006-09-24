@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.32 2006/09/21 19:40:32 wmtan Exp $
+$Id: RootFile.cc,v 1.33 2006/09/24 17:11:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -10,7 +10,6 @@ $Id: RootFile.cc,v 1.32 2006/09/21 19:40:32 wmtan Exp $
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
 #include "DataFormats/Common/interface/EventAux.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/FileCatalog.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
