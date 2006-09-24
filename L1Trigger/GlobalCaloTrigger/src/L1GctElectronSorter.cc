@@ -25,7 +25,7 @@ L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso, std::vector<L1Gc
     }else{
       throw cms::Exception("L1GctSetupError")
 	<<"L1GctElectronSorter::L1GctElectronSorter() : Pointer to Source Card "<<i<<" is zero";
-    }  
+    }
   }
 }
 
@@ -71,7 +71,7 @@ void L1GctElectronSorter::process() {
 
 //Convert from caloEmCand to gctEmCand and make temporary copy of data
   std::vector<L1GctEmCand> data = this->convertCaloToGct(m_inputCands);
- 
+
 //Then sort it
     sort(data.begin(),data.end(),rank_gt());
 
@@ -79,7 +79,6 @@ void L1GctElectronSorter::process() {
     for(int i = 0; i<4; i++){
       m_outputCands[i] = data[i];
     }
-
 }
 
 void L1GctElectronSorter::setInputEmCand(int i, L1CaloEmCand cand){
@@ -100,7 +99,6 @@ std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& ems) {
 
 std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1CaloEmCand> cand){
   std::vector<L1GctEmCand> gctCand(cand.size());
-
   for(unsigned int i = 0;i!=cand.size();i++){
     unsigned rank = cand[i].rank();
     unsigned card = cand[i].rctCard();
@@ -108,8 +106,8 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
     // unsigned crate = cand[i].rctCrate(); for now
     //bool sign = (crate<9?1:0); for now
     bool isolation = cand[i].isolated();
-    unsigned eta = 10; //initialisation value, outside eta range
-    unsigned phi = 50;
+    unsigned eta = 0; //initialisation values
+    unsigned phi = 0;
     
     switch(card){
     case 0:
@@ -170,9 +168,10 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }	
       break;
     }
-
-    L1GctEmCand gctTemp(rank,phi,eta,isolation);
+    std::cout<<" ElectronSorter::converted() with card = "<<card<<" region = "<<region<<"  eta = "<<eta<< " phi = "<<phi<<std::endl; 
+    L1GctEmCand gctTemp(rank,eta,phi,isolation);
     gctCand[i] = gctTemp;
+    std::cout<<" ElectronSorter::GctConverted cand has rank = "<<gctTemp.rank()<<" phi = "<<gctTemp.phiIndex()<<" eta = "<<gctTemp.etaIndex()<<" iso = "<<gctTemp.isolated()<<std::endl;
   }
   return gctCand;
 }
