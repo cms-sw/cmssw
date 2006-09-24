@@ -103,15 +103,16 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
     unsigned rank = cand[i].rank();
     unsigned card = cand[i].rctCard();
     unsigned region = cand[i].rctRegion();
-    // unsigned crate = cand[i].rctCrate(); for now
+    unsigned crate = cand[i].rctCrate(); 
     //bool sign = (crate<9?1:0); for now
     bool isolation = cand[i].isolated();
     unsigned eta = 0; //initialisation values
+    unsigned phiRegion = 0;
     unsigned phi = 0;
-    
+
     switch(card){
     case 0:
-      phi = 1;
+      phiRegion = 1;
       if(region == 0){
 	eta = 0;
       }else{
@@ -119,7 +120,7 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }
       break;
     case 1:
-      phi = 1;
+      phiRegion = 1;
       if(region == 0){
 	eta = 2;
       }else{
@@ -127,7 +128,7 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }	
       break;
     case 2:
-      phi = 1;
+      phiRegion = 1;
       if(region == 0){
 	eta = 4;
       }else{
@@ -135,7 +136,7 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }	
       break;
     case 3:
-      phi = 0;
+      phiRegion = 0;
       if(region == 0){
 	eta = 0;
       }else{
@@ -143,7 +144,7 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }	
       break;
     case 4:
-      phi = 0;
+      phiRegion = 0;
       if(region == 0){
 	eta = 2;
       }else{
@@ -151,7 +152,7 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }	
       break;
     case 5:
-      phi = 0;
+      phiRegion = 0;
       if(region == 0){
 	eta = 4;
       }else{
@@ -161,17 +162,20 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
     case 6:
       if(region == 0){
 	eta = 6;
-	phi = 1;
+	phiRegion = 1;
       }else{
 	eta = 6;
-	phi = 0;
+	phiRegion = 0;
       }	
       break;
     }
-    std::cout<<" ElectronSorter::converted() with card = "<<card<<" region = "<<region<<"  eta = "<<eta<< " phi = "<<phi<<std::endl; 
+    if(crate<9){
+      phi = 2*crate + phiRegion;
+    }else{
+      phi = 2*(crate-9) + phiRegion;
+    }
     L1GctEmCand gctTemp(rank,eta,phi,isolation);
     gctCand[i] = gctTemp;
-    std::cout<<" ElectronSorter::GctConverted cand has rank = "<<gctTemp.rank()<<" phi = "<<gctTemp.phiIndex()<<" eta = "<<gctTemp.etaIndex()<<" iso = "<<gctTemp.isolated()<<std::endl;
   }
   return gctCand;
 }
