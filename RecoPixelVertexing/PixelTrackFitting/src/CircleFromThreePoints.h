@@ -18,6 +18,9 @@
 class CircleFromThreePoints {
 public:
 
+  /// dummy
+  CircleFromThreePoints(){}
+
   typedef Basic2DVector<float>   Vector2D;
 
   /** Construct from three points (see class description).

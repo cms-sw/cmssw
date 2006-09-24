@@ -41,7 +41,7 @@ reco::Track* PixelFitterByHelixProjections::run(
     const TrackingRegion & region) const
 {
   int nhits = hits.size();
-  if (nhits < 3) return 0;
+  if (nhits <2) return 0;
 
   vector<GlobalPoint> points;
   vector<GlobalError> errors;
@@ -73,8 +73,10 @@ reco::Track* PixelFitterByHelixProjections::run(
     errors.push_back( recHit->globalPositionError());
     isBarrel.push_back( recHit->detUnit()->type().isBarrel() );
   }
-  
-  CircleFromThreePoints circle(points[0],points[1],points[2]);
+
+  CircleFromThreePoints circle = (nhits==2) ?
+        CircleFromThreePoints( GlobalPoint(0.,0.,0.), points[0], points[1]) :
+        CircleFromThreePoints(points[0],points[1],points[2]); 
 
   int charge = PixelFitterByHelixProjections::charge(points);
   float curvature = circle.curvature();
@@ -85,29 +87,24 @@ reco::Track* PixelFitterByHelixProjections::run(
 
   CircleFromThreePoints::Vector2D center = circle.center();
   float valTip = charge * (center.mag()-1/curvature);
-  float errTip = sqrt(errTip2(valPt, points[3].eta()));
+  float errTip = sqrt(errTip2(valPt, points.back().eta()));
 
   float valPhi = PixelFitterByHelixProjections::phi(center.x(), center.y(), charge);
   float errPhi = 0.002;
 
   float valZip = zip(valTip, curvature, points[0],points[1]);
-  float errZip = sqrt(errZip2(valPt, points[3].eta()));
+  float errZip = sqrt(errZip2(valPt, points.back().eta()));
 
-  float valCotTheta = PixelFitterByHelixProjections::cotTheta(points);
+  float valCotTheta = PixelFitterByHelixProjections::cotTheta(points[0],points[1]);
   float errCotTheta = 0.002;
 
-  RZLine rzLine(points,errors,isBarrel);
-  float cottheta, intercept, covss, covii, covsi; 
-  rzLine.fit(cottheta, intercept, covss, covii, covsi);
-  float chi2 = rzLine.chi2(cottheta, intercept);         //FIXME: check which intercept to use!
-
-//  float chi2 = rzLine.chi2(valCotTheta,valZip);
-//  float chi2_1 = rzLine.chi2(valCotTheta,0.);
-//  float chi2_2 = rzLine.chi2(cottheta,intercept);
-//  float chi2_3 =  rzLine.chi2(cottheta,0.);
-//  edm::LogInfo("** CHI2 **")<<"chi0,1,2,3 "<<chi2<<" "<<chi2_1<<" "<<chi2_2<<" "<<chi2_3<<endl;
-//  cout <<"simple cot: "<<valCotTheta<<" from fit: "<<cottheta<<" chi2: "<<chi2<< endl;
-  
+  float chi2 = 0;
+  if (nhits > 2) {
+    RZLine rzLine(points,errors,isBarrel);
+    float cottheta, intercept, covss, covii, covsi; 
+    rzLine.fit(cottheta, intercept, covss, covii, covsi);
+    chi2 = rzLine.chi2(cottheta, intercept);         //FIXME: check which intercept to use!
+  }
 
   PixelTrackBuilder builder;
   Measurement1D pt(valPt, errPt);
@@ -129,12 +126,11 @@ int PixelFitterByHelixProjections::charge(const vector<GlobalPoint> & points) co
    return (dphi > 0) ? -1 : 1;
 }
 
-float PixelFitterByHelixProjections::cotTheta(const vector<GlobalPoint> & points) const
+float PixelFitterByHelixProjections::cotTheta(
+   const GlobalPoint& inner, const GlobalPoint& outer) const
 {
-   GlobalPoint gp1 = points[0];
-   GlobalPoint gp2 = points[1];
-   float dr = gp2.perp()-gp1.perp();
-   float dz = gp2.z()-gp1.z();
+   float dr = outer.perp()-inner.perp();
+   float dz = outer.z()-inner.z();
    return (fabs(dr) > 1.e-3) ? dz/dr : 0;
 }
 

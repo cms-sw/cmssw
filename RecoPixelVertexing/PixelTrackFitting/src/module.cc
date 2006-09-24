@@ -20,5 +20,7 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelTrackFilterByKinematicsESProducer)
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackProducer.h"
-
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelHitPairTrackProducer.h"
 DEFINE_ANOTHER_FWK_MODULE(PixelTrackProducer)
+DEFINE_ANOTHER_FWK_MODULE(PixelHitPairTrackProducer)
+

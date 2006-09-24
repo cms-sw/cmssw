@@ -43,6 +43,9 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
   typedef ConformalMappingFit::PointXY PointXY;
   vector<PointXY> xy;
 
+  //temporary check!!!
+//  xy.push_back( PointXY(0.0001, 0.0001) );
+
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 

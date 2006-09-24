@@ -23,7 +23,7 @@ public:
       const TrackingRegion& region) const;
 private:
   int charge(const vector<GlobalPoint> & points) const;
-  float cotTheta(const vector<GlobalPoint> & points) const;
+  float cotTheta(const GlobalPoint& pinner, const GlobalPoint& pouter) const;
   float phi(float xC, float yC, int charge) const;
   float pt(float curvature) const;
   float zip(float d0, float curv, 
