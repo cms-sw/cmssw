@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/09/14 23:51:03 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/09/17 03:27:11 $
+ *  $Revision: 1.10 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -18,7 +18,6 @@
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -185,7 +184,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
 bool CosmicMuonSeedGenerator::checkQuality(MuonRecHitPointer hit) const {
 
-  // only use 4D segments ?  try another way for 2D segments
+  // only use 4D segments
   if (hit->degreesOfFreedom() < 4) {
     LogDebug("CosmicMuonSeedGenerator")<<"dim < 4";
     return false;
@@ -235,7 +234,6 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   edm::ESHandle<Propagator> propagator;
   eSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",propagator);
 
-
   // set the pt and spt by hand
   double pt = 5.0;
 //  double spt = 1.0;
@@ -246,7 +244,6 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
 
   // Fill the LocalTrajectoryParameters
   LocalPoint segPos=hit->localPosition();
-
   
   GlobalVector polar(GlobalVector::Spherical(hit->globalDirection().theta(),
                                              hit->globalDirection().phi(),
@@ -273,78 +270,21 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, hit->det()->surface(), &*field);
 
-  LogDebug(metname)<<"Trajectory State on Surface before the extrapolation";
+  LogDebug(metname)<<"Trajectory State on Surface of Seed";
   LogDebug(metname)<<"mom: "<<tsos.globalMomentum()<<" phi: "<<tsos.globalMomentum().phi();
   LogDebug(metname)<<"pos: " << tsos.globalPosition(); 
-  LogDebug(metname) << "The RecSegment relies on: "<<endl;
+  LogDebug(metname) << "The RecSegment relies on: ";
   LogDebug(metname) << debug.dumpMuonId(hit->geographicalId());
 
- // ask for compatible layers
-  DirectMuonNavigation theNavigation(&*theMuonLayers);
-  vector<const DetLayer*> detLayers = theNavigation.compatibleLayers(*(tsos.freeState()),oppositeToMomentum);
-  
-  LogDebug(metname) << "There are "<< detLayers.size() <<" compatible layers"<<endl;
-  
-  vector<DetWithState> detsWithStates;
-
-  if(detLayers.size()){
-    LogDebug(metname) <<"Compatible layers:"<<endl;
-    for( vector<const DetLayer*>::const_iterator layer = detLayers.begin(); 
-	 layer != detLayers.end(); layer++){
-      LogDebug(metname) << debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId());
-      LogDebug(metname) << debug.dumpLayer(*layer);
-    }
+  // Transform it in a TrajectoryStateOnSurface
+  TrajectoryStateTransform tsTransform;
     
-    // ask for compatible dets
-    // ask for compatible dets
-    LogDebug(metname) <<"first one:"<<endl;
-    LogDebug(metname) << debug.dumpLayer(detLayers.front());
-
-    detsWithStates = detLayers.front()->compatibleDets(tsos, *propagator, *estimator);
-    LogDebug(metname)<<"Number of compatible dets: "<<detsWithStates.size()<<endl;
-  }
-  else
-    LogDebug(metname)<<"No compatible layers found"<<endl;
-
-  if(detsWithStates.size()){
-    // get the updated TSOS
-    TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
-    const GeomDet *newTSOSDet = detsWithStates.front().first;
+  PTrajectoryStateOnDet *seedTSOS =
+    tsTransform.persistentState(tsos ,hit->geographicalId().rawId());
     
-    if ( newTSOS.isValid() ) {
-      
-      LogDebug(metname)<<"New TSOS is on det: "<<endl;
-      LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
-
-      LogDebug(metname) << "Trajectory State on Surface after the extrapolation"<<endl;
-      LogDebug(metname)<<"mom: "<<newTSOS.globalMomentum();
-      LogDebug(metname)<<"pos: " << newTSOS.globalPosition();
-
-
-      // Transform it in a TrajectoryStateOnSurface
-      TrajectoryStateTransform tsTransform;
-      
-      PTrajectoryStateOnDet *seedTSOS =
-	tsTransform.persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
-      
-      edm::OwnVector<TrackingRecHit> container;
-      TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-      
-      result.push_back(theSeed);
-    } 
-  }
-  else{
-    
-    // Transform it in a TrajectoryStateOnSurface
-    TrajectoryStateTransform tsTransform;
-    
-    PTrajectoryStateOnDet *seedTSOS =
-      tsTransform.persistentState(tsos ,hit->geographicalId().rawId());
-    
-    edm::OwnVector<TrackingRecHit> container;
-    TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-    result.push_back(theSeed); 
-  }
+  edm::OwnVector<TrackingRecHit> container;
+  TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
+  result.push_back(theSeed); 
 
   return result;
 }
