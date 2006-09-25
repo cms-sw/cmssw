@@ -1,5 +1,5 @@
+#define G4v7
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
-
 #include "SimG4Core/Physics/interface/ProcessTypeEnumerator.h"
 
 #include "G4VProcess.hh"
@@ -29,8 +29,14 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["KaonZeroSInelastic"] = "Hadronic";
   mapProcesses["LCapture"] = "Hadronic";
   mapProcesses["LElastic"] = "Hadronic";
+#ifndef G4v7
+  mapProcesses["hElastic"] = "Hadronic";
+#endif
   mapProcesses["LambdaInelastic"] = "Hadronic";
   mapProcesses["NeutronInelastic"] = "Hadronic";
+#ifndef G4v7
+  mapProcesses["CHIPSNuclearAbsorptionAtRest"] = "Hadronic";
+#endif
   mapProcesses["PionMinusAbsorptionAtRest"] = "Hadronic";
   mapProcesses["PionMinusInelastic"] = "Hadronic";
   mapProcesses["PionPlusInelastic"] = "Hadronic";
@@ -56,6 +62,9 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   // MuBrem
   mapProcesses["muBrems"] = "MuBrem";
   // MuNucl
+#ifndef G4v7
+  mapProcesses["muMinusCaptureAtRest"] = "MuNucl";
+#endif
   mapProcesses["MuonMinusCaptureAtRest"] = "MuNucl";
   mapProcesses["MuonPlusCaptureAtRest"] = "MuNucl";
   // Conversions
@@ -70,8 +79,10 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["phot"] = "Photon";
   // Sync
   mapProcesses["SynchrotronRadiation"] = "SynchrotronRadiation";
+#ifdef G4v7
   // Conversion
   mapProcesses["conv"] = "Conversions";
+#endif
   // Compton
   mapProcesses["compt"] = "Compton";
   //
