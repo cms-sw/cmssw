@@ -10,7 +10,7 @@
 <use name=FWCore/Framework>
 <use name=Framework/SealKernel>
 <use name=SimG4Core/Physics>
-<lib name=SimG4CorePackaging>
+<use name=SimG4Core/Packaging>
 <use name=geant4>
 <use name=clhep>
 <use name=boost>
