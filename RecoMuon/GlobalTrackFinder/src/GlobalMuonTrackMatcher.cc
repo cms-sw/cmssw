@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/09/22 21:29:22 $
- *  $Revision: 1.29 $
+ *  $Date: 2006/09/25 01:11:11 $
+ *  $Revision: 1.30 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -80,14 +80,15 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
                               const std::vector<TrackCand>& tkTs) const {
   
   vector<TrackCand> result; 
-  TrackCand index;
+  if ( tkTs.empty() ) return result;
   for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
     pair<bool,double> check = match(staCand,*is);    
     if ( check.first ) result.push_back(*is);
   }
 
   //If there are no matches, return the TkTrack closest to STACandin eta-phi space
-  if( result.size() == 0 ) {
+   if( result.empty() ) {
+    TrackCand index;
     float deltaR = 1000.0;
     
     for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
