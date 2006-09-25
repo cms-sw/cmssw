@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.3 2006/07/09 10:47:27 maya Exp $
+// $Id: SimTrackManager.cc,v 1.4 2006/09/11 10:04:03 fambrogl Exp $
 //
 
 // system include files
@@ -132,7 +132,7 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
       }
     
     // now eliminate from the vector the tracks with only history but not save
-    int num = 0;
+    unsigned int num = 0;
     for (unsigned int it = 0;  it < (*m_trksForThisEvent).size(); it++)
       {
 	if ((*m_trksForThisEvent)[it]->saved() == true)
@@ -187,7 +187,7 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
         int ig;
 
         Hep3Vector pm = 0.;
-        int iParentID = trkH->parentID();
+        unsigned int iParentID = trkH->parentID();
 	for(unsigned int iit = 0; iit < m_trksForThisEvent->size(); iit++)
 	  {
 	    if((*m_trksForThisEvent)[iit]->trackID()==iParentID){
