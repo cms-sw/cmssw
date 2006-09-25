@@ -3,7 +3,7 @@
 
 /*
   Author: Jim Kowalkowski 01-02-06
-  $Id: EventSelector.h,v 1.3 2006/04/19 20:13:01 wmtan Exp $
+  $Id: EventSelector.h,v 1.4 2006/09/07 13:49:26 biery Exp $
 
  */
 
@@ -19,6 +19,17 @@ namespace edm
   class EventSelector
   {
   public:
+    EventSelector(edm::ParameterSet const& pset,
+		  std::string const& process_name,
+		  std::vector<std::string> const& names);
+
+    std::string getProcessName() const { return process_name_; }
+    bool wantAll() const { return accept_all_; }
+    bool acceptEvent(TriggerResults const&) const;
+    bool acceptEvent(unsigned char const*, int) const;
+
+  private:
+
     struct BitInfo
     {
       BitInfo(unsigned int pos, bool state):pos_(pos),accept_state_(state) { }
@@ -29,18 +40,7 @@ namespace edm
     };
 
     typedef std::vector<BitInfo> Bits;
-    typedef std::vector<std::string> Strings;
 
-    EventSelector(edm::ParameterSet const& pset,
-		  std::string const& process_name,
-		  Strings const& names);
-
-    std::string getProcessName() const { return process_name_; }
-    bool wantAll() const { return accept_all_; }
-    bool acceptEvent(TriggerResults const&) const;
-    bool acceptEvent(unsigned char const*, int) const;
-
-  private:
     std::string process_name_;
     bool accept_all_;
     Bits decision_bits_;

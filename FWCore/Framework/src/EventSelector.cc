@@ -6,17 +6,12 @@
 
 #include <algorithm>
 
+typedef std::vector<std::string> Strings;
 using namespace std;
+
 
 namespace edm
 {
-  namespace
-  {
-    EventSelector::BitInfo makeBitInfo(unsigned int pos, bool value)
-    {
-      return EventSelector::BitInfo(pos,value);
-    }
-  }
 
   EventSelector::EventSelector(edm::ParameterSet const& pset,
 			       std::string const& process_name,
