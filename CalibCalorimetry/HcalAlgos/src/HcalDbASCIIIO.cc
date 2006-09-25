@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.25 2006/08/16 15:17:26 mansj Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.26 2006/09/08 23:24:35 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -88,8 +88,9 @@ bool getHcalObject (std::istream& fInput, T* fObject) {
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
     if (items.size () < 8) {
-      std::cerr << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" << std::endl;
       continue;
     }
     fObject->addValue (getId (items), 
@@ -136,7 +137,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size () < 14) {
-      std::cerr << "Bad line: " << buffer << "\n line must contain 14 items: eta, phi, depth, subdet, 10x correlations" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 14 items: eta, phi, depth, subdet, 10x correlations" << std::endl;
       continue;
     }
     HcalPedestalWidth* values = fObject->setWidth (getId (items));
@@ -184,9 +185,10 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()<1) continue;
     if (items [0] == "SHAPE") { // basic shape
       if (items.size () < 33) {
-	std::cerr << "Bad line: " << buffer << "\n line must contain 33 items: SHAPE  32 x low QIE edges for first 32 bins" << std::endl;
+	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 33 items: SHAPE  32 x low QIE edges for first 32 bins" << std::endl;
 	continue;
       }
       float lowEdges [32];
@@ -196,7 +198,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
     }
     else { // QIE parameters
       if (items.size () < 36) {
-	std::cerr << "Bad line: " << buffer << "\n line must contain 36 items: eta, phi, depth, subdet, 4 capId x 4 Ranges x offsets, 4 capId x 4 Ranges x slopes" << std::endl;
+	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 36 items: eta, phi, depth, subdet, 4 capId x 4 Ranges x offsets, 4 capId x 4 Ranges x slopes" << std::endl;
 	continue;
       }
       DetId id = getId (items);
@@ -268,7 +270,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fOb
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size () < 36) {
-      std::cerr << "Bad line: " << buffer << "\n line must contain 36 items: eta, phi, depth, subdet, 32 bin values" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 36 items: eta, phi, depth, subdet, 32 bin values" << std::endl;
       continue;
     }
     DetId id = getId (items);
@@ -316,7 +318,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size () < 5) {
-      std::cerr << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, GOOD/BAD/HOT/DEAD" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, GOOD/BAD/HOT/DEAD" << std::endl;
       continue;
     }
     HcalChannelQuality::Quality value (HcalChannelQuality::UNKNOWN);
@@ -405,8 +407,11 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
       else if (converter.isHcalCalibDetId ()) {
 	fObject->mapEId2chId (elId, converter.getId ());
       }
+      else if (converter.isHcalZDCDetId ()) {
+	fObject->mapEId2chId (elId, converter.getId ());
+      }
       else {
-	std::cerr << "HcalElectronicsMap-> Unknown subdetector: " 
+	edm::LogWarning("Format Error") << "HcalElectronicsMap-> Unknown subdetector: " 
 		  << items [8] << '/' << items [9] << '/' << items [10] << '/' << items [11] << std::endl; 
       }
     }
@@ -436,7 +441,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
       fOutput << buf << std::endl;
     }
     else {
-      std::cerr << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap-> can not find EID for DetId " << converter.getFlavor() << " "
+      edm::LogWarning("Format Error") << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap-> can not find EID for DetId " << converter.getFlavor() << " "
 		<< converter.getField1 () << " " << converter.getField2 () << " " << converter.getField3 () << std::endl; 
     }
   }
