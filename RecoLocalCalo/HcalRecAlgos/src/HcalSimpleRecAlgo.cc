@@ -58,8 +58,8 @@ namespace HcalSimpleRecAlgoImpl {
 
     
     if (slewCorrect) time-=HcalTimeSlew::delay(std::max(0.0,fc_ampl),slewFlavor);
-    HcalDetId id(digi.id()); // perform conversion if necessary
-    return RecHit(id,ampl,time);    
+
+    return RecHit(digi.id(),ampl,time);    
   }
 }
 
@@ -68,10 +68,23 @@ HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, const HcalC
 							       firstSample_,samplesToAdd_,correctForTimeslew_,
 							       HcalTimeSlew::Medium);
 }
+
 HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,
 							   firstSample_,samplesToAdd_,correctForTimeslew_,
 							   HcalTimeSlew::Slow);
+}
+
+ZDCRecHit HcalSimpleRecAlgo::reconstruct(const ZDCDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+  return HcalSimpleRecAlgoImpl::reco<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
+							     firstSample_,samplesToAdd_,false,
+							     HcalTimeSlew::Fast);
+}
+
+HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+  return HcalSimpleRecAlgoImpl::reco<HcalCalibDataFrame,HcalCalibRecHit>(digi,coder,calibs,
+									 firstSample_,samplesToAdd_,false,
+									 HcalTimeSlew::Fast);
 }
 
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
