@@ -17,6 +17,8 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
+#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 
@@ -82,6 +84,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalIntercalibConstantsRcd>().cacheIdentifier();
   } else if (container == "EcalGainRatios") {
     cacheID = evtSetup.get<EcalGainRatiosRcd>().cacheIdentifier();
+  } else if (container == "EcalWeightXtalGroups") {
+    cacheID = evtSetup.get<EcalWeightXtalGroupsRcd>().cacheIdentifier();
   } else if (container == "EcalTBWeights") {
     cacheID = evtSetup.get<EcalTBWeightsRcd>().cacheIdentifier();
   } else {
@@ -142,6 +146,11 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     evtSetup.get<EcalGainRatiosRcd>().get(handle);
     const EcalGainRatios* obj = handle.product();
     dbOutput->newValidityForNewPayload<EcalGainRatios>(new EcalGainRatios(*obj), tillTime, callbackToken);
+  } else if (container == "EcalWeightXtalGroups") {
+    edm::ESHandle<EcalWeightXtalGroups> handle;
+    evtSetup.get<EcalWeightXtalGroupsRcd>().get(handle);
+    const EcalWeightXtalGroups* obj = handle.product();
+    dbOutput->newValidityForNewPayload<EcalWeightXtalGroups>(new EcalWeightXtalGroups(*obj), tillTime, callbackToken);
   } else if (container == "EcalTBWeights") {
     edm::ESHandle<EcalTBWeights> handle;
     evtSetup.get<EcalTBWeightsRcd>().get(handle);
