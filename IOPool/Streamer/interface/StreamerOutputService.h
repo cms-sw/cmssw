@@ -2,9 +2,7 @@
 #define _StreamerOutputService_h 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//#include "IOPool/Streamer/interface/StreamerOutputFile.h"
-//#include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
+#include "FWCore/Framework/interface/EventSelector.h"
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
@@ -23,19 +21,19 @@ namespace edm
   {
   public:
 
-    //explicit StreamerOutputService(edm::ParameterSet const& ps);
+    explicit StreamerOutputService(edm::ParameterSet const& ps);
     explicit StreamerOutputService();
     ~StreamerOutputService();
 
     void init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
-              std::string path, std::string mpath, InitMsgView& init_message) ;
+              std::string path, std::string mpath, InitMsgView const& init_message) ;
 
     //By defaulting hlt_trig_count, i don't need to provide any value
     // for hlt_trig_count, which is actually NO MORE used,
     //I will actualy remove this parameter soon, keeping it
     // ONLY for backward compatability
     // AA - 09/22/2006 
-    void writeEvent(EventMsgView& msg, uint32 hlt_trig_count=0);
+    void writeEvent(EventMsgView const& msg, uint32 hlt_trig_count=0);
     
     void stop(); // shouldn't be called from destructor.
 
@@ -43,7 +41,9 @@ namespace edm
     std::string get_currfile() { return fileName_;}
 
   private:
-    void writeHeader(InitMsgView& init_message);
+    void writeHeader(InitMsgView const& init_message);
+    bool wantsEvent(EventMsgView const& eventView); 
+    void initializeSelection(InitMsgView const& initView);
  
      unsigned long maxFileSize_;
      unsigned long maxFileEventCount_;
@@ -70,10 +70,12 @@ namespace edm
      std::string indexFileName_;
 
      boost::shared_ptr<StreamerFileWriter> streamNindex_writer_;
- 
-     //std::auto_ptr<StreamerOutputFile> stream_writer_;
-     //std::auto_ptr<StreamerOutputIndexFile> index_writer_;
+     
+     //ParameterSet that contains SelectEvents criteria
+     edm::ParameterSet requestParamSet_; 
 
+     // event selector that does the work of accepting/rejecting events
+     boost::shared_ptr<edm::EventSelector> eventSelector_;
   };
 }
 #endif

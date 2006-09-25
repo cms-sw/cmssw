@@ -122,21 +122,18 @@ void StreamerOutSrvcManager::manageInitMsg(unsigned long maxFileSize, double hig
         {
 	   //Get the filename
            std::string fileName = (*it).getParameter<string> ("fileName");
-           ParameterSet selectEventsPSet = 
-                (*it).getUntrackedParameter<ParameterSet>("SelectEvents");
-           if ( !selectEventsPSet.empty() ) {
-               std::cout <<"SelectEvents: "<<selectEventsPSet.toString()<<std::endl;
-           }
-           else {
-             std::cout << "Should i make up a Select All PSet ?" <<endl;
-           }   
+           //ParameterSet selectEventsPSet = 
+           //     (*it).getUntrackedParameter<ParameterSet>("SelectEvents");
+           //if ( !selectEventsPSet.empty() ) {
+           //    std::cout <<"SelectEvents: "<<selectEventsPSet.toString()<<std::endl;
+           //}
+           //else {
+           //  std::cout << "Should i make up a Select All PSet ?" <<endl;
+           //}   
            
-           StreamerOutputService* outputFile = new StreamerOutputService();
+           StreamerOutputService* outputFile = new StreamerOutputService((*it));
            //invoke its init, later StreamerOutputService CTOR will call its own init 
            //it should take a SelectEvents PSet too
-           cout<<"Real call is commented out for testing ONLY"<<endl;
-           //outputFile->init(fileName, maxFileSize, highWaterMark,
-           //                  path, mpath, init_message, selectEventsPSet); 
            outputFile->init(fileName, maxFileSize, highWaterMark,
                              path, mpath, init_message);
           

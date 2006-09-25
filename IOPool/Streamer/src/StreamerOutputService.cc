@@ -29,11 +29,7 @@ std::string itoa(int i){
         return((std::string)temp);
 }
 
- //StreamerOutputService::StreamerOutputService(edm::ParameterSet const& ps):
- //maxFileSize_(ps.template getParameter<int>("maxFileSize")),
- //maxFileEventCount_(ps.template getParameter<int>("maxFileEventCount")),
- // defaulting - need numbers from Emilio
- StreamerOutputService::StreamerOutputService():
+StreamerOutputService::StreamerOutputService():
  maxFileSize_(1073741824),
  maxFileEventCount_(10000),
  currentFileSize_(0),
@@ -41,6 +37,26 @@ std::string itoa(int i){
  eventsInFile_(0),
  fileNameCounter_(0),
  highWaterMark_(0.9), diskUsage_(0.0)
+
+  {
+    saved_initmsg_[0] = '\0';
+    requestParamSet_ = edm::ParameterSet();
+  }
+
+
+ StreamerOutputService::StreamerOutputService(edm::ParameterSet const& ps):
+ //maxFileSize_(ps.template getParameter<int>("maxFileSize")),
+ //maxFileEventCount_(ps.template getParameter<int>("maxFileEventCount")),
+ // defaulting - need numbers from Emilio
+ //StreamerOutputService::StreamerOutputService():
+ maxFileSize_(1073741824),
+ maxFileEventCount_(10000),
+ currentFileSize_(0),
+ totalEventCount_(0),
+ eventsInFile_(0),
+ fileNameCounter_(0),
+ highWaterMark_(0.9), diskUsage_(0.0),
+ requestParamSet_(ps)
    
   {
     saved_initmsg_[0] = '\0';
@@ -48,7 +64,7 @@ std::string itoa(int i){
   }
 
 void StreamerOutputService::init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
-                                 std::string path, std::string mpath, InitMsgView& view)
+                                 std::string path, std::string mpath, InitMsgView const& view)
   { 
    maxFileSize_ = maxFileSize;
    highWaterMark_ = highWaterMark;
@@ -72,6 +88,29 @@ void StreamerOutputService::init(std::string fileName, unsigned long maxFileSize
    unsigned char* from = view.startAddress();
    int dsize = (int)view.size();
    copy(from,from+dsize,pos);
+
+   // initialize event selector
+   initializeSelection(view); 
+
+  }
+
+void StreamerOutputService::initializeSelection(InitMsgView const& initView)
+  {
+  Strings triggerNameList;
+  initView.hltTriggerNames(triggerNameList);
+
+  // fake the process name (not yet available from the init message?)
+  std::string processName = "HLT";
+
+  /* ---printout the trigger names in the INIT message*/
+  std::cout << ">>>>>>>>>>>Trigger names:" << std::endl;
+  for(int i=0; i< triggerNameList.size(); ++i)
+    std::cout<< ">>>>>>>>>>>  name = " << triggerNameList[i] << std::endl;
+  /* */
+
+  // create our event selector
+  eventSelector_.reset(new EventSelector(requestParamSet_, processName,
+                                         triggerNameList));
   }
 
 StreamerOutputService::~StreamerOutputService()
@@ -94,20 +133,17 @@ StreamerOutputService::~StreamerOutputService()
      std::cout << *it << endl;
    std::cout << "Disk Usage = " << diskUsage_ << endl;
    std::cout << "Closed files = " << closedFiles_ << endl;
-
   }
 
 void StreamerOutputService::stop()
   {
-
     //Does EOF record writting and HLT Event count for each path for EOF
     streamNindex_writer_->stop();
     // gives the EOF Size
     currentFileSize_ += streamNindex_writer_->getStreamEOFSize();
-    
   }
 
-void StreamerOutputService::writeHeader(InitMsgView& init_message)
+void StreamerOutputService::writeHeader(InitMsgView const& init_message)
   {
     //Write the Init Message to Streamer and Index file
     streamNindex_writer_->doOutputHeader(init_message);
@@ -116,8 +152,16 @@ void StreamerOutputService::writeHeader(InitMsgView& init_message)
 
   }
 
-void StreamerOutputService::writeEvent(EventMsgView& eview, uint32 hltsize=0)
+void StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize)
   { 
+
+        //Check if this event meets the selection criteria, if not skip it.
+        if ( ! wantsEvent(eview) ) 
+            {
+            cout <<"This event is UNWANTED"<<endl; 
+            return;
+            }
+
         // check for number of events is no longer required 09/22/2006
         //if ( eventsInFile_ > maxFileEventCount_  || currentFileSize_ > maxFileSize_ )
         if ( currentFileSize_ > maxFileSize_ )
@@ -157,13 +201,39 @@ void StreamerOutputService::writeEvent(EventMsgView& eview, uint32 hltsize=0)
              writeHeader(myview);
            }
                      
-             
            //Write the Event Message to Streamer and index
            streamNindex_writer_->doOutputEvent(eview);
 
            eventsInFile_++;
            totalEventCount_++;
            currentFileSize_ += eview.size();
+  }
+
+bool StreamerOutputService::wantsEvent(EventMsgView const& eventView) 
+  {
+    std::vector<unsigned char> hlt_out;
+    hlt_out.resize(1 + (eventView.hltCount()-1)/4);
+    eventView.hltTriggerBits(&hlt_out[0]);
+    // /* --- print the trigger bits from the event header
+    std::cout << ">>>>>>>>>>>Trigger bits:" << std::endl;
+    for(int i=0; i< hlt_out.size(); ++i)
+    {
+      unsigned test = (unsigned int)hlt_out[i];
+      std::cout<< hex << ">>>>>>>>>>>  bits = " << test << " " << hlt_out[i] << std::endl;
+    }
+    cout << "\nhlt bits=\n(";
+    for(int i=(hlt_out.size()-1); i != -1 ; --i)
+       printBits(hlt_out[i]);
+    cout << ")\n";
+    // */
+    int num_paths = eventView.hltCount();
+    cout <<"num_paths: "<<num_paths<<endl;
+    bool rc = (eventSelector_->wantAll() || eventSelector_->acceptEvent(&hlt_out[0], num_paths));
+    std::cout << "====================== " << std::endl;
+    std::cout << "return selector code = " << rc << std::endl;
+    std::cout << "====================== " << std::endl;
+    //return true;
+    return rc;
   }
 
   void StreamerOutputService::writeToMailBox()
@@ -200,7 +270,6 @@ void StreamerOutputService::writeEvent(EventMsgView& eview, uint32 hltsize=0)
       //edm::LogWarning("StreamerOutputService") << "Output filesystem for path " << path_ 
       std::cout << "StreamerOutputService: " << "Output filesystem for path " << path_ 
                                  << " is more than " << highWaterMark_*100 << "% full " << std::endl;
-
   }
 
 }  //end-of-namespace block
