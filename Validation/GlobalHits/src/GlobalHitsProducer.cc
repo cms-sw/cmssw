@@ -3,12 +3,13 @@
 GlobalHitsProducer::GlobalHitsProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
   getAllProvenances(false), printProvenanceInfo(false), nRawGenPart(0), 
-  ECalEBSrc_(""), ECalEESrc_(""), ECalESSrc_(""), HCalSrc_(""),
-  PxlBrlLowSrc_(""), PxlBrlHighSrc_(""), PxlFwdLowSrc_(""),
-  PxlFwdHighSrc_(""), SiTIBLowSrc_(""), SiTIBHighSrc_(""),
-  SiTOBLowSrc_(""), SiTOBHighSrc_(""), SiTIDLowSrc_(""), 
-  SiTIDHighSrc_(""), SiTECLowSrc_(""), SiTECHighSrc_(""),
-  MuonDtSrc_(""), MuonCscSrc_(""), MuonRpcSrc_(""), count(0)
+  //ECalEBSrc_(""), ECalEESrc_(""), ECalESSrc_(""), HCalSrc_(""),
+  //PxlBrlLowSrc_(""), PxlBrlHighSrc_(""), PxlFwdLowSrc_(""),
+  //PxlFwdHighSrc_(""), SiTIBLowSrc_(""), SiTIBHighSrc_(""),
+  //SiTOBLowSrc_(""), SiTOBHighSrc_(""), SiTIDLowSrc_(""), 
+  //SiTIDHighSrc_(""), SiTECLowSrc_(""), SiTECHighSrc_(""),
+  //MuonDtSrc_(""), MuonCscSrc_(""), MuonRpcSrc_(""), 
+  count(0)
 {
   std::string MsgLoggerCat = "GlobalHitsProducer.GlobalHitsProducer";
 
