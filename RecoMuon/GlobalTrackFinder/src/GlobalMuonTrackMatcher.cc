@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/09/20 16:37:57 $
- *  $Revision: 1.28 $
+ *  $Date: 2006/09/22 21:29:22 $
+ *  $Revision: 1.29 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -80,17 +80,10 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
                               const std::vector<TrackCand>& tkTs) const {
   
   vector<TrackCand> result; 
-  float pt = 0.0;
   TrackCand index;
   for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
     pair<bool,double> check = match(staCand,*is);    
     if ( check.first ) result.push_back(*is);
-    
-    float pt_tmp = (*is).second->pt();
-    if(pt_tmp > pt) {
-      pt = pt_tmp;
-      index = *is;
-    }
   }
 
   //If there are no matches, return the TkTrack closest to STACandin eta-phi space
@@ -176,10 +169,10 @@ GlobalMuonTrackMatcher::match(const TrajectoryStateOnSurface& tsos1,
   
   bool goodChi =  ( est > theMaxChi2 ) ? false : true;
 
-  double d((tsos1.globalPosition()- tsos2.globalPosition()).mag());
-  double dx(fabs(tsos1.globalPosition().x() - tsos2.globalPosition().x()));
-  double dy(fabs(tsos1.globalPosition().y() - tsos2.globalPosition().y()));
-  double dz(fabs(tsos1.globalPosition().z() - tsos2.globalPosition().z()));
+//  double d((tsos1.globalPosition()- tsos2.globalPosition()).mag());
+//  double dx(fabs(tsos1.globalPosition().x() - tsos2.globalPosition().x()));
+//  double dy(fabs(tsos1.globalPosition().y() - tsos2.globalPosition().y()));
+//  double dz(fabs(tsos1.globalPosition().z() - tsos2.globalPosition().z()));
   double phi1 = tsos1.globalMomentum().phi();
   double phi2 = tsos2.globalMomentum().phi();
   double eta1 = tsos1.globalMomentum().eta();
