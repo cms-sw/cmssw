@@ -10,7 +10,7 @@ class DDCompactView;
 class DDDWorld
 {
 public:
-    DDDWorld( const DDCompactView*);
+    DDDWorld( const DDCompactView*, bool check=false);
     ~DDDWorld();
     void SetAsWorld(G4VPhysicalVolume * pv);
 private:

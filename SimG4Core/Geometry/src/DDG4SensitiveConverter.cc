@@ -16,9 +16,9 @@ DDG4SensitiveConverter::~DDG4SensitiveConverter() {}
 
 void DDG4SensitiveConverter::upDate(const DDG4DispContainer & ddg4s) 
 {
-  edm::LogInfo("SimG4CoreGeometry") <<" DDG4SensitiveConverter::upDate() starts" ;
+    LogDebug("SimG4CoreGeometry") <<" DDG4SensitiveConverter::upDate() starts" ;
 
-    for (int i=0; i<ddg4s.size(); i++)
+    for (unsigned int i=0; i<ddg4s.size(); i++)
     {
 	DDG4Dispatchable * ddg4 = ddg4s[i];
 	const DDLogicalPart * part   = (ddg4->getDDLogicalPart());
@@ -29,8 +29,8 @@ void DDG4SensitiveConverter::upDate(const DDG4DispContainer & ddg4s)
 	string fff        = result->GetName();
 	if (sClassName != "NotFound") 
 	{
-	    edm::LogInfo("SimG4CoreGeometry") << " DDG4SensitiveConverter: Sensitive " << fff
-	    << " Class Name " << sClassName << " ROU Name " << sROUName ;	    
+	    LogDebug("SimG4CoreGeometry") << " DDG4SensitiveConverter: Sensitive " << fff
+					  << " Class Name " << sClassName << " ROU Name " << sROUName ;	    
 	    fff = result->GetName();
 	    SensitiveDetectorCatalog::instance()->insert(sClassName,sROUName,fff);
 	}
