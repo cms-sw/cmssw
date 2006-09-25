@@ -13,6 +13,8 @@ function usage () {
     echo -e " -sqliteCatalog=<path_name> (default is /tmp/$USER/o2o/dummy_<IOV>.xml)"
     echo -e " -firstUpload (otherwise works in append mode) "
 
+
+    echo -e "\n\nPlease set your CORAL_AUTH_PATH environment variable, otherwise it will be defined as /afs/cern.ch/cms/DB/conddb\n"
     
     exit
 }
@@ -30,8 +32,7 @@ function getParameter(){
 }
 
 function settings (){
-    export TNS_ADMIN=/afs/cern.ch/project/oracle/admin
-    export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
+
     export test_area=/tmp/$USER/o2o
 
     default_IOV=1
@@ -45,6 +46,13 @@ function settings (){
     
     getParameter help $@ 0
     [ "$help" = 1 ] && usage
+
+#    export TNS_ADMIN=/afs/cern.ch/project/oracle/admin
+    if [ ! -n "$CORAL_AUTH_PATH" ];
+	then
+	export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
+	echo -e "\nWARNING: CORAL_AUTH_PATH environment variable is not defined in your shell\n default value will be used CORAL_AUTH_PATH=$CORAL_AUTH_PATH"
+    fi
 
     getParameter doPedNoiseTransfer   $@ ${default_doPedNoiseTransfer}
     getParameter doFedCablingTransfer $@ ${default_doFedCablingTransfer}
