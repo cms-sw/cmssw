@@ -35,13 +35,10 @@ testTrackAssociator::~testTrackAssociator()
 
 void testTrackAssociator::beginJob(const EventSetup & setup) {
 
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
-  setup.get<TrackAssociatorRecord>().get(theAssociator);
   edm::ESHandle<MagneticField> theMF;
   setup.get<IdealMagneticFieldRecord>().get(theMF);
-  tassociator = (TrackAssociatorBase *) theAssociator.product();
-  associator = new TrackAssociatorByChi2(theMF);
-//   tassociator = new TrackAssociator(event, conf_);
+  //  tassociator = (TrackAssociatorBase *) theAssociator.product();
+  //associator = new TrackAssociatorByChi2(theMF);
 
 }
 
@@ -49,6 +46,8 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
 {
   using namespace edm;
   using namespace reco;
+
+  tassociator = new TrackAssociator(event, conf_);
   
   Handle<reco::TrackCollection> trackCollectionH;
   event.getByLabel("ctfWithMaterialTracks",trackCollectionH);
@@ -67,6 +66,9 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   const TrackingParticleCollection tPC   = *(TPCollectionH.product());
 
   cout << "\nEvent ID = "<< event.id() << endl ;
+
+
+#if 0
 
   //Test TrackAssociatorByChi2
   //compareTracksParam
@@ -122,34 +124,61 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
     }
   }
 
+#endif
 
-#if 0
+
+  //#if 0
   //Test AssociateByHitsRecoTrack
   int minHitFraction = 0;
 
   if(!doPixel_ && !doStrip_)  throw Exception(errors::Configuration,"Strip and pixel association disabled");
   
-  const RecoToSimCollection assocmap = tassociator.associateRecoToSim(trackCollectionH,TPCollectionH );
+  const RecoToSimCollection assocmap = tassociator->associateRecoToSim(trackCollectionH,TPCollectionH );
   //now test map 
   cout << "Found " << assocmap.size() << " matched reco tracks" << std::endl;
 
   for(TrackCollection::size_type i=0; i<tC.size(); ++i){
     TrackRef track(trackCollectionH, i);
-    try{
-      TrackingParticleRefVector tp = assocmap[track];
-      cout << "->   Track " << setw(2) << track.index() << " pT: " << setprecision(2) << setw(6) << track->pt() 
-		<<  " matched to " << tp.size() << " MC Tracks" << std::endl;
-      
-      for (TrackingParticleRefVector::const_iterator it = tp.begin(); it != tp.end(); ++it) {
-	cout << "   MCTrack " << setw(2) << (*it).index() << " pT: " << setprecision(2) << setw(6) << (**it).pt() << endl;
+    try{ 
+      std::vector<std::pair<TrackingParticleRef, double> > tp = assocmap[track];
+      cout << "->   Track " << setw(2) << track.index() << " pT: "  << setw(6) << track->momentum() 
+	   <<  " matched to " << tp.size() << " MC Tracks" << std::endl;
+      for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = tp.begin(); 
+	   it != tp.end(); ++it) {
+	TrackingParticleRef tpr = it->first;
+	double assocChi2 = it->second;
+	cout << "   MCTrack " << setw(2) << tpr.index() << " mom: " << setw(6) << tpr->momentum() << 
+	  " fraction: " << assocChi2 << endl;
       }
     } catch (Exception event) {
-      cout << "->   Track " << setw(2) << track.index() << " pT: " << setprecision(2) << setw(6) << track->pt() 
-		<<  " matched to 0  MC Tracks" << endl;
+      cout << "->   Track " << setw(2) << track.index() << " mom: " << setprecision(2) << setw(6) << track->pt() 
+	   <<  " matched to 0  MC Tracks" << endl;
     }
   }
-  
-#endif
+
+
+  //SIMTORECO
+  reco::SimToRecoCollection q = tassociator->associateSimToReco (trackCollectionH,TPCollectionH);
+  for(SimTrackContainer::size_type i=0; i<simTC.size(); ++i){
+    TrackingParticleRef tp (TPCollectionH,i);
+    try{ 
+      std::vector<std::pair<TrackRef, double> > trackV = q[tp];
+      cout << "->   TrackingParticle " << setw(2) << tp.index() << " pT: "  << setw(6) << tp->pt() 
+	   <<  " matched to " << trackV.size() << " reco::Tracks" << std::endl;
+      for (std::vector<std::pair<TrackRef,double> >::const_iterator it=trackV.begin(); it != trackV.end(); ++it) {
+	TrackRef tr = it->first;
+	double assocChi2 = it->second;
+	cout << "   reco::Track " << setw(2) << tr.index() << " pT: " << setw(6) << tr->pt() << 
+	  " fraction: " << assocChi2 << endl;
+      }
+    } catch (Exception event) {
+      cout << "->   TrackingParticle " << setw(2) << tp.index() << " pT: " <<setprecision(2)<<setw(6)<<tp->pt() 
+	   <<  " matched to 0  reco::Tracks" << endl;
+    }
+  }
+
+
+
 }
 
 #include "PluginManager/ModuleDef.h"

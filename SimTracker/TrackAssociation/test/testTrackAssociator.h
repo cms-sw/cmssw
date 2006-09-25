@@ -11,6 +11,7 @@
 //add simhit info
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociator.h"
 
 #include <iostream>
 #include <string>
@@ -36,7 +37,8 @@ class testTrackAssociator : public edm::EDAnalyzer {
   edm::ParameterSet conf_;
   bool doPixel_, doStrip_; 
   TrackAssociatorByChi2 * associator;
-  TrackAssociatorBase * tassociator;
+  //  TrackAssociatorBase * tassociator;
+  TrackAssociator * tassociator;
 };
 
 #endif
