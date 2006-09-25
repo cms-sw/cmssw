@@ -14,10 +14,12 @@ namespace reco {
       CombinedBTagTrack();
 
       CombinedBTagTrack( const reco::TrackRef & ref, bool usedInSVX, double rapidity, 
+                 double d0Sign, double jetDistance, const Measurement1D & ip2d,
+                 const Measurement1D & ip3d, bool aboveCharmMass );
+
+      CombinedBTagTrack( const reco::TrackRef & ref,
                  double d0Sign, double jetDistance,
-                 const Measurement1D & ip2d,
-                 const Measurement1D & ip3d,
-                 bool aboveCharmMass );
+                 const Measurement1D & ip2d, const Measurement1D & ip3d );
 
       void print() const;
       double chi2() const;
@@ -37,6 +39,10 @@ namespace reco {
       Measurement1D ip3D() const;
       bool aboveCharmMass() const;
       bool isValid() const;
+
+      void setUsedInSVX ( bool );
+      void setAboveCharmMass ( bool );
+      void setRapidity ( double );
 
     private:
       reco::TrackRef trackRef_;

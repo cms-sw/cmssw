@@ -26,6 +26,17 @@ reco::CombinedBTagTrack::CombinedBTagTrack::CombinedBTagTrack(
   ip2D_ ( ip2d ), ip3D_ ( ip3d ), aboveCharmMass_(aboveCharmMass), isValid_(true)
 {}
 
+reco::CombinedBTagTrack::CombinedBTagTrack::CombinedBTagTrack(
+           const reco::TrackRef & ref,
+           double d0Sign, double jetDistance,
+           const Measurement1D & ip2d,
+           const Measurement1D & ip3d ) :
+  trackRef_(ref),usedInSVX_(false),rapidity_( num::quiet_NaN() ),d0Sign_(d0Sign),
+  jetDistance_(jetDistance),
+  ip2D_ ( ip2d ), ip3D_ ( ip3d ), aboveCharmMass_( false ), isValid_(true)
+{}
+
+
 void reco::CombinedBTagTrack::CombinedBTagTrack::print() const
 {
   cout << "*** printing trackData for combined b-tag info " << endl;
@@ -131,4 +142,17 @@ bool reco::CombinedBTagTrack::usedInSVX() const
   return usedInSVX_;
 }
 
+void reco::CombinedBTagTrack::setUsedInSVX( bool s )
+{
+  usedInSVX_=s;
+}
 
+void reco::CombinedBTagTrack::setAboveCharmMass( bool s )
+{
+  aboveCharmMass_=s;
+}
+
+void reco::CombinedBTagTrack::setRapidity ( double r )
+{
+  rapidity_=r;
+}
