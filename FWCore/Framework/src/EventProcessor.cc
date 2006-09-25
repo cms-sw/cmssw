@@ -601,7 +601,7 @@ namespace edm {
     shared_ptr<ParameterSet> processParamsPtr; // change this name!
     makeParameterSets(config, processParamsPtr, pServiceSets);
     adjustForDefaultService(*(pServiceSets.get()), "MessageLogger");
-    adjustForService(*(pServiceSets.get()), "LoadAllDictionaries");
+    adjustForDefaultService(*(pServiceSets.get()), "LoadAllDictionaries");
     adjustForService(*(pServiceSets.get()), "JobReportService");
     adjustForService(*(pServiceSets.get()), "SiteLocalConfigService");
 
