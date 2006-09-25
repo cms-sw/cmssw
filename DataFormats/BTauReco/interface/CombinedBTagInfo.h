@@ -10,95 +10,14 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagEnums.h"
+#include "DataFormats/BTauReco/interface/CombinedBTagTrack.h"
+#include "DataFormats/BTauReco/interface/CombinedBTagVertex.h"
 
 namespace reco {
   class CombinedBTagInfo  {
   public:
-
-    /**
-     * store all information regarding individual tracks
-     * used for tagging and additionally a reference
-     * to the track used.
-     */
-    class TrackData {
-      public:
-        TrackData();
-
-        TrackData( const reco::TrackRef & ref, bool usedInSVX, double pt, double rapidity, 
-                   double eta, double d0, double d0Sign, double d0Error, double jetDistance,
-                   int nHitsTotal, int nHitsPixel, bool firstHitPixel, double chi2,
-                   double ip2D, double ip2Derror, double ip2DSignificance, double ip3D,
-                   double ip3DError, double ip3DSignificance, bool aboveCharmMass );
-
-        reco::TrackRef trackRef;
-        bool     usedInSVX;    // part of a secondary vertex?
-        double   pt;
-        double   rapidity;
-        double   eta;
-        double   d0;           // 2D impact parameter as given by track
-        double   d0Sign;       // same, but lifetime signed
-        double   d0Error;
-        double   jetDistance;
-        int      nHitsTotal;
-        int      nHitsPixel;
-        bool     firstHitPixel; // true if a valid hit is found in the first pixel barrel layer
-        double   chi2;
-        double   ip2D;          // lifetime-siged 2D impact parameter
-        double   ip2DError;
-        double   ip2DSignificance;
-        double   ip3D;          // lifetime-siged 3D impact parameter
-        double   ip3DError;
-        double   ip3DSignificance;
-        bool     aboveCharmMass;  /**
-           * tracks are sorted by lifetime-signed 2D impact
-           * parameter significance. Starting from the
-           * highest significance, the invariant mass
-           * of the tracks is calculated (using Pion mass
-           * hypothesis). If the mass exceeds a threshold,
-           * this flag is set to true.
-           */
-        bool isValid;
-
-        void init();
-        void print() const;
-    };
-
-    /**
-     * Store all information regarding secondary vertices
-     * found in current jet
-     * N.B. in case of "RecoVertex" the inclusive
-     *      vertex finder may find more than one secondary vertex
-     */
-    class VertexData {
-      public:
-      VertexData(); 
-      reco::Vertex vertex;
-      double       chi2;
-      double       ndof;
-      int          nTracks;      /** number of tracks associated
-                                  *  with this vertex.
-          */
-      GlobalVector trackVector;  // sum of all tracks at this vertex
-      double       mass;        /** mass computed from all charged tracks at this
-         *  vertex assuming Pion mass hypothesis.
-         *  For now, loop over all tracks and
-         *  compute m^2 = Sum(E^2) - Sum(p^2)
-         */
-      bool         isV0;        // has been tagged as V0 (true) or not (false);
-      double       fracPV;      // fraction of tracks also used to build primary vertex
-      double       flightDistance2D;
-      double       flightDistance2DError;
-      double       flightDistance2DSignificance;
-      double       flightDistance3D;
-      double       flightDistance3DError;
-      double       flightDistance3DSignificance;
-
-      void init();
-      void print() const;
-    }; // struct
-
     typedef edm::AssociationMap < edm::OneToValue<std::vector<reco::Track>,
-      reco::CombinedBTagInfo::TrackData, unsigned short> > TrackDataAssociation;
+      reco::CombinedBTagTrack, unsigned short> > TrackDataAssociation;
 
     CombinedBTagInfo();
     virtual ~CombinedBTagInfo();
@@ -191,20 +110,20 @@ namespace reco {
     // maybe possible to use map tools here?
     bool              existTrackData( const reco::TrackRef & trackRef );
     void              flushTrackData();
-    void              storeTrackData(reco::TrackRef trackRef,
-             const CombinedBTagInfo::TrackData& trackData);
+    void              storeTrackData ( reco::TrackRef trackRef,
+             const reco::CombinedBTagTrack & trackData );
     void              printTrackData();
     int               sizeTrackData();
-    const TrackData*  getTrackData(reco::TrackRef trackRef);
+    const reco::CombinedBTagTrack *  getTrackData(reco::TrackRef trackRef);
 
 
     // is this the "best" way to do it?
     bool              existVertexData(std::vector<reco::Vertex>::const_iterator vertexRef);
     void              flushVertexData();
     void storeVertexData(std::vector<reco::Vertex>::const_iterator vertexRef,
-              const CombinedBTagInfo::VertexData& vertexData);
+              const reco::CombinedBTagVertex & vertexData);
     int               sizeVertexData() const;
-    VertexData*       getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) const;
+    reco::CombinedBTagVertex * getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) const;
     std::string       getVertexTypeName() const;
 
   private:
@@ -343,12 +262,9 @@ namespace reco {
           *  mean is given by arithmentic mean
           */
 
-    //
     // maps for detailed track and vertex information
-    //
-
-    TrackDataAssociation                                                                 trackDataMap_;
-    mutable std::map <std::vector<reco::Vertex>::const_iterator, CombinedBTagInfo::VertexData> vertexDataMap_;
+    TrackDataAssociation trackDataMap_;
+    mutable std::map <std::vector<reco::Vertex>::const_iterator, reco::CombinedBTagVertex> vertexDataMap_;
 
 
   }; // class

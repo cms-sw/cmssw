@@ -17,109 +17,6 @@
 
 using namespace std;
 
-void reco::CombinedBTagInfo::VertexData::print() const
-{
-  cout << "****** print VertexData from extended bTag information (combined bTag) " << endl;
-  cout << "chi2                         " << chi2                         << endl;
-  cout << "ndof                         " << ndof                         << endl;
-  cout << "nTracks                      " << nTracks                      << endl; 
-  cout << "mass                         " << mass                         << endl;   
-  cout << "isV0                         " << isV0                         << endl;     
-  cout << "fracPV                       " << fracPV                       << endl;    
-  cout << "flightDistance2D             " << flightDistance2D             << endl;
-  cout << "flightDistance2DError        " << flightDistance2DError        << endl;
-  cout << "flightDistance2DSignificance " << flightDistance2DSignificance << endl;
-  cout << "flightDistance3D             " << flightDistance3D             << endl;
-  cout << "flightDistance3DError        " << flightDistance3DError        << endl;
-  cout << "flightDistance3DSignificance " << flightDistance3DSignificance << endl;    
-}
-
-void reco::CombinedBTagInfo::VertexData::init()
-{
-  chi2                         = -999;
-  ndof                         = -999;
-  nTracks                      = -999;
-  mass                         = -999;
-  isV0                         = -999;
-  fracPV                       = -999;
-  flightDistance2D             = -999;
-  flightDistance2DError        = -999;
-  flightDistance2DSignificance = -999;
-  flightDistance3D             = -999;
-  flightDistance3DError        = -999;
-  flightDistance3DSignificance = -999;
-}
-
-reco::CombinedBTagInfo::TrackData::TrackData() 
-{
-  init();
-}
-
-reco::CombinedBTagInfo::TrackData::TrackData(
-           const reco::TrackRef & mref, bool musedInSVX, double mpt, double mrapidity, 
-           double meta, double md0, double md0Sign, double md0Error, double mjetDistance,
-           int mnHitsTotal, int mnHitsPixel, bool mfirstHitPixel, double mchi2,
-           double mip2D, double mip2Derror, double mip2DSignificance, double mip3D,
-           double mip3DError, double mip3DSignificance, bool maboveCharmMass ) :
-  trackRef(mref),usedInSVX(musedInSVX),pt(mpt),rapidity(mrapidity),eta(meta),d0(md0),d0Sign(md0Sign),
-  d0Error(md0Error),jetDistance(mjetDistance),nHitsTotal(mnHitsTotal),nHitsPixel(mnHitsPixel),
-  chi2(mchi2),ip2D(mip2D),ip2DError(mip2Derror),ip2DSignificance(mip2DSignificance),ip3D(mip3D),
-  ip3DError(mip3DError),ip3DSignificance(mip3DSignificance), aboveCharmMass(maboveCharmMass),
-  isValid(true)
-{}
-
-reco::CombinedBTagInfo::VertexData::VertexData()
-{
-  init();
-}
-
-void reco::CombinedBTagInfo::TrackData::init()
-{
-  usedInSVX        = false;
-  aboveCharmMass   = false;
-  pt               = -999;
-  rapidity         = -999;
-  eta              = -999;
-  d0               = -999;
-  d0Sign           = -999;
-  d0Error          = -999;
-  nHitsTotal       = -999;
-  nHitsPixel       = -999;
-  firstHitPixel    = false;
-  chi2             = -999;
-  ip2D             = -999;
-  ip2DError        = -999;
-  ip2DSignificance = -999;
-  ip3D             = -999;
-  ip3DError        = -999;
-  ip3DSignificance = -999;
-  isValid=false;
-}
-
-void reco::CombinedBTagInfo::TrackData::print() const
-{
-  cout << "*** printing trackData for combined b-tag info " << endl;
-  cout << "    usedInSVX        " << usedInSVX        << endl;
-  cout << "    aboveCharmMass   " << aboveCharmMass   << endl;
-  cout << "    pt               " << pt               << endl;
-  cout << "    rapidity         " << rapidity         << endl;
-  cout << "    eta              " << eta              << endl;
-  cout << "    d0               " << d0               << endl;
-  cout << "    d0Sign           " << d0Sign           << endl;
-  cout << "    d0Error          " << d0Error          << endl;
-  cout << "    jetDistance      " << jetDistance      << endl;
-  cout << "    nHitsTotal       " << nHitsTotal       << endl;
-  cout << "    nHitsPixel       " << nHitsPixel       << endl;
-  cout << "    firstHitPixel    " << firstHitPixel    << endl;
-  cout << "    chi2             " << chi2             << endl;
-  cout << "    ip2D             " << ip2D             << endl;
-  cout << "    ip2DError        " << ip2DError        << endl;
-  cout << "    ip2DSignificance " << ip2DSignificance << endl;
-  cout << "    ip3D             " << ip3D             << endl;
-  cout << "    ip3DError        " << ip3DError        << endl;
-  cout << "    ip3DSignificance " << ip3DSignificance << endl;
-}
-
 reco::CombinedBTagInfo::CombinedBTagInfo() {
   // reset everything
   reset();
@@ -148,7 +45,7 @@ void reco::CombinedBTagInfo::flushTrackData() {
 } // void flushTrackData
 
 void reco::CombinedBTagInfo::storeTrackData( reco::TrackRef trackRef,
-                                             const TrackData& trackData)
+                                             const reco::CombinedBTagTrack & trackData)
 {
   //  cout << "*** trackData to store " << endl;
   //  trackData.print();
@@ -164,7 +61,7 @@ int reco::CombinedBTagInfo::sizeTrackData()
   return trackDataMap_.size();
 } // int sizeTrackData
 
-const reco::CombinedBTagInfo::TrackData * reco::CombinedBTagInfo::getTrackData(reco::TrackRef trackRef)
+const reco::CombinedBTagTrack * reco::CombinedBTagInfo::getTrackData(reco::TrackRef trackRef)
 {
  TrackDataAssociation::const_iterator iter = trackDataMap_.find(trackRef);
  if (iter != trackDataMap_.end()) {
@@ -178,7 +75,7 @@ void reco::CombinedBTagInfo::printTrackData() {
   for ( TrackDataAssociation::const_iterator mapIter = trackDataMap_.begin(); 
         mapIter != trackDataMap_.end(); mapIter++)
   {
-    const TrackData& trackData = mapIter->val;
+    const reco::CombinedBTagTrack & trackData = mapIter->val;
     trackData.print();
   } // for mapIter
 } // void printTrackData
@@ -203,7 +100,7 @@ void reco::CombinedBTagInfo::flushVertexData() {
 // -------------------------------------------------------------------------------
 
 void reco::CombinedBTagInfo::storeVertexData( vector<reco::Vertex>::const_iterator vertexRef,
-                                              const VertexData& vertexData) {
+                                              const reco::CombinedBTagVertex & vertexData) {
   vertexDataMap_[vertexRef] = vertexData;
 } //void storeVertexData
 
@@ -212,11 +109,11 @@ int reco::CombinedBTagInfo::sizeVertexData() const
   return vertexDataMap_.size();
 } // int sizeVertexData
 
-reco::CombinedBTagInfo::VertexData * 
+reco::CombinedBTagVertex * 
     reco::CombinedBTagInfo::getVertexData(vector<reco::Vertex>::const_iterator vertexRef) const
 {
   // try to find element
-  map <vector<reco::Vertex>::const_iterator, VertexData>::const_iterator iter = 
+  map <vector<reco::Vertex>::const_iterator, reco::CombinedBTagVertex>::const_iterator iter = 
     vertexDataMap_.find(vertexRef);
 
   if (iter != vertexDataMap_.end()) {
