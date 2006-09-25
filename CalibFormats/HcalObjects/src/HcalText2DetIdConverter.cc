@@ -1,6 +1,6 @@
 /** \class HcalText2DetIdConverter
     \author F.Ratnikov, UMd
-    $Id: HcalText2DetIdConverter.cc,v 1.1 2006/07/31 19:51:50 fedor Exp $
+    $Id: HcalText2DetIdConverter.cc,v 1.2 2006/09/08 23:24:37 fedor Exp $
 */
 #include <stdlib.h>
 #include <iostream>
@@ -172,7 +172,7 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
   else if (flavorName.find ("ZDC_") == 0) {
     HcalZDCDetId::Section section = flavorName == "ZDC_EM" ? HcalZDCDetId::EM :
       flavorName == "ZDC_HAD" ? HcalZDCDetId::HAD : 
-      flavorName == "ZDC_HAD" ? HcalZDCDetId::LUM : HcalZDCDetId::Unknown;
+      flavorName == "ZDC_LUM" ? HcalZDCDetId::LUM : HcalZDCDetId::Unknown;
     mId = HcalZDCDetId (section, getField (1)>0, getField (2));
   }
   else if (flavorName.find ("CALIB_") == 0) {
