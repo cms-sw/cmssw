@@ -170,7 +170,6 @@ class GlobalHitsProducer : public edm::EDProducer
   edm::InputTag SiTECLowSrc_;
   edm::InputTag SiTECHighSrc_;
 
-
   // Muon info
   // DT info
   FloatVector MuonDtToF; 

@@ -1,8 +1,14 @@
 #include "Validation/GlobalHits/interface/GlobalHitsProducer.h"
 
 GlobalHitsProducer::GlobalHitsProducer(const edm::ParameterSet& iPSet) :
-  fName(""), verbosity(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), nRawGenPart(0), count(0)
+  fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
+  getAllProvenances(false), printProvenanceInfo(false), nRawGenPart(0), 
+  ECalEBSrc_(""), ECalEESrc_(""), ECalESSrc_(""), HCalSrc_(""),
+  PxlBrlLowSrc_(""), PxlBrlHighSrc_(""), PxlFwdLowSrc_(""),
+  PxlFwdHighSrc_(""), SiTIBLowSrc_(""), SiTIBHighSrc_(""),
+  SiTOBLowSrc_(""), SiTOBHighSrc_(""), SiTIDLowSrc_(""), 
+  SiTIDHighSrc_(""), SiTECLowSrc_(""), SiTECHighSrc_(""),
+  MuonDtSrc_(""), MuonCscSrc_(""), MuonRpcSrc_(""), count(0)
 {
   std::string MsgLoggerCat = "GlobalHitsProducer.GlobalHitsProducer";
 
@@ -138,11 +144,13 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
 
   if (verbosity > 0) {
     edm::LogInfo(MsgLoggerCat)
-      << "Processing run " << nrun << ", event " << nevt;
+      << "Processing run " << nrun << ", event " << nevt
+      << " (" << count << " events total)";
   } else if (verbosity == 0) {
     if (nevt%frequency == 0 || nevt == 1) {
       edm::LogInfo(MsgLoggerCat)
-	<< "Processing run " << nrun << ", event " << nevt;
+	<< "Processing run " << nrun << ", event " << nevt
+	<< " (" << count << " events total)";
     }
   }
 
@@ -155,13 +163,13 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
     std::vector<const edm::Provenance*> AllProv;
     iEvent.getAllProvenance(AllProv);
 
-    if (verbosity > 0)
+    if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
 	<< "Number of Provenances = " << AllProv.size();
 
-    if (printProvenanceInfo && (verbosity > 0)) {
-      TString eventout("\nProvenance info:\n");
-      
+    if (printProvenanceInfo && (verbosity >= 0)) {
+      TString eventout("\nProvenance info:\n");      
+
       for (unsigned int i = 0; i < AllProv.size(); ++i) {
 	eventout += "\n       ******************************";
 	eventout += "\n       Module       : ";
@@ -175,9 +183,11 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
 	eventout += "\n       BranchName   : ";
 	eventout += (AllProv[i]->product).branchName_;
       }
-      eventout += "       ******************************\n";
+      eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
+      printProvenanceInfo = false;
     }
+    getAllProvenances = false;
   }
 
   // call fill functions
