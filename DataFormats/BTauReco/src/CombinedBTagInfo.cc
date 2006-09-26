@@ -1,113 +1,74 @@
-// -*- C++ -*-
-//
-// Package:    CombinedBTagInfo
-// Class:      CombinedBTagInfo
-// 
-/**\class CombinedBTagInfo CombinedBTagInfo.cc DataFormats/BTauReco/src/CombinedBTagInfo.cc
-
- Description: Extended information for combined b-jet tagging
-
- Implementation:
-     <Notes on implementation>
-*/
-
-// this class header
-
 #include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
 
 using namespace std;
 
 reco::CombinedBTagInfo::CombinedBTagInfo() {
-  // reset everything
   reset();
 }
 
 reco::CombinedBTagInfo::~CombinedBTagInfo() { }
 
-//
-// map related
-//
-
 bool reco::CombinedBTagInfo::existTrackData( const reco::TrackRef & trackRef)
 {
   return ( trackDataMap_.find(trackRef) != trackDataMap_.end() );
-  /*
-  bool returnValue = false;
-  TrackDataAssociation::const_iterator iter = trackDataMap_.find(trackRef);
-  if (iter != trackDataMap_.end()) {
-    returnValue = true;
-  }
-  return returnValue;*/
-} // bool exitTrackData
+}
 
 void reco::CombinedBTagInfo::flushTrackData() {
   //  trackDataMap_.clear();
-} // void flushTrackData
+}
 
-void reco::CombinedBTagInfo::storeTrackData( reco::TrackRef trackRef,
+void reco::CombinedBTagInfo::storeTrackData( const reco::TrackRef & trackRef,
                                              const reco::CombinedBTagTrack & trackData)
 {
-  //  cout << "*** trackData to store " << endl;
-  //  trackData.print();
+  // trackDataMap_[trackRef]=trackData;
+  trackDataMap_.erase(trackRef );
   trackDataMap_.insert(trackRef, trackData);
-//   TrackDataAssociation::const_iterator iter;
-//   iter = trackDataMap_.find(trackRef);
-//   if (iter != trackDataMap_.end())
-//     (iter->val).print();
-} //void storeTrackData
+}
 
-int reco::CombinedBTagInfo::sizeTrackData()
+int reco::CombinedBTagInfo::sizeTrackData() const
 {
   return trackDataMap_.size();
-} // int sizeTrackData
+}
 
-const reco::CombinedBTagTrack * reco::CombinedBTagInfo::getTrackData(reco::TrackRef trackRef)
+const reco::CombinedBTagTrack * reco::CombinedBTagInfo::getTrackData( 
+    const reco::TrackRef & trackRef ) const
 {
- TrackDataAssociation::const_iterator iter = trackDataMap_.find(trackRef);
- if (iter != trackDataMap_.end()) {
-   return &(iter->val);
- } else {
-   return 0;
- } //if iter != end
-} // TrackData* getTrackData
+  TrackDataAssociation::const_iterator iter = trackDataMap_.find(trackRef);
+  if (iter != trackDataMap_.end()) {
+    return &(iter->val);
+  } else {
+    return 0;
+  }
+}
 
-void reco::CombinedBTagInfo::printTrackData() {
+void reco::CombinedBTagInfo::printTrackData() const
+{
   for ( TrackDataAssociation::const_iterator mapIter = trackDataMap_.begin(); 
         mapIter != trackDataMap_.end(); mapIter++)
   {
     const reco::CombinedBTagTrack & trackData = mapIter->val;
     trackData.print();
-  } // for mapIter
-} // void printTrackData
+  }
+}
 
 bool reco::CombinedBTagInfo::existVertexData(vector<reco::Vertex>::const_iterator vertexRef)
 {
   return ( vertexDataMap_.find(vertexRef) != vertexDataMap_.end() );
-  /*
-  bool returnValue = false;
-
-  // try to find element
-  map <vector<reco::Vertex>::const_iterator, VertexData>::const_iterator iter = 
-     vertexDataMap_.find(vertexRef);
-  if (iter != vertexDataMap_.end())
-    returnValue = true;
-  return returnValue;*/
-} // bool exitVertexData
+}
 
 void reco::CombinedBTagInfo::flushVertexData() {
   //  vertexDataMap_.clear();
-} // void flushVertexData
-// -------------------------------------------------------------------------------
+}
 
 void reco::CombinedBTagInfo::storeVertexData( vector<reco::Vertex>::const_iterator vertexRef,
                                               const reco::CombinedBTagVertex & vertexData) {
   vertexDataMap_[vertexRef] = vertexData;
-} //void storeVertexData
+}
 
 int reco::CombinedBTagInfo::sizeVertexData() const
 {
   return vertexDataMap_.size();
-} // int sizeVertexData
+}
 
 reco::CombinedBTagVertex * 
     reco::CombinedBTagInfo::getVertexData(vector<reco::Vertex>::const_iterator vertexRef) const
@@ -127,9 +88,7 @@ reco::CombinedBTagVertex *
 
 void reco::CombinedBTagInfo::reset()
 {
-  //
   // reset all information
-  //
   GlobalVector resetVector (-999.0,-999.0,-999.0);
 
   // flush maps and vectors

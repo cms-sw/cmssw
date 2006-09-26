@@ -108,13 +108,13 @@ namespace reco {
     // map to access track map information
     //
     // maybe possible to use map tools here?
-    bool              existTrackData( const reco::TrackRef & trackRef );
-    void              flushTrackData();
-    void              storeTrackData ( reco::TrackRef trackRef,
-             const reco::CombinedBTagTrack & trackData );
-    void              printTrackData();
-    int               sizeTrackData();
-    const reco::CombinedBTagTrack *  getTrackData(reco::TrackRef trackRef);
+    bool existTrackData( const reco::TrackRef & );
+    void flushTrackData();
+    void storeTrackData ( const reco::TrackRef &,
+             const reco::CombinedBTagTrack & );
+    void printTrackData() const;
+    int  sizeTrackData() const;
+    const reco::CombinedBTagTrack * getTrackData( const reco::TrackRef & ) const;
 
 
     // is this the "best" way to do it?
@@ -264,9 +264,8 @@ namespace reco {
 
     // maps for detailed track and vertex information
     TrackDataAssociation trackDataMap_;
-    mutable std::map <std::vector<reco::Vertex>::const_iterator, reco::CombinedBTagVertex> vertexDataMap_;
-
-
+    mutable std::map < std::vector<reco::Vertex>::const_iterator, 
+                       reco::CombinedBTagVertex> vertexDataMap_;
   }; // class
 
 } // namespace reco
