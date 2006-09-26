@@ -64,7 +64,7 @@ namespace edm {
       for( typename map_type::iterator i = m.begin(); i != m.end(); ++ i ) {
 	map_assoc & v = i->second;
 	double std::pair<index, Q>:: * quality = & std::pair<index, Q>::second;
-	std::sort( v.begin(), v.end(),  bind( quality, _1 ) > bind( quality, _2 ) );
+	std::sort( v.begin(), v.end(),  bind( quality, _2 ) < bind( quality, _1 ) );
       }
     }
   };
