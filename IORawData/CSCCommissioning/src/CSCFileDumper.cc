@@ -17,7 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <iostream>
-#include <strstream>
+#include <sstream>
 
 CSCFileDumper::CSCFileDumper(const edm::ParameterSet & pset){
 	output = pset.getUntrackedParameter<std::string>("output");
@@ -54,10 +54,10 @@ void CSCFileDumper::analyze(const edm::Event & e, const edm::EventSetup& c){
 	for(int id=fedID_first; id<=fedID_last; ++id){ //for each of our DCCs
 		std::map<int,FILE*>::const_iterator stream = dump_files.find(id);
 		if( stream == dump_files.end() ){
-			std::strstream name;
+			std::ostringstream name;
 			name<<output<<"_"<<id<<std::ends;
 			FILE *file;
-			if( (file = fopen(name.str(),"wt"))==NULL ){
+			if( (file = fopen(name.str().c_str(),"wt"))==NULL ){
 				std::cout<<"Cannot open the file: "<<name.str()<<std::endl;
 				continue;
 			} else
