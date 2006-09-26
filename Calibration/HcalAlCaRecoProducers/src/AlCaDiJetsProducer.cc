@@ -77,11 +77,11 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                double deta = track->momentum().eta() - fJet1.eta();  
                double dphi = fabs(track->momentum().phi() - fJet1.phi());
                if (dphi > atan(1.)*4.) dphi = 8.*atan(1.) - dphi;
-               double ddir1 = sqrt(deta*deta-dphi*dphi);
+               double ddir1 = sqrt(deta*deta+dphi*dphi);
                deta = track->momentum().eta() - fJet2.eta();
                dphi = fabs(track->momentum().phi() - fJet2.phi());
                if (dphi > atan(1.)*4.) dphi = 8.*atan(1.) - dphi;
-               double ddir2 = sqrt(deta*deta-dphi*dphi);
+               double ddir2 = sqrt(deta*deta+dphi*dphi);
 
       if( ddir1 < 0.5  || ddir2 < 0.5)      
       {
