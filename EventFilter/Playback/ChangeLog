@@ -1,0 +1,12 @@
+2006-09-26  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag v00-00-01
+	* first import to cvs
+	* PlaybackRawDataProvider is an EDAnalyzer to be run in a
+	FUEventProcessor (see EventFilter/Processor). It will read the
+	FEDRawDataCollection from one event and wait until the collection
+	was picked up before retrieving the next. The client to pick up
+	those collections is BU (see EventFilter/AutoBU). The data will be
+	provided to the Filter Farm code as if coming from the builder
+	unit(s) online.
+
