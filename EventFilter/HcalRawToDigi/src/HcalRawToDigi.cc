@@ -20,11 +20,14 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first)),
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
   unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
-  complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false))
+  complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false)),
+  exceptionEmptyData_(conf.getUntrackedParameter<bool>("ExceptionEmptyData",false))
 {
-  if (fedUnpackList_.empty()) 
+  if (fedUnpackList_.empty()) {
+    unpackingAll_=true;
     for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
       fedUnpackList_.push_back(i);
+  } else unpackingAll_=(fedUnpackList_.size()==(unsigned int)(FEDNumbering::getHcalFEDIds().second-FEDNumbering::getHcalFEDIds().first+1));
   
   std::ostringstream ss;
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
@@ -77,6 +80,9 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
     if (fed.size()==0) {
+      if (exceptionEmptyData_) {
+	  throw cms::Exception("EmptyData") << "No data for FED " << *i;
+      } 
       if (complainEmptyData_)
 	edm::LogWarning("EmptyData") << "No data for FED " << *i;
     } else if (fed.size()<8*3) {
