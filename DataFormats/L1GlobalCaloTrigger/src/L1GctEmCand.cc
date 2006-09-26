@@ -26,7 +26,7 @@ L1GctEmCand::L1GctEmCand() :
 L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso) : 
   m_iso(iso) 
 {
-  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0xf)<<10); 
+  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10); 
 }
 
 // destructor
