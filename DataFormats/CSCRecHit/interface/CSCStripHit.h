@@ -26,7 +26,7 @@ public:
 
   CSCStripHit();
   CSCStripHit( const CSCDetId& id, const float& sHitPos, const int& tmax, 
-               const float& tpeak, const int& clusterSize, const StripHitADCContainer& s_adc );
+               const int& clusterSize, const StripHitADCContainer& s_adc );
 
   ~CSCStripHit();
 
@@ -42,9 +42,6 @@ public:
   /// Strip hit maximum time bin
   int tmax() const { return theStripHitTmax; }
 
-  /// Strip hit fitted peaking time
-  float tpeak() const { return theStripHitTpeak; }
-
   /// Number of strips in cluster to produce strip hit
   int clusterSize() const { return theStripHitClusterSize; }
 
@@ -58,7 +55,6 @@ private:
   CSCDetId theDetId;
   float theStripHitPosition;
   int theStripHitTmax;
-  float theStripHitTpeak;
   int theStripHitClusterSize;
   StripHitADCContainer theStripHitADCs;  
 
