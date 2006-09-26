@@ -17,6 +17,9 @@
 #include "G4eTargetPlaneSurface.hh"
 #include "G4eTargetCylindricalSurface.hh"
 
+//CLHEP
+#include "CLHEP/Units/SystemOfUnits.h"
+
 
 /** Constructor. 
  */
@@ -50,30 +53,75 @@ TrajectoryStateOnSurface
 Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
 			      const Plane& pDest) const {
 
-  //Get origin point and direction of the destination plane
+  ///////////////////////////////
+  // Construct the target surface
+  //
+
+  //* Get position and normal (orientation) of the destination plane
   GlobalPoint posPlane = pDest.toGlobal(LocalPoint(0,0,0));
   GlobalVector normalPlane = pDest.toGlobal(LocalVector(0,0,1.)); 
   normalPlane = normalPlane.unit();
 
-  //Transform this into HepPoint3D and HepNormal3D that define a plane for
-  //Geant4e
+  //* Transform this into HepPoint3D and HepNormal3D that define a plane for
+  //  Geant4e.
+  //  CMS uses cm and GeV while Geant4 uses mm and MeV
   HepPoint3D  surfPos  = 
     TrackPropagation::globalPointToHepPoint3D(posPlane);
   HepNormal3D surfNorm = 
     TrackPropagation::globalVectorToHepNormal3D(normalPlane);
 
-  //Set the target surface
+  //DEBUG
+  LogDebug("Geant4e") << "G4e -- Destination CMS plane position:" << posPlane 
+		      << " cm\n"
+		      << "G4e -- Destination G4  plane position: " << surfPos
+		      << " mm";
+  LogDebug("Geant4e") << "G4e -- Destination CMS plane normal  : " 
+		      << normalPlane << "\n"
+		      << "G4e -- Destination G4  plane normal  : " 
+		      << normalPlane;
+  LogDebug("Geant4e") << "G4e -- Distance from point to plane: " 
+		      << pDest.localZ(posPlane);
+  //DEBUG
+
+  //* Set the target surface
   G4eTarget* g4eTarget = new G4eTargetPlaneSurface(surfNorm, surfPos);
   theG4eManager->SetTarget(g4eTarget);
+  //
+  ///////////////////////////////
 
-  //Get the starting point and direction and convert them to Hep3Vector for G4
-  GlobalVector p3GV = ftsStart.momentum();
-  GlobalPoint  r3GP = ftsStart.position();
+  ///////////////////////////////
+  // Find initial point
+  //
 
-  Hep3Vector pv3 = TrackPropagation::globalVectorToHep3Vector(p3GV);
-  Hep3Vector xv3 = TrackPropagation::globalPointToHep3Vector(r3GP);
+  // * Get the starting point and direction and convert them to Hep3Vector 
+  //   for G4. CMS uses cm and GeV while Geant4 uses mm and MeV
+  GlobalPoint  cmsInitPos = ftsStart.position();
+  GlobalVector cmsInitMom = ftsStart.momentum();
 
-  //Set particle name
+  Hep3Vector g4InitPos = 
+    TrackPropagation::globalPointToHep3Vector(cmsInitPos);
+  Hep3Vector g4InitMom = 
+    TrackPropagation::globalVectorToHep3Vector(cmsInitMom*GeV);
+
+  //DEBUG
+  LogDebug("Geant4e") << "G4e -- Initial CMS point position:" << cmsInitPos 
+		      << " cm\n"
+		      << "G4e -- Initial G4  point position: " << g4InitPos 
+		      << " mm";
+  LogDebug("Geant4e") << "G4e -- Initial CMS momentum      :" << cmsInitMom 
+		      << " GeV\n"
+		      << "G4e -- Initial G4  momentum      :" << g4InitMom 
+		      << " MeV";
+  LogDebug("Geant4e") << "G4e -- Distance from point to plane: " 
+		      << pDest.localZ(cmsInitPos);
+  //DEBUG
+
+  //
+  //////////////////////////////
+
+  //////////////////////////////
+  // Set particle name
+  //
   int charge = ftsStart.charge();
   std::string particleName  = theParticleName;
   if (charge > 0)
@@ -81,28 +129,61 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   else
     particleName += "-";
 
+  LogDebug("Geant4e") << "G4e -- Particle name: " << particleName;
+
+  //
+  ///////////////////////////////
+
+  ///////////////////////////////
   //Set the error and trajectories, and finally propagate
+  //
   G4eTrajError error( 5, 0 ); //The error matrix
   G4eTrajStateFree* g4eTrajState = 
-    new G4eTrajStateFree(particleName, xv3, pv3, error);
+    new G4eTrajStateFree(particleName, g4InitPos, g4InitMom, error);
 
   //Set the mode of propagation according to the propagation direction
   G4eMode mode = G4eMode_PropForwards;
-  if (propagationDirection() == oppositeToMomentum)
+  if (propagationDirection() == oppositeToMomentum) {
     mode = G4eMode_PropBackwards;
-    
+    LogDebug("Geant4e") << "G4e -- Prop. mode is backwards";
+  }
+  else
+    LogDebug("Geant4e") << "G4e -- Prop. mode is forwards";
+  //
+  //////////////////////////////
 
-  //int ierr =
-  theG4eManager->Propagate( g4eTrajState, g4eTarget, mode);
+  //////////////////////////////
+  // Propagate
 
+  int ierr =
+    theG4eManager->Propagate( g4eTrajState, g4eTarget, mode);
+  LogDebug("Geant4e") << "G4e -- Return error from propagation: " << ierr;
+  //
+  //////////////////////////////
 
+  //////////////////////////////
   // Retrieve the state in the end from Geant4e, converte them to CMS vectors
-  // and points, and build global trajectory parameters
+  // and points, and build global trajectory parameters.
+  // CMS uses cm and GeV while Geant4 uses mm and MeV
+  //
   HepPoint3D posEnd = g4eTrajState->GetPosition();
   HepVector3D momEnd = g4eTrajState->GetMomentum();
 
   GlobalPoint  posEndGV = TrackPropagation::hepPoint3DToGlobalPoint(posEnd);
-  GlobalVector momEndGV = TrackPropagation::hep3VectorToGlobalVector(momEnd);
+  GlobalVector momEndGV = TrackPropagation::hep3VectorToGlobalVector(momEnd)/GeV;
+
+  //DEBUG
+  LogDebug("Geant4e") << "G4e -- Final CMS point position:" << posEndGV 
+		      << " cm\n"
+		      << "G4e -- Final G4  point position: " << posEnd 
+		      << " mm";
+  LogDebug("Geant4e") << "G4e -- Final CMS momentum      :" << momEndGV
+		      << " GeV\n"
+		      << "G4e -- Final G4  momentum      :" << momEnd 
+		      << " MeV";
+  LogDebug("Geant4e") << "G4e -- Distance from point to plane: " 
+		      << pDest.localZ(posEndGV);
+  //DEBUG
 
   GlobalTrajectoryParameters tParsDest(posEndGV, momEndGV, charge, theField);
 
@@ -114,12 +195,14 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
 
   ////////////////////////////////////////////////////////////////////////
-  // WARNING: Since this propagator is not supposed to be used in the 
-  // tracker where special treatment need to be used when arriving to
-  // a surface, we set the SurfaceSide to atCenterOfSurface.
+  // WARNING: Since this propagator is not supposed to be used in the   //
+  // tracker where special treatment need to be used when arriving to   //
+  // a surface, we set the SurfaceSide to atCenterOfSurface.            //
   ////////////////////////////////////////////////////////////////////////
-  LogDebug("Geant4e") << "SurfaceSide is always atCenterOfSurface after propagation";
+  LogDebug("Geant4e") << "G4e -- SurfaceSide is always atCenterOfSurface after propagation";
   SurfaceSide side = atCenterOfSurface;
+  //
+  ////////////////////////////////////////////////////////
 
   return TrajectoryStateOnSurface(tParsDest, curvError, pDest, side);
 }
@@ -131,9 +214,10 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 TrajectoryStateOnSurface 
 Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
 			      const Cylinder& cDest) const {
-  //Get Cylinder parameters
+  //Get Cylinder parameters.
+  //CMS uses cm and GeV while Geant4 uses mm and MeV.
   // - Radius
-  G4float radCyl = cDest.radius();
+  G4float radCyl = cDest.radius()*cm;
   // - Position: PositionType & GlobalPoint are Basic3DPoint<float,GlobalTag>
   G4ThreeVector posCyl = 
     TrackPropagation::globalPointToHep3Vector(cDest.position());
@@ -143,8 +227,8 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
   //DEBUG --- Remove at some point
   TkRotation<float>  rotation = cDest.rotation();
-  LogDebug("Geant4e") << "TkRotation" << rotation;
-  LogDebug("Geant4e") << "G4Rotation" << rotCyl;
+  LogDebug("Geant4e") << "G4e -- TkRotation" << rotation;
+  LogDebug("Geant4e") << "G4e -- G4Rotation" << rotCyl << "mm";
 
 
   //Set the target surface
@@ -153,9 +237,10 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   theG4eManager->SetTarget(g4eTarget);
 
   //Get the starting point and direction and convert them to Hep3Vector for G4
-  Hep3Vector pv3 = 
-    TrackPropagation::globalVectorToHep3Vector(ftsStart.momentum());
-  Hep3Vector xv3 = 
+  //CMS uses cm and GeV while Geant4 uses mm and MeV
+  Hep3Vector g4InitMom = 
+    TrackPropagation::globalVectorToHep3Vector(ftsStart.momentum()*GeV);
+  Hep3Vector g4InitPos = 
     TrackPropagation::globalPointToHep3Vector(ftsStart.position());
 
   //Set particle name
@@ -169,7 +254,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   //Set the error and trajectories, and finally propagate
   G4eTrajError error( 5, 0 ); //The error matrix
   G4eTrajStateFree* g4eTrajState = 
-    new G4eTrajStateFree(particleName, xv3, pv3, error);
+    new G4eTrajStateFree(particleName, g4InitPos, g4InitMom, error);
 
   //Set the mode of propagation according to the propagation direction
   G4eMode mode = G4eMode_PropForwards;
@@ -183,11 +268,12 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
   // Retrieve the state in the end from Geant4e, converte them to CMS vectors
   // and points, and build global trajectory parameters
+  // CMS uses cm and GeV while Geant4 uses mm and MeV
   HepPoint3D posEnd = g4eTrajState->GetPosition();
   HepVector3D momEnd = g4eTrajState->GetMomentum();
 
   GlobalPoint  posEndGV = TrackPropagation::hepPoint3DToGlobalPoint(posEnd);
-  GlobalVector momEndGV = TrackPropagation::hep3VectorToGlobalVector(momEnd);
+  GlobalVector momEndGV = TrackPropagation::hep3VectorToGlobalVector(momEnd)/GeV;
 
   GlobalTrajectoryParameters tParsDest(posEndGV, momEndGV, charge, theField);
 
