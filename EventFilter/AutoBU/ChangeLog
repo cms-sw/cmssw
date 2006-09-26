@@ -1,0 +1,21 @@
+2006-09-26  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-01-00
+	* fedData_ is a member of BU now; it is a vector of fed buffers,
+	the length of each buffer is kept in fedSize_. Now, the fed header
+	and trailer (and their sizes!) are included in fedData_ and
+	fedSize_ (used to be payload only).
+	* BU::createSuperFrag creates the i2o message to send the
+	superfragment to the requestor. The feds are taken from fedData_,
+	considering fedSize_. The fed headers and trailers are filled with
+	meaningful content, including the same crc check
+	(EventFilter/Utilities/inteface/Crc.h) performed online.
+	* for randomely generated FED data, the parameter names have
+	changed to fedSizeMean_ and fedSizeWidth_. useFixedSize_ is now
+	useFixedFedSize_.
+	* BU::buAllocateNMsg is now going to look for the presence of a
+	static pointer to a PlaybackRawDataProvider, see
+	EventFilter/Playback. If it is non zero, fed data is not going
+	to be generated randomely but read from this interface, which
+	retrieves the fed collection of events recorded in a file.
+

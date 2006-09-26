@@ -1,9 +1,12 @@
-CPPFLAGS+=linux
+<use name=xdaq>
+<use name=CLHEP>
+<use name=DataFormats/FEDRawData>
+<use name=EventFilter/Playback>
+
 <export>
-<lib name=EventFilterAutoBU>
-<use name=XDAQ>
-<use name=xerces-c>
-<use name=CLHEP>
+  <lib name=EventFilterAutoBU>
+  <use name=xdaq>
+  <use name=CLHEP>
+  <use name=DataFormats/FEDRawData>
+  <use name=EventFilter/Playback>
 </export>
-<use name=CLHEP>
-<use name=XDAQ>
