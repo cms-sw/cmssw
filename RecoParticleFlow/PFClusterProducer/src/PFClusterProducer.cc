@@ -163,7 +163,6 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
   using namespace edm;
   
-  cout<<"IN number of PFClusters :"<<reco::PFCluster::instanceCounter_<<endl;
 
   // for output  
   //   auto_ptr< vector<reco::PFRecHit> > 
@@ -356,7 +355,10 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  ih!=algohits.end(); ih++) {
 	recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
       }
-      
+
+      LogInfo("PFClusterProducer")
+	<<" ECAL clusters --------------------------------- "<<endl
+	<<clusteralgo<<endl;
       iEvent.put( recHits, "ECAL" );
     }
     
@@ -364,7 +366,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       outClustersECAL( clusteralgo.clusters() ); 
     iEvent.put( outClustersECAL, "ECAL");
     
-    // clear all 
+    // clear all rechits
     for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
 	 ih != idSortedRecHits.end(); ih++) {  
       delete ih->second;
@@ -482,6 +484,10 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  iEvent.put( recHits, "HCAL" );
 	}
 
+	LogInfo("PFClusterProducer")
+	  <<" HCAL clusters --------------------------------- "<<endl
+	  <<clusteralgo<<endl;
+	
 	auto_ptr< vector<reco::PFCluster> > 
 	  outClustersHCAL( clusteralgo.clusters() ); 
 // 	outClustersHCAL = clusteralgo.clusters();
@@ -629,9 +635,13 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	    ih!=algohits.end(); ih++) {
 	  recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
 	}
-	
+
 	iEvent.put( recHits, "PS" );
       }
+      
+      LogInfo("PFClusterProducer")
+	<<" Preshower clusters --------------------------------- "<<endl
+	<<clusteralgo<<endl;
 
       auto_ptr< vector<reco::PFCluster> > 
 	outClustersPS( clusteralgo.clusters() ); 
@@ -661,9 +671,6 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   //   iEvent.put( outClustersECAL, "ECAL");
   //   iEvent.put( outClustersHCAL, "HCAL" );
   //   iEvent.put( outClustersPS, "PS");
-
-  cout<<"OUT number of PFClusters :"<<reco::PFCluster::instanceCounter_<<endl;
-
 }
 
 void 
