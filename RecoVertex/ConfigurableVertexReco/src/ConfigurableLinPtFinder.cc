@@ -8,7 +8,7 @@ namespace {
   edm::ParameterSet mydefaults()
   {
     edm::ParameterSet ret;
-//    ret.addUntrackedParameter<string>("name","default");
+//    ret.addParameter<string>("name","default");
     return ret;
   }
 }

@@ -6,7 +6,7 @@ using namespace std;
 ConfigurableVertexReconstructor::ConfigurableVertexReconstructor ( 
     const edm::ParameterSet & p ) : theRector ( 0 )
 {
-  string finder=p.getUntrackedParameter<string>("finder");
+  string finder=p.getParameter<string>("finder");
   theRector = VertexRecoManager::Instance().get ( finder );
   if (!theRector)
   {

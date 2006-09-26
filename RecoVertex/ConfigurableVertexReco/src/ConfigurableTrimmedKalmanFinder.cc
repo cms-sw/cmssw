@@ -5,10 +5,10 @@ namespace {
   edm::ParameterSet mydefaults ()
   {
     edm::ParameterSet ret;
-    ret.addUntrackedParameter<double>("ptcut",0.);
-    ret.addUntrackedParameter<double>("trkcutpv",0.05);
-    ret.addUntrackedParameter<double>("trkcutsv",0.01);
-    ret.addUntrackedParameter<double>("vtxcut",0.01);
+    ret.addParameter<double>("ptcut",0.);
+    ret.addParameter<double>("trkcutpv",0.05);
+    ret.addParameter<double>("trkcutsv",0.01);
+    ret.addParameter<double>("vtxcut",0.01);
     return ret;
   }
 }
@@ -24,10 +24,10 @@ void ConfigurableTrimmedKalmanFinder::configure(
   edm::ParameterSet m = mydefaults();
   m.augment ( n );
   KalmanTrimmedVertexFinder * tmp = new KalmanTrimmedVertexFinder();
-  tmp->setPtCut ( m.getUntrackedParameter<double>("ptcut") );
-  tmp->setTrackCompatibilityCut ( m.getUntrackedParameter<double>("trkcutpv") );
-  tmp->setTrackCompatibilityToSV ( m.getUntrackedParameter<double>("trkcutsv") );
-  tmp->setVertexFitProbabilityCut ( m.getUntrackedParameter<double>( "vtxcut" ) );
+  tmp->setPtCut ( m.getParameter<double>("ptcut") );
+  tmp->setTrackCompatibilityCut ( m.getParameter<double>("trkcutpv") );
+  tmp->setTrackCompatibilityToSV ( m.getParameter<double>("trkcutsv") );
+  tmp->setVertexFitProbabilityCut ( m.getParameter<double>( "vtxcut" ) );
   theRector = tmp;
 }
 

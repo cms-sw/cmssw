@@ -2,6 +2,7 @@
  <lib name=RecoVertexConfigurableVertexReco>
  <use name=RecoVertex/AdaptiveVertexFit>
  <use name=RecoVertex/TrimmedKalmanVertexFinder>
+ <use name=RecoVertex/AdaptiveVertexFinder>
  <use name=DataFormats/Math>
  <use name=FWCore/ParameterSet>
 </export>
@@ -9,4 +10,5 @@
 <use name=FWCore/ParameterSet>
 <use name=RecoVertex/AdaptiveVertexFit>
 <use name=RecoVertex/TrimmedKalmanVertexFinder>
+<use name=RecoVertex/AdaptiveVertexFinder>
 <use name=DataFormats/Math>

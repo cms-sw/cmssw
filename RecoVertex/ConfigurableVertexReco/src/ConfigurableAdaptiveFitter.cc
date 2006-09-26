@@ -12,18 +12,18 @@ namespace {
   edm::ParameterSet mydefaults()
   {
     edm::ParameterSet ret;
-    ret.addUntrackedParameter<double>("sigmacut",3.0);
-    ret.addUntrackedParameter<double>("Tini",256.0);
-    ret.addUntrackedParameter<double>("ratio",0.25);
+    ret.addParameter<double>("sigmacut",3.0);
+    ret.addParameter<double>("Tini",256.0);
+    ret.addParameter<double>("ratio",0.25);
     return ret;
   }
     
   const AnnealingSchedule * schedule ( const edm::ParameterSet & m )
   {
     return new GeometricAnnealing(
-        m.getUntrackedParameter<double>("sigmacut"), 
-        m.getUntrackedParameter<double>("Tini"),
-        m.getUntrackedParameter<double>("ratio") );
+        m.getParameter<double>("sigmacut"), 
+        m.getParameter<double>("Tini"),
+        m.getParameter<double>("ratio") );
   }
 }
 
