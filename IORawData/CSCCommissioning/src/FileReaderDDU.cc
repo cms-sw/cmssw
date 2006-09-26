@@ -31,7 +31,7 @@ FileReaderDDU::~FileReaderDDU(void){ if( fd ) close(fd); }
 
 int FileReaderDDU::open(const char *filename) throw (std::runtime_error) {
 	if( fd ) close(fd);
-	fd = ::open(filename,O_RDONLY);
+	fd = ::open(filename,O_RDONLY|O_LARGEFILE);
 	if( fd == -1 ) throw ( std::runtime_error(std::string("Error opening ").append(filename).append(" data file.")) );
 	return fd;
 }
