@@ -1,5 +1,10 @@
 2006-09-26  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-01-01
+	* bug fix: set buResourceId in message (value is irrelevant)
+
+2006-09-26  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
 	* tag V00-01-00
 	* fedData_ is a member of BU now; it is a vector of fed buffers,
 	the length of each buffer is kept in fedSize_. Now, the fed header

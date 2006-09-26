@@ -166,7 +166,8 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
     stdMsg->MsgFlags        =0;  // Point-to-point
     stdMsg->InitiatorAddress=i2o::utils::getAddressMap()->getTid(buAppDesc);
     stdMsg->TargetAddress   =fuTid;
-    
+
+    block->buResourceId           =fuTransaction; // whatever!?
     block->fuTransactionId        =fuTransaction;
     block->blockNb                =iBlock;
     block->nbBlocksInSuperFragment=nBlock;
