@@ -90,7 +90,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
   try {
     // select tracks
     vector<reco::TransientTrack> seltks;
-    cout << "PrimaryVertexProducerAlgorithm::vertices  input tracks="<<tracks.size() << endl;
+    //    cout << "PrimaryVertexProducerAlgorithm::vertices  input tracks="<<tracks.size() << endl;
     for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
 	 itk != tracks.end(); itk++) {
       if (theTrackFilter(*itk)) seltks.push_back(*itk);

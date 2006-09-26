@@ -103,8 +103,9 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
  	   it != prongs.end(); it++) {
  	if ((*it).persistentTrackRef().isNonnull()) {
-	  cout << (*it).persistentTrackRef().id() << ", "
-	       << (*it).persistentTrackRef().key() << endl;
+	  // edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+	  //	  << (*it).persistentTrackRef().id() << ", "
+	  //	  << (*it).persistentTrackRef().key() << "\n";
 
  	  v.add((*it).persistentTrackRef());
  	}
