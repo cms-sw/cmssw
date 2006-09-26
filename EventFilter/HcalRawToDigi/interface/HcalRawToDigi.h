@@ -37,6 +37,7 @@ private:
   std::vector<int> fedUnpackList_;
   int firstFED_;
   bool unpackCalib_, unpackZDC_;
+  bool complainEmptyData_;
 };
 
 #endif

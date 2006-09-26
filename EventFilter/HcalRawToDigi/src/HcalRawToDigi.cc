@@ -19,7 +19,8 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first)),
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
-  unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false))
+  unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
+  complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false))
 {
   if (fedUnpackList_.empty()) 
     for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
@@ -76,13 +77,11 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
     if (fed.size()==0) {
-      throw cms::Exception("EmptyData") << "No data for fed " << *i;
-    }
-    if (fed.size()<8*3) {
-      throw cms::Exception("EmptyData") << "Tiny data " << fed.size() << " for FED " << *i;
-    }      
-    
-    unpacker_.unpack(fed,*readoutMap,colls);
+      if (complainEmptyData_)
+	edm::LogWarning("EmptyData") << "No data for FED " << *i;
+    } else if (fed.size()<8*3) {
+	throw cms::Exception("EmptyData") << "Tiny data " << fed.size() << " for FED " << *i;
+    } else unpacker_.unpack(fed,*readoutMap,colls);
   }
 
   // Step B: encapsulate vectors in actual collections
