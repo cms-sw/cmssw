@@ -12,7 +12,8 @@ using namespace std;
 #include <iostream>
 #include <string>
 
-class TrackAssociator; 
+//class TrackAssociator; 
+class TrackAssociatorByHits; 
 class TrackerHitAssociator; 
 
 using namespace reco;
@@ -47,7 +48,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   using namespace edm;
   using namespace reco;
 
-  tassociator = new TrackAssociator(event, conf_);
+  tassociator = new TrackAssociatorByHits(event, conf_);
   
   Handle<reco::TrackCollection> trackCollectionH;
   event.getByLabel("ctfWithMaterialTracks",trackCollectionH);
