@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.12 2006/07/31 20:02:27 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.1 2006/09/15 19:57:57 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -153,7 +153,7 @@ private:
   DOMElement* XMLDocument::makeElementDataset (DOMElement* fElement, int fXMLId, DetId fDetId, int fVersion, const std::string& fKind, unsigned long fRun) {
     DOMElement* dataset = newElement (fElement, "DATA_SET");
     addAttribute (dataset, "id", fXMLId);
-    newValue (dataset, "KIND_OF_CONDITION", fKind);
+    newValue (newElement (dataset, "KIND_OF_CONDITION"), "NAME", fKind);
     newValue (dataset, "VERSION", fVersion);
     makeRun (dataset, fRun);
     makeChId (dataset, fDetId);

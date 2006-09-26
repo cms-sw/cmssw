@@ -21,8 +21,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
-#include "CondTools/Hcal/interface/HcalDbPool.h"
-#include "CondTools/Hcal/interface/HcalDbPoolOCCI.h"
+#include "CondTools/Hcal/interface/HcalDbTool.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
@@ -35,7 +34,7 @@
 //using namespace cms;
 
 
-typedef HcalDbPool::IOVRun IOVRun;
+typedef HcalDbTool::IOVRun IOVRun;
 typedef std::map<IOVRun,std::string> IOVCollection;
 
 
@@ -73,8 +72,8 @@ void printHelp (const Args& args) {
 }
 
 template <class T> bool deleteObject (T* fObject, 
-				      const std::string& fInput, const std::string& fInputTag, HcalDbPool::IOVRun fInputRun, bool fVerbose) {
-  HcalDbPool poolDb (fInput, fVerbose);
+				      const std::string& fInput, const std::string& fInputTag, HcalDbTool::IOVRun fInputRun, bool fVerbose) {
+  HcalDbTool poolDb (fInput, fVerbose);
   return poolDb.deleteObject (fObject, fInputTag, fInputRun);
 }
 

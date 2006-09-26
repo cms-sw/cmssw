@@ -20,6 +20,7 @@ int main(){
   try {
     cond::MetaData metadata_svc(db, *loader);
     metadata_svc.connect();
+    metadata_svc.addMapping ("dummy", "empty_token");
     std::string token = metadata_svc.getToken("mytest1");
     metadata_svc.disconnect();
   }catch(std::exception& er){

@@ -21,8 +21,8 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondTools/Hcal/interface/HcalDbXml.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
-#include "CondTools/Hcal/interface/HcalDbPool.h"
-#include "CondTools/Hcal/interface/HcalDbPoolOCCI.h"
+#include "CondTools/Hcal/interface/HcalDbTool.h"
+//#include "CondTools/Hcal/interface/HcalDbPoolOCCI.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
@@ -35,7 +35,7 @@
 //using namespace cms;
 
 
-typedef HcalDbPool::IOVRun IOVRun;
+typedef HcalDbTool::IOVRun IOVRun;
 typedef std::map<IOVRun,std::string> IOVCollection;
 
 
@@ -226,21 +226,21 @@ bool onlineFile (const std::string fParam) {
 }
 
 template <class T> bool copyObject (T* fObject, 
-				    const std::string& fInput, const std::string& fInputTag, HcalDbPool::IOVRun fInputRun,
-				    const std::string& fOutput, const std::string& fOutputTag, HcalDbPool::IOVRun fOutputRun,
+				    const std::string& fInput, const std::string& fInputTag, HcalDbTool::IOVRun fInputRun,
+				    const std::string& fOutput, const std::string& fOutputTag, HcalDbTool::IOVRun fOutputRun,
 				    unsigned fVersion, unsigned long long fIovgmtbegin, unsigned long long fIovgmtend,
 				    unsigned fNread, unsigned fNwrite, unsigned fNtrace,
 				    bool fVerbose
 				    ) {
-  typedef std::vector <std::pair<HcalDbPool::IOVRun, T*> > Objects;
+  typedef std::vector <std::pair<HcalDbTool::IOVRun, T*> > Objects;
 
   bool result = false;
   time_t t0 = time (0);
   time_t t1 = t0;
   unsigned traceCounter = 0;
-  HcalDbPool* poolDb = 0;
+  HcalDbTool* poolDb = 0;
   HcalDbOnline* onlineDb = 0;
-  //  HcalDbPoolOCCI* occiDb = 0;
+  //  HcalDbToolOCCI* occiDb = 0;
   Objects allInstances;
   while (traceCounter < fNread) {
     delete fObject;
@@ -259,7 +259,7 @@ template <class T> bool copyObject (T* fObject,
     }
     else if (dbFile (fInput)) {
       if (!traceCounter) std::cout << "USE INPUT: Pool: " << fInput << "/" << fInputRun << std::endl;
-      if (!poolDb) poolDb = new HcalDbPool (fInput, fVerbose);
+      if (!poolDb) poolDb = new HcalDbTool (fInput, fVerbose);
       if (fInputRun > 0) {
 	fObject = new T;
 	result = poolDb->getObject (fObject, fInputTag, fInputRun);
@@ -338,7 +338,7 @@ template <class T> bool copyObject (T* fObject,
       }
       else if (dbFile (fOutput)) { //POOL
 	if (!traceCounter) std::cout << "USE OUTPUT: Pool: " << fOutput << '/' << fOutputRun << std::endl;
-	if (!poolDb) poolDb = new HcalDbPool (fOutput, fVerbose);
+	if (!poolDb) poolDb = new HcalDbTool (fOutput, fVerbose);
 	if (fOutputRun > 0) {
 	  poolDb->putObject (object, fOutputTag, fOutputRun);
 	  object = 0; // owned by POOL
@@ -399,8 +399,8 @@ int main (int argn, char* argv []) {
   std::string input = args.getParameter ("-input");
   std::string output = args.getParameter ("-output");
   
-  HcalDbPool::IOVRun inputRun = args.getParameter ("-inputrun").empty () ? 0 : strtoull (args.getParameter ("-inputrun").c_str (), 0, 0);
-  HcalDbPool::IOVRun outputRun = args.getParameter ("-outputrun").empty () ? 0 : strtoll (args.getParameter ("-outputrun").c_str (), 0, 0);
+  HcalDbTool::IOVRun inputRun = args.getParameter ("-inputrun").empty () ? 0 : strtoull (args.getParameter ("-inputrun").c_str (), 0, 0);
+  HcalDbTool::IOVRun outputRun = args.getParameter ("-outputrun").empty () ? 0 : strtoll (args.getParameter ("-outputrun").c_str (), 0, 0);
   std::string inputTag = args.getParameter ("-inputtag");
   std::string outputTag = args.getParameter ("-outputtag");
 
