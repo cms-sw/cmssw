@@ -77,8 +77,11 @@ void G4SimEvent::load(edm::SimVertexContainer & c) const
     for (unsigned int i=0; i<g4vertices.size(); i++)
     {
 	G4SimVertex * vtx   = g4vertices[i];
-	//	Hep3Vector v3       = (vtx->vertexPosition())/cm;
-	Hep3Vector v3       = (vtx->vertexPosition());
+	//
+	// starting 1_1_0_pre3, SimVertex stores in cm !!!
+	// 
+	Hep3Vector v3       = (vtx->vertexPosition())/cm;
+	// Hep3Vector v3       = (vtx->vertexPosition());
 	float t             = vtx->vertexGlobalTime()/second;
 	int iv              = vtx->parentIndex();
 	// vv = position
