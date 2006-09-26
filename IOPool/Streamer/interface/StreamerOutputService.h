@@ -37,8 +37,8 @@ namespace edm
     
     void stop(); // shouldn't be called from destructor.
 
-    std::list<std::string> get_filelist() { return files_; }
-    std::string get_currfile() { return fileName_;}
+    std::list<std::string>& get_filelist() { return files_; }
+    std::string& get_currfile() { return fileName_;}
 
   private:
     void writeHeader(InitMsgView const& init_message);

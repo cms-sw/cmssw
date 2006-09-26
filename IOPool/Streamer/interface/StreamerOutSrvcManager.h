@@ -30,17 +30,27 @@ namespace edm {
   void stop(); 
 
   /** Handles arrival of New Init Message */
-  void manageInitMsg(unsigned long maxFileSize, double highWaterMark,
+  //Currently the fileName parameter is ignored
+  void manageInitMsg(std::string fileName, unsigned long maxFileSize, double highWaterMark,
 		  std::string path, std::string mpath, InitMsgView& init_message);
 
   /** mages event messages */
   void manageEventMsg(EventMsgView& msg);
+
+  std::list<std::string>& get_filelist();
+  std::list<std::string>& get_currfiles();
 
  private:   
   void collectStreamerPSets(const std::string& config);        
   //Store References ?? 
   std::vector<edm::ParameterSet> outModPSets_;
   std::vector<edm::StreamerOutputService*> managedOutputs_;  
+
+  // Maintain these lists here, so that we 
+  // could return by refs, instead of by value
+  std::list<std::string> filelist_;
+  std::list<std::string> currfiles_;
+
  };
 
 }//edm-namespace

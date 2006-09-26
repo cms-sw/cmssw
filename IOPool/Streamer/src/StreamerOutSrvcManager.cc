@@ -10,6 +10,7 @@ StreamerOutSrvcManager::StreamerOutSrvcManager(const std::string& config):
   outModPSets_(0),
   managedOutputs_(0)
    {
+      //cout << "CONFIG RECEIVED IS: "<<config<<endl;
       collectStreamerPSets(config);
    } 
 
@@ -24,7 +25,6 @@ StreamerOutSrvcManager::~StreamerOutSrvcManager()
 
 void StreamerOutSrvcManager::stop()
 {
-
        // Received a stop(), Pass it ON to each outputFile
        // outputFile(service) will close files and write EOF Message
        
@@ -42,65 +42,57 @@ void StreamerOutSrvcManager::stop()
 
 void StreamerOutSrvcManager::collectStreamerPSets(const std::string& config)
 {
+     // wrote similar example code in IOPool/Streamer/test/ParamSetWalker_t.cpp 
+     // this method is diluted version of same code.
+     // if more items needs to be extracted for config, refer to example code
+
      try{
        
        ProcessDesc  pdesc(config.c_str());
        
        boost::shared_ptr<ParameterSet> procPset = pdesc.getProcessPSet();
-       std::cout<<"Process PSet:"<<procPset->toString()<<endl;
-       
-       //cout << "Module Label: " << procPset->getParameter<string>("@module_label")
-       //     << std::endl;
+       //std::cout<<"Process PSet:"<<procPset->toString()<<endl;
        
        ParameterSet allTrigPaths = procPset->
 	 getUntrackedParameter<ParameterSet>("@trigger_paths");
-       std::cout <<"Found  Trig Path :"<<allTrigPaths.toString()<<endl;
+       //std::cout <<"Found  Trig Path :"<<allTrigPaths.toString()<<endl;
        
        if (allTrigPaths.empty())
-         throw cms::Exception("ParamSetWalker","ParamSetWalker")
+         throw cms::Exception("collectStreamerPSets","StreamerOutSrvcManager")
 	   << "No Trigger or End Path Found in the Config File" <<endl;
        
        std::vector<std::string> allEndPaths = 
 	 allTrigPaths.getParameter<std::vector<std::string> >("@end_paths");
        
        if (allEndPaths.empty())
-	 throw cms::Exception("ParamSetWalker","ParamSetWalker")
+	 throw cms::Exception("collectStreamerPSets","StreamerOutSrvcManager")
 	   << "No End Path Found in the Config File" <<endl;
        
        for(std::vector<std::string>::iterator it = allEndPaths.begin();
 	   it != allEndPaths.end();
 	   ++it)
 	 {
-	   std::cout <<"Found an end Path :"<<(*it)<<std::endl;
+	   //std::cout <<"Found an end Path :"<<(*it)<<std::endl;
 	   //Lets try to get this PSet from the Process PSet
 	   std::vector<std::string> anEndPath = procPset->getParameter<std::vector<std::string> >((*it));
 	   for(std::vector<std::string>::iterator it = anEndPath.begin();
 	       it != anEndPath.end(); ++it) 
 	     {
-	       std::cout <<"Found a end Path PSet :"<<(*it)<<endl;
+	       //std::cout <<"Found a end Path PSet :"<<(*it)<<endl;
 	       //Lets Check this Module if its a EventStreamFileWriter type
 	      ParameterSet aModInEndPathPset = 
 		procPset->getParameter<ParameterSet>((*it));
 	      if (aModInEndPathPset.empty())
-		throw cms::Exception("ParamSetWalker","ParamSetWalker")
+		throw cms::Exception("collectStreamerPSets","StreamerOutSrvcManager")
 		  << "Empty End Path Found in the Config File" <<endl;
-	      std::cout <<"This Module PSet is: "<<aModInEndPathPset.toString()<<std::endl;
+	      //std::cout <<"This Module PSet is: "<<aModInEndPathPset.toString()<<std::endl;
 	      std::string mod_type = aModInEndPathPset.getParameter<std::string> ("@module_type");
-	      std::cout <<"Type of This Module is: "<<mod_type<<endl;
+	      //std::cout <<"Type of This Module is: "<<mod_type<<endl;
 	      if (mod_type == "EventStreamFileWriter") 
+	      //if (mod_type == "I2OStreamConsumer") 
 		{
-		  cout<<"FOUND WHAT WAS LOOKING FOR:::"<<std::endl;
+		  //cout<<"FOUND WHAT WAS LOOKING FOR:::"<<std::endl;
 		  outModPSets_.push_back(aModInEndPathPset);
-		  
-		  //std::string fileName = aModInEndPathPset.getParameter<string> ("fileName");
-		  //std::cout <<"Streamer File Name:"<<fileName<<endl;
-		  //std::string indexFileName = aModInEndPathPset.getParameter<string> ("indexFileName");
-		  //std::cout <<"Index File Name:"<<indexFileName<<endl;
-		  //ParameterSet selectEventsPSet = 
-		  //  aModInEndPathPset.getUntrackedParameter<ParameterSet>("SelectEvents");
-		  //if ( !selectEventsPSet.empty() ) {
-		  //  std::cout <<"SelectEvents: "<<selectEventsPSet.toString()<<std::endl;
-		  //}
 		}
 	     }
 	 }
@@ -110,9 +102,12 @@ void StreamerOutSrvcManager::collectStreamerPSets(const std::string& config)
      }
 }
 
-void StreamerOutSrvcManager::manageInitMsg(unsigned long maxFileSize, double highWaterMark,
+void StreamerOutSrvcManager::manageInitMsg(std::string fileName, unsigned long maxFileSize, double highWaterMark,
 		std::string path, std::string mpath, InitMsgView& init_message)
      {
+
+      //received file name is ignored for now, and later we can remove it, not understood if its required
+
       // An INIT Message has arrived, and we need to open 
       // StreamerOutputService (output file)
       // for each of outModPSets_
@@ -121,20 +116,14 @@ void StreamerOutSrvcManager::manageInitMsg(unsigned long maxFileSize, double hig
           it != outModPSets_.end(); ++it)
         {
 	   //Get the filename
-           std::string fileName = (*it).getParameter<string> ("fileName");
-           //ParameterSet selectEventsPSet = 
-           //     (*it).getUntrackedParameter<ParameterSet>("SelectEvents");
-           //if ( !selectEventsPSet.empty() ) {
-           //    std::cout <<"SelectEvents: "<<selectEventsPSet.toString()<<std::endl;
-           //}
-           //else {
-           //  std::cout << "Should i make up a Select All PSet ?" <<endl;
-           //}   
+           std::string fileNameLocal = (*it).getParameter<string> ("fileName");
+          
+           //Other parameters can also be pulled here, if provided in config file. 
            
            StreamerOutputService* outputFile = new StreamerOutputService((*it));
            //invoke its init, later StreamerOutputService CTOR will call its own init 
            //it should take a SelectEvents PSet too
-           outputFile->init(fileName, maxFileSize, highWaterMark,
+           outputFile->init(fileNameLocal, maxFileSize, highWaterMark,
                              path, mpath, init_message);
           
            //Stor it in list of managed outputFiles
@@ -153,5 +142,29 @@ void StreamerOutSrvcManager::manageEventMsg(EventMsgView& msg)
         }
     }
 
+
+std::list<std::string>& StreamerOutSrvcManager::get_filelist() 
+    { 
+     filelist_.clear();
+     for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
+          it != managedOutputs_.end(); ++it)
+        {
+            std::list<std::string>& sub_list = (*it)->get_filelist();
+            filelist_.assign(sub_list.begin(), sub_list.end() );
+        } 
+     return filelist_; 
+    }
+
+
+std::list<std::string>& StreamerOutSrvcManager::get_currfiles()
+    { 
+      currfiles_.clear();
+      for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
+          it != managedOutputs_.end(); ++it)
+        {
+            currfiles_.push_back((*it)->get_currfile());
+        }
+      return currfiles_;  
+    }
 } //emd-namespace
 

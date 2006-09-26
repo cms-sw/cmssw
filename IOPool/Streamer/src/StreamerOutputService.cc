@@ -29,6 +29,7 @@ std::string itoa(int i){
         return((std::string)temp);
 }
 
+/* No one will use this CTOR anyways, we can remove it in future */
 StreamerOutputService::StreamerOutputService():
  maxFileSize_(1073741824),
  maxFileEventCount_(10000),
@@ -42,7 +43,6 @@ StreamerOutputService::StreamerOutputService():
     saved_initmsg_[0] = '\0';
     requestParamSet_ = edm::ParameterSet();
   }
-
 
  StreamerOutputService::StreamerOutputService(edm::ParameterSet const& ps):
  //maxFileSize_(ps.template getParameter<int>("maxFileSize")),
@@ -60,7 +60,6 @@ StreamerOutputService::StreamerOutputService():
    
   {
     saved_initmsg_[0] = '\0';
-    
   }
 
 void StreamerOutputService::init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
@@ -158,7 +157,7 @@ void StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize
         //Check if this event meets the selection criteria, if not skip it.
         if ( ! wantsEvent(eview) ) 
             {
-            cout <<"This event is UNWANTED"<<endl; 
+            //cout <<"This event is UNWANTED"<<endl; 
             return;
             }
 
@@ -173,8 +172,9 @@ void StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize
 
              string tobeclosedFile = fileName_;
 
-             std::cout<<" better to use temp variable as not sure if writer is still using"<<std::endl;
+             //std::cout<<" better to use temp variable as not sure if writer is still using"<<std::endl;
              // them? shouldn't be! (no time to look now)
+             // writer is not using them !! - AA
 
              // also should be checking the filesystem here at path_
              fileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
@@ -214,7 +214,7 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
     std::vector<unsigned char> hlt_out;
     hlt_out.resize(1 + (eventView.hltCount()-1)/4);
     eventView.hltTriggerBits(&hlt_out[0]);
-    // /* --- print the trigger bits from the event header
+    /* --- print the trigger bits from the event header
     std::cout << ">>>>>>>>>>>Trigger bits:" << std::endl;
     for(int i=0; i< hlt_out.size(); ++i)
     {
@@ -225,14 +225,13 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
     for(int i=(hlt_out.size()-1); i != -1 ; --i)
        printBits(hlt_out[i]);
     cout << ")\n";
-    // */
+    */
     int num_paths = eventView.hltCount();
     cout <<"num_paths: "<<num_paths<<endl;
     bool rc = (eventSelector_->wantAll() || eventSelector_->acceptEvent(&hlt_out[0], num_paths));
-    std::cout << "====================== " << std::endl;
-    std::cout << "return selector code = " << rc << std::endl;
-    std::cout << "====================== " << std::endl;
-    //return true;
+    //std::cout << "====================== " << std::endl;
+    //std::cout << "return selector code = " << rc << std::endl;
+    //std::cout << "====================== " << std::endl;
     return rc;
   }
 
