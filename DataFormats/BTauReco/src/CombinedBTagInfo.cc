@@ -1,6 +1,12 @@
 #include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
+#include <limits>
 
 using namespace std;
+
+namespace {
+  typedef std::numeric_limits<double> num;
+  typedef std::numeric_limits<int> numi;
+}
 
 reco::CombinedBTagInfo::CombinedBTagInfo() {
   reset();
@@ -30,7 +36,7 @@ int reco::CombinedBTagInfo::sizeTrackData() const
   return trackDataMap_.size();
 }
 
-const reco::CombinedBTagTrack * reco::CombinedBTagInfo::getTrackData( 
+const reco::CombinedBTagTrack * reco::CombinedBTagInfo::getTrackData(
     const reco::TrackRef & trackRef ) const
 {
   TrackDataAssociation::const_iterator iter = trackDataMap_.find(trackRef);
@@ -43,7 +49,7 @@ const reco::CombinedBTagTrack * reco::CombinedBTagInfo::getTrackData(
 
 void reco::CombinedBTagInfo::printTrackData() const
 {
-  for ( TrackDataAssociation::const_iterator mapIter = trackDataMap_.begin(); 
+  for ( TrackDataAssociation::const_iterator mapIter = trackDataMap_.begin();
         mapIter != trackDataMap_.end(); mapIter++)
   {
     const reco::CombinedBTagTrack & trackData = mapIter->val;
@@ -70,11 +76,11 @@ int reco::CombinedBTagInfo::sizeVertexData() const
   return vertexDataMap_.size();
 }
 
-reco::CombinedBTagVertex * 
+reco::CombinedBTagVertex *
     reco::CombinedBTagInfo::getVertexData(vector<reco::Vertex>::const_iterator vertexRef) const
 {
   // try to find element
-  map <vector<reco::Vertex>::const_iterator, reco::CombinedBTagVertex>::const_iterator iter = 
+  map <vector<reco::Vertex>::const_iterator, reco::CombinedBTagVertex>::const_iterator iter =
     vertexDataMap_.find(vertexRef);
 
   if (iter != vertexDataMap_.end()) {
@@ -89,7 +95,7 @@ reco::CombinedBTagVertex *
 void reco::CombinedBTagInfo::reset()
 {
   // reset all information
-  GlobalVector resetVector (-999.0,-999.0,-999.0);
+  GlobalVector resetVector (num::quiet_NaN(), num::quiet_NaN(), num::quiet_NaN());
 
   // flush maps and vectors
   flushTrackData();
@@ -97,36 +103,28 @@ void reco::CombinedBTagInfo::reset()
   secondaryVertices_.clear();
   tracksAboveCharm_.clear();
   tracksAtSecondaryVertex_.clear();
-  
+
   // reset variables
   vertexType_                       = reco::CombinedBTagEnums::NotDefined;
-  jetPt_                            = -999;
-  jetEta_                           = -999;
+  jetPt_                            = num::quiet_NaN();
+  jetEta_                           = num::quiet_NaN();
   pB_                               = resetVector;
-  pAll_                             = resetVector;   
-  bPLong_                           = -999;
-  bPt_                              = -999;
-  vertexMass_                       = -999;
-  vertexMultiplicity_               = -999;
-  eSVXOverE_                        = -999;
-  meanTrackY_                       = -999;
-  energyBTracks_                    = -999;
-  energyAllTracks_                  = -999;
-  angleGeomKinJet_                  = -999;
-  angleGeomKinVertex_               = -999;  
-  flightDistance2DMin_              = -999;
-  flightDistanceSignificance2DMin_  = -999;
-  flightDistance3DMin_              = -999;
-  flightDistanceSignificance3DMin_  = -999;
-  flightDistance2DMax_              = -999;
-  flightDistanceSignificance2DMax_  = -999;
-  flightDistance3DMax_              = -999;
-  flightDistanceSignificance3DMax_  = -999;
-  flightDistance2DMean_             = -999;
-  flightDistanceSignificance2DMean_ = -999;
-  flightDistance3DMean_             = -999;
-  flightDistanceSignificance3DMean_ = -999;
-  first2DSignedIPSigniAboveCut_     = -999;
+  pAll_                             = resetVector;
+  bPLong_                           = num::quiet_NaN();
+  bPt_                              = num::quiet_NaN();
+  vertexMass_                       = num::quiet_NaN();
+  vertexMultiplicity_               = numi::quiet_NaN();
+  eSVXOverE_                        = num::quiet_NaN();
+  meanTrackY_                       = num::quiet_NaN();
+  energyBTracks_                    = num::quiet_NaN();
+  energyAllTracks_                  = num::quiet_NaN();
+  angleGeomKinJet_                  = num::quiet_NaN();
+  angleGeomKinVertex_               = num::quiet_NaN();
+  flightDistance2D_                 = MinMeanMax();
+  flightDistanceSignificance2D_     = MinMeanMax();
+  flightDistance3D_                 = MinMeanMax();
+  flightDistanceSignificance3D_     = MinMeanMax();
+  first2DSignedIPSigniAboveCut_     = num::quiet_NaN();
 } //reset
 
 double reco::CombinedBTagInfo::jetPt() const
@@ -189,46 +187,21 @@ double reco::CombinedBTagInfo::meanTrackRapidity() const {return meanTrackY_;}
 
 double reco::CombinedBTagInfo::angleGeomKinJet() const {return angleGeomKinJet_;}
 
-double reco::CombinedBTagInfo::angleGeomKinVertex() const {return angleGeomKinVertex_;} 
+double reco::CombinedBTagInfo::angleGeomKinVertex() const {return angleGeomKinVertex_;}
 
-double reco::CombinedBTagInfo::flightDistance2DMin() const {return flightDistance2DMin_; }
-
-double reco::CombinedBTagInfo::flightDistanceSignificance2DMin() const
-  {return flightDistanceSignificance2DMin_;}
-
-double reco::CombinedBTagInfo::flightDistance3DMin() const 
-  {return flightDistance3DMin_; }
-
-double reco::CombinedBTagInfo::flightDistanceSignificance3DMin() const 
-  {return flightDistanceSignificance3DMin_; }
-
-double reco::CombinedBTagInfo::flightDistance2DMax() const
-  {return flightDistance2DMax_; }
-
-double reco::CombinedBTagInfo::flightDistanceSignificance2DMax() const
-  {return flightDistanceSignificance2DMax_; }
-
-double reco::CombinedBTagInfo::flightDistance3DMax() const
-  {return flightDistance3DMax_; } 
-
-double reco::CombinedBTagInfo::flightDistanceSignificance3DMax() const
-  {return flightDistanceSignificance3DMax_  ;}
-
-double reco::CombinedBTagInfo::flightDistance2DMean() const
-  {return flightDistance2DMean_             ;}
-
-double reco::CombinedBTagInfo::flightDistance3DMean() const
-  {return flightDistance3DMean_             ;}
-
-double reco::CombinedBTagInfo::flightDistanceSignificance3DMean() const
-  {return flightDistanceSignificance3DMean_ ;}
+MinMeanMax reco::CombinedBTagInfo::flightDistance2D() const {return flightDistance2D_; }
+MinMeanMax reco::CombinedBTagInfo::flightDistanceSignificance2D() const 
+    {return flightDistanceSignificance2D_; }
+MinMeanMax reco::CombinedBTagInfo::flightDistance3D() const {return flightDistance3D_; }
+MinMeanMax reco::CombinedBTagInfo::flightDistanceSignificance3D() const 
+    {return flightDistanceSignificance3D_; }
 
 double reco::CombinedBTagInfo::first2DSignedIPSigniAboveCut() const
   {return first2DSignedIPSigniAboveCut_;}
 
 void reco::CombinedBTagInfo::setJetPt (double pt) {jetPt_ = pt;}
 
-void reco::CombinedBTagInfo::setJetEta(double eta) {jetEta_ = eta;} 
+void reco::CombinedBTagInfo::setJetEta(double eta) {jetEta_ = eta;}
 
 void reco::CombinedBTagInfo::setPrimaryVertex( const reco::Vertex & pv) {primaryVertex_ = pv;}
 
@@ -245,25 +218,20 @@ void reco::CombinedBTagInfo::setEnergyBTracks(double energy) {energyBTracks_ = e
 void reco::CombinedBTagInfo::setEnergyAllTracks(double energy) {energyAllTracks_ = energy;}
 void reco::CombinedBTagInfo::setPAll( const GlobalVector & p) { pAll_ = p;}
 void reco::CombinedBTagInfo::setPB( const GlobalVector & p ) { pB_ = p;}
-void reco::CombinedBTagInfo::setBPLong(double pLong) { bPLong_ = pLong;} 
+void reco::CombinedBTagInfo::setBPLong(double pLong) { bPLong_ = pLong;}
 void reco::CombinedBTagInfo::setBPt(double pt) {bPt_ = pt;}
 void reco::CombinedBTagInfo::setMeanTrackRapidity(double meanY) {meanTrackY_ = meanY;}
 void reco::CombinedBTagInfo::setAngleGeomKinJet(double angle) {angleGeomKinJet_ = angle;}
 void reco::CombinedBTagInfo::setAngleGeomKinVertex(double angle) {angleGeomKinVertex_ = angle;}
 void reco::CombinedBTagInfo::addTrackAboveCharm(reco::TrackRef trackRef) {tracksAboveCharm_.push_back(trackRef);}
-void reco::CombinedBTagInfo::setFlightDistance2DMin(double value) {flightDistance2DMin_ = value;}
-void reco::CombinedBTagInfo::setFlightDistanceSignificance2DMin (double value) {flightDistanceSignificance2DMin_ = value;}
-void reco::CombinedBTagInfo::setFlightDistance3DMin(double value) {flightDistance3DMin_ = value;}
-void reco::CombinedBTagInfo::setFlightDistanceSignificance3DMin(double value) {flightDistanceSignificance3DMin_ = value;}
-void reco::CombinedBTagInfo::setFlightDistance2DMax(double value) {flightDistance2DMax_ = value;}
-void reco::CombinedBTagInfo::setFlightDistanceSignificance2DMax(double value) {flightDistanceSignificance2DMax_ = value;}
-void reco::CombinedBTagInfo::setFlightDistance3DMax (double value) {flightDistance3DMax_ = value;}
-void reco::CombinedBTagInfo::setFlightDistanceSignificance3DMax(double value) {flightDistanceSignificance3DMax_ = value;}
-void reco::CombinedBTagInfo::setFlightDistance2DMean(double value) {flightDistance2DMean_ = value;} 
-void reco::CombinedBTagInfo::setFlightDistanceSignificance2DMean(double value) {flightDistanceSignificance2DMean_ = value;} 
-void reco::CombinedBTagInfo::setFlightDistance3DMean(double value) {flightDistance3DMean_ = value;}
-void reco::CombinedBTagInfo::setFlightDistanceSignificance3DMean (double value) {flightDistanceSignificance3DMean_ = value;}
-void reco::CombinedBTagInfo::setFirst2DSignedIPSigniAboveCut(double ipSignificance) {first2DSignedIPSigniAboveCut_ = ipSignificance;} 
+void reco::CombinedBTagInfo::setFlightDistance2D( const MinMeanMax & v ) {flightDistance2D_ = v;}
+void reco::CombinedBTagInfo::setFlightDistanceSignificance2D ( const MinMeanMax & v )
+    {flightDistanceSignificance2D_ = v;}
+void reco::CombinedBTagInfo::setFlightDistance3D( const MinMeanMax & v ) {flightDistance3D_ = v;}
+void reco::CombinedBTagInfo::setFlightDistanceSignificance3D ( const MinMeanMax & v )
+    {flightDistanceSignificance3D_ = v;}
+
+void reco::CombinedBTagInfo::setFirst2DSignedIPSigniAboveCut(double ipSignificance) {first2DSignedIPSigniAboveCut_ = ipSignificance;}
 
 std::string reco::CombinedBTagInfo::getVertexTypeName() const
 {

@@ -12,6 +12,7 @@
 #include "DataFormats/BTauReco/interface/CombinedBTagEnums.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagTrack.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagVertex.h"
+#include "DataFormats/BTauReco/interface/MinMeanMax.h"
 
 namespace reco {
   class CombinedBTagInfo  {
@@ -24,45 +25,35 @@ namespace reco {
 
     void reset(); //< clear all information
 
-    double jetPt () const;
-    double jetEta() const;
     reco::Vertex primaryVertex() const;
     std::vector<reco::Vertex> secVertices() const;
     std::vector<reco::TrackRef> tracksAboveCharm() const;
     std::vector<reco::TrackRef> tracksAtSecondaryVertex() const;
-    int          nSecVertices() const;
+
+    double jetPt () const;
+    double jetEta() const;
+    int    nSecVertices() const;
     reco::CombinedBTagEnums::VertexType vertexType() const;
-    double       vertexMass() const;
-    int          vertexMultiplicity() const;
-    double       eSVXOverE() const;
+    double vertexMass() const;
+    int    vertexMultiplicity() const;
+    double eSVXOverE() const;
     GlobalVector pAll() const;
     GlobalVector pB() const;
-    double       pBLong() const;
-    double       pBPt() const;
-    double       meanTrackRapidity() const;
-    double       angleGeomKinJet() const;
-    double       angleGeomKinVertex() const;
+    double pBLong() const;
+    double pBPt() const;
+    double meanTrackRapidity() const;
+    double angleGeomKinJet() const;
+    double angleGeomKinVertex() const;
 
-    double       flightDistance2DMin() const;
-    double       flightDistanceSignificance2DMin() const;
-    double       flightDistance3DMin() const;
-    double       flightDistanceSignificance3DMin() const;
-    double       flightDistance2DMax() const;
-    double       flightDistanceSignificance2DMax() const;
-    double       flightDistance3DMax () const;
-    double       flightDistanceSignificance3DMax() const;
-    double       flightDistance2DMean() const;
-    double       flightDistanceSignificance2DMean() const;
-    double       flightDistance3DMean() const;
-    double       flightDistanceSignificance3DMean() const;
+    MinMeanMax flightDistance2D() const;
+    MinMeanMax flightDistanceSignificance2D() const;
+    MinMeanMax flightDistance3D() const;
+    MinMeanMax flightDistanceSignificance3D() const;
 
     // possibly revisit this if calculation of lifetime-signed 2d IP
     // is avaialable via Track itself
-    double                      first2DSignedIPSigniAboveCut() const;
+    double first2DSignedIPSigniAboveCut() const;
 
-    //
-    // setters
-    //
     void setJetPt (double pt);
     void setJetEta(double eta);
 
@@ -87,26 +78,14 @@ namespace reco {
     void setAngleGeomKinVertex(double angle);
     void addTrackAboveCharm(reco::TrackRef trackRef);
 
-    void setFlightDistance2DMin(double value);
-    void setFlightDistanceSignificance2DMin (double value);
-    void setFlightDistance3DMin(double value);
-    void setFlightDistanceSignificance3DMin(double value);
-
-    void setFlightDistance2DMax(double value);
-    void setFlightDistanceSignificance2DMax(double value);
-    void setFlightDistance3DMax (double value);
-    void setFlightDistanceSignificance3DMax(double value);
-
-    void setFlightDistance2DMean(double value);
-    void setFlightDistanceSignificance2DMean(double value);
-    void setFlightDistance3DMean(double value);
-    void setFlightDistanceSignificance3DMean (double value);
+    void setFlightDistance2D ( const MinMeanMax & );
+    void setFlightDistanceSignificance2D ( const MinMeanMax & );
+    void setFlightDistance3D ( const MinMeanMax & );
+    void setFlightDistanceSignificance3D ( const MinMeanMax & );
 
     void setFirst2DSignedIPSigniAboveCut(double ipSignificance);
 
-    //
     // map to access track map information
-    //
     // maybe possible to use map tools here?
     bool existTrackData( const reco::TrackRef & );
     void flushTrackData();
@@ -116,15 +95,14 @@ namespace reco {
     int  sizeTrackData() const;
     const reco::CombinedBTagTrack * getTrackData( const reco::TrackRef & ) const;
 
-
     // is this the "best" way to do it?
-    bool              existVertexData(std::vector<reco::Vertex>::const_iterator vertexRef);
-    void              flushVertexData();
+    bool existVertexData(std::vector<reco::Vertex>::const_iterator vertexRef);
+    void flushVertexData();
     void storeVertexData(std::vector<reco::Vertex>::const_iterator vertexRef,
               const reco::CombinedBTagVertex & vertexData);
-    int               sizeVertexData() const;
+    int  sizeVertexData() const;
     reco::CombinedBTagVertex * getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) const;
-    std::string       getVertexTypeName() const;
+    std::string getVertexTypeName() const;
 
   private:
 
@@ -180,20 +158,10 @@ namespace reco {
      *  only different if there are more than one.
      */
 
-    double flightDistance2DMin_;
-    double flightDistanceSignificance2DMin_;
-    double flightDistance3DMin_;
-    double flightDistanceSignificance3DMin_;
-
-    double flightDistance2DMax_;
-    double flightDistanceSignificance2DMax_;
-    double flightDistance3DMax_;
-    double flightDistanceSignificance3DMax_;
-
-    double flightDistance2DMean_;
-    double flightDistanceSignificance2DMean_;
-    double flightDistance3DMean_;
-    double flightDistanceSignificance3DMean_;
+    MinMeanMax flightDistance2D_;
+    MinMeanMax flightDistanceSignificance2D_;
+    MinMeanMax flightDistance3D_;
+    MinMeanMax flightDistanceSignificance3D_;
 
     /** angle between vector connecting primary and secondary vertex
      *  track selection
