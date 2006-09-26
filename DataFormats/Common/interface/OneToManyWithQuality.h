@@ -5,6 +5,9 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include <map>
 #include <vector>
+#include <algorithm>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
 
 namespace edm {
   template<typename CKey, typename CVal, typename Q, typename index = unsigned int>
@@ -55,6 +58,15 @@ namespace edm {
     }
     /// size of data_type
     static typename map_type::size_type size( const map_assoc & v ) { return v.size(); }
+    /// sort
+    static void sort( map_type & m ) { 
+      using namespace boost::lambda;
+      for( typename map_type::iterator i = m.begin(); i != m.end(); ++ i ) {
+	map_assoc & v = i->second;
+	double std::pair<index, Q>:: * quality = & std::pair<index, Q>::second;
+	std::sort( v.begin(), v.end(),  bind( quality, _1 ) > bind( quality, _2 ) );
+      }
+    }
   };
 }
 

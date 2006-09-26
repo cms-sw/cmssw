@@ -1,4 +1,4 @@
-// $Id: testOneToManyAssociation.cc,v 1.12 2006/09/04 09:12:42 llista Exp $
+// $Id: testOneToManyAssociation.cc,v 1.13 2006/09/13 12:54:03 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -48,6 +48,7 @@ void testOneToManyAssociation::dummy() {
     v.erase( edm::Ref<CKey>() );
     v.clear();
     CPPUNIT_ASSERT( v.size() == 0 );
+    v.post_insert();
   }
   {
     typedef edm::AssociationMap<edm::OneToManyWithQuality<CKey, CVal, double, unsigned char> > Assoc;
@@ -66,5 +67,6 @@ void testOneToManyAssociation::dummy() {
     v.erase( edm::Ref<CKey>() );
     v.clear();
     CPPUNIT_ASSERT( v.size() == 0 );
+    v.post_insert();
   }
 }

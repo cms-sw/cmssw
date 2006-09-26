@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.22 2006/08/28 10:03:47 llista Exp $
+ * $Id: AssociationMap.h,v 1.23 2006/09/13 12:54:03 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -104,6 +104,8 @@ namespace edm {
       if ( f == map_.end() ) return 0;
       return Tag::size( f->second );
     }
+    /// post insert action
+    void post_insert() { Tag::sort( map_ ); }
 
   private:
     /// find helper
@@ -156,6 +158,11 @@ namespace edm {
     };
   }
 
+  /// has post insert trait
+  template<typename  T> 
+  struct edm::has_postinsert_trait<edm::AssociationMap<T> >  { 
+    static bool const value = true; 
+  }; 
 }
 
 #endif

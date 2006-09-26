@@ -54,6 +54,8 @@ namespace edm {
     }
     /// size of data_type
     static typename map_type::size_type size( const map_assoc & v ) { return v.size(); }
+    /// sort
+    static void sort( map_type & ) { }
   };
 }
 
