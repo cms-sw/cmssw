@@ -26,25 +26,23 @@
 class TrackAssociatorByHits : public TrackAssociatorBase {
   
  public:
-  explicit TrackAssociatorByHits(const edm::Event&, const edm::ParameterSet&);  
+  explicit TrackAssociatorByHits( const edm::ParameterSet& );  
   ~TrackAssociatorByHits();
   
 /* Associate SimTracks to RecoTracks By Hits */
 
   reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>&, 
 						edm::Handle<TrackingParticleCollection>&, 
-						edm::Event * event = 0);
+						const edm::Event * event = 0);
   
   reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
 						edm::Handle<TrackingParticleCollection>&, 
-						edm::Event * event = 0);
+						const edm::Event * event = 0);
  
  private:
   // ----- member data
-  const edm::Event& myEvent_; 
   const edm::ParameterSet& conf_;
   const float theMinHitFraction;    
-  TrackerHitAssociator* associate;
 };
 
 #endif

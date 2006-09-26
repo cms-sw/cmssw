@@ -67,7 +67,7 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
       
       TrackBase::ParameterVector diffParameters = rParameters - sParameters;
       double chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
-//       std::cout << "FROM SIM TRACK - chi2: " << chi2 << std::endl;
+
 
       chi2/=5;
       if (chi2<50) outMap[chi2]=*st;
@@ -80,7 +80,7 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 
 RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::TrackCollection>& tCH, 
 							      edm::Handle<TrackingParticleCollection>& tPCH,
-							      edm::Event * e ){
+							      const edm::Event * e ){
 
   RecoToSimCollection  outputCollection;
   double chi2;
@@ -146,7 +146,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 
 SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::TrackCollection>& tCH, 
 							      edm::Handle<TrackingParticleCollection>& tPCH,
-							      edm::Event * e ){
+							      const edm::Event * e ){
 
   SimToRecoCollection  outputCollection;
   double chi2;

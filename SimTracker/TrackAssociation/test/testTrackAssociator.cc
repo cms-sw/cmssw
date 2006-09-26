@@ -1,12 +1,13 @@
-
-
-using namespace std;
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "SimTracker/TrackAssociation/test/testTrackAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "Math/GenVector/BitReproducible.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
 #include <memory>
 #include <iostream>
@@ -21,25 +22,22 @@ using namespace std;
 using namespace edm;
 
 
-testTrackAssociator::testTrackAssociator(edm::ParameterSet const& conf) : 
-  conf_(conf),
-  doPixel_( conf.getParameter<bool>("associatePixel") ),
-  doStrip_( conf.getParameter<bool>("associateStrip") ) 
-{
-  std::cout << " Constructor " << std::endl;
+testTrackAssociator::testTrackAssociator(edm::ParameterSet const& conf) {
 }
 
-testTrackAssociator::~testTrackAssociator()
-{
-  std::cout << " Destructor " << std::endl;
+testTrackAssociator::~testTrackAssociator() {
 }
 
 void testTrackAssociator::beginJob(const EventSetup & setup) {
 
   edm::ESHandle<MagneticField> theMF;
   setup.get<IdealMagneticFieldRecord>().get(theMF);
-  //  tassociator = (TrackAssociatorBase *) theAssociator.product();
-  //associator = new TrackAssociatorByChi2(theMF);
+  edm::ESHandle<TrackAssociatorBase> theChiAssociator;
+  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theChiAssociator);
+  associatorByChi2 = (TrackAssociatorBase *) theChiAssociator.product();
+  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
+  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
+  associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
 
 }
 
@@ -47,8 +45,6 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
 {
   using namespace edm;
   using namespace reco;
-
-  tassociator = new TrackAssociatorByHits(event, conf_);
   
   Handle<reco::TrackCollection> trackCollectionH;
   event.getByLabel("ctfWithMaterialTracks",trackCollectionH);
@@ -56,10 +52,12 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   
   Handle<SimTrackContainer> simTrackCollection;
   event.getByLabel("g4SimHits", simTrackCollection);
+//  event.getByLabel("SimG4Object", simTrackCollection);
   const SimTrackContainer simTC = *(simTrackCollection.product());
   
   Handle<SimVertexContainer> simVertexCollection;
   event.getByLabel("g4SimHits", simVertexCollection);
+//  event.getByLabel("SimG4Object", simVertexCollection);
   const SimVertexContainer simVC = *(simVertexCollection.product());
 
   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
@@ -69,118 +67,97 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   cout << "\nEvent ID = "<< event.id() << endl ;
 
 
-#if 0
-
-  //Test TrackAssociatorByChi2
-  //compareTracksParam
-  TrackAssociatorByChi2::RecoToSimPairAssociation g =  associator->compareTracksParam(tC,simTC,simVC);
-  for (TrackAssociatorByChi2::RecoToSimPairAssociation::iterator vit=g.begin();vit!=g.end();++vit){
-    double chi2 = vit->second.begin()->first;
-    reco::Track& rt = vit->first;
-    SimTrack& st = vit->second.begin()->second;
-    cout << "Chi2 associator - chi2 value: " << chi2 << endl;
-    cout << "Chi2 associator - pt residue: " << rt.pt()-st.momentum().perp() << endl;
-  }
-
   //RECOTOSIM 
-  reco::RecoToSimCollection p = tassociator->associateRecoToSim (trackCollectionH,TPCollectionH );
-  for(TrackCollection::size_type i=0; i<tC.size(); ++i){
+  cout << "                      ****************** Reco To Sim ****************** " << endl;
+  cout << "-- Associator by hits --" << endl;  
+  reco::RecoToSimCollection p = 
+    associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
+  for(TrackCollection::size_type i=0; i<tC.size(); ++i) {
     TrackRef track(trackCollectionH, i);
     try{ 
       std::vector<std::pair<TrackingParticleRef, double> > tp = p[track];
-      cout << "->   Track " << setw(2) << track.index() << " pT: "  << setw(6) << track->pt() 
+      cout << "Reco Track " << setw(2) << track.index() << " pT: "  << setw(6) << track->pt() 
 	   <<  " matched to " << tp.size() << " MC Tracks" << std::endl;
       for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = tp.begin(); 
 	   it != tp.end(); ++it) {
-	cout << "1" << endl;
 	TrackingParticleRef tpr = it->first;
-	cout << "2" << endl;
 	double assocChi2 = it->second;
-	cout << "   MCTrack " << setw(2) << tpr.index() << " pT: " << setw(6) << tpr->pt() << 
+	cout << "\t\tMCTrack " << setw(2) << tpr.index() << " pT: " << setw(6) << tpr->pt() << 
 	  " chi2: " << assocChi2 << endl;
       }
     } catch (Exception event) {
-      cout << "->   Track " << setw(2) << track.index() << " pT: " << setprecision(2) << setw(6) << track->pt() 
+      cout << "->   Track " << setw(2) << track.index() << " pT: " 
+	   << setprecision(2) << setw(6) << track->pt() 
 	   <<  " matched to 0  MC Tracks" << endl;
     }
   }
-
-  //SIMTORECO
-  reco::SimToRecoCollection q = tassociator->associateSimToReco (trackCollectionH,TPCollectionH );
-  for(SimTrackContainer::size_type i=0; i<simTC.size(); ++i){
-    TrackingParticleRef tp (TPCollectionH,i);
-    try{ 
-      std::vector<std::pair<TrackRef, double> > trackV = q[tp];
-      cout << "->   TrackingParticle " << setw(2) << tp.index() << " pT: "  << setw(6) << tp->pt() 
-	   <<  " matched to " << trackV.size() << " reco::Tracks" << std::endl;
-      for (std::vector<std::pair<TrackRef,double> >::const_iterator it=trackV.begin(); it != trackV.end(); ++it) {
-	TrackRef tr = it->first;
-	double assocChi2 = it->second;
-	cout << "   reco::Track " << setw(2) << tr.index() << " pT: " << setw(6) << tr->pt() << 
-	  " chi2: " << assocChi2 << endl;
-      }
-    } catch (Exception event) {
-      cout << "->   TrackingParticle " << setw(2) << tp.index() << " pT: " <<setprecision(2)<<setw(6)<<tp->pt() 
-	   <<  " matched to 0  reco::Tracks" << endl;
-    }
-  }
-
-#endif
-
-
-  //#if 0
-  //Test AssociateByHitsRecoTrack
-  int minHitFraction = 0;
-
-  if(!doPixel_ && !doStrip_)  throw Exception(errors::Configuration,"Strip and pixel association disabled");
-  
-  const RecoToSimCollection assocmap = tassociator->associateRecoToSim(trackCollectionH,TPCollectionH );
-  //now test map 
-  cout << "Found " << assocmap.size() << " matched reco tracks" << std::endl;
-
-  for(TrackCollection::size_type i=0; i<tC.size(); ++i){
+  cout << "-- Associator by chi2 --" << endl;  
+  p = associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
+  for(TrackCollection::size_type i=0; i<tC.size(); ++i) {
     TrackRef track(trackCollectionH, i);
     try{ 
-      std::vector<std::pair<TrackingParticleRef, double> > tp = assocmap[track];
-      cout << "->   Track " << setw(2) << track.index() << " pT: "  << setw(6) << track->momentum() 
+      std::vector<std::pair<TrackingParticleRef, double> > tp = p[track];
+      cout << "Reco Track " << setw(2) << track.index() << " pT: "  << setw(6) << track->pt() 
 	   <<  " matched to " << tp.size() << " MC Tracks" << std::endl;
       for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = tp.begin(); 
 	   it != tp.end(); ++it) {
 	TrackingParticleRef tpr = it->first;
 	double assocChi2 = it->second;
-	cout << "   MCTrack " << setw(2) << tpr.index() << " mom: " << setw(6) << tpr->momentum() << 
-	  " fraction: " << assocChi2 << endl;
+	cout << "\t\tMCTrack " << setw(2) << tpr.index() << " pT: " << setw(6) << tpr->pt() << 
+	  " chi2: " << assocChi2 << endl;
       }
     } catch (Exception event) {
-      cout << "->   Track " << setw(2) << track.index() << " mom: " << setprecision(2) << setw(6) << track->pt() 
+      cout << "->   Track " << setw(2) << track.index() << " pT: " 
+	   << setprecision(2) << setw(6) << track->pt() 
 	   <<  " matched to 0  MC Tracks" << endl;
     }
   }
-
-
   //SIMTORECO
-  reco::SimToRecoCollection q = tassociator->associateSimToReco (trackCollectionH,TPCollectionH);
+  cout << "                      ****************** Sim To Reco ****************** " << endl;
+  cout << "-- Associator by hits --" << endl;  
+  reco::SimToRecoCollection q = 
+    associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH,&event );
   for(SimTrackContainer::size_type i=0; i<simTC.size(); ++i){
     TrackingParticleRef tp (TPCollectionH,i);
     try{ 
       std::vector<std::pair<TrackRef, double> > trackV = q[tp];
-      cout << "->   TrackingParticle " << setw(2) << tp.index() << " pT: "  << setw(6) << tp->pt() 
+      cout << "Sim Track " << setw(2) << tp.index() << " pT: "  << setw(6) << tp->pt() 
 	   <<  " matched to " << trackV.size() << " reco::Tracks" << std::endl;
       for (std::vector<std::pair<TrackRef,double> >::const_iterator it=trackV.begin(); it != trackV.end(); ++it) {
 	TrackRef tr = it->first;
 	double assocChi2 = it->second;
-	cout << "   reco::Track " << setw(2) << tr.index() << " pT: " << setw(6) << tr->pt() << 
-	  " fraction: " << assocChi2 << endl;
+	cout << "\t\treco::Track " << setw(2) << tr.index() << " pT: " << setw(6) << tr->pt() << 
+	  " chi2: " << assocChi2 << endl;
       }
     } catch (Exception event) {
-      cout << "->   TrackingParticle " << setw(2) << tp.index() << " pT: " <<setprecision(2)<<setw(6)<<tp->pt() 
+      cout << "->   TrackingParticle " << setw(2) << tp.index() << " pT: " 
+	   <<setprecision(2)<<setw(6)<<tp->pt() 
 	   <<  " matched to 0  reco::Tracks" << endl;
     }
   }
-
-
-
+  cout << "-- Associator by chi2 --" << endl;  
+  q = associatorByChi2->associateSimToReco(trackCollectionH,TPCollectionH,&event );
+  for(SimTrackContainer::size_type i=0; i<simTC.size(); ++i){
+    TrackingParticleRef tp (TPCollectionH,i);
+    try{ 
+      std::vector<std::pair<TrackRef, double> > trackV = q[tp];
+      cout << "Sim Track " << setw(2) << tp.index() << " pT: "  << setw(6) << tp->pt() 
+	   <<  " matched to " << trackV.size() << " reco::Tracks" << std::endl;
+      for (std::vector<std::pair<TrackRef,double> >::const_iterator it=trackV.begin(); it != trackV.end(); ++it) {
+	TrackRef tr = it->first;
+	double assocChi2 = it->second;
+	cout << "\t\treco::Track " << setw(2) << tr.index() << " pT: " << setw(6) << tr->pt() << 
+	  " chi2: " << assocChi2 << endl;
+      }
+    } catch (Exception event) {
+      cout << "->   TrackingParticle " << setw(2) << tp.index() << " pT: " 
+	   <<setprecision(2)<<setw(6)<<tp->pt() 
+	   <<  " matched to 0  reco::Tracks" << endl;
+    }
+  }
 }
+
+
 
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

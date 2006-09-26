@@ -28,10 +28,10 @@ class TrackAssociatorBase {
 
   virtual  reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>& tc, 
 							 edm::Handle<TrackingParticleCollection>& tpc,
-							 edm::Event * event = 0 ) = 0;
+							 const edm::Event * event = 0 ) = 0;
   virtual  reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>& tc, 
 							 edm::Handle<TrackingParticleCollection> & tpc ,  
-							 edm::Event * event = 0 ) = 0;
+							 const edm::Event * event = 0 ) = 0;
 };
 
 
