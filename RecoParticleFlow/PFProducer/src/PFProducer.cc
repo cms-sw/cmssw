@@ -600,7 +600,6 @@ void PFProducer::produce(Event& iEvent,
 				  motherId,
 				  fst.daughters() );
 
-      cout<<"start particle "<<particle<<endl;
 
       const FSimVertex& originVtx = fst.vertex();
 
@@ -618,7 +617,6 @@ void PFProducer::produce(Event& iEvent,
 		  posOrig, momOrig);
       particle.addPoint(pointOrig);
     
-      cout<<"orig  particle "<<particle<<endl;
 
       if( ! fst.noEndVertex() ) {
 	const FSimVertex& endVtx = fst.endVertex();
@@ -630,7 +628,6 @@ void PFProducer::produce(Event& iEvent,
 	// 	  <<endVtx.position().x()<<" "
 	// 	  <<endVtx.position().y()<<endl;
 	
-	
 	math::XYZTLorentzVector momEnd;
 	
 	reco::PFTrajectoryPoint 
@@ -639,7 +636,6 @@ void PFProducer::produce(Event& iEvent,
 	
 	particle.addPoint(pointEnd);
       }
-      cout<<"end  particle "<<particle<<endl;
 
 
       if( fst.onLayer1() ) { // PS layer1
@@ -803,7 +799,6 @@ void PFProducer::produce(Event& iEvent,
 
 
     PFBlock::setAllElements( allElements );
-//     int efbcolor = 2;
     vector< PFBlock > allPFBs;
     
     for(PFBlock::IT iele = allElements.begin(); 
@@ -813,16 +808,14 @@ void PFProducer::produce(Event& iEvent,
       
       allPFBs.push_back( PFBlock() );
       allPFBs.back().associate( 0, *iele );
-      
-      //       if( displayJetColors_ ) efbcolor = 1;
-      
+            
       int efbcolor = 1;
       allPFBs.back().finalize(efbcolor, pfReconMethod_); 
-      //     cout<<"new eflowblock----------------------"<<endl;
-      //     cout<<allPFBs.back()<<endl;
-      //       efbcolor++;
     }
 
+
+    ostringstream  str;
+    str<<"Reconstructed particles : "<<endl;
     
     for(unsigned iefb = 0; iefb<allPFBs.size(); iefb++) {
       
@@ -851,9 +844,13 @@ void PFProducer::produce(Event& iEvent,
 	reco::LeafCandidate* candidate 
 	  = new reco::LeafCandidate( charge, mom );
 	pOutputCandidateCollection->push_back( candidate ); 
+
+	str<<recparts[ip]<<endl;
       } 
+
     }
-    
+    LogInfo("PFProducer") << str.str()<<endl;
+
     LogDebug("PFProducer")<<"particle flow done"<<endl;
   }
    
