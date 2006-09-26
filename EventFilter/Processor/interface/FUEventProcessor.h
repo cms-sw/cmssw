@@ -2,7 +2,7 @@
 #include "xdata/include/xdata/String.h"
 #include "xdata/include/xdata/Integer.h"
 #include "xdata/include/xdata/Boolean.h"
-#include "xdata/include/xdata/UnsignedLong.h"
+#include "xdata/include/xdata/UnsignedInteger32.h"
 #include "xgi/include/xgi/Input.h"
 #include "xgi/include/xgi/Output.h"
 #include "xgi/include/xgi/exception/Exception.h"
@@ -60,14 +60,12 @@ namespace evf
       void moduleWeb
 	(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
 
-      bool hasRawInputSource();
-
 	  
-      xdata::String offConfig_;
-      xdata::String seal_plugins_;
-      xdata::Boolean outPut_;
-      xdata::UnsignedLong inputPrescale_;
-      xdata::UnsignedLong outputPrescale_;
+      xdata::String            offConfig_;
+      xdata::String            seal_plugins_;
+      xdata::Boolean           outPut_;
+      xdata::UnsignedInteger32 inputPrescale_;
+      xdata::UnsignedInteger32 outputPrescale_;
       bool outprev_;
 
 

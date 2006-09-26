@@ -215,9 +215,7 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
     
     outprev_=outPut_;
     
-    // PS 14/09/2006
-    if (hasRawInputSource()) proc_->setRunNumber(runNumber_.value_);
-    // END PS
+    proc_->setRunNumber(runNumber_.value_);
 
     ModuleWebRegistry *mwr = 0;
     try{
@@ -263,17 +261,8 @@ void FUEventProcessor::enableAction(toolbox::Event::Reference e) throw (toolbox:
   int sc = 0;
   try
     {
-      // PS 14/09/2006
-      if (hasRawInputSource()) {
-	proc_->runAsync();
-	sc = proc_->statusAsync();
-      }
-      else {
-	proc_->beginJob();
-	proc_->run();
-	proc_->endJob();
-	sc=0;
-      }
+      proc_->runAsync();
+      sc = proc_->statusAsync();
     }
   
   catch(seal::Error& e)
@@ -337,7 +326,7 @@ void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::f
     {
       //      rmt_p->pause();
       sdn_.notify();
-      edm::event_processor::State procstate = proc_->getState();
+      //edm::event_processor::State procstate = proc_->getState();
       while(proc_->getState() != edm::event_processor::sStopping && trycount < 10)
 	{
 	  trycount++;
@@ -346,7 +335,8 @@ void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::f
       trycount = 0;
       if(proc_->getState() == edm::event_processor::sStopping)
 	{
-	  int retval = proc_->shutdownAsync();
+	  /*int retval = */
+	  proc_->shutdownAsync();
 	  while(proc_->getState() != edm::event_processor::sDone && trycount < 10)
 	    {
 	      trycount++;
@@ -732,24 +722,6 @@ void FUEventProcessor::moduleWeb(xgi::Input  *in, xgi::Output *out)
     {
       *out << "EventProcessor just disappeared " << endl;
     }
-}
-
-
-//______________________________________________________________________________
-bool FUEventProcessor::hasRawInputSource()
-{
-  if (0==proc_) return false;
-
-  bool result(true);
-  edm::InputSource& inputSource=proc_->getInputSource();
-  try {
-    edm::RawInputSource& rawSource=
-      dynamic_cast<edm::RawInputSource&>(inputSource);
-  }
-  catch (std::bad_cast) {
-    result=false;
-    }
-  return result;
 }
 
 
