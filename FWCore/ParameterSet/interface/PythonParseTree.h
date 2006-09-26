@@ -33,6 +33,8 @@ public:
 
   void dump(const std::string & dotDelimitedNode) const;
 
+  std::string typeOf(const std::string & dotDelimitedNode) const;
+
   /// only works for EntryNodes inside modules.  Hope to include top-level PSets soon
   std::string value(const std::string & dotDelimitedNode) const;
 
