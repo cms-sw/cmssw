@@ -46,6 +46,9 @@
 //- Geant4
 #include "G4TransportationManager.hh"
 
+//- ROOT
+#include "TMath.h"
+
 //#include <iostream>
 
 using namespace std;
@@ -224,25 +227,36 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
       LogDebug("Geant4e") << "Track PT is too low: " << p3T.mag();
       continue;
     }
-    else
-      LogDebug("Geant4e") << "Track PT is enough: " << p3T.mag();
+    else {
+      LogDebug("Geant4e") << "Track PT is enough.";
+      LogDebug("Geant4e") <<" Track P.: PT=" << p3T.mag()
+			  << "\tTheta=" << p3T.theta()*TMath::RadToDeg()  
+			  << "\tPhi=" << p3T.phi()*TMath::RadToDeg()
+			  << "--> Rad: Theta=" << p3T.theta() 
+			  << ", Phi=" << p3T.phi();
+
+    }
       
 
     //- Get index of generated particle. Used further down
-    uint trkInd = simTracksIt->genpartIndex();
+    //uint trkInd = simTracksIt->genpartIndex();
 
     //- Vertex fixes the starting point
     int vtxInd = simTracksIt->vertIndex();
     GlobalPoint r3T(0.,0.,0.);
     if (vtxInd < 0)
       LogDebug("Geant4e") << "Track with no vertex, defaulting to (0,0,0)";
-    else {
+    else
       //seems to be stored in mm --> convert to cm
       r3T = TrackPropagation::hep3VectorToGlobalPoint((*simVertices)[vtxInd].position().vect()*0.1);
-    }
 
+    LogDebug("Geant4e") << "Init point R=" << r3T.mag()
+			<< "\tTheta=" << r3T.theta()*TMath::RadToDeg() 
+			<< "\tPhi=" << r3T.phi()*TMath::RadToDeg() ;
+    
     //- Charge
     int charge = trkPDG > 0 ? -1 : 1;
+    LogDebug("Geant4e") << "Track charge = " << charge;
 
     //- Initial covariance matrix is unity 10-6
     CurvilinearTrajectoryError covT;
@@ -283,11 +297,30 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 	continue;
       }
       const Surface& surf = layer->surface();
+      //==>DEBUG
+      const BoundPlane& bp = layer->surface();
+      const Bounds& bounds = bp.bounds();
+      LogDebug("Geant4e") << "Surface: length = " << bounds.length() 
+			  << ", thickness = " << bounds.thickness() 
+			  << ", width = " << bounds.width();
+      //<==DEBUG
 
        //+ Discard hits with very low momentum ???
       GlobalVector p3Hit = surf.toGlobal(simHitDTIt->momentumAtEntry());
       if (p3Hit.mag() < 0.5 ) 
 	continue;
+      GlobalPoint posHit = surf.toGlobal(simHitDTIt->localPosition());
+      Point3DBase< float, GlobalTag > surfpos = surf.position();
+      LogDebug("Geant4e") << "Sim Hit position  R=" << posHit.mag()
+			  << "\tTheta=" << posHit.theta()*TMath::RadToDeg() 
+			  << "\tPhi=" << posHit.phi()*TMath::RadToDeg() ;
+      LogDebug("Geant4e") << "Layer position    R=" << surfpos.mag()
+			  << "\tTheta=" << surfpos.theta()*TMath::RadToDeg() 
+			  << "\tPhi=" << surfpos.phi()*TMath::RadToDeg() ;
+      LogDebug("Geant4e") << "Sim Hit Momentum PT=" << p3Hit.mag()
+			  << "\tTheta=" << p3Hit.theta()*TMath::RadToDeg() 
+			  << "\tPhi=" << p3Hit.phi()*TMath::RadToDeg() ;
+      
 
 
       //+ Propagate: Need to explicetely
@@ -295,12 +328,14 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 	thePropagator->propagate(ftsTrack, surf);
 
       //+ Get hit position and extrapolation position to compare
-      GlobalPoint posHit    = surf.toGlobal(simHitDTIt->localPosition());
       GlobalPoint posExtrap = tSOSDest.freeState()->position();
 
-      LogDebug("Geant4") << "Diference between hit and final position: " 
-			 << (posExtrap - posHit).mag() << " cm.";
-
+      LogDebug("Geant4e") << "G4e -- Difference between hit and final position: " 
+			  << (posExtrap - posHit).mag() << " cm.";
+      LogDebug("Geant4e") << "G4e -- Extrapolated position:" << posExtrap 
+			  << " cm\n"
+			  << "G4e -- Hit position: " << posHit 
+			  << " cm";
     } // <-- for over DT sim hits
 
 
