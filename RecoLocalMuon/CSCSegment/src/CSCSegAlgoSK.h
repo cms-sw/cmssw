@@ -21,8 +21,8 @@
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- *  $Date: 2006/05/15 16:21:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/17 14:38:12 $
+ *  $Revision: 1.6 $
  *  \author M. Sani
  */
 
@@ -47,8 +47,10 @@ public:
     // to the IP.
     
     /// Typedefs
-    typedef std::vector<CSCRecHit2D> ChamberHitContainer;
-    typedef std::vector<CSCRecHit2D>::const_iterator ChamberHitContainerCIt;
+    
+    typedef std::vector<int> LayerIndex;
+    typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
+    typedef std::vector<const CSCRecHit2D*>::const_iterator ChamberHitContainerCIt;
 
     // We need to be able to flag a hit as 'used' and so need a container
     // of bool's. Naively, this would be vector<bool>... but AVOID that since it's
@@ -78,9 +80,9 @@ private:
     /// Utility functions 
     // Could be static at the moment, but in principle one
     // might like CSCSegmentizer-specific behaviour?
-    bool areHitsCloseInLocalX(const CSCRecHit2D& h1, const CSCRecHit2D& h2) const;
-    bool areHitsCloseInGlobalPhi(const CSCRecHit2D& h1, const CSCRecHit2D& h2) const;
-    bool isHitNearSegment(const CSCRecHit2D& h) const;
+    bool areHitsCloseInLocalX(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const;
+    bool areHitsCloseInGlobalPhi(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const;
+    bool isHitNearSegment(const CSCRecHit2D* h) const;
 
     /**
      * Dump position and phi of each rechit in chamber after sort in z
@@ -91,7 +93,7 @@ private:
      * Try adding non-used hits to segment
      */
     void tryAddingHitsToSegment(const ChamberHitContainer& rechitsInChamber,
-        BoolContainer used,
+        BoolContainer used, LayerIndex layerIndex,
         const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
 
     /**
@@ -106,7 +108,7 @@ private:
     void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber, BoolContainer& used) const;
 	
     /// Utility functions 	
-    bool addHit(const CSCRecHit2D& hit, int layer);
+    bool addHit(const CSCRecHit2D* hit, int layer);
     void updateParameters(void);
     void fitSlopes(void);
     void fillChiSquared(void);
@@ -117,9 +119,9 @@ private:
     void fillLocalDirection(void);
     float phiAtZ(float z) const;
     bool hasHitOnLayer(int layer) const;
-    bool replaceHit(const CSCRecHit2D& h, int layer);
-    void compareProtoSegment(const CSCRecHit2D& h, int layer);
-    void increaseProtoSegment(const CSCRecHit2D& h, int layer);
+    bool replaceHit(const CSCRecHit2D* h, int layer);
+    void compareProtoSegment(const CSCRecHit2D* h, int layer);
+    void increaseProtoSegment(const CSCRecHit2D* h, int layer);
     HepMatrix derivativeMatrix(void) const;
     AlgebraicSymMatrix weightMatrix(void) const;
     AlgebraicSymMatrix calculateError(void) const;
