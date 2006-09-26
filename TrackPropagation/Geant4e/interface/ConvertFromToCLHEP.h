@@ -5,6 +5,7 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 //CMS
 #include "Geometry/Vector/interface/GlobalPoint.h"
@@ -16,15 +17,19 @@
 
 namespace TrackPropagation {
   /** Convert a CMS GlobalPoint to a CLHEP HepPoint3D
+      CMS uses cm while Geant4 uses mm. This is taken into account in the
+      conversion.
    */
-  static HepPoint3D globalPointToHepPoint3D(const GlobalPoint& p) {
-    return HepPoint3D(p.x(), p.y(), p.z());
+  static HepPoint3D globalPointToHepPoint3D(const GlobalPoint& r) {
+    return HepPoint3D(r.x()*cm, r.y()*cm, r.z()*cm);
   }
 
   /** Convert a CLHEP HepPoint3D to a CMS GlobalPoint 
+      CMS uses cms while Geant4 uses mm. This is taken into account in the
+      conversion.
    */
-  GlobalPoint hepPoint3DToGlobalPoint(const HepPoint3D& p) {
-    return GlobalPoint(p.x(), p.y(), p.z());
+  GlobalPoint hepPoint3DToGlobalPoint(const HepPoint3D& r) {
+    return GlobalPoint(r.x()/cm, r.y()/cm, r.z()/cm);
   }
 
 
@@ -59,15 +64,19 @@ namespace TrackPropagation {
 
 
   /** Convert a CMS GlobalPoint to a CLHEP Hep3Vector
+      CMS uses cm while Geant4 uses mm. This is taken into account in the
+      conversion.
    */
-  Hep3Vector globalPointToHep3Vector(const GlobalPoint& p) {
-    return Hep3Vector(p.x(), p.y(), p.z());
+  Hep3Vector globalPointToHep3Vector(const GlobalPoint& r) {
+    return Hep3Vector(r.x()*cm, r.y()*cm, r.z()*cm);
   }
 
   /** Convert a CLHEP Hep3Vector to a CMS GlobalPoint 
+      CMS uses cm while Geant4 uses mm. This is taken into account in the
+      conversion.
    */
-  GlobalPoint hep3VectorToGlobalPoint(const Hep3Vector& p) {
-    return GlobalPoint(p.x(), p.y(), p.z());
+  GlobalPoint hep3VectorToGlobalPoint(const Hep3Vector& v) {
+    return GlobalPoint(v.x()/cm, v.y()/cm, v.z()/cm);
   }
 
 
