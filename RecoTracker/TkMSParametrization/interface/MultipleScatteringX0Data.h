@@ -5,8 +5,9 @@
  *
  */
 
-#include "TH2F.h"
 #include <string>
+class TFile;
+class TH2F;
 
 
 class SumX0AtEtaDataProvider{ 
@@ -26,8 +27,7 @@ public:
 private:
   std::string fileName();
 
-  //private:
-  //  HistoType * theData;
+   TFile * theFile;
    TH2F  * theData;
 };
 
