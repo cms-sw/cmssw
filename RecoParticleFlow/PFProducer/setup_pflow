@@ -2,4 +2,5 @@
 
 cd ../..
 cvs co -r V01-00-09 Geometry/TrackerRecoData/data/trackerRecoGeometryXML.cfi
+cvs co FastSimulation
 cp -r ~cbern/public/CMSCommonData  Geometry/
