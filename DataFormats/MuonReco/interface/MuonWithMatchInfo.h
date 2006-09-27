@@ -1,12 +1,12 @@
-#ifndef MuonReco_ExtrapolatedMuon_h
-#define MuonReco_ExtrapolatedMuon_h
+#ifndef MuonReco_MuonWithMatchInfo_h
+#define MuonReco_MuonWithMatchInfo_h
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/ExtrapolatedMuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonWithMatchInfoFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-/** \class reco::ExtrapolatedMuon
+/** \class reco::MuonWithMatchInfo
  *  
  * A Muon with particle identification information:
  *  - energy deposition in ECAL, HCAL, HO
@@ -14,16 +14,16 @@
  *
  * \author Dmytro Kovalskyi, UCSB
  *
- * \version $Id: MuonId.h,v 1.1 2006/09/18 12:40:23 dmytro Exp $
+ * \version $Id: MuonWithMatchInfo.h,v 1.1 2006/09/21 07:21:53 llista Exp $
  *
  */
 
 namespace reco {
-   class ExtrapolatedMuon : public Muon {
+   class MuonWithMatchInfo : public Muon {
     public:
-      ExtrapolatedMuon() { }
+      MuonWithMatchInfo() { }
       /// muon constructor
-      ExtrapolatedMuon(  Charge, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
+      MuonWithMatchInfo(  Charge, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
       /// energy deposition
       struct MuonEnergy {
 	 double had;   // energy deposited in HCAL

@@ -8,15 +8,15 @@
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >" />
   <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
   
-  <class name="reco::ExtrapolatedMuon"/>
-  <class name="std::vector<reco::ExtrapolatedMuon>"/>
-  <class name="edm::Wrapper<std::vector<reco::ExtrapolatedMuon> >"/>
-  <class name="edm::Ref<std::vector<reco::ExtrapolatedMuon>,reco::ExtrapolatedMuon,edm::refhelper::FindUsingAdvance<std::vector<reco::ExtrapolatedMuon>,reco::ExtrapolatedMuon> >"/>
-  <class name="edm::RefProd<std::vector<reco::ExtrapolatedMuon> >"/>
-  <class name="edm::RefVector<std::vector<reco::ExtrapolatedMuon>,reco::ExtrapolatedMuon,edm::refhelper::FindUsingAdvance<std::vector<reco::ExtrapolatedMuon>,reco::ExtrapolatedMuon> >"/>
-  <class name="reco::ExtrapolatedMuon::MuonEnergy"/>
-  <class name="reco::ExtrapolatedMuon::MuonMatch"/>
-  <class name="std::vector<reco::ExtrapolatedMuon::MuonMatch>"/>
+  <class name="reco::MuonWithMatchInfo"/>
+  <class name="std::vector<reco::MuonWithMatchInfo>"/>
+  <class name="edm::Wrapper<std::vector<reco::MuonWithMatchInfo> >"/>
+  <class name="edm::Ref<std::vector<reco::MuonWithMatchInfo>,reco::MuonWithMatchInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonWithMatchInfo>,reco::MuonWithMatchInfo> >"/>
+  <class name="edm::RefProd<std::vector<reco::MuonWithMatchInfo> >"/>
+  <class name="edm::RefVector<std::vector<reco::MuonWithMatchInfo>,reco::MuonWithMatchInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonWithMatchInfo>,reco::MuonWithMatchInfo> >"/>
+  <class name="reco::MuonWithMatchInfo::MuonEnergy"/>
+  <class name="reco::MuonWithMatchInfo::MuonMatch"/>
+  <class name="std::vector<reco::MuonWithMatchInfo::MuonMatch>"/>
 
   <class name="std::multimap<double,double>"/>
   <class name="std::map<unsigned int, bool>"/>
