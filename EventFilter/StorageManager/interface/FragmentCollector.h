@@ -21,7 +21,8 @@
 #include "EventFilter/StorageManager/interface/EventServer.h"
 // for hack
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/StreamerOutputService.h"
+#include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
+
 #include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "boost/shared_ptr.hpp"
@@ -48,7 +49,8 @@ namespace stor
     typedef std::map<edm::EventNumber_t, Fragments> Collection;
 
     FragmentCollector(const HLTInfo& h, Deleter d,
-		      const edm::ProductRegistry& p);
+		      const edm::ProductRegistry& p,
+                      const string& config_str="");
     ~FragmentCollector();
 
     void start();
@@ -89,8 +91,8 @@ namespace stor
                          maxFileSize_ = maxFileSize;
                          highWaterMark_ = highWaterMark;
                          path_ = path; mpath_ = mpath; }
-    std::list<std::string> get_filelist() { return writer_->get_filelist(); }
-    std::string get_currfile() { return writer_->get_currfile(); }
+    std::list<std::string>& get_filelist() { return writer_->get_filelist();  }
+    std::list<std::string>& get_currfiles() { return writer_->get_currfiles(); }
   private:
     uint32 hlt_bit_cnt_;
     uint32 l1_bit_cnt_;
@@ -101,8 +103,7 @@ namespace stor
     std::string path_;
     std::string mpath_;
     //ofstream ost_;
-    std::auto_ptr<edm::StreamerOutputService> writer_;
-
+    std::auto_ptr<edm::StreamerOutSrvcManager> writer_;
 
   // added for Event Server by HWKC so SM can get events from ring buffer
   public:

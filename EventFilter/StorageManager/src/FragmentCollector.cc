@@ -27,7 +27,8 @@ namespace stor
 {
 
   FragmentCollector::FragmentCollector(const HLTInfo& h,Deleter d,
-				       const ProductRegistry& p):
+				       const ProductRegistry& p,
+                                       const string& config_str):
     cmd_q_(&(h.getCommandQueue())),
     evtbuf_q_(&(h.getEventQueue())),
     frag_q_(&(h.getFragmentQueue())),
@@ -37,7 +38,7 @@ namespace stor
     prods_(&p),
 	info_(&h), 
     maxFileSize_(1073741824), highWaterMark_(0.9),
-    writer_(new edm::StreamerOutputService()),
+    writer_(new edm::StreamerOutSrvcManager(config_str)),
     evtsrv_area_(10),
     oneinN_(10), count_4_oneinN_(0) // added for Event Server by HWKC
   {
@@ -155,7 +156,8 @@ namespace stor
     */
     // note that file is not closed until the writers inside
     // writer_ is destroyed
-    if(streamerOnly_ && writer_->get_currfile()!="") writer_->stop();
+    if(streamerOnly_)  writer_->stop();
+    //if(streamerOnly_ && writer_->get_currfile()!="") writer_->stop();
     
   }
 
@@ -207,7 +209,7 @@ namespace stor
 //    writer_.write(emsg);
           FR_DEBUG << "FragColl: writing event size " << entry->buffer_size_ << endl;
           //ost_.write((const char*)entry->buffer_address_, entry->buffer_size_);
-          writer_->writeEvent(emsg, hlt_bit_cnt_);
+          writer_->manageEventMsg(emsg);
       }
 
 //HEREHERE to here
@@ -304,7 +306,7 @@ namespace stor
 //    writer_.write(emsg);
           FR_DEBUG << "FragColl: writing event size " << sum << endl;
           //ost_.write((const char*)&event_area_[0], sum);
-          writer_->writeEvent(emsg, hlt_bit_cnt_);
+          writer_->manageEventMsg(emsg);
       }
 
 //HEREHERE to here
@@ -355,6 +357,6 @@ namespace stor
     //ost_.write((const char*)entry->buffer_address_, entry->buffer_size_);
     //dumpInitHeader(&msg);
     // should be passing smConfigSTring to writer_ at construction
-    writer_->init(filen_, maxFileSize_, highWaterMark_, path_, mpath_, msg);
+    writer_->manageInitMsg(filen_, maxFileSize_, highWaterMark_, path_, mpath_, msg);
   }
 }
