@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/09/22 21:29:48 $
- *  $Revision: 1.45 $
+ *  $Date: 2006/09/25 18:57:04 $
+ *  $Revision: 1.46 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -47,7 +47,7 @@
 #include "TrackingTools/TrackFitters/interface/RecHitLessByDet.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -240,10 +240,10 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   // define tracker region of interest
   const math::XYZVector& mo = staTrack->innerMomentum();
   GlobalVector mom(mo.x(),mo.y(),mo.z()); 
+
+  if ( staTrack->p() > 1.0 ) 
+    mom = GlobalVector(staTrack->px(),staTrack->py(),staTrack->pz());
    
-  reco::TransientTrack staTT(staTrack,&*theService->magneticField(),theService->trackingGeometry() );
-  TrajectoryStateOnSurface traj_vertex = staTT.impactPointState();
-  if ( traj_vertex.isValid() ) mom = traj_vertex.globalMomentum();
   float eta1   = mom.eta();
   float phi1   = mom.phi();
   float theta1 = mom.theta();
