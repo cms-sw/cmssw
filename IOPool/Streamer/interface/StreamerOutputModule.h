@@ -28,6 +28,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "DataFormats/Common/interface/ParameterSetID.h"
+
+#include "FWCore/Utilities/interface/Digest.h"
 
 #include "TBuffer.h"
 
@@ -188,6 +192,7 @@ void StreamerOutputModule<Consumer>::write(EventPrincipal const& e)
                               // in StreamerOutputModule after this point
   }
 
+
 template <class Consumer>
 std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry()
   {
@@ -195,16 +200,19 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     //Following values are strictly DUMMY and will be replaced
     // once available with Utility function etc.
     uint32 run = 1;
+    
+    //Get the Process PSet ID  
+    edm::pset::Registry* reg = edm::pset::Registry::instance();
+    edm::ParameterSetID toplevel = edm::pset::getProcessParameterSetID(reg);
 
-  /** FWCore/ParameterSet/Registry.h
-  edm::pset::Registry* reg = edm::pset::Registry::instance();
-  edm::ParameterSetID toplevel =
-  edm::ParameterSetID psetid = edm::pset::getProcessParameterSetID(reg); **/
-
-    char psetid[] = "1234567890123456";
+    //In case we need to print it 
+    //  cms::Digest dig(toplevel.compactForm());
+    //  cms::MD5Result r1 = dig.digest();
+    //  std::string hexy = r1.toString();
+    //  cout <<"HEX Representation of Process PSetID: "<<hexy<<endl;  
 
     //Setting protocol version III
-    Version v(3,(const uint8*)psetid);
+    Version v(3,(uint8*)toplevel.compactForm().c_str());
 
     Strings hlt_names = edm::getAllTriggerNames();
     hltsize_ = hlt_names.size();
@@ -254,7 +262,6 @@ void StreamerOutputModule<Consumer>::setHltMask(EventPrincipal const& e)
     
     //Pack into member hltbits_
     packIntoString(vHltState, hltbits_);
-
 
     //This is Just a printing code.
     //cout <<"Size of hltbits:"<<hltbits_.size()<<endl;
