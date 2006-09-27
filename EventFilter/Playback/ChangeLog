@@ -1,6 +1,14 @@
+2006-09-27  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-00-02
+	* add test/playback.cfg: this is an example configuration to be
+	passed to the FUEventProcessor which is running in the executive
+	of the AutoBU to serve the events from storage (file name needs to
+	be adjusted)
+
 2006-09-26  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
-	* tag v00-00-01
+	* tag V00-00-01
 	* first import to cvs
 	* PlaybackRawDataProvider is an EDAnalyzer to be run in a
 	FUEventProcessor (see EventFilter/Processor). It will read the
