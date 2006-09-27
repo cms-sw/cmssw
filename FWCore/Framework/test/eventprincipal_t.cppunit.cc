@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.25 2006/07/06 19:11:44 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.26 2006/09/27 14:54:14 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 #include <memory>
@@ -67,10 +67,14 @@ class testeventprincipal: public CppUnit::TestFixture
   void getProvenanceTest();
   void getAllProvenanceTest();
 
+ private:
+
   template <class PRODUCT_TYPE>
   void put_a_product(std::string const& processName,
-		     std::string const& label);
- private:
+		     std::string const& moduleLabel,
+		     std::string const& productInstanceName = std::string() );
+
+
   edm::ProcessConfiguration* pConfig_;  
   edm::ProductRegistry*      pProductRegistry_;
   edm::EventPrincipal*       pEvent_;
@@ -106,6 +110,39 @@ void testeventprincipal::tearDown()
   delete pConfig_;
   pConfig_          = 0;
 }
+
+template <class PRODUCT_TYPE>
+void testeventprincipal::put_a_product(std::string const& processName,
+				       std::string const& moduleLabel,
+				       std::string const& productInstanceName)
+{
+  typedef edm::Wrapper<PRODUCT_TYPE> WDP;
+  std::auto_ptr<edm::EDProduct>  product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
+  std::auto_ptr<edm::Provenance> provenance(new edm::Provenance);
+
+  PRODUCT_TYPE dummyProduct;
+  edm::TypeID dummytype(dummyProduct);
+  std::string className = dummytype.friendlyClassName();
+
+  provenance->product.fullClassName_       = dummytype.userClassName();
+  provenance->product.friendlyClassName_   = className;
+  provenance->product.moduleLabel_         = moduleLabel;
+  provenance->product.processName_         = processName;
+  provenance->product.productInstanceName_ = productInstanceName;
+  provenance->product.init();
+
+  pProductRegistry_->addProduct(provenance->product);
+  pProductRegistry_->setProductIDs();
+  edm::EventID col(1L);
+  edm::Timestamp fakeTime;
+  edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
+  pEvent_->addToProcessHistory(*pConfig_);
+  pEvent_->put(product, provenance);
+}
+
+//----------------------------------------------------------------------
+// Test functions
+//----------------------------------------------------------------------
 
 void testeventprincipal::failgetbyIdTest() 
 {
@@ -163,31 +200,9 @@ void testeventprincipal::failgetManybyTypeTest()
 
 void testeventprincipal::failgetbyInvalidIdTest() 
 {
-  typedef edmtest::DummyProduct DP;
-  typedef edm::Wrapper<DP> WDP;
-  std::auto_ptr<DP> pr(new DP);
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
-  std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
-  std::string label("fred");
-  std::string processName = "PROD";
-  
-  edmtest::DummyProduct dp;
-  edm::TypeID dummytype(dp);
-  std::string className = dummytype.friendlyClassName();
-  pprov->product.fullClassName_ = dummytype.userClassName();
-  pprov->product.friendlyClassName_ = className;
-  pprov->product.moduleLabel_ = label;
-  pprov->product.processName_ = processName;
-  pprov->product.init();
-
-  pProductRegistry_->addProduct(pprov->product);
-  pProductRegistry_->setProductIDs();
-//   edm::EventID col(1L);
-//   edm::Timestamp fakeTime;
-//   edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
-  pEvent_->addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
-
-  pEvent_->put(pprod, pprov);
+   std::string processName = "PROD";
+   std::string label("fred");
+   put_a_product<edmtest::DummyProduct>(processName, label);
 
   edm::ProductID id;
 
@@ -208,35 +223,9 @@ void testeventprincipal::failgetProvenanceTest()
 void testeventprincipal::getbyIdTest() 
 {
   std::string processName = "PROD";
-
-  typedef edmtest::DummyProduct DP;
-  typedef edm::Wrapper<DP> WDP;
-  std::auto_ptr<DP> pr(new DP);
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
-  std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
-  std::string label("fred");
-
-  edmtest::DummyProduct dp;
-  edm::TypeID dummytype(dp);
-  std::string className = dummytype.friendlyClassName();
-
-  pprov->product.fullClassName_ = dummytype.userClassName();
-  pprov->product.friendlyClassName_ = className;
-  pprov->product.moduleLabel_ = label;
-  pprov->product.processName_ = processName;
-  pprov->product.init();
-
-  pProductRegistry_->addProduct(pprov->product);
-  pProductRegistry_->setProductIDs();
-  edm::EventID col(1L);
-  edm::Timestamp fakeTime;
-  edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
-  pEvent_->addToProcessHistory(*pConfig_);
-
-  pEvent_->put(pprod, pprov);
-
+  std::string label("modulename");
+  put_a_product<edmtest::DummyProduct>(processName, label);
   edm::ProductID id(1);
-  
   handle h = pEvent_->get(id);
   CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(h.id() == id);
@@ -245,37 +234,9 @@ void testeventprincipal::getbyIdTest()
 void testeventprincipal::getbyLabelTest() 
 {
   std::string processName = "PROD";
-
-  typedef edmtest::DummyProduct DP;
-  typedef edm::Wrapper<DP> WDP;
-  std::auto_ptr<DP> pr(new DP);
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
-  std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
   std::string label("fred");
   std::string productInstanceName("Rick");
-
-  edmtest::DummyProduct dp;
-  edm::TypeID dummytype(dp);
-  std::string className = dummytype.friendlyClassName();
-
-  pprov->product.fullClassName_ = dummytype.userClassName();
-  pprov->product.friendlyClassName_ = className;
-
-
-  pprov->product.moduleLabel_ = label;
-  pprov->product.productInstanceName_ = productInstanceName;
-  pprov->product.processName_ = processName;
-  pprov->product.init();
-
-
-  pProductRegistry_->addProduct(pprov->product);
-  pProductRegistry_->setProductIDs();
-  edm::EventID col(1L);
-  edm::Timestamp fakeTime;
-  edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
-  pEvent_->addToProcessHistory(*pConfig_);
-
-  pEvent_->put(pprod, pprov);
+  put_a_product<edmtest::DummyProduct>(processName, label, productInstanceName);
   
   edmtest::DummyProduct example;
   edm::TypeID tid(example);
@@ -283,34 +244,6 @@ void testeventprincipal::getbyLabelTest()
   handle h = pEvent_->getByLabel(tid, label, productInstanceName);
   CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(h.provenance()->moduleLabel() == label);
-}
-
-template <class PRODUCT_TYPE>
-void testeventprincipal::put_a_product(std::string const& processName,
-				       std::string const& label)
-{
-  typedef edm::Wrapper<PRODUCT_TYPE> WDP;
-  std::auto_ptr<edm::EDProduct>  product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
-  std::auto_ptr<edm::Provenance> provenance(new edm::Provenance);
-
-  PRODUCT_TYPE dummyProduct;
-  edm::TypeID dummytype(dummyProduct);
-  std::string className = dummytype.friendlyClassName();
-
-  provenance->product.fullClassName_     = dummytype.userClassName();
-  provenance->product.friendlyClassName_ = className;
-
-  provenance->product.moduleLabel_ = label;
-  provenance->product.processName_ = processName;
-  provenance->product.init();
-
-  pProductRegistry_->addProduct(provenance->product);
-  pProductRegistry_->setProductIDs();
-  edm::EventID col(1L);
-  edm::Timestamp fakeTime;
-  edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
-  pEvent_->addToProcessHistory(*pConfig_);
-  pEvent_->put(product, provenance);
 }
 
 void testeventprincipal::getbySelectorTest() 
@@ -351,43 +284,17 @@ void testeventprincipal::processNameSelectorTest()
 void testeventprincipal::getbyTypeTest() 
 {
   std::string processName = "PROD";
-
-  typedef edmtest::DummyProduct DP;
-  typedef edm::Wrapper<DP> WDP;
-  std::auto_ptr<DP> pr(new DP);
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
-  std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
-  std::string label("fred");
+  std::string moduleLabel("fred");
   std::string productInstanceName("Rick");
-
-  edmtest::DummyProduct dp;
-  edm::TypeID dummytype(dp);
-  std::string className = dummytype.friendlyClassName();
-
-  pprov->product.fullClassName_ = dummytype.userClassName();
-  pprov->product.friendlyClassName_ = className;
-
-
-  pprov->product.moduleLabel_ = label;
-  pprov->product.productInstanceName_ = productInstanceName;
-  pprov->product.processName_ = processName;
-  pprov->product.init();
-
-  pProductRegistry_->addProduct(pprov->product);
-  pProductRegistry_->setProductIDs();
-  edm::EventID col(1L);
-  edm::Timestamp fakeTime;
-  edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
-  pEvent_->addToProcessHistory(*pConfig_);
-
-  pEvent_->put(pprod, pprov);
+  put_a_product<edmtest::DummyProduct>(processName, moduleLabel, productInstanceName);
   
   edmtest::DummyProduct example;
   edm::TypeID tid(example);
   
   handle h = pEvent_->getByType(tid);
   CPPUNIT_ASSERT(h.isValid());
-  CPPUNIT_ASSERT(h.provenance()->moduleLabel() == label);
+  CPPUNIT_ASSERT(h.provenance()->moduleLabel() == moduleLabel);
+  CPPUNIT_ASSERT(h.provenance()->productInstanceName() == productInstanceName);
 }
 
 void testeventprincipal::getProvenanceTest() 
