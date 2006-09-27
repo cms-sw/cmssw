@@ -70,12 +70,19 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
 	tmpVec.insert( tmpVec.end(), tmp.begin(), end);
       }
     }
-    // sort the final result
-    if ( static_cast<int>(tmpVec.size()) > 1) {
-      sort( tmpVec.begin(), tmpVec.end(), TrajMeasLessEstim());
+
+    vector<TrajectoryMeasurement> tmpVec2;
+    for(vector<TrajectoryMeasurement>::const_iterator tmpIt=tmpVec.begin();tmpIt!=tmpVec.end();tmpIt++){
+      tmpVec2.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&layer)  );
     }
-    addInvalidMeas( tmpVec, *grp,layer); 
-    result.push_back( TrajectoryMeasurementGroup( tmpVec, *grp));
+
+
+    // sort the final result
+    if ( static_cast<int>(tmpVec2.size()) > 1) {
+      sort( tmpVec2.begin(), tmpVec2.end(), TrajMeasLessEstim());
+    }
+    addInvalidMeas( tmpVec2, *grp,layer); 
+    result.push_back( TrajectoryMeasurementGroup( tmpVec2, *grp));
   }
 
   // if the result is empty check if the layer is compatible (for invalid measurement)
