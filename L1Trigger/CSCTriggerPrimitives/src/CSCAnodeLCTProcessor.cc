@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/09/12 08:53:21 $
-//   $Revision: 1.5 $
+//   $Date: 2006/09/22 09:19:11 $
+//   $Revision: 1.6 $
 //
 //   Modifications: 
 //
@@ -140,14 +140,16 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
 					   const edm::ParameterSet& conf) : 
 		     theEndcap(endcap), theStation(station), theSector(sector),
                      theSubsector(subsector), theTrigChamber(chamber) {
-  // ALCT parameters.
+  static bool config_dumped = false;
+
+  // ALCT configuration parameters.
+  bx_width     = conf.getParameter<int>("alctBxWidth");     // def = 6
   nph_thresh   = conf.getParameter<int>("alctNphThresh");   // def = 2
   nph_pattern  = conf.getParameter<int>("alctNphPattern");  // def = 4
   drift_delay  = conf.getParameter<int>("alctDriftDelay");  // def = 3
   fifo_pretrig = conf.getParameter<int>("alctFifoPretrig"); // def = 12
   trig_mode    = conf.getParameter<int>("alctTrigMode"); // def = 3 (2 for TB)
   alct_amode   = conf.getParameter<int>("alctMode");        // def = 1
-  bx_width     = conf.getParameter<int>("alctBxWidth");     // def = 6
 
   // Currently used only in the test-beam mode.
   fifo_tbins   = conf.getParameter<int>("alctFifoTbins");   // def = 8
@@ -155,6 +157,12 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
 
   // Verbosity level, set to 0 (no print) by default.
   infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
+
+  // Print configuration parameters.
+  if (infoV > 0 && !config_dumped) {
+    dumpConfigParams();
+    config_dumped = true;
+  }
 
   numWireGroups = 0;
   MESelection   = (theStation < 3) ? 0 : 1;
@@ -164,18 +172,27 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
   		     theEndcap(1), theStation(1), theSector(1),
 		     theSubsector(1), theTrigChamber(1) {
   // Used for debugging. -JM
-  // ALCT parameters.
+  static bool config_dumped = false;
+
+  // ALCT configuration parameters.
+  bx_width     =  6;
   nph_thresh   =  2;
   nph_pattern  =  4;
   drift_delay  =  3;
   fifo_pretrig = 12;
   trig_mode    =  3;
   alct_amode   =  1;
-  bx_width     =  6;
   fifo_tbins   =  8; // test-beam only.
   l1a_window   =  5; // test-beam only.
 
-  infoV         = 2;
+  infoV        = 2;
+
+  // Print configuration parameters.
+  if (!config_dumped) {
+    dumpConfigParams();
+    config_dumped = true;
+  }
+
   numWireGroups = CSCConstants::MAX_NUM_WIRES;
   MESelection   = (theStation < 3) ? 0 : 1;
 }
@@ -804,6 +821,35 @@ void CSCAnodeLCTProcessor::alctAmode(const int key_wire) {
     }
     break;
   }
+}
+
+// Dump of configuration parameters.
+void CSCAnodeLCTProcessor::dumpConfigParams() const {
+  std::ostringstream strm;
+  strm << "\n";
+  strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+  strm << "+                  ALCT configuration parameters:                  +\n";
+  strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+  strm << " bx_width     [duration of signal pulse, in 25 ns bins] = "
+       << bx_width << "\n";
+  strm << " nph_thresh   [min. number of layers hit for pre-trigger] = "
+       << nph_thresh << "\n";
+  strm << " nph_pattern  [min. number of layers hit for trigger] = "
+       << nph_pattern << "\n";
+  strm << " drift_delay  [drift delay after pre-trigger, in 25 ns bins] = "
+       << drift_delay << "\n";
+  strm << " fifo_pretrig [start time of anode raw hits in DAQ readout] = "
+       << fifo_pretrig << "\n";
+  strm << " trig_mode    [enabling/disabling collision/accelerator tracks] = "
+       << trig_mode << "\n";
+  strm << " alct_amode   [preference to collision/accelerator tracks] = "
+       << alct_amode << "\n";
+  strm << " fifo_tbins   [total number of time bins in DAQ readout] = "
+       << fifo_tbins << "\n";
+  strm << " l1a_window   [L1Accept window, in 25 ns bins] = "
+       << l1a_window << "\n";
+  strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+  LogDebug("CSCAnodeLCTProcessor") << strm.str();
 }
 
 // Dump of digis on wire groups.
