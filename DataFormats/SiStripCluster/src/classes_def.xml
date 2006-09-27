@@ -1,4 +1,8 @@
 <lcgdict>
+
+  <class name="SiStripClusterInfo"/>
+  <class name="std::vector<SiStripClusterInfo>"/>
+
   <class name="SiStripCluster"/>
   <class name="std::vector<short>"/>
   <class name="std::vector<SiStripCluster>"/>
@@ -16,4 +20,14 @@
 
   <class name="std::map<unsigned int, std::vector<SiStripCluster> >"/>
   <class name="edm::Wrapper<std::map<unsigned int, std::vector<SiStripCluster> > >"/>
+
+  <class name="edm::DetSet<SiStripClusterInfo>"/>
+  <class name="edm::DetSetVector<SiStripClusterInfo>"/>
+  <class name="std::vector<edm::DetSet<SiStripClusterInfo> >"/>
+  <class name="edm::Wrapper< edm::DetSet<SiStripClusterInfo> >"/>
+  <class name="edm::Wrapper< std::vector<edm::DetSet<SiStripClusterInfo> > >"/>
+  <class name="edm::Wrapper< edm::DetSetVector<SiStripClusterInfo> >"/>
+
+  <class name="std::map<unsigned int, std::vector<SiStripClusterInfo> >"/>
+  <class name="edm::Wrapper<std::map<unsigned int, std::vector<SiStripClusterInfo> > >"/>
 </lcgdict>
