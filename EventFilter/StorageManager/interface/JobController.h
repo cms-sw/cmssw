@@ -70,8 +70,8 @@ namespace stor
     void set_outfile(std::string outfilestart, unsigned long maxFileSize,
            double highWaterMark, std::string path, std::string mpath) 
            { collector_->set_outfile(outfilestart,maxFileSize,highWaterMark,path,mpath);}
-    std::list<std::string> get_filelist() { return collector_->get_filelist(); }
-    std::string get_currfile() { return collector_->get_currfile(); }
+    std::list<std::string>& get_filelist() { return collector_->get_filelist(); }
+    std::list<std::string>& get_currfiles() { return collector_->get_currfiles(); }
 
   private:
     void init(const std::string& my_config,FragmentCollector::Deleter);
