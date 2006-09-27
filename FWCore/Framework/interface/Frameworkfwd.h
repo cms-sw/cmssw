@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.24.2.3 2006/07/05 03:05:28 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.25 2006/07/06 19:11:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,6 +46,7 @@ namespace edm {
   class Schedule;
   class Selector;
   class TypeID;
+  class UnsheduledHandler;
   class VectorInputSource;
 
   struct EventSummary;
