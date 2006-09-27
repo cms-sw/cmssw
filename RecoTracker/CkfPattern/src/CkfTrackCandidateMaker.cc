@@ -20,7 +20,7 @@
 #include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMaker.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 
 using namespace edm;
@@ -28,8 +28,9 @@ using namespace std;
 
 namespace cms{
   CkfTrackCandidateMaker::CkfTrackCandidateMaker(edm::ParameterSet const& conf) : 
-    conf_(conf),theCkfTrajectoryBuilder(0),theTrajectoryCleaner(0),
-    theInitialState(0),theMeasurementTracker(0),theNavigationSchool(0)
+
+    conf_(conf),theTrajectoryBuilder(0),theTrajectoryCleaner(0),
+    theInitialState(0),theNavigationSchool(0)
   {  
     produces<TrackCandidateCollection>();  
   }
@@ -37,10 +38,8 @@ namespace cms{
   
   // Virtual destructor needed.
   CkfTrackCandidateMaker::~CkfTrackCandidateMaker() {
-    delete theInitialState;
-    delete theMeasurementTracker;
+    delete theInitialState;  
     delete theNavigationSchool;
-    delete theCkfTrajectoryBuilder;
     delete theTrajectoryCleaner;    
   }  
 
@@ -53,26 +52,24 @@ namespace cms{
     // get nested parameter set for the TransientInitialStateEstimator
     ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
     theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-    
-    // get nested parameter set for the MeasurementTracker
-    ParameterSet mt_params = conf_.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
-    theMeasurementTracker = new MeasurementTracker(es, mt_params);
+    theNavigationSchool      = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
+    theTrajectoryCleaner     = new TrajectoryCleanerBySharedHits();          
 
-    theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
-      
     // set the correct navigation
     NavigationSetter setter( *theNavigationSchool);
 
-    theCkfTrajectoryBuilder = new CkfTrajectoryBuilder(conf_,es,theMeasurementTracker);
-    theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
+    // set the TrajectoryBuilder
+    std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
+    edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
+    es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
+    theTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
   }
   
   // Functions that gets called by framework every event
   void CkfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
   {        
-    // Step A: update MeasurementTracker
-    theMeasurementTracker->update(e);
-        
+    // Step A: set Event for the TrajectoryBuilder
+    theTrajectoryBuilder->setEvent(e);        
     
     // Step B: Retrieve seeds
     
@@ -94,11 +91,11 @@ namespace cms{
       vector<Trajectory> rawResult;
       for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
 	vector<Trajectory> theTmpTrajectories;
-	theTmpTrajectories = theCkfTrajectoryBuilder->trajectories(*iseed);
+	theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);
 	
        
-	LogDebug("CkfPattern") << "CkfTrajectoryBuilder returned " << theTmpTrajectories.size()
-			       << " trajectories for this seed";
+	LogDebug("CkfPattern") << "======== CkfTrajectoryBuilder returned " << theTmpTrajectories.size()
+			       << " trajectories for this seed ========";
 
 	theTrajectoryCleaner->clean(theTmpTrajectories);
       

@@ -4,18 +4,18 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+//#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+//#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+
+//#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+//#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+//#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
@@ -26,12 +26,19 @@
 using namespace std;
 
 CkfTrajectoryBuilder::
-CkfTrajectoryBuilder(const edm::ParameterSet& conf,
-		     const edm::EventSetup& es,
-		     const MeasurementTracker* theInputMeasurementTracker):
-  theMeasurementTracker(theInputMeasurementTracker),
-  theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
-  theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut")))
+  CkfTrajectoryBuilder(const edm::ParameterSet&              conf,
+		       const TrajectoryStateUpdator*         updator,
+		       const Propagator*                     propagatorAlong,
+		       const Propagator*                     propagatorOpposite,
+		       const Chi2MeasurementEstimatorBase*   estimator,
+		       const TransientTrackingRecHitBuilder* RecHitBuilder,
+		       const MeasurementTracker*             measurementTracker):
+
+    theUpdator(updator),thePropagatorAlong(propagatorAlong),
+    thePropagatorOpposite(propagatorOpposite),theEstimator(estimator),
+    theTTRHBuilder(RecHitBuilder),theMeasurementTracker(measurementTracker),
+    theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
+    theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut")))
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
   theMaxLostHit           = conf.getParameter<int>("maxLostHit");
@@ -40,29 +47,6 @@ CkfTrajectoryBuilder(const edm::ParameterSet& conf,
   theIntermediateCleaning = conf.getParameter<bool>("intermediateCleaning");
   theMinimumNumberOfHits  = conf.getParameter<int>("minimumNumberOfHits");
   theAlwaysUseInvalidHits = conf.getParameter<bool>("alwaysUseInvalidHits");
-
-  //trackingtools
-  std::string propagatorAlongName    = conf.getParameter<std::string>("propagatorAlong");   
-  std::string propagatorOppositeName = conf.getParameter<std::string>("propagatorOpposite");   
-  std::string updatorName            = conf.getParameter<std::string>("updator");   
-  std::string estimatorName          = conf.getParameter<std::string>("estimator");   
-
-  es.get<TrackingComponentsRecord>().get(updatorName,theUpdator);
-  es.get<TrackingComponentsRecord>().get(propagatorAlongName,thePropagator);
-  es.get<TrackingComponentsRecord>().get(propagatorOppositeName,thePropagatorOpposite);
-  es.get<TrackingComponentsRecord>().get(estimatorName,theEstimator);  
-
-  
-  //
-  // get the transient builder
-  //
-  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  std::string builderName = conf.getParameter<std::string>("TTRHBuilder");   
-  es.get<TransientRecHitRecord>().get(builderName,theBuilder);
-  
-  TTRHbuilder = theBuilder.product();
-  
-
 }
 
 CkfTrajectoryBuilder::~CkfTrajectoryBuilder()
@@ -71,9 +55,13 @@ CkfTrajectoryBuilder::~CkfTrajectoryBuilder()
   delete theMinPtCondition;
 }
 
+void CkfTrajectoryBuilder::setEvent(const edm::Event& event) const
+{
+  theMeasurementTracker->update(event);
+}
 
 CkfTrajectoryBuilder::TrajectoryContainer 
-CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed)
+CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const
 {  
   TrajectoryContainer result;
 
@@ -107,7 +95,7 @@ createStartingTrajectory( const TrajectorySeed& seed) const
 
 void CkfTrajectoryBuilder::
 limitedCandidates( Trajectory& startingTraj, 
-		   TrajectoryContainer& result)
+		   TrajectoryContainer& result) const
 {
   TrajectoryContainer candidates = TrajectoryContainer();
   TrajectoryContainer newCand = TrajectoryContainer();
@@ -179,7 +167,8 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   TrajectorySeed::range hitRange = seed.recHits();
   for (TrajectorySeed::const_iterator ihit = hitRange.first; 
        ihit != hitRange.second; ihit++) {
-    TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(&(*ihit));
+    //RC TransientTrackingRecHit* recHit = TTRHbuilder->build(&(*ihit));
+    TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&(*ihit));
     const GeomDet* hitGeomDet = 
       theMeasurementTracker->geomTracker()->idToDet( ihit->geographicalId());
 
@@ -197,14 +186,14 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       }
 
       TSOS updatedState = tsTransform.transientState( pState, &(gdet->surface()), 
-						      thePropagator->magneticField());
+						      thePropagatorAlong->magneticField());
       result.push_back(TM( invalidState, updatedState, recHit, 0, hitLayer));
     }
     else {
       //----------- just a test to make the Smoother to work -----------
       PTrajectoryStateOnDet pState( seed.startingState());
       TSOS outerState = tsTransform.transientState( pState, &(hitGeomDet->surface()), 
-						    thePropagator->magneticField());
+						    thePropagatorAlong->magneticField());
       TSOS innerState   = thePropagatorOpposite->propagate(outerState,hitGeomDet->surface());
       TSOS innerUpdated = theUpdator->update(innerState,*recHit);
 
@@ -217,7 +206,7 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   return result;
 }
 
- bool CkfTrajectoryBuilder::qualityFilter( const Trajectory& traj)
+ bool CkfTrajectoryBuilder::qualityFilter( const Trajectory& traj) const
 {
 
 //    cout << "qualityFilter called for trajectory with " 
@@ -234,7 +223,7 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
 
 
 void CkfTrajectoryBuilder::addToResult( Trajectory& traj, 
-					TrajectoryContainer& result)
+					TrajectoryContainer& result) const
 {
   // discard latest dummy measurements
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
@@ -245,6 +234,7 @@ void CkfTrajectoryBuilder::updateTrajectory( Trajectory& traj,
 					     const TM& tm) const
 {
   TSOS predictedState = tm.predictedState();
+  //RC const TransientTrackingRecHit* hit = tm.recHit();
   TM::ConstRecHitPointer hit = tm.recHit();
  
   if ( hit->isValid()) {
@@ -257,7 +247,7 @@ void CkfTrajectoryBuilder::updateTrajectory( Trajectory& traj,
   }
 }
 
-bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj)
+bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj) const
 {
   if ( traj.lostHits() > theMaxLostHit) return false;
 
@@ -288,8 +278,10 @@ bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj)
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 
 std::vector<TrajectoryMeasurement> 
-CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj)
+CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj) const
 {
+  TrajectoryStateOnSurface testState = traj.lastMeasurement().forwardPredictedState();
+
   vector<TM> result;
   int invalidHits = 0;
 
@@ -303,7 +295,7 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj)
   for (vector<const DetLayer*>::iterator il = nl.begin(); 
        il != nl.end(); il++) {
     vector<TM> tmp = 
-      theLayerMeasurements->measurements((**il),currentState, *thePropagator, *theEstimator);
+      theLayerMeasurements->measurements((**il),currentState, *thePropagatorAlong, *theEstimator);
 
     //(**il).measurements( currentState, *thePropagator, *theEstimator);
     if ( !tmp.empty()) {
