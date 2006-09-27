@@ -61,7 +61,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
 
-  std::cout << " New Event " << std::endl;
+
 
 
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
@@ -93,7 +93,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     outputPhotonCollection.push_back(newCandidate);
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, lSC));
     outputPhotonCollection[iSC].setSuperCluster(scRef);
-    std::cout << " Barrel iSC " << iSC << " photon energy " << newCandidate.energy() << std::endl;
+
 
     lSC++;
     iSC++;
@@ -114,7 +114,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     outputPhotonCollection.push_back(newCandidate);
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, lSC));
     outputPhotonCollection[iSC].setSuperCluster(scRef);
-    std::cout << " Endcap iSC " << iSC << " photon energy " << newCandidate.energy() << std::endl;
+ 
     iSC++;
     lSC++;
 
