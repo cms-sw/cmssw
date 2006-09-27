@@ -19,20 +19,22 @@ class TrajectoryFilter;
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 
+//#include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+
 
 class TransientTrackingRecHitBuilder;
 
 
-class CkfTrajectoryBuilder {
+class CkfTrajectoryBuilder :public TrackerTrajectoryBuilder {
 protected:
 // short names
   typedef TrajectoryStateOnSurface TSOS;
@@ -42,27 +44,34 @@ public:
 
   typedef std::vector<Trajectory>     TrajectoryContainer;
 
-  CkfTrajectoryBuilder( const edm::ParameterSet& conf,
-			const edm::EventSetup& es,
-			const MeasurementTracker* theInputMeasurementTracker);
+  //CkfTrajectoryBuilder( const edm::ParameterSet& conf,
+  //			const edm::EventSetup& es,
+  //		const MeasurementTracker* theInputMeasurementTracker);
+  CkfTrajectoryBuilder(const edm::ParameterSet&              conf,
+		       const TrajectoryStateUpdator*         updator,
+		       const Propagator*                     propagatorAlong,
+		       const Propagator*                     propagatorOpposite,
+		       const Chi2MeasurementEstimatorBase*   estimator,
+		       const TransientTrackingRecHitBuilder* RecHitBuilder,
+		       const MeasurementTracker*             measurementTracker);
 
   ~CkfTrajectoryBuilder();
   
   /// trajectories building starting from a seed
-  TrajectoryContainer trajectories(const TrajectorySeed& seed);
+  virtual TrajectoryContainer trajectories(const TrajectorySeed& seed) const;
+
+  /// set Event for the internal MeasurementTracker data member
+  virtual void setEvent(const edm::Event& event) const;
 
 private:
-  edm::ESHandle<TrajectoryStateUpdator>       theUpdator;
-  edm::ESHandle<Propagator>                   thePropagator;
-  edm::ESHandle<Propagator>                   thePropagatorOpposite;
-  edm::ESHandle<Chi2MeasurementEstimatorBase> theEstimator;
-
-  const TransientTrackingRecHitBuilder * TTRHbuilder;
-
-  const MeasurementTracker*     theMeasurementTracker;
-  const LayerMeasurements*      theLayerMeasurements;
-
-
+  const TrajectoryStateUpdator*         theUpdator;
+  const Propagator*                     thePropagatorAlong;
+  const Propagator*                     thePropagatorOpposite;
+  const Chi2MeasurementEstimatorBase*   theEstimator;
+  const TransientTrackingRecHitBuilder* theTTRHBuilder;
+  const MeasurementTracker*             theMeasurementTracker;
+  const LayerMeasurements*              theLayerMeasurements;
+  
   TrajectoryFilter*              theMinPtCondition;
 
   int theMaxCand;               /**< Maximum number of trajectory candidates 
@@ -81,17 +90,17 @@ private:
 
   std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
 
-  void limitedCandidates( Trajectory& startingTraj, TrajectoryContainer& result);
+  void limitedCandidates( Trajectory& startingTraj, TrajectoryContainer& result) const;
 
-  std::vector<TrajectoryMeasurement> findCompatibleMeasurements( const Trajectory& traj);
+  std::vector<TrajectoryMeasurement> findCompatibleMeasurements( const Trajectory& traj) const;
 
-  bool qualityFilter( const Trajectory& traj);
+  bool qualityFilter( const Trajectory& traj) const;
 
-  void addToResult( Trajectory& traj, TrajectoryContainer& result);
+  void addToResult( Trajectory& traj, TrajectoryContainer& result) const; 
   
   void updateTrajectory( Trajectory& traj, const TM& tm) const;
 
-  bool toBeContinued( const Trajectory& traj);
+  bool toBeContinued( const Trajectory& traj) const;
 
 };
 

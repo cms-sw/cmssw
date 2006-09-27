@@ -1,10 +1,11 @@
 #ifndef GroupedCkfTrajectoryBuilder_H
 #define GroupedCkfTrajectoryBuilder_H
 
-//B.M. #include "CommonReco/PatternTools/interface/TrajectoryBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
+#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 
 #include <vector>
 
@@ -35,7 +36,7 @@ class TransientTrackingRecHitBuilder;
  */
 
 //B.M. class GroupedCkfTrajectoryBuilder : public ConfigAlgorithm, public TrajectoryBuilder {
-class GroupedCkfTrajectoryBuilder {
+class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
 
  protected:
   // short names
@@ -46,17 +47,25 @@ class GroupedCkfTrajectoryBuilder {
   
  public:
   /// constructor from ParameterSet
-  GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf,
-			      const edm::EventSetup& es,
-			      const MeasurementTracker* theInputMeasurementTracker);
+  GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
+			      const TrajectoryStateUpdator*         updator,
+			      const Propagator*                     propagatorAlong,
+			      const Propagator*                     propagatorOpposite,
+			      const Chi2MeasurementEstimatorBase*   estimator,
+			      const TransientTrackingRecHitBuilder* RecHitBuilder,
+			      const MeasurementTracker*             measurementTracker);
+
   /// destructor
   virtual ~GroupedCkfTrajectoryBuilder();
 
+  /// set Event for the internal MeasurementTracker data member
+  virtual void setEvent(const edm::Event& event) const;
+
   /// trajectories building starting from a seed
-  TrajectoryContainer trajectories(const TrajectorySeed&);
+  TrajectoryContainer trajectories(const TrajectorySeed&) const;
 
   /// trajectories building starting from a seed with a region
-  TrajectoryContainer trajectories(const TrajectorySeed&, const TrackingRegion&);
+  TrajectoryContainer trajectories(const TrajectorySeed&, const TrackingRegion&) const;
 
   // Access to lower level components
   //B.M. const Propagator&           propagator() const {return *thePropagator;}
@@ -91,10 +100,10 @@ class GroupedCkfTrajectoryBuilder {
 
 protected:
 
-  virtual void analyseSeed(const TrajectorySeed& seed) {}
+  virtual void analyseSeed(const TrajectorySeed& seed) const{}
 
   virtual void analyseMeasurements( const std::vector<TM>& meas, 
-				    const Trajectory& traj) {}
+				    const Trajectory& traj) const{}
   virtual void analyseResult( const TrajectoryContainer& result) const {}
 
 private :
@@ -106,16 +115,16 @@ private :
 
   /// common part of both public trajectory building methods
   TrajectoryContainer buildTrajectories (const TrajectorySeed&,
-					 const TrajectoryFilter*);
+					 const TrajectoryFilter*) const;
 
-  Trajectory createStartingTrajectory( const TrajectorySeed&);
+  Trajectory createStartingTrajectory( const TrajectorySeed&) const;
 
   std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
 
-  void addToResult( Trajectory& traj, TrajectoryContainer& result);
+  void addToResult( Trajectory& traj, TrajectoryContainer& result) const;
   
-  bool qualityFilter( const Trajectory& traj);
-  bool toBeContinued( const Trajectory& traj, const TrajectoryFilter* regionalCondition);
+  bool qualityFilter( const Trajectory& traj) const;
+  bool toBeContinued( const Trajectory& traj, const TrajectoryFilter* regionalCondition) const;
 
   //B.M.TrajectoryContainer intermediaryClean(TrajectoryContainer& theTrajectories);
   // to be ported later
@@ -126,11 +135,11 @@ private :
   bool advanceOneLayer( Trajectory& traj, 
 			const TrajectoryFilter* regionalCondition, 
 			TrajectoryContainer& newCand, 
-			TrajectoryContainer& result);
+			TrajectoryContainer& result) const;
 
   void groupedLimitedCandidates( Trajectory& startingTraj, 
 				 const TrajectoryFilter* regionalCondition, 
-				 TrajectoryContainer& result);
+				 TrajectoryContainer& result) const;
 
   /* ======= B.M.to be ported later =================
   /// try to find additional hits in seeding region
@@ -173,16 +182,13 @@ private :
   ======================================================== */
 
 private:
-  const MeasurementTracker*     theMeasurementTracker;
-  const LayerMeasurements*      theLayerMeasurements;
-
-  edm::ESHandle<Propagator>             thePropagator;
-  edm::ESHandle<Propagator>             thePropagatorOpposite;
-  edm::ESHandle<TrajectoryStateUpdator> theUpdator;
-  edm::ESHandle<Chi2MeasurementEstimatorBase>   theEstimator;
-
-  const TransientTrackingRecHitBuilder * TTRHbuilder;
-
+  const TrajectoryStateUpdator*         theUpdator;
+  const Propagator*                     thePropagatorAlong;
+  const Propagator*                     thePropagatorOpposite;
+  const Chi2MeasurementEstimatorBase*   theEstimator;
+  const TransientTrackingRecHitBuilder* theTTRHBuilder;
+  const MeasurementTracker*             theMeasurementTracker;
+  const LayerMeasurements*              theLayerMeasurements;
 
   TrajectoryFilter*              theMinPtCondition;
   TrajectoryFilter*              theConfigurableCondition;
