@@ -1,8 +1,8 @@
-#ifndef RecoAlgos_PtComparator_h
-#define RecoAlgos_PtComparator_h
-/** \class PtComparator
+#ifndef RecoAlgos_EtComparator_h
+#define RecoAlgos_EtComparator_h
+/** \class EtComparator
  *
- * compare by pt
+ * compare by Et
  * 
  * \author Luca Lista, INFN
  *
@@ -13,16 +13,16 @@
  */
 
 template<typename T>
-struct PtComparator {
+struct EtComparator {
   bool operator()( const T & t1, const T & t2 ) const {
-    return t1.pt() < t2.pt();
+    return t1.et() < t2.et();
   }
 };
 
 template<typename T>
-struct PtInverseComparator {
+struct EtInverseComparator {
   bool operator()( const T & t1, const T & t2 ) const {
-    return t1.pt() > t2.pt();
+    return t1.et() > t2.et();
   }
 };
 
