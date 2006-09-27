@@ -3,6 +3,7 @@
 */
 
 #include "IOPool/Streamer/interface/DumpTools.h"
+#include "FWCore/Utilities/interface/Digest.h"
 
 void dumpInitHeader(const InitMsgView* view)
 {
@@ -13,19 +14,27 @@ void dumpInitHeader(const InitMsgView* view)
     << "proto = " << view->protocolVersion() << "\n"
     << "release = " << view->releaseTag() << "\n";
 
-  uint8 vpset[17];
-  view->pset(vpset);
+
+  //PSet 16 byte non-printable representation, stored in message.
+  uint8 vpset[16];
+  view->pset(vpset); 
+
+  //Lets convert it to printable hex form
   vpset[16]='\0';
+  string pset_str((char*) &vpset[0]);
+  cms::Digest dig(pset_str);
+  cms::MD5Result r1 = dig.digest();
+  std::string hexy = r1.toString();
+  cout <<"PSetID= "<<hexy<<endl;
+
   Strings vhltnames,vl1names;
   view->hltTriggerNames(vhltnames);
   view->l1TriggerNames(vl1names);
 
-  cout << "pset = " << vpset << "\n";
-
-  cout << "HLT names = \n";
+  cout << "HLT names :- \n ";
   copy(vhltnames.begin(),vhltnames.end(),ostream_iterator<std::string>(cout,"\n"));
 
-  cout << "L1 names = \n";
+  cout << "L1 names :- \n ";
   copy(vl1names.begin(),vl1names.end(),ostream_iterator<std::string>(cout,"\n"));
   cout << "\n";
 
