@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.1 2006/08/21 18:29:22 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.2 2006/09/18 13:03:45 dmytro Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonId.h"
+#include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
@@ -47,9 +47,9 @@ class MuonIdProducer : public edm::EDProducer {
 
  private:
    void               fillMuonId(edm::Event&, const edm::EventSetup&,
-				 reco::MuonId& aMuon);
+				 reco::MuonWithMatchInfo& aMuon);
    void               init(edm::Event&, const edm::EventSetup&);
-   reco::MuonId*      getNewMuon(edm::Event& iEvent, 
+   reco::MuonWithMatchInfo*      getNewMuon(edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup);
 
    TrackAssociator trackAssociator_;

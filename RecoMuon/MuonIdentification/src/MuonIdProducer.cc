@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.1 2006/08/21 18:29:22 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.2 2006/09/18 13:03:46 dmytro Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonId.h"
+#include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
@@ -45,7 +45,7 @@
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 {
    outputCollectionName_ = iConfig.getParameter<std::string>("outputCollection");
-   produces<reco::MuonIdCollection>(outputCollectionName_);
+   produces<reco::MuonWithMatchInfoCollection>(outputCollectionName_);
 
    useEcal_ = iConfig.getParameter<bool>("useEcal");
    useHcal_ = iConfig.getParameter<bool>("useHcal");
@@ -119,13 +119,13 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 }
 
-reco::MuonId* MuonIdProducer::getNewMuon(edm::Event& iEvent, const edm::EventSetup& iSetup)
+reco::MuonWithMatchInfo* MuonIdProducer::getNewMuon(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    switch (mode_) {
     case TrackCollection:
       if( trackCollectionIter_ !=  trackCollectionHandle_->end())
 	{
-	   reco::MuonId* aMuon = new reco::MuonId;
+	   reco::MuonWithMatchInfo* aMuon = new reco::MuonWithMatchInfo;
 	   aMuon->setTrack(reco::TrackRef(trackCollectionHandle_,index_));
 	   index_++;
 	   trackCollectionIter_++;
@@ -137,7 +137,7 @@ reco::MuonId* MuonIdProducer::getNewMuon(edm::Event& iEvent, const edm::EventSet
       if( muonCollectionIter_ !=  muonCollectionHandle_->end())
 	{
 	   muonCollectionIter_++;
-	   // return new reco::MuonId(*muonCollectionIter_);
+	   // return new reco::MuonWithMatchInfo(*muonCollectionIter_);
 	}
       else return 0;
       break;
@@ -149,7 +149,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
-   std::auto_ptr<reco::MuonIdCollection> outputMuons(new reco::MuonIdCollection);
+   std::auto_ptr<reco::MuonWithMatchInfoCollection> outputMuons(new reco::MuonWithMatchInfoCollection);
 
    TimerStack timers;
    timers.push("MuonIdProducer::produce::init");
@@ -159,7 +159,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    // loop over input collection
-   while(reco::MuonId* aMuon = getNewMuon(iEvent, iSetup))
+   while(reco::MuonWithMatchInfo* aMuon = getNewMuon(iEvent, iSetup))
      {
 	LogTrace("MuonIdProducer::produce") << "-----------------" << "\n";
 	LogTrace("MuonIdProducer::produce") << "(Pt: " << aMuon->track().get()->pt() << " GeV" <<"\n";
@@ -182,7 +182,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
-				reco::MuonId& aMuon)
+				reco::MuonWithMatchInfo& aMuon)
 {
    TrackAssociator::AssociatorParameters parameters;
    parameters.useEcal = useEcal_ ;
@@ -194,13 +194,13 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, 
 						       trackAssociator_.getFreeTrajectoryState(iSetup, *(aMuon.track().get()) ),
 						       parameters);
-   reco::MuonId::MuonEnergy muonEnergy;
+   reco::MuonWithMatchInfo::MuonEnergy muonEnergy;
    muonEnergy.had = info.hcalEnergy();
    muonEnergy.em = info.ecalEnergy();
    muonEnergy.ho = info.outerHcalEnergy();
    aMuon.setCalEnergy( muonEnergy );
       
-   /* reco::MuonId::MuonIsolation muonIsolation;
+   /* reco::MuonWithMatchInfo::MuonIsolation muonIsolation;
    muonIsolation.hCalEt01 = 0;
    muonIsolation.eCalEt01 = 0;
    muonIsolation.hCalEt04 = info.hcalConeEnergy();
@@ -212,11 +212,11 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    muonIsolation.trackSumPt07 = 0;
    aMuon.setIsolation( muonIsolation );*/
       
-   std::vector<reco::MuonId::MuonMatch> muonMatches;
+   std::vector<reco::MuonWithMatchInfo::MuonMatch> muonMatches;
    for( std::vector<MuonSegmentMatch>::const_iterator segment=info.segments.begin();
 	segment!=info.segments.end(); segment++ )
      {
-	reco::MuonId::MuonMatch aMatch;
+	reco::MuonWithMatchInfo::MuonMatch aMatch;
 	aMatch.dX = segment->segmentLocalPosition.x()-segment->trajectoryLocalPosition.x();
 	aMatch.dY = segment->segmentLocalPosition.y()-segment->trajectoryLocalPosition.y();
 	aMatch.dXErr = sqrt(segment->trajectoryLocalErrorXX+segment->segmentLocalErrorXX);
