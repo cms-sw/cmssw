@@ -39,7 +39,7 @@
 
 #include <algorithm> 
 
-#define DBG_GCTB
+//#define DBG_GCTB
 
 
 /* ====== B.M. to be ported layer ===========
@@ -56,14 +56,20 @@
 
 
 GroupedCkfTrajectoryBuilder::
-GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf,
-			    const edm::EventSetup& es,
-			    const MeasurementTracker* theInputMeasurementTracker):
-  theMeasurementTracker(theInputMeasurementTracker),
+GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
+			    const TrajectoryStateUpdator*         updator,
+			    const Propagator*                     propagatorAlong,
+			    const Propagator*                     propagatorOpposite,
+			    const Chi2MeasurementEstimatorBase*   estimator,
+			    const TransientTrackingRecHitBuilder* RecHitBuilder,
+			    const MeasurementTracker*             measurementTracker):
+
+  theUpdator(updator),thePropagatorAlong(propagatorAlong),
+  thePropagatorOpposite(propagatorOpposite),theEstimator(estimator),
+  theTTRHBuilder(RecHitBuilder),theMeasurementTracker(measurementTracker),
   theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
   theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut")))
 {
-
   // components
   //B.M. componentBuilder.addComponent("StopCondition",RecQuery("MaxHitsTrajectoryFilter"));
 
@@ -72,20 +78,6 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf,
   std::string propagatorOppositeName = conf.getParameter<std::string>("propagatorOpposite");   
   std::string updatorName            = conf.getParameter<std::string>("updator");   
   std::string estimatorName          = conf.getParameter<std::string>("estimator");   
-
-  es.get<TrackingComponentsRecord>().get(updatorName,theUpdator);
-  es.get<TrackingComponentsRecord>().get(propagatorAlongName,thePropagator);
-  es.get<TrackingComponentsRecord>().get(propagatorOppositeName,thePropagatorOpposite);
-  es.get<TrackingComponentsRecord>().get(estimatorName,theEstimator);  
-  //B.M. theEstimator(new Chi2MeasurementEstimator(parameter<double>("chiSquarCut"))),
-
-  
-  // get the transient builder
-  //
-  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  std::string builderName = conf.getParameter<std::string>("TTRHBuilder");   
-  es.get<TransientRecHitRecord>().get(builderName,theBuilder);  
-  TTRHbuilder = theBuilder.product();
 
 
   // fill data members from parameters (eventually data members could be dropped)
@@ -123,15 +115,20 @@ GroupedCkfTrajectoryBuilder::~GroupedCkfTrajectoryBuilder()
   delete theMinPtCondition;
 }
 
+void GroupedCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
+{
+  theMeasurementTracker->update(event);
+}
+
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 
-GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed)
+GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed) const 
 {
   return buildTrajectories(seed,0);
 }
 
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 
 GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed, 
-					   const TrackingRegion& region)
+					   const TrackingRegion& region) const
 {
   RegionalTrajectoryFilter regionalCondition(region);
   return buildTrajectories(seed,&regionalCondition);
@@ -139,7 +136,7 @@ GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed,
 
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 
 GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
-						const TrajectoryFilter* regionalCondition) 
+						const TrajectoryFilter* regionalCondition) const
 {
   //B.M. TimeMe tm("GroupedCkfTrajectoryBuilder", false);
 
@@ -178,7 +175,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
 }
 
 Trajectory 
-GroupedCkfTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& seed)
+GroupedCkfTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& seed) const
 {
   Trajectory result( seed, seed.direction());
 
@@ -191,7 +188,7 @@ GroupedCkfTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& see
   return result;
 }
   
-bool GroupedCkfTrajectoryBuilder::qualityFilter( const Trajectory& traj)
+bool GroupedCkfTrajectoryBuilder::qualityFilter( const Trajectory& traj) const
 {
 
 //    cout << "qualityFilter called for trajectory with " 
@@ -208,7 +205,7 @@ bool GroupedCkfTrajectoryBuilder::qualityFilter( const Trajectory& traj)
 
 bool 
 GroupedCkfTrajectoryBuilder::toBeContinued (const Trajectory& traj,
-						      const TrajectoryFilter* regionalCondition)
+					    const TrajectoryFilter* regionalCondition) const
 {
   if ( traj.lostHits() > theMaxLostHit) return false;
 
@@ -227,18 +224,18 @@ GroupedCkfTrajectoryBuilder::toBeContinued (const Trajectory& traj,
   if (consecLostHit > theMaxConsecLostHit) return false; 
 
   // stopping condition from region has highest priority
-  if ( regionalCondition && !(*regionalCondition)(traj) )  return false;
+  //FIXME,restore this: if ( regionalCondition && !(*regionalCondition)(traj) )  return false;
   // next: pt-cut
   if ( !(*theMinPtCondition)(traj) )  return false;
   // finally: configurable condition
-  if ( !(*theConfigurableCondition)(traj) )  return false;
+  //FIXME,restore this: if ( !(*theConfigurableCondition)(traj) )  return false;
 
   return true;
 }
 
 void 
 GroupedCkfTrajectoryBuilder::addToResult (Trajectory& traj, 
-						    TrajectoryContainer& result)
+					  TrajectoryContainer& result) const
 {
   // quality check
   if ( !qualityFilter(traj) )  return;
@@ -250,8 +247,8 @@ GroupedCkfTrajectoryBuilder::addToResult (Trajectory& traj,
 
 void 
 GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (Trajectory& startingTraj, 
-								 const TrajectoryFilter* regionalCondition, 
-								 TrajectoryContainer& result)
+						       const TrajectoryFilter* regionalCondition, 
+						       TrajectoryContainer& result) const
 {
   TrajectoryContainer candidates;
   TrajectoryContainer newCand;
@@ -327,7 +324,7 @@ bool
 GroupedCkfTrajectoryBuilder::advanceOneLayer (Trajectory& traj, 
 					      const TrajectoryFilter* regionalCondition, 
 					      TrajectoryContainer& newCand, 
-					      TrajectoryContainer& result)
+					      TrajectoryContainer& result) const
 {
   TSOS currentState(traj.lastMeasurement().updatedState());
 
@@ -363,7 +360,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (Trajectory& traj,
 	il!=nl.end(); il++) {
     TrajectorySegmentBuilder layerBuilder(theMeasurementTracker,
 					  theLayerMeasurements,
-					  **il,*thePropagator,
+					  **il,*thePropagatorAlong,
 					  *theUpdator,*theEstimator,
 					  theLockHits,theBestHitOnly);
     
@@ -538,7 +535,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TrajectoryContainer& theT
 }
 
 vector<const DetLayer*>
-GroupedCkfTrajectoryBuilder::layers (const vector<TM>& measurements) const
+GroupedCkfTrajectoryBuilder::layers (const vector<TM>& measurements) const 
 {
   vector<const DetLayer*> result;
   if ( measurements.empty() )  return result;
@@ -854,7 +851,7 @@ GroupedCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   for (TrajectorySeed::const_iterator ihit = hitRange.first; 
        ihit != hitRange.second; ihit++) {
     //RC TransientTrackingRecHit* recHit = TTRHbuilder->build(&(*ihit));
-    TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(&(*ihit));
+    TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&(*ihit));
     const GeomDet* hitGeomDet = 
       theMeasurementTracker->geomTracker()->idToDet( ihit->geographicalId());
 
@@ -872,14 +869,14 @@ GroupedCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       }
 
       TSOS updatedState = tsTransform.transientState( pState, &(gdet->surface()), 
-						      thePropagator->magneticField());
+						      thePropagatorAlong->magneticField());
       result.push_back(TM( invalidState, updatedState, recHit, 0, hitLayer));
     }
     else {
       //----------- just a test to make the Smoother to work -----------
       PTrajectoryStateOnDet pState( seed.startingState());
       TSOS outerState = tsTransform.transientState( pState, &(hitGeomDet->surface()), 
-						    thePropagator->magneticField());
+						    thePropagatorAlong->magneticField());
       TSOS innerState   = thePropagatorOpposite->propagate(outerState,hitGeomDet->surface());
       TSOS innerUpdated = theUpdator->update(innerState,*recHit);
 
