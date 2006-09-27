@@ -44,6 +44,7 @@ function draw_data_table($datatype, $run, $run_iov_id, $runtype) {
   echo "<table class='$datatype'>";
   if     ($datatype == 'MON') { fill_monitoring_table($run, $run_iov_id, $runtype); }
   elseif ($datatype == 'DCU') { fill_dcu_table($run, $run_iov_id); }
+  elseif ($datatype == 'BEAM') { fill_beam_table($run); }
   else { 
     echo "<tr><td class='noresults'>Data type $datatype is not finished</td></tr>";
   }
@@ -122,6 +123,38 @@ function fill_dcu_table($run, $run_iov_id) {
   }
 }
 
+function fill_beam_table($run) {
+  $loc = $_GET['location']; // XXX function argument?
+  $beamresults = fetch_beam_data($run, $loc);
+  if ($beamresults) {
+    $nbeamrows = count($beamresults['RUN_NUM']);
+  } else {
+    $nbeamrows = 0;
+  }
+  
+  if ($nbeamrows > 0) {
+    $beamselect_headers = get_beamselect_headers();
+    echo "<tr>";
+    echo "<th class='typehead' rowspan='", $nbeamrows+1, "'>BEAM</th>";
+    foreach($beamselect_headers as $db_handle => $head) {
+      echo "<th>$head</th>";
+    }
+    echo "</tr>";
+    for ($i = 0; $i < $nbeamrows; $i++) {
+      echo "<tr>\n";
+      foreach ($beamselect_headers as $db_handle => $head) {
+	$head = $beamresults[$db_handle][$i];
+	echo "<td>", $head, "</td>\n";
+      }
+      echo "</tr>\n";
+    }
+  } else {
+    echo "<tr>
+          <th class='typehead'>BEAM</th>
+          <td class='noresults'>No BEAM results</td></tr>";
+  }
+}
+
 function draw_plotlink($datatype, $exists_str, $run, $iov_id) {
   if ($exists_str) {
     $url = htmlentities("plot.php?run=$run&datatype=$datatype&iov_id=$iov_id&exists_str=$exists_str");
@@ -151,6 +184,8 @@ function draw_tasklist($list_bits, $outcome_bits) {
   $tasks = get_task_array();
   $outcome = get_task_outcome($list_bits, $outcome_bits);
   
+  if (! $outcome) { return; }
+
   foreach ($outcome as $taskcode => $result) {
     $status = $result ? 'good' : 'bad';
     echo "<div class='ttp bl $status'>$taskcode

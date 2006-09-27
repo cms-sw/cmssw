@@ -261,6 +261,44 @@ function fetch_dcu_data($run_iov_id) {
   return $results;
 }
 
+function get_beamselect_headers() {
+  return array('BEAM_FILE' => 'Beam File',
+	       'ENERGY' => 'Energy',
+	       'PARTICLE' => 'Particle',
+	       'SPECIAL_SETTINGS' => 'Settings');
+}
+
+function fetch_beam_data($run, $loc) {
+  global $conn;
+  
+  if ($loc == 'H4B') {
+    $beamtable = "RUN_H4_BEAM_DAT";
+    $beamcol = "\"XBH4.BEAM:LAST_FILE_LOADED\"";
+  } elseif ($loc == 'H2') {
+    $beamtable = "RUN_H2_BEAM_DAT";
+    $beamcol = "\"XBH2.BEAM:LAST_FILE_LOADED\"";
+  } else {
+    return array();
+  }
+
+  $sql = "select * from 
+            (select rownum R, riov.run_num, bdat.$beamcol beam_file, bdef.energy, bdef.particle, bdef.special_settings
+               from ($beamtable bdat
+               join run_iov riov on bdat.iov_id = riov.iov_id)
+               left outer join beamfile_to_energy_def bdef on bdef.beam_file = bdat.$beamcol
+              where riov.run_num <= :run
+              order by riov.run_num desc)
+           where rownum = 1 ";
+
+  $stmt = oci_parse($conn, $sql);
+  
+  oci_bind_by_name($stmt, ':run', $run);
+  oci_execute($stmt);
+  oci_fetch_all($stmt, $results);
+  
+  return $results;
+}
+
 function fetch_field_array($prefix) {
   global $conn;
 
