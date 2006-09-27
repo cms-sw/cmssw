@@ -60,11 +60,12 @@ namespace edm {
     static typename map_type::size_type size( const map_assoc & v ) { return v.size(); }
     /// sort
     static void sort( map_type & m ) { 
-      using namespace boost::lambda;
+      //      using namespace boost::lambda;
       for( typename map_type::iterator i = m.begin(); i != m.end(); ++ i ) {
 	map_assoc & v = i->second;
 	double std::pair<index, Q>:: * quality = & std::pair<index, Q>::second;
-	std::sort( v.begin(), v.end(),  bind( quality, _2 ) < bind( quality, _1 ) );
+	std::sort( v.begin(), v.end(),  
+		   bind( quality, boost::lambda::_2 ) < bind( quality, boost::lambda::_1 ) );
       }
     }
   };
