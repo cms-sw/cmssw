@@ -3,7 +3,7 @@
  * db_functions.php
  *
  * All the functions used to connect to and query the DB
- * $Id: db_functions.php,v 1.2 2006/07/23 16:47:58 egeland Exp $
+ * $Id: db_functions.php,v 1.4 2006/09/27 20:37:57 egeland Exp $
  */
 
 require_once 'common.php';
@@ -265,7 +265,7 @@ function get_beamselect_headers() {
   return array('BEAM_FILE' => 'Beam File',
 	       'ENERGY' => 'Energy',
 	       'PARTICLE' => 'Particle',
-	       'SPECIAL_SETTINGS' => 'Settings');
+	       'SPECIAL_SETTINGS' => 'Special Settings');
 }
 
 function fetch_beam_data($run, $loc) {
