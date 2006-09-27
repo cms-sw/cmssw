@@ -34,74 +34,38 @@
 #include <iostream>
 #include <typeinfo>
 
-MeasurementTracker::MeasurementTracker( const edm::EventSetup& setup, 
-					const edm::ParameterSet& conf) :
-  theTrackerGeom(0), stripCPE(0)
+MeasurementTracker::MeasurementTracker( const PixelClusterParameterEstimator* pixelCPE,
+					const StripClusterParameterEstimator* stripCPE,
+					const SiStripRecHitMatcher*  hitMatcher,
+					const TrackerGeometry*  trackerGeom,
+					const GeometricSearchTracker* geometricSearchTracker) :
+  lastEventNumber(0),lastRunNumber(0),
+  thePixelCPE(pixelCPE),theStripCPE(stripCPE),theHitMatcher(hitMatcher),
+  theTrackerGeom(trackerGeom),theGeometricSearchTracker(geometricSearchTracker)
 {
-  using namespace std;
-  this->initialize( setup, conf);
-
-  edm::LogInfo("MeasurementDet") << "MeasurementTracker: initialize OK" ;
-
+  this->initialize();
 }
 
-void MeasurementTracker::initialize(const edm::EventSetup& setup, 
-				    const edm::ParameterSet& conf)
-{
-  using namespace std;
-    using namespace edm;
-    edm::ESHandle<TrackerGeometry> pDD;
-    setup.get<TrackerDigiGeometryRecord>().get( pDD );
-    const TrackerGeometry& tracker(*pDD);
-    theTrackerGeom = &tracker;
-
-    LogDebug("MeasurementDet") << "MeasurementTracker::initialize: TrackerGeometry accessed" << endl; 
-
-    const TrackerGeometry::DetContainer& dets = tracker.dets();
-
-    LogDebug("MeasurementDet") << "got from TrackerGeometry " << dets.size() << "detector" ; 
-
-    // --- get pixelCPE
-    std::string pixelCpeName = conf.getParameter<std::string>("PixelCPE");   
-    edm::ESHandle<PixelClusterParameterEstimator> pixelCPEHandle;
-    setup.get<TrackerCPERecord>().get(pixelCpeName,pixelCPEHandle);  
-    LogDebug("MeasurementDet") << "Got a pixelCPE " << typeid(*pixelCPEHandle).name() ;
-    pixelCPE = &(*pixelCPEHandle);
-
-    // --- get stripCPE
-    std::string stripCpeName = conf.getParameter<std::string>("StripCPE"); 
-    edm::ESHandle<StripClusterParameterEstimator> stripCPEHandle;
-    setup.get<TrackerCPERecord>().get(stripCpeName,stripCPEHandle);
-    LogDebug("MeasurementDet") << "Got a stripCPE " << typeid(*stripCPEHandle).name() ;
-    stripCPE = &(*stripCPEHandle);
-
-    // --- get the HitMatcher
-    edm::ESHandle<SiStripRecHitMatcher> hitMatcherHandle;
-    setup.get<TrackerCPERecord>().get("StandardMatcher",hitMatcherHandle);
-    theHitMatcher = &(*hitMatcherHandle);
-
-    addPixelDets( tracker.detsPXB());
-    addPixelDets( tracker.detsPXF());
-    addStripDets( tracker.detsTIB());
-    addStripDets( tracker.detsTID());
-    addStripDets( tracker.detsTOB());
-    addStripDets( tracker.detsTEC());
-
-    edm::ESHandle<GeometricSearchTracker> gstrackerHandle;
-    setup.get<TrackerRecoGeometryRecord>().get( gstrackerHandle);
-    theGeometricSearchTracker = &(*gstrackerHandle);
+void MeasurementTracker::initialize() const
+{  
+  addPixelDets( theTrackerGeom->detsPXB());
+  addPixelDets( theTrackerGeom->detsPXF());
+  addStripDets( theTrackerGeom->detsTIB());
+  addStripDets( theTrackerGeom->detsTID());
+  addStripDets( theTrackerGeom->detsTOB());
+  addStripDets( theTrackerGeom->detsTEC());  
 }
 
 
-void MeasurementTracker::addPixelDets( const TrackingGeometry::DetContainer& dets)
+void MeasurementTracker::addPixelDets( const TrackingGeometry::DetContainer& dets) const
 {
   for (TrackerGeometry::DetContainer::const_iterator gd=dets.begin();
        gd != dets.end(); gd++) {
-      addPixelDet(*gd, pixelCPE);
+    addPixelDet(*gd, thePixelCPE);
   }  
 }
 
-void MeasurementTracker::addStripDets( const TrackingGeometry::DetContainer& dets)
+void MeasurementTracker::addStripDets( const TrackingGeometry::DetContainer& dets) const
 {
   for (TrackerGeometry::DetContainer::const_iterator gd=dets.begin();
        gd != dets.end(); gd++) {
@@ -114,7 +78,7 @@ void MeasurementTracker::addStripDets( const TrackingGeometry::DetContainer& det
     // 	 << " is DetUnit? " << isDetUnit << endl;
 
     if (gdu != 0) {
-      addStripDet(*gd, stripCPE);
+      addStripDet(*gd, theStripCPE);
     }
     else {
       const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(*gd);
@@ -127,7 +91,7 @@ void MeasurementTracker::addStripDets( const TrackingGeometry::DetContainer& det
 }
 
 void MeasurementTracker::addStripDet( const GeomDet* gd,
-				      const StripClusterParameterEstimator* cpe)
+				      const StripClusterParameterEstimator* cpe) const
 {
   try {
     TkStripMeasurementDet* det = new TkStripMeasurementDet( gd, cpe);
@@ -140,7 +104,7 @@ void MeasurementTracker::addStripDet( const GeomDet* gd,
 }
 
 void MeasurementTracker::addPixelDet( const GeomDet* gd,
-				      const PixelClusterParameterEstimator* cpe)
+				      const PixelClusterParameterEstimator* cpe) const
 {
   TkPixelMeasurementDet* det = new TkPixelMeasurementDet( gd, cpe);
   thePixelDets.push_back(det);
@@ -148,17 +112,17 @@ void MeasurementTracker::addPixelDet( const GeomDet* gd,
 }
 
 void MeasurementTracker::addGluedDet( const GluedGeomDet* gd,
-				      const SiStripRecHitMatcher* matcher)
+				      const SiStripRecHitMatcher* matcher) const
 {
   const MeasurementDet* monoDet = idToDet( gd->monoDet()->geographicalId());
   if (monoDet == 0) {
-    addStripDet(gd->monoDet(), stripCPE);  // in case glued det comes before components
+    addStripDet(gd->monoDet(), theStripCPE);  // in case glued det comes before components
     monoDet = idToDet( gd->monoDet()->geographicalId());
   }
 
   const MeasurementDet* stereoDet = idToDet( gd->stereoDet()->geographicalId());
   if (stereoDet == 0) {
-    addStripDet(gd->stereoDet(), stripCPE);  // in case glued det comes before components
+    addStripDet(gd->stereoDet(), theStripCPE);  // in case glued det comes before components
     stereoDet = idToDet( gd->stereoDet()->geographicalId());
   }
 
@@ -175,7 +139,14 @@ void MeasurementTracker::addGluedDet( const GluedGeomDet* gd,
 
 void MeasurementTracker::update( const edm::Event& event) const
 {
-  typedef edm::DetSetVector<SiStripCluster> ::detset    StripDetSet;
+  // avoid to update twice from the same event
+  if( (lastEventNumber == event.id().event()) && 
+      (lastRunNumber   == event.id().run() )     ) return;
+  
+  lastEventNumber = event.id().event();
+  lastRunNumber = event.id().run();
+
+  typedef edm::DetSetVector<SiStripCluster> ::detset   StripDetSet;
   typedef edm::DetSetVector<SiPixelCluster> ::detset   PixelDetSet;
 
   // std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");

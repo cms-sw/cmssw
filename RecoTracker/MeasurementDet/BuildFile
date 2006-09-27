@@ -1,4 +1,3 @@
-
 <export>
  <lib name=RecoTrackerMeasurementDet>
  <use name=TrackingTools/MeasurementDet>
@@ -20,6 +19,7 @@
  <use name=RecoLocalTracker/SiStripRecHitConverter>
  <use name=RecoTracker/GeometryESProducer>
  <use name=RecoLocalTracker/Records>
+ <use name=RecoTracker/Record>
 </export>
 
 <use name=TrackingTools/MeasurementDet>
@@ -41,3 +41,6 @@
 <use name=RecoLocalTracker/SiStripRecHitConverter>
 <use name=RecoTracker/GeometryESProducer>
 <use name=RecoLocalTracker/Records>
+<use name=RecoTracker/Record>
+
+<flags SEAL_PLUGIN_NAME="RecoTrackerMeasurementDet">
