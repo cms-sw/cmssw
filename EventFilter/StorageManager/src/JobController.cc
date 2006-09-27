@@ -67,8 +67,8 @@ namespace stor
     std::auto_ptr<EPRunner> ep(new EPRunner(my_config,inf));
     std::auto_ptr<FragmentCollector> 
       coll(new FragmentCollector(*(ep->getInfo()),deleter,
-				 ep->getRegistry()
-				 ));
+				 ep->getRegistry(),
+				 my_config));
 
     collector_.reset(coll.release());
     ep_runner_.reset(ep.release());
