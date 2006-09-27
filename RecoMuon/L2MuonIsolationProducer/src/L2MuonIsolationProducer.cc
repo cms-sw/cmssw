@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoMuon/MuonIsolation/interface/L2MuonIsolationProducer.h"
+#include "RecoMuon/L2MuonIsolationProducer/src/L2MuonIsolationProducer.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
