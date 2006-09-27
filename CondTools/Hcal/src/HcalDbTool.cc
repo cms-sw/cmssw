@@ -3,7 +3,7 @@
    \class HcalDbTool
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbTool.cc,v 1.16 2006/09/07 15:49:19 fedor Exp $
+   $Id: HcalDbTool.cc,v 1.1 2006/09/26 20:49:01 fedor Exp $
 */
 
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -37,17 +37,13 @@ bool HcalDbTool::storeObject (T* fObject, const std::string& fContainer, pool::R
     return false;
   }
   try {
-    mSession->connect (cond::ReadWriteCreate);
     mSession->startUpdateTransaction();
     if (mVerbose) std::cout << "transaction ---> start" << std::endl;
     cond::DBWriter writer (*(mSession), fContainer);
-    std::cout << "trace 1 " << std::endl;
     std::string token = writer.markWrite (fObject);
-    std::cout << "trace 2 " << std::endl;
     *fRef = pool::Ref <T> (&(mSession->DataSvc()), token);
     if (mVerbose) std::cout << "commit write/read back operation" << std::endl;
     mSession->commit ();
-    mSession->disconnect ();
   }
   catch (cond::Exception& e) {
     std::cerr << "storeObject->  COND error: "  << e.what() << std::endl;
@@ -189,7 +185,7 @@ bool HcalDbTool::getObject (const pool::Ref<cond::IOV>& fIOV, unsigned fRun, poo
 
 template <class T> 
 bool HcalDbTool::getObject (const std::string& fToken, pool::Ref<T>* fObject) {
-  if (mVerbose) std::cout << "HcalDbTool::getObject-> start..." << std::endl;
+  if (mVerbose) std::cout << "HcalDbTool::getObject-> start for token: " << fToken << std::endl;
   try {
     *fObject = pool::Ref <T> (&(mSession->DataSvc()), fToken);
     if (mVerbose) std::cout << "transaction ---> start" << std::endl;
@@ -336,6 +332,7 @@ HcalDbTool::HcalDbTool (const std::string& fConnect, bool fVerbose)
       catalog = "file:PoolFileCatalog.xml";
     }
     mSession->setCatalog (catalog);
+    mSession->connect (cond::ReadWriteCreate);
     if (mVerbose) std::cout << "HcalDbTool::HcalDbTool-> using catalog: " << catalog << std::endl;
     // make metadata
     mMetadata = new cond::MetaData (mConnect, *mLoader);
