@@ -227,7 +227,7 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
     cout << ")\n";
     */
     int num_paths = eventView.hltCount();
-    cout <<"num_paths: "<<num_paths<<endl;
+    //cout <<"num_paths: "<<num_paths<<endl;
     bool rc = (eventSelector_->wantAll() || eventSelector_->acceptEvent(&hlt_out[0], num_paths));
     //std::cout << "====================== " << std::endl;
     //std::cout << "return selector code = " << rc << std::endl;
