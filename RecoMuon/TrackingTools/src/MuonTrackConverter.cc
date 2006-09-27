@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: 2006/09/08 18:24:46 $
- *  $Revision: 1.4 $ 
+ *  $Date: 2006/09/08 18:50:55 $
+ *  $Revision: 1.5 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -27,7 +27,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -88,18 +88,13 @@ vector<Trajectory> MuonTrackConverter::convert(const reco::Track& t) const {
   //printHits(hits);
 
   // use TransientTrackBuilder to get a starting TSOS
-  reco::TransientTrack theTT(t,&*theService->magneticField(),theService->trackingGeometry());
-  TrajectoryStateOnSurface firstState = theTT.innermostMeasurementState();
+  TrajectoryStateTransform tsTransform;
+
+  TrajectoryStateOnSurface firstState = tsTransform.innerStateOnSurface(t,*theService->trackingGeometry(), &*theService->magneticField());
 
   if ( hits.front()->geographicalId().det() == DetId::Tracker ) {
-
-    firstState = theRefitter->propagator()->propagate(theTT.impactPointState(), hits.front()->det()->surface());
+    firstState = theRefitter->propagator()->propagate(firstState, hits.front()->det()->surface());
   }
-  else {
-    firstState = theTT.innermostMeasurementState();
-  }
-
-  //cout << "INNER: " << firstState.globalPosition().perp() << " " <<  firstState.globalPosition().z() << " " << firstState.globalMomentum() << endl;
 
   if ( !firstState.isValid() ) return result;
 
@@ -119,7 +114,6 @@ vector<Trajectory> MuonTrackConverter::convert(const reco::Track& t) const {
 
   const TrajectorySeed* seed = new TrajectorySeed();
   vector<Trajectory> trajs = theRefitter->trajectories(*seed,hits,theTSOS);
- 
   if ( !trajs.empty()) result.push_back(trajs.front());
  
   return result;
