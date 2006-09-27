@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/08/20 10:48:36 $
- * $Revision: 1.25 $
+ * $Date: 2006/09/12 18:46:31 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -742,11 +742,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       cP->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
+      gPad->SetLogy(0);
       obj1f->GetXaxis()->SetTitle("hits per event");
       obj1f->GetXaxis()->SetTitleColor(1);
       obj1f->Draw();
@@ -1023,11 +1019,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       cP->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
+      gPad->SetLogy(0);
       obj1f->GetXaxis()->SetTitle("scan step number");
       obj1f->GetXaxis()->SetTitleColor(1);
       obj1f->Draw();
