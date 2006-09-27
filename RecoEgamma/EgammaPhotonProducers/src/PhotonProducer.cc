@@ -61,6 +61,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
 
+  std::cout << " New Event " << std::endl;
+
+
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Barrel SC collection with size : " << scBarrelCollection.size()  << "\n";
 
@@ -74,6 +77,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   //  Loop over barrel SC and fill the  photon collection
   int iSC=0;
+  int lSC=0;
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
 
@@ -87,14 +91,17 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     reco::Photon newCandidate(0, p4, vtx);
 
     outputPhotonCollection.push_back(newCandidate);
-    reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, iSC));
+    reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, lSC));
     outputPhotonCollection[iSC].setSuperCluster(scRef);
+    std::cout << " Barrel iSC " << iSC << " photon energy " << newCandidate.energy() << std::endl;
 
+    lSC++;
     iSC++;
 
   }
 
   //  Loop over Endcap SC and fill the  photon collection
+  lSC=0;
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
 
     const reco::Particle::Point  vtx( 0, 0, 0 );
@@ -105,12 +112,15 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     reco::Photon newCandidate(0, p4, vtx);
 
     outputPhotonCollection.push_back(newCandidate);
-    reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, iSC));
+    reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, lSC));
     outputPhotonCollection[iSC].setSuperCluster(scRef);
-
+    std::cout << " Endcap iSC " << iSC << " photon energy " << newCandidate.energy() << std::endl;
     iSC++;
+    lSC++;
 
   }
+
+  std::cout << " " << std::endl;
 
   // put the product in the event
 
