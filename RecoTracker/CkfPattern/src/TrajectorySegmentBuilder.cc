@@ -21,7 +21,7 @@
 
 #include <algorithm> 
 
-#define DBG_TSB
+//#define DBG_TSB
 
 using namespace std;
 
@@ -263,7 +263,7 @@ TrajectorySegmentBuilder::redoMeasurements (const Trajectory& traj,
 						 traj.lastMeasurement().updatedState(),
 						 theGeomPropagator,theEstimator);
     
-    vector<TM> tmp; cout << "tmp has to be empty!! tmp.size(): " << tmp.size() << endl;
+    vector<TM> tmp; 
     if(compat.first){
       const MeasurementDet* mdet = theMeasurementTracker->idToDet(idet->det()->geographicalId());
       tmp = mdet->fastMeasurements( compat.second, idet->trajectoryState(), theGeomPropagator, theEstimator);
@@ -314,18 +314,32 @@ TrajectorySegmentBuilder::updateWithInvalidHit (Trajectory& traj,
 	//
 	ConstRecHitPointer hit = im->recHit();
 	if ( hit->isValid() )  break;
+
 	//
 	// check, if the extrapolation traverses the Det
 	//
 	TSOS predState(im->predictedState());
-	if ( iteration>0 || (predState.isValid() &&
-			     hit->det()->surface().bounds().inside(predState.localPosition())) ) {
-	  // add invalid hit
-	  Trajectory newTraj(traj);
-	  updateTrajectory(newTraj,*im);
-	  candidates.push_back(newTraj);
-	  found = true;
-	  break;
+	if(hit->det()){	
+	  if ( iteration>0 || (predState.isValid() &&
+			       hit->det()->surface().bounds().inside(predState.localPosition())) ) {
+	    // add invalid hit
+	    Trajectory newTraj(traj);
+	    updateTrajectory(newTraj,*im);
+	    candidates.push_back(newTraj);
+	    found = true;
+	    break;
+	  }
+
+	}else{
+	  if ( iteration>0 || (predState.isValid() &&
+			       im->layer()->surface().bounds().inside(predState.localPosition())) ){
+	    // add invalid hit
+	    Trajectory newTraj(traj);
+	    updateTrajectory(newTraj,*im);
+	    candidates.push_back(newTraj);
+	    found = true;
+	    break;	    
+	  }
 	}
       }
       if ( found )  break;
