@@ -112,13 +112,17 @@ limitedCandidates( Trajectory& startingTraj,
   TrajectoryContainer candidates = TrajectoryContainer();
   TrajectoryContainer newCand = TrajectoryContainer();
   candidates.push_back( startingTraj);
-
+    std::cout <<" PRIMA WHILE  "<<std::endl;
   while ( !candidates.empty()) {
-
+    
     newCand.clear();
+    std::cout <<" DENTRO WHILE  "<<std::endl;
     for (TrajectoryContainer::iterator traj=candidates.begin();
 	 traj!=candidates.end(); traj++) {
+
+      edm::LogInfo("limitedCandidates")<<" BEFORE findCompatibleMeasurements";
       std::vector<TM> meas = findCompatibleMeasurements(*traj);
+      edm::LogInfo("limitedCandidates")<<" AFTER findCompatibleMeasurements";
       if ( meas.empty()) {
 	if ( qualityFilter( *traj)) addToResult( *traj, result);
       }
@@ -134,6 +138,8 @@ limitedCandidates( Trajectory& startingTraj,
 
 	for( std::vector<TM>::const_iterator itm = meas.begin(); 
 	     itm != last; itm++) {
+
+	  edm::LogInfo("limitedCandidates") << "TO BE CONT " << (*itm).predictedState() ;
 	  Trajectory newTraj = *traj;
 	  updateTrajectory( newTraj, *itm);
 
@@ -144,6 +150,7 @@ limitedCandidates( Trajectory& startingTraj,
 	    if ( qualityFilter(newTraj)) addToResult( newTraj, result);
 	    //// don't know yet
 	  }
+	    edm::LogInfo("limitedCandidates")<<" AFTER toBeContinued";
 	}
       }
     
@@ -259,6 +266,8 @@ void CkfTrajectoryBuilder::updateTrajectory( Trajectory& traj,
 
 bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj)
 {
+
+  edm::LogInfo("limitedCandidates") <<" BEFORE toBeContinued";
   if ( traj.lostHits() > theMaxLostHit) return false;
 
   // check for conscutive lost hits only at the end 
@@ -269,10 +278,14 @@ bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj)
   int consecLostHit = 0;
   vector<TM> tms = traj.measurements();
   for( vector<TM>::const_iterator itm=tms.end()-1; itm>=tms.begin(); itm--) {
+      edm::LogVerbatim("toBeContinued")<<" IN LOOP";
     if (itm->recHit()->isValid()) break;
     else if ( // FIXME: restore this:   !Trajectory::inactive(itm->recHit()->det()) &&
 	     Trajectory::lost(*itm->recHit())) consecLostHit++;
   }
+
+  edm::LogVerbatim("toBeContinued")<<" AFTER LOOP";
+
   if (consecLostHit > theMaxConsecLostHit) return false; 
 
   // stopping condition from region has highest priority
@@ -294,18 +307,32 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj)
   int invalidHits = 0;
 
   TSOS currentState( traj.lastMeasurement().updatedState());
-
+  edm::LogInfo("findCompatibleMeasurements")<<" TSOS Last meas  " <<currentState<<" "<< currentState.isValid();
+  std::cout<<" - ---------- TSOS Last meas  " <<currentState<<" "<< currentState.isValid()<<std::endl;
+  std::cout <<" ---------- CURRENT LAYER "<<typeid(*(traj.lastMeasurement().layer())).name()<<std::endl;
   vector<const DetLayer*> nl = 
     traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
   
+  std::cout<<" Size of layers "<<nl.size()<<std::endl;
+
+
   if (nl.empty()) return result;
 
   for (vector<const DetLayer*>::iterator il = nl.begin(); 
        il != nl.end(); il++) {
+    std::cout <<" LAYER "<<typeid(**il).name()<<std::endl;
+   std::cout<<" before measurements " <<currentState<<" "<< currentState.isValid()<<std::endl;
     vector<TM> tmp = 
       theLayerMeasurements->measurements((**il),currentState, *thePropagator, *theEstimator);
-
+    std::cout<<" after measurements " <<currentState<<" "<< currentState.isValid()<< " " <<tmp.size()<<std::endl;
     //(**il).measurements( currentState, *thePropagator, *theEstimator);
+
+
+    for (vector<TM>::const_iterator tom = tmp.begin(); tom!= tmp.end(); tom++){
+      cout << " NEW MEASUREMENT "<<(*tom).predictedState()<<std::endl;
+      //      if ((*tom).predictedState().localPosition().perp()>20) abort();
+    }
+   
     if ( !tmp.empty()) {
       if ( result.empty()) result = tmp;
       else {
