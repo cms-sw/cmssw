@@ -5,7 +5,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -19,15 +19,17 @@ class TkStripMeasurementDet;
 class TkPixelMeasurementDet;
 class TkGluedMeasurementDet;
 class GeometricSearchTracker;
-class TrackingGeometry;
 class SiStripRecHitMatcher;
 class GluedGeomDet;
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:
 
-  //B.M. MeasurementTracker( const edm::EventSetup&, const edm::Event&);
-  MeasurementTracker( const edm::EventSetup&, const edm::ParameterSet& conf);
+  MeasurementTracker(const PixelClusterParameterEstimator* pixelCPE,
+		     const StripClusterParameterEstimator* stripCPE,
+		     const SiStripRecHitMatcher*  hitMatcher,
+		     const TrackerGeometry*  trackerGeom,
+		     const GeometricSearchTracker* geometricSearchTracker);
 
   virtual ~MeasurementTracker() {}
  
@@ -48,32 +50,34 @@ public:
   const std::vector<TkPixelMeasurementDet*>& pixelDets() const {return thePixelDets;}
   const std::vector<TkGluedMeasurementDet*>& gluedDets() const {return theGluedDets;}
 
+
 private:
+  mutable unsigned int lastEventNumber;
+  mutable unsigned int lastRunNumber;
 
+  mutable DetContainer                        theDetMap;
+  mutable std::vector<TkStripMeasurementDet*> theStripDets;
+  mutable std::vector<TkPixelMeasurementDet*> thePixelDets;
+  mutable std::vector<TkGluedMeasurementDet*> theGluedDets;
 
-  DetContainer                        theDetMap;
-  std::vector<TkStripMeasurementDet*> theStripDets;
-  std::vector<TkPixelMeasurementDet*> thePixelDets;
-  std::vector<TkGluedMeasurementDet*> theGluedDets;
-  const TrackingGeometry*             theTrackerGeom;
-  const GeometricSearchTracker*       theGeometricSearchTracker;
-
-  const StripClusterParameterEstimator* stripCPE;
-  const PixelClusterParameterEstimator* pixelCPE;
+  const PixelClusterParameterEstimator* thePixelCPE;
+  const StripClusterParameterEstimator* theStripCPE;
   const SiStripRecHitMatcher*           theHitMatcher;
+  const TrackerGeometry*                theTrackerGeom;
+  const GeometricSearchTracker*         theGeometricSearchTracker;
 
-  void initialize(const edm::EventSetup&, const edm::ParameterSet&);
+  void initialize() const;
 
   void addStripDet( const GeomDet* gd,
-		    const StripClusterParameterEstimator* cpe);
+		    const StripClusterParameterEstimator* cpe) const;
   void addPixelDet( const GeomDet* gd,
-		    const PixelClusterParameterEstimator* cpe);
+		    const PixelClusterParameterEstimator* cpe) const;
 
-  void addGluedDet( const GluedGeomDet* gd, const SiStripRecHitMatcher* matcher);
+  void addGluedDet( const GluedGeomDet* gd, const SiStripRecHitMatcher* matcher) const;
 
-  void addPixelDets( const TrackingGeometry::DetContainer& dets);
+  void addPixelDets( const TrackingGeometry::DetContainer& dets) const;
 
-  void addStripDets( const TrackingGeometry::DetContainer& dets);
+  void addStripDets( const TrackingGeometry::DetContainer& dets) const;
 
 };
 
