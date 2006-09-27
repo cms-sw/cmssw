@@ -61,9 +61,6 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
 
-
-
-
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Barrel SC collection with size : " << scBarrelCollection.size()  << "\n";
 
@@ -76,8 +73,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
 
   //  Loop over barrel SC and fill the  photon collection
-  int iSC=0;
-  int lSC=0;
+  int iSC=0; // index in photon collection
+  int lSC=0; // local index on barrel
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
 
@@ -101,7 +98,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   }
 
   //  Loop over Endcap SC and fill the  photon collection
-  lSC=0;
+  lSC=0; // reset local index for endcap
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
 
     const reco::Particle::Point  vtx( 0, 0, 0 );
@@ -120,10 +117,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   }
 
-  std::cout << " " << std::endl;
-
   // put the product in the event
-
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
   theEvent.put( outputPhotonCollection_p, PhotonCollection_);
