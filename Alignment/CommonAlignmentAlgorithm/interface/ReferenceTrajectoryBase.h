@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2006/09/20 16:06:35 $
+ * last update: $Date: 2006/09/21 22:26:02 $
  * by         : $Author: flucke $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
@@ -99,9 +99,13 @@ public:
    */
   const AlgebraicVector& parameters() const { return theParameters; }
 
-  /** Returns the Tsos at the surfaces of the hits
+  /** Returns the Tsos at the surfaces of the hits, parallel to recHits()
    */
   const std::vector<TrajectoryStateOnSurface>& trajectoryStates() const { return theTsosVec; }
+  /** Returns the TransientTrackingRecHits (as ConstRecHitPointer's), 
+      order might depend on concrete implementation of inheriting class
+   */
+  const TransientTrackingRecHit::ConstRecHitContainer& recHits() const { return theRecHits; }
 
   virtual ReferenceTrajectoryBase* clone() const = 0;
 
@@ -112,6 +116,7 @@ protected:
   bool theValidityFlag;
 
   std::vector<TrajectoryStateOnSurface> theTsosVec;
+  TransientTrackingRecHit::ConstRecHitContainer theRecHits;
 
   AlgebraicVector     theMeasurements;
   AlgebraicSymMatrix  theMeasurementsCov;

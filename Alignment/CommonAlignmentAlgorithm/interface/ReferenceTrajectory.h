@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2006/09/20 08:15:38 $
+ * last update: $Date: 2006/09/21 22:30:03 $
  * by         : $Author: flucke $
  *
  *  Class implementing the reference trajectory of a single charged
@@ -23,9 +23,8 @@
  *  By default, the mass is assumed to be the muon-mass, but can be
  *  changed via a constructor argument.
  *
- *
  * LIMITATIONS:
- *  So far all input hits are have to be valid, but invalid hits
+ *  So far all input hits have to be valid, but invalid hits
  *  would be needed to take into account the material effects in them...
  *
  */
@@ -43,7 +42,9 @@ class ReferenceTrajectory : public ReferenceTrajectoryBase
 
 public:
   /**Constructor with Tsos at first hit (in physical order) and list of hits 
-     [if (hitsAreReverse) ==> order of hits is in against direction of flight of particle],
+     [if (hitsAreReverse) ==> order of hits is in opposite direction compared
+     to the flight of particle, but note that ReferenceTrajectory::recHits()
+     returns the hits always in order of flight],
      the material effects to be considered and a particle mass,
      the magnetic field of the event is needed for propagations etc.
    */

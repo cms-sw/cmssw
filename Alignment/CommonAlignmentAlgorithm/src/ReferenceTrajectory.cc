@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2006/09/20 08:36:23 $
+//  last update: $Date: 2006/09/21 22:32:01 $
 //  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
@@ -83,7 +83,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   TransientTrackingRecHit::ConstRecHitContainer::const_iterator itRecHit = recHits.begin();
   for (unsigned int iRow = 0; itRecHit != recHits.end(); ++itRecHit, iRow += nMeasPerHit) { 
     const TransientTrackingRecHit::ConstRecHitPointer &hitPtr = *itRecHit;
-
+    theRecHits.push_back(hitPtr);
     if (!hitPtr->isValid()) return false;
     // GF FIXME: We have to care about invalid hits since also tracks with holes might be useful!
 
