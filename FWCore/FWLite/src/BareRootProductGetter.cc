@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.4 2006/06/28 16:15:17 wmtan Exp $
+// $Id: BareRootProductGetter.cc,v 1.5 2006/08/26 15:50:04 chrjones Exp $
 //
 
 // system include files
@@ -41,7 +41,7 @@
 BareRootProductGetter::BareRootProductGetter():
 presentFile_(0),
 eventTree_(0),
-eventEntry_(-1)
+eventEntry_(-1)  
 {
 }
 
@@ -75,28 +75,24 @@ BareRootProductGetter::~BareRootProductGetter()
 //
 edm::EDProduct const*
 BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
-  if(gFile == 0 ) {
-     throw cms::Exception("NoFile")<<"the global file pointer, gFile, is zero"
-				   <<"\n This can be caused when processing using a TChain which is not yet supported."
-				   <<"Please try processing only one file";
-    return 0;
-  }
-  if(gFile !=presentFile_) {
-    setupNewFile(gFile);
+  TFile* currentFile = dynamic_cast<TFile*>(gROOT->GetListOfFiles()->Last());
+
+  if(currentFile !=presentFile_) {
+    setupNewFile(currentFile);
   } else {
     //could still have a new TFile which just happens to share the same memory address as the previous file
     //will assume that if the Event tree's address and UUID are the same as before then we do not have
     // to treat this like a new file
-    TTree* eventTreeTemp = dynamic_cast<TTree*>(gFile->Get(edm::poolNames::eventTreeName().c_str()));
+    TTree* eventTreeTemp = dynamic_cast<TTree*>(currentFile->Get(edm::poolNames::eventTreeName().c_str()));
     if(eventTreeTemp != eventTree_ ||
-       fileUUID_ != gFile->GetUUID() ) {
-      setupNewFile(gFile);
+       fileUUID_ != currentFile->GetUUID() ) {
+      setupNewFile(currentFile);
     }
   }
   if (0 == eventTree_) {
      throw cms::Exception("NoEventsTree")
-	<<"unable to find the TTree '"<<edm::poolNames::eventTreeName() << "' in the global file, \n"
-	<<"gFile '"<< gFile->GetName()
+	<<"unable to find the TTree '"<<edm::poolNames::eventTreeName() << "' in the last open file, \n"
+	<<"file: '"<< currentFile->GetName()
 	<<"'\n Please check that the file is a standard CMS ROOT format.\n"
 	<<"If the above is not the file you expect then please open your data file after all other files.";
     return 0;

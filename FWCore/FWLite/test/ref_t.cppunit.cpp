@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.2 2006/05/30 01:22:24 chrjones Exp $
+$Id: ref_t.cppunit.cpp,v 1.3 2006/06/14 23:57:54 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -27,9 +27,9 @@ class testRefInROOT: public CppUnit::TestFixture
   
   CPPUNIT_TEST(testOneGoodFile);
   CPPUNIT_TEST_EXCEPTION(failOneBadFile,std::exception);
-  //CPPUNIT_TEST(testGoodChain);
+  CPPUNIT_TEST(testGoodChain);
   CPPUNIT_TEST(testTwoGoodFiles);
-  CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
+  // CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
   //failTwoDifferentFiles
   CPPUNIT_TEST_EXCEPTION(failDidNotCallGetEntryForEvents,std::exception);
   
@@ -55,8 +55,8 @@ public:
   void testOneGoodFile();
   void testTwoGoodFiles();
   void failOneBadFile();
-  //void testGoodChain();
-  void failChainWithMissingFile();
+  void testGoodChain();
+  // void failChainWithMissingFile();
   void failDidNotCallGetEntryForEvents();
 
   static bool sWasRun_;
@@ -151,7 +151,7 @@ void testRefInROOT::testTwoGoodFiles()
   testTree(events);
 }
 
-/*
+
 void testRefInROOT::testGoodChain()
 {
   TChain eventChain("Events");
@@ -174,7 +174,7 @@ void testRefInROOT::testGoodChain()
   }
   
 }
-*/
+/*
 void testRefInROOT::failChainWithMissingFile()
 {
   TChain eventChain("Events");
@@ -189,7 +189,7 @@ void testRefInROOT::failChainWithMissingFile()
   
   int nev = eventChain.GetEntries();
   for( int ev=0; ev<nev; ++ev) {
-    
+    std::cout <<"event #" <<ev<<std::endl;    
     eventChain.GetEntry(ev);
     CPPUNIT_ASSERT(pOthers != 0);
     CPPUNIT_ASSERT(pThings != 0);
@@ -197,7 +197,7 @@ void testRefInROOT::failChainWithMissingFile()
   }
   
 }
-
+*/
 void testRefInROOT::failDidNotCallGetEntryForEvents()
 {
   TFile file("good.root");
