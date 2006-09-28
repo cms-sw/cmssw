@@ -54,6 +54,7 @@ vector<PixelTrackCleaner::TrackWithRecHits> PixelTrackCleaner::cleanTracks(vecto
   for (int i = 0; i < size; i++)
   {
     if (trackOk.at(i)) cleanedTracks.push_back(trackHitPairs.at(i));
+    else delete trackHitPairs.at(i).first;
   }
   return cleanedTracks;
 }
