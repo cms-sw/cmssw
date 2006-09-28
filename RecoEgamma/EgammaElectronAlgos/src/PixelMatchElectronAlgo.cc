@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.7 2006/09/19 19:28:36 rahatlou Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.8 2006/09/28 17:09:10 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -205,7 +205,6 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
       //      TrackCandidate aTrackCandidate(recHits,*(it->seed().clone()),*state);
       TrackCandidate * aTrackCandidatePtr= new TrackCandidate(recHits,*(it->seed().clone()),*state);
       TrackCandidate aTrackCandidate = * aTrackCandidatePtr;
-      printf("Created trackcand, ptr %p\n",aTrackCandidatePtr);fflush(stdout);
       LogDebug("") << "New track candidate created";
       LogDebug("") << "n valid and invalid hit, chi2 : " 
 		   << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared();
