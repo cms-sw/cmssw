@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.33 2006/09/24 17:11:11 wmtan Exp $
+$Id: RootFile.cc,v 1.34 2006/09/24 17:41:15 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -130,7 +130,7 @@ namespace edm {
   RootFile::open() {
     if (filePtr_ == 0) {
       throw cms::Exception("FileNotFound","RootFile::RootFile()")
-        << "File " << file_ << " was not found.\n";
+        << "File " << file_ << " was not found or could not be opened.\n";
     }
     // Report file opened.
     std::string const label = "source";
