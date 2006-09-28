@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronProducer.cc,v 1.1 2006/07/12 15:10:48 charlot Exp $
+// $Id: PixelMatchElectronProducer.cc,v 1.2 2006/09/20 12:18:42 rahatlou Exp $
 //
 //
 
@@ -29,8 +29,10 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-//#include "DataFormats/EgammaReco/interface/ElectronTrack.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 
@@ -42,8 +44,9 @@ PixelMatchElectronProducer::PixelMatchElectronProducer(const edm::ParameterSet& 
 {
   //register your products
   produces<ElectronCollection>();
-//  produces<ElectronTrackCollection>();
-  produces<TrackCandidateCollection>();
+  produces<TrackCollection>();
+  produces<TrackExtraCollection>();
+  produces<TrackingRecHitCollection>();
   
   //create algo
   algo_ = new PixelMatchElectronAlgo(iConfig.getParameter<double>("maxEOverP"),
@@ -75,15 +78,12 @@ void PixelMatchElectronProducer::produce(edm::Event& e, const edm::EventSetup& i
                <<", Number of seeds "<<seeds.product()->size() << "\n";
 
   // Create the output collections   
-//  std::auto_ptr<ElectronTrackCollection> pOutTk(new ElectronTrackCollection);
-  std::auto_ptr<TrackCandidateCollection> pOutTk(new TrackCandidateCollection);
   std::auto_ptr<ElectronCollection> pOutEle(new ElectronCollection);
   
   // invoke algorithm
-  algo_->run(e,*pOutTk,*pOutEle);
+  algo_->run(e,*pOutEle);
 
   // put result into the Event
-  e.put(pOutTk);
   e.put(pOutEle);
   
 }

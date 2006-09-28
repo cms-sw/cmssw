@@ -16,6 +16,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,6 +35,9 @@
 //CC@@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
+#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/Vector/interface/GlobalVector.h"
+
 //class TransientInitialStateEstimator;
 
 using namespace std;
@@ -50,7 +54,8 @@ public:
   ~PixelMatchElectronAlgo();
 
   void setupES(const EventSetup& setup, const ParameterSet& conf);
-  void run(const Event&, TrackCandidateCollection&, ElectronCollection&);
+  //  void run(const Event&, TrackCandidateCollection&, ElectronCollection&);
+  void run(Event&, ElectronCollection&);
 
  private:
 
