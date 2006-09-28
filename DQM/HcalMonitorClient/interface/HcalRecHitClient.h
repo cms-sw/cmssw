@@ -94,10 +94,10 @@ private:
   TH2F* tot_occ;
   TH1F* tot_energy;
 
-  TH2F* occ[3];
-  TH1F* energy[3];
-  TH1F* energyT[3];
-  TH1F* time[3];
+  TH2F* occ[4];
+  TH1F* energy[4];
+  TH1F* energyT[4];
+  TH1F* time[4];
 
 
   // Quality criteria for data integrity

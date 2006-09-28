@@ -23,6 +23,7 @@
 #include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalPedestalClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
+#include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
 #include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
 
 #include "TROOT.h"
@@ -89,14 +90,17 @@ public:
   /// Create tests
   void createTests(void);
 
-  void loadHistograms(TFile* infile);
 
+  //Offline output functions
+  void loadHistograms(TFile* infile);
+  void dumpHistograms(int& runNum, vector<TH1F*> &hist1d, vector<TH2F*> &hist2d);
   
+  void labelBins(TH1F* hist);
+
+
 private:
   
-
-  int ievt_;
-  int jevt_;
+  int ievt_, jevt_;
 
   int timeout_;
   int timeout_thresh_;
@@ -118,7 +122,9 @@ private:
   int subrun_;
   string baseHtmlDir_;
   string process_;
-  
+  TH1F* trigger_;
+
+
   string location_;
   string runtype_;
   string status_;
@@ -143,6 +149,7 @@ private:
   HcalPedestalClient* pedestal_client_;
   HcalLEDClient* led_client_;
   HcalTBClient* tb_client_;
+  HcalHotCellClient* hot_client_;
 
 };
 

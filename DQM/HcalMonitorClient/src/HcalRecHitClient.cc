@@ -7,7 +7,7 @@ HcalRecHitClient::HcalRecHitClient(const ParameterSet& ps, MonitorUserInterface*
   dqmQtests_.clear();
 
   mui_ = mui;
-  for(int i=0; i<3; i++){
+  for(int i=0; i<4; i++){
     occ[i]=0;
     energy[i]=0;
     energyT[i]=0;
@@ -39,7 +39,7 @@ HcalRecHitClient::HcalRecHitClient(){
   dqmQtests_.clear();
 
   mui_ = 0;
-  for(int i=0; i<3; i++){
+  for(int i=0; i<4; i++){
     occ[i]=0;
     energy[i]=0;
     energyT[i]=0;
@@ -107,7 +107,7 @@ void HcalRecHitClient::setup(void) {
 void HcalRecHitClient::cleanup(void) {
 
   if ( cloneME_ ) {
-    for(int i=0; i<3; i++){
+    for(int i=0; i<4; i++){
       if(occ[i]) delete occ[i];
       if(energy[i]) delete energy[i];
       if(energyT[i]) delete energyT[i];
@@ -117,7 +117,7 @@ void HcalRecHitClient::cleanup(void) {
     if(tot_energy) delete tot_energy;
   }
   
-  for(int i=0; i<3; i++){
+  for(int i=0; i<4; i++){
     occ[i]=0; energy[i]=0;
     energyT[i]=0; time[i]=0;
   }
@@ -243,10 +243,11 @@ void HcalRecHitClient::analyze(void){
 void HcalRecHitClient::getHistograms(){
 
   char name[150];    
-  for(int i=0; i<3; i++){
-    string type = "HBHE";
-    if(i==1) type = "HO"; 
-    if(i==2) type = "HF"; 
+  for(int i=0; i<4; i++){
+    string type = "HB";
+    if(i==1) type = "HE"; 
+    if(i==2) type = "HO"; 
+    if(i==3) type = "HF"; 
     
     sprintf(name,"RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
     energy[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
@@ -348,7 +349,14 @@ void HcalRecHitClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<hr>" << endl;
 
   htmlFile << "<h2><strong>Hcal RecHit Histograms</strong></h2>" << endl;
-  
+  htmlFile << "<h3>" << endl;
+  htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
+  htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
+  htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
+  htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  htmlFile << "</h3>" << endl;
+  htmlFile << "<hr>" << endl;
+
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
   
@@ -359,14 +367,15 @@ void HcalRecHitClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
 
 
-  for(int i=0; i<3; i++){
+  for(int i=0; i<4; i++){
     htmlFile << "<tr align=\"left\">" << endl;
     
-    string type = "HBHE";
-    if(i==1) type = "HO"; 
-    if(i==2) type = "HF"; 
+    string type = "HB";
+    if(i==1) type = "HE"; 
+    if(i==2) type = "HO"; 
+    if(i==3) type = "HF"; 
     
-    htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>" << type << " Histograms</h3></td></tr>" << endl;
+    htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
     htmlFile << "<tr align=\"left\">" << endl;
     histoHTML2(occ[i],"iEta","iPhi", 92, htmlFile,htmlDir);
     histoHTML(energyT[i],"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
@@ -453,15 +462,18 @@ void HcalRecHitClient::createTests(){
 void HcalRecHitClient::loadHistograms(TFile* infile){
 
   TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/RecHitMonitor/RecHit Event Number");
-  string s =tnd->GetTitle();
-  ievt_ = -1;
-  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+  if(tnd){
+    string s =tnd->GetTitle();
+    ievt_ = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+  }
 
   char name[150];    
-  for(int i=0; i<3; i++){
-    string type = "HBHE";
-    if(i==1) type = "HO"; 
-    if(i==2) type = "HF"; 
+  for(int i=0; i<4; i++){
+    string type = "HB";
+    if(i==1) type = "HE"; 
+    if(i==2) type = "HO"; 
+    if(i==3) type = "HF"; 
     
     sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
     energy[i] = (TH1F*)infile->Get(name);

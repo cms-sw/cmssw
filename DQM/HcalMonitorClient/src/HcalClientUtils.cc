@@ -1,6 +1,28 @@
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 #include <sys/time.h>
 
+void dumpHisto(TH1F* hist, vector<string> &names, 
+	       vector<double> &meanX, vector<double> &meanY, 
+	       vector<double> &rmsX, vector<double> &rmsY){
+  
+  names.push_back((string)hist->GetTitle());
+  meanX.push_back(hist->GetMean(1));
+  meanY.push_back(-123e10);
+  rmsX.push_back(hist->GetRMS(1));
+  rmsY.push_back(-123e10);  
+  return;
+}
+void dumpHisto2(TH2F* hist, vector<string> &names, 
+	       vector<double> &meanX, vector<double> &meanY, 
+	       vector<double> &rmsX, vector<double> &rmsY){
+  
+  names.push_back((string)hist->GetTitle());
+  meanX.push_back(hist->GetMean(1));
+  meanY.push_back(hist->GetMean(2));
+  rmsX.push_back(hist->GetRMS(1));
+  rmsY.push_back(hist->GetRMS(2));
+  return;
+}
 string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab, bool save){
   //  timeval a,b;
   //  gettimeofday(&a,NULL);

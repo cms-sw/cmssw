@@ -42,4 +42,11 @@ void createMeanValueTest(MonitorUserInterface* mui, vector<string>& params);
 void createH2CompTest(MonitorUserInterface* mui, vector<string>& params, TH2F* ref);
 void createH2ContentTest(MonitorUserInterface* mui, vector<string>& params);
 
+void dumpHisto(TH1F* hist, vector<string> &names, 
+	       vector<double> &meanX, vector<double> &meanY, 
+	       vector<double> &rmsX, vector<double> &rmsY);
+void dumpHisto2(TH2F* hist, vector<string> &names, 
+	       vector<double> &meanX, vector<double> &meanY, 
+	       vector<double> &rmsX, vector<double> &rmsY);
+
 #endif

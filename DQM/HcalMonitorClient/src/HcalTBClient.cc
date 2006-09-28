@@ -10,14 +10,24 @@ HcalTBClient::HcalTBClient(const ParameterSet& ps, MonitorUserInterface* mui){
     CHK[i] = 0;
     TOFT_S[i] = 0;
     TOFT_J[i] = 0;
+    TOF_DT[i] = 0;
+    HTIME[i] = 0;
+    HRES[i] = 0;
+    HPHASE[i] = 0;
+    ERES[i] = 0;
   }
-  for(int i=0; i<4; i++) DT[i]=0;
   for(int i=0; i<8; i++){
     WC[i]=0;
     WCX[i]=0;
     WCY[i]=0;
   }
+
   TOFQ[0] = 0;  TOFQ[1] = 0;
+  TRIGT= 0;
+  L1AT= 0;
+  BCT= 0;
+  PHASE= 0;
+
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -40,14 +50,23 @@ HcalTBClient::HcalTBClient(){
     CHK[i] = 0;
     TOFT_S[i] = 0;
     TOFT_J[i] = 0;
+    TOF_DT[i] = 0;
+    HTIME[i] = 0;
+    HRES[i] = 0;
+    HPHASE[i] = 0;
+    ERES[i] = 0;
   }
-  for(int i=0; i<4; i++) DT[i]=0;
   for(int i=0; i<8; i++){
     WC[i]=0;
     WCX[i]=0;
     WCY[i]=0;
   }
+
   TOFQ[0] = 0;  TOFQ[1] = 0;
+  TRIGT= 0;
+  L1AT= 0;
+  BCT= 0;
+  PHASE= 0;
 
 }
 
@@ -108,8 +127,12 @@ void HcalTBClient::cleanup(void) {
       if ( CHK[i] )  delete CHK[i];
       if ( TOFT_S[i] )  delete TOFT_S[i];
       if ( TOFT_J[i] )  delete TOFT_J[i];
+      if ( TOF_DT[i] ) delete TOF_DT[i];
+      if ( HTIME[i] ) delete HTIME[i];
+      if ( HRES[i] ) delete HRES[i];
+      if ( HPHASE[i] ) delete HPHASE[i];
+      if ( ERES[i] ) delete ERES[i];
     }    
-    for(int i=0; i<4; i++) if ( DT[i] )  delete DT[i];
     for(int i=0; i<8; i++){
       if ( WC[i] ) delete WC[i];
       if ( WCX[i] ) delete WCX[i];
@@ -117,20 +140,33 @@ void HcalTBClient::cleanup(void) {
     }    
     if(TOFQ[0]) delete TOFQ[0];
     if(TOFQ[1]) delete TOFQ[1];
+    if ( TRIGT) delete TRIGT;
+    if ( L1AT) delete L1AT;
+    if ( BCT) delete BCT;
+    if ( PHASE) delete PHASE;
   }
   
   for(int i=0; i<3; i++){
     CHK[i] = 0;
     TOFT_S[i] = 0;
     TOFT_J[i] = 0;
-  }    
-  for(int i=0; i<4; i++) DT[i] = 0;
+    TOF_DT[i] = 0;
+    HTIME[i] = 0;
+    HRES[i] = 0;
+    HPHASE[i] = 0;
+    ERES[i] = 0;
+  }
   for(int i=0; i<8; i++){
     WC[i]=0;
     WCX[i]=0;
     WCY[i]=0;
-  }   
-  TOFQ[0] = 0; TOFQ[1]=0;
+  }
+
+  TOFQ[0] = 0;  TOFQ[1] = 0;
+  TRIGT= 0;
+  L1AT= 0;
+  BCT= 0;
+  PHASE= 0;
   
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
@@ -275,21 +311,63 @@ void HcalTBClient::getHistograms(){
     i++;
   }
   
-  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/L1A-BC Phase", process_.c_str());
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/TOF TDC - Delta 1", process_.c_str());;
   me = mui_->get(name);
-  DT[0] = getHisto(me, verbose_,cloneME_);
+  TOF_DT[0] = getHisto(me, verbose_,cloneME_);
+  
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/TOF TDC - Delta 2", process_.c_str());;
+  me = mui_->get(name);
+  TOF_DT[1] = getHisto(me, verbose_,cloneME_);
 
-  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/TOF TDC - Delta 1", process_.c_str());
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/TOF Time - Delta", process_.c_str());;
   me = mui_->get(name);
-  DT[1] = getHisto(me, verbose_,cloneME_);
+  TOF_DT[2] = getHisto(me, verbose_,cloneME_);
 
-  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/TOF TDC - Delta 2", process_.c_str());
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/Trigger Timing", process_.c_str());;
   me = mui_->get(name);
-  DT[2] = getHisto(me, verbose_,cloneME_);
+  TRIGT= getHisto(me, verbose_,cloneME_);
+  
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/TTC L1A Timing", process_.c_str());;
+  me = mui_->get(name);
+  L1AT= getHisto(me, verbose_,cloneME_);
+  
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/Beam Coincidence Timing", process_.c_str());;
+  me = mui_->get(name);
+  BCT= getHisto(me, verbose_,cloneME_);
+  
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/TB Phase", process_.c_str());;
+  me = mui_->get(name);
+  PHASE= getHisto(me, verbose_,cloneME_);
+  
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/HB Time", process_.c_str());;
+  me = mui_->get(name);
+  HTIME[0]= getHisto(me, verbose_,cloneME_);
+  
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/HB Time Resolution", process_.c_str());;
+  me = mui_->get(name);
+  HRES[0]= getHisto(me, verbose_,cloneME_);
+  
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/HB Time vs Phase", process_.c_str());;
+  me = mui_->get(name);
+  HPHASE[0]= getHisto2(me, verbose_,cloneME_);
+  
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/HB Time Resolution vs Energy", process_.c_str());;
+  me = mui_->get(name);
+  ERES[0]= getHisto2(me, verbose_,cloneME_);
 
-  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/TOF Time - Delta", process_.c_str());
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/HO Time", process_.c_str());;
   me = mui_->get(name);
-  DT[3] = getHisto(me, verbose_,cloneME_);
+  HTIME[1]= getHisto(me, verbose_,cloneME_);
+  
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/HO Time Resolution", process_.c_str());;
+  me = mui_->get(name);
+  HRES[1]= getHisto(me, verbose_,cloneME_);
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/HO Time vs Phase", process_.c_str());;
+  me = mui_->get(name);
+  HPHASE[1]= getHisto2(me, verbose_,cloneME_);
+  sprintf(name,"Collector/%s/TBMonitor/TimingMonitor/HO Time Resolution vs Energy", process_.c_str());;
+  me = mui_->get(name);
+  ERES[1]= getHisto2(me, verbose_,cloneME_);
 
   return;
 }
@@ -537,11 +615,17 @@ void HcalTBClient::timingHTML(string htmlDir, string htmlName){
   htmlFile << "<hr>" << endl;
   
   htmlFile << "<h2><strong>TOF Histograms</strong></h2>" << endl;
-  
+  htmlFile << "<h3>" << endl;
+  htmlFile << "<a href=\"#Beam_Plots\">Beam Plots </a></br>" << endl;
+  htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
+  htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
+  htmlFile << "</h3>" << endl;
+  htmlFile << "<hr>" << endl;
+
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
 
-  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Timing Histograms</h3></td></tr>" << endl;
+  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\"Beam_Plots\"><h3>Timing Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML(TOFT_S[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
   histoHTML(TOFT_S[1],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
@@ -552,12 +636,37 @@ void HcalTBClient::timingHTML(string htmlDir, string htmlName){
   histoHTML(TOFT_S[2],"Time","Hits/nS", 92, htmlFile,htmlDir);
   histoHTML(TOFT_J[2],"Time","Hits/nS", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(DT[1],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
-  histoHTML(DT[2],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
+  histoHTML(TOF_DT[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
+  histoHTML(TOF_DT[1],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(DT[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
-  histoHTML(DT[3],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
+  histoHTML(TOF_DT[2],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
+  //  histoHTML(DT[3],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
+  histoHTML(TRIGT,"nS","Evts", 92, htmlFile,htmlDir);
+  histoHTML(L1AT,"nS","Evts", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  histoHTML(BCT,"nS","Evts", 92, htmlFile,htmlDir);
+  histoHTML(PHASE,"nS","Evts", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+ htmlFile << "<hr>" << endl;
+  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\"HB_Plots\"><h3>HO Histograms</h3></td></tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(HTIME[0],"nS","Evts", 92, htmlFile,htmlDir);
+  histoHTML(HRES[0],"nS","Evts", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  histoHTML2(HPHASE[0],"TB Phase","Hcal Time", 92, htmlFile,htmlDir);
+  histoHTML2(ERES[0],"Energy","Time", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+ htmlFile << "<hr>" << endl;
+  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\"HO_Plots\"><h3>HO Histograms</h3></td></tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(HTIME[1],"nS","Evts", 92, htmlFile,htmlDir);
+  histoHTML(HRES[1],"nS","Evts", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  histoHTML2(HPHASE[1],"TB Phase","Hcal Time", 92, htmlFile,htmlDir);
+  histoHTML2(ERES[1],"Energy","Time", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -620,18 +729,76 @@ void HcalTBClient::loadHistograms(TFile* infile){
 
     i++;
   }
-  
-  sprintf(name,"DQMData/TBMonitor/TimingMonitor/L1A-BC Phase");
-  DT[0] =(TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/TBMonitor/TimingMonitor/TOF TDC - Delta 1");
-  DT[1] =(TH1F*)infile->Get(name);
+  TOF_DT[0] = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/TBMonitor/TimingMonitor/TOF TDC - Delta 2");
-  DT[2] =(TH1F*)infile->Get(name);
+  TOF_DT[1] = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/TBMonitor/TimingMonitor/TOF Time - Delta");
-  DT[3] =(TH1F*)infile->Get(name);
+  TOF_DT[2] = (TH1F*)infile->Get(name);
+
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/Trigger Timing");
+  TRIGT= (TH1F*)infile->Get(name);
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/TTC L1A Timing");
+  L1AT= (TH1F*)infile->Get(name);
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/Beam Coincidence Timing");
+  BCT= (TH1F*)infile->Get(name);
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/TB Phase");
+  PHASE= (TH1F*)infile->Get(name);
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/HB Time");
+  HTIME[0]= (TH1F*)infile->Get(name);
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/HB Time Resolution");
+  HRES[0]= (TH1F*)infile->Get(name);
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/HB Time vs Phase");
+  HPHASE[0]= (TH2F*)infile->Get(name);
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/HB Time Resolution vs Energy");
+  ERES[0]= (TH2F*)infile->Get(name);
+
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/HO Time");
+  HTIME[1]= (TH1F*)infile->Get(name);
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/HO Time Resolution");
+  HRES[1]= (TH1F*)infile->Get(name);
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/HO Time vs Phase");
+  HPHASE[1]= (TH2F*)infile->Get(name);
+  sprintf(name,"DQMData/TBMonitor/TimingMonitor/HO Time Resolution vs Energy");
+  ERES[1]= (TH2F*)infile->Get(name);
+
+  return;
+}
+
+void HcalTBClient::dumpHistograms(vector<TH1F*> &hist1d, vector<TH2F*> &hist2d){
+
+  for(int i=0; i<3; i++){
+    if(CHK[i]!=NULL) hist1d.push_back(CHK[i]);
+    if(TOF_DT[i] !=NULL) hist1d.push_back(TOF_DT[i]);
+    if(TOFT_S[i] !=NULL) hist1d.push_back(TOFT_S[i]);
+    if(TOFT_J[i] !=NULL) hist1d.push_back(TOFT_J[i]);
+  }
+
+  for(int i=0; i<2; i++){
+    if(TOFQ[i] !=NULL) hist1d.push_back(TOFQ[i]);
+    if(HTIME[i]!=NULL) hist1d.push_back(HTIME[i]);
+    if(HRES[i]!=NULL) hist1d.push_back(HRES[i]);
+    if(HPHASE[i]!=NULL) hist2d.push_back(HPHASE[i]);
+    if(ERES[i]!=NULL) hist2d.push_back(ERES[i]);
+  }
+
+  int i = 0;
+  for(char c = 'A'; c<='H'; c++){
+    if(WC[i] !=NULL) hist2d.push_back(WC[i]);
+    if(WCX[i] !=NULL) hist1d.push_back(WCX[i]);
+    if(WCY[i] !=NULL) hist1d.push_back(WCY[i]);
+    i++;
+  }
+
+  if(TRIGT!=NULL) hist1d.push_back(TRIGT);
+  if(L1AT!=NULL) hist1d.push_back(L1AT);
+  if(BCT!=NULL) hist1d.push_back(BCT);
+  if(PHASE!=NULL) hist1d.push_back(PHASE);
+
+  //  printf("TBClient, names: %d, meanX: %d\n",names.size(),meanX.size());
 
   return;
 }

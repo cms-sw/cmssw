@@ -7,7 +7,9 @@ HcalDigiClient::HcalDigiClient(const ParameterSet& ps, MonitorUserInterface* mui
 
   mui_ = mui;
   for(int i=0; i<3; i++){
-    occ_geo[i]=0;  occ_elec[i]=0;
+    occ_geo[i][0]=0;  occ_geo[i][1]=0;
+    occ_geo[i][2]=0;  occ_geo[i][3]=0;
+    occ_elec[i]=0;
     err_geo[i]=0;  err_elec[i]=0;
     qie_adc[i]=0;  num_digi[i]=0;
     qie_capid[i]=0; 
@@ -30,7 +32,9 @@ HcalDigiClient::HcalDigiClient(){
 
   mui_ = 0;
   for(int i=0; i<3; i++){
-    occ_geo[i]=0;  occ_elec[i]=0;
+    occ_geo[i][0]=0;  occ_geo[i][1]=0;
+    occ_geo[i][2]=0;  occ_geo[i][3]=0;
+    occ_elec[i]=0;
     err_geo[i]=0;  err_elec[i]=0;
     qie_adc[i]=0;  num_digi[i]=0;
     qie_capid[i]=0; 
@@ -97,7 +101,10 @@ void HcalDigiClient::cleanup(void) {
 
   if ( cloneME_ ) {
     for(int i=0; i<3; i++){
-      if ( occ_geo[i]) delete occ_geo[i];  
+      if ( occ_geo[i][0]) delete occ_geo[i][0];  
+      if ( occ_geo[i][1]) delete occ_geo[i][1];  
+      if ( occ_geo[i][2]) delete occ_geo[i][2];  
+      if ( occ_geo[i][3]) delete occ_geo[i][3];  
       if ( occ_elec[i]) delete occ_elec[i];  
       if ( err_geo[i]) delete err_geo[i];  
       if ( err_elec[i]) delete err_elec[i];  
@@ -107,7 +114,9 @@ void HcalDigiClient::cleanup(void) {
     }    
   }
   for(int i=0; i<3; i++){
-    occ_geo[i]=0;  occ_elec[i]=0;
+    occ_geo[i][0]=0;  occ_geo[i][1]=0;
+    occ_geo[i][2]=0;  occ_geo[i][3]=0;
+    occ_elec[i]=0;
     err_geo[i]=0;  err_elec[i]=0;
     qie_adc[i]=0;  num_digi[i]=0;
     qie_capid[i]=0;
@@ -243,8 +252,17 @@ void HcalDigiClient::getHistograms(){
     sprintf(name,"DigiMonitor/%s/%s Digi Elec Error Map",type.c_str(),type.c_str());
     err_elec[i] = getHisto2(name,process_, mui_,verbose_,cloneME_);
 
-    sprintf(name,"DigiMonitor/%s/%s Digi Geo Occupancy Map",type.c_str(),type.c_str());
-    occ_geo[i] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+    sprintf(name,"DigiMonitor/%s/%s Digi Layer 1 Occupancy Map",type.c_str(),type.c_str());
+    occ_geo[i][0] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Layer 2 Occupancy Map",type.c_str(),type.c_str());
+    occ_geo[i][1] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Layer 3 Occupancy Map",type.c_str(),type.c_str());
+    occ_geo[i][2] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Layer 4 Occupancy Map",type.c_str(),type.c_str());
+    occ_geo[i][3] = getHisto2(name, process_, mui_,verbose_,cloneME_);
 
     sprintf(name,"DigiMonitor/%s/%s Digi Elec Occupancy Map",type.c_str(),type.c_str());
     occ_elec[i] = getHisto2(name,process_,  mui_,verbose_,cloneME_);
@@ -335,9 +353,14 @@ void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr></table>" << endl;
   htmlFile << "<hr>" << endl;
 
-  
   htmlFile << "<h2><strong>Hcal Digi Histograms</strong></h2>" << endl;
-  
+  htmlFile << "<h3>" << endl;
+  htmlFile << "<a href=\"#HBHE_Plots\">HB-HE Plots </a></br>" << endl;
+  htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
+  htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  htmlFile << "</h3>" << endl;
+  htmlFile << "<hr>" << endl;
+
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
   
@@ -348,14 +371,19 @@ void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
     if(i==1) type = "HO"; 
     if(i==2) type = "HF"; 
     
-    htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>" << type << " Histograms</h3></td></tr>" << endl;
-    htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(err_geo[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(err_elec[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
+    htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
+
+    htmlFile << "<tr align=\"left\">" << endl;	
+    histoHTML2(occ_geo[i][0],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML2(occ_geo[i][1],"iEta","iPhi", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(occ_geo[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML2(occ_geo[i][2],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML2(occ_geo[i][3],"iEta","iPhi", 100, htmlFile,htmlDir);
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"left\">" << endl;	
     histoHTML2(occ_elec[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
@@ -448,10 +476,11 @@ void HcalDigiClient::loadHistograms(TFile* infile){
   char name[150];    
 
   TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/DigiMonitor/Digi Task Event Number");
-  string s =tnd->GetTitle();
-  ievt_ = -1;
-  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-
+  if(tnd){
+    string s =tnd->GetTitle();
+    ievt_ = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+  }
   for(int i=0; i<3; i++){
     string type = "HBHE";
     if(i==1) type = "HO"; 
@@ -463,8 +492,17 @@ void HcalDigiClient::loadHistograms(TFile* infile){
     sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Elec Error Map",type.c_str(),type.c_str());
     err_elec[i] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Geo Occupancy Map",type.c_str(),type.c_str());
-    occ_geo[i] = (TH2F*)infile->Get(name);
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Layer 1 Occupancy Map",type.c_str(),type.c_str());
+    occ_geo[i][0] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Layer 2 Occupancy Map",type.c_str(),type.c_str());
+    occ_geo[i][1] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Layer 3 Occupancy Map",type.c_str(),type.c_str());
+    occ_geo[i][2] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Layer 4 Occupancy Map",type.c_str(),type.c_str());
+    occ_geo[i][3] = (TH2F*)infile->Get(name);
 
     sprintf(name,"DQMData/HcalMonitor/DigiMonitor/%s/%s Digi Elec Occupancy Map",type.c_str(),type.c_str());
     occ_elec[i] = (TH2F*)infile->Get(name);

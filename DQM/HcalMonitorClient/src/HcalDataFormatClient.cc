@@ -293,6 +293,13 @@ void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<hr>" << endl;
   
   htmlFile << "<h2><strong>Hcal DCC Error Words</strong></h2>" << endl;  
+  htmlFile << "<h3>" << endl;
+  htmlFile << "<a href=\"#HBHE_Plots\">HB-HE Plots </a></br>" << endl;
+  htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
+  htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  htmlFile << "</h3>" << endl;
+  htmlFile << "<hr>" << endl;
+
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
 
@@ -300,7 +307,7 @@ void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
      string type = "HBHE";
      if(i==1) type = "HF"; 
      if(i==2) type = "HO"; 
-     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>" << type << " Histograms</h3></td></tr>" << endl;
+     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
      htmlFile << "<tr align=\"left\">" << endl;  
      histoHTML(dferr[i],"Error Bit","Frequency", 92, htmlFile,htmlDir);
      histoHTML2(dfmap[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
@@ -350,9 +357,11 @@ void HcalDataFormatClient::createTests(){
 void HcalDataFormatClient::loadHistograms(TFile* infile){
 
   TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/DataFormatMonitor/Data Format Task Event Number");
-  string s =tnd->GetTitle();
-  ievt_ = -1;
-  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+  if(tnd){
+    string s =tnd->GetTitle();
+    ievt_ = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+  }
 
   char name[150]; 
   for(int i=0; i<3; i++){

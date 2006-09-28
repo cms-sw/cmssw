@@ -92,7 +92,7 @@ private:
 
   MonitorUserInterface* mui_;
 
-  TH2F* occ_geo[3];
+  TH2F* occ_geo[3][4];
   TH2F* occ_elec[3];
 
   TH2F* err_geo[3];

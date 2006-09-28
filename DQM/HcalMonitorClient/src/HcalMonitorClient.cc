@@ -3,28 +3,30 @@
 
 HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
   mui_ = mui;
+  trigger_=0;
   this->initialize(ps);
 }
 
 HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps){
   mui_ = 0;
+  trigger_=0;
   this->initialize(ps);
 }
 
 
 HcalMonitorClient::HcalMonitorClient(){
   mui_ = 0;
+  trigger_=0;
   verbose_ =false;
-
 }
 
 HcalMonitorClient::~HcalMonitorClient(){
 
-  cout << "HcalMonitorClient: Exit ..." << endl;
+  //  cout << "HcalMonitorClient: Exit ..." << endl;
 
   //  if(!offline_) this->cleanup();
   this->cleanup();
-  sleep(2);
+  //  sleep(2);
 
   if( dataformat_client_ ) delete dataformat_client_;
   if( digi_client_ )       delete digi_client_;
@@ -32,6 +34,7 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( pedestal_client_ )   delete pedestal_client_;
   if( led_client_ )        delete led_client_;
   if( tb_client_ )         delete tb_client_;
+  if( hot_client_ )         delete hot_client_;
 
   if(mui_) mui_->disconnect();
   if(mui_) delete mui_;
@@ -47,6 +50,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0; tb_client_ = 0;
+  hot_client_ = 0;
+  trigger_=0;
 
   begin_run_done_ = false;   end_run_done_   = false;
   forced_begin_run_ = false; forced_end_run_   = false;
@@ -150,6 +155,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     led_client_          = new HcalLEDClient(ps, mui_);
   if( ps.getUntrackedParameter<bool>("TestBeamClient", false) )
     tb_client_          = new HcalTBClient(ps, mui_);
+  if( ps.getUntrackedParameter<bool>("HotCellClient", false) )
+    hot_client_          = new HcalHotCellClient(ps, mui_);
 
   return;
 }
@@ -169,6 +176,7 @@ void HcalMonitorClient::beginJob(const EventSetup& eventSetup){
   if( pedestal_client_ )   pedestal_client_->beginJob(eventSetup);
   if( led_client_ )        led_client_->beginJob(eventSetup);
   if( tb_client_ )         tb_client_->beginJob();
+  if( hot_client_ )         hot_client_->beginJob();
     
   return;
 }
@@ -185,6 +193,7 @@ void HcalMonitorClient::beginRun(void){
   if( pedestal_client_ )   pedestal_client_->beginRun();
   if( led_client_ )        led_client_->beginRun();
   if( tb_client_ )         tb_client_->beginRun();
+  if( hot_client_ )        hot_client_->beginRun();
 
   return;
 
@@ -197,6 +206,7 @@ void HcalMonitorClient::endJob(void) {
   this->cleanup();
 
   if( tb_client_ ) tb_client_->endJob();
+  if( hot_client_ ) hot_client_->endJob();
   if( dataformat_client_ ) dataformat_client_->endJob();
   if( digi_client_ )  digi_client_->endJob();
   if( rechit_client_ )  rechit_client_->endJob();
@@ -230,10 +240,15 @@ void HcalMonitorClient::report(bool doUpdate) {
     TFile* rootOut = new TFile(saver.c_str(),"UPDATE");
     rootOut->cd();
     map<string, vector<QReport*> > errE, errW, errO;
-    
+
     if( tb_client_ ) {      
       tb_client_->report();
       tb_client_->getErrors(errE,errW,errO);
+    }    
+
+    if( hot_client_ ) {      
+      hot_client_->report();
+      hot_client_->getErrors(errE,errW,errO);
     }    
     if( led_client_ ) {      
       led_client_->report();
@@ -274,6 +289,7 @@ void HcalMonitorClient::endRun(void) {
   this->report(false);
   
   if( tb_client_ )         tb_client_->endRun();
+  if( hot_client_ )         hot_client_->endRun();
   if( dataformat_client_ ) dataformat_client_->endRun();
   if( digi_client_ )       digi_client_->endRun();
   if( rechit_client_ )     rechit_client_->endRun();
@@ -328,6 +344,7 @@ void HcalMonitorClient::subscribe(void){
   if( pedestal_client_ ) pedestal_client_->subscribe();  
   if( led_client_ ) led_client_->subscribe();
   if( tb_client_ ) tb_client_->subscribe();
+  if( hot_client_ ) hot_client_->subscribe();
 
   return;
 }
@@ -347,6 +364,7 @@ void HcalMonitorClient::subscribeNew(void){
   if( pedestal_client_ ) pedestal_client_->subscribeNew();  
   if( led_client_ ) led_client_->subscribeNew();
   if( tb_client_ ) tb_client_->subscribeNew();
+  if( hot_client_ ) hot_client_->subscribeNew();
 
   return;
 }
@@ -365,6 +383,7 @@ void HcalMonitorClient::unsubscribe(void) {
   }
 
   if( tb_client_ ) tb_client_->unsubscribe();
+  if( hot_client_ ) hot_client_->unsubscribe();
   if( dataformat_client_ ) dataformat_client_->unsubscribe();
   if( digi_client_ ) digi_client_->unsubscribe();
   if( rechit_client_ ) rechit_client_->unsubscribe();
@@ -455,6 +474,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
       if( pedestal_client_ )   pedestal_client_->analyze();      
       if( led_client_ )        led_client_->analyze(); 
       if( tb_client_ )         tb_client_->analyze(); 
+      if( hot_client_ )         hot_client_->analyze(); 
     }    
     if(status_ == "end-of-run") this->endRun();
     if(status_!="unknown") 
@@ -484,6 +504,7 @@ void HcalMonitorClient::createTests(void){
   if( pedestal_client_ ) pedestal_client_->createTests(); 
   if( led_client_ ) led_client_->createTests(); 
   if( tb_client_ ) tb_client_->createTests(); 
+  if( hot_client_ ) hot_client_->createTests(); 
 
   return;
 }
@@ -519,7 +540,6 @@ void HcalMonitorClient::htmlOutput(void){
   htmlFile << "<h2>Events processed:&nbsp&nbsp&nbsp" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << mon_evt_ <<"</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
-
   htmlFile << "<ul>" << endl;
 
   string htmlName;
@@ -569,7 +589,17 @@ void HcalMonitorClient::htmlOutput(void){
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</table>" << endl;
   }
-
+  if( hot_client_ ) {
+    htmlName = "HcalHotCellClient.html";
+    hot_client_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Hot Cell Monitor</a></td" << endl;
+    if(hot_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
+    else if(hot_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
+    else if(hot_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
+    else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
+    htmlFile << "</table>" << endl;
+  }
   if( pedestal_client_) {
     htmlName = "HcalPedestalClient.html";
     pedestal_client_->htmlOutput(run_, htmlDir, htmlName);
@@ -598,6 +628,10 @@ void HcalMonitorClient::htmlOutput(void){
     htmlFile << "</table>" << endl;
   }
 
+  htmlFile << "<hr>" << endl;
+  htmlFile << "<h3><strong>Trigger Frequency</h3>" << endl;
+  histoHTML(trigger_,"Trigger Type","Evts", 100, htmlFile,htmlDir);  
+
   htmlFile << "</ul>" << endl;
 
   // html page footer
@@ -610,13 +644,14 @@ void HcalMonitorClient::htmlOutput(void){
 
 }
 void HcalMonitorClient::offlineSetup(){
-  cout << endl;
-  cout << " *** Hcal Generic Monitor Client, for offline operation***" << endl;
-  cout << endl;
+  //  cout << endl;
+  //  cout << " *** Hcal Generic Monitor Client, for offline operation***" << endl;
+  //  cout << endl;
 
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0; tb_client_ = 0;
+  trigger_=0; hot_client_ = 0;
 
   begin_run_done_ = false;   end_run_done_   = false;
   forced_begin_run_ = false; forced_end_run_   = false;
@@ -633,6 +668,7 @@ void HcalMonitorClient::offlineSetup(){
   
   // clients' constructors
   tb_client_           = new HcalTBClient();
+  hot_client_           = new HcalHotCellClient();
   dataformat_client_   = new HcalDataFormatClient();
   rechit_client_       = new HcalRecHitClient();
   digi_client_         = new HcalDigiClient();
@@ -680,10 +716,16 @@ void HcalMonitorClient::loadHistograms(TFile* infile){
   if( s.substr(2,1) == "1" ) status_ = "running";
   if( s.substr(2,1) == "2" ) status_ = "end-of-run";
   
-  printf("HcalOfflineClient: run: %d, evts: %d, type: %s, status: %s\n",run_, mon_evt_, runtype_.c_str(),status_.c_str());
+  //  MonitorElement* me = (TH1F*)infile->Get("DQMData/HcalMonitor/TB Trigger Type");
+  //  if ( me ) trigger_ = getHisto(me,verbose_,cloneME_);
+  trigger_ = (TH1F*)infile->Get("DQMData/HcalMonitor/TB Trigger Type");
+  labelBins(trigger_);
+
+  //  printf("HcalOfflineClient: run: %d, evts: %d, type: %s, status: %s\n",run_, mon_evt_, runtype_.c_str(),status_.c_str());
 
 
   if(tb_client_) tb_client_->loadHistograms(infile);
+  if(hot_client_) hot_client_->loadHistograms(infile);
   if(dataformat_client_) dataformat_client_->loadHistograms(infile);
   if(rechit_client_) rechit_client_->loadHistograms(infile);
   if(digi_client_) digi_client_->loadHistograms(infile);
@@ -695,3 +737,35 @@ void HcalMonitorClient::loadHistograms(TFile* infile){
 }
 
 
+void HcalMonitorClient::labelBins(TH1F* hist){
+  
+  if(hist==NULL) return;
+
+  hist->GetXaxis()->SetBinLabel(1,"--");
+  hist->GetXaxis()->SetBinLabel(2,"Beam Trigger");
+  hist->GetXaxis()->SetBinLabel(3,"Out-Spill Ped");
+  hist->GetXaxis()->SetBinLabel(4,"In-Spill Ped");
+  hist->GetXaxis()->SetBinLabel(5,"LED Trigger");
+  hist->GetXaxis()->SetBinLabel(6,"Laser Trigger");
+  
+  return;
+}
+
+void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector<TH2F*> &hist2d){
+  
+  hist1d.clear(); 
+  hist2d.clear(); 
+
+  runNum = run_;
+
+  if(tb_client_) tb_client_->dumpHistograms(hist1d,hist2d);
+  /*
+  if(hot_client_) hot_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
+  if(dataformat_client_) dataformat_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
+  if(rechit_client_) rechit_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
+  if(digi_client_) digi_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
+  if(pedestal_client_) pedestal_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
+  if(led_client_) led_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
+  */
+  return;
+}

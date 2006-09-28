@@ -599,10 +599,11 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
 void HcalLEDClient::loadHistograms(TFile* infile){
 
   TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/LEDMonitor/LED Task Event Number");
-  string s =tnd->GetTitle();
-  ievt_ = -1;
-  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-
+  if(tnd){
+    string s =tnd->GetTitle();
+    ievt_ = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+  }
   char name[256];
   for(int i=0; i<3; i++){
     string type = "HBHE";
