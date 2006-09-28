@@ -200,16 +200,16 @@ void DCCDataMapper::buildTCCFields(){
     string ttFlag = string("TTF#") + parser_->getDecString(tt);
 
     if(tt<=filter1){ 
-      tcc16Fields_->insert( new DCCDataField(tpg, TPG_WPOSITION -1 + count/2, TPG_BPOSITION + 18*( (count+2)%2 ),TPG_MASK));
-      tcc16Fields_->insert( new DCCDataField(ttFlag, TTF_WPOSITION -1 + count/2, TTF_BPOSITION + 18*( (count+2)%2 ),TTF_MASK));
+      tcc16Fields_->insert( new DCCDataField(tpg, TPG_WPOSITION -1 + count/2, TPG_BPOSITION + 16*( (count+2)%2 ),TPG_MASK));
+      tcc16Fields_->insert( new DCCDataField(ttFlag, TTF_WPOSITION -1 + count/2, TTF_BPOSITION + 16*( (count+2)%2 ),TTF_MASK));
     }
     if(tt<=filter2){
-      tcc32Fields_->insert( new DCCDataField(tpg, TPG_WPOSITION -1 + count/2, TPG_BPOSITION + 18*( (count+2)%2 ),TPG_MASK));
-      tcc32Fields_->insert( new DCCDataField(ttFlag, TTF_WPOSITION -1 + count/2, TTF_BPOSITION + 18*( (count+2)%2 ),TTF_MASK));
+      tcc32Fields_->insert( new DCCDataField(tpg, TPG_WPOSITION -1 + count/2, TPG_BPOSITION + 16*( (count+2)%2 ),TPG_MASK));
+      tcc32Fields_->insert( new DCCDataField(ttFlag, TTF_WPOSITION -1 + count/2, TTF_BPOSITION + 16*( (count+2)%2 ),TTF_MASK));
     }
     
-    tcc68Fields_->insert( new DCCDataField(tpg, TPG_WPOSITION -1 + count/2, TPG_BPOSITION + 18*( (count+2)%2 ),TPG_MASK));
-    tcc68Fields_->insert( new DCCDataField(ttFlag, TTF_WPOSITION -1 + count/2, TTF_BPOSITION + 18*( (count+2)%2 ),TTF_MASK));
+    tcc68Fields_->insert( new DCCDataField(tpg, TPG_WPOSITION -1 + count/2, TPG_BPOSITION + 16*( (count+2)%2 ),TPG_MASK));
+    tcc68Fields_->insert( new DCCDataField(ttFlag, TTF_WPOSITION -1 + count/2, TTF_BPOSITION + 16*( (count+2)%2 ),TTF_MASK));
     count++;
   }
 		
