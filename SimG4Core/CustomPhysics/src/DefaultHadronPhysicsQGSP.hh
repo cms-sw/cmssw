@@ -1,7 +1,7 @@
 #ifndef HadronPhysicsQGSP_h
 #define HadronPhysicsQGSP_h 1
 
-#define G4v7
+//#define G4v7
 #include "G4VPhysicsConstructor.hh"
 
 #ifdef G4v7

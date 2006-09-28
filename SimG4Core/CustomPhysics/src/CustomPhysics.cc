@@ -1,4 +1,4 @@
-#define G4v7
+//#define G4v7
 #include "SimG4Core/CustomPhysics/interface/CustomPhysics.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/CustomPhysics/src/DefaultHadronPhysicsQGSP.hh"
