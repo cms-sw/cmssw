@@ -1,4 +1,4 @@
-#define G4v7
+//#define G4v7
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 #include "SimG4Core/Physics/interface/ProcessTypeEnumerator.h"
 

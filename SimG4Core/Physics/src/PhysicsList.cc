@@ -1,4 +1,4 @@
-#define G4v7
+//#define G4v7
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 #include "SimG4Core/Physics/interface/DDG4ProductionCuts.h"
 
