@@ -70,8 +70,8 @@ void StreamerOutputService::init(std::string fileName, unsigned long maxFileSize
    path_ = path;
    mpath_ = mpath;
    filen_ = fileName;
-   fileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
-   indexFileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
+   fileName_ = path_ + "/" + filen_ + "." + itoa(fileNameCounter_) + ".dat";
+   indexFileName_ = path_ + "/" + filen_ + "." + itoa(fileNameCounter_) + ".ind";
    
    streamNindex_writer_ = boost::shared_ptr<StreamerFileWriter>(new StreamerFileWriter(fileName_, indexFileName_));
 
@@ -83,9 +83,9 @@ void StreamerOutputService::init(std::string fileName, unsigned long maxFileSize
 
    // save the INIT message for when writing to the next file
    // that is openned
-   unsigned char* pos = (unsigned char*) &saved_initmsg_[0];
+   char* pos = &saved_initmsg_[0];
    unsigned char* from = view.startAddress();
-   int dsize = (int)view.size();
+   unsigned int dsize = view.size();
    copy(from,from+dsize,pos);
 
    // initialize event selector
@@ -103,7 +103,7 @@ void StreamerOutputService::initializeSelection(InitMsgView const& initView)
 
   /* ---printout the trigger names in the INIT message*/
   std::cout << ">>>>>>>>>>>Trigger names:" << std::endl;
-  for(int i=0; i< triggerNameList.size(); ++i)
+  for(unsigned int i=0; i< triggerNameList.size(); ++i)
     std::cout<< ">>>>>>>>>>>  name = " << triggerNameList[i] << std::endl;
   /* */
 
@@ -177,8 +177,8 @@ void StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize
              // writer is not using them !! - AA
 
              // also should be checking the filesystem here at path_
-             fileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
-             indexFileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
+             fileName_ = path_ + "/" + filen_ + "." + itoa(fileNameCounter_) + ".dat";
+             indexFileName_ = path_ + "/" + filen_ + "." + itoa(fileNameCounter_) + ".ind";
 
              streamNindex_writer_.reset(new StreamerFileWriter(fileName_, indexFileName_));
 
@@ -218,7 +218,7 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
     std::cout << ">>>>>>>>>>>Trigger bits:" << std::endl;
     for(int i=0; i< hlt_out.size(); ++i)
     {
-      unsigned test = (unsigned int)hlt_out[i];
+      unsigned int test = static_cast<unsigned int>(hlt_out[i]);
       std::cout<< hex << ">>>>>>>>>>>  bits = " << test << " " << hlt_out[i] << std::endl;
     }
     cout << "\nhlt bits=\n(";
