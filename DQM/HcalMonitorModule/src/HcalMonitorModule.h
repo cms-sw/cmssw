@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2006/08/22 20:40:23 $
- * $Revision: 1.6 $
+ * $Date: 2006/09/01 15:39:27 $
+ * $Revision: 1.7 $
  * \author W. Fisher
  *
 */
@@ -77,6 +77,7 @@ private:
   MonitorElement* m_meRunType;
   MonitorElement* m_meEvtNum;
   MonitorElement* m_meEvtMask;
+  MonitorElement* m_meTrigger;
   MonitorElement* m_meBeamE;
   
   HcalMonitorSelector*    m_evtSel;

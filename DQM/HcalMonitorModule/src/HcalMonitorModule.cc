@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/08/24 23:44:58 $
- * $Revision: 1.19 $
+ * $Date: 2006/09/01 15:39:27 $
+ * $Revision: 1.20 $
  * \author W Fisher
  *
 */
@@ -52,6 +52,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     m_meEvtNum  = m_dbe->bookInt("EVT NUMBER");
     m_meEvtMask = m_dbe->bookInt("EVT MASK");
     m_meBeamE   = m_dbe->bookInt("BEAM ENERGY");
+
+    m_meTrigger = m_dbe->book1D("TB Trigger Type","TB Trigger Type",6,0,5);
 
     m_meStatus->Fill(-1);
     m_meRunNum->Fill(0);
@@ -197,6 +199,13 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   m_ievt++;
   m_evtSel->processEvent(e);
   int evtMask = m_evtSel->getEventMask();
+  int trigMask =  m_evtSel->getTriggerMask();
+
+  if(trigMask&0x01) m_meTrigger->Fill(1);
+  if(trigMask&0x02) m_meTrigger->Fill(2);
+  if(trigMask&0x04) m_meTrigger->Fill(3);
+  if(trigMask&0x08) m_meTrigger->Fill(4);
+  if(trigMask&0x10) m_meTrigger->Fill(5);
 
   edm::EventID id_ = e.id();
   m_runNum = (int)(id_.run());
@@ -262,7 +271,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   edm::Handle<LTCDigiCollection> ltc;
   try{e.getByType(ltc);} catch(...){}; 
-  if(m_mtccMon != NULL) m_mtccMon->processEvent(*hb_hits,*ho_hits, *ltc);
+  //  if(m_mtccMon != NULL) m_mtccMon->processEvent(*hb_hits,*ho_hits, *ltc);
+  if(m_mtccMon != NULL) m_mtccMon->processEvent(*hbhe_digi,*ho_digi, *ltc,*conditions);
   if(m_mtccMon2 != NULL) m_mtccMon2->processEvent(*hbhe_digi,*ho_digi, *ltc,*conditions);
   
   if(m_ievt%1000 == 0)

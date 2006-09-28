@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorSelector.h
  *
- * $Date: 2005/11/30 22:06:34 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/04 19:26:04 $
+ * $Revision: 1.2 $
  * \author W. Fisher
  *
 */
@@ -39,6 +39,7 @@ HcalMonitorSelector(const edm::ParameterSet& ps);
 ~HcalMonitorSelector();
 
   inline unsigned int getEventMask() const { return m_eventMask; }
+  inline unsigned int getTriggerMask() const { return m_triggerMask; }
   inline int getRunNumber() const { return m_runNum; }
   void processEvent(const edm::Event& e);
   
@@ -47,6 +48,7 @@ protected:
 private:
 
   unsigned int m_eventMask;
+  unsigned int m_triggerMask;
   int m_runNum;
 };
 
