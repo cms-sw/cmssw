@@ -1,5 +1,5 @@
 #include "DCCDataMapper.h"
-
+ 
 /*--------------------------------------------*/
 /* DCCDataMapper::DCCDataMapper               */
 /* class constructor                          */
