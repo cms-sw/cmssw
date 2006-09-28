@@ -17,6 +17,7 @@
 #include "PhysicsTools/Utilities/interface/AndSelector.h"
 #include "PhysicsTools/Utilities/interface/OrSelector.h"
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
+#include "PhysicsTools/Utilities/interface/EtComparator.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SortCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/WindowCollectionSelector.h"
@@ -110,6 +111,13 @@ namespace reco {
 		PtInverseComparator<reco::Track> 
               > 
             > LargestPtTrackSelector;
+    /// select the N calo jets with highest Et
+    typedef ObjectSelector<
+              SortCollectionSelector<
+                reco::CaloJetCollection, 
+		EtInverseComparator<reco::CaloJet> 
+              > 
+            > LargestEtCaloJetSelector;
     /// select track pairs within a given mass window
     typedef ObjectSelector<
               WindowCollectionSelector<
@@ -185,6 +193,7 @@ DEFINE_ANOTHER_FWK_MODULE( EtaEtMinGenJetCountFilter );
 DEFINE_ANOTHER_FWK_MODULE( AnyTrackSelector );
 DEFINE_ANOTHER_FWK_MODULE( PtMinTrackSelector );
 DEFINE_ANOTHER_FWK_MODULE( LargestPtTrackSelector )
+DEFINE_ANOTHER_FWK_MODULE( LargestEtCaloJetSelector )
 DEFINE_ANOTHER_FWK_MODULE( MassWindowTrackSelector )
 DEFINE_ANOTHER_FWK_MODULE( PtMinElectronSelector );
 DEFINE_ANOTHER_FWK_MODULE( EtMinPhotonSelector );
