@@ -5,13 +5,14 @@
    \file
    Implementation of ProductRegistry
 
-   \author Stefano ARGIRO
-   \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.4 2006/08/01 05:34:43 wmtan Exp $
+   \original author Stefano ARGIRO
+   \current author Bill Tanenbaum
+   \version $Id: ProductRegistry.h,v 1.5 2006/08/30 23:28:33 wmtan Exp $
    \date 19 Jul 2005
 */
 
 #include <map>
+#include <string>
 
 #include "DataFormats/Common/interface/BranchKey.h"
 #include "DataFormats/Common/interface/BranchDescription.h"
@@ -23,8 +24,8 @@ namespace edm {
 
      \brief
 
-     \author Stefano ARGIRO
-     \co-author Bill Tanenbaum
+     \original author Stefano ARGIRO
+     \current author Bill Tanenbaum
      \date 19 Jul 2005
   */
   class ProductRegistry {
@@ -44,7 +45,9 @@ namespace edm {
 
     void setFrozen() const;
 
-    bool merge(ProductRegistry const& other, BranchDescription::MatchMode m);
+    std::string merge(ProductRegistry const& other,
+	std::string const& fileName,
+	BranchDescription::MatchMode m);
 
     ProductList const& productList() const {
       throwIfNotFrozen();

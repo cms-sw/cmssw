@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.35 2006/09/21 19:40:32 wmtan Exp $
+$Id: PoolSource.cc,v 1.36 2006/09/24 17:11:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -103,9 +103,10 @@ namespace edm {
     ProductRegistry * preg = (mainInput_ ? &productRegistry() : pReg.get());
 
     // make sure the new product registry is compatible with the main one
-    if (!preg->merge(rootFile_->productRegistry(), matchMode_)) {
+    std::string mergeInfo = preg->merge(rootFile_->productRegistry(), fileIter_->fileName(), matchMode_);
+    if (!mergeInfo.empty()) {
       throw cms::Exception("MismatchedInput","PoolSource::next()")
-	<< "File " << fileIter_->fileName() << "\nhas different product registry than previous files\n";
+        << mergeInfo;
     }
     return next();
   }
@@ -131,9 +132,10 @@ namespace edm {
     ProductRegistry * preg = (mainInput_ ? &productRegistry() : pReg.get());
 
     // make sure the new product registry is compatible to the main one
-    if (!preg->merge(rootFile_->productRegistry(), matchMode_)) {
+    std::string mergeInfo = preg->merge(rootFile_->productRegistry(), fileIter_->fileName(), matchMode_);
+    if (!mergeInfo.empty()) {
       throw cms::Exception("MismatchedInput","PoolSource::previous()")
-	<< "File " << fileIter_->fileName() << "\nhas different product registry than previous files\n";
+        << mergeInfo;
     }
     rootFile_->setEntryNumber(rootFile_->entries());
     return previous();

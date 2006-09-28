@@ -2,10 +2,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Reflex/Type.h"
 #include <ostream>
+#include <sstream>
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.16 2006/08/24 22:15:44 wmtan Exp $
+$Id: BranchDescription.cc,v 1.17 2006/08/30 23:28:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -101,13 +102,11 @@ namespace edm {
     return *psetIDs().begin();
   }
 
-  bool
-  BranchDescription::merge(BranchDescription const& other, MatchMode m) {
-    if (!match(*this, other, m)) return false;
+  void
+  BranchDescription::merge(BranchDescription const& other) {
     psetIDs_.insert(other.psetIDs().begin(), other.psetIDs().end());
     processConfigurationIDs_.insert(other.processConfigurationIDs().begin(), other.processConfigurationIDs().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
-    return true;
   }
 
   void
@@ -160,23 +159,53 @@ namespace edm {
     (a.present() == b.present());
   }
 
-  bool
-  match(BranchDescription const& a, BranchDescription const& b, BranchDescription::MatchMode m) {
-    bool looseMatch = 
-      (a.processName() == b.processName()) &&
-      (a.productID() == b.productID()) &&
-      (a.fullClassName() == b.fullClassName()) &&
-      (a.friendlyClassName() == b.friendlyClassName()) &&
-      (a.productInstanceName() == b.productInstanceName()) &&
-      (a.moduleLabel() == b.moduleLabel()) &&
-      (a.present() == b.present());
-    if (m == BranchDescription::Strict) {
-      return (looseMatch &&
-		 a.psetIDs().size() == 1 &&
-		 a.processConfigurationIDs().size() == 1 &&
-		 a.psetIDs() == b.psetIDs() &&
-		 a.processConfigurationIDs() == b.processConfigurationIDs());
+  std::string
+  match(BranchDescription const& a, BranchDescription const& b,
+	std::string const& fileName,
+	BranchDescription::MatchMode m) {
+    std::ostringstream differences;
+    if (a.branchName() != b.branchName()) {
+      differences << "Branch name '" << b.branchName() << "' does not match '" << a.branchName() << "'.\n";
+      // Need not compare components of branch name individually.
+      // (a.friendlyClassName() != b.friendlyClassName())
+      // (a.moduleLabel() != b.moduleLabel())
+      // (a.productInstanceName() != b.productInstanceName())
+      // (a.processName() != b.processName())
     }
-    return looseMatch;
+    if (a.productID() != b.productID()) {
+      differences << "Branch '" << b.branchName() << "' has a product ID of '" << b.productID() << "'\n";
+      differences << "    in file '" << fileName << "', but '" << a.productID() << "' in previous files.\n";
+    }
+    if (a.fullClassName() != b.fullClassName()) {
+      differences << "Products on branch '" << b.branchName() << "' have type '" << b.fullClassName() << "'\n";
+      differences << "    in file '" << fileName << "', but '" << a.fullClassName() << "' in previous files.\n";
+    }
+    if (a.present() != b.present()) {
+      if (a.present()) {
+	differences << "Branch '" << a.branchName() << "' was dropped in file '" << fileName << "' but is present in previous files.\n";
+      } else {
+	differences << "Branch '" << a.branchName() << "' was dropped in previous files but is present in '" << fileName << "'.\n";
+      }
+    }
+    if (m == BranchDescription::Strict) {
+	if (b.psetIDs().size() > 1) {
+	  differences << "Branch '" << b.branchName() << "' uses more than one parameter set in file '" << fileName << "'.\n";
+	} else if (a.psetIDs().size() > 1) {
+	  differences << "Branch '" << a.branchName() << "' uses more than one parameter set in previous files.\n";
+	} else if (a.psetIDs() != b.psetIDs()) {
+	  differences << "Branch '" << b.branchName() << "' uses different parameter sets in file '" << fileName << "'.\n";
+	  differences << "    than in previous files.\n";
+	}
+
+	if (b.processConfigurationIDs().size() > 1) {
+	  differences << "Branch '" << b.branchName() << "' uses more than one process configuration in file '" << fileName << "'.\n";
+	} else if (a.processConfigurationIDs().size() > 1) {
+	  differences << "Branch '" << a.branchName() << "' uses more than one process configuration in previous files.\n";
+	} else if (a.processConfigurationIDs() != b.processConfigurationIDs()) {
+	  differences << "Branch '" << b.branchName() << "' uses different process configurations in file '" << fileName << "'.\n";
+	  differences << "    than in previous files.\n";
+	}
+    }
+    return differences.str();
   }
 }
