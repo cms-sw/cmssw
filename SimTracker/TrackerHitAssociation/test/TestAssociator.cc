@@ -111,7 +111,7 @@ using namespace edm;
 	  for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) {
 	    pixelcounter++;
 	    if(pixeldebug) {
-	      cout << pixelcounter <<") Pixel RecHit DetId " << detid.rawId() << " Pos = " << pixeliter->localPosition() << endl;
+	      	      cout << pixelcounter <<") Pixel RecHit DetId " << detid.rawId() << " Pos = " << pixeliter->localPosition() << endl;
 	    }
 	    matched.clear();
 	    matched = associate.associateHit(*pixeliter);
@@ -154,7 +154,7 @@ using namespace edm;
 	    matched.clear();
 	    matched = associate.associateHit(rechit);
 	    if(!matched.empty()){
-	      cout << " Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
+	      cout << " RPHI Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
 	      if(matched.size()>1) cout << " matched = " << matched.size() << endl;
 	      for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 		cout << " simtrack ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
@@ -180,7 +180,7 @@ using namespace edm;
 	    matched.clear();
 	    matched = associate.associateHit(rechit);
 	    if(!matched.empty()){
-	      cout << " Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
+	      cout << " SAS Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
 	      if(matched.size()>1) cout << " matched = " << matched.size() << endl;
 	      for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 		cout << " simtrack ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
@@ -201,16 +201,21 @@ using namespace edm;
 	    stripcounter++;
 	    cout << stripcounter <<") Strip RecHit DetId " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
 	    float mindist = 999999;
-	    float dist;
+	    float distx = 9999999;
+	    float disty = 9999999;
+	    float dist  = 9999999;
 	    PSimHit closest;
 	    matched.clear();
 	    matched = associate.associateHit(rechit);
 	    if(!matched.empty()){
-	      cout << " Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
+	      cout << " MTC Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
 	      if(matched.size()>1) cout << " matched = " << matched.size() << endl;
 	      for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 		cout << " simtrack ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
-		dist = fabs(rechit.localPosition().x() - (*m).localPosition().x());
+		
+		distx = fabs(rechit.localPosition().x() - (*m).localPosition().x());
+		disty = fabs(rechit.localPosition().y() - (*m).localPosition().y());
+		dist = sqrt(distx*distx+disty*disty);
 		if(dist<mindist){
 		  mindist = dist;
 		  closest = (*m);

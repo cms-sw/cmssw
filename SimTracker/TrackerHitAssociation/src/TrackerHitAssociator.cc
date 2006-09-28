@@ -223,7 +223,6 @@ std::vector<unsigned int> TrackerHitAssociator::associateHitId(const TrackingRec
 	  simtrackid = associatePixelRecHit(rechit);
 	}
     }
-  //move here the choice of the id of the closest hit...??? 
   return simtrackid;  
 }
 
@@ -253,23 +252,30 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
     int last   = first + clusiz;
     float cluchg = std::accumulate(clust->amplitudes().begin(), clust->amplitudes().end(),0);
     // cout << "Associator ---> Clus size = " << clusiz << " first = " << first << "  last = " << last << "  tot charge = " << cluchg << endl;
-    
+
+    unsigned int simtrackid_cache = 99999999;
     for(edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(); linkiter != link_detset.data.end(); linkiter++){
       StripDigiSimLink link = *linkiter;
       if( link.channel() >= first  && link.channel() < last ){
-	cache_simtrackid.push_back(link.SimTrackId());
-	//get the charge released in the cluster
+	//write only once the id
+	if(link.SimTrackId() != simtrackid_cache){
+	  //std::cout << " Adding track id  = " << link.SimTrackId() << std::endl;
+	  cache_simtrackid.push_back(link.SimTrackId());
+	  simtrackid_cache = link.SimTrackId();
+	}
+	//get the charge released in the cluster by the simtrack strip by strip
 	chg = 0;
 	int mychan = link.channel()-first;
 	chg = (clust->amplitudes()[mychan])*link.fraction();
 	temp_simtrackid[link.SimTrackId()].push_back(chg);
+	//std::cout << " Track ID = " <<  link.SimTrackId() << " charge by ch = " << chg << std::endl;
       }
     }
     
     vector<float> tmpchg;
     float simchg;
     float simfraction;
-    std::map<float, unsigned int> temp_map;
+    std::map<float, unsigned int, greater<float>> temp_map;
     simchg=0;
     //loop over the unique ID's
     vector<unsigned int>::iterator new_end = unique(cache_simtrackid.begin(),cache_simtrackid.end());
@@ -281,18 +287,21 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
 	  simchg +=tmpchg[ii];
 	}
 	simfraction = simchg/cluchg;
-	//cout << " Track id = " << *i << " Total fraction = " << simfraction << endl;
-	temp_map.insert(std::pair<float, unsigned int> (simfraction,*i));
+	//cut at >50%
+	if(simfraction >0.5){
+	  temp_map.insert(std::pair<float, unsigned int> (simfraction,*i));
+	}
       }
     }	
+    //sort the map ordered on the charge fraction 
+    
     //copy the list of ID's ordered in the charge fraction 
     for(std::map<float , unsigned int>::const_iterator it = temp_map.begin(); it!=temp_map.end(); it++){
-      //      cout << " Final simtrackid list = " << it->second << endl;
-      //      if(it->second > 50000) std::cout << " Secondary simtrackid = " << it->second << endl;
+      //std::cout << "Track id = " << it->second << " fraction = " << it->first << std::endl;
       simtrackid.push_back(it->second);
     }
   }    
-  
+
   return simtrackid;
   
 }
