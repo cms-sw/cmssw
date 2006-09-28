@@ -1,8 +1,8 @@
 <Flags SEAL_PLUGIN_NAME="SimG4CoreGFlash">
 <export>
  <use name=SimG4Core/Physics>
- <use name=SimG4Core/Packaging>
  <use name=SimG4Core/G4gflash>
+ <use name=SimG4Core/QGSP>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
  <use name=Framework/SealKernel>
@@ -11,10 +11,10 @@
 
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/G4gflash>
+<use name=SimG4Core/QGSP>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=Framework/SealKernel>
-<use name=SimG4Core/Packaging>
 
 <use name=seal>
 <use name=geant4>
