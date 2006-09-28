@@ -21,8 +21,8 @@ public:
     virtual void endJob();
     virtual void produce(edm::Event & e, const edm::EventSetup & c);
 protected:
-    RunManager * m_runManager;
-    Producers m_producers;
+    RunManager*   m_runManager;
+    Producers     m_producers;
 };
 
 #endif

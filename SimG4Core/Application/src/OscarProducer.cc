@@ -64,6 +64,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
 	++itProd) {
        (*itProd)->registerProducts(*this);
     }
+    
 }
 
 OscarProducer::~OscarProducer() 
