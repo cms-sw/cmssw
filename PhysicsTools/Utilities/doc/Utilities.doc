@@ -30,6 +30,10 @@ Generic Physics Tools utility classes.
   objects by smallest <tt>pt()</tt>.
 - PtInverseComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
   objects by largest <tt>pt()</tt>.
+- EtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
+  objects by smallest <tt>et()</tt>.
+- EtInverseComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
+  objects by largest <tt>et()</tt>.
 
 
 \subsection functions Functions
