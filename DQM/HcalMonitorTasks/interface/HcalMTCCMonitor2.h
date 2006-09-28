@@ -1,5 +1,5 @@
-#ifndef DQM_HCALMONITORTASKS_HCALMTCCMONITOR_H
-#define DQM_HCALMONITORTASKS_HCALMTCCMONITOR_H
+#ifndef DQM_HCALMONITORTASKS_HCALMTCCMONITORTWO_H
+#define DQM_HCALMONITORTASKS_HCALMTCCMONITORTWO_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
@@ -21,10 +21,10 @@
   * $Revision: 1.3 $
   * \author W. Fisher - FNAL
   */
-class HcalMTCCMonitor: public HcalBaseMonitor {
+class HcalMTCCMonitor2: public HcalBaseMonitor {
  public:
-  HcalMTCCMonitor(); 
-  ~HcalMTCCMonitor(); 
+  HcalMTCCMonitor2(); 
+  ~HcalMTCCMonitor2(); 
 
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
   

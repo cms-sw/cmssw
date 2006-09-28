@@ -73,10 +73,11 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
   
   if ( m_dbe !=NULL ) {    
 
-    meEVT_ = m_dbe->bookInt("HotCell Event Number");    
+    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor");
+
+    meEVT_ = m_dbe->bookInt("HotCell Task Event Number");    
     meEVT_->Fill(ievt_);
 
-    m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor");
     meMAX_E_all =  m_dbe->book1D("HotCell Energy","HotCell Energy",100,0,400);
     meMAX_T_all =  m_dbe->book1D("HotCell Time","HotCell Time",100,0,200);
     meOCC_MAP_all_GEO  = m_dbe->book2D("HotCell Geo Occupancy Map","HotCell Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -85,7 +86,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HB");
     hbHists.meMAX_E =  m_dbe->book1D("HB HotCell Energy","HB HotCell Energy",100,0,400);
     hbHists.meMAX_T =  m_dbe->book1D("HB HotCell Time","HB HotCell Time",100,-100,200);
-    hbHists.meMAX_ID =  m_dbe->book1D("HB HotCell ID","HB HotCell ID",1000,1000,2000);
+    hbHists.meMAX_ID =  m_dbe->book1D("HB HotCell ID","HB HotCell ID",10000,1000,12000);
     hbHists.meOCC_MAP_GEO  = m_dbe->book2D("HB HotCell Geo Occupancy Map","HB HotCell Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hbHists.meEN_MAP_GEO  = m_dbe->book2D("HB HotCell Geo Energy Map","HB HotCell Geo Energy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
@@ -129,9 +130,11 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
   float enA=0, tA=0, etaA=0, phiA=0;
   
   if(hbHits.size()>0){
-    for (_ib=hbHits.begin(); _ib!=hbHits.end(); _ib++) { // loop over all hits
+    for (_ib=hbHits.begin(); _ib!=hbHits.end(); _ib++) { // loop over all hits      
+      //      if(_ib->id().ieta()==9 && _ib->id().iphi()==17) printf("rawid: %d\n",_ib->id().rawId());
       if((HcalSubdetector)(_ib->id().subdet())!=HcalBarrel) continue;
       if(_ib->energy()>occThresh_){	
+	if(vetoCell(_ib->id())) continue;
 	hbHists.meEN_MAP_GEO->Fill(_ib->id().ieta(),_ib->id().iphi(),_ib->energy());
 	if(_ib->energy()>enS){
 	  enS = _ib->energy();
@@ -159,6 +162,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
     for (_ib=hbHits.begin(); _ib!=hbHits.end(); _ib++) { // loop over all hits
       if((HcalSubdetector)(_ib->id().subdet())!=HcalEndcap) continue;
       if(_ib->energy()>occThresh_){	
+	if(vetoCell(_ib->id())) continue;
 	heHists.meEN_MAP_GEO->Fill(_ib->id().ieta(),_ib->id().iphi(),_ib->energy());
 	if(_ib->energy()>enS){
 	  enS = _ib->energy();
@@ -188,6 +192,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
   if(hoHits.size()>0){
     for (_io=hoHits.begin(); _io!=hoHits.end(); _io++) { // loop over all hits
       if(_io->energy()>occThresh_){
+	if(vetoCell(_io->id())) continue;
 	hoHists.meEN_MAP_GEO->Fill(_io->id().ieta(),_io->id().iphi(),_io->energy());
 	if(_io->energy()>enS){
 	  enS = _io->energy();
@@ -216,6 +221,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
   if(hfHits.size()>0){
     for (_if=hfHits.begin(); _if!=hfHits.end(); _if++) { // loop over all hits
       if(_if->energy()>occThresh_){
+	if(vetoCell(_if->id())) continue;
 	hfHists.meEN_MAP_GEO->Fill(_if->id().ieta(),_if->id().iphi(),_if->energy());
 	if(_if->energy()>enS){
 	  enS = _if->energy();

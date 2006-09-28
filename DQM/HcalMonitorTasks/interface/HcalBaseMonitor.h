@@ -3,13 +3,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include <iostream>
 
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2005/11/17 17:55:35 $
-  * $Revision: 1.3 $
+  * $Date: 2006/02/02 16:32:12 $
+  * $Revision: 1.4 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -22,11 +23,13 @@ public:
 
   void setVerbosity(int verb) { fVerbosity = verb; }
   int getVerbosity() const { return fVerbosity; }
+  bool vetoCell(HcalDetId id);
 
 protected:
   
   int fVerbosity;
   DaqMonitorBEInterface* m_dbe;
+  vector<string> hotCells_;
 
 };
 

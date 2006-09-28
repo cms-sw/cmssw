@@ -1,26 +1,26 @@
-#include "DQM/HcalMonitorTasks/interface/HcalMTCCMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalMTCCMonitor2.h"
 
-HcalMTCCMonitor::HcalMTCCMonitor() {
+HcalMTCCMonitor2::HcalMTCCMonitor2() {
   occThresh_ = 1.0;
   ievt_=0;
 }
 
-HcalMTCCMonitor::~HcalMTCCMonitor() {}
+HcalMTCCMonitor2::~HcalMTCCMonitor2() {}
 
-void HcalMTCCMonitor::clearME(){
+void HcalMTCCMonitor2::clearME(){
    if(m_dbe){
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor");
+    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor2");
     m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HB");
+    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor2/HB");
     m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HE");
+    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor2/HE");
     m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HO");
+    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor2/HO");
     m_dbe->removeContents(); 
     meEVT_= 0;
   }
 }
-void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+void HcalMTCCMonitor2::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 29.5);
@@ -33,19 +33,19 @@ void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
   phiBins_ = (int)(phiMax_ - phiMin_);
   cout << "MTCC phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
   
-  occThresh_ = ps.getUntrackedParameter<double>("MTCCOccThresh", 1.0);
+  occThresh_ = ps.getUntrackedParameter<double>("MTCCOccThresh", 10.0);
   cout << "MTCC occupancy threshold set to " << occThresh_ << endl;
   
   ievt_=0;
   
   if ( m_dbe !=NULL ) {    
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor");
+    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor2");
     meTrig_  = m_dbe->book1D("LTC Trigger","LTC Trigger",6,0,5);
 
     meEVT_ = m_dbe->bookInt("MTCC Event Number");    
     meEVT_->Fill(ievt_);
  
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HB");
+    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor2/HB");
     hbP.DT = m_dbe->book1D("HB Top DT Trigger Time","HB Top DT Trigger Time",100,0,9);
     hbP.CSC = m_dbe->book1D("HB Top CSC Trigger Time","HB Top CSC Trigger Time",100,0,9);
     hbP.RBC1 = m_dbe->book1D("HB Top RBC1 Trigger Time","HB Top RBC1 Trigger Time",100,0,9);
@@ -68,7 +68,7 @@ void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hbM.PEDS = m_dbe->book1D("HB Bottom Ped Vals","HB Bottom Ped Vals",100,0,20);
     hbM.OCC = m_dbe->book2D("HB Bottom Geo Occupancy Map","HB Bottom Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HE");
+    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor2/HE");
     heP.DT = m_dbe->book1D("HE Top DT Trigger Time","HE Top DT Trigger Time",100,0,9);
     heP.CSC = m_dbe->book1D("HE Top CSC Trigger Time","HE Top CSC Trigger Time",100,0,9);
     heP.RBC1 = m_dbe->book1D("HE Top RBC1 Trigger Time","HE Top RBC1 Trigger Time",100,0,9);
@@ -91,7 +91,7 @@ void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     heM.E = m_dbe->book1D("HE Bottom Hit Energy","HE Bottom Hit Energy",100,0,50);
     heM.OCC = m_dbe->book2D("HE Bottom Geo Occupancy Map","HE Bottom Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
-    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor/HO");
+    m_dbe->setCurrentFolder("HcalMonitor/MTCCMonitor2/HO");
     hoP1.DT = m_dbe->book1D("HO YB2 Top DT Trigger Time","HO YB2 Top DT Trigger Time",100,0,9);
     hoP1.CSC = m_dbe->book1D("HO YB2 Top CSC Trigger Time","HO YB2 Top CSC Trigger Time",100,0,9);
     hoP1.RBC1 = m_dbe->book1D("HO YB2 Top RBC1 Trigger Time","HO YB2 Top RBC1 Trigger Time",100,0,9);
@@ -142,12 +142,12 @@ void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
   return;
 }
 
-void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
+void HcalMTCCMonitor2::processEvent(const HBHEDigiCollection& hbhe,
 				    const HODigiCollection& ho,
 				    const LTCDigiCollection& ltc,
 				    const HcalDbService& cond){
   
-  if(!m_dbe) { printf("HcalMTCCMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
+  if(!m_dbe) { printf("HcalMTCCMonitor2::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
   
   ievt_++;
   meEVT_->Fill(ievt_);
@@ -191,7 +191,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  }
 	}
 
-	if(fc_ampl>occThresh_){
+	if(fc_ampl>(occThresh_*1.5)){
 	  double m1 = 0, z=0, p1=0;
 	  int capid=0;
 	  if(maxI!=0){
@@ -261,7 +261,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
       }
     }catch (...) {
       
-      printf("HcalMTCCMonitor::processEvent  No HBHE Digis.\n");
+      printf("HcalMTCCMonitor2::processEvent  No HBHE Digis.\n");
     }
     
     
@@ -287,7 +287,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	    maxI=i;
 	  }
 	}
-	if(fc_ampl>occThresh_){
+	if(fc_ampl>(occThresh_*1.5)){
 	  double m1 = 0, z=0, p1=0;
 	  int capid=0;
 	  if(maxI!=0){
@@ -356,7 +356,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}//loop over digis
       }
     }catch (...) {
-      printf("HcalMTCCMonitor::processEvent  No HBHE Digis.\n");
+      printf("HcalMTCCMonitor2::processEvent  No HBHE Digis.\n");
     }
   }//if mdbe
       
