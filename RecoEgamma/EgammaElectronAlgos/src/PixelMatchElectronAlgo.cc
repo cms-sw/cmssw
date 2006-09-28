@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.8 2006/09/28 17:09:10 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.9 2006/09/28 17:29:13 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -114,7 +114,6 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
 
   theMeasurementTracker->update(e);
 
-  printf(" Run: after measurement tracker \n");fflush(stdout);
   Handle<ElectronPixelSeedCollection> collseed;
   LogDebug("") << 
     "PixelMatchElectronAlgo::run, getting input seeds : " << inputDataModuleLabel_ ;
@@ -123,7 +122,6 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
 
   LogDebug("") << 
     "PixelMatchElectronAlgo::run, got " << (*collseed).size()<< " input seeds ";
-  printf(" ================>   collseed size %d\n", (*collseed).size());fflush(stdout);
   // this is needed because lack of polymorphism
   map<const ElectronPixelSeed*, const Trajectory*> seedMap;
   map<const ElectronPixelSeed*, const Trajectory*>::iterator itmap;
@@ -292,7 +290,6 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
 	if (itmap->second == &(*it)) break;
       }
 
-      printf("Supercl energy %f\n",epseed->superCluster()->energy());fflush(stdout);
 
       if (preSelection(*(epseed->superCluster()),aTrack)) {
 	
