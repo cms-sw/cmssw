@@ -77,7 +77,8 @@ class TrackerMap {
     return res;
   }
   
-void defwindow(int nlay){
+void defwindow(int num_lay){
+nlay = num_lay;
   if(posrel){ // separated modules
     xmin=-2.;ymin=-2.;xmax=2.;ymax=2.;
     if(nlay >12 && nlay < 19){
