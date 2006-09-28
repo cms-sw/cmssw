@@ -312,14 +312,15 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
   if ( qualityFilter( traj)){
     const TrajectorySeed& tmpseed=traj.seed();
-
-    TSOS startingState=  TrajectoryStateWithArbitraryError()
-      (thePropagatorOp->propagate(traj.lastMeasurement().updatedState(),
-				  tracker->idToDet((*hits.begin())->geographicalId())->surface()));
-
-    trajFit = theFitter->fit(tmpseed,hits, startingState );
+    if (thePropagatorOp->propagate(traj.lastMeasurement().updatedState(),
+				   tracker->idToDet((*hits.begin())->geographicalId())->surface()).isValid()){
+      TSOS startingState=  TrajectoryStateWithArbitraryError()
+	(thePropagatorOp->propagate(traj.lastMeasurement().updatedState(),
+				    tracker->idToDet((*hits.begin())->geographicalId())->surface()));
+      
+      trajFit = theFitter->fit(tmpseed,hits, startingState );
+    }
   }
-  
   
 }
 
