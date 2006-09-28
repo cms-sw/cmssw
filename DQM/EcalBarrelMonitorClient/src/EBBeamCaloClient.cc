@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/08/24 15:39:06 $
- * $Revision: 1.27 $
+ * $Date: 2006/09/28 13:03:44 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -1556,7 +1556,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     AdjustRange(objp1);
     objp1->Draw();
     can->Update();
-    try { can->SaveAs(imgName1.c_str()); } catch (...) {}
+    can->SaveAs(imgName1.c_str());
     delete can;
   }
   if ( imgName1.size() != 0 )
