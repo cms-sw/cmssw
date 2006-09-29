@@ -11,6 +11,7 @@
 //    1,2 - low-lumi rate dependent inefficency added
 //     10 - high-lumi inefficiency added
 // Adopt the correct drift sign convetion from Morris Swartz. d.k. 8/06
+// Add more complex misscalinbration, change kev/e to 3.61, diff=3.7,d.k.9/06
  
 #include <vector>
 #include <iostream>
@@ -21,7 +22,7 @@
 #include <gsl/gsl_sf_erf.h>
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
+//#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,8 +34,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // This are parameters which are not likely to be changed
   NumberOfSegments = 20; // Default number of track segment divisions
   ClusterWidth = 3.;     // Charge integration spread on the collection plane
-  GeVperElectron = 3.7E-09;  // 1 electrons=3.7eV, 1keV=270.3e
-  Sigma0 = 0.0007;           // Charge diffusion constant 
+  GeVperElectron = 3.61E-09; //1 electrons=3.61eV, 1keV=277e, mod 9/06 d.k.
+  Sigma0 = 0.00037;           // Charge diffusion constant 7->3.7 
   Dist300 = 0.0300;          //   normalized to 300micron Silicon
 
   //get external parameters
@@ -156,9 +157,90 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 			       << " " << theAdcFullScale 
 			       << " The delta cut-off is set to " << tMax
 			      << " pix-inefficiency "<<thePixelLuminosity;
-  if(doMissCalibrate) LogDebug ("PixelDigitizer ") 
-    << " miss-calibrate the pixel amplitude " 
-    << theGainSmearing << " " << theOffsetSmearing ;
+  if(doMissCalibrate) {
+    LogDebug ("PixelDigitizer ") 
+      << " miss-calibrate the pixel amplitude "; 
+
+    const bool ReadCalParameters = false;
+    if(ReadCalParameters) {
+      // read the calibration constants from a file (testing only)
+      ifstream in_file;  // data file pointer
+      char filename[80] = "phCalibrationFit_C0.dat";
+      
+      in_file.open(filename, ios::in ); // in C++
+      if (in_file.bad()) {
+	cout << " File not found " << endl;
+	return; // signal error
+      }
+      cout << " file opened : " << filename << endl;
+      
+      char line[500];
+      for (int i = 0; i < 3; i++) {
+	in_file.getline(line, 500,'\n');
+	cout<<line<<endl;
+      }
+      
+      cout << " test map" << endl;
+      
+      float par0,par1,par2,par3;
+      int rocid,colid,rowid;
+      string name;
+      // Read MC tracks
+      for(int i=0;i<(52*80);i++)  { // loop over tracks    
+	in_file >> par0 >> par1 >> par2 >> par3 >> name >> colid
+		>> rowid;
+	if (in_file.bad()) { // check for errors
+	  cerr << "Cannot read data file" << endl;
+	  return;
+	}
+	if ( in_file.eof() != 0 ) {
+	  cerr << in_file.eof() << " " << in_file.gcount() << " "
+	       << in_file.fail() << " " << in_file.good() << " end of file "
+	       << endl;
+	  return;
+	}
+	
+	//cout << " line " << i << " " <<par0<<" "<<par1<<" "<<par2<<" "<<par3<<" "
+	//   <<colid<<" "<<rowid<<endl;
+	
+	CalParameters onePix;
+	onePix.p0=par0;
+	onePix.p1=par1;
+	onePix.p2=par2;
+	onePix.p3=par3;
+	
+	// Convert ROC pixel index to channel 
+	int chan = PixelIndices::pixelToChannelROC(rowid,colid);
+	calmap.insert(pair<int,CalParameters>(chan,onePix));
+	
+	// Testing the index conversion, can be skipped 
+	pair<int,int> p = PixelIndices::channelToPixelROC(chan);
+	if(rowid!=p.first) cout<<" wrong channel row "<<rowid<<" "<<p.first<<endl;
+	if(colid!=p.second) cout<<" wrong channel col "<<colid<<" "<<p.second<<endl;
+	      
+      } // pixel loop in a ROC
+ 
+      cout << " map size  " << calmap.size() <<" max "<<calmap.max_size() << " "
+	   <<calmap.empty()<< endl;
+      
+//     cout << " map size  " << calmap.size()  << endl;
+//     map<int,CalParameters,less<int> >::iterator ix,it;
+//     map<int,CalParameters,less<int> >::const_iterator ip;
+//     for (ix = calmap.begin(); ix != calmap.end(); ++ix) {
+//       int i = (*ix).first;
+//       pair<int,int> p = channelToPixelROC(i);
+//       it  = calmap.find(i);
+//       CalParameters y  = (*it).second;
+//       CalParameters z = (*ix).second;
+//       cout << i <<" "<<p.first<<" "<<p.second<<" "<<y.p0<<" "<<z.p0<<" "<<calmap[i].p0<<endl; 
+      
+//       //int dummy=0;
+//       //cin>>dummy;
+//     }
+
+
+    } // end if readparameters
+  } // end if missCalibration 
 
   //MP DA RISOLVERE
   //   particleTable =  &HepPDT::theTable();
@@ -212,6 +294,13 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 
     // full detector thicness
     moduleThickness = det->specificSurface().bounds().thickness(); 
+
+    // The index converter is only needed when inefficiencies or misscalibration
+    // are simulated.
+    pIndexConverter = 0;  // Initilize to NULL
+    if((pixelInefficiency>0) || doMissCalibrate ) {  // Init pixel indices
+      pIndexConverter = new PixelIndices(numColumns,numRows);
+    }
 
     //MP DA SISTEMARE
     //     float noiseInADCCounts = _detp->readout().noiseInAdcCounts();
@@ -701,26 +790,34 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 void SiPixelDigitizerAlgorithm::make_digis() {
   internal_coll.reserve(50); internal_coll.clear();
 
-    LogDebug ("Pixel Digitizer") << " make digis "<<" "
-				 << " pixel threshold " << thePixelThresholdInE << " " 
-				 << " List pixels passing threshold ";
-
-
-  for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
+  LogDebug ("Pixel Digitizer") << " make digis "<<" "
+			       << " pixel threshold " << thePixelThresholdInE << " " 
+			       << " List pixels passing threshold ";
   
+  
+  for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
+    
     float signalInElectrons = (*i).second ;   // signal in electrons
     // Do the miss calibration for calibration studies only.
-    if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons);
-
+    //if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons);
+    
     // Do only for pixels above threshold
-    if ( signalInElectrons >= thePixelThresholdInE) {  
- 
-      int adc = int( signalInElectrons / theElectronPerADC ); // calibrate gain
-      adc = min(adc, theAdcFullScale); // Check maximum value
-       
-     int chan =  (*i).first;  // channel number
+    if ( signalInElectrons >= thePixelThresholdInE) { // check threshold
+      
+      int chan =  (*i).first;  // channel number
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
-
+      int adc=0;  // ADC count as integer
+      
+      // Do the miss calibration for calibration studies only.
+      if(doMissCalibrate) {
+	int row = ip.first;  // X in row
+	int col = ip.second; // Y is in col
+	adc = int(missCalibrate(col,row,signalInElectrons)); //full misscalib.
+      } else { // Just do a simple electron->adc conversion
+	adc = int( signalInElectrons / theElectronPerADC ); // calibrate gain
+      }
+      adc = min(adc, theAdcFullScale); // Check maximum value
+      
       LogDebug ("Pixel Digitizer") 
 	<< (*i).first << " " << (*i).second << " " << signalInElectrons 
 	<< " " << adc << ip.first << " " << ip.second ;
@@ -862,7 +959,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
 
   
   // Initilize the index converter
-  PixelIndices indexConverter(numColumns,numRows);
+  //PixelIndices indexConverter(numColumns,numRows);
   int chipIndex,rowROC,colROC;
   map<int, int, less<int> >chips, columns;
   map<int, int, less<int> >::iterator iter;
@@ -876,10 +973,10 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     int row = ip.first;  // X in row
     int col = ip.second; // Y is in col
     //transform to ROC index coordinates   
-    indexConverter.transformToROC(col,row,chipIndex,colROC,rowROC);
-    int dColInChip = indexConverter.DColumn(colROC); // get ROC dcol from ROC col 
+    pIndexConverter->transformToROC(col,row,chipIndex,colROC,rowROC);
+    int dColInChip = pIndexConverter->DColumn(colROC); // get ROC dcol from ROC col 
     //dcol in mod
-    int dColInDet = indexConverter.DColumnInModule(dColInChip,chipIndex); 
+    int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex); 
       
     chips[chipIndex]++;
     columns[dColInDet]++;
@@ -907,10 +1004,10 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     int row = ip.first;  // X in row
     int col = ip.second; // Y is in col
     //transform to ROC index coordinates   
-    indexConverter.transformToROC(col,row,chipIndex,colROC,rowROC);
-    int dColInChip = indexConverter.DColumn(colROC); //get ROC dcol from ROC col 
+    pIndexConverter->transformToROC(col,row,chipIndex,colROC,rowROC);
+    int dColInChip = pIndexConverter->DColumn(colROC); //get ROC dcol from ROC col 
     //dcol in mod
-    int dColInDet = indexConverter.DColumnInModule(dColInChip,chipIndex); 
+    int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex); 
 
 
     float rand  = RandFlat::shoot();
@@ -927,10 +1024,62 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
 //***********************************************************************
 // Fluctuate the gain and offset for the amplitude calibration
 // Use gaussian smearing.
-float SiPixelDigitizerAlgorithm::missCalibrate(const float amp) const {
-  float gain  = RandGauss::shoot(1.,theGainSmearing);
-  float offset  = RandGauss::shoot(0.,theOffsetSmearing);
-  float newAmp = amp * gain + offset;
+//float SiPixelDigitizerAlgorithm::missCalibrate(const float amp) const {
+  //float gain  = RandGauss::shoot(1.,theGainSmearing);
+  //float offset  = RandGauss::shoot(0.,theOffsetSmearing);
+  //float newAmp = amp * gain + offset;
+  // More complex misscalibration 
+float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
+				 const float signalInElectrons) const {
+
+  // Central values
+  //const float p0=0.00352, p1=0.868, p2=112., p3=113.; // pix(0,0,0)
+  const float p0=0.00382, p1=0.886, p2=112.7, p3=113.0; // average roc=0
+  //const float p0=0.00492, p1=1.998, p2=90.6, p3=134.1; // average roc=6
+  // Smeared (rms)
+  //const float s0=0.00020, s1=0.051, s2=5.4, s3=4.4; // average roc=0
+  const float s0=0.00015, s1=0.043, s2=3.2, s3=3.1; // col average roc=0
+
+  const float electronsPerVCAL = 65.; // out present VCAL calibration
+  float newAmp = 0.; //Modified signal
+
+  // Convert electrons to VCAL units
+  float signal = signalInElectrons/electronsPerVCAL;
+
+  //
+  // Simulate the analog response with fixed parametrization
+  newAmp = p3 + p2 * tanh(p0*signal - p1);
+  
+  //
+  // Use the pixel-by-pixel calibrations
+  //transform to ROC index coordinates
+  //int chipIndex=0, colROC=0, rowROC=0;
+  //pIndexConverter->transformToROC(col,row,chipIndex,colROC,rowROC);
+
+  // Use calibration from a file
+  //int chanROC = PixelIndices::pixelToChannelROC(rowROC,colROC); // use ROC coordinates
+  //float pp0=0, pp1=0,pp2=0,pp3=0;
+  //map<int,CalParameters,less<int> >::const_iterator it=calmap.find(chanROC);
+  //CalParameters y  = (*it).second;
+  //pp0 = y.p0;
+  //pp1 = y.p1;
+  //pp2 = y.p2;
+  //pp3 = y.p3;
+
+  //
+  // Use random smearing 
+  // Randomize the pixel response
+  //float pp0  = RandGauss::shoot(p0,s0);
+  //float pp1  = RandGauss::shoot(p1,s1);
+  //float pp2  = RandGauss::shoot(p2,s2);
+  //float pp3  = RandGauss::shoot(p3,s3);
+
+  //newAmp = pp3 + pp2 * tanh(pp0*signal - pp1); // Final signal
+
+  //cout<<" misscalibrate "<<col<<" "<<row<<" "<<chipIndex<<" "<<colROC<<" "
+  //  <<rowROC<<" "<<signalInElectrons<<" "<<signal<<" "<<newAmp<<" "
+  //  <<(signalInElectrons/theElectronPerADC)<<endl;
+
   return newAmp;
 }  
 //******************************************************************************
