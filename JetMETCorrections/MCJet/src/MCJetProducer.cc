@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova
 //         Created:  Wed Feb  1 17:04:23 CET 2006
-// $Id: MCJetProducer.cc,v 1.3 2006/04/02 10:18:20 kodolova Exp $
+// $Id: MCJetProducer.cc,v 1.4 2006/06/28 16:54:14 kodolova Exp $
 //
 //
 
@@ -41,7 +41,7 @@ namespace cms
 //
 MCJet::MCJet(const edm::ParameterSet& iConfig): 
                                            mAlgorithm(),
-					   mInput(iConfig.getParameter<string>("src")),
+					   mInput(iConfig.getParameter<edm::InputTag>("src")),
 					   mTag(iConfig.getParameter<string>("tagName"))
 
 {

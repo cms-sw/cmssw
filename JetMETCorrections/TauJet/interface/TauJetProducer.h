@@ -34,7 +34,7 @@ namespace cms
 
   private:
     JetCalibratorTauJet mAlgorithm;
-    std::string mInput;
+    edm::InputTag mInput;
     std::string mTag;
     int mTauTriggerType;
   };

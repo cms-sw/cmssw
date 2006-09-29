@@ -34,7 +34,7 @@ namespace cms
 
   private:
     JetCalibratorJetParton mAlgorithm;
-    std::string mInput;
+    edm::InputTag mInput;
     std::string mTag;
     double mRadius;
     int mMixtureType; 

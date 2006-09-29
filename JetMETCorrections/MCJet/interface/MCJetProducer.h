@@ -34,7 +34,7 @@ namespace cms
 
   private:
     JetCalibratorMCJet mAlgorithm;
-    std::string mInput;
+    edm::InputTag mInput;
     std::string mTag;
   };
 }

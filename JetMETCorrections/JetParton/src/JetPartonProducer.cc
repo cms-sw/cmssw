@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova
 //         Created:  Wed Feb  1 17:04:23 CET 2006
-// $Id: JetPartonProducer.cc,v 1.1 2006/04/14 11:30:38 kodolova Exp $
+// $Id: JetPartonProducer.cc,v 1.2 2006/06/28 16:53:43 kodolova Exp $
 //
 //
 
@@ -41,7 +41,7 @@ namespace cms
 //
 JetParton::JetParton(const edm::ParameterSet& iConfig): 
                                            mAlgorithm(),
-					   mInput(iConfig.getParameter<string>("src")),
+					   mInput(iConfig.getParameter<edm::InputTag>("src")),
 					   mTag(iConfig.getParameter<string>("tagName")),
                                            mRadius(iConfig.getParameter<double>("Radius")),
                                            mMixtureType(iConfig.getParameter<int>("MixtureType"))
