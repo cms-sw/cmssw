@@ -16,17 +16,4 @@
   <class pattern="edm::Ref< std::vector<HepMC::GenVertex>,*>" />
   <class pattern="edm::RefVector< std::vector<HepMC::GenVertex>,*>" />
 
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<TrackingParticle>,std::vector<TrackingVertex>,unsigned int > >">
-    <field name="transientMap_" transient="true"/>
-  </class>
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<TrackingVertex>,std::vector<TrackingParticle>,unsigned int > >">
-    <field name="transientMap_" transient="true"/>
-  </class>
-  <class pattern="edm::KeyVal<*>" />
-  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
-  <class pattern="edm::Ref<edm::AssociationMap<*>" />
-  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
-  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >,edm::RefProd<std::vector<TrackingVertex> > >" />
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingVertex> >,edm::RefProd<std::vector<TrackingParticle> > >" />
 </lcgdict>

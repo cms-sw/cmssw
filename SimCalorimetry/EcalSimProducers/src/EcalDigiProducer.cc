@@ -133,6 +133,7 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   try {
     EBHits = new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName);
   } catch ( cms::Exception &e ) { isEB = false; }
+  if ( theBarrelDets.size() == 0 ) isEB = false;
   
   //  std::auto_ptr<MixCollection<PCaloHit> > 
   //    barrelHits( new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName) );
@@ -142,6 +143,7 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   try {
     EEHits = new MixCollection<PCaloHit>(crossingFrame.product(), endcapHitsName);
   } catch ( cms::Exception &e ) { isEE = false; }
+  if ( theEndcapDets.size() == 0 ) isEE = false;
 
   //  std::auto_ptr<MixCollection<PCaloHit> > 
   //    endcapHits( new MixCollection<PCaloHit>(crossingFrame.product(),endcapHitsName) );
@@ -151,6 +153,7 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   try {
     ESHits = new MixCollection<PCaloHit>(crossingFrame.product(), preshowerHitsName);
   } catch ( cms::Exception &e ) { isES = false; }
+  if ( theESDets.size() == 0 ) isES = false;
 
   //    std::auto_ptr<MixCollection<PCaloHit> >
   //      preshowerHits( new MixCollection<PCaloHit>(crossingFrame.product(), preshowerHitsName) ); 

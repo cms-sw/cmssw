@@ -4,6 +4,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 
 class GeomDetUnit;
 
@@ -37,7 +38,12 @@ public:
 //RC   }
 
   virtual AlgebraicVector parameters() const {return theHitData->parameters();}
-  virtual AlgebraicSymMatrix parametersError() const {return theHitData->parametersError();}
+
+  virtual AlgebraicSymMatrix parametersError() const {
+    return HelpertRecHit2DLocalPos().parError( theHitData->localPositionError(), *det()); 
+    // return theHitData->parametersError();
+  }
+
   virtual DetId geographicalId() const {return theHitData->geographicalId();}
   virtual AlgebraicMatrix projectionMatrix() const {return theHitData->projectionMatrix();}
   virtual int dimension() const {return theHitData->dimension();}

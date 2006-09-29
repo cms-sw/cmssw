@@ -20,7 +20,7 @@
 
 
 DDTIBRadCableAlgo::DDTIBRadCableAlgo(): layRin(0),cableMat(0),strucMat(0) {
-  LogDebug("TIBGeom") <<"DDTIBRadCableAlgo info: Creating an instance";
+  edm::LogInfo("TIBGeom") <<"DDTIBRadCableAlgo info: Creating an instance";
 }
 
 DDTIBRadCableAlgo::~DDTIBRadCableAlgo() {}

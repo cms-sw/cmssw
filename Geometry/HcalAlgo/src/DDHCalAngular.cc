@@ -21,7 +21,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalAngular::DDHCalAngular() {
-  LogDebug("HCalGeom") << "DDHCalAngular test: Creating an instance";
+  edm::LogInfo("HCalGeom") << "DDHCalAngular test: Creating an instance";
 }
 
 DDHCalAngular::~DDHCalAngular() {}

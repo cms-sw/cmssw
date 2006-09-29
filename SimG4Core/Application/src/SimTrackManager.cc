@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.2 2006/05/24 23:14:40 yarba Exp $
+// $Id: SimTrackManager.cc,v 1.3 2006/07/09 10:47:27 maya Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "SimG4Core/Application/interface/G4SimVertex.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 //
 // constants, enums and typedefs
@@ -115,153 +116,112 @@ void SimTrackManager::saveTrackAndItsBranch(int i)
 
 void SimTrackManager::storeTracks(G4SimEvent* simEvent)
 {
-#ifdef DEBUG
-// At the moment, I'm not sure how to take the whole thing under MessageLogger
-//
     using namespace std;
-    LogDebug("SimTrackManager") << " SimTrackManager::storeTracks knows " << m_trksForThisEvent->size()
-	 << " tracks with history before branching";
+    LogDebug("SimTrackManager")  << " SimTrackManager::storeTracks knows " << m_trksForThisEvent->size()
+	      << " tracks with history before branching";
     for (unsigned int it =0;  it <(*m_trksForThisEvent).size(); it++)
-	LogDebug("SimTrackManager")  << " 1 - Track in position " << it << " G4 track number "
-	     << (*m_trksForThisEvent)[it]->trackID()
-	     << " mother " << (*m_trksForThisEvent)[it]->parentID()
-	     << " status " << (*m_trksForThisEvent)[it]->saved();
-#endif
+      LogDebug("SimTrackManager")   << " 1 - Track in position " << it << " G4 track number "
+		 << (*m_trksForThisEvent)[it]->trackID()
+		 << " mother " << (*m_trksForThisEvent)[it]->parentID()
+		 << " status " << (*m_trksForThisEvent)[it]->saved();
+
     for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++)
-    {
+      {
 	TrackWithHistory * t = (*m_trksForThisEvent)[i];
 	if (t->saved()) saveTrackAndItsBranch(i);
-    }
-#ifdef DEBUG
-// ... and also this...
-//
-    LogDebug("SimTrackManager")  << "SimTrackManager::storeTracks -  TRACKS to be saved starting with "
-	 << (*m_trksForThisEvent).size();
-    for (unsigned int it = 0;  it < (*m_trksForThisEvent).size(); it++)
-	LogDebug("SimTrackManager")  << " 2 - Track in position " << it
-	     << " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
-	     << " mother " << (*m_trksForThisEvent)[it]->parentID()
-	     << " Status " << (*m_trksForThisEvent)[it]->saved();
-#endif
+      }
+    
     // now eliminate from the vector the tracks with only history but not save
     int num = 0;
     for (unsigned int it = 0;  it < (*m_trksForThisEvent).size(); it++)
-    {
+      {
 	if ((*m_trksForThisEvent)[it]->saved() == true)
-	{
+	  {
 	    if (it>num) (*m_trksForThisEvent)[num] = (*m_trksForThisEvent)[it];
 	    num++;
-	}
-	else delete (*m_trksForThisEvent)[it];
-    }
+	  }
+	else 
+	  {	
+	    delete (*m_trksForThisEvent)[it];
+	  }
+      }
+    
     (*m_trksForThisEvent).resize(num);
-#ifdef DEBUG
-// ...and this...
-//
+    
     LogDebug("SimTrackManager")  << " AFTER CLEANING, I GET " << (*m_trksForThisEvent).size()
-	 << " tracks to be saved persistently";
+	      << " tracks to be saved persistently";
+    
     LogDebug("SimTrackManager")  << "SimTrackManager::storeTracks -  Tracks still alive " 
-         << (*m_trksForThisEvent).size();
+	      << (*m_trksForThisEvent).size();
+    
     for (unsigned int it = 0;  it < (*m_trksForThisEvent).size(); it++)
-	LogDebug("SimTrackManager")  << " 3 - Track in position " << it
-	     << " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
-	     << " mother " << (*m_trksForThisEvent)[it]->parentID()
-	     << " status " << (*m_trksForThisEvent)[it]->saved();
-#endif
+      LogDebug("SimTrackManager")  << " 3 - Track in position " << it
+		<< " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
+		<< " mother " << (*m_trksForThisEvent)[it]->parentID()
+		<< " status " << (*m_trksForThisEvent)[it]->saved();
+    
     stable_sort(m_trksForThisEvent->begin(),m_trksForThisEvent->end(),trkIDLess());
-    // reorder from 0 to max-1
-    m_g4ToSimMap.clear();
-    m_simToG4Vector.clear();
-    for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++)
-    {
-#ifdef DEBUG
-// This I can take under MessageLogger but since other DEBUG blocks
-// are still plain cout's, I leave this as is for now
-//
-	LogDebug("SimTrackManager")  << " g4ToSimMap filling "
-	     << ((*m_trksForThisEvent)[i])->trackID() << " " << i
-	     << " mother " << ((*m_trksForThisEvent)[i])->parentID();
-#endif
-	int g4ID = (*m_trksForThisEvent)[i]->trackID();
-	m_g4ToSimMap[g4ID] = i;
-	m_simToG4Vector.push_back(g4ID);
-	((*m_trksForThisEvent)[i])->setTrackID(i);
-    }
-    // second iteration : change also the parent id to the new schema
-    for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++)
-    {
-	int oldParentId = ((*m_trksForThisEvent)[i])->parentID();
-	((*m_trksForThisEvent)[i])->setParentID(g4ToSim(oldParentId));
-    }
+    
+    LogDebug("SimTrackManager")   << "SimTrackManager::storeTracks -  TRACKS to be saved starting with "
+	       << (*m_trksForThisEvent).size();
+    for (unsigned int it = 0;  it < (*m_trksForThisEvent).size(); it++)
+      LogDebug("SimTrackManager")   << " 2 - Track in position " << it
+		 << " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
+		 << " mother " << (*m_trksForThisEvent)[it]->parentID()
+		 << " Status " << (*m_trksForThisEvent)[it]->saved();
+    
     reallyStoreTracks(simEvent);
 }
 
 void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
 {
     // loop over the (now ordered) vector and really save the tracks
+  LogDebug("SimTrackManager")  << "Inside the reallyStoreTracks method object to be stored = " 
+	    << m_trksForThisEvent->size();
+
     for (unsigned int it = 0; it < m_trksForThisEvent->size(); it++)
     {
         TrackWithHistory * trkH = (*m_trksForThisEvent)[it];
         // at this stage there is one vertex per track, so the vertex id of track N is also N
         int ivertex = -1;
         int ig;
+
         Hep3Vector pm = 0.;
         int iParentID = trkH->parentID();
+	for(unsigned int iit = 0; iit < m_trksForThisEvent->size(); iit++)
+	  {
+	    if((*m_trksForThisEvent)[iit]->trackID()==iParentID){
+	      pm = (*m_trksForThisEvent)[iit]->momentum();
+	      break;
+	    }
+	  }
         ig = trkH->genParticleID();
-        if (iParentID != InvalidID) pm = (*m_trksForThisEvent)[iParentID]->momentum();
         ivertex = getOrCreateVertex(trkH,iParentID,simEvent);
 	simEvent->add(new G4SimTrack(trkH->trackID(),trkH->particleID(),
-                                    trkH->momentum(),trkH->totalEnergy(),ivertex,ig,pm));
+				     trkH->momentum(),trkH->totalEnergy(),ivertex,ig,pm));
     }
 }
 
 int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
-				   G4SimEvent * simEvent)
-{
-    // if iParentID is invalid, always create the vertex
-    if (iParentID == InvalidID  && m_collapsePrimaryVertices == false)
-    {
-	simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),-1));
-	m_nVertices++;
-	return (m_nVertices-1);
+				       G4SimEvent * simEvent){
+
+  VertexMap::const_iterator iterator = m_vertexMap.find(iParentID);
+  if (iterator != m_vertexMap.end()){
+    // loop over saved vertices
+    for (unsigned int k=0; k<m_vertexMap[iParentID].size(); k++){
+      if ((trkH->vertexPosition()-(((m_vertexMap[iParentID])[k]).second)).mag()<0.001)
+	return (((m_vertexMap[iParentID])[k]).first);
     }
-    else
-    {
-	// if is valid, search if it has already been saved and return the number
-	VertexMap::const_iterator iterator = m_vertexMap.find(iParentID);
-	if (iterator != m_vertexMap.end())
-        {
-	    // loop over saved vertices
-	    for (unsigned int k=0; k<m_vertexMap[iParentID].size(); k++)
-            {
-		if ((trkH->vertexPosition()-(((m_vertexMap[iParentID])[k]).second)).mag()<0.001)
-		    return (((m_vertexMap[iParentID])[k]).first);
-            }
-        }
-	int realParent = iParentID;
-	if (iParentID == InvalidID) 
-	    // needed to collapse primary vertices; save a vertex with no decaying particle
-	    realParent = -1;
-	simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),realParent));
-	m_vertexMap[iParentID].push_back(MapVertexPosition(m_nVertices,trkH->vertexPosition()));
-	m_nVertices++;
-	return (m_nVertices-1);
-    }
+  }
+
+  int realParent = iParentID;
+  
+  simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),realParent));
+  m_vertexMap[iParentID].push_back(MapVertexPosition(m_nVertices,trkH->vertexPosition()));
+  m_nVertices++;
+  return (m_nVertices-1);
+
 }
  
-unsigned int SimTrackManager::g4ToSim(unsigned int i) const
-{
-    if (i==0) return InvalidID;
-    // since I sorted on the first field, I can stop before
-    G4ToSimMapType::const_iterator it = m_g4ToSimMap.find(i);
-    if (it != m_g4ToSimMap.end()) return (*it).second;
-    return InvalidID;
-}
-
-unsigned int SimTrackManager::simToG4(unsigned int i) const
-{
-    if (i<m_simToG4Vector.size()) return m_simToG4Vector[i];
-    return InvalidID;
-}
 
 void SimTrackManager::cleanVertexMap() { m_vertexMap.clear(); m_nVertices=0; }

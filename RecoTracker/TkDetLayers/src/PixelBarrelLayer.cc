@@ -34,7 +34,7 @@ PixelBarrelLayer::PixelBarrelLayer(vector<const PixelRod*>& innerRods,
   }
 
   theInnerCylinder = cylinder( theInnerComps);
-  theOuterCylinder = cylinder( theInnerComps);
+  theOuterCylinder = cylinder( theOuterComps);
 
   theInnerBinFinder = BinFinderType(theInnerComps.front()->position().phi(),
 				    theInnerComps.size());

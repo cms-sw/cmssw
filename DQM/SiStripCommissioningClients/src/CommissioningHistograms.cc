@@ -1,5 +1,4 @@
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
-#include <sstream>
 
 using namespace std;
 
@@ -7,64 +6,46 @@ using namespace std;
 /** */
 CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui ) 
   : mui_(mui),
-    collations_(),
-    action_(sistrip::NO_ACTION)
+    collations_()
 {
-  cout << "[" << __PRETTY_FUNCTION__ << "]"
+  cout << "[CommissioningHistograms::CommissioningHistograms]" 
        << " Created base object!" << endl;
-  collations_.clear();
 }
 
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistograms::~CommissioningHistograms() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << "[CommissioningHistograms::~CommissioningHistograms]" << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::subscribeNew() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
-  if ( mui_ ) { mui_->subscribeNew("*"); }
-}
+void CommissioningHistograms::createCollations( const vector<string>& added_contents ) { //@@ what about removed contents?
+  static const string method = "CommissioningHistograms::createCollations";
 
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::createCollations( const vector<string>& contents ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
-
-  if ( contents.empty() ) { return; }
+  if ( added_contents.empty() ) { return; }
   
   vector<string>::const_iterator idir;
-  for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
+  for ( idir = added_contents.begin(); idir != added_contents.end(); idir++ ) {
     
     // Extract directory paths
     string collector_dir = idir->substr( 0, idir->find(":") );
-    //cout << "Collector dir: " << collector_dir << endl;
     const SiStripHistoNamingScheme::ControlPath& path = SiStripHistoNamingScheme::controlPath( collector_dir );
-    //     cout << "ControlPath: " 
-    // 	 << path.fecCrate_ << "/" 
-    // 	 << path.fecSlot_ << "/" 
-    // 	 << path.fecRing_ << "/" 
-    // 	 << path.ccuAddr_ << "/" 
-    // 	 << path.ccuChan_ << endl;
     string client_dir = SiStripHistoNamingScheme::controlPath( path.fecCrate_,
 							       path.fecSlot_,
 							       path.fecRing_,
 							       path.ccuAddr_,
 							       path.ccuChan_ );
-    //cout << "Client dir: " << collector_dir << endl;
     
-    if ( path.fecCrate_ == sistrip::invalid_ ||
-	 path.fecSlot_ == sistrip::invalid_ ||
-	 path.fecRing_ == sistrip::invalid_ ||
-	 path.ccuAddr_ == sistrip::invalid_ ||
-	 path.ccuChan_ == sistrip::invalid_ ) { continue; } 
-
+    if ( path.fecCrate_ == sistrip::all_ ||
+	 path.fecSlot_ == sistrip::all_ ||
+	 path.fecRing_ == sistrip::all_ ||
+	 path.ccuAddr_ == sistrip::all_ ||
+	 path.ccuChan_ == sistrip::all_ ) { continue; } 
+    
     // Retrieve MonitorElements from pwd directory
     mui()->setCurrentFolder( collector_dir );
     vector<string> me_list = mui()->getMEs();
-    //cout << "Found " << me_list.size() << " MEs in Collector dir " << collector_dir << endl;
     
     CollateMonitorElement* cme = 0;
     vector<string>::iterator ime = me_list.begin(); 
@@ -76,36 +57,19 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       TH1F* his = ExtractTObject<TH1F>().extract( me );
       if ( prof ) { prof->SetErrorOption("s"); } //@@ is this necessary? (until bug fix applied to dqm)...
 
-      static SiStripHistoNamingScheme::HistoTitle title;
-      title = SiStripHistoNamingScheme::histoTitle( *ime );
-      uint32_t key = SiStripControlKey::key( path.fecCrate_,
-					     path.fecSlot_,
-					     path.fecRing_,
-					     path.ccuAddr_,
-					     path.ccuChan_,
-					     title.channel_ );
       // Create collation MEs
-      CollationsMap::iterator iter = collations_.find( key );
-      if ( iter == collations_.end() ) {
+      if ( find( collations_.begin(), collations_.end(), client_dir+(*ime) ) == collations_.end() ) {
 	if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); }
 	else if ( his ) { cme = mui()->collate1D( *ime, *ime, client_dir ); }
-	else { cme = 0; cerr << "[" << __PRETTY_FUNCTION__ << "] NULL pointers to histos!" << endl; }
+	else            { cme = 0; cerr << "["<<method<<"]" << "NULL pointers to histos!" << endl; }
 	if ( cme ) {
 	  mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
-	  collations_[key].push_back( client_dir+(*ime) ); // store "path + name"
-	}
-      } else {
-	if ( find( iter->second.begin(), iter->second.end(), client_dir+(*ime) ) == iter->second.end() ) {
-	  if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); }
-	  else if ( his ) { cme = mui()->collate1D( *ime, *ime, client_dir ); }
-	  else { cme = 0; cerr << "[" << __PRETTY_FUNCTION__ << "] NULL pointers to histos!" << endl; }
-	  if ( cme ) {
-	    mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
-	    collations_[key].push_back( client_dir+(*ime) ); // store "path + name"
-	  }
-	}
+	  collations_.push_back( client_dir+(*ime) ); // record "path + name"
+	} 
       }
+      
     }
+    
   }
   
 }
@@ -113,42 +77,73 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::histoAnalysis() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" 
+  cout << "[CommissioningHistograms::histoAnalysis]" 
        << " (Derived) implementation to come..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::saveHistos( string name ) {
-  stringstream ss; 
-  if ( name == "" ) { ss << "Client.root"; }
-  else { ss << name; }
-  cout << "[" << __PRETTY_FUNCTION__ << "]" 
-       << " Saving histogams to file '" << ss.str() << "'..." << endl;
-  if ( mui_ ) { mui_->save( ss.str() ); }
-}
-
-// -----------------------------------------------------------------------------
-/** Wraps other createSummaryHisto() method. */
-void CommissioningHistograms::createSummaryHisto( pair<sistrip::SummaryHisto,
-						  sistrip::SummaryType> summ, 
-						  string directory ) {
-  createSummaryHisto( summ.first, summ.second, directory );
+void CommissioningHistograms::createSummaryHistos( const vector<SummaryFactory::Histo>& histos, 
+						   const string& directory ) {
+  static const string method = "CommissioningHistograms::createSummaryHisto";
+  cout << "["<<method<<"]" << endl;
+  
+  // Book histos using DQM fwk
+  CommissioningSummary* summary;
+  vector<SummaryFactory::Histo>::const_iterator ihis = histos.begin();
+  for ( ; ihis != histos.end(); ihis++ ) {
+    summary = SummaryFactory::book( *ihis, directory );
+    //if ( summary ) { insertIntoDqm( summary ); }
+  }
+  
+  // Create "APV timing" summary histogram object
+  //ApvTimingSummary* summary = new ApvTimingSummary( histos, directory );
+  
+//   // Update histogram contents
+//   Data::const_iterator iter = data_.begin();
+//   for ( ; iter != data_.end(); iter++ ) {
+//     summary->update( iter->first, iter->second ); 
+//   }
+  
+//   // Generate summary histogram
+//   summary->histogram();
+  
+//   // Retrieve summary histogram
+//   summary->getSummary();
+  
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
-						  const sistrip::SummaryType& type, 
-						  const string& directory ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" 
+void CommissioningHistograms::createTrackerMap() {
+  cout << "[CommissioningHistograms::createTrackerMap]" 
        << " (Derived) implementation to come..." << endl;
 }
-
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::uploadToConfigDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" 
+  cout << "[CommissioningHistograms::uploadToConfigDb]" 
        << " (Derived) implementation to come..." << endl;
 }
+
+// // -----------------------------------------------------------------------------
+// /** */
+// void CommissioningHistograms::bookDqmHisto( vector<TH1F*>& dqm_histos ) {
+//   static const string method = "CommissioningHistograms::bookDqmHistos";
+  
+//   // Book 1D histo using DQM fwk 
+//   MonitorElement* me = mui()->getBEInterface()->book1D( "name", "title", 1, 0., 1. );
+  
+//   // Extract TH1F
+//   TH1F* his = ExtractTObject<TH1F>().extract( me );
+//   if ( his ) { 
+//     dqm_histos.push_back( his ); 
+//   } else {
+//     cerr << "["<<method<<"] NULL pointer to TH1F!" << endl; 
+//     return; 
+//   }
+  
+// }
+
+

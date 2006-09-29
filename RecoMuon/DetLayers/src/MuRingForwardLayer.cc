@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/25 17:10:28 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/08/11 10:56:57 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - CERN
  */
 
@@ -120,87 +120,87 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
   // Check the closest ring
   
   LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets, closestRing: "
-                     << closest
-                     << " R1 " << closestRing->specificSurface().innerRadius()
-                     << " R2: " << closestRing->specificSurface().outerRadius()
-                     << " FTS R: " << tsos.globalPosition().perp();
-   if (tsos.hasError()) {
-     cout << " sR: " << sqrt(tsos.localError().positionError().yy())
-          << " sX: " << sqrt(tsos.localError().positionError().xx());
-   }
-   cout << endl;
+		    << closest
+		    << " R1 " << closestRing->specificSurface().innerRadius()
+		    << " R2: " << closestRing->specificSurface().outerRadius()
+		    << " FTS R: " << tsos.globalPosition().perp();
+  if (tsos.hasError()) {
+    LogTrace(metname)  << " sR: " << sqrt(tsos.localError().positionError().yy())
+		       << " sX: " << sqrt(tsos.localError().positionError().xx());
+  }
+  LogTrace(metname) << endl;
    
    
-   result = closestRing->compatibleDets(tsos, prop, est);
+  result = closestRing->compatibleDets(tsos, prop, est);
    
-   int nclosest = result.size(); int nnextdet=0; // MDEBUG counters
+  int nclosest = result.size(); int nnextdet=0; // MDEBUG counters
    
-   //FIXME: if closest is not compatible next cannot be either?
+  //FIXME: if closest is not compatible next cannot be either?
    
-   // Use state on layer surface. Note that local coordinates and errors
-   // are the same on the layer and on all rings surfaces, since 
-   // all BoundDisks are centered in 0,0 and have the same rotation.
-   // CAVEAT: if the rings are not at the same Z, the local position and error
-   // will be "Z-projected" to the rings. This is a fairly good approximation.
-   // However in this case additional propagation will be done when calling
-   // compatibleDets.
-   GlobalPoint startPos = tsos.globalPosition();
-   LocalPoint nextPos(surface().toLocal(startPos));
+  // Use state on layer surface. Note that local coordinates and errors
+  // are the same on the layer and on all rings surfaces, since 
+  // all BoundDisks are centered in 0,0 and have the same rotation.
+  // CAVEAT: if the rings are not at the same Z, the local position and error
+  // will be "Z-projected" to the rings. This is a fairly good approximation.
+  // However in this case additional propagation will be done when calling
+  // compatibleDets.
+  GlobalPoint startPos = tsos.globalPosition();
+  LocalPoint nextPos(surface().toLocal(startPos));
    
-   for (unsigned int idet=closest+1; idet < theRings.size(); idet++) {
-     bool inside = false;
-     if (tsos.hasError()) {
-       inside=theRings[idet]->specificSurface().bounds().inside(nextPos,tsos.localError().positionError());
-     } else {
-       inside=theRings[idet]->specificSurface().bounds().inside(nextPos);
-     }
-     if (inside){
-       LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets:NextRing" << idet
-                         << " R1 " << theRings[idet]->specificSurface().innerRadius()
-                         << " R2: " << theRings[idet]->specificSurface().outerRadius()
-                         << " FTS R " << nextPos.perp();
-       nnextdet++;      
-       vector<DetWithState> nextRodDets =
-         theRings[idet]->compatibleDets(tsos, prop, est);
-       if (nextRodDets.size()!=0) {
-         result.insert( result.end(), 
-                        nextRodDets.begin(), nextRodDets.end());
-       } else {
-         break;
-       }
-     }
-   }
+  for (unsigned int idet=closest+1; idet < theRings.size(); idet++) {
+    bool inside = false;
+    if (tsos.hasError()) {
+      inside=theRings[idet]->specificSurface().bounds().inside(nextPos,tsos.localError().positionError());
+    } else {
+      inside=theRings[idet]->specificSurface().bounds().inside(nextPos);
+    }
+    if (inside){
+      LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets:NextRing" << idet
+			<< " R1 " << theRings[idet]->specificSurface().innerRadius()
+			<< " R2: " << theRings[idet]->specificSurface().outerRadius()
+			<< " FTS R " << nextPos.perp();
+      nnextdet++;      
+      vector<DetWithState> nextRodDets =
+	theRings[idet]->compatibleDets(tsos, prop, est);
+      if (nextRodDets.size()!=0) {
+	result.insert( result.end(), 
+		       nextRodDets.begin(), nextRodDets.end());
+      } else {
+	break;
+      }
+    }
+  }
    
-   for (int idet=closest-1; idet >= 0; idet--) {
-     bool inside = false;
-     if (tsos.hasError()) {
-       inside=theRings[idet]->specificSurface().bounds().inside(nextPos,tsos.localError().positionError());
-     } else {
-       inside=theRings[idet]->specificSurface().bounds().inside(nextPos);
-     }
-     if (inside){
-       LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets:PreviousRing:" << idet
-                         << " R1 " << theRings[idet]->specificSurface().innerRadius()
-                         << " R2: " << theRings[idet]->specificSurface().outerRadius()
-                         << " FTS R " << nextPos.perp();
-       nnextdet++;
-       vector<DetWithState> nextRodDets =
-         theRings[idet]->compatibleDets(tsos, prop, est);
-       if (nextRodDets.size()!=0) {
-         result.insert( result.end(), 
-                        nextRodDets.begin(), nextRodDets.end());
-       } else {
-         break;
-       }
-     }
-   }
+  for (int idet=closest-1; idet >= 0; idet--) {
+    bool inside = false;
+    if (tsos.hasError()) {
+      inside=theRings[idet]->specificSurface().bounds().inside(nextPos,tsos.localError().positionError());
+    } else {
+      inside=theRings[idet]->specificSurface().bounds().inside(nextPos);
+    }
+    if (inside){
+      LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets:PreviousRing:" << idet
+			<< " R1 " << theRings[idet]->specificSurface().innerRadius()
+			<< " R2: " << theRings[idet]->specificSurface().outerRadius()
+			<< " FTS R " << nextPos.perp();
+      nnextdet++;
+      vector<DetWithState> nextRodDets =
+	theRings[idet]->compatibleDets(tsos, prop, est);
+      if (nextRodDets.size()!=0) {
+	result.insert( result.end(), 
+		       nextRodDets.begin(), nextRodDets.end());
+      } else {
+	break;
+      }
+    }
+  }
    
-   LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets: found: "
-                     << result.size()
-                     << " on closest: " << nclosest
-                     << " # checked rings: " << 1 + nnextdet;
+  LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets: found: "
+		    << result.size()
+		    << " on closest: " << nclosest
+		    << " # checked rings: " << 1 + nnextdet;
    
-   return result;
+  return result;
 }
 
 

@@ -6,7 +6,7 @@
 //                 
 //                  
 //                
-//   $Date: 2006/05/15 13:51:42 $
+//   $Date: 2004/02/03 16:30:14 $
 //   $Revision: 1.1 $ 
 //
 //   Author :
@@ -21,7 +21,6 @@
 
 #include <iostream>
 #include <vector>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
 
 using namespace std;
@@ -130,7 +129,7 @@ class L1MuBinnedScale : public L1MuScale, public thePacking {
   /// pack a value
   virtual unsigned getPacked(float value) const {
     if (value < m_Scale[0] || value > m_Scale[m_NBins]) 
-      edm::LogWarning("ScaleRangeViolation") << "L1MuBinnedScale::getPacked: value out of scale range: " << value << endl;
+      cout << "***Error: L1MuBinnedScale::getPacked: value out of scale range: " << value << endl;
     int idx = 0;
     if (value < m_Scale[0]) idx=0;
     else if (value >= m_Scale[m_NBins]) idx = m_NBins-1;
@@ -224,16 +223,16 @@ class L1MuSymmetricBinnedScale : public L1MuScale, public L1MuPseudoSignedPackin
 
   /// get the upper edge of bin represented by packed
   virtual float getHighEdge(unsigned packed) const{
-    edm::LogWarning("NotImplemented") << "L1MuSymmetricBinnedScale::getHighEdge not implemented" << endl;
+    cout << "Error: L1MuSymmetricBinnedScale::getHighEdge not implemented" << endl;
     return 0;
   };
 
   /// pack a value
   virtual unsigned getPacked(float value) const {
     float absval = fabs ( value );
-    if (absval < m_Scale[0] || absval > m_Scale[m_NBins]) edm::LogWarning("ScaleRangeViolation") 
-                 << "L1MuSymmetricBinnedScale::getPacked: value out of scale range!!! abs(val) = " 
-	         << absval << " min= " << m_Scale[0] << " max = " << m_Scale[m_NBins] << endl;
+    if (absval < m_Scale[0] || absval > m_Scale[m_NBins]) 
+      cout << "***Error: L1MuSymmetricBinnedScale::getPacked: value out of scale range!!! abs(val) = " 
+	   << absval << " min= " << m_Scale[0] << " max = " << m_Scale[m_NBins] << endl;
     int idx = 0;
     for (; idx<m_NBins; idx++) 
       if (absval >= m_Scale[idx] && absval < m_Scale[idx+1]) break;

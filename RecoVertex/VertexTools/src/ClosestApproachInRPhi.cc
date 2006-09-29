@@ -162,7 +162,7 @@ GlobalTrajectoryParameters ClosestApproachInRPhi::trajectoryParameters (
   // now for the angles:
   double cosphi = ( dx1 * dx2 + dy1 * dy2 ) / 
     ( sqrt ( dx1 * dx1 + dy1 * dy1 ) * sqrt ( dx2 * dx2 + dy2 * dy2 ));
-  double sinphi = sqrt ( 1 - cosphi * cosphi );
+  double sinphi = - oldgtp.charge() * sqrt ( 1 - cosphi * cosphi );
 
   // Finally, the new momenta:
   double px = cosphi * oldgtp.momentum().x() - sinphi * oldgtp.momentum().y();

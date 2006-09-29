@@ -8,11 +8,12 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.7 2006/07/25 23:30:46 pivarski Exp $
+// $Id: SiStripElectronProducer.cc,v 1.8 2006/07/31 22:08:14 pivarski Exp $
 //
 
 // system include files
 #include <memory>
+#include <sstream>
 
 // user include files
 #include "RecoEgamma/EgammaElectronProducers/interface/SiStripElectronProducer.h"
@@ -125,20 +126,33 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    std::auto_ptr<reco::SiStripElectronCollection> electronOut(new reco::SiStripElectronCollection);
    std::auto_ptr<TrackCandidateCollection> trackCandidateOut(new TrackCandidateCollection);
 
+   // counter for electron candidates
+   int siStripElectCands = 0 ;
+
+   std::ostringstream str;
+
+
    // Loop over clusters
-   edm::LogInfo("SiStripElectronProducer") << "Starting loop over superclusters." << std::endl;
+   str << "Starting loop over superclusters."<< "\n" << std::endl;
    for (unsigned int i = 0;  i < superClusterHandle.product()->size();  i++) {
       const reco::SuperCluster* sc = &(*reco::SuperClusterRef(superClusterHandle, i));
       double energy = sc->energy();
 
       if (algo_p->findElectron(*electronOut, *trackCandidateOut, reco::SuperClusterRef(superClusterHandle, i))) {
-	 edm::LogInfo("SiStripElectronProducer") << "Supercluster energy: " << energy << ", FOUND an electron." << std::endl;
+	str << "Supercluster energy: " << energy << ", FOUND an electron." << "\n" << std::endl;
+	 ++siStripElectCands ;
       }
       else {
-	 edm::LogInfo("SiStripElectronProducer") << "Supercluster energy: " << energy << ", DID NOT FIND an electron." << std::endl;
+	 str << "Supercluster energy: " << energy << ", DID NOT FIND an electron."<< "\n" << std::endl;
       }
    }
-   edm::LogInfo("SiStripElectronProducer") << "Ending loop over superclusters." << std::endl;
+   str << "Ending loop over superclusters." << "\n" << std::endl;
+   
+   str << " Found " << siStripElectCands 
+		    << " SiStripElectron Candidates before track fit " 
+		    << "\n" << std::endl ;
+
+   LogDebug("SiStripElectronProducer") << str.str();
 
    // Put the electron candidates and the tracking trajectories into the event
    iEvent.put(electronOut, siStripElectronsLabel_);

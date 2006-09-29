@@ -7,7 +7,7 @@
  *
  * \author Chirs Jones, Cornell
  *
- * $Id: AutoLibraryLoader.h,v 1.2 2006/08/08 23:57:33 chrjones Exp $
+ * $Id: AutoLibraryLoader.h,v 1.3 2006/08/11 19:41:49 chrjones Exp $
  *
  */
 #include "TClassGenerator.h"
@@ -30,6 +30,7 @@ public:
   static void loadAll();
 
 private:
+  const char* classNameAttemptingToLoad_; //!
   AutoLibraryLoader();
   AutoLibraryLoader(const AutoLibraryLoader&); // stop default
   const AutoLibraryLoader& operator=(const AutoLibraryLoader&); // stop default

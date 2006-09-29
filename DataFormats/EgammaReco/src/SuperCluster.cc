@@ -1,4 +1,5 @@
-// $Id: SuperCluster.cc,v 1.4 2006/04/24 13:42:39 llista Exp $
+// $Id: SuperCluster.cc,v 1.5 2006/05/23 16:28:06 askew Exp $
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterPi0Discriminator.h"
@@ -11,18 +12,31 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
                             const BasicClusterRef & seed,
                             const BasicClusterRefVector& clusters ) :
-  EcalCluster(energy,position),
-  seed_( seed ),
-  clusters_( clusters ) {
+  EcalCluster(energy,position)
+{
+
+  seed_ = seed;
+
+  // set references to constituent basic clusters and update list of rechits
+  for(BasicClusterRefVector::const_iterator bcit  = clusters.begin();
+                                            bcit != clusters.end();
+                                          ++bcit) {
+    clusters_.push_back( (*bcit) );
+
+    // updated list of used hits
+    const std::vector<DetId> & v1 = (*bcit)->getHitsByDetId();
+    for( std::vector<DetId>::const_iterator diIt = v1.begin();
+                                            diIt != v1.end();
+                                           ++diIt ) {
+      usedHits_.push_back( (*diIt) );
+    } // loop over rechits
+  } // loop over basic clusters
+
 }
-
-
-
 
 std::vector<DetId>
 SuperCluster::getHitsByDetId() const {
-  std::vector<DetId> usedHits;
-  return usedHits;
+  return usedHits_;
 }
 
 

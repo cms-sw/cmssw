@@ -24,9 +24,10 @@ class AnalyticalPropagator : public Propagator {
 public:
 
   AnalyticalPropagator( const MagneticField* field,
-		        PropagationDirection dir = alongMomentum) :
+		        PropagationDirection dir = alongMomentum,
+			float maxDPhi = 1.6) :
     Propagator(dir),
-    theMaxDPhi2(FLT_MAX),
+    theMaxDPhi2(maxDPhi*maxDPhi),
     theMaxDBzRatio(0.5),
     theField(field) {}
 

@@ -4,14 +4,13 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: SingleObjectSelector.h,v 1.2 2006/08/02 09:54:30 llista Exp $
+ * $Id: SingleObjectSelector.h,v 1.1 2006/07/31 12:33:48 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/Parser/interface/SelectorPtr.h"
-#include "PhysicsTools/Parser/interface/SelectorBase.h"
-#include "PhysicsTools/Parser/interface/cutParser.h"
+#include "PhysicsTools/Utilities/interface/ReflexSelector.h"
+#include "PhysicsTools/Utilities/interface/cutParser.h"
 
 template<typename T>
 struct SingleObjectSelector {
@@ -23,7 +22,7 @@ struct SingleObjectSelector {
 			    "failed to parse \"" + cut + "\"" );
     }
   }
-  SingleObjectSelector( const reco::parser::SelectorPtr & select ) : 
+  SingleObjectSelector( const reco::parser::selector_ptr & select ) : 
     select_( select ),
     type_( ROOT::Reflex::Type::ByTypeInfo( typeid( T ) ) ) {
   }
@@ -34,7 +33,7 @@ struct SingleObjectSelector {
   }
 
 private:
-  reco::parser::SelectorPtr select_;
+  reco::parser::selector_ptr select_;
   ROOT::Reflex::Type type_;
 };
 

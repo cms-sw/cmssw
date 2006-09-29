@@ -48,6 +48,7 @@ bool CSCSPRecord::unpack(const unsigned short* &buf, unsigned int nonmasked_data
 			mb[block].valid_quality = (block?vq_b:vq_a);
 			mb[block].alignment_fifo= (block?af_barrel_2:af_barrel_1);
 			mb[block].bxBit         = (block?bx_barrel_2:bx_barrel_1);
+			mb[block].id_           =  block+1;
 			mbFilled[block]         = true;
 		}
 
@@ -58,6 +59,7 @@ bool CSCSPRecord::unpack(const unsigned short* &buf, unsigned int nonmasked_data
 			unpackError |= sp[block].unpack(buf);
 			sp[block].tbin_ = tbin;
 			sp[block].mode_ = (block==0?mode1:(block==1?mode2:mode3));
+			sp[block].id_   = block+1;
 			spFilled[block] = true;
 		}
 

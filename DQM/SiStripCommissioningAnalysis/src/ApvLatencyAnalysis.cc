@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvLatencyAnalysis.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <vector>
 #include <cmath>
@@ -9,19 +10,18 @@ using namespace std;
 //
 void ApvLatencyAnalysis::analysis( const vector<const TProfile*>& histos, 
 			      vector<unsigned short>& monitorables ) {
-  //edm::LogInfo("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]";
+    edm::LogInfo("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]";
 
     //extract root histogram
     //check 
-  if (histos.size() != 1) { 
-//     edm::LogError("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
-    monitorables.push_back(0);
-    return; 
-  }
+  if (histos.size() != 1) { edm::LogError("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
+  
+  monitorables.push_back(0);
+  return; }
   const TProfile* histo = histos[0];
 
-  //monitorable
-  unsigned short latency;
+    //monitorable
+    unsigned short latency;
 
  vector<unsigned short> binContent; binContent.reserve((unsigned short)histo->GetNbinsX()); binContent.resize((unsigned short)histo->GetNbinsX(), 0);
 
@@ -60,15 +60,11 @@ void ApvLatencyAnalysis::analysis( const vector<const TProfile*>& histos,
    }
  }
  
- if (!count) {
- //   LogDebug("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Warning: no signal found > mean + 5*sigma(noise). Returning latency of highest number of recorded hits." << endl;
-   latency = maxlatency;
- }
+ if (!count) {LogDebug("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Warning: no signal found > mean + 5*sigma(noise). Returning latency of highest number of recorded hits." << endl;
+ latency = maxlatency;}
  
- if (count > 1) {
-//    LogDebug("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Warning: more than one signal found > mean + 5*sigma(noise). Returning latency of highest number of recorded hits.";
-   latency = maxlatency;
- }
+ if (count > 1) {LogDebug("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Warning: more than one signal found > mean + 5*sigma(noise). Returning latency of highest number of recorded hits.";
+ latency = maxlatency;}
 
  //set monitorables
  monitorables.clear();

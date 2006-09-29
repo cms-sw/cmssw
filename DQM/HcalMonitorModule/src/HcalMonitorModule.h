@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2006/08/15 23:04:17 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/04 20:05:32 $
+ * $Revision: 1.1 $
  * \author W. Fisher
  *
 */
@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DataFormats/Common/interface/EventID.h"
 
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
@@ -29,9 +28,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
-#include "DQM/HcalMonitorTasks/interface/HcalMTCCMonitor.h"
 
-#include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
 
 #include <memory>
 #include <iostream>
@@ -67,7 +64,6 @@ private:
 
   int m_ievt;
   int m_runNum;
-  bool m_verbose;
   DaqMonitorBEInterface* m_dbe;
   
   MonitorElement* m_meStatus;
@@ -75,18 +71,15 @@ private:
   MonitorElement* m_meRunType;
   MonitorElement* m_meEvtNum;
   MonitorElement* m_meEvtMask;
-  MonitorElement* m_meBeamE;
   
   HcalMonitorSelector*    m_evtSel;
   HcalDigiMonitor*        m_digiMon;
   HcalDataFormatMonitor*  m_dfMon;
   HcalRecHitMonitor*      m_rhMon;
   HcalPedestalMonitor*    m_pedMon;
-  HcalLEDMonitor*         m_ledMon;
-  HcalMTCCMonitor*        m_mtccMon;
+  HcalLEDMonitor*    m_ledMon;
   
   bool m_monitorDaemon;
-  bool offline_;
 
   string m_outputFile;
   ofstream m_logFile;

@@ -31,6 +31,7 @@ AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord
   iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
 
   std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
+  double dphiCut   = pset_.getParameter<double>("MaxDPhi");   
 
   PropagationDirection dir = alongMomentum;
   
@@ -38,7 +39,7 @@ AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord
   if (pdir == "alongMomentum") dir = alongMomentum;
   if (pdir == "anyDirection") dir = anyDirection;
   
-  _propagator  = boost::shared_ptr<Propagator>(new AnalyticalPropagator(&(*magfield), dir));
+  _propagator  = boost::shared_ptr<Propagator>(new AnalyticalPropagator(&(*magfield), dir,dphiCut));
   return _propagator;
 }
 

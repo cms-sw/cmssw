@@ -4,8 +4,8 @@
 /** \class HouseholderDecomposition
  *  Implementation of the QR decomposition of a matrix using Householder transformation
  *
- * $Date: 2006/06/27 $
- * $Revision: 1.0 $
+ * $Date: 2006/08/25 $
+ * $Revision: 1.2 $
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
  */
 
@@ -18,7 +18,8 @@ class HouseholderDecomposition
 {
 public:
   /// Default constructor
-  HouseholderDecomposition(bool normalise = true);
+  /// CAVEAT: use normalise = true only if you know what you're doing!
+  HouseholderDecomposition(bool normalise = false);
 
   /// Destructor
   ~HouseholderDecomposition();
@@ -32,7 +33,7 @@ public:
 private:
   /// make decomposition
   /// input: m=number of events, n=number of channels, qr=event matrix
-  /// output: qr = new event matrix ?, alpha, pivot
+  /// output: qr = new event matrix, alpha, pivot
   /// returns a boolean value, true if decomposition worked, false if it didn't
   bool decompose(const int m, const int n, vector<vector<float> >& qr,  vector<float>& alpha, vector<int>& pivot);  
 

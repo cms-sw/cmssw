@@ -1,3 +1,5 @@
+//#include "GeneratorInterface/HepPDT/interface/HepParticleData.h"
+
 #include "FastSimulation/MaterialEffects/interface/EnergyLossUpdator.h"
 
 //#include "FamosGeneric/FamosUtils/interface/FamosHistos.h"

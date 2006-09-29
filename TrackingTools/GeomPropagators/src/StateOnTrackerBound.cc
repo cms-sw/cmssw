@@ -7,8 +7,8 @@
 #include "Geometry/Surface/interface/BoundCylinder.h"
 
 //Ported from ORCA
-//  $Date: 2006/04/24 21:42:24 $
-//  $Revision: 1.2 $
+//  $Date: 2006/06/12 00:13:19 $
+//  $Revision: 1.3 $
 
 StateOnTrackerBound::StateOnTrackerBound( Propagator* prop) :
   thePropagator( prop->clone())
@@ -34,48 +34,48 @@ StateOnTrackerBound::operator()(const FreeTrajectoryState& fts) const
 
   TrajectoryStateOnSurface firstTry;
   if (tanTheta < 0 && fabs(tanTheta) < corner) {
-    firstTry = 
-      thePropagator->propagate( fts, TrackerBounds::negativeEndcapDisk());
-    return checkDisk( firstTry);
+     firstTry = 
+     thePropagator->propagate( fts, TrackerBounds::negativeEndcapDisk());
+
+     if (!firstTry.isValid()) {
+       return thePropagator->propagate( fts, TrackerBounds::barrelBound());
+      }
+     if (firstTry.globalPosition().perp() > TrackerBounds::radius()) {
+        // the propagation should have gone to the cylinder
+        return thePropagator->propagate( fts, TrackerBounds::barrelBound());
+      }
+      else return firstTry;
   }
   else if (tanTheta > 0 && fabs(tanTheta) < corner) {
-    firstTry = 
+      firstTry = 
       thePropagator->propagate( fts, TrackerBounds::positiveEndcapDisk());
-    return checkDisk( firstTry);
+      if (!firstTry.isValid()) {
+        return thePropagator->propagate( fts, TrackerBounds::barrelBound());
+      }
+      if (firstTry.globalPosition().perp() > TrackerBounds::radius()) {
+        return thePropagator->propagate( fts, TrackerBounds::barrelBound());
+      }
+      else return firstTry;
   }
   else {
     // barrel
     firstTry = 
-      thePropagator->propagate( fts, TrackerBounds::barrelBound());
-    return checkCylinder( firstTry);
+    thePropagator->propagate( fts, TrackerBounds::barrelBound());
+    if (!firstTry.isValid()) {
+       if (tanTheta < 0 ) return thePropagator->propagate( fts,TrackerBounds::negativeEndcapDisk());
+       if (tanTheta >= 0 ) return thePropagator->propagate( fts,TrackerBounds::positiveEndcapDisk());
+       return firstTry;
+     }
+     if (firstTry.globalPosition().z() < -TrackerBounds::halfLength()) {
+        // the propagation should have gone to the negative disk
+        return thePropagator->propagate( fts,
+                                         TrackerBounds::negativeEndcapDisk());
+     }
+     else if (firstTry.globalPosition().z() > TrackerBounds::halfLength()) {
+        // the propagation should have gone to the positive disk
+        return thePropagator->propagate( fts,
+                                         TrackerBounds::positiveEndcapDisk());
+     }
+     else return firstTry;
   }    
 }
-
-TrajectoryStateOnSurface StateOnTrackerBound::
-checkDisk(const TrajectoryStateOnSurface& firstTry) const
-{
-  if (!firstTry.isValid()) return firstTry;
-  if (firstTry.globalPosition().perp() > TrackerBounds::radius()) {
-    // the propagation should have gone to the cylinder
-    return thePropagator->propagate( firstTry, TrackerBounds::barrelBound());
-  }
-  else return firstTry;
-}
-
-TrajectoryStateOnSurface StateOnTrackerBound::
-checkCylinder(const TrajectoryStateOnSurface& firstTry) const
-{
-  if (!firstTry.isValid()) return firstTry;
-  if (firstTry.globalPosition().z() < -TrackerBounds::halfLength()) {
-    // the propagation should have gone to the negative disk
-    return thePropagator->propagate( firstTry, 
-				     TrackerBounds::negativeEndcapDisk());
-  }
-  else if (firstTry.globalPosition().z() > TrackerBounds::halfLength()) {
-    // the propagation should have gone to the positive disk
-    return thePropagator->propagate( firstTry, 
-				     TrackerBounds::positiveEndcapDisk());
-  }
-  else return firstTry;
-}
-

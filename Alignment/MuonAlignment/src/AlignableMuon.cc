@@ -1,11 +1,3 @@
-/** \file
- *
- *  $Date: 2006/8/4 10:10:07 $
- *  $Revision: 1.0 $
- *  \author Andre Sznajder - UERJ(Brazil)
- */
- 
-
 // Framework
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

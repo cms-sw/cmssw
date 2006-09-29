@@ -14,7 +14,8 @@ namespace edm {
   namespace pset {
 
     IncludeFileFinder::IncludeFileFinder()
-    : thePluginManager(seal::PluginManager::get())
+    : thePluginManager(seal::PluginManager::get()),
+      theLibraryMap()
     {
       thePluginManager->initialise();
       // map every module to its library.  Code copied from SealPluginDump
