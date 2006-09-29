@@ -2,7 +2,6 @@
 #define PythonParseTree_h
 
 #include <string>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/python.hpp>
 #include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/Utilities/interface/EDMException.h"
