@@ -6,6 +6,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 
+#include "IOPool/Streamer/interface/StreamTranslator.h"
+#include "IOPool/Streamer/interface/StreamerInputFile.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
+
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
 
@@ -31,8 +36,9 @@ namespace edmtestp
     static void run(TestFileReader*);
 
     std::string filename_;
-    std::ifstream ist_;
-    edm::EventReader reader_;
+    StreamerInputFile* stream_reader_;
+    //std::ifstream ist_;
+    //edm::EventReader reader_;
     edm::EventBuffer* to_;
     boost::shared_ptr<boost::thread> me_;
   };
