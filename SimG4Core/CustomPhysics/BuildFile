@@ -3,6 +3,7 @@
  <use name=FWCore/Framework>
  <use name=Framework/SealKernel>
  <use name=SimG4Core/Physics>
+ <use name=SimG4Core/QGSP>
  <use name=SimG4Core/Packaging>
  <lib name=SimG4CoreCustomPhysics>
 </export>
@@ -10,6 +11,7 @@
 <use name=FWCore/Framework>
 <use name=Framework/SealKernel>
 <use name=SimG4Core/Physics>
+<use name=SimG4Core/QGSP>
 <use name=SimG4Core/Packaging>
 <use name=geant4>
 <use name=clhep>
