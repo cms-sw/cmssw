@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronProducer.cc,v 1.2 2006/09/20 12:18:42 rahatlou Exp $
+// $Id: PixelMatchElectronProducer.cc,v 1.3 2006/09/28 17:08:54 uberthon Exp $
 //
 //
 
@@ -47,13 +47,16 @@ PixelMatchElectronProducer::PixelMatchElectronProducer(const edm::ParameterSet& 
   produces<TrackCollection>();
   produces<TrackExtraCollection>();
   produces<TrackingRecHitCollection>();
-  
+
   //create algo
   algo_ = new PixelMatchElectronAlgo(iConfig.getParameter<double>("maxEOverP"),
-                           iConfig.getParameter<double>("maxHOverE"),
-			   iConfig.getParameter<double>("maxDeltaEta"),
-			   iConfig.getParameter<double>("maxDeltaPhi"));
-  
+                     iConfig.getParameter<double>("maxHOverE"),
+                     iConfig.getParameter<double>("maxDeltaEta"),
+                     iConfig.getParameter<double>("maxDeltaPhi"));
+
+
+  seedProducer_   = iConfig.getParameter<std::string>("SeedProducer");
+
 }
 
 
@@ -73,7 +76,8 @@ void PixelMatchElectronProducer::produce(edm::Event& e, const edm::EventSetup& i
 
   // get the input 
   edm::Handle<ElectronPixelSeedCollection> seeds;
-  e.getByType(seeds);
+  //e.getByType(seeds);
+  e.getByLabel(seedProducer_,seeds);
   LogDebug("") << " =================> Treating event "<<e.id()
                <<", Number of seeds "<<seeds.product()->size() << "\n";
 
