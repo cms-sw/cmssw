@@ -1,14 +1,14 @@
 #ifndef DataFormats_ReadMath_h
 #define DataFormats_ReadMath_h
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include <string>
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 class ReadMath : public edm::EDAnalyzer {
 public:
   ReadMath( const edm::ParameterSet& );
 private:
   void analyze( const edm::Event &, const edm::EventSetup & );
-  std::string src;
+  edm::InputTag src;
 };
 
 #endif

@@ -1,23 +1,23 @@
 #include "DataFormats/Math/test/ReadMath.h"
-#include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <vector>
 #include <iostream>
 using namespace std;
 using namespace edm;
 
 ReadMath::ReadMath( const ParameterSet& cfg ) :
-  src( cfg.getParameter<string>( "src" ) ) {
+  src( cfg.getParameter<InputTag>( "src" ) ) {
 }
 
 void ReadMath::analyze( const Event & evt, const EventSetup & ) {
-  typedef math::Error<6>::type Error;
-  Handle<Error> err;
-  evt.getByLabel( "src", err );
-  for( int i = 0; i < 6; ++i ) {
-    for( int j = 0; j < 6; ++j )
-      cout << (*err)( i, j ) << " ";
-    cout << endl;
-  }
+  typedef math::XYZVector Vector;
+  Handle<vector<Vector> > v;
+  evt.getByLabel( src, v );
+  cout << ">>> v = [ ";
+  for( size_t i = 0; i < v->size(); ++ i )
+    cout << (*v)[ i ] << ", ";
+  cout << " ]" << endl;
 }
