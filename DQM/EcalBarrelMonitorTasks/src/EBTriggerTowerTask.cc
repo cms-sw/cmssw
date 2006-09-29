@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/29 11:53:47 $
- * $Revision: 1.16 $
+ * $Date: 2006/09/29 12:00:07 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -226,6 +226,8 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       xval = hit.amplitude();
 
       xval = xval * (12./16.) * TMath::Sin(2*TMath::ATan(TMath::Exp(-0.0174*(ie-0.5))));
+
+      xval = xval * 0.0925;
 
       xmap[ism-1][itt-1] = xmap[ism-1][itt-1] + xval;
 
