@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/22 06:01:40 $
- * $Revision: 1.15 $
+ * $Date: 2006/09/29 11:53:47 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -196,16 +196,16 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
   try {
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel("ecalEBunpacker", digis);
+    Handle<EcalUncalibratedRecHitCollection> hits;
+    e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHitsEB", hits);
 
-    int nebd = digis->size();
-    LogDebug("EBTriggerTowerTask") << "event " << ievt_ << " digi collection size " << nebd;
+    int nebh = hits->size();
+    LogDebug("EBTriggerTowerTask") << "event " << ievt_ << " hits collection size " << nebh;
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EcalUncalibratedRecHit hit = (*hitItr);
+      EBDetId id = hit.id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -221,32 +221,13 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EBTriggerTowerTask") << " det id = " << id;
       LogDebug("EBTriggerTowerTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
-      float xvalped = 0.; 
-      float xvalmax = 0.;
+      float xval = 0.;
 
-      for (int i = 0; i < 10; i++) {
+      xval = hit.amplitude();
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
-        float gain = 1.;
+      xval = xval * (12./16.) * TMath::Sin(2*TMath::ATan(TMath::Exp(-0.0174*(ie-0.5))));
 
-        if ( sample.gainId() == 1 ) gain = 1./12.;
-        if ( sample.gainId() == 2 ) gain = 1./ 6.;
-        if ( sample.gainId() == 3 ) gain = 1./ 1.;
-
-        float xval = float(adc) * gain;
-
-        if ( i < 3 ) xvalped = xvalped + xval;
-        if ( xval >= xvalmax ) xvalmax = xval;
-
-      }
-
-      xvalped = xvalped / 3;
-      xvalmax = xvalmax - xvalped;
-
-      xvalmax = xvalmax * TMath::Sin(2*TMath::ATan(TMath::Exp(-0.0174*(ie-0.5))));
-
-      xmap[ism-1][itt-1] = xmap[ism-1][itt-1] + xvalmax;
+      xmap[ism-1][itt-1] = xmap[ism-1][itt-1] + xval;
 
     }
 
@@ -258,7 +239,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } catch ( std::exception& ex) {
-    LogDebug("EBTriggerTowerTask") << " EBDigiCollection not in event.";
+    LogDebug("EBTriggerTowerTask") << " EcalUncalibratedRecHitCollection not in event.";
   }
 
 }
