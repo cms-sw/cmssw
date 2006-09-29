@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.9 2006/09/06 17:19:40 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.10 2006/09/06 17:34:05 chrjones Exp $
 //
 
 // system include files
@@ -50,6 +50,7 @@ extern CallbackPtr G__p_class_autoloading;
 static 
 bool loadLibraryForClass( const char* classname )
 {  
+  //std::cout <<"loadLibaryForClass"<<std::endl;
   if(0 == classname) {
     return false;
   }
@@ -65,7 +66,7 @@ bool loadLibraryForClass( const char* classname )
   } 
   //see if adding a std namespace helps
   std::string name = fwlite::stdNamespaceAdder(classname);
-  
+  //std::cout <<"see if std helps"<<std::endl;
   seal::PluginCapabilities::get()->load(cPrefix+name);
   
   t = ROOT::Reflex::Type::ByName(classname);
@@ -171,12 +172,14 @@ void registerTypes() {
 //
 // constructors and destructor
 //
-AutoLibraryLoader::AutoLibraryLoader()
+AutoLibraryLoader::AutoLibraryLoader() :
+  classNameAttemptingToLoad_(0)
 {
    seal::PluginManager::get()->initialise();
    gROOT->AddClassGenerator(this);
    ROOT::Cintex::Cintex::Enable();
    
+   //std::cout <<"my loader"<<std::endl;
    //remember if the callback was already set so we can chain together our results
    gPrevious = G__p_class_autoloading;
    G__set_class_autoloading_callback(&ALL_AutoLoadCallback);
@@ -191,11 +194,19 @@ AutoLibraryLoader::AutoLibraryLoader()
 TClass *
 AutoLibraryLoader::GetClass(const char* classname, Bool_t load)
 {
+  if(classname == classNameAttemptingToLoad_) {
+    std::cerr <<"WARNING: Reflex failed to create CINT dictionary for "<<classname<<std::endl;
+    return 0;
+  }
    TClass* returnValue = 0;
-//   std::cout <<"looking for "<<classname <<" load "<<(load? "T":"F")<< std::endl;
+   //std::cout <<"looking for "<<classname <<" load "<<(load? "T":"F")<< std::endl;
    if(load) {
+     //std::cout <<" going to call loadLibraryForClass"<<std::endl;
      if(loadLibraryForClass(classname) ) {
+       //use this to check for infinite recursion attempt
+       classNameAttemptingToLoad_ = classname;       
        returnValue = gROOT->GetClass(classname,kFALSE);
+       classNameAttemptingToLoad_ = 0;
      }
    }
    return returnValue;
@@ -205,7 +216,7 @@ AutoLibraryLoader::GetClass(const char* classname, Bool_t load)
 TClass *
 AutoLibraryLoader::GetClass(const type_info& typeinfo, Bool_t load)
 {
-   //std::cout <<"looking for type "<<typeinfo.name()<<std::endl;
+  //std::cout <<"looking for type "<<typeinfo.name()<<std::endl;
    TClass* returnValue = 0;
    if(load){
       return GetClass(typeinfo.name(), load);
