@@ -96,6 +96,7 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   int  theNumOfRows;
   int  theNumOfCols;
 
+  bool doMissCalibrate; // Use calibration or not
 
   //! Private helper methods:
   bool setup(const PixelGeomDetUnit * pixDet);
@@ -103,12 +104,13 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   void clear_buffer( DigiIterator begin, DigiIterator end );   
   SiPixelCluster make_cluster( const SiPixelCluster::PixelPos& pix );
   // Calibrate the ADC charge to electrons 
-  int calibrate(int adc, int col, int row) {
-    const float gain = 135.; // 1 ADC = 135 electrons
-    const float pedestal = 0.; //
-    int electrons = int(adc * gain + pedestal);
-    return electrons;
-  }
+  int calibrate(int adc, int col, int row);
+  //{
+  //const float gain = 135.; // 1 ADC = 135 electrons
+  //const float pedestal = 0.; //
+  //int electrons = int(adc * gain + pedestal);
+  //return electrons;
+  //}
 
   void initTiming();
   TimingReport::Item * theSetupTimer;

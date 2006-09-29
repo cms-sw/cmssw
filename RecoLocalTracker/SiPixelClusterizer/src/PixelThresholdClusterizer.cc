@@ -51,6 +51,10 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
    theClusterThreshold = 
      conf_.getParameter<double>("ClusterThreshold");
    
+
+   // Get the constants for the miss-calibration studies
+   doMissCalibrate=conf_.getUntrackedParameter<bool>("MissCalibrate",true); 
+
    // Set the thresholds in units of noise!
    //   thePixelThresholdInNoiseUnits   = 
    //     conf_.getUntrackedParameter<double>("ChannelThreshold",5.);
@@ -195,7 +199,49 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
     }
   }
 }
+//----------------------------------------------------------------------------
+// Calibrate adc counts to electrons
+//-----------------------------------------------------------------
+int PixelThresholdClusterizer::calibrate(int adc, int col, int row) {
+  int electrons = 0;
 
+  if(doMissCalibrate) {
+    // Linear approximation of the TANH response
+    // Pixel(0,0,0)
+    //const float gain = 2.95; // 1 ADC = 2.95 VCALs (1/0.339)
+    //const float pedestal = -83.; // -28/0.339
+    // Roc-0 average
+    const float gain = 1./0.357; // 1 ADC = 2.80 VCALs 
+    const float pedestal = -28.2 * gain; // -79.
+    // Roc-6 average
+    //const float gain = 1./0.313; // 1 ADC = 3.19 VCALs 
+    //const float pedestal = -6.2 * gain; // -19.8
+    // 
+    float vcal = adc * gain + pedestal;
+    
+    // atanh calibration 
+    // Roc-6 average
+    //const float p0 = 0.00492;
+    //const float p1 = 1.998;
+    //const float p2 = 90.6;
+    //const float p3 = 134.1; 
+    // Roc-6 average
+    //const float p0 = 0.00382;
+    //const float p1 = 0.886;
+    //const float p2 = 112.7;
+    //const float p3 = 113.0; 
+    //float vcal = ( atanh( (adc-p3)/p2) + p1)/p0;
+    
+    electrons = int( vcal * 65.); // 1VCAl=65 electrons
+    
+  } else { // No misscalibration in the digitizer
+    // Simple (default) linear gain 
+    const float gain = 135.; // 1 ADC = 135 electrons
+    const float pedestal = 0.; //
+    electrons = int(adc * gain + pedestal);
+  }
+  return electrons;
+}
 //----------------------------------------------------------------------------
 //!  \brief The actual clustering algorithm: group the neighboring pixels around the seed.
 //----------------------------------------------------------------------------
