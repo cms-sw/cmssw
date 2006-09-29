@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducer.h,v 1.5 2006/06/06 12:03:52 vanlaer Exp $
+// $Id: PrimaryVertexProducer.h,v 1.6 2006/09/12 12:38:23 werdmann Exp $
 //
 //
 
@@ -54,5 +54,4 @@ private:
 
   edm::ParameterSet theConfig;
   bool fVerbose;
-  
 };

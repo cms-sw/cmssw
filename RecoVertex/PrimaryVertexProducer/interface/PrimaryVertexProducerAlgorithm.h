@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.1 2006/05/23 10:30:39 vanlaer Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.2 2006/09/12 12:38:23 werdmann Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/KalmanTrimmedVertexFinder.h"
 #include "RecoVertex/VertexTools/interface/VertexCompatibleWithBeam.h"
+#include "RecoVertex/VertexTools/interface/BeamSpot.h"
 
 //
 // class declaration
@@ -55,5 +56,10 @@ private:
   TrackClusterizerInZ theTrackClusterizer;
   KalmanTrimmedVertexFinder theFinder;
   VertexCompatibleWithBeam theVertexSelector;
+
+  BeamSpot theBeamSpot;
+  bool fVerbose;
+  bool fUseBeamConstraint;
+  VertexFitter *theFitter;
 
 };

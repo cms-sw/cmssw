@@ -106,17 +106,37 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	  // edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
 	  //	  << (*it).persistentTrackRef().id() << ", "
 	  //	  << (*it).persistentTrackRef().key() << "\n";
-
  	  v.add((*it).persistentTrackRef());
  	}
  	else {
- 	  cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
+ 	  if(fVerbose){
+	    cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
+	  }
  	}
       }
       vColl.push_back(v);
     }
-    if(fVerbose){cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;}
-   
+
+
+    if(fVerbose){
+      cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;
+      int ivtx=0;
+      for(reco::VertexCollection::const_iterator v=vColl.begin(); 
+	  v!=vColl.end(); ++v){
+	std::cout << "recvtx "<< ivtx++ 
+		  << "#trk " << std::setw(3) << v->tracksSize()
+		  << " chi2 " << std::setw(4) << v->chi2() 
+		  << " ndof " << std::setw(3) << v->ndof() 
+		  << " x "  << std::setw(6) << v->position().x() 
+		  << " dx " << std::setw(6) << v->xError()
+		  << " y "  << std::setw(6) << v->position().y() 
+		  << " dy " << std::setw(6) << v->yError()
+		  << " z "  << std::setw(6) << v->position().z() 
+		  << " dz " << std::setw(6) << v->zError()
+		  << std::endl;
+      }
+    }
+
   }
 
   catch (std::exception & err) {

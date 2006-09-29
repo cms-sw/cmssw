@@ -5,6 +5,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <algorithm>
@@ -32,10 +33,23 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "Initializing PV producer algorithm" << "\n";
-  float testMaxDistanceToBeam = conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam");
+  //float testMaxDistanceToBeam = conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam");
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "PVSelParameters::maxDistanceToBeam = " 
     << conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam") << "\n";
+
+  fUseBeamConstraint = conf.getParameter<bool>("useBeamConstraint");
+  fVerbose           = conf.getUntrackedParameter<bool>("verbose", false);
+  std::string fitter = conf.getParameter<std::string>("fitter");
+  if (fitter=="KalmanVertexFitter") {
+    theFitter=new KalmanVertexFitter();
+  }else if( fitter=="AdaptiveVertexFitter") {
+    theFitter=new AdaptiveVertexFitter();
+  }
+  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+    << "Using " << fitter << "\n";
+  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+    << "beam-constraint  " << fUseBeamConstraint << "\n"; 
 
   // FIXME move vertex chi2 cut in theVertexSelector
   // theFinder should not perform the final vertex cleanup
@@ -90,25 +104,34 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
   try {
     // select tracks
     vector<reco::TransientTrack> seltks;
-    //    cout << "PrimaryVertexProducerAlgorithm::vertices  input tracks="<<tracks.size() << endl;
+    // if(fVerbose){
+    //  cout << "PrimaryVertexProducerAlgorithm::vertices  input tracks="<<tracks.size() << endl;
+    //}
     for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
 	 itk != tracks.end(); itk++) {
       if (theTrackFilter(*itk)) seltks.push_back(*itk);
     }
-    //cout << "PrimaryVertexProducerAlgorithm::vertices  selected tracks=" << seltks.size() << endl;
+
+    if(fVerbose){
+      cout << "PrimaryVertexProducerAlgorithm::vertices  selected tracks=" << seltks.size() << endl;
+    }
 
     // clusterize tracks in Z
     vector< vector<reco::TransientTrack> > clusters = 
       theTrackClusterizer.clusterize(seltks);
 
-    //cout << "PrimaryVertexProducerAlgorithm::vertices  clusters =" << clusters.size() << endl;
+    if(fVerbose){
+      cout << "PrimaryVertexProducerAlgorithm::vertices  clusters =" << clusters.size() << endl;
+    }
 
     // look for primary vertices in each cluster
     vector<TransientVertex> pvCand;
     int nclu=0;
     for (vector< vector<reco::TransientTrack> >::const_iterator iclus
 	   = clusters.begin(); iclus != clusters.end(); iclus++) {
-      //cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" << nclu << "  tracks" << (*iclus).size() << endl;
+      if(fVerbose){
+	cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" << nclu << "  tracks" << (*iclus).size() << endl;
+      }
 
       
       /*
@@ -127,29 +150,40 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       }
       */
 
-
-      if((*iclus).size()>1){
-	KalmanVertexFitter kvf;
-	TransientVertex v = kvf.vertex(*iclus);  // CachingVertex, converted by operater ?
+      if(fUseBeamConstraint){
+	//KalmanVertexFitter kvf;
+        TransientVertex v = theFitter->vertex(*iclus, theBeamSpot.position(), theBeamSpot.error());
+        pvCand.push_back(v);
+      }else if((*iclus).size()>1){
+	cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;
+	//KalmanVertexFitter kvf;
+	TransientVertex v = theFitter->vertex(*iclus); 
+	cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
 	pvCand.push_back(v);
+      }else if (fVerbose){
+	cout <<  "cluster dropped" << endl;
       }
+
+
 
       nclu++;
     }
 
-    //cout << "PrimaryVertexProducerAlgorithm::vertices  candidates =" << pvCand.size() << endl;
+    if(fVerbose){
+      cout << "PrimaryVertexProducerAlgorithm::vertices  candidates =" << pvCand.size() << endl;
+    }
 
     // select vertices compatible with beam
     int npv=0;
     for (vector<TransientVertex>::const_iterator ipv = pvCand.begin();
 	 ipv != pvCand.end(); ipv++) {
-      //cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv << " sel=" <<
-      // theVertexSelector(*ipv) << "   z="  << ipv->position().z() << endl;
-      //if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
-      pvs.push_back(*ipv);
-      npv++;
+      if(fVerbose){
+	cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv++ << " sel=" <<
+	  theVertexSelector(*ipv) << "   z="  << ipv->position().z() << endl;
+      }
+      if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
     }
-      
+       
     //cout << "PrimaryVertexProducerAlgorithm::vertices  vertices =" << pvs.size() << endl;
 
     /*
