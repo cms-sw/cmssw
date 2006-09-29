@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/09/15 13:58:02 $
- * $Revision: 1.14 $
+ * $Date: 2006/09/22 06:01:40 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -200,7 +200,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
     e.getByLabel("ecalEBunpacker", digis);
 
     int nebd = digis->size();
-    LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
+    LogDebug("EBTriggerTowerTask") << "event " << ievt_ << " digi collection size " << nebd;
 
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
