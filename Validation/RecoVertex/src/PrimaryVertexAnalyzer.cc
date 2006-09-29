@@ -8,6 +8,10 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
+// simulated vertices,..., add <use name=SimDataFormats/Vertex> and <../Track>
+#include <SimDataFormats/Vertex/interface/SimVertex.h>
+#include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
+
 // Root
 #include <TH1.h>
 #include <TFile.h>
@@ -15,6 +19,7 @@
 #include <cmath>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_eigen.h>
+
 
 
 //
@@ -28,7 +33,8 @@
 //
 // constructors and destructor
 //
-PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const edm::ParameterSet& iConfig)
+PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const edm::ParameterSet& iConfig):
+  simG4_( iConfig.getParameter<edm::InputTag>( "simG4" ))
 {
    //now do what ever initialization is needed
 
@@ -36,6 +42,7 @@ PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const edm::ParameterSet& iConfig)
   outputFile_  = iConfig.getUntrackedParameter<std::string>("outputFile");
   vtxSample_   = iConfig.getUntrackedParameter<std::string>("vtxSample");
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); 
+  verbose_= iConfig.getUntrackedParameter<bool>("verbose", false);
 }
 
 
@@ -66,6 +73,9 @@ void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const&){
   h1_vtx_ndf_ = new TH1F("vtxndf","degrees of freedom",100,0.,100.);
   h1_tklinks_ = new TH1F("tklinks","Usable track links",2,-0.5,1.5);
   h1_nans_ = new TH1F("nans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz",9,0.5,9.5);
+  h1_xrec_ = new TH1F("xrec","reconstructed x",100,-0.1,0.1);
+  h1_yrec_ = new TH1F("yrec","reconstructed y",100,-0.1,0.1);
+  h1_zrec_ = new TH1F("zrec","reconstructed z",100,-10.,10.);
 }
 
 
@@ -83,6 +93,9 @@ void PrimaryVertexAnalyzer::endJob() {
   h1_vtx_ndf_->Write();
   h1_tklinks_->Write();
   h1_nans_->Write();
+  h1_xrec_->Write();
+  h1_yrec_->Write();
+  h1_zrec_->Write();
 }
 
 
@@ -91,21 +104,59 @@ void
 PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+   const double simscale=0.1;
    
   Handle<reco::VertexCollection> recVtxs;
   iEvent.getByLabel(vtxSample_, recVtxs);
   std::cout << "vertices " << recVtxs->size() << std::endl;
 
+  Handle<edm::SimVertexContainer> simVtcs;
+  iEvent.getByLabel( simG4_, simVtcs);
+  std::cout << "SimVertex " << simVtcs->size() << std::endl;
+
+  int ivtx=0;
   for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
       v!=recVtxs->end(); ++v){
-    std::cout << "recvtx " 
-              << v->tracksSize() << " "
-	      << v->chi2() << " " 
-	      << v->ndof() << " " 
-      	      << v->position().x() << " " << v->covariance(0, 0) << " " 
-      	      << v->position().y() << " " << v->covariance(1, 1) << " " 
-      	      << v->position().z() << " " << v->covariance(2, 2) << " " 
+    if(verbose_){
+      std::cout << "recvtx "<< ivtx++
+	      << "#trk " << std::setw(3) << v->tracksSize()
+	      << " chi2 " << std::setw(4) << v->chi2() 
+	      << " ndof " << std::setw(3) << v->ndof() 
+      	      << " x "  << std::setw(6) << v->position().x() 
+	      << " dx " << std::setw(6) << v->xError()
+      	      << " y "  << std::setw(6) << v->position().y() 
+ 	      << " dy " << std::setw(6) << v->yError()
+      	      << " z "  << std::setw(6) << v->position().z() 
+ 	      << " dz " << std::setw(6) << v->zError()
 	      << std::endl;
+    }
+
+    // poor man's MC truth: find closest SimVertex in z
+    const SimVertex * vmatch=NULL;
+    for(edm::SimVertexContainer::const_iterator vsim=simVtcs->begin();
+        vsim!=simVtcs->end(); ++vsim){
+      double dz= fabs(v->position().z()-  vsim->position().z()*simscale);
+      /*
+      std::cout << " sim x=" << vsim->position().x()*simscale
+		<< " sim y=" << vsim->position().y()*simscale
+		<< " sim z=" << vsim->position().z()*simscale
+		<< std::endl;
+      */
+      if (  (( vmatch ) && (dz < fabs(v->position().z()-vmatch->position().z()*simscale)))
+          ||((!vmatch) &&(dz<10.)) )
+        {
+          vmatch=&(*vsim);
+        }
+    }
+
+    double x0=0,y0=0, z0=0;
+    if(vmatch){
+      x0=vmatch->position().x()*simscale;
+      y0=vmatch->position().y()*simscale;
+      z0=vmatch->position().z()*simscale;
+    }else{
+      std::cout <<  "vertex not matched " << std::endl;
+    }
 
     try {
       for(reco::track_iterator t = v->tracks_begin(); 
@@ -126,14 +177,17 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     h1_nbvtx_in_event_->Fill(recVtxs->size()*1.);
     h1_nbtks_in_vtx_->Fill(v->tracksSize());
-    h1_resx_->Fill(v->position().x());
-    h1_resy_->Fill(v->position().y());
-    h1_resz_->Fill(v->position().z());
-    h1_pullx_->Fill(v->position().x()/v->xError());
-    h1_pully_->Fill(v->position().y()/v->yError());
-    h1_pullz_->Fill(v->position().z()/v->zError());
+    h1_resx_->Fill(v->position().x()-x0);
+    h1_resy_->Fill(v->position().y()-y0);
+    h1_resz_->Fill(v->position().z()-z0);
+    h1_pullx_->Fill((v->position().x()-x0)/v->xError());
+    h1_pully_->Fill((v->position().y()-y0)/v->yError());
+    h1_pullz_->Fill((v->position().z()-z0)/v->zError());
     h1_vtx_chi2_->Fill(v->chi2());
     h1_vtx_ndf_->Fill(v->ndof());
+    h1_xrec_->Fill(v->position().x());
+    h1_yrec_->Fill(v->position().y());
+    h1_zrec_->Fill(v->position().z());
 
     bool problem = false;
     h1_nans_->Fill(1.,isnan(v->position().x())*1.);

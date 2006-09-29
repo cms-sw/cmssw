@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: TrackParameterAnalyzer.h,v 1.3 2006/09/12 13:08:19 werdmann Exp $
+// $Id: TrackParameterAnalyzer.h,v 1.3 2006/09/15 15:42:04 vanlaer Exp $
 //
 //
 
@@ -86,8 +86,18 @@ class TrackParameterAnalyzer : public edm::EDAnalyzer {
       TH1*   h1_pull2_;
       TH1*   h1_pull3_;
       TH1*   h1_pull4_;
+      TH1*   h1_res0_; 
+      TH1*   h1_res1_;
+      TH1*   h1_res2_;
+      TH1*   h1_res3_;
+      TH1*   h1_res4_;
       TH1*   h1_Beff_;
       TH2*   h2_dvsphi_;
+      TH1*   h1_par0_; 
+      TH1*   h1_par1_;
+      TH1*   h1_par2_;
+      TH1*   h1_par3_;
+      TH1*   h1_par4_;
 
       edm::InputTag simG4_;
        bool verbose_;
