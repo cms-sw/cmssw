@@ -93,6 +93,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
   //unsigned short x;
   vector<vector<unsigned short> > ecalBarrel(72,vector<unsigned short>(56));
   vector<vector<unsigned short> > hcalBarrel(72,vector<unsigned short>(56));
+  //vector<vector<unsigned short> > hcalForward(18,vector<unsigned short>(8));
 
   std::ofstream file_out("towerinput.txt", std::ios::app);
   if (!file_out){
@@ -155,6 +156,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     unsigned short fineGrain = (unsigned short) ecalCollection[i].fineGrain();  // 0 or 1
     unsigned short ecalInput = energy*2 + fineGrain;
 
+    // for file diagram of digi inputs
     if (ieta > 0){
       ecalBarrel.at(iphi).at(ieta - 1) = ecalInput;
       //cout << "Ecal\tiphi: " << iphi << "\tieta: " << ieta;
@@ -244,8 +246,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     unsigned short hcalInput = energy*2 + fineGrain;
 
     if (absIeta <= 28){
-      // put input into correct crate/card/tower of barrel
 
+      // for file diagram of digi inputs
       if (ieta > 0){
 	hcalBarrel.at(iphi).at(ieta - 1) = hcalInput;
       }
@@ -253,12 +255,14 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
 	hcalBarrel.at(iphi).at(56 + ieta) = hcalInput;
       }
 
+      // put input into correct crate/card/tower of barrel
       if ((crate<18) && (card<7) && ((tower - 1)<32)) {               // changed 64 to 32 Sept. 19 J. Leonard
         barrel.at(crate).at(card).at(tower - 1 + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
       }
       else { cout << "out of range!"; }
       cout << "Hcal:\t" << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
     }
+
     else if ((absIeta >= 29) && (absIeta <= 32)){
       // put input into correct crate/region of HF
       if ((crate<18) && (tower<8)) {
@@ -292,6 +296,31 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     for (int j = 0; j < 28; j++){
       file_out.width(3);
       file_out << hcalBarrel.at(i).at(j);
+    }
+    file_out << endl;
+  }
+  file_out << "\n\n\n\n\n" << endl;
+
+  file_out << "HF:" << endl;
+  for (int i = 0; i < 9; i++){
+    for (int j = 3; j >= 0; j--){
+      file_out.width(3);
+      file_out << hf.at(i).at(j);
+    }
+    file_out << "\t\t\t";
+    for (int j = 0; j <= 3; j++){
+      file_out.width(3);
+      file_out << hf.at(i+9).at(j);
+    }
+    file_out << endl;
+    for (int j = 7; j >= 4; j--){
+      file_out.width(3);
+      file_out << hf.at(i).at(j);
+    }
+    file_out << "\t\t\t";
+    for (int j = 4; j <= 7; j++){
+      file_out.width(3);
+      file_out << hf.at(i+9).at(j);
     }
     file_out << endl;
   }
