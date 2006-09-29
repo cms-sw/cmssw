@@ -16,7 +16,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.2 2006/06/09 09:23:47 dkcira Exp $
+// $Id: MonitorTrackResiduals.h,v 1.3 2006/06/27 07:52:56 dkcira Exp $
 //
 //
 
@@ -41,6 +41,7 @@
 // class decleration
 //
 typedef std::map<std::string, MonitorElement *> HistoClass;
+typedef std::map<int, MonitorElement *> HistoClass2;
 
 class MonitorTrackResiduals : public edm::EDAnalyzer {
    public:
@@ -59,6 +60,7 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
   edm::ParameterSet conf_;
 
   HistoClass HitResidual;
+  HistoClass2 HitResidual2;
 };
 
 #endif
