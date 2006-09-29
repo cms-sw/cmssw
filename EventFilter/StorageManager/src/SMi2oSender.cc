@@ -34,7 +34,7 @@
 #include "toolbox/mem/Pool.h"
 
 // for performance measurements
-#include "xdata/UnsignedLong.h"
+#include "xdata/UnsignedInteger32.h"
 #include "xdata/Double.h"
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
 
@@ -61,13 +61,13 @@ struct SMFU_data
   vector<xdaq::ApplicationDescriptor*> destination;
   xdaq::ApplicationDescriptor* primarydest;
   // for performance measurements
-  xdata::UnsignedLong samples_; //number of samples (frames) per measurement
+  xdata::UnsignedInteger32 samples_; //number of samples (frames) per measurement
   stor::SMPerformanceMeter *pmeter_;
   // measurements for last set of samples
   xdata::Double databw_;      // bandwidth in MB/s
   xdata::Double datarate_;    // number of frames/s
   xdata::Double datalatency_; // micro-seconds/frame
-  xdata::UnsignedLong totalsamples_; //number of samples (frames) per measurement
+  xdata::UnsignedInteger32 totalsamples_; //number of samples (frames) per measurement
   xdata::Double duration_;        // time for run in seconds
   xdata::Double meandatabw_;      // bandwidth in MB/s
   xdata::Double meandatarate_;    // number of frames/s
@@ -146,11 +146,11 @@ void addMyXDAQMeasurement(unsigned long size)
   }
 }
 
-xdata::UnsignedLong getMyXDAQsamples() { return SMfudata.samples_; }
+xdata::UnsignedInteger32 getMyXDAQsamples() { return SMfudata.samples_; }
 xdata::Double getMyXDAQdatabw() { return SMfudata.databw_; }
 xdata::Double getMyXDAQdatarate() { return SMfudata.datarate_; }
 xdata::Double getMyXDAQdatalatency() { return SMfudata.datalatency_; }
-xdata::UnsignedLong getMyXDAQtotalsamples() { return SMfudata.totalsamples_; }
+xdata::UnsignedInteger32 getMyXDAQtotalsamples() { return SMfudata.totalsamples_; }
 xdata::Double getMyXDAQduration() { return SMfudata.duration_; }
 xdata::Double getMyXDAQmeandatabw() { return SMfudata.meandatabw_; }
 xdata::Double getMyXDAQmeandatarate() { return SMfudata.meandatarate_; }
@@ -216,9 +216,7 @@ SMi2oSender::SMi2oSender(xdaq::ApplicationStub * s)
   // Get XDAQ application destinations - currently hardwired!
   try{
     destinations_=
-    getApplicationContext()->getApplicationGroup()->
-//HEREHERE
-    //getApplicationDescriptors("testI2OReceiver"); // hardwire here for now
+    getApplicationContext()->getDefaultZone()->
     getApplicationDescriptors("testStorageManager"); // hardwire here for now
   }
   catch(xdaq::exception::ApplicationDescriptorNotFound e)
@@ -241,15 +239,17 @@ SMi2oSender::SMi2oSender(xdaq::ApplicationStub * s)
 
 void SMi2oSender::setDestinations()
 {
+
+  set<xdaq::ApplicationDescriptor*>::iterator idest;
   if(destinations_.size()>0)
   {
     SMfudata.destination.resize(destinations_.size());
 
-    for(unsigned int i = 0; i<destinations_.size(); i++)
+    for(idest = destinations_.begin(); idest != destinations_.end(); idest++)
       {
-	SMfudata.destination[destinations_[i]->getInstance()] = destinations_[i];
-	if(destinations_[i]->getInstance() == primarysm_)
-	      firstDestination_ = destinations_[i];
+	SMfudata.destination[(*idest)->getInstance()] = (*idest);
+	if((*idest)->getInstance() == primarysm_)
+	      firstDestination_ = (*idest);
       }
     SMfudata.primarydest = firstDestination_;
   }
