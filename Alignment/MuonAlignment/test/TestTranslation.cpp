@@ -7,10 +7,6 @@
 // Description: Module to test the Alignment software
 //
 //
-// Original Author:  Frederic Ronga
-//         Created:  March 16, 2006
-//        Modified:  June   8, 2006
-//
 
 
 // system include files
@@ -112,6 +108,7 @@ TestTranslation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
    
   edm::LogInfo("MuonAlignment") << "Starting!";
 
+/*
   //
   // Build alignable muon geometry from event setup
   //
@@ -125,19 +122,39 @@ TestTranslation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   theCSCGeometry  = boost::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv) ) );
 
   AlignableMuon* theAlignableMuon = new AlignableMuon( &(*theDTGeometry) , &(*theCSCGeometry) );
+*/
+
+  //
+  // Retrieve ideal geometry from event setup
+  //
+  edm::ESHandle<DTGeometry> dtGeometry;
+  edm::ESHandle<CSCGeometry> cscGeometry;
+  iSetup.get<MuonGeometryRecord>().get( dtGeometry );
+  iSetup.get<MuonGeometryRecord>().get( cscGeometry );
+
+  AlignableMuon* theAlignableMuon = new AlignableMuon( &(*dtGeometry), &(*cscGeometry) );
+
+
 
   // Apply  alignment
 
-  std::vector<Alignable*> theAlignables = theAlignableMuon->DTChambers();
-  std::vector<Alignable*> theAlignables = theAlignableMuon->CSCEndcaps();
+  std::vector<Alignable*> theDTAlignables = theAlignableMuon->DTChambers();
+  std::vector<Alignable*> theCSCAlignables = theAlignableMuon->CSCEndcaps();
 
 
-  for ( std::vector<Alignable*>::iterator iter = theAlignables.begin();
-		                          iter != theAlignables.end(); iter++ ){ 
+  for ( std::vector<Alignable*>::iterator iter = theDTAlignables.begin();
+		                          iter != theDTAlignables.end(); iter++ ){ 
     apply( *iter ); 
   }
 
-  theAlignables.clear();
+  theDTAlignables.clear();
+
+  for ( std::vector<Alignable*>::iterator iter = theCSCAlignables.begin();
+		                          iter != theCSCAlignables.end(); iter++ ){ 
+    apply( *iter ); 
+  }
+
+  theCSCAlignables.clear();
 
 
 edm::LogInfo("MuonAlignment") << "Done!";
