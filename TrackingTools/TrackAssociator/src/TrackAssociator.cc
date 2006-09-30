@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.10 2006/09/08 01:06:50 jribnik Exp $
+// $Id: TrackAssociator.cc,v 1.11 2006/09/15 18:28:37 jribnik Exp $
 //
 //
 
@@ -273,6 +273,12 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
    
    timers.push("TrackAssociator::fillEcal::propagation");
    // ECAL points (EB+EE)
+   // If the phi angle between a track entrance and exit points is more
+   // than 2 crystals, it is possible that the track will cross 3 crystals
+   // and therefore one has to check at least 3 points along the track
+   // trajectory inside ECAL. In order to have a chance to cross 4 crystalls
+   // in the barrel, a track should have P_t as low as 3 GeV or smaller
+   // If it's necessary, number of points along trajectory can be increased
    std::vector<GlobalPoint> ecalPoints;
    ecalPoints.push_back(GlobalPoint(135.,0,315.));
    ecalPoints.push_back(GlobalPoint(140.,0,325.));
@@ -354,7 +360,8 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
    hcalPoints.push_back(GlobalPoint(240.,0,500.));
    hcalPoints.push_back(GlobalPoint(280.,0,550.));
    
-   std::vector<GlobalPoint> hcalTrajectory = caloDetIdAssociator_.getTrajectory(trajectoryPoint, hcalPoints);
+   // get trajectory assuming simple geometry between barrel and endcap regions.
+   std::vector<GlobalPoint> hcalTrajectory = caloDetIdAssociator_.getTrajectory(trajectoryPoint, hcalPoints, -1.);
    if(hcalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate the track to HCAL\n";
    info.trkGlobPosAtHcal = getPoint(hcalTrajectory[0]);
    
@@ -453,7 +460,7 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
       for (DTRecSegment4DCollection::const_iterator recseg = range.first;
             recseg!=range.second;
             recseg++){
-
+	 
          LogTrace("TrackAssociator::fillDTSegments")
             << "Segment local position: " << recseg->localPosition() << "\n"
             << std::hex << recseg->geographicalId().rawId() << "\n";
@@ -489,7 +496,7 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
             float errXX(-1.), errYY(-1.), errXY(-1.);
             float err_dXdZ(-1.), err_dYdZ(-1.);
             if (tSOSDest.freeState()->hasError()){
-               LocalError err = tSOSDest.localError().positionError();
+	       LocalError err = tSOSDest.localError().positionError();
                errXX = err.xx();
                errXY = err.xy();
                errYY = err.yy();
@@ -501,7 +508,6 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
             muonSegment.trajectoryLocalErrorDyDz = err_dYdZ;
             muonSegment.id = DetId((*detUnitIt).rawId());
             info.segments.push_back(muonSegment);
-
             // Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h
             // LocalError transform(const GlobalError& ge, const Surface& surf)
          }

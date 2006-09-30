@@ -19,7 +19,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.1 2006/06/24 04:56:07 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.2 2006/09/21 21:25:48 jribnik Exp $
 //
 //
 
@@ -38,13 +38,19 @@
 
 class DetIdAssociator{
  public:
+   enum PropagationTarget { Barrel, ForwardEndcap, BackwardEndcap };
+	
    DetIdAssociator():theMap_(0),nPhi_(0),nEta_(0),etaBinSize_(0),ivProp_(0){};
    DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
      :theMap_(0),nPhi_(nPhi),nEta_(nEta),etaBinSize_(etaBinSize),ivProp_(0){};
    
    virtual ~DetIdAssociator(){};
-   virtual std::vector<GlobalPoint> getTrajectory( const FreeTrajectoryState&,
-						   const std::vector<GlobalPoint>&);
+   // get track trajectory for a set of limiting surfaces of given radius and Z.
+   // thetaOverlap defines a limit at which a track is propagated to both
+   // barrel and endcap if close to the edge between them.
+   virtual std::vector<GlobalPoint> getTrajectory( const FreeTrajectoryState& ftsStart,
+							 const std::vector<GlobalPoint>& surfaces,
+							 const double etaOverlap = 0.1);
    // find DetIds arround given direction
    // idR is a number of the adjacent bins to retrieve 
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint&, 

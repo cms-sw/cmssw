@@ -13,17 +13,19 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.2 2006/07/05 08:34:05 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.3 2006/08/15 23:03:53 dmytro Exp $
 //
 //
 
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
+#include <map>
 
 
 // surfaces is a vector of GlobalPoint representing outermost point on a cylinder
 std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectoryState& ftsStart,
-						    const std::vector<GlobalPoint>& surfaces)
+							 const std::vector<GlobalPoint>& surfaces,
+							 const double etaOverlap)
 {
    check_setup();
    std::vector<GlobalPoint> trajectory;
@@ -32,14 +34,17 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
 
    for(std::vector<GlobalPoint>::const_iterator surface_iter = surfaces.begin(); 
        surface_iter != surfaces.end(); surface_iter++) {
-      // this stuff is some weird pointer, which destroy itself
-      Cylinder *cylinder = new Cylinder(Surface::PositionType(0,0,0),
-					Surface::RotationType(), 
-					double (surface_iter->perp()) );
-      Plane *forwardEndcap = new Plane(Surface::PositionType(0,0,surface_iter->z()),
-				       Surface::RotationType());
-      Plane *backwardEndcap = new Plane(Surface::PositionType(0,0,-surface_iter->z()),
-					Surface::RotationType());
+      PropagationTarget target;
+      // define limiting surfaces using some stuff, which is some
+      // weird pointer owning the object, so no need to delete objects
+      std::map<PropagationTarget, Surface*> map;
+      map[Barrel] = new Cylinder(Surface::PositionType(0,0,0),
+				 Surface::RotationType(), 
+				 double (surface_iter->perp()) );
+      map[ForwardEndcap] = new Plane(Surface::PositionType(0,0,surface_iter->z()),
+				     Surface::RotationType());
+      map[BackwardEndcap] = new Plane(Surface::PositionType(0,0,-surface_iter->z()),
+				      Surface::RotationType());
       
       LogTrace("StartingPoint")<< "Propagate from "<< "\n"
 	<< "\tx: " << ftsStart.position().x()<< "\n"
@@ -52,23 +57,49 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
       // First propage the track to the cylinder if |eta|<1, othewise to the encap
       // and correct depending on the result
       if (fabs(ftsCurrent.momentum().eta())<1)
-	tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder);
-      else if(ftsCurrent.momentum().eta()>1)
-	tSOSDest = ivProp_->propagate(ftsCurrent, *forwardEndcap);
-      else
-	tSOSDest = ivProp_->propagate(ftsCurrent, *backwardEndcap);
-
+	target = Barrel;
+      else {
+	 if(ftsCurrent.momentum().eta()>1)
+	   target = ForwardEndcap;
+	 else
+	   target = BackwardEndcap;
+      }
+      
+      tSOSDest = ivProp_->propagate(ftsCurrent, *map[target]);
       GlobalPoint point = tSOSDest.freeState()->position();
 
-      // If missed the target, propagate to again
-      if (point.perp() > surface_iter->perp())
-	tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder);
-      if (point.z() > surface_iter->z()) 
-	tSOSDest = ivProp_->propagate(ftsStart, *forwardEndcap);
-      if (point.z() < -surface_iter->z()) 
-	tSOSDest = ivProp_->propagate(ftsStart, *backwardEndcap);
-
+      // if near the edge
+      if ( fabs(fabs(point.eta())-fabs(surface_iter->eta()))<etaOverlap ) {
+	 trajectory.push_back(point);
+	 if (target != Barrel)
+	   target = Barrel;
+	 else {
+	    if(ftsCurrent.momentum().eta()>0)
+	      target = ForwardEndcap;
+	    else
+	      target = BackwardEndcap;
+	 }
+      } else {
+	 // If missed the target, propagate to other targets.
+	 PropagationTarget newTarget = target;
+	 if (point.perp() > surface_iter->perp())
+	   newTarget = Barrel; 
+	 if (point.z() > surface_iter->z())
+	   target = ForwardEndcap;
+	 if (point.z() < -surface_iter->z())
+	   target = BackwardEndcap;
+	 
+	 if(newTarget == target) {
+	    ftsCurrent = *tSOSDest.freeState();
+	    trajectory.push_back(point);
+	    continue;
+	 }
+	 target = newTarget;
+      }
+      
+      tSOSDest = ivProp_->propagate(ftsStart, *map[target]);
       if (! tSOSDest.isValid()) throw cms::Exception("FatalError") << "Failed to propagate the track\n";
+      point = tSOSDest.freeState()->position();
       
       LogTrace("SuccessfullPropagation") << "Great, I reached something." << "\n"
 	<< "\tx: " << tSOSDest.freeState()->position().x() << "\n"
@@ -77,8 +108,6 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
 	<< "\teta: " << tSOSDest.freeState()->position().eta() << "\n"
 	<< "\tphi: " << tSOSDest.freeState()->position().phi() << "\n";
       
-      point = tSOSDest.freeState()->position();
-      ftsCurrent = *tSOSDest.freeState();
       trajectory.push_back(point);
    }
    return trajectory;
