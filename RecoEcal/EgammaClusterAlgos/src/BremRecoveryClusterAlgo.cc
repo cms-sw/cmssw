@@ -9,7 +9,6 @@ reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::Ba
   // create vectors of references to clusters of a specific origin...
   reco::BasicClusterRefVector islandClustersBarrel_v;
   reco::BasicClusterRefVector islandClustersEndCap_v;
-  reco::BasicClusterRefVector hybridClusters_v;
 
   // ...and populate them:
   reco::basicCluster_iterator it;
@@ -27,20 +26,13 @@ reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::Ba
 	      islandClustersEndCap_v.push_back(cluster_p);
 	    }
       }
-      else
-	{
-	  hybridClusters_v.push_back(cluster_p);
-	}
-      
     }
 
   // make the superclusters from the Barrel clusters - Island
   makeIslandSuperClusters(islandClustersBarrel_v, eb_rdeta_, eb_rdphi_);
   // make the superclusters from the EndCap clusters - Island
   makeIslandSuperClusters(islandClustersEndCap_v, ec_rdeta_, ec_rdphi_);
-  // make the superclusters from the Hybrid clusters
-  makeHybridSuperClusters(hybridClusters_v);
- 
+
   return superclusters_v;
 }
 
@@ -118,12 +110,6 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 	}
     }
   currentSeed = clusters_v.end();
-}
-
-
-void BremRecoveryClusterAlgo::makeHybridSuperClusters(reco::BasicClusterRefVector &clusters_v)
-{
-
 }
 
 

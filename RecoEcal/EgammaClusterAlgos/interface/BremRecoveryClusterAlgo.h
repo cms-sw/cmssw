@@ -32,10 +32,13 @@ class BremRecoveryClusterAlgo
 			  VerbosityLevel the_verbosity = pERROR
 			  )
     {
-      eb_rdeta_ = eb_sc_road_etasize;
-      eb_rdphi_ = eb_sc_road_phisize;
-      ec_rdeta_ = ec_sc_road_etasize;
-      ec_rdphi_ = ec_sc_road_phisize;
+      // e*_rdeta_ and e*_rdphi_ are half the total window 
+      // because they correspond to one direction (positive or negative)
+      eb_rdeta_ = eb_sc_road_etasize / 2;
+      eb_rdphi_ = eb_sc_road_phisize / 2;
+      ec_rdeta_ = ec_sc_road_etasize / 2;
+      ec_rdphi_ = ec_sc_road_phisize / 2;
+
       seedTransverseEnergyThreshold = theSeedTransverseEnergyThreshold;
       verbosity = the_verbosity;
     }
@@ -53,9 +56,6 @@ class BremRecoveryClusterAlgo
   // make superclusters out of clusters produced by the Island algorithm:
   void makeIslandSuperClusters(reco::BasicClusterRefVector &clusters_v, 
 			       double etaRoad, double phiRoad);
-  
-  // make superclusters out of clusters produced by the Hybrid algorithm:
-  void makeHybridSuperClusters(reco::BasicClusterRefVector &clusters_v);
   
   // return true if the cluster is within the search phi-eta window of the seed
   bool match(reco::BasicClusterRef seed_p, 
