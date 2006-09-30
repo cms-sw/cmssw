@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.10 2006/09/06 17:34:05 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.11 2006/09/29 00:54:16 chrjones Exp $
 //
 
 // system include files
@@ -61,6 +61,11 @@ bool loadLibraryForClass( const char* classname )
   
   ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(classname);
   if(ROOT::Reflex::Type() != t ) {
+     if(! t.IsComplete() ) {
+	// this message happens too often (to many false positives) to be useful plus ROOT will complain about a missing dictionary 
+	//std::cerr <<"Warning: Reflex knows about type '"<<classname<<"' but has no dictionary for it."<<std::endl;
+	return false;
+     }
     //std::cout <<"loaded "<<classname<<std::endl;
     return true;
   } 
