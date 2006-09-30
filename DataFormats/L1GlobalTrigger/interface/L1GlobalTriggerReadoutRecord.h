@@ -60,6 +60,8 @@ public:
 public:
 
     static const unsigned int NumberPhysTriggers = 128;    
+    static const unsigned int NumberPhysTriggersExtended = 192;    
+    static const unsigned int NumberTechnicalTriggers = 64;    
 
     static const unsigned int NumberL1Muons = 4;
         
@@ -76,8 +78,15 @@ public:
 
     /// typedefs          
 
+    /// algorithm bits: 128 bits
     typedef std::vector<bool> DecisionWord;
-    // TODO what about 192 bits: extended decision word?
+
+    /// extended decision word: 192 bits (extend DecisionWord with 64 bits)
+    /// need a new FDL chip :-)  
+    typedef std::vector<bool> DecisionWordExtended;
+
+    /// technical trigger bits (64 bits)
+    typedef std::vector<bool> TechnicalTriggerWord;
 
     // muons are represented as 32 bits (actually 26 bits)     
     typedef unsigned MuonDataWord;
@@ -241,9 +250,12 @@ public:
     void setJetCounts(const CaloJetCountsWord&);
 
 
-    /// print result
+    /// print global decision and algorithm decision word
     void print() const;
-
+    
+    /// print technical triggers
+    void printTechnicalTrigger() const;
+    
     /// print all L1 Trigger Objects
     void printL1Objects() const;
 
@@ -290,7 +302,9 @@ private:
         
     DecisionWord m_gtDecision;
     bool m_gtGlobalDecision;
-  
+
+    TechnicalTriggerWord m_gtTechnicalTrigger;
+       
     MuonDataWord m_gtMuon[NumberL1Muons];
     
     CaloDataWord m_gtElectron[NumberL1Electrons];  

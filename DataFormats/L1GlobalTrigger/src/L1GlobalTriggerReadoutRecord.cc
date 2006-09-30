@@ -40,6 +40,11 @@ L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord()
     m_gtDecision.reserve(NumberPhysTriggers);
     m_gtDecision.assign(NumberPhysTriggers, false);
 
+    // technical triggers
+    m_gtTechnicalTrigger.reserve(NumberTechnicalTriggers);
+    m_gtTechnicalTrigger.assign(NumberTechnicalTriggers, false);
+    
+    
     for (unsigned int indexCand = 0; indexCand < NumberL1Muons; ++indexCand) {
         m_gtMuon[indexCand] = 0;		
 	}  
@@ -82,6 +87,8 @@ L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord(
         
     m_gtDecision       = result.m_gtDecision;
     m_gtGlobalDecision = result.m_gtGlobalDecision;
+
+    m_gtTechnicalTrigger = result.m_gtTechnicalTrigger;
 
     for (unsigned int indexCand = 0; indexCand < NumberL1Muons; ++indexCand) {  
         m_gtMuon[indexCand] = result.m_gtMuon[indexCand];
@@ -130,6 +137,8 @@ L1GlobalTriggerReadoutRecord& L1GlobalTriggerReadoutRecord::operator=(
         m_gtDecision       = result.m_gtDecision;
         m_gtGlobalDecision = result.m_gtGlobalDecision;
 
+        m_gtTechnicalTrigger = result.m_gtTechnicalTrigger;
+        
         for (unsigned int indexCand = 0; indexCand < NumberL1Muons; ++indexCand) {  
             m_gtMuon[indexCand] = result.m_gtMuon[indexCand];
         }
@@ -173,8 +182,10 @@ bool L1GlobalTriggerReadoutRecord::operator==(
     if (m_bxInEvent != result.m_bxInEvent) return false;
         
     if (m_gtDecision       != result.m_gtDecision) return false;
-    if (m_gtGlobalDecision != result.m_gtGlobalDecision) return false;
-  
+    if (m_gtGlobalDecision != result.m_gtGlobalDecision) return false;  
+
+    if (m_gtTechnicalTrigger != result.m_gtTechnicalTrigger) return false;
+
     if (m_gtMuon != result.m_gtMuon) return false;
   
     if (m_gtElectron    != result.m_gtElectron) return false;  
@@ -793,23 +804,42 @@ void L1GlobalTriggerReadoutRecord::setJetCounts(
         
 }
 
-// print result
+// print global decision and algorithm decision word
 void L1GlobalTriggerReadoutRecord::print() const {
 
     std::cout << "\nL1 Global Trigger Record : " << std::endl
         << "\t Global Decision = " << std::setw(5) << m_gtGlobalDecision << std::endl 
-        << "\t Decision word = "; 
+        << "\t Decision word (bitset style) = "; 
 
-    for (std::vector<bool>::const_iterator itBit = m_gtDecision.begin(); 
-        itBit != m_gtDecision.end(); ++itBit) {
+    for (std::vector<bool>::const_reverse_iterator ritBit = m_gtDecision.rbegin(); 
+        ritBit != m_gtDecision.rend(); ++ritBit) {
         
-        std::cout << (*itBit ? '1' : '0');
+        std::cout << (*ritBit ? '1' : '0');
                 
     }      
 
     std::cout << std::endl;
     
 }
+
+// print technical trigger word (reverse order for vector<bool>)
+void L1GlobalTriggerReadoutRecord::printTechnicalTrigger() const {
+
+    std::cout << "\nL1 Global Trigger Record : " << std::endl
+        << "\t Technical Trigger word (bitset style) = "; 
+
+    for (std::vector<bool>::const_reverse_iterator ritBit = m_gtTechnicalTrigger.rbegin(); 
+        ritBit != m_gtTechnicalTrigger.rend(); ++ritBit) {
+        
+        std::cout << (*ritBit ? '1' : '0');
+                
+    }      
+
+    std::cout << std::endl;
+    
+}
+
+
 
 // print all L1 Trigger Objects (use int to bitset conversion) 
 void L1GlobalTriggerReadoutRecord::printL1Objects() const {
@@ -949,6 +979,10 @@ void L1GlobalTriggerReadoutRecord::reset() {
     for (unsigned int iBit = 0; iBit < m_gtDecision.size(); ++iBit) {
 		m_gtDecision[iBit] = false;
 	}
+
+    for (unsigned int iBit = 0; iBit < m_gtTechnicalTrigger.size(); ++iBit) {
+        m_gtTechnicalTrigger[iBit] = false;
+    }
 
     for (unsigned int indexCand = 0; indexCand < NumberL1Muons; ++indexCand) {
         m_gtMuon[indexCand] = 0;        

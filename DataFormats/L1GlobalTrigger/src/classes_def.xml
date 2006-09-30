@@ -5,6 +5,15 @@
 
   <class name="L1TriggerObject"/>
 
+  <class name="L1GtfeWord"/>
+  <class name="edm::Wrapper<L1GtfeWord>"/>
+
+  <class name="L1TcsWord"/>
+  <class name="edm::Wrapper<L1TcsWord>"/>
+
+  <class name="L1GtFdlWord"/>
+  <class name="edm::Wrapper<L1GtFdlWord>"/>
+
   <class name="L1GlobalTriggerReadoutRecord"/>
   <class name="edm::Wrapper<L1GlobalTriggerReadoutRecord>"/>
   
