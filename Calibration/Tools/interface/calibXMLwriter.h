@@ -7,7 +7,9 @@
 // Author:  Lorenzo AGOSTINO
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include <iostream>
 
 class calibXMLwriter {
@@ -15,13 +17,15 @@ class calibXMLwriter {
 
 public:
 
-calibXMLwriter();
+calibXMLwriter(EcalSubdetector=EcalBarrel);
 ~calibXMLwriter();
 
 void writeLine(EBDetId const &, float);
+void writeLine(EEDetId const &, float);
 
 
 private:
+EcalSubdetector subdet_;
 FILE* FILENAME;
 };
 
