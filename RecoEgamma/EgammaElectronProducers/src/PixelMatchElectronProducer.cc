@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronProducer.cc,v 1.3 2006/09/28 17:08:54 uberthon Exp $
+// $Id: PixelMatchElectronProducer.cc,v 1.4 2006/09/29 18:13:59 rahatlou Exp $
 //
 //
 
@@ -32,6 +32,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -45,6 +46,7 @@ PixelMatchElectronProducer::PixelMatchElectronProducer(const edm::ParameterSet& 
   //register your products
   produces<ElectronCollection>();
   produces<TrackCollection>();
+  produces<TrackCandidateCollection>();
   produces<TrackExtraCollection>();
   produces<TrackingRecHitCollection>();
 

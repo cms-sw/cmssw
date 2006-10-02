@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.9 2006/09/28 17:29:13 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.10 2006/09/28 17:36:43 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -96,8 +96,6 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   
 }
 
-//void  PixelMatchElectronAlgo::run(const edm::Event& e, reco::ElectronTrackCollection & outTk, 
-//void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & outTk,
 void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
 
 //   ==============================   preparations ==============================
@@ -106,6 +104,7 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
   reco::TrackRefProd refprod = e.getRefBeforePut<reco::TrackCollection>();
 
   std::auto_ptr<TrackCollection> outTracks(new TrackCollection);
+  std::auto_ptr<TrackCandidateCollection> outTrackCandidates(new TrackCandidateCollection);
   std::auto_ptr<TrackingRecHitCollection> selHits(new TrackingRecHitCollection);
   std::auto_ptr<TrackExtraCollection> outTrackExtras(new TrackExtraCollection);
   edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
@@ -202,17 +201,11 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
 
       //      TrackCandidate aTrackCandidate(recHits,*(it->seed().clone()),*state);
       TrackCandidate * aTrackCandidatePtr= new TrackCandidate(recHits,*(it->seed().clone()),*state);
-      TrackCandidate aTrackCandidate = * aTrackCandidatePtr;
       LogDebug("") << "New track candidate created";
       LogDebug("") << "n valid and invalid hit, chi2 : " 
 		   << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared();
-      //      outTk.push_back(aTrackCandidate);
+      outTrackCandidates->push_back(*aTrackCandidatePtr);
 
-      //      std::pair<Trajectory,const ElectronPixelSeed*> mypair(*it,&(*iseed));
-      //      seedMap.insert(std::map<Trajectory *,const ElectronPixelSeed*> >::value_type(&(*it),&(*iseed)));
-      //      seedMap[aTrackCandidate]= mypair;
-      //      seedMap[aTrackCandidate]= std::pair<Trajectory,ElectronPixelSeed*>(*it,&(*iseed));
-      // construct Track from TrackCandidate 
       // for the time being TrackCandidate are promoted to Track without refitting forward and backward
       // this is to be done by the TrackProducer algos when we'll be able to retrieve our Tracks from the framework
 
@@ -325,6 +318,7 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
     cout << "New electron with charge, pt, eta, phi : "  << it->charge() << " , "  << it->pt() << " , " << it->eta() << " , " << it->phi()<<std::endl;
   }
   e.put(outTracks);
+  e.put(outTrackCandidates);
   e.put(outTrackExtras);
   e.put(selHits);
   str << "=================================================";
