@@ -6,7 +6,7 @@
 #include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
 #include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
-#include "Geometry/EcalCommonData/interface/ShowerForwardNumberingScheme.h"
+#include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -41,7 +41,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   if      (name == "EcalHitsEB") scheme = dynamic_cast<EcalNumberingScheme*>(new EcalBarrelNumberingScheme());
   else if (name == "EcalHitsEE") scheme = dynamic_cast<EcalNumberingScheme*>(new EcalEndcapNumberingScheme());
   else if (name == "EcalHitsES") {
-    scheme = dynamic_cast<EcalNumberingScheme*>(new ShowerForwardNumberingScheme());
+    scheme = dynamic_cast<EcalNumberingScheme*>(new EcalPreshowerNumberingScheme());
     useWeight = false;
   } else {edm::LogWarning("EcalSim") << "ECalSD: ReadoutName not supported\n";}
 
