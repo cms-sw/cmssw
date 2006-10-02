@@ -7,6 +7,7 @@
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
+#include "IOPool/Streamer/interface/StreamerStatService.h"
 
 #include <iostream>
 #include <vector>
@@ -26,7 +27,9 @@ namespace edm
     ~StreamerOutputService();
 
     void init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
-              std::string path, std::string mpath, InitMsgView const& init_message) ;
+              std::string path, std::string mpath, 
+	      std::string catalog, uint32 disks, 
+	      InitMsgView const& init_message) ;
 
     //By defaulting hlt_trig_count, i don't need to provide any value
     // for hlt_trig_count, which is actually NO MORE used,
@@ -62,12 +65,15 @@ namespace edm
      std::string mpath_;
      double diskUsage_;
      std::string closedFiles_;
+     std::string catalog_;
+     uint32 nLogicalDisk_;
 
      // memory to keep the INIT message for when writing to more than one file
      char saved_initmsg_[1000*1000*2];
 
      std::string fileName_;
      std::string indexFileName_;
+     std::string lockFileName_;
 
      boost::shared_ptr<StreamerFileWriter> streamNindex_writer_;
      
@@ -76,6 +82,10 @@ namespace edm
 
      // event selector that does the work of accepting/rejecting events
      boost::shared_ptr<edm::EventSelector> eventSelector_;
+
+     // statistic writer
+     boost::shared_ptr<edm::StreamerStatWriteService> statistics_;
+
   };
 }
 #endif

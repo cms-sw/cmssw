@@ -11,11 +11,13 @@
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
 
 using namespace edm;
 using namespace std;
@@ -32,7 +34,7 @@ std::string itoa(int i){
 /* No one will use this CTOR anyways, we can remove it in future */
 StreamerOutputService::StreamerOutputService():
  maxFileSize_(1073741824),
- maxFileEventCount_(10000),
+ maxFileEventCount_(50),
  currentFileSize_(0),
  totalEventCount_(0),
  eventsInFile_(0),
@@ -50,7 +52,7 @@ StreamerOutputService::StreamerOutputService():
  // defaulting - need numbers from Emilio
  //StreamerOutputService::StreamerOutputService():
  maxFileSize_(1073741824),
- maxFileEventCount_(10000),
+ maxFileEventCount_(50),
  currentFileSize_(0),
  totalEventCount_(0),
  eventsInFile_(0),
@@ -63,18 +65,41 @@ StreamerOutputService::StreamerOutputService():
   }
 
 void StreamerOutputService::init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
-                                 std::string path, std::string mpath, InitMsgView const& view)
+                                 std::string path, std::string mpath, 
+				 std::string catalog, uint32 disks,
+				 InitMsgView const& view)
   { 
    maxFileSize_ = maxFileSize;
    highWaterMark_ = highWaterMark;
    path_ = path;
    mpath_ = mpath;
    filen_ = fileName;
-   fileName_ = path_ + "/" + filen_ + "." + itoa(fileNameCounter_) + ".dat";
-   indexFileName_ = path_ + "/" + filen_ + "." + itoa(fileNameCounter_) + ".ind";
-   
+   nLogicalDisk_   = disks;
+
+   // create file names ( can be move to seperate method )
+   std::ostringstream newFileName;
+   newFileName << path_ << "/";
+   catalog_        = newFileName.str() + catalog;
+   lockFileName_   = newFileName.str() + "nolock";
+
+   if (nLogicalDisk_ != 0 )
+     {
+       newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
+       lockFileName_   = newFileName.str() + ".lock";
+       ofstream *lockFile = new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+       delete(lockFile);
+     }
+
+   newFileName << filen_ << "." << fileNameCounter_ ;
+   fileName_      = newFileName.str() + ".dat";
+   indexFileName_ = newFileName.str() + ".ind";
+                                                                                                           
+   statistics_  = boost::shared_ptr<edm::StreamerStatWriteService> 
+     (new edm::StreamerStatWriteService(0, "-", indexFileName_, fileName_, catalog_));
+
    streamNindex_writer_ = boost::shared_ptr<StreamerFileWriter>(new StreamerFileWriter(fileName_, indexFileName_));
 
+   
    //dumpInitHeader(&view);
    
    writeHeader(view);
@@ -118,6 +143,19 @@ StreamerOutputService::~StreamerOutputService()
    // stop();   //Remove this from destructor if you want higher class to do that at its will.
               // and if stop() is ever made Public.
    writeToMailBox();
+
+   statistics_  -> setFileSize((uint32) currentFileSize_ );
+   statistics_  -> setEventCount((uint32) eventsInFile_ ); 
+   statistics_  -> writeStat();
+
+   std::ostringstream newFileName;
+   newFileName << path_ << "/";
+   if (nLogicalDisk_ != 0 )
+     {
+       newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
+       remove( lockFileName_.c_str() );
+     }
+   
    std::ostringstream entry;
    entry << fileNameCounter_ << " "
          << fileName_
@@ -162,13 +200,19 @@ void StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize
             }
 
         // check for number of events is no longer required 09/22/2006
-        //if ( eventsInFile_ > maxFileEventCount_  || currentFileSize_ > maxFileSize_ )
-        if ( currentFileSize_ > maxFileSize_ )
+        // if ( eventsInFile_ >= maxFileEventCount_  || currentFileSize_ >= maxFileSize_ )
+	if ( currentFileSize_ >= maxFileSize_ )
            {
              checkFileSystem(); // later should take some action
              stop();
              writeToMailBox();
-             fileNameCounter_++;
+ 
+	     statistics_  -> setFileSize((uint32) currentFileSize_ );
+	     statistics_  -> setEventCount((uint32) eventsInFile_ ); 
+	     statistics_  -> setRunNumber((uint32) eview.run());
+	     statistics_  -> writeStat();
+
+	     fileNameCounter_++;
 
              string tobeclosedFile = fileName_;
 
@@ -177,9 +221,25 @@ void StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize
              // writer is not using them !! - AA
 
              // also should be checking the filesystem here at path_
-             fileName_ = path_ + "/" + filen_ + "." + itoa(fileNameCounter_) + ".dat";
-             indexFileName_ = path_ + "/" + filen_ + "." + itoa(fileNameCounter_) + ".ind";
-
+             std::ostringstream newFileName;
+             newFileName << path_ << "/";
+             if (nLogicalDisk_ != 0 )
+               {
+                 newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
+                 remove( lockFileName_.c_str() );
+                 lockFileName_   = newFileName.str() + ".lock";
+                 ofstream *lockFile =
+                   new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+                 delete(lockFile);
+               }
+	     
+             newFileName << filen_ << "." << fileNameCounter_ ;
+             fileName_      = newFileName.str() + ".dat";
+             indexFileName_ = newFileName.str() + ".ind";
+                                               
+	     statistics_  = boost::shared_ptr<edm::StreamerStatWriteService> 
+	       (new edm::StreamerStatWriteService(eview.run(), "-", indexFileName_, fileName_, catalog_));
+                                                            
              streamNindex_writer_.reset(new StreamerFileWriter(fileName_, indexFileName_));
 
              // write out the summary line for this last file
