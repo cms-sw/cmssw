@@ -9,6 +9,7 @@
 /**\class TauTagVal TauTagVal.cc 
 
  Description: EDAnalyzer to validate the Collections from the ConeIsolation Producer
+ It is supposed to be used for Offline Tau Reconstrction, so PrimaryVertex should be used.
  Implementation:
   
 */
@@ -59,11 +60,17 @@ private:
   edm::InputTag jetTagSrc;
   vector<float> nEventsRiso;
   std::string outPutFile;
-  float rSig,rMatch;
+  float rSig,rMatch,ptLeadTk, rIso;
+  //AGGIUNGERE MC INFO???
+  MonitorElement* effFindLeadTk;  
   MonitorElement* effVsRiso;
   MonitorElement* nSignalTracks;
+  MonitorElement* nSignalTracksAfterIsolation;
+  MonitorElement* nAssociatedTracks;
+  MonitorElement* nSelectedTracks;
   MonitorElement* ptLeadingTrack;
   MonitorElement* ptJet;
+  MonitorElement* deltaRLeadTk_Jet;
 
 
 };
