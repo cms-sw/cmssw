@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ObjectCountFilter.h,v 1.1 2006/09/20 12:56:23 llista Exp $
+ * $Id: ObjectCountFilter.h,v 1.2 2006/09/21 11:56:48 llista Exp $
  *
  */
 
@@ -55,8 +55,9 @@ private:
     size_t n = 0;
     for( typename C::const_iterator i = source->begin(); i != source->end(); ++ i ) {
       if ( select_( * i ) ) n ++;
+      if ( n >= minNumber_ ) return true;
     }
-    return n >= minNumber_;
+    return false;
   }
   /// object filter
   S select_;
