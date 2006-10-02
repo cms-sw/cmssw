@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.1 2006/09/15 19:57:57 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.2 2006/09/26 20:49:01 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -42,6 +42,15 @@ namespace {
 
   const char* IOV_ID = "IOV_ID";
   const char* TAG_ID = "TAG_ID";
+
+  std::string kind (const HcalPedestals& fObject) { return "HCAL_PEDESTALS_V2";}
+  std::string kind (const HcalGains& fObject) { return "HCAL Gains";}
+
+  std::string extensionTableName (const std::string& fKind) {
+    if (fKind == "HCAL_PEDESTALS_V2") return "HCAL_PEDESTALS_V2";
+    if (fKind == "HCAL Gains") return "HCAL_GAIN_PEDSTL_CALIBRATIONS";
+    return "UNKNOWN";
+  }
 }
 
 class XMLDocument {
@@ -62,7 +71,7 @@ public:
   DOMElement* makeType (DOMElement* fHeader, const std::string& fExtensionName);
   DOMElement* makeRun (DOMElement* fHeader, unsigned long fRun);
 
-  DOMElement* makeChId (DOMElement* fDataset, DetId fId, const std::string& fExtensionName = "HCAL_CHANNELS");
+  DOMElement* makeChId (DOMElement* fDataset, DetId fId);
 
   DOMElement* makeElementDataset (DOMElement* fElement, int fXMLId, DetId fDetId, int fVersion, const std::string& fKind, unsigned long fRun);
   DOMElement* makeElementIOV (DOMElement* fElement, unsigned long long fIovBegin, unsigned long long fIovEnd = 0);
@@ -73,6 +82,13 @@ public:
   DOMElement* makeMapDataset (DOMElement* fIov, int fXMLId);
 
   DOMElement* makeData (DOMElement* fDataset, const HcalPedestal& fPed, const HcalPedestalWidth& fWidth);
+  DOMElement* makeData (DOMElement* fDataset);
+
+  // specializations
+  void addData (DOMElement* fData, const HcalPedestal& fItem);
+  void addData (DOMElement* fData, const HcalPedestalWidth& fItem);
+  void addData (DOMElement* fData, const HcalGain& fItem);
+  void addData (DOMElement* fData, const HcalGainWidth& fItem);
 
 private:
   DOMImplementation* mDom;
@@ -116,10 +132,10 @@ private:
     return header;
   }
 
-  DOMElement* XMLDocument::makeType (DOMElement* fHeader, const std::string& fExtensionName) {
+  DOMElement* XMLDocument::makeType (DOMElement* fHeader, const std::string& fKind) {
       DOMElement* type = newElement (fHeader, "TYPE");
-      newValue (type, "EXTENSION_TABLE_NAME", fExtensionName);
-      newValue (type, "NAME", fExtensionName);
+      newValue (type, "EXTENSION_TABLE_NAME", extensionTableName (fKind));
+      newValue (type, "NAME", fKind);
       return type;
   }
 
@@ -136,9 +152,9 @@ private:
       return dataset;
   }
 
-  DOMElement* XMLDocument::makeChId (DOMElement* fDataset, DetId fId, const std::string& fExtensionName) {
+  DOMElement* XMLDocument::makeChId (DOMElement* fDataset, DetId fId) {
     DOMElement* channel = newElement (fDataset, "CHANNEL");
-    newValue (channel, "EXTENSION_TABLE_NAME", fExtensionName);
+    newValue (channel, "EXTENSION_TABLE_NAME", "HCAL_CHANNELS");
     HcalText2DetIdConverter parser (fId);
     newValue (channel, "DETECTOR_NAME", parser.getFlavor ());
     int eta = parser.getField (1);
@@ -208,6 +224,46 @@ private:
     return element;
   }
   
+  DOMElement* XMLDocument::makeData (DOMElement* fDataset) {
+    return  newElement (fDataset, "DATA");
+  }
+
+  void XMLDocument::addData (DOMElement* fData, const HcalPedestal& fItem) {
+    newValue (fData, "CAPACITOR_0_VALUE", fItem.getValue (0));
+    newValue (fData, "CAPACITOR_1_VALUE", fItem.getValue (1));
+    newValue (fData, "CAPACITOR_2_VALUE", fItem.getValue (2));
+    newValue (fData, "CAPACITOR_3_VALUE", fItem.getValue (3));
+  }
+
+  void XMLDocument::addData (DOMElement* fData, const HcalPedestalWidth& fItem) {
+    // widths
+    newValue (fData, "SIGMA_0_0", fItem.getSigma (0, 0));
+    newValue (fData, "SIGMA_1_1", fItem.getSigma (1, 1));
+    newValue (fData, "SIGMA_2_2", fItem.getSigma (2, 2));
+    newValue (fData, "SIGMA_3_3", fItem.getSigma (3, 3));
+    newValue (fData, "SIGMA_0_1", fItem.getSigma (0, 1));
+    newValue (fData, "SIGMA_0_2", fItem.getSigma (0, 2));
+    newValue (fData, "SIGMA_0_3", fItem.getSigma (0, 3));
+    newValue (fData, "SIGMA_1_2", fItem.getSigma (1, 2));
+    newValue (fData, "SIGMA_1_3", fItem.getSigma (1, 3));
+    newValue (fData, "SIGMA_2_3", fItem.getSigma (2, 3));
+  }
+
+  void XMLDocument::addData (DOMElement* fData, const HcalGain& fItem) {
+    newValue (fData, "CAPACITOR_0_VALUE", fItem.getValue (0));
+    newValue (fData, "CAPACITOR_1_VALUE", fItem.getValue (1));
+    newValue (fData, "CAPACITOR_2_VALUE", fItem.getValue (2));
+    newValue (fData, "CAPACITOR_3_VALUE", fItem.getValue (3));
+  }
+
+ void XMLDocument::addData (DOMElement* fData, const HcalGainWidth& fItem) {
+    newValue (fData, "CAPACITOR_0_ERROR", fItem.getValue (0));
+    newValue (fData, "CAPACITOR_1_ERROR", fItem.getValue (1));
+    newValue (fData, "CAPACITOR_2_ERROR", fItem.getValue (2));
+    newValue (fData, "CAPACITOR_3_ERROR", fItem.getValue (3));
+  }
+
+
   DOMElement* XMLDocument::makeData (DOMElement* fDataset, const HcalPedestal& fPed, const HcalPedestalWidth& fWidth) {
     DOMElement* data = newElement (fDataset, "DATA");
     // pedestals
@@ -229,6 +285,7 @@ private:
     return data;
   }
 
+
   const DOMDocument* XMLDocument::document () {return mDoc;}
 
   void XMLDocument::streamOut (std::ostream& fOut) {
@@ -239,14 +296,14 @@ private:
     mDoc->release ();
   }
 
-bool HcalDbXml::dumpObject (std::ostream& fOutput, 
-			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
-			    const HcalPedestals& fObject, const HcalPedestalWidths& fError) {
-  const std::string KIND = "HCAL_PEDESTALS_V2";
 
-  std::ofstream gena ("allHcalChannels.txt");
-  gena << "#subdet,Z,phi,eta,depth,detid" << std::endl;
-
+template <class T1, class T2>
+bool dumpObject_ (std::ostream& fOutput, 
+		  unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		  const T1* fObject1, const T2* fObject2 = 0) {
+  if (!fObject1) return false;
+  const std::string KIND = kind (*fObject1);
+  
   XMLDocument doc;
   DOMElement* root = doc.root ();
   doc.makeHeader (root, KIND, fRun);
@@ -257,43 +314,27 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 
   DOMElement* iovmap = doc.makeMapIOV (doc.makeMapTag (doc.makeMaps (root)));
   
-  std::vector<DetId> detids = fObject.getAllChannels ();
+  std::vector<DetId> detids = fObject1->getAllChannels ();
   for (unsigned iCh = 0; iCh < detids.size(); iCh++) {
     DetId id = detids [iCh];
-    const HcalPedestal* peds = fObject.getValues (id);
-    if (peds) {
-      const HcalPedestalWidth* widths = fError.getValues (id);
-      if (widths) {
-	DOMElement* dataset = doc.makeDataset (root, fVersion);
-	doc.makeChId (dataset, id, "HCAL_CHANNELS");
-	doc.makeData (dataset, *peds, *widths);
-
-	doc.makeElementDataset (elements, iCh, id, fVersion, KIND, fRun);
-	doc.makeMapDataset (iovmap, iCh);
-
-	//-----------------
-	HcalText2DetIdConverter parser (id);
-	int eta = parser.getField (1);
-	gena << parser.getFlavor () << ',' 
-	     << (eta > 0 ? 1 : -1) << ','
-	     << parser.getField2 () << ','
-	     << abs(eta) << ','
-	     << parser.getField3 () << ','
-	     << id.rawId() << std::endl;
-	//------------------------
-      }
-      else {
-	std::cerr << "HcalDbXml::dumpObject-> Can not find pedestal widths object for detid " << id.rawId() << std::endl;
-      }
-    }
-    else {
-      std::cerr << "HcalDbXml::dumpObject-> Can not find pedestal object for detid " << id.rawId() << std::endl;
-    }
+    DOMElement* dataset = doc.makeDataset (root, fVersion);
+    doc.makeChId (dataset, id);
+    DOMElement* data = doc.makeData (dataset);
+    doc.addData (data, *(fObject1->getValues (id)));
+    if (fObject2) doc.addData (data, *(fObject2->getValues (id)));
+    doc.makeElementDataset (elements, iCh, id, fVersion, KIND, fRun);
+    doc.makeMapDataset (iovmap, iCh);
   }
   doc.streamOut (fOutput);
   return true;
 }
 
+
+bool HcalDbXml::dumpObject (std::ostream& fOutput, 
+			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+			    const HcalPedestals& fObject, const HcalPedestalWidths& fError) {
+  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, &fObject, &fError);
+}
 
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
 			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
@@ -314,6 +355,22 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
   return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, fObject, widths);
 }
 
-  bool HcalDbXml::dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
-		   const HcalGains& fObject) {return false;}
+bool HcalDbXml::dumpObject (std::ostream& fOutput, 
+			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+			    const HcalGains& fObject, const HcalGainWidths& fError) {
+  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, &fObject, &fError);
+}
+
+bool HcalDbXml::dumpObject (std::ostream& fOutput, 
+			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+			    const HcalGains& fObject) {
+  HcalGainWidths widths;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    widths.addValue (*channel, 0, 0, 0, 0); // no error
+  }
+  widths.sort ();
+  return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, fObject, widths);
+}

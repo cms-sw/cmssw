@@ -33,17 +33,26 @@ namespace oracle {
 
 class HcalDbOnline {
  public:
+  typedef unsigned long long IOVTime;
+  typedef std::pair <IOVTime, IOVTime> IntervalOV;
+
   HcalDbOnline (const std::string& fDb, bool fVerbose = false);
   ~HcalDbOnline ();
 
-  bool getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidths, const std::string& fTag);
-  bool getObject (HcalPedestals* fObject, const std::string& fTag);
-  bool getObject (HcalGains* fObject, const std::string& fTag);
-  bool getObject (HcalPedestalWidths* fObject, const std::string& fTag);
-  bool getObject (HcalGainWidths* fObject, const std::string& fTag) {return false;}
-  bool getObject (HcalElectronicsMap* fObject, const std::string& fTag);
-  bool getObject (HcalQIEData* fObject, const std::string& fTag);
-  bool getObject (HcalCalibrationQIEData* fObject, const std::string& fTag);
+  bool getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidths, const std::string& fTag, IOVTime fTime);
+  bool getObject (HcalPedestals* fObject, const std::string& fTag, IOVTime fTime);
+  bool getObject (HcalGains* fObject, HcalGainWidths* fWidths, const std::string& fTag, IOVTime fTime);
+  bool getObject (HcalGains* fObject, const std::string& fTag, IOVTime fTime);
+  bool getObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVTime fTime);
+  bool getObject (HcalGainWidths* fObject, const std::string& fTag, IOVTime fTime);
+  bool getObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVTime fTime);
+  bool getObject (HcalQIEData* fObject, const std::string& fTag, IOVTime fTime);
+  bool getObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVTime fTime);
+
+  std::vector<std::string> metadataAllTags ();
+  std::vector<IntervalOV> getIOVs (const std::string& fTag);
+  
+  
  private:
   oracle::occi::Environment* mEnvironment;
   oracle::occi::Connection* mConnect;

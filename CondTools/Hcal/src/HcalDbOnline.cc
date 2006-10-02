@@ -1,37 +1,18 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.11 2006/07/19 21:47:19 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.12 2006/07/26 01:13:50 fedor Exp $
 //
+#include <limits>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 #include "occi.h" 
 
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 
 namespace {
-  std::string query (const HcalGains* fObject, const std::string& fTag) {
-    std::string result = "select ";
-    result += "DAT.CAPACITOR_0_VALUE, DAT.CAPACITOR_1_VALUE, DAT.CAPACITOR_2_VALUE, DAT.CAPACITOR_3_VALUE, \n";
-    result += "CH.Z, CH.ETA, CH.PHI, CH.DEPTH, CH.DETECTOR_NAME \n";
-    result += "from \n";
-    result += "CMS_HCL_HCAL_CONDITION_OWNER.HCAL_GAIN_PEDSTL_CALIBRATIONS DAT, \n";
-    result += "CMS_HCL_CORE_CONDITION_OWNER.COND_DATA_SETS DS, \n";
-    result += "CMS_HCL_HCAL_CONDITION_OWNER.HCAL_CHANNELS CH, \n";
-    result += "CMS_HCL_CORE_CONDITION_OWNER.KINDS_OF_CONDITIONS KOC, \n";
-    result += "CMS_HCL_CORE_CONDITION_OWNER.COND_RUNS RN \n";
-    result += "where \n";
-    result += "DS.CONDITION_DATA_SET_ID=DAT.CONDITION_DATA_SET_ID and \n";
-    result += "DS.CHANNEL_MAP_ID = CH.CHANNEL_MAP_ID and \n";
-    result += "KOC.KIND_OF_CONDITION_ID = DS.KIND_OF_CONDITION_ID and \n";
-    result += "RN.COND_RUN_ID=DS.COND_RUN_ID and \n";
-    result += "KOC.IS_RECORD_DELETED='F' and \n";
-    result += "DS.IS_RECORD_DELETED='F' and \n";
-    result += "KOC.NAME='HCAL Gains' and \n";
-    result += "RN.RUN_NAME='" + fTag + "'\n";
-    return result;
-  }
 
   HcalSubdetector hcalSubdet (const std::string& fName) {
     return fName == "HB" ? HcalBarrel : 
@@ -75,19 +56,7 @@ HcalDbOnline::~HcalDbOnline () {
   oracle::occi::Environment::terminateEnvironment (mEnvironment);
 }
 
-bool HcalDbOnline::getObject (HcalPedestals* fObject, const std::string& fTag) {
-  return getObject (fObject, (HcalPedestalWidths*)0, fTag);
-}
-
-bool HcalDbOnline::getObject (HcalPedestalWidths* fObject, const std::string& fTag) {
-  return getObject ((HcalPedestals*)0, fObject, fTag);
-}
-
-bool HcalDbOnline::getObject (HcalGains* fObject, const std::string& fTag) {
-  return getObjectGeneric (fObject, fTag);
-}
-
-bool HcalDbOnline::getObject (HcalElectronicsMap* fObject, const std::string& fTag) {
+bool HcalDbOnline::getObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVTime fTime) {
   if (!fObject) return false;
   std::string tag = fTag;
   if (tag.empty()) {
@@ -147,7 +116,7 @@ bool HcalDbOnline::getObject (HcalElectronicsMap* fObject, const std::string& fT
   return true;
 }
 
-bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag) {
+bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag, IOVTime fTime) {
   if (!fObject) return false;
   std::string sql_what ("");
   sql_what += " ADC_CH.SIDE, ADC_CH.ETA, ADC_CH.PHI, ADC_CH.DEPTH, ADC_CH.SUBDETECTOR,\n" ;
@@ -304,7 +273,7 @@ bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag) {
   return true;
 }
 
-bool HcalDbOnline::getObject (HcalCalibrationQIEData* fObject, const std::string& fTag) {
+bool HcalDbOnline::getObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVTime fTime) {
   if (!fObject) return false;
   std::string sql_query ("");
   sql_query += "SELECT\n";         
@@ -392,8 +361,10 @@ bool HcalDbOnline::getObject (HcalCalibrationQIEData* fObject, const std::string
 }
 
 
-bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidths, const std::string& fTag) {
+bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidths, const std::string& fTag, IOVTime fTime) {
   if (!fObject && !fWidths) return false;
+  std::ostringstream sTime;
+  sTime << fTime;
   std::string sql_query ("");
   sql_query += "SELECT\n"; 
   sql_query += " Z, ETA, PHI, DEPTH, DETECTOR_NAME\n"; 
@@ -401,7 +372,9 @@ bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidth
   sql_query += " , SIGMA_0_0, SIGMA_0_1, SIGMA_0_2, SIGMA_0_3, SIGMA_1_1, SIGMA_1_2, SIGMA_1_3, SIGMA_2_2, SIGMA_2_3, SIGMA_3_3\n"; 
   sql_query += " , RUN_NUMBER, INTERVAL_OF_VALIDITY_BEGIN, INTERVAL_OF_VALIDITY_END\n"; 
   sql_query += "FROM V_HCAL_PEDESTALS_V2\n"; 
-  sql_query += "WHERE TAG_NAME='" + fTag + "'\n"; 
+  sql_query += "WHERE TAG_NAME='" + fTag + "'\n";
+  sql_query += "AND INTERVAL_OF_VALIDITY_BEGIN<=" + sTime.str() + "\n";
+  sql_query += "AND (INTERVAL_OF_VALIDITY_END IS NULL OR INTERVAL_OF_VALIDITY_END>" + sTime.str() + ")\n";
   try {
     if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
     mStatement->setPrefetchRowCount (100);
@@ -421,9 +394,9 @@ bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidth
       for (int i = 0; i < 4; i++) 
 	for (int j = i; j < 4; j++) widths [i][j] = rset->getFloat (index++);
 
-      unsigned long run = rset->getInt (index++);
-      unsigned long iovBegin = rset->getInt (index++);
-      unsigned long iovEnd = rset->getInt (index++);
+      unsigned long run = rset->getNumber (index++);
+      unsigned long iovBegin = rset->getNumber (index++);
+      unsigned long iovEnd = rset->getNumber (index++);
 
       HcalSubdetector sub = hcalSubdet (subdet);
       HcalDetId id (sub, z * eta, phi, depth);
@@ -445,40 +418,123 @@ bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidth
   return true;
 }
 
-template <class T>
-bool HcalDbOnline::getObjectGeneric (T* fObject, const std::string& fTag) {
-  if (!fObject) return false;
-  std::string sql_query = query (fObject, fTag);
+bool HcalDbOnline::getObject (HcalPedestals* fObject, const std::string& fTag, IOVTime fTime) {
+  return getObject (fObject, (HcalPedestalWidths*)0, fTag, fTime);
+}
+
+bool HcalDbOnline::getObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVTime fTime) {
+  return getObject ((HcalPedestals*)0, fObject, fTag, fTime);
+}
+
+bool HcalDbOnline::getObject (HcalGains* fObject, HcalGainWidths* fWidths, const std::string& fTag, IOVTime fTime) {
+  if (!fObject && !fWidths) return false;
+  std::ostringstream sTime;
+  sTime << fTime;
+  std::string sql_query ("");
+  sql_query += "SELECT\n"; 
+  sql_query += " Z, ETA, PHI, DEPTH, DETECTOR_NAME\n"; 
+  sql_query += " , CAPACITOR_0_VALUE, CAPACITOR_1_VALUE, CAPACITOR_2_VALUE, CAPACITOR_3_VALUE\n"; 
+  sql_query += " , CAPACITOR_0_ERROR, CAPACITOR_1_ERROR, CAPACITOR_2_ERROR, CAPACITOR_3_ERROR\n"; 
+  sql_query += " , RUN_NUMBER, INTERVAL_OF_VALIDITY_BEGIN, INTERVAL_OF_VALIDITY_END\n"; 
+  sql_query += "FROM V_HCAL_GAIN_CALIBRATIONS\n"; 
+  sql_query += "WHERE TAG_NAME='" + fTag + "'\n";
+  sql_query += "AND INTERVAL_OF_VALIDITY_BEGIN<=" + sTime.str() + "\n";
+  sql_query += "AND (INTERVAL_OF_VALIDITY_END IS NULL OR INTERVAL_OF_VALIDITY_END>" + sTime.str() + ")\n";
   try {
     if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
     mStatement->setPrefetchRowCount (100);
     mStatement->setSQL (sql_query);
     oracle::occi::ResultSet* rset = mStatement->executeQuery ();
     while (rset->next ()) {
-      float value [4];
-      value [0] = rset->getFloat (1);
-      value [1] = rset->getFloat (2);
-      value [2] = rset->getFloat (3);
-      value [3] = rset->getFloat (4);
-      int z = rset->getInt (5);
-      int eta = rset->getInt (6);
-      int phi = rset->getInt (7);
-      int depth = rset->getInt (8);
-      std::string subdet = rset->getString (9);
+      int index = 1;
+      int z = rset->getInt (index++);
+      int eta = rset->getInt (index++);
+      int phi = rset->getInt (index++);
+      int depth = rset->getInt (index++);
+      std::string subdet = rset->getString (index++);
 
-//       std::cout << "getting data: " <<  value [0] << '/' <<  value [1] << '/' <<  value [2] << '/' <<  value [3]
-//  		<< '/' <<  z << '/' <<  eta << '/' <<  phi << '/' <<  depth << '/' <<  subdet << std::endl;
+      float values [4];
+      float widths [4];
+      for (int i = 0; i < 4; i++) values[i] = rset->getFloat (index++);
+      for (int i = 0; i < 4; i++) widths [i] = rset->getFloat (index++);
+      unsigned long run = rset->getNumber (index++);
+      unsigned long iovBegin = rset->getNumber (index++);
+      unsigned long iovEnd = rset->getNumber (index++);
+
       HcalSubdetector sub = hcalSubdet (subdet);
       HcalDetId id (sub, z * eta, phi, depth);
-      fObject->addValue (id, value);
+
+      if (fObject) fObject->addValue (id, values);
+      if (fWidths) fWidths->addValue (id, widths);
     }
     delete rset;
-    //    delete stmt;
   }
   catch (oracle::occi::SQLException& sqlExcp) {
     std::cerr << "HcalDbOnline::getObject exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
   }
-  fObject->sort ();
+  if (fObject) fObject->sort ();
+  if (fWidths) fWidths->sort ();
   return true;
-}  
+}
+
+bool HcalDbOnline::getObject (HcalGains* fObject, const std::string& fTag, IOVTime fTime) {
+  return getObject (fObject, (HcalGainWidths*) 0, fTag, fTime);
+}
+
+bool HcalDbOnline::getObject (HcalGainWidths* fWidths, const std::string& fTag, IOVTime fTime) {
+  return getObject ((HcalGains*) 0, fWidths, fTag, fTime);
+}
+
+std::vector<std::string> HcalDbOnline::metadataAllTags () {
+  std::vector<std::string> result;
+  std::string sql_query ("");
+  sql_query += "SELECT unique TAG_NAME from V_TAG_IOV_CONDDATASET\n"; 
+  try {
+    if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
+    mStatement->setPrefetchRowCount (100);
+    mStatement->setSQL (sql_query);
+    oracle::occi::ResultSet* rset = mStatement->executeQuery ();
+    while (rset->next ()) {
+      std::string tag = rset->getString (1);
+      result.push_back (tag);
+    }
+  }
+  catch (oracle::occi::SQLException& sqlExcp) {
+    std::cerr << "HcalDbOnline::metadataAllTags exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
+  }
+  return result;
+}
+
+std::vector<HcalDbOnline::IntervalOV> HcalDbOnline::getIOVs (const std::string& fTag) {
+  std::vector<IntervalOV> result;
+  std::string sql_query ("");
+  sql_query += "SELECT unique INTERVAL_OF_VALIDITY_BEGIN, INTERVAL_OF_VALIDITY_END from V_TAG_IOV_CONDDATASET\n";
+  sql_query += "WHERE TAG_NAME='" + fTag + "'\n";
+  try {
+    if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
+    mStatement->setPrefetchRowCount (100);
+    mStatement->setSQL (sql_query);
+    oracle::occi::ResultSet* rset = mStatement->executeQuery ();
+    while (rset->next ()) {
+//       char buffer [128];
+//       oracle::occi::Bytes iovb = rset->getNumber (1).toBytes();
+//       unsigned ix = 0;
+//       std::cout << "total bytes: " << iovb.length() << std::endl;
+//       for (; ix < iovb.length(); ix++) {
+// 	sprintf (buffer, "byte# %d: %x", ix, iovb.byteAt (ix));
+// 	std::cout << buffer << std::endl; 
+//       }
+      IOVTime beginIov = (unsigned long) rset->getNumber (1);
+//       sprintf (buffer, "%x", beginIov);
+//       std::cout << "value: " << buffer << std::endl;
+      IOVTime endIov = rset->getInt (2);
+      if (!endIov) endIov = std::numeric_limits <IOVTime>::max (); // end of ages
+      result.push_back (std::make_pair (beginIov, endIov));
+    }
+  }
+  catch (oracle::occi::SQLException& sqlExcp) {
+    std::cerr << "HcalDbOnline::getIOVs exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
+  }
+  return result;
+}
 

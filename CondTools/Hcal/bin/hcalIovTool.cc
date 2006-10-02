@@ -9,6 +9,7 @@
 
 #include "CondCore/IOVService/interface/IOV.h"
 #include "CondTools/Hcal/interface/HcalDbTool.h"
+#include "CondTools/Hcal/interface/HcalDbOnline.h"
 
 namespace {
   typedef HcalDbTool::IOVRun IOVRun;
@@ -25,6 +26,16 @@ namespace {
     }
     return result;
   }
+
+bool dbFile (const std::string fParam) {
+  return fParam.find (':') != std::string::npos;
+}
+
+bool onlineFile (const std::string fParam) {
+  return fParam.find ('@') != std::string::npos &&
+    fParam.find ("cms_val_lb") == std::string::npos;
+}
+
 }
 
 class Args {
@@ -60,34 +71,49 @@ void printHelp (const Args& args) {
 }
 
 void printTags (const std::string& fDb, bool fVerbose) {
-  HcalDbTool poolDb (fDb, fVerbose);
-  std::vector<std::string> allTags = poolDb.metadataAllTags ();
-  std::cout << "Tags available in CMS POOL DB instance: " << fDb << std::endl;
+  std::vector<std::string> allTags;
+  if (dbFile (fDb)) {
+    HcalDbTool poolDb (fDb, fVerbose);
+    allTags = poolDb.metadataAllTags ();
+    std::cout << "Tags available in CMS POOL DB instance: " << fDb << std::endl;
+  }
+  if (onlineFile (fDb)) {
+    HcalDbOnline onlineDb (fDb, fVerbose);
+    allTags = onlineDb.metadataAllTags ();
+    std::cout << "Tags available in HCAL master DB instance: " << fDb << std::endl;
+  }
   for (unsigned i = 0; i < allTags.size(); i++) {
     std::cout << allTags[i] << std::endl;
   }
 }
 
 void printRuns (const std::string& fDb, const std::string fTag, bool fVerbose) {
-  HcalDbTool poolDb (fDb, fVerbose);
-  cond::IOV iov;
-  if (poolDb.getObject (&iov, fTag)) {
-    std::vector <IntervalOV> allIOVs = allIOV (iov);
-    std::cout << "IOVs available for tag " << fTag << " in CMS POOL DB instance: " << fDb << std::endl;
-    for (unsigned i = 0; i < allIOVs.size(); i++) {
-      std::cout << "[ " << allIOVs[i].first << " ... " << allIOVs[i].second << " )" << std::endl;
+  std::vector <IntervalOV> allIOVs;
+  if (dbFile (fDb)) {
+    HcalDbTool poolDb (fDb, fVerbose);
+    cond::IOV iov;
+    if (poolDb.getObject (&iov, fTag)) {
+      allIOVs = allIOV (iov);
+      std::cout << "IOVs available for tag " << fTag << " in CMS POOL DB instance: " << fDb << std::endl;
+    }
+    else {
+      std::cerr << "printRuns-> can not find IOV for tag " << fTag << std::endl;
     }
   }
-  else {
-    std::cerr << "printRuns-> can not find IOV for tag " << fTag << std::endl;
+  if (onlineFile (fDb)) {
+    HcalDbOnline onlineDb (fDb, fVerbose);
+    allIOVs = onlineDb.getIOVs (fTag);
+  }
+  for (unsigned i = 0; i < allIOVs.size(); i++) {
+    std::cout << "[ " << allIOVs[i].first << " ... " << allIOVs[i].second << " )" << std::endl;
   }
 }
 
 int main (int argn, char* argv []) {
 
   Args args;
-  args.defineParameter ("-db", "DB connection string, POOL format, or .txt file, or defaults");
-  args.defineParameter ("-tag", "DB connection string, POOL format, or .txt, or .xml file");
+  args.defineParameter ("-db", "DB connection string, POOL format, or online format");
+  args.defineParameter ("-tag", "tag specifyer");
   args.defineOption ("-help", "this help");
   args.defineOption ("-verbose", "this help");
   
