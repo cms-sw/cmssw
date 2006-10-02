@@ -477,7 +477,6 @@ void PhiSymmetryCalibration::getKfactors()
     k_barl_graph_[ieta]->GetXaxis()->SetTitle("#epsilon_{M}");
     k_barl_graph_[ieta]->GetYaxis()->SetTitle("#epsilon_{T}");
     k_barl_graph_[ieta]->Draw("AP");
-    k_barl_plot_[ieta]->Write();
 
     k_barl_[ieta] = k_barl_graph_[ieta]->GetFunction("pol1")->GetParameter(1);
     std::cout << "k_barl_[" << ieta << "]=" << k_barl_[ieta] << std::endl;
@@ -505,7 +504,6 @@ void PhiSymmetryCalibration::getKfactors()
     k_endc_graph_[ring]->GetXaxis()->SetTitle("#epsilon_{M}");
     k_endc_graph_[ring]->GetYaxis()->SetTitle("#epsilon_{T}");
     k_endc_graph_[ring]->Draw("AP");
-    k_endc_plot_[ring]->Write();
 
     k_endc_[ring] = k_endc_graph_[ring]->GetFunction("pol1")->GetParameter(1);
     std::cout << "k_endc_[" << ring << "]=" << k_endc_[ring] << std::endl;
@@ -586,6 +584,9 @@ void PhiSymmetryCalibration::fillHistos()
     etsum_endc_histos_[ring]->Write();
     etsumMean_endc_[ring]/=(float(nRing_[ring]*2));
   }
+
+  for (int ieta=0; ieta<85; ieta++) k_barl_plot_[ieta]->Write();
+  for (int ring=0; ring<39; ring++) k_endc_plot_[ring]->Write();
 
   f.Close();
 
