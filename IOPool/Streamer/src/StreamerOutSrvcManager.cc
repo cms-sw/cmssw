@@ -103,7 +103,7 @@ void StreamerOutSrvcManager::collectStreamerPSets(const std::string& config)
 }
 
 void StreamerOutSrvcManager::manageInitMsg(std::string fileName, unsigned long maxFileSize, double highWaterMark,
-		std::string path, std::string mpath, InitMsgView& init_message)
+		std::string path, std::string mpath, std::string catalog, uint32 disks, InitMsgView& init_message)
      {
 
       //received file name is ignored for now, and later we can remove it, not understood if its required
@@ -124,7 +124,7 @@ void StreamerOutSrvcManager::manageInitMsg(std::string fileName, unsigned long m
            //invoke its init, later StreamerOutputService CTOR will call its own init 
            //it should take a SelectEvents PSet too
            outputFile->init(fileNameLocal, maxFileSize, highWaterMark,
-                             path, mpath, init_message);
+                             path, mpath, catalog, disks, init_message);
           
            //Stor it in list of managed outputFiles
            managedOutputs_.push_back(outputFile);

@@ -1,8 +1,5 @@
 #ifndef StreamerStatService_h
 #define StreamerStatService_h
-/**
-  Keeps stat for single stream now, will be changed to accomodate multiple streams later in future.
-*/
 
 #include<iostream>
 #include<ctime>
@@ -80,6 +77,9 @@ class StreamerStatWriteService
        ~StreamerStatWriteService();
        void incrementEventCount();
        void advanceFileSize(uint32 increment);
+       void setFileSize(uint32);
+       void setEventCount(uint32);
+       void setRunNumber(uint32);
        void writeStat();
 
    private:
@@ -89,8 +89,6 @@ class StreamerStatWriteService
 
        StatSummary summary_;
        std::string statFileName_;
-       auto_ptr<ofstream> statFile_;
-
    };
 
 } //end-of-namespace

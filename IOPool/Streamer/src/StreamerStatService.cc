@@ -1,6 +1,8 @@
 #include "IOPool/Streamer/interface/StreamerStatService.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <sstream>
+
 namespace edm
 {
 
@@ -46,23 +48,17 @@ bool StreamerStatReadService::next()
 
 StreamerStatWriteService::StreamerStatWriteService( uint32 run, std::string streamer, 
                                                     std::string dataFile, std::string indexFile, 
-                                                    std::string statFileName):
-  statFileName_(statFileName),
-  statFile_(new ofstream(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app ))
-  {
-    if(!statFile_->is_open()) {
-        throw cms::Exception("StreamerStatWriteService","StreamerStatWriteService")
-        << "Error Opening Output File: "<<statFileName_<<"\n";
-     }
-     summary_.run_=run;
-     summary_.streamer_=streamer;
-     summary_.dataFile_=dataFile;
-     summary_.indexFile_=indexFile;
-     summary_.fileSize_=0;
-     summary_.eventCount_=0;
-     summary_.startDate_=getCurrentDate();
-     summary_.startTime_=getCurrentTime();
-  }
+                                                    std::string statFileName):statFileName_(statFileName)
+{
+  summary_.run_         = run;
+  summary_.streamer_    = streamer;
+  summary_.dataFile_    = dataFile;
+  summary_.indexFile_   = indexFile;
+  summary_.fileSize_    = 0;
+  summary_.eventCount_  = 0;
+  summary_.startDate_   = getCurrentDate();
+  summary_.startTime_   = getCurrentTime();
+}
 
 StreamerStatWriteService::~StreamerStatWriteService()
   {
@@ -79,7 +75,7 @@ std::string StreamerStatWriteService::getCurrentDate()
    time_t rawtime; 
    tm * ptm; 
    time ( &rawtime ); 
-   ptm = gmtime ( &rawtime ); 
+   ptm = localtime ( &rawtime ); 
    return std::string(itoa(ptm->tm_mday)+"/"+itoa(ptm->tm_mon)+"/"+itoa(ptm->tm_year+1900));
   }
 
@@ -88,29 +84,61 @@ std::string StreamerStatWriteService::getCurrentTime()
   time_t rawtime;
   tm * ptm;
   time ( &rawtime );
-  ptm = gmtime ( &rawtime );
-  return std::string(itoa(ptm->tm_hour)+":"+itoa(ptm->tm_min));
+  ptm = localtime ( &rawtime );
+  return std::string(itoa(ptm->tm_hour)+"."+itoa(ptm->tm_min)+"."+itoa(ptm->tm_sec));
   }
+
 
 void StreamerStatWriteService::advanceFileSize(uint32 increment)
   {
     summary_.fileSize_ += increment;
   }
 
-void StreamerStatWriteService::writeStat()
+void StreamerStatWriteService::setFileSize(uint32 size)
   {
-     summary_.endDate_ = getCurrentDate();
-     summary_.endTime_ = getCurrentTime();
-
-     std::string currentStat = itoa(summary_.run_)+":"+summary_.streamer_+":"
-                                             +summary_.dataFile_+":"
-                                             +summary_.indexFile_+":"
-                                             +itoa(summary_.fileSize_)
-                                             +":"+itoa(summary_.eventCount_)+":"
-                                             +summary_.startDate_+":"
-                                             +summary_.startTime_+":"+summary_.endDate_
-                                             +":"+summary_.endTime_+"\n";
-     statFile_->write((char*)&currentStat[0], currentStat.length());
+    summary_.fileSize_ = size;
   }
+ 
+void StreamerStatWriteService::setEventCount(uint32 count)
+  {
+    summary_.eventCount_ = count;
+  }
+
+void StreamerStatWriteService::setRunNumber(uint32 run) 
+  {
+    summary_.run_ = run;
+  }
+
+ void StreamerStatWriteService::writeStat()
+ {
+   summary_.endDate_ = getCurrentDate();
+   summary_.endTime_ = getCurrentTime();
+   
+   std::ostringstream currentStat;
+   std::string ind(":");
+   currentStat << summary_.run_         << ind 
+	       << summary_.streamer_    << ind 
+	       << summary_.dataFile_    << ind 
+	       << summary_.indexFile_   << ind 
+	       << summary_.fileSize_    << ind 
+	       << summary_.eventCount_  << ind 
+	       << summary_.startDate_   << ind 
+	       << summary_.startTime_   << ind 
+	       << summary_.endDate_     << ind 
+	       << summary_.endTime_     << endl;
+   std::string currentStatString (currentStat.str());
+   ofstream *statFile = new ofstream(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+   
+   if(!statFile->is_open()) 
+     {
+       throw cms::Exception("StreamerStatWriteService","StreamerStatWriteService")
+	 << "Error Opening Output File: "<<statFileName_<<"\n";
+     }
+   
+   statFile->write((char*)&currentStatString[0], currentStatString.length());
+   statFile->close();
+   delete(statFile);
+   
+ }
 } //end-of-namespace
 
