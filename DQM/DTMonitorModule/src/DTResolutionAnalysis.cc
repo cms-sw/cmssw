@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/20 12:17:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/30 10:27:50 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -64,8 +64,9 @@ void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) 
     // Get the range for the corresponding ChamerId
     DTRecSegment4DCollection::range  range = all4DSegments->get(*chamberId);
     int nsegm = distance(range.first, range.second);
-    cout << "   Chamber: " << *chamberId << " has " << nsegm
-	 << " 4D segments" << endl;
+    if(debug)
+      cout << "   Chamber: " << *chamberId << " has " << nsegm
+	   << " 4D segments" << endl;
     // Get the chamber
     const DTChamber* chamber = dtGeom->chamber(*chamberId);
 
@@ -100,8 +101,9 @@ void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) 
       const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
       vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
       if(phiRecHits.size() != 8) {
-	cout << "[DTResolutionAnalysis] Phi segments has: " << phiRecHits.size()
-	     << " hits, skipping" << endl; // FIXME: info output
+	if(debug)
+	  cout << "[DTResolutionAnalysis] Phi segments has: " << phiRecHits.size()
+	       << " hits, skipping" << endl; // FIXME: info output
 	continue;
       }
       copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
@@ -109,8 +111,9 @@ void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) 
 	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();
 	vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
 	if(zRecHits.size() != 4) {
-	  cout << "[DTResolutionAnalysis] Theta segments has: " << zRecHits.size()
-	       << " hits, skipping" << endl; // FIXME: info output
+	  if(debug)
+	    cout << "[DTResolutionAnalysis] Theta segments has: " << zRecHits.size()
+		 << " hits, skipping" << endl; // FIXME: info output
 	  continue;
 	}
 	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
