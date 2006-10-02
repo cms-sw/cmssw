@@ -13,9 +13,8 @@
 namespace {
 void rootErrorHandler( int level, bool die, const char* location, const char* message )
 {
-//-----------------------------------------------------------------------------
 // Translate ROOT severity level to MessageLogger severity level
-//-----------------------------------------------------------------------------
+
   edm::ELseverityLevel el_severity = edm::ELseverityLevel::ELsev_info ;
 
   if      (level >= kFatal)
@@ -31,23 +30,21 @@ void rootErrorHandler( int level, bool die, const char* location, const char* me
     { el_severity = edm::ELseverityLevel::ELsev_warning ;
     }
 
-//-----------------------------------------------------------------------------
 // Adapt C-strings to std::strings
 // Arrange to report the error location as furnished by Root
-//-----------------------------------------------------------------------------
+
   std::string el_location = "@SUB=?" ;
   if (location != 0) el_location = std::string("@SUB=")+std::string(location) ;
 
   std::string el_message  = "?" ;
   if (message != 0)  el_message  = message ;
 
-//-----------------------------------------------------------------------------
 // Try to create a meaningful id string using knowledge of ROOT error messages
 //
 // id ==     "ROOT-ClassName" where ClassName is the affected class
 //      else "ROOT/ClassName" where ClassName is the error-declaring class
 //      else "ROOT"
-//-----------------------------------------------------------------------------
+
   std::string el_identifier = "ROOT" ;
 
   std::string precursor("class ") ;
@@ -69,43 +66,39 @@ void rootErrorHandler( int level, bool die, const char* location, const char* me
         }
     }
 
-//-----------------------------------------------------------------------------
 // Intercept "dictionary not found" error-level message and alter its severity
-//-----------------------------------------------------------------------------
-  if (el_severity == edm::ELseverityLevel::ELsev_error)
+
+  if (el_severity >= edm::ELseverityLevel::ELsev_error)
     { if (el_message.find("dictionary") != std::string::npos)
-        { el_severity = edm::ELseverityLevel::ELsev_info ;
+        { el_severity = edm::ELseverityLevel::ELsev_warning ;
         }
     }
 
-//-----------------------------------------------------------------------------
 // Feed the message to the MessageLogger... let it choose to suppress or not.
-//-----------------------------------------------------------------------------
 
   if ( el_severity == edm::ELseverityLevel::ELsev_fatal )
     {
-      edm::LogError("Fatal") << el_location << el_message;
+      edm::LogError("Root_Fatal") << el_location << el_message;
     }
   else if ( el_severity == edm::ELseverityLevel::ELsev_severe )
     {
-      edm::LogError("Severe") << el_location << el_message;
+      edm::LogError("Root_Severe") << el_location << el_message;
     }
   else if ( el_severity == edm::ELseverityLevel::ELsev_error )
     { 
-      edm::LogError("Error") << el_location << el_message;
+      edm::LogError("Root_Error") << el_location << el_message;
     }
   else if ( el_severity == edm::ELseverityLevel::ELsev_warning )
     {
-      edm::LogWarning("Warning") << el_location << el_message ; 
+      edm::LogWarning("Root_Warning") << el_location << el_message ; 
     }
   else if ( el_severity == edm::ELseverityLevel::ELsev_info )
     {
-      edm::LogInfo("Information") << el_location << el_message ; 
+      edm::LogInfo("Root_Information") << el_location << el_message ; 
     }
 
-//-----------------------------------------------------------------------------
 // Abort, if requested
-//-----------------------------------------------------------------------------
+
    if (die)
      { std::cerr << "edm::rootErrorHandler: Aborting as directed. Bye!\n" ;
        ::abort() ;
@@ -116,10 +109,10 @@ void rootErrorHandler( int level, bool die, const char* location, const char* me
 namespace edm {
 namespace service {
 InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::ActivityRegistry  & activity)
-  : unloadSigHandler(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler", true)),
+  : unloadSigHandler(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler", false)),
     resetErrHandler (pset.getUntrackedParameter<bool> ("ResetRootErrHandler",  true))
 { 
-  
+ 
   if( unloadSigHandler ) {
   // Deactivate all the Root signal handlers and restore the system defaults
      edm::LogWarning("Startup") << "@SUB=InitRootHandlers"

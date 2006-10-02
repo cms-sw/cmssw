@@ -18,7 +18,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowski
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.h,v 1.5 2006/07/24 21:50:51 marafino Exp $
+// $Id: MessageDrop.h,v 1.6 2006/08/18 16:28:43 marafino Exp $
 //
 
 // system include files
@@ -53,11 +53,6 @@ public:
   bool infoEnabled;
   bool warningEnabled;
 };
-
-  bool isDebugEnabled();
-  bool isInfoEnabled();
-  bool isWarningEnabled();
-
 
 } // end of namespace edm
 
