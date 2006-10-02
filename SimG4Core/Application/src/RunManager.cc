@@ -190,7 +190,8 @@ void RunManager::initG4(const edm::EventSetup & es)
     
 
     m_generator = new Generator(m_pGenerator);
-    m_InTag = m_pGenerator.getParameter<edm::InputTag>("HepMCProductLabel") ;
+    // m_InTag = m_pGenerator.getParameter<edm::InputTag>("HepMCProductLabel") ;
+    m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
     m_primaryTransformer = new PrimaryTransformer();
     
     std::auto_ptr<PhysicsListMakerBase> physicsMaker( 

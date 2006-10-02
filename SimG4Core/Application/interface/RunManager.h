@@ -79,7 +79,8 @@ private:
     G4RunManagerKernel * m_kernel;
     
     Generator * m_generator;
-    edm::InputTag m_InTag ;
+    // edm::InputTag m_InTag ;
+    std::string m_InTag ;
     
     bool m_nonBeam;
     std::auto_ptr<PhysicsList> m_physicsList;
