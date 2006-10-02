@@ -5,6 +5,7 @@
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 #include "IOMC/EventVertexGenerators/interface/GaussEvtVtxGenerator.h"
 #include "IOMC/EventVertexGenerators/interface/FlatEvtVtxGenerator.h"
+#include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,3 +19,5 @@ using edm::GaussEvtVtxGenerator;
 DEFINE_ANOTHER_FWK_MODULE(GaussEvtVtxGenerator) ;
 using edm::FlatEvtVtxGenerator;
 DEFINE_ANOTHER_FWK_MODULE(FlatEvtVtxGenerator) ;
+using edm::BeamProfileVtxGenerator;
+DEFINE_ANOTHER_FWK_MODULE(BeamProfileVtxGenerator) ;
