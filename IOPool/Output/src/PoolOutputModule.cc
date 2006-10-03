@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.42 2006/08/31 23:27:15 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.43 2006/09/28 19:40:48 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -246,21 +246,18 @@ namespace edm {
 	  event.cid_ = 0;
 	  
 	  dummyProvenances.push_front(event); 
-	  pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
-	  refp.markWrite(i->provenancePlacement_);
 	} else {
 	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
 	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
 	      << "No group in event " << aux.id_ << "\nfor branch" << i->branchDescription_->branchName_ << '\n';
 	}
       } else {
-	if (!i->selected_ || !g->product()  || !g->product()->isPresent()) {
-	  g->provenance().event.isPresent_ = false;
-	}
-	pool::Ref<BranchEntryDescription const> refp(context(), &g->provenance().event);
-	refp.markWrite(i->provenancePlacement_);
+	dummyProvenances.push_front(g->provenance().event);
+	dummyProvenances.begin()->isPresent_ = (i->selected_ && g->product() && g->product()->isPresent());
 	product = g->product();
       }
+      pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
+      refp.markWrite(i->provenancePlacement_);
       if (i->selected_) {
 	if (product == 0) {
 	  // Add a null product.
