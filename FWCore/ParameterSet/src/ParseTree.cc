@@ -337,7 +337,21 @@ namespace edm {
           moduleItr != modulesAndSources_.end();  ++moduleItr)
       {
         moduleItr->second->resolveUsingNodes(blocks_);
-      }  // loop over modules & sources
+      }
+
+      // maybe there's a using statement inside a replace PSet?
+      // You never know.
+      for(NodePtrList::iterator replaceItr = replaceNodes_.begin();
+          replaceItr != replaceNodes_.end();  ++replaceItr)
+      {
+        ReplaceNode * replaceNode = dynamic_cast<ReplaceNode *>(replaceItr->get());
+        CompositeNode * compositeNode = dynamic_cast<CompositeNode *>(replaceNode->value().get());
+        if(compositeNode != 0)
+        {
+          compositeNode->resolveUsingNodes(blocks_);
+        }
+      } 
+
     }
 
 
