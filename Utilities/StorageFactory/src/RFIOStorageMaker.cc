@@ -29,8 +29,11 @@ namespace {
       // old syntax
       p=0;
       // special treatment for /castor
-      size_t c = path.find("/castor");
-      if (c!=std::string::npos) ret = "rfio:///?path=";
+      size_t c = path.find("/castor/");
+      if (c!=std::string::npos) {
+	p = c;
+	ret = "rfio:///?path=";
+      }
     }
     else {
       // new syntax, normalize host...
