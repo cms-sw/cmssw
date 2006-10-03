@@ -296,7 +296,7 @@ template <class T> bool copyObject (T* fObject,
       if (!traceCounter) std::cout << "USE INPUT: Online: " << fInput << std::endl;
       if (!onlineDb) onlineDb = new HcalDbOnline (fInput, fVerbose);
       fObject = new T;
-      result = onlineDb->getObject (fObject, fInputTag);
+      result = onlineDb->getObject (fObject, fInputTag, fInputRun);
     }
  //    else if (occiFile (fInput)) {
 //       if (!traceCounter) std::cout << "USE INPUT: OCCI" << std::endl;
