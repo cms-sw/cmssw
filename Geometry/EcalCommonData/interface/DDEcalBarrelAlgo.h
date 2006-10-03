@@ -175,15 +175,6 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
       double                    backSideYOff2()   const { return m_BackSideYOff2          ; }
       double                    backSideAngle()   const { return m_BackSideAngle          ; }
       DDMaterial                backSideMat()     const { return ddmat( m_BackSideMat )   ; }
-      DDName                    extPlateName()    const { return ddname( m_ExtPlateName ) ; }
-      double                    extPlateLength()  const { return m_ExtPlateLength    ; }
-      double                    extPlateThick()   const { return m_ExtPlateThick     ; }
-      double                    extPlateWidth()   const { return m_ExtPlateWidth     ; }
-      DDMaterial                extPlateMat()     const { return ddmat( m_ExtPlateMat ) ; }
-      DDName                    extSpacerName()   const { return ddname( m_ExtSpacerName ) ; }
-      double                    extSpacerThick()  const { return m_ExtSpacerThick    ; }
-      double                    extSpacerWidth()  const { return m_ExtSpacerWidth    ; }
-      DDMaterial                extSpacerMat()    const { return ddmat( m_ExtSpacerMat ) ; }
       DDName                    backPlateName()   const { return ddname( m_BackPlateName ) ; }
       double                    backPlateLength() const { return m_BackPlateLength   ; }
       double                    backPlateThick()  const { return m_BackPlateThick     ; }
@@ -201,18 +192,7 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
       double                    backPipeThick()  const { return m_BackPipeThick      ; }
       DDMaterial                backPipeMat()    const { return ddmat( m_BackPipeMat ) ; }
       DDMaterial                backPipeWaterMat() const { return ddmat( m_BackPipeWaterMat ) ; }
-      const std::string&        backCoolName()    const { return m_BackCoolName ; }
-      double                    backCoolWidth()   const { return m_BackCoolWidth      ; }
       const std::vector<double>& vecBackCoolLength() const { return m_vecBackCoolLength  ; }
-      const std::vector<double>& vecBackCoolSSVol()  const { return m_vecBackCoolSSVol   ; }
-      const std::vector<double>& vecBackCoolAlVol()  const { return m_vecBackCoolAlVol   ; }
-      const std::vector<double>& vecBackCoolWaVol()  const { return m_vecBackCoolWaVol   ; }
-      const std::string&         backSSName()       const { return m_BackSSName ; }
-      const std::string&         backAlName()       const { return m_BackAlName ; }
-      const std::string&         backWaName()       const { return m_BackWaName ; }
-      DDMaterial                backSSMat()       const { return ddmat( m_BackSSMat ) ; }
-      DDMaterial                backAlMat()       const { return ddmat( m_BackAlMat ) ; }
-      DDMaterial                backWaMat()       const { return ddmat( m_BackWaMat ) ; }
       const std::vector<double>& vecBackMiscThick() const { return m_vecBackMiscThick ; }
       const std::vector<std::string>& vecBackMiscName() const
                                   { return m_vecBackMiscName ; }
@@ -225,6 +205,41 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
 	                          { return m_vecPatchPanelMat ; }
       DDName                    patchPanelName()   const { return ddname( m_PatchPanelName ) ; }
 
+      std::vector<std::string> vecBackCoolName   () const { return m_vecBackCoolName       ;}
+      double                   backCoolBarWidth  () const { return m_BackCoolBarWidth      ;}
+      double                   backCoolBarHeight () const { return m_BackCoolBarHeight     ;}
+      DDMaterial               backCoolMat       () const { return ddmat(m_BackCoolMat)    ;}
+      DDName                   backCoolBarName   () const { return ddname(m_BackCoolBarName);}
+      double                   backCoolBarThick  () const { return m_BackCoolBarThick      ;}
+      DDMaterial               backCoolBarMat    () const { return ddmat(m_BackCoolBarMat) ;}
+      DDName                   backCoolBarSSName () const { return ddname(m_BackCoolBarSSName);}
+      double                   backCoolBarSSThick() const { return m_BackCoolBarSSThick    ;}
+      DDMaterial               backCoolBarSSMat  () const { return ddmat(m_BackCoolBarSSMat) ;}
+      DDName                   backCoolBarWaName () const { return ddname(m_BackCoolBarWaName);}
+      double                   backCoolBarWaThick() const { return m_BackCoolBarWaThick    ;}
+      DDMaterial               backCoolBarWaMat  () const { return ddmat(m_BackCoolBarWaMat) ;}
+      DDName                   backCoolVFEName   () const { return ddname(m_BackCoolVFEName) ;}
+      DDMaterial               backCoolVFEMat    () const { return ddmat(m_BackCoolVFEMat) ;}
+      DDName                   backVFEName       () const { return ddname(m_BackVFEName)   ;}
+      DDMaterial               backVFEMat        () const { return ddmat(m_BackVFEMat) ;}
+      std::vector<double>      vecBackVFELyrThick() const { return m_vecBackVFELyrThick    ;}
+      std::vector<std::string> vecBackVFELyrName () const { return m_vecBackVFELyrName     ;}
+      std::vector<std::string> vecBackVFELyrMat  () const { return m_vecBackVFELyrMat      ;}
+      std::vector<double>      vecBackCoolNSec   () const { return m_vecBackCoolNSec       ;}
+      std::vector<double>      vecBackCoolSecSep () const { return m_vecBackCoolSecSep     ;}
+      std::vector<double>      vecBackCoolNPerSec() const { return m_vecBackCoolNPerSec    ;}
+      double                   backCBStdSep      () const { return m_BackCBStdSep          ;}
+
+      std::string              backCoolTankName   () const { return m_BackCoolTankName ;}
+      double                   backCoolTankWidth  () const { return m_BackCoolTankWidth  ;}
+      double                   backCoolTankThick  () const { return m_BackCoolTankThick  ;}
+      DDMaterial               backCoolTankMat    () const { return ddmat(m_BackCoolTankMat) ;}
+      std::string              backCoolTankWaName () const { return m_BackCoolTankWaName ;}
+      double                   backCoolTankWaWidth() const { return m_BackCoolTankWaWidth;}
+      DDMaterial               backCoolTankWaMat  () const { return ddmat(m_BackCoolTankWaMat) ;}
+      std::string              backBracketName    () const { return m_BackBracketName  ;}
+      double                   backBracketHeight  () const { return m_BackBracketHeight  ;}
+      DDMaterial               backBracketMat     () const { return ddmat(m_BackBracketMat)    ;}
 
 protected:
 
@@ -371,15 +386,6 @@ private:
       double                   m_BackSideYOff2         ; //
       double                   m_BackSideAngle         ; //
       std::string              m_BackSideMat           ; //
-      std::string              m_ExtPlateName     ; // external plat
-      double                   m_ExtPlateLength   ; // 
-      double                   m_ExtPlateThick    ; //
-      double                   m_ExtPlateWidth    ; //
-      std::string              m_ExtPlateMat      ; //
-      std::string              m_ExtSpacerName    ; // external spacer
-      double                   m_ExtSpacerThick   ; //
-      double                   m_ExtSpacerWidth   ; //
-      std::string              m_ExtSpacerMat     ; //
       std::string              m_BackPlateName    ; // back plate
       double                   m_BackPlateLength  ; //
       double                   m_BackPlateThick   ; //
@@ -397,25 +403,52 @@ private:
       double                   m_BackPipeThick   ; //
       std::string              m_BackPipeMat     ; //
       std::string              m_BackPipeWaterMat ; //
-      std::string              m_BackCoolName     ; // cooling circuits
-      double                   m_BackCoolWidth    ; //
-      std::vector<double>      m_vecBackCoolLength; //
-      std::vector<double>      m_vecBackCoolSSVol    ; //
-      std::vector<double>      m_vecBackCoolAlVol    ; //
-      std::vector<double>      m_vecBackCoolWaVol    ; //
-      std::string              m_BackSSName       ; //
-      std::string              m_BackAlName       ; //
-      std::string              m_BackWaName       ; //
-      std::string              m_BackSSMat        ; //
-      std::string              m_BackAlMat        ; //
-      std::string              m_BackWaMat        ; //
-      std::vector<double>      m_vecBackMiscThick ; // misc materials
-      std::vector<std::string> m_vecBackMiscName  ; //
-      std::vector<std::string> m_vecBackMiscMat   ; //
-      std::string              m_PatchPanelName    ; //
-      std::vector<double>      m_vecPatchPanelThick ; // patch panel materials
-      std::vector<std::string> m_vecPatchPanelNames  ; //
-      std::vector<std::string> m_vecPatchPanelMat   ; //
+
+      std::vector<std::string> m_vecBackCoolName       ; // cooling circuits
+      double                   m_BackCoolBarWidth      ; //
+      double                   m_BackCoolBarHeight     ; //
+      std::string              m_BackCoolMat           ;
+      std::string              m_BackCoolBarName       ; // cooling bar
+      double                   m_BackCoolBarThick      ; //
+      std::string              m_BackCoolBarMat        ;
+      std::string              m_BackCoolBarSSName     ; // cooling bar tubing
+      double                   m_BackCoolBarSSThick    ; //
+      std::string              m_BackCoolBarSSMat      ;
+      std::string              m_BackCoolBarWaName     ; // cooling bar water
+      double                   m_BackCoolBarWaThick    ; //
+      std::string              m_BackCoolBarWaMat      ;
+      std::string              m_BackCoolVFEName       ;
+      std::string              m_BackCoolVFEMat        ;
+      std::string              m_BackVFEName           ;
+      std::string              m_BackVFEMat            ;
+      std::vector<double>      m_vecBackVFELyrThick    ; //
+      std::vector<std::string> m_vecBackVFELyrName     ; //
+      std::vector<std::string> m_vecBackVFELyrMat      ; //
+      std::vector<double>      m_vecBackCoolNSec       ; //
+      std::vector<double>      m_vecBackCoolSecSep     ; //
+      std::vector<double>      m_vecBackCoolNPerSec    ; //
+      std::vector<double>      m_vecBackCoolLength     ; //
+      std::vector<double>      m_vecBackMiscThick      ; // misc materials
+      std::vector<std::string> m_vecBackMiscName       ; //
+      std::vector<std::string> m_vecBackMiscMat        ; //
+      double                   m_BackCBStdSep          ; //
+
+      std::string              m_PatchPanelName        ; //
+      std::vector<double>      m_vecPatchPanelThick    ; // patch panel materials
+      std::vector<std::string> m_vecPatchPanelNames    ; //
+      std::vector<std::string> m_vecPatchPanelMat      ; //
+
+      std::string              m_BackCoolTankName    ; // service tank
+      double                   m_BackCoolTankWidth   ; //
+      double                   m_BackCoolTankThick   ; //
+      std::string              m_BackCoolTankMat     ; //
+      std::string              m_BackCoolTankWaName  ; //
+      double                   m_BackCoolTankWaWidth ; //
+      std::string              m_BackCoolTankWaMat   ; //
+      std::string              m_BackBracketName     ; //
+      double                   m_BackBracketHeight   ; //
+      std::string              m_BackBracketMat      ; //
+
 }; 
 
 #endif
