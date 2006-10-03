@@ -7,7 +7,9 @@
 #include <CalibCalorimetry/HcalStandardModules/interface/HcalPedestalAnalyzer.h>
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CondTools/Hcal/interface/HcalDbPool.h"
+#include "CondTools/Hcal/interface/HcalDbTool.h"
+#include "CondTools/Hcal/interface/HcalDbOnline.h"
+#include "CondTools/Hcal/interface/HcalDbXml.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 
@@ -17,8 +19,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2006/03/24 01:00:15 $
- * $Revision: 1.2 $
+ * $Date: 2006/07/25 19:10:29 $
+ * $Revision: 1.3 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -40,6 +42,10 @@ namespace {
     return fParam.find (':') != std::string::npos;
   }
 
+  bool masterDb (const std::string fParam) {
+    return fParam.find ('@') != std::string::npos;
+  }
+
   template <class T> 
   bool getObject (T* fObject, const std::string& fDb, const std::string& fTag, int fRun) {
     if (!fObject) return false;
@@ -52,8 +58,13 @@ namespace {
     }
     else if (dbFile (fDb)) {
       std::cout << "HcalPedestalAnalyzer-> USE INPUT: Pool " << fDb << std::endl;
-      HcalDbPool poolDb (fDb);
+      HcalDbTool poolDb (fDb);
       return poolDb.getObject (fObject, fTag, fRun);
+    }
+    else if (masterDb (fDb)) {
+      std::cout << "HcalPedestalAnalyzer-> USE INPUT: MasterDB " << fDb << std::endl;
+      HcalDbOnline masterDb (fDb);
+      return masterDb.getObject (fObject, fTag, fRun);
     }
     else {
       std::cerr << "HcalPedestalAnalyzer-> Unknown input type " << fDb << std::endl;
@@ -61,26 +72,27 @@ namespace {
     }
   }
   
-  template <class T> 
+  bool dumpXmlPedestals (const HcalPedestals& fObject, const HcalPedestalWidths& fWidth, const std::string& fXml, const std::string& fTag, int fRun) {
+    std::cout << "HcalPedestalAnalyzer-> USE OUTPUT: XML" << std::endl;
+    std::ofstream stream (fXml.c_str ());
+    bool result = HcalDbXml::dumpObject (stream, fRun, fRun, 0, fTag, 0, fObject, fWidth);
+    stream.close ();
+    return result;
+  }
+
+  template <class T>
   bool putObject (T** fObject, const std::string& fDb, const std::string& fTag, int fRun) {
     if (!fObject || !*fObject) return false;
-    if (fDb.empty ()) return false; 
+    if (fDb.empty ()) return false;
     if (asciiFile (fDb)) {
       std::cout << "HcalPedestalAnalyzer-> USE OUTPUT: ASCII " << std::endl;
       std::ofstream stream (fDb.c_str ());
-      HcalDbASCIIIO::dumpObject (stream, **fObject); 
+      HcalDbASCIIIO::dumpObject (stream, **fObject);
       return true;
     }
-//  XML will need more parameters - bypass it for now
-//     else if (xmlFile (fDb)) {
-//       std::cout << "HcalPedestalAnalyzer-> USE OUTPUT: XML" << std::endl;
-// 	std::ofstream stream (fDb.c_str ());
-// 	HcalDbXml::dumpObject (stream, fRun, fIovgmtbegin, fIovgmtend, fOutputTag, fVersion, *object);
-// 	stream.close ();
-//       }
     else if (dbFile (fDb)) {
       std::cout << "HcalPedestalAnalyzer-> USE OUTPUT: Pool " << fDb << std::endl;
-      HcalDbPool poolDb (fDb);
+      HcalDbTool poolDb (fDb);
       bool result = poolDb.putObject (*fObject, fTag, fRun);
       if (result) *fObject = 0; // owned by POOL
       return result;
@@ -154,19 +166,28 @@ void HcalPedestalAnalyzer::endJob(void) {
   delete inputPedWids;
 
   // store new objects
-// Flag=-2 indicates there were less than 100 events and output is meaningless
-  if (outputPeds && Flag>-2) {
-    if (!putObject (&outputPeds, m_outputPedestals_dest, m_outputPedestals_tag, m_outputPedestals_run)) {
-      std::cerr << "HcalPedestalAnalyzer-> Failed to put output Pedestals" << std::endl;
+  // Flag=-2 indicates there were less than 100 events and output is meaningless
+  if (Flag>-2) {
+    if (xmlFile (m_outputPedestals_dest)) { // output pedestals and widths together
+      if (!dumpXmlPedestals (*outputPeds, *outputPedWids, m_outputPedestals_dest, m_outputPedestals_tag, m_outputPedestals_run)) {
+	std::cerr << "HcalPedestalAnalyzer-> Failed to put output Pedestals & Widths" << std::endl;
+      }
     }
-    delete outputPeds;
-  }
-  if (outputPedWids && Flag>-2) {
-    if (!putObject (&outputPedWids, m_outputPedestalWidths_dest, m_outputPedestalWidths_tag, m_outputPedestalWidths_run)) {
-      std::cerr << "HcalPedestalAnalyzer-> Failed to put output PedestalWidths" << std::endl;
+    else {
+      if (outputPeds) {
+	if (!putObject (&outputPeds, m_outputPedestals_dest, m_outputPedestals_tag, m_outputPedestals_run)) {
+	  std::cerr << "HcalPedestalAnalyzer-> Failed to put output Pedestals" << std::endl;
+	}
+      }
+      if (outputPedWids) {
+	if (!putObject (&outputPedWids, m_outputPedestalWidths_dest, m_outputPedestalWidths_tag, m_outputPedestalWidths_run)) {
+	  std::cerr << "HcalPedestalAnalyzer-> Failed to put output PedestalWidths" << std::endl;
+	}
+      }
     }
-    delete outputPedWids;
   }
+  delete outputPeds;
+  delete outputPedWids;
 }
 
 void HcalPedestalAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
