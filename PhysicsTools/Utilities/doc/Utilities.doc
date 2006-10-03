@@ -11,19 +11,27 @@
 Generic Physics Tools utility classes.
 
 \subsection selectors-1 Single Object Selectors
-- AnySelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on all objects. 
+- AnySelector<b><T></b>: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> 
+  that returns true on all objects. 
   It is a trivial selector to be used mainly for tests.
-- PtMinSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on objects 
-  that have <tt>pt()</tt> greater than a specified cut. The cut can be specified via edm::ParameterSet (<tt>ptMin</tt>) or via constructor 
+- PtMinSelector<b><T></b>: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> 
+  that returns true on objects that have <tt>pt()</tt> greater than a specified cut. 
+  The cut can be specified via edm::ParameterSet (<tt>ptMin</tt>) or via constructor parameter.
+- EtMinSelector<b><T></b>: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> 
+  that returns true on objects that have <tt>et()</tt> greater than a specified cut. 
+  The cut can be specified via edm::ParameterSet (<tt>etMin</tt>)or via constructor  parameter.
+- EtaRangeSelector<b><T></b>: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> 
+  that returns true on objects that have <tt>eta()</tt> within a specified range. 
+  The range can be specified via edm::ParameterSet (<tt>etaMin</tt>, <tt>etaMax</tt>) or via constructor 
   parameter.
-- EtMinSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on objects 
-  that have <tt>et()</tt> greater than a specified cut. The cut can be specified via edm::ParameterSet (<tt>etMin</tt>)or via constructor 
-  parameter.
-- EtaRangeSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on objects 
-  that have <tt>eta()</tt> within a specified range. The range can be specified via edm::ParameterSet (<tt>etaMin</tt>, <tt>etaMax</tt>) or via constructor 
-  parameter.
-- AndSelector: selector make of logical AND composition of any two selectors.
-- OrSelector: selector make of logical OR composition of any two selectors.
+- AndSelector<b><S1, S2></b>: selector make of logical AND composition of any two selectors.
+- OrSelector<b><S1, S2></b>: selector make of logical OR composition of any two selectors.
+- MinSelector<b><T, fun, prefix></b>: selector based on call of a specified member function.
+  The module's parameter name is <tt>prefix</tt> plus <tt>Min</tt>.
+- MaxSelector<b><T, fun, prefix></b>: selector based on call of a specified member function.
+  The module's parameter name is <tt>prefix</tt> plus <tt>Max</tt>.
+- RangeSelector<b><T, fun, prefix></b>: selector based on call of a specified member function.
+  The two module's parameter names are <tt>prefix</tt> plus <tt>Min</tt> and <tt>Max</tt>.
 
 \subsection selectors-2 Object Pair Selectors
 - RangeObjectPairSelector<b><C, S, prefix></b>: select a pair of objects in a collection
@@ -48,8 +56,12 @@ Generic Physics Tools utility classes.
             > MassWindowTrackSelector;
 </pre>
 \endhtmlonly
-The mass window is specified by the parameters <tt>massMin</tt> 
+The mass window is specified by the parameters <tt>massMin</tt>.
 and <tt>massMax</tt>.
+- MinObjectPairSelector<b><C, S, prefix></b>: similar to RangeObjectPairSelector, with only
+  a lower bound cut.
+- MaxObjectPairSelector<b><C, S, prefix></b>:similar to RangeObjectPairSelector, with only
+  an upper bound cut.
 
 \subsection comparators Comparators
 - PtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
