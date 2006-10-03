@@ -18,9 +18,13 @@
 #include "PhysicsTools/RecoAlgos/interface/ElectronSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/PhotonSelector.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "PhysicsTools/Utilities/interface/MinSelector.h"
 
 namespace reco {
   namespace modules {
+
+    extern const std::string massParamPrefix( "mass" );
+
     /// select all tracks (just for test)
     typedef ObjectSelector<
               SingleElementCollectionSelector<
@@ -33,9 +37,8 @@ namespace reco {
     typedef ObjectSelector<
               SingleElementCollectionSelector<
                 reco::TrackCollection,
-                PtMinSelector<reco::Track> 
+                PtMinSelector<reco::Track>
               >
-                          
             > PtMinTrackSelector;
 
     /// select electrons above a give pt
@@ -103,7 +106,8 @@ namespace reco {
                 reco::TrackCollection, 
                 RangeObjectPairSelector<
                   reco::Track,
-                  MasslessInvariantMass<reco::Track> 
+                  MasslessInvariantMass<reco::Track>,
+                  massParamPrefix
                 >
               >
             > MassWindowTrackSelector;

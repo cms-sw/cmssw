@@ -42,7 +42,7 @@ namespace reco {
     /// filter on track number
     typedef ObjectCountFilter<
               reco::TrackCollection, 
-              PtMinSelector<reco::Track> 
+              PtMinSelector<reco::Track>
             > PtMinTrackCountFilter;
 
     /// filter on electron number
