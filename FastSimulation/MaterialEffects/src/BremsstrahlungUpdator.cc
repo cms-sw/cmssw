@@ -34,6 +34,16 @@ BremsstrahlungUpdator::BremsstrahlungUpdator(double photonEnergyCut, double phot
 void BremsstrahlungUpdator::compute(ParticlePropagator &Particle)
 {
 
+  // Protection : Just stop the electron if more that 1 radiation lengths.
+  // This case corresponds to an electron entering the layer parallel to 
+  // the layer axis - no reliable simulation can be done in that case...
+  if ( radLengths > 1. ) {
+    Particle.setPx(0.);
+    Particle.setPy(0.);
+    Particle.setPz(0.);
+    Particle.setE (0.);
+  }
+
   // Hard brem probability with a photon Energy above photonEnergy.
   xmin = max(photonEnergy/Particle.e(),photonFractE);
   if ( xmin >=1. || xmin <=0. ) return;
@@ -41,6 +51,7 @@ void BremsstrahlungUpdator::compute(ParticlePropagator &Particle)
   double bremProba = radLengths * ( 4./3. * log(1./xmin)
 				  - 4./3. * (1.-xmin)
 				  + 1./2. * (1.-xmin*xmin) );
+
   
   // Number of photons to be radiated.
   unsigned int nPhotons = poisson(bremProba);
@@ -110,7 +121,7 @@ HepLorentzVector BremsstrahlungUpdator::brem(HepLorentzVector pp) {
 
 double BremsstrahlungUpdator::gbteth(const double ener,
 					  const double partm,
-					  const double efrac) const {
+ 					  const double efrac) const {
   const double alfa = 0.625;
 
   const double d = 0.13*(0.8+1.3/theZ())*(100.0+(1.0/ener))*(1.0+efrac);
