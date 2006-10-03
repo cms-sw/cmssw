@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.43 2006/09/28 19:40:48 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.44 2006/10/03 05:41:18 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -233,10 +233,10 @@ namespace edm {
       }
 
       EDProduct const* product = 0;
-      EventPrincipal::SharedGroupPtr const g = e.getGroup(id, i->selected_);
+      EventPrincipal::SharedConstGroupPtr const g = e.getGroup(id, i->selected_);
       if (g.get() == 0) {
 	// No Group with this ID is in the event.
-	// Create the provenance.
+	// Create and write the provenance.
 	if (i->branchDescription_->produced_) {
           BranchEntryDescription event;
 	  event.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
@@ -246,18 +246,29 @@ namespace edm {
 	  event.cid_ = 0;
 	  
 	  dummyProvenances.push_front(event); 
+          pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
+          refp.markWrite(i->provenancePlacement_);
 	} else {
 	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
 	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
 	      << "No group in event " << aux.id_ << "\nfor branch" << i->branchDescription_->branchName_ << '\n';
 	}
       } else {
-	dummyProvenances.push_front(g->provenance().event);
-	dummyProvenances.begin()->isPresent_ = (i->selected_ && g->product() && g->product()->isPresent());
+	// There is a Group with this ID is in the event.  Write the provenance.
+	bool present = i->selected_ && g->product() && g->product()->isPresent();
+	if (present == g->product()->isPresent()) {
+	  // The provenance can be written out as is, saving a copy. 
+          pool::Ref<BranchEntryDescription const> refp(context(), &g->provenance().event);
+          refp.markWrite(i->provenancePlacement_);
+	} else {
+	  // We need to make a private copy of the provenance so we can set isPresent_ correctly.
+	  dummyProvenances.push_front(g->provenance().event);
+	  dummyProvenances.begin()->isPresent_ = present;
+          pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
+          refp.markWrite(i->provenancePlacement_);
+	}
 	product = g->product();
       }
-      pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
-      refp.markWrite(i->provenancePlacement_);
       if (i->selected_) {
 	if (product == 0) {
 	  // Add a null product.
