@@ -9,9 +9,10 @@
 #include "PhysicsTools/Utilities/interface/OrSelector.h"
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "PhysicsTools/Utilities/interface/RangeObjectPairSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SortCollectionSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/WindowCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/ObjectPairCollectionSelector.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/ElectronSelector.h"
@@ -98,9 +99,12 @@ namespace reco {
 
     /// select track pairs within a given mass window
     typedef ObjectSelector<
-              WindowCollectionSelector<
+              ObjectPairCollectionSelector<
                 reco::TrackCollection, 
-		MasslessInvariantMass<reco::Track> 
+                RangeObjectPairSelector<
+                  reco::Track,
+                  MasslessInvariantMass<reco::Track> 
+                >
               >
             > MassWindowTrackSelector;
   }

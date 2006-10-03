@@ -10,7 +10,7 @@
 \section desc Description
 Generic Physics Tools utility classes.
 
-\subsection selectors Selectors
+\subsection selectors-1 Single Object Selectors
 - AnySelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on all objects. 
   It is a trivial selector to be used mainly for tests.
 - PtMinSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on objects 
@@ -24,6 +24,11 @@ Generic Physics Tools utility classes.
   parameter.
 - AndSelector: selector make of logical AND composition of any two selectors.
 - OrSelector: selector make of logical OR composition of any two selectors.
+
+\subsection selectors-2 Object Pair Selectors
+- RangeObjectPairSelector: select a pair of objects if the value of a specified 
+  <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> 
+  lies in a specified range.
 
 \subsection comparators Comparators
 - PtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 

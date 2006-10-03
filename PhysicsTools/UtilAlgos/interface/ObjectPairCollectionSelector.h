@@ -1,15 +1,15 @@
-#ifndef RecoAlgos_WindowCollectionSelector_h
-#define RecoAlgos_WindowCollectionSelector_h
-/** \class WindowCollectionSelector
+#ifndef RecoAlgos_ObjectPairCollectionSelector_h
+#define RecoAlgos_ObjectPairCollectionSelector_h
+/** \class ObjectPairCollectionSelector
  *
- * selects track pairs wose combination lies in a given window.
- * could be invariant mass, deltaR , deltaPhi, etc.
+ * selects object pairs wose combination satiefies a specific selection
+ * for instance, could be based on invariant mass, deltaR , deltaPhi, etc.
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: WindowCollectionSelector.h,v 1.1 2006/07/25 09:28:58 llista Exp $
+ * $Id: ObjectPairCollectionSelector.h,v 1.2 2006/09/21 11:56:48 llista Exp $
  *
  */
 
@@ -18,14 +18,13 @@
 #include <vector>
 namespace edm { class Event; }
 
-template<typename C, typename M>
-struct WindowCollectionSelector {
+template<typename C, typename S>
+struct ObjectPairCollectionSelector {
   typedef C collection;
   typedef std::vector<const typename C::value_type *> container;
   typedef typename container::const_iterator const_iterator;
-  WindowCollectionSelector( const edm::ParameterSet & cfg ) : 
-    minRange_( cfg.template getParameter<double>( "minRange" ) ),
-    maxRange_( cfg.template getParameter<double>( "maxRange" ) ) { }
+  ObjectPairCollectionSelector( const edm::ParameterSet & cfg ) : 
+    select_( cfg ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
   void select( const reco::TrackCollection & c, const edm::Event & ) {
@@ -33,10 +32,8 @@ struct WindowCollectionSelector {
     std::vector<bool> v( s, false );
     for( unsigned int i = 0; i < s; ++ i )
       for( unsigned int j = i + 1; j < s; ++ j ) {
-	double m = m_( c[ i ], c[ j ] );
-	if ( m >= minRange_ && m <= maxRange_ ) {
+	if ( select_( c[ i ], c[ j ] ) )
 	  v[ i ] = v[ j ] = true;
-	}
       }
     selected_.clear();
     for( unsigned int i = 0; i < c.size(); ++i )
@@ -44,8 +41,7 @@ struct WindowCollectionSelector {
   }
   
 private:
-  M m_;
-  double minRange_, maxRange_;
+  S select_;
   container selected_;
 };
 
