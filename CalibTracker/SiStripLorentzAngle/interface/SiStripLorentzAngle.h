@@ -1,13 +1,20 @@
 #ifndef CalibTracker_SiStripLorentzAngle_SiStripLorentzAngle_h
 #define CalibTracker_SiStripLorentzAngle_SiStripLorentzAngle_h
 
+#include <map>
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/Vector/interface/GlobalVector.h"
+#include "Geometry/Vector/interface/LocalVector.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -22,12 +29,19 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/TrackLocalAngle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
 #include <TROOT.h>
 #include <TTree.h>
 #include <TFile.h>
 #include <TH1F.h>
 #include <TF1.h>
 #include <TProfile.h>
+#include <TFolder.h>
+#include <TDirectory.h>
+#include <TAxis.h>
+#include <TMath.h>
+
 
 class SiStripLorentzAngle : public edm::EDAnalyzer
 {
@@ -36,93 +50,193 @@ class SiStripLorentzAngle : public edm::EDAnalyzer
   explicit SiStripLorentzAngle(const edm::ParameterSet& conf);
   
   virtual ~SiStripLorentzAngle();
+  
   virtual void beginJob(const edm::EventSetup& c);
+  
   virtual void endJob(); 
+  
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  
   void findtrackangle(const TrajectorySeed& seed,
-				       const TrackingRecHitCollection &hits,
-				       const edm::Event& e, 
-					const edm::EventSetup& es);
+		      const TrackingRecHitCollection &hits,
+		      const edm::Event& e, 
+		      const edm::EventSetup& es);
+  
   TrajectoryStateOnSurface startingTSOS(const TrajectorySeed& seed)const;
+  
+  const char* makename(DetId detid);
+  
+  const char* makedescription(DetId detid);
   
  private:
  
+  const TrackerGeometry::DetIdContainer& Id;
+  
+  typedef std::map <int, TProfile*> histomap;
+  histomap histos;
+  
+  typedef struct {double chi2; int ndf; double p0; double p1; double p2; double errp0; double errp1; double errp2; double min;} histofit ;
+  typedef std::map <int, histofit*> fitmap;
+  fitmap fits;
+  
+  typedef std::vector<std::pair<const TrackingRecHit *,float> > hitanglevector;  
+  typedef std::map <const reco::Track *, hitanglevector> trackhitmap;
+    
   edm::ParameterSet conf_;
   std::string filename_;
   
+  std::vector<DetId> Detvector;
+  
   TrackLocalAngle *anglefinder_;
-  //  std::vector<PSimHit> theStripHits;
+  
+  int mtcctibcorr, mtcctobcorr;
+  
+  int monodscounter;
+  int monosscounter;
+  int stereocounter;
+  
   int run;
   int event;
   int size;
   int module;
   int string;
+  int rod;
   int extint;
+  int bwfw;
+  int wheel;
   int type;
   int layer;
-  int eventcounter, eventnumber, trackcounter;
+  int sign;
+  int charge;
   float angle;
+  float stereocorrection;
+  float localmagfield;
+  int monostereo;
+  float momentum, pt;
   
-  double chi2TIB2, p0TIB2, err0TIB2, p1TIB2, err1TIB2, p2TIB2, err2TIB2;
-  double chi2TIB2intstr1, p0TIB2intstr1, err0TIB2intstr1, p1TIB2intstr1, err1TIB2intstr1, p2TIB2intstr1, err2TIB2intstr1;
-  double chi2TIB2intstr2, p0TIB2intstr2, err0TIB2intstr2, p1TIB2intstr2, err1TIB2intstr2, p2TIB2intstr2, err2TIB2intstr2;
-  double chi2TIB2extstr1, p0TIB2extstr1, err0TIB2extstr1, p1TIB2extstr1, err1TIB2extstr1, p2TIB2extstr1, err2TIB2extstr1;
-  double chi2TIB2extstr2, p0TIB2extstr2, err0TIB2extstr2, p1TIB2extstr2, err1TIB2extstr2, p2TIB2extstr2, err2TIB2extstr2;
-  double chi2TIB2extstr3, p0TIB2extstr3, err0TIB2extstr3, p1TIB2extstr3, err1TIB2extstr3, p2TIB2extstr3, err2TIB2extstr3;
-  double chi2TIB3, p0TIB3, err0TIB3, p1TIB3, err1TIB3, p2TIB3, err2TIB3;
-  double chi2TIB3intstr1, p0TIB3intstr1, err0TIB3intstr1, p1TIB3intstr1, err1TIB3intstr1, p2TIB3intstr1, err2TIB3intstr1;
-  double chi2TIB3intstr2, p0TIB3intstr2, err0TIB3intstr2, p1TIB3intstr2, err1TIB3intstr2, p2TIB3intstr2, err2TIB3intstr2;
-  double chi2TIB3intstr3, p0TIB3intstr3, err0TIB3intstr3, p1TIB3intstr3, err1TIB3intstr3, p2TIB3intstr3, err2TIB3intstr3;
-  double chi2TIB3intstr4, p0TIB3intstr4, err0TIB3intstr4, p1TIB3intstr4, err1TIB3intstr4, p2TIB3intstr4, err2TIB3intstr4;
-  double chi2TIB3intstr5, p0TIB3intstr5, err0TIB3intstr5, p1TIB3intstr5, err1TIB3intstr5, p2TIB3intstr5, err2TIB3intstr5;
-  double chi2TIB3intstr6, p0TIB3intstr6, err0TIB3intstr6, p1TIB3intstr6, err1TIB3intstr6, p2TIB3intstr6, err2TIB3intstr6;
-  double chi2TIB3intstr7, p0TIB3intstr7, err0TIB3intstr7, p1TIB3intstr7, err1TIB3intstr7, p2TIB3intstr7, err2TIB3intstr7;
-  double chi2TIB3intstr8, p0TIB3intstr8, err0TIB3intstr8, p1TIB3intstr8, err1TIB3intstr8, p2TIB3intstr8, err2TIB3intstr8;
-  double chi2TIB3extstr1, p0TIB3extstr1, err0TIB3extstr1, p1TIB3extstr1, err1TIB3extstr1, p2TIB3extstr1, err2TIB3extstr1;
-  double chi2TIB3extstr2, p0TIB3extstr2, err0TIB3extstr2, p1TIB3extstr2, err1TIB3extstr2, p2TIB3extstr2, err2TIB3extstr2;
-  double chi2TIB3extstr3, p0TIB3extstr3, err0TIB3extstr3, p1TIB3extstr3, err1TIB3extstr3, p2TIB3extstr3, err2TIB3extstr3;
-  double chi2TIB3extstr4, p0TIB3extstr4, err0TIB3extstr4, p1TIB3extstr4, err1TIB3extstr4, p2TIB3extstr4, err2TIB3extstr4;
-  double chi2TIB3extstr5, p0TIB3extstr5, err0TIB3extstr5, p1TIB3extstr5, err1TIB3extstr5, p2TIB3extstr5, err2TIB3extstr5;
-  double chi2TIB3extstr6, p0TIB3extstr6, err0TIB3extstr6, p1TIB3extstr6, err1TIB3extstr6, p2TIB3extstr6, err2TIB3extstr6;
-  double chi2TIB3extstr7, p0TIB3extstr7, err0TIB3extstr7, p1TIB3extstr7, err1TIB3extstr7, p2TIB3extstr7, err2TIB3extstr7;
-  double chi2TOB1, p0TOB1, err0TOB1, p1TOB1, err1TOB1, p2TOB1, err2TOB1;
-  double chi2TOB1rod1, p0TOB1rod1, err0TOB1rod1, p1TOB1rod1, err1TOB1rod1, p2TOB1rod1, err2TOB1rod1;
-  double chi2TOB1rod2, p0TOB1rod2, err0TOB1rod2, p1TOB1rod2, err1TOB1rod2, p2TOB1rod2, err2TOB1rod2;
-  double chi2TOB2, p0TOB2, err0TOB2, p1TOB2, err1TOB2, p2TOB2, err2TOB2;
-  double chi2TOB2rod1, p0TOB2rod1, err0TOB2rod1, p1TOB2rod1, err1TOB2rod1, p2TOB2rod1, err2TOB2rod1;
-  double chi2TOB2rod2, p0TOB2rod2, err0TOB2rod2, p1TOB2rod2, err1TOB2rod2, p2TOB2rod2, err2TOB2rod2;
-  double chi2TOB, p0TOB, err0TOB, p1TOB, err1TOB, p2TOB, err2TOB;
-  double minTIB2, minTIB3, minTOB1, minTOB2, minTOB;
-  double minTIB2intstr1, minTIB2intstr2, minTIB2extstr1, minTIB2extstr2, minTIB2extstr3;
-  double minTIB3intstr1, minTIB3intstr2, minTIB3intstr3, minTIB3intstr4, minTIB3intstr5, minTIB3intstr6, minTIB3intstr7, minTIB3intstr8;
-  double minTIB3extstr1, minTIB3extstr2, minTIB3extstr3, minTIB3extstr4, minTIB3extstr5, minTIB3extstr6, minTIB3extstr7; 
-  double minTOB1rod1, minTOB1rod2, minTOB2rod1, minTOB2rod2;
+  int eventcounter, trackcounter, hitcounter;
+  LocalVector localmagdir;
   
   
+  
+    
   TF1* fitfunc;
   TFile* hFile;
   TTree* SiStripLorentzAngleTree;
+   
   TH1F  *hphi, *hnhit;
-  TH1F  *htaTIBL2, *hrwTIBL2;
-  TH1F  *htaTIBL3, *hrwTIBL3;
-  TH1F  *htaTOB1, *hrwTOB1;
-  TH1F  *htaTOB2, *hrwTOB2;
-  TProfile *hwvst, *hwvsaTIBL2,  *hwvsaTIBL3, *hwvsaTOB, *hwvsaTOBL1, *hwvsaTOBL2;
-  TProfile *hwvsaTOBL1rod1, *hwvsaTOBL1rod2, *hwvsaTOBL2rod1, *hwvsaTOBL2rod2;
-  TProfile *hwvsaTIBL2intstr1, *hwvsaTIBL2intstr2, *hwvsaTIBL2extstr1, *hwvsaTIBL2extstr2, *hwvsaTIBL2extstr3;
-  TProfile *hwvsaTIBL3intstr1, *hwvsaTIBL3intstr2, *hwvsaTIBL3intstr3, *hwvsaTIBL3intstr4, *hwvsaTIBL3intstr5, *hwvsaTIBL3intstr6, *hwvsaTIBL3intstr7, *hwvsaTIBL3intstr8;
-  TProfile *hwvsaTIBL3extstr1, *hwvsaTIBL3extstr2, *hwvsaTIBL3extstr3, *hwvsaTIBL3extstr4, *hwvsaTIBL3extstr5, *hwvsaTIBL3extstr6, *hwvsaTIBL3extstr7;
+  TH1F  *htaTIBL1mono;
+  TH1F  *htaTIBL1stereo;
+  TH1F  *htaTIBL2mono;
+  TH1F  *htaTIBL2stereo;
+  TH1F  *htaTIBL3;
+  TH1F  *htaTIBL4;
+  TH1F  *htaTOBL1mono;
+  TH1F  *htaTOBL1stereo;
+  TH1F  *htaTOBL2mono;
+  TH1F  *htaTOBL2stereo;
+  TH1F  *htaTOBL3;
+  TH1F  *htaTOBL4;
+  TH1F  *htaTOBL5;
+  TH1F  *htaTOBL6;
+  TProfile *hwvst;
+      
   bool seed_plus;
   PropagatorWithMaterial  *thePropagator;
   PropagatorWithMaterial  *thePropagatorOp;
   KFUpdator *theUpdator;
   Chi2MeasurementEstimator *theEstimator;
+  
   const TransientTrackingRecHitBuilder *RHBuilder;
   const KFTrajectorySmoother * theSmoother;
   const KFTrajectoryFitter * theFitter;
   const TrackerGeometry * tracker;
   const MagneticField * magfield;
   TrajectoryStateTransform tsTransform;
+    
+  //Directory hierarchy  
+  
+  TDirectory *histograms;
+  TDirectory *summary;  
+  
+  //TIB-TID-TOB-TEC    
+  
+  TDirectory *TIB;
+  TDirectory *TOB;
+  TDirectory *TID;
+  TDirectory *TEC;
+  
+  //Forward-Backward
+  
+  TDirectory *TIBfw;
+  TDirectory *TIDfw;
+  TDirectory *TOBfw;
+  TDirectory *TECfw;
+  
+  TDirectory *TIBbw;
+  TDirectory *TIDbw;
+  TDirectory *TOBbw;
+  TDirectory *TECbw; 
+  
+  //TIB directories
+  
+  TDirectory *TIBfw1;
+  TDirectory *TIBfw2;
+  TDirectory *TIBfw3;
+  TDirectory *TIBfw4;
+  
+  TDirectory *TIBbw1;
+  TDirectory *TIBbw2;
+  TDirectory *TIBbw3;
+  TDirectory *TIBbw4;
+  
+  //TID directories
+  
+  TDirectory *TIDfw1;
+  TDirectory *TIDfw2;
+  TDirectory *TIDfw3;
+  
+  TDirectory *TIDbw1;
+  TDirectory *TIDbw2;
+  TDirectory *TIDbw3; 
+  
+  //TOB directories
+  
+  TDirectory *TOBfw1;
+  TDirectory *TOBfw2;
+  TDirectory *TOBfw3;
+  TDirectory *TOBfw4;
+  TDirectory *TOBfw5;
+  TDirectory *TOBfw6;
+  
+  TDirectory *TOBbw1;
+  TDirectory *TOBbw2;
+  TDirectory *TOBbw3;
+  TDirectory *TOBbw4;
+  TDirectory *TOBbw5;
+  TDirectory *TOBbw6;
+  
+  //TEC directories
+  
+  TDirectory *TECfw1;
+  TDirectory *TECfw2;
+  TDirectory *TECfw3;
+  TDirectory *TECfw4;
+  TDirectory *TECfw5;
+  TDirectory *TECfw6;
+  TDirectory *TECfw7;
+  TDirectory *TECfw8;
+  TDirectory *TECfw9;
+  
+  TDirectory *TECbw1;
+  TDirectory *TECbw2;
+  TDirectory *TECbw3;
+  TDirectory *TECbw4;
+  TDirectory *TECbw5;
+  TDirectory *TECbw6;
+  TDirectory *TECbw7;
+  TDirectory *TECbw8;
+  TDirectory *TECbw9;
   
 };
 
