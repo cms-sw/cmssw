@@ -30,8 +30,10 @@ public:
   FSimVertex(const HepLorentzVector& v, int im, int id, FBaseSimEvent* mom);
 
   /// retruns the vertex position (in cm !)
-  inline HepLorentzVector position() const { return SimVertex::position()/10.; }
-  
+  // SimVertices were in mm until 110_pre2
+  // Now they are in cm (finally) - no need for a special method.
+  //  inline HepLorentzVector position() const { return SimVertex::position()/10.; }
+
   /// parent track
   const FSimTrack& parent() const; 
 

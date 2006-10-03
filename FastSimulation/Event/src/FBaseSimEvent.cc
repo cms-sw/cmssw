@@ -138,7 +138,10 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   vector<int> myTracks(nTks,-1);
 
   // Set the main vertex for the kine particle filter
-  HepLorentzVector primaryVertex = simVertices[0].position()/10.;
+  // SimVertices were in mm until 110_pre2
+  //  HepLorentzVector primaryVertex = simVertices[0].position()/10.;
+  // SImVertices are now in cm
+  HepLorentzVector primaryVertex = simVertices[0].position();
   myFilter->setMainVertex(primaryVertex);
   // Add the main vertex to the list.
   addSimVertex(myFilter->vertex());
@@ -159,13 +162,19 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 
     // Add the vertex (if it does not already exist!)
     if ( myVertices[vertexId] == -1 )
-      myVertices[vertexId] = addSimVertex(vertex.position()/10.,originId); 
+      // SimVertices were in mm until 110_pre2
+      // myVertices[vertexId] = addSimVertex(vertex.position()/10.,originId); 
+      // SImVertices are now in cm
+      myVertices[vertexId] = addSimVertex(vertex.position(),originId); 
 
     // Add the track (with protection for brem'ing electrons)
     int motherType = motherId == -1 ? 0 : simTracks[motherId].type();
     
     if ( abs(motherType) != 11 || motherType != track.type() ) {
-      RawParticle part(track.momentum(), vertex.position()/10.);
+      // SimVertices were in mm until 110_pre2
+      // RawParticle part(track.momentum(), vertex.position()/10.);
+      // SImVertices are now in cm
+      RawParticle part(track.momentum(), vertex.position());
       part.setID(track.type()); 
       myTracks[trackId] = addSimTrack(&part,myVertices[vertexId]);
     } else {
@@ -189,7 +198,10 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     // Add the vertex (if it does not already exist!)
     if ( motherId != -1 && myVertices[vertexId] == -1 ) 
       myVertices[vertexId] = 
-	addSimVertex(vertex.position()/10.,myTracks[motherId]);
+      // SimVertices were in mm until 110_pre2
+      // addSimVertex(vertex.position()/10.,myTracks[motherId]);
+      // SImVertices are now in cm
+	addSimVertex(vertex.position(),myTracks[motherId]);
   }
 
   // Finally, propagate all particles to the calorimeters
