@@ -32,7 +32,7 @@ namespace edm {
     }
 
 
-    PSetNode * ParseTree::top() const
+    PSetNode * ParseTree::getProcessNode() const
     {
       NodePtr processPSetNodePtr = nodes_->front();
       edm::pset::PSetNode * processPSetNode
@@ -40,6 +40,17 @@ namespace edm {
       assert(processPSetNode != 0);
       return processPSetNode;
     }
+
+
+    CompositeNode * ParseTree::top() const
+    {
+      NodePtr nodePtr = nodes_->front();
+      edm::pset::CompositeNode * node
+        = dynamic_cast<edm::pset::CompositeNode*>(nodePtr.get());
+      assert(node != 0);
+      return node;
+    }
+
 
 
     std::vector<std::string> ParseTree::modules() const
@@ -74,23 +85,22 @@ namespace edm {
     void ParseTree::process()
     {
       clear();
-      // find the node that represents the process
-      PSetNode * processNode = top();
+      
+      CompositeNode * topLevelNode = top();
 
       // make whatever backwards link you can now.  Include Nodes
       // can add more as needed
-      processNode->setAsChildrensParent();
+      topLevelNode->setAsChildrensParent();
       // find any include nodes
       // maybe someday list the current file as an open file,
       // so it never gets circularly included
       std::list<std::string> openFiles;
       std::list<std::string> sameLevelIncludes;
-      processNode->resolve(openFiles, sameLevelIncludes);
-
+      topLevelNode->resolve(openFiles, sameLevelIncludes);
       // make the final backwards linksa.  Needed?
       //processNode->setAsChildrensParent();
 
-      NodePtrListPtr contents = processNode->nodes();
+      NodePtrListPtr contents = topLevelNode->nodes();
       sortNodes(contents);
 
       // maybe we don't have to do anything
@@ -142,7 +152,6 @@ namespace edm {
         {
           processRenameNode(*nodeItr, modulesAndSources_);
         }
-
 
         // now replace nodes
         for(nodeItr = replaceNodes_.begin();

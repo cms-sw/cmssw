@@ -16,6 +16,7 @@
 namespace edm {
   namespace pset {
 
+    class CompositeNode;
     class PSetNode;
 
     class ParseTree 
@@ -27,7 +28,10 @@ namespace edm {
       ParseTree(const std::string & configString);
 
       /// the top-level process PSetNode
-      PSetNode * top() const;
+      PSetNode * getProcessNode() const;
+
+      /// the top-level node if this may be a fragment
+      CompositeNode * top() const;
 
       /// the names of all the modules we see
       std::vector<std::string> modules() const;
