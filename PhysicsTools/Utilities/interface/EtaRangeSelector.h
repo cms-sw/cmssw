@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: PtMinSelector.h,v 1.2 2006/07/25 17:21:31 llista Exp $
+ * $Id: EtaRangeSelector.h,v 1.1 2006/09/20 15:49:36 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -13,7 +13,7 @@ struct EtaRangeSelector {
   typedef T value_type;
   EtaRangeSelector( double etaMin, double etaMax ) : 
     etaMin_( etaMin ), etaMax_( etaMax ) { }
-  EtaRangeSelector( const edm::ParameterSet & cfg ) : 
+  explicit EtaRangeSelector( const edm::ParameterSet & cfg ) : 
     etaMin_( cfg.template getParameter<double>( "etaMin" ) ),
     etaMax_( cfg.template getParameter<double>( "etaMax" ) ) {
   }
