@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: ObjectCountFilter.h,v 1.2 2006/09/21 11:56:48 llista Exp $
+ * $Id: ObjectCountFilter.h,v 1.3 2006/10/02 10:15:03 llista Exp $
  *
  */
 
@@ -18,7 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "PhysicsTools/Utilities/interface/AnySelector.h"
-#include <memory>
+#include <algorithm>
 
 
 template<typename S>
@@ -27,7 +27,12 @@ public:
   /// constructor 
   explicit ObjectCountFilterBase( const edm::ParameterSet & cfg ) :
     src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
-    minNumber_( cfg.template getParameter<unsigned int>( "minNumber" ) ) {
+    minNumber_( 1 ) {
+    std::vector<std::string> ints = cfg.template getParameterNamesForType<unsigned int>();
+    const std::string minNumber( "minNumber" );
+    bool foundMinNumber = std::find( ints.begin(), ints.end(), minNumber ) != ints.end();
+    if ( foundMinNumber )
+      minNumber_ = cfg.template getParameter<unsigned int>( minNumber );
   }
   
 protected:

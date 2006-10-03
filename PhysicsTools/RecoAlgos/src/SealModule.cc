@@ -22,6 +22,7 @@
 #include "PhysicsTools/UtilAlgos/interface/SortCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/WindowCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectCountFilter.h"
+#include "PhysicsTools/UtilAlgos/interface/ObjectPairFilter.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/ElectronSelector.h"
@@ -148,6 +149,13 @@ namespace reco {
                 EtMinSelector<reco::Photon>
               >
             > EtMinPhotonSelector;
+    /// select photons above a give pt
+    typedef ObjectSelector<
+              SingleElementCollectionSelector<
+                reco::CaloJetCollection,
+                EtMinSelector<reco::CaloJet>
+              >
+            > EtMinCaloJetSelector;
 
      /// select electrons above a give pt
     typedef ObjectSelector<
@@ -159,6 +167,16 @@ namespace reco {
                 >
               >
             > EtaPtMinElectronSelector;
+
+    typedef ObjectPairFilter<
+              reco::ElectronCollection,
+              MasslessInvariantMass<reco::Electron> 
+            > ElectronPairMassFilter;
+
+    typedef ObjectPairFilter<
+              reco::MuonCollection,
+              MasslessInvariantMass<reco::Muon> 
+            > MuonPairMassFilter;
 
     /// Framework module to merge an arbitray number of reco::TrackCollection
     typedef Merger<reco::TrackCollection>    TrackMerger;
@@ -197,7 +215,12 @@ DEFINE_ANOTHER_FWK_MODULE( LargestEtCaloJetSelector )
 DEFINE_ANOTHER_FWK_MODULE( MassWindowTrackSelector )
 DEFINE_ANOTHER_FWK_MODULE( PtMinElectronSelector );
 DEFINE_ANOTHER_FWK_MODULE( EtMinPhotonSelector );
+DEFINE_ANOTHER_FWK_MODULE( EtMinCaloJetSelector );
 DEFINE_ANOTHER_FWK_MODULE( EtaPtMinElectronSelector );
+
+DEFINE_ANOTHER_FWK_MODULE( ElectronPairMassFilter );
+DEFINE_ANOTHER_FWK_MODULE( MuonPairMassFilter );
+
 
 DEFINE_ANOTHER_FWK_MODULE( TrackMerger );
 DEFINE_ANOTHER_FWK_MODULE( MuonMerger );
