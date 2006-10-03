@@ -37,7 +37,7 @@ namespace stor
     inserter_(*evtbuf_q_),
     prods_(&p),
 	info_(&h), 
-    maxFileSize_(1073741824), highWaterMark_(0.9),
+    runNumber_(0),maxFileSize_(1073741824), highWaterMark_(0.9),
     writer_(new edm::StreamerOutSrvcManager(config_str)),
     evtsrv_area_(10),
     oneinN_(10), count_4_oneinN_(0) // added for Event Server by HWKC
@@ -157,6 +157,7 @@ namespace stor
     // note that file is not closed until the writers inside
     // writer_ is destroyed
     if(streamerOnly_)  writer_->stop();
+    // WE DO NOT want a crash if halt straight after ready HEREHEREHERE
     //if(streamerOnly_ && writer_->get_currfile()!="") writer_->stop();
     
   }
@@ -357,6 +358,6 @@ namespace stor
     //ost_.write((const char*)entry->buffer_address_, entry->buffer_size_);
     //dumpInitHeader(&msg);
     // should be passing smConfigSTring to writer_ at construction
-    writer_->manageInitMsg(filen_, maxFileSize_, highWaterMark_, path_, mpath_, catalog_, disks_, msg);
+    writer_->manageInitMsg(filen_, runNumber_, maxFileSize_, highWaterMark_, path_, mpath_, catalog_, disks_, msg);
   }
 }

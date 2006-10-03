@@ -67,9 +67,9 @@ namespace stor
     void set_hlt_bit_count(uint32 count) { collector_->set_hlt_bit_count(count);}
     void set_l1_bit_count(uint32 count) { collector_->set_l1_bit_count(count);}
     void set_outoption(bool stream_only) { collector_->set_outoption(stream_only);}
-    void set_outfile(std::string outfilestart, unsigned long maxFileSize,
+    void set_outfile(std::string outfilestart, uint32 runNum, unsigned long maxFileSize,
            double highWaterMark, std::string path, std::string mpath, std::string catalog, int disks) 
-           { collector_->set_outfile(outfilestart,maxFileSize,highWaterMark,path,mpath,catalog,disks);}
+           { collector_->set_outfile(outfilestart,runNum, maxFileSize,highWaterMark,path,mpath,catalog,disks);}
     std::list<std::string>& get_filelist() { return collector_->get_filelist(); }
     std::list<std::string>& get_currfiles() { return collector_->get_currfiles(); }
 
