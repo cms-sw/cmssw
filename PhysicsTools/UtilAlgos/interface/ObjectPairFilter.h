@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ObjectPairFilter.h,v 1.3 2006/10/02 10:15:03 llista Exp $
+ * $Id: ObjectPairFilter.h,v 1.1 2006/10/03 09:02:10 llista Exp $
  *
  */
 
@@ -25,6 +25,7 @@ class ObjectPairFilter : public edm::EDFilter {
 public:
   /// constructor 
   explicit ObjectPairFilter( const edm::ParameterSet & cfg ) :
+    select_( cfg ),
     src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
     minNumber_( 1 ) {
     std::vector<std::string> ints = cfg.template getParameterNamesForType<unsigned int>();
