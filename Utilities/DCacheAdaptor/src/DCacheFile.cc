@@ -201,7 +201,7 @@ DCacheFile::position (IOOffset offset, Relative whence /* = SET */)
 	throw DCacheError ("dc_lseek()", dc_errno);
     // FixMe when they fix it....
     if (whence == SEEK_END)
-      if ((result = dc_lseek (m_fd, result, SEEK_SET))== -1)
+      if ((result = dc_lseek64 (m_fd, result, SEEK_SET))== -1)
 	throw DCacheError ("dc_lseek()", dc_errno);
     
     return result;
