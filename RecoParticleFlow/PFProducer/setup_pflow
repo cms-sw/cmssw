@@ -1,6 +1,12 @@
 #!/bin/csh
 
+#cd ../..
+#cvs co -r V01-00-09 Geometry/TrackerRecoData/data/trackerRecoGeometryXML.cfi
+#cvs co FastSimulation
+#cp -r ~cbern/public/CMSCommonData  Geometry/
 cd ../..
 cvs co -r V01-00-09 Geometry/TrackerRecoData/data/trackerRecoGeometryXML.cfi
-cvs co FastSimulation
+cvs co -r CMSSW_1_1_0_pre2 FastSimulation/BaseParticlePropagator
+cvs co -r CMSSW_1_1_0_pre2 FastSimulation/Particle
+cvs co -r SimVertexInMM FastSimulation/Event
 cp -r ~cbern/public/CMSCommonData  Geometry/
