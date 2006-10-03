@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.3 2006/07/31 20:59:48 evansde Exp $
+// $Id: JobReport.h,v 1.4 2006/10/02 21:45:31 evansde Exp $
 //
 
 #include <cstddef>
@@ -201,7 +201,12 @@ namespace edm {
       /// events written count for an output file before reporting it 
       /// closed
       void overrideEventsWritten(Token fileToken, const int eventsWritten);
-
+      ///
+      /// For use by fast merge: Since the event by event counter cant
+      /// be used for fast merges, use this method to forcibly set the
+      /// events read count for an input file before reporting it 
+      /// closed
+      void overrideEventsRead(Token fileToken, const int eventsRead);
 
       void reportSkippedEvent(edm::EventID const& id);
 

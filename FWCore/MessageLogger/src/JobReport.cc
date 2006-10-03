@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.6 2006/07/31 20:59:49 evansde Exp $
+// $Id: JobReport.cc,v 1.7 2006/10/02 21:45:32 evansde Exp $
 //
 
 
@@ -302,6 +302,16 @@ namespace edm
       JobReport::OutputFile& f = impl_->getOutputFileForToken(fileToken);
       // set the eventsWritten parameter to the provided value
       f.numEventsWritten = eventsWritten;
+
+    }
+
+    void 
+    JobReport::overrideEventsRead(Token fileToken, const int eventsRead)
+    {
+      // Get the required input file instance using the token
+      JobReport::InputFile& f = impl_->getInputFileForToken(fileToken);
+      // set the events read parameter to the provided value
+      f.numEventsRead = eventsRead;
 
     }
 
