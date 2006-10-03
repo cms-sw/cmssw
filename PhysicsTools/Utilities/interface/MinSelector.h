@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MinSelector.h,v 1.3 2006/09/20 15:49:36 llista Exp $
+ * $Id: MinSelector.h,v 1.1 2006/10/03 11:36:29 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
@@ -24,7 +24,7 @@ struct MinSelector {
     min_( min ) { }
   MinSelector( const edm::ParameterSet & cfg ) : 
     min_( cfg.template getParameter<double>( paramPrefix + "Min" ) ) { }
-  bool operator()( const value_type & t ) const { return (t.*fun)() > min_; }
+  bool operator()( const value_type & t ) const { return (t.*fun)() >= min_; }
 private:
   double min_;
 };

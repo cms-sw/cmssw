@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: PtMinSelector.h,v 1.2 2006/07/25 17:21:31 llista Exp $
+ * $Id: PtMinSelector.h,v 1.3 2006/09/20 15:49:36 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,7 +15,7 @@ struct PtMinSelector {
     ptMin_( ptMin ) { }
   PtMinSelector( const edm::ParameterSet & cfg ) : 
     ptMin_( cfg.template getParameter<double>( "ptMin" ) ) { }
-  bool operator()( const value_type & t ) const { return t.pt() > ptMin_; }
+  bool operator()( const value_type & t ) const { return t.pt() >= ptMin_; }
 private:
   double ptMin_;
 };

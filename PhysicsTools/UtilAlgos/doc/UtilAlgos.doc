@@ -71,21 +71,23 @@ Framework generic utility modules
 </pre>
 \endhtmlonly
 
-- WindowCollectionSelector<b><C, M></b>: model of <a href="#sel_algo>Selection Algorithm</a> that
-  selects object pairs whose combination, according to the 
-  <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> <tt>M</tt>,
-  lies within a specified window. The window range aqre specified with the parameters
-  <tt>min</tt> and <tt>max</tt> via configuration file.
+- ObjectPairCollectionSelector<b><C, S></b>: model of <a href="#sel_algo>Selection Algorithm</a> that
+  selects object pairs whose combination is selected according to a
+  <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> of type <tt>S</tt>. 
   For instance, to select track pairs with invariant mass within a specified range, 
   it is possible to use the following module:
 \htmlonly
 <pre>
-  typedef ObjectSelector<
-            WindowCollectionSelector<
-              reco::TrackCollection,
-              MasslessInvariantMass<reco::Track> 
-            >
-          > MassWindowTrackSelector;
+    typedef ObjectSelector<
+              ObjectPairCollectionSelector<
+                reco::TrackCollection,
+                RangeObjectPairSelector<
+                  reco::Track,
+                  MasslessInvariantMass<reco::Track>,
+                  massParamPrefix
+                >
+              >
+            > MassWindowTrackSelector;
 </pre>
 \endhtmlonly
 - ObjectCountFilter<b><C, S></b>: selects an event if contains at least one or more

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: PtMinSelector.h,v 1.2 2006/07/25 17:21:31 llista Exp $
+ * $Id: EtMinSelector.h,v 1.1 2006/09/20 15:49:36 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,7 +15,7 @@ struct EtMinSelector {
     etMin_( etMin ) { }
   EtMinSelector( const edm::ParameterSet & cfg ) : 
     etMin_( cfg.template getParameter<double>( "etMin" ) ) { }
-  bool operator()( const value_type & t ) const { return t.et() > etMin_; }
+  bool operator()( const value_type & t ) const { return t.et() >= etMin_; }
 private:
   double etMin_;
 };
