@@ -73,11 +73,13 @@ Framework generic utility modules
 
 - ObjectPairCollectionSelector<b><C, S></b>: model of <a href="#sel_algo>Selection Algorithm</a> that
   selects object pairs whose combination is selected according to a
-  <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> of type <tt>S</tt>. 
+  <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> of type <tt>S</tt>.
   For instance, to select track pairs with invariant mass within a specified range, 
   it is possible to use the following module:
 \htmlonly
 <pre>
+    extern const std::string massParamPrefix( "mass" );
+
     typedef ObjectSelector<
               ObjectPairCollectionSelector<
                 reco::TrackCollection,

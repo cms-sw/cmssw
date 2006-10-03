@@ -26,9 +26,30 @@ Generic Physics Tools utility classes.
 - OrSelector: selector make of logical OR composition of any two selectors.
 
 \subsection selectors-2 Object Pair Selectors
-- RangeObjectPairSelector: select a pair of objects if the value of a specified 
-  <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> 
-  lies in a specified range.
+- RangeObjectPairSelector<b><C, S, prefix></b>: select a pair of objects in a collection
+  of type <b>C</b> if the value of a specified 
+  <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> of type <b>S</b>
+  lies in a specified range. The parameters have values specified in the constant
+  <b>prefix</b> followed <tt>Min</tt> and <tt>Max</tt>. For instance, the following
+  module selects track pair with invariant mass within a specified range:
+\htmlonly
+<pre>
+    extern const std::string massParamPrefix( "mass" );
+
+    typedef ObjectSelector<
+              ObjectPairCollectionSelector<
+                reco::TrackCollection,
+                RangeObjectPairSelector<
+                  reco::Track,
+                  MasslessInvariantMass<reco::Track>,
+                  massParamPrefix
+                >
+              >
+            > MassWindowTrackSelector;
+</pre>
+\endhtmlonly
+The mass window is specified by the parameters <tt>massMin</tt> 
+and <tt>massMax</tt>.
 
 \subsection comparators Comparators
 - PtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
