@@ -115,8 +115,6 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
  
   if( unloadSigHandler ) {
   // Deactivate all the Root signal handlers and restore the system defaults
-     edm::LogWarning("Startup") << "@SUB=InitRootHandlers"
-                             << "Unload Root signal handlers and restore system defaults" ;
      gSystem->ResetSignal(kSigChild);
      gSystem->ResetSignal(kSigBus);
      gSystem->ResetSignal(kSigSegmentationViolation);
@@ -132,8 +130,6 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
   if( resetErrHandler ) {
 
   // Replace the Root error handler with one that uses the MessageLogger
-     edm::LogWarning("Startup") << "@SUB=InitRootHandlers"
-                             << "Install CMS Root error handler" ;
      SetErrorHandler(rootErrorHandler);
   }
 }
