@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/31 15:37:30 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/09/13 10:41:22 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - CERN
  */
 
@@ -95,7 +95,19 @@ DetId MuonDetLayerGeometry::makeDetLayerId(DetLayer* detLayer) const{
 
   if(detLayer->subDetector() ==  GeomDetEnumerators::CSC){
     CSCDetId id( detLayer->basicComponents().front()->geographicalId().rawId() ) ;
-    return CSCDetId(id.endcap(),id.station(),0,0,0);
+
+    if(id.station() == 1 )
+      {
+	if(id.ring() == 1 || id.ring() == 4)
+	  return CSCDetId(id.endcap(),1,1,0,0);
+	else if(id.ring() == 2 || id.ring() == 3)
+	  return CSCDetId(id.endcap(),1,2,0,0);
+	else
+	  throw cms::Exception("InvalidCSCRing")<<" Invalid CSC Ring: "<<id.ring()<<endl;
+      }
+    else
+      return CSCDetId(id.endcap(),id.station(),0,0,0);
+    
   }
   else if(detLayer->subDetector() == GeomDetEnumerators::DT){
     DTChamberId id( detLayer->basicComponents().front()->geographicalId().rawId() ) ;
@@ -197,7 +209,17 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(DetId &detId) const{
   
   if(detId.subdetId() == MuonSubdetId::CSC){
     CSCDetId cscId( detId.rawId() );
-    id = CSCDetId(cscId.endcap(),cscId.station(),0,0,0);
+
+    if(cscId.station() == 1)
+      {
+	if(cscId.ring() == 1 || cscId.ring() == 4)
+	  id = CSCDetId(cscId.endcap(),1,1,0,0);
+	else if(cscId.ring() == 2 || cscId.ring() == 3)
+	  id = CSCDetId(cscId.endcap(),1,2,0,0);
+	else
+	  throw cms::Exception("InvalidCSCRing")<<" Invalid CSC Ring: "<<cscId.ring()<<endl;
+      }
+    else id = CSCDetId(cscId.endcap(),cscId.station(),0,0,0);
   }
   
   else if (detId.subdetId() == MuonSubdetId::DT){
