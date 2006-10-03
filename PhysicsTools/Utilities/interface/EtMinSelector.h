@@ -4,14 +4,14 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: EtMinSelector.h,v 1.1 2006/09/20 15:49:36 llista Exp $
+ * $Id: EtMinSelector.h,v 1.2 2006/10/03 11:44:47 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 template<typename T>
 struct EtMinSelector {
   typedef T value_type;
-  EtMinSelector( double ptMin ) : 
+  EtMinSelector( double etMin ) : 
     etMin_( etMin ) { }
   EtMinSelector( const edm::ParameterSet & cfg ) : 
     etMin_( cfg.template getParameter<double>( "etMin" ) ) { }

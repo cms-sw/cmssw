@@ -1,10 +1,10 @@
-#ifndef RecoAlgos_MinSelector_h
+#ifndef RecoAlgos_MaxSelector_h
 #define RecoAlgos_MaxSelector_h
 /* \class MaxSelector
  *
  * \author Luca Lista, INFN
  *
- * $Id: MaxSelector.h,v 1.3 2006/09/20 15:49:36 llista Exp $
+ * $Id: MaxSelector.h,v 1.1 2006/10/03 11:45:06 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
