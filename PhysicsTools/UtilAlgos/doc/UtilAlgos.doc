@@ -88,6 +88,34 @@ Framework generic utility modules
           > MassWindowTrackSelector;
 </pre>
 \endhtmlonly
+- ObjectCountFilter<b><C, S></b>: selects an event if contains at least one or more
+  objects in a collection of type <b>C</b> that satisfy
+  a <a href="http://www.sgi.com/tech/stl/Predicate.html">predicate
+  object</a> of type <tt>S</tt>. For instance, the following module
+  filters events with jets above a specified <i>E<sub>t</sub></i> threshold:
+\htmlonly
+<pre>
+  typedef ObjectCountFilter<
+            reco::CaloJetCollection,
+            EtMinSelector<reco::CaloJet>
+            >
+          > EtMinCaloJetCountFilter;
+</pre>
+\endhtmlonly
+- ObjectPairFilter<b><C, S></b>: selects an event if contains at least one or more
+  object pairs in a collection of type <b>C</b> that satisfy
+  a <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a>
+  of type <b>S</b>. For instance, the following module filters events with
+  electron pairs with invariant mass around a specified range:
+\htmlonly
+<pre>
+  typedef ObjectPairFilter<
+              reco::ElectronCollection,
+              MasslessInvariantMass<reco::Electron>
+            >
+          > ElectronPairMassFilter;
+</pre>
+\endhtmlonly
 
 \subsection other Other utility modules
 - Merger: merges an arbitrary number of collections into a single collection. 
