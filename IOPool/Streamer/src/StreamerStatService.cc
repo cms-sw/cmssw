@@ -127,17 +127,17 @@ void StreamerStatWriteService::setRunNumber(uint32 run)
 	       << summary_.endDate_     << ind 
 	       << summary_.endTime_     << endl;
    std::string currentStatString (currentStat.str());
-   ofstream *statFile = new ofstream(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+   // ofstream *statFile = new ofstream(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
    
-   if(!statFile->is_open()) 
-     {
-       throw cms::Exception("StreamerStatWriteService","StreamerStatWriteService")
-	 << "Error Opening Output File: "<<statFileName_<<"\n";
-     }
+   // if(!statFile->is_open()) 
+   // {
+   // throw cms::Exception("StreamerStatWriteService","StreamerStatWriteService")
+   // << "Error Opening Output File: "<<statFileName_<<"\n";
+   //}
    
-   statFile->write((char*)&currentStatString[0], currentStatString.length());
-   statFile->close();
-   delete(statFile);
+   //statFile->write((char*)&currentStatString[0], currentStatString.length());
+   //statFile->close();
+   //delete(statFile);
    
  }
 } //end-of-namespace
