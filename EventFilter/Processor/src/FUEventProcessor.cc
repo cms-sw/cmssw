@@ -138,11 +138,12 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
       
       try {
 	ah_ = new edm::AssertHandler();   
-	LOG4CPLUS_INFO(this->getApplicationLogger(),
+	LOG4CPLUS_DEBUG(this->getApplicationLogger(),
 		       "Trying to create message service presence ");
 	edm::PresenceFactory *pf = edm::PresenceFactory::get();
-	LOG4CPLUS_INFO(this->getApplicationLogger(),
-		       "presence factory pointer is " << (int) pf);
+	LOG4CPLUS_DEBUG(this->getApplicationLogger(),
+			"presence factory pointer is " << hex << (int) pf
+			<< dec);
 	if(pf != 0)
 	  m_messageServicePresence = boost::shared_ptr<edm::Presence>(pf->makePresence("MessageServicePresence").release());
 	else
