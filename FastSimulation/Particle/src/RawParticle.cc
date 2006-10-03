@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2006/05/07 20:06:40 $
-//  $Revision: 1.6 $
+//  $Date: 2006/08/24 10:06:25 $
+//  $Revision: 1.7 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
@@ -245,10 +245,24 @@ HepDouble RawParticle::PDGmass() const  {
 }
 
 HepDouble RawParticle::PDGcTau() const {
-  HepDouble ct=-99999;
+  HepDouble ct=1E99;
   if (tab && tab->theTable()->particle(ParticleID(myId))) {
-    ct=tab->theTable()->particle(ParticleID(myId))->lifetime().value();
+
+    // The lifetime is 0. in the Pythia Particle Data Table !
+    //    ct=tab->theTable()->particle(ParticleID(myId))->lifetime().value();
+
+    // Get it from the width (apparently Gamma/c!)
+    HepDouble w 
+      = tab->theTable()->particle(ParticleID(myId))->totalWidth().value();
+    ct = w != 0. ? 6.582119e-25 / w / 10. : 1e99;   // ctau in cm 
   }
+
+  /*
+  cout << setw(20) << setprecision(18) 
+       << "myId/ctau/width = " << myId << " " 
+       << ct << " " << w << endl;  
+  */
+
   return ct;
 }
 
