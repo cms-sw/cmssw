@@ -153,6 +153,7 @@ StreamerOutputService::~StreamerOutputService()
    if (nLogicalDisk_ != 0 )
      {
        newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
+// WHAT IS newFileName used for?? HEREHEREHERE
        remove( lockFileName_.c_str() );
      }
    
@@ -245,7 +246,7 @@ void StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize
              // write out the summary line for this last file
              std::ostringstream entry;
              entry << (fileNameCounter_ - 1) << " " 
-                   << fileName_
+                   << tobeclosedFile
                    << " " << eventsInFile_
                    << "   " << currentFileSize_;
              files_.push_back(entry.str());
