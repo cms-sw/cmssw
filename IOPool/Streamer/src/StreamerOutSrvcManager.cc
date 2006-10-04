@@ -136,7 +136,7 @@ void StreamerOutSrvcManager::manageInitMsg(std::string fileName, uint32 runNum, 
            //                  path, mpath, catalog, disks, init_message);
            std::ostringstream stm;
            stm << setupLabelLocal << "." << setfill('0') << std::setw(8) << runNum
-               << "." << streamLabelLocal << "." << fileNameLocal;
+               << "." << streamLabelLocal << "." << fileName;
            std::string filenLocal = stm.str();
            outputFile->init(filenLocal, maxFileSizeLocal, highWaterMarkLocal,
                              filePathLocal, mailboxPathLocal, catalog, disks, init_message);
