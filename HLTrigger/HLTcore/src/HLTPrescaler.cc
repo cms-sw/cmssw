@@ -3,8 +3,8 @@
  *  
  *  See header file for documentation.
  *
- *  $Date: 2006/08/14 14:52:52 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/14 15:26:43 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -17,11 +17,11 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps) :
   b_(ps.getParameter<bool>("makeFilterObject")),
   n_(ps.getParameter<unsigned int>("prescaleFactor")),
   o_(ps.getParameter<unsigned int>("eventOffset")),
-  count_()
+  count_(0)
 {
   if (b_) produces<reco::HLTFilterObjectBase>();
   if (n_==0) n_=1; // accept all!
-  count_ += o_;    // event offset
+  count_ = o_;     // event offset
 }
     
 HLTPrescaler::~HLTPrescaler()
