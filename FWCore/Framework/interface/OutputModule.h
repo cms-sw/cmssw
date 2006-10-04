@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.25 2006/07/06 19:11:42 wmtan Exp $
+$Id: OutputModule.h,v 1.26 2006/09/09 06:37:55 afaq Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -77,18 +77,18 @@ namespace edm {
     Selections droppedVec_;
 
   private:
-    class ResultsSelector : public edm::Selector
-    {
-    public:
-      explicit ResultsSelector(const std::string& proc_name):
-	name_(proc_name) {}
+//     class ResultsSelector : public edm::Selector
+//     {
+//     public:
+//       explicit ResultsSelector(const std::string& proc_name):
+// 	name_(proc_name) {}
       
-      virtual bool doMatch(const edm::ProvenanceAccess& p) const {
-	return p.provenance().processName()==name_;
-      }
-    private:
-      std::string name_;
-    };
+//       virtual bool doMatch(const edm::ProvenanceAccess& p) const {
+// 	return p.provenance().processName()==name_;
+//       }
+//     private:
+//       std::string name_;
+//     };
 
     virtual void write(EventPrincipal const& e) = 0;
     bool wantEvent(EventPrincipal const& e);
@@ -96,7 +96,8 @@ namespace edm {
     std::string process_name_;
     GroupSelector groupSelector_;
     EventSelector eventSelector_;
-    ResultsSelector selectResult_;
+    //ResultsSelector selectResult_;
+    ProcessNameSelector selectResult_;
 
     // We do not own the pointed-to CurrentProcessingContext.
     CurrentProcessingContext const* current_context_;
@@ -105,6 +106,8 @@ namespace edm {
     mutable Trig prod_;
 
     //Store the current Module Desc
+    //  *** This should be superfluous, because current_context_->moduleDescription()
+    // returns a pointer to the current ModuleDescription.
     ModuleDescription const* current_md_;  
 
   };
