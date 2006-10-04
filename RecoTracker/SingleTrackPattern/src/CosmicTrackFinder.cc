@@ -43,10 +43,12 @@ namespace cms
     edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
     edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
   
+    edm::InputTag seedTag = conf_.getParameter<edm::InputTag>("cosmicSeeds");
     // retrieve seeds
     edm::Handle<TrajectorySeedCollection> seed;
-    e.getByType(seed);
-    //retrieve PixelRecHits
+    //   e.getByType(seed);
+    e.getByLabel(seedTag,seed);  
+  //retrieve PixelRecHits
     edm::Handle<SiPixelRecHitCollection> pixelHits;
     if (geometry!="MTCC")  e.getByType(pixelHits);
     //retrieve StripRecHits
