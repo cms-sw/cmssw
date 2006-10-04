@@ -225,7 +225,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   HepPoint3D meanShower=ecalentrance+myPart.vect().unit()*depth;
 
   
-  //  if(onEcal!=1) return ; 
+  if(onEcal!=1) return ; 
 
   // The closest crystal
   //  std::cout << " Before getClosestCell " << myCalorimeter_ <<std::endl;
@@ -310,10 +310,10 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   
   HepLorentzVector trackPosition;
   if (myTrack.onHcal()) {
-    trackPosition=myTrack.hcalEntrance().vertex()*0.1;
+    trackPosition=myTrack.hcalEntrance().vertex();
     hit = myTrack.onHcal()-1;
   } else {
-    trackPosition=myTrack.vfcalEntrance().vertex()*0.1;
+    trackPosition=myTrack.vfcalEntrance().vertex();
     hit = 2;
   }
 
@@ -376,11 +376,11 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 
   HepLorentzVector trackPosition;
   if ( myTrack.onEcal() ) {
-    trackPosition=myTrack.ecalEntrance().vertex()*0.1;
+    trackPosition=myTrack.ecalEntrance().vertex();
     hit = myTrack.onEcal()-1;                               //
     myPart = myTrack.ecalEntrance();
   } else {
-    trackPosition=myTrack.vfcalEntrance().vertex()*0.1;
+    trackPosition=myTrack.vfcalEntrance().vertex();
     hit = 2;
     myPart = myTrack.vfcalEntrance();
   }
@@ -445,17 +445,17 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
     HepVector3D direction;
     if(myTrack.onEcal()) 
       {	
-	caloentrance = myTrack.ecalEntrance().vertex().vect()*0.1;
+	caloentrance = myTrack.ecalEntrance().vertex().vect();
 	direction = myTrack.ecalEntrance().vect().unit();
       }
     else if(myTrack.onHcal())
       {
-	caloentrance = myTrack.hcalEntrance().vertex().vect()*0.1;
+	caloentrance = myTrack.hcalEntrance().vertex().vect();
 	direction = myTrack.hcalEntrance().vect().unit();
       }
     else
       {
-	caloentrance = myTrack.vfcalEntrance().vertex().vect()*0.1;
+	caloentrance = myTrack.vfcalEntrance().vertex().vect();
 	direction = myTrack.vfcalEntrance().vect().unit();
       }
 
