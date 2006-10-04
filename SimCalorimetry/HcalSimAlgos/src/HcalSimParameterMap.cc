@@ -9,12 +9,12 @@
 // consistent with the current default calibrations.
 HcalSimParameterMap::HcalSimParameterMap() :
   theHBParameters(2000., 0.3305,
-                   117, 12, 
+                   117, 5, 
                    10, 5, true),
   theHEParameters(2000., 0.3305,
-                   178, 12,
+                   178, 5,
                    10, 5, true),
-  theHOParameters( 4000., 0.3065, 217., 12, 10, 5, true),
+  theHOParameters( 4000., 0.3065, 217., 5, 10, 5, true),
   theHFParameters1(1., 18.93,
                  2.84 , -4,
                 6, 4, false),
