@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.17 2006/04/25 23:25:00 wmtan Exp $
+$Id: cmsRun.cpp,v 1.18 2006/06/06 20:11:18 evansde Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -27,6 +27,9 @@ $Id: cmsRun.cpp,v 1.17 2006/04/25 23:25:00 wmtan Exp $
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/Framework/bin/pythonFileToConfigure.h"
+
 static const char* const kParameterSetOpt = "parameter-set";
 static const char* const kParameterSetCommandOpt = "parameter-set,p";
 static const char* const kHelpOpt = "help";
@@ -131,26 +134,41 @@ int main(int argc, char* argv[])
     return exitCode;
   }
 
-  std::ifstream configFile(vm[kParameterSetOpt].as<std::string>().c_str());
-  if(!configFile) {
-    std::string shortDesc("ConfigFileReadError");
-    std::ostringstream longDesc;
-    longDesc << "Unable to open configuration file "
-	     << vm[kParameterSetOpt].as<std::string>();
-    int exitCode = 7002;
-    jobRep->reportError(shortDesc, longDesc.str(), exitCode);
-    std::cout << longDesc.str() <<std::endl;
-    return exitCode;
-  }
-
-
-  // Create the several parameter sets that will be used to configure
-  // the program.
   std::string configstring;
-  std::string line;
+  std::string fileName(vm[kParameterSetOpt].as<std::string>());
+  if( fileName.size()> 3 && fileName.substr(fileName.size()-3) ==".py") {
 
-  while(std::getline(configFile,line)) { configstring+=line; configstring+="\n"; }
-  
+    try {
+      configstring = edm::pythonFileToConfigure( fileName);
+    }catch(cms::Exception& iException) {
+      std::string shortDesc("ConfigFileReadError");
+      std::ostringstream longDesc;
+      longDesc << "python found a problem "<<iException.what();
+      int exitCode = 7002;
+      jobRep->reportError(shortDesc, longDesc.str(), exitCode);
+      std::cout << longDesc.str() <<std::endl;
+      return exitCode;
+    }
+  } else {
+    std::ifstream configFile(fileName.c_str());
+    if(!configFile) {
+      std::string shortDesc("ConfigFileReadError");
+      std::ostringstream longDesc;
+      longDesc << "Unable to open configuration file "
+        << vm[kParameterSetOpt].as<std::string>();
+      int exitCode = 7002;
+      jobRep->reportError(shortDesc, longDesc.str(), exitCode);
+      std::cout << longDesc.str() <<std::endl;
+      return exitCode;
+    }
+    
+    
+    // Create the several parameter sets that will be used to configure
+    // the program.
+    std::string line;
+    
+    while(std::getline(configFile,line)) { configstring+=line; configstring+="\n"; }
+  }
   edm::ParameterSet main;
   std::vector<edm::ParameterSet> serviceparams;
 
