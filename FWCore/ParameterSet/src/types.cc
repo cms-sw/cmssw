@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.7 2006/06/21 17:54:28 rpw Exp $
+// $Id: types.cc,v 1.8 2006/09/21 19:29:52 rpw Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -505,11 +505,18 @@ bool
   if(from == "NaN")
     to = std::numeric_limits<double>::quiet_NaN();
 
-  else if(from == "+inf")
-    to = std::numeric_limits<double>::infinity();
-
+  else if(from == "+inf" || from == "inf")
+  {
+    to = std::numeric_limits<double>::has_infinity
+       ? std::numeric_limits<double>::infinity()
+       : std::numeric_limits<double>::max();
+  }
   else if(from == "-inf")
-    to = - std::numeric_limits<double>::infinity();
+  {
+    to = std::numeric_limits<double>::has_infinity
+       ? -std::numeric_limits<double>::infinity()
+       : -std::numeric_limits<double>::max();
+  }  
 
   else  {
     try  {
