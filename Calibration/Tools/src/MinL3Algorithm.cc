@@ -1,8 +1,8 @@
 
 /** \file MinL3Algorithm.cc
  *
- * $Date: 2006/06/26$
- * $Revision: 1.0 $
+ * $Date: 2006/08/25 $
+ * $Revision: 1.2 $
  *
  * \author R.Ofierzynski, CERN
  */
@@ -82,6 +82,8 @@ vector<float> MinL3Algorithm::iterate(const vector<vector<float> >& eventMatrix,
     {
       float scale = 0.;
       
+      cout << "MinL3Algorithm::iterate(): Normalising event data" << endl;
+
       for (i=0; i<Nevents; i++)
 	{
 	  sumOverEnergy = 0.;
@@ -90,6 +92,7 @@ vector<float> MinL3Algorithm::iterate(const vector<vector<float> >& eventMatrix,
 	  scale += sumOverEnergy;
 	}
       scale /= Nevents;
+      cout << "  Normalisation = " << scale << endl;
       
       for (i=0; i<Nevents; i++) {myEnergyVector[i] *= scale;}	  
     } // end normalize energies

@@ -118,8 +118,7 @@ void ClusterShapeAlgo::Create_Map()
      case EcalPreshower:
         topology.reset(new EcalPreshowerTopology (*storedGeoHandle_));
          break;
-     default: throw(std::runtime_error("\n\nClusterShapeAlgo: No
-                    known topology for given subdetId. Giving up... =(\n\n"));
+     default: throw(std::runtime_error("\n\nClusterShapeAlgo: No known topology for given subdetId. Giving up... =(\n\n"));
   }
   posCurrent = CaloNavigator<DetId>(eMaxId_,topology.get() );
   

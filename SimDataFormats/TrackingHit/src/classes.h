@@ -45,7 +45,12 @@ namespace {
     edm::PSimHitContainer sdummy777;
     edm::Wrapper<edm::PSimHitContainer> dummy7777;
     TrackPSimHitRef r7;
-    TrackPSimHitRefVector rv7;
     TrackPSimHitRefProd rp7; 
+
+
+    TrackPSimHitRefToBase rb7;
+    TrackPSimHitRefToBaseVector rbv7;
+    TrackPSimHitRefToBaseHolder rbh7; 
+
   }
 }

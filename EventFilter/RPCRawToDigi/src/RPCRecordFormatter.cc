@@ -90,10 +90,12 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
             uint32_t rawDetId;
             int geomStrip;
             try {
+	      //RPCReadOutMapping::StripInDetUnit stripInDetUnit=linkBoard->strip(lbBit);
 	      RPCReadOutMapping::StripInDetUnit stripInDetUnit=readoutMapping->strip(eleIndex,lbBit);
 
                // DetUnit
                rawDetId = stripInDetUnit.first;
+	       if(!rawDetId) continue;//A dirty fix to avoid crashes. To be FIXED (a geometry should be revised?)
                // stip
                geomStrip = stripInDetUnit.second;
             } 

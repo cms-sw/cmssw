@@ -14,7 +14,6 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
-
 #include <vector>
 class BarrelDetLayer;
 class ForwardDetLayer;
@@ -23,6 +22,8 @@ using namespace std;
 
 class PixelLayerTriplets {
 public:
+  PixelLayerTriplets();
+  ~PixelLayerTriplets();
   typedef PixelSeedLayerPairs::LayerPair LayerPair;
   typedef pair<LayerPair, vector<const LayerWithHits*> > LayerPairAndLayers;
   vector<LayerPairAndLayers> layers() ;
@@ -54,7 +55,6 @@ private:
   vector<BarrelDetLayer*> bl;
   vector<ForwardDetLayer*> fpos;
   vector<ForwardDetLayer*> fneg;
-
 };
 
 #endif

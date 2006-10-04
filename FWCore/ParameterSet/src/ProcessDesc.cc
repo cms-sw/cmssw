@@ -3,16 +3,16 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.6 2006/08/15 22:34:36 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.9 2006/08/29 22:59:06 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.6 2006/08/15 22:34:36 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.9 2006/08/29 22:59:06 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
 #include "FWCore/ParameterSet/interface/Makers.h"
-#include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
 
@@ -42,17 +42,14 @@ namespace edm
   }
 
   ProcessDesc::ProcessDesc(const std::string& config)
-  : pset_(new ParameterSet),
-    services_(new std::vector<ParameterSet>())
+  : validator_(0),
+    pathFragments_(),
+    pset_(new ParameterSet),
+    services_(new std::vector<ParameterSet>()),
+    bookkeeping_()
   {
-    edm::pset::ParseResults parsetree = edm::pset::fullParse(config.c_str());
-
-    // top node should be the PSetNode representing the process
-    pset::NodePtr processPSetNodePtr = parsetree->front();
-    edm::pset::PSetNode * processPSetNode 
-      = dynamic_cast<edm::pset::PSetNode*>(processPSetNodePtr.get());
-    assert(processPSetNode != 0);
-    processPSetNode->fillProcess(*this);
+    edm::pset::ParseTree parsetree(config.c_str());
+    parsetree.top()->fillProcess(*this);
 
 
     writeBookkeeping("@all_modules");
@@ -218,8 +215,8 @@ namespace edm
     return services_;
   }
 
-  ProcessDesc::Strs ProcessDesc::findSchedule(const ProcessDesc::Strs & triggerPaths,
-                                              const ProcessDesc::Strs & endPaths) const
+  ProcessDesc::Strs ProcessDesc::findSchedule(ProcessDesc::Strs & triggerPaths,
+                                              ProcessDesc::Strs & endPaths) const
   {
     Strs result;
     bool found = false;
@@ -243,6 +240,14 @@ namespace edm
         {
           found = true;
           getNames((*pathIt)->wrapped().get(), result);
+          // now override triggerPaths with everything that
+          // was in the schedule before the first endpath
+            //endOfTriggerPaths = std::find(result.begin(), result.end(), *(endPaths.begin()) );
+          Strs::iterator endOfTriggerPaths = std::find_first_of(result.begin(), result.end(),
+                                                                endPaths.begin(), endPaths.end());
+          // override trigger_paths and endpaths
+          triggerPaths = Strs(result.begin(), endOfTriggerPaths);
+          endPaths = Strs(endOfTriggerPaths, result.end());
         }
       }
     }

@@ -271,6 +271,11 @@ G4Event * RunManager::generateEvent(edm::Event & inpevt)
 
        // inpevt.getByType(HepMCEvt);       
     inpevt.getManyByType(AllHepMCEvt);
+        
+    if ( AllHepMCEvt.size() <= 0 )
+    {
+       throw SimG4Exception("Container of (Handles to) HepMCProduct's is EMPTY !  ");
+    }
        
     unsigned int i=0; 
     for (; i<AllHepMCEvt.size(); i++)

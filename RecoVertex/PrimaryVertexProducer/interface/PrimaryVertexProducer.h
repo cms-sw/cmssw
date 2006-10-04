@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducer.h,v 1.4 2006/05/23 10:30:39 vanlaer Exp $
+// $Id: PrimaryVertexProducer.h,v 1.5 2006/06/06 12:03:52 vanlaer Exp $
 //
 //
 
@@ -53,5 +53,6 @@ private:
   PrimaryVertexProducerAlgorithm theAlgo;
 
   edm::ParameterSet theConfig;
+  bool fVerbose;
   
 };

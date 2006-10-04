@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.3 2006/05/22 12:32:08 vanlaer Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.1 2006/05/23 10:30:39 vanlaer Exp $
 //
 //
 
@@ -35,6 +35,7 @@ public:
   explicit PrimaryVertexProducerAlgorithm(const edm::ParameterSet&);
   ~PrimaryVertexProducerAlgorithm();
   
+
   /** Find primary vertices
    */
   virtual vector<TransientVertex> 

@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/07/13 10:03:40 $
- * $Revision: 1.27 $
+ * $Date: 2006/07/08 09:28:52 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
  */
@@ -342,13 +342,6 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int iet = id.ieta();
     int ipt = id.iphi();
 
-    // phi_tower: change the range from global to SM-local
-    ipt     = ( (ipt-1) % 4) +1;
-
-    // phi_tower: range matters too
-    //    if ( id.zside() >0)
-    //      { ipt = 5 - ipt;      }
-
     int ismt = id.iDCC();
 
     float xiet = iet - 0.5;
@@ -367,14 +360,6 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     int iet = id.ieta();
     int ipt = id.iphi();
-
-
-    // phi_tower: change the range from global to SM-local
-    ipt     = ( (ipt-1) % 4) +1;
-
-    // phi_tower: range matters too
-    //    if ( id.zside() >0)
-    //      { ipt = 5 - ipt;      }
 
     int ismt = id.iDCC();
 

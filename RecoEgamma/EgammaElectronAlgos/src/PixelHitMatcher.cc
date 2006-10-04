@@ -13,10 +13,11 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.4 2006/07/31 21:36:14 tboccali Exp $
+// $Id: PixelHitMatcher.cc,v 1.5 2006/08/23 14:37:28 charlot Exp $
 //
 //
 
+#include "DataFormats/Math/interface/Point3D.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 

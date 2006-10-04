@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.17 2006/07/28 12:13:00 llista Exp $
+ * \version $Id: Vertex.h,v 1.20 2006/09/17 13:25:11 vanlaer Exp $
  *
  */
 #include <Rtypes.h>
@@ -15,6 +15,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include <iostream>
 
 namespace reco {
 
@@ -66,17 +67,31 @@ namespace reco {
     /// y coordinate 
     double z() const { return position_.Z(); }
     /// error on x
-    double xError() const { return sqrt( error( 0, 0 ) ); }
+    double xError() const { return sqrt( covariance(0, 0) ); }
     /// error on y
-    double yError() const { return sqrt( error( 1, 1 ) ); }
+    double yError() const { return sqrt( covariance(1, 1) ); }
     /// error on z
-    double zError() const { return sqrt( error( 2, 2 ) ); }
+    double zError() const { return sqrt( covariance(2, 2) ); }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double error( int i, int j ) const { return covariance_[ idx( i, j ) ]; }
+    double error( int i, int j ) const {
+      std::cout << "reco::Vertex::error(i, j) OBSOLETE, use covariance(i, j)"
+		<< std::endl;
+      return covariance_[ idx( i, j ) ]; 
+    }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double & error( int i, int j ) { return covariance_[ idx( i, j ) ]; }
+    double & error( int i, int j ) { 
+      std::cout << "reco::Vertex::error(i, j) & NON-CONST, use covariance(i, j)"
+		<< std::endl;
+      return covariance_[ idx( i, j ) ]; 
+    }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double & covariance( int i, int j ) { return covariance_[ idx( i, j ) ]; }
+    double & covariance( int i, int j ) {
+      std::cout << "reco::Vertex::covariance(i, j) & NON-CONST, use covariance(i, j)" << std::endl;
+      return covariance_[ idx( i, j ) ];
+    }
+    double covariance( int i, int j ) const { 
+      return covariance_[ idx( i, j ) ]; 
+    }
     /// return SMatrix
     CovarianceMatrix covariance() const { Error m; fill( m ); return m; }
     /// return SMatrix
@@ -98,7 +113,7 @@ namespace reco {
     /// position index
     index idx( index i, index j ) const {
       int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
-      return a * dimension + b - a * ( a + 1 ) / 2;
+      return b * ( b + 1 ) / 2 + a;
     }
   };
   

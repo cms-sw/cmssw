@@ -13,13 +13,16 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Tue Aug  1 15:24:02 EDT 2006
-// $Id$
+// $Id: SiStripElectronAssociator.cc,v 1.1 2006/08/02 16:36:30 pivarski Exp $
 //
 //
 
 #include <map>
 
 #include "RecoEgamma/EgammaElectronProducers/interface/SiStripElectronAssociator.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -72,6 +75,9 @@ SiStripElectronAssociator::~SiStripElectronAssociator()
 void
 SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  
+
    edm::Handle<reco::SiStripElectronCollection> siStripElectrons;
    iEvent.getByLabel(siStripElectronProducer_, siStripElectronCollection_, siStripElectrons);
 
@@ -87,6 +93,8 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
    std::auto_ptr<reco::ElectronCollection> output(new reco::ElectronCollection);
 
    // The reco::Track's hits are a (improper?) subset of the reco::SiStripElectron's
+   // countSiElFit counts electron candidates that return w/ a good track fit
+   int countSiElFit = 0 ;
    for (unsigned int i = 0;  i < tracks.product()->size();  i++) {
       const reco::Track* trackPtr = &(*reco::TrackRef(tracks, i));
 
@@ -123,6 +131,7 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	    } // end loop over stereo hits
 
 	    if (hitInCommon) {
+	      ++countSiElFit ;
 	       foundElectron = true;
 	       alreadySeen[&(*strippyIter)] = true;
 
@@ -144,10 +153,18 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
       } // end loop over electrons
 	 
       if (!foundElectron) {
-	 throw cms::Exception("Inconsistent Data", "SiStripElectronAssociator::produce");
+	 throw cms::Exception("InconsistentData")
+	   << " It is possible that the trackcollection used '"
+	   << trackCollection_ << "' from producer '" << trackProducer_
+	   << "' is not consistent with '"<< siStripElectronCollection_ 
+	   << "' from the producer '"<< siStripElectronProducer_
+	   << "' --- Please check your cfg file " << "\n"<< std::endl;
       }
 
    } // end loop over tracks
+
+   LogDebug("") << " Number of SiStripElectrons returned with a good fit " 
+                     << countSiElFit << "\n"<<  std::endl ;
 
    iEvent.put(output);
 }

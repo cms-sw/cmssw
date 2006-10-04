@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: llista $
-// $Date: 2006/07/28 20:18:49 $
-// $Revision: 1.9 $
+// $Author: noeding $
+// $Date: 2006/09/01 21:12:47 $
+// $Revision: 1.11 $
 //
 
 #include <memory>
@@ -54,22 +54,44 @@ namespace cms
     edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
     edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
     edm::InputTag recHitCollection = conf_.getParameter<edm::InputTag>("recHitCollection");
- 
+
+    edm::InputTag matchedrecHitsTag = conf_.getParameter<edm::InputTag>("matchedrecHits");
+
     // get Inputs 
     edm::Handle<SiStripRecHit2DCollection> rphirecHits;
     e.getByLabel( rphirecHitsTag, rphirecHits);
     edm::Handle<SiStripRecHit2DCollection> stereorecHits;
     e.getByLabel( stereorecHitsTag, stereorecHits);
 
-    edm::Handle<SiPixelRecHitCollection> pixRecHits; // TMoulik
-    e.getByLabel( recHitCollection, pixRecHits ); // TMoulik
+    edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
+    e.getByLabel( matchedrecHitsTag, matchedrecHits);
+
+    // special treatment for getting pixel collection
+    // if collection exists in file, use collection from file
+    // if collection does not exist in file, create empty collection
+    const SiPixelRecHitCollection *pixelRecHitCollection = 0;
+  
+    try {
+      edm::Handle<SiPixelRecHitCollection> pixelRecHits;
+      e.getByLabel(recHitCollection, pixelRecHits);
+      pixelRecHitCollection = pixelRecHits.product();
+    }
+    catch (edm::Exception const& x) {
+      if ( x.categoryCode() == edm::errors::ProductNotFound ) {
+	if ( x.history().size() == 1 ) {
+	  pixelRecHitCollection = new SiPixelRecHitCollection();
+	}
+      }
+    }
+  
+
 
     // Step B: create empty output collection
     std::auto_ptr<RoadSearchCloudCollection> output(new RoadSearchCloudCollection);
 
     // Step C: Invoke the seed finding algorithm
     roadSearchCloudMakerAlgorithm_.run(seeds,rphirecHits.product(),
-				       stereorecHits.product(),pixRecHits.product(),
+				       stereorecHits.product(),matchedrecHits.product(),pixelRecHitCollection,
 				       es,*output);
 
     // Step D: write output to file

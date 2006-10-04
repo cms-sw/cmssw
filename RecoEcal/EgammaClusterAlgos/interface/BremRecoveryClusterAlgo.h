@@ -28,15 +28,18 @@ class BremRecoveryClusterAlgo
 			  double eb_sc_road_phisize = 0.80, // Search window in phi - Barrel
 			  double ec_sc_road_etasize = 0.14, // Search window in eta - Endcap
 			  double ec_sc_road_phisize = 0.40, // Search window in eta - Endcap
-			  double theSeedEnergyThreshold = 0.40,
+			  double theSeedTransverseEnergyThreshold = 0.40,
 			  VerbosityLevel the_verbosity = pERROR
 			  )
     {
-      eb_rdeta_ = eb_sc_road_etasize;
-      eb_rdphi_ = eb_sc_road_phisize;
-      ec_rdeta_ = ec_sc_road_etasize;
-      ec_rdphi_ = ec_sc_road_phisize;
-      seedEnergyThreshold = theSeedEnergyThreshold;
+      // e*_rdeta_ and e*_rdphi_ are half the total window 
+      // because they correspond to one direction (positive or negative)
+      eb_rdeta_ = eb_sc_road_etasize / 2;
+      eb_rdphi_ = eb_sc_road_phisize / 2;
+      ec_rdeta_ = ec_sc_road_etasize / 2;
+      ec_rdphi_ = ec_sc_road_phisize / 2;
+
+      seedTransverseEnergyThreshold = theSeedTransverseEnergyThreshold;
       verbosity = the_verbosity;
     }
 
@@ -54,9 +57,6 @@ class BremRecoveryClusterAlgo
   void makeIslandSuperClusters(reco::BasicClusterRefVector &clusters_v, 
 			       double etaRoad, double phiRoad);
   
-  // make superclusters out of clusters produced by the Hybrid algorithm:
-  void makeHybridSuperClusters(reco::BasicClusterRefVector &clusters_v);
-  
   // return true if the cluster is within the search phi-eta window of the seed
   bool match(reco::BasicClusterRef seed_p, 
 	     reco::BasicClusterRef cluster_p,
@@ -71,7 +71,7 @@ class BremRecoveryClusterAlgo
   double ec_rdeta_;
   double ec_rdphi_;
   
-  double seedEnergyThreshold;
+  double seedTransverseEnergyThreshold;
   
   reco::SuperClusterCollection superclusters_v;
   

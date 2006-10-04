@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.5 2006/08/10 18:47:42 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.4 2006/08/04 03:30:48 wsun Exp $
 //
 
 // system include files
@@ -28,10 +28,8 @@ using namespace l1extra ;
 
 std::string
 L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
-   "SingleIsoEM",
-      "DoubleIsoEM",
-      "SingleNonIsoEM",
-      "DoubleNonIsoEM",
+   "SingleEM",
+      "DoubleEM",
       "SingleMuon",
       "DoubleMuon",
       "SingleTau",
@@ -46,12 +44,12 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
       "Jet+MET",
       "Tau+MET",
       "Muon+MET",
-      "IsoEM+MET",
+      "EM+MET",
       "Muon+Jet",
-      "IsoEM+Jet",
+      "EM+Jet",
       "Muon+Tau",
-      "IsoEM+Tau",
-      "IsoEM+Muon",
+      "EM+Tau",
+      "EM+Muon",
       "SingleJet140",
       "SingleJet60",
       "SingleJet20"
@@ -68,8 +66,7 @@ L1ParticleMap::L1ParticleMap(
    L1TriggerType triggerType,
    bool triggerDecision,
    const L1ObjectTypeVector& objectTypes,
-   const L1EmParticleRefVector& isoEmParticles,
-   const L1EmParticleRefVector& nonIsoEmParticles,
+   const L1EmParticleRefVector& emParticles,
    const L1JetParticleRefVector& jetParticles,
    const L1JetParticleRefVector& tauParticles,
    const L1MuonParticleRefVector& muonParticles,
@@ -78,8 +75,7 @@ L1ParticleMap::L1ParticleMap(
    : triggerType_( triggerType ),
      triggerDecision_( triggerDecision ),
      objectTypes_( objectTypes ),
-     isoEmParticles_( isoEmParticles ),
-     nonIsoEmParticles_( nonIsoEmParticles ),
+     emParticles_( emParticles ),
      jetParticles_( jetParticles ),
      tauParticles_( tauParticles ),
      muonParticles_( muonParticles ),
@@ -152,13 +148,9 @@ L1ParticleMap::indexCombos() const
       {
 	 int nParticles = 0 ;
 
-	 if( nonGlobalType == kIsoEM )
+	 if( nonGlobalType == kEM )
 	 {
-	    nParticles = isoEmParticles_.size() ;
-	 }
-	 if( nonGlobalType == kNonIsoEM )
-	 {
-	    nParticles = nonIsoEmParticles_.size() ;
+	    nParticles = emParticles_.size() ;
 	 }
 	 else if( nonGlobalType == kJet )
 	 {
@@ -237,15 +229,10 @@ L1ParticleMap::candidateInCombo( int aIndexInCombo,
    L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
-   if( type == kIsoEM )
+   if( type == kEM )
    {
       return dynamic_cast< const reco::LeafCandidate* >(
-	 isoEmParticles_[ particleInList ].get() ) ;
-   }
-   else if( type == kNonIsoEM )
-   {
-      return dynamic_cast< const reco::LeafCandidate* >(
-	 nonIsoEmParticles_[ particleInList ].get() ) ;
+	 emParticles_[ particleInList ].get() ) ;
    }
    else if( type == kJet )
    {
@@ -274,32 +261,15 @@ L1ParticleMap::candidateInCombo( int aIndexInCombo,
 }
 
 const L1EmParticle*
-L1ParticleMap::isoEmParticleInCombo( int aIndexInCombo,
-				     const L1IndexCombo& aCombo ) const
+L1ParticleMap::emParticleInCombo( int aIndexInCombo,
+				  const L1IndexCombo& aCombo ) const
 {
    L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
-   if( type == kIsoEM )
+   if( type == kEM )
    {
-      return isoEmParticles_[ particleInList ].get() ;
-   }
-   else
-   {
-      return 0 ;
-   }
-}
-
-const L1EmParticle*
-L1ParticleMap::nonIsoEmParticleInCombo( int aIndexInCombo,
-					const L1IndexCombo& aCombo ) const
-{
-   L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
-   int particleInList = aCombo[ aIndexInCombo ] ;
-
-   if( type == kNonIsoEM )
-   {
-      return nonIsoEmParticles_[ particleInList ].get() ;
+      return emParticles_[ particleInList ].get() ;
    }
    else
    {
