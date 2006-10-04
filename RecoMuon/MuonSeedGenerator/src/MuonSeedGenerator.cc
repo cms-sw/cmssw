@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/08/28 16:14:25 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/09/21 15:49:27 $
+ *  $Revision: 1.12 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -523,7 +523,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( MB1 ) delete [] MB1;
 
   
-  if(theSeeds.size() <= 1)
+  if(theSeeds.size() == 1)
     output->push_back(theSeeds.front());
   
   else{
