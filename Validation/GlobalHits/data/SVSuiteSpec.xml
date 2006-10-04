@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<SVSuite>
+	<SVSuiteSpec Name="SVSuite-GlobalHits-Minbias" Type="Processing">
+		<Parameter Name="InputDataset" Value="/SVSuite100pre3-GlobalHits-Minbias-GenEvents/GEN/CMSSW_1_0_0_pre3-GEN-1158161635-merged"/>
+		<Parameter Name="SplitSize" Value="100"/>
+		<Parameter Name="SplitType" Value="event"/>
+		<Parameter Name="NumberOfJobs" Value="100"/>
+		<Parameter Name="SaveCMSRunOutput" Value="False"/>
+		<Parameter Name="Configuration" Value="Validation/GlobalHits/test/DetSim+Global.cfg"/>
+		<ReferenceLFN>
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_0_0.tar.gz
+		</ReferenceLFN>
+		<Tool Name="runGlobalHits"/>
+	</SVSuiteSpec>
+</SVSuite>
