@@ -14,7 +14,7 @@
    \class HcalDbTool
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbTool.h,v 1.8 2006/09/07 15:49:18 fedor Exp $
+   $Id: HcalDbTool.h,v 1.1 2006/09/26 20:49:01 fedor Exp $
 */
 
 namespace cond {
@@ -75,10 +75,10 @@ class HcalDbTool {
   bool deleteObject (pool::Ref<T>* fObject, const std::string& fContainer = "");
 
   template <class T>
-  bool storeIOV (const pool::Ref<T>& fObject, unsigned fMaxRun, pool::Ref<cond::IOV>* fIov);
+  bool storeIOV (const pool::Ref<T>& fObject, IOVRun fMaxRun, pool::Ref<cond::IOV>* fIov);
 
   template <class T>
-  bool getObject (const pool::Ref<cond::IOV>& fIOV, unsigned fRun, pool::Ref<T>* fObject);
+  bool getObject (const pool::Ref<cond::IOV>& fIOV, IOVRun fRun, pool::Ref<T>* fObject);
 
   template <class T> 
   bool getObject (const std::string& fToken, pool::Ref<T>* fObject);

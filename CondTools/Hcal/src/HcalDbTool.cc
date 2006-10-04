@@ -3,7 +3,7 @@
    \class HcalDbTool
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbTool.cc,v 1.1 2006/09/26 20:49:01 fedor Exp $
+   $Id: HcalDbTool.cc,v 1.2 2006/09/27 20:33:37 fedor Exp $
 */
 
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -152,8 +152,8 @@ bool HcalDbTool::updateObject (pool::Ref<T>* fUpdate) {
 }
 
 template <class T>
-bool HcalDbTool::storeIOV (const pool::Ref<T>& fObject, unsigned fMaxRun, pool::Ref<cond::IOV>* fIov) {
-  unsigned maxRun = fMaxRun == 0 ? 0xffffffff : fMaxRun;
+bool HcalDbTool::storeIOV (const pool::Ref<T>& fObject, IOVRun fMaxRun, pool::Ref<cond::IOV>* fIov) {
+  IOVRun maxRun = fMaxRun == 0 ? 0xffffffffffffffff : fMaxRun;
   if (fIov->isNull ()) {
     cond::IOV* newIov = new cond::IOV ();
     newIov->iov.insert (std::make_pair (maxRun, fObject.toString ()));
@@ -166,7 +166,7 @@ bool HcalDbTool::storeIOV (const pool::Ref<T>& fObject, unsigned fMaxRun, pool::
 }
 
 template <class T>
-bool HcalDbTool::getObject (const pool::Ref<cond::IOV>& fIOV, unsigned fRun, pool::Ref<T>* fObject) {
+bool HcalDbTool::getObject (const pool::Ref<cond::IOV>& fIOV, IOVRun fRun, pool::Ref<T>* fObject) {
   if (!fIOV.isNull ()) {
     // scan IOV, search for valid data
     for (IOVCollection::iterator iovi = fIOV->iov.begin (); iovi != fIOV->iov.end (); iovi++) {
