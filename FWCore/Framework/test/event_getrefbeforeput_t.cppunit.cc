@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.1.2.3 2006/07/05 23:57:18 wmtan Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.2 2006/07/06 19:11:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -21,7 +21,7 @@ $Id: event_getrefbeforeput_t.cppunit.cc,v 1.1.2.3 2006/07/05 23:57:18 wmtan Exp 
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Framework/interface/Selector.h"
+//#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/TypeID.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
