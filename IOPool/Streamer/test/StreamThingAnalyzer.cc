@@ -24,22 +24,6 @@ typedef edmtestprod::IntArray WriteThis;
 using namespace std;
 using namespace edmtestprod;
 
-namespace 
-{
-  
-  class AllSelector : public edm::Selector {
-  public:
-    AllSelector(const std::string& name):name_(name) {}
-    
-    virtual bool doMatch(const edm::ProvenanceAccess& p) const {
-      return p.provenance().moduleLabel()==name_;
-    }
-
-  private:
-    string name_;
-  };
-}
-
 namespace edmtest_thing
 {
   StreamThingAnalyzer::StreamThingAnalyzer(edm::ParameterSet const& ps):
@@ -67,7 +51,7 @@ namespace edmtest_thing
   void StreamThingAnalyzer::analyze(edm::Event const& e,
 				    edm::EventSetup const&)
   {
-    AllSelector all(name_);
+    edm::ModuleLabelSelector all(name_);
     typedef vector<edm::Handle<WriteThis> > ProdList;
     ProdList prod;
     e.getMany(all, prod);
