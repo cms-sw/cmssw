@@ -34,6 +34,17 @@
 using namespace std;
 using namespace cms;
 
+void testHitCorrection(HcalHitCorrection * correction, MixCollection<PCaloHit> & hits)
+{
+  correction->fillChargeSums(hits);
+  for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
+      hitItr != hits.end(); ++hitItr)
+  {
+    std::cout << "HIT charge " << correction->charge(*hitItr) << " delay " << correction->delay(*hitItr)
+              << " Timebin " << correction->timeBin(*hitItr) <<std::endl;
+  }
+}
+
 
 int main() {
   // make a silly little hit in each subdetector, which should
@@ -66,14 +77,6 @@ int main() {
   allDetIds.insert(allDetIds.end(), hoDetIds.begin(), hoDetIds.end());
   allDetIds.insert(allDetIds.end(), hfDetIds.begin(), hfDetIds.end());
 
-/*
-  vector<PCaloHit> hbheHits, hoHits, hfHits;
-  hbheHits.push_back(barrelHit);
-  hbheHits.push_back(endcapHit);
-  hoHits.push_back(outerHit);
-  hfHits.push_back(forwardHit1);
-  hfHits.push_back(forwardHit2);
-i*/
   vector<PCaloHit> hits;
   hits.push_back(barrelHit);
   hits.push_back(endcapHit);
@@ -114,6 +117,7 @@ i*/
   HcalHitCorrection hitCorrection(&parameterMap);
   hbheResponse.setHitCorrection(&hitCorrection);
   hoResponse.setHitCorrection(&hitCorrection);
+
   // none for HF
 
   HBHEHitFilter hbheHitFilter;
@@ -167,7 +171,10 @@ std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId,  1) << std::end
   auto_ptr<HODigiCollection> hoResult(new HODigiCollection);
   auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection);
 
+
   MixCollection<PCaloHit> hitCollection(&crossingFrame, hitsName);
+
+  testHitCorrection(&hitCorrection, hitCollection);
 
   hbheDigitizer.run(hitCollection, *hbheResult);
   hoDigitizer.run(hitCollection, *hoResult);
@@ -182,12 +189,10 @@ std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId,  1) << std::end
 
 /*
   cout << "SHAPES" << endl;
-  for(unsigned i = 0; i < 75; ++i) {
+  for(int i = -88; i < 140; ++i) {
      cout << i << " " << hcalShape(i) << " " << hfShape(i) << " " << hcalShapeIntegrator(i) << " " << hfShapeIntegrator(i) << endl;
   }
-
-*/
-
+i*/
 /*
   //NO STANDARD TEST AVAILABLE AT THIS TIME//
   HcalNominalTPGCoder nc(0.5);
@@ -208,3 +213,4 @@ return 0;
 }
 
 
+ 
