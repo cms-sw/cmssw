@@ -18,6 +18,15 @@ import time
 from MCPayloads.WorkflowSpec import WorkflowSpec
 import MCPayloads.WorkflowTools as WorkflowTools
 
+
+#  //
+# // Connection to ProdAgent
+#//
+from MessageService.MessageService import MessageService
+messageService = MessageService()
+messageService.registerAs("svSuite-bin")
+
+
 from SVSuite.Configuration import Configuration
 from SVSuite.SVSuiteSpec import loadSpecFile
 
@@ -288,8 +297,18 @@ for spec in specs:
             spec['InputDataset'],
             )
         print msg
-        
-        
+        messageService.publish("DatasetInjector:SetWorkflow", workflow)
+        messageService.publish("NewWorkflow", workflow)
+        messageService.commit()
+        time.sleep(1)
+        messageService.publish("DatasetInjector:SelectWorkflow",
+                               os.path.basename(workflow))
+        messageService.commit()
+        time.sleep(1)
+        messageServce.publish("DatasetInjector:ReleaseJobs",
+                              str(spec['NumberOfJobs']))
+        messageService.commit()
+        time.sleep(1)
     else:
         #  //
         # // RequestInjector
@@ -301,3 +320,22 @@ for spec in specs:
             spec['NumberOfJobs'], spec['NumberOfEvents'],
             )
         print msg
+        messageService.publish("RequestInjector:SetWorkflow", workflow)
+        messageService.publish("NewWorkflow", workflow)
+        messageService.commit()
+        time.sleep(1)
+        messageService.publish("RequestInjector:SelectWorkflow",
+                               os.path.basename(workflow))
+        messageService.commit()
+        time.sleep(1)
+        messageService.publish("RequestInjector:SetEventsPerJob",
+                               str(spec['NumberOfEvents']))
+        messageService.commit()
+        time.sleep(1)
+        for i in range(0, int(spec['NumberOfJobs'])):
+            time.sleep(.1)
+            messageService.publish("ResourcesAvailable", "")
+            messageService.commit()
+            
+
+    
