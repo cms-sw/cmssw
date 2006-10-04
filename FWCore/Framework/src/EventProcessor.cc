@@ -914,7 +914,21 @@ namespace edm {
     // to be called.
     EventSetup const& es =
       esp_->eventSetupForInstance(IOVSyncValue::beginOfTime());
+    try {
     input_->beginJob(es);
+    } catch(cms::Exception& e) {
+      LogError("BeginJob") << "A cms::Exception happened while processing the beginJob of the 'source'\n";
+      e<<"A cms::Exception happened while processing the beginJob of the 'source'\n";
+      throw;
+    } catch(std::exception& e)
+    {
+      LogError("BeginJob") << "A std::exception happened while processing the beginJob of the 'source'\n";
+      throw;
+    } catch(...)
+    {
+      LogError("BeginJob") << "An unknown exception happened while processing the beginJob of the 'source'\n";
+      throw;
+    }
     schedule_->beginJob(es);
     actReg_->postBeginJobSignal_();
     if(looper_) {
