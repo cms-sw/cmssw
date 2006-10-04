@@ -1,0 +1,176 @@
+#!/usr/bin/env python2.4
+"""
+Command line tool for building a data tarball
+from a CVS checkout of the Validation package
+
+
+"""
+
+
+
+import os
+import sys
+import getopt
+import tarfile
+import popen2
+
+valid = [
+    'cvs-tag=',
+    'cache-dir=',
+    'output-dir=',
+    'packages=',
+    'no-checkout',
+    ]
+
+
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "", valid)
+except getopt.GetoptError, ex:
+    print str(ex)
+    sys.exit(1)
+
+cvsTag = None
+doCheckout = True
+cacheDir = os.getcwd()
+outputDir = os.getcwd()
+validationPackages = []
+
+for opt, arg in opts:
+    if opt == "--cvs-tag":
+        cvsTag = arg
+
+    if opt == "--output-dir":
+        outputDir = arg
+    if opt == "--cache-dir":
+        cacheDir = arg
+
+    if opt == "--version":
+        version = arg
+    if opt == '--no-checkout':
+        doCheckout = False
+        
+    if opt == "--packages":
+        pkgs = arg.split(",")
+        for pkg in pkgs:
+            if pkg.strip() != "":
+                validationPackages.append(pkg.strip())
+                
+
+if cvsTag == None:
+    msg = "--cvs-tag is required. It should be the CVS tag of the Validation"
+    msg += "\n package being checked out and bundled"
+    print msg
+    sys.exit(1)
+
+if not os.path.exists(cacheDir):
+    msg = "Package Check out cache not found:\n%s\n" % cvsDir
+    msg += "--cache-dir should point to an existing directory"
+    print msg
+    sys.exit(1)
+
+
+
+if doCheckout:
+    #  //
+    # // Do the CVS Checkout
+    #//
+    cvsCO = """
+    cd %s
+    cvs co -r %s Validation
+    """  % (cacheDir, cvsTag)
+
+    pop = popen2.Popen4(cvsCO)
+    pop.wait()
+    output = pop.fromchild.read()
+    status = pop.poll()
+    if status:
+        msg = "Error performing CVS Checkout:\n"
+        msg += "%s\n" % cvsCO
+        msg += output
+        print msg
+        sys.exit(1)
+
+
+cvsDir = os.path.join(cacheDir, "Validation")
+
+
+targetDir = os.path.join(outputDir, "SVSuite")
+if os.path.exists(targetDir):
+    msg = "ERROR: %s already exists\n" % targetDir
+    msg += "Remove the SVSuite dir or pick another area to build the bundle\n"
+    print msg
+    sys.exit(1)
+
+
+if not os.path.exists(targetDir):
+    os.makedirs(targetDir)
+
+
+if validationPackages == []:
+    validationPackages = os.listdir(cvsDir)
+    while "CVS" in validationPackages:
+        validationPackages.remove("CVS")
+    while "Tools" in validationPackages:
+        validationPackages.remove("Tools")
+        
+msg = "The following packages will be included:\n"
+for pkg in validationPackages:
+    msg += "  %s\n" % pkg
+print msg
+
+
+for package in validationPackages:
+    packageLoc = os.path.join(cvsDir, package)
+    if not os.path.exists(packageLoc):
+        msg = "Cannot find package: %s\n" % package
+        msg += "In Validation checked out at %s\n" % cvsDir
+        print msg
+        sys.exit(1)
+
+    packageTarget = os.path.join(targetDir, "Validation", package)
+    os.makedirs(packageTarget)
+    command = "/bin/cp -rf %s/test %s" % (packageLoc, packageTarget)
+    os.system(command)
+    if os.path.exists("%s/data" % packageLoc):
+        command = "/bin/cp -rf %s/data %s" % (packageLoc, packageTarget)
+        os.system(command)
+    
+#  //
+# // Include Tools package bin area
+#//
+toolsDir = os.path.join(cvsDir, "Tools", "bin")
+if not os.path.exists(toolsDir):
+    msg = "WARNING: Tools package not found:\n"
+    msg += "%s\n" % toolsDir
+    print msg
+else:
+    os.makedirs(os.path.join(targetDir, "Validation", "Tools"))
+    command = "/bin/cp -rf %s %s/Validation/Tools" % (toolsDir, targetDir)
+    os.system(command)
+    chmod = "chmod +x %s/Validation/Tools/bin/* " % targetDir
+    os.system(chmod)
+                            
+
+
+#  //
+# // Make the tarfile...
+#//
+tarLocation = os.path.join(outputDir, "SVSuite-data-%s.tar.gz" % cvsTag)
+os.chdir(outputDir)
+tar = tarfile.open(tarLocation,'w:gz')
+tar.add("SVSuite")
+tar.close()
+msg = "Created SVSuite Tarball:\n"
+msg += "  => %s\n" % tarLocation
+print msg
+sys.exit(0)
+
+
+    
+    
+    
+    
+
+
+
