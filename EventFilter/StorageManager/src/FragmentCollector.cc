@@ -157,8 +157,8 @@ namespace stor
     // note that file is not closed until the writers inside
     // writer_ is destroyed
     if(streamerOnly_)  writer_->stop();
-    // WE DO NOT want a crash if halt straight after ready HEREHEREHERE
     //if(streamerOnly_ && writer_->get_currfile()!="") writer_->stop();
+    // This test is now not needed using StreamerOutSrvcManager
     
   }
 
