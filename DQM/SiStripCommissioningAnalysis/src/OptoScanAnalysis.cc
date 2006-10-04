@@ -191,7 +191,7 @@ void OptoScanAnalysis::extract( const vector<TProfile*>& histos ) {
 // 
 void OptoScanAnalysis::analyse() { 
   
-  if (1) { deprecated(); return; }
+  if (0) { deprecated(); return; }
   
   // Iterate through four gain settings
   for ( uint16_t igain = 0; igain < 4; igain++ ) {

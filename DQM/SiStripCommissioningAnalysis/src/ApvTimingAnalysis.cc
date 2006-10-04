@@ -80,8 +80,9 @@ void ApvTimingAnalysis::maxTime( const float& time ) {
   maxTime_ = time;
   if ( time_ > sistrip::maximum_ ) { return; }
   float adjustment = 25 - static_cast<int32_t>( rint(maxTime_+optimumSamplingPoint_) ) % 25;
-  maxTime_ += adjustment;
-  delay_ = maxTime_ - time_; 
+  //maxTime_ += adjustment;
+  //delay_ = maxTime_ - time_; 
+  delay_ = ( maxTime_ + adjustment ) - time_; 
 }
 
 // ----------------------------------------------------------------------------
@@ -282,40 +283,35 @@ void ApvTimingAnalysis::analyse() {
     iter++;
   }
   
-  // Alternative code...//////////////////
-  /*
- float maxdev=-9999;
- float mindev=9999;
- int ideriv=1;
- int idevmin=1;
- for (int is=10;is<histo_.first->GetNbinsX()-10;is++)
-   {
-     float deriv = (histo_.first->GetBinContent(is+1)-histo_.first->GetBinContent(is-1));
-     if (deriv>maxdev)
-       {
-	 maxdev=deriv;
-	 ideriv=is;
-       }
-     if (deriv<mindev)
-       {
-	 mindev=deriv;
-	 idevmin=is;
-       }
-   }
- 
- if (maxdev>10.) {
- deriv_bin = ideriv;
- baseline = histo_.first->GetBinContent(ideriv-10);
- tickmark = histo_.first->GetBinContent(ideriv+10);}
-
- else {deriv_bin = 0;
- baseline = 0;
- tickmark = 0;}
-  */
+  // RootAnalyzer implementation (not used by default)
+  if ( false ) {
+    float maxdev = -9999;
+    float mindev = 9999;
+    int ideriv = 1;
+    int idevmin = 1;
+    for ( int is = 10; is < histo_.first->GetNbinsX()-10 ; is++ ) {
+      float deriv = (histo_.first->GetBinContent(is+1)-histo_.first->GetBinContent(is-1));
+      if ( deriv > maxdev ) {
+	maxdev=deriv;
+	ideriv=is;
+      }
+      if ( deriv < mindev ) {
+	mindev=deriv;
+	idevmin=is;
+      }
+    }
+    
+    if ( maxdev > 10. ) {
+      deriv_bin = ideriv;
+      baseline = histo_.first->GetBinContent(ideriv-10);
+      tickmark = histo_.first->GetBinContent(ideriv+10);
+    } else {
+      deriv_bin = 0;
+      baseline = 0;
+      tickmark = 0;
+    }
+  }
   
- /////////////////////////////////
-
-
   // Set monitorables
   if ( deriv_bin < sistrip::maximum_ ) {
     time_      = deriv_bin * 25. / 24.;

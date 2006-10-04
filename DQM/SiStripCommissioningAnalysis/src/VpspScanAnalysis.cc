@@ -85,8 +85,13 @@ void VpspScanAnalysis::extract( const vector<TProfile*>& histos ) {
     }
     
     // Extract APV number
-    uint16_t apv = ( title.granularity_ == sistrip::APV ) ? (title.channel_-32)%2 : sistrip::invalid_; 
-
+    uint16_t apv = sistrip::invalid_; 
+    if ( title.extraInfo_.find(sistrip::apv_) != string::npos ) {
+      stringstream ss;
+      ss << title.extraInfo_.substr( title.extraInfo_.find(sistrip::apv_) + sistrip::apv_.size(), 1 );
+      ss >> dec >> apv;
+    }
+    
     // Store vpsp scan histos
     if ( apv == 0 ) { 
       hVpsp0_.first = *ihis; 
@@ -243,14 +248,14 @@ float sigma_2D_noise = sqrt(fabs(mean_2D_noise * mean_2D_noise - mean2_2D_noise)
  while ((second_deriv[plateau_edges.second] > (mean_2D_noise + 2*sigma_2D_noise)) && (plateau_edges.first < 55)) { plateau_edges.second++;}
 
 // locate optimum VPSP value
-  float top_mean = 0., bottom_mean = 0.;
-  for ( unsigned short m = 5; m < plateau_edges.first; m++ ) {
-    top_mean = (top_mean*(m - 5) + histo->GetBinContent(m))/ (m - 4);}
-  
-  for ( unsigned short m = plateau_edges.second; m < 56; m++ ) { 
-    bottom_mean = ((bottom_mean* (m - plateau_edges.second) ) + histo->GetBinContent(m))/ (m - plateau_edges.second+1);}
-  float optimum = bottom_mean + (top_mean - bottom_mean) * 1./3.;
-
+ float top_mean = 0., bottom_mean = 0.;
+ for ( unsigned short m = 5; m < plateau_edges.first; m++ ) {
+   top_mean = (top_mean*(m - 5) + histo->GetBinContent(m))/ (m - 4);}
+ 
+ for ( unsigned short m = plateau_edges.second; m < 56; m++ ) { 
+   bottom_mean = ((bottom_mean* (m - plateau_edges.second) ) + histo->GetBinContent(m))/ (m - plateau_edges.second+1);}
+ float optimum = bottom_mean + (top_mean - bottom_mean) * 1./3.;
+ 
   /////// or alternative method ..
   /*
   float top=0.;
