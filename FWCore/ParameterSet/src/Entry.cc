@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.14 2006/08/16 17:14:15 rpw Exp $
+// $Id: Entry.cc,v 1.15 2006/09/21 19:30:12 rpw Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -769,7 +769,7 @@ namespace edm {
       throw edm::Exception(errors::Configuration, "EntryError")
         << "can not convert representation of " << name_ << ": "
         << badRep
-        << "to value of type " << expectedType;
+        << " to value of type " << expectedType << " ";
     }
 
     void Entry::throwEncodeError(const char* type) const
