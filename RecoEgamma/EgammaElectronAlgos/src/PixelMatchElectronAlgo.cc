@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.10 2006/09/28 17:36:43 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.11 2006/10/02 14:34:53 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -311,11 +311,11 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
   //  str << "Number of final electron tracks: " << outTk.size();
   str << "Number of final electrons: " << outEle.size();
   str << "Number of final electron tracks: " << outTracks->size();
-  cout<<" Number of final electrons:"<<outEle.size()<<std::endl;
+  //cout<<" Number of final electrons:"<<outEle.size()<<std::endl;
   for (vector<Electron>::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
     str << "New electron with charge, pt, eta, phi : "  << it->charge() << " , " 
         << it->pt() << " , " << it->eta() << " , " << it->phi();
-    cout << "New electron with charge, pt, eta, phi : "  << it->charge() << " , "  << it->pt() << " , " << it->eta() << " , " << it->phi()<<std::endl;
+    //cout << "New electron with charge, pt, eta, phi : "  << it->charge() << " , "  << it->pt() << " , " << it->eta() << " , " << it->phi()<<std::endl;
   }
   e.put(outTracks);
   e.put(outTrackCandidates);
