@@ -107,7 +107,10 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product(), subdet));
   //fillFakeHits();
 
-
+  if(theHitCorrection != 0)
+  {
+    theHitCorrection->fillChargeSums(*col);
+  }
   // Step B: Create empty output
 
   std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
@@ -120,9 +123,9 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   theHODigitizer->run(*col, *hoResult);
   theHFDigitizer->run(*col, *hfResult);
 
-  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
-  edm::LogInfo("HcalDigiProducer") << "HCAL HO digis   : " << hoResult->size();
-  edm::LogInfo("HcalDigiProducer") << "HCAL HF digis   : " << hfResult->size();
+//  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
+//  edm::LogInfo("HcalDigiProducer") << "HCAL HO digis   : " << hoResult->size();
+//  edm::LogInfo("HcalDigiProducer") << "HCAL HF digis   : " << hfResult->size();
 
   // Step D: Put outputs into event
   e.put(hbheResult);
