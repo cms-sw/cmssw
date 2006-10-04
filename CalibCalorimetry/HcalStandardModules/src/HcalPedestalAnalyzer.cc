@@ -19,8 +19,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2006/10/03 19:28:29 $
- * $Revision: 1.4 $
+ * $Date: 2006/10/04 17:00:59 $
+ * $Revision: 1.5 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -156,14 +156,17 @@ void HcalPedestalAnalyzer::endJob(void) {
   }
 
   // make output objects
-  HcalPedestals* outputPeds = m_outputPedestals_dest.empty () ? 0 : new HcalPedestals ();
-  HcalPedestalWidths* outputPedWids = m_outputPedestalWidths_dest.empty () ? 0 : new HcalPedestalWidths ();
+  HcalPedestals* outputPeds = (m_outputPedestals_dest.empty () && !xmlFile (m_outputPedestals_dest)) ? 0 : new HcalPedestals ();
+  HcalPedestalWidths* outputPedWids = (m_outputPedestalWidths_dest.empty () && !xmlFile (m_outputPedestals_dest)) ? 0 : new HcalPedestalWidths ();
 
   // run algorithm
   int Flag=m_pedAnal->done(inputPeds, inputPedWids, outputPeds, outputPedWids);
 
   delete inputPeds;
   delete inputPedWids;
+
+  if (outputPeds) outputPeds->sort ();
+  if (outputPedWids) outputPedWids->sort ();
 
   // store new objects
   // Flag=-2 indicates there were less than 100 events and output is meaningless
