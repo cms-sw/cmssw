@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.2 2006/09/26 20:49:01 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.3 2006/10/02 21:27:49 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -64,7 +64,7 @@ public:
 
   DOMElement* root ();
   DOMElement* makeHeader (DOMElement* fRoot, const std::string& fExtensionName, unsigned long fRun);
-  DOMElement* makeDataset (DOMElement* fRoot, unsigned fVersion);
+  DOMElement* makeDataset (DOMElement* fRoot, const std::string& fVersion);
   DOMElement* makeElement (DOMElement* fRoot);
   DOMElement* makeMaps (DOMElement* fRoot);
 
@@ -73,7 +73,7 @@ public:
 
   DOMElement* makeChId (DOMElement* fDataset, DetId fId);
 
-  DOMElement* makeElementDataset (DOMElement* fElement, int fXMLId, DetId fDetId, int fVersion, const std::string& fKind, unsigned long fRun);
+  DOMElement* makeElementDataset (DOMElement* fElement, int fXMLId, DetId fDetId, const std::string& fVersion, const std::string& fKind, unsigned long fRun);
   DOMElement* makeElementIOV (DOMElement* fElement, unsigned long long fIovBegin, unsigned long long fIovEnd = 0);
   DOMElement* makeElementTag (DOMElement* fElement, const std::string& fTagName, const std::string& fDetectorName, const std::string& fComment = "Automatically created by HcalDbXml");
 
@@ -146,7 +146,7 @@ private:
       return run;
   }
 
-  DOMElement* XMLDocument::makeDataset (DOMElement* fRoot, unsigned fVersion) {
+  DOMElement* XMLDocument::makeDataset (DOMElement* fRoot, const std::string& fVersion) {
       DOMElement* dataset =newElement (fRoot, "DATA_SET");
       newValue (dataset, "VERSION", fVersion);
       return dataset;
@@ -166,7 +166,7 @@ private:
     return channel;
   }
 
-  DOMElement* XMLDocument::makeElementDataset (DOMElement* fElement, int fXMLId, DetId fDetId, int fVersion, const std::string& fKind, unsigned long fRun) {
+  DOMElement* XMLDocument::makeElementDataset (DOMElement* fElement, int fXMLId, DetId fDetId, const std::string& fVersion, const std::string& fKind, unsigned long fRun) {
     DOMElement* dataset = newElement (fElement, "DATA_SET");
     addAttribute (dataset, "id", fXMLId);
     newValue (newElement (dataset, "KIND_OF_CONDITION"), "NAME", fKind);
@@ -299,7 +299,7 @@ private:
 
 template <class T1, class T2>
 bool dumpObject_ (std::ostream& fOutput, 
-		  unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		  unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		  const T1* fObject1, const T2* fObject2 = 0) {
   if (!fObject1) return false;
   const std::string KIND = kind (*fObject1);
@@ -317,12 +317,14 @@ bool dumpObject_ (std::ostream& fOutput,
   std::vector<DetId> detids = fObject1->getAllChannels ();
   for (unsigned iCh = 0; iCh < detids.size(); iCh++) {
     DetId id = detids [iCh];
-    DOMElement* dataset = doc.makeDataset (root, fVersion);
+    ostringstream version;
+    version << fTag << '_' << fGMTIOVBegin; // CONVENTION: version == tag + iov for initial setting
+    DOMElement* dataset = doc.makeDataset (root, version.str());  
     doc.makeChId (dataset, id);
     DOMElement* data = doc.makeData (dataset);
     doc.addData (data, *(fObject1->getValues (id)));
     if (fObject2) doc.addData (data, *(fObject2->getValues (id)));
-    doc.makeElementDataset (elements, iCh, id, fVersion, KIND, fRun);
+    doc.makeElementDataset (elements, iCh, id, version.str(), KIND, fRun);
     doc.makeMapDataset (iovmap, iCh);
   }
   doc.streamOut (fOutput);
@@ -331,13 +333,13 @@ bool dumpObject_ (std::ostream& fOutput,
 
 
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
-			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 			    const HcalPedestals& fObject, const HcalPedestalWidths& fError) {
-  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, &fObject, &fError);
+  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, &fObject, &fError);
 }
 
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
-			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 			    const HcalPedestals& fObject) {
   float dummyError = 0.0001;
   std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
@@ -352,17 +354,17 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
     }
   }
   widths.sort ();
-  return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, fObject, widths);
+  return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fObject, widths);
 }
 
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
-			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 			    const HcalGains& fObject, const HcalGainWidths& fError) {
-  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, &fObject, &fError);
+  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, &fObject, &fError);
 }
 
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
-			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 			    const HcalGains& fObject) {
   HcalGainWidths widths;
   std::vector<DetId> channels = fObject.getAllChannels ();
@@ -372,5 +374,5 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
     widths.addValue (*channel, 0, 0, 0, 0); // no error
   }
   widths.sort ();
-  return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, fObject, widths);
+  return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fObject, widths);
 }

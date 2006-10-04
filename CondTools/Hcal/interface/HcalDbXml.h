@@ -12,36 +12,36 @@
 /**
    \brief IO for XML instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbXml.h,v 1.7 2006/05/26 23:32:02 fedor Exp $
+   $Id: HcalDbXml.h,v 1.1 2006/09/15 19:57:56 fedor Exp $
    
 */
 namespace HcalDbXml {
   bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalPedestals& fObject, const HcalPedestalWidths& fError);
   bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag,
 		   const HcalPedestals& fObject);
   bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag,
 		   const HcalPedestalWidths& fObject) {return false;}
   bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalGains& fObject, const HcalGainWidths& fError);
   bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalGains& fObject);
   bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalGainWidths& fObject) {return false;}
   bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalElectronicsMap& fObject) {return false;}
   bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalQIEData& fObject) {return false;}
   bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalCalibrationQIEData& fObject) {return false;}
 } 
 #endif

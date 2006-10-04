@@ -19,8 +19,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2006/07/25 19:10:29 $
- * $Revision: 1.3 $
+ * $Date: 2006/10/03 19:28:29 $
+ * $Revision: 1.4 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -75,7 +75,7 @@ namespace {
   bool dumpXmlPedestals (const HcalPedestals& fObject, const HcalPedestalWidths& fWidth, const std::string& fXml, const std::string& fTag, int fRun) {
     std::cout << "HcalPedestalAnalyzer-> USE OUTPUT: XML" << std::endl;
     std::ofstream stream (fXml.c_str ());
-    bool result = HcalDbXml::dumpObject (stream, fRun, fRun, 0, fTag, 0, fObject, fWidth);
+    bool result = HcalDbXml::dumpObject (stream, fRun, fRun, 0, fTag, fObject, fWidth);
     stream.close ();
     return result;
   }

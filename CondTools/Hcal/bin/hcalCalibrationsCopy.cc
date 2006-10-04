@@ -228,7 +228,7 @@ bool onlineFile (const std::string fParam) {
 template <class T> bool copyObject (T* fObject, 
 				    const std::string& fInput, const std::string& fInputTag, HcalDbTool::IOVRun fInputRun,
 				    const std::string& fOutput, const std::string& fOutputTag, HcalDbTool::IOVRun fOutputRun,
-				    unsigned fVersion, unsigned long long fIovgmtbegin, unsigned long long fIovgmtend,
+				    unsigned long long fIovgmtbegin, unsigned long long fIovgmtend,
 				    unsigned fNread, unsigned fNwrite, unsigned fNtrace,
 				    bool fVerbose
 				    ) {
@@ -332,7 +332,7 @@ template <class T> bool copyObject (T* fObject,
       else if (xmlFile (fOutput)) {
 	if (!traceCounter) std::cout << "USE OUTPUT: XML: " << fOutput << std::endl;
 	std::ofstream outStream (fOutput.c_str ());
-	HcalDbXml::dumpObject (outStream, fOutputRun, fIovgmtbegin, fIovgmtend, fOutputTag, fVersion, *object);
+	HcalDbXml::dumpObject (outStream, fOutputRun, fIovgmtbegin, fIovgmtend, fOutputTag, *object);
 	outStream.close ();
 	std::cout << "close file\n";
       }
@@ -377,15 +377,14 @@ int main (int argn, char* argv []) {
   args.defineParameter ("-inputtag", "tag for the input constants set");
   args.defineParameter ("-outputrun", "run # for which constands should be dumped");
   args.defineParameter ("-outputtag", "tag for the output constants set");
-  args.defineParameter ("-iovgmtbegin", "start time for online IOV");
-  args.defineParameter ("-iovgmtend", "end time for online IOV");
-  args.defineParameter ("-version", "version in online DB");
-  args.defineParameter ("-nread", "repeat input that many times with increasing run#");
-  args.defineParameter ("-nwrite", "repeat output that many times with increasing run#");
-  args.defineParameter ("-trace", "trace time every that many operations");
+  args.defineParameter ("-iovgmtbegin", "start time for online IOV <outputrun>");
+  args.defineParameter ("-iovgmtend", "end time for online IOV <0>");
+  args.defineParameter ("-nread", "repeat input that many times with increasing run# <1>");
+  args.defineParameter ("-nwrite", "repeat output that many times with increasing run# <1>");
+  args.defineParameter ("-trace", "trace time every that many operations <false>");
   args.defineOption ("-help", "this help");
   args.defineOption ("-online", "interpret input DB as an online DB");
-  args.defineOption ("-verbose", "makes program verbose");
+  args.defineOption ("-verbose", "makes program verbose <false>");
   
   args.parse (argn, argv);
   
@@ -404,9 +403,8 @@ int main (int argn, char* argv []) {
   std::string inputTag = args.getParameter ("-inputtag");
   std::string outputTag = args.getParameter ("-outputtag");
 
-  unsigned long long iovgmtbegin = args.getParameter ("-iovgmtbegin").empty () ? 0 : strtoull (args.getParameter ("-iovgmtbegin").c_str (), 0, 0);
+  unsigned long long iovgmtbegin = args.getParameter ("-iovgmtbegin").empty () ? outputRun : strtoull (args.getParameter ("-iovgmtbegin").c_str (), 0, 0);
   unsigned long long iovgmtend = args.getParameter ("-iovgmtend").empty () ? 0 : strtoull (args.getParameter ("-iovgmtend").c_str (), 0, 0);
-  unsigned  version = args.getParameter ("-version").empty () ? 0 : atoi (args.getParameter ("-version").c_str ());
 
   unsigned nread = args.getParameter ("-nread").empty () ? 1 : atoi (args.getParameter ("-nread").c_str ());
   unsigned nwrite = args.getParameter ("-nwrite").empty () ? 1 : atoi (args.getParameter ("-nwrite").c_str ());
@@ -419,31 +417,31 @@ int main (int argn, char* argv []) {
 
   if (what == "pedestals") {
     HcalPedestals* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "gains") {
     HcalGains* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "pwidths") {
     HcalPedestalWidths* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "gwidths") {
     HcalGainWidths* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "emap") {
     HcalElectronicsMap* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "qie") {
     HcalQIEData* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "calibqie") {
     HcalCalibrationQIEData* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
 }
 
