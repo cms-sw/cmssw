@@ -110,7 +110,7 @@ TFileAdaptor::TFileAdaptor(const TFileAdaptorParams& iparams):
   if (!native("rfio")){addFileType (mgr, "^rfio:");       addSystemType (mgr, "^rfio:");}
   if (!native("dcache")){addFileType (mgr, "^dcache:");     addSystemType (mgr, "^dcache:");}
   if (!native("dcap")){addFileType (mgr, "^dcap:");       addSystemType (mgr, "^dcap:");}
-  if (!native("gsicdap")) {addFileType (mgr, "^gsidcap:");    addSystemType (mgr, "^gsidcap:");}
+  if (!native("gsidcap")) {addFileType (mgr, "^gsidcap:");    addSystemType (mgr, "^gsidcap:");}
    
 }
 //                  gROOT->GetPluginManager()->Print(); // use option="a" to see ctors 
