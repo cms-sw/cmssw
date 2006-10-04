@@ -12,8 +12,8 @@
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
- *  $Date: 2006/08/14 16:29:11 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/23 17:03:01 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -23,7 +23,7 @@
 #include<vector>
 
 //
-// class decleration
+// class declaration
 //
 
 class HLTDoublet : public HLTFilter {
@@ -38,14 +38,14 @@ class HLTDoublet : public HLTFilter {
       // configuration
       edm::InputTag inputTag1_;   // input tag identifying 1st product
       edm::InputTag inputTag2_;   // input tag identifying 2nd product
-      double Min_Dphi_,Max_Dphi_; // Delta phi window
-      double Min_Deta_,Max_Deta_; // Delta eta window
-      double Min_Minv_,Max_Minv_; // Minv(1,2) window
-      int    Min_N_;              // number of pairs passing cuts required
+      double min_Dphi_,max_Dphi_; // Delta phi window
+      double min_Deta_,max_Deta_; // Delta eta window
+      double min_Minv_,max_Minv_; // Minv(1,2) window
+      int    min_N_;              // number of pairs passing cuts required
 
       // calculated from configuration in c'tor
-      bool   same;                    // 1st and 2nd product are one and the same
-      bool   cutdphi,cutdeta,cutminv; // cuts are on=true or off=false
+      bool   same_;                      // 1st and 2nd product are one and the same
+      bool   cutdphi_,cutdeta_,cutminv_; // cuts are on=true or off=false
 };
 
 #endif //HLTDoublet_h

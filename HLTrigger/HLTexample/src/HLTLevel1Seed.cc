@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/29 11:31:22 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/08/31 16:14:00 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *
@@ -25,9 +25,9 @@
 // constructors and destructor
 //
 HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
-  L1ExtraTag_(iConfig.getParameter<edm::InputTag> ("L1ExtraTag")),
-  andOr_     (iConfig.getParameter<bool> ("andOr" )),
-  byName_    (iConfig.getParameter<bool> ("byName"))
+  inputTag_(iConfig.getParameter<edm::InputTag> ("L1ExtraTag")),
+  andOr_   (iConfig.getParameter<bool> ("andOr" )),
+  byName_  (iConfig.getParameter<bool> ("byName"))
 {
   const string invalid("@@invalid@@");
  
@@ -72,7 +72,7 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
     }
   }
   
-  LogDebug("") << "Level-1 triggers: " +L1ExtraTag_.encode()
+  LogDebug("") << "Level-1 triggers: " + inputTag_.encode()
 	       << " - Number requested: " << n 
 	       << " - andOr mode: " << andOr_
 	       << " - byName: " << byName_;
@@ -120,22 +120,22 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of L1GlobalReadoutRecord
    Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
-   try {iEvent.getByLabel(L1ExtraTag_,L1GTRR);} catch (...) {;}
+   try {iEvent.getByLabel(inputTag_,L1GTRR);} catch (...) {;}
    if (L1GTRR.isValid()) {
      LogDebug("") << "L1GlobalTriggerReadoutRecord decision: " << L1GTRR->decision();
    } else {
-     LogDebug("") << "L1GlobalTriggerReadoutRecord with label ["+L1ExtraTag_.encode()+"] not found!";
+     LogDebug("") << "L1GlobalTriggerReadoutRecord with label ["+inputTag_.encode()+"] not found!";
      // try to carry on!
    }
 
 
    // get hold of L1ParticleMapCollection
    Handle<L1ParticleMapCollection> L1PMC;
-   try {iEvent.getByLabel(L1ExtraTag_,L1PMC);} catch (...) {;}
+   try {iEvent.getByLabel(inputTag_,L1PMC);} catch (...) {;}
    if (L1PMC.isValid()) {
      LogDebug("") << "L1ParticleMapCollection contains " << L1PMC->size() << " maps.";
    } else {
-     LogDebug("") << "L1ParticleMapCollection with label ["+L1ExtraTag_.encode()+"] not found!";
+     LogDebug("") << "L1ParticleMapCollection with label ["+inputTag_.encode()+"] not found!";
      iEvent.put(filterobject);
      return false;
    }
@@ -194,7 +194,7 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // then, later, check which are used by which requested L1 trigger
 
      // Em (Isolated)
-     InputTag L1EmIsoTag(InputTag(L1ExtraTag_.label(),"Isolated"));
+     InputTag L1EmIsoTag(InputTag(inputTag_.label(),"Isolated"));
      Handle<L1EmParticleCollection> L1EmIso;
      try {iEvent.getByLabel(L1EmIsoTag,L1EmIso);} catch(...) {;}
      unsigned int NEmIso(0);
@@ -204,7 +204,7 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // keeps track how often each Isolated Em particle is used
 
      // Em (NonIsolated)
-     InputTag L1EmNonIsoTag(InputTag(L1ExtraTag_.label(),"NonIsolated"));
+     InputTag L1EmNonIsoTag(InputTag(inputTag_.label(),"NonIsolated"));
      Handle<L1EmParticleCollection> L1EmNonIso;
      try {iEvent.getByLabel(L1EmNonIsoTag,L1EmNonIso);} catch(...) {;}
      unsigned int NEmNonIso(0);
@@ -215,7 +215,7 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      // Muon
      Handle<L1MuonParticleCollection> L1Muon;
-     try {iEvent.getByLabel(L1ExtraTag_,L1Muon);} catch (...) {;}
+     try {iEvent.getByLabel(inputTag_,L1Muon);} catch (...) {;}
      unsigned int NMuon(0);
      if (L1Muon.isValid()) NMuon=L1Muon->size();
      LogDebug("") << "L1MuonParticleCollection size = " << NMuon;
@@ -223,7 +223,7 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // keeps track how often each Muon particle is used
 
      // Jets (Forward)
-     InputTag L1JetForTag(InputTag(L1ExtraTag_.label(),"Forward"));
+     InputTag L1JetForTag(InputTag(inputTag_.label(),"Forward"));
      Handle<L1JetParticleCollection> L1JetFor;
      try {iEvent.getByLabel(L1JetForTag,L1JetFor);} catch(...) {;}
      unsigned int NJetFor(0);
@@ -233,7 +233,7 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // keeps track how often each Forward Jet particle is used
 
      // Jets (Central)
-     InputTag L1JetCenTag(InputTag(L1ExtraTag_.label(),"Central"));
+     InputTag L1JetCenTag(InputTag(inputTag_.label(),"Central"));
      Handle<L1JetParticleCollection> L1JetCen;
      try {iEvent.getByLabel(L1JetCenTag,L1JetCen);} catch(...) {;}
      unsigned int NJetCen(0);
@@ -243,7 +243,7 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // keeps track how often each Central Jet particle is used
 
      // Jets (Tau)
-     InputTag L1JetTauTag(InputTag(L1ExtraTag_.label(),"Tau"));
+     InputTag L1JetTauTag(InputTag(inputTag_.label(),"Tau"));
      Handle<L1JetParticleCollection> L1JetTau;
      try {iEvent.getByLabel(L1JetTauTag,L1JetTau);} catch(...) {;}
      unsigned int NJetTau(0);
@@ -254,7 +254,7 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      // (single global) MET
      Handle<L1EtMissParticle> L1EtM;
-     try {iEvent.getByLabel(L1ExtraTag_,L1EtM);} catch (...) {;}
+     try {iEvent.getByLabel(inputTag_,L1EtM);} catch (...) {;}
      unsigned int NEtM(0);
      if (L1EtM.isValid()) NEtM=1;
      LogDebug("") << "L1EtMissParticle size = " << NEtM;

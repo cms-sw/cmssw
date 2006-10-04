@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/18 16:49:59 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/08/22 19:03:15 $
+ *  $Revision: 1.22 $
  *
  *  \author Martin Grunewald
  *
@@ -41,24 +41,17 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
   trckTag_ (iConfig.getParameter<edm::InputTag>("trckTag")),
   ecalTag_ (iConfig.getParameter<edm::InputTag>("ecalTag")),
 
-  phot_pt_ (iConfig.getParameter<double>("photPt")),
-  elec_pt_ (iConfig.getParameter<double>("elecPt")),
-  muon_pt_ (iConfig.getParameter<double>("muonPt")),
-  taus_pt_ (iConfig.getParameter<double>("tausPt")),
-  jets_pt_ (iConfig.getParameter<double>("jetsPt")),
-  mets_pt_ (iConfig.getParameter<double>("metsPt")),
-  trck_pt_ (iConfig.getParameter<double>("trckPt")),
-  ecal_pt_ (iConfig.getParameter<double>("ecalPt"))
+  min_Pt_  (iConfig.getParameter<double>("MinPt"))
 {
-   LogDebug("")
-   << " g: " << photTag_.encode() << " " << phot_pt_
-   << " e: " << elecTag_.encode() << " " << elec_pt_
-   << " m: " << muonTag_.encode() << " " << muon_pt_
-   << " t: " << tausTag_.encode() << " " << taus_pt_
-   << " j: " << jetsTag_.encode() << " " << jets_pt_
-   << " M: " << metsTag_.encode() << " " << mets_pt_
-   <<" TR: " << trckTag_.encode() << " " << trck_pt_
-   <<" SC: " << ecalTag_.encode() << " " << ecal_pt_
+  LogDebug("") << "MinPt cut " << min_Pt_
+   << " g: " << photTag_.encode()
+   << " e: " << elecTag_.encode()
+   << " m: " << muonTag_.encode()
+   << " t: " << tausTag_.encode()
+   << " j: " << jetsTag_.encode()
+   << " M: " << metsTag_.encode()
+   <<" TR: " << trckTag_.encode()
+   <<" SC: " << ecalTag_.encode()
    ;
 
    //register your products
@@ -123,7 +116,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    PhotonCollection::const_iterator ophot(photons->end());
    PhotonCollection::const_iterator iphot;
    for (iphot=aphot; iphot!=ophot; iphot++) {
-     if (iphot->pt() >= phot_pt_) {
+     if (iphot->pt() >= min_Pt_) {
        nphot++;
        ref=RefToBase<Candidate>(PhotonRef(photons,distance(aphot,iphot)));
        filterobject->putParticle(ref);
@@ -136,7 +129,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    ElectronCollection::const_iterator oelec(electrons->end());
    ElectronCollection::const_iterator ielec;
    for (ielec=aelec; ielec!=oelec; ielec++) {
-     if (ielec->pt() >= elec_pt_) {
+     if (ielec->pt() >= min_Pt_) {
        nelec++;
        ref=RefToBase<Candidate>(ElectronRef(electrons,distance(aelec,ielec)));
        filterobject->putParticle(ref);
@@ -149,7 +142,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    MuonCollection::const_iterator omuon(muons->end());
    MuonCollection::const_iterator imuon;
    for (imuon=amuon; imuon!=omuon; imuon++) {
-     if (imuon->pt() >= muon_pt_) {
+     if (imuon->pt() >= min_Pt_) {
        nmuon++;
        ref=RefToBase<Candidate>(MuonRef(muons,distance(amuon,imuon)));
        filterobject->putParticle(ref);
@@ -162,7 +155,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    CaloJetCollection::const_iterator otaus(taus->end());
    CaloJetCollection::const_iterator itaus;
    for (itaus=ataus; itaus!=otaus; itaus++) {
-     if (itaus->pt() >= taus_pt_) {
+     if (itaus->pt() >= min_Pt_) {
        ntaus++;
        ref=RefToBase<Candidate>(CaloJetRef(taus,distance(ataus,itaus)));
        filterobject->putParticle(ref);
@@ -175,7 +168,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    CaloJetCollection::const_iterator ojets(jets->end());
    CaloJetCollection::const_iterator ijets;
    for (ijets=ajets; ijets!=ojets; ijets++) {
-     if (ijets->pt() >= jets_pt_) {
+     if (ijets->pt() >= min_Pt_) {
        njets++;
        ref=RefToBase<Candidate>(CaloJetRef(jets,distance(ajets,ijets)));
        filterobject->putParticle(ref);
@@ -188,7 +181,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    CaloMETCollection::const_iterator omets(mets->end());
    CaloMETCollection::const_iterator imets;
    for (imets=amets; imets!=omets; imets++) {
-     if (imets->pt() >= mets_pt_) {
+     if (imets->pt() >= min_Pt_) {
        nmets++;
        ref=RefToBase<Candidate>(CaloMETRef(mets,distance(amets,imets)));
        filterobject->putParticle(ref);
@@ -201,7 +194,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    RecoChargedCandidateCollection::const_iterator otrcks(trcks->end());
    RecoChargedCandidateCollection::const_iterator itrcks;
    for (itrcks=atrcks; itrcks!=otrcks; itrcks++) {
-     if (itrcks->pt() >= trck_pt_) {
+     if (itrcks->pt() >= min_Pt_) {
        ntrck++;
        ref=RefToBase<Candidate>(RecoChargedCandidateRef(trcks,distance(atrcks,itrcks)));
        filterobject->putParticle(ref);
@@ -214,7 +207,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    RecoEcalCandidateCollection::const_iterator oecals(ecals->end());
    RecoEcalCandidateCollection::const_iterator iecals;
    for (iecals=aecals; iecals!=oecals; iecals++) {
-     if (iecals->pt() >= ecal_pt_) {
+     if (iecals->pt() >= min_Pt_) {
        necal++;
        ref=RefToBase<Candidate>(RecoEcalCandidateRef(ecals,distance(aecals,iecals)));
        filterobject->putParticle(ref);

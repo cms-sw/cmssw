@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 16:29:12 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/08/23 19:02:34 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -25,11 +25,13 @@
 template<typename T>
 HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  Min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
-  Max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  )),
-  Min_N_    (iConfig.template getParameter<int>          ("MinN"    ))
+  min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
+  max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  )),
+  min_N_    (iConfig.template getParameter<int>          ("MinN"    ))
 {
-   LogDebug("") << "Input/ptcut/etacut/ncut : " << inputTag_.encode() << " " << Min_Pt_ << " " << Max_Eta_ << " " << Min_N_ ;
+   LogDebug("") << "Input/ptcut/etacut/ncut : "
+		<< inputTag_.encode() << " "
+		<< min_Pt_ << " " << max_Eta_ << " " << min_N_ ;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -75,8 +77,8 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int n(0);
    typename TCollection::const_iterator i ( objects->begin() );
    for (; i!=objects->end(); i++) {
-     if ( (i->pt() >= Min_Pt_) && 
-	  ( (Max_Eta_ < 0.0) || (abs(i->eta()) <= Max_Eta_) ) ) {
+     if ( (i->pt() >= min_Pt_) && 
+	  ( (max_Eta_ < 0.0) || (abs(i->eta()) <= max_Eta_) ) ) {
        n++;
        ref=RefToBase<Candidate>(TRef(objects,distance(objects->begin(),i)));
        filterobject->putParticle(ref);
@@ -84,7 +86,7 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // filter decision
-   bool accept(n>=Min_N_);
+   bool accept(n>=min_N_);
 
    // put filter object into the Event
    iEvent.put(filterobject);

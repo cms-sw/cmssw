@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/24 11:43:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/24 16:34:48 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -29,14 +29,14 @@
 HLTGlobalSums::HLTGlobalSums(const edm::ParameterSet& iConfig) :
   inputTag_   (iConfig.getParameter<edm::InputTag>("inputTag")),
   observable_ (iConfig.getParameter<std::string>("observable")),
-  Min_        (iConfig.getParameter<double>("Min")),
-  Max_        (iConfig.getParameter<double>("Max")),
-  Min_N_      (iConfig.getParameter<int>("MinN"))
+  min_        (iConfig.getParameter<double>("Min")),
+  max_        (iConfig.getParameter<double>("Max")),
+  min_N_      (iConfig.getParameter<int>("MinN"))
 {
    LogDebug("") << "InputTags and cuts : " 
 		<< inputTag_.encode() << " " << observable_
-		<< " Range [" << Min_ << " " << Max_ << "]"
-                << " MinN =" << Min_N_
+		<< " Range [" << min_ << " " << max_ << "]"
+                << " MinN =" << min_N_
      ;
 
    //register your products
@@ -86,7 +86,7 @@ HLTGlobalSums::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      LogDebug("") << "MET collection contains more than one MET object!";
    }
 
-   int nmets(0);
+   int n(0);
    double value(0.0);
    CaloMETCollection::const_iterator amets(mets->begin());
    CaloMETCollection::const_iterator omets(mets->end());
@@ -106,9 +106,9 @@ HLTGlobalSums::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      value=abs(value);
 
-     if ( ( (Min_<0.0) || (Min_<=value) ) &&
-	  ( (Max_<0.0) || (value<=Max_) ) ) {
-       nmets++;
+     if ( ( (min_<0.0) || (min_<=value) ) &&
+	  ( (max_<0.0) || (value<=max_) ) ) {
+       n++;
        ref=RefToBase<Candidate>(CaloMETRef(mets,distance(amets,imets)));
        filterobject->putParticle(ref);
      }
@@ -116,7 +116,7 @@ HLTGlobalSums::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // filter decision
-   const bool accept(nmets>=Min_N_);
+   const bool accept(n>=min_N_);
 
    // put filter object into the Event
    iEvent.put(filterobject);

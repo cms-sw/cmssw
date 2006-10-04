@@ -9,8 +9,8 @@
  *  for single objects of the same physics type, allowing to cut on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2006/08/14 16:29:11 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/08/27 08:20:28 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -23,7 +23,7 @@
 #include<string>
 
 //
-// class decleration
+// class declaration
 //
 
 template<typename T>
@@ -38,7 +38,7 @@ class HLTSmartSinglet : public HLTFilter {
    private:
       edm::InputTag inputTag_; // input tag identifying product
       std::string   cut_;      // smart cut
-      int    Min_N_;           // number of objects passing cuts required
+      int           min_N_;    // number of objects passing cuts required
 
       SingleObjectSelector<T> select_; // smart selector
 };

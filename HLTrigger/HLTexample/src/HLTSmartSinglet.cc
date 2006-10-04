@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 15:48:48 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/08/14 16:29:12 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -26,10 +26,10 @@ template<typename T>
 HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
   cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
-  Min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
+  min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
   select_   (iConfig                                                 )
 {
-   LogDebug("") << "Input/cut/ncut : " << inputTag_.encode() << " " << cut_<< " " << Min_N_ ;
+   LogDebug("") << "Input/cut/ncut : " << inputTag_.encode() << " " << cut_<< " " << min_N_ ;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -83,7 +83,7 @@ HLTSmartSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // filter decision
-   bool accept(n>=Min_N_);
+   bool accept(n>=min_N_);
 
    // put filter object into the Event
    iEvent.put(filterobject);

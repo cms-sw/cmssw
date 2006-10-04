@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 16:29:12 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/08/23 17:03:02 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -27,28 +27,29 @@
 HLTDoublet::HLTDoublet(const edm::ParameterSet& iConfig) :
   inputTag1_(iConfig.getParameter<edm::InputTag>("inputTag1")),
   inputTag2_(iConfig.getParameter<edm::InputTag>("inputTag2")),
-  Min_Dphi_ (iConfig.getParameter<double>("MinDphi")),
-  Max_Dphi_ (iConfig.getParameter<double>("MaxDphi")),
-  Min_Deta_ (iConfig.getParameter<double>("MinDeta")),
-  Max_Deta_ (iConfig.getParameter<double>("MaxDeta")),
-  Min_Minv_ (iConfig.getParameter<double>("MinMinv")),
-  Max_Minv_ (iConfig.getParameter<double>("MaxMinv")),
-  Min_N_    (iConfig.getParameter<int>("MinN"))
+  min_Dphi_ (iConfig.getParameter<double>("MinDphi")),
+  max_Dphi_ (iConfig.getParameter<double>("MaxDphi")),
+  min_Deta_ (iConfig.getParameter<double>("MinDeta")),
+  max_Deta_ (iConfig.getParameter<double>("MaxDeta")),
+  min_Minv_ (iConfig.getParameter<double>("MinMinv")),
+  max_Minv_ (iConfig.getParameter<double>("MaxMinv")),
+  min_N_    (iConfig.getParameter<int>("MinN"))
 {
    // same collections to be compared?
-   same = (inputTag1_.encode()==inputTag2_.encode());
+   same_ = (inputTag1_.encode()==inputTag2_.encode());
 
-   cutdphi = (Min_Dphi_ <= Max_Dphi_); // cut active?
-   cutdeta = (Min_Deta_ <= Max_Deta_); // cut active?
-   cutminv = (Min_Minv_ <= Max_Minv_); // cut active?
+   cutdphi_ = (min_Dphi_ <= max_Dphi_); // cut active?
+   cutdeta_ = (min_Deta_ <= max_Deta_); // cut active?
+   cutminv_ = (min_Minv_ <= max_Minv_); // cut active?
 
    LogDebug("") << "InputTags and cuts : " 
 		<< inputTag1_.encode() << " " << inputTag2_.encode()
-		<< " Dphi [" << Min_Dphi_ << " " << Max_Dphi_ << "]"
-                << " Deta [" << Min_Deta_ << " " << Max_Deta_ << "]"
-                << " Minv [" << Min_Minv_ << " " << Max_Minv_ << "]"
-                << " MinN =" << Min_N_
-		<< " same/dphi/deta/minv " << same << cutdphi << cutdeta << cutminv;
+		<< " Dphi [" << min_Dphi_ << " " << max_Dphi_ << "]"
+                << " Deta [" << min_Deta_ << " " << max_Deta_ << "]"
+                << " Minv [" << min_Minv_ << " " << max_Minv_ << "]"
+                << " MinN =" << min_N_
+		<< " same/dphi/deta/minv "
+		<< same_ << cutdphi_ << cutdeta_ << cutminv_;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -94,22 +95,22 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      p1=coll1->getParticle(i1);
      r1=coll1->getParticleRef(i1);
      unsigned int I(0);
-     if (same) {I=i1+1;}
+     if (same_) {I=i1+1;}
      for (unsigned int i2=I; i2!=n2; i2++) {
        p2=coll2->getParticle(i2);
        r2=coll2->getParticleRef(i2);
 
-       double Dphi_(abs(p1.phi()-p2.phi()));
-       if (Dphi_>M_PI) Dphi_=2.0*M_PI-Dphi_;
+       double Dphi(abs(p1.phi()-p2.phi()));
+       if (Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
 
-       double Deta_(abs(p1.eta()-p2.eta()));
+       double Deta(abs(p1.eta()-p2.eta()));
        p=ParticleKinematics(math::XYZTLorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
 
-       double Minv_(abs(p.mass()));
+       double Minv(abs(p.mass()));
 
-       if ( ( (!cutdphi) || (Min_Dphi_ <= Dphi_) && (Dphi_ <= Max_Dphi_) ) &&
-            ( (!cutdeta) || (Min_Deta_ <= Deta_) && (Deta_ <= Max_Deta_) ) &&
-            ( (!cutminv) || (Min_Minv_ <= Minv_) && (Minv_ <= Max_Minv_) ) ) {
+       if ( ( (!cutdphi_) || (min_Dphi_ <= Dphi) && (Dphi <= max_Dphi_) ) &&
+            ( (!cutdeta_) || (min_Deta_ <= Deta) && (Deta <= max_Deta_) ) &&
+            ( (!cutminv_) || (min_Minv_ <= Minv) && (Minv <= max_Minv_) ) ) {
 	 n++;
          filterobject->putParticle(r1);
          filterobject->putParticle(r2);
@@ -119,7 +120,7 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // filter decision
-   const bool accept(n>=Min_N_);
+   const bool accept(n>=min_N_);
 
    // put filter object into the Event
    iEvent.put(filterobject);

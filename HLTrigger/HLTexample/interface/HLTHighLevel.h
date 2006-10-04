@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2006/08/23 17:03:01 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/09/20 09:46:38 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -19,7 +19,7 @@
 #include<string>
 
 //
-// class decleration
+// class declaration
 //
 
 class HLTHighLevel : public HLTFilter {
@@ -32,8 +32,7 @@ class HLTHighLevel : public HLTFilter {
 
   private:
 
-    edm::InputTag TriggerResultsTag_;
-    // HLT TriggerResults EDProduct
+    edm::InputTag inputTag_; // HLT TriggerResults EDProduct
 
     bool andOr_;
     // false=and-mode (all), true=or-mode(at least one)
@@ -45,8 +44,8 @@ class HLTHighLevel : public HLTFilter {
     unsigned int n_;
     // number of HLT trigger paths requested in configuration
 
-    std::vector<std::string > HLTPathByName_;
-    std::vector<unsigned int> HLTPathByIndex_;
+    std::vector<std::string > HLTPathsByName_;
+    std::vector<unsigned int> HLTPathsByIndex_;
     // list of required HLT triggers by HLT name and by HLT index
 
 };

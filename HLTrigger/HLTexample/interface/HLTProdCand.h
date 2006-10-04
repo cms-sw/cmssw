@@ -7,8 +7,8 @@
  *  This class is a EDProducer producing some collections of
  *  reconstructed objetcs based on the Candidate model
  *
- *  $Date: 2006/08/14 15:48:48 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/08/14 16:29:11 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -19,7 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //
-// class decleration
+// class declaration
 //
 
 class HLTProdCand : public edm::EDProducer {

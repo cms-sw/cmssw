@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing a very basic HLT filter
  *  product analysis
  *
- *  $Date: 2006/08/14 15:48:48 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/14 16:29:11 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -19,7 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //
-// class decleration
+// class declaration
 //
 
 class HLTAnalFilt : public edm::EDAnalyzer {
