@@ -150,7 +150,8 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
 
   ulong *myPointer =  buffer_;                        
   
-  ulong processedBytes(0), wordIndex(0), lastEvIndex(0),eventSize(0), eventLength(0), errorMask(0);
+  //  ulong processedBytes(0), wordIndex(0), lastEvIndex(0),eventSize(0), eventLength(0), errorMask(0);
+  ulong processedBytes(0), wordIndex(0), eventLength(0), errorMask(0);
   
   //parse until there are no more events
   while( processedBytes + EMPTYEVENTSIZE <= bufferSize ){

@@ -49,7 +49,7 @@ DCCTowerBlock::DCCTowerBlock(
 	
 	if( length > 0 ){ numbOfXtalBlocks = (length-1)/numbDWInXtalBlock; }
 	ulong xtalBlockSize     =  numbDWInXtalBlock*8;
-	ulong pIncrease         =  numbDWInXtalBlock*2;
+	//ulong pIncrease         =  numbDWInXtalBlock*2;
 	
 	//cout<<"\n DEBUG::numbDWInXtal Block "<<dec<<numbDWInXtalBlock<<endl;
 	//cout<<"\n DEBUG::length             "<<length<<endl;

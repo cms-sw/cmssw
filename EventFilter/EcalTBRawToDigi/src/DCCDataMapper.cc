@@ -173,7 +173,7 @@ void DCCDataMapper::buildTCCFields(){
   pVector.push_back(tcc32Fields_);
   pVector.push_back(tcc68Fields_);
 	
-  for(int i=0; i<pVector.size();i++){
+  for(int i=0; i< ((int)(pVector.size())) ;i++){
     (pVector[i])->insert( new DCCDataField("TCC ID",TCCID_WPOSITION ,TCCID_BPOSITION,TCCID_MASK));
     (pVector[i])->insert( new DCCDataField("BX",TCCBX_WPOSITION ,TCCBX_BPOSITION,TCCBX_MASK));	
     (pVector[i])->insert( new DCCDataField("E0",TCCE0_WPOSITION ,TCCE0_BPOSITION,TCCE0_MASK));
@@ -222,7 +222,7 @@ void DCCDataMapper::buildSRPFields(){
   pVector.push_back(srp32Fields_);
   pVector.push_back(srp16Fields_);
   
-  for(int i=0; i<pVector.size();i++){
+  for(int i=0; i< ((int)(pVector.size())) ;i++){
     // This method must be modified to take into account the different SRP blocks : 68 SRF in the barrel, 34 ,35 or 36 in the EE
     (pVector[i])->insert( new DCCDataField("SRP ID",SRPID_WPOSITION ,SRPID_BPOSITION,SRPID_MASK));
     (pVector[i])->insert( new DCCDataField("BX",SRPBX_WPOSITION ,SRPBX_BPOSITION,SRPBX_MASK));	
