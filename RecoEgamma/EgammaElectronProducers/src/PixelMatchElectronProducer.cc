@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronProducer.cc,v 1.4 2006/09/29 18:13:59 rahatlou Exp $
+// $Id: PixelMatchElectronProducer.cc,v 1.5 2006/10/02 14:34:41 uberthon Exp $
 //
 //
 
@@ -78,7 +78,6 @@ void PixelMatchElectronProducer::produce(edm::Event& e, const edm::EventSetup& i
 
   // get the input 
   edm::Handle<ElectronPixelSeedCollection> seeds;
-  //e.getByType(seeds);
   e.getByLabel(seedProducer_,seeds);
   LogDebug("") << " =================> Treating event "<<e.id()
                <<", Number of seeds "<<seeds.product()->size() << "\n";

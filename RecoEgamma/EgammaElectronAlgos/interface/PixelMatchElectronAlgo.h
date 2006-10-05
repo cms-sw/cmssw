@@ -28,7 +28,8 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
+//#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
@@ -76,7 +77,8 @@ public:
   string inputDataModuleLabel_;
   string inputDataInstanceName_;
 
-  CkfTrajectoryBuilder*  theCkfTrajectoryBuilder;
+  const TrackerTrajectoryBuilder*  theCkfTrajectoryBuilder;
+  //  CkfTrajectoryBuilder*  theCkfTrajectoryBuilder;
   TrajectoryCleaner*               theTrajectoryCleaner;
   TransientInitialStateEstimator*  theInitialStateEstimator;
   
