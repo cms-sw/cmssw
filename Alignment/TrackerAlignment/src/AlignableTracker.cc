@@ -823,9 +823,9 @@ std::vector<Alignable*> AlignableTracker::pixelEndcapPetals()
 
   std::vector<Alignable*> result;
   for ( unsigned int i=0; i<thePixelEndcaps.size(); i++ )
-	for ( int j=0; j<endCap(i).size(); j++ )
-	  for ( int k=0; k<endCap(i).layer(j).size(); k++ )
-		result.push_back( &endCap(i).layer(j).petal(k) );
+	for ( int j=0; j<pixelEndCap(i).size(); j++ )
+	  for ( int k=0; k<pixelEndCap(i).layer(j).size(); k++ )
+		result.push_back( &pixelEndCap(i).layer(j).petal(k) );
   
   return result;		    		    
 
@@ -920,9 +920,9 @@ std::vector<Alignable*> AlignableTracker::pixelEndcapLayers()
 {
 
   std::vector<Alignable*> result;
-  for ( unsigned int i=0; i<theEndcaps.size(); i++ )
-	for ( int j=0; j<endCap(i).size(); j++ ) 
-	  result.push_back(&endCap(i).layer(j));
+  for ( unsigned int i=0; i<thePixelEndcaps.size(); i++ )
+	for ( int j=0; j<pixelEndCap(i).size(); j++ ) 
+	  result.push_back(&pixelEndCap(i).layer(j));
   
   return result;		    		    
 

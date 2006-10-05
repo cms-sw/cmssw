@@ -51,7 +51,7 @@ public:
   inline const int size() const { return components().size(); }
 
   /// Return pointer to container alignable
-  virtual Alignable* mother() { return theMother; }
+  virtual Alignable* mother() const { return theMother; }
 
   /// Assign mother to alignable
   virtual void setMother( Alignable* mother ) { theMother = mother; }
