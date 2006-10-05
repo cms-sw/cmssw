@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.6 2006/08/14 23:27:49 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.7 2006/09/21 19:37:58 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -44,6 +44,10 @@ namespace edm {
     fileNames_(logicalFileNames_),
     fileCatalogItems_() {
 
+    if (logicalFileNames_.empty()) {
+        throw cms::Exception("Configuration", "InputFileCatalog::InputFileCatalog()\n")
+	  << "Empty 'fileNames' parameter specified for input source.\n";
+    }
     if (url().empty()) {
       // For reading use the catalog specified in the site-local config file
       url() = Service<edm::SiteLocalConfig>()->dataCatalog();
