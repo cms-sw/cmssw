@@ -25,7 +25,8 @@ private:
   // Parameters passed via the config file
   double PtHistMax;      // Maximum edge of Pt histograms
   int    diagPrintNum;   // Number of events for diagnostic printout
-  
+  std::string GenType;   // Type of Generated Particle on Input to analysis
+    
   // Root objects
   
   //Simple Hists
@@ -47,6 +48,7 @@ private:
   TProfile WindowHOfractionVsEta, WindowHEfractionVsEta, WindowHFfractionVsEta; 
   TProfile WindowCaloErespVsEta, WindowEmErespVsEta, WindowHadErespVsEta;
   TProfile WindowCaloEnergyVsEta, WindowGenEnergyVsEta, WindowEmEnergyVsEta, WindowHadEnergyVsEta;
+  TProfile WindowMaxTowErespVsEta, WindowMaxEmErespVsEta, WindowMaxHadErespVsEta;
   TH2F GenEnergyVsEta2D, AllGenEnergyVsEta2D;
 
   //Matched jets Analysis Histograms for MC5 CaloJets only
@@ -58,6 +60,7 @@ private:
 
   //Internal parameters
   int evtCount;
+  int numJets;
 
 };
 
