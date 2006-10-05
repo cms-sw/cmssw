@@ -1,6 +1,9 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
 //
-#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
+//#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
+
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 //
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -9,19 +12,29 @@
 //
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "Utilities/General/interface/precomputed_value_sort.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder(  field, theInputMeasurementTracker), conf_(conf)
 {
   std::cout << " OutInConversionTrackFinder CTOR  theMeasurementTracker_   " << theMeasurementTracker_<<  std::endl; 
-
+  
   
   seedClean_ = conf_.getParameter<bool>("outInSeedCleaning");
-  
-  theInitialState_       = new TransientInitialStateEstimator( es,conf);
+  // get nested parameter set for the TransientInitialStateEstimator
 
-  theCkfTrajectoryBuilder_ = new CkfTrajectoryBuilder(conf_,es,theMeasurementTracker_);
+  edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
+
+  theInitialState_       = new TransientInitialStateEstimator( es,  tise_params );
+  
+  //  theCkfTrajectoryBuilder_ = new CkfTrajectoryBuilder(conf_,es,theMeasurementTracker_);
+  
+  std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
+  edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
+
+  es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
+  theCkfTrajectoryBuilder_ = theTrajectoryBuilderHandle.product();
+
   theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
   
 
@@ -30,7 +43,7 @@ OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es
 
 OutInConversionTrackFinder::~OutInConversionTrackFinder() {
 
-  delete theCkfTrajectoryBuilder_;
+  // delete theCkfTrajectoryBuilder_;
   delete theTrajectoryCleaner_;
   delete  theInitialState_;
 

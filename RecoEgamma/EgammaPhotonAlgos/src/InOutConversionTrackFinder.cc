@@ -2,7 +2,9 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
 //
-#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
+//#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 //
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -11,6 +13,9 @@
 //
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "Utilities/General/interface/precomputed_value_sort.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <sstream>
 
 
 InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder( field, theInputMeasurementTracker) , conf_(conf) {
@@ -18,8 +23,17 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es
     
   seedClean_ = conf_.getParameter<bool>("inOutSeedCleaning");
   smootherChiSquare_ = conf_.getParameter<double>("smootherChiSquareCut");   
-  theInitialState_       = new TransientInitialStateEstimator( es,conf);
-  theCkfTrajectoryBuilder_ = new CkfTrajectoryBuilder(conf_,es,theMeasurementTracker_);
+
+  edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
+  theInitialState_       = new TransientInitialStateEstimator( es,  tise_params);
+
+  //  theCkfTrajectoryBuilder_ = new CkfTrajectoryBuilder(conf_,es,theMeasurementTracker_);
+ 
+  std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
+  edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
+  es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
+  theCkfTrajectoryBuilder_ = theTrajectoryBuilderHandle.product();
+
   theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
 
 
@@ -28,7 +42,7 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es
 
 InOutConversionTrackFinder::~InOutConversionTrackFinder() {
 
-  delete theCkfTrajectoryBuilder_;
+  //  delete theCkfTrajectoryBuilder_;
   delete theTrajectoryCleaner_;
   delete theInitialState_;
 }
