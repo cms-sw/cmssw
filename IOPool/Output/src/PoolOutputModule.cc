@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.45 2006/10/03 19:11:54 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.46 2006/10/05 22:01:31 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -44,8 +44,6 @@ namespace edm {
     OutputModule(pset),
     catalog_(pset),
     context_(catalog_, false),
-    fileName_(catalog_.fileName()),
-    logicalFileName_(catalog_.logicalFileName()),
     commitInterval_(pset.getUntrackedParameter<unsigned int>("commitInterval", 100U)),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
@@ -107,22 +105,22 @@ namespace edm {
       om_(om) {
     TTree::SetMaxTreeSize(kMaxLong64);
     std::string suffix(".root");
-    std::string::size_type offset = om_->fileName_.rfind(suffix);
-    bool ext = (offset == om_->fileName_.size() - suffix.size());
+    std::string::size_type offset = om_->fileName().rfind(suffix);
+    bool ext = (offset == om_->fileName().size() - suffix.size());
     if (!ext) suffix.clear();
-    std::string fileBase(ext ? om_->fileName_.substr(0, offset) : om_->fileName_);
+    std::string fileBase(ext ? om_->fileName().substr(0, offset) : om_->fileName());
     if (om_->fileCount_) {
       std::ostringstream ofilename;
       ofilename << fileBase << std::setw(3) << std::setfill('0') << om_->fileCount_ << suffix;
       file_ = ofilename.str();
-      if (!om_->logicalFileName_.empty()) {
+      if (!om_->logicalFileName().empty()) {
 	std::ostringstream lfilename;
-	lfilename << om_->logicalFileName_ << std::setw(3) << std::setfill('0') << om_->fileCount_;
+	lfilename << om_->logicalFileName() << std::setw(3) << std::setfill('0') << om_->fileCount_;
 	lfn_ = lfilename.str();
       }
     } else {
       file_ = fileBase + suffix;
-      lfn_ = om_->logicalFileName_;
+      lfn_ = om_->logicalFileName();
     }
     makePlacement(poolNames::eventTreeName(), poolNames::auxiliaryBranchName(), auxiliaryPlacement_);
     makePlacement(poolNames::metaDataTreeName(), poolNames::productDescriptionBranchName(),

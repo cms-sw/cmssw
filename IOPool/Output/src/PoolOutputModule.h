@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.10 2006/08/07 22:10:14 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.11 2006/08/31 23:27:15 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -34,12 +34,13 @@ namespace edm {
   class PoolOutputModule : public OutputModule {
   public:
     class PoolFile;
-    friend class PoolOutputModule::PoolFile;
     explicit PoolOutputModule(ParameterSet const& ps);
     virtual ~PoolOutputModule();
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
     virtual void write(EventPrincipal const& e);
+    std::string const& fileName() const {return catalog_.fileName();}
+    std::string const& logicalFileName() const {return catalog_.logicalFileName();}
 
   private:
     pool::IDataSvc *context() const {return context_.context();}
@@ -47,8 +48,6 @@ namespace edm {
   private:
     mutable OutputFileCatalog catalog_;
     mutable PoolDataSvc context_;
-    std::string const fileName_;
-    std::string const logicalFileName_;
     unsigned long commitInterval_;
     unsigned long maxFileSize_;
     int compressionLevel_;
