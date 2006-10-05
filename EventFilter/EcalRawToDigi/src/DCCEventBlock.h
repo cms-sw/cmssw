@@ -6,7 +6,7 @@
 #define DCCEVENTBLOCK_HH
 
 
-#include "EventFilter/EcalRawToDigi/src/DCCBlockPrototype.h"
+#include "DCCBlockPrototype.h"
 
 class DCCTowerBlock;
 class DCCDataParser;
@@ -36,7 +36,8 @@ class DCCEventBlock : public DCCBlockPrototype {
 		DCCSRPBlock               * srpBlock();
 		DCCTrailerBlock           * trailerBlock();
 		vector< DCCTowerBlock * >   towerBlocksById(ulong towerId);
-		
+		pair<bool,string> compare(DCCEventBlock * );
+
 		bool eventHasErrors();
 		string eventErrorString();
 		void displayEvent(ostream & os=cout);

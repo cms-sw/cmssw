@@ -1,6 +1,6 @@
-#include "EventFilter/EcalRawToDigi/src/DCCXtalBlock.h"
-#include "EventFilter/EcalRawToDigi/src/DCCDataParser.h"
-#include "EventFilter/EcalRawToDigi/src/DCCDataMapper.h"
+#include "DCCXtalBlock.h"
+#include "DCCDataParser.h"
+#include "DCCDataMapper.h"
 
 
 DCCXtalBlock::DCCXtalBlock(
@@ -14,7 +14,7 @@ DCCXtalBlock::DCCXtalBlock(
 ) : DCCBlockPrototype(parser,"XTAL", buffer, numbBytes, wordsToEnd, wordEventOffset),
 expectedXtalID_(expectedXtalID), expectedStripID_(expectedStripID){
 	
-	myTab_=8;
+	
 	//Reset error counters ////
 	errors_["XTAL::HEADER"]  = 0;
 	errors_["XTAL::BLOCKID"] = 0; 
@@ -73,9 +73,6 @@ void  DCCXtalBlock::increment(ulong numb){
 	}
 }
 
-
-
-
 int DCCXtalBlock::xtalID() {
 
   int result=-1;
@@ -106,6 +103,8 @@ int DCCXtalBlock::stripID() {
   return result;
 
 }
+
+
 
 vector<int> DCCXtalBlock::xtalDataSamples() {
   vector<int> data;
