@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/08/01 15:53:04 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/08/16 10:07:09 $
+ *  $Revision: 1.15 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -11,27 +11,14 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/Common/interface/OwnVector.h"
@@ -491,37 +478,11 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
 
-  // FIXME: put it into a parameter set  
-  edm::ESHandle<Chi2MeasurementEstimatorBase> estimator;
-  eSetup.get<TrackingComponentsRecord>().get("Chi2MeasurementEstimator",estimator);
-  
-  // FIXME: put it into a parameter set
-  edm::ESHandle<Propagator> propagator;
-  //FIXME NCA: use anyDirection for the time being
-  eSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",propagator);
-  // eSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite",propagator); 
-
   // FIXME: put it into a parameter set!
   double theMinMomentum = 3.0;
-
-  // FIXME: put it into a parameter set!
-  string theNavigationType = "Standard";
-
-  // Take the whole det layer geometry
-  edm::ESHandle<MuonDetLayerGeometry> muonLayers;
-  eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
-
-  // set the proper navigation school
-  MuonNavigationSchool school(&*muonLayers);
-  NavigationSetter setter(school);
-  
-  TrajectorySeed result;
-
+ 
   // Minimal pt
   if ( fabs(ptmean) < theMinMomentum ) ptmean = theMinMomentum * ptmean/fabs(ptmean) ;
-
-  // FIXME!! was:
-  // if ( fabs(ptmean) < 3. ) ptmean = 100. * ptmean/fabs(ptmean) ;
 
   AlgebraicVector t(4);
   AlgebraicSymMatrix mat(5,0) ;
@@ -549,105 +510,35 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 
   mat = last->parametersError().similarityT( last->projectionMatrix() );
   
-  //  LogDebug(metname) << "Projected matrix:\n" << mat;
 
   float p_err = sqr(sptmean/(ptmean*ptmean));
   mat[0][0]= p_err;
   
-  //  LogDebug(metname) << "mat[0][0]: "<<mat[0][0]<<endl;
 
   LocalTrajectoryError error(mat);
   
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, last->det()->surface(),&*field);
 
-  const FreeTrajectoryState state = *(tsos.freeState());
-  
   LogDebug(metname) << "Trajectory State on Surface before the extrapolation"<<endl;
-  LogDebug(metname) << debug.dumpFTS(state);
+  LogDebug(metname) << debug.dumpTSOS(tsos);
   
   // Take the DetLayer on which relies the rechit
   DetId id = last->geographicalId();
-  const DetLayer *initialLayer = muonLayers->idToLayer(id);
 
   // Segment layer
   LogDebug(metname) << "The RecSegment relies on: "<<endl;
-  LogDebug(metname) << debug.dumpMuonId(last->geographicalId());
+  LogDebug(metname) << debug.dumpMuonId(id);
+  LogDebug(metname) << debug.dumpTSOS(tsos);
 
-  // ask for compatible layers
-  vector<const DetLayer*> detLayers;
+  // Transform it in a TrajectoryStateOnSurface
+  TrajectoryStateTransform tsTransform;
   
-  if(theNavigationType == "Standard")
-    detLayers = initialLayer->compatibleLayers(state,oppositeToMomentum);  
-  else if (theNavigationType == "Direct"){
-    DirectMuonNavigation navigation(&*muonLayers);
-    detLayers = navigation.compatibleLayers(state,oppositeToMomentum);
-  }
-  else
-    edm::LogError("Muon|RecoMuon|MuonSeedGenerator") << "No Properly Navigation Selected!!"<<endl;
+  PTrajectoryStateOnDet *seedTSOS =
+    tsTransform.persistentState( tsos ,id.rawId());
   
-  LogDebug(metname) << "There are "<< detLayers.size() <<" compatible layers"<<endl;
-  
-  std::vector<DetWithState> detsWithStates;
-
-  if(detLayers.size()){
-    LogDebug(metname) <<"Compatible layers:"<<endl;
-    for( vector<const DetLayer*>::const_iterator layer = detLayers.begin(); 
-	 layer != detLayers.end(); layer++){
-      LogDebug(metname) << debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId());
-      LogDebug(metname) << debug.dumpLayer(*layer);
-    }
+  edm::OwnVector<TrackingRecHit> container;
+  TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
     
-    // ask for compatible dets
-    LogDebug(metname) <<"Most internal one:"<<endl;
-    LogDebug(metname) << debug.dumpLayer(detLayers.back());
-    LogDebug(metname) << debug.dumpTSOS(tsos);
-    detsWithStates = detLayers.back()->compatibleDets(tsos, *propagator, *estimator);
-    LogDebug(metname)<<"Number of compatible dets: "<<detsWithStates.size()<<endl;
-  }
-  else
-    LogDebug(metname)<<"No compatible layers found"<<endl;
-
-
-  if(detsWithStates.size()){
-    // get the updated TSOS
-    TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
-    const GeomDet *newTSOSDet = detsWithStates.front().first;
-    
-    if ( newTSOS.isValid() ) {
-      
-      LogDebug(metname)<<"Most compatible det: "<<endl;
-      LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
-
-      LogDebug(metname) << "Trajectory State on Surface after the extrapolation"<<endl;
-      LogDebug(metname) << debug.dumpTSOS(newTSOS);
-      
-      // Transform it in a TrajectoryStateOnSurface
-      TrajectoryStateTransform tsTransform;
-      
-      PTrajectoryStateOnDet *seedTSOS =
-	tsTransform.persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
-      
-      edm::OwnVector<TrackingRecHit> container;
-      TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-      
-      result = theSeed;
-    } 
-    else LogDebug(metname) << " Extrapolation failed" << endl;
-  }
-  else{
-    
-    // Transform it in a TrajectoryStateOnSurface
-    TrajectoryStateTransform tsTransform;
-    
-    PTrajectoryStateOnDet *seedTSOS =
-      tsTransform.persistentState( tsos ,last->geographicalId().rawId());
-    
-    edm::OwnVector<TrackingRecHit> container;
-    TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-    
-    result = theSeed;
-  }
-  
-  return result;
+  return theSeed;
 }
