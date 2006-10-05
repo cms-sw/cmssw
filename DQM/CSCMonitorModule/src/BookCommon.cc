@@ -3,8 +3,8 @@
  * map<string, MonitorElement*> CSCMonitor::book_common(int dduNumber)
  * method
  * 
- *  $Date: 2006/02/07 14:28:43 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/10 10:30:55 $
+ *  $Revision: 1.5 $
  *
  * \author Ilaria Segoni
  */
@@ -32,7 +32,7 @@ map<string, MonitorElement*> CSCMonitor::book_common(int dduNumber) {
 
 ///DDU
  //edm::LogInfo ("CSC DQM: ") <<"D**EmuBookCommon> New DDU Canvases are booking ..." ;
- string dir = Form("DDU_%d",dduNumber);
+ string dir = Form("CSC/DDU_%d",dduNumber);
  dbe->setCurrentFolder(dir);
 
   //meName = Form("DDU_Readout_Errors%d",dduNumber);
