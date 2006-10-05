@@ -1,5 +1,7 @@
 <lcgdict>
   <class name="reco::HepMCCandidate" />
+  <class name="reco::GenParticleCandidate" />
   <class name="edm::Wrapper<reco::HepMCCandidate>"/>
+  <class name="edm::Wrapper<reco::GenParticleCandidate>"/>
 </lcgdict>
  

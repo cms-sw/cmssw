@@ -1,4 +1,5 @@
 #include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
@@ -7,5 +8,6 @@ namespace {
     // see the following thread:
     //   https://hypernews.cern.ch/HyperNews/CMS/get/physTools/63.html
     edm::Wrapper<reco::HepMCCandidate> w1;
+    edm::Wrapper<reco::GenParticleCandidate> w2;
   }
 }
