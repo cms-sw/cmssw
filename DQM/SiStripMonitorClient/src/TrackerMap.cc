@@ -155,7 +155,7 @@ void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total){
    sprintf(buffer,"%X",mod->idex);
 
  if(mod->red < 0){ //use count to compute color
-     green = (mod->value-minvalue)/(maxvalue-minvalue)*256.; 
+     green = (int)((mod->value-minvalue)/(maxvalue-minvalue)*256.); 
 
    if (green > 255) green=255;
 if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
@@ -321,27 +321,27 @@ void TrackerMap::build(){
   int nmods, pix_sil, fow_bar, ring, nmod, layer;
   unsigned int idex;
   float posx, posy, posz, length, width, thickness, widthAtHalfLength;
-  int iModule=0,old_layer=0;
+  int iModule=0,old_layer=0, ntotMod =0;
   string name,dummys;
 
-  ifstream infile("DQM/SiStripMonitorClient/test/tracker.dat",ios::in);
+  ifstream infile("tracker.dat",ios::in);
   while(!infile.eof()) {
-     infile >> nmods >> pix_sil >> fow_bar >> layer >> ring >> nmod >> posx >> posy
-            >> posz>> length >> width >> thickness
-            >> widthAtHalfLength >> idex ;
-     getline(infile,dummys); //necessary to reach end of record
-     getline(infile,name); 
-      if(old_layer!=layer){old_layer=layer;iModule=0;}
-      iModule++;
-      int key=layer*100000+ring*1000+nmod;
-      TmModule * mod = SvgModuleMap::smoduleMap[key];
+    infile >> nmods >> pix_sil >> fow_bar >> layer >> ring >> nmod >> posx >> posy
+	   >> posz>> length >> width >> thickness
+	   >> widthAtHalfLength >> idex ;
+    getline(infile,dummys); //necessary to reach end of record
+    getline(infile,name); 
+    if(old_layer!=layer){old_layer=layer;iModule=0;}
+    iModule++;
+    ntotMod++;
+    int key=layer*100000+ring*1000+nmod;
+    TmModule * mod = SvgModuleMap::smoduleMap[key];
+    
+    IdModuleMap::imoduleMap[idex]=mod;
 
-
-      IdModuleMap::imoduleMap[idex]=mod;
-
-      if(mod==0) cout << "error in module "<<key <<endl;
-      else
-        {
+    if(mod==0) cout << "error in module "<<key <<endl;
+    else
+      {
           mod->posx = posx;
           mod->posy = posy;
           mod->setUsed();
@@ -354,8 +354,9 @@ void TrackerMap::build(){
           mod->widthAtHalfLength = widthAtHalfLength;
           mod->idex = idex;
           mod->name = name;
-    }
+      }
   }
   infile.close();
+  number_modules = ntotMod-1;
 }
 

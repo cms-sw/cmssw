@@ -23,7 +23,8 @@ class TrackerMap {
   void fillc(int layer,int ring, int nmod, int red, int green, int blue);
   void setText(int idmod , string s );
   void setText(int layer, int ring, int nmod , string s );
-  
+  int getNumMod(){return number_modules;};
+
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
   string title;
@@ -41,6 +42,32 @@ class TrackerMap {
     return phi;
   }
   
+  int find_layer(int ix, int iy)
+    {
+      int add;
+      int layer=0;
+      if(iy <= xsize){//endcap+z
+	add=15;
+	layer = ix/ysize;
+	layer = layer+1+add;
+      }
+      if(iy > xsize && iy< 3*xsize){//barrel
+	add=30;
+	if(ix < 2*ysize){
+	  layer=1;
+	}else {
+	  layer = ix/(2*ysize);
+	  if(iy < 2*xsize)layer=layer*2+1; else layer=layer*2;
+     	}
+	layer = layer+add;
+      }
+      if(iy >= 3*xsize){	//endcap-z
+	layer = ix/ysize;
+	layer = 15-layer;
+      }
+      return layer;  
+    }
+
   int getlayerCount(int subdet, int partdet){
     int ncomponent=0;
     if(subdet == 1){ //1=pixel
@@ -78,7 +105,7 @@ class TrackerMap {
   }
   
 void defwindow(int num_lay){
-nlay = num_lay;
+  nlay = num_lay;
   if(posrel){ // separated modules
     xmin=-2.;ymin=-2.;xmax=2.;ymax=2.;
     if(nlay >12 && nlay < 19){
@@ -233,6 +260,7 @@ nlay = num_lay;
   ofstream * svgfile;
   ifstream * jsfile;
   float minvalue,maxvalue;
+  int number_modules;
 };
 
 

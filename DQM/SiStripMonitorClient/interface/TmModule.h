@@ -24,6 +24,9 @@ class TmModule  {
   int layer;
   unsigned int idex;
   bool notused;
+
+  void setQPointArray(int ar){histNumber = ar;};
+  int getQPointArray(){return histNumber;};
 };
 
 class SvgModuleMap {
