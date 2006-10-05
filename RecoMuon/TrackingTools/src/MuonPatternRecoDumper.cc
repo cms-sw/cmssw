@@ -63,6 +63,7 @@ string MuonPatternRecoDumper::dumpFTS(const FreeTrajectoryState& fts) const {
 string MuonPatternRecoDumper::dumpTSOS(const TrajectoryStateOnSurface& tsos) const{
   stringstream output;
   
+  output<<tsos<<endl;
   output<<"dir: "<<tsos.globalDirection();
   dumpFTS(*tsos.freeTrajectoryState());
 
