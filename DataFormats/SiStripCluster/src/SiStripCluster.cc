@@ -1,13 +1,14 @@
+
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-SiStripCluster::SiStripCluster( unsigned int detid, const SiStripDigiRange& range) :
+SiStripCluster::SiStripCluster( uint32_t detid, const SiStripDigiRange& range) :
   detId_(detid), firstStrip_(range.first->strip())
 {
   amplitudes_.reserve( range.second - range.first);
   int sumx = 0;
   int suma = 0;
 
-  int lastStrip = -1;;
+  uint16_t lastStrip = -1;;
   for (SiStripDigiIter i=range.first; i!=range.second; i++) {
 
     /// check if digis consecutive
@@ -18,7 +19,7 @@ SiStripCluster::SiStripCluster( unsigned int detid, const SiStripDigiRange& rang
     }
     lastStrip = i->strip();
 
-    short amp = i->adc();       // FIXME: gain correction here
+    uint16_t amp = i->adc();       // FIXME: gain correction here
     amplitudes_.push_back( amp);
     sumx += i->strip()*amp;
     suma += amp;

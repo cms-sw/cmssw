@@ -4,7 +4,6 @@
   <class name="std::vector<SiStripClusterInfo>"/>
 
   <class name="SiStripCluster"/>
-  <class name="std::vector<short>"/>
   <class name="std::vector<SiStripCluster>"/>
   <class name="std::pair<unsigned int, unsigned int>"/>
   <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>

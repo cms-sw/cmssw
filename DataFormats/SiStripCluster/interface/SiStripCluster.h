@@ -16,17 +16,17 @@ public:
   
   SiStripCluster() : detId_(0) {}
 
-  SiStripCluster( unsigned int detid, const SiStripDigiRange& range);
+  SiStripCluster( uint32_t detid, const SiStripDigiRange& range);
 
   /** The number of the first strip in the cluster
    */
-  short firstStrip() const {return firstStrip_;}
+  uint16_t firstStrip() const {return firstStrip_;}
 
   /** The geographical ID of the corresponding DetUnit, 
    *  to be used for transformations to local and to global reference 
    *  frames etc.
    */
-  unsigned int geographicalId() const {return detId_;}
+  uint32_t geographicalId() const {return detId_;}
 
   /** The amplitudes of the strips forming the cluster.
    *  The amplitudes are on consecutive strips; if a strip is missing
@@ -36,7 +36,7 @@ public:
    *  A strip may also be missing anywhere in the cluster, including the 
    *  edge, to record a dead/noisy channel.
    */
-  const std::vector<short>&  amplitudes() const {return amplitudes_;}
+  const std::vector<uint16_t>&  amplitudes() const {return amplitudes_;}
 
   /** The barycenter of the cluster, not corrected for Lorentz shift;
    *  should not be used as position estimate for tracking.
@@ -45,10 +45,10 @@ public:
 
 private:
 
-  unsigned int         detId_;
-  short                firstStrip_;
-  std::vector<short>   amplitudes_;
-  float                barycenter_;
+  uint32_t                detId_;
+  uint16_t                firstStrip_;
+  std::vector<uint16_t>   amplitudes_;
+  float                   barycenter_;
 
 };
 
