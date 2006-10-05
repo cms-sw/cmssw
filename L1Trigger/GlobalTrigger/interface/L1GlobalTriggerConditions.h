@@ -24,7 +24,6 @@
 #include <string>
 
 // user include files 
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -57,9 +56,6 @@ public:
 
     inline int getOutputPin() const { return p_outputpin; }
     inline void setOutputPin(int pin) { p_outputpin = pin; }
-
-//    /// get candidates
-//    virtual L1TriggerObject* getCandidate( int indexCand ) const = 0;
 
     /// call blockCondition and save last result
     inline const bool blockCondition_sr() { return p_lastresult = blockCondition(); }

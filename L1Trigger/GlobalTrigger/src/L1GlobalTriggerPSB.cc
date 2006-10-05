@@ -11,8 +11,8 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -25,7 +25,6 @@
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"

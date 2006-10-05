@@ -21,7 +21,6 @@
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
@@ -37,6 +36,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFDL.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 
 // constructors
@@ -150,7 +150,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //    gtReadoutRecord->setDecisionWord(m_gtFDL->getDecisionWord());        
     gtReadoutRecord->setDecision(m_gtFDL->getDecision());
 
-    gtReadoutRecord->print();
+    if ( edm::isDebugEnabled() ) gtReadoutRecord->print();
 
     // **             
     iEvent.put( gtReadoutRecord );

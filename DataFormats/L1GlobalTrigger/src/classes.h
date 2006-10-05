@@ -1,5 +1,4 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"

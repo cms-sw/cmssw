@@ -25,7 +25,6 @@
 //   base class
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConditions.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 
 // forward declarations

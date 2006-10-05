@@ -22,7 +22,6 @@
 #include <string>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

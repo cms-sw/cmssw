@@ -41,9 +41,6 @@ public:
     /// destructor
     virtual ~L1GlobalTriggerLogicParser();
 
-//    /// get candidates (we need no candidates for an algo)
-//    virtual L1TriggerObject* getCandidate( int i ) const {return 0; }
-
     ///
     virtual const bool blockCondition() const;
 
