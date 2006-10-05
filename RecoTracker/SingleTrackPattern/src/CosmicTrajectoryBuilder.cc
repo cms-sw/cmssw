@@ -283,6 +283,13 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
        LogDebug("CosmicTrackFinder")<<"Chi2 contribution for hit at "
 				    <<RHBuilder->build(Hits[ibestdet])->globalPosition()
 				    <<" is "<<chi2min;
+       if(traj.foundHits()==1){
+	 //check on the first hit after the seed
+ 	 GlobalVector ck=RHBuilder->build(Hits[ibestdet])->globalPosition()-
+	   traj.firstMeasurement().updatedState().globalPosition();
+	 if (abs(ck.x()/ck.y())>2) chi2min=300;
+       }
+
        if (chi2min<chi2cut)
 	 {	 
 	   TransientTrackingRecHit::RecHitPointer tmphitbestdet=RHBuilder->build(Hits[ibestdet]);

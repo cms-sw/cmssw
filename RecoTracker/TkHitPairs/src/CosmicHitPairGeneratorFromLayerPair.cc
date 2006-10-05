@@ -58,10 +58,14 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
       float z_diff =ih->z()-oh->z();
       float inny=ih->r()*sin(ih->phi());
       float outy=oh->r()*sin(oh->phi());
+      float innx=ih->r()*cos(ih->phi());
+      float outx=oh->r()*cos(oh->phi());
+      float dxdy=abs((outx-innx)/(outy-inny));
       float DeltaR=oh->r()-ih->r();
       
       if( (abs(z_diff)<30)
 	  //&&((abs(inny-outy))<30) 
+	  &&(dxdy<2)
 	  &&(inny*outy>0)
 	  && (abs(DeltaR)>0)) {
 
@@ -70,7 +74,7 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 	  // for the other geometries must be verified
 	  //Overlaps in the difference in z is decreased and the difference in phi is
 	  //less than 0.05
-	  if ((DeltaR<0)&&(abs(z_diff)<18)&&(abs(ih->phi()-oh->phi())<0.05)) allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
+	  if ((DeltaR<0)&&(abs(z_diff)<18)&&(abs(ih->phi()-oh->phi())<0.05)&&(dxdy<2)) allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
 	}
 	else  allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
     } 
