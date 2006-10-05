@@ -385,8 +385,9 @@ for spec in specs:
         if testMode:
             print "Test Mode: Not Publishing to ProdAgent..."
             continue
-        messageService.publish("DatasetInjector:SetWorkflow", workflow)
-        messageService.publish("NewWorkflow", workflow)
+        absPathWorkflow = os.path.join(os.getcwd(), workflow)
+        messageService.publish("DatasetInjector:SetWorkflow", absPathWorkflow)
+        messageService.publish("NewWorkflow", absPathWorkflow)
         messageService.commit()
         time.sleep(1)
         messageService.publish("DatasetInjector:SelectWorkflow",
@@ -411,9 +412,9 @@ for spec in specs:
         if testMode:
             print "Test Mode: Not Publishing to ProdAgent..."
             continue
-
-        messageService.publish("RequestInjector:SetWorkflow", workflow)
-        messageService.publish("NewWorkflow", workflow)
+        absPathWorkflow = os.path.join(os.getcwd(), workflow)
+        messageService.publish("RequestInjector:SetWorkflow", absPathWorkflow)
+        messageService.publish("NewWorkflow", absPathWorkflow)
         messageService.commit()
         time.sleep(1)
         messageService.publish("RequestInjector:SelectWorkflow",
