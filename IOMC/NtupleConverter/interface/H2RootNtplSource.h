@@ -26,8 +26,12 @@ namespace edm
 		virtual bool produce(Event &e);		
 		HepMC::GenEvent  *evt;
 		EventID nextID_;	
+		std::string filename_;
+	public:
+	        int maxEvents_;
+		unsigned int firstEvent_;
 		Ntuple2HepMCFiller * reader_;
-		std::string filename_;		
+		
 	};
 } 
 
