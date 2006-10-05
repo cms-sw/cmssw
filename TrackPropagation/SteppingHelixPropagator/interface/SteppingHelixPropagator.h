@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2006/07/04 01:20:21 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/06 02:23:55 $
+ *  $Revision: 1.6 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.5 2006/07/04 01:20:21 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.6 2006/07/06 02:23:55 slava77 Exp $
 //
 //
 
@@ -143,11 +143,13 @@ class SteppingHelixPropagator : public Propagator {
 
  protected:
   /// (Internals) Init starting point
+  void setIState(const FreeTrajectoryState& ftsStart) const;
   void setIState(const SteppingHelixPropagator::Vector& p3, 
 		 const SteppingHelixPropagator::Point& r3, 
 		 int charge, const HepSymMatrix& cov, 
 		 PropagationDirection dir = alongMomentum) const;
   /// (Internals) get final state
+  void getFState(FreeTrajectoryState& ftsDest) const;
   void getFState(SteppingHelixPropagator::Vector& p3, SteppingHelixPropagator::Point& r3,  
 		 HepSymMatrix& cov) const;
 

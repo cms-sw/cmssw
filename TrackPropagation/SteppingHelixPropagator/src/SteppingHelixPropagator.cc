@@ -5,23 +5,24 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/08/25 22:51:42 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/10/05 00:28:37 $
+ *  $Revision: 1.14 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.13 2006/08/25 22:51:42 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.14 2006/10/05 00:28:37 slava77 Exp $
 //
 //
 
 
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
+#include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "Utilities/Timing/interface/TimingReport.h"
 
-#include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 #include "Geometry/Surface/interface/Cylinder.h"
 #include "Geometry/Surface/interface/Plane.h"
 
@@ -86,38 +87,14 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   double pars[6] = { rPlane.x(), rPlane.y(), rPlane.z(),
 		     nPlane.x(), nPlane.y(), nPlane.z() };
 
-  //need to get rid of these conversions .. later
-  GlobalVector p3GV = ftsStart.momentum();
-  GlobalPoint r3GP = ftsStart.position();
-  Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
-  Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
+  setIState(ftsStart);
 
-  int charge = ftsStart.charge();
-
-  setIState(p3, r3, charge, 
-	    (ftsStart.hasError() && !noErrorPropagation_) 
-	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0), 
-	    propagationDirection());
   Result result = propagate(PLANE_DT, pars);
   if (result != OK ) return TsosPP();
 
-  Vector p3F;
-  Point  r3F;
-  HepSymMatrix covF;
-
-  
-  getFState(p3F, r3F, covF); 
-  GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
-  GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  SurfaceSide side = atCenterOfSurface;
-  GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
-  CartesianTrajectoryError tCovDest(covF);
-  FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
-    ? FreeTrajectoryState(tParsDest, tCovDest) 
-    : FreeTrajectoryState(tParsDest);
-  if (ftsDest.hasError()) ftsDest.curvilinearError(); //call it so it gets created
-
-  TrajectoryStateOnSurface tsosDest = TrajectoryStateOnSurface(ftsDest, pDest, side);
+  FreeTrajectoryState ftsDest;
+  getFState(ftsDest); 
+  TrajectoryStateOnSurface tsosDest(ftsDest, pDest);
   int cInd = cIndex_(nPoints_-1);
   
   return TsosPP(tsosDest, path_[cInd]);
@@ -126,41 +103,18 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 std::pair<TrajectoryStateOnSurface, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const Cylinder& cDest) const {
-  //need to get rid of these conversions .. later
-  GlobalVector p3GV = ftsStart.momentum();
-  GlobalPoint r3GP = ftsStart.position();
-  Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
-  Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
+
+  setIState(ftsStart);
+
   double pars[6];
   pars[RADIUS_P] = cDest.radius();
 
-  int charge = ftsStart.charge();
-
-  setIState(p3, r3, charge,  
-	    (ftsStart.hasError() && !noErrorPropagation_) 
-	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
-	    propagationDirection());
   Result result = propagate(RADIUS_DT, pars);
   if (result != OK) return TsosPP();
 
-
-  Vector p3F;
-  Point  r3F;
-  HepSymMatrix covF;
-
-  
-  getFState(p3F, r3F, covF); 
-  GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
-  GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  SurfaceSide side = atCenterOfSurface;
-  GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
-  CartesianTrajectoryError tCovDest(covF);
-  FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
-    ? FreeTrajectoryState(tParsDest, tCovDest) 
-    : FreeTrajectoryState(tParsDest);
-  if (ftsDest.hasError()) ftsDest.curvilinearError(); //call it so it gets created
-
-  TrajectoryStateOnSurface tsosDest = TrajectoryStateOnSurface(ftsDest, cDest, side);
+  FreeTrajectoryState ftsDest;
+  getFState(ftsDest); 
+  TrajectoryStateOnSurface tsosDest(ftsDest, cDest);
   int cInd = cIndex_(nPoints_-1);
 
   return TsosPP(tsosDest, path_[cInd]);
@@ -170,38 +124,16 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 std::pair<FreeTrajectoryState, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const GlobalPoint& pDest) const {
-  //need to get rid of these conversions .. later
-  GlobalVector p3GV = ftsStart.momentum();
-  GlobalPoint r3GP = ftsStart.position();
-  Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
-  Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
+  setIState(ftsStart);
+
   double pars[6] = {pDest.x(), pDest.y(), pDest.z(), 0, 0, 0};
 
-  int charge = ftsStart.charge();
-
-  setIState(p3, r3, charge,  
-	    (ftsStart.hasError() && !noErrorPropagation_) 
-	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
-	    propagationDirection());
   Result result = propagate(POINT_PCA_DT, pars);
   if (result != OK) return FtsPP();
 
 
-  Vector p3F;
-  Point  r3F;
-  HepSymMatrix covF;
-
-  
-  getFState(p3F, r3F, covF); 
-  GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
-  GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
-  CartesianTrajectoryError tCovDest(covF);
-
-  FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
-    ? FreeTrajectoryState(tParsDest, tCovDest) 
-    : FreeTrajectoryState(tParsDest);
-  if (ftsDest.hasError()) ftsDest.curvilinearError(); //call it so it gets created
+  FreeTrajectoryState ftsDest;
+  getFState(ftsDest); 
   int cInd = cIndex_(nPoints_-1);
 
   return FtsPP(ftsDest, path_[cInd]);
@@ -210,45 +142,41 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 std::pair<FreeTrajectoryState, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
+
   if ((pDest1-pDest2).mag() < 1e-10) return FtsPP();
-  //need to get rid of these conversions .. later
-  GlobalVector p3GV = ftsStart.momentum();
-  GlobalPoint r3GP = ftsStart.position();
-  Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
-  Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
+  setIState(ftsStart);
+
   double pars[6] = {pDest1.x(), pDest1.y(), pDest1.z(),
 		    pDest2.x(), pDest2.y(), pDest2.z()};
 
-  int charge = ftsStart.charge();
-
-  setIState(p3, r3, charge,  
-	    (ftsStart.hasError() && !noErrorPropagation_) 
-	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
-	    propagationDirection());
   Result result = propagate(LINE_PCA_DT, pars);
   if (result != OK) return FtsPP();
 
 
-  Vector p3F;
-  Point  r3F;
-  HepSymMatrix covF;
+  FreeTrajectoryState ftsDest;
+  getFState(ftsDest); 
 
-  
-  getFState(p3F, r3F, covF); 
-  GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
-  GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
-  CartesianTrajectoryError tCovDest(covF);
-
-  FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
-    ? FreeTrajectoryState(tParsDest, tCovDest) 
-    : FreeTrajectoryState(tParsDest);
-  if (ftsDest.hasError()) ftsDest.curvilinearError(); //call it so it gets created
   int cInd = cIndex_(nPoints_-1);
 
   return FtsPP(ftsDest, path_[cInd]);
 }
 
+
+void SteppingHelixPropagator::setIState(const FreeTrajectoryState& ftsStart) const {
+  //need to get rid of these conversions .. later
+  GlobalVector p3GV = ftsStart.momentum();
+  GlobalPoint r3GP = ftsStart.position();
+  Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
+  Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
+  
+  int charge = ftsStart.charge();
+  
+  setIState(p3, r3, charge,  
+	    (ftsStart.hasError() && !noErrorPropagation_) 
+	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
+	    propagationDirection());
+  
+}
 
 void SteppingHelixPropagator::setIState(const SteppingHelixPropagator::Vector& p3, 
 					const SteppingHelixPropagator::Point& r3, int charge, 
@@ -256,6 +184,23 @@ void SteppingHelixPropagator::setIState(const SteppingHelixPropagator::Vector& p
   nPoints_ = 0;
   loadState(0, p3, r3, charge, cov, dir);
   nPoints_++;
+}
+
+void SteppingHelixPropagator::getFState(FreeTrajectoryState& ftsDest) const{
+  Vector p3F;
+  Point  r3F;
+  HepSymMatrix covF;
+
+  getFState(p3F, r3F, covF); 
+  GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
+  GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
+  GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, q_[cIndex_(nPoints_-1)], field_);
+  CartesianTrajectoryError tCovDest(covF);
+
+  ftsDest = (covF.num_row() >=5  && !noErrorPropagation_) 
+    ? FreeTrajectoryState(tParsDest, tCovDest) 
+    : FreeTrajectoryState(tParsDest);
+  if (ftsDest.hasError()) ftsDest.curvilinearError(); //call it so it gets created
 }
 
 void SteppingHelixPropagator::getFState(SteppingHelixPropagator::Vector& p3, 
@@ -418,7 +363,20 @@ void SteppingHelixPropagator::loadState(int ind,
   path_[cInd] = 0; // this could've held the initial path
   radPath_[cInd] = 0;
 
-  GlobalVector bf = field_->inTesla(GlobalPoint(r3.x(), r3.y(), r3.z()));
+  GlobalPoint gPoint(r3.x(), r3.y(), r3.z());
+//   GlobalPoint gPointNegZ(r3_[cInd].x(), r3_[cInd].y(), r3_[cInd].z() > 0. ? -r3_[cInd].z() : r3_[cInd].z());
+  GlobalVector bf = field_->inTesla(gPoint);
+//   const VolumeBasedMagneticField* vbField = dynamic_cast<const VolumeBasedMagneticField*>(field_);
+//   if (vbField ){
+//     const MagVolume* vol = vbField->findVolume(gPointNegZ);
+//     if (vol){
+//       std::cout<<"Found current volume at  "<<vol<<" at point "<<gPoint
+// 	       <<" named "<<DDSolidShapesName::name(vol->shapeType())
+// 	       <<" and "<<vol->faces().size()<<" faces"
+// 	       <<std::endl;
+
+//     }
+//   }
   
   bf_[cInd].set(bf.x(), bf.y(), bf.z());
   if (bf_[cInd].mag() < 1e-6) bf_[cInd].set(0., 0., 1e-6);
@@ -453,10 +411,6 @@ void SteppingHelixPropagator::loadState(int ind,
     std::cout<<"Covariance in Local RF "<<covLoc_[cInd]<<std::endl;
     std::cout<<"Rotated by "<<covRot_<<std::endl;
   }
-  //   std::cout<<"Load at "<<ind<<" path: "<<path_[cInd]
-  //  	   <<" p3 "<<" pt: "<<p3_[cInd].perp()<<" phi: "<<p3_[cInd].phi()<<" eta: "<<p3_[cInd].eta()
-  // 	   <<" "<<p3_[cInd]
-  //  	   <<" r3: "<<r3_[cInd]<<std::endl;
 }
 
 void SteppingHelixPropagator::incrementState(int ind, 
@@ -470,7 +424,6 @@ void SteppingHelixPropagator::incrementState(int ind,
   int cPrev = cIndex_(iPrev);
   q_[cInd] = q_[cPrev];
   dir_[cInd] = dS > 0.0 ? 1.: -1.; 
-  //  std::cout<<tau.deltaPhi(p3_[cPrev])<<std::endl;
   p3_[cInd] = tau;  p3_[cInd]*=(p3_[cPrev].mag() - dir_[cInd]*fabs(dP));
 
   r3_[cInd] = r3_[cPrev];
@@ -484,8 +437,9 @@ void SteppingHelixPropagator::incrementState(int ind,
   radPath_[cInd] = radPath_[cPrev] + dX0;
 
 
-  GlobalVector bf = field_->inTesla(GlobalPoint(r3_[cInd].x(), r3_[cInd].y(), r3_[cInd].z()));
-  
+  GlobalPoint gPoint(r3_[cInd].x(), r3_[cInd].y(), r3_[cInd].z());
+
+  GlobalVector bf = field_->inTesla(gPoint);
   bf_[cInd].set(bf.x(), bf.y(), bf.z());
   if (bf_[cInd].mag() < 1e-6) bf_[cInd].set(0., 0., 1e-6);
   
@@ -548,7 +502,6 @@ bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS,
     std::cout<<"Make atom step "<<iIn<<" with step "<<dS<<" in direction "<<dir<<std::endl;
   }
 
-  //  HepMatrix dCTr(HepDiagMatrix(6,1));//unit transform is the default
   double dP = 0;
   Vector tau = p3_[cInd]; tau/=tau.mag();
 
@@ -562,7 +515,6 @@ bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS,
   double cosTheta = tau.z();
   double sinTheta = sin(acos(cosTheta));
   double cotTheta = fabs(sinTheta) > 1e-21 ? cosTheta/sinTheta : 1e21;
-  //  double tanTheta = fabs(cosTheta) > 1e-21 ? sinTheta/cosTheta : 1e21;
   double phi = kappa0*dS;
   double cosPhi = cos(phi);
   double oneLessCosPhi = 1.-cosPhi;
@@ -976,7 +928,6 @@ void SteppingHelixPropagator::initCovRotation(const SteppingHelixPropagator::Vec
 
 void SteppingHelixPropagator::getLocBGrad(int ind, double delta) const{
   int cInd = cIndex_(ind);
-  //yuck
   Point r3[3];
   r3[0] = r3_[cInd] + reps_[cInd].lX*delta;
   r3[1] = r3_[cInd] + reps_[cInd].lY*delta;
