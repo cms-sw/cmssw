@@ -23,7 +23,11 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
   GBFinalMuons.clear();
 
  if (TrigCnfg->GetDebugLevel()!=0){
+#ifdef _STAND_ALONE
+   std::cout << "---TBMuons in new event" << std::endl;
+#else
    LogDebug("RPCHwDebug") << "---TBMuons in new event";
+#endif // _STAND_ALONE
  }
   for(unsigned int iLC = 0; iLC < logConesVec.size(); iLC++) {
     if(logConesVec[iLC].GetFiredPlanesCnt() >= 3) {
@@ -39,7 +43,11 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
   if (TrigCnfg->GetDebugLevel()!=0){
     for (unsigned  int iTC = 0; iTC < tcsMuonsVec2.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < tcsMuonsVec2[iTC].size(); iTB++){
-            LogDebug("RPCHwDebug") << "After TCGB: " <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+#ifdef _STAND_ALONE
+	  std::cout << "After TCGB: " <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel()) << std::endl;
+#else
+	  LogDebug("RPCHwDebug") << "After TCGB: " <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+#endif // _STAND_ALONE
         }
     }
   }
@@ -50,7 +58,12 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
      // iterate over GBFinalMuons and call printDebug()
     for (unsigned  int iTC = 0; iTC < GBFinalMuons.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < GBFinalMuons[iTC].size(); iTB++){
-            LogDebug("RPCHwDebug")<<"After FS: "<<GBFinalMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+#ifdef _STAND_ALONE
+	  std::cout <<"After FS: "<<GBFinalMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel())<< std::endl;
+#else
+	  LogDebug("RPCHwDebug") <<"After FS: "<<GBFinalMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+
+#endif // _STAND_ALONE
         }
     }                               
   }

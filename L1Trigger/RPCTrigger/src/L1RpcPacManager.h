@@ -30,7 +30,9 @@
 #include "L1Trigger/RPCTrigger/src/RPCException.h"
 #include <xercesc/util/PlatformUtils.hpp>
 
+#ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#endif // _STAND_ALONE
 
 ///Suported configurations
 enum L1RpcPACsCntEnum {

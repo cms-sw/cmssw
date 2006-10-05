@@ -30,7 +30,13 @@ L1RpcTBMuonsVec L1RpcTriggerCrate::RunTCGBSorter() {
 
     for (unsigned  int iTC = 0; iTC < tbMuonsVec2.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < tbMuonsVec2[iTC].size(); iTB++){
+#ifndef _STAND_ALONE
             LogDebug("RPCHwDebug") << "After TBGB/before TCGB: " <<tbMuonsVec2[iTC][iTB].printDebugInfo(TriggerConfig->GetDebugLevel());
+#else
+	  std::cout << "After TBGB/before TCGB: " 
+		  <<tbMuonsVec2[iTC][iTB].printDebugInfo(TriggerConfig->GetDebugLevel())
+		  << std::endl;
+#endif //_STAND_ALONE
         }
     }
 

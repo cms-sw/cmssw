@@ -4,8 +4,9 @@
 *  Warsaw University 2005                                                      *
 *                                                                              *
 *******************************************************************************/
+#ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#endif // _STAND_ALONE
 #include "L1Trigger/RPCTrigger/src/L1RpcPatternsParser.h"
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>

@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <iostream> 
+#include <sstream> 
 #include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 #include "L1Trigger/RPCTrigger/src/RPCException.h"
 
@@ -12,7 +13,12 @@
 int L1RpcConst::iptFromPt(const double pt) {
   if(pt == 0.)return 0;
   if(pt<pts[0]) {
-    edm::LogError("RPCTrigger")<<"** L1RpcConst ** iptFromPt called with illegal pt="<<pt;
+    //edm::LogError("RPCTrigger")<<"** L1RpcConst ** iptFromPt called with illegal pt="<<pt;
+    std::string msg = "[L1RpcConst::iptFromPt] called with illegal pt=";
+    std::ostringstream ostr;
+    ostr<<pt;
+    msg += ostr.str();
+    throw L1RpcException(msg.c_str());
     return 0;
   }
  int ipt=L1RpcConst::IPT_MAX;
@@ -24,7 +30,12 @@ int L1RpcConst::iptFromPt(const double pt) {
 
 double L1RpcConst::ptFromIpt(const int ipt) {
   if ( ipt<0 || ipt>L1RpcConst::IPT_MAX ) {
-    edm::LogError("RPCTrigger") <<"**L1RpcConst::ptFromIpt** problem with ipt: "<<ipt;
+    //edm::LogError("RPCTrigger") <<"**L1RpcConst::ptFromIpt** problem with ipt: "<<ipt;
+    std::string msg = "[L1RpcConst::ptFromIpt] problem with ipt: ";
+    std::ostringstream ostr;
+    ostr<<ipt;
+    msg += ostr.str();
+    throw L1RpcException(msg.c_str());
     return 0.;
   }
   else return pts[ipt];
@@ -36,8 +47,13 @@ double L1RpcConst::etaFromTowerNum(const int atower){
   int iabsitow = (atower >= 0)? atower: -atower;
   if (0==iabsitow) return 0.;
   if( iabsitow>L1RpcConst::ITOW_MAX) {
-    edm::LogError("RPCTrigger") << "**L1RpcConst::etaFromTowerNum** iabsitow>ITOW_MAX for tower:"
-         << atower ;
+    //edm::LogError("RPCTrigger") << "**L1RpcConst::etaFromTowerNum** iabsitow>ITOW_MAX for tower:"
+    //     << atower ;
+    std::string msg = "[L1RpcConst::etaFromTowerNum] iabsitow>ITOW_MAX for tower:";
+    std::ostringstream ostr;
+    ostr<<atower;
+    msg += ostr.str();
+    throw L1RpcException(msg.c_str());
     return 0.;
   }
   double eta = (etas[iabsitow]+etas[iabsitow+1])/2.;
@@ -238,7 +254,7 @@ int L1RpcConst::StringToInt(std::string str) {
 std::string L1RpcConst::IntToString(int number) {
   std::string str;
   /* Some problems. AK
-  ostringstream ostr;
+  std::ostringstream ostr;
   ostr<<number;
   str = ostr.str();
   edm::LogError("RPCTrigger")<<"std::string IntToString(int number)";

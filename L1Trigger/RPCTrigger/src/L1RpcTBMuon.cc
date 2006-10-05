@@ -1,7 +1,9 @@
 //---------------------------------------------------------------------------
 #include "L1Trigger/RPCTrigger/src/L1RpcTBMuon.h"
 //#include "L1Trigger/RPCTrigger/src/L1RpcException.h"
+#ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#endif // _STAND_ALONE
 #include "L1Trigger/RPCTrigger/src/RPCException.h"
 
 #include <sstream>

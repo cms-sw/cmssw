@@ -48,8 +48,14 @@ bool L1RpcTriggerBoard::RunCone(const L1RpcLogCone& cone)  {
     if(tbMuon.GetCode() > 0) {
         PacsMuonsVec.push_back(tbMuon);
         if (TriggerConfig->GetDebugLevel()!=0){
-            LogDebug("RPCHwDebug") << "before TBGB: "
-                                   << tbMuon.printDebugInfo(TriggerConfig->GetDebugLevel());
+#ifndef _STAND_ALONE
+	  LogDebug("RPCHwDebug") << "before TBGB: "
+			     << tbMuon.printDebugInfo(TriggerConfig->GetDebugLevel());
+#else
+	  std::cout << "before TBGB: "
+		  << tbMuon.printDebugInfo(TriggerConfig->GetDebugLevel())
+		  << std::endl;
+#endif //_STAND_ALONE
         }
       return true;
     }

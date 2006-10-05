@@ -1,7 +1,10 @@
 #ifndef L1RpcConstH
 #define L1RpcConstH
 
+#ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#endif //_STAND_ALONE
+
 #include <string>
 #include <map>
 #include <vector>

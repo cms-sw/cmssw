@@ -14,7 +14,9 @@
   * \author Karol Bunkowski (Warsaw)
   */
 
+#ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#endif // _STAND_ALONE
 
 #include <vector>
 
