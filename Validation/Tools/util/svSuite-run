@@ -30,7 +30,9 @@ messageService.registerAs("svSuite-bin")
 from SVSuite.Configuration import Configuration
 from SVSuite.SVSuiteSpec import loadSpecFile
 
-valid = ['validation-package=', 'packages=', 'version=', 'specs=',]
+valid = ['scram-project-dir=',
+         'validation-package=', 'packages=', 'version=', 'specs=',
+         'test-only', ]
 
 usage = \
 """
@@ -43,6 +45,8 @@ Usage: svSuite-run --version=<CMSSW Version>
    --version is required, it is the version you will be running the jobs with.
     You also need a scram runtime environment setup for this version when
     using this tool
+   --scram-project-dir is required and should be a scram project area for the
+    version you provided.
    --validation-package is the location of the checked out Validation package
     that you want to use to create jobs with. Default is to assume it is the
     current working directory
@@ -63,11 +67,12 @@ except getopt.GetoptError, ex:
 
 
 validationPackage = os.getcwd()
+scramDir = None
 packages = None
 version = None
 timestamp = int(time.time())
 specList = None
-    
+testMode = False
 
 
 for opt, arg in opts:
@@ -75,6 +80,10 @@ for opt, arg in opts:
         validationPackage = arg
     if opt == "--version":
         version = arg
+    if opt == "--scram-project-dir":
+        scramDir = arg
+    if opt == "--test-only":
+        testMode = True
     if opt == "--packages":
         packages = []
         for pkg in arg.split(","):
@@ -107,6 +116,17 @@ reducedVersion = version.replace("CMSSW_", "")
 reducedVersion = reducedVersion.replace("_", "")
 
 
+if scramDir == None:
+    msg = "--scram-project-dir argument not supplied\n"
+    msg += "This is a required option\n"
+    print usage
+    raise RuntimeError, msg
+
+if not os.path.exists(scramDir):
+    msg = "Unable to find Scram Project Dir:\n"
+    msg += "%s\n" % scramDir
+    msg += "Cannot proceed without valid location of Scram Project Area"
+    raise RuntimeError, msg
 
 scanPackages = []
 
@@ -162,9 +182,74 @@ if specList != None:
         def __init__(self, validSpecs):
             self.validSpecs = validSpecs
         def __call__(self, item):
-            return item['Name'] in self.validSpecs
-
+            return item['Name'] in self.validSpecs   
     specs = filter(Filter(specList), specs)
+
+
+
+def createPSetHash(cfgFile):
+    """
+    _createPSetHash_
+
+    Run the EdmConfigHash utility to create a PSet Hash for the
+    cfg file provided.
+
+    It will be written to cfgFile.hash, and also read back and returned
+    by value.
+
+    An Exception will be raised if the command fails
+
+    """
+    hashFile = "%s.hash" % cfgFile
+    command = "cd %s\neval `scramv1 ru -sh`\n" % scramDir
+    command += "EdmConfigHash < %s > %s " % (cfgFile, hashFile)
+    pop = popen2.Popen4(command)
+    pop.wait()
+    exitStatus = pop.poll()
+    if exitStatus:
+        msg = "Error creating PSet Hash file:\n"
+        msg += pop.fromchild.read()
+        raise RuntimeError, msg
+
+    
+    return file(hashFile).read()
+
+
+def createPythonConfig(cfgFile):
+    """
+    _createPythonConfig_
+
+    Generate a Python Config from the cfgFile provided.
+    Return the location of that file (Will be cfgFile.pycfg
+    
+    """
+    pycfgFile = cfgFile.replace(".cfg", ".pycfg")
+    command = "cd %s\neval `scramv1 ru -sh`\n" % scramDir
+    command += "EdmConfigToPython < %s > %s " % (cfgFile, pycfgFile)
+    pop = popen2.Popen4(command)
+    pop.wait()
+    exitStatus = pop.poll()
+    if exitStatus:
+        msg = "Error creating Python cfg file:\n"
+        msg += pop.fromchild.read()
+        raise RuntimeError, msg
+    
+    #  //
+    # // Check that python file is valid
+    #//
+    
+    pop = popen2.Popen4("%s %s" % (sys.executable, pycfgFile))
+    pop.wait()
+    exitStatus = pop.poll()
+    if exitStatus:
+        msg = "Error importing Python cfg file:\n"
+        msg += pop.fromchild.read()
+        raise RuntimeError, msg
+
+    return pycfgFile
+         
+
+   
 
 
 
@@ -220,8 +305,8 @@ def processSpecInstance(spec):
         raise RuntimeError, msg
     
     
-    psetHash = WorkflowTools.createPSetHash(cfgFile)
-    pyCfgFile = WorkflowTools.createPythonConfig(cfgFile)
+    psetHash = createPSetHash(cfgFile)
+    pyCfgFile = createPythonConfig(cfgFile)
 
     WorkflowTools.populateCMSRunNode(workflow.payload, "cmsRun1", version,
                                      pyCfgFile, psetHash, timestamp, prodName)
@@ -297,6 +382,9 @@ for spec in specs:
             spec['InputDataset'],
             )
         print msg
+        if testMode:
+            print "Test Mode: Not Publishing to ProdAgent..."
+            continue
         messageService.publish("DatasetInjector:SetWorkflow", workflow)
         messageService.publish("NewWorkflow", workflow)
         messageService.commit()
@@ -305,7 +393,7 @@ for spec in specs:
                                os.path.basename(workflow))
         messageService.commit()
         time.sleep(1)
-        messageServce.publish("DatasetInjector:ReleaseJobs",
+        messageService.publish("DatasetInjector:ReleaseJobs",
                               str(spec['NumberOfJobs']))
         messageService.commit()
         time.sleep(1)
@@ -320,6 +408,10 @@ for spec in specs:
             spec['NumberOfJobs'], spec['NumberOfEvents'],
             )
         print msg
+        if testMode:
+            print "Test Mode: Not Publishing to ProdAgent..."
+            continue
+
         messageService.publish("RequestInjector:SetWorkflow", workflow)
         messageService.publish("NewWorkflow", workflow)
         messageService.commit()
