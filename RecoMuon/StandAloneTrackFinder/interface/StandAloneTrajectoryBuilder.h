@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/08/31 18:28:04 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/09/13 10:46:13 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -26,8 +26,10 @@ namespace edm {class ParameterSet;}
 
 class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 
-public:
-    
+ public:
+  typedef std::pair<const DetLayer*,TrajectoryStateOnSurface> DetLayerWithState;
+
+ public:
   /// Constructor with Parameter set and MuonServiceProxy
   StandAloneMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
 
@@ -51,9 +53,18 @@ public:
   virtual void setEvent(const edm::Event& event);
   
  protected:
-  
+
  private:
   
+  DetLayerWithState propagateTheSeedTSOS(const TrajectorySeed& seed);
+
+ private:
+
+
+  /// Navigation type
+  /// "Direct","Standard"
+  std::string theNavigationType;
+
   StandAloneMuonRefitter* theRefitter;
   StandAloneMuonRefitter* theBWFilter;
   // FIXME

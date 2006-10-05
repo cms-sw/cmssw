@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/09/13 10:45:50 $
- *  $Revision: 1.28 $
+ *  $Date: 2006/09/15 12:17:58 $
+ *  $Revision: 1.29 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -13,6 +13,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonRefitter.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonBackwardFilter.h"
@@ -20,6 +21,7 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,6 +31,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 using namespace edm;
 using namespace std;
@@ -38,8 +41,13 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   LogDebug("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
     << "constructor called" << endl;
 
+  // The navigation type:
+  // "Direct","Standard"
+  theNavigationType = par.getParameter<string>("NavigationType");
+  
   // The inward-outward fitter (starts from seed state)
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
+  refitterPSet.addParameter<string>("NavigationType",theNavigationType);
   theRefitter = new StandAloneMuonRefitter(refitterPSet,theService);
 
   // Disable/Enable the backward filter
@@ -47,11 +55,12 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   
   // Disable/Enable the smoothing of the trajectory
   doSmoothing = par.getParameter<bool>("DoSmoothing");
-  
+   
   if(doBackwardRefit){
     // The outward-inward fitter (starts from theRefitter outermost state)
     ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
     //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet,theService); // FIXME
+    bwFilterPSet.addParameter<string>("NavigationType",theNavigationType);
     theBWFilter = new StandAloneMuonRefitter(bwFilterPSet,theService);
 
     theBWSeedType = bwFilterPSet.getParameter<string>("BWSeedType");
@@ -96,37 +105,14 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   
   Trajectory trajectoryFW(seed,alongMomentum);
 
-  // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
-  PTrajectoryStateOnDet pTSOD = seed.startingState();
-
-  // Transform it in a TrajectoryStateOnSurface
-  LogDebug(metname)<<"Transform PTrajectoryStateOnDet in a TrajectoryStateOnSurface"<<endl;
-  TrajectoryStateTransform tsTransform;
-
-  DetId seedDetId(pTSOD.detId());
-
-  const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
-
-  TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), 
-								 &*theService->magneticField());
-
-  LogDebug(metname)<<"Seed Pt: "<<seedTSOS.freeState()->momentum().perp()<<endl;
-
-  LogDebug(metname)<< "Seed id in: "<< endl ;
-  LogDebug(metname) << debug.dumpMuonId(seedDetId);
-  
-  // Get the layer from which start the trajectory building
-  const DetLayer *seedDetLayer = theService->detLayerGeometry()->idToLayer( seedDetId );
-
-  LogDebug(metname)<< "---StandAloneMuonTrajectoryBuilder SEED:" << endl;
-  LogDebug(metname) << debug.dumpTSOS(seedTSOS);
+  DetLayerWithState inputFromSeed = propagateTheSeedTSOS(seed); // it returns DetLayer-TSOS pair
   
   // refine the FTS given by the seed
   static const string t1 = "StandAloneMuonTrajectoryBuilder::refitter";
   TimeMe timer1(t1,timing);
 
   // the trajectory is filled in the refitter::refit
-  refitter()->refit(seedTSOS,seedDetLayer,trajectoryFW);
+  refitter()->refit(inputFromSeed.second,inputFromSeed.first,trajectoryFW);
 
   // Get the last TSOS
   TrajectoryStateOnSurface tsosAfterRefit = refitter()->lastUpdatedTSOS();
@@ -262,4 +248,89 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   else
     LogDebug(metname)<< "Trajectory NOT saved" << endl;
   return trajectoryContainer;
+}
+
+
+StandAloneMuonTrajectoryBuilder::DetLayerWithState
+StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(const TrajectorySeed& seed){
+
+  const std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
+  MuonPatternRecoDumper debug;
+
+  // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
+  PTrajectoryStateOnDet pTSOD = seed.startingState();
+  
+  // Transform it in a TrajectoryStateOnSurface
+  LogDebug(metname)<<"Transform PTrajectoryStateOnDet in a TrajectoryStateOnSurface"<<endl;
+  TrajectoryStateTransform tsTransform;
+
+  DetId seedDetId(pTSOD.detId());
+
+  const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
+
+  TrajectoryStateOnSurface initialState = tsTransform.transientState(pTSOD, &(gdet->surface()), 
+								     &*theService->magneticField());
+
+  LogDebug(metname)<<"Seed's Pt: "<<initialState.freeState()->momentum().perp()<<endl;
+
+  LogDebug(metname)<< "Seed's id: "<< endl ;
+  LogDebug(metname) << debug.dumpMuonId(seedDetId);
+  
+  // Get the layer on which the seed relies
+  const DetLayer *initialLayer = theService->detLayerGeometry()->idToLayer( seedDetId );
+
+  LogDebug(metname)<< "Seed's detLayer: "<< endl ;
+  LogDebug(metname) << debug.dumpLayer(initialLayer);
+
+  LogDebug(metname)<< "TrajectoryStateOnSurface before propagation:" << endl;
+  LogDebug(metname) << debug.dumpTSOS(initialState);
+
+  // ask for compatible layers
+  vector<const DetLayer*> detLayers;
+ 
+ 
+  if(theNavigationType == "Standard")
+    detLayers = initialLayer->compatibleLayers( *initialState.freeState(),oppositeToMomentum); // FIXME 
+  else if (theNavigationType == "Direct"){
+    DirectMuonNavigation navigation( &*theService->detLayerGeometry() );
+    detLayers = navigation.compatibleLayers( *initialState.freeState(),oppositeToMomentum); // FIXME
+  }
+  else
+    edm::LogError(metname) << "No Properly Navigation Selected!!"<<endl;
+
+ 
+  LogDebug(metname) << "There are "<< detLayers.size() <<" compatible layers"<<endl;
+  
+  DetLayerWithState result = DetLayerWithState(initialLayer,initialState);
+
+  if(detLayers.size()){
+
+    LogDebug(metname) << "Compatible layers:"<<endl;
+    for( vector<const DetLayer*>::const_iterator layer = detLayers.begin(); 
+	 layer != detLayers.end(); layer++){
+      LogDebug(metname) << debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId());
+      LogDebug(metname) << debug.dumpLayer(*layer);
+    }
+
+    LogDebug(metname) << "Most internal one:"<<endl;         // FIXME
+    LogDebug(metname) << debug.dumpLayer(detLayers.back());  // FIXME
+
+    const TrajectoryStateOnSurface propagatedState = 
+      theService->propagator("SteppingHelixPropagatorAny")->propagate(initialState,
+								      detLayers.back()->surface()); // Double FIXME 
+
+    if(propagatedState.isValid()){
+      result = DetLayerWithState(detLayers.back(),propagatedState);
+      
+      LogDebug(metname) << "Trajectory State on Surface after the extrapolation"<<endl;
+      LogDebug(metname) << debug.dumpTSOS(propagatedState);
+      LogDebug(metname) << debug.dumpLayer(detLayers.back());
+    }
+    else 
+      LogDebug(metname)<< "Extrapolation failed. Keep the original seed state" <<endl;
+  }
+  else
+    LogDebug(metname)<< "No compatible layers. Keep the original seed state" <<endl;
+  
+  return result;
 }
