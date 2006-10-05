@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/08/25 20:58:03 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/25 22:51:42 $
+ *  $Revision: 1.13 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.12 2006/08/25 20:58:03 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.13 2006/08/25 22:51:42 slava77 Exp $
 //
 //
 
@@ -718,6 +718,7 @@ double SteppingHelixPropagator::getDeDx(int iIn, double& dEdXPrime, double& radX
 
   double lR = r3_[cInd].perp();
   double lZ = fabs(r3_[cInd].z());
+  double lEtaDet = r3_[cInd].eta();
 
   //assume "Iron" .. seems to be quite the same for brass/iron/PbW04
   //good for Fe within 3% for 0.2 GeV to 10PeV
@@ -732,20 +733,35 @@ double SteppingHelixPropagator::getDeDx(int iIn, double& dEdXPrime, double& radX
   double dEdX_Fe =   dEdX_mat;
   double dEdX_MCh =  0.053*dEdX_mat; //chambers on average
   double dEdX_Trk =  0.0114*dEdX_mat;
+  double dEdX_Vac =  0.0;
 
   double radX0_HCal = 1.44/0.8; //guessing
   double radX0_ECal = 0.89/0.7;
   double radX0_coil = 4.; //
   double radX0_Fe =   1.76;
   double radX0_MCh =  1e3; //
-  double radX0_Trk =  500.;
+  double radX0_Trk =  320.;
   double radX0_Air =  3.e4;
+  double radX0_Vac =  3.e9; //"big" number for vacuum
 
 
   //this should roughly figure out where things are 
   //(numbers taken from Fig1.1.2 TDR and from geom xmls)
-  if (lR < 129){
-    if (lZ < 294){ dEdx = dEdx = dEdX_Trk; radX0 = radX0_Trk; }
+  if (lR < 2.9){ //inside beampipe
+    dEdx = dEdX_Vac; radX0 = radX0_Vac;
+  }
+  else if (lR < 129){
+    if (lZ < 294){ 
+      dEdx = dEdx = dEdX_Trk; radX0 = radX0_Trk; 
+      //somewhat empirical formula that ~ matches the average if going from 0,0,0
+      //assuming "uniform" tracker material
+      //doesn't really track material layer to layer
+      double scaleRadX = lEtaDet > 1.5 ? 0.7724 : sin(2.*atan(exp(-0.5*lEtaDet)));
+      scaleRadX *= scaleRadX;
+      if (lEtaDet > 2 && lZ > 20) scaleRadX *= (lEtaDet-1.);
+      if (lEtaDet > 2.5 && lZ > 20) scaleRadX *= (lEtaDet-1.);
+      radX0 *= scaleRadX;
+    }
     else if (lZ < 372){ dEdx = dEdX_ECal; radX0 = radX0_ECal; }//EE averaged out over a larger space
     else if (lZ < 398){ dEdx = dEdX_HCal*0.05; radX0 = radX0_Air; }//betw EE and HE
     else if (lZ < 555){ dEdx = dEdX_HCal*0.96; radX0 = radX0_HCal/0.96; } //HE calor abit less dense
