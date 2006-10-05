@@ -91,6 +91,15 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     options_ = new IO(file);
   }
 
+  clusteringIsOn_ = true;
+  options_->GetOpt("clustering", "on/off", clusteringIsOn_);
+  
+  clusteringDebug_ = false;
+  options_->GetOpt("clustering", "debug", clusteringDebug_);
+
+
+  // input root file --------------------------------------------
+
   options_->GetOpt("root","file", inFileName_);
   
   file_ = TFile::Open(inFileName_.c_str() );
@@ -98,14 +107,22 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     return;
   }
 
-  tree_ = (TTree*) file_->Get("Events");
-  
-
-  clusteringIsOn_ = true;
-  options_->GetOpt("clustering", "on/off", clusteringIsOn_);
-  
-  clusteringDebug_ = false;
-  options_->GetOpt("clustering", "debug", clusteringDebug_);
+  fromRealData_ = false;
+  tree_ = (TTree*) file_->Get("Events");  
+  if(tree_ ) {
+    cout<<"PFRootEventManager::ReadOptions : simulation mode"<<endl;
+  }
+  else {
+    tree_ = (TTree*) file_->Get("T_Colin");
+    if( tree_ ) {
+      fromRealData_ = true;
+      cout<<"PFRootEventManager::ReadOptions : test beam mode"<<endl;
+    }
+    else {
+      cerr<<"PFRootEventManager::ReadOptions : input TTree Events or T_Colin not found in file "
+	  <<inFileName_<<endl;
+    }
+  }
 
   // hits branches ----------------------------------------------
 
@@ -277,6 +294,9 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   options_->GetOpt("clustering", "thresh_Seed_Ecal_Endcap",
 		   threshSeedEcalEndcap_);
 
+  showerSigmaEcal_ = 3;  
+  options_->GetOpt("clustering", "shower_Sigma_Ecal",
+		   showerSigmaEcal_);
 
   nNeighboursEcal_ = 4;
   options_->GetOpt("clustering", "neighbours_Ecal", nNeighboursEcal_);
@@ -418,51 +438,11 @@ bool PFRootEventManager::processEntry(int entry) {
 
   cout<<"process entry "<< entry << endl;
   
-//   if(hitsBranch_) { 
-//     hitsBranch_->GetEntry(entry);
-//     for(unsigned i=0; i<rechits_.size(); i++) 
-//       rechits_[i].calculatePositionREP();
-//   }
+  if(fromRealData_) readFromRealData(entry); 
+  else readFromSimulation(entry); 
 
-  if(rechitsECALBranch_) {
-    rechitsECALBranch_->GetEntry(entry);
-    for(unsigned i=0; i<rechitsECAL_.size(); i++) 
-      rechitsECAL_[i].calculatePositionREP();
-  }
-  if(rechitsHCALBranch_) {
-    rechitsHCALBranch_->GetEntry(entry);
-    for(unsigned i=0; i<rechitsHCAL_.size(); i++) 
-      rechitsHCAL_[i].calculatePositionREP();
-  }
-  if(rechitsPSBranch_) {
-    rechitsPSBranch_->GetEntry(entry);  
-    for(unsigned i=0; i<rechitsPS_.size(); i++) 
-      rechitsPS_[i].calculatePositionREP();
-  }
-
-  if(clustersECALBranch_ && !clusteringIsOn_) {
-    clustersECALBranch_->GetEntry(entry);
-    for(unsigned i=0; i<clustersECAL_->size(); i++) 
-      (*clustersECAL_)[i].calculatePositionREP();
-  }
-  if(clustersHCALBranch_ && !clusteringIsOn_) {
-    clustersHCALBranch_->GetEntry(entry);
-    for(unsigned i=0; i<clustersHCAL_->size(); i++) 
-      (*clustersHCAL_)[i].calculatePositionREP();    
-  }
-  if(clustersPSBranch_ && !clusteringIsOn_) {
-    clustersPSBranch_->GetEntry(entry);
-    for(unsigned i=0; i<clustersPS_->size(); i++) 
-      (*clustersPS_)[i].calculatePositionREP();    
-  }
-
-  if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
-  if(trueParticlesBranch_) trueParticlesBranch_->GetEntry(entry);
-
-  
   cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
   cout<<"number of true particles : "<<trueParticles_.size()<<endl;
-
   cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
   cout<<"number of HCAL rechits   : "<<rechitsHCAL_.size()<<endl;
   cout<<"number of PS rechits     : "<<rechitsPS_.size()<<endl;
@@ -488,6 +468,222 @@ bool PFRootEventManager::processEntry(int entry) {
 }
 
 
+
+void PFRootEventManager::readFromSimulation(int entry) {
+    if(hitsBranch_) { 
+      hitsBranch_->GetEntry(entry);
+      for(unsigned i=0; i<rechits_.size(); i++) 
+	rechits_[i].calculatePositionREP();
+    }
+    if(rechitsECALBranch_) {
+      rechitsECALBranch_->GetEntry(entry);
+      for(unsigned i=0; i<rechitsECAL_.size(); i++) 
+	rechitsECAL_[i].calculatePositionREP();
+    }
+    if(rechitsHCALBranch_) {
+      rechitsHCALBranch_->GetEntry(entry);
+      for(unsigned i=0; i<rechitsHCAL_.size(); i++) 
+	rechitsHCAL_[i].calculatePositionREP();
+    }
+    if(rechitsPSBranch_) {
+      rechitsPSBranch_->GetEntry(entry);  
+      for(unsigned i=0; i<rechitsPS_.size(); i++) 
+	rechitsPS_[i].calculatePositionREP();
+    }
+    if(clustersECALBranch_ && !clusteringIsOn_) {
+      clustersECALBranch_->GetEntry(entry);
+      for(unsigned i=0; i<clustersECAL_->size(); i++) 
+	(*clustersECAL_)[i].calculatePositionREP();
+    }
+    if(clustersHCALBranch_ && !clusteringIsOn_) {
+      clustersHCALBranch_->GetEntry(entry);
+      for(unsigned i=0; i<clustersHCAL_->size(); i++) 
+	(*clustersHCAL_)[i].calculatePositionREP();    
+    }
+    if(clustersPSBranch_ && !clusteringIsOn_) {
+      clustersPSBranch_->GetEntry(entry);
+      for(unsigned i=0; i<clustersPS_->size(); i++) 
+	(*clustersPS_)[i].calculatePositionREP();    
+    }
+    if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
+    if(trueParticlesBranch_) trueParticlesBranch_->GetEntry(entry);
+}
+
+
+
+void PFRootEventManager::readFromRealData(int entry) {
+
+  static const int ncrystalmax = 100;
+  static const int npartmax = 2;
+
+  int           ncrystal;
+  double        energy[ncrystalmax];
+  int           eta[ncrystalmax];
+  int           phi[ncrystalmax];
+ 
+  double        x[ncrystalmax];
+  double        y[ncrystalmax];
+  double        z[ncrystalmax];
+  double        xa[ncrystalmax];
+  double        ya[ncrystalmax];
+  double        za[ncrystalmax];
+  int           npart;
+
+  double        xp[npartmax];
+  double        yp[npartmax];
+  double        ep_init[npartmax];
+  double        ep_shared[npartmax];
+
+  tree_->SetBranchAddress("ncrystal",&ncrystal);
+  tree_->SetBranchAddress("energy",energy);
+  tree_->SetBranchAddress("eta",eta);
+  tree_->SetBranchAddress("phi",phi);
+  tree_->SetBranchAddress("x",x);
+  tree_->SetBranchAddress("y",y);
+  tree_->SetBranchAddress("z",z);
+  tree_->SetBranchAddress("xa",xa);
+  tree_->SetBranchAddress("ya",ya);
+  tree_->SetBranchAddress("za",za);
+  tree_->SetBranchAddress("npart",&npart);
+  tree_->SetBranchAddress("xp",xp);
+  tree_->SetBranchAddress("yp",yp);
+  tree_->SetBranchAddress("ep_init",ep_init);
+  tree_->SetBranchAddress("ep_shared",ep_shared);
+
+  tree_->GetEntry(entry);
+
+  // create the rechits
+
+  rechitsECAL_.clear();
+  rechitsECAL_.reserve(ncrystal);
+  
+  int    imax = -1; 
+  double emax = -1; 
+  double xmax[2] = {0,0};
+  double ymax[2] = {0,0};
+  double zmax[2] = {0,0};
+
+  for(int i=0; i<ncrystal; i++) {
+    unsigned detId = i+1;
+    int layer = PFLayer::ECAL_BARREL;
+    double e = energy[i];
+      
+    if(e>emax) {
+      emax = e;
+      xmax[0] = x[i];
+      ymax[0] = y[i];
+      zmax[0] = z[i];
+      imax = i;
+    }
+
+    rechitsECAL_.push_back( reco::PFRecHit( detId,layer, e, 
+					    x[i], y[i], z[i], 
+					    xa[i], ya[i], za[i] ) );
+  }
+  
+  assert( static_cast<unsigned> (ncrystal) == rechitsECAL_.size() );
+
+
+
+  // look for neighbours, build list of corners
+  for(unsigned i=0; i<rechitsECAL_.size(); i++) {
+    
+    const unsigned nNeighbours = 8;
+    std::vector<reco::PFRecHit*> neighbours;
+    
+    neighbours.reserve(nNeighbours);
+
+    for(unsigned j=0; j<nNeighbours; j++) {
+      // cout<<"init neighbours "<<j<<endl;
+      
+      neighbours.push_back(0);
+    }
+    
+    for(unsigned j=0; j<rechitsECAL_.size(); j++) {
+      // cout<<"loop on rechits "<<j<<endl;
+      int deta = eta[j] - eta[i];
+      int dphi = phi[j] - phi[i];
+      
+      double cposx = x[i]+ (x[j]-x[i])/2. ;
+      double cposy = y[i]+ (y[j]-y[i])/2. ;
+      double cposz = z[i]+ (z[j]-z[i])/2. ;
+
+      int ineighbour = -1;
+
+      if( deta == 0 ) {
+	if     ( dphi == 1  ) ineighbour = 0;
+	else if( dphi == -1 ) ineighbour = 4;
+	else if( i==imax && dphi==2 ) {
+	  xmax[1] = x[j];
+	  ymax[1] = y[j];
+	  zmax[1] = z[j];
+	} 
+      } 
+      else if(deta == -1) {
+	if     ( dphi == 1  ) { // NW corner
+	  ineighbour = 1;
+	  rechitsECAL_[i].setNWCorner( cposx, cposy, cposz);
+	}
+	else if( dphi == 0  ) ineighbour = 2;
+	else if( dphi == -1 ) {
+	  ineighbour = 3; 
+	  rechitsECAL_[i].setSWCorner( cposx, cposy, cposz);
+	}
+      }
+      else if(deta == 1) {
+	if     ( dphi == -1 ) {
+	  ineighbour = 5;
+	  rechitsECAL_[i].setSECorner( cposx, cposy, cposz);
+	}
+	else if( dphi == 0  ) ineighbour = 6;
+	else if( dphi == 1  ) {
+	  ineighbour = 7; 
+	  rechitsECAL_[i].setNECorner( cposx, cposy, cposz);
+	}
+      }
+
+      // cout<<"ineighbour"<<endl;
+      if( ineighbour> -1 )
+	neighbours[ineighbour] = &(rechitsECAL_[j]) ;
+    }
+    
+    
+
+    // cout<<"n neighbours = "<<neighbours.size()<<endl;
+    rechitsECAL_[i].setNeighbours( neighbours );
+  } 
+
+
+  // create the particles
+  trueParticles_.clear(); 
+  for(int i=0; i<npart; i++) {
+    vector<int> daughters;
+    reco::PFParticle particle( -1, 11, i+1, -1, daughters);
+
+
+    math::XYZPoint posxyzorig( 0, 0, 0);
+    math::XYZTLorentzVector momentumorig( 0, 0, 0, 0);
+
+    reco::PFTrajectoryPoint orig(-1, reco::PFTrajectoryPoint::ClosestApproach, 
+				 posxyzorig, momentumorig);
+    particle.addPoint(orig);
+
+    math::XYZPoint posxyzecal(xmax[i], 
+			      ymax[i] - 0.1*yp[i], 
+			      zmax[i] + 0.1*xp[i]);
+    math::XYZTLorentzVector momentumecal( 0, 0, 0, 0);
+
+    reco::PFTrajectoryPoint ecal(-1, reco::PFTrajectoryPoint::ECALEntrance, 
+				 posxyzecal, momentumecal);
+
+    particle.addPoint(ecal);
+    
+    trueParticles_.push_back( particle );
+  }
+}
+
+
+
 void PFRootEventManager::clustering() {
   
   cout<<"clustering"<<endl;
@@ -506,7 +702,7 @@ void PFRootEventManager::clustering() {
   clusterAlgoECAL.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
 
   clusterAlgoECAL.setNNeighboursEcal( nNeighboursEcal_  );
-  
+  clusterAlgoECAL.setShowerSigmaEcal( showerSigmaEcal_  );
 
 
   for(unsigned i=0; i<rechitsECAL_.size(); i++) {

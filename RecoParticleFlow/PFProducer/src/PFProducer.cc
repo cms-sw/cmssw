@@ -736,7 +736,7 @@ void PFProducer::produce(Event& iEvent,
 			    <<pfClusterModuleLabel_<<":"
 			    <<pfClusterECALInstanceName_
 			    <<endl;
-      // throw err;
+
     }
     
   

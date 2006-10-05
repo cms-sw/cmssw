@@ -112,6 +112,12 @@ class PFRootEventManager {
   /// process one entry 
   virtual bool processEntry(int entry);
 
+  /// read data from simulation tree
+  void readFromSimulation(int entry);
+
+  /// read data from testbeam tree
+  void readFromRealData(int entry);
+
   /// performs clustering 
   void clustering();
 
@@ -199,6 +205,11 @@ class PFRootEventManager {
   /// input tree  
   TTree*     tree_;          
   
+  /// read from real data
+  bool       fromRealData_;
+
+  // MC branches --------------------------
+  
   /// rechits branch  
   TBranch*   hitsBranch_;          
   
@@ -225,7 +236,8 @@ class PFRootEventManager {
   
   /// true particles branch
   TBranch*   trueParticlesBranch_;          
-  
+
+
 
   /// rechits
   std::vector<reco::PFRecHit> rechits_;
@@ -387,6 +399,8 @@ class PFRootEventManager {
   /// ecal number of neighbours
   int    nNeighboursEcal_;
 
+  /// ecal shower sigma 
+  double showerSigmaEcal_;
 
   /// hcal barrel threshold
   double threshHcalBarrel_;
