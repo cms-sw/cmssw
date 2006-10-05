@@ -50,6 +50,9 @@ namespace cms
 {
   class SiStripZeroSuppression : public edm::EDProducer
   {
+
+    typedef std::vector<edm::ParameterSet> Parameters;
+
   public:
 
     explicit SiStripZeroSuppression(const edm::ParameterSet& conf);
@@ -65,6 +68,7 @@ namespace cms
     SiStripZeroSuppressionAlgorithm SiStripZeroSuppressionAlgorithm_;
     SiStripPedestalsService         SiStripPedestalsService_;  
     SiStripNoiseService             SiStripNoiseService_;  
+    Parameters                      RawDigiProducersList;
   };
 }
 #endif

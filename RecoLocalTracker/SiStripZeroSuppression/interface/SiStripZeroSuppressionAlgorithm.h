@@ -25,20 +25,19 @@
 //ES Data
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h" 
 
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripZeroSuppressor.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
-
-//SiStripPedestalsService
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
-//SiStripNoiseService
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
 #include <iostream> 
 #include <memory>
 #include <string>
 #include <vector>
 #include "CLHEP/Random/RandFlat.h"
+
+class SiStripPedestalsService;
+class SiStripNoiseService;
+class SiStripPedestalsSubtractor;
+class SiStripFedZeroSuppression;
+class SiStripCommonModeNoiseSubtractor;
+
 
 class SiStripZeroSuppressionAlgorithm 
 {
@@ -56,7 +55,7 @@ class SiStripZeroSuppressionAlgorithm
  private:
   edm::ParameterSet conf_;
 
-  SiStripZeroSuppressor* SiStripZeroSuppressor_;
+  SiStripFedZeroSuppression* SiStripZeroSuppressor_;
   std::string ZeroSuppressionMode_;
   bool validZeroSuppression_;  
 

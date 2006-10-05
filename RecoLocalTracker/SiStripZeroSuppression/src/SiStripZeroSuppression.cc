@@ -12,13 +12,17 @@ namespace cms
     conf_(conf),
     SiStripZeroSuppressionAlgorithm_(conf),
     SiStripPedestalsService_(conf),
-    SiStripNoiseService_(conf){
+    SiStripNoiseService_(conf),
+    RawDigiProducersList(conf_.getParameter<Parameters>("RawDigiProducersList")){
 
     edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppression::SiStripZeroSuppression] Constructing object...";
 
-    produces< edm::DetSetVector<SiStripDigi> > ("fromScopeMode");
-    produces< edm::DetSetVector<SiStripDigi> > ("fromVirginRaw");
-    produces< edm::DetSetVector<SiStripDigi> > ("fromProcessedRaw");
+
+    Parameters::iterator itRawDigiProducersList = RawDigiProducersList.begin();
+    for(; itRawDigiProducersList != RawDigiProducersList.end(); ++itRawDigiProducersList ) {
+      std::string rawdigiLabel = itRawDigiProducersList->getParameter<std::string>("RawDigiLabel");
+      produces< edm::DetSetVector<SiStripDigi> > (rawdigiLabel);
+    }
   }
   
   // Virtual destructor needed.
@@ -37,44 +41,28 @@ namespace cms
   void SiStripZeroSuppression::produce(edm::Event& e, const edm::EventSetup& es)
   {
     edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppression::produce] Analysing " << e.id();
-
-    std::string rawDigiProducer = conf_.getParameter<std::string>("RawDigiProducer");
-    
-    // Step A: Get Inputs 
-    edm::Handle< edm::DetSetVector<SiStripRawDigi> > ScopeMode;
-    edm::Handle< edm::DetSetVector<SiStripRawDigi> > VirginRaw;
-    edm::Handle< edm::DetSetVector<SiStripRawDigi> > ProcessedRaw;    
-    
-    e.getByLabel(rawDigiProducer,"ScopeMode"     , ScopeMode);
-    e.getByLabel(rawDigiProducer,"VirginRaw"     , VirginRaw);
-    e.getByLabel(rawDigiProducer,"ProcessedRaw"  , ProcessedRaw);
-    
-    std::vector< edm::DetSet<SiStripDigi> >    v_smDigis;
-    std::vector< edm::DetSet<SiStripDigi> >    v_vrDigis;
-    std::vector< edm::DetSet<SiStripDigi> >    v_prDigis;
-
-    v_smDigis.reserve(10000);
-    v_vrDigis.reserve(10000);
-    v_prDigis.reserve(10000);
-
-    // Step B: Invoke the strip clusterizer algorithm and fill output collection
-    SiStripPedestalsService_.setESObjects(es);
-    SiStripNoiseService_.setESObjects(es);
-    if ( ScopeMode->size() )
-      SiStripZeroSuppressionAlgorithm_.run("ScopeMode"   ,*ScopeMode   ,v_smDigis);
-    if ( VirginRaw->size() )
-      SiStripZeroSuppressionAlgorithm_.run("VirginRaw"   ,*VirginRaw   ,v_vrDigis);
-    if ( ProcessedRaw->size() )
-      SiStripZeroSuppressionAlgorithm_.run("ProcessedRaw",*ProcessedRaw,v_prDigis);
    
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> >    smDigis( new edm::DetSetVector<SiStripDigi>(v_smDigis) );
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> >    vrDigis( new edm::DetSetVector<SiStripDigi>(v_vrDigis) );
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> >    prDigis( new edm::DetSetVector<SiStripDigi>(v_prDigis) );
+    edm::Handle< edm::DetSetVector<SiStripRawDigi> >  input;
 
+    Parameters::iterator itRawDigiProducersList = RawDigiProducersList.begin();
+    for(; itRawDigiProducersList != RawDigiProducersList.end(); ++itRawDigiProducersList ) {
 
-    // Step D: write output to file
-    e.put(smDigis, "fromScopeMode");
-    e.put(vrDigis, "fromVirginRaw");
-    e.put(prDigis, "fromProcessedRaw");
-  }
+      // Step A: Get Inputs   
+      std::string rawdigiProducer = itRawDigiProducersList->getParameter<std::string>("RawDigiProducer");
+      std::string rawdigiLabel = itRawDigiProducersList->getParameter<std::string>("RawDigiLabel");
+      e.getByLabel(rawdigiProducer,rawdigiLabel,input);  //FIXME: fix this label	
+  
+      // Step B: produce output product
+      std::vector< edm::DetSet<SiStripDigi> > vSiStripDigi;
+      vSiStripDigi.reserve(10000);
+      if (input->size())
+	SiStripZeroSuppressionAlgorithm_.run(rawdigiLabel,*input,vSiStripDigi);
+    
+      // Step C: create and fill output collection
+      std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(vSiStripDigi) );
+
+      // Step E: write output to file
+      e.put(output,rawdigiLabel);
+    }
+  }   
 }
