@@ -1,7 +1,9 @@
 <lcgdict>
   <class name="reco::Photon"/>
+  <class name="reco::ConvertedPhoton"/>
   <class name="reco::Electron"/>
   <class name="reco::SiStripElectron"/>
+
 
   <class name="std::vector<reco::Photon>"/>
   <class name="edm::Wrapper<std::vector<reco::Photon> >"/>
@@ -29,6 +31,7 @@
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >" />
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> > >" />
   <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
 </lcgdict>
