@@ -157,7 +157,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 	 <<clustersECALbranchname<<endl;
   }
   else if(!clusteringIsOn_) {
-    cout<<"clusters ECAL : SetAddress"<<endl;
+    // cout<<"clusters ECAL : SetAddress"<<endl;
     clustersECALBranch_->SetAddress( clustersECAL_.get() );
   }    
   
@@ -418,11 +418,11 @@ bool PFRootEventManager::processEntry(int entry) {
 
   cout<<"process entry "<< entry << endl;
   
-  if(hitsBranch_) { 
-    hitsBranch_->GetEntry(entry);
-    for(unsigned i=0; i<rechits_.size(); i++) 
-      rechits_[i].calculatePositionREP();
-  }
+//   if(hitsBranch_) { 
+//     hitsBranch_->GetEntry(entry);
+//     for(unsigned i=0; i<rechits_.size(); i++) 
+//       rechits_[i].calculatePositionREP();
+//   }
 
   if(rechitsECALBranch_) {
     rechitsECALBranch_->GetEntry(entry);

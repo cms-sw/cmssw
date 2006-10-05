@@ -51,6 +51,13 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   processPS_ = 
     iConfig.getUntrackedParameter<bool>("process_PS",true);
 
+  clusteringEcal_ = 
+    iConfig.getUntrackedParameter<bool>("clustering_Ecal",true);
+  clusteringHcal_ = 
+    iConfig.getUntrackedParameter<bool>("clustering_Hcal",true);
+  clusteringPS_ = 
+    iConfig.getUntrackedParameter<bool>("clustering_PS",true);
+
   // parameters for ecal clustering
   
   threshEcalBarrel_ = 
@@ -326,52 +333,59 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 			    *endcapGeometry);
     }
     
-
-    LogDebug("PFClusterProducer")<<"perform clustering in ECAL"<<endl;
-    PFClusterAlgo clusteralgo; 
-    
-    clusteralgo.setThreshEcalBarrel( threshEcalBarrel_ );
-    clusteralgo.setThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
-    
-    clusteralgo.setThreshEcalEndcap( threshEcalEndcap_ );
-    clusteralgo.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
-    
-    clusteralgo.init( idSortedRecHits ); 
-    clusteralgo.doClustering();
-    
-    // if requested, get rechits passing the threshold from algo, 
-    // and pass them to the event.
-    if(produceRecHits_) {
+    if(clusteringEcal_) {
+      LogDebug("PFClusterProducer")<<"perform clustering in ECAL"<<endl;
+      PFClusterAlgo clusteralgo; 
       
-      const map<unsigned, reco::PFRecHit* >& 
-	algohits = clusteralgo.idRecHits();
-
-      auto_ptr< vector<reco::PFRecHit> > 
-	recHits( new vector<reco::PFRecHit> ); 
+      clusteralgo.setThreshEcalBarrel( threshEcalBarrel_ );
+      clusteralgo.setThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
       
-      recHits->reserve( algohits.size() ); 
+      clusteralgo.setThreshEcalEndcap( threshEcalEndcap_ );
+      clusteralgo.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
       
-      for(PFClusterAlgo::IDH ih=algohits.begin(); 
-	  ih!=algohits.end(); ih++) {
-	recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
-      }
+      clusteralgo.init( idSortedRecHits ); 
+      clusteralgo.doClustering();
 
       LogInfo("PFClusterProducer")
 	<<" ECAL clusters --------------------------------- "<<endl
 	<<clusteralgo<<endl;
+
+      auto_ptr< vector<reco::PFCluster> > 
+	outClustersECAL( clusteralgo.clusters() ); 
+      iEvent.put( outClustersECAL, "ECAL");
+    }    
+
+    // if requested, get rechits passing the threshold from algo, 
+    // and pass them to the event.
+    if(produceRecHits_) {
+      
+//       const map<unsigned, reco::PFRecHit* >& 
+// 	algohits = clusteralgo.idRecHits();
+
+      auto_ptr< vector<reco::PFRecHit> > 
+	recHits( new vector<reco::PFRecHit> ); 
+      
+      recHits->reserve( idSortedRecHits.size() ); 
+      
+//       for(PFClusterAlgo::IDH ih=algohits.begin(); 
+// 	  ih!=algohits.end(); ih++) {
+// 	recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+//       }
+      
+      for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
+	   ih != idSortedRecHits.end(); ih++) {  
+	recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+      }
+     
       iEvent.put( recHits, "ECAL" );
     }
     
-    auto_ptr< vector<reco::PFCluster> > 
-      outClustersECAL( clusteralgo.clusters() ); 
-    iEvent.put( outClustersECAL, "ECAL");
     
     // clear all rechits
     for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
 	 ih != idSortedRecHits.end(); ih++) {  
       delete ih->second;
     }
-
     
   }
   
@@ -441,6 +455,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
 	    //	  const math::XYZPoint& cpos = pfrechit->positionXYZ();
 	    // if( fabs(cpos.Eta() )< 0.06  )
+	    
+	    
 	    hcalrechits.insert( make_pair(detid.rawId(), pfrechit) ); 
 	  }
 	}
@@ -454,44 +470,52 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 				*hcalEndcapGeometry);
 	}
 
-	PFClusterAlgo clusteralgo; 
-      
-	clusteralgo.setThreshHcalBarrel( threshHcalBarrel_ );
-	clusteralgo.setThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
-      
-	clusteralgo.setThreshHcalEndcap( threshHcalEndcap_ );
-	clusteralgo.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
+	if(clusteringHcal_) {
+
+	  PFClusterAlgo clusteralgo; 
+	  
+	  clusteralgo.setThreshHcalBarrel( threshHcalBarrel_ );
+	  clusteralgo.setThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
+	  
+	  clusteralgo.setThreshHcalEndcap( threshHcalEndcap_ );
+	  clusteralgo.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
     
-	clusteralgo.init( hcalrechits ); 
-	clusteralgo.doClustering();
+	  clusteralgo.init( hcalrechits ); 
+	  clusteralgo.doClustering();
+	
+	  LogInfo("PFClusterProducer")
+	    <<" HCAL clusters --------------------------------- "<<endl
+	    <<clusteralgo<<endl;
+	
+	  auto_ptr< vector<reco::PFCluster> > 
+	    outClustersHCAL( clusteralgo.clusters() ); 
+	  // 	outClustersHCAL = clusteralgo.clusters();
+	  iEvent.put( outClustersHCAL, "HCAL");
+	  
+	}
 
 	// if requested, get rechits passing the threshold from algo, 
 	// and pass them to the event.
 	if(produceRecHits_) {
 
-	  const map<unsigned, reco::PFRecHit* >& 
-	    algohits = clusteralgo.idRecHits();
+// 	  const map<unsigned, reco::PFRecHit* >& 
+// 	    algohits = clusteralgo.idRecHits();
 	  
 	  auto_ptr< vector<reco::PFRecHit> > 
 	    recHits( new vector<reco::PFRecHit> ); 
-	  recHits->reserve( algohits.size() );
+	  recHits->reserve( hcalrechits.size() );
 	  
-	  for(PFClusterAlgo::IDH ih=algohits.begin(); 
-	      ih!=algohits.end(); ih++) {
-	    recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+// 	  for(PFClusterAlgo::IDH ih=algohits.begin(); 
+// 	      ih!=algohits.end(); ih++) {
+// 	    recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+// 	  }
+	  for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
+	       ih != hcalrechits.end(); ih++) {
+ 	    recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
 	  }
-
+	  
 	  iEvent.put( recHits, "HCAL" );
 	}
-
-	LogInfo("PFClusterProducer")
-	  <<" HCAL clusters --------------------------------- "<<endl
-	  <<clusteralgo<<endl;
-	
-	auto_ptr< vector<reco::PFCluster> > 
-	  outClustersHCAL( clusteralgo.clusters() ); 
-// 	outClustersHCAL = clusteralgo.clusters();
-	iEvent.put( outClustersHCAL, "HCAL");
 
 	
 	// clear all 
@@ -611,42 +635,50 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 			      psTopology,
 			      *psGeometry);
       }
+      
+      if(clusteringPS_) {
 
-      PFClusterAlgo clusteralgo; 
-    
-      clusteralgo.setThreshPS( threshPS_ );
-      clusteralgo.setThreshSeedPS( threshSeedPS_ );
-       
-      clusteralgo.init( psrechits ); 
-      clusteralgo.doClustering();
-    
+	PFClusterAlgo clusteralgo; 
+	
+	clusteralgo.setThreshPS( threshPS_ );
+	clusteralgo.setThreshSeedPS( threshSeedPS_ );
+	
+	clusteralgo.init( psrechits ); 
+	clusteralgo.doClustering();
+
+	LogInfo("PFClusterProducer")
+	  <<" Preshower clusters --------------------------------- "<<endl
+	  <<clusteralgo<<endl;
+	
+	auto_ptr< vector<reco::PFCluster> > 
+	  outClustersPS( clusteralgo.clusters() ); 
+	//       outClustersPS = clusteralgo.clusters();
+	iEvent.put( outClustersPS, "PS");
+      }    
+
       // if requested, get rechits passing the threshold from algo, 
       // and pass them to the event.
       if(produceRecHits_) {
 
-	const map<unsigned, reco::PFRecHit* >& algohits = 
-	  clusteralgo.idRecHits();
+// 	const map<unsigned, reco::PFRecHit* >& algohits = 
+// 	  clusteralgo.idRecHits();
 
 	auto_ptr< vector<reco::PFRecHit> > 
 	  recHits( new vector<reco::PFRecHit> ); 
-	recHits->reserve( algohits.size() );
+	recHits->reserve( psrechits.size() );
 	
-	for(PFClusterAlgo::IDH ih=algohits.begin(); 
-	    ih!=algohits.end(); ih++) {
-	  recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+// 	for(PFClusterAlgo::IDH ih=algohits.begin(); 
+// 	    ih!=algohits.end(); ih++) {
+// 	  recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+// 	}
+	for( PFClusterAlgo::IDH ih = psrechits.begin(); 
+	     ih != psrechits.end(); ih++) {  
+ 	  recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
 	}
-
+	
 	iEvent.put( recHits, "PS" );
       }
       
-      LogInfo("PFClusterProducer")
-	<<" Preshower clusters --------------------------------- "<<endl
-	<<clusteralgo<<endl;
-
-      auto_ptr< vector<reco::PFCluster> > 
-	outClustersPS( clusteralgo.clusters() ); 
-//       outClustersPS = clusteralgo.clusters();
-      iEvent.put( outClustersPS, "PS");
 
       // clear all 
       for( PFClusterAlgo::IDH ih = psrechits.begin(); 

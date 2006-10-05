@@ -736,7 +736,7 @@ void PFProducer::produce(Event& iEvent,
 			    <<pfClusterModuleLabel_<<":"
 			    <<pfClusterECALInstanceName_
 			    <<endl;
-      throw err;
+      // throw err;
     }
     
   
@@ -748,7 +748,7 @@ void PFProducer::produce(Event& iEvent,
       
       for(unsigned i=0; i<clustersHCAL->size(); i++) {
 	if( (*clustersHCAL)[i].type() != reco::PFCluster::TYPE_PF ) continue;
-
+	
 	reco::PFCluster *ncclust 
 	  = const_cast<reco::PFCluster *> (& (*clustersHCAL)[i] );
 
@@ -759,9 +759,9 @@ void PFProducer::produce(Event& iEvent,
       LogError("PFProducer")<<err
 			    <<" cannot get collection "
 			    <<pfClusterModuleLabel_<<":"
-			    <<pfClusterECALInstanceName_
+			    <<pfClusterHCALInstanceName_
 			    <<endl;
-      throw err;
+      // throw err;
     }
     
 
@@ -773,20 +773,20 @@ void PFProducer::produce(Event& iEvent,
 
       for(unsigned i=0; i<clustersPS->size(); i++) {
 	if( (*clustersPS)[i].type() != reco::PFCluster::TYPE_PF ) continue;
-	
+
 	reco::PFCluster *ncclust 
 	  = const_cast<reco::PFCluster *> (& (*clustersPS)[i] );
 
 	allElements.insert( new PFBlockElementPS( ncclust ) );
-      }
+     }
       
     } catch (cms::Exception& err) { 
       LogError("PFProducer")<<err
 			    <<" cannot get collection "
 			    <<pfClusterModuleLabel_<<":"
-			    <<pfClusterECALInstanceName_
+			    <<pfClusterPSInstanceName_
 			    <<endl;
-      throw err;
+      // throw err;
     }
     
     

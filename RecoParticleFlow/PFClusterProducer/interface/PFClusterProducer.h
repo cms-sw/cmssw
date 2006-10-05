@@ -68,6 +68,15 @@ class PFClusterProducer : public edm::EDProducer {
   /// process preshower ? 
   bool   processPS_;  
 
+  /// clustering Ecal ? 
+  bool   clusteringEcal_;
+
+  /// clustering Hcal ? 
+  bool   clusteringHcal_;  
+
+  /// clustering preshower ? 
+  bool   clusteringPS_;  
+
   /// ecal barrel threshold
   double threshEcalBarrel_;
 
