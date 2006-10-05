@@ -178,12 +178,15 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
 // just copied and pasted and changed names where necessary
 //  cout << "\n\nHCAL" << endl;
   cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
+  int nHcalDigi = hcalCollection.size();
+//  if (nHcalDigi != 4176){ cout << "There are " << nHcalDigi << " instead of 4176!" << endl;}
+  cout << "There are " << nHcalDigi << " hcal digis.  There should be 4176." << endl;
   for (int i = 0; i < 4176; i++){                        // ARE THERE 4032?? think not -- incl HF 4032 + 144 = 4176
     short ieta = (short) hcalCollection[i].id().ieta(); 
-//     if (hcalCollection[i].SOI_compressedEt()>0) { 
-//    cout << "Energy " << hcalCollection[i].SOI_compressedEt()
-// 	 << " eta " << ieta; 
-//     }
+    if (hcalCollection[i].SOI_compressedEt()>0) { 
+      cout << "Energy " << hcalCollection[i].SOI_compressedEt()
+ 	 << " eta " << ieta; 
+    }
     unsigned short absIeta = (unsigned short) abs(ieta);
     unsigned short cal_iphi = (unsigned short) hcalCollection[i].id().iphi();
 //     if (hcalCollection[i].SOI_compressedEt()>0) { 

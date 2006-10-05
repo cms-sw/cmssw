@@ -42,7 +42,8 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup&)
     edm::Handle<EcalTrigPrimDigiCollection> ecal;
     edm::Handle<HcalTrigPrimDigiCollection> hcal;
     /*EcalTrigPrimDigiCollection ecalDigiCollection = */e.getByType(ecal);
-    /*HcalTrigPrimDigiCollection hcalDigiCollection = */e.getByType(hcal);
+//    /*HcalTrigPrimDigiCollection hcalDigiCollection = */e.getByType(hcal);
+    e.getByLabel("hcalTriggerPrimitiveDigis",hcal);
     //rct->digiInput(ecalDigiCollection, hcalDigiCollection); // also need hf input separately? no
     rct->digiInput(*ecal, *hcal);
   }
