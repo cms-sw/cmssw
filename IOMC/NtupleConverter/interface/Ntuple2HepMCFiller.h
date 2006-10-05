@@ -31,7 +31,7 @@ class Ntuple2HepMCFiller {
 	static Ntuple2HepMCFiller * instance();	
 	virtual void initialize(const std::string & filename, int id);	
 	bool isInitialized();
-	virtual bool setEvent(int event);
+	virtual bool setEvent(unsigned int event);
 	virtual bool readCurrentEvent();
 	virtual bool printHepMcEvent() const;	
 	HepMC::GenEvent* fillCurrentEventData();
@@ -46,6 +46,7 @@ class Ntuple2HepMCFiller {
 	HepMC::GenEvent * evt;
 	bool initialized_;
 	NtupleROOTFile* input_;
+
 	// # of particles in evt
 	int  nParticles;
 	//maps to convert HepMC::GenParticle to particles # and vice versa
