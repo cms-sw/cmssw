@@ -338,20 +338,20 @@ void EcalDigisPlotCompare()
    meEBDigiSimRatiogt10ADC_;
    meEBDigiSimRatiogt10ADC_->SetLineColor(rcolor);
 
-   TH1 * meEEDigiSimRatiogt10ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 10 ADC;1",meEEDigiSimRatiogt10ADC_);
-   meEEDigiSimRatiogt10ADC_;
-   meEEDigiSimRatiogt10ADC_->SetLineColor(rcolor);
+   TH1 * meEEDigiSimRatiogt20ADC_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 20 ADC;1",meEEDigiSimRatiogt20ADC_);
+   meEEDigiSimRatiogt20ADC_;
+   meEEDigiSimRatiogt20ADC_->SetLineColor(rcolor);
 
    TH1 * newmeEBDigiSimRatiogt10ADC_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio gt 10 ADC;1",newmeEBDigiSimRatiogt10ADC_);
    newmeEBDigiSimRatiogt10ADC_;
    newmeEBDigiSimRatiogt10ADC_->SetLineColor(scolor);
 
-   TH1 * newmeEEDigiSimRatiogt10ADC_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 10 ADC;1",newmeEEDigiSimRatiogt10ADC_);
-   newmeEEDigiSimRatiogt10ADC_;
-   newmeEEDigiSimRatiogt10ADC_->SetLineColor(scolor);
+   TH1 * newmeEEDigiSimRatiogt20ADC_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 20 ADC;1",newmeEEDigiSimRatiogt20ADC_);
+   newmeEEDigiSimRatiogt20ADC_;
+   newmeEEDigiSimRatiogt20ADC_->SetLineColor(scolor);
 
    Ecal->cd(1);
    gPad->SetLogy(0);
@@ -363,10 +363,10 @@ void EcalDigisPlotCompare()
    gPad->SetLogy(1);
    Ecal->cd(2);
    gPad->SetLogy(0);
-   if ( meEEDigiSimRatiogt10ADC_ && newmeEEDigiSimRatiogt10ADC_ ) {
-     meEEDigiSimRatiogt10ADC_->Draw();
-     newmeEEDigiSimRatiogt10ADC_->Draw("same");
-     myPV->PVCompute(meEEDigiSimRatiogt10ADC_ , newmeEEDigiSimRatiogt10ADC_ , te);
+   if ( meEEDigiSimRatiogt20ADC_ && newmeEEDigiSimRatiogt20ADC_ ) {
+     meEEDigiSimRatiogt20ADC_->Draw();
+     newmeEEDigiSimRatiogt20ADC_->Draw("same");
+     myPV->PVCompute(meEEDigiSimRatiogt20ADC_ , newmeEEDigiSimRatiogt20ADC_ , te);
    }
    gPad->SetLogy(1);
    Ecal->Print("MaxADC_over_Sim_Ratio_gt10ADC_compare.eps");
@@ -413,6 +413,92 @@ void EcalDigisPlotCompare()
    }
    gPad->SetLogy(1);
    Ecal->Print("MaxADC_over_Sim_Ratio_gt100ADC_compare.eps");
+ } 
+
+ if (1) {
+   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
+   Ecal->Divide(1,2);
+
+   TH1 * meEBDigiMixRatiogt100ADC_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC;1",meEBDigiMixRatiogt100ADC_);
+   meEBDigiMixRatiogt100ADC_;
+   meEBDigiMixRatiogt100ADC_->SetLineColor(rcolor);
+
+   TH1 * meEEDigiMixRatiogt100ADC_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC;1",meEEDigiMixRatiogt100ADC_);
+   meEEDigiMixRatiogt100ADC_;
+   meEEDigiMixRatiogt100ADC_->SetLineColor(rcolor);
+
+   TH1 * newmeEBDigiMixRatiogt100ADC_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC;1",newmeEBDigiMixRatiogt100ADC_);
+   newmeEBDigiMixRatiogt100ADC_;
+   newmeEBDigiMixRatiogt100ADC_->SetLineColor(scolor);
+
+   TH1 * newmeEEDigiMixRatiogt100ADC_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC;1",newmeEEDigiMixRatiogt100ADC_);
+   newmeEEDigiMixRatiogt100ADC_;
+   newmeEEDigiMixRatiogt100ADC_->SetLineColor(scolor);
+
+   Ecal->cd(1);
+   gPad->SetLogy(0);
+   if ( meEBDigiMixRatiogt100ADC_ && newmeEBDigiMixRatiogt100ADC_ ) {
+     meEBDigiMixRatiogt100ADC_->Draw();
+     newmeEBDigiMixRatiogt100ADC_->Draw("same");
+     myPV->PVCompute(meEBDigiMixRatiogt100ADC_ , newmeEBDigiMixRatiogt100ADC_ , te );
+   }
+   gPad->SetLogy(1);
+   Ecal->cd(2);
+   gPad->SetLogy(0);
+   if ( meEEDigiMixRatiogt100ADC_ && newmeEEDigiMixRatiogt100ADC_ ) {
+     meEEDigiMixRatiogt100ADC_->Draw();
+     newmeEEDigiMixRatiogt100ADC_->Draw("same");
+     myPV->PVCompute(meEEDigiMixRatiogt100ADC_ , newmeEEDigiMixRatiogt100ADC_ , te );
+   }
+   gPad->SetLogy(1);
+   Ecal->Print("MaxADC_over_SimSignal_Ratio_gt100ADC_compare.eps");
+ } 
+
+ if (1) {
+   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
+   Ecal->Divide(1,2);
+
+   TH1 * meEBDigiMixRatioOriggt50pc_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun;1",meEBDigiMixRatioOriggt50pc_);
+   meEBDigiMixRatioOriggt50pc_;
+   meEBDigiMixRatioOriggt50pc_->SetLineColor(rcolor);
+
+   TH1 * meEEDigiMixRatioOriggt40pc_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun;1",meEEDigiMixRatioOriggt40pc_);
+   meEEDigiMixRatioOriggt40pc_;
+   meEEDigiMixRatioOriggt40pc_->SetLineColor(rcolor);
+
+   TH1 * newmeEBDigiMixRatioOriggt50pc_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun;1",newmeEBDigiMixRatioOriggt50pc_);
+   newmeEBDigiMixRatioOriggt50pc_;
+   newmeEBDigiMixRatioOriggt50pc_->SetLineColor(scolor);
+
+   TH1 * newmeEEDigiMixRatioOriggt40pc_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun;1",newmeEEDigiMixRatioOriggt40pc_);
+   newmeEEDigiMixRatioOriggt40pc_;
+   newmeEEDigiMixRatioOriggt40pc_->SetLineColor(scolor);
+
+   Ecal->cd(1);
+   gPad->SetLogy(0);
+   if ( meEBDigiMixRatioOriggt50pc_ && newmeEBDigiMixRatioOriggt50pc_ ) {
+     meEBDigiMixRatioOriggt50pc_->Draw();
+     newmeEBDigiMixRatioOriggt50pc_->Draw("same");
+     myPV->PVCompute(meEBDigiMixRatioOriggt50pc_ , newmeEBDigiMixRatioOriggt50pc_ , te );
+   }
+   gPad->SetLogy(1);
+   Ecal->cd(2);
+   gPad->SetLogy(0);
+   if ( meEEDigiMixRatioOriggt40pc_ && newmeEEDigiMixRatioOriggt40pc_ ) {
+     meEEDigiMixRatioOriggt40pc_->Draw();
+     newmeEEDigiMixRatioOriggt40pc_->Draw("same");
+     myPV->PVCompute(meEEDigiMixRatioOriggt40pc_ , newmeEEDigiMixRatioOriggt40pc_ , te );
+   }
+   gPad->SetLogy(1);
+   Ecal->Print("MaxADC_over_SimSignal_Ratio_Origgt50pc_compare.eps");
  } 
 
  // Gain switch check
@@ -548,20 +634,20 @@ void EcalDigisPlotCompare()
    meEBMaximumgt10ADC_;
    meEBMaximumgt10ADC_->SetLineColor(rcolor);
 
-   TH1 * meEEMaximumgt10ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 10 ADC;1",meEEMaximumgt10ADC_);
-   meEEMaximumgt10ADC_;
-   meEEMaximumgt10ADC_->SetLineColor(rcolor);
+   TH1 * meEEMaximumgt20ADC_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 20 ADC;1",meEEMaximumgt20ADC_);
+   meEEMaximumgt20ADC_;
+   meEEMaximumgt20ADC_->SetLineColor(rcolor);
 
    TH1 * newmeEBMaximumgt10ADC_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum position gt 10 ADC;1",newmeEBMaximumgt10ADC_);
    newmeEBMaximumgt10ADC_;
    newmeEBMaximumgt10ADC_->SetLineColor(scolor);
 
-   TH1 * newmeEEMaximumgt10ADC_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 10 ADC;1",newmeEEMaximumgt10ADC_);
-   newmeEEMaximumgt10ADC_;
-   newmeEEMaximumgt10ADC_->SetLineColor(scolor);
+   TH1 * newmeEEMaximumgt20ADC_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 20 ADC;1",newmeEEMaximumgt20ADC_);
+   newmeEEMaximumgt20ADC_;
+   newmeEEMaximumgt20ADC_->SetLineColor(scolor);
 
    Ecal->cd(1);
    if ( meEBMaximumgt10ADC_ && newmeEBMaximumgt10ADC_ ) {
@@ -570,10 +656,10 @@ void EcalDigisPlotCompare()
      myPV->PVCompute(meEBMaximumgt10ADC_ , newmeEBMaximumgt10ADC_ , te ); 
    }
    Ecal->cd(2);
-   if ( meEEMaximumgt10ADC_ && newmeEEMaximumgt10ADC_ ) {
-     meEEMaximumgt10ADC_->Draw();
-     newmeEEMaximumgt10ADC_->Draw("same");
-     myPV->PVCompute(meEEMaximumgt10ADC_ , newmeEEMaximumgt10ADC_ , te ); 
+   if ( meEEMaximumgt20ADC_ && newmeEEMaximumgt20ADC_ ) {
+     meEEMaximumgt20ADC_->Draw();
+     newmeEEMaximumgt20ADC_->Draw("same");
+     myPV->PVCompute(meEEMaximumgt20ADC_ , newmeEEMaximumgt20ADC_ , te ); 
    }
    Ecal->Print("Maximum_position_gt10ADC_compare.eps");
  }
@@ -907,6 +993,65 @@ void EcalDigisPlotCompare()
    }
    Ecal->Print("Endcap_ADC_gain_compare.eps");
  }
+
+ // Bunch crossing distribution
+
+ if (1) {
+   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
+   Ecal->Divide(1,3);
+
+   TH1 * meEBbunchCrossing_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel bunch crossing;1",meEBbunchCrossing_);
+   meEBbunchCrossing_;
+   meEBbunchCrossing_->SetLineColor(rcolor);
+
+   TH1 * meEEbunchCrossing_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap bunch crossing;1",meEEbunchCrossing_);
+   meEEbunchCrossing_;
+   meEEbunchCrossing_->SetLineColor(rcolor);
+
+   TH1 * meESbunchCrossing_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower bunch crossing;1",meESbunchCrossing_);
+   meESbunchCrossing_;
+   meESbunchCrossing_->SetLineColor(rcolor);
+
+   TH1 * newmeEBbunchCrossing_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel bunch crossing;1",newmeEBbunchCrossing_);
+   newmeEBbunchCrossing_;
+   newmeEBbunchCrossing_->SetLineColor(rcolor);
+
+   TH1 * newmeEEbunchCrossing_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap bunch crossing;1",newmeEEbunchCrossing_);
+   newmeEEbunchCrossing_;
+   newmeEEbunchCrossing_->SetLineColor(rcolor);
+
+   TH1 * newmeESbunchCrossing_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower bunch crossing;1",newmeESbunchCrossing_);
+   newmeESbunchCrossing_;
+   newmeESbunchCrossing_->SetLineColor(rcolor);
+   
+   Ecal->cd(1); 
+   if ( meEBbunchCrossing_ && newmeEBbunchCrossing_ ) {
+     meEBbunchCrossing_->Draw(); 
+     newmeEBbunchCrossing_->Draw("same"); 
+     myPV->PVCompute( meEBbunchCrossing_ , newmeEBbunchCrossing_ , te );
+   }
+   Ecal->cd(2); 
+   if ( meEEbunchCrossing_ && newmeEEbunchCrossing_ ) {
+     meEEbunchCrossing_->Draw(); 
+     newmeEEbunchCrossing_->Draw("same"); 
+     myPV->PVCompute( meEEbunchCrossing_ , newmeEEbunchCrossing_ , te );
+   }
+   Ecal->cd(3); 
+   if ( meESbunchCrossing_ && newmeESbunchCrossing_ ) {
+     meESbunchCrossing_->Draw(); 
+     newmeESbunchCrossing_->Draw("same"); 
+     myPV->PVCompute( meESbunchCrossing_ , newmeESbunchCrossing_ , te );
+   }
+   Ecal->Print("BunchCrossing_compare.eps");
+
+ }
+
 
 }
 

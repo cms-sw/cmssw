@@ -188,9 +188,9 @@ void EcalDigisPlots()
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio gt 10 ADC;1",meEBDigiSimRatiogt10ADC_);
    meEBDigiSimRatiogt10ADC_;
 
-   TH1 * meEEDigiSimRatiogt10ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 10 ADC;1",meEEDigiSimRatiogt10ADC_);
-   meEEDigiSimRatiogt10ADC_;
+   TH1 * meEEDigiSimRatiogt20ADC_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 20 ADC;1",meEEDigiSimRatiogt20ADC_);
+   meEEDigiSimRatiogt20ADC_;
 
    Ecal->cd(1);
    gPad->SetLogy(0);
@@ -198,7 +198,7 @@ void EcalDigisPlots()
    gPad->SetLogy(1);
    Ecal->cd(2);
    gPad->SetLogy(0);
-   if ( meEEDigiSimRatiogt10ADC_ ) meEEDigiSimRatiogt10ADC_->Draw();
+   if ( meEEDigiSimRatiogt20ADC_ ) meEEDigiSimRatiogt20ADC_->Draw();
    gPad->SetLogy(1);
    Ecal->Print("MaxADC_over_Sim_Ratio_gt10ADC.eps");
  } 
@@ -224,6 +224,52 @@ void EcalDigisPlots()
    if ( meEEDigiSimRatiogt100ADC_ ) meEEDigiSimRatiogt100ADC_->Draw();
    gPad->SetLogy(1);
    Ecal->Print("MaxADC_over_Sim_Ratio_gt100ADC.eps");
+ } 
+
+ if (1) {
+   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
+   Ecal->Divide(1,2);
+
+   TH1 * meEBDigiMixRatiogt100ADC_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC;1",meEBDigiMixRatiogt100ADC_);
+   meEBDigiMixRatiogt100ADC_;
+
+   TH1 * meEEDigiMixRatiogt100ADC_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC;1",meEEDigiMixRatiogt100ADC_);
+   meEEDigiMixRatiogt100ADC_;
+
+   Ecal->cd(1);
+   gPad->SetLogy(0);
+   if ( meEBDigiMixRatiogt100ADC_ ) meEBDigiMixRatiogt100ADC_->Draw();
+   gPad->SetLogy(1);
+   Ecal->cd(2);
+   gPad->SetLogy(0);
+   if ( meEEDigiMixRatiogt100ADC_ ) meEEDigiMixRatiogt100ADC_->Draw();
+   gPad->SetLogy(1);
+   Ecal->Print("MaxADC_over_SimSignal_Ratio_gt100ADC.eps");
+ } 
+
+ if (1) {
+   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
+   Ecal->Divide(1,2);
+
+   TH1 * meEBDigiMixRatioOriggt50pc_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun;1",meEBDigiMixRatioOriggt50pc_);
+   meEBDigiMixRatioOriggt50pc_;
+
+   TH1 * meEEDigiMixRatioOriggt40pc_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun;1",meEEDigiMixRatioOriggt40pc_);
+   meEEDigiMixRatioOriggt40pc_;
+
+   Ecal->cd(1);
+   gPad->SetLogy(0);
+   if ( meEBDigiMixRatioOriggt50pc_ ) meEBDigiMixRatioOriggt50pc_->Draw();
+   gPad->SetLogy(1);
+   Ecal->cd(2);
+   gPad->SetLogy(0);
+   if ( meEEDigiMixRatioOriggt40pc_ ) meEEDigiMixRatioOriggt40pc_->Draw();
+   gPad->SetLogy(1);
+   Ecal->Print("MaxADC_over_SimSignal_Ratio_Origgt40pc.eps");
  } 
 
  // Gain switch check
@@ -298,14 +344,14 @@ void EcalDigisPlots()
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum position gt 10 ADC;1",meEBMaximumgt10ADC_);
    meEBMaximumgt10ADC_;
 
-   TH1 * meEEMaximumgt10ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 10 ADC;1",meEEMaximumgt10ADC_);
-   meEEMaximumgt10ADC_;
+   TH1 * meEEMaximumgt20ADC_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 20 ADC;1",meEEMaximumgt20ADC_);
+   meEEMaximumgt20ADC_;
 
    Ecal->cd(1);
    if ( meEBMaximumgt10ADC_ ) meEBMaximumgt10ADC_->Draw();
    Ecal->cd(2);
-   if ( meEEMaximumgt10ADC_ ) meEEMaximumgt10ADC_->Draw();
+   if ( meEEMaximumgt20ADC_ ) meEEMaximumgt20ADC_->Draw();
    Ecal->Print("Maximum_position_gt10ADC.eps");
  }
 
@@ -538,6 +584,34 @@ void EcalDigisPlots()
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_ADC_gain.eps");
+ }
+
+ // Bunch crossing distribution
+
+ if (1) {
+   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
+   Ecal->Divide(1,3);
+
+   TH1 * meEBbunchCrossing_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel bunch crossing;1",meEBbunchCrossing_);
+   meEBbunchCrossing_;
+
+   TH1 * meEEbunchCrossing_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap bunch crossing;1",meEEbunchCrossing_);
+   meEEbunchCrossing_;
+
+   TH1 * meESbunchCrossing_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower bunch crossing;1",meESbunchCrossing_);
+   meESbunchCrossing_;
+   
+   Ecal->cd(1); 
+   if ( meEBbunchCrossing_ ) meEBbunchCrossing_->Draw(); 
+   Ecal->cd(2); 
+   if ( meEEbunchCrossing_ ) meEEbunchCrossing_->Draw(); 
+   Ecal->cd(3); 
+   if ( meESbunchCrossing_ ) meESbunchCrossing_->Draw(); 
+   Ecal->Print("BunchCrossing.eps");
+
  }
 
 }

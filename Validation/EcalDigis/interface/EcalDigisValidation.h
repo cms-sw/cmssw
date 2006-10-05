@@ -4,8 +4,8 @@
 /*
  * \file EcalDigisValidation.h
  *
- * $Date: 2006/07/26 14:55:26 $
- * $Revision: 1.4 $
+ * $Date: 2006/08/22 09:23:27 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
 */
@@ -26,6 +26,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -72,10 +73,10 @@ void beginJob(const EventSetup& c);
 // EndJob
 void endJob(void);
 
-void checkCalibrations(const edm::EventSetup & c);
-
 private:
 
+ void checkCalibrations(const edm::EventSetup & c);
+ 
  string HepMCLabel;
  string g4InfoLabel;
  
@@ -98,10 +99,20 @@ private:
  MonitorElement* meEEDigiSimRatio_;
 
  MonitorElement* meEBDigiSimRatiogt10ADC_;
- MonitorElement* meEEDigiSimRatiogt10ADC_;
+ MonitorElement* meEEDigiSimRatiogt20ADC_;
 
  MonitorElement* meEBDigiSimRatiogt100ADC_;
  MonitorElement* meEEDigiSimRatiogt100ADC_;
+
+ MonitorElement* meEBDigiMixRatiogt100ADC_;
+ MonitorElement* meEEDigiMixRatiogt100ADC_;
+
+ MonitorElement* meEBDigiMixRatioOriggt50pc_;
+ MonitorElement* meEEDigiMixRatioOriggt40pc_;
+
+ MonitorElement* meEBbunchCrossing_;
+ MonitorElement* meEEbunchCrossing_;
+ MonitorElement* meESbunchCrossing_;
 
 };
 
