@@ -20,9 +20,11 @@ public:
     {};
   
 
-  short firstStrip() const {return FirstStrip;}
+  uint16_t firstStrip() const {return FirstStrip;}
   unsigned int geographicalId() const {return detId_;}
-  const std::vector<short>&  stripAmplitudes() const {return StripAmplitudes;}
+  const std::vector<uint16_t>&  stripAmplitudes() const {return StripAmplitudes;}
+  const std::vector<uint16_t>&  rawdigiAmplitudesL() const {return RawDigiAmplitudesL;}
+  const std::vector<uint16_t>&  rawdigiAmplitudesR() const {return RawDigiAmplitudesR;}
   const std::vector<float>&  stripNoises()     const {return StripNoises;}
   
   float charge()    const {return Charge;}
@@ -30,7 +32,7 @@ public:
   float position()  const {return Position;}
   float width()     const {return Width;}
   float maxCharge() const {return MaxCharge;}
-  float maxPos()    const {return MaxPosition;}
+  uint16_t maxPos()    const {return MaxPosition;}
   float chargeL()   const {return ChargeL;}
   float chargeR()   const {return ChargeR;}
   
@@ -38,25 +40,29 @@ public:
   void setNoise(const float& value) {Noise=value;}
   void setStripNoises(std::vector<float>& value) {StripNoises=value;}
   void setMaxCharge(const float& value) {MaxCharge=value;}
-  void setMaxPos(const float& value) {MaxPosition=value;}
+  void setMaxPos(const uint16_t& value) {MaxPosition=value;}
   void setChargeL(const float& value) {ChargeL=value;}
   void setChargeR(const float& value) {ChargeR=value;}
+  void setRawDigiAmplitudesL(const std::vector<uint16_t>& value){RawDigiAmplitudesL=value;}
+  void setRawDigiAmplitudesR(const std::vector<uint16_t>& value){RawDigiAmplitudesR=value;}
 
 private:
 
-  unsigned int         detId_;
-  short                FirstStrip;
-  std::vector<short>   StripAmplitudes;
-  std::vector<float>   StripNoises;
+  uint32_t                detId_;
+  uint16_t                FirstStrip;
+  std::vector<uint16_t>   StripAmplitudes;
+  std::vector<uint16_t>   RawDigiAmplitudesL;
+  std::vector<uint16_t>   RawDigiAmplitudesR;
+  std::vector<float>      StripNoises;
 
-  float Charge;
-  float Noise;
-  float Position;
-  int   Width;
-  float MaxCharge;
-  float MaxPosition;
-  float ChargeL;
-  float ChargeR;
+  float     Charge;
+  float     Noise;
+  float     Position;
+  uint16_t  Width;
+  float     MaxCharge;
+  uint16_t  MaxPosition;
+  float     ChargeL;
+  float     ChargeR;
 };
 
 // Comparison operators
