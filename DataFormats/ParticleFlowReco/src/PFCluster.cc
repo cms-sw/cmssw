@@ -104,6 +104,8 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
   // calculate total energy and average layer ---------- //
 
   double layer = 0;
+
+  // cerr<<"PFCluster::calculatePosition: "<<algo<<" "<<p1<<endl;
   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
 
     const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
@@ -123,11 +125,14 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
 // 	      ) 
 //       fEhcal += theRecHitEnergy;
 
+    // cerr<<"\t rechit: "<<(*rechit)<<endl;
     layer += rechit->layer() * theRecHitEnergy;
   }  
   layer /= energy_;
   layer_ = lrintf(layer); // nearest integer
   
+  // cout<<"loop done. layers "<<layer<<" "<<energy_<<" "<<layer_<<endl;
+
   if( p1 < 0 ) { 
     // automatic (and hopefully best !) determination of the parameter
     // for position determination.
@@ -435,13 +440,22 @@ PFCluster& PFCluster::operator+=(const PFCluster& other) {
   }
 
   // sortCells();
-  calculatePosition(other.posCalcMode_, 
-		    other.posCalcP1_, 
-		    other.posCalcDepthCor_);
+  cerr<<"summing clusters"<<endl
+      <<(*this)<<endl
+      <<other<<endl;
+
+  // rechits are not stored in the event ! must do something else
+  //   calculatePosition(other.posCalcMode_, 
+  // 		    other.posCalcP1_, 
+  // 		    other.posCalcDepthCor_);
  
-  cout<<"clusters have been added !"<<endl;
+
+  cerr<<"To be implemented!"<<endl;
  
   return *this;
+
+
+
 }
 
 double PFCluster::getDepthCorrection(double energy, bool isBelowPS,
@@ -474,8 +488,8 @@ std::ostream& reco::operator<<(std::ostream& out,
   if(!out) return out;
   
   const PFCluster::REPPoint&  pos = cluster.positionREP();
-  const std::vector< reco::PFRecHitFraction >& fracs = 
-    cluster.recHitFractions();
+//   const std::vector< reco::PFRecHitFraction >& fracs = 
+//     cluster.recHitFractions();
 
   out<<"cluster "<<cluster.id()
      <<"\ttype: "<<cluster.type()
