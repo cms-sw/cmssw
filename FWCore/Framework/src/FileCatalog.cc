@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.7 2006/09/21 19:37:58 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.8 2006/10/05 19:36:32 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -18,6 +18,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/SiteLocalConfig.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include <fstream>
 
 namespace edm {
@@ -26,6 +28,7 @@ namespace edm {
       catalog_(),
       url_(pset.getUntrackedParameter<std::string>("catalog", std::string())),
       active_(false) {
+    boost::trim(url_);
   }
 
   FileCatalog::~FileCatalog() {
@@ -45,7 +48,7 @@ namespace edm {
     fileCatalogItems_() {
 
     if (logicalFileNames_.empty()) {
-        throw cms::Exception("Configuration", "InputFileCatalog::InputFileCatalog()\n")
+        throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
 	  << "Empty 'fileNames' parameter specified for input source.\n";
     }
     if (url().empty()) {
@@ -67,9 +70,15 @@ namespace edm {
     fileCatalogItems_.reserve(fileNames_.size());
     typedef std::vector<std::string>::iterator iter;
     for(iter it = fileNames_.begin(), lt = logicalFileNames_.begin(); it != fileNames_.end(); ++it, ++lt) {
+      boost::trim(*it);
+      if (it->empty()) {
+        throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
+	  << "An empty string specified in 'fileNames' parameter for input source.\n";
+      }
       if (isPhysical(*it)) {
         lt->clear();
       } else {
+        boost::trim(*lt);
 	if (!active()) {
           catalog().start();
 	  setActive();
@@ -92,7 +101,7 @@ namespace edm {
 	pfn.clear();
       } else {
         throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
-	  << "Logical file name " << lfn << " was not found in the file catalog.\n"
+	  << "Logical file name '" << lfn << "' was not found in the file catalog.\n"
 	  << "If you wanted a local file, you forgot the 'file:' prefix\n"
 	  << "before the file name in your configuration file.\n";
       }
@@ -102,7 +111,16 @@ namespace edm {
     }
   }
 
-  OutputFileCatalog::OutputFileCatalog(ParameterSet const& pset) : FileCatalog(pset) {
+  OutputFileCatalog::OutputFileCatalog(ParameterSet const& pset) :
+      FileCatalog(pset),
+      fileName_(pset.getUntrackedParameter<std::string>("fileName")),
+      logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())) {
+    boost::trim(fileName_);
+    if (fileName_.empty()) {
+        throw edm::Exception(edm::errors::Configuration, "OutputFileCatalog::OutputFileCatalog()\n")
+	  << "Empty 'fileName' parameter specified for output module.\n";
+    }
+    boost::trim(logicalFileName_);
     if (url().empty()) {
       url() = "file:PoolFileCatalog.xml"; // always for the output case
     } else {
