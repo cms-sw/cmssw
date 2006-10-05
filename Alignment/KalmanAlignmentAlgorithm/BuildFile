@@ -1,0 +1,24 @@
+#<flags CXXFLAGS="-g">
+
+<use name=root>
+<use name=boost>
+
+<use name=FWCore/Utilities>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+
+<use name=Alignment/CommonAlignmentAlgorithm>
+<use name=Alignment/TrackerAlignment>
+
+<flags SEAL_PLUGIN_NAME="AlignmentKalmanAlignmentAlgorithm">
+
+<export>
+ <lib name=AlignmentKalmanAlignmentAlgorithm>
+ <use name=Alignment/CommonAlignmentAlgorithm>
+ <use name=Alignment/TrackerAlignment>
+ <use name=FWCore/Utilities>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/ServiceRegistry>
+</export>
