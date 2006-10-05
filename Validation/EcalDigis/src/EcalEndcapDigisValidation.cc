@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/07/10 15:41:32 $
- * $Revision: 1.9 $
+ * $Date: 2006/07/26 14:55:26 $
+ * $Revision: 1.10 $
  * \author F. Cossutti
  *
 */
@@ -66,7 +66,7 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
                                  
   meEEMaximumgt100ADC_ = 0; 
                                  
-  meEEMaximumgt10ADC_ = 0; 
+  meEEMaximumgt20ADC_ = 0; 
 
   meEEnADCafterSwitch_ = 0;
  
@@ -115,8 +115,8 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
     sprintf (histo, "EcalDigiTask Endcap maximum position gt 100 ADC" ) ;
     meEEMaximumgt100ADC_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
 
-    sprintf (histo, "EcalDigiTask Endcap maximum position gt 10 ADC" ) ;
-    meEEMaximumgt10ADC_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
+    sprintf (histo, "EcalDigiTask Endcap maximum position gt 20 ADC" ) ;
+    meEEMaximumgt20ADC_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
 
     sprintf (histo, "EcalDigiTask Endcap ADC counts after gain switch" ) ;
     meEEnADCafterSwitch_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
@@ -239,7 +239,7 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
       }
 
       if (meEEPedestal_) meEEPedestal_->Fill ( pedestalPreSample ) ;
-      if (meEEMaximumgt10ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 10.*endcapADCtoGeV_) meEEMaximumgt10ADC_->Fill( Pmax ) ;
+      if (meEEMaximumgt20ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 20.*endcapADCtoGeV_) meEEMaximumgt20ADC_->Fill( Pmax ) ;
       if (meEEMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 100.*endcapADCtoGeV_) meEEMaximumgt100ADC_->Fill( Pmax ) ;
       if (meEEnADCafterSwitch_) meEEnADCafterSwitch_->Fill(countsAfterGainSwitch);
       
