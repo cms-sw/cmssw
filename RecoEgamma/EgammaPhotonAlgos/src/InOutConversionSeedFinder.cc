@@ -1,5 +1,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionBarrelEstimator.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
+
 #include "RecoEgamma/EgammaPhotonAlgos/interface/FastHelix.h"
 
 // Field
@@ -365,19 +367,20 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 
     MeasurementEstimator * newEstimator=0;
     if (layer->location() == GeomDetEnumerators::barrel ) {
-      //      cout << " InOutConversionSeedFinder::findSeeds ilayer " << ilayer << " " << barrel << endl;
+      //      cout << " InOutConversionSeedFinder::findSeeds Barrel ilayer " << ilayer << endl;
       newEstimator = new ConversionBarrelEstimator(-dphi, dphi, -zrange, zrange);
     }
     else {
-      // cout << " InOutConversionSeedFinder::findSeeds ilayer " << ilayer << " " << forward << endl;
-      //  newEstimator = new ConversionForwardEstimator(-dphi, dphi, 15.);
+        std::cout << " InOutConversionSeedFinder::findSeeds Forward  ilayer " << ilayer << endl;
+        newEstimator = new ConversionForwardEstimator(-dphi, dphi, 15.);
     }
     
 
     theFirstMeasurements_.clear();
     // Get measurements compatible with the FTS and Estimator
     TSOS tsos(fts, layer->surface() );
-   
+
+    std::cout << " InOutConversionSeedFinder::findSeed propagationDirection " << int(thePropagatorWithMaterial_.propagationDirection() ) << std::endl;               
     theFirstMeasurements_ = theLayerMeasurements_->measurements( *layer, tsos, thePropagatorWithMaterial_, *newEstimator);
     delete newEstimator;
     std::cout <<  "InOutConversionSeedFinder::findSeeds  Found " << theFirstMeasurements_.size() << " first hits" << std::endl;
