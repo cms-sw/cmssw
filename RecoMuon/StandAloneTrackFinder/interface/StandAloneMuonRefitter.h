@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/09/04 17:11:48 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/09/13 10:42:57 $
+ *  $Revision: 1.22 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -76,7 +76,16 @@ class StandAloneMuonRefitter {
   
   /// True if there are only the RPC measurements
   bool onlyRPC() {return theRPCLoneliness;}
+
+  /// access at the estimator
+  MeasurementEstimator *estimator() const {return theEstimator;}
   
+  /// access at the propagator
+  const Propagator *propagator() const;
+  
+  /// access at the muon updator
+  MuonTrajectoryUpdator *updator() const {return theMuonUpdator;}
+
 
 protected:
 
@@ -104,23 +113,14 @@ private:
   /// The Measurement extractor
   MuonDetLayerMeasurements *theMeasurementExtractor;
   
-  /// access at the propagator
-  const Propagator *propagator() const;
-
-  /// The Estimator
+    /// The Estimator
   MeasurementEstimator *theEstimator;
-
-  /// access at the estimator
-  MeasurementEstimator *estimator() const {return theEstimator;}
 
   /// the muon updator (it doesn't inhert from an updator, but it has one!)
   MuonTrajectoryUpdator *theMuonUpdator;
   /// its name
   std::string theMuonUpdatorName;
   
-  /// access at the muon updator
-  MuonTrajectoryUpdator *updator() const {return theMuonUpdator;}
-
   /// The best measurement finder: search for the best measurement among the TMs available
   MuonBestMeasurementFinder *theBestMeasurementFinder;
   /// Access to the best measurement finder
