@@ -32,6 +32,9 @@ public:
   /// constructor 
   AlignmentParameterStore( std::vector <Alignable*> alivec );
 
+  /// destructor 
+  virtual ~AlignmentParameterStore( void ) {}
+
   /// select parameters 
   CompositeAlignmentParameters 
   selectParameters( const std::vector <AlignableDet*>& alignabledets ) const;
@@ -118,9 +121,9 @@ public:
 protected:
 
   // Methods to manage correlation map 
-  AlgebraicMatrix correlations(Alignable* ap1, Alignable* ap2) const;
+  virtual AlgebraicMatrix correlations(Alignable* ap1, Alignable* ap2) const;
 
-  void setCorrelations(Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& mat);
+  virtual void setCorrelations(Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& mat);
 
   // correlations 
   Correlations theCorrelations;
