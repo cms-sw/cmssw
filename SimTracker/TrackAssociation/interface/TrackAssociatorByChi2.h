@@ -43,6 +43,14 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 						edm::Handle<TrackingParticleCollection>& ,
 						const edm::Event * event = 0);
 
+  reco::TrackBase::ParameterVector parametersAtClosestApproach2Order (Basic3DVector<double>,// vertex
+								Basic3DVector<double>,// momAtVtx
+								int);// charge
+
+  reco::TrackBase::ParameterVector parametersAtClosestApproachGeom (Basic3DVector<double>,// vertex
+								    Basic3DVector<double>,// momAtVtx
+								    int);// charge
+
  private:
   edm::ESHandle<MagneticField> theMF;
 };

@@ -77,7 +77,8 @@ class MultiTrackValidator : public edm::EDAnalyzer {
 
   edm::ESHandle<MagneticField> theMF;
 
-  TrackAssociatorByChi2 * associator;
+  TrackAssociatorBase * associator;
+  TrackAssociatorByChi2 * associatorForParamAtPca;
   
 };
 
