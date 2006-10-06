@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: HepMCCandidateProducer.h,v 1.3 2006/03/13 18:40:00 llista Exp $
+ * \version $Id: HepMCCandidateProducer.h,v 1.4 2006/04/12 07:33:17 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -31,15 +31,15 @@ class HepMCCandidateProducer : public edm::EDProducer {
   /// process one event
   void produce( edm::Event& e, const edm::EventSetup& );
   /// source collection name  
-  std::string source;
+  std::string src_;
   // selects only stable particles (HEPEVT status = 1)
-  bool stableOnly;
+  bool stableOnly_;
   /// exclude list
-  vstring excludeList;
+  vstring excludeList_;
   /// set of excluded particle id's
-  std::set<int> excludedIds;
+  std::set<int> excludedIds_;
   /// verbose flag
-  bool verbose;
+  bool verbose_;
 };
 
 #endif

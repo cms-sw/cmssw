@@ -1,4 +1,4 @@
-// $Id: HepMCCandidateProducer.cc,v 1.5 2006/04/12 07:33:17 llista Exp $
+// $Id: HepMCCandidateProducer.cc,v 1.6 2006/09/29 09:33:39 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/HepMCCandidateProducer.h"
 //#include "PhysicsTools/HepPDTProducer/interface/PDTRecord.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -17,10 +17,10 @@ using namespace reco;
 using namespace std;
 
 HepMCCandidateProducer::HepMCCandidateProducer( const ParameterSet & p ) :
-  source( p.getParameter<string>( "src" ) ),
-   stableOnly( p.getParameter<bool>( "stableOnly" ) ),
-  excludeList( p.getParameter<vstring>( "excludeList" ) ),
-  verbose( p.getUntrackedParameter<bool>( "verbose" ) ) {
+  src_( p.getParameter<string>( "src" ) ),
+  stableOnly_( p.getParameter<bool>( "stableOnly" ) ),
+  excludeList_( p.getParameter<vstring>( "excludeList" ) ),
+  verbose_( p.getUntrackedParameter<bool>( "verbose" ) ) {
   produces<CandidateCollection>();
 }
 
@@ -32,23 +32,23 @@ void HepMCCandidateProducer::beginJob( const EventSetup & es ) {
   ESHandle<DefaultConfig::ParticleDataTable> pdt;
   es.getData( pdt );
   
-  if ( verbose && stableOnly )
+  if ( verbose_ && stableOnly_ )
     LogInfo ( "INFO" ) << "Excluding unstable particles";
-  for( vstring::const_iterator e = excludeList.begin(); 
-       e != excludeList.end(); ++ e ) {
+  for( vstring::const_iterator e = excludeList_.begin(); 
+       e != excludeList_.end(); ++ e ) {
     const DefaultConfig::ParticleData * p = pdt->particle( * e );
     if ( p == 0 ) 
       throw cms::Exception( "ConfigError", "can't find particle" )
 	<< "can't find particle: " << * e;
-    if ( verbose )
+    if ( verbose_ )
       LogInfo ( "INFO" ) << "Excluding particle " << *e << ", id: " << p->pid();
-    excludedIds.insert( p->pid() );
+    excludedIds_.insert( abs( p->pid() ) );
   }
 }
 
 void HepMCCandidateProducer::produce( Event& evt, const EventSetup& ) {
   Handle<HepMCProduct> mcp;
-  evt.getByLabel( source, mcp );
+  evt.getByLabel( src_, mcp );
   const HepMC::GenEvent * mc = mcp->GetEvent();
   if( mc == 0 ) 
     throw edm::Exception( edm::errors::InvalidReference ) 
@@ -57,10 +57,10 @@ void HepMCCandidateProducer::produce( Event& evt, const EventSetup& ) {
   cands->reserve( mc->particles_size() );
   for( HepMC::GenEvent::particle_const_iterator p = mc->particles_begin(); 
        p != mc->particles_end(); ++ p ) {
-    if ( (*p)->status() == 1 || ! stableOnly ) {
+    if ( ! stableOnly_ || (*p)->status() == 1 ) {
       int id = abs( (*p)->pdg_id() );
-      if ( excludedIds.find( id ) == excludedIds.end() ) {
-	if ( verbose )
+      if ( excludedIds_.find( id ) == excludedIds_.end() ) {
+	if ( verbose_ )
 	  LogInfo( "INFO" ) << "Adding candidate for particle with id: " 
 			    << (*p)->pdg_id() << ", status: " << (*p)->status();
 	cands->push_back( new HepMCCandidate( * p ) );

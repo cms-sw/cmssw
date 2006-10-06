@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateProducer.cc,v 1.6 2006/09/29 09:33:39 llista Exp $
+// $Id: GenParticleCandidateProducer.cc,v 1.1 2006/10/05 15:24:48 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateProducer.h"
 //#include "PhysicsTools/HepPDTProducer/interface/PDTRecord.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -21,10 +21,12 @@ using namespace std;
 using namespace HepMC;
 
 GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet & p ) :
-  source( p.getParameter<string>( "src" ) ),
-   stableOnly( p.getParameter<bool>( "stableOnly" ) ),
-  excludeList( p.getParameter<vstring>( "excludeList" ) ),
-  verbose( p.getUntrackedParameter<bool>( "verbose" ) ) {
+  src_( p.getParameter<string>( "src" ) ),
+  stableOnly_( p.getParameter<bool>( "stableOnly" ) ),
+  excludeList_( p.getParameter<vstring>( "excludeList" ) ),
+  ptMinNeutral_( p.getParameter<double>( "ptMinNeutral" ) ),
+  ptMinCharged_( p.getParameter<double>( "ptMinCharged" ) ),
+  verbose_( p.getUntrackedParameter<bool>( "verbose" ) ) {
   produces<CandidateCollection>();
 }
 
@@ -36,17 +38,17 @@ void GenParticleCandidateProducer::beginJob( const EventSetup & es ) {
   ESHandle<DefaultConfig::ParticleDataTable> pdt;
   es.getData( pdt );
   
-  if ( verbose && stableOnly )
+  if ( verbose_ && stableOnly_ )
     LogInfo ( "INFO" ) << "Excluding unstable particles";
-  for( vstring::const_iterator e = excludeList.begin(); 
-       e != excludeList.end(); ++ e ) {
+  for( vstring::const_iterator e = excludeList_.begin(); 
+       e != excludeList_.end(); ++ e ) {
     const DefaultConfig::ParticleData * p = pdt->particle( * e );
     if ( p == 0 ) 
       throw cms::Exception( "ConfigError", "can't find particle" )
 	<< "can't find particle: " << * e;
-    if ( verbose )
+    if ( verbose_ )
       LogInfo ( "INFO" ) << "Excluding particle \"" << *e << "\", id: " << p->pid();
-    excludedIds.insert( p->pid() );
+    excludedIds_.insert( abs( p->pid() ) );
   }
 }
 
@@ -55,7 +57,7 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
   es.getData( pdt );
 
   Handle<HepMCProduct> mcp;
-  evt.getByLabel( source, mcp );
+  evt.getByLabel( src_, mcp );
   const GenEvent * mc = mcp->GetEvent();
   if( mc == 0 ) 
     throw edm::Exception( edm::errors::InvalidReference ) 
@@ -71,27 +73,34 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
     const GenParticle * part = * p;
     int mapIdx = -1;
     GenParticleCandidate * cand = 0;
-    if ( part->status() == 1 || ! stableOnly ) {
-      int id = abs( part->pdg_id() );
-      if ( excludedIds.find( id ) == excludedIds.end() ) {
-	cand = new GenParticleCandidate( part );
-	mapIdx = idx ++;
-	cands->push_back( cand );
-	if ( verbose ) {
-	  const DefaultConfig::ParticleData * p = pdt->particle( cand->pdgId() );
-	  if ( p != 0 ) {
-	    cout << "Adding candidate for particle with id: " 
-		 << cand->pdgId() << " (" << p->name() << "), status: " << cand->status() << endl;
-	  } else {
-	    cout << "Adding candidate for particle with id: " 
-		 << cand->pdgId() << ", status: " << cand->status() << endl;
+    if ( ! stableOnly_ || part->status() == 1 ) {
+      int id = part->pdg_id();
+      if ( excludedIds_.find( abs( id ) ) == excludedIds_.end() ) {
+	double ptMin = part->particleID().threeCharge() == 0 ? ptMinNeutral_ : ptMinCharged_;
+	if ( part->momentum().perp() > ptMin ) {
+	  cand = new GenParticleCandidate( part );
+	  mapIdx = idx ++;
+	  cands->push_back( cand );
+	  if ( verbose_ ) {
+	    const DefaultConfig::ParticleData * p = pdt->particle( id );
+	    if ( p == 0 )
+	      throw edm::Exception( edm::errors::InvalidReference ) 
+		<< "HepMC particle with id " << id << "has no particle data" << endl;
+	    if ( p != 0 ) {
+	      cout << "Adding candidate for particle with id: " 
+		   << cand->pdgId() << " (" << p->name() << "), status: " << cand->status() << endl;
+	    } else {
+	      cout << "Adding candidate for particle with id: " 
+		   << cand->pdgId() << ", status: " << cand->status() 
+		   << ", pt = " << cand->pt() << endl;
+	    }
 	  }
 	}
       }
     }
     ptrMap_.insert( make_pair( part, make_pair( mapIdx, cand ) ) );
   }
-  if ( verbose ) {
+  if ( verbose_ ) {
     cout << "Candidates built: " << cands->size() << endl;
     cout << "Pointer map entries: " << ptrMap_.size() << endl;
     cout << "Setting daughter references" << endl;
@@ -102,8 +111,6 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
       const GenParticle * part = i->first;
       GenParticleCandidate * cand = i->second.second;
       assert( cand != 0 );
-      if ( verbose )
-	cout << "Setting daughter reference for candidate " << idx << endl;
       addDaughters( cand, part );
     }
   }
@@ -113,23 +120,17 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
 
 void GenParticleCandidateProducer::addDaughters( GenParticleCandidate * cand, const GenParticle * part ) const {
   vector<GenParticle*> children = part->listChildren();
-  if ( verbose )
-    cout << "daughters found: " << children.size() << endl;
   for( vector<GenParticle*>::const_iterator c = children.begin(); c != children.end(); ++ c ) {
     PtrMap::const_iterator f = ptrMap_.find( * c );
     if ( f != ptrMap_.end() ) {
       int dauIdx = f->second.first;
       if ( dauIdx >= 0 ) {
-	if ( verbose ) cout << "daughter found with index " << dauIdx << endl;
 	assert( cand != 0 );
 	cand->addDaughter( CandidateRef( ref_, dauIdx ) );
       } else {
-	if ( verbose ) cout << "daughter marked as skipped in pointer map. Iterating over next level" << endl;
 	const GenParticle * dauPart = f->first;
 	addDaughters( cand, dauPart );
       }
-    } else {
-      if ( verbose ) cout << "daughter not found in pointer map." << endl;
     }
   }
 }
