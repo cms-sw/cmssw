@@ -16,4 +16,21 @@
   <class name="edm::RefProd<std::vector<reco::Track> >"/>
   <class name="edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
   <class name="edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
+
+  <class name="reco::GsfComponent5D"/>
+  <class name="std::vector<reco::GsfComponent5D>"/>
+
+  <class name="reco::GsfTrackExtra"/>
+  <class name="std::vector<reco::GsfTrackExtra>"/>
+  <class name="edm::Wrapper<std::vector<reco::GsfTrackExtra> >"/>
+  <class name="edm::RefProd<std::vector<reco::GsfTrackExtra> >"/>
+  <class name="edm::Ref<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
+  <class name="edm::RefVector<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
+
+  <class name="reco::GsfTrack"/>
+  <class name="std::vector<reco::GsfTrack>"/>
+  <class name="edm::Wrapper<std::vector<reco::GsfTrack> >"/>
+  <class name="edm::RefProd<std::vector<reco::GsfTrack> >"/>
+  <class name="edm::Ref<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> >"/>
+  <class name="edm::RefVector<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> >"/>
 </lcgdict>
