@@ -71,6 +71,10 @@ private:
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const MeasurementTracker*             theMeasurementTracker;
   const LayerMeasurements*              theLayerMeasurements;
+
+  // these may change from seed to seed
+  mutable const Propagator*             theForwardPropagator;
+  mutable const Propagator*             theBackwardPropagator;
   
   TrajectoryFilter*              theMinPtCondition;
 

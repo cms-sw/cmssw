@@ -4,17 +4,15 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-//#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
-//#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
-//#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-//#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 //#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
@@ -38,6 +36,7 @@ CkfTrajectoryBuilder::
     thePropagatorOpposite(propagatorOpposite),theEstimator(estimator),
     theTTRHBuilder(RecHitBuilder),theMeasurementTracker(measurementTracker),
     theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
+    theForwardPropagator(0), theBackwardPropagator(0),
     theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut")))
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
@@ -83,6 +82,14 @@ Trajectory CkfTrajectoryBuilder::
 createStartingTrajectory( const TrajectorySeed& seed) const
 {
   Trajectory result( seed, seed.direction());
+  if (  seed.direction() == alongMomentum) {
+    theForwardPropagator = &(*thePropagatorAlong);
+    theBackwardPropagator = &(*thePropagatorOpposite);
+  }
+  else {
+    theForwardPropagator = &(*thePropagatorOpposite);
+    theBackwardPropagator = &(*thePropagatorAlong);
+  }
 
   std::vector<TM> seedMeas = seedMeasurements(seed);
   if ( !seedMeas.empty()) {
@@ -186,15 +193,15 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       }
 
       TSOS updatedState = tsTransform.transientState( pState, &(gdet->surface()), 
-						      thePropagatorAlong->magneticField());
+						      theForwardPropagator->magneticField());
       result.push_back(TM( invalidState, updatedState, recHit, 0, hitLayer));
     }
     else {
       //----------- just a test to make the Smoother to work -----------
       PTrajectoryStateOnDet pState( seed.startingState());
       TSOS outerState = tsTransform.transientState( pState, &(hitGeomDet->surface()), 
-						    thePropagatorAlong->magneticField());
-      TSOS innerState   = thePropagatorOpposite->propagate(outerState,hitGeomDet->surface());
+						    theForwardPropagator->magneticField());
+      TSOS innerState   = theBackwardPropagator->propagate(outerState,hitGeomDet->surface());
       TSOS innerUpdated = theUpdator->update(innerState,*recHit);
 
       result.push_back(TM( invalidState, innerUpdated, recHit, 0, hitLayer));
@@ -234,7 +241,6 @@ void CkfTrajectoryBuilder::updateTrajectory( Trajectory& traj,
 					     const TM& tm) const
 {
   TSOS predictedState = tm.predictedState();
-  //RC const TransientTrackingRecHit* hit = tm.recHit();
   TM::ConstRecHitPointer hit = tm.recHit();
  
   if ( hit->isValid()) {
@@ -280,8 +286,6 @@ bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj) const
 std::vector<TrajectoryMeasurement> 
 CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj) const
 {
-  TrajectoryStateOnSurface testState = traj.lastMeasurement().forwardPredictedState();
-
   vector<TM> result;
   int invalidHits = 0;
 
@@ -295,9 +299,8 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj) const
   for (vector<const DetLayer*>::iterator il = nl.begin(); 
        il != nl.end(); il++) {
     vector<TM> tmp = 
-      theLayerMeasurements->measurements((**il),currentState, *thePropagatorAlong, *theEstimator);
+      theLayerMeasurements->measurements((**il),currentState, *theForwardPropagator, *theEstimator);
 
-    //(**il).measurements( currentState, *thePropagator, *theEstimator);
     if ( !tmp.empty()) {
       if ( result.empty()) result = tmp;
       else {
