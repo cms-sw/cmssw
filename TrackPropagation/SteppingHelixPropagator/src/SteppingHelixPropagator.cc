@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/10/05 00:28:37 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/10/05 23:48:55 $
+ *  $Revision: 1.15 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.14 2006/10/05 00:28:37 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.15 2006/10/05 23:48:55 slava77 Exp $
 //
 //
 
@@ -590,53 +590,54 @@ bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS,
     dY = 1./kappa0*(bx*by*phiLessSinPhi - oneLessCosPhi*bz);
     dZ = 1./kappa0*(bx*bz*phiLessSinPhi + oneLessCosPhi*by);
 
-    dCTransform_ = unit66_;
-    //     //yuck
-    //case I: no "spatial" derivatives |--> dCtr({1,2,3,4,5,6}{1,2,3}) = 0    
-    dCTransform_(1,4) += -dS/(phi*p0)*pCpLessSp*oneLessBx2;
-    dCTransform_(1,5) += - dY/p0;
-    dCTransform_(1,6) +=   dZ/p0;
+    if (covLoc_[cInd].num_row() >=5){
+      dCTransform_ = unit66_;
+      //     //yuck
+      //case I: no "spatial" derivatives |--> dCtr({1,2,3,4,5,6}{1,2,3}) = 0    
+      dCTransform_(1,4) += -dS/(phi*p0)*pCpLessSp*oneLessBx2;
+      dCTransform_(1,5) += - dY/p0;
+      dCTransform_(1,6) +=   dZ/p0;
 
-    dCTransform_(2,4) += dS/phi/p0*(bx*by*pCpLessSp - bz*oneLessCpLessPSp);
-    dCTransform_(2,5) +=   dX/p0;
-    dCTransform_(2,6) += - cotTheta*dY/p0;
+      dCTransform_(2,4) += dS/phi/p0*(bx*by*pCpLessSp - bz*oneLessCpLessPSp);
+      dCTransform_(2,5) +=   dX/p0;
+      dCTransform_(2,6) += - cotTheta*dY/p0;
 
-    //    dCTransform_(3,4) += dS/phi/p0*(bx*by*pCpLessSp + by*oneLessCpLessPSp) - 2.*dZ/p0;
-    dCTransform_(3,4) += dS/phi/p0*(bx*by*pCpLessSp + by*oneLessCpLessPSp) - 3.*dZ/p0;
-    dCTransform_(3,5) += cotTheta*dY/p0;
-    dCTransform_(3,6) += dX/p0;
+      //    dCTransform_(3,4) += dS/phi/p0*(bx*by*pCpLessSp + by*oneLessCpLessPSp) - 2.*dZ/p0;
+      dCTransform_(3,4) += dS/phi/p0*(bx*by*pCpLessSp + by*oneLessCpLessPSp) - 3.*dZ/p0;
+      dCTransform_(3,5) += cotTheta*dY/p0;
+      dCTransform_(3,6) += dX/p0;
 
 
-    dCTransform_(4,4) += tauX*omegaP0 - 1.0 + phi*epsilonP0*oneLessBx2*sinPhi;
-    dCTransform_(4,5) += -tauY*epsilonP0;
-    dCTransform_(4,6) +=  tauZ*epsilonP0;
+      dCTransform_(4,4) += tauX*omegaP0 - 1.0 + phi*epsilonP0*oneLessBx2*sinPhi;
+      dCTransform_(4,5) += -tauY*epsilonP0;
+      dCTransform_(4,6) +=  tauZ*epsilonP0;
 
-    dCTransform_(5,4) += tauY*omegaP0 - phi*epsilonP0*(bx*by*sinPhi - bz*cosPhi);
-    dCTransform_(5,5) += tauX*epsilonP0 - 1.; 
-    dCTransform_(5,6) += - cotTheta*tauY*epsilonP0;
+      dCTransform_(5,4) += tauY*omegaP0 - phi*epsilonP0*(bx*by*sinPhi - bz*cosPhi);
+      dCTransform_(5,5) += tauX*epsilonP0 - 1.; 
+      dCTransform_(5,6) += - cotTheta*tauY*epsilonP0;
     
-    //    dCTransform_(6,4) += tauZ*omegaP0 - phi*epsilonP0*(bx*bz*sinPhi + by*cosPhi) 
-    // - 2.*tauZ*epsilonP0;
-    dCTransform_(6,4) += tauZ*omegaP0 - phi*epsilonP0*(bx*bz*sinPhi + by*cosPhi) - 3.*tauZ*epsilonP0;
-    dCTransform_(6,5) += cotTheta*tauY*epsilonP0;
-    dCTransform_(6,6) += tauX*epsilonP0 - 1.;
+      //    dCTransform_(6,4) += tauZ*omegaP0 - phi*epsilonP0*(bx*bz*sinPhi + by*cosPhi) 
+      // - 2.*tauZ*epsilonP0;
+      dCTransform_(6,4) += tauZ*omegaP0 - phi*epsilonP0*(bx*bz*sinPhi + by*cosPhi) - 3.*tauZ*epsilonP0;
+      dCTransform_(6,5) += cotTheta*tauY*epsilonP0;
+      dCTransform_(6,6) += tauX*epsilonP0 - 1.;
     
-    //mind the sign of dS and dP (dS*dP < 0 allways)
-    //covariance should grow no matter which direction you propagate
-    //==> take abs values.
-    covLoc_[cInd](2,2) += theta02*dS*dS/3.;
-    covLoc_[cInd](3,3) += theta02*dS*dS/3.;
-    covLoc_[cInd](5,5) += theta02*p0*p0;
-    covLoc_[cInd](6,6) += theta02*p0*p0;
-    covLoc_[cInd](2,5) += theta02*fabs(dS)*p0/2.;
-    covLoc_[cInd](3,6) += theta02*fabs(dS)*p0/2.;
+      //mind the sign of dS and dP (dS*dP < 0 allways)
+      //covariance should grow no matter which direction you propagate
+      //==> take abs values.
+      covLoc_[cInd](2,2) += theta02*dS*dS/3.;
+      covLoc_[cInd](3,3) += theta02*dS*dS/3.;
+      covLoc_[cInd](5,5) += theta02*p0*p0;
+      covLoc_[cInd](6,6) += theta02*p0*p0;
+      covLoc_[cInd](2,5) += theta02*fabs(dS)*p0/2.;
+      covLoc_[cInd](3,6) += theta02*fabs(dS)*p0/2.;
 
-    covLoc_[cInd](4,4) += dP*dP*1.6/fabs(dS)*(1.0 + p0*1e-3); 
-    //another guess .. makes sense for 1 cm steps 2./dS == 2 [cm] / dS [cm] at low pt
-    //double it by 1TeV
-    //not gaussian anyways
-    // derived from the fact that sigma_p/eLoss ~ 0.08 after ~ 200 steps
-
+      covLoc_[cInd](4,4) += dP*dP*1.6/fabs(dS)*(1.0 + p0*1e-3); 
+      //another guess .. makes sense for 1 cm steps 2./dS == 2 [cm] / dS [cm] at low pt
+      //double it by 1TeV
+      //not gaussian anyways
+      // derived from the fact that sigma_p/eLoss ~ 0.08 after ~ 200 steps
+    }
 
     break;
   case POL_1_F:
