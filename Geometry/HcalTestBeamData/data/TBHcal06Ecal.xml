@@ -2,18 +2,20 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <RotationSection label="TBHcal06Ecal.xml">
+ <Rotation name="R1" phiX="-10*deg"  thetaX="90*deg" phiY="80*deg" 
+                     thetaY="90*deg" phiZ="0*deg"    thetaZ="0*deg" />
  <Rotation name="R2" thetaX="90*deg" phiX="0.5*deg" thetaY="90*deg"
                      phiY="90.5*deg" thetaZ="0*deg" phiZ="0*deg" />
 </RotationSection>
  
 <SolidSection label="TBHcal06Ecal.xml">
- <Polycone name="ECAL" startPhi="-10*deg" deltaPhi="40*deg" >
+ <Polycone name="ECAL" startPhi="-10.5*deg" deltaPhi="21*deg" >
   <ZSection z="[TBHcal:Zmin]"        rMin="1.238*m"    rMax="[TBHcal:rMin1]"/>
   <ZSection z="[TBHcal:TrackBeamZ2]" rMin="1.238*m"    rMax="[TBHcal:rMin1]"/>
   <ZSection z="[TBHcal:TrackBeamZ2]" rMin="20.6199*cm" rMax="[TBHcal:rMin1]"/>
   <ZSection z="[TBHcal:HcalEcalZ0]"  rMin="26.3457*cm" rMax="[TBHcal:rMin1]"/>
  </Polycone> 
- <Polycone name="EREG_P" startPhi="-10*deg" deltaPhi="40*deg" >
+ <Polycone name="EREG_P" startPhi="-10.5*deg" deltaPhi="21*deg" >
   <ZSection z="[TBHcal:Zmin]"        rMin="1.238*m"    rMax="[TBHcal:rMin1]"/>
   <ZSection z="[TBHcal:TrackBeamZ2]" rMin="1.238*m"    rMax="[TBHcal:rMin1]"/>
   <ZSection z="[TBHcal:TrackBeamZ2]" rMin="20.6199*cm" rMax="[TBHcal:rMin1]"/>
@@ -5096,7 +5098,7 @@
  <PosPart copyNumber="1">
    <rParent name="TBHcal:Calo"/>
    <rChild name="TBHcal06Ecal:ECAL"/>
-  <rRotation name="rotations:000D"/>
+  <rRotation name="TBHcal06Ecal:R1"/>
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="TBHcal06Ecal:ECAL"/>
