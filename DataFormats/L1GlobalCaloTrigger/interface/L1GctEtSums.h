@@ -14,7 +14,7 @@
  */
 
 
-class L1GctEtTotal : public L1TriggerObject {
+class L1GctEtTotal {
  public:
   L1GctEtTotal();
   L1GctEtTotal(uint16_t data);
@@ -42,7 +42,7 @@ class L1GctEtTotal : public L1TriggerObject {
 
 };
 
-class L1GctEtHad : public L1TriggerObject {
+class L1GctEtHad {
  public:
   L1GctEtHad();
   L1GctEtHad(uint16_t data);
@@ -70,7 +70,7 @@ class L1GctEtHad : public L1TriggerObject {
 
 };
 
-class L1GctEtMiss : public L1TriggerObject {
+class L1GctEtMiss {
  public:
   L1GctEtMiss();
   L1GctEtMiss(uint32_t data);

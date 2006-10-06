@@ -16,7 +16,7 @@
 /// 
 
 
-class L1GctJetCounts : public L1TriggerObject {
+class L1GctJetCounts {
 
  public:
 

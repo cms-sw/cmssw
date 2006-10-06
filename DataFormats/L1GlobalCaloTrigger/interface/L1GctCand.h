@@ -1,16 +1,17 @@
 #ifndef L1GCTCAND_H
 #define L1GCTCAND_H
 
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
-
 /// \class L1GctCand
 /// \brief ABC for GCT EM and jet candidates
 /// \author Jim Brooke
 /// \date July 2006
 ///
 
-class L1GctCand : public L1TriggerObject {
+class L1GctCand {
 public:
+
+  /// empty candidate  - true if object not initialized
+  virtual bool empty() const = 0;
 
   /// \brief get the rank code (6 bits)
   ///
