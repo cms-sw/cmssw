@@ -1,5 +1,5 @@
-#ifndef DD_HCalBarrelAlgo_h
-#define DD_HCalBarrelAlgo_h
+#ifndef HcalAlgo_DDHCalBarrelAlgo_h
+#define HcalAlgo_DDHCalBarrelAlgo_h
 
 #include <map>
 #include <string>

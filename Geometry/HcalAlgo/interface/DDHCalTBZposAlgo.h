@@ -1,5 +1,5 @@
-#ifndef HcalAlgo_DDHCalTestBeamAlgo_h
-#define HcalAlgo_DDHCalTestBeamAlgo_h
+#ifndef HcalAlgo_DDHCalTBZposAlgo_h
+#define HcalAlgo_DDHCalTBZposAlgo_h
 
 #include <map>
 #include <string>
@@ -7,11 +7,11 @@
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 
-class DDHCalTestBeamAlgo : public DDAlgorithm {
+class DDHCalTBZposAlgo : public DDAlgorithm {
  public:
   //Constructor and Destructor
-  DDHCalTestBeamAlgo(); 
-  virtual ~DDHCalTestBeamAlgo();
+  DDHCalTBZposAlgo(); 
+  virtual ~DDHCalTBZposAlgo();
   
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,
@@ -24,12 +24,12 @@ class DDHCalTestBeamAlgo : public DDAlgorithm {
 private:
 
   double        eta;         //Eta at which beam is focussed
-  double        phi;         //Phi    ................
   double        theta;       //Corresponding theta value
-  double        distance;    //Distance of the centre of rotation
-  double        distanceZ;   //Distance along x-axis of the centre of rotation
-  double        dist;        //Overall distance
-  double        dz;          //Half length along z of the volume to be placed
+  double        shiftY;      //Shift along Y
+  double        shiftX;      //Shift along X
+  double        zoffset;     //Offset in z
+  double        dist;        //Radial distance
+  double        tilt;        //Tilt with respect to y-axis
   int           copyNumber;  //Copy Number
 
   std::string   idNameSpace; //Namespace of this and ALL sub-parts

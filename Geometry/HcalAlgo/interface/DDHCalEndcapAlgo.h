@@ -1,5 +1,5 @@
-#ifndef DD_HCalEndcapAlgo_h
-#define DD_HCalEndcapAlgo_h
+#ifndef HcalAlgo_DDHCalEndcapAlgo_h
+#define HcalAlgo_DDHCalEndcapAlgo_h
 
 #include <map>
 #include <string>

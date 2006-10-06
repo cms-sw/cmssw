@@ -1,5 +1,5 @@
-#ifndef DD_HCalXtalAlgo_h
-#define DD_HCalXtalAlgo_h
+#ifndef HcalAlgo_DDHCalXtalAlgo_h
+#define HcalAlgo_DDHCalXtalAlgo_h
 
 #include <map>
 #include <string>

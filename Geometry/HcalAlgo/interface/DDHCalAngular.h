@@ -1,5 +1,5 @@
-#ifndef DD_HCalAngular_h
-#define DD_HCalAngular_h
+#ifndef HcalAlgo_DDHCalAngular_h
+#define HcalAlgo_DDHCalAngular_h
 
 #include <map>
 #include <string>

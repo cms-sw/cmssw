@@ -1,5 +1,5 @@
-#ifndef DD_HCalTBCableAlgo_h
-#define DD_HCalTBCableAlgo_h
+#ifndef HcalAlgo_DDHCalTBCableAlgo_h
+#define HcalAlgo_DDHCalTBCableAlgo_h
 
 #include <map>
 #include <string>
