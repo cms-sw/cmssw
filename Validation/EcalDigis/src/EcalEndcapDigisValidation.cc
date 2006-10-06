@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/07/26 14:55:26 $
- * $Revision: 1.10 $
+ * $Date: 2006/10/05 13:19:02 $
+ * $Revision: 1.11 $
  * \author F. Cossutti
  *
 */
@@ -222,6 +222,13 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
       }
       LogDebug("DigiInfo") << "Maximum energy = " << Emax << " in sample " << Pmax << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;
       if ( countsAfterGainSwitch > 0 ) LogDebug("DigiInfo") << "Counts after switch " << countsAfterGainSwitch;
+
+      if ( countsAfterGainSwitch > 0 && countsAfterGainSwitch < 5 ) {
+        edm::LogWarning("DigiWarning") << "Wrong number of counts after gain switch before next switch! " << countsAfterGainSwitch ;
+        for ( int i = 0; i < 10 ; i++ ) {
+          edm::LogWarning("DigiWarning") << "sample " << i << " ADC = " << eeADCCounts[i] << " gain = " << eeADCGains[i] << " Analog = " << eeAnalogSignal[i];
+        }
+      }
 
       for ( int i = 0 ; i < 10 ; i++ ) {
         if (meEEDigiADCGlobal_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 100.*endcapADCtoGeV_) meEEDigiADCGlobal_->Fill( i , eeAnalogSignal[i] ) ;

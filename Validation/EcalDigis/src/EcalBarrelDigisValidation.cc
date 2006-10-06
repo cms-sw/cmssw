@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/07/10 15:41:32 $
- * $Revision: 1.9 $
+ * $Date: 2006/07/26 14:55:26 $
+ * $Revision: 1.10 $
  * \author F. Cossutti
  *
 */
@@ -208,6 +208,14 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
       }
       LogDebug("DigiInfo") << "Maximum energy = " << Emax << " in sample " << Pmax << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;
       if ( countsAfterGainSwitch > 0 ) LogDebug("DigiInfo") << "Counts after switch " << countsAfterGainSwitch;
+
+      if ( countsAfterGainSwitch > 0 && countsAfterGainSwitch < 5 ) {
+        edm::LogWarning("DigiWarning") << "Wrong number of counts after gain switch before next switch! " << countsAfterGainSwitch ;
+        for ( int i = 0; i < 10 ; i++ ) {
+          edm::LogWarning("DigiWarning") << "sample " << i << " ADC = " << ebADCCounts[i] << " gain = " << ebADCGains[i] << " Analog = " << ebAnalogSignal[i];
+        }
+ 
+      }
         
       for ( int i = 0 ; i < 10 ; i++ ) {
         if (meEBDigiADCGlobal_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 100.*barrelADCtoGeV_) meEBDigiADCGlobal_->Fill( i , ebAnalogSignal[i] ) ;
