@@ -3,7 +3,7 @@
    \class HcalDbTool
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbTool.cc,v 1.2 2006/09/27 20:33:37 fedor Exp $
+   $Id: HcalDbTool.cc,v 1.3 2006/10/04 22:18:51 fedor Exp $
 */
 
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -316,17 +316,18 @@ bool HcalDbTool::cleanAllIov (const std::string& fToken) {
   return true;
 }
 
-HcalDbTool::HcalDbTool (const std::string& fConnect, bool fVerbose)
+HcalDbTool::HcalDbTool (const std::string& fConnect, bool fVerbose, bool fXmlAuth, const char* fCatalog)
   : mConnect (fConnect),
     mVerbose (fVerbose) {
   try {
     // services
     mLoader=new cond::ServiceLoader;
-    mLoader->loadAuthenticationService(cond::Env);
+    if (fXmlAuth) mLoader->loadAuthenticationService(cond::XML);
+    else mLoader->loadAuthenticationService(cond::Env);
     mLoader->loadMessageService(mVerbose ? cond::Debug : cond::Error);
     // make session
     mSession = new cond::DBSession (mConnect);
-    const char* catalog = ::getenv ("POOL_CATALOG");
+    const char* catalog = fCatalog ? fCatalog : ::getenv ("POOL_CATALOG");
     if (!catalog) {
       if (mVerbose) std::cout << "HcalDbTool::HcalDbTool-> using default catalog" << std::endl;
       catalog = "file:PoolFileCatalog.xml";

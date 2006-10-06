@@ -14,7 +14,7 @@
    \class HcalDbTool
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbTool.h,v 1.1 2006/09/26 20:49:01 fedor Exp $
+   $Id: HcalDbTool.h,v 1.2 2006/10/04 22:18:51 fedor Exp $
 */
 
 namespace cond {
@@ -28,7 +28,7 @@ namespace cond {
 class HcalDbTool {
  public:
   typedef unsigned long long IOVRun;
-  HcalDbTool (const std::string& fConnect, bool fVerbose = false);
+  HcalDbTool (const std::string& fConnect, bool fVerbose = false, bool fXmlAuth = false, const char* fCatalog = 0);
   ~HcalDbTool ();
 
   const std::string& metadataGetToken (const std::string& fTag);

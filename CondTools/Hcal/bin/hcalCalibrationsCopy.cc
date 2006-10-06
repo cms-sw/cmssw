@@ -230,7 +230,8 @@ template <class T> bool copyObject (T* fObject,
 				    const std::string& fOutput, const std::string& fOutputTag, HcalDbTool::IOVRun fOutputRun,
 				    unsigned long long fIovgmtbegin, unsigned long long fIovgmtend,
 				    unsigned fNread, unsigned fNwrite, unsigned fNtrace,
-				    bool fVerbose
+				    bool fVerbose,
+				    const char* fInputCatalog, const char* fOutputCatalog, bool fXmlAuth
 				    ) {
   typedef std::vector <std::pair<HcalDbTool::IOVRun, T*> > Objects;
 
@@ -259,7 +260,7 @@ template <class T> bool copyObject (T* fObject,
     }
     else if (dbFile (fInput)) {
       if (!traceCounter) std::cout << "USE INPUT: Pool: " << fInput << "/" << fInputRun << std::endl;
-      if (!poolDb) poolDb = new HcalDbTool (fInput, fVerbose);
+      if (!poolDb) poolDb = new HcalDbTool (fInput, fVerbose, fXmlAuth, fInputCatalog);
       if (fInputRun > 0) {
 	fObject = new T;
 	result = poolDb->getObject (fObject, fInputTag, fInputRun);
@@ -338,7 +339,7 @@ template <class T> bool copyObject (T* fObject,
       }
       else if (dbFile (fOutput)) { //POOL
 	if (!traceCounter) std::cout << "USE OUTPUT: Pool: " << fOutput << '/' << fOutputRun << std::endl;
-	if (!poolDb) poolDb = new HcalDbTool (fOutput, fVerbose);
+	if (!poolDb) poolDb = new HcalDbTool (fOutput, fVerbose, fXmlAuth, fOutputCatalog);
 	if (fOutputRun > 0) {
 	  poolDb->putObject (object, fOutputTag, fOutputRun);
 	  object = 0; // owned by POOL
@@ -375,8 +376,10 @@ int main (int argn, char* argv []) {
   args.defineParameter ("-output", "DB connection string, POOL format, or .txt, or .xml file");
   args.defineParameter ("-inputrun", "run # for which constands should be made");
   args.defineParameter ("-inputtag", "tag for the input constants set");
+  args.defineParameter ("-inputcatalog", "catalog for POOL DB <$POOL_CATALOG>");
   args.defineParameter ("-outputrun", "run # for which constands should be dumped");
   args.defineParameter ("-outputtag", "tag for the output constants set");
+  args.defineParameter ("-outputcatalog", "catalog for POOL DB <$POOL_CATALOG>");
   args.defineParameter ("-iovgmtbegin", "start time for online IOV <outputrun>");
   args.defineParameter ("-iovgmtend", "end time for online IOV <0>");
   args.defineParameter ("-nread", "repeat input that many times with increasing run# <1>");
@@ -384,6 +387,7 @@ int main (int argn, char* argv []) {
   args.defineParameter ("-trace", "trace time every that many operations <false>");
   args.defineOption ("-help", "this help");
   args.defineOption ("-online", "interpret input DB as an online DB");
+  args.defineOption ("-xmlauth", "use XML authorization <false>");
   args.defineOption ("-verbose", "makes program verbose <false>");
   
   args.parse (argn, argv);
@@ -410,6 +414,11 @@ int main (int argn, char* argv []) {
   unsigned nwrite = args.getParameter ("-nwrite").empty () ? 1 : atoi (args.getParameter ("-nwrite").c_str ());
   unsigned trace = args.getParameter ("-trace").empty () ? 0 : atoi (args.getParameter ("-trace").c_str ());
 
+  const char* inputCatalog = args.getParameter ("-inputcatalog").empty () ? 0 : args.getParameter ("-inputcatalog").c_str();
+  const char* outputCatalog = args.getParameter ("-outputcatalog").empty () ? 0 : args.getParameter ("-outputcatalog").c_str();
+
+  bool xmlAuth = args.optionIsSet ("-xmlauth");
+
   bool verbose = args.optionIsSet ("-verbose");
 
 
@@ -417,31 +426,31 @@ int main (int argn, char* argv []) {
 
   if (what == "pedestals") {
     HcalPedestals* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "gains") {
     HcalGains* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "pwidths") {
     HcalPedestalWidths* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "gwidths") {
     HcalGainWidths* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "emap") {
     HcalElectronicsMap* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "qie") {
     HcalQIEData* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "calibqie") {
     HcalCalibrationQIEData* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
 }
 
