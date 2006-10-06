@@ -1,4 +1,8 @@
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+// #include "DataFormats/Common/interface/OneToValue.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
@@ -29,6 +33,15 @@ namespace {
     reco::JetTracksAssociationRefVector rv3;
 
     reco::CombinedBTagInfoCollection v4;
+    reco::CombinedBTagInfo iv4;
+    reco::CombinedBTagTrack ct4;
+    reco::CombinedBTagVertex cv4;
+    reco::MinMeanMax mmm4;
+    reco::TrackRefVector vrvt4;
+    reco::TrackRef tr4;
+    Measurement1D m4;
+    // std::vector < reco::TrackRef > vrtr4;
+    // edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,reco::CombinedBTagTrack,unsigned short> > mp4;
     edm::Wrapper<reco::CombinedBTagInfoCollection> w4;
     edm::Ref<reco::CombinedBTagInfoCollection> r4;
     edm::RefProd<reco::CombinedBTagInfoCollection> rp4;

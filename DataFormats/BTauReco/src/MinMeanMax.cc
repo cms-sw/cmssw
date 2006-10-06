@@ -1,26 +1,26 @@
 #include "DataFormats/BTauReco/interface/MinMeanMax.h"
 
-double MinMeanMax::min() const
+double reco::MinMeanMax::min() const
 {
   return min_;
 }
 
-double MinMeanMax::mean() const
+double reco::MinMeanMax::mean() const
 {
   return mean_;
 }
 
-double MinMeanMax::max() const
+double reco::MinMeanMax::max() const
 {
   return max_;
 }
 
-bool MinMeanMax::isValid() const
+bool reco::MinMeanMax::isValid() const
 {
   return valid_;
 }
 
-MinMeanMax::MinMeanMax () : min_(0.), mean_(0.), max_(0.), valid_(false) {}
+reco::MinMeanMax::MinMeanMax () : min_(0.), mean_(0.), max_(0.), valid_(false) {}
 
-MinMeanMax::MinMeanMax ( double min, double mean, double max ) :
+reco::MinMeanMax::MinMeanMax ( double min, double mean, double max ) :
   min_(min), mean_(mean), max_(max), valid_(true) {}

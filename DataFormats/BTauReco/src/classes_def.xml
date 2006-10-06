@@ -31,7 +31,19 @@
   <class name="edm::RefProd<std::vector<reco::IsolatedTauTagInfo> > " />
   <class name="edm::RefVector<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo> >" />
  
-  <Class name="reco::CombinedBTagInfo" />
+  <class name="reco::CombinedBTagInfo" />
+  <class name="reco::CombinedBTagTrack" />
+  <class name="reco::CombinedBTagVertex" />
+  <class name="reco::MinMeanMax" />
+  <class name="Measurement1D" />
+  <class name="reco::TrackRefVector" />
+  <class name="reco::TrackRef" />
+  <!--
+  <class name="std::vector < reco::TrackRef >" />
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,reco::CombinedBTagTrack,unsigned short> >">
+    <field name="transientMap_" transient="true" />
+  </class>
+  -->
   <class name="std::vector<reco::CombinedBTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::CombinedBTagInfo> >" />
   <class name="edm::Ref<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo> > " />

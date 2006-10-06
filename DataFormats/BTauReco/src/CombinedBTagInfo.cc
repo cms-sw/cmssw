@@ -189,11 +189,11 @@ double reco::CombinedBTagInfo::angleGeomKinJet() const {return angleGeomKinJet_;
 
 double reco::CombinedBTagInfo::angleGeomKinVertex() const {return angleGeomKinVertex_;}
 
-MinMeanMax reco::CombinedBTagInfo::flightDistance2D() const {return flightDistance2D_; }
-MinMeanMax reco::CombinedBTagInfo::flightDistanceSignificance2D() const 
+reco::MinMeanMax reco::CombinedBTagInfo::flightDistance2D() const {return flightDistance2D_; }
+reco::MinMeanMax reco::CombinedBTagInfo::flightDistanceSignificance2D() const 
     {return flightDistanceSignificance2D_; }
-MinMeanMax reco::CombinedBTagInfo::flightDistance3D() const {return flightDistance3D_; }
-MinMeanMax reco::CombinedBTagInfo::flightDistanceSignificance3D() const 
+reco::MinMeanMax reco::CombinedBTagInfo::flightDistance3D() const {return flightDistance3D_; }
+reco::MinMeanMax reco::CombinedBTagInfo::flightDistanceSignificance3D() const 
     {return flightDistanceSignificance3D_; }
 
 double reco::CombinedBTagInfo::first2DSignedIPSigniAboveCut() const
