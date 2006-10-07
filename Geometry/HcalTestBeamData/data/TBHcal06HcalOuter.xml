@@ -517,7 +517,7 @@
   <Numeric name="Eta"       value="[TBHcal:Eta]"/>
   <Numeric name="ShiftX"    value="(-[motherDx2]+[coilDx2]+[coilX])"/>
   <Numeric name="ShiftY"    value="[zero]"/>
-  <Numeric name="Zoffset"   value="([motherZoff]+[coilDz2])"/>
+  <Numeric name="Zoffset"   value="[motherZoff]"/>
   <Numeric name="Distance"  value="([motherXFront]+[coilDx2]+[coilX])"/>
   <Numeric name="TiltAngle" value="0.0*deg"/>
   <Numeric name="Number"    value="1"/>
