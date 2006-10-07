@@ -3,15 +3,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TError.h>
 #include <iostream>
+#include <sstream>
 
 namespace {
-void rootErrorHandler( int level, bool die, const char* location, const char* message )
+void RootErrorHandler( int level, bool die, const char* location, const char* message )
 {
 // Translate ROOT severity level to MessageLogger severity level
 
@@ -66,13 +68,13 @@ void rootErrorHandler( int level, bool die, const char* location, const char* me
         }
     }
 
-// Intercept "dictionary not found" error-level message and alter its severity
+// Intercept "dictionary not found" messages and
+// downgrade the severity to info.
 
-  if (el_severity >= edm::ELseverityLevel::ELsev_error)
-    { if (el_message.find("dictionary") != std::string::npos)
-        { el_severity = edm::ELseverityLevel::ELsev_warning ;
-        }
-    }
+    if (el_message.find("dictionary") != std::string::npos)
+      {
+         el_severity = edm::ELseverityLevel::ELsev_info ;
+      }
 
 // Feed the message to the MessageLogger... let it choose to suppress or not.
 
@@ -97,19 +99,22 @@ void rootErrorHandler( int level, bool die, const char* location, const char* me
       edm::LogInfo("Root_Information") << el_location << el_message ; 
     }
 
-// Abort, if requested
+// Root has declared a fatal error.  Throw an EDMException.
 
-   if (die)
-     { std::cerr << "edm::rootErrorHandler: Aborting as directed. Bye!\n" ;
-       ::abort() ;
-     }
+   if (die) {
+// Throw an edm::Exception instead of just aborting
+     std::ostringstream sstr;
+     sstr << "Fatal Root error " << el_message;
+     edm::Exception except(edm::errors::FatalRootError, sstr.str());
+     throw except;
+   }
 }
 }  // end of unnamed namespace
 
 namespace edm {
 namespace service {
 InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::ActivityRegistry  & activity)
-  : unloadSigHandler(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler", false)),
+  : unloadSigHandler(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler", true)),
     resetErrHandler (pset.getUntrackedParameter<bool> ("ResetRootErrHandler",  true))
 { 
  
@@ -130,7 +135,7 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
   if( resetErrHandler ) {
 
   // Replace the Root error handler with one that uses the MessageLogger
-     SetErrorHandler(rootErrorHandler);
+     SetErrorHandler(RootErrorHandler);
   }
 }
 
