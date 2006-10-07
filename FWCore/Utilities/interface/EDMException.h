@@ -39,6 +39,7 @@ namespace edm {
        EventProcessorFailure,
 
        FileInPathError,
+       FatalRootError,
 
        NotFound
     };
