@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.34 2006/08/31 23:26:24 wmtan Exp $
+$Id: EventPrincipal.h,v 1.35 2006/10/03 19:11:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -35,6 +35,7 @@ $Id: EventPrincipal.h,v 1.34 2006/08/31 23:26:24 wmtan Exp $
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/EventAux.h"
 #include "DataFormats/Common/interface/ProcessHistory.h"
+#include "DataFormats/Common/interface/ProcessHistoryID.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
@@ -63,7 +64,7 @@ namespace edm {
     EventPrincipal(EventID const& evtID,
                    Timestamp const& theTime,
                    ProductRegistry const& reg,
-		   LuminosityBlockID const& lb = LuminosityBlockID(),
+                   LuminosityBlockID const& lb =  LuminosityBlockID(),
                    ProcessHistoryID const& hist = ProcessHistoryID(),
                    boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
@@ -77,7 +78,7 @@ namespace edm {
     
     // next two will not be available for a little while...
     //      Run const& getRun() const; 
-    //      LuminositySection const& getLuminositySection() const; 
+    //      LuminosityBlock const& getLuminosityBlock() const; 
     
     void put(std::auto_ptr<EDProduct> edp,
 	     std::auto_ptr<Provenance> prov);
@@ -113,11 +114,11 @@ namespace edm {
     const_iterator end() const { return groups_.end(); }
 
     ProcessNameConstIterator beginProcess() const {
-      return aux_.processHistory().begin();
+      return processHistory().begin();
     }
 
     ProcessNameConstIterator endProcess() const {
-      return aux_.processHistory().end();
+      return processHistory().end();
     }
 
     ProcessHistory const& processHistory() const;    
@@ -158,6 +159,10 @@ namespace edm {
     virtual EDProduct const* getIt(ProductID const& oid) const;
 
     EventAux aux_;	// persistent
+
+    ProcessHistoryID processHistoryID_;
+
+    boost::shared_ptr<ProcessHistory> processHistoryPtr_;
 
     // A vector of active groups.
     GroupVec groups_; // products and provenances are persistent

@@ -17,27 +17,22 @@ namespace edm
   struct EventAux {
     EventAux() :
 	processHistoryID_(),
-	processHistoryPtr_(),
 	id_(),
 	time_(),
 	luminosityBlockID_() {}
     //FIXME: keep temporarily for backwards compatibility
     explicit EventAux(EventID const& theId) :
 	processHistoryID_(),
-	processHistoryPtr_(),
 	id_(theId),
 	time_(),
 	luminosityBlockID_() {}
-    EventAux(EventID theId, Timestamp const& theTime, LuminosityBlockID lb) :
+    EventAux(EventID const& theId, Timestamp const& theTime, LuminosityBlockID lb) :
 	processHistoryID_(),
-	processHistoryPtr_(),
 	id_(theId),
 	time_(theTime),
 	luminosityBlockID_(lb) {}
     ~EventAux() {}
-    void init() const;
     void write(std::ostream& os) const;
-    ProcessHistory& processHistory() const {init(); return *processHistoryPtr_;}
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     EventID const& id() const {return id_;}
     Timestamp const& time() const {return time_;}
@@ -45,8 +40,6 @@ namespace edm
     // most recently process that processed this event
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;
-    // Transient
-    mutable boost::shared_ptr<ProcessHistory> processHistoryPtr_;
     // Event ID
     EventID id_;
     // Time from DAQ

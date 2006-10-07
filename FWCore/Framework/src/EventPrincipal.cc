@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.51 2006/09/27 14:54:14 paterno Exp $
+$Id: EventPrincipal.cc,v 1.52 2006/10/03 19:11:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -19,6 +19,8 @@ namespace edm {
 
   EventPrincipal::EventPrincipal() :
     aux_(),
+    processHistoryID_(),
+    processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
     groups_(),
     branchDict_(),
     productDict_(),
@@ -40,6 +42,8 @@ namespace edm {
 				 ProcessHistoryID const& hist,
 				 boost::shared_ptr<DelayedReader> rtrv) :
     aux_(evtID, theTime, lb),
+    processHistoryID_(hist),
+    processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
     groups_(),
     branchDict_(),
     productDict_(),
@@ -52,8 +56,13 @@ namespace edm {
     store_(rtrv),
     unscheduledHandler_()
   {
-    aux_.processHistoryID_ = hist;
+    if (processHistoryID_ != ProcessHistoryID()) {
+      assert(ProcessHistoryRegistry::instance()->size());
+      bool found = ProcessHistoryRegistry::instance()->getMapped(processHistoryID_, *processHistoryPtr_);
+      assert(found);
+    }
     groups_.reserve(reg.productList().size());
+    aux_.processHistoryID_ = processHistoryID_;
   }
 
   EventPrincipal::~EventPrincipal() {
@@ -134,7 +143,7 @@ namespace edm {
 
   void
   EventPrincipal::addToProcessHistory(ProcessConfiguration const& processConfiguration) {
-    ProcessHistory& ph = aux_.processHistory();
+    ProcessHistory& ph = *processHistoryPtr_;
     std::string const& processName = processConfiguration.processName();
     for (ProcessHistory::const_iterator it = ph.begin(); it != ph.end(); ++it) {
       if (processName == it->processName()) {
@@ -152,12 +161,13 @@ namespace edm {
     // It would probably be better to move the ProcessHistory construction out to somewhere
     // which persists for longer than one Event
     ProcessHistoryRegistry::instance()->insertMapped(ph);
-    aux_.processHistoryID_ = ph.id();
+    processHistoryID_ = ph.id();
+    aux_.processHistoryID_ = processHistoryID_;
   }
 
   ProcessHistory const&
   EventPrincipal::processHistory() const {
-    return aux_.processHistory();
+    return *processHistoryPtr_;
   }
 
   void 
@@ -325,8 +335,8 @@ namespace edm {
     // correct policy of making the assumed label be ... whatever we
     // set the policy to be. I don't know the answer right now...
 
-    ProcessHistory::const_reverse_iterator iproc = aux_.processHistory().rbegin();
-    ProcessHistory::const_reverse_iterator eproc = aux_.processHistory().rend();
+    ProcessHistory::const_reverse_iterator iproc = processHistory().rbegin();
+    ProcessHistory::const_reverse_iterator eproc = processHistory().rend();
     while (iproc != eproc) {
 	string const& processName = iproc->processName();
 	BranchKey bk(tid.friendlyClassName(), label, productInstanceName, processName);
