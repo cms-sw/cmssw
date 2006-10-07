@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.12 2006/07/26 01:13:50 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.13 2006/10/02 21:27:49 fedor Exp $
 //
 #include <limits>
 #include <string>
@@ -10,6 +10,7 @@
 
 #include "occi.h" 
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 
 namespace {
@@ -394,18 +395,34 @@ bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidth
       for (int i = 0; i < 4; i++) 
 	for (int j = i; j < 4; j++) widths [i][j] = rset->getFloat (index++);
 
-      unsigned long run = rset->getNumber (index++);
-      unsigned long iovBegin = rset->getNumber (index++);
-      unsigned long iovEnd = rset->getNumber (index++);
+//       unsigned long run = rset->getNumber (index++);
+//       unsigned long iovBegin = rset->getNumber (index++);
+//       unsigned long iovEnd = rset->getNumber (index++);
 
       HcalSubdetector sub = hcalSubdet (subdet);
       HcalDetId id (sub, z * eta, phi, depth);
-
-      if (fObject) fObject->addValue (id, values);
+      
+      if (fObject) {
+	fObject->sort ();
+	try {
+	  fObject->getValues (id);
+	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
+	}
+	catch (cms::Exception& e) {
+	  fObject->addValue (id, values);
+	}
+      }
       if (fWidths) {
-	HcalPedestalWidth* width = fWidths->setWidth (id);
-	for (int i = 0; i < 4; i++) 
-	  for (int j = i; j < 4; j++) width->setSigma (i, j, widths [i][j]);
+	fWidths->sort ();
+	try {
+	  fWidths->getValues (id);
+	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
+	}
+	catch (cms::Exception& e) {
+	  HcalPedestalWidth* width = fWidths->setWidth (id);
+	  for (int i = 0; i < 4; i++) 
+	    for (int j = i; j < 4; j++) width->setSigma (i, j, widths [i][j]);
+	}
       }
     }
     delete rset;
@@ -445,6 +462,7 @@ bool HcalDbOnline::getObject (HcalGains* fObject, HcalGainWidths* fWidths, const
     mStatement->setPrefetchRowCount (100);
     mStatement->setSQL (sql_query);
     oracle::occi::ResultSet* rset = mStatement->executeQuery ();
+    std::cout << "query is executed... " << std::endl;
     while (rset->next ()) {
       int index = 1;
       int z = rset->getInt (index++);
@@ -457,15 +475,33 @@ bool HcalDbOnline::getObject (HcalGains* fObject, HcalGainWidths* fWidths, const
       float widths [4];
       for (int i = 0; i < 4; i++) values[i] = rset->getFloat (index++);
       for (int i = 0; i < 4; i++) widths [i] = rset->getFloat (index++);
-      unsigned long run = rset->getNumber (index++);
-      unsigned long iovBegin = rset->getNumber (index++);
-      unsigned long iovEnd = rset->getNumber (index++);
+//       unsigned long run = rset->getNumber (index++);
+//       unsigned long iovBegin = rset->getNumber (index++);
+//       unsigned long iovEnd = rset->getNumber (index++);
 
       HcalSubdetector sub = hcalSubdet (subdet);
       HcalDetId id (sub, z * eta, phi, depth);
 
-      if (fObject) fObject->addValue (id, values);
-      if (fWidths) fWidths->addValue (id, widths);
+      if (fObject) {
+	fObject->sort ();
+	try {
+	  fObject->getValues (id);
+	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
+	}
+	catch (cms::Exception& e) {
+	  fObject->addValue (id, values);
+	}
+      }
+      if (fWidths) {
+	fWidths->sort ();
+	try {
+	  fWidths->getValues (id);
+	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
+	}
+	catch (cms::Exception& e) {
+	  fWidths->addValue (id, values);
+	}
+      }
     }
     delete rset;
   }

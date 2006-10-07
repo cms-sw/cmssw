@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.3 2006/10/02 21:27:49 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.4 2006/10/04 17:01:01 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -323,7 +323,12 @@ bool dumpObject_ (std::ostream& fOutput,
     doc.makeChId (dataset, id);
     DOMElement* data = doc.makeData (dataset);
     doc.addData (data, *(fObject1->getValues (id)));
-    if (fObject2) doc.addData (data, *(fObject2->getValues (id)));
+    try {
+      if (fObject2) doc.addData (data, *(fObject2->getValues (id)));
+    }
+    catch (...) {
+      std::cout << "dumpObject_-> ERROR: width is not available for cell # " << id.rawId() << std::endl;
+    }
     doc.makeElementDataset (elements, iCh, id, version.str(), KIND, fRun);
     doc.makeMapDataset (iovmap, iCh);
   }
