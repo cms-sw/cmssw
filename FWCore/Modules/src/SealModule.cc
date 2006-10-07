@@ -8,6 +8,7 @@
 #include "FWCore/Modules/src/EmptyESSource.h"
 #include "FWCore/Modules/src/EmptySource.h"
 #include "FWCore/Modules/src/EventContentAnalyzer.h"
+#include "FWCore/Modules/src/SimRootErrors.h"
 #include "FWCore/Modules/src/EventSetupRecordDataGetter.h"
 #include "FWCore/Modules/src/Prescaler.h"
 #include "FWCore/Modules/src/IterateNTimesLooper.h"
@@ -21,7 +22,7 @@ using edm::XMLOutputModule;
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(AsciiOutputModule)
 DEFINE_ANOTHER_FWK_MODULE(XMLOutputModule)
-DEFINE_ANOTHER_FWK_MODULE(EventContentAnalyzer)
+DEFINE_ANOTHER_FWK_MODULE(SimRootErrors)
 DEFINE_ANOTHER_FWK_MODULE(EventSetupRecordDataGetter)
 DEFINE_ANOTHER_FWK_MODULE(Prescaler)
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(EmptyESSource)
