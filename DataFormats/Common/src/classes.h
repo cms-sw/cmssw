@@ -86,9 +86,13 @@ namespace { namespace {
   edm::RefVectorBase<std::vector<unsigned int>::size_type> dummyRefVectorBase;
   edm::RefVectorBase<int> dummyRefVectorBase2;
 
+  std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
   std::map<edm::Hash<0>, edm::ModuleDescription> dummyMapMod;
   std::map<edm::Hash<2>, edm::ProcessHistory> dummyMapProc;
   std::map<edm::Hash<1>, edm::ParameterSetBlob> dummyMapParam;
   std::set<edm::Hash<1> > dummySetParam;
   std::set<edm::Hash<3> > dummySetProcessDesc;
+  std::pair<edm::Hash<0>, edm::ModuleDescription> dummyPairMod;
+  std::pair<edm::Hash<2>, edm::ProcessHistory> dummyPairProc;
+  std::pair<edm::Hash<1>, edm::ParameterSetBlob> dummyPairParam;
 }}
