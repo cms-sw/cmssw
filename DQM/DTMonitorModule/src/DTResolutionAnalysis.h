@@ -10,13 +10,14 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2006/06/01 11:09:27 $
+ *  $Date: 2006/06/20 12:17:42 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
 #include <map>
@@ -48,6 +49,7 @@ private:
   // Lable of 1D rechits in the event
   std::string theRecHitLabel;
   
+  edm::ParameterSet parameters;
 
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId);

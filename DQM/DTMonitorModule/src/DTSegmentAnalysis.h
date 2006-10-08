@@ -11,13 +11,14 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2006/06/01 11:09:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/02 18:03:47 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
 #include <map>
@@ -46,6 +47,8 @@ private:
   bool debug;
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;
+
+  edm::ParameterSet parameters;
 
   // Book a set of histograms for a give chamber
   void bookHistos(DTChamberId chamberId);
