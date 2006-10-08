@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/09/20 07:17:24 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/10/08 12:11:41 $
+ *  $Revision: 1.22 $
  *
  * \author Ilaria Segoni
  */
@@ -63,7 +63,7 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 
       ChamberRawDataSpec eleIndex;
       eleIndex.dccId = currentFED;
-      eleIndex.dccInputChannelNum = currentRMB-1;
+      eleIndex.dccInputChannelNum = currentRMB;
       eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
       eleIndex.lbNumInLink = lbData.lbNumber();
 
