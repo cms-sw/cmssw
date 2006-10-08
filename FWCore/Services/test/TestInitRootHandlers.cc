@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:    Modules
-// Class:      SimRootErrors
+// Class:      TestInitRootHandlers
 // 
 /**
  Description: <one line class summary>
@@ -24,6 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/BranchDescription.h"
@@ -31,7 +32,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Modules/src/SimRootErrors.h"
+#include "FWCore/Services/test/TestInitRootHandlers.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
@@ -343,7 +344,7 @@ void RootErrorHandler( int level, bool die, const char* location, const char* me
 //
 // constructors and destructor
 //
-SimRootErrors::SimRootErrors(const edm::ParameterSet& iConfig) :
+TestInitRootHandlers::TestInitRootHandlers(const edm::ParameterSet& iConfig) :
   indentation_(iConfig.getUntrackedParameter("indentation",std::string("++"))),
   verboseIndentation_(iConfig.getUntrackedParameter("verboseIndention",std::string("  "))),
   moduleLabels_(iConfig.getUntrackedParameter("verboseForModuleLabels",std::vector<std::string>())),
@@ -354,7 +355,7 @@ SimRootErrors::SimRootErrors(const edm::ParameterSet& iConfig) :
    std::sort(moduleLabels_.begin(),moduleLabels_.end());
 }
 
-SimRootErrors::~SimRootErrors()
+TestInitRootHandlers::~TestInitRootHandlers()
 {
  
    // do anything here that needs to be done at destruction time
@@ -368,7 +369,7 @@ SimRootErrors::~SimRootErrors()
 
 // ------------ method called to produce the data  ------------
 void
-SimRootErrors::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+TestInitRootHandlers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
@@ -430,7 +431,7 @@ SimRootErrors::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called at end of job -------------------
 void
-SimRootErrors::endJob() 
+TestInitRootHandlers::endJob() 
 {
    typedef std::map<std::string,int> nameMap;
 
@@ -446,3 +447,5 @@ SimRootErrors::endJob()
 // std::string ktext = boost::lexical_cast<std::string>(k);
 // std::cout << "\nInteger " << k << " expressed as a string is |" << ktext << "|" << std::endl;
 }
+//define this as a plug-in
+DEFINE_FWK_MODULE(TestInitRootHandlers)

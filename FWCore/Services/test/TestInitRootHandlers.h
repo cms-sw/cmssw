@@ -1,11 +1,11 @@
-#ifndef Modules_SimRootErrors_h
-#define Modules_SimRootErrors_h
+#ifndef Modules_TestInitRootHandlers_h
+#define Modules_TestInitRootHandlers_h
 // -*- C++ -*-
 //
 // Package:     Modules
-// Class  :     SimRootErrors
+// Class  :     TestInitRootHandlers
 // 
-/**\class SimRootErrors SimRootErrors.h FWCore/Modules/src/SimRootErrors.h
+/**\class TestInitRootHandlers TestInitRootHandlers.h FWCore/Modules/src/TestInitRootHandlers.h
 
  Description: prints out what data is contained within an Event at that point in the path
 
@@ -28,10 +28,10 @@
 
 // forward declarations
 
-class SimRootErrors : public edm::EDAnalyzer {
+class TestInitRootHandlers : public edm::EDAnalyzer {
 public:
-   explicit SimRootErrors(const edm::ParameterSet&);
-   ~SimRootErrors();
+   explicit TestInitRootHandlers(const edm::ParameterSet&);
+   ~TestInitRootHandlers();
    
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
    virtual void endJob();
