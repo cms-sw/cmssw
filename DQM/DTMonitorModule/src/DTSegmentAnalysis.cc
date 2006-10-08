@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/14 17:05:31 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/10/02 18:03:53 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -23,12 +23,31 @@ using namespace std;
 
 DTSegmentAnalysis::DTSegmentAnalysis(const ParameterSet& pset,
 				     DaqMonitorBEInterface* dbe) : theDbe(dbe) {
-				       debug = pset.getUntrackedParameter<bool>("debug","false");
-				       // the name of the 4D rec hits collection
-				       theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
-				     }
+  debug = pset.getUntrackedParameter<bool>("debug","false");
+  // the name of the 4D rec hits collection
+  theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
+  parameters = pset;
+  if(parameters.getUntrackedParameter<bool>("MTCC", false))
+    {
+      for(int wheel=1; wheel<3; wheel++)
+	{
+	  for(int sec=10; sec<10+wheel; sec++)
+	    {
+	      for (int st=1; st<5; st++)
+		{
+		  DTChamberId chId(wheel, st, sec);
+		  bookHistos(chId);
+		}
+	    }
+	  DTChamberId chId(wheel, 4, 14);
+	  bookHistos(chId);
+	}
+    }				     
+}
 
-DTSegmentAnalysis::~DTSegmentAnalysis(){}
+DTSegmentAnalysis::~DTSegmentAnalysis(){
+
+}
 
 
 void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
@@ -157,7 +176,8 @@ void DTSegmentAnalysis::fillHistos(DTChamberId chamberId,
 				   float theta,
 				   float chi2) {
   // FIXME: optimization of the number of searches
-  if(histosPerCh.find(chamberId) == histosPerCh.end()) {
+  if((histosPerCh.find(chamberId) == histosPerCh.end()) && 
+     !parameters.getUntrackedParameter<bool>("MTCC", false))  {
     bookHistos(chamberId);
   }
   vector<MonitorElement *> histos =  histosPerCh[chamberId];                          

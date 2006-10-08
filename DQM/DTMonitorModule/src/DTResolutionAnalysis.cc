@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/30 10:27:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/10/02 18:04:20 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -28,13 +28,45 @@ using namespace std;
 
 DTResolutionAnalysis::DTResolutionAnalysis(const ParameterSet& pset,
 					   DaqMonitorBEInterface* dbe) : theDbe(dbe) {
-					     debug = pset.getUntrackedParameter<bool>("debug","false");
-					     // the name of the 4D rec hits collection
-					     theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
-					     theRecHitLabel = pset.getParameter<string>("recHitLabel");
-				     }
 
-DTResolutionAnalysis::~DTResolutionAnalysis(){}
+  debug = pset.getUntrackedParameter<bool>("debug","false");
+  // the name of the 4D rec hits collection
+  theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
+  theRecHitLabel = pset.getParameter<string>("recHitLabel");
+  parameters = pset;
+ if(parameters.getUntrackedParameter<bool>("MTCC", false))
+    {
+      for(int wheel=1; wheel<3; wheel++)
+	{
+	  for(int sec=10; sec<10+wheel; sec++)
+	    {
+	      for (int st=1; st<5; st++)
+		{
+		  DTChamberId chId(wheel, st, sec);
+		  for(int sl=1; sl<4; sl++)
+		    {
+		      if(st==4 && sl==2)
+			continue;
+		      DTSuperLayerId slId(chId, sl);
+		      bookHistos(slId);
+		    }
+		}
+	    }
+	  DTChamberId chId(wheel, 4, 14);
+	  for(int sl=1; sl<4; sl++)
+	    {
+	      if(sl==2)
+		continue;
+	      DTSuperLayerId slId(chId, sl);
+	      bookHistos(slId);
+	    }
+	}				     
+    }
+}
+
+DTResolutionAnalysis::~DTResolutionAnalysis(){
+
+}
 
 
 void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) {
@@ -155,7 +187,7 @@ void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) 
 	  distSegmToWire = fabs(wirePosInChamber.y() - segPosAtZWire.y());
 	}
 
-	if(distSegmToWire > 2.1)
+	if(distSegmToWire > 2.1 && debug)
 	  cout << "  Warning: dist segment-wire: " << distSegmToWire << endl;
 
 	double residual = distRecHitToWire - distSegmToWire;
@@ -219,8 +251,9 @@ void DTResolutionAnalysis::fillHistos(DTSuperLayerId slId,
 				      float distExtr,
 				      float residual) {
   // FIXME: optimization of the number of searches
-  if(histosPerSL.find(slId) == histosPerSL.end()) {
-    bookHistos(slId);
+  if((histosPerSL.find(slId) == histosPerSL.end()) &&
+     (!parameters.getUntrackedParameter<bool>("MTCC", false))){
+      bookHistos(slId);
   }
   vector<MonitorElement *> histos =  histosPerSL[slId];                          
   histos[0]->Fill(residual);
