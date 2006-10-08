@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2006/06/27 16:37:51 $
- * $Revision: 1.5 $
+ * $Date: 2006/09/20 14:37:40 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -34,6 +34,7 @@
 class DTGeometry;
 class DTLayerId;
 class DTSuperLayerId;
+class DTChamberId;
 class DTTtrig;
 class DTT0;
 
@@ -61,7 +62,8 @@ protected:
   /// Book the ME
   void bookHistos(const DTLayerId& dtLayer, string histoTag);
   void bookHistos(const DTSuperLayerId& dtSL, string folder, string histoTag);
-
+  void bookHistos(const DTChamberId& dtCh, string folder, string histoTag);
+ 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
