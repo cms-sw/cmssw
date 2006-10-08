@@ -2,8 +2,8 @@
  *
  *  Implementation of RPCRecord Class
  *
- *  $Date: 2006/03/30 15:17:40 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/29 08:38:39 $
+ *  $Revision: 1.8 $
  *  \author Ilaria Segoni
  */
 
@@ -35,8 +35,9 @@ if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) == controlWordFlag)
 	/// Empty or DCC Discarded 
 	if ( (int)((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == EmptyOrDCCDiscardedFlag){
        
-		if ( (int)((*word_ >> EMPTY_OR_DCCDISCARDED_SHIFT) & EMPTY_OR_DCCDISCARDED_MASK) == EmptyWordFlag) wordType = EmptyWord;
+		if ( (int)((*word_ >>  EMPTY_OR_DCCDISCARDED_SHIFT) & EMPTY_OR_DCCDISCARDED_MASK) == EmptyWordFlag) wordType = EmptyWord;
 		if ( (int) ((*word_ >> EMPTY_OR_DCCDISCARDED_SHIFT) & EMPTY_OR_DCCDISCARDED_MASK) == DCCDiscardedFlag) wordType = DCCDiscarded;
+		if ( (int) ((*word_ >> RMB_DISABLED_SHIFT) & RMB_DISABLED_MASK) == RMBDisabledDataFlag) wordType = RMBDisabled;
 	}
 }
 

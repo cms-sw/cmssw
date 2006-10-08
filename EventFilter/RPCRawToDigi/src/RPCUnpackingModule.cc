@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/09/06 10:54:24 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/09/20 07:17:24 $
+ *  $Revision: 1.20 $
  *
  * \author Ilaria Segoni
  */
@@ -62,7 +62,7 @@ RPCUnpackingModule::~RPCUnpackingModule(){
 
 void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 
- edm::LogInfo ("RPCUnpacker") <<"Entering RPCUnpackingModule::produce";
+ edm::LogInfo ("RPCUnpacker") <<"+++\nEntering RPCUnpackingModule::produce";
  
  /// Get Data from all FEDs
  Handle<FEDRawDataCollection> allFEDRawData; 
@@ -137,7 +137,17 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 					/// Check Record is of expected type
 	 				bool missingRecord = theRecord.check();
 	  				/// Unpack the Record 	  
-	  				interpreter.recordUnpack(theRecord,producedRPCDigis,rpcRawData,currentBX);	  
+	  				try{
+					      interpreter.recordUnpack(theRecord,producedRPCDigis,rpcRawData,currentBX);
+					}
+					
+					
+					catch (cms::Exception & e) {
+              				     LogInfo("Exception catched, skip digi")<<e.what(); 
+            				}
+	  
+	  
+	  
 	 		 	}
           
           			///Go to beginning of next word

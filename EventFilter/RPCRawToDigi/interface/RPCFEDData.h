@@ -8,8 +8,8 @@
  *  with the RPC RMB Data.
  *  
  *
- *  $Date: 2006/03/30 15:14:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/29 08:38:38 $
+ *  $Revision: 1.2 $
  * \author Ilaria Segoni - CERN
  */
 
@@ -42,6 +42,8 @@ public:
    void addRMBDiscarded(int rmb, int chn);  
    /// Insert RMBand TB Link  number with corrupted data  
    void addRMBCorrupted(int rmb, int chn);  
+   /// Insert RMBDisabled id 
+   void addRMBDisabled(int rmbDisabled);  
    /// update counter of DCC discarded events
    void addDCCDiscarded();  
    
@@ -73,6 +75,7 @@ private:
    
    std::map<int ,std::vector<int> > RMBDiscarded;
    std::map<int ,std::vector<int> > RMBCorrupted;
+   std::vector<int> RMBDisabledList;
    int DCCDiscarded;
 
 };

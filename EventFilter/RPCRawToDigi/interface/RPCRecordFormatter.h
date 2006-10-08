@@ -4,8 +4,8 @@
 
 /** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
  *
- *  $Date: 2006/06/30 19:27:57 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/09/06 10:54:23 $
+ *  $Revision: 1.11 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -40,6 +40,10 @@ class RPCRecordFormatter{
     
          ///Unpacks RMB corrupted/discarded data
           void unpackRMBCorruptedRecord(const unsigned int* recordIndex, 
+	  	enum RPCRecord::recordTypes type, RPCFEDData & rawData);
+
+         ///Unpacks RMB disabled ID
+          void unpackRMBDisabledRecord(const unsigned int* recordIndex, 
 	  	enum RPCRecord::recordTypes type, RPCFEDData & rawData);
 
 

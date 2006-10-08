@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCFEDData
  *
- *  $Date: 2006/05/04 09:39:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/29 08:38:39 $
+ *  $Revision: 1.3 $
  *
  * \author Ilaria Segoni
  */
@@ -68,6 +68,9 @@ void RPCFEDData::addRMBCorrupted(int rmb, int chn){
        badTbLinkInputNumbers.push_back( chn );
 }   
 
+void RPCFEDData::addRMBDisabled(int rmbDisabled){     
+      RMBDisabledList.push_back( rmbDisabled );
+}   
 
 void RPCFEDData::addDCCDiscarded(){
 	DCCDiscarded++;

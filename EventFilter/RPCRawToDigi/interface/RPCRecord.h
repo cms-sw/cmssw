@@ -8,14 +8,15 @@
  *      StartOfBXData,
  *    	StartOfTbLinkInputNumberData,
  *   	LinkBoardData,
+ *      RMBDisabled,
  *    	EmptyWord,
  *      RMBDiscarded,
  *	RMBCorrupted,
  *	DCCDiscarded,
  *      UndefinedType.
  *
- *  $Date: 2006/03/30 14:40:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/29 08:38:38 $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni
   */
 
@@ -30,7 +31,8 @@ public:
         RMBDiscarded  = 5,
 	RMBCorrupted  = 6,
 	DCCDiscarded  = 7,
-        UndefinedType = 8
+	RMBDisabled   = 8,
+        UndefinedType = 9
   };
   
   /// Constructor
@@ -63,6 +65,7 @@ public:
   static const int EmptyOrDCCDiscardedFlag = 5;
   static const int RMBDiscardedDataFlag    = 6;
   static const int RMBCorruptedDataFlag    = 4;
+  static const int RMBDisabledDataFlag     = 161;
 
   static const int EmptyWordFlag    = 0;
   static const int DCCDiscardedFlag = 1;
@@ -81,6 +84,8 @@ public:
   static const int EMPTY_OR_DCCDISCARDED_MASK  = 0X1;
   static const int EMPTY_OR_DCCDISCARDED_SHIFT = 0;
 
+  static const int RMB_DISABLED_MASK  = 0X8;
+  static const int RMB_DISABLED_SHIFT = 6;
 private:
 
   const unsigned int * word_;

@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/09/06 10:54:24 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/09/20 07:17:24 $
+ *  $Revision: 1.21 $
  *
  * \author Ilaria Segoni
  */
@@ -30,7 +30,6 @@
 
 #include <vector>
 
-//#define RPCRECORFORMATTER_DEBUG_
 
 RPCRecordFormatter::RPCRecordFormatter(int fedId, const RPCReadOutMapping *r)
  : currentFED(fedId), currentBX(0),currentRMB(0),currentTbLinkInputNumber(0), readoutMapping(r){
@@ -64,7 +63,7 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 
       ChamberRawDataSpec eleIndex;
       eleIndex.dccId = currentFED;
-      eleIndex.dccInputChannelNum = currentRMB;
+      eleIndex.dccInputChannelNum = currentRMB-1;
       eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
       eleIndex.lbNumInLink = lbData.lbNumber();
 
@@ -73,11 +72,11 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
       const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
 
       if (!linkBoard) {
-         throw cms::Exception("Invalid Linkboard location!") 
-                  << "dccId: "<<eleIndex.dccId
-                  << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
-                  << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
-                  << " lbNumInLink: "<<eleIndex.lbNumInLink;
+       throw cms::Exception("Invalid Linkboard location!") 
+              << "dccId: "<<eleIndex.dccId
+              << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
+              << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
+              << " lbNumInLink: "<<eleIndex.lbNumInLink;
       }
 
 	std::vector<int> bits=lbData.bitsOn();
@@ -91,7 +90,7 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
             int geomStrip;
             try {
 	      //RPCReadOutMapping::StripInDetUnit stripInDetUnit=linkBoard->strip(lbBit);
-	      RPCReadOutMapping::StripInDetUnit stripInDetUnit=readoutMapping->strip(eleIndex,lbBit);
+	       RPCReadOutMapping::StripInDetUnit stripInDetUnit=readoutMapping->strip(eleIndex,lbBit);
 
                // DetUnit
                rawDetId = stripInDetUnit.first;
@@ -100,26 +99,24 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
                geomStrip = stripInDetUnit.second;
             } 
             catch (cms::Exception & e) {
-              LogDebug("exception catched, skip digi")<<e.what(); 
+               edm::LogInfo("RPC unpacker, exception catched, skip digi")<<e.what(); 
+	       edm::LogInfo("Values")<< currentRMB<<" "<<currentTbLinkInputNumber<<" "<<lbData.lbNumber();
               continue;
             }
 
-//          std::cout << " febInLB: " << febInLB 
-//                    << " stripPin: " << stripPinInFeb 
-//                    << " (partitionNumber: " <<lbData.partitionNumber()
-//                    <<" half: " << lbData.halfP()<< " rawBit: "<<rawBit
-//                    <<" )"<< std::endl;
 
 
 		/// Creating RPC digi
 	    RPCDigi digi(geomStrip,currentBX-triggerBX);
 
 		/// Committing digi to the product
-		prod->insertDigi(RPCDetId(rawDetId),digi);
+		 prod->insertDigi(RPCDetId(rawDetId),digi);
           }
+	
     }
     
-    if(typeOfRecord==RPCRecord::RMBDiscarded || typeOfRecord==RPCRecord::RMBCorrupted) this->unpackRMBCorruptedRecord(recordIndexInt,typeOfRecord,rawData);
+    if(typeOfRecord==RPCRecord::RMBDiscarded || typeOfRecord==RPCRecord::RMBCorrupted ) this->unpackRMBCorruptedRecord(recordIndexInt,typeOfRecord,rawData);
+    if(typeOfRecord==RPCRecord::RMBDisabled ) this->unpackRMBDisabledRecord(recordIndexInt,typeOfRecord,rawData);
     if(typeOfRecord==RPCRecord::DCCDiscarded) rawData.addDCCDiscarded();
 }
 
@@ -129,9 +126,7 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 int RPCRecordFormatter::unpackBXRecord(const unsigned int* recordIndexInt) {
     
     int bx= ( *recordIndexInt >> rpcraw::bx::BX_SHIFT )& rpcraw::bx::BX_MASK ;
-    #ifdef RPCRECORFORMATTER_DEBUG_
     edm::LogInfo ("RPCUnpacker")<<"Found BX record, BX= "<<bx;
-    #endif
     return bx;
 
 } 
@@ -142,10 +137,8 @@ void RPCRecordFormatter::unpackTbLinkInputRecord(const unsigned int* recordIndex
     currentTbLinkInputNumber= (*recordIndexInt>> rpcraw::tb_link::TB_LINK_INPUT_NUMBER_SHIFT )& rpcraw::tb_link::TB_LINK_INPUT_NUMBER_MASK;
     currentRMB=(*recordIndexInt>> rpcraw::tb_link::TB_RMB_SHIFT)  & rpcraw::tb_link::TB_RMB_MASK;
 
-    #ifdef RPCRECORFORMATTER_DEBUG_
     edm::LogInfo ("RPCUnpacker")<<"Found start of LB Link Data Record, tbLinkInputNumber: "<<currentTbLinkInputNumber<<
  	 " Readout Mother Board: "<<currentRMB;
-    #endif
 } 
 
 RPCLinkBoardData RPCRecordFormatter::unpackLBRecord(const unsigned int* recordIndexInt) {
@@ -156,13 +149,11 @@ RPCLinkBoardData RPCRecordFormatter::unpackLBRecord(const unsigned int* recordIn
     int partitionNumber = (*recordIndexInt >> rpcraw::lb::PARTITION_NUMBER_SHIFT ) & rpcraw::lb::PARTITION_NUMBER_MASK;
     int lbNumber = (*recordIndexInt >> rpcraw::lb::LB_SHIFT ) & rpcraw::lb::LB_MASK ;
 
-    #ifdef RPCRECORFORMATTER_DEBUG_
     edm::LogInfo ("RPCUnpacker")<< "Found LB Data, LB Number: "<< lbNumber<<
  	" Partition Data "<< partitionData<<
  	" Half Partition " <<  halfP<<
  	" Data Truncated: "<< eod<<
  	" Partition Number " <<  partitionNumber;
-    #endif
 
     std::vector<int> bits;
     bits.clear();
@@ -186,4 +177,9 @@ void RPCRecordFormatter::unpackRMBCorruptedRecord(const unsigned int* recordInde
  }
 
 
+void RPCRecordFormatter::unpackRMBDisabledRecord(const unsigned int* recordIndexInt,enum RPCRecord::recordTypes type, RPCFEDData & rawData) {
+    	int rmbDisabled = (* recordIndexInt>> rpcraw::error::RMB_DISABLED_SHIFT ) & rpcraw::error::RMB_DISABLED_MASK;
+	rawData.addRMBDisabled(rmbDisabled);  
+    	edm::LogInfo ("RPCUnpacker")<< "Found RMB Disabled: "<<rmbDisabled;
+ }
 
