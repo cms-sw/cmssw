@@ -97,7 +97,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 	}
 	vert/=10;//in cm
 	//should use *t->charge when implemented
-	TrackBase::ParameterVector tParameters=parametersAtClosestApproach2Order(vert, momAtVtx, rt->charge());
+	//TrackBase::ParameterVector tParameters=parametersAtClosestApproach2Order(vert, momAtVtx, rt->charge());
 	TrackBase::ParameterVector gParameters=parametersAtClosestApproachGeom(vert, momAtVtx, rt->charge());
 
 	//sParameters[0] = k;
@@ -107,39 +107,37 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 	//sParameters[4] = dz;
 	
 	LogDebug("TrackAssociator") << "============NEW TRACKING PARTICLE=============" << "\n" 
-				     << "============WITH PT=" << (*t)->momentum().perp() << "\n" 
-				     << "k     simG: " << gParameters[0] << "\n" 
-				     << "theta simG: " << gParameters[1] << "\n" 
-				     << "phi0  simG: " << gParameters[2] << "\n" 
-				     << "d0    simG: " << gParameters[3] << "\n" 
-				     << "dz    simG: " << gParameters[4] << "\n" 
-				     << ": " /*<< */ << "\n" 
-				     << "k     sim2: " << tParameters[0] << "\n" 
-				     << "theta sim2: " << tParameters[1] << "\n" 
-				     << "phi0  sim2: " << tParameters[2] << "\n" 
-				     << "d0    sim2: " << tParameters[3] << "\n" 
-				     << "dz    sim2: " << tParameters[4] << "\n" 
-				     << ": " /*<< */ << "\n" 
-				     << "k     rec: " << rt->transverseCurvature() << "\n" 
-				     << "theta rec: " << rt->theta() << "\n" 
-				     << "phi0  rec: " << rt->phi0() << "\n" 
-				     << "d0    rec: " << rt->d0() << "\n" 
-				     << "dz    rec: " << rt->dz() << "\n" 
-				     << ": " /*<< */ << "\n" 
-				     << "k     simV: "<<-rt->charge()*2.99792458e-3*theMF->inTesla((GlobalPoint) vert).z()
+				    << "============WITH PT=" << (*t)->momentum().perp() << "\n" 
+				    << "k     simG: " << gParameters[0] << "\n" 
+				    << "theta simG: " << gParameters[1] << "\n" 
+				    << "phi0  simG: " << gParameters[2] << "\n" 
+				    << "d0    simG: " << gParameters[3] << "\n" 
+				    << "dz    simG: " << gParameters[4] << "\n" 
+				    << ": " /*<< */ << "\n" 
+	  // 				    << "k     sim2: " << tParameters[0] << "\n" 
+	  // 				     << "theta sim2: " << tParameters[1] << "\n" 
+	  // 				     << "phi0  sim2: " << tParameters[2] << "\n" 
+	  // 				     << "d0    sim2: " << tParameters[3] << "\n" 
+	  // 				     << "dz    sim2: " << tParameters[4] << "\n" 
+	  // 				     << ": " /*<< */ << "\n" 
+				    << "k     rec: " << rt->transverseCurvature() << "\n" 
+				    << "theta rec: " << rt->theta() << "\n" 
+				    << "phi0  rec: " << rt->phi0() << "\n" 
+				    << "d0    rec: " << rt->d0() << "\n" 
+				    << "dz    rec: " << rt->dz() << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "k     simV: "<<-rt->charge()*2.99792458e-3*theMF->inTesla((GlobalPoint) vert).z()
 	  /momAtVtx.perp()<<"\n" 
-				     << "theta simV: " << momAtVtx.theta() << "\n" 
-				     << "phi0  simV: " << momAtVtx.phi() << "\n" 
-				     << "d0    simV: " << vert.perp() << "\n" 
-				     << "dz    simV: " << vert.z() << "\n" 
-				     << ": " /*<< */ << "\n" 
-				     << ": " /*<< */ << "\n" 
-				     << ": " /*<< */ << "\n";
-
+				    << "theta simV: " << momAtVtx.theta() << "\n" 
+				    << "phi0  simV: " << momAtVtx.phi() << "\n" 
+				    << "d0    simV: " << vert.perp() << "\n" 
+				    << "dz    simV: " << vert.z() << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << ": " /*<< */ << "\n";
+	
 	//use parametersAtClosestApproachGeom
-	TrackBase::ParameterVector sParameters = gParameters;
-
-	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
+	TrackBase::ParameterVector diffParameters = rParameters - gParameters;
 	chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
 	chi2 /= 5;
 	LogDebug("TrackAssociator") << "chi2: " << chi2 << "\n";
@@ -206,6 +204,7 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
   return outputCollection;
 
 }
+
 
 TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproach2Order (Basic3DVector<double> vertex,
 										     Basic3DVector<double> momAtVtx,
