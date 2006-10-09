@@ -49,8 +49,8 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   setWhatProduced(this);
 
   // Create the alignment algorithm
-  std::string algoName = iConfig.getParameter<std::string>("algoName");
   edm::ParameterSet algoConfig = iConfig.getParameter<edm::ParameterSet>( "algoConfig" );
+  std::string algoName = algoConfig.getParameter<std::string>("algoName");
   theAlignmentAlgo = AlignmentAlgorithmPluginFactory::getAlgorithm( algoName, algoConfig );
 
   // Check if found
