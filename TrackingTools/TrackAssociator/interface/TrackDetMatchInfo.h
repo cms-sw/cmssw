@@ -16,12 +16,17 @@ class TrackDetMatchInfo {
    
    double ecalConeEnergy();
    double hcalConeEnergy();
+
+   double ecalNeighborHitEnergy(int gridSize);
+   double ecalNeighborTowerEnergy(int gridSize);
+   double hcalNeighborEnergy(int gridSize);
    
    double outerHcalEnergy();
    double outerHcalConeEnergy();
    
    int numberOfSegments(){ return segments.size(); }
    int numberOfSegmentsInStation(int station) const;
+   int numberOfSegmentsInStation(int station, int detector) const;
    int numberOfSegmentsInDetector(int detector) const;
      
    double dX(int i){ 
@@ -56,6 +61,9 @@ class TrackDetMatchInfo {
 
    SimTrackRef simTrackRef_;
    reco::TrackRef trackRef_;
-};
 
+   bool isGoodEcal;
+   bool isGoodHcal;
+   bool isGoodMuon;
+};
 #endif
