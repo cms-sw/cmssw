@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.17 2006/08/02 14:16:50 goitom Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.18 2006/09/29 17:03:44 goitom Exp $
 //
 //
 
@@ -72,7 +72,11 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   using namespace edm;
   using namespace std;
 
-  dbe->setCurrentFolder("SiStrip/Detectors");
+  // use SistripHistoId for producing histogram id (and title)
+  SiStripHistoId hidmanager;
+  // create SiStripFolderOrganizer
+  SiStripFolderOrganizer folder_organizer;
+  folder_organizer.setSiStripFolder(); // top SiStrip folder
 
   // take from eventSetup the SiStripDetCabling object
 
@@ -92,81 +96,51 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   vector<uint32_t> TIDDetIds;
   vector<uint32_t> TECDetIds;
   substructure.getTIBDetectors(activeDets, TIBDetIds); // this adds rawDetIds to SelectedDetIds
-  substructure.getTOBDetectors(activeDets, TOBDetIds);    // this adds rawDetIds to SelectedDetIds
+  substructure.getTOBDetectors(activeDets, TOBDetIds); // this adds rawDetIds to SelectedDetIds
   substructure.getTIDDetectors(activeDets, TIDDetIds); // this adds rawDetIds to SelectedDetIds
   substructure.getTECDetectors(activeDets, TECDetIds); // this adds rawDetIds to SelectedDetIds
   
   // book TIB histo
   vector<uint32_t>::const_iterator detid_begin = TIBDetIds.begin();
   vector<uint32_t>::const_iterator detid_end = TIBDetIds.end() -1;
-
-  dbe->setCurrentFolder("SiStrip/Detectors/TIBModules");
-  for (vector<uint32_t>::const_iterator DetItr=detid_begin; DetItr!=detid_end; DetItr++)
-    {
-      int ModuleID = (*DetItr);
-      char histname[256];
-      sprintf(histname, "HistRes%.6i", ModuleID);
-      HitResidual2[ModuleID] = dbe->book1D(histname, "Hit Residuals (strips).", 100, -2., 2.);
-    }
-
-  dbe->setCurrentFolder("SiStrip/Detectors");
   int detBegin=(*detid_begin)&0x1ffffff;
   int detEnd=(*detid_end)&0x1ffffff;
+  dbe->setCurrentFolder("Track/Residuals");
   HitResidual["TIB"] = dbe->bookProfile("TIBHitResiduals", "TIB Hit residuals",  TIBDetIds.size(), detBegin, detEnd, 1, -4, 4);
 
   // book TOB histo
   detid_begin = TOBDetIds.begin();
   detid_end = TOBDetIds.end()-1;
-
- dbe->setCurrentFolder("SiStrip/Detectors/TOBModules");
-  for (vector<uint32_t>::const_iterator DetItr=detid_begin; DetItr!=detid_end; DetItr++)
-    {
-      int ModuleID = (*DetItr);
-      char histname[256];
-      sprintf(histname, "HistRes%.6i", ModuleID);
-      HitResidual2[ModuleID] = dbe->book1D(histname, "Hit Residuals (strips).", 100, -2., 2.);
-    }
-
-  dbe->setCurrentFolder("SiStrip/Detectors");
   detBegin=(*detid_begin)&0x1ffffff;
   detEnd=(*detid_end)&0x1ffffff;
+  dbe->setCurrentFolder("Track/Residuals");
   HitResidual["TOB"] = dbe->bookProfile("TOBHitResiduals", "TOB Hit residuals", TOBDetIds.size(), detBegin, detEnd, 1, -4, 4);
 
   // book TID histo
   detid_begin = TIDDetIds.begin();
   detid_end = TIDDetIds.end()-1;
-
-  dbe->setCurrentFolder("SiStrip/Detectors/TIDModules");
-  for (vector<uint32_t>::const_iterator DetItr=detid_begin; DetItr!=detid_end; DetItr++)
-    {
-      int ModuleID = (*DetItr);
-      char histname[256];
-      sprintf(histname, "HistRes%.6i", ModuleID);
-      HitResidual2[ModuleID] = dbe->book1D(histname, "Hit Residuals (strips).", 100, -2., 2.);
-    }
-
-  dbe->setCurrentFolder("SiStrip/Detectors");
   detBegin=(*detid_begin)&0x1ffffff;
   detEnd=(*detid_end)&0x1ffffff;
+  dbe->setCurrentFolder("Track/Residuals");
   HitResidual["TID"] = dbe->bookProfile("TIDHitResiduals", "TID Hit residuals", TIDDetIds.size(), detBegin, detEnd, 1, -4, 4);
 
   // book TEC histo
   detid_begin = TECDetIds.begin();
   detid_end = TECDetIds.end()-1;
-
- dbe->setCurrentFolder("SiStrip/Detectors/TECModules");
-  for (vector<uint32_t>::const_iterator DetItr=detid_begin; DetItr!=detid_end; DetItr++)
-    {
-      int ModuleID = (*DetItr);
-      char histname[256];
-      sprintf(histname, "HistRes%.6i", ModuleID);
-      HitResidual2[ModuleID] = dbe->book1D(histname, "Hit Residuals (strips).", 100, -2., 2.);
-    }
-
-  dbe->setCurrentFolder("SiStrip/Detectors");
   detBegin=(*detid_begin)&0x1ffffff;
   detEnd=(*detid_end)&0x1ffffff;
+  dbe->setCurrentFolder("Track/Residuals");
   HitResidual["TEC"] = dbe->bookProfile("TECHitResiduals", "TEC Hit residuals", TECDetIds.size(), detBegin, detEnd, 1, -4, 4);
+
+  // book histo per each detector module
+  for (vector<uint32_t>::const_iterator DetItr=activeDets.begin(); DetItr!=activeDets.end(); DetItr++)
+    {
+      folder_organizer.setDetectorFolder(*DetItr); // pas detid - uint32 to this method - sets appropriate detector folder
+      int ModuleID = (*DetItr);
+      folder_organizer.setDetectorFolder(*DetItr); // top Mechanical View Folder
+      string hid = hidmanager.createHistoId("HitResiduals","det",*DetItr);
+      HitResidual2[ModuleID] = dbe->book1D(hid, hid, 100, -2., 2.);
+    }
 }
 
 void MonitorTrackResiduals::endJob(void)

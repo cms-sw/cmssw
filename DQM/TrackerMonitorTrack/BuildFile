@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=DQM/SiStripCommon>
 <use name=DQMServices/Core>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
@@ -18,6 +19,7 @@
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
+   <use name=DQM/SiStripCommon>
    <use name=DQMServices/Core>
    <use name=CalibFormats/SiStripObjects>
    <use name=CalibTracker/Records>
