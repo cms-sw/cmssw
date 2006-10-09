@@ -142,10 +142,10 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
     track.setExtra( teref );
     selTrackExtras->push_back( reco::GsfTrackExtra (outpos, outmom, outertsos.curvilinearError(), 
 						    outerStates, outertsos.localParameters().pzSign(),
-						    true, outerId,
+						    outerId, true,
 						    inpos, inmom, innertsos.curvilinearError(), 
 						    innerStates, innertsos.localParameters().pzSign(),
-						    true, innerId));
+						    innerId, true));
 
     reco::GsfTrackExtra & tx = selTrackExtras->back();
     size_t i = 0;
@@ -187,7 +187,7 @@ GsfTrackProducerBase::fillStates (TrajectoryStateOnSurface tsos,
     for ( int j=0; j<reco::GsfTrackExtra::dimension; ++j )  pLocS(j) = pLoc[j];
     const AlgebraicSymMatrix& cLoc = i->localError().matrix();
     for ( int j1=0; j1<reco::GsfTrack::dimension; ++j1 )
-      for ( int j2=0; j2<j1; ++j2 )  cLocS(j1,j2) = cLoc[j1][j2];
+      for ( int j2=0; j2<=j1; ++j2 )  cLocS(j1,j2) = cLoc[j1][j2];
     states.push_back(reco::GsfComponent5D(i->weight(),pLocS,cLocS));
   }
 //   std::cout << "end fill states" << std::endl;
