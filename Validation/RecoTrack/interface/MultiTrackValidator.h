@@ -33,11 +33,13 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   MultiTrackValidator(const edm::ParameterSet& pset):
     sim(pset.getParameter<string>("sim")),
     label(pset.getParameter< vector<string> >("label")),
+    associators(pset.getParameter< vector<string> >("associators")),
     out(pset.getParameter<string>("out")),
     open(pset.getParameter<string>("open")),
     min(pset.getParameter<double>("min")),
     max(pset.getParameter<double>("max")),
-    nint(pset.getParameter<int>("nint"))
+    nint(pset.getParameter<int>("nint")),
+    minpt(pset.getParameter<double>("minpt"))
     {
       hFile = new TFile( out.c_str(), open.c_str() );
     }
@@ -56,10 +58,11 @@ class MultiTrackValidator : public edm::EDAnalyzer {
  private:
 
   string sim;
-  vector<string> label;
+  vector<string> label, associators;
   string out, open;
   double  min, max;
   int nint;
+  double minpt;
   
   vector<TH1F*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
   vector<TH1F*> h_tracks, h_nchi2, h_nchi2_prob, h_hits, h_effic, h_ptrmsh, h_deltaeta, h_charge;
@@ -77,7 +80,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
 
   edm::ESHandle<MagneticField> theMF;
 
-  TrackAssociatorBase * associator;
+  vector<TrackAssociatorBase*> associator;
   TrackAssociatorByChi2 * associatorForParamAtPca;
   
 };
