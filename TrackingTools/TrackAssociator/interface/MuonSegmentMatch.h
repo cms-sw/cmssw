@@ -19,6 +19,8 @@ class MuonSegmentMatch {
    float  segmentLocalErrorXY;
    float  segmentLocalErrorDxDz;
    float  segmentLocalErrorDyDz;
+   float  segmentLocalErrorXDxDz;
+   float  segmentLocalErrorYDyDz;
 
    math::XYZPoint  trajectoryGlobalPosition;
    math::XYZPoint  trajectoryLocalPosition;
@@ -28,6 +30,8 @@ class MuonSegmentMatch {
    float  trajectoryLocalErrorXY;
    float  trajectoryLocalErrorDxDz;
    float  trajectoryLocalErrorDyDz;
+   float  trajectoryLocalErrorXDxDz;
+   float  trajectoryLocalErrorYDyDz;
 
    DetId id;
 };
