@@ -1,6 +1,6 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
 //
-//#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
