@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/09/12 09:36:50 $
-//   $Revision: 1.4 $
+//   $Date: 2006/09/20 12:40:19 $
+//   $Revision: 1.5 $
 //
 //   Modifications:
 //
@@ -712,14 +712,16 @@ void CSCTriggerPrimitivesReader::compare(const edm::Event& ev) {
 
   // Comparisons
   compareALCTs(alcts_data.product(), alcts_emul.product());
-  //compareCLCTs(clcts_data.product(), clcts_emul.product());
-  //compareLCTs(lcts_data.product(), clcts_emul.product());
+  compareCLCTs(clcts_data.product(), clcts_emul.product());
+  compareLCTs(lcts_data.product(), lcts_emul.product());
 }
 
 void CSCTriggerPrimitivesReader::compareALCTs(
                                  const CSCALCTDigiCollection* alcts_data,
 				 const CSCALCTDigiCollection* alcts_emul) {
-  CSCALCTDigiCollection::DigiRangeIterator detUnitIt;
+  // Loop over all chambers in search for ALCTs.
+  CSCALCTDigiCollection::const_iterator digiIt;
+  std::vector<CSCALCTDigi>::const_iterator pd, pe;
   for (int endc = 1; endc <= 2; endc++) {
     for (int stat = 1; stat <= 4; stat++) {
       for (int ring = 1; ring <= 3; ring++) {
@@ -728,26 +730,17 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	  CSCDetId detid(endc, stat, ring, cham, 0);
 
 	  std::vector<CSCALCTDigi> alctV_data, alctV_emul;
-	  std::vector<CSCALCTDigi>::iterator pd, pe;
-	  for (detUnitIt = alcts_data->begin();
-	       detUnitIt != alcts_data->end(); detUnitIt++) {
-	    if ((*detUnitIt).first == detid) {
-	      const CSCALCTDigiCollection::Range& range = (*detUnitIt).second;
-	      for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
-		   digiIt != range.second; digiIt++) {
-		alctV_data.push_back(*digiIt);
-	      }
+	  const CSCALCTDigiCollection::Range& drange = alcts_data->get(detid);
+	  for (digiIt = drange.first; digiIt != drange.second; digiIt++) {
+	    if ((*digiIt).isValid()) {
+	      alctV_data.push_back(*digiIt);
 	    }
 	  }
 
-	  for (detUnitIt = alcts_emul->begin();
-	       detUnitIt != alcts_emul->end(); detUnitIt++) {
-	    if ((*detUnitIt).first == detid) {
-	      const CSCALCTDigiCollection::Range& range = (*detUnitIt).second;
-	      for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
-		   digiIt != range.second; digiIt++) {
-		alctV_emul.push_back(*digiIt);
-	      }
+	  const CSCALCTDigiCollection::Range& erange = alcts_emul->get(detid);
+	  for (digiIt = erange.first; digiIt != erange.second; digiIt++) {
+	    if ((*digiIt).isValid()) {
+	      alctV_emul.push_back(*digiIt);
 	    }
 	  }
 
@@ -757,22 +750,26 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 
 	  if (debug) {
 	    ostringstream strstrm;
-	    strstrm << "\n --- Endcap "  << detid.endcap()
+	    strstrm << "\n--- Endcap "  << detid.endcap()
 		    << " station " << detid.station()
 		    << " sector "  << detid.triggerSector()
 		    << " ring "    << detid.ring()
 		    << " chamber " << detid.chamber()
-		    << " (trig id. " << detid.triggerCscId() << "):";
-	    strstrm << "  * " << ndata << " data ALCTs found: \n";
+		    << " (trig id. " << detid.triggerCscId() << "):\n";
+	    strstrm << "  **** " << ndata << " valid data ALCTs found:\n";
 	    for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
 	      strstrm << "     " << (*pd) << "\n";
 	    }
-	    strstrm << "  * " << nemul << " emul ALCTs found: \n";
+	    strstrm << "  **** " << nemul << " valid emul ALCTs found:\n";
 	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
 	      strstrm << "     " << (*pe) << "\n";
 	    }
 	    LogDebug("CSCTriggerPrimitivesReader") << strstrm.str();
 	  }
+
+	  // Skip stations 3 and 4 for now since the patterns were not
+	  // mirrored.  To be removed for MTCC II.
+	  if (stat == 3 || stat == 4) continue;
 
 	  if (ndata != nemul) {
 	    LogDebug("CSCTriggerPrimitivesReader")
@@ -781,20 +778,257 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	  }
 
 	  for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
-	    int wire_data = (*pd).getKeyWG();
+	    if ((*pd).isValid() == 0) continue;
+	    int data_trknmb    = (*pd).getTrknmb();
+	    int data_quality   = (*pd).getQuality();
+	    int data_accel     = (*pd).getAccelerator();
+	    int data_collB     = (*pd).getCollisionB();
+	    int data_wiregroup = (*pd).getKeyWG();
+	    //int data_bx        = (*pd).getBX();
+
+	    // Temporary fix: shift wire group numbers in ME1/3, ME3/1,
+	    // and ME4/1 by 16.
+	    if ((stat == 1 && ring == 3) || (stat == 3 && ring == 1) ||
+		(stat == 4 && ring == 1)) {
+	      data_wiregroup -= 16;
+	    }
+
 	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
-	      if ((*pe).getKeyWG() == wire_data) {
-		if ((*pd).isValid()        == (*pe).isValid() &&
-		    (*pd).getQuality()     == (*pe).getQuality() &&
-		    (*pd).getAccelerator() == (*pe).getAccelerator() &&
-		    (*pd).getCollisionB()  == (*pe).getCollisionB()  &&
-		    (*pd).getBX()          == (*pe).getBX()) {
+	      if ((*pe).isValid() == 0) continue;
+	      int emul_trknmb    = (*pe).getTrknmb();
+	      int emul_quality   = (*pe).getQuality();
+	      int emul_accel     = (*pe).getAccelerator();
+	      int emul_collB     = (*pe).getCollisionB();
+	      int emul_wiregroup = (*pe).getKeyWG();
+	      //int emul_bx        = (*pe).getBX();
+	      if (data_trknmb == emul_trknmb) {
+		// Leave out bx time for now.
+		if (data_quality   == emul_quality &&
+		    data_accel     == emul_accel &&
+		    data_collB     == emul_collB  &&
+		    data_wiregroup == emul_wiregroup) {
 		  LogDebug("CSCTriggerPrimitivesReader")
-		    << "        Identical ALCTs on key wire = " << wire_data;
+		    << "        Identical ALCTs #" << data_trknmb;
 		}
 		else {
 		  LogDebug("CSCTriggerPrimitivesReader")
-		    << "        Different ALCTs on key wire = " << wire_data;
+		    << "        Different ALCTs #" << data_trknmb;
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+
+void CSCTriggerPrimitivesReader::compareCLCTs(
+                                 const CSCCLCTDigiCollection* clcts_data,
+				 const CSCCLCTDigiCollection* clcts_emul) {
+  // Loop over all chambers in search for CLCTs.
+  CSCCLCTDigiCollection::const_iterator digiIt;
+  std::vector<CSCCLCTDigi>::const_iterator pd, pe;
+  for (int endc = 1; endc <= 2; endc++) {
+    for (int stat = 1; stat <= 4; stat++) {
+      for (int ring = 1; ring <= 3; ring++) {
+        for (int cham = 1; cham <= 36; cham++) {
+	  // Calculate DetId.  0th layer means whole chamber.
+	  CSCDetId detid(endc, stat, ring, cham, 0);
+
+	  std::vector<CSCCLCTDigi> clctV_data, clctV_emul;
+	  const CSCCLCTDigiCollection::Range& drange = clcts_data->get(detid);
+	  for (digiIt = drange.first; digiIt != drange.second; digiIt++) {
+	    if ((*digiIt).isValid()) {
+	      clctV_data.push_back(*digiIt);
+	    }
+	  }
+
+	  const CSCCLCTDigiCollection::Range& erange = clcts_emul->get(detid);
+	  for (digiIt = erange.first; digiIt != erange.second; digiIt++) {
+	    if ((*digiIt).isValid()) {
+	      clctV_emul.push_back(*digiIt);
+	    }
+	  }
+
+	  int ndata = clctV_data.size();
+	  int nemul = clctV_emul.size();
+	  if (ndata == 0 && nemul == 0) continue;
+
+	  if (debug) {
+	    ostringstream strstrm;
+	    strstrm << "\n--- Endcap "  << detid.endcap()
+		    << " station " << detid.station()
+		    << " sector "  << detid.triggerSector()
+		    << " ring "    << detid.ring()
+		    << " chamber " << detid.chamber()
+		    << " (trig id. " << detid.triggerCscId() << "):\n";
+	    strstrm << "  **** " << ndata << " valid data CLCTs found:\n";
+	    for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
+	      strstrm << "     " << (*pd) << "\n";
+	    }
+	    strstrm << "  **** " << nemul << " valid emul CLCTs found:\n";
+	    for (pe = clctV_emul.begin(); pe != clctV_emul.end(); pe++) {
+	      strstrm << "     " << (*pe) << "\n";
+	    }
+	    LogDebug("CSCTriggerPrimitivesReader") << strstrm.str();
+	  }
+
+	  if (ndata != nemul) {
+	    LogDebug("CSCTriggerPrimitivesReader")
+	      << "    +++ Different numbers of CLCTs found: data = " << ndata
+	      << " emulator = " << nemul << " +++";
+	  }
+
+	  for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
+	    if ((*pd).isValid() == 0) continue;
+	    int data_trknmb    = (*pd).getTrknmb();
+	    int data_quality   = (*pd).getQuality();
+	    int data_pattern   = (*pd).getPattern();
+	    int data_striptype = (*pd).getStripType();
+	    int data_bend      = (*pd).getBend();
+	    int data_keystrip  = (*pd).getKeyStrip();
+	    int data_cfeb      = (*pd).getCFEB();
+	    //int data_bx        = (*pd).getBX();
+	    for (pe = clctV_emul.begin(); pe != clctV_emul.end(); pe++) {
+	      if ((*pe).isValid() == 0) continue;
+	      int emul_trknmb    = (*pe).getTrknmb();
+	      int emul_quality   = (*pe).getQuality();
+	      int emul_pattern   = (*pe).getPattern();
+	      int emul_striptype = (*pe).getStripType();
+	      int emul_bend      = (*pe).getBend();
+	      int emul_keystrip  = (*pe).getKeyStrip();
+	      int emul_cfeb      = (*pe).getCFEB();
+	      //int emul_bx        = (*pe).getBX();
+	      if (data_trknmb == emul_trknmb) {
+		// Leave out bx time for now.
+		if (data_quality   == emul_quality &&
+		    data_pattern   == emul_pattern &&
+		    data_striptype == emul_striptype &&
+		    data_bend      == emul_bend  &&
+		    data_keystrip  == emul_keystrip &&
+		    data_cfeb      == emul_cfeb) {
+		  LogDebug("CSCTriggerPrimitivesReader")
+		    << "        Identical CLCTs #" << data_trknmb;
+		}
+		else {
+		  LogDebug("CSCTriggerPrimitivesReader")
+		    << "        Different CLCTs #" << data_trknmb;
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+
+void CSCTriggerPrimitivesReader::compareLCTs(
+                             const CSCCorrelatedLCTDigiCollection* lcts_data,
+			     const CSCCorrelatedLCTDigiCollection* lcts_emul) {
+  // Loop over all chambers in search for correlated LCTs.
+  CSCCorrelatedLCTDigiCollection::const_iterator digiIt;
+  std::vector<CSCCorrelatedLCTDigi>::const_iterator pd, pe;
+  for (int endc = 1; endc <= 2; endc++) {
+    for (int stat = 1; stat <= 4; stat++) {
+      for (int ring = 1; ring <= 3; ring++) {
+        for (int cham = 1; cham <= 36; cham++) {
+	  // Calculate DetId.  0th layer means whole chamber.
+	  CSCDetId detid(endc, stat, ring, cham, 0);
+
+	  std::vector<CSCCorrelatedLCTDigi> lctV_data, lctV_emul;
+	  const CSCCorrelatedLCTDigiCollection::Range&
+	    drange = lcts_data->get(detid);
+	  for (digiIt = drange.first; digiIt != drange.second; digiIt++) {
+	    if ((*digiIt).isValid()) {
+	      lctV_data.push_back(*digiIt);
+	    }
+	  }
+
+	  const CSCCorrelatedLCTDigiCollection::Range&
+	    erange = lcts_emul->get(detid);
+	  for (digiIt = erange.first; digiIt != erange.second; digiIt++) {
+	    if ((*digiIt).isValid()) {
+	      lctV_emul.push_back(*digiIt);
+	    }
+	  }
+
+	  int ndata = lctV_data.size();
+	  int nemul = lctV_emul.size();
+	  if (ndata == 0 && nemul == 0) continue;
+
+	  if (debug) {
+	    ostringstream strstrm;
+	    strstrm << "\n--- Endcap " << detid.endcap()
+		    << " station "     << detid.station()
+		    << " sector "      << detid.triggerSector()
+		    << " ring "        << detid.ring()
+		    << " chamber "     << detid.chamber()
+		    << " (trig id. "   << detid.triggerCscId() << "):\n";
+	    strstrm << "  **** " << ndata << " valid data LCTs found:\n";
+	    for (pd = lctV_data.begin(); pd != lctV_data.end(); pd++) {
+	      strstrm << "     " << (*pd) << "\n";
+	    }
+	    strstrm << "  **** " << nemul << " valid emul LCTs found:\n";
+	    for (pe = lctV_emul.begin(); pe != lctV_emul.end(); pe++) {
+	      strstrm << "     " << (*pe) << "\n";
+	    }
+	    LogDebug("CSCTriggerPrimitivesReader") << strstrm.str();
+	  }
+
+	  // Skip stations 3 and 4 for now since ALCT patterns were not
+	  // mirrored.  To be removed for MTCC II.
+	  if (stat == 3 || stat == 4) continue;
+
+	  if (ndata != nemul) {
+	    LogDebug("CSCTriggerPrimitivesReader")
+	      << "    +++ Different numbers of LCTs found: data = " << ndata
+	      << " emulator = " << nemul << " +++";
+	  }
+
+	  for (pd = lctV_data.begin(); pd != lctV_data.end(); pd++) {
+	    if ((*pd).isValid() == 0) continue;
+	    int data_trknmb    = (*pd).getTrknmb();
+	    int data_quality   = (*pd).getQuality();
+	    int data_wiregroup = (*pd).getKeyWG();
+	    int data_keystrip  = (*pd).getStrip();
+	    int data_pattern   = (*pd).getCLCTPattern();
+	    int data_striptype = (*pd).getStripType();
+	    int data_bend      = (*pd).getBend();
+	    //int data_bx        = (*pd).getBX();
+
+	    // Temporary fix: shift wire group numbers in ME1/3, ME3/1,
+	    // and ME4/1 by 16.
+	    if ((stat == 1 && ring == 3) || (stat == 3 && ring == 1) ||
+		(stat == 4 && ring == 1)) {
+	      data_wiregroup -= 16;
+	    }
+
+	    for (pe = lctV_emul.begin(); pe != lctV_emul.end(); pe++) {
+	      if ((*pe).isValid() == 0) continue;
+	      int emul_trknmb    = (*pe).getTrknmb();
+	      int emul_quality   = (*pe).getQuality();
+	      int emul_wiregroup = (*pe).getKeyWG();
+	      int emul_keystrip  = (*pe).getStrip();
+	      int emul_pattern   = (*pe).getCLCTPattern();
+	      int emul_striptype = (*pe).getStripType();
+	      int emul_bend      = (*pe).getBend();
+	      //int emul_bx        = (*pe).getBX();
+	      if (data_trknmb == emul_trknmb) {
+		// Leave out bx time for now.
+		if (data_quality   == emul_quality &&
+		    data_wiregroup == emul_wiregroup &&
+		    data_keystrip  == emul_keystrip &&
+		    data_pattern   == emul_pattern &&
+		    data_striptype == emul_striptype &&
+		    data_bend      == emul_bend) {
+		  LogDebug("CSCTriggerPrimitivesReader")
+		    << "        Identical LCTs #" << data_trknmb;
+		}
+		else {
+		  LogDebug("CSCTriggerPrimitivesReader")
+		    << "        Different LCTs #" << data_trknmb;
 		}
 	      }
 	    }
