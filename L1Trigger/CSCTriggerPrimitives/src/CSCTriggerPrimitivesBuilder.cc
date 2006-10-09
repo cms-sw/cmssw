@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/06/23 14:55:45 $
-//   $Revision: 1.3 $
+//   $Date: 2006/06/27 14:38:48 $
+//   $Revision: 1.4 $
 //
 //   Modifications:
 //
@@ -140,8 +140,12 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 		theGeom->chamber(endc, stat, sect, subs, cham) != 0) {
 	      std::vector<CSCCorrelatedLCTDigi> lctV = tmb->run(wiredc,compdc);
 
-	      // No correlated LCTs found - nothing to save.
-	      if (lctV.empty()) continue;
+	      std::vector<CSCALCTDigi> alctV = tmb->alct->getALCTs();
+	      std::vector<CSCCLCTDigi> clctV = tmb->clct->getCLCTs();
+
+	      // Skip to next chamber if there are no LCTs to save.
+	      // (Checking on CLCTs is probably superfluous.)
+	      if (alctV.empty() && clctV.empty() && lctV.empty()) continue;
 
 	      // Calculate DetId.
 	      int ring =
@@ -153,13 +157,14 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 	      CSCDetId detid(endc, stat, ring, chid, 0);
 
 	      // Correlated LCTs.
-	      LogDebug("L1CSCTrigger")
-		<< "Put " << lctV.size() << " LCT digi"
-		<< ((lctV.size() > 1) ? "s " : " ") << "in collection \n";
-	      oc_lct.put(std::make_pair(lctV.begin(),lctV.end()), detid);
+	      if (!lctV.empty()) {
+		LogDebug("L1CSCTrigger")
+		  << "Put " << lctV.size() << " LCT digi"
+		  << ((lctV.size() > 1) ? "s " : " ") << "in collection \n";
+		oc_lct.put(std::make_pair(lctV.begin(),lctV.end()), detid);
+	      }
 
 	      // Anode LCTs.
-	      std::vector<CSCALCTDigi> alctV = tmb->alct->getALCTs();
 	      if (!alctV.empty()) {
 		LogDebug("L1CSCTrigger")
 		  << "Put " << alctV.size() << " ALCT digi"
@@ -168,7 +173,6 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 	      }
 
 	      // Cathode LCTs.
-	      std::vector<CSCCLCTDigi> clctV = tmb->clct->getCLCTs();
 	      if (!clctV.empty()) {
 		LogDebug("L1CSCTrigger")
 		  << "Put " << clctV.size() << " CLCT digi"
