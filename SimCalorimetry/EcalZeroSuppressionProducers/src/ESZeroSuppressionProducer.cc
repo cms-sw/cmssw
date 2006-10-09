@@ -16,9 +16,9 @@ ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps
   if (ESGain == 0)
     ESThreshold = 3.*1.45*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
   else if (ESGain == 1)
-    ESThreshold = 3.*0.8675*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
+    ESThreshold = 3.*0.9066*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
   else if (ESGain == 2)
-    ESThreshold = 3.*0.8528*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
+    ESThreshold = 3.*0.8815*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
 
   algo_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV);
 
