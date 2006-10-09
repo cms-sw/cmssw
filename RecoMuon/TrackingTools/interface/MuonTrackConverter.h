@@ -6,8 +6,8 @@
 *   Auxillary class to convert a reco::Track into a Trajectory
 *
 *
-*   $Date: 2006/08/29 16:45:39 $
-*   $Revision: 1.3 $
+*   $Date: 2006/09/01 15:47:04 $
+*   $Revision: 1.1 $
 *
 *   \author   N. Neumeister            Purdue University
 *   \author   A. Everett               Purdue University
@@ -58,6 +58,8 @@ class MuonTrackConverter {
     /// get container of transient muon rechits from a Track
     ConstMuonRecHitContainer getTransientMuonRecHits(const reco::Track&) const;
 
+    // get the refitter
+    const MuonTrackReFitter* refitter() const {return theRefitter;}
   private:
 
     /// print all RecHits of a trajectory
