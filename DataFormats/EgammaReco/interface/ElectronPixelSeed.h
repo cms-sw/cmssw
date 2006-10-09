@@ -1,4 +1,3 @@
-
 #ifndef ElectronPixelSeed_h
 #define ElectronPixelSeed_h 1
 
