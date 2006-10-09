@@ -7,37 +7,26 @@
 
 //#define LOCAL_DEBUG
 
-MuonDDDConstants::MuonDDDConstants(){
-  theMuonNamespace = "muonNumbering";
+MuonDDDConstants::MuonDDDConstants(){ }
+
+int MuonDDDConstants::getValue( const std::string& name ) const {
+  if ( namesAndValues_.size() == 0 ) {
+    std::cout << "MuonDDDConstants::getValue HAS NO VALUES!" << std::endl;
+    throw;
+  }
+
+  std::cout << "about to look for ... " << name << std::endl;
+  std::map<std::string, int>::const_iterator findIt = namesAndValues_.find(name);
+
+  if ( findIt == namesAndValues_.end() ) {
+    std::cout << "MuonDDDConstants::getValue was asked for " << name << " and had NO clue!" << std::endl;
+    throw;
+  }
+
+  return findIt->second;
 }
 
-int MuonDDDConstants::getValue(const std::string constantName) {
-  ExprEvalInterface & evaluator = ExprEval::instance();
-#ifdef LOCAL_DEBUG
-  std::cout << "MuonDDDConstants::GetValue "<<theMuonNamespace
-       << " "<<constantName<<" "<<std::endl;
-#endif
-  double result=evaluator.eval(theMuonNamespace,constantName);
-#ifdef LOCAL_DEBUG
-  std::cout << "MuonDDDConstants::GetValue "<<constantName<<" "<<
-    result<<std::endl;
-#endif
-  return int(result);
+void MuonDDDConstants::addValue(const std::string& name, const int& value) {
+  namesAndValues_[name] = value;
 }
 
-// string defns = "muon-numbering"; // default namespace
-// string expr1 = "[levelTag]";
-// string expr2 = "[arnos-constants:levelTag]"
-// double result = evaluator.eval(defns,expr1); // sollte 1000 geben
-// std::cout << result << std::endl;
-// result = evaluator.eval(defns,expr2); // ebenso 1000
-// std::cout << result << std::endl;
-// 
-// // sichere variante
-// try {
-//   result = evaluator.eval(defns,expr1);
-// }
-// catch(const DDException & e) // it's a DDException!
-// {
-//   std::cerr << "ups!" << std::endl << e << std::endl;
-// }
