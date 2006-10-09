@@ -34,36 +34,37 @@ HcalDataFrameFilter::HcalDataFrameFilter(bool requireCapid, bool requireDVER, bo
   firstSample_(firstSample), lastSample_(lastSample), minimumAmplitude_(minAmpl) {
 }
 
-HBHEDigiCollection HcalDataFrameFilter::filter(const HBHEDigiCollection& incol) {
+HBHEDigiCollection HcalDataFrameFilter::filter(const HBHEDigiCollection& incol, HcalUnpackerReport& r) {
   HBHEDigiCollection output;
   for (HBHEDigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
-    if (HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_) &&
-	(!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_)))
+    if (!HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_)) 
+      r.countBadQualityDigi();
+    else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_))
       output.push_back(*i);
-    
   }
   return output;
 }
 
 
-HODigiCollection HcalDataFrameFilter::filter(const HODigiCollection& incol) {
+HODigiCollection HcalDataFrameFilter::filter(const HODigiCollection& incol, HcalUnpackerReport& r) {
   HODigiCollection output;
   for (HODigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
-    if (HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_) &&
-	(!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_)))
+    if (!HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_))
+      r.countBadQualityDigi();
+    else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_))
       output.push_back(*i);
     
   }
   return output;
 }
 
-HFDigiCollection HcalDataFrameFilter::filter(const HFDigiCollection& incol) {
+HFDigiCollection HcalDataFrameFilter::filter(const HFDigiCollection& incol, HcalUnpackerReport& r) {
   HFDigiCollection output;
   for (HFDigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
-    if (HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_) &&
-	(!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_)))
-      output.push_back(*i);
-    
+    if (!HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_))
+      r.countBadQualityDigi();
+    else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_))
+      output.push_back(*i);    
   }
   return output;
 }

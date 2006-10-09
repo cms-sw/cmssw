@@ -20,14 +20,12 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first)),
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
   unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
-  complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false)),
-  exceptionEmptyData_(conf.getUntrackedParameter<bool>("ExceptionEmptyData",false))
+  complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false))
 {
   if (fedUnpackList_.empty()) {
-    unpackingAll_=true;
     for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
       fedUnpackList_.push_back(i);
-  } else unpackingAll_=(fedUnpackList_.size()==(unsigned int)(FEDNumbering::getHcalFEDIds().second-FEDNumbering::getHcalFEDIds().first+1));
+  } 
   
   std::ostringstream ss;
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
@@ -39,6 +37,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   produces<HFDigiCollection>();
   produces<HODigiCollection>();
   produces<HcalTrigPrimDigiCollection>();
+  produces<HcalUnpackerReport>();
   if (unpackCalib_)
     produces<HcalCalibDigiCollection>();
   if (unpackZDC_)
@@ -67,6 +66,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::vector<HcalTriggerPrimitiveDigi> htp;
   std::vector<HcalCalibDataFrame> hc;
   std::vector<ZDCDataFrame> zdc;
+  std::auto_ptr<HcalUnpackerReport> report(new HcalUnpackerReport);
 
   HcalUnpacker::Collections colls;
   colls.hbheCont=&hbhe;
@@ -80,14 +80,25 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
     if (fed.size()==0) {
-      if (exceptionEmptyData_) {
-	  throw cms::Exception("EmptyData") << "No data for FED " << *i;
-      } 
-      if (complainEmptyData_)
+      if (complainEmptyData_) {
 	edm::LogWarning("EmptyData") << "No data for FED " << *i;
+	report->addError(*i);
+      }
     } else if (fed.size()<8*3) {
-	throw cms::Exception("EmptyData") << "Tiny data " << fed.size() << " for FED " << *i;
-    } else unpacker_.unpack(fed,*readoutMap,colls);
+      edm::LogWarning("EmptyData") << "Tiny data " << fed.size() << " for FED " << *i;
+      report->addError(*i);
+    } else {
+      try {
+	unpacker_.unpack(fed,*readoutMap,colls, *report);
+	report->addUnpacked(*i);
+      } catch (cms::Exception& e) {
+	edm::LogWarning("Unpacking error") << e.what();
+	report->addError(*i);
+      } catch (...) {
+	edm::LogWarning("Unpacking exception");
+	report->addError(*i);
+      }
+    }
   }
 
   // Step B: encapsulate vectors in actual collections
@@ -103,9 +114,9 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 
   // Step C2: filter FEDs, if required
   if (filter_.active()) {
-    HBHEDigiCollection filtered_hbhe=filter_.filter(*hbhe_prod);
-    HODigiCollection filtered_ho=filter_.filter(*ho_prod);
-    HFDigiCollection filtered_hf=filter_.filter(*hf_prod);
+    HBHEDigiCollection filtered_hbhe=filter_.filter(*hbhe_prod,*report);
+    HODigiCollection filtered_ho=filter_.filter(*ho_prod,*report);
+    HFDigiCollection filtered_hf=filter_.filter(*hf_prod,*report);
     
     hbhe_prod->swap(filtered_hbhe);
     ho_prod->swap(filtered_ho);
@@ -140,7 +151,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     prod->sort();
     e.put(prod);
   }
-
+  e.put(report);
 }
 
 

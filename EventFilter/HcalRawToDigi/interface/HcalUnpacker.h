@@ -9,6 +9,7 @@
 #include "DataFormats/HcalDigi/interface/HcalCalibDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalHistogramDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include <set>
@@ -31,7 +32,7 @@ public:
   /// For histograms, no begin and end
   HcalUnpacker(int sourceIdOffset) : sourceIdOffset_(sourceIdOffset), startSample_(-1), endSample_(-1) { }
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis);
-  void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts);
+  void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report);
   // Old -- deprecated
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HBHEDataFrame>& precision, std::vector<HcalTriggerPrimitiveDigi>& tp);
   // Old -- deprecated

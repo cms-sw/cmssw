@@ -2,6 +2,7 @@
 #define HCALDATAFRAMEFILTER_H 1
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 
 /** \class HcalDataFrameFilter
     
@@ -12,19 +13,19 @@
     As these are applied in units proportional to energy, rather than
     transverse energy, and no calibration is applied, care should be used.
    
-   $Date: 2005/07/26 15:10:51 $
-   $Revision: 1.1 $
+   $Date: 2005/10/04 20:37:50 $
+   $Revision: 1.2 $
    \author J. Mans - Minnesota
 */
 class HcalDataFrameFilter {
 public:
   HcalDataFrameFilter(bool requireCapid, bool requireDVER, bool energyFilter, int firstSample=-1, int lastSample=-1, double minAmpl=-1);
   /// filter HB/HE data frames
-  HBHEDigiCollection filter(const HBHEDigiCollection& incol);
+  HBHEDigiCollection filter(const HBHEDigiCollection& incol, HcalUnpackerReport& r);
   /// filter HF data frames
-  HFDigiCollection filter(const HFDigiCollection& incol);
+  HFDigiCollection filter(const HFDigiCollection& incol, HcalUnpackerReport& r);
   /// filter HO data frames
-  HODigiCollection filter(const HODigiCollection& incol);
+  HODigiCollection filter(const HODigiCollection& incol, HcalUnpackerReport& r);
   /// whether any filters are on
   bool active() const;
 private:

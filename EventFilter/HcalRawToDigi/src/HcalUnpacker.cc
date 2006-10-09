@@ -31,7 +31,7 @@ namespace HcalUnpacker_impl {
 
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
-			  Collections& colls) {
+			  Collections& colls, HcalUnpackerReport& report) {
 
   if (raw.size()<16) {
     edm::LogWarning("Invalid Data") << "Empty/invalid DCC data, size = " << raw.size();
@@ -56,6 +56,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
     // check
     if (!htr.check()) {
       edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
+      report.countSpigotFormatError();
       continue;
     }
     if (htr.isHistogramEvent()) {
@@ -93,6 +94,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	eid.setHTR(htr_cr,htr_slot,htr_tb);
 	DetId did=emap.lookupTrigger(eid);
 	if (did.null()) {
+	  report.countUnmappedTPDigi();
 	  if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
 	    edm::LogWarning("HCAL") << "HcalUnpacker: No trigger primitive match found for electronics id :" << eid;
 	    unknownIdsTrig_.insert(eid);
@@ -177,6 +179,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	  break;
 	}
       } else {
+	report.countUnmappedDigi();
 	if (unknownIds_.find(eid)==unknownIds_.end()) {
 	  edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
 	  unknownIds_.insert(eid);
@@ -202,21 +205,24 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
   Collections c;
   c.hbheCont=&container;
   c.tpCont=&tp;
-  unpack(raw,emap,c);
+  HcalUnpackerReport r;
+  unpack(raw,emap,c,r);
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HODataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
   Collections c;
   c.hoCont=&container;
   c.tpCont=&tp;
-  unpack(raw,emap,c);
+  HcalUnpackerReport r;
+  unpack(raw,emap,c,r);
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HFDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
   Collections c;
   c.hfCont=&container;
   c.tpCont=&tp;
-  unpack(raw,emap,c);
+  HcalUnpackerReport r;
+  unpack(raw,emap,c,r);
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis) {
