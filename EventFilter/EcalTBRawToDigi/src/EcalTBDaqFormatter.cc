@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/09/22 14:58:11 $
- *  $Revision: 1.29 $
+ *  $Date: 2006/10/05 10:56:42 $
+ *  $Revision: 1.30 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -288,7 +288,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	  if (xtalDataBlocks.size() != kChannelsPerTower)
 	    {     
 	      LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
-					    << "wrong dccBlock size is: "  << xtalDataBlocks.size() 
+					    << "wrong tower block size is: "  << xtalDataBlocks.size() 
 					    << " in event " << (*itEventBlock)->getDataField("LV1")
 					    << " for TT " << _ExpectedTowers[_expTowersIndex];
 	      // report on wrong tt block size
