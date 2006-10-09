@@ -19,7 +19,7 @@ namespace {
 
   /* cope with new RFIO TURL stile
    * try to correct most obvious mispelling (//////) 
-   * try to cope with /castor syntax too
+   * try to cope with /dpm and /castor syntax too
    */
   std::string normalizeURL(const std::string &path) {
     std::string ret;
@@ -27,9 +27,14 @@ namespace {
     size_t p = path.find("?");
     if (p==std::string::npos) {
       // old syntax
-      p=0;
+      p=0;       
+      // special treatment for /dpm: use old syntax
+      size_t c = path.find("/dpm/");
+      if (c!=std::string::npos) {
+	p = c;
+      }
       // special treatment for /castor
-      size_t c = path.find("/castor/");
+      c = path.find("/castor/");
       if (c!=std::string::npos) {
 	p = c;
 	ret = "rfio:///?path=";
