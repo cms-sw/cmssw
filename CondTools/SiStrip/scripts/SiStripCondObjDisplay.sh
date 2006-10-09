@@ -4,7 +4,7 @@ function usage(){
     echo -e "\n[usage] SiStripCondObjDisplay.sh [options]"
     echo -e " -help  this message"
     echo -e " -run=<runNb>"
-    echo -e " -CondDb=<sqlite>, <devdb10>, <orcon> (default is sqlite)"
+    echo -e " -CondDb=<sqlite>, <devdb10>, <orcon>, <orcoff> (default is sqlite)"
     echo -e " -sqliteDb=<dbfile> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db)"
     echo -e " -sqliteCatalog=<dbcatalog> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db )"
     exit
@@ -48,6 +48,9 @@ elif [ "$CondDb" == "devdb10" ];  then
 elif [ "$CondDb" == "orcon" ]; then
     DBfile="oracle://orcon/CMS_COND_STRIP"
     DBcatalog="relationalcatalog_oracle://orcon/CMS_COND_GENERAL"
+elif [ "$CondDb" == "orcoff" ]; then
+    DBfile="oracle://cms_orcoff_int2r/CMS_COND_STRIP"
+    DBcatalog="relationalcatalog_oracle://cms_orcoff_int2r/CMS_COND_GENERAL"
 else
     echo -e "\nERROR: Wrong options"
     usage
