@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2006/06/20 10:57:41 $
-//   $Revision: 1.4 $
+//   $Date: 2006/06/27 14:34:32 $
+//   $Revision: 1.5 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -256,12 +256,6 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
 	else if (sumQual == 6) {quality = 15;}
       }
     }
-#ifdef TB
-    // Firmware bug.  For 2003 and 2004 test beam, this was true for
-    // non-accelerator muons only.
-    if (isDistrip && (aLCT.getQuality() == 0 || (cLCT.getQuality() <= 3)))
-      quality = 0;
-#endif
   }
   return quality;
 }
