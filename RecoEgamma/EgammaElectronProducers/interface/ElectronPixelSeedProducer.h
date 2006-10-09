@@ -32,6 +32,8 @@ class ElectronPixelSeedProducer : public edm::EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
  private:
+  std::string label_[2];
+  std::string instanceName_[2];
   const edm::ParameterSet conf_;
   ElectronPixelSeedGenerator *matcher_;
  
