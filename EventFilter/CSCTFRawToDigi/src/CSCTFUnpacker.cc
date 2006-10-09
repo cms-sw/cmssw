@@ -97,8 +97,10 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   std::auto_ptr<L1CSCTrackCollection> trackProduct(new L1CSCTrackCollection);
   //std::auto_ptr<CSCTFL1TrackCollection> trackProduct(new CSCRPCDigiCollection);
 
-  for(int fedid = FEDNumbering::getCSCFEDIds().first;
-      fedid <= ((testBeam) ? (FEDNumbering::getCSCFEDIds().first) : FEDNumbering::getCSCFEDIds().second);
+//  for(int fedid = FEDNumbering::getCSCFEDIds().first;
+//      fedid <= ((testBeam) ? (FEDNumbering::getCSCFEDIds().first) : FEDNumbering::getCSCFEDIds().second);
+  for(int fedid = FEDNumbering::getCSCTFFEDIds().first;
+      fedid <= ((testBeam) ? (FEDNumbering::getCSCTFFEDIds().first) : FEDNumbering::getCSCTFFEDIds().second);
       ++fedid)
     {
 
