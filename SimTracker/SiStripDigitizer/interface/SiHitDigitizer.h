@@ -51,6 +51,9 @@ class SiHitDigitizer{
   double appliedVoltage;
   double chargeMobility;
   double temperature;
+  double rhall;
+  double holeBeta;
+  double holeSaturationVelocity;
   bool noDiffusion;
   double chargeDistributionRMS;
   double gevperelectron;
