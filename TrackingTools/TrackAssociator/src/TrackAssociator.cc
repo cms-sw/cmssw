@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.11 2006/09/15 18:28:37 jribnik Exp $
+// $Id: TrackAssociator.cc,v 1.12 2006/09/30 05:12:28 dmytro Exp $
 //
 //
 
@@ -285,7 +285,12 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
    ecalPoints.push_back(GlobalPoint(150.,0,335.));
    
    std::vector<GlobalPoint> ecalTrajectory = ecalDetIdAssociator_.getTrajectory(trajectoryPoint, ecalPoints);
-   if(ecalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate a track to ECAL\n";
+   if(ecalTrajectory.empty()) {
+      LogTrace("TrackAssociator::fillEcal") << "Failed to propagate a track to ECAL; moving on\n";
+      info.isGoodEcal = 0;
+      return;
+   }
+   info.isGoodEcal = 1;
    info.trkGlobPosAtEcal = getPoint(ecalTrajectory[0]);
 
    // Find ECAL crystals
@@ -362,7 +367,12 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
    
    // get trajectory assuming simple geometry between barrel and endcap regions.
    std::vector<GlobalPoint> hcalTrajectory = caloDetIdAssociator_.getTrajectory(trajectoryPoint, hcalPoints, -1.);
-   if(hcalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate the track to HCAL\n";
+   if(hcalTrajectory.empty()) {
+      LogTrace("TrackAssociator::fillCaloTowers") << "Failed to propagate the track to HCAL; moving on\n";
+      info.isGoodHcal = 0;
+      return;
+   }
+   info.isGoodHcal = 1;
    info.trkGlobPosAtHcal = getPoint(hcalTrajectory[0]);
    
    // find crossed CaloTowers
@@ -475,9 +485,14 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
             << "\teta hit: " << dtSeg.eta() << " \tpropagator: " << tSOSDest.freeState()->position().eta() << "\n"
             << "\tphi hit: " << dtSeg.phi() << " \tpropagator: " << tSOSDest.freeState()->position().phi() << std::endl;
 
-         if (sqrt( pow(dtSeg.eta()-tSOSDest.freeState()->position().eta(),2) + 
-                  pow(dtSeg.phi()-tSOSDest.freeState()->position().phi(),2) ) < dR)
-         {
+         bool isGood = false;
+         if(recseg->chamberId().station()==4) {
+            isGood = fabs(dtSeg.phi()-tSOSDest.freeState()->position().phi()) < dR;
+            // Be in chamber
+            isGood &= fabs(dtSeg.eta()-tSOSDest.freeState()->position().eta()) < .3;
+         } else isGood = sqrt( pow(dtSeg.eta()-tSOSDest.freeState()->position().eta(),2) + pow(dtSeg.phi()-tSOSDest.freeState()->position().phi(),2)) < dR;
+
+         if(isGood) {
             MuonSegmentMatch muonSegment;
             muonSegment.segmentGlobalPosition = getPoint(dtSeg);
             muonSegment.segmentLocalPosition = getPoint( recseg->localPosition() );
@@ -488,6 +503,10 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
             muonSegment.segmentLocalErrorDxDz = recseg->localDirectionError().xx();
             muonSegment.segmentLocalErrorDyDz = recseg->localDirectionError().yy();
 
+            AlgebraicSymMatrix segmentCovMatrix = recseg->parametersError();
+            muonSegment.segmentLocalErrorXDxDz = segmentCovMatrix[2][0];
+            muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
+
             // muon.segmentPosition_.push_back(getPoint(dtSeg));
             muonSegment.trajectoryGlobalPosition = getPoint(tSOSDest.freeState()->position()) ;
             muonSegment.trajectoryLocalPosition = getPoint(surf.toLocal(tSOSDest.freeState()->position()));
@@ -495,17 +514,27 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
             // muon.trajectoryDirection_.push_back(getVector(tSOSDest.freeState()->momentum()));
             float errXX(-1.), errYY(-1.), errXY(-1.);
             float err_dXdZ(-1.), err_dYdZ(-1.);
+            float err_XdXdZ(-1.), err_YdYdZ(-1.);
             if (tSOSDest.freeState()->hasError()){
 	       LocalError err = tSOSDest.localError().positionError();
                errXX = err.xx();
                errXY = err.xy();
                errYY = err.yy();
+
+               AlgebraicSymMatrix trajectoryCovMatrix = tSOSDest.localError().matrix();
+               err_dXdZ = trajectoryCovMatrix[1][1];
+               err_dYdZ = trajectoryCovMatrix[2][2];
+               err_XdXdZ = trajectoryCovMatrix[3][1];
+               err_YdYdZ = trajectoryCovMatrix[4][2];
+
             }
             muonSegment.trajectoryLocalErrorXX = errXX;
             muonSegment.trajectoryLocalErrorXY = errXY;
             muonSegment.trajectoryLocalErrorYY = errYY;
             muonSegment.trajectoryLocalErrorDxDz = err_dXdZ;
             muonSegment.trajectoryLocalErrorDyDz = err_dYdZ;
+            muonSegment.trajectoryLocalErrorXDxDz = err_XdXdZ;
+            muonSegment.trajectoryLocalErrorYDyDz = err_YdYdZ;
             muonSegment.id = DetId((*detUnitIt).rawId());
             info.segments.push_back(muonSegment);
             // Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h
@@ -594,6 +623,10 @@ void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
             muonSegment.segmentLocalErrorDxDz = recseg->localDirectionError().xx();
             muonSegment.segmentLocalErrorDyDz = recseg->localDirectionError().yy();
 
+            AlgebraicSymMatrix segmentCovMatrix = recseg->parametersError();
+            muonSegment.segmentLocalErrorXDxDz = segmentCovMatrix[2][0];
+            muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
+
             // muon.segmentPosition_.push_back(getPoint(cscSeg));
             muonSegment.trajectoryGlobalPosition = getPoint(tSOSDest.freeState()->position()) ;
             muonSegment.trajectoryLocalPosition = getPoint(surf.toLocal(tSOSDest.freeState()->position()));
@@ -601,17 +634,27 @@ void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
             // muon.trajectoryDirection_.push_back(getVector(tSOSDest.freeState()->momentum()));
             float errXX(-1.), errYY(-1.), errXY(-1.);
             float err_dXdZ(-1.), err_dYdZ(-1.);
+            float err_XdXdZ(-1.), err_YdYdZ(-1.);
             if (tSOSDest.freeState()->hasError()){
                LocalError err = tSOSDest.localError().positionError();
                errXX = err.xx();
                errXY = err.xy();
                errYY = err.yy();
+
+               AlgebraicSymMatrix trajectoryCovMatrix = tSOSDest.localError().matrix();
+               err_dXdZ = trajectoryCovMatrix[1][1];
+               err_dYdZ = trajectoryCovMatrix[2][2];
+               err_XdXdZ = trajectoryCovMatrix[3][1];
+               err_YdYdZ = trajectoryCovMatrix[4][2];
+
             }
             muonSegment.trajectoryLocalErrorXX = errXX;
             muonSegment.trajectoryLocalErrorXY = errXY;
             muonSegment.trajectoryLocalErrorYY = errYY;
             muonSegment.trajectoryLocalErrorDxDz = err_dXdZ;
             muonSegment.trajectoryLocalErrorDyDz = err_dYdZ;
+            muonSegment.trajectoryLocalErrorXDxDz = err_XdXdZ;
+            muonSegment.trajectoryLocalErrorYDyDz = err_YdYdZ; 
             muonSegment.id = DetId((*detUnitIt).rawId());
             info.segments.push_back(muonSegment);
 
