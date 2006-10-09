@@ -97,7 +97,6 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   std::string stParameterSelector;
   std::string stAlignableSelector;
-  std::string stAlgorithm;
   int stNFixAlignables;
   double stRandomShift,stRandomRotation;
   bool doMisalignmentScenario,saveToDB;

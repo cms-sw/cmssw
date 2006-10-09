@@ -18,15 +18,14 @@
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+
+// Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "Alignment/TrackerAlignment/interface/MisalignmentScenarioBuilder.h"
-
-
-#include "Alignment/CSA06AlignmentAlgorithm/interface/CSA06AlignmentAlgorithm.h"
-
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
+
 
 using namespace std;
 
@@ -35,7 +34,6 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops",0) ),
   stParameterSelector(iConfig.getParameter<std::string>("parameterSelector") ),
   stAlignableSelector(iConfig.getParameter<std::string>("alignableSelector") ),
-  stAlgorithm(iConfig.getParameter<std::string>("algorithm")),
   stNFixAlignables(iConfig.getParameter<int>("nFixAlignables") ),
   stRandomShift(iConfig.getParameter<double>("randomShift")),
   stRandomRotation(iConfig.getParameter<double>("randomRotation")),
@@ -47,20 +45,17 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 
   theParameterSet=iConfig;
 
-  nevent=0;
-
   // Tell the framework what data is being produced
   setWhatProduced(this);
 
-  if (stAlgorithm=="CSA06AlignmentAlgorithm") {
-    // get cfg for alignment algorithm
-    edm::ParameterSet csa06Config 
-      = iConfig.getParameter<edm::ParameterSet>( "CSA06AlignmentAlgorithm" );
-    // create alignment algorithm
-    theAlignmentAlgo = new CSA06AlignmentAlgorithm(csa06Config);
-  }
-  else
-    throw cms::Exception("BadConfig") << "No valid alignment algorithm: " << stAlgorithm;
+  // Create the alignment algorithm
+  std::string algoName = iConfig.getParameter<std::string>("algoName");
+  edm::ParameterSet algoConfig = iConfig.getParameter<edm::ParameterSet>( "algoConfig" );
+  theAlignmentAlgo = AlignmentAlgorithmPluginFactory::getAlgorithm( algoName, algoConfig );
+
+  // Check if found
+  if ( !theAlignmentAlgo )
+	throw cms::Exception("BadConfig") << "Couldn't found algorithm called " << algoName;
 
 }
 
@@ -137,9 +132,10 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
     if (stParameterSelector.substr(5,1)=="1") 
       sel[RigidBodyAlignmentParameters::dgamma]=true;
 
-    for (unsigned int i=0; i<npar; i++) {
-      if (sel[i]==true) edm::LogWarning("Alignment") <<"[AlignmentProducer] Parameter "<< i <<" active.";
-    }
+    for ( unsigned int i=0; i<npar; i++ )
+      if ( sel[i] ) 
+		edm::LogWarning("Alignment") <<"[AlignmentProducer] Parameter "<< i <<" active.";
+   
   }
 
   // select alignables 
@@ -172,8 +168,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   edm::LogWarning("Alignment") <<"[AlignmentProducer] simple misalignment done!";
 
   // initialize alignment algorithm
-  theAlignmentAlgo->initialize( iSetup, theAlignableTracker,
-    theAlignmentParameterStore );
+  theAlignmentAlgo->initialize( iSetup, theAlignableTracker, theAlignmentParameterStore );
   edm::LogWarning("Alignment") <<"[AlignmentProducer] after call init algo...";
 
   // actually execute all misalignments
