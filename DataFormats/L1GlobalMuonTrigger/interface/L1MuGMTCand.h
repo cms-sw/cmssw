@@ -7,8 +7,8 @@
  *   This candidate contains only information sent to the GT.
 */
 //
-//   $Date: 2006/05/15 13:51:42 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/03 15:16:52 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin               HEPHY Vienna
@@ -30,8 +30,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -42,7 +40,7 @@
 //              ---------------------
 using namespace std;
 
-class L1MuGMTCand : L1TriggerObject {
+class L1MuGMTCand {
 
   public:
 
