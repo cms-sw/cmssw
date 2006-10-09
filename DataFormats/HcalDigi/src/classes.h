@@ -6,6 +6,7 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalHistogramDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
@@ -42,6 +43,7 @@ namespace {
     edm::Wrapper<HcalCalibDigiCollection> theHCw_;
     edm::Wrapper<HcalTrigPrimDigiCollection> theHTPw_; 
     edm::Wrapper<HcalHistogramDigiCollection> theHHw_; 
+    edm::Wrapper<HcalUnpackerReport> theReport_;
  }
 }
 

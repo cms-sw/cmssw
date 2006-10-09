@@ -8,6 +8,7 @@
    <class name="HcalTriggerPrimitiveDigi"/>
    <class name="HcalHistogramDigi"/>
    <class name="ZDCDataFrame"/>
+   <class name="HcalUnpackerReport"/>
    <class name="std::vector<HcalQIESample>"/>
    <class name="std::vector<HcalTriggerPrimitiveSample>"/>
    <class name="std::vector<HBHEDataFrame>"/>
@@ -31,4 +32,5 @@
    <class name="edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HcalHistogramDigi,edm::StrictWeakOrdering<HcalHistogramDigi> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<ZDCDataFrame,edm::StrictWeakOrdering<ZDCDataFrame> > >"/>
+   <class name="edm::Wrapper<HcalUnpackerReport>"/>
 </lcgdict>
