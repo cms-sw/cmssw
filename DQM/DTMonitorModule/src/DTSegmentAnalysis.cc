@@ -152,6 +152,9 @@ void DTSegmentAnalysis::bookHistos(DTChamberId chamberId) {
   histos.push_back(theDbe->book1D("h4DChi2"+chamberHistoName,
 				  "4D Segment reduced Chi2",
 				  30, 0, 30));
+  histos.push_back(theDbe->book2D("h4DSegmThetaVSYInCham"+chamberHistoName,
+				  "4D Segment  Theta(deg) VS Y (cm)",
+				  125, -125, 125, 60, -60, 60));
   histosPerCh[chamberId] = histos;
 }
 
@@ -188,6 +191,7 @@ void DTSegmentAnalysis::fillHistos(DTChamberId chamberId,
   histos[5]->Fill(phi);
   histos[6]->Fill(theta);
   histos[7]->Fill(chi2);
+  histos[8]->Fill(posY,theta);
 }
 
 
