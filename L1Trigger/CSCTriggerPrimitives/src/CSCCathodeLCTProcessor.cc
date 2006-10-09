@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/09/22 09:19:11 $
-//   $Revision: 1.7 $
+//   $Date: 2006/09/27 10:17:22 $
+//   $Revision: 1.8 $
 //
 //   Modifications: 
 //
@@ -47,19 +47,19 @@
 // This is the strip pattern that we use for pretrigger.
 // pre_hit_pattern[0][i] = layer. pre_hit_pattern[1][i] = key_strip offset.
 const int CSCCathodeLCTProcessor::pre_hit_pattern[2][NUM_PATTERN_STRIPS] = {
-  { 999,  999,  0,  0,  0,  999,  999,
-    999,  999,  1,  1,  1,  999,  999,
-    999,  999,  2,  2,  2,  999,  999,
-                    3,                      // layer
-    999,  999,  4,  4,  4,  999,  999,
-    999,  999,  5,  5,  5,  999,  999},
-  //-------------------------------------------------
-  { 999,  999, -1,  0,  1,  999,  999,
-    999,  999, -1,  0,  1,  999,  999,
-    999,  999, -1,  0,  1,  999,  999,
-                    0,                      // offset
-    999,  999, -1,  0,  1,  999,  999,
-    999,  999, -1,  0,  1,  999,  999}
+  { 999,  0,  0,  0,  999,
+    999,  1,  1,  1,  999,
+    999,  2,  2,  2,  999,
+              3,                // layer
+    999,  4,  4,  4,  999,
+    999,  5,  5,  5,  999},
+  //-------------------------------------------
+  { 999, -1,  0,  1,  999,
+    999, -1,  0,  1,  999,
+    999, -1,  0,  1,  999,
+              0,                // offset
+    999, -1,  0,  1,  999,
+    999, -1,  0,  1,  999}
 };
 
 // The standard set of patterns the CathodeLCTProcessor uses is defined below.
@@ -71,61 +71,61 @@ const int CSCCathodeLCTProcessor::pre_hit_pattern[2][NUM_PATTERN_STRIPS] = {
 // got the patterns you want is to use the printPatterns() method to dump
 // them. BHT 21 June 2001
 const int CSCCathodeLCTProcessor::pattern[CSCConstants::NUM_CLCT_PATTERNS][NUM_PATTERN_STRIPS+1] = {
-  {999, 999, 999, 999, 999, 999, 999,
-   999, 999, 999, 999, 999, 999, 999,
-   999, 999, 999, 999, 999, 999, 999,
-                  999,                 // dummy (reserved)
-   999, 999, 999, 999, 999, 999, 999,
-   999, 999, 999, 999, 999, 999, 999, 0},
+  { 999, 999, 999, 999, 999,
+    999, 999, 999, 999, 999,
+    999, 999, 999, 999, 999,
+              999,            // dummy (reserved)
+    999, 999, 999, 999, 999,
+    999, 999, 999, 999, 999, 0},
   //-------------------------------------------------------------
-  {999, 999, 999, 999,   0, 999, 999,
-   999, 999, 999, 999,   1, 999, 999,
-   999, 999, 999,   2,   2, 999, 999,
-                    3,                 // right bending pattern (large)
-   999, 999,   4,   4, 999, 999, 999,
-   999, 999,   5, 999, 999, 999, 999, 1},
+  { 999, 999, 999,   0, 999,
+    999, 999, 999,   1, 999,
+    999, 999,   2,   2, 999,
+                3,            // right bending pattern (large)
+    999,   4,   4, 999, 999,
+    999,   5, 999, 999, 999, 1},
   //-------------------------------------------------------------
-  {999, 999,   0, 999, 999, 999, 999,
-   999, 999,   1, 999, 999, 999, 999,
-   999, 999,   2,   2, 999, 999, 999,
-                    3,                 // left bending pattern (large)
-   999, 999, 999,   4,   4, 999, 999,
-   999, 999, 999, 999,   5, 999, 999, 0},
+  { 999,   0, 999, 999, 999,
+    999,   1, 999, 999, 999,
+    999,   2,   2, 999, 999,
+                3,            // left bending pattern (large)
+    999, 999,   4,   4, 999,
+    999, 999, 999,   5, 999, 0},
   //-------------------------------------------------------------
-  {999, 999, 999,   0, 999, 999, 999,
-   999, 999, 999,   1, 999, 999, 999,
-   999, 999, 999,   2, 999, 999, 999,
-                    3,                 // right bending pattern (medium)
-   999, 999,   4, 999, 999, 999, 999,
-   999, 999,   5, 999, 999, 999, 999, 1},
+  { 999, 999,   0, 999, 999,
+    999, 999,   1, 999, 999,
+    999, 999,   2, 999, 999,
+                3,            // right bending pattern (medium)
+    999,   4, 999, 999, 999,
+    999,   5, 999, 999, 999, 1},
   //-------------------------------------------------------------
-  {999, 999, 999,   0, 999, 999, 999,
-   999, 999, 999,   1, 999, 999, 999,
-   999, 999, 999,   2, 999, 999, 999,
-                    3,                 // left bending pattern (medium)
-   999, 999, 999, 999,   4, 999, 999,
-   999, 999, 999, 999,   5, 999, 999, 0},
+  { 999, 999,   0, 999, 999,
+    999, 999,   1, 999, 999,
+    999, 999,   2, 999, 999,
+                3,            // left bending pattern (medium)
+    999, 999, 999,   4, 999,
+    999, 999, 999,   5, 999, 0},
   //-------------------------------------------------------------
-  {999, 999, 999, 999,   0, 999, 999,
-   999, 999, 999, 999,   1, 999, 999,
-   999, 999, 999,   2,   2, 999, 999,
-                    3,                 // right bending pattern (small)
-   999, 999, 999,   4, 999, 999, 999,
-   999, 999, 999,   5, 999, 999, 999, 1},
+  { 999, 999, 999,   0, 999,
+    999, 999, 999,   1, 999,
+    999, 999,   2,   2, 999,
+                3,            // right bending pattern (small)
+    999, 999,   4, 999, 999,
+    999, 999,   5, 999, 999, 1},
   //-------------------------------------------------------------
-  {999, 999,   0, 999, 999, 999, 999,
-   999, 999,   1, 999, 999, 999, 999,
-   999, 999,   2,   2, 999, 999, 999,
-                    3,                 // left bending pattern (small)
-   999, 999, 999,   4, 999, 999, 999,
-   999, 999, 999,   5, 999, 999, 999, 0},
+  { 999,   0, 999, 999, 999,
+    999,   1, 999, 999, 999,
+    999,   2,   2, 999, 999,
+                3,            // left bending pattern (small)
+    999, 999,   4, 999, 999,
+    999, 999,   5, 999, 999, 0},
   //-------------------------------------------------------------
-  {999, 999, 999,   0, 999, 999, 999,
-   999, 999, 999,   1, 999, 999, 999,
-   999, 999, 999,   2, 999, 999, 999,
-                    3,                 // straight through pattern
-   999, 999, 999,   4, 999, 999, 999,
-   999, 999, 999,   5, 999, 999, 999, 1}
+  { 999, 999,   0, 999, 999,
+    999, 999,   1, 999, 999,
+    999, 999,   2, 999, 999,
+                3,            // straight through pattern
+    999, 999,   4, 999, 999,
+    999, 999,   5, 999, 999, 1}
 };
 
 // Number of di-strips/half-strips per CFEB.
@@ -473,11 +473,14 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
 
   if (LCTlist.size() > 0) bestCLCT   = LCTlist[0]; // take the best two 
   if (LCTlist.size() > 1) secondCLCT = LCTlist[1]; // candidates
+#ifndef TB
+  // Irrelevant for test beam implementation.
   if (bestCLCT == secondCLCT) { // if the second one is the same as the first
     secondCLCT.clear();         // (i.e. found the same track both half and
     if (LCTlist.size() > 2) secondCLCT = LCTlist[2]; // distrip), take the 
                                                      // next one.
   }
+#endif
 
   // Get the list of RecDigis included in each CLCT. Also look for their
   // closest SimHits.
@@ -797,7 +800,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
 	      hit_layer[this_layer] = true;
 	      layers_hit++;
 
-	      // Look if number of layers hit is greater than some
+	      // Look if number of layers hit is greater or equal than some
 	      // pre-defined threshold.
 	      if (layers_hit >= pre_trigger_layer_min) {
 		first_bx = bx_time;
@@ -966,17 +969,21 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
   unsigned long int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]; // simulate digital one-shot
   bool pre_trig[2] = {false, false};
 
+  // All half-strip and di-strip pattern envelopes are evaluated
+  // simultaneously, on every clock cycle.
   pre_trig[0] =
     preTrigger(halfstrip, h_pulse, 1, CSCConstants::NUM_HALF_STRIPS, _bx[0]);
   pre_trig[1] =
     preTrigger(  distrip, d_pulse, 0,   CSCConstants::NUM_DI_STRIPS, _bx[1]);
 
+  // If any of 200 half-strip and di-strip envelopes has enough layers hit in
+  // it, TMB will pre-trigger.
   if (pre_trig[0] || pre_trig[1]) {
     first_bx = (_bx[0] < _bx[1]) ? _bx[0] : _bx[1];
     if (infoV > 1) {
       LogDebug("CSCCathodeLCTProcessor")
-	<< "half bx " << _bx[0] << " di bx" << _bx[1] << " first " << first_bx
-	<< "\n .... waiting drift delay ..... ";
+	<< "half bx " << _bx[0] << " di bx " << _bx[1] << " first " << first_bx
+	<< "\n ..... waiting drift delay ..... ";
     }
     // TMB latches LCTs drift_delay clocks after pretrigger.
     int latch_bx = first_bx + drift_delay;
@@ -987,7 +994,7 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
 
     if (infoV > 1) {
       LogDebug("CSCCathodeLCTProcessor")
-	<< " ................................ \n"
+	<< "...............................\n"
 	<< "Final halfstrip hits and keys (after drift delay) ...";
       for (int icfeb = 0; icfeb < MAX_CFEBS; icfeb++) {
 	LogDebug("CSCCathodeLCTProcessor")
@@ -1006,10 +1013,9 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
     getKeyStripData(h_pulse, d_pulse, keystrip_data, first_bx);
 
     for (int ilct = 0; ilct < 2; ilct++) {
-      if (infoV > 1)
-	LogDebug("CSCCathodeLCTProcessor")
-	  << "found lcts: ilct " << ilct
-	  << "  data " << keystrip_data[ilct][CLCT_STRIP];
+      if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
+	<< "found lcts: ilct " << ilct
+	<< "  key strip " << keystrip_data[ilct][CLCT_STRIP];
       if (keystrip_data[ilct][CLCT_STRIP] != -1) {
 	int halfstrip_in_cfeb = 0;
 	if (keystrip_data[ilct][CLCT_STRIP_TYPE] == 0)
@@ -1089,7 +1095,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
   } // end loop over bx times
 
   if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
-    << "no pretrigger, returning \n \n";
+    << "no pretrigger for strip type " << stripType << ", returning \n";
   return false;
 } // preTrigger -- test beam version
 
@@ -1123,8 +1129,8 @@ bool CSCCathodeLCTProcessor::preTrigLookUp(
       for (int pstrip = 0; pstrip < NUM_PATTERN_STRIPS; pstrip++) {
 	this_layer = pre_hit_pattern[0][pstrip];
 	this_strip = pre_hit_pattern[1][pstrip]+key_strip;
-	if (this_strip >= 0 && this_strip < nStrips) {
 
+	if (this_strip >= 0 && this_strip < nStrips) {
 	  // Determine if "one shot" is high at this bx_time
 	  if (((pulse[this_layer][this_strip] >> bx_time) & 1) == 1) {
 	    if (hit_layer[this_layer] == false) {
@@ -1155,8 +1161,9 @@ void CSCCathodeLCTProcessor::latchLCTs(
 	   int keyStrip[MAX_CFEBS], int nhits[MAX_CFEBS],
 	   const int stripType, const int nStrips, const int bx_time) {
 
+  bool hit_layer[CSCConstants::NUM_LAYERS];
   int key_strip, this_layer, this_strip;
-  int hits, prev_hits;
+  int layers_hit, prev_hits;
 
   if (stripType != 0 && stripType != 1) {
     throw cms::Exception("CSCCathodeLCTProcessor")
@@ -1172,7 +1179,9 @@ void CSCCathodeLCTProcessor::latchLCTs(
     for (int istrip = 0; istrip < cfeb_strips[stripType]; istrip++) {
       // Calculate candidate key.
       key_strip = icfeb*cfeb_strips[stripType] + istrip;
-      hits = 0;
+      layers_hit = 0;
+      for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++)
+	hit_layer[ilayer] = false;
 
       // Loop over strips in pretrigger pattern mask and look for hits.
       for (int pstrip = 0; pstrip < NUM_PATTERN_STRIPS; pstrip++) {
@@ -1182,22 +1191,25 @@ void CSCCathodeLCTProcessor::latchLCTs(
 	if (this_strip >= 0 && this_strip < nStrips) {
 	  // Determine if "one shot" is high at this bx_time
 	  if (((pulse[this_layer][this_strip] >> bx_time) & 1) == 1) {
-	    hits++; // total hits in pattern
+	    if (hit_layer[this_layer] == false) {
+	      hit_layer[this_layer] = true;
+	      layers_hit++;                  // number of layers hit
+	    }
 	  }
 	}
       } // end loop over strips in pretrigger pattern
       if (infoV > 1) {
-	if (hits > 3)
-	  LogDebug("CSCCathodeLCTProcessor")
-	    << "key_strip: " << key_strip << "  nhits: " << hits;
+	if (layers_hit > 0) LogDebug("CSCCathodeLCTProcessor")
+	  << "cfeb: " << icfeb << "  key_strip: " << key_strip
+	  << "  nhits: " << layers_hit;
       }
       // If two or more keys have an equal number of hits, the lower number
       // key is taken.  Hence, replace the previous key only if this key has
       // more hits.
-      if (hits > prev_hits) {
-	prev_hits = hits;
+      if (layers_hit > prev_hits) {
+	prev_hits = layers_hit;
 	keyStrip[icfeb] = key_strip;  // key with highest hits is LCT key strip
-	nhits[icfeb] = hits;          // corresponding hits in envelope
+	nhits[icfeb] = layers_hit;    // corresponding hits in envelope
       }
     }  // end loop over candidate key strips in cfeb
   }  // end loop over cfebs
@@ -1209,8 +1221,6 @@ void CSCCathodeLCTProcessor::priorityEncode(
 	const int d_keyStrip[MAX_CFEBS], const int d_nhits[MAX_CFEBS],
 	int keystrip_data[2][7]) {
 
-  //const int ptrig_thrsh[2] = {4, 4}; //distrip,halfstrip pattern threshold
-  const int ptrig_thrsh[2] = {3, 3}; //distrip,halfstrip pattern threshold
   int ihits[2]; // hold hits for sorting
   int cfebs[2]; // holds CFEB numbers corresponding to highest hits
   const int nlcts = 2;
@@ -1220,7 +1230,7 @@ void CSCCathodeLCTProcessor::priorityEncode(
   for (int ilct = 0; ilct < nlcts; ilct++) {
     for (int j = 0; j < 7; j++) keystrip_data[ilct][j] = -1;
     ihits[ilct] = 0;
-    cfebs[ilct] = 0;
+    cfebs[ilct] = -1;
   }
   for (int icfeb = 0; icfeb < MAX_CFEBS; icfeb++) {
     key_strip[icfeb]  = -1;
@@ -1247,12 +1257,12 @@ void CSCCathodeLCTProcessor::priorityEncode(
   // If select halfstrip, promote it by adding an extra bit to its hits.
   for (int icfeb = 0; icfeb < MAX_CFEBS; icfeb++) {
     if (h_keyStrip[icfeb] != -1 && d_keyStrip[icfeb] != -1) {
-      if (h_nhits[icfeb] >= ptrig_thrsh[1]) {
+      if (h_nhits[icfeb] >= hs_thresh) {
 	key_strip[icfeb] = h_keyStrip[icfeb];
 	key_phits[icfeb] = h_nhits[icfeb] + 8; // halfstrip promotion
 	strip_type[icfeb]= 1;
       }
-      // else if (d_nhits[icfeb] >= ptrig_thrsh[0]) { ????
+      // else if (d_nhits[icfeb] >= ds_thresh) { // ????
       else {
 	key_strip[icfeb] = d_keyStrip[icfeb];
 	key_phits[icfeb] = d_nhits[icfeb];
@@ -1260,14 +1270,14 @@ void CSCCathodeLCTProcessor::priorityEncode(
       }
     }
     else if (h_keyStrip[icfeb] != -1) {
-      if (h_nhits[icfeb] >= ptrig_thrsh[1]) {
+      if (h_nhits[icfeb] >= hs_thresh) {
 	key_strip[icfeb] = h_keyStrip[icfeb];
 	key_phits[icfeb] = h_nhits[icfeb] + 8; // halfstrip promotion
 	strip_type[icfeb]= 1;
       }
     }
     else if (d_keyStrip[icfeb] != -1) {
-      //      if (d_nhits[icfeb] >= ptrig_thrsh[0]) { ????
+      // if (d_nhits[icfeb] >= ds_thresh) { // ????
 	key_strip[icfeb] = d_keyStrip[icfeb];
 	key_phits[icfeb] = d_nhits[icfeb];
 	strip_type[icfeb]= 0;
@@ -1292,6 +1302,8 @@ void CSCCathodeLCTProcessor::priorityEncode(
   int key[MAX_CFEBS];
   int loedge, hiedge;
 
+  if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
+    << "...... Remove Duplicates ......";
   for (int icfeb = 0; icfeb < MAX_CFEBS; icfeb++) {
     if(strip_type[icfeb] == 0) key[icfeb] = key_strip[icfeb]*4;
     else                       key[icfeb] = key_strip[icfeb];
@@ -1302,7 +1314,6 @@ void CSCCathodeLCTProcessor::priorityEncode(
       hiedge = cfeb_strips[1]*(icfeb*8+9)/8 - 1;
       if (infoV > 1) {
 	LogDebug("CSCCathodeLCTProcessor")
-	  << "..... Remove Duplicates ...... \n"
 	  << "  key 1: " << key[icfeb] << "  key 2: " << key[icfeb+1]
 	  << "  low edge:  " << loedge << "  high edge: " << hiedge;
       }
@@ -1328,7 +1339,10 @@ void CSCCathodeLCTProcessor::priorityEncode(
     }
   }
 
-  // now loop over CFEBs and pick best two lcts based on no. hits in envelope
+  // Now loop over CFEBs and pick best two lcts based on no. hits in envelope.
+  // In case of equal quality, select the one on lower-numbered CFEBs.
+  if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
+    << "\n...... Select best LCTs  ......";
   for (int icfeb = 0; icfeb < MAX_CFEBS; icfeb++) {
     if (key_phits[icfeb] > ihits[0]) {
       ihits[1] = ihits[0];
@@ -1341,12 +1355,11 @@ void CSCCathodeLCTProcessor::priorityEncode(
 	  strstrm << std::setw(4) << strip_type[icfeb];
 	}
 	LogDebug("CSCCathodeLCTProcessor")
-	  << "cfebs " << cfebs[0] << " " << cfebs[1] << "\n"
-	  << "strip_type" << strstrm.str() << " " << "\n"
-	  << "top: ihits " << ihits[0] << " cfeb " << cfebs[0]
-	  <<" strip_type " << strip_type[cfebs[0]] << "\n"
-	  << "nxt: ihits " << ihits[1] << " cfeb " << cfebs[1]
-	  <<" strip_type " << strip_type[cfebs[1]];
+	  << "strip_type" << strstrm.str()
+	  << "\n best: ihits " << ihits[0] << " cfeb " << cfebs[0]
+	  << " strip_type " << ((cfebs[0] >= 0) ? strip_type[cfebs[0]] : -1)
+	  << "\n next: ihits " << ihits[1] << " cfeb " << cfebs[1]
+	  << " strip_type " << ((cfebs[1] >= 0) ? strip_type[cfebs[1]] : -1);
       }
     }
     else if (key_phits[icfeb] > ihits[1]) {
@@ -1354,14 +1367,15 @@ void CSCCathodeLCTProcessor::priorityEncode(
       cfebs[1] = icfeb;
       if (infoV > 1)
 	LogDebug("CSCCathodeLCTProcessor")
-	  << "btm: ihits " << ihits[1] << " cfeb " << cfebs[1];
+	  << "\n next: ihits " << ihits[1] << " cfeb " << cfebs[1]
+	  << " strip_type " << ((cfebs[1] >= 0) ? strip_type[cfebs[1]] : -1);
     }
   }
 
   // fill lct data array key strip with 2 highest hit lcts (if they exist)
   int jlct = 0;
   for (int ilct = 0; ilct < nlcts; ilct++) {
-    if (key_strip[cfebs[ilct]] != -1) {
+    if (cfebs[ilct] != -1) {
       keystrip_data[jlct][CLCT_CFEB]       = cfebs[ilct];
       keystrip_data[jlct][CLCT_STRIP]      = key_strip[cfebs[ilct]];
       keystrip_data[jlct][CLCT_STRIP_TYPE] = strip_type[cfebs[ilct]];
@@ -1411,7 +1425,8 @@ void CSCCathodeLCTProcessor::getKeyStripData(
 	 pattern_strip++) {
       lct_pattern[pattern_strip] = -999;
       this_layer = pre_hit_pattern[0][pattern_strip];
-      this_strip = pre_hit_pattern[1][pattern_strip] + keystrip_data[ilct][CLCT_STRIP];
+      this_strip = pre_hit_pattern[1][pattern_strip] +
+	keystrip_data[ilct][CLCT_STRIP];
       // This conditional statement prevents us from looking at strips
       // that don't exist along the chamber boundaries.
       if (keystrip_data[ilct][CLCT_STRIP_TYPE] == 1) {
@@ -1435,24 +1450,32 @@ void CSCCathodeLCTProcessor::getKeyStripData(
     best_quality = 0;
     best_pattern = 0;
 
-    for (int pattern_num = 0; pattern_num < CSCConstants::NUM_CLCT_PATTERNS; pattern_num++) {
+    for (int pattern_num = 0; pattern_num < CSCConstants::NUM_CLCT_PATTERNS;
+	 pattern_num++) {
       getPattern(pattern_num, lct_pattern, quality, bend);
       if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
 	  << "pattern " << pattern_num << " quality " << quality
 	  << " bend " << bend;
-      if (((quality == best_quality && pattern_num > best_pattern) ||
-	   (quality > best_quality) ) && (quality >= nph_pattern) )  {
-	if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
+      // Number of layers hit matching a pattern template is compared
+      // to nph_pattern.  The threshold is the same for both half- and
+      // di-strip patterns.
+      if (quality >= nph_pattern) {
+	// If the number of matches is the same for two pattern templates,
+	// the higher pattern-template number is selected.
+	if ((quality == best_quality && pattern_num > best_pattern) ||
+	    (quality >  best_quality)) {
+	  if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
 	    << "valid = true at quality " << quality
 	    << "  thresh " << nph_pattern;
-	valid[ilct] = true;
-	keystrip_data[ilct][CLCT_PATTERN]    = pattern_num;
-	keystrip_data[ilct][CLCT_BEND]       = bend;
-	keystrip_data[ilct][CLCT_BX]         = first_bx;
-	//keystrip_data[ilct][CLCT_STRIP_TYPE] = stripType;
-	keystrip_data[ilct][CLCT_QUALITY]    = quality;
-	best_quality = quality;
-	best_pattern = pattern_num;
+	  valid[ilct] = true;
+	  keystrip_data[ilct][CLCT_PATTERN]    = pattern_num;
+	  keystrip_data[ilct][CLCT_BEND]       = bend;
+	  keystrip_data[ilct][CLCT_BX]         = first_bx;
+	  //keystrip_data[ilct][CLCT_STRIP_TYPE] = stripType;
+	  keystrip_data[ilct][CLCT_QUALITY]    = quality;
+	  best_quality = quality;
+	  best_pattern = pattern_num;
+	}
       }
     }
 
@@ -1465,8 +1488,7 @@ void CSCCathodeLCTProcessor::getKeyStripData(
     else {
       if (infoV > 1) {
 	LogDebug("CSCCathodeLCTProcessor")
-	  << "\n" << "--------- final LCT: " << ilct
-	  << " ------------- \n \n"
+	  << "\n" << "--------- final LCT: " << ilct << " -------------\n"
 	  << " key strip "   << keystrip_data[ilct][CLCT_STRIP]
 	  << " pattern_num " << keystrip_data[ilct][CLCT_PATTERN]
 	  << " quality "     << keystrip_data[ilct][CLCT_QUALITY]

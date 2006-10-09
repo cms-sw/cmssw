@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/09/12 08:56:16 $
- * $Revision: 1.5 $
+ * $Date: 2006/09/27 10:17:22 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -89,7 +89,7 @@ class CSCCathodeLCTProcessor
 			     int i_distrip, bool debug = false);
 
   /** Pre-defined patterns. */
-  enum {NUM_PATTERN_STRIPS = 36};
+  enum {NUM_PATTERN_STRIPS = 26};
   static const int pre_hit_pattern[2][NUM_PATTERN_STRIPS];
   static const int pattern[CSCConstants::NUM_CLCT_PATTERNS][NUM_PATTERN_STRIPS+1];
 
