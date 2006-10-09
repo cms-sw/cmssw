@@ -27,7 +27,8 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
-
+using std::cout;
+using std::endl;
 
 
 L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
@@ -52,7 +53,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::tdrJetFinder,fp.fullPath());
 
   // set parameters
-  m_gct->setVerbose(m_verbose);
+  //  m_gct->setVerbose(m_verbose);
 
   // for now, call the debug print output
   if (m_verbose) {

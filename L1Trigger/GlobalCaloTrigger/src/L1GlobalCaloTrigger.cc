@@ -43,7 +43,7 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFind
 {
 
   // set default et scale
-  m_defaultJetEtScale = new L1CaloEtScale();
+  // m_defaultJetEtScale = 
 
   // Jet Et LUT
   m_jetEtCalLut = new L1GctJetEtCalibrationLut(jetEtLutFile);
