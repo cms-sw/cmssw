@@ -16,12 +16,27 @@ CSCCrossGap:: CSCCrossGap(int iam, float mom,  LocalVector gap)
   elosses()
 {
   iam = setParticle( iam ); // treat some types as others
-  HepParticleData * particleData = HepPDT::getParticleData(iam);
-  double mass = particleData->mass();
+  // assume it's a muon until there's evidence otherwise
+  double mass = 0.105;
+  std::string name = "muon";
+  HepParticleData * theParticleData = HepPDT::getParticleData(iam);
+  // maybe the PDT doesn't exist
+  if(theParticleData == 0)
+  {
+    // can't even print a warning
+    if(iam == 11 || iam == -11) {
+      mass = 0.000511;
+    }
+  }
+  else 
+  { 
+    mass = theParticleData->mass();
+    name = theParticleData->name();
+  }
   
   logGamma( mass, mom);
   LogDebug("CSCCrossGap")
-     << "CSCCrossGap: simhit due to " << particleData->name() << "\n"
+     << "CSCCrossGap: simhit due to " << name << "\n"
      << "mass = " << mass << "GeV/c2, momentum = " << mom << 
        " GeV/c, gap length = " << length() << " cm \n";
 }
