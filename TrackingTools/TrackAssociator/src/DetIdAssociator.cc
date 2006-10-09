@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.3 2006/08/15 23:03:53 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.4 2006/09/30 05:12:28 dmytro Exp $
 //
 //
 
@@ -54,7 +54,7 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
 	<< "\tmomentum phi: " << ftsStart.momentum().phi()<< "\n"
 	<< "\tmomentum: " << ftsStart.momentum().mag()<< "\n";
       
-      // First propage the track to the cylinder if |eta|<1, othewise to the encap
+      // First propagate the track to the cylinder if |eta|<1, othewise to the endcap
       // and correct depending on the result
       if (fabs(ftsCurrent.momentum().eta())<1)
 	target = Barrel;
@@ -66,6 +66,10 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
       }
       
       tSOSDest = ivProp_->propagate(ftsCurrent, *map[target]);
+      if (! tSOSDest.isValid()) {
+         LogTrace("FailedPropagation") << "Failed to propagate the track; moving on\n";
+         continue;
+      }
       GlobalPoint point = tSOSDest.freeState()->position();
 
       // if near the edge
@@ -98,7 +102,10 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
       }
       
       tSOSDest = ivProp_->propagate(ftsStart, *map[target]);
-      if (! tSOSDest.isValid()) throw cms::Exception("FatalError") << "Failed to propagate the track\n";
+      if (! tSOSDest.isValid()) {
+         LogTrace("FailedPropagation") << "Failed to propagate the track; moving on\n";
+         continue;
+      }
       point = tSOSDest.freeState()->position();
       
       LogTrace("SuccessfullPropagation") << "Great, I reached something." << "\n"
