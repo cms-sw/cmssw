@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <sstream>
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -42,11 +43,11 @@ SuperClusterProducer::SuperClusterProducer(const edm::ParameterSet& ps)
   barrelPhiSearchRoad_ = ps.getParameter<double>("barrelPhiSearchRoad");
   endcapEtaSearchRoad_ = ps.getParameter<double>("endcapEtaSearchRoad");
   endcapPhiSearchRoad_ = ps.getParameter<double>("endcapPhiSearchRoad");
-  seedEnergyThreshold_ = ps.getParameter<double>("seedEnergyThreshold");
+  seedTransverseEnergyThreshold_ = ps.getParameter<double>("seedTransverseEnergyThreshold");
 
   bremAlgo_p = new BremRecoveryClusterAlgo(barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
 					 endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
-					 seedEnergyThreshold_, verbosity);
+					 seedTransverseEnergyThreshold_, verbosity);
 
   produces< reco::SuperClusterCollection >(endcapSuperclusterCollection_);
   produces< reco::SuperClusterCollection >(barrelSuperclusterCollection_);
@@ -59,13 +60,22 @@ SuperClusterProducer::SuperClusterProducer(const edm::ParameterSet& ps)
 
 SuperClusterProducer::~SuperClusterProducer()
 {
-  double averEnergy = totalE / noSuperClusters;
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
-  edm::LogInfo("SuperClusterProducerInfo") << "average SuperCluster energy = " << averEnergy;
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
   delete bremAlgo_p;
+}
+
+void
+SuperClusterProducer::endJob() {
+  double averEnergy = 0.;
+  std::ostringstream str;
+  str << "SuperClusterProducer::endJob()\n"
+      << "  total # reconstructed super clusters: " << noSuperClusters << "\n"
+      << "  total energy of all clusters: " << totalE << "\n";
+  if(noSuperClusters>0) { 
+    averEnergy = totalE / noSuperClusters;
+    str << "  average SuperCluster energy = " << averEnergy << "\n";
+  }
+  edm::LogInfo("SuperClusterProducerInfo") << str.str() << "\n";
+
 }
 
 

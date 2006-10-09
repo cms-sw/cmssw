@@ -28,14 +28,14 @@ void BarrelDetLayer::initialize()
 
 //--- protected methods
 BoundCylinder* BarrelDetLayer::computeSurface() {
-  vector< const GeometricSearchDet*> comps = components();
+  vector< const GeomDet*> comps = basicComponents();
 
   // Find extension in Z
   float theRmin = comps.front()->position().perp();   
   float theRmax = theRmin;
   float theZmin = comps.front()->position().z(); 
   float theZmax = theZmin;
-  for ( vector< const GeometricSearchDet*>::const_iterator deti = comps.begin(); 
+  for ( vector< const GeomDet*>::const_iterator deti = comps.begin(); 
 	deti != comps.end(); deti++) {
     vector<GlobalPoint> corners = 
       BoundingBox().corners( dynamic_cast<const BoundPlane&>((*deti)->surface()));

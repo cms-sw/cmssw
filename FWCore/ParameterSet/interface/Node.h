@@ -58,8 +58,6 @@ namespace edm {
       virtual void accept(Visitor& v) const = 0;
 
       virtual void setModified(bool value);
-      /// throw an exception if this node is flagged as modified
-      void assertNotModified() const;
       virtual bool isModified() const {return modified_;}
       /// throws an exception if they're not the same type
       virtual void replaceWith(const ReplaceNode * replaceNode);

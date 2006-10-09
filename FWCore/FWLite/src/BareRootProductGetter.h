@@ -16,13 +16,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:27 EDT 2006
-// $Id: BareRootProductGetter.h,v 1.1 2006/05/29 12:52:06 chrjones Exp $
+// $Id: BareRootProductGetter.h,v 1.2 2006/08/21 20:56:20 wmtan Exp $
 //
 
 // system include files
 #include <map>
 #include "boost/shared_ptr.hpp"
 #include "Rtypes.h"
+#include "TUUID.h"
 
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
@@ -73,6 +74,7 @@ class BareRootProductGetter : public edm::EDProductGetter
       mutable IdToBranchDesc idToBranchDesc_;
       typedef std::map<edm::ProductID, Buffer> IdToBuffers;
       mutable IdToBuffers idToBuffers_;
+      mutable TUUID fileUUID_;
       
 };
 

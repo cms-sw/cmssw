@@ -27,6 +27,7 @@ class SuperClusterProducer : public edm::EDProducer
       ~SuperClusterProducer();
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endJob();
 
    private:
 
@@ -48,7 +49,7 @@ class SuperClusterProducer : public edm::EDProducer
       float barrelPhiSearchRoad_;
       float endcapEtaSearchRoad_; 
       float endcapPhiSearchRoad_;
-      float seedEnergyThreshold_;
+      float seedTransverseEnergyThreshold_;
 
       BremRecoveryClusterAlgo * bremAlgo_p;
 

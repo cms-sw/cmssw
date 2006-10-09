@@ -1,18 +1,17 @@
-#ifndef CosmicMuonProducer_h
-#define CosmicMuonProducer_h
+#ifndef RecoMuon_CosmicMuonProducer_CosmicMuonProducer_H
+#define RecoMuon_CosmicMuonProducer_CosmicMuonProducer_H
 
 /** \file CosmicMuonProducer
  *
- *  $Date: 2006/06/14 00:07:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/03 01:11:19 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 
-class CosmicMuonTrajectoryBuilder;
-class MuonTrajectoryCleaner;
 class MuonTrackFinder;
+class MuonServiceProxy;
 
 class CosmicMuonProducer : public edm::EDProducer {
 public:
@@ -26,6 +25,8 @@ private:
   std::string theSeedCollectionLabel;
   MuonTrackFinder* theTrackFinder;
 
+  /// the event setup proxy, it takes care the services update
+  MuonServiceProxy *theService;
 };
 
 #endif

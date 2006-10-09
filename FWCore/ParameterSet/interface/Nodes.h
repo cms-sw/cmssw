@@ -12,12 +12,10 @@
   The name method needs to be stripped out.  They are not useful
 */
 
-#include "FWCore/ParameterSet/interface/Node.h"
-#include "FWCore/ParameterSet/interface/CompositeNode.h"
 #include "FWCore/ParameterSet/interface/PSetNode.h"
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
 #include "FWCore/ParameterSet/interface/EntryNode.h"
-#include "FWCore/ParameterSet/interface/IncludeNode.h"
+#include "FWCore/ParameterSet/interface/RenamedIncludeNode.h"
 #include "FWCore/ParameterSet/interface/ImplicitIncludeNode.h"
 #include "FWCore/ParameterSet/interface/VEntryNode.h"
 #include "FWCore/ParameterSet/interface/ModuleNode.h"

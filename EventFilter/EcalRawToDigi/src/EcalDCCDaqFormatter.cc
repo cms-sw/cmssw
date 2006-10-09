@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/06/26 09:19:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/19 16:08:44 $
+ *  $Revision: 1.1 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -125,6 +125,9 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
     vector<short> theTCCs;
     for(int i=0; i<MAX_TCC_SIZE; i++){
+      // Removed ugly sprintf
+      // char TCCnum[20]; 
+      //      sprintf(TCCnum,"TCC_CHSTATUS#%d",i+1); 
       std::ostringstream TCCnum;
       TCCnum << "TCC_CHSTATUS#" << i+1;
       string TCCnumS(TCCnum.str());
@@ -133,10 +136,12 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     theDCCheader.setTccStatus(theTCCs);
 
     short TowerStatus[MAX_TT_SIZE+1];
+    //    char buffer[20];
     vector<short> theTTstatus;
     for(int i=1;i<MAX_TT_SIZE+1;i++)
       { 
 	std::ostringstream buffer;
+	  // 	sprintf(buffer, "FE_CHSTATUS#%d", i);
 	buffer << "FE_CHSTATUS#" << i;
 	string Tower(buffer.str());
  	TowerStatus[i]= (*itEventBlock)->getDataField(Tower);
@@ -149,8 +154,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     EcalDCCHeaderRuntypeDecoder theRuntypeDecoder;
     ulong DCCruntype = (*itEventBlock)->getDataField("RUN TYPE");
     theRuntypeDecoder.Decode(DCCruntype, &theDCCheader);
-
-    // DCCHeader filled 
+    //DCCHeader filled!
     DCCheaderCollection.push_back(theDCCheader);
     
     vector< DCCTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
@@ -439,8 +443,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      pnAllocated = true;
 	    }
 
-         // using SMid=slot-in-CMS, not DCCid=fed
-	  DecodeMEM( SMid , (*itTowerBlock),  pndigicollection ,
+	  DecodeMEM( DCCid - ecalFirstFED_, (*itTowerBlock),  pndigicollection , 
 		     memttidcollection,  memblocksizecollection,
 		     memgaincollection,  memchidcollection);
 	  
@@ -470,7 +473,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 
 
-void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  EcalPnDiodeDigiCollection & pndigicollection ,
+void EcalDCCDaqFormatter::DecodeMEM( int DCCid, DCCTowerBlock *  towerblock,  EcalPnDiodeDigiCollection & pndigicollection ,
 				    EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 				    EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection)
 {
@@ -507,7 +510,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 				    << " (according to DCC header channel status)\n";
       
       // chosing channel 1 as representative as a dummy...
-      EcalElectronicsId id(SMid, tower_id, 1);
+      EcalElectronicsId id(DCCid, tower_id, 1);
       memttidcollection.push_back(id);
       ++ _expTowersIndex;
       return; // if NOT a mem tt block - do not build any Pn digis
@@ -530,7 +533,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 
       // reporting mem-tt block size problem
       // chosing channel 1 as representative as a dummy...
-      EcalElectronicsId id(SMid, tower_id, 1);
+      EcalElectronicsId id(DCCid, tower_id, 1);
       memblocksizecollection.push_back(id);
 
       ++ _expTowersIndex;
@@ -558,7 +561,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 				    << "  strip " <<  strip_id << "  cry " << xtal_id;
 	
 	// report on crystal with unexpected indices
-	EcalElectronicsId id(SMid, tower_id, wished_strip_id*5 + wished_ch_id + 1);
+	EcalElectronicsId id(DCCid, tower_id, (strip_id-1)*5 + xtal_id);
 	memchidcollection.push_back(id);
       }
     
@@ -629,7 +632,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 	short sampleGain = (new_data &0x3000)/4096;
 	if (  sampleGain==2 || sampleGain==3) 
 	  {
-	    EcalElectronicsId id(SMid, tower_id, strip*5 + channel + 1);
+	    EcalElectronicsId id(DCCid, tower_id, strip*5 + channel + 1);
 	    memgaincollection.push_back(id);
 	    
 	    LogWarning("EcalRawToDigi")  << "@SUB=EcalDCCDaqFormatter:decodeMem"
@@ -686,8 +689,8 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
     if (! pnIsOkInBlock [pnId-1] ) continue;
 
     // fixme giof: second argumenti is DCCId, to be determined
-    //    std::cout << SMid << " " << ecalFirstFED_ << std::endl;
-    EcalPnDiodeDetId PnId(EcalBarrel, SMid, pnId +  kPnPerTowerBlock*mem_id);
+    //    std::cout << DCCid << " " << ecalFirstFED_ << std::endl;
+    EcalPnDiodeDetId PnId(EcalBarrel, DCCid, pnId +  kPnPerTowerBlock*mem_id);
     EcalPnDiodeDigi thePnDigi(PnId );
 
     thePnDigi.setSize(kSamplesPerPn);

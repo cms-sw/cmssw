@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.40 2006/08/07 22:10:14 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.43 2006/09/28 19:40:48 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -32,6 +32,7 @@
 
 #include "TTree.h"
 #include "TFile.h"
+#include "Rtypes.h"
 
 #include <map>
 #include <vector>
@@ -104,6 +105,7 @@ namespace edm {
       runBlockPlacement_(),
       luminosityBlockPlacement_(),
       om_(om) {
+    TTree::SetMaxTreeSize(kMaxLong64);
     std::string suffix(".root");
     std::string::size_type offset = om_->fileName_.rfind(suffix);
     bool ext = (offset == om_->fileName_.size() - suffix.size());
@@ -244,21 +246,18 @@ namespace edm {
 	  event.cid_ = 0;
 	  
 	  dummyProvenances.push_front(event); 
-	  pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
-	  refp.markWrite(i->provenancePlacement_);
 	} else {
 	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
 	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
 	      << "No group in event " << aux.id_ << "\nfor branch" << i->branchDescription_->branchName_ << '\n';
 	}
       } else {
-	if (!i->selected_ || !g->product()  || !g->product()->isPresent()) {
-	  g->provenance().event.isPresent_ = false;
-	}
-	pool::Ref<BranchEntryDescription const> refp(context(), &g->provenance().event);
-	refp.markWrite(i->provenancePlacement_);
+	dummyProvenances.push_front(g->provenance().event);
+	dummyProvenances.begin()->isPresent_ = (i->selected_ && g->product() && g->product()->isPresent());
 	product = g->product();
       }
+      pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
+      refp.markWrite(i->provenancePlacement_);
       if (i->selected_) {
 	if (product == 0) {
 	  // Add a null product.
@@ -344,9 +343,9 @@ namespace edm {
     TTree *t = dynamic_cast<TTree *>(f.Get(poolNames::eventTreeName().c_str()));
     if (t) {
       t->BuildIndex("id_.run_", "id_.event_");
-      for (Selections::const_iterator it = om_->descVec_.begin();
-	it != om_->descVec_.end(); ++it) {
-	BranchDescription const& pd = **it;
+      for (Selections::const_iterator i = om_->descVec_.begin();
+	i != om_->descVec_.end(); ++i) {
+	BranchDescription const& pd = **i;
 	std::string const& full = pd.branchName() + "obj";
 	if (pd.branchAliases().empty()) {
 	  std::string const& alias =

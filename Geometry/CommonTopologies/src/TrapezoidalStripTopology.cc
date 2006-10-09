@@ -114,7 +114,7 @@ TrapezoidalStripTopology::measurementError(const LocalPoint& lp,
   float lt,lc2,ls2,lslc;
   float localL,localP;
   float sl2,sp2,spl;
-  lt = -lp.x()/(theYAxOr*lp.y()+theDistToBeam);
+  lt = -lp.x()/(theYAxOr*lp.y()+theDistToBeam)*theYAxOr;
   lc2 = 1./(1.+lt*lt);
   lslc = lt*lc2;
   ls2 = lt*lt*lc2;
@@ -163,7 +163,7 @@ float TrapezoidalStripTopology::shiftOffset( float pitch_fraction) {
 
 float TrapezoidalStripTopology::localStripLength(const LocalPoint& lp) 
   const {
-  float ltan = -lp.x()/(theYAxOr*lp.y()+theDistToBeam);
+  float ltan = -lp.x()/(theYAxOr*lp.y()+theDistToBeam)*theYAxOr;
   float lcos2 = 1./(1.+ltan*ltan);
   float localL = theDetHeight / sqrt(lcos2);
 

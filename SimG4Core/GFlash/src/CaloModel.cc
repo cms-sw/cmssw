@@ -19,22 +19,15 @@
 //#include "GFlashHitMaker.hh"
 #include "GFlashParticleBounds.hh"
 
-CaloModel::CaloModel(const edm::ParameterSet & p) : 
-  m_pCaloModel(p) 
-{ 
-  build();
-  std::cout <<" CaloModel built !!!  "<< std::endl;
-}
+CaloModel::CaloModel(edm::ParameterSet const & p) : m_pCaloModel(p) {}
 
-void CaloModel::build()
+void CaloModel::update(const DDDWorld * w)
 {
 	G4LogicalVolume * barrel_log = 0;
 	G4LogicalVolume * ecap_log = 0;
 	//Finding correct G4LogicalVolume for parameterisation
 	ConcreteG4LogicalVolumeToDDLogicalPartMapper::Vector vec =
         G4LogicalVolumeToDDLogicalPartMapper::instance()->all("volumes");
-       	std::cout <<" CaloModel !!!  "<< std::endl;
-
 	for (ConcreteG4LogicalVolumeToDDLogicalPartMapper::Vector::iterator
         tit = vec.begin(); tit != vec.end(); tit++){
 		if (((*tit).first)->GetName()=="ESPM"){  
@@ -82,9 +75,9 @@ void CaloModel::build()
 		barrel_log->GetFastSimulationManager()->AddFastSimulationModel(theShowerModel);
 	}
 	
-	double pEmin = m_pCaloModel.getParameter<double>("GFlashEmin");
-	double pEmax = m_pCaloModel.getParameter<double>("GFlashEmax");
-	double pToKill = m_pCaloModel.getParameter<double>("GFlashEToKill");
+	double pEmin = m_pCaloModel.getParameter<double>("Emin");
+	double pEmax = m_pCaloModel.getParameter<double>("Emax");
+	double pToKill = m_pCaloModel.getParameter<double>("EToKill");
 	theParticleBounds->SetMaxEneToParametrise(*G4Electron::ElectronDefinition(), pEmax);
 	theParticleBounds->SetMinEneToParametrise(*G4Electron::ElectronDefinition(), pEmin); 
 	theParticleBounds->SetEneToKill(*G4Electron::ElectronDefinition(), pToKill);	

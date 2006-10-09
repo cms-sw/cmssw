@@ -13,8 +13,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:01:25 $
-// $Revision: 1.2 $
+// $Date: 2006/03/28 22:50:12 $
+// $Revision: 1.3 $
 //
 
 #include <iostream>
@@ -26,6 +26,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Vector/interface/Pi.h"
 
 class Ring {
   
@@ -106,12 +107,39 @@ class Ring {
 
   inline int getNumDetIds() const { return detids_.size(); }
   
-  inline bool containsDetId(DetId id) const {
-    for ( const_iterator ring = detids_.begin(); ring != detids_.end(); ++ring ) {
-      if ( id == ring->second ) {
-	return true;
+  inline bool containsDetId(DetId id, double phi = 999999.) const {
+    // calculate window around given phi (if phi == 999999. set window to [0,2pi]
+    // determine phi segmentation from number of detids in ring
+    // window is += 1.5 times the phi segmentation
+    double phi_inner = 0;
+    double phi_outer = Geom::twoPi();
+    double delta_phi = Geom::twoPi() / detids_.size();
+    if ( phi != 999999. ) {
+      phi_inner = map_phi(phi - 1.5*delta_phi);
+      phi_outer = map_phi(phi + 1.5*delta_phi);
+    }
+
+    // check for out of bounds of [0,2pi]
+    if ( phi_inner > phi_outer ) {
+      // double loop
+      for ( const_iterator ring = detids_.lower_bound(phi_inner); ring != detids_.end(); ++ring ) {
+	if ( id == ring->second ) {
+	  return true;
+	}
+      }
+      for ( const_iterator ring = detids_.begin(); ring != detids_.upper_bound(phi_outer); ++ring ) {
+	if ( id == ring->second ) {
+	  return true;
+	}
+      }
+    } else {
+      for ( const_iterator ring = detids_.lower_bound(phi_inner); ring != detids_.upper_bound(phi_outer); ++ring ) {
+	if ( id == ring->second ) {
+	  return true;
+	}
       }
     }
+
     return false;
   }
 
@@ -193,6 +221,15 @@ class Ring {
 
   inline const_iterator lower_bound(double phi) const { return detids_.lower_bound(phi); }
   inline const_iterator upper_bound(double phi) const { return detids_.upper_bound(phi); }
+
+  inline double map_phi(double phi) const {
+    // map phi to [0,2pi]
+    double result = phi;
+    if ( result < -1.0*Geom::twoPi()) result = result + Geom::twoPi();
+    if ( result < 0)                 result = Geom::twoPi() + result;
+    if ( result > Geom::twoPi())     result = result - Geom::twoPi();
+    return result;
+  }
 
  private:
   

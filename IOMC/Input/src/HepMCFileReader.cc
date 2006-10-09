@@ -2,8 +2,8 @@
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2005/12/11 15:30:20 $
-*  $Revision: 1.2 $
+*  $Date: 2006/04/25 16:33:45 $
+*  $Revision: 1.3 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 */
 #include "IOMC/Input/interface/HepMCFileReader.h"
@@ -188,7 +188,7 @@ void HepMCFileReader::ReadStats(){
 		p1 != (*v)->particles_in_const_end(); ++p1 ) {
 			++particle_counter;
 			//particle_counter can be very large for heavy ions
-			if(particle_counter > index_to_particle.size() ) {
+			if(particle_counter >= index_to_particle.size() ) {
 				//make it large enough to hold up to this index
 				 index_to_particle.resize(particle_counter+1);
 				} 					      
@@ -203,7 +203,7 @@ void HepMCFileReader::ReadStats(){
 			if (!(*p2)->end_vertex()) {
 				++particle_counter;
 				//particle_counter can be very large for heavy ions
-				if(particle_counter  > index_to_particle.size() ) {				
+				if(particle_counter  >= index_to_particle.size() ) {				
 				  //make it large enough to hold up to this index
 				  index_to_particle.resize(particle_counter+1);
        				} 									

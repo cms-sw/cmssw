@@ -1,4 +1,5 @@
 <lcgdict>
   <class name="reco::HepMCCandidate" />
+  <class name="edm::Wrapper<reco::HepMCCandidate>"/>
 </lcgdict>
  

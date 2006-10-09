@@ -52,8 +52,8 @@ DCacheStorageMaker::check (const std::string &proto,
 
     if (size)
     {
-	struct stat buf;
-	if (dc_stat (testpath.c_str (), &buf) != 0)
+	struct stat64 buf;
+	if (dc_stat64 (testpath.c_str (), &buf) != 0)
 	  return false;
 	
 	*size = buf.st_size;

@@ -110,12 +110,17 @@ namespace cms
 	int cc = 0;	
 	TSOS UpState;
 	TSOS LowState;
+	unsigned int outerId, innerId;
 	if (seedplus){
           UpState=theTraj.lastMeasurement().updatedState();
           LowState=theTraj.firstMeasurement().updatedState();
+	  outerId = theTraj.lastMeasurement().recHit()->geographicalId().rawId();
+	  innerId = theTraj.firstMeasurement().recHit()->geographicalId().rawId();
         }else{
           UpState=theTraj.firstMeasurement().updatedState();
           LowState=theTraj.lastMeasurement().updatedState();
+	  outerId = theTraj.firstMeasurement().recHit()->geographicalId().rawId();
+	  innerId = theTraj.lastMeasurement().recHit()->geographicalId().rawId();
         }
 
 	//Track construction
@@ -147,7 +152,9 @@ namespace cms
 	math::XYZVector inmom( p.x(), p.y(), p.z() );
 	math::XYZPoint  inpos( v.x(), v.y(), v.z() );   
 //	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
-	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true, inpos, inmom, true);
+	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true, inpos, inmom, true,
+							       UpState.curvilinearError(), outerId,
+							       LowState.curvilinearError(), innerId);
 	//RC for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
 	for(Trajectory::RecHitContainer::const_iterator j=transHits.begin();
 	    j!=transHits.end(); j++){

@@ -1,6 +1,8 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=TrackingTools/PatternTools>
+<use name=RecoMuon/DetLayers>
+<use name=RecoMuon/Navigation>
 <use name=TrackingTools/DetLayers>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/KalmanUpdators>
@@ -8,10 +10,11 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/MuonDetId>
 <use name=DataFormats/MuonReco>
-<use name=TrackingTools/KalmanUpdators>
 <use name=TrackingTools/TransientTrackingRecHit>
+<use name=TrackingTools/TransientTrack>
 <use name=TrackPropagation/SteppingHelixPropagator>
 <use name=RecoMuon/TransientTrackingRecHit>
+<use name=TrackingTools/TrajectoryParametrization>
 <use name=Utilities/Timing>
 <use name=CLHEP>
 
@@ -23,15 +26,9 @@
    <use name=TrackingTools/PatternTools>
    <use name=TrackingTools/DetLayers>
    <use name=TrackingTools/GeomPropagators>
-   <use name=TrackingTools/KalmanUpdators>
    <use name=TrackingTools/TrackFitters>
-   <use name=DataFormats/DetId>
    <use name=DataFormats/MuonDetId>
-   <use name=DataFormats/MuonReco>
-   <use name=TrackingTools/KalmanUpdators>
    <use name=TrackingTools/TransientTrackingRecHit>
-   <use name=TrackPropagation/SteppingHelixPropagator>
+   <use name=TrackingTools/TransientTrack>
    <use name=RecoMuon/TransientTrackingRecHit>
-   <use name=Utilities/Timing>
-   <use name=CLHEP>
 </export>

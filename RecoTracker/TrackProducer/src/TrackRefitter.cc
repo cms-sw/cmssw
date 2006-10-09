@@ -13,10 +13,11 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
 {
   setConf(iConfig);
   setSrc( iConfig.getParameter<std::string>( "src" ));
+  setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
   //register your products
-  produces<TrackingRecHitCollection>();
-  produces<reco::TrackCollection>();
-  produces<reco::TrackExtraCollection>();
+  produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
+  produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
+  produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
 }
 
 void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)

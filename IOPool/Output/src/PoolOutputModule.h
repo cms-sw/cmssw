@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.9 2006/07/06 19:25:00 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.10 2006/08/07 22:10:14 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -45,8 +45,8 @@ namespace edm {
     pool::IDataSvc *context() const {return context_.context();}
 
   private:
-    OutputFileCatalog mutable catalog_;
-    PoolDataSvc mutable context_;
+    mutable OutputFileCatalog catalog_;
+    mutable PoolDataSvc context_;
     std::string const fileName_;
     std::string const logicalFileName_;
     unsigned long commitInterval_;

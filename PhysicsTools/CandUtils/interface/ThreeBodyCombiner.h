@@ -12,7 +12,7 @@
 class ThreeBodyCombiner {
 public:
   /// constructor from a selector, specifying optionally to check for charge
-  ThreeBodyCombiner( const reco::parser::SelectorPtr &, 
+  ThreeBodyCombiner( const reco::parser::selector_ptr &, 
 		     bool checkCharge, const std::vector <int> &,
 		     int charge = 0);
   /// return all selected candidate pairs

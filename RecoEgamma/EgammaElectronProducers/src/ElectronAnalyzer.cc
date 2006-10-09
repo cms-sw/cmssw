@@ -8,15 +8,17 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: ElectronAnalyzer.cc,v 1.5 2006/07/26 13:38:07 rahatlou Exp $
+// $Id: ElectronAnalyzer.cc,v 1.6 2006/07/26 21:06:13 tboccali Exp $
 //
 
 // system include files
 #include <memory>
 
+
 // user include files
 #include "RecoEgamma/EgammaElectronProducers/interface/ElectronAnalyzer.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -109,21 +111,22 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
    // http://cmsdoc.cern.ch/swdev/lxr/CMSSW/source/clhep/CLHEP/HepMC/GenParticle.h
    // http://cmsdoc.cern.ch/swdev/lxr/CMSSW/source/clhep/CLHEP/HepMC/GenVertex.h
-   edm::Handle<edm::HepMCProduct> mctruthHandle;
-   iEvent.getByLabel(mctruthProducer_, mctruthCollection_, mctruthHandle);
-   HepMC::GenEvent mctruth = mctruthHandle->getHepMCData();
+   // removed by JED - causes trouble in release post 0_9_0
+   //   edm::Handle<edm::HepMCProduct> mctruthHandle;
+   //   iEvent.getByLabel(mctruthProducer_, mctruthCollection_, mctruthHandle);
+   //   HepMC::GenEvent mctruth = mctruthHandle->getHepMCData();
    
-   for (HepMC::GenEvent::particle_const_iterator partIter = mctruth.particles_begin();
-	partIter != mctruth.particles_end();
-	++partIter) {
-//    for (HepMC::GenEvent::vertex_const_iterator vertIter = mctruth.vertices_begin();
-// 	vertIter != mctruth.vertices_end();
-// 	++vertIter) {
-      CLHEP::HepLorentzVector creation = (*partIter)->CreationVertex();
-      CLHEP::HepLorentzVector momentum = (*partIter)->Momentum();
-      HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
-      cout << "MC particle id " << id.pid() << ", creationVertex " << creation << " cm, initialMomentum " << momentum << " GeV/c" << endl;
-   }
+   //   for (HepMC::GenEvent::particle_const_iterator partIter = mctruth.particles_begin();
+   //	partIter != mctruth.particles_end();
+   //	++partIter) {
+   // //    for (HepMC::GenEvent::vertex_const_iterator vertIter = mctruth.vertices_begin();
+   // // 	vertIter != mctruth.vertices_end();
+   // // 	++vertIter) {
+   //    CLHEP::HepLorentzVector creation = (*partIter)->CreationVertex();
+   //    CLHEP::HepLorentzVector momentum = (*partIter)->Momentum();
+   //   HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
+   //     edm::LogInfo("") << "MC particle id " << id.pid() << ", creationVertex " << creation << " cm, initialMomentum " << momentum << " GeV/c" << endl;
+   //  }
    
    // http://cmsdoc.cern.ch/swdev/lxr/CMSSW/source/self/DataFormats/EgammaReco/interface/SuperCluster.h
    edm::Handle<reco::SuperClusterCollection> clusterHandle;
@@ -135,7 +138,7 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       double energy = clusterIter->energy();
       math::XYZPoint position = clusterIter->position();
 
-      cout << "supercluster " << energy << " GeV, position " << position << " cm" << endl;
+      edm::LogInfo("")  << "supercluster " << energy << " GeV, position " << position << " cm" << endl;
    }
 
    // DataFormats/EgammaCandidates/src/SiStripElectron.cc
@@ -146,10 +149,10 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    for (reco::SiStripElectronCollection::const_iterator electronIter = electronHandle->begin();
 	electronIter != electronHandle->end();
 	++electronIter) {
-      cout << "about to get stuff from electroncandidate..." << endl;
-      cout << "supercluster energy = " << electronIter->superCluster()->energy() << endl;
-      cout << "fit results are phi(r) = " << electronIter->phiAtOrigin() << " + " << electronIter->phiVsRSlope() << "*r" << endl;
-      cout << "you get the idea..." << endl;
+       edm::LogInfo("")  << "about to get stuff from electroncandidate..." << endl;
+      edm::LogInfo("")  << "supercluster energy = " << electronIter->superCluster()->energy() << endl;
+      edm::LogInfo("")  << "fit results are phi(r) = " << electronIter->phiAtOrigin() << " + " << electronIter->phiVsRSlope() << "*r" << endl;
+      edm::LogInfo("")  << "you get the idea..." << endl;
 
       numberOfElectrons++;
    }
@@ -187,7 +190,7 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB    ) {
 
 	       GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
-	       cout << "this stereo hit is at " << position.x() << ", " << position.y() << ", " << position.z() << endl;
+	       edm::LogInfo("")   << "this stereo hit is at " << position.x() << ", " << position.y() << ", " << position.z() << endl;
 
 	    } // end if this is the right subdetector
 	 } // end loop over hits

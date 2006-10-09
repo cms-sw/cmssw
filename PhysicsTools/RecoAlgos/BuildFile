@@ -1,11 +1,13 @@
 <flags SEAL_PLUGIN_NAME="PhysicsToolsRecoAlgos">
 <use name=PhysicsTools/UtilAlgos>
 <use name=PhysicsTools/Utilities>
+<use name=PhysicsTools/Parser>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/JetReco>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 
@@ -13,11 +15,13 @@
   <lib name=PhysicsToolsRecoAlgos>
   <use name=PhysicsTools/UtilAlgos> 
   <use name=PhysicsTools/Utilities>
+  <use name=PhysicsTools/Parser>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/VertexReco>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/JetReco>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
 </export>

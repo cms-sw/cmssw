@@ -46,8 +46,8 @@ namespace edm {
   class EventSetup;
 }
 
-namespace cms
-{
+//namespace cms
+//{
 
 class AlCaDiJetsProducer : public edm::EDProducer {
    public:
@@ -59,6 +59,7 @@ class AlCaDiJetsProducer : public edm::EDProducer {
    private:
       // ----------member data ---------------------------
    std::string mInput;
+   std::string m_inputTrackLabel;
 };
-}// end namespace cms
+//}// end namespace cms
 #endif

@@ -20,7 +20,8 @@
 
 
 DDTIDAxialCableAlgo::DDTIDAxialCableAlgo() {
-  LogDebug("TIDGeom") << "DDTIDAxialCableAlgo info: Creating an instance";
+  edm::LogInfo("TIDGeom") << "DDTIDAxialCableAlgo info: Creating an "
+			  << "instance";
 }
 
 DDTIDAxialCableAlgo::~DDTIDAxialCableAlgo() {}

@@ -3,8 +3,6 @@
 #ifndef LinearGridInterpolator3D_H
 #define LinearGridInterpolator3D_H
 
-#include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
-
 #ifdef DEBUG_LinearGridInterpolator3D
 #include <iostream>
 #endif
@@ -22,12 +20,6 @@ public:
     int i = grida.index(a);
     int j = gridb.index(b);
     int k = gridc.index(c);
-
-    if (i==-1 || j==-1 || k==-1) {
-      // point outside of grid validity!
-      throw GridInterpolator3DException( grida.lower(),gridb.lower(),gridc.lower(),
-					 grida.upper(),gridb.upper(),gridc.upper());
-    }
 
     Scalar s = (a - grida.node(i)) / grida.step();
     Scalar t = (b - gridb.node(j)) / gridb.step();
