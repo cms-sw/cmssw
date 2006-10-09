@@ -274,7 +274,7 @@ L1GctScalarEtVal L1GctJetFinderBase::calcHt() const
   {
     // Only sum Ht for valid jets
     if (!m_outputJets.at(i).isNullJet()) {
-      ht += static_cast<unsigned>(m_outputJets.at(i).rankForHt());
+      ht += static_cast<unsigned>(m_outputJets.at(i).calibratedEt());
       of |= m_outputJets.at(i).overFlow();
     }
   }

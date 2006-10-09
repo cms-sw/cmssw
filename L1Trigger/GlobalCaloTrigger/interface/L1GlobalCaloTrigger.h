@@ -35,6 +35,7 @@ class L1GctJetFinalStage;
 class L1GctGlobalEnergyAlgos;
 class L1GctElectronFinalSort;
 class L1GctJetEtCalibrationLut;
+class L1CaloEtScale;
 
 
 class L1GlobalCaloTrigger {
@@ -187,8 +188,11 @@ public:
   /// non-iso electron final stage sorter
   L1GctElectronFinalSort* theNonIsoEmFinalStage;
 
-  /// Jet Et calibraion LUT
+  /// Jet Et calibration LUT
   L1GctJetEtCalibrationLut* m_jetEtCalLut;
+
+  /// default jet rank scale
+  L1CaloEtScale* m_defaultJetEtScale;
   
 };
 

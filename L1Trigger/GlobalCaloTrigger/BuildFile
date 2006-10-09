@@ -6,6 +6,8 @@
 <use name=FWCore/Utilities>
 
 <use name=DataFormats/L1GlobalCaloTrigger>
+<use name=L1Trigger/L1Scales>
+
 <flags SEAL_PLUGIN_NAME="L1TriggerGlobalCaloTrigger">
 
 <export>
@@ -14,5 +16,6 @@
   <use name=FWCore/ParameterSet>
   <use name=Foundation/PluginManager>
   <use name=DataFormats/L1GlobalCaloTrigger>
+  <use name=L1Trigger/L1Scales>
 </export>
 

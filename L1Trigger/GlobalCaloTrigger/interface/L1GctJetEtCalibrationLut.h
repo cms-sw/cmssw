@@ -1,10 +1,14 @@
 #ifndef L1GCTJETETCALIBRATIONLUT_H_
 #define L1GCTJETETCALIBRATIONLUT_H_
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include <boost/cstdint.hpp> //for uint16_t
 
 #include <vector>
 #include <string>
+
+class L1CaloEtScale;
 
 /*!
  * \author Robert Frazier
@@ -32,28 +36,28 @@ public:
   L1GctJetEtCalibrationLut(std::string fileName);
   ~L1GctJetEtCalibrationLut();
 
+  /// set the output Et scale pointer
+  void setOutputEtScale(const L1CaloEtScale* scale);
+
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut);
   
   /// Converts a 10-bit jet Et to a 6-bit rank.
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
-  uint16_t convertToSixBitRank(uint16_t jetEt, unsigned eta) const;
+  uint16_t rank(const uint16_t jetEt, const unsigned eta) const;
 
   /// Converts a 10-bit jet Et to a 10-bit Et (applying eta-dependent calibration)
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
-  uint16_t convertToTenBitRank(uint16_t jetEt, unsigned eta) const;
+  uint16_t calibratedEt(const uint16_t jetEt, const unsigned eta) const;
   
 private:
 
-/*   uint16_t  */
+  /// the output scale - converts linear Et to rank
+  L1CaloEtScale* m_outputEtScale;
 
+  /// the calibration function
   std::vector< std::vector<float> > m_calibFunc;
 
-//  float m_quadraticCoeff;
-//  float m_linearCoeff;
-//  float m_constant;
-  
-  
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut);

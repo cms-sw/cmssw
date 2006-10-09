@@ -45,7 +45,7 @@ public:
   L1GctJetEtCalibrationLut* lut() const { return m_jetEtCalibrationLut; }
 
   uint16_t rank()      const;
-  uint16_t rankForHt() const;
+  uint16_t calibratedEt() const;
 
   /// get overflow
   bool overFlow() const { return (m_rawsum>=(1<<RAWSUM_BITWIDTH)); }

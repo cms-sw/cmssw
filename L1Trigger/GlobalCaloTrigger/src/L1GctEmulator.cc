@@ -1,31 +1,34 @@
-// system include files
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmulator.h"
+
+// system includes
 #include <memory>
 
-// EDM include files
+// EDM includes
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+// Trigger includes
+#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
+#include "L1Trigger/L1Scales/interface/L1JetEtScaleRcd.h"
+
 // GCT include files
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmulator.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
-// data format include files
-
-// input RCT data
+// RCT data includes
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
-// output GCT data
+// GCT data includes
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
-#include <memory>
+
+
 
 L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_verbose(ps.getUntrackedParameter<bool>("verbose", false))
@@ -49,10 +52,12 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::tdrJetFinder,fp.fullPath());
 
   // set parameters
-  // m_gct->setVerbose(m_verbose);
+  m_gct->setVerbose(m_verbose);
 
   // for now, call the debug print output
-//   m_gct->print();
+  if (m_verbose) {
+    m_gct->print();
+  }
 
 }
 
@@ -62,6 +67,13 @@ L1GctEmulator::~L1GctEmulator() {
 
 
 void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
+
+  // get data from EventSetup
+  edm::ESHandle< L1CaloEtScale > jetScale ;
+  c.get< L1JetEtScaleRcd >().get( jetScale ) ; // which record?
+
+  // tell the jet Et LUT about the scale
+  m_gct->getJetEtCalibLut()->setOutputEtScale(jetScale.product());
 
   // get the RCT data
   edm::Handle<L1CaloEmCollection> em;

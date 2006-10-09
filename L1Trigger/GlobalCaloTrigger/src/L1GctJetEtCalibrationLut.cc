@@ -1,6 +1,10 @@
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
+#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -11,6 +15,7 @@
 #include <math.h>
 
 using namespace std;
+using std::cout;
 
 //DEFINE STATICS
 const unsigned L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH = L1GctJet::RAWSUM_BITWIDTH;
@@ -48,6 +53,11 @@ L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut(string fileName)
   }
 }    
 
+void L1GctJetEtCalibrationLut::setOutputEtScale(const L1CaloEtScale* scale) {
+  m_outputEtScale = scale;
+  
+  cout << m_outputEtScale;
+}
 
 ostream& operator << (ostream& os, const L1GctJetEtCalibrationLut& lut)
 {
@@ -66,33 +76,12 @@ L1GctJetEtCalibrationLut::~L1GctJetEtCalibrationLut()
 {
 }
 
-uint16_t L1GctJetEtCalibrationLut::convertToSixBitRank(uint16_t jetEt, unsigned eta) const
+uint16_t L1GctJetEtCalibrationLut::rank(uint16_t jetEt, unsigned eta) const
 {
-  double corrEt = 0;
-
-  if (eta>(NUMBER_ETA_VALUES-1)) eta=eta-NUMBER_ETA_VALUES; 
-  
-  if(eta>(NUMBER_ETA_VALUES-1))
-    {
-      throw cms::Exception("L1GctJetEtCalibraionLut")
-        << "L1GctJetEtCalibrationLut::convertToSixBitRank(uint16_t jetEt, unsigned eta)"
-        << " eta value out of range eta=" << eta << "\n";
-    }
-    
-  for (unsigned i=0; i<m_calibFunc.at(eta).size();i++){
-    corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEt,(int)i); 
-  }
-
-  uint16_t jetEtOut = (uint16_t)corrEt;
-
-  if(jetEtOut < (1 << JET_ENERGY_BITWIDTH))
-    {
-      return jetEtOut/16;
-    }
-  return 63;
+  return m_outputEtScale->rank(this->calibratedEt(jetEt, eta));
 }
 
-uint16_t L1GctJetEtCalibrationLut::convertToTenBitRank(uint16_t jetEt, unsigned eta) const
+uint16_t L1GctJetEtCalibrationLut::calibratedEt(uint16_t jetEt, unsigned eta) const
 {
   double corrEt = 0;
   
@@ -111,9 +100,8 @@ uint16_t L1GctJetEtCalibrationLut::convertToTenBitRank(uint16_t jetEt, unsigned 
 
   uint16_t jetEtOut = (uint16_t)corrEt;
 
-  if(jetEtOut < (1 << JET_ENERGY_BITWIDTH))
-    {
-      return jetEtOut;
-    }
+  if(jetEtOut < (1 << JET_ENERGY_BITWIDTH)) {
+    return jetEtOut;
+  }
   return 1023;
 }

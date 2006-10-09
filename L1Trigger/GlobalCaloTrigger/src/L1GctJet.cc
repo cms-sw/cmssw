@@ -77,19 +77,19 @@ uint16_t L1GctJet::rank()      const
   if (m_jetEtCalibrationLut==0) {
     result = std::min(63, m_rawsum >> (RAWSUM_BITWIDTH - 6));
   } else {
-    result = m_jetEtCalibrationLut->convertToSixBitRank(m_rawsum, m_id.ieta());
+    result = m_jetEtCalibrationLut->rank(m_rawsum, m_id.ieta());
   }
   return result;
 }
 
-uint16_t L1GctJet::rankForHt() const
+uint16_t L1GctJet::calibratedEt() const
 {
   uint16_t result;
   // If no lut setup, just return the MSB of the rawsum as the rank
   if (m_jetEtCalibrationLut==0) {
     result = std::min(1023, m_rawsum >> (RAWSUM_BITWIDTH - 10));
   } else {
-    result = m_jetEtCalibrationLut->convertToTenBitRank(m_rawsum, m_id.ieta());
+    result = m_jetEtCalibrationLut->calibratedEt(m_rawsum, m_id.ieta());
   }
   return result;
 }

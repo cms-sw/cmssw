@@ -10,6 +10,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
 
+#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
@@ -40,8 +42,12 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFind
   theWheelEnergyFpgas(N_WHEEL_CARDS)// ,
 {
 
+  // set default et scale
+  m_defaultJetEtScale = new L1CaloEtScale();
+
   // Jet Et LUT
   m_jetEtCalLut = new L1GctJetEtCalibrationLut(jetEtLutFile);
+  //  m_jetEtCalLut->setOutputEtScale(m_defaultJetEtScale);
 
   // construct hardware
   build(jfType);
@@ -109,7 +115,7 @@ void L1GlobalCaloTrigger::reset() {
 }
 
 void L1GlobalCaloTrigger::process() {
-		
+
   // Source cards
   for (int i=0; i<N_SOURCE_CARDS; i++) {
     if (readFromFile) {
