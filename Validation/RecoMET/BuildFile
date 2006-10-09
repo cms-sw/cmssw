@@ -6,9 +6,9 @@
 <use name=root>
 <use name=DataFormats/METReco>
 
-<flags SEAL_PLUGIN_NAME="ValidationMET">
+<flags SEAL_PLUGIN_NAME="ValidationRecoMET">
 <export>
-   <lib name=ValidationMET>
+   <lib name=ValidationRecoMET>
     <use name=FWCore/Framework>
     <use name=FWCore/ParameterSet>
     <use name=FWCore/MessageLogger>
