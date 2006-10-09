@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/09/22 09:19:11 $
-//   $Revision: 1.6 $
+//   $Date: 2006/09/27 10:08:17 $
+//   $Revision: 1.7 $
 //
 //   Modifications: 
 //
@@ -254,7 +254,9 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
 
   // First get wire times from the wire digis.
   readWireDigis(wire);
-  saveAllHits(wire);
+
+  // Save all hits into vectors if needed.
+  // saveAllHits(wire);
 
   // Then pass an array of wire times on to another run() doing the LCT search.
   run(wire);
@@ -307,12 +309,13 @@ void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
     if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
       << "found " << rwired.second - rwired.first
       << " wire digi(s) in layer " << i_layer << "; " << theEndcap << " "
-      << theStation << " " << theSector << " " << theSubsector << " "
-      << theTrigChamber;
+      << theStation << " " << theRing << " " << theSector << "("
+      << theSubsector << ") " << theChamber << "(" << theTrigChamber << ")";
 
     for (CSCWireDigiCollection::const_iterator digiIt = rwired.first;
 	 digiIt != rwired.second; ++digiIt) {
       digiV[i_layer].push_back(*digiIt);
+      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor") << "   " << (*digiIt);
     }
   }
 }
@@ -539,7 +542,7 @@ void CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 	      if (infoV > 1)
 		LogDebug("CSCAnodeLCTProcessor")
 		  << "bx_time: " << first_bx[key_wire]
-		  << " i_pattern: " << i_pattern << " keywire: " << key_wire
+		  << " pattern: " << i_pattern << " keywire: " << key_wire
 		  << " layer: "     << this_layer
 		  << " quality: "   << temp_quality;
 	    }
@@ -609,15 +612,7 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic() {
 	  //   2) If the candidate at the previous wire is up to 4 clocks
 	  //      earlier, regardless of quality.
 	  if (dt == 0) {
-#ifdef TB
-#ifdef TB2004
 	    if (qual_prev >= qual_this) ghost_cleared[key_wire][i_pattern] = 1;
-#else
-	    if (qual_prev >  qual_this) ghost_cleared[key_wire][i_pattern] = 1;
-#endif
-#else
-	    if (qual_prev >= qual_this) ghost_cleared[key_wire][i_pattern] = 1;
-#endif
 	  }
 	  else if (dt > 0 && dt <= 4) {
 	    ghost_cleared[key_wire][i_pattern] = 1;
@@ -649,11 +644,9 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic() {
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
       if (ghost_cleared[key_wire][i_pattern] > 0) {
 	clear(key_wire, i_pattern);
-	if (infoV > 1) {
-	  LogDebug("CSCAnodeLCTProcessor")
-	    << ((i_pattern == 0) ? "Accelerator" : "Collision")
-	    << " pattern ghost cancelled on key_wire: " << key_wire << "\n";
-	}
+	if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+	  << ((i_pattern == 0) ? "Accelerator" : "Collision")
+	  << " pattern ghost cancelled on key_wire: " << key_wire << "\n";
       }
     }
   }
@@ -694,7 +687,13 @@ void CSCAnodeLCTProcessor::lctSearch() {
 #ifdef TB
     // Do not report ALCTs found prior to L1Accept.
     int early_tbins = fifo_pretrig - 10 + CSCConstants::TIME_OFFSET;
-    if (plct->getBX() < early_tbins) continue;
+    if (plct->getBX() < early_tbins) {
+      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+	<< " Do not report ALCT on keywire " << plct->getKeyWG()
+	<< ": found at bx " << plct->getBX() << ", whereas the earliest "
+	<< "allowed bx is " << early_tbins;
+      continue;
+    }
 #endif
     if (!bestALCT.isValid() || *plct > bestALCT) {
       secondALCT = bestALCT;
