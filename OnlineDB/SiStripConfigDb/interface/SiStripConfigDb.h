@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.12 2006/07/26 11:27:19 bainbrid Exp $
-// Latest tag:  $Name: V00-01-02 $
+// Last commit: $Id: SiStripConfigDb.h,v 1.13 2006/08/31 13:43:19 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
 #ifndef SiStripConfigDb_H
@@ -9,6 +9,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "DeviceFactory.h"
@@ -33,10 +34,17 @@ class SiStripConfigDb {
   
   /** Constructor when using the configuration database, which takes
       as arguments the database connection parameters. */
+  SiStripConfigDb( std::string confdb, 
+		   std::string db_partition,
+		   uint32_t    db_major_vers = 0,
+		   uint32_t    db_minor_vers = 0 ); 
+
+  /** Constructor when using the configuration database, which takes
+      as arguments the database connection parameters. */
   SiStripConfigDb( std::string db_user, 
 		   std::string db_passwd, 
 		   std::string db_path,
-		   std::string db_partition = "",
+		   std::string db_partition,
 		   uint32_t    db_major_vers = 0,
 		   uint32_t    db_minor_vers = 0 ); 
   
@@ -73,7 +81,7 @@ class SiStripConfigDb {
   
   /** Struct containing partition name and version. */
   struct Partition { 
-/*     Partition() : name_(""), major_(0), minor_(0); */
+    /*     Partition() : name_(""), major_(0), minor_(0); */
     std::string name_;
     uint32_t major_;
     uint32_t minor_;
@@ -82,8 +90,8 @@ class SiStripConfigDb {
   /** Struct that holds addresses that uniquely identify a hardware
       component within the control system. */
   struct DeviceAddress { 
-/*     DeviceAddress : fecCrate_(0), fecSlot_(0), fecRing_(0),  */
-/* 		    ccuAddr_(0), ccuChan_(0), i2cAddr_(0); */
+    /*     DeviceAddress : fecCrate_(0), fecSlot_(0), fecRing_(0),  */
+    /* 		    ccuAddr_(0), ccuChan_(0), i2cAddr_(0); */
     uint16_t fecCrate_; 
     uint16_t fecSlot_;
     uint16_t fecRing_;
@@ -125,12 +133,13 @@ class SiStripConfigDb {
   
   // -------------------- FEC / Front-End devices -------------------- 
   
-  /** Returns descriptions for a given device type (which can be one
-      of the following: APV25, APVMUX, DCU, LASERDRIVER, PLL ). If
-      boolean is set to true, the descriptions of all devices EXCEPT
-      those of the given type are returned. */
-  const DeviceDescriptions& getDeviceDescriptions( const enumDeviceType&,
-						   bool all_devices_except = false ); 
+  /** Returns (in arg list) descriptions for a given device type
+      (which can be one of the following: APV25, APVMUX, DCU,
+      LASERDRIVER, PLL ). If boolean is set to true, the descriptions
+      of all devices EXCEPT those of the given type are returned. */
+  void getDeviceDescriptions( DeviceDescriptions&,
+			      const enumDeviceType&,
+			      bool all_devices_except = false );
   
   /** Fills local cache with all device descriptions from DB/xml. */
   const DeviceDescriptions& getDeviceDescriptions(); 
@@ -369,9 +378,7 @@ class SiStripConfigDb {
   /** Switch to enable/disable transfer of strip information. */
   bool usingStrips_;
   
-  /** Defines the MessageLogger category for this class. */
-  static const std::string logCategory_;
-
+  /** Static counter of instances of this class. */
   static uint32_t cntr_;
   
 };
