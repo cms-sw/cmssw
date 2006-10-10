@@ -12,8 +12,6 @@ Classes defining particle candidate. The class reco::Candidate is
 intended to be a common class for many Physics Analysis tools.
 
 \subsection interface Public interface
-- reco::ParticleKinematics: a reconstructed particle with momentum 4-vector
-- reco::ParticleWithCharge: a reconstructed particle with momentum 4-vector and electric charge
 - reco::Particle: a reconstructed particle with momentum 4-vector, a vertex and an electric charge. 
 - reco::Candidate: a generic reconstructed particle candidates. It adds
   to reco::Particle interface for navigation among constituents.
