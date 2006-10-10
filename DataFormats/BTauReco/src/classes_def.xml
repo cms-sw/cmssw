@@ -60,5 +60,12 @@
   <class name="edm::Ref<std::vector<reco::SoftLeptonTagInfo>, reco::SoftLeptonTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::SoftLeptonTagInfo>, reco::SoftLeptonTagInfo> > " />
   <class name="edm::RefProd<std::vector<reco::SoftLeptonTagInfo> > " />
   <class name="edm::RefVector<std::vector<reco::SoftLeptonTagInfo>, reco::SoftLeptonTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::SoftLeptonTagInfo>, reco::SoftLeptonTagInfo> >" />
+
+  <class name="reco::TauImpactParameterInfo" />
+  <class name="std::vector<reco::TauImpactParameterInfo>" />
+  <class name="edm::Wrapper<std::vector<reco::TauImpactParameterInfo> >" />
+  <class name="edm::Ref<std::vector<reco::TauImpactParameterInfo>, reco::TauImpactParameterInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TauImpactParameterInfo>, reco::TauImpactParameterInfo> > " />
+  <class name="edm::RefProd<std::vector<reco::TauImpactParameterInfo> > " />
+  <class name="edm::RefVector<std::vector<reco::TauImpactParameterInfo>, reco::TauImpactParameterInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TauImpactParameterInfo>, reco::TauImpactParameterInfo> >" />
   
 </lcgdict>

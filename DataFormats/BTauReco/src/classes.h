@@ -59,6 +59,12 @@ namespace {
     edm::RefProd<reco::SoftLeptonTagInfoCollection> rp6;
     edm::RefVector<reco::SoftLeptonTagInfoCollection> rv6;
 
+    reco::TauImpactParameterInfoCollection v7;
+    edm::Wrapper<reco::TauImpactParameterInfoCollection> w7;
+    edm::Ref<reco::TauImpactParameterInfoCollection> r7;
+    edm::RefProd<reco::TauImpactParameterInfoCollection> rp7;
+    edm::RefVector<reco::TauImpactParameterInfoCollection> rv7;
+
     std::pair<unsigned int, unsigned int> pp1;
     std::map<unsigned long, std::vector<unsigned long> > m1;
     edm::RefProd<reco::CaloJetCollection> rpj1;
