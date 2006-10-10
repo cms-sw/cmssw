@@ -59,11 +59,15 @@ private:
   vector<float> nEventsUsed;
   edm::InputTag jetTagSrc;
   vector<float> nEventsRiso;
+  vector<float> nEventsEnergyUsed;
+  vector<float> nEventsEnergy;
+  vector<float> energyBins;
   std::string outPutFile;
   float rSig,rMatch,ptLeadTk, rIso;
   //AGGIUNGERE MC INFO???
   MonitorElement* effFindLeadTk;  
   MonitorElement* effVsRiso;
+  MonitorElement* effVsEt;
   MonitorElement* nSignalTracks;
   MonitorElement* nSignalTracksAfterIsolation;
   MonitorElement* nAssociatedTracks;
