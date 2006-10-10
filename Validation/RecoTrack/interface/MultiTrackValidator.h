@@ -14,15 +14,12 @@
 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include <iostream>
 #include <string>
-
-#include <TH1.h>
-#include <TH2.h>
-#include <TROOT.h>
-#include <TFile.h>
-#include <TCanvas.h>
-#include <TGraphErrors.h>
 
 using namespace edm;
 using namespace std;
@@ -31,6 +28,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
  public:
 
   MultiTrackValidator(const edm::ParameterSet& pset):
+    dbe_(0),
     sim(pset.getParameter<string>("sim")),
     label(pset.getParameter< vector<string> >("label")),
     associators(pset.getParameter< vector<string> >("associators")),
@@ -41,21 +39,18 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     nint(pset.getParameter<int>("nint")),
     minpt(pset.getParameter<double>("minpt"))
     {
-      hFile = new TFile( out.c_str(), open.c_str() );
+      dbe_ = Service<DaqMonitorBEInterface>().operator->();
     }
   
-  ~MultiTrackValidator(){
-    if (hFile!=0) {
-      hFile->Close();
-      delete hFile;
-    }
-  }
+  ~MultiTrackValidator(){ }
 
   void beginJob( const EventSetup &);
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
   void endJob();
 
  private:
+
+  DaqMonitorBEInterface* dbe_;
 
   string sim;
   vector<string> label, associators;
@@ -64,19 +59,18 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   int nint;
   double minpt;
   
-  vector<TH1F*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
-  vector<TH1F*> h_tracks, h_nchi2, h_nchi2_prob, h_hits, h_effic, h_ptrmsh, h_deltaeta, h_charge;
-  vector<TH1F*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullK, h_pt2;
-  vector<TH2F*> chi2_vs_nhits, chi2_vs_eta, nhits_vs_eta, ptres_vs_eta, etares_vs_eta;
-  vector<TH1F*> h_assochi2, h_assochi2_prob, h_hits_eta;
+  vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
+  vector<MonitorElement*> h_tracks, h_nchi2, h_nchi2_prob, h_hits, h_effic, h_ptrmsh, h_deltaeta, h_charge;
+  vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullK, h_pt2;
+  vector<MonitorElement*> chi2_vs_nhits, chi2_vs_eta, nhits_vs_eta, ptres_vs_eta, etares_vs_eta;
+  vector<MonitorElement*> h_assochi2, h_assochi2_prob, h_hits_eta;
   
   vector< vector<double> > etaintervals;
   vector< vector<double> > hitseta;
   vector< vector<int> > totSIM,totREC;
   
-  vector< vector<TH1F*> > ptdistrib;
-  vector< vector<TH1F*> > etadistrib;
-  TFile *  hFile;  
+  vector< vector<MonitorElement*> > ptdistrib;
+  vector< vector<MonitorElement*> > etadistrib;
 
   edm::ESHandle<MagneticField> theMF;
 

@@ -17,15 +17,21 @@ using namespace ROOT::Math;
 
 void MultiTrackValidator::beginJob( const EventSetup & setup) {
 
+  dbe_->showDirStructure();
+
   int j=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
+
+      dbe_->cd();
+      string dirName = label[www]+associators[ww];
+      dbe_->setCurrentFolder(dirName.c_str());
       
       vector<double> etaintervalsv;
       vector<double> hitsetav;
       vector<int>    totSIMv,totRECv;
-      vector<TH1F*>  ptdistribv;
-      vector<TH1F*>  etadistribv;
+      vector<MonitorElement*>  ptdistribv;
+      vector<MonitorElement*>  etadistribv;
   
       double step=(max-min)/nint;
       ostringstream title,name;
@@ -40,12 +46,12 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 	title.str("");
 	name <<"pt["<<d<<","<<d+step<<"]";
 	title <<"p_{t} residue "<< d << "<#eta<"<<d+step;
-	ptdistribv.push_back(new TH1F(name.str().c_str(),title.str().c_str(), 200, -2, 2 ));
+	ptdistribv.push_back(dbe_->book1D(name.str().c_str(),title.str().c_str(), 200, -2, 2 ));
 	name.str("");
 	title.str("");
 	name <<"eta["<<d<<","<<d+step<<"]";
 	title <<"eta residue "<< d << "<#eta<"<<d+step;
-	etadistribv.push_back(new TH1F(name.str().c_str(),title.str().c_str(), 200, -0.2, 0.2 ));
+	etadistribv.push_back(dbe_->book1D(name.str().c_str(),title.str().c_str(), 200, -0.2, 0.2 ));
       }
       etaintervals.push_back(etaintervalsv);
       totSIM.push_back(totSIMv);
@@ -54,39 +60,43 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       ptdistrib.push_back(ptdistribv);
       etadistrib.push_back(etadistribv);
      
-      h_ptSIM.push_back( new TH1F("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
-      h_etaSIM.push_back( new TH1F("etaSIM", "generated pseudorapidity", 500, 0, 5 ) );
-      h_tracksSIM.push_back( new TH1F("tracksSIM","number of simluated tracks",100,-0.5,99.5) );
-      h_vertposSIM.push_back( new TH1F("vertposSIM","Transverse position of sim vertices",1000,-0.5,10000.5) );
+      h_ptSIM.push_back( dbe_->book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
+      h_etaSIM.push_back( dbe_->book1D("etaSIM", "generated pseudorapidity", 500, 0, 5 ) );
+      h_tracksSIM.push_back( dbe_->book1D("tracksSIM","number of simluated tracks",100,-0.5,99.5) );
+      h_vertposSIM.push_back( dbe_->book1D("vertposSIM","Transverse position of sim vertices",1000,-0.5,10000.5) );
       
-      //     h_pt     = new TH1F("pt", "p_{t} residue", 2000, -500, 500 );
-      h_pt.push_back( new TH1F("pullPt", "pull of p_{t}", 100, -10, 10 ) );
-      h_pt2.push_back( new TH1F("pt2", "p_{t} residue (#tracks>1)", 300, -15, 15 ) );
-      h_eta.push_back( new TH1F("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
-      h_tracks.push_back( new TH1F("tracks","number of reconstructed tracks",10,-0.5,9.5) );
-      h_nchi2.push_back( new TH1F("nchi2", "normalized chi2", 200, 0, 20 ) );
-      h_nchi2_prob.push_back( new TH1F("chi2_prob", "normalized chi2 probability",100,0,1));
-      h_hits.push_back( new TH1F("hits", "number of hits per track", 30, -0.5, 29.5 ) );
-      h_effic.push_back( new TH1F("effic","efficiency vs #eta",nint,&etaintervals[j][0]) );
-      h_ptrmsh.push_back( new TH1F("PtRMS","PtRMS vs #eta",nint,&etaintervals[j][0]) );
-      h_deltaeta.push_back( new TH1F("etaRMS","etaRMS vs #eta",nint,&etaintervals[j][0]) );
-      h_hits_eta.push_back( new TH1F("hits_eta","hits_eta",nint,&etaintervals[j][0]) );
-      h_charge.push_back( new TH1F("charge","charge",3,-1.5,1.5) );
+      //     h_pt     = dbe_->book1D("pt", "p_{t} residue", 2000, -500, 500 );
+      h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
+      h_pt2.push_back( dbe_->book1D("pt2", "p_{t} residue (#tracks>1)", 300, -15, 15 ) );
+      h_eta.push_back( dbe_->book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
+      h_tracks.push_back( dbe_->book1D("tracks","number of reconstructed tracks",10,-0.5,9.5) );
+      h_nchi2.push_back( dbe_->book1D("nchi2", "normalized chi2", 200, 0, 20 ) );
+      h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized chi2 probability",100,0,1));
+      h_hits.push_back( dbe_->book1D("hits", "number of hits per track", 30, -0.5, 29.5 ) );
+      h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nint,min,max) );
+      h_ptrmsh.push_back( dbe_->book1D("PtRMS","PtRMS vs #eta",nint,min,max) );
+      h_deltaeta.push_back( dbe_->book1D("etaRMS","etaRMS vs #eta",nint,min,max) );
+      h_hits_eta.push_back( dbe_->book1D("hits_eta","hits_eta",nint,min,max) );
+//       h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nint,&etaintervals[j][0]) );
+//       h_ptrmsh.push_back( dbe_->book1D("PtRMS","PtRMS vs #eta",nint,&etaintervals[j][0]) );
+//       h_deltaeta.push_back( dbe_->book1D("etaRMS","etaRMS vs #eta",nint,&etaintervals[j][0]) );
+//       h_hits_eta.push_back( dbe_->book1D("hits_eta","hits_eta",nint,&etaintervals[j][0]) );
+      h_charge.push_back( dbe_->book1D("charge","charge",3,-1.5,1.5) );
       
-      h_pullTheta.push_back( new TH1F("pullTheta","pull of theta parameter",100,-10,10) );
-      h_pullPhi0.push_back( new TH1F("pullPhi0","pull of phi0 parameter",100,-10,10) );
-      h_pullD0.push_back( new TH1F("pullD0","pull of d0 parameter",100,-10,10) );
-      h_pullDz.push_back( new TH1F("pullDz","pull of dz parameter",100,-10,10) );
-      h_pullK.push_back( new TH1F("pullK","pull of k parameter",100,-10,10) );
+      h_pullTheta.push_back( dbe_->book1D("pullTheta","pull of theta parameter",100,-10,10) );
+      h_pullPhi0.push_back( dbe_->book1D("pullPhi0","pull of phi0 parameter",100,-10,10) );
+      h_pullD0.push_back( dbe_->book1D("pullD0","pull of d0 parameter",100,-10,10) );
+      h_pullDz.push_back( dbe_->book1D("pullDz","pull of dz parameter",100,-10,10) );
+      h_pullK.push_back( dbe_->book1D("pullK","pull of k parameter",100,-10,10) );
       
-      chi2_vs_nhits.push_back( new TH2F("chi2_vs_nhits","chi2 vs nhits",25,0,25,100,0,10) );
-      chi2_vs_eta.push_back( new TH2F("chi2_vs_eta","chi2 vs eta",nint,min,max,100,0,10) );
-      nhits_vs_eta.push_back( new TH2F("nhits_vs_eta","nhits vs eta",nint,min,max,25,0,25) );
-      ptres_vs_eta.push_back( new TH2F("ptres_vs_eta","ptresidue vs eta",nint,min,max,200,-2,2) );
-      etares_vs_eta.push_back( new TH2F("etares_vs_eta","etaresidue vs eta",nint,min,max,200,-0.1,0.1) );
+      chi2_vs_nhits.push_back( dbe_->book2D("chi2_vs_nhits","chi2 vs nhits",25,0,25,100,0,10) );
+      chi2_vs_eta.push_back( dbe_->book2D("chi2_vs_eta","chi2 vs eta",nint,min,max,100,0,10) );
+      nhits_vs_eta.push_back( dbe_->book2D("nhits_vs_eta","nhits vs eta",nint,min,max,25,0,25) );
+      ptres_vs_eta.push_back( dbe_->book2D("ptres_vs_eta","ptresidue vs eta",nint,min,max,200,-2,2) );
+      etares_vs_eta.push_back( dbe_->book2D("etares_vs_eta","etaresidue vs eta",nint,min,max,200,-0.1,0.1) );
       
-      h_assochi2.push_back( new TH1F("assochi2","track association chi2",200,0,50) );
-      h_assochi2_prob.push_back(new TH1F("assochi2prob","probability of association chi2",100,0,1));
+      h_assochi2.push_back( dbe_->book1D("assochi2","track association chi2",200,0,50) );
+      h_assochi2_prob.push_back(dbe_->book1D("assochi2prob","probability of association chi2",100,0,1));
       j++;
     }
   }
@@ -250,7 +260,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	
 	  //pt residue distribution per eta interval
 	  int i=0;
-	  for (vector<TH1F*>::iterator h=ptdistrib[w].begin(); h!=ptdistrib[w].end(); h++){
+	  for (vector<MonitorElement*>::iterator h=ptdistrib[w].begin(); h!=ptdistrib[w].end(); h++){
 	    if (abs(assocTrack->momentum().pseudoRapidity())>etaintervals[w][i]&&
 		abs(assocTrack->momentum().pseudoRapidity())<etaintervals[w][i+1]) {
 	      (*h)->Fill(track->pt()-assocTrack->momentum().perp());
@@ -260,7 +270,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	
 	  //eta residue distribution per eta interval
 	  i=0;
-	  for (vector<TH1F*>::iterator h=etadistrib[w].begin(); h!=etadistrib[w].end(); h++){
+	  for (vector<MonitorElement*>::iterator h=etadistrib[w].begin(); h!=etadistrib[w].end(); h++){
 	    if (abs(assocTrack->momentum().pseudoRapidity())>etaintervals[w][i]&&
 		abs(assocTrack->momentum().pseudoRapidity())<etaintervals[w][i+1]) {
 	      (*h)->Fill(etares);
@@ -280,44 +290,24 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 void MultiTrackValidator::endJob() {
 
-  //delete associator;
-  //delete associatorForParamAtPca;
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
-      string dirName = label[www]+associators[ww];
-      TDirectory * p = hFile->mkdir(dirName.c_str());
-      
-      //write simulation histos
-      TDirectory * simD = p->mkdir("simulation");
-      simD->cd();
-      h_ptSIM[w]->Write();
-      h_etaSIM[w]->Write();
-      h_tracksSIM[w]->Write();
-      h_vertposSIM[w]->Write();
-      
       //fill pt rms plot versus eta and write pt residue distribution per eta interval histo
-      TDirectory * ptD = p->mkdir("ptdistribution");
-      ptD->cd();
       int i=0;
-      for (vector<TH1F*>::iterator h=ptdistrib[w].begin(); h!=ptdistrib[w].end(); h++){
-	(*h)->Write();
-	h_ptrmsh[w]->Fill(etaintervals[w][i+1]-0.00001 ,(*h)->GetRMS());
+      for (vector<MonitorElement*>::iterator h=ptdistrib[w].begin(); h!=ptdistrib[w].end(); h++){
+	h_ptrmsh[w]->Fill(etaintervals[w][i+1]-0.00001 ,(*h)->getRMS());
 	i++;
       }
       
       //fill eta rms plot versus eta and write eta residue distribution per eta interval histo
-      TDirectory * etaD = p->mkdir("etadistribution");
-      etaD->cd();
       i=0;
-      for (vector<TH1F*>::iterator h=etadistrib[w].begin(); h!=etadistrib[w].end(); h++){
-	(*h)->Write();
-	h_deltaeta[w]->Fill(etaintervals[w][i+1]-0.00001 ,(*h)->GetRMS());
+      for (vector<MonitorElement*>::iterator h=etadistrib[w].begin(); h!=etadistrib[w].end(); h++){
+	h_deltaeta[w]->Fill(etaintervals[w][i+1]-0.00001 ,(*h)->getRMS());
 	i++;
       }
       
-      //write the other histos
-      p->cd();
+      //fill efficiency plot
       for (unsigned int j=0; j<totREC[w].size(); j++){
 	if (totSIM[w][j]!=0){
 	  h_effic[w]->Fill(etaintervals[w][j+1]-0.00001, ((double) totREC[w][j])/((double) totSIM[w][j]));
@@ -327,46 +317,16 @@ void MultiTrackValidator::endJob() {
 	}
       }
       
+      //fill hits vs eta plot
       for (unsigned int rr=0; rr<hitseta[w].size(); rr++){
 	if (totREC[w][rr]!=0)
 	  h_hits_eta[w]->Fill(etaintervals[w][rr+1]-0.00001,((double)  hitseta[w][rr])/((double) totREC[w][rr]));
 	else h_hits_eta[w]->Fill(etaintervals[w][rr+1]-0.00001, 0);
       }
-      
-      h_pt[w]->Write();
-      h_pt2[w]->Write();
-      h_eta[w]->Write();
-      h_tracks[w]->Write();
-      h_nchi2[w]->Write();
-      h_nchi2_prob[w]->Write();
-      h_hits[w]->Write();
-      h_effic[w]->Write();
-      h_ptrmsh[w]->Write();
-      h_deltaeta[w]->Write();
-      chi2_vs_nhits[w]->Write();
-      chi2_vs_eta[w]->Write();
-      nhits_vs_eta[w]->Write();
-      ptres_vs_eta[w]->Write();
-      etares_vs_eta[w]->Write();
-      h_charge[w]->Write();
-      
-      h_pullTheta[w]->Write();
-      h_pullPhi0[w]->Write();
-      h_pullD0[w]->Write();
-      h_pullDz[w]->Write();
-      h_pullK[w]->Write();
-      
-      h_assochi2[w]->Write();
-      h_assochi2_prob[w]->Write();
-      
-      //     for (int point=0;point<nint;point++){
-      //       h_hits_eta[w]->SetBinError(point,1);
-      //     }
-      h_hits_eta[w]->Write();
       w++;
     }
   }
-  hFile->Close();
+  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
 
 
