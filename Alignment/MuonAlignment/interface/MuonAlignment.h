@@ -4,13 +4,13 @@
 /** \class MuonAlignment
  *  The MuonAlignment helper class for alignment jobs
  *
- *  $Date: 2006/10/10 09:30:50 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/10/10 11:54:57 $
+ *  $Revision: 1.1 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
-
-class MuonAlignment {
+class MuonAlignment{
 
   public:
 
@@ -27,7 +27,6 @@ class MuonAlignment {
 
   private:
 
-      // ----------member data ---------------------------
       AlignableMuon* theAlignableMuon;
       int rawid;
       std::vector<float> local_displacements;

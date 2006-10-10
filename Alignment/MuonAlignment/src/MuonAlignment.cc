@@ -26,7 +26,6 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
-#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
 
 //____________________________________________________________________________________
@@ -60,7 +59,6 @@ void MuonAlignment::moveDTChamber( int rawid , std::vector<float> local_displace
     // Select the given chamber
     if ( id == rawid ){
           
-
       // Convert local to global diplacements
       LocalVector lvector( local_displacements.at(0), local_displacements.at(1), local_displacements.at(2)); 
       GlobalVector gvector = ((*iter)->surface()).toGlobal( lvector );
