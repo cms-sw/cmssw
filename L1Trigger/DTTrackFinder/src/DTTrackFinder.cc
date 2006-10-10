@@ -37,8 +37,11 @@ int ev_=-1;
 
 DTTrackFinder::DTTrackFinder(const ParameterSet & pset) {
 
-  produces<L1MuDTTrackContainer>("dttf");
-  produces<vector<L1MuRegionalCand> >("dt");
+  string lutdir_ = pset.getUntrackedParameter<string>("lutdir","../parameters/");
+  setenv("DTTF_DATA_PATH",lutdir_.c_str(),1);
+
+  produces<L1MuDTTrackContainer>("DTTF");
+  produces<vector<L1MuRegionalCand> >("DT");
 
   setup1 = new L1MuDTTFSetup();
 
@@ -73,7 +76,7 @@ void DTTrackFinder::produce(Event& e, const EventSetup& c) {
   tra_product->setContainer(dtTracks);
   *vec_product = dtTracks; 
 
-  e.put(tra_product,"dttf");
-  e.put(vec_product,"dt");
+  e.put(tra_product,"DTTF");
+  e.put(vec_product,"DT");
 
 }

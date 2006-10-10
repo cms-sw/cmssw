@@ -156,8 +156,8 @@ void L1MuDTTFConfig::setDefaults() {
 bool L1MuDTTFConfig::m_debug = false;
 int L1MuDTTFConfig::m_dbgLevel = -1;
 bool L1MuDTTFConfig::m_overlap = true;
-int L1MuDTTFConfig::m_BxMin = -9;
-int L1MuDTTFConfig::m_BxMax = 7;
+int L1MuDTTFConfig::m_BxMin = 0;
+int L1MuDTTFConfig::m_BxMax = 40;
 int L1MuDTTFConfig::m_extTSFilter  = 1;
 bool L1MuDTTFConfig::m_useEX21 = false;
 bool L1MuDTTFConfig::m_etaTF = true;
