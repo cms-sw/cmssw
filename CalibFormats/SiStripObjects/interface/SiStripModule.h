@@ -1,14 +1,21 @@
-// Last commit: $Id: SiStripModule.h,v 1.2 2006/06/09 13:09:19 bainbrid Exp $
-// Latest tag:  $Name: V01-03-01 $
+// Last commit: $Id: SiStripModule.h,v 1.3 2006/07/26 11:20:30 bainbrid Exp $
+// Latest tag:  $Name: V01-03-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibFormats/SiStripObjects/interface/SiStripModule.h,v $
 
 #ifndef CalibFormats_SiStripObjects_SiStripModule_H
 #define CalibFormats_SiStripObjects_SiStripModule_H
 
+#include "DataFormats/SiStripDetId/interface/SiStripFecKey.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/cstdint.hpp>
+#include <ostream>
 #include <vector>
 #include <map>
+
+class SiStripModule;
+
+/** Debug info for SiStripModule class. */
+std::ostream& operator<< ( std::ostream&, const SiStripModule& );
 
 /** 
     \class SiStripModule
@@ -20,10 +27,11 @@ class SiStripModule {
   
   /** */
   SiStripModule( const FedChannelConnection& conn ) 
-    : fecCrate_( conn.fecCrate() ), 
-    fecSlot_( conn.fecSlot() ), 
-    fecRing_( conn.fecRing() ), 
-    ccuAddr_( conn.ccuAddr() ), 
+    : path_( conn.fecCrate(), 
+	     conn.fecSlot(), 
+	     conn.fecRing(), 
+	     conn.ccuAddr(), 
+	     conn.ccuChan() ),
     ccuChan_( conn.ccuChan() ), 
     apv0x32_(0), apv0x33_(0), apv0x34_(0), apv0x35_(0), apv0x36_(0), apv0x37_(0), 
     dcu0x00_(0), mux0x43_(0), pll0x44_(0), lld0x60_(0),
@@ -40,7 +48,10 @@ class SiStripModule {
   
   /** Returns CCU channel for this module. */
   inline const uint16_t& ccuChan() const;
-
+  
+  /** Returns hardware "path" for this module. */
+  inline const SiStripFecKey::Path& path() const;
+  
   /** Sets device info (addresses, DetID, etc) for this module. */
   void addDevices( const FedChannelConnection& conn );
 
@@ -126,11 +137,9 @@ class SiStripModule {
   inline const uint16_t& lld() const;
 
  private: 
+
+  SiStripFecKey::Path path_;
   
-  uint16_t fecCrate_;
-  uint16_t fecSlot_;
-  uint16_t fecRing_;
-  uint16_t ccuAddr_;
   uint16_t ccuChan_;
   
   // APVs found (with hex addr)  
@@ -162,6 +171,8 @@ class SiStripModule {
 };
 
 // ---------- inline methods ----------
+
+const SiStripFecKey::Path& SiStripModule::path() const { return path_; }
 
 const uint16_t& SiStripModule::ccuChan() const { return ccuChan_; }
 

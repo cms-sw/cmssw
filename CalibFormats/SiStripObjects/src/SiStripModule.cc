@@ -15,39 +15,34 @@ const string SiStripModule::logCategory_ = "SiStrip|Cabling";
 void SiStripModule::addDevices( const FedChannelConnection& conn ) {
   
   // Consistency check with HW addresses
-  if ( fecCrate_ && fecCrate_ != conn.fecCrate() ) {
-    edm::LogError(logCategory_) << "[SiStripFecCabling::addDevices]" 
-				<< " Unexpected FEC crate ("
+  if ( path_.fecCrate_ && path_.fecCrate_ != conn.fecCrate() ) {
+    edm::LogError(logCategory_) << " Unexpected FEC crate ("
 				<< conn.fecCrate() << ") for this module ("
-				<< fecCrate_ << ")!";
+				<< path_.fecCrate_ << ")!";
     return;
   }
-  if ( fecSlot_ && fecSlot_ != conn.fecSlot() ) {
-    edm::LogError(logCategory_) << "[SiStripFecCabling::addDevices]" 
-				<< " Unexpected FEC slot ("
+  if ( path_.fecSlot_ && path_.fecSlot_ != conn.fecSlot() ) {
+    edm::LogError(logCategory_) << " Unexpected FEC slot ("
 				<< conn.fecSlot() << ") for this module ("
-				<< fecSlot_ << ")!";
+				<< path_.fecSlot_ << ")!";
     return;
   }
-  if ( fecRing_ && fecRing_ != conn.fecRing() ) {
-    edm::LogError(logCategory_) << "[SiStripFecCabling::addDevices]" 
-				<< " Unexpected FEC ring ("
+  if ( path_.fecRing_ && path_.fecRing_ != conn.fecRing() ) {
+    edm::LogError(logCategory_) << " Unexpected FEC ring ("
 				<< conn.fecRing() << ") for this module ("
-				<< fecRing_ << ")!";
+				<< path_.fecRing_ << ")!";
     return;
   }
-  if ( ccuAddr_ && ccuAddr_ != conn.ccuAddr() ) {
-    edm::LogError(logCategory_) << "[SiStripFecCabling::addDevices]" 
-				<< " Unexpected CCU addr ("
+  if ( path_.ccuAddr_ && path_.ccuAddr_ != conn.ccuAddr() ) {
+    edm::LogError(logCategory_) << " Unexpected CCU addr ("
 				<< conn.ccuAddr() << ") for this module ("
-				<< ccuAddr_ << ")!";
+				<< path_.ccuAddr_ << ")!";
     return;
   }
-  if ( ccuChan_ && ccuChan_ != conn.ccuChan() ) {
-    edm::LogError(logCategory_) << "[SiStripFecCabling::addDevices]" 
-				<< " Unexpected CCU chan ("
+  if ( path_.ccuChan_ && path_.ccuChan_ != conn.ccuChan() ) {
+    edm::LogError(logCategory_) << " Unexpected CCU chan ("
 				<< conn.ccuChan() << ") for this module ("
-				<< ccuChan_ << ")!";
+				<< path_.ccuChan_ << ")!";
     return;
   }
 
@@ -298,3 +293,42 @@ void SiStripModule::print() const {
   LogTrace("FedCabling") << ss.str();
 }
 
+// -----------------------------------------------------------------------------
+//
+ostream& operator<< ( ostream& os, const SiStripModule& devs ) {
+  
+  os << "[SiStripModule]" << endl
+     << "  crate/FEC/CCU/Module: "
+     << devs.path().fecCrate_ << "/"
+     << devs.path().fecSlot_ << "/"
+     << devs.path().fecRing_ << "/"
+     << devs.path().ccuAddr_ << "/"
+     << devs.path().ccuChan_ 
+     << "  ActiveApvs: ";
+  if ( devs.activeApvs().empty() ) { os << "NONE!"; }
+  vector<uint16_t>::const_iterator iapv = devs.activeApvs().begin();
+  for ( ; iapv != devs.activeApvs().end(); iapv++ ) {
+    if ( *iapv ) { os << *iapv << " "; }
+  }
+  os << "  DcuId/DetId/nPairs: "
+     << hex
+     << "0x" << setfill('0') << setw(8) << devs.dcuId() << "/"
+     << "0x" << setfill('0') << setw(8) << devs.detId() << "/"
+     << dec
+     << devs.nApvPairs()
+    //      << "  DCU/MUX/PLL/LLD found: "
+    //      << bool(dcu0x00_) << "/"
+    //      << bool(mux0x43_) << "/"
+    //      << bool(pll0x44_) << "/"
+    //      << bool(lld0x60_);
+     << "  ApvPairNum/FedId/Ch: ";
+  SiStripModule::FedCabling::const_iterator ichan = devs.fedChannels().begin();
+  for ( ; ichan != devs.fedChannels().end(); ichan++ ) {
+    if ( ichan->first ) {
+      os << ichan->first << "/"
+	 << ichan->second.first << "/"
+	 << ichan->second.second << " ";
+    }
+  }
+  return os;
+}
