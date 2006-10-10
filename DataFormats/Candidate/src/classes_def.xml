@@ -1,10 +1,7 @@
 <lcgdict>
 <selection>
-  <class name="reco::ParticleKinematics">
-    <field name="p4_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<Double32_t> >" /> 
-  </class>
-  <class name="reco::ParticleWithCharge" />
   <class name="reco::Particle">
+    <field name="p4_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<Double32_t> >" /> 
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
   </class>
   <class name="reco::Candidate">
@@ -16,7 +13,9 @@
   <class name="reco::ShallowCloneCandidate"/>
   <class name="std::vector<reco::Candidate *>" />
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >" />
+  <class name="std::vector<reco::Particle>" />
   <class name="edm::Wrapper<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> > >" />
+  <class name="edm::Wrapper<std::vector<reco::Particle> >" />
   <class name="edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >"/>
   <class name="edm::RefProd<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> > >"/>
   <class name="edm::RefVector<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >"/>
