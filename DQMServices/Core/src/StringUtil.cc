@@ -9,7 +9,7 @@ using std::cout; using std::endl; using std::cerr;
 using std::string; using std::vector;
 
 // yes if we have a match (<pattern> can include unix-like wildcards "*", "?")
-bool StringUtil::matchit(const string & s, const string & pattern) const
+bool StringUtil::matchit(const string & s, const string & pattern)
 {
 
   bool ret = false;
@@ -39,12 +39,12 @@ bool StringUtil::matchit(const string & s, const string & pattern) const
 
   return ret;
   
-}    
+}
 
 // return <pathname>/<filename>
 // (or just <filename> if <pathname> corresponds to top folder)
 string 
-StringUtil::getUnixName(const string & pathname, const string & filename) const
+StringUtil::getUnixName(const string & pathname, const string & filename)
 {
   if(isTopFolder(pathname))
     return filename;
@@ -53,7 +53,7 @@ StringUtil::getUnixName(const string & pathname, const string & filename) const
 }
 
 // true if pathname corresponds to top folder
-bool StringUtil::isTopFolder(const string & pathname) const
+bool StringUtil::isTopFolder(const string & pathname)
 {
   if(pathname == "" || pathname == "/" || pathname == ROOT_PATHNAME)
     return true;
@@ -64,7 +64,7 @@ bool StringUtil::isTopFolder(const string & pathname) const
 // if a search patten contains a wildcard (*, ?), the regex library 
 // needs a preceding "." if it is to behave like a unix "?" or "*" wildcard;
 // this function replaces "*" by ".*" and "?" by ".?"
-string StringUtil::addDots2WildCards(const string & s) const
+string StringUtil::addDots2WildCards(const string & s)
 {
   string ret = replace_string(s, "*", ".*");
   string ret2 = replace_string(ret, "?", ".?");
@@ -73,7 +73,7 @@ string StringUtil::addDots2WildCards(const string & s) const
 
 // find all "<subs>" in string <s>, replace by "<repl>"
 string StringUtil::replace_string(const string & s, const string & subs,  
-				  const string & repl) const
+				  const string & repl)
 {
   // lengths of substring to be replaced & its replacement
   unsigned int subs_length = subs.length();
@@ -99,7 +99,7 @@ string StringUtil::replace_string(const string & s, const string & subs,
 // Using fullpath as input (e.g. A/B/test.txt) 
 // extract path (e.g. A/B) and filename (e.g. test.txt);
 void StringUtil::unpack(const string & fullpath, string & path, 
-				   string & filename) const
+				   string & filename)
 {
   unsigned n = fullpath.rfind("/");
   if(n == string::npos)
@@ -118,10 +118,14 @@ void StringUtil::unpack(const string & fullpath, string & path,
    eg. c0/c1/c2 is a subdirectory of c0/c1, but
    c0/c1_1 is not */
 bool StringUtil::isSubdirectory(const string & parentdir_fullpath, 
-				const string & subdir_fullpath) const
+				const string & subdir_fullpath)
 {
-  // true if (a) exactly same pathname, or 
-  // (b) <subdir> is a subdirectory, ie. there is a slash "/"
+  // true if (a) parent directory is root, or 
+  // (b) exactly same pathname, or 
+  // (c) <subdir> is a subdirectory, ie. there is a slash "/"
+  if(parentdir_fullpath == ROOT_PATHNAME)
+    return true;
+
   if( subdir_fullpath == parentdir_fullpath)
     return true;
 
@@ -140,7 +144,7 @@ bool StringUtil::isSubdirectory(const string & parentdir_fullpath,
 // similar to isSubdirectory, with the exception that <subscription> is of the form:
 // <directory pathname>:<h1>,<h2>,...
 bool StringUtil::belongs2folder(const string & folder, 
-				const string & subscription) const 
+				       const string & subscription)
 {
   // folder's name will appear: (1) either with a ":" (if there is no subdirectory),
   // or (2) with a "/", if there is one
@@ -155,12 +159,14 @@ bool StringUtil::belongs2folder(const string & folder,
 
 // unpack directory format (name); expected format: see DirFormat definition
 // return success flag
-bool StringUtil::unpackDirFormat(const string & name, DirFormat & dir) const
+bool StringUtil::unpackDirFormat(const string & name, DirFormat & dir)
 {
   // split name into <dir> and contents
-  vector<string> subs = unpackString(name.c_str(), ":");
+  vector<string> subs; 
+  unpackString(name.c_str(), ":", subs);
   
-  if(subs.size() != 2)
+  // size could be either 2 (dir-pathname and objects) or 3 (also tag)
+  if(subs.size() < 2 || subs.size() > 3) 
     {
       errorObjUnp(subs);
       return false;
@@ -171,8 +177,14 @@ bool StringUtil::unpackDirFormat(const string & name, DirFormat & dir) const
   dir.dir_path = *subst;
   // now get the directory's contents
   ++subst;
-  dir.contents = unpackString(subst->c_str(), ",");
-  
+  unpackString(subst->c_str(), ",", dir.contents);
+  if(subs.size() == 3)
+    {
+      // now get to the tag
+      ++subst;
+      dir.tag = (unsigned int) atoi(subst->c_str());
+    }
+
   return true;
 }
 
@@ -180,33 +192,32 @@ bool StringUtil::unpackDirFormat(const string & name, DirFormat & dir) const
 using dqm::Tokenizer;
 
 // unpack input string into vector<string> by using "separator"
-vector<string> StringUtil::unpackString(const char *in, const char * separator) 
-  const
+void StringUtil::unpackString(const char *in, const char * separator,
+			      vector<string> & put_here)
 {
-  vector<string> retVal; retVal.clear();
+  put_here.clear();
   // return empty vector if in = ""
   if(strcmp(in,"")==0)
-    return retVal;
+    return;
 
   string names(in);
   // return whole string if separator=""
   if(strcmp(separator,"")==0)
     {
-      retVal.push_back(names);
-      return retVal;
+      put_here.push_back(names);
+      return;
     }
 
   Tokenizer obji(separator, names);
   for (Tokenizer::const_iterator on = obji.begin(); on != obji.end(); ++on) 
     {
       //      if(*on == "")continue;
-      retVal.push_back(*on);
+      put_here.push_back(*on);
     }
-  return retVal;
 }
 
 // called when encountering errors in monitoring object unpacking
-void StringUtil::errorObjUnp(const vector<string> & desc) const
+void StringUtil::errorObjUnp(const vector<string> & desc)
 {
   cerr << " *** Error! Expected pathname and objects list! " << endl;
   for(vector<string>::const_iterator it = desc.begin(); it != desc.end(); 
@@ -231,7 +242,7 @@ void StringUtil::nullError(const char * name)
 // (where <status> is defined in Core/interface/QTestStatus.h)
 bool StringUtil::unpackQReport(string name, string value, string & ME_name, 
 			       string & qtest_name, int & status, 
-			       string & message) const
+			       string & message)
 {
   unsigned _begin = 0;
   unsigned _middle = name.find(".");
@@ -280,7 +291,7 @@ bool StringUtil::unpackQReport(string name, string value, string & ME_name,
 // "a/b/c*"     -->  "a/b/c" , chopped_part = "*"
 // "a/b/c/d?/*" -->  "a/b/c/d", chopped_part = "?/*"
 string StringUtil::getMaxPathname(const string & search_string, 
-				       string & chopped_part) const
+				  string & chopped_part)
 {
   string ret = search_string;
   chopped_part.clear();
@@ -305,16 +316,26 @@ string StringUtil::getMaxPathname(const string & search_string,
    Examples: 
    (a) A/B/C --> A/B
      (b) A/B/  --> A/B (because last slash implies subdirectories of A/B)
-     (c) C     --> .   (top folder)
+     (c) C     --> ROOT_PATHNAME  (".": top folder)
 */
-string StringUtil::getParentDirectory(const string & pathname) const
+string StringUtil::getParentDirectory(const string & pathname)
 {
   string ret = pathname;
   unsigned i = ret.rfind("/");
   if(i != string::npos)
     ret = ret.substr(0, i);
   else
-    ret = ".";
+    ret = dqm::me_util::ROOT_PATHNAME;
   
   return ret;
+}
+
+// true if string includes any wildcards ("*" or "?")
+bool StringUtil::hasWildCards(const string & pathname)
+{
+  if(pathname.find("?") != string::npos || 
+     pathname.find("*") != string::npos)
+    return true;
+  else
+    return false;
 }

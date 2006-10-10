@@ -7,6 +7,8 @@
 const float QCriterion::ERROR_PROB_THRESHOLD = 0.50;
 const float QCriterion::WARNING_PROB_THRESHOLD = 0.90;
 
+using std::string;
+
 // initialize values
 void QCriterion::init(void)
 {
@@ -95,4 +97,24 @@ void QCriterion::setError(void)
 {
   status_ = dqm::qstatus::ERROR;
   setMessage();
+}
+
+// add search_string to rules.search.search_path
+void QCriterion::add2search_path(const string & search_string, unsigned int tag)
+{
+  rules.add2search_path(search_string, tag);
+}
+
+// add pathname to rules.search.folders (flag=false) 
+// or rules.search.foldersFull (flag=true)
+void QCriterion::add2folders(const string & pathname, 
+					bool useSubfolders, unsigned int tag)
+{
+  rules.add2folders(pathname, useSubfolders, tag);
+}
+
+// add tag to rules.tags
+void QCriterion::add2tags(unsigned int tag)
+{
+  rules.add2tags(tag);
 }

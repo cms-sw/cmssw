@@ -20,22 +20,23 @@ class StringUtil
   // if a search patten contains a wildcard (*, ?), the regex library 
   // needs a preceding "." if it is to behave like a unix "?" or "*" wildcard;
   // this function replaces "*" by ".*" and "?" by ".?"
-  std::string addDots2WildCards(const std::string & s) const;
+  static std::string addDots2WildCards(const std::string & s);
   // find all "<subs>" in string <s>, replace by "<repl>"
-  std::string replace_string(const std::string& s, const std::string& subs, 
-			     const std::string & repl) const;
+  static std::string replace_string(const std::string& s, 
+				    const std::string& subs, 
+				    const std::string & repl);
 
   /* get parent directory. 
      Examples: 
      (a) A/B/C --> A/B
      (b) A/B/  --> A/B (because last slash implies subdirectories of A/B)
-     (c) C     --> .   (top folder)
+     (c) C     --> ROOT_PATHNAME  (".": top folder)
   */
-  std::string getParentDirectory(const std::string & pathname) const;
+  static std::string getParentDirectory(const std::string & pathname);
 
 
   // called when encountering errors in monitoring object unpacking
-  void errorObjUnp(const std::vector<std::string> & desc) const;
+  static void errorObjUnp(const std::vector<std::string> & desc);
 
  protected:
 
@@ -44,61 +45,77 @@ class StringUtil
   // "a/b/c/*"    -->  "a/b/c/", chopped_part = "*"
   // "a/b/c*"     -->  "a/b/c" , chopped_part = "*"
   // "a/b/c/d?/*" -->  "a/b/c/d", chopped_part = "?/*"
-  std::string getMaxPathname(const std::string & search_string, 
-			     std::string & chopped_part) const;
+  static std::string getMaxPathname(const std::string & search_string, 
+			     std::string & chopped_part);
 
   // print out error message
   static void nullError(const char * name);
   
   // yes if we have a match (<pattern> can include unix-like wildcards "*", "?")
-  bool matchit(const std::string & s, const std::string & pattern) const;
+  static bool matchit(const std::string & s, const std::string & pattern);
   // return <pathname>/<filename>
   // (or just <filename> if <pathname> corresponds to top folder)
-  std::string getUnixName(const std::string & pathname, 
-			  const std::string & filename) const;
+  static std::string getUnixName(const std::string & pathname, 
+				 const std::string & filename);
   // true if pathname corresponds to top folder
-  bool isTopFolder(const std::string & pathname) const;
+  static bool isTopFolder(const std::string & pathname);
 
   // Using fullpath as input (e.g. A/B/test.txt) 
   // extract path (e.g. A/B) and filename (e.g. test.txt)
-  void unpack(const std::string & fullpath, 
-	      std::string & path, std::string & filename) const;
+  static void unpack(const std::string & fullpath, 
+		     std::string & path, std::string & filename);
 
   /* true if <subdir> is a subfolder of <parent_dir> (or same)
      eg. c0/c1/c2 is a subdirectory of c0/c1, but
      c0/c1_1 is not */
-  bool isSubdirectory(const std::string & parentdir_fullpath, 
-		      const std::string & subdir_fullpath) const;
+  static bool isSubdirectory(const std::string & parentdir_fullpath, 
+		      const std::string & subdir_fullpath);
 
   // similar to isSubdirectory, with the exception that <subscription> is 
   // of the form: <directory pathname>:<h1>,<h2>,...
-  bool belongs2folder(const std::string & folder, 
-		      const std::string & subscription) const;
+  static bool belongs2folder(const std::string & folder, 
+		      const std::string & subscription);
 
   // structure for unpacking "directory" format: <dir_path>:<obj1>,<obj2>,...
-  // if directory appears empty, all owned objects are implied
+  // if directory appears empty, all owned objects are implied;
+  // a tag could be specified at end: <dir_path>:<obj1>,<obj2>,...:<tag>
   struct DirFormat_{
     std::string dir_path;  // full directory pathname
     std::vector<std::string> contents; // vector of monitoring objects
+    unsigned int tag; // tag (optional, it may no appear ==> 0)
+    DirFormat_(){tag = 0;}
   };
   typedef struct DirFormat_ DirFormat;
 
   // unpack directory format (name); expected format: see DirFormat definition
   // return success flag
-  bool unpackDirFormat(const std::string & name, DirFormat & dir) const;
+  static bool unpackDirFormat(const std::string & name, DirFormat & dir);
   // unpack input string into vector<string> by using "separator"
-  std::vector<std::string> 
-    unpackString(const char* in, const char* separator) const;
+  static void unpackString(const char* in, const char* separator, 
+			   std::vector<std::string> & put_here);
 
   // unpack QReport (with name, value) into ME_name, qtest_name, status, message;
   // return success flag; Expected format of QReport is a TNamed variable with
   // (a) name in the form: <ME_name>.<QTest_name>
   // (b) title (value) in the form: st.<status>.<the message here>
   // (where <status> is defined in Core/interface/QTestStatus.h)
-  bool unpackQReport(std::string name, std::string value, 
-		     std::string & ME_name, std::string & qtest_name,
-		     int & status, std::string & message) const;
+  static bool unpackQReport(std::string name, std::string value, 
+			    std::string & ME_name, 
+			    std::string & qtest_name,
+			    int & status, std::string & message);
 
+  // true if string includes any wildcards ("*" or "?")
+  static bool hasWildCards(const std::string & pathname);
+
+  // chop off last slash in pathname (if any); eg. "A/B/" ==> "A/B"
+  static void chopLastSlash(std::string & pathname)
+  {
+    unsigned int size = pathname.size();
+    if(size == 0)return;
+    
+    if(pathname[size-1] == '/')
+      pathname.erase(size-1);
+  }
 
   // get range as defined by search_string; sometimes parent directory must also
   // be included (otherwise set it to one-beyond-end)

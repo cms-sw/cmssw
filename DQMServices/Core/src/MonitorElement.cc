@@ -115,6 +115,18 @@ bool MonitorElement::qreportExists(string qtname) const
    }
   return false;
 }
+
+// for folders: get pathname;
+// (class method to be overwritten for derived class)
+//  for other MEs: get pathname of parent folder
+string MonitorElement::getPathname() const
+{
+  string pathname;
+  MonitorElement * parent = (MonitorElement *) parent_;
+  if(parent)pathname = parent->getPathname();
+  return pathname;
+}
+
  
 // run all quality tests
 void MonitorElement::runQTests(void)

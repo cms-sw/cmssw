@@ -13,6 +13,8 @@ class CollateMonitorElement;
 #include <list>
 #include <map>
 
+class MonitorElementRootFolder;
+
 class MonitorUserInterface : public StringUtil
 {
 
@@ -27,11 +29,12 @@ class MonitorUserInterface : public StringUtil
      <port_no> using <client_name>;   
      if flag=true, client will accept downstream connections
      MonitorUIRoot::MonitorUIRoot(std::vector<std::string> hostnames, int port_no, 
-     std::string client_name, int reconnect_delay_secs=5, bool actAsServer=false); */ 
+     std::string client_name, int reconnect_delay_secs=5, bool actAsServer=false); 
+  */ 
 
-/* Use the default constructor for running in standalone mode (ie. without
-   sources or collectors); if flag=true, client will accept downstream connections
-*/
+  /* Use the default constructor for running in standalone mode (ie. without
+     sources or collectors); if flag=true, client will accept downstream connections
+  */
   MonitorUserInterface();
  
  // when in "standalone mode", there are no upstream connections
@@ -51,7 +54,8 @@ class MonitorUserInterface : public StringUtil
 
   // ---------------- Getters -----------------------------
   // get ME from full pathname (e.g. "my/long/dir/my_histo")
-  virtual MonitorElement * get(const std::string & fullpath) const = 0;
+  MonitorElement * get(const std::string & fullpath) const
+  {return bei->get(fullpath);}
   // this is the "main" loop where we receive monitoring/send subscription requests;
   // if client acts as server, method runQTests is also sending monitoring & 
   // test results to clients downstream;
@@ -150,14 +154,40 @@ class MonitorUserInterface : public StringUtil
 
   // ---------------- Subscriptions -----------------------------
   
-  // subscription request; format: (a) exact pathname (e.g. A/B/C/histo)
-  // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
+  // subscription request; format: 
+  // (a) exact pathname with ME name (e.g. A/B/C/histo) ==> FAST
+  // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*) ==> SLOW
   void subscribe(std::string subsc_request);
-  // unsubscription request; format: (a) exact pathname (e.g. A/B/C/histo)
-  // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
-  void unsubscribe(std::string subsc_request);
-  // similar to method subscribe; use only additions to monitorable in last cycle
+  // subscription request for directory contents ==> FAST
+  // (need exact pathname without wildcards, e.g. A/B/C)
+  // use flag to specify whether subfolders (and their contents) should be included;
+  // Users are encourage to use this method instead of previous one w/ wildcards
+  void subscribe(std::string subsc_request, bool useSubFolders);
+  
+  // same as above for tagged MonitorElements
+  void subscribe(std::string subsc_request, unsigned int tag);
+  void subscribe(std::string subsc_request, bool useSubFolders, 
+		 unsigned int tag);
+  // subscription request for all MEs with given tag ==> FAST
+  void subscribe(unsigned int tag);
+
+  // similar to above subscription methods; 
+  // use only additions to monitorable in last cycle
   void subscribeNew(std::string subsc_request);
+  void subscribeNew(std::string subsc_request, bool useSubFolders); 
+  void subscribeNew(std::string subsc_request, unsigned int tag);
+  void subscribeNew(std::string subsc_request, bool useSubFolders,
+		    unsigned int tag);
+  void subscribeNew(unsigned int tag);
+
+  // unsubscription requests; format is same with subscription requests 
+  void unsubscribe(std::string subsc_request);
+  void unsubscribe(std::string subsc_request, bool useSubFolders);
+  void unsubscribe(std::string subsc_request, unsigned int tag);
+  void unsubscribe(std::string subsc_request, bool useSubFolders,
+		   unsigned int tag);
+  //
+  void unsubscribe(unsigned int tag);
 
   // ---------------- Miscellaneous -----------------------------
   
@@ -222,11 +252,26 @@ class MonitorUserInterface : public StringUtil
     = 0;
   
   // add <search_string> to summary ME; 
-  // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo)
-  // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*);
+  // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
+  // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
   // this action applies to all MEs already available or future ones
-  void add(CollateMonitorElement* cme, const std::string& search_string) const;
-
+  void add(CollateMonitorElement * cme, std::string search_string) const;
+  // same as above for tagged MEs
+  void add(CollateMonitorElement * cme, unsigned int tag, 
+	   std::string search_string) const;
+  // add directory contents to summary ME ==> FAST
+  // (need exact pathname without wildcards, e.g. A/B/C);
+  // use flag to specify whether subfolders (and their contents) should be included;
+  // this action applies to all MEs already available or future ones
+  void add(CollateMonitorElement* cme, std::string pathname, bool useSubfolds)
+    const;
+  // same as above for tagged MEs
+  void add(CollateMonitorElement* cme,unsigned int tag,std::string pathname,
+	   bool useSubfolds) const;
+  // add tagged MEs to summary ME ==> FAST
+  // this action applies to all MEs already available or future ones
+  void add(CollateMonitorElement * cme, unsigned int tag) const;
+  //
   // remove CollateMonitorElement
   void removeCollate(CollateMonitorElement * cme);
 
@@ -239,14 +284,26 @@ class MonitorUserInterface : public StringUtil
   {return bei->createQTest(algo_name, qtname);}
   
   // attach quality test <qtname> to all ME matching <search_string>;
-  // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo)
-  // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*);
+  // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
+  // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
   // this action applies to all MEs already available or future ones
-  void useQTest(std::string search_string, std::string qtname) const
-  {
-    if(search_string.empty())return;
-    bei->useQTest(search_string, qtname);
-  }
+  void useQTest(std::string search_string, std::string qtname) const;
+  // same as above for tagged MEs
+  void useQTest(unsigned int tag, std::string search_string, 
+		std::string qtname) const;
+  // attach quality test <qtname> to directory contents ==> FAST
+  // (need exact pathname without wildcards, e.g. A/B/C);
+  // use flag to specify whether subfolders (and their contents) should be included;
+  // this action applies to all MEs already available or future ones
+  void useQTest(std::string pathname, bool useSubfolds, std::string qtname) 
+    const;
+  // same as above for tagged MEs
+  void useQTest(unsigned int tag, std::string pathname, bool useSubfolds,
+		std::string qtname) const;
+  // attach quality test <qtname> to tagged MEs ==> FAST
+  // this action applies to all MEs already available or future ones
+  void useQTest(unsigned int tag, std::string qtname) const;
+
   // get quality test with name <qtname> (null pointer if no such test)
   QCriterion * getQCriterion(std::string qtname) const
   {return bei->getQCriterion(qtname);}
@@ -264,24 +321,39 @@ class MonitorUserInterface : public StringUtil
   // to be used by methods subscribe (add=true) and unsubscribe (add=false)
   // <subsc_request> format: (a) exact pathname (e.g. A/B/C/histo)
   // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
-  void subscribe_base(const std::string & subsc_request, bool add);
+  void subscribe_base(const std::string & subsc_request, bool add,
+		      const dqm::me_util::rootDir & Dir);
   
+  // (un)subscription request for directory contents ==> FAST
+  // (need exact pathname without wildcards, e.g. A/B/C);
+  // use flag to specify whether subfolders (and their contents) should be included;
+  // use add=true(false) to (un)subscribe
+  virtual void subscribeDir(std::string & subsc_request, 
+			    bool useSubFolders,
+			    unsigned int myTag, bool add) = 0;
+
+  // same as above for MonitorElementRootFolder
+  virtual void subscribeDir(MonitorElementRootFolder * folder, 
+			    bool useSubFolders,
+			    unsigned int myTag, bool add) = 0;
+
+  // look for MEs matching subsc_request with <tag> in <path>
+  void subscribeNew(const std::string & subsc_request, unsigned int tag,
+		    std::vector<std::string> & requests,
+		    const dqm::me_util::cdirt_it & path);
+
+  // get all MEs with <tag> in <path>
+  void subscribeNew(unsigned int tag, std::vector<std::string> & requests,
+		    const dqm::me_util::cdirt_it & path);
+
   // set(unset) subscription if add=true(false)
   void finishSubscription(const std::vector<std::string> & monit, bool add);
   
   // collector name (e.g. <my_collector> or <collector1/collector2>
   std::string collector_name_;
 
-  typedef std::set<CollateMonitorElement *> scme;
-  typedef scme::iterator scmeIt;
-  // set of collation MEs
-  scme collate_mes;
   // new MEs have been added; check if need to update collate-MEs
   void checkAddedContents(void);
-  // save as above for given search_string, CollateMonitorElement and path
-  void checkAddedContents(const std::string & search_string,
-			  scmeIt & cme,
-			  dqm::me_util::cmonit_it & path);
   
  // use to get hold of structure with monitoring elements that class owns
   DaqMonitorBEInterface *bei;
@@ -289,10 +361,11 @@ class MonitorUserInterface : public StringUtil
   int numUpdates_;
   
  private:
-  // like subscribe_base above, for one path only
-  void subscribe_base(const std::string & subsc_request, bool add,
-		      std::vector<std::string> & requests, 
-		      dqm::me_util::cglob_it path);
+  // like subscribe_base above, for one folder only
+  virtual void subscribe_base
+    (const std::string & subsc_request, bool add, 
+     std::vector<std::string> & requests, 
+     const MonitorElementRootFolder * folder) = 0;
   
 };
 

@@ -1,16 +1,18 @@
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include <iostream>
 
 using namespace dqm::me_util;
 
-using std::string;
+using std::string; using std::vector;
 
 CollateMonitorElement::CollateMonitorElement(const string & name, 
 					     const string title, 
 					     const string pathname)
 {
-  searchStrings.clear(); contents_.clear(); canUse_ = false;
+  rules.search.clear(); rules.tags.clear();
+  canUse_ = false;
   numUsed_ = 0; cname_ = name; ctitle_ = title; cpathname_ = pathname;
 }
 
@@ -19,65 +21,95 @@ CollateMonitorElement::~CollateMonitorElement()
 {
 }
 
-// add <search_string> to summary ME; 
-// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo)
-// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
-void CollateMonitorElement::add2search(const string & search_string)
+// add directory contents to put_here
+// use flag to specify whether subfolders (and their contents) 
+// should be included;
+void CollateMonitorElement::scanContents(string & pathname, 
+					 bool useSubfolders, const rootDir & Dir,
+					 vector<MonitorElement *> & put_here)
 {
-  searchStrings.insert(search_string);
+  if(useSubfolders)
+    bei->getAllContents(pathname, Dir, put_here);
+  else
+    bei->getContents(pathname, Dir, put_here);
 }
 
-// look for all ME matching <search_string> in <look_here>; 
-// if found, add to contents_
-void CollateMonitorElement::scanContents(const string & search_string, const 
-					 global_map & look_here)
+// add <search_string> to cme's contents; look for match in directory structure;
+// if tag != 0, this applies to tagged contents
+// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
+// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
+void CollateMonitorElement::add(unsigned int tag, const string & search_string, 
+				const rootDir & Dir)
 {
-
-  cglob_it start, end, parent_dir;
-  getSubRange<global_map>(search_string, look_here, start, end, parent_dir);
-
-  for(cglob_it path = start; path != end; ++path)
-    // loop over pathnames of global_map subrange
-    scanContents(search_string, look_here, path);
- 
-  if(parent_dir != look_here.end())
-    scanContents(search_string, look_here, parent_dir);
+  add2search_path(search_string, tag);
+  vME allMEs;
+  bei->scanContents(search_string, Dir, allMEs);
+  addME(allMEs);
 }
 
-// same as scanContents above but for one path only
-void CollateMonitorElement::scanContents(const string & search_string, const 
-					 global_map & look_here,
-					 cglob_it & path)
+// add directory contents to summary ME ==> FAST
+// (need exact pathname without wildcards, e.g. A/B/C);
+// if tag != 0, this applies to tagged contents
+// use flag to specify whether subfolders (and their contents) should be included;
+// this action applies to all MEs already available or future ones
+void CollateMonitorElement::add(unsigned int tag, string & pathname, 
+				const rootDir & Dir, bool useSubfolds)
 {
-  string pathname = path->first;
-  for(cME_it file = path->second->begin(); file != path->second->end(); 
-      ++file)
-    { // loop over files of <pathname>
-      
-      string fullname = getUnixName(pathname, file->first);
-	  
-      if(matchit(fullname, search_string))
-	{ // this is a match!
-	  MonitorElement * me = (MonitorElement *)file->second;
-	  
-	  if(addIt(me, pathname, file->first))
-	    {
-	      // check if we need to define histogram/profile
-	      if(!canUse_)
-		createCollateBase(me);
-	    }
-	      
-	} // this is a match!
-	  
-    } // loop over files of <pathname>
-      
+  add2folders(pathname, useSubfolds, tag);
+  vME allMEs;
+  scanContents(pathname, useSubfolds, Dir, allMEs);
+  addME(allMEs);
 }
 
-// add <search_string> to cme's contents; look for match in global_map
-void CollateMonitorElement::add(const string & search_string, const global_map & 
-				look_here)
+// add tagged MEs to summary ME ==> FAST
+// this action applies to all MEs already available or future ones
+void CollateMonitorElement::add(unsigned int tag, const rootDir & Dir)
 {
-  add2search(search_string);
-  scanContents(search_string, look_here);
+  add2tags(tag);
+  vME allMEs;
+  bei->get(Dir.paths, allMEs);
+  addME(allMEs);
 }
 
+// add MEs to contents_
+void CollateMonitorElement::addME(vector<MonitorElement *> & allMEs)
+{
+  for(vMEIt it = allMEs.begin(); it != allMEs.end(); ++it)
+    {
+      if(addIt(*it))
+	{
+	  // check if we need to define histogram/profile
+	  if(!canUse_)
+	    createCollateBase(*it);
+	}
+    }
+}
+
+// add search_string to rules.search.search_path
+void CollateMonitorElement::add2search_path(const string & search_string, 
+					    unsigned int tag)
+{
+  rules.add2search_path(search_string, tag);
+}
+
+// add pathname to rules.search.folders (flag=false) 
+// or rules.search.foldersFull (flag=true)
+void CollateMonitorElement::add2folders(const string & pathname, 
+					bool useSubfolders, unsigned int tag)
+{
+  rules.add2folders(pathname, useSubfolders, tag);
+}
+
+// add tag to rules.tags
+void CollateMonitorElement::add2tags(unsigned int tag)
+{
+  rules.add2tags(tag);
+}
+
+// check if need to update collate-ME
+void CollateMonitorElement::checkAddedContents()
+{
+  vME allMEs;
+  bei->checkAddedContents(rules, allMEs);
+  addME(allMEs);
+}

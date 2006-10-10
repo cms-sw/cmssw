@@ -5,6 +5,7 @@
 #include <sys/time.h>
 
 #include <string>
+#include <set>
 #include <map>
 
 #include "Utilities/General/interface/MutexUtils.h"
@@ -21,7 +22,6 @@ class MonitorElement
   
   MonitorElement();
   MonitorElement(const char*);
-  virtual ~MonitorElement();
 
   // true if ME was updated in last monitoring cycle
   bool wasUpdated() const;
@@ -64,6 +64,9 @@ class MonitorElement
 
   // get QReport corresponding to <qtname> (null pointer if QReport does not exist)
   const QReport * getQReport(std::string qtname) const;
+
+  // get pathname of parent folder
+  virtual std::string getPathname() const;
 
   // get map of QReports
   dqm::qtests::QR_map getQReports(void) const {return qreports_;}
@@ -135,9 +138,17 @@ class MonitorElement
 
   LockMutex::Mutex mutex;
 
+  //
+  // whether soft-reset is enabled
+  virtual bool isSoftResetEnabled() const = 0; // default: false
+  // whether ME contents should be accumulated over multiple monitoring periods
+  bool isAccumulateEnabled() const{return accumulate_on;}  // default: false
+
  private:
-  
+
  protected:
+
+  virtual ~MonitorElement();
 
   void update();
   // reset ME (ie. contents, errors, etc)
@@ -158,10 +169,8 @@ class MonitorElement
   // until method is called with flag = false again
   void setAccumulate(bool flag);
 
-  // whether soft-reset is enabled
-  virtual bool isSoftResetEnabled(void) const = 0; // default: false
   // whether ME contents should be accumulated over multiple monitoring periods
-  bool accumulate_on; // default: false
+  bool accumulate_on;
 
   // true if ME should be reset at end of monitoring cycle
   bool resetMe(void) const;
@@ -190,6 +199,13 @@ class MonitorElement
 
   dqm::qtests::QR_map qreports_;
 
+
+  // parent folder
+  MonitorElementRootFolder * parent_;
+  // set parent directory
+  virtual void setParent(MonitorElementRootFolder * parent) 
+  {parent_ = parent;}
+
   // warnings from last set of quality tests
   std::vector<QReport *> qwarnings_;
   // errors from last set of quality tests
@@ -199,7 +215,8 @@ class MonitorElement
 
   friend class DaqMonitorBEInterface;
   friend class CollateMET;
-
+  // for setting parent_ pointer and de-allocating memory
+  friend class MonitorElementRootFolder;
 };
 
 #endif

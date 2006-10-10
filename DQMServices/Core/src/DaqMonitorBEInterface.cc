@@ -1,4 +1,5 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include <iostream>
 
@@ -17,21 +18,6 @@ bool DaqMonitorBEInterface::checkElement(const MonitorElement * const me) const
       cerr << " *** Error! Null monitoring element " << endl;
       return false;
     }
-  return true;
-}
-
-// check if object is really a folder
-bool DaqMonitorBEInterface::checkFolder(const MonitorElement * const dir) const
-{
-  if(!checkElement(dir))
-    return false;
-
-  if(!dir->isFolder())
-    {
-      cerr <<" *** Error! " << dir->getName() << " is not a folder " << endl;
-      return false;
-    }
-
   return true;
 }
 
@@ -111,6 +97,9 @@ void DaqMonitorBEInterface::resetStuff(void)
   // reset added, removed contents;
   addedContents.clear();
   removedContents.clear();
+  // reset modified tags
+  addedTags.clear();
+  removedTags.clear();
   // reset updated contents
   updatedContents.clear();
   // reset updated QReports
@@ -231,7 +220,8 @@ void DaqMonitorBEInterface::runQTests(void)
   try
     {      
       // first, check if qtests_ should be attached to any of the added elements
-      checkAddedElements();
+      if(!addedContents.empty())
+	checkAddedElements();
 
       // now run the quality tests for real!
       runQualityTests();
@@ -259,38 +249,16 @@ void DaqMonitorBEInterface::runQTests(void)
   resetWasCalled = false;
 }
 
-// run quality tests (also finds updated contents in last monitoring cycle,
-// including newly added content) <-- to be called only by runQTests
-void DaqMonitorBEInterface::runQualityTests(void)
+// loop over quality tests & addedContents: look for MEs that 
+// match QCriterion::rules; upon a match, add QReport to ME(s)
+void DaqMonitorBEInterface::checkAddedElements(void)
 {
-  for(cglob_it path = own.global_.begin(); path != own.global_.end(); 
-      ++path)
-    { // loop over all pathnames 
-      
-      if(!path->second)
-	throw path->second;
-      
-      for(cME_it it = path->second->begin(); it != path->second->end(); 
-	  ++it)
-	{ // loop over monitoring objects in current folder
-	  
-	  // this is probably a ME that appears only on monitorable
-	  if(!it->second) 
-	    continue;
-	  
-	  if(it->second->wasUpdated())
-	    add2UpdatedContents(it->first, path->first);
-
-	  // quality tests should be run if (a) ME has been modified, or
-	  // (b) algorithm has been modified; 
-	  // this is done in MonitorElement::runQTests()
-	  it->second->runQTests();
-	  
-	    
-	} // loop over monitoring objects in current folder
-
-    } // loop over all pathnames 
-
+  for(cqc_it qc = qtests_.begin(); qc != qtests_.end(); ++qc)
+    { // loop over quality tests
+      vME allMEs;
+      checkAddedContents(qc->second->rules, allMEs);
+      addQReport(allMEs, qc->second);
+    } // loop over quality tests
 }
 
 // get QCriterion corresponding to <qtname> 
@@ -319,128 +287,34 @@ DaqMonitorBEInterface::getQReport(MonitorElement * me, string qtname)
   return ret;
 }
 
-
-// attach quality test <qtname> to all ME matching <search_string>;
-// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo)
-// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*);
-// this action applies to all MEs already available or future ones
-void DaqMonitorBEInterface::useQTest(string search_string, string qtname) const
+// scan structure <rDir>, looking for all MEs matching <search_string>;
+// put results in <put_here>
+void DaqMonitorBEInterface::scanContents
+(const string & search_string, const rootDir & rDir,  
+ vector<MonitorElement *> & put_here) const
 {
-  QCriterion * qc = getQCriterion(qtname);
-  if(!qc)
-    {
-      cerr << " *** Quality test " << qtname << " does not exist! " << endl;
-      return;
-    }
-
-  qc->searchStrings.insert(search_string);
-  scanContents(qc, search_string);
-}
-
-// look for all MEs matching <search_string> in own.global_;
-// if found, create QReport from QCriterion and add to ME
-void DaqMonitorBEInterface::scanContents(QCriterion * qc, const string & 
-					 search_string) const
-{
-  cglob_it start, end, parent_dir;
-  getSubRange<global_map>(search_string,own.global_,start,end, parent_dir);
-
-  for(cglob_it path = start; path != end; ++path)
-    // loop over pathnames of global_map subrange
-    scanContents(qc, search_string, path);
-
-  if(parent_dir != own.global_.end())
-    scanContents(qc, search_string, parent_dir);
-}
-
-// same as scanContents above but for one path only
-void DaqMonitorBEInterface::scanContents(QCriterion * qc, 
-					 const string & search_string,
-					 cglob_it & path) const
-{
-  string pathname = path->first;
-  for(cME_it file = path->second->begin(); file != path->second->end(); 
-      ++file)
-    { // loop over files of <pathname>
-      
-      string fullname = getUnixName(pathname, file->first);
-      
-      if(matchit(fullname, search_string))
-	{ // this is a match!
-	  MonitorElement * me = (MonitorElement *)file->second;
-	  if(me)
-	    addQReport(me, qc);
-	  
-	} // this is a match!
-	  
-    } // loop over files of <pathname>
-
-}
-
-// loop over quality tests & addedContents: look for MEs that 
-// match QCriterion::searchStrings; upon a match, add QReport to ME(s)
-void DaqMonitorBEInterface::checkAddedElements(void)
-{
-  for(cqc_it qc = qtests_.begin(); qc != qtests_.end(); ++qc)
-    { // loop over quality tests
-      
-      for(csIt search_string = (qc->second)->searchStrings.begin(); 
-	  search_string != (qc->second)->searchStrings.end(); 
-	  ++search_string)
-	// loop over search-strings for quality test
-	checkAddedElements(*search_string, qc);
-
-    } // loop over quality tests
-}
-
-// loop over addedContents: look for MEs that 
-// match search_string; upon a match, add QReport to ME(s)
-void DaqMonitorBEInterface::checkAddedElements(const string & search_string,
-					       cqc_it & qc)
-{  
-  cmonit_it start, end, parent_dir;
-  getSubRange<monit_map>(search_string, addedContents, start, end, 
-			 parent_dir);
+  put_here.clear();
   
-  for(cmonit_it path = start; path != end; ++path)
-    // loop over specified range of added contents
-    checkAddedElements(search_string, qc, path);
+  if(!hasWildCards(search_string))
+    {
+      MonitorElement * me = get(search_string);
+      if(me)
+	put_here.push_back(me);
+    }
+  else
+    {
 
-  if(parent_dir != addedContents.end())
-    checkAddedElements(search_string, qc, parent_dir);
-
-}
-
-// same as checkAddedElements above for only one path
-void DaqMonitorBEInterface::checkAddedElements(const string & search_string, 
-					       cqc_it & qc,
-					       cmonit_it & path)
-{
-  for(csIt it = path->second.begin(); it!= path->second.end(); ++it)
-    { // loop over all added MEs
+      cdir_it start, end, parent_dir;
+      getSubRange<dir_map>(search_string, rDir.paths, start, end, parent_dir);
       
-      // get unix-like filename
-      string fullname = getUnixName(path->first, *it);
-      if(matchit(fullname, search_string))
-	{
-	  // this is a match!
-	  MonitorElement* me = findObject(*it, path->first);
-	  /* I need to double-check that qreport is not already added to "me";
-	     This is because there is a chance that users may
-	     1. define a ME after resetStuff has been called
-	     2. call MonitorUserInterface::useQTest
-	     3. and then call MonitorUserInterface::runQTests, which
-	     eventually calls this function
-	     In this case ME appears in addedContents and this call would
-	     give an error... (not sure of a better way right now)
-	  */
-	  if(me && !me->getQReport(qc->first))
-	    addQReport(me, qc->second);
-	      
-	} // this is a match!
-
-    } // loop over all added MEs
+      // do parent directory first
+      if(parent_dir != Own.paths.end())
+	scanContents(search_string, parent_dir->second, put_here);
       
+      for(cdir_it path = start; path != end; ++path)
+	// loop over pathnames in directory structure
+	scanContents(search_string, path->second, put_here);
+    }
 }
 
 DaqMonitorBEInterface::~DaqMonitorBEInterface(void)
@@ -482,6 +356,240 @@ void DaqMonitorBEInterface::unlock()
   //  
 }
 
+// get rootDir corresponding to tag 
+// (Own for tag=0, or null for non-existing tag)
+const rootDir * DaqMonitorBEInterface::getRootDir(unsigned int tag) const
+{
+  const rootDir * ret = 0;
+  if(tag)
+    {
+      ctdir_it tg = Tags.find(tag);
+      if(tg != Tags.end())
+	ret = &(tg->second);
+    }
+  else // this corresponds to Own
+    ret = &Own;
+
+  return ret;
+}
+
+// check if added contents match rules; put matches in put_here
+void DaqMonitorBEInterface::checkAddedContents
+(const searchCriteria & rules, vector<MonitorElement *> & put_here) const
+{
+  for(csMapIt sc = rules.search.begin(); sc != rules.search.end(); ++sc)
+    {
+      const rootDir * Dir = getRootDir(sc->first);
+      if(!Dir)continue;
+      
+      checkAddedSearchPaths(sc->second.search_path, *Dir, put_here);
+      checkAddedFolders(sc->second.folders, *Dir, false, put_here);
+      checkAddedFolders(sc->second.foldersFull, *Dir, true, put_here);
+    }
+  
+  
+  for(vector<unsigned int>::const_iterator tg = rules.tags.begin(); 
+      tg != rules.tags.end(); ++tg)
+    {
+      const rootDir * Dir = getRootDir(*tg);
+      if(!Dir)continue;
+      checkAddedTags(*Dir, put_here);
+    }
+}
+
+
+
+// check if added contents belong to folders 
+// (use flag to specify if subfolders should be included)
+void DaqMonitorBEInterface::checkAddedFolders(const vector<string> & folders,
+					      const rootDir & Dir,
+					      bool useSubfolders,
+					      vector<MonitorElement*>& put_here)
+  const
+{
+  for(cvIt f = folders.begin(); f != folders.end(); ++f)
+    { // loop over folders to be watched
+      
+      if(useSubfolders)
+	{ // will consider all subdirectories of *f
+	  
+	  for(cmonit_it added_path = addedContents.begin(); added_path != 
+		addedContents.end(); ++added_path)
+	    {
+	      if(isSubdirectory(*f, added_path->first))
+		checkAddedFolder(added_path, Dir, put_here);
+	    }
+	  
+	}
+      else
+	{ // will only consider directory *f
+	  cmonit_it added_path = addedContents.find(*f);
+	  if(added_path != addedContents.end())
+	    checkAddedFolder(added_path, Dir, put_here);
+	}
+      
+    } // loop over folders to be watched
+}
+
+// check if added contents are tagged
+void DaqMonitorBEInterface::checkAddedTags
+(const rootDir & Dir, vector<MonitorElement*>& put_here) const
+{
+  for(cmonit_it added_path = addedContents.begin(); 
+      added_path != addedContents.end(); ++added_path)
+    checkAddedFolder(added_path, Dir, put_here);
+}
+
+// remove all CMEs
+void DaqMonitorBEInterface::removeCollates()
+{
+  // empty collate_map first, to avoid 
+  // calling CME dtor a 2nd time in DaqMonitorROOTBackEnd::removeElement
+  collate_map.clear(); 
+
+  for(cmesIt it = collate_set.begin(); it != collate_set.end(); ++it)
+    delete (*it); // this also removes ME
+
+  collate_set.clear();
+}
+
+// remove CME
+void DaqMonitorBEInterface::removeCollate(CollateMonitorElement * cme)
+{
+  assert(cme);
+  collate_map.erase(cme->getMonitorElement());
+  collate_set.erase(cme);
+  delete cme;
+}
+
+// remove all contents from <pathname> from all subscribers, tags and CMEs
+void DaqMonitorBEInterface::removeCopies(const string & pathname)
+{
+  // we will loop over Subscribers, Tags and CMEs
+  // and remove contents from all directories <pathname>
+  for(sdir_it subs = Subscribers.begin(); subs!= Subscribers.end(); ++subs)
+    { // loop over all subscribers
+      MonitorElementRootFolder * dir = getDirectory(pathname, subs->second);
+      // skip subscriber if no such pathname
+      if(!dir)return;
+      removeContents(dir);
+    } // loop over all subscribers
+    
+
+  for(tdir_it tag = Tags.begin(); tag != Tags.end(); ++tag)
+    { // loop over all tags
+      MonitorElementRootFolder * dir = getDirectory(pathname, tag->second);
+      // skip tag if no such pathname
+      if(!dir)return;
+      removeContents(dir);
+   } // loop over all tags
+
+  for(cmesIt cme = collate_set.begin(); cme != collate_set.end(); ++cme)
+    { // loop over all CMEs
+      MonitorElementRootFolder * dir = getDirectory(pathname, (*cme)->contents_);
+      // skip CME is no such pathname
+      if(!dir)return;
+      removeContents(dir);
+    } // loop over all CMEs
+
+}
+
+// remove Monitor Element <name> from all subscribers, tags and CME directories
+void DaqMonitorBEInterface::removeCopies(const string & pathname, 
+					 const string & name)
+{
+  // we will loop over Subscribers, Tags and CMEs
+  // and remove <name> from all directories <pathname>
+  
+  for(sdir_it subs= Subscribers.begin(); subs != Subscribers.end(); ++subs)
+    // loop over all subscribers
+    remove(pathname, name, subs->second);
+
+  for(tdir_it tag = Tags.begin(); tag != Tags.end(); ++tag)
+    // loop over all tags
+    remove(pathname, name, tag->second);
+
+  for(cmesIt cme = collate_set.begin(); cme != collate_set.end(); ++cme)
+    // loop over all CMEs
+    remove(pathname, name, (*cme)->contents_);
+}
+
+// remove Monitor Element <name> from <pathname> in <Dir>
+void DaqMonitorBEInterface::remove(const string & pathname, 
+				   const string & name, rootDir & Dir)
+{
+  MonitorElementRootFolder * dir = getDirectory(pathname, Dir);
+  // skip subscriber if no such pathname
+  if(!dir)return;
+  
+  removeElement(dir, name, false); // no warnings
+}
+
+// attach quality test <qc> to all ME matching <search_string>;
+// if tag != 0, this applies to tagged contents
+// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
+// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
+void DaqMonitorBEInterface::useQTest(unsigned int tag, string search_string, 
+				     const rootDir & Dir, QCriterion * qc) const
+{
+  assert(qc);
+  qc->add2search_path(search_string, tag);
+  vME allMEs;
+  scanContents(search_string, Dir, allMEs);
+  addQReport(allMEs, qc); 
+}
+
+// attach quality test <qc> to directory contents ==> FAST
+// if tag != 0, this applies to tagged contents
+// (need exact pathname without wildcards, e.g. A/B/C);
+// use flag to specify whether subfolders (and their contents) should be included;
+void DaqMonitorBEInterface::useQTest(unsigned int tag, string pathname, 
+				     bool useSubfolds, const rootDir & Dir, 
+				     QCriterion * qc) const
+{
+  assert(qc);
+  qc->add2folders(pathname, useSubfolds, tag);
+  vME allMEs;
+  if(useSubfolds)
+    getAllContents(pathname, Dir, allMEs);
+  else
+    getContents(pathname, Dir, allMEs);
+  addQReport(allMEs, qc);
+}
+
+// attach quality test <qtname> to tagged MEs ==> FAST
+void DaqMonitorBEInterface::useQTest(unsigned int tag, const rootDir & Dir,
+				     QCriterion * qc) const
+{
+  assert(qc);
+  qc->add2tags(tag);
+  vME allMEs;
+  get(Dir.paths, allMEs);
+  addQReport(allMEs, qc);
+}
+
+// add quality reports to all MEs
+void DaqMonitorBEInterface::addQReport(vector<MonitorElement *> & allMEs, 
+				       QCriterion * qc) const
+{
+  assert(qc);
+  string qr_name = qc->getName();
+  for(vMEIt me = allMEs.begin(); me != allMEs.end(); ++me)
+    {
+      /* I need to double-check that qreport is not already added to ME;
+	 This is because there is a chance that users may
+	 1. define a ME after resetStuff has been called
+	 2. call MonitorUserInterface::useQTest
+	 3. and then call MonitorUserInterface::runQTests, which
+	 eventually calls this function
+	 In this case ME appears in addedContents and this call would
+	 give an error... (not sure of a better way right now)
+      */
+      if(!(*me)->getQReport(qr_name))
+	    addQReport(*me, qc);
+
+    }
+}
+
 
 const string DaqMonitorBEInterface::monitorDirName = "DQMData";
-const string DaqMonitorBEInterface::subscriberDirName = "Subscribers";

@@ -15,35 +15,51 @@ using std::string; using std::vector;
 */
 MonitorUserInterface::MonitorUserInterface()
 {
-  collate_mes.clear(); numUpdates_ = 0; bei = 0;
+  numUpdates_ = 0; bei = 0;
 }
 
 MonitorUserInterface::~MonitorUserInterface(void)
 {
-  for(scmeIt it = collate_mes.begin(); it != collate_mes.end(); ++it)
-    delete (*it);
-
-  collate_mes.clear();
+  bei->removeCollates();
 }
 
 // to be used by methods subscribe (add=true) and unsubscribe (add=false)
 // <subsc_request> format: (a) exact pathname (e.g. A/B/C/histo)
 // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
-void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add)
+void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add,
+					  const rootDir & Dir)
 {
+  if(!needUpstreamConnections()) return;
+  if(subsc_request.empty())return;
+
   // put here requests in format <dir pathname>:<h1>,<h2>,...
-  vector<string> requests; requests.clear();
+  vector<string> requests;
 
-  cglob_it start, end, parent_dir;
-  getSubRange<global_map>(subsc_request, bei->own.global_, 
-			  start, end, parent_dir);
-  
-  for(cglob_it path = start; path != end; ++path)
-    // loop over pathnames of global_map
-    subscribe_base(subsc_request, add, requests, path);
+  if(!hasWildCards(subsc_request))
+    { // exact pathname here
+      MonitorElement * me = bei->get(subsc_request);
+      // if unsubscribing, skip null MEs
+      if(!add && !me)return;
+      // if subscribing, skip non-null MEs
+      if(add && me)return;
 
-  if(parent_dir != bei->own.global_.end())
-    subscribe_base(subsc_request, add, requests, parent_dir);
+      string path, filename;
+      unpack(subsc_request, path, filename); 	 
+      requests.push_back(path + ":" + filename);
+    }
+  else
+    {
+      cdir_it start, end, parent_dir;
+      getSubRange<dir_map>(subsc_request, Dir.paths, 
+			   start, end, parent_dir);
+      
+      for(cdir_it path = start; path != end; ++path)
+	// loop over pathnames in directory structure
+	subscribe_base(subsc_request, add, requests, path->second);
+      
+      if(parent_dir != Dir.paths.end())
+	subscribe_base(subsc_request, add, requests, parent_dir->second);
+    }
 
   // (un)subscribe only if non-zero list has been found
   if(!requests.empty())
@@ -51,58 +67,96 @@ void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add
   
 }
 
-// like subscribe_base above, for one path only
-void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add,
-					  vector<string> & requests, 
-					  cglob_it path)
-{
-  string new_request;
-  for(cME_it file = path->second->begin(); file != path->second->end(); 
-      ++file)
-    { // loop over files in directory <path->first>
-	  
-      // "subscribe" should loop over "monitorable";
-      // "unsubscribe" should loop over "contents" (only non-null MEs)
-      
-      // if unsubscribing, skip null monitoring elements
-      if(!add && !file->second)continue;
-      
-      string fullname = getUnixName(path->first, file->first);
-	  
-      if(matchit(fullname, subsc_request))
-	{ // this is a match!
-	  
-	  if(!new_request.empty())new_request += ",";
-	  new_request += file->first;
-	  
-	} // this is a match!
-	  
-    }  // loop over files in directory <path->first>
-      
-  if(!new_request.empty())
-    requests.push_back(path->first + ":" + new_request);
-  
-}
-
-// subscription request; format: (a) exact pathname (e.g. A/B/C/histo)
-// (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
+// subscription request; format: (a) exact pathname (e.g. A/B/C/histo) ==> FAST
+// (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*) ==> SLOW
 void MonitorUserInterface::subscribe(string subsc_request)
 {
-  if(!needUpstreamConnections()) return;
-  if(subsc_request.empty())return;
-  subscribe_base(subsc_request, true);
+  subscribe_base(subsc_request, true, bei->Own);
 }
 
-// unsubscription request; format: (a) exact pathname (e.g. A/B/C/histo)
-// (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
+// unsubscription request; read description in similar subscription method
 void MonitorUserInterface::unsubscribe(string subsc_request)
 {
-  if(!needUpstreamConnections()) return;
-  if(subsc_request.empty())return;
-  subscribe_base(subsc_request, false);
+  subscribe_base(subsc_request, false, bei->Own);
 }
 
-// similar to method subscribe; use only additions to monitorable in last cycle
+// same as above for tagged MonitorElements
+void MonitorUserInterface::subscribe(string subsc_request, unsigned int tag)
+{
+  ctdir_it tg = bei->Tags.find(tag);
+  if(tg == bei->Tags.end())
+    return;
+  subscribe_base(subsc_request, true, tg->second);
+}
+
+// unsubscription request; read description in similar subscription method
+void MonitorUserInterface::unsubscribe(string subsc_request, unsigned int tag)
+{
+  ctdir_it tg = bei->Tags.find(tag);
+  if(tg == bei->Tags.end())
+    return;
+  subscribe_base(subsc_request, false, tg->second);
+}
+
+// subscription request for directory contents ==> FAST
+// (need exact pathname without wildcards, e.g. A/B/C);
+// use flag to specify whether subfolders (and their contents) should be included;
+// Users are encourage to use this method instead of previous one w/ wildcards
+void MonitorUserInterface::subscribe(string subsc_request, bool useSubFolders)
+{
+  subscribeDir(subsc_request, useSubFolders, 0, true);
+}
+
+// unsubscription request; read description in similar subscription method
+void MonitorUserInterface::unsubscribe(string subsc_request, bool useSubFolders)
+{
+  subscribeDir(subsc_request, useSubFolders, 0, false);
+}
+
+// same as above for tagged MonitorElements
+void MonitorUserInterface::subscribe(string subsc_request, bool useSubFolders,
+				     unsigned int tag)
+{
+  subscribeDir(subsc_request, useSubFolders, tag, true);
+}
+
+// unsubscription request; read description in similar subscription method
+void MonitorUserInterface::unsubscribe(string subsc_request, bool useSubFolders,
+				       unsigned int tag)
+{
+  subscribeDir(subsc_request, useSubFolders, tag, false);
+}
+
+// subscription request for all MEs with given tag ==> FAST
+void MonitorUserInterface::subscribe(unsigned int tag)
+{
+  ctdir_it tg = bei->Tags.find(tag);
+  if(tg == bei->Tags.end())
+    cout << " *** Tag " << tag << " does not exist! " << endl;
+  else
+    {
+      bool useSubFolders = true; 
+      subscribeDir(tg->second.top, useSubFolders, tag, true);
+    }
+}
+
+// unsubscription request for all MEs with given tag ==> FAST
+void MonitorUserInterface::unsubscribe(unsigned int tag)
+{
+  ctdir_it tg = bei->Tags.find(tag);
+  if(tg == bei->Tags.end())
+    cout << " *** Tag " << tag << " does not exist! " << endl;
+  else
+    {
+      bool useSubFolders = true; 
+      subscribeDir(tg->second.top, useSubFolders, tag, false);
+    }
+}
+
+
+// use only additions to monitorable in last cycle; subscription request format: 
+// (a) exact pathname with ME name (e.g. A/B/C/histo) ==> FAST
+// (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*) ==> SLOW
 void MonitorUserInterface::subscribeNew(string subsc_request)
 {
   if(!needUpstreamConnections()) return;
@@ -112,40 +166,294 @@ void MonitorUserInterface::subscribeNew(string subsc_request)
   bei->getAddedMonitorable(put_here);
   
   // put here requests in format <dir pathname>:<h1>,<h2>,...
-  vector<string> requests; requests.clear();
+  vector<string> requests;
 
   DirFormat dir;
   for(cvIt mon = put_here.begin(); mon != put_here.end(); ++mon)
     { // loop over added monitorable's pathnames
       if(!unpackDirFormat(*mon, dir))
 	continue;
-
+      
+      if(!hasWildCards(subsc_request))
+	{
+	  string subsc_path, subsc_filename;
+	  unpack(subsc_request, subsc_path, subsc_filename);
+	  if(dir.dir_path != subsc_path)continue;
+	}
+      
       string new_request;
       for(cvIt it = dir.contents.begin(); it != dir.contents.end(); ++it)
 	{ // loop over files in directory
-
+	  
 	  string fullname = getUnixName(dir.dir_path, *it);
 	  if(matchit(fullname, subsc_request))
 	    { // this is a match!
-
+	      
 	      if(!new_request.empty())new_request += ",";
 	      new_request += *it;
 	      
 	    } // this is a match!
-
+	  
 	}  // loop over files in directory
-
+      
       if(!new_request.empty())
 	requests.push_back(dir.dir_path + ":" + new_request);
-
+      
     } // loop over added monitorable's pathnames
-
+  
   // subscribe only if non-zero list has been found
   if(!requests.empty())
     finishSubscription(requests, true);
 
+}
+
+// same as above for tagged MonitorElements (with modification in last cycle only)
+void MonitorUserInterface::subscribeNew(string subsc_request, unsigned int tag)
+{
+  if(!needUpstreamConnections()) return;
+  if(subsc_request.empty())return;
+
+  // put here requests in format <dir pathname>:<h1>,<h2>,...
+  vector<string> requests;
+
+  // will consider only addedTags (as opposed to addedMonitorable)
+
+  if(!hasWildCards(subsc_request) )
+    { // subscription request with exact pathname
+      string subsc_path, subsc_filename;
+      unpack(subsc_request, subsc_path, subsc_filename);
+      
+      cdirt_it path = bei->addedTags.find(subsc_path);
+      if(path != bei->addedTags.end())
+	{ // found path in addedTags
+	  ctags_it me = path->second.find(subsc_filename);
+	  if(me != path->second.end())
+	    { // found ME in addedTags
+	      
+	      if(me->second.find(tag) != me->second.end())
+		requests.push_back(subsc_path + ":" + subsc_filename);
+	      
+	    } // found ME in addedTags
+	} // found path in addedTags
+      
+    } // subscription request with exact pathname
+  
+  else // subscription request with wildcards
+    {
+      
+      cdirt_it start, end, parent_dir;
+      getSubRange<dir_tags>(subsc_request, bei->addedTags, 
+			    start, end, parent_dir);
+      
+      for(cdirt_it path = start; path != end; ++path)
+	// loop over pathnames in addedTags
+	subscribeNew(subsc_request, tag, requests, path);
+      
+      if(parent_dir != bei->addedTags.end())
+	subscribeNew(subsc_request, tag, requests, parent_dir);
+      
+    } // subscription request with wildcards
+
+
+  // subscribe only if non-zero list has been found
+  if(!requests.empty())
+    finishSubscription(requests, true);
+  
+}
+
+// look for MEs matching subsc_request with <tag> in <path>
+void MonitorUserInterface::subscribeNew(const string & subsc_request,
+					unsigned int tag,
+					vector<string> & requests,
+					const cdirt_it & path)
+{
+  string new_request;
+
+  for(ctags_it me = path->second.begin();  me != path->second.end(); ++me)
+    { // loop over MEs in <path>
+
+
+      // check if tag has been added to ME
+      if(me->second.find(tag) != me->second.end())
+	{
+		     
+	  string fullname = getUnixName(path->first, me->first);
+		     
+	  if(matchit(fullname, subsc_request))
+	    { // this is a match!
+
+	      if(!new_request.empty())new_request += ",";
+	      new_request += me->first;
+			 
+	    } // this is a match!
+	  
+	} // check if tag has been added to ME
+
+    } // loop over all MEs in <path>
+
+  if(!new_request.empty())
+    requests.push_back(path->first + ":" + new_request);
 
 }
+
+// get all MEs with <tag> in <path>
+void MonitorUserInterface::subscribeNew(unsigned int tag, 
+					vector<string> & requests,
+					const cdirt_it & path)
+{
+  string new_request;
+
+  for(ctags_it me = path->second.begin();  me != path->second.end(); ++me)
+    { // loop over MEs in <path>
+
+
+      // check if tag has been added to ME
+      if(me->second.find(tag) != me->second.end())
+	{
+		     
+	  if(!new_request.empty())new_request += ",";
+	  new_request += me->first;
+
+	} // check if tag has been added to ME
+
+    } // loop over all MEs in <path>
+
+  if(!new_request.empty())
+    requests.push_back(path->first + ":" + new_request);
+  
+}
+
+// subscription request for directory contents ==> FAST
+// use only additions to monitorable in last cycle;
+// (need exact pathname without wildcards, e.g. A/B/C)
+// use flag to specify whether subfolders (and their contents) should be included;
+void MonitorUserInterface::subscribeNew(string subsc_request, bool useSubFolders)
+{
+  if(!needUpstreamConnections()) return;
+  if(subsc_request.empty())return;
+
+  if(hasWildCards(subsc_request))
+    {
+      cerr << " *** Wildcards (*, ?) not allowed with this subscription method"
+	   << endl;
+      return;
+    }
+
+  chopLastSlash(subsc_request);
+
+  vector<string> put_here; put_here.clear();
+  bei->getAddedMonitorable(put_here);
+  
+  // put here requests in format <dir pathname>:<h1>,<h2>,...
+  vector<string> requests;
+
+  DirFormat dir;
+  for(cvIt mon = put_here.begin(); mon != put_here.end(); ++mon)
+    { // loop over added monitorable's pathnames
+
+      if(useSubFolders)
+	{ // need all subfolders;
+	  // will check if (*mon) contains (folder) subc_request
+	  if(!belongs2folder(subsc_request, *mon))
+	    continue;
+	}
+      else // no subfolders needed;
+	{ // will check for exact pathname
+
+	  // split name into <dir> and contents
+	  vector<string> subs; 
+	  unpackString((*mon).c_str(), ":", subs);
+	  if(subs.size() != 2)
+	    {
+	      cout << " *** Error parsing added monitorable " 
+		   << *mon << endl;
+	      continue;
+	    }
+
+	  string path = *(subs.begin());
+	  if(subsc_request != path)continue;
+	}
+
+      requests.push_back(*mon);
+      
+    } // loop over added monitorable's pathnames
+  
+  // subscribe only if non-zero list has been found
+  if(!requests.empty())
+    finishSubscription(requests, true);
+
+}
+
+// same as above for tagged MonitorElements (with modification in last cycle only)
+void MonitorUserInterface::subscribeNew(string subsc_request, bool useSubFolders,
+					unsigned int tag)
+{
+  if(!needUpstreamConnections()) return;
+  if(subsc_request.empty())return;
+
+  if(hasWildCards(subsc_request))
+    {
+      cerr << " *** Wildcards (*, ?) not allowed with this subscription method"
+	   << endl;
+      return;
+    }
+
+  chopLastSlash(subsc_request);
+
+  // put here requests in format <dir pathname>:<h1>,<h2>,...
+  vector<string> requests;
+
+  if(useSubFolders)
+    {
+      // get all subfolders by using exact-pathname + "/*"
+      string search_string = subsc_request + "/*";
+      
+      cdirt_it start, end, parent_dir;
+      getSubRange<dir_tags>(search_string, bei->addedTags, 
+			    start, end, parent_dir);    
+ 
+      for(cdirt_it path = start; path != end; ++path)
+	// loop over pathnames in addedTags
+	subscribeNew(tag, requests, path);
+      
+      if(parent_dir != bei->addedTags.end())
+	subscribeNew(tag, requests, parent_dir);
+      
+    } // subscription request with wildcards
+
+  else
+    { // use only <subsc_request> directory (no subfolders)
+      cdirt_it path = bei->addedTags.find(subsc_request);
+      if(path != bei->addedTags.end())
+	subscribeNew(tag, requests, path);
+
+    }
+  
+  // subscribe only if non-zero list has been found
+  if(!requests.empty())
+    finishSubscription(requests, true);
+
+}
+
+
+// subscription request for all MEs with given tag in last monitoring cycle ==> FAST
+void MonitorUserInterface::subscribeNew(unsigned int tag)
+{
+  if(!needUpstreamConnections()) return;
+
+  // put here requests in format <dir pathname>:<h1>,<h2>,...
+  vector<string> requests;
+
+  for(cdirt_it path = bei->addedTags.begin(); path != bei->addedTags.end();
+      ++path)
+    // loop over pathnames in addedTags
+    subscribeNew(tag, requests, path);
+      
+  // subscribe only if non-zero list has been found
+  if(!requests.empty())
+    finishSubscription(requests, true);
+}
+
 
 // set(unset) subscription if add=true(false)
 // string format: <dir pathname>:<h1>,<h2>,...
@@ -154,14 +462,15 @@ void MonitorUserInterface::finishSubscription(const vector<string> & monit,
 {
   LockMutex a(bei->requests.mutex);
 
-  for(cvIt it = monit.begin(); it != monit.end(); ++it){
-
-    // (un)subscribe to monitorable
-    if(add)
-      bei->requests.toAdd.push_back(*it);
-    else
-      bei->requests.toRemove.push_back(*it);
-  }
+  for(cvIt it = monit.begin(); it != monit.end(); ++it)
+    {
+      
+      // (un)subscribe to monitorable
+      if(add)
+	bei->requests.toAdd.push_back(*it);
+      else
+	bei->requests.toRemove.push_back(*it);
+    }
 }
 
 // save dir_fullpath with monitoring objects into root file <filename>;
@@ -200,73 +509,108 @@ void MonitorUserInterface::setAccumulate(MonitorElement * me, bool flag)
 }
 
 // add <search_string> to summary ME; 
-// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo)
-// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
-void MonitorUserInterface::add(CollateMonitorElement * cme, 
-			       const string & search_string) const
+// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
+// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
+// this action applies to all MEs already available or future ones
+void MonitorUserInterface::add(CollateMonitorElement * cme, string search_string)
+  const
+{
+  add(cme, 0, search_string); // "0" means no tag
+}
+
+// same as above for tagged MEs
+void MonitorUserInterface::add(CollateMonitorElement * cme, unsigned int tag,
+			       string search_string) const
 {
   if(search_string.empty())
     return;
-
   if(!cme)
     {
-      cerr << " *** Cannot use " << search_string 
+      cerr << " *** Cannot use search-string " << search_string 
 	   << " with null CollateMonitorElement! " << endl;
       return;
     }
 
-  cme->add(search_string, bei->own.global_);
+  if(tag == 0) // "0" means no tag
+    cme->add(0, search_string, bei->Own);
+  else
+    {
+      tdir_it tg = bei->Tags.find(tag);
+      if(tg != bei->Tags.end())
+	cme->add(tag, search_string, tg->second);
+      else
+	cme->add2search_path(search_string, tag);
+    }
+   
+}
+
+// add directory contents to summary ME ==> FAST
+// (need exact pathname without wildcards, e.g. A/B/C);
+// use flag to specify whether subfolders (and their contents) should be included;
+// this action applies to all MEs already available or future ones
+void MonitorUserInterface::add(CollateMonitorElement* cme, string pathname, 
+			       bool useSubfolds) const
+{
+  add(cme, 0, pathname, useSubfolds); // "0" means no tag
+}
+
+// same as above for tagged MEs
+void MonitorUserInterface::add(CollateMonitorElement * cme, unsigned int tag,
+			       string pathname, bool useSubfolds) const
+{
+  if(pathname.empty())
+    return;
+  if(!cme)
+    {
+      cerr << " *** Cannot use pathname " << pathname 
+	   << " with null CollateMonitorElement! " << endl;
+      return;
+    }
+
+  chopLastSlash(pathname);
+
+  if(tag == 0) // "0" means no tag
+    cme->add(0, pathname, bei->Own, useSubfolds);
+  else
+    {
+      tdir_it tg = bei->Tags.find(tag);
+      if(tg != bei->Tags.end())
+	cme->add(tag, pathname, tg->second, useSubfolds);
+      else
+	cme->add2folders(pathname, useSubfolds, tag);
+    } 
+}
+
+// add tagged MEs to summary ME ==> FAST
+// this action applies to all MEs already available or future ones
+void MonitorUserInterface::add(CollateMonitorElement * cme, unsigned int tag)
+  const
+{
+  if(!cme)
+    {
+      cerr << " *** Cannot use tag " << tag 
+	   << " with null CollateMonitorElement! " << endl;
+      return;
+    }
+  if(tag == 0)
+    {
+      cerr << " *** Tag must be positive number! \n";
+      return;
+    }
+
+  tdir_it tg = bei->Tags.find(tag);
+  if(tg != bei->Tags.end())
+    cme->add(tag, tg->second);
+  else
+    cme->add2tags(tag); 
 }
 
 // new MEs have been added; check if need to update collate-MEs
 void MonitorUserInterface::checkAddedContents(void)
 {
-  for(scmeIt cme = collate_mes.begin(); cme != collate_mes.end(); ++cme){
+  for(cmesIt cme = bei->collate_set.begin(); cme != bei->collate_set.end(); ++cme)
     // loop over collate-MEs
-    for(csIt search_string = (*cme)->searchStrings.begin(); 
-	search_string != (*cme)->searchStrings.end(); ++search_string){
-      // loop over search-strings for CME
-      
-      cmonit_it start, end, parent_dir;
-      getSubRange<monit_map>(*search_string, bei->addedContents, 
-			     start, end, parent_dir);
-      
-      for(cmonit_it path = start; path != end; ++path)
-	// loop over all pathnames of added contents
-	checkAddedContents(*search_string, cme, path);
-      
-      if(parent_dir != bei->addedContents.end())
-	checkAddedContents(*search_string, cme, parent_dir);
-      
-    } // loop over search-strings for CME
-	  
-  } // loop over collate-MEs
-
-}
-
-// save as above for given search_string and path
-void MonitorUserInterface::checkAddedContents(const string & search_string, 
-					      scmeIt & cme,
-					      cmonit_it & path)
-{
-  for(csIt it = path->second.begin(); it!= path->second.end(); ++it){
-    // loop over all added MEs
-    
-    // get unix-like filename
-    string fullname = getUnixName(path->first, *it);
-
-    if(matchit(fullname, search_string)){
-      // this is a match!
-      MonitorElement* me = bei->findObject(*it, path->first);
-      bool didIt = (*cme)->addIt(me, path->first, *it);
-      
-      if(didIt && !(*cme)->canUse_)
-	(*cme)->createCollateBase(me);
-      
-    } // this is a match!
-		      
-  }  // loop over all added MEs
-
+    (*cme)->checkAddedContents();
 }
 
 // do calculations for all collate MEs; come here at end of monitoring cycle)
@@ -275,10 +619,8 @@ void MonitorUserInterface::doSummary(void)
   if(!bei->addedContents.empty())
     checkAddedContents();
   
-  for(scmeIt it = collate_mes.begin(); it != collate_mes.end(); ++it)
-    {
-      (*it)->summary();
-    }
+  for(cmesIt cme = bei->collate_set.begin(); cme != bei->collate_set.end(); ++cme)
+    (*cme)->summary();
 }
 
 // this is the "main" loop where we receive monitoring/send subscription requests;
@@ -307,7 +649,102 @@ void MonitorUserInterface::removeCollate(CollateMonitorElement * cme)
       cerr << " *** Attempt to remove null CollateMonitorElement ! " << endl;
       return;
     }
+  bei->removeCollate(cme);
+}
 
-  collate_mes.erase(cme);
-  delete cme;
+// attach quality test <qtname> to all ME matching <search_string>;
+// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
+// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
+// this action applies to all MEs already available or future ones
+void MonitorUserInterface::useQTest(string search_string, string qtname) const
+{
+  useQTest(0, search_string, qtname); // "0" means no tag
+}
+  
+// same as above for tagged MEs
+void MonitorUserInterface::useQTest(unsigned int tag, string search_string,
+				    string qtname) const
+{
+  if(search_string.empty())
+    return;
+
+  QCriterion * qc = getQCriterion(qtname);
+  if(!qc)
+    {
+      cerr << " *** Quality test " << qtname << " does not exist! " << endl;
+      return;
+    }
+
+  if(tag == 0) // "0" means no tag
+    bei->useQTest(0, search_string, bei->Own, qc);
+  else
+    {
+      tdir_it tg = bei->Tags.find(tag);
+      if(tg != bei->Tags.end())
+	bei->useQTest(tag, search_string, tg->second, qc);
+      else
+	qc->add2search_path(search_string, tag);
+    }
+   
+}
+
+// attach quality test <qtname> to directory contents ==> FAST
+// (need exact pathname without wildcards, e.g. A/B/C);
+// use flag to specify whether subfolders (and their contents) should be included;
+// this action applies to all MEs already available or future ones
+void MonitorUserInterface::useQTest(string pathname, bool useSubfolds, 
+				    string qtname) const
+{
+  useQTest(0, pathname, useSubfolds, qtname);
+}
+
+// same as above for tagged MEs
+void MonitorUserInterface::useQTest(unsigned int tag, string pathname, 
+				    bool useSubfolds, string qtname) const
+{
+  if(pathname.empty())
+    return;
+
+  QCriterion * qc = getQCriterion(qtname);
+  if(!qc)
+    {
+      cerr << " *** Quality test " << qtname << " does not exist! " << endl;
+      return;
+    }
+
+  chopLastSlash(pathname);
+
+  if(tag == 0) // "0" means no tag
+    bei->useQTest(0, pathname, useSubfolds, bei->Own, qc);
+  else
+    {
+      tdir_it tg = bei->Tags.find(tag);
+      if(tg != bei->Tags.end())
+	bei->useQTest(tag, pathname, useSubfolds, tg->second, qc);
+      else
+	qc->add2folders(pathname, useSubfolds, tag);
+    } 
+}
+
+// attach quality test <qtname> to tagged MEs ==> FAST
+// this action applies to all MEs already available or future ones
+void MonitorUserInterface::useQTest(unsigned int tag, string qtname) const
+{
+  QCriterion * qc = getQCriterion(qtname);
+  if(!qc)
+    {
+      cerr << " *** Quality test " << qtname << " does not exist! " << endl;
+      return;
+    }
+  if(tag == 0)
+    {
+      cerr << " *** Tag must be positive number! \n";
+      return;
+    }
+  
+  tdir_it tg = bei->Tags.find(tag);
+  if(tg != bei->Tags.end())
+    bei->useQTest(tag, tg->second, qc);
+  else
+    qc->add2tags(tag); 
 }

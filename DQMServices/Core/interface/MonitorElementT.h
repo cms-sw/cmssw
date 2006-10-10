@@ -52,6 +52,9 @@ class MonitorElementT : public MonitorElement
 
   virtual std::string valueString() const {return std::string();};
 
+  // whether soft-reset is enabled
+  bool isSoftResetEnabled(void) const{return reference_ != 0;}
+  
   float doNotUseMethod(std::string method) const
   {
     std::cerr << " *** Cannot use method " << method << 
@@ -176,10 +179,6 @@ class MonitorElementT : public MonitorElement
       }
   }
 
-
-  // whether soft-reset is enabled
-  bool isSoftResetEnabled(void) const{return reference_ != 0;}
-  
   // this is really bad; unfortunately, gcc 3.2.3 won't let me define 
   // template classes, so I have to find a workaround for now
   // error: "...is not a template type" - christos May26, 2005

@@ -74,8 +74,8 @@ class QCriterion
   bool wasModified_;
   // name of algorithm
   std::string algoName_;
-  // all search strings for MEs using this QCriterion
-  std::set<std::string> searchStrings;
+  // all search strings and rules defining ME that use this QCriterion
+  dqm::me_util::searchCriteria rules;
   // call method when something in the algorithm changes
   void update(void){wasModified_ = true;}
   // make sure algorithm can run (false: should not run)
@@ -112,12 +112,23 @@ class QCriterion
 
  private:
 
+  // add search_string to rules.search.search_path
+  void add2search_path(const std::string & search_string, unsigned int tag);
+  // add pathname to rules.search.folders (flag=false) 
+  // or rules.search.foldersFull (flag=true)
+  void add2folders(const std::string & pathname, bool useSubfolders, 
+		   unsigned int tag);
+  // add tag to rules.tags
+  void add2tags(unsigned int tag);
+
   // default "probability" values for setting warnings & errors when running tests
   static const float WARNING_PROB_THRESHOLD;
   static const float ERROR_PROB_THRESHOLD;
 
   // for creating and deleting class instances
   friend class DaqMonitorBEInterface;
+  // for updating rules
+  friend class MonitorUserInterface;
   // for running the test
   friend class QReport;
 };

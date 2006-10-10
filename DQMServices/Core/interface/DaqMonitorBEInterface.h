@@ -16,6 +16,9 @@
 #include <string>
 
 class QCriterion;
+class MonitorElementRootFolder;
+class DQMTagHelper;
+class CollateMonitorElement;
 
 class DaqMonitorBEInterface: public StringUtil
 {
@@ -88,8 +91,6 @@ class DaqMonitorBEInterface: public StringUtil
   virtual void cd(std::string subdir_path) = 0;
   // name of global monitoring folder (containing all sources subdirectories)
   static const std::string monitorDirName;
-  // name of global subscriber folder (containing all clients subdirectories)
-  static const std::string subscriberDirName;
   // ---------------- Miscellaneous -----------------------------
   
   // show directory structure
@@ -135,11 +136,62 @@ class DaqMonitorBEInterface: public StringUtil
   // acquire and release lock
   void lock();
   void unlock();
-  
+
+  // ------------- Tags (e.g. detector-IDs;) -----------------
+  // Property similar to "Labels" of google-mail) 
+
+  // tag ME as <myTag> (myTag > 0)
+  virtual void tag(MonitorElement * me, unsigned int myTag) = 0;
+  // opposite action of tag method (myTag > 0)
+  virtual void untag(MonitorElement * me, unsigned int myTag) = 0;
+  // tag ME specified by full pathname (e.g. "my/long/dir/my_histo")
+  virtual void tag(std::string fullpathname, unsigned int myTag)= 0;
+  // opposite action of tag method
+  virtual void untag(std::string fullpathname, unsigned int myTag)= 0;
+  // tag all children of folder (does NOT include subfolders)
+  virtual void tagContents(std::string pathname, unsigned int myTag)= 0;
+  // opposite action of tagContents method
+  virtual void untagContents(std::string pathname, unsigned int myTag)=0;
+  // tag all children of folder, including all subfolders and their children;
+  // exact pathname: FAST
+  // pathname including wildcards (*, ?): SLOW!
+  virtual void tagAllContents(std::string pathname, unsigned int myTag)=0;
+  // opposite action of tagAllContents method
+  virtual void untagAllContents(std::string pathname, unsigned int myTag)=0;
+
+  // ------------------- Public "getters" ------------------------------
+  // get ME from full pathname (e.g. "my/long/dir/my_histo")
+  virtual MonitorElement * get(std::string fullpath) const = 0;
+
+  // get all MonitorElements tagged as <tag>
+  virtual std::vector<MonitorElement *> get(unsigned int tag) const = 0;
+
+  // get vector with all children of folder
+  // (does NOT include contents of subfolders)
+  virtual std::vector<MonitorElement *> getContents(std::string pathname) 
+    const = 0;
+  // same as above for tagged MonitorElements
+  virtual std::vector<MonitorElement *> getContents
+    (std::string pathname, unsigned int tag) const=0;
+
+  // get vector with children of folder, including all subfolders + their children;
+  // exact pathname: FAST
+  // pathname including wildcards (*, ?): SLOW!
+  virtual std::vector<MonitorElement*> getAllContents(std::string pathname)
+    const = 0;
+  // same as above for tagged MonitorElements
+  virtual std::vector<MonitorElement*> getAllContents(std::string pathname,
+						      unsigned int tag) 
+    const = 0;
+
  protected:
   
   // ------------------- Private "getters" ------------------------------
   
+  // add all (tagged) MEs to put_here
+  virtual void get(const dqm::me_util::dir_map & Dir, 
+		   std::vector<MonitorElement *> & put_here) const=0;
+
   // get all contents;
   // return vector<string> of the form <dir pathname>:<obj1>,<obj2>,<obj3>;
   // if showContents = false, change form to <dir pathname>:
@@ -170,9 +222,18 @@ class DaqMonitorBEInterface: public StringUtil
   void getUpdatedContents(std::vector<std::string> & put_here) const;
  
   // get folder corresponding to inpath wrt to root (create subdirs if necessary)
-  virtual MonitorElement * makeDirectory(std::string inpath) = 0;
+  virtual MonitorElementRootFolder * 
+    makeDirectory(std::string inpath, dqm::me_util::rootDir & Dir) = 0;
   // get (pointer to) last directory in inpath (null if inpath does not exist)
-  virtual MonitorElement * getDirectory(std::string inpath) const = 0;
+  virtual MonitorElementRootFolder * 
+    getDirectory(std::string inpath, const dqm::me_util::rootDir & Dir) 
+    const = 0;
+  // get folder corresponding to inpath wrt to root (create subdirs if necessary)
+  MonitorElementRootFolder * makeDirectory(std::string inpath)
+  {return makeDirectory(inpath, Own);}
+  // get (pointer to) last directory in inpath (null if inpath does not exist)
+  MonitorElementRootFolder * getDirectory(std::string inpath) const
+  {return getDirectory(inpath, Own);}
   
   // look for object <name> in current directory
   //  virtual MonitorElement * findObject(std::string name) const = 0;
@@ -182,6 +243,62 @@ class DaqMonitorBEInterface: public StringUtil
   // look for folder <name> in current directory
   virtual MonitorElement * findFolder(std::string name) const = 0;
     
+  // get root folder
+  virtual MonitorElementRootFolder * getRootFolder
+    (const dqm::me_util::rootDir & Dir) const = 0;
+
+  // get tags for various maps, return vector with strings of the form
+  // <dir pathname>:<obj1>/<tag1>/<tag2>,<obj2>/<tag1>/<tag3>, etc.
+  virtual void getAllTags(std::vector<std::string> & put_here) const = 0;
+  virtual void getAddedTags(std::vector<std::string> & put_here) const = 0;
+  virtual void getRemovedTags(std::vector<std::string> & put_here) const = 0;
+
+  // get vector with all children of folder in <rDir>
+  // (does NOT include contents of subfolders)
+  virtual void getContents
+    (std::string & pathname, const dqm::me_util::rootDir & rDir,
+     std::vector<MonitorElement *> & put_here) const = 0;
+
+  // get vector with all children of folder and all subfolders of <rDir>;
+  // pathname may include wildcards (*, ?) ==> SLOW!
+  virtual void getAllContents
+    (std::string & pathname, const dqm::me_util::rootDir & rDir,
+     std::vector<MonitorElement*> & put_here) const = 0;
+
+  // get rootDir corresponding to tag 
+  // (Own for tag=0, or null for non-existing tag)
+  const dqm::me_util::rootDir * getRootDir(unsigned int tag) const;
+
+  // check if added contents match rules; put matches in put_here
+  void checkAddedContents(const dqm::me_util::searchCriteria & rules,
+			  std::vector<MonitorElement *> & put_here) const;
+  // same as above for given search_string and path; 
+  // put matches into put_here
+  virtual void checkAddedContents
+    (const std::string & search_string, 
+     dqm::me_util::cmonit_it& added_path,const dqm::me_util::rootDir & Dir,
+     std::vector<MonitorElement*> & put_here) const = 0;
+  // check if added contents match search paths
+  virtual void checkAddedSearchPaths
+    (const std::vector<std::string> & search_path, 
+     const dqm::me_util::rootDir & Dir,
+     std::vector<MonitorElement*>& put_here)const=0;
+  // check if added contents belong to folders 
+  // (use flag to specify if subfolders should be included)
+  void checkAddedFolders(const std::vector<std::string> & folders,
+			 const dqm::me_util::rootDir & Dir,
+			 bool useSubfolders,
+			 std::vector<MonitorElement*>& put_here) const;
+  // check if added contents belong to folder 
+  // (use flag to specify if subfolders should be included)
+  virtual void checkAddedFolder
+    (dqm::me_util::cmonit_it & added_path,
+     const dqm::me_util::rootDir & Dir,
+     std::vector<MonitorElement*>& put_here)const=0;
+  // check if added contents are tagged
+  void checkAddedTags(const dqm::me_util::rootDir & Dir,
+		      std::vector<MonitorElement*>& put_here) const;
+
   // ---------------- Miscellaneous -----------------------------
   
   // convert dqm::me_util::monit_map into 
@@ -208,9 +325,6 @@ class DaqMonitorBEInterface: public StringUtil
   // add monitoring element to directory <pathname>
   virtual void addElement(MonitorElement * me, std::string pathname, 
 			  std::string type = "") = 0;
-  // add null monitoring element to current folder (can NOT be folder);
-  // used for registering monitorables before user has subscribed to <name>
-  //virtual void addElement(std::string name) = 0;
   // add null monitoring element to folder <pathname> (can NOT be folder);
   // used for registering monitorables before user has subscribed to <name>
   virtual void addElement(std::string name, std::string pathname) = 0;
@@ -218,26 +332,26 @@ class DaqMonitorBEInterface: public StringUtil
   // book 1D histogram
   virtual MonitorElement * book1D(std::string name, std::string title, 
 			  int nchX, double lowX, double highX, 
-			  MonitorElement * folder) = 0;
+			  MonitorElementRootFolder * folder) = 0;
 
   // book 2D histogram
   virtual MonitorElement * book2D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
 			  double lowY, double highY, 
-			  MonitorElement * folder) = 0;
+			  MonitorElementRootFolder * folder) = 0;
   // book 3D histogram
   virtual MonitorElement * book3D(std::string name, std::string title,
 			  int nchX, double lowX, double highX, int nchY, 
 			  double lowY, double highY, int nchZ,
 			  double lowZ, double highZ, 
-			  MonitorElement * folder) = 0;
+			  MonitorElementRootFolder * folder) = 0;
   // book profile;
   // option is one of: " ", "s" (default), "i", "G" (see TProfile::BuildOptions)
   // (in a profile plot the number of channels in Y is disregarded)
   virtual MonitorElement * bookProfile(std::string name, 
 			       std::string title,int nchX, double lowX,
 			       double highX, int nchY, double lowY, 
-			       double highY, MonitorElement* folder,
+			       double highY, MonitorElementRootFolder* folder,
 				char * option = "s") = 0;
 
   // book 2-D profile;
@@ -248,26 +362,27 @@ class DaqMonitorBEInterface: public StringUtil
 				 int nchX, double lowX, double highX, 
 				 int nchY, double lowY,double highY,
 				 int nchZ, double lowZ,double highZ,
-				 MonitorElement * folder, 
+				 MonitorElementRootFolder * folder, 
 				 char * option = "s") = 0;
 
   // book float
-  virtual MonitorElement * bookFloat(std::string s, MonitorElement * folder)=0;
+  virtual MonitorElement * bookFloat(std::string s, 
+				     MonitorElementRootFolder * folder)=0;
   // book int
-  virtual MonitorElement * bookInt(std::string s, MonitorElement * folder)=0;
+  virtual MonitorElement * bookInt(std::string s, 
+				   MonitorElementRootFolder * folder)=0;
   // book string
   virtual MonitorElement * bookString(std::string s, std::string v, 
-			      MonitorElement * folder) = 0;
-
+				      MonitorElementRootFolder * folder) = 0;
+  
 
   // ---------------- Checkers -----------------------------
   
   // true if pathname exists
-  virtual bool pathExists(std::string inpath) const = 0;
+  virtual bool pathExists(std::string inpath, 
+			  const dqm::me_util::rootDir & Dir) const = 0;
   // check against null objects (true if object exists)
   bool checkElement(const MonitorElement * const me) const;
-  // check if object is really a folder (true if it is)
-  bool checkFolder(const MonitorElement * const dir) const;
   // true if object <name> already belongs to directory <pathname>
   virtual bool objectDefined(std::string name, std::string pathname) const 
     = 0;
@@ -286,22 +401,33 @@ class DaqMonitorBEInterface: public StringUtil
   
   // remove monitoring element from directory;
   // if warning = true, print message if element does not exist
-  virtual void removeElement(MonitorElement * dir, std::string name,  
+  virtual void removeElement(MonitorElementRootFolder * dir, 
+			     std::string name,  
 			     bool warning = true) = 0;
   // remove all monitoring elements from directory;
   // if warning = true, print message if element does not exist
-  virtual void removeContents(MonitorElement * dir) = 0;
+  virtual void removeContents(MonitorElementRootFolder * dir) = 0;
   
+  // remove all contents from <pathname> from all subscribers, tags and CMEs
+  void removeCopies(const std::string & pathname);
+  // remove Monitor Element <name> from all subscribers, tags & CME directories
+  void removeCopies(const std::string & pathname, const std::string & name);
+  // remove Monitor Element <name> from <pathname> in <Dir>
+  void remove(const std::string & pathname, const std::string & name,
+		  dqm::me_util::rootDir & Dir);
   // -------------------- Deleting ----------------------------------
   // delete directory and all contents;
-  virtual void rmdir(MonitorElement * dir) = 0;
-  
+  // delete directory (all contents + subfolders);
+  virtual void rmdir
+    (const std::string & pathname, dqm::me_util::rootDir & rDir) = 0;
+ 
   // copy monitoring elements from source to destination
-  virtual void copy(MonitorElement * const source, MonitorElement * const dest, 
+  virtual void copy(const MonitorElementRootFolder * const source, 
+		    MonitorElementRootFolder * const dest, 
 		    const std::vector<std::string> & contents) = 0;
   // remove subscribed monitoring elements; 
   // if warning = true, printout error messages when problems;
-  virtual void removeSubsc(MonitorElement * const dir, 
+  virtual void removeSubsc(MonitorElementRootFolder * const dir, 
 			   const std::vector<std::string> & contents, 
 			   bool warning = true) = 0;
   
@@ -322,11 +448,15 @@ class DaqMonitorBEInterface: public StringUtil
   boost::mutex::scoped_lock * dqm_locker;
   // ------------------- data structures -----------------------------
   
-  // directory structure of "this"
-  dqm::me_util::MonitorStruct own;
+  // directory monitoring structure for all MEs
+  dqm::me_util::rootDir Own;
+
   // directory structure of subscribers
-  dqm::me_util::MonitorStruct subscribers;
-  
+  dqm::me_util::subscriber_map Subscribers;
+
+  // directory structure of tags (eg. detector-IDs)
+  dqm::me_util::tag_map Tags;
+
   // holds (un)subscription requests that are not included in "own"; 
   // format: <dir pathname>:<obj1>,<obj2>,...
   // saved here by a downstream class, till ReceiverBase 
@@ -350,10 +480,18 @@ class DaqMonitorBEInterface: public StringUtil
   // Note: these do not include objects in subscriber's folders
   dqm::me_util::monit_map addedContents;
   dqm::me_util::monit_map removedContents;
+  // all tags for full monitoring structure 
+  dqm::me_util::dir_tags allTags;
+  // added and removed tags since last cycle;
+  // reset after all recipients have been informed (ie. in resetStuff);
+  dqm::me_util::dir_tags addedTags;
+  dqm::me_util::dir_tags removedTags;
+
   // updated monitoring elements since last cycle
   // format: <dir pathname>:<obj1>,<obj2>,...
   // *** Note: includes addedContents ***
   dqm::me_util::monit_map updatedContents;
+
 
   // map of all quality tests
   dqm::qtests::QC_map qtests_;
@@ -396,6 +534,10 @@ class DaqMonitorBEInterface: public StringUtil
   void addQReport(MonitorElement * me, QReport * qr) const
   {me->addQReport(qr);}
 
+  // add quality reports to all MEs
+  void addQReport
+    (std::vector<MonitorElement *> & allMEs, QCriterion * qc) const;
+
   // check if QReport is already defined for ME
   bool qreportExists(MonitorElement * me, std::string qtname) const
   {return me->qreportExists(qtname);}
@@ -417,24 +559,57 @@ class DaqMonitorBEInterface: public StringUtil
   virtual QCriterion * createQTest(std::string algo_name,
 				   std::string qtname) = 0;
 
-  // attach quality test <qtname> to all ME matching <search_string>;
-  // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo)
-  // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*);
-  // this action applies to all MEs already available or future ones
-  void useQTest(std::string search_string, std::string qtname) const;
+  // attach quality test <qc> to all ME matching <search_string>;
+  // if tag != 0, this applies to tagged contents
+  // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
+  // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
+  void useQTest(unsigned int tag, std::string search_string, 
+		const dqm::me_util::rootDir & Dir, QCriterion * qc) const;
 
-  // look for all MEs matching <search_string> in own.global_;
+  // attach quality test <qc> to directory contents ==> FAST
+  // if tag != 0, this applies to tagged contents
+  // (need exact pathname without wildcards, e.g. A/B/C);
+  // use flag to specify whether subfolders (and their contents) should be included;
+  void useQTest(unsigned int tag, std::string pathname, bool useSubfolds, 
+		const dqm::me_util::rootDir & Dir, QCriterion * qc) const;
+
+  // attach quality test <qtname> to tagged MEs ==> FAST
+  void useQTest(unsigned int tag, const dqm::me_util::rootDir & Dir,
+		QCriterion * qc) const;
+
+  // scan structure <rDir>, looking for all MEs matching <search_string>;
+  // put results in <put_here>
+  void scanContents(const std::string & search_string, 
+		    const dqm::me_util::rootDir & rDir,
+		    std::vector<MonitorElement *> & put_here) const;
+  // same as scanContents above but for one path only
+  virtual void scanContents(const std::string & search_string, 
+			    const MonitorElementRootFolder * folder,
+			    std::vector<MonitorElement *> & put_here) 
+    const=0;
+
+  // look for all MEs matching <search_string> in Own;
   // if found, create QReport from QCriterion and add to ME
   void scanContents(QCriterion * qc, const std::string & search_string) const;
-
-  // same as scanContents above but for one path only
-  void scanContents(QCriterion * qc, const std::string & search_string,
-		    dqm::me_util::cglob_it & path) const;
 
   // check if resetStuff was called 
   // (to be reset in MonitorUserInterface::runQualityTests)
   inline bool wasResetCalled() const{return resetWasCalled;}
 
+  // make new directory structure for Subscribers, Tags and CMEs
+  virtual void makeDirStructure
+    (dqm::me_util::rootDir & Dir, std::string name)=0;
+
+  DQMTagHelper * tagHelper;
+  // map of collation MEs (used to see if a ME is really a CME)
+  dqm::me_util::cme_map collate_map;
+  // set of collation MEs
+  dqm::me_util::cme_set collate_set;
+  // remove all CMEs
+  void removeCollates();
+  // remove CME
+  void removeCollate(CollateMonitorElement * cme);
+  //
  private:
   // use to printout warning when calling quality tests twice without
   // having called resetStuff in between...
@@ -442,22 +617,12 @@ class DaqMonitorBEInterface: public StringUtil
   bool resetWasCalled;
   // run quality tests (also finds updated contents in last monitoring cycle,
   // including newly added content) <-- to be called only by runQTests
-  void runQualityTests(void);
+  virtual void runQualityTests(void) = 0;
 
   // loop over quality tests & addedContents: look for MEs that 
-  // match QCriterion::searchStrings; upon a match, add QReport to ME(s)
+  // match QCriterion::rules; upon a match, add QReport to ME(s)
   void checkAddedElements(void);
- 
-  // loop over addedContents: look for MEs that 
-  // match search_string; upon a match, add QReport to ME(s)
-  void checkAddedElements(const std::string & search_string, 
-			  dqm::qtests::cqc_it & qc);
-
-  // same as checkAddedElements above for only one path
-  void checkAddedElements(const std::string & search_string, 
-			  dqm::qtests::cqc_it & qc,
-			  dqm::me_util::cmonit_it & path);
- 
+  //
   DaqMonitorBEInterface(const DaqMonitorBEInterface&);
   const DaqMonitorBEInterface& operator=(const DaqMonitorBEInterface&);
 
@@ -466,10 +631,12 @@ class DaqMonitorBEInterface: public StringUtil
   friend class ReceiverBase;
   friend class MonitorUserInterface;
   friend class MonitorUIRoot;
+  friend class DQMTagHelper;
 
   // this is really bad; unfortunately, gcc 3.2.3 won't let me define 
   // template classes, so I have to find a workaround for now
   // error: "...is not a template type" - christos May26, 2005
+  friend class CollateMonitorElement;
   friend class CollateMET;
   friend class CollateMERootH1;
   friend class CollateMERootH2;
