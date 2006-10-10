@@ -4,7 +4,6 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
 
 /*! \file L1GctEtSums.h
  * \Header file for the GCT energy sum output

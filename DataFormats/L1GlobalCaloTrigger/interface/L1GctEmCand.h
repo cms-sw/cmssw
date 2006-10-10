@@ -33,10 +33,10 @@ public:
    /// destructor (virtual to prevent compiler warnings)
   virtual ~L1GctEmCand();
   
-  /// name of object - inherited from L1TriggerObject
+  /// name of object
   std::string name() const;
 
-  /// was an object really found? - inherited from L1TriggerObject
+  /// was an object really found?
   bool empty() const;
   
   /// get the raw data

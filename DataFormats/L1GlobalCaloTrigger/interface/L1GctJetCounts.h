@@ -5,7 +5,6 @@
 #include <vector>
 #include <ostream>
 
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
 
 ///
 /// \class L1GctJetCounts

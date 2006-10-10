@@ -33,14 +33,14 @@ L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau
 
 L1GctJetCand::~L1GctJetCand() { } 
 
-// return name - inherited from L1TriggerObject
+// return name
 string L1GctJetCand::name() const { 
   if (m_isTau) { return "tau jet"; }
   else if (m_isFor) { return "forward jet"; }
   else { return "central jet"; }
 }
 
-// return whether an object was found - inherited from L1TriggerObject
+// return whether an object was found
 bool L1GctJetCand::empty() const {
   return (rank() == 0);
 }
