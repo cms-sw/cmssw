@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.13 2006/07/23 01:24:33 valya Exp $
+// $Id: ComponentFactory.h,v 1.14 2006/08/31 23:26:24 wmtan Exp $
 //
 
 // system include files
@@ -65,7 +65,12 @@ class ComponentFactory : public seal::PluginFactory<ComponentMakerBase<T>* ()>
             boost::shared_ptr<Maker> wm(this->create(modtype));
             
             if(wm.get()==0) {
-	      throw edm::Exception(errors::Configuration,(T::name()+ " failed to create a " + modtype).c_str());
+	      throw edm::Exception(errors::Configuration,"UnknownModule")<<T::name() 
+              <<" of type "<< modtype <<" has not been registered.\n"
+              << "Perhaps your module type is misspelled or is not a "
+              << "framework plugin.\n"
+              << "Try running SealPluginDump to obtain a list of "
+              << "available Plugins.";            
             }
             
             //cerr << "Factory: created the worker" << endl;
