@@ -29,7 +29,7 @@ class NumberOfDevices {
 
 }; 
 
-/** Debug info for FedChannelConnection class. */
+/** Debug info for NumberOfDevices class. */
 std::ostream& operator<< ( std::ostream&, const NumberOfDevices& );
 
 #endif // CalibTracker_SiStripObjects_NumberOfDevices_H
