@@ -3,8 +3,14 @@
 
 #include <boost/cstdint.hpp>
 #include <vector>
+#include <ostream>
 #include <sstream>
 #include <string>
+
+class FedChannelConnection;
+
+/** Debug info for FedChannelConnection class. */
+std::ostream& operator<< ( std::ostream&, const FedChannelConnection& );
 
 /** 
     @class FedChannelConnection 
