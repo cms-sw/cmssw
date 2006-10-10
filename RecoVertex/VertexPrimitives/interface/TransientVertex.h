@@ -171,7 +171,7 @@ public:
    *   If this information has not been provided at construction, a weight of
    *   1.0 is assumed for all tracks used and present in the originalTracks() std::vector.
    */
-  float trackWeight(const reco::TransientTrack track) const;
+  float trackWeight(const reco::TransientTrack & track) const;
 
   TransientTrackToFloatMap weightMap() const { return theWeightMap; }
 
