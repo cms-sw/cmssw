@@ -54,6 +54,7 @@ class DCCEventBlock : public DCCBlockPrototype {
 			CH_ENABLED           = 0,
 			CH_DISABLED          = 1,
 			CH_TIMEOUT           = 2,
+			CH_SUPPRESS          = 7,
 			
 			SR_NREAD              = 0,
 			
