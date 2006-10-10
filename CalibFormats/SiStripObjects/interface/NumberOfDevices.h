@@ -2,6 +2,7 @@
 #define CalibFormats_SiStripObjects_NumberOfDevices_H
 
 #include <boost/cstdint.hpp>
+#include <ostream>
 #include <sstream>
 
 /** 
@@ -27,5 +28,8 @@ class NumberOfDevices {
   uint32_t nDcus_, nMuxes_, nPlls_, nLlds_;          // Ancilliary devices
 
 }; 
+
+/** Debug info for FedChannelConnection class. */
+std::ostream& operator<< ( std::ostream&, const NumberOfDevices& );
 
 #endif // CalibTracker_SiStripObjects_NumberOfDevices_H

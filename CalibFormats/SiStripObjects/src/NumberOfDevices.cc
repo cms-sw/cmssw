@@ -44,3 +44,22 @@ void NumberOfDevices::print( stringstream& ss ) const {
      << ", LLDs: " << nLlds_;
 }
 
+// -----------------------------------------------------------------------------
+//
+ostream& operator<< ( ostream& os, const NumberOfDevices& devs ) {
+  return os << "[NumberOfDevices]" << endl
+	    << "  FEC crates=" << devs.nFecCrates_
+	    << " FEC slots=" << devs.nFecSlots_
+	    << " FEC rings=" << devs.nFecRings_
+	    << " CCU addrs=" << devs.nCcuAddrs_
+	    << " CCU chans=" << devs.nCcuChans_ << endl
+	    << "  DCU ids=" << devs.nDcuIds_
+	    << " DCUs=" << devs.nDcus_
+	    << " MUXes=" << devs.nMuxes_
+	    << " PLLs=" << devs.nPlls_
+	    << " LLDs=" << devs.nLlds_ << endl
+	    << "  DET ids=" << devs.nDetIds_
+	    << " APV pairs=" << devs.nApvPairs_
+	    << " APVs=" << devs.nApvs_
+	    << " FED channels=" << devs.nFedChans_;
+}
