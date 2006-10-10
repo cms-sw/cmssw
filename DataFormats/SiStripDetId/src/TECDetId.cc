@@ -1,11 +1,11 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
-TECDetId::TECDetId() : DetId() {
+TECDetId::TECDetId() : SiStripDetId() {
 }
 
-TECDetId::TECDetId(uint32_t rawid) : DetId(rawid) {
+TECDetId::TECDetId(uint32_t rawid) : SiStripDetId(rawid) {
 }
-TECDetId::TECDetId(const DetId& id) : DetId(id.rawId()){
+TECDetId::TECDetId(const DetId& id) : SiStripDetId(id.rawId()){
 }
 
 std::ostream& operator<<(std::ostream& os,const TECDetId& id) {

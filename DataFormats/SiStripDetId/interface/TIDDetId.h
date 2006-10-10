@@ -3,7 +3,7 @@
 
 #include <ostream>
 #include <vector>
-#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 /** 
@@ -13,7 +13,7 @@ class TIDDetId;
 
 std::ostream& operator<<(std::ostream& os,const TIDDetId& id);
 
-class TIDDetId : public DetId {
+class TIDDetId : public SiStripDetId {
  public:
   /** Constructor of a null id */
   TIDDetId();
@@ -27,7 +27,7 @@ class TIDDetId : public DetId {
 	   uint32_t ring,
 	   uint32_t module_fw_bw,
 	   uint32_t module,
-	   uint32_t ster) : DetId(DetId::Tracker,StripSubdetector::TID){
+	   uint32_t ster) : SiStripDetId(DetId::Tracker,StripSubdetector::TID){
     id_ |= (side& sideMask_)      << sideStartBit_    |
       (wheel& wheelMask_)          << wheelStartBit_      |
       (ring& ringMask_)            << ringStartBit_       |
@@ -133,3 +133,5 @@ class TIDDetId : public DetId {
 
 
 #endif
+
+

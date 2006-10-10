@@ -1,10 +1,10 @@
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 
-TIBDetId::TIBDetId() : DetId(){
+TIBDetId::TIBDetId() : SiStripDetId(){
 }
-TIBDetId::TIBDetId(uint32_t rawid) : DetId(rawid){
+TIBDetId::TIBDetId(uint32_t rawid) : SiStripDetId(rawid){
 }
-TIBDetId::TIBDetId(const DetId& id) : DetId(id.rawId()){
+TIBDetId::TIBDetId(const DetId& id) : SiStripDetId(id.rawId()){
 }
   
 

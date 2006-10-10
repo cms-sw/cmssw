@@ -1,10 +1,10 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
-TOBDetId::TOBDetId() : DetId() {
+TOBDetId::TOBDetId() : SiStripDetId() {
 }
-TOBDetId::TOBDetId(uint32_t rawid) : DetId(rawid) {
+TOBDetId::TOBDetId(uint32_t rawid) : SiStripDetId(rawid) {
 }
-TOBDetId::TOBDetId(const DetId& id) : DetId(id.rawId()) {
+TOBDetId::TOBDetId(const DetId& id) : SiStripDetId(id.rawId()) {
 }
 
 std::ostream& operator<<(std::ostream& os,const TOBDetId& id) {
