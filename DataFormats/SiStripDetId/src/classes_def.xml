@@ -1,6 +1,10 @@
 <lcgdict>
+  <class name="SiStripDetId"/>
   <class name="TIBDetId"/>
   <class name="TIDDetId"/>
   <class name="TOBDetId"/>
   <class name="TECDetId"/>
+  <class name="SiStripFecKey"/>
+  <class name="SiStripFedKey"/>
+  <class name="SiStripDetKey"/>
 </lcgdict>
