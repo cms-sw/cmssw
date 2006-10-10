@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.46 2006/10/05 22:01:31 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.47 2006/10/05 23:23:53 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -254,7 +254,7 @@ namespace edm {
       } else {
 	// There is a Group with this ID is in the event.  Write the provenance.
 	bool present = i->selected_ && g->product() && g->product()->isPresent();
-	if (present == g->product()->isPresent()) {
+	if (present == (g->product() && g->product()->isPresent())) {
 	  // The provenance can be written out as is, saving a copy. 
           pool::Ref<BranchEntryDescription const> refp(context(), &g->provenance().event);
           refp.markWrite(i->provenancePlacement_);
