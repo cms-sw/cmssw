@@ -10,6 +10,7 @@
 #include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
 
 namespace {
   namespace {
