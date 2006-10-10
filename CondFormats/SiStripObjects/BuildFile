@@ -1,6 +1,7 @@
 <flags GENREFLEX_ARGS="--">
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
+<use name=DataFormats/SiStripCommon>
 <use name=rootrflx>
 <use name=boost>
 
@@ -8,6 +9,7 @@
   <lib name=CondFormatsSiStripObjects>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
+  <use name=DataFormats/SiStripCommon>
   <use name=rootrflx>
   <use name=boost>
 </export>
