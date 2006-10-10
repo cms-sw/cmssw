@@ -6,8 +6,8 @@
  *
  * Implementation:
  *
- * $Date: 2006/07/03 01:11:48 $
- * $Revision: 1.6 $
+ * $Date: 2006/09/01 16:17:12 $
+ * $Revision: 1.9 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -17,7 +17,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,15 +27,13 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonTrajectoryBuilder.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
+
+#include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonTrajectoryBuilder.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 //
 // constructors and destructor
@@ -45,20 +42,30 @@ CosmicMuonProducer::CosmicMuonProducer(const edm::ParameterSet& iConfig)
 {
 
   edm::ParameterSet tbpar = iConfig.getParameter<edm::ParameterSet>("TrajectoryBuilderParameters");
-  theSeedCollectionLabel = iConfig.getParameter<std::string>("MuonSeedCollectionLabel");
-  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar));
+  theSeedCollectionLabel = iConfig.getUntrackedParameter<std::string>("MuonSeedCollectionLabel");
+
+  // service parameters
+  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
+  
+  // the services
+  theService = new MuonServiceProxy(serviceParameters);
+  
+  // the propagator name for the track loader
+  std::string trackLoaderPropagatorName = iConfig.getParameter<std::string>("TrackLoaderPropagatorName");
+  
+  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar,theService),
+				       new MuonTrackLoader(trackLoaderPropagatorName,theService));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
-
-  edm::LogInfo("CosmicMuonProducer")<<"CosmicMuonProducer begin";
 
 }
 
 
 CosmicMuonProducer::~CosmicMuonProducer()
 {
+  if (theService) delete theService;
   if (theTrackFinder) delete theTrackFinder;
 }
 
@@ -69,11 +76,12 @@ CosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::LogInfo("CosmicMuonProducer") << "Analyzing event number: " << iEvent.id();
 
-
   edm::Handle<TrajectorySeedCollection> seeds; 
   iEvent.getByLabel(theSeedCollectionLabel,seeds);
 
-  theTrackFinder->reconstruct(seeds,iEvent,iSetup);
+  // Update the services
+  theService->update(iSetup);
+  theTrackFinder->reconstruct(seeds,iEvent);
 
 }
 

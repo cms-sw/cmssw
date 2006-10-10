@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.6 2006/08/23 12:56:24 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.9 2006/09/06 17:19:40 chrjones Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@
 //hold onto the previous autolibrary loader
 typedef int (*CallbackPtr) G__P((char*,char*));
 static CallbackPtr gPrevious = 0;
+static const char* kDummyLibName = "*dummy";
 
 //This is actually defined within ROOT's v6_struct.cxx file but is not declared static
 // I want to use it so that if the autoloading is already turned on, I can call the previously declared routine
@@ -83,7 +84,16 @@ static int ALL_AutoLoadCallback(char *c, char *l) {
   G__setgvp(G__PVOID);
   int result = loadLibraryForClass(c) ? 1:0;
   G__setgvp(varp);
-  if(!result && gPrevious) {
+  //NOTE: the check for the library is done since we can have a failure
+  // if a CMS library has an incomplete set of Reflex dictionaries where 
+  // the remaining dictionaries can be found by Cint.  If the library with
+  // the Reflex dictionaries is loaded first, then the Cint library then any
+  // requests for a Reflex::Type from the Reflex library will fail because for
+  // some reason the loading of the Cint library causes Reflex to forget about
+  // what types it already loaded from the Reflex library.  This problem was
+  // seen for libDataFormatsMath and libMathCore.  I do not print an error message
+  // since the dictionaries are actually loaded so things work fine.
+  if(!result && 0 != strcmp(l,kDummyLibName) && gPrevious) {
     result = gPrevious(c,l);
   }
   return result;
@@ -153,7 +163,7 @@ void registerTypes() {
       //std::cout <<"namespace "<<className.substr(0,pos).c_str()<<std::endl;
       pos +=2;
     }
-    G__set_class_autoloading_table(const_cast<char*>( className.c_str()),"dummy");
+    G__set_class_autoloading_table(const_cast<char*>( className.c_str()), const_cast<char*>(kDummyLibName));
     //std::cout <<"class "<<className.c_str()<<std::endl;
   }
 }

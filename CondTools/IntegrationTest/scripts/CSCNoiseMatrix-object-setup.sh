@@ -1,5 +1,0 @@
-MAPPING_FILE=${MAPPING_PATH}/CSCNoiseMatrix-mapping-custom_2.0.xml
-OBJECT_LIBRARY=CondFormatsCSCObjects
-OBJECT_NAME=CSCNoiseMatrix
-OBJECT_TABLE=CSCNOISEMATRIX
-TAG=${OBJECT_NAME}_from_online

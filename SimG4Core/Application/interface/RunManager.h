@@ -100,6 +100,7 @@ private:
     bool m_RestorePhysicsTables;
     int m_EvtMgrVerbosity;
     bool m_Override;
+    bool m_check;
     edm::ParameterSet m_pGeometry;
     edm::ParameterSet m_pField;
     edm::ParameterSet m_pGenerator;   

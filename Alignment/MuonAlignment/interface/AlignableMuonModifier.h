@@ -1,15 +1,6 @@
 #ifndef Alignment_MuonAlignment_AlignableMuonModifier_H
 #define Alignment_MuonAlignment_AlignableMuonModifier_H
 
-/** \class AlignableMuonModifier
- *  The alignable muon modifier.
- *
- *  $Date: 2006/8/4 10:00:01 $
- *  $Revision: 1.0 $
- *  \author Andre Sznajder - UERJ(Brazil)
- */
-
-
 #include <iostream>
 #include <vector>
 #include <string>

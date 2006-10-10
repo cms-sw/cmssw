@@ -26,7 +26,6 @@ class G4Step;
 class HFShowerLibrary : public TObject {
   
 public:
-  typedef G4ThreeVector* ptrThreeVector;
   
   //Constructor and Destructor
   HFShowerLibrary(std::string & name, const DDCompactView & cpv,
@@ -53,6 +52,29 @@ protected:
   std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
 				  int&);
 
+  struct Photon {
+    Photon() {}
+    int               xyz;
+    int               lambda;
+    int               time;
+  };
+
+  struct Hit {
+    Hit() {}
+    G4ThreeVector     position;
+    int               depth;
+    double            time;
+  };
+
+  struct PhotoElectron {
+    PhotoElectron() {}
+    double            x;
+    double            y;
+    double            z;
+    double            lambda;
+    double            time;
+  };
+
 private:
 
   HFFibre *           fibre;
@@ -72,21 +94,13 @@ private:
   std::vector<double> gpar;
 
   int                 nPhoton;
-  int *               ixyz;
-  int *               l;
-  int *               it;
+  std::vector<Photon> photon;
 
   int                 nHit;
-  ptrThreeVector *    posHit;
-  int *               depHit;
-  double *            timHit;
+  std::vector<Hit>    hit;
 
   int                 npe;
-  double *            xpe;
-  double *            ype;
-  double *            zpe;
-  double *            lpe;
-  double *            tpe;
+  std::vector<PhotoElectron> pe;
 
 };
 #endif

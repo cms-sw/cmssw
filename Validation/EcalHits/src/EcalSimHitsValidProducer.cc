@@ -449,7 +449,7 @@ bool  EcalSimHitsValidProducer::fillEEMatrix(int nCellInEta, int nCellInPhi,
         uint32_t index;
         try {
           index = EEDetId( ieta, iphi,CentralZ).rawId();
-        } catch (std::runtime_error &e ) { continue; }
+        } catch (  cms::Exception &e  ) { continue; } // } catch (std::runtime_error &e ) { continue; }
           fillmap[i++] = themap[index];
       }
    }
@@ -550,7 +550,7 @@ float EcalSimHitsValidProducer::energyInEEMatrix(int nCellInX, int nCellInY,
       uint32_t index ;
       try {
         index = EEDetId(ix,iy,centralZ).rawId();
-      } catch ( std::runtime_error &e ) { continue ; }
+      } catch (  cms::Exception &e  ) { continue; } //} catch ( std::runtime_error &e ) { continue ; }
       totalEnergy   += themap[index];
       ncristals     += 1;
 

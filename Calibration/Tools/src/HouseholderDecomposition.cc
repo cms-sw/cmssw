@@ -1,7 +1,7 @@
 /** \file HouseholderDecomposition.cc
  *
- * $Date: 2006/06/27$
- * $Revision: 1.0 $
+ * $Date: 2006/08/25 $
+ * $Revision: 1.2 $
  *
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
  */
@@ -93,7 +93,7 @@ vector<float> HouseholderDecomposition::iterate(const vector<vector<float> >& ev
   // Normalise if normaliseFlag is set
   if (normaliseFlag) 
     {
-      cout << "Householder::runIter(): Normalising event data" << endl;
+      cout << "Householder::iterate(): Normalising event data" << endl;
       cout << "  WARNING: assuming 5x5 filtering has already been done" << endl;
 
       for (i=0; i<m; i++) 

@@ -43,8 +43,6 @@ class SMi2oSender: public xdaq::Application
   void defaultWebPage
     (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
 
-  void setDestinations();
-
   private:
 
   void css(xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception)
@@ -54,7 +52,6 @@ class SMi2oSender: public xdaq::Application
   vector<xdaq::ApplicationDescriptor*> destinations_;
   xdaq::ApplicationDescriptor* firstDestination_;
   xdata::UnsignedLong          committedpoolsize_;
-  xdata::UnsignedLong          primarysm_;
   evf::Css css_;
 
 };

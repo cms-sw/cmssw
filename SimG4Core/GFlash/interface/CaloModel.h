@@ -1,12 +1,16 @@
 #ifndef SimG4Core_GFlash_CaloModel_H
 #define SimG4Core_GFlash_CaloModel_H
-
+//#define G4v7
 // Joanna Weng 08.2005
 // setup of volumes for GFLASH
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
+#ifdef G4v7
 class GFlashHomoShowerParamterisation;
+#else
+class GFlashHomoShowerParameterisation;
+#endif
 class GFlashHitMaker;
 class GFlashShowerModel;
 class GFlashParticleBounds;
@@ -21,7 +25,11 @@ public:
     ~CaloModel();
 private:
     void build();  
+#ifdef G4v7
     GFlashHomoShowerParamterisation *theParametrisation;
+#else
+    GFlashHomoShowerParameterisation *theParameterisation;
+#endif
     GFlashHitMaker *theHMaker;
     GFlashParticleBounds *theParticleBounds;
     GFlashShowerModel *theShowerModel;  	

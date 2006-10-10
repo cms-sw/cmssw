@@ -9,7 +9,6 @@ OpticalObjectMgr* OpticalObjectMgr::getInstance()
 {
   if( !theInstance ) {
     theInstance = new OpticalObjectMgr;
-    theInstance->theLastCmsSwID = 0;
     //    theInstance->verbose = ALIUtils::verbosity();
   }
   return theInstance;
@@ -66,7 +65,6 @@ std::vector<OpticalObject*> OpticalObjectMgr::findOptOs( const ALIstring& name, 
 }
 
 
-//-----------------------------------------------------------------------
 void OpticalObjectMgr::dumpOptOs( std::ostream& out ) const
 {
   std::cout << "OPTICALOBJECT list size " << theOptODict.size() << std::endl;
@@ -77,11 +75,4 @@ void OpticalObjectMgr::dumpOptOs( std::ostream& out ) const
     if( (*vocite)->parent() != 0 ) ALIUtils::dump3v( (*vocite)->centreLocal(),  (name + "  CENTRE LOCAL: ").c_str() ); //not for the 'system'
   }
 
-}
-
-
-//-----------------------------------------------------------------------
-uint32_t OpticalObjectMgr::buildCmsSwID()
-{
-  return theLastCmsSwID++;
 }

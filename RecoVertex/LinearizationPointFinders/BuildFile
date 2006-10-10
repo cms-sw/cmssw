@@ -6,3 +6,6 @@
 
 <use name=RecoVertex/VertexTools>
 <use name=FWCore/Utilities>
+<use name=boost>
+<use name=clhep>
+<use name=root>

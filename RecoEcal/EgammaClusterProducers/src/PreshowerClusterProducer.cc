@@ -104,8 +104,8 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   const CaloSubdetectorGeometry *& geometry_p = geometry;
 
-  CaloSubdetectorTopology *topology = new EcalPreshowerTopology(geoHandle); 
-  CaloSubdetectorTopology *& topology_p = topology;
+  EcalPreshowerTopology topology(geoHandle);
+  CaloSubdetectorTopology * topology_p = &topology;
 
  // fetch the product (pSuperClusters)
   evt.getByLabel(endcapSClusterProducer_, endcapSClusterCollection_, pSuperClusters);   

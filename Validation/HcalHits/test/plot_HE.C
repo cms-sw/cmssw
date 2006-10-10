@@ -184,7 +184,7 @@
   TH1F *h1[45] = new TH1F("h45",label1[45],20,0.,20.);
   
   for (int i = 0; i < Nhist1; i++) {
-    h1[i]->Sumw2();
+    if(i != 39)  h1[i]->Sumw2();
   }
 
 
@@ -364,7 +364,7 @@
       h1[29]->Fill(eIxI[j]);
       h1[30]->Fill(tIxI[j]);
 
-      h1[39]->Fill((Float_t(iIxI[j]),eIxI[j]));  // transverse profile
+      h1[39]->Fill(idIxI[j],eIxI[j]);  // transverse profile
 
     }
 

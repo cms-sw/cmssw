@@ -13,6 +13,19 @@ using std::map;
 namespace edm {
   namespace pset {
 
+    ParseResultsTweaker::ParseResultsTweaker()
+    : blocks_(),
+      blockCopyNodes_(),
+      blockRenameNodes_(),
+      blockReplaceNodes_(),
+      copyNodes_(),
+      renameNodes_(),
+      replaceNodes_(),
+      modulesAndSources_()
+    {
+    }
+
+
     void ParseResultsTweaker::process(ParseResults & parseResults)
     {
       // find the node that represents the process
@@ -336,14 +349,15 @@ namespace edm {
           inputNodeItr  != input.end(); ++inputNodeItr)
       {
         // make IncludeNodes transparent
-        if((**inputNodeItr).type() == "include")
+        if((**inputNodeItr).type().substr(0,7) == "include")
         {
-          const IncludeNode * includeNode = dynamic_cast<const IncludeNode*>(inputNodeItr->get());
+          const IncludeNode * includeNode 
+            = dynamic_cast<const IncludeNode*>(inputNodeItr->get());
           assert(includeNode != 0);
           // recursive call!
           findTopLevelNodes(*(includeNode->nodes()), output);
           // just to make sure recursion didn't bite me
-          assert((**inputNodeItr).type() == "include");
+          assert((**inputNodeItr).type().substr(0,7) == "include");
         }
         else 
         {

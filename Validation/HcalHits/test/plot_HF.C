@@ -110,7 +110,7 @@
   TH1F *h1[19] = new TH1F("h19",label1[19],50,0.,50.);
 
   for (int i = 0;  i < Nhist1; i++) {
-    h1[i]->Sumw2();
+     h1[i]->Sumw2();
   }
 
   // eta-phi grid (for muon samples)

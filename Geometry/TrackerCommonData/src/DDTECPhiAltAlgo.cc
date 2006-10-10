@@ -17,7 +17,7 @@
 
 
 DDTECPhiAltAlgo::DDTECPhiAltAlgo() {
-  LogDebug("TECGeom") << "DDTECPhiAltAlgo info: Creating an instance";
+  edm::LogInfo("TECGeom") << "DDTECPhiAltAlgo info: Creating an instance";
 }
 
 DDTECPhiAltAlgo::~DDTECPhiAltAlgo() {}

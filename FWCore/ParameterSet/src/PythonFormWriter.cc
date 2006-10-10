@@ -96,6 +96,10 @@ namespace edm
       procname_(),
       moduleStack_(),
       modules_(),
+      outputModuleNames_(),
+      modulesWithSecSources_(),
+      triggerPaths_(),
+      endPaths_(),
       processingVPSet_(false),
       nVPSetChildren_(0)
     {

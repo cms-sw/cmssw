@@ -73,7 +73,6 @@ namespace edm
     // first add eventID
     simcf_->setEventID(e.id());
     LogDebug("add")<<"===============> adding signals for "<<e.id();
-    eventId_=0;
 
     // SimHits
     std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
@@ -119,9 +118,10 @@ namespace edm
     }
   }
 
-  void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventId) {
+  void MixingModule::addPileups(const int bcr, Event *e) {
 
     LogDebug("addPileups") <<"===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+
     // SimHits
     // we have to treat tracker/non tracker  containers separately, prepare a global map
     // (all this due to the fact that we need to use getmany to avoid exceptions)
@@ -136,12 +136,14 @@ namespace edm
 
     // Non-tracker treatment
     for(std::vector <std::string>::iterator it = nonTrackerPids_.begin(); it != nonTrackerPids_.end(); ++it) {
+      //        const std::vector<PSimHit> * simhits = simproducts[(*it).second];
         const std::vector<PSimHit> * simhits = simproducts[(*it)];
 	if (simhits) {
-	  simcf_->addPileupSimHits(bcr,(*it),simhits,eventId,false);
+	  simcf_->addPileupSimHits(bcr,(*it),simhits,trackoffset,false);
 	  LogDebug("addPileups") <<"For "<<(*it)<<", "<<simhits->size()<<" Simhits added";
 	}
     }
+
     // Tracker treatment
     float tof = bcr*simcf_->getBunchSpace();
     for(std::vector <std::string >::iterator itstr = trackerHighLowPids_.begin(); itstr != trackerHighLowPids_.end(); ++itstr) {
@@ -151,10 +153,11 @@ namespace edm
       // add HighTof pileup to high and low signals
       if ( !checktof_ || ((CrossingFrame::limHighLowTof +tof ) <= CrossingFrame::highTrackTof)) { 
 
+	//	const std::vector<PSimHit> * simhitshigh = simproducts[(*itstr).second.first];
 	const std::vector<PSimHit> * simhitshigh = simproducts[subdethigh];
 	if (simhitshigh) {
-	  simcf_->addPileupSimHits(bcr,subdethigh,simhitshigh,eventId,checktof_);
-	  simcf_->addPileupSimHits(bcr,subdetlow,simhitshigh,eventId,checktof_);
+	  simcf_->addPileupSimHits(bcr,subdethigh,simhitshigh,trackoffset,checktof_);
+	  simcf_->addPileupSimHits(bcr,subdetlow,simhitshigh,trackoffset,checktof_);
 	  LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitshigh->size()<<" Simhits added";
 	}
       }
@@ -163,8 +166,8 @@ namespace edm
       if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
 	//	const std::vector<PSimHit> * simhitslow = simproducts[(*itstr).second.second];
 	const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
-	simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,eventId, checktof_);
-	simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,eventId, checktof_);
+	simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,trackoffset,checktof_);
+	simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,trackoffset,checktof_);
 	LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitslow->size()<<" Simhits added";
       }
     }
@@ -176,7 +179,7 @@ namespace edm
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product;
       LogDebug("addPileups") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
-      simcf_->addPileupCaloHits(bcr,desc.productInstanceName_,resultcalo[ii].product());
+      simcf_->addPileupCaloHits(bcr,desc.productInstanceName_,resultcalo[ii].product(),trackoffset);
     }
  
 //     //tracks and vertices
@@ -187,7 +190,7 @@ namespace edm
     for (int ii=0;ii<str;ii++) {
       edm::BranchDescription desc =result_t[ii].provenance()->product;
       LogDebug("addPileups") <<result_t[ii].product()->size()<<" Simtracks added";
-      if (result_t[ii].isValid()) simcf_->addPileupTracks(bcr,result_t[ii].product(),eventId,vertexoffset);
+      if (result_t[ii].isValid()) simcf_->addPileupTracks(bcr,result_t[ii].product(),vertexoffset);
       else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
     }
   
@@ -199,7 +202,7 @@ namespace edm
     for (int ii=0;ii<sv;ii++) {
       edm::BranchDescription desc = result_v[ii].provenance()->product;
       LogDebug("addPileups") <<result_v[ii].product()->size()<<" Simvertices added";
-      if (result_v[ii].isValid()) simcf_->addPileupVertices(bcr,result_v[ii].product(),eventId,trackoffset);
+      if (result_v[ii].isValid()) simcf_->addPileupVertices(bcr,result_v[ii].product(),trackoffset);
       else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
     }
 

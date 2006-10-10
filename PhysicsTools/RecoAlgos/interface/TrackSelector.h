@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: TrackSelector.h,v 1.7 2006/07/24 10:09:08 llista Exp $
+ * $Id: TrackSelector.h,v 1.8 2006/07/25 09:35:48 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -38,7 +38,10 @@ namespace helper {
 	const Track & trk = * * i;
 	selTracks_->push_back( Track( trk ) );
 	selTracks_->back().setExtra( TrackExtraRef( rTrackExtras, idx ++ ) );
-	selTrackExtras_->push_back( TrackExtra ( trk.outerPosition(), trk.outerMomentum(), trk.outerOk() ) );
+	selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
+						trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
+						trk.outerStateCovariance(), trk.outerDetId(),
+						trk.innerStateCovariance(), trk.innerDetId() ) );
 	TrackExtra & tx = selTrackExtras_->back();
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	  selHits_->push_back( (*hit)->clone() );

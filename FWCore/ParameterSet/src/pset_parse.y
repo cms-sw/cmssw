@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.37 2006/08/19 00:15:14 rpw Exp $
+ * $Id: pset_parse.y,v 1.40 2006/08/25 21:34:46 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -146,6 +146,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token RENAME_tok
 %token COPY_tok
 %token INCLUDE_tok
+%token FROM_tok
 %token INPUTTAG_tok
 %token VINPUTTAG_tok
 %token MODULE_tok
@@ -658,7 +659,7 @@ process:         PROCESS_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok procnodes
                    DBPRINT("process: processnodes");
                    string name(toString($<str>2));
                    NodePtrListPtr nodes($<_NodePtrList>5);
-                   NodePtr node(new PSetNode("process",name,nodes,lines));
+                   NodePtr node(new PSetNode("process",name,nodes, false, lines));
                    NodePtrList* p(new NodePtrList);
                    p->push_back(node);
                    $<_NodePtrList>$ = p;
@@ -698,54 +699,7 @@ procnode:        eitherlevelnode
                  }
                ;
 
-toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
-                 {
-                   DBPRINT("procnode: initSOURCE");
-                   string type(toString($<str>3));
-                   NodePtrListPtr nodelist($<_NodePtrList>4);
-                   ModuleNode* wn(new ModuleNode("source", "" ,type,nodelist,lines));
-                   $<_Node>$ = wn;
-                 }
-               |
-                 LOOPER_tok EQUAL_tok LETTERSTART_tok scoped
-                 {
-                   DBPRINT("procnode: initLOOPER");
-                   string type(toString($<str>3));
-                   NodePtrListPtr nodelist($<_NodePtrList>4);
-                   ModuleNode* wn(new ModuleNode("looper", "" ,type,nodelist,lines));
-                   $<_Node>$ = wn;
-                 }
-|
-                 ES_SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
-                 {
-                   DBPRINT("procnode: initES_SOURCE");
-                   string type(toString($<str>3));
-                   NodePtrListPtr nodelist($<_NodePtrList>4);
-                   ModuleNode* wn(new ModuleNode("es_source","main_es_input",type,nodelist,lines));
-                   $<_Node>$ = wn;
-                 }
-               |
-                 SOURCE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
-                 {
-                   DBPRINT("procnode: SOURCE");
-                   string name(toString($<str>2));
-                   string type(toString($<str>4));
-                   NodePtrListPtr nodelist($<_NodePtrList>5);
-                   ModuleNode* wn(new ModuleNode("source",name,type,nodelist,lines));
-                   $<_Node>$ = wn;
-                 }
-               |
-                 ES_SOURCE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
-                 {
-                   DBPRINT("procnode: SOURCE");
-                   string name(toString($<str>2));
-                   string type(toString($<str>4));
-                   NodePtrListPtr nodelist($<_NodePtrList>5);
-                   ModuleNode* wn(new ModuleNode("es_source",name,type,nodelist,lines));
-                   $<_Node>$ = wn;
-                 }
-               |
-                 BLOCK_tok procinlinenodes
+toplevelnode:    BLOCK_tok procinlinenodes
                  {
                    DBPRINT("procnode: BLOCK");
                    $<_Node>$ = $<_PSetNode>2;
@@ -800,7 +754,7 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    DBPRINT("procnode:REPLACESCOPE");
                    string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>4);
-                   PSetNode* en(new PSetNode("replace", name, value,lines));
+                   PSetNode* en(new PSetNode("replace", name, value, false, lines));
                    NodePtr psetPtr(en);
                    ReplaceNode* wn(new ReplaceNode("replace", name, psetPtr, lines));
                    $<_Node>$ = wn;
@@ -847,79 +801,45 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    $<_Node>$ = wn;
                  }
                | */
-                 MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
+                 namedmodule LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: MODULE");
+                   string type(toString($<str>1));
                    string name(toString($<str>2));
-                   string type(toString($<str>4));
+                   string classname(toString($<str>4));
                    NodePtrListPtr nodelist($<_NodePtrList>5);
-                   ModuleNode* wn(new ModuleNode("module",name,type,nodelist,lines));
+                   ModuleNode* wn(new ModuleNode(type,name,classname,nodelist,lines));
                    $<_Node>$ = wn;
                  }
                |
-                 SERVICE_tok EQUAL_tok LETTERSTART_tok scoped
+                 unnamedmodule EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: SERVICE");
-                   string type(toString($<str>3));
+                   string type(toString($<str>1));
+                   string classname(toString($<str>3));
                    NodePtrListPtr nodelist($<_NodePtrList>4);
-                   ModuleNode* wn(new ModuleNode("service", "nameless",type,nodelist,lines));
+                   ModuleNode* wn(new ModuleNode(type, "",classname,nodelist,lines));
                    $<_Node>$ = wn;
                  }
                |
-
-                 ES_MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
-                 {
-                   DBPRINT("procnode: ES_MODULE");
-                   string name(toString($<str>2));
-                   string type(toString($<str>4));
-                   NodePtrListPtr nodelist($<_NodePtrList>5);
-                   ModuleNode* wn(new ModuleNode("es_module",name,type,nodelist,lines));
-                   $<_Node>$ = wn;
-                 }
-               |
-                 ES_MODULE_tok EQUAL_tok LETTERSTART_tok scoped
-                 {
-                   DBPRINT("procnode: namelistES_MODULE");
-                   string type(toString($<str>3));
-                   NodePtrListPtr nodelist($<_NodePtrList>4);
-                   ModuleNode* wn(new ModuleNode("es_module","nameless",type,nodelist,lines));
-                   $<_Node>$ = wn;
-                 }
-               |
-                 ES_PREFER_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
-                 {
-                   DBPRINT("procnode: ES_PREFER");
-                   string name(toString($<str>2));
-                   string type(toString($<str>4));
-                   NodePtrListPtr nodelist($<_NodePtrList>5);
-                   ModuleNode* wn(new ModuleNode("es_prefer",name,type,nodelist,lines));
-                   $<_Node>$ = wn;
-                 }
-               |
-                 ES_PREFER_tok EQUAL_tok LETTERSTART_tok scoped
-                 {
-                   DBPRINT("procnode: namelistES_PREFER");
-                   string type(toString($<str>3));
-                   NodePtrListPtr nodelist($<_NodePtrList>4);
-                   ModuleNode* wn(new ModuleNode("es_prefer","nameless",type,nodelist,lines));
-                   $<_Node>$ = wn;
-                 }
-               |
-                 MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok
+                 namedmodule LETTERSTART_tok EQUAL_tok LETTERSTART_tok
                  {
                    DBPRINT("procnode: IMPLICITINCLUDE_MODULE");
+                   string type(toString($<str>1));
                    string label(toString($<str>2));
                    string classname(toString($<str>4));
                    ImplicitIncludeNode* wn(new ImplicitIncludeNode(classname, label, lines));
                    $<_Node>$ = wn;
                  }
                |
-                 ES_MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok
+                 namedmodule LETTERSTART_tok EQUAL_tok LETTERSTART_tok FROM_tok anyquote
                  {
-                   DBPRINT("procnode: IMPLICITINCLUDE_ESMODULE");
-                   string label(toString($<str>2));
-                   string classname(toString($<str>4));
-                   ImplicitIncludeNode* wn(new ImplicitIncludeNode(label, classname, lines));
+                   DBPRINT("procnode: RENAMEDINCLUDE");
+                   string targetType(toString($<str>1));
+                   string newName(toString($<str>2));
+                   string targetName(toString($<str>4));
+                   string includeFile(toString($<str>6));
+                   RenamedIncludeNode * wn(new RenamedIncludeNode("includeRenamed", includeFile, targetType, newName, targetName, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -958,8 +878,31 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    $<_Node>$ = wn;
                  }
                ;
-
  
+namedmodule:     MODULE_tok
+               |
+                 ES_MODULE_tok
+               |
+                 ES_PREFER_tok
+               |
+                 SOURCE_tok
+               |
+                 ES_SOURCE_tok
+               ;
+
+unnamedmodule:   SERVICE_tok
+               |
+                 ES_MODULE_tok
+               |
+                 ES_PREFER_tok
+               |
+                 SOURCE_tok
+               |
+                 ES_SOURCE_tok
+               |
+                 LOOPER_tok
+               ;
+
 /* Returns a NodePtrList pointer */
 scoped:          nonblankscoped
                |
@@ -987,7 +930,7 @@ procinlinenodes: LETTERSTART_tok EQUAL_tok SCOPE_START_tok nodes SCOPE_END_tok
                    DBPRINT("procinlinenodes:NAME");
                    string name(toString($<str>1));
                    NodePtrListPtr value($<_NodePtrList>4);
-                   PSetNode* en(new PSetNode("block",name,value,lines));
+                   PSetNode* en(new PSetNode("block",name,value, false, lines));
                    $<_Node>$ = en;
                  }
                ;

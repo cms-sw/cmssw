@@ -187,7 +187,7 @@
   TH1F *h1[45] = new TH1F("h45",label1[45],20,0.,20.);
 
   for (int i = 0;  i < Nhist1; i++) {
-    h1[i]->Sumw2();
+    if(i != 39)  h1[i]->Sumw2();
   }
 
   for (int i = 0; i < Nhist2; i++) {
@@ -365,7 +365,8 @@
       h1[29]->Fill(eIxI[j]);
       h1[30]->Fill(tIxI[j]);
 
-      h1[39]->Fill((Float_t(iIxI[j]),eIxI[j]));  // transverse profile
+      h1[39]->Fill(idIxI[j],eIxI[j]);  // transverse profile
+      
 
     }
 
@@ -406,9 +407,9 @@
 
   // cout << "After event cycle " << i << endl;
 
-
   // Transverse size histo integration
     
+
   h = h1[39];
   if(h->Integral() > 1.e-30 && h->Integral() < 1.e30 ) {
     
@@ -418,17 +419,21 @@
     for (int i = 1; i <= size; i++) { 
       sum += h->GetBinContent(i);
       h->SetBinContent((Int_t)i, (Float_t)sum);
+
     }
+
     for (int i = 1; i <= size; i++) { 
       Float_t y = h->GetBinContent(i);
-      h->SetBinContent((Int_t)i, (Float_t)(y/sum));
-      //      cout << " bin " << i << " content = " << y/sum << endl;
+      h->SetBinContent((Int_t)i, y/sum);
+      //      cout << " h[39] bin " << i << " content = " << y/sum << endl;
     }
   }
- 
+
   //...Prepare the main canva
     TCanvas *myc = new TCanvas("myc","",800,600);
     gStyle->SetOptStat(1111);   // set stat         :0 - nothing 
+
+
  
   // Cycle for 1D distributions
   for (int ihist = 0; ihist < Nhist1 ; ihist++) {
@@ -500,7 +505,6 @@
     }
   }
  
-
 
   // added by Julia Yarba
   //-----------------------   

@@ -11,9 +11,9 @@
  
 using namespace edm;
 
-DDDWorld::DDDWorld(const DDCompactView* cpv) 
+DDDWorld::DDDWorld(const DDCompactView* cpv, bool check) 
 {
-    std::auto_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv));
+    std::auto_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
 
     G4LogicalVolume * world = theBuilder->BuildGeometry();
     G4VPhysicalVolume * pv = 

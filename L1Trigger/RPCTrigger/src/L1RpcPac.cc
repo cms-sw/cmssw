@@ -34,7 +34,7 @@ L1RpcPac::L1RpcPac(std::string patFilesDir, int tower, int logSector, int logSeg
   
   L1RpcConst rpcconst;
 
-  if(patFilesDir.find("pat") != std::string::npos) {
+//  if(patFilesDir.find("pat") != std::string::npos) {
     patFileName = patFilesDir 
         + "pacPat_t" + rpcconst.IntToString(ConeCrdnts.Tower) 
         + "sc" + rpcconst.IntToString(ConeCrdnts.LogSector) 
@@ -44,12 +44,14 @@ L1RpcPac::L1RpcPac(std::string patFilesDir, int tower, int logSector, int logSeg
     L1RpcPatternsParser parser;
     parser.Parse(patFileName);
     Init(parser);
-  }
+//  }
+/*
   else {
     throw L1RpcException("patFilesDir empty (no patterns)");
     //edm::LogError("RPCTrigger")<< "patFilesDir not containes XML";
   }
-  
+*/  
+
   TrackPatternsGroup.SetGroupDescription("Track PatternsGroup");
   TrackPatternsGroup.SetGroupDescription("Track PatternsGroup");
   

@@ -9,7 +9,11 @@
 #include "G4Electron.hh"
 #include "G4FastSimulationManager.hh"
 #include "G4LogicalVolumeStore.hh"
+#ifdef G4v7
 #include "GFlashHomoShowerParamterisation.hh"
+#else
+#include "GFlashHomoShowerParameterisation.hh"
+#endif
 
 #include "SimG4Core/G4gflash/src/GFlashHitMaker.hh"
 #include "SimG4Core/G4gflash/src/GFlashShowerModel.hh"
@@ -45,7 +49,8 @@ void CaloModel::build()
 			std::cout <<" GFlash added  to voulme  "<< ((*tit).first)->GetName() << std::endl;
 			ecap_log = (*tit).first;
 		}
-	} 
+	}
+	if ((barrel_log) && (ecap_log)) {
 
 	// Parameterisaiton components	
 	theParticleBounds  = new GFlashParticleBounds();
@@ -60,27 +65,38 @@ void CaloModel::build()
 	G4Element* Pb = new G4Element(name="Lead" , symbol="Pb"   , z=82., a );	
 	density = 19.3*g/cm3;
 	a = 183.85*g/mole;
-	G4Element* W = new G4Element(name="Tungsten",symbol="W" , z= 74., a );	
+	G4Element* W = new G4Element(name="Tungsten",symbol="W" , z= 74., a );
 	density = 1.43*mg/cm3;
 	a = 15.999*g/mole;
-	G4Element* O  = new G4Element(name="Oxygen"  ,symbol="O" , z= 8., a);	
+	G4Element* O  = new G4Element(name="Oxygen"  ,symbol="O" , z= 8., a);
 	density = 8.28*g/cm3;
 	G4Material* PbWO4 = new G4Material("PbWO4"  , density, ncomponents=3);
 	PbWO4->AddElement(Pb, fractionmass=0.45532661);
 	PbWO4->AddElement(O, fractionmass=0.14063942);
 	PbWO4->AddElement(W, fractionmass=0.40403397);	
 	// ***************************************************************** 
-	theParametrisation = new GFlashHomoShowerParamterisation(PbWO4);                         	
-	if  (ecap_log) { 
-		theShowerModel  = new GFlashShowerModel("endcap",ecap_log);
-		theShowerModel->SetParametrisation(*theParametrisation);
-		theShowerModel->SetParticleBounds(*theParticleBounds) ;  
-		theShowerModel->SetHitMaker(*theHMaker);
-	}
-	if  (barrel_log) {
-		new G4FastSimulationManager(barrel_log);
-		barrel_log->GetFastSimulationManager()->AddFastSimulationModel(theShowerModel);
-	}
+
+#ifdef G4v7
+	theParametrisation = new GFlashHomoShowerParamterisation(PbWO4);
+	theShowerModel  = new GFlashShowerModel("endcap",ecap_log);
+	theShowerModel->SetParametrisation(*theParametrisation);
+	theShowerModel->SetParticleBounds(*theParticleBounds) ;  
+	theShowerModel->SetHitMaker(*theHMaker);
+	new G4FastSimulationManager(barrel_log);
+	barrel_log->GetFastSimulationManager()->AddFastSimulationModel(theShowerModel);
+#else
+	G4Region* aRegion = new G4Region("crystals");
+	ecap_log->SetRegion(aRegion);
+	barrel_log->SetRegion(aRegion);
+	aRegion->AddRootLogicalVolume(ecap_log);
+	aRegion->AddRootLogicalVolume(barrel_log);
+
+	theParameterisation = new GFlashHomoShowerParameterisation(PbWO4);
+	theShowerModel  = new GFlashShowerModel("endcap",aRegion);
+	theShowerModel->SetParameterisation(*theParameterisation);
+	theShowerModel->SetParticleBounds(*theParticleBounds) ;  
+	theShowerModel->SetHitMaker(*theHMaker);
+#endif	
 	
 	double pEmin = m_pCaloModel.getParameter<double>("GFlashEmin");
 	double pEmax = m_pCaloModel.getParameter<double>("GFlashEmax");
@@ -90,10 +106,13 @@ void CaloModel::build()
 	theParticleBounds->SetEneToKill(*G4Electron::ElectronDefinition(), pToKill);	
 	std::cout <<" CaloModel: GFlash:Emin "<<pEmin  << std::endl;
 	std::cout <<" CaloModel: GFlash:Emax "<<pEmax  << std::endl;
-	std::cout <<" CaloModel: GFlash:EToKill "<<pToKill << std::endl;		
+	std::cout <<" CaloModel: GFlash:EToKill "<<pToKill << std::endl; 
 	// barrel_log->GetFastSimulationManager()->ListModels();
 	//  ecap_log->GetFastSimulationManager()->ListModels();	
-	
+	}
+	else {
+	  std::cout <<" !! GFlash: No Parameterisation Volumes found  ->           GFlash NOT ACTIVE !"<< std::endl;
+	}
 } 
 
 

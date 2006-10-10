@@ -24,7 +24,7 @@ class DDCompactView;
 class DDG4Builder 
 {
 public:
-    DDG4Builder(const DDCompactView*);  
+    DDG4Builder(const DDCompactView*, bool check=false);  
     ~DDG4Builder(); 
     G4LogicalVolume * BuildGeometry();
     static DDG4DispContainer * theVectorOfDDG4Dispatchables();
@@ -42,6 +42,7 @@ protected:
 private:
     DDCompactView* compactView;
     static DDG4DispContainer * theVectorOfDDG4Dispatchables_;
+    bool           check_;
 };
 
 #endif

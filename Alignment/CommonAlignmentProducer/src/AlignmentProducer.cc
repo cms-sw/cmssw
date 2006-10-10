@@ -19,7 +19,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometryAligner.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "Alignment/TrackerAlignment/interface/MisalignmentScenarioBuilder.h"
 
@@ -186,10 +186,9 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 
   // actually execute all misalignments
   edm::LogWarning("Alignment") <<"[AlignmentProducer] Now physically apply alignments to tracker geometry...";
-  GeometryAligner aligner;
+  TrackerGeometryAligner aligner;
   std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
-  std::auto_ptr<AlignmentErrors> alignmentErrors(theAlignableTracker->alignmentErrors());
-  aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors));
+  aligner.applyAlignments( &(*theTracker),&(*alignments));
 
   // book track debugging tree
   if(debug) {

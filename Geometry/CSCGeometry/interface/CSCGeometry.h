@@ -72,11 +72,7 @@ class CSCGeometry : public TrackingGeometry {
   const LayerContainer& layers() const;
 
  private:
-
   friend class CSCGeometryBuilderFromDDD;
-
-  friend class GeometryAligner;
-
 
   /// Add a chamber with given DetId.
   void addChamber(CSCChamber* ch);
@@ -97,7 +93,7 @@ class CSCGeometry : public TrackingGeometry {
   ChamberContainer  theChambers; 
 
   // Map for efficient lookup by DetId 
-  CSCDetMap         theMap;
+  CSCDetMap         theDetMap;
 
   // These are used rarely; they could be computed at runtime 
   // to save memory.

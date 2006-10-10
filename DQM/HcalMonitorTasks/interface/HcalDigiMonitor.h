@@ -6,8 +6,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2006/08/15 19:58:52 $
-  * $Revision: 1.7 $
+  * $Date: 2006/04/04 19:27:03 $
+  * $Revision: 1.5 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -27,9 +27,6 @@ private:  ///Monitoring elements
   void fillErrors(const HFDataFrame& hf);
 
   int ievt_;
-  double etaMax_, etaMin_, phiMax_, phiMin_;
-  int etaBins_, phiBins_;
-
   MonitorElement* meEVT_;
   
   struct{
@@ -43,8 +40,7 @@ private:  ///Monitoring elements
     MonitorElement* ERR_MAP_ELEC;
     MonitorElement* OCC_MAP_GEO;
     MonitorElement* OCC_MAP_ELEC;
-    MonitorElement* SHAPE;
-    MonitorElement* SHAPE_THR;
+
   } hbHists, hfHists, hoHists;
 
   int occThresh_;

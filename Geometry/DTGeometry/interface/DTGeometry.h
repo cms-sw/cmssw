@@ -8,8 +8,8 @@
  *  The geometry owns the DTChamber s; these own their DTSuperLayer s which 
  *  in turn own their DTLayer s.
  *
- *  $Date: 2006/03/21 17:13:57 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/03/20 22:44:08 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -85,9 +85,6 @@ class DTGeometry : public TrackingGeometry {
   
     friend class DTGeometryBuilderFromDDD;
 
-    friend class GeometryAligner;
-
-
     /// Add a DTChamber to Geometry
     void add(DTChamber* ch);
 
@@ -109,7 +106,7 @@ class DTGeometry : public TrackingGeometry {
     std::vector<DTLayer*> theLayers;
 
     // Map for efficient lookup by DetId 
-    DTDetMap          theMap;
+    DTDetMap          theDetMap;
 
     // These are used rarely; they could be computed at runtime 
     // to save memory.
