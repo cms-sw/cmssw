@@ -1,4 +1,4 @@
-#include "RecoMuon/L3MuonIsolationProducer/interface/L3MuonIsolationProducer.h"
+#include "RecoMuon/L3MuonIsolationProducer/src/L3MuonIsolationProducer.h"
 
 // Framework
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -6,11 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Handle.h"
 
-//#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
-
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
