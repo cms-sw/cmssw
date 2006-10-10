@@ -148,7 +148,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 				////////////////////////////////////////////////////////////////////////////////
 					
 				 
-				if( chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && !suppress){
+				if( chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && !suppress && chStatus !=CH_SUPPRESS){
 
 					
 					//Go to the begining of the block ///////////////////////////////////////////////////////////////////////
