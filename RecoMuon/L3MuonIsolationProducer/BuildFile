@@ -13,16 +13,4 @@
 
 <export>
    <lib name=RecoMuonL3MuonIsolationProducer>
-
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=DataFormats/Common>
-   <use name=DataFormats/MuonReco>
-   <use name=Geometry/CaloEventSetup>
-   <use name=RecoPixelVertexing/PixelTrackFitting>
-   <use name=RecoMuon/MuonIsolation>
-
-   <use name=root>
-
 </export>
