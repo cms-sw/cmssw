@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2006/09/21 22:30:03 $
+ * last update: $Date: 2006/09/27 08:23:55 $
  * by         : $Author: flucke $
  *
  *  Class implementing the reference trajectory of a single charged
@@ -73,9 +73,9 @@ private:
 
   /** internal method to calculate jacobian
    */
-  bool propagate(const TrajectoryStateOnSurface &previousTsos, const BoundPlane &surface,
-		 const MagneticField *magField,
-		 AlgebraicMatrix &newJacobian, TrajectoryStateOnSurface &newTsos) const;
+  bool propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
+		 const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian,
+		 const MagneticField *magField) const;
   
   /** internal method to fill measurement and error matrix for hit iRow/2
    */

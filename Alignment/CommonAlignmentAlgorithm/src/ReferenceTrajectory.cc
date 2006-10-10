@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2006/09/21 22:32:01 $
-//  by         : $Author: flucke $
+//  last update: $Date: 2006/10/10 18:29:55 $
+//  by         : $Author: ewidl $
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
 
@@ -11,6 +11,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
@@ -25,6 +26,7 @@
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
 
 //__________________________________________________________________________________
 
@@ -50,8 +52,8 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
   } else {
     theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects, magField);
   }
-
 }
+
 
 //__________________________________________________________________________________
 
@@ -96,8 +98,9 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     } else {
       AlgebraicMatrix nextJacobian;
       TrajectoryStateOnSurface nextTsos;
-      if (!this->propagate(previousTsos, hitPtr->det()->surface(), magField,
-			   nextJacobian, nextTsos)) {
+      if (!this->propagate(previousHitPtr->det()->surface(), previousTsos,
+			   hitPtr->det()->surface(), nextTsos,
+			   nextJacobian, magField)) {
 	return false; // stop if problem...
       }
 
@@ -130,7 +133,6 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     this->fillTrajectoryPositions(allProjections.back(),
 				  theTsosVec.back().localParameters().mixedFormatVector(), iRow);
     this->fillMeasurementAndError(hitPtr, iRow, updatedTsos);
-
   } // end of loop on hits
 
   if (materialEffects != none) {
@@ -169,17 +171,17 @@ ReferenceTrajectory::createUpdator(MaterialEffects materialEffects, double mass)
 
 //__________________________________________________________________________________
 
-bool ReferenceTrajectory::propagate(const TrajectoryStateOnSurface &previousTsos, const BoundPlane &surface,
-				    const MagneticField *magField,
-				    AlgebraicMatrix &newJacobian, TrajectoryStateOnSurface &newTsos) const
+bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
+				    const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian,
+				    const MagneticField *magField) const
 {
   // propagate to next layer
   AnalyticalPropagator aPropagator(magField);
   const std::pair<TrajectoryStateOnSurface, double> tsosWithPath =
-    aPropagator.propagateWithPath(previousTsos, surface);
+    aPropagator.propagateWithPath(previousTsos, newSurface);
 
   // stop if propagation wasn't successful
-  if (!tsosWithPath.first.isValid()) return false;
+  if (!tsosWithPath.first.isValid())  return false;
 
   // calculate derivative of reference-track parameters on the actual layer w.r.t. the ones
   // on the previous layer (both in global coordinates)
@@ -191,11 +193,11 @@ bool ReferenceTrajectory::propagate(const TrajectoryStateOnSurface &previousTsos
 
 
   // jacobian of the track parameters on the previous layer for local->global transformation
-  const JacobianLocalToCurvilinear startTrafo(surface, previousTsos.localParameters(), *magField);
+  const JacobianLocalToCurvilinear startTrafo(previousSurface, previousTsos.localParameters(), *magField);
   const AlgebraicMatrix &localToCurvilinear = startTrafo.jacobian();
 
   // jacobian of the track parameters on the actual layer for global->local transformation
-  const JacobianCurvilinearToLocal endTrafo(surface, tsosWithPath.first.localParameters(), *magField);
+  const JacobianCurvilinearToLocal endTrafo(newSurface, tsosWithPath.first.localParameters(), *magField);
   const AlgebraicMatrix &curvilinearToLocal = endTrafo.jacobian();
 
   // compute derivative of reference-track parameters on the actual layer w.r.t. the ones on
