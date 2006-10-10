@@ -3,7 +3,9 @@
 
 #include <boost/cstdint.hpp>
 
-using namespace std;
+//@@ NOTA BENE: CLASS SOON TO BE DEPRECATED!!!
+//@@ NOTA BENE: CLASS SOON TO BE DEPRECATED!!!
+//@@ NOTA BENE: CLASS SOON TO BE DEPRECATED!!!
 
 class SiStripControlKey {
   
