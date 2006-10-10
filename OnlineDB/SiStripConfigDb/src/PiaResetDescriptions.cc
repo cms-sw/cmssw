@@ -1,29 +1,28 @@
-// Last commit: $Id: PiaResetDescriptions.cc,v 1.2 2006/07/26 11:27:19 bainbrid Exp $
-// Latest tag:  $Name: V00-01-02 $
+// Last commit: $Id: PiaResetDescriptions.cc,v 1.3 2006/08/31 19:49:41 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/PiaResetDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::getPiaResetDescriptions() {
   
-  if ( !deviceFactory(__FUNCTION__) ) { return piaResets_; }
+  if ( !deviceFactory(__func__) ) { return piaResets_; }
   if ( !resetPiaResets_ ) { return piaResets_; }
   
   try { 
-    deviceFactory(__FUNCTION__)->getPiaResetDescriptions( partition_.name_, piaResets_ );
+    deviceFactory(__func__)->getPiaResetDescriptions( partition_.name_, piaResets_ );
     resetPiaResets_ = false;
   } catch (...) { 
-    handleException( __FUNCTION__ ); 
+    handleException( __func__ ); 
   }
   
   if ( piaResets_.empty() ) {
-    edm::LogError(logCategory_)
-      << "[" << __PRETTY_FUNCTION__ << "]"
-      << " No PIA reset descriptions found!";
+    edm::LogError(mlConfigDb_) << "No PIA reset descriptions found!";
   }
   
   return piaResets_;
@@ -40,13 +39,13 @@ void SiStripConfigDb::resetPiaResetDescriptions() {
 // 
 void SiStripConfigDb::uploadPiaResetDescriptions() {
 
-  if ( !deviceFactory(__FUNCTION__) ) { return; }
+  if ( !deviceFactory(__func__) ) { return; }
   
   try { 
-    deviceFactory(__FUNCTION__)->setPiaResetDescriptions( piaResets_, 
-							  partition_.name_ );
+    deviceFactory(__func__)->setPiaResetDescriptions( piaResets_, 
+						      partition_.name_ );
   } catch (...) { 
-    handleException( __FUNCTION__ ); 
+    handleException( __func__ ); 
   }
   
 }
@@ -83,10 +82,10 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::createPiaResetDesc
 	  piaResetDescription* pia = new piaResetDescription( index, 10, 10000, 0xFF );
 	  pia->setFecHardwareId( fec_hardware_id.str() );
 	  static_pia_resets.push_back( pia );
-	  edm::LogInfo(logCategory_)
-	    << "[" << __PRETTY_FUNCTION__ << "]"
-	    << " Added PIA reset at 'CCU level', with address 0x" 
-	    << hex << setw(8) << setfill('0') << index << dec;
+	  ostringstream os;
+	  os << " Added PIA reset at 'CCU level', with address 0x" 
+	     << hex << setw(8) << setfill('0') << index << dec;
+	  edm::LogInfo(mlConfigDb_) << os;
 	  
 	}
       }
@@ -94,10 +93,7 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::createPiaResetDesc
   }
 
   if ( static_pia_resets.empty() ) {
-    stringstream ss;
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " No PIA reset descriptions created!";
-    edm::LogError(logCategory_) << ss.str() << "\n";
+    edm::LogError(mlConfigDb_) << "No PIA reset descriptions created!";;
   }
   
   return static_pia_resets;

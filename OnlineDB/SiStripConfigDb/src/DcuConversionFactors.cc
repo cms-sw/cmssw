@@ -1,10 +1,11 @@
-// Last commit: $Id: DcuConversionFactors.cc,v 1.3 2006/07/26 11:27:19 bainbrid Exp $
-// Latest tag:  $Name: V00-01-02 $
+// Last commit: $Id: DcuConversionFactors.cc,v 1.4 2006/08/31 19:49:41 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuConversionFactors.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
@@ -28,14 +29,14 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::getDcuConversionFa
        << " No DCU conversion factors found";
     if ( !usingDb_ ) { ss << " in input 'dcuconv.xml' file " << inputDcuConvXml_; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogError(logCategory_) << ss.str();
-    throw cms::Exception(logCategory_) << ss.str();
+    edm::LogError(mlConfigDb_) << ss.str();
+    throw cms::Exception(mlConfigDb_) << ss.str();
   } else {
     ss << "[" << __PRETTY_FUNCTION__ << "]"
        << " Found " << dcuConversionFactors_.size() << " DCU conversion factors";
     if ( !usingDb_ ) { ss << " in input 'dcuconv.xml' file " << inputDcuConvXml_; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogInfo(logCategory_) << ss.str();
+    edm::LogInfo(mlConfigDb_) << ss.str();
   }
   
   return dcuConversionFactors_;
@@ -131,10 +132,10 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	  stringstream ss;
 	  ss << "[" << __PRETTY_FUNCTION__ << "]" << " DCU id " << dcu_id
 	     << " already exists within map of DCU conversion factors!";
-	  edm::LogError(logCategory_) << ss.str() << "\n";
-	  //throw cms::Exception(logCategory_) << ss.str();
+	  edm::LogError(mlConfigDb_) << ss.str() << "\n";
+	  //throw cms::Exception(mlConfigDb_) << ss.str();
 	}
-	edm::LogInfo(logCategory_)
+	edm::LogInfo(mlConfigDb_)
 	  << "[SiStripConfigDb::createPartition]" 
 	  << " Added conversion factors for DCU with address 0x"
 	  << hex << setw(8) << setfill('0') << index << dec;
@@ -164,10 +165,10 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	    stringstream ss;
 	    ss << "[" << __PRETTY_FUNCTION__ << "]" << " DCU id " << dcu_id
 	       << " already exists within map of DCU conversion factors!";
-	    edm::LogError(logCategory_) << ss.str() << "\n";
-	    //throw cms::Exception(logCategory_) << ss.str();
+	    edm::LogError(mlConfigDb_) << ss.str() << "\n";
+	    //throw cms::Exception(mlConfigDb_) << ss.str();
 	  }
-	  edm::LogInfo(logCategory_)
+	  edm::LogInfo(mlConfigDb_)
 	    << "[SiStripConfigDb::createPartition]" 
 	    << " Added conversion factors for DCU at address 0x"
 	    << hex << setw(8) << setfill('0') << index << dec;
@@ -197,10 +198,10 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	      stringstream ss;
 	      ss << "[" << __PRETTY_FUNCTION__ << "]" << " DCU id " << dcu_id
 		 << " already exists within map of DCU conversion factors!";
-	      edm::LogError(logCategory_) << ss.str() << "\n";
-	      //throw cms::Exception(logCategory_) << ss.str();
+	      edm::LogError(mlConfigDb_) << ss.str() << "\n";
+	      //throw cms::Exception(mlConfigDb_) << ss.str();
 	    }
-	    edm::LogInfo(logCategory_)
+	    edm::LogInfo(mlConfigDb_)
 	      << "[SiStripConfigDb::createPartition]" 
 	      << " Added conversion factors for DCU with address 0x"
 	      << hex << setw(8) << setfill('0') << index << dec;
@@ -214,8 +215,8 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
   if ( static_dcu_conversions.empty() ) {
     stringstream ss;
     ss << "[" << __PRETTY_FUNCTION__ << "] No DCU conversion factors created!";
-    edm::LogError(logCategory_) << ss.str() << "\n";
-    //throw cms::Exception(logCategory_) << ss.str() << "\n";
+    edm::LogError(mlConfigDb_) << ss.str() << "\n";
+    //throw cms::Exception(mlConfigDb_) << ss.str() << "\n";
   }
 
   return static_dcu_conversions;

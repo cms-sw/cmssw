@@ -1,50 +1,43 @@
-// Last commit: $Id: DcuDetIdMap.cc,v 1.5 2006/07/26 11:27:19 bainbrid Exp $
-// Latest tag:  $Name: V00-01-02 $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.6 2006/08/31 19:49:41 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuDetIdMap.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
-  edm::LogInfo(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]"
-			     << " Retrieving DetId-DCU mapping...";
+  edm::LogInfo(mlConfigDb_) << __func__ << " Retrieving DetId-DCU mapping...";
   
-  if ( !deviceFactory(__FUNCTION__) ) { return dcuDetIdMap_; }
+  if ( !deviceFactory(__func__) ) { return dcuDetIdMap_; }
   if ( !resetDcuDetIdMap_ ) { return dcuDetIdMap_; }
   
   try {
-    dcuDetIdMap_ = deviceFactory(__FUNCTION__)->getInfos(); 
+    dcuDetIdMap_ = deviceFactory(__func__)->getInfos(); 
     resetDcuDetIdMap_ = false;
   }
   catch (... ) {
-    handleException( __FUNCTION__ );
+    handleException( __func__ );
   }
   
-  stringstream ss; 
-  if ( dcuDetIdMap_.empty() ) {
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " No DCU-DetId map found";
-    if ( !usingDb_ ) { ss << " in input 'dcuinfo.xml' file " << inputDcuInfoXml_; }
-    else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogWarning(logCategory_) << ss.str();
-  } else {
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Found " << dcuDetIdMap_.size() << " entries in DCU-DetId map";
-    if ( !usingDb_ ) { ss << " in input 'module.xml' file " << inputDcuInfoXml_; }
-    else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogInfo(logCategory_) << ss.str();
-  }
+  // Debug
+  ostringstream os; 
+  if ( devices_.empty() ) { os << " Found no entries in DCU-DetId map"; }
+  else { os << " Found " << devices_.size() << " entries in DCU-DetId map"; }
+  if ( !usingDb_ ) { os << " in " << inputDcuInfoXml_.size() << " 'dcuinfo.xml' file(s)"; }
+  else { os << " in database partition '" << partition_.name_ << "'"; }
+  if ( devices_.empty() ) { edm::LogError(mlConfigDb_) << os; }
+  else { LogTrace(mlConfigDb_) << os; }
 
   return dcuDetIdMap_;
 }
+
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::setDcuDetIdMap( const SiStripConfigDb::DcuDetIdMap& dcu_detid_map ) {
-  edm::LogInfo(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]"
-			     << " Setting DetId-DCU mapping...";
   resetDcuDetIdMap();
   dcuDetIdMap_ = dcu_detid_map;
   resetDcuDetIdMap_ = false;
@@ -61,14 +54,14 @@ void SiStripConfigDb::resetDcuDetIdMap() {
 // 
 void SiStripConfigDb::uploadDcuDetIdMap() {
 
-  if ( !deviceFactory(__FUNCTION__) ) { return; }
+  if ( !deviceFactory(__func__) ) { return; }
 
   try {
-    deviceFactory(__FUNCTION__)->deleteHashMapTkDcuInfo();
-    deviceFactory(__FUNCTION__)->setTkDcuInfo( dcuDetIdMap_ );
-    deviceFactory(__FUNCTION__)->addAllDetId();
+    deviceFactory(__func__)->deleteHashMapTkDcuInfo();
+    deviceFactory(__func__)->setTkDcuInfo( dcuDetIdMap_ );
+    deviceFactory(__func__)->addAllDetId();
   }
   catch (... ) {
-    handleException( __FUNCTION__, "Problems updating objects in TkDcuInfoFactory!" );
+    handleException( __func__, "Problems updating objects in TkDcuInfoFactory!" );
   }
 }

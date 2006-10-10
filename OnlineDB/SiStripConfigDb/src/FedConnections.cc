@@ -1,41 +1,37 @@
-// Last commit: $Id: FedConnections.cc,v 1.2 2006/07/26 11:27:19 bainbrid Exp $
-// Latest tag:  $Name: V00-01-02 $
+// Last commit: $Id: FedConnections.cc,v 1.3 2006/08/31 19:49:41 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::FedConnections& SiStripConfigDb::getFedConnections() {
 
-  if ( !deviceFactory(__FUNCTION__) ) { return connections_; }
+  if ( !deviceFactory(__func__) ) { return connections_; }
   if ( !resetConnections_ ) { return connections_; }
   
   try {
-    for ( int iconn = 0; iconn < deviceFactory(__FUNCTION__)->getNumberOfFedChannel(); iconn++ ) {
-      connections_.push_back( deviceFactory(__FUNCTION__)->getFedChannelConnection( iconn ) ); 
+    for ( int iconn = 0; iconn < deviceFactory(__func__)->getNumberOfFedChannel(); iconn++ ) {
+      connections_.push_back( deviceFactory(__func__)->getFedChannelConnection( iconn ) ); 
     }
     resetConnections_ = false;
   }
   catch (...) { 
-    handleException( __FUNCTION__, "Problems retrieving connection descriptions!" ); 
+    handleException( __func__, "Problems retrieving connection descriptions!" ); 
   }
   
-  stringstream ss; 
-  if ( connections_.empty() ) {
-    ss << "[" << __PRETTY_FUNCTION__ << "] No FED connections found";
-    if ( !usingDb_ ) { ss << " in input 'module.xml' file " << inputModuleXml_; }
-    else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogError(logCategory_) << ss.str();
-  } else {
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Found " << connections_.size() << " FED connections";
-    if ( !usingDb_ ) { ss << " in input 'module.xml' file " << inputModuleXml_; }
-    else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogInfo(logCategory_) << ss.str();
-  }
+  // Debug 
+  ostringstream os; 
+  if ( connections_.empty() ) { os << " Found no FED connections"; }
+  else { os << " Found " << connections_.size() << " FED connections"; }
+  if ( !usingDb_ ) { os << " in " << inputModuleXml_.size() << " 'module.xml' file"; }
+  else { os << " in database partition '" << partition_.name_ << "'"; }
+  if ( connections_.empty() ) { edm::LogError(mlConfigDb_) << os; }
+  else { LogTrace(mlConfigDb_) << os; }
   
   return connections_;
 }
@@ -51,25 +47,25 @@ void SiStripConfigDb::resetFedConnections() {
 // 
 void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
 
-  if ( !deviceFactory(__FUNCTION__) ) { return; }
+  if ( !deviceFactory(__func__) ) { return; }
 
   try { 
 
     if ( usingDb_ ) {
-      deviceFactory(__FUNCTION__)->setInputDBVersion( partition_.name_, //@@ ???
-						      partition_.major_,
-						      partition_.minor_ );
+      deviceFactory(__func__)->setInputDBVersion( partition_.name_, //@@ ???
+						  partition_.major_,
+						  partition_.minor_ );
     }
 
     SiStripConfigDb::FedConnections::iterator ifed = connections_.begin();
     for ( ; ifed != connections_.end(); ifed++ ) {
-      deviceFactory(__FUNCTION__)->addFedChannelConnection( *ifed );
+      deviceFactory(__func__)->addFedChannelConnection( *ifed );
     }
-    deviceFactory(__FUNCTION__)->upload();
+    deviceFactory(__func__)->upload();
 
   }
   catch (...) {
-    handleException( __FUNCTION__ );
+    handleException( __func__ );
   }
 
 }
@@ -109,9 +105,7 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::createFedConnections( co
   }
   
   if ( static_fed_connections.empty() ) {
-    stringstream ss;
-    ss << "[" << __PRETTY_FUNCTION__ << "] No FED connections created!";
-    edm::LogError(logCategory_) << ss.str() << "\n";
+    edm::LogError(mlConfigDb_) << "No FED connections created!";
   }
   
   return static_fed_connections;
