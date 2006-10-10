@@ -28,6 +28,7 @@ namespace sim {
 
 class PrimaryTransformer;
 class Generator;
+// class BaseEventVertexGenerator;
 class PhysicsList;
 
 class SimWatcher;
@@ -72,17 +73,12 @@ public:
 protected:
     G4Event * generateEvent( edm::Event& inpevt );
 private:
-
     static RunManager * me;
     explicit RunManager(edm::ParameterSet const & p);
-    
     G4RunManagerKernel * m_kernel;
-    
     Generator * m_generator;
-    // edm::InputTag m_InTag ;
-    std::string m_InTag ;
-    
     bool m_nonBeam;
+    // std::auto_ptr<BaseEventVertexGenerator> m_eventVertexGenerator;
     std::auto_ptr<PhysicsList> m_physicsList;
     PrimaryTransformer * m_primaryTransformer;
     CLHEP::HepJamesRandom * m_engine;
