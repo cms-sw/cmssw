@@ -1,15 +1,78 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.17 2006/08/31 19:49:41 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.18 2006/09/07 20:31:19 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-const string SiStripConfigDb::logCategory_ = "SiStrip|ConfigDb";
 uint32_t SiStripConfigDb::cntr_ = 0;
+
+// -----------------------------------------------------------------------------
+// 
+SiStripConfigDb::SiStripConfigDb( string confdb, 
+				  string partition,
+				  uint32_t major,
+				  uint32_t minor ) :
+  factory_(0), 
+  usingDb_(true), 
+  // Database connection params
+  user_(""), 
+  passwd_(""), 
+  path_(""), 
+  partition_(), 
+  // Input XML
+  inputModuleXml_(""), 
+  inputDcuInfoXml_(""), 
+  inputFecXml_(), 
+  inputFedXml_(), 
+  inputDcuConvXml_(),
+  // Output XML
+  outputModuleXml_(""), 
+  outputDcuInfoXml_(""), 
+  outputFecXml_(""), 
+  outputFedXml_(""),
+  // Local cache
+  devices_(), 
+  piaResets_(), 
+  feds_(), 
+  connections_(), 
+  dcuDetIdMap_(), 
+  dcuConversionFactors_(),
+  // Reset flags
+  resetDevices_(true), 
+  resetPiaResets_(true), 
+  resetFeds_(true), 
+  resetConnections_(true), 
+  resetDcuDetIdMap_(true), 
+  resetDcuConvs_(true),
+  // Misc
+  usingStrips_(true)
+{
+  cntr_++;
+  edm::LogInfo(mlConfigDb_)
+    << __func__ << " Constructing object..."
+    << " (Class instance: " << cntr_ << ")";
+  
+  uint32_t ipass = confdb.find("/");
+  uint32_t ipath = confdb.find("@");
+  if ( ipass != string::npos && 
+       ipath != string::npos ) {
+    user_   = confdb.substr(0,ipass); 
+    passwd_ = confdb.substr(ipass+1,ipath-ipass-1); 
+    path_   = confdb.substr(ipath+1,confdb.size());
+  } else {
+    edm::LogError(mlConfigDb_)
+      << " Unexpected value for 'ConfDb' configurable: " << confdb;
+  }
+  partition_.name_ = partition;
+  partition_.major_ = major;
+  partition_.minor_ = minor;
+}
 
 // -----------------------------------------------------------------------------
 // 
@@ -55,9 +118,9 @@ SiStripConfigDb::SiStripConfigDb( string user,
   usingStrips_(true)
 {
   cntr_++;
-  edm::LogInfo(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]"
-			     << " Constructing object..."
-			     << " (Class instance: " << cntr_ << ")";
+  edm::LogInfo(mlConfigDb_)
+    << __func__ << " Constructing object..."
+    << " (Class instance: " << cntr_ << ")";
   
   partition_.name_ = partition;
   partition_.major_ = major;
@@ -110,20 +173,16 @@ SiStripConfigDb::SiStripConfigDb( string input_module_xml,
   usingStrips_(true)
 {
   cntr_++;
-  stringstream ss;
-  ss << "[" << __PRETTY_FUNCTION__ << "]"
-     << " Constructing object..."
-     << " (Class instance: " << cntr_ << ")";
-  edm::LogInfo(logCategory_) << ss.str();
+  edm::LogInfo(mlConfigDb_)
+    << __func__ << " Constructing object..."
+    << " (Class instance: " << cntr_ << ")";
 }
 
 // -----------------------------------------------------------------------------
 //
 SiStripConfigDb::~SiStripConfigDb() {
-  stringstream ss;
-  ss << "[" << __PRETTY_FUNCTION__ << "]"
-     << " Destructing object...";
-  edm::LogInfo(logCategory_) << ss.str();
+  edm::LogInfo(mlConfigDb_)
+    << __func__ << " Destructing object...";
   if ( cntr_ ) { cntr_--; }
 }
 
@@ -148,7 +207,7 @@ void SiStripConfigDb::openDbConnection() {
 void SiStripConfigDb::closeDbConnection() {
   try { 
     if ( factory_ ) { delete factory_; }
-  } catch (...) { handleException( __FUNCTION__, "Attempting to close database connection..." ); }
+  } catch (...) { handleException( __func__, "Attempting to close database connection..." ); }
   factory_ = 0; 
 }
 
@@ -157,12 +216,12 @@ void SiStripConfigDb::closeDbConnection() {
 DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const { 
   if ( factory_ ) { return factory_; }
   else { 
-    stringstream ss;
-    ss << "[" << __PRETTY_FUNCTION__ << "]";
-    if ( method_name != "" ) { ss << " Method " << method_name; }
-    else { ss << " Unknown method"; }
-    ss << " trying to access NULL pointer to DeviceFactory!";
-    edm::LogError(logCategory_) << ss.str();
+    ostringstream os;
+    os << "[" << __func__ << "]";
+    if ( method_name != "" ) { os << " Method " << method_name; }
+    else { os << " Unknown method"; }
+    os << " trying to access NULL pointer to DeviceFactory!";
+    edm::LogError(mlConfigDb_) << os;
     return 0;
   }
 }
@@ -173,21 +232,16 @@ void SiStripConfigDb::usingDatabase() {
 
   // Retrieve db connection parameters
   if ( user_ == "" || passwd_ == "" || path_ == "" ) {
-    stringstream ss;
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " NULL data connection parameter(s) given to constructor: " 
-       << user_ << "/" << passwd_ << "@" << path_
-       << " Attempting to retrieve paramters from CONFDB env var...";
-    edm::LogWarning(logCategory_) << ss.str();
-    
+    edm::LogWarning(mlConfigDb_)
+      << " NULL data connection parameter(s) given to constructor: " 
+      << user_ << "/" << passwd_ << "@" << path_ << endl
+      << " Attempting to retrieve paramters from CONFDB env var...";
     DbAccess::getDbConfiguration( user_, passwd_, path_ );
     if ( user_ == "" || passwd_ == "" || path_ == "" ) {
-      stringstream ss;
-      ss << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL data connection parameter(s) extracted from CONFDb env var: " 
-	 << user_ << "/" << passwd_ << "@" << path_
-	 << " Aborting connection to database...";
-      edm::LogError(logCategory_) << ss.str();
+      edm::LogError(mlConfigDb_)
+	<< " NULL data connection parameter(s) extracted from CONFDB env var: " 
+	<< user_ << "/" << passwd_ << "@" << path_ << endl
+	<< " Aborting connection to database...";
       return;
     }
   }
@@ -196,49 +250,37 @@ void SiStripConfigDb::usingDatabase() {
   if ( getenv("TNS_ADMIN") != NULL ) { 
     string tns_admin = getenv("TNS_ADMIN"); 
     if ( tns_admin == "." ) { 
-      stringstream ss;
-      ss << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Env. var. TNS_ADMIN is set to '.' (pwd)!"
-	 << " Aborting connection to database...";
-      edm::LogError(logCategory_) << ss.str();
+      edm::LogError(mlConfigDb_)
+	<< " Env. var. TNS_ADMIN is set to 'pwd'!"
+	<< " Aborting connection to database...";
       return;
     } else {
-      stringstream ss;
-      ss << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Env. var. TNS_ADMIN is set to: " << tns_admin;
-      edm::LogVerbatim(logCategory_) << ss.str();
+      edm::LogVerbatim(mlConfigDb_)
+	<< " Env. var. TNS_ADMIN is set to: " << tns_admin;
     }
   } else {
-    stringstream ss;
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Env. var. TNS_ADMIN is not set!"
-       << " Aborting connection to database...";
-    edm::LogError(logCategory_) << ss.str();
+    edm::LogError(mlConfigDb_)
+      << " Env. var. TNS_ADMIN is not set!"
+      << " Aborting connection to database...";
     return;
   }
 
   // Retrieve partition name
   if ( partition_.name_ == "" ) {
-    stringstream ss;
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Database partition name not specified!"
-       << " Attempting to read 'ENV_CMS_TK_PARTITION' env. var...";
-    edm::LogWarning(logCategory_) << ss.str(); 
+    edm::LogWarning(mlConfigDb_)
+      << " Database partition name not specified!"
+      << " Attempting to read 'ENV_CMS_TK_PARTITION' env. var...";
     if ( getenv("ENV_CMS_TK_PARTITION") != NULL ) { 
       partition_.name_ = getenv("ENV_CMS_TK_PARTITION"); 
-      stringstream ss;
-      ss  << "[" << __PRETTY_FUNCTION__ << "]"
-	  << " Database partition name set using 'ENV_CMS_TK_PARTITION' env. var: "
-	  << partition_.name_;
-      edm::LogVerbatim(logCategory_) << ss.str();
+      edm::LogVerbatim(mlConfigDb_)
+	<< " Database partition name set using 'ENV_CMS_TK_PARTITION' env. var: "
+	<< partition_.name_;
     } 
     else { 
-      stringstream ss;
-      ss  << "[" << __PRETTY_FUNCTION__ << "]"
-	  << " Unable to retrieve database partition name!"
-	  << " 'ENV_CMS_TK_PARTITION' env var not specified!"
-	  << " Aborting connection to database...";
-      edm::LogError(logCategory_) << ss.str();
+      edm::LogError(mlConfigDb_) 
+	<< " Unable to retrieve database partition name!"
+	<< " 'ENV_CMS_TK_PARTITION' env var not specified!"
+	<< " Aborting connection to database...";
       return;
     } 
   }
@@ -247,72 +289,69 @@ void SiStripConfigDb::usingDatabase() {
   try { 
     factory_ = new DeviceFactory( user_, passwd_, path_ ); 
   } catch (...) { 
-    stringstream ss; 
-    ss << "Attempting to connect to database using parameters '" 
+    ostringstream os; 
+    os << "Attempting to connect to database using parameters '" 
        << user_ << "/" << passwd_ << "@" << path_ 
        << "' and partition '" << partition_.name_ << "'";
-    handleException( __FUNCTION__, ss.str() );
+    handleException( __func__, os.str() );
   }
   
   // Check for valid pointer to DeviceFactory
-  if ( deviceFactory(__FUNCTION__) ) { 
-    stringstream ss;
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " DeviceFactory created at address 0x" 
+  if ( deviceFactory(__func__) ) { 
+    ostringstream os;
+    os << " DeviceFactory created at address 0x" 
        << hex << setw(8) << setfill('0') << factory_ << dec
        << " using database connection parameters '" 
        << user_ << "/" << passwd_ << "@" << path_
        << "' and partition '" << partition_.name_ << "'";
-    edm::LogInfo(logCategory_) << ss.str();
+    edm::LogInfo(mlConfigDb_) << os;
   } else {    
-    stringstream ss; 
-    ss << "[" << __PRETTY_FUNCTION__ << "]" 
-       << " NULL pointer to DeviceFactory!"
-       << " Unable to connect to database!";
-    edm::LogError(logCategory_) << ss.str();
+    edm::LogError(mlConfigDb_)
+      << " NULL pointer to DeviceFactory!"
+      << " Unable to connect to database!";
     return; 
   }
   
   try { 
-    deviceFactory(__FUNCTION__)->setUsingDb( usingDb_ ); //@@ necessary?
+    deviceFactory(__func__)->setUsingDb( usingDb_ ); //@@ necessary?
   } catch (...) { 
-    handleException( __FUNCTION__, "Attempted to 'setUsingDb'" );
+    handleException( __func__, "Attempted to 'setUsingDb'" );
   }
   
   try { 
-    deviceFactory(__FUNCTION__)->createInputDBAccess();
+    deviceFactory(__func__)->createInputDBAccess();
   } catch (...) { 
-    handleException( __FUNCTION__, "Attempted to 'createInputDBAccess' for FED-FEC connections!" );
+    handleException( __func__, "Attempted to 'createInputDBAccess' for FED-FEC connections!" );
   }
 
   // DCU-DetId 
   try { 
-    deviceFactory(__FUNCTION__)->addDetIdPartition( partition_.name_ );
-    //deviceFactory(__FUNCTION__)->addAllDetId();
+    deviceFactory(__func__)->addDetIdPartition( partition_.name_ );
+    //deviceFactory(__func__)->addAllDetId();
   } catch (...) { 
-    stringstream ss;
-    ss << "Attempted to 'addDetIdPartition; for partition: " << partition_.name_;
-    handleException( __FUNCTION__, ss.str() );
+    ostringstream os;
+    os << "Attempted to 'addDetIdPartition; for partition: " << partition_.name_;
+    handleException( __func__, os.str() );
   }
 
   // FED-FEC connections
   try {
-    deviceFactory(__FUNCTION__)->setInputDBVersion( partition_.name_,
-						    partition_.major_,
-						    partition_.minor_ );
+    deviceFactory(__func__)->setInputDBVersion( partition_.name_,
+						partition_.major_,
+						partition_.minor_ );
   } catch (...) { 
-    stringstream ss;
-    ss << "Attempted to 'setInputDBVersion; for partition: " << partition_.name_;
-    handleException( __FUNCTION__, ss.str() ); 
+    ostringstream os;
+    os << "Attempted to 'setInputDBVersion; for partition: " << partition_.name_;
+    handleException( __func__, os.str() ); 
   }
   
   // DCU conversion factors
   try {
-    //deviceFactory(__FUNCTION__)->addConversionPartition( partition_.name_ );
+    //deviceFactory(__func__)->addConversionPartition( partition_.name_ );
   } catch (...) { 
-    stringstream ss;
-    ss << "Attempted to 'addConversionPartition; for partition: " << partition_.name_;
-    handleException( __FUNCTION__, ss.str() ); 
+    ostringstream os;
+    os << "Attempted to 'addConversionPartition; for partition: " << partition_.name_;
+    handleException( __func__, os.str() ); 
   }
   
 }  
@@ -325,89 +364,98 @@ void SiStripConfigDb::usingXmlFiles() {
   try { 
     factory_ = new DeviceFactory(); 
   } catch (...) { 
-    handleException( __FUNCTION__, "Attempting to create DeviceFactory for use with xml files" );
+    handleException( __func__, "Attempting to create DeviceFactory for use with xml files" );
   }
   
   // Check for valid pointer to DeviceFactory
-  if ( deviceFactory(__FUNCTION__) ) { 
-    stringstream ss;
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " DeviceFactory created at address 0x" 
+  if ( deviceFactory(__func__) ) { 
+    ostringstream os;
+    os << " DeviceFactory created at address 0x" 
        << hex << setw(8) << setfill('0') << factory_ << dec
        << " using xml files";
-    edm::LogInfo(logCategory_) << ss.str();
+    edm::LogInfo(mlConfigDb_) << os;
+    cout << os.str() << endl;
   } else {    
-    stringstream ss; 
-    ss << "[" << __PRETTY_FUNCTION__ << "]" 
-       << " NULL pointer to DeviceFactory!"
-       << " Unable to connect to database!";
+    edm::LogError(mlConfigDb_)
+      << " NULL pointer to DeviceFactory!"
+      << " Unable to connect to database!";
     return; 
   }
   
   try { 
-    deviceFactory(__FUNCTION__)->setUsingDb( usingDb_ );
+    deviceFactory(__func__)->setUsingDb( usingDb_ );
   } catch (...) { 
-    handleException( __FUNCTION__, "Attempted to 'setUsingDb'" );
+    handleException( __func__, "Attempted to 'setUsingDb'" );
   }
 
   try { 
-    deviceFactory(__FUNCTION__)->createInputFileAccess();
+    deviceFactory(__func__)->createInputFileAccess();
   } catch (...) { 
-    handleException( __FUNCTION__, "Attempted to 'createInputFileAccess'" ); 
+    handleException( __func__, "Attempted to 'createInputFileAccess'" ); 
   }
   
   // Input module.xml file
   if ( inputModuleXml_ == "" ) {
-    edm::LogError(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " NULL path to input 'module.xml' file!";
+    edm::LogError(mlConfigDb_)
+      << " NULL path to input 'module.xml' file!";
   } else {
     if ( checkFileExists( inputModuleXml_ ) ) { 
       try { 
-	deviceFactory(__FUNCTION__)->setFedFecConnectionInputFileName( inputModuleXml_ ); 
-      } catch (...) { handleException( __FUNCTION__ ); }
-      edm::LogInfo(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " Added input 'module.xml' file: " << inputModuleXml_;
+	deviceFactory(__func__)->setFedFecConnectionInputFileName( inputModuleXml_ ); 
+      } catch (...) { handleException( __func__ ); }
+      edm::LogInfo(mlConfigDb_)
+	<< " Added input 'module.xml' file: " << inputModuleXml_;
     } else {
-      edm::LogError(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " No 'module.xml' file found at " << inputModuleXml_;
+      edm::LogError(mlConfigDb_)
+	<< " No 'module.xml' file found at " << inputModuleXml_;
       inputModuleXml_ = ""; 
     }
   }
   
   // Input dcuinfo.xml file
   if ( inputDcuInfoXml_ == "" ) {
-    edm::LogWarning(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " NULL path to input 'dcuinfo.xml' file!";
+    edm::LogWarning(mlConfigDb_)
+      << " NULL path to input 'dcuinfo.xml' file!";
   } else { 
     if ( checkFileExists( inputDcuInfoXml_ ) ) { 
       try { 
-	deviceFactory(__FUNCTION__)->setTkDcuInfoInputFileName( inputDcuInfoXml_ ); 
+	deviceFactory(__func__)->setTkDcuInfoInputFileName( inputDcuInfoXml_ ); 
       } catch (...) { 
-	handleException( __FUNCTION__ ); 
+	handleException( __func__ ); 
       }
-      edm::LogInfo(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " Added 'dcuinfo.xml' file: " << inputDcuInfoXml_;
+      edm::LogInfo(mlConfigDb_)
+	<< " Added 'dcuinfo.xml' file: " << inputDcuInfoXml_;
     } else {
-      edm::LogError(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " No 'dcuinfo.xml' file found at " << inputDcuInfoXml_;
+      edm::LogError(mlConfigDb_)
+	<< " No 'dcuinfo.xml' file found at " << inputDcuInfoXml_;
       inputDcuInfoXml_ = ""; 
     } 
   }
 
   // Input FEC xml files
   if ( inputFecXml_.empty() ) {
-    edm::LogWarning(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " NULL paths to input 'fec.xml' files!";
+    edm::LogWarning(mlConfigDb_) 
+      << " NULL paths to input 'fec.xml' files!";
   } else {
     vector<string>::iterator iter = inputFecXml_.begin();
     for ( ; iter != inputFecXml_.end(); iter++ ) {
       if ( *iter == "" ) {
-	edm::LogWarning(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " NULL path to input 'fec.xml' file!";
+	edm::LogWarning(mlConfigDb_)
+	  << " NULL path to input 'fec.xml' file!";
       } else {
 	if ( checkFileExists( *iter ) ) { 
 	  try { 
 	    if ( inputFecXml_.size() == 1 ) {
-	      deviceFactory(__FUNCTION__)->setFecInputFileName( *iter ); 
+	      deviceFactory(__func__)->setFecInputFileName( *iter ); 
 	    } else {
-	      deviceFactory(__FUNCTION__)->addFecFileName( *iter ); 
+	      deviceFactory(__func__)->addFecFileName( *iter ); 
 	    }
-	  } catch (...) { handleException( __FUNCTION__ ); }
-	  edm::LogInfo(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " Added 'fec.xml' file: " << *iter;
+	  } catch (...) { handleException( __func__ ); }
+	  edm::LogInfo(mlConfigDb_) 
+	    << " Added 'fec.xml' file: " << *iter;
 	} else {
-	  edm::LogError(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " No 'fec.xml' file found at " << *iter;
+	  edm::LogError(mlConfigDb_) 
+	    << " No 'fec.xml' file found at " << *iter;
 	  *iter = ""; 
 	} 
       }
@@ -416,26 +464,30 @@ void SiStripConfigDb::usingXmlFiles() {
     
   // Input FED xml files
   if ( inputFedXml_.empty() ) {
-    edm::LogWarning(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " NULL paths to input 'fed.xml' files!";
+    edm::LogWarning(mlConfigDb_) 
+      << " NULL paths to input 'fed.xml' files!";
   } else {
     vector<string>::iterator iter = inputFedXml_.begin();
     for ( ; iter != inputFedXml_.end(); iter++ ) {
       if ( *iter == "" ) {
-	edm::LogWarning(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " NULL path to input 'fed.xml' file!";
+	edm::LogWarning(mlConfigDb_) 
+	  << " NULL path to input 'fed.xml' file!";
       } else {
 	if ( checkFileExists( *iter ) ) { 
 	  try { 
 	    if ( inputFedXml_.size() == 1 ) {
-	      deviceFactory(__FUNCTION__)->setFedInputFileName( *iter ); 
+	      deviceFactory(__func__)->setFedInputFileName( *iter ); 
 	    } else {
-	      deviceFactory(__FUNCTION__)->addFedFileName( *iter ); 
+	      deviceFactory(__func__)->addFedFileName( *iter ); 
 	    }
 	  } catch (...) { 
-	    handleException( __FUNCTION__ ); 
+	    handleException( __func__ ); 
 	  }
-	  edm::LogInfo(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " Added 'fed.xml' file: " << *iter;
+	  edm::LogInfo(mlConfigDb_) 
+	    << " Added 'fed.xml' file: " << *iter;
 	} else {
-	  edm::LogError(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " No 'fed.xml' file found at " << *iter;
+	  edm::LogError(mlConfigDb_) 
+	    << " No 'fed.xml' file found at " << *iter;
 	  *iter = ""; 
 	} 
       }
@@ -444,57 +496,61 @@ void SiStripConfigDb::usingXmlFiles() {
 
   // Output module.xml file
   if ( outputModuleXml_ == "" ) { 
-    edm::LogWarning(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " NULL path to output 'module.xml' file! Setting to '/tmp/module.xml'...";
+    edm::LogWarning(mlConfigDb_) 
+      << " NULL path to output 'module.xml' file!"
+      << " Setting to '/tmp/module.xml'...";
     outputModuleXml_ = "/tmp/module.xml"; 
   } else {
     try { 
-      FedFecConnectionDeviceFactory* factory = deviceFactory(__FUNCTION__);
+      FedFecConnectionDeviceFactory* factory = deviceFactory(__func__);
       factory->setOutputFileName( outputModuleXml_ ); 
     } catch (...) { 
-      string info = "Problems setting output 'module.xml' file!";
-      handleException( __FUNCTION__, info ); 
+      handleException( __func__, "Problems setting output 'module.xml' file!" ); 
     }
   }
 
   // Output dcuinfo.xml file
   if ( outputDcuInfoXml_ == "" ) { 
-    edm::LogWarning(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " NULL path to output 'dcuinfo.xml' file! Setting to '/tmp/dcuinfo.xml'...";
+    edm::LogWarning(mlConfigDb_) 
+      << " NULL path to output 'dcuinfo.xml' file!"
+      << " Setting to '/tmp/dcuinfo.xml'...";
     outputModuleXml_ = "/tmp/dcuinfo.xml"; 
   } else {
     try { 
-      TkDcuInfoFactory* factory = deviceFactory(__FUNCTION__);
+      TkDcuInfoFactory* factory = deviceFactory(__func__);
       factory->setOutputFileName( outputDcuInfoXml_ ); 
     } catch (...) { 
-      string info = "Problems setting output 'dcuinfo.xml' file!";
-      handleException( __FUNCTION__, info ); 
+      handleException( __func__, "Problems setting output 'dcuinfo.xml' file!" ); 
     }
   }
 
   // Output fec.xml file
   if ( outputFecXml_ == "" ) {
-    edm::LogWarning(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " NULL path to output 'fec.xml' file! Setting to '/tmp/fec.xml'...";
+    edm::LogWarning(mlConfigDb_) 
+      << " NULL path to output 'fec.xml' file!"
+      << " Setting to '/tmp/fec.xml'...";
     outputFecXml_ = "/tmp/fec.xml";
   } else {
     try { 
-      FecDeviceFactory* factory = deviceFactory(__FUNCTION__);
+      FecDeviceFactory* factory = deviceFactory(__func__);
       factory->setOutputFileName( outputFecXml_ ); 
     } catch (...) { 
-      string info = "Problems setting output 'fec.xml' file!";
-      handleException( __FUNCTION__, info ); 
+      handleException( __func__, "Problems setting output 'fec.xml' file!" ); 
     }
   }
 
   // Output fed.xml file
   if ( outputFedXml_ == "" ) {
-    edm::LogWarning(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]" << " NULL path to output 'fed.xml' file! Setting to '/tmp/fed.xml'...";
+    edm::LogWarning(mlConfigDb_) 
+      << " NULL path to output 'fed.xml' file!"
+      << " Setting to '/tmp/fed.xml'...";
     outputFedXml_ = "/tmp/fed.xml";
   } else {
     try { 
-      Fed9U::Fed9UDeviceFactory* factory = deviceFactory(__FUNCTION__);
+      Fed9U::Fed9UDeviceFactory* factory = deviceFactory(__func__);
       factory->setOutputFileName( outputFedXml_ ); 
     } catch (...) { 
-      string info = "Problems setting output 'fed.xml' file!";
-      handleException( __FUNCTION__, info ); 
+      handleException( __func__, "Problems setting output 'fed.xml' file!" ); 
     }
   }
 
@@ -520,33 +576,33 @@ void SiStripConfigDb::createPartition( const string& partition_name,
   partition_.major_ = 0;
   partition_.minor_ = 0;
 
-  edm::LogInfo(logCategory_) << "[" << __PRETTY_FUNCTION__ << "]"
-			     << " Creating partition " << partition_.name_;
+  edm::LogInfo(mlConfigDb_)
+    << " Creating partition " << partition_.name_;
 
   // Create new partition based on device and PIA reset descriptions
   const DeviceDescriptions& devices = createDeviceDescriptions( fec_cabling );
   const PiaResetDescriptions& resets = createPiaResetDescriptions( fec_cabling );
   if ( !devices.empty() && !resets.empty() ) {
     try {
-      stringstream ss; 
-      ss << "/tmp/fec_" << partition_.name_ << ".xml";
-      FecDeviceFactory* factory = deviceFactory(__FUNCTION__);
-      factory->setOutputFileName( ss.str() );
-      deviceFactory(__FUNCTION__)->createPartition( devices,
-						    resets, 
-						    &partition_.major_, 
-						    &partition_.minor_, 
-						    &partition_.major_,
-						    &partition_.minor_,
-						    partition_.name_,
-						    partition_.name_ );
+      ostringstream os; 
+      os << "/tmp/fec_" << partition_.name_ << ".xml";
+      FecDeviceFactory* factory = deviceFactory(__func__);
+      factory->setOutputFileName( os.str() );
+      deviceFactory(__func__)->createPartition( devices,
+						resets, 
+						&partition_.major_, 
+						&partition_.minor_, 
+						&partition_.major_,
+						&partition_.minor_,
+						partition_.name_,
+						partition_.name_ );
     } catch (...) { 
-      stringstream ss; 
-      ss << "Failed to create new partition with name "
+      ostringstream os; 
+      os << "Failed to create new partition with name "
 	 << partition_.name_ << " and version " 
 	 << partition_.major_ << "." << partition_.minor_;
-      edm::LogError(logCategory_) << ss.str() << "\n";
-      handleException( __FUNCTION__, ss.str() );
+      edm::LogError(mlConfigDb_) << os;
+      handleException( __func__, os.str() );
     } 
   }
   
@@ -554,19 +610,19 @@ void SiStripConfigDb::createPartition( const string& partition_name,
   const DcuConversionFactors& dcu_convs = createDcuConversionFactors( fec_cabling );
   if ( !dcu_convs.empty() ) {
     try {
-      stringstream ss; 
-      ss << "/tmp/dcuconv_" << partition_.name_ << ".xml";
-      TkDcuConversionFactory* factory = deviceFactory(__FUNCTION__);
-      factory->setOutputFileName( ss.str() );
-      deviceFactory(__FUNCTION__)->setTkDcuConversionFactors( dcu_convs );
+      ostringstream os; 
+      os << "/tmp/dcuconv_" << partition_.name_ << ".xml";
+      TkDcuConversionFactory* factory = deviceFactory(__func__);
+      factory->setOutputFileName( os.str() );
+      deviceFactory(__func__)->setTkDcuConversionFactors( dcu_convs );
     } catch (...) { 
-      stringstream ss; 
-      ss << "Failed to create and upload DCU conversion factors"
+      ostringstream os; 
+      os << "Failed to create and upload DCU conversion factors"
 	 << " to partition with name "
 	 << partition_.name_ << " and version " 
 	 << partition_.major_ << "." << partition_.minor_;
-      edm::LogError(logCategory_) << ss.str() << "\n";
-      handleException( __FUNCTION__, ss.str() );
+      edm::LogError(mlConfigDb_) << os;
+      handleException( __func__, os.str() );
     }
   }
   
@@ -574,23 +630,23 @@ void SiStripConfigDb::createPartition( const string& partition_name,
   const FedDescriptions& feds = createFedDescriptions( fec_cabling );
   if ( !feds.empty() ) {
     try {
-      stringstream ss; 
-      ss << "/tmp/fed_" << partition_.name_ << ".xml";
-      Fed9U::Fed9UDeviceFactory* factory = deviceFactory(__FUNCTION__);
-      factory->setOutputFileName( ss.str() );
-      deviceFactory(__FUNCTION__)->setFed9UDescriptions( feds,
+      ostringstream os; 
+      os << "/tmp/fed_" << partition_.name_ << ".xml";
+      Fed9U::Fed9UDeviceFactory* factory = deviceFactory(__func__);
+      factory->setOutputFileName( os.str() );
+      deviceFactory(__func__)->setFed9UDescriptions( feds,
 							 partition_.name_,
 							 &(uint16_t)partition_.major_,
 							 &(uint16_t)partition_.minor_,
 							 1 ); // new major version
     } catch(...) {
-      stringstream ss; 
-      ss << "Failed to create and upload FED descriptions"
+      ostringstream os; 
+      os << "Failed to create and upload FED descriptions"
 	 << " to partition with name "
 	 << partition_.name_ << " and version " 
 	 << partition_.major_ << "." << partition_.minor_;
-      edm::LogError(logCategory_) << ss.str() << "\n";
-      handleException( __FUNCTION__, ss.str() );
+      edm::LogError(mlConfigDb_) << os;
+      handleException( __func__, os.str() );
     }
   }    
 
@@ -600,31 +656,31 @@ void SiStripConfigDb::createPartition( const string& partition_name,
     FedConnections::const_iterator iconn = conns.begin();
     for ( ; iconn != conns.end(); iconn++ ) { 
       try {
-	deviceFactory(__FUNCTION__)->addFedChannelConnection( *iconn );
+	deviceFactory(__func__)->addFedChannelConnection( *iconn );
       } catch(...) {
-	stringstream ss; 
-	ss << "Failed to add FedChannelConnectionDescription!";
-	handleException( __FUNCTION__, ss.str() );
+	ostringstream os; 
+	os << "Failed to add FedChannelConnectionDescription!";
+	handleException( __func__, os.str() );
       }
     }
     try {
-      stringstream ss; 
-      ss << "/tmp/module_" << partition_.name_ << ".xml";
-      FedFecConnectionDeviceFactory* factory = deviceFactory(__FUNCTION__);
-      factory->setOutputFileName( ss.str() );
-      deviceFactory(__FUNCTION__)->write();
+      ostringstream os; 
+      os << "/tmp/module_" << partition_.name_ << ".xml";
+      FedFecConnectionDeviceFactory* factory = deviceFactory(__func__);
+      factory->setOutputFileName( os.str() );
+      deviceFactory(__func__)->write();
     } catch(...) {
-      stringstream ss; 
-      ss << "Failed to create and upload FedChannelConnectionDescriptions"
+      ostringstream os; 
+      os << "Failed to create and upload FedChannelConnectionDescriptions"
 	 << " to partition with name "
 	 << partition_.name_ << " and version " 
 	 << partition_.major_ << "." << partition_.minor_;
       
-      handleException( __FUNCTION__, ss.str() );
+      handleException( __func__, os.str() );
     }
   }
 
-  edm::LogInfo("FedCabling") << "[" << __PRETTY_FUNCTION__ << "]" << " Finished!";
+  edm::LogInfo("FedCabling") << __func__ << " Finished!";
   
 }
 
@@ -633,62 +689,60 @@ void SiStripConfigDb::createPartition( const string& partition_name,
 void SiStripConfigDb::handleException( const string& method_name,
 				       const string& extra_info ) { //throw (cms::Exception) {
 
-  stringstream ss;
-  ss << "[" << __PRETTY_FUNCTION__ << "]";
-
+  ostringstream os;
   try {
     //throw; // rethrow caught exception to be dealt with below
   } 
- 
+
   catch ( const cms::Exception& e ) { 
-    ss << " Caught cms::Exception in method "
-       << method_name << " with message: \n" 
+    os << " Caught cms::Exception in method "
+       << method_name << " with message: " << endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << "\n"; }
+    if ( extra_info != "" ) { os << "Additional info: " << extra_info << endl; }
     //throw e; // rethrow cms::Exception
   }
   
   catch ( const oracle::occi::SQLException& e ) { 
-    ss << " Caught oracle::occi::SQLException in method "
-       << method_name << " with message: \n" 
+    os << " Caught oracle::occi::SQLException in method "
+       << method_name << " with message: " << endl 
        << e.getMessage();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << "\n"; }
-    //throw cms::Exception(logCategory_) << ss.str() << "\n";
+    if ( extra_info != "" ) { os << "Additional info: " << extra_info << endl; }
+    //throw cms::Exception(mlConfigDb_) << os.str() << endl;
   }
 
   catch ( const FecExceptionHandler& e ) {
-    ss << " Caught FecExceptionHandler exception in method "
-       << method_name << " with message: \n" 
+    os << " Caught FecExceptionHandler exception in method "
+       << method_name << " with message: " << endl 
        << const_cast<FecExceptionHandler&>(e).getMessage();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << "\n"; }
-    //throw cms::Exception(logCategory_) << ss.str() << "\n";
+    if ( extra_info != "" ) { os << "Additional info: " << extra_info << endl; }
+    //throw cms::Exception(mlConfigDb_) << os.str() << endl;
   }
 
   catch ( const ICUtils::ICException& e ) {
-    ss << " Caught ICUtils::ICException in method "
-       << method_name << " with message: \n" 
+    os << " Caught ICUtils::ICException in method "
+       << method_name << " with message: " << endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << "\n"; }
-    //throw cms::Exception(logCategory_) << ss.str() << "\n";
+    if ( extra_info != "" ) { os << "Additional info: " << extra_info << endl; }
+    //throw cms::Exception(mlConfigDb_) << os.str() << endl;
   }
 
   catch ( const exception& e ) {
-    ss << " Caught std::exception in method "
-       << method_name << " with message: \n" 
+    os << " Caught std::exception in method "
+       << method_name << " with message: " << endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << "\n"; }
-    //throw cms::Exception(logCategory_) << ss.str() << "\n";
+    if ( extra_info != "" ) { os << "Additional info: " << extra_info << endl; }
+    //throw cms::Exception(mlConfigDb_) << os.str() << endl;
   }
 
   catch (...) {
-    ss << " Caught unknown exception in method "
-       << method_name << " (No message) \n";
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << "\n"; }
-    //throw cms::Exception(logCategory_) << ss.str() << "\n";
+    os << " Caught unknown exception in method "
+       << method_name << " (No message) " << endl;
+    if ( extra_info != "" ) { os << "Additional info: " << extra_info << endl; }
+    //throw cms::Exception(mlConfigDb_) << os.str() << endl;
   }
   
   // Message
-  edm::LogError(logCategory_) << ss.str();
+  edm::LogError(mlConfigDb_) << os;
 
 }
 
