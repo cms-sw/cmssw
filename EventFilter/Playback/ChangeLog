@@ -1,3 +1,8 @@
+2006-10-10  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-00-03
+	* fix the BuildFile, requested by Shahzad Muzaffar
+
 2006-09-27  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-00-02

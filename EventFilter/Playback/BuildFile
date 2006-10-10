@@ -2,9 +2,9 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Foundation/PluginManager>
+<flags SEAL_PLUGIN_NAME="EventFilterPlayback">
 
 <export>
-  <flags SEAL_PLUGIN_NAME="EventFilterPlayback">
   <lib name=EventFilterPlayback>
   <use name=DataFormats/FEDRawData>
   <use name=FWCore/Framework>
