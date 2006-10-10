@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -30,7 +30,6 @@
 // empty constructor, all members set to zero;
 L1GtFdlWord::L1GtFdlWord() {
 
-    m_boardId = 0;
     m_boardId = 0;
     m_bxInEvent = 0;
     m_bxNr = 0;
