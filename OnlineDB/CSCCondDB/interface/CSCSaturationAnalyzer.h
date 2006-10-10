@@ -12,6 +12,8 @@
 #include "OnlineDB/CSCCondDB/interface/CSCMap.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
+//#include "OnlineDB/CSCCondDB/interface/SaturationFit.h"
+//#include "OnlineDB/CSCCondDB/interface/SaturationFcn.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TH2F.h"
@@ -63,11 +65,50 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
   bool debug;
   float myCharge[25],mySatADC[25],aVar,bVar;
   TH2F gain_vs_charge;
-  TH2F gain1_vs_charge;
-  TH2F gain2_vs_charge;
-  TH2F gain3_vs_charge;
-  TH2F gain4_vs_charge;
-  TH2F gain5_vs_charge;
-  TH2F gain6_vs_charge;
-     
+  TH2F gain01_vs_charge;
+  TH2F gain02_vs_charge;
+  TH2F gain03_vs_charge;
+  TH2F gain04_vs_charge;
+  TH2F gain05_vs_charge;
+  TH2F gain11_vs_charge;
+  TH2F gain12_vs_charge;
+  TH2F gain13_vs_charge;
+  TH2F gain14_vs_charge;
+  TH2F gain15_vs_charge;
+  TH2F gain21_vs_charge;
+  TH2F gain22_vs_charge;
+  TH2F gain23_vs_charge;
+  TH2F gain24_vs_charge;
+  TH2F gain25_vs_charge;
+  TH2F gain31_vs_charge;
+  TH2F gain32_vs_charge;
+  TH2F gain33_vs_charge;
+  TH2F gain34_vs_charge;
+  TH2F gain35_vs_charge;
+  TH2F gain41_vs_charge;
+  TH2F gain42_vs_charge;
+  TH2F gain43_vs_charge;
+  TH2F gain44_vs_charge;
+  TH2F gain45_vs_charge;
+  TH2F gain51_vs_charge;
+  TH2F gain52_vs_charge;
+  TH2F gain53_vs_charge;
+  TH2F gain54_vs_charge;
+  TH2F gain55_vs_charge;
+  TH2F gain61_vs_charge;
+  TH2F gain62_vs_charge;
+  TH2F gain63_vs_charge;
+  TH2F gain64_vs_charge;
+  TH2F gain65_vs_charge;
+  TH2F gain71_vs_charge;
+  TH2F gain72_vs_charge;
+  TH2F gain73_vs_charge;
+  TH2F gain74_vs_charge;
+  TH2F gain75_vs_charge;
+  TH2F gain81_vs_charge;
+  TH2F gain82_vs_charge;
+  TH2F gain83_vs_charge;
+  TH2F gain84_vs_charge;
+  TH2F gain85_vs_charge;
+
 };

@@ -5,7 +5,9 @@
 #include <vector>
 #include <cmath>
 #include "OnlineDB/CSCCondDB/interface/SaturationFcn.h"
-                                                                        
+
+using namespace ROOT::Minuit2;
+
 class SaturationFit{ 
 
  public:
@@ -13,8 +15,8 @@ class SaturationFit{
  SaturationFit(){
    double u[3],sigma[3],chisq;  
    VariableMetricMinimizer* pMinimizer=new VariableMetricMinimizer() ; 
-   SaturationFcn* pFcn=new SaturationFcn(N,charge_ptr,adc_ptr);
-   pFcn->set_data();
+   SaturationFcn* pFcn=new SaturationFcn(N,&charge_ptr,&adc_ptr);
+   pFcn->set_data(&charge_ptr,&adc_ptr);
    std::vector<double> par(4,0);
    std::vector<double> err(4,0);
    printf(" about to fill pars \n");
