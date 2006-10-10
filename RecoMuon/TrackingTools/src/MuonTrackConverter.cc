@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: 2006/09/08 18:50:55 $
- *  $Revision: 1.5 $ 
+ *  $Date: 2006/09/27 03:16:12 $
+ *  $Revision: 1.6 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -135,10 +135,10 @@ MuonTrackConverter::getTransientRecHits(const reco::Track& track) const {
   ConstRecHitContainer result;
   
   for (trackingRecHit_iterator iter = track.recHitsBegin(); iter != track.recHitsEnd(); ++iter) {
-    if ( (*iter)->geographicalId().det() != DetId::Muon ) {
+    if ( (*iter)->geographicalId().det() == DetId::Tracker ) {
       result.push_back(tkHitBuilder->build(&**iter));
     }
-    else {
+    else if ( (*iter)->geographicalId().det() == DetId::Muon ){
       result.push_back(muHitBuilder.build(&**iter,theService->trackingGeometry()));
     }
   }
