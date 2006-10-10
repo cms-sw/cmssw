@@ -2,6 +2,7 @@
 
 // system includes
 #include <memory>
+#include <vector>
 
 // EDM includes
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,6 +28,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
+using std::vector;
 using std::cout;
 using std::endl;
 
@@ -46,16 +48,20 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctEtMiss>();
   produces<L1GctJetCounts>();
 
+  // get the input label
+  edm::InputTag inputTag = ps.getParameter<edm::InputTag>("inputLabel");
+  m_inputLabel = inputTag.label();
+
   // Get the filename for the Jet Et LUT
   edm::FileInPath fp = ps.getParameter<edm::FileInPath>("jetEtLutFile");
 
   // instantiate the GCT
   m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::tdrJetFinder,fp.fullPath());
 
-  // set parameters
+  // set verbosity (not implemented yet!)
   //  m_gct->setVerbose(m_verbose);
 
-  // for now, call the debug print output
+  // print debug info?
   if (m_verbose) {
     m_gct->print();
   }
@@ -74,13 +80,15 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   c.get< L1JetEtScaleRcd >().get( jetScale ) ; // which record?
 
   // tell the jet Et LUT about the scale
-  m_gct->getJetEtCalibLut()->setOutputEtScale(jetScale.product());
+  if (jetScale.product() != 0) {
+    m_gct->getJetEtCalibLut()->setOutputEtScale(jetScale.product());
+  }
 
   // get the RCT data
   edm::Handle<L1CaloEmCollection> em;
   edm::Handle<L1CaloRegionCollection> rgn;
-  e.getByType(em);
-  e.getByType(rgn);
+  e.getByLabel(m_inputLabel, em);
+  e.getByLabel(m_inputLabel, rgn);
 
   // reset the GCT internal buffers
   m_gct->reset();

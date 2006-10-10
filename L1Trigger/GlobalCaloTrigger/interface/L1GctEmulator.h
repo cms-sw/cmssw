@@ -11,9 +11,11 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 15:04:56 CEST 2006
-// $Id: L1GctEmulator.h,v 1.2 2006/05/30 12:22:35 jbrooke Exp $
+// $Id: L1GctEmulator.h,v 1.4 2006/06/09 12:39:33 jbrooke Exp $
 //
 //
+
+// system includes
 
 
 // EDM includes
@@ -38,6 +40,9 @@ class L1GctEmulator : public edm::EDProducer {
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
  private:
+
+  // input label
+  std::string m_inputLabel;
 
   // pointer to the actual emulator
   L1GlobalCaloTrigger* m_gct;
