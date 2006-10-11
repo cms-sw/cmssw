@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/10/05 10:56:42 $
- *  $Revision: 1.30 $
+ *  $Date: 2006/10/09 13:18:29 $
+ *  $Revision: 1.31 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -103,15 +103,20 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     theDCCheader.setId((*itEventBlock)->getDataField("FED/DCC ID"));
     theDCCheader.setRunNumber((*itEventBlock)->getDataField("RUN NUMBER"));
     short trigger_type = (*itEventBlock)->getDataField("TRIGGER TYPE");
+    short zs = (*itEventBlock)->getDataField("ZS");
+    short tzs = (*itEventBlock)->getDataField("TZS");
+    short sr = (*itEventBlock)->getDataField("SR");
+    
+
     if(trigger_type >0 && trigger_type <5){theDCCheader.setBasicTriggerType(trigger_type);}
     else{ LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
 					<< "unrecognized TRIGGER TYPE: "<<trigger_type;}
     theDCCheader.setLV1((*itEventBlock)->getDataField("LV1"));
     theDCCheader.setBX((*itEventBlock)->getDataField("BX"));
     theDCCheader.setErrors((*itEventBlock)->getDataField("DCC ERRORS"));
-    theDCCheader.setSelectiveReadout((*itEventBlock)->getDataField("SR"));
-    theDCCheader.setZeroSuppression((*itEventBlock)->getDataField("ZS"));
-    theDCCheader.setTestZeroSuppression((*itEventBlock)->getDataField("TZS"));
+    theDCCheader.setSelectiveReadout( sr );
+    theDCCheader.setZeroSuppression( zs );
+    theDCCheader.setTestZeroSuppression( tzs );
     theDCCheader.setSrpStatus((*itEventBlock)->getDataField("SR_CHSTATUS"));
 
 
@@ -134,8 +139,6 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       {
 
 	vector< pair<int,bool> > TpSamples = (* itTCCBlock) -> triggerSamples() ;
-
-	  //	vector<int> TpSamples = (* itTCCBlock) -> triggerSamples() ;
 	// vector of 3 bits
 	vector<int> TpFlags      = (* itTCCBlock) -> triggerFlags() ;
 	
@@ -203,16 +206,16 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
     _expTowersIndex=0;_numExpectedTowers=0;
     for (int v=0; v<71; v++){
-      _ExpectedTowers[v]=0;
+      _ExpectedTowers[v]=99999;
     }
     // staus==0:  tower expected; status==1: tower not expected
     for (int u=1; u< (kTriggerTowersAndMem+1); u++)
       {
-        if(TowerStatus[u] == 0)
-          {_ExpectedTowers[_expTowersIndex]=u;
-	    _expTowersIndex++;
-	    _numExpectedTowers++;
-          }  
+           if(   TowerStatus[u] ==0   ) 
+	 {_ExpectedTowers[_expTowersIndex]=u;
+	   _expTowersIndex++;
+	   _numExpectedTowers++;
+	 }
       }
     // resetting counter of expected towers
     _expTowersIndex=0;
@@ -229,11 +232,12 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 				      << "number of TowerBlocks found (" << dccTowerBlocks.size()
 				      << ") differs from expected (" << _numExpectedTowers 
 				      << ") skipping event"; 
-
+	
         EBDetId idsm(1, 1 + 20 * dccID);
         dccsizecollection.push_back(idsm);
 
-        return;
+	return;
+	
       }
       
 
@@ -258,7 +262,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 
       EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
-
+    
 
       if (  !(tower == _ExpectedTowers[_expTowersIndex])	  )
         {	
@@ -281,13 +285,15 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
        //    tt: 1 ... 68: crystal data
        *********************************/
       if (  0<  (*itTowerBlock)->towerID() &&
-	    (*itTowerBlock)->towerID() < (kTriggerTowers+1) )
+	    (*itTowerBlock)->towerID() < (kTriggerTowers+1) 	    )
  	{
 	  
 	  vector<DCCXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();	
-	  if (xtalDataBlocks.size() != kChannelsPerTower)
+	  
+	  // if there is no zero suppression, tower block must have have 25 channels in it
+	  if (  (!zs)   &&   (xtalDataBlocks.size() != kChannelsPerTower)   )
 	    {     
-	      LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+	      LogWarning("EcalTBRawToDigi") << "EcalTBDaqFormatter::interpretRawData, no zero suppression "
 					    << "wrong tower block size is: "  << xtalDataBlocks.size() 
 					    << " in event " << (*itEventBlock)->getDataField("LV1")
 					    << " for TT " << _ExpectedTowers[_expTowersIndex];
@@ -296,7 +302,11 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 	      ++ _expTowersIndex;
 	      continue;	
+
 	    }
+	  
+
+	  short cryInTower =0;
 
 	  short expStripInTower;
 	  short expCryInStrip;
@@ -307,12 +317,12 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	       itXtalBlock!= xtalDataBlocks.end(); 
 	       itXtalBlock++){
 
-	    strip = (*itXtalBlock)->stripID();
-	    ch    =(*itXtalBlock)->xtalID();
+	    strip              =(*itXtalBlock)->stripID();
+	    ch                 =(*itXtalBlock)->xtalID();
+	    cryInTower  =(strip-1)* kChannelsPerCard + (ch -1);
 
-	    // these are the expected indices
 	    expStripInTower = expCryInTower/5 +1;
-	    expCryInStrip   =  expCryInTower%5 +1;
+	    expCryInStrip     =  expCryInTower%5 +1;
 	  
 
 	    // FIXME: waiting for geometry to do (TT, strip,chNum) <--> (SMChId)
@@ -320,32 +330,73 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    // short ordinate = (_ExpectedTowers[_expTowersIndex]-1)  %4;
 	    // temporarily choosing central crystal in trigger tower
 	    // int cryIdInSM  = 45 + ordinate*5 + abscissa * 100;
-    
-	    // comparison: expectation VS crystal in data
-	    if(!	   (strip == expStripInTower &&
-			    ch    == expCryInStrip )	     
-	       )
+
+
+	    // in case of 0 zuppressed data, check that cryInTower constantly grows
+	    if (zs)
 	      {
+		// correct ordering
+		if(  cryInTower >= expCryInTower )
+		  {   expCryInTower = cryInTower +1;	  } 
 		
-		int ic        = cryIc(tower, expStripInTower,  expCryInStrip) ;
-		int  sm = 1;
-		EBDetId  idExp(sm, ic,1);
+		// cry_id wrong because of incorrect ordering within trigger tower
+		else
+		  {
+		    LogWarning("EcalTBRawToDigi") << "EcalTBDaqFormatter::interpretRawData with zero suppression, "
+						  << " based on ch ordering within tt, wrong channel id: "
+						  << "\t strip: "  << strip  << "\t channel: " << ch
+						  << "\t cryInTower "  << cryInTower
+						  << "\t expCryInTower: " << expCryInTower
+						  << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
+						  << "\t at event: " << (*itEventBlock)->getDataField("LV1");
+		    
+		    for (int StripInTower_ =1;  StripInTower_ < 5; StripInTower_++){
+		      for (int  CryInStrip_ =1;  CryInStrip_ < 5; CryInStrip_++){
+			int  ic        = cryIc(tower, StripInTower_,  CryInStrip_) ;
+			int  sm = 1; // hardcoded because of test  beam
+			EBDetId  idExp(sm, ic,1);
+			chidcollection.push_back(idExp);
+		      }
+		    }
+		    
+		    expCryInTower = cryInTower +1;
+		    continue;
+		    
+		  }
 		
-		LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
-					      << " wrong channel id for strip: "  << expStripInTower
-					      << "\t channel: " << expCryInStrip
-					      << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
-					      << "\t in event: " << (*itEventBlock)->getDataField("LV1");
+	      }// if zero supression
+	    
 
+	    else {
+	      
+	      // if there is no zero suppression, channel has to equal the expected channel
+	      if(   (cryInTower != expCryInTower) )
+		{
+		  
+		  int ic        = cryIc(tower, expStripInTower,  expCryInStrip) ;
+		  int  sm = 1; // hardcoded because of test  beam
+		  EBDetId  idExp(sm, ic,1);
+		  
+		  LogWarning("EcalTBRawToDigi") << "EcalTBDaqFormatter::interpretRawData no zero suppression "
+						<< " wrong channel id for strip: "  << expStripInTower
+						<< "\t channel: " << expCryInStrip
+						<< "\t in TT: " << _ExpectedTowers[_expTowersIndex]
+						<< "\t in event: " << (*itEventBlock)->getDataField("LV1");
+		  
+		  
+		  // report on wrong channel id
+		  chidcollection.push_back(idExp);
+		  
+		  continue;
+		  
+		} // if channel in data does not equal expected channel
 
-		// report on wrong channel id
-		chidcollection.push_back(idExp);
-		
-		expCryInTower++; continue;
-          
-	      }
-      
-      
+	      expCryInTower++;	      
+
+	    } // end 'not zero suppression'
+	    
+	    
+	    
 	    // data  to be stored in EBDataFrame, identified by EBDetId
 	    int  ic        = cryIc(tower, expStripInTower,  expCryInStrip) ;
 	    int  sm = 1;
@@ -443,7 +494,6 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 	    if (wrongGainStaysTheSame) gainswitchstaycollection.push_back(id);
 
-	    expCryInTower++; 
 	  }// end loop on crystals
 	  
 	  
