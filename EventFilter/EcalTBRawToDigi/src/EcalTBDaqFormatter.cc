@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/10/09 13:18:29 $
- *  $Revision: 1.31 $
+ *  $Date: 2006/10/11 14:14:57 $
+ *  $Revision: 1.32 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -350,10 +350,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 						  << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
 						  << "\t at event: " << (*itEventBlock)->getDataField("LV1");
 		    
+		    int  sm = 1; // hardcoded because of test  beam
 		    for (int StripInTower_ =1;  StripInTower_ < 5; StripInTower_++){
 		      for (int  CryInStrip_ =1;  CryInStrip_ < 5; CryInStrip_++){
 			int  ic        = cryIc(tower, StripInTower_,  CryInStrip_) ;
-			int  sm = 1; // hardcoded because of test  beam
 			EBDetId  idExp(sm, ic,1);
 			chidcollection.push_back(idExp);
 		      }
@@ -398,7 +398,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    
 	    
 	    // data  to be stored in EBDataFrame, identified by EBDetId
-	    int  ic        = cryIc(tower, expStripInTower,  expCryInStrip) ;
+	    int  ic        = cryIc(tower, strip, ch) ;
 	    int  sm = 1;
 	    EBDetId  id(sm, ic,1);                 
 	    
