@@ -1,3 +1,5 @@
+// $Id:$
+
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
@@ -189,85 +191,84 @@ void StreamerOutputService::writeHeader(InitMsgView const& init_message)
     currentFileSize_ += init_message.size();
 
   }
-
-void StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize)
+  
+bool StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize)
   { 
+    bool returnVal = true;
 
-        //Check if this event meets the selection criteria, if not skip it.
-        if ( ! wantsEvent(eview) ) 
-            {
-            //cout <<"This event is UNWANTED"<<endl; 
-            return;
-            }
+    //Check if this event meets the selection criteria, if not skip it.
+    if ( ! wantsEvent(eview) ) 
+      return returnVal;
 
-        // check for number of events is no longer required 09/22/2006
-        // if ( eventsInFile_ >= maxFileEventCount_  || currentFileSize_ >= maxFileSize_ )
-	if ( currentFileSize_ >= maxFileSize_ )
-           {
-             checkFileSystem(); // later should take some action
-             stop();
-             writeToMailBox();
- 
-	     statistics_  -> setFileSize((uint32) currentFileSize_ );
-	     statistics_  -> setEventCount((uint32) eventsInFile_ ); 
-	     statistics_  -> setRunNumber((uint32) eview.run());
-	     statistics_  -> writeStat();
+    // since only the file size is checked here, we don't care that one event
+    // will be written even though the condition for closing the file
+    // is satisfied ... has to change later.
+    if ( currentFileSize_ >= maxFileSize_ )
+      returnVal = false;
 
-	     fileNameCounter_++;
+    //Write the Event Message to Streamer and index
+    streamNindex_writer_->doOutputEvent(eview);
+    
+    eventsInFile_++;
+    totalEventCount_++;
+    currentFileSize_ += eview.size();
 
-             string tobeclosedFile = fileName_;
+    return returnVal;
+  }
 
-             //std::cout<<" better to use temp variable as not sure if writer is still using"<<std::endl;
-             // them? shouldn't be! (no time to look now)
-             // writer is not using them !! - AA
-
-             // also should be checking the filesystem here at path_
-             std::ostringstream newFileName;
-             newFileName << path_ << "/";
-             if (nLogicalDisk_ != 0 )
-               {
-                 newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
-                 remove( lockFileName_.c_str() );
-                 lockFileName_   = newFileName.str() + ".lock";
-                 ofstream *lockFile =
-                   new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
-                 delete(lockFile);
-               }
-	     
-             newFileName << filen_ << "." << fileNameCounter_ ;
-             fileName_      = newFileName.str() + ".dat";
-             indexFileName_ = newFileName.str() + ".ind";
-                                               
-	     statistics_  = boost::shared_ptr<edm::StreamerStatWriteService> 
-	       (new edm::StreamerStatWriteService(eview.run(), "-", indexFileName_, fileName_, catalog_));
-                                                            
-             streamNindex_writer_.reset(new StreamerFileWriter(fileName_, indexFileName_));
-
-             // write out the summary line for this last file
-             std::ostringstream entry;
-             entry << (fileNameCounter_ - 1) << " " 
-                   << tobeclosedFile
-                   << " " << eventsInFile_
-                   << "   " << currentFileSize_;
-             files_.push_back(entry.str());
-             if(fileNameCounter_!=1) closedFiles_ += ", ";
-             closedFiles_ += tobeclosedFile;
-
-             eventsInFile_ = 0; 
-             currentFileSize_ = 0;
-             // write the Header for the newly openned file
-             // from the previously saved INIT msg
-             InitMsgView myview(&saved_initmsg_[0]);
-
-             writeHeader(myview);
-           }
-                     
-           //Write the Event Message to Streamer and index
-           streamNindex_writer_->doOutputEvent(eview);
-
-           eventsInFile_++;
-           totalEventCount_++;
-           currentFileSize_ += eview.size();
+void StreamerOutputService::closeFile(EventMsgView const& eview)
+  {
+    checkFileSystem(); // later should take some action
+    stop();
+    writeToMailBox();
+    
+    statistics_  -> setFileSize((uint32) currentFileSize_ );
+    statistics_  -> setEventCount((uint32) eventsInFile_ ); 
+    statistics_  -> setRunNumber((uint32) eview.run());
+    statistics_  -> writeStat();
+    
+    fileNameCounter_++;
+    
+    string tobeclosedFile = fileName_;
+    
+    std::ostringstream newFileName;
+    newFileName << path_ << "/";
+    if (nLogicalDisk_ != 0 )
+      {
+	newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
+	remove( lockFileName_.c_str() );
+	lockFileName_   = newFileName.str() + ".lock";
+	ofstream *lockFile =
+	  new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+	delete(lockFile);
+      }
+    
+    newFileName << filen_ << "." << fileNameCounter_ ;
+    fileName_      = newFileName.str() + ".dat";
+    indexFileName_ = newFileName.str() + ".ind";
+    
+    statistics_  = boost::shared_ptr<edm::StreamerStatWriteService> 
+      (new edm::StreamerStatWriteService(eview.run(), "-", indexFileName_, fileName_, catalog_));
+    
+    streamNindex_writer_.reset(new StreamerFileWriter(fileName_, indexFileName_));
+    
+    // write out the summary line for this last file
+    std::ostringstream entry;
+    entry << (fileNameCounter_ - 1) << " " 
+	  << tobeclosedFile
+	  << " " << eventsInFile_
+	  << "   " << currentFileSize_;
+    files_.push_back(entry.str());
+    if(fileNameCounter_!=1) closedFiles_ += ", ";
+    closedFiles_ += tobeclosedFile;
+    
+    eventsInFile_ = 0; 
+    currentFileSize_ = 0;
+    // write the Header for the newly openned file
+    // from the previously saved INIT msg
+    InitMsgView myview(&saved_initmsg_[0]);
+    
+    writeHeader(myview);
   }
 
 bool StreamerOutputService::wantsEvent(EventMsgView const& eventView) 

@@ -1,6 +1,8 @@
 #ifndef _StreamerOutputService_h
 #define _StreamerOutputService_h 
 
+// $Id:$
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
@@ -36,7 +38,9 @@ namespace edm
     //I will actualy remove this parameter soon, keeping it
     // ONLY for backward compatability
     // AA - 09/22/2006 
-    void writeEvent(EventMsgView const& msg, uint32 hlt_trig_count=0);
+ 
+    bool writeEvent(EventMsgView const& msg, uint32 hlt_trig_count=0);
+    void closeFile(EventMsgView const& msg); 
     
     void stop(); // shouldn't be called from destructor.
 

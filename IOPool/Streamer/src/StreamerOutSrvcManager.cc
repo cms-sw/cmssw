@@ -1,9 +1,9 @@
+// $Id:$
 #include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
 
 #include <iomanip>
 
-//using namespace edm;
 using namespace std;
 
 namespace edm {
@@ -148,13 +148,26 @@ void StreamerOutSrvcManager::manageInitMsg(std::string fileName, uint32 runNum, 
 
 void StreamerOutSrvcManager::manageEventMsg(EventMsgView& msg)
     {
-       //Received an Event Message, Pass it ON to each outputFile
-       // outputFile(service) will decide to write or Pass it
-       for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
-          it != managedOutputs_.end(); ++it)
-        {
-            (*it)->writeEvent(msg);
-        }
+      //Received an Event Message, Pass it ON to each outputFile
+      // outputFile(service) will decide to write or Pass it
+       
+      bool condition = true;
+      
+      for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
+	  it != managedOutputs_.end(); ++it)
+	{
+	  condition = condition && (*it)->writeEvent(msg);
+	}
+
+      // close all managed file synchronous ( if condition == false )
+      if ( !condition )
+	{
+	  for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
+	      it != managedOutputs_.end(); ++it)
+	    {
+	      (*it)->closeFile(msg);
+	    }
+	}
     }
 
 
