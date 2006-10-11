@@ -11,6 +11,7 @@
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
+#include "DataFormats/BTauReco/interface/TrackTauImpactParameterAssociation.h"
 
 namespace {
   namespace {
@@ -32,6 +33,9 @@ namespace {
     reco::JetTracksAssociationRef r3;
     reco::JetTracksAssociationRefProd rp3;
     reco::JetTracksAssociationRefVector rv3;
+
+    reco::TrackTauImpactParameterAssociationCollection c1;
+    edm::Wrapper<reco::TrackTauImpactParameterAssociationCollection> wc1;
 
     reco::CombinedBTagInfoCollection v4;
     reco::CombinedBTagInfo iv4;

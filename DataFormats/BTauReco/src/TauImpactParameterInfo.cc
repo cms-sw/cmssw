@@ -14,7 +14,7 @@ double reco::TauImpactParameterInfo::discriminator (double ip_min,double ip_max,
 	const TrackRef leadingTrack = isolatedTaus->leadingSignalTrack(0.4,1.);
 
 	if(! leadingTrack.isNull()){
-	  const TrackData* ipData = getTrackData(leadingTrack);
+	  const TauImpactParameterTrackData* ipData = getTrackData(leadingTrack);
 	  Measurement1D ip = ipData->transverseIp;
 	  if(use3D) ip = ipData->ip3D;
 	  if( ip.value() < ip_min ||
@@ -30,9 +30,9 @@ double reco::TauImpactParameterInfo::discriminator() const {
 	return jetTag->discriminator();
 }
 
-const reco::TauImpactParameterInfo::TrackData* TauImpactParameterInfo::getTrackData(reco::TrackRef trackRef) const {
+const reco::TauImpactParameterTrackData* TauImpactParameterInfo::getTrackData(reco::TrackRef trackRef) const {
 
-        reco::TauImpactParameterInfo::TrackDataAssociation::const_iterator iter
+        TrackTauImpactParameterAssociationCollection::const_iterator iter
 //	map<TrackRef,TrackData>::const_iterator iter
 	    = trackDataMap.find(trackRef);
 
@@ -43,7 +43,7 @@ const reco::TauImpactParameterInfo::TrackData* TauImpactParameterInfo::getTrackD
 }
 
 void reco::TauImpactParameterInfo::storeTrackData(reco::TrackRef trackRef,
-                  const reco::TauImpactParameterInfo::TrackData& trackData) {
+                  const reco::TauImpactParameterTrackData& trackData) {
 
 	trackDataMap.insert(trackRef, trackData);
 //	trackDataMap[trackRef] = trackData;
