@@ -2,6 +2,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include "PhysicsTools/Utilities/interface/PtMinSelector.h"
+#include "PhysicsTools/Utilities/interface/MassRangeSelector.h"
+#include "PhysicsTools/Utilities/interface/ChargeSelector.h"
+#include "PhysicsTools/Utilities/interface/AndSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/Merger.h"
@@ -30,9 +33,21 @@ namespace cand {
               >
             > PtMinCandSelector;
 
+    /// configurable single track selector
+    typedef ObjectSelector<
+              SingleElementCollectionSelector<
+                reco::CandidateCollection, 
+                AndSelector<
+                  ChargeSelector<reco::Candidate>,
+                  MassRangeSelector<reco::Candidate>
+                >
+              >
+            > MassRangeAndChargeCandSelector;
+
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( CandSelector );
 DEFINE_ANOTHER_FWK_MODULE( PtMinCandSelector );
+DEFINE_ANOTHER_FWK_MODULE( MassRangeAndChargeCandSelector );
 DEFINE_ANOTHER_FWK_MODULE( CandCombiner );
 DEFINE_ANOTHER_FWK_MODULE( CandReducer );
 DEFINE_ANOTHER_FWK_MODULE( CandMerger );
