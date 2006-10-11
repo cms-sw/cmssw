@@ -11,13 +11,14 @@
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "PhysicsTools/CandAlgos/src/CandReducer.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 
 namespace cand {
   namespace modules {
     /// merge an arbitrary number of candidate collections  
     typedef Merger<reco::CandidateCollection> CandMerger;
 
-    /// configurable single track selector
+    /// configurable candidate selector
     typedef ObjectSelector<
               SingleElementCollectionSelector<
                 reco::CandidateCollection, 
@@ -25,7 +26,7 @@ namespace cand {
               >
             > CandSelector;
 
-    /// configurable single track selector
+    /// pt min candidate selector
     typedef ObjectSelector<
               SingleElementCollectionSelector<
                 reco::CandidateCollection, 
@@ -33,21 +34,23 @@ namespace cand {
               >
             > PtMinCandSelector;
 
-    /// configurable single track selector
-    typedef ObjectSelector<
-              SingleElementCollectionSelector<
-                reco::CandidateCollection, 
+    /// configurable candidate combiner
+    typedef ::CandCombiner<
+              SingleObjectSelector<reco::Candidate> 
+            > CandCombiner;
+
+    /// mass range and charge candidate selector
+    typedef ::CandCombiner<
                 AndSelector<
                   ChargeSelector<reco::Candidate>,
                   MassRangeSelector<reco::Candidate>
-                >
               >
-            > MassRangeAndChargeCandSelector;
+            > MassRangeAndChargeCandCombiner;
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( CandSelector );
 DEFINE_ANOTHER_FWK_MODULE( PtMinCandSelector );
-DEFINE_ANOTHER_FWK_MODULE( MassRangeAndChargeCandSelector );
+DEFINE_ANOTHER_FWK_MODULE( MassRangeAndChargeCandCombiner );
 DEFINE_ANOTHER_FWK_MODULE( CandCombiner );
 DEFINE_ANOTHER_FWK_MODULE( CandReducer );
 DEFINE_ANOTHER_FWK_MODULE( CandMerger );

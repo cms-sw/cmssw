@@ -3,18 +3,21 @@
 using namespace reco;
 using namespace std;
 
-NBodyCombiner::NBodyCombiner( const parser::SelectorPtr & sel, bool ck, const vector<int> & dauCharge ) :
-  checkCharge_( ck ), dauCharge_( dauCharge ), overlap_(), select_( sel ) {
+NBodyCombinerBase::NBodyCombinerBase( bool checkCharge, const vector<int> & dauCharge ) :
+  checkCharge_( checkCharge ), dauCharge_( dauCharge ), overlap_() {
 }
 
-NBodyCombiner::ChargeInfo NBodyCombiner::chargeInfo( int q1, int q2 ) {
+NBodyCombinerBase::~NBodyCombinerBase() {
+}
+
+NBodyCombinerBase::ChargeInfo NBodyCombinerBase::chargeInfo( int q1, int q2 ) {
   if ( q1 == q2 ) return same;
   if ( q1 == - q2 ) return opposite;
   return invalid;
 }
 
 
-bool NBodyCombiner::preselect( const Candidate & c1, const Candidate & c2 ) const {
+bool NBodyCombinerBase::preselect( const Candidate & c1, const Candidate & c2 ) const {
   if ( checkCharge_ ) {
     ChargeInfo ch1 = chargeInfo( c1.charge(), dauCharge_[ 0 ] );
     if ( ch1 == invalid ) return false;
@@ -26,7 +29,7 @@ bool NBodyCombiner::preselect( const Candidate & c1, const Candidate & c2 ) cons
   return true;
 }
 
-Candidate * NBodyCombiner::combine( const Candidate & c1, const Candidate & c2 ) const {
+Candidate * NBodyCombinerBase::combine( const Candidate & c1, const Candidate & c2 ) const {
   CompositeCandidate * cmp( new CompositeCandidate );
   cmp->addDaughter( c1 );
   cmp->addDaughter( c2 );
@@ -35,7 +38,7 @@ Candidate * NBodyCombiner::combine( const Candidate & c1, const Candidate & c2 )
 }
 
 auto_ptr<CandidateCollection> 
-NBodyCombiner::combine( const vector<const CandidateCollection * > & src ) const {
+NBodyCombinerBase::combine( const vector<const CandidateCollection * > & src ) const {
   auto_ptr<CandidateCollection> comps( new CandidateCollection );
   
   if( src.size() == 2 ) {
@@ -49,7 +52,7 @@ NBodyCombiner::combine( const vector<const CandidateCollection * > & src ) const
 	  const Candidate & c2 = cands[ i2 ];
 	  if ( preselect( c1, c2 ) ) {
 	    std::auto_ptr<Candidate> c( combine( c1, c2 ) );
-	    if ( select_( * c ) )
+	    if ( select( * c ) )
 	      comps->push_back( c.release() );
 	  }
 	}
@@ -63,7 +66,7 @@ NBodyCombiner::combine( const vector<const CandidateCollection * > & src ) const
 	  const Candidate & c2 = cands2[ i2 ];
 	  if ( preselect( c1, c2 ) ) {
 	    std::auto_ptr<Candidate> c( combine( c1, c2 ) );
-	    if ( select_( * c ) )
+	    if ( select( * c ) )
 	      comps->push_back( c.release() );
 	  }
 	}
@@ -77,8 +80,7 @@ NBodyCombiner::combine( const vector<const CandidateCollection * > & src ) const
   return comps;
 }
 
-
-void NBodyCombiner::combine( size_t collectionIndex, ChargeInfo chkCharge, CandStack & stack,
+void NBodyCombinerBase::combine( size_t collectionIndex, ChargeInfo chkCharge, CandStack & stack,
 			     vector<const CandidateCollection * >::const_iterator collBegin,
 			     vector<const CandidateCollection * >::const_iterator collEnd,
 			     auto_ptr<CandidateCollection> & comps
@@ -88,7 +90,7 @@ void NBodyCombiner::combine( size_t collectionIndex, ChargeInfo chkCharge, CandS
     for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i )
       cmp->addDaughter( * ( i->first ) );
     addp4_.set( * cmp );
-    if ( select_( * cmp ) )
+    if ( select( * cmp ) )
       comps->push_back( cmp );
   } else {
     const CandidateCollection & src = * * collBegin;
@@ -117,4 +119,6 @@ void NBodyCombiner::combine( size_t collectionIndex, ChargeInfo chkCharge, CandS
     }
   }
 }
+
+
 

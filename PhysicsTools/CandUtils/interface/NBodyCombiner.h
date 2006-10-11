@@ -6,19 +6,22 @@
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include <boost/shared_ptr.hpp>
 #include <vector>
 #include <utility>
 
-class NBodyCombiner {
+class NBodyCombinerBase {
 public:
   /// constructor from a selector, specifying optionally to check for charge
-  NBodyCombiner( const reco::parser::SelectorPtr &, 
-		 bool checkCharge, const std::vector <int> & );
+  NBodyCombinerBase( bool checkCharge, const std::vector <int> & );
+  /// destructor
+  virtual ~NBodyCombinerBase();
   /// return all selected candidate pairs
   std::auto_ptr<reco::CandidateCollection> 
     combine( const std::vector<const reco::CandidateCollection *> & ) const;
-protected:
+
+private:
   /// verify that the two candidate don't overlap and check charge
   bool preselect( const reco::Candidate &, const reco::Candidate & ) const;
   /// returns a composite candidate combined from two daughters
@@ -37,6 +40,8 @@ protected:
 		std::vector<const reco::CandidateCollection * >::const_iterator end,
 		std::auto_ptr<reco::CandidateCollection> & comps
 		) const;
+  /// select a candidate
+  virtual bool select( const reco::Candidate & ) const = 0;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
   /// electric charges of the daughters
@@ -45,8 +50,30 @@ protected:
   AddFourMomenta addp4_;
   /// utility to check candidate daughters overlap
   OverlapChecker overlap_;
+};
+
+template<typename S>
+class NBodyCombiner : public NBodyCombinerBase {
+public:
+  /// constructor from a selector, specifying optionally to check for charge
+  template<typename B>
+  NBodyCombiner( const B & select,
+		 bool checkCharge, const std::vector <int> & dauCharge ) : 
+    NBodyCombinerBase( checkCharge, dauCharge ), 
+    select_( select ) { }
+  /// constructor from a selector, specifying optionally to check for charge
+  NBodyCombiner( const edm::ParameterSet & cfg,
+		 bool checkCharge, const std::vector <int> & dauCharge ) : 
+    NBodyCombinerBase( checkCharge, dauCharge ), 
+    select_( cfg ) { }
+
+private:
+  /// select a candidate
+  virtual bool select( const reco::Candidate & c ) const {
+    return select_( c );
+  } 
   /// candidate selector
-  SingleObjectSelector<reco::Candidate> select_;
+  S select_; 
 };
 
 #endif

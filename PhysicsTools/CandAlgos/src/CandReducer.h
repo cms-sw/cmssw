@@ -13,30 +13,24 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: CandReducer.h,v 1.3 2006/04/04 11:12:48 llista Exp $
+ * $Id: CandReducer.h,v 1.4 2006/04/27 05:50:17 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 
-namespace cand {
-  namespace modules {
-    
-    class CandReducer : public edm::EDProducer {
-    public:
-      /// constructor from parameter set
-      explicit CandReducer( const edm::ParameterSet& );
-      /// destructor
-      ~CandReducer();
-    private:
-      /// process one evevnt
-      void produce( edm::Event& evt, const edm::EventSetup& );
-      /// label of source candidate collection
-      std::string src_;
-    };
-
-  }
-}
+class CandReducer : public edm::EDProducer {
+public:
+  /// constructor from parameter set
+  explicit CandReducer( const edm::ParameterSet& );
+  /// destructor
+  ~CandReducer();
+private:
+  /// process one evevnt
+  void produce( edm::Event& evt, const edm::EventSetup& );
+  /// label of source candidate collection
+  std::string src_;
+};
 
 #endif
