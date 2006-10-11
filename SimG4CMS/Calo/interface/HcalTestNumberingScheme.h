@@ -10,14 +10,18 @@
 class HcalTestNumberingScheme : public HcalNumberingScheme {
 
 public:
-  HcalTestNumberingScheme();
+  HcalTestNumberingScheme(bool forTB);
   virtual ~HcalTestNumberingScheme();
   virtual uint32_t getUnitID(const HcalNumberingFromDDD::HcalID id);
   static uint32_t  packHcalIndex(int det, int z, int depth, int eta, 
 				 int phi, int lay);
   static void      unpackHcalIndex(const uint32_t & idx, int& det, int& z, 
 				   int& depth, int& eta, int& phi, int& lay);
+private:
 
+  HcalTestNumberingScheme();
+
+  bool forTBH2;
 };
 
 #endif

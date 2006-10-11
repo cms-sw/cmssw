@@ -61,7 +61,7 @@ public:
 
 protected:
 
-  void          getStepInfo(G4Step* aStep);
+  G4bool        getStepInfo(G4Step* aStep);
   G4ThreeVector setToLocal(G4ThreeVector, const G4VTouchable*);
   G4bool        hitExists();
   G4bool        checkHit();

@@ -90,9 +90,10 @@ bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   if (aStep == NULL) {
     return true;
   } else {
-    getStepInfo(aStep);
-    if (hitExists() == false && edepositEM+edepositHAD>0.) 
-      createNewHit();
+    if (getStepInfo(aStep)) {
+      if (hitExists() == false && edepositEM+edepositHAD>0.) 
+	createNewHit();
+    }
   }
   return true;
 } 
@@ -139,30 +140,32 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 				   << theTrack->GetTrackID(); 
         primaryID = theTrack->GetTrackID();
       }
-      currentID.setID(unitID, time, primaryID);
-      LogDebug("CaloSim") << "CaloSD:: GetSpotInfo for"
-			  << " Unit 0x" << std::hex << currentID.unitID() 
-			  << std::dec << " Edeposit = " << edepositEM << " " 
-			  << edepositHAD;
-      // Update if in the same detector, time-slice and for same track   
-      if (currentID == previousID) {
-        updateHit();
-      } else {
+      if (unitID > 0) {
+	currentID.setID(unitID, time, primaryID);
+	LogDebug("CaloSim") << "CaloSD:: GetSpotInfo for"
+			    << " Unit 0x" << std::hex << currentID.unitID() 
+			    << std::dec << " Edeposit = " << edepositEM << " " 
+			    << edepositHAD;
+	// Update if in the same detector, time-slice and for same track   
+	if (currentID == previousID) {
+	  updateHit();
+	} else {
         
-        posGlobal = aSpot->GetPosition();
-        // Reset entry point for new primary
-        if (currentID.trackID() != previousID.trackID()) {
-          entrancePoint  = aSpot->GetPosition();
-          entranceLocal  = aSpot->GetTouchableHandle()->GetHistory()->
-            GetTopTransform().TransformPoint(entrancePoint);
-          incidentEnergy = theTrack->GetKineticEnergy();
-          LogDebug("CaloSim") << "CaloSD: Incident energy " 
-			      << incidentEnergy/GeV << " GeV and" 
-			      << " entrance point " << entrancePoint 
-			      << " (Global) " << entranceLocal << " (Local)"; 
-        }
+	  posGlobal = aSpot->GetPosition();
+	  // Reset entry point for new primary
+	  if (currentID.trackID() != previousID.trackID()) {
+	    entrancePoint  = aSpot->GetPosition();
+	    entranceLocal  = aSpot->GetTouchableHandle()->GetHistory()->
+	      GetTopTransform().TransformPoint(entrancePoint);
+	    incidentEnergy = theTrack->GetKineticEnergy();
+	    LogDebug("CaloSim") << "CaloSD: Incident energy " 
+				<< incidentEnergy/GeV << " GeV and" 
+				<< " entrance point " << entrancePoint 
+				<< " (Global) " << entranceLocal << " (Local)";
+	  }
 	
-	if (checkHit() == false) createNewHit();
+	  if (checkHit() == false) createNewHit();
+	}
       }
       
       delete 	fFakeStep;
@@ -189,7 +192,7 @@ void CaloSD::Initialize(G4HCofThisEvent * HCE) {
   HCE->AddHitsCollection(hcID, theHC);
 }
 
-void CaloSD::getStepInfo(G4Step* aStep) {
+bool CaloSD::getStepInfo(G4Step* aStep) {
   
   preStepPoint = aStep->GetPreStepPoint(); 
   theTrack     = aStep->GetTrack();   
@@ -220,16 +223,26 @@ void CaloSD::getStepInfo(G4Step* aStep) {
     primaryID = theTrack->GetTrackID();
   }
 
-  currentID.setID(unitID, time, primaryID);
-
+  bool flag = (unitID > 0);
   G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
-  LogDebug("CaloSim") << "CaloSD:: GetStepInfo for"
-		      << " PV "     << touch->GetVolume(0)->GetName()
-		      << " PVid = " << touch->GetReplicaNumber(0)
-		      << " MVid = " << touch->GetReplicaNumber(1)
-		      << " Unit   " << currentID.unitID() 
-		      << " Edeposit = " << edepositEM << " " << edepositHAD;
-  
+  if (flag) {
+    currentID.setID(unitID, time, primaryID);
+
+    LogDebug("CaloSim") << "CaloSD:: GetStepInfo for"
+			<< " PV "     << touch->GetVolume(0)->GetName()
+			<< " PVid = " << touch->GetReplicaNumber(0)
+			<< " MVid = " << touch->GetReplicaNumber(1)
+			<< " Unit   " << currentID.unitID() 
+			<< " Edeposit = " << edepositEM << " " << edepositHAD;
+  } else {
+    LogDebug("CaloSim") << "CaloSD:: GetStepInfo for"
+			<< " PV "     << touch->GetVolume(0)->GetName()
+			<< " PVid = " << touch->GetReplicaNumber(0)
+			<< " MVid = " << touch->GetReplicaNumber(1)
+			<< " Unit   " << std::hex << unitID << std::dec 
+			<< " Edeposit = " << edepositEM << " " << edepositHAD;
+  }
+  return flag;
 }
 
 G4bool CaloSD::hitExists() {
@@ -433,7 +446,8 @@ void CaloSD::EndOfEvent(G4HCofThisEvent* ) {
 
 void CaloSD::update(const ::EndOfEvent * ) {
   
-  LogDebug("CaloSim") << "CaloSD::update: Start saving hits for " << GetName();
+  LogDebug("CaloSim") << "CaloSD::update: Start saving hits for " << GetName()
+		      << " with " << hitvec.size() << " hits";
   int kount = 0, count = 0, wrong = 0;
   vector<CaloG4Hit*>::iterator i;
 
@@ -492,7 +506,8 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 		      << " changed to " << tkID << " by SimTrackManager" ;
   slave->processHits(aHit->getUnitID(), aHit->getEnergyDeposit()/GeV,
 		     aHit->getTimeSlice(), tkID);
-  LogDebug("CaloSim") << "CaloSD: Store Hit at " << aHit->getUnitID() 
+  LogDebug("CaloSim") << "CaloSD: Store Hit at " << std::hex 
+		      << aHit->getUnitID() << std::dec
 		      << " due to " << tkID << " in time " 
 		      << aHit->getTimeSlice() << " of energy " 
 		      << aHit->getEnergyDeposit()/GeV << " GeV";

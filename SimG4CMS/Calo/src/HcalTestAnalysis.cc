@@ -159,7 +159,7 @@ void HcalTestAnalysis::update(const BeginOfJob * job) {
   tuplesManager.reset(new HcalTestHistoManager(fileName));
 
   // Numbering scheme
-  org    = new HcalTestNumberingScheme();
+  org    = new HcalTestNumberingScheme(false);
 
 }
 

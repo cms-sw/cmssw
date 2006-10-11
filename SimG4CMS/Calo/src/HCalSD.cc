@@ -35,6 +35,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   useShowerLibrary = m_HC.getParameter<bool>("UseShowerLibrary");
   useHF      = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
+  bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
 
   LogDebug("HcalSim") << "***************************************************" 
 		      << "\n"
@@ -54,8 +55,10 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
   HcalNumberingScheme* scheme;
-  if (testNumber) scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme);
-  else            scheme = new HcalNumberingScheme;
+  if (testNumber || forTBH2) 
+    scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(forTBH2));
+  else            
+    scheme = new HcalNumberingScheme();
   setNumberingScheme(scheme);
 
   std::string attribute, value;
@@ -83,10 +86,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     DDValue           ddv1(attribute,value,0);
     filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
     DDFilteredView fv1(cpv);
-    if (fv1.firstChild()) {
-      fv1.addFilter(filter1);
-      fibreNames = getNames(fv1);
-    }
+    fv1.addFilter(filter1);
+    fibreNames = getNames(fv1);
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
 			    << " = " << value << ":";
     for (unsigned int i=0; i<fibreNames.size(); i++)

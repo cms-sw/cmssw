@@ -3,11 +3,15 @@
 // Description: Numbering scheme for barrel electromagnetic calorimeter
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include <iostream>
 
-HcalTestNumberingScheme::HcalTestNumberingScheme() : HcalNumberingScheme() {
-  edm::LogInfo("HcalSim") << "Creating HcalTestNumberingScheme";
+HcalTestNumberingScheme::HcalTestNumberingScheme(bool forTB) : 
+  HcalNumberingScheme(), forTBH2(forTB) {
+  edm::LogInfo("HcalSim") << "Creating HcalTestNumberingScheme with TB Flag "
+			  << forTBH2;
 }
 
 HcalTestNumberingScheme::~HcalTestNumberingScheme() {
@@ -18,8 +22,23 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID
 					    id) {
 
   //pack it into an integer
-  uint32_t index = packHcalIndex(id.subdet, id.zside, id.depth, id.etaR,
-				 id.phi, id.lay);
+  uint32_t index = 0;
+  if (forTBH2) {
+    // TB H2 Case
+    int etaR  = id.etaR;
+    int phi   = id.phis;
+    HcalSubdetector subdet =  (HcalSubdetector)(id.subdet);
+    if (phi > 4) { // HB2 
+      if (etaR > 4 && etaR < 10)
+	index = HcalDetId(subdet,id.lay,id.phis,1).rawId();
+    } else { // HB1
+      index = HcalDetId(subdet,etaR,id.phis,id.depth).rawId();
+    }
+  } else {
+    // Test case
+    index = packHcalIndex(id.subdet, id.zside, id.depth, id.etaR,
+			  id.phi, id.lay);
+  }
 
   LogDebug("HcalSim") << "HcalTestNumberingScheme det = " << id.subdet 
 		      << " depth/lay = " << id.depth << "/" << id.lay 
