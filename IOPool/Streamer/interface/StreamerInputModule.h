@@ -92,7 +92,7 @@ std::auto_ptr<edm::EventPrincipal> StreamerInputModule<Producer>::read()
         //Get header/init from Producer
         const InitMsgView* header = pr_->getHeader();
         std::auto_ptr<edm::SendJobHeader> p = StreamTranslator::deserializeRegistry(*header);
-        if ( registryIsSubset(*p, productRegistry()) ) {
+        if (!registryIsSubset(*p, productRegistry()) ) {
             std::cout << "\n\nUn matching Init Message Headers found.\n";
             throw cms::Exception("read","StreamerInputModule")
                  << "Un matching Headers found.\n";
