@@ -26,7 +26,8 @@ float L1RCTLookupTables::convertEcal(unsigned short ecal){
 }
 
 float L1RCTLookupTables::convertHcal(unsigned short hcal){
-  return (float)hcal*0.5;
+  // return (float)hcal*0.5;
+  return (float) hcal*1.0;  // LSB for HCAL is now 1.0!
 }
 
 unsigned short L1RCTLookupTables::calcActivityBit(float ecal, float hcal){
