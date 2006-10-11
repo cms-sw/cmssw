@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/23 17:03:02 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/10/04 16:02:42 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -90,7 +90,7 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int n(0);
    const unsigned int n1(coll1->size());
    const unsigned int n2(coll2->size());
-   ParticleKinematics p1,p2,p;
+   HLTParticle p1,p2,p;
    for (unsigned int i1=0; i1!=n1; i1++) {
      p1=coll1->getParticle(i1);
      r1=coll1->getParticleRef(i1);
@@ -104,8 +104,8 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if (Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
 
        double Deta(abs(p1.eta()-p2.eta()));
-       p=ParticleKinematics(math::XYZTLorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
 
+       p.setP4(Particle::LorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
        double Minv(abs(p.mass()));
 
        if ( ( (!cutdphi_) || (min_Dphi_ <= Dphi) && (Dphi <= max_Dphi_) ) &&
