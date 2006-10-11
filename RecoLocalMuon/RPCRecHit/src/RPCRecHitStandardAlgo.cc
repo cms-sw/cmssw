@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/18 16:28:31 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/07 14:10:22 $
+ *  $Revision: 1.2 $
  *  \author M. Maggi -- INFN
  */
 
@@ -40,10 +40,14 @@ bool RPCRecHitStandardAlgo::compute(const RPCRoll& roll,
 				    LocalError& error)  const
 {
   // Get Average Strip position
-  float centreOfCluster = cluster.firstStrip()+cluster.clusterSize()/2.;
-  Point = roll.centreOfStrip(centreOfCluster);
+  float fstrip = (roll.centreOfStrip(cluster.firstStrip())).x();
+  float lstrip = (roll.centreOfStrip(cluster.lastStrip())).x();
+  float centreOfCluster = (fstrip + lstrip)/2;
+
+  LocalPoint loctemp2(centreOfCluster,0.,0.);
+ 
+  Point = loctemp2;
   error = roll.localError(centreOfCluster);
-  //*cluster.clusterSize()*cluster.clusterSize();
   return true;
 }
 

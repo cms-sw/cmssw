@@ -30,7 +30,7 @@ RPCClusterizer::doActualAction(RPCClusterContainer& initialclusters){
   RPCClusterContainer finalCluster;
   RPCCluster prev;
 
-  unsigned int j = 0;
+  int j = 0;
   for(RPCClusterContainer::const_iterator i=initialclusters.begin();
       i != initialclusters.end(); i++){
     RPCCluster cl = *i;
@@ -54,9 +54,15 @@ RPCClusterizer::doActualAction(RPCClusterContainer& initialclusters){
       }
     }
     else {
-      finalCluster.insert(prev);
-      prev = cl;
       j++;
+      if(j < initialclusters.size()){
+	finalCluster.insert(prev);
+	prev = cl;
+      }
+      if(j == initialclusters.size()){
+	finalCluster.insert(prev);
+	finalCluster.insert(cl);
+      }
     }
   }
 
