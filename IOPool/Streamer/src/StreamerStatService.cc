@@ -1,7 +1,10 @@
+// $Id:$
 #include "IOPool/Streamer/interface/StreamerStatService.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <sstream>
+
+using namespace std;
 
 namespace edm
 {
@@ -127,17 +130,11 @@ void StreamerStatWriteService::setRunNumber(uint32 run)
 	       << summary_.endDate_     << ind 
 	       << summary_.endTime_     << endl;
    std::string currentStatString (currentStat.str());
-   // ofstream *statFile = new ofstream(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
    
-   // if(!statFile->is_open()) 
-   // {
-   // throw cms::Exception("StreamerStatWriteService","StreamerStatWriteService")
-   // << "Error Opening Output File: "<<statFileName_<<"\n";
-   //}
-   
-   //statFile->write((char*)&currentStatString[0], currentStatString.length());
-   //statFile->close();
-   //delete(statFile);
+   ofstream *statFile = new ofstream(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+   statFile->write((char*)&currentStatString[0], currentStatString.length());
+   statFile->close();
+   delete(statFile);
    
  }
 } //end-of-namespace

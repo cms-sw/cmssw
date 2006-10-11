@@ -1,13 +1,13 @@
 #ifndef StreamerStatService_h
 #define StreamerStatService_h
 
+// $Id:$
+
 #include<iostream>
 #include<ctime>
 #include<string>
 #include<vector>
 #include<fstream>
-
-using namespace std;
 
 namespace {
 std::string itoa(int i){
@@ -64,7 +64,7 @@ typedef unsigned int  uint32;
     private:
      StatSummary currentRecord_;
      std::string statFileName_; 
-     auto_ptr<ifstream> statFile_;
+     std::auto_ptr<std::ifstream> statFile_;
 
   };//end of class   
 
