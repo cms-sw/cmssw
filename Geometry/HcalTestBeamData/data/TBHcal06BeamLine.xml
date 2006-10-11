@@ -58,7 +58,7 @@
  <Constant name="downstreamDxby2" value="50.0*cm"/>
  <Constant name="downstreamDyby2" value="50.0*cm"/>
  <Constant name="downstreamDzby2" value="100.0*cm"/>
- <Constant name="downstreamZ"   value="1000.0*cm"/>
+ <Constant name="downstreamZ"   value="11.0*m"/>
  <Constant name="mcDxby2"       value="40.0*cm"/>
  <Constant name="mcDzby2"       value="5.0*mm"/>
  <Constant name="mc1Z"          value="10.15*m"/>

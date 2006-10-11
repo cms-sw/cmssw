@@ -227,7 +227,21 @@
    <Parameter name="HFShift"  value="0"/>
    <Parameter name="HFShift"  value="0"/>
    <Parameter name="HFShift"  value="0"/>
-   </SpecPar>  
+ </SpecPar>  
+ <SpecPar name="hcalbeam">
+   <PartSelector path="//HcalTestBeamLineS.*" />
+   <PartSelector path="//HcalTestBeamLineTOFCounter" />
+   <PartSelector path="//HcalTestBeamLineHaloCounter" />
+   <PartSelector path="//HcalTestBeamLineMuonCounter" />
+   <PartSelector path="//HcalTestBeamLineCK3" />
+   <PartSelector path="//HcalTestBeamLineWChambGas" />
+   <Parameter name="SensitiveDetector" value="HcalTB06BeamDetector" eval="false"/>
+   <Parameter name="ReadOutName" value="HcalTB06BeamHits" eval="false"/>
+ </SpecPar>  
+ <SpecPar name="hcalbeamWC">
+   <PartSelector path="//HcalTestBeamLineWChambGas" />
+   <Parameter name="Volume" value="WireChamber" eval="false"/>
+  </SpecPar>  
 </SpecParSection>
 
 </DDDefinition>
