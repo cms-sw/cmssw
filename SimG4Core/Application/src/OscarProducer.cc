@@ -51,7 +51,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PCaloHitContainer>("CastorFI");
     produces<edm::PCaloHitContainer>("CastorBU");
     produces<edm::PCaloHitContainer>("CastorTU");
-    
+    produces<edm::PCaloHitContainer>("HcalTB06BeamHits");
     produces<edm::PCaloHitContainer>("ZDCHITS"); 
     
     m_runManager = RunManager::init(p);

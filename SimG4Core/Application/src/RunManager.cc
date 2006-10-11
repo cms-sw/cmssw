@@ -190,6 +190,8 @@ void RunManager::initG4(const edm::EventSetup & es)
     
 
     m_generator = new Generator(m_pGenerator);
+    // m_InTag = m_pGenerator.getParameter<edm::InputTag>("HepMCProductLabel") ;
+    m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
     m_primaryTransformer = new PrimaryTransformer();
     
     std::auto_ptr<PhysicsListMakerBase> physicsMaker( 
@@ -267,12 +269,15 @@ G4Event * RunManager::generateEvent(edm::Event & inpevt)
     m_simEvent = 0;
     G4Event * e = new G4Event(inpevt.id().event());
    
-    std::vector< edm::Handle<edm::HepMCProduct> > AllHepMCEvt;
+       // std::vector< edm::Handle<edm::HepMCProduct> > AllHepMCEvt;
     edm::Handle<edm::HepMCProduct> HepMCEvt;
 
        // inpevt.getByType(HepMCEvt);       
-    inpevt.getManyByType(AllHepMCEvt);
+       // inpevt.getManyByType(AllHepMCEvt);
+    inpevt.getByLabel( m_InTag, HepMCEvt ) ;
+    //std::cout << "Found MCProduct labeled " << HepMCEvt.provenance()->moduleLabel() << std::endl;
         
+/*
     if ( AllHepMCEvt.size() <= 0 )
     {
        throw SimG4Exception("Container of (Handles to) HepMCProduct's is EMPTY !  ");
@@ -296,7 +301,9 @@ G4Event * RunManager::generateEvent(edm::Event & inpevt)
     {
        HepMCEvt = AllHepMCEvt[0];
     }
-              
+*/
+    // actually, it's a double protection - it's not even necessary 
+    // because getByLabel will throw if the correct product isn't there         
     if (!HepMCEvt.isValid())
     {
        throw SimG4Exception("Unable to find HepMCProduct(HepMC::GenEvent) in edm::Event  ");
@@ -330,7 +337,7 @@ void RunManager::abortEvent()
     // do NOT call this method for now
     // because it'll set abortRequested=true (withing G4EventManager)
     // this will make Geant4, in the event *next* after the aborted one
-    //  NOT to get and thus NOT to trace the primaries but to go stright
+    // NOT to get the primamry, thus there's NOTHING to trace, and it goes
     // to the end of G4Event::DoProcessing(G4Event*), where abortRequested
     // will be reset to true again
     //    
