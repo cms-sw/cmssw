@@ -1,3 +1,4 @@
+<use name=root>
 <use name=FWCore/Framework>
 <use name=Geometry/Records>
 <use name=DataFormats/TrackingRecHit>
@@ -9,6 +10,7 @@
 <flags SEAL_PLUGIN_NAME="RecoLocalMuonRPCRecHit">
 
 <export>
+<use name=root>
  <lib name=RecoLocalMuonRPCRecHit>
  <use name=FWCore/Framework>
  <use name=Geometry/Records>
