@@ -21,7 +21,7 @@
 </ConstantsSection>
 
 <SolidSection label="TBHcal.xml">
- <Box name="TBHCal"   dx="4.5*m"   dy="3*m"   dz="7*m"/>
+ <Box name="TBHCal"   dx="12.0*m"   dy="12*m"   dz="12*m"/>
  <Polycone name="Calo" startPhi="-45*deg" deltaPhi="90*deg" >
   <ZSection z="[Zmin]"          rMin="[CalorBeamR1]"  rMax="[CalorMuonR]" />
   <ZSection z="[CalorBeamZ1]"   rMin="[CalorBeamR1]"  rMax="[CalorMuonR]" />

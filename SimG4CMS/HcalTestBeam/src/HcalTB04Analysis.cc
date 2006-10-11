@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTB04Analysis.cc,v 1.3 2006/06/04 13:59:38 sunanda Exp $
 //
   
 // system include files
@@ -61,7 +61,7 @@ HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet &p): myQie(0),
   scaleHO        = m_Anal.getParameter<double>("ScaleHO");
   scaleHE0       = m_Anal.getParameter<double>("ScaleHE0");
   names          = m_Anal.getParameter<std::vector<std::string> >("Names");
-  beamOffset     =-m_Anal.getUntrackedParameter<double>("BeamPosition",0.0)*mm;
+  beamOffset     =-m_Anal.getUntrackedParameter<double>("BeamPosition",0.0)*cm;
   double fMinEta = m_Anal.getUntrackedParameter<double>("MinEta",-5.5);
   double fMaxEta = m_Anal.getUntrackedParameter<double>("MaxEta",5.5);
   double fMinPhi = m_Anal.getUntrackedParameter<double>("MinPhi",-3.14159265358979323846);
@@ -201,7 +201,7 @@ void HcalTB04Analysis::update(const BeginOfRun * run) {
       edm::LogInfo("HcalTBSim") << "HcalTB04Analysis::beginOfRun: Finds SD "
 				<< "with name " << theCaloSD->GetName() 
 				<< " in this Setup";
-      HcalNumberingScheme* org = new HcalTestNumberingScheme();
+      HcalNumberingScheme* org = new HcalTestNumberingScheme(false);
       theCaloSD->setNumberingScheme(org);
       edm::LogInfo("HcalTBSim") << "HcalTB04Analysis::beginOfRun: set a "
 				<< "new numbering scheme";
