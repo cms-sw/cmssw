@@ -7,8 +7,6 @@
 // Description: Module to test the Alignment software
 //
 //
-
-
 // system include files
 #include <string>
 #include <TTree.h>
@@ -47,17 +45,20 @@
 //
 
 class TestAlign : public edm::EDAnalyzer {
+
 public:
+
   explicit TestAlign( const edm::ParameterSet& );
+
   ~TestAlign();
-  
-  
+
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
+
+
 private:
 
   typedef Surface::RotationType    RotationType;
   typedef Surface::PositionType    PositionType;
-
 
 };
 
@@ -80,19 +81,12 @@ void
 TestAlign::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
-
   // Instantiate the helper class
   MuonAlignment align( iSetup );
-
-  // Retrieve ideal geometry from event setup
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  iSetup.get<MuonGeometryRecord>().get( dtGeometry );
-  iSetup.get<MuonGeometryRecord>().get( cscGeometry );
-
-  // Create the Alignable Muon hierarchy
-  AlignableMuon* theAlignableMuon = new AlignableMuon( &(*dtGeometry), &(*cscGeometry) );
-
+  
+  // Get the AlignableMuon pointer
+  AlignableMuon* theAlignableMuon = align.getAlignableMuon();
+  
   // Apply  alignment
   std::vector<float> displacement;
   displacement.push_back(1.0);
@@ -112,6 +106,7 @@ TestAlign::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
           // Print inital position/orientation
     	  GlobalPoint  pos_i  = (*iter)->globalPosition();
           RotationType dir_i  = (*iter)->globalRotation();          
+
 	  std::cout << "Initial pos: x=" << pos_i.x() << ",  y=" << pos_i.y() << ",  z=" << pos_i.z() << std::endl; 
 	  std::cout << "Initial ori: x=" << dir_i.xx() << ",  y=" << dir_i.yy() << ",  z=" << dir_i.zz() << std::endl; 
 
@@ -122,6 +117,7 @@ TestAlign::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
           // Print final position/orientation
           GlobalPoint  pos_f  = (*iter)->globalPosition();
           RotationType dir_f = (*iter)->globalRotation();
+
           std::cout << "Final pos: x=" << pos_f.x() << ",  y=" << pos_f.y() << ",  z=" << pos_f.z()  << std::endl ;
 	  std::cout << "Final ori: x=" << dir_f.xx() << ",  y=" << dir_f.yy() << ",  z=" << dir_f.zz() << std::endl; 
 	  std::cout << "------------------------" << std::endl;

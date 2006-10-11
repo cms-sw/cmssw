@@ -1,9 +1,3 @@
-//
-//
-//
-//
-//
-
 // system include files
 #include <memory>
 
@@ -30,7 +24,7 @@
 
 //____________________________________________________________________________________
 //
-MuonAlignment::MuonAlignment(const edm::EventSetup& setup ){
+MuonAlignment::MuonAlignment(const edm::EventSetup& setup  ){
 
   // 1. Retrieve geometry from Event setup and create alignable muon
   edm::ESHandle<DTGeometry> dtGeometry;
@@ -40,7 +34,7 @@ MuonAlignment::MuonAlignment(const edm::EventSetup& setup ){
   setup.get<MuonGeometryRecord>().get( cscGeometry );
 
   theAlignableMuon = new AlignableMuon( &(*dtGeometry) , &(*cscGeometry) );
- 
+  
 }
 
 
@@ -50,6 +44,7 @@ void MuonAlignment::moveDTChamber( int rawid , std::vector<float> local_displace
 
   // Displace and rotate DT chambers
   std::vector<Alignable*> theDTAlignables = theAlignableMuon->DTChambers();
+
   for ( std::vector<Alignable*>::iterator iter = theDTAlignables.begin();
         iter != theDTAlignables.end(); iter++ ){ 
 
@@ -58,14 +53,14 @@ void MuonAlignment::moveDTChamber( int rawid , std::vector<float> local_displace
 
     // Select the given chamber
     if ( id == rawid ){
-          
+
       // Convert local to global diplacements
       LocalVector lvector( local_displacements.at(0), local_displacements.at(1), local_displacements.at(2)); 
       GlobalVector gvector = ((*iter)->surface()).toGlobal( lvector );
 
       // global displacement of the chamber
       (*iter)->move( gvector );
-      
+
       // local rotation of the chamber
       (*iter)->rotateAroundLocalX( local_rotations.at(0) ); // Local X axis rotation
       (*iter)->rotateAroundLocalY( local_rotations.at(1) ); // Local Y axis rotation
