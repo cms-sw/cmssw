@@ -1,10 +1,8 @@
 <use name=boost>
-
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
 <use name=FWCore/Utilities>
-
+<use name=Foundation/PluginManager>
 <use name=DataFormats/L1GlobalCaloTrigger>
 <use name=L1Trigger/L1Scales>
 
@@ -12,8 +10,10 @@
 
 <export>
   <lib name=L1TriggerGlobalCaloTrigger>
+  <use name=boost>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
+  <use name=FWCore/Utilities>
   <use name=Foundation/PluginManager>
   <use name=DataFormats/L1GlobalCaloTrigger>
   <use name=L1Trigger/L1Scales>

@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 // Trigger includes
 #include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
 #include "L1Trigger/L1Scales/interface/L1JetEtScaleRcd.h"
@@ -82,6 +84,11 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   // tell the jet Et LUT about the scale
   if (jetScale.product() != 0) {
     m_gct->getJetEtCalibLut()->setOutputEtScale(jetScale.product());
+  }
+  else {
+    throw cms::Exception("L1GctConfigError")
+      << "Failed to find a L1JetEtScaleRcd:L1CaloEtScale in EventSetup!" << endl
+      << "Cannot continue without the scale" << endl;
   }
 
   // get the RCT data

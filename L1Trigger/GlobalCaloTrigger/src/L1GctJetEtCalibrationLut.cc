@@ -55,7 +55,6 @@ L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut(string fileName)
 
 void L1GctJetEtCalibrationLut::setOutputEtScale(const L1CaloEtScale* scale) {
   m_outputEtScale = scale;
-  
   cout << m_outputEtScale;
 }
 

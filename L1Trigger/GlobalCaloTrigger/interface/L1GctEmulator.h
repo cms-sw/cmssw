@@ -11,7 +11,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 15:04:56 CEST 2006
-// $Id: L1GctEmulator.h,v 1.4 2006/06/09 12:39:33 jbrooke Exp $
+// $Id: L1GctEmulator.h,v 1.5 2006/10/10 23:50:26 jbrooke Exp $
 //
 //
 
@@ -23,6 +23,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 // GCT includes
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
