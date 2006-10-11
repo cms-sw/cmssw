@@ -3,4 +3,10 @@
   <class name="std::vector<int>"/>
   <class name="std::vector<float>"/>
   <class name="edm::Wrapper<PHcalTB04Info>"/>
+  <class name="PHcalTB06Info"/>
+  <class name="PHcalTB06Info::Vtx"/>
+  <class name="PHcalTB06Info::Hit"/>
+  <class name="std::vector<PHcalTB06Info::Vtx>"/>
+  <class name="std::vector<PHcalTB06Info::Hit>"/>
+  <class name="edm::Wrapper<PHcalTB06Info>"/>
 </lcgdict>
