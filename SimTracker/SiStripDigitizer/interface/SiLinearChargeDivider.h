@@ -37,6 +37,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
   void fluctuateEloss(int particleId, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[]);   
   bool peakMode;
   bool fluctuateCharge;
+  double timeResPeak, timeResDeco;
   int  chargedivisionsPerStrip;
   double deltaCut ;
   double cosmicShift;

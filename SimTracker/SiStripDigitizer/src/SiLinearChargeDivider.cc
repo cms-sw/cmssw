@@ -4,27 +4,26 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf):conf_(conf){
-  // Run APV in peak instead of deconvolution mode, which degrades the 
-  // time resolution.
-  //SimpleConfigurable<bool> SiLinearChargeDivider::peakMode(false,"SiStripDigitizer:APVpeakmode");
+  // Run APV in peak instead of deconvolution mode, which degrades the time resolution.
   peakMode=conf_.getParameter<bool>("APVpeakmode");
   
+  // APV time resolution
+  timeResPeak=conf_.getParameter<double>("SigmaShapePeak");
+  timeResDeco=conf_.getParameter<double>("SigmaShapeDeco");
+
   // Enable interstrip Landau fluctuations within a cluster.
-  //SimpleConfigurable<bool> SiLinearChargeDivider::fluctuateCharge(true,"SiStripDigitizer:LandauFluctuations");
   fluctuateCharge=conf_.getParameter<bool>("LandauFluctuations");
   
   // Number of segments per strip into which charge is divided during
   // simulation. If large, precision of simulation improves.
-  //SimpleConfigurable<int> SiLinearChargeDivider::chargeDivisionsPerStrip(10,"SiStripDigitizer:chargeDivisionsPerStrip");
   chargedivisionsPerStrip=conf_.getParameter<int>("chargeDivisionsPerStrip");
  
   // delta cutoff in MeV, has to be same as in OSCAR (0.120425 MeV corresponding // to 100um range for electrons)
-  //SimpleConfigurable<double>  SiLinearChargeDivider::deltaCut(0.120425,
   deltaCut=conf_.getParameter<double>("DeltaProductionCut");
 
   //Offset for digitization during the MTCC and in general for taking cosmic particle
   //The value to be used it must be evaluated and depend on the volume defnition used
-  //for the cosimc generation (Considering only teh tracker the value is 11 ns)
+  //for the cosimc generation (Considering only the tracker the value is 11 ns)
   cosmicShift=conf_.getUntrackedParameter<double>("CosmicDelayShift");
 }
 
@@ -94,7 +93,7 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
   float sum=0.;
   double segmentEloss = (1000.*eloss)/NumberOfSegs; //eloss in MeV
   for (int i=0;i<NumberOfSegs;i++) {
-    // The G4 routine needs momentum in MeV, mass in Mev, delta-cut in MeV,
+    // The G4 routine needs momentum in MeV, mass in MeV, delta-cut in MeV,
     // track segment length in mm, segment eloss in MeV 
     // Returns fluctuated eloss in MeV
     // the cutoff is sometimes redefined inside, so fix it.
@@ -129,7 +128,7 @@ float SiLinearChargeDivider::TimeResponse( const PSimHit& hit, const StripGeomDe
 float SiLinearChargeDivider::PeakShape(const PSimHit& hit, const StripGeomDetUnit& det){
   float dist = det.surface().toGlobal(hit.localPosition()).mag();
   float t0 = dist/30.;  // light velocity = 30 cm/ns
-  float SigmaShape = 52.17; // From fit made by I.Tomalin to APV25 data presented by M.Raymond at LEB2000 conference.
+  float SigmaShape = timeResPeak; // 52.17 ns from fit made by I.Tomalin to APV25 data presented by M.Raymond at LEB2000 conference.
   float tofNorm = (hit.tof() - cosmicShift - t0)/SigmaShape;
   // Time when read out relative to time hit produced.
   float readTimeNorm = -tofNorm;
@@ -144,7 +143,7 @@ float SiLinearChargeDivider::PeakShape(const PSimHit& hit, const StripGeomDetUni
 float SiLinearChargeDivider::DeconvolutionShape(const PSimHit& hit, const StripGeomDetUnit& det){
   float dist = det.surface().toGlobal(hit.localPosition()).mag();
   float t0 = dist/30.;  // light velocity = 30 cm/ns
-  float SigmaShape = 12.06; // From fit made by I.Tomalin to APV25 data presented by M.Raymond at LEB2000 conference.
+  float SigmaShape = timeResDeco; // 12.06 ns from fit made by I.Tomalin to APV25 data presented by M.Raymond at LEB2000 conference.
   float tofNorm = (hit.tof() - t0)/SigmaShape;
   // Time when read out relative to time hit produced.
   float readTimeNorm = -tofNorm;
