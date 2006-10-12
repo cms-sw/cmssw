@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 15:48:48 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/08/14 16:29:12 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -71,6 +71,17 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		    << typeid(*candidate).name() << " "
 		    << particle.eta() << " " << particle.phi() ;
      }
+
+     //
+     // using HLTFilterObjectsWithRefs like a ConcreteCollection:
+     //
+     HLTFilterObjectWithRefs::const_iterator a(ref->begin());
+     HLTFilterObjectWithRefs::const_iterator o(ref->end());
+     HLTFilterObjectWithRefs::const_iterator i;
+     for (i=a; i!=o; i++) {
+       LogTrace("") << "Dist " << i-a << " " << typeid(*i).name() << " " << i->energy();
+     }
+     //
    } else {
      LogDebug("") << "Filterobject " + inputTag_.encode() + " not found!";
    }

@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/08/22 20:15:13 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/10/11 10:49:15 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -127,6 +127,61 @@ namespace reco
     const edm::ProductID& getPID(const unsigned int i) const {
       return pids_.at(i);
     }
+
+    //
+    // const_iterator class allowing to access an object of type
+    // HLTFilterObjectWithRefs like a ConcreteCollection
+    //
+    // the code is adapted from class const_iterator of
+    // DataFormats/Common/interface/OwnVector.h
+    //
+
+    class const_iterator {
+
+    public:
+      typedef std::vector<edm::RefToBase<Candidate> > base;
+      typedef base::size_type size_type;
+      typedef       Candidate   value_type;
+      typedef       Candidate * pointer;
+      typedef       Candidate & reference;
+      typedef const Candidate & const_reference;
+      typedef       ptrdiff_t   difference_type;
+      typedef base::const_iterator::iterator_category iterator_category;
+
+      const_iterator( const base::const_iterator & it ) : i( it ) { }
+      const_iterator( const       const_iterator & it ) : i( it.i ) { }
+      const_iterator() {}
+
+      const_iterator & operator=( const const_iterator & it ) { i = it.i; return *this; }
+
+      const_iterator & operator++() { ++i; return *this; }
+      const_iterator   operator++( int ) { const_iterator ci = *this; ++i; return ci; }
+      const_iterator & operator--() { --i; return *this; }
+      const_iterator   operator--( int ) { const_iterator ci = *this; --i; return ci; }
+
+      difference_type  operator-( const const_iterator & o ) const { return i - o.i; }
+      const_iterator   operator+( difference_type n ) const { return const_iterator( i + n ); }
+      const_iterator   operator-( difference_type n ) const { return const_iterator( i - n ); }
+
+      bool operator< ( const const_iterator & o ) const { return i <  o.i; }
+      bool operator<=( const const_iterator & o ) const { return i <= o.i; }
+      bool operator> ( const const_iterator & o ) const { return i >  o.i; }
+      bool operator>=( const const_iterator & o ) const { return i >= o.i; }
+      bool operator==( const const_iterator& ci ) const { return i == ci.i; }
+      bool operator!=( const const_iterator& ci ) const { return i != ci.i; }
+
+      const Candidate & operator* () const { return * * i;}
+      const Candidate * operator->() const { return & ( operator*() );}
+
+      const_iterator & operator +=( difference_type d ) { i += d; return *this; }
+      const_iterator & operator -=( difference_type d ) { i -= d; return *this; }
+
+    private:
+      base::const_iterator i;
+    };
+
+    const_iterator begin() const { return const_iterator(refs_.begin());}
+    const_iterator end()   const { return const_iterator(refs_.end()  );}
  
   };
 }
