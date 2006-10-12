@@ -5,16 +5,6 @@
 
 #include <iostream>
 
-HcalTrigTowerGeometry::HcalTrigTowerGeometry() {
-  useShortFibers_=true;
-  useHFQuadPhiRings_=true;
-}
-
-void HcalTrigTowerGeometry::setupHF(bool useShortFibers, bool useQuadRings) {
-  useShortFibers_=useShortFibers;
-  useHFQuadPhiRings_=useQuadRings;
-}
-
 std::vector<HcalTrigTowerDetId> 
 HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
 
@@ -22,7 +12,7 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
 
   if(cellId.subdet() == HcalForward) {
     // short fibers don't count
-    if(cellId.depth() == 1 || useShortFibers_) {
+    if(cellId.depth() == 1) {
       // first do eta
       int hfRing = cellId.ietaAbs();
       int ieta = firstHFTower(); 
@@ -34,11 +24,13 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       ieta *= cellId.zside();
 
       // now for phi
-      // HF towers are quad, 18 in phi.
-      // go two cells per trigger tower.
-      int iphi = (((cellId.iphi()+1)/4) * 4 + 1)%72; // 71+1 --> 1, 3+5 --> 5
-      if (useHFQuadPhiRings_ || cellId.ietaAbs() < theTopology.firstHFQuadPhiRing())
-        results.push_back( HcalTrigTowerDetId(ieta, iphi) );
+      // HF towers are quad, 18 in phi.  If we're only in double-phi regions of HF,
+      // go two cells per trigger tower
+      int iphi = cellId.iphi();
+      if(cellId.ietaAbs() < theTopology.firstHFQuadPhiRing()) { 
+        iphi = (iphi-1)/2 + 1;
+      }
+      results.push_back( HcalTrigTowerDetId(ieta, iphi) );
     }
       
   } else {
@@ -47,11 +39,10 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       results.push_back( HcalTrigTowerDetId(cellId.ieta(), cellId.iphi()) );
     } else {
       // the remaining rings are two-to-one in phi
-      int iphi1 = cellId.iphi();
+      int iphi1 = (cellId.iphi()-1)*2 + 1;
       int ieta = cellId.ieta();
       // the last eta ring in HE is split.  Recombine.
       if(ieta == theTopology.lastHERing()) --ieta;
-      if(ieta == -theTopology.lastHERing()) ++ieta;
 
       results.push_back( HcalTrigTowerDetId(ieta, iphi1) );
       results.push_back( HcalTrigTowerDetId(ieta, iphi1+1) );

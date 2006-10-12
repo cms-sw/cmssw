@@ -1,11 +1,27 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/PixelLayerTriplets.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+PixelLayerTriplets::PixelLayerTriplets()
+  : lh1(0), lh2(0), lh3(0), pos1(0), pos2(0), neg1(0), neg2(0)
+{ }
+
+PixelLayerTriplets::~PixelLayerTriplets()
+{
+  delete lh1;
+  delete lh2;
+  delete lh3;
+  delete pos1;
+  delete pos2;
+  delete neg1;
+  delete neg2;
+}
+
 vector<PixelLayerTriplets::LayerPairAndLayers> PixelLayerTriplets::layers()
 {
   
   typedef vector<const LayerWithHits* > ThirdLayer;
   vector<LayerPairAndLayers> result;
+  //const LayerWithHits *neg1 = pneg1->at();
 
   {
     ThirdLayer thirds;
@@ -29,8 +45,6 @@ vector<PixelLayerTriplets::LayerPairAndLayers> PixelLayerTriplets::layers()
     thirds.push_back(neg2); 
     result.push_back( LayerPairAndLayers(base,thirds));
   }
-
-
 
   return result;
 }
@@ -77,6 +91,8 @@ void PixelLayerTriplets::init(const SiPixelRecHitCollection &coll,const edm::Eve
   pos1=new  LayerWithHits(fpos1,map_diskpos1);
   pos2=new  LayerWithHits(fpos2,map_diskpos2);
   neg1=new  LayerWithHits(fneg1,map_diskneg1);
+  //pneg1 = std::auto_ptr<LayerWithHits>(new  LayerWithHits(fneg1,map_diskneg1));
+  
   neg2=new  LayerWithHits(fneg2,map_diskneg2);
 
 

@@ -64,8 +64,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
     
   //---- Stop track when a process occurs
   theProcessToStop = m_Anal.getParameter<std::string>("StopAfterProcess");
-  std::cout << "TestGeometry: stop at process " << theProcessToStop << std::endl;
-
+  
   //---- Save histos to ROOT file 
   std::string saveToHistosFile = m_Anal.getParameter<std::string>("HistosFile");
   if( saveToHistosFile != "None" ) {
@@ -96,12 +95,10 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   if( saveToTreeFile != "None" ) {
     saveToTree = true;
     std::cout << "TestGeometry: saving ROOT TREE to " << saveToTreeFile << std::endl;
+    theTree = new MaterialBudgetTree( theData, saveToTreeFile );
     
     bool allSteps = m_Anal.getParameter<bool>("AllStepsToTree");  
-    std::cout << "TestGeometry: all steps to ROOT TREE " << allSteps << std::endl;
     if( allSteps ) theData->SetAllStepsToTree();
-    
-    theTree = new MaterialBudgetTree( theData, saveToTreeFile );
     
   } else {
     saveToTree = false;
@@ -188,11 +185,13 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
 // that was a temporary action while we're sorting out
 // about # of secondaries (produced if CutsPerRegion=true)
 //
+/* 
   if( aTrack->GetParentID() != 0 ){
     G4Track * aTracknc = const_cast<G4Track*>(aTrack);
     aTracknc->SetTrackStatus(fStopAndKill);
     return;
   }
+*/
 
   //--------- start of track
   theData->dataStartTrack( aTrack );
@@ -307,8 +306,8 @@ bool MaterialBudgetAction::StopAfterProcess( const G4Step* aStep )
   if( theProcessToStop == "" ) return false;
 
   if(aStep->GetPostStepPoint()->GetProcessDefinedStep() == NULL) return false;
+  //-  std::cout << " MaterialBudgetAction::StopAfterProcess  proc " << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
   if( aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == theProcessToStop ) {
-    std::cout << " MaterialBudgetAction::StopAfterProcess " << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
     return true;
   } else {
     return false;

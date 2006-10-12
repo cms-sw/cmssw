@@ -1,7 +1,5 @@
 <use name=DataFormats/Common>
-<use name=FWCore/Framework>
 <export>
  <lib name=DataFormatsL1GlobalMuonTrigger>
  <use name=DataFormats/Common>
- <use name=FWCore/Framework>
 </export>

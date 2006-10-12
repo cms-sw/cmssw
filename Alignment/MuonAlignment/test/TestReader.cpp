@@ -4,9 +4,6 @@
 // Description: Module to test the Alignment software
 //
 //
-// Original Author:  Frederic Ronga
-//         Created:  March 16, 2006
-//
 
 
 // system include files
@@ -33,10 +30,12 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/DTAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
 
 //
 //

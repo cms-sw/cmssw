@@ -68,7 +68,9 @@ namespace edm
      *  and put the names of the modules for this path in @param out */
     void fillPath(WrapperNodePtr n, Strs& paths);
 
-    Strs findSchedule(const Strs & triggerPaths, const Strs & endPaths) const;
+    /// if there's a schedule found, override triggerPaths and endpaths
+    /// if not, schedule = input triggerpaths + endPaths
+    Strs findSchedule(Strs & triggerPaths, Strs & endPaths) const;
 
     /// diagnostic function
     void dumpTree(NodePtr& node);

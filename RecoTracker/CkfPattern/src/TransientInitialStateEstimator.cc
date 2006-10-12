@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -35,13 +36,20 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
   if (nhits < lastFitted+1) lastFitted = nhits-1;
 
   std::vector<TrajectoryMeasurement> measvec = traj.measurements();
-  //RC edm::OwnVector<const TransientTrackingRecHit> firstHits;
   TransientTrackingRecHit::ConstRecHitContainer firstHits;
+
+  bool foundLast = false;
+  int actualLast = -99;
   for (int i=lastFitted; i >= 0; i--) {
-    //RC firstHits.push_back( measvec[i].recHit()->clone());
-    firstHits.push_back( measvec[i].recHit());
+    if(measvec[i].recHit()->isValid()){
+      if(!foundLast){
+	actualLast = i; 
+	foundLast = true;
+      }
+      firstHits.push_back( measvec[i].recHit());
+    }
   }
-  TSOS unscaledState = measvec[lastFitted].updatedState();
+  TSOS unscaledState = measvec[actualLast].updatedState();
   AlgebraicSymMatrix C(5,1);
   // C *= 100.;
 

@@ -102,19 +102,24 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     reco::Track * theTrack = (*i).second;
     
     //     if( ) {
-    reco::Track t =*theTrack;
+    reco::Track t = * theTrack;
     selTracks->push_back( t );
     
     //sets the outermost and innermost TSOSs
     TrajectoryStateOnSurface outertsos;
     TrajectoryStateOnSurface innertsos;
+    unsigned int innerId, outerId;
     if (theTraj->direction() == alongMomentum) {
       outertsos = theTraj->lastMeasurement().updatedState();
       innertsos = theTraj->firstMeasurement().updatedState();
+      outerId = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
+      innerId = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
     } else { 
       outertsos = theTraj->firstMeasurement().updatedState();
       innertsos = theTraj->lastMeasurement().updatedState();
-    }
+      outerId = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
+      innerId = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
+   }
     //build the TrackExtra
     GlobalPoint v = outertsos.globalParameters().position();
     GlobalVector p = outertsos.globalParameters().momentum();
@@ -126,18 +131,21 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     math::XYZPoint  inpos( v.x(), v.y(), v.z() );
 
     reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
-    selTracks->back().setExtra( teref );
-    //    selTracks->back().setHitPattern(teref->recHits());
-    selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true));
+    reco::Track & track = selTracks->back();
+    track.setExtra( teref );
+    selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
+						 outertsos.curvilinearError(), outerId,
+						 innertsos.curvilinearError(), innerId));
 
     reco::TrackExtra & tx = selTrackExtras->back();
-    for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
-	j!=transHits.end(); j++){
-      selHits->push_back( ( ((**j).hit() )->clone()) );
+    size_t i = 0;
+    for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
+	 j != transHits.end(); j ++ ) {
+      TrackingRecHit * hit = (**j).hit()->clone();
+      selHits->push_back( hit );
+      track.setHitPattern( * hit, i ++ );
       tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
     }
-    //     }
-    //delete theTrackExtra;
     delete theTrack;
     delete theTraj;
   }

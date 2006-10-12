@@ -7,14 +7,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.5 2006/04/20 10:13:53 llista Exp $
+ * \version $Id: SuperCluster.h,v 1.6 2006/05/23 16:26:23 askew Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
-#include "DataFormats/EgammaReco/interface/ClusterPi0DiscriminatorFwd.h"
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -40,26 +40,6 @@ namespace reco {
                   const BasicClusterRefVector& clusters);
 
 
-    /// momentum vector
-    //const Vector & momentum() const { return momentum_; }
-
-    /// cluster energy
-    //double energy() const { return momentum_.R(); }
-
-    /// cluster uncorrected energy
-    //double uncorrectedEnergy() const { return uncorrectedEnergy_; }
-
-    /// cluster centroid pseudorapidity
-    //double eta() const { return momentum_.Eta(); }
-
-    /// cluster centroid azimuthal angle
-    //double phi() const { return momentum_.Phi(); }
-
-    /// cluster centroid polar angle
-    //double theta() const { return momentum_.Theta(); }
-
-    /// cluster centroid position
-    //const Point & position() const { return position_; }
 
     /// x coordinate of cluster centroid
     double x() const { return position().X(); }
@@ -114,31 +94,8 @@ namespace reco {
     double covEtaPhi() const;
     /// covariance element in pseudorapidity
     double covPhiPhi() const;
- /*    /// ratio of energy deposits in Hcal over Ecal */
-/*     double hadOverEcal() const; */
-
-    /// reference to pi0 discriminator information
-    //const ClusterPi0DiscriminatorRef & pi0Discriminator() const { return pi0Discriminator_; }
-    /// set reference to pi0 discriminator information
-    //void setPi0Discriminator( const ClusterPi0DiscriminatorRef & ref ) {
-    //  pi0Discriminator_ = ref;
-    //}
-    /// pi0 discriminator variable #1 (should be better documented!)
-    //double disc1() const;
-    /// pi0 discriminator variable #2 (should be better documented!)
-    //double disc2() const;
-    /// pi0 discriminator variable #3 (should be better documented!)
-    //double disc3() const;
 
   private:
-    /// momentum vector
-    //Vector momentum_;
-
-    /// position
-    //Point position_;
-
-    /// uncorrected energy
-    //Double32_t uncorrectedEnergy_;
 
     /// reference to BasicCluster seed
     BasicClusterRef seed_;
@@ -149,12 +106,10 @@ namespace reco {
     /// refrence to shape variable information
     ClusterShapeRef shape_;
 
-    /// reference to pi0 discriminator information
-    //ClusterPi0DiscriminatorRef pi0Discriminator_;
+   /// used hits by detId - retrieved from BC constituents
+   std::vector<DetId> usedHits_;
+
   };
 
 }
-
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-
 #endif

@@ -6,14 +6,6 @@
 class GenericTransientTrackingRecHit: public TransientTrackingRecHit{
 public:
 
-//RC   virtual GenericTransientTrackingRecHit * clone() const {
-//RC     return new GenericTransientTrackingRecHit(*this);
-//RC   }
-
-//RC  virtual RecHitPointer clone( const TrajectoryStateOnSurface&) const {
-//RC    return clone();
-//RC  }
-
   virtual ~GenericTransientTrackingRecHit() {delete trackingRecHit_;}
 
   virtual AlgebraicVector parameters() const {return trackingRecHit_->parameters();}
@@ -41,15 +33,15 @@ public:
   }
 
   static RecHitPointer build( const GeomDet * geom, const TrackingRecHit * rh) {
-    return RecHitPointer( new GenericTransientTrackingRecHit( geom, rh));
+    return RecHitPointer( new GenericTransientTrackingRecHit( geom, *rh));
   }
 
 protected:
 
   // private constructors enforce usage of builders
-  GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh) :
+  GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit& rh) :
     TransientTrackingRecHit(geom) {
-    trackingRecHit_ = rh->clone();
+    trackingRecHit_ = rh.clone();
   }
   GenericTransientTrackingRecHit( const GenericTransientTrackingRecHit & other ) :
     TransientTrackingRecHit( other.det()) {

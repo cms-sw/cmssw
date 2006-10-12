@@ -5,8 +5,8 @@
  *
  * Class for CSC Detector Monitoring.
  *  
- *  $Date: 2006/03/09 16:48:38 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/28 09:56:50 $
+ *  $Revision: 1.10 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -49,8 +49,8 @@ public:
   map<string, MonitorElement*> book_chamber(int chamberID);
   map<string, MonitorElement*> book_common(int dduNumber);
 
-  static const int maxDDU=50; 
-  static const int maxCMBID=36; 
+  static const int maxDDU=100; 
+  static const int maxCMBID=106; 
 
   static const int CSC_DMB_ID_MASK  = 0XF;
   static const int CSC_DMB_ID_SHIFT = 0;

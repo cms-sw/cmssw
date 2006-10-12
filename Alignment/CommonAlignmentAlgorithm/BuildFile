@@ -1,10 +1,16 @@
 <use name=Alignment/CommonAlignmentParametrization>
+<use name=RecoTracker/TrackProducer>
+<use name=FWCore/ParameterSet>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=RecoTracker/TransientTrackingRecHit> 
 <use name=Alignment/TrackerAlignment>
+<use name=RecoTracker/TrackProducer>
 
 <export>
- 
   <lib name=AlignmentCommonAlignmentAlgorithm>
-
   <use name=Alignment/CommonAlignmentParametrization>
   <use name=Alignment/TrackerAlignment>
+  <use name=RecoTracker/TrackProducer>
+  <use name=RecoTracker/TransientTrackingRecHit> 
 </export>

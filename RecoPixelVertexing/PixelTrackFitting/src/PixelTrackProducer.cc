@@ -70,12 +70,14 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
     hits.push_back( (*it).outer() );
     const reco::Track *track = fitter->run(es,hits,region);
     if (track) {
+      nTracks++;
+
       result->push_back(*track);
+      delete track;
 
       outputRHColl->push_back( ( (*it).inner() )->clone() );
       outputRHColl->push_back( ( (*it).middle() )->clone() );
       outputRHColl->push_back( ( (*it).outer() )->clone() );
-      nTracks++;
     }
   }
   cout << "nTracks" << nTracks << endl;

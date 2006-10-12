@@ -32,11 +32,13 @@ public:
    * \param stripPhiPitch Delta-phi width of strips (they're fan-shaped) in radians
    * \param wg CSCWireGroupPackage encapsulating wire group info.
    * \param wireAngleInDegrees angle of wires w.r.t local x axis.
+   * \param ctiOffset backed-out offset for the whereStripsMeet calculation
    */
   CSCLayerGeometry( int iChamberType,
              const TrapezoidalPlaneBounds& bounds,
              int nstrips, float stripOffset, float stripPhiPitch,
-	     const CSCWireGroupPackage& wg, float wireAngleInDegrees );
+             const CSCWireGroupPackage& wg, float wireAngleInDegrees,
+  	     float ctiOffset = 0.0 );
 
   CSCLayerGeometry(const CSCLayerGeometry& );
 

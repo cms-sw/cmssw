@@ -107,15 +107,8 @@ namespace edm
             openFiles_.push_back(realfilename.fullPath());
             includedFiles_.push_back(realfilename.fullPath());
             // ... process the file we're to include.
-            std::string filecontents;
+            std::string filecontents = edm::pset::read_whole_file(realfilename.fullPath());
   
-            if (!read_whole_file(realfilename.fullPath(),
-                             filecontents))
-            {
-              throw edm::Exception(edm::errors::Configuration, "MissingFile")
-                << "Could not find configuration include file:"
-                << filename;
-            }
             // recursive call!
             process(filecontents, output);
             openFiles_.pop_back();

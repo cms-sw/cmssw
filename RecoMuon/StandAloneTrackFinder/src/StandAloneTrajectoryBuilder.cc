@@ -1,22 +1,25 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/08/11 11:06:09 $
- *  $Revision: 1.23 $
- *  \author R. Bellan - INFN Torino
- *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ *  $Date: 2006/08/30 12:56:19 $
+ *  $Revision: 1.26 $
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *  \author Stefano Lacaprara - INFN Legnaro
  */
 
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonRefitter.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonBackwardFilter.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonSmoother.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,32 +30,17 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-
-// FIXME
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <DataFormats/MuonDetId/interface/DTChamberId.h>
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-//
-
 using namespace edm;
 using namespace std;
 
-StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const ParameterSet& par){
+StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const ParameterSet& par, 
+								 const MuonServiceProxy* service):theService(service){
   LogDebug("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
     << "constructor called" << endl;
 
   // The inward-outward fitter (starts from seed state)
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-  theRefitter = new StandAloneMuonRefitter(refitterPSet);
+  theRefitter = new StandAloneMuonRefitter(refitterPSet,theService);
 
   // Disable/Enable the backward filter
   doBackwardRefit = par.getUntrackedParameter<bool>("DoBackwardRefit",true);
@@ -60,30 +48,16 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   if(doBackwardRefit){
     // The outward-inward fitter (starts from theRefitter outermost state)
     ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
-    //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet); // FIXME
-    theBWFilter = new StandAloneMuonRefitter(bwFilterPSet);
+    //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet,theService); // FIXME
+    theBWFilter = new StandAloneMuonRefitter(bwFilterPSet,theService);
+
+    theBWSeedType = bwFilterPSet.getParameter<string>("BWSeedType");
   }
   
   // The outward-inward fitter (starts from theBWFilter innermost state)
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
-  theSmoother = new StandAloneMuonSmoother(smootherPSet);
+  theSmoother = new StandAloneMuonSmoother(smootherPSet,theService);
 } 
-
-void StandAloneMuonTrajectoryBuilder::setES(const EventSetup& setup){
-  // Get the Tracking Geometry
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
-  setup.get<IdealMagneticFieldRecord>().get(theMGField);
-  setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
- 
-  // FIXME: move the above lines in the fitters!
-
-  MuonNavigationSchool school(&*theDetLayerGeometry);
-  NavigationSetter setter(school);
-  
-  theRefitter->setES(setup);
-   if(doBackwardRefit) theBWFilter->setES(setup);
-  theSmoother->setES(setup);
-}
 
 void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
   theRefitter->setEvent(event);
@@ -127,15 +101,18 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   DetId seedDetId(pTSOD.detId());
 
-  const GeomDet* gdet = theTrackingGeometry->idToDet( seedDetId );
-  TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMGField);
+  const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
+
+  TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), 
+								 &*theService->magneticField());
+
   LogDebug(metname)<<"Seed Pt: "<<seedTSOS.freeState()->momentum().perp()<<endl;
 
   LogDebug(metname)<< "Seed id in: "<< endl ;
   LogDebug(metname) << debug.dumpMuonId(seedDetId);
   
   // Get the layer from which start the trajectory building
-  const DetLayer *seedDetLayer = theDetLayerGeometry->idToLayer( seedDetId );
+  const DetLayer *seedDetLayer = theService->detLayerGeometry()->idToLayer( seedDetId );
 
   LogDebug(metname)<< "---StandAloneMuonTrajectoryBuilder SEED:" << endl;
   LogDebug(metname) << debug.dumpTSOS(seedTSOS);
@@ -185,7 +162,32 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // fw_low-granularity + bw_high-granularity + smoother (not yet sure...)
 
   // BackwardFiltering
-  Trajectory trajectoryBW(seed,oppositeToMomentum);
+
+  TrajectorySeed seedForBW;
+
+  if(theBWSeedType == "noSeed"){
+    TrajectorySeed seedVoid;
+    seedForBW = seedVoid;
+  }
+  else if (theBWSeedType == "fromFWFit"){
+    
+    TrajectoryStateTransform tsTransform;
+    
+    PTrajectoryStateOnDet *seedTSOS =
+      tsTransform.persistentState( tsosAfterRefit, trajectoryFW.lastMeasurement().recHit()->geographicalId().rawId());
+    
+    edm::OwnVector<TrackingRecHit> recHitsContainer; // FIXME!!
+    TrajectorySeed fwFit(*seedTSOS,recHitsContainer,alongMomentum);
+
+    seedForBW = fwFit;
+  }
+  else if (theBWSeedType == "fromGenerator"){
+    seedForBW = seed;
+  }
+  else
+    LogWarning(metname) << "Wrong seed type for the backward filter!";
+
+  Trajectory trajectoryBW(seedForBW,oppositeToMomentum);
 
   static const string t2 = "StandAloneMuonTrajectoryBuilder::backwardfiltering";
   TimeMe timer2(t2,timing);

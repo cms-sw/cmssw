@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/01 15:53:04 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/08/16 10:07:09 $
+ *  $Revision: 1.14 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -173,8 +173,9 @@ MuonSeedFinder::createEndcapSeed(MuonRecHitPointer last,
   // We want pT but it's not in RecHit interface, so we've put it within this class
   float momentum = computePt(last,&*field);
   // FIXME
-  float smomentum = 0.25; // FIXME!!!!
- 
+  //  float smomentum = 0.25*momentum; // FIXME!!!!
+  float smomentum = 25; 
+
   MuonSeedFromRecHits seedCreator;
   TrajectorySeed cscSeed = seedCreator.createSeed(momentum,smomentum,last,eSetup);
 

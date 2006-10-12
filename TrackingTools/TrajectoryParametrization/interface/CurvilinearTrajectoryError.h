@@ -2,6 +2,7 @@
 #define _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/Math/interface/Error.h"
 
 /** Parametrization of the error matrix in the curvilinear frame.
  *  This frame is tangent to the track at the point of definition,
@@ -24,6 +25,12 @@
 
 class CurvilinearTrajectoryError {
 public:
+
+  /// parameter dimension
+  enum { dimension = 5 };
+  /// 5 parameter covariance matrix
+  typedef math::Error<dimension>::type MathCovarianceMatrix;
+
 // construct
   CurvilinearTrajectoryError() {}
 
@@ -33,6 +40,10 @@ public:
 
   CurvilinearTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) {}
+
+  /// Implicit conversion
+  CurvilinearTrajectoryError( const MathCovarianceMatrix & cov);
+
 
 // access
 
@@ -49,6 +60,9 @@ public:
   void operator *= (double factor) {
     theCovarianceMatrix *= factor;
   }
+
+  operator MathCovarianceMatrix() const;
+
 private:
   AlgebraicSymMatrix theCovarianceMatrix;
 };

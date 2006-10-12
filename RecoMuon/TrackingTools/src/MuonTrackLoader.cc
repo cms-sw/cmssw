@@ -2,13 +2,14 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/15 10:57:09 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/09/07 00:30:33 $
+ *  $Revision: 1.26 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
@@ -22,7 +23,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -30,163 +33,100 @@
 
 using namespace edm;
 
-
-//
 // constructor
-//
-MuonTrackLoader::MuonTrackLoader() : thePropagator(0) {
-
-}
-
-
-//
-//
-//
-void MuonTrackLoader::setES(const EventSetup& setup) {
-
-  setup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", thePropagator);
-
-}
+MuonTrackLoader::MuonTrackLoader(std::string trackLoaderPropagatorName, const MuonServiceProxy *service): 
+  thePropagatorName(trackLoaderPropagatorName),
+  theService(service){}
 
 
-//
-//
-//
 edm::OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    edm::Event& event) {
   
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
-  
-  // *** first loop: create the full collection of TrackingRecHit ***
-  
-  LogDebug(metname) << 
-    "first loop: create the full collection of TrackingRecHit" << "\n";
-  
-  // the rechit collection, it will be loaded in the event  
-  std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
-
-  // the track extra collection, it will be loaded in the event  
-  std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
 
   // the track collection, it will be loaded in the event  
   std::auto_ptr<reco::TrackCollection> trackCollection( new reco::TrackCollection() );
-
+  
   // don't waste any time...
   if ( trajectories.empty() ) { 
     return event.put(trackCollection);
   }
 
-  for (TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-       trajectory != trajectories.end(); ++trajectory) {
-    
-    // get the transient rechit from the trajectory
-    const Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
-
-    // fill the rechit collection
-    for(Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
-	recHit != transHits.end(); ++recHit) {
-      if((**recHit).isValid())
-	recHitCollection->push_back( (**recHit).hit()->clone() );       
-    }
-  }
+  // the track extra collection, it will be loaded in the event  
+  std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
+  // ... and its reference into the event
+  reco::TrackExtraRefProd trackExtraCollectionRefProd = event.getRefBeforePut<reco::TrackExtraCollection>();
   
-  // put the collection of TrackingRecHit in the event
-  LogDebug(metname) << 
-    "put the collection of TrackingRecHit in the event" << "\n";
-  
-  edm::OrphanHandle<TrackingRecHitCollection> orphanHandleRecHit = event.put( recHitCollection );
-  
-  // *** second loop: create the collection of TrackExtra ***
+  // the rechit collection, it will be loaded in the event  
+  std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
+  // ... and its reference into the event
+  TrackingRecHitRefProd recHitCollectionRefProd = event.getRefBeforePut<TrackingRecHitCollection>();
 
-  LogDebug(metname) << 
-    "second loop: create the collection of TrackExtra" << "\n";
+  LogDebug(metname) << "Create the collection of Tracks";
 
-  int position = 0;
-	
-  for (TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-       trajectory != trajectories.end(); ++trajectory) {
-    
-    // build the "bare" track extra from the trajectory
-    reco::TrackExtra trackExtra = buildTrackExtra( **trajectory );
-
-    // get (again!) the transient rechit from the trajectory	
-    const Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
-
-    // Fill the track extra with the rec hit (persistent-)reference
-    for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
- 	recHit != transHits.end(); ++recHit) {
-      
-      trackExtra.add(TrackingRecHitRef(orphanHandleRecHit,position));
-      ++position;
-    }
-    
-    // fill the TrackExtraCollection
-    trackExtraCollection->push_back(trackExtra);
-  }
-
-  // put the collection of TrackExtra in the event
-  LogDebug(metname) <<  "put the collection of TrackExtra in the event" << "\n";
-  edm::OrphanHandle<reco::TrackExtraCollection> orphanHandleTrackExtra = event.put(trackExtraCollection);
-  
-  // *** third loop: create the collection of Tracks ***
-
-  LogDebug(metname) << "third loop: create the collection of Tracks" << "\n";
-  
-  position = 0;
+  reco::TrackExtraRef::key_type trackExtraIndex = 0;
+  TrackingRecHitRef::key_type recHitsIndex = 0;
 
   for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
       trajectory != trajectories.end(); ++trajectory){
     
+    // get the transient rechit from the trajectory
+    Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
+    
+    if ( (*trajectory)->direction() == oppositeToMomentum)
+      reverse(transHits.begin(),transHits.end());
+
     // build the "bare" track from the trajectory
     reco::Track track = buildTrack( **trajectory );
-    
+
+    // build the "bare" track extra from the trajectory
+    reco::TrackExtra trackExtra = buildTrackExtra( **trajectory );
+
     // get the TrackExtraRef (persitent reference of the track extra)
-    reco::TrackExtraRef trackExtraRef(orphanHandleTrackExtra,position);
+    reco::TrackExtraRef trackExtraRef(trackExtraCollectionRefProd, trackExtraIndex++ );
     
     // set the persistent track-extra reference to the Track
     track.setExtra(trackExtraRef);
 
-    // Hit Pattern
-    //     TrackingRecHitRefVector hitlist;
-    //     for (unsigned int i=0; i<trackExtraRef->recHitsSize(); i++) {
-    // 	    hitlist.push_back(trackExtraRef->recHit(i));
-    //     }
-    
-    //     track.setHitPattern(hitlist);
-    
+    // Fill the track extra with the rec hit (persistent-)reference
+    size_t i = 0;
+    for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
+	 recHit != transHits.end(); ++recHit) {
+      if((**recHit).isValid()){
+	TrackingRecHit *singleHit = (**recHit).hit()->clone();
+	recHitCollection->push_back( singleHit );  
+	track.setHitPattern( *singleHit, i ++ );
+	// set the TrackingRecHitRef (persitent reference of the tracking rec hits)
+	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
+      }
+    }
+
+    // fill the TrackExtraCollection
+    trackExtraCollection->push_back(trackExtra);
+
     // fill the TrackCollection
     trackCollection->push_back(track);
 
-    ++position;
-  }
-  
-  // (finally!) put the TrackCollection in the event
-  LogDebug(metname) << "put the TrackCollection in the event" << "\n";
-  edm::OrphanHandle<reco::TrackCollection> orphanHandleTrack = event.put(trackCollection);
-  
-  // clean the memory. FIXME: check this!
-  for (TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-       trajectory != trajectories.end(); ++trajectory) {
-    
+    // clean the memory. FIXME: check this!
     Trajectory::DataContainer dataContainer = (*trajectory)->measurements();
     for (Trajectory::DataContainer::iterator datum = dataContainer.begin(); 
 	 datum != dataContainer.end(); ++datum) 
       delete datum->recHit();
-
-    // delete trajectory
+    
+    // delete the trajectory
     delete *trajectory;
-
   }
-
-  return orphanHandleTrack;
-
+  
+  // Put the Collections in the event
+  LogDebug(metname) << "put the Collections in the event";
+  
+  event.put(recHitCollection);
+  event.put(trackExtraCollection);
+  
+  return event.put(trackCollection);
 }
 
-
-//
-//
-//
 edm::OrphanHandle<reco::MuonCollection> 
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 			    edm::Event& event) {
@@ -195,32 +135,39 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   
   // the muon collection, it will be loaded in the event
   std::auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
+  if ( !muonCands.empty() ) {
   // get combined Trajectories
-  TrajectoryContainer combinedTrajs;
-  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
-    combinedTrajs.push_back((*it)->trajectory());
+    TrajectoryContainer combinedTrajs;
+    for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
+      combinedTrajs.push_back((*it)->trajectory());
     
-    // Create the reco::muon
-    reco::Muon muon;
-    muon.setStandAlone((*it)->muonTrack());
-    muon.setTrack((*it)->trackerTrack());
-    muonCollection->push_back(muon);
-    delete *it;
+      // Create the reco::muon
+      reco::Muon muon;
+      muon.setStandAlone((*it)->muonTrack());
+      muon.setTrack((*it)->trackerTrack());
+      muonCollection->push_back(muon);
+      delete *it;
+    }
+
+    // create the TrackCollection of combined Trajectories
+    // FIXME: could this be done one track at a time in the previous loop?
+    edm::OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
+
+    reco::MuonCollection::iterator muon = muonCollection->begin();
+    for ( unsigned int position = 0; position != combinedTracks->size(); position++ ) {
+      reco::TrackRef combinedTR(combinedTracks, position);
+      // fill the combined information.
+      // FIXME: can this break in case combined info cannot be added to some tracks?
+      (*muon).setCharge(combinedTR->charge());
+      //FIXME: E = sqrt(p^2 + m^2), where m == 0.105658369(9)GeV 
+      double energy = sqrt(combinedTR->p() * combinedTR->p() + 0.011163691);
+      math::XYZTLorentzVector p4(combinedTR->px(),combinedTR->py(),combinedTR->pz(),energy);
+      (*muon).setP4(p4);
+      (*muon).setVertex(combinedTR->vertex());
+      (*muon).setCombined(combinedTR);
+      muon++;
+    }
   }
-
-  // create the TrackCollection of combined Trajectories
-  // FIXME: could this be done one track at a time in the previous loop?
-  edm::OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
-
-  reco::MuonCollection::iterator muon = muonCollection->begin();
-  for ( unsigned int position = 0; position != combinedTracks->size(); position++ ) {
-    reco::TrackRef combinedTR(combinedTracks, position);
-    // fill the combined information.
-    // FIXME: can this break in case combined info cannot be added to some tracks?
-    (*muon).setCombined(combinedTR);
-    muon++;
-  }
-
   // put the MuonCollection in the event
   LogDebug(metname) << "put the MuonCollection in the event" << "\n";
   edm::OrphanHandle<reco::MuonCollection> orphanHandleMuon = event.put(muonCollection);
@@ -229,10 +176,6 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
 }
 
-
-//
-//
-//
 reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
@@ -247,7 +190,7 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
     innerTSOS = trajectory.firstMeasurement().updatedState();
   } 
   else if (trajectory.direction() == oppositeToMomentum) { 
-    LogDebug(metname)<<"oppositeToMentum";
+    LogDebug(metname)<<"oppositeToMomentum";
     innerTSOS = trajectory.lastMeasurement().updatedState();
   }
   else edm::LogError(metname)<<"Wrong propagation direction!";
@@ -256,10 +199,13 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
   // This is needed to extrapolate the tsos at vertex
   GlobalPoint vtx(0,0,0); 
-  TransverseImpactPointExtrapolator tipe(*thePropagator);
+  TransverseImpactPointExtrapolator tipe( *theService->propagator(thePropagatorName) );
   TrajectoryStateOnSurface tscp = tipe.extrapolate(innerTSOS,vtx);
   
-  if ( !tscp.isValid() ) return reco::Track(); // FIXME: how to report this?
+  if ( !tscp.isValid() ) {
+     edm::LogError(metname)<<"Extrapolation to vertex failed!";
+     return reco::Track(); // FIXME: how to report this?
+  }
   PerigeeConversions conv;
   double pt = 0.0;
   PerigeeTrajectoryParameters perigeeParameters = conv.ftsToPerigeeParameters(*tscp.freeState(),vtx,pt);
@@ -284,10 +230,6 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
 }
 
-
-//
-//
-//
 reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) const {
 
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
@@ -300,17 +242,22 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   // FIXME: check it!
   TrajectoryStateOnSurface outerTSOS;
   TrajectoryStateOnSurface innerTSOS;
+  unsigned int innerId=0, outerId=0;
   
-  if(trajectory.direction() == alongMomentum) {
+  if (trajectory.direction() == alongMomentum) {
     LogDebug(metname)<<"alongMomentum";
     outerTSOS = trajectory.lastMeasurement().updatedState();
     innerTSOS = trajectory.firstMeasurement().updatedState();
+    outerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
+    innerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
   } 
-  else if(trajectory.direction() == oppositeToMomentum) {
-      LogDebug(metname)<<"oppositeToMentum";
-      outerTSOS = trajectory.firstMeasurement().updatedState();
-      innerTSOS = trajectory.lastMeasurement().updatedState();
-    }
+  else if (trajectory.direction() == oppositeToMomentum) {
+    LogDebug(metname)<<"oppositeToMomentum";
+    outerTSOS = trajectory.firstMeasurement().updatedState();
+    innerTSOS = trajectory.lastMeasurement().updatedState();
+    outerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
+    innerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
+  }
   else edm::LogError(metname)<<"Wrong propagation direction!";
   
   //build the TrackExtra
@@ -324,7 +271,9 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   math::XYZPoint  inpos( v.x(), v.y(), v.z() );   
   math::XYZVector inmom( p.x(), p.y(), p.z() );
 
-  reco::TrackExtra trackExtra(outpos, outmom, true, inpos, inmom, true);
+  reco::TrackExtra trackExtra(outpos, outmom, true, inpos, inmom, true,
+                              outerTSOS.curvilinearError(), outerId,
+                              innerTSOS.curvilinearError(), innerId);
   
   return trackExtra;
  

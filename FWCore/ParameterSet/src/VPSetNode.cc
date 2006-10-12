@@ -113,7 +113,6 @@ namespace edm {
 
     void VPSetNode::replaceWith(const ReplaceNode * replaceNode)
     {
-      assertNotModified();
       VPSetNode * replacement = replaceNode->value<VPSetNode>();
       assert(replacement != 0);
 

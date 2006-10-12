@@ -7,10 +7,6 @@
 // Description: Module to test the Alignment software
 //
 //
-// Original Author:  Frederic Ronga
-//         Created:  March 16, 2006
-//        Modified:  June   8, 2006
-//
 
 
 // system include files
@@ -39,7 +35,6 @@
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Geometry/Surface/interface/Surface.h"
 
@@ -111,18 +106,41 @@ TestRotation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
    
   edm::LogInfo("MuonAlignment") << "Starting!";
 
+/*
   //
   // Build alignable muon geometry from event setup
   //
 
-  AlignableMuon* theAlignableMuon = new AlignableMuon( iSetup );
+  edm::ESHandle<DDCompactView> cpv;
+  iRecord.getRecord<IdealGeometryRecord>().get( cpv );
 
-  std::vector<Alignable*> theDTWheels = theAlignableMuon->DTWheels();
+  DTGeometryBuilderFromDDD  DTGeometryBuilder;
+  CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-  std::cout << "Number of wheels=" << theDTWheels.size() << std::endl;
+  theDTGeometry   = boost::shared_ptr<DTGeometry>( DTGeometryBuilder.build( &(*cpv) ) );
+  theCSCGeometry  = boost::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv) ) );
+
+  AlignableMuon* theAlignableMuon = new AlignableMuon( &(*theDTGeometry) , &(*theCSCGeometry) );
+*/
+
+  //
+  // Retrieve ideal geometry from event setup
+  //
+  edm::ESHandle<DTGeometry> dtGeometry;
+  edm::ESHandle<CSCGeometry> cscGeometry;
+  iSetup.get<MuonGeometryRecord>().get( dtGeometry );
+  iSetup.get<MuonGeometryRecord>().get( cscGeometry );
+
+  AlignableMuon* theAlignableMuon = new AlignableMuon( &(*dtGeometry), &(*cscGeometry) );
+
+
 
 
   // Apply alignment
+ 
+  std::vector<Alignable*> theDTWheels = theAlignableMuon->DTWheels();
+  std::cout << "Number of wheels=" << theDTWheels.size() << std::endl;
+
   for ( std::vector<Alignable*>::iterator iter = theDTWheels.begin();
 		iter != theDTWheels.end(); iter++ )
 	{

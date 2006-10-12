@@ -1,3 +1,4 @@
+<use name=boost_python>
 <use name=boost>
 <use name=Foundation/SealZip>
 <use name=FWCore/Utilities>
@@ -9,6 +10,7 @@
  <lib name=FWCoreParameterSet>
  <use name=FWCore/Utilities>
  <use name=DataFormats/Common>
+ <use name=boost_python>
  <use name=boost>
  <use name=Foundation/SealZip>
  <use name=boost_filesystem> 

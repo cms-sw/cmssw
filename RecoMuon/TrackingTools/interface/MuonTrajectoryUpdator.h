@@ -10,15 +10,15 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/08/22 09:34:07 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/09/04 13:28:44 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
 
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "RecoMuon/TrackingTools/interface/FitDirection.h"
+
 #include <functional>
 
 class Propagator;
@@ -32,54 +32,42 @@ class DetLayer;
 namespace edm{class ParameterSet;}
 
 class MuonTrajectoryUpdator {
+  
  public:
 
-  //<< very temp
-  
-  // FIXME: this c'tor is temp!!
-  // It will that as the Updator will be loaded in the es
-  /// Constructor with Parameter set
-  MuonTrajectoryUpdator(const edm::ParameterSet& par, PropagationDirection fitDirection);
-  // FIXME: this function is temp!!
-  // It will dis as the Updator will be loaded in the es
-  void setPropagator(Propagator* prop) {thePropagator = prop;}
-
-  //>> end tmp
-
   /// Constructor from Propagator and Parameter set
-  MuonTrajectoryUpdator(Propagator *propagator,
-			PropagationDirection fitDirection,
-			const edm::ParameterSet& par);
+  MuonTrajectoryUpdator(const edm::ParameterSet& par,
+			recoMuon::FitDirection fitDirection);
 
   /// Constructor from Propagator, chi2 and the granularity flag
-  MuonTrajectoryUpdator(Propagator *propagator,
-			PropagationDirection fitDirection,
+  MuonTrajectoryUpdator(recoMuon::FitDirection fitDirection,
 			double chi2, int granularity);
-
+  
   /// Destructor
   virtual ~MuonTrajectoryUpdator();
-  
-  //   /// virtual construcor
-  //   virtual MuonTrajectoryUpdator* clone() const {
-  //     return new MuonTrajectoryUpdator(*this);
-  //   }
   
   // Operations
 
   /// update the Trajectory with the TrajectoryMeasurement
-  virtual std::pair<bool,TrajectoryStateOnSurface>  update(const TrajectoryMeasurement* theMeas, 
-							   Trajectory& theTraj);
-  
+  virtual std::pair<bool,TrajectoryStateOnSurface>  update(const TrajectoryMeasurement* measurement, 
+							   Trajectory& trajectory,
+							   const Propagator *propagator);
+
   /// accasso at the propagator
-  const Propagator *propagator() const {return thePropagator;}
   const MeasurementEstimator *estimator() const {return theEstimator;}
   const TrajectoryStateUpdator *measurementUpdator() const {return theUpdator;}
 
   /// get the max chi2 allowed
   double maxChi2() const {return theMaxChi2 ;}
   
+  /// get the fit direction
+  recoMuon::FitDirection fitDirection() {return theFitDirection;}
+
   /// set max chi2
-  void setMaxChi2(double chi2) { theMaxChi2=chi2; }
+  void setMaxChi2(double chi2) {theMaxChi2 = chi2;}
+
+  /// set fit direction
+  void setFitDirection(recoMuon::FitDirection fitDirection) {theFitDirection = fitDirection;}
 
  protected:
   
@@ -89,8 +77,9 @@ class MuonTrajectoryUpdator {
   /// i.e.: if "current" is a sub-rechit of the mesurement (i.e. a 1/2D RecHit)
   /// the state will be propagated to the surface where lies the "current" rechit 
   TrajectoryStateOnSurface propagateState(const TrajectoryStateOnSurface& state,
-					  const TrajectoryMeasurement* theMeas, 
-					  const TransientTrackingRecHit::ConstRecHitPointer  & current) const;
+					  const TrajectoryMeasurement* measurement, 
+					  const TransientTrackingRecHit::ConstRecHitPointer& current,
+					  const Propagator *propagator) const;
   
   ///  the max chi2 allowed
   double theMaxChi2;
@@ -103,10 +92,6 @@ class MuonTrajectoryUpdator {
   /// i.e. max granularity for DT but not for the CSC and the viceversa
   int theGranularity; 
   // FIXME: ask Tim if the CSC segments can be used, since in ORCA they wasn't.
-
-  /// copy objs from an OwnVector to another one
-  void insert (TransientTrackingRecHit::ConstRecHitContainer & to,
-	       TransientTrackingRecHit::ConstRecHitContainer & from);
 
   /// Ordering along increasing radius (for DT rechits)
   struct RadiusComparatorInOut{
@@ -150,14 +135,14 @@ class MuonTrajectoryUpdator {
 					   const TrajectoryMeasurement *initialMeasurement);
   
 
-  Propagator *thePropagator;
+  // FIXME: change in a ESHandle
   MeasurementEstimator *theEstimator;
   TrajectoryStateUpdator *theUpdator;
 
   // The fit direction.This is the global fit direction and it could be (LOCALLY!) different w.r.t. the 
   // propagation direction embeeded in the propagator (i.e. when it is used in the "anyDirection" mode)
   // This data member is not set via parameter set since it must be consistent with the RefitterParameter.
-  PropagationDirection theFitDirection;
+  recoMuon::FitDirection theFitDirection;
 };
 #endif
 

@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Forward Muon
  *
- * $Date: 2006/04/24 20:00:12 $
- * $Revision: 1.4 $
+ * $Date: 2006/08/28 19:12:58 $
+ * $Revision: 1.6 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -22,6 +22,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace edm;
 
 vector<const DetLayer*> 
 MuonForwardNavigableLayer::nextLayers(PropagationDirection dir) const {
@@ -59,7 +60,7 @@ MuonForwardNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
   else {
     pushResult(result, theInnerEndcapLayers, fts);
     reverse(result.begin(),result.end());
-    pushResult(result, theInnerBarrelLayers, fts);
+    pushResult(barrel, theInnerBarrelLayers, fts);
     reverse(barrel.begin(),barrel.end());
     result.insert(result.end(),barrel.begin(),barrel.end());
   }
@@ -101,7 +102,7 @@ MuonForwardNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
   else {
     pushCompatibleResult(result, theAllInnerEndcapLayers, fts);
     reverse(result.begin(),result.end());
-    pushCompatibleResult(result, theAllInnerBarrelLayers, fts);
+    pushCompatibleResult(barrel, theAllInnerBarrelLayers, fts);
     reverse(barrel.begin(),barrel.end());
     result.insert(result.end(),barrel.begin(),barrel.end());
   }

@@ -42,6 +42,9 @@ CSCChamberSpecs::CSCChamberSpecs( int iChamberType,
   float stripOffset2 = specsValue(74);
 
   float phiPitch = this->stripPhiPitch();
+  float ctiOffset = 0.;
+  if ( useCentreTIOffsets )
+    ctiOffset = this->ctiOffset();
 
   // Build the unique LayerGeometry objects we require for each chamber type.
   // - There are 2 endcaps
@@ -54,19 +57,19 @@ CSCChamberSpecs::CSCChamberSpecs( int iChamberType,
 
   poszOddLayerGeometry = new CSCLayerGeometry( iChamberType, bounds,
      nstrips, -stripOffset1, phiPitch, 
-     wg, wireAngleInDegrees );
+     wg, wireAngleInDegrees, ctiOffset );
 
   poszEvenLayerGeometry = new CSCLayerGeometry( iChamberType, bounds,
      nstrips, -stripOffset2, phiPitch, 
-     wg, wireAngleInDegrees );
+     wg, wireAngleInDegrees, ctiOffset );
 
   negzOddLayerGeometry = new CSCLayerGeometry( iChamberType, bounds,
      nstrips, -stripOffset1, phiPitch,
-     wg, -wireAngleInDegrees );
+     wg, -wireAngleInDegrees, ctiOffset );
 
   negzEvenLayerGeometry = new CSCLayerGeometry( iChamberType, bounds,
      nstrips, -stripOffset2, phiPitch,
-     wg, -wireAngleInDegrees );
+     wg, -wireAngleInDegrees, ctiOffset );
 
 }
 
@@ -217,6 +220,13 @@ void CSCChamberSpecs::whatModelling() {
 
   edm::LogInfo("CSC") << myName << ": wires are modelled using " << wg << " wire geometry " << "\n";
 
+  std::string cti = " ";
+  if ( useCentreTIOffsets )
+    cti = "WITH";
+  else
+    cti = "WITHOUT";
+
+  edm::LogInfo("CSC") << myName << ": strips are placed relative to the gas volume " << cti << " offsets " << "\n";
 }
 
 // Define the specsMap 
@@ -225,6 +235,11 @@ std::map<int, CSCChamberSpecs*, std::less<int> > CSCChamberSpecs::specsMap;
 // Define the phi width of strips in each chamber type
 const float CSCChamberSpecs::stripDeltaPhi[] =
 { 2.96, 2.96, 2.33, 2.16, 4.65, 2.33, 4.65, 2.33, 4.65, 2.33 };
+
+// Define the hacked-in offsets for the whereStripsMeet calculation
+// @@ ME1/3 does not get adjusted, and no info for ME4/2 
+const float CSCChamberSpecs::centreToIntersectionOffset[] = 
+{ 16.033752, 16.033752, 8.694855, 0., -0.576782, 5.048706, -0.693268, 5.048706, 5.855377, 0. };
 
 // Define the name of each chamber type
 const std::string CSCChamberSpecs::theName[] =
@@ -240,3 +255,4 @@ bool CSCChamberSpecs::gangedstripsME1a = true;
 bool CSCChamberSpecs::onlywiresME1a = false;
 bool CSCChamberSpecs::useRadialStrips = true;
 bool CSCChamberSpecs::useRealWireGeometry = false; // pseudo wire geometry
+bool CSCChamberSpecs::useCentreTIOffsets = false;

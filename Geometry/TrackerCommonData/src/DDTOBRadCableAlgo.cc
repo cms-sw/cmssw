@@ -20,7 +20,7 @@
 
 DDTOBRadCableAlgo::DDTOBRadCableAlgo():
   rodRin(0),rodRout(0),cableM(0),connM(0),coolR(0),coolM(0),names(0) {
-  LogDebug("TOBGeom") <<"DDTOBRadCableAlgo info: Creating an instance";
+  edm::LogInfo("TOBGeom") <<"DDTOBRadCableAlgo info: Creating an instance";
 }
 
 DDTOBRadCableAlgo::~DDTOBRadCableAlgo() {}

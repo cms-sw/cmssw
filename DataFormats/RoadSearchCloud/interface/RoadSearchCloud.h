@@ -13,8 +13,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/02/28 17:56:08 $
-// $Revision: 1.2 $
+// $Date: 2006/03/28 22:43:33 $
+// $Revision: 1.3 $
 //
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -39,8 +39,13 @@ public:
   inline RecHitOwnVector recHits() const { return recHits_;}
   inline void addHit(TrackingRecHit* input) { recHits_.push_back(input); }
   inline void addSeed(SeedRef input) { seeds_.push_back(input); }
-  inline  SeedRefs seeds() const { return seeds_;}
+  inline SeedRefs seeds() const { return seeds_;}
   inline unsigned int size() const { return recHits_.size(); }
+  inline RecHitOwnVector::const_iterator begin_hits() const { return recHits_.begin(); }
+  inline RecHitOwnVector::const_iterator end_hits()   const { return recHits_.end();   }
+  inline SeedRefs::const_iterator begin_seeds()       const { return seeds_.begin();   }
+  inline SeedRefs::const_iterator end_seeds()         const { return seeds_.end();     }
+
 
 private:
 

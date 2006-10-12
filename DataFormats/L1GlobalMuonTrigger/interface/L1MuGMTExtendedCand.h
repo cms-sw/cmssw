@@ -36,6 +36,7 @@
 // Base Class Headers --
 //----------------------
 
+//#include "Utilities/GenUtil/interface/BitArray.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
 //------------------------------------

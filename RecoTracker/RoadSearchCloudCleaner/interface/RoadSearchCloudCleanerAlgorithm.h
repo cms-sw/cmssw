@@ -9,8 +9,8 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/22 01:16:14 $
+// $Author: gutsche $
+// $Date: 2006/03/28 23:12:10 $
 // $Revision: 1.1 $
 //
 
@@ -32,7 +32,8 @@ class RoadSearchCloudCleanerAlgorithm
 	   RoadSearchCloudCollection &output);
 
  private:
-  edm::ParameterSet conf_;
+  double mergingFraction_;
+  unsigned int maxRecHitsInCloud_;
 
 };
 

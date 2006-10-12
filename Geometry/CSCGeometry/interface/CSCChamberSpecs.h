@@ -121,6 +121,12 @@ public:
   float stripPhiPitch() const {return 1.E-03 * stripDeltaPhi[theChamberType-1];}
 
   /**
+   * offset to centreToIntersection, in cm (the backed-out corrections 
+   * for positioning the strips)
+   */
+  float ctiOffset() const {return centreToIntersectionOffset[theChamberType-1];}
+
+  /**
    * wire spacing, in cm. All layers in a chamber have the same spacing.
    */
   // specValue is superseded by LayerGeometry value(s)...
@@ -221,6 +227,7 @@ public:
   static void setOnlyWiresInME1a(bool ow)     { onlywiresME1a = ow; }
   static void setUseRadialStrips(bool rs)     { useRadialStrips = rs; }
   static void setUseRealWireGeometry(bool wg) { useRealWireGeometry = wg; }
+  static void setUseCentreTIOffsets(bool cti) { useCentreTIOffsets = cti; }
 
   /**
    * Ganged strips in ME1a
@@ -245,7 +252,12 @@ public:
    */
   static bool realWireGeometry() { return useRealWireGeometry; }
 
-  
+  /**
+   * Use the backed-out offsets for theCentreToIntersection in
+   * CSCLayerGeometry
+   */
+  static bool centreTIOffsets() { return useCentreTIOffsets; }
+
  private:
 
   /// Accessor to chamber specs values
@@ -279,6 +291,9 @@ public:
   // Delta-phi width of strip in each chamber type (in mrad)
   static const float stripDeltaPhi[10];
 
+  // Backed-out offsets for the whereStripsMeet calculation
+  static const float centreToIntersectionOffset[10];
+
   // Names of chamber types
   static const std::string theName[10];
 
@@ -291,6 +306,7 @@ public:
   static bool onlywiresME1a;
   static bool useRadialStrips;
   static bool useRealWireGeometry;
+  static bool useCentreTIOffsets;
 
 };
 

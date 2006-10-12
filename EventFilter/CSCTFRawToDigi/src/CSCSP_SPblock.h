@@ -52,6 +52,7 @@ private:
 	friend class CSCSPRecord;
 	unsigned int tbin_; // time bin, that this SP block belongs to
 	unsigned int mode_; // stations, that this track crossed (they gave LCTs to build it)
+	unsigned int id_;   // track number (1, 2, or 3)
 
 public:
 	bool check(void) const throw() { return zero_1!=0||zero_2!=0||zero_3!=0||zero_4!=0||zero_5!=0; }
@@ -83,6 +84,7 @@ public:
 	unsigned int MB_tbin (void) const throw() { return mb_tbin;  }
 
 	unsigned int tbin(void) const throw() { return tbin_; }
+	unsigned int id  (void) const throw() { return id_;   }
 
 	// vector may have up to 4 elements (one per station)
 	std::vector<CSCSP_MEblock> LCTs(void) const throw() {

@@ -30,7 +30,8 @@ namespace edm {
 
     void PSetNode::print(ostream& ost, Node::PrintOptions options) const
     {
-      ost << type() << " " << name() << " = ";
+      const char* t = !tracked_ ? "" : "untracked ";
+      ost << t << type() << " " << name() << " = ";
 
       CompositeNode::print(ost, options);
     }
@@ -49,7 +50,6 @@ namespace edm {
 
     void PSetNode::replaceWith(const ReplaceNode * replaceNode)
     {
-      assertNotModified();
       PSetNode * replacement = replaceNode->value<PSetNode>();
       assert(replacement != 0);
 

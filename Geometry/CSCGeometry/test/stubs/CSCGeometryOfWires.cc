@@ -159,7 +159,7 @@ void
 	//	std::cout << "phi(0,0,0) = " << iphiDeg << " degrees" << std::endl;
 
         int nStrips = geom->numberOfStrips();
-        std::cout << std::setw( 4 ) << nStrips;
+	//        std::cout << std::setw( 4 ) << nStrips;
 
         double cstrip1  = layer->centerOfStrip(1).phi();
         double cstripN  = layer->centerOfStrip(nStrips).phi();
@@ -244,7 +244,7 @@ void
 	std::cout << "TST: oi = " << 
 	  hApothem * (hTopEdge+hBottomEdge)/(hTopEdge-hBottomEdge) << std::endl;
 
-	std::cout << "\nStrip Offset = " << geom->stripOffset() << std::endl;
+	//	std::cout << "\nStrip Offset = " << geom->stripOffset() << std::endl;
 
 	std::cout << "\nlocal(0,0,-1) = global " << gCentre1 << std::endl;
 	std::cout << "local(0,0)    = global " << gCentre << std::endl;

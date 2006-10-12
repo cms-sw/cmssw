@@ -7,6 +7,10 @@
 #include "Geometry/Vector/interface/Vector2DBase.h"
 #include "Geometry/Surface/interface/PlaneBuilder.h"
 
+TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator () :
+  thePropagator(0) {}
+
+
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator (const MagneticField* field) :
   thePropagator(new AnalyticalPropagator(field, anyDirection)) {}
 

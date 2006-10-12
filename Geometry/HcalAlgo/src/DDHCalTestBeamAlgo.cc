@@ -20,7 +20,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalTestBeamAlgo::DDHCalTestBeamAlgo() {
-  LogDebug("HCalGeom") << "DDHCalTestBeamAlgo test: Creating an instance";
+  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo test: Creating an instance";
 }
 
 DDHCalTestBeamAlgo::~DDHCalTestBeamAlgo() {}

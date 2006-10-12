@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: SortCollectionSelector.h,v 1.1 2006/07/25 09:28:58 llista Exp $
+ * $Id: SortCollectionSelector.h,v 1.2 2006/07/31 13:30:48 llista Exp $
  *
  */
 
@@ -24,7 +24,7 @@ struct SortCollectionSelector {
   typedef typename container::const_iterator const_iterator;
   SortCollectionSelector( const edm::ParameterSet & cfg ) : 
     compare_( CMP() ),
-    max_( cfg.template getParameter<unsigned int>( "max" ) ) { }
+    maxNumber_( cfg.template getParameter<unsigned int>( "maxNumber" ) ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
   void select( const C & c, const edm::Event & ) {
@@ -33,7 +33,7 @@ struct SortCollectionSelector {
       v.push_back( & * i );
     std::sort( v.begin(), v.end(), compare_ );
     selected_.clear();
-    for( unsigned int i = 0; i < max_ && i < v.size(); ++i )
+    for( unsigned int i = 0; i < maxNumber_ && i < v.size(); ++i )
       selected_.push_back( v[ i ] );
   }
 private:
@@ -46,7 +46,7 @@ private:
     CMP cmp_;
   };
   Comparator compare_;
-  unsigned int max_;
+  unsigned int maxNumber_;
   container selected_;
 };
 

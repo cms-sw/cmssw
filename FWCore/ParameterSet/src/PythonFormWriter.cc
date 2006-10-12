@@ -5,9 +5,8 @@
 #include "FWCore/ParameterSet/src/PythonFormWriter.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/parse.h"
-
 
 //
 // TODO:
@@ -96,6 +95,10 @@ namespace edm
       procname_(),
       moduleStack_(),
       modules_(),
+      outputModuleNames_(),
+      modulesWithSecSources_(),
+      triggerPaths_(),
+      endPaths_(),
       processingVPSet_(false),
       nVPSetChildren_(0)
     {
@@ -523,14 +526,10 @@ namespace edm
 
 
     void
-    PythonFormWriter::write(ParseResults& parsetree, ostream& out)
+    PythonFormWriter::write(ParseTree& parsetree, ostream& out)
     {
-      // The 'list of nodes' must really be the root of a tree
-      assert (parsetree->size() == 1);
-
       // Walk the tree, accumulating state.
-      edm::pset::NodePtr root = parsetree->front();
-      root->accept(*this);
+      parsetree.top()->accept(*this);
 
       // Now write what we have found
       out << "{\n'procname': '"

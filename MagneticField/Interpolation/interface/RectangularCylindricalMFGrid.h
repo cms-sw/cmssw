@@ -11,7 +11,7 @@ public:
   RectangularCylindricalMFGrid( binary_ifstream& istr, 
 				const GloballyPositioned<float>& vol );
 
-  virtual LocalVector uncheckedValueInTesla( const LocalPoint& p) const;
+  virtual LocalVector valueInTesla( const LocalPoint& p) const;
 
   virtual void dump() const;
 

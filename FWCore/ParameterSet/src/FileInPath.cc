@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.12 2006/08/08 21:13:02 paterno Exp $
+// $Id: FileInPath.cc,v 1.13 2006/08/08 21:17:29 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -226,7 +226,8 @@ namespace edm
 
       // Set the boost::fs path to the current element of
       // CMSSW_SEARCH_PATH:
-      pathPrefix = *it;
+      
+      pathPrefix = bf::path(*it, bf::no_check);
 
       // Does the a file exist? locateFile throws is it finds
       // something goofy.
@@ -258,7 +259,7 @@ namespace edm
 	    << " must be defined - is runtime environment set correctly?\n";
 
 	// Create a path object for our local path LOCALTOP:
-	bf::path local_(localtop_);
+	bf::path local_(localtop_, bf::no_check);
 	    
 	// If the branch path matches the local path, the file was found locally:
 	if (br == local_) {

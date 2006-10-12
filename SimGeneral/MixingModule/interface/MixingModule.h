@@ -44,7 +44,7 @@ namespace edm
       virtual void put(edm::Event &e) ;
       virtual void createnewEDProduct();
       virtual void addSignals(const edm::Event &e); 
-      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId);
+      virtual void addPileups(const int bcr, edm::Event*);
 
       // internally used information
       std::vector<std::string> simHitSubdetectors_;
@@ -52,8 +52,6 @@ namespace edm
       std::vector<std::string> trackerHighLowPids_;
       std::vector<std::string> nonTrackerPids_;
       CrossingFrame *simcf_;
-
-      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
     };
 }//edm

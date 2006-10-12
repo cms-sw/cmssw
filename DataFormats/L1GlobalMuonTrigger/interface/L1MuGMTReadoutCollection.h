@@ -5,8 +5,8 @@
 //   Description: 
 //
 //
-//   $Date: 2006/05/15 13:51:42 $
-//   $Revision: 1.1 $
+//   $Date$
+//   $Revision$
 //
 //   Author :
 //   Hannes Sakulin                  HEPHY Vienna
@@ -42,8 +42,7 @@ class L1MuGMTReadoutCollection {
 
  public:
 
-  L1MuGMTReadoutCollection() {};
-  L1MuGMTReadoutCollection(int nbx) { m_Records.reserve(nbx); };
+  L1MuGMTReadoutCollection(int nbx=3) { m_Records.reserve(nbx); };
 
   virtual ~L1MuGMTReadoutCollection() {};
 

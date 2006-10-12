@@ -1,5 +1,5 @@
-#ifndef RecoMuon_StandAloneMuonProducer_H
-#define RecoMuon_StandAloneMuonProducer_H
+#ifndef RecoMuon_StandAloneMuonProducer_StandAloneMuonProducer_H
+#define RecoMuon_StandAloneMuonProducer_StandAloneMuonProducer_H
 
 /**  \class StandAloneMuonProducer
  * 
@@ -9,8 +9,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/05/19 15:23:20 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/05/30 13:02:43 $
+ *   $Revision: 1.3 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -20,6 +20,7 @@
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonTrackFinder;
+class MuonServiceProxy;
 
 class StandAloneMuonProducer : public edm::EDProducer {
 
@@ -33,14 +34,17 @@ class StandAloneMuonProducer : public edm::EDProducer {
   
   /// reconstruct muons
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  // ex virtual void reconstruct();
-  
+    
  private:
   
-  // MuonSeed Collection Label
+  /// MuonSeed Collection Label
   std::string theSeedCollectionLabel;
   
+  /// the track finder
   MuonTrackFinder* theTrackFinder; //It isn't the same as in ORCA
+
+  /// the event setup proxy, it takes care the services update
+  MuonServiceProxy *theService;
 };
 
 #endif

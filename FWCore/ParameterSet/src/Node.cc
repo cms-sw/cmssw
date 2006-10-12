@@ -31,15 +31,6 @@ namespace edm {
     }
 
 
-    void Node::assertNotModified() const
-    {
-      if(isModified()) {
-       throw edm::Exception(errors::Configuration)
-          << "Cannot replace a node that has already been modified: " << name();
-      }
-    }
-
-
     void Node::printTrace(std::ostream & out) const 
     {
       // default behavior is to pass the message up to the parent,

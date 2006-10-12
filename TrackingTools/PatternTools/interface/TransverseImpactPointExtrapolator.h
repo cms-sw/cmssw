@@ -28,6 +28,9 @@ class TransverseImpactPointExtrapolator {
 public:
 
   /// constructor with default geometrical propagator
+  TransverseImpactPointExtrapolator();
+  
+  /// constructor with default geometrical propagator
   TransverseImpactPointExtrapolator(const MagneticField* field);
   /// constructor with user-supplied propagator
   TransverseImpactPointExtrapolator(const Propagator& u);

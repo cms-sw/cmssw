@@ -1,7 +1,6 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/Common>
 <use name=RecoMuon/TrackingTools>
 <use name=RecoMuon/StandAloneTrackFinder>
 
@@ -12,16 +11,4 @@
 
 <export>
    <lib name=RecoMuonStandAloneMuonProducer>
-
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=DataFormats/Common>
-   <use name=RecoMuon/TrackingTools>
-   <use name=RecoMuon/StandAloneTrackFinder>
-
-   <use name=CLHEP>
-   <use name=root>
-
-
-</export>
+</Export>

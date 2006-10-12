@@ -1,0 +1,22 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
+<use name=SimGeneral/HepPDT>
+<use name=RecoVertex/PrimaryVertexProducer>
+<use name=root>
+<use name=gsl>
+<flags SEAL_PLUGIN_NAME="ValidationRecoVertex">
+<export>
+   <lib name=ValidationVertexReco>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/TrackReco>
+   <use name=DataFormats/VertexReco>
+   <use name=SimGeneral/HepPDT>
+   <use name=RecoVertex/PrimaryVertexProducer>
+   <use name=root>
+   <use name=gsl>
+</export>

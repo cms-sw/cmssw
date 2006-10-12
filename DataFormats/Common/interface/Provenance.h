@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.6 2006/07/06 18:34:05 wmtan Exp $
+$Id: Provenance.h,v 1.5.2.9 2006/07/04 13:56:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 

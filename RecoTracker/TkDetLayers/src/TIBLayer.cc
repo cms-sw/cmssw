@@ -39,9 +39,24 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
   // initialize the surface
   theInnerCylinder = cylinder( theInnerComps);
   theOuterCylinder = cylinder( theOuterComps);
-  setSurface( cylinder(theComps) );
+  initialize();
   
   LogDebug("TkDetLayers") << "==== DEBUG TIBLayer =====" ; 
+  LogDebug("TkDetLayers") << "innerCyl radius, thickness, lenght: " 
+			  << theInnerCylinder->radius() << " , "
+			  << theInnerCylinder->bounds().thickness() << " , "
+			  << theInnerCylinder->bounds().length() ;
+ 
+  LogDebug("TkDetLayers") << "outerCyl radius, thickness, lenght: " 
+			  << theOuterCylinder->radius() << " , "
+			  << theOuterCylinder->bounds().thickness() << " , "
+			  << theOuterCylinder->bounds().length() ;
+
+  LogDebug("TkDetLayers") << "Cyl radius, thickness, lenght: " 
+			  << specificSurface().radius() << " , "
+			  << specificSurface().bounds().thickness() << " , "
+			  << specificSurface().bounds().length() ;
+
   for (vector<const GeometricSearchDet*>::const_iterator i=theInnerComps.begin();
        i != theInnerComps.end(); i++){
     LogDebug("TkDetLayers") << "inner TIBRing pos z,radius,eta,phi: " 

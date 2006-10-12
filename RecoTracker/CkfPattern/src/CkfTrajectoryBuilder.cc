@@ -179,7 +179,6 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   TrajectorySeed::range hitRange = seed.recHits();
   for (TrajectorySeed::const_iterator ihit = hitRange.first; 
        ihit != hitRange.second; ihit++) {
-    //RC TransientTrackingRecHit* recHit = TTRHbuilder->build(&(*ihit));
     TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(&(*ihit));
     const GeomDet* hitGeomDet = 
       theMeasurementTracker->geomTracker()->idToDet( ihit->geographicalId());
@@ -246,7 +245,6 @@ void CkfTrajectoryBuilder::updateTrajectory( Trajectory& traj,
 					     const TM& tm) const
 {
   TSOS predictedState = tm.predictedState();
-  //RC const TransientTrackingRecHit* hit = tm.recHit();
   TM::ConstRecHitPointer hit = tm.recHit();
  
   if ( hit->isValid()) {
@@ -290,9 +288,8 @@ bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj)
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 
 std::vector<TrajectoryMeasurement> 
-CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj){
-  TrajectoryStateOnSurface testState = traj.lastMeasurement().forwardPredictedState();
-
+CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj)
+{
   vector<TM> result;
   int invalidHits = 0;
 

@@ -21,8 +21,11 @@ DCacheError::DCacheError (const char *context, int code /* = 0 */)
 
 std::string
 DCacheError::explainSelf (void) const
-{ return seal::StringFormat ("DCache error %1: %2")
-	 .arg (m_code).arg (dc_strerror (m_code)); }
+{ 
+  return  IOError::explainSelf() + 
+    std::string(seal::StringFormat (" DCache error %1: %2")
+		.arg (m_code).arg (dc_strerror (m_code))); 
+}
 
 seal::Error *
 DCacheError::clone (void) const

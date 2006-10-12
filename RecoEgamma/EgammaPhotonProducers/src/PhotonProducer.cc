@@ -73,7 +73,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
 
   //  Loop over barrel SC and fill the  photon collection
-  int iSC=0;
+  int iSC=0; // index in photon collection
+  int lSC=0; // local index on barrel
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
 
@@ -87,14 +88,17 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     reco::Photon newCandidate(0, p4, vtx);
 
     outputPhotonCollection.push_back(newCandidate);
-    reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, iSC));
+    reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, lSC));
     outputPhotonCollection[iSC].setSuperCluster(scRef);
 
+
+    lSC++;
     iSC++;
 
   }
 
   //  Loop over Endcap SC and fill the  photon collection
+  lSC=0; // reset local index for endcap
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
 
     const reco::Particle::Point  vtx( 0, 0, 0 );
@@ -105,15 +109,15 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     reco::Photon newCandidate(0, p4, vtx);
 
     outputPhotonCollection.push_back(newCandidate);
-    reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, iSC));
+    reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, lSC));
     outputPhotonCollection[iSC].setSuperCluster(scRef);
-
+ 
     iSC++;
+    lSC++;
 
   }
 
   // put the product in the event
-
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
   theEvent.put( outputPhotonCollection_p, PhotonCollection_);
