@@ -23,7 +23,7 @@ std::string
 DCacheError::explainSelf (void) const
 { 
   return  IOError::explainSelf() + 
-    std::string(seal::StringFormat ("DCache error %1: %2")
+    std::string(seal::StringFormat (" DCache error %1: %2")
 		.arg (m_code).arg (dc_strerror (m_code))); 
 }
 
