@@ -144,7 +144,7 @@ RFIOFile::open (const char *name,
 
     IOFD newfd = IOFD_INVALID;
     if ((newfd = rfio_open64 (lname.c_str(), openflags, perms.native ())) == -1)
-      throw RFIOError (seal::StringFormat ("rfio_open(%1,%2,%3").arg(lname).arg(openflags).arg(perms.native()).value().c_str(),
+      throw RFIOError (seal::StringFormat ("rfio_open(%1,%2,%3)").arg(lname).arg(openflags).arg(perms.native()).value().c_str(),
 			rfio_errno, serrno);
 
     m_fd = newfd;

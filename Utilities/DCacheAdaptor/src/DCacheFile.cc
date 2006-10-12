@@ -121,7 +121,7 @@ DCacheFile::open (const char *name,
     IOFD newfd = IOFD_INVALID;
     dc_errno = 0;
     if ((newfd = dc_open (name, openflags, perms.native ())) == -1)
-	throw DCacheError (seal::StringFormat ("dc_open(%1,%2,%3").arg(name).arg(openflags).arg(perms.native()).value().c_str(), dc_errno);
+	throw DCacheError (seal::StringFormat ("dc_open(%1,%2,%3)").arg(name).arg(openflags).arg(perms.native()).value().c_str(), dc_errno);
 
     m_fd = newfd;
 
