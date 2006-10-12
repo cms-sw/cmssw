@@ -110,15 +110,18 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
     MagneticFieldMap::instance( &(*pMF) ); 
  }    
   
-  // Initialize the tracker reco geometry
+  // Initialize the tracker reco geometry (always needed)
+  edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
+  es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+  myTrajectoryManager->initializeRecoGeometry(&(*theGeomSearchTracker));
+
+  // Initialize the full tracker geometry (only if tracking is requested)
   if ( m_Tracking ) {
     edm::ESHandle<TrackerGeometry> tracker;
     es.get<TrackerDigiGeometryRecord>().get(tracker);
-    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
-    es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
 
-    myTrajectoryManager->initializeRecoGeometry(&(*tracker), 
-						&(*theGeomSearchTracker));
+    myTrajectoryManager->initializeTrackerGeometry(&(*tracker)); 
+
   }
 
 
