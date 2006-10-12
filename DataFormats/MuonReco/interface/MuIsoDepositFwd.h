@@ -21,6 +21,7 @@ namespace reco {
 
   /// Map
   typedef edm::AssociationMap<edm::OneToValue<TrackCollection,bool> > MuIsoAssociationMap;
+  typedef edm::AssociationMap<edm::OneToValue<TrackCollection,reco::MuIsoDeposit> > MuIsoDepositAssociationMap;
 }
 
 #endif

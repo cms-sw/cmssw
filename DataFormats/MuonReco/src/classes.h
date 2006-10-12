@@ -25,16 +25,21 @@ namespace {
     edm::RefProd<std::vector<reco::MuIsoDeposit> > rp2;
     edm::RefVector<std::vector<reco::MuIsoDeposit> > rv2;
 
-    std::map<unsigned int, bool> m4;
-    reco::MuIsoAssociationMap v4;
-    edm::Wrapper<reco::MuIsoAssociationMap> w4;
-    edm::helpers::Key<edm::RefProd<std::vector<reco::Track> > > h4;
-
     std::vector<reco::MuonWithMatchInfo> v3;
     edm::Wrapper<std::vector<reco::MuonWithMatchInfo> > c3;
     edm::Ref<std::vector<reco::MuonWithMatchInfo> > r3;
     edm::RefProd<std::vector<reco::MuonWithMatchInfo> > rp3;
     edm::RefVector<std::vector<reco::MuonWithMatchInfo> > rv3;
     std::vector<reco::MuonWithMatchInfo::MuonMatch> vmm1;
+
+    std::map<unsigned int, bool> m4;
+    reco::MuIsoAssociationMap v4;
+    edm::Wrapper<reco::MuIsoAssociationMap> w4;
+    edm::helpers::Key<edm::RefProd<std::vector<reco::Track> > > h4;
+
+    std::map<unsigned int, reco::MuIsoDeposit> m5;
+    reco::MuIsoDepositAssociationMap v5;
+    edm::Wrapper<reco::MuIsoDepositAssociationMap> w5;
+
   }
 }

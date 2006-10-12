@@ -32,4 +32,10 @@
   <class name="edm::Ref<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit,edm::refhelper::FindUsingAdvance<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit> >"/>
   <class name="edm::RefProd<std::vector<reco::MuIsoDeposit> >"/>
   <class name="edm::RefVector<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit,edm::refhelper::FindUsingAdvance<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit> >"/>
+
+  <class name="std::map<unsigned int, reco::MuIsoDeposit>"/>
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, reco::MuIsoDeposit, unsigned int > >">
+      <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, reco::MuIsoDeposit, unsigned int > > >" />
 </lcgdict>
