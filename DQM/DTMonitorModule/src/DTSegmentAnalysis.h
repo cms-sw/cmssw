@@ -11,8 +11,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2006/10/02 18:03:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/10/08 16:04:20 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -23,10 +23,10 @@
 #include <string>
 #include <map>
 #include <vector>
+//#include <pair>
 
 class DaqMonitorBEInterface;
 class MonitorElement;
-
 
 class DTSegmentAnalysis {
 public:
@@ -49,9 +49,17 @@ private:
   std::string theRecHits4DLabel;
 
   edm::ParameterSet parameters;
+  int DTTrig;
+  int CSCTrig;
+  int RBC1Trig;
+  int RBC2Trig;
+  int RPCTBTrig;
 
   // Book a set of histograms for a give chamber
+  void bookHistos(int w, int sec);
   void bookHistos(DTChamberId chamberId);
+  // Fill a single histogram
+  void fillHistos(int nsegm, int w, int sec) ;
   // Fill a set of histograms for a give chamber 
   void fillHistos(DTChamberId chamberId, int nsegm);
   void fillHistos(DTChamberId chamberId,
@@ -64,6 +72,7 @@ private:
   
   //   std::map<DTChamberId, MonitorElement*> numSegmentPerCh;
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
+  std::map<std::pair<int,int>, MonitorElement* > histosPerSec;
 
 };
 #endif

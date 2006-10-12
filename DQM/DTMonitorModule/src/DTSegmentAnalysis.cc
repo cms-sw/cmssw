@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/10/02 18:03:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/09 18:19:41 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -14,6 +14,7 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "Geometry/Vector/interface/Pi.h"
 
+#include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include <iterator>
@@ -33,6 +34,7 @@ DTSegmentAnalysis::DTSegmentAnalysis(const ParameterSet& pset,
 	{
 	  for(int sec=10; sec<10+wheel; sec++)
 	    {
+	      bookHistos(wheel,sec);
 	      for (int st=1; st<5; st++)
 		{
 		  DTChamberId chId(wheel, st, sec);
@@ -41,8 +43,9 @@ DTSegmentAnalysis::DTSegmentAnalysis(const ParameterSet& pset,
 	    }
 	  DTChamberId chId(wheel, 4, 14);
 	  bookHistos(chId);
+	  //bookHistos(wheel,14);
 	}
-    }				     
+    }
 }
 
 DTSegmentAnalysis::~DTSegmentAnalysis(){
@@ -54,7 +57,26 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
   if(debug)
     cout << "[DTSegmentAnalysis] Analyze #Run: " << event.id().run()
 	 << " #Event: " << event.id().event() << endl;
-
+  
+  //Get the trigger source from ltc digis
+  DTTrig=-99, CSCTrig=-99, RBC1Trig=-99, RBC2Trig=-99, RPCTBTrig=-99;
+  edm::Handle<LTCDigiCollection> ltcdigis;
+  if ( !parameters.getUntrackedParameter<bool>("localrun", true) ) 
+    {
+      event.getByType(ltcdigis);
+      for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
+	if ((*ltc_it).HasTriggered(0))
+	  DTTrig=1;
+	if ((*ltc_it).HasTriggered(1))
+	  CSCTrig=1;
+	if ((*ltc_it).HasTriggered(2))
+	  RBC1Trig=1;
+	if ((*ltc_it).HasTriggered(3))
+	  RBC2Trig=1;
+	if ((*ltc_it).HasTriggered(4))
+	  RPCTBTrig=1;
+      }
+    }
 
   // -- 4D segment analysis  -----------------------------------------------------
   // Get the 4D segment collection from the event
@@ -73,6 +95,7 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
       cout << "   Chamber: " << *chamberId << " has " << nsegm
 	   << " 4D segments" << endl;
     fillHistos(*chamberId, nsegm);
+    fillHistos(nsegm,(*chamberId).wheel(),(*chamberId).sector());
     // Loop over the rechits of this ChamerId
     for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
 	 segment4D!=range.second;
@@ -82,7 +105,7 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
       int nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
       if((*segment4D).hasZed()) 
 	nHits = nHits + ((((*segment4D).zSegment())->specificRecHits()).size());
-
+      
       if (segment4DLocalDirection.z()) {
 	fillHistos(*chamberId,
 		   nHits,
@@ -95,15 +118,10 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
 	cout << "[DTSegmentAnalysis] Warning: segment local direction is: "
 	     << segment4DLocalDirection << endl;
       }
-      
-
     }
   }
   // -----------------------------------------------------------------------------
-
 }
-  
-
   
 // Book a set of histograms for a give chamber
 void DTSegmentAnalysis::bookHistos(DTChamberId chamberId) {
@@ -152,19 +170,63 @@ void DTSegmentAnalysis::bookHistos(DTChamberId chamberId) {
   histos.push_back(theDbe->book1D("h4DChi2"+chamberHistoName,
 				  "4D Segment reduced Chi2",
 				  30, 0, 30));
-  histos.push_back(theDbe->book2D("h4DSegmThetaVSYInCham"+chamberHistoName,
+  histos.push_back(theDbe->book2D("h4DSegmThetaVSYInCham_DTTrig"+chamberHistoName,
 				  "4D Segment  Theta(deg) VS Y (cm)",
 				  125, -125, 125, 60, -60, 60));
   histosPerCh[chamberId] = histos;
 }
 
+void DTSegmentAnalysis::bookHistos(int w, int sec) {
+  if(debug)
+    cout << "   Booking histos for wheel " <<w<<"  sector "<<sec << endl;
+
+  // Compose the chamber name
+  stringstream wheel; wheel << w;	
+  stringstream sect; sect << sec;
+  
+  string sectorHistoName =
+    "_W" + wheel.str() +
+    "_Sec" + sect.str();
+  
+  theDbe->setCurrentFolder("DT/DTLocalRecoTask/Wheel" + wheel.str());
+  if (sec==14)
+    sec=10;
+  pair <int,int> sector;
+  sector.first=w;
+  sector.second=sec;
+  histosPerSec[sector] = theDbe->book1D("hN4DSeg_Trigg"+sectorHistoName,"# of 4D segments per event per trigger source",50, 0, 50);
+}
+
+// Fill a set of histograms 
+void DTSegmentAnalysis::fillHistos(int nsegm, int w, int sec) {
+  if (sec==14)
+    sec=10;
+  pair <int,int> sector;
+  sector.first=w;
+  sector.second=sec;
+  if(histosPerSec.find(sector) == histosPerSec.end()&& 
+     !parameters.getUntrackedParameter<bool>("MTCC", false)) {
+     bookHistos(w,sec);
+  }
+  if(DTTrig == 1)
+    histosPerSec[sector]->Fill(nsegm);
+  if(CSCTrig == 1)
+    histosPerSec[sector]->Fill(nsegm+10);
+  if(RBC1Trig == 1)
+    histosPerSec[sector]->Fill(nsegm+20);
+  if(RBC2Trig == 1)
+    histosPerSec[sector]->Fill(nsegm+30);
+  if(RPCTBTrig == 1)
+    histosPerSec[sector]->Fill(nsegm+40);
+}
 
 
 // Fill a set of histograms for a give chamber 
 void DTSegmentAnalysis::fillHistos(DTChamberId chamberId, int nsegm) {
   // FIXME: optimization of the number of searches
-  if(histosPerCh.find(chamberId) == histosPerCh.end()) {
-    bookHistos(chamberId);
+  if(histosPerCh.find(chamberId) == histosPerCh.end() && 
+     !parameters.getUntrackedParameter<bool>("MTCC", false)) {
+   bookHistos(chamberId);
   }
   histosPerCh[chamberId][0]->Fill(nsegm);
 }
@@ -191,7 +253,10 @@ void DTSegmentAnalysis::fillHistos(DTChamberId chamberId,
   histos[5]->Fill(phi);
   histos[6]->Fill(theta);
   histos[7]->Fill(chi2);
-  histos[8]->Fill(posY,theta);
+  if (parameters.getUntrackedParameter<bool>("localrun", true) ) 
+     histos[8]->Fill(posY,theta);
+   else
+     {
+       if(DTTrig==1) histos[8]->Fill(posY,theta); 
+     }
 }
-
-
