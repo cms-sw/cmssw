@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Thu Sep 28 16:40:29 PDT 2006
-// $Id$
+// $Id: MuonNumberingInitialization.cc,v 1.1 2006/10/09 18:25:36 case Exp $
 //
 //
 
@@ -150,7 +150,7 @@ void MuonNumberingInitialization::initializeMuonDDDConstants( const IdealGeometr
     for ( ; bit != eit; ++bit ) {
       if ( bit->second.isEvaluated() ) {
 	muonDDDConst_->addValue( bit->second.name(), int(bit->second.doubles()[0]) );
-	//std::cout << "adding DDConstant of " << bit->second.name() << " = " << int(bit->second.doubles()[0]) << std::endl;
+	//	std::cout << "adding DDConstant of " << bit->second.name() << " = " << int(bit->second.doubles()[0]) << std::endl;
       }
     }
 //     std::cout << "loading it with one value" << std::endl;

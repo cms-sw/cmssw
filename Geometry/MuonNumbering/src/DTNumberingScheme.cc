@@ -2,19 +2,28 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include <iostream>
 
 //#define LOCAL_DEBUG
 
-DTNumberingScheme::DTNumberingScheme(){
-  MuonDDDConstants muonConstants;
-  int theLevelPart=muonConstants.getValue("[level]");
-  theRegionLevel=muonConstants.getValue("[mb_region]")/theLevelPart;
-  theWheelLevel=muonConstants.getValue("[mb_wheel]")/theLevelPart;
-  theStationLevel=muonConstants.getValue("[mb_station]")/theLevelPart;
-  theSuperLayerLevel=muonConstants.getValue("[mb_superlayer]")/theLevelPart;
-  theLayerLevel=muonConstants.getValue("[mb_layer]")/theLevelPart;
-  theWireLevel=muonConstants.getValue("[mb_wire]")/theLevelPart;
+DTNumberingScheme::DTNumberingScheme( const MuonDDDConstants& muonConstants ) {
+  initMe(muonConstants);
+}
+
+DTNumberingScheme::DTNumberingScheme( const DDCompactView& cpv ) {
+  MuonDDDConstants muonConstants(cpv);
+  initMe(muonConstants);
+}
+
+void DTNumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
+  int theLevelPart=muonConstants.getValue("level");
+  theRegionLevel=muonConstants.getValue("mb_region")/theLevelPart;
+  theWheelLevel=muonConstants.getValue("mb_wheel")/theLevelPart;
+  theStationLevel=muonConstants.getValue("mb_station")/theLevelPart;
+  theSuperLayerLevel=muonConstants.getValue("mb_superlayer")/theLevelPart;
+  theLayerLevel=muonConstants.getValue("mb_layer")/theLevelPart;
+  theWireLevel=muonConstants.getValue("mb_wire")/theLevelPart;
  #ifdef LOCAL_DEBUG
    std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
    std::cout << "theWheelLevel " << theWheelLevel <<std::endl;
@@ -23,6 +32,7 @@ DTNumberingScheme::DTNumberingScheme(){
    std::cout << "theLayerLevel " << theLayerLevel <<std::endl;
    std::cout << "theWireLevel " << theWireLevel <<std::endl;
  #endif
+
 }
 
 int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){

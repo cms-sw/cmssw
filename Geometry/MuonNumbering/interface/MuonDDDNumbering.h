@@ -10,7 +10,7 @@
  * level, super and base constants (eg. 1000,100,1) and
  * the start value of the copy numbers (0 or 1)  
  *  
- *  $Date: 2005/10/18 16:54:41 $
+ *  $Date: 2006/02/15 13:21:24 $
  *  $Revision: 1.1 $
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
@@ -20,11 +20,12 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 class MuonBaseNumber;
+class MuonDDDConstants;
 
 class MuonDDDNumbering {
  public:
 
-  MuonDDDNumbering();
+  MuonDDDNumbering( const MuonDDDConstants& muonConstants );
   ~MuonDDDNumbering(){};
   
   MuonBaseNumber geoHistoryToBaseNumber(const DDGeoHistory & history);

@@ -6,8 +6,8 @@
  * implementation of MuonNumberingScheme for muon rpc,
  * converts the MuonBaseNumber to a unit id
  *  
- *  $Date: 2006/02/15 13:21:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/22 18:46:23 $
+ *  $Revision: 1.3 $
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
  */
@@ -15,16 +15,22 @@
 #include "Geometry/MuonNumbering/interface/MuonNumberingScheme.h"
 
 class MuonBaseNumber;
+class DDCompactView;
+class MuonDDDConstants;
 
 class RPCNumberingScheme : public MuonNumberingScheme {
  public:
 
-  RPCNumberingScheme();
+  RPCNumberingScheme( const DDCompactView& cpv );
+  RPCNumberingScheme( const MuonDDDConstants& muonConstants );
+
   virtual ~RPCNumberingScheme(){};
   
   virtual int baseNumberToUnitNumber(const MuonBaseNumber);
   
  private:
+  void initMe ( const MuonDDDConstants& muonConstants );
+
   int theRegionLevel;
   int theBWheelLevel;
   int theBStationLevel;

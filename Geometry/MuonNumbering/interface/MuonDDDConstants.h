@@ -6,8 +6,8 @@
  * this class reads the constant section of
  * the muon-numbering xml-file
  *  
- *  $Date: 2006/02/15 13:21:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/09 18:25:35 $
+ *  $Revision: 1.2 $
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *  modified by:
  *   Michael Case, <michael.case@cern.ch>, 2006/10/05
@@ -16,12 +16,16 @@
 
 #include<string>
 #include<map>
+#include<iostream>
+
+class DDCompactView;
 
 class MuonDDDConstants {
  public:
 
   MuonDDDConstants();
-  ~MuonDDDConstants(){};
+  MuonDDDConstants( const DDCompactView& cpv );
+  ~MuonDDDConstants();
 
   int getValue ( const std::string& name ) const;
   void addValue( const std::string& name, const int& value );

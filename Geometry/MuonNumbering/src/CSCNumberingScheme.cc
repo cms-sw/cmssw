@@ -2,20 +2,30 @@
 #include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include <iostream>
 
 //#define LOCAL_DEBUG
 
-CSCNumberingScheme::CSCNumberingScheme(){
-  MuonDDDConstants muonConstants;
-  int theLevelPart=muonConstants.getValue("[level]");
-  theRegionLevel=muonConstants.getValue("[me_region]")/theLevelPart;
-  theStationLevel=muonConstants.getValue("[me_station]")/theLevelPart;
-  theSubringLevel=muonConstants.getValue("[me_subring]")/theLevelPart;
-  theSectorLevel=muonConstants.getValue("[me_sector]")/theLevelPart;
-  theLayerLevel=muonConstants.getValue("[me_layer]")/theLevelPart;
-  theRingLevel=muonConstants.getValue("[me_ring]")/theLevelPart;
+CSCNumberingScheme::CSCNumberingScheme( const MuonDDDConstants& muonConstants ) {
+  initMe(muonConstants);
+}
+
+CSCNumberingScheme::CSCNumberingScheme( const DDCompactView& cpv )
+{
+  MuonDDDConstants muonConstants(cpv);
+  initMe(muonConstants);
+}
+
+void CSCNumberingScheme::initMe (  const MuonDDDConstants& muonConstants ) {
+  int theLevelPart=muonConstants.getValue("level");
+  theRegionLevel=muonConstants.getValue("me_region")/theLevelPart;
+  theStationLevel=muonConstants.getValue("me_station")/theLevelPart;
+  theSubringLevel=muonConstants.getValue("me_subring")/theLevelPart;
+  theSectorLevel=muonConstants.getValue("me_sector")/theLevelPart;
+  theLayerLevel=muonConstants.getValue("me_layer")/theLevelPart;
+  theRingLevel=muonConstants.getValue("me_ring")/theLevelPart;
 #ifdef LOCAL_DEBUG
   std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
   std::cout << "theStationLevel " << theStationLevel <<std::endl;

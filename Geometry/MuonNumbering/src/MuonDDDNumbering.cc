@@ -6,12 +6,12 @@
 
 //#define LOCAL_DEBUG
 
-MuonDDDNumbering::MuonDDDNumbering(){
-  MuonDDDConstants muonConstants;
-  theLevelPart=muonConstants.getValue("[level]");
-  theSuperPart=muonConstants.getValue("[super]");
-  theBasePart=muonConstants.getValue("[base]");
-  theStartCopyNo=muonConstants.getValue("[xml_starts_with_copyno]");
+MuonDDDNumbering::MuonDDDNumbering( const MuonDDDConstants& muonConstants ){
+  //  MuonDDDConstants muonConstants;
+  theLevelPart=muonConstants.getValue("level");
+  theSuperPart=muonConstants.getValue("super");
+  theBasePart=muonConstants.getValue("base");
+  theStartCopyNo=muonConstants.getValue("xml_starts_with_copyno");
 
   // some consistency checks
 

@@ -13,17 +13,21 @@
 #include "Geometry/MuonNumbering/interface/MuonNumberingScheme.h"
 
 class MuonBaseNumber;
+class DDCompactView;
+class MuonDDDConstants;
 
 class CSCNumberingScheme : public MuonNumberingScheme {
  public:
 
-  CSCNumberingScheme();
+  CSCNumberingScheme( const MuonDDDConstants& muonConstants );
+  CSCNumberingScheme( const DDCompactView& cpv );
   ~CSCNumberingScheme(){};
   
   virtual int baseNumberToUnitNumber(const MuonBaseNumber);
   
  private:
 
+  void initMe( const MuonDDDConstants& muonConstants );
   /**
    * Tim Cox - IMPORTANT - this is where we set CSC chamber labelling
    */

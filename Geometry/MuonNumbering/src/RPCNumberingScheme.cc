@@ -1,23 +1,32 @@
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include <iostream>
 
 //#define LOCAL_DEBUG
 
-RPCNumberingScheme::RPCNumberingScheme(){
-  MuonDDDConstants muonConstants;
-  int theLevelPart=muonConstants.getValue("[level]");
-  theRegionLevel=muonConstants.getValue("[mr_region]")/theLevelPart;
-  theBWheelLevel=muonConstants.getValue("[mr_bwheel]")/theLevelPart;
-  theBStationLevel=muonConstants.getValue("[mr_bstation]")/theLevelPart;
-  theBPlaneLevel=muonConstants.getValue("[mr_bplane]")/theLevelPart;
-  theBChamberLevel=muonConstants.getValue("[mr_bchamber]")/theLevelPart;
-  theEPlaneLevel=muonConstants.getValue("[mr_eplane]")/theLevelPart;
-  theESectorLevel=muonConstants.getValue("[mr_esector]")/theLevelPart;
-  theERollLevel=muonConstants.getValue("[mr_eroll]")/theLevelPart;
+RPCNumberingScheme::RPCNumberingScheme( const MuonDDDConstants& muonConstants ) {
+  initMe(muonConstants);
+}
+
+RPCNumberingScheme::RPCNumberingScheme( const DDCompactView& cpv ){
+  MuonDDDConstants muonConstants(cpv);
+  initMe(muonConstants);
+}
+
+void RPCNumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
+  int theLevelPart=muonConstants.getValue("level");
+  theRegionLevel=muonConstants.getValue("mr_region")/theLevelPart;
+  theBWheelLevel=muonConstants.getValue("mr_bwheel")/theLevelPart;
+  theBStationLevel=muonConstants.getValue("mr_bstation")/theLevelPart;
+  theBPlaneLevel=muonConstants.getValue("mr_bplane")/theLevelPart;
+  theBChamberLevel=muonConstants.getValue("mr_bchamber")/theLevelPart;
+  theEPlaneLevel=muonConstants.getValue("mr_eplane")/theLevelPart;
+  theESectorLevel=muonConstants.getValue("mr_esector")/theLevelPart;
+  theERollLevel=muonConstants.getValue("mr_eroll")/theLevelPart;
 #ifdef LOCAL_DEBUG
   std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
   std::cout << "theBWheelLevel " << theBWheelLevel <<std::endl;

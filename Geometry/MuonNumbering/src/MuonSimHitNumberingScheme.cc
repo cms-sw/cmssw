@@ -4,17 +4,18 @@
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 //#define LOCAL_DEBUG
 
-MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d) {
+MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const DDCompactView& cpv) {
   theDetector=d;
   if (theDetector->isBarrel()) {
-    theNumbering=new DTNumberingScheme();
+    theNumbering=new DTNumberingScheme(cpv);
   } else if (theDetector->isEndcap()) {
-    theNumbering=new CSCNumberingScheme();
+    theNumbering=new CSCNumberingScheme(cpv);
   } else if (theDetector->isRpc()) {
-    theNumbering=new RPCNumberingScheme();
+    theNumbering=new RPCNumberingScheme(cpv);
   } 
 }
 
