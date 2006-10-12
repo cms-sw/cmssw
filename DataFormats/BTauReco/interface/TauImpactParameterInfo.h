@@ -14,10 +14,11 @@ using namespace std;
 
 namespace reco {
  
-  struct TauImpactParameterTrackData {
-    TauImpactParameterTrackData() { }
-    Measurement1D  transverseIp;
-    Measurement1D  ip3D;
+  class TauImpactParameterTrackData {
+    public:
+	TauImpactParameterTrackData() { }
+	Measurement1D  transverseIp;
+	Measurement1D  ip3D;
   };
  
   class TauImpactParameterInfo {
