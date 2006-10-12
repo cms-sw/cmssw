@@ -2,8 +2,8 @@
  * 
  *  implementation of CSCMonitor class
  *
- *  $Date: 2006/03/20 13:12:13 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/06/28 09:56:51 $
+ *  $Revision: 1.14 $
  *
  * \author Ilaria Segoni
  */
@@ -78,7 +78,7 @@ void CSCMonitor::process(CSCDCCEventData & dccData )
     dbe->save(RootFileName);
   }
    
-  usleep(100000);
+ // usleep(100000);
 }
 
 

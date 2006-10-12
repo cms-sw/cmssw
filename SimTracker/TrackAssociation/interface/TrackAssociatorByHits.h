@@ -14,33 +14,34 @@
 
 class TrackAssociator;
 class Track;
-class SimTrack;
+class TrackingParticle;
+//class SimTrack;
 
 class TrackAssociatorByHits : public TrackAssociator {
   
  public:
-  typedef edm::AssociationMap<edm::OneToMany<edm::SimTrackContainer, reco::TrackCollection, unsigned int> > SimToRecoCollection;  
-  typedef edm::AssociationMap<edm::OneToMany<reco::TrackCollection, edm::SimTrackContainer, unsigned int> > RecoToSimCollection;  
+  //typedef edm::AssociationMap<edm::OneToMany<edm::ParticleTrackContainer, reco::TrackCollection, unsigned int> > SimToRecoCollection;  
+  //typedef edm::AssociationMap<edm::OneToMany<reco::TrackCollection, edm::ParticleTrackContainer, unsigned int> > RecoToSimCollection;  
   
   /* Constructor */
   /* Need to pass the event in the constructor. Will be modified once TrackingParticle is final */
-  TrackAssociatorByHits(const edm::Event& e);
+  TrackAssociatorByHits(const edm::Event& e, const edm::ParameterSet& conf);
   
   virtual ~TrackAssociatorByHits (){} 
   
   //method
- void  AssociateByHitsRecoTrack(const edm::SimTrackContainer&,
-				const reco::TrackCollection&,
-				const float minFractionOfHits = 0.);
+  void  AssociateByHitsRecoTrack(const reco::TrackCollection& tC,
+				 const float minFractionOfHits = 0.);
   
  private:
   const edm::Event& myEvent_; 
+  const edm::ParameterSet& conf_;
+  std::vector<unsigned int> matchedIds; 
   const float theMinHitFraction;    
   TrackerHitAssociator* associate;
-  typedef std::map<unsigned int, std::vector<SimTrack> > simtrk_map;
-  typedef simtrk_map::iterator simtrk_map_iterator;
-  simtrk_map  SimTrackIdMap;
+  const TrackingParticleCollection *tPC;
+
 };
-			      
+
 #endif // TrackAssociation_TrackAssociatorByHits_h
-			      
+

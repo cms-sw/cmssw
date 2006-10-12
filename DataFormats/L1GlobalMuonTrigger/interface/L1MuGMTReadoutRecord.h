@@ -48,9 +48,8 @@ using namespace std;
 class L1MuGMTReadoutRecord {
 
   public:
-    /// constructors
-    L1MuGMTReadoutRecord();
-    L1MuGMTReadoutRecord(int bxnr);
+    /// constructor
+    L1MuGMTReadoutRecord(int bxnr=0);
 
     /// destructor
     virtual ~L1MuGMTReadoutRecord();

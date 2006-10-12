@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
 class SiPixelFedCablingMap;
 
@@ -33,7 +32,8 @@ public:
 private:
 
   unsigned long eventCounter_;
+  std::string productLabel_;
   SiPixelFedCablingMap * fedCablingMap_;
-  edm::InputTag src_;
+
 };
 #endif

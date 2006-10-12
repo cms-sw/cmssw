@@ -35,6 +35,14 @@ reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, Commo
   double totalHad    = 0.0;
   double MaxTowerEm  = 0.0;
   double MaxTowerHad = 0.0;
+  if( towers->size() == 0 )  // if there are no towers, return specific = 0
+    {
+      cout << "[CaloMET] Number of Candidate CaloTowers is zero : Unable to calculate calo specific info. " << endl;
+      const LorentzVector p4( met.mex, met.mey, 0.0, met.met );
+      const Point vtx( 0.0, 0.0, 0.0 );
+      CaloMET specificmet( specific, met.sumet, p4, vtx );
+      return specificmet;
+    }
   //retreive calo tower information from candidates
   //start with the first element of the candidate list
   CandidateCollection::const_iterator tower = towers->begin();

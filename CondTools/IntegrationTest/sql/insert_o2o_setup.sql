@@ -1,1 +1,0 @@
-INSERT INTO o2o_setup VALUES ('<OBJECT>', '<SCHEMA>', '<TOP_TABLE>');

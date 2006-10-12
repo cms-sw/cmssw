@@ -19,7 +19,8 @@
 CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
          const TrapezoidalPlaneBounds& bounds,
          int nstrips, float stripOffset, float stripPhiPitch,
-	 const CSCWireGroupPackage& wg, float wireAngleInDegrees )
+         const CSCWireGroupPackage& wg, float wireAngleInDegrees,
+	 float ctiOffset)
   :   TrapezoidalPlaneBounds( bounds ), theWireTopology( 0 ),
       theStripTopology( 0 ), myName( "CSCLayerGeometry" ), 
       chamberType( iChamberType ) {
@@ -57,7 +58,9 @@ CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
   // of layer along local x axis is (T+B)/2. 
   // Then tan(angle/2)=wid/w, and so w is:
      whereStripsMeet =
-        0.5*(hTopEdge+hBottomEdge) / tan(0.5*nstrips*stripPhiPitch);
+        0.5*(hTopEdge+hBottomEdge) / tan(0.5*nstrips*stripPhiPitch)
+  // Add in the backed-out offset
+       + ctiOffset;
 
      AbsOffsetRadialStripTopology* aStripTopology = 
         new OffsetRadialStripTopology(nstrips, stripPhiPitch,

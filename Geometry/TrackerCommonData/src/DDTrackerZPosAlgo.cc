@@ -16,7 +16,7 @@
 
 
 DDTrackerZPosAlgo::DDTrackerZPosAlgo() {
-  LogDebug("TrackerGeom") <<"DDTrackerZPosAlgo info: Creating an instance";
+  edm::LogInfo("TrackerGeom") <<"DDTrackerZPosAlgo info: Creating an instance";
 }
 
 DDTrackerZPosAlgo::~DDTrackerZPosAlgo() {}

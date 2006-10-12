@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.7 2006/07/25 23:29:53 pivarski Exp $
+// $Id: SiStripElectronAlgo.h,v 1.8 2006/07/31 22:07:48 pivarski Exp $
 //
 
 // system include files
@@ -132,7 +132,7 @@ class SiStripElectronAlgo
       GlobalPoint position_pos_;
       GlobalVector momentum_pos_;
       const SiStripRecHit2D* innerhit_pos_;
-      edm::OwnVector<TrackingRecHit> outputHits_pos_;
+      std::vector<const TrackingRecHit*> outputHits_pos_;
       edm::RefVector<TrackingRecHitCollection> outputRphiHits_pos_;
       edm::RefVector<TrackingRecHitCollection> outputStereoHits_pos_;
       double phiVsRSlope_pos_;
@@ -151,7 +151,7 @@ class SiStripElectronAlgo
       GlobalPoint position_neg_;
       GlobalVector momentum_neg_;
       const SiStripRecHit2D* innerhit_neg_;
-      edm::OwnVector<TrackingRecHit> outputHits_neg_;
+      std::vector<const TrackingRecHit*> outputHits_neg_;
       edm::RefVector<TrackingRecHitCollection> outputRphiHits_neg_;
       edm::RefVector<TrackingRecHitCollection> outputStereoHits_neg_;
       double phiVsRSlope_neg_;

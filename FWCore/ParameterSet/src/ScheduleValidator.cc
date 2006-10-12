@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.10 2006/05/29 18:39:57 rpw Exp $
+   \version $Id: ScheduleValidator.cc,v 1.11 2006/08/07 23:52:36 rpw Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.10 2006/05/29 18:39:57 rpw Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.11 2006/08/07 23:52:36 rpw Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -24,7 +24,10 @@ ScheduleValidator::ScheduleValidator(const ScheduleValidator::PathContainer&
 				     pathFragments,
 				     const ParameterSet& processPSet): 
   nodes_(pathFragments),
-  processPSet_(processPSet){
+  processPSet_(processPSet),
+  leaves_(),
+  dependencies_() 
+{
  
   vector<string> paths = processPSet.getParameter<vector<string> >("@paths");
 

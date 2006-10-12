@@ -1,8 +1,8 @@
 /** \class STAMuonAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/08/02 08:08:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/16 10:07:10 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -16,6 +16,9 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -26,6 +29,7 @@
 
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
 
 using namespace std;
 using namespace edm;
@@ -55,6 +59,15 @@ void STAMuonAnalyzer::beginJob(const EventSetup& eventSetup){
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
 
+  hPtRec = new TH1F("pTRec","p_{T}^{rec}",250,0,120);
+  hPtSim = new TH1F("pTSim","p_{T}^{gen} ",250,0,120);
+
+  hPTDiff = new TH1F("pTDiff","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
+  hPTDiff2 = new TH1F("pTDiff2","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
+
+  hPTDiffvsEta = new TH2F("PTDiffvsEta","p_{T}^{rec} - p_{T}^{gen} VS #eta",100,-2.5,2.5,250,-120,120);
+  hPTDiffvsPhi = new TH2F("PTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-6,6,250,-120,120);
+
   hPres = new TH1F("pTRes","pT Resolution",100,-2,2);
   h1_Pres = new TH1F("invPTRes","1/pT Resolution",100,-2,2);
 }
@@ -68,11 +81,17 @@ void STAMuonAnalyzer::endJob(){
     
   // Write the histos to file
   theFile->cd();
+  hPtRec->Write();
+  hPtSim->Write();
   hPres->Write();
   h1_Pres->Write();
+  hPTDiff->Write();
+  hPTDiff2->Write();
+  hPTDiffvsEta->Write();
+  hPTDiffvsPhi->Write();
   theFile->Close();
 }
-
+ 
 
 void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
   
@@ -86,6 +105,8 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
   ESHandle<MagneticField> theMGField;
   eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
 
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
   
   double recPt=0.;
   double simPt=0.;
@@ -114,20 +135,53 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
   reco::TrackCollection::const_iterator staTrack;
   
   cout<<"Reconstructed tracks: " << staTracks->size() << endl;
+
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
-    reco::TransientTrack track(*staTrack,&*theMGField); 
+    reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
     
     cout << debug.dumpFTS(track.impactPointTSCP().theState());
     
     recPt = track.impactPointTSCP().momentum().perp();    
     cout<<" p: "<<track.impactPointTSCP().momentum().mag()<< " pT: "<<recPt<<endl;
-  }
-  cout<<"---"<<endl;
-  if(recPt && theDataType == "SimData"){
-    hPres->Fill( (recPt-simPt)/simPt);
-    h1_Pres->Fill( ( 1/recPt - 1/simPt)/ (1/simPt));
+    cout<<" chi2: "<<track.chi2()<<endl;
+    
+    hPtRec->Fill(recPt);
+    
+    TrajectoryStateOnSurface innerTSOS = track.innermostMeasurementState();
+    cout << "Inner TSOS:"<<endl;
+    cout << debug.dumpTSOS(innerTSOS);
+    cout<<" p: "<<innerTSOS.globalMomentum().mag()<< " pT: "<<innerTSOS.globalMomentum().perp()<<endl;
 
-  }  
+    trackingRecHit_iterator rhbegin = staTrack->recHitsBegin();
+    trackingRecHit_iterator rhend = staTrack->recHitsEnd();
+    
+    cout<<"RecHits:"<<endl;
+    for(trackingRecHit_iterator recHit = rhbegin; recHit != rhend; ++recHit){
+      const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
+      double r = geomDet->surface().position().perp();
+      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
+      cout<<"r: "<< r <<" z: "<<z <<endl;
+    }
+    
+    if(recPt && theDataType == "SimData"){  
+
+      hPres->Fill( (recPt-simPt)/simPt);
+      hPtSim->Fill(simPt);
+
+      hPTDiff->Fill(recPt-simPt);
+
+      //      hPTDiff2->Fill(track.innermostMeasurementState().globalMomentum().perp()-simPt);
+      hPTDiffvsEta->Fill(track.impactPointTSCP().position().eta(),recPt-simPt);
+      hPTDiffvsPhi->Fill(track.impactPointTSCP().position().phi(),recPt-simPt);
+
+      if( ((recPt-simPt)/simPt) <= -0.4)
+	cout<<"Out of Res: "<<(recPt-simPt)/simPt<<endl;
+      h1_Pres->Fill( ( 1/recPt - 1/simPt)/ (1/simPt));
+    }
+
+    
+  }
+  cout<<"---"<<endl;  
 }
 
 DEFINE_FWK_MODULE(STAMuonAnalyzer)

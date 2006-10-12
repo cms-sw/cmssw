@@ -4,8 +4,8 @@
 /** \class STAMuonAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/07/18 10:18:22 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -20,6 +20,7 @@ namespace edm {
 
 class TFile;
 class TH1F;
+class TH2F;
 
 class STAMuonAnalyzer: public edm::EDAnalyzer {
 public:
@@ -45,8 +46,14 @@ private:
   std::string theSeedCollectionLabel;
 
   // Histograms
+  TH1F *hPtRec;
+  TH1F *hPtSim; 
   TH1F *hPres;
   TH1F *h1_Pres;
+  TH1F *hPTDiff;
+  TH1F *hPTDiff2;
+  TH2F *hPTDiffvsEta;
+  TH2F *hPTDiffvsPhi;
 
   // Counters
   int numberOfSimTracks;

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.1 2005/11/27 22:03:53 chrjones Exp $
+// $Id: SimTrackManager.h,v 1.2 2005/11/28 00:43:10 chrjones Exp $
 //
 
 // system include files
@@ -34,21 +34,17 @@ class SimTrackManager
 {
 
    public:
-      enum SpecialNumbers {InvalidID = 65535};
+  //      enum SpecialNumbers {InvalidID = 65535};
       /// this map contains association between vertex number and position
       typedef std::pair<int,Hep3Vector> MapVertexPosition;
       typedef std::vector<std::pair<int,Hep3Vector> > MapVertexPositionVector;
       typedef std::map<int,MapVertexPositionVector> MotherParticleToVertexMap;
       typedef MotherParticleToVertexMap VertexMap;
-      typedef std::map<unsigned int,unsigned int> G4ToSimMapType;
-      typedef std::vector<unsigned int> SimToG4VectorType;
      
       SimTrackManager(bool iCollapsePrimaryVertices =false);
       virtual ~SimTrackManager();
 
       // ---------- const member functions ---------------------
-      unsigned int g4ToSim(unsigned int) const;
-      unsigned int simToG4(unsigned int) const;
       const TrackContainer * trackContainer() const { 
 	return m_trksForThisEvent; }
 
@@ -79,9 +75,7 @@ class SimTrackManager
       // ---------- member data --------------------------------
       TrackContainer * m_trksForThisEvent;
       bool m_SaveSimTracks;
-      G4ToSimMapType m_g4ToSimMap;
       MotherParticleToVertexMap m_vertexMap;
-      SimToG4VectorType m_simToG4Vector;
       int m_nVertices;
       bool m_collapsePrimaryVertices;
 };

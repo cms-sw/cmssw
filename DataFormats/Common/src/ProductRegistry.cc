@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.7 2006/08/09 05:29:01 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.6 2006/08/01 05:34:43 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.7 2006/08/09 05:29:01 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.6 2006/08/01 05:34:43 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/ProductRegistry.h"

@@ -14,19 +14,22 @@
  *  processing of modules along this path, ie, path processing is
  *  aborted.
  *
- *  The index of the module (0 to n-1, n<=64 due to packing, for a
- *  path with n modules) issuing the decision for the path is recorded
- *  (for accepted events, this is simply the index of the last module,
- *  ie, n-1). 
+ *  The index of the module on the path, 0 to n-1 for a path with n
+ *  modules issuing the decision for the path is recorded.  For
+ *  accepted events, this is simply the index of the last module on
+ *  the path, ie, n-1.
  *
- *  $Date: 2006/04/20 15:30:51 $
- *  $Revision: 1.2 $
+ *  Note that n is limited, due to packing, to at most 2^(16-2)=16384.
+ *
+ *  $Date: 2006/07/13 15:12:07 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "DataFormats/Common/interface/HLTenums.h"
+#include <boost/cstdint.hpp>
 #include <cassert>
 
 namespace edm
@@ -34,17 +37,20 @@ namespace edm
   class HLTPathStatus {
 
   private:
-    unsigned char status_; // packed status 
-    // bits 0-1 (0- 3): HLT state
-    // bits 2-8 (0-63): index of module making path decision
+    uint16_t status_;    // packed status [unsigned char is too small!]
+    // bits 0- 1 (0-    3): HLT state
+    // bits 2-16 (0-16383): index of module on path making path decision
 
   public:
 
     HLTPathStatus(const hlt::HLTState state = hlt::Ready, const unsigned int index = 0)
-    : status_(index*4+state) { assert(index<64); }
+    : status_(index*4+state) {
+      assert (state<4);
+      assert (index<16384);
+    }
 
-    hlt::HLTState state() const {return ((hlt::HLTState) (status_ % 4));}
-    unsigned int  index() const {return ((unsigned int)  (status_ / 4));}
+    hlt::HLTState state() const {return (static_cast<hlt::HLTState>(status_ % 4));}
+    unsigned int  index() const {return (static_cast<unsigned int >(status_ / 4));}
 
     void reset() {status_=0;}
 

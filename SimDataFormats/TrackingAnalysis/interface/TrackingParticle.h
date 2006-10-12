@@ -25,7 +25,8 @@ public:
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle >       GenParticleRef;
   typedef GenParticleRefVector::iterator		         genp_iterator;
   typedef SimTrackRefVector::iterator				 g4t_iterator;
-  typedef TrackPSimHitRefToBaseVector::iterator                  pSH_iterator;
+  typedef TrackPSimHitRefToBaseVector::const_iterator            pSH_iterator;
+
   typedef std::vector<TrackingVertex>                TrackingVertexCollection;
   typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
 
@@ -50,8 +51,8 @@ public:
   g4t_iterator  g4Track_begin() const;
   g4t_iterator  g4Track_end() const;
   
-  pSH_iterator  pSimHit_begin() const;
-  pSH_iterator  pSimHit_end() const;
+  const pSH_iterator  pSimHit_begin() const;
+  const pSH_iterator  pSimHit_end() const;
 
 // Setters for G4 and HepMC
   void addG4Track(const SimTrackRef&);

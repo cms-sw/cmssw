@@ -33,7 +33,8 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
 
 
   std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
-  double mass = pset_.getParameter<double>("Mass");
+  double mass      = pset_.getParameter<double>("Mass");
+  double maxDPhi   = pset_.getParameter<double>("MaxDPhi");
 
   PropagationDirection dir = alongMomentum;
   
@@ -41,7 +42,7 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
   if (pdir == "alongMomentum") dir = alongMomentum;
   if (pdir == "anyDirection") dir = anyDirection;
   
-  _propagator  = boost::shared_ptr<Propagator>(new PropagatorWithMaterial(dir, mass, &(*magfield)));
+  _propagator  = boost::shared_ptr<Propagator>(new PropagatorWithMaterial(dir, mass, &(*magfield),maxDPhi));
   return _propagator;
 }
 

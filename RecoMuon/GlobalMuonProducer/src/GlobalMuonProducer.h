@@ -1,5 +1,5 @@
-#ifndef RecoMuon_GlobalMuonProducer_H
-#define RecoMuon_GlobalMuonProducer_H
+#ifndef RecoMuon_GlobalMuonProducer_GlobalMuonProducer_H
+#define RecoMuon_GlobalMuonProducer_GlobalMuonProducer_H
 
 /**  \class GlobalMuonProducer
  * 
@@ -9,8 +9,8 @@
  *   starting from a standalone reonstructed muon.
  *
  *
- *   $Date: 2006/05/19 15:23:20 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/07/06 12:35:11 $
+ *   $Revision: 1.3 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -20,28 +20,32 @@
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonTrackFinder;
+class MuonServiceProxy;
 
 class GlobalMuonProducer : public edm::EDProducer {
 
-  public:
+ public:
 
-    /// constructor with config
-    GlobalMuonProducer(const edm::ParameterSet&);
+  /// constructor with config
+  GlobalMuonProducer(const edm::ParameterSet&);
   
-    /// destructor
-    virtual ~GlobalMuonProducer(); 
+  /// destructor
+  virtual ~GlobalMuonProducer(); 
   
-    /// reconstruct muons
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+  /// reconstruct muons
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
   
-  private:
+ private:
     
-    /// Seed STA Label
-    std::string theSTACollectionLabel;
+  /// Seed STA Label
+  std::string theSTACollectionLabel;
   
-    MuonTrackFinder* theTrackFinder;
- 
+  MuonTrackFinder* theTrackFinder;
+    
+  /// the event setup proxy, it takes care the services update
+  MuonServiceProxy *theService;
+    
 };
 
 #endif

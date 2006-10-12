@@ -39,7 +39,7 @@ PhotonCorrectionProducer::PhotonCorrectionProducer(const edm::ParameterSet& conf
   // switch on/off corrections
   applyDummyCorrection_=conf_.getParameter<bool>("applyDummyCorrection");
 
-
+  theDummyCorrection_= new  PhotonDummyCorrection();
 }
 
 PhotonCorrectionProducer::~PhotonCorrectionProducer() {
@@ -50,11 +50,6 @@ PhotonCorrectionProducer::~PhotonCorrectionProducer() {
 
 
 void  PhotonCorrectionProducer::beginJob (edm::EventSetup const & theEventSetup) {
-
-
-  theDummyCorrection_= new  PhotonDummyCorrection();
-
-
 }
 
 

@@ -58,8 +58,8 @@ struct SMFU_data
 
   xdaq::Application* app;
   toolbox::mem::Pool *pool;
-  vector<xdaq::ApplicationDescriptor*> destination;
-  xdaq::ApplicationDescriptor* primarydest;
+  xdaq::ApplicationDescriptor* destination;
+
   // for performance measurements
   xdata::UnsignedLong samples_; //number of samples (frames) per measurement
   stor::SMPerformanceMeter *pmeter_;
@@ -81,6 +81,8 @@ SMFU_data::SMFU_data()
 {
   app = 0;
   pool = 0;
+  destination = 0;
+
   // for performance measurements
   samples_ = 100; // measurements every 25MB (about)
   databw_ = 0.;
@@ -106,21 +108,7 @@ static SMFU_data SMfudata;
 
 xdaq::Application* getMyXDAQPtr() { return SMfudata.app; }
 toolbox::mem::Pool *getMyXDAQPool() { return SMfudata.pool; }
-xdaq::ApplicationDescriptor* getMyXDAQDest(unsigned int instance) 
-{ 
-  SMi2oSender *sd = (SMi2oSender *)SMfudata.app;
-  sd->setDestinations();
-  if(instance < SMfudata.destination.size())
-    return SMfudata.destination[instance]; 
-  else
-    return 0;
-}
-xdaq::ApplicationDescriptor* getMyXDAQDest() 
-{ 
-  SMi2oSender *sd = (SMi2oSender *)SMfudata.app;
-  sd->setDestinations();
-  return SMfudata.primarydest; 
-}
+xdaq::ApplicationDescriptor* getMyXDAQDest() { return SMfudata.destination; }
 
 void addMyXDAQMeasurement(unsigned long size)
 {
@@ -206,13 +194,6 @@ SMi2oSender::SMi2oSender(xdaq::ApplicationStub * s)
     XCEPT_RETHROW(xcept::Exception, s, e);
   }
 
-
-  xdata::InfoSpace *ispace = getApplicationInfoSpace();
-  primarysm_ = 0;
-  ispace->fireItemAvailable("primarySMInstance", &primarysm_);
-  LOG4CPLUS_INFO(this->getApplicationLogger(),
-		 "Primary StorageManager instance" << primarysm_);
-
   // Get XDAQ application destinations - currently hardwired!
   try{
     destinations_=
@@ -224,40 +205,29 @@ SMi2oSender::SMi2oSender(xdaq::ApplicationStub * s)
   catch(xdaq::exception::ApplicationDescriptorNotFound e)
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                    "No StorageManager available in configuration");
+                    "No testI2OReceiver available in configuration");
   }
   catch(...)
   {
       LOG4CPLUS_FATAL(this->getApplicationLogger(),
-                      "Unknown error in looking up connectable StorageManagers");
+                      "Unknown error in looking up connectable testI2OReceiver");
   }
   // set global variable to share with the i2o output module
   SMfudata.app = this;
   SMfudata.pool = pool_;
-
-  xgi::bind(this,&SMi2oSender::defaultWebPage, "Default");
-  xgi::bind(this,&SMi2oSender::css, "styles.css");
-}
-
-void SMi2oSender::setDestinations()
-{
   if(destinations_.size()>0)
   {
-    SMfudata.destination.resize(destinations_.size());
-
-    for(unsigned int i = 0; i<destinations_.size(); i++)
-      {
-	SMfudata.destination[destinations_[i]->getInstance()] = destinations_[i];
-	if(destinations_[i]->getInstance() == primarysm_)
-	      firstDestination_ = destinations_[i];
-      }
-    SMfudata.primarydest = firstDestination_;
+    firstDestination_ = destinations_[0];
+    SMfudata.destination = destinations_[0];
   }
   else
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
                     "SMi2oSender::No receiver in configuration");
   }
+
+  xgi::bind(this,&SMi2oSender::defaultWebPage, "Default");
+  xgi::bind(this,&SMi2oSender::css, "styles.css");
 }
 
 #include <iomanip>

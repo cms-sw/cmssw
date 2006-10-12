@@ -17,7 +17,7 @@
 
 
 DDTrackerPhiAlgo::DDTrackerPhiAlgo() {
-  LogDebug("TrackerGeom") << "DDTrackerPhiAlgo info: Creating an instance";
+  edm::LogInfo("TrackerGeom") << "DDTrackerPhiAlgo info: Creating an instance";
 }
 
 DDTrackerPhiAlgo::~DDTrackerPhiAlgo() {}

@@ -32,6 +32,7 @@ public:
     void EndOfEventAction(const G4Event * evt);
 
 
+    /*
     ///For backwards compatibility
     unsigned int g4ToSim(unsigned int iG4) const {
       return m_trackManager->g4ToSim(iG4);
@@ -39,6 +40,8 @@ public:
     unsigned int simToG4(unsigned int iSim) const {
       return m_trackManager->simToG4(iSim);
     }
+    */
+
     const TrackContainer * trackContainer() const { 
       return m_trackManager->trackContainer();
     }

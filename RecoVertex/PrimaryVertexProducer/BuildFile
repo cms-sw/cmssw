@@ -4,7 +4,7 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=RecoVertex/TrimmedKalmanVertexFinder>
-<use name=SimGeneral/HepPDT>
+<use name=IOMC/ParticleGuns>
 <flags SEAL_PLUGIN_NAME="RecoVertexPrimaryVertexProducer">
 <export>
    <lib name=RecoVertexPrimaryVertexProducer>
@@ -14,5 +14,5 @@
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/VertexReco>
    <use name=RecoVertex/TrimmedKalmanVertexFinder>
-   <use name=SimGeneral/HepPDT>
+   <use name=IOMC/ParticleGuns> 	
 </export>

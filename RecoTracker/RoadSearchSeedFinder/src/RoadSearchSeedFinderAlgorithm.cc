@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2006/08/12 00:30:17 $
-// $Revision: 1.13 $
+// $Date: 2006/09/01 21:15:31 $
+// $Revision: 1.18 $
 //
 
 #include <vector>
@@ -39,7 +39,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "RecoTracker/RoadMapRecord/interface/Roads.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 
@@ -50,7 +49,18 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 
-RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
+const double speedOfLight = 2.99792458e8;
+const double unitCorrection = speedOfLight * 1e-2 * 1e-9;
+
+RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::ParameterSet& conf) { 
+
+  NoFieldCosmic_ = conf.getParameter<bool>("StraightLineNoBeamSpotSeed");
+  theMinPt_ = conf.getParameter<double>("MinimalReconstructedTransverseMomentum");
+
+  // configure DetHitAccess
+  innerSeedHitVector_.setMode(DetHitAccess::rphi);
+  outerSeedHitVector_.setMode(DetHitAccess::rphi);
+
 }
 
 RoadSearchSeedFinderAlgorithm::~RoadSearchSeedFinderAlgorithm() {
@@ -65,199 +75,73 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 					TrajectorySeedCollection &output)
 {
 
-  const std::vector<DetId> availableIDs = matchedRecHits->ids();
-  const std::vector<DetId> availableIDs2 = rphiRecHits->ids();
-  const std::vector<DetId> availableIDs3 = stereoRecHits->ids();
-
-  //for (int i=0;i<(int) availableIDs.size();++i) {
-  //edm::LogError("RoadSearch") << "ID matched " << availableIDs[i].rawId();
-  //}
-
-  //for (int i=0;i<(int) availableIDs2.size();++i) {
-  //edm::LogError("RoadSearch") << "ID " << availableIDs2[i].rawId();
-   //if ( (unsigned int)availableIDs2[i].subdetId() == StripSubdetector::TIB ) {
-    //TIBDetId tibid(availableIDs2[i].rawId()); 
-    //if (tibid.glued())     edm::LogError("RoadSearch") << "ID " << availableIDs2[i].rawId();
-    //}
-  //} 
- 
-  //for (int i=0;i<(int) availableIDs3.size();++i) {
-  //edm::LogError("RoadSearch") << "ID stereo " << availableIDs3[i].rawId();
-  //} 
+  // initialize general hit access for road search
+  innerSeedHitVector_.setCollections(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
+  outerSeedHitVector_.setCollections(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
+  innerSeedHitVector_.setMode(DetHitAccess::rphi);
+  outerSeedHitVector_.setMode(DetHitAccess::rphi);
 
   // get roads
   edm::ESHandle<Roads> roads;
   es.get<TrackerDigiGeometryRecord>().get(roads);
+  roads_ = roads.product();
 
-  // calculate maximal possible delta phi for given delta r and parameter pTmin
-  double ptmin = conf_.getParameter<double>("MinimalReconstructedTransverseMomentum");
+  // get tracker geometry
+  edm::ESHandle<TrackerGeometry> tracker;
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  tracker_ = tracker.product();
 
-  // correction for B given in T, delta r given in cm, ptmin given in GeV/c
-  double speedOfLight = 2.99792458e8;
-  double unitCorrection = speedOfLight * 1e-2 * 1e-9;
+  // get magnetic field
+  edm::ESHandle<MagneticField> magnet;
+  es.get<IdealMagneticFieldRecord>().get(magnet);
+  magnet_ = magnet.product();
 
-  // B in T, right now hardcoded, has to come from magnetic field service
-  double B = 4.0;
-
-  // initialize general hit access for road search
-  DetHitAccess innerSeedHitVector(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
-  DetHitAccess outerSeedHitVector(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
-
-   // loop over seed Ring pairs
-  for ( Roads::const_iterator road = roads->begin(); road != roads->end(); ++road ) {
+  // loop over seed Ring pairs
+  for ( Roads::const_iterator road = roads_->begin(); road != roads_->end(); ++road ) {
 
     Roads::RoadSeed seed = (*road).first;
-    //edm::LogError("RoadSearch") << "ROAD SEEDS: " << seed.first.getindex() << " " << seed.second.getindex();
+  
     // loop over detid's in seed rings
     for ( Ring::const_iterator innerRingDetId = seed.first.begin(); innerRingDetId != seed.first.end(); ++innerRingDetId ) {
 
-      //uint32_t detId_rawid = innerRingDetId->second.rawId();
-      //DetId detId_tmp(detId_rawid);
+      std::vector<TrackingRecHit*> innerSeedDetHits = innerSeedHitVector_.getHitVector(&(innerRingDetId->second));
 
-      //uint32_t detId_tmp = innerRingDetId->second.rawId();
-      StripSubdetector StripDetId(innerRingDetId->second);
-      DetId tmp(StripDetId.glued());
-      //edm::LogError("RoadSearch") << "try to fine detid: " << tmp.rawId() << " oldid: " << innerRingDetId->second.rawId();
+      // loop over inner dethits
+      for (std::vector<TrackingRecHit*>::const_iterator innerSeedDetHit = innerSeedDetHits.begin();
+	   innerSeedDetHit != innerSeedDetHits.end(); ++innerSeedDetHit) {
+	  
+	GlobalPoint inner = tracker_->idToDet((*innerSeedDetHit)->geographicalId())->surface().toGlobal((*innerSeedDetHit)->localPosition());
 
+	double innerphi = inner.phi();
+	double upperPhiRangeBorder = innerphi + (1.0);
+	double lowerPhiRangeBorder = innerphi - (1.0);
+	if (upperPhiRangeBorder>Geom::twoPi()) upperPhiRangeBorder -= Geom::twoPi();
+	if (lowerPhiRangeBorder<0.0) lowerPhiRangeBorder += Geom::twoPi();
 
-      //for (int i=0;i<availableIDs.size();++i) {
-      //edm::LogError("RoadSearch") << "ID " << availableIDs[i].rawId();
-      //}
-
-      //if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),innerRingDetId->second.glued()) ) {
-      if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),tmp) ) {
-      //if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),innerRingDetId->second) ) {
-	//edm::LogError("RoadSearch") << " cmp: " << innerRingDetId->second.rawId() << "  " << tmp.rawId();
-      
-      //for (int i=0; i<availableIDs.size(); ++i) {
-      //edm::LogError("RoadSearch") << " available ID: " << availableIDs[i].rawId();
-      //}
-      
-	//if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detId_tmp) ) 
-	//edm::LogError("RoadSearch") << "WRONG!!!";
-
-	//if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detId_tmp) ) {
-
-	for ( Ring::const_iterator outerRingDetId = seed.second.begin(); outerRingDetId != seed.second.end(); ++outerRingDetId ) {
-
-	  StripSubdetector OuterStripDetId(outerRingDetId->second);
-	  uint32_t test=OuterStripDetId.rawId();
-	  if (OuterStripDetId.glued()!=0) {
-	    test =  OuterStripDetId.glued();
+	if (lowerPhiRangeBorder <= upperPhiRangeBorder ) {
+	  for ( Ring::const_iterator outerRingDetId = seed.second.lower_bound(lowerPhiRangeBorder); 
+		outerRingDetId != seed.second.upper_bound(upperPhiRangeBorder);
+		++outerRingDetId) {
+	    std::vector<TrackingRecHit*> outerSeedDetHits = outerSeedHitVector_.getHitVector(&(outerRingDetId->second));
+	    if ( outerSeedDetHits.size() > 0 ) {
+	      makeSeedsFromInnerHit(&output,*innerSeedDetHit,&outerSeedDetHits,es);
+	    }
 	  }
-	  //DetId out_tmp(OuterStripDetId.glued());
-	  //DetId out_tmp(test);
-	  if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
-	  //if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),out_tmp) ) {
-
-	    	        
-	    // loop over outer dethits
-	    //edm::LogError("RoadSearch") << "outerSeedDetHits... " ;
-	    //edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
-	    //for (edm::OwnVector<TrackingRecHit>::const_iterator outerSeedDetHit = outerSeedDetHits.begin();
-	    // outerSeedDetHit != outerSeedDetHits.end(); ++outerSeedDetHit) {
-
-	    //edm::LogError("RoadSearch") << "innerSeedDetHits: "  << seed.first.print() ;
-	    edm::OwnVector<TrackingRecHit> innerSeedDetHits = innerSeedHitVector.getHitVector(&(innerRingDetId->second));
-	    
-	    // loop over inner dethits
-	    for (edm::OwnVector<TrackingRecHit>::const_iterator innerSeedDetHit = innerSeedDetHits.begin();
-		 innerSeedDetHit != innerSeedDetHits.end(); ++innerSeedDetHit) {
-
-	      //edm::LogError("RoadSearch") << "outerSeedDetHits: " << seed.second.print() ;
-	      edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
-	        
-	      //loop over outer dethits
-	      for (edm::OwnVector<TrackingRecHit>::const_iterator outerSeedDetHit = outerSeedDetHits.begin();
-		   outerSeedDetHit != outerSeedDetHits.end(); ++outerSeedDetHit) {
-
-		// get tracker geometry
-		edm::ESHandle<TrackerGeometry> tracker;
-		es.get<TrackerDigiGeometryRecord>().get(tracker);
-
-		GlobalPoint inner = tracker->idToDet(innerSeedDetHit->geographicalId())->surface().toGlobal(innerSeedDetHit->localPosition());
-		GlobalPoint outer = tracker->idToDet(outerSeedDetHit->geographicalId())->surface().toGlobal(outerSeedDetHit->localPosition());
-
-		// calculate deltaPhi in [0,2pi]
-		double deltaPhi = std::abs(inner.phi() - outer.phi());
-		double pi = 3.14159265358979312;
-		if ( deltaPhi < 0 ) deltaPhi = 2*pi - deltaPhi;
-	    
-		double innerr = std::sqrt(inner.x()*inner.x()+inner.y()*inner.y());
-		double outerr = std::sqrt(outer.x()*outer.x()+outer.y()*outer.y());
-
-		// calculate maximal delta phi in [0,2pi]
-		double deltaPhiMax = std::abs( std::asin(unitCorrection * B * innerr / ptmin) - std::asin(unitCorrection * B * outerr / ptmin) );
-		if ( deltaPhiMax < 0 ) deltaPhiMax = 2*pi - deltaPhiMax;
-
-		if ( deltaPhi <= deltaPhiMax ) {
-	      
-		  // use correct tk seed generator from consecutive hits
-		  // make PTrajectoryOnState from two hits and region (beamspot)
-		  GlobalTrackingRegion region;
-		  GlobalError vtxerr( std::sqrt(region.originRBound()),
-				      0, std::sqrt(region.originRBound()),
-				      0, 0, std::sqrt(region.originZBound()));
-
-		  double x0=0.0,y0=0.0,z0=0.0;
-                  bool nofieldcosmic = conf_.getParameter<bool>("StraightLineNoBeamSpotSeed");
-                  if (nofieldcosmic){
-                    double phi0=atan2(outer.y()-inner.y(),outer.x()-inner.x());
-                    double alpha=atan2(inner.y(),inner.x());
-                    double d1=sqrt(inner.x()*inner.x()+inner.y()*inner.y());
-                    double d0=-d1*sin(alpha-phi0); x0=d0*sin(phi0); y0=-d0*cos(phi0);
-                    double l1=0.0,l2=0.0;
-                    if (fabs(cos(phi0))>0.1){
-                      l1=(inner.x()-x0)/cos(phi0);l2=(outer.x()-x0)/cos(phi0);  
-                    }else{
-                      l1=(inner.y()-y0)/sin(phi0);l2=(outer.y()-y0)/sin(phi0);  
-                    }
-                    z0=(l2*inner.z()-l1*outer.z())/(l2-l1);
-//                    std::cout << "In RSSF, d0,phi0,x0,y0,z0 " << d0 << " " << phi0 << " " << x0 << " " << y0 << " " << z0 << std::endl;
-                  }
-
-		  FastHelix helix(outer, inner, GlobalPoint(x0,y0,z0),es);
-
-                  FreeTrajectoryState fts( helix.stateAtVertex().parameters(),
-                                           initialError( &(*outerSeedDetHit), &(*innerSeedDetHit),
-                                                         region.origin(), vtxerr));
-
-                  edm::ESHandle<MagneticField> pSetup;
-                  es.get<IdealMagneticFieldRecord>().get(pSetup);
-
-                  AnalyticalPropagator  thePropagator(&(*pSetup), alongMomentum);
-
-                  KFUpdator theUpdator;
-
-                  const TrajectoryStateOnSurface innerState = thePropagator.propagate(fts,tracker->idToDet(innerSeedDetHit->geographicalId())->surface());
-
-		  if (innerState.isValid()){
-		    //
-		    // create the OwnVector of TrackingRecHits
-		    //
-		    edm::OwnVector<TrackingRecHit> rh;
-
-		    //
-		    // memory leak??? TB
-		    //
-		    rh.push_back(innerSeedDetHit->clone());
-		    rh.push_back(outerSeedDetHit->clone());
-		    TrajectoryStateTransform transformer;
-		    
-		    PTrajectoryStateOnDet * PTraj=  transformer.persistentState(innerState, innerSeedDetHit->geographicalId().rawId());
-		    TrajectorySeed ts(*PTraj,rh,alongMomentum);
-		  
-		    // 060811/OLI: memory leak fix as suggested by Chris
-                    delete PTraj;  
-
-		    // add seed to collection
-		    output.push_back(ts);
-
-		    //edm::LogError("RoadSearch") << "innerSeedDetHits: "  << innerRingDetId->second.rawId() << "; " <<seed.first.print() ;
-		    //edm::LogError("RoadSearch") << "outerSeedDetHits: " << outerRingDetId->second.rawId() << "; " << seed.second.print() ;
-		  }
-		}
-	      }
+	} else {
+	  for ( Ring::const_iterator outerRingDetId = seed.second.begin(); 
+		outerRingDetId != seed.second.upper_bound(upperPhiRangeBorder);
+		++outerRingDetId) {
+	    std::vector<TrackingRecHit*> outerSeedDetHits = outerSeedHitVector_.getHitVector(&(outerRingDetId->second));
+	    if ( outerSeedDetHits.size() > 0 ) {
+	      makeSeedsFromInnerHit(&output,*innerSeedDetHit,&outerSeedDetHits,es);
+	    }
+	  }
+	  for ( Ring::const_iterator outerRingDetId = seed.second.lower_bound(lowerPhiRangeBorder); 
+		outerRingDetId != seed.second.end();
+		++outerRingDetId) {
+	    std::vector<TrackingRecHit*> outerSeedDetHits = outerSeedHitVector_.getHitVector(&(outerRingDetId->second));
+	    if ( outerSeedDetHits.size() > 0 ) {
+	      makeSeedsFromInnerHit(&output,*innerSeedDetHit,&outerSeedDetHits,es);
 	    }
 	  }
 	}
@@ -265,7 +149,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
     }
   }
 
-  edm::LogInfo("RoadSearch") << "Found " << output.size() << " seeds."; 
+  LogDebug("RoadSearch") << "Found " << output.size() << " seeds."; 
 
 };
 
@@ -284,3 +168,163 @@ initialError( const TrackingRecHit* outerHit,
 
   return CurvilinearTrajectoryError(C);
 }
+
+TrajectorySeed RoadSearchSeedFinderAlgorithm::
+makeSeedFromPair(const TrackingRecHit* innerSeedDetHit,
+		 const GlobalPoint* inner,
+		 const TrackingRecHit* outerSeedDetHit,
+		 const GlobalPoint* outer,
+		 const edm::EventSetup& es)
+{
+
+
+ // use correct tk seed generator from consecutive hits
+  // make PTrajectoryOnState from two hits and region (beamspot)
+  GlobalTrackingRegion region;
+  GlobalError vtxerr( std::sqrt(region.originRBound()),
+		      0, std::sqrt(region.originRBound()),
+		      0, 0, std::sqrt(region.originZBound()));
+  
+  double x0=0.0,y0=0.0,z0=0.0;
+  if (NoFieldCosmic_){
+    double phi0=atan2(outer->y()-inner->y(),outer->x()-inner->x());
+    double alpha=atan2(inner->y(),inner->x());
+    double d1=sqrt(inner->x()*inner->x()+inner->y()*inner->y());
+    double d0=-d1*sin(alpha-phi0); x0=d0*sin(phi0); y0=-d0*cos(phi0);
+    double l1=0.0,l2=0.0;
+    if (fabs(cos(phi0))>0.1){
+      l1=(inner->x()-x0)/cos(phi0);l2=(outer->x()-x0)/cos(phi0);  
+    }else{
+      l1=(inner->y()-y0)/sin(phi0);l2=(outer->y()-y0)/sin(phi0);  
+    }
+    z0=(l2*inner->z()-l1*outer->z())/(l2-l1);
+  }
+  
+  FastHelix helix(*outer, *inner, GlobalPoint(x0,y0,z0),es);
+  
+  FreeTrajectoryState fts( helix.stateAtVertex().parameters(),
+			   initialError( &(*outerSeedDetHit), &(*innerSeedDetHit),
+					 region.origin(), vtxerr));
+  
+  AnalyticalPropagator  thePropagator(magnet_, alongMomentum);
+  
+  KFUpdator theUpdator;
+  
+  const TrajectoryStateOnSurface innerState = thePropagator.propagate(fts,tracker_->idToDet(innerSeedDetHit->geographicalId())->surface());
+  
+  
+  if (innerState.isValid()){
+    //
+    // create the OwnVector of TrackingRecHits
+    //
+    edm::OwnVector<TrackingRecHit> rh;
+    
+    rh.push_back(innerSeedDetHit->clone());
+    rh.push_back(outerSeedDetHit->clone());
+    TrajectoryStateTransform transformer;
+    
+    PTrajectoryStateOnDet * PTraj=  transformer.persistentState(innerState, innerSeedDetHit->geographicalId().rawId());
+    TrajectorySeed ts(*PTraj,rh,alongMomentum);
+    delete PTraj;  
+    
+    // return the seed
+    return ts;
+    
+  }
+  
+  TrajectorySeed emptySeed;
+  return emptySeed;
+}
+
+
+
+void  RoadSearchSeedFinderAlgorithm::
+makeSeedsFromInnerHit(TrajectorySeedCollection* outputCollection,
+		      const TrackingRecHit* innerSeedDetHit,
+		      const std::vector<TrackingRecHit*>* outerSeedDetHits,
+		      const edm::EventSetup& es)
+{
+
+  // calculate maximal possible delta phi for given delta r and parameter pTmin
+
+  // use correct tk seed generator from consecutive hits
+  // make PTrajectoryOnState from two hits and region (beamspot)
+  GlobalTrackingRegion region;
+  GlobalError vtxerr( std::sqrt(region.originRBound()),
+		      0, std::sqrt(region.originRBound()),
+		      0, 0, std::sqrt(region.originZBound()));
+  
+  //loop over outer dethits
+  for (std::vector<TrackingRecHit*>::const_iterator recHit_iter = outerSeedDetHits->begin();
+       recHit_iter != outerSeedDetHits->end(); ++recHit_iter) {
+    
+    TrackingRecHit *outerSeedDetHit = (*recHit_iter);
+    GlobalPoint inner = tracker_->idToDet(innerSeedDetHit->geographicalId())->surface().toGlobal(innerSeedDetHit->localPosition());
+    GlobalPoint outer = tracker_->idToDet(outerSeedDetHit->geographicalId())->surface().toGlobal(outerSeedDetHit->localPosition());
+    
+    // calculate deltaPhi in [0,2pi]
+    double deltaPhi = std::abs(inner.phi() - outer.phi());
+    if ( deltaPhi < 0 ) deltaPhi = Geom::twoPi() - deltaPhi;
+    
+    double innerr = std::sqrt(inner.x()*inner.x()+inner.y()*inner.y());
+    double outerr = std::sqrt(outer.x()*outer.x()+outer.y()*outer.y());
+    
+    // calculate maximal delta phi in [0,2pi]
+    // use z component of magnetic field at inner and outer hit
+    double deltaPhiMax = std::abs( std::asin(unitCorrection * magnet_->inTesla(inner).z() * innerr / theMinPt_) - std::asin(unitCorrection * magnet_->inTesla(outer).z() * outerr / theMinPt_) );
+    if ( deltaPhiMax < 0 ) deltaPhiMax = Geom::twoPi() - deltaPhiMax;
+    
+    if ( deltaPhi <= deltaPhiMax ) {
+      
+      double x0=0.0,y0=0.0,z0=0.0;
+      if (NoFieldCosmic_){
+	double phi0=atan2(outer.y()-inner.y(),outer.x()-inner.x());
+	double alpha=atan2(inner.y(),inner.x());
+	double d1=sqrt(inner.x()*inner.x()+inner.y()*inner.y());
+	double d0=-d1*sin(alpha-phi0); x0=d0*sin(phi0); y0=-d0*cos(phi0);
+	double l1=0.0,l2=0.0;
+	if (fabs(cos(phi0))>0.1){
+	  l1=(inner.x()-x0)/cos(phi0);l2=(outer.x()-x0)/cos(phi0);  
+	}else{
+	  l1=(inner.y()-y0)/sin(phi0);l2=(outer.y()-y0)/sin(phi0);  
+	}
+	z0=(l2*inner.z()-l1*outer.z())/(l2-l1);
+      }
+      
+      FastHelix helix(outer, inner, GlobalPoint(x0,y0,z0),es);
+      
+      FreeTrajectoryState fts( helix.stateAtVertex().parameters(),
+			       initialError( &(*outerSeedDetHit), &(*innerSeedDetHit),
+					     region.origin(), vtxerr));
+      
+      AnalyticalPropagator  thePropagator(magnet_, alongMomentum);
+       
+      const TrajectoryStateOnSurface innerState = thePropagator.propagate(fts,tracker_->idToDet(innerSeedDetHit->geographicalId())->surface());
+      
+      if (innerState.isValid()){
+	//
+	// create the OwnVector of TrackingRecHits
+	edm::OwnVector<TrackingRecHit> rh;
+	
+
+	rh.push_back(innerSeedDetHit->clone());
+	rh.push_back(outerSeedDetHit->clone());
+	TrajectoryStateTransform transformer;
+	
+	PTrajectoryStateOnDet * PTraj=  transformer.persistentState(innerState, innerSeedDetHit->geographicalId().rawId());
+	TrajectorySeed ts(*PTraj,rh,alongMomentum);
+	delete PTraj;  
+	
+	// return the seed
+	outputCollection->push_back(ts);
+	
+      } // InnerState is Valid
+      
+    }// Pair passes delta phi cut
+    
+  } // End loop over Outer Seed Hits
+  
+  //return SColl;
+  
+}
+

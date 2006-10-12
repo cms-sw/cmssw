@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.33 2006/08/21 13:59:40 llista Exp $
+ * \version $Id$
  *
  */
 
@@ -40,12 +40,12 @@ namespace reco {
   public:
     /// parameter dimension
     enum { dimension = 5 };
+    /// error matrix size
+    enum { covarianceSize = dimension * ( dimension + 1 ) / 2 };
     /// parameter vector
     typedef math::Vector<dimension>::type ParameterVector;
     /// 5 parameter covariance matrix
     typedef math::Error<dimension>::type CovarianceMatrix;
-    /// matrix size
-    enum { covarianceSize = dimension * ( dimension + 1 ) / 2 };
     /// position-momentum covariance matrix (6x6)
     typedef math::Error<6>::type PosMomError;
     /// spatial vector
@@ -54,7 +54,7 @@ namespace reco {
     typedef math::XYZPoint Point;
     /// enumerator provided indices to the five parameters
     enum { i_transverseCurvature = 0 , i_theta, i_phi0, i_d0, i_dz }; 
-     /// spatial vector
+    /// spatial vector
     typedef math::XYZVector Vector;
     /// point in the space
     typedef math::XYZPoint Point;
@@ -67,9 +67,12 @@ namespace reco {
     TrackBase( double chi2, double ndof,
 	       const ParameterVector & par, double pt, const CovarianceMatrix & cov );
     /// set hit pattern from vector of hit references
-    void setHitPattern( const TrackingRecHitRefVector & hitlist ) {
-      hitPattern_.set( hitlist );
-    }
+    template<typename C>
+    void setHitPattern( const C & c ) { hitPattern_.set( c.begin(), c.end() ); }
+    template<typename I>
+    void setHitPattern( const I & begin, const I & end ) { hitPattern_.set( begin, end ); }
+    /// set hit pattern for specified hit
+    void setHitPattern( const TrackingRecHit & hit, size_t i ) { hitPattern_.set( hit, i ); }
    
     /// chi-squared of the fit
     double chi2() const { return chi2_; }
@@ -94,9 +97,9 @@ namespace reco {
     /// z coordniate of point of closest approach to beamline
     double dz() const { return parameters_[ i_dz ]; }
     /// track momentum vector
-    Vector momentum() const;
+    Vector momentum() const { return Vector( px(), py(), pz() ); }
     /// position of point of closest approach to the beamline
-    Point vertex() const;
+    Point vertex() const { return Point( vx(), vy(), vz() ); }
     /// return a SVector
     ParameterVector parameters() const { ParameterVector v; fill( v ); return v; }
     /// fill a SVector
@@ -119,6 +122,8 @@ namespace reco {
     double d0Error() const { return error( i_d0 ); }
     /// error on dx
     double dzError() const { return error( i_dz ); }
+    /// error on pt
+    double ptError() const { return transverseCurvatureError() / transverseCurvature() * pt(); }
     /// return SMatrix
     CovarianceMatrix covariance() const { CovarianceMatrix m; fill( m ); return m; }
     /// fill SMatrix
@@ -129,21 +134,27 @@ namespace reco {
     /// track transverse momentum
     double pt() const { return pt_; }
     /// x coordinate of momentum vector
-    double px() const { return momentum().X(); }
+    double px() const { return pt() * cos( phi0() ); }
     /// y coordinate of momentum vector
-    double py() const { return momentum().Y(); }
+    double py() const { return pt() * sin( phi0() ); }
     /// z coordinate of momentum vector
-    double pz() const { return momentum().Z(); }
+    double pz() const { return pt() / tan( theta() ); }
     /// azimuthal angle of momentum vector
     double phi() const { return momentum().Phi(); }
     /// pseudorapidity of momentum vector
     double eta() const { return momentum().Eta(); }
     /// x coordinate of point of closest approach to the beamline
-    double x() const { return vertex().X(); }
+    double vx() const { return d0() * sin( phi0() ); }
     /// y coordinate of point of closest approach to the beamline
-    double y() const { return vertex().Y(); }
+    double vy() const { return - d0() * cos( phi0() ); }
     /// z coordinate of point of closest approach to the beamline
-    double z() const { return vertex().Z(); }
+    double vz() const { return dz(); }
+    /// x coordinate of point of closest approach to the beamline
+    double x() const { return vx(); }
+    /// y coordinate of point of closest approach to the beamline
+    double y() const { return vy(); }
+    /// z coordinate of point of closest approach to the beamline
+    double z() const { return vz(); }
     
     //  hit pattern
     const HitPattern & hitPattern() const { return hitPattern_; }
@@ -171,14 +182,6 @@ namespace reco {
     /// hit pattern
     HitPattern hitPattern_;
   };
-  
-  inline TrackBase::Vector TrackBase::momentum() const {
-    return Vector( pt() * cos( phi0() ), pt() * sin( phi0() ), pt() / tan( theta() ) );
-  }
-  
-  inline TrackBase::Point TrackBase::vertex() const {
-    return Point( d0() * sin( phi0() ), - d0() * cos( phi0() ), dz() );
-  }
     
 }
 

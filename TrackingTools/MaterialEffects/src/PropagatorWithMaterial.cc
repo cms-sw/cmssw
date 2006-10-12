@@ -7,9 +7,11 @@
 #include <string>
 
 PropagatorWithMaterial::PropagatorWithMaterial (PropagationDirection dir,
-						const float mass, const MagneticField * mf) :
+						const float mass, 
+						const MagneticField * mf,
+						const float maxDPhi) :
   Propagator(dir),
-  theGeometricalPropagator(new AnalyticalPropagator(mf,dir)),
+  theGeometricalPropagator(new AnalyticalPropagator(mf,dir,maxDPhi)),
   theMEUpdator(new CombinedMaterialEffectsUpdator(mass)),
   theMaterialLocation(atDestination), field(mf) {}
 

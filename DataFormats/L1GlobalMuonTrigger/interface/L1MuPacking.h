@@ -6,8 +6,8 @@
  *
 */
 //
-//   $Date: 2006/05/15 13:51:42 $
-//   $Revision: 1.1 $
+//   $Date: 2004/11/30 13:58:06 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -20,8 +20,6 @@
 
 #ifndef DataFormatsL1GlobalMuonTrigger_L1MuPacking_h
 #define DataFormatsL1GlobalMuonTrigger_L1MuPacking_h
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /**
  * \class L1MuPacking
@@ -54,8 +52,7 @@ class L1MuUnsignedPacking : public L1MuPacking{
   virtual int idxFromPacked(unsigned packed) const { return (int) packed;};
   /// get the packed notation of a value, check the range
   virtual unsigned packedFromIdx(int idx) const { 
-    if (idx >= (1 << Bits) ) edm::LogWarning("ScaleRangeViolation") 
-                  << "L1MuUnignedPacking::packedFromIdx: warning value " << idx 
+    if (idx >= (1 << Bits) ) cout << "L1MuUnignedPacking::packedFromIdx: warning value " << idx 
 		  << "exceeds " << Bits << "-bit range !!!" << endl;        
     return (unsigned) idx;
   };
@@ -78,8 +75,7 @@ class L1MuSignedPacking : public L1MuPacking {
   /// get the packed notation of a value, check range
   virtual unsigned packedFromIdx(int idx) const { 
     unsigned maxabs = 1 << (Bits-1) ;
-    if (idx < -(int)maxabs && idx >= (int)maxabs) edm::LogWarning("ScaleRangeViolation") 
-                                                       << "L1MuSignedPacking::packedFromIdx: warning value " << idx 
+    if (idx < -(int)maxabs && idx >= (int)maxabs) cout << "L1MuSignedPacking::packedFromIdx: warning value " << idx 
 						       << "exceeds " << Bits << "-bit range !!!" << endl;    
     return  ~(~0 << Bits) & (idx < 0 ? (1 << Bits) + idx : idx);
   };
@@ -110,8 +106,7 @@ class L1MuPseudoSignedPacking : public L1MuPacking {
   virtual unsigned packedFromIdx(int idx) const {
     unsigned packed = abs(idx);
     unsigned maxabs = (1 << (Bits-1)) -1;
-    if (packed > maxabs) edm::LogWarning("ScaleRangeViolation") 
-                              << "L1MuPseudoSignedPacking::packedFromIdx: warning value " << idx 
+    if (packed > maxabs) cout << "L1MuPseudoSignedPacking::packedFromIdx: warning value " << idx 
 			      << "exceeds " << Bits << "-bit range !!!" << endl;
     if (idx < 0) packed |= 1 << (Bits-1);
     return  packed;
@@ -121,8 +116,7 @@ class L1MuPseudoSignedPacking : public L1MuPacking {
   virtual unsigned packedFromIdx(int idx, int sig) const {
     unsigned packed = abs(idx);
     unsigned maxabs = (1 << (Bits-1)) -1;
-    if (packed > maxabs) edm::LogWarning("ScaleRangeViolation") 
-                              << "L1MuPseudoSignedPacking::packedFromIdx: warning value " << idx 
+    if (packed > maxabs) cout << "L1MuPseudoSignedPacking::packedFromIdx: warning value " << idx 
 			      << "exceeds " << Bits << "-bit range !!!" << endl;
     if (sig==1) packed |= 1 << (Bits-1); // sig==1 is negative
     return  packed;

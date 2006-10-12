@@ -1,8 +1,4 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
-
-
-using namespace reco;
-
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -13,62 +9,54 @@ using namespace reco;
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+using namespace reco;
 
-
-
-HitPattern::HitPattern(const TrackingRecHitRefVector hitlist) {
-  for ( int i = 0 ; i < PatternSize ; i++ ) hitPattern_[i]=0;
-  set(hitlist);
+HitPattern::HitPattern() { 
+  for ( int i = 0 ; i < PatternSize ; i++ ) hitPattern_[i] = 0; 
 }
 
-void HitPattern::set(const TrackingRecHitRefVector & hitlist) {
-  for ( int i = 0 ; i < PatternSize ; i++ ) hitPattern_[i]=0;
-  int counter = 0;
+void HitPattern::set( const TrackingRecHit & hit, unsigned int i ) {
+  if ( i >= 32 * PatternSize / HitSize ) return;
+  DetId id = hit.geographicalId();
+  uint32_t valid = (uint32_t) hit.isValid();
+  uint32_t pattern = 0;
+  uint32_t detid=id.det();
+  // adding subdetector bit, removing LS bit (wildcard)
+  pattern += ((detid)&SubDetectorMask)<<SubDetectorOffset;
   
-  for (trackingRecHit_iterator hit = hitlist.begin() ;
-       hit != hitlist.end() && counter < 32*PatternSize/HitSize ;
-       hit++, counter++) {
-    DetId id = (*hit)->geographicalId();
-    uint32_t valid = (uint32_t) (*hit)->isValid();
-    uint32_t pattern = 0;
-    uint32_t detid=id.det();
-    // adding subdetector bit, removing LS bit (wildcard)
-    pattern += ((detid)&SubDetectorMask)<<SubDetectorOffset;
-    
-    // adding substructure bits, removing LS bit (wildcard)
-    uint32_t subdet = id.subdetId();
-    
-    pattern += ((subdet)&SubstrMask)<<SubstrOffset;
-    
-    uint32_t layer = 0;
-    
-    // to understand the layer/disk/wheel number, we need to instantiate each 
-    if (detid == DetId::Tracker) {
-      if (subdet == PixelSubdetector::PixelBarrel) 
-	layer = PXBDetId(id).layer();
-      else if (subdet == PixelSubdetector::PixelEndcap)
-	layer = PXFDetId(id).disk();
-      else if (subdet == StripSubdetector::TIB)
-	layer = TIBDetId(id).layer();
-      else if (subdet == StripSubdetector::TID)
-	layer = TIDDetId(id).wheel();
-      else if (subdet == StripSubdetector::TOB)
-	layer = TOBDetId(id).layer();
-      else if (subdet == StripSubdetector::TEC)
-	layer = TECDetId(id).wheel();
-    } else if (detid == DetId::Muon) {
-      if (subdet == (uint32_t) MuonSubdetId::DT) 
-	layer = DTLayerId(id.rawId()).layer();
-      else if (subdet == (uint32_t) MuonSubdetId::CSC)
-	layer = CSCDetId(id.rawId()).layer();
-      else if (subdet == (uint32_t) MuonSubdetId::RPC)
-	layer = RPCDetId(id.rawId()).layer();
-    }
-    pattern += (layer&LayerMask)<<LayerOffset;
-    pattern += (valid&ValidMask)<<ValidOffset;
-    
-    setHitPattern(counter,pattern);
+  // adding substructure bits, removing LS bit (wildcard)
+  uint32_t subdet = id.subdetId();
+  
+  pattern += ((subdet)&SubstrMask)<<SubstrOffset;
+  
+  uint32_t layer = 0;
+  
+  // to understand the layer/disk/wheel number, we need to instantiate each 
+  if (detid == DetId::Tracker) {
+    if (subdet == PixelSubdetector::PixelBarrel) 
+      layer = PXBDetId(id).layer();
+    else if (subdet == PixelSubdetector::PixelEndcap)
+      layer = PXFDetId(id).disk();
+    else if (subdet == StripSubdetector::TIB)
+      layer = TIBDetId(id).layer();
+    else if (subdet == StripSubdetector::TID)
+      layer = TIDDetId(id).wheel();
+    else if (subdet == StripSubdetector::TOB)
+      layer = TOBDetId(id).layer();
+    else if (subdet == StripSubdetector::TEC)
+      layer = TECDetId(id).wheel();
+  } else if (detid == DetId::Muon) {
+    if (subdet == (uint32_t) MuonSubdetId::DT) 
+      layer = DTLayerId(id.rawId()).layer();
+    else if (subdet == (uint32_t) MuonSubdetId::CSC)
+      layer = CSCDetId(id.rawId()).layer();
+    else if (subdet == (uint32_t) MuonSubdetId::RPC)
+      layer = RPCDetId(id.rawId()).layer();
   }
+  pattern += (layer&LayerMask)<<LayerOffset;
+  pattern += (valid&ValidMask)<<ValidOffset;
+  
+  setHitPattern( i, pattern );
 }
                                                                                         
 bool HitPattern::hasValidHitInFirstPixelBarrel() const {

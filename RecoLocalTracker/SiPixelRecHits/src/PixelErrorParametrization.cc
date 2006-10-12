@@ -31,7 +31,7 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
 {
   // static SimpleConfigurable<string> paramType("oscar", "CMSsimulation");
   theParametrizationType = 
-    conf.getParameter<string>("PixelErrorParametrization.type");
+    conf.getParameter<string>("PixelErrorParametrization");
 
   ////////////////////////////////////////////////////////
   // define alpha and beta ranges-bins for Y BARREL errors 

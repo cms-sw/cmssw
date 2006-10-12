@@ -13,6 +13,48 @@ using std::map;
 namespace edm {
   namespace pset {
 
+    ParseResultsTweaker::ParseResultsTweaker()
+    : blocks_(),
+      blockCopyNodes_(),
+      blockRenameNodes_(),
+      blockReplaceNodes_(),
+      copyNodes_(),
+      renameNodes_(),
+      replaceNodes_(),
+      modulesAndSources_()
+    {
+    }
+
+
+    std::vector<std::string> ParseResultsTweaker::modules() const
+    {
+      std::vector<std::string> result;
+      result.reserve(modulesAndSources_.size());
+      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin();
+          moduleMapItr != modulesAndSources_.end(); ++moduleMapItr)
+      {
+        result.push_back(moduleMapItr->first);
+      }
+      return result;
+    }
+
+
+    std::vector<std::string> ParseResultsTweaker::modulesOfType(const std::string & s) const
+    {
+      std::vector<std::string> result;
+      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin();
+          moduleMapItr != modulesAndSources_.end(); ++moduleMapItr)
+      {
+        if(moduleMapItr->second->type() == s)
+        {
+          result.push_back(moduleMapItr->first);
+        }
+      }
+      return result;
+    }
+
+
+
     void ParseResultsTweaker::process(ParseResults & parseResults)
     {
       // find the node that represents the process
@@ -336,14 +378,15 @@ namespace edm {
           inputNodeItr  != input.end(); ++inputNodeItr)
       {
         // make IncludeNodes transparent
-        if((**inputNodeItr).type() == "include")
+        if((**inputNodeItr).type().substr(0,7) == "include")
         {
-          const IncludeNode * includeNode = dynamic_cast<const IncludeNode*>(inputNodeItr->get());
+          const IncludeNode * includeNode 
+            = dynamic_cast<const IncludeNode*>(inputNodeItr->get());
           assert(includeNode != 0);
           // recursive call!
           findTopLevelNodes(*(includeNode->nodes()), output);
           // just to make sure recursion didn't bite me
-          assert((**inputNodeItr).type() == "include");
+          assert((**inputNodeItr).type().substr(0,7) == "include");
         }
         else 
         {

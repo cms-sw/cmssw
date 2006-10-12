@@ -1,4 +1,5 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/fillCovariance.h"
 #include <algorithm>
 using namespace reco;
 
@@ -18,9 +19,5 @@ TrackBase::ParameterVector & TrackBase::fill( ParameterVector & v ) const {
 }
 
 TrackBase::CovarianceMatrix & TrackBase::fill( CovarianceMatrix & v ) const {
-  index idx = 0;
-  for( index i = 0; i < dimension; ++ i ) 
-    for( index j = 0; j <= i; ++ j )
-      v( i, j ) = covariance_[ idx ++ ];
-  return v;
+  return fillCovariance( v, covariance_ );
 }

@@ -1,5 +1,0 @@
-MAPPING_FILE=${MAPPING_PATH}/CSCcrosstalk-mapping-custom_2.0.xml
-OBJECT_LIBRARY=CondFormatsCSCObjects
-OBJECT_NAME=CSCcrosstalk
-OBJECT_TABLE=CSCCROSSTALK
-TAG=${OBJECT_NAME}_from_online

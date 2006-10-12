@@ -1,57 +1,21 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
-#include <iostream>
-#include <sstream>
-#include <iomanip>
+#include <vector>
 #include <cmath>
-
-#define DBG "FILE: " << __FILE__ << "\n" << "FUNC: " << __PRETTY_FUNCTION__ 
+#include <sstream>
 
 using namespace std;
 
 // -----------------------------------------------------------------------------
-// temporarily wrapping old method
-void FedTimingAnalysis::analysis( const TProfile* const histo, 
-				  FedTimingAnalysis::Monitorables& mons ) { 
-  //cout << DBG << endl;
-
-  vector<const TProfile*> histos; 
-  histos.clear();
-  histos.push_back( const_cast<const TProfile*>(histo) );
-  
-  vector<unsigned short> monitorables;
-  monitorables.clear();
-  
-  analysis( histos, monitorables );
-  
-  mons.pllCoarse_ = monitorables[0];
-  mons.pllFine_ = monitorables[1];
-
-}
-
-// ----------------------------------------------------------------------------
-// 
-void FedTimingAnalysis::Monitorables::print( stringstream& ss ) { 
-  ss << "FED TIMING Monitorables:" << "\n"
-     << " PLL coarse setting : " << pllCoarse_ << "\n" 
-     << " PLL fine setting   : " << pllFine_ << "\n"
-     << " Timing delay   [ns]: " << delay_ << "\n" 
-     << " Error on delay [ns]: " << error_ << "\n"
-     << " Baseline      [adc]: " << base_ << "\n" 
-     << " Tick peak     [adc]: " << peak_ << "\n" 
-     << " Tick height   [adc]: " << height_ << "\n";
-}
-
-// -----------------------------------------------------------------------------
-// old method
+//
 void FedTimingAnalysis::analysis( const vector<const TProfile*>& histos, 
-				  vector<unsigned short>& monitorables ) {
-  //edm::LogInfo("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]";
+			      vector<unsigned short>& monitorables ) {
+  edm::LogInfo("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]";
 
    //extract root histogram
   //check 
-  if (histos.size() != 1) { 
-//     edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
+  if (histos.size() != 1) { edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
 
   monitorables.clear(); monitorables.push_back(0); monitorables.push_back(0);
 return; }
@@ -61,8 +25,7 @@ return; }
   const TProfile* histo = histos[0];
 
   //check
-  if ((unsigned short)histo->GetNbinsX() <= 2) { 
-//     edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Too few bins in histogram. Number of bins: " << (unsigned short)histo->GetNbinsX() << " Minimum required: 2."; 
+  if ((unsigned short)histo->GetNbinsX() <= 2) { edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Too few bins in histogram. Number of bins: " << (unsigned short)histo->GetNbinsX() << " Minimum required: 2."; 
 
 monitorables.clear(); monitorables.push_back(0); monitorables.push_back(0);
 return; }
@@ -110,11 +73,10 @@ return; }
   // check 35 elements after max dervivative are > meanNoise + 2*sigmaNoise
   
   for (unsigned short ii = 0; ii < 35; ii++) {
-    if ((short)histo->GetBinContent(ideriv + ii) < (meanNoise + 2*sigmaNoise)) {
-//       LogDebug("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Warning: large noise levels or no ticks.";
-    }
-    continue;
-  }
+    if ((short)histo->GetBinContent(ideriv + ii) < (meanNoise + 2*sigmaNoise))  LogDebug("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Warning: large noise levels or no ticks.";
+continue;
+
+}
 
   ////Method 1: Take start of tick as the max derivative
   /*
@@ -171,7 +133,7 @@ return; }
   if (ticks.size() > 2) os << " FED fine delay settings, respectively.";
   else { os << " PLL fine delay settings.";}
 
-//    LogDebug("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Multiple ticks found in sample. Number of ticks: " << ticks.size() << " at a separation: " << os.str();
+   LogDebug("Commissioning|Analysis") << "[ApvTimingAnalysis::analysis]: Multiple ticks found in sample. Number of ticks: " << ticks.size() << " at a separation: " << os.str();
 }
 
   else if (ticks.size() == 1) {
@@ -182,7 +144,7 @@ return; }
   // or no ticks...
 
   else { 
-//     LogDebug("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: No ticks found in sample.";
+ LogDebug("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: No ticks found in sample.";
   coarse_fine.first = 0;
   coarse_fine.second = 0;
   }

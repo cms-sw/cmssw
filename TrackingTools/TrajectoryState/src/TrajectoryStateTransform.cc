@@ -1,5 +1,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
+
 
 PTrajectoryStateOnDet* 
 TrajectoryStateTransform::persistentState( const TrajectoryStateOnSurface& ts,
@@ -42,4 +47,44 @@ TrajectoryStateTransform::transientState( const PTrajectoryStateOnDet& ts,
 				   *surface, field,
 				   static_cast<SurfaceSide>(ts.surfaceSide()));
 
+}
+
+FreeTrajectoryState TrajectoryStateTransform::innerFreeState( const reco::Track& tk,
+							      const MagneticField* field) const
+{
+  Basic3DVector<float> pos( tk.innerPosition());
+  GlobalPoint gpos( pos);
+  Basic3DVector<float> mom( tk.innerMomentum());
+  GlobalVector gmom( mom);
+  GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
+  CurvilinearTrajectoryError err( tk.extra()->innerStateCovariance());
+  return FreeTrajectoryState( par, err);
+}
+
+FreeTrajectoryState TrajectoryStateTransform::outerFreeState( const reco::Track& tk,
+							      const MagneticField* field) const
+{
+  Basic3DVector<float> pos( tk.outerPosition());
+  GlobalPoint gpos( pos);
+  Basic3DVector<float> mom( tk.outerMomentum());
+  GlobalVector gmom( mom);
+  GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
+  CurvilinearTrajectoryError err( tk.extra()->outerStateCovariance());
+  return FreeTrajectoryState( par, err);
+}
+
+TrajectoryStateOnSurface TrajectoryStateTransform::innerStateOnSurface( const reco::Track& tk, 
+									const TrackingGeometry& geom,
+									const MagneticField* field) const
+{
+  const Surface& surface = geom.idToDet( DetId( tk.extra()->innerDetId()))->surface();
+  return TrajectoryStateOnSurface( innerFreeState( tk, field), surface);
+}
+
+TrajectoryStateOnSurface TrajectoryStateTransform::outerStateOnSurface( const reco::Track& tk, 
+									const TrackingGeometry& geom,
+									const MagneticField* field) const
+{
+  const Surface& surface = geom.idToDet( DetId( tk.extra()->outerDetId()))->surface();
+  return TrajectoryStateOnSurface( outerFreeState( tk, field), surface);
 }

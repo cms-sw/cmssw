@@ -5,14 +5,16 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.5 2006/07/21 21:56:08 wmtan Exp $
+$Id: ModuleDescription.h,v 1.4 2006/07/07 21:39:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
-#include <ostream>
+#include <iostream>
 
+#include "DataFormats/Common/interface/PassID.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
 #include "DataFormats/Common/interface/ProcessConfigurationID.h"
+#include "DataFormats/Common/interface/ReleaseVersion.h"
 #include "DataFormats/Common/interface/ModuleDescriptionID.h"
 
 namespace edm {

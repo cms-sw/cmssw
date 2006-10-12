@@ -96,6 +96,7 @@ namespace cms{
 	vector<Trajectory> theTmpTrajectories;
 	theTmpTrajectories = theCkfTrajectoryBuilder->trajectories(*iseed);
 	
+       
 	LogDebug("CkfPattern") << "CkfTrajectoryBuilder returned " << theTmpTrajectories.size()
 			       << " trajectories for this seed";
 
@@ -126,12 +127,9 @@ namespace cms{
 	   it != unsmoothedResult.end(); it++) {
 	
 	OwnVector<TrackingRecHit> recHits;
-	//RC OwnVector<const TransientTrackingRecHit> thits = it->recHits();
-	//RCfor (OwnVector<const TransientTrackingRecHit>::const_iterator hitIt = thits.begin(); 
 	Trajectory::RecHitContainer thits = it->recHits();
 	for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin();
 	     hitIt != thits.end(); hitIt++) {
-	  //RC recHits.push_back( hitIt->hit()->clone());
 	  recHits.push_back( (**hitIt).hit()->clone());
 	}
 	
@@ -162,16 +160,16 @@ namespace cms{
       edm::LogVerbatim("CkfPattern") << "number of Seed: " << theSeedColl.size();
       
       /*
-	for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
+      for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
 	DetId tmpId = DetId( iseed->startingState().detId());
 	const GeomDet* tmpDet  = tracker->idToDet( tmpId );
 	GlobalVector gv = tmpDet->surface().toGlobal( iseed->startingState().parameters().momentum() );
-	 
-	cout << "seed perp,phi,eta : " 
-	<< gv.perp() << " , " 
-	<< gv.phi() << " , " 
-	<< gv.eta() << endl;
-	}
+	
+	edm::LogVerbatim("CkfPattern") << "seed perp,phi,eta : " 
+				       << gv.perp() << " , " 
+				       << gv.phi() << " , " 
+				       << gv.eta() ;
+      }
       */
       
       edm::LogVerbatim("CkfPattern") << "number of finalTrajectories: " << unsmoothedResult.size();

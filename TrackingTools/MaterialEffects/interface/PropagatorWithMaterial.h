@@ -22,9 +22,12 @@ class PropagatorWithMaterial : public Propagator {
 public:
   /** Constructor with PropagationDirection and mass hypothesis.
    *  Uses AnalyticalPropagator and CombinedMaterialEffectsUpdator 
-   *  with explicit mass hypothesis.
+   *  with explicit mass hypothesis.MaxDPhi is a cut on the max change in
+   *  phi during state propagation. For propagation of very low pt tracks 
+   *  (e.g. loopers), this cut can be loosened.
    */
-  PropagatorWithMaterial (PropagationDirection dir, const float mass,  const MagneticField * mf=0);
+  PropagatorWithMaterial (PropagationDirection dir, const float mass,  
+			  const MagneticField * mf=0,const float maxDPhi=1.6);
   /** Constructor with explicit propagator and material effects objects.
    */
   PropagatorWithMaterial(const Propagator& Propagator,

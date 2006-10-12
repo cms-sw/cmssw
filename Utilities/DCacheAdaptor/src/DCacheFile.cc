@@ -3,6 +3,8 @@
 #include "Utilities/DCacheAdaptor/interface/DCacheFile.h"
 #include "Utilities/DCacheAdaptor/interface/DCacheError.h"
 #include "SealBase/DebugAids.h"
+#include "SealBase/StringFormat.h"
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <dcap.h>
@@ -119,7 +121,7 @@ DCacheFile::open (const char *name,
     IOFD newfd = IOFD_INVALID;
     dc_errno = 0;
     if ((newfd = dc_open (name, openflags, perms.native ())) == -1)
-	throw DCacheError ("dc_open()", dc_errno);
+	throw DCacheError (seal::StringFormat ("dc_open(%1,%2,%3)").arg(name).arg(openflags).arg(perms.native()).value().c_str(), dc_errno);
 
     m_fd = newfd;
 
@@ -197,11 +199,11 @@ DCacheFile::position (IOOffset offset, Relative whence /* = SET */)
 			    : SEEK_END);
 
     dc_errno = 0;
-    if ((result = dc_lseek (m_fd, offset, mywhence)) == -1)
+    if ((result = dc_lseek64 (m_fd, offset, mywhence)) == -1)
 	throw DCacheError ("dc_lseek()", dc_errno);
     // FixMe when they fix it....
     if (whence == SEEK_END)
-      if ((result = dc_lseek (m_fd, result, SEEK_SET))== -1)
+      if ((result = dc_lseek64 (m_fd, result, SEEK_SET))== -1)
 	throw DCacheError ("dc_lseek()", dc_errno);
     
     return result;

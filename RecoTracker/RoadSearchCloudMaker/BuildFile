@@ -15,12 +15,13 @@
 
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
-
-<use name=RecoTracker/RoadMapRecord>
-
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Surface>
+
+<use name=RecoTracker/RoadMapRecord>
+
+<use name=TrackingTools/RoadSearchHitAccess>
 
 <export>
  <lib name=RecoTrackerRoadSearchCloudMaker>
@@ -39,11 +40,12 @@
 
  <use name=Geometry/Records>
  <use name=Geometry/CommonDetUnit>
-
- <use name=RecoTracker/RoadMapRecord>
-
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=Geometry/CommonTopologies>
  <use name=Geometry/Surface>
+
+ <use name=RecoTracker/RoadMapRecord>
+
+ <use name=TrackingTools/RoadSearchHitAccess>
 
 </export>

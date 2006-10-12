@@ -47,7 +47,7 @@ string MuonPatternRecoDumper::dumpLayer(const DetLayer* layer) const {
   return output.str();
 }
 
-string MuonPatternRecoDumper::dumpFTS(FreeTrajectoryState& fts) const {
+string MuonPatternRecoDumper::dumpFTS(const FreeTrajectoryState& fts) const {
   stringstream output;
   
   output  << 
@@ -60,7 +60,7 @@ string MuonPatternRecoDumper::dumpFTS(FreeTrajectoryState& fts) const {
   return output.str();
 }
 
-string MuonPatternRecoDumper::dumpTSOS(TrajectoryStateOnSurface& tsos) const{
+string MuonPatternRecoDumper::dumpTSOS(const TrajectoryStateOnSurface& tsos) const{
   stringstream output;
   
   output<<"dir: "<<tsos.globalDirection();

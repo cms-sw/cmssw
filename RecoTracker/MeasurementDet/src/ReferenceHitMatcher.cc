@@ -23,11 +23,17 @@ ReferenceHitMatcher::match( const RecHitContainer& monoHits,
 			const LocalVector& dir) const
 {
   RecHitContainer result;
+  bool isMatchedAtLeastOnTime;
   for (RecHitContainer::const_iterator mh=monoHits.begin(); mh!=monoHits.end(); mh++) {
+    isMatchedAtLeastOnTime = false;
     for (RecHitContainer::const_iterator sh=stereoHits.begin(); sh!=stereoHits.end(); sh++) {
       ReturnType matched = match( **mh, **sh, gdet, dir);
-      if (matched.first) result.push_back( matched.second);
+      if (matched.first) {
+	result.push_back( matched.second);
+	isMatchedAtLeastOnTime = true;
+      }
     }
+    if(!isMatchedAtLeastOnTime) result.push_back(*mh);
   }
   return result;
 }

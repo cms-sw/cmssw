@@ -16,7 +16,8 @@
 
 
 DDTIDModulePosAlgo::DDTIDModulePosAlgo() {
-  LogDebug("TIDGeom") << "DDTIDModulePosAlgo info: Creating an instance";
+  edm::LogInfo("TIDGeom") << "DDTIDModulePosAlgo info: Creating an "
+			  << "instance";
 }
 
 DDTIDModulePosAlgo::~DDTIDModulePosAlgo() {}

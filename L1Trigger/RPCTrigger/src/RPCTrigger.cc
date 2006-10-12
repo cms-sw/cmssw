@@ -1,10 +1,11 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/07/27 14:20:40 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/08/28 13:06:49 $
+ *  $Revision: 1.18 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
+#include <FWCore/ParameterSet/interface/FileInPath.h>
 
 //#define ML_DEBUG 
 
@@ -17,8 +18,22 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   produces<std::vector<L1MuRegionalCand> >("RPCb");
   produces<std::vector<L1MuRegionalCand> >("RPCf");
   
-  std::string patternsDirName = iConfig.getParameter<std::string>("RPCPatternsDir");
-  
+  std::string patternsDirNameLocal = iConfig.getParameter<std::string>("RPCPatternsDir");
+  //std::string patternsDirName = patternsDirNameLocal;
+
+
+  // Since fileInPath doesnt allow us to use directory we use this quick and dirty solution
+  edm::FileInPath fp(patternsDirNameLocal+"keepme.txt"); 
+  std::string patternsDirNameUnstriped = fp.fullPath();
+  std::string patternsDirName = patternsDirNameUnstriped.substr(0,patternsDirNameUnstriped.find_last_of("/")+1);
+
+  /*
+  const char * rb = ::getenv("CMSSW_RELEASE_BASE"); 
+  std::string patternsDirName(rb);
+  std::cout << std::endl << patternsDirName << std::endl;
+  patternsDirName+="/src/"+patternsDirNameLocal;
+  std::cout << std::endl << patternsDirName << std::endl;*/
+
   int triggerDebug = iConfig.getUntrackedParameter("RPCTriggerDebug",0);
   
   // 0 - no debug
@@ -113,6 +128,11 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
   
   for(unsigned int iMu = 0; iMu < finalMuons.size(); iMu++)
   {
+
+    if (finalMuons[iMu].GetPtCode()==0){
+      continue; 
+    } 
+
     L1MuRegionalCand l1Cand;
     
     
@@ -128,8 +148,9 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     else  
       l1Cand.setChargePacked(0);
     
-    L1RpcConst::L1RpcConeCrdnts cone = finalMuons[iMu].GetConeCrdnts();    
+    //L1RpcConst::L1RpcConeCrdnts cone = finalMuons[iMu].GetConeCrdnts();    
     
+    /*
     int pac = cone.LogSector*12+cone.LogSegment;
     const float pi = 3.14159265;
     const float offset = 5*(2*pi/360); // redefinition! Defined also in RPCRingFromRolls::phiMapCompare
@@ -138,11 +159,36 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
       phi+=2*pi;
     
     l1Cand.setPhiValue(phi);
-    
+    */
+
+    //Note: pac numbering begins at 5 deg and goes from 1 to 144.
+    // we want phi values from 0 to 2.5 deg to be phiPacked=0 
+    // max phiPacked value is 143 (see CMS IN 2004-022)
+    int phiPacked = (finalMuons[iMu].GetPhiAddr()+2)%144;
+    l1Cand.setPhiPacked(phiPacked);
+/*
     float eta = L1RpcConst::etaFromTowerNum(cone.Tower);
-    
     l1Cand.setEtaValue(eta);
-    
+*/
+    //Note: etaAddr is packed in special way: see CMS IN 2004-022
+    signed short etaAddr = finalMuons[iMu].GetEtaAddr()-16; // -16..16
+    bool etaNegative = false;
+    if (etaAddr < 0){
+      etaNegative = true;
+      etaAddr = ~(-etaAddr)+1; // convert to negative :)
+    }
+
+    etaAddr &= 63; // 6 bits only
+         
+    l1Cand.setEtaPacked(etaAddr);
+
+    /*    
+    std::cout<< std::endl << "RBMuon::" << finalMuons[iMu].GetEtaAddr() << " " 
+             << finalMuons[iMu].GetPhiAddr() << std::endl ;
+    std::cout<< "cand " <<  l1Cand.eta_packed() << " " 
+             << l1Cand.phi_packed() << std::endl ;
+    //*/
+
     RPCCand.push_back(l1Cand);
         
     LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[iMu].GetPtCode()
@@ -150,8 +196,8 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
         << " ql " << l1Cand.quality()
         << " fp " << finalMuons[iMu].GetFiredPlanes()
         << " b/f " << l1Cand.type_idx()
-        << " phi " << phi
-        << " eta " << eta
+        << " phi " <<  l1Cand.phi_packed()
+        << " eta " << l1Cand.eta_packed()
         //<< " eta l1 " << l1Cand.etaValue() // will drop out soon 
         << " killed " << finalMuons[iMu].WasKilled();
         

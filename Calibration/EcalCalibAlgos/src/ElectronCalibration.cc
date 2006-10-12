@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id$
+// $Id: ElectronCalibration.cc,v 1.1 2006/07/24 10:09:08 lorenzo Exp $
 //
 //
 
@@ -42,6 +42,8 @@
 #include "Calibration/Tools/interface/CalibrationCluster.h"
 #include "Calibration/Tools/interface/HouseholderDecomposition.h"
 #include "Calibration/Tools/interface/MinL3Algorithm.h"
+#include "Calibration/EcalAlCaRecoProducers/interface/AlCaPhiSymRecHitsProducer.h"
+
 
 #include "TFile.h"
 #include "TH1.h"
@@ -69,7 +71,7 @@ class ElectronCalibration : public edm::EDAnalyzer {
       virtual void endJob();
    private:
 
-      int  findMaxHit(edm::Handle<EBRecHitCollection> &);
+      EBDetId  findMaxHit(edm::Handle<EBRecHitCollection> &);
 
       // ----------member data ---------------------------
       std::string rootfile_;
@@ -265,7 +267,7 @@ ElectronCalibration::endJob() {
 
 
 //=================================================================================
-int
+EBDetId
 ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection> &  phits) {
 //=================================================================================
 
@@ -276,14 +278,17 @@ ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection> &  phits) {
      float en_save=0;
      for (it = ecrh.begin(); it != ecrh.end(); it++)
      {
-      EBDetId p = EBDetId(it->id().rawId());
+       EBDetId p = EBDetId(it->id().rawId());
+       // std::cout << "Hit list " << p.ieta() << " " << p.iphi() << " " << it->energy() << std::endl;
         if(it->energy()> en_save){
 	  en_save=it->energy();
 	  save=p;
+	  
 	}
       count++;
      }
-      return save.ic();
+     //return save.ic();
+      return save;
 
 }
 
@@ -302,7 +307,7 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
      iEvent.getByLabel( hitProducer_, hitCollection_,phits);
      hits = phits.product(); // get a ptr to the product
    } catch ( std::exception& ex ) {
-     std::cerr << "Error! can't get the product EBRecHitCollection" << hitCollection_.c_str() << std::endl;
+     std::cerr << "Error! can't get the product EBRecHitCollection: " << hitCollection_.c_str() << std::endl;
    }
 
    if (!hits)
@@ -318,10 +323,14 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   if(read_events%subsample_==0) makeIteration=true; 
 
-  int myMaxHit = findMaxHit(phits);
+  makeIteration=false; // do nothing
+
+  //  int myMaxHit = findMaxHit(phits);
+
 
 // first argument is SM number
-  EBDetId maxHitId(1,myMaxHit,EBDetId::SMCRYSTALMODE); 
+//  EBDetId maxHitId(1,myMaxHit,EBDetId::SMCRYSTALMODE); 
+  EBDetId maxHitId = findMaxHit(phits); 
 
   std::cout << "SubDetId = " << maxHitId.subdetId() << std::endl;
   std::cout << "RawId = " << maxHitId.rawId() << std::endl;
@@ -329,6 +338,7 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   std::cout << "calibCluster Eta = " << maxHitId.ieta() << std::endl;
   std::cout << "calibCluster Phi = " << maxHitId.iphi() << std::endl;
   std::cout << "crystal number inside SM = " << maxHitId.ic() << std::endl;
+  std::cout << "crystal energy = " << (hits->find(maxHitId))->energy() << std::endl;
 
 
 // define boundaries of region to be calibrated
@@ -352,7 +362,8 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
      {
        energy[icry]=(hits->find(Xtals5x5[icry]))->energy();
        energy5x5 += energy[icry];
-       
+       std::cout << "energy for hit " << icry << " = " << energy[icry] << std::endl;
+ 
        if ( icry == 6  || icry == 7  || icry == 8 ||
 	    icry == 11 || icry == 12 || icry ==13 ||
 	    icry == 16 || icry == 17 || icry ==18   )

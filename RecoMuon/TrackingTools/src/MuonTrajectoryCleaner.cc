@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2006/07/25 16:21:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/30 10:12:55 $
+ *  $Revision: 1.8 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -26,6 +26,9 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   int i(0), j(0);
   int match(0);
 
+  // CAVEAT: vector<bool> is not a vector, its elements are not addressable!
+  // This is fine as long as only operator [] is used as in this case.
+  // cf. par 16.3.11
   vector<bool> mask(trajC.size(),true);
   
   TrajectoryContainer result;
@@ -42,7 +45,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
       match = 0;
       for ( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
         for ( m2 = meas2.begin(); m2 != meas2.end(); m2++ ) {
-          if ( (*m1).recHit() == (*m2).recHit() ) match++;
+	  if ( ( (*m1).recHit()->globalPosition() - (*m2).recHit()->globalPosition()).mag()< 10e-5 ) match++;
         }
       }
       
@@ -84,4 +87,70 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   
   trajC.clear();
   trajC = result;
+}
+
+//
+// check for ghosts
+//
+void MuonTrajectoryCleaner::checkGhosts(CandidateContainer& candidates){
+
+  if ( candidates.size() < 2 ) return;
+
+  const float deltaEta = 0.01;
+  const float deltaPhi = 0.01;
+  const float deltaPt  = 1.0;
+
+  CandidateContainer::iterator e = candidates.end();
+  CandidateContainer::iterator i1;
+  CandidateContainer::iterator i2; 
+
+  for ( i1 = candidates.begin(); i1 != e; ++i1 ) {
+    if ( *i1 == 0 ) continue;
+    TrajectoryStateOnSurface innerTSOS;
+  
+    if ((*i1)->trajectory()->direction() == alongMomentum) {
+      innerTSOS = (*i1)->trajectory()->firstMeasurement().updatedState();
+    } 
+    else if ((*i1)->trajectory()->direction() == oppositeToMomentum) { 
+      innerTSOS = (*i1)->trajectory()->lastMeasurement().updatedState();
+    }
+    if ( !(innerTSOS.isValid()) ) continue;
+
+    float pt1 = innerTSOS.globalMomentum().perp();
+    float eta1 = innerTSOS.globalMomentum().eta();
+    float phi1 = innerTSOS.globalMomentum().phi();
+    for ( i2 = i1+1; i2 != e; ++i2 ) {
+      if ( *i2 == 0 || *i1 == 0 ) continue;
+      TrajectoryStateOnSurface innerTSOS2;
+
+      if ((*i2)->trajectory()->direction() == alongMomentum) {
+        innerTSOS2 = (*i2)->trajectory()->firstMeasurement().updatedState();
+      }
+      else if ((*i2)->trajectory()->direction() == oppositeToMomentum) {
+        innerTSOS2 = (*i2)->trajectory()->lastMeasurement().updatedState();
+      }
+      if ( !(innerTSOS2.isValid()) ) continue;
+
+      float pt2 = innerTSOS2.globalMomentum().perp();
+      float eta2 = innerTSOS2.globalMomentum().eta();
+      float phi2 = innerTSOS2.globalMomentum().phi();
+
+      float deta(fabs(eta1-eta2));
+      float dphi(fabs(Geom::Phi<float>(phi1)-Geom::Phi<float>(phi2)));
+      float dpt(abs(pt1-pt2));
+      if ( dpt < deltaPt && deta < deltaEta && dphi < deltaPhi ) {
+        CandidateContainer::iterator bad;
+        if ((*i1)->trajectory()->foundHits() == (*i2)->trajectory()->foundHits() ) 
+           bad = ( (*i1)->trajectory()->chiSquared() < (*i2)->trajectory()->chiSquared() ) ? i2 : i1;
+        else bad = ( (*i1)->trajectory()->foundHits() > (*i2)->trajectory()->foundHits() ) ? i2 : i1;
+        delete (*bad);
+        *bad = 0;
+      }
+    }
+  }
+
+  candidates.erase(remove(candidates.begin(),
+                          candidates.end(),
+                          static_cast<MuonCandidate*>(0)),
+                   candidates.end());
 }

@@ -5,11 +5,12 @@
  *  do a straight line extrapolation to
  *  find out compatible DetLayers with a given FTS 
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/28 15:41:12 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -24,7 +25,7 @@ class DirectMuonNavigation{
   public:
 
     /* Constructor */ 
-    DirectMuonNavigation(const MuonDetLayerGeometry *);
+    DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>);
 
     DirectMuonNavigation* clone() const {
       return new DirectMuonNavigation(*this);
@@ -38,8 +39,6 @@ class DirectMuonNavigation{
                         PropagationDirection timeDirection) const;
 
   private:
-    void addBarrelLayer(BarrelDetLayer* dl);
-    void addEndcapLayer(ForwardDetLayer* dl);
 
     void inOutBarrel(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
     void outInBarrel(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
@@ -55,11 +54,7 @@ class DirectMuonNavigation{
     bool outward(const FreeTrajectoryState& fts) const;
 
     float epsilon_;
-    vector<const BarrelDetLayer*> theBarrelLayers; 
-    vector<const ForwardDetLayer*> theForwardLayers; 
-    vector<const ForwardDetLayer*> theBackwardLayers; 
-    const MuonDetLayerGeometry * theMuonDetLayerGeometry; 
-  protected:
+    edm::ESHandle<MuonDetLayerGeometry> theMuonDetLayerGeometry;
 
 };
 #endif

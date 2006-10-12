@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/07/31 11:10:39 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/08/30 12:56:51 $
+ *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -16,31 +16,27 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 using namespace std;
 
-//
-// constructor
-//
-MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBuilder) :
-  theTrajBuilder(ConcreteMuonTrajectoryBuilder) {
-
-  theTrackLoader = new MuonTrackLoader();
+// constructor. For the STA reconstruction the trackLoader must have the propagator.
+MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBuilder,
+				 MuonTrackLoader *trackLoader) :
+  theTrajBuilder(ConcreteMuonTrajectoryBuilder),
+  theTrackLoader(trackLoader){
+  
   theTrajCleaner = new MuonTrajectoryCleaner();
 
 }
 
 
-//
 // destructor
-//
 MuonTrackFinder::~MuonTrackFinder() {
 
   LogDebug("Muon|RecoMuon|MuonTrackFinder")<<"MuonTrackFinder destructor called"<<endl;
@@ -50,42 +46,19 @@ MuonTrackFinder::~MuonTrackFinder() {
 
 }
 
-
-//
 // percolate the event setup
-//
-void MuonTrackFinder::setES(const edm::EventSetup& eSetup) {
-
-  theTrajBuilder->setES(eSetup);
-  theTrackLoader->setES(eSetup);
-
-}
-
-
-//
-// percolate the event setup
-//
 void MuonTrackFinder::setEvent(const edm::Event& event) {
-
   theTrajBuilder->setEvent(event);
-
 }
 
-
-//
 // convert the trajectories into tracks and load them in to the event
-//
 void MuonTrackFinder::load(const TrajectoryContainer& trajectories, 
 			   edm::Event& event) {
-                           
-  theTrackLoader->loadTracks(trajectories, event);
 
+  theTrackLoader->loadTracks(trajectories, event);
 }
 
-
-//
 // convert the trajectories into tracks and load them in to the event
-//
 void MuonTrackFinder::load(const CandidateContainer& muonCands,
 			   edm::Event& event) {
                            
@@ -93,23 +66,15 @@ void MuonTrackFinder::load(const CandidateContainer& muonCands,
 
 }
 
-
-//
 // reconstruct trajectories
-//
 void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds,
-				  edm::Event& event,
-				  const edm::EventSetup& eSetup) {
+				  edm::Event& event){
 
   const std::string metname = "Muon|RecoMuon|MuonTrackFinder";
   
   // Percolate the event 
-  LogDebug(metname)<<"Event setup percolation"<<endl;
+  LogDebug(metname)<<"Event percolation"<<endl;  
   setEvent(event);
-
-  // Percolate the event setup
-  LogDebug(metname)<<"Event percolation"<<endl;
-  setES(eSetup);
   
   // Trajectory container
   TrajectoryContainer muonTrajectories;
@@ -135,27 +100,17 @@ void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& s
 
 }
 
-
-//
 // reconstruct trajectories
-//
 void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& tracks,
-				  edm::Event& event,
-				  const edm::EventSetup& eSetup) {                       
+				  edm::Event& event){
 
   const std::string metname = "Muon|RecoMuon|MuonTrackFinder";
 
   // percolate the event 
   setEvent(event);
 
-  // percolate the event setup
-  setES(eSetup);
-  
   // Muon Candidate container
   CandidateContainer muonCandidates;
-
-  // 
-  // reco::MuonCollection muonResult;
 
   // reconstruct the muon candidates
   for (unsigned int position = 0; position != tracks->size(); ++position) {
@@ -163,17 +118,15 @@ void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& trac
     reco::TrackRef staTrack(tracks,position);
 
     CandidateContainer muonCands_temp = theTrajBuilder->trajectories(staTrack);
-    for (CandidateContainer::const_iterator it = muonCands_temp.begin(); it != muonCands_temp.end(); it++) {
-      muonCandidates.push_back(*it); 
-   }
+    muonCandidates.insert(muonCandidates.end(), muonCands_temp.begin(),muonCands_temp.end());
   }                                  
   
   // clean the cloned candidates
-  //IMPLEMENT ME
+  //theTrajCleaner->clean(muonCandidates);
+  theTrajCleaner->checkGhosts(muonCandidates);
 
   // convert the trajectories into tracks and load them into the event
   LogDebug(metname)<<"Load Muon Candidates into the event"<<endl;
-  //  load(muonCandidates,muonResult,event);            
   load(muonCandidates,event);
 
 }

@@ -53,7 +53,7 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid( binary_ifstream& inF
   
   // Activate/deactivate timers
 //   static SimpleConfigurable<bool> timerOn(false,"MFGrid:timing");
-//   (*TimingReport::current()).switchOn("MagneticFieldProvider::uncheckedValueInTesla(RectangularCylindricalMFGrid)",timerOn);
+//   (*TimingReport::current()).switchOn("MagneticFieldProvider::valueInTesla(RectangularCylindricalMFGrid)",timerOn);
 }
 
 void RectangularCylindricalMFGrid::dump() const
@@ -73,23 +73,13 @@ void RectangularCylindricalMFGrid::dump() const
   // grid_.dump();
 }
 
-MFGrid::LocalVector RectangularCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
+MFGrid::LocalVector RectangularCylindricalMFGrid::valueInTesla( const LocalPoint& p) const
 {
-//   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::uncheckedValueInTesla(RectangularCylindricalMFGrid)"];
+//   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(RectangularCylindricalMFGrid)"];
 //   TimeMe t(timer,false);
 
-  const float minimalSignificantR = 1e-6; // [cm], points below this radius are treated as zero radius
   LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
-  float R = p.perp();
-  if (R < minimalSignificantR) {
-    if (grid_.grida().lower() < minimalSignificantR) {
-      int k = grid_.gridc().index(p.z());
-      double u = (p.z() - grid_.gridc().node(k)) / grid_.gridc().step();
-      LocalVector result((1-u)*grid_(0,  0,  k) + u*grid_(0,  0,  k+1)); 
-      return result;
-    }
-  }
-  GridType::ValueType value = interpol( R, Geom::pi() - p.phi(), p.z());
+  GridType::ValueType value = interpol( p.perp(), Geom::pi() - p.phi(), p.z());
   return LocalVector(value);
 }
 

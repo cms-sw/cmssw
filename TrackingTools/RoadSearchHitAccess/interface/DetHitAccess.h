@@ -2,6 +2,8 @@
 #define RoadSearch_DetHitAccess_h
 
 #include <string>
+#include <vector>
+#include <algorithm>
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -21,19 +23,45 @@ class DetHitAccess {
 
  public:
 
+  enum accessMode {standard,rphi};
+
+  DetHitAccess();
+
+  ~DetHitAccess();
+
   DetHitAccess(const SiStripRecHit2DCollection* rphiRecHits,
 	       const SiStripRecHit2DCollection* stereoRecHits,
 	       const SiStripMatchedRecHit2DCollection* matchedRecHits,
 	       const SiPixelRecHitCollection* pixelRecHits);
-  
-  edm::OwnVector<TrackingRecHit> getHitVector(const DetId* detid);
+   
+  void setCollections(const SiStripRecHit2DCollection* rphiRecHits,
+		      const SiStripRecHit2DCollection* stereoRecHits,
+		      const SiStripMatchedRecHit2DCollection* matchedRecHits,
+		      const SiPixelRecHitCollection* pixelRecHits);
+
+  std::vector<TrackingRecHit*> getHitVector(const DetId* detid);
+
+  inline void setMode(accessMode input) { accessMode_ = input; }
+  inline void use_rphiRecHits(bool input) {use_rphiRecHits_ = input;}
+  inline void use_stereoRecHits(bool input) {use_stereoRecHits_ = input;}
 
  private:
-  
+
+  accessMode accessMode_;
+
+  bool use_rphiRecHits_;
+  bool use_stereoRecHits_;
+
   const SiStripRecHit2DCollection* rphiHits_;
   const SiStripRecHit2DCollection* stereoHits_;
   const SiStripMatchedRecHit2DCollection * matchedHits_;
   const SiPixelRecHitCollection *pixelHits_;
+
+  std::vector<DetId> matchedHitsDetIds_;
+  std::vector<DetId> rphiHitsDetIds_;
+  std::vector<DetId> stereoHitsDetIds_;
+  std::vector<DetId> pixelHitsDetIds_;
+
 };
 
 #endif

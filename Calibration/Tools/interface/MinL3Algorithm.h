@@ -5,8 +5,8 @@
  *  Implementation of the L3 Collaboration algorithm to solve a system Ax = B
  *  by minimization of |Ax-B| using an iterative linear approach
  *
- * $Date: 2006/06/26 $
- * $Revision: 1.0 $
+ * $Date: 2006/08/25 $
+ * $Revision: 1.2 $
  * \author R.Ofierzynski, CERN
  */
 
@@ -20,7 +20,8 @@ class MinL3Algorithm
 {
 public:
   /// Default constructor
-  MinL3Algorithm(bool normalise = true);
+  /// CAVEAT: use normalise = true only if you know what you're doing!
+  MinL3Algorithm(bool normalise = false);
 
   /// Destructor
   ~MinL3Algorithm();

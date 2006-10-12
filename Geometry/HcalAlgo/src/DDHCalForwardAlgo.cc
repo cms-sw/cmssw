@@ -21,7 +21,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalForwardAlgo::DDHCalForwardAlgo(): number(0),size(0),type(0) {
-  LogDebug("HCalGeom") << "DDHCalForwardAlgo info: Creating an instance";
+  edm::LogInfo("HCalGeom") << "DDHCalForwardAlgo info: Creating an instance";
 }
 
 DDHCalForwardAlgo::~DDHCalForwardAlgo() {}

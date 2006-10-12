@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: tboccali $
-// $Date: 2006/07/26 13:16:44 $
-// $Revision: 1.10 $
+// $Author: noeding $
+// $Date: 2006/09/01 21:12:47 $
+// $Revision: 1.13 $
 //
 
 #include <string>
@@ -66,11 +66,13 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
-
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
+
+#include "TrackingTools/RoadSearchHitAccess/interface/DetHitAccess.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -85,9 +87,15 @@ class RoadSearchCloudMakerAlgorithm
   void run(edm::Handle<TrajectorySeedCollection> input,
 	   const SiStripRecHit2DCollection* rphiRecHits,
 	   const SiStripRecHit2DCollection* stereoRecHits,
+	   const SiStripMatchedRecHit2DCollection* matchedRecHits,
 	   const SiPixelRecHitCollection *pixRecHits,
 	   const edm::EventSetup& es,
 	   RoadSearchCloudCollection &output);
+
+  void FillRecHitsIntoCloudGeneral(DetId id, double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
+				   const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, 
+				   Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
+				   const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
   void FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DCollection* inputRecHits, 
 			    double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
@@ -126,12 +134,23 @@ class RoadSearchCloudMakerAlgorithm
  private:
   edm::ParameterSet conf_;
   static double epsilon;
-  static double half_pi;
   double d0h, phi0h, omegah;
   double rphicsq;
   int rphinhits;
- const SiPixelRecHitCollection thePixRecHits;
-
+  const SiPixelRecHitCollection thePixRecHits;
+  
+  // general hit access for road search
+  DetHitAccess recHitVectorClass;
+  
+  double theRPhiRoadSize;
+  double theZPhiRoadSize;
+  double theMinimumHalfRoad;
+  bool UsePixels;
+  bool NoFieldCosmic;
+  unsigned int maxDetHitsInCloudPerDetId;
+  unsigned int minNumberOfUsedLayersPerRoad;
+  unsigned int maxNumberOfMissedLayersPerRoad;
+  unsigned int maxNumberOfConsecutiveMissedLayersPerRoad;
 };
 
 #endif

@@ -5,6 +5,21 @@
 <use name=DataFormats/SiStripDetId>
 <use name=OnlineDB/SiStripConfigDb>
 <use name=boost>
+
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/MessageLogger> 
+  <use name=CondFormats/SiStripObjects>
+  <use name=CalibFormats/SiStripObjects>
+  <use name=DataFormats/DetId>
+  <use name=Geometry/Records>
+  <use name=Geometry/CommonTopologies>
+  <use name=Geometry/TrackerGeometryBuilder>
+  <use name=DataFormats/SiStripDetId>
+  <use name=OnlineDB/SiStripConfigDb>
+#  <use name=OnlineDB/SiStripESSources>
+  <use name=boost>
+
 <flags SEAL_PLUGIN_NAME="OnlineDBSiStripESSources">
 
 <export>

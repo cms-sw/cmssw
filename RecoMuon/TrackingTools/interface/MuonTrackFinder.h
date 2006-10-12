@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/07/25 12:22:29 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/07/25 13:01:05 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -14,6 +14,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <vector>
 
@@ -32,25 +34,21 @@ class MuonTrackFinder {
   
   public:
   
-    /// constructor
-    MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder); 
-  
+    /// constructor, for the STA reconstruction the trackLoader must have the propagator.
+    MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
+		    MuonTrackLoader *trackLoader);
+    
     /// destructor
     virtual ~MuonTrackFinder();
   
     /// reconstruct tracks
     void reconstruct(const edm::Handle<TrajectorySeedCollection>&,
-                     edm::Event&,
-                     const edm::EventSetup&);
+                     edm::Event&);
                      
     void reconstruct(const edm::Handle<reco::TrackCollection>&,  
-                     edm::Event&,
-                     const edm::EventSetup&);            
+                     edm::Event&);
 
   private:
-
-    /// percolate the Event Setup
-    void setES(const edm::EventSetup&);
 
     /// percolate the Event Setup
     void setEvent(const edm::Event&);
