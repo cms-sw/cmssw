@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/09/07 00:30:33 $
- *  $Revision: 1.26 $
+ *  $Date: 2006/10/04 17:47:30 $
+ *  $Revision: 1.27 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -47,12 +47,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
   // the track collection, it will be loaded in the event  
   std::auto_ptr<reco::TrackCollection> trackCollection( new reco::TrackCollection() );
-  
-  // don't waste any time...
-  if ( trajectories.empty() ) { 
-    return event.put(trackCollection);
-  }
-
+ 
   // the track extra collection, it will be loaded in the event  
   std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
   // ... and its reference into the event
@@ -63,6 +58,13 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   // ... and its reference into the event
   TrackingRecHitRefProd recHitCollectionRefProd = event.getRefBeforePut<TrackingRecHitCollection>();
 
+  // don't waste any time...
+  if ( trajectories.empty() ) { 
+    event.put(recHitCollection);
+    event.put(trackExtraCollection);
+    return event.put(trackCollection);
+  }
+  
   LogDebug(metname) << "Create the collection of Tracks";
 
   reco::TrackExtraRef::key_type trackExtraIndex = 0;
@@ -135,43 +137,52 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   
   // the muon collection, it will be loaded in the event
   std::auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
-  if ( !muonCands.empty() ) {
-  // get combined Trajectories
-    TrajectoryContainer combinedTrajs;
-    for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
-      combinedTrajs.push_back((*it)->trajectory());
-    
-      // Create the reco::muon
-      reco::Muon muon;
-      muon.setStandAlone((*it)->muonTrack());
-      muon.setTrack((*it)->trackerTrack());
-      muonCollection->push_back(muon);
-      delete *it;
-    }
-
-    // create the TrackCollection of combined Trajectories
-    // FIXME: could this be done one track at a time in the previous loop?
-    edm::OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
-
-    reco::MuonCollection::iterator muon = muonCollection->begin();
-    for ( unsigned int position = 0; position != combinedTracks->size(); position++ ) {
-      reco::TrackRef combinedTR(combinedTracks, position);
-      // fill the combined information.
-      // FIXME: can this break in case combined info cannot be added to some tracks?
-      (*muon).setCharge(combinedTR->charge());
-      //FIXME: E = sqrt(p^2 + m^2), where m == 0.105658369(9)GeV 
-      double energy = sqrt(combinedTR->p() * combinedTR->p() + 0.011163691);
-      math::XYZTLorentzVector p4(combinedTR->px(),combinedTR->py(),combinedTR->pz(),energy);
-      (*muon).setP4(p4);
-      (*muon).setVertex(combinedTR->vertex());
-      (*muon).setCombined(combinedTR);
-      muon++;
-    }
+  
+  // don't waste any time...
+  if ( muonCands.empty() ) {
+    std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
+    std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
+    event.put(recHitCollection);
+    event.put(trackExtraCollection);
+    return event.put(muonCollection);
   }
+  
+  // get combined Trajectories
+  TrajectoryContainer combinedTrajs;
+  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
+    combinedTrajs.push_back((*it)->trajectory());
+    
+    // Create the reco::muon
+    reco::Muon muon;
+    muon.setStandAlone((*it)->muonTrack());
+    muon.setTrack((*it)->trackerTrack());
+    muonCollection->push_back(muon);
+    delete *it;
+  }
+  
+  // create the TrackCollection of combined Trajectories
+  // FIXME: could this be done one track at a time in the previous loop?
+  edm::OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
+  
+  reco::MuonCollection::iterator muon = muonCollection->begin();
+  for ( unsigned int position = 0; position != combinedTracks->size(); position++ ) {
+    reco::TrackRef combinedTR(combinedTracks, position);
+    // fill the combined information.
+    // FIXME: can this break in case combined info cannot be added to some tracks?
+    (*muon).setCharge(combinedTR->charge());
+    //FIXME: E = sqrt(p^2 + m^2), where m == 0.105658369(9)GeV 
+    double energy = sqrt(combinedTR->p() * combinedTR->p() + 0.011163691);
+    math::XYZTLorentzVector p4(combinedTR->px(),combinedTR->py(),combinedTR->pz(),energy);
+    (*muon).setP4(p4);
+    (*muon).setVertex(combinedTR->vertex());
+    (*muon).setCombined(combinedTR);
+    muon++;
+  }
+  
   // put the MuonCollection in the event
   LogDebug(metname) << "put the MuonCollection in the event" << "\n";
   edm::OrphanHandle<reco::MuonCollection> orphanHandleMuon = event.put(muonCollection);
-
+  
   return orphanHandleMuon;
 
 }
@@ -203,8 +214,8 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
   TrajectoryStateOnSurface tscp = tipe.extrapolate(innerTSOS,vtx);
   
   if ( !tscp.isValid() ) {
-     edm::LogError(metname)<<"Extrapolation to vertex failed!";
-     return reco::Track(); // FIXME: how to report this?
+    edm::LogError(metname)<<"Extrapolation to vertex failed!";
+    return reco::Track(); // FIXME: how to report this?
   }
   PerigeeConversions conv;
   double pt = 0.0;
