@@ -3,23 +3,25 @@
 // v0  who ? when ? 
 // 11 Dec 2003 Florian Beaudette. Removed the surfaces corresponding to ECAL 
 //             This will carried out by the FamosTrajectoryManager
+// 12 Oct 2006 Patrick Janot. Removed hardcoded active geometry & rings
+//                            Removed RecHit smearing parameterization
 
 //FAMOS Headers
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerRing.h"
-//#include "FastSimulation/TrackerSetup/interface/PixelErrorParametrization.h"
 
 #include <list>
 #include <map>
 
 class MediumProperties;
+class GeometricSearchTracker;
 
 class TrackerInteractionGeometry
 {
 
  public:
 
-  TrackerInteractionGeometry();
+  TrackerInteractionGeometry(const GeometricSearchTracker* geomSearchTracker);
 
   ~TrackerInteractionGeometry();
 
@@ -35,26 +37,10 @@ class TrackerInteractionGeometry
   inline const int nCylinders() const 
     { return static_cast<const int>(_theCylinders.size()); }
 
-  /// Returns the ring characteristics
-  inline const TrackerRing& theRing(unsigned ir) const
-    { return _theRings.find(ir)->second; }
-
-  /// Returns the pointer to the Pixel Error parametrization
-  //  inline PixelErrorParametrization* thePixels() const
-  //   { return _thePixelErrorParametrization; }
-
-  /// Returns the Ring Number corresponding to a given radius
-  /// (Returns 0 if no ring at this radius)
-  unsigned theRingNr(double radius, unsigned first, unsigned last) const;
-
-
  private:
 
   /// The list of tracker (sensistive or not) layers
   std::list<TrackerLayer> _theCylinders;
-
-  /// A numbered list of ring
-  std::map<unsigned,TrackerRing> _theRings;
 
   /// The following list gives the thicknesses of the various layers.
   /// The beam pipe
@@ -107,9 +93,6 @@ class TrackerInteractionGeometry
   MediumProperties *_theMPBarrelOutside;
   MediumProperties *_theMPEndcapOutside;
   MediumProperties *_theMPEndcapOutside2;
-
-  /// The pixel hit error parameterization is read from a file
-  //  PixelErrorParametrization* _thePixelErrorParametrization;
 
 };
 #endif
