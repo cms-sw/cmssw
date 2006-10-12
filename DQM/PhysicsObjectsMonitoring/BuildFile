@@ -1,0 +1,20 @@
+<flags SEAL_PLUGIN_NAME="DQMPhysicsObjectsMonitoring">
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=FWCore/ParameterSet>
+<use name=RecoMuon/TrackingTools>
+<use name=TrackingTools/TransientTrack>
+
+<use name=CLHEP>
+<use name=root>
+<export>
+<lib name=DQMPhysicsObjectsMonitoring>
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=FWCore/ParameterSet>
+<use name=RecoMuon/TrackingTools>
+<use name=TrackingTools/TransientTrack>
+
+<use name=CLHEP>
+<use name=root>
+</export>
