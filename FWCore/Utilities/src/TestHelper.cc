@@ -1,22 +1,25 @@
 //------------------------------------------------------------
-// $Id: TestHelper.cc,v 1.4 2006/08/16 13:56:14 chrjones Exp $
+// $Id: TestHelper.cc,v 1.5 2006/10/10 19:18:02 paterno Exp $
 //------------------------------------------------------------
+#include <cerrno>
+#include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <string>
-#include <cstdlib>
-#include <cerrno>
+
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "boost/filesystem/convenience.hpp"
+#include "boost/filesystem/convenience.hpp"
 #include "boost/filesystem/path.hpp"
-#include "boost/filesystem/convenience.hpp"
-#include "boost/filesystem/convenience.hpp"
 
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
 
 namespace bf=boost::filesystem;
-
 
 int run_script(const std::string& shell, const std::string& script)
 {
@@ -60,7 +63,9 @@ int run_script(const std::string& shell, const std::string& script)
   return status;
 }
 
-int ptomaine(int argc, char* argv[])
+
+
+int do_work(int argc, char* argv[])
 {
   bf::path currentPath(bf::initial_path().string(), bf::no_check);
   
@@ -162,4 +167,37 @@ int ptomaine(int argc, char* argv[])
 
   std::cout << "status = " << rc << std::endl;;
   return rc == 0 ? 0 : -1;
+}
+
+int ptomaine(int argc, char* argv[])
+{
+  int rc = 1;
+  try
+    {
+      rc = do_work(argc, argv);
+    }
+  catch ( edm::Exception& x )
+    {
+      std::cerr << "Caught an edm::Exception in "
+		<< argv[0] << '\n'
+		<< x;
+    }
+  catch ( cms::Exception& x )
+    {
+      std::cerr << "Caught a cms::Exception in "
+		<< argv[0] << '\n'
+		<< x;
+    }
+  catch ( std::exception& x )
+    {
+      std::cerr << "Caught a std::exception in "
+		<< argv[0] << '\n'
+		<< x.what();
+    }
+  catch (...)
+    {
+      std::cerr << "Caught an unknown exception in "
+		<< argv[0];
+    }
+  return rc;
 }
