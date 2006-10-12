@@ -20,6 +20,8 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/StreamTranslator.h"
 
+#include "DataFormats/Common/interface/ProcessConfiguration.h"
+
 #include <memory>
 #include <string>
 #include <fstream>
@@ -52,6 +54,7 @@ namespace edm
 
     //ProductRegistry const* prod_reg_;
     Producer* pr_; 
+    edm::ProcessConfiguration procConfig_;
     
   }; //end-of-class-def
 
@@ -102,7 +105,13 @@ std::auto_ptr<edm::EventPrincipal> StreamerInputModule<Producer>::read()
     {
         return  std::auto_ptr<edm::EventPrincipal>();
     }
-    return StreamTranslator::deserializeEvent(*eview, productRegistry());
+    std::auto_ptr<edm::EventPrincipal> pEvent(StreamTranslator::deserializeEvent(*eview, productRegistry()));
+    if(pEvent.get()) {
+       pEvent->addToProcessHistory(procConfig_);
+       //std::cout <<"added process configuration "<<procConfig_.processName()<<std::endl;
+       
+    }
+    return pEvent;
   }
 
 template <class Producer>
@@ -114,10 +123,27 @@ void StreamerInputModule<Producer>::mergeWithRegistry(const SendDescs& descs,Pro
     // already there? it looks like I replace it.  maybe that it correct
 
     FDEBUG(6) << "mergeWithRegistry: Product List: " << endl;
+    std::string processName;
+    if( i != e ) {
+       processName = i->processName();
+    }
     for(; i != e; ++i) {
         reg.copyProduct(*i);
         FDEBUG(6) << "StreamInput prod = " << i->className() << endl;
+
+	if(processName != i->processName()) {
+	   throw cms::Exception("MultipleProcessNames")
+	      <<"at least two different process names ('"
+	      <<processName
+	      <<"', '"
+	      <<i->processName()
+	      <<"' found in JobHeader. We can only support one.";
+	}
     }
+    procConfig_ = edm::ProcessConfiguration(processName,
+					    edm::ParameterSetID(),
+					    edm::ReleaseVersion(),
+					    edm::PassID());
   }
 
 template <class Producer>
