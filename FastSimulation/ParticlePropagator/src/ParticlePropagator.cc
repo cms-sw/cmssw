@@ -10,6 +10,11 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 
 #include <iomanip>
+#include <iostream>
+
+
+
+
 
 ParticlePropagator::ParticlePropagator() : BaseParticlePropagator() {;}
 
@@ -79,7 +84,7 @@ ParticlePropagator::fieldMap(double xx,double yy, double zz) {
   // Arguments now passed in cm.
   //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
   // Return a dummy value for neutral particles!
-  return charge() == 0 ? 
+  return charge() == 0.0 ? 
     4. : MagneticFieldMap::instance()->inTeslaZ(GlobalPoint(xx,yy,zz));
 }
 
@@ -102,6 +107,9 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
 
   bool done = propagate();
 
+  // Set the magnetic field at the new location (if succesfully propagated)
+  if ( done ) setMagneticField(fieldMap(x(),y(),z()));
+
   // There is some real material here
   fiducial = !(!disk &&  success!=1) &&
 	     !( disk && (success!=2  || position().perp()<innerradius));
@@ -113,7 +121,7 @@ void
 ParticlePropagator::setPropagationConditions(const TrackerLayer& layer, 
 					     bool firstLoop) { 
   // Set the magentic field
-  setMagneticField(fieldMap(x(),y(),z()));
+  // setMagneticField(fieldMap(x(),y(),z()));
 
   // Set R and Z according to the Tracker Layer characteristics.
   //  const Surface& surface = layer.surface();
