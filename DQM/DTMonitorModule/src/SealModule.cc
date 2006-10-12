@@ -11,6 +11,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTTestPulsesTask)
 #include "DQM/DTMonitorModule/interface/DTLocalRecoTask.h"
 DEFINE_ANOTHER_FWK_MODULE(DTLocalRecoTask)
 
+#include "DQM/DTMonitorModule/interface/DTTriggerCheck.h"
+DEFINE_ANOTHER_FWK_MODULE(DTTriggerCheck)
+
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
