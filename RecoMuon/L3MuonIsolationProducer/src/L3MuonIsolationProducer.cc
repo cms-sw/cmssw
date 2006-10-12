@@ -54,7 +54,7 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& parameterSe
 
   theDepositLabel = parameterSet.getUntrackedParameter<string>("DepositLabel");
 
-  produces<MuIsoDepositCollection>();
+  produces<MuIsoDepositAssociationMap>();
   produces<MuIsoAssociationMap>();
 }
   
@@ -82,8 +82,8 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   muonisolation::TrackExtractor extractor( theDiff_r, theDiff_z, theDR_Match, theDR_Veto,
       theTrackCollectionLabel, theDepositLabel);
 
-  std::auto_ptr<MuIsoDepositCollection> depCollection( new MuIsoDepositCollection());
-  std::auto_ptr<MuIsoAssociationMap> depMap( new MuIsoAssociationMap());
+  std::auto_ptr<MuIsoDepositAssociationMap> depMap( new MuIsoDepositAssociationMap());
+  std::auto_ptr<MuIsoAssociationMap> isoMap( new MuIsoAssociationMap());
 
   vector<Direction> vetoDirections;
   for (unsigned int i=0; i<muons->size(); i++) {
@@ -100,17 +100,16 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
     
     const MuIsoDeposit & deposit = deposits[0]; //FIXME check size and thrown exception eventually
 
-    depCollection->push_back(deposit);
+    depMap->insert(mu, deposit);
 
     double value = deposit.depositWithin(cut.conesize);
     bool result = (value < cut.threshold); 
     LogTrace(metname)<<"deposit in cone: "<<value<<" is isolated: "<<result;
-    depMap->insert(mu, result);
+    isoMap->insert(mu, result);
   }
 
-  LogTrace(metname) << " deposite Collections: " << depCollection->size();
-  event.put(depCollection);
   event.put(depMap);
+  event.put(isoMap);
 
   LogTrace(metname) <<" END OF EVENT " <<"================================";
 }

@@ -64,7 +64,7 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& parameterSe
 
   ecalWeight_  = parameterSet.getParameter<double> ("EcalWeight");
 
-  produces<MuIsoDepositCollection>();
+  produces<MuIsoDepositAssociationMap>();
   produces<MuIsoAssociationMap>();
 }
   
@@ -86,8 +86,8 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
 
   // Find deposits and load into event
   LogDebug(metname)<<" Get energy around";
-  std::auto_ptr<MuIsoDepositCollection> depCollection( new MuIsoDepositCollection());
-  std::auto_ptr<MuIsoAssociationMap> depMap( new MuIsoAssociationMap());
+  std::auto_ptr<MuIsoDepositAssociationMap> depMap( new MuIsoDepositAssociationMap());
+  std::auto_ptr<MuIsoAssociationMap> isoMap( new MuIsoAssociationMap());
  
   for (unsigned int i=0; i<tracks->size(); i++) {
       TrackRef tk(tracks,i);
@@ -96,8 +96,8 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
       MuIsoDeposit depE("ECAL");
       MuIsoDeposit depH("HCAL");
       fillDeposits(depE, depH, *tk, event, eventSetup);
-      depCollection->push_back(depE);
-      depCollection->push_back(depH);
+      depMap->insert(tk, depE);
+      depMap->insert(tk, depH);
 
       double abseta = fabs(tk->eta());
       int ieta = etaBounds_.size()-1;
@@ -108,14 +108,13 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
       double dephlt = ecalWeight_*depE.depositWithin(conesize)
                        + depH.depositWithin(conesize);
       if (dephlt<edepCuts_[ieta]) {
-            depMap->insert(tk, true);
+            isoMap->insert(tk, true);
       } else {
-            depMap->insert(tk, false);
+            isoMap->insert(tk, false);
       }
   }
-  //LogDebug(metname) << " dep Collections: " << depCollection->size();
-  event.put(depCollection);
   event.put(depMap);
+  event.put(isoMap);
 
   LogDebug(metname) <<" Event loaded"
 		   <<"================================";
