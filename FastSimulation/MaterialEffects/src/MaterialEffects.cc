@@ -16,7 +16,7 @@
 
 #include <list>
 #include <utility>
-#include <iomanip>
+#include <iostream>
 
 using namespace std;
 
@@ -216,13 +216,14 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
   // is no way to define a cylinder with a hole in the middle...
   double rad = myTrack.vertex().perp();
   double zed = fabs(myTrack.vertex().z());
-  if ( rad > 160. && zed < 280. ) {
+
+  if ( rad > 16. && zed < 28. ) {
     // Less material on all sensitive layers of the Silicon Tracker
-    if ( rad > 550. && zed < 200. && layer.sensitive() ) radlen *= 0.50;
+    if ( rad > 55. && zed < 20. && layer.sensitive() ) radlen *= 0.50;
     // Much less cables outside the Si Tracker barrel
-    if ( rad > 1180. ) radlen *= 0.2;
+    if ( rad > 118. ) radlen *= 0.2;
     // No cable whatsoever in the Pixel Barrel.
-    if ( rad < 180. && zed < 260. ) radlen *= 0.04;
+    if ( rad < 18. && zed < 26. ) radlen *= 0.04;
   }
 
   return radlen;
