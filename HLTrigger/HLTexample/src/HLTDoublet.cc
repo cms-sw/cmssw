@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/10/04 16:02:42 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/10/11 09:00:43 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -105,7 +105,7 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        double Deta(abs(p1.eta()-p2.eta()));
 
-       p.setP4(Particle::LorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
+       p.setP4(math::XYZTLorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
        double Minv(abs(p.mass()));
 
        if ( ( (!cutdphi_) || (min_Dphi_ <= Dphi) && (Dphi <= max_Dphi_) ) &&
