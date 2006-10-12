@@ -3,6 +3,8 @@
 #include "Utilities/DCacheAdaptor/interface/DCacheFile.h"
 #include "Utilities/DCacheAdaptor/interface/DCacheError.h"
 #include "SealBase/DebugAids.h"
+#include "SealBase/StringFormat.h"
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <dcap.h>
@@ -119,7 +121,7 @@ DCacheFile::open (const char *name,
     IOFD newfd = IOFD_INVALID;
     dc_errno = 0;
     if ((newfd = dc_open (name, openflags, perms.native ())) == -1)
-	throw DCacheError (seal::StringFormat ("dc_open(%1,%2,%3").arg(lname).arg(openflags).arg(perms.native()), dc_errno);
+	throw DCacheError (seal::StringFormat ("dc_open(%1,%2,%3").arg(name).arg(openflags).arg(perms.native()), dc_errno);
 
     m_fd = newfd;
 
