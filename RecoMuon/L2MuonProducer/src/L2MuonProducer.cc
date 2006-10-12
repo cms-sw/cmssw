@@ -8,23 +8,22 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/09/15 08:33:49 $
- *   $Revision: 1.12 $
+ *   $Date: 2006/09/15 12:07:37 $
+ *   $Revision: 1.13 $
  *
  *   \author  R.Bellan - INFN TO
  */
 //
 //--------------------------------------------------
 
+#include "RecoMuon/L2MuonProducer/src/L2MuonProducer.h"
+
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "RecoMuon/L2MuonProducer/src/L2MuonProducer.h"
 
 // TrackFinder and Specific STA/L2 Trajectory Builder
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
