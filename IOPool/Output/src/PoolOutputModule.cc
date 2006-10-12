@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.47 2006/10/05 23:23:53 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.48 2006/10/10 04:22:55 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -154,7 +154,7 @@ namespace edm {
       outputItemList_.push_back(OutputItem(*it, false, provenancePlacement));
     }
 
-    om_->catalog_.registerFile(file_, lfn_);
+    pool::FileCatalog::FileID fid = om_->catalog_.registerFile(file_, lfn_);
     startTransaction();
 
     FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
@@ -185,6 +185,7 @@ namespace edm {
 		      om_->catalog_.url(),  // catalog
 		      moduleName,   // module class name
 		      om_->moduleLabel_,  // module label
+		      fid, // file id (guid)
 		      branchNames_); // branch names being written
   }
 
