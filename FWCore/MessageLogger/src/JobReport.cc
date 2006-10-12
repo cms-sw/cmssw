@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.7 2006/10/02 21:45:32 evansde Exp $
+// $Id: JobReport.cc,v 1.8 2006/10/03 21:55:08 evansde Exp $
 //
 
 
@@ -200,6 +200,7 @@ namespace edm
 			       string const& catalog,
 			       string const& inputSourceClassName,
 			       string const& moduleLabel,
+			       string const& guid,
 			       vector<string> const& branchNames)
     {
       // Do we have to worry about thread safety here? Or is this
@@ -212,6 +213,7 @@ namespace edm
       r.catalog              = catalog;
       r.inputSourceClassName = inputSourceClassName;
       r.moduleLabel          = moduleLabel;
+      r.guid                 = guid;
       // r.runsSeen is not modified
       r.numEventsRead        = 0;
       r.branchNames          = branchNames;
@@ -251,6 +253,7 @@ namespace edm
 				string const& catalog,
 				string const& outputModuleClassName,
 				string const& moduleLabel,
+				string const& guid,
 				vector<string> const& branchNames)
     {
       impl_->outputFiles_.push_back(JobReport::OutputFile());
@@ -261,6 +264,7 @@ namespace edm
       r.catalog               = catalog;
       r.outputModuleClassName = outputModuleClassName;
       r.moduleLabel           = moduleLabel;
+      r.guid           = guid;
       // r.runsSeen is not modified
       r.numEventsWritten      = 0;
       r.branchNames           = branchNames;
@@ -377,6 +381,17 @@ namespace edm
     msg << "</TimingService>\n";
     LogInfo("FwkJob") << msg.str();
   }
-
+  
+  void
+  JobReport::reportStorageStats(std::string & data)
+  {
+    
+    std::ostringstream msg;
+    msg << "<StorageStatistics>\n"
+        << data << "\n"
+	<<  "</StorageStatistics>\n";
+    LogInfo("FwkJob") << msg.str();    
+  }
+ 
 
 } //namspace edm

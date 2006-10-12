@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.4 2006/10/02 21:45:31 evansde Exp $
+// $Id: JobReport.h,v 1.5 2006/10/03 21:55:07 evansde Exp $
 //
 
 #include <cstddef>
@@ -59,6 +59,7 @@ namespace edm {
         std::string     catalog;
         std::string     inputSourceClassName; // class which created the file
         std::string     moduleLabel;   // name of class instance
+        std::string     guid;
         RunNumberCollection runsSeen;
         size_t          numEventsRead;
         StringVector    branchNames;
@@ -83,6 +84,7 @@ namespace edm {
         std::string     catalog;
         std::string     outputModuleClassName;
         std::string     moduleLabel;   // name of class instance
+        std::string     guid;
         RunNumberCollection runsSeen;
         size_t          numEventsWritten;
         StringVector    branchNames;
@@ -165,6 +167,7 @@ namespace edm {
 			    std::string const& catalog,
 			    std::string const& inputSourceClassName,
 			    std::string const& moduleLabel,
+                            std::string const& guid,
 			    std::vector<std::string> const& branchNames);
 
       /// Report that the event with the given id has been read from
@@ -184,6 +187,7 @@ namespace edm {
 			     std::string const& catalog,
 			     std::string const& outputModuleClassName,
 			     std::string const& moduleLabel,
+			     std::string const& guid,
 			     std::vector<std::string> const& branchNames);
 
       /// Report that the event with the given id has been written to
@@ -236,8 +240,10 @@ namespace edm {
       /// Invoked by the Timing service to send an end of job 
       /// summary about time taken for inclusion in the job report
       ///
-	void reportTimingInfo(std::map<std::string, double> & timingData);
+      void reportTimingInfo(std::map<std::string, double> & timingData);
 
+      /// Report Storage Statistics
+	void reportStorageStats(std::string & data); 
 
    protected:
       boost::scoped_ptr<JobReportImpl>& impl() {return impl_;}
@@ -266,6 +272,7 @@ namespace edm {
     os << "\n<PFN>" << f.physicalFileName << "</PFN>";
     os << "\n<Catalog>" << f.catalog << "</Catalog>";
     os << "\n<ModuleLabel>" << f.moduleLabel << "</ModuleLabel>";
+    os << "\n<GUID>" << f.guid << "</GUID>";
     os << "\n<Runs>";
     std::set<edm::RunNumber_t>::iterator iRun;
     for ( iRun = f.runsSeen.begin(); iRun != f.runsSeen.end(); iRun++) {
