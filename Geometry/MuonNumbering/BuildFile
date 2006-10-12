@@ -1,8 +1,18 @@
-<use name=DetectorDescription/Core>
 <use name=DataFormats/MuonDetId>
+<use name=DetectorDescription/Core>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
+<use name=Geometry/Records>
+
+<flags SEAL_PLUGIN_NAME="GeometryMuonNumbering">
 
 <export>
  <lib name=GeometryMuonNumbering>
- <use name=DetectorDescription/Core>
  <use name=DataFormats/MuonDetId>
+ <use name=DetectorDescription/Core>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=Foundation/PluginManager>
+ <use name=Geometry/Records>
 </export>
