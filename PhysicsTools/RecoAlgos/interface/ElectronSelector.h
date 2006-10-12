@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: ElectronSelector.h,v 1.3 2006/09/22 10:46:43 llista Exp $
+ * $Id: ElectronSelector.h,v 1.4 2006/09/22 11:29:27 meridian Exp $
  *
  */
 
@@ -48,17 +48,17 @@ namespace helper {
 	if ( trkRef.isNonnull() ) {
 	  selTracks_->push_back( Track( * trkRef ) );
   	  Track & trk = selTracks_->back();
-	  trk.setExtra( TrackExtraRef( rTrackExtras, tidx ++ ) );
 	  selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
 						  trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
 						  trk.outerStateCovariance(), trk.outerDetId(),
 						  trk.innerStateCovariance(), trk.innerDetId() ) );
-	  TrackExtra & tx = selTrackExtras_->back();
+  	  TrackExtra & tx = selTrackExtras_->back();
 	  for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	    selHits_->push_back( (*hit)->clone() );
 	    tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
 	  }
-	}
+ 	  trk.setExtra( TrackExtraRef( rTrackExtras, tidx ++ ) ); 
+	} 
       }
     }
     void put( edm::Event & evt ) {
