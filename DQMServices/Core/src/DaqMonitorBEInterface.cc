@@ -305,7 +305,7 @@ void DaqMonitorBEInterface::scanContents
     {
 
       cdir_it start, end, parent_dir;
-      getSubRange<dir_map>(search_string, rDir.paths, start, end, parent_dir);
+      getSubRange<dir_map>(search_string, rDir.paths,start,end,parent_dir);
       
       // do parent directory first
       if(parent_dir != Own.paths.end())
