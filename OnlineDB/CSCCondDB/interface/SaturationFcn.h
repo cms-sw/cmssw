@@ -2,7 +2,6 @@
 #define SaturationFcn_h
                                                                
 #include "Minuit2/FCNBase.h"  
-//#include "OnlineDB/CSCCondDB/interface/CSCSaturationAnalyzer.h"
 #include <vector>
 
 using namespace ROOT::Minuit2;
@@ -11,23 +10,18 @@ class SaturationFcn : public FCNBase{
 
  public:
 
- SaturationFcn(int N,float *charge_ptr,float *adc_ptr){}
+ SaturationFcn(){}
 
  ~SaturationFcn(){}
 
 
- void set_data(float (*charge_ptr)[25],float (*adc_ptr)[500]){
-   N=25;
-
+ void set_data(int N,float *charge_ptr,float *adc_ptr){
    
-   //   float x[14]={22.4, 44.8, 67.2, 89.6, 112, 134.4, 156.8, 179.2,201.6, 224.0, 246.4, 268.8, 291.2, 313.6};
-   //   float y[14]={1974.28, 2155.27, 2335.6, 2513.77, 2686.75, 2854.5,3016.83, 3173.9, 3244.83, 3245.4, 3245.02, 3245.78, 3245.08, 3245.53};
-
    float x[25],y[25];
 
    for(int i=0;i<N;i++){
-     x[i]=(*charge_ptr)[i];
-     y[i]=(*adc_ptr)[i];
+     x[i]=charge_ptr[i];
+     y[i]=adc_ptr[i];
      datx[i]=x[i];
      daty[i]=y[i];
      printf("%d  datx daty %f %f \n",i,datx[i],daty[i]);
@@ -64,8 +58,8 @@ class SaturationFcn : public FCNBase{
  
  double datx[25],daty[25];
  int N;
- float (*charge_ptr)[25];
- float (*adc_ptr)[500];
+ //float (*charge_ptr)[25];
+ //float (*adc_ptr)[500];
  
 }; 
 

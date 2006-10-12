@@ -146,10 +146,10 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
     }
   }
   string::size_type runNameStart = name.find("\"",0);
-  string::size_type runNameEnd   = name.find("bin",0);
-  string::size_type rootStart    = name.find("Gains",0);
+  string::size_type runNameEnd   = name.find("raw",0);
+  string::size_type rootStart    = name.find("PulseDAC",0);
   int nameSize = runNameEnd+2-runNameStart;
-  int myRootSize = rootStart-runNameStart+4;
+  int myRootSize = rootStart-runNameStart+11;
   std::string myname= name.substr(runNameStart+1,nameSize);
   std::string myRootName= name.substr(runNameStart+1,myRootSize);
   std::string myRootEnd = ".root";

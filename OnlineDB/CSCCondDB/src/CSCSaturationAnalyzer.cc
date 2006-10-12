@@ -344,8 +344,10 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		  if(cham==8 && k==72) gain85_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
 
 		  //Use Minuit to do the fitting
-		  float (*charge_ptr)[NUMBERPLOTTED_sat] = &myCharge;
-		  float (*adc_ptr)[NUMBERPLOTTED_sat]    = &mySatADC;
+		  //float (*charge_ptr)[NUMBERPLOTTED_sat] = &myCharge;
+		  //float (*adc_ptr)[NUMBERPLOTTED_sat]    = &mySatADC;
+
+		  //std::cout <<" charge_ptr "<<(*charge_ptr)[NUMBERPLOTTED_sat]<<" adc_ptr "<<mySatADC[ii]<<std::endl;
 
 		  //Fit parameters for straight line from gains
 		  gainSlope     = ((NUMBERPLOTTED_sat*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED_sat*sumx2) - (sumOfX*sumOfX));//k
@@ -357,10 +359,7 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		    chi2_sat +=gainSlope -(aVar*charge[ii]/(bVar+charge[ii]));
 		  }
 
-
-
-		  SaturationFit ;
-
+		  //	  SaturationFit s(NUMBERPLOTTED_sat,myCharge,mySatADC);
 		  
 		  calib_evt.slope     = gainSlope;
 		  calib_evt.intercept = gainIntercept;

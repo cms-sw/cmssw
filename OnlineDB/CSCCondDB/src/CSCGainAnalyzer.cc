@@ -37,7 +37,7 @@ CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,gainSlope=-999.0,gainIntercept=-999.0;
   
-  adcCharge = TH2F("adcCharge","adcCharge", 100,0,2000,100,0,300);
+  adcCharge = TH2F("adcCharge","adcCharge", 100,0,300,100,0,2000);
 
   for (int i=0; i<NUMMODTEN_ga; i++){
     for (int j=0; j<CHAMBERS_ga; j++){
@@ -174,10 +174,10 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
     }
   }
   string::size_type runNameStart = name.find("\"",0);
-  string::size_type runNameEnd   = name.find("bin",0);
-  string::size_type rootStart    = name.find("PulseDAC",0);
+  string::size_type runNameEnd   = name.find("raw",0);
+  string::size_type rootStart    = name.find("Gains",0);
   int nameSize = runNameEnd+2-runNameStart;
-  int myRootSize = rootStart-runNameStart+7;
+  int myRootSize = rootStart-runNameStart+8;
   std::string myname= name.substr(runNameStart+1,nameSize);
   std::string myRootName= name.substr(runNameStart+1,myRootSize);
   std::string myRootEnd = ".root";
@@ -245,7 +245,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		  sumOfXY += (charge[ii]*maxmodten[ii][cham][j][k]);
 		  sumx2   += (charge[ii]*charge[ii]);
 		  myCharge[ii] = 22.4 +(22.4*ii);
-		  adcCharge.Fill(maxmodten[ii][cham][j][k],myCharge[ii]);
+		  adcCharge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
 		}
 	
 		
