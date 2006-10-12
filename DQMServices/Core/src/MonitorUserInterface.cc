@@ -649,6 +649,12 @@ void MonitorUserInterface::removeCollate(CollateMonitorElement * cme)
       cerr << " *** Attempt to remove null CollateMonitorElement ! " << endl;
       return;
     }
+  if(bei->collate_set.find(cme) == bei->collate_set.end())
+    {
+      cerr << " *** Cannot remove CollateMonitorElement! " << endl;
+      cerr << " (maybe it has already been removed?) " << endl;
+      return;
+    }
   bei->removeCollate(cme);
 }
 
