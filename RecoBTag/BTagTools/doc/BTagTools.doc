@@ -18,8 +18,6 @@
 This package provides a software tools that are shared by several
 b tagging algorithms.
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
-
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
