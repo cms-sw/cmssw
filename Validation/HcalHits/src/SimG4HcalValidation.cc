@@ -153,7 +153,7 @@ void SimG4HcalValidation::update(const BeginOfJob * job) {
   numberingFromDDD = new HcalNumberingFromDDD(names[0], (*pDD));
 
   // Numbering scheme
-  org              = new HcalTestNumberingScheme();
+  org              = new HcalTestNumberingScheme(false);
 
 }
 
