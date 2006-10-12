@@ -401,11 +401,9 @@ void DaqMonitorBEInterface::checkAddedContents
 
 // check if added contents belong to folders 
 // (use flag to specify if subfolders should be included)
-void DaqMonitorBEInterface::checkAddedFolders(const vector<string> & folders,
-					      const rootDir & Dir,
-					      bool useSubfolders,
-					      vector<MonitorElement*>& put_here)
-  const
+void DaqMonitorBEInterface::checkAddedFolders
+(const vector<string> & folders, const rootDir & Dir, bool useSubfolders,
+ vector<MonitorElement*>& put_here) const
 {
   for(cvIt f = folders.begin(); f != folders.end(); ++f)
     { // loop over folders to be watched
@@ -486,7 +484,7 @@ void DaqMonitorBEInterface::removeCopies(const string & pathname)
 
   for(cmesIt cme = collate_set.begin(); cme != collate_set.end(); ++cme)
     { // loop over all CMEs
-      MonitorElementRootFolder * dir = getDirectory(pathname, (*cme)->contents_);
+      MonitorElementRootFolder* dir=getDirectory(pathname,(*cme)->contents_);
       // skip CME is no such pathname
       if(!dir)return;
       removeContents(dir);
@@ -529,8 +527,9 @@ void DaqMonitorBEInterface::remove(const string & pathname,
 // if tag != 0, this applies to tagged contents
 // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
 // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
-void DaqMonitorBEInterface::useQTest(unsigned int tag, string search_string, 
-				     const rootDir & Dir, QCriterion * qc) const
+void DaqMonitorBEInterface::useQTest
+(unsigned int tag, string search_string, const rootDir & Dir, QCriterion * qc) 
+  const
 {
   assert(qc);
   qc->add2search_path(search_string, tag);
@@ -589,6 +588,53 @@ void DaqMonitorBEInterface::addQReport(vector<MonitorElement *> & allMEs,
 	    addQReport(*me, qc);
 
     }
+}
+
+// get "global" status (one of: STATUS_OK, WARNING, ERROR, OTHER) for group of MEs;
+// returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
+// see Core/interface/QTestStatus.h for details on "OTHER" 
+int DaqMonitorBEInterface::getStatus(const vector<MonitorElement *> & ME_group) 
+  const
+{
+  if(hasError(ME_group))
+    return dqm::qstatus::ERROR;
+  else if(hasWarning(ME_group))
+    return dqm::qstatus::WARNING;
+  else if(hasOtherReport(ME_group))
+    return dqm::qstatus::OTHER;
+  else
+    return dqm::qstatus::STATUS_OK;  
+}
+
+// true if at least one ME gave hasError = true
+bool DaqMonitorBEInterface::hasError(const vector<MonitorElement *> & ME_group) 
+  const
+{
+  for(vMEcIt me = ME_group.begin(); me != ME_group.end(); ++me)
+    if(*me && (*me)->hasError())return true;
+  // if here, no ME with an error has been found
+  return false;
+
+}
+
+// true if at least one ME gave hasWarning = true
+bool DaqMonitorBEInterface::hasWarning(const vector<MonitorElement *> & ME_group)
+  const
+{
+  for(vMEcIt me = ME_group.begin(); me != ME_group.end(); ++me)
+    if(*me && (*me)->hasWarning())return true;
+  // if here, no ME with a warning has been found
+  return false;
+}
+
+// true if at least one ME gave hasOtherReport = true
+bool DaqMonitorBEInterface::hasOtherReport(const vector<MonitorElement *> & 
+					   ME_group) const
+{
+  for(vMEcIt me = ME_group.begin(); me != ME_group.end(); ++me)
+    if(*me && (*me)->hasOtherReport())return true;
+  // if here, no ME with another (non-ok) status has been found
+  return false;
 }
 
 

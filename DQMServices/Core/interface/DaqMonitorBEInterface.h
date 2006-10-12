@@ -503,7 +503,16 @@ class DaqMonitorBEInterface: public StringUtil
   // returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
   // see Core/interface/QTestStatus.h for details on "OTHER" 
   virtual int getStatus(std::string inpath = "") const = 0;
+  // same as above for tag;
+  virtual int getStatus(unsigned int tag) const = 0;
+  // same as above for vector with MonitorElements
+  int getStatus(const std::vector<MonitorElement *> & ME_group) const;
 
+  // true if at least one ME gave hasError/hasWarning/hasOtherReport = true
+  bool hasError(const std::vector<MonitorElement *> & ME_group) const;
+  bool hasWarning(const std::vector<MonitorElement *> & ME_group) const;
+  bool hasOtherReport(const std::vector<MonitorElement *> & ME_group) const;
+  
   // ------------ Operations for MEs that are normally never reset ---------
 
   // reset contents (does not erase contents permanently)

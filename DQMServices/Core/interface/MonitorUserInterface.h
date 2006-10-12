@@ -312,6 +312,13 @@ class MonitorUserInterface : public StringUtil
   // returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
   // see Core/interface/QTestStatus.h for details on "OTHER" 
   int getSystemStatus(void) const{return bei->getStatus();}
+  // same as above for any pathname
+  int getStatus(std::string pathname) const{return bei->getStatus(pathname);}
+  // same as above for a tag
+  int getStatus(unsigned int tag) const{return bei->getStatus(tag);}
+  // same as above for vector with MonitorElements
+  int getStatus(std::vector<MonitorElement *> & ME_group) const
+  {return bei->getStatus(ME_group);}
 
  protected:
 
