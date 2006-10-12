@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/08/30 12:56:51 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/08/31 18:24:18 $
+ *  $Revision: 1.22 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -52,10 +52,11 @@ void MuonTrackFinder::setEvent(const edm::Event& event) {
 }
 
 // convert the trajectories into tracks and load them in to the event
-void MuonTrackFinder::load(const TrajectoryContainer& trajectories, 
-			   edm::Event& event) {
-
-  theTrackLoader->loadTracks(trajectories, event);
+edm::OrphanHandle<reco::TrackCollection>  
+MuonTrackFinder::load(const TrajectoryContainer& trajectories, 
+		      edm::Event& event) {
+  
+  return theTrackLoader->loadTracks(trajectories, event);
 }
 
 // convert the trajectories into tracks and load them in to the event
@@ -67,9 +68,10 @@ void MuonTrackFinder::load(const CandidateContainer& muonCands,
 }
 
 // reconstruct trajectories
-void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds,
-				  edm::Event& event){
-
+edm::OrphanHandle<reco::TrackCollection>
+MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds,
+			     edm::Event& event){
+  
   const std::string metname = "Muon|RecoMuon|MuonTrackFinder";
   
   // Percolate the event 
@@ -88,7 +90,7 @@ void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& s
 	it != muonTrajs_temp.end(); it++) 
       muonTrajectories.push_back(*it); 
   }
-
+  
   // clean the clone traj
   LogDebug(metname)<<"Clean the trajectories container"<<endl;
   theTrajCleaner->clean(muonTrajectories); //used by reference...
@@ -96,8 +98,8 @@ void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& s
   // convert the trajectories into tracks and load them in to the event
   LogDebug(metname)
     <<"Convert the trajectories into tracks and load them in to the event"<<endl;
-  load(muonTrajectories,event);
-
+  return load(muonTrajectories,event);
+  
 }
 
 // reconstruct trajectories
