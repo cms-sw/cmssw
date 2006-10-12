@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.13 2006/10/05 17:28:05 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.12 2006/10/04 10:47:10 rahatlou Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -37,7 +37,6 @@
 
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
@@ -58,12 +57,14 @@ PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverP, double maxHOver
                                                double maxDeltaEta, double maxDeltaPhi):  
  maxEOverP_(maxEOverP), maxHOverE_(maxHOverE), maxDeltaEta_(maxDeltaEta), 
  maxDeltaPhi_(maxDeltaPhi), theCkfTrajectoryBuilder(0), theTrajectoryCleaner(0),
- theInitialStateEstimator(0), theNavigationSchool(0) {}
+ theInitialStateEstimator(0), theMeasurementTracker(0), theNavigationSchool(0) {}
 
 PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
 
   delete theInitialStateEstimator;
+  delete theMeasurementTracker;
   delete theNavigationSchool;
+  delete theCkfTrajectoryBuilder;
   delete theTrajectoryCleaner; 
     
 }
@@ -79,21 +80,16 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   theInitialStateEstimator       = new TransientInitialStateEstimator( es,tise_params);
 
   // get nested parameter set for the MeasurementTracker
-//   ParameterSet mt_params = conf.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
-//   theMeasurementTracker = new MeasurementTracker(es, mt_params);
+  ParameterSet mt_params = conf.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
+  theMeasurementTracker = new MeasurementTracker(es, mt_params);
 
   theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
 
   // set the correct navigation
   NavigationSetter setter( *theNavigationSchool);
 
-  //  theCkfTrajectoryBuilder = new CkfTrajectoryBuilder(conf,es,theMeasurementTracker);
+  theCkfTrajectoryBuilder = new CkfTrajectoryBuilder(conf,es,theMeasurementTracker);
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
-  std::string trajectoryBuilderName = conf.getParameter<std::string>("TrajectoryBuilder");
-  edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
-  es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
-  theCkfTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
-
 
   inputDataModuleLabel_=conf.getParameter<string>("SeedProducer");
   //inputDataInstanceName_=conf.getParameter<string>("seedLabel");
@@ -115,8 +111,7 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
   edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
 
 
-  //  theMeasurementTracker->update(e);
-  theCkfTrajectoryBuilder->setEvent(e);
+  theMeasurementTracker->update(e);
 
   Handle<ElectronPixelSeedCollection> collseed;
   LogDebug("") << 
@@ -154,7 +149,7 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
       LogDebug("") << "CkfTrajectoryBuilder returned " << theTmpTrajectories.size()
 		   << " trajectories for this seed";
       theTrajectoryCleaner->clean(theTmpTrajectories);
-       theTrajectoryCleaner->clean(theTmpTrajectories);
+
       for(vector<Trajectory>::const_iterator it=theTmpTrajectories.begin();
 	  it!=theTmpTrajectories.end(); it++){
 	  if( it->isValid() ) {
@@ -383,7 +378,6 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
         << it->pt() << " , " << it->eta() << " , " << it->phi();
     //cout << "New electron with charge, pt, eta, phi : "  << it->charge() << " , "  << it->pt() << " , " << it->eta() << " , " << it->phi()<<std::endl;
   }
- 
   e.put(outTracks);
   e.put(outTrackCandidates);
   e.put(outTrackExtras);
