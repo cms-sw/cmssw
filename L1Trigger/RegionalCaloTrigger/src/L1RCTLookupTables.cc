@@ -1,7 +1,8 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 unsigned short L1RCTLookupTables::lookup(unsigned short hfenergy){
-  float energy = (float)hfenergy*0.5;
+  //float energy = (float)hfenergy*0.5;
+  float energy = (float) hfenergy*1.0;  // LSB for HCAL is now 1.0!
   return convertTo10Bits(energy);
 }
 
