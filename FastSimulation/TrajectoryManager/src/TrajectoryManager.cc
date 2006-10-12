@@ -11,11 +11,12 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "FastSimulation/TrajectoryManager/interface/InsideBoundsMeasurementEstimator.h"
-#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
+//#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "MagneticField/UniformEngine/src/UniformMagneticField.h"
 
 //FAMOS Headers
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
@@ -30,7 +31,7 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 
-//#include "FastSimulation/Utilities/interface/Histos.h"
+#include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
 
 //CLHEP Headers
@@ -58,12 +59,10 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   theGeomTracker(0),
   theGeomSearchTracker(0),
   theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
-  theNegLayerOffset(27)
+  theNegLayerOffset(27),
+  myHistos(0)
 
 {
-  
-  // Initialize the simplified tracker geometry
-  _theGeometry = new TrackerInteractionGeometry();
   
   // Initialize Bthe stable particle decay engine 
   if ( activateDecays ) myDecayEngine = new Pythia6Decays();
@@ -84,15 +83,8 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   thePSimHits = new vector<PSimHit>();
   thePSimHits->reserve(200000);
 
-  //  SimpleConfigurable<bool> activeDecay(true,"FamosDecays:activate");
-  //  SimpleConfigurable<double> cTauMin(10.,"FamosDecays:cTauMin");
-  //  if ( activeDecay.value() ) 
-  //    mycTauMin = cTauMin.value();
-  //  else 
-  //    mycTauMin = 1E99;
-
   // Get the Famos Histos pointer
-  //  myHistos = Histos::instance();
+  myHistos = Histos::instance();
 
   // Initialize a few histograms
   /* 
@@ -102,13 +94,21 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
 }
 
 void 
-TrajectoryManager::initializeRecoGeometry(const TrackerGeometry* geomTracker,
-					  const GeometricSearchTracker* geomSearchTracker) { 
+TrajectoryManager::initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker) { 
   
-  theGeomTracker = geomTracker;
   theGeomSearchTracker = geomSearchTracker;
 
+  // Initialize the simplified tracker geometry
+  _theGeometry = new TrackerInteractionGeometry(theGeomSearchTracker);
+
   initializeLayerMap();
+
+}
+
+void 
+TrajectoryManager::initializeTrackerGeometry(const TrackerGeometry* geomTracker) { 
+  
+  theGeomTracker = geomTracker;
 
 }
 
@@ -118,13 +118,13 @@ TrajectoryManager::theGeometry() {
 }
 
 TrajectoryManager::~TrajectoryManager() {
-  delete _theGeometry;
+  if ( _theGeometry ) delete _theGeometry;
   if ( myDecayEngine ) delete myDecayEngine;
   if ( theMaterialEffects ) delete theMaterialEffects;
   if ( thePSimHits ) delete thePSimHits;
   //Write the histograms
-  //  myHistos->put("histos.root");
-  //  delete myHistos;
+  //myHistos->put("histos.root");
+  if ( myHistos ) delete myHistos;
 
 }
 
@@ -134,7 +134,6 @@ TrajectoryManager::reconstruct()
 
   // Clear the hits of the previous event
   thePSimHits->clear();
-  //  theRecHits.clear();
 
   // The new event
   HepLorentzVector myBeamPipe = HepLorentzVector(0.,25., 9999999.,0.);
@@ -169,13 +168,11 @@ TrajectoryManager::reconstruct()
     // Find the initial cylinder to propagate to.      
     for ( ; cyliter != _theGeometry->cylinderEnd() ; ++cyliter ) {
       
-
       PP.setPropagationConditions(*cyliter);
       if ( PP.inside() && !PP.onSurface() ) break;
       ++cyl;
 
     }
-
 
     // Loop over the cylinders
     while ( cyliter != _theGeometry->cylinderEnd() &&
@@ -240,29 +237,13 @@ TrajectoryManager::reconstruct()
 
 	if ( saveHit ) { 
 
-	  // The layer number
-	  unsigned layer = cyliter->layerNumber();
-	  // Check the ring number on the forward layers
-	  unsigned ringNr = ( cyliter->forward() && layer >= 10 ) ?
-	    _theGeometry->theRingNr(PP.vertex().perp(), 
-				    cyliter->firstRing(),
-				    cyliter->lastRing()) : 99;
-
-
-	  if ( ringNr != 0 ) {
-	    //	    double hitEff = (ringNr == 99) ? 
-	    //	      cyliter->hitEfficiency() : 
-	    //	      _theGeometry->theRing(ringNr).hitEfficiency();
-	    myTrack.addSimHit(PP,layer);
-	    // Add a RecHit to the SimTrack
-	    //	    if ( RandFlat::shoot() < hitEff ) { 
-	    //	      FamosBasicRecHit* hit = oneHit(PP,*cyliter,ringNr);
-	    //	      if ( hit ) mySimEvent.addRecHit(fsimi,layer,hit);
-	    //	    }
+	  // Consider only active layers
+	  if ( cyliter->layerNumber() ) {
+	    // Add information to the FSimTrack (not yet available)
+	    //	    myTrack.addSimHit(PP,layer);
 
 	    // Return one or two (for overlap regions) PSimHits in the full 
 	    // tracker geometry
-
 	    if ( theGeomTracker ) 
 	      createPSimHits(*cyliter, P_before, PP, fsimi,myTrack.type());
 
@@ -270,7 +251,7 @@ TrajectoryManager::reconstruct()
 	}
 
 	// Fill Histos (~poor man event display)
-	/*
+	/* 
 	myHistos->fill("h300",PP.x(),PP.y());
 	if ( sin(PP.vertex().phi()) > 0. ) 
 	  myHistos->fill("h301",PP.z(),PP.vertex().perp());
@@ -441,14 +422,15 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
 				  ParticlePropagator& P_after,
 				  int trackID, int partID) {
 
-  float eloss = (P_before.momentum().e()-P_after.momentum().e());
+  //  float eloss = (P_before.momentum().e()-P_after.momentum().e());
+  float eloss = (P_before.e()-P_after.e());
 
-  // Propagate the particle coordinates to the closest tracker detector(s) in this layer
-  // and create the PSimHit(s)
+  // Propagate the particle coordinates to the closest tracker detector(s) 
+  // in this layer and create the PSimHit(s)
 
-  // Teddy, your code goes here, but the possibility of using ParticlePropagator
-  // should be kept in mind for CPU reasons.
-  const MagneticField& mf = MagneticFieldMap::instance()->magneticField();
+  //  const MagneticField& mf = MagneticFieldMap::instance()->magneticField();
+  // This solution is actually much faster !
+  UniformMagneticField mf(P_before.getMagneticField());
   AnalyticalPropagator alongProp(&mf, anyDirection);
   InsideBoundsMeasurementEstimator est;
 
@@ -457,7 +439,8 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
   const ParticlePropagator& cpp(P_before);
   TrajectoryStateOnSurface trajState = makeTrajectoryState( tkLayer, cpp, &mf);
 
-  // Find, in the corresponding layers, the detectors compatible with the current track 
+  // Find, in the corresponding layers, the detectors compatible 
+  // with the current track 
   std::vector<DetWithState> compat 
     = tkLayer->compatibleDets( trajState, alongProp, est);
 
@@ -467,108 +450,6 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
   }
 
 }
-
-/*
-FamosBasicRecHit*
-TrajectoryManager::oneHit(const ParticlePropagator& PP, 
-			  const TrackerLayer& layer,
-			  unsigned ringNumber) const {
-
-  // The particle trajectory intersection with the detector
-  GlobalPoint theHitPosition ( (float)(PP.vertex().x()*0.1), 
-			       (float)(PP.vertex().y()*0.1),
-			       (float)(PP.vertex().z()*0.1) );
-  float radius = theHitPosition.perp();
-  
-  ReferenceCountingPointer<TangentPlane> myPlane;
-  if ( !layer.forward() ) {
-    // The plane tangent to the cylinder at this point
-    myPlane = layer.surface().tangentPlane(theHitPosition);
-  } else {
-    // The plane "tangent" to the disk at this point 
-    // (with proper rotation/origin)
-    // Watch out ! the smaller pitch size is along -r in the pixel forward,
-    // while it is along phi in the tracker endcaps...
-    // New feature: the forward disks are now tilted by 20 degrees wrt
-    // the global z axis.
-    GlobalVector xPlane, yPlane;
-    if ( layer.layerNumber() < 6 ) {
-      xPlane = 
-	GlobalVector(-theHitPosition.x()/radius,-theHitPosition.y()/radius,0.);
-      yPlane = ( layer.layerNumber() > 3 ) ?
-	cos(0.34906585) * 
-	GlobalVector(theHitPosition.y()/radius,-theHitPosition.x()/radius,0.) +
-	sin(0.34906585) * 
-	GlobalVector(0.,0.,theHitPosition.z()/fabs(theHitPosition.z()))
-	:
-	GlobalVector(theHitPosition.y()/radius,-theHitPosition.x()/radius,0.);
-    } else { 
-      xPlane = 
-	GlobalVector(theHitPosition.y()/radius,-theHitPosition.x()/radius,0.);
-      yPlane = 
-	GlobalVector(theHitPosition.x()/radius,theHitPosition.y()/radius,0.);
-    }
-
-    myPlane = new TangentPlane(theHitPosition,                   
-			       Surface::RotationType(xPlane,yPlane),
-			       &layer.surface());
-  }
- 
-
-  // For strange reasons, a tangentPlane forget about the Medium Properties
-  BoundPlane * bp = new BoundPlane( (*myPlane).position(), (*myPlane).rotation());
-  bp->setMediumProperties((MediumProperties*)layer.surface().mediumProperties());
-
-  // Create a Dummy Detector for the RecHit's to work happily
-  FamosDummyDet myDummyDet(bp,layer.layerNumber(),ringNumber);
-  
-  // A smeared position for later track fitting 
-  double sigmaX;
-  double sigmaY;
-  double posX;
-  double posY;
-  if ( layer.layerNumber() < 6 ) { 
-    //    float beta = PP.theta();
-    //    if ( layer.layerNumber() > 3 ) beta = fabs(M_PI/2.-beta);
-    // cout << "beta = " << beta << endl;
-    const GlobalVector dir(PP.px(),PP.py(),PP.pz());
-    pair< pair<float,float>, pair<double,double> > theErrors = 
-      _theGeometry->thePixels()->recHitErrors(myDummyDet,
-					      layer.layerNumber(),
-					      dir/dir.mag());
-    sigmaX = theErrors.first.first;
-    sigmaY = theErrors.first.second;
-    posX = theErrors.second.first;
-    posY = theErrors.second.second;
-    // FamosLooses::instance()->count("PixelEfficiency",layer.layerNumber()-1);
-    if ( sqrt(posX*posX/(sigmaX*sigmaX) + 
-	      posY*posY/(sigmaY*sigmaY) ) > 15. ) return 0;
-    //    else 
-    // FamosLooses::instance()->count("PixelEfficiency",layer.layerNumber()+4);
-  } else if ( ringNumber==99 ) {
-    sigmaX = layer.resolutionAlongxInCm();
-    sigmaY = layer.resolutionAlongyInCm();
-    posX = RandGauss::shoot()*sigmaX;
-    posY = RandGauss::shoot()*sigmaY;
-  } else {
-    FamosRing ring = _theGeometry->theRing(ringNumber);
-    double factor = 2. * radius / ( ring.innerRadius() + ring.outerRadius() );
-    sigmaX = ring.resolutionAlongxInCm()*factor;
-    sigmaY = ring.resolutionAlongyInCm();
-    posX = RandGauss::shoot()*sigmaX;
-    posY = RandGauss::shoot()*sigmaY;
-  }
-  LocalPoint pos(posX,posY,0.);
-  LocalError err(sigmaX*sigmaX,0.,sigmaY*sigmaY);
-  
-  // Create a new (FamosBasic)RecHit
-  FamosBasicRecHit* hit = new FamosBasicRecHit(myDummyDet,pos,err);
-
-  // And return it to whom is interested in
-  return hit;
-  
-}
-*/
 
 TrajectoryStateOnSurface 
 TrajectoryManager::makeTrajectoryState( const DetLayer* layer, 
@@ -643,19 +524,13 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
 		  lmom.theta(),
 		  lmom.phi());
   // Fill Histos (~poor man event display)
-  /*
+  /* 
   GlobalPoint gpos( det.toGlobal(hit.localPosition()));
   myHistos->fill("h300",gpos.x(),gpos.y());
   if ( sin(gpos.phi()) > 0. ) 
     myHistos->fill("h301",gpos.z(),gpos.perp());
   else
     myHistos->fill("h301",gpos.z(),-gpos.perp());
-  */
-
-  /*
-  LogDebug("FastTracker") << "PSimHit crated at pos " << gpos
-			  << " (r,phi) " << gpos.perp() << ", " << gpos.phi()
-			  << " with momentum " << det.toGlobal(hit.momentumAtEntry());
   */
 
   return hit;
@@ -676,14 +551,16 @@ TrajectoryManager::initializeLayerMap()
 /// ATTENTION: HARD CODED LOGIC! If Famos layer numbering changes this logic needs to 
 /// be adapted to the new numbering!
 
-  std::vector< BarrelDetLayer*>   barrelLayers = theGeomSearchTracker->barrelLayers();
+  std::vector< BarrelDetLayer*>   barrelLayers = 
+    theGeomSearchTracker->barrelLayers();
   LogDebug("FastTracker") << "Barrel DetLayer dump: ";
   for (std::vector< BarrelDetLayer*>::const_iterator bl=barrelLayers.begin();
        bl != barrelLayers.end(); ++bl) {
     LogDebug("FastTracker")<< "radius " << (**bl).specificSurface().radius(); 
   }
 
-  std::vector< ForwardDetLayer*>  posForwardLayers = theGeomSearchTracker->posForwardLayers();
+  std::vector< ForwardDetLayer*>  posForwardLayers = 
+    theGeomSearchTracker->posForwardLayers();
   LogDebug("FastTracker") << "Positive Forward DetLayer dump: ";
   for (std::vector< ForwardDetLayer*>::const_iterator fl=posForwardLayers.begin();
        fl != posForwardLayers.end(); ++fl) {
@@ -712,8 +589,8 @@ TrajectoryManager::initializeLayerMap()
     if (cyl != 0) {
       LogDebug("FastTracker") << " cylinder radius " << cyl->radius();
       bool found = false;
-      for (std::vector< BarrelDetLayer*>::const_iterator bl=barrelLayers.begin();
-	   bl != barrelLayers.end(); ++bl) {
+      for (std::vector< BarrelDetLayer*>::const_iterator 
+	     bl=barrelLayers.begin(); bl != barrelLayers.end(); ++bl) {
 	if (fabs( cyl->radius() - (**bl).specificSurface().radius()) < rTolerance) {
 	  theLayerMap[i->layerNumber()] = *bl;
 	  found = true;
@@ -758,7 +635,6 @@ TrajectoryManager::initializeLayerMap()
       if (theLayerMap[i] == 0) continue;
       if ( fabs( (**nl).surface().position().z() +theLayerMap[i]-> surface().position().z()) < zTolerance) {
 	theLayerMap[i+theNegLayerOffset] = *nl;
-	//	cout << "Layer Number " << i << " " << i+theNegLayerOffset <<endl;
 	break;
       }
     }

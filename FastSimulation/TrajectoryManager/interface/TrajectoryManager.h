@@ -28,10 +28,11 @@
  * continues with the updated or the newly created particles. The process
  * ends when there is no new particles to propagate.
  *
- * Charged particles now leave RecHit's, for later track fitting.
+ * Charged particles now leave PSimHit's, for later RecHit production 
+ * with smearing, in a separate producer.
  *
  * \author: Florian Beaudette, Patrick Janot
- * $Date Last modification - 18-Jan-2004 
+ * $Date Last modification - 12-Oct-2006 
  */
 
 class Pythia6Decays;
@@ -40,9 +41,7 @@ class TrackerLayer;
 class ParticlePropagator;
 class FSimEvent;
 class FSimTrack;
-//class Histos;
-//class FamosBasicRecHit;
-//class RecHit;
+class Histos;
 
 class TrajectoryStateOnSurface;
 class DetLayer;
@@ -91,8 +90,10 @@ class TrajectoryManager
   TrackerInteractionGeometry* theGeometry();
 
   /// Initialize the Reconstruction Geometry
-  void initializeRecoGeometry(const TrackerGeometry* geomTracker,
-			      const GeometricSearchTracker* geomSearchTracker);
+  void initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker);
+
+  /// Initialize the full Tracker Geometry
+  void initializeTrackerGeometry(const TrackerGeometry* geomTracker);
 
   // load container from edm::Event
   void loadSimHits(edm::PSimHitContainer & c) const;
@@ -123,11 +124,6 @@ class TrajectoryManager
 
  private:
 
-  /// Add a RecHit
-  //  FamosBasicRecHit* oneHit(const ParticlePropagator& PP, 
-  //			   const TrackerLayer& layer,
-  //			   unsigned ringNumber) const;
-
   FSimEvent* mySimEvent;
 
   TrackerInteractionGeometry* _theGeometry;
@@ -145,7 +141,7 @@ class TrajectoryManager
   std::vector<const DetLayer*>                theLayerMap;
   int                                         theNegLayerOffset;
 
-  //  Histos* myHistos;
+  Histos* myHistos;
 
 };
 #endif

@@ -10,6 +10,7 @@
 <use name=TrackingTools/GeomPropagators>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=RecoTracker/TkDetLayers>
+<use name=MagneticField/UniformEngine>
 
 <export>
  <use name=clhep>
@@ -25,4 +26,5 @@
  <use name=TrackingTools/GeomPropagators>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=RecoTracker/TkDetLayers>
+ <use name=MagneticField/UniformEngine>
 </export>
