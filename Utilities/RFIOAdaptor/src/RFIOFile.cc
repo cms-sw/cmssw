@@ -4,6 +4,7 @@
 #include "Utilities/RFIOAdaptor/interface/RFIOError.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
 #include "SealBase/DebugAids.h"
+#include "SealBase/StringFormat.h"
 #include <iostream>
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
@@ -143,7 +144,8 @@ RFIOFile::open (const char *name,
 
     IOFD newfd = IOFD_INVALID;
     if ((newfd = rfio_open64 (lname.c_str(), openflags, perms.native ())) == -1)
-	throw RFIOError ("rfio_open()", rfio_errno, serrno);
+      throw RFIOError (seal::StringFormat ("rfio_open(%1,%2,%3").arg(lname).arg(openflags).arg(perms.native()).value().c_str(),
+			rfio_errno, serrno);
 
     m_fd = newfd;
     m_close = true;
