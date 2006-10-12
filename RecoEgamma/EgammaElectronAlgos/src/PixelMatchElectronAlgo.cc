@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.12 2006/10/04 10:47:10 rahatlou Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.13 2006/10/05 17:28:05 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -137,45 +137,86 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
     ElectronPixelSeedCollection::const_iterator iseed;
       
     vector<Trajectory> rawResult;
+    vector<const Trajectory*> rawResultPtr; // ShR: ptr to original tracks used as keys in the map below
 
     LogDebug("") << "Starting loop over seeds ";
 
+    // ShR: use trajectory as key to retrieve the correct seed
+    map<const Trajectory*, const ElectronPixelSeed*> trajToSeedMap;
+
 //   ==============================   loop over seeds ==============================
+    //std::cout << "fill the maps seeds <--> trajectory" << std::endl;
+    unsigned ik=0;
     for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
       LogDebug("") << "new seed ";
       vector<Trajectory> theTmpTrajectories;
       theTmpTrajectories = theCkfTrajectoryBuilder->trajectories(*iseed);
       LogDebug("") << "CkfTrajectoryBuilder returned " << theTmpTrajectories.size()
 		   << " trajectories for this seed";
- 
+      theTrajectoryCleaner->clean(theTmpTrajectories);
        theTrajectoryCleaner->clean(theTmpTrajectories);
       for(vector<Trajectory>::const_iterator it=theTmpTrajectories.begin();
 	  it!=theTmpTrajectories.end(); it++){
-	if( it->isValid() ) {
-	  rawResult.push_back(*it);
-	  seedMap[&(*iseed)] = &(*it);
-	}
+	  if( it->isValid() ) {
+	    rawResult.push_back( *it ); // ShR: problem -- this is already a copy which is the beginning of the problem.
+                                      //    elements of rawResult have a diferente address than the original
+                                      //    trajectories used as keys to the map above
+
+          const Trajectory* iTraj = &(rawResult.back());
+          rawResultPtr.push_back( iTraj ); // ShR: store ptr to original trajectories
+          //seedMap[&(*iseed)] = &(*it); // ShR: Problem -- using ref of temporary object
+          seedMap[&(*iseed)] = iTraj; // iTraj is address of element of a vector that exists out of this scope
+          trajToSeedMap[iTraj] = &(*iseed); // ShR: trajectory -> seed
+          //std::cout << "traj: " << &(rawResult.back()) << "   seed: " << &(*iseed)
+          //          << " &(rawResult[ik]): " << &(rawResult[ik])
+          //          << " rawResultPtr[ik]: " << rawResultPtr[ik] << std::endl;
+          ik++;
+	  }
       }
       LogDebug("PixelMatchElectronAlgoCkfPattern") << "Number of trajectories after cleaning " << rawResult.size();
     }
     LogDebug("") << "End loop over seeds";
 
+    // ShR: the loop above was over theTmpTrajectories and pointers were used to fill the map
+    // the real problms starts below where a COPY of the tarjectory is made instead of their address
+    // this is the usual problem of copying objects but using the ptr to the original instance
+
 //   ==============================   loop over trajectories ==============================
     vector<Trajectory> unsmoothedResult;
+    vector<const Trajectory*> unsmoothedResultPtrs; // ShR: vector of addresses not copies!
+    unsigned int unInd = 0; // ShR: needed to find the correct pointer to use with the map after 2nd cleaning
+                            // unInd runs over all elements in unsmoothedResult and is needed to get back to the
+                            // ptr to the original trajectories used as keys in the map
+
+    // ShR: address of first couple of elements are ALWYS different at this point! compare
+    //      to printout from above inside the loop
+    //      This is the reason we still need the vector of pointers rawResultPtr until we understand the real issue here
+    //for(unsigned int ij=0; ij< rawResult.size(); ++ij) {
+    //   std::cout << "ij: " << ij << " &(rawResult[ij]): " << &(rawResult[ij])
+    //                             << " rawResultPtr[ij]): " << rawResultPtr[ij] << std::endl;
+    //}
+
     LogDebug("") << "Starting second cleaning..." << std::endl;
     theTrajectoryCleaner->clean(rawResult);
-
     for (vector<Trajectory>::const_iterator itraw = rawResult.begin();
-	 itraw != rawResult.end(); itraw++) {
-      if((*itraw).isValid()) 
-	unsmoothedResult.push_back( *itraw);
-      
+        itraw != rawResult.end(); itraw++) {
+
+    if((*itraw).isValid())  {
+
+        unsmoothedResult.push_back( *itraw);
+        unsmoothedResultPtrs.push_back( rawResultPtr[unInd] ); // ShR: store the original ptr used in the map
+        //unsmoothedResultPtrs.push_back( &(*itraw) ); // ShR: Problem -- although the natural thing to do this does not work
+                                                       //       because the address of first elements of rawResult changes!
+        //std::cout << "found valid trajectory  rawResultPtr[unInd]: " << rawResultPtr[unInd] << "  &(*itraw): " << &(*itraw) << std::endl;
+      }
+      unInd++;
     }
     LogDebug("PixelMatchElectronAlgoCkfPattern") << "Number of trajectories after second cleaning " << rawResult.size();
     //analyseCleanedTrajectories(unsmoothedResult);
 
 //   ==============================   loop over cleaned trajectories  and create tracks ==============================
    unsigned int ind=0;
+   unsigned int trajInd = 0; // ShR: index needed to find the correct pointer in unsmoothedResultPtrs
    for (vector<Trajectory>::iterator it = unsmoothedResult.begin();
 	 it != unsmoothedResult.end(); it++) {
      
@@ -274,24 +315,43 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
 	track.setHitPattern( * hit, i ++ );
 	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
       }
-  
-	        
+
+
       LogDebug("") << "New track created " << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared() << "\n"
 		   << "n valid and invalid hit, chi2 : " << it->foundHits() << " , " << it->lostHits() <<" , "
 		   <<it->chiSquared();
 
+      //std::cout << "&(*it): " << &(*it) << "  trajInd: " << trajInd
+      //           << "  unsmoothedResultPtrs[trajInd]: " << unsmoothedResultPtrs[trajInd]
+      //           << std::endl;
+
       //This one is not polymorphic, access by value!!
-      //Ugly code to retrieve the supercluster pointer     
+      //Ugly code to retrieve the supercluster pointer
       //const ElectronPixelSeed* epseed = dynamic_cast<ElectronPixelSeed *>((it->seed().clone()));
-      const ElectronPixelSeed* epseed=0;
+      const ElectronPixelSeed* epseed=0; // ShR: original seed
+      const ElectronPixelSeed* epseedNew=0; // ShR: needed to show the problem with bad pointers
       for (itmap=seedMap.begin(); itmap!=seedMap.end(); itmap++) {
-	epseed = itmap->first;
-	if (itmap->second == &(*it)) break;
+        epseed = itmap->first;
+        if (itmap->second == &(*it)) break;
       }
 
+      // ShR: trajInd is used to find the ptr to the original track stored in unsmoothedResultPtrs
+      // ShR  unsmoothedResultPtrs[trajInd] is the correct key to use to find the seed
+      // ShR  no loop is necessary since the new trajToSeedMap map uses trajectories as the key and seed as value
+      epseedNew = trajToSeedMap[ unsmoothedResultPtrs[trajInd] ]; // remember: address of elements in rawResult used as key
+      trajInd++; // ShR: increase the index to stay in synch with the iterator
+
+      // ShR: compare the two seeds
+      //std::cout << "epseed: " << epseed << "  epseedNew: " << epseedNew << std::endl;
+
+      //if(seedMap.find(epseed)==seedMap.end()) {
+        //std::cout << "seedMap has no entry with key " << epseed << std::endl;
+      //}
+
+      // ShR: set epseed = epseedNew to avoid making changes in the code below
+      epseed = epseedNew;
 
       if (preSelection(*(epseed->superCluster()),aTrack)) {
-	
 	// for the time being take the momentum from the track 
 	const math::XYZTLorentzVector momentum(tscp.momentum().x(),
 					       tscp.momentum().y(),
@@ -300,7 +360,7 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
 	
 	Electron ele(tscp.charge(),momentum,math::XYZPoint( 0, 0, 0 ));
 	LogDebug("") << "electron energy " << epseed->superCluster()->energy();
-	ele.setSuperCluster(epseed->superCluster());
+      ele.setSuperCluster(epseed->superCluster());
 	edm::Ref<TrackCollection> myRef(refprod,ind++);
 	ele.setTrack(myRef);
 	outEle.push_back(ele);
