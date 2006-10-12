@@ -46,7 +46,6 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	      double fEta = cellGeometry->getPosition ().eta () ;
 	      double fPhi = cellGeometry->getPosition ().phi () ;
-	      
 	      if (hcalselector_ == "HB"  ){ if (meEtaHB) meEtaHB->Fill(fEta) ; if (mePhiHB) mePhiHB->Fill(fPhi) ;}
 	      if (hcalselector_ == "HE"  ){ if (meEtaHE) meEtaHE->Fill(fEta) ; if (mePhiHE) mePhiHE->Fill(fPhi) ;}
 	      if (hcalselector_ == "HO"  ){ if (meEtaHO) meEtaHO->Fill(fEta) ; if (mePhiHO) mePhiHO->Fill(fPhi) ;}
@@ -71,7 +70,8 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
         
     
       edm::Handle<PCaloHitContainer> hcalHits ;
-      iEvent.getByLabel("g4SimHits","HcalHits",hcalHits);
+     // iEvent.getByLabel("SimG4Object","HcalHits",hcalHits);
+      iEvent.getByLabel("SimG4Object","HcalHits",hcalHits);
       
       const PCaloHitContainer * simhitResult = hcalHits.product () ;
       
