@@ -8,6 +8,7 @@
 #include "DQMServices/WebComponents/interface/ContentViewer.h"
 #include "DQMServices/WebComponents/interface/GifDisplay.h"
 #include "DQMServices/WebComponents/interface/Select.h"
+#include "DQMServices/WebComponents/interface/HTMLLink.h"
 
 
 /*
@@ -40,6 +41,12 @@ ExampleWebInterface::ExampleWebInterface(std::string theContextURL, std::string 
   options_v.push_back("IRON MAIDEN");
   sel->setOptionsVector(options_v);
 
+  // an html link
+  HTMLLink *link = new HTMLLink(getApplicationURL(), "430px", "10px", 
+				"<i>the best page in the universe</i>", 
+				"http://www.maddox.xmission.com/");
+
+
   // every web interface needs to instantiate a WebPage...
   page_p = new WebPage(getApplicationURL());
   // ...and add its widgets to it:
@@ -49,6 +56,7 @@ ExampleWebInterface::ExampleWebInterface(std::string theContextURL, std::string 
   page_p->add("gifDisplay", dis);
   page_p->add("otherGifDisplay", dis2);
   page_p->add("selectButton", sel);
+  page_p->add("htmlLink", link);
 }
 
 /*
