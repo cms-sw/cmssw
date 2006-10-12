@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.8 2006/10/03 21:55:08 evansde Exp $
+// $Id: JobReport.cc,v 1.9 2006/10/12 14:35:13 evansde Exp $
 //
 
 
@@ -227,6 +227,23 @@ namespace edm
       return newToken;
     }
 
+    JobReport::Token
+    JobReport::inputFileOpened(string const& physicalFileName,
+			       string const& logicalFileName,
+			       string const& catalog,
+			       string const& inputSourceClassName,
+			       string const& moduleLabel,
+			       vector<string> const& branchNames)
+    {
+      return this->inputFileOpened(physicalFileName,
+				   logicalFileName,
+				   catalog,
+				   inputSourceClassName,
+				   moduleLabel,
+				   "",
+				   branchNames);
+    }
+  
     void
     JobReport::eventReadFromFile(JobReport::Token fileToken, edm::EventID const& id)
     {
@@ -276,6 +293,23 @@ namespace edm
       return impl_->outputFiles_.size()-1;
     }
 
+    JobReport::Token 
+    JobReport::outputFileOpened(string const& physicalFileName,
+				string const& logicalFileName,
+				string const& catalog,
+				string const& outputModuleClassName,
+				string const& moduleLabel,
+				vector<string> const& branchNames)
+    {
+   
+      return this->outputFileOpened(physicalFileName,
+				    logicalFileName,
+				    catalog,
+				    outputModuleClassName,
+				    moduleLabel,
+				    "",
+				    branchNames);
+    }
 
     void
     JobReport::eventWrittenToFile(JobReport::Token fileToken, edm::EventID const& id)
