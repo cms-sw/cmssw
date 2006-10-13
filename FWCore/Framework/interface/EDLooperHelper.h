@@ -16,11 +16,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul 12 11:26:26 EDT 2006
-// $Id$
+// $Id: EDLooperHelper.h,v 1.1 2006/07/23 01:24:33 valya Exp $
 //
 // Revision history
 //
-// $Log$
+// $Log: EDLooperHelper.h,v $
+// Revision 1.1  2006/07/23 01:24:33  valya
+// Add looper support into framework. The base class is EDLooper. All the work done in EventProcessor and EventHelperLooper
+//
 
 // system include files
 
@@ -49,7 +52,7 @@ class EDLooperHelper
       virtual ~EDLooperHelper();
 
       // ---------- member functions ---------------------------
-      EventHelperDescription runOnce(unsigned long numberToProcess);
+      EventHelperDescription runOnce();
       void rewind(const std::set<edm::eventsetup::EventSetupRecordKey>& keys);
 
       // ---------- const member functions ---------------------

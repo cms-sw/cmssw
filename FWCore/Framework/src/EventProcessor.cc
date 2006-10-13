@@ -712,7 +712,7 @@ namespace edm {
   }
   
   EventHelperDescription
-  EventProcessor::runOnce(unsigned long /* numberToProcess*/ )
+  EventProcessor::runOnce()
   {
     try {
        // Job should be in sJobReady state, then we send mRunCount message and move job sRunning state

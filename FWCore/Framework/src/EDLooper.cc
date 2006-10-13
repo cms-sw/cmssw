@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.1 2006/07/23 01:24:34 valya Exp $
+// $Id: EDLooper.cc,v 1.2 2006/07/28 13:24:34 valya Exp $
 //
 // Revision history
 //
 // $Log: EDLooper.cc,v $
+// Revision 1.2  2006/07/28 13:24:34  valya
+// Modified endOfLoop, now it accepts counter as a second argument. Add EDLooper calls to beginOfJob/endOfJob in EventProcessor
+//
 // Revision 1.1  2006/07/23 01:24:34  valya
 // Add looper support into framework. The base class is EDLooper. All the work done in EventProcessor and EventHelperLooper
 //
@@ -108,7 +111,7 @@ EDLooper::loop(EDLooperHelper& iHelper,
    do {
        startingNewLoop(iCounter);
        do {
-           EventHelperDescription evtDesc = iHelper.runOnce(numberToProcess);
+           EventHelperDescription evtDesc = iHelper.runOnce();
            if(evtDesc.eventPrincipal_.get()==0) {
               break;
            }

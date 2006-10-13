@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul 12 11:38:09 EDT 2006
-// $Id$
+// $Id: EDLooperHelper.cc,v 1.1 2006/07/23 01:24:34 valya Exp $
 //
 // Revision history
 //
-// $Log$
+// $Log: EDLooperHelper.cc,v $
+// Revision 1.1  2006/07/23 01:24:34  valya
+// Add looper support into framework. The base class is EDLooper. All the work done in EventProcessor and EventHelperLooper
+//
 
 // user include files
 #include "FWCore/Framework/interface/EDLooperHelper.h"
@@ -30,8 +33,8 @@ namespace edm {
 static const char* const kFacilityString = "FWCore.Framework.EDLooperHelper" ;
 
 // ---- cvs-based strings (Id and Tag with which file was checked out)
-static const char* const kIdString  = "$Id: skeleton.cc,v 1.7 2004/02/12 02:14:38 pcs Exp $";
-static const char* const kTagString = "$Name:  $";
+static const char* const kIdString  = "$Id: EDLooperHelper.cc,v 1.1 2006/07/23 01:24:34 valya Exp $";
+static const char* const kTagString = "$Name: CMSSW_1_1_0_pre3 $";
 
 //
 // static data member definitions
@@ -72,9 +75,9 @@ EDLooperHelper::~EDLooperHelper()
 // member functions
 //
 EventHelperDescription
-EDLooperHelper::runOnce(unsigned long numberToProcess)
+EDLooperHelper::runOnce()
 {
-    return eventProcessor_->runOnce(numberToProcess);
+    return eventProcessor_->runOnce();
 }
 
 void

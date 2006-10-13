@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.25 2006/08/26 23:44:24 wmtan Exp $
+$Id: EventProcessor.h,v 1.26 2006/08/31 23:26:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -253,7 +253,7 @@ class EDLooperHelper;
     StatusCode run_p(unsigned long numberToProcess,
 		     event_processor::Msg m);
     StatusCode doneAsync(event_processor::Msg m);
-    EventHelperDescription runOnce(unsigned long numberToProcess);
+    EventHelperDescription runOnce();
     
     void rewind();
 
