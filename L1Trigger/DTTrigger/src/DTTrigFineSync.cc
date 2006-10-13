@@ -6,7 +6,7 @@
  *   parameters
  *
  *
- *   $Date: 2006/09/12 $
+ *   $Date: 2006/09/18 10:47:15 $
  *   $Revision: 1.1 $
  *
  *   \author C. Battilana
@@ -14,8 +14,20 @@
 //
 //--------------------------------------------------
 
-// This class's header
+// Class header
 #include <L1Trigger/DTTrigger/interface/DTTrigFineSync.h>
+
+// Framework headers 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+// Muon headers
+#include "Geometry/DTGeometry/interface/DTChamber.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
+
+// Root headers
+#include "TH1F.h"
 
 // C++ headers
 #include <iostream>
@@ -25,20 +37,19 @@ const double DTTrigFineSync::myTtoTDC = 32./25.;
 
 DTTrigFineSync::DTTrigFineSync (const ParameterSet& pset){ 
   
-   MyTrig = new DTTrig();
-   string rootfilename = pset.getUntrackedParameter<string>("rootFileName");
-   string txtfilename = pset.getUntrackedParameter<string>("outputFileName");
-   string cfgfilename = pset.getUntrackedParameter<string>("cfgFileName");
-   CorrectBX = pset.getUntrackedParameter<int>("correctBX");  // Default is 16
-   FTStep = pset.getUntrackedParameter<double>("offsetStep");       // Default is 0.104 ns
-   string rootext = ".root";
-   cout << "****Opening/Creating files" << endl;
-   rootfile = new TFile((rootfilename+rootext).c_str(),"RECREATE");
-   txtfile = new fstream;
-   txtfile->open(txtfilename.c_str(),ios::out|ios::trunc);
-   cfgfile = new fstream;
-   cfgfile->open(cfgfilename.c_str(),ios::out|ios::trunc);
-   cout << "****Introducing steps in Config" << endl;
+  MyTrig = new DTTrig();
+  string rootfilename = pset.getUntrackedParameter<string>("rootFileName");
+  string txtfilename = pset.getUntrackedParameter<string>("outputFileName");
+  string cfgfilename = pset.getUntrackedParameter<string>("cfgFileName");
+  CorrectBX = pset.getUntrackedParameter<int>("correctBX");  // Default is 16
+  FTStep = pset.getUntrackedParameter<double>("offsetStep");       // Default is 0.104 ns
+  cout << "[DTTrifFineSync] Opening/Creating files" << endl;
+  rootfile = new TFile(rootfilename.c_str(),"RECREATE");
+  txtfile = new fstream;
+  txtfile->open(txtfilename.c_str(),ios::out|ios::trunc);
+  cfgfile = new fstream;
+  cfgfile->open(cfgfilename.c_str(),ios::out|ios::trunc);
+  cout << "[DTTrifFineSync] Introducing steps in Config" << endl;
   for (int i=1;i<25;i++){
     stringstream myos;
     myos<< i*10.;
@@ -155,7 +166,7 @@ void DTTrigFineSync::endJob(){
   
   (*txtfile) << "All Stations :" << posMax  << endl;
   (*cfgfile) << "}" << endl;
-  cout << "****Writing Histograms and Closing Files" << endl;
+  cout << "[DTTrifFineSync] Writing Histograms and Closing Files" << endl;
   Hlist.Write();
   rootfile->Close();
   txtfile->close();
@@ -165,7 +176,7 @@ void DTTrigFineSync::endJob(){
 
 void DTTrigFineSync::beginJob(const EventSetup & iEventSetup){
   
-  cout << "****Creating TU's" << endl;
+  cout << "[DTTrifFineSync] Creating TU's" << endl;
   MyTrig->createTUs(iEventSetup);
   QualArr myQA;
   for (int i=0;i<25;i++){
@@ -173,7 +184,7 @@ void DTTrigFineSync::beginJob(const EventSetup & iEventSetup){
     myQA.nHL[i]=0;
     for (int j=0;j<25;j++)myQA.nBX[i][j]=0;
   }
-  cout << "****Populating synchronization map" << endl;
+  cout << "[DTTrifFineSync] Populating synchronization map" << endl;
   // Populate the synchronization quality map
   edm::ESHandle<DTGeometry>pDD;
   iEventSetup.get<MuonGeometryRecord>().get(pDD);
