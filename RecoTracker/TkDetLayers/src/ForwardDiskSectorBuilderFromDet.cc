@@ -38,21 +38,44 @@ pair<DiskSectorBounds, GlobalVector>
 ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets) const
 {
   // go over all corners and compute maximum deviations 
-  float rmin((**(dets.begin())).surface().position().perp());
+  float rmin = (**(dets.begin())).surface().position().perp();
   float rmax(rmin); 
   float zmin((**(dets.begin())).surface().position().z());
   float zmax(zmin);
   float phimin((**(dets.begin())).surface().position().phi());
   float phimax(phimin);
+
+
   for (vector<const GeomDet*>::const_iterator idet=dets.begin();
        idet != dets.end(); idet++) {
-    // edm::LogInfo(TkDetLayers) << "---------------------------------------------" ;
-    // edm::LogInfo(TkDetLayers) <<   " Builder: Position of det     :" << (**idet).position() ;     
     vector<const GeomDet*> detUnits = (**idet).components();
-    for (vector<const GeomDet*>::const_iterator detu=detUnits.begin();
- 	 detu!=detUnits.end(); detu++) {
-      // edm::LogInfo(TkDetLayers) << " Builder: Position of detUnit :"<< (**detu).position() ;      
-      vector<GlobalPoint> corners = computeTrapezoidalCorners(*detu) ;
+    if( detUnits.size() ){
+      for (vector<const GeomDet*>::const_iterator detu=detUnits.begin();
+	   detu!=detUnits.end(); detu++) {
+	// edm::LogInfo(TkDetLayers) << " Builder: Position of detUnit :"<< (**detu).position() ;      
+	vector<GlobalPoint> corners = computeTrapezoidalCorners(*detu) ;
+	for (vector<GlobalPoint>::const_iterator i=corners.begin();
+	     i!=corners.end(); i++) {
+	  float r = i->perp();
+	  float z = i->z();
+	  float phi = i->phi();
+	  rmin = min( rmin, r);
+	  rmax = max( rmax, r);
+	  zmin = min( zmin, z);
+	  zmax = max( zmax, z);
+	  if ( PhiLess()( phi, phimin)) phimin = phi;
+	  if ( PhiLess()( phimax, phi)) phimax = phi;
+	}
+	// in addition to the corners we have to check the middle of the 
+	// det +/- length/2, since the min (max) radius for typical fw
+	// dets is reached there
+	float rdet = (**detu).surface().position().perp();
+	float len = (**detu).surface().bounds().length();
+	rmin = min( rmin, rdet-len/2.F);
+	rmax = max( rmax, rdet+len/2.F);      
+      }
+    }else{
+      vector<GlobalPoint> corners = computeTrapezoidalCorners(*idet) ;
       for (vector<GlobalPoint>::const_iterator i=corners.begin();
 	   i!=corners.end(); i++) {
 	float r = i->perp();
@@ -68,8 +91,8 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
       // in addition to the corners we have to check the middle of the 
       // det +/- length/2, since the min (max) radius for typical fw
       // dets is reached there
-      float rdet = (**detu).surface().position().perp();
-      float len = (**detu).surface().bounds().length();
+      float rdet = (**idet).surface().position().perp();
+      float len = (**idet).surface().bounds().length();
       rmin = min( rmin, rdet-len/2.F);
       rmax = max( rmax, rdet+len/2.F);      
     }
