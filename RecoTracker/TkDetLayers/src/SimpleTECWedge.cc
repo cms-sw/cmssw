@@ -4,6 +4,8 @@
 
 #include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 using namespace std;
 
@@ -13,7 +15,16 @@ SimpleTECWedge::SimpleTECWedge(const GeomDet* theInputDet):
   theDet(theInputDet)
 {
   theDets.push_back(theDet);
+
   theDiskSector = ForwardDiskSectorBuilderFromDet()( theDets );
+  
+  LogDebug("TkDetLayers") << "DEBUG INFO for CompositeTECWedge" << "\n"
+			  << "TECWedge z, perp,innerRadius,outerR: " 
+			  << this->position().z() << " , "
+			  << this->position().perp() << " , "
+			  << theDiskSector->innerRadius() << " , "
+			  << theDiskSector->outerRadius() ;
+
 }
 
 SimpleTECWedge::~SimpleTECWedge(){

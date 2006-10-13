@@ -49,9 +49,12 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
 
   //--------- DEBUG INFO --------------
   LogDebug("TkDetLayers") << "DEBUG INFO for TECLayer" << "\n"
-			  << "TECLayer z,perp: " 
+			  << "TECLayer z,perp, innerRadius, outerR: " 
 			  << this->position().z()    << " , "
-			  << this->position().perp() ;
+			  << this->position().perp() << " , "
+			  << this->specificSurface().innerRadius() << " , "
+			  << this->specificSurface().outerRadius() ;
+  
 
   for(vector<const GeometricSearchDet*>::const_iterator it=theFrontComps.begin(); 
       it!=theFrontComps.end(); it++){
