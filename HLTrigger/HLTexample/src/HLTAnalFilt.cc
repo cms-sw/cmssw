@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 16:29:12 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/10/12 16:38:50 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -78,8 +78,18 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      HLTFilterObjectWithRefs::const_iterator a(ref->begin());
      HLTFilterObjectWithRefs::const_iterator o(ref->end());
      HLTFilterObjectWithRefs::const_iterator i;
+     const HLTFilterObjectWithRefs& V(*ref);
+     LogTrace("") << "Size: " << V.size();
      for (i=a; i!=o; i++) {
-       LogTrace("") << "Dist " << i-a << " " << typeid(*i).name() << " " << i->energy();
+       unsigned int I(i-a);
+       LogTrace("") << "Const_Iterator: " << I << " " << typeid(*i).name()
+		    << " " << i->energy();
+       LogTrace("") << "Handle->at(i):  " << I << " " << typeid(ref->at(I)).name()
+		    << " " << (ref->at(I)).energy();
+       LogTrace("") << "Vector[i]:      " << I << " " << typeid(V[I]).name()
+		    << " " << V[I].energy();
+       LogTrace("") << "Vector.at(i):   " << I << " " << typeid(V.at(I)).name()
+		    << " " << V.at(I).energy();
      }
      //
    } else {

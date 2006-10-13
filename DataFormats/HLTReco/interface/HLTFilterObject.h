@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/10/11 10:49:15 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/10/12 16:38:50 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -129,8 +129,17 @@ namespace reco
     }
 
     //
+    // vector-like methods allowing to access an object of type
+    // HLTFilterObjectWithRefs like a ConcreteCollection of Candidates
+    //
+
+    // user should check validity of Ref element before dereferencing it
+    const Candidate & at        (unsigned int i) const { return *(refs_.at(i)); }
+    const Candidate & operator[](unsigned int i) const { return *(refs_[i]); }
+
+    //
     // const_iterator class allowing to access an object of type
-    // HLTFilterObjectWithRefs like a ConcreteCollection
+    // HLTFilterObjectWithRefs like a ConcreteCollection of Candidates
     //
     // the code is adapted from class const_iterator of
     // DataFormats/Common/interface/OwnVector.h
@@ -170,8 +179,9 @@ namespace reco
       bool operator==( const const_iterator& ci ) const { return i == ci.i; }
       bool operator!=( const const_iterator& ci ) const { return i != ci.i; }
 
-      const Candidate & operator* () const { return * * i;}
-      const Candidate * operator->() const { return & ( operator*() );}
+      const Candidate * operator->() const { return i->get();}
+      // user should check validity of Pointer before dereferencing it
+      const Candidate & operator* () const { return * (operator->());}
 
       const_iterator & operator +=( difference_type d ) { i += d; return *this; }
       const_iterator & operator -=( difference_type d ) { i -= d; return *this; }
