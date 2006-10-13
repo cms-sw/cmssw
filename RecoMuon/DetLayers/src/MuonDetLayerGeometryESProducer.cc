@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/31 21:45:49 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/11 10:56:39 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - CERN
  */
 
@@ -78,6 +78,10 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     LogInfo(metname) << "No RPC geometry is available.";
   }  
   
+
+  // Sort layers properly
+  muonDetLayerGeometry->sortLayers();
+
   return boost::shared_ptr<MuonDetLayerGeometry>(muonDetLayerGeometry);
 }
 

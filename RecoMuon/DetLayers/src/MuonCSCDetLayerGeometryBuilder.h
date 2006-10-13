@@ -5,8 +5,8 @@
  *
  *  Build the CSC DetLayers.
  *
- *  $Date: 2006/05/18 14:52:41 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/02 12:21:39 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -18,7 +18,9 @@ class MuRingForwardLayer;
 
 class MuonCSCDetLayerGeometryBuilder {
  public:
-  /// Operations
+
+  /// return.first=forward (+Z), return.second=backward (-Z)
+  /// both vectors are sorted inside-out
   static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildLayers(const CSCGeometry& geo);
  private:
   // Disable constructor - only static access is allowed.

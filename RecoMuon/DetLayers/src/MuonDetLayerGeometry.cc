@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/09/13 10:41:22 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/10/03 14:15:37 $
+ *  $Revision: 1.14 $
  *  \author N. Amapane - CERN
  */
 
@@ -13,7 +13,13 @@
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 
+#include <Utilities/General/interface/precomputed_value_sort.h>
+#include <Geometry/Surface/interface/GeometricSorting.h>
+
+#include <algorithm>
+
 using namespace std;
+using namespace geomsort;
 
 MuonDetLayerGeometry::MuonDetLayerGeometry() {}
 
@@ -24,20 +30,20 @@ void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*
   vector<DetLayer*>::const_iterator it;
   for(it=csclayers.first.begin(); it!=csclayers.first.end(); it++) {
     cscLayers_fw.push_back(*it);
-    cscLayers_all.push_back(*it);
+    //    cscLayers_all.push_back(*it);
     allForward.push_back(*it);
-    allEndcap.push_back(*it);
-    allDetLayers.push_back(*it);
+    //    allEndcap.push_back(*it);
+    //    allDetLayers.push_back(*it);
     
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
   
   for(it=csclayers.second.begin(); it!=csclayers.second.end(); it++) {
     cscLayers_bk.push_back(*it);
-    cscLayers_all.push_back(*it);
+    //    cscLayers_all.push_back(*it);
     allBackward.push_back(*it);
-    allEndcap.push_back(*it);
-    allDetLayers.push_back(*it);
+    //    allEndcap.push_back(*it);
+    //    allDetLayers.push_back(*it);
     
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }    
@@ -49,30 +55,30 @@ void MuonDetLayerGeometry::addRPCLayers(vector<DetLayer*> barrelLayers, pair<vec
   
   for (it=barrelLayers.begin();it!=barrelLayers.end();it++){
     rpcLayers_barrel.push_back(*it);
-    rpcLayers_all.push_back(*it);
+    //    rpcLayers_all.push_back(*it);
     allBarrel.push_back(*it);
-    allDetLayers.push_back(*it);
+    //    allDetLayers.push_back(*it);
 
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
   for (it=endcapLayers.first.begin(); it!=endcapLayers.first.end(); it++){
     rpcLayers_fw.push_back(*it);
-    rpcLayers_all.push_back(*it);
-    rpcLayers_endcap.push_back(*it);
+    //    rpcLayers_all.push_back(*it);
+    //    rpcLayers_endcap.push_back(*it);
     allForward.push_back(*it);
-    allEndcap.push_back(*it);
-    allDetLayers.push_back(*it);
+    //    allEndcap.push_back(*it);
+    //    allDetLayers.push_back(*it);
 
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
   
   for (it=endcapLayers.second.begin(); it!=endcapLayers.second.end(); it++){
     rpcLayers_bk.push_back(*it);
-    rpcLayers_all.push_back(*it);
-    rpcLayers_endcap.push_back(*it);
+    //    rpcLayers_all.push_back(*it);
+    //    rpcLayers_endcap.push_back(*it);
     allBackward.push_back(*it);
-    allEndcap.push_back(*it);
-    allDetLayers.push_back(*it);
+    //    allEndcap.push_back(*it);
+    //    allDetLayers.push_back(*it);
 
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
@@ -85,7 +91,7 @@ void MuonDetLayerGeometry::addDTLayers(vector<DetLayer*> dtlayers) {
     for(it=dtlayers.begin(); it!=dtlayers.end(); it++) {
         dtLayers.push_back(*it);
         allBarrel.push_back(*it);
-        allDetLayers.push_back(*it);
+	//        allDetLayers.push_back(*it);
 
 	detLayersMap[ makeDetLayerId(*it) ] = *it;
     }
@@ -175,30 +181,30 @@ MuonDetLayerGeometry::backwardRPCLayers() const {
 }
 
 
-const vector<DetLayer*> 
+const vector<DetLayer*>&
 MuonDetLayerGeometry::allLayers() const {
     return allDetLayers;    
 }    
 
 
-const vector<DetLayer*> 
+const vector<DetLayer*>&
 MuonDetLayerGeometry::allBarrelLayers() const {
     return allBarrel;    
 }    
 
-const vector<DetLayer*> 
+const vector<DetLayer*>&
 MuonDetLayerGeometry::allEndcapLayers() const {
     return allEndcap;    
 }    
 
 
-const vector<DetLayer*> 
+const vector<DetLayer*>&
 MuonDetLayerGeometry::allForwardLayers() const {
     return allForward;    
 }    
 
 
-const vector<DetLayer*> 
+const vector<DetLayer*>&
 MuonDetLayerGeometry::allBackwardLayers() const {
     return allBackward;    
 }    
@@ -239,3 +245,54 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(DetId &detId) const{
 }
 
 
+void MuonDetLayerGeometry::sortLayers() {
+
+  // The following are filled inside-out, no need to re-sort
+  // precomputed_value_sort(dtLayers_fw.begin(), cscLayers_fw.end(),ExtractR<DetLayer,float>());
+  // precomputed_value_sort(cscLayers_fw.begin(), cscLayers_fw.end(),ExtractAbsZ<DetLayer,float>());
+  // precomputed_value_sort(cscLayers_bk.begin(), cscLayers_bk.end(),ExtractAbsZ<DetLayer,float>());
+  // precomputed_value_sort(rpcLayers_fw.begin(), rpcLayers_fw.end(),ExtractAbsZ<DetLayer,float>());
+  // precomputed_value_sort(rpcLayers_bk.begin(), rpcLayers_bk.end(),ExtractAbsZ<DetLayer,float>());
+  // precomputed_value_sort(rpcLayers_barrel.begin(), rpcLayers_barrel.end(), ExtractR<DetLayer,float>());
+
+  // Sort these inside-out
+  precomputed_value_sort(allBarrel.begin(), allBarrel.end(), ExtractR<DetLayer,float>());
+  precomputed_value_sort(allBackward.begin(), allBackward.end(), ExtractAbsZ<DetLayer,float>());
+  precomputed_value_sort(allForward.begin(), allForward.end(), ExtractAbsZ<DetLayer,float>());  
+
+  // Build more complicated vectors with correct sorting
+
+  //cscLayers_all: from -Z to +Z
+  cscLayers_all.reserve(cscLayers_bk.size()+cscLayers_fw.size());
+  std::copy(cscLayers_bk.begin(),cscLayers_bk.end(),back_inserter(cscLayers_all));
+  std::reverse(cscLayers_all.begin(),cscLayers_all.end());
+  std::copy(cscLayers_fw.begin(),cscLayers_fw.end(),back_inserter(cscLayers_all));
+
+  //rpcLayers_endcap: from -Z to +Z
+  rpcLayers_endcap.reserve(rpcLayers_bk.size()+rpcLayers_fw.size());
+  std::copy(rpcLayers_bk.begin(),rpcLayers_bk.end(),back_inserter(rpcLayers_endcap));
+  std::reverse(rpcLayers_endcap.begin(),rpcLayers_endcap.end());
+  std::copy(rpcLayers_fw.begin(),rpcLayers_fw.end(),back_inserter(rpcLayers_endcap));
+
+  //rpcLayers_all: order is bw, barrel, fw
+  rpcLayers_all.reserve(rpcLayers_bk.size()+rpcLayers_barrel.size()+rpcLayers_fw.size());
+  std::copy(rpcLayers_bk.begin(),rpcLayers_bk.end(),back_inserter(rpcLayers_all));
+  std::reverse(rpcLayers_all.begin(),rpcLayers_all.end());
+  std::copy(rpcLayers_barrel.begin(),rpcLayers_barrel.end(),back_inserter(rpcLayers_all));
+  std::copy(rpcLayers_fw.begin(),rpcLayers_fw.end(),back_inserter(rpcLayers_all));
+
+  // allEndcap: order is  all bw, all fw
+  allEndcap.reserve(allBackward.size()+allForward.size());
+  std::copy(allBackward.begin(),allBackward.end(),back_inserter(allEndcap));
+  std::reverse(allEndcap.begin(),allEndcap.end());
+  std::copy(allForward.begin(),allForward.end(),back_inserter(allEndcap));
+
+  // allDetLayers: order is  all bw, all barrel, all fw
+  allDetLayers.reserve(allBackward.size()+allBarrel.size()+allForward.size());
+  std::copy(allBackward.begin(),allBackward.end(),back_inserter(allDetLayers));
+  std::reverse(allDetLayers.begin(),allDetLayers.end());
+  std::copy(allBarrel.begin(),allBarrel.end(),back_inserter(allDetLayers));
+  std::copy(allForward.begin(),allForward.end(),back_inserter(allDetLayers));
+
+
+}
