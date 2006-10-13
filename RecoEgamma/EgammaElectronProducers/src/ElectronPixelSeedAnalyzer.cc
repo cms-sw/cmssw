@@ -32,7 +32,6 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -109,56 +108,46 @@ void ElectronPixelSeedAnalyzer::beginJob(edm::EventSetup const&iSetup){
 void
 ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
 {
-  //***************************************************************************
-  // temporary: essentially  to verify that we reread correctly the associationmap
-  //***************************************************************************
+  
+  // rereads the seeds for test purposes
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   typedef recHitContainer::const_iterator const_iterator;
   typedef std::pair<const_iterator,const_iterator> range;
 
-  // get associationmap
-  edm::Handle<SeedSuperClusterAssociationCollection> barrelH;
-  edm::Handle<SeedSuperClusterAssociationCollection> endcapH;
-  e.getByLabel("electronPixelSeeds","correctedHybridSuperClusters",barrelH);
-  e.getByLabel("electronPixelSeeds","correctedIslandEndcapSuperClusters",endcapH);
-  edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of seeds Barrel:"<<barrelH.product()->size()<<" Number of seeds Endcap:"<<endcapH.product()->size();
-
+  // get seeds
+  
+  edm::Handle<ElectronPixelSeedCollection> elSeeds;
+  e.getByType(elSeeds); 
+  edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of seeds "<<elSeeds.product()->size();
   int is=0;
-  SeedSuperClusterAssociationCollection barrel=*barrelH;
-  SeedSuperClusterAssociationCollection endcap=*endcapH;
-  for( SeedSuperClusterAssociationCollection::const_iterator MyS= barrel.begin(); MyS != barrel.end(); ++MyS) {
-    
-    LogDebug("") <<"\nBarrel Seed nr "<<is<<": ";
-    const edm::Ref<TrajectorySeedCollection> seedRef  =(*MyS).key;
-    edm::Ref<SuperClusterCollection> theClus =barrel[seedRef];
-    LogDebug("")<<"SuperCluster energy: "<<theClus->energy();
 
-    range r=seedRef->recHits();
-    LogDebug("")<<" Number of RecHits= "<<seedRef->nHits();
+  for( ElectronPixelSeedCollection::const_iterator MyS= (*elSeeds).begin(); MyS != (*elSeeds).end(); ++MyS) {
+    
+    LogDebug("") <<"\nSeed nr "<<is<<": ";
+    range r=(*MyS).recHits();
+     LogDebug("")<<" Number of RecHits= "<<(*MyS).nHits();
     const GeomDet *det=0;
     for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) {
       det = pDD->idToDet(((*rhits)).geographicalId());
-      LogDebug("") <<" SiPixelHit   local x,y,z "<<(*rhits).localPosition()<<" det "<<(*rhits).geographicalId().det()<<" subdet "<<(*rhits).geographicalId().subdetId();
-      LogDebug("") <<" SiPixelHit   global  "<<det->toGlobal((*rhits).localPosition());
+       LogDebug("") <<" SiPixelHit   local x,y,z "<<(*rhits).localPosition()<<" det "<<(*rhits).geographicalId().det()<<" subdet "<<(*rhits).geographicalId().subdetId();
+       LogDebug("") <<" SiPixelHit   global  "<<det->toGlobal((*rhits).localPosition());
     }   
     
     // state on last det
-    TrajectoryStateOnSurface t= transformer_.transientState(seedRef->startingState(), &(det->surface()), &(*theMagField));
+    TrajectoryStateOnSurface t= transformer_.transientState((*MyS).startingState(), &(det->surface()), &(*theMagField));
 
     // debug
     
-    TrackCharge charge=seedRef->startingState().parameters().charge();
-    LogDebug("")<<" ElectronPixelSeed outermost state position: "<<t.globalPosition();
-    LogDebug("")<<" ElectronPixelSeed outermost state momentum: "<<t.globalMomentum();
-    //       edm::Ref<SuperClusterCollection> theClus=(*MyS).superCluster();
-    LogDebug("")<<" ElectronPixelSeed superCluster energy: "<<theClus->energy()<<", position: "<<theClus->position();
-    LogDebug("")<<" ElectronPixelSeed outermost state Pt: "<<t.globalMomentum().perp();
-    LogDebug("")<<" ElectronPixelSeed supercluster Et: "<<theClus->energy()*sin(2.*atan(exp(-theClus->position().eta())));
-    LogDebug("")<<" ElectronPixelSeed outermost momentum direction eta: "<<t.globalMomentum().eta();
-    LogDebug("")<<" ElectronPixelSeed supercluster eta: "<<theClus->position().eta();
-    //    LogDebug("")<<" ElectronPixelSeed seed charge: "<<seedRef->getCharge();
-    LogDebug("")<<" ElectronPixelSeed seed charge: "<<charge;
-    LogDebug("")<<" ElectronPixelSeed E/p: "<<theClus->energy()/t.globalMomentum().mag();
+     LogDebug("")<<" ElectronPixelSeed outermost state position: "<<t.globalPosition();
+     LogDebug("")<<" ElectronPixelSeed outermost state momentum: "<<t.globalMomentum();
+     edm::Ref<SuperClusterCollection> theClus=(*MyS).superCluster();
+     LogDebug("")<<" ElectronPixelSeed superCluster energy: "<<theClus->energy()<<", position: "<<theClus->position();
+     LogDebug("")<<" ElectronPixelSeed outermost state Pt: "<<t.globalMomentum().perp();
+     LogDebug("")<<" ElectronPixelSeed supercluster Et: "<<theClus->energy()*sin(2.*atan(exp(-theClus->position().eta())));
+     LogDebug("")<<" ElectronPixelSeed outermost momentum direction eta: "<<t.globalMomentum().eta();
+     LogDebug("")<<" ElectronPixelSeed supercluster eta: "<<theClus->position().eta();
+     LogDebug("")<<" ElectronPixelSeed seed charge: "<<(*MyS).getCharge();
+     LogDebug("")<<" ElectronPixelSeed E/p: "<<theClus->energy()/t.globalMomentum().mag();
 
     // fill the tree and histos
     
@@ -166,8 +155,7 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
     histetclu_->Fill(theClus->energy()*sin(2.*atan(exp(-theClus->position().eta()))));
     histeta_->Fill(t.globalMomentum().eta());
     histetaclu_->Fill(theClus->position().eta());
-    //      histq_->Fill((*MyS).getCharge());
-    histq_->Fill(charge);
+    histq_->Fill((*MyS).getCharge());
     histeoverp_->Fill(theClus->energy()/t.globalMomentum().mag());   
     
     if (is<10) {
@@ -179,65 +167,63 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
       seedEta[is] = t.globalMomentum().eta();
       seedPhi[is] = t.globalMomentum().phi();
       seedPt[is] = t.globalMomentum().perp();
-      //      seedQ[is] = (*MyS).getCharge();
-      seedQ[is] = charge;
-    
-    
-      is++;
+      seedQ[is] = (*MyS).getCharge();
     }
+    
+    is++;
+    
   }
   
-    histnbseeds_->Fill(barrel.size()+endcap.size());
+  histnbseeds_->Fill(elSeeds.product()->size());
 
-    //   // get input clusters 
+  // get input clusters 
 
-    //   edm::Handle<SuperClusterCollection> clusters;
-    //   //CC to be changed according to supercluster input
-    //   e.getByLabel("correctedHybridSuperClusterProducer", "correctedHybridSuperClusterCollection", clusters); 
-    //   histnbclus_->Fill(clusters.product()->size());
-    //   if (clusters.product()->size()>0) histnrseeds_->Fill(elSeeds.product()->size());
+  edm::Handle<SuperClusterCollection> clusters;
+  //CC to be changed according to supercluster input
+  e.getByLabel("correctedHybridSuperClusterProducer", "correctedHybridSuperClusterCollection", clusters); 
+  histnbclus_->Fill(clusters.product()->size());
+  if (clusters.product()->size()>0) histnrseeds_->Fill(elSeeds.product()->size());
   
-    //   // get MC information
+  // get MC information
   
-    //   edm::Handle<edm::HepMCProduct> HepMCEvt;
-    //   // this one is empty branch in current test files
-    //   //e.getByLabel("VtxSmeared", "", HepMCEvt);
-    //   e.getByLabel("source", "", HepMCEvt);
+  edm::Handle<edm::HepMCProduct> HepMCEvt;
+  // this one is empty branch in current test files
+  //e.getByLabel("VtxSmeared", "", HepMCEvt);
+  e.getByLabel("source", "", HepMCEvt);
   
-    //   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
-    //   int ip=0;
-    //   for (HepMC::GenEvent::particle_const_iterator partIter = MCEvt->particles_begin();
-    //    partIter != MCEvt->particles_end(); ++partIter) { 
+  const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
+  int ip=0;
+  for (HepMC::GenEvent::particle_const_iterator partIter = MCEvt->particles_begin();
+   partIter != MCEvt->particles_end(); ++partIter) { 
 
-    //     for (HepMC::GenEvent::vertex_const_iterator vertIter = MCEvt->vertices_begin();
-    //      vertIter != MCEvt->vertices_end(); ++vertIter) {
+    for (HepMC::GenEvent::vertex_const_iterator vertIter = MCEvt->vertices_begin();
+     vertIter != MCEvt->vertices_end(); ++vertIter) {
 
-    //       CLHEP::HepLorentzVector creation = (*partIter)->CreationVertex();
-    //       CLHEP::HepLorentzVector momentum = (*partIter)->Momentum();
-    //       HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
-    //       LogDebug("")  << "MC particle id " << id.pid() << ", creationVertex " << creation << " cm, initialMomentum " << momentum << " GeV/c" << std::endl;
-    //       if (id == 11 || id == -11) {
-    // 	histptMC_->Fill(momentum.perp());
-    // 	histetaMC_->Fill(momentum.pseudoRapidity());
-    // 	histeMC_->Fill(momentum.rho());
-    // 	if (ip<10) {
-    // 	  mcEnergy[ip] = momentum.rho();
-    // 	  mcEta[ip] = momentum.pseudoRapidity();
-    // 	  mcPhi[ip] = momentum.phi();
-    // 	  mcPt[ip] = momentum.perp();
-    // 	  mcQ[ip] = ((id == 11) ? -1.: +1.);
-    // 	}
-    //       }
+      CLHEP::HepLorentzVector creation = (*partIter)->CreationVertex();
+      CLHEP::HepLorentzVector momentum = (*partIter)->Momentum();
+      HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
+      LogDebug("")  << "MC particle id " << id.pid() << ", creationVertex " << creation << " cm, initialMomentum " << momentum << " GeV/c" << std::endl;
+      if (id == 11 || id == -11) {
+	histptMC_->Fill(momentum.perp());
+	histetaMC_->Fill(momentum.pseudoRapidity());
+	histeMC_->Fill(momentum.rho());
+	if (ip<10) {
+	  mcEnergy[ip] = momentum.rho();
+	  mcEta[ip] = momentum.pseudoRapidity();
+	  mcPhi[ip] = momentum.phi();
+	  mcPt[ip] = momentum.perp();
+	  mcQ[ip] = ((id == 11) ? -1.: +1.);
+	}
+      }
 
-    //     }
+    }
     
-    //     ip++;
+    ip++;
    
-    //   }  
+  }  
     
-       tree_->Fill();
+  tree_->Fill();
   
 }
 
 
-  
