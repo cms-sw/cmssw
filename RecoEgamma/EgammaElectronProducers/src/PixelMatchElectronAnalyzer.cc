@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.4 2006/07/12 14:35:58 charlot Exp $
+// $Id: PixelMatchElectronAnalyzer.cc,v 1.1 2006/10/03 12:10:17 uberthon Exp $
 //
 //
 
@@ -26,8 +26,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include <iostream>
 #include "TFile.h"
@@ -58,12 +58,15 @@ void PixelMatchElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   histCharge_= new TH1F("chargeEl","charge, 35 GeV",10, -2.,2.);
   histMass_ = new TH1F("massEl","mass, 35 GeV",100,0.,1.);
   histEn_ = new TH1F("energyEl","energy, 35 GeV",100,0.,1000.);
+  histSclEn_ = new TH1F("energySCL","energy, 35 GeV",100,0.,1000.);
   histEt_ = new TH1F("etEl","et, 35 GeV",100,0.,1000.);
   histEta_ = new TH1F("etaEl","eta, 35 GeV",100,-2.5,2.5);
   histPhi_ = new TH1F("phiEl","phi, 35 GeV",100,-3.5,3.5);
   histTrPt_ = new TH1F("ptTr","electron track  pt",100,0.,1000.);
+  histTrP_ = new TH1F("pTr","electron track  p",100,0.,1000.);
   histTrEta_ = new TH1F("etaTr","electron track  eta",100,-2.5,2.5);
   histTrPhi_ = new TH1F("phiTr","electron track phi",100,-3.5,3.5);
+  histEOP_ =new TH1F("esOpT","Enscl/pTrack",100,-3.5,3.5);
 }     
 
 void
@@ -88,8 +91,16 @@ PixelMatchElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
     // get information about track
     reco::TrackRef tr =(*MyS).track();
     histTrPt_->Fill((*tr).outerPt());
+    double pTr=tr->outerP();
+    histTrP_->Fill(pTr);
     histTrEta_->Fill((*tr).outerEta());
     histTrPhi_->Fill((*tr).outerPhi());
+    // information about SCL
+    reco::SuperClusterRef sclRef=(*MyS).superCluster();
+    histSclEn_->Fill(sclRef->energy());
+
+    // correlation
+    histEOP_->Fill((sclRef->energy())/pTr);
   }
   
 }
