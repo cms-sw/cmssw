@@ -50,7 +50,13 @@ CompositeTECWedge::CompositeTECWedge(vector<const GeomDet*>& innerDets,
   theDiskSector = ForwardDiskSectorBuilderFromDet()( theDets );
 
   //--------- DEBUG INFO --------------
-  LogDebug("TkDetLayers") << "DEBUG INFO for CompositeTECWedge" ;
+  LogDebug("TkDetLayers") << "DEBUG INFO for CompositeTECWedge" << "\n"
+			  << "TECWedge z, perp,innerRadius,outerR: " 
+			  << this->position().z() << " , "
+			  << this->position().perp() << " , "
+			  << theDiskSector->innerRadius() << " , "
+			  << theDiskSector->outerRadius() ;
+
 
   for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
       it!=theFrontDets.end(); it++){
