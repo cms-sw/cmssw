@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/09/28 22:17:54 $
- * $Revision: 1.21 $
+ * $Date: 2006/10/13 14:35:23 $
+ * $Revision: 1.22 $
  * \author W Fisher
  *
 */
@@ -39,10 +39,11 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   else{
     m_outputFile = "DQM_Hcal_";
   }
-  if(m_outputFile=="NoOutputFile"){
+
+  bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
+  if(disable){
     m_outputFile="";
   }
-
 
   m_runNum = 0; m_meStatus=0;
   m_meRunNum=0; m_meRunType=0;
