@@ -27,7 +27,7 @@ double reco::TauImpactParameterInfo::discriminator (double ip_min,double ip_max,
 }
 double reco::TauImpactParameterInfo::discriminator() const {
         //default discriminator: returns the value of the discriminator of the jet tag
-	return jetTag->discriminator();
+	return isolatedTaus->discriminator();
 }
 
 const reco::TauImpactParameterTrackData* TauImpactParameterInfo::getTrackData(reco::TrackRef trackRef) const {
