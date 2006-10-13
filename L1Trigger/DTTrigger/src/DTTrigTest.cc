@@ -7,7 +7,7 @@
  *   studies
  *
  *
- *   $Date: 2006/00/12 $
+ *   $Date: 2006/09/18 10:47:15 $
  *   $Revision: 1.1 $
  *
  *   \author C. Battilana
@@ -18,10 +18,16 @@
 // This class's header
 #include "L1Trigger/DTTrigger/interface/DTTrigTest.h"
 
+// Framework headers
+#include "FWCore/Framework/interface/ESHandle.h"
+
 // Trigger and DataFormats headers
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+// ROOT headers 
+#include "TROOT.h"
 
 // Collaborating classes
 #include <CLHEP/Vector/LorentzVector.h>
@@ -33,34 +39,34 @@
 using namespace std;
 
 
+
 const double DTTrigTest::myTtoTDC = 32./25.;
 
 DTTrigTest::DTTrigTest(const ParameterSet& pset){ 
 
+  debug= pset.getUntrackedParameter<bool>("debug");
   string outputfile = pset.getUntrackedParameter<string>("outputFileName");
-  string rootext = ".root";
-  cout << "****Creating rootfile " <<  outputfile<<rootext <<endl;
-  f = new TFile((outputfile+rootext).c_str(),"RECREATE");
+  if (debug == true) cout << "[DTTrigTest] Creating rootfile " <<  outputfile <<endl;
+  f = new TFile(outputfile.c_str(),"RECREATE");
   theTree = new TTree("h1","GMT",0);
   bool globaldelay = pset.getUntrackedParameter<bool>("globalSync");
   double syncdelay = pset.getUntrackedParameter<double>("syncDelay");
   stringstream myos;
   myos << syncdelay;
   if (globaldelay) {
-    cout << "****Using same synchronization for all chambers:" << endl;
+    if (debug == true) cout << "[DTTrigTest] Using same synchronization for all chambers:" << endl;
     MyTrig = new DTTrig();
     double ftdelay = pset.getUntrackedParameter<double>("globalSyncValue");
     MyTrig->config()->setParam("Programmable Dealy",myos.str());
     MyTrig->config()->setParamValue("BTI setup time","psetdelay",ftdelay*myTtoTDC);
-    cout << "****Delay set to " << ftdelay << " ns (as set in parameterset)" << endl; 
+    if (debug == true) cout << "[DTTrigTest] Delay set to " << ftdelay << " ns (as set in parameterset)" << endl; 
   }
   else {
-    cout << "****Using chamber by chamber synchronization" << endl;
-    cout << "*****" <<myos.str()<<"*****"<<endl;
+    if (debug == true) cout << "[DTTrigTest] Using chamber by chamber synchronization" << endl;
     MyTrig = new DTTrig(pset.getUntrackedParameter<ParameterSet>("L1DTFineSync"),myos.str());
   }
   //  MyTrig->config()->setParam("Debugging level","fullTRACO");
-  cout << "****Constructor executed!!!" << endl;
+  if (debug == true) cout << "[DTTrigTest] Constructor executed!!!" << endl;
 
 }
 
@@ -68,13 +74,13 @@ DTTrigTest::~DTTrigTest(){
 
   delete MyTrig;
   delete f;
-  cout << "****Destructor executed!!!" << endl;
+  if (debug == true) cout << "[DTTrigTest] Destructor executed!!!" << endl;
 
 }
 
 void DTTrigTest::endJob(){
 
-  cout << "****Writing Tree and Closing File" << endl;
+  if (debug == true) cout << "[DTTrigTest] Writing Tree and Closing File" << endl;
   theTree->Write();
   delete theTree;
   f->Close();
@@ -84,7 +90,7 @@ void DTTrigTest::endJob(){
 void DTTrigTest::beginJob(const EventSetup & iEventSetup){   
     
   MyTrig->createTUs(iEventSetup);
-  cout << "****TU's Created" << endl;
+  if (debug == true) cout << "[DTTrigTest] TU's Created" << endl;
   
   // BOOKING of the tree's varables
   // GENERAL block branches
@@ -170,7 +176,7 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   const float etacut = 2.4;
   
   MyTrig->triggerReco(iEvent,iEventSetup);
-  cout << "****Trigger algorithm executed for run " << iEvent.id().run() <<" event " << iEvent.id().event() << endl;
+  cout << "[DTTrigTest] Trigger algorithm executed for run " << iEvent.id().run() <<" event " << iEvent.id().event() << endl;
   
   // GENERAL Block
   runn   = iEvent.id().run();
@@ -184,7 +190,7 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   iEvent.getByLabel("g4SimHits",MyVertexes);
   vector<SimTrack>::const_iterator itrack;
   ngen=0;
-  cout  << "****Tracks found in the detector (not only muons) " << MyTracks->size() <<endl;
+  if (debug == true) cout  << "[DTTrigTest] Tracks found in the detector (not only muons) " << MyTracks->size() <<endl;
   for (itrack=MyTracks->begin(); itrack!=MyTracks->end(); itrack++){
     if ( abs(itrack->type())==13){
       float pt  = itrack->momentum().perp();
@@ -223,7 +229,7 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   vector<DTBtiTrigData> btitrigs = MyTrig->BtiTrigs();
   vector<DTBtiTrigData>::const_iterator pbti;
   int ibti = 0;
-  cout << btitrigs.size() << " BTI triggers found" << endl;
+  if (debug == true) cout << "[DTTrigTest] " << btitrigs.size() << " BTI triggers found" << endl;
   for ( pbti = btitrigs.begin(); pbti != btitrigs.end(); pbti++ ) {
     if ( ibti < 100 ) {
       bwh[ibti]=pbti->wheel();
@@ -253,7 +259,7 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   vector<DTTracoTrigData> tracotrigs = MyTrig->TracoTrigs();
   vector<DTTracoTrigData>::const_iterator ptc;
   int itraco = 0;
-  cout << tracotrigs.size() << " TRACO triggers found" << endl;
+  if (debug == true) cout << "[DTTrigTest] " << tracotrigs.size() << " TRACO triggers found" << endl;
   for (ptc=tracotrigs.begin(); ptc!=tracotrigs.end(); ptc++) {
     if (itraco<80) {
       twh[itraco]=ptc->wheel();
@@ -282,7 +288,7 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   vector<DTChambPhSegm> tsphtrigs = MyTrig->TSPhTrigs();
   vector<DTChambPhSegm>::const_iterator ptsph;
   int itsphi = 0; 
-  cout << tsphtrigs.size() << " TSPhi triggers found" << endl;
+  if (debug == true) cout << "[DTTrigTest] " << tsphtrigs.size() << " TSPhi triggers found" << endl;
   for (ptsph=tsphtrigs.begin(); ptsph!=tsphtrigs.end(); ptsph++) {
     if (itsphi<40 ) {
       const DTChambPhSegm& seg = (*ptsph);
@@ -311,7 +317,7 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   vector<DTChambThSegm> tsthtrigs = MyTrig->TSThTrigs();
   vector<DTChambThSegm>::const_iterator ptsth;
   int itstheta = 0; 
-  cout << tsthtrigs.size() << " TSTheta triggers found" << endl;
+  if (debug == true) cout << "[DTTrigTest] " << tsthtrigs.size() << " TSTheta triggers found" << endl;
   for (ptsth=tsthtrigs.begin(); ptsth!=tsthtrigs.end(); ptsth++) {
     if (itstheta<40 ) {
       thwh[itstheta] = ptsth->ChamberId().wheel();

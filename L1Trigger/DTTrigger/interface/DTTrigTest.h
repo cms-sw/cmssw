@@ -7,7 +7,7 @@
  *   studies
  *
  *
- *   $Date: 2006/00/12 $
+ *   $Date: 2006/09/18 10:40:16 $
  *   $Revision: 1.1 $
  *
  *   \author C. Battilana
@@ -22,16 +22,14 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 // Trigger related headers
 #include "L1Trigger/DTTrigger/interface/DTTrig.h"
 
-
 // Root related headers
-#include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
+
 
 
 using namespace edm;
@@ -61,6 +59,9 @@ private:
 
   // trigger istance
   DTTrig* MyTrig;
+
+  // debug flag
+  bool debug;
 
   // tree
   TTree* theTree;
