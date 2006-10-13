@@ -4,8 +4,8 @@
 /*
  * \file EcalDigisValidation.h
  *
- * $Date: 2006/08/22 09:23:27 $
- * $Revision: 1.5 $
+ * $Date: 2006/10/05 13:21:05 $
+ * $Revision: 1.6 $
  * \author F. Cossutti
  *
 */
@@ -85,6 +85,10 @@ private:
  DaqMonitorBEInterface* dbe_;
  
  string outputFile_;
+
+ edm::InputTag EBdigiCollection_;
+ edm::InputTag EEdigiCollection_;
+ edm::InputTag ESdigiCollection_;
  
  map<int, double, less<int> > gainConv_;
 

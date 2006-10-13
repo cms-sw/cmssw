@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapDigisValidation.h
  *
- * $Date: 2006/07/26 14:55:26 $
- * $Revision: 1.2 $
+ * $Date: 2006/10/05 13:19:02 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -71,6 +71,8 @@ private:
  
  string outputFile_;
  
+ edm::InputTag EEdigiCollection_;
+
  map<int, double, less<int> > gainConv_;
 
  double barrelADCtoGeV_;

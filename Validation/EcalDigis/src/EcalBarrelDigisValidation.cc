@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/07/26 14:55:26 $
- * $Revision: 1.10 $
+ * $Date: 2006/10/06 12:57:30 $
+ * $Revision: 1.11 $
  * \author F. Cossutti
  *
 */
@@ -10,7 +10,8 @@
 #include <Validation/EcalDigis/interface/EcalBarrelDigisValidation.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
-EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
+EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps):
+  EBdigiCollection_(ps.getParameter<edm::InputTag>("EBdigiCollection"))
   {
  
   // verbosity switch
@@ -138,7 +139,7 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   Handle<EBDigiCollection> EcalDigiEB;
 
-  e.getByType(EcalDigiEB);
+  e.getByLabel( EBdigiCollection_ , EcalDigiEB );
 
   // BARREL
 

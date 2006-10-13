@@ -1,15 +1,16 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2006/07/10 15:41:32 $
- * $Revision: 1.5 $
+ * $Date: 2006/07/26 14:55:26 $
+ * $Revision: 1.6 $
  * \author F. Cossutti
  *
 */
 
 #include <Validation/EcalDigis/interface/EcalPreshowerDigisValidation.h>
 
-EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& ps)
+EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& ps):
+  ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection"))
   {
  
   // verbosity switch
@@ -80,7 +81,7 @@ void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   Handle<ESDigiCollection> EcalDigiES;
 
-  e.getByType(EcalDigiES);
+  e.getByLabel( ESdigiCollection_ , EcalDigiES );
 
   // PRESHOWER
   

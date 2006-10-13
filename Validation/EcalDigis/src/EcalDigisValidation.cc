@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/08/22 09:23:28 $
- * $Revision: 1.14 $
+ * $Date: 2006/10/05 13:21:05 $
+ * $Revision: 1.15 $
  * \author F. Cossutti
  *
 */
@@ -15,7 +15,10 @@
 
 EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
   HepMCLabel(ps.getParameter<std::string>("moduleLabelMC")),
-  g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")){
+  g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
+  EBdigiCollection_(ps.getParameter<edm::InputTag>("EBdigiCollection")),
+  EEdigiCollection_(ps.getParameter<edm::InputTag>("EEdigiCollection")),
+  ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection")){
 
  
   // DQM ROOT output
@@ -183,21 +186,21 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   bool isBarrel = true;
   try {
-    e.getByType(EcalDigiEB);
+    e.getByLabel( EBdigiCollection_, EcalDigiEB );
     EBdigis = EcalDigiEB.product();
     LogDebug("DigiInfo") << "total # EBdigis: " << EBdigis->size() ;
     if ( EBdigis->size() == 0 ) isBarrel = false;
   } catch ( cms::Exception &e ) { isBarrel = false; }
   bool isEndcap = true;
   try {
-    e.getByType(EcalDigiEE);
+    e.getByLabel( EEdigiCollection_, EcalDigiEE );
     EEdigis = EcalDigiEE.product();
     LogDebug("DigiInfo") << "total # EEdigis: " << EEdigis->size() ;
     if ( EEdigis->size() == 0 ) isEndcap = false;
   } catch ( cms::Exception &e ) { isEndcap = false; }
   bool isPreshower = true;
   try {
-    e.getByType(EcalDigiES);
+    e.getByLabel( ESdigiCollection_, EcalDigiES );
     ESdigis = EcalDigiES.product();
     LogDebug("DigiInfo") << "total # ESdigis: " << ESdigis->size() ;
     if ( ESdigis->size() == 0 ) isPreshower = false;

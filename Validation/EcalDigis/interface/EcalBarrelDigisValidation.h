@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelDigisValidation.h
  *
- * $Date: 2006/04/10 08:50:50 $
- * $Revision: 1.1 $
+ * $Date: 2006/07/26 14:55:26 $
+ * $Revision: 1.2 $
  * \author F. Cossutti
  *
 */
@@ -69,6 +69,8 @@ private:
  DaqMonitorBEInterface* dbe_;
  
  string outputFile_;
+
+ edm::InputTag EBdigiCollection_;
  
  map<int, double, less<int> > gainConv_;
 

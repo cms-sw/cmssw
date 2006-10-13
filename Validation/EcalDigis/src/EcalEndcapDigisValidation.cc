@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/10/05 13:19:02 $
- * $Revision: 1.11 $
+ * $Date: 2006/10/06 12:57:30 $
+ * $Revision: 1.12 $
  * \author F. Cossutti
  *
 */
@@ -10,7 +10,8 @@
 #include <Validation/EcalDigis/interface/EcalEndcapDigisValidation.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
-EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
+EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
+  EEdigiCollection_(ps.getParameter<edm::InputTag>("EEdigiCollection"))
   {
  
   // verbosity switch
@@ -145,7 +146,7 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   Handle<EEDigiCollection> EcalDigiEE;
 
-  e.getByType(EcalDigiEE);
+  e.getByLabel( EEdigiCollection_ , EcalDigiEE );
 
   // ENDCAP
 
