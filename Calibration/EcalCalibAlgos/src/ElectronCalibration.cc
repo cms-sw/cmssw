@@ -1,6 +1,5 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -13,7 +12,11 @@
 #include "Calibration/Tools/interface/MinL3Algorithm.h"
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaPhiSymRecHitsProducer.h"
 #include "Calibration/EcalCalibAlgos/interface/ElectronCalibration.h"
-
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 #include "TFile.h"
 #include "TH1.h"
@@ -31,16 +34,12 @@
 ElectronCalibration::ElectronCalibration(const edm::ParameterSet& iConfig)
 {
 
-   rootfile_                  = iConfig.getUntrackedParameter<std::string>("rootfile","ecalSimpleTBanalysis.root");
-   hitCollection_             = iConfig.getParameter<std::string>("hitCollection");
-   hitProducer_               = iConfig.getParameter<std::string>("hitProducer");
+//   rootfile_                  = iConfig.getUntrackedParameter<std::string>("rootfile","electronCalibration.root");
+   recHitLabel_ = iConfig.getParameter< edm::InputTag > ("ebRecHitsLabel");
+   electronLabel_ = iConfig.getParameter< edm::InputTag > ("electronLabel");
+   trackLabel_ = iConfig.getParameter< edm::InputTag > ("trackLabel");
    calibAlgo_       = iConfig.getParameter<std::string>("CALIBRATION_ALGO");
-   
-   subsample_=iConfig.getUntrackedParameter<unsigned int>("SUBSAMPLE_SIZE");
-
-   std::cout << "*************** DATA FROM CONFIG FILE **************" << std::endl;
-   std::cout << "subsample__SIZE = " << subsample_  << std::endl;
-   std::cout << "*************** DATA FROM CONFIG FILE **************" << std::endl;
+   cout << "Read Inputs" << endl;
 }
 
 
@@ -54,132 +53,45 @@ ElectronCalibration::~ElectronCalibration()
 void
 ElectronCalibration::beginJob(edm::EventSetup const& iSetup) {
 //========================================================================
-
-  // Book histograms 
-  e25 = new TH1F("e25","E25 energy", 1500, 0., 250.);
-
-  // clear variables
-
-  nupdates=0;
-  read_events=0;
-  used_events=0;
-  checkEnergy=0;
-  checkOutBoundEnergy=0;
-  
-  EventMatrix.clear();
-  energyVector.clear();
-  oldCalibs.clear();
-  newCalibs.clear();
-
-  temp_solution.clear();
-  solution.clear();
-  makeIteration=false;
-
-//  used for TB -> must change to get electron momentum
-  BEAM_ENERGY=120.0;  
-
-// get Map to be calibrated  
-  ReducedMap = calibCluster.getMap(MIN_IETA, MAX_IETA, MIN_IPHI, MAX_IPHI);
+ calibClusterSize=5; 
+ etaMin = 1;
+ etaMax = 85;
+ phiMin = 11; 
+ phiMax = 50;
+ MyL3Algo1 = new MinL3Algorithm(calibClusterSize, etaMin, etaMax, phiMin, phiMax);
 
 
-  EventsPerCrystal.resize(ReducedMap.size(),0);
-  oldCalibs.resize(ReducedMap.size(),0.);
-
-
-  CalibrationCluster::CalibMap::iterator itmap;
-
-// get initial constants out of DB (should be set to 1 using xms file + miscalib Tool)
-
-  edm::ESHandle<EcalIntercalibConstants> pIcal;
-  
-  int counter=0;
-  try {
-       
-       iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-       std::cout << "Taken EcalIntercalibConstants" << std::endl;
-       const EcalIntercalibConstants* ical = pIcal.product();
-  
-       for (itmap =ReducedMap.begin(); itmap != ReducedMap.end();itmap++){
-         
-	  int rawId_temp = itmap->first.rawId();
-           
-	  EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(rawId_temp);
-          
-	  oldCalibs[counter]=icalit->second;
-          	  
-	  std::cout << "Read old constant for crystal " << itmap->first.ic() << " (" << itmap->first.ieta() << "," <<
-	  itmap->first.iphi() << ") : " << icalit->second << std::endl;
-
-	  counter++;
-       }
-   
-       }   catch ( std::exception& ex ) {
-         
-	 std::cerr << "Error! can't get EcalIntercalibConstants " << std::endl;
-       
-       }  
- 
  }
 
 //========================================================================
 void
 ElectronCalibration::endJob() {
 //========================================================================
+int nIterations =10;
+solution = MyL3Algo1->iterate(EventMatrix, MaxCCeta, MaxCCphi, EnergyVector, nIterations);
 
-  std::cout << "Total events read in file: " << read_events << std::endl;
-  std::cout << "Total n. of steps: " << nupdates << std::endl;
-  std::cout << "Final nupdates = " << nupdates << endl;
-
-  if(nupdates!=0) 
-    {
- 
-      CalibrationCluster::CalibMap::iterator itmap;
-      int isize=0;
-      for (itmap =ReducedMap.begin(); itmap != ReducedMap.end();itmap++){
-           solution[isize]/=nupdates;
-	   std::cout << "Crystal " << itmap->first.ic() << " Solution[" << isize << "] =" << solution[isize] << std::endl;
-	   isize++;
-      }
-
-        newCalibs.resize(ReducedMap.size(),0.);
-
-        calibXMLwriter write_calibrations;
-
-        int icry=0;
- 
-        for (itmap=ReducedMap.begin(); itmap != ReducedMap.end();itmap++){
-         
-              newCalibs[icry] = oldCalibs[icry]*solution[icry];
- 
-              write_calibrations.writeLine(itmap->first,newCalibs[icry]);
-         
-	      icry++;
-        }
-   
-
-    } //in nupdates=0;
-
+int ii=0;
+for (int ii=0;ii<solution.size();ii++)
+{
+  cout << "solution[" << ii << "] = " << solution[ii] << endl;
+}
 ////////////////////////       FINAL STATISTICS           ////////////////////
 
    std::cout << " " << std::endl;
    std::cout << "************* STATISTICS **************" << std::endl;
-   std::cout << "Read Events: " << read_events << std::endl;
-   std::cout << "Used Events: " << used_events << std::endl;
 
 
 /////////////////////////////////////////////////////////////////////////////
+//  TFile f(rootfile_.c_str(),"RECREATE");
 
-  TFile f(rootfile_.c_str(),"RECREATE");
-
-  e25->Write(); 
-  f.Close();
- 
+//  e25->Write(); 
+//  f.Close();
+ delete MyL3Algo1; 
 }
 
 
 //=================================================================================
-EBDetId
-ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection> &  phits) {
+EBDetId ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection> &  phits) {
 //=================================================================================
 
      EcalRecHitCollection ecrh = *phits;
@@ -203,6 +115,26 @@ ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection> &  phits) {
 
 }
 
+//=================================================================================
+EBDetId ElectronCalibration::findMaxHit2(std::vector<DetId> & v1,const EBRecHitCollection* hits) {
+//=================================================================================
+
+	double currEnergy = 0.;
+	EBDetId maxHit(0);
+ 
+	for( std::vector<DetId>::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
+	  	  
+	  if((hits->find(*idsIt))->energy() > currEnergy) {
+	    currEnergy=(hits->find(*idsIt))->energy();
+	    maxHit=*idsIt;
+	  }
+	}
+	
+
+      return maxHit;
+
+}
+
 
 //=================================================================================
 void
@@ -211,15 +143,35 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 //=================================================================================
    using namespace edm;
 
+  // Get EBRecHits
    Handle<EBRecHitCollection> phits;
-   const EBRecHitCollection* hits=0;
    try {
     std::cout << "Taken EBRecHitCollection " << std::endl;
-     iEvent.getByLabel( hitProducer_, hitCollection_,phits);
-     hits = phits.product(); // get a ptr to the product
+     iEvent.getByLabel( recHitLabel_, phits);
    } catch ( std::exception& ex ) {
-     std::cerr << "Error! can't get the product EBRecHitCollection: " << hitCollection_.c_str() << std::endl;
+//     std::cerr << "Error! can't get the product EBRecHitCollection: " << hitCollection_.c_str() << std::endl;
    }
+     const EBRecHitCollection* hits = phits.product(); // get a ptr to the product
+
+  // Get pixelElectrons
+  
+  Handle<reco::ElectronCollection> pElectrons;
+  try {
+    iEvent.getByLabel(electronLabel_, pElectrons);
+   } catch ( std::exception& ex ) {
+//     std::cerr << "Error! can't get the product ElectronCollection: " << hitCollection_.c_str() << std::endl;
+   }
+    const reco::ElectronCollection* electronCollection = pElectrons.product();
+
+
+  // Get pixelElectrons
+  Handle<reco::TrackCollection> pTracks;
+  try {
+    iEvent.getByLabel(trackLabel_, pTracks);
+   } catch ( std::exception& ex ) {
+//     std::cerr << "Error! can't get the product TrackCollection: " << hitCollection_.c_str() << std::endl;
+   }
+    const reco::TrackCollection* trackCollection = pTracks.product();
 
    if (!hits)
      return;
@@ -227,53 +179,93 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    if (hits->size() == 0)
      return;
 
+   if (!electronCollection)
+     return;
+
+   if (electronCollection->size() == 0)
+     return;
+
+   if (!trackCollection)
+     return;
+
+   if (trackCollection->size() == 0)
+     return;
+
 ////////////////////////////////////////////////////////////////////////////////////////
 ///                          START HERE....
 ///////////////////////////////////////////////////////////////////////////////////////
   read_events++;
+
+  float highestElePt=0.;
+  float highestEleEta=-999.;
+  float highestElePhi=-999.;
+  reco::TrackCollection::const_iterator itTrk;
+  for(itTrk=trackCollection->begin();itTrk!=trackCollection->end();itTrk++)
+  {
+    float elePt = itTrk->pt();
+    cout << "track pt " << elePt << endl;
+    if(elePt>highestElePt) {
+       highestElePt=elePt;
+       highestEleEta=itTrk->eta();
+       highestElePhi=itTrk->phi();
+    }
+  }
   
-  if(read_events%subsample_==0) makeIteration=true; 
-
-  makeIteration=false; // do nothing
-
-  //  int myMaxHit = findMaxHit(phits);
-
-
-// first argument is SM number
-//  EBDetId maxHitId(1,myMaxHit,EBDetId::SMCRYSTALMODE); 
-  EBDetId maxHitId = findMaxHit(phits); 
-
-  std::cout << "SubDetId = " << maxHitId.subdetId() << std::endl;
-  std::cout << "RawId = " << maxHitId.rawId() << std::endl;
-  std::cout << "SM number = " << maxHitId.ism() << std::endl;
-  std::cout << "calibCluster Eta = " << maxHitId.ieta() << std::endl;
-  std::cout << "calibCluster Phi = " << maxHitId.iphi() << std::endl;
-  std::cout << "crystal number inside SM = " << maxHitId.ic() << std::endl;
-  std::cout << "crystal energy = " << (hits->find(maxHitId))->energy() << std::endl;
-
-
-// define boundaries of region to be calibrated
+    cout << "Highest Pt " << highestElePt << endl;
+    cout << "Highest Pt eta " << highestEleEta << endl;
+    cout << "Highest Pt phi " << highestElePhi << endl;
   
-  if(maxHitId.ieta()<MIN_IETA || maxHitId.ieta()>MAX_IETA) return;
-  if(maxHitId.iphi()<MIN_IPHI || maxHitId.iphi()>MAX_IPHI) return;
+  reco::ElectronCollection::const_iterator eleIt = electronCollection->begin();
+
+  reco::Electron highPtElectron;
+  
+  
+  cout << "Electron Size " << electronCollection->size() << endl;
    
-  int icrystal = ReducedMap.find(maxHitId)->second;
-  EventsPerCrystal[icrystal]++;
+  float minDist =99999.;
+  for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end(); eleIt++) {
+		
+	float deltaR = sqrt((eleIt->eta()-highestEleEta)*(eleIt->eta()-highestEleEta) + 
+	                    (eleIt->phi()-highestElePhi)*(eleIt->phi()-highestElePhi));
+	
+	if(deltaR < minDist) {
+	   highPtElectron = *eleIt;
+	   minDist=deltaR;
+	   }
+	  
+  }
+	
+    cout << "min distance = " << minDist << endl;
+	const reco::SuperCluster & sc = *(highPtElectron.superCluster()) ;
+	
+	std::vector<DetId> & v1 = sc.getHitsByDetId();
 
+        EBDetId maxHitId = findMaxHit2(v1,hits); 
 
-// get cluster
+//  EBDetId maxHitId = findMaxHit(phits); 
+
+  int maxCC_Eta = maxHitId.ieta();
+  int maxCC_Phi = maxHitId.iphi();
+  
+    cout << "maxCC_Eta = " << maxCC_Eta << endl;
+    cout << "maxCC_Phi = " << maxCC_Phi << endl;
+  
+
   vector<EBDetId> Xtals5x5 = calibCluster.get5x5Id(maxHitId);
   
 // fill cluster energy
-   float energy[25];
-   float energy3x3=0.;  
-   float energy5x5=0.;  
+  vector<float> energy;
+  float energy3x3=0.;  
+  float energy5x5=0.;  
 
    for (unsigned int icry=0;icry<25;icry++)
      {
-       energy[icry]=(hits->find(Xtals5x5[icry]))->energy();
+       
+       cout << "energy = " << (hits->find(Xtals5x5[icry]))->energy() << 
+       " eta = " << Xtals5x5[icry].ieta() << " phi = " << Xtals5x5[icry].iphi() << endl;
+      
+       energy.push_back((hits->find(Xtals5x5[icry]))->energy());
        energy5x5 += energy[icry];
-       std::cout << "energy for hit " << icry << " = " << energy[icry] << std::endl;
  
        if ( icry == 6  || icry == 7  || icry == 8 ||
 	    icry == 11 || icry == 12 || icry ==13 ||
@@ -283,68 +275,22 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	 }
      }
 
-
-  float outBoundEnergy=0.;
-  int nXtalsOut=-1;
-
-
-  vector<float> aline25=calibCluster.getEnergyVector(hits,ReducedMap,Xtals5x5, outBoundEnergy, nXtalsOut);
-
-  float resEnergy = BEAM_ENERGY-outBoundEnergy;
-
-
-// Fill EventMatrix and energyVector
-  EventMatrix.push_back(aline25);
-  energyVector.push_back(resEnergy);
-
-
-  if(makeIteration)
-  {
-    makeIteration=false;
-    std::cout << "EventMatrix size = " << EventMatrix.size() << " energyVector size = " << energyVector.size() << std::endl;
-
-    if(calibAlgo_=="L3_ALGORITHM") {
-       temp_solution = algoL3.iterate(EventMatrix, energyVector, 20);
-       }   // run it 20 times
-    else if(calibAlgo_=="HH_ALGORITHM") {
-       temp_solution = algoHH.iterate(EventMatrix, energyVector, 4);
-       } // run it 4times
-    else { 
-       cout << "CALIBRATION ALGORITHM NOT SELECTED OR WRONG" << endl;
-    return; 
-    }
-    
-    if (!temp_solution.empty()){
-    
-       std::cout << "Temporary Solution Size = " << temp_solution.size() << std::endl;
-       
-       if(temp_solution.size() != ReducedMap.size())
-       std::cout << "Problems with solution size: different from map size!" << std::endl;
-             
-	     if(nupdates==0) {
-	        
-		solution.resize(ReducedMap.size(),0.);
-	      }
-	      
-	      for (int isize=0;isize<ReducedMap.size();isize++){
-              
-		    solution[isize]+=temp_solution[isize];
-	      }
-	      
-	      nupdates++;
-	      cout << "nupdates = " << nupdates << endl;
-       	      EventMatrix.clear();
-	      energyVector.clear();
-	      temp_solution.clear();
-	      
-
-
-          } //if HH
+   cout << "track Size " << trackCollection->size() << endl;
+ 
    
-   } //if iteration
-  
+////////////////////////////////////////////////////
+
+    for (int yk=0; yk<energy.size(); yk++) cout << "input energy [" << yk << "] = "<< energy[yk] << endl;
+    cout << "input pt " << highestElePt << endl;
+    cout << "input eta " << maxCC_Eta << endl;
+    cout << "input phi " << maxCC_Phi << endl;
+// maxCC_Eta=20;
+// maxCC_Phi=30;
+
+  EventMatrix.push_back(energy);
+  EnergyVector.push_back(highestElePt);
+  MaxCCeta.push_back(maxCC_Eta);
+  MaxCCphi.push_back(maxCC_Phi);
 
 }
 
-//define this as a plug-in
-//DEFINE_FWK_MODULE(ElectronCalibration)
