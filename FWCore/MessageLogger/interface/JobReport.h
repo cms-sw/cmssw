@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.6 2006/10/12 14:35:12 evansde Exp $
+// $Id: JobReport.h,v 1.7 2006/10/12 15:50:03 evansde Exp $
 //
 
 #include <cstddef>
@@ -255,7 +255,12 @@ namespace edm {
       void reportTimingInfo(std::map<std::string, double> & timingData);
 
       /// Report Storage Statistics
-	void reportStorageStats(std::string & data); 
+      void reportStorageStats(std::string & data); 
+
+      /// Override the list of input files seen by an output file
+      /// for use with EdmFastMerge 
+      void overrideContributingInputs(Token outputToken, std::vector<Token> inputTokens);
+      
 
    protected:
       boost::scoped_ptr<JobReportImpl>& impl() {return impl_;}

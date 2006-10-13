@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.9 2006/10/12 14:35:13 evansde Exp $
+// $Id: JobReport.cc,v 1.10 2006/10/12 15:50:02 evansde Exp $
 //
 
 
@@ -351,6 +351,16 @@ namespace edm
       // set the events read parameter to the provided value
       f.numEventsRead = eventsRead;
 
+    }
+
+    void
+    JobReport::overrideContributingInputs(Token outputToken, 
+					  std::vector<Token> inputTokens)
+    {
+       // Get the required output file instance using the token
+      JobReport::OutputFile& f = impl_->getOutputFileForToken(outputToken);
+      // override its contributing inputs data
+      f.contributingInputs = inputTokens;
     }
 
     void 
