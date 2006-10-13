@@ -255,7 +255,7 @@ void TrackerMap::fillc(int idmod, int red, int green, int blue  ){
 }
 void TrackerMap::fillc(int layer, int ring, int nmod, int red, int green, int blue  ){
   
-  int key = layer*10000+ring*1000+nmod;
+  int key = layer*100000+ring*1000+nmod;
   TmModule * mod = SvgModuleMap::smoduleMap[key];
 
   if(mod!=0){
@@ -285,7 +285,7 @@ void TrackerMap::fill(int idmod, float qty ){
 
 void TrackerMap::fill(int layer, int ring, int nmod,  float qty){
 
-  int key = layer*10000+ring*1000+nmod;
+  int key = layer*100000+ring*1000+nmod;
   TmModule * mod = SvgModuleMap::smoduleMap[key];
   if(mod!=0){
      mod->value=mod->value+qty;
@@ -306,7 +306,7 @@ void TrackerMap::setText(int idmod, string s){
 
 void TrackerMap::setText(int layer, int ring, int nmod, string s){
 
-  int key = layer*10000+ring*1000+nmod;
+  int key = layer*100000+ring*1000+nmod;
   TmModule * mod = SvgModuleMap::smoduleMap[key];
   if(mod!=0){
      mod->text=s;
