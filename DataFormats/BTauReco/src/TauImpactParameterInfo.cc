@@ -33,11 +33,9 @@ double reco::TauImpactParameterInfo::discriminator() const {
 const reco::TauImpactParameterTrackData* TauImpactParameterInfo::getTrackData(reco::TrackRef trackRef) const {
 
         TrackTauImpactParameterAssociationCollection::const_iterator iter
-//	map<TrackRef,TrackData>::const_iterator iter
 	    = trackDataMap.find(trackRef);
 
         if (iter != trackDataMap.end()) return &(iter->val);
-//	if (iter != trackDataMap.end()) return &(iter->second);
 
 	return 0; // if track not found return 0
 }
@@ -46,17 +44,7 @@ void reco::TauImpactParameterInfo::storeTrackData(reco::TrackRef trackRef,
                   const reco::TauImpactParameterTrackData& trackData) {
 
 	trackDataMap.insert(trackRef, trackData);
-//	trackDataMap[trackRef] = trackData;
 }
-
-void reco::TauImpactParameterInfo::setJetTag(const JetTagRef myRef) {
-	jetTag = myRef;
-}
-
-const JetTagRef & reco::TauImpactParameterInfo::getJetTag() const {
-	return jetTag;
-}
-
 
 void reco::TauImpactParameterInfo::setIsolatedTauTag(const IsolatedTauTagInfoRef isolationRef){
 	isolatedTaus = isolationRef;

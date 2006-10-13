@@ -34,16 +34,12 @@ namespace reco {
     const TauImpactParameterTrackData* getTrackData(reco::TrackRef) const;
     void 	         storeTrackData(reco::TrackRef,const TauImpactParameterTrackData&);
     
-    void		 setJetTag(const JetTagRef);
-    const JetTagRef& getJetTag() const;
-    
     void 		 setIsolatedTauTag(const IsolatedTauTagInfoRef);
     const IsolatedTauTagInfoRef& getIsolatedTauTag() const;
     
   private:
     
     TrackTauImpactParameterAssociationCollection trackDataMap;
-    JetTagRef jetTag;
     IsolatedTauTagInfoRef isolatedTaus;
   };
  
