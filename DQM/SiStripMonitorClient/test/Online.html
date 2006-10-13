@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"  
+   "http://www.w3.org/TR/2000/REC-xhtml1-20000126/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<title>SiStrip DQM Viewer</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="css, stylesheets, form" />
+<link rel="stylesheet" type="text/css" href="style.css">
+<script type="text/javascript" src="WebLib.js"></script> 
+<body>
+<form name="Form1" action="javascript:void%200">
+  <div class="bloc1" style="width:56%;height=100%;float:left;">
+    <fieldset style="background:#77FF87;">
+      <legend >Drawing Canvas</legend>
+      <img id="drawingcanvas"
+           src="blank.png" 
+           width="100%"
+           height="433px"
+           style="border: 1px solid #000;"
+           name="canvas">
+      </img>
+      <br/>
+      <button name="Make PDF" 
+              id="makepdfbutton"
+              value="MakePDF" 
+              style="width:15%;margin-left:85%;"
+              onClick="RequestPlots('true');" 
+              type="submit">
+         <img alt="Make PDF"/>
+      </button>
+    </fieldset>
+  </div>
+  <div class="bloc2" style="width:44%; float:right;">
+    <fieldset style="background:#DDEFFF;">
+        <div class="bloc2_1" style="background:#C093FF;">
+	  <fieldset>
+	     <legend>Client Controls</legend>
+	       <input name="subscribe" 
+                  id="subscribe_all"
+                  value="Subscribe All" 
+                  style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                  onClick="SubscribeAll()" 
+                  type="submit">
+               </input>
+	       <input name="collate" 
+                  id="collate_me"
+                  value="Collate ME" 
+                  style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
+                  onClick="CollateME()" 
+                  type="submit">
+               </input>
+	       <input name="summary" 
+                  id="create_summary"
+                  value="Create Summary" 
+                  style="width:25%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
+                  onClick="CreateSummary()" 
+                  type="submit">
+               </input>
+	       <input name="save" 
+                  id="save_to_file"
+                  value="Save All" 
+                  style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                  onClick="SaveToFile()" 
+                  type="submit">
+              </input>  
+             <input name="QtestResult" 
+                 id="check_qtest_result"
+                 value="QTest Result" 
+                 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                 onClick="CheckQualityTestResults()" 
+                 type="submit">
+             </input>  
+              <label id="tkmap"
+               style="width:22%;margin-left:2%">                  
+                Create TkMap:
+	     </label>
+             <select name="TrackerMap" 
+                   id="create_tkmap"
+                   style="width:18%;text-align:left;margin-right:2%"
+                   onchange="CreateTrackerMap()">                   
+                   <option value="Temporary" SELECTED> Temporary </option>
+                   <option value="Persistant"> Persistant </option>
+
+             </select>
+          </fieldset>
+        </div>  
+	<div class="bloc2_2" style="background:#A9FF84">
+	  <fieldset>
+	    <input type="radio" 
+	           class="radio" 
+                  style="margin-left:2%;margin-right:2%"
+
+                   id="SingleModuleHisto" 
+                   name="histo_type">
+                   Single Module
+            </input>
+            <label id="modules"
+               style="margin-left:10%">
+               All Modules:
+	    </label>
+            <select name="mod_num" 
+                  id="module_numbers"
+                  style="width:20%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+            </select>
+            <br/>
+	    <input type="radio" 
+	           class="radio" 
+		   style="margin-right:2%;margin-left:2%"
+                   id="SummaryHisto" 
+                   name="histo_type">
+                   Summary MEs
+            </input>
+            <label id="structures"
+               style="margin-left:10%">
+               Sub-Detectors:
+	    </label>
+            <select name="struc_name" 
+                  id="structure_name"
+                 style="width:20%;height:5%;text-align;margin-right:2%">
+                 <option value="TIB" SELECTED> TIB </option>
+                 <option value="TOB"> TOB </option>
+                 <option value="TEC"> TEC </option>
+                 <option value="TID"> TID </option>
+               
+            </select>
+            <br/>	    
+            <input name="listhisto" 
+                  id="list_histos"
+                  value="Get Histo List" 
+                  style="width:30%;margin-left:70%;margin-top:2%"
+                  onClick="RequestHistoList()" 
+                  type="submit">
+              </input>
+	  </fieldset>
+        </div>
+        <div class="bloc2_3">
+          <fieldset>
+            <select size=12 multiple
+                    style="width:100%;font-size:10pt;"
+                    name="HistoListArea"
+                    id="histolistarea">
+           </select>
+          </fieldset>
+        </div>
+        <div class="bloc2_4">
+          <fieldset style="background:#FFAD5A;">
+	   <legend >Drawing Options</legend>
+	    <input type="checkbox" 
+	           class="check" 
+		   style="margin-right:2%"
+                   id="logy" 
+                   name="logy">
+                   Toggle logy
+            </input>
+            <label id="zoom"
+                  style="margin-left:15%">
+              Zoom on X-Axis:
+            </label> 
+           <input type="text"
+                  style="width:13%;border:1px solid #000;" 
+                  value=""
+                  id="x-low" 
+                  name="xLow">
+           </input>
+           <input type="text"
+                  style="width:13%;border:1px solid #000;" 
+                  value=""
+                  id="x-high" 
+                  name="xHigh">
+           </input>
+           <br/>
+           <input type="checkbox" 
+	          class="check" 
+                  style="margin-right:2%"
+                  id="multizone" 
+                  name="MultiZone">
+               Multiple Plot
+            </input>
+            <label id="rows"
+                  style="margin-left:30%">
+              Rows:
+            </label> 
+           <input type="text"
+                  style="width:5%;border:1px solid #000;" 
+                  value="1"
+                  id="nrow" 
+                  name="nRows">
+           </input>
+            <label id="cols"
+                  style="margin-left:2%">
+              Columns:
+            </label> 
+           <input type="text"
+                  style="width:5%;border:1px solid #000;" 
+                  value="1"
+                  id="ncol" 
+                  name="nColumns">
+           </input>
+           <br/>
+           <input name="drawhisto" 
+                  id="draw_histos"
+                  value="Draw Histogram(s)" 
+                  style="width:35%;margin-left:60%;"
+                  onClick="DrawSelectedHistos();" 
+                  type="submit">
+             </input>
+            <br/>
+          </fieldset>
+        </div>
+    </fieldset>
+  </div>
+</form>
+</body>
+</html>

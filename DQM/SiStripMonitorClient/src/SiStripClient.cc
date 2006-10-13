@@ -20,6 +20,9 @@ SiStripClient::SiStripClient(xdaq::ApplicationStub *stub)
 */
 void SiStripClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception)
 {
+   string link = getContextURL() + "/temporary/Online.html";
+   webInterface_p->createButton(out, link);
+
   // the web interface should know what to do:
   webInterface_p->Default(in, out);
 }
@@ -72,7 +75,7 @@ void SiStripClient::onUpdate() const
   if (updateFrequencyForTrackerMap_ != -1 ) {
     if (nUpdate > 1 && nUpdate%updateFrequencyForTrackerMap_ == 1) {
       webInterface_p->setActionFlag(SiStripWebInterface::TemporaryTkMap);
-      webInterface_p->performAction();
+      webInterface_p->createTkMap();
     }
   }
 }

@@ -187,7 +187,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
 void TrackerMap::print(bool print_total, float minval, float maxval){
   minvalue=minval; maxvalue=maxval;
   svgfile = new ofstream("svgmap.svg",ios::out);
-  jsfile = new ifstream("DQM/SiStripMonitorClient/test/trackermap.txt",ios::in);
+  jsfile = new ifstream("trackermap.txt",ios::in);
 
   //copy javascript interface from trackermap.txt file
   string line;

@@ -28,6 +28,8 @@ class SiStripActionExecutor {
  void readConfiguration();
  void createLayout(MonitorUserInterface * mui);
  void fillLayout(MonitorUserInterface * mui);
+ void saveMEs(MonitorUserInterface * mui, std::string fname);
+
 
  private:
   MonitorElement* getSummaryME(MonitorUserInterface* mui, std::string me_name);
@@ -37,6 +39,10 @@ class SiStripActionExecutor {
      std::vector<std::string>& me_names);
   void drawMEs(int idet, std::vector<MonitorElement*>& mon_elements, 
                     std::vector<std::pair <int, float> > & values);
+  void fillGrandSummaryHistos(MonitorUserInterface* mui, 
+			      std::vector<std::string>& me_names);
+  void getGrandSummaryME(MonitorUserInterface* mui,int nbin, 
+      std::string& me_name, std::vector<MonitorElement*> & mes);
 
   SiStripConfigParser* configParser_;
   SiStripConfigWriter* configWriter_;

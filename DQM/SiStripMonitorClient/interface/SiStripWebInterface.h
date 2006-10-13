@@ -6,6 +6,7 @@
 #include "DQMServices/WebComponents/interface/WebPage.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 class SiStripActionExecutor;
+class SiStripInformationExtractor;
 
 class SiStripWebInterface : public WebInterface
 {
@@ -13,13 +14,14 @@ class SiStripWebInterface : public WebInterface
  
   enum SiStripActionType{NoAction=0, SubscribeAll=1, Summary=2, Collate=3,
                          QTestResult=4, PersistantTkMap=5, 
-                         TemporaryTkMap=6, SaveData=7};
+                         TemporaryTkMap=6, SaveData=7, 
+                         PlotSingleModuleHistos=8, 
+                         PlotSummaryHistos=9};
 
   SiStripWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
  ~SiStripWebInterface();
 
   void handleCustomRequest(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
- void readSelectedRequest(xgi::Input * in, xgi::Output * out, std::string& choice) throw (xgi::exception::Exception);
   void createAll();
  
   void configureCustomRequest(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
@@ -29,13 +31,22 @@ class SiStripWebInterface : public WebInterface
 
   SiStripActionType getActionFlag() {return theActionFlag;}
   void setActionFlag(SiStripActionType flag) {theActionFlag = flag;}
+  void createButton(xgi::Output * out, std::string& href);
+
+  bool createTkMap();
    
   private:
 
   SiStripActionType theActionFlag;
   SiStripActionExecutor* actionExecutor_;
+  SiStripInformationExtractor* infoExtractor_;
+
+  void returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment);
 
   std::vector<std::string> tkMapOptions_;
+  bool tkMapCreated;
+  std::multimap<std::string, std::string> requestMap_;
+
  protected:
 
 

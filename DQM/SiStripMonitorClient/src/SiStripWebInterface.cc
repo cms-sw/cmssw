@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
 #include "DQMServices/WebComponents/interface/Button.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
@@ -12,7 +13,6 @@
 #include <SealBase/Callback.h>
 #include <map>
 #include <iostream>
-
 //
 // -- Constructor
 // 
@@ -21,12 +21,14 @@ SiStripWebInterface::SiStripWebInterface(std::string theContextURL, std::string 
   
   theActionFlag = NoAction;
   actionExecutor_ = 0;
+  infoExtractor_  = 0;
   tkMapOptions_.push_back("Persistant");
   tkMapOptions_.push_back("Temporary");
-  
+  tkMapCreated = false;
   createAll();
 
   if (actionExecutor_ == 0) actionExecutor_ = new SiStripActionExecutor();
+  if (infoExtractor_ == 0) infoExtractor_ = new SiStripInformationExtractor();
 }
 //
 // -- Create default and customised Widgets
@@ -36,30 +38,26 @@ void SiStripWebInterface::createAll() {
   ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "50px");
   GifDisplay * dis = new GifDisplay(getApplicationURL(), "25px","300px", "400px", "550px", "MyGifDisplay"); 
   
-  Button * subcrBut = new Button(getApplicationURL(), "320px", "50px", "SubscribeAll", "Subscribe All");
-  Button * compBut = new Button(getApplicationURL(), "360px", "50px", "CheckQTResults", "Check QTest Results");
-  Button * sumBut = new Button(getApplicationURL(), "400px", "50px", "CreateSummary", "Create Summary");
-  Button * collBut = new Button(getApplicationURL(), "440px", "50px", "CollateME", "Collate ME");
-  /*  Button * tkMapBut1 = new Button(getApplicationURL(), "480px", "50px", "CreateTrackerMap1", "Create Persistant TrackerMap");
-  Button * tkMapBut2 = new Button(getApplicationURL(), "480px", "300px", "CreateTrackerMap2", "Create TempTrackerMap");*/
-  Button * saveBut = new Button(getApplicationURL(), "480px", "50px", "SaveToFile", "Save To File");
+  /*  Button * subcrBut = new Button(getApplicationURL(), "340px", "50px", "SubscribeAll", "Subscribe All");
+  Button * compBut = new Button(getApplicationURL(), "380px", "50px", "CheckQTResults", "Check QTest Results");
+  Button * sumBut = new Button(getApplicationURL(), "420px", "50px", "CreateSummary", "Create Summary");
+  Button * collBut = new Button(getApplicationURL(), "460px", "50px", "CollateME", "Collate ME");
+  Button * saveBut = new Button(getApplicationURL(), "500px", "50px", "SaveToFile", "Save To File");
   
-  Select *selTkMap = new Select(getApplicationURL(), "520px", "50px", "SelectTkMap", "Select Tk Map");
+  Select *selTkMap = new Select(getApplicationURL(), "540px", "50px", "SelectTkMap", "Select Tk Map");
 
-  selTkMap->setOptionsVector(tkMapOptions_);
+  selTkMap->setOptionsVector(tkMapOptions_); */
 
   page_p = new WebPage(getApplicationURL());
   page_p->add("navigator", nav);
   page_p->add("contentViewer", cont);
   page_p->add("gifDisplay", dis);
-  page_p->add("Sbbutton", subcrBut);
+  /*  page_p->add("Sbbutton", subcrBut);
   page_p->add("Cbutton", compBut);
   page_p->add("Smbutton", sumBut);
   page_p->add("SvButton", saveBut);
   page_p->add("ClButton", collBut);
-  /*  page_p->add("Tbutton1", tkMapBut1);
-      page_p->add("Tbutton2", tkMapBut2);*/
-  page_p->add("Tselect", selTkMap);
+  page_p->add("Tselect", selTkMap); */
 
 }
 //
@@ -68,6 +66,8 @@ void SiStripWebInterface::createAll() {
 SiStripWebInterface::~SiStripWebInterface() {
   if (actionExecutor_) delete actionExecutor_;
   actionExecutor_ = 0;
+  if (infoExtractor_) delete infoExtractor_;
+  infoExtractor_ = 0; 
 }
 // 
 // -- Handles requests from WebElements submitting non-default requests 
@@ -76,46 +76,65 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   throw (xgi::exception::Exception)
 {
   // put the request information in a multimap...
-  std::multimap<std::string, std::string> request_multimap;
-  CgiReader reader(in);
-  reader.read_form(request_multimap);
-
+  //  std::multimap<std::string, std::string> requestMap_;
+   CgiReader reader(in);
+  reader.read_form(requestMap_);
+  std::string requestID = get_from_multimap(requestMap_, "RequestID");
   // get the string that identifies the request:
-  std::string requestID = get_from_multimap(request_multimap, "RequestID");
   cout << " requestID " << requestID << endl;
   if (requestID == "SubscribeAll") {
     theActionFlag = SubscribeAll;
-  } else if (requestID == "CheckQTResults") {
+  } 
+  else if (requestID == "CheckQTResults") {
     theActionFlag = QTestResult;
-  } else if (requestID == "CreateSummary") {
+  } 
+  else if (requestID == "CreateSummary") {
      theActionFlag = Summary;
-  } else if (requestID == "SaveToFile") {
+  } 
+  else if (requestID == "SaveToFile") {
      theActionFlag = SaveData;
-  } else if (requestID == "CollateME") {
+  } 
+  else if (requestID == "CollateME") {
      theActionFlag = Collate;
-     /*  } else if (requestID == "CreateTrackerMap1") {
-     theActionFlag = PersistantTkMap;
-  } else if (requestID == "CreateTrackerMap2") {
-  theActionFlag = TemporaryTkMap;*/
-  } else if (requestID == "SelectTkMap") {
-    std::multimap<std::string, std::string> selection_multimap;
-    std::string choice;
-    readSelectedRequest(in, out, choice);
+  } 
+  else if (requestID == "SelectTkMap") {
+    std::string choice = get_from_multimap(requestMap_, "Argument");
     if (choice == tkMapOptions_[0]) theActionFlag = PersistantTkMap;
     else if (choice == tkMapOptions_[1]) theActionFlag = TemporaryTkMap;
+  } 
+  else if (requestID == "OpenTkMap") {
+    std::string name = "TkMap";
+    std::string comment;
+    if (tkMapCreated) comment = "Successful";
+    else  comment = "Failed";
+    returnReplyXml(out, name, comment);
+    theActionFlag = NoAction;    
+  } 
+  else if (requestID == "SingleModuleHistoList") {
+    theActionFlag = NoAction;
+    infoExtractor_->readModuleAndHistoList((*mui_p), out);    
+  } 
+  else if (requestID == "SummaryHistoList") {
+    theActionFlag = NoAction;
+    string sname = get_from_multimap(requestMap_, "StructureName");
+   infoExtractor_->readSummaryHistoList((*mui_p), sname, out);    
+  } 
+  else if (requestID == "PlotAsModule") {
+    theActionFlag = PlotSingleModuleHistos;    
   }
+  else if (requestID == "PlotSummaryHistos") {
+    theActionFlag = PlotSummaryHistos;    
+  }
+  else if (requestID == "UpdatePlot") {
+   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+   out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+   *out << infoExtractor_->getImage().str();
+    theActionFlag = NoAction;    
+  }
+    
   configureCustomRequest(in, out);
-}
-//
-// -- Read the option specified in the Select widget
-//
-void SiStripWebInterface::readSelectedRequest(xgi::Input * in, xgi::Output * out, std::
-string& choice) throw (xgi::exception::Exception){
-  std::multimap<std::string, std::string> selection_multimap;
-  CgiReader reader(in);
-  reader.read_form(selection_multimap);
-  choice = get_from_multimap(selection_multimap, "Argument");
-
 }
 //
 // -- Scedule Custom Action
@@ -151,45 +170,35 @@ void SiStripWebInterface::performAction() {
     {
       cout << " SiStripWebInterface::subscribeAll " << endl;
       (*mui_p)->subscribe("Collector/*");
-       setActionFlag(SiStripWebInterface::NoAction);
       break;
     } 
   case SiStripWebInterface::Collate :
     {
       actionExecutor_->createCollation((*mui_p));
-      setActionFlag(SiStripWebInterface::NoAction);
       break;
     }
   case SiStripWebInterface::PersistantTkMap :
     {
-      system("rm -rf tkmap_files_old/*.jpg; rm -rf  tkmap_files_old/*.svg");
-      system("rm -rf tkmap_files_old");
-      system("mv tkmap_files tkmap_files_old");
-      system("mkdir -p tkmap_files");
-      actionExecutor_->createTkMap((*mui_p));
-      system(" mv *.jpg tkmap_files/. ; mv *.svg tkmap_files/.");
-      setActionFlag(SiStripWebInterface::NoAction);
+     if (createTkMap()) {
+       tkMapCreated = true;
+     }
       break;
     }
   case SiStripWebInterface::TemporaryTkMap :
     {
-      system("mkdir -p tkmap_files");
-      system("rm -rf tkmap_files/*.jpg; rm -rf tkmap_files/*.svg");
-      actionExecutor_->createTkMap((*mui_p));
-      system(" mv *.jpg tkmap_files/. ; mv *.svg tkmap_files/.");
-      setActionFlag(SiStripWebInterface::NoAction);
+     if (createTkMap()) {
+       tkMapCreated = true;
+      }
       break;
     }
   case SiStripWebInterface::Summary :
     {
       actionExecutor_->createSummary((*mui_p));
-      setActionFlag(SiStripWebInterface::NoAction);
       break;
     }
   case SiStripWebInterface::QTestResult :
     {
       actionExecutor_->checkQTestResults((*mui_p));
-      setActionFlag(SiStripWebInterface::NoAction);
       break;
     }
   case SiStripWebInterface::SaveData :
@@ -197,7 +206,17 @@ void SiStripWebInterface::performAction() {
       cout << " Saving Monitoring Elements " << endl;
       //  (*mui_p)->save("SiStripWebInterface.root", "Collector/Collated",90);
       (*mui_p)->save("SiStripWebInterface.root");
-      setActionFlag(SiStripWebInterface::NoAction);
+      //      actionExecutor_->saveMEs((*mui_p), "SiStripWebInterface.root");
+      break;
+    }
+  case SiStripWebInterface::PlotSingleModuleHistos :
+    {
+      infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
+      break;
+    }
+  case SiStripWebInterface::PlotSummaryHistos :
+    {
+      infoExtractor_->plotSummaryHistos((*mui_p), requestMap_);
       break;
     }
   case SiStripWebInterface::NoAction :
@@ -205,4 +224,49 @@ void SiStripWebInterface::performAction() {
       break;
     }
   }
+  setActionFlag(SiStripWebInterface::NoAction);
+}
+void SiStripWebInterface::createButton(xgi::Output * out, string& href) {
+
+  std::string position = "position:absolute; left:50px; top: 350px;";
+  *out << cgicc::div().set("style", position.c_str()) << std::endl;
+
+  std::string js_command = "var w = window.open('" + href +"');w.focus()";
+  *out << cgicc::input().set("type", "button")
+    .set("value", "Open SiStrip Interface")
+    .set("onclick", js_command.c_str()) << std::endl;
+
+  *out << cgicc::div()   << std::endl;
+}
+void SiStripWebInterface::returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment){
+   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+  *out << "<?xml version=\"1.0\" ?>" << std::endl;
+  *out << "<TkMap>" << endl;
+  *out << " <Response>" << comment << "</Response>" << endl;
+  *out << "</TkMap>" << endl;
+  cout <<  "<?xml version=\"1.0\" ?>" << std::endl;
+  cout << "<TkMap>" << endl;
+  cout << " <Response>" << comment << "</Response>" << endl;
+  cout << "</TkMap>" << endl;
+
+}
+bool SiStripWebInterface::createTkMap() {
+  if (theActionFlag == SiStripWebInterface::TemporaryTkMap) {
+    system("mkdir -p tkmap_files");
+    system("rm -rf tkmap_files/*.jpg; rm -rf tkmap_files/*.svg");
+    actionExecutor_->createTkMap((*mui_p));
+    system(" mv *.jpg tkmap_files/. ; mv *.svg tkmap_files/.");
+    return true;
+  } else if (theActionFlag == SiStripWebInterface::PersistantTkMap) {
+    system("rm -rf tkmap_files_old/*.jpg; rm -rf  tkmap_files_old/*.svg");
+    system("rm -rf tkmap_files_old");
+    system("mv tkmap_files tkmap_files_old");
+    system("mkdir -p tkmap_files");
+    actionExecutor_->createTkMap((*mui_p));
+    system(" mv *.jpg tkmap_files/. ; mv *.svg tkmap_files/.");
+    return true;
+  } else {
+    return false;
+  }
+
 }
