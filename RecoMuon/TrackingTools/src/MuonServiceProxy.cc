@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/08/31 18:24:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/09/01 16:24:12 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -66,17 +66,33 @@ MuonServiceProxy::~MuonServiceProxy(){
 
 // update the services each event
 void MuonServiceProxy::update(const edm::EventSetup& setup){
-
   theEventSetup = &setup;
 
-    // Get the Tracking Geometry
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
-  setup.get<IdealMagneticFieldRecord>().get(theMGField);
-  setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
- 
-  MuonNavigationSchool school(&*theDetLayerGeometry);
-  NavigationSetter setter(school);
+  // Global Tracking Geometry
+  static unsigned long long oldCacheId_GTG = 0;
+  unsigned long long newCacheId_GTG = setup.get<GlobalTrackingGeometryRecord>().cacheIdentifier();
+  if ( newCacheId_GTG != oldCacheId_GTG ) {
+    oldCacheId_GTG = newCacheId_GTG;
+    setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
+  }
+  
 
+  // Magfield
+  {
+    setup.get<IdealMagneticFieldRecord>().get(theMGField);
+  }
+  
+  // DetLayer Geometry
+  {
+    setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
+    // FIXME: MuonNavigationSchool should live until its validity expires, and then DELETE
+    // the NavigableLayers (this is not implemented in MuonNavigationSchool's dtor)
+    // i.e. should become a pointer member here
+    // the setter should be called at each event, if there is more than one navigation type!!
+    MuonNavigationSchool school(&*theDetLayerGeometry);
+    NavigationSetter setter(school); 
+  }
+  
   for(propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end();
       ++prop)
     setup.get<TrackingComponentsRecord>().get( prop->first , prop->second );
