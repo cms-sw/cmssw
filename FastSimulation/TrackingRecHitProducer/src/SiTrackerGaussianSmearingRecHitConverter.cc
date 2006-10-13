@@ -381,7 +381,8 @@ namespace cms
 	  if (theVerboseLevel > 2) {
 	    LogDebug("SiTrackerGaussianSmearingRecHits") << " *** " << std::endl 
 							 << "Created a RecHit with local position " << position << " and local error " << error << "\n"
-							 << "   from a PSimHit with local position " << (*isim).localPosition() << " from track " << (*isim).trackId()
+							 << "   from a PSimHit with local position " << (*isim).localPosition()
+							 << " from track " << (*isim).trackId()
 							 << " in detector " << detid
 							 << std::endl;
 	  }
@@ -485,7 +486,7 @@ namespace cms
 	LogDebug ("SiTrackerGaussianSmearingRecHits") << "\tTIB Layer " << theLayer << std::endl;
 	//
 	HepSymMatrix resolution(3,1); // 3x3 symmetric matrix, second element: set to Identity
-	resolution[0][0] = localPositionResolution_z * localPositionResolution_z;
+	resolution[2][2] = localPositionResolution_z * localPositionResolution_z;
 	
 	switch (theLayer) {
 	case 1:

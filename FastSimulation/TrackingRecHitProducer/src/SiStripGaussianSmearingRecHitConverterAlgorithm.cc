@@ -67,11 +67,11 @@ void SiStripGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
   thePositionY = thePosition.y();
   thePositionZ = thePosition.z();
   //
-  theErrorX = localPositionResolution[0][0];
-  theErrorY = localPositionResolution[1][1];
-  theErrorZ = localPositionResolution[2][2];
+  theErrorX = sqrt( localPositionResolution[0][0] );
+  theErrorY = sqrt( localPositionResolution[1][1] );
+  theErrorZ = sqrt( localPositionResolution[2][2] );
   theError = LocalError( theErrorX * theErrorX,
 			 0.0,
-			 theErrorY * theErrorY );
+			 theErrorY * theErrorY ); // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position as for resolution matrix
   //
 }
