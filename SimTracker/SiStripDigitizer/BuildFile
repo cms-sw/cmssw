@@ -17,6 +17,7 @@
 <use name=MagneticField/Records>
 <use name=MagneticField/GeomBuilder>
 <use name=MagneticField/VolumeBasedEngine>
+<use name=CommonTools/SiStripZeroSuppression>
 <flags SEAL_PLUGIN_NAME="SimTrackerSiStripDigitizer">
 <export>
    <lib name=SimTrackerSiStripDigitizer>
@@ -39,4 +40,5 @@
    <use name=MagneticField/GeomBuilder>
    <use name=MagneticField/VolumeBasedEngine>
    <use name=Geometry/Surface>
+   <use name=CommonTools/SiStripZeroSuppression>
 </export>

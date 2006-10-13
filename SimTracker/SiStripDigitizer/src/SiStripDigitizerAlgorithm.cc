@@ -28,18 +28,18 @@ using namespace std;
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
 
-SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det):conf_(conf){
+SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det,
+						     uint32_t& idForNoise , SiStripNoiseService* noiseService):conf_(conf){
   //  cout << "Creating a SiStripDigitizerAlgorithm." << endl;
 
   ndigis=0;
-
-  NumberOfSegments = 20;          // Default number of track segment divisions
-  ClusterWidth = 3.;              // Charge integration spread on the collection plane
-  Sigma0 = 0.0007;                // Charge diffusion constant 
-  Dist300 = 0.0300;               // normalized to 300micron Silicon
+  SiStripNoiseService_=noiseService;
+  NumberOfSegments = 20; // Default number of track segment divisions
+  ClusterWidth = 3.; // Charge integration spread on the collection plane
+  Sigma0 = 0.0007; // Charge diffusion constant 
+  Dist300 = 0.0300; // normalized to 300micron Silicon
   theElectronPerADC = conf_.getParameter<double>("ElectronPerAdc");
   theThreshold      = conf_.getParameter<double>("AdcThreshold");
-  ENC               = conf_.getParameter<double>("EquivalentNoiseCharge300um");
   theAdcFullScale   = conf_.getParameter<int>("AdcFullScale");
   noNoise           = conf_.getParameter<bool>("NoNoise");
   peakMode          = conf_.getParameter<bool>("APVpeakmode"); 
@@ -57,16 +57,15 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
  
   topol = &det->specificTopology(); // cache topology
   numStrips = topol->nstrips();   // det module number of strips
-  //thickness:
-  const BoundSurface& p = (dynamic_cast<StripGeomDetUnit*>((det)))->surface();
-  moduleThickness = p.bounds().thickness();
-  float noiseRMS = ENC*moduleThickness/(0.03);
+  int strip = int(numStrips/2.);
+  float noiseRMS = SiStripNoiseService_->getNoise(idForNoise,strip);
 
   theSiNoiseAdder = new SiGaussianTailNoiseAdder(numStrips,noiseRMS,theThreshold);
   theSiZeroSuppress = new SiTrivialZeroSuppress(conf_,noiseRMS/theElectronPerADC);
   theSiHitDigitizer = new SiHitDigitizer(conf_,det);
   theSiPileUpSignals = new SiPileUpSignals();
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC,theAdcFullScale);
+
   
 }
 

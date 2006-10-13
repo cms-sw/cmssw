@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.23 2006/07/19 19:43:40 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.24 2006/08/02 16:42:45 fambrogl Exp $
 //
 //
 
@@ -61,7 +61,7 @@ namespace cms
 {
 
   SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) : 
-    conf_(conf)
+    conf_(conf),SiStripNoiseService_(conf)
   {
     std::string alias ( conf.template getParameter<std::string>("@module_label") );
     produces<edm::DetSetVector<SiStripDigi> >().setBranchAlias( alias );
@@ -97,6 +97,7 @@ namespace cms
     edm::ESHandle<MagneticField> pSetup;
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
 
+    SiStripNoiseService_.setESObjects(iSetup);
   
     // Step B: LOOP on StripGeomDetUnit //
     
@@ -116,9 +117,10 @@ namespace cms
 
 	edm::DetSet<SiStripDigi> collector((*iu)->geographicalId().rawId());
 	edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
-	
+	uint32_t idForNoise = (*iu)->geographicalId().rawId();
 	if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
-	  theAlgoMap[&(sgd->type())] = boost::shared_ptr<SiStripDigitizerAlgorithm>(new SiStripDigitizerAlgorithm(conf_, sgd));
+	  theAlgoMap[&(sgd->type())] = boost::shared_ptr<SiStripDigitizerAlgorithm>(new SiStripDigitizerAlgorithm(conf_, sgd,
+														  idForNoise,&SiStripNoiseService_));
 	}
 	
 	collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);

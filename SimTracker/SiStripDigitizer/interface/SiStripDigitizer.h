@@ -24,6 +24,9 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
 
+//SiStripPedestalsService
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
+
 #include <string>
 #include <vector>
 
@@ -48,6 +51,7 @@ namespace cms
     std::vector<edm::DetSet<StripDigiSimLink> > theDigiLinkVector;
 
     edm::ParameterSet conf_;
+    SiStripNoiseService SiStripNoiseService_;  
     typedef std::vector<std::string> vstring;
     vstring trackerContainers;
     typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
