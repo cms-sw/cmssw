@@ -14,6 +14,7 @@ class DDCompactView;
 class DDFilteredView;
 class CSCGeometry;
 class CSCWireGroupPackage;
+class MuonDDDConstants;
 
 class CSCGeometryBuilderFromDDD {
 public:
@@ -24,14 +25,14 @@ public:
   virtual ~CSCGeometryBuilderFromDDD();
 
   /// Build the geometry
-  CSCGeometry* build(const DDCompactView* fv);
+  CSCGeometry* build(const DDCompactView* fv, const MuonDDDConstants& muonConstants);
 
 protected:
 
 private:
 
   /// Build endcap CSCs
-  CSCGeometry* buildEndcaps( DDFilteredView* fv );
+  CSCGeometry* buildEndcaps( DDFilteredView* fv, const MuonDDDConstants& muonConstants );
 
   /// Build one CSC layer and add it to the geometry
   void buildLayer (  
@@ -41,7 +42,7 @@ private:
         const std::vector<float>& fupar, // user parameters
         const std::vector<float>& gtran, // translation vector
         const std::vector<float>& grmat, // rotation matrix
-        const CSCWireGroupPackage& wg    // wire group info
+        const CSCWireGroupPackage& wg   // wire group info
 	);
 
   const std::string myName;

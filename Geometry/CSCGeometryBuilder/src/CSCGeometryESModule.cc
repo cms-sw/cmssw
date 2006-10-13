@@ -3,6 +3,7 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // Alignments
@@ -11,6 +12,7 @@
 #include "CondFormats/DataRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -77,8 +79,10 @@ boost::shared_ptr<CSCGeometry>
 CSCGeometryESModule::produce(const MuonGeometryRecord & record) {
   edm::ESHandle<DDCompactView> cpv;
   record.getRecord<IdealGeometryRecord>().get(cpv);
+  edm::ESHandle<MuonDDDConstants> mdc;
+  record.getRecord<MuonNumberingRecord>().get(mdc);
   CSCGeometryBuilderFromDDD builder;
-  _cscGeometry = boost::shared_ptr<CSCGeometry>(builder.build(&(*cpv)));
+  _cscGeometry = boost::shared_ptr<CSCGeometry>(builder.build(&(*cpv), *mdc));
 
   // Retrieve and apply alignments
   if ( applyAlignment_ ) {

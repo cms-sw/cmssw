@@ -15,6 +15,7 @@
 #include <Geometry/MuonNumbering/interface/CSCNumberingScheme.h>
 #include <Geometry/MuonNumbering/interface/MuonBaseNumber.h>
 #include <Geometry/MuonNumbering/interface/MuonDDDNumbering.h>
+#include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
 #include <Geometry/Surface/interface/BoundPlane.h>
 #include <Geometry/Surface/interface/TrapezoidalPlaneBounds.h>
 #include <Geometry/Vector/interface/Basic3DVector.h>
@@ -30,7 +31,7 @@ CSCGeometryBuilderFromDDD::CSCGeometryBuilderFromDDD() : myName("CSCGeometryBuil
 CSCGeometryBuilderFromDDD::~CSCGeometryBuilderFromDDD(){}
 
 
-CSCGeometry* CSCGeometryBuilderFromDDD::build(const DDCompactView* cview){
+CSCGeometry* CSCGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants){
 
   try {
     std::string attribute = "MuStructure";      // could come from outside
@@ -52,7 +53,7 @@ CSCGeometry* CSCGeometryBuilderFromDDD::build(const DDCompactView* cview){
 
     bool doSubDets = fview.firstChild();
     doSubDets      = fview.firstChild(); // and again?!
-    return buildEndcaps( &fview ); 
+    return buildEndcaps( &fview, muonConstants ); 
   }
 
   catch (const DDException & e ) {
@@ -73,7 +74,7 @@ CSCGeometry* CSCGeometryBuilderFromDDD::build(const DDCompactView* cview){
 
 }
 
-CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv ){
+CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const MuonDDDConstants& muonConstants ){
 
   bool doAll(true);
 
@@ -164,9 +165,9 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv ){
 
     LogDebug("CSC") << ": create numbering scheme..." << "\n";
 
-    MuonDDDNumbering mdn;
+    MuonDDDNumbering mdn(muonConstants);
     MuonBaseNumber mbn = mdn.geoHistoryToBaseNumber(fv->geoHistory());
-    CSCNumberingScheme mens;
+    CSCNumberingScheme mens(muonConstants);
 
     LogDebug("CSC") << ": find detid..." << "\n";
 

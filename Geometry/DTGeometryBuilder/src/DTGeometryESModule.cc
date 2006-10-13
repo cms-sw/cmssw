@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/27 13:40:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/22 15:58:37 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -9,6 +9,7 @@
 #include <Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h>
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
+#include <Geometry/Records/interface/MuonNumberingRecord.h>
 #include <DetectorDescription/Core/interface/DDCompactView.h>
 
 // Alignments
@@ -42,8 +43,10 @@ boost::shared_ptr<DTGeometry>
 DTGeometryESModule::produce(const MuonGeometryRecord & record) {
   edm::ESHandle<DDCompactView> cpv;
   record.getRecord<IdealGeometryRecord>().get(cpv);
+  edm::ESHandle<MuonDDDConstants> mdc;
+  record.getRecord<MuonNumberingRecord>().get(mdc);
   DTGeometryBuilderFromDDD builder;
-  _dtGeometry = boost::shared_ptr<DTGeometry>(builder.build(&(*cpv)));
+  _dtGeometry = boost::shared_ptr<DTGeometry>(builder.build(&(*cpv), *mdc));
 
   // Retrieve and apply alignments
   if ( applyAlignment_ ) {
