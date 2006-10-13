@@ -30,18 +30,15 @@ MuonPatternRecoDumper::~MuonPatternRecoDumper() {
 string MuonPatternRecoDumper::dumpLayer(const DetLayer* layer) const {
   stringstream output;
   
-  BoundSurface* sur=0;
-  BoundCylinder* bc=0;
-  BoundDisk* bd=0;
+  const BoundSurface* sur=0;
+  const BoundCylinder* bc=0;
+  const BoundDisk* bd=0;
 
-  // FIXME
-  //  output << " Next layer: " << layer->part() << " " << layer->module() << ":" ;
-
-  sur = (BoundSurface*)&(layer->surface());
-  if ( (bc = dynamic_cast<BoundCylinder*>(sur)) ) {
+  sur = &(layer->surface());
+  if ( (bc = dynamic_cast<const BoundCylinder*>(sur)) ) {
     output << "  Cylinder of radius: " << bc->radius() << endl;
   }
-  else if ( (bd = dynamic_cast<BoundDisk*>(sur)) ) {
+  else if ( (bd = dynamic_cast<const BoundDisk*>(sur)) ) {
     output << "  Disk at: " <<  bd->position().z() << endl;
   }
   return output.str();
