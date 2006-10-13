@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/09/01 15:39:27 $
- * $Revision: 1.20 $
+ * $Date: 2006/09/28 22:17:54 $
+ * $Revision: 1.21 $
  * \author W Fisher
  *
 */
@@ -39,6 +39,10 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   else{
     m_outputFile = "DQM_Hcal_";
   }
+  if(m_outputFile=="NoOutputFile"){
+    m_outputFile="";
+  }
+
 
   m_runNum = 0; m_meStatus=0;
   m_meRunNum=0; m_meRunType=0;
