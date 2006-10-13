@@ -42,23 +42,29 @@ L1RpcTBMuon::L1RpcTBMuon(int ptCode, int quality, int sign,
 std::string L1RpcTBMuon::printDebugInfo(int debugFormat) const{
 
   std::ostringstream sDebugInfo;
-  if (debugFormat==1){	// Human readable
-  
-    sDebugInfo << "TBMuon: code: " << GetCode() 
-               << " etaAddr: " << GetEtaAddr() 
+  if (debugFormat==1){  // Human readable
+
+    sDebugInfo << "TBMuon: code: " << GetPtCode()
+               << " etaAddr: " << GetEtaAddr()
                << " phiAddr: " << GetPhiAddr()
                << " sgAddr: " << GetSegmentAddr()
                << " scAddr: " << GetSectorAddr()
                << " gbData: " << GetGBData();
+
   }
-  else {	//technicall
-    //sDebugInfo << "Your ad here.";
+  else {        //technicall
+   sDebugInfo << "TBMuon pt "<< GetPtCode() 
+              <<   " ql " <<GetQuality() 
+              <<   " sgn " << GetSign()
+              <<   " tw " << GetTower()
+              <<   " sc " << GetLogSector()
+              <<   " sg " << GetLogSegment()
+              <<   " bits " << ToBits("fsbOut");
   }
-  
+
   return sDebugInfo.str();
 
 }
-
 //---------------------------------------------------------------------------
 // Simple setters and getters
 
@@ -194,11 +200,12 @@ unsigned int L1RpcTBMuon::FSBOut::toBits(const L1RpcTBMuon& muon) {
   unsigned int shift = 0;
   unsigned int ptCode = (~(muon.PtCode)) & ptBitsMask;
   unsigned int quality = (~(muon.Quality)) & qualBitsMask;
-  value = value &  muon.PhiAddress;         shift += phiBitsCnt;  
-  value = value & (ptCode<<shift);          shift += ptBitsCnt;
-  value = value & (quality<<shift);         shift += qualBitsCnt;
-  value = value & (muon.EtaAddress<<shift); shift += etaBitsCnt + 1; //+1 beacouse H/F bits, unused in RPC
-  value = value & (muon.Sign<<shift);       shift += signBitsCnt;
+  value = value |  muon.PhiAddress;         shift += phiBitsCnt;  
+  //  value = muon.PhiAddress;         shift += phiBitsCnt;  
+  value = value | (ptCode<<shift);          shift += ptBitsCnt;
+  value = value | (quality<<shift);         shift += qualBitsCnt;
+  value = value | (muon.EtaAddress<<shift); shift += etaBitsCnt + 1; //+1 beacouse H/F bits, unused in RPC
+  value = value | (muon.Sign<<shift);       shift += signBitsCnt;
   
   return value;
 }
@@ -219,11 +226,12 @@ unsigned int L1RpcTBMuon::FSBIn::toBits(const L1RpcTBMuon& muon) {
   unsigned int value = 0;
 
   unsigned int shift = 0;
-  value = value & (muon.Sign<<shift);       shift += signBitsCnt;
-  value = value & (muon.PtCode<<shift);     shift += ptBitsCnt;
-  value = value & (muon.Quality<<shift);    shift += qualBitsCnt;
-  value = value & (muon.PhiAddress<<shift); shift += phiBitsCnt;
-  value = value & (muon.EtaAddress<<shift); shift += etaBitsCnt; 
+  value = value | (muon.Sign<<shift);       shift += signBitsCnt;
+ // value = (muon.Sign<<shift);       shift += signBitsCnt;
+  value = value | (muon.PtCode<<shift);     shift += ptBitsCnt;
+  value = value | (muon.Quality<<shift);    shift += qualBitsCnt;
+  value = value | (muon.PhiAddress<<shift); shift += phiBitsCnt;
+  value = value | (muon.EtaAddress<<shift); shift += etaBitsCnt; 
    
   return value;
 }

@@ -54,6 +54,7 @@ L1RpcTBMuonsVec L1RpcTCGhostBusterSorter::Run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
         int etaAddr = tbMuonsVec2[iTB][iMu].GetEtaAddr() | (iTB<<2); //tower number natural <0...35>
         etaAddr = TriggerConfig->TowAddr2TowNum(etaAddr); //tower number: -16 : 16
         etaAddr = etaAddr + 16;                     // tower number continous 0 : 32
+        etaAddr = TriggerConfig->TowNum2TowNum2Comp(etaAddr); // 10 oct 2006 - moved from FS
         tbMuonsVec2[iTB][iMu].SetEtaAddr(etaAddr);
 
         outputMuons.push_back(tbMuonsVec2[iTB][iMu]);

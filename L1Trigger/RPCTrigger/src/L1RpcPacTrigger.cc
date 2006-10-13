@@ -44,30 +44,30 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
     for (unsigned  int iTC = 0; iTC < tcsMuonsVec2.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < tcsMuonsVec2[iTC].size(); iTB++){
 #ifdef _STAND_ALONE
-	  std::cout << "After TCGB: " <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel()) << std::endl;
+	  std::cout << "GB 2 " <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel()) << std::endl;
 #else
-	  LogDebug("RPCHwDebug") << "After TCGB: " <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+	  LogDebug("RPCHwDebug") << "GB 2 " <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
 #endif // _STAND_ALONE
         }
     }
   }
 
   GBFinalMuons = FinalSorter.Run(tcsMuonsVec2);
-
+  /* // Moved to FinalSorter to have HS and FS info
   if (TrigCnfg->GetDebugLevel()!=0){
      // iterate over GBFinalMuons and call printDebug()
     for (unsigned  int iTC = 0; iTC < GBFinalMuons.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < GBFinalMuons[iTC].size(); iTB++){
 #ifdef _STAND_ALONE
-	  std::cout <<"After FS: "<<GBFinalMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel())<< std::endl;
+	  std::cout <<"GB 3 "<<GBFinalMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel())<< std::endl;
 #else
-	  LogDebug("RPCHwDebug") <<"After FS: "<<GBFinalMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+	  LogDebug("RPCHwDebug") <<"GB 3 "<<GBFinalMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
 
 #endif // _STAND_ALONE
         }
     }                               
   }
-
+  */
   /*
   #ifdef _GRAB_MUONS
     L1RpcMuonsGrabber::Instance()->StoreAnswers(GBFinalMuons);

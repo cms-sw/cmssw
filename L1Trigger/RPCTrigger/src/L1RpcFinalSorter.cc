@@ -114,9 +114,33 @@ L1RpcTBMuonsVec2 L1RpcFinalSorter::Run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[0]);
 
   RunHalf(secondHalfTcsMuonsVec2);
+  // Debug
+  if (TrigCnfg->GetDebugLevel()!=0){
+    for (unsigned  int iTC = 0; iTC < GBOutputMuons.size(); iTC++){
+        for (unsigned  int iTB = 0; iTB < GBOutputMuons[iTC].size(); iTB++){
+#ifndef _STAND_ALONE
+            LogDebug("RPCHwDebug")<<"GB 3 "<< GBOutputMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+#else
+            std::cout <<"GB 3 "<< GBOutputMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel()) << std::endl;
+#endif 
+        }
+    }
+  }
 
   RunFinalSorter(GBOutputMuons);
-  
+
+  if (TrigCnfg->GetDebugLevel()!=0){
+    for (unsigned  int iTC = 0; iTC < GBOutputMuons.size(); iTC++){
+        for (unsigned  int iTB = 0; iTB < GBOutputMuons[iTC].size(); iTB++){
+#ifndef _STAND_ALONE
+            LogDebug("RPCHwDebug")<<"GB 4 "<< GBOutputMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+#else
+            std::cout<<"GB 4 "<< GBOutputMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel()) << std::endl;
+#endif
+        }
+    }
+  }
+
   return GBOutputMuons;
 }
 /*
@@ -137,8 +161,9 @@ void L1RpcFinalSorter::RunFinalSorter(L1RpcTBMuonsVec2 &finalMuons) {
 
 //-----setting 2'complement EtaAddr
   for(unsigned int iMu = 0; iMu < GBOutputMuons[0].size(); iMu++) {
-    finalMuons[0][iMu].SetEtaAddr(TrigCnfg->TowNum2TowNum2Comp(finalMuons[0][iMu].GetEtaAddr()));
-    finalMuons[1][iMu].SetEtaAddr(TrigCnfg->TowNum2TowNum2Comp(finalMuons[1][iMu].GetEtaAddr()));
+    // 10 oct 2006 - moved to L1RpcTCGhostBusterSorter::Run 
+    //finalMuons[0][iMu].SetEtaAddr(TrigCnfg->TowNum2TowNum2Comp(finalMuons[0][iMu].GetEtaAddr()));
+    //finalMuons[1][iMu].SetEtaAddr(TrigCnfg->TowNum2TowNum2Comp(finalMuons[1][iMu].GetEtaAddr()));
    
     finalMuons[0][iMu].SetPhiAddr(finalMuons[0][iMu].GetContinSegmAddr());
     finalMuons[1][iMu].SetPhiAddr(finalMuons[1][iMu].GetContinSegmAddr());   

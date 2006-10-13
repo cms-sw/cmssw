@@ -66,6 +66,8 @@ public:
   
   std::string printDebugInfo(int) const;
 
+  std::string printExtDebugInfo(int, int, int) const;
+
   void SetGBDataKilledFirst();
 
   void SetGBDataKilledLast();
