@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2006/09/20 12:40:19 $
- * $Revision: 1.5 $
+ * $Date: 2006/10/09 14:09:34 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -73,6 +73,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 
   // Various useful constants
   static const std::string csc_type[CSC_TYPES];
+  static const int NCHAMBERS[CSC_TYPES];
   static const int MAX_WG[CSC_TYPES];
   static const int MAX_HS[CSC_TYPES];
   static const int ptype[CSCConstants::NUM_CLCT_PATTERNS];
@@ -87,6 +88,8 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static bool bookedCLCTHistos;
   static bool bookedLCTTMBHistos;
   static bool bookedLCTMPCHistos;
+
+  static bool bookedCompHistos;
 
   static bool bookedResolHistos;
   static bool bookedEfficHistos;
@@ -116,12 +119,14 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   double getHsPerRad(const int idh);
 
   void compare(const edm::Event& ev);
+  void bookCompHistos();
   void compareALCTs(const CSCALCTDigiCollection* alcts_data,
 		    const CSCALCTDigiCollection* alcts_emul);
   void compareCLCTs(const CSCCLCTDigiCollection* clcts_data,
 		    const CSCCLCTDigiCollection* clcts_emul);
   void compareLCTs(const CSCCorrelatedLCTDigiCollection* lcts_data,
 		   const CSCCorrelatedLCTDigiCollection* lcts_emul);
+  void drawCompHistos();
 
   void MCStudies(const edm::Event& ev,
 		 const CSCALCTDigiCollection* alcts,
@@ -162,6 +167,18 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hLctMPCValid, *hLctMPCQuality, *hLctMPCKeyGroup;
   TH1F *hLctMPCKeyStrip, *hLctMPCStripType;
   TH1F *hLctMPCPattern, *hLctMPCBend, *hLctMPCBXN;
+
+  // Histograms for firmware-emulator comparisons
+  // ALCTs
+  TH1F *hAlctCompFoundCsc[CSC_TYPES], *hAlctCompSameNCsc[CSC_TYPES];
+  TH1F *hAlctCompTotalCsc[CSC_TYPES], *hAlctCompMatchCsc[CSC_TYPES];
+  // CLCTs
+  TH1F *hClctCompFoundCsc[CSC_TYPES], *hClctCompSameNCsc[CSC_TYPES];
+  TH1F *hClctCompTotalCsc[CSC_TYPES], *hClctCompMatchCsc[CSC_TYPES];
+  // Correlated LCTs
+  TH1F *hLctCompFoundCsc[CSC_TYPES], *hLctCompSameNCsc[CSC_TYPES];
+  TH1F *hLctCompTotalCsc[CSC_TYPES], *hLctCompMatchCsc[CSC_TYPES];
+
   // Resolution histograms
   // ALCT
   TH2F *hEtaRecVsSim;
