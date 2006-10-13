@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2006/09/12 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/09/18 10:45:12 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Battilana
  *
@@ -16,16 +16,36 @@
 // This class's header
 #include "L1Trigger/DTTrigger/interface/DTTrigProd.h"
 
+// Framework related classes
+#include "FWCore/Framework/interface/ESHandle.h"
+
+// Data Formats classes
+#include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
+
+// DataFormats interface
+typedef vector<DTChambPhSegm>  InternalPhiSegm;
+typedef InternalPhiSegm::const_iterator InternalPhiSegm_iterator;
+typedef vector<DTChambThSegm>  InternalThSegm;
+typedef InternalThSegm::const_iterator InternalThSegm_iterator;
+typedef vector<L1MuDTChambPhDigi>  Phi_Container;
+typedef vector<L1MuDTChambThDigi>  Theta_Container;
+
 // Collaborating classes
 #include <iostream>
 
 const double DTTrigProd::myTtoTDC = 32./25.;
 
+
 DTTrigProd::DTTrigProd(const ParameterSet& pset){
   produces<L1MuDTChambPhContainer>();
   produces<L1MuDTChambThContainer>();
-  bool globaldelay = pset.getUntrackedParameter<bool>("globalSync");
-  double syncdelay = pset.getUntrackedParameter<double>("syncDelay");
+  bool globaldelay   = pset.getUntrackedParameter<bool>("globalSync");
+  double syncdelay   = pset.getUntrackedParameter<double>("syncDelay");
+  UseDTTFSecNum = pset.getUntrackedParameter<bool>("DTTFSectorNumbering");
   stringstream myos;
   myos << syncdelay;
   if (globaldelay) {
@@ -63,21 +83,23 @@ void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
   Phi_Container outPhi;
   for (InternalPhiSegm_iterator it=myPhiSegm.begin(); it!=myPhiSegm.end();it++){
     int ch_sector = (*it).ChamberId().sector();
-    int sc_sector = 0;
-    switch (ch_sector){
-    case 13:
-      sc_sector = 4;
-      break;
-    case 14:
-      sc_sector = 10;
-      break;
-    default:
-      sc_sector = ch_sector; // Is it correct or DTTF needs ch_sector -1?
-      break;
+    int sc_sector = ch_sector;
+    if (UseDTTFSecNum == true){
+      switch (ch_sector){
+      case 13:
+	sc_sector = 3; // Modified for DTTF numbering
+	break;
+      case 14:
+	sc_sector = 9; // Modified for DTTF numbering
+	break;
+      default:
+	sc_sector = sc_sector--; // Modified for DTTF numbering [0-11]
+	break;
+      }
     }
     outPhi.push_back(L1MuDTChambPhDigi((*it).step(),
 				       (*it).ChamberId().wheel(),
-				       sc_sector, //(*it).ChamberId().sector(),
+				       sc_sector,
 				       (*it).ChamberId().station(),
 				       (*it).phi(),
 				       (*it).phiB(),
@@ -98,9 +120,12 @@ void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
       pos[i] =(*it).position(i);
       qual[i]=(*it).quality(i);
     }
+    int ch_sector = (*it).ChamberId().sector();
+    int sc_sector = ch_sector;
+    if (UseDTTFSecNum == true) sc_sector--; // Modified for DTTF numbering [0-11]
     outTheta.push_back(L1MuDTChambThDigi((*it).step(),
 					 (*it).ChamberId().wheel(),
-					 (*it).ChamberId().sector(),
+					 sc_sector,
 					 (*it).ChamberId().station(),
 					 pos,
 					 qual
