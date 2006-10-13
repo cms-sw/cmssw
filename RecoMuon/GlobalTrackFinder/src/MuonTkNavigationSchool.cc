@@ -5,8 +5,8 @@
  *  Navigation School for both Muon and Tk
  *  different algo from the one in ORCA
  *
- *  $Date: 2006/07/26 10:31:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/26 10:59:23 $
+ *  $Revision: 1.3 $
  *
  * \author : Chang Liu - Purdue University
  * \author : Stefano Lacaprara - INFN Padova
@@ -29,7 +29,7 @@
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
 #include "RecoMuon/Navigation/interface/MuonBarrelNavigableLayer.h"
 #include "RecoMuon/Navigation/interface/MuonForwardNavigableLayer.h"
-#include "RecoMuon/Navigation/interface/MuonLayerSort.h"
+#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "Utilities/General/interface/CMSexception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

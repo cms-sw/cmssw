@@ -6,8 +6,8 @@
  *  Navigation School for both Muon and Tk
  *  different from the one in ORCA
  *
- *  $Date:  $
- *  $Revision:  $
+ *  $Date: 2006/06/19 19:00:58 $
+ *  $Revision: 1.1 $
  *
  * \author : Chang Liu - Purdue University
  * \author Stefano Lacaprara - INFN Padova 
@@ -20,7 +20,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Navigation/interface/MuonLayerSort.h"
+#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
 
 class DetLayer;
 class BarrelDetLayer;
