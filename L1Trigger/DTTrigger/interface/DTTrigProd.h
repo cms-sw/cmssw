@@ -4,7 +4,7 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2006/09/12 $
+ *   $Date: 2006/09/18 10:38:47 $
  *   $Revision: 1.1 $
  *
  *   \author C. Battilana
@@ -21,30 +21,14 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-// Trigger and data formats related classes
+// Trigger related classes
 #include "L1Trigger/DTTrigger/interface/DTTrig.h"
-#include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 
 
 using namespace edm;
 using namespace std;
-
-
-// DataFormats interface
-typedef vector<DTChambPhSegm>  InternalPhiSegm;
-typedef InternalPhiSegm::const_iterator InternalPhiSegm_iterator;
-typedef vector<DTChambThSegm>  InternalThSegm;
-typedef InternalThSegm::const_iterator InternalThSegm_iterator;
-typedef vector<L1MuDTChambPhDigi>  Phi_Container;
-typedef vector<L1MuDTChambThDigi>  Theta_Container;
-
 
 class DTTrigProd: public EDProducer{
 public:
@@ -63,8 +47,11 @@ public:
   
 private:
 
-  //! Trigger istance
+  // Trigger istance
   DTTrig* MyTrig;
+
+  // Sector Format Flag true=[0-11] false=[1-14]
+  bool UseDTTFSecNum;
 
   // time to TDC_time conversion
   static const double myTtoTDC;
