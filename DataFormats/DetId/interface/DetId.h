@@ -12,11 +12,15 @@ the large-scale detector (e.g. Tracker or Ecal) while the next three
 bits ([27:25]) identify a part of the detector (such as HcalBarrel
 (HB) for Hcal).
 
-$Date: 2005/10/03 14:26:52 $
-$Revision: 1.3 $
+$Date: 2005/10/06 00:23:46 $
+$Revision: 1.4 $
 */
 class DetId {
 public:
+  static const int kDetOffset          = 28;
+  static const int kSubdetOffset       = 25;
+
+
   enum Detector { Tracker=1,Muon=2,Ecal=3,Hcal=4,Calo=5 };
   /// Create an empty or null id (also for persistence)
   DetId();
@@ -26,9 +30,9 @@ public:
   DetId(Detector det, int subdet);
 
   /// get the detector field from this detid
-  Detector det() const { return Detector((id_>>28)&0xF); }
-  /// get the contents of the subdetector field (should be protected?)
-  int subdetId() const { return ((id_>>25)&0x7); }
+  Detector det() const { return Detector((id_>>kDetOffset)&0xF); }
+  /// get the contents of the subdetector field (not cast into any detector's numbering enum)
+  int subdetId() const { return ((id_>>kSubdetOffset)&0x7); }
 
   uint32_t operator()() { return id_; }
 
