@@ -3,6 +3,9 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EcalDetId>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/EgammaCandidates>
 <use name=Geometry/CaloEventSetup>
 <use name=root>
 <use name=Calibration/Tools>
@@ -17,6 +20,9 @@
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/EcalRecHit>
    <use name=DataFormats/EcalDetId>
+   <use name=DataFormats/EgammaReco>
+   <use name=DataFormats/TrackReco>
+   <use name=DataFormats/EgammaCandidates>
    <use name=Geometry/CaloEventSetup>
    <use name=root>
 <use name=CondFormats/DataRecord>
