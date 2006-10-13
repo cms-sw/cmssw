@@ -23,7 +23,7 @@ TrackerAlignableId::TrackerAlignableId()
 
 
 //__________________________________________________________________________________________________
-unsigned int TrackerAlignableId::alignableId( Alignable* alignable )
+unsigned int TrackerAlignableId::alignableId( const Alignable* alignable ) const
 {
 
   return firstDetId(alignable);
@@ -34,7 +34,7 @@ unsigned int TrackerAlignableId::alignableId( Alignable* alignable )
 
 //__________________________________________________________________________________________________
 // Get integer identifier corresponding to type of alignable
-int TrackerAlignableId::alignableTypeId( Alignable* alignable )
+int TrackerAlignableId::alignableTypeId( const Alignable* alignable ) const
 {
 
   int alignableObjectId = static_cast<int>(alignable->alignableObjectId());
@@ -52,12 +52,12 @@ int TrackerAlignableId::alignableTypeId( Alignable* alignable )
 
 //__________________________________________________________________________________________________
 // Returns alignable object id and layer number from an alignable
-std::pair<int,int> TrackerAlignableId::typeAndLayerFromAlignable(Alignable* alignable)
+std::pair<int,int> TrackerAlignableId::typeAndLayerFromAlignable( const Alignable* alignable) const
 {
 
   if ( alignable ) 
 	{
-	  AlignableDet* alignableDet = firstDet(alignable);
+	  const AlignableDet* alignableDet = firstDet(alignable);
 	  if ( alignableDet ) 
 		return typeAndLayerFromDetId( alignableDet->geomDetId() );
 	}
@@ -69,7 +69,7 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromAlignable(Alignable* alig
 
 //__________________________________________________________________________________________________
 // Returns alignable object id and layer (or wheel, or disk) number from a GeomDet
-std::pair<int,int> TrackerAlignableId::typeAndLayerFromGeomDet( const GeomDet& geomDet )
+std::pair<int,int> TrackerAlignableId::typeAndLayerFromGeomDet( const GeomDet& geomDet ) const
 {
 
   return typeAndLayerFromDetId( geomDet.geographicalId() );
@@ -78,7 +78,7 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromGeomDet( const GeomDet& g
 
 //__________________________________________________________________________________________________
 // Returns alignable object id and layer (or wheel, or disk) number from a DetId
-std::pair<int,int> TrackerAlignableId::typeAndLayerFromDetId( const DetId& detId )
+std::pair<int,int> TrackerAlignableId::typeAndLayerFromDetId( const DetId& detId ) const
 {
 
   int layerNumber = 0;
@@ -147,31 +147,29 @@ TrackerAlignableId::alignableTypeIdToName( const int& id ) const
 
 //__________________________________________________________________________________________________
 // recursively get first Alignable Det of an Alignable
-AlignableDet* TrackerAlignableId::firstDet( Alignable* alignable )
+const AlignableDet* TrackerAlignableId::firstDet( const Alignable* alignable ) const
 {
 
   // Check if this is already an AlignableDet
-  AlignableDet* alignableDet = dynamic_cast<AlignableDet*>( alignable );
+  const AlignableDet* alignableDet = dynamic_cast<const AlignableDet*>( alignable );
   if ( alignableDet ) return ( alignableDet );
 
   // Otherwise, retrieve components
-  AlignableComposite* composite = dynamic_cast<AlignableComposite*>( alignable );
+  const AlignableComposite* composite = dynamic_cast<const AlignableComposite*>( alignable );
   return  firstDet( composite->components().front() );
 
 }
 
-
-
 //__________________________________________________________________________________________________
 // get integer identifier corresponding to 1st Det of alignable
-unsigned int TrackerAlignableId::firstDetId( Alignable* alignable )
+unsigned int TrackerAlignableId::firstDetId( const Alignable* alignable ) const
 {
 
   unsigned int geomDetId = 0;
 
   if ( alignable ) 
 	{
-	  AlignableDet* alignableDet = firstDet( alignable );
+	  const AlignableDet* alignableDet = firstDet( alignable );
 	  if ( alignableDet ) geomDetId = alignableDet->geomDetId().rawId();
 	}
 

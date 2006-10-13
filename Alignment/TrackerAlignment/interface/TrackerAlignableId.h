@@ -32,19 +32,19 @@ public:
   ~TrackerAlignableId() {};
 
   /// Return geographical ID of first GeomDet
-  unsigned int alignableId( Alignable* alignable );
+  unsigned int alignableId( const Alignable* alignable ) const;
 
   /// Return Type ID (Det, Rod etc.) of Alignable
-  int alignableTypeId( Alignable* alignable ); 
+  int alignableTypeId( const Alignable* alignable ) const; 
 
   /// Return type and layer of Alignable
-  std::pair<int,int> typeAndLayerFromAlignable( Alignable* alignable );
+  std::pair<int,int> typeAndLayerFromAlignable( const Alignable* alignable ) const;
 
   /// Return type and layer of GeomDet
-  std::pair<int,int> typeAndLayerFromGeomDet( const GeomDet& geomDet );
+  std::pair<int,int> typeAndLayerFromGeomDet( const GeomDet& geomDet ) const;
 
   /// Return type and layer of DetId
-  std::pair<int,int> typeAndLayerFromDetId( const DetId& detId );
+  std::pair<int,int> typeAndLayerFromDetId( const DetId& detId ) const;
 
   /// Return string corresponding to given Alignable
   const std::string alignableTypeName( const Alignable* alignable ) const;
@@ -56,10 +56,10 @@ public:
 private:
 
   /// Get first AlignableDet of an Alignable
-  AlignableDet* firstDet( Alignable* alignable );
+  const AlignableDet* firstDet( const Alignable* alignable ) const;
  
   /// Get unique identifyer of first AlignableDet of alignable
-  unsigned int firstDetId( Alignable* alignable );
+  unsigned int firstDetId( const Alignable* alignable ) const;
 
 };
 
