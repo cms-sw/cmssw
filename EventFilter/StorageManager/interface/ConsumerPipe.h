@@ -70,6 +70,9 @@ namespace stor
     int timeToDisconnectedState_;  // seconds
     time_t lastEventRequestTime_;
 
+    // track whether initialization has been completed
+    bool initializationDone;
+
     // for consumers with normal priority, we keep only the most recent event
     boost::shared_ptr< std::vector<char> > latestEvent_;
 
