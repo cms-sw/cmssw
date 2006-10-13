@@ -6,7 +6,7 @@
  *   parameters
  *
  *
- *   $Date: 2006/09/12 $
+ *   $Date: 2006/09/18 10:40:16 $
  *   $Revision: 1.1 $
  *
  *   \author C. Battilana
@@ -17,27 +17,24 @@
 #ifndef L1Trigger_DTTrigger_DTTrigFineSync_h
 #define L1Trigger_DTTrigger_DTTrigFineSync_h
 
-// Framework related headers
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
+// Framework headers
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 // Muon and Trigger headers
 #include "L1Trigger/DTTrigger/interface/DTTrig.h"
-#include "Geometry/DTGeometry/interface/DTChamber.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 
-// Root related headers
+// Root headers
 #include "TROOT.h"
-#include "TH1F.h"
 #include "TFile.h"
+
+
 
 using namespace std;
 using namespace edm;
+
 
 
 //! Structure used to store sync information
@@ -49,8 +46,11 @@ struct QualArr {
 
 };
 
+// Type redefinition
 typedef map< DTChamberId,QualArr,less<DTChamberId> > DelayContainer;
 typedef DelayContainer::iterator DelayIterator;
+
+
 
 class DTTrigFineSync: public EDAnalyzer{
 
