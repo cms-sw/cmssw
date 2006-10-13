@@ -6,7 +6,10 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
@@ -132,9 +135,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       const reco::TrackCollection tC = *(trackCollection.product());
       
       //associate tracks
-      reco::RecoToSimCollection p = associator[ww]->associateRecoToSim(trackCollection,TPCollectionH);
-      reco::SimToRecoCollection q = associator[ww]->associateSimToReco(trackCollection,TPCollectionH);
-      
+      reco::RecoToSimCollection p = associator[ww]->associateRecoToSim(trackCollection,TPCollectionH, &event);
+      reco::SimToRecoCollection q = associator[ww]->associateSimToReco(trackCollection,TPCollectionH, &event);
+
       //
       //fill simulation histograms
       //compute number of tracks per eta interval
@@ -222,7 +225,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  // eta residue; pt, k, theta, phi0, d0, dz pulls
 	  Basic3DVector<double> momAtVtx(assocTrack->momentum().x(),assocTrack->momentum().y(),assocTrack->momentum().z());
 	  Basic3DVector<double> vert = (Basic3DVector<double>) tpr->parentVertex()->position();;
-	  vert/=10;
+
+	  //not needed in 110
+	  //	  vert/=10;
 	  reco::TrackBase::ParameterVector sParameters=
 	    associatorForParamAtPca->parametersAtClosestApproachGeom(vert, momAtVtx, track->charge());
 
