@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.36 2006/10/07 03:50:06 wmtan Exp $
+$Id: EventPrincipal.h,v 1.37 2006/10/07 07:26:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -56,11 +56,6 @@ namespace edm {
     typedef boost::shared_ptr<const Group>         SharedConstGroupPtr;
     typedef std::vector<BasicHandle>               BasicHandleVec;
 
-    // This default constructor should go away, because a default
-    // constructed EventPrincipal does not behave correctly. Test use
-    // it, and those tests must be modified.
-    EventPrincipal();
-    
     EventPrincipal(EventID const& evtID,
                    Timestamp const& theTime,
                    ProductRegistry const& reg,

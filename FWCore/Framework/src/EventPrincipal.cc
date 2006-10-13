@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.52 2006/10/03 19:11:53 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.53 2006/10/07 03:50:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -16,24 +16,6 @@ $Id: EventPrincipal.cc,v 1.52 2006/10/03 19:11:53 wmtan Exp $
 using namespace std;
 
 namespace edm {
-
-  EventPrincipal::EventPrincipal() :
-    aux_(),
-    processHistoryID_(),
-    processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
-    groups_(),
-    branchDict_(),
-    productDict_(),
-    typeDict_(),
-    inactiveGroups_(),
-    inactiveBranchDict_(),
-    inactiveProductDict_(),
-    inactiveTypeDict_(),
-    preg_(0),
-    store_(),
-    unscheduledHandler_()
-  { }
-
 
   EventPrincipal::EventPrincipal(EventID const& evtID,
 				 Timestamp const& theTime,
