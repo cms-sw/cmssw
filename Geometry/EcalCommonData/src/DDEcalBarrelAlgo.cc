@@ -197,7 +197,25 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
  m_BackCoolTankWaMat   (""),
  m_BackBracketName     (""),
  m_BackBracketHeight   (0),
- m_BackBracketMat      ("")
+  m_BackBracketMat      (""),
+
+ m_DryAirTubeName      (""),
+ m_DryAirTubeNum       (0),
+ m_DryAirTubeInnDiam   (0),
+ m_DryAirTubeOutDiam   (0),
+ m_DryAirTubeMat       (""),
+ m_MBCoolTubeName      (""),
+ m_MBCoolTubeInnDiam   (0),
+ m_MBCoolTubeOutDiam   (0),
+ m_MBCoolTubeMat       (""),
+ m_MBManifName         (""),
+ m_MBManifInnDiam      (0),
+ m_MBManifOutDiam      (0),
+ m_MBManifMat          (""),
+ m_vecMBLyrThick       (0),
+ m_vecMBLyrName        (),
+ m_vecMBLyrMat         ()
+
 {
    edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: Creating an instance" ;
 }
@@ -406,6 +424,23 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_BackBracketHeight   = nArgs["BackBracketHeight"] ;
    m_BackBracketMat      = sArgs["BackBracketMat"] ;
 
+   m_DryAirTubeName     = sArgs["DryAirTubeName"];
+   m_DryAirTubeNum      = static_cast<unsigned int> ( nArgs["DryAirTubeNum"] ) ;
+   m_DryAirTubeInnDiam  = nArgs["DryAirTubeInnDiam"];
+   m_DryAirTubeOutDiam  = nArgs["DryAirTubeOutDiam"];
+   m_DryAirTubeMat      = sArgs["DryAirTubeMat"];
+   m_MBCoolTubeName     = sArgs["MBCoolTubeName"];
+   m_MBCoolTubeInnDiam  = nArgs["MBCoolTubeInnDiam"];
+   m_MBCoolTubeOutDiam  = nArgs["MBCoolTubeOutDiam"];
+   m_MBCoolTubeMat      = sArgs["MBCoolTubeMat"];
+   m_MBManifName        = sArgs["MBManifName"];
+   m_MBManifInnDiam     = nArgs["MBManifInnDiam"];
+   m_MBManifOutDiam     = nArgs["MBManifOutDiam"];
+   m_MBManifMat         = sArgs["MBManifMat"];
+   m_vecMBLyrThick      = vArgs["MBLyrThick"];
+   m_vecMBLyrName       = vsArgs["MBLyrName"];
+   m_vecMBLyrMat        = vsArgs["MBLyrMat"];
+   
    edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: end initialize" ;
 }
 
@@ -1194,6 +1229,12 @@ void DDEcalBarrelAlgo::execute()
 //------------------------------------------------------------------------
 //------------------------------------------------------------------------
 //------------------------------------------------------------------------
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     Begin Back Cover Plate     !!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
       const DDTranslation outtra ( backXOff() + backSideHeight()/2,
 				   backYOff(),
@@ -1220,6 +1261,18 @@ void DDEcalBarrelAlgo::execute()
 	     myrot( backPlateName().name()+"Rot5",
 		    HepRotationZ(270*deg)    ) ) ;
 
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     End Back Cover Plate       !!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     Begin Back Side Plates    !!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       const Trap trapBS (
 	 backSideWidth()/2.,  //double aHalfLengthXNegZLoY , // bl1, A/2
@@ -1257,13 +1310,67 @@ void DDEcalBarrelAlgo::execute()
 	     outtra + backSideTra2,
 	     myrot( backSideName().name()+"Rot9",
 		    HepRotationZ(90*deg)    ) ) ;
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     End Back Side Plates       !!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	     
+//=====================
+      const double backCoolWidth ( backCoolBarWidth() + 2.*backCoolTankWidth() ) ;
+
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     Begin Mother Board Cooling Manifold Setup !!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      DDSolid mBManifSolid ( DDSolidFactory::tubs( mBManifName() ,
+						   backCoolWidth/2.,
+						   0, 
+						   mBManifOutDiam()/2,
+						   0*deg, 360*deg ) ) ;
+      const DDLogicalPart mBManifLog ( mBManifName(), mBManifMat(), mBManifSolid ) ;
+
+      const DDName mBManifWaName ( ddname( mBManifName().name() + "Wa" ) ) ;
+      DDSolid mBManifWaSolid ( DDSolidFactory::tubs( mBManifWaName ,
+						     backCoolWidth/2.,
+						     0, 
+						     mBManifInnDiam()/2,
+						     0*deg, 360*deg ) ) ;
+      const DDLogicalPart mBManifWaLog ( mBManifWaName, backPipeWaterMat(), 
+					 mBManifWaSolid ) ;
+      DDpos( mBManifWaLog,
+	     mBManifName(), 
+	     copyOne, 
+	     DDTranslation(0,0,0),
+	     DDRotation() ) ;
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     End Mother Board Cooling Manifold Setup   !!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//=====================
+
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     Begin Loop over Grilles & MB Cooling Manifold !!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
       for( unsigned int iGr ( 0 ) ; iGr != vecGrilleHeight().size() ; ++iGr )
       {
 	 DDName gName ( ddname( grilleName() + int_to_string( iGr ) ) ) ;
 	 DDSolid grilleSolid ( DDSolidFactory::box( gName, 
 						    vecGrilleHeight()[iGr]/2.,  
-						    grilleWidth()/2.,
+//						    grilleWidth()/2.,
+						    backCoolWidth/2.,
 						    grilleThick()/2.   ) ) ;
 	 const DDLogicalPart grilleLog ( gName,
 					 grilleMat(),
@@ -1274,12 +1381,46 @@ void DDEcalBarrelAlgo::execute()
 					 0*mm,
 					 vecGrilleZOff()[iGr] +
 					 grilleThick()/2 - backSideLength()/2 ) ;
+	 const DDTranslation gTra ( outtra + backPlateTra + grilleTra ) ;
 	 DDpos( grilleLog,
 		spmName(), 
 		iGr, 
-		outtra + backPlateTra + grilleTra,
+		gTra,
 		DDRotation() ) ;
+
+	 if( 0 != iGr%2 )
+	 {
+	    DDpos( mBManifLog,
+		   spmName(),
+		   iGr,
+		   gTra - DDTranslation( -mBManifOutDiam()/2. +
+					 vecGrilleHeight()[iGr]/2.,0, 
+					 grilleThick()/2.+3*mBManifOutDiam()/2.) ,
+		   myrot( mBManifName().name()+"R1",
+			  HepRotationX(90*deg)             ) ) ;
+	    DDpos( mBManifLog,
+		   spmName(),
+		   iGr-1,
+		   gTra - DDTranslation( -3*mBManifOutDiam()/2. +
+					 vecGrilleHeight()[iGr]/2.,0, 
+					 grilleThick()/2+3*mBManifOutDiam()/2.) ,
+		   myrot( mBManifName().name()+"R2",
+			  HepRotationX(90*deg)             ) ) ;
+	 }
       }
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     End Loop over Grilles & MB Cooling Manifold   !!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     Begin Cooling Bar Setup    !!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       DDSolid backCoolBarSolid ( DDSolidFactory::box( backCoolBarName(), 
 						      backCoolBarHeight()/2.,
@@ -1317,6 +1458,19 @@ void DDEcalBarrelAlgo::execute()
 	     backCoolBarWaTra,
 	     DDRotation() ) ;
 
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     End Cooling Bar Setup      !!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     Begin VFE Card Setup       !!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
       double thickVFE ( 0 ) ;
       for( unsigned int iLyr ( 0 ) ; iLyr != vecBackVFELyrThick().size() ; ++iLyr )
       {
@@ -1347,6 +1501,20 @@ void DDEcalBarrelAlgo::execute()
 		DDRotation() ) ;
 	 offTra += 2*backVFELyrTra ;
       }
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     End VFE Card Setup         !!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     Begin Cooling Bar + VFE Setup  !!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
       const double halfZCoolVFE ( thickVFE + backCoolBarThick()/2. ) ;
       DDSolid backCoolVFESolid ( DDSolidFactory::box( backCoolVFEName(), 
 						      backCoolBarHeight()/2.,
@@ -1372,30 +1540,50 @@ void DDEcalBarrelAlgo::execute()
 	     myrot( backVFEName().name() + "Flip",
 		    HepRotationX( 180*deg ) )        ) ;
 
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!     End Cooling Bar + VFE Setup    !!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!! Begin Placement of Readout & Cooling by Module  !!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       unsigned int iCVFECopy ( 1 ) ;
       unsigned int iSep ( 0 ) ;
       unsigned int iNSec ( 0 ) ;
       const unsigned int nMisc ( vecBackMiscThick().size()/vecBackCoolLength().size() ) ;
       for( unsigned int iMod ( 0 ) ; iMod != vecBackCoolLength().size() ; ++iMod )
       {
-	 double backCoolHeight ( backCoolBarHeight() ) ;
+	 // accumulate total height of parent volume
+
+	 double backCoolHeight ( backCoolBarHeight() + mBCoolTubeOutDiam() ) ;
 	 for( unsigned int iMisc ( 0 ) ; iMisc != nMisc ; ++iMisc )
 	 {
 	    backCoolHeight += vecBackMiscThick()[ iMod*nMisc + iMisc ] ;
+	 }
+	 double bottomThick ( mBCoolTubeOutDiam() ) ;
+	 for( unsigned int iMB ( 0 ) ; iMB != vecMBLyrThick().size() ; ++iMB )
+	 {
+	    backCoolHeight += vecMBLyrThick()[iMB] ;
+	    bottomThick    += vecMBLyrThick()[iMB] ;
 	 }
 
 	 DDName backCName ( ddname( vecBackCoolName()[iMod] ) ) ;
 	 const double halfZBCool ( vecBackCoolLength()[iMod]/2. ) ;
 	 DDSolid backCoolSolid ( DDSolidFactory::box( backCName ,
 						      backCoolHeight/2.,  
-						      backCoolBarWidth()/2. + backCoolTankWidth(),
+						      backCoolWidth/2.,
 						      halfZBCool   ) ) ;
 	 const DDLogicalPart backCoolLog ( backCName,
 					   spmMat(),
 					   backCoolSolid ) ;
 	 
 	 const DDTranslation bCoolTra ( -backPlateThick()/2 +
-					backCoolHeight/2 -
+					backCoolHeight/2    -
 					vecGrilleHeight()[2*iMod],
 					0*mm,
 					vecGrilleZOff()[2*iMod] +
@@ -1409,7 +1597,7 @@ void DDEcalBarrelAlgo::execute()
 		DDRotation() ) ;
 
 //===
-	 const double backCoolTankHeight ( backCoolBarHeight() - backBracketHeight() ) ;
+	 const double backCoolTankHeight ( backCoolBarHeight() ) ;// - backBracketHeight() ) ;
 
 	 DDName bTankName ( ddname( backCoolTankName()+int_to_string(iMod+1) ) ) ;
 	 DDSolid backCoolTankSolid ( DDSolidFactory::box( bTankName ,
@@ -1422,7 +1610,9 @@ void DDEcalBarrelAlgo::execute()
 	 DDpos( backCoolTankLog,
 		backCName, 
 		copyOne, 
-		DDTranslation( -backCoolHeight/2 + backCoolTankHeight/2.,
+		DDTranslation( -backCoolHeight/2 + 
+			       backCoolTankHeight/2. + 
+			       bottomThick,
 			       backCoolBarWidth()/2. + backCoolTankWidth()/2., 0),
 		DDRotation() ) ;
 
@@ -1453,21 +1643,26 @@ void DDEcalBarrelAlgo::execute()
 	 DDpos( backBracketLog,
 		backCName, 
 		copyOne, 
-		DDTranslation( backCoolBarHeight() - backCoolHeight/2. - backBracketHeight()/2.,
+		DDTranslation( backCoolBarHeight() - 
+			       backCoolHeight/2. - 
+			       backBracketHeight()/2. +
+			       bottomThick,
 			       -backCoolBarWidth()/2. - backCoolTankWidth()/2., 0),
 		DDRotation() ) ;
 
-	 DDpos( backBracketLog,
+/*	 DDpos( backBracketLog,
 		backCName, 
 		copyTwo, 
 		DDTranslation( backCoolBarHeight() - backCoolHeight/2. - backBracketHeight()/2.,
 			       backCoolBarWidth()/2. + backCoolTankWidth()/2., 0),
-		DDRotation() ) ;
+			       DDRotation() ) ;*/
 
 //===
 
-	 DDTranslation bSumTra ( backCoolBarHeight() - backCoolHeight/2., 0, 0 ) ;
-	 for( unsigned int j ( 0 ) ; j != nMisc ; ++j )
+	 DDTranslation bSumTra ( backCoolBarHeight() - 
+				 backCoolHeight/2. +
+				 bottomThick, 0, 0 ) ;
+	 for( unsigned int j ( 0 ) ; j != nMisc ; ++j ) // loop over miscellaneous layers
 	 {
 	    const DDName bName ( ddname( vecBackMiscName()[ iMod*nMisc + j ] ) ) ;
 
@@ -1487,6 +1682,70 @@ void DDEcalBarrelAlgo::execute()
 		   DDRotation() ) ;
 
 	    bSumTra += 2*bTra ;
+	 }
+
+	 const double bHalfWidth ( backCoolBarWidth()/2. + backCoolTankWidth() ) ;
+
+	 DDTranslation mTra ( -backCoolHeight/2. + mBCoolTubeOutDiam(), 0, 0 ) ;
+	 for( unsigned int j ( 0 ) ; j != vecMBLyrThick().size() ; ++j ) // loop over MB layers
+	 {
+	    const DDName mName ( ddname( vecMBLyrName()[j] + "_" + 
+					 int_to_string(iMod+1) ) ) ;
+
+	    DDSolid mSolid ( DDSolidFactory::box( mName ,
+						  vecMBLyrThick()[j]/2,  
+						  bHalfWidth,
+						  halfZBCool ) ) ;
+
+	    const DDLogicalPart mLog ( mName, ddmat(vecMBLyrMat()[j]), mSolid ) ;
+ 
+	    mTra += DDTranslation( vecMBLyrThick()[j]/2.0, 0*mm, 0*mm ) ;
+	    DDpos( mLog,
+		   backCName, 
+		   copyOne, 
+		   mTra,
+		   DDRotation() ) ;
+	    mTra += DDTranslation( vecMBLyrThick()[j]/2.0, 0*mm, 0*mm ) ;
+	 }
+
+	 const DDName mBName ( ddname( mBCoolTubeName() + "_" + 
+				       int_to_string(iMod+1) ) ) ;
+
+	 DDSolid mBCoolTubeSolid ( DDSolidFactory::tubs( mBName ,
+							 halfZBCool,
+							 0, 
+							 mBCoolTubeOutDiam()/2,
+							 0*deg, 360*deg ) ) ;
+	 const DDLogicalPart mBLog ( mBName, mBCoolTubeMat(), 
+				     mBCoolTubeSolid ) ;
+
+	 const DDName mBWaName ( ddname( mBCoolTubeName() + "Wa_" + 
+					 int_to_string(iMod+1) ) ) ;
+	 DDSolid mBCoolTubeWaSolid ( DDSolidFactory::tubs( mBWaName ,
+							   halfZBCool,
+							   0, 
+							   mBCoolTubeInnDiam()/2,
+							   0*deg, 360*deg ) ) ;
+	 const DDLogicalPart mBWaLog ( mBWaName, backPipeWaterMat(), 
+				       mBCoolTubeWaSolid ) ;
+	 DDpos( mBWaLog,
+		mBName, 
+		copyOne, 
+		DDTranslation(0,0,0),
+		DDRotation() ) ;
+
+	 for( unsigned int j ( 0 ) ; j != dryAirTubeNum() ; ++j ) // loop over all MB cooling circuits
+	 {
+	    for( unsigned int k ( 0 ) ; k != 2 ; ++k )
+	    {
+	       DDpos( mBLog,
+		      backCName, 
+		      2*j+k, 
+		      DDTranslation(-backCoolHeight/2.0+mBCoolTubeOutDiam()/2.,
+				    -bHalfWidth + (j+1)*bHalfWidth/5 +
+				    (0==k?1:-1)*mBCoolTubeOutDiam()/2.,0),
+		      DDRotation() ) ;
+	    }
 	 }
 
 	 DDName bPipeName ( ddname( backPipeName() + "_" + 
@@ -1557,9 +1816,60 @@ void DDEcalBarrelAlgo::execute()
 		copyOne, 
 		DDTranslation(),
 		DDRotation() ) ;
+
+//=================================================
+
+	 DDName dryAirTubeName ( ddname( dryAirTubeName() + int_to_string( iMod+1 ) ) ) ; 
+
+	 DDSolid dryAirTubeSolid ( DDSolidFactory::tubs( dryAirTubeName ,
+							 pipeLength/2,
+							 dryAirTubeInnDiam()/2, 
+							 dryAirTubeOutDiam()/2,
+							 0*deg, 360*deg ) ) ;
+
+	 const DDLogicalPart dryAirTubeLog ( dryAirTubeName, 
+					     dryAirTubeMat(), 
+					     dryAirTubeSolid ) ;
+
+	 const DDTranslation dryAirTubeTra1 ( backXOff() + 
+					      backSideHeight() -
+					      0.7*dryAirTubeOutDiam(),
+					      backYOff() +
+					      backPlateWidth()/2 -
+					      backSideWidth() -
+					      0.7*dryAirTubeOutDiam(),
+					      pipeZPos ) ;
+
+	 DDpos( dryAirTubeLog,
+		spmName(), 
+		copyOne, 
+		dryAirTubeTra1,
+		DDRotation() ) ;
+
+	 const DDTranslation dryAirTubeTra2 ( dryAirTubeTra1.x(),
+					      backYOff() -
+					      backPlateWidth()/2 +
+					      backSideWidth() +
+					      0.7*dryAirTubeOutDiam(),
+					      dryAirTubeTra1.z()  ) ;
+	 
+	 DDpos( dryAirTubeLog,
+		spmName(), 
+		copyTwo, 
+		dryAirTubeTra2,
+		DDRotation() ) ;
+
 	 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	 DDTranslation cTra ( backCoolBarHeight()/2. - backCoolHeight/2., 0 ,
+         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         //!!!!!!!!!!!!!! Begin Placement of Cooling + VFE Cards          !!!!!!
+	 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+	 DDTranslation cTra ( backCoolBarHeight()/2. - 
+			      backCoolHeight/2. +
+			      bottomThick, 0 ,
 			      -halfZBCool + halfZCoolVFE ) ;
 	 const unsigned int numSec ( static_cast<unsigned int> (vecBackCoolNSec()[iMod]) ) ; 
 	 for( unsigned int jSec ( 0 ) ; jSec != numSec ; ++jSec )
@@ -1575,11 +1885,27 @@ void DDEcalBarrelAlgo::execute()
 	       cTra += DDTranslation( 0, 0, backCBStdSep() ) ;
 	    }
 	    cTra -= DDTranslation( 0, 0, backCBStdSep() ) ; // backspace to previous
-	    if( jSec != numSec-1 ) cTra += 
-				      DDTranslation( 0, 0,
-						     vecBackCoolSecSep()[iSep++] ) ; // now take atypical step
+	    if( jSec != numSec-1 ) cTra += DDTranslation( 
+	       0, 0, vecBackCoolSecSep()[iSep++] ) ; // now take atypical step
 	 }
+         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         //!!!!!!!!!!!!!! End Placement of Cooling + VFE Cards            !!!!!!
+	 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       }
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!! End Placement of Readout & Cooling by Module    !!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!! Begin Patch Panel   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       double patchHeight ( 0  ) ;
       for( unsigned int iPatch ( 0 ) ; iPatch != vecPatchPanelThick().size() ; ++iPatch )
@@ -1633,6 +1959,11 @@ void DDEcalBarrelAlgo::execute()
 	 
 	 pTra += Hep3Vector( vecPatchPanelThick()[j]/2, 0*mm, 0*mm ) ;
       }
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!! End Patch Panel     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    } 
 
    LogDebug("EcalGeom") << "******** DDEcalBarrelAlgo test: end it..." ;
@@ -1640,7 +1971,7 @@ void DDEcalBarrelAlgo::execute()
 
 DDRotation
 DDEcalBarrelAlgo::myrot( const std::string&      s,
-		     const DDRotationMatrix& r ) const 
+			 const DDRotationMatrix& r ) const 
 {
    return DDrot( ddname( m_idNameSpace + ":" + s ), new DDRotationMatrix( r ) ) ; 
 }

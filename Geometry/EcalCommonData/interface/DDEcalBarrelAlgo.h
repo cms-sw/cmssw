@@ -47,7 +47,7 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
       DDSolid    mytrap( const std::string& s,
 			 const Trap&        t ) const ;
 
-      const std::string          idNameSpace() const { return m_idNameSpace   ; }
+      const std::string&         idNameSpace() const { return m_idNameSpace   ; }
 
       // barrel parent volume
       DDName                     barName()     const { return ddname( m_BarName ) ; }
@@ -187,7 +187,7 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
       DDMaterial                grilleMat()       const { return ddmat( m_GrilleMat )    ; }
       const std::vector<double>& vecGrilleHeight() const { return m_vecGrilleHeight      ; }
       const std::vector<double>& vecGrilleZOff()  const { return m_vecGrilleZOff        ; }
-      const std::string         backPipeName()   const { return m_BackPipeName ; }
+      const std::string&        backPipeName()   const { return m_BackPipeName ; }
       const std::vector<double>& vecBackPipeDiam() const { return m_vecBackPipeDiam    ; }
       double                    backPipeThick()  const { return m_BackPipeThick      ; }
       DDMaterial                backPipeMat()    const { return ddmat( m_BackPipeMat ) ; }
@@ -205,7 +205,7 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
 	                          { return m_vecPatchPanelMat ; }
       DDName                    patchPanelName()   const { return ddname( m_PatchPanelName ) ; }
 
-      std::vector<std::string> vecBackCoolName   () const { return m_vecBackCoolName       ;}
+      const std::vector<std::string>& vecBackCoolName() const { return m_vecBackCoolName       ;}
       double                   backCoolBarWidth  () const { return m_BackCoolBarWidth      ;}
       double                   backCoolBarHeight () const { return m_BackCoolBarHeight     ;}
       DDMaterial               backCoolMat       () const { return ddmat(m_BackCoolMat)    ;}
@@ -222,24 +222,41 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
       DDMaterial               backCoolVFEMat    () const { return ddmat(m_BackCoolVFEMat) ;}
       DDName                   backVFEName       () const { return ddname(m_BackVFEName)   ;}
       DDMaterial               backVFEMat        () const { return ddmat(m_BackVFEMat) ;}
-      std::vector<double>      vecBackVFELyrThick() const { return m_vecBackVFELyrThick    ;}
-      std::vector<std::string> vecBackVFELyrName () const { return m_vecBackVFELyrName     ;}
-      std::vector<std::string> vecBackVFELyrMat  () const { return m_vecBackVFELyrMat      ;}
-      std::vector<double>      vecBackCoolNSec   () const { return m_vecBackCoolNSec       ;}
-      std::vector<double>      vecBackCoolSecSep () const { return m_vecBackCoolSecSep     ;}
-      std::vector<double>      vecBackCoolNPerSec() const { return m_vecBackCoolNPerSec    ;}
+      const std::vector<double>& vecBackVFELyrThick() const { return m_vecBackVFELyrThick    ;}
+      const std::vector<std::string>& vecBackVFELyrName () const { return m_vecBackVFELyrName     ;}
+      const std::vector<std::string>& vecBackVFELyrMat  () const { return m_vecBackVFELyrMat      ;}
+      const std::vector<double>& vecBackCoolNSec   () const { return m_vecBackCoolNSec       ;}
+      const std::vector<double>& vecBackCoolSecSep () const { return m_vecBackCoolSecSep     ;}
+      const std::vector<double>& vecBackCoolNPerSec() const { return m_vecBackCoolNPerSec    ;}
       double                   backCBStdSep      () const { return m_BackCBStdSep          ;}
 
-      std::string              backCoolTankName   () const { return m_BackCoolTankName ;}
+      const std::string&       backCoolTankName   () const { return m_BackCoolTankName ;}
       double                   backCoolTankWidth  () const { return m_BackCoolTankWidth  ;}
       double                   backCoolTankThick  () const { return m_BackCoolTankThick  ;}
       DDMaterial               backCoolTankMat    () const { return ddmat(m_BackCoolTankMat) ;}
-      std::string              backCoolTankWaName () const { return m_BackCoolTankWaName ;}
+      const std::string&       backCoolTankWaName () const { return m_BackCoolTankWaName ;}
       double                   backCoolTankWaWidth() const { return m_BackCoolTankWaWidth;}
       DDMaterial               backCoolTankWaMat  () const { return ddmat(m_BackCoolTankWaMat) ;}
-      std::string              backBracketName    () const { return m_BackBracketName  ;}
+      const std::string&       backBracketName    () const { return m_BackBracketName  ;}
       double                   backBracketHeight  () const { return m_BackBracketHeight  ;}
       DDMaterial               backBracketMat     () const { return ddmat(m_BackBracketMat)    ;}
+      
+      const std::string&       dryAirTubeName    () const { return m_DryAirTubeName   ;}
+      double                   dryAirTubeNum     () const { return m_DryAirTubeNum   ;}
+      double                   dryAirTubeInnDiam () const { return m_DryAirTubeInnDiam   ;}
+      double                   dryAirTubeOutDiam () const { return m_DryAirTubeOutDiam   ;}
+      DDMaterial               dryAirTubeMat     () const { return ddmat(m_DryAirTubeMat)      ;}
+      const std::string&       mBCoolTubeName    () const { return m_MBCoolTubeName   ;}
+      double                   mBCoolTubeInnDiam () const { return m_MBCoolTubeInnDiam   ;}
+      double                   mBCoolTubeOutDiam () const { return m_MBCoolTubeOutDiam   ;}
+      DDMaterial               mBCoolTubeMat     () const { return ddmat(m_MBCoolTubeMat)      ;}
+      DDName                   mBManifName       () const { return ddname(m_MBManifName)        ;}
+      double                   mBManifInnDiam    () const { return m_MBManifInnDiam      ;}
+      double                   mBManifOutDiam    () const { return m_MBManifOutDiam      ;}
+      DDMaterial               mBManifMat        () const { return ddmat(m_MBManifMat)         ;}
+      const std::vector<double>&      vecMBLyrThick() const { return m_vecMBLyrThick       ;}
+      const std::vector<std::string>& vecMBLyrName () const { return m_vecMBLyrName        ;}
+      const std::vector<std::string>& vecMBLyrMat  () const { return m_vecMBLyrMat         ;}
 
 protected:
 
@@ -448,6 +465,23 @@ private:
       std::string              m_BackBracketName     ; //
       double                   m_BackBracketHeight   ; //
       std::string              m_BackBracketMat      ; //
+
+      std::string              m_DryAirTubeName      ; // dry air tube
+      unsigned int             m_DryAirTubeNum      ; //
+      double                   m_DryAirTubeInnDiam   ; //
+      double                   m_DryAirTubeOutDiam   ; //
+      std::string              m_DryAirTubeMat       ; //
+      std::string              m_MBCoolTubeName      ; // mothr bd cooling tube
+      double                   m_MBCoolTubeInnDiam   ; //
+      double                   m_MBCoolTubeOutDiam   ; //
+      std::string              m_MBCoolTubeMat       ; //
+      std::string              m_MBManifName         ; //mother bd manif
+      double                   m_MBManifInnDiam      ; //
+      double                   m_MBManifOutDiam      ; //
+      std::string              m_MBManifMat          ; //
+      std::vector<double>      m_vecMBLyrThick       ; // mother bd lyrs
+      std::vector<std::string> m_vecMBLyrName        ; //
+      std::vector<std::string> m_vecMBLyrMat         ; //
 
 }; 
 
