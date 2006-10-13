@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Barrel Muon 
  *
- *  $Date: 2006/08/28 19:13:05 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/08/29 16:06:27 $
+ *  $Revision: 1.7 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -20,7 +20,7 @@
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "RecoMuon/Navigation/interface/MuonLayerSort.h"
+#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
 #include "RecoMuon/Navigation/interface/MuonEtaRange.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"

@@ -5,8 +5,8 @@
  *  This class defines which DetLayers are reacheable from each Muon DetLayer
  *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
  *
- * $Date: 2006/09/07 18:44:41 $
- * $Revision: 1.5 $
+ * $Date: 2006/09/07 19:08:28 $
+ * $Revision: 1.6 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -29,7 +29,7 @@
 #include "RecoMuon/Navigation/interface/MuonBarrelNavigableLayer.h"
 #include "RecoMuon/Navigation/interface/MuonForwardNavigableLayer.h"
 #include "RecoMuon/Navigation/interface/MuonEtaRange.h"
-#include "RecoMuon/Navigation/interface/MuonLayerSort.h"
+#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
 #include "Utilities/General/interface/CMSexception.h"
 
 #include <algorithm>

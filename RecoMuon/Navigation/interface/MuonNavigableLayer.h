@@ -7,8 +7,8 @@
  *  trackingRange defines an MuonEtaRange for an FTS, 
  *  which is used for search compatible DetLayers.
  *
- * $Date: 2006/04/24 18:58:41 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/04 18:27:20 $
+ * $Revision: 1.4 $
  *
  * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
  *
@@ -16,7 +16,7 @@
  *
  */
 
-#include "RecoMuon/Navigation/interface/MuonLayerSort.h"
+#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
 #include "RecoMuon/Navigation/interface/MuonEtaRange.h"
 
 class DetLayer;

@@ -4,8 +4,8 @@
  *  trackingRange defines an MuonEtaRange for an FTS, 
  *  which is used for searching compatible DetLayers.
  *
- * $Date: 2006/06/04 18:39:45 $
- * $Revision: 1.5 $
+ * $Date: 2006/07/08 18:54:50 $
+ * $Revision: 1.6 $
  *
  * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
  * with contributions from: R. Bellan - INFN Torino
@@ -21,7 +21,7 @@
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "RecoMuon/Navigation/interface/MuonLayerSort.h"
+#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
 #include "RecoMuon/Navigation/interface/MuonEtaRange.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 /* C++ Headers */

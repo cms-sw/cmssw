@@ -5,8 +5,8 @@
  *
  *  Navigable layer for Forward Muon
  *
- * $Date: 2006/05/20 23:43:53 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/04 18:26:53 $
+ * $Revision: 1.5 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -17,7 +17,7 @@
  */
 
 /* Collaborating Class Declarations */
-#include "RecoMuon/Navigation/interface/MuonLayerSort.h"
+#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
 #include "RecoMuon/Navigation/interface/MuonEtaRange.h"
 
 class DetLayer;
