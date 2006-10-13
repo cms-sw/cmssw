@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/09/05 23:01:36 $
-// $Revision: 1.27 $
+// $Author: burkett $
+// $Date: 2006/10/10 19:38:37 $
+// $Revision: 1.28 $
 //
 
 #include <vector>
@@ -111,6 +111,11 @@ RoadSearchCloudMakerAlgorithm::RoadSearchCloudMakerAlgorithm(const edm::Paramete
   minNumberOfUsedLayersPerRoad = (unsigned int)conf_.getParameter<int>("MinimalNumberOfUsedLayersPerRoad");
   maxNumberOfMissedLayersPerRoad = (unsigned int)conf_.getParameter<int>("MaximalNumberOfMissedLayersPerRoad");
   maxNumberOfConsecutiveMissedLayersPerRoad = (unsigned int)conf_.getParameter<int>("MaximalNumberOfConsecutiveMissedLayersPerRoad"); 
+
+  doCleaning_ = conf.getParameter<bool>("DoCloudCleaning");
+  mergingFraction_ = conf.getParameter<double>("MergingFraction");
+  maxRecHitsInCloud_ = (unsigned int)conf.getParameter<int>("MaxRecHitsInCloud");
+
 }
 
 RoadSearchCloudMakerAlgorithm::~RoadSearchCloudMakerAlgorithm() {
@@ -141,6 +146,11 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 					const edm::EventSetup& es,
 					RoadSearchCloudCollection &output)
 {
+
+  // intermediate arrays for storing clouds for cleaning
+  const int nphibin = 24;
+  const int netabin = 24;
+  RoadSearchCloudCollection CloudArray[nphibin][netabin];
 
   // get roads
   edm::ESHandle<Roads> roads;
@@ -205,6 +215,14 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
       double d0 = 0.0;
       double phi0 = -99.;
       double k0   = -99999999.99;
+
+      // get bins of eta and phi of outer seed hit;
+
+      double outer_phi = map_phi(outerSeedHitGlobalPosition.phi());
+      double outer_eta = outerSeedHitGlobalPosition.eta();
+
+      int phibin = (int)(nphibin*(outer_phi/(2*Geom::pi())));
+      int etabin = (int)(netabin*(outer_eta+3.0)/6.0);
 
       // calculate phi0 and k0 dependent on RoadType
       if ( roadType == Roads::RPhi ) {
@@ -399,7 +417,8 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	       checkMaximalNumberOfMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) ) {
 	       //  checkMaximalNumberOfMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) && 
 	       //  checkMaximalNumberOfConsecutiveMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) ) {
-	    output.push_back(cloud);
+	    //output.push_back(cloud);
+	    CloudArray[phibin][etabin].push_back(cloud);
 
 	    if ( roadType == Roads::RPhi ){ 
 	      LogDebug("RoadSearch") << "This r-phi seed yields a cloud with " <<cloud.size() <<" hits";
@@ -413,6 +432,27 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	    }
 	  }
 	}
+      }
+    }
+  }
+
+  // Loop for initial cleaning
+  for (int iphi=0; iphi<nphibin; ++iphi){
+    for (int ieta=0; ieta<netabin; ++ieta){
+      //std::cout<<" Cloud Vector ieta = " << ieta << " iphi = " << iphi
+      //	 << " has " << CloudArray[iphi][ieta].size() << " Clouds " << std::endl;
+      if (!CloudArray[iphi][ieta].empty()) {
+	//std::cout<< " CloudArry with iphi = " << iphi << " and ieta = " << ieta
+	//	 << " has size " << CloudArray[iphi][ieta].size() << std::endl;
+	if (doCleaning_){
+	  RoadSearchCloudCollection temp = Clean(&CloudArray[iphi][ieta]);
+	  for ( RoadSearchCloudCollection::const_iterator ic = temp.begin(); ic!=temp.end(); ++ic)
+	    output.push_back(*ic);
+	}
+	else 
+	  for ( RoadSearchCloudCollection::const_iterator ic = CloudArray[iphi][ieta].begin(); 
+		ic!=CloudArray[iphi][ieta].end(); ++ic)
+	    output.push_back(*ic);
       }
     }
   }
@@ -1252,3 +1292,120 @@ void RoadSearchCloudMakerAlgorithm::makecircle(double x1, double y1,
   omegah=-s3/rc;
 }
 
+RoadSearchCloudCollection RoadSearchCloudMakerAlgorithm::Clean(RoadSearchCloudCollection* inputCollection){
+
+  RoadSearchCloudCollection output;
+
+  //
+  //  no raw clouds - nothing to try merging
+  //
+
+  if ( inputCollection->empty() ){
+    LogDebug("RoadSearch") << "Found " << output.size() << " clouds.";
+    return output;  
+  }
+
+  //
+  //  1 raw cloud - nothing to try merging, but one cloud to duplicate
+  //
+
+  if ( 1==inputCollection->size() ){
+    output.push_back(*(inputCollection->begin()->clone()));
+    LogDebug("RoadSearch") << "Found " << output.size() << " clouds.";
+    return output;
+  }  
+
+  //
+  //  got > 1 raw cloud - something to try merging
+  //
+  std::vector<bool> already_gone(inputCollection->size());
+  for (unsigned int i=0; i<inputCollection->size(); ++i) {
+    already_gone[i] = false; 
+  }
+
+  int raw_cloud_ctr=0;
+  // loop over clouds
+  for ( RoadSearchCloudCollection::const_iterator raw_cloud = inputCollection->begin(); raw_cloud != inputCollection->end(); ++raw_cloud) {
+    ++raw_cloud_ctr;
+
+    if (already_gone[raw_cloud_ctr-1])continue;
+    LogDebug("RoadSearch") << "number of ref in rawcloud " << raw_cloud->seeds().size(); 
+
+    // produce output cloud where other clouds are merged in
+    RoadSearchCloud lone_cloud = *(raw_cloud->clone());
+    int second_cloud_ctr=raw_cloud_ctr;
+    for ( RoadSearchCloudCollection::const_iterator second_cloud = raw_cloud+1; second_cloud != inputCollection->end(); ++second_cloud) {
+      second_cloud_ctr++;
+
+      std::vector<const TrackingRecHit*> unshared_hits;
+
+      if ( already_gone[second_cloud_ctr-1] )continue;
+      LogDebug("RoadSearch") << "number of ref in second_cloud " << second_cloud->seeds().size(); 
+
+      for ( RoadSearchCloud::RecHitOwnVector::const_iterator second_cloud_hit = second_cloud->begin_hits();
+	    second_cloud_hit != second_cloud->end_hits();
+	    ++ second_cloud_hit ) {
+	bool is_shared = false;
+	for ( RoadSearchCloud::RecHitOwnVector::const_iterator lone_cloud_hit = lone_cloud.begin_hits();
+	      lone_cloud_hit != lone_cloud.end_hits();
+	      ++ lone_cloud_hit ) {
+
+	  if (lone_cloud_hit->geographicalId() == second_cloud_hit->geographicalId())
+	    if (lone_cloud_hit->localPosition().x() == second_cloud_hit->localPosition().x())
+	      if (lone_cloud_hit->localPosition().y() == second_cloud_hit->localPosition().y())
+		{is_shared=true; break;}
+	}
+	if (!is_shared)  unshared_hits.push_back(&(*second_cloud_hit));
+
+	if ( ((float(unshared_hits.size())/float(lone_cloud.size())) > 
+	      ((float(second_cloud->size())/float(lone_cloud.size()))-mergingFraction_)) &&
+	     ((float(unshared_hits.size())/float(second_cloud->size())) > (1-mergingFraction_))){
+	  // You'll never merge these clouds..... Could quit now!
+	  break;
+	}
+
+	if (lone_cloud.size()+unshared_hits.size() > maxRecHitsInCloud_) {
+	  break;
+	}
+
+      }
+      
+      float f_lone_shared=float(second_cloud->size()-unshared_hits.size())/float(lone_cloud.size());
+      float f_second_shared=float(second_cloud->size()-unshared_hits.size())/float(second_cloud->size());
+
+      if ( ( (f_lone_shared > mergingFraction_)||(f_second_shared > mergingFraction_) ) 
+	   && (lone_cloud.size()+unshared_hits.size() <= maxRecHitsInCloud_) ){
+
+	LogDebug("RoadSearch") << " Merge CloudA: " << raw_cloud_ctr << " with  CloudB: " << second_cloud_ctr 
+			       << " Shared fractions are " << f_lone_shared << " and " << f_second_shared;
+
+	//
+	//  got a cloud to merge
+	//
+	for (unsigned int k=0; k<unshared_hits.size(); ++k) {
+	  lone_cloud.addHit(unshared_hits[k]->clone());
+	}
+
+	// add seed of second_cloud to lone_cloud
+	for ( RoadSearchCloud::SeedRefs::const_iterator secondseedref = second_cloud->begin_seeds();
+	      secondseedref != second_cloud->end_seeds();
+	      ++secondseedref ) {
+	  lone_cloud.addSeed(*secondseedref);
+	}
+
+	already_gone[second_cloud_ctr-1]=true;
+
+	}//end got a cloud to merge
+
+    }//interate over all second clouds
+
+    LogDebug("RoadSearch") << "number of ref in cloud " << lone_cloud.seeds().size(); 
+
+    output.push_back(lone_cloud);
+    
+  }//iterate over all raw clouds
+
+  LogDebug("RoadSearch") << "Found " << output.size() << " clean clouds.";
+
+  return output;
+}

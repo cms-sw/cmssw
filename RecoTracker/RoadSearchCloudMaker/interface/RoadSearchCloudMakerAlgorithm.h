@@ -51,8 +51,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2006/09/01 21:12:47 $
-// $Revision: 1.13 $
+// $Date: 2006/09/05 23:01:36 $
+// $Revision: 1.14 $
 //
 
 #include <string>
@@ -131,6 +131,8 @@ class RoadSearchCloudMakerAlgorithm
   void makecircle(double x1_cs, double y1_cs,double x2_cs, double y2_cs,
                                              double x3_cs, double y3_cs);
 
+  RoadSearchCloudCollection Clean(RoadSearchCloudCollection *rawColl);
+
  private:
   edm::ParameterSet conf_;
   static double epsilon;
@@ -151,6 +153,10 @@ class RoadSearchCloudMakerAlgorithm
   unsigned int minNumberOfUsedLayersPerRoad;
   unsigned int maxNumberOfMissedLayersPerRoad;
   unsigned int maxNumberOfConsecutiveMissedLayersPerRoad;
+
+  bool doCleaning_;
+  double mergingFraction_;
+  unsigned int maxRecHitsInCloud_;
 };
 
 #endif
