@@ -1,5 +1,5 @@
-#ifndef COND_METADATA_H
-#define COND_METADATA_H
+#ifndef CondCore_MetaDataService_METADATA_H
+#define CondCore_MetaDataService_METADATA_H
 #include <string>
 #include <memory>
 #include <vector>

@@ -31,14 +31,11 @@ cond::MetaData::MetaData(const std::string& connectionString, cond::ServiceLoade
     m_loader.loadAuthenticationService();
   }
   m_service=&(m_loader.loadRelationalService());
-  //coral::IRelationalDomain& domain = relationalService.domainForConnection(m_con);
   m_session=0;
   m_mode=cond::ReadWriteCreate;
 }
-
 cond::MetaData::~MetaData(){
 }
-
 void cond::MetaData::connect( cond::ConnectMode mod ){
   coral::IRelationalDomain& domain = m_service->domainForConnection(m_con);
   m_session=domain.newSession( m_con ) ;
@@ -64,12 +61,6 @@ void cond::MetaData::disconnect(){
 bool cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken){
   try{
     m_session->transaction().start(false);
-  }catch(std::exception& er){
-    throw cond::Exception( std::string("MetaData::addMapping ")+ er.what());
-  }catch(...){
-    throw cond::Exception( "MetaData::addMapping cannot start transaction" );
-  }
-  try{
     if(!m_session->nominalSchema().existsTable(cond::MetaDataNames::metadataTable())){
       this->createTable(cond::MetaDataNames::metadataTable());
     }
@@ -82,10 +73,13 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
     dataEditor.insertRow( rowBuffer );
     m_session->transaction().commit() ;
   }catch( coral::DuplicateEntryInUniqueKeyException& er ){
+    m_session->transaction().rollback() ;
     throw cond::MetaDataDuplicateEntryException("addMapping",name);
   }catch(std::exception& er){
+    m_session->transaction().rollback() ;
     throw cond::Exception(er.what());
   }catch(...){
+    m_session->transaction().rollback() ;
     throw cond::Exception( "MetaData::addMapping Could not commit the transaction" );
   }
   return true;
@@ -93,12 +87,6 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
 bool cond::MetaData::replaceToken(const std::string& name, const std::string& newtoken){
   try{
     m_session->transaction().start(false);
-  }catch(std::exception& er){
-    throw cond::Exception( std::string("MetaData::addMapping ")+ er.what());
-  }catch(...){
-    throw cond::Exception( "MetaData::addMapping cannot start transaction" );
-  }
-  try{
     if(!m_session->nominalSchema().existsTable(cond::MetaDataNames::metadataTable())){
       throw cond::Exception( "MetaData::replaceToken MetaData table doesnot exist" );
     }
@@ -116,45 +104,47 @@ bool cond::MetaData::replaceToken(const std::string& name, const std::string& ne
     dataEditor.updateRows( setClause, condition, inputData );
     m_session->transaction().commit() ;
   }catch( coral::DuplicateEntryInUniqueKeyException& er ){
+    m_session->transaction().rollback();
     throw cond::MetaDataDuplicateEntryException("MetaData::replaceToken",name);
   }catch(std::exception& er){
+    m_session->transaction().rollback() ;
     throw cond::Exception(er.what());
   }catch(...){
+    m_session->transaction().rollback() ;
     throw cond::Exception( "MetaData::replaceToken Could not commit the transaction" );
   }
   return true;
 }
 const std::string cond::MetaData::getToken( const std::string& name ){
+  std::string iovtoken;
   try{
     if( m_mode!=cond::ReadOnly ){
       m_session->transaction().start(false);
     }else{
       m_session->transaction().start(true);
     }
-  }catch(const std::exception& er){
-    throw cond::Exception( std::string("MetaData::getToken: Could not start a new transaction" )+er.what() );
-  }catch(...){
-    throw cond::Exception( "MetaData::getToken Could not start a new transaction" );
-  }
-  coral::ITable& mytable=m_session->nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
-  std::string iovtoken;
-  std::auto_ptr< coral::IQuery > query(mytable.newQuery());
-  query->setRowCacheSize( 100 );
-  coral::AttributeList emptyBindVariableList;
-  std::string condition=cond::MetaDataNames::tagColumn()+" = '"+name+"'";
-  query->setCondition( condition, emptyBindVariableList );
-  query->addToOutputList( cond::MetaDataNames::tokenColumn() );
-  coral::ICursor& cursor = query->execute();
-  while( cursor.next() ) {
-    const coral::AttributeList& row = cursor.currentRow();
-    iovtoken=row[ cond::MetaDataNames::tokenColumn() ].data<std::string>();
-  }
-  try{
+    coral::ITable& mytable=m_session->nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
+    std::auto_ptr< coral::IQuery > query(mytable.newQuery());
+    query->setRowCacheSize( 100 );
+    coral::AttributeList emptyBindVariableList;
+    std::string condition=cond::MetaDataNames::tagColumn()+" = '"+name+"'";
+    query->setCondition( condition, emptyBindVariableList );
+    query->addToOutputList( cond::MetaDataNames::tokenColumn() );
+    coral::ICursor& cursor = query->execute();
+    while( cursor.next() ) {
+      const coral::AttributeList& row = cursor.currentRow();
+      iovtoken=row[ cond::MetaDataNames::tokenColumn() ].data<std::string>();
+    }
     m_session->transaction().commit();
+  }catch(const coral::TableNotExistingException& er){
+    m_session->transaction().commit();
+    return "";
   }catch(const std::exception& er){
-    throw cond::Exception( std::string("MetaData::getToken Could not commit a transaction")+er.what() );
+    m_session->transaction().rollback() ;
+    throw cond::Exception( std::string("MetaData::getToken error: ")+er.what() );
   }catch(...){
-    throw cond::Exception( "MetaData::getToken: Could not commit a transaction" );
+    m_session->transaction().rollback() ;
+    throw cond::Exception( "MetaData::getToken: unknow exception" );
   }
   return iovtoken;
 }
@@ -187,12 +177,15 @@ bool cond::MetaData::hasTag( const std::string& name ) const{
     coral::ICursor& cursor = query->execute();
     if( cursor.next() ) result=true;
     cursor.close();
-    // Committing the transaction
-    //std::cout << "Committing..." << std::endl;
     m_session->transaction().commit();
+  }catch(const coral::TableNotExistingException& er){
+    m_session->transaction().commit();
+    return false;
   }catch(const std::exception& er){
+    m_session->transaction().rollback() ;
     throw cond::Exception( std::string("MetaData::hasTag: " )+er.what() );
   }catch(...){
+    m_session->transaction().rollback() ;
     throw cond::Exception( "MetaData::hasTag: unknown exception ");
   }
   return result;
@@ -214,12 +207,15 @@ void cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
       result.push_back(row[cond::MetaDataNames::tagColumn()].data<std::string>());
     }
     cursor.close();
-    // Committing the transaction
-    //std::cout << "Committing..." << std::endl;
     m_session->transaction().commit();
+  }catch(const coral::TableNotExistingException& er){
+    m_session->transaction().commit();
+    return;
   }catch(const std::exception& er){
+    m_session->transaction().rollback() ;
     throw cond::Exception( std::string("MetaData::listAllTag: " )+er.what() );
   }catch(...){
+    m_session->transaction().rollback() ;
     throw cond::Exception( "MetaData::listAllTag: unknown exception ");
   }
 }
