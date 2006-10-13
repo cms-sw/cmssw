@@ -72,7 +72,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.39 2006/08/31 23:26:24 wmtan Exp $
+$Id: Event.h,v 1.40 2006/09/05 13:27:42 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -224,7 +224,7 @@ namespace edm {
 
     // Also isolates the Event class
     // from the EventPrincipal class.
-    EDProductGetter * prodGetter() const;
+    EDProductGetter const* prodGetter() const;
     //------------------------------------------------------------
     // Copying and assignment of Events is disallowed
     //
