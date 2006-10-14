@@ -1,16 +1,17 @@
-#include "EventFilter/EcalRawToDigi/src/DCCEventBlock.h"
-#include "EventFilter/EcalRawToDigi/src/DCCBlockPrototype.h"
-#include "EventFilter/EcalRawToDigi/src/DCCDataParser.h"
-#include "EventFilter/EcalRawToDigi/src/DCCDataMapper.h"
-#include "EventFilter/EcalRawToDigi/src/DCCTowerBlock.h"
+#include "DCCEventBlock.h"
+#include "DCCBlockPrototype.h"
+#include "DCCDataParser.h"
+#include "DCCDataMapper.h"
+#include "DCCTowerBlock.h"
 #include "ECALParserException.h"
 #include "ECALParserBlockException.h"
-#include "EventFilter/EcalRawToDigi/src/DCCSRPBlock.h"
-#include "EventFilter/EcalRawToDigi/src/DCCTCCBlock.h"
-#include "EventFilter/EcalRawToDigi/src/DCCXtalBlock.h"
-#include "EventFilter/EcalRawToDigi/src/DCCTrailerBlock.h"
+#include "DCCSRPBlock.h"
+#include "DCCTCCBlock.h"
+#include "DCCXtalBlock.h"
+#include "DCCTrailerBlock.h"
 
-
+#include <iomanip>
+#include <sstream>
 
 DCCEventBlock::DCCEventBlock(
 	DCCDataParser * parser, 
@@ -80,7 +81,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 
 			// Build TCC blocks ////////////////////////////////////////////////////////////////////////////////////////
 			for(ulong i=1; i<=4;i++){
-				ulong tcc_ch, tccId(0);
+				ulong tcc_ch, tccId ;
 				if( i == 1){ tccId = parser_->tcc1Id();}
 				if( i == 2){ tccId = parser_->tcc2Id();}
 				if( i == 3){ tccId = parser_->tcc3Id();}	
@@ -90,10 +91,17 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 				tcc_ch = getDataField(tcc);
 				
 				if( tcc_ch != CH_TIMEOUT && tcc_ch != CH_DISABLED){	 
+					
+					//cout<<"\n debug:Building TCC Block, channel enabled without errors"<<endl;
+					
 					// Go to the begining of the block
 					increment(1," (while trying to create a"+tcc+" Block !)");
 					
-					wordsToEnd = numbBytes/4-wordCounter_-1;	
+					wToEnd = numbBytes/4-wordCounter_-1;	
+					//wToEnd or wordsToEnd ????????????????????????????????????????
+					
+				
+					
 					// Build TCC Block /////////////////////////////////////////////////////////////////////////////////
 					tccBlocks_.push_back(  new DCCTCCBlock( this, parser_, dataP_,parser_->tccBlockSize(), wToEnd,wordCounter_, tccId));
 					//////////////////////////////////////////////////////////////////////////////////////////////////////	
@@ -122,7 +130,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 			
 			
 			
-			//ulong chStatus, srFlag;
+//			ulong chStatus;
 			ulong srFlag;
 			bool suppress(false);
 			
@@ -175,10 +183,10 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 	
 	}catch( ECALParserException & e){}
 	catch( ECALParserBlockException & e){
-	        //ulong nEv = (parser_->dccEvents()).size() +1;
-		errorString_ += string(e.what());
-		blockError_=true;
-		//cout<<"cout"<<e.what();
+	  // ulong nEv = (parser_->dccEvents()).size() +1;
+	  errorString_ += string(e.what());
+	  blockError_=true;
+	  //cout<<"cout"<<e.what();
 	}
 	
 	
@@ -259,7 +267,7 @@ void DCCEventBlock::dataCheck(){
 
 void  DCCEventBlock::displayEvent(ostream & os){
 
-  	os<<"\n Event started at word position "<<dec<<wordBufferOffset_<<endl;
+  	os << "\n\n\n\n\n >>>>>>>>>>>>>>>>>>>> Event started at word position " << dec << wordBufferOffset_ <<" <<<<<<<<<<<<<<<<<<<<"<<endl;
   	
 	// Display DCC Header ///
 	displayData(os);
@@ -276,9 +284,6 @@ void  DCCEventBlock::displayEvent(ostream & os){
 	for( it1 = tccBlocks_.begin(); it1!= tccBlocks_.end(); it1++){
 		(*it1)->displayData(os);
 	}
-	/////////////////////////////////////////////////////////////
-		
-		
 	
 	// Display Towers Blocks /////////////////////////////////////
 	vector<DCCTowerBlock *>::iterator it2;
@@ -287,26 +292,147 @@ void  DCCEventBlock::displayEvent(ostream & os){
 		(*it2)->displayData(os);
 			
 		// Display Xtal Data /////////////////////////////////////
-		vector<DCCXtalBlock * > & xtalBlocks = (*it2)->xtalBlocks();
+		vector<DCCXtalBlock * > &xtalBlocks = (*it2)->xtalBlocks();
 		vector<DCCXtalBlock * >::iterator it3;
 		for(it3 = xtalBlocks.begin();it3!=xtalBlocks.end();it3++){
 			(*it3)->displayData(os);
-		}
-		////////////////////////////////////////////////////////////
-			
+		}	
 	}
-	///////////////////////////////////////////////////////////////
-	
 		
 	// Display Trailer Block Contents /////////////////////////
 	if(dccTrailerBlock_){ dccTrailerBlock_->displayData(os);}
-	///////////////////////////////////////////////////////////
 		
 }
 
 
+pair<bool,string> DCCEventBlock::compare(DCCEventBlock * block){
+	
+	// DCC Header comparision /////////////////////////////// 
+	pair<bool,string> ret(DCCBlockPrototype::compare(block));
+	/////////////////////////////////////////////////////////
+	
+	stringstream out;
+	
+	// Selective readout processor block comparision ////////////////////////////////////////////
+	if( srpBlock_ && block->srpBlock() ){ 
+		pair<bool,string> temp( srpBlock_->compare(block->srpBlock()));
+		ret.first   = ret.first & temp.first;
+		out<<temp.second; 
+	}else if( !srpBlock_ && block->srpBlock() ){
+		ret.first   = false;	
+		out<<"\n ====================================================================="
+		   <<"\n ERROR SR block identified in the ORIGINAL BLOCK ... "
+		   <<"\n ... but the block is not present in the COMPARISION BLOCK !" 
+		   <<"\n =====================================================================";
+	}else if( srpBlock_ && !(block->srpBlock()) ){
+		ret.first   = false;	
+		out<<"\n ====================================================================="
+		   <<"\n ERROR SR block identified in the COMPARISION BLOCK ... "
+		   <<"\n ... but the block is not present in the ORIGINAL BLOCK !" 
+		   <<"\n =====================================================================";
+	}
+	////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	
+	// TCC Blocks comparision ////////////////////////////////////////////////////////
+	// check number of TCC blocks 
+	int numbTccBlocks_a = tccBlocks_.size();
+	int numbTccBlocks_b = block->tccBlocks().size();
+	
+	if( numbTccBlocks_a != numbTccBlocks_b ){
+		ret.first = false;
+		out<<"\n ====================================================================="
+		   <<"\n ERROR number of TCC blocks in the ORIGINAL BLOCK( ="<<numbTccBlocks_a<<" )"
+		   <<"\n and in the COMPARISION BLOCK( = "<<numbTccBlocks_b<<" is different !"
+		   <<"\n =====================================================================";
+	}
+	
+	vector<DCCTCCBlock *>::iterator it1Tcc    = tccBlocks_.begin();
+	vector<DCCTCCBlock *>::iterator it1TccEnd = tccBlocks_.end();
+	vector<DCCTCCBlock *>::iterator it2Tcc    = block->tccBlocks().begin();
+	vector<DCCTCCBlock *>::iterator it2TccEnd = block->tccBlocks().end();
+	
+	for( ; it1Tcc!=it1TccEnd && it2Tcc!=it2TccEnd; it1Tcc++, it2Tcc++){
+		pair<bool,string> temp( (*it1Tcc)->compare( *it2Tcc ) );
+		ret.first   = ret.first & temp.first;
+		out<<temp.second; 
+	}
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	
+	// FE Blocks comparision ////////////////////////////////////////////////////////
+	// check number of FE blocks 
+	int numbTowerBlocks_a = towerBlocks_.size();
+	int numbTowerBlocks_b = block->towerBlocks().size();
+	
+	if( numbTowerBlocks_a != numbTowerBlocks_b ){
+		ret.first = false;
+		out<<"\n ====================================================================="
+		   <<"\n ERROR number of Tower blocks in the ORIGINAL BLOCK( ="<<numbTowerBlocks_a<<" )"
+		   <<"\n and in the COMPARISION BLOCK( = "<<numbTowerBlocks_b<<" is different !"
+		   <<"\n =====================================================================";
+	}
+	
+	vector<DCCTowerBlock *>::iterator it1Tower    = towerBlocks_.begin();
+	vector<DCCTowerBlock *>::iterator it1TowerEnd  = towerBlocks_.end();
+	vector<DCCTowerBlock *>::iterator it2Tower    = (block->towerBlocks()).begin();
+	vector<DCCTowerBlock *>::iterator it2TowerEnd = (block->towerBlocks()).end();
+	
+	for( ; it1Tower!=it1TowerEnd && it2Tower!=it2TowerEnd; it1Tower++, it2Tower++){
+		
+		pair<bool,string> temp( (*it1Tower)->compare( *it2Tower ) );
+		ret.first   = ret.first & temp.first;
+		out<<temp.second;
 
+		// Xtal Block comparision ////////////////////////////
+		vector<DCCXtalBlock *> xtalBlocks1( (*it1Tower)->xtalBlocks());
+		vector<DCCXtalBlock *> xtalBlocks2( (*it2Tower)->xtalBlocks());
+		// check number of xtal blocks 
+    	int numbXtalBlocks_a = xtalBlocks1.size();
+		int numbXtalBlocks_b = xtalBlocks2.size();
+	
+		if( numbXtalBlocks_a != numbXtalBlocks_b ){
+			ret.first = false;
+			out<<"\n ====================================================================="
+			   <<"\n ERROR number of Xtal blocks in this TOWER ORIGINAL BLOCK( ="<<numbXtalBlocks_a<<" )"
+		  	   <<"\n and in the TOWER COMPARISION BLOCK( = "<<numbXtalBlocks_b<<" is different !"
+		  	   <<"\n =====================================================================";
+		}
+		
+		vector<DCCXtalBlock *>::iterator it1Xtal    = xtalBlocks1.begin();
+		vector<DCCXtalBlock *>::iterator it1XtalEnd = xtalBlocks1.end();
+		vector<DCCXtalBlock *>::iterator it2Xtal    = xtalBlocks1.begin();
+		vector<DCCXtalBlock *>::iterator it2XtalEnd = xtalBlocks2.end();
+		
+		for( ; it1Xtal!=it1XtalEnd && it2Xtal!=it2XtalEnd; it1Xtal++, it2Xtal++){
+			pair<bool,string> temp( (*it1Xtal)->compare( *it2Xtal ) );
+			ret.first   = ret.first & temp.first;
+			out<<temp.second; 
+		}
+		
+	}
+	
+	
+	// Trailer block comparision ////////////////////////////////////////////
+	if(  block->trailerBlock() && trailerBlock() ){ 
+		pair<bool,string> temp( trailerBlock()->compare(block->trailerBlock()));
+		ret.first   = ret.first & temp.first;
+		out<<temp.second; 
+	}
+	
+	ret.second += out.str(); 
 
+	return ret;
+}
+			
+		
+		
+		
+		
+		
+		
+		
 
 bool DCCEventBlock::eventHasErrors(){
 	
@@ -361,7 +487,7 @@ string DCCEventBlock::eventErrorString(){
 		
 		
 		ret +="\n ======================================================================\n"; 		
-		ret += string(" Event Erros occurred for LV1 accept ( decoded value ) = ") ; 
+		ret += string(" Event Erros occurred for L1A ( decoded value ) = ") ; 
 		ret += parser_->getDecString(getDataField("LV1"));
 		ret += "\n ======================================================================";
 		

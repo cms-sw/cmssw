@@ -1,16 +1,13 @@
 #ifndef StreamerStatService_h
 #define StreamerStatService_h
-/**
-  Keeps stat for single stream now, will be changed to accomodate multiple streams later in future.
-*/
+
+// $Id:$
 
 #include<iostream>
 #include<ctime>
 #include<string>
 #include<vector>
 #include<fstream>
-
-using namespace std;
 
 namespace {
 std::string itoa(int i){
@@ -67,7 +64,7 @@ typedef unsigned int  uint32;
     private:
      StatSummary currentRecord_;
      std::string statFileName_; 
-     auto_ptr<ifstream> statFile_;
+     std::auto_ptr<std::ifstream> statFile_;
 
   };//end of class   
 
@@ -80,6 +77,9 @@ class StreamerStatWriteService
        ~StreamerStatWriteService();
        void incrementEventCount();
        void advanceFileSize(uint32 increment);
+       void setFileSize(uint32);
+       void setEventCount(uint32);
+       void setRunNumber(uint32);
        void writeStat();
 
    private:
@@ -89,8 +89,6 @@ class StreamerStatWriteService
 
        StatSummary summary_;
        std::string statFileName_;
-       auto_ptr<ofstream> statFile_;
-
    };
 
 } //end-of-namespace

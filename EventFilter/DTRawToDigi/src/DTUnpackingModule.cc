@@ -1,9 +1,8 @@
 /** \file
  *
- *  $Date: 2006/06/25 15:31:39 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/06/06 15:22:30 $
+ *  $Revision: 1.18 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
- * FRC 060906
  */
 
 
@@ -19,7 +18,6 @@
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
-#include <DataFormats/DTDigi/interface/DTLocalTriggerCollection.h>
 
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 #include <CondFormats/DataRecord/interface/DTReadOutMappingRcd.h>
@@ -46,21 +44,19 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) :
   eventScanning = ps.getUntrackedParameter<int>("eventScanning",1000);
 
   const string &  dataType = ps.getParameter<string>("dataType");
-
   if (dataType == "DDU") {
     unpacker = new DTDDUUnpacker(ps);
   } else if (dataType == "ROS8") {
     unpacker = new DTROS8Unpacker(ps);
-    } else if (dataType == "ROS25") {
+  } else if (dataType == "ROS25") {
     unpacker = new DTROS25Unpacker(ps);
-    } 
+  } 
   else {
     throw cms::Exception("InvalidParameter") << "DTUnpackingModule: dataType "
 					     << dataType << " is unknown";
   }
 
   produces<DTDigiCollection>();
-  produces<DTLocalTriggerCollection>();
 }
 
 DTUnpackingModule::~DTUnpackingModule(){
@@ -82,9 +78,8 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   ESHandle<DTReadOutMapping> mapping;
   context.get<DTReadOutMappingRcd>().get(mapping);
   
-  // Create the result i.e. the collections of MB Digis and SC local triggers
+  // Create the result i.e. the collection of MB Digis
   auto_ptr<DTDigiCollection> product(new DTDigiCollection);
-  auto_ptr<DTLocalTriggerCollection> product2(new DTLocalTriggerCollection);
 
 
   // Loop over the DT FEDs
@@ -95,9 +90,8 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
     if (feddata.size()){
       
       // Unpack the DDU data
-
       unpacker->interpretRawData(reinterpret_cast<const unsigned int*>(feddata.data()), 
- 				 feddata.size(), id, mapping, product, product2);
+ 				 feddata.size(), id, mapping, product);
       
       numOfEvents++;      
       if (numOfEvents%eventScanning == 0) 
@@ -108,6 +102,5 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   // commit to the event  
   e.put(product);
-  e.put(product2);
 }
 

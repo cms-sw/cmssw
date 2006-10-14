@@ -3,14 +3,8 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <ostream>
 using namespace std;
-using namespace sipixelobjects;
-
 bool PixelBarrelLinkMaker::Order::operator() 
     (const Item &u1, const Item& u2) const
 {
@@ -53,7 +47,7 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
     item.name = b;
     item.unit = d;
 
-    if ( b->isHalfModule()) {
+    if (! b->isFullModule()) {
       item.rocIds = Range(0,7);      // half modules 
       linkItems.push_back(item);
     } else if(b->layerName() <= 2) {
@@ -76,14 +70,14 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
   Order myLess;
   sort( linkItems.begin(), linkItems.end(), myLess );
 
-  //
-  // DEBUG
-  //
-  ostringstream str;
-  for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
-    str << (*it).name->name() <<" r="<< (*it).rocIds << endl;
+  bool debug = false;
+  if (debug) {
+    cout  << " sorted: " << endl;
+    for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
+      cout << (*it).name->name() <<" r="<< (*it).rocIds << endl;
+    }
+    cout << endl;
   }
-  LogDebug(" sorted BARREL links: ") << str.str();
 
 
   //
@@ -93,14 +87,39 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
   result.reserve(linkItems.size());
   for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
     PixelFEDLink::ROCs rocs; 
-    PixelFEDLink link(++idLink);
+    PixelFEDLink * link = new PixelFEDLink(++idLink, theOwner);
     int idRoc = -1;
     for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
-      idRoc++;
-      FrameConversion frame(*(it->name), id);
-      rocs.push_back( PixelROC( it->unit, id, idRoc, frame) ); 
+       //
+       //
+       int rocInX, rocInY;
+       if (it->name->moduleName() < 0) { // negative barrel
+         if (id <= 7) {
+           rocInX = id;
+           rocInY = 0;
+         } 
+         else {
+           rocInX = 15-id;
+           rocInY = 1;
+         } 
+       } else {
+         if (id <=7) {
+           rocInX = 7-id; 
+           rocInY = 1;
+         }
+         else {
+           rocInX = id-8;
+           rocInY = 0;
+         }
+       }
+       rocs.push_back( 
+           new PixelROC( it->unit, link, id, ++idRoc, rocInX, rocInY));
     }
-    link.add(rocs);
+    PixelFEDLink::Connection con;
+    con.name = it->name;
+    con.unit = it->unit;
+    con.rocs = it->rocIds;
+    link->add( con, rocs);
     result.push_back(link); 
   }
 

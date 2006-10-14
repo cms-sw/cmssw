@@ -5,10 +5,7 @@
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=TrackingTools/PatternTools>
-<use name=TrackingTools/TransientTrackingRecHit>
 <use name=RecoPixelVertexing/PixelTriplets>
-<use name=CommonTools/Statistics>
-<use name=RecoTracker/TransientTrackingRecHit>
 
 <export>
  <lib name=RecoPixelVertexingPixelTrackFitting>
@@ -18,8 +15,5 @@
  <use name=Geometry/Records>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=RecoPixelVertexing/PixelTriplets>
- <use name=TrackingTools/TransientTrackingRecHit>
  <use name=TrackingTools/PatternTools>
- <use name=CommonTools/Statistics>
- <use name=RecoTracker/TransientTrackingRecHit>
 </export>

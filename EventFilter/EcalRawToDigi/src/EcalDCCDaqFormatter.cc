@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/06/26 09:19:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/23 15:01:17 $
+ *  $Revision: 1.3 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -643,7 +643,8 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 	  }// end 'if gain is zero'
 
 	memStoreIndex= ipn*50+strip*kSamplesPerChannel+sample;
-	data_MEM[memStoreIndex]= new_data & 0xfff;
+	// storing in data_MEM also the gain bits
+	data_MEM[memStoreIndex]= new_data & 0x3fff;
 
       }// loop on samples
     }// loop on strips
@@ -692,11 +693,21 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 
     thePnDigi.setSize(kSamplesPerPn);
 
+//     for (int sample =0; sample<kSamplesPerPn; sample++)
+//       {thePnDigi.setSample(sample, data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] );  }
+//     pndigicollection.push_back(thePnDigi);
+
     for (int sample =0; sample<kSamplesPerPn; sample++)
-      {thePnDigi.setSample(sample, data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] );  }
+      {
+	//	int adc  = (data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] & 0xfff);
+	//	int gain = (data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] & 0x3000) /4096;;
+	//	EcalFEMSample thePnSample(adc, gain);
+	EcalFEMSample thePnSample( data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] );
+	thePnDigi.setSample(sample,  thePnSample );  
+      }
     pndigicollection.push_back(thePnDigi);
   }
-  
+ 
   
 }
 

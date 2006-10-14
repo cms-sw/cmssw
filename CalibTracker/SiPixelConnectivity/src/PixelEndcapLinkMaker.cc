@@ -3,13 +3,9 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <ostream>
 
 using namespace std;
-using namespace sipixelobjects;
-
 bool PixelEndcapLinkMaker::Order::operator()
     (const Item &u1, const Item& u2) const
 {
@@ -17,8 +13,8 @@ bool PixelEndcapLinkMaker::Order::operator()
   const PixelEndcapName & n1 = *u1.name;
   const PixelEndcapName & n2 = *u2.name;
 
-  if (n1.halfCylinder() < n2.halfCylinder() ) res = true;
-  else if(n1.halfCylinder() > n2.halfCylinder() ) res = false;
+  if (n1.endcapName() < n2.endcapName() ) res = true;
+  else if(n1.endcapName() > n2.endcapName() ) res = false;
   else if (n1.diskName() < n2.diskName() ) res =  true;
   else if (n1.diskName() > n2.diskName() ) res =  false;
   else if (n1.bladeName() < n2.bladeName() ) res =  true;
@@ -52,17 +48,23 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
     item.name = e;
     item.unit = d;
     Range rocIds(-1,-1);
-    PixelModuleName::ModuleType type = e->moduleType(); 
-    switch (type) {
-      case(PixelModuleName::v1x2) : { rocIds = Range(0,1); break; }
-      case(PixelModuleName::v1x5) : { rocIds = Range(0,4); break; }
-      case(PixelModuleName::v2x3) : { rocIds = Range(0,5); break; }
-      case(PixelModuleName::v2x4) : { rocIds = Range(0,7); break; }
-      case(PixelModuleName::v2x5) : { rocIds = Range(0,9); break; }
-      default:
-        edm::LogError("PixelEndcapLinkMaker")<< " *** UNEXPECTED roc: " << e->name() ;
-    };
+    Plaquette type = v1x2;
+
+    if (e->pannelName() == 1) {
+      if (e->plaquetteName() == 1)      { rocIds = Range(0,1); type = v1x2; }
+      else if (e->plaquetteName() == 2) { rocIds = Range(0,5); type = v2x3; }
+      else if (e->plaquetteName() == 3) { rocIds = Range(0,7); type = v2x4; }
+      else if (e->plaquetteName() == 4) { rocIds = Range(0,4); type = v1x5; }
+      else { edm::LogError("PixelEndcapLinkMaker")<< " *** UNEXPECTED roc: " << e->name() ; }
+    }
+    else {
+      if (e->plaquetteName() == 1)      { rocIds = Range(0,5); type = v2x3; }
+      else if (e->plaquetteName() == 2) { rocIds = Range(0,7); type = v2x4; }
+      else if (e->plaquetteName() == 3) { rocIds = Range(0,9); type = v2x5; }
+      else { edm::LogError("PixelEndcapLinkMaker")<< " *** UNEXPECTED roc: " << e->name() ; }
+    }
     item.rocIds = rocIds;
+    item.type = type;
     linkItems.push_back(item);
   }
   //
@@ -70,43 +72,66 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
   //
 
   sort( linkItems.begin(), linkItems.end(), Order() );
-
-  //
-  // DEBUG
-  //
-  ostringstream str;
-  for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
-    str << (*it).name->name() <<" r="<< (*it).rocIds << endl;
-  }
-  LogDebug(" sorted ENDCAP links: ") << str.str();
+//
+//  bool debug = false;
+//  if (debug) {
+//    cout  << " ** PixelEndcapLinkMaker ** sorted: " << endl;
+//    for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
+//      cout << (*it).name->name() <<" r="<< (*it).rocIds << endl;
+//    }
+//    cout << endl;
+//  }
 
   result.reserve(36);
+  PixelFEDLink * link = 0;
   int lastPannelId = -1;
   int idLink = -1;
   int idRoc = -1;
-  PixelFEDLink link(idLink); // dummy object, id=-1
-
   for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
     PixelFEDLink::ROCs rocs;
     int pannelId = it->name->pannelName();
-
+    if (!link) {
+      lastPannelId = pannelId;
+      idRoc = -1;
+      link = new PixelFEDLink(++idLink, theOwner);
+    }
     if ( pannelId != lastPannelId ) {
       lastPannelId = pannelId;
-      if (idLink >= 0) result.push_back(link);
+      result.push_back(link);
       idRoc = -1;
-      link = PixelFEDLink(++idLink); // real link, to be filled
+      link = new PixelFEDLink(++idLink, theOwner);
     }
-
-    for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) { 
-     ++idRoc;
-     FrameConversion frame( *(it->name), id);
-     rocs.push_back( PixelROC( it->unit, id, idRoc, frame) );
+    for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
+      int rocInY, rocInX;
+      if ( (*it).type < v2x3) {    //narrow modules
+        rocInY = 0;
+        rocInX = (*it).rocIds.max()-id;
+      }
+      else {
+        if (2*id < (*it).rocIds.max()) {
+          rocInY = 0;
+          rocInX = id;
+        }
+        else {
+          rocInY = 1;
+          rocInX = (*it).rocIds.max()-id;
+        }
+      }
+      rocs.push_back(
+           new PixelROC( it->unit, link, id, ++idRoc, rocInX, rocInY));
     }
-
-    link.add( rocs);
+    PixelFEDLink::Connection con;
+    con.name = it->name;
+    con.unit = it->unit;
+    con.rocs = it->rocIds;
+    link->add( con, rocs);
+    rocs.clear();
   }
+  if (link) result.push_back(link);
 
-  if (idLink >= 0) result.push_back(link);
+
+
+
   return result;
 }
 

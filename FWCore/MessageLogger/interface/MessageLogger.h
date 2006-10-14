@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.16 2006/08/18 16:28:43 marafino Exp $
+// $Id: MessageLogger.h,v 1.17 2006/08/18 18:52:31 marafino Exp $
 //
 // =================================================
 // Change log
@@ -196,6 +196,10 @@ public:
     Suppress_LogDebug_ & 
     operator<< (T const & t)  { return *this; }
 };  // Suppress_LogDebug_
+
+  bool isDebugEnabled();
+  bool isInfoEnabled();
+  bool isWarningEnabled();
 
 }  // namespace edm
 

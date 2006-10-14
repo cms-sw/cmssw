@@ -1,7 +1,9 @@
+// $Id:$
 #include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
 
-//using namespace edm;
+#include <iomanip>
+
 using namespace std;
 
 namespace edm {
@@ -102,8 +104,8 @@ void StreamerOutSrvcManager::collectStreamerPSets(const std::string& config)
      }
 }
 
-void StreamerOutSrvcManager::manageInitMsg(std::string fileName, unsigned long maxFileSize, double highWaterMark,
-		std::string path, std::string mpath, InitMsgView& init_message)
+void StreamerOutSrvcManager::manageInitMsg(std::string fileName, uint32 runNum, unsigned long maxFileSize, double highWaterMark,
+		std::string path, std::string mpath, std::string catalog, uint32 disks, InitMsgView& init_message)
      {
 
       //received file name is ignored for now, and later we can remove it, not understood if its required
@@ -115,16 +117,29 @@ void StreamerOutSrvcManager::manageInitMsg(std::string fileName, unsigned long m
       for(std::vector<ParameterSet>::iterator it = outModPSets_.begin();
           it != outModPSets_.end(); ++it)
         {
-	   //Get the filename
+	   //Get the filename (HWKC - how to specify default parameters in call?
            std::string fileNameLocal = (*it).getParameter<string> ("fileName");
+           std::string filePathLocal = (*it).getParameter<string> ("filePath");
+           std::string mailboxPathLocal = (*it).getParameter<string> ("mailboxPath");
+           std::string setupLabelLocal = (*it).getParameter<string> ("setupLabel");
+           std::string streamLabelLocal = (*it).getParameter<string> ("streamLabel");
+           uint32 maxFileSizeLocal = (*it).getParameter<int> ("maxSize");
+           double highWaterMarkLocal = (*it).getParameter<double> ("highWaterMark");
           
            //Other parameters can also be pulled here, if provided in config file. 
            
            StreamerOutputService* outputFile = new StreamerOutputService((*it));
            //invoke its init, later StreamerOutputService CTOR will call its own init 
            //it should take a SelectEvents PSet too
-           outputFile->init(fileNameLocal, maxFileSize, highWaterMark,
-                             path, mpath, init_message);
+           // HWKC - we need to check no two outputs streams have the same filename!
+           //outputFile->init(fileNameLocal, maxFileSize, highWaterMark,
+           //                  path, mpath, catalog, disks, init_message);
+           std::ostringstream stm;
+           stm << setupLabelLocal << "." << setfill('0') << std::setw(8) << runNum
+               << "." << streamLabelLocal << "." << fileName;
+           std::string filenLocal = stm.str();
+           outputFile->init(filenLocal, maxFileSizeLocal, highWaterMarkLocal,
+                             filePathLocal, mailboxPathLocal, catalog, disks, init_message);
           
            //Stor it in list of managed outputFiles
            managedOutputs_.push_back(outputFile);
@@ -133,13 +148,26 @@ void StreamerOutSrvcManager::manageInitMsg(std::string fileName, unsigned long m
 
 void StreamerOutSrvcManager::manageEventMsg(EventMsgView& msg)
     {
-       //Received an Event Message, Pass it ON to each outputFile
-       // outputFile(service) will decide to write or Pass it
-       for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
-          it != managedOutputs_.end(); ++it)
-        {
-            (*it)->writeEvent(msg);
-        }
+      //Received an Event Message, Pass it ON to each outputFile
+      // outputFile(service) will decide to write or Pass it
+       
+      bool condition = true;
+      
+      for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
+	  it != managedOutputs_.end(); ++it)
+	{
+	  condition = condition && (*it)->writeEvent(msg);
+	}
+
+      // close all managed file synchronous ( if condition == false )
+      if ( !condition )
+	{
+	  for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
+	      it != managedOutputs_.end(); ++it)
+	    {
+	      (*it)->closeFile(msg);
+	    }
+	}
     }
 
 
@@ -150,7 +178,8 @@ std::list<std::string>& StreamerOutSrvcManager::get_filelist()
           it != managedOutputs_.end(); ++it)
         {
             std::list<std::string>& sub_list = (*it)->get_filelist();
-            filelist_.assign(sub_list.begin(), sub_list.end() );
+            if(sub_list.size() > 0)
+              filelist_.assign(sub_list.begin(), sub_list.end() );
         } 
      return filelist_; 
     }

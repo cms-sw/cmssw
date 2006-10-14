@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.1 2006/08/20 19:40:30 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.2 2006/08/22 22:09:41 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -195,35 +195,35 @@ void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
 void SiStripHistoricInfoClient::tstore_connect(){
   cout<<"SiStripHistoricInfoClient::tstore_connect()  called"<<endl;
 
-  // create SOAP message
-  xoap::MessageReference msg = xoap::createMessage();
-  try {
-          xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
-          xoap::SOAPName msgName = envelope.createName( "connect", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
-          xoap::SOAPElement queryElement = envelope.getBody().addBodyElement ( msgName );
-  
-          xoap::SOAPName id = envelope.createName("id", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
-          queryElement.addAttribute(id, "urn:tstore-view-SQL:MyParameterisedView");
-          xoap::SOAPName passwordName = envelope.createName("client4histoplot", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
-          queryElement.addAttribute(passwordName, "grape");       
-  }
-  catch(xoap::exception::Exception& e) {
-     //handle exception
-     cout<<"SiStripHistoricInfoClient::tstore_connect() SOAP message: failure to create."<<endl;
-  }
-  
-  // send SOAP message
-  try {
-        xdaq::ApplicationDescriptor * tstoreDescriptor = getApplicationContext()->getApplicationGroup()->getApplicationDescriptor(getApplicationContext()->getContextDescriptor(),120);
-        xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, tstoreDescriptor);
-        xoap::SOAPBody body = reply->getSOAPPart().getEnvelope().getBody();
-        if (body.hasFault()) {
-              //connection could not be opened
-        }
-  }
-  catch (xdaq::exception::Exception& e) {
-    //handle exception
-     cout<<"SiStripHistoricInfoClient::tstore_connect() SOAP message: failure to send."<<endl;
-  }
+//  // create SOAP message
+//  xoap::MessageReference msg = xoap::createMessage();
+//  try {
+//          xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
+//          xoap::SOAPName msgName = envelope.createName( "connect", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
+//          xoap::SOAPElement queryElement = envelope.getBody().addBodyElement ( msgName );
+//  
+//          xoap::SOAPName id = envelope.createName("id", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
+//          queryElement.addAttribute(id, "urn:tstore-view-SQL:MyParameterisedView");
+//          xoap::SOAPName passwordName = envelope.createName("client4histoplot", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
+//          queryElement.addAttribute(passwordName, "grape");       
+//  }
+//  catch(xoap::exception::Exception& e) {
+//     //handle exception
+//     cout<<"SiStripHistoricInfoClient::tstore_connect() SOAP message: failure to create."<<endl;
+//  }
+//  
+//  // send SOAP message
+//  try {
+//        xdaq::ApplicationDescriptor * tstoreDescriptor = getApplicationContext()->getApplicationGroup()->getApplicationDescriptor(getApplicationContext()->getContextDescriptor(),120);
+//        xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, tstoreDescriptor);
+//        xoap::SOAPBody body = reply->getSOAPPart().getEnvelope().getBody();
+//        if (body.hasFault()) {
+//              //connection could not be opened
+//        }
+//  }
+//  catch (xdaq::exception::Exception& e) {
+//    //handle exception
+//     cout<<"SiStripHistoricInfoClient::tstore_connect() SOAP message: failure to send."<<endl;
+//  }
 
 }

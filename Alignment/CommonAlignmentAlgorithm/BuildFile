@@ -1,38 +1,10 @@
-#  last update: $Date$
-#  by         : $Author$
 <use name=Alignment/CommonAlignmentParametrization>
-<use name=RecoTracker/TrackProducer>
-<use name=FWCore/ParameterSet>
-<use name=MagneticField/Engine>
-<use name=MagneticField/Records>
-<use name=RecoTracker/TransientTrackingRecHit> 
 <use name=Alignment/TrackerAlignment>
-# added by GF for ReferenceTrajectory
-<use name=TrackingTools/TransientTrackingRecHit>
-<use name=TrackingTools/MaterialEffects>
-<use name=TrackingTools/AnalyticalJacobians>
-<use name=Geometry/CommonDetAlgo>
-<use name=Geometry/Surface>
-<use name=Geometry/Vector>
-<use name=Geometry/CommonDetUnit>
-<use name=DataFormats/TrajectoryState>
+
 <export>
+ 
   <lib name=AlignmentCommonAlignmentAlgorithm>
+
   <use name=Alignment/CommonAlignmentParametrization>
   <use name=Alignment/TrackerAlignment>
-  <use name=RecoTracker/TrackProducer>
-  <use name=RecoTracker/TransientTrackingRecHit> 
-# following by Gero
-  <use name=TrackingTools/TransientTrackingRecHit>
-  <use name=TrackingTools/MaterialEffects>
-  <use name=TrackingTools/AnalyticalJacobians>
-  <use name=Geometry/CommonDetAlgo>
-  <use name=Geometry/Surface>
-  <use name=Geometry/Vector>
-  <use name=Geometry/CommonDetUnit>
-  <use name=DataFormats/TrajectoryState>
-# added since were in upper part... ???
-  <use name=FWCore/ParameterSet>
-  <use name=MagneticField/Engine>
-  <use name=MagneticField/Records>
 </export>

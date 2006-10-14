@@ -1,5 +1,5 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.3 2006/08/31 19:49:41 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: FedDescriptions.cc,v 1.2 2006/07/26 11:27:19 bainbrid Exp $
+// Latest tag:  $Name: V00-01-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -20,7 +20,8 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
   try {
     deviceFactory(__FUNCTION__)->setUsingStrips( usingStrips_ );
     feds_ = *( deviceFactory(__FUNCTION__)->getFed9UDescriptions( partition_.name_, 
-								  -1, -1 ) ); //partition_.major_, partition_.minor_ ) );
+								  partition_.major_, 
+								  partition_.minor_ ) );
     resetFeds_ = false;
   }
   catch (... ) {

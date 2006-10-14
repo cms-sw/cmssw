@@ -1,5 +1,4 @@
 <use name=FWCore/Utilities>
-<use name=DataFormats/SiStripCommon>
 <use name=DataFormats/SiStripDetId>
 <use name=DQMServices/Core>
 <use name=DQMServices/Components>

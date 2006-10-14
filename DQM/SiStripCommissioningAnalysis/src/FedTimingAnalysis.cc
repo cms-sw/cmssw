@@ -151,7 +151,9 @@ void FedTimingAnalysis::analyse() {
       non_zero++;
     }
   }
-
+  bin_contents.resize( nbins, 0. );
+  bin_errors.resize( nbins, 0. );
+  bin_entries.resize( nbins, 0. );
   //cout << " Number of bins with non-zero entries: " << non_zero << endl;
   if ( bin_contents.size() < 100 ) { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
@@ -237,50 +239,31 @@ void FedTimingAnalysis::analyse() {
     }
   }
   
-  // Iterate through "edges" map
-  bool found = false;
-  uint16_t deriv_bin = sistrip::invalid_;
-  float max_deriv = -1.*sistrip::invalid_;
-  map<uint16_t,float>::iterator iter = edges.begin();
-  while ( !found && iter != edges.end() ) {
-
-    // Iterate through 50 subsequent samples
+  // Check samples following edges (+10 to +40) are "high"
+  for ( map<uint16_t,float>::iterator iter = edges.begin();
+	iter != edges.end(); iter++ ) {
     bool valid = true;
-    for ( uint16_t ii = 0; ii < 50; ii++ ) {
-      uint16_t bin = iter->first + ii;
-
-      // Calc local derivative 
-      float temp_deriv = 0;
-      if ( static_cast<uint32_t>(bin-1) < 0 ||
-	   static_cast<uint32_t>(bin+1) >= nbins ) { continue; }
-      temp_deriv = bin_contents[bin+1] - bin_contents[bin-1];
-      
-      // Store max derivative
-      if ( temp_deriv > max_deriv ) {
-	max_deriv = temp_deriv;
-	deriv_bin = bin;
-      }
-
-      // Check if samples following edge are all "high"
-      if ( ii > 10 && ii < 40 && bin_entries[bin] &&
-	   bin_contents[bin] < baseline + 5*baseline_rms ) { valid = false; }
-
+    for ( uint16_t ii = 10; ii < 40; ii++ ) {
+      if ( bin_entries[iter->first+ii] &&
+	   bin_contents[iter->first+ii] < baseline + 5*baseline_rms ) { valid = false; }
     }
-
-    // Break from loop if tick mark found
-    if ( valid ) { found = true; }
-    else {
-      max_deriv = -1.*sistrip::invalid_;
-      deriv_bin = sistrip::invalid_;
+    if ( !valid ) {
       edges.erase(iter);
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " Found samples below threshold following a rising edge!" << endl;
     }
-
-    iter++;
   }
+  //   cout << " Identified " << edges.size() << " edges followed by tick! #/bin/derivative: ";
+  //   uint16_t cntr = 0;
+  //   for ( map<uint16_t,float>::const_iterator iter = edges.begin();
+  // 	iter != edges.end(); iter++ ) {
+  //     cout << cntr++ << "/" << iter->first << "/" << iter->second << ", ";
+  //   }
+  //   cout << endl; 
   
   // Set monitorables (but not PLL coarse and fine here)
   if ( !edges.empty() ) {
-    time_      = deriv_bin;
+    time_      = 0.;
     error_     = 0.;
     base_      = baseline;
     peak_      = tickmark;

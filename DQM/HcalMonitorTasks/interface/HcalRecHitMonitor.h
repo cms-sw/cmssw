@@ -7,8 +7,8 @@
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2006/08/24 23:44:59 $
-  * $Revision: 1.8 $
+  * $Date: 2006/04/04 19:27:03 $
+  * $Revision: 1.4 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -18,7 +18,7 @@ public:
 
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
   void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
-  void clearME();
+
 
 private:  ///Monitoring elements
 
@@ -26,17 +26,13 @@ private:  ///Monitoring elements
   float occThresh_;
   int ievt_;
 
-  double etaMax_, etaMin_, phiMax_, phiMin_;
-  int etaBins_, phiBins_;
-
   struct{
     MonitorElement* meOCC_MAP_GEO;
     MonitorElement* meRECHIT_E_all;
-    MonitorElement* meRECHIT_E_low;
     MonitorElement* meRECHIT_E_tot;
     MonitorElement* meRECHIT_T_tot;
     std::map<HcalDetId, MonitorElement*> meRECHIT_E, meRECHIT_T;  // complicated per-channel histogram setup
-  }hbHists,heHists, hfHists,hoHists;
+  }hbHists,hfHists,hoHists;
 
   MonitorElement* meOCC_MAP_all_GEO;
   MonitorElement* meRECHIT_E_all;

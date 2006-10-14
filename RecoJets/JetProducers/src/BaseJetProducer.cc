@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.1 2006/08/22 22:11:41 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.16 2006/07/21 19:37:27 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -8,7 +8,6 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
-#include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Handle.h"
 
@@ -86,21 +85,9 @@ namespace cms
 	basicJets->push_back (jetMaker.makeBasicJet (*protojet));
       }
     }
-    // sort and store output
-    if (caloJets.get ()) {
-      GreaterByPt<CaloJet> compJets;
-      std::sort (caloJets->begin (), caloJets->end (), compJets);
-      e.put(caloJets);  //Puts Jet Collection into event
-    }
-    if (genJets.get ()) {
-      GreaterByPt<GenJet> compJets;
-      std::sort (genJets->begin (), genJets->end (), compJets);
-      e.put(genJets);  //Puts Jet Collection into event
-    }
-    if (basicJets.get ()) {
-      GreaterByPt<BasicJet> compJets;
-      std::sort (basicJets->begin (), basicJets->end (), compJets);
-      e.put(basicJets);  //Puts Jet Collection into event
-    }
+    // store output
+    if (caloJets.get ()) e.put(caloJets);  //Puts Jet Collection into event
+    if (genJets.get ()) e.put(genJets);  //Puts Jet Collection into event
+    if (basicJets.get ()) e.put(basicJets);  //Puts Jet Collection into event
   }
 }

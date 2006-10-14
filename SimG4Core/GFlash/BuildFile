@@ -14,7 +14,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=Framework/SealKernel>
-<use name=SimG4Core/Packaging>
+<lib name=SimG4CorePackaging>
 
 <use name=seal>
 <use name=geant4>

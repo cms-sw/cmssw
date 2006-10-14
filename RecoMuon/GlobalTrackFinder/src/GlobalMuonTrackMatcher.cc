@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/09/25 18:55:35 $
- *  $Revision: 1.31 $
+ *  $Date: 2006/09/25 01:11:11 $
+ *  $Revision: 1.30 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -10,7 +10,7 @@
 
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -118,19 +118,21 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
 
   TrajectoryStateOnSurface innerMuTsos;  
   TrajectoryStateOnSurface outerTkTsos;
-  TrajectoryStateTransform tsTransform;
 
   if(staCand.first == 0) {
-    innerMuTsos = tsTransform.innerStateOnSurface(*staCand.second,*theService->trackingGeometry(),&*theService->magneticField());
+    reco::TransientTrack staT(staCand.second,&*theService->magneticField(),theService->trackingGeometry());  
+    innerMuTsos = staT.innermostMeasurementState();
   } else {
     innerMuTsos = staCand.first->firstMeasurement().updatedState();
   }
   
   if(tkCand.first == 0) {
+    reco::TransientTrack tkT(tkCand.second,&*theService->magneticField(),theService->trackingGeometry());
     // make sure the tracker Track has enough momentum to reach muon chambers
-    if ( tkCand.second->p() < theMinP || tkCand.second->pt() < theMinPt )
+    const GlobalVector& mom = tkT.impactPointState().globalMomentum();
+    if ( mom.mag() < theMinP || mom.perp() < theMinPt )
       return pair<bool,double>(false,0);
-    outerTkTsos = tsTransform.outerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
+    outerTkTsos = tkT.outermostMeasurementState();
   } else {
     const GlobalVector& mom = tkCand.first->firstMeasurement().updatedState().globalMomentum();
     if ( mom.mag() < theMinP || mom.perp() < theMinPt )

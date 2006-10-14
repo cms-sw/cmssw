@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/08/24 13:42:20 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/09/14 17:09:40 $
+ *  $Revision: 1.13 $
  *
  * \author Ilaria Segoni
  */
@@ -37,6 +37,7 @@
 
 RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
 
+  foundHitsInChamber.clear();
   nameInLog = pset.getUntrackedParameter<std::string>("moduleLogName", "RPC_DQM");
 
   saveRootFile  = pset.getUntrackedParameter<bool>("DigiDQMSaveRootFile", false); 
@@ -50,7 +51,17 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
 
-  GlobalHistogramsFolder="GlobalHistograms";
+
+}
+
+
+RPCMonitorDigi::~RPCMonitorDigi(){
+}
+
+void RPCMonitorDigi::beginJob(edm::EventSetup const&){
+ edm::LogInfo (nameInLog) <<"Beginning DQMMonitorDigi " ;
+  
+  GlobalHistogramsFolder="RPC/Digi&RecHits/GlobalHistograms";
   dbe->setCurrentFolder(GlobalHistogramsFolder);  
 
   GlobalZYHitCoordinates = dbe->book2D("GlobalRecHitZYCoordinates", "Rec Hit Z-Y", 1000, -800, 800, 1000, -800, 800);
@@ -59,17 +70,21 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
 
 
   dbe->showDirStructure();
-
-
-}
-
-
-RPCMonitorDigi::~RPCMonitorDigi(){
 }
 
 void RPCMonitorDigi::endJob(void)
 {
   if(saveRootFile) dbe->save(RootFileName);
+ 
+  //std::vector<std::string> contentVec;
+  //dbe->getContents(contentVec);
+  //std::vector<std::string>::iterator dirItr;
+  //for(dirItr=contentVec.begin();dirItr!=contentVec.end(); ++dirItr){
+  //	dbe->setCurrentFolder(*dirItr);
+  //	dbe->removeContents();
+  //}
+  
+  dbe = 0;
 }
 
 
@@ -80,6 +95,14 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 
  char layerLabel[128];
  char meId [128];
+
+ 
+ std::map<uint32_t, bool >::iterator mapItrReset;
+ for (mapItrReset = foundHitsInChamber.begin(); mapItrReset != foundHitsInChamber.end(); ++ mapItrReset) {
+ 	mapItrReset->second=false;
+ }
+ 
+ 
 
 /// RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeo;
@@ -189,6 +212,13 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 		meMap[meId]->Fill((int)(counter), 1.0);
 	
 	}else{
+		std::map<uint32_t, bool >::iterator mapItr = foundHitsInChamber.find(id);
+		if (mapItr == foundHitsInChamber.end() || (foundHitsInChamber.size()==0)) {
+			sprintf(meId,"RecHitCounter_%s",detUnitLabel);
+			meMap[meId]->setBinContent(1, counter);
+		}		
+		foundHitsInChamber[id]=true;
+		
 		sprintf(meId,"MissingHits_%s",detUnitLabel);
 		meMap[meId]->Fill((int)(counter), 0.0);
 		
@@ -274,11 +304,27 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	
 		sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
 		meMap[meId]->Fill(numbOfClusters);
+		
+		if(numberOfHits>5) numberOfHits=16;
+		sprintf(meId,"RecHitCounter_%s",detUnitLabel);
+		meMap[meId]->Fill(numberOfHits);
 	}
 	
  
  }/// loop on RPC Det Unit
 
+ std::map<uint32_t, bool >::iterator mapItrCheck;
+ for (mapItrCheck = foundHitsInChamber.begin(); mapItrCheck != foundHitsInChamber.end(); ++ mapItrCheck) {
+ 	if(mapItrCheck->second=false){
+ 		uint32_t idCheck=mapItrCheck->first;
+		std::map<std::string, MonitorElement*> meMapCheck=meCollection[idCheck];		
+		RPCDetId detIdCheck(idCheck); 
+		char detUnitLabelCheck[128];
+		sprintf(detUnitLabelCheck ,"%d",detIdCheck());
+		sprintf(meId,"RecHitCounter_%s",detUnitLabelCheck);
+		meMapCheck[meId]->Fill(0);		
+	}
+ }
 
   
 

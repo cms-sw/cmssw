@@ -44,9 +44,6 @@ public:
 
   /// Returns vector of AlignableDet* for given vector of Hits
   std::vector<AlignableDet*> alignableDetsFromHits(const std::vector<const TransientTrackingRecHit*>& hitvec);
-  /// Returns vector of AlignableDet* for given vector of Hits
-  std::vector<AlignableDet*> alignableDetsFromHits
-    (const TransientTrackingRecHit::ConstRecHitContainer &hitVec);
 
   /// Returns number of elements in map
   int size( void ) { return theMap.size(); }

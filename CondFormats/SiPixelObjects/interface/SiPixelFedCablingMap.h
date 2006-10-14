@@ -1,33 +1,22 @@
-#ifndef SiPixelFedCablingMap_H
+#ifndef  SiPixelFedCablingMap_H
 #define SiPixelFedCablingMap_H
 
 #include <vector>
-#include <map>
-#include <string>
 
-#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+class PixelFEDCabling;
 
 class SiPixelFedCablingMap {
 public:
-  typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;
-
-  SiPixelFedCablingMap(const std::string & version="") : theVersion(version) {}
+  SiPixelFedCablingMap();
+  ~SiPixelFedCablingMap();
 
   /// add cabling for one fed
-  void addFed(const PixelFEDCabling& f);
+  void addFed(PixelFEDCabling* f);
 
-  /// get fed identified by its id
-  const PixelFEDCabling * fed(unsigned int idFed) const;
-
-  std::vector<const PixelFEDCabling *> fedList() const;
-
-  ///map version
-  const std::string & version() const { return theVersion; }
-
-  std::string print(int depth = 0) const;
+  /// get defined  cabling for all feds
+  std::vector<PixelFEDCabling *> cabling() const { return theFedCablings; }
 
 private:
-  std::string theVersion; 
-  std::map<int, PixelFEDCabling> theFedCablings;
+  std::vector<PixelFEDCabling *> theFedCablings;
 };
 #endif

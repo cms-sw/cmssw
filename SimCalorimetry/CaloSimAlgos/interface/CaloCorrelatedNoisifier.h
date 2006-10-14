@@ -26,17 +26,12 @@ public:
   
   void setOffDiagonal(int neighbor, double value);
 
-  virtual void noisify(CaloSamples & frame);
-
-  void computeNormalization(std::vector<double> & norma);
+  virtual void noisify(CaloSamples & frame) const;
 
 private:
   HepSymMatrix theMatrix;
   mutable RandGauss theRandomGaussian;
   int theSize; 
-  std::vector<double> theNorma;
-  bool normaDone;
-
 };
 
 #endif

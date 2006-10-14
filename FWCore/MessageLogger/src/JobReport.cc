@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.5 2006/06/09 13:56:09 evansde Exp $
+// $Id: JobReport.cc,v 1.7 2006/10/02 21:45:32 evansde Exp $
 //
 
 
@@ -292,6 +292,26 @@ namespace edm
       // to reference it by ID.
       f.fileHasBeenClosed = true;
       impl_->writeOutputFile(f);
+
+    }
+
+    void 
+    JobReport::overrideEventsWritten(Token fileToken, const int eventsWritten)
+    {
+      // Get the required output file instance using the token
+      JobReport::OutputFile& f = impl_->getOutputFileForToken(fileToken);
+      // set the eventsWritten parameter to the provided value
+      f.numEventsWritten = eventsWritten;
+
+    }
+
+    void 
+    JobReport::overrideEventsRead(Token fileToken, const int eventsRead)
+    {
+      // Get the required input file instance using the token
+      JobReport::InputFile& f = impl_->getInputFileForToken(fileToken);
+      // set the events read parameter to the provided value
+      f.numEventsRead = eventsRead;
 
     }
 

@@ -4,10 +4,9 @@
 /** \class DTDDUUnpacker
  *  The unpacker for DTs' FED.
  *
- *  $Date: 2006/04/25 10:31:16 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/04/10 12:21:48 $
+ *  $Revision: 1.7 $
  * \author M. Zanetti INFN Padova
- * FRC 060906
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -31,7 +30,6 @@ class DTDDUUnpacker : public DTUnpacker {
 				int dduID,
 				edm::ESHandle<DTReadOutMapping>& mapping, 
 				std::auto_ptr<DTDigiCollection>& product,
-				std::auto_ptr<DTLocalTriggerCollection>& product2,
 				uint16_t rosList=0);
 
  private:

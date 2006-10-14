@@ -181,11 +181,6 @@ namespace edm {
       nodePtr->print(std::cout, Node::EXPANDED);
     }
 
-    std::string ParseTree::typeOf(const std::string & dotDelimitedNode) const
-    {
-      return findInPath(dotDelimitedNode)->type();
-    }
-
 
     std::string ParseTree::value(const std::string & dotDelimitedNode) const
     {

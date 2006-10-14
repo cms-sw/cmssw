@@ -5,9 +5,7 @@
 <use name=CondFormats/HcalObjects>
 <use name=CalibFormats/HcalObjects>
 <use name=CondCore/IOVService>
-<use name=CondCore/DBCommon>
 <use name=CORALRelationalAccess>
-<use name=CondCore/MetaDataService>
 <use name=DataSvc> 
 <use name=xerces-c> 
 <export>
@@ -15,12 +13,11 @@
   <use name=boost>
   <use name=oracle>
   <use name=FWCore/Framework>
+  <use name=Foundation/PluginManager>
   <use name=DataFormats/HcalDetId>
   <use name=CondFormats/HcalObjects>
   <use name=CalibFormats/HcalObjects>
   <use name=CondCore/IOVService>
-  <use name=CondCore/DBCommon>
-  <use name=CondCore/MetaDataService>
   <use name=CORALRelationalAccess>
   <use name=DataSvc> 
   <use name=xerces-c> 

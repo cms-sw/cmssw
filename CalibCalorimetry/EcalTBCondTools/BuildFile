@@ -8,17 +8,15 @@
 <use name=CondCore/DBCommon>
 <use name=CondCore/MetaDataService>
 <use name=CondCore/IOVService>
-<use name=CondCore/DBOutputService>
 <use name=CondFormats/EcalObjects>
-<use name=CondFormats/DataRecord>
+<use name=CondCore/DBOutputService>
 <export>
-<lib name=CalibCalorimetryEcalTBCondTools>
-<use name=FWCore/Framework>
-<use name=DataFormats/Common>
-<use name=CondCore/DBCommon>
-<use name=CondCore/MetaDataService>
-<use name=CondCore/IOVService>
-<use name=CondCore/DBOutputService>
-<use name=CondFormats/EcalObjects>
-<use name=CondFormats/DataRecord>
+ <lib name=CalibCalorimetryEcalTBCondTools>
+ <use name=DataFormats/Common>
+ <use name=FWCore/Framework>
+ <use name=CondCore/DBCommon>
+ <use name=CondCore/MetaDataService>
+ <use name=CondCore/IOVService>
+ <use name=CondFormats/EcalObjects>
+ <use name=CondCore/DBOutputService>
 </export>

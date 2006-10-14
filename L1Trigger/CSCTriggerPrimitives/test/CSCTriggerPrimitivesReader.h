@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2006/09/12 09:36:50 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/20 14:55:46 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -18,23 +18,14 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/InputTag.h>
-
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 #include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
 
-#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
-
-#include <TH1.h>
-#include <TH2.h>
-
-class CSCGeometry;
 class TFile;
+class TH1F;
 
 class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 {
@@ -56,24 +47,17 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   bool debug;               // on/off switch
   //std::string rootFileName; // root file name
 
-  // Cache geometry for current event
-  const CSCGeometry* geom_;
-
-  // Module labels
-  std::string   lctProducer_;
-  edm::InputTag wireDigiProducer_;
-  edm::InputTag compDigiProducer_;
+  // Module label
+  std::string lctProducer_;
 
   // The file which will store the histos
   // TFile *theFile;
 
   enum trig_cscs {MAX_STATIONS = 4, CSC_TYPES = 10};
-  enum {MAXPAGES = 20};      // max. number of pages in postscript files
-  static const double TWOPI; // 2.*pi
+  enum {MAXPAGES = 20};     // max. number of pages in postscript files
 
   // Various useful constants
   static const std::string csc_type[CSC_TYPES];
-  static const int MAX_WG[CSC_TYPES];
   static const int MAX_HS[CSC_TYPES];
   static const int ptype[CSCConstants::NUM_CLCT_PATTERNS];
 
@@ -87,9 +71,6 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static bool bookedCLCTHistos;
   static bool bookedLCTTMBHistos;
   static bool bookedLCTMPCHistos;
-
-  static bool bookedResolHistos;
-  static bool bookedEfficHistos;
 
   void setRootStyle();
 
@@ -105,33 +86,13 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   void drawCLCTHistos();
   void drawLCTTMBHistos();
   void drawLCTMPCHistos();
-
-  void bookResolHistos();
-  void drawResolHistos();
-  void bookEfficHistos();
-  void drawEfficHistos();
   void drawHistosForTalks();
 
-  int    getCSCType(const CSCDetId& id);
-  double getHsPerRad(const int idh);
+  int getCSCType(const CSCDetId& id);
 
   void compare(const edm::Event& ev);
   void compareALCTs(const CSCALCTDigiCollection* alcts_data,
 		    const CSCALCTDigiCollection* alcts_emul);
-
-  void MCStudies(const edm::Event& ev,
-		 const CSCALCTDigiCollection* alcts,
-		 const CSCCLCTDigiCollection* clcts);
-
-  void calcResolution(const CSCALCTDigiCollection* alcts,
-		      const CSCCLCTDigiCollection* clcts,
-		      const CSCWireDigiCollection* wiredc,
-		      const CSCComparatorDigiCollection* compdc,
-		      const edm::PSimHitContainer* allSimHits);
-
-  void calcEfficiency(const CSCALCTDigiCollection* alcts,
-		      const CSCCLCTDigiCollection* clcts,
-		      const edm::PSimHitContainer* allSimHits);
 
   // Histograms
   // ALCTs
@@ -158,28 +119,6 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hLctMPCValid, *hLctMPCQuality, *hLctMPCKeyGroup;
   TH1F *hLctMPCKeyStrip, *hLctMPCStripType;
   TH1F *hLctMPCPattern, *hLctMPCBend, *hLctMPCBXN;
-  // Resolution histograms
-  // ALCT
-  TH2F *hEtaRecVsSim;
-  TH1F *hResolDeltaWG, *hResolDeltaEta;
-  TH1F *hAlctVsEta[MAX_STATIONS];
-  TH1F *hEtaDiffVsEta[MAX_STATIONS];
-  TH1F *hEtaDiffCsc[CSC_TYPES][3];
-  TH2F *hEtaDiffVsWireCsc[CSC_TYPES];
-  // CLCT
-  TH2F *hPhiRecVsSim;
-  TH1F *hResolDeltaHS, *hResolDeltaDS;
-  TH1F *hResolDeltaPhi, *hResolDeltaPhiHS, *hResolDeltaPhiDS;
-  TH1F *hClctVsPhi[MAX_STATIONS];
-  TH1F *hPhiDiffVsPhi[MAX_STATIONS];
-  TH1F *hPhiDiffCsc[CSC_TYPES][5];
-  TH2F *hPhiDiffVsStripCsc[CSC_TYPES][2];
-  TH1F *hPhiDiffPattern[9];
-  // Efficiency histograms
-  TH1F *hEfficHitsEta[MAX_STATIONS];
-  TH1F *hEfficALCTEta[MAX_STATIONS], *hEfficCLCTEta[MAX_STATIONS];
-  TH1F *hEfficHitsEtaCsc[CSC_TYPES];
-  TH1F *hEfficALCTEtaCsc[CSC_TYPES], *hEfficCLCTEtaCsc[CSC_TYPES];
 };
 
 #endif

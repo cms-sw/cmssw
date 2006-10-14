@@ -12,7 +12,7 @@
 class PixelFitter {
 public:
   virtual ~PixelFitter(){}
-  virtual reco::Track* run(
+  virtual const reco::Track* run( 
       const edm::EventSetup& es,
       const std::vector<const TrackingRecHit *>& hits, 
       const TrackingRegion& region) const = 0;

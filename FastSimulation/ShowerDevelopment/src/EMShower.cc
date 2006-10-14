@@ -10,6 +10,7 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandLandau.h"
 
 #include <math.h>
 

@@ -1,5 +1,5 @@
 #! /bin/csh
-setenv RELEASE 100pre3
+setenv RELEASE 090pre3a
 setenv WWWDIR /afs/fnal.gov/files/home/room2/elis/public_html/Validation/$RELEASE
 
 mkdir $WWWDIR

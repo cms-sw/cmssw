@@ -21,6 +21,7 @@ EcalBarrelRecHitsMaker::~EcalBarrelRecHitsMaker()
 
 void EcalBarrelRecHitsMaker::clean()
 {
+  std::cout << " Before the clean " << ecalbRecHits_.size() << std::endl;
   ecalbRecHits_.clear();
 }
 

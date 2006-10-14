@@ -1,14 +1,16 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-#include <sstream>
 #include <iostream>
-
 using namespace std;
-using namespace sipixelobjects;
+
+void PixelFEDLink::clearRocs()
+{
+  typedef ROCs::const_iterator CIR;
+  for (CIR it = theROCs.begin(); it != theROCs.end(); it++) delete (*it);
+  theROCs.clear();
+}
 
 bool PixelFEDLink::checkRocNumbering() const
 {
@@ -17,32 +19,46 @@ bool PixelFEDLink::checkRocNumbering() const
   typedef ROCs::const_iterator CIR;
   for (CIR it = theROCs.begin(); it != theROCs.end(); it++) {
     idx_expected++;
-    if (idx_expected != (*it).idInLink() ) {
+    if (idx_expected != (*it)->idInLink() ) {
       result = false;
       cout << "** PixelFEDLink, idInLink in ROC, expected: "
-           << idx_expected <<" has: "<<(*it).idInLink() << endl;
+           << idx_expected <<" has: "<<(*it)->idInLink() << endl;
+    }
+    if (this != (*it)->link()) {
+      result = false;
+      cout << "** PixelFEDLink, wrong Link addres in ROC" << endl;
     }
   }
   return result;
 }
 
-void PixelFEDLink::add(const ROCs & rocs)
+ostream & operator<<(
+    ostream& out, const PixelFEDLink & l)
 {
-  theROCs.insert( theROCs.end(), rocs.begin(), rocs.end() );
-}
+  typedef PixelFEDLink::Connections Con;
+  typedef Con::const_iterator IC;
+  const Con & con = l.connected();
 
-string PixelFEDLink::print(int depth) const
-{
-  ostringstream out;
-
-  if (depth-- >=0 ) {
-    out <<"====== PixelFEDLink, ID: "<<id()<< endl;
-    typedef ROCs::const_iterator CIR;
-    for (CIR ir = theROCs.begin(); ir != theROCs.end(); ir++) out<< (ir)->print(depth); 
-    out <<"       total number of ROCs: "<< numberOfROCs() << endl;
+  int numberOfROCs = l.numberOfROCs();
+  
+  int idx = -1;
+  out <<"id="<<l.id();
+  for (IC ic = con.begin(); ic != con.end(); ic++) {
+    out <<" "<<(*ic).name->name()
+//      <<",r="<< (*ic).rocs 
+        <<",ids:";
+    for(int i = (*ic).rocs.first; i <= (*ic).rocs.second; i++) {
+      idx++;
+      if (idx < numberOfROCs ) out <<"_"
+//                                 << l.roc(idx)->idInLink() 
+//                                 <<"("
+                                   << l.roc(idx)->idInDetUnit()
+//                                 <<")"
+                                   ;
+    }
   }
-  out << endl;
-  return out.str();
+  if (idx != numberOfROCs-1) out << "PROBLEM, sizes: " 
+                                << idx <<" "<< numberOfROCs <<endl;
 
+  return out;
 }
-

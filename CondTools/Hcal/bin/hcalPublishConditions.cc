@@ -9,10 +9,10 @@
 
 #include "DataFormats/Common/interface/Timestamp.h"
 #include "CondCore/IOVService/interface/IOV.h"
-#include "CondTools/Hcal/interface/HcalDbTool.h"
+#include "CondTools/Hcal/interface/HcalDbPool.h"
 
 namespace {
-  typedef HcalDbTool::IOVRun IOVRun;
+  typedef HcalDbPool::IOVRun IOVRun;
   typedef std::map<IOVRun,std::string> IOVCollection;
   typedef std::pair<IOVRun,IOVRun> IntervalOV;
 
@@ -64,7 +64,7 @@ void printHelp (const Args& args) {
 bool publishObjects (const std::string& fInputDb, const std::string& fInputTag, 
 		 const std::string& fOutputDb, const std::string& fOutputTag,
 		 bool fVerbose) {
-  HcalDbTool db (fInputDb, fVerbose);
+  HcalDbPool db (fInputDb, fVerbose);
   cond::IOV inputIov;
   cond::IOV outputIov;
   std::vector<std::string> allTags = db.metadataAllTags ();

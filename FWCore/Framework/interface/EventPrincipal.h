@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.33 2006/07/12 18:18:31 wmtan Exp $
+$Id: EventPrincipal.h,v 1.34 2006/08/31 23:26:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -52,7 +52,7 @@ namespace edm {
     typedef std::vector<boost::shared_ptr<Group> > GroupVec;
     typedef GroupVec::const_iterator               const_iterator;
     typedef ProcessHistory::const_iterator        ProcessNameConstIterator;
-    typedef boost::shared_ptr<Group>               SharedGroupPtr;
+    typedef boost::shared_ptr<const Group>         SharedConstGroupPtr;
     typedef std::vector<BasicHandle>               BasicHandleVec;
 
     // This default constructor should go away, because a default
@@ -82,7 +82,7 @@ namespace edm {
     void put(std::auto_ptr<EDProduct> edp,
 	     std::auto_ptr<Provenance> prov);
 
-    SharedGroupPtr const getGroup(ProductID const& oid, bool resolve = true) const;
+    SharedConstGroupPtr const getGroup(ProductID const& oid, bool resolve = true) const;
 
     BasicHandle  get(ProductID const& oid) const;
 
@@ -145,7 +145,9 @@ namespace edm {
     boost::shared_ptr<DelayedReader> store() const {return store_;}
 
   private:
-    SharedGroupPtr const getInactiveGroup(ProductID const& oid) const;
+    typedef boost::shared_ptr<Group> SharedGroupPtr;
+
+    SharedConstGroupPtr const getInactiveGroup(ProductID const& oid) const;
 
     // Make my DelayedReader get the EDProduct for a Group.  The Group is
     // a cache, and so can be modified through the const reference.

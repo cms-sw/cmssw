@@ -54,48 +54,48 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   // parameters for ecal clustering
   
   threshEcalBarrel_ = 
-    iConfig.getParameter<double>("thresh_Ecal_Barrel");
+    iConfig.getUntrackedParameter<double>("thresh_Ecal_Barrel",0.5);
   threshSeedEcalBarrel_ = 
-    iConfig.getParameter<double>("thresh_Seed_Ecal_Barrel");
+    iConfig.getUntrackedParameter<double>("thresh_Seed_Ecal_Barrel",0.3);
 
   threshEcalEndcap_ = 
-    iConfig.getParameter<double>("thresh_Ecal_Endcap");
+    iConfig.getUntrackedParameter<double>("thresh_Ecal_Endcap",0.3);
   threshSeedEcalEndcap_ = 
-    iConfig.getParameter<double>("thresh_Seed_Ecal_Endcap");
+    iConfig.getUntrackedParameter<double>("thresh_Seed_Ecal_Endcap",0.8);
 
   // parameters for preshower clustering 
 
   threshPS_ = 
-    iConfig.getParameter<double>("thresh_PS");
+    iConfig.getUntrackedParameter<double>("thresh_PS",0.0007);
   threshSeedPS_ = 
-    iConfig.getParameter<double>("thresh_Seed_PS");
+    iConfig.getUntrackedParameter<double>("thresh_Seed_PS",0.01);
   
 
   // parameters for hcal clustering
 
   threshHcalBarrel_ = 
-    iConfig.getParameter<double>("thresh_Hcal_Barrel");
+    iConfig.getUntrackedParameter<double>("thresh_Hcal_Barrel",1);
   threshSeedHcalBarrel_ = 
-    iConfig.getParameter<double>("thresh_Seed_Hcal_Barrel");
+    iConfig.getUntrackedParameter<double>("thresh_Seed_Hcal_Barrel",1.4);
 
   threshHcalEndcap_ = 
-    iConfig.getParameter<double>("thresh_Hcal_Endcap");
+    iConfig.getUntrackedParameter<double>("thresh_Hcal_Endcap",1);
   threshSeedHcalEndcap_ = 
-    iConfig.getParameter<double>("thresh_Seed_Hcal_Endcap");
+    iConfig.getUntrackedParameter<double>("thresh_Seed_Hcal_Endcap",1.4);
 
   
 
   int    dcormode = 
-    iConfig.getParameter<int>("depthCor_Mode");
+    iConfig.getUntrackedParameter<int>("depthCor_Mode",-1);
   
   double dcora = 
-    iConfig.getParameter<double>("depthCor_A");
+    iConfig.getUntrackedParameter<double>("depthCor_A",-1);
   double dcorb = 
-    iConfig.getParameter<double>("depthCor_B");
+    iConfig.getUntrackedParameter<double>("depthCor_B",-1);
   double dcorap = 
-    iConfig.getParameter<double>("depthCor_A_preshower");
+    iConfig.getUntrackedParameter<double>("depthCor_A_preshower",-1);
   double dcorbp = 
-    iConfig.getParameter<double>("depthCor_B_preshower");
+    iConfig.getUntrackedParameter<double>("depthCor_B_preshower",-1);
 
   if( dcormode > -0.5 && 
       dcora > -0.5 && 
@@ -163,6 +163,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
   using namespace edm;
   
+  cout<<"IN number of PFClusters :"<<reco::PFCluster::instanceCounter_<<endl;
 
   // for output  
   //   auto_ptr< vector<reco::PFRecHit> > 
@@ -355,10 +356,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  ih!=algohits.end(); ih++) {
 	recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
       }
-
-      LogInfo("PFClusterProducer")
-	<<" ECAL clusters --------------------------------- "<<endl
-	<<clusteralgo<<endl;
+      
       iEvent.put( recHits, "ECAL" );
     }
     
@@ -366,7 +364,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       outClustersECAL( clusteralgo.clusters() ); 
     iEvent.put( outClustersECAL, "ECAL");
     
-    // clear all rechits
+    // clear all 
     for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
 	 ih != idSortedRecHits.end(); ih++) {  
       delete ih->second;
@@ -484,10 +482,6 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  iEvent.put( recHits, "HCAL" );
 	}
 
-	LogInfo("PFClusterProducer")
-	  <<" HCAL clusters --------------------------------- "<<endl
-	  <<clusteralgo<<endl;
-	
 	auto_ptr< vector<reco::PFCluster> > 
 	  outClustersHCAL( clusteralgo.clusters() ); 
 // 	outClustersHCAL = clusteralgo.clusters();
@@ -635,13 +629,9 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	    ih!=algohits.end(); ih++) {
 	  recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
 	}
-
+	
 	iEvent.put( recHits, "PS" );
       }
-      
-      LogInfo("PFClusterProducer")
-	<<" Preshower clusters --------------------------------- "<<endl
-	<<clusteralgo<<endl;
 
       auto_ptr< vector<reco::PFCluster> > 
 	outClustersPS( clusteralgo.clusters() ); 
@@ -671,6 +661,9 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   //   iEvent.put( outClustersECAL, "ECAL");
   //   iEvent.put( outClustersHCAL, "HCAL" );
   //   iEvent.put( outClustersPS, "PS");
+
+  cout<<"OUT number of PFClusters :"<<reco::PFCluster::instanceCounter_<<endl;
+
 }
 
 void 

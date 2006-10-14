@@ -9,7 +9,7 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 PedestalsHistograms::PedestalsHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::PEDESTALS ),
+  : CommissioningHistograms(mui),
     factory_( new Factory )
 {
   cout << "[" << __PRETTY_FUNCTION__ << "]"

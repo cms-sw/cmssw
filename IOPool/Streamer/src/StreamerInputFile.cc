@@ -128,7 +128,7 @@ const StreamerInputIndexFile* StreamerInputFile::index() {
 
 void StreamerInputFile::readStartMessage() 
 {
-  ist_->read((char*)&headerBuf_[0], sizeof(HeaderView));
+  ist_->read(&headerBuf_[0], sizeof(HeaderView));
 
   if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView)  ) 
   {
@@ -148,7 +148,7 @@ void StreamerInputFile::readStartMessage()
   uint32 headerSize = head.size();
   //Bring the pointer at start of Start Message/start of file
   ist_->seekg(0, ios::beg);
-  ist_->read((char*)&headerBuf_[0], headerSize);
+  ist_->read(&headerBuf_[0], headerSize);
  
   if (startMsg_ != NULL) 
   {
@@ -247,7 +247,7 @@ bool StreamerInputFile::compareHeader() {
 int StreamerInputFile::readEventMessage()  
 {  
   int last_pos = ist_->tellg();
-  ist_->read((char*)&eventBuf_[0], sizeof(HeaderView));
+  ist_->read(&eventBuf_[0], sizeof(HeaderView));
   if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView)  )
         return 0;
 
@@ -260,7 +260,7 @@ int StreamerInputFile::readEventMessage()
   //Bring the pointer to end of previous Message
   
   ist_->seekg(last_pos, ios::beg);
-  ist_->read((char*)&eventBuf_[0], eventSize);
+  ist_->read(&eventBuf_[0], eventSize);
   if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(eventSize)  ) //Probably an unfinished file
      return 0;
 
