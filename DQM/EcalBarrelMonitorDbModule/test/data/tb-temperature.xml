@@ -5,7 +5,7 @@
             xsi:noNamespaceSchemaLocation="prova.xsd">
 
   <me>
-    <th2d title="SM Temperature" xbins="17" xfrom="-0.5" xto="16.5" ybins="10" yfrom="-0.5" yto="9.5" ncycle="1" loop="170"/>
+    <th2d title="Temperature" xbins="17" xfrom="-0.5" xto="16.5" ybins="10" yfrom="-0.5" yto="9.5" ncycle="1" loop="170"/>
     <query name="addToTableList"  arg="CHANNELVIEW" />
     <query name="addToTableList"  arg="DCU_CAPSULE_TEMP_DAT" />
     <query name="addToTableList"  arg="DCU_IOV" />
