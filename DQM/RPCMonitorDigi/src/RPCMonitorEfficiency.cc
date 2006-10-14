@@ -106,7 +106,7 @@ private:
 RPCMonitorEfficiency::RPCMonitorEfficiency( const edm::ParameterSet& pset ):counter(0){
   theRecHits4DLabel = pset.getParameter<std::string>("recHits4DLabel");
   digiLabel=pset.getParameter<std::string>("digiLabel");
-  HistoOutFile= pset.getParameter<std::string>("HistoOutFile");
+  //  HistoOutFile= pset.getParameter<std::string>("HistoOutFile");
 
   EffSaveRootFile  = pset.getUntrackedParameter<bool>("EffSaveRootFile", false); 
   EffSaveRootFileEventsInterval  = pset.getUntrackedParameter<int>("EffEventsInterval", 10000); 
@@ -119,15 +119,31 @@ RPCMonitorEfficiency::RPCMonitorEfficiency( const edm::ParameterSet& pset ):coun
   daemon.operator->();
 
   dbe->showDirStructure();
+
+  _idList.clear();
 }
 
-void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup ){
+// void RPCMonitorEfficiency::beginJob(const edm::EventSetup &)
+// {
+//   theFile = new TFile(HistoOutFile.c_str(),"RECREATE");
+//   std::cout<<"Begin Job"<<std::endl;
+//   hPositionX = new TH1F("Histo","Histo",100,0,100);
+// }
 
+
+void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup ){
   typedef    std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 
-  char layerLabel[128];
-  char meId [128];
+  counter++;
+  bool goodStatistic = false;
+  if(counter%1000 == 0) goodStatistic = true;
+  std::cout<<"COUNTER = "<< counter<<"  "<<counter%500<<"  "<<"BOOL = "<<goodStatistic<<" "<<"------------"<<std::endl;
 
+  char layerLabel[128];
+  //char meId [128];
+  char meIdRPC [128];
+  char meIdDT [128];
+  char effIdRPC [128];
   edm::ESHandle<DTGeometry> dtGeo;
   iSetup.get<MuonGeometryRecord>().get(dtGeo);
   
@@ -147,7 +163,6 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
 
 
   std::map<DTStationIndex,std::set<RPCDetId> > rollstore;
-
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();
        it<rpcGeo->dets().end();it++){
     RPCRoll* ir = dynamic_cast<RPCRoll*>(*it);
@@ -168,138 +183,208 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
     myrolls.insert(rpcId);
     rollstore[ind]=myrolls;
   }
-  
+
+  bool DTevent = false;
+  uint32_t id = 0;
+  char detUnitLabel[128];
+  std::map<std::string, MonitorElement*> meMap;
 
   DTRecSegment4DCollection::const_iterator segment;  
 
 
-  //This is the for over the DT Segments!*************************************************************
-
   if(all4DSegments->size()>0){
+    std::cout<<"\n\n\n Number of Segment in this event = "<<all4DSegments->size()<<std::endl;
+
+
 
     std::map<DTChamberId,int> scounter;
     for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ if(segment->dimension()==4){
-      scounter[segment->chamberId()]++;
+      scounter[segment->chamberId()]++;//Counting how many segments per DTChamberID, labeling each chamber with an int
     }}
-    for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ 
-      if(segment->dimension()==4 && scounter[segment->chamberId()] == 1 ){
+
+    //This is the for over the DT Segments!*************************************************************
+    
+    for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ //loop over all the 4D Segments
+      if(segment->dimension()==4 && scounter[segment->chamberId()] == 1 ){//check if the dimension of the segment is 4 and that there is only one segmentperChamber
       
-      DTChamberId DTId = segment->chamberId();
-      int dtWheel = DTId.wheel();
-      int dtStation = DTId.station();
-      int dtSector = DTId.sector();
+	DTChamberId DTId = segment->chamberId();
+	int dtWheel = DTId.wheel();
+	int dtStation = DTId.station();
+	int dtSector = DTId.sector();
 
-      const GeomDet* gdet=dtGeo->idToDet(segment->geographicalId());
-      const BoundPlane & DTSurface = gdet->surface();
-
+	const GeomDet* gdet=dtGeo->idToDet(segment->geographicalId());
+	const BoundPlane & DTSurface = gdet->surface();
+	
+	std::cout<<"\n\n-----------------++++++++++++++++++++++++++++++++++++Segment in Chamber id: Wh "<<dtWheel<<" St "<<dtStation<<" Se "<<dtSector<<std::endl;
+	std::cout<<"Number of segments for DT "<<segment->chamberId()<<" = "<<scounter[segment->chamberId()]<<std::endl; //Should print 1
       
-      std::set<RPCDetId> rls=rollstore[DTStationIndex(0,dtWheel,dtSector,dtStation)];
+	std::set<RPCDetId> rls=rollstore[DTStationIndex(0,dtWheel,dtSector,dtStation)];
       
-      LocalPoint localPoint= segment->localPosition();
-      LocalVector localDirection=segment->localDirection();
+	std::cout <<"\n----------------------------------- Inside the Rolls asociated for this Segment"<<std::endl;
 
-      float Xo=localPoint.x();
-      float Yo=localPoint.y();
-      
-      float dx=localDirection.x();
-      float dy=localDirection.y();
-      float dz=localDirection.z();
-      for (std::set<RPCDetId>::iterator iteraRoll = rls.begin();iteraRoll != rls.end(); iteraRoll++){//Barre rolls del DT
+	LocalPoint localPoint= segment->localPosition();
+	LocalVector localDirection=segment->localDirection();
+	std::cout<<"DT Segment Point in DTLocal "<<localPoint<<std::endl;
+	std::cout<<"DT Segment Direction in DTLocal "<<localDirection<<std::endl;
+	std::cout<<"DT Segment Dimension "<<segment->dimension()<<std::endl; //should be 4
+	float Xo=localPoint.x();
+	float Yo=localPoint.y();
 	
-	const RPCRoll* eroll=dynamic_cast<const RPCRoll*>
-	  (rpcGeo->idToDetUnit(*iteraRoll));
-	const BoundPlane & RPCSurface = eroll->surface();
-	
-	
+	float dx=localDirection.x();
+	float dy=localDirection.y();
+	float dz=localDirection.z();
 
-	GlobalPoint CenterPointRollGlobal=RPCSurface.toGlobal(LocalPoint(0,0,0));
-	
-	LocalPoint AgainCenterRoll = DTSurface.toLocal(CenterPointRollGlobal);
-	
-	float D=AgainCenterRoll.z();
-	
-	float X=Xo+dx*D/dz;
-	float Y=Yo+dy*D/dz;
-	float Z=D;
-
-	const RectangularStripTopology* top_ =  
-	  dynamic_cast<const RectangularStripTopology*>(&(eroll->topology()));
-	LocalPoint xmin = top_->localPosition(0.);
-	LocalPoint xmax = top_->localPosition((float)eroll->nstrips());
-	float rsize = fabs( xmax.x()-xmin.x() )/2.;
-	float stripl = top_->stripLength();
-	
-
-	GlobalPoint GlobalPointExtrapolated = DTSurface.toGlobal(LocalPoint(X,Y,Z));
-
-
-	LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
-
-	if ( fabs(PointExtrapolatedRPCFrame.z()) < 0.01  &&
-	     fabs(PointExtrapolatedRPCFrame.x()) < rsize &&
-	     fabs(PointExtrapolatedRPCFrame.y()) < stripl/2.){ 
+	for (std::set<RPCDetId>::iterator iteraRoll = rls.begin();iteraRoll != rls.end(); iteraRoll++){//Loop over all the rolls
 	  
-	  const float strip=eroll->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.));
-
-	  //------------------------------- HISTO PREDICTED STRIP --------------------------------
-
-	  RPCDetId  detId = eroll->id();
-	  uint32_t id = detId.rawId();
-
-	  //	  uint32_t id=detId(); 
- 
-	  char detUnitLabel[128];
-	  sprintf(detUnitLabel ,"%d",id);
-	  sprintf(layerLabel ,"layer%d_subsector%d_roll%d",detId.layer(),detId.subsector(),detId.roll());
+	  const RPCRoll* eroll=dynamic_cast<const RPCRoll*> (rpcGeo->idToDetUnit(*iteraRoll));
+	  const BoundPlane & RPCSurface = eroll->surface(); //To get the roll's surface
 	  
-	  std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
-	  if (meItr == meCollection.end() || (meCollection.size()==0)) {
-	    meCollection[id] = bookDetUnitMEEff(detId);
-	  }
-	  std::map<std::string, MonitorElement*> meMap=meCollection[id];
-
-	  sprintf(meId,"Occupancy_%s",detUnitLabel);
-	  meMap[meId]->Fill(strip);
-
-	  //______________________________________________________________________________________
-
-	  float stripDetected = 0;
-	  RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(eroll->id());
+	  std::cout<<"\n\n~~~~~~~!!!~~~~~"<<eroll->id()<<std::endl;
 	
-	  for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;//print the digis in the event
-	       digiIt!=rpcRangeDigi.second;
-	       ++digiIt){
+	  
+	  GlobalPoint CenterPointRollGlobal=RPCSurface.toGlobal(LocalPoint(0,0,0));
+	  //std::cout<<"Center (0,0,0) Roll in Global"<<CenterPointRollGlobal<<std::endl;
+	  
+	  LocalPoint CenterRollinDTFrame = DTSurface.toLocal(CenterPointRollGlobal);
+	  //std::cout<<"Center (0,0,0) Roll In DTLocal"<<CenterRollinDTFrame<<std::endl;
+	  
+	  float D=CenterRollinDTFrame.z();
+	  //std::cout<<"D="<<D<<"cm"<<std::endl;
+	  
+	  
+	  float X=Xo+dx*D/dz;
+	  float Y=Yo+dy*D/dz;
+	  float Z=D;
+	  
+	  const RectangularStripTopology* top_=dynamic_cast<const RectangularStripTopology*>(&(eroll->topology()));
+	  LocalPoint xmin = top_->localPosition(0.);
+	  LocalPoint xmax = top_->localPosition((float)eroll->nstrips());
+	  float rsize = fabs( xmax.x()-xmin.x() )*0.5;
+	  float stripl = top_->stripLength();
+	  	  
+	  //std::cout<<"X Predicted in DTLocal= "<<X<<"cm"<<std::endl;
+	  //std::cout<<"Y Predicted in DTLocal= "<<Y<<"cm"<<std::endl;
+	  //std::cout<<"Z Predicted in DTLocal= "<<Z<<"cm"<<std::endl;
+	
+	  GlobalPoint GlobalPointExtrapolated = DTSurface.toGlobal(LocalPoint(X,Y,Z));
+	  std::cout<<"Point ExtraPolated in Global"<<GlobalPointExtrapolated<< std::endl;
+	  
+	  LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
+	  std::cout<<"Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
+	  
+	  if ( fabs(PointExtrapolatedRPCFrame.z()) < 0.01  && fabs(PointExtrapolatedRPCFrame.x()) < rsize && fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){ 
+	    //conditions to find the right roll to extrapolate
 	    
+	    const float stripPredicted=eroll->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); //getting the number of the strip
 	    
-	    if (digiIt->strip() < 1 || digiIt->strip() > eroll->nstrips() ){
-	      std::cout <<" XXXXXXXXXXXXX Problemt with "<<eroll->id()<<std::endl;
+	    std::cout<<"\nTHE ROLL THAT CONTAINS THE CANDIDATE STRIP IS "<<eroll->id()<<" "<<"(from data) STRIP---> "<<stripPredicted<< std::endl;
+	    
+	    //------------------------------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
+	    
+	    RPCDetId  detId = eroll->id();
+	    id = detId.rawId();
+	    std::cout << "Found Chamber RB "<<detId.station()<<std::endl;
+	    
+	    _idList.push_back(id);   
+	    sprintf(detUnitLabel ,"%d",id);
+	    sprintf(layerLabel ,"layer%d_subsector%d_roll%d",detId.layer(),detId.subsector(),detId.roll());
+	    //	    meCollection[id] = bookDetUnitMEEff(detId);
+	    std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
+	    if (meItr == meCollection.end() || (meCollection.size()==0)){
+	       meCollection[id] = bookDetUnitMEEff(detId);
+	       std::cout << "Create new histograms  for "<<layerLabel<<std::endl;
 	    }
 	    
-	    if(digiIt->strip() == (int)(strip)){
-	      stripDetected = strip;
-	      break;
+	    //	    std::map<std::string, MonitorElement*> meMap=meCollection[id];
+	    meMap = meCollection[id];
+	    sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+	    meMap[meIdDT]->Fill(stripPredicted);
+
+// 	    bool goodStatistic = false;
+// 	    std::cout<<"Counter = "<<counter<<"  "<<"ENTRIES HISTO = "<<((int)(meMap[meIdDT]->getEntries())/100)%100<<std::endl;
+
+// 	    if(((int)(meMap[meIdDT]->getEntries())/100)%100 == 0){
+// 	      goodStatistic = true;
+// 	    }
+
+	    //------------------------------- HISTOGRAM STRIP DETECTED WITH RPC --------------------
+    
+	    bool anycoincidence=false;
+	    int stripDetected = 0;
+	    RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(eroll->id());
+
+	    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){//loop over the digis in the event
+	      std::cout<<" digi "<<*digiIt<<std::endl;//print the digis in the event
+	      stripDetected=digiIt->strip();
+	      if(fabs((float)(stripDetected) - stripPredicted)<5.){//compare the strip Detected with the predicted
+		std::cout <<"************!!!!!!WE HAVE A COINCEDENCE!!!!!!******* Predicted "<<stripPredicted<<" Detected "<<stripDetected<<std::endl;
+		anycoincidence=true;
+	      }
 	    }
-	  }
-	  sprintf(meId,"DetOccupancy_%s",detUnitLabel);
-	  if(stripDetected != 0){
-	    meMap[meId]->Fill(stripDetected);
+	    
+	    if(anycoincidence==false){
+	      std::cout <<"THIS PREDICTION DOESN'T HAVE ANY CORRESPONDENCE WITH THE DATA"<<std::endl;
+	    }else {
+	      sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
+	      meMap[meIdRPC]->Fill(stripPredicted);//We can not divide two diferents things
+
+
 	  }
 	}
-      }
-    } 
+      } 
     }
   }
+ }
 }
 
 void RPCMonitorEfficiency::endJob(void)
 {
-   if(EffSaveRootFile) dbe->save(EffRootFileName);
+
+  std::vector<uint32_t>::iterator meIt;
+  for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
+
+    char detUnitLabel[128];
+    char meIdRPC [128];
+    char meIdDT [128];
+    char effIdRPC [128];
+    sprintf(detUnitLabel ,"%d",*meIt);
+    sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
+    sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+    sprintf(effIdRPC,"EfficienyFromDTExtrapolation_%s",detUnitLabel);
+    
+    std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
+
+    for(unsigned int i = 1; i <= 100; ++i ){
+      
+      if(meMap[meIdDT]->getBinContent(i) != 0){
+	float eff = meMap[meIdRPC]->getBinContent(i)/meMap[meIdDT]->getBinContent(i);
+	float erreff = sqrt(eff*(1-eff)/meMap[meIdDT]->getBinContent(i));
+	meMap[effIdRPC]->setBinContent(i,eff);
+	meMap[effIdRPC]->setBinError(i,erreff);
+	
+      }
+    }
+  }
+
+  if(EffSaveRootFile) dbe->save(EffRootFileName);
+//    theFile->Write();
+//    theFile->Close();
+   std::cout<<"End Job"<<std::endl;
 }
 
 RPCMonitorEfficiency::~RPCMonitorEfficiency(){}
 
+/*Para agregar despues para chequar que el strip que estamos precidienco tiene sentido!
+	    //Division> to be placed in the appropriate place
+	    //sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
+	    //sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+	    //sprintf(meId,"EfficienyFromDTExtrapolation_%s",detUnitLabel);
+	    //meMap[meId]->Divide(meMap[meIdRPC], meMap[meIdDT]);
+	  //else {std::cout <<"...... nothing to do in this roll!"<<std::endl;}
+	    //std::cout<<"id:  "<<eroll->id()<<" Number of strips "<<eroll->nstrips()<<std::endl;
+	    
 
-
+*/
 
 
 

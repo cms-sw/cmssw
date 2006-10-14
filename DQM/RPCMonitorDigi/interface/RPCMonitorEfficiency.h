@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and RPCRecHit.
  *
- *  $Date: 2006/07/15 09:29:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/09/19 07:49:10 $
+ *  $Revision: 1.4 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -78,15 +78,17 @@ class RPCMonitorEfficiency : public edm::EDAnalyzer {
 
   LocalTrajectoryParameters makeLocalTrajectory(DTRecSegment4D theSegment);
   bool debug;
-  TFile* theFile;
+  //  TFile* theFile;
   std::string theRecHits4DLabel;
   std::string digiLabel;
   PropagationDirection theDir;
-  std::string HistoOutFile;
+  //  std::string HistoOutFile;
 
   std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
 	
   TH1F *hPositionX;
+  std::vector<uint32_t> _idList;
+
 };
 
 #endif
