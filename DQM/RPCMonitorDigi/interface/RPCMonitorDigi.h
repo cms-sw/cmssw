@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2006/06/27 07:57:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/09/14 17:09:21 $
+ *  $Revision: 1.4 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -35,6 +35,7 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
    
 	virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
+	virtual void beginJob(edm::EventSetup const&);
 	virtual void endJob(void);
         
 	/// Booking of MonitoringElemnt for one RPCDetId (= roll)
@@ -60,6 +61,7 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	int  saveRootFileEventsInterval;
 	std::string RootFileName;
 	std::string GlobalHistogramsFolder;
+	std::map<uint32_t,bool> foundHitsInChamber;
 };
 
 #endif

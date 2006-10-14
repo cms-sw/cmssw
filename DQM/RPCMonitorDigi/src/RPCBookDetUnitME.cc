@@ -28,7 +28,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
  }
  
  char  folder[120];
- sprintf(folder,"%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
+ sprintf(folder,"RPC/Digi&RecHits/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
  				detId.ring(),detId.station(),detId.sector());
  
  dbe->setCurrentFolder(folder);
@@ -109,6 +109,9 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
  sprintf(meTitle,"RecHit_Xposition_vs_Error_%s",layerLabel);
  meMap[meId] = dbe->book2D(meId, meTitle, 30, -100, 100,30,10,10);
  
+ sprintf(meId,"RecHitCounter_%s",detUnitLabel);
+ sprintf(meTitle,"RecHitCounter_%s",layerLabel);
+ meMap[meId] = dbe->book1D(meId, meTitle,101,-0.5,100.5);
  
 
 // sprintf(meId,"RecHitYPosition_%s",detUnitLabel);
