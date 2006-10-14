@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: StreamerOutputService.cc,v 1.15 2006/10/11 15:03:52 klute Exp $
 
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
@@ -141,38 +141,37 @@ void StreamerOutputService::initializeSelection(InitMsgView const& initView)
 
 StreamerOutputService::~StreamerOutputService()
   {
-   // expect to do this manually at the end of a run
-   // stop();   //Remove this from destructor if you want higher class to do that at its will.
-              // and if stop() is ever made Public.
-   writeToMailBox();
+    // write to summary catalog and mailbox if file has an entry.
+    if ( eventsInFile_ > 0 )
+      {
+	writeToMailBox();
+	statistics_  -> setFileSize((uint32) currentFileSize_ );
+	statistics_  -> setEventCount((uint32) eventsInFile_ ); 
+	statistics_  -> writeStat();
+      }
 
-   statistics_  -> setFileSize((uint32) currentFileSize_ );
-   statistics_  -> setEventCount((uint32) eventsInFile_ ); 
-   statistics_  -> writeStat();
-
-   std::ostringstream newFileName;
-   newFileName << path_ << "/";
-   if (nLogicalDisk_ != 0 )
-     {
-       newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
-// WHAT IS newFileName used for?? HEREHEREHERE
-       remove( lockFileName_.c_str() );
-     }
-   
-   std::ostringstream entry;
-   entry << fileNameCounter_ << " "
-         << fileName_
-         << " " << eventsInFile_
-         << "   " << currentFileSize_;
-   files_.push_back(entry.str());
-   closedFiles_ += ", ";
-   closedFiles_ += fileName_;
-   // HEREHERE for test
-   std::cout << "#    name                             evt        size     " << endl;
-   for(std::list<std::string>::const_iterator it = files_.begin(); it != files_.end(); it++)
-     std::cout << *it << endl;
-   std::cout << "Disk Usage = " << diskUsage_ << endl;
-   std::cout << "Closed files = " << closedFiles_ << endl;
+    std::ostringstream newFileName;
+    newFileName << path_ << "/";
+    if (nLogicalDisk_ != 0 )
+      {
+	newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
+	remove( lockFileName_.c_str() );
+      }
+    
+    std::ostringstream entry;
+    entry << fileNameCounter_ << " "
+	  << fileName_
+	  << " " << eventsInFile_
+	  << "   " << currentFileSize_;
+    files_.push_back(entry.str());
+    closedFiles_ += ", ";
+    closedFiles_ += fileName_;
+    
+    std::cout << "#    name                             evt        size     " << endl;
+    for(std::list<std::string>::const_iterator it = files_.begin(); it != files_.end(); it++)
+      std::cout << *it << endl;
+    std::cout << "Disk Usage = " << diskUsage_ << endl;
+    std::cout << "Closed files = " << closedFiles_ << endl;
   }
 
 void StreamerOutputService::stop()
