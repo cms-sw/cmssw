@@ -26,6 +26,12 @@ namespace ___CSC {
 };
 
 CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
+	// Define type of the output data first: if DAQ - wrapp DDU buffer into fake DCC, if not - not
+	if( pset.getUntrackedParameter<std::string>("dataType") == "DAQ" )
+		dataType = DAQ;
+	else 
+		dataType = TF;
+
 	// Get list of input files from .cfg file
 	fileNames   = pset.getUntrackedParameter< std::vector<std::string> >("fileNames");
 	currentFile = fileNames.begin();
@@ -77,12 +83,16 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 	dccTrailer[7] = 0xAF00; dccTrailer[6] = 0x0000; dccTrailer[5] = 0x0000; dccTrailer[4] = 0x0007; // Fake DCC Trailer 2
 	length+=4*4;
 
-    // The FED ID
-    FEDRawData& fedRawData = data.FEDData( FEDNumbering::getCSCFEDIds().first );
-    fedRawData.resize(length*sizeof(unsigned short));
-
-	std::copy(reinterpret_cast<unsigned char*>(dccBuf),
-			  reinterpret_cast<unsigned char*>(dccBuf+length), fedRawData.data());
+	// The FED ID
+	if( dataType == DAQ ){
+		FEDRawData& fedRawData = data.FEDData( FEDNumbering::getCSCFEDIds().first );
+		fedRawData.resize(length*sizeof(unsigned short));
+		std::copy((unsigned char*)dccBuf,(unsigned char*)(dccBuf+length),fedRawData.data());
+	} else {
+		FEDRawData& fedRawData = data.FEDData( FEDNumbering::getCSCTFFEDIds().first );
+		fedRawData.resize((length-4*4)*sizeof(unsigned short));
+		std::copy((unsigned char*)dduBuf,(unsigned char*)(dduBuf+length-4*4),fedRawData.data());
+	}
 
 	return true;
 }
