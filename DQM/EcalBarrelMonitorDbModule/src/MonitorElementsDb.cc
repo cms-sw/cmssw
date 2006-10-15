@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.1 2006/06/28 10:46:18 benigno Exp $
+// $Id: MonitorElementsDb.cc,v 1.2 2006/09/22 11:42:00 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.1 $
-  \date $Date: 2006/06/28 10:46:18 $
+  \version $Revision: 1.2 $
+  \date $Date: 2006/09/22 11:42:00 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -261,7 +261,7 @@ void MonitorElementsDb::htmlOutput(std::string htmlDir){
 	}
 	else if( dynamic_cast<TH2F*>( ob->operator->()) ) {
 	  TH2F* h = dynamic_cast<TH2F*>( ob->operator->() );
-	  if( h->GetMaximum(histMax) > 0. ) {
+	  if( h->GetMaximum(histMax) > 1.e4 ) {
 	    gPad->SetLogz(1);
 	  } else {
 	    gPad->SetLogz(0);
@@ -270,7 +270,7 @@ void MonitorElementsDb::htmlOutput(std::string htmlDir){
 	}
 	else if( dynamic_cast<TProfile*>( ob->operator->()) ) {
 	  TProfile* h = dynamic_cast<TProfile*>( ob->operator->() );
-	  if( h->GetMaximum(histMax) > 0. ) {
+	  if( h->GetMaximum(histMax) > 1.e4 ) {
 	    gPad->SetLogz(1);
 	  } else {
 	    gPad->SetLogz(0);
