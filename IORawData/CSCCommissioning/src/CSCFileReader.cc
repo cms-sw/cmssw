@@ -27,7 +27,7 @@ namespace ___CSC {
 
 CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 	// Define type of the output data first: if DAQ - wrapp DDU buffer into fake DCC, if not - not
-	if( pset.getUntrackedParameter<std::string>("dataType") == "DAQ" )
+	if( pset.getUntrackedParameter<std::string>("dataType") != "TF" )
 		dataType = DAQ;
 	else 
 		dataType = TF;
