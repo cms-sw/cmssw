@@ -52,7 +52,7 @@ void SiStripCommissioningClient::configure() {
 					    getContextURL(),
 					    getApplicationURL(), 
 					    &mui_ );
-  hdis_ =new HistogramDisplayHandler(mui_,fCallBack);
+  hdis_ = new HistogramDisplayHandler(mui_,fCallBack);
 }
 
 // -----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ void SiStripCommissioningClient::endRun() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   unsubscribeAll(); 
   if ( histos_ ) { delete histos_; histos_ = 0; }
-  if (hdis_!=NULL) {delete hdis_;hdis_=NULL;}
+  if (hdis_) { delete hdis_; hdis_ = 0; }
 }
 
 // -----------------------------------------------------------------------------
@@ -305,6 +305,29 @@ void SiStripCommissioningClient::unsubscribeAll( string pattern ) {
 
 // -----------------------------------------------------------------------------
 /** */
+void SiStripCommissioningClient::removeAll( string pattern ) {
+  
+  if ( pattern == "" ) { pattern = "*"; }
+  
+  seal::Callback action;
+  action = seal::CreateCallback( this, 
+				 &SiStripCommissioningClient::remove,
+				 pattern ); //@@ argument list
+  
+  if ( mui_ ) { 
+    mui_->addCallback(action); 
+    cout << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " Scheduling this action..." << endl;
+  } else { 
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to MonitorUserInterface!" << endl; 
+    return;
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+/** */
 void SiStripCommissioningClient::saveHistos( string name ) {
 
   seal::Callback action;
@@ -381,6 +404,13 @@ void SiStripCommissioningClient::update() {
 void SiStripCommissioningClient::unsubscribe( string pattern ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   if ( mui_ ) { mui_->unsubscribe(pattern); }
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::remove( string pattern ) {
+  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  if ( mui_ ) { mui_->getBEInterface()->rmdir(pattern); }
 }
 
 // -----------------------------------------------------------------------------

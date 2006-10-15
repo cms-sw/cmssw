@@ -13,21 +13,20 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
     action_(sistrip::NO_ACTION),
     task_(task)
 {
-  cout << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Created base object!" << endl;
+  cout << "[" << __func__ << "]" << " Constructing object..." << endl;
   collations_.clear();
 }
 
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistograms::~CommissioningHistograms() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << "[" << __func__ << "]" << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::createCollations( const vector<string>& contents ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << "Creating CollateMonitorElements..." << endl;
 
   if ( contents.empty() ) { return; }
   

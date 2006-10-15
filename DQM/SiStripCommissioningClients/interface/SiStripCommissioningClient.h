@@ -51,6 +51,8 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   /** */
   void unsubscribeAll( std::string match_pattern = "" );
   /** */
+  void removeAll( std::string match_pattern = "" );
+  /** */
   void saveHistos( std::string filename );
   /** */
   void histoAnalysis( bool debug );
@@ -70,6 +72,8 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   void update();
   /** */
   void unsubscribe( std::string match_pattern );
+  /** */
+  void remove( std::string match_pattern );
   /** */
   void save( std::string filename );
 
