@@ -8,9 +8,10 @@
 // Message Logger categories
 namespace sistrip { 
   
-  static const std::string mlCabling_  = "SiStrip|Cabling";
-  static const std::string mlConfigDb_ = "SiStrip|ConfigDb";
-  
+  static const std::string mlCabling_   = "SiStrip|Cabling";
+  static const std::string mlConfigDb_  = "SiStrip|ConfigDb";
+  static const std::string mlRawToDigi_ = "SiStrip|RawToDigi";
+
 }
 
 // -----------------------------------------------------------------------------
