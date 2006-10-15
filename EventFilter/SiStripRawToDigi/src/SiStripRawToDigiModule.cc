@@ -30,7 +30,7 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   createDigis_( true ) //@@ force this for the time being...
   //createDigis_( pset.getUntrackedParameter<bool>("CreateDigis",true) )
 {
-  edm::LogVerbatim("RawToDigi") << "[SiStripRawToDigiModule::SiStripRawToDigiModule] Constructing object...";
+  edm::LogVerbatim("RawToDigi") << "[" __func__ "] Constructing object...";
   
   int16_t appended_bytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
   int16_t dump_frequency = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
@@ -53,7 +53,7 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
 // -----------------------------------------------------------------------------
 /** */
 SiStripRawToDigiModule::~SiStripRawToDigiModule() {
-  edm::LogInfo("RawToDigi") << "[SiStripRawToDigiModule::~SiStripRawToDigiModule] Destructing object...";
+  edm::LogInfo("RawToDigi") << "[" << __func__ << "] Destructing object...";
   if ( rawToDigi_ ) delete rawToDigi_;
 }
 
