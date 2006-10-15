@@ -44,7 +44,7 @@ from ROOT import *
 </pre>
 \endhtmlonly
 That's it. 
-
+- <b>MCTruth.py</b>: Reads gen event information and prints event number
 - <b>trackerHits.py</b>: Reads sim event information and creates the files <tt>histo.root</tt> 
 and <tt>tofhits.jpg</tt>.
 \htmlonly
