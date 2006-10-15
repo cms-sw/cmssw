@@ -32,11 +32,3 @@ def all(container):
         yield container[entry]
     except:
       pass
-
-
-### prepare the environment
-### (will be changed for ROOT 5.10)
-print 'Loading FWLite...'
-from ROOT import *
-gSystem.Load('libFWCoreFWLite')
-AutoLibraryLoader.enable()
