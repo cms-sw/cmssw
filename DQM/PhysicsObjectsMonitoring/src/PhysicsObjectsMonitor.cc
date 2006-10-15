@@ -1,8 +1,8 @@
 /** \class PhysicsObjectsMonitor
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/10/12 07:24:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/15 11:07:10 $
+ *  $Revision: 1.2 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -87,14 +87,18 @@ void PhysicsObjectsMonitor::beginJob(const EventSetup& eventSetup){
 }
 
 void PhysicsObjectsMonitor::endJob(){
-  if(theDataType == "SimData"){
+  
+ if(theDataType == "SimData"){
     edm::LogInfo ("PhysicsObjectsMonitor") << "Number of Sim tracks: " << numberOfSimTracks;
   }
 
- edm::LogInfo ("PhysicsObjectsMonitor") << "Number of Reco tracks: " << numberOfRecTracks ;
+  edm::LogInfo ("PhysicsObjectsMonitor") << "Number of Reco tracks: " << numberOfRecTracks ;
 
- if(saveRootFile) dbe->save(theRootFileName); 
-   
+  if(saveRootFile) dbe->save(theRootFileName); 
+  dbe->setCurrentFolder("PhysicsObjects/MuonReconstruction");
+  dbe->removeContents();
+
+
 }
 
 
