@@ -1,8 +1,8 @@
 /** \class PhysicsObjectsMonitor
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/08/02 08:08:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/10/12 07:24:51 $
+ *  $Revision: 1.1 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -26,6 +26,8 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -39,14 +41,24 @@ PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet& pset){
   theSeedCollectionLabel = pset.getUntrackedParameter<string>("MuonSeedCollectionLabel");
 
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
+  saveRootFile = pset.getUntrackedParameter<bool>("produceRootFile");
 
   theDataType = pset.getUntrackedParameter<string>("DataType");
   
   if(theDataType != "RealData" && theDataType != "SimData")
-    cout<<"Error in Data Type!!"<<endl;
+  edm::LogInfo ("PhysicsObjectsMonitor") <<  "Error in Data Type!!"<<endl;
 
   numberOfSimTracks=0;
   numberOfRecTracks=0;
+
+  /// get hold of back-end interface
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  
+  edm::Service<MonitorDaemon> daemon;
+  daemon.operator->();
+
+
+
 }
 
 /// Destructor
@@ -54,56 +66,41 @@ PhysicsObjectsMonitor::~PhysicsObjectsMonitor(){
 }
 
 void PhysicsObjectsMonitor::beginJob(const EventSetup& eventSetup){
-  // Create the root file
-  theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  theFile->cd();
 
-  hPres = new TH1F("pTRes","pT Resolution",100,-2,2);
-  h1_Pres = new TH1F("invPTRes","1/pT Resolution",100,-2,2);
+  dbe->setCurrentFolder("PhysicsObjects/MuonReconstruction");           
 
-  charge = new TH1F("charge","track charge",5,-2.5,2.5);
-  ptot = new TH1F("ptot","track momentum",50,0,50);
-  pt = new TH1F("pt","track pT",100,0,50);
-  px = new TH1F("px ","track px",100,-50,50);
-  py = new TH1F("py","track py",100,-50,50);
-  pz = new TH1F("pz","track pz",100,-50,50);
-  Nmuon = new TH1F("Nmuon","Number of muon tracks",11,-.5,10.5);
-  Nrechits = new TH1F("Nrechits","Number of RecHits/Segments on track",21,-.5,21.5);
-  NDThits = new TH1F("NDThits","Number of DT Hits/Segments on track",31,-.5,31.5);
-  NCSChits = new TH1F("NCSChits","Number of CSC Hits/Segments on track",31,-.5,31.5);
-  DTvsCSC = new TH2F("DTvsCSC","Number of DT vs CSC hits on track",29,-.5,28.5,29,-.5,28.5);
+
+  hPres = dbe->book1D("pTRes","pT Resolution",100,-2,2);
+  h1_Pres =dbe->book1D("invPTRes","1/pT Resolution",100,-2,2);
+
+  charge= dbe->book1D("charge","track charge",5,-2.5,2.5);
+  ptot = dbe->book1D("ptot","track momentum",50,0,50);
+  pt = dbe->book1D("pt","track pT",100,0,50);
+  px = dbe->book1D("px ","track px",100,-50,50);
+  py = dbe->book1D("py","track py",100,-50,50);
+  pz = dbe->book1D("pz","track pz",100,-50,50);
+  Nmuon = dbe->book1D("Nmuon","Number of muon tracks",11,-.5,10.5);
+  Nrechits = dbe->book1D("Nrechits","Number of RecHits/Segments on track",21,-.5,21.5);
+  NDThits = dbe->book1D("NDThits","Number of DT Hits/Segments on track",31,-.5,31.5);
+  NCSChits = dbe->book1D("NCSChits","Number of CSC Hits/Segments on track",31,-.5,31.5);
+  DTvsCSC = dbe->book2D("DTvsCSC","Number of DT vs CSC hits on track",29,-.5,28.5,29,-.5,28.5);
 }
 
 void PhysicsObjectsMonitor::endJob(){
   if(theDataType == "SimData"){
-    cout << endl << endl << "Number of Sim tracks: " << numberOfSimTracks << endl;
+    edm::LogInfo ("PhysicsObjectsMonitor") << "Number of Sim tracks: " << numberOfSimTracks;
   }
 
-  cout << "Number of Reco tracks: " << numberOfRecTracks << endl << endl;
-    
-  // Write the histos to file
-  theFile->cd();
-  hPres->Write();
-  h1_Pres->Write();
+ edm::LogInfo ("PhysicsObjectsMonitor") << "Number of Reco tracks: " << numberOfRecTracks ;
 
-  charge->Write();
-  ptot->Write();
-  pt->Write();
-  px->Write();
-  py->Write();
-  pz->Write();
-  Nmuon->Write();
-  Nrechits->Write();
-  NDThits->Write();
-  NCSChits->Write();
-  DTvsCSC->Write();
-  theFile->Close();
+ if(saveRootFile) dbe->save(theRootFileName); 
+   
 }
 
 
 void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& eventSetup){
   
-  cout << "Run: " << event.id().run() << " Event: " << event.id().event() << endl;
+  edm::LogInfo ("PhysicsObjectsMonitor") << "Run: " << event.id().run() << " Event: " << event.id().event();
   MuonPatternRecoDumper debug;
   
   // Get the RecTrack collection from the event
@@ -126,21 +123,21 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
 
     SimTrackContainer::const_iterator simTrack;
 
-    cout<<"Simulated tracks: "<<endl;
+    edm::LogInfo ("PhysicsObjectsMonitor") <<"Simulated tracks: ";
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
       if (abs((*simTrack).type()) == 13) {
-	cout<<"Sim pT: "<<(*simTrack).momentum().perp()<<endl;
+        edm::LogInfo ("PhysicsObjectsMonitor") <<	"Sim pT: "<<(*simTrack).momentum().perp()<<endl;
 	simPt=(*simTrack).momentum().perp();
-	cout<<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl;
+	edm::LogInfo ("PhysicsObjectsMonitor") <<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl;
 	numberOfSimTracks++;
       }    
     }
-    cout << endl;
+    edm::LogInfo ("PhysicsObjectsMonitor") << "\n";
   }
   
   reco::TrackCollection::const_iterator staTrack;
   
-  cout<<"Reconstructed tracks: " << staTracks->size() << endl;
+  edm::LogInfo ("PhysicsObjectsMonitor") << "Reconstructed tracks: " << staTracks->size() << endl;
   Nmuon->Fill(staTracks->size());
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
     reco::TransientTrack track(*staTrack,&*theMGField); 
@@ -150,13 +147,13 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
     int nCSChits=0;
     for (trackingRecHit_iterator it = track.recHitsBegin ();  it != track.recHitsEnd (); it++) {
       if ((*it)->isValid ()) {	    
-	std::cout << "Analyzer:  Aha this looks like a Rechit!" << std::endl;
+	edm::LogInfo ("PhysicsObjectsMonitor") << "Analyzer:  Aha this looks like a Rechit!" << std::endl;
 	if((*it)->geographicalId().subdetId() == MuonSubdetId::DT) {
 	  nDThits++;
 	} else if((*it)->geographicalId().subdetId() == MuonSubdetId::CSC) {
 	  nCSChits++;
 	} else {
-	  std::cout << "This is an UNKNOWN hit !! " << std::endl;
+	 edm::LogInfo ("PhysicsObjectsMonitor") <<  "This is an UNKNOWN hit !! " << std::endl;
 	}
 	nrechits++;
       }
@@ -170,7 +167,7 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
     debug.dumpFTS(track.impactPointTSCP().theState());
     
     recPt = track.impactPointTSCP().momentum().perp();    
-    cout<<" p: "<<track.impactPointTSCP().momentum().mag()<< " pT: "<<recPt<<endl;
+    edm::LogInfo ("PhysicsObjectsMonitor") << " p: "<<track.impactPointTSCP().momentum().mag()<< " pT: "<<recPt<<endl;
     pt->Fill(recPt);
     ptot->Fill(track.impactPointTSCP().momentum().mag());
     charge->Fill(track.impactPointTSCP().charge());
@@ -178,7 +175,7 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
     py->Fill(track.impactPointTSCP().momentum().y());
     pz->Fill(track.impactPointTSCP().momentum().z());
   }
-  cout<<"---"<<endl;
+  edm::LogInfo ("PhysicsObjectsMonitor") <<"---"<<endl;
   if(recPt && theDataType == "SimData"){
     hPres->Fill( (recPt-simPt)/simPt);
     h1_Pres->Fill( ( 1/recPt - 1/simPt)/ (1/simPt));

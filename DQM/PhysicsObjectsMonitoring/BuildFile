@@ -2,9 +2,14 @@
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
-
+<use name=DQMServices/Daemon>
+<use name=Utilities/Threads>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/CoreROOT>
+<use name=FWCore/ServiceRegistry>
 <use name=CLHEP>
 <use name=root>
 <export>
@@ -12,9 +17,14 @@
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
-
+<use name=DQMServices/Daemon>
+<use name=Utilities/Threads>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/CoreROOT>
+<use name=FWCore/ServiceRegistry>
 <use name=CLHEP>
 <use name=root>
 </export>
