@@ -6,10 +6,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
+  TrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent")),
   theAlgo(iConfig)
 {
   setConf(iConfig);
@@ -21,6 +23,7 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
+  produces<std::vector<Trajectory> >() ;
 
 }
 
@@ -31,9 +34,11 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
+  std::auto_ptr<TrackingRecHitCollection>    outputRHColl (new TrackingRecHitCollection);
+  std::auto_ptr<reco::TrackCollection>       outputTColl(new reco::TrackCollection);
+  std::auto_ptr<reco::TrackExtraCollection>  outputTEColl(new reco::TrackExtraCollection);
+  std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
+
   //
   //declare and get stuff to be retrieved from ES
   //
@@ -61,7 +66,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   } catch (cms::Exception &e){ edm::LogInfo("TrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
   //
   //put everything in the event
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, algoResults);
+  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   LogDebug("TrackProducer") << "end" << "\n";
 }
 

@@ -6,9 +6,11 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
+  TrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent")),
   theAlgo(iConfig)
 {
   setConf(iConfig);
@@ -18,6 +20,7 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
+  produces<std::vector<Trajectory> >() ;
 }
 
 void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
@@ -26,9 +29,11 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
+  std::auto_ptr<TrackingRecHitCollection>   outputRHColl (new TrackingRecHitCollection);
+  std::auto_ptr<reco::TrackCollection>      outputTColl(new reco::TrackCollection);
   std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
+  std::auto_ptr<std::vector<Trajectory> >   outputTrajectoryColl(new std::vector<Trajectory>);
+
   //
   //declare and get stuff to be retrieved from ES
   //
@@ -57,7 +62,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   } catch (cms::Exception &e){}
   //
   //put everything in th event
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, algoResults);
+  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   LogDebug("TrackProducer") << "end" << "\n";
 }
 

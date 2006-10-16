@@ -20,6 +20,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 
 class Propagator;
@@ -29,7 +30,8 @@ class TrackerGeometry;
 
 class TrackProducerBase {
 public:
-  TrackProducerBase(){}
+  TrackProducerBase(bool trajectoryInEvent):
+    trajectoryInEvent_(trajectoryInEvent){}
 
   virtual ~TrackProducerBase();
   
@@ -47,6 +49,7 @@ public:
 			std::auto_ptr<TrackingRecHitCollection>&,
 			std::auto_ptr<reco::TrackCollection>&,
 			std::auto_ptr<reco::TrackExtraCollection>&,
+			std::auto_ptr<std::vector<Trajectory> >&,
 			AlgoProductCollection&);
 
   virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
@@ -61,6 +64,7 @@ public:
  private:
   edm::ParameterSet conf_;
   std::string src_;
+  bool trajectoryInEvent_;
  protected:
   std::string alias_;
 

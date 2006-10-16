@@ -86,6 +86,7 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
 				 std::auto_ptr<TrackingRecHitCollection>& selHits,
 				 std::auto_ptr<reco::TrackCollection>& selTracks,
 				 std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
+				 std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
 				 AlgoProductCollection& algoResults)
 {
 
@@ -97,6 +98,7 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
   edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
+    if(trajectoryInEvent_) selTrajectories->push_back(*theTraj);
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
 
     reco::Track * theTrack = (*i).second;
@@ -153,5 +155,6 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
   evt.put( selTracks );
   evt.put( selTrackExtras );
   evt.put( selHits );
+  if(trajectoryInEvent_) evt.put(selTrajectories);
 }
 
