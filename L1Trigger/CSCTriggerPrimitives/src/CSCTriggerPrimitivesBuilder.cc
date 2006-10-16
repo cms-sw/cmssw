@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/06/27 14:38:48 $
-//   $Revision: 1.4 $
+//   $Date: 2006/10/09 13:46:17 $
+//   $Revision: 1.5 $
 //
 //   Modifications:
 //
@@ -160,7 +160,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 	      if (!lctV.empty()) {
 		LogDebug("L1CSCTrigger")
 		  << "Put " << lctV.size() << " LCT digi"
-		  << ((lctV.size() > 1) ? "s " : " ") << "in collection \n";
+		  << ((lctV.size() > 1) ? "s " : " ") << "in collection\n";
 		oc_lct.put(std::make_pair(lctV.begin(),lctV.end()), detid);
 	      }
 
@@ -168,7 +168,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 	      if (!alctV.empty()) {
 		LogDebug("L1CSCTrigger")
 		  << "Put " << alctV.size() << " ALCT digi"
-		  << ((alctV.size() > 1) ? "s " : " ") << "in collection \n";
+		  << ((alctV.size() > 1) ? "s " : " ") << "in collection\n";
 		oc_alct.put(std::make_pair(alctV.begin(),alctV.end()), detid);
 	      }
 
@@ -176,7 +176,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 	      if (!clctV.empty()) {
 		LogDebug("L1CSCTrigger")
 		  << "Put " << clctV.size() << " CLCT digi"
-		  << ((clctV.size() > 1) ? "s " : " ") << "in collection \n";
+		  << ((clctV.size() > 1) ? "s " : " ") << "in collection\n";
 		oc_clct.put(std::make_pair(clctV.begin(),clctV.end()), detid);
 	      }
 	    }
@@ -221,6 +221,6 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
       << " sector "    << itr->getDetId().triggerSector()
       << " ring "      << itr->getDetId().ring()
       << " chamber "   << itr->getDetId().chamber()
-      << " (trig id. " << itr->getDetId().triggerCscId() << "):" << "\n";
+      << " (trig id. " << itr->getDetId().triggerCscId() << ")" << "\n";
   }
 }
