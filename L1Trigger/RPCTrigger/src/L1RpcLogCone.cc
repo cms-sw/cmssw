@@ -82,6 +82,18 @@ std::string L1RpcLogCone::toString() const {
   ostr<< std::endl;
   return ostr.str();
 }
+void L1RpcLogCone::Shift(int pos) {
+  int shiftPos;
+  for(int logPlane = L1RpcConst::FIRST_PLANE; logPlane <= L1RpcConst::LAST_PLANE; logPlane++) {
+    TLogPlane shifted;
+    for(TLogPlane::iterator it = LogPlanesVec[logPlane].begin(); it != LogPlanesVec[logPlane].end(); it++) {
+      shiftPos = it->first + pos;
+      if ( shiftPos >= 0 && shiftPos < (int)L1RpcConst::LOGPLANE_SIZE[abs(ConeCrdnts.Tower)])
+        shifted.insert(TLogPlane::value_type(shiftPos, it->second ));
+    }
+    LogPlanesVec[logPlane] = shifted;
+  }
+}
 // 
 //#############################################################################################
 //
