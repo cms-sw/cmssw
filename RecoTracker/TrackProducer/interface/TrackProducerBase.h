@@ -30,7 +30,7 @@ class TrackerGeometry;
 
 class TrackProducerBase {
 public:
-  TrackProducerBase(bool trajectoryInEvent):
+  TrackProducerBase(bool trajectoryInEvent = false):
     trajectoryInEvent_(trajectoryInEvent){}
 
   virtual ~TrackProducerBase();
