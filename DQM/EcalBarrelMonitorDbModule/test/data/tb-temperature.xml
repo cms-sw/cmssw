@@ -5,15 +5,15 @@
             xsi:noNamespaceSchemaLocation="prova.xsd">
 
   <me>
-    <th2d title="Temperature" xbins="17" xfrom="-0.5" xto="16.5" ybins="10" yfrom="-0.5" yto="9.5" ncycle="1" loop="170"/>
+    <th2d title="Temperature" xbins="17" xfrom="0." xto="17." ybins="10" yfrom="0." yto="10." ncycle="1" loop="170"/>
     <query name="addToTableList"  arg="CHANNELVIEW" />
     <query name="addToTableList"  arg="DCU_CAPSULE_TEMP_DAT" />
     <query name="addToTableList"  arg="DCU_IOV" />
     <query name="addToTableList"  arg="LOCATION_DEF" />
     <query name="addToTableList"  arg="DCU_TAG" />
     <query name="addToOutputList" arg="CHANNELVIEW.ID2" />
-    <query name="addToOutputList" arg="cast( floor((CHANNELVIEW.ID2-1) / 10 ) as float )" alias="X" />
-    <query name="addToOutputList" arg="cast( mod((CHANNELVIEW.ID2-1) , 10 ) as float )" alias="Y" />
+    <query name="addToOutputList" arg="cast( 0.5 + floor((CHANNELVIEW.ID2-1) / 10 ) as float )" alias="X" />
+    <query name="addToOutputList" arg="cast( 0.5 + mod((CHANNELVIEW.ID2-1) , 10 ) as float )" alias="Y" />
     <query name="addToOutputList" arg="cast( DCU_CAPSULE_TEMP_DAT.CAPSULE_TEMP as float )" alias="Z" />
     <query name="setCondition" arg="DCU_CAPSULE_TEMP_DAT.IOV_ID = (select max(IOV_ID) from DCU_IOV, DCU_TAG where DCU_IOV.TAG_ID=DCU_TAG.TAG_ID and DCU_TAG.LOCATION_ID=1) and DCU_IOV.IOV_ID=DCU_CAPSULE_TEMP_DAT.IOV_ID and CHANNELVIEW.LOGIC_ID=DCU_CAPSULE_TEMP_DAT.LOGIC_ID and DCU_TAG.TAG_ID = DCU_IOV.TAG_ID and LOCATION_DEF.DEF_ID = DCU_TAG.LOCATION_ID and LOCATION_DEF.LOCATION='H4'" />;
     <query name="addToOrderList" arg="CHANNELVIEW.ID2" />
