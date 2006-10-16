@@ -1,0 +1,4 @@
+<lcgdict>
+<class name="Trajectory"/>
+<class name="std::vector<Trajectory>"  persistent = "false"  />
+</lcgdict>

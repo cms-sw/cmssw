@@ -42,11 +42,24 @@ public:
   typedef TransientTrackingRecHit::ConstRecHitContainer        ConstRecHitContainer;
   typedef ConstRecHitContainer                                 RecHitContainer;
 
-  /** Default constructor of an empty trajectory with undefined direction.
+
+  /** Default constructor of an empty trajectory with undefined seed and 
+   * undefined direction. This constructor is necessary in order to transiently
+   * copy vector<Trajectory> in the edm::Event
+   */
+  
+  Trajectory() :  theChiSquared(0), theValid(true),
+    theDirection(alongMomentum), theDirectionValidity(false),
+    theSeed(TrajectorySeed())  
+    {}
+
+
+  /** Constructor of an empty trajectory with undefined direction.
    *  The direction will be defined at the moment of the push of a second
    *  measurement, from the relative radii of the first and second 
    *  measurements.
    */
+    
   Trajectory( const TrajectorySeed& seed) : 
     theChiSquared(0), theValid(true),
     theDirection(alongMomentum), theDirectionValidity(false),
