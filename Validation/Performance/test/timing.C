@@ -1,24 +1,32 @@
+#include "TFile.h"
+// #include "TTree.h"
+// #include "TBranch.h"
+#include "TH1.h"
+#include "TString.h"
 
-// void test()
+#include "Riostream.h"
+
+void timing( TString outfile="timing_minbias.root" )
 {
 
    gROOT->Reset() ;
 
-#include "Riostream.h"
-
    ifstream in ;
+   
+   TString Type, Unt, Sprt;
+   Float_t OprFreq ;
+   
    
    TString  Logo ;
    Int_t    Run, Evt ;
    TString  ModLabel ;
    TString  ModName ;
-   Float_t  Time ;
-      
-  // in.clear() ;
+   Float_t  Time ;      
    
-   in.open("timing_minbias.log") ;
    
-   TFile* OutFile = new TFile("timing_minbias.root", "RECREATE") ;
+   TFile* OutFile = new TFile( outfile, "RECREATE") ;
+   
+   TH1F* CPUInfo = new TH1F( "CPUInfo", "CPUInfo", 100, 0., 10. ) ;
     
    TH1F* Vtx = new TH1F( "VtxSmeared", "VertexGenerator", 100, 0., 0.1 ) ;
    TH1F* OPr = new TH1F( "SimG4Object", "OscarProducer", 100, 0., 500. ) ;
@@ -34,6 +42,16 @@
    // no PoolOutputModule in this chain 
    //
    
+   in.open("cpu_info.log") ;
+   // one is enough...
+   in >> Type >> Unt >> Sprt >> OprFreq ;
+   in.close() ;
+   in.clear() ;
+   
+   CPUInfo->Fill( OprFreq/1000. ) ;
+   
+   in.open("timing_minbias.log") ;
+
    while (1)
    {
       in >> Logo >> Evt >> Run >> ModLabel >> ModName >> Time ;
@@ -53,6 +71,8 @@
    
    in.close() ;
    in.clear() ;
+   
+   cout << "[OVAL] : proc/cpuinfo = " << CPUInfo->GetMean()*1000. << Unt << endl ;
 
    cout << "[OVAL] : OscarProducer - MEAN CPU = " << OPr->GetMean() << " sec/evt" << endl ;
 
@@ -66,9 +86,10 @@
    cout << "[OVAL] : RPCDigiProducer - MEAN CPU = " << RPC->GetMean() << " sec/evt" << endl ;
    cout << "[OVAL] : MixingModule - MEAN CPU = " << Mix->GetMean() << " sec/evt" << endl ;
    
+/*
    TCanvas* c2 = new TCanvas("c2") ;
    OPr->Draw() ;
-   // OPr->Print("OscarProducer.ps") ;
+   OPr->Print("OscarProducer.ps") ;
    c2->SaveAs("OscarProducer_minbias.ps") ;
    
    TCanvas* c3 = new TCanvas( "c3", " ", 900, 900 ) ;
@@ -91,6 +112,7 @@
    Mix->Draw() ;
 
    c3->SaveAs("Modules_minbias.ps")  ;
+*/
    
    OutFile->Write() ;
          
