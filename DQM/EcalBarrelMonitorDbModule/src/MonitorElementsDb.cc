@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.3 2006/10/15 10:52:37 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.4 2006/10/16 17:33:17 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2006/10/15 10:52:37 $
+  \version $Revision: 1.4 $
+  \date $Date: 2006/10/16 17:33:17 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -137,8 +137,8 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
 
       if( MEs_[i] != 0 && ( ievt_ % MEinfo_[i].ncycle ) == 0 ) {
 
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(MEs_[i]) );
-      if( ob ) ob->Reset();
+        MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(MEs_[i]) );
+        if( ob ) ob->Reset();
 
 	vars.clear();
 
