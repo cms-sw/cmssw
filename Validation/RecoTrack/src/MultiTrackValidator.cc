@@ -34,7 +34,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       vector<double> hitsetav;
       vector<int>    totSIMv,totRECv;
       vector<MonitorElement*>  ptdistribv;
-      vector<MonitorElement*>  etadistribv;
+      vector<MonitorElement*>  d0distribv;
   
       double step=(max-min)/nint;
       ostringstream title,name;
@@ -47,21 +47,21 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 	hitsetav.push_back(0);
 	name.str("");
 	title.str("");
-	name <<"pt["<<d<<","<<d+step<<"]";
-	title <<"p_{t} residue "<< d << "<#eta<"<<d+step;
+	name <<"pt["<<d-step<<","<<d<<"]";
+	title <<"p_{t} residue "<< d-step << "<#eta<"<<d;
 	ptdistribv.push_back(dbe_->book1D(name.str().c_str(),title.str().c_str(), 200, -2, 2 ));
 	name.str("");
 	title.str("");
-	name <<"eta["<<d<<","<<d+step<<"]";
-	title <<"eta residue "<< d << "<#eta<"<<d+step;
-	etadistribv.push_back(dbe_->book1D(name.str().c_str(),title.str().c_str(), 200, -0.2, 0.2 ));
+	name <<"d0["<<d-step<<","<<d<<"]";
+	title <<"d0 residue "<< d-step << "<d0<"<<d;
+	d0distribv.push_back(dbe_->book1D(name.str().c_str(),title.str().c_str(), 200, -0.2, 0.2 ));
       }
       etaintervals.push_back(etaintervalsv);
       totSIM.push_back(totSIMv);
       totREC.push_back(totRECv);
       hitseta.push_back(hitsetav);
       ptdistrib.push_back(ptdistribv);
-      etadistrib.push_back(etadistribv);
+      d0distrib.push_back(d0distribv);
      
       h_ptSIM.push_back( dbe_->book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
       h_etaSIM.push_back( dbe_->book1D("etaSIM", "generated pseudorapidity", 500, 0, 5 ) );
@@ -79,7 +79,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_hits.push_back( dbe_->book1D("hits", "number of hits per track", 30, -0.5, 29.5 ) );
       h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nint,min,max) );
       h_ptrmsh.push_back( dbe_->book1D("PtRMS","PtRMS vs #eta",nint,min,max) );
-      h_deltaeta.push_back( dbe_->book1D("etaRMS","etaRMS vs #eta",nint,min,max) );
+      h_d0rmsh.push_back( dbe_->book1D("d0RMS","d0RMS vs #eta",nint,min,max) );
       h_hits_eta.push_back( dbe_->book1D("hits_eta","hits_eta",nint,min,max) );
 //       h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nint,&etaintervals[j][0]) );
 //       h_ptrmsh.push_back( dbe_->book1D("PtRMS","PtRMS vs #eta",nint,&etaintervals[j][0]) );
@@ -153,9 +153,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    abs(tp->momentum().eta())<min) continue;
 	if (sqrt(tp->momentum().perp2())<minpt) continue;
 	int type = tp->g4Track_begin()->product()->begin()->type();
-	if (abs(type)!=13||abs(type)!=11||abs(type)!=211||abs(type)!=321||abs(type)!=2212) continue;
-	LogDebug("TrackValidator") << "PIPPO tp->charge(): " << tp->charge()
-				   << "PIPPO tp->trackPSimHit().size(): " << tp->trackPSimHit().size() 
+	if (abs(type)!=13&&abs(type)!=11&&abs(type)!=211&&abs(type)!=321&&abs(type)!=2212) continue;
+	LogDebug("TrackValidator") << "tp->charge(): " << tp->charge()
+				   << "tp->trackPSimHit().size(): " << tp->trackPSimHit().size() 
 				   << "\n";
 	st++;
 	h_ptSIM[w]->Fill(sqrt(tp->momentum().perp2()));
@@ -239,7 +239,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  Basic3DVector<double> vert = (Basic3DVector<double>) tpr->parentVertex()->position();;
 
 	  //not needed in 110
-	  //	  vert/=10;
+	  vert/=10;
 	  reco::TrackBase::ParameterVector sParameters=
 	    associatorForParamAtPca->parametersAtClosestApproachGeom(vert, momAtVtx, track->charge());
 
@@ -285,12 +285,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    i++;
 	  }
 	
-	  //eta residue distribution per eta interval
+	  //d0 residue distribution per eta interval
 	  i=0;
-	  for (vector<MonitorElement*>::iterator h=etadistrib[w].begin(); h!=etadistrib[w].end(); h++){
+	  for (vector<MonitorElement*>::iterator h=d0distrib[w].begin(); h!=d0distrib[w].end(); h++){
 	    if (abs(assocTrack->momentum().pseudoRapidity())>etaintervals[w][i]&&
 		abs(assocTrack->momentum().pseudoRapidity())<etaintervals[w][i+1]) {
-	      (*h)->Fill(etares);
+	      (*h)->Fill(track->d0()-d0Sim);
 	    }
 	    i++;
 	  }
@@ -319,21 +319,24 @@ void MultiTrackValidator::endJob() {
 	i++;
       }
       
-      //fill eta rms plot versus eta and write eta residue distribution per eta interval histo
+      //fill d0 rms plot versus eta and write d0 residue distribution per eta interval histo
       i=0;
-      for (vector<MonitorElement*>::iterator h=etadistrib[w].begin(); h!=etadistrib[w].end(); h++){
-	h_deltaeta[w]->Fill(etaintervals[w][i+1]-0.00001 ,(*h)->getRMS());
+      for (vector<MonitorElement*>::iterator h=d0distrib[w].begin(); h!=d0distrib[w].end(); h++){
+	h_d0rmsh[w]->Fill(etaintervals[w][i+1]-0.00001 ,(*h)->getRMS());
 	i++;
       }
       
       //fill efficiency plot
+      double eff;
       for (unsigned int j=0; j<totREC[w].size(); j++){
-	if (totSIM[w][j]!=0){
-	  h_effic[w]->Fill(etaintervals[w][j+1]-0.00001, ((double) totREC[w][j])/((double) totSIM[w][j]));
-	}
-	else {
-	  h_effic[w]->Fill(etaintervals[w][j+1]-0.00001, 0);
-	}
+        if (totSIM[w][j]!=0){
+          eff = ((double) totREC[w][j])/((double) totSIM[w][j]);
+          h_effic[w]->Fill(etaintervals[w][j+1]-0.00001, eff);
+          h_effic[w]->setBinError(j,sqrt((eff*(1-eff))/((double) totREC[w][j])));
+        }
+        else {
+          h_effic[w]->Fill(etaintervals[w][j+1]-0.00001, 0);
+        }
       }
       
       //fill hits vs eta plot

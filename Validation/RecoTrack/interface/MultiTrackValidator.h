@@ -60,7 +60,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   double minpt;
   
   vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
-  vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits, h_effic, h_ptrmsh, h_deltaeta, h_charge;
+  vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits, h_effic, h_ptrmsh, h_d0rmsh, h_charge;
   vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullK, h_pt2;
   vector<MonitorElement*> chi2_vs_nhits, chi2_vs_eta, nhits_vs_eta, ptres_vs_eta, etares_vs_eta, nrec_vs_nsim;
   vector<MonitorElement*> h_assochi2, h_assochi2_prob, h_hits_eta;
@@ -70,7 +70,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   vector< vector<int> > totSIM,totREC;
   
   vector< vector<MonitorElement*> > ptdistrib;
-  vector< vector<MonitorElement*> > etadistrib;
+  vector< vector<MonitorElement*> > d0distrib;
 
   edm::ESHandle<MagneticField> theMF;
 
