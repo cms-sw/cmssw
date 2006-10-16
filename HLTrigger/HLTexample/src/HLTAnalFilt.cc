@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/10/12 16:38:50 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/10/13 07:28:35 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *
@@ -90,6 +90,9 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		    << " " << V[I].energy();
        LogTrace("") << "Vector.at(i):   " << I << " " << typeid(V.at(I)).name()
 		    << " " << V.at(I).energy();
+       LogTrace("") << "                " << I << " " << typeid(&(*i)).name();
+       LogTrace("") << "                " << I << " " << typeid(  *i ).name();
+       LogTrace("") << "                " << I << " " << typeid(   i ).name();
      }
      //
    } else {
