@@ -15,6 +15,7 @@
 //B.M. #include "CommonDet/BasicDet/interface/RecHitEqualByChannels.h"
 #include "RecoTracker/CkfPattern/interface/TrajectoryFilter.h"
 #include "RecoTracker/CkfPattern/interface/MinPtTrajectoryFilter.h"
+#include "RecoTracker/CkfPattern/interface/MaxHitsTrajectoryFilter.h"
 #include "RecoTracker/CkfPattern/interface/RegionalTrajectoryFilter.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
@@ -69,11 +70,9 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   theTTRHBuilder(RecHitBuilder),theMeasurementTracker(measurementTracker),
   theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
   theForwardPropagator(0),theBackwardPropagator(0),
-  theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut")))
+  theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut"))),
+  theMaxHitsCondition(new MaxHitsTrajectoryFilter(conf.getParameter<int>("maxNumberOfHits")))
 {
-  // components
-  //B.M. componentBuilder.addComponent("StopCondition",RecQuery("MaxHitsTrajectoryFilter"));
-
   // fill data members from parameters (eventually data members could be dropped)
   //
   theMaxCand                  = conf.getParameter<int>("maxCand");
@@ -107,6 +106,7 @@ GroupedCkfTrajectoryBuilder::~GroupedCkfTrajectoryBuilder()
 {
   //B.M. delete theConfigurableCondition;
   delete theMinPtCondition;
+  delete theMaxHitsCondition;
 }
 
 void GroupedCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
@@ -229,6 +229,7 @@ GroupedCkfTrajectoryBuilder::toBeContinued (const Trajectory& traj,
   //FIXME,restore this: if ( regionalCondition && !(*regionalCondition)(traj) )  return false;
   // next: pt-cut
   if ( !(*theMinPtCondition)(traj) )  return false;
+  if ( !(*theMaxHitsCondition)(traj) )  return false;
   // finally: configurable condition
   //FIXME,restore this: if ( !(*theConfigurableCondition)(traj) )  return false;
 

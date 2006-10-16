@@ -194,6 +194,7 @@ private:
   mutable const Propagator*             theBackwardPropagator;
 
   TrajectoryFilter*              theMinPtCondition;
+  TrajectoryFilter*              theMaxHitsCondition;
   TrajectoryFilter*              theConfigurableCondition;
 
   //   typedef deque< const TrajectoryFilter*>   StopCondContainer;
