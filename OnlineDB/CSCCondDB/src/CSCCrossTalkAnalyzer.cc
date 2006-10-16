@@ -37,20 +37,57 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   strip=0,misMatch=0,max1 =-9999999.,max2=-9999999.;
   layer=0,reportedChambers=0;
   length=1,myevt=0,flagRMS=-9,flagNoise=-9;
-  aPeak=0.0,sumFive=0.0;
+  aPeak=0.0,sumFive=0.0,maxPed=-99999.0,maxRMS=-99999.0;
   pedMean=0.0,evt=0,NChambers=0;
   
   //definition of histograms
   xtime = TH1F("time", "time", 50, 0, 500 );
-  pulse_shape_ch1 = TH2F("pulse shape_ch1","pulse shape_ch1", 100,-100,500,100,-100,1100);
-  pulse_shape_ch2 = TH2F("pulse shape_ch2","pulse shape_ch2", 100,-100,500,100,-100,1100);
-  pulse_shape_ch3 = TH2F("pulse shape_ch3","pulse shape_ch3", 100,-100,500,100,-100,1100);
-  pulse_shape_ch4 = TH2F("pulse shape_ch4","pulse shape_ch4", 100,-100,500,100,-100,1100);
-  pulse_shape_ch5 = TH2F("pulse shape_ch5","pulse shape_ch5", 100,-100,500,100,-100,1100);
-  pulse_shape_ch6 = TH2F("pulse shape_ch6","pulse shape_ch6", 100,-100,500,100,-100,1100);
-  pulse_shape_ch7 = TH2F("pulse shape_ch7","pulse shape_ch7", 100,-100,500,100,-100,1100);
-  pulse_shape_ch8 = TH2F("pulse shape_ch8","pulse shape_ch8", 100,-100,500,100,-100,1100);
-  pulse_shape_ch9 = TH2F("pulse shape_ch9","pulse shape_ch9", 100,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb1 = TH2F("pulse01","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb2 = TH2F("pulse02","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb3 = TH2F("pulse03","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb4 = TH2F("pulse04","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb5 = TH2F("pulse05","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb1 = TH2F("pulse11","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb2 = TH2F("pulse12","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb3 = TH2F("pulse13","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb4 = TH2F("pulse14","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb5 = TH2F("pulse15","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb1 = TH2F("pulse21","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb2 = TH2F("pulse22","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb3 = TH2F("pulse23","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb4 = TH2F("pulse24","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb5 = TH2F("pulse25","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb1 = TH2F("pulse31","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb2 = TH2F("pulse32","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb3 = TH2F("pulse33","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb4 = TH2F("pulse34","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb5 = TH2F("pulse35","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb1 = TH2F("pulse41","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb2 = TH2F("pulse42","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb3 = TH2F("pulse43","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb4 = TH2F("pulse44","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb5 = TH2F("pulse45","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb1 = TH2F("pulse51","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb2 = TH2F("pulse52","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb3 = TH2F("pulse53","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb4 = TH2F("pulse54","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb5 = TH2F("pulse55","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb1 = TH2F("pulse61","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb2 = TH2F("pulse62","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb3 = TH2F("pulse63","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb4 = TH2F("pulse64","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb5 = TH2F("pulse65","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb1 = TH2F("pulse71","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb2 = TH2F("pulse72","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb3 = TH2F("pulse73","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb4 = TH2F("pulse74","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb5 = TH2F("pulse75","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb1 = TH2F("pulse81","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb2 = TH2F("pulse82","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb3 = TH2F("pulse83","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb4 = TH2F("pulse84","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb5 = TH2F("pulse85","strip72", 100,-100,500,100,-100,1100);
+
   ped_mean_all    = TH1F("pedMean","Mean baseline noise", 100,300,900);
   maxADC          = TH1F("maxADC","Peak ADC", 100,800,1300);
 
@@ -193,15 +230,51 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		    pedMean =(adc[0]+adc[1])/2;
 		    ped_mean_all.Fill(pedMean);  
 		    xtime.Fill(time);
-		    if(chamber==0  && strip==1) pulse_shape_ch1.Fill(time,adc[k]-pedMean);
-		    if(chamber==1  && strip==1) pulse_shape_ch2.Fill(time,adc[k]-pedMean);
-		    if(chamber==2  && strip==1) pulse_shape_ch3.Fill(time,adc[k]-pedMean);
-		    if(chamber==3  && strip==1) pulse_shape_ch4.Fill(time,adc[k]-pedMean);
-		    if(chamber==4  && strip==1) pulse_shape_ch5.Fill(time,adc[k]-pedMean);
-		    if(chamber==5  && strip==1) pulse_shape_ch6.Fill(time,adc[k]-pedMean);
-		    if(chamber==6  && strip==1) pulse_shape_ch7.Fill(time,adc[k]-pedMean);
-		    if(chamber==7  && strip==1) pulse_shape_ch8.Fill(time,adc[k]-pedMean);
-		    if(chamber==8  && strip==1) pulse_shape_ch9.Fill(time,adc[k]-pedMean);
+		    if(chamber==0  && strip==8)  pulseshape_ch1_cfeb1.Fill(time,adc[k]-pedMean);
+		    if(chamber==0  && strip==24) pulseshape_ch1_cfeb2.Fill(time,adc[k]-pedMean);
+		    if(chamber==0  && strip==40) pulseshape_ch1_cfeb3.Fill(time,adc[k]-pedMean);
+		    if(chamber==0  && strip==56) pulseshape_ch1_cfeb4.Fill(time,adc[k]-pedMean);
+		    if(chamber==0  && strip==72) pulseshape_ch1_cfeb5.Fill(time,adc[k]-pedMean);
+		    if(chamber==1  && strip==8)  pulseshape_ch2_cfeb1.Fill(time,adc[k]-pedMean);
+		    if(chamber==1  && strip==24) pulseshape_ch2_cfeb2.Fill(time,adc[k]-pedMean);
+		    if(chamber==1  && strip==40) pulseshape_ch2_cfeb3.Fill(time,adc[k]-pedMean);
+		    if(chamber==1  && strip==56) pulseshape_ch2_cfeb4.Fill(time,adc[k]-pedMean);
+		    if(chamber==1  && strip==72) pulseshape_ch2_cfeb5.Fill(time,adc[k]-pedMean);
+		    if(chamber==2  && strip==8)  pulseshape_ch3_cfeb1.Fill(time,adc[k]-pedMean);
+		    if(chamber==2  && strip==24) pulseshape_ch3_cfeb2.Fill(time,adc[k]-pedMean);
+		    if(chamber==2  && strip==40) pulseshape_ch3_cfeb3.Fill(time,adc[k]-pedMean);
+		    if(chamber==2  && strip==56) pulseshape_ch3_cfeb4.Fill(time,adc[k]-pedMean);
+		    if(chamber==2  && strip==72) pulseshape_ch3_cfeb5.Fill(time,adc[k]-pedMean);
+		    if(chamber==3  && strip==8)  pulseshape_ch4_cfeb1.Fill(time,adc[k]-pedMean);
+		    if(chamber==3  && strip==24) pulseshape_ch4_cfeb2.Fill(time,adc[k]-pedMean);
+		    if(chamber==3  && strip==40) pulseshape_ch4_cfeb3.Fill(time,adc[k]-pedMean);
+		    if(chamber==3  && strip==56) pulseshape_ch4_cfeb4.Fill(time,adc[k]-pedMean);
+		    if(chamber==3  && strip==72) pulseshape_ch4_cfeb5.Fill(time,adc[k]-pedMean);
+		    if(chamber==4  && strip==8)  pulseshape_ch5_cfeb1.Fill(time,adc[k]-pedMean);
+		    if(chamber==4  && strip==24) pulseshape_ch5_cfeb2.Fill(time,adc[k]-pedMean);
+		    if(chamber==4  && strip==40) pulseshape_ch5_cfeb3.Fill(time,adc[k]-pedMean);
+		    if(chamber==4  && strip==56) pulseshape_ch5_cfeb4.Fill(time,adc[k]-pedMean);
+		    if(chamber==4  && strip==72) pulseshape_ch5_cfeb5.Fill(time,adc[k]-pedMean);
+		    if(chamber==5  && strip==8)  pulseshape_ch6_cfeb1.Fill(time,adc[k]-pedMean);
+		    if(chamber==5  && strip==24) pulseshape_ch6_cfeb2.Fill(time,adc[k]-pedMean);
+		    if(chamber==5  && strip==40) pulseshape_ch6_cfeb3.Fill(time,adc[k]-pedMean);
+		    if(chamber==5  && strip==56) pulseshape_ch6_cfeb4.Fill(time,adc[k]-pedMean);
+		    if(chamber==5  && strip==72) pulseshape_ch6_cfeb5.Fill(time,adc[k]-pedMean);
+		    if(chamber==6  && strip==8)  pulseshape_ch7_cfeb1.Fill(time,adc[k]-pedMean);
+		    if(chamber==6  && strip==24) pulseshape_ch7_cfeb2.Fill(time,adc[k]-pedMean);
+		    if(chamber==6  && strip==40) pulseshape_ch7_cfeb3.Fill(time,adc[k]-pedMean);
+		    if(chamber==6  && strip==56) pulseshape_ch7_cfeb4.Fill(time,adc[k]-pedMean);
+		    if(chamber==6  && strip==72) pulseshape_ch7_cfeb5.Fill(time,adc[k]-pedMean);
+		    if(chamber==7  && strip==8)  pulseshape_ch8_cfeb1.Fill(time,adc[k]-pedMean);
+		    if(chamber==7  && strip==24) pulseshape_ch8_cfeb2.Fill(time,adc[k]-pedMean);
+		    if(chamber==7  && strip==40) pulseshape_ch8_cfeb3.Fill(time,adc[k]-pedMean);
+		    if(chamber==7  && strip==56) pulseshape_ch8_cfeb4.Fill(time,adc[k]-pedMean);
+		    if(chamber==7  && strip==72) pulseshape_ch8_cfeb5.Fill(time,adc[k]-pedMean);
+		    if(chamber==8  && strip==8)  pulseshape_ch9_cfeb1.Fill(time,adc[k]-pedMean);
+		    if(chamber==8  && strip==24) pulseshape_ch9_cfeb2.Fill(time,adc[k]-pedMean);
+		    if(chamber==8  && strip==40) pulseshape_ch9_cfeb3.Fill(time,adc[k]-pedMean);
+		    if(chamber==8  && strip==56) pulseshape_ch9_cfeb4.Fill(time,adc[k]-pedMean);
+		    if(chamber==8  && strip==72) pulseshape_ch9_cfeb5.Fill(time,adc[k]-pedMean);
 		    
 		    myTime[k]=time;
 		    myADC[k]=adc[k];
@@ -272,7 +345,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 
   //get name of run file from .cfg and name root output after that
   string::size_type runNameStart = name.find("\"",0);
-  string::size_type runNameEnd   = name.find("bin",0);
+  string::size_type runNameEnd   = name.find("raw",0);
   string::size_type rootStart    = name.find("Crosstalk",0);
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
@@ -299,35 +372,57 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   TCalibCrossTalkEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Crosstalk");
-  calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:id/I:flagRMS/I:flagNoise/I");
+  calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:id/I:flagRMS/I:flagNoise/I:MaxPed[9]/F:MaxRMS[9]/F");
   xtime.Write();
   ped_mean_all.Write();
   maxADC.Write();
 
-  TCanvas c1("c1","Calibration constants",200, 10, 800, 600);
-  c1.Divide(2,2);
-  c1.cd(1);
-  pulse_shape_ch1.Draw();
-  pulse_shape_ch1.Write();
-  c1.cd(2);
-  pulse_shape_ch2.Write();
-  pulse_shape_ch2.Draw();
-  c1.cd(3);
-  pulse_shape_ch3.Write();
-  pulse_shape_ch3.Draw();
-  c1.cd(4);
-  pulse_shape_ch4.Write();
-  pulse_shape_ch4.Draw();
+  pulseshape_ch1_cfeb1.Write();
+  pulseshape_ch1_cfeb2.Write();
+  pulseshape_ch1_cfeb3.Write();
+  pulseshape_ch1_cfeb4.Write();
+  pulseshape_ch1_cfeb5.Write();
+  pulseshape_ch2_cfeb1.Write();
+  pulseshape_ch2_cfeb2.Write();
+  pulseshape_ch2_cfeb3.Write();
+  pulseshape_ch2_cfeb4.Write();
+  pulseshape_ch2_cfeb5.Write();
+  pulseshape_ch3_cfeb1.Write();
+  pulseshape_ch3_cfeb2.Write();
+  pulseshape_ch3_cfeb3.Write();
+  pulseshape_ch3_cfeb4.Write();
+  pulseshape_ch3_cfeb5.Write();
+  pulseshape_ch4_cfeb1.Write();
+  pulseshape_ch4_cfeb2.Write();
+  pulseshape_ch4_cfeb3.Write();
+  pulseshape_ch4_cfeb4.Write();
+  pulseshape_ch4_cfeb5.Write();
+  pulseshape_ch5_cfeb1.Write();
+  pulseshape_ch5_cfeb2.Write();
+  pulseshape_ch5_cfeb3.Write();
+  pulseshape_ch5_cfeb4.Write();
+  pulseshape_ch5_cfeb5.Write();
+  pulseshape_ch6_cfeb1.Write();
+  pulseshape_ch6_cfeb2.Write();
+  pulseshape_ch6_cfeb3.Write();
+  pulseshape_ch6_cfeb4.Write();
+  pulseshape_ch6_cfeb5.Write();
+  pulseshape_ch7_cfeb1.Write();
+  pulseshape_ch7_cfeb2.Write();
+  pulseshape_ch7_cfeb3.Write();
+  pulseshape_ch7_cfeb4.Write();
+  pulseshape_ch7_cfeb5.Write();
+  pulseshape_ch8_cfeb1.Write();
+  pulseshape_ch8_cfeb2.Write();
+  pulseshape_ch8_cfeb3.Write();
+  pulseshape_ch8_cfeb4.Write();
+  pulseshape_ch8_cfeb5.Write();
+  pulseshape_ch9_cfeb1.Write();
+  pulseshape_ch9_cfeb2.Write();
+  pulseshape_ch9_cfeb3.Write();
+  pulseshape_ch9_cfeb4.Write();
+  pulseshape_ch9_cfeb5.Write();
 
-
-  pulse_shape_ch5.Write();
-  pulse_shape_ch6.Write();
-  pulse_shape_ch7.Write();
-  pulse_shape_ch8.Write();
-  pulse_shape_ch9.Write();
-
-
- 
   ////////////////////////////////////////////////////////////////////iuse==strip-1
   // Now that we have filled our array, extract convd and nconvd
   float adc_ped_sub_left = -999.;
@@ -535,6 +630,14 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  theSumFive = arraySumFive[iii][i][j][k];
 	  newSumFive[fff]=theSumFive;
 
+	  if(maxPed<thePedestal){
+	    maxPed=thePedestal;
+	  }
+
+	  if(maxRMS<theRMS){
+	    maxRMS=theRMS;
+	  }
+
 	  //introducing flags for RMS and baseline
 	  if (theRMS >1.5 && theRMS <6.0)  flagRMS = 1; // ok
 	  if (theRMS>6.0 && theRMS<20.0)   flagRMS = 2; // warning high CFEB noise
@@ -543,7 +646,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  
 	  if (meanPedestal <50.)                         flagNoise = 2; // warning/failure too low pedestal 
 	  if (meanPedestal>50. && meanPedestal<200.)     flagNoise = 3; // warning low pedestal
-	  if (meanPedestal >1000. && meanPedestal<3000.) flagNoise = 4; // warning high pedstal
+	  if (meanPedestal >1000. && meanPedestal<3000.) flagNoise = 4; // warning high pedestal
 	  if (meanPedestal>3000.)                        flagNoise = 5; // warning/failure too high pedestal 
 	  if (meanPedestal>200. && meanPedestal<1000.)   flagNoise = 1; // ok
 
@@ -566,7 +669,8 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  calib_evt.peakRMS           = newPeakRMS[fff];
 	  calib_evt.maxADC            = newPeak[fff];
 	  calib_evt.sum               = newSumFive[fff];
-	  
+	  calib_evt.MaxPed[i]         = maxPed;
+	  calib_evt.MaxRMS[i]         = maxRMS;
 	  
 	  calibtree.Fill();
 	  cn->obj[layer_id][k].resize(2);
