@@ -228,6 +228,7 @@ bool onlineFile (const std::string fParam) {
 template <class T> bool copyObject (T* fObject, 
 				    const std::string& fInput, const std::string& fInputTag, HcalDbTool::IOVRun fInputRun,
 				    const std::string& fOutput, const std::string& fOutputTag, HcalDbTool::IOVRun fOutputRun,
+				    bool fAppend,
 				    unsigned long long fIovgmtbegin, unsigned long long fIovgmtend,
 				    unsigned fNread, unsigned fNwrite, unsigned fNtrace,
 				    bool fVerbose,
@@ -341,7 +342,7 @@ template <class T> bool copyObject (T* fObject,
 	if (!traceCounter) std::cout << "USE OUTPUT: Pool: " << fOutput << '/' << fOutputRun << std::endl;
 	if (!poolDb) poolDb = new HcalDbTool (fOutput, fVerbose, fXmlAuth, fOutputCatalog);
 	if (fOutputRun > 0) {
-	  poolDb->putObject (object, fOutputTag, fOutputRun);
+	  poolDb->putObject (object, fOutputTag, fOutputRun, fAppend);
 	  object = 0; // owned by POOL
 	}
 	else {
@@ -388,6 +389,7 @@ int main (int argn, char* argv []) {
   args.defineOption ("-help", "this help");
   args.defineOption ("-online", "interpret input DB as an online DB");
   args.defineOption ("-xmlauth", "use XML authorization <false>");
+  args.defineOption ("-append", "Strip previous IOV, make this IOV open (POOL DB) <false>");
   args.defineOption ("-verbose", "makes program verbose <false>");
   
   args.parse (argn, argv);
@@ -418,6 +420,7 @@ int main (int argn, char* argv []) {
   const char* outputCatalog = args.getParameter ("-outputcatalog").empty () ? 0 : args.getParameter ("-outputcatalog").c_str();
 
   bool xmlAuth = args.optionIsSet ("-xmlauth");
+  bool append = args.optionIsSet ("-append");
 
   bool verbose = args.optionIsSet ("-verbose");
 
@@ -426,31 +429,31 @@ int main (int argn, char* argv []) {
 
   if (what == "pedestals") {
     HcalPedestals* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, append, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "gains") {
     HcalGains* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, append, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "pwidths") {
     HcalPedestalWidths* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, append, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "gwidths") {
     HcalGainWidths* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, append, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "emap") {
     HcalElectronicsMap* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, append, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "qie") {
     HcalQIEData* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, append, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
   else if (what == "calibqie") {
     HcalCalibrationQIEData* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, append, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose, inputCatalog, outputCatalog, xmlAuth);
   }
 }
 

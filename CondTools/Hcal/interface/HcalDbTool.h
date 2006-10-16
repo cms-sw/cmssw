@@ -14,7 +14,7 @@
    \class HcalDbTool
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbTool.h,v 1.2 2006/10/04 22:18:51 fedor Exp $
+   $Id: HcalDbTool.h,v 1.3 2006/10/06 21:38:38 fedor Exp $
 */
 
 namespace cond {
@@ -36,22 +36,22 @@ class HcalDbTool {
   std::vector<std::string> metadataAllTags ();
 
   bool getObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun);
-  bool putObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun, bool fAppend = false);
   bool deleteObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun);
   bool getObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVRun fRun);
-  bool putObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVRun fRun, bool fAppend = false);
   bool getObject (HcalGains* fObject, const std::string& fTag, IOVRun fRun);
-  bool putObject (HcalGains* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalGains* fObject, const std::string& fTag, IOVRun fRun, bool fAppend = false);
   bool getObject (HcalGainWidths* fObject, const std::string& fTag, IOVRun fRun);
-  bool putObject (HcalGainWidths* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalGainWidths* fObject, const std::string& fTag, IOVRun fRun, bool fAppend = false);
   bool getObject (HcalQIEData* fObject, const std::string& fTag, IOVRun fRun);
-  bool putObject (HcalQIEData* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalQIEData* fObject, const std::string& fTag, IOVRun fRun, bool fAppend = false);
   bool getObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVRun fRun);
-  bool putObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVRun fRun, bool fAppend = false);
   bool getObject (HcalChannelQuality* fObject, const std::string& fTag, IOVRun fRun);
-  bool putObject (HcalChannelQuality* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalChannelQuality* fObject, const std::string& fTag, IOVRun fRun, bool fAppend = false);
   bool getObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVRun fRun);
-  bool putObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVRun fRun);
+  bool putObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVRun fRun, bool fAppend = false);
   bool getObject (cond::IOV* fObject, const std::string& fTag);
   bool putObject (cond::IOV* fObject, const std::string& fTag);
  private:
@@ -75,7 +75,7 @@ class HcalDbTool {
   bool deleteObject (pool::Ref<T>* fObject, const std::string& fContainer = "");
 
   template <class T>
-  bool storeIOV (const pool::Ref<T>& fObject, IOVRun fMaxRun, pool::Ref<cond::IOV>* fIov);
+  bool storeIOV (const pool::Ref<T>& fObject, IOVRun fMaxRun, pool::Ref<cond::IOV>* fIov, bool Append);
 
   template <class T>
   bool getObject (const pool::Ref<cond::IOV>& fIOV, IOVRun fRun, pool::Ref<T>* fObject);
@@ -87,7 +87,7 @@ class HcalDbTool {
   bool getObject_ (T* fObject, const std::string& fTag, IOVRun fRun);
 
   template <class T>
-  bool putObject_ (T* fObject, const std::string& fClassName, const std::string& fTag, IOVRun fRun);
+  bool putObject_ (T* fObject, const std::string& fClassName, const std::string& fTag, IOVRun fRun, bool Append);
 
   template <class T>
   bool deleteObject_ (T* fObject, const std::string& fTag, IOVRun fRun);

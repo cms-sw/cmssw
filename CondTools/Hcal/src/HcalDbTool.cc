@@ -3,7 +3,7 @@
    \class HcalDbTool
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbTool.cc,v 1.3 2006/10/04 22:18:51 fedor Exp $
+   $Id: HcalDbTool.cc,v 1.4 2006/10/06 21:38:38 fedor Exp $
 */
 
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -28,6 +28,7 @@ namespace {
 }
 
 typedef std::map<HcalDbTool::IOVRun,std::string> IOVCollection;
+const HcalDbTool::IOVRun endOfTime = 0xffffffffffffffff;
 
 template <class T>
 bool HcalDbTool::storeObject (T* fObject, const std::string& fContainer, pool::Ref<T>* fRef) {
@@ -71,7 +72,6 @@ bool HcalDbTool::storeObject (T* fObject, const std::string& fContainer, pool::R
 
 template <class T>
 bool HcalDbTool::updateObject (T* fObject, pool::Ref<T>* fUpdate, const std::string& fContainer) {
-  typedef T D;
   if (mVerbose) std::cout << "HcalDbTool::updateObject-> start..." << std::endl;
   try {
     mSession->startUpdateTransaction();
@@ -152,14 +152,35 @@ bool HcalDbTool::updateObject (pool::Ref<T>* fUpdate) {
 }
 
 template <class T>
-bool HcalDbTool::storeIOV (const pool::Ref<T>& fObject, IOVRun fMaxRun, pool::Ref<cond::IOV>* fIov) {
-  IOVRun maxRun = fMaxRun == 0 ? 0xffffffffffffffff : fMaxRun;
+bool HcalDbTool::storeIOV (const pool::Ref<T>& fObject, IOVRun fMaxRun, pool::Ref<cond::IOV>* fIov, bool fAppend) {
+  std::cout << "HcalDbTool::storeIOV-> " << fMaxRun << std::endl;
+  IOVRun maxRun = fMaxRun;
   if (fIov->isNull ()) {
     cond::IOV* newIov = new cond::IOV ();
+    if (fAppend) maxRun = endOfTime; // open IOV
     newIov->iov.insert (std::make_pair (maxRun, fObject.toString ()));
     return storeObject (newIov, "cond::IOV", fIov);
   }
   else {
+    if (fAppend) { // redefine current IOV
+      IOVCollection::reverse_iterator last = (*fIov)->iov.rbegin ();
+      if (last != (*fIov)->iov.rend ()) {  // not empty
+	IOVCollection::reverse_iterator beforeLast = last;
+	beforeLast++;
+	if (beforeLast != (*fIov)->iov.rend ()) {  // exists
+	  if (beforeLast->first >= maxRun) {
+	    std::cerr << "HcalDbTool::storeIOV-> WARNING: Appended IOV is out of order: IOV before the last: " << beforeLast->first
+		      << ", new IOV: " << maxRun << std::endl;
+	  }
+	}
+	std::string token = last->second;
+	if (mVerbose)  std::cout << "HcalDbTool::storeIOV-> setting new IOV " << maxRun 
+				 << " for payload " << token << std::endl;
+	(*fIov)->iov.erase (last->first);
+	(*fIov)->iov.insert (std::make_pair (maxRun, token));
+      }
+      maxRun = endOfTime;
+    }
     (*fIov)->iov.insert (std::make_pair (maxRun, fObject.toString ()));
     return updateObject (fIov);
   }
@@ -233,7 +254,7 @@ bool HcalDbTool::getObject_ (T* fObject, const std::string& fTag, IOVRun fRun) {
 }
 
 template <class T>
-bool HcalDbTool::putObject_ (T* fObject, const std::string& fClassName, const std::string& fTag, IOVRun fRun) {
+bool HcalDbTool::putObject_ (T* fObject, const std::string& fClassName, const std::string& fTag, IOVRun fRun, bool fAppend) {
   std::string metadataToken = metadataGetToken (fTag);
   pool::Ref<cond::IOV> iov;
   if (!metadataToken.empty ()) {
@@ -244,9 +265,12 @@ bool HcalDbTool::putObject_ (T* fObject, const std::string& fClassName, const st
     }
   }
   bool create = iov.isNull ();
+  if (create && fAppend) {
+      std::cerr << "HcalDbTool::putObject WARNING: request appending to the new IOV " << std::endl;;
+  }
   pool::Ref<T> ref;
   if (!storeObject (fObject, fClassName, &ref) ||
-      !storeIOV (ref, fRun, &iov)) {
+      !storeIOV (ref, fRun, &iov, fAppend)) {
     std::cerr << "ERROR: failed to store object or its IOV" << std::endl;
     return false;
   }
@@ -470,19 +494,19 @@ bool HcalDbTool::putObject (cond::IOV* fObject, const std::string& fTag) {
 }
 
 bool HcalDbTool::getObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbTool::putObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalPedestals", fTag, fRun);}
+bool HcalDbTool::putObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun, bool fAppend) {return putObject_ (fObject, "HcalPedestals", fTag, fRun, fAppend);}
 bool HcalDbTool::deleteObject (HcalPedestals* fObject, const std::string& fTag, IOVRun fRun) {return deleteObject_ (fObject, fTag, fRun);}
 bool HcalDbTool::getObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbTool::putObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalPedestalWidths", fTag, fRun);}
+bool HcalDbTool::putObject (HcalPedestalWidths* fObject, const std::string& fTag, IOVRun fRun, bool fAppend) {return putObject_ (fObject, "HcalPedestalWidths", fTag, fRun, fAppend);}
 bool HcalDbTool::getObject (HcalGains* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbTool::putObject (HcalGains* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalGains", fTag, fRun);}
+bool HcalDbTool::putObject (HcalGains* fObject, const std::string& fTag, IOVRun fRun, bool fAppend) {return putObject_ (fObject, "HcalGains", fTag, fRun, fAppend);}
 bool HcalDbTool::getObject (HcalGainWidths* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbTool::putObject (HcalGainWidths* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalGainWidths", fTag, fRun);}
+bool HcalDbTool::putObject (HcalGainWidths* fObject, const std::string& fTag, IOVRun fRun, bool fAppend) {return putObject_ (fObject, "HcalGainWidths", fTag, fRun, fAppend);}
 bool HcalDbTool::getObject (HcalQIEData* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbTool::putObject (HcalQIEData* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalQIEData", fTag, fRun);}
+bool HcalDbTool::putObject (HcalQIEData* fObject, const std::string& fTag, IOVRun fRun, bool fAppend) {return putObject_ (fObject, "HcalQIEData", fTag, fRun, fAppend);}
 bool HcalDbTool::getObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbTool::putObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalQIEData", fTag, fRun);}
+bool HcalDbTool::putObject (HcalCalibrationQIEData* fObject, const std::string& fTag, IOVRun fRun, bool fAppend) {return putObject_ (fObject, "HcalQIEData", fTag, fRun, fAppend);}
 bool HcalDbTool::getObject (HcalChannelQuality* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbTool::putObject (HcalChannelQuality* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalChannelQuality", fTag, fRun);}
+bool HcalDbTool::putObject (HcalChannelQuality* fObject, const std::string& fTag, IOVRun fRun, bool fAppend) {return putObject_ (fObject, "HcalChannelQuality", fTag, fRun, fAppend);}
 bool HcalDbTool::getObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVRun fRun) {return getObject_ (fObject, fTag, fRun);}
-bool HcalDbTool::putObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVRun fRun) {return putObject_ (fObject, "HcalElectronicsMap", fTag, fRun);}
+bool HcalDbTool::putObject (HcalElectronicsMap* fObject, const std::string& fTag, IOVRun fRun, bool fAppend) {return putObject_ (fObject, "HcalElectronicsMap", fTag, fRun, fAppend);}
