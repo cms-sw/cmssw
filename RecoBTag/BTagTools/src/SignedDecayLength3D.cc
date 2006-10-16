@@ -1,5 +1,5 @@
 
-#include "RecoBTag/BTagTools/interface/SignedDecayLenght3D.h"
+#include "RecoBTag/BTagTools/interface/SignedDecayLength3D.h"
 
 #include "Geometry/Surface/interface/Line.h"
 
@@ -18,8 +18,8 @@ using namespace std;
 using namespace reco;
 
 
-pair<bool,Measurement1D> SignedDecayLenght3D::apply(const TransientTrack & transientTrack,
-                 const GlobalVector & direction, const  Vertex & vertex) const {
+static pair<bool,Measurement1D> SignedDecayLength3D::apply(const TransientTrack & transientTrack,
+                 const GlobalVector & direction, const  Vertex & vertex)  {
 
   double theError=0.;
   bool theIsValid;
@@ -66,7 +66,7 @@ pair<bool,Measurement1D> SignedDecayLenght3D::apply(const TransientTrack & trans
 }// end constructor declaration
 
 
-static TrajectoryStateOnSurface SignedDecayLenght3D::closestApproachToJet(const FreeTrajectoryState & aFTS,const Vertex & vertex, const GlobalVector& aJetDirection,const MagneticField * field) {
+static TrajectoryStateOnSurface SignedDecayLength3D::closestApproachToJet(const FreeTrajectoryState & aFTS,const Vertex & vertex, const GlobalVector& aJetDirection,const MagneticField * field) {
 
   GlobalVector J =aJetDirection.unit();
 

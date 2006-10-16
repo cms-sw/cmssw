@@ -9,22 +9,22 @@
 #include <utility>
 
 
-  /** Threedimensional track decay lenght (minimum distance of the closest 
+  /** Threedimensional track decay length (minimum distance of the closest 
    *  approach to a jet from the primary vertex) signed according to the jet 
    *  direction
    */
 
  
-class SignedDecayLenght3D  {
+class SignedDecayLength3D  {
 
 public:
 
   // construct
 
-  SignedDecayLenght3D(){};
+  SignedDecayLength3D(){};
 
-  std::pair<bool,Measurement1D> apply(const reco::TransientTrack & track, 
-                            const GlobalVector & direction, const reco::Vertex & vertex) const;
+  static std::pair<bool,Measurement1D> apply(const reco::TransientTrack & track, 
+                            const GlobalVector & direction, const reco::Vertex & vertex) ;
 
 
   int id() const {return 3;}
