@@ -4,8 +4,8 @@
 /*
  * \file EcalDigisValidation.h
  *
- * $Date: 2006/10/05 13:21:05 $
- * $Revision: 1.6 $
+ * $Date: 2006/10/13 13:13:14 $
+ * $Revision: 1.7 $
  * \author F. Cossutti
  *
 */
@@ -107,16 +107,6 @@ private:
 
  MonitorElement* meEBDigiSimRatiogt100ADC_;
  MonitorElement* meEEDigiSimRatiogt100ADC_;
-
- MonitorElement* meEBDigiMixRatiogt100ADC_;
- MonitorElement* meEEDigiMixRatiogt100ADC_;
-
- MonitorElement* meEBDigiMixRatioOriggt50pc_;
- MonitorElement* meEEDigiMixRatioOriggt40pc_;
-
- MonitorElement* meEBbunchCrossing_;
- MonitorElement* meEEbunchCrossing_;
- MonitorElement* meESbunchCrossing_;
 
 };
 

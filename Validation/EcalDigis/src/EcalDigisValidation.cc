@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/10/05 13:21:05 $
- * $Revision: 1.15 $
+ * $Date: 2006/10/13 13:13:14 $
+ * $Revision: 1.16 $
  * \author F. Cossutti
  *
 */
@@ -76,16 +76,6 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
   meEBDigiSimRatiogt100ADC_ = 0;
   meEEDigiSimRatiogt100ADC_ = 0;
 
-  meEBDigiMixRatiogt100ADC_ = 0;
-  meEEDigiMixRatiogt100ADC_ = 0;
-
-  meEBDigiMixRatioOriggt50pc_ = 0;
-  meEEDigiMixRatioOriggt40pc_ = 0;
-
-  meEBbunchCrossing_ = 0;
-  meEEbunchCrossing_ = 0;
-  meESbunchCrossing_ = 0;
-
   Char_t histo[20];
  
   
@@ -118,27 +108,6 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
 
     sprintf (histo, "EcalDigiTask Endcap maximum Digi over Sim ratio gt 100 ADC" ) ;
     meEEDigiSimRatiogt100ADC_ = dbe_->book1D(histo, histo, 100, 0., 2.) ;
-
-    sprintf (histo, "EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC" ) ;
-    meEBDigiMixRatiogt100ADC_ = dbe_->book1D(histo, histo, 200, 0., 40.) ;
-
-    sprintf (histo, "EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC" ) ;
-    meEEDigiMixRatiogt100ADC_ = dbe_->book1D(histo, histo, 200, 0., 40.) ;
-
-    sprintf (histo, "EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun" ) ;
-    meEBDigiMixRatioOriggt50pc_ = dbe_->book1D(histo, histo, 100, 0., 20.) ;
-
-    sprintf (histo, "EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun" ) ;
-    meEEDigiMixRatioOriggt40pc_ = dbe_->book1D(histo, histo, 100, 0., 20.) ;
-
-    sprintf (histo, "EcalDigiTask Barrel bunch crossing" ) ;
-    meEBbunchCrossing_ = dbe_->book1D(histo, histo, 20, -10., 10.) ;
-
-    sprintf (histo, "EcalDigiTask Endcap bunch crossing" ) ;
-    meEEbunchCrossing_ = dbe_->book1D(histo, histo, 20, -10., 10.) ;
-
-    sprintf (histo, "EcalDigiTask Preshower bunch crossing" ) ;
-    meESbunchCrossing_ = dbe_->book1D(histo, histo, 20, -10., 10.) ;
 
   }
  
@@ -253,7 +222,6 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
       barrelHits (new MixCollection<PCaloHit>(crossingFrame.product (), barrelHitsName)) ;
     
     MapType ebSimMap;
-    MapType ebSignalSimMap;
     
     for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin () ;
          hitItr != barrelHits->end () ;
@@ -270,9 +238,6 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
 
       uint32_t crystid = ebid.rawId();
       ebSimMap[crystid] += hitItr->energy();
-      if ( hitItr->eventId().rawId() == 0 ) ebSignalSimMap[crystid] += hitItr->energy();
-
-      if ( meEBbunchCrossing_ ) meEBbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
       
     }
     
@@ -332,12 +297,6 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
 
         }
         
-        if ( ebSignalSimMap[ebid.rawId()] != 0. ) {
-          LogDebug("DigiInfo") << " Digi / Signal Hit = " << Erec << " / " << ebSignalSimMap[ebid.rawId()] << " gainConv " << gainConv_[(int)ebADCGains[Pmax]];
-          if ( Erec > 100.*barrelADCtoGeV_  && meEBDigiMixRatiogt100ADC_  ) meEBDigiMixRatiogt100ADC_->Fill( Erec/ebSignalSimMap[ebid.rawId()] );
-          if ( ebSignalSimMap[ebid.rawId()] > 0.5*theGunEnergy  && meEBDigiMixRatioOriggt50pc_ ) meEBDigiMixRatioOriggt50pc_->Fill( Erec/ebSignalSimMap[ebid.rawId()] );
-        }
-        
       } 
     
   }
@@ -353,7 +312,6 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
       endcapHits (new MixCollection<PCaloHit>(crossingFrame.product (), endcapHitsName)) ;
     
     MapType eeSimMap;
-    MapType eeSignalSimMap;
     
     for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin () ;
          hitItr != endcapHits->end () ;
@@ -370,10 +328,7 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
       
       uint32_t crystid = eeid.rawId();
       eeSimMap[crystid] += hitItr->energy();
-      if ( hitItr->eventId().rawId() == 0 ) eeSignalSimMap[crystid] += hitItr->energy();
 
-      if ( meEEbunchCrossing_ ) meEEbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
-      
     }
     
     // loop over Digis
@@ -431,12 +386,6 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
           if ( Erec > 100.*endcapADCtoGeV_  && meEEDigiSimRatiogt100ADC_  ) meEEDigiSimRatiogt100ADC_->Fill( Erec/eeSimMap[eeid.rawId()] );
         }
         
-        if ( eeSignalSimMap[eeid.rawId()] != 0. ) {
-          LogDebug("DigiInfo") << " Digi / Signal Hit = " << Erec << " / " << eeSignalSimMap[eeid.rawId()] << " gainConv " << gainConv_[(int)eeADCGains[Pmax]];
-          if ( Erec > 100.*endcapADCtoGeV_  && meEEDigiMixRatiogt100ADC_  ) meEEDigiMixRatiogt100ADC_->Fill( Erec/eeSignalSimMap[eeid.rawId()] );
-          if ( eeSignalSimMap[eeid.rawId()] > 0.4*theGunEnergy  && meEEDigiMixRatioOriggt40pc_ ) meEEDigiMixRatioOriggt40pc_->Fill( Erec/eeSignalSimMap[eeid.rawId()] );
-        }
-        
       } 
     
   }
@@ -459,8 +408,6 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
         << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
         << " Track Id = " << hitItr->geantTrackId() << "\n"
         << " Energy = " << hitItr->energy();
-
-      if ( meESbunchCrossing_ ) meESbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
 
     }
     

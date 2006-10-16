@@ -226,52 +226,6 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
    Ecal->Print("MaxADC_over_Sim_Ratio_gt100ADC.eps");
  } 
 
- if (1) {
-   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
-   Ecal->Divide(1,2);
-
-   TH1 * meEBDigiMixRatiogt100ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC;1",meEBDigiMixRatiogt100ADC_);
-   meEBDigiMixRatiogt100ADC_;
-
-   TH1 * meEEDigiMixRatiogt100ADC_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC;1",meEEDigiMixRatiogt100ADC_);
-   meEEDigiMixRatiogt100ADC_;
-
-   Ecal->cd(1);
-   gPad->SetLogy(0);
-   if ( meEBDigiMixRatiogt100ADC_ ) meEBDigiMixRatiogt100ADC_->Draw();
-   gPad->SetLogy(1);
-   Ecal->cd(2);
-   gPad->SetLogy(0);
-   if ( meEEDigiMixRatiogt100ADC_ ) meEEDigiMixRatiogt100ADC_->Draw();
-   gPad->SetLogy(1);
-   Ecal->Print("MaxADC_over_SimSignal_Ratio_gt100ADC.eps");
- } 
-
- if (1) {
-   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
-   Ecal->Divide(1,2);
-
-   TH1 * meEBDigiMixRatioOriggt50pc_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun;1",meEBDigiMixRatioOriggt50pc_);
-   meEBDigiMixRatioOriggt50pc_;
-
-   TH1 * meEEDigiMixRatioOriggt40pc_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun;1",meEEDigiMixRatioOriggt40pc_);
-   meEEDigiMixRatioOriggt40pc_;
-
-   Ecal->cd(1);
-   gPad->SetLogy(0);
-   if ( meEBDigiMixRatioOriggt50pc_ ) meEBDigiMixRatioOriggt50pc_->Draw();
-   gPad->SetLogy(1);
-   Ecal->cd(2);
-   gPad->SetLogy(0);
-   if ( meEEDigiMixRatioOriggt40pc_ ) meEEDigiMixRatioOriggt40pc_->Draw();
-   gPad->SetLogy(1);
-   Ecal->Print("MaxADC_over_SimSignal_Ratio_Origgt40pc.eps");
- } 
-
  // Gain switch check
 
  if (1) {
@@ -584,34 +538,6 @@ void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_ADC_gain.eps");
- }
-
- // Bunch crossing distribution
-
- if (1) {
-   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
-   Ecal->Divide(1,3);
-
-   TH1 * meEBbunchCrossing_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel bunch crossing;1",meEBbunchCrossing_);
-   meEBbunchCrossing_;
-
-   TH1 * meEEbunchCrossing_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap bunch crossing;1",meEEbunchCrossing_);
-   meEEbunchCrossing_;
-
-   TH1 * meESbunchCrossing_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower bunch crossing;1",meESbunchCrossing_);
-   meESbunchCrossing_;
-   
-   Ecal->cd(1); 
-   if ( meEBbunchCrossing_ ) meEBbunchCrossing_->Draw(); 
-   Ecal->cd(2); 
-   if ( meEEbunchCrossing_ ) meEEbunchCrossing_->Draw(); 
-   Ecal->cd(3); 
-   if ( meESbunchCrossing_ ) meESbunchCrossing_->Draw(); 
-   Ecal->Print("BunchCrossing.eps");
-
  }
 
 }
