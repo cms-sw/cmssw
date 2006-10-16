@@ -67,7 +67,11 @@ private:
   //AGGIUNGERE MC INFO???
   MonitorElement* effFindLeadTk;  
   MonitorElement* effVsRiso;
+  MonitorElement* EventseffVsRiso;
+  MonitorElement* EventsToteffVsRiso;
   MonitorElement* effVsEt;
+  MonitorElement* EventseffVsEt;
+  MonitorElement* EventsToteffVsEt;
   MonitorElement* nSignalTracks;
   MonitorElement* nSignalTracksAfterIsolation;
   MonitorElement* nAssociatedTracks;
