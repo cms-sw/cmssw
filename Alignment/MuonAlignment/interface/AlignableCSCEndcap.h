@@ -4,8 +4,8 @@
 /** \class AlignableCSCCEndcap
  *  The alignable muon CSC endcap.
  *
- *  $Date: 2006/8/4 10:00:01 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 20:18:50 $
+ *  $Revision: 1.3 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -16,6 +16,10 @@
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
+
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/Vector/interface/Basic3DVector.h"
@@ -67,6 +71,12 @@ class AlignableCSCEndcap : public AlignableComposite
 
   /// Recursive printout of the muon End Cap structure
   void dump( void );
+
+  // Get alignments sorted by DetId
+  Alignments* alignments() const;
+
+  // Get alignment errors sorted by DetId
+  AlignmentErrors* alignmentErrors() const;
 
 
 

@@ -4,8 +4,8 @@
 /** \class AlignableMuon
  *  The alignable muon.
  *
- *  $Date: 2006/8/4 10:00:01 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 20:18:50 $
+ *  $Revision: 1.10 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -29,6 +29,10 @@
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
+
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
 // Classes that will be used to construct the muon
 class AlignableDTBarrel;
@@ -83,18 +87,27 @@ public:
 
 private:
   
-  /// Get the position (centered at 0 by default)
+  // Get the position (centered at 0 by default)
   PositionType computePosition(); 
-  /// Get the global orientation (no rotation by default)
+
+  // Get the global orientation (no rotation by default)
   RotationType computeOrientation();
-  /// Get the Surface
+
+  // Get the Surface
   AlignableSurface computeSurface();
 
-  /// Return alignable object identifier
+  // Return alignable object identifier
   virtual int alignableObjectId() const { return AlignableObjectId::AlignableMuon; }
 
-   // Sub-structure builders 
+  // Get alignments sorted by DetId
+  Alignments* alignments() const;
 
+  // Get alignment errors sorted by DetId
+  AlignmentErrors* alignmentErrors() const;
+
+
+
+   // Sub-structure builders 
 
    // Build muon barrel
   void buildDTBarrel( const DTGeometry*  );

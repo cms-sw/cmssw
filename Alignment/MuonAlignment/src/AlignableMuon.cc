@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/8/4 10:10:07 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 20:18:51 $
+ *  $Revision: 1.12 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -300,3 +300,47 @@ void AlignableMuon::recursiveSetMothers( Alignable* alignable )
 	}
 
 }
+//__________________________________________________________________________________________________
+Alignments* AlignableMuon::alignments( void ) const
+{
+
+  std::vector<Alignable*> comp = this->components();
+  Alignments* m_alignments = new Alignments();
+  // Add components recursively
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+    {
+      Alignments* tmpAlignments = (*i)->alignments();
+      std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
+				 std::back_inserter(m_alignments->m_align) );
+	  delete tmpAlignments;
+    }
+
+  std::sort( m_alignments->m_align.begin(), m_alignments->m_align.end(), 
+			 lessAlignmentDetId<AlignTransform>() );
+
+  return m_alignments;
+
+}
+//__________________________________________________________________________________________________
+AlignmentErrors* AlignableMuon::alignmentErrors( void ) const
+{
+
+  std::vector<Alignable*> comp = this->components();
+  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+
+  // Add components recursively
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+    {
+	  AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
+      std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
+				 std::back_inserter(m_alignmentErrors->m_alignError) );
+	  delete tmpAlignmentErrors;
+    }
+
+  std::sort( m_alignmentErrors->m_alignError.begin(), m_alignmentErrors->m_alignError.end(), 
+			 lessAlignmentDetId<AlignTransformError>() );
+
+  return m_alignmentErrors;
+
+}
+

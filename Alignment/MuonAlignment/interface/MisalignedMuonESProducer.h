@@ -4,8 +4,8 @@
 /** \class MisalignedMuonESProducer
  *  The misaligned muon ES producer.
  *
- *  $Date: 2006/8/4 10:00:01 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 20:18:50 $
+ *  $Revision: 1.4 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -40,12 +40,20 @@ public:
   edm::ESProducts< boost::shared_ptr<DTGeometry>,
  				   boost::shared_ptr<CSCGeometry> > produce( const MuonGeometryRecord&  );
 
+  /// Save alignemnts and error to database
+  void saveToDB();
+  
 private:
 
   edm::ParameterSet theParameterSet;
   
   boost::shared_ptr<DTGeometry> theDTGeometry;
   boost::shared_ptr<CSCGeometry> theCSCGeometry;
+
+  Alignments*      dtAlignments;
+  AlignmentErrors* dtAlignmentErrors; 
+  Alignments*      cscAlignments;
+  AlignmentErrors* cscAlignmentErrors;  
 
 };
 
