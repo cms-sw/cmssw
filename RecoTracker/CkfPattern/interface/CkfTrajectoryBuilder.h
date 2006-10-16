@@ -21,7 +21,6 @@ class TrajectoryFilter;
 
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 
-//#include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"

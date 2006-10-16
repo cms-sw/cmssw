@@ -68,17 +68,11 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   thePropagatorOpposite(propagatorOpposite),theEstimator(estimator),
   theTTRHBuilder(RecHitBuilder),theMeasurementTracker(measurementTracker),
   theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
+  theForwardPropagator(0),theBackwardPropagator(0),
   theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut")))
 {
   // components
   //B.M. componentBuilder.addComponent("StopCondition",RecQuery("MaxHitsTrajectoryFilter"));
-
-  //trackingtools
-  std::string propagatorAlongName    = conf.getParameter<std::string>("propagatorAlong");   
-  std::string propagatorOppositeName = conf.getParameter<std::string>("propagatorOpposite");   
-  std::string updatorName            = conf.getParameter<std::string>("updator");   
-  std::string estimatorName          = conf.getParameter<std::string>("estimator");   
-
 
   // fill data members from parameters (eventually data members could be dropped)
   //
@@ -178,6 +172,14 @@ Trajectory
 GroupedCkfTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& seed) const
 {
   Trajectory result( seed, seed.direction());
+  if (  seed.direction() == alongMomentum) {
+    theForwardPropagator = &(*thePropagatorAlong);
+    theBackwardPropagator = &(*thePropagatorOpposite);
+  }
+  else {
+    theForwardPropagator = &(*thePropagatorOpposite);
+    theBackwardPropagator = &(*thePropagatorAlong);
+  }
 
   vector<TM> seedMeas = seedMeasurements(seed);
   if ( !seedMeas.empty()) {
@@ -360,7 +362,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (Trajectory& traj,
 	il!=nl.end(); il++) {
     TrajectorySegmentBuilder layerBuilder(theMeasurementTracker,
 					  theLayerMeasurements,
-					  **il,*thePropagatorAlong,
+					  **il,*theForwardPropagator,
 					  *theUpdator,*theEstimator,
 					  theLockHits,theBestHitOnly);
     
@@ -869,15 +871,15 @@ GroupedCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       }
 
       TSOS updatedState = tsTransform.transientState( pState, &(gdet->surface()), 
-						      thePropagatorAlong->magneticField());
+						      theForwardPropagator->magneticField());
       result.push_back(TM( invalidState, updatedState, recHit, 0, hitLayer));
     }
     else {
       //----------- just a test to make the Smoother to work -----------
       PTrajectoryStateOnDet pState( seed.startingState());
       TSOS outerState = tsTransform.transientState( pState, &(hitGeomDet->surface()), 
-						    thePropagatorAlong->magneticField());
-      TSOS innerState   = thePropagatorOpposite->propagate(outerState,hitGeomDet->surface());
+						    theForwardPropagator->magneticField());
+      TSOS innerState   = theBackwardPropagator->propagate(outerState,hitGeomDet->surface());
       TSOS innerUpdated = theUpdator->update(innerState,*recHit);
 
       result.push_back(TM( invalidState, innerUpdated, recHit, 0, hitLayer));

@@ -35,7 +35,6 @@ class TransientTrackingRecHitBuilder;
  *  and provides efficient ways of trimming the combinatorial tree.
  */
 
-//B.M. class GroupedCkfTrajectoryBuilder : public ConfigAlgorithm, public TrajectoryBuilder {
 class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
 
  protected:
@@ -189,6 +188,10 @@ private:
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const MeasurementTracker*             theMeasurementTracker;
   const LayerMeasurements*              theLayerMeasurements;
+
+  // these may change from seed to seed
+  mutable const Propagator*             theForwardPropagator;
+  mutable const Propagator*             theBackwardPropagator;
 
   TrajectoryFilter*              theMinPtCondition;
   TrajectoryFilter*              theConfigurableCondition;
