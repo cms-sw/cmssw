@@ -41,6 +41,7 @@ class L1RCT {
   void fileInput(const char* filename);       // added "const" also in .cc
 
   void digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDigiCollection hcalCollection);
+  void digiTestInput(HcalTrigPrimDigiCollection hcalCollection);
 
   void randomInput();
 
