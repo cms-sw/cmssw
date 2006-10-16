@@ -2,7 +2,7 @@
 #define CamacTBDataFormatter_H
 /** \class CamacTBDataFormatter
  *
- *  $Id: CamacTBDataFormatter.h,v 1.3 2006/07/25 19:23:29 franzoni Exp $
+ *  $Id: CamacTBDataFormatter.h,v 1.4 2006/08/09 14:19:22 dellaric Exp $
  *
  *  \author G. Franzoni
  */
@@ -62,5 +62,6 @@ class CamacTBDataFormatter   {
   int hodoAll[nHodoPlanes*nHodoFibers];
   bool statusWords[148+4];
 
+  vector<int> scalers_;
 };
 #endif

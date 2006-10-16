@@ -266,6 +266,9 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
   // getting 72 words buffer and checking words statuses
 
+  scalers_.clear();
+  scalers_.reserve(36);
+  
   bool scalersAreGood = true;
   for (int scaler=0; scaler<72; scaler++)
     {
@@ -274,9 +277,13 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
       a = buffer[wordCounter];      wordCounter++;
       b = (a& 0xffffff);
       LogDebug("CamacTBDataFormatter") << "scaler: " << scaler << "\t: " << b << endl;
+
+      // filling vector container with scalers words
+      if ( (scaler%2)==0 ) scalers_.push_back(b);
     }
   if (scalersAreGood){
-    ;  }
+    tbEventHeader.setScalers (scalers_);  
+  }
   else
     {
       LogWarning("CamacTBDataFormatter") << "scalers block has hardware problems  or is partly unused at LV1: "

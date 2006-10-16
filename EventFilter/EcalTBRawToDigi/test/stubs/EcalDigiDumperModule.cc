@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/06/24 13:45:49 $
- * $Revision: 1.7 $
+ * $Date: 2006/09/21 15:22:17 $
+ * $Revision: 1.8 $
 1 * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -145,7 +145,9 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
     cout << "                                  [EcalDigiDumperModule]  dumping primitives "  << endl;
     if (verbosity>0)
       {
-	for ( EcalTrigPrimDigiCollection::const_iterator TPtr = primitives->begin(); TPtr != primitives->end(); ++TPtr ) {
+	for ( EcalTrigPrimDigiCollection::const_iterator TPtr = primitives->begin();
+	      ( TPtr != primitives->end()  && (TPtr-primitives->begin())<4 ); 
+		++TPtr ) {
 	  cout << "[EcalDigiDumperModule] tower: " << ( (TPtr-primitives->begin()) +1) 
 	       << "\n" << (*TPtr) << endl;
 	}
