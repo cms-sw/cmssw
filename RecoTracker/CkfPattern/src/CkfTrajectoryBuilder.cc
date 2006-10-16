@@ -18,6 +18,7 @@
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
 #include "RecoTracker/CkfPattern/interface/MinPtTrajectoryFilter.h"
+#include "RecoTracker/CkfPattern/interface/MaxHitsTrajectoryFilter.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 
@@ -37,7 +38,8 @@ CkfTrajectoryBuilder::
     theTTRHBuilder(RecHitBuilder),theMeasurementTracker(measurementTracker),
     theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
     theForwardPropagator(0), theBackwardPropagator(0),
-    theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut")))
+    theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut"))),
+    theMaxHitsCondition(new MaxHitsTrajectoryFilter(conf.getParameter<int>("maxNumberOfHits")))
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
   theMaxLostHit           = conf.getParameter<int>("maxLostHit");
@@ -52,6 +54,7 @@ CkfTrajectoryBuilder::~CkfTrajectoryBuilder()
 {
   delete theLayerMeasurements;
   delete theMinPtCondition;
+  delete theMaxHitsCondition;
 }
 
 void CkfTrajectoryBuilder::setEvent(const edm::Event& event) const
@@ -275,6 +278,7 @@ bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj) const
   // if ( regionalCondition && !(*regionalCondition)(traj) )  return false;
   // next: pt-cut
   if ( !(*theMinPtCondition)(traj) )  return false;
+  if ( !(*theMaxHitsCondition)(traj) )  return false;
   // finally: configurable condition
   // FIXME: restore this:  if ( !(*theConfigurableCondition)(traj) )  return false;
 

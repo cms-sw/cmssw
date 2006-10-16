@@ -76,6 +76,7 @@ private:
   mutable const Propagator*             theBackwardPropagator;
   
   TrajectoryFilter*              theMinPtCondition;
+  TrajectoryFilter*              theMaxHitsCondition;
 
   int theMaxCand;               /**< Maximum number of trajectory candidates 
 		                     to propagate to the next layer. */
