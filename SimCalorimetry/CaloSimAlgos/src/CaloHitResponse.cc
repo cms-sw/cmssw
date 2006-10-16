@@ -41,6 +41,10 @@ void CaloHitResponse::run(MixCollection<PCaloHit> & hits) {
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
+    // check the bunch crossing range
+    if ( hitItr.bunch() < theMinBunch || hitItr.bunch() > theMaxBunch ) 
+      { continue; }
+
     // maybe it's not from this subdetector
     if(theHitFilter == 0 || theHitFilter->accepts(*hitItr)) {
       LogDebug("CaloHitResponse") << *hitItr;
