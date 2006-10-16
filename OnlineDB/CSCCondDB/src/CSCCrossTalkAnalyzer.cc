@@ -226,10 +226,15 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
                 if(iuse!=-99){
 		  
                   for(unsigned int k=0;k<adc.size();k++){
-                    time = (50. * k)-((evt%20)* 6.25)+116.5;
+                    time = (50. * k)-(((evt-1)%20)* 6.25)+116.5;
 		    pedMean =(adc[0]+adc[1])/2;
 		    ped_mean_all.Fill(pedMean);  
 		    xtime.Fill(time);
+
+		    if (time>440 && (adc[k]-pedMean)>500) {
+		      std::cout <<" Cham "<< chamber <<" strip "<< strip<< " adc[k] "<<adc[k]<<" k " <<k<<" event " <<evt<<" layer " <<layer<<std::endl;
+		    }
+
 		    if(chamber==0  && strip==8)  pulseshape_ch1_cfeb1.Fill(time,adc[k]-pedMean);
 		    if(chamber==0  && strip==24) pulseshape_ch1_cfeb2.Fill(time,adc[k]-pedMean);
 		    if(chamber==0  && strip==40) pulseshape_ch1_cfeb3.Fill(time,adc[k]-pedMean);
