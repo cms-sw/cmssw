@@ -56,7 +56,7 @@ TrackAssociatorByChi2ESProducer::produce(const TrackAssociatorRecord& iRecord)
    using namespace edm::es;
    edm::ESHandle<MagneticField> theMF;
    iRecord.getRecord<IdealMagneticFieldRecord>().get(theMF);
-   std::auto_ptr<TrackAssociatorBase> pTrackAssociatorBase (new TrackAssociatorByChi2(theMF));
+   std::auto_ptr<TrackAssociatorBase> pTrackAssociatorBase (new TrackAssociatorByChi2(theMF,conf_));
    return pTrackAssociatorBase ;
 }
 

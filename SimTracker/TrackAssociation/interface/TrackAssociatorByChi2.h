@@ -8,6 +8,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include<map>
 
@@ -18,7 +19,8 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   typedef std::pair< reco::Track, Chi2SimMap> RecoToSimPair;
   typedef std::vector< RecoToSimPair > RecoToSimPairAssociation;
 
-  TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF){
+  TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, edm::ParameterSet conf):
+    chi2cut(conf.getParameter<double>("chi2cut")){
     theMF=mF;  
   }
 
@@ -53,6 +55,7 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 
  private:
   edm::ESHandle<MagneticField> theMF;
+  double chi2cut;
 };
 
 #endif
