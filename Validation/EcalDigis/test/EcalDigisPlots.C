@@ -2,11 +2,11 @@
 #include "TTree.h"
 #include "TText.h"
 
-void EcalDigisPlots()
+void EcalDigisPlots( TString inputfile = "EcalDigisValidation.root" )
 {
 
  gROOT ->Reset();
- char*  rfilename = "EcalDigisValidation.root";
+ char*  rfilename = inputfile;
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
 

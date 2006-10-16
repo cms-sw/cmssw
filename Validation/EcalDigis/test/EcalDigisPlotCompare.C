@@ -2,12 +2,13 @@
 #include "TTree.h"
 #include "TText.h"
 
-void EcalDigisPlotCompare()
+void EcalDigisPlotCompare( TString currentfile = "EcalDigisValidation_new.root",
+                           TString referencefile = "EcalDigisValidation_old.root" )
 {
 
  gROOT ->Reset();
- char*  rfilename = "EcalDigisValidation_old.root";
- char*  sfilename = "EcalDigisValidation_new.root";
+ char*  rfilename = referencefile ;
+ char*  sfilename = currentfile ;
 
  int rcolor = 2;
  int scolor = 4;
