@@ -603,6 +603,7 @@ namespace edm {
     adjustForDefaultService(*(pServiceSets.get()), "InitRootHandlers");
     adjustForDefaultService(*(pServiceSets.get()), "MessageLogger");
     adjustForDefaultService(*(pServiceSets.get()), "LoadAllDictionaries");
+    adjustForDefaultService(*(pServiceSets.get()), "AdaptorConfig");
     adjustForService(*(pServiceSets.get()), "JobReportService");
     adjustForService(*(pServiceSets.get()), "SiteLocalConfigService");
 
