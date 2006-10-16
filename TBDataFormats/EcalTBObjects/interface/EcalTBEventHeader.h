@@ -3,12 +3,13 @@
 
 #include <ostream>
 #include <string>
+#include <vector>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 /** \class EcalTBEventHeader
  *  Container for event ancilllary informations defined in TB raw data formats  
  *
- *  $Id: EcalTBEventHeader.h,v 1.5 2006/08/10 16:20:39 govoni Exp $
+ *  $Id: EcalTBEventHeader.h,v 1.6 2006/09/21 10:03:42 meridian Exp $
  */
 
 
@@ -170,7 +171,13 @@ class EcalTBEventHeader {
 
   int  measuredMagnet7Volt() const { return measuredMagnet7Volt_; }
 
-
+  int  scaler(int scalerId) const {
+    if (scalerId < ((int) scalers_.size() ) )
+      return scalers_[scalerId];
+    else
+      return -1;
+  }
+  
   ///////////////
   //Set Methods
 
@@ -229,6 +236,7 @@ class EcalTBEventHeader {
   void setMeasuredMagnet6Volt(const int& measuredMagnet6Volt) { measuredMagnet6Volt_ = measuredMagnet6Volt; }
   void setMeasuredMagnet7Volt(const int& measuredMagnet7Volt) { measuredMagnet7Volt_ = measuredMagnet7Volt; }
 
+  void setScalers (const std::vector<int> & scalers) { scalers_ = scalers; }
 
 
  private:
@@ -283,6 +291,10 @@ class EcalTBEventHeader {
   int      S6ADC_ ;           ///< ADC lecture of the S6 counter
 
   short smInBeam_;
+
+  // array of 36 scalers
+  std::vector<int> scalers_;
+
 };
 
 std::ostream& operator<<(std::ostream&, const EcalTBEventHeader&);
