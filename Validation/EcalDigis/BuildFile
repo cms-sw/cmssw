@@ -7,6 +7,9 @@
 <use name=CondFormats/DataRecord>
 <use name=FWCore/Framework>
 <use name=DQMServices/CoreROOT>
+<use name=SimCalorimetry/CaloSimAlgos>
+<use name=SimCalorimetry/EcalSimAlgos>
+<use name=Geometry/CaloEventSetup>
 <use name=boost>
 <use name=root>
 
@@ -22,6 +25,9 @@
    <use name=CondFormats/DataRecord>
    <use name=FWCore/Framework>            
    <use name=DQMServices/CoreROOT>        
+   <use name=SimCalorimetry/CaloSimAlgos>
+   <use name=SimCalorimetry/EcalSimAlgos>
+   <use name=Geometry/CaloEventSetup>
    <use name=boost>                       
    <use name=root>                        
 </export>

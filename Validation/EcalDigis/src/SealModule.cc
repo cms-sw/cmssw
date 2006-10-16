@@ -15,3 +15,6 @@ DEFINE_ANOTHER_FWK_MODULE(EcalEndcapDigisValidation)
 
 #include <Validation/EcalDigis/interface/EcalPreshowerDigisValidation.h>
 DEFINE_ANOTHER_FWK_MODULE(EcalPreshowerDigisValidation)
+
+#include <Validation/EcalDigis/interface/EcalMixingModuleValidation.h>
+DEFINE_ANOTHER_FWK_MODULE(EcalMixingModuleValidation)
