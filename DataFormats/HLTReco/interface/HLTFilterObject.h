@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/10/13 07:28:34 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/10/16 12:37:51 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *
@@ -115,6 +115,7 @@ namespace reco
     HLTFilterObjectWithRefs(int path=0, int module=0)
       : HLTFilterObject(path,module), refs_(), pids_() { }
 
+    /*
     template<typename C>
     void putParticle(const edm::RefProd<C>& refprod, unsigned int i) {
       putParticle(CandidateBaseRef(refprod,i));
@@ -122,6 +123,8 @@ namespace reco
     void putParticle(const edm::RefProd<HLTFilterObjectWithRefs>& refprod, unsigned int i) {
       putParticle(refprod->getParticleRef(i));
     }
+    */
+
     void putParticle(const edm::RefToBase<Candidate>& ref) {
       this->HLTFilterObject::putParticle(ref);
       refs_.push_back(ref);
