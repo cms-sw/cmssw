@@ -5,8 +5,8 @@
  *
  *  Read PAC data from ASCII files convert them and write as FEDRawData
  *
- *  $Date: 2006/08/08 12:28:55 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/24 18:02:12 $
+ *  $Revision: 1.5 $
  * \author Michal Bluj - SINS, Warsaw
 */
 #include <memory>
@@ -48,22 +48,27 @@ class RPCFileReader : public ExternalInputSource {
   //data members
   int run_, event_, bxn_;
   Time timeStamp_;
-  std::vector<LogCone> theLogCones_;//(12)
-  std::vector<std::vector<std::vector<RPCPacData> > > linkData_;//(3,18,3)
+  //std::vector<LogCone> theLogCones_;//(12)
+  std::vector<std::vector<LogCone> > theLogCones_;//(12)
+  //std::vector<std::vector<std::vector<RPCPacData> > > linkData_;//(3,18,3)
+  std::vector<std::vector<std::vector<std::vector<RPCPacData> > > > linkData_;//(3,18,3)
 
   bool isOpen_, noMoreData_;
   int eventPos_[2];
   int fileCounter_, eventCounter_;
 
-  bool debug_,saveOutOfTime_,pacTrigger_;
+  bool debug_,saveOutOfTime_,pacTrigger_,maskChannels_;
 
-  unsigned int triggerFedId_, tbNum_;
+  unsigned int triggerFedId_;//, tbNum_;
+  std::vector<unsigned int> tbNums_;
 
   // consts
   //FIXME: Checked
   const static unsigned int RPC_PAC_TRIGGER_DELAY=11;
   const static unsigned int RPC_PAC_L1ACCEPT_BX=2;
-  
+
+  vector<vector<bool> > maskedChannels;
+
   // methods
   void readDataFromAsciiFile(string fileName, int *pos);
   
