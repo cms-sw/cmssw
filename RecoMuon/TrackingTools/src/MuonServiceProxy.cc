@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/09/01 16:24:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/10/13 15:00:05 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -47,8 +47,13 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   for(vector<string>::iterator propagatorName = propagatorNames.begin();
       propagatorName != propagatorNames.end(); ++propagatorName)
     thePropagators[ *propagatorName ] = ESHandle<Propagator>(0);
+
+  theCacheId_GTG = 0;
+  theCacheId_MG = 0;  
+  theCacheId_DG = 0;
+  theCacheId_P = 0;
 }
-		   
+
 
 // Destructor
 MuonServiceProxy::~MuonServiceProxy(){
@@ -66,24 +71,31 @@ MuonServiceProxy::~MuonServiceProxy(){
 
 // update the services each event
 void MuonServiceProxy::update(const edm::EventSetup& setup){
+  const std::string metname = "Muon|RecoMuon|MuonServiceProxy";
+  
   theEventSetup = &setup;
 
   // Global Tracking Geometry
-  static unsigned long long oldCacheId_GTG = 0;
   unsigned long long newCacheId_GTG = setup.get<GlobalTrackingGeometryRecord>().cacheIdentifier();
-  if ( newCacheId_GTG != oldCacheId_GTG ) {
-    oldCacheId_GTG = newCacheId_GTG;
+  if ( newCacheId_GTG != theCacheId_GTG ) {
+    LogDebug(metname) << "GlobalTrackingGeometry changed!";
+    theCacheId_GTG = newCacheId_GTG;
     setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   }
   
-
-  // Magfield
-  {
+  // Magfield Field
+  unsigned long long newCacheId_MG = setup.get<IdealMagneticFieldRecord>().cacheIdentifier();
+  if ( newCacheId_MG != theCacheId_MG ) {
+    LogDebug(metname) << "Magnetic Field changed!";
+    theCacheId_MG = newCacheId_MG;
     setup.get<IdealMagneticFieldRecord>().get(theMGField);
   }
   
   // DetLayer Geometry
-  {
+  unsigned long long newCacheId_DG = setup.get<MuonRecoGeometryRecord>().cacheIdentifier();
+  if ( newCacheId_DG != theCacheId_DG ) {
+    LogDebug(metname) << "Muon Reco Geometry changed!";
+    theCacheId_DG = newCacheId_DG;
     setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
     // FIXME: MuonNavigationSchool should live until its validity expires, and then DELETE
     // the NavigableLayers (this is not implemented in MuonNavigationSchool's dtor)
@@ -93,9 +105,15 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     NavigationSetter setter(school); 
   }
   
-  for(propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end();
-      ++prop)
-    setup.get<TrackingComponentsRecord>().get( prop->first , prop->second );
+  // Propagators
+  unsigned long long newCacheId_P = setup.get<TrackingComponentsRecord>().cacheIdentifier();
+  if ( newCacheId_P != theCacheId_P ) {
+    LogDebug(metname) << "Tracking Component changed!";
+    theCacheId_P = newCacheId_P;
+    for(propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end();
+	++prop)
+      setup.get<TrackingComponentsRecord>().get( prop->first , prop->second );
+  }
 }
 
 // get the propagator

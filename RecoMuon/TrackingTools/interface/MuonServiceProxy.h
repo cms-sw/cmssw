@@ -7,8 +7,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/09/01 15:46:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/09/01 16:24:12 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -61,6 +61,11 @@ private:
   const edm::EventSetup *theEventSetup;
 
   propagators thePropagators;
+
+  unsigned long long theCacheId_GTG;
+  unsigned long long theCacheId_MG;
+  unsigned long long theCacheId_DG;
+  unsigned long long theCacheId_P;
 
 };
 #endif
