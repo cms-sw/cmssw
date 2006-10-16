@@ -84,7 +84,7 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & t
 
 
 
-TrajectoryStateOnSurface SignedImpactParameter3D::closestApproachToJet(const FreeTrajectoryState & aFTS,const Vertex & vertex, const GlobalVector& aJetDirection,const MagneticField * field) const {
+static TrajectoryStateOnSurface SignedImpactParameter3D::closestApproachToJet(const FreeTrajectoryState & aFTS,const Vertex & vertex, const GlobalVector& aJetDirection,const MagneticField * field) {
   
   GlobalVector J =aJetDirection.unit();
   
@@ -97,7 +97,7 @@ TrajectoryStateOnSurface SignedImpactParameter3D::closestApproachToJet(const Fre
   return TETL.extrapolate(aFTS, Jet);
 }
 
-GlobalVector SignedImpactParameter3D::distance(const TrajectoryStateOnSurface & aTSOS, const Vertex & vertex, const GlobalVector & aJetDirection) const {
+static GlobalVector SignedImpactParameter3D::distance(const TrajectoryStateOnSurface & aTSOS, const Vertex & vertex, const GlobalVector & aJetDirection)  {
 
   Line::PositionType pos2(aTSOS.globalPosition());
   Line::DirectionType dir2((aTSOS.globalMomentum()).unit());
@@ -110,7 +110,7 @@ GlobalVector SignedImpactParameter3D::distance(const TrajectoryStateOnSurface & 
   return D;
 }
 
-pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const TransientTrack & track, const GlobalVector & direction, const Vertex & vertex) const {
+static pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const TransientTrack & track, const GlobalVector & direction, const Vertex & vertex) {
   double theDistanceAlongJetAxis(0.);
   double theDistanceToJetAxis(0.);
   double  theLDist_err(0.);
@@ -130,7 +130,7 @@ pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const Tr
   //
 
   //FIXME
-  float weight=0;//vertex.trackWeight(aRecTrack);
+  float weight=0.;//vertex.trackWeight(aRecTrack);
 
   TrajectoryStateOnSurface stateAtOrigin = track.impactPointState(); 
   TrajectoryStateOnSurface aTSOS = closestApproachToJet(*FTS, vertex, jetDirection, track.field());

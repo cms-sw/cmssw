@@ -28,13 +28,13 @@ public:
    first is the decay length
    second is the distance of the track from jet axis
   */
-  std::pair<double,Measurement1D> distanceWithJetAxis(const reco::TransientTrack & transientTrack, const GlobalVector & direction, const reco::Vertex & vertex) const ;
+static  std::pair<double,Measurement1D> distanceWithJetAxis(const reco::TransientTrack & transientTrack, const GlobalVector & direction, const reco::Vertex & vertex)  ;
 
 private:
 
-  GlobalVector distance(const TrajectoryStateOnSurface &, const reco::Vertex &, const GlobalVector &) const;
+  static GlobalVector distance(const TrajectoryStateOnSurface &, const reco::Vertex &, const GlobalVector &) ;
 
-  TrajectoryStateOnSurface closestApproachToJet(const FreeTrajectoryState &, const reco::Vertex &, const GlobalVector &,  const MagneticField *) const;
+  static TrajectoryStateOnSurface closestApproachToJet(const FreeTrajectoryState &, const reco::Vertex &, const GlobalVector &,  const MagneticField *) ;
 
 };
 
