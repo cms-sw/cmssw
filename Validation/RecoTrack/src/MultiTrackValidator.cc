@@ -72,7 +72,8 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
       h_pt2.push_back( dbe_->book1D("pt2", "p_{t} residue (#tracks>1)", 300, -15, 15 ) );
       h_eta.push_back( dbe_->book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
-      h_tracks.push_back( dbe_->book1D("tracks","number of reconstructed tracks",10,-0.5,9.5) );
+      h_tracks.push_back( dbe_->book1D("tracks","number of reconstructed tracks",20,-0.5,19.5) );
+      h_fakes.push_back( dbe_->book1D("fakes","number of fake reco tracks",20,-0.5,19.5) );
       h_nchi2.push_back( dbe_->book1D("nchi2", "normalized chi2", 200, 0, 20 ) );
       h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized chi2 probability",100,0,1));
       h_hits.push_back( dbe_->book1D("hits", "number of hits per track", 30, -0.5, 29.5 ) );
@@ -97,6 +98,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       nhits_vs_eta.push_back( dbe_->book2D("nhits_vs_eta","nhits vs eta",nint,min,max,25,0,25) );
       ptres_vs_eta.push_back( dbe_->book2D("ptres_vs_eta","ptresidue vs eta",nint,min,max,200,-2,2) );
       etares_vs_eta.push_back( dbe_->book2D("etares_vs_eta","etaresidue vs eta",nint,min,max,200,-0.1,0.1) );
+      nrec_vs_nsim.push_back( dbe_->book2D("nrec_vs_nsim","nrec_vs_nsim",20,-0.5,19.5,20,-0.5,19.5) );
       
       h_assochi2.push_back( dbe_->book1D("assochi2","track association chi2",200,0,50) );
       h_assochi2_prob.push_back(dbe_->book1D("assochi2prob","probability of association chi2",100,0,1));
@@ -142,13 +144,19 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //fill simulation histograms
       //compute number of tracks per eta interval
       //
-      LogDebug("TrackValidator") << "\n# of TrackingParticless with " << label[www].c_str()  << ": " << tPC.size() << "\n";
+      LogDebug("TrackValidator") << "\n# of TrackingParticless with " << label[www].c_str()  
+				 << ": " << tPC.size() << "\n";
       int st=0;
       for (TrackingParticleCollection::size_type i=0; i<tPC.size(); i++){
 	TrackingParticleRef tp(TPCollectionH, i);
 	if (abs(tp->momentum().eta())>max || 
 	    abs(tp->momentum().eta())<min) continue;
 	if (sqrt(tp->momentum().perp2())<minpt) continue;
+	int type = tp->g4Track_begin()->product()->begin()->type();
+	if (abs(type)!=13||abs(type)!=11||abs(type)!=211||abs(type)!=321||abs(type)!=2212) continue;
+	LogDebug("TrackValidator") << "PIPPO tp->charge(): " << tp->charge()
+				   << "PIPPO tp->trackPSimHit().size(): " << tp->trackPSimHit().size() 
+				   << "\n";
 	st++;
 	h_ptSIM[w]->Fill(sqrt(tp->momentum().perp2()));
 	h_etaSIM[w]->Fill(tp->momentum().eta());
@@ -178,14 +186,20 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
       }
       if (st!=0) h_tracksSIM[w]->Fill(st);
-
+      
       //
       //fill reconstructed track histograms
       // 
       LogDebug("TrackValidator") << "\n# of reco::Tracks with " << label[www].c_str()  << ": " << tC.size() << "\n";
-      int rt=0;
+      int at=0;
+      int rT=0;
       for(reco::TrackCollection::size_type i=0; i<tC.size(); ++i){
 	reco::TrackRef track(trackCollection, i);
+	if (abs(track->eta())>max || abs(track->eta())<min) continue;
+	if (track->pt() < minpt) continue;
+
+	rT++;
+
 	try{
 	  std::vector<std::pair<TrackingParticleRef, double> > tp;
 	  try {
@@ -194,7 +208,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    edm::LogError("TrackValidator") << "No TrackingParticle associated" << "\n";
 	  }
 
-	  LogDebug("TrackValidator") << "reco::Track number " << rt << " associated to " 
+	  LogDebug("TrackValidator") << "reco::Track number " << at << " associated to " 
 				     << tp.size()  << " TrackingParticle" << "\n";
 	  if (tp.size()==0) continue;
 	
@@ -207,9 +221,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  h_assochi2[w]->Fill(assocChi2);
 	  h_assochi2_prob[w]->Fill(chisquared_prob((assocChi2)*5,5));
 	
-	  if (abs(track->eta())>max || abs(track->eta())<min) continue;
-	
-	  rt++;
+	  at++;
       
 	  //nchi2 and hits global distributions
 	  h_nchi2[w]->Fill(track->normalizedChi2());
@@ -285,9 +297,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	} catch (cms::Exception e){
 	  edm::LogError("TrackValidator") << "exception found: " << e.what() << "\n";
 	}
-	LogDebug("TrackValidator") << "end of reco::Track number " << rt-1 << "\n";
+	LogDebug("TrackValidator") << "end of reco::Track number " << at-1 << "\n";
       }
-      if (rt!=0) h_tracks[w]->Fill(rt);
+      if (at!=0) h_tracks[w]->Fill(at);
+      h_fakes[w]->Fill(tC.size()-at);
+      nrec_vs_nsim[w]->Fill(rT,st);
       w++;
     }
   }
