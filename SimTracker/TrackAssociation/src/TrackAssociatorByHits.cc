@@ -45,7 +45,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 
   const float minHitFraction = 0;
   int nshared =0;
-  //  float fraction=0;
+  float fraction=0;
   std::vector<unsigned int> SimTrackIds;
   std::vector<unsigned int> matchedIds; 
   RecoToSimCollection  outputCollection;
@@ -71,7 +71,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	  //save all the id of matched simtracks
 	  if(!SimTrackIds.empty()){
 	    for(size_t j=0; j<SimTrackIds.size(); j++){
-	      //std::cout << " hit # " << ri << " SimId " << SimTrackIds[j] << std::endl; 
+	      std::cout << " hit # " << ri << " SimId " << SimTrackIds[j] << std::endl; 
 	      matchedIds.push_back(SimTrackIds[j]);
 	    }
 	  }
@@ -80,13 +80,16 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	}
       }
       //save id for the track
+      std::vector<unsigned int> idcachev;
       if(!matchedIds.empty()){
-	unsigned int simtrackid_cache = 9999999;
+	idcachev.push_back(9999999);
 	nshared =0;
+	fraction =0;
 	for(size_t j=0; j<matchedIds.size(); j++){
-	  if(matchedIds[j] != simtrackid_cache) {
+	  //replace with a find in vector
+	  if(find(idcachev.begin(), idcachev.end(),matchedIds[j]) == idcachev.end() ){
 	    //only the first time we see this ID 
-	    simtrackid_cache = matchedIds[j];
+	    idcachev.push_back(matchedIds[j]);
 	    int tpindex =0;
 	    for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) 
 	      {
@@ -97,14 +100,20 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 		    // 			      << " Nrh = " << ri << " Nshared = " << n << std::endl;
 		    // 		    std::cout << " G4  Track Momentum " << (*g4T)->momentum() << std::endl;   
 		    // 		    std::cout << " reco Track Momentum " << track->momentum() << std::endl;  
-		    //		    if(ri!=0) fraction = n/ri;
 		    nshared = std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
-		    //std::cout << " sim ID = " << matchedIds[j] << " Occurrence = " << nshared << std::endl; 
+		    //int rii=track->found();
+		    //use ri evaluated above to avoid inconsistencies. should be the same but worth checking
+		    if(ri!=0) fraction = (static_cast<double>(nshared)/static_cast<double>(ri));
 		    //for now save the number of shared hits between the reco and sim track
 		    //cut on the fraction
-		    outputCollection.insert(reco::TrackRef(trackCollectionH,tindex), 
-					    std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
-							   nshared));
+		    if(fraction>0.5){
+		      if(fraction>1.) std::cout << " **** fraction >1 " << " nshared = " << nshared 
+						<< "rechits = " << ri << " hit found " << track->found() <<  std::endl;
+		      outputCollection.insert(reco::TrackRef(trackCollectionH,tindex), 
+					      std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
+							     fraction));
+		      //nshared));
+		    }
 		  }
 		}
 	      }
@@ -124,7 +133,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 					  const edm::Event * e ){
   
   const float minHitFraction = 0;
-  //float fraction=0;
+  float fraction=0;
   int nshared = 0;
   std::vector<unsigned int> SimTrackIds;
   std::vector<unsigned int> matchedIds; 
@@ -162,13 +171,15 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 	}
       }
       //save id for the track
+      std::vector<unsigned int> idcachev;
       if(!matchedIds.empty()){
-	unsigned int simtrackid_cache = 9999999;
+	idcachev.push_back(9999999);
 	nshared =0;
 	for(size_t j=0; j<matchedIds.size(); j++){
-	  if(matchedIds[j] != simtrackid_cache) {
+	  //replace with a find in vector
+	  if(find(idcachev.begin(), idcachev.end(),matchedIds[j]) == idcachev.end() ){
 	    //only the first time we see this ID 
-	    simtrackid_cache = matchedIds[j];	  
+	    idcachev.push_back(matchedIds[j]);
 	    int tpindex =0;
 	    for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	      for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();

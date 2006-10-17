@@ -148,7 +148,6 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
       const PSimHit ihit = *simHitIter;
       unsigned int simHitid = ihit.trackId();
       for(size_t i=0; i<simtrackid.size();i++){
-	// cout << " Associator -->  check sihit id's = " << simHitid <<"; compared id's = "<< simtrackid[i] <<endl;
 	if(simHitid == simtrackid[i]){ //exclude the geant particles. they all have the same id
 	  //	  cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 	  //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
@@ -253,15 +252,19 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
     float cluchg = std::accumulate(clust->amplitudes().begin(), clust->amplitudes().end(),0);
     // cout << "Associator ---> Clus size = " << clusiz << " first = " << first << "  last = " << last << "  tot charge = " << cluchg << endl;
 
-    unsigned int simtrackid_cache = 99999999;
+    //use a vector
+    //    unsigned int simtrackid_cache = 99999999;
+    std::vector<unsigned int> idcachev;
     for(edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(); linkiter != link_detset.data.end(); linkiter++){
       StripDigiSimLink link = *linkiter;
       if( link.channel() >= first  && link.channel() < last ){
 	//write only once the id
-	if(link.SimTrackId() != simtrackid_cache){
+	//	if(link.SimTrackId() != simtrackid_cache){
+	if(find(idcachev.begin(),idcachev.end(),link.SimTrackId()) == idcachev.end()){
 	  //std::cout << " Adding track id  = " << link.SimTrackId() << std::endl;
 	  cache_simtrackid.push_back(link.SimTrackId());
-	  simtrackid_cache = link.SimTrackId();
+	  //simtrackid_cache = link.SimTrackId();
+	  idcachev.push_back(link.SimTrackId());
 	}
 	//get the charge released in the cluster by the simtrack strip by strip
 	chg = 0;
@@ -324,12 +327,15 @@ std::vector<unsigned int>  TrackerHitAssociator::associateMatchedRecHit(const Si
   //save in a vector all the simtrack-id's that are common to mono and stereo hits
   if(!matched_mono.empty() && !matched_st.empty()){
     simtrackid.clear(); //final result vector
-    unsigned int simtrackid_cache = 9999999;
+    //    unsigned int simtrackid_cache = 9999999;
+    std::vector<unsigned int> idcachev;
     for(vector<unsigned int>::iterator mhit=matched_mono.begin(); mhit != matched_mono.end(); mhit++){
       if(find(matched_st.begin(), matched_st.end(),(*mhit))!=matched_st.end()){
-	if((*mhit) != simtrackid_cache) {
+	//	if((*mhit) != simtrackid_cache) {
+	if(find(idcachev.begin(), idcachev.end(),(*mhit)) == idcachev.end()) {
 	  simtrackid.push_back(*mhit);
-	  simtrackid_cache = (*mhit);
+	  //	  simtrackid_cache = (*mhit);
+	  idcachev.push_back(*mhit);
 	}
       }
     }
