@@ -374,7 +374,9 @@ namespace cms
 	// gaussian smearing
 	Local3DPoint position;
 	LocalError error;
-	bool isCreated = gaussianSmearing(*isim, position, error);
+	unsigned int alphaMult = 0;
+	unsigned int betaMult  = 0;
+	bool isCreated = gaussianSmearing(*isim, position, error, alphaMult, betaMult);
 	//
 	if(isCreated) {
 	  // create RecHit
@@ -383,10 +385,11 @@ namespace cms
 							 << "Created a RecHit with local position " << position << " and local error " << error << "\n"
 							 << "   from a PSimHit with local position " << (*isim).localPosition()
 							 << " from track " << (*isim).trackId()
+							 << " with pixel multiplicity alpha(x) = " << alphaMult << " beta(y) = " << betaMult
 							 << " in detector " << detid
 							 << std::endl;
 	  }
-	  recHits.push_back( new SiTrackerGSRecHit2D( position , error , det, (*isim).trackId(), (*isim)) );
+	  recHits.push_back( new SiTrackerGSRecHit2D( position , error , det, (*isim).trackId(), (*isim) , alphaMult , betaMult ) );
 	  output.put(det, recHits.begin(), recHits.end());
 	  if (recHits.size() > 0) {
 	    if (theVerboseLevel > 2) 
@@ -413,7 +416,8 @@ namespace cms
     
   }
   
-  bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& simHit, Local3DPoint& position , LocalError& error) {
+  bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& simHit, Local3DPoint& position , LocalError& error,
+								  unsigned int& alphaMult, unsigned int& betaMult) {
     unsigned int subdet   = DetId(simHit.detUnitId()).subdetId();
     unsigned int detid    = DetId(simHit.detUnitId()).rawId();
     
@@ -455,8 +459,10 @@ namespace cms
 									 theBarrelMultiplicityAlphaCumulativeProbabilities,
 									 theBarrelMultiplicityBetaCumulativeProbabilities,
 									 thePixelBarrelResolutionFile);
-	position = siPixelAlgorithm.getPosition();
-	error    = siPixelAlgorithm.getError();
+	position  = siPixelAlgorithm.getPosition();
+	error     = siPixelAlgorithm.getError();
+	alphaMult = siPixelAlgorithm.getPixelMultiplicityAlpha();
+	betaMult  = siPixelAlgorithm.getPixelMultiplicityBeta();
 	return true;
 	break;
       }
@@ -475,6 +481,8 @@ namespace cms
 									 thePixelForwardResolutionFile);
 	position = siPixelAlgorithm.getPosition();
 	error    = siPixelAlgorithm.getError();
+	alphaMult = siPixelAlgorithm.getPixelMultiplicityAlpha();
+	betaMult  = siPixelAlgorithm.getPixelMultiplicityBeta();
 	return true;
 	break;
       }
@@ -527,6 +535,8 @@ namespace cms
 	SiStripGaussianSmearingRecHitConverterAlgorithm siStripAlgorithm(conf_, simHit, resolution);
 	position = siStripAlgorithm.getPosition();
 	error    = siStripAlgorithm.getError();
+	alphaMult = 0;
+	betaMult  = 0;
 	return true;
 	break;
       } // TIB
@@ -572,6 +582,8 @@ namespace cms
 	SiStripGaussianSmearingRecHitConverterAlgorithm siStripAlgorithm(conf_, simHit, resolution);
 	position = siStripAlgorithm.getPosition();
 	error    = siStripAlgorithm.getError();
+	alphaMult = 0;
+	betaMult  = 0;
 	return true;
 	break;
       } // TID
@@ -638,6 +650,8 @@ namespace cms
 	SiStripGaussianSmearingRecHitConverterAlgorithm siStripAlgorithm(conf_, simHit, resolution);
 	position = siStripAlgorithm.getPosition();
 	error    = siStripAlgorithm.getError();
+	alphaMult = 0;
+	betaMult  = 0;
 	return true;
 	break;
       } // TOB
@@ -711,6 +725,8 @@ namespace cms
 	SiStripGaussianSmearingRecHitConverterAlgorithm siStripAlgorithm(conf_, simHit, resolution);
 	position = siStripAlgorithm.getPosition();
 	error    = siStripAlgorithm.getError();
+	alphaMult = 0;
+	betaMult  = 0;
 	return true;
 	break;
       } // TEC

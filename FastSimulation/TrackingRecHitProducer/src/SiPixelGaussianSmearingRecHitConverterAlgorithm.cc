@@ -135,6 +135,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
       break;
     }
   }
+  
   // protection against 0 or max multiplicity
   if( alphaMultiplicity == 0 || alphaMultiplicity > theAlphaMultiplicityCumulativeProbabilities.size() ) alphaMultiplicity = theAlphaMultiplicityCumulativeProbabilities.size();
   if( betaMultiplicity == 0  || alphaMultiplicity > theBetaMultiplicityCumulativeProbabilities.size()  )  betaMultiplicity  = theBetaMultiplicityCumulativeProbabilities.size();
@@ -220,6 +221,9 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
   thePositionY = betaHist.GetRandom();
   thePositionZ = 0.0; // set at the centre of the active area
   thePosition = Local3DPoint( thePositionX , thePositionY , thePositionZ );
+  // define private mebers --> Multiplicities
+  thePixelMultiplicityAlpha = alphaMultiplicity;
+  thePixelMultiplicityBeta  = betaMultiplicity;
   //
   
 }

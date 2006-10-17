@@ -62,7 +62,7 @@ namespace cms
     
   private:
     //
-    bool gaussianSmearing(const PSimHit& simHit, Local3DPoint& position , LocalError& error);
+    bool gaussianSmearing(const PSimHit& simHit, Local3DPoint& position , LocalError& error, unsigned int& alphaMult, unsigned int& betaMult);
     //
     void loadPixelData();
     //
@@ -86,6 +86,7 @@ namespace cms
     TFile* thePixelBarrelResolutionFile;
     TFile* thePixelForwardResolutionFile;
     //
+    // multiplicity bins
     unsigned int nAlphaBarrel, nBetaBarrel, nAlphaForward, nBetaForward;
     // internal vector: bins ; external vector: multiplicity
     std::vector<TH1F*> theBarrelMultiplicityAlphaCumulativeProbabilities;

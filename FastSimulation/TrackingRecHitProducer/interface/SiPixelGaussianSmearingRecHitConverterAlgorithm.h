@@ -48,6 +48,8 @@ public:
   double       getErrorX()    {return theErrorX;}
   double       getErrorY()    {return theErrorY;}
   double       getErrorZ()    {return theErrorZ;}
+  unsigned int getPixelMultiplicityAlpha() {return thePixelMultiplicityAlpha;}
+  unsigned int getPixelMultiplicityBeta()  {return thePixelMultiplicityBeta;}
   //
   
 private:
@@ -78,6 +80,8 @@ private:
   double       theErrorX;
   double       theErrorY;
   double       theErrorZ;
+  unsigned int thePixelMultiplicityAlpha;
+  unsigned int thePixelMultiplicityBeta;
   //
   
 };
