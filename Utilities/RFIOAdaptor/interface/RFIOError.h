@@ -4,6 +4,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 # include "SealBase/IOError.h"
+#include<string>
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
@@ -25,6 +26,7 @@ public:
 private:
     int			m_code;
     int			m_scode;
+    std::string         m_txt;
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
