@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2006/10/05 13:21:05 $
- * $Revision: 1.15 $
+ * $Date: 2006/10/16 16:08:31 $
+ * $Revision: 1.1 $
  * \author F. Cossutti
  *
 */
@@ -394,7 +394,7 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
           if ( ebSignalSimMap[ebid.rawId()] > ebSimThreshold  && meEBDigiMixRatioOriggt50pc_ ) meEBDigiMixRatioOriggt50pc_->Fill( Erec/ebSignalSimMap[ebid.rawId()] );
           if ( ebSignalSimMap[ebid.rawId()] > ebSimThreshold  && meEBShape_ ) {
             for ( int i = 0; i < 10 ; i++ ) {
-              meEBShape_->Fill(i, ebAnalogSignal[i] );
+              meEBShape_->Fill(i, ebAnalogSignal[i]-pedestalPreSampleAnalog );
             }
           }
         }
@@ -494,7 +494,7 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
           if ( eeSignalSimMap[eeid.rawId()] > eeSimThreshold  && meEEDigiMixRatioOriggt40pc_ ) meEEDigiMixRatioOriggt40pc_->Fill( Erec/eeSignalSimMap[eeid.rawId()] );
           if ( eeSignalSimMap[eeid.rawId()] > eeSimThreshold  && meEBShape_ ) {
             for ( int i = 0; i < 10 ; i++ ) {
-              meEEShape_->Fill(i, eeAnalogSignal[i] );
+              meEEShape_->Fill(i, eeAnalogSignal[i]-pedestalPreSampleAnalog );
             }
           }
         }
