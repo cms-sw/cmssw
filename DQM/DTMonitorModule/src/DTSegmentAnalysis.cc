@@ -2,20 +2,24 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/10/09 18:19:41 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/10/12 09:21:39 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "DTSegmentAnalysis.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "Geometry/Vector/interface/Pi.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include <iterator>
 
@@ -57,7 +61,17 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
   if(debug)
     cout << "[DTSegmentAnalysis] Analyze #Run: " << event.id().run()
 	 << " #Event: " << event.id().event() << endl;
-  
+  if(!(event.id().event()%1000))
+    {
+      cout << "[DTSegmentAnalysis] Analyze #Run: " << event.id().run()
+	   << " #Event: " << event.id().event() << endl;
+    }
+  // Get the map of noisy channels
+  bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels","false");
+  ESHandle<DTStatusFlag> statusMap;
+  if(checkNoisyChannels) {
+    setup.get<DTStatusFlagRcd>().get(statusMap);
+  } 
   //Get the trigger source from ltc digis
   DTTrig=-99, CSCTrig=-99, RBC1Trig=-99, RBC2Trig=-99, RPCTBTrig=-99;
   edm::Handle<LTCDigiCollection> ltcdigis;
@@ -82,7 +96,7 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel, all4DSegments);
-
+  int nsegm_W1Sec10=0, nsegm_W2Sec10=0, nsegm_W2Sec11=0;
   // Loop over all chambers containing a segment
   DTRecSegment4DCollection::id_iterator chamberId;
   for (chamberId = all4DSegments->id_begin();
@@ -95,12 +109,74 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
       cout << "   Chamber: " << *chamberId << " has " << nsegm
 	   << " 4D segments" << endl;
     fillHistos(*chamberId, nsegm);
-    fillHistos(nsegm,(*chamberId).wheel(),(*chamberId).sector());
-    // Loop over the rechits of this ChamerId
+    if((*chamberId).wheel()==1 &&((*chamberId).sector()==10 ||(*chamberId).sector()==14))
+      nsegm_W1Sec10 = nsegm_W1Sec10+nsegm;
+    if((*chamberId).wheel()==2 &&((*chamberId).sector()==10||(*chamberId).sector()==14))
+      nsegm_W2Sec10 = nsegm_W2Sec10+nsegm;
+    if((*chamberId).wheel()==2 &&((*chamberId).sector()==11))
+      nsegm_W2Sec11 = nsegm_W2Sec11+nsegm;
+     // Loop over the rechits of this ChamerId
     for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
 	 segment4D!=range.second;
 	   ++segment4D){
-      LocalPoint segment4DLocalPos = (*segment4D).localPosition();
+
+      //FOR NOISY CHANNELS////////////////////////////////
+     const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
+     bool segmNoisy = false;
+     vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
+     map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
+     for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
+	 hit != phiHits.end(); ++hit) {
+       DTWireId wireId = (*hit).wireId();
+
+	// Check for noisy channels to skip them
+	if(checkNoisyChannels) {
+	  bool isNoisy = false;
+	  bool isFEMasked = false;
+	  bool isTDCMasked = false;
+	  bool isTrigMask = false;
+	  bool isDead = false;
+	  bool isNohv = false;
+	  statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	  if(isNoisy) {
+	    if(debug)
+	      cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+	    segmNoisy = true;
+	  }      
+	}
+      }
+     if((*segment4D).hasZed()) {
+	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();  // zSeg lives in the SL RF
+	// Check for noisy channels to skip them
+	vector<DTRecHit1D> zHits = zSeg->specificRecHits();
+    	for(vector<DTRecHit1D>::const_iterator hit = zHits.begin();
+	    hit != zHits.end(); ++hit) {
+	  DTWireId wireId = (*hit).wireId();
+	  if(checkNoisyChannels) {
+	    bool isNoisy = false;
+	    bool isFEMasked = false;
+	    bool isTDCMasked = false;
+	    bool isTrigMask = false;
+	    bool isDead = false;
+	    bool isNohv = false;
+	    //cout<<"wire id "<<wireId<<endl;
+	    statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	    if(isNoisy) {
+	      if(debug)
+		cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+	      segmNoisy = true;
+	    }      
+	  }
+	}
+      } 
+     if (segmNoisy) {
+       if(debug)
+	 cout<<"skipping the segment: it contains noisy cells"<<endl;
+       continue;
+     }
+     //END FOR NOISY CHANNELS////////////////////////////////
+      
+  LocalPoint segment4DLocalPos = (*segment4D).localPosition();
       LocalVector segment4DLocalDirection = (*segment4D).localDirection();
       int nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
       if((*segment4D).hasZed()) 
@@ -120,6 +196,9 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
       }
     }
   }
+   fillHistos(nsegm_W1Sec10,1,10);
+   fillHistos(nsegm_W2Sec10,2,10);
+   fillHistos(nsegm_W2Sec11,2,11);
   // -----------------------------------------------------------------------------
 }
   
@@ -194,7 +273,13 @@ void DTSegmentAnalysis::bookHistos(int w, int sec) {
   pair <int,int> sector;
   sector.first=w;
   sector.second=sec;
-  histosPerSec[sector] = theDbe->book1D("hN4DSeg_Trigg"+sectorHistoName,"# of 4D segments per event per trigger source",50, 0, 50);
+  histosPerSec[sector] = theDbe->book1D("hN4DSeg_Trigg"+sectorHistoName,"# of 4D segments per event per trigger source",500, 0, 500);
+//   histosPerSec[sector]->setBinLabel(0,"DTTrig",1);
+//   histosPerSec[sector]->setBinLabel(100,"CSCTrig",1);
+//   histosPerSec[sector]->setBinLabel(200,"RBC1Trig",1);
+//   histosPerSec[sector]->setBinLabel(300,"RBC2Trig",1);
+//   histosPerSec[sector]->setBinLabel(400,"RPCTBTrig",1);
+
 }
 
 // Fill a set of histograms 
@@ -211,13 +296,13 @@ void DTSegmentAnalysis::fillHistos(int nsegm, int w, int sec) {
   if(DTTrig == 1)
     histosPerSec[sector]->Fill(nsegm);
   if(CSCTrig == 1)
-    histosPerSec[sector]->Fill(nsegm+10);
+    histosPerSec[sector]->Fill(nsegm+100);
   if(RBC1Trig == 1)
-    histosPerSec[sector]->Fill(nsegm+20);
+    histosPerSec[sector]->Fill(nsegm+200);
   if(RBC2Trig == 1)
-    histosPerSec[sector]->Fill(nsegm+30);
+    histosPerSec[sector]->Fill(nsegm+300);
   if(RPCTBTrig == 1)
-    histosPerSec[sector]->Fill(nsegm+40);
+    histosPerSec[sector]->Fill(nsegm+400);
 }
 
 
