@@ -1,0 +1,12 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/L1Trigger>
+<use name=L1Trigger/L1Scales>
+<flags SEAL_PLUGIN_NAME="L1TriggerL1ExtraFromDigis">
+<export>
+   <lib name=L1TriggerL1ExtraFromDigis>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+</export>
