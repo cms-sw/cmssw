@@ -34,21 +34,45 @@ private:
   void bookValues( std::vector<TH1F*>& histos_x , std::vector<TH1F*>& histos_y , std::vector<TH1F*>& histos_z , int nBin , float range , char* det , unsigned int nHist );
   void bookErrors( std::vector<TH1F*>& histos_x , std::vector<TH1F*>& histos_y , std::vector<TH1F*>& histos_z , int nBin , float range , char* det , unsigned int nHist );
   void bookNominals( std::vector<TH1F*>& histos_x , int nBin , float range , char* det , unsigned int nHist );
+  void loadPixelData(TFile* pixelDataFile, unsigned int nMultiplicity, std::string histName,
+		     std::vector<TH1F*>& theMultiplicityProbabilities);
+  void bookPixel( std::vector<TH1F*>& histos_alpha , std::vector<TH1F*>& histos_beta , std::vector<TH1F*>& histos_nom_alpha  , std::vector<TH1F*>& histos_nom_beta, char* det );
   void write(std::vector<TH1F*> histos);
   
-  void chooseHist(unsigned int rawid, TH1F*& hist_x , TH1F*& hist_y , TH1F*& hist_z, TH1F*& hist_err_x , TH1F*& hist_err_y , TH1F*& hist_err_z);
+  void chooseHist( unsigned int rawid ,
+		   TH1F*& hist_x , TH1F*& hist_y , TH1F*& hist_z, TH1F*& hist_err_x , TH1F*& hist_err_y , TH1F*& hist_err_z ,
+		   TH1F*& hist_alpha , TH1F*& hist_beta , unsigned int mult_alpha , unsigned int mult_beta );
   
   // ROOT
   void rootStyle();
   void rootMacroStrip( std::vector<TH1F*>& histos_x      , std::vector<TH1F*>& histos_y     , std::vector<TH1F*>& histos_z     ,
 		       std::vector<TH1F*>& histos_err_x  , std::vector<TH1F*>& histos_err_y , std::vector<TH1F*>& histos_err_z ,
 		       std::vector<TH1F*>& histos_nom_x   );
-  void rootComparison( std::vector<TH1F*> histos_value , std::vector<TH1F*> histos_nominal , int binFactor );
+  void rootMacroPixel( std::vector<TH1F*>& histos_angle );
+  void rootComparison( std::vector<TH1F*> histos_value , std::vector<TH1F*> histos_nominal , int binFactor , int yLogScale = 1 );
   //
   
   
   // Histograms
   // Detectors
+  // Pixel Barrel - 3 layers
+  static const unsigned int nHist_PXB = 3;
+  std::vector<TH1F*> histos_PXB_x;
+  std::vector<TH1F*> histos_PXB_y;
+  std::vector<TH1F*> histos_PXB_z;
+  std::vector<TH1F*> histos_PXB_err_x;
+  std::vector<TH1F*> histos_PXB_err_y;
+  std::vector<TH1F*> histos_PXB_err_z;
+  std::vector<TH1F*> histos_PXB_nom_x;
+  // Pixel Forward - 2 disks
+  static const unsigned int nHist_PXF = 2;
+  std::vector<TH1F*> histos_PXF_x;
+  std::vector<TH1F*> histos_PXF_y;
+  std::vector<TH1F*> histos_PXF_z;
+  std::vector<TH1F*> histos_PXF_err_x;
+  std::vector<TH1F*> histos_PXF_err_y;
+  std::vector<TH1F*> histos_PXF_err_z;
+  std::vector<TH1F*> histos_PXF_nom_x;
   // TIB - 4 different detectors
   static const unsigned int nHist_TIB = 4;
   std::vector<TH1F*> histos_TIB_x;
@@ -85,6 +109,38 @@ private:
   std::vector<TH1F*> histos_TEC_err_y;
   std::vector<TH1F*> histos_TEC_err_z;
   std::vector<TH1F*> histos_TEC_nom_x;
+  //
+  
+  // Pixel more detailed analysis
+  // multiplicity bins
+  unsigned int nAlphaBarrel, nBetaBarrel, nAlphaForward, nBetaForward;
+  // resolution bins
+  double resAlphaBarrel_binMin , resAlphaBarrel_binWidth;
+  unsigned int resAlphaBarrel_binN;
+  double resBetaBarrel_binMin  , resBetaBarrel_binWidth;
+  unsigned int resBetaBarrel_binN;
+  double resAlphaForward_binMin , resAlphaForward_binWidth;
+  unsigned int resAlphaForward_binN;
+  double resBetaForward_binMin  , resBetaForward_binWidth;
+  unsigned int resBetaForward_binN;
+  //
+  // ROOT files with nominal distributions
+  std::string thePixelMultiplicityFileName;
+  std::string thePixelBarrelResolutionFileName;
+  std::string thePixelForwardResolutionFileName;
+  TFile* thePixelMultiplicityFile;
+  TFile* thePixelBarrelResolutionFile;
+  TFile* thePixelForwardResolutionFile;
+  //
+  // internal vector: bins ; external vector: multiplicity
+  std::vector<TH1F*> histos_PXB_alpha;
+  std::vector<TH1F*> histos_PXB_beta;
+  std::vector<TH1F*> histos_PXF_alpha;
+  std::vector<TH1F*> histos_PXF_beta;
+  std::vector<TH1F*> histos_PXB_nom_alpha;
+  std::vector<TH1F*> histos_PXB_nom_beta;
+  std::vector<TH1F*> histos_PXF_nom_alpha;
+  std::vector<TH1F*> histos_PXF_nom_beta;
   //
   
 };
