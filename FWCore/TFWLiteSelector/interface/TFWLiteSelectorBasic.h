@@ -17,7 +17,7 @@ allows you to access data using an edm::Event.
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 16:37:27 EDT 2006
-// $Id: TFWLiteSelectorBasic.h,v 1.2 2006/07/07 15:54:56 chrjones Exp $
+// $Id: TFWLiteSelectorBasic.h,v 1.3 2006/07/25 23:56:48 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,10 @@ allows you to access data using an edm::Event.
 // user include files
 
 // forward declarations
+class TFile;
+class TList;
+class TTree;
+
 namespace edm {
   class Event;
   
