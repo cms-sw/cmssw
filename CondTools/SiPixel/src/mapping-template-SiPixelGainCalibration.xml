@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE Mapping SYSTEM "InMemory">
+<Mapping version="SiPixelGainCalibration-1.0" >
+<Class name="SiPixelGainCalibration" >
+</Class >
+</Mapping >
