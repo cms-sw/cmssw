@@ -28,7 +28,7 @@ AlignmentParameterBuilder::AlignmentParameterBuilder( AlignableTracker* alignabl
 }
 
 //__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addSelection( std::string name, std::vector<bool> sel )
+void AlignmentParameterBuilder::addSelection(const std::string &name, const std::vector<bool> &sel)
 {
 
   edm::LogWarning("Alignment") << "[AlignmentParameterBuilder] Called for selection >" << name<<"<";
@@ -219,7 +219,7 @@ void AlignmentParameterBuilder::addSelection( std::string name, std::vector<bool
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllDets( std::vector<bool>sel )
+void AlignmentParameterBuilder::addAllDets(const std::vector<bool> &sel)
 {
 
   add(theAlignableTracker->barrelGeomDets(),sel);          // TIB+TOB
@@ -234,7 +234,7 @@ void AlignmentParameterBuilder::addAllDets( std::vector<bool>sel )
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllRods(std::vector<bool>sel)
+void AlignmentParameterBuilder::addAllRods(const std::vector<bool> &sel)
 {
   add(theAlignableTracker->barrelRods(),sel);
   add(theAlignableTracker->pixelHalfBarrelLadders(),sel);
@@ -248,7 +248,7 @@ void AlignmentParameterBuilder::addAllRods(std::vector<bool>sel)
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllLayers(std::vector<bool>sel)
+void AlignmentParameterBuilder::addAllLayers(const std::vector<bool> &sel)
 {
   add(theAlignableTracker->barrelLayers(),sel);
   add(theAlignableTracker->pixelHalfBarrelLayers(),sel);
@@ -263,7 +263,7 @@ void AlignmentParameterBuilder::addAllLayers(std::vector<bool>sel)
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllComponents(std::vector<bool>sel)
+void AlignmentParameterBuilder::addAllComponents(const std::vector<bool> &sel)
 {
   add(theAlignableTracker->components(),sel);
   edm::LogInfo("Alignment") << "Initialized for "
@@ -273,7 +273,7 @@ void AlignmentParameterBuilder::addAllComponents(std::vector<bool>sel)
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllAlignables(std::vector<bool>sel)
+void AlignmentParameterBuilder::addAllAlignables(const std::vector<bool> &sel)
 {
 
   add(theAlignableTracker->barrelGeomDets(),sel);          
@@ -305,8 +305,8 @@ void AlignmentParameterBuilder::addAllAlignables(std::vector<bool>sel)
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterBuilder::add( const std::vector<Alignable*>& alignables, 
-									 std::vector<bool> sel )
+void AlignmentParameterBuilder::add(const std::vector<Alignable*> &alignables,
+				    const std::vector<bool> &sel)
 {
 
   int num_adu = 0;
@@ -346,10 +346,9 @@ void AlignmentParameterBuilder::add( const std::vector<Alignable*>& alignables,
 	  if (alidet !=0) { // alignable Det
 		RigidBodyAlignmentParameters* dap = 
 		  new RigidBodyAlignmentParameters(ali,par,cov,sel);
-        ali->setAlignmentParameters(dap);
+		ali->setAlignmentParameters(dap);
 		num_det++;
-	  }
-	  else { // higher level object
+	  } else { // higher level object
 		CompositeRigidBodyAlignmentParameters* dap = 
 		  new CompositeRigidBodyAlignmentParameters(ali,par,cov,sel);
 		ali->setAlignmentParameters(dap);
