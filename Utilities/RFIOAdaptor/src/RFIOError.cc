@@ -3,7 +3,7 @@
 #include "Utilities/RFIOAdaptor/interface/RFIOError.h"
 #include "SealBase/StringFormat.h"
 
-extern C { char * rfio_errmsg(int, int); }
+extern "C" { char * rfio_errmsg(int, int); }
 
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
