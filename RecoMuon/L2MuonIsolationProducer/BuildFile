@@ -4,6 +4,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/MuonReco>
 <use name=Geometry/CaloEventSetup>
+<use name=RecoMuon/MuonIsolation>
 
 <use name=root>
 
@@ -11,14 +12,4 @@
 
 <export>
    <lib name=RecoMuonL2MuonIsolationProducer>
-
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=DataFormats/Common>
-   <use name=DataFormats/MuonReco>
-   <use name=Geometry/CaloEventSetup>
-
-   <use name=root>
-
 </export>
