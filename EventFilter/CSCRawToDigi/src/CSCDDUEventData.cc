@@ -63,7 +63,7 @@ void CSCDDUEventData::decodeStatus(int code) const {
 	}
     if((code&0x00000F00)>0){
       if((0x00000800&code)>0) 
-	edm::LogError ("CSCDDUEventData") << "   DDU RX Error";
+	edm::LogError ("CSCDDUEventData") << "   DDU 64-bit Alignment Error";
       if((0x00000400&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU Control DLL Error occured";
       if((0x00000200&code)>0)
@@ -86,20 +86,20 @@ void CSCDDUEventData::decodeStatus(int code) const {
       if((0x00000008&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU Sync Lost or FIFO Full Error";
       if((0x00000004&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU Fiber Error";
+	edm::LogError ("CSCDDUEventData") << "   DDU Fiber/FIFO Connection Error";
       if((0x00000002&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU L1A Match Error";
       if((0x00000001&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU CFEB CRC Error";
+	edm::LogError ("CSCDDUEventData") << "   DDU DMB or CFEB CRC Error";
     }
     if((code&0xF0000000)>0){
       // JRG, high-order 16-bit status (not-so-serious errors):
       if((0x80000000&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU LCT/DAV Mismatch";
+	edm::LogError ("CSCDDUEventData") << "   DDU DMB LCT/DAV/Movlp Mismatch";
       if((0x40000000&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU-CFEB L1 Mismatch";
       if((0x20000000&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU CRC Error in Event";
+	edm::LogError ("CSCDDUEventData") << "   DDU saw no good DMB CRCs";
       if((0x10000000&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU CFEB Count Error";
      
@@ -120,10 +120,13 @@ void CSCDDUEventData::decodeStatus(int code) const {
       if((0x00400000&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU Input FPGA Error";
       if((0x00200000&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU S-Link Wait is set";
+	edm::LogError ("CSCDDUEventData") << "   DDU DAQ Stop bit set";
       if((0x00100000&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU S-Link Not Ready";
+	edm::LogError ("CSCDDUEventData") << "   DDU DAQ says Not Ready";
+      if((0x00300000&code)==0x00200000)
+        edm::LogError ("CSCDDUEventData") << "   DDU DAQ Applied Backpressure";
     }
+
     if((code&0x000F0000)>0){
       if((0x00080000&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU TMB Error";
