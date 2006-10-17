@@ -3,7 +3,7 @@
    \class HcalDbTool
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbTool.cc,v 1.4 2006/10/06 21:38:38 fedor Exp $
+   $Id: HcalDbTool.cc,v 1.5 2006/10/16 22:14:25 fedor Exp $
 */
 
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -408,6 +408,7 @@ std::vector<std::string> HcalDbTool::metadataAllTags () {
 }
 
 const std::string& HcalDbTool::metadataGetToken (const std::string& fTag) {
+  if (mVerbose) std::cout << " HcalDbTool::metadataGetToken->begin... " << fTag << std::endl;
     if (mTag == fTag) return mToken;
     mTag = fTag;
     try {
@@ -432,6 +433,8 @@ const std::string& HcalDbTool::metadataGetToken (const std::string& fTag) {
 bool HcalDbTool::metadataSetTag (const std::string& fTag, const std::string& fToken) {
   if (mVerbose) std::cout << "HcalDbTool::metadataSetTag->begin..." << std::endl;
   bool result = false;
+  mTag.clear ();
+  mToken.clear ();
   try {
     mMetadata = new cond::MetaData (mConnect, *mLoader);
     mMetadata->connect (cond::ReadWriteCreate);
@@ -439,14 +442,14 @@ bool HcalDbTool::metadataSetTag (const std::string& fTag, const std::string& fTo
     mMetadata->disconnect ();
     delete mMetadata;
     mMetadata = 0;
+    mTag = fTag;
+    mToken = fToken;
   }
   catch (const std::exception& e) {
     std::cerr << "metadataSetTag->  standard error: "  << e.what() << std::endl;
-    mToken.clear ();
   }
   catch (...) {
     std::cerr << "metadataSetTag->  not standard error "  << std::endl;
-    mToken.clear ();
   }
   return result;
 }

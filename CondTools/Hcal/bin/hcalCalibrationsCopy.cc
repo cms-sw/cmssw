@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -284,7 +285,7 @@ template <class T> bool copyObject (T* fObject,
 	      break;
 	    }
 	    allInstances.push_back (std::make_pair (iovMax, object));
-	    std::cout << '.';
+	    std::cerr << '.';
 	  }
 	  if (iovi == iov.iov.end ()) result = true;
 	}
@@ -297,8 +298,30 @@ template <class T> bool copyObject (T* fObject,
     else if (onlineFile (fInput)) {
       if (!traceCounter) std::cout << "USE INPUT: Online: " << fInput << std::endl;
       if (!onlineDb) onlineDb = new HcalDbOnline (fInput, fVerbose);
-      fObject = new T;
-      result = onlineDb->getObject (fObject, fInputTag, fInputRun);
+      if (fInputRun > 0) {
+	fObject = new T;
+	result = onlineDb->getObject (fObject, fInputTag, fInputRun);
+      }
+      else { // copy all instances
+	std::cout << "Copy all instances... " << std::endl;
+	std::vector<HcalDbOnline::IntervalOV> iovs = onlineDb->getIOVs (fInputTag);
+	for (unsigned i = 0; i < iovs.size ();i++) {
+	  IOVRun iovMin = iovs[i].first;
+	  if (fVerbose) {
+	    std::cout << "fetching object for run " << iovMin << std::endl;
+	  }
+	  T* object = new T;
+	  if (!onlineDb->getObject (object, fInputTag, iovMin)) {
+	    std::cerr << "Failed to fetch object..." << std::endl;
+	    result = false;
+	    delete object;
+	    break;
+	  }
+	  allInstances.push_back (std::make_pair (iovMin, object));
+	  std::cerr << '.';
+	}
+	result = true;
+      }
     }
  //    else if (occiFile (fInput)) {
 //       if (!traceCounter) std::cout << "USE INPUT: OCCI" << std::endl;
@@ -328,8 +351,31 @@ template <class T> bool copyObject (T* fObject,
       object = fObject ? new T (*fObject) : 0; // copy original object
       if (asciiFile (fOutput)) {
 	if (!traceCounter) std::cout << "USE OUTPUT: ASCII: " << fOutput << std::endl;
-	std::ofstream outStream (fOutput.c_str ());
-	HcalDbASCIIIO::dumpObject (outStream, *object);
+	if (fOutputRun > 0) {
+	  std::ofstream outStream (fOutput.c_str ());
+	  HcalDbASCIIIO::dumpObject (outStream, *object);
+	}
+	else {
+ 	  for (unsigned i = 0; i < allInstances.size (); i++) {
+	    if (fVerbose) {
+ 	      std::cout << "Storing object for run " << allInstances[i].first << std::endl;
+	    }
+	    std::ostringstream outName;
+	    unsigned ipos = fOutput.find (".txt");
+	    if (ipos == std::string::npos) {
+	      outName << fOutput << "_" << allInstances[i].first;
+	    }
+	    else {
+	      outName << std::string (fOutput, 0, ipos) << "_" << allInstances[i].first << ".txt";
+	    }
+	    std::ofstream outStream (outName.str().c_str ());
+	    object = allInstances[i].second;
+ 	    HcalDbASCIIIO::dumpObject (outStream, *object);
+	    delete object;
+ 	    allInstances[i].second = 0;
+	    std::cerr << '.';
+ 	  }
+	}
       }
       else if (xmlFile (fOutput)) {
 	if (!traceCounter) std::cout << "USE OUTPUT: XML: " << fOutput << std::endl;
@@ -350,9 +396,9 @@ template <class T> bool copyObject (T* fObject,
 	    if (fVerbose) {
  	      std::cout << "Storing object for run " << allInstances[i].first << std::endl;
 	    }
- 	    poolDb->putObject (allInstances[i].second, fOutputTag, allInstances[i].first);
+ 	    poolDb->putObject (allInstances[i].second, fOutputTag, allInstances[i].first, fAppend);
  	    allInstances[i].second = 0;
-	    if (!fVerbose) std::cerr << '.';
+	    std::cerr << '.';
  	  }
 	}
       }

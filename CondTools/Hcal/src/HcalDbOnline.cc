@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.13 2006/10/02 21:27:49 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.14 2006/10/07 01:17:08 fedor Exp $
 //
 #include <limits>
 #include <string>
@@ -374,7 +374,7 @@ bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidth
   sql_query += " , RUN_NUMBER, INTERVAL_OF_VALIDITY_BEGIN, INTERVAL_OF_VALIDITY_END\n"; 
   sql_query += "FROM V_HCAL_PEDESTALS_V2\n"; 
   sql_query += "WHERE TAG_NAME='" + fTag + "'\n";
-  sql_query += "AND INTERVAL_OF_VALIDITY_BEGIN<=" + sTime.str() + "\n";
+  sql_query += "AND INTERVAL_OF_VALIDITY_BEGIN=" + sTime.str() + "\n";
   sql_query += "AND (INTERVAL_OF_VALIDITY_END IS NULL OR INTERVAL_OF_VALIDITY_END>" + sTime.str() + ")\n";
   try {
     if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
@@ -455,7 +455,7 @@ bool HcalDbOnline::getObject (HcalGains* fObject, HcalGainWidths* fWidths, const
   sql_query += " , RUN_NUMBER, INTERVAL_OF_VALIDITY_BEGIN, INTERVAL_OF_VALIDITY_END\n"; 
   sql_query += "FROM V_HCAL_GAIN_CALIBRATIONS\n"; 
   sql_query += "WHERE TAG_NAME='" + fTag + "'\n";
-  sql_query += "AND INTERVAL_OF_VALIDITY_BEGIN<=" + sTime.str() + "\n";
+  sql_query += "AND INTERVAL_OF_VALIDITY_BEGIN=" + sTime.str() + "\n";
   sql_query += "AND (INTERVAL_OF_VALIDITY_END IS NULL OR INTERVAL_OF_VALIDITY_END>" + sTime.str() + ")\n";
   try {
     if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
@@ -524,7 +524,7 @@ bool HcalDbOnline::getObject (HcalGainWidths* fWidths, const std::string& fTag, 
 std::vector<std::string> HcalDbOnline::metadataAllTags () {
   std::vector<std::string> result;
   std::string sql_query ("");
-  sql_query += "SELECT unique TAG_NAME from V_TAG_IOV_CONDDATASET\n"; 
+  sql_query += "SELECT unique TAG_NAME from V_TAG_IOV_CONDDATASET order by TAG_NAME\n"; 
   try {
     if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
     mStatement->setPrefetchRowCount (100);
@@ -546,6 +546,7 @@ std::vector<HcalDbOnline::IntervalOV> HcalDbOnline::getIOVs (const std::string& 
   std::string sql_query ("");
   sql_query += "SELECT unique INTERVAL_OF_VALIDITY_BEGIN, INTERVAL_OF_VALIDITY_END from V_TAG_IOV_CONDDATASET\n";
   sql_query += "WHERE TAG_NAME='" + fTag + "'\n";
+  sql_query += "ORDER by INTERVAL_OF_VALIDITY_BEGIN\n";
   try {
     if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
     mStatement->setPrefetchRowCount (100);
