@@ -8,7 +8,7 @@
 		<Parameter Name="SaveCMSRunOutput" Value="False"/>
 		<Parameter Name="Configuration" Value="Validation/GlobalHits/test/DetSim+Global.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_0_0.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_1_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runGlobalHits"/>
 	</SVSuiteSpec>

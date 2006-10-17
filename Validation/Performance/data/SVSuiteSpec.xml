@@ -6,7 +6,7 @@
 		<Parameter Name="NumberOfJobs" Value="5"/>
 		<Parameter Name="Configuration" Value="Validation/Performance/test/minbias_detsim_digi.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_0_0.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_1_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runPerformance"/>
 	</SVSuiteSpec>
