@@ -308,7 +308,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	LogDebug("TrackValidator") << "end of reco::Track number " << at-1 << "\n";
       }
       if (at!=0) h_tracks[w]->Fill(at);
-      h_fakes[w]->Fill( (tC.size()-at)/tC.size() );
+      if (tC.size()!=0) h_fakes[w]->Fill( (tC.size()-at)/tC.size() );
       nrec_vs_nsim[w]->Fill(rT,st);
       w++;
     }
