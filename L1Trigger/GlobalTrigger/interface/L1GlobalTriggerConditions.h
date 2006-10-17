@@ -54,8 +54,14 @@ public:
 
     inline bool getLastResult() const { return p_lastresult; }
 
+    /// get / set output pins
     inline int getOutputPin() const { return p_outputpin; }
     inline void setOutputPin(int pin) { p_outputpin = pin; }
+
+    /// get / set algorithm number 
+    // depends on the order (connection) of the condition chips in the hardware
+    inline int getAlgoNumber() const { return p_algoNumber; }
+    inline void setAlgoNumber(int algoNumber) { p_algoNumber = algoNumber; }
 
     /// call blockCondition and save last result
     inline const bool blockCondition_sr() { return p_lastresult = blockCondition(); }
@@ -80,8 +86,11 @@ protected:
     /// the value of the ge_eq flag
     bool p_ge_eq;
 
-    ///
+    /// output pin on condition chip
     int p_outputpin;    
+
+    /// output pin on condition chip
+    int p_algoNumber;    
 
 protected:
 

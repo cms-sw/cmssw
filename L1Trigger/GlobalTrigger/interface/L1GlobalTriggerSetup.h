@@ -42,8 +42,7 @@ public:
 
     // maximum number of blocks per trigger object  
     static const int MaxItem = 64;
-
- 
+    
     static const edm::ParameterSet* getParameterSet() { return m_pSet; }
     
     virtual void setTriggerMenu(std::string&);

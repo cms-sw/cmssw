@@ -55,15 +55,24 @@ public:
 public:
 
     // number of maximum chips defined in the xml file
-    static const unsigned int max_chips = 2;
-    // number of maximum pins
-    static const unsigned int max_pins = L1GlobalTriggerReadoutRecord::NumberPhysTriggers;	    
+    static const unsigned int NumberConditionChips = 2;
+
+    // number of pins on the GTL condition chips
+    static const unsigned int PinsOnConditionChip = 96;
+
+    // correspondence "condition chip - GTL algorithm word" in the hardware
+    // chip 2: 0 - 95;  chip 1: 96 - 128 (191)
+    static const int OrderConditionChip[NumberConditionChips];      
+
+    // maximum number of algorithms accepted by FDL board
+    static const unsigned int MaxNumberAlgorithms = L1GlobalTriggerReadoutRecord::NumberPhysTriggers;       
+    
     // number of input modules: 2 (GMT, GCT)
     static const unsigned int NumberInputModules = 2;  
 
     // map containing the conditions from the xml file
     typedef std::map<std::string, L1GlobalTriggerConditions*> ConditionsMap;
-    ConditionsMap conditionsmap[max_chips];
+    ConditionsMap conditionsmap[NumberConditionChips];
 
     // map for prealgos
     ConditionsMap prealgosmap;
@@ -80,8 +89,8 @@ public:
     virtual void parseTriggerMenu(std::string&, std::string&);
     
     // return / set mask to block output pins
-    inline const std::bitset<max_pins>& getTriggerMask() const { return p_triggermask; }
-    void setTriggerMask(std::bitset<max_pins> trigMask) { p_triggermask = trigMask; }
+    inline const std::bitset<MaxNumberAlgorithms>& getTriggerMask() const { return p_triggermask; }
+    void setTriggerMask(std::bitset<MaxNumberAlgorithms> trigMask) { p_triggermask = trigMask; }
 
     // return / set mask to block input: bit 0 GCT, bit 1 GMT 
     inline const std::bitset<NumberInputModules>& getInputMask() const { return p_inputmask; }
@@ -92,7 +101,7 @@ public:
     
 private:
 
-    std::bitset<max_pins> p_triggermask;
+    std::bitset<MaxNumberAlgorithms> p_triggermask;
     std::bitset<NumberInputModules> p_inputmask;
  
     // strings for the xml-syntax
@@ -196,7 +205,8 @@ private:
 
     // insert algo into a map
     int insertAlgoIntoMap(DOMNode *node, const std::string& algoname,
-           ConditionsMap *insertmap, ConditionsMap* operandmap, unsigned int nummap=1);
+        ConditionsMap *insertmap, ConditionsMap* operandmap, unsigned int chipnr,
+        unsigned int nummap=1);
 
     // get number of particles from condition type    
     int getNumFromType(const std::string& type);
@@ -216,8 +226,7 @@ private:
     // get the version of the xml file
     int checkVersion(XercesDOMParser* parser);
 
-    // get bit from a bit node        menuDir = m_pSet->getParameter<std::string>("triggerMenu");    
-    
+    // get bit from a bit node        
     int getBitFromNode(DOMNode* node);    
 
     // get mip and iso bits from a muon

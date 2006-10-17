@@ -129,8 +129,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // ** set the decision word and decision in L1GlobalTriggerReadoutRecord
 
-    // [ ... convert decision word from std::bitset to std::vector<bool>
-    //       TODO remove this block when changing DecisionWord to std::bitset    
+        // [ ... convert decision word from std::bitset to std::vector<bool>
+        //       TODO remove this block when changing DecisionWord to std::bitset    
 
     const unsigned int numberTriggerBits = L1GlobalTriggerReadoutRecord::NumberPhysTriggers;
     
@@ -145,12 +145,27 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     gtReadoutRecord->setDecisionWord(fdlDecisionVec);
 
-    // ... ]
+        // ... ]
 
 //    gtReadoutRecord->setDecisionWord(m_gtFDL->getDecisionWord());        
     gtReadoutRecord->setDecision(m_gtFDL->getDecision());
 
     if ( edm::isDebugEnabled() ) gtReadoutRecord->print();
+
+    // ** set muons in L1GlobalTriggerReadoutRecord
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // **             
     iEvent.put( gtReadoutRecord );

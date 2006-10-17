@@ -158,7 +158,7 @@ void L1GlobalTriggerGTL::run() {
             << "\n***** Result of the XML-conditions \n" 
             << std::endl;
 
-        for (chipnr = 0; chipnr < L1GlobalTriggerConfig::max_chips; chipnr++) { 
+        for (chipnr = 0; chipnr < L1GlobalTriggerConfig::NumberConditionChips; chipnr++) { 
             LogTrace("L1GlobalTriggerGTL") 
                 << "\n---------Chip " << chipnr + 1 << " ----------\n" 
                 << std::endl; 
@@ -188,8 +188,8 @@ void L1GlobalTriggerGTL::run() {
             << "\n---------- Prealgorithms: evaluation ---------\n" 
             << std::endl;
         for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
-            itxml = gtConf->prealgosmap.begin(); 
-            itxml!= gtConf->prealgosmap.end(); itxml++) {
+            itxml  = gtConf->prealgosmap.begin(); 
+            itxml != gtConf->prealgosmap.end(); itxml++) {
                                 
             std::string prealgoName = itxml->first;
             bool prealgoResult = itxml->second->blockCondition_sr(); 
@@ -233,23 +233,43 @@ void L1GlobalTriggerGTL::run() {
                 itxml  = gtConf->algosmap.begin(); 
                 itxml != gtConf->algosmap.end(); itxml++) {
 
+                std::string algoName = itxml->first;
+    
                 if (itxml->second->getLastResult()) {
                     if (itxml->second->getOutputPin() > 0) {
                         glt_algorithmOR.set( itxml->second->getOutputPin()-1);
                     }
                 }
+
+                edm::LogVerbatim("L1GlobalTriggerGTL")
+                    << " Bit " << itxml->second->getOutputPin()-1
+                    << " " << algoName << ": "  
+                    << std::endl;
             }
+
         } else {
             // final version use prealgos
             for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
                 itxml  = gtConf->prealgosmap.begin(); 
                 itxml != gtConf->prealgosmap.end(); itxml++) {
 
+                std::string prealgoName = itxml->first;
+                
+                // algo( i ) = prealgo( i+1 ), i = 0, MaxNumberAlgorithms
+                int prealgoNumber = itxml->second->getAlgoNumber();               
+    
                 if (itxml->second->getLastResult()) {
-                    if (itxml->second->getOutputPin() > 0) {
-                        glt_algorithmOR.set( itxml->second->getOutputPin()-1);
+                    if (prealgoNumber > 0) {
+                        glt_algorithmOR.set( prealgoNumber-1);
+                        
                     }
                 }
+                
+                edm::LogVerbatim("L1GlobalTriggerGTL")
+                    << " Bit " << prealgoNumber-1
+                    << " " << prealgoName << ": " << glt_algorithmOR[ prealgoNumber-1 ]
+                    << std::endl;
+
             }
         }
     }
