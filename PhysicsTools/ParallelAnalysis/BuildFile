@@ -1,9 +1,7 @@
-<use name=DataFormats/Candidate>
-<use name=DataFormats/Common>
-<use name=root>
+<use name=DataFormats/TrackReco>
+<use name=FWCore/TFWLiteSelector>
 <export>
   <lib name=PhysicsToolsParallelAnalysis>
-  <use name=DataFormats/Candidate>
-  <use name=DataFormats/Common>
-  <use name=root>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/TFWLiteSelector>
 </export>

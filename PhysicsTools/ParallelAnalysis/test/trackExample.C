@@ -1,9 +1,14 @@
 {
+/// enable automatic data formats librarly loading
    gSystem->Load("libFWCoreFWLite");
    AutoLibraryLoader::enable();
+/// set up events chain
    TChain events("Events");
-   events.Add("file:/afs/cern.ch/cms/Releases/CMSSW/CMSSW_0_7_2/src/Configuration/Applications/data/reco-application-tracking-finaltrackfits-ctffinalfitanalytical.root");
+   events.Add("aod.root");
+/// load TSelector library
    gSystem->Load( "libPhysicsToolsParallelAnalysis" );
-   TrackTSelector * selector = new TrackTSelector;
+/// create actual selector object
+   TSelector * selector = new examples::TrackTSelector;
+/// process chain
    events.Process( selector );
 }
