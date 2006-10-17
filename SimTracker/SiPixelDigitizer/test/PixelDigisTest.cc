@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.8 2006/06/16 11:04:01 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.11 2006/08/07 13:09:42 dkotlins Exp $
 //
 //
 // system include files
@@ -177,11 +177,11 @@ void PixelDigisTest::beginJob(const edm::EventSetup& iSetup) {
     hdigisPerDet3 = new TH1F( "hdigisPerDet3", "Digis per det l3", 
 			      200, -0.5, 199.5);
     hdigisPerLay1 = new TH1F( "hdigisPerLay1", "Digis per layer l1", 
-			      2000, -0.5, 1999.5);
+			      2000, -0.5, 3999.5);
     hdigisPerLay2 = new TH1F( "hdigisPerLay2", "Digis per layer l2", 
-			      2000, -0.5, 1999.5);
+			      2000, -0.5, 3999.5);
     hdigisPerLay3 = new TH1F( "hdigisPerLay3", "Digis per layer l3", 
-			      2000, -0.5, 1999.5);
+			      2000, -0.5, 3999.5);
     hdetsPerLay1 = new TH1F( "hdetsPerLay1", "Full dets per layer l1", 
 			      161, -0.5, 160.5);
     hdetsPerLay3 = new TH1F( "hdetsPerLay3", "Full dets per layer l3", 
@@ -476,19 +476,22 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 	 hcols2->Fill(float(col));
 	 hrows2->Fill(float(row));
 	 totalNumOfDigis2++;
-	 numOfDigisPerDet1++;
+	 numOfDigisPerDet2++;
+
        } else if(layer==3) {
 	 heloss3->Fill(float(adc));
 	 hcols3->Fill(float(col));
 	 hrows3->Fill(float(row));
 	 totalNumOfDigis3++;
-	 numOfDigisPerDet1++;
+	 numOfDigisPerDet3++;
+
        } else if(disk==1) {
 	 helossF1->Fill(float(adc));
 	 hcolsF1->Fill(float(col));
 	 hrowsF1->Fill(float(row));
 	 totalNumOfDigisF1++;
 	 numOfDigisPerDetF1++;
+
        } else if(disk==2) {
 	 helossF2->Fill(float(adc));
 	 hcolsF2->Fill(float(col));
