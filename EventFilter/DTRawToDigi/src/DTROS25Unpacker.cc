@@ -283,10 +283,10 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	      //int bx_counter=0;
 	      //
 	      
+// actual loop on SC time slots
 
-// actual loop on SC triggers 
-
-                int stationGroup=0;
+                int stationGroup=0; 
+		uint16_t thetaBits;
 		do {
 		  wordCounter++; word = index[swap(wordCounter)];
                   int SCstation=0;
@@ -311,6 +311,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 		    
 		    if (debug) {
 		      //cout<<"[DTROS25Unpacker]: SCData bits "<<scDataWord.SCData()<<endl;
+		      //cout << " word in esadecimale: " << hex << word << dec << endl;
 		    if (scDataWord.hasTrigger(0)) 
 		      cout<<" at BX "<< bx_counter //round(bx_counter/2.)
 			  <<" lower part has trigger! with track quality "
@@ -326,38 +327,34 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 // FRC: start constructing persistent SC objects:
 // first identify the station (data come in 2 triggers per word: MB1+MB2, MB3+MB4)
 
-		      if (debug && bx_counter < 27 && bx_counter > 21) {
-		        cout <<" FRC: leftword "<<leftword<<" bx_counter "<<bx_counter
-                            <<" stationGroup "<<stationGroup<<"("<<stationGroup%2<<") "<<" triggers: ";
-		        if (scDataWord.hasTrigger(0) ) cout <<" 1 ";         else cout <<" 0 ";
- 		        if (scDataWord.hasTrigger(1) ) cout <<" 1 "<< endl;  else cout <<" 0 "<< endl;
-                      }
-                 
-		      if ( scDataWord.hasTrigger(0)) {
+
+		      if ( scDataWord.hasTrigger(0) || (scDataWord.getBits(0) & 0x30) ) {
                         if ( stationGroup%2 == 0) SCstation = 1;
                         else                      SCstation = 3;
 
-	   	        // construct localtrigger for first station of this "group" ...
-		        DTLocalTrigger localtrigger(bx_counter,scDataWord.trackQuality(0) );
+       	   	        // construct localtrigger for first station of this "group" ...
+		        DTLocalTrigger localtrigger(bx_counter,(scDataWord.SCData()) & 0xFF);
 		        // ... and commit it to the event
                         DTChamberId chamberId (SCwheel,SCstation,SCsector);
 		        product2->insertDigi(chamberId,localtrigger);
-                        if (debug) cout << " FRC: just put in product2: "
+                        if (debug) { cout << " FRC: just put in product2: "
                                         <<chamberId.wheel()<<" "<<" "<<chamberId.station()<<" "<<chamberId.sector()
-                                        <<" "<< bx_counter<<" "<<scDataWord.trackQuality(0)<<endl;
+                                        <<endl;;
+			                localtrigger.print(); }
                       }
-		      if ( scDataWord.hasTrigger(1)) {
+		      if ( scDataWord.hasTrigger(1) || (scDataWord.getBits(1) & 0x30) ) {
                         if ( stationGroup%2 == 0) SCstation = 2;
-                        else                      SCstation = 4; 
+                        else                      SCstation = 4;
 
-        	   	// construct localtrigger for second station of this "group"
-		        DTLocalTrigger localtrigger(bx_counter,scDataWord.trackQuality(1) );
-		        // and commit to the event
+       	   	        // construct localtrigger for second station of this "group" ...
+		        DTLocalTrigger localtrigger(bx_counter,(scDataWord.SCData()) >> 8);
+		        // ... and commit it to the event
                         DTChamberId chamberId (SCwheel,SCstation,SCsector);
 		        product2->insertDigi(chamberId,localtrigger);
-                        if (debug) cout << " FRC: just put in product2: "
+                        if (debug) { cout << " FRC: just put in product2: "
                                         <<chamberId.wheel()<<" "<<" "<<chamberId.station()<<" "<<chamberId.sector()
-                                        <<" "<< bx_counter<<" "<<scDataWord.trackQuality(1)<<endl;
+                                        <<endl;;
+			                localtrigger.print(); }
                       }
 
                       stationGroup++;

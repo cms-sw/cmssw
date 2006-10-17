@@ -51,9 +51,9 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) :
     unpacker = new DTDDUUnpacker(ps);
   } else if (dataType == "ROS8") {
     unpacker = new DTROS8Unpacker(ps);
-    } else if (dataType == "ROS25") {
+  } else if (dataType == "ROS25") {
     unpacker = new DTROS25Unpacker(ps);
-    } 
+  } 
   else {
     throw cms::Exception("InvalidParameter") << "DTUnpackingModule: dataType "
 					     << dataType << " is unknown";
