@@ -96,7 +96,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
 
     const Cuts::CutSpec & cut = theCuts( mu->eta() );
 
-    vector<MuIsoDeposit> deposits = extractor.deposits(event, *mu, vetoDirections, cut.conesize);
+    vector<MuIsoDeposit> deposits = extractor.deposits(event, eventSetup, *mu, vetoDirections, cut.conesize);
     
     const MuIsoDeposit & deposit = deposits[0]; //FIXME check size and thrown exception eventually
 
