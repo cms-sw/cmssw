@@ -26,13 +26,13 @@ public:
   bool check() const {return (e0dLine & 0xfff) == 0xe0d;}
   int wordCount() { return frameCount; }
   unsigned alctCRCCheck() const { return reserved_3; }
-
+  unsigned FrameCount() const { return frameCount; }
 private:
 
   unsigned crc0:11, reserved_0:5;
   unsigned crc1:11, reserved_1:5;
   unsigned e0dLine:12, reserved_2:4;
-  unsigned frameCount:10, reserved_3:2, reserved_4:4;
+  unsigned frameCount:11, reserved_3:1, reserved_4:4;
 };
 
 #endif
