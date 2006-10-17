@@ -4,7 +4,7 @@
 /*
  * \file EcalEndcapRecHitsValidation.h
  *
- * $Date: 2006/05/22 $
+ * $Date: 2006/06/29 11:07:41 $
  * \author C. Rovelli
  *
 */
@@ -66,10 +66,8 @@ private:
  
  DaqMonitorBEInterface* dbe_;
 
- string digiProducer_;
- string uncalibrecHitProducer_;
- string EEdigiCollection_;
- string EEuncalibrechitCollection_;
+ edm::InputTag EEdigiCollection_;
+ edm::InputTag EEuncalibrechitCollection_;
 
  MonitorElement* meEEUncalibRecHitsOccupancyPlus_;     
  MonitorElement* meEEUncalibRecHitsOccupancyMinus_;     

@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2006/06/29 11:07:41 $
+ * $Date: 2006/08/22 09:27:25 $
  * \author C. Rovelli
  *
 */
@@ -15,14 +15,11 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
 
   // ---------------------- 
   HepMCLabel                 = ps.getParameter<std::string>("moduleLabelMC"); 
-  recHitProducer_            = ps.getParameter<std::string>("recHitProducer");
-  ESrecHitProducer_          = ps.getParameter<std::string>("ESrecHitProducer");
-  EBrechitCollection_        = ps.getParameter<std::string>("EBrechitCollection");
-  EErechitCollection_        = ps.getParameter<std::string>("EErechitCollection");
-  ESrechitCollection_        = ps.getParameter<std::string>("ESrechitCollection");
-  uncalibrecHitProducer_     = ps.getParameter<std::string>("uncalibrecHitProducer");
-  EBuncalibrechitCollection_ = ps.getParameter<std::string>("EBuncalibrechitCollection");
-  EEuncalibrechitCollection_ = ps.getParameter<std::string>("EEuncalibrechitCollection");
+  EBrechitCollection_        = ps.getParameter<edm::InputTag>("EBrechitCollection");
+  EErechitCollection_        = ps.getParameter<edm::InputTag>("EErechitCollection");
+  ESrechitCollection_        = ps.getParameter<edm::InputTag>("ESrechitCollection");
+  EBuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibrechitCollection");
+  EEuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibrechitCollection");
   
   // ---------------------- 
   // DQM ROOT output 
@@ -128,33 +125,33 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
   try {
-    e.getByLabel( uncalibrecHitProducer_, EBuncalibrechitCollection_, EcalUncalibRecHitEB);
-  } catch ( std::exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.c_str() << std::endl;
+    e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
+  } catch ( cms::Exception& ex ) {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance();
   }
   try {
-    e.getByLabel( uncalibrecHitProducer_, EEuncalibrechitCollection_, EcalUncalibRecHitEE);
-  } catch ( std::exception& ex ) {
-    edm::LogError("EcalRecHitdTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.c_str() << std::endl;
+    e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
+  } catch ( cms::Exception& ex ) {
+    edm::LogError("EcalRecHitdTaskError") << "Error! can't get the product " << EEuncalibrechitCollection_.label() << ":" << EEuncalibrechitCollection_.instance();
   }
 
   Handle<EBRecHitCollection> EcalRecHitEB;
   Handle<EERecHitCollection> EcalRecHitEE;
   Handle<ESRecHitCollection> EcalRecHitES;
   try {
-    e.getByLabel( recHitProducer_, EBrechitCollection_, EcalRecHitEB);
-  } catch ( std::exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBrechitCollection_.c_str() << std::endl;
+    e.getByLabel( EBrechitCollection_, EcalRecHitEB);
+  } catch ( cms::Exception& ex ) {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBrechitCollection_.label() << ":" << EBrechitCollection_.instance();
   }
   try {
-    e.getByLabel( recHitProducer_, EErechitCollection_, EcalRecHitEE);
-  } catch ( std::exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.c_str() << std::endl;
+    e.getByLabel( EErechitCollection_, EcalRecHitEE);
+  } catch ( cms::Exception& ex ) {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EErechitCollection_.label() << ":" << EErechitCollection_.instance();
   }
   try {
-    e.getByLabel( ESrecHitProducer_, ESrechitCollection_, EcalRecHitES);
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << ESrechitCollection_.c_str() << std::endl;
+    e.getByLabel( ESrechitCollection_, EcalRecHitES);
+   } catch ( cms::Exception& ex ) {
+     edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the product " << ESrechitCollection_.label() << ":" << ESrechitCollection_.instance();
    }
 
 

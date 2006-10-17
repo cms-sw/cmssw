@@ -4,7 +4,7 @@
 /*
  * \file EcalRecHitsValidation.h
  *
- * $Date: 2006/05/22 $
+ * $Date: 2006/06/29 11:07:41 $
  * \author C. Rovelli
  *
 */
@@ -78,14 +78,11 @@ private:
  
  string outputFile_;
 
- string recHitProducer_;
- string ESrecHitProducer_;
- string EBrechitCollection_;
- string EErechitCollection_;
- string ESrechitCollection_;
- string uncalibrecHitProducer_;
- string EBuncalibrechitCollection_;
- string EEuncalibrechitCollection_;
+ edm::InputTag EBrechitCollection_;
+ edm::InputTag EErechitCollection_;
+ edm::InputTag ESrechitCollection_;
+ edm::InputTag EBuncalibrechitCollection_;
+ edm::InputTag EEuncalibrechitCollection_;
  
  MonitorElement* meGunEnergy_;
  MonitorElement* meGunEta_;

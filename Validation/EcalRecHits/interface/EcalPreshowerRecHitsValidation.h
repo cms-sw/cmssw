@@ -4,7 +4,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.h
  *
- * $Date: 2006/05/22 $
+ * $Date: 2006/06/29 11:07:41 $
  * \author C. Rovelli
  *
  */
@@ -63,12 +63,9 @@ class EcalPreshowerRecHitsValidation: public EDAnalyzer{
   
   DaqMonitorBEInterface* dbe_;
 
-  string uncalibrecHitProducer_;
-  string recHitProducer_;  
-  string ESrecHitProducer_;
-  string EEuncalibrechitCollection_;
-  string EErechitCollection_;
-  string ESrechitCollection_;
+  edm::InputTag EEuncalibrechitCollection_;
+  edm::InputTag EErechitCollection_;
+  edm::InputTag ESrechitCollection_;
   
   MonitorElement* meESRecHitsEnergy_;    
   MonitorElement* meESRecHitsEnergy_zp1st_;

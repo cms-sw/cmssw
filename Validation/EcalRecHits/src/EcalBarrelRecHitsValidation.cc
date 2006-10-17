@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2006/07/07 16:06:47 $
+ * $Date: 2006/07/21 16:05:06 $
  * \author C. Rovelli
  *
  */
@@ -12,10 +12,8 @@
 EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps){
   
   // ---------------------- 
-  digiProducer_              = ps.getParameter<std::string>("digiProducer");
-  uncalibrecHitProducer_     = ps.getParameter<std::string>("uncalibrecHitProducer");
-  EBdigiCollection_          = ps.getParameter<std::string>("EBdigiCollection");
-  EBuncalibrechitCollection_ = ps.getParameter<std::string>("EBuncalibrechitCollection");
+  EBdigiCollection_          = ps.getParameter<edm::InputTag>("EBdigiCollection");
+  EBuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibrechitCollection");
   
   // ---------------------- 
   // verbosity switch 
@@ -140,22 +138,22 @@ void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
   Handle< EBDigiCollection > EcalDigiEB;
   try {
-    e.getByLabel( digiProducer_, EBdigiCollection_, EcalDigiEB);
-  } catch ( std::exception& ex ) {
+    e.getByLabel( EBdigiCollection_, EcalDigiEB);
+  } catch ( cms::Exception& ex ) {
     edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Digis " << std::endl;
   }
   
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
   try {
-    e.getByLabel( uncalibrecHitProducer_, EBuncalibrechitCollection_, EcalUncalibRecHitEB);
-  } catch ( std::exception& ex ) {
-    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.c_str() << std::endl;
+    e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
+  } catch ( cms::Exception& ex ) {
+    edm::LogError("EcalRecHitsTaskError") << "Error! can't get the product " << EBuncalibrechitCollection_.label() << ":" << EBuncalibrechitCollection_.instance() ;
   }
 
   edm::ESHandle<EcalPedestals> ecalPeds; 
   try {
     c.get<EcalPedestalsRcd>().get(ecalPeds);
-  } catch ( std::exception& ex ) {
+  } catch ( cms::Exception& ex ) {
     edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Ecal pedestals" << std::endl;
   }
 

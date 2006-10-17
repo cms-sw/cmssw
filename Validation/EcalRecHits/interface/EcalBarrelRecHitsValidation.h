@@ -4,7 +4,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.h
  *
- * $Date: 2006/05/22 $
+ * $Date: 2006/06/29 11:07:41 $
  * \author C. Rovelli
  *
 */
@@ -66,10 +66,8 @@ private:
  
  DaqMonitorBEInterface* dbe_;
 
- string digiProducer_;
- string uncalibrecHitProducer_;
- string EBdigiCollection_;
- string EBuncalibrechitCollection_;
+ edm::InputTag EBdigiCollection_;
+ edm::InputTag EBuncalibrechitCollection_;
 
  MonitorElement* meEBUncalibRecHitsOccupancy_;     
  MonitorElement* meEBUncalibRecHitsAmplitude_;    

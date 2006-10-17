@@ -2,10 +2,10 @@
 #include "TTree.h"
 #include "TText.h"
 
-void EcalRecHitsPlots()
+void EcalRecHitsPlots( TString inputfile = "EcalRecHitsValidation.root" )
 {  
   gROOT ->Reset();
-  char*  rfilename = "EcalRecHitsValidation.root";
+  char*  rfilename = inputfile;
   
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
 
