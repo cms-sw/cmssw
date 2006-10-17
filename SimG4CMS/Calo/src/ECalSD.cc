@@ -35,6 +35,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   useBirk= m_ECalSD.getParameter<bool>("UseBirkLaw");
   birk1  = m_ECalSD.getParameter<double>("BirkC1")*(g/(MeV*cm2));
   birk2  = m_ECalSD.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
+  slopeLY= m_ECalSD.getUntrackedParameter<double>("SlopeLightYield", 0.02);
   useWeight= true;
 
   EcalNumberingScheme* scheme=0;
@@ -58,7 +59,9 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
     << "***************************************************" ;
   edm::LogInfo("EcalSim")  << "ECalSD:: Use of Birks law is set to      " 
 			   << useBirk << "        with the two constants C1 = "
-			   << birk1 << ", C2 = " << birk2;
+			   << birk1 << ", C2 = " << birk2 << "\n"
+			   << "         Slope for Light yield is set to "
+			   << slopeLY;
 
   if (useWeight) initMap(name,cpv);
 
@@ -146,7 +149,7 @@ double ECalSD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
   double dapd = 0.5 * crlength - localPoint.z();
   if (dapd >= -0.1 || dapd <= crlength+0.1) {
     if (dapd <= 100.)
-      weight = 1.02 - dapd * 0.0002;
+      weight = 1.0 + slopeLY - dapd * 0.01 * slopeLY;
   } else {
     edm::LogWarning("EcalSim") << "ECalSD: light coll curve : wrong distance "
 			       << "to APD " << dapd << " crlength = " 

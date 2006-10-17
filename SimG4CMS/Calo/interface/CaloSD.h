@@ -106,6 +106,9 @@ protected:
   const SimTrackManager* m_trackManager;
 //  TimerProxy           theHitTimer;
 
+  bool                   corrTOFBeam;
+  double                 correctT;
+
 private:
 
   CaloSlaveSD*           slave;

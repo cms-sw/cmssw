@@ -33,10 +33,13 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   //   static SimpleConfigurable<bool>  pUseMap(false,"CaloSD:UseMap");
   edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
   energyCut = m_CaloSD.getParameter<double>("EminTrack")*GeV;
-  checkHits = m_CaloSD.getUntrackedParameter<int>("CheckHits");
-  useMap    = m_CaloSD.getUntrackedParameter<bool>("UseMap");
-  int verbn = m_CaloSD.getUntrackedParameter<int>("Verbosity");
+  checkHits = m_CaloSD.getUntrackedParameter<int>("CheckHits", 25);
+  useMap    = m_CaloSD.getUntrackedParameter<bool>("UseMap", true);
+  int verbn = m_CaloSD.getUntrackedParameter<int>("Verbosity", 0);
   bool on   = m_CaloSD.getUntrackedParameter<bool>("DetailedTiming");
+  corrTOFBeam = m_CaloSD.getUntrackedParameter<bool>("CorrectTOFBeam", false);
+  double beamZ= m_CaloSD.getUntrackedParameter<double>("BeamPosition",0.0)*cm;
+  correctT    = beamZ/c_light/nanosecond;
 
   SetVerboseLevel(verbn);
   LogDebug("CaloSim") << "***************************************************" 
@@ -75,7 +78,9 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 			  << energyCut/GeV  << " GeV" << "\n"
 			  << "        Use of HitID Map " << useMap << "\n"
 			  << "        Check last " << checkHits 
-			  << " before saving the hit";
+			  << " before saving the hit\n" 
+			  << "        Correct TOF globally by " << correctT
+			  << " ns (Flag =" << corrTOFBeam << ")";
 }
 
 CaloSD::~CaloSD() { 
@@ -502,14 +507,15 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
   tkID = aHit->getTrackID();
   //    ok = false;
   //  }
+  double time = aHit->getTimeSlice();
+  if (corrTOFBeam) time += correctT;
   LogDebug("CaloSim") << "CalosD: Track ID " << aHit->getTrackID() 
 		      << " changed to " << tkID << " by SimTrackManager" ;
   slave->processHits(aHit->getUnitID(), aHit->getEnergyDeposit()/GeV,
-		     aHit->getTimeSlice(), tkID);
+		     time, tkID);
   LogDebug("CaloSim") << "CaloSD: Store Hit at " << std::hex 
-		      << aHit->getUnitID() << std::dec
-		      << " due to " << tkID << " in time " 
-		      << aHit->getTimeSlice() << " of energy " 
+		      << aHit->getUnitID() << std::dec << " due to " << tkID 
+		      << " in time " << time << " of energy " 
 		      << aHit->getEnergyDeposit()/GeV << " GeV";
   return ok;
 }

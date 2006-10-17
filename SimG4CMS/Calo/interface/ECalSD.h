@@ -39,6 +39,7 @@ private:
   bool                 useWeight;
   bool                 useBirk;
   double               birk1, birk2;
+  double               slopeLY;
   map<G4String,double> lengthMap;
 
 };
