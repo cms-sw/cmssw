@@ -1,6 +1,17 @@
-// Implementation of class Alignable
+/** \file Alignable.cc
+ *
+ *  $Date$
+ *  $Revision$
+ *  (last update by $Author$)
+ */
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+
+//__________________________________________________________________________________________________
+Alignable::Alignable() : 
+  theMisalignmentActive(true), theDetId(0), theAlignmentParameters(0), theMother(0)
+{
+}
 
 //__________________________________________________________________________________________________
 void Alignable::setAlignmentParameters( AlignmentParameters* dap )

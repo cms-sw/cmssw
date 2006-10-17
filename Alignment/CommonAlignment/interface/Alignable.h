@@ -17,11 +17,18 @@
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 
-///  Abstract base class for alignable entities.
-///  Any Alignable object can be moved and rotated.
-///  Also an alignment uncertainty can be set.
-///  The class derives from DetPositioner, a friend class of
-///  GeomDet, which allows to move the GeomDet. 
+/** \class Alignable
+ *
+ * Abstract base class for alignable entities.
+ * Any Alignable object can be moved and rotated.
+ * Also an alignment uncertainty can be set.
+ * The class derives from DetPositioner, a friend class of
+ * GeomDet, which allows to move the GeomDet. 
+ *
+ *  $Date$
+ *  $Revision$
+ *  (last update by $Author$)
+ */
 
 class Alignable : public DetPositioner
 {  
@@ -33,9 +40,7 @@ public:
   typedef AlignableObjectId::AlignableObjectIdType AlignableObjectIdType;
   
   /// Default constructor
-  Alignable() : theMisalignmentActive(true), 
-				theDetId(0),
-				theAlignmentParameters(0) {}
+  Alignable();
 
   /// Destructor
   virtual ~Alignable() { delete theAlignmentParameters; }
@@ -50,7 +55,7 @@ public:
   /// Return number of direct components
   inline const int size() const { return components().size(); }
 
-  /// Return pointer to container alignable
+  /// Return pointer to container alignable (if any)
   virtual Alignable* mother() const { return theMother; }
 
   /// Assign mother to alignable
