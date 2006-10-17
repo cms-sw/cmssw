@@ -34,14 +34,24 @@ private:
   void bookValues( std::vector<TH1F*>& histos_x , std::vector<TH1F*>& histos_y , std::vector<TH1F*>& histos_z , int nBin , float range , char* det , unsigned int nHist );
   void bookErrors( std::vector<TH1F*>& histos_x , std::vector<TH1F*>& histos_y , std::vector<TH1F*>& histos_z , int nBin , float range , char* det , unsigned int nHist );
   void bookNominals( std::vector<TH1F*>& histos_x , int nBin , float range , char* det , unsigned int nHist );
+  void loadPixelData(TFile* pixelMultiplicityFile, TFile* pixelBarrelResolutionFile, TFile* pixelForwardResolutionFile);
   void loadPixelData(TFile* pixelDataFile, unsigned int nMultiplicity, std::string histName,
 		     std::vector<TH1F*>& theMultiplicityProbabilities);
+  void loadPixelData( TFile* pixelDataFile, unsigned int nMultiplicity, int nBins, double binWidth,
+		      std::vector<TH1F*>& theResolutionHistograms, bool isAlpha);
   void bookPixel( std::vector<TH1F*>& histos_alpha , std::vector<TH1F*>& histos_beta , std::vector<TH1F*>& histos_nom_alpha  , std::vector<TH1F*>& histos_nom_beta, char* det );
+  void bookPixel( std::vector<TH1F*>& histos_alpha , std::vector<TH1F*>& histos_beta , std::vector<TH1F*>& histos_nom_alpha  , std::vector<TH1F*>& histos_nom_beta, char* det,
+		  unsigned int nAlphaMultiplicity ,
+		  double resAlpha_binMin , double resAlpha_binWidth , int resAlpha_binN , 
+		  unsigned int nBetaMultiplicity ,
+		  double resBeta_binMin  , double resBeta_binWidth  , int resBeta_binN  );
   void write(std::vector<TH1F*> histos);
   
   void chooseHist( unsigned int rawid ,
 		   TH1F*& hist_x , TH1F*& hist_y , TH1F*& hist_z, TH1F*& hist_err_x , TH1F*& hist_err_y , TH1F*& hist_err_z ,
-		   TH1F*& hist_alpha , TH1F*& hist_beta , unsigned int mult_alpha , unsigned int mult_beta );
+		   TH1F*& hist_alpha , TH1F*& hist_beta , TH1F*& hist_res_alpha , TH1F*& hist_res_beta , 
+		   unsigned int mult_alpha , unsigned int mult_beta ,
+		   double       alpha      , double       beta       );
   
   // ROOT
   void rootStyle();
@@ -55,24 +65,6 @@ private:
   
   // Histograms
   // Detectors
-  // Pixel Barrel - 3 layers
-  static const unsigned int nHist_PXB = 3;
-  std::vector<TH1F*> histos_PXB_x;
-  std::vector<TH1F*> histos_PXB_y;
-  std::vector<TH1F*> histos_PXB_z;
-  std::vector<TH1F*> histos_PXB_err_x;
-  std::vector<TH1F*> histos_PXB_err_y;
-  std::vector<TH1F*> histos_PXB_err_z;
-  std::vector<TH1F*> histos_PXB_nom_x;
-  // Pixel Forward - 2 disks
-  static const unsigned int nHist_PXF = 2;
-  std::vector<TH1F*> histos_PXF_x;
-  std::vector<TH1F*> histos_PXF_y;
-  std::vector<TH1F*> histos_PXF_z;
-  std::vector<TH1F*> histos_PXF_err_x;
-  std::vector<TH1F*> histos_PXF_err_y;
-  std::vector<TH1F*> histos_PXF_err_z;
-  std::vector<TH1F*> histos_PXF_nom_x;
   // TIB - 4 different detectors
   static const unsigned int nHist_TIB = 4;
   std::vector<TH1F*> histos_TIB_x;
@@ -141,8 +133,16 @@ private:
   std::vector<TH1F*> histos_PXB_nom_beta;
   std::vector<TH1F*> histos_PXF_nom_alpha;
   std::vector<TH1F*> histos_PXF_nom_beta;
-  //
-  
+  // resolutions
+  std::vector<TH1F*> histos_PXB_res_alpha;
+  std::vector<TH1F*> histos_PXB_res_beta;
+  std::vector<TH1F*> histos_PXF_res_alpha;
+  std::vector<TH1F*> histos_PXF_res_beta;
+  std::vector<TH1F*> histos_PXB_nom_res_alpha;
+  std::vector<TH1F*> histos_PXB_nom_res_beta;
+  std::vector<TH1F*> histos_PXF_nom_res_alpha;
+  std::vector<TH1F*> histos_PXF_nom_res_beta;
+  //  
 };
 
 #endif
