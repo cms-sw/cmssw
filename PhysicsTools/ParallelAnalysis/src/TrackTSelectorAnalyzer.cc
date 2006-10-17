@@ -13,6 +13,7 @@ void TrackTSelectorAnalyzer::analyze( const edm::Event & event, const edm::Event
 }
 
 void TrackTSelectorAnalyzer::endJob() {
+  algo_.postProcess( histograms_ );
   gROOT->SetBatch();
   gROOT->SetStyle("Plain");
   TCanvas canvas;
