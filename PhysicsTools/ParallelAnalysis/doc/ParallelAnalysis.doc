@@ -17,14 +17,16 @@ See also the <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/T
 under <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/">Physics Tools</a> page.
 
 \subsection interface Public interface
-- TrackTSelector: simple analysis example based on TSelector. Just 
+- examples::TrackAnalysisAlgorithm: basic algorithm that can be run inside a TSelector and EDAnalyzer
+- examples::TrackTSelector: simple analysis example based on FWLite TSelector using examples::TrackAnalysisAlgorithm. Just 
   produces <i>p<sub>t</sub></i> and <i>eta</i> spectra for a 
   collection of tracks from a standard \ref DataFormats_RecoData "RECO" collection.
 
 \subsection modules Modules
-None.
+- examples::TrackTSelectorAnalyzer: EDAnalyzer using examples::TrackAnalysisAlgorithm
 
 \subsection tests Unit tests and examples
+- <b>trackExample.cfg</b>: batch script running examples::TrackTSelectorAnalyzer
 - <b>trackExample.C</b>: macro to load the required libraries and
   perform interactive analysis using JetTSelector. The following
   steps are required from <a href="http://root.cern.ch">root</a> prompt:
@@ -39,13 +41,13 @@ None.
 <li> Prepair the chain (just a single file in this example):
 <pre>
   TChain events("Events");
-  events.Add("tracks.root");
+  events.Add("aod.root");
 </pre>
 <li> Load the this package's library containing the dictionary
      for the <tt>TSelector</tt>, and create a <tt>TSelector</tt> instance:
 <pre>
   gSystem->Load( "libPhysicsToolsParallelAnalysis );
-  TrackTSelector * selector = new TrackTSelector;
+  TSelector * selector = new examples::TrackTSelector;
 </pre>
 <li> Process all events in the chain with the <tt>TSelector</tt>:
 <pre>
