@@ -66,8 +66,7 @@ public:
 
   void setup(bool);
   void setupES(const edm::EventSetup& setup, const edm::ParameterSet& conf);
-  //  void run(const edm::Event&, ElectronPixelSeedCollection&);
-  void run(const edm::Event&, const edm::Handle<SuperClusterCollection>&, ElectronPixelSeedCollection&);
+  void run(edm::Event&, const edm::Handle<SuperClusterCollection>&, ElectronPixelSeedCollection&);
 
  private:
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.12 2006/10/09 16:35:04 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.14 2006/10/17 09:24:47 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -106,7 +106,7 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
   //instanceNameEndcap_=conf.getParameter<string>("superClusterEndcapLabel");
 }
 
-void  ElectronPixelSeedGenerator::run(const edm::Event& e, const edm::Handle<SuperClusterCollection> &clusters, ElectronPixelSeedCollection & out){
+void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::Handle<SuperClusterCollection> &clusters, ElectronPixelSeedCollection & out){
 
   theMeasurementTracker->update(e);
   
