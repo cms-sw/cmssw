@@ -19,7 +19,7 @@ public:
 
 
   /// Constructor
-  explicit DTLocalTrigger (int bx, int qual);
+  explicit DTLocalTrigger (int bx, int data);
 
 
   /// Default construction.
@@ -31,6 +31,9 @@ public:
 
   uint16_t bx() const;
   uint16_t quality() const;
+  uint16_t trTheta() const;
+  bool secondTrack() const;
+  bool trOut() const;
 
 
   /// Print content of trigger
@@ -40,7 +43,7 @@ public:
  private:
 
   uint16_t theBX;
-  uint16_t theQuality;
+  uint16_t theData;
 };
 
 #include<iostream>
