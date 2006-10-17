@@ -1,0 +1,7 @@
+<use name=DataFormats/Common>
+<use name=boost>
+<export>
+  <lib name=SimDataFormatsRandomEngine>
+  <use name=DataFormats/Common>
+  <use name=boost>
+</export>

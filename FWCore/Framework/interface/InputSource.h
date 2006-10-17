@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.10.2.1 2006/07/04 14:03:43 wmtan Exp $
+$Id: InputSource.h,v 1.11 2006/07/06 19:11:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -56,6 +56,8 @@ namespace edm {
   class EventID;
   class EventSetup;
   class ParameterSet;
+  class Event;
+
   class InputSource : public ProductRegistryHelper {
   public:
     /// Constructor
@@ -132,6 +134,10 @@ namespace edm {
     virtual void rewind_();
 
     virtual void wakeUp_() {}
+
+    void preRead();
+
+    void postRead(Event& event);
 
   private:
 

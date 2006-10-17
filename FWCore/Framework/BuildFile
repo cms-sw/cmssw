@@ -6,6 +6,7 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/MessageLogger>
+<use name=clhep>
 <export>
  <lib name=FWCoreFramework>
  <use name=boost>
@@ -16,5 +17,6 @@
  <use name=FWCore/Utilities>
  <use name=FWCore/ServiceRegistry>
  <use name=FWCore/MessageLogger>
+ <use name=clhep>
 </export>
 

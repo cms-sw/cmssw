@@ -7,80 +7,122 @@
 // 
 /**\class RandomNumberGeneratorService RandomNumberGeneratorService.h FWCore/Services/interface/RandomNumberGeneratorService.h
 
- Description: Concrete implementation of a RandomNumberGenerator
+ Description: Manages random number engines for modules and the source
 
- Usage:
-    <usage>
+ Usage: See comments in base class, FWCore/Utilities/RandomNumberGenerator.h
 
 */
 //
-// Original Author:  Chris Jones
+// Original Authors:  Chris Jones, W. David Dagenhart
 //         Created:  Tue Mar  7 09:43:43 EST 2006
-// $Id: RandomNumberGeneratorService.h,v 1.2 2006/03/21 20:36:45 chrjones Exp $
+// $Id: RandomNumberGeneratorService.h,v 1.3 2006/08/05 18:31:32 chrjones Exp $
 //
 
-// system include files
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include <map>
-#include <string>
-#include <vector>
-// user include files
 
-// forward declarations
 namespace edm {
-   class ParameterSet;
-   namespace service {
+  class ParameterSet;
+  class ModuleDescription;
+  class EventID;
+  class Timestamp;
+  class Event;
+  class EventSetup;
+  
+  namespace service {
 
-      class RandomNumberGeneratorService : public RandomNumberGenerator
-   {
+    class RandomNumberGeneratorService : public RandomNumberGenerator
+    {
       
-public:
-      RandomNumberGeneratorService(const ParameterSet&, ActivityRegistry&);
-      //virtual ~RandomNumberGeneratorService();
-      
-      // ---------- const member functions ---------------------
-      virtual uint32_t mySeed() const ;
-      
-      // ---------- static member functions --------------------
-      
-      // ---------- member functions ---------------------------
-      void preModuleConstruction(const ModuleDescription&);
-      void postModuleConstruction(const ModuleDescription&);
+    public:
 
-      void preSourceConstruction(const ModuleDescription&);
-      void postSourceConstruction(const ModuleDescription&);
+      RandomNumberGeneratorService(const ParameterSet& iPSet, ActivityRegistry& iRegistry);
+      virtual ~RandomNumberGeneratorService();
+
+      virtual CLHEP::HepRandomEngine& getEngine() const;    
+
+      virtual uint32_t mySeed() const;
+
+      // The following functions should not be used by general users.  They
+      // should only be called by code designed to work with the service while
+      // it is saving the engine state to an event or restoring it from an event
+      // and also used to keep track of which module is currently active.
+      // The first 10 functions are called at various points during he main
+      // processing loop.  The next 3 are called by a dedicated producer
+      // module (RandomEngineStateProducer).  The other two by the InputSource
+      // base class.
+
+      void preModuleConstruction(const ModuleDescription& iDesc);
+      void postModuleConstruction(const ModuleDescription& iDesc);
+
+      void preSourceConstruction(const ModuleDescription& iDesc);
+      void postSourceConstruction(const ModuleDescription& iDesc);
 
       void postBeginJob();
       void postEndJob();
 
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-      void postEventProcessing(const Event&, const EventSetup&);
+      void preEventProcessing(const edm::EventID& id, const edm::Timestamp& time);
+      void postEventProcessing(const Event& event, const EventSetup& eventSetup);
 
-      void preModule(const ModuleDescription&);
-      void postModule(const ModuleDescription&);
-      
-private:
+      void preModule(const ModuleDescription& iDesc);
+      void postModule(const ModuleDescription& iDesc);
+
+      virtual const std::vector<std::string>& getCachedLabels() const;
+      virtual const std::vector<std::vector<uint32_t> >& getCachedStates() const;
+      virtual const std::vector<std::vector<uint32_t> >& getCachedSeeds() const;
+
+      virtual void snapShot();
+      virtual void restoreState(const Event& event);
+
+    private:
+
       RandomNumberGeneratorService(const RandomNumberGeneratorService&); // stop default
       
       const RandomNumberGeneratorService& operator=(const RandomNumberGeneratorService&); // stop default
       
-      void push(const std::string&);
+      // These two functions are called internally to keep track
+      // of which module is currently active
+
+      void push(const std::string& iLabel);
       void pop();
 
       // ---------- member data --------------------------------
-      typedef std::map<std::string,uint32_t> LabelToGenMap;
-      LabelToGenMap labelToSeed_;
-      std::vector<LabelToGenMap::const_iterator> labelStack_;
-      LabelToGenMap::const_iterator presentGen_;
-      std::vector<std::string> unknownLabelStack_;
-      std::string unknownLabel_;
-   };
-      
-      
-   }
-}
 
+      // We store the engines using the corresponding module label
+      // as a key into a map
+      typedef std::map<std::string, CLHEP::HepRandomEngine*> EngineMap;
+      EngineMap engineMap_;
+
+      // The next four help to keep track of the currently active
+      // module (its label and associated engine)
+
+      std::vector<EngineMap::const_iterator> engineStack_;
+      EngineMap::const_iterator currentEngine_;
+
+      std::vector<std::string> labelStack_;
+      std::string currentLabel_;
+
+      // This holds the module label used in a previous process
+      // to store the state of the random number engines.  The
+      // empty string is used to signal that we are not trying
+      // to restore the random numbers.
+      std::string restoreStateLabel_;
+
+      // The state of the engines is cached at the beginning the
+      // processing loop for each event.  The producer module
+      // gets called later and writes these cached vectors into
+      // the event.
+      std::vector<std::string> cachedLabels_;
+      std::vector<std::vector<uint32_t> > cachedStates_;
+      std::vector<std::vector<uint32_t> > cachedSeeds_;
+
+      // Keeps track of the seeds used to initialize the engines.
+      // Also uses the module label as a key
+      std::map<std::string, std::vector<uint32_t> > seedMap_;
+    };
+  }
+}
 
 #endif
