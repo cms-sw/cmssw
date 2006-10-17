@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronProducer.cc,v 1.5 2006/10/02 14:34:41 uberthon Exp $
+// $Id: PixelMatchElectronProducer.cc,v 1.6 2006/10/05 17:25:58 uberthon Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -45,19 +46,12 @@ PixelMatchElectronProducer::PixelMatchElectronProducer(const edm::ParameterSet& 
 {
   //register your products
   produces<ElectronCollection>();
-  produces<TrackCollection>();
-  produces<TrackCandidateCollection>();
-  produces<TrackExtraCollection>();
-  produces<TrackingRecHitCollection>();
 
   //create algo
   algo_ = new PixelMatchElectronAlgo(iConfig.getParameter<double>("maxEOverP"),
                      iConfig.getParameter<double>("maxHOverE"),
                      iConfig.getParameter<double>("maxDeltaEta"),
                      iConfig.getParameter<double>("maxDeltaPhi"));
-
-
-  seedProducer_   = iConfig.getParameter<std::string>("SeedProducer");
 
 }
 
@@ -76,20 +70,14 @@ void PixelMatchElectronProducer::beginJob(edm::EventSetup const&iSetup)
 void PixelMatchElectronProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) 
 {
 
-  // get the input 
-  edm::Handle<ElectronPixelSeedCollection> seeds;
-  e.getByLabel(seedProducer_,seeds);
-  LogDebug("") << " =================> Treating event "<<e.id()
-               <<", Number of seeds "<<seeds.product()->size() << "\n";
-
   // Create the output collections   
   std::auto_ptr<ElectronCollection> pOutEle(new ElectronCollection);
   
   // invoke algorithm
-  algo_->run(e,*pOutEle);
+    algo_->run(e,*pOutEle);
 
   // put result into the Event
-  e.put(pOutEle);
+    e.put(pOutEle);
   
 }
 

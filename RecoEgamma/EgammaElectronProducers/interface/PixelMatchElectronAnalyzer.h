@@ -62,13 +62,27 @@ class PixelMatchElectronAnalyzer : public edm::EDAnalyzer
   TH1F *histEt_ ;
   TH1F *histEta_ ;
   TH1F *histPhi_ ;
-  TH1F *histTrPt_ ;
-  TH1F *histTrEta_ ;
-  TH1F *histTrPhi_ ;
-  TH1F *histSclEn_ ;
-  TH1F *histEOP_ ;
-  TH1F *histTrP_ ;
+  TH1F *histEoP_ ;
 
+  TH1F *histTrCharge_ ;
+  TH1F *histTrInP_ ;
+  TH1F *histTrInPt_;
+  TH1F *histTrInEta_;
+  TH1F *histTrInPhi_ ;
+  TH1F *histTrNrHits_;
+  TH1F *histTrNrVHits_;
+  TH1F *histTrChi2_;
+  TH1F *histTrOutPt_ ;
+  TH1F *histTrOutP_ ;
+ 
+  TH1F *histSclEn_ ;
+  TH1F *histSclEt_ ;
+  TH1F *histSclEta_;
+  TH1F *histSclPhi_ ;
+
+  TH1F *histESclOPTr_ ;
+  TH1F *histDeltaEta_ ;
+  TH1F *histDeltaPhi_ ;
  };
   
 #endif

@@ -8,15 +8,17 @@
  *
  * \author U.Berthon, C.Charlot, LLR Palaiseau
  *
- * \version   1st Version July 6, 2006  
+ * \version   2nd Version Oct 10, 2006  
  *
  ************************************************************/
 
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -60,10 +62,16 @@ public:
 
  private:
 
-  // preselection method
+  // create electrons from tracks
+  void process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss, ElectronCollection & outEle);
+   // preselection method
   bool preSelection(const SuperCluster& clus, const Track& track);
   
-  // preselection parameters
+  // temporary to get seed corresponding to track
+  bool equal(edm::Ref<TrajectorySeedCollection> ts, const Track& t);
+  bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
+
+ // preselection parameters
   // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state  
   double maxEOverP_;   
   // maximum H/E where H is the hadronic energy from the Hcal tower just behind the seed cluster and E the seed cluster energy  
@@ -74,8 +82,15 @@ public:
   // position to the supercluster
   double maxDeltaPhi_;
   
-  string inputDataModuleLabel_;
-  string inputDataInstanceName_;
+  // input configuration
+  std::string trackBarrelLabel_;
+  std::string trackEndcapLabel_;
+  std::string trackBarrelInstanceName_;
+  std::string trackEndcapInstanceName_;
+  std::string assBarrelLabel_;
+  std::string assBarrelInstanceName_;
+  std::string assEndcapLabel_;
+  std::string assEndcapInstanceName_;
 
   const TrackerTrajectoryBuilder*  theCkfTrajectoryBuilder;
   //  CkfTrajectoryBuilder*  theCkfTrajectoryBuilder;

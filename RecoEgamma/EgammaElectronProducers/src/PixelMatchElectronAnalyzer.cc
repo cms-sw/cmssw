@@ -58,15 +58,30 @@ void PixelMatchElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   histCharge_= new TH1F("chargeEl","charge, 35 GeV",10, -2.,2.);
   histMass_ = new TH1F("massEl","mass, 35 GeV",100,0.,1.);
   histEn_ = new TH1F("energyEl","energy, 35 GeV",100,0.,1000.);
-  histSclEn_ = new TH1F("energySCL","energy, 35 GeV",100,0.,1000.);
-  histEt_ = new TH1F("etEl","et, 35 GeV",100,0.,1000.);
+  histEt_ = new TH1F("etEl","et, 35 GeV",100,0.,300.);
   histEta_ = new TH1F("etaEl","eta, 35 GeV",100,-2.5,2.5);
   histPhi_ = new TH1F("phiEl","phi, 35 GeV",100,-3.5,3.5);
-  histTrPt_ = new TH1F("ptTr","electron track  pt",100,0.,1000.);
-  histTrP_ = new TH1F("pTr","electron track  p",100,0.,1000.);
-  histTrEta_ = new TH1F("etaTr","electron track  eta",100,-2.5,2.5);
-  histTrPhi_ = new TH1F("phiTr","electron track phi",100,-3.5,3.5);
-  histEOP_ =new TH1F("esOpT","Enscl/pTrack",100,-3.5,3.5);
+  histEoP_ = new TH1F("eOp","Energy/p",100,-10.,10);
+
+  histTrCharge_ = new TH1F("chargeTr","charge of track",10, -2.,2.);
+  histTrInP_ = new TH1F("InnerP_Tr","electron track inner p",100,0.,300.);
+  histTrInPt_ = new TH1F("InnerPt_Tr","electron track inner pt",100,0.,50.);
+  histTrInEta_ = new TH1F("InEtaTr","electron track inner eta",100,-2.5,2.5);
+  histTrInPhi_ = new TH1F("InPhiTr","electron track inner phi",100,-3.5,3.5);
+  histTrNrHits_=  new TH1F("NrHits","nr hits of electron track",100,0.,25.);
+  histTrNrVHits_= new TH1F("NrVHits","nr valid hits of electron track",100,0.,25.);
+  histTrChi2_= new TH1F("Chi2","chi2 of electron track",100,0.,100.);
+  histTrOutPt_ = new TH1F("OuterPt_Tr","electron track outer pt",100,0.,300.);
+  histTrOutP_ = new TH1F("OuterP_Tr","electron track outer p",100,0.,300.);
+ 
+  histSclEn_ = new TH1F("energySCL","energy, 35 GeV",100,0.,1000.);
+  histSclEt_ = new TH1F("etSCL","energy transverse of Supercluster",100,0.,1000.);
+  histSclEta_ = new TH1F("etaSCL","eta of Supercluster",100,-2.5,2.5);
+  histSclPhi_ = new TH1F("phiSCL","phi of Supercluster",100,-3.5,3.5);
+
+  histESclOPTr_ =new TH1F("esOpT","Enscl/pTrack",100,-0.25,0.25);
+  histDeltaEta_ =new TH1F("DeltaEta","Eta Scl - Eta Track",100,-0.25,0.25);
+  histDeltaPhi_ =new TH1F("DeltaPhi","Phi Scl - Phi Track",100,-0.25,0.25);
 }     
 
 void
@@ -81,26 +96,42 @@ PixelMatchElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
 
   for( ElectronCollection::const_iterator MyS= (*electrons).begin(); MyS != (*electrons).end(); ++MyS) {
     
+    //electron quantities
     histCharge_->Fill((*MyS).charge());
     histMass_->Fill((*MyS).mass());
     histEn_->Fill((*MyS).energy());
     if ((*MyS).et()<150.) histEt_->Fill((*MyS).et());
     histEta_->Fill((*MyS).eta());
     histPhi_->Fill((*MyS).phi());
+    histEoP_->Fill((*MyS).energy()/(*MyS).p());
 
-    // get information about track
+    // track informations 
     reco::TrackRef tr =(*MyS).track();
-    histTrPt_->Fill((*tr).outerPt());
+    histTrCharge_->Fill(tr->charge());
+    histTrInP_->Fill((*tr).innerMomentum().R());//??
+    histTrInPt_->Fill((*tr).innerMomentum().Rho());//??
+    histTrInEta_->Fill((*tr).outerEta());  //??
+    histTrInPhi_->Fill((*tr).outerPhi());  //??
+    histTrNrHits_->Fill((*tr).recHitsSize());
+    histTrNrVHits_->Fill((*tr).found());
+    histTrChi2_->Fill((*tr).chi2());
     double pTr=tr->outerP();
-    histTrP_->Fill(pTr);
-    histTrEta_->Fill((*tr).outerEta());
-    histTrPhi_->Fill((*tr).outerPhi());
-    // information about SCL
+    histTrOutP_->Fill(pTr);
+    histTrOutPt_->Fill(tr->outerPt());
+
+    // SCL informations
     reco::SuperClusterRef sclRef=(*MyS).superCluster();
     histSclEn_->Fill(sclRef->energy());
+    double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
+    double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
+    histSclEt_->Fill(sclRef->energy()*(Rt/R));
+    histSclEta_->Fill(sclRef->eta());
+    histSclPhi_->Fill(sclRef->phi());
 
-    // correlation
-    histEOP_->Fill((sclRef->energy())/pTr);
+    // correlation etc
+    histESclOPTr_->Fill((sclRef->energy())/pTr);
+    histDeltaEta_->Fill(sclRef->eta()-(*tr).outerEta());
+    histDeltaPhi_->Fill(sclRef->phi()-(*tr).outerPhi());
   }
   
 }

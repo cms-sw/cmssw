@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.11 2006/10/05 17:28:05 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.12 2006/10/09 16:35:04 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -99,25 +99,25 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
   myMatchEle->setES(&(*theMagField),theMeasurementTracker);
   myMatchPos->setES(&(*theMagField),theMeasurementTracker);
 
-  moduleLabelBarrel_=conf.getParameter<string>("superClusterBarrelProducer");
-  instanceNameBarrel_=conf.getParameter<string>("superClusterBarrelLabel");
+  //  moduleLabelBarrel_=conf.getParameter<string>("superClusterBarrelProducer");
+  //  instanceNameBarrel_=conf.getParameter<string>("superClusterBarrelLabel");
   //CC@@
   //moduleLabelEndcap_=conf.getParameter<string>("superClusterEndcapProducer");
   //instanceNameEndcap_=conf.getParameter<string>("superClusterEndcapLabel");
 }
 
-void  ElectronPixelSeedGenerator::run(edm::Event& e, ElectronPixelSeedCollection & out){
+void  ElectronPixelSeedGenerator::run(const edm::Event& e, const edm::Handle<SuperClusterCollection> &clusters, ElectronPixelSeedCollection & out){
 
   theMeasurementTracker->update(e);
   
   NavigationSetter setter(*theNavigationSchool);
 
   // get input clusters 
-  edm::Handle<SuperClusterCollection> bclusters;
-  e.getByLabel(moduleLabelBarrel_,instanceNameBarrel_,bclusters);
+  //  edm::Handle<SuperClusterCollection> bclusters;
+  //  e.getByLabel(moduleLabelBarrel_,instanceNameBarrel_,bclusters);
 
-  for  (unsigned int i=0;i<bclusters.product()->size();++i) {
-    edm::Ref<SuperClusterCollection> theClusB(bclusters,i);
+  for  (unsigned int i=0;i<clusters->size();++i) {
+    edm::Ref<SuperClusterCollection> theClusB(clusters,i);
     // Find the seeds
     recHits_.clear();
     LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
@@ -127,24 +127,24 @@ void  ElectronPixelSeedGenerator::run(edm::Event& e, ElectronPixelSeedCollection
   if(theMode_==offline) LogDebug ("run") << "(offline)";
   
   LogDebug ("run") << ": For event "<<e.id();
-  LogDebug ("run") <<"Nr of superclusters: "<<bclusters.product()->size()
+  LogDebug ("run") <<"Nr of superclusters: "<<clusters->size()
    <<", no. of ElectronPixelSeeds found in barrel = " << out.size();
   
-  // get input clusters 
-  edm::Handle<SuperClusterCollection> eclusters;
-  e.getByLabel("correctedIslandEndcapSuperClusters","",eclusters);
+//   // get input clusters 
+//   edm::Handle<SuperClusterCollection> eclusters;
+//   e.getByLabel("correctedIslandEndcapSuperClusters","",eclusters);
 
-  for  (unsigned int i=0;i<eclusters.product()->size();++i) {
-    edm::Ref<SuperClusterCollection> theClusE(eclusters,i);
-    // Find the seeds
-    recHits_.clear();
-    LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
-    seedsFromThisCluster(theClusE,out) ;
-  }
+//   for  (unsigned int i=0;i<eclusters.product()->size();++i) {
+//     edm::Ref<SuperClusterCollection> theClusE(eclusters,i);
+//     // Find the seeds
+//     recHits_.clear();
+//     LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
+//     seedsFromThisCluster(theClusE,out) ;
+//   }
 
-  LogDebug ("run") << ": For event "<<e.id();
-  LogDebug ("run") <<"Nr of superclusters: "<<eclusters.product()->size()
-   <<",no. of ElectronPixelSeeds found in endcaps = " << out.size();
+//   LogDebug ("run") << ": For event "<<e.id();
+//   LogDebug ("run") <<"Nr of superclusters: "<<eclusters.product()->size()
+//    <<",no. of ElectronPixelSeeds found in endcaps = " << out.size();
   
 }
 

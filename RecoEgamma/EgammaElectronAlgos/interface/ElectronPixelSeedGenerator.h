@@ -66,7 +66,8 @@ public:
 
   void setup(bool);
   void setupES(const edm::EventSetup& setup, const edm::ParameterSet& conf);
-  void run(edm::Event&, ElectronPixelSeedCollection&);
+  //  void run(const edm::Event&, ElectronPixelSeedCollection&);
+  void run(const edm::Event&, const edm::Handle<SuperClusterCollection>&, ElectronPixelSeedCollection&);
 
  private:
 
@@ -83,8 +84,8 @@ public:
   float pphimin2, pphimax2;
   float zmin1, zmax1, zmin2, zmax2;
 
-  std::string moduleLabelBarrel_;
-  std::string instanceNameBarrel_;
+  //  std::string moduleLabelBarrel_;
+  //  std::string instanceNameBarrel_;
   //CC@@ adding these two lines causes a segv at end of job
   //std::string moduleLabelEndcap_;
   //std::string instanceNameEndcap_;
