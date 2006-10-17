@@ -1,149 +1,213 @@
+//-------------------------------------------------
+//
+/**  \class L2MuonSeedGenerator
+ * 
+ *   L2 muon seed generator:
+ *   Transform the L1 informations in seeds for the
+ *   L2 muon reconstruction
+ *
+ *
+ *   $Date: $
+ *   $Revision: $
+ *
+ *   \author  A.Everett, R.Bellan
+ *
+ *    ORCA's author: N. Neumeister 
+ */
+//
+//--------------------------------------------------
+
 // Class Header
 #include "RecoMuon/L2MuonSeedGenerator/src/L2MuonSeedGenerator.h"
-
-//Service Records
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutRecord.h"
 
 // Data Formats 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+
+#include "CLHEP/Vector/ThreeVector.h"
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// C++
-#include <vector>
-#include "CLHEP/Vector/ThreeVector.h"
-
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/Surface/interface/BoundCylinder.h"
+
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 using namespace std;
 using namespace edm;
-using namespace l1extra ;
+using namespace l1extra;
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
+// constructors
 L2MuonSeedGenerator::L2MuonSeedGenerator(const edm::ParameterSet& iConfig) : 
+  theSource(iConfig.getParameter<InputTag>("InputObjects")),
+  thePropagatorName(iConfig.getParameter<string>("Propagator")),
   theL1MinPt(iConfig.getParameter<double>("L1MinPt")),
   theL1MaxEta(iConfig.getParameter<double>("L1MaxEta")),
-  theL1MinQuality(iConfig.getParameter<double>("L1MinQuality")),
-  source_( iConfig.getParameter< edm::InputTag >( "src" ) )
-{
-  produces<TrajectorySeedCollection>(); 
+  theL1MinQuality(iConfig.getParameter<unsigned int>("L1MinQuality")){
   
+  // service parameters
+  ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
+  
+  // the services
+  theService = new MuonServiceProxy(serviceParameters);
+
+  // the estimator
+  theEstimator = new Chi2MeasurementEstimator(10000.);
+
+  produces<TrajectorySeedCollection>(); 
+}
+
+// destructor
+L2MuonSeedGenerator::~L2MuonSeedGenerator(){
+  if (theService) delete theService;
+  if (theEstimator) delete theEstimator;
 }
 
 
-L2MuonSeedGenerator::~L2MuonSeedGenerator()
-{
+// definition of the bit fields
+unsigned L2MuonSeedGenerator::readDataField(unsigned start, unsigned count) const {
+  unsigned mask = ( (1 << count) - 1 ) << start;
+  return (theDataWord & mask) >> start;
 }
 
+bool L2MuonSeedGenerator::isFwd() const{ 
+  return readDataField( FWDBIT_START, FWDBIT_LENGTH) == 1; 
+}
 
-//
-// member functions
-//
+bool L2MuonSeedGenerator::isRPC() const { 
+  return readDataField( ISRPCBIT_START, ISRPCBIT_LENGTH) == 1; 
+}
 
-// ------------ method called to produce the data  ------------
-void
-L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  const std::string metname = "Muon|RecoMuon|L2MuonSeedGenerator";
+  MuonPatternRecoDumper debug;
+
   auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
-
-  edm::ESHandle<MagneticField> theMagField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
   
   // Muon particles
-  edm::Handle< L1MuonParticleCollection > muColl ;
-  iEvent.getByLabel( source_, muColl ) ;
-  cout << "Number of muons " << muColl->size() << endl ;
-    
-  //
-  // GMT Trigger
-  //
-  
-  float radius = 513.;
+  edm::Handle<L1MuonParticleCollection> muColl;
+  iEvent.getByLabel(theSource, muColl);
+  LogDebug(metname) << "Number of muons " << muColl->size() << endl;
   
   L1MuonParticleCollection::const_iterator it;
-  for(it=muColl->begin(); it!=muColl->end(); it++) {
+  for(it = muColl->begin(); it != muColl->end(); it++) {
+    
+    const L1MuGMTCand *tmpCand = 0 ;
+    
+    if ( !(*it).gmtMuonCandRef().isNonnull() ) {
+      LogWarning(metname) << "L2MuonSeedGenerator: WARNING, no L1MuGMTCand! " << endl;
+      LogWarning(metname) << "L2MuonSeedGenerator:   this should make sense only within MC tests" << endl;
+    }
+    else
+       tmpCand = (*it).gmtMuonCand();    
+    
     float pt    =  (*it).pt();
     float eta   =  (*it).eta();
     float theta =  2*atan(exp(-eta));
     float phi   =  (*it).phi();      
     int charge  =  (*it).charge();
-    
-    const L1MuGMTCand *tmpCand = (*it).gmtMuonCand();
-    unsigned int quality =  tmpCand->quality();
-    
-    unsigned int det;
-    if (quality == 7) // matched ?
-      det =  isFwd() ? 5 : 3;
-    else 
-      det =  isRPC() ? 1 : ( isFwd()? 4 : 2); 
-    
-    if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
 
-    if ( quality < (unsigned int)theL1MinQuality ) continue;
+    if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
     
-    bool barrel = ( det == 4 || det == 5 ) ? false : true;
-    if ( det == 1 && fabs(eta)>1 ) barrel = false;
+    LogDebug(metname) << "NEW L2 Muon Seed";
+    LogDebug(metname) << "Pt = " << pt << " GeV/c";
+    LogDebug(metname) << "eta = " << eta;
+    LogDebug(metname) << "theta = " << theta << " rad";
+    LogDebug(metname) << "phi = " << phi << " rad";
+    LogDebug(metname) << "charge = "<< charge;
     
-    if ( !barrel ) radius = 800.;
+    unsigned int quality = 0;
+    bool barrel =  false;
+
+
+    if (tmpCand){
+      quality =  tmpCand->quality();
+      theDataWord = tmpCand->getDataWord();
+      barrel = !isFwd();    
+    }
+    else{
+      // FIXME! Temporary to handle the MC input
+      quality = 7;
+      barrel = (abs(eta) < 1.1) ? true : false;
+    }
+
+    if ( quality <= theL1MinQuality ) continue;
+    LogDebug(metname) << "quality = "<< quality; 
     
-    if (  barrel && pt < 3.5 ) pt = 3.5;
-    if ( !barrel && pt < 1.0 ) pt = 1.0;
-    
+    // Update the services
+    theService->update(iSetup);
+
+    const DetLayer *detLayer = 0;
+    float radius = 0.;
+  
     Hep3Vector vec(0.,1.,0.);
     vec.setTheta(theta);
     vec.setPhi(phi);
-    if (  barrel ) radius = fabs(radius/sin(theta));
-    if ( !barrel ) radius = fabs(radius/cos(theta));
+	
+    // Get the det layer on which the state should be put
+    if ( barrel ){
+      LogDebug(metname) << "The seed is in the barrel";
+      
+      // MB2
+      DetId id = DTChamberId(0,2,0);
+      detLayer = theService->detLayerGeometry()->idToLayer(id);
+      LogDebug(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
+      
+      const BoundSurface* sur = &(detLayer->surface());
+      const BoundCylinder* bc = dynamic_cast<const BoundCylinder*>(sur);
+
+      radius = fabs(bc->radius()/sin(theta));
+
+      LogDebug(metname) << "radius "<<radius;
+
+      if ( pt < 3.5 ) pt = 3.5;
+    }
+    else { 
+      LogDebug(metname) << "The seed is in the endcap";
+      
+      DetId id;
+      // ME2
+      if ( theta < Geom::pi()/2. )
+	id = CSCDetId(1,2,0,0,0); 
+      else
+	id = CSCDetId(2,2,0,0,0); 
+      
+      detLayer = theService->detLayerGeometry()->idToLayer(id);
+      LogDebug(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
+
+      radius = fabs(detLayer->position().z()/cos(theta));      
+      
+      if( pt < 1.0) pt = 1.0;
+    }
+        
     vec.setMag(radius);
     
     GlobalPoint pos(vec.x(),vec.y(),vec.z());
-    
-    float x = cos(phi)*sin(theta);
-    float y = sin(phi)*sin(theta);
-    float z = cos(theta);
-    
-    GlobalVector mom3(x, y, z);
-    float mom = pt/sqrt(x*x + y*y);
-    mom3 = mom3*mom;
-    
-    GlobalTrajectoryParameters param(pos,mom3,charge,&*theMagField);
+      
+    GlobalVector mom(pt*cos(phi), pt*sin(phi), pt*cos(theta)/sin(theta));
+
+    GlobalTrajectoryParameters param(pos,mom,charge,&*theService->magneticField());
     AlgebraicSymMatrix mat(5,0);
     
     mat[0][0] = (0.25/pt)*(0.25/pt);  // sigma^2(charge/abs_momentum)
@@ -155,69 +219,52 @@ L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     mat[4][4] = 20.*20.;          // sigma^2(y_transverse))
     
     CurvilinearTrajectoryError error(mat);
-    GlobalVector dir = mom3.unit();
-    
-    double wx = dir.x();
-    double wy = dir.y();
-    double wz = dir.z();
-    double dydx = wy / wx;
-    double uy = 1. / sqrt(1 + dydx * dydx);
-    double ux = - dydx * uy;
-    Surface::RotationType rot(    ux,     uy,              0,
-				  -wz*uy,  wz*ux,  wx*uy - wy*ux,
-				  wx,     wy,             wz);
-    
-    BoundPlane* bPlane = new BoundPlane(pos, rot, RectangularPlaneBounds(1e10,1e10,1e10));
-    TrajectoryStateOnSurface basic(param, error, *bPlane);
-    
-    const FreeTrajectoryState state = *(basic.freeTrajectoryState());
-    TrajectoryStateOnSurface trj;
-    SteppingHelixPropagator prop(&*theMagField,oppositeToMomentum);
-    if ( barrel ) {    
-      pos = GlobalPoint(0., 0., 0.);
-      Surface::RotationType rot2;
-      ReferenceCountingPointer<BoundCylinder> cyl(new BoundCylinder( pos, rot2, SimpleCylinderBounds(399.,401.,-1200.,1200.)));
-      trj = prop.propagate(state, *cyl);
-    }
-    else {
-      float z = -500.;
-      if ( state.position().z() > 0 ) z = 500.;
-      pos = GlobalPoint(0., 0., z);
-      Surface::RotationType rot2;
-      ReferenceCountingPointer<BoundPlane> surface(new BoundPlane(pos, rot2, RectangularPlaneBounds(720.,720.,1.)));
-      trj = prop.propagate(state, *surface);
-    }
-    
-    if ( trj.isValid() ) {
-      const FreeTrajectoryState e_state = *trj.freeTrajectoryState();
-      // Transform it in a TrajectoryStateOnSurface
-      TrajectoryStateTransform tsTransform;
-      PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState( basic , det);
-      //<< FIXME:
-      // TrajectorySeed theSeed(e_state, rechitcontainer,oppositeToMomentum);
-      // But is:
-      edm::OwnVector<TrackingRecHit> container;
-      TrajectorySeed* seed = new TrajectorySeed(*seedTSOS,container,alongMomentum);
-      // is this right?
 
-      output->push_back(*seed);
+    const FreeTrajectoryState state(param,error);
+   
+    LogDebug(metname) << "Free trajectory State from the parameters";
+    LogDebug(metname) << debug.dumpFTS(state);
+
+    // Propagate the state on the MB2/ME2 surface
+    TrajectoryStateOnSurface tsos = theService->propagator(thePropagatorName)->propagate(state, detLayer->surface());
+   
+    LogDebug(metname) << "State after the propagation on the layer";
+    LogDebug(metname) << debug.dumpLayer(detLayer);
+    LogDebug(metname) << debug.dumpFTS(state);
+
+    if (tsos.isValid()) {
+      // Get the compatible dets on the layer
+      std::vector< pair<const GeomDet*,TrajectoryStateOnSurface> > 
+	detsWithStates = detLayer->compatibleDets(tsos, 
+						  *theService->propagator(thePropagatorName), 
+						  *theEstimator);   
+      if (detsWithStates.size()){
+	TrajectoryStateTransform tsTransform;
+	
+	TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
+	const GeomDet *newTSOSDet = detsWithStates.front().first;
+	
+	LogDebug(metname) << "Most compatible det";
+	LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
+
+	if (newTSOS.isValid()){
+
+	  LogDebug(metname) << "State on it";
+	  LogDebug(metname) << debug.dumpTSOS(newTSOS);
+	  
+	  // convert the TSOS into a PTSOD
+	  PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
+	  
+	  edm::OwnVector<TrackingRecHit> container;
+	  TrajectorySeed* seed = new TrajectorySeed(*seedTSOS,container,alongMomentum);
+	  
+	  output->push_back(*seed);
+	}
+      }
     } 
-
-  }//end loop over extended candidates
- 
+    
+  }
   
   iEvent.put(output);
 }
-// ------------ method called once each job just before starting event loop  ------------
-void 
-L2MuonSeedGenerator::beginJob(const edm::EventSetup&)
-{
-}
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-L2MuonSeedGenerator::endJob() {
-}
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(L2MuonSeedGenerator)
