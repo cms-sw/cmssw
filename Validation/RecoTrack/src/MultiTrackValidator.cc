@@ -29,7 +29,10 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       dbe_->cd();
       string dirName = label[www]+associators[ww];
       dbe_->setCurrentFolder(dirName.c_str());
-      
+
+      dbe_->cd(dirName.c_str());
+      string subDirName = dirName + "/pt_d0_residues";
+      dbe_->setCurrentFolder(subDirName.c_str());
       vector<double> etaintervalsv;
       vector<double> hitsetav;
       vector<int>    totSIMv,totRECv;
@@ -62,12 +65,17 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       hitseta.push_back(hitsetav);
       ptdistrib.push_back(ptdistribv);
       d0distrib.push_back(d0distribv);
-     
+
+      dbe_->goUp();
+      subDirName = dirName + "/simulation";
+      dbe_->setCurrentFolder(subDirName.c_str());
       h_ptSIM.push_back( dbe_->book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
       h_etaSIM.push_back( dbe_->book1D("etaSIM", "generated pseudorapidity", 500, 0, 5 ) );
       h_tracksSIM.push_back( dbe_->book1D("tracksSIM","number of simluated tracks",100,-0.5,99.5) );
       h_vertposSIM.push_back( dbe_->book1D("vertposSIM","Transverse position of sim vertices",1000,-0.5,10000.5) );
       
+      dbe_->cd();
+      dbe_->setCurrentFolder(dirName.c_str());
       //     h_pt     = dbe_->book1D("pt", "p_{t} residue", 2000, -500, 500 );
       h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
       h_pt2.push_back( dbe_->book1D("pt2", "p_{t} residue (#tracks>1)", 300, -15, 15 ) );
@@ -332,7 +340,7 @@ void MultiTrackValidator::endJob() {
         if (totSIM[w][j]!=0){
           eff = ((double) totREC[w][j])/((double) totSIM[w][j]);
           h_effic[w]->Fill(etaintervals[w][j+1]-0.00001, eff);
-          h_effic[w]->setBinError(j,sqrt((eff*(1-eff))/((double) totREC[w][j])));
+          //h_effic[w]->setBinError(j,sqrt((eff*(1-eff))/((double) totREC[w][j])));
         }
         else {
           h_effic[w]->Fill(etaintervals[w][j+1]-0.00001, 0);

@@ -33,7 +33,6 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     label(pset.getParameter< vector<string> >("label")),
     associators(pset.getParameter< vector<string> >("associators")),
     out(pset.getParameter<string>("out")),
-    open(pset.getParameter<string>("open")),
     min(pset.getParameter<double>("min")),
     max(pset.getParameter<double>("max")),
     nint(pset.getParameter<int>("nint")),
@@ -54,7 +53,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
 
   string sim;
   vector<string> label, associators;
-  string out, open;
+  string out;
   double  min, max;
   int nint;
   double minpt;
