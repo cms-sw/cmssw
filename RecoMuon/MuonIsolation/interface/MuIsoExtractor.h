@@ -12,7 +12,9 @@ namespace muonisolation { class Direction; }
 class MuIsoExtractor {
 public:
   virtual ~MuIsoExtractor(){}
-  virtual std::vector<reco::MuIsoDeposit> deposits( const edm::Event & ev, const reco::Track & track, 
+  virtual std::vector<reco::MuIsoDeposit> deposits( const edm::Event & ev, 
+      const edm::EventSetup & evSetup, 
+      const reco::Track & track, 
       const std::vector<muonisolation::Direction> & vetoDirs, double coneSize) const = 0;
 };
 #endif

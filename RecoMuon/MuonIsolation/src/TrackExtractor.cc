@@ -1,4 +1,4 @@
-#include "TrackExtractor.h"
+#include "RecoMuon/MuonIsolation/src/TrackExtractor.h"
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
 #include "RecoMuon/MuonIsolation/interface/Direction.h"
@@ -15,13 +15,14 @@ using namespace reco;
 using namespace muonisolation;
 
 TrackExtractor::TrackExtractor( double aDdiff_r, double aDiff_z, double aDR_match, double aDR_Veto, 
-  std::string aTrackCollectionLabel, std::string aDepisitLabel) 
+  std::string aTrackCollectionLabel, std::string aDepositLabel) 
   : theDiff_r(aDdiff_r), theDiff_z(aDiff_z), theDR_Match(aDR_match), theDR_Veto(aDR_Veto),
-    theTrackCollectionLabel(aTrackCollectionLabel), theDepositLabel(aDepisitLabel) 
+    theTrackCollectionLabel(aTrackCollectionLabel), theDepositLabel(aDepositLabel) 
 { }
 
 
-vector<MuIsoDeposit> TrackExtractor::deposits( const Event & event, const Track & muon, 
+vector<MuIsoDeposit> TrackExtractor::deposits( const Event & event, 
+    const EventSetup & eventSetup, const Track & muon, 
     const vector<Direction> & vetoDirections, double coneSize) const
 {
   vector<MuIsoDeposit> result;

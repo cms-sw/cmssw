@@ -18,11 +18,12 @@ public:
 
   TrackExtractor() { }
   TrackExtractor( double aDdiff_r, double aDiff_z, double aDR_match, double aDR_Veto,
-      std::string aTrackCollectionLabel, std::string aDepisitLabel);
+      std::string aTrackCollectionLabel, std::string aDepositLabel);
 
   virtual ~TrackExtractor(){}
 
-  virtual std::vector<reco::MuIsoDeposit> deposits( const edm::Event & ev, const reco::Track & track, 
+  virtual std::vector<reco::MuIsoDeposit> deposits( const edm::Event & ev, 
+      const edm::EventSetup & evSetup, const reco::Track & track, 
       const std::vector<muonisolation::Direction> & vetoDirs, double coneSize) const; 
 
 private:
