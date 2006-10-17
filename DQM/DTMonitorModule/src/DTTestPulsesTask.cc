@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2006/04/10 12:30:44 $
- * $Revision: 1.6 $
+ * $Date: 2006/05/24 17:21:38 $
+ * $Revision: 1.7 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -61,7 +61,7 @@ DTTestPulsesTask::~DTTestPulsesTask(){
 
   cout <<"[DTTestPulsesTask]: analyzed " << nevents << " events" << endl;
   
-  if ( outputFile.size() != 0 ) dbe->save(outputFile);
+  if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true))) dbe->save(outputFile);
 }
 
 

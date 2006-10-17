@@ -4,8 +4,8 @@
 /*
  * \file DTLocalRecoTask.h
  *
- * $Date: 2006/06/20 12:17:41 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/28 09:21:25 $
+ * $Revision: 1.5 $
  * \author M. Zanetti & G. Cerminara - INFN Padova & Torino
  *
 */
@@ -53,6 +53,7 @@ private:
   // Switch for verbosity
   bool debug;
   std::string theRootFileName;
+  bool writeHisto;
 
   // The BE interface
   DaqMonitorBEInterface* dbe;

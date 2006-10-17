@@ -42,7 +42,7 @@ void DTTriggerCheck::beginJob(const EventSetup& setup){
 
 void DTTriggerCheck::endJob(){
   // Write the histos
-  theDbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTTriggerCheck.root"));
+  if (parameters.getUntrackedParameter<bool>("writeHisto", true)) theDbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTTriggerCheck.root"));
 
 }
 void DTTriggerCheck::analyze(const Event& event, const EventSetup& setup) {

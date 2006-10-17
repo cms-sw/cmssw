@@ -1,8 +1,8 @@
 /*
  * \file DTLocalRecoTask.cc
  * 
- * $Date: 2006/06/28 09:21:26 $
- * $Revision: 1.5 $
+ * $Date: 2006/07/03 15:30:24 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -45,6 +45,7 @@ DTLocalRecoTask::DTLocalRecoTask(const ParameterSet& pset) : dbe(0),
 
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName", "DTLocalRecoTask.root");
 
+  writeHisto = pset.getUntrackedParameter<bool>("writeHisto", true);
   
   if (dbe)
     dbe->setCurrentFolder("DT/DTLocalRecoTask");
@@ -86,7 +87,7 @@ void DTLocalRecoTask::beginJob(const EventSetup& setup){
 
 void DTLocalRecoTask::endJob(){
   // Write the histos
-  dbe->save(theRootFileName);
+  if ( writeHisto ) dbe->save(theRootFileName);
 
 }
 

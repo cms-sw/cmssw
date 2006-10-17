@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/09/20 14:37:41 $
- * $Revision: 1.11 $
+ * $Date: 2006/10/08 16:00:24 $
+ * $Revision: 1.12 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -34,6 +34,8 @@
 #include <CondFormats/DTObjects/interface/DTTtrig.h>
 #include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -70,7 +72,7 @@ DTDigiTask::~DTDigiTask(){
   cout << "DTDigiTask: analyzed " << nevents << " events" << endl;
 
   logFile.close();
-  if ( outputFile.size() != 0 ) dbe->save(outputFile);
+  if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) dbe->save(outputFile);
 }
 
 
@@ -102,97 +104,129 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
 	      for (int st=1; st<5; st++)
 		{
 		  DTChamberId chId(wheel, st, sec);
-		  //if ( !parameters.getUntrackedParameter<bool>("localrun", true) )
-		  //  {
-		  bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perCh");  
-		  bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perCh" );
-		  //  }
+		  if ( parameters.getUntrackedParameter<bool>("localrun", true) )
+		    {
+		      if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) 
+			bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perCh");  
+		      else
+			bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perCh" );
+		    }
 		  if (!parameters.getUntrackedParameter<bool>("localrun", true) )
 		    {
-		      bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChNoDT");  
-		      bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChDTalso");  
-		      bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChDTonly");  
-		      bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChNoDT" );
-		      bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChDTalso" );
-		      bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChDTonly" );
+		      if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+			bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChNoDT");  
+			bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChDTalso");  
+			bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChDTonly");  
+		      }
+		      else {
+			bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChNoDT" );
+			bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChDTalso" );
+			bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChDTonly" );
+		      }
 		    }
-		  bookHistos( chId, string("Occupancies"),"OccupancyAllHits_perCh"  );
-		  bookHistos( chId, string("Occupancies"),"OccupancyInTimeHits_perCh" );
+		  if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) 
+		    bookHistos( chId, string("Occupancies"),"OccupancyAllHits_perCh"  );
+		  else 
+		    bookHistos( chId, string("Occupancies"),"OccupancyInTimeHits_perCh" );
 
 		  for(int sl=1; sl<4; sl++)
 		    {
 		      if(st==4 && sl==2)
 			continue;
 		      DTSuperLayerId slId(chId, sl);
-		      //if (parameters.getUntrackedParameter<bool>("localrun", true) )
-		      //{
-		      bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHits" );
-		      bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHits" );
-		      //}
+		      if (parameters.getUntrackedParameter<bool>("localrun", true) )
+		      {
+			if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) 
+			  bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHits" );
+			else
+			  bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHits" );
+		      }
 		      if (!parameters.getUntrackedParameter<bool>("localrun", true) ) {
-			bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsNoDT" );
-			bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsDTalso" );
-			bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsDTonly" );
-			bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsNoDT" );
-			bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsDTalso" );
-			bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsDTonly" );
+			if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+			  bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsNoDT" );
+			  bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsDTalso" );
+			  bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsDTonly" );
+			}
+			else{
+			  bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsNoDT" );
+			  bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsDTalso" );
+			  bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsDTonly" );
+			}
 		      }
 		      bookHistos( slId, string("CathodPhotoPeaks"), "CathodPhotoPeak" );
 		      for(int layer=1; layer<5; layer++)
 			{
 			  DTLayerId layerId(slId, layer);
-			  bookHistos( layerId, "OccupancyAllHits" );
-			  bookHistos( layerId, "OccupancyNoise" ); 
-			  bookHistos( layerId, "OccupancyInTimeHits" );
-			  bookHistos( layerId, "OccupancyAfterPulseHits" );
+			   if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) 
+			     bookHistos( layerId, "OccupancyAllHits" );
+			   else
+			     bookHistos( layerId, "OccupancyInTimeHits" );
+			   bookHistos( layerId, "OccupancyNoise" ); 
+			   bookHistos( layerId, "OccupancyAfterPulseHits" );
 			}
 		    }
 		}
 	    }
 
 	  DTChamberId chId(wheel, 4, 14);
-	  //if ( !parameters.getUntrackedParameter<bool>("localrun", true) )
-	  //  {
-	  bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perCh");  
-	  bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perCh" );
-	  //  }
+	  if (parameters.getUntrackedParameter<bool>("localrun", true))
+	    {
+	      	if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) 
+		  bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perCh");  
+		else
+		  bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perCh" );
+	    }
 	  if (!parameters.getUntrackedParameter<bool>("localrun", true) )
 	    {
-	      bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChNoDT");  
-	      bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChDTalso");  
-	      bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChDTonly");  
-	      bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChNoDT" );
-	      bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChDTalso" );
-	       bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChDTonly" );
+	      if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)){ 
+		bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChNoDT");  
+		bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChDTalso");  
+		bookHistos( chId, string("TimeBoxes"),"TimeBoxAllHits_perChDTonly");  
+	      }
+	      else {
+		bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChNoDT" );
+		bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChDTalso" );
+		bookHistos( chId, string("TimeBoxes"),"TimeBoxInTimeHits_perChDTonly" );
+	      }
 	    }
-	  bookHistos( chId, string("Occupancies"),"OccupancyAllHits_perCh"  );
-	  bookHistos( chId, string("Occupancies"),"OccupancyInTimeHits_perCh" );
+	  if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) 
+	    bookHistos( chId, string("Occupancies"),"OccupancyAllHits_perCh"  );
+	  else
+	    bookHistos( chId, string("Occupancies"),"OccupancyInTimeHits_perCh" );
 
 	  for(int sl=1; sl<4; sl++)
 	    {
 	      if(sl==2)
 		continue;
 	      DTSuperLayerId slId(chId, sl);
-	      //if (parameters.getUntrackedParameter<bool>("localrun", true) )
-	      //{
-	      bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHits" );
-	      bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHits" );
-	      //}
+	      if (parameters.getUntrackedParameter<bool>("localrun", true) )
+	      {
+		if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) 
+		  bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHits" );
+		else
+		  bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHits" );
+	      }
 	      if (!parameters.getUntrackedParameter<bool>("localrun", true) ) {
-		bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsNoDT" );
-		bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsDTalso" );
-		bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsDTonly" );
-		bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsNoDT" );
-		bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsDTalso" );
-		bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsDTonly" );
+		if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+		  bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsNoDT" );
+		  bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsDTalso" );
+		  bookHistos( slId, string("TimeBoxes"), "TimeBoxAllHitsDTonly" );
+		}
+		else {
+		  bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsNoDT" );
+		  bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsDTalso" );
+		  bookHistos( slId, string("TimeBoxes"), "TimeBoxInTimeHitsDTonly" );
+		}
 	      }
 	      bookHistos( slId, string("CathodPhotoPeaks"), "CathodPhotoPeak" );
 	      for(int layer=1; layer<5; layer++)
 		{
 		  DTLayerId layerId(slId, layer);
-		  bookHistos( layerId, "OccupancyAllHits" );
+		  if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) 
+		    bookHistos( layerId, "OccupancyAllHits" );
+		  else
+		    bookHistos( layerId, "OccupancyInTimeHits" );
 		  bookHistos( layerId, "OccupancyNoise" ); 
-		  bookHistos( layerId, "OccupancyInTimeHits" );
 		  bookHistos( layerId, "OccupancyAfterPulseHits" );
 		}
 	    }
@@ -395,13 +429,34 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   e.getByLabel("dtunpacker", dtdigis);
 
   if ( !parameters.getUntrackedParameter<bool>("localrun", true) ) e.getByType(ltcdigis);
+  
+  bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels","false");
+  ESHandle<DTStatusFlag> statusMap;
+  if(checkNoisyChannels) {
+    // Get the map of noisy channels
+    c.get<DTStatusFlagRcd>().get(statusMap);
+  }
 
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
  
-      // for clearness..
+   if(checkNoisyChannels) {
+	const DTWireId wireId(((*dtLayerId_It).first), (*digiIt).wire());
+	bool isNoisy = false;
+	bool isFEMasked = false;
+	bool isTDCMasked = false;
+	bool isTrigMask = false;
+	bool isDead = false;
+	bool isNohv = false;
+	statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	if(isNoisy) {
+	  continue;
+	}      
+      }
+
+    // for clearness..
       uint32_t indexL = ((*dtLayerId_It).first).rawId();
       int layer_number=((*dtLayerId_It).first).layer();
       const  DTSuperLayerId dtSLId = ((*dtLayerId_It).first).superlayerId();
@@ -594,7 +649,9 @@ string DTDigiTask::triggerSource() {
 	l1ASource = "DTonly";
       else if (!(*ltc_it).HasTriggered(0))
 	l1ASource = "NoDT";
-      else 
+      //      else 
+      //	l1ASource = "DTalso";
+      else if ((*ltc_it).HasTriggered(0) && otherTriggerSum > 0)
 	l1ASource = "DTalso";
     }
   }

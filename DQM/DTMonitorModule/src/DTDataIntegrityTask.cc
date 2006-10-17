@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/07/20 08:41:29 $
- * $Revision: 1.10 $
+ * $Date: 2006/08/01 17:42:34 $
+ * $Revision: 1.11 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -413,7 +413,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     stationGroup = (stationGroup == 0 ? 1 : 0);  //switch between MB1-2 and MB3-4 data
   }
   
-  if (neventsROS25%parameters.getUntrackedParameter<int>("saveResultsFrequency", 10000)==0) 
+  if ((neventsROS25%parameters.getUntrackedParameter<int>("saveResultsFrequency", 10000)==0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
     dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
   
 
