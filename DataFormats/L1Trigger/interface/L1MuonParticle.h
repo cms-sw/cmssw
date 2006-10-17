@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1MuonParticle.h,v 1.4 2006/08/06 15:32:44 wsun Exp $
+// $Id: L1MuonParticle.h,v 1.5 2006/08/10 18:47:41 wsun Exp $
 //
 
 // system include files
@@ -37,6 +37,10 @@ namespace l1extra {
       public:
 	 L1MuonParticle();
 
+	 // Eventually, all L1MuGMTCands will be L1MuGMTExtendedCands,
+	 // as soon as dictionaries for them exist in
+	 // L1Trigger/GlobalMuonTrigger.
+
 	 L1MuonParticle( Charge q,
 			 const LorentzVector& p4,
 			 const edm::Ref< std::vector< L1MuGMTCand> >& aRef ) ;
@@ -45,7 +49,10 @@ namespace l1extra {
          L1MuonParticle( Charge q,
                          const LorentzVector& p4,
                          bool isolated = false,
-                         bool mip = false ) ;
+                         bool mip = false,
+			 bool forward = false,
+			 bool rpc = false,
+			 unsigned int detector = 0 ) ;
 
 	 virtual ~L1MuonParticle();
 
@@ -56,7 +63,17 @@ namespace l1extra {
          bool isMip() const
          { return mip_ ; }
 
-	 const edm::Ref< std::vector< L1MuGMTCand> >& gmtMuonCandRef() const
+	 bool isForward() const
+	 { return forward_ ; }
+
+	 bool isRPC() const
+	 { return rpc_ ; }
+
+	 // See L1MuGMTExtendedCand.h for code.
+	 unsigned int detector() const
+	 { return detector_ ; }
+
+	 const edm::Ref< std::vector< L1MuGMTCand > >& gmtMuonCandRef() const
 	 { return ref_ ; }
 
 	 const L1MuGMTCand* gmtMuonCand() const
@@ -71,6 +88,15 @@ namespace l1extra {
 	 void setMip( bool isMip )
 	 { mip_ = isMip ; }
 
+	 void setForward( bool isForward )
+	 { forward_ = isForward ; }
+
+	 void setRPC( bool isRPC )
+	 { rpc_ = isRPC ; }
+
+	 void setDetector( unsigned int detector )
+	 { detector_ = detector ; }
+
       private:
 	 // L1MuonParticle(const L1MuonParticle&); // stop default
 
@@ -79,6 +105,9 @@ namespace l1extra {
 	 // ---------- member data --------------------------------
          bool isolated_ ;
          bool mip_ ;
+	 bool forward_ ;
+	 bool rpc_ ;
+	 unsigned int detector_ ;
 	 edm::Ref< std::vector< L1MuGMTCand> > ref_ ;
    };
 }
