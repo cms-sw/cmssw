@@ -3,6 +3,9 @@
 #include "Utilities/RFIOAdaptor/interface/RFIOError.h"
 #include "SealBase/StringFormat.h"
 
+extern C { char * rfio_errmsg(int, int); }
+
+
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
 //<<<<<< PRIVATE TYPES                                                  >>>>>>
@@ -23,7 +26,7 @@ std::string
 RFIOError::explainSelf (void) const
 { 
   return IOError::explainSelf() + 
-    std::string(seal::StringFormat (" RFIO error %1/%2").arg (m_code).arg (m_scode)); 
+    std::string(seal::StringFormat (" RFIO error %1/%2:%3").arg (m_code).arg (m_scode).arg(rfio_errmsg(m_scode,m_code))); 
 }
 
 seal::Error *
