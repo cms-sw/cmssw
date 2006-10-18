@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/07/23 07:23:09 $
- * $Revision: 1.87 $
+ * $Date: 2006/08/03 19:41:25 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1059,14 +1059,16 @@ void EBPedestalClient::analyze(void){
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ie, ip, 2.);
         if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, 2.);
 
-        bool update_channel = false;
+        bool update_channel1 = false;
+        bool update_channel2 = false;
+        bool update_channel3 = false;
 
         if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
           num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
           if ( num01 >= n_min_bin ) {
             mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
             rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+            update_channel1 = true;
           }
         }
 
@@ -1075,7 +1077,7 @@ void EBPedestalClient::analyze(void){
           if ( num02 >= n_min_bin ) {
             mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
             rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+            update_channel2 = true;
           }
         }
 
@@ -1084,11 +1086,11 @@ void EBPedestalClient::analyze(void){
           if ( num03 >= n_min_bin ) {
             mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
             rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+            update_channel3 = true;
           }
         }
 
-        if ( update_channel ) {
+        if ( update_channel1 ) {
 
           float val;
 
@@ -1102,6 +1104,12 @@ void EBPedestalClient::analyze(void){
           if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
           if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
 
+        }
+
+        if ( update_channel2 ) {
+
+          float val;
+
           val = 1.;
           if ( abs(mean02 - expectedMean_[1]) > discrepancyMean_[1] )
             val = 0.;
@@ -1111,6 +1119,12 @@ void EBPedestalClient::analyze(void){
 
           if ( mep02_[ism-1] ) mep02_[ism-1]->Fill(mean02);
           if ( mer02_[ism-1] ) mer02_[ism-1]->Fill(rms02);
+
+        }
+
+        if ( update_channel3 ) {
+
+          float val;
 
           val = 1.;
           if ( abs(mean03 - expectedMean_[2]) > discrepancyMean_[2] )
