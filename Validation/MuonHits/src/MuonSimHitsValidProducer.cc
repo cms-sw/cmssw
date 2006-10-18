@@ -460,12 +460,12 @@ void MuonSimHitsValidProducer::fillDT(edm::Event& iEvent,
     /// check that expected detector is returned
     if ((detector == dMuon) && 
         (subdetector == sdMuonDT)) {
-
+       
       /// get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theDTMuon.idToDetUnit(theDetUnitId);
     
       if (!theDet) {
-	edm::LogWarning("MuonSimHitsValidProducer::fillDT") 
+  	edm::LogWarning("MuonSimHitsValidProducer::fillDT") 
 	  << "Unable to get GeomDetUnit from theDTMuon for hit " << i;
 	continue;
       }
@@ -507,7 +507,7 @@ void MuonSimHitsValidProducer::fillDT(edm::Event& iEvent,
 
       DTHitsEnLoss.push_back(itHit->energyLoss());
       DTHitsTimeOfFlight.push_back(itHit->tof());
-
+      
     } else {
       edm::LogWarning("MuonSimHitsValidProducer::fillDT")
         << "MuonDT PSimHit " << i 
@@ -673,7 +673,8 @@ void MuonSimHitsValidProducer::storeDT(PMuonSimHit& product)
 		  DTHitsExitPointX,   DTHitsExitPointY,   DTHitsExitPointZ,
 		  DTHitsEntryPointX,  DTHitsEntryPointY,  DTHitsEntryPointZ,
 		  DTHitsEnLoss,       DTHitsTimeOfFlight);
-  return;
+ 
+      return;
 }
 
 void MuonSimHitsValidProducer::storeRPC(PMuonSimHit& product)

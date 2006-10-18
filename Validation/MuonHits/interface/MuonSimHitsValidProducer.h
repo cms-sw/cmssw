@@ -53,6 +53,8 @@ class MuonSimHitsValidProducer : public edm::EDProducer
 
   typedef std::vector<float> FloatVector;
   typedef std::vector<int>   IntegerVector;
+  typedef std::vector<long int>   LongIntegerVector;
+  typedef std::vector<unsigned int>   UnsigIntegerVector;
 
   explicit MuonSimHitsValidProducer(const edm::ParameterSet&);
   virtual ~MuonSimHitsValidProducer();
@@ -100,7 +102,7 @@ class MuonSimHitsValidProducer : public edm::EDProducer
   /// CSC info
 
   IntegerVector CSCHitsId;
-  FloatVector   CSCHitsDetUnId;
+  UnsigIntegerVector   CSCHitsDetUnId;
   FloatVector   CSCHitsTrkId; 
   FloatVector   CSCHitsProcType; 
   FloatVector   CSCHitsPartType; 
@@ -127,7 +129,7 @@ class MuonSimHitsValidProducer : public edm::EDProducer
 
   /// DT info
 
-  FloatVector   DTHitsDetUnId;
+  UnsigIntegerVector   DTHitsDetUnId;
   FloatVector   DTHitsTrkId; 
   FloatVector   DTHitsProcType; 
   FloatVector   DTHitsPartType; 
@@ -154,7 +156,7 @@ class MuonSimHitsValidProducer : public edm::EDProducer
 
   /// RPC info
 
-  FloatVector   RPCHitsDetUnId;
+  UnsigIntegerVector   RPCHitsDetUnId;
   FloatVector   RPCHitsTrkId; 
   FloatVector   RPCHitsProcType; 
   FloatVector   RPCHitsPartType; 
