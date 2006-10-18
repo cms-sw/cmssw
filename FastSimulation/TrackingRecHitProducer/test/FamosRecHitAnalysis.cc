@@ -271,22 +271,22 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
 				     char* det ) {
   //
   for(unsigned int iHist = 0; iHist < histos_nom_alpha.size(); iHist++) {
-    histos_alpha.push_back( new TH1F(Form( "hist_%s_%u_alpha" , det , iHist+1 ) ,
+    histos_alpha.push_back( new TH1F(Form( "hist_%s_%u_prob_alpha" , det , iHist+1 ) ,
 				     Form( "Hit Local Position angle #alpha^{Rec} %s (multiplicity %u) probability;#alpha^{Rec} [rad];Probability" , det , iHist+1 ) ,
 				     histos_nom_alpha[iHist]->GetNbinsX() , histos_nom_alpha[iHist]->GetXaxis()->GetXmin() , histos_nom_alpha[iHist]->GetXaxis()->GetXmax() ));
     // change name to the nominal one
     histos_nom_alpha[iHist]->SetTitle( Form( "Hit Local Position angle #alpha^{Sim} %s (multiplicity %u) probability;#alpha^{Sim} [rad];Probability" , det , iHist+1 ) );
-    histos_nom_alpha[iHist]->SetName(  Form( "hist_%s_%u_nom_alpha" , det , iHist+1 ) );
+    histos_nom_alpha[iHist]->SetName(  Form( "hist_%s_%u_nom_prob_alpha" , det , iHist+1 ) );
   }
   //
   //
   for(unsigned int iHist = 0; iHist < histos_nom_beta.size(); iHist++) {
-    histos_beta.push_back( new TH1F(Form( "hist_%s_%u_beta" , det , iHist+1 ) ,
+    histos_beta.push_back( new TH1F(Form( "hist_%s_%u_prob_beta" , det , iHist+1 ) ,
 				    Form( "Hit Local Position angle #beta^{Rec} %s (multiplicity %u) probability;#beta^{Rec} [rad];Probability" , det , iHist+1 ) ,
 				    histos_nom_beta[iHist]->GetNbinsX() , histos_nom_beta[iHist]->GetXaxis()->GetXmin() , histos_nom_beta[iHist]->GetXaxis()->GetXmax() ));
     // change name to the nominal one
     histos_nom_beta[iHist]->SetTitle( Form( "Hit Local Position angle #beta^{Sim} %s (multiplicity %u) probability;#beta^{Sim} [rad];Probability" , det , iHist+1 ) );
-    histos_nom_beta[iHist]->SetName(  Form( "hist_%s_%u_nom_beta" , det , iHist+1 ) );
+    histos_nom_beta[iHist]->SetName(  Form( "hist_%s_%u_nom_prob_beta" , det , iHist+1 ) );
   }
   //
 }
@@ -310,15 +310,17 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
     for(int iBin = -1; iBin<resAlpha_binN; iBin++) {
       if(iBin<0) iBin++; // to avoid skip loop if nBins==0
       iHist++;
+      float binMin = ( resAlpha_binWidth!=0 ? resAlpha_binMin+(float)(iBin)*resAlpha_binWidth   : -3.141593 );
+      float binMax = ( resAlpha_binWidth!=0 ? resAlpha_binMin+(float)(iBin+1)*resAlpha_binWidth :  3.141593 );
       histos_alpha.push_back(new TH1F(Form( "hist_%s_%u_%u_res_alpha" , det , iMult+1 , iBin+1 ) ,
-				      Form( "Hit Local Position x^{Rec} %f<#alpha^{Rec}<%f %s (multiplicity %u);x^{Rec} [cm];Events/bin" ,
-					    resAlpha_binMin+(float)(iBin)*resAlpha_binWidth , resAlpha_binMin+(float)(iBin+1)*resAlpha_binWidth ,
+				      Form( "Hit Local Position x^{Rec} [%f<#alpha^{Rec}<%f] %s (multiplicity %u);x [cm];Events/bin" ,
+					    binMin , binMax ,
 					    det , iMult+1 ) ,
 				      histos_nom_alpha[iHist]->GetNbinsX() , histos_nom_alpha[iHist]->GetXaxis()->GetXmin() , histos_nom_alpha[iHist]->GetXaxis()->GetXmax() ) );
       // change name to the nominal one
       histos_nom_alpha[iHist]->SetName(  Form( "hist_%s_%u_%u_nom_res_alpha" , det , iMult+1 , iBin+1 ) );
-      histos_nom_alpha[iHist]->SetTitle( Form( "Hit Local Position x^{Sim} %f<#alpha^{Sim}<%f %s (multiplicity %u);x^{Sim} [cm];Events/bin" ,
-					       resAlpha_binMin+(float)(iBin)*resAlpha_binWidth , resAlpha_binMin+(float)(iBin+1)*resAlpha_binWidth ,
+      histos_nom_alpha[iHist]->SetTitle( Form( "Hit Local Position x^{Sim} [%f<#alpha^{Sim}<%f] %s (multiplicity %u);x [cm];Events/bin" ,
+					       binMin , binMax ,
 					       det , iMult+1 ) );
     }
   }
@@ -329,13 +331,13 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
       if(iBin<0) iBin++; // to avoid skip loop if nBins==0
       iHist++;
       histos_beta.push_back(new TH1F(Form( "hist_%s_%u_%u_res_beta" , det , iMult+1 , iBin+1 ) ,
-				     Form( "Hit Local Position y^{Rec} %f<#beta^{Rec}<%f %s (multiplicity %u);y^{Rec} [cm];Events/bin" ,
+				     Form( "Hit Local Position y^{Rec} [%f<#beta^{Rec}<%f] %s (multiplicity %u);y [cm];Events/bin" ,
 					   resBeta_binMin+(float)(iBin)*resBeta_binWidth , resBeta_binMin+(float)(iBin+1)*resBeta_binWidth ,
 					   det , iMult+1 ) ,
 				     histos_nom_beta[iHist]->GetNbinsX() , histos_nom_beta[iHist]->GetXaxis()->GetXmin() , histos_nom_beta[iHist]->GetXaxis()->GetXmax() ) );
       // change name to the nominal one
       histos_nom_beta[iHist]->SetName(  Form( "hist_%s_%u_%u_nom_res_beta" , det , iMult+1 , iBin+1 ) );
-      histos_nom_beta[iHist]->SetTitle( Form( "Hit Local Position y^{Sim} %f<#beta^{Sim}<%f %s (multiplicity %u);y^{Sim} [cm];Events/bin" ,
+      histos_nom_beta[iHist]->SetTitle( Form( "Hit Local Position y^{Sim} [%f<#beta^{Sim}<%f] %s (multiplicity %u);y [cm];Events/bin" ,
 					      resBeta_binMin+(float)(iBin)*resBeta_binWidth , resBeta_binMin+(float)(iBin+1)*resBeta_binWidth ,
 					      det , iMult+1 ) );
     }
@@ -444,14 +446,14 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 #ifdef rrDEBUG
 	std::cout << "\t" << iRecHit << std::endl;
 	std::cout << "\tRecHit"
-		  << "\t\tx = " << (*iterRecHit).localPosition().x() << " cm"
-		  << "\t\ty = " << (*iterRecHit).localPosition().y() << " cm"
-		  << "\t\tz = " << (*iterRecHit).localPosition().z() << " cm"
+		  << "\t\tx = " << xRec << " cm"
+		  << "\t\ty = " << yRec << " cm"
+		  << "\t\tz = " << zRec << " cm"
 		  << std::endl;
 	std::cout << "\tSimHit"
-		  << "\t\tx = " << (*iterRecHit).simhit().localPosition().x() << " cm"
-		  << "\t\ty = " << (*iterRecHit).simhit().localPosition().y() << " cm"
-		  << "\t\tz = " << (*iterRecHit).simhit().localPosition().z() << " cm"
+		  << "\t\tx = " << xSim << " cm"
+		  << "\t\ty = " << ySim << " cm"
+		  << "\t\tz = " << zSim << " cm"
 		  << std::endl;
 	std::cout << "\tResiduals"
 		  << "\t\tx = " << delta_x << " cm"
@@ -579,15 +581,15 @@ void FamosRecHitAnalysis::endJob() {
   rootComparison( histos_PXB_beta  , histos_PXB_nom_beta  , 1 , 0 );
   rootComparison( histos_PXF_alpha , histos_PXF_nom_alpha , 1 , 0 );
   rootComparison( histos_PXF_beta  , histos_PXF_nom_beta  , 1 , 0 );
-  rootComparison( histos_PXB_res_alpha , histos_PXB_nom_res_alpha , 1 );
-  rootComparison( histos_PXB_res_beta  , histos_PXB_nom_res_beta  , 1 );
-  rootComparison( histos_PXF_res_alpha , histos_PXF_nom_res_alpha , 1 );
-  rootComparison( histos_PXF_res_beta  , histos_PXF_nom_res_beta  , 1 );
+  rootComparison( histos_PXB_res_alpha , histos_PXB_nom_res_alpha , 20 );
+  rootComparison( histos_PXB_res_beta  , histos_PXB_nom_res_beta  , 20 );
+  rootComparison( histos_PXF_res_alpha , histos_PXF_nom_res_alpha , 20 );
+  rootComparison( histos_PXF_res_beta  , histos_PXF_nom_res_beta  , 20 );
   //
-  rootComparison( histos_TIB_x,histos_TIB_nom_x , 20 );
-  rootComparison( histos_TID_x,histos_TID_nom_x , 20 );
-  rootComparison( histos_TOB_x,histos_TOB_nom_x , 40 );
-  rootComparison( histos_TEC_x,histos_TEC_nom_x , 40 );
+  rootComparison( histos_TIB_x , histos_TIB_nom_x , 20 );
+  rootComparison( histos_TID_x , histos_TID_nom_x , 20 );
+  rootComparison( histos_TOB_x , histos_TOB_nom_x , 40 );
+  rootComparison( histos_TEC_x , histos_TEC_nom_x , 40 );
   //
   theRootFile->Close();
   //
@@ -617,42 +619,38 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
   // resolution
   // search bin (resolution histograms)
       int iAlphaHist = -1;
-      int iHist = -1; // count the histograms in the vector
-      for(unsigned int iMult = 0; iMult<nAlphaBarrel; iMult++) {
-	for(int iBin = -1; iBin<(int)resAlphaBarrel_binN; iBin++) {
-	  if(iBin<0) iBin++; // to avoid skip loop if nBins==0
-	  iHist++;
-	  if(iMult+1 == mult_alpha) {
-	    if(resAlphaBarrel_binN != 0) {
-	      double binMin = resAlphaBarrel_binMin+(double)(iBin)*resAlphaBarrel_binWidth;
-	      double binMax = resAlphaBarrel_binMin+(double)(iBin+1)*resAlphaBarrel_binWidth;
-	      if( alpha >= binMin) iAlphaHist = iHist; // overflow
-	      if( alpha < binMax)  iAlphaHist = iHist; // underflow
-	    } else {
-	      iAlphaHist = iHist;
-	    }
-	  }
-	} // loop angle bins
-      } // loop multiplicity
+      if(resAlphaBarrel_binN!=0) {
+	for(unsigned int iBin = 1; iBin<=resAlphaBarrel_binN; iBin++) {
+	  double binMin = resAlphaBarrel_binMin+(double)(iBin-1)*resAlphaBarrel_binWidth;
+	  double binMax = resAlphaBarrel_binMin+(double)(iBin)*resAlphaBarrel_binWidth;
+	  if( alpha >= binMin && alpha < binMax ) iAlphaHist = ( (mult_alpha-1)*resAlphaBarrel_binN + iBin ) - 1;
+	}
+      } else {
+	iAlphaHist = mult_alpha - 1;
+      }
+      if( iAlphaHist==-1 ) {
+	double binMin = resAlphaBarrel_binMin;
+	double binMax = resAlphaBarrel_binMin+(double)(resAlphaBarrel_binN)*resAlphaBarrel_binWidth;
+	if( alpha < binMin)  iAlphaHist = ( (mult_alpha-1)*resAlphaBarrel_binN + 0 ) - 1; // underflow
+	if( alpha >= binMax) iAlphaHist = ( (mult_alpha-1)*resAlphaBarrel_binN + resAlphaBarrel_binN ) - 1; // overflow
+      }
       //
       int iBetaHist = -1;
-      iHist = -1; // count the histograms in the vector
-      for(unsigned int iMult = 0; iMult<nBetaBarrel; iMult++) {
-	for(int iBin = -1; iBin<(int)resBetaBarrel_binN; iBin++) {
-	  if(iBin<0) iBin++; // to avoid skip loop if nBins==0
-	  iHist++;
-	  if(iMult+1 == mult_beta) {
-	    if(resBetaBarrel_binN != 0) {
-	      double binMin = resBetaBarrel_binMin+(double)(iBin)*resBetaBarrel_binWidth;
-	      double binMax = resBetaBarrel_binMin+(double)(iBin+1)*resBetaBarrel_binWidth;
-	      if( beta >= binMin) iBetaHist = iHist; // overflow
-	      if( beta < binMax)  iBetaHist = iHist; // underflow
-	    } else {
-	      iBetaHist = iHist;
-	    }
-	  }
-	} // loop angle bins
-      } // loop multiplicity
+      if(resBetaBarrel_binN!=0) {
+	for(unsigned int iBin = 1; iBin<=resBetaBarrel_binN; iBin++) {
+	  double binMin = resBetaBarrel_binMin+(double)(iBin-1)*resBetaBarrel_binWidth;
+	  double binMax = resBetaBarrel_binMin+(double)(iBin)*resBetaBarrel_binWidth;
+	  if( beta >= binMin && beta < binMax ) iBetaHist = ( (mult_beta-1)*resBetaBarrel_binN + iBin ) - 1;
+	}
+      } else {
+	iBetaHist = mult_beta - 1;
+      }
+      if( iBetaHist==-1 ) {
+	double binMin = resBetaBarrel_binMin;
+	double binMax = resBetaBarrel_binMin+(double)(resBetaBarrel_binN)*resBetaBarrel_binWidth;
+	if( beta < binMin)  iBetaHist = ( (mult_beta-1)*resBetaBarrel_binN + 0 ) - 1; // underflow
+	if( beta >= binMax) iBetaHist = ( (mult_beta-1)*resBetaBarrel_binN + resBetaBarrel_binN ) - 1; // overflow
+      }
       //
 #ifdef rrDEBUG
       std::cout << "\tResolution histos chosen alpha " << iAlphaHist << " beta " << iBetaHist << std::endl;
@@ -674,45 +672,41 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
       std::cout << "\tTracker subdetector " << subdetid << " PXF Disk " << theDisk << std::endl;
 #endif
       //
-      // resolution
-      // search bin (resolution histograms)
+  // resolution
+  // search bin (resolution histograms)
       int iAlphaHist = -1;
-      int iHist = -1; // count the histograms in the vector
-      for(unsigned int iMult = 0; iMult<nAlphaForward; iMult++) {
-	for(int iBin = -1; iBin<(int)resAlphaForward_binN; iBin++) {
-	  if(iBin<0) iBin++; // to avoid skip loop if nBins==0
-	  iHist++;
-	  if(iMult+1 == mult_alpha) {
-	    if(resAlphaForward_binN != 0) {
-	      double binMin = resAlphaForward_binMin+(double)(iBin)*resAlphaForward_binWidth;
-	      double binMax = resAlphaForward_binMin+(double)(iBin+1)*resAlphaForward_binWidth;
-	      if( alpha >= binMin) iAlphaHist = iHist; // overflow
-	      if( alpha < binMax)  iAlphaHist = iHist; // underflow
-	    } else {
-	      iAlphaHist = iHist;
-	    }
-	  }
-	} // loop angle bins
-      } // loop multiplicity
+      if(resAlphaForward_binN!=0) {
+	for(unsigned int iBin = 1; iBin<=resAlphaForward_binN; iBin++) {
+	  double binMin = resAlphaForward_binMin+(double)(iBin-1)*resAlphaForward_binWidth;
+	  double binMax = resAlphaForward_binMin+(double)(iBin)*resAlphaForward_binWidth;
+	  if( alpha >= binMin && alpha < binMax ) iAlphaHist = ( (mult_alpha-1)*resAlphaForward_binN + iBin ) - 1;
+	}
+      } else {
+	iAlphaHist = mult_alpha - 1;
+      }
+      if( iAlphaHist==-1 ) {
+	double binMin = resAlphaForward_binMin;
+	double binMax = resAlphaForward_binMin+(double)(resAlphaForward_binN)*resAlphaForward_binWidth;
+	if( alpha < binMin)  iAlphaHist = ( (mult_alpha-1)*resAlphaForward_binN + 0 ) - 1; // underflow
+	if( alpha >= binMax) iAlphaHist = ( (mult_alpha-1)*resAlphaForward_binN + resAlphaForward_binN ) - 1; // overflow
+      }
       //
       int iBetaHist = -1;
-      iHist = -1; // count the histograms in the vector
-      for(unsigned int iMult = 0; iMult<nBetaForward; iMult++) {
-	for(int iBin = -1; iBin<(int)resBetaForward_binN; iBin++) {
-	  if(iBin<0) iBin++; // to avoid skip loop if nBins==0
-	  iHist++;
-	  if(iMult+1 == mult_beta) {
-	    if(resBetaForward_binN != 0) {
-	      double binMin = resBetaForward_binMin+(double)(iBin)*resBetaForward_binWidth;
-	      double binMax = resBetaForward_binMin+(double)(iBin+1)*resBetaForward_binWidth;
-	      if( beta >= binMin) iBetaHist = iHist; // overflow
-	      if( beta < binMax)  iBetaHist = iHist; // underflow
-	    } else {
-	      iBetaHist = iHist;
-	    }
-	  }
-	} // loop angle bins
-      } // loop multiplicity
+      if(resBetaForward_binN!=0) {
+	for(unsigned int iBin = 1; iBin<=resBetaForward_binN; iBin++) {
+	  double binMin = resBetaForward_binMin+(double)(iBin-1)*resBetaForward_binWidth;
+	  double binMax = resBetaForward_binMin+(double)(iBin)*resBetaForward_binWidth;
+	  if( beta >= binMin && beta < binMax ) iBetaHist = ( (mult_beta-1)*resBetaForward_binN + iBin ) - 1;
+	}
+      } else {
+	iBetaHist = mult_beta - 1;
+      }
+      if( iBetaHist==-1 ) {
+	double binMin = resBetaForward_binMin;
+	double binMax = resBetaForward_binMin+(double)(resBetaForward_binN)*resBetaForward_binWidth;
+	if( beta < binMin)  iBetaHist = ( (mult_beta-1)*resBetaForward_binN + 0 ) - 1; // underflow
+	if( beta >= binMax) iBetaHist = ( (mult_beta-1)*resBetaForward_binN + resBetaForward_binN ) - 1; // overflow
+      }
       //
 #ifdef rrDEBUG
       std::cout << "\tResolution histos chosen alpha " << iAlphaHist << " beta " << iBetaHist << std::endl;
@@ -914,9 +908,12 @@ void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std:
     histos_nominal[iHist]->Rebin(binFactor);
     histos_value[iHist]->GetXaxis()->SetRangeUser( histos_value[iHist]->GetMean() - 3 * histos_value[iHist]->GetRMS() , 
 						   histos_value[iHist]->GetMean() + 3 * histos_value[iHist]->GetRMS() );
+    // normalise entries of nominal histo to value histo (useful for pixel)
+    histos_nominal[iHist]->SetEntries(histos_value[iHist]->GetEntries());
+    //
     // Draw
-    histos_value[iHist]->Draw("HIST P E1");
-    histos_nominal[iHist]->Draw("HIST SAME");
+    histos_nominal[iHist]->Draw("HIST");
+    histos_value[iHist]->Draw("HIST P E1 SAME");
     //
     // perform chi2 test between obtained and nominal histograms
     double compatibilityFactor = histos_value[iHist]->KolmogorovTest(histos_nominal[iHist],"");
