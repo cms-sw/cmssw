@@ -47,8 +47,10 @@ using namespace edm;
 using namespace std;
 
 DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
-
-  cout<<"[DTDigiTask]: Constructor"<<endl;
+  
+  debug = ps.getUntrackedParameter<bool>("debug", "false");
+  if(debug)
+    cout<<"[DTDigiTask]: Constructor"<<endl;
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "DTDigiSources.root");
 
@@ -69,16 +71,24 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
 
 DTDigiTask::~DTDigiTask(){
 
-  cout << "DTDigiTask: analyzed " << nevents << " events" << endl;
+  if(debug)
+    cout << "DTDigiTask: analyzed " << nevents << " events" << endl;
 
   logFile.close();
-  if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) dbe->save(outputFile);
 }
 
+void DTDigiTask::endJob(){
+
+if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
+  dbe->save(outputFile);
+
+ dbe->setCurrentFolder("DT/DTDigiTask");
+ dbe->removeContents();
+}
 
 void DTDigiTask::beginJob(const edm::EventSetup& context){
-
-  cout<<"[DTDigiTask]: BeginJob"<<endl;
+  if(debug)
+    cout<<"[DTDigiTask]: BeginJob"<<endl;
 
   nevents = 0;
 
@@ -245,13 +255,15 @@ void DTDigiTask::bookHistos(const DTLayerId& dtLayer, string histoTag) {
   stringstream superLayer; superLayer << dtLayer.superlayer();	
   stringstream layer; layer << dtLayer.layer();	
 
-  cout<<"[DTDigiTask]: booking"<<endl;
+  if (debug)
+    cout<<"[DTDigiTask]: booking"<<endl;
 
   dbe->setCurrentFolder("DT/DTDigiTask/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str() + "/Occupancies");
 
-  cout<<"[DTDigiTask]: histoTag "<<histoTag<<endl;
+  if (debug)
+    cout<<"[DTDigiTask]: histoTag "<<histoTag<<endl;
 
   string histoName = histoTag 
     + "_W" + wheel.str() 
@@ -260,7 +272,8 @@ void DTDigiTask::bookHistos(const DTLayerId& dtLayer, string histoTag) {
     + "_SL" + superLayer.str() 
     + "_L" + layer.str();
 
-  cout<<"[DTDigiTask]: histoName "<<histoName<<endl;
+  if (debug)
+    cout<<"[DTDigiTask]: histoName "<<histoName<<endl;
 
   const int nWires = muonGeom->layer(dtLayer)->specificTopology().channels();
 
@@ -279,25 +292,26 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
   stringstream sector; sector << dtSL.sector();	
   stringstream superLayer; superLayer << dtSL.superlayer();	
 
-  cout<<"[DTDigiTask]: booking"<<endl;
+  if (debug)
+    cout<<"[DTDigiTask]: booking"<<endl;
 
   dbe->setCurrentFolder("DT/DTDigiTask/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str() + "/" + folder);
 
-  cout<<"[DTDigiTask]: folder "<< "DT/DTDigiTask/Wheel" + wheel.str() +
-    "/Station" + station.str() +
-    "/Sector" + sector.str() + "/" + folder<<endl;
-
-  cout<<"[DTDigiTask]: histoTag "<<histoTag<<endl;
-
+  if (debug) {
+    cout<<"[DTDigiTask]: folder "<< "DT/DTDigiTask/Wheel" + wheel.str() +
+      "/Station" + station.str() +
+      "/Sector" + sector.str() + "/" + folder<<endl;
+    cout<<"[DTDigiTask]: histoTag "<<histoTag<<endl;
+  }
   string histoName = histoTag 
     + "_W" + wheel.str() 
     + "_St" + station.str() 
     + "_Sec" + sector.str() 
     + "_SL" + superLayer.str(); 
 
-
+  if (debug)
   cout<<"[DTDigiTask]: histoName "<<histoName<<endl;
 
   if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
@@ -339,25 +353,26 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
   stringstream wheel; wheel << dtCh.wheel();	
   stringstream station; station << dtCh.station();	
   stringstream sector; sector << dtCh.sector();	
-
-  cout<<"[DTDigiTask]: booking"<<endl;
+  if (debug)
+    cout<<"[DTDigiTask]: booking"<<endl;
 
   dbe->setCurrentFolder("DT/DTDigiTask/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str() + "/" + folder);
-
-  cout<<"[DTDigiTask]: folder "<< "DT/DTDigiTask/Wheel" + wheel.str() +
-    "/Station" + station.str() +
-    "/Sector" + sector.str() + "/" + folder<<endl;
-
-  cout<<"[DTDigiTask]: histoTag "<<histoTag<<endl;
+  if (debug){
+    cout<<"[DTDigiTask]: folder "<< "DT/DTDigiTask/Wheel" + wheel.str() +
+      "/Station" + station.str() +
+      "/Sector" + sector.str() + "/" + folder<<endl;
+    cout<<"[DTDigiTask]: histoTag "<<histoTag<<endl;
+  }
 
   string histoName = histoTag 
     + "_W" + wheel.str() 
     + "_St" + station.str() 
     + "_Sec" + sector.str(); 
 
-  cout<<"[DTDigiTask]: histoName "<<histoName<<endl;
+  if (debug) 
+    cout<<"[DTDigiTask]: histoName "<<histoName<<endl;
 
   if ( folder == "TimeBoxes") {
     DTSuperLayerId slId(dtCh,1);
@@ -422,7 +437,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
 void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   nevents++;
-  if (nevents%1000 == 0) 
+  if (nevents%1000 == 0 && debug) 
     cout<<"[DTDigiTask]: "<<nevents<<" events analyzed"<<endl;
 
   edm::Handle<DTDigiCollection> dtdigis;
