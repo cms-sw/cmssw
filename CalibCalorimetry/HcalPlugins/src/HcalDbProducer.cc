@@ -13,13 +13,14 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.10 2006/01/10 19:29:40 fedor Exp $
+// $Id: HcalDbProducer.cc,v 1.11 2006/01/17 18:18:24 fedor Exp $
 //
 //
 
 
 // system include files
 #include <iostream>
+#include <fstream>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -43,9 +44,11 @@
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h" 
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+
 #include "HcalDbProducer.h"
 
-HcalDbProducer::HcalDbProducer( const edm::ParameterSet&)
+HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
   : mService (new HcalDbService ())
 {
   //the following line is needed to tell the framework what
@@ -61,6 +64,11 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet&)
 		   );
   
   //now do what ever other initialization is needed
+  mDumpRequest = fConfig.getUntrackedParameter <std::vector <std::string> > ("dump", std::vector<std::string>());
+  if (!mDumpRequest.empty()) {
+    std::string otputFile = fConfig.getUntrackedParameter <std::string> ("file", "");
+    mDumpStream = otputFile.empty () ? &std::cout : new std::ofstream (otputFile.c_str());
+  }
 }
 
 
@@ -69,7 +77,7 @@ HcalDbProducer::~HcalDbProducer()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
+  if (mDumpStream != &std::cout) delete mDumpStream;
 }
 
 
@@ -89,6 +97,10 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
   edm::ESHandle <HcalPedestals> item;
   fRecord.get (item);
   mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Pedestals")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
 }
 
   void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
@@ -96,6 +108,10 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
   edm::ESHandle <HcalPedestalWidths> item;
   fRecord.get (item);
   mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
 }
 
 
@@ -104,6 +120,10 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
   edm::ESHandle <HcalGains> item;
   fRecord.get (item);
   mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
 }
 
 
@@ -112,6 +132,10 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
   edm::ESHandle <HcalGainWidths> item;
   fRecord.get (item);
   mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
 }
 
 void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
@@ -119,6 +143,10 @@ void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
   edm::ESHandle <HcalQIEData> item;
   fRecord.get (item);
   mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
 }
 
 void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecord) {
@@ -126,6 +154,10 @@ void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecor
   edm::ESHandle <HcalChannelQuality> item;
   fRecord.get (item);
   mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
 }
 
 void HcalDbProducer::electronicsMapCallback (const HcalElectronicsMapRcd& fRecord) {
@@ -133,6 +165,10 @@ void HcalDbProducer::electronicsMapCallback (const HcalElectronicsMapRcd& fRecor
   edm::ESHandle <HcalElectronicsMap> item;
   fRecord.get (item);
   mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL Electronics Map set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
 }
 
 

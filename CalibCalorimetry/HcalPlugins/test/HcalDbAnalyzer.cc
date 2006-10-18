@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.14 2006/07/29 00:21:32 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.15 2006/09/08 23:24:36 fedor Exp $
 //
 //
 
@@ -171,58 +171,6 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::cout << " ADC: " << i << " q1:" << q0 << " q2:" << q1 << " q3:" << q2 << " q4:" << q3 << std::endl;
     std::cout << " reverse ADC: " << i << " q1:" << adc0 << " q2:" << adc1 << " q3:" << adc2 << " q4:" << adc3 << std::endl;
   }
-  
-  // dump mapping
-  const HcalElectronicsMap* emap = pSetup->getHcalMapping ();
-  if (emap) {
-    std::cout << "Mapping: all Hcal IDs:" << std::endl;
-    std::vector <HcalElectronicsId> elIds = emap->allElectronicsId ();
-    std::vector <HcalElectronicsId>::iterator id = elIds.begin ();
-    for (; id != elIds.end (); id++) {
-      HcalGenericDetId detid = emap->lookup (*id);
-      if (detid.isHcalDetId ()) {
-	std::cout << "ElectronicsID: " << *id << " , Detector ID: " << HcalDetId (detid)
-		  << " , Trigger ID: " << HcalTrigTowerDetId(emap->lookupTrigger (*id).rawId ()) << std::endl;
-      }
-      else if (detid.isHcalCalibDetId ()) {
-	std::cout << "ElectronicsID: " << *id << " , Calibration ID: " << HcalCalibDetId (detid) << std::endl;
-      }
-      else if (detid.isHcalZDCDetId ()) {
-	std::cout << "ElectronicsID: " << *id << " , ZDC ID: " << HcalZDCDetId (detid) << std::endl;
-      }
-      else {
-	std::cout << "ElectronicsID: " << *id << " , UNCONNECTED " << std::endl;
-      }
-    }
-  }
-  else {
-    std::cerr << "HcalDbAnalyzer::analyze-> CAN NOT GET HCAL ELECTRONICS MAP" << std::endl;
-  }
-//   std::auto_ptr <HcalMapping> emap = pSetup->getHcalMapping ();
-//   std::cout << "Mapping: all Hcal IDs:" << std::endl;
-//   std::vector <HcalElectronicsId> detIds = emap->allElectronicsId ();
-//   std::vector <HcalElectronicsId>::iterator id = detIds.begin ();
-//   for (; id != detIds.end (); id++) {
-//     std::cout << "ElectronicsID: " << *id << " , Detector ID: " << emap->lookup (*id) 
-// 	      << " , Trigger ID: " << emap->lookupTrigger (*id) << std::endl;
-//   }
-  
-//   int nTryes = 100000000;
-//   std::cout << "Check pefermance of HcalCalibrations for " << nTryes << " accesses..." << std::endl;
-//   int iTry = nTryes;
-//   time_t time0 = time (0);
-//   double ped = 0;
-//   double gain = 0;
-//   while (--iTry >= 0) {
-//     //    std::auto_ptr<HcalCalibrations> calibrations2 = pSetup->getHcalCalibrations (cell);
-//     HcalCalibrations calibrations2_o = *calibrations;
-//     HcalCalibrations* calibrations2 = &calibrations2_o;
-//     ped = calibrations2->pedestal (0);
-//     gain = calibrations2->gain (0);
-//     if (iTry > nTryes) std::cout << ped + gain << std::endl;
-//   }
-//   time_t time1 = time (0);
-//   std::cout << "took " << time1 - time0 << " sec for " << nTryes << " accesses, i.e. " << float (time1 - time0) / nTryes << " sec/access" << std::endl;
 }
 
 //define this as a plug-in
