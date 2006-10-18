@@ -40,30 +40,29 @@ RPCFileReader::RPCFileReader(ParameterSet const& pset,
   eventCounter_=0; fileCounter_ = 0;
   run_ = 1; event_ = 1; bxn_ =1;
   isOpen_ = false; noMoreData_ = false; 
+
   debug_ = pset.getUntrackedParameter<bool>("PrintOut",false);
   saveOutOfTime_ = pset.getUntrackedParameter<bool>("SaveOutOfTimeDigis",false);
   pacTrigger_ = pset.getUntrackedParameter<bool>("IsPACTrigger",false);
   triggerFedId_  = pset.getUntrackedParameter<unsigned int>("TriggerFedId",790);
-  //tbNum_ = pset.getUntrackedParameter<unsigned int>("TriggerBoardNum",1);
   const vector<unsigned int> tbNumdef(1,1);
   tbNums_ = pset.getUntrackedParameter<std::vector<unsigned int> >("TriggerBoardNums",tbNumdef);
   maskChannels_ = pset.getUntrackedParameter<bool>("MaskChannels",false);
   if(tbNums_.size()==0)tbNums_.push_back(1);
+
   //set vector sizes
   for(int k=0;k<(int)tbNums_.size();k++){
     vector<LogCone> lcv(12);
     theLogCones_.push_back(lcv);
     vector<RPCPacData> rpdv(3,RPCPacData(0));
     vector<vector<RPCPacData> > rpdvv(18,rpdv); 
-    vector<vector<vector<RPCPacData> > > rpdvvv(3,rpdvv); 
+    vector<vector<vector<RPCPacData> > > rpdvvv(LAST_BX-FIRST_BX,rpdvv); 
     linkData_.push_back(rpdvvv);
   }
   //define masked channels
   vector<bool> bv(18,0);
-  for(unsigned int k=0;k<tbNums_.size();k++){
-    for(unsigned int i=0;i<18;i++){
-      maskedChannels.push_back(bv);
-    }
+  for(unsigned int iChip=0;iChip<tbNums_.size();iChip++){
+    maskedChannels.push_back(bv);
   }
   if(maskChannels_){//read masked channels from file FIXME 
     ifstream mfile;
@@ -77,10 +76,10 @@ RPCFileReader::RPCFileReader(ParameterSet const& pset,
       mfile.close();
     }else{
       int chan;
-      for(unsigned int k=0;k<tbNums_.size();k++){
-	for(unsigned int i=0;i<18;i++){
+      for(unsigned int iChip=0;iChip<tbNums_.size();iChip++){
+	for(unsigned int iL=0;iL<18;iL++){
 	  mfile >> chan;
-	  maskedChannels[k][i]=(bool)chan;
+	  maskedChannels[iChip][iL]=(bool)chan;
 	}
       }
       mfile.close();
@@ -129,11 +128,11 @@ void RPCFileReader::setRunAndEventInfo(){
     }
 
     //clear vectors
-    for(int l=0;l<(int)tbNums_.size();l++){
-      for(int i=0;i<3;i++){
-        for(int j=0;j<18;j++){
-	  for(int k=0;k<3;k++){
-	    linkData_[l][i][j][k] = RPCPacData();
+    for(int iChip=0;iChip<(int)tbNums_.size();iChip++){
+      for(int iBX=0;iBX<8;iBX++){
+        for(int iL=0;iL<18;iL++){
+	  for(int iLB=0;iLB<3;iLB++){
+	    linkData_[iChip][iBX][iL][iLB] = RPCPacData();
 	  }
         }
       }
@@ -148,13 +147,6 @@ void RPCFileReader::setRunAndEventInfo(){
       }
     }
     if(!(pacTrigger_)||isPacTrigger){
-      //if(!(pacTrigger_)||
-      //       theLogCones_[0].ptCode||theLogCones_[1].ptCode||
-      //       theLogCones_[2].ptCode||theLogCones_[3].ptCode||
-      //       theLogCones_[4].ptCode||theLogCones_[5].ptCode||
-      //       theLogCones_[6].ptCode||theLogCones_[7].ptCode||
-      //       theLogCones_[8].ptCode||theLogCones_[9].ptCode||
-      //       theLogCones_[10].ptCode||theLogCones_[11].ptCode){
       //std::cout<<"Event triggered by PAC"<<std::endl;
       triggeredOrEmpty = true;
     }
@@ -240,7 +232,7 @@ bool RPCFileReader::produce(edm::Event &ev) {
   float eta = 0;
   std::vector<L1MuRegionalCand> RPCCand;
   for(unsigned int iChip=0;iChip<tbNums_.size();iChip++){
-    for(unsigned int i=0;i<theLogCones_.size();i++){
+    for(unsigned int i=0;i<12;i++){
       if(!theLogCones_[iChip][i].ptCode) continue;
       L1MuRegionalCand l1Cand;        
       l1Cand.setQualityPacked(theLogCones_[iChip][i].quality);
@@ -352,9 +344,9 @@ void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
 				   << " Not valid data for link no. = " << iL+iLb
 				   << " Zeroing partition data.";
 	  }
-	  for(int i=-1;i<2;i++){	     
-	    if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX+i){//Link data collected at L1A bx
-	      linkData_[iChip][dummyPartData.lbNum()][iL+iLb][i+1]=dummyPartData;	    	
+	  for(int iBX=FIRST_BX;iBX<LAST_BX;iBX++){	     
+	    if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX+iBX){//Link data collected at L1A bx
+	      linkData_[iChip][iBX-FIRST_BX][iL+iLb][dummyPartData.lbNum()]=dummyPartData;	    	
 	    }
 	  }
 	}
@@ -467,35 +459,40 @@ FEDRawData* RPCFileReader::rpcDataFormatter(){
   int beginBX = 0;
   int endBX = 1;
   if(saveOutOfTime_){
-    beginBX = -1;
-    endBX = 2;  
+    //beginBX = -1;
+    //endBX = 2;
+    beginBX = FIRST_BX;
+    endBX = LAST_BX;
   }
   for(unsigned int iChip=0;iChip<tbNums_.size();iChip++){
     for(int iBX=beginBX;iBX<endBX;iBX++){
       //Check if an event consists data
       for(unsigned int iL=0; iL<18; iL++){
 	for(unsigned int iLb=0; iLb<3; iLb++){
-	  if((linkData_[iChip][iLb][iL][iBX+1].partitionData()!=0)&&
+	  if((linkData_[iChip][iBX-FIRST_BX][iL][iLb].partitionData()!=0)&&
 	     !(maskedChannels[iChip][iL]))
 	    empty=false;
 	}
       }
       if(!empty){
 	//fill vector words with correctly ordered RPCwords
-	words.push_back(buildSBXDWord((unsigned int)(bxn_+iBX))); 
+	if(bxn_+iBX>=0)
+	  words.push_back(buildSBXDWord((unsigned int)(bxn_+iBX)));
+	else
+	  continue;
 	for(unsigned int iL=0; iL<18; iL++){
 	  //Check if data of current link exist
 	  empty=true;
 	  for(unsigned int iLb=0; iLb<3; iLb++){
-	    if((linkData_[iChip][iLb][iL][iBX+1].partitionData()!=0)&&
+	    if((linkData_[iChip][iBX-FIRST_BX][iL][iLb].partitionData()!=0)&&
 	       !(maskedChannels[iChip][iL]))
 	      empty=false;
 	  }
 	  if(!empty){
 	    words.push_back(buildSLDWord(tbNums_[iChip], iL));//FIMXE iL+1??
 	    for(unsigned int iLb=0; iLb<3; iLb++){
-	      if(linkData_[iChip][iLb][iL][iBX+1].partitionData()!=0){
-		words.push_back(buildCDWord(linkData_[iChip][iLb][iL][iBX+1]));
+	      if(linkData_[iChip][iBX-FIRST_BX][iL][iLb].partitionData()!=0){
+		words.push_back(buildCDWord(linkData_[iChip][iBX-FIRST_BX][iL][iLb]));
 	      }
 	    }
 	  }

@@ -5,8 +5,8 @@
  *
  *  Read PAC data from ASCII files convert them and write as FEDRawData
  *
- *  $Date: 2006/10/16 21:57:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/10/18 13:35:50 $
+ *  $Revision: 1.7 $
  * \author Michal Bluj - SINS, Warsaw
 */
 #include <memory>
@@ -62,6 +62,9 @@ class RPCFileReader : public edm::ExternalInputSource {
   //FIXME: Checked
   const static unsigned int RPC_PAC_TRIGGER_DELAY=11;
   const static unsigned int RPC_PAC_L1ACCEPT_BX=2;
+  
+  const static int LAST_BX=6; 
+  const static int FIRST_BX=-2; 
 
   std::vector<std::vector<bool> > maskedChannels;
 
