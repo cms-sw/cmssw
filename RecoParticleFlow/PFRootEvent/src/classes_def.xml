@@ -1,5 +1,9 @@
 
 <lcgdict>
   <class name="PFRootEventManager"/>
+  <class name="PFRootEventManagerColin"/>
+  <class name="EventColin"/>
+  <class name="EventColin::Particle"/>
+  <class name="EventColin::Cluster"/>
 </lcgdict>
 

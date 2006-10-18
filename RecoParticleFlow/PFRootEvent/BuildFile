@@ -1,5 +1,6 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/ParticleFlowReco>
+<use name=DataFormats/EgammaReco>
 <use name=DataFormats/Math>
 <use name=RecoParticleFlow/PFClusterAlgo>
 <use name=RecoParticleFlow/PFAlgo>
@@ -7,6 +8,7 @@
 <export>
   <use name=FWCore/Framework>
   <use name=DataFormats/ParticleFlowReco>
+  <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>
   <use name=RecoParticleFlow/PFClusterAlgo>
   <use name=RecoParticleFlow/PFAlgo>

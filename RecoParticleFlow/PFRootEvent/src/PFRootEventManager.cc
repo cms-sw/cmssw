@@ -31,21 +31,6 @@ using namespace std;
 PFRootEventManager::PFRootEventManager() {}
 
 
-PFRootEventManager::~PFRootEventManager() {
-
-  for( unsigned i=0; i<displayView_.size(); i++) {
-    if(displayView_[i]) delete displayView_[i];
-  }
-      
-  for(PFBlock::IT ie = allElements_.begin(); 
-      ie!=  allElements_.end(); ie++ ) {
-    delete *ie;
-  } 
- 
-  delete options_;
-  
-}
-
 
 PFRootEventManager::PFRootEventManager(const char* file)
   : clusters_(new vector<reco::PFCluster>),
@@ -202,6 +187,24 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     clustersPSBranch_->SetAddress( clustersPS_.get() );
   }    
   
+  // other branches --------------------------------------------------------------
+
+  
+  string clustersIslandBarrelbranchname;
+  options_->GetOpt("root","clusters_island_barrel_branch", clustersIslandBarrelbranchname);
+  if(!clustersIslandBarrelbranchname.empty() ) {
+    clustersIslandBarrelBranch_ = tree_->GetBranch(clustersIslandBarrelbranchname.c_str());
+    if(!clustersIslandBarrelBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions : clusters_island_barrel_branch not found : "
+	  <<clustersIslandBarrelbranchname<< endl;
+    }
+    else {
+      cerr<<"setting address"<<endl;
+      clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
+    }    
+  }
+  else 
+    cerr<<"branch not found"<<endl;
 
 
   string recTracksbranchname;
@@ -228,6 +231,18 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     trueParticlesBranch_->SetAddress(&trueParticles_);
   }    
 
+
+  // output root file   ------------------------------------------
+
+  outFile_ = 0;
+  string outfilename;
+  options_->GetOpt("root","outfile", outfilename);
+  if(!outfilename.empty() ) {
+    outFile_ = TFile::Open(outfilename.c_str(), "recreate");
+  }
+
+
+  // various parameters ------------------------------------------
 
   vector<int> algos;
   options_->GetOpt("display", "cluster_algos", algos);
@@ -300,9 +315,12 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 
   nNeighboursEcal_ = 4;
   options_->GetOpt("clustering", "neighbours_Ecal", nNeighboursEcal_);
+  
+  nCrystalsPosCalcEcal_ = -1;
+  options_->GetOpt("clustering", "nCrystals_PosCalc_Ecal", 
+		   nCrystalsPosCalcEcal_);
 
-
-  int dcormode = -1;
+  int dcormode = 0;
   options_->GetOpt("clustering", "depthCor_Mode", dcormode);
   
   double dcora = -1;
@@ -314,15 +332,23 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   double dcorbp = -1;
   options_->GetOpt("clustering", "depthCor_B_preshower", dcorbp);
 
-  if( dcormode > -0.5 && 
-      dcora > -0.5 && 
-      dcorb > -0.5 && 
-      dcorap > -0.5 && 
-      dcorbp > -0.5 )
-    reco::PFCluster::setDepthCorParameters( dcormode, 
-					    dcora, dcorb, 
-					    dcorap, dcorbp);
+//   if( dcormode > 0 && 
+//       dcora > -0.5 && 
+//       dcorb > -0.5 && 
+//       dcorap > -0.5 && 
+//       dcorbp > -0.5 ) {
 
+//     cout<<"set depth correction "
+// 	<<dcormode<<" "<<dcora<<" "<<dcorb<<" "<<dcorap<<" "<<dcorbp<<endl;
+  reco::PFCluster::setDepthCorParameters( dcormode, 
+					  dcora, dcorb, 
+					  dcorap, dcorbp);
+//   }
+//   else {
+//     reco::PFCluster::setDepthCorParameters( -1, 
+// 					    0,0 , 
+// 					    0,0 );
+//   }
 
   
 
@@ -429,6 +455,37 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   printTrueParticles_ = false;
   options_->GetOpt("print", "true_particles", printTrueParticles_ );
   
+  verbosity_ = VERBOSE;
+  options_->GetOpt("print", "verbosity", verbosity_ );
+  
+}
+
+PFRootEventManager::~PFRootEventManager() {
+
+  if(outFile_) {
+    outFile_->Close();
+  }
+
+  for( unsigned i=0; i<displayView_.size(); i++) {
+    if(displayView_[i]) delete displayView_[i];
+  }
+      
+  for(PFBlock::IT ie = allElements_.begin(); 
+      ie!=  allElements_.end(); ie++ ) {
+    delete *ie;
+  } 
+ 
+  delete options_;
+  
+}
+
+
+void PFRootEventManager::write() {
+  if(!outFile_) return;
+  else {
+    cout<<"writing output to "<<outFile_->GetName()
+	<<": to be implemented"<<endl;
+  }
 }
 
 
@@ -436,34 +493,39 @@ bool PFRootEventManager::processEntry(int entry) {
 
   reset();
 
-  cout<<"process entry "<< entry << endl;
+  if(verbosity_ == VERBOSE  || 
+     entry%10 == 0) 
+    cout<<"process entry "<< entry << endl;
   
+
   if(fromRealData_) readFromRealData(entry); 
   else readFromSimulation(entry); 
 
-  cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
-  cout<<"number of true particles : "<<trueParticles_.size()<<endl;
-  cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
-  cout<<"number of HCAL rechits   : "<<rechitsHCAL_.size()<<endl;
-  cout<<"number of PS rechits     : "<<rechitsPS_.size()<<endl;
-  
+  if(verbosity_ == VERBOSE ) {
+    cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
+    cout<<"number of true particles : "<<trueParticles_.size()<<endl;
+    cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
+    cout<<"number of HCAL rechits   : "<<rechitsHCAL_.size()<<endl;
+    cout<<"number of PS rechits     : "<<rechitsPS_.size()<<endl;
+  }  
+
   if( clusteringIsOn_ ) clustering(); 
 
-  if(clustersECAL_.get() ) {
-    cout<<"number of ECAL clusters : "<<clustersECAL_->size()<<endl;
-  }
-  if(clustersHCAL_.get() ) {
-    cout<<"number of HCAL clusters : "<<clustersHCAL_->size()<<endl;
-  }
-  if(clustersPS_.get() ) {
-    cout<<"number of PS clusters : "<<clustersPS_->size()<<endl;
+  if(verbosity_ == VERBOSE ) {
+    if(clustersECAL_.get() ) {
+      cout<<"number of ECAL clusters : "<<clustersECAL_->size()<<endl;
+    }
+    if(clustersHCAL_.get() ) {
+      cout<<"number of HCAL clusters : "<<clustersHCAL_->size()<<endl;
+    }
+    if(clustersPS_.get() ) {
+      cout<<"number of PS clusters : "<<clustersPS_->size()<<endl;
+    }
   }
 
 
   particleFlow();
 
-  cout<<"number of PFCluster instances: "<<reco::PFCluster::instanceCounter_<<endl;
-  
   return false;
 }
 
@@ -504,6 +566,9 @@ void PFRootEventManager::readFromSimulation(int entry) {
       clustersPSBranch_->GetEntry(entry);
       for(unsigned i=0; i<clustersPS_->size(); i++) 
 	(*clustersPS_)[i].calculatePositionREP();    
+    }
+    if(clustersIslandBarrelBranch_) {
+      clustersIslandBarrelBranch_->GetEntry(entry);
     }
     if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
     if(trueParticlesBranch_) trueParticlesBranch_->GetEntry(entry);
@@ -570,9 +635,15 @@ void PFRootEventManager::readFromRealData(int entry) {
       
     if(e>emax) {
       emax = e;
+
+      xmax[1] = x[i];
+      ymax[1] = y[i];
+      zmax[1] = z[i];
+      
       xmax[0] = x[i];
       ymax[0] = y[i];
       zmax[0] = z[i];
+
       imax = i;
     }
 
@@ -613,10 +684,10 @@ void PFRootEventManager::readFromRealData(int entry) {
       if( deta == 0 ) {
 	if     ( dphi == 1  ) ineighbour = 0;
 	else if( dphi == -1 ) ineighbour = 4;
-	else if( i==imax && dphi==2 ) {
-	  xmax[1] = x[j];
-	  ymax[1] = y[j];
-	  zmax[1] = z[j];
+	else if( i==static_cast<unsigned>(imax) && dphi==2 && npart>1) {
+	  xmax[0] = x[j];
+	  ymax[0] = y[j];
+	  zmax[0] = z[j];
 	} 
       } 
       else if(deta == -1) {
@@ -661,20 +732,29 @@ void PFRootEventManager::readFromRealData(int entry) {
     reco::PFParticle particle( -1, 11, i+1, -1, daughters);
 
 
-    math::XYZPoint posxyzorig( 0, 0, 0);
-    math::XYZTLorentzVector momentumorig( 0, 0, 0, 0);
+    math::XYZPoint posxyzdummy( 0, 0, 0);
+    math::XYZTLorentzVector momentumdummy( 0, 0, 0, 0);
 
-    reco::PFTrajectoryPoint orig(-1, reco::PFTrajectoryPoint::ClosestApproach, 
-				 posxyzorig, momentumorig);
+    reco::PFTrajectoryPoint orig(-1, 
+				 reco::PFTrajectoryPoint::ClosestApproach, 
+				 posxyzdummy, momentumdummy);
     particle.addPoint(orig);
+    
 
     math::XYZPoint posxyzecal(xmax[i], 
 			      ymax[i] - 0.1*yp[i], 
 			      zmax[i] + 0.1*xp[i]);
-    math::XYZTLorentzVector momentumecal( 0, 0, 0, 0);
+    math::XYZTLorentzVector momentumecal( 0, 0, ep_init[i], ep_init[i]);
 
     reco::PFTrajectoryPoint ecal(-1, reco::PFTrajectoryPoint::ECALEntrance, 
 				 posxyzecal, momentumecal);
+
+
+    if(posxyzecal.phi()>0.1 && i==0) {
+      cout<<"bad phi ?"<<endl;
+    }
+
+    // cout<<"momentumecal "<<momentumecal.E()<<endl;
 
     particle.addPoint(ecal);
     
@@ -686,7 +766,7 @@ void PFRootEventManager::readFromRealData(int entry) {
 
 void PFRootEventManager::clustering() {
   
-  cout<<"clustering"<<endl;
+  // cout<<"clustering"<<endl;
 
   std::map<unsigned,  reco::PFRecHit* > rechits;
    
@@ -704,6 +784,7 @@ void PFRootEventManager::clustering() {
   clusterAlgoECAL.setNNeighboursEcal( nNeighboursEcal_  );
   clusterAlgoECAL.setShowerSigmaEcal( showerSigmaEcal_  );
 
+  clusterAlgoECAL.SetNCrystalPosCalcEcal( nCrystalsPosCalcEcal_ );
 
   for(unsigned i=0; i<rechitsECAL_.size(); i++) {
     rechits.insert( make_pair(rechitsECAL_[i].detId(), &rechitsECAL_[i] ) );
@@ -770,7 +851,6 @@ void PFRootEventManager::clustering() {
 
 void PFRootEventManager::particleFlow() {
   
-  cout<<"particleFlow"<<endl;
 
   // clear stuff from previous call
 
@@ -841,7 +921,6 @@ void PFRootEventManager::particleFlow() {
     // cout<<(allPFBs_[iefb])<<endl;
   }
 
-  cout<<"particle flow done"<<endl;
 }
 
 
@@ -1283,6 +1362,19 @@ void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
     displayCluster( (*clustersHCAL_)[i], viewType, phi0);
   for(unsigned i=0; i<clustersPS_->size(); i++) 
     displayCluster( (*clustersPS_)[i], viewType, phi0);
+
+  for(unsigned i=0; i<clustersIslandBarrel_.size(); i++) {
+    int id = i;
+    int type = 4;
+    int layer = PFLayer::ECAL_BARREL;
+    reco::PFCluster cluster( id, type, layer, 
+			     clustersIslandBarrel_[i].energy(), 
+			     clustersIslandBarrel_[i].x(),
+			     clustersIslandBarrel_[i].y(),
+			     clustersIslandBarrel_[i].z() ); 
+    displayCluster( cluster, viewType, phi0);
+  }
+    
 }
 
 

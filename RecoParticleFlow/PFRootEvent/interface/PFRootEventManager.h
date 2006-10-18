@@ -6,6 +6,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 
@@ -93,6 +95,7 @@ class PFRootEventManager {
 
   /// viewport definition
   enum View_t { XY = 0, RZ = 1, EPE = 2, EPH = 3, NViews = 4 };
+  enum Verbosity {SHUTUP = 0, VERBOSE};
 
   /// default constructor
   PFRootEventManager();
@@ -103,6 +106,8 @@ class PFRootEventManager {
   /// destructor
   virtual ~PFRootEventManager();
   
+  virtual void write();
+
   /// reset before next event
   void reset();
 
@@ -230,13 +235,15 @@ class PFRootEventManager {
    
   /// PS clusters branch  
   TBranch*   clustersPSBranch_;          
+
+  /// ECAL island clusters branch_;
+  TBranch*   clustersIslandBarrelBranch_;
   
   /// reconstructed tracks branch  
   TBranch*   recTracksBranch_;          
   
   /// true particles branch
   TBranch*   trueParticlesBranch_;          
-
 
 
   /// rechits
@@ -263,6 +270,9 @@ class PFRootEventManager {
   /// clusters PS
   std::auto_ptr< std::vector<reco::PFCluster> > clustersPS_;
 
+  /// clusters ECAL island barrel
+  std::vector<reco::BasicCluster>  clustersIslandBarrel_;
+  
   /// reconstructed tracks
   std::vector<reco::PFRecTrack> recTracks_;
   
@@ -281,8 +291,8 @@ class PFRootEventManager {
   /// input file name
   std::string     inFileName_;   
 
-  /// output file
-  TFile*     outFile_;   
+  /// output file 
+  TFile*     outFile_;
 
   /// output filename
   std::string     outFileName_;   
@@ -375,6 +385,9 @@ class PFRootEventManager {
   /// print true particles yes/no
   bool                     printTrueParticles_;
 
+  /// verbosity
+  int                      verbosity_;
+
   //----------------- clustering parameters ---------------------
 
   /// clustering on/off. If on, rechits from tree are used to form 
@@ -398,6 +411,9 @@ class PFRootEventManager {
 
   /// ecal number of neighbours
   int    nNeighboursEcal_;
+
+  /// ecal number of crystals for position calculation
+  int    nCrystalsPosCalcEcal_;
 
   /// ecal shower sigma 
   double showerSigmaEcal_;
