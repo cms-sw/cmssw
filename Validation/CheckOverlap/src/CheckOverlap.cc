@@ -15,7 +15,7 @@
 #include "G4TransportationManager.hh"
 
 #include <set>
-#ifndef G4v7
+
 CheckOverlap::CheckOverlap(const edm::ParameterSet &p) : topLV(0) {
   nodeName = p.getUntrackedParameter<std::string>("NodeName", "");
   nPoints  = p.getUntrackedParameter<int>("Resolution", 1000);
@@ -82,6 +82,7 @@ void CheckOverlap::checkHierarchyLeafPVLV(G4LogicalVolume * lv,
 void CheckOverlap::checkPV(G4VPhysicalVolume * pv, uint leafDepth) {
 
   //----- PV info
+#ifndef G4v7
   std::string mother = "World";
   if (pv->GetMotherLogical()) mother = pv->GetMotherLogical()->GetName();
   if (!pv->IsReplicated()) {
@@ -99,10 +100,10 @@ void CheckOverlap::checkPV(G4VPhysicalVolume * pv, uint leafDepth) {
 		<< std::endl;
     }
   }
+#endif
 }
 
 G4VPhysicalVolume * CheckOverlap::getTopPV() {
   return G4TransportationManager::GetTransportationManager()
     ->GetNavigatorForTracking()->GetWorldVolume();
 }
-#endif

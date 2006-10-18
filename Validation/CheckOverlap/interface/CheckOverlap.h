@@ -1,7 +1,6 @@
 #define G4v7
 #ifndef Validation_CheckOverlap_H
 #define Validation_CheckOverlap_H
-#ifndef G4v7
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -41,5 +40,4 @@ private:
 
 };
 
-#endif
 #endif
