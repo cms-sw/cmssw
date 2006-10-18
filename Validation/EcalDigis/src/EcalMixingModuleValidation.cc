@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2006/10/16 16:08:31 $
- * $Revision: 1.1 $
+ * $Date: 2006/10/17 13:12:56 $
+ * $Revision: 1.2 $
  * \author F. Cossutti
  *
 */
@@ -258,6 +258,8 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
 
   //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
+  checkPedestals(c);
+
   vector<SimTrack> theSimTracks;
   vector<SimVertex> theSimVertexes;
 
@@ -360,8 +362,6 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
         
         double Emax = 0. ;
         int Pmax = 0 ;
-        double pedestalPreSample = 0.;
-        double pedestalPreSampleAnalog = 0.;
         
         for (int sample = 0 ; sample < digis->size () ; ++sample) {
           ebAnalogSignal[sample] = 0.;
@@ -378,15 +378,12 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
               Emax = ebAnalogSignal[sample] ;
               Pmax = sample ;
             }
-            if ( sample < 3 ) {
-              pedestalPreSample += ebADCCounts[sample] ;
-              pedestalPreSampleAnalog += ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_ ;
-            }
             LogDebug("DigiInfo") << "EB sample " << sample << " ADC counts = " << ebADCCounts[sample] << " Gain Id = " << ebADCGains[sample] << " Analog eq = " << ebAnalogSignal[sample];
           }
-        pedestalPreSample /= 3. ; 
-        pedestalPreSampleAnalog /= 3. ; 
-        double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]];
+        double pedestalPreSampleAnalog = 0.;
+        findPedestal( ebid, (int)ebADCGains[Pmax] , pedestalPreSampleAnalog);
+        pedestalPreSampleAnalog *= gainConv_[(int)ebADCGains[Pmax]]*barrelADCtoGeV_;
+        double Erec = Emax - pedestalPreSampleAnalog;
         
         if ( ebSignalSimMap[ebid.rawId()] != 0. ) {
           LogDebug("DigiInfo") << " Digi / Signal Hit = " << Erec << " / " << ebSignalSimMap[ebid.rawId()] << " gainConv " << gainConv_[(int)ebADCGains[Pmax]];
@@ -394,6 +391,9 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
           if ( ebSignalSimMap[ebid.rawId()] > ebSimThreshold  && meEBDigiMixRatioOriggt50pc_ ) meEBDigiMixRatioOriggt50pc_->Fill( Erec/ebSignalSimMap[ebid.rawId()] );
           if ( ebSignalSimMap[ebid.rawId()] > ebSimThreshold  && meEBShape_ ) {
             for ( int i = 0; i < 10 ; i++ ) {
+              pedestalPreSampleAnalog = 0.;
+              findPedestal( ebid, (int)ebADCGains[i] , pedestalPreSampleAnalog);
+              pedestalPreSampleAnalog *= gainConv_[(int)ebADCGains[i]]*barrelADCtoGeV_;
               meEBShape_->Fill(i, ebAnalogSignal[i]-pedestalPreSampleAnalog );
             }
           }
@@ -460,8 +460,6 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
         
         double Emax = 0. ;
         int Pmax = 0 ;
-        double pedestalPreSample = 0.;
-        double pedestalPreSampleAnalog = 0.;
         
         for (int sample = 0 ; sample < digis->size () ; ++sample) {
           eeAnalogSignal[sample] = 0.;
@@ -478,15 +476,12 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
               Emax = eeAnalogSignal[sample] ;
               Pmax = sample ;
             }
-            if ( sample < 3 ) {
-              pedestalPreSample += eeADCCounts[sample] ;
-              pedestalPreSampleAnalog += eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_ ;
-            }
             LogDebug("DigiInfo") << "EE sample " << sample << " ADC counts = " << eeADCCounts[sample] << " Gain Id = " << eeADCGains[sample] << " Analog eq = " << eeAnalogSignal[sample];
           }
-        pedestalPreSample /= 3. ; 
-        pedestalPreSampleAnalog /= 3. ; 
-        double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]];
+        double pedestalPreSampleAnalog = 0.;
+        findPedestal( eeid, (int)eeADCGains[Pmax] , pedestalPreSampleAnalog);
+        pedestalPreSampleAnalog *= gainConv_[(int)eeADCGains[Pmax]]*endcapADCtoGeV_;
+        double Erec = Emax - pedestalPreSampleAnalog;
         
         if ( eeSignalSimMap[eeid.rawId()] != 0. ) {
           LogDebug("DigiInfo") << " Digi / Signal Hit = " << Erec << " / " << eeSignalSimMap[eeid.rawId()] << " gainConv " << gainConv_[(int)eeADCGains[Pmax]];
@@ -494,6 +489,9 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
           if ( eeSignalSimMap[eeid.rawId()] > eeSimThreshold  && meEEDigiMixRatioOriggt40pc_ ) meEEDigiMixRatioOriggt40pc_->Fill( Erec/eeSignalSimMap[eeid.rawId()] );
           if ( eeSignalSimMap[eeid.rawId()] > eeSimThreshold  && meEBShape_ ) {
             for ( int i = 0; i < 10 ; i++ ) {
+              pedestalPreSampleAnalog = 0.;
+              findPedestal( eeid, (int)eeADCGains[i] , pedestalPreSampleAnalog);
+              pedestalPreSampleAnalog *= gainConv_[(int)eeADCGains[i]]*endcapADCtoGeV_;
               meEEShape_->Fill(i, eeAnalogSignal[i]-pedestalPreSampleAnalog );
             }
           }
@@ -555,6 +553,47 @@ void  EcalMixingModuleValidation::checkCalibrations(const edm::EventSetup & even
   const double endcapADCtoGeV_ = agc->getEEValue();
   LogDebug("EcalDigi") << " Endcap GeV/ADC = " << endcapADCtoGeV_;
 
+}
+
+void EcalMixingModuleValidation::checkPedestals(const edm::EventSetup & eventSetup)
+{
+
+  // Pedestals from event setup
+
+  edm::ESHandle<EcalPedestals> dbPed;
+  eventSetup.get<EcalPedestalsRcd>().get( dbPed );
+  thePedestals=dbPed.product();
+  
+}
+
+void EcalMixingModuleValidation::findPedestal(const DetId & detId, int gainId, double & ped) const
+{
+  EcalPedestalsMapIterator mapItr 
+    = thePedestals->m_pedestals.find(detId.rawId());
+  // should I care if it doesn't get found?
+  if(mapItr == thePedestals->m_pedestals.end()) {
+    edm::LogError("EcalMMValid") << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->m_pedestals.size();
+  } else {
+    EcalPedestals::Item item = mapItr->second;
+
+    switch(gainId) {
+    case 0:
+      ped = 0.;
+    case 1:
+      ped = item.mean_x12;
+      break;
+    case 2:
+      ped = item.mean_x6;
+      break;
+    case 3:
+      ped = item.mean_x1;
+      break;
+    default:
+      edm::LogError("EcalMMValid") << "Bad Pedestal " << gainId;
+      break;
+    }
+    LogDebug("EcalMMValid") << "Pedestals for " << detId.rawId() << " gain range " << gainId << " : \n" << "Mean = " << ped;
+  }
 }
 
 void EcalMixingModuleValidation::computeCrystalBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const bool & isBarrel, const double & theSimThreshold)

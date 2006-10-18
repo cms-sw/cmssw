@@ -4,8 +4,8 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2006/10/05 13:21:05 $
- * $Revision: 1.6 $
+ * $Date: 2006/10/16 16:08:30 $
+ * $Revision: 1.1 $
  * \author F. Cossutti
  *
 */
@@ -45,6 +45,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 
 #include <iostream>
 #include <fstream>
@@ -79,6 +80,10 @@ void beginJob(const EventSetup& c);
 void endJob(void);
 
 private:
+
+ void checkPedestals(const edm::EventSetup & c);
+
+ void findPedestal(const DetId & detId, int gainId, double & ped) const;
 
  void checkCalibrations(const edm::EventSetup & c);
  
@@ -135,6 +140,9 @@ private:
  int theMaxBunch;
 
  const CaloGeometry * theGeometry;
+ 
+ // the pedestals
+ const EcalPedestals * thePedestals;
 
 };
 
