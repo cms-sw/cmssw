@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.13 2006/08/08 21:17:29 paterno Exp $
+// $Id: FileInPath.cc,v 1.14 2006/10/12 14:28:25 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -30,11 +30,15 @@ namespace
 /// the behavior  of the FileInPath  class.  They are local to  this
 /// class; other code should not even know about them!
     
- const std::string PathVariableName("CMSSW_SEARCH_PATH");
+  const std::string PathVariableName("CMSSW_SEARCH_PATH");
   // Environment variables for local and release areas: 
   const std::string LOCALTOP("CMSSW_BASE");
   const std::string RELEASETOP("CMSSW_RELEASE_BASE");
-        
+
+  // String to serve as placeholder for release top. 
+  // Do not change this value.
+  const std::string BASE("BASE");
+
   // Return false if the environment variable 'name is not found, and
   // true if it is found. If it is found, put the translation of the
   // environment variable into 'result'.
@@ -171,7 +175,30 @@ namespace edm
   void
   FileInPath::write(std::ostream& os) const
   {
-    os << relativePath_ << ' ' << isLocal_ << ' ' << canonicalFilename_;    
+    if (isLocal_ || canonicalFilename_.empty()) {
+      // If a local copy of the file is used, we don't care if the persistent value is site independent.
+      os << relativePath_ << ' ' << isLocal_ << ' ' << canonicalFilename_;    
+    } else {
+      // Guarantee a site independent value by substituting the literal BASE for the release top.
+      std::string releaseTop;
+      if (!envstring(RELEASETOP, releaseTop)) {
+	throw edm::Exception(edm::errors::FileInPathError)
+	  << "Environment Variable " 
+	  << RELEASETOP
+	  << " is not set.\n";
+      }
+      std::string::size_type pos = canonicalFilename_.find(releaseTop);
+      if (pos != 0) {
+	throw edm::Exception(edm::errors::FileInPathError)
+	  << "Path " 
+	  << canonicalFilename_
+	  << " is not in the base release area "
+	  << releaseTop
+	  << "\n";
+      }
+
+      os << relativePath_ << ' ' << isLocal_ << ' ' << BASE << canonicalFilename_.substr(releaseTop.size());
+    }
   }
 
 
@@ -197,7 +224,33 @@ namespace edm
 #endif
     relativePath_ = relname;
     isLocal_ = local;
-    canonicalFilename_ = canFilename;
+    if (isLocal_ || canFilename.empty()) {
+      canonicalFilename_ = canFilename;
+    } else {
+      std::string releaseTop;
+      if (!envstring(RELEASETOP, releaseTop)) {
+	throw edm::Exception(edm::errors::FileInPathError)
+	  << "Environment Variable " 
+	  << RELEASETOP
+	  << " is not set.\n";
+      }
+      std::string::size_type pos = canFilename.find(BASE);
+      if (pos == 0) {
+        // Replace the placehoder with the path to the base release (site dependent).
+        canonicalFilename_ = releaseTop + canFilename.substr(BASE.size());
+      } else {
+#if 0
+    // This #if needed for backward compatibility for files written before CMSSW_1_2_0_pre2.
+#else
+      throw edm::Exception(edm::errors::FileInPathError)
+	<< "Site independent 'path' " 
+	<< canFilename
+	<< " does not begin with the placeholder "
+	<< BASE
+	<< "\n";
+#endif
+      }
+    }
   }
 
   //------------------------------------------------------------
@@ -249,17 +302,17 @@ namespace edm
 	// last directory, e.g. /src or /share):
 	bf::path br = pathPrefix.branch_path();	   	    
 
-	std::string localtop_;
+	std::string localTop;
 	isLocal_ = false;
 
 	// Check that LOCALTOP really has a value and store it:
-	if (!envstring(LOCALTOP, localtop_))
+	if (!envstring(LOCALTOP, localTop))
 	  throw edm::Exception(edm::errors::FileInPathError)
 	    << LOCALTOP
 	    << " must be defined - is runtime environment set correctly?\n";
 
 	// Create a path object for our local path LOCALTOP:
-	bf::path local_(localtop_, bf::no_check);
+	bf::path local_(localTop, bf::no_check);
 	    
 	// If the branch path matches the local path, the file was found locally:
 	if (br == local_) {
