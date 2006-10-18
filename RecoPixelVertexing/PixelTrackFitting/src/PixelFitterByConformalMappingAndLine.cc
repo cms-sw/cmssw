@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
@@ -24,6 +25,10 @@
 
 template <class T> T sqr( T t) {return t*t;}
 
+
+PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine(
+    const edm::ParameterSet& cfg)
+{ }
 
 PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine()
 {

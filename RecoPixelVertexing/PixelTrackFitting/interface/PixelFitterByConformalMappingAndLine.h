@@ -7,8 +7,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+namespace edm {class ParameterSet;}
+
 class PixelFitterByConformalMappingAndLine : public PixelFitter {
 public:
+  PixelFitterByConformalMappingAndLine( const edm::ParameterSet& cfg);
   PixelFitterByConformalMappingAndLine();
   virtual ~PixelFitterByConformalMappingAndLine() { }
   virtual reco::Track* run( 

@@ -1,4 +1,5 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterByHelixProjections.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,8 +33,8 @@
 #include "CircleFromThreePoints.h"
 #include "PixelTrackBuilder.h"
 
-PixelFitterByHelixProjections::PixelFitterByHelixProjections() 
-  : theTracker(0), theField(0), theTTRecHitBuilder(0) { }
+PixelFitterByHelixProjections::PixelFitterByHelixProjections(
+   const edm::ParameterSet& cfg) : theTracker(0), theField(0), theTTRecHitBuilder(0) { }
 
 reco::Track* PixelFitterByHelixProjections::run(
     const edm::EventSetup& es,

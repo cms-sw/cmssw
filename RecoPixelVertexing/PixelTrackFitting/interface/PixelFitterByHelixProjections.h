@@ -9,13 +9,14 @@
 
 #include <vector>
 
+namespace edm {class ParameterSet;}
 class TransientTrackingRecHitBuilder;
 class TrackerGeometry;
 class MagneticField;
 
 class PixelFitterByHelixProjections : public PixelFitter {
 public:
-  PixelFitterByHelixProjections();
+  PixelFitterByHelixProjections(  const edm::ParameterSet& cfg);
   virtual ~PixelFitterByHelixProjections() {}
     virtual reco::Track* run(
       const edm::EventSetup& es,

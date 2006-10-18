@@ -8,10 +8,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
+
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
+
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -67,16 +69,14 @@ void PixelTrackProducer::buildTracks(edm::Event& ev, const edm::EventSetup& es)
 
   if (!theFitter) {
     std::string fitterName = theConfig.getParameter<std::string>("Fitter");
-    edm::ESHandle<PixelFitter> fitterESH;
-    es.get<TrackingComponentsRecord>().get(fitterName,fitterESH);
-    theFitter = fitterESH.product();
+    edm::ParameterSet fitterPSet = theConfig.getParameter<edm::ParameterSet>("FitterPSet");
+    theFitter = PixelFitterFactory::get()->create( fitterName, fitterPSet);
   }
 
   if (!theFilter) {
-    std::string filterName = theConfig.getParameter<std::string>("Filter");
-    edm::ESHandle<PixelTrackFilter> filterESH;
-    es.get<TrackingComponentsRecord>().get(filterName,filterESH);
-    theFilter = filterESH.product();
+    std::string       filterName = theConfig.getParameter<std::string>("Filter");
+    edm::ParameterSet filterPSet = theConfig.getParameter<edm::ParameterSet>("FilterPSet");
+    theFilter = PixelTrackFilterFactory::get()->create( filterName, filterPSet);
   }
 
   typedef OrderedHitTriplets::const_iterator IT;

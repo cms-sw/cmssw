@@ -11,7 +11,9 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -49,13 +51,8 @@ void PixelHitPairTrackProducer::produce(edm::Event& ev, const edm::EventSetup& e
   pixelLayers->init(*pixelHits,es);
   CombinedHitPairGenerator theGenerator(*pixelLayers,es);
 
-//  PixelHitTripletGenerator tripGen;
-//  tripGen.init(*pixelHits,es);
 
   GlobalTrackingRegion region;
-//  OrderedHitTriplets triplets;
-//  tripGen.hitTriplets(region,triplets,es);
-
   OrderedHitPairs pairs;
   theGenerator.hitPairs(region, pairs, es);
 
@@ -63,18 +60,16 @@ void PixelHitPairTrackProducer::produce(edm::Event& ev, const edm::EventSetup& e
 
   if (!theFitter) {
     std::string fitterName = theConfig.getParameter<std::string>("Fitter");
-    edm::ESHandle<PixelFitter> fitterESH;
-    es.get<TrackingComponentsRecord>().get(fitterName,fitterESH);
-    theFitter = fitterESH.product();
+    edm::ParameterSet fitterPSet = theConfig.getParameter<edm::ParameterSet>("FitterPSet");
+    theFitter = PixelFitterFactory::get()->create( fitterName, fitterPSet);
+
   }
 
   if (!theFilter) {
-    std::string filterName = theConfig.getParameter<std::string>("Filter");
-    edm::ESHandle<PixelTrackFilter> filterESH;
-    es.get<TrackingComponentsRecord>().get(filterName,filterESH);
-    theFilter = filterESH.product();
+    std::string       filterName = theConfig.getParameter<std::string>("Filter");
+    edm::ParameterSet filterPSet = theConfig.getParameter<edm::ParameterSet>("FilterPSet");
+    theFilter = PixelTrackFilterFactory::get()->create( filterName, filterPSet);
   }
-
 
   // producing tracks
 
