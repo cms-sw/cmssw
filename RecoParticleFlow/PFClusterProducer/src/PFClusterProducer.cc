@@ -57,6 +57,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     iConfig.getUntrackedParameter<bool>("clustering_Hcal",true);
   clusteringPS_ = 
     iConfig.getUntrackedParameter<bool>("clustering_PS",true);
+    
 
   // parameters for ecal clustering
   
@@ -142,13 +143,13 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   hcalRecHitsHBHEProductInstanceName_ = 
     iConfig.getUntrackedParameter<string>("hcalRecHitsHBHEProductInstanceName",
 					  "");
-
-  produceRecHits_ = 
-    iConfig.getUntrackedParameter<bool>("produceRecHits", false );
     
 //   produceClusters_ = 
 //     iConfig.getUntrackedParameter<bool>("produceClusters", true );
     
+
+  produceRecHits_ = 
+    iConfig.getUntrackedParameter<bool>("produce_RecHits", false );
 
   //register products
   if(produceRecHits_) {
@@ -244,9 +245,17 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  = dynamic_cast< const TruncatedPyramid* > (thisCell);
       
       
-	GlobalPoint axis;
+	math::XYZVector axis1;
 	if( pyr ) {
-	  axis = pyr->getPosition(1);
+	  axis1.SetCoordinates( pyr->getPosition(1).x(), 
+				pyr->getPosition(1).y(), 
+				pyr->getPosition(1).z() ); 
+
+	  math::XYZVector axis0( pyr->getPosition(0).x(), 
+				 pyr->getPosition(0).y(), 
+				 pyr->getPosition(0).z() );
+				 
+	  axis1 -= axis0;
 	}
       
     
@@ -254,7 +263,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  = new reco::PFRecHit( detid.rawId(), PFLayer::ECAL_BARREL, 
 				energy, 
 				position.x(), position.y(), position.z(), 
-				axis.x(), axis.y(), axis.z() );
+				axis1.x(), axis1.y(), axis1.z() );
       
 	idSortedRecHits.insert( make_pair(detid.rawId(), rh) ); 
       }      
@@ -301,9 +310,17 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  = dynamic_cast< const TruncatedPyramid* > (thisCell);
       
       
-	GlobalPoint axis;
+	math::XYZVector axis1;
 	if( pyr ) {
-	  axis = pyr->getPosition(1);
+	  axis1.SetCoordinates( pyr->getPosition(1).x(), 
+				pyr->getPosition(1).y(), 
+				pyr->getPosition(1).z() ); 
+
+	  math::XYZVector axis0( pyr->getPosition(0).x(), 
+				 pyr->getPosition(0).y(), 
+				 pyr->getPosition(0).z() );
+				 
+	  axis1 -= axis0;
 	}
       
       
@@ -311,7 +328,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  = new reco::PFRecHit( detid.rawId(),  PFLayer::ECAL_ENDCAP, 
 				energy, 
 				position.x(), position.y(), position.z(), 
-				axis.x(), axis.y(), axis.z() );
+				axis1.x(), axis1.y(), axis1.z() );
       
 	idSortedRecHits.insert( make_pair(detid.rawId(), rh) ); 
       }
