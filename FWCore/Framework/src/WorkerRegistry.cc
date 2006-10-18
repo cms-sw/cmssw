@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.11 2006/07/06 19:11:43 wmtan Exp $
+   \version $Id: WorkerRegistry.cc,v 1.12 2006/09/01 18:16:42 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.11 2006/07/06 19:11:43 wmtan Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.12 2006/09/01 18:16:42 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/PassID.h"
@@ -56,7 +56,7 @@ Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
     
     std::auto_ptr<Worker> workerPtr=
       Factory::get()->makeWorker(p,act_reg_->preModuleConstructionSignal_,
-                                 act_reg_->preModuleConstructionSignal_);
+                                 act_reg_->postModuleConstructionSignal_);
     
     workerPtr->connect(act_reg_->preModuleSignal_,act_reg_->postModuleSignal_);
 
