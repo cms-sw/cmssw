@@ -251,9 +251,9 @@ PixelCPEParmError::chargeWidthX() const
 
   float geomWidthX = theThickness * tan(PI/2 - alpha_)/thePitchX;
   if (thePart == GeomDetEnumerators::PixelBarrel){
-    return (geomWidthX) + (2 * theLShift);
+    return (geomWidthX) + (2 * theLShiftX);
   } else {
-    return fabs(geomWidthX) + (2 * fabs(theLShift)); 
+    return fabs(geomWidthX) + (2 * fabs(theLShiftX)); 
   }
 }
 

@@ -297,7 +297,7 @@ PixelCPEInitial::ypos(const SiPixelCluster& cluster) const
 //-----------------------------------------------------------------------------
 float PixelCPEInitial::chargeWidthX() const { 
   float chargeW = 0;
-  float lorentzWidth = 2 * theLShift;
+  float lorentzWidth = 2 * theLShiftX;
   if (thePart == GeomDetEnumerators::PixelBarrel) {
     chargeW = lorentzWidth; //  width from Lorentz shift
   } else { // forward
@@ -312,12 +312,17 @@ float PixelCPEInitial::chargeWidthX() const {
 //-----------------------------------------------------------------------------
 float PixelCPEInitial::chargeWidthY() const {
   float chargeW = 0;  
+  float lorentzWidth = 2 * theLShiftY;
   if (thePart == GeomDetEnumerators::PixelBarrel) {
    // Charge width comes from the geometry (inclined angles)
     chargeW = theThickness * fabs(theDetZ/theDetR) / thePitchY;
   } else { //forward
-    // Width comes from geometry only, fixed by the tilt angle
-   chargeW = theThickness * tan(20./degsPerRad) / thePitchY; 
+   // Width comes from geometry only, given by the tilt angle
+     if ( alpha2Order) {
+       chargeW = -fabs(lorentzWidth)+ theThickness * tan(20./degsPerRad) / thePitchY;
+     }else {
+       chargeW = theThickness * tan(20./degsPerRad) / thePitchY;
+     }
   }
   return chargeW;
 }

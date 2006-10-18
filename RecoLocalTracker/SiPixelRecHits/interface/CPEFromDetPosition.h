@@ -63,7 +63,9 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
   mutable float theNumOfCol;
   mutable  float theDetZ;
   mutable float theDetR;
-  mutable float theLShift;
+  mutable float theLShiftX;
+  mutable float theLShiftY;
+
   mutable float theSign;
 
   mutable float theTanLorentzAnglePerTesla;   // Lorentz angle tangent per Tesla
@@ -71,6 +73,9 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
 
   //magnetic field
   const MagneticField* magfield_;
+
+  // switch on/off E.B effect
+  bool  alpha2Order;
 
   // Private methods
   void       setTheDet( const GeomDetUnit & det ) const ;
@@ -93,8 +98,10 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
   //float geomCorrection()const;
   float estimatedAlphaForBarrel(const float&) const;
   
-  // Determine the Lorentz shift correction
-  float lorentzShift()const;
+  // Determine the Lorentz shift correction along local x and y.
+  float lorentzShiftX()const;
+  float lorentzShiftY()const;
+
   // returns position in x
   float xpos( const SiPixelCluster& ) const;
   //returns position in y

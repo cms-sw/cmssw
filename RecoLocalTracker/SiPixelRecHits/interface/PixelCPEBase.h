@@ -107,7 +107,8 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   mutable float theNumOfCol;
   mutable float theDetZ;
   mutable float theDetR;
-  mutable float theLShift;
+  mutable float theLShiftX;
+  mutable float theLShiftY;
   mutable float theSign;
 
   //--- Cluster-level quantities (may need more)
@@ -119,7 +120,8 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   int     theVerboseLevel;                    // algorithm's verbosity
 
   const   MagneticField * magfield_;          // magnetic field
-
+  
+  bool  alpha2Order;                          // switch on/off E.B effect.
 
 
   //---------------------------------------------------------------------------
@@ -171,8 +173,9 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   //float geomCorrection()const;
 
   //--- The Lorentz shift correction
-  virtual float lorentzShift() const;
-
+  virtual float lorentzShiftX() const;
+  virtual float lorentzShiftY() const;
+ 
   //--- Position in X and Y
   virtual float xpos( const SiPixelCluster& ) const = 0;
   virtual float ypos( const SiPixelCluster& ) const = 0;

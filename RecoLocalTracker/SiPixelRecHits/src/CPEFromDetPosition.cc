@@ -45,6 +45,8 @@ CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf,
 
   //-- Magnetic Field
   magfield_ = mag;
+ 
+  alpha2Order = conf.getParameter<bool>("Alpha2Order");
 
 #ifdef CORRECT_FOR_BIG_PIXELS
   if (theVerboseLevel > 0) 
@@ -119,7 +121,8 @@ void CPEFromDetPosition::setTheDet( const GeomDetUnit & det )const {
   theSign = isFlipped() ? -1 : 1;
 
   //--- The Lorentz shift.
-  theLShift = lorentzShift();
+  theLShiftX = lorentzShiftX();
+  theLShiftY = lorentzShiftY();
 
   if (theVerboseLevel > 1) {
     LogDebug("CPEFromDetPosition") << "***** PIXEL LAYOUT ***** " 
@@ -129,7 +132,7 @@ void CPEFromDetPosition::setTheDet( const GeomDetUnit & det )const {
 				   << " thePitchY  = " << thePitchY 
 				   << " theOffsetX = " << theOffsetX 
 				   << " theOffsetY = " << theOffsetY 
-				   << " theLShift  = " << theLShift;
+				   << " theLShiftX  = " << theLShiftX;
   }
 }
 //----------------------------------------------------------------------
@@ -175,21 +178,46 @@ CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster,
     LogDebug("CPEFromDetPosition") <<
       "X-pos = " << xpos(cluster) << 
       " Y-pos = " << ypos(cluster) << 
-      " Lshf = " << theLShift ;
+      " Lshf = " << theLShiftX ;
   }
 
 
   // Fix to take into account the large pixels
 #ifdef CORRECT_FOR_BIG_PIXELS
   // correct the measurement for Lorentz shift
-  float xPos = xpos(cluster); // x position in the measurement frame
-  float lshift = theLShift; // nominal lorentz shift
-  if(RectangularPixelTopology::isItBigPixelInX(int(xPos))) // if big 
-    lshift = theLShift/2.;  // reduce the shift
-  return MeasurementPoint( xpos(cluster)-lshift,ypos(cluster));
+  if ( alpha2Order) {
+     float xPos = xpos(cluster); // x position in the measurement frame
+     float yPos = ypos(cluster);
+     float lxshift = theLShiftX; // nominal lorentz shift
+     float lyshift = theLShiftY;
+     if(RectangularPixelTopology::isItBigPixelInX(int(xPos))) // if big
+       lxshift = theLShiftX/2.;  // reduce the shift
+     if (thePart == GeomDetEnumerators::PixelBarrel) {
+         lyshift =0.0;
+     } else { //forward
+        if(RectangularPixelTopology::isItBigPixelInY(int(yPos))) // if big
+           lyshift = theLShiftY/2.;  // reduce the shift 
+     }
+     return MeasurementPoint( xpos(cluster)-lxshift,ypos(cluster)-lyshift);
+   }else {
+     float xPos = xpos(cluster); // x position in the measurement frame
+     float lshift = theLShiftX; // nominal lorentz shift
+     if(RectangularPixelTopology::isItBigPixelInX(int(xPos))) // if big 
+       lshift = theLShiftX/2.;  // reduce the shift
+     return MeasurementPoint( xpos(cluster)-lshift,ypos(cluster));
+  } 
 #else
-  return MeasurementPoint( xpos(cluster)-theLShift, 
-			   ypos(cluster));
+  if ( alpha2Order) {
+     if (thePart == GeomDetEnumerators::PixelBarrel) {
+          return MeasurementPoint( xpos(cluster)-theLShiftX, ypos(cluster));
+     } else { //forward
+           return MeasurementPoint( xpos(cluster)-theLShiftX, ypos(cluster)-theLShiftY); 
+     }
+  }else {
+     return MeasurementPoint( xpos(cluster)-theLShiftX,
+                              ypos(cluster) );
+  }
+
   // skip the correction, do it only for the local position
   // in this mode the measurements are NOT corrected for the Lorentz shift 
   //return MeasurementPoint( xpos(cluster),ypos(cluster));
@@ -207,14 +235,29 @@ CPEFromDetPosition::localPosition(const SiPixelCluster& cluster,
 #ifdef CORRECT_FOR_BIG_PIXELS
   MeasurementPoint ssss( xpos(cluster),ypos(cluster));
   LocalPoint lp = theTopol->localPosition(ssss);
-  float lshift = theLShift * thePitchX;  // shift in cm
-  LocalPoint cdfsfs(lp.x()-lshift, lp.y());  
+  if ( alpha2Order) {
+     float lxshift = theLShiftX * thePitchX;  // shift in cm
+     float lyshift = theLShiftY*thePitchY;
+     if (thePart == GeomDetEnumerators::PixelBarrel) {
+             LocalPoint cdfsfs(lp.x()-lxshift, lp.y());
+             return cdfsfs;
+     } else { //forward
+             LocalPoint cdfsfs(lp.x()-lxshift, lp.y()-lyshift);
+             return cdfsfs;
+     }
+  }else {
+     float lxshift = theLShiftX * thePitchX;  // shift in cm
+     LocalPoint cdfsfs(lp.x()-lxshift, lp.y() );
+     return cdfsfs;
+  }
+
 #else
   MeasurementPoint ssss = measurementPosition(cluster, det);
   LocalPoint cdfsfs = theTopol->localPosition(ssss);
+  return cdfsfs;
 #endif
 
-  return cdfsfs;
+//  return cdfsfs;
 }
 //-----------------------------------------------------------------------------
 // Position error estimate in X (square returned).
@@ -443,7 +486,7 @@ bool CPEFromDetPosition::isFlipped() const {
 //-----------------------------------------------------------------------------
 float CPEFromDetPosition::chargeWidthX() const { 
   float chargeW = 0;
-  float lorentzWidth = 2 * theLShift;
+  float lorentzWidth = 2 * theLShiftX;
   if (thePart == GeomDetEnumerators::PixelBarrel) {  // barrel
     chargeW = lorentzWidth; // width from Lorentz shift
   } else { // forward
@@ -459,13 +502,19 @@ float CPEFromDetPosition::chargeWidthX() const {
 float 
 CPEFromDetPosition::chargeWidthY() const
 {
-  float chargeW = 0;  
+  float chargeW = 0;
+  float lorentzWidth = 2 * theLShiftY;  
   if (thePart == GeomDetEnumerators::PixelBarrel) {  // barrel
     // Charge width comes from the geometry (inclined angles)
     chargeW = theThickness * fabs(theDetZ/theDetR) / thePitchY;
   } else { //forward
     // Width comes from geometry only, given by the tilt angle
-   chargeW = theThickness * tan(20./degsPerRad) / thePitchY; 
+     if ( alpha2Order) {
+       chargeW = -fabs(lorentzWidth)+ theThickness * tan(20./degsPerRad) / thePitchY; 
+     }else {
+       chargeW = theThickness * tan(20./degsPerRad) / thePitchY;
+     }
+
   }
   return chargeW;
 }
@@ -500,7 +549,7 @@ float CPEFromDetPosition::geomCorrectionY(float ycenter) const {
 // Lorentz shift. For the moment only in X direction (barrel & endcaps)
 // For the forward the y componenet might have to be added.
 //-----------------------------------------------------------------------------
-float CPEFromDetPosition::lorentzShift() const {
+float CPEFromDetPosition::lorentzShiftX() const {
 
   LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
 
@@ -516,6 +565,15 @@ float CPEFromDetPosition::lorentzShift() const {
  
   return lshift;  
 }
+
+float CPEFromDetPosition::lorentzShiftY() const {
+
+  LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
+  float ydrift = dir.y()/dir.z() * theThickness;
+  float lshift = ydrift / thePitchY / 2.;
+  return lshift;
+}
+
 
 //-----------------------------------------------------------------------------
 // unused
@@ -602,10 +660,24 @@ CPEFromDetPosition::driftDirection( GlobalVector bfield ) const {
   Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
   LocalVector Bfield = detFrame.toLocal(bfield);
 
-  float dir_x =  theTanLorentzAnglePerTesla * Bfield.y();
-  float dir_y = -theTanLorentzAnglePerTesla * Bfield.x();
-  float dir_z = -1.; // E field always in z direction, so electrons go to -z.
-  LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
+  float alpha2;
+  if ( alpha2Order) {
+     alpha2 = theTanLorentzAnglePerTesla*theTanLorentzAnglePerTesla;
+  }else {
+     alpha2 = 0.0;
+  }
+
+  float dir_x =  ( theTanLorentzAnglePerTesla * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
+  float dir_y = -( theTanLorentzAnglePerTesla * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
+  float dir_z = -( 1 + alpha2* Bfield.z()*Bfield.z() );
+  float scale = (1 + alpha2* Bfield.z()*Bfield.z() );
+  LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
+ 
+ 
+  // float dir_x =  theTanLorentzAnglePerTesla * Bfield.y();
+  // float dir_y = -theTanLorentzAnglePerTesla * Bfield.x();
+  // float dir_z = -1.; // E field always in z direction, so electrons go to -z.
+  // LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
 
   if (theVerboseLevel > 9) { 
     LogDebug("CPEFromDetPosition") 
