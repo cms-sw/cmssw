@@ -8,8 +8,8 @@
  *  This class defines which DetLayers are reacheable from each Muon DetLayer
  *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
  *
- * $Date: 2006/06/04 18:27:38 $
- * $Revision: 1.4 $
+ * $Date: 2006/10/13 13:28:07 $
+ * $Revision: 1.5 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -57,6 +57,19 @@ class MuonNavigationSchool : public NavigationSchool {
 
   private: 
   
+    struct delete_layer
+    {
+      template <typename T>
+      void operator()(T*& p)
+      {
+        if( p)
+        {
+          delete p;
+          p = 0;
+        }
+      }
+    };
+
     MapB theBarrelLayers;    /// barrel
     MapE theForwardLayers;   /// +z endcap
     MapE theBackwardLayers;  /// -z endcap 
