@@ -53,7 +53,8 @@ std::ostream& reco::operator<<(std::ostream& out,
      <<", layer = "<<trajPoint.layer()
      <<", Eta,Phi = "<<posxyz.Eta()<<","<<posxyz.Phi()
      <<", X,Y = "<<posxyz.X()<<","<<posxyz.Y()
-     <<", R,Z = "<<posxyz.R()<<","<<posxyz.Z();
+     <<", R,Z = "<<posxyz.R()<<","<<posxyz.Z()
+     <<", E,Pt = "<<trajPoint.momentum().E()<<","<<trajPoint.momentum().Pt();
   
   return out;
 }

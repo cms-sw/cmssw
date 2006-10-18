@@ -47,14 +47,17 @@ namespace reco {
     /// destructor
     virtual ~PFRecHit();
 
-    void      setNeighbours( const std::vector<PFRecHit*>& neighbours );
+    /// calculates rho eta phi position once and for all
+    void calculatePositionREP();
+
+    void setNeighbours( const std::vector<PFRecHit*>& neighbours );
     
     /// \brief search for pointers to neighbours, using neighbours' DetId.
     /// 
     /// pointers to neighbours are not persistent, in contrary to the DetId's 
     /// of the neighbours. This function searches a map of rechits 
     /// for the DetId's stored in neighboursIds4_ and  neighboursIds8_. 
-    /// The corresponding pointers are stored in neighbours4_ and neighbours8_. 
+    /// The corresponding pointers are stored in neighbours4_ and neighbours8_.
     void      findPtrsToNeighbours( const std::map<unsigned,  reco::PFRecHit* >& allhits );
 
     void      setNWCorner( double posx, double posy, double posz );
@@ -83,9 +86,6 @@ namespace reco {
     /// rechit cell centre rho, eta, phi. call calculatePositionREP before !
     const REPPoint& positionREP() const;
 
-    /// calculates rho eta phi position once and for all
-    void calculatePositionREP();
-
     /// rechit cell axis x, y, z
     const math::XYZVector& getAxisXYZ() const { return axisxyz_; }    
 
@@ -93,8 +93,6 @@ namespace reco {
     const std::vector< math::XYZPoint >& getCornersXYZ() const 
       { return cornersxyz_; }    
 
-/*     const std::vector< PFRecHit* >& getNeighbours() const  */
-/*       {return neighbours_;}   */
     
     const std::vector< PFRecHit* >& getNeighbours4() const 
       {return neighbours4_;}  
@@ -108,6 +106,12 @@ namespace reco {
     const std::vector< unsigned >& getNeighboursIds8() const 
       {return neighboursIds8_;}  
 
+    /// is rechit 'id' a direct neighbour of this ? 
+    bool  isNeighbour4(unsigned id) const;
+
+    /// is rechit 'id' a neighbour of this ? 
+    bool  isNeighbour8(unsigned id) const;
+    
 
     void size(double& deta, double& dphi) const;
 
@@ -151,10 +155,10 @@ namespace reco {
     /// rechit cell corners
     std::vector< math::XYZPoint > cornersxyz_;
 
-    /// id's of neighbours
+    /// id's of neighbours - replace by a set 
     std::vector<unsigned>    neighboursIds4_;
 
-    /// id's of neighbours
+    /// id's of neighbours - replace by a set 
     std::vector<unsigned>    neighboursIds8_;
 
     /// pointers to neighbours (if null: no neighbour here) (transient)

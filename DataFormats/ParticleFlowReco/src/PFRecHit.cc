@@ -181,6 +181,24 @@ void PFRecHit::setCorner( unsigned i, double posx, double posy, double posz ) {
 }
 
 
+bool PFRecHit::isNeighbour4(unsigned id) const {
+
+  for(unsigned i=0; i<neighbours4_.size(); i++ )
+    if( id == neighboursIds4_[i] ) return true;
+
+  return false;		  
+}
+
+
+bool PFRecHit::isNeighbour8(unsigned id) const {
+  
+  for(unsigned i=0; i<neighbours8_.size(); i++ )
+    if( id == neighboursIds8_[i] ) return true;
+
+  return false;		  
+}
+
+
 void PFRecHit::size(double& deta, double& dphi) const {
 
   double minphi=9999;

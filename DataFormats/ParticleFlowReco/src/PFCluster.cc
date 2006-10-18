@@ -43,6 +43,23 @@ PFCluster::PFCluster(unsigned id, int type) :
   instanceCounter_++;
 }
   
+PFCluster::PFCluster(unsigned id, int type, int layer, double energy,
+		     double x, double y, double z ) : 
+  id_(id), 
+  type_(type), 
+  layer_(layer),
+  energy_(energy), 
+  posxyz_(x,y,z),
+  posrep_( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() ),
+  posCalcMode_(0),
+  posCalcP1_(0),
+  posCalcDepthCor_(false),
+  color_(2)
+{  
+  // cout<<"PFCluster"<<endl;
+  instanceCounter_++;
+}
+  
 
 PFCluster::PFCluster(const PFCluster& other) :
   rechits_(other.rechits_),
@@ -82,13 +99,20 @@ void PFCluster::addRecHit( const reco::PFRecHit& rechit, double fraction) {
 }
 
 
-void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
+void PFCluster::calculatePosition( int algo, 
+				   double p1, 
+				   bool depcor,
+				   int  ncrystals) {
 
   if( rechits_.empty() ) {
     cerr<<"PFCluster::calculatePosition: empty cluster!!!"<<endl; 
     return;
   }
-
+  
+  if( ncrystals != -1 && ncrystals != 5 && ncrystals != 9 ) {
+    throw "PFCluster::calculatePosition : ncrystals must be -1, 5, or 9.";
+  }
+  
   posCalcMode_ = algo;
   posCalcP1_ = p1;
   posCalcDepthCor_ = depcor;
@@ -101,36 +125,28 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
 
   double normalize = 0;
 
-  // calculate total energy and average layer ---------- //
+  // calculate total energy, average layer, and look for seed  ---------- //
 
   double layer = 0;
 
-  // cerr<<"PFCluster::calculatePosition: "<<algo<<" "<<p1<<endl;
+  unsigned seedId = 0;
   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
 
     const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
+    if(rechit->isSeed() ) seedId = rechit->detId();
 
     double frac =  rechits_[ic].getFraction();
     double theRecHitEnergy = rechit->energy() * frac;
 
     energy_ += theRecHitEnergy;
-//     if ( rechit->layer() == LAYER_ECAL_BARREL ||
-// 	 rechit->layer() == LAYER_ECAL_ENDCAP ) 
-//       fEecal += theRecHitEnergy;
-//     else if ( rechit->layer() == LAYER_HCAL_BARREL_1 ||
-// 	      rechit->layer() == LAYER_HCAL_BARREL_2 ||
-// 	      rechit->layer() == LAYER_HCAL_ENDCAP_1 ||
-// 	      rechit->layer() == LAYER_HCAL_ENDCAP_2 || 
-// 	      rechit->layer() == LAYER_VFCAL	      
-// 	      ) 
-//       fEhcal += theRecHitEnergy;
-
-    // cerr<<"\t rechit: "<<(*rechit)<<endl;
     layer += rechit->layer() * theRecHitEnergy;
   }  
+  assert(seedId);
+
   layer /= energy_;
   layer_ = lrintf(layer); // nearest integer
   
+
   // cout<<"loop done. layers "<<layer<<" "<<energy_<<" "<<layer_<<endl;
 
   if( p1 < 0 ) { 
@@ -183,9 +199,31 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
   double x = 0;
   double y = 0;
   double z = 0;
+  
+  // cerr<<"seed id "<<seedId<<endl;
   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
     
     const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
+
+    // cerr<<"rechit id "<<rechit->detId()<<endl;
+    if(rechit->detId() != seedId) {
+      // cerr<<"not the seed"<<endl;
+      if( ncrystals == 5 ) {
+	// cerr<<"ncrystals = 5"<<endl;
+	if(!rechit->isNeighbour4(seedId) ) {
+	  // cerr<<"continue"<<endl;
+	  continue;
+	}
+      }
+      if( ncrystals == 9 ) {
+	// cerr<<"ncrystals = 9"<<endl;
+	if(!rechit->isNeighbour8(seedId) ) {
+	  // cerr<<"continue"<<endl;
+	  continue;
+	}
+      }
+    }
+    
     double fraction =  rechits_[ic].getFraction();  
     double theRecHitEnergy = rechit->energy() * fraction;
 
@@ -215,7 +253,7 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
     y += rechitposxyz.Y() * norm;
     z += rechitposxyz.Z() * norm;
     
-    //     clusterposxyz += rechitposxyz * norm;
+    // clusterposxyz += rechitposxyz * norm;
     normalize += norm;
   }
   
@@ -243,14 +281,14 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
   // correction of the rechit position, 
   // according to the depth, only for ECAL 
 
+  // cout<<"PFCluster::calculatePosition "<<depthCorMode_<<" "<<depcor<<endl;
+
 
   if( depthCorMode_ &&   // correction activated
       depcor &&          // correction requested
       ( layer_ == PFLayer::ECAL_BARREL ||       
 	layer_ == PFLayer::ECAL_ENDCAP ) ) {
 
-    posrep_.SetXYZ(0,0,0);
-    normalize = 0;
     
     double corra = depthCorA_;
     double corrb = depthCorB_;
@@ -306,15 +344,41 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
     x = 0;
     y = 0;
     z = 0;
+    posrep_.SetXYZ(0,0,0);
+    normalize = 0;
     for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
       const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
+      
+      // cerr<<"rechit id "<<rechit->detId()<<endl;
+      if(rechit->detId() != seedId) {
+	// cerr<<"not the seed"<<endl;
+	if( ncrystals == 5 ) {
+	  // cerr<<"ncrystals = 5"<<endl;
+	  if(!rechit->isNeighbour4(seedId) ) {
+	    // cerr<<"continue"<<endl;
+	    continue;
+	  }
+	}
+	if( ncrystals == 9 ) {
+	  // cerr<<"ncrystals = 9"<<endl;
+	  if(!rechit->isNeighbour8(seedId) ) {
+	    // cerr<<"continue"<<endl;
+	    continue;
+	  }
+	}
+      }
+    
+      
       double fraction =  rechits_[ic].getFraction();
       
       double theRecHitEnergy = rechit->energy() * fraction;
 
       const math::XYZPoint&  rechitposxyz = rechit->positionXYZ();
-      const math::XYZVector& rechitaxis = rechit->getAxisXYZ();
 
+      // rechit axis not correct ! 
+      math::XYZVector rechitaxis = rechit->getAxisXYZ();
+      // rechitaxis -= math::XYZVector( rechitposxyz.X(), rechitposxyz.Y(), rechitposxyz.Z() );
+      
 
 //       // corrected rechit position:
 //       math::XYZVector rechitposxyzcor(rechitaxis); 
@@ -324,20 +388,27 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
 //       //      rechitposxyzcor.SetMag( rechitaxis.Dot( depthv ) );
 //       rechitposxyzcor += rechitposxyz;
 
-      math::XYZVector displacement( rechitaxis );
-      displacement /= sqrt( displacement.Mag2() );    
-      displacement *= displacement.Dot( depthv );
+      // cout<<"rechitaxis.Mag   : "<< sqrt( rechitaxis.Mag2() )<<endl;
+      math::XYZVector rechitaxisu( rechitaxis );
+      rechitaxisu /= sqrt( rechitaxis.Mag2() );
+      // cout<<"rechitaxis.Mag,u : "<< sqrt( rechitaxisu.Mag2() )<<endl;
+
+      math::XYZVector displacement( rechitaxisu );
+      // displacement /= sqrt( displacement.Mag2() );    
+      displacement *= rechitaxisu.Dot( depthv );
       
       math::XYZPoint rechitposxyzcor( rechitposxyz );
       rechitposxyzcor += displacement;
 
       // cout<<"displacement length "<<sqrt( displacement.Mag2() )<<endl;
-      // cout<<"rechit pos "<<rechitposxyz.Rho()
-      //	  <<" "<<rechitposxyz.Eta()
-      //	  <<" "<<rechitposxyz.Phi()<<endl;
-      // cout<<"rechit cor "<<rechitposxyzcor.Rho()
-      //	  <<" "<<rechitposxyzcor.Eta()
-      //	  <<" "<<rechitposxyzcor.Phi()<<endl;
+      // cout<<"rechit pos "
+// 	  <<rechitposxyz.Rho()
+//       	  <<" "<<rechitposxyz.Eta()
+//       	  <<" "<<rechitposxyz.Phi()<<endl;
+      // cout<<"rechit cor "
+// 	  <<rechitposxyzcor.Rho()
+//       	  <<" "<<rechitposxyzcor.Eta()
+//       	  <<" "<<rechitposxyzcor.Phi()<<endl;
 
       if( theRecHitEnergy > maxe ) {
 	firstrechitposxyz = rechitposxyzcor;
@@ -387,6 +458,8 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
     }
   }
   
+  // cout<<(*this)<<endl;
+
 //   // here calculate the distance between the cluster and the rechit with max e
 
 //   fDseed = ( clusterposxyz - firstrechitposxyz).Mag();
@@ -488,8 +561,8 @@ std::ostream& reco::operator<<(std::ostream& out,
   if(!out) return out;
   
   const PFCluster::REPPoint&  pos = cluster.positionREP();
-//   const std::vector< reco::PFRecHitFraction >& fracs = 
-//     cluster.recHitFractions();
+  const std::vector< reco::PFRecHitFraction >& fracs = 
+    cluster.recHitFractions();
 
   out<<"cluster "<<cluster.id()
      <<"\ttype: "<<cluster.type()
@@ -497,11 +570,11 @@ std::ostream& reco::operator<<(std::ostream& out,
      <<"\tenergy: "<<cluster.energy()
      <<"\tposition: "
      <<pos.Rho()<<","<<pos.Eta()<<","<<pos.Phi();
-  // out<<endl;
-  //   out<<"\t"<<fracs.size()<<" rechits: "<<endl;
-  //   for(unsigned i=0; i<fracs.size(); i++) {
-  //     out<<fracs[i]<<endl;
-  //   }
+  out<<endl;
+    out<<"\t"<<fracs.size()<<" rechits: "<<endl;
+    for(unsigned i=0; i<fracs.size(); i++) {
+      out<<fracs[i]<<endl;
+    }
 
   return out;
 }

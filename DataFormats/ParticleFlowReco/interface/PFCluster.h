@@ -40,6 +40,10 @@ namespace reco {
     /// constructor
     PFCluster(unsigned id, int type);
 
+    /// constructor
+    PFCluster(unsigned id, int type, int layer, double energy,
+	      double x, double y, double z );
+
     /// copy constructor
     PFCluster(const PFCluster& other);
 
@@ -52,8 +56,23 @@ namespace reco {
     /// add a given fraction of the rechit
     void addRecHit( const reco::PFRecHit& rechit, double fraction);
 
-    /// updates cluster info from rechit
-    void calculatePosition( int algo, double p1 = 0, bool depcor = true);
+    /// \brief updates cluster info from rechit
+    /// 
+    /// algo = POSCALC_LIN (POSCALC_LOG) for linear (logarithmic) weighting 
+    ///
+    /// if linear, the rechit position is weighted by the rechit energy E
+    ///
+    /// if logarithmic, the rechit position is weighted by log(E/p1). 
+    ///
+    /// if p1 = -1, it is determined automatically 
+    /// auto determination of p1 works only for ECAL and HCAL
+    ///
+    /// ncrystal is the number of crystals around the seed used in the 
+    /// calculation. can be -1 (all), 5, or 9. 
+    void calculatePosition( int algo, 
+			    double p1 = 0, 
+			    bool depcor = true, 
+			    int  ncrystals = -1);
 
     /// vector of rechit fractions
     const std::vector< reco::PFRecHitFraction >& recHitFractions() const 
