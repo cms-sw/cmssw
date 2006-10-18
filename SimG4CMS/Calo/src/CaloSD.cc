@@ -57,10 +57,10 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   //
   // Now attach the right detectors (LogicalVolumes) to me
   //
-  vector<string> lvNames = 
+  std::vector<std::string> lvNames = 
     SensitiveDetectorCatalog::instance()->logicalNames(name);
   this->Register();
-  for (vector<string>::iterator it=lvNames.begin();  it !=lvNames.end(); it++){
+  for (std::vector<std::string>::iterator it=lvNames.begin();  it !=lvNames.end(); it++){
     this->AssignSD(*it);
     LogDebug("CaloSim") << "CaloSD : Assigns SD to LV " << (*it);
   }
@@ -454,7 +454,7 @@ void CaloSD::update(const ::EndOfEvent * ) {
   LogDebug("CaloSim") << "CaloSD::update: Start saving hits for " << GetName()
 		      << " with " << hitvec.size() << " hits";
   int kount = 0, count = 0, wrong = 0;
-  vector<CaloG4Hit*>::iterator i;
+  std::vector<CaloG4Hit*>::iterator i;
 
   if (useMap) {
     for (i=hitvec.begin(); i!=hitvec.end(); i++) {
@@ -466,7 +466,7 @@ void CaloSD::update(const ::EndOfEvent * ) {
     sort(hitvec.begin(), hitvec.end(), CaloG4HitLess());
     LogDebug("CaloSim") << "CaloSD: EndofEvent sort the hits in buffer ";
 
-    vector<CaloG4Hit*>::iterator j;
+    std::vector<CaloG4Hit*>::iterator j;
     CaloG4HitEqual equal;
     for (i=hitvec.begin(); i!=hitvec.end(); i++) {
       int jump = 0;

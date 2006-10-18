@@ -6,8 +6,6 @@
 
 #include <map>
 
-using namespace std;
-
 class CaloMap {
 
 public:
@@ -18,7 +16,7 @@ public:
   void clear(const int evtID);
   void setTrack(const int id, TrackWithHistory* tk);
   TrackWithHistory* getTrack(const int id);
-  typedef map<int,TrackWithHistory*> MapType;
+  typedef std::map<int,TrackWithHistory*> MapType;
 
 private:
 

@@ -29,8 +29,6 @@
 #include <vector>
 #include <map>
 
-using namespace std;
-
 class G4Step;
 class G4HCofThisEvent;
 class CaloSlaveSD;
@@ -114,10 +112,10 @@ private:
   CaloSlaveSD*           slave;
   int                    hcID;
   CaloG4HitCollection*   theHC; 
-  map<CaloHitID,CaloG4Hit*> hitMap;
+  std::map<CaloHitID,CaloG4Hit*> hitMap;
 
   CaloG4Hit*             currentHit;
-  vector<CaloG4Hit*>     hitvec;
+  std::vector<CaloG4Hit*>        hitvec;
 
 };
 
