@@ -5,89 +5,44 @@
 // 
 /**\class SoftLepton SoftLepton.cc RecoBTag/SoftLepton/src/SoftLepton.cc
 
- Description: <one line class summary>
+ Description: CMSSW EDProducer wrapper for sot lepton b tagging.
 
  Implementation:
-     <Notes on implementation>
+     The actual tagging is performed by SoftLeptonAlgorithm.
 */
 //
-// Original Author:  Andrea Rizzi
-//         Created:  Thu May 18 10:23:15 CEST 2006
+// Original Author:  fwyzard
+//         Created:  Wed Oct 18 18:02:07 CEST 2006
 // $Id$
 //
-//
 
 
-// system include files
 #include <memory>
+#include <string>
+using namespace std;
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+using namespace edm;
 
-//
-// class decleration
-//
+#include "RecoBTag/SoftLepton/interface/SoftLepton.h"
 
-class SoftLepton : public edm::EDProducer {
-   public:
-      explicit SoftLepton(const edm::ParameterSet&);
-      ~SoftLepton();
-
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-SoftLepton::SoftLepton(const edm::ParameterSet& iConfig)
-{
+SoftLepton::SoftLepton(const edm::ParameterSet& iConfig) {
    //register your products
-/* Examples
    produces<ExampleData2>();
 
-   //if do put with a label
-   produces<ExampleData2>("label");
-*/
    //now do what ever other initialization is needed
-
 }
 
 
-SoftLepton::~SoftLepton()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+SoftLepton::~SoftLepton() {
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
-SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 /* This is an event example
    //Read 'ExampleData' from the Event
    Handle<ExampleData> pIn;
@@ -106,5 +61,15 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 */
 }
 
-//define this as a plug-in
+// ------------ method called once each job just before starting event loop  ------------
+void 
+SoftLepton::beginJob(const edm::EventSetup& iSetup) {
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+SoftLepton::endJob() {
+}
+
+// define this as a plug-in
 DEFINE_FWK_MODULE(SoftLepton)
