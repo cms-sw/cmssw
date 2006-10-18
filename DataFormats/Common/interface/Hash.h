@@ -11,7 +11,7 @@
   
 Hash:
 
-$Id: Hash.h,v 1.9 2006/09/22 17:05:13 paterno Exp $
+$Id: Hash.h,v 1.10 2006/09/22 17:18:08 wmtan Exp $
 
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function
@@ -36,7 +36,8 @@ namespace edm {
     Hash();
     explicit Hash(value_type const& v);
 
-    // compiler-generator copy c'tor, copy assignment, d'tor all OK
+    Hash(Hash<I> const&);
+    const Hash<I>& operator=(Hash<I> const& iRHS);
 
     // For now, just check the most basic: a default constructed
     // ParameterSetID is not valid. This is very crude: we are
@@ -55,6 +56,8 @@ namespace edm {
     // Return the 16-byte (non-printable) string form.
     value_type compactForm() const;
     
+    bool isCompactForm()const;
+    
   private:
 
     /// Hexified version of data *must* contain a multiple of 2
@@ -64,9 +67,20 @@ namespace edm {
     // 'Fix' the string data member of this Hash, i.e., if it is in
     // the hexified (32 byte) representation, make it be in the
     // 16-byte (unhexified) representation.
-    void fixup() const;
+    void fixup();
+    
+    template< typename Op>
+      bool
+      compareUsing(Hash<I> const& iOther, Op op) const {
+        if(this->isCompactForm() == iOther.isCompactForm()) {
+          return op(this->hash_,iOther.hash_);
+        }
+        Hash<I> tMe(*this);
+        Hash<I> tOther(iOther);
+        return op(tMe.hash_,tOther.hash_);
+      }
 
-    mutable value_type hash_;
+    value_type hash_;
   };
 
 
@@ -94,20 +108,36 @@ namespace edm {
 
   template <int I>
   inline
+  Hash<I>::Hash(Hash<I> const& iOther):
+    hash_(iOther.hash_)
+  {
+      fixup();
+  }
+
+  template <int I>
+  inline
+  const Hash<I>& 
+  Hash<I>::operator=(Hash<I> const& iRHS)
+  {
+    hash_=iRHS.hash_;
+    fixup();
+    return *this;
+  }
+  
+  template <int I>
+  inline
   bool 
   Hash<I>::isValid() const
   {
-    fixup();
-    return hash_ != edm::detail::InvalidHash();
+    return isCompactForm() ? (hash_ != edm::detail::InvalidHash()) : (hash_.size()!=0);
   }
-
+  
   template <int I>
   inline
   bool
   Hash<I>::operator< (Hash<I> const& other) const
   {
-    fixup();
-    return hash_ < other.hash_; 
+    return this->compareUsing(other, std::less<std::string >() );
   }
 
   template <int I>
@@ -115,8 +145,7 @@ namespace edm {
   bool 
   Hash<I>::operator> (Hash<I> const& other) const 
   {
-    fixup();
-    return other.hash_ < hash_;
+    return this->compareUsing(other, std::greater<std::string >() );
   }
 
   template <int I>
@@ -124,8 +153,7 @@ namespace edm {
   bool 
   Hash<I>::operator== (Hash<I> const& other) const 
   {
-    fixup();
-    return hash_ == other.hash_;
+    return this->compareUsing(other, std::equal_to<std::string >() );
   }
 
   template <int I>
@@ -133,8 +161,7 @@ namespace edm {
   bool 
   Hash<I>::operator!= (Hash<I> const& other) const 
   {
-    fixup();
-    return !(hash_ == other.hash_);
+    return this->compareUsing(other, std::not_equal_to<std::string >() );
   }
 
   template <int I>
@@ -142,9 +169,9 @@ namespace edm {
   std::ostream& 
   Hash<I>::print(std::ostream& os) const
   {
-    fixup();
+    Hash<I> tMe(*this);
     cms::MD5Result temp;
-    std::copy(hash_.begin(), hash_.end(), temp.bytes);
+    std::copy(tMe.hash_.begin(), tMe.hash_.end(), temp.bytes);
     os << temp.toString();
     return os;
   }
@@ -164,8 +191,11 @@ namespace edm {
   typename Hash<I>::value_type
   Hash<I>::compactForm() const
   {
-    fixup();
-    return hash_;
+    if (this->isCompactForm()) {
+      return hash_;
+    }
+    Hash<I> tMe(*this);
+    return tMe.compactForm();
   }
 
   template <int I>
@@ -187,7 +217,7 @@ namespace edm {
 
   template <int I>
   void 
-  Hash<I>::fixup() const {
+  Hash<I>::fixup() {
     switch (hash_.size() ) {
     case 0:
       {
@@ -241,6 +271,12 @@ namespace edm {
     }
   }
 
+  template <int I>
+  inline
+  bool Hash<I>::isCompactForm() const {
+    return 16 == hash_.size();
+  }
+  
 
   // Free swap function
   template <int I>
