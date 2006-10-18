@@ -63,10 +63,10 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
     // Resolution Forward
     resAlpha_binMin   = pset.getUntrackedParameter<double>("AlphaForward_BinMin"   ,  0.0);
     resAlpha_binWidth = pset.getUntrackedParameter<double>("AlphaForward_BinWidth" ,  0.0);
-    resAlpha_binN     = pset.getUntrackedParameter<int>("AlphaBarrel_BinN"        ,   4  );
+    resAlpha_binN     = pset.getUntrackedParameter<int>("AlphaBarrel_BinN"         ,  4  );
     resBeta_binMin    = pset.getUntrackedParameter<double>("BetaForward_BinMin"    ,  0.0);
     resBeta_binWidth  = pset.getUntrackedParameter<double>("BetaForward_BinWidth"  ,  0.0);
-    resBeta_binN      = pset.getUntrackedParameter<int>(   "BetaBarrel_BinN"      ,   7  );
+    resBeta_binN      = pset.getUntrackedParameter<int>(   "BetaBarrel_BinN"       ,  7  );
   }
   //
   
@@ -100,20 +100,6 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
 					       << " beta(y) = "  << beta
 					       << std::endl;
   }
-  /*
-    if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
-    // it means that we are in the barrel
-    // the barrel layers are assumed to be cylinders, to mimic the staggering of the pixel modules, alpha is smeared
-    double alphaMin = theAlphaMultiplicityCumulativeProbabilities.front()->GetXaxis()->GetXmin();
-    double alphaMax = theAlphaMultiplicityCumulativeProbabilities.front()->GetXaxis()->GetXmax();
-    alpha -= ( alphaMin + RandFlat::shoot() * ( alphaMax - alphaMin ) ) / (float)theLayer;
-    if (theVerboseLevel > 3) {
-    LogDebug("SiTrackerGaussianSmearingRecHits") << " Smearing of alpha in range [" << alphaMin << "," << alphaMax << "]"
-    << "\t new alpha(x) = " << alpha
-    << std::endl;
-    }
-    }
-  */
   // Generate alpha and beta multiplicity
   unsigned int alphaMultiplicity = 0;
   unsigned int betaMultiplicity  = 0;
@@ -167,8 +153,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
 							  (int)alphaMultiplicity , (int)betaMultiplicity ,
 							  alpha                  , beta                    );
   // define private mebers --> Errors
-  theErrorX = (double)theErrors.first;
-  theErrorY = (double)theErrors.second;
+  theErrorX = sqrt((double)theErrors.first);  // returns sigma^2
+  theErrorY = sqrt((double)theErrors.second); // returns sigma^2
   theErrorZ = 0.0001; // 1 um means zero
   theError = LocalError( theErrorX * theErrorX,
 			 0.,
