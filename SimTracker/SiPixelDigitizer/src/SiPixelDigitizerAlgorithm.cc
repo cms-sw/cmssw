@@ -38,6 +38,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   Sigma0 = 0.00037;           // Charge diffusion constant 7->3.7 
   Dist300 = 0.0300;          //   normalized to 300micron Silicon
 
+  alpha2Order = conf_.getParameter<bool>("Alpha2Order");   // switch on/off of E.B effect   
+
   //get external parameters
   // ADC calibration 1adc count = 135e.
   // Corresponds to 2adc/kev, 270[e/kev]/135[e/adc]=2[adc/kev]
@@ -497,13 +499,24 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 
   //float TanLorenzAngleX = driftDir.x()/driftDir.z(); // tangen of Lorentz angle
   //float TanLorenzAngleY = 0.; // force to 0, driftDir.y()/driftDir.z();
-  float TanLorenzAngleX = driftDir.x(); // tangen of Lorentz angle
-  float TanLorenzAngleY = 0.; // force to =0, driftDir.y();
-  float dir_z = driftDir.z(); // The z drift direction
 
-  // I also need cosines to estimate the path length
-  float CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine
-  float CosLorenzAngleY = 1.;
+  float TanLorenzAngleX, TanLorenzAngleY,dir_z, CosLorenzAngleX,CosLorenzAngleY;
+  if ( alpha2Order) {
+
+      TanLorenzAngleX = driftDir.x(); // tangen of Lorentz angle
+      TanLorenzAngleY = driftDir.y();
+      dir_z = driftDir.z(); // The z drift direction
+      CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine
+      CosLorenzAngleY = 1./sqrt(1.+TanLorenzAngleY*TanLorenzAngleY); //cosine;
+
+  } else{
+
+      TanLorenzAngleX = driftDir.x();
+      TanLorenzAngleY = 0.; // force to 0, driftDir.y()/driftDir.z();
+      dir_z = driftDir.z(); // The z drift direction
+      CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine to estimate the path length
+      CosLorenzAngleY = 1.;
+  }
  
   LogDebug ("Pixel Digitizer") 
     << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY <<" "
@@ -1089,12 +1102,27 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
 LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
-  float dir_x = -tanLorentzAnglePerTesla * Bfield.y();
-  float dir_y = +tanLorentzAnglePerTesla * Bfield.x();
-  float dir_z = -1.; // E field always in z direction, so electrons go to -z
-  // The dir_z has to be +/- 1. !
 
-  LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);  
+  float alpha2;
+  if ( alpha2Order) {
+     alpha2 = tanLorentzAnglePerTesla*tanLorentzAnglePerTesla;
+  }else {
+     alpha2 = 0.0;
+  }
+
+  
+  //float dir_x = -tanLorentzAnglePerTesla * Bfield.y();
+  //float dir_y = +tanLorentzAnglePerTesla * Bfield.x();
+  //float dir_z = -1.; // E field always in z direction, so electrons go to -z
+  // The dir_z has to be +/- 1. !
+  // LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
+
+  float dir_x = -( tanLorentzAnglePerTesla * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
+  float dir_y = +( tanLorentzAnglePerTesla * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
+  float dir_z = -(1 + alpha2* Bfield.z()*Bfield.z() );
+  float scale = (1 + alpha2* Bfield.z()*Bfield.z() );
+  LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
+
   LogDebug ("Pixel Digitizer") << " The drift direction in local coordinate is "   
 			       << theDriftDirection ;
    

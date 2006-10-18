@@ -190,7 +190,8 @@ class SiPixelDigitizerAlgorithm  {
     //-- drift
     float Sigma0; //=0.0007  // Charge diffusion in microns for 300 micron Si
     float Dist300;  //=0.0300  // Define 300microns for normalization 
-    
+    bool alpha2Order;          // Switch on/off of E.B effect 
+ 
     //-- induce_signal
     float ClusterWidth;       // Gaussian charge cutoff width in sigma units
     //-- make_digis 
