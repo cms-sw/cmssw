@@ -349,7 +349,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
       }
 
     } else if(subid == 1) { // Barrel 
-
+      
       hdetr->Fill(detR);
       hdetz->Fill(detZ);
       hcolsB->Fill(float(cols));
@@ -366,38 +366,43 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
       zindex=pdetId.module();
       if(PRINT) { 
 	cout<<" Barrel det, z/r "<<detZ<<" "<<detR<<" thick "<<detThick<<" "
-		    <<" layer, ladder, module "
-		    <<layer<<" "<<ladder<<" "<<zindex<<endl;
+	    <<" layer, ladder, module "
+	    <<layer<<" "<<ladder<<" "<<zindex<<endl;
 	cout<<" col/row, pitch "<<cols<<" "<<rows<<" "
-		    <<pitchX<<" "<<pitchY<<endl;
+	    <<pitchX<<" "<<pitchY<<endl;
       }      
-      // Some histos
       hlayerid->Fill(float(layer));
-      if(layer==1) {
-	hladder1id->Fill(float(ladder));
-	hz1id->Fill(float(zindex));
-	++numberOfDetUnits1;
-	numOfDigisPerDet1=0;
-	
-      } else if(layer==2) {
-        hladder2id->Fill(float(ladder));
-        hz2id->Fill(float(zindex));
-	++numberOfDetUnits2;
-	numOfDigisPerDet2=0;
-      } else if(layer==3) {
-        hladder3id->Fill(float(ladder));
-        hz3id->Fill(float(zindex));
-	++numberOfDetUnits3;
-	numOfDigisPerDet3=0;
-      } else if(disk==1) {
-	++numberOfDetUnitsF1;
-	numOfDigisPerDetF1=0;
-      } else if(disk==2) {
-	++numberOfDetUnitsF2;
-	numOfDigisPerDetF2=0;
-      }
+
+    } // end fb-bar
+
+    // Some histos
+    if(layer==1) {
+      hladder1id->Fill(float(ladder));
+      hz1id->Fill(float(zindex));
+      ++numberOfDetUnits1;
+      numOfDigisPerDet1=0;
       
-    } // end bar-fb 
+    } else if(layer==2) {
+      hladder2id->Fill(float(ladder));
+      hz2id->Fill(float(zindex));
+      ++numberOfDetUnits2;
+      numOfDigisPerDet2=0;
+
+    } else if(layer==3) {
+      hladder3id->Fill(float(ladder));
+      hz3id->Fill(float(zindex));
+      ++numberOfDetUnits3;
+      numOfDigisPerDet3=0;
+
+    } else if(disk==1) {
+      ++numberOfDetUnitsF1;
+      numOfDigisPerDetF1=0;
+ 
+   } else if(disk==2) {
+      ++numberOfDetUnitsF2;
+      numOfDigisPerDetF2=0;
+   }
+      
 
       // Has to be changed 
 //      const PixelDigiSimLinkCollection::Range simLinkRange = 
@@ -439,7 +444,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 	//for(di = begin; di != end; di++) {
 	
 	numberOfDigis++;
-       totalNumOfDigis++;
+	totalNumOfDigis++;
        int adc = di->adc();    // charge, modifued to unsiged short 
        int col = di->column(); // column 
        int row = di->row();    // row
@@ -510,7 +515,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
      } else if(layer==2) hdigisPerDet2->Fill(float(numOfDigisPerDet2));
      else if(layer==3) hdigisPerDet3->Fill(float(numOfDigisPerDet3));
      else if(disk==1) hdigisPerDetF1->Fill(float(numOfDigisPerDetF1));
-     else if(disk==2) hdigisPerDetF1->Fill(float(numOfDigisPerDetF2));
+     else if(disk==2) hdigisPerDetF2->Fill(float(numOfDigisPerDetF2));
 
    } // end for det-units
 
