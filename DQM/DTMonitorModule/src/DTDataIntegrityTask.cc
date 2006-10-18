@@ -31,7 +31,9 @@ using namespace edm;
 
 DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) {
 
-  cout<<"[DTDataIntegrityTask]: Constructor"<<endl;
+  debug = ps.getUntrackedParameter<bool>("debug", "false");
+  if (debug)
+    cout<<"[DTDataIntegrityTask]: Constructor"<<endl;
 
   neventsDDU = 0;
   neventsROS25 = 0;
@@ -50,11 +52,10 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) {
 
 
 DTDataIntegrityTask::~DTDataIntegrityTask() {
- 
-  cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsDDU <<" events"<<endl;
-  
-  //if ( outputFile.size() != 0 ) dbe->save(outputFile);
-
+  if(debug)
+    cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsDDU <<" events"<<endl;
+  //dbe->setCurrentFolder("DT/FED770");
+  //dbe->removeContents();
 }
 
 /*
@@ -207,7 +208,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   
   neventsROS25++;
-  if (neventsROS25%1000 == 0) 
+  if ((neventsROS25%1000 == 0) &&debug)
     cout<<"[DTDataIntegrityTask]: "<<neventsROS25<<" events analyzed by processROS25"<<endl;
   
   DTROChainCoding code;
@@ -422,7 +423,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
 
   neventsDDU++;
-  if (neventsDDU%1000 == 0) 
+  if ((neventsDDU%1000 == 0) && debug)
     cout<<"[DTDataIntegrityTask]: "<<neventsDDU<<" events analyzed by processFED"<<endl;
 
   DTROChainCoding code;

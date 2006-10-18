@@ -61,7 +61,7 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
   if(debug)
     cout << "[DTSegmentAnalysis] Analyze #Run: " << event.id().run()
 	 << " #Event: " << event.id().event() << endl;
-  if(!(event.id().event()%1000))
+  if(!(event.id().event()%1000) && debug)
     {
       cout << "[DTSegmentAnalysis] Analyze #Run: " << event.id().run()
 	   << " #Event: " << event.id().event() << endl;
@@ -191,8 +191,9 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
 		   atan(segment4DLocalDirection.y()/segment4DLocalDirection.z())* 180./Geom::pi(),
 		   (*segment4D).chi2()/(*segment4D).degreesOfFreedom());
       } else {
-	cout << "[DTSegmentAnalysis] Warning: segment local direction is: "
-	     << segment4DLocalDirection << endl;
+	if(debug)
+	  cout << "[DTSegmentAnalysis] Warning: segment local direction is: "
+	       << segment4DLocalDirection << endl;
       }
     }
   }
