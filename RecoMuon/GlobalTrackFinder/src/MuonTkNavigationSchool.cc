@@ -5,8 +5,8 @@
  *  Navigation School for both Muon and Tk
  *  different algo from the one in ORCA
  *
- *  $Date: 2006/10/13 14:36:16 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/13 15:10:41 $
+ *  $Revision: 1.6 $
  *
  * \author : Chang Liu - Purdue University
  * \author : Stefano Lacaprara - INFN Padova
@@ -173,8 +173,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
 
     MuonEtaRange range = (*bl).second;
 
-    const BoundCylinder* bc = dynamic_cast<const BoundCylinder*>(&((*bl).first->surface()));
-    float length = fabs(bc->bounds().length()/2.);
+    float length = fabs((*bl).first->specificSurface().bounds().length()/2.);
     // first add next barrel layer
     MapBI plusOne(bl);
     plusOne++;
@@ -190,8 +189,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
     for (MapEI el  = theBackwardLayers.begin();
                el != theBackwardLayers.end(); el++) {
       if ( (*el).second.isCompatible(range) ) {
-	const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-        float z = bd->position().z();
+        float z = (*el).first->specificSurface().position().z();
         if (fabs(z) < length) continue;
         allOuterBackward.insert(*el);
       }
@@ -202,8 +200,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
     for (MapEI el  = theBackwardLayers.begin();
                el != theBackwardLayers.end(); el++) {
       if ( (*el).second.isCompatible(range) ) {
-	const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-        float z = bd->position().z();
+        float z = (*el).first->specificSurface().position().z();
         if (fabs(z) < length) continue;
         outerBackward.insert(*el);
         break;
@@ -215,8 +212,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
     for (MapEI el  = theForwardLayers.begin();
                el != theForwardLayers.end(); el++) {
       if ( (*el).second.isCompatible(range) ) {
-	const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-        float z = bd->position().z();
+        float z = (*el).first->specificSurface().position().z();
         if (fabs(z) < length) continue;
         allOuterForward.insert(*el);
       }
@@ -227,8 +223,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
     for (MapEI el  = theForwardLayers.begin();
                el != theForwardLayers.end(); el++) {
       if ( (*el).second.isCompatible(range) ) {
-	const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-        float z = bd->position().z();
+        float z = (*el).first->specificSurface().position().z();
         if (fabs(z) < length) continue;
         outerForward.insert(*el);
         break;
@@ -257,16 +252,14 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
                  el != theBackwardLayers.begin(); el--) {
         if (el == theBackwardLayers.end()) continue;  //C.L @@: no -/+ for map iterator
         if ( (*el).second.isCompatible(range) ) {
-          const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-          float z = bd->position().z();
+          float z = (*el).first->specificSurface().position().z();
           if (fabs(z) > length) continue;
           allInnerBackward.insert(*el);
         }
       }
       MapEI el = theBackwardLayers.begin();
       if (el->second.isCompatible(range)) {
-        const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-        float z = bd->position().z();
+        float z = (*el).first->specificSurface().position().z();
         if (fabs(z) < length)  {
           allInnerBackward.insert(*el);
         }
@@ -277,8 +270,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
                  el != theForwardLayers.begin(); el--) {
         if (el == theForwardLayers.end()) continue;
         if ( (*el).second.isCompatible(range) ) {
-          const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-          float z = bd->position().z();
+          float z = (*el).first->specificSurface().position().z();
           if (fabs(z) > length) continue;
           allInnerForward.insert(*el);
         }
@@ -286,8 +278,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
 
       el = theForwardLayers.begin();
       if (el->second.isCompatible(range)) {
-        const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-        float z = bd->position().z();
+        float z = (*el).first->specificSurface().position().z();
         if (fabs(z) < length)  {
           allInnerForward.insert(*el);
         }
@@ -302,8 +293,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
                    el != theBackwardLayers.begin(); el--) {
           if (el == theBackwardLayers.end()) continue; 
           if ( (*el).second.isCompatible(backwardRange) ) {
-            const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-            float z = bd->position().z();
+            float z = (*el).first->specificSurface().position().z();
             if (fabs(z) > length) continue;
             innerBackward.insert(*el);
             backwardRange = backwardRange.subtract((*el).second);
@@ -312,8 +302,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
 
         MapEI el = theBackwardLayers.begin();
         if (el->second.isCompatible(backwardRange)) {
-          const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-          float z = bd->position().z();
+          float z = (*el).first->specificSurface().position().z();
           if (fabs(z) < length)  {
             innerBackward.insert(*el);
           }
@@ -324,8 +313,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
                    el != theForwardLayers.begin(); el--) {
           if (el == theForwardLayers.end()) continue; 
           if ( (*el).second.isCompatible(forwardRange) ) {
-            const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-            float z = bd->position().z();
+            float z = (*el).first->specificSurface().position().z();
             if (fabs(z) > length) continue;
             innerForward.insert(*el);
             forwardRange = forwardRange.subtract((*el).second);
@@ -334,8 +322,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
         }
         el = theForwardLayers.begin();
         if (el->second.isCompatible(forwardRange)) {
-            const BoundDisk* bd = dynamic_cast<const BoundDisk*>(&((*el).first->surface()));
-            float z = bd->position().z();
+            float z = (*el).first->specificSurface().position().z();
             if (fabs(z) < length) {
               innerForward.insert(*el);
             }
@@ -464,8 +451,7 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
   for (MapEI el = layers.begin(); el != layers.end(); el++) {
 
     MuonEtaRange range = (*el).second;
-    const BoundDisk& bd = (*el).first->specificSurface();
-    float z = bd.position().z();
+    float z = (*el).first->specificSurface().position().z();
     // first add next endcap layer (if compatible)
     MapEI plusOne(el); 
     plusOne++;
@@ -527,8 +513,7 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
     MapB allOuterBLayers;
     for (MapBI iMBI = theBarrelLayers.begin(); iMBI!=theBarrelLayers.end(); iMBI++){
       if ((*iMBI).second.isCompatible(tempR)) {
-	const BoundCylinder& bc = (*iMBI).first->specificSurface();
-        float length = fabs(bc.bounds().length()/2.);
+        float length = fabs((*iMBI).first->specificSurface().bounds().length()/2.);
         if (length > fabs(z)) {
            if ( (i==0) && (tempR.isInside((*iMBI).second)) ) hasOverlap = true;
            i++;
@@ -540,8 +525,7 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
     }
 
     for (MapBI iMBI = theBarrelLayers.begin(); iMBI!=theBarrelLayers.end(); iMBI++){
-      const BoundCylinder& bc = (*iMBI).first->specificSurface();
-      float length = fabs(bc.bounds().length()/2.);
+      float length = fabs((*iMBI).first->specificSurface().bounds().length()/2.);
       if (length < fabs(z)) continue; 
       if ((*iMBI).second.isCompatible(range)) allOuterBLayers.insert(*iMBI);
     }
@@ -559,8 +543,7 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
     MapEI minusOne(el);
     if (el != layers.begin()) {
       minusOne--;
-      BoundDisk bd = minusOne->first->specificSurface();
-      outRadius = bd.outerRadius();
+      outRadius = minusOne->first->specificSurface().outerRadius();
 
       MapEI innerOne;
       for (MapEI iMEI = minusOne; iMEI!=layers.begin(); iMEI--){
@@ -618,8 +601,7 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
 
       for (MapBI iMBI = theBarrelLayers.end(); iMBI!=theBarrelLayers.begin(); iMBI--){
         if (iMBI == theBarrelLayers.end()) continue;
-        BoundCylinder bc = (*iMBI).first->specificSurface();
-        float length = fabs(bc.bounds().length()/2.);
+        float length = fabs((*iMBI).first->specificSurface().bounds().length()/2.);
         if (length > fabs(z)) continue;
         if ((*iMBI).second.isCompatible(range)) allInnerBLayers.insert(*iMBI);
       }
@@ -630,10 +612,9 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
     bool hasInsideE = false;
     for (MapBI iMBI = theBarrelLayers.end(); iMBI!=theBarrelLayers.begin(); iMBI--){
       if (iMBI == theBarrelLayers.end()) continue;
-      BoundCylinder bc = (*iMBI).first->specificSurface();
-      float length = fabs(bc.bounds().length()/2.);
+      float length = fabs((*iMBI).first->specificSurface().bounds().length()/2.);
       if (length > fabs(z)) continue;
-      float radius = bc.radius();
+      float radius = (*iMBI).first->specificSurface().radius();
 
       bool compatible = false;
       if (radius > outRadius) { 
