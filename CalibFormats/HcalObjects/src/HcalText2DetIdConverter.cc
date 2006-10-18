@@ -1,9 +1,10 @@
 /** \class HcalText2DetIdConverter
     \author F.Ratnikov, UMd
-    $Id: HcalText2DetIdConverter.cc,v 1.2 2006/09/08 23:24:37 fedor Exp $
+    $Id: HcalText2DetIdConverter.cc,v 1.3 2006/09/25 21:58:36 mansj Exp $
 */
 #include <stdlib.h>
 #include <iostream>
+#include <iomanip>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -85,23 +86,32 @@ bool HcalText2DetIdConverter::isHcalZDCDetId () const {
 
 bool HcalText2DetIdConverter::init (DetId fId) {
   bool result = true;
+  flavorName = "UNKNOWN";
   mId = fId;
   HcalGenericDetId genId (mId);
-  if (genId.isHcalDetId ()) {
+  if (fId == HcalDetId::Undefined) {
+    flavorName = "NA";
+  }
+  else if (genId.isHcalDetId ()) {
     HcalDetId hcalId (mId);
     flavorName = genId.genericSubdet () == HcalGenericDetId::HcalGenBarrel ? "HB" :
       genId.genericSubdet () == HcalGenericDetId::HcalGenEndcap ? "HE" :
       genId.genericSubdet () == HcalGenericDetId::HcalGenOuter ? "HO" :
-      genId.genericSubdet () == HcalGenericDetId::HcalGenForward ? "HF" : "UNKNOWN";
+      genId.genericSubdet () == HcalGenericDetId::HcalGenForward ? "HF" : "H_UNKNOWN";
     setField (1, hcalId.ieta());
     setField (2, hcalId.iphi());
     setField (3, hcalId.depth());
   }
   else if (genId.isHcalTrigTowerDetId ()) {
     HcalTrigTowerDetId triggerId (mId);
-    flavorName = "HT";
-    setField (1, triggerId.ieta());
-    setField (2, triggerId.iphi());
+    if (triggerId == HcalTrigTowerDetId::Undefined) {
+      flavorName = "NT";
+    }
+    else {
+      flavorName = "HT";
+      setField (1, triggerId.ieta());
+      setField (2, triggerId.iphi());
+    }
   }
   else if (genId.isHcalZDCDetId ()) {
     HcalZDCDetId zdcId (mId);
@@ -143,6 +153,8 @@ bool HcalText2DetIdConverter::init (DetId fId) {
     }
   }
   else {
+    flavorName = "UNKNOWN_FLAVOR";
+    std::cerr << "HcalText2DetIdConverter::init-> Unknown detId: " << std::hex << std::showbase << mId.rawId() << std::endl;
     result = false;
   }
   return result;
@@ -203,7 +215,9 @@ int HcalText2DetIdConverter::getField (int i) const{
       int result = calibChannel (field2);
       if (i) return result;
     }
-    std::cerr << "HcalText2DetIdConverter::getField-> Can not convert string to int: " << nptr << std::endl;
+    if (*nptr != '\0') {
+      std::cerr << "HcalText2DetIdConverter::getField-> Can not convert string "<< nptr << " to int. Bad symbol: " << *endptr << std::endl;
+    }
     return 0;
   }
 
