@@ -1,0 +1,14 @@
+
+<use name=FWCore/MessageLogger>
+<use name=DQMServices/Components>
+<use name=DQMServices/WebComponents>
+<use name=DQMServices/ClientConfig>
+<use name=boost>
+<export>
+<lib name=DQMSiPixelMonitorClient>
+<use name=FWCore/MessageLogger>
+<use name=DQMServices/Components>
+<use name=DQMServices/WebComponents>
+<use name=DQMServices/ClientConfig>
+<use name=boost>
+</export>
