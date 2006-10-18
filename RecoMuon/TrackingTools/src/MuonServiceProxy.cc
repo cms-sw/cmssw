@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/10/13 15:00:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/16 06:50:38 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -98,13 +98,13 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     theCacheId_DG = newCacheId_DG;
     setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
     // FIXME: MuonNavigationSchool should live until its validity expires, and then DELETE
-    // the NavigableLayers (this is not implemented in MuonNavigationSchool's dtor)
-    // i.e. should become a pointer member here
-    // the setter should be called at each event, if there is more than one navigation type!!
-    MuonNavigationSchool school(&*theDetLayerGeometry);
-    NavigationSetter setter(school); 
+    // the NavigableLayers (this is implemented in MuonNavigationSchool's dtor)
+    theSchool = new MuonNavigationSchool(&*theDetLayerGeometry);
+
   }
   
+  if ( theSchool ) NavigationSetter setter(*theSchool);
+
   // Propagators
   unsigned long long newCacheId_P = setup.get<TrackingComponentsRecord>().cacheIdentifier();
   if ( newCacheId_P != theCacheId_P ) {
