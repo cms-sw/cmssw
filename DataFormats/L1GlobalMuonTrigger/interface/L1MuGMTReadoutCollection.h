@@ -5,8 +5,8 @@
 //   Description: 
 //
 //
-//   $Date: 2006/05/15 13:51:42 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/17 16:11:27 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   Hannes Sakulin                  HEPHY Vienna
@@ -59,7 +59,7 @@ class L1MuGMTReadoutCollection {
       if((*iter).getBxCounter() == bx) return (*iter);
     }
     // if bx not found return empty readout record
-    return *(new L1MuGMTReadoutRecord());
+    return *(new L1MuGMTReadoutRecord(bx));
   };
 
   // add record

@@ -8,8 +8,8 @@
  *  for one bunch crossing.
 */
 //
-//   $Date: 2006/05/15 13:51:42 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/17 16:11:28 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin                  HEPHY Vienna
@@ -54,9 +54,9 @@ L1MuGMTReadoutRecord::L1MuGMTReadoutRecord() {
   reset();
 };
  
-L1MuGMTReadoutRecord::L1MuGMTReadoutRecord(int bxnr) {
+L1MuGMTReadoutRecord::L1MuGMTReadoutRecord(int bxie) {
   reset();
-  m_BxCounter = bxnr;
+  m_BxInEvent = bxie;
 };
  
 //--------------
@@ -72,7 +72,10 @@ L1MuGMTReadoutRecord::~L1MuGMTReadoutRecord() {
 /// reset the record
 void L1MuGMTReadoutRecord::reset() {
 
-  m_BxCounter = 0;
+  m_BxNr = 0;
+  m_BxInEvent = 0;
+  m_EvNr = 0;
+  m_BCERR = 0;
 
   for (int i=0; i<4; i++) {
     m_BarrelCands[i]=0;
@@ -87,10 +90,6 @@ void L1MuGMTReadoutRecord::reset() {
     m_InputCands[i] = 0;
   }
 
-  // mip/iso bits
-  for (int i=0; i<8; i++) 
-    m_MIPbits[i] = m_Quietbits[i] = 0;
-
 }
 
 /// get GMT candidates vector
@@ -100,11 +99,11 @@ vector<L1MuGMTExtendedCand>  L1MuGMTReadoutRecord::getGMTCands() const {
 
   for (int i=0; i<4; i++) 
     if (m_BarrelCands[i] != 0)
-      cands.push_back( L1MuGMTExtendedCand(m_BarrelCands[i], getBrlRank(i), (int) m_BxCounter ) );
+      cands.push_back( L1MuGMTExtendedCand(m_BarrelCands[i], getBrlRank(i), (int) m_BxInEvent ) );
   
   for (int i=0; i<4; i++) 
     if (m_ForwardCands[i] != 0)
-      cands.push_back( L1MuGMTExtendedCand(m_ForwardCands[i], getFwdRank(i), (int) m_BxCounter ) );
+      cands.push_back( L1MuGMTExtendedCand(m_ForwardCands[i], getFwdRank(i), (int) m_BxInEvent ) );
     
   // sort by rank
   stable_sort( cands.begin(), cands.end(), L1MuGMTExtendedCand::RankRef() );
@@ -119,7 +118,7 @@ vector<L1MuGMTExtendedCand> L1MuGMTReadoutRecord::getGMTBrlCands() const {
   
   for (int i=0; i<4; i++) 
     if (m_BarrelCands[i] != 0)
-      cands.push_back( L1MuGMTExtendedCand(m_BarrelCands[i], getBrlRank(i), (int) m_BxCounter ) );
+      cands.push_back( L1MuGMTExtendedCand(m_BarrelCands[i], getBrlRank(i), (int) m_BxInEvent ) );
   
   return cands;
 }
@@ -131,7 +130,7 @@ vector<L1MuGMTExtendedCand> L1MuGMTReadoutRecord::getGMTFwdCands() const {
   
   for (int i=0; i<4; i++) 
     if (m_ForwardCands[i] != 0)
-      cands.push_back( L1MuGMTExtendedCand(m_ForwardCands[i], getFwdRank(i), (int) m_BxCounter ) );
+      cands.push_back( L1MuGMTExtendedCand(m_ForwardCands[i], getFwdRank(i), (int) m_BxInEvent ) );
 
   return cands;
 }
@@ -143,7 +142,7 @@ vector<L1MuRegionalCand> L1MuGMTReadoutRecord::getDTBXCands() const {
   
   for (int i=0; i<4; i++) 
     if (m_InputCands[i] != 0)
-      cands.push_back( L1MuRegionalCand(m_InputCands[i], (int) m_BxCounter));
+      cands.push_back( L1MuRegionalCand(m_InputCands[i], (int) m_BxInEvent));
   
   return cands;
 }
@@ -156,7 +155,7 @@ vector<L1MuRegionalCand> L1MuGMTReadoutRecord::getCSCCands() const {
   
   for (int i=0; i<4; i++) 
     if (m_InputCands[i+8] != 0)
-      cands.push_back( L1MuRegionalCand(m_InputCands[i+8], (int) m_BxCounter));
+      cands.push_back( L1MuRegionalCand(m_InputCands[i+8], (int) m_BxInEvent));
   
   return cands;
 }
@@ -168,7 +167,7 @@ vector<L1MuRegionalCand> L1MuGMTReadoutRecord::getBrlRPCCands() const {
   
   for (int i=0; i<4; i++) 
     if (m_InputCands[i+4] != 0)
-      cands.push_back( L1MuRegionalCand(m_InputCands[i+4], (int) m_BxCounter));
+      cands.push_back( L1MuRegionalCand(m_InputCands[i+4], (int) m_BxInEvent));
   
   return cands;
 }
@@ -180,7 +179,7 @@ vector<L1MuRegionalCand> L1MuGMTReadoutRecord::getFwdRPCCands() const {
   
   for (int i=0; i<4; i++) 
     if (m_InputCands[i+12] != 0)
-      cands.push_back( L1MuRegionalCand(m_InputCands[i+12], (int) m_BxCounter));
+      cands.push_back( L1MuRegionalCand(m_InputCands[i+12], (int) m_BxInEvent));
   
   return cands;
 }
@@ -238,37 +237,6 @@ void L1MuGMTReadoutRecord::setGMTCand(int nr, unsigned data) {
 };
 
 
-/// set MIP bit
-void L1MuGMTReadoutRecord::setMIPbit(int eta, int phi) {
-
-  if (phi<0 || phi > 17 || eta < 0 || eta > 13) return;
-
-  int idx = eta * 18 + phi;
-  int idx_word = idx / 32;
-  int idx_bit = idx % 32;
-
-  unsigned mask = 1 << (idx_bit-1);
-  
-  m_MIPbits[idx_word] |= mask;
-
-};
-
-
-/// set Quiet bit
-void L1MuGMTReadoutRecord::setQuietbit(int eta, int phi) {
-
-  if (phi<0 || phi > 17 || eta < 0 || eta > 13) return;
-
-  int idx = eta * 18 + phi;
-  int idx_word = idx / 32;
-  int idx_bit = idx % 32;
-
-  unsigned mask = 1 << (idx_bit-1);
-  
-  m_Quietbits[idx_word] |= mask;
-
-};
-
 
  /// get rank of brl cand i
 unsigned L1MuGMTReadoutRecord::getBrlRank(int i) const {
@@ -303,38 +271,6 @@ void L1MuGMTReadoutRecord::setFwdRank(int i, unsigned value) {
   unsigned mask = ( (1 << 8)-1 ) << (i*8);
   m_FwdSortRanks &= ~mask;
   m_FwdSortRanks |= value << (i*8);
-
-};
-
-
-/// get MIP bit
-unsigned L1MuGMTReadoutRecord::getMIPbit(int eta, int phi) const {
-
-  if (phi<0 || phi > 17 || eta < 0 || eta > 13) return 0;
-
-  int idx = eta * 18 + phi;
-  int idx_word = idx / 32;
-  int idx_bit = idx % 32;
-
-  unsigned mask = 1 << (idx_bit-1);
-  
-  return( m_MIPbits[idx_word] & mask) ? 1 : 0;
-
-};
-
-
-/// get Quiet bit
-unsigned L1MuGMTReadoutRecord::getQuietbit(int eta, int phi) const {
-
-  if (phi<0 || phi > 17 || eta < 0 || eta > 13) return 0;
-
-  int idx = eta * 18 + phi;
-  int idx_word = idx / 32;
-  int idx_bit = idx % 32;
-
-  unsigned mask = 1 << (idx_bit-1);
-  
-  return( m_Quietbits[idx_word] & mask) ? 1 : 0;
 
 };
 

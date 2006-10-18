@@ -50,7 +50,7 @@ class L1MuGMTReadoutRecord {
   public:
     /// constructors
     L1MuGMTReadoutRecord();
-    L1MuGMTReadoutRecord(int bxnr);
+    L1MuGMTReadoutRecord(int bxie);
 
     /// destructor
     virtual ~L1MuGMTReadoutRecord();
@@ -62,8 +62,12 @@ class L1MuGMTReadoutRecord {
     // Getters
     //
 
-    /// get bx counter
-    int getBxCounter() const { return (int) m_BxCounter; }; 
+    /// get counters
+    int getBxNr() const { return (int) m_BxNr; }; 
+    int getBxCounter() const { return (int) m_BxInEvent; }; // for backward compatibility, do not use
+    int getBxInEvent() const { return (int) m_BxInEvent; };
+    int getEvNr() const { return (int) m_EvNr; };
+    int getBCERR() const { return (int) m_BCERR; };
     
     /// get GMT candidates vector
     vector<L1MuGMTExtendedCand> getGMTCands() const;
@@ -86,18 +90,16 @@ class L1MuGMTReadoutRecord {
     /// get forward RPC candidates vector
     vector<L1MuRegionalCand> getFwdRPCCands() const;
 
-    /// get MIP bit
-    unsigned getMIPbit(int eta, int phi) const;
-
-    /// get Quiet bit
-    unsigned getQuietbit(int eta, int phi) const;
-
     //
     // Setters
     //
 
-    /// set bx counter
-    void setBxCounter(int bxnr) { m_BxCounter = (unsigned) bxnr; }; 
+    /// set counters
+    void setBxNr(int bxnr) { m_BxNr = (unsigned) bxnr; }; 
+    void setBxCounter(int bxie) { m_BxInEvent = (unsigned) bxie; }; // for backward compatibility, do not use
+    void setBxInEvent(int bxie) { m_BxInEvent = (unsigned) bxie; }; 
+    void setEvNr(int evnr) { m_EvNr = (unsigned) evnr; }; 
+    void setBCERR(int bcerr) { m_BCERR = (unsigned) bcerr; }; 
 
     /// set GMT barrel candidate
     void setGMTBrlCand(int nr, L1MuGMTExtendedCand const& cand);
@@ -119,11 +121,6 @@ class L1MuGMTReadoutRecord {
 
     /// set Input muon
     void setInputCand(int nr, unsigned data) { if (nr>=0 && nr < 16) m_InputCands[nr] = data; };
-    /// set MIP bit
-    void setMIPbit(int eta, int phi);
-
-    /// set Quiet bit
-    void setQuietbit(int eta, int phi);
 
   private:
     unsigned getBrlRank(int i) const;
@@ -133,7 +130,11 @@ class L1MuGMTReadoutRecord {
     void setFwdRank(int i, unsigned value);
     
   private:
-    unsigned m_BxCounter;
+    unsigned m_BxNr;
+    unsigned m_BxInEvent;
+    unsigned m_EvNr;
+
+    unsigned m_BCERR;
 
     unsigned m_InputCands[16];
 
@@ -144,10 +145,6 @@ class L1MuGMTReadoutRecord {
     unsigned m_FwdSortRanks;
 
     unsigned m_GMTCands[4];
-
-    // mip/iso bits (252 EACH)
-    unsigned m_MIPbits[8];
-    unsigned m_Quietbits[8];
 
 };
 
