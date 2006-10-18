@@ -5,8 +5,8 @@
  *  do a straight line extrapolation to
  *  find out compatible DetLayers with a given FTS 
  *
- *  $Date: 2006/06/28 15:41:12 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/09/01 19:02:21 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -17,8 +17,6 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-
-using namespace std;
 
 class DirectMuonNavigation{
 
@@ -34,20 +32,20 @@ class DirectMuonNavigation{
     /* Destructor */ 
     ~DirectMuonNavigation() {}
 
-    vector<const DetLayer*> 
+    std::vector<const DetLayer*> 
       compatibleLayers( const FreeTrajectoryState& fts, 
                         PropagationDirection timeDirection) const;
 
   private:
 
-    void inOutBarrel(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
-    void outInBarrel(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
+    void inOutBarrel(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+    void outInBarrel(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-    void inOutForward(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
-    void outInForward(const FreeTrajectoryState&, vector<const DetLayer*>&) const; 
+    void inOutForward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+    void outInForward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const; 
 
-    void inOutBackward(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
-    void outInBackward(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
+    void inOutBackward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+    void outInBackward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
     bool checkCompatible(const FreeTrajectoryState& fts,const BarrelDetLayer*) const;
     bool checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer*) const;

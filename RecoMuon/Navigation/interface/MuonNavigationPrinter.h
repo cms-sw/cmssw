@@ -6,8 +6,8 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date: 2006/04/24 18:58:49 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/20 01:36:31 $
+ * $Revision: 1.4 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -25,8 +25,6 @@ class GeometricSearchTracker;
 #include <vector>
 #include <string>
 
-using namespace std;
-
 class MuonNavigationPrinter {
   public:
     MuonNavigationPrinter(const MuonDetLayerGeometry *);
@@ -34,11 +32,11 @@ class MuonNavigationPrinter {
 
   private:
     void printLayer(DetLayer*) const;
-    void printNextLayers(vector<const DetLayer*>) const;
+    void printNextLayers(std::vector<const DetLayer*>) const;
     /// return detector part (barrel, forward, backward)
-    string layerPart(const DetLayer*) const;
+    std::string layerPart(const DetLayer*) const;
     /// return detector module (pixel, silicon, msgc, dt, csc, rpc)
-    string layerModule(const DetLayer*) const;
+    std::string layerModule(const DetLayer*) const;
 
 };
 #endif
