@@ -4,8 +4,8 @@
 /*
  * \file DTTestPulsesTask.h
  *
- * $Date: 2006/02/15 19:00:59 $
- * $Revision: 1.2 $
+ * $Date: 2006/05/24 17:21:37 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -34,10 +34,6 @@ class DTGeometry;
 class DTLayerId;
 class DTRangeT0;
 
-using namespace cms;
-using namespace std;
-
-
 class DTTestPulsesTask: public edm::EDAnalyzer{
 
 public:
@@ -54,7 +50,7 @@ protected:
   void beginJob(const edm::EventSetup& c);
 
   /// Book the ME
-  void bookHistos(const DTLayerId& dtLayer, string folder, string histoTag);
+  void bookHistos(const DTLayerId& dtLayer, std::string folder, std::string histoTag);
   
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -72,14 +68,14 @@ private:
 
   edm::ESHandle<DTRangeT0> t0RangeMap;
 
-  string outputFile;
+  std::string outputFile;
 
-  pair <int, int> t0sPeakRange;
+  std::pair <int, int> t0sPeakRange;
   
   // My monitor elements
-  map<int, MonitorElement*> testPulsesProfiles;
-  map<int, MonitorElement*> testPulsesOccupancies;
-  map<int, MonitorElement*> testPulsesTimeBoxes;
+  std::map<int, MonitorElement*> testPulsesProfiles;
+  std::map<int, MonitorElement*> testPulsesOccupancies;
+  std::map<int, MonitorElement*> testPulsesTimeBoxes;
 
   
 };

@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2006/09/20 14:37:40 $
- * $Revision: 1.6 $
+ * $Date: 2006/10/08 16:05:58 $
+ * $Revision: 1.7 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -38,12 +38,6 @@ class DTChamberId;
 class DTTtrig;
 class DTT0;
 
-
-using namespace edm;
-using namespace cms;
-using namespace std;
-
-
 class DTDigiTask: public edm::EDAnalyzer{
 
 public:
@@ -60,18 +54,22 @@ protected:
   void beginJob(const edm::EventSetup& c);
 
   /// Book the ME
-  void bookHistos(const DTLayerId& dtLayer, string histoTag);
-  void bookHistos(const DTSuperLayerId& dtSL, string folder, string histoTag);
-  void bookHistos(const DTChamberId& dtCh, string folder, string histoTag);
+  void bookHistos(const DTLayerId& dtLayer, std::string histoTag);
+  void bookHistos(const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
+  void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag);
  
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
+  /// Endjob
+  void endJob();
+
   /// get the L1A source
-  string triggerSource();
+  std::string triggerSource();
 
 private:
 
+  bool debug;
   int nevents;
 
   /// no needs to be precise. Value from PSets will always be used
@@ -93,10 +91,10 @@ private:
   edm::ESHandle<DTT0> t0Map;
 
 
-  string outputFile;
+  std::string outputFile;
   ofstream logFile;
 
-  map<string, map<uint32_t, MonitorElement*> > digiHistos;
+  std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
 
   
 };

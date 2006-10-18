@@ -4,7 +4,7 @@
 /*
  * \file DTGlobalRecoTask.h
  *
- * $Date: 2005/11/15 17:03:58 $
+ * $Date: 2006/02/15 08:24:55 $
  * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
@@ -25,10 +25,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
-using namespace cms;
-using namespace std;
-
 
 class DTGlobalRecoTask: public edm::EDAnalyzer{
 
@@ -60,7 +56,7 @@ private:
   
   // My monitor elements
   
-  ofstream logFile;
+  std::ofstream logFile;
   
 };
 

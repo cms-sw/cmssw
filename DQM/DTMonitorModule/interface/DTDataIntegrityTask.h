@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2006/04/13 17:16:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/27 16:37:19 $
+ *  $Revision: 1.5 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -27,8 +27,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 class DTROS25Data;
 class DTDDUData;
 
@@ -41,7 +39,7 @@ public:
   
   virtual ~DTDataIntegrityTask();
    
-  void bookHistos(string folder, DTROChainCoding code);
+  void bookHistos(std::string folder, DTROChainCoding code);
 
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & data, int dduID);
@@ -49,6 +47,7 @@ public:
 
 private:
 
+  bool debug;
   edm::ParameterSet parameters;
 
   // back-end interface
@@ -58,15 +57,15 @@ private:
 
   // Monitor Elements
   // <histoType, <index , histo> >    
-  map<string, map<int, MonitorElement*> > dduHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
   // <histoType, <index , histo> >    
-  map<string, map<int, MonitorElement*> > rosHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
   // <histoType, <tdcID, histo> >   
-  map<string, map<int, MonitorElement*> > robHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > robHistos;
 
   int neventsDDU;
   int neventsROS25;
-  string outputFile;
+  std::string outputFile;
 
 };
 
