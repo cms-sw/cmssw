@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.8 2006/09/21 19:29:52 rpw Exp $
+// $Id: types.cc,v 1.9 2006/10/04 19:54:27 rpw Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -664,7 +664,7 @@ bool
   edm::encode(std::string& to, const FileInPath& from)
 {
   std::ostringstream ost;
-  ost << from.relativePath() << ' ' << from.isLocal() << ' ' << from.fullPath();
+  ost << from;
   if (!ost) return false;
   to = ost.str();
   return true;
