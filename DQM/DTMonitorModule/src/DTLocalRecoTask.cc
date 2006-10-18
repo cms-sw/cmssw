@@ -87,8 +87,10 @@ void DTLocalRecoTask::beginJob(const EventSetup& setup){
 
 void DTLocalRecoTask::endJob(){
   // Write the histos
-  if ( writeHisto ) dbe->save(theRootFileName);
-
+  if ( writeHisto ) 
+    dbe->save(theRootFileName);
+  dbe->setCurrentFolder("DT/DTLocalRecoTask");
+  dbe->removeContents();
 }
 
 void DTLocalRecoTask::analyze(const Event& event, const EventSetup& setup){

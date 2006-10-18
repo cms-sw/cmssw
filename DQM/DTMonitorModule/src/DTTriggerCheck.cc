@@ -44,6 +44,9 @@ void DTTriggerCheck::endJob(){
   // Write the histos
   if (parameters.getUntrackedParameter<bool>("writeHisto", true)) theDbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTTriggerCheck.root"));
 
+  theDbe->setCurrentFolder("DT/DTTriggerTask");
+  theDbe->removeContents();
+ 
 }
 void DTTriggerCheck::analyze(const Event& event, const EventSetup& setup) {
   if(debug)
