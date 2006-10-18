@@ -162,9 +162,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int st=0;
       for (TrackingParticleCollection::size_type i=0; i<tPC.size(); i++){
 	TrackingParticleRef tp(TPCollectionH, i);
-	if (abs(tp->momentum().eta())>max || 
-	    abs(tp->momentum().eta())<min) continue;
+	if (fabs(tp->momentum().eta())>max || 
+	    fabs(tp->momentum().eta())<min) continue;
 	if (sqrt(tp->momentum().perp2())<minpt) continue;
+	if ((fabs(tp->parentVertex()->position().perp())/10)>3.5) continue;
+	if ((fabs(tp->parentVertex()->position().z())/10)>30) continue;
 	int type = tp->g4Track_begin()->product()->begin()->type();
 	if (abs(type)!=13&&abs(type)!=11&&abs(type)!=211&&abs(type)!=321&&abs(type)!=2212) continue;
 	LogDebug("TrackValidator") << "tp->charge(): " << tp->charge()
@@ -211,6 +213,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	reco::TrackRef track(trackCollection, i);
 	if (abs(track->eta())>max || abs(track->eta())<min) continue;
 	if (track->pt() < minpt) continue;
+	if (track->d0()>3.5) continue;
+	if (track->dz()>30) continue;
 
 	rT++;
 	//Compute fake rate vs eta
@@ -267,7 +271,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	  // eta residue; pt, k, theta, phi0, d0, dz pulls
 	  Basic3DVector<double> momAtVtx(assocTrack->momentum().x(),assocTrack->momentum().y(),assocTrack->momentum().z());
-	  Basic3DVector<double> vert = (Basic3DVector<double>) tpr->parentVertex()->position();;
+	  Basic3DVector<double> vert = (Basic3DVector<double>) tpr->parentVertex()->position();
 
 	  //not needed in 110
 	  vert/=10;
