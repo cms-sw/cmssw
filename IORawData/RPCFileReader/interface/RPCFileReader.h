@@ -5,8 +5,8 @@
  *
  *  Read PAC data from ASCII files convert them and write as FEDRawData
  *
- *  $Date: 2006/08/24 18:02:12 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/16 21:57:32 $
+ *  $Revision: 1.6 $
  * \author Michal Bluj - SINS, Warsaw
 */
 #include <memory>
@@ -24,23 +24,21 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-using namespace std;
-using namespace edm;
 
-class RPCFileReader : public ExternalInputSource {
+class RPCFileReader : public edm::ExternalInputSource {
 
  public:
-  explicit RPCFileReader(ParameterSet const& pset, InputSourceDescription const& desc);
+  explicit RPCFileReader(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
 
   ~RPCFileReader();
   
-  virtual bool produce(Event &);
+  virtual bool produce(edm::Event &);
   virtual void setRunAndEventInfo();
 
  private:
 
   //typedefs
-  typedef struct{unsigned int year; string month; unsigned int day, hour, min, sec;} Time;
+  typedef struct{unsigned int year; std::string month; unsigned int day, hour, min, sec;} Time;
   typedef struct{int ptCode, quality, sign;} LogCone;
   typedef unsigned short Word16;
   typedef unsigned long long Word64;
@@ -48,9 +46,7 @@ class RPCFileReader : public ExternalInputSource {
   //data members
   int run_, event_, bxn_;
   Time timeStamp_;
-  //std::vector<LogCone> theLogCones_;//(12)
   std::vector<std::vector<LogCone> > theLogCones_;//(12)
-  //std::vector<std::vector<std::vector<RPCPacData> > > linkData_;//(3,18,3)
   std::vector<std::vector<std::vector<std::vector<RPCPacData> > > > linkData_;//(3,18,3)
 
   bool isOpen_, noMoreData_;
@@ -67,10 +63,10 @@ class RPCFileReader : public ExternalInputSource {
   const static unsigned int RPC_PAC_TRIGGER_DELAY=11;
   const static unsigned int RPC_PAC_L1ACCEPT_BX=2;
 
-  vector<vector<bool> > maskedChannels;
+  std::vector<std::vector<bool> > maskedChannels;
 
   // methods
-  void readDataFromAsciiFile(string fileName, int *pos);
+  void readDataFromAsciiFile(std::string fileName, int *pos);
   
   Word16 buildCDWord(RPCPacData linkData);
   Word16 buildSLDWord(unsigned int tbNum, unsigned int linkNum);
@@ -79,7 +75,7 @@ class RPCFileReader : public ExternalInputSource {
     
   FEDRawData* rpcDataFormatter();
 
-  bool isHexNumber(string str){//utility to check if string is hex
+  bool isHexNumber(std::string str){//utility to check if string is hex
     for(unsigned int i=0; i<str.size(); i++)
       if(! isxdigit(str[i])) return false;
     return true;
