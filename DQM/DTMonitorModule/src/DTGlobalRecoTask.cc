@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/02/06 19:20:22 $
- * $Revision: 1.3 $
+ * $Date: 2006/02/15 08:24:56 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -13,6 +13,7 @@
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
+using namespace std;
 
 DTGlobalRecoTask::DTGlobalRecoTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
 				   const edm::EventSetup& context){
