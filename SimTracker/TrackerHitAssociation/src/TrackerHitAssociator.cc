@@ -242,10 +242,9 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
   if(isearch != stripdigisimlink->end()) {  //if it is not empty
     //link_detset is a structure, link_detset.data is a std::vector<StripDigiSimLink>
     edm::DetSet<StripDigiSimLink> link_detset = (*stripdigisimlink)[detID];
-    //cout << "Associator ---> get digilink! in Detid n = " << link_detset.data.size() << endl;
     
     const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=simplerechit->cluster();
-    //cout << "Associator ---> get cluster info " << endl;
+
     int clusiz = clust->amplitudes().size();
     int first  = clust->firstStrip();     
     int last   = first + clusiz;
@@ -253,7 +252,6 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
     // cout << "Associator ---> Clus size = " << clusiz << " first = " << first << "  last = " << last << "  tot charge = " << cluchg << endl;
 
     //use a vector
-    //    unsigned int simtrackid_cache = 99999999;
     std::vector<unsigned int> idcachev;
     for(edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(); linkiter != link_detset.data.end(); linkiter++){
       StripDigiSimLink link = *linkiter;
@@ -330,12 +328,13 @@ std::vector<unsigned int>  TrackerHitAssociator::associateMatchedRecHit(const Si
     //    unsigned int simtrackid_cache = 9999999;
     std::vector<unsigned int> idcachev;
     for(vector<unsigned int>::iterator mhit=matched_mono.begin(); mhit != matched_mono.end(); mhit++){
-      if(find(matched_st.begin(), matched_st.end(),(*mhit))!=matched_st.end()){
-	//	if((*mhit) != simtrackid_cache) {
-	if(find(idcachev.begin(), idcachev.end(),(*mhit)) == idcachev.end()) {
+      //save only once the ID
+      if(find(idcachev.begin(), idcachev.end(),(*mhit)) == idcachev.end()) {
+	idcachev.push_back(*mhit);
+	//save if the stereoID matched the monoID
+	if(find(matched_st.begin(), matched_st.end(),(*mhit))!=matched_st.end()){
 	  simtrackid.push_back(*mhit);
-	  //	  simtrackid_cache = (*mhit);
-	  idcachev.push_back(*mhit);
+	  //std::cout << "matched case: saved ID " << (*mhit) << std::endl; 
 	}
       }
     }
@@ -362,7 +361,8 @@ std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPi
     //std::cout << "    Cluster minCol " << minPixelCol << " maxCol " << maxPixelCol << std::endl;
     edm::DetSet<PixelDigiSimLink>::const_iterator linkiter = link_detset.data.begin();
     int dsl = 0;
-    unsigned int simtrackid_cache = 9999999;
+    //    unsigned int simtrackid_cache = 9999999;
+    std::vector<unsigned int> idcachev;
     for( ; linkiter != link_detset.data.end(); linkiter++) {
       dsl++;
       std::pair<int,int> pixel_coord = PixelDigi::channelToPixel(linkiter->channel());
@@ -373,10 +373,11 @@ std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPi
 	   pixel_coord.second >= minPixelCol ) {
 	//std::cout << "      !-> trackid   " << linkiter->SimTrackId() << endl;
 	//std::cout << "          fraction  " << linkiter->fraction()   << endl;
-	if(linkiter->SimTrackId() != simtrackid_cache) {  // Add each trackid only once
+	if(find(idcachev.begin(),idcachev.end(),linkiter->SimTrackId()) == idcachev.end()){
+	  //	if(linkiter->SimTrackId() != simtrackid_cache) {  // Add each trackid only once
 	  simtrackid.push_back(linkiter->SimTrackId());
 	  //cout    << "          Adding TrackId " << linkiter->SimTrackId() << endl;
-	  simtrackid_cache = linkiter->SimTrackId();
+	  idcachev.push_back(linkiter->SimTrackId());
 	}
       } 
     }

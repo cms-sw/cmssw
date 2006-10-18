@@ -62,7 +62,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
   for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++)
     {
       matchedIds.clear();
-      int ri=0;
+      int ri=0;//valid rechits
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
 	if ((*it)->isValid()){
 	  ri++;
@@ -71,7 +71,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	  //save all the id of matched simtracks
 	  if(!SimTrackIds.empty()){
 	    for(size_t j=0; j<SimTrackIds.size(); j++){
-	      std::cout << " hit # " << ri << " SimId " << SimTrackIds[j] << std::endl; 
+	      //std::cout << " hit # " << ri << " SimId " << SimTrackIds[j] << std::endl; 
 	      matchedIds.push_back(SimTrackIds[j]);
 	    }
 	  }
@@ -101,8 +101,6 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 		    // 		    std::cout << " G4  Track Momentum " << (*g4T)->momentum() << std::endl;   
 		    // 		    std::cout << " reco Track Momentum " << track->momentum() << std::endl;  
 		    nshared = std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
-		    //int rii=track->found();
-		    //use ri evaluated above to avoid inconsistencies. should be the same but worth checking
 		    if(ri!=0) fraction = (static_cast<double>(nshared)/static_cast<double>(ri));
 		    //for now save the number of shared hits between the reco and sim track
 		    //cut on the fraction
