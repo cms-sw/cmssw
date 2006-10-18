@@ -78,8 +78,9 @@ std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr) {
   os << "trigSourceVect = " << hdr.trigSourceVect 
      << ", activeCFEBs = " << hdr.activeCFEBs << std::endl;
   os << "bxnPreTrigger = " << hdr.bxnPreTrigger << std::endl;
-  os << "tmbMatch = " << hdr.tmbMatch << " alctOnly = " << hdr.alctOnly << " clctOnly = " << hdr.clctOnly << std::endl ;
-
+  os << "tmbMatch = " << hdr.tmbMatch << " alctOnly = " << hdr.alctOnly << " clctOnly = " << hdr.clctOnly << std::endl;
+  os << "hs_thresh = " << hdr.hs_thresh << ", ds_thresh = " << hdr.ds_thresh
+     << std::endl;
 
   os << "..................CLCT....................." << std::endl;
 

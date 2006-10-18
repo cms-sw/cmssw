@@ -40,6 +40,8 @@ class CSCTMBHeader {
   short unsigned int ALCTMatchTime()   const {return alctMatchTime;}
   short unsigned int MPCAcceptLCT0()   const {return mpcAcceptLCT0;}
   short unsigned int MPCAcceptLCT1()   const {return mpcAcceptLCT1;}
+  short unsigned int HSThresh()        const {return hs_thresh;}
+  short unsigned int DSThresh()        const {return ds_thresh;}
   
   short unsigned int MPC_Muon0_wire()          const {return MPC_Muon0_wire_;}
   short unsigned int MPC_Muon0_clct_pattern()  const {return MPC_Muon0_clct_pattern_;}
@@ -203,18 +205,16 @@ private:
   unsigned MPC_Muon1_cscid_low              : 3;
   unsigned reserved_15:1;
 
-  unsigned MPC_Muon0_vpf_        :1;
-  unsigned MPC_Muon0_cscid_bit4  :1;
-  
-  unsigned MPC_Muon1_vpf_        :1;
-  unsigned MPC_Muon1_cscid_bit4  :1;
-
- 
-
-  unsigned mpcAcceptLCT0:1, mpcAcceptLCT1:1, reserved_16:10;
-
-
-
+  unsigned MPC_Muon0_vpf_        : 1;
+  unsigned MPC_Muon0_cscid_bit4  : 1;
+  unsigned MPC_Muon1_vpf_        : 1;
+  unsigned MPC_Muon1_cscid_bit4  : 1;
+  unsigned mpcAcceptLCT0         : 1;
+  unsigned mpcAcceptLCT1         : 1;
+  unsigned reserved_16_1         : 2;
+  unsigned hs_thresh             : 3;
+  unsigned ds_thresh             : 3;
+  unsigned reserved_16_2:2;
 
 
   unsigned buffer_info_0:16;
