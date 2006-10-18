@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.26 2006/09/08 23:24:35 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.27 2006/09/25 21:55:08 mansj Exp $
 //
 #include <vector>
 #include <string>
@@ -13,6 +13,7 @@
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
@@ -93,9 +94,17 @@ bool getHcalObject (std::istream& fInput, T* fObject) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" << std::endl;
       continue;
     }
-    fObject->addValue (getId (items), 
-		       atof (items [4].c_str()), atof (items [5].c_str()), 
-		       atof (items [6].c_str()), atof (items [7].c_str()));
+    DetId id = getId (items);
+    fObject->sort ();
+    try {
+      fObject->getValues (id);
+      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+    }
+    catch (cms::Exception& e) {
+      fObject->addValue (id, 
+			 atof (items [4].c_str()), atof (items [5].c_str()), 
+			 atof (items [6].c_str()), atof (items [7].c_str()));
+    }
   }
   fObject->sort ();
   return true;
@@ -140,17 +149,25 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 14 items: eta, phi, depth, subdet, 10x correlations" << std::endl;
       continue;
     }
-    HcalPedestalWidth* values = fObject->setWidth (getId (items));
-    values->setSigma (0, 0, atof (items [4].c_str()));
-    values->setSigma (1, 0, atof (items [5].c_str()));
-    values->setSigma (1, 1, atof (items [6].c_str()));
-    values->setSigma (2, 0, atof (items [7].c_str()));
-    values->setSigma (2, 1, atof (items [8].c_str()));
-    values->setSigma (2, 2, atof (items [9].c_str()));
-    values->setSigma (3, 0, atof (items [10].c_str()));
-    values->setSigma (3, 1, atof (items [11].c_str()));
-    values->setSigma (3, 2, atof (items [12].c_str()));
-    values->setSigma (3, 3, atof (items [13].c_str()));
+    DetId id = getId (items);
+    fObject->sort ();
+    try {
+      fObject->getValues (id);
+      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+    }
+    catch (cms::Exception& e) {
+      HcalPedestalWidth* values = fObject->setWidth (id);
+      values->setSigma (0, 0, atof (items [4].c_str()));
+      values->setSigma (1, 0, atof (items [5].c_str()));
+      values->setSigma (1, 1, atof (items [6].c_str()));
+      values->setSigma (2, 0, atof (items [7].c_str()));
+      values->setSigma (2, 1, atof (items [8].c_str()));
+      values->setSigma (2, 2, atof (items [9].c_str()));
+      values->setSigma (3, 0, atof (items [10].c_str()));
+      values->setSigma (3, 1, atof (items [11].c_str()));
+      values->setSigma (3, 2, atof (items [12].c_str()));
+      values->setSigma (3, 3, atof (items [13].c_str()));
+    }
   }
   fObject->sort ();
   return true;
@@ -421,18 +438,17 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject) {
-  std::vector<DetId> channels = fObject.allDetectorId ();
-  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  std::vector<HcalElectronicsId> eids = fObject.allElectronicsId ();
   char buf [1024];
   sprintf (buf, "#%6s %6s %6s %6s %6s %6s %6s %6s %15s %15s %15s %15s",
 	   "i", "cr", "sl", "tb", "dcc", "spigot", "fiber", "fibcha", "subdet", "ieta", "iphi", "depth");
   fOutput << buf << std::endl;
 
-  for (unsigned i = 0; i < channels.size (); i++) {
-    HcalText2DetIdConverter converter (channels [i]);
-    HcalElectronicsId eid = fObject.lookup (converter.getId(), false);
-    if (eid.rawId()) {
-      char buf [1024];
+  for (unsigned i = 0; i < eids.size (); i++) {
+    HcalElectronicsId eid = eids[i];
+    DetId channel = fObject.lookup (eid, false);
+    if (channel.rawId()) {
+      HcalText2DetIdConverter converter (channel);
       sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
 	       i,
 	       eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
@@ -440,9 +456,15 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
 	       );
       fOutput << buf << std::endl;
     }
-    else {
-      edm::LogWarning("Format Error") << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap-> can not find EID for DetId " << converter.getFlavor() << " "
-		<< converter.getField1 () << " " << converter.getField2 () << " " << converter.getField3 () << std::endl; 
+    DetId trigger = fObject.lookupTrigger (eid, false);
+    if (trigger.rawId ()) {
+      HcalText2DetIdConverter converter (trigger);
+      sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+	       i,
+	       eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+	       converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
+	       );
+      fOutput << buf << std::endl;
     }
   }
   return true;
