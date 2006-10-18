@@ -1,5 +1,8 @@
 /** \class StandAloneMuonSmoother
- *  The outward-inward fitter (starts from StandAloneMuonBackwardFilter innermost state).
+ * 
+ *  Smooth a trajectory using the standard Kalman Filter smoother.
+ *  This class contains the KFTrajectorySmoother and takes care
+ *  to update the it whenever the propagator change.
  *
  *  $Date: 2006/08/31 18:28:04 $
  *  $Revision: 1.5 $
@@ -12,10 +15,8 @@
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -44,22 +45,49 @@ StandAloneMuonSmoother::StandAloneMuonSmoother(const ParameterSet& par,
   thePropagatorName = par.getParameter<string>("Propagator");
   
   theUpdator = new KFUpdator();
+  
+  // The Kalman smoother
+  theSmoother = 0 ;
+		
 }
 
 StandAloneMuonSmoother::~StandAloneMuonSmoother(){
   if (theEstimator) delete theEstimator;
   if (theUpdator) delete theUpdator;
+  if (theSmoother) delete theSmoother;
 }
 
 const Propagator* StandAloneMuonSmoother::propagator() const{ 
   return &*theService->propagator(thePropagatorName); 
 }
 
-StandAloneMuonSmoother::SmoothingResult StandAloneMuonSmoother::smooth(const Trajectory& inputTrajectory){
+void StandAloneMuonSmoother::renewTheSmoother(){
+  if (theService->isTrackingComponentsRecordChanged()){
+    if (theSmoother) delete theSmoother;
+    theSmoother = new KFTrajectorySmoother(propagator(),
+					   updator(),
+					   estimator());
+  }
+  if (!theSmoother)
+    theSmoother = new KFTrajectorySmoother(propagator(),
+					   updator(),
+					   estimator());
+  
+}
 
+StandAloneMuonSmoother::SmoothingResult StandAloneMuonSmoother::smooth(const Trajectory& inputTrajectory){
   const string metname = "Muon|RecoMuon|StandAloneMuonSmoother";
   
-  Trajectory smoothed(inputTrajectory.seed());
-
+  renewTheSmoother();
+  
+  vector<Trajectory> trajectoriesSM = smoother()->trajectories(inputTrajectory);
+  
+  if(!trajectoriesSM.size()){
+    LogDebug(metname) << "No Track smoothed!";
+    return SmoothingResult(false,inputTrajectory); 
+  }
+  
+  Trajectory smoothed = trajectoriesSM.front(); 
+  
   return SmoothingResult(true,smoothed); 
 }

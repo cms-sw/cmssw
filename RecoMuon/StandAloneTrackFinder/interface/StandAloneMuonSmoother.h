@@ -2,20 +2,23 @@
 #define RecoMuon_StandAloneTrackFinder_StandAloneMuonSmoother_H
 
 /** \class StandAloneMuonSmoother
- *  The outward-inward fitter (starts from StandAloneMuonBackwardFilter innermost state).
  *
- *  $Date: 2006/08/31 18:28:04 $
- *  $Revision: 1.7 $
+ *  Smooth a trajectory using the standard Kalman Filter smoother.
+ *  This class contains the KFTrajectorySmoother and takes care
+ *  to update the it whenever the propagator change.
+ *
+ *  $Date: 2006/09/13 10:42:22 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-// #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 class MuonServiceProxy;
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
 class Propagator;
+class TrajectorySmoother;
 
 #include <string>
 
@@ -47,9 +50,14 @@ class StandAloneMuonSmoother{
   /// access at the estimator
   MeasurementEstimator *estimator() const {return theEstimator;}
     
+  /// access to the smoother
+  TrajectorySmoother *smoother() const {return theSmoother;}
+  
  protected:
   
  private:
+  void renewTheSmoother();
+
   std::string thePropagatorName;
 
   /// The max allowed chi2 to accept a rechit in the fit
@@ -70,6 +78,8 @@ class StandAloneMuonSmoother{
   TrajectoryStateUpdator *theUpdator;
 
   const MuonServiceProxy* theService;
+
+  TrajectorySmoother *theSmoother;
 
 };
 #endif

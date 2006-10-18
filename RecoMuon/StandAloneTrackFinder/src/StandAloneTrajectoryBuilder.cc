@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/09/15 12:17:58 $
- *  $Revision: 1.29 $
+ *  $Date: 2006/10/05 13:21:48 $
+ *  $Revision: 1.30 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -117,7 +117,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // Get the last TSOS
   TrajectoryStateOnSurface tsosAfterRefit = refitter()->lastUpdatedTSOS();
 
-  LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
+  LogDebug(metname) << "StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
   LogDebug(metname) << debug.dumpTSOS(tsosAfterRefit);
   
 
@@ -142,12 +142,15 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
       // Smoothing
       if (doSmoothing && !trajectoryFW.empty()){
 	pair<bool,Trajectory> smoothingResult = smoother()->smooth(trajectoryFW);
-	if (smoothingResult.first)
-	  //FIXME! creating with new!
+	if (smoothingResult.first){
 	  trajectoryContainer.push_back(new Trajectory(smoothingResult.second));
+	  LogDebug(metname) << "StandAloneMuonTrajectoryBuilder SMOOTHER OUTPUT " << endl ;
+	  LogDebug(metname) << debug.dumpTSOS(smoothingResult.second.lastMeasurement().updatedState());
+	}
+	else
+	  trajectoryContainer.push_back(new Trajectory(trajectoryFW));
       }
       else
-	//FIXME! creating with new!
 	trajectoryContainer.push_back(new Trajectory(trajectoryFW));
       
       LogDebug(metname)<< "Trajectory saved" << endl;
@@ -200,7 +203,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // Get the last TSOS
   TrajectoryStateOnSurface tsosAfterBWRefit = bwfilter()->lastUpdatedTSOS();
 
-  LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
+  LogDebug(metname) << "StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
   LogDebug(metname) << debug.dumpTSOS(tsosAfterBWRefit);
 
   LogDebug(metname) 
@@ -218,16 +221,19 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     
     if (doSmoothing && !trajectoryBW.empty()){
       pair<bool,Trajectory> smoothingResult = smoother()->smooth(trajectoryBW);
-      if (smoothingResult.first)
-	// 	//FIXME! creating with new!
+      if (smoothingResult.first){
      	trajectoryContainer.push_back(new Trajectory(smoothingResult.second));
+	LogDebug(metname) << "StandAloneMuonTrajectoryBuilder SMOOTHER OUTPUT " << endl ;
+	LogDebug(metname) << debug.dumpTSOS(smoothingResult.second.lastMeasurement().updatedState());
+      }
+      else
+	trajectoryContainer.push_back(new Trajectory(trajectoryBW));
     }
     else
-      //FIXME! creating with new!
       trajectoryContainer.push_back(new Trajectory(trajectoryBW));
     
     LogDebug(metname)<< "Trajectory saved" << endl;
-
+    
   }
   //if the trajectory is not saved, but at least two chamber are used in the
   //forward filtering, try to build a new trajectory starting from the old
@@ -287,7 +293,7 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(const TrajectorySeed& seed
 
   // ask for compatible layers
   vector<const DetLayer*> detLayers;
- 
+
  
   if(theNavigationType == "Standard")
     detLayers = initialLayer->compatibleLayers( *initialState.freeState(),oppositeToMomentum); // FIXME 
