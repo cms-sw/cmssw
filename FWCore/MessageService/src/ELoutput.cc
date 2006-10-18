@@ -45,7 +45,7 @@
 //			debug messages. 
 //  6/06/06	mf	Verbatim
 //  6/12/06	mf	Set preambleMode true when printing the header
-//  10/18/06	mf	In format_time(): Initialized ts[] with 3 extra
+//  10/18/06	mf	In format_time(): Initialized ts[] with 5 extra
 //			spaces, to cover cases where time zone is more than
 //			3 characters long.
 // ----------------------------------------------------------------------
@@ -78,10 +78,10 @@ namespace service {
 
 static char * formatTime( const time_t t )  {
 
-static char ts[] = "dd-Mon-yyyy hh:mm:ss TZN   ";
+static char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
 
 
-#ifdef ANALTERNATIVE
+#ifdef AN_ALTERNATIVE_FOR_TIMEZONE
   char * c  = ctime( &t );                      // 6/14/99 mf Can't be static!
   strncpy( ts+ 0, c+ 8, 2 );  // dd
   strncpy( ts+ 3, c+ 4, 3 );  // Mon
@@ -92,11 +92,13 @@ static char ts[] = "dd-Mon-yyyy hh:mm:ss TZN   ";
 
   strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
                 // mf 4-9-04
-  
+
+#ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
   // strip trailing blanks that would come when the time zone is not as
-  // long as the maximum allowed 
+  // long as the maximum allowed - probably not worth the time 
   unsigned int b = strlen(ts);
   while (ts[--b] == ' ') {ts[b] = 0;}
+#endif 
 
   return ts;
 
