@@ -7,8 +7,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/09/01 16:24:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/10/16 06:50:38 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -21,6 +21,7 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 namespace edm {class ParameterSet; class EventSetup;}
+class MuonNavigationSchool;
 
 class MuonServiceProxy {
 public:
@@ -59,6 +60,7 @@ private:
   edm::ESHandle<MagneticField> theMGField;
   edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
   const edm::EventSetup *theEventSetup;
+  const MuonNavigationSchool* theSchool;
 
   propagators thePropagators;
 
