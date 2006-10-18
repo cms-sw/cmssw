@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/09/28 13:03:44 $
- * $Revision: 1.28 $
+ * $Date: 2006/09/28 13:27:32 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -246,8 +246,10 @@ void EBBeamCaloClient::cleanup(void) {
 }
 
 
-void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
-  
+bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+
+  bool status = true;
+
   EcalLogicID ecid;
   MonOccupancyDat o;
   map<EcalLogicID, MonOccupancyDat> dataset;
@@ -327,6 +329,8 @@ void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
       cerr << e.what() << endl;
     }
   }
+
+  return status;
 
 }
 

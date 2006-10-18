@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/07/10 12:40:04 $
- * $Revision: 1.37 $
+ * $Date: 2006/09/05 09:12:00 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -72,7 +72,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
 
 /// Get Functions
  inline int getEvtPerJob() { return ievt_; }

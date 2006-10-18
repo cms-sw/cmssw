@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/08/03 19:41:25 $
- * $Revision: 1.88 $
+ * $Date: 2006/10/18 07:22:09 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -408,7 +408,9 @@ void EBPedestalClient::cleanup(void) {
 
 }
 
-void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+
+  bool status = true;
 
   vector<dqm::me_util::Channel> badChannels;
 
@@ -552,13 +554,17 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
         p.setPedMeanG12(mean03);
         p.setPedRMSG12(rms03);
 
+        bool val;
+
         if ( meg01_[ism-1] && meg01_[ism-1]->getBinContent( ie, ip ) == 1. &&
              meg02_[ism-1] && meg02_[ism-1]->getBinContent( ie, ip ) == 1. &&
              meg03_[ism-1] && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          p.setTaskStatus(true);
+          val = true;
         } else {
-          p.setTaskStatus(false);
+          val = false;
         }
+        p.setTaskStatus(val);
+        status = status && val;
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -639,11 +645,15 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
       pn.setPedMeanG16(mean02);
       pn.setPedRMSG16(rms02);
 
+      bool val;
+
       if ( mean01 > 200. ) {
-        pn.setTaskStatus(true);
+        val = true;
       } else {
-        pn.setTaskStatus(false);
+        val = false;
       }
+      pn.setTaskStatus(val);
+      status = status && val;
 
       if ( econn ) {
         try {
@@ -667,6 +677,8 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
       cerr << e.what() << endl;
     }
   }
+
+  return status;
 
 }
 

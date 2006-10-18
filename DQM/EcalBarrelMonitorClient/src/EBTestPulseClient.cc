@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/07/23 07:23:09 $
- * $Revision: 1.88 $
+ * $Date: 2006/08/03 19:41:25 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -318,7 +318,9 @@ void EBTestPulseClient::cleanup(void) {
 
 }
 
-void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+
+  bool status = true;
 
   vector<dqm::me_util::Channel> badChannels;
 
@@ -469,13 +471,17 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
         adc.setADCMeanG12(mean03);
         adc.setADCRMSG12(rms03);
 
+        bool val;
+
         if ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. &&
              meg02_[ism-1]->getBinContent( ie, ip ) == 1. &&
              meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          adc.setTaskStatus(true);
+          val = true;
         } else {
-          adc.setTaskStatus(false);
+          val = false;
         }
+        adc.setTaskStatus(val);
+        status = status && val;
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -635,11 +641,15 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
       pn.setPedMeanG16(mean04);
       pn.setPedRMSG16(rms04);
 
+      bool val;
+
       if ( mean01 > 200. ) {
-        pn.setTaskStatus(true);
+        val = true;
       } else {
-        pn.setTaskStatus(false);
+        val = false;
       }
+      pn.setTaskStatus(val);
+      status = status && val;
 
       if ( econn ) {
         try {
@@ -663,6 +673,8 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
       cerr << e.what() << endl;
     }
   }
+
+  return status;
 
 }
 

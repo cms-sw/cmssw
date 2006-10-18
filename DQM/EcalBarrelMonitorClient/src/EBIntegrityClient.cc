@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/07/24 20:44:27 $
- * $Revision: 1.108 $
+ * $Date: 2006/08/03 19:41:25 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -339,7 +339,9 @@ void EBIntegrityClient::cleanup(void) {
 
 }
 
-void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+
+  bool status = true;
 
   vector<dqm::me_util::Channel> badChannels;
 
@@ -670,6 +672,7 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
             val = false;
         }
         c1.setTaskStatus(val);
+        status = status && val;
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -751,6 +754,7 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
             val = false;
         }
         c2.setTaskStatus(val);
+        status = status && val;
 
         int itt = (ipt-1) + 4*(iet-1) + 1;
 
@@ -824,6 +828,7 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
             val = false;
         }
         c3. setTaskStatus(val);
+        status = status && val;
 
         int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
@@ -904,6 +909,7 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
           val = false;
       }
       c4.setTaskStatus(val);
+      status = status && val;
 
       int itt = 68 + iet;
 
@@ -932,6 +938,8 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
       cerr << e.what() << endl;
     }
   }
+
+  return status;
 
 }
 

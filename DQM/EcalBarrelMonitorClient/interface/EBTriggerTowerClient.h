@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2006/09/13 19:22:36 $
- * $Revision: 1.2 $
+ * $Date: 2006/09/14 13:37:07 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -77,7 +77,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
 
 /// Get Functions
  inline int getEvtPerJob() { return ievt_; }

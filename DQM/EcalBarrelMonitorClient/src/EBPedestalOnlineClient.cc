@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/08/03 19:41:25 $
- * $Revision: 1.41 $
+ * $Date: 2006/10/18 07:55:54 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -238,7 +238,9 @@ void EBPedestalOnlineClient::cleanup(void) {
 
 }
 
-void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+
+  bool status = true;
 
   vector<dqm::me_util::Channel> badChannels;
 
@@ -308,11 +310,15 @@ void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
         p.setADCMeanG12(mean03);
         p.setADCRMSG12(rms03);
 
+        bool val;
+
         if ( meg03_[ism-1]  && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-           p.setTaskStatus(true);
+           val = true;
         } else {
-           p.setTaskStatus(false);
+           val = false;
         }
+        p.setTaskStatus(val);
+        status = status && val;
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -341,6 +347,8 @@ void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
       cerr << e.what() << endl;
     }
   }
+
+  return status;
 
 }
 
