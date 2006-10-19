@@ -86,7 +86,7 @@ bool TFileAdaptor::native(const char * prot) const {
 TFileAdaptor::TFileAdaptor(const TFileAdaptorParams& iparams): 
   m_params(iparams)
 { 
-  std::cerr << "TFileAdaptor loaded" << std::endl;
+  // std::cerr << "TFileAdaptor loaded" << std::endl;
   
   m_params.init();
 
