@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.14 2006/10/12 14:28:25 paterno Exp $
+// $Id: FileInPath.cc,v 1.15 2006/10/18 22:16:18 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -227,20 +227,21 @@ namespace edm
     if (isLocal_ || canFilename.empty()) {
       canonicalFilename_ = canFilename;
     } else {
-      std::string releaseTop;
-      if (!envstring(RELEASETOP, releaseTop)) {
-	throw edm::Exception(edm::errors::FileInPathError)
-	  << "Environment Variable " 
-	  << RELEASETOP
-	  << " is not set.\n";
-      }
       std::string::size_type pos = canFilename.find(BASE);
       if (pos == 0) {
         // Replace the placehoder with the path to the base release (site dependent).
+        std::string releaseTop;
+        if (!envstring(RELEASETOP, releaseTop)) {
+	  throw edm::Exception(edm::errors::FileInPathError)
+	    << "Environment Variable " 
+	    << RELEASETOP
+	    << " is not set.\n";
+        }
         canonicalFilename_ = releaseTop + canFilename.substr(BASE.size());
       } else {
-#if 0
+#if 1
     // This #if needed for backward compatibility for files written before CMSSW_1_2_0_pre2.
+      canonicalFilename_ = canFilename;
 #else
       throw edm::Exception(edm::errors::FileInPathError)
 	<< "Site independent 'path' " 
