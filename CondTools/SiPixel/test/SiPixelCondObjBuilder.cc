@@ -1,36 +1,9 @@
-// -*- C++ -*-
-//
-// Package:    SiPixelCondObjBuilder
-// Class:      SiPixelCondObjBuilder
-// 
-/**\class SiPixelCondObjBuilder SiPixelCondObjBuilder.cc SiPixel/test/SiPixelCondObjBuilder.cc
-
- Description: Test analyzer for writing pixel calibration in the DB
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Vincenzo CHIOCHIA
-//         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id$
-//
-//
-
-
-// system include files
 #include <memory>
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "CondTools/SiPixel/test/SiPixelCondObjBuilder.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -38,48 +11,14 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 
 #include "CLHEP/Random/RandGauss.h"
-//
-// class decleration
-//
 
-class SiPixelCondObjBuilder : public edm::EDAnalyzer {
-public:
-  explicit SiPixelCondObjBuilder(const edm::ParameterSet&);
-  ~SiPixelCondObjBuilder();
-  
-  
-private:
-  
-  SiPixelGainCalibration* SiPixelGainCalibration_;
-  
-  virtual void beginJob(const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  
-  // ----------member data ---------------------------
-};
-//
-// constructors and destructor
-//
-SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig)
+SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig) : 
+appendMode_(iConfig.getUntrackedParameter<bool>("appendMode",true))
 {
-   //now do what ever initialization is needed
-
 }
 
-
-SiPixelCondObjBuilder::~SiPixelCondObjBuilder()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-// ------------ method called to for each event  ------------
 void
 SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -102,7 +41,7 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
      if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
        uint32_t detid=((*it)->geographicalId()).rawId();
        nmodules++;
-       //if(nmodules>10) break;
+       if(nmodules>10) break;
 
        const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>((*it));
        const PixelTopology & topol = pixDet->specificTopology();       
@@ -159,8 +98,18 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    if( mydbservice.isAvailable() ){
      try{
        size_t callbackToken = mydbservice->callbackToken("SiPixelGainCalibration");
-       edm::LogInfo("SiPixelCondObjBuilder")<<"CallbackToken SiPixelGainCalibration"<<callbackToken<<std::endl;
-       mydbservice->newValidityForNewPayload<SiPixelGainCalibration>(SiPixelGainCalibration_, mydbservice->currentTime(), callbackToken);
+       edm::LogInfo("SiPixelCondObjBuilder")<<"CallbackToken SiPixelGainCalibration "<<callbackToken<<std::endl;
+
+       unsigned long long tillTime;
+
+       if ( appendMode_)
+	 tillTime = mydbservice->currentTime();
+       else
+	 tillTime = mydbservice->endOfTime();
+       
+       edm::LogInfo("SiPixelCondObjBuilder")<<"[SiPixelCondObjBuilder::analyze] tillTime = "<<tillTime<<std::endl;
+
+       mydbservice->newValidityForNewPayload<SiPixelGainCalibration>(SiPixelGainCalibration_, tillTime , callbackToken);
      }catch(const cond::Exception& er){
        edm::LogError("SiPixelCondObjBuilder")<<er.what()<<std::endl;
      }catch(const std::exception& er){
@@ -187,5 +136,3 @@ void
 SiPixelCondObjBuilder::endJob() {
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelCondObjBuilder)
