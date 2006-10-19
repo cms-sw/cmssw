@@ -77,9 +77,9 @@ An example of configuration parameters for this module is:
 \endverbatim
 
 Some predefined configuration files for this module are available:
-- <b>DTRecHit1DProducer_LinearDrift.cfi</b>: hit reconstruction using constant drift velocity over the entire cell
-- <b>DTRecHit1DProducer_ParamDrift.cfi</b>: reconstruction with GARFIELD parametrization
-- <b>DTRecHit1DProducer_LinearDrift_CosmicData.cfi</b>: reconstruction of real data from cosmic test
+- <b>dt1DRecHits_LinearDrift.cfi</b>: hit reconstruction using constant drift velocity over the entire cell
+- <b>dt1DRecHits_ParamDrift.cfi</b>: reconstruction with GARFIELD parametrization
+- <b>dt1DRecHits_LinearDrift_CosmicData.cfi</b>: reconstruction of real data from cosmic test
 The name of the module in these cfi files is <i>dt1DRecHits</i>
 
 \subsection tests Unit tests and examples
