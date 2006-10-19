@@ -191,6 +191,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 
   
   string clustersIslandBarrelbranchname;
+  clustersIslandBarrelBranch_ = 0;
   options_->GetOpt("root","clusters_island_barrel_branch", clustersIslandBarrelbranchname);
   if(!clustersIslandBarrelbranchname.empty() ) {
     clustersIslandBarrelBranch_ = tree_->GetBranch(clustersIslandBarrelbranchname.c_str());
@@ -203,9 +204,9 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
       clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
     }    
   }
-  else 
-    cerr<<"branch not found"<<endl;
-
+  else {
+    cerr<<"branch not found: root/clusters_island_barrel_branch"<<endl;
+  }
 
   string recTracksbranchname;
   options_->GetOpt("root","recTracks_branch", recTracksbranchname);
