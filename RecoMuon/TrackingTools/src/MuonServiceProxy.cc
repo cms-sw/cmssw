@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/10/16 06:50:38 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/10/18 20:54:56 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -33,12 +33,12 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeometry(0),theMGField(0),theDetLayerGeometry(0),theEventSetup(0){
-
+MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeometry(0),theMGField(0),theDetLayerGeometry(0),theEventSetup(0),theSchool(0){
+  
   // load the propagators map
   vector<string> noPropagators;
   vector<string> propagatorNames;
-
+  
   propagatorNames = par.getUntrackedParameter<vector<string> >("Propagators", noPropagators);
   
   if(propagatorNames.empty())
@@ -52,6 +52,8 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   theCacheId_MG = 0;  
   theCacheId_DG = 0;
   theCacheId_P = 0;
+  theChangeInTrackingComponentsRecord = false;
+
 }
 
 
@@ -97,18 +99,20 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     LogDebug(metname) << "Muon Reco Geometry changed!";
     theCacheId_DG = newCacheId_DG;
     setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
-    // FIXME: MuonNavigationSchool should live until its validity expires, and then DELETE
+    // MuonNavigationSchool should live until its validity expires, and then DELETE
     // the NavigableLayers (this is implemented in MuonNavigationSchool's dtor)
+    if(theSchool) delete theSchool;
     theSchool = new MuonNavigationSchool(&*theDetLayerGeometry);
-
   }
   
   if ( theSchool ) NavigationSetter setter(*theSchool);
 
   // Propagators
+  theChangeInTrackingComponentsRecord = false;
   unsigned long long newCacheId_P = setup.get<TrackingComponentsRecord>().cacheIdentifier();
   if ( newCacheId_P != theCacheId_P ) {
     LogDebug(metname) << "Tracking Component changed!";
+    theChangeInTrackingComponentsRecord = true;
     theCacheId_P = newCacheId_P;
     for(propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end();
 	++prop)
@@ -127,3 +131,4 @@ ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) co
 }
 
 
+ 
