@@ -1,3 +1,9 @@
+/// \file TrackerAlignableId.cc
+///
+///  $Revision$
+///  $Date$
+///  (last update by $Author$)
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
@@ -23,7 +29,7 @@ TrackerAlignableId::TrackerAlignableId()
 
 
 //__________________________________________________________________________________________________
-unsigned int TrackerAlignableId::alignableId( const Alignable* alignable ) const
+uint32_t TrackerAlignableId::alignableId( const Alignable* alignable ) const
 {
 
   return firstDetId(alignable);
@@ -37,7 +43,7 @@ unsigned int TrackerAlignableId::alignableId( const Alignable* alignable ) const
 int TrackerAlignableId::alignableTypeId( const Alignable* alignable ) const
 {
 
-  int alignableObjectId = static_cast<int>(alignable->alignableObjectId());
+  int alignableObjectId = alignable->alignableObjectId();
 
   if ( !alignableObjectId ) 
 	throw cms::Exception("LogicError") << "Unknown Alignable type";
@@ -46,8 +52,13 @@ int TrackerAlignableId::alignableTypeId( const Alignable* alignable ) const
 
 }
 
-
-
+//_______________________________________________________________________
+/// Return unique ID of alignable, consisting of the geographical ID of the
+/// first GeomDet and the type ID (i.e. Rod, Layer, etc.) 
+TrackerAlignableId::UniqueId TrackerAlignableId::alignableUniqueId( const Alignable* alignable ) const
+{
+  return std::make_pair(this->alignableId(alignable), this->alignableTypeId(alignable));
+}
 
 
 //__________________________________________________________________________________________________
@@ -162,10 +173,10 @@ const AlignableDet* TrackerAlignableId::firstDet( const Alignable* alignable ) c
 
 //__________________________________________________________________________________________________
 // get integer identifier corresponding to 1st Det of alignable
-unsigned int TrackerAlignableId::firstDetId( const Alignable* alignable ) const
+uint32_t TrackerAlignableId::firstDetId( const Alignable* alignable ) const
 {
 
-  unsigned int geomDetId = 0;
+  uint32_t geomDetId = 0;
 
   if ( alignable ) 
 	{
