@@ -35,7 +35,7 @@ class FedCablingTask : public CommissioningTask {
   
   /** HistoSet for FED cabling. First element contains histo info for
       FED id, second element contains histo info for FED channel. */
-  vector<HistoSet> cabling_;
+  std::vector<HistoSet> cabling_;
   
 };
 

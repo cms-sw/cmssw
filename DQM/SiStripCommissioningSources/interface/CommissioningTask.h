@@ -8,13 +8,12 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 #include "boost/cstdint.hpp"
+#include <vector>
 #include <string>
 #include <iomanip>
 
 class DaqMonitorBEInterface;
 class MonitorElement;
-
-using namespace std;
 
 /**
    @class CommissioningTask
@@ -26,9 +25,8 @@ class CommissioningTask {
   /** Constructor. */ 
   CommissioningTask( DaqMonitorBEInterface*, 
 		     const FedChannelConnection&,
-		     const string& my_name );
+		     const std::string& my_name );
   virtual ~CommissioningTask();
-
 
   /** Simple container class holding pointer to root histogram, and
       vectors in which data are cached and used to update histo. */
@@ -41,9 +39,9 @@ class CommissioningTask {
       histo_(0), 
       isProfile_(true) {;}
     // public data member
-    vector<float> vNumOfEntries_;
-    vector<float> vSumOfContents_;
-    vector<double> vSumOfSquares_;
+    std::vector<float> vNumOfEntries_;
+    std::vector<float> vSumOfContents_;
+    std::vector<double> vSumOfSquares_;
     MonitorElement* histo_;
     bool isProfile_;
   };
@@ -60,11 +58,8 @@ class CommissioningTask {
   /** Set histogram update frequency. */
   void updateFreq( const uint32_t& freq ) { updateFreq_ = freq; }
   
-  /** Set FED id and channel (for FED cabling task). */
-  //inline void fedChannel( const uint32_t& fed_key );
-  
   /** Returns the name of this commissioning task. */
-  const string& myName() const { return myName_; }
+  const std::string& myName() const { return myName_; }
   
  protected: // ----- protected methods -----
   
@@ -83,11 +78,6 @@ class CommissioningTask {
   inline const uint32_t& fecKey() const;
   /** Returns FED key. */
   inline const uint32_t& fedKey() const;
-
-  /** Returns FED id. */
-  //inline const uint16_t& fedId() const;
-  /** Returns FED channel. */
-  //inline const uint16_t& fedCh() const;
   
  private: // ----- private methods -----
   
@@ -110,9 +100,7 @@ class CommissioningTask {
   uint32_t fedKey_;
   uint32_t fecKey_;
   bool booked_;
-  //uint16_t fedId_;
-  //uint16_t fedCh_;
-  string myName_;
+  std::string myName_;
   
 };
 
@@ -123,14 +111,6 @@ const FedChannelConnection& CommissioningTask::connection() const { return conne
 
 const uint32_t& CommissioningTask::fecKey() const { return fecKey_; }
 const uint32_t& CommissioningTask::fedKey() const { return fedKey_; }
-
-//void CommissioningTask::fedChannel( const uint32_t& fed_key ) { 
-//  SiStripReadoutKey::ReadoutPath path = SiStripReadoutKey::path( fed_key ); 
-//  fedId_ = path.fedId_; fedCh_ = path.fedCh_;
-//}
-
-//const uint16_t& CommissioningTask::fedId() const { return fedId_; }
-//const uint16_t& CommissioningTask::fedCh() const { return fedCh_; }
 
 #endif // DQM_SiStripCommissioningSources_CommissioningTask_H
 
