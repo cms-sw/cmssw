@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/03 14:15:37 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/10/13 13:26:46 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - CERN
  */
 
@@ -245,10 +245,22 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(DetId &detId) const{
 }
 
 
+// Quick way to sort barrel det layers by increasing R,
+// do not abuse!
+#include <TrackingTools/DetLayers/interface/BarrelDetLayer.h>
+struct ExtractBarrelDetLayerR {
+  typedef Surface::Scalar result_type;
+  result_type operator()(const DetLayer* p) const {
+    const BarrelDetLayer * bdl = dynamic_cast<const BarrelDetLayer*>(p);
+    if (bdl) return bdl->specificSurface().radius();
+    else return -1.;
+  }
+};
+
 void MuonDetLayerGeometry::sortLayers() {
 
   // The following are filled inside-out, no need to re-sort
-  // precomputed_value_sort(dtLayers_fw.begin(), cscLayers_fw.end(),ExtractR<DetLayer,float>());
+  // precomputed_value_sort(dtLayers.begin(), dtLayers.end(),ExtractR<DetLayer,float>());
   // precomputed_value_sort(cscLayers_fw.begin(), cscLayers_fw.end(),ExtractAbsZ<DetLayer,float>());
   // precomputed_value_sort(cscLayers_bk.begin(), cscLayers_bk.end(),ExtractAbsZ<DetLayer,float>());
   // precomputed_value_sort(rpcLayers_fw.begin(), rpcLayers_fw.end(),ExtractAbsZ<DetLayer,float>());
@@ -256,7 +268,7 @@ void MuonDetLayerGeometry::sortLayers() {
   // precomputed_value_sort(rpcLayers_barrel.begin(), rpcLayers_barrel.end(), ExtractR<DetLayer,float>());
 
   // Sort these inside-out
-  precomputed_value_sort(allBarrel.begin(), allBarrel.end(), ExtractR<DetLayer,float>());
+  precomputed_value_sort(allBarrel.begin(), allBarrel.end(), ExtractBarrelDetLayerR());
   precomputed_value_sort(allBackward.begin(), allBackward.end(), ExtractAbsZ<DetLayer,float>());
   precomputed_value_sort(allForward.begin(), allForward.end(), ExtractAbsZ<DetLayer,float>());  
 
