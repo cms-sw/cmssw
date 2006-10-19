@@ -1,14 +1,14 @@
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
-
 #include <iostream>
-#include <string> 
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
@@ -22,14 +22,13 @@ CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
   fedKey_(0),
   fecKey_(0),
   booked_(false),
-  //fedId_(0),
-  //fedCh_(0),
   myName_(my_name)
 {
-  LogDebug("Commissioning") << "[CommissioningTask::CommissioningTask]" 
-			    << " Constructing object for FED id/ch " 
-			    << connection_.fedId() << "/" 
-			    << connection_.fedCh();
+  LogDebug(mlCommSource_)
+    << "[CommissioningTask::" << __func__ << "]" 
+    << " Constructing object for FED id/ch " 
+    << connection_.fedId() << "/" 
+    << connection_.fedCh();
   fedKey_ = SiStripReadoutKey::key( connection_.fedId(), 
 				    connection_.fedCh() );
   fecKey_ = SiStripControlKey::key( connection_.fecCrate(),
@@ -38,31 +37,33 @@ CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
 				    connection_.ccuAddr(),
 				    connection_.ccuChan(),
 				    connection_.lldChannel() );
-  
 }
 
 // -----------------------------------------------------------------------------
 //
 CommissioningTask::~CommissioningTask() {
-  LogDebug("Commissioning") << "[CommissioningTask::CommissioningTask]" 
-			    << " Destructing object for FED id/ch " 
-			    << connection_.fedId() << "/" 
-			    << connection_.fedCh();
+  LogDebug(mlCommSource_)
+    << "[CommissioningTask::" << __func__ << "]" 
+    << " Destructing object for FED id/ch " 
+    << connection_.fedId() << "/" 
+    << connection_.fedCh();
 }
 
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::book() {
-  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
-				 << " No derived implementation exists!";
+  edm::LogWarning(mlCommSource_)
+    << "[CommissioningTask::" << __func__ << "]"
+    << " No derived implementation exists!";
 }
 
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::fill( const SiStripEventSummary& summary,
 			      const edm::DetSet<SiStripRawDigi>& digis ) {
-  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
-				 << " No derived implementation exists!";
+  edm::LogWarning(mlCommSource_)
+    << "[CommissioningTask::" << __func__ << "]"
+    << " No derived implementation exists!";
 }
 
 // -----------------------------------------------------------------------------
@@ -70,47 +71,40 @@ void CommissioningTask::fill( const SiStripEventSummary& summary,
 void CommissioningTask::fill( const SiStripEventSummary& summary,
 			      const uint16_t& fed_id,
 			      const map<uint16_t,float>& fed_ch ) {
-  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
-				 << " No derived implementation exists!";
+  edm::LogWarning(mlCommSource_)
+    << "[CommissioningTask::" << __func__ << "]"
+    << " No derived implementation exists!";
 }
 
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::update() {
-  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
-				 << " No derived implementation exists!";
+  edm::LogWarning(mlCommSource_)
+    << "[CommissioningTask::" << __func__ << "]"
+    << " No derived implementation exists!";
 }
 
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::bookHistograms() {
-  edm::LogInfo("Commissioning") << "[CommissioningTask::book]"
-				<< " Booking histograms for FED id/ch: "
-				<< connection_.fedId() << "/"
-				<< connection_.fedCh();
+  edm::LogInfo(mlCommSource_)
+    << "[CommissioningTask::" << __func__ << "]"
+    << " Booking histograms for FED id/ch: "
+    << connection_.fedId() << "/"
+    << connection_.fedCh();
   book();
   booked_ = true;
   
-  //   SiStripHistoNamingScheme::HistoTitle histo_title = SiStripHistoNamingScheme::histoTitle( title );
-//   cout << "HistoTitle components: " 
-//        << SiStripHistoNamingScheme::task( histo_title.task_ ) << " " 
-//        << SiStripHistoNamingScheme::contents( histo_title.contents_ ) << " " 
-//        << SiStripHistoNamingScheme::keyType( histo_title.keyType_ ) << " " 
-//        << setfill('0') << setw(8) << hex << histo_title.keyValue_ << dec << " " 
-//        << SiStripHistoNamingScheme::granularity( histo_title.granularity_ ) << " " 
-//        << histo_title.channel_ << " " 
-//        << histo_title.extraInfo_ << endl;
-
 }
 
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
 					const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogDebug("Commissioning") << "[CommissioningTask::fillHistograms]";
   if ( !booked_ ) {
-    edm::LogError("Commissioning") << "[CommissioningTask::fillHistograms]"
-				   << " Attempting to fill histos that haven't been booked yet!";
+    edm::LogWarning(mlCommSource_)
+      << "[CommissioningTask::" << __func__ << "]"
+      << " Attempting to fill histos that haven't been booked yet!";
     return;
   }
   fillCntr_++;
@@ -126,10 +120,10 @@ void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
 void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
 					const uint16_t& fed_id,
 					const map<uint16_t,float>& fed_ch ) {
-  LogDebug("Commissioning") << "[CommissioningTask::fillHistograms]";
   if ( !booked_ ) {
-    edm::LogError("Commissioning") << "[CommissioningTask::fillHistograms]"
-				   << " Attempting to fill histos that haven't been booked yet!";
+    edm::LogWarning(mlCommSource_)
+      << "[CommissioningTask::" << __func__ << "]"
+      << " Attempting to fill histos that haven't been booked yet!";
     return;
   }
   fillCntr_++;
@@ -143,8 +137,6 @@ void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::updateHistograms() {
-  LogDebug("Commissioning") << "[CommissioningTask::updateHistograms]"
-			    << " Updating histograms...";
   update();
 }
 
@@ -156,8 +148,9 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
   
   // Check bin number
   if ( bin >= histo_set.vNumOfEntries_.size() ) { 
-    edm::LogError("Commissioning") << "[VpspScanTask::fill]" 
-				   << "  Unexpected bin! " << bin;
+    edm::LogWarning(mlCommSource_)
+      << "[CommissioningTask::" << __func__ << "]"
+      << " Unexpected bin when filling histogram: " << bin;
     return;
   }
   
@@ -170,8 +163,9 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
   // Check bin number
   if ( bin >= histo_set.vSumOfContents_.size() || 
        bin >= histo_set.vSumOfSquares_.size() ) { 
-    edm::LogError("Commissioning") << "[VpspScanTask::fill]" 
-				   << "  Unexpected bin! " << bin;
+    edm::LogWarning(mlCommSource_)
+      << "[CommissioningTask::" << __func__ << "]"
+      << " Unexpected bin when filling histogram: " << bin;
     return;
   }
   
@@ -187,8 +181,9 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
   
   // Check if histo exists
   if ( !histo_set.histo_ ) {
-    edm::LogError("Commissioning") << "[CommissioningTask::updateHistoSet]" 
-				   << " NULL pointer to ME!";
+    edm::LogWarning(mlCommSource_)
+      << "[CommissioningTask::" << __func__ << "]"
+      << " NULL pointer to MonitorElement!";
     return;
   }
 
