@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/09/01 21:48:36 $
- *   $Revision: 1.14 $
+ *   $Date: 2006/10/19 18:46:18 $
+ *   $Revision: 1.15 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -65,6 +65,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  produces<std::vector<Trajectory> >() ;
 
   produces<reco::MuonCollection>();
 
