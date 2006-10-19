@@ -171,23 +171,23 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       barrel.at(crate).at(card).at(tower - 1) = ecalInput;        // 
     }
     else { cout << "out of range!"; }
-    cout << "Ecal:\t" <<crate << "\t" << card << "\t" << tower << "\t" << ecalInput << endl;
+    //    cout << "Ecal:\t" <<crate << "\t" << card << "\t" << tower << "\t" << ecalInput << endl;
   }
 
 //same for hcal, once we get the hcal digis, just need to add 32 to towers:
 // just copied and pasted and changed names where necessary
 //  cout << "\n\nHCAL" << endl;
-  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
+//  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
   int nHcalDigi = hcalCollection.size();
-//  if (nHcalDigi != 4176){ cout << "There are " << nHcalDigi << " instead of 4176!" << endl;}
-  cout << "There are " << nHcalDigi << " hcal digis.  There should be 4176." << endl;
+  if (nHcalDigi != 4176){ cout << "There are " << nHcalDigi << " instead of 4176!" << endl;}
+//  cout << "There are " << nHcalDigi << " hcal digis.  There should be 4176." << endl;
 //  for (int i = 0; i < 4176; i++){                        // ARE THERE 4032?? think not -- incl HF 4032 + 144 = 4176
   for (int i = 0; i < nHcalDigi; i++){
     short ieta = (short) hcalCollection[i].id().ieta(); 
-    if (hcalCollection[i].SOI_compressedEt()>0) { 
-      cout << "Energy " << hcalCollection[i].SOI_compressedEt()
- 	 << " eta " << ieta; 
-    }
+    //    if (hcalCollection[i].SOI_compressedEt()>0) { 
+    //      cout << "Energy " << hcalCollection[i].SOI_compressedEt()
+    // 	 << " eta " << ieta; 
+    //    }
     unsigned short absIeta = (unsigned short) abs(ieta);
     unsigned short cal_iphi = (unsigned short) hcalCollection[i].id().iphi();
 //     if (hcalCollection[i].SOI_compressedEt()>0) { 
@@ -264,7 +264,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
         barrel.at(crate).at(card).at(tower - 1 + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
       }
       else { cout << "out of range!"; }
-      cout << "Hcal:\t" << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
+      //      cout << "Hcal:\t" << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
     }
 
     else if ((absIeta >= 29) && (absIeta <= 32)){
@@ -273,7 +273,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
         hf.at(crate).at(tower) = hcalInput;
       }
       else { cout << "out of range!"; }
-      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
+      //      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
     }
   }
 
@@ -341,17 +341,17 @@ void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
   vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
   //unsigned short x;
-//  vector<vector<unsigned short> > ecalBarrel(72,vector<unsigned short>(56));
-//  vector<vector<unsigned short> > hcalBarrel(72,vector<unsigned short>(56));
+  vector<vector<unsigned short> > ecalBarrel(72,vector<unsigned short>(56));
+  vector<vector<unsigned short> > hcalBarrel(72,vector<unsigned short>(56));
   //vector<vector<unsigned short> > hcalForward(18,vector<unsigned short>(8));
 
-/*
+
   std::ofstream file_out("towerinput.txt", std::ios::app);
   if (!file_out){
     std::cerr << "Tower input file did not open!" << endl;
     return;
   }
-*/
+
 
 // ecal:
 
@@ -458,7 +458,7 @@ void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
     }
   }
 
-/*
+
   file_out << "iphi goes from 1-72 down rows, ieta goes from -28 to 28 across columns." << endl << endl;
   file_out << "ECAL:" << endl;
   for (int i = 0; i < 72; i++){
@@ -512,7 +512,7 @@ void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
   }
   file_out << "\n\n\n\n\n" << endl;
   file_out.close();
-*/
+
 
   input(barrel,hf);
   return;
@@ -729,7 +729,7 @@ vector<L1CaloRegion> L1RCT::getRegions(int crate){
   for (int card = 0; card < 7; card++){
     for (int rgn = 0; rgn < 2; rgn++){
       unsigned short tau = taus[card*2+rgn];
-      cout << "Crate: " << crate << "\tCard: " << card << "\tRegion: " << rgn << "\tTau veto " << tau << endl;
+      //      cout << "Crate: " << crate << "\tCard: " << card << "\tRegion: " << rgn << "\tTau veto " << tau << endl;
       unsigned short mip = mips[card*2+rgn];
       unsigned short quiet = quiets[card*2+rgn];
       unsigned short overflow = overflows[card*2+rgn];

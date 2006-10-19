@@ -199,7 +199,7 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region){
   else {
     answer = true;
   }
-  cout << "Tau veto set to " << answer << endl;
+  // cout << "Tau veto set to " << answer << endl;
   return answer;
 }
 

@@ -1,11 +1,13 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
+// lookup method for HF
 unsigned short L1RCTLookupTables::lookup(unsigned short hfenergy){
   //float energy = (float)hfenergy*0.5;
   float energy = (float) hfenergy*1.0;  // LSB for HCAL is now 1.0!
   return convertTo10Bits(energy);
 }
 
+// lookup method for barrel (ecal and hcal)
 unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
 					 unsigned short fgbit){
   float ecalLinear = convertEcal(ecal);
@@ -22,23 +24,28 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   return output;
 }
 
+// converts compressed ecal energy to linear (real) scale
 float L1RCTLookupTables::convertEcal(unsigned short ecal){
   return (float)ecal*0.5;
 }
 
+// converts compressed hcal energy to linear (real) scale
 float L1RCTLookupTables::convertHcal(unsigned short hcal){
   // return (float)hcal*0.5;
   return (float) hcal*1.0;  // LSB for HCAL is now 1.0!
 }
 
+// calculates activity bit for each tower
 unsigned short L1RCTLookupTables::calcActivityBit(float ecal, float hcal){
   return ((ecal > 2) || (hcal > 4));
 }
 
+// calculates h-over-e bit (true if hcal energy > ecal energy)
 unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal){
   return (hcal > ecal);
 }
 
+// sets maximum energy of 2^7 - 1
 unsigned long L1RCTLookupTables::convertTo7Bits(float et){
   unsigned long etBits = (unsigned long)(et/0.5);
   unsigned long sevenBits = (unsigned long) pow(2,7)-1;
@@ -48,6 +55,7 @@ unsigned long L1RCTLookupTables::convertTo7Bits(float et){
     return etBits;
 }
 
+// sets max energy of 2^9 - 1
 unsigned long L1RCTLookupTables::convertTo9Bits(float et){
   unsigned long etBits = (unsigned short)(et/0.5);
   unsigned long nineBits = (unsigned long) pow(2,9)-1;
@@ -57,6 +65,7 @@ unsigned long L1RCTLookupTables::convertTo9Bits(float et){
     return etBits;
 }
 
+// sets max energy of 2^10 - 1
 unsigned long L1RCTLookupTables::convertTo10Bits(float et){
   unsigned long etBits = (unsigned short)(et/0.5);
   unsigned long tenBits = (unsigned long) pow(2,10)-1;

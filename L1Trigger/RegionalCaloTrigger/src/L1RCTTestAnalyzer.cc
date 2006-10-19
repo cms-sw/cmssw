@@ -130,7 +130,7 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    cout << "Regions" << endl;
    for (rgn=rctRegions->begin(); rgn!=rctRegions->end(); rgn++){
-     //  cout << "(Analyzer)\n" << (*rgn) << endl;
+     cout << "(Analyzer)\n" << (*rgn) << endl;
    }
    cout << endl;
 
