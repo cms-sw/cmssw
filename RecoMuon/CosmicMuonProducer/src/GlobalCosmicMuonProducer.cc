@@ -5,8 +5,8 @@
  *  reconstruct muons using dt,csc,rpc and tracker starting from cosmic muon
  *  tracks
  *
- * $Date: $
- * $Revision: $
+ * $Date: 2006/09/22 18:52:37 $
+ * $Revision: 1.1 $
  * \author:  Chang Liu  - Purdue University <Chang.Liu@cern.ch>
 **/
 
@@ -41,7 +41,7 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
 {
 
   edm::ParameterSet tbpar = iConfig.getParameter<edm::ParameterSet>("TrajectoryBuilderParameters");
-  theTrackCollectionLabel = iConfig.getUntrackedParameter<std::string>("MuonCollectionLabel");
+  theTrackCollectionLabel = iConfig.getParameter<edm::InputTag>("MuonCollectionLabel");
 
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -51,13 +51,15 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   
   // the propagator name for the track loader
   std::string trackLoaderPropagatorName = iConfig.getParameter<std::string>("TrackLoaderPropagatorName");
+  bool theTrajectoryFlag = iConfig.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);
   
   theTrackFinder = new MuonTrackFinder(new GlobalCosmicMuonTrajectoryBuilder(tbpar,theService),
-				       new MuonTrackLoader(trackLoaderPropagatorName,theService));
+				       new MuonTrackLoader(trackLoaderPropagatorName,theTrajectoryFlag, theService));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  produces<std::vector<Trajectory> >();
 
   produces<reco::MuonCollection>();
 
