@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2006/07/06 02:23:55 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/10/05 23:48:55 $
+ *  $Revision: 1.7 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.6 2006/07/06 02:23:55 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.7 2006/10/05 23:48:55 slava77 Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 
 
 class MagneticField;
+class MagVolume;
 
 class SteppingHelixPropagator : public Propagator {
  public:
@@ -73,7 +74,8 @@ class SteppingHelixPropagator : public Propagator {
     CYLINDER_DT,
     PATHL_DT,
     POINT_PCA_DT,
-    LINE_PCA_DT
+    LINE_PCA_DT,
+    UNDEFINED_DT
   };
 
   enum Fancy {
@@ -82,6 +84,20 @@ class SteppingHelixPropagator : public Propagator {
     POL_1_F, //1st order approximation, straight line
     POL_2_F,//2nd order
     POL_M_F //highest available
+  };
+
+  struct StateInfo {
+    int q;
+    Vector p3;
+    Point r3;
+    HepSymMatrix covLoc;
+    double path;
+    double radPath;
+    Basis rep;
+    double dir;
+    Vector bf;
+    Vector bfGradLoc;
+    const MagVolume* magVol;
   };
 
   /// Constructors
@@ -141,6 +157,9 @@ class SteppingHelixPropagator : public Propagator {
   /// on the intermediate stop points
   void applyRadX0Correction(bool applyRadX0Correction) { applyRadX0Correction_ = applyRadX0Correction;}
 
+  ///Switch to using MagneticField Volumes .. as in VolumeBasedMagneticField
+    void setUseMagVolumes(bool val){ useMagVolumes_ = val;}
+
  protected:
   /// (Internals) Init starting point
   void setIState(const FreeTrajectoryState& ftsStart) const;
@@ -156,38 +175,51 @@ class SteppingHelixPropagator : public Propagator {
   /// propagate: chose stop point by type argument
   /// propagate to fixed radius [ r = sqrt(x**2+y**2) ] with precision epsilon
   /// propagate to plane by [x0,y0,z0, n_x, n_y, n_z] parameters
-  Result propagate(SteppingHelixPropagator::DestType type, const double pars[6], double epsilon = 1e-3) const;
+  Result propagate(SteppingHelixPropagator::DestType type, 
+		   const double pars[6], double epsilon = 1e-3) const;
 
   /// (Internals) compute transient values for initial point (resets step counter).
   ///  Called by setIState
-  void loadState(int ind, const SteppingHelixPropagator::Vector& p3, 
+  void loadState(SteppingHelixPropagator::StateInfo& svCurrent, 
+		 const SteppingHelixPropagator::Vector& p3, 
 		 const SteppingHelixPropagator::Point& r3, int charge,
 		 const HepSymMatrix& cov, PropagationDirection dir) const;
 
   /// (Internals) compute transients for current point (increments step counter).
   ///  Called by makeAtomStep
-  void incrementState(int ind, 
+    void getNextState(const SteppingHelixPropagator::StateInfo& svPrevious,
+		      SteppingHelixPropagator::StateInfo& svNext,		      
 		      double dP, 
 		      SteppingHelixPropagator::Vector tau, double dX, double dY, double dZ, 
 		      double dS, double dX0,
 		      const HepMatrix& dCov) const;
   
   /// Set/compute basis vectors for local coordinates at current step (called by incrementState)
-  void setReps(int ind) const;
+  void setRep(SteppingHelixPropagator::StateInfo& sv) const;
 
   /// main stepping function: compute next state vector after a step of length dS
-  bool makeAtomStep(int iIn, double dS, PropagationDirection dir, 
+  bool makeAtomStep(SteppingHelixPropagator::StateInfo& svCurrent, 
+		    SteppingHelixPropagator::StateInfo& svNext, 
+		    double dS, PropagationDirection dir, 
 		    SteppingHelixPropagator::Fancy fancy) const;
 
   /// estimate average (in fact smth. close to MPV and median) energy loss per unit path length
-  double getDeDx(int iIn, double& dEdXPrime, double& radX0) const;
+  double getDeDx(const SteppingHelixPropagator::StateInfo& sv, 
+		 double& dEdXPrime, double& radX0) const;
 
   /// (Internals) circular index for array of transients
   int cIndex_(int ind) const;
 
   /// (Internals) determine distance and direction from the current position to the plane
-  Result refToDest(DestType dest, int ind, const double pars[6], 
-		   double& dist, double& secTheta, bool& isIncoming) const;
+  Result refToDest(DestType dest, const SteppingHelixPropagator::StateInfo& sv,
+		   const double pars[6], 
+		   double& dist, double& tanDist, PropagationDirection& refDirection) const;
+
+  /// (Internals) determine distance and direction from the current position to the 
+  /// boundary of current mag volume
+  Result refToMagVolume(const SteppingHelixPropagator::StateInfo& sv,
+			PropagationDirection dir,
+			double& dist, double& tanDist) const;
 
   /// Compute covariance matrix rotation given change in basis vectors
   void initCovRotation(const SteppingHelixPropagator::Vector* repI[3], 
@@ -195,7 +227,8 @@ class SteppingHelixPropagator : public Propagator {
 		       HepMatrix& covRot) const;
 		       
   /// |B|-field gradient in local coordinates
-  void getLocBGrad(int ind, double delta) const;
+  void getLocBGrad(SteppingHelixPropagator::StateInfo& sv,
+		   double delta) const;
 
  private:
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
@@ -203,16 +236,7 @@ class SteppingHelixPropagator : public Propagator {
   static const int MAX_STEPS = 10000;
   static const int MAX_POINTS = 50;
   mutable int nPoints_;
-  mutable int q_[MAX_POINTS+1];
-  mutable Vector p3_[MAX_POINTS+1];
-  mutable Point r3_[MAX_POINTS+1];
-  mutable HepSymMatrix covLoc_[MAX_POINTS+1];
-  mutable double path_[MAX_POINTS+1];
-  mutable double radPath_[MAX_POINTS+1];
-  mutable Basis reps_[MAX_POINTS+1];
-  mutable double dir_[MAX_POINTS+1];
-  mutable Vector bf_[MAX_POINTS+1];
-  mutable Vector bfGradLoc_[MAX_POINTS+1];
+  mutable StateInfo svBuf_[MAX_POINTS+1];
 
   mutable HepMatrix covRot_;
   mutable HepMatrix dCTransform_;
@@ -223,6 +247,7 @@ class SteppingHelixPropagator : public Propagator {
   bool noMaterialMode_;
   bool noErrorPropagation_;
   bool applyRadX0Correction_;
+  bool useMagVolumes_;
 };
 
 #endif
