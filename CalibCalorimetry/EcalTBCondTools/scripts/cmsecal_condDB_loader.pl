@@ -85,11 +85,12 @@ ENDCONFIG
 my $config =<<ENDCONFIG;
 process TEST =
 {
-    source = EmptySource
+    source = EmptyIOVSource
     {
-	untracked int32 maxEvents = 1
+        string timetype = "runnumber"
 	untracked uint32 firstRun = 1
-	untracked uint32 numberEventsInRun = 1
+        untracked uint32 lastRun  = 1
+        uint32 interval = 1
     }
 
 $essource
