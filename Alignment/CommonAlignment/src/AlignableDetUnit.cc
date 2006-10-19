@@ -28,6 +28,12 @@ AlignableDetUnit::~AlignableDetUnit() {
   delete theAlignmentPositionError;
 };
 
+//__________________________________________________________________________________________________
+void AlignableDetUnit::recursiveComponents(std::vector<Alignable*> &result) const
+{
+  // There are no subcomponents...
+  return;
+}
 
 //__________________________________________________________________________________________________
 void AlignableDetUnit::move( const GlobalVector& displacement) 

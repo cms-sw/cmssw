@@ -28,6 +28,9 @@ public:
 
   /// Returns a null vector (no components here)
   virtual std::vector<Alignable*> components() const { return std::vector<Alignable*>(); }
+  /// Do nothing (no components here, so no subcomponents either...)
+  virtual void recursiveComponents(std::vector<Alignable*> &result) const;
+
 
   /// Move with respect to the global reference frame
   virtual void move( const GlobalVector& displacement );

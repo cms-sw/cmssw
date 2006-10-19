@@ -41,6 +41,9 @@ public:
   explicit AlignableComposite( const GeomDet* geomDet );
 
   virtual ~AlignableComposite() {}
+
+  /// Provide all components, subcomponents etc. (cf. description in base class)
+  virtual void recursiveComponents(std::vector<Alignable*> &result) const;
   
   /// Return the global position of the object 
   virtual const GlobalPoint globalPosition() const { return theSurface.position(); }

@@ -23,6 +23,19 @@ AlignableComposite::AlignableComposite( const GeomDet* geomDet ) :
 
 }
 
+//__________________________________________________________________________________________________
+void AlignableComposite::recursiveComponents(std::vector<Alignable*> &result) const
+{
+
+  std::vector<Alignable*> components(this->components());
+  if (components.size() <= 1) return; // Non-glued AlignableDets contain themselves
+
+  for (std::vector<Alignable*>::const_iterator iter = components.begin();
+       iter != components.end(); ++iter) {
+    result.push_back(*iter); // could use std::copy(..), but here we build a real hierarchy
+    (*iter)->recursiveComponents(result);
+  }
+}
 
 //__________________________________________________________________________________________________
 void AlignableComposite::move( const GlobalVector& displacement ) 
