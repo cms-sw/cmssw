@@ -3,8 +3,8 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date: 2006/05/21 03:45:08 $
- * $Revision: 1.5 $
+ * $Date: 2006/07/26 08:37:06 $
+ * $Revision: 1.6 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -112,26 +112,26 @@ void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
          << fdl->specificSurface().outerRadius();
   }
   edm::LogInfo ("MuonNavigationPrinter") << " has " << nextLayers.size() << " next layers along momentum: ";
-  printNextLayers(nextLayers);
+  printLayers(nextLayers);
 
   nextLayers.clear();
   nextLayers = layer->nextLayers(oppositeToMomentum);
 
    edm::LogInfo ("MuonNavigationPrinter") << " has " << nextLayers.size() << " next layers opposite to momentum: ";
-  printNextLayers(nextLayers);
+  printLayers(nextLayers);
 
   edm::LogInfo ("MuonNavigationPrinter") << " has " << compatibleLayers.size() << " compatible layers along momentum: ";
-  printNextLayers(compatibleLayers);
+  printLayers(compatibleLayers);
   compatibleLayers.clear();
   compatibleLayers = layer->compatibleLayers(oppositeToMomentum);
 
    edm::LogInfo ("MuonNavigationPrinter") << " has " << compatibleLayers.size() << " compatible layers opposite to momentum: ";
-  printNextLayers(compatibleLayers);
+  printLayers(compatibleLayers);
 
 }
 
 /// print next layers
-void MuonNavigationPrinter::printNextLayers(vector<const DetLayer*> nextLayers) const {
+void MuonNavigationPrinter::printLayers(vector<const DetLayer*> nextLayers) const {
 
   for ( vector<const DetLayer*>::const_iterator inext = nextLayers.begin();
       inext != nextLayers.end(); inext++ ) {
