@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.5 2006/08/26 15:50:04 chrjones Exp $
+// $Id: BareRootProductGetter.cc,v 1.6 2006/09/27 11:42:34 dmytro Exp $
 //
 
 // system include files
@@ -113,7 +113,7 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
   eventEntry_ = eventTree_->GetReadEntry();  
   if( eventEntry_ < 0 ) {
      throw cms::Exception("GetEntryNotCalled") 
-	<<"please call GetEntry for the 'Events' TTree in order to make edm::Ref's work."
+	<<"please call GetEntry for the 'Events' TTree for each event in order to make edm::Ref's work."
 	<<"\n Also be sure to call 'SetAddress' for all Branches after calling the GetEntry."
 	;
     return 0;
