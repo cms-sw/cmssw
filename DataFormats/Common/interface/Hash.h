@@ -11,7 +11,7 @@
   
 Hash:
 
-$Id: Hash.h,v 1.10 2006/09/22 17:18:08 wmtan Exp $
+$Id: Hash.h,v 1.11 2006/10/18 19:40:31 chrjones Exp $
 
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function
@@ -72,7 +72,7 @@ namespace edm {
     template< typename Op>
       bool
       compareUsing(Hash<I> const& iOther, Op op) const {
-        if(this->isCompactForm() == iOther.isCompactForm()) {
+        if(this->isCompactForm() && iOther.isCompactForm()) {
           return op(this->hash_,iOther.hash_);
         }
         Hash<I> tMe(*this);
