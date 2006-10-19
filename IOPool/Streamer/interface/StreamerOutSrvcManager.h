@@ -15,9 +15,6 @@
 #include <algorithm>
 #include <iterator>
 
-//using namespace std;
-//using namespace edm;
-
 namespace edm {
 
  class StreamerOutSrvcManager {
