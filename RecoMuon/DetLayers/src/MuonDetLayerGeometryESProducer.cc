@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/11 10:56:39 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/10/13 13:26:46 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - CERN
  */
 
@@ -38,7 +38,7 @@ MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer(){}
 boost::shared_ptr<MuonDetLayerGeometry>
 MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
 
-  const std::string metname = "RecoMuon|DetLayers|MuonDetLayerGeometryESProducer";
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDetLayerGeometryESProducer";
   MuonDetLayerGeometry* muonDetLayerGeometry = new MuonDetLayerGeometry();
   
   // Build DT layers  

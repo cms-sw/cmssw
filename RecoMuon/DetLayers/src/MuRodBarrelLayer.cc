@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/25 17:10:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/08/11 10:56:51 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 
@@ -30,7 +30,7 @@ MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
   isOverlapping(false)
 {
 
-  const std::string metname = "RecoMuon|DetLayers|MuRodBarrelLayer";
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRodBarrelLayer";
 
   // Cache chamber pointers (the basic components_)
   for (vector<const DetRod*>::const_iterator it=rods.begin();
@@ -74,7 +74,7 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
 				 const Propagator& prop, 
 				 const MeasurementEstimator& est) const {
 
-  const std::string metname = "RecoMuon|DetLayers|MuRodBarrelLayer";
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRodBarrelLayer";
   vector<DetWithState> result; 
 
  

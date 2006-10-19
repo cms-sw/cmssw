@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/11 10:56:57 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/09/04 13:24:27 $
+ *  $Revision: 1.16 $
  *  \author N. Amapane - CERN
  */
 
@@ -30,7 +30,7 @@ MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
   isOverlapping(false) 
 {
 
-  const std::string metname = "RecoMuon|DetLayers|MuRingForwardLayer";
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardLayer";
 
   // Initial values for R and Z bounds
   float theRmin = rings.front()->basicComponents().front()->position().perp(); 
@@ -92,7 +92,7 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
 				   const Propagator& prop, 
 				   const MeasurementEstimator& est) const {
   
-  const std::string metname = "RecoMuon|DetLayers|MuRingForwardLayer";
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardLayer";
   vector<DetWithState> result; 
   
   

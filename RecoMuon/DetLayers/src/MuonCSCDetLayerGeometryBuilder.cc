@@ -61,7 +61,7 @@ MuRingForwardLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
                                                                int station,
                                                                vector<int>& rings,
                                                                const CSCGeometry& geo) {
-  const std::string metname = "Muon|CSC|RecoMuonDetLayers";
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonCSCDetLayerGeometryBuilder";
   MuRingForwardLayer* result=0;
   
   vector<const ForwardDetRing*> muDetRings;

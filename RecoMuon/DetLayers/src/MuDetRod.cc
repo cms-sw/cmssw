@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/02 12:21:39 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/11 10:56:16 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -58,7 +58,7 @@ vector<GeometricSearchDet::DetWithState>
 MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
                           const Propagator& prop, 
                           const MeasurementEstimator& est) const {
-  const std::string metname = "RecoMuon|DetLayers|MuDetRod";
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuDetRod";
   
   LogTrace(metname) << "MuDetRod::compatibleDets, Surface at R,phi: " 
                     << surface().position().perp()  << ","

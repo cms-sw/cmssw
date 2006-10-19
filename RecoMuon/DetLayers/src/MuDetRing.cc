@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/11 10:56:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/08/22 19:28:00 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -53,7 +53,7 @@ pair<bool, TrajectoryStateOnSurface>
 MuDetRing::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop, 
 		      const MeasurementEstimator& est) const {
   
-  const std::string metname = "RecoMuon|DetLayers|MuDetRing";
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuDetRing";
   TrajectoryStateOnSurface ms = prop.propagate(ts,specificSurface());
   
   LogTrace(metname) << "MuDetRing::compatible, Surface at Z: " 
@@ -81,7 +81,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
 			   const Propagator& prop, 
 			   const MeasurementEstimator& est) const {
 
-  const std::string metname = "RecoMuon|DetLayers|MuDetRing";
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuDetRing";
 
   LogTrace(metname) << "MuDetRing::compatibleDets, Surface at Z: " 
                     << surface().position().z()

@@ -23,7 +23,7 @@ MuonDTDetLayerGeometryBuilder::~MuonDTDetLayerGeometryBuilder() {
 vector<DetLayer*> 
 MuonDTDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
         
-  const std::string metname = "Muon|DT|RecMuonDetLayers";
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDTDetLayerGeometryBuilder";
 
   vector<DetLayer*> detlayers;
   vector<MuRodBarrelLayer*> result;
