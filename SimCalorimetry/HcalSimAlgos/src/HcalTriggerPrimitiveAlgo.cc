@@ -2,6 +2,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(const HcalCoderFactory * coderFactory,
 						   bool pf, const std::vector<double>& w,
@@ -87,7 +88,10 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
     std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
     assert(ids.size() == 1);
     IntegerCaloSamples samples(ids[0], frame.size());
-    
+    samples.setPresamples(frame.presamples());
+    // for(int i = 0; i < frame.size(); i++)
+    // {cout<<frame.sample(i).adc()<<" ";}
+    //cout<<endl;
     incoder_->adc2Linear(frame, samples);
     
     addSignal(samples);
@@ -173,9 +177,12 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples,
   
   IntegerCaloSamples output(samples.id(),samples.size());
   output.setPresamples(samples.presamples());
-  
+  //cout<<"Presamples = "<<samples.presamples()<<endl;
   for(int ibin2 = 0; ibin2 < samples.size(); ++ibin2) 
-    {output[ibin2]=sum[ibin2];}
+    {//output[ibin2]=sum[ibin2];
+      output[ibin2]=samples[ibin2];
+    }
+  //cout<<endl;
   outcoder_->compress(output, finegrain, result);
 }
 
