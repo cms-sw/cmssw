@@ -1,0 +1,13 @@
+<MonElementConfiguration> 
+<TkMap name="Summary Map" update_frequency="200">
+     <MonElement name="NumberOfDigis"></MonElement> 
+     <MonElement name="NumberOfClusters"></MonElement> 
+     <MonElement name="ClusterWidth"></MonElement> 
+</TkMap>
+<SummaryPlot>
+<SubStructureLevel name="string_" update_frequency="300"> 
+    <MonElement name="NumberOfDigis"></MonElement> 
+    <MonElement name="NumberOfClusters"></MonElement> 
+</SubStructureLevel> 
+</SummaryPlot>
+</MonElementConfiguration> 
