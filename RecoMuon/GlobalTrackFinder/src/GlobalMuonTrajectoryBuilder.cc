@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/09/25 18:57:04 $
- *  $Revision: 1.46 $
+ *  $Date: 2006/09/27 18:36:38 $
+ *  $Revision: 1.47 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -89,7 +89,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
   theLayerMeasurements = new MuonDetLayerMeasurements();
 
-  theTkTrackLabels = par.getParameter<vector<string> >("TkTrackCollectionLabel");
+  theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
 
   theTrackConverter = new MuonTrackConverter(par,theService);
   theTrackMatcher = new GlobalMuonTrackMatcher(par,theService);
@@ -116,7 +116,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 //--------------
 
 GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
-  allTrackerTracks.clear();
+
   if (theRefitter) delete theRefitter;
   if (theTrackMatcher) delete theTrackMatcher;
   if (theLayerMeasurements) delete theLayerMeasurements;
@@ -130,23 +130,11 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
 //
 void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 
-  allTrackerTracks.clear();
   // get tracker TrackCollection from Event
-  for (unsigned int w=0; w < theTkTrackLabels.size(); w++ ){
-    edm::Handle<reco::TrackCollection> eTracks;
-    event.getByLabel(theTkTrackLabels[w],eTracks);
-    allTrackerTracks.push_back(eTracks);
-  }
+  event.getByLabel(theTkTrackLabel,allTrackerTracks);
 
   LogInfo("GlobalMuonTrajectoryBuilder") 
-  << "Found " << allTrackerTracks.size() << " tracker TrackCollections ";
-  int pos = 0;
-  for (vector<edm::Handle<reco::TrackCollection> >::const_iterator w = allTrackerTracks.begin(); w != allTrackerTracks.end(); w++){
-    LogInfo("GlobalMuonTrajectoryBuilder")
-    << "Found " << (*w)->size() << " tracker tracks in Collection "<<theTkTrackLabels[pos];
-    pos++;
-
-  }
+  << "Found " << allTrackerTracks->size() << " tracker Tracks with label "<< theTkTrackLabel << endl;;
 
   theLayerMeasurements->setEvent(event);
 
@@ -169,11 +157,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   }
  
   // select tracker tracks in eta-phi cone around muon
-  vector<TrackCand> regionalTkTracks;
-  for (vector<edm::Handle<reco::TrackCollection> >::const_iterator w = allTrackerTracks.begin(); w != allTrackerTracks.end(); w++){
-  vector<TrackCand> tmpT = chooseRegionalTrackerTracks(staCand,*w);
-  regionalTkTracks.insert(regionalTkTracks.end(),tmpT.begin(),tmpT.end());
-  }
+  vector<TrackCand> regionalTkTracks = chooseRegionalTrackerTracks(staCand,allTrackerTracks);
 
   LogInfo("GlobalMuonTrajectoryBuilder") << "Found " << regionalTkTracks.size() << " tracks within region of interest" << endl;
 
