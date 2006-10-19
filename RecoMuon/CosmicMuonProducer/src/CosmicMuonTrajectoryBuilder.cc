@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/09/05 00:17:40 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/09/24 18:30:43 $
+ *  $Revision: 1.17 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -35,9 +35,10 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoMuon/TrackingTools/interface/FitDirection.h"
+#include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 
 using namespace edm;
+using namespace std;
 
 CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet& par, const MuonServiceProxy*service):theService(service) { 
 
@@ -79,7 +80,7 @@ MuonTrajectoryBuilder::TrajectoryContainer
 CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   const std::string metname = "CosmicMuonTrajectoryBuilder";
-  std::vector<Trajectory*> trajL;
+  vector<Trajectory*> trajL;
   TrajectoryStateTransform tsTransform;
   MuonPatternRecoDumper debug;
 
