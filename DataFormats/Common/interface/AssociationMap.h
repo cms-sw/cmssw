@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.23 2006/09/13 12:54:03 llista Exp $
+ * $Id: AssociationMap.h,v 1.24 2006/09/26 10:37:21 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -41,7 +41,7 @@ namespace edm {
 
     /// const iterator
     struct const_iterator {
-      typedef self::value_type value_type;
+      typedef typename self::value_type value_type;
       typedef ptrdiff_t difference_type;
       typedef value_type * pointer;
       typedef value_type & reference;
@@ -160,7 +160,7 @@ namespace edm {
 
   /// has post insert trait
   template<typename  T> 
-  struct edm::has_postinsert_trait<edm::AssociationMap<T> >  { 
+  struct has_postinsert_trait<AssociationMap<T> >  { 
     static bool const value = true; 
   }; 
 }
