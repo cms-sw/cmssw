@@ -40,7 +40,7 @@ MuonAlignment::MuonAlignment(const edm::EventSetup& setup  ){
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::moveDTChamber( int rawid , std::vector<float> local_displacements,  std::vector<float> local_rotations  ){
+void MuonAlignment::moveAlignableDTChamber( int rawid , std::vector<float> local_displacements,  std::vector<float> local_rotations  ){
 
   // Displace and rotate DT chambers
   std::vector<Alignable*> theDTAlignables = theAlignableMuon->DTChambers();
@@ -73,7 +73,7 @@ void MuonAlignment::moveDTChamber( int rawid , std::vector<float> local_displace
 }
 //____________________________________________________________________________________
 //
-void MuonAlignment::moveCSCChamber( int rawid , std::vector<float> local_displacements, std::vector<float> local_rotations  ){
+void MuonAlignment::moveAlignableCSCChamber( int rawid , std::vector<float> local_displacements, std::vector<float> local_rotations  ){
 
   // Displace and rotate CSC chambers
   std::vector<Alignable*> theCSCAlignables = theAlignableMuon->CSCChambers();

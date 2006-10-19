@@ -4,8 +4,8 @@
 /** \class MuonAlignment
  *  The MuonAlignment helper class for alignment jobs
  *
- *  $Date: 2006/10/10 15:20:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/10/11 14:59:55 $
+ *  $Revision: 1.3 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
@@ -20,9 +20,9 @@ class MuonAlignment{
       
       AlignableMuon* getAlignableMuon() { return theAlignableMuon; }
 
-      void moveDTChamber( int rawId, std::vector<float> localDisplacements, std::vector<float> localRotations  );
+      void moveAlignableDTChamber( int rawId, std::vector<float> localDisplacements, std::vector<float> localRotations  );
 
-      void moveCSCChamber( int rawId, std::vector<float> localDisplacements, std::vector<float> localRotations  );
+      void moveAlignableCSCChamber( int rawId, std::vector<float> localDisplacements, std::vector<float> localRotations  );
 
       void saveToDB();
       int rawid;

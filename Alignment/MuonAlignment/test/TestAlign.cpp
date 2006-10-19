@@ -112,7 +112,7 @@ TestAlign::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
           // Move DT chamber
 	  int id = (*iter)->geomDetId().rawId();
-	  align.moveDTChamber( id , displacement , rotation );
+	  align.moveAlignableDTChamber( id , displacement , rotation );
 
           // Print final position/orientation
           GlobalPoint  pos_f  = (*iter)->globalPosition();
