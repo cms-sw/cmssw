@@ -6,7 +6,8 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // 
 Averages::Averages() 
-  : s_(0.),
+  : n_(0),
+    s_(0.),
     x_(0.),
     xx_(0.),
     median_(),
@@ -32,6 +33,7 @@ void Averages::add( const uint32_t& x ) {
 // 
 void Averages::add( const float& x,
 		    const float& e ) {
+  n_++;
   if ( e > 0. ) { 
     float wt = 1. / sqrt(e); 
     s_ += wt;
@@ -54,6 +56,7 @@ void Averages::add( const float& x ) {
 // ----------------------------------------------------------------------------
 // 
 void Averages::calc( Params& params ) {
+  params.num_ = n_;
   if ( s_ > 0. ) { 
     float m = x_/s_;
     float t = xx_/s_ - m*m;

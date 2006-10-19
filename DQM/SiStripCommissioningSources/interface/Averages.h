@@ -23,6 +23,7 @@ class Averages {
     float weight_;
     float max_;
     float min_;
+    uint32_t num_;
     Params() :
       mean_(1.*sistrip::invalid_), 
       median_(1.*sistrip::invalid_),
@@ -30,7 +31,8 @@ class Averages {
       rms_(1.*sistrip::invalid_),
       weight_(1.*sistrip::invalid_),
       max_(-1.*sistrip::invalid_),
-      min_(1.*sistrip::invalid_) {;}
+      min_(1.*sistrip::invalid_),
+      num_(sistrip::invalid_) {;}
     ~Params() {;}
   };
   
@@ -45,7 +47,8 @@ class Averages {
   void calc( Params& );
   
  private:
-  
+
+  uint32_t n_;
   float s_;
   float x_;
   float xx_;
