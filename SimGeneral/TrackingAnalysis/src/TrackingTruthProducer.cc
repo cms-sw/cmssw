@@ -2,6 +2,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -41,6 +43,14 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   edm::LogInfo (MessageCategory) << "Volume radius set to "       << volumeRadius_ << " mm";
   edm::LogInfo (MessageCategory) << "Volume Z      set to "       << volumeZ_      << " mm";
   edm::LogInfo (MessageCategory) << "Discard out of volume? "     << discardOutVolume_;
+
+  /* Uncommenting will print out the various hit collections that will be scanned  
+
+  for (vector<string>::const_iterator name = hitLabelsVector_.begin(); name != hitLabelsVector_.end(); ++name) {
+    edm::LogInfo (MessageCategory) << "Use hits with label(s) "   << *name;
+  }  
+
+  */
 }
 
 void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
@@ -67,7 +77,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
    
   edm::Handle<SimVertexContainer>      G4VtxContainer;
   edm::Handle<edm::SimTrackContainer>  G4TrkContainer;
+  edm::Handle<CrossingFrame> cf;
   try {
+    event.getByType(cf);      
     event.getByType(G4VtxContainer);
     event.getByType(G4TrkContainer);
   } catch (std::exception &e) {
@@ -75,21 +87,21 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     return;
   }    
 
-  vector<edm::Handle<edm::PSimHitContainer> > AlltheConteiners;
-  for (vector<string>::const_iterator source = hitLabelsVector_.begin(); source !=
-      hitLabelsVector_.end(); ++source){
-      try{
-      edm::Handle<edm::PSimHitContainer> HitContainer;
-      event.getByLabel(simHitLabel_,*source, HitContainer);
-      AlltheConteiners.push_back(HitContainer);
-      } catch (std::exception &e) {
-      
-    }
-      
-  }   
-   
-  
-  
+//  vector<edm::Handle<edm::PSimHitContainer> > AlltheConteiners;
+//  for (vector<string>::const_iterator source = hitLabelsVector_.begin(); source !=
+//      hitLabelsVector_.end(); ++source){
+//      try{ 
+//      edm::Handle<edm::PSimHitContainer> HitContainer;
+//      event.getByLabel(simHitLabel_,*source, HitContainer);
+//      AlltheConteiners.push_back(HitContainer);
+//      } catch (std::exception &e) {
+//      
+//    }
+//      
+//  }   
+
+//   vector<std::auto_ptr<MixCollection<PSimHit> > > hitCollections;
+
 //  genEvent.print();
 //  genEvent ->  signal_process_id();
   // 13 cosmic muons
@@ -136,19 +148,26 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     }
     TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, trackEventId);
     
-    typedef vector<edm::Handle<edm::PSimHitContainer> >::const_iterator cont_iter;
-//    map<int, TrackPSimHitRefVector> trackIdPSimHitMap;
+    typedef vector<std::auto_ptr<MixCollection<PSimHit> > >::const_iterator cont_iter;
     unsigned int simtrackId = itP -> trackId();
-    for( cont_iter allCont = AlltheConteiners.begin(); allCont != AlltheConteiners.end(); ++allCont ){
+    try{ 
+      std::auto_ptr<MixCollection<PSimHit> > hitCollection (new MixCollection<PSimHit>(cf.product(),hitLabelsVector_));
       int  index = 0;
-      for (edm::PSimHitContainer::const_iterator hit = (*allCont)->begin(); hit != (*allCont)->end(); ++hit, ++index) {
-     	if (simtrackId == hit->trackId() && trackEventId == hit->eventId() ){
-     	  tp.addPSimHit(TrackPSimHitRef(*allCont, index));
-//     	   trackIdPSimHitMap[hit->trackId()].push_back(TrackPSimHitRef(*allCont, index));
+      for (MixCollection<PSimHit>::MixItr hit = hitCollection->begin(); 
+           hit != hitCollection->end(); ++hit, ++index) {
+        edm::LogInfo (MessageCategory) << "Check hit " << 
+            hit -> trackId() << " vs. " << simtrackId << " and " ;//<<
+//            hit -> eventId() << " vs. " << trackEventId;
+        if (simtrackId == hit->trackId() && trackEventId == hit->eventId() ) {
+          edm::LogInfo (MessageCategory) << " Hit is from " << hit -> detUnitId();
+          
+//          tp.addPSimHit(TrackPSimHitRef(hit, index));
         }
       }
-    }
-
+    } catch (std::exception &e) {
+      edm::LogWarning (MessageCategory) << "Hit collection not found.";
+    }   
+   
     tp.addG4Track(SimTrackRef(G4TrkContainer,iG4Track));
     if (genPart >= 0) {
       tp.addGenParticle(GenParticleRef(hepMC,genPart));
@@ -175,10 +194,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 // getting incoming SimTtrack (if any), finding corresponding HepMC track and
 // then decay (HepMC) vertex of that track    
     int vertexBarcode = 0;       
-    int vtxParent = itVtx -> parentIndex();    
+    unsigned int vtxParent = itVtx -> parentIndex();    
     if (vtxParent >= 0) {                      
       edm::SimTrackContainer::const_iterator itP;
-      for (itP = G4TrkContainer->begin(); itP !=  G4TrkContainer->end(); ++itP){
+      for (itP = G4TrkContainer->begin(); itP != G4TrkContainer->end(); ++itP){
 	if(vtxParent==itP->trackId()){
 	  int parentBC = itP->genpartIndex();  
 	  HepMC::GenParticle *parentParticle = genEvent -> barcode_to_particle(parentBC);
