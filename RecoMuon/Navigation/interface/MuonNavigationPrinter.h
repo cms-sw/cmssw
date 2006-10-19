@@ -6,8 +6,8 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date: 2006/05/20 01:36:31 $
- * $Revision: 1.4 $
+ * $Date: 2006/10/18 17:07:27 $
+ * $Revision: 1.5 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -32,11 +32,11 @@ class MuonNavigationPrinter {
 
   private:
     void printLayer(DetLayer*) const;
-    void printNextLayers(std::vector<const DetLayer*>) const;
+    void printLayers(std::vector<const DetLayer*>) const;
     /// return detector part (barrel, forward, backward)
-    std::string layerPart(const DetLayer*) const;
+//    std::string layerPart(const DetLayer*) const;
     /// return detector module (pixel, silicon, msgc, dt, csc, rpc)
-    std::string layerModule(const DetLayer*) const;
+//    std::string layerModule(const DetLayer*) const;
 
 };
 #endif
