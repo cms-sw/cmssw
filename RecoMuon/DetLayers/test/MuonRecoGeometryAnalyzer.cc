@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/31 21:45:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/10/13 13:26:47 $
+ *  $Revision: 1.5 $
  */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -213,7 +213,7 @@ void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo,cons
 	 << endl;
 
 
-    SteppingHelixPropagator prop(field,alongMomentum);
+    SteppingHelixPropagator prop(field,anyDirection);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos,prop,*theEstimator);
     cout << "is compatible: " << comp.first
@@ -269,7 +269,7 @@ void MuonRecoGeometryAnalyzer::testCSCLayers(const MuonDetLayerGeometry* geo,con
 	 << endl;
 
 
-    SteppingHelixPropagator prop(field,alongMomentum);
+    SteppingHelixPropagator prop(field,anyDirection);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos,prop,*theEstimator);
     cout << "is compatible: " << comp.first
