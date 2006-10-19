@@ -119,6 +119,7 @@ TFileAdaptor::~TFileAdaptor () {}
 
 void TFileAdaptor::stats(std::ostream& co) const
 {
+  if (!m_params.doStats) return;
   co << ""
      << "Storage parameters: adaptor: true"
      << " Stats:" << (m_params.doStats ? "true" : "false")
