@@ -68,7 +68,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
 #ifdef DEBUG 
   std::cout << "create MuonSimHitNumberingScheme"<<std::endl;
 #endif
-  numbering  = new MuonSimHitNumberingScheme(detector);
+  numbering  = new MuonSimHitNumberingScheme(detector, cpv);
   g4numbering = new MuonG4Numbering;
   
 
