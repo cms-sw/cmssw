@@ -7,8 +7,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/10/16 06:50:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/18 20:39:42 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -50,12 +50,15 @@ public:
 
   /// get the whole EventSetup
   const edm::EventSetup &eventSetup() const {return *theEventSetup;}
-
-protected:
-
-private:
+  
+  /// check if the MuonReco Geometry has been changed
+  bool isTrackingComponentsRecordChanged() const {return theChangeInTrackingComponentsRecord;}
+  
+ protected:
+  
+ private:
   typedef std::map<std::string,  edm::ESHandle<Propagator> > propagators;
-
+  
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
   edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
@@ -68,6 +71,8 @@ private:
   unsigned long long theCacheId_MG;
   unsigned long long theCacheId_DG;
   unsigned long long theCacheId_P;
+  
+  bool theChangeInTrackingComponentsRecord;
 
 };
 #endif
