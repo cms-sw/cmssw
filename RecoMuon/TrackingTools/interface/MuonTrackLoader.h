@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2006/08/31 18:24:17 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/09/01 15:45:19 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -31,8 +31,8 @@ class MuonTrackLoader {
     typedef MuonCandidate::CandidateContainer CandidateContainer;
 
     /// Constructor for the STA reco the args must be specify!
-    MuonTrackLoader(std::string trackLoaderPropagatorName = "", const MuonServiceProxy *service =0);
-    
+    MuonTrackLoader(std::string trackLoaderPropagatorName = "", bool putTrajectoryIntoEvent = false, const MuonServiceProxy *service =0);
+
     /// Destructor
     virtual ~MuonTrackLoader() {}
   
@@ -50,6 +50,7 @@ class MuonTrackLoader {
     reco::TrackExtra buildTrackExtra(const Trajectory&) const;
 
     std::string thePropagatorName;
+    bool theTrajectoryFlag;
     const MuonServiceProxy *theService;
 };
 #endif

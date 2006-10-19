@@ -9,8 +9,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/08/30 12:27:56 $
- *   $Revision: 1.4 $
+ *   $Date: 2006/09/15 12:04:31 $
+ *   $Revision: 1.5 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -40,6 +40,9 @@ class StandAloneMuonProducer : public edm::EDProducer {
   
   /// MuonSeed Collection Label
   edm::InputTag theSeedCollectionLabel;
+ 
+  /// Put Trajectory into Event Flag
+  bool theTrajectoryFlag;
   
   /// the track finder
   MuonTrackFinder* theTrackFinder; //It isn't the same as in ORCA

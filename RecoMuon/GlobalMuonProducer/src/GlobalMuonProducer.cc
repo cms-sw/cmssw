@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/08/31 18:29:32 $
- *   $Revision: 1.13 $
+ *   $Date: 2006/09/01 21:48:36 $
+ *   $Revision: 1.14 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -46,7 +46,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   ParameterSet GLB_pSet = parameterSet.getParameter<ParameterSet>("GLBTrajBuilderParameters");
 
   // STA Muon Collection Label
-  theSTACollectionLabel = parameterSet.getUntrackedParameter<string>("MuonCollectionLabel");
+  theSTACollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
@@ -56,10 +56,11 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   
   // the propagator name for the track loader
   string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagator");
+  bool theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);
 
   // instantiate the concrete trajectory builder in the Track Finder
   GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(GLB_pSet,theService);
-  theTrackFinder = new MuonTrackFinder(gmtb, new MuonTrackLoader(trackLoaderPropagatorName,theService) );
+  theTrackFinder = new MuonTrackFinder(gmtb, new MuonTrackLoader(trackLoaderPropagatorName,theTrajectoryFlag, theService) );
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -91,7 +92,7 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   LogDebug(metname)<<"Global Muon Reconstruction started"<<endl;  
   
   // Take the STA muon container
-  LogDebug(metname)<<"Taking the Stans Alone Muons: "<<theSTACollectionLabel<<endl; 
+  LogDebug(metname)<<"Taking the Stand Alone Muons "<<theSTACollectionLabel.label()<<endl; 
   Handle<reco::TrackCollection> staMuons;
   event.getByLabel(theSTACollectionLabel,staMuons);
   

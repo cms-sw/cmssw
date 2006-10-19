@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/10/04 17:47:30 $
- *  $Revision: 1.27 $
+ *  $Date: 2006/10/12 16:36:07 $
+ *  $Revision: 1.28 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -34,8 +34,9 @@
 using namespace edm;
 
 // constructor
-MuonTrackLoader::MuonTrackLoader(std::string trackLoaderPropagatorName, const MuonServiceProxy *service): 
+MuonTrackLoader::MuonTrackLoader(std::string trackLoaderPropagatorName, bool putTrajIntoEvent, const MuonServiceProxy *service): 
   thePropagatorName(trackLoaderPropagatorName),
+  theTrajectoryFlag(putTrajIntoEvent),
   theService(service){}
 
 
@@ -58,10 +59,14 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   // ... and its reference into the event
   TrackingRecHitRefProd recHitCollectionRefProd = event.getRefBeforePut<TrackingRecHitCollection>();
 
+  std::auto_ptr<std::vector<Trajectory> > trajectoryCollection(new std::vector<Trajectory>);
+
   // don't waste any time...
   if ( trajectories.empty() ) { 
     event.put(recHitCollection);
     event.put(trackExtraCollection);
+    if (theTrajectoryFlag) event.put(trajectoryCollection);
+
     return event.put(trackCollection);
   }
   
@@ -73,6 +78,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
       trajectory != trajectories.end(); ++trajectory){
     
+     if (theTrajectoryFlag) trajectoryCollection->push_back(**trajectory);
+  
     // get the transient rechit from the trajectory
     Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
     
@@ -110,14 +117,16 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     // fill the TrackCollection
     trackCollection->push_back(track);
 
-    // clean the memory. FIXME: check this!
-    Trajectory::DataContainer dataContainer = (*trajectory)->measurements();
-    for (Trajectory::DataContainer::iterator datum = dataContainer.begin(); 
-	 datum != dataContainer.end(); ++datum) 
-      delete datum->recHit();
+    if ( !theTrajectoryFlag ) { //!! can not delete them if put into event
+      // clean the memory. FIXME: check this!
+      Trajectory::DataContainer dataContainer = (*trajectory)->measurements();
+      for (Trajectory::DataContainer::iterator datum = dataContainer.begin(); 
+          datum != dataContainer.end(); ++datum) 
+        delete datum->recHit();
     
-    // delete the trajectory
-    delete *trajectory;
+      // delete the trajectory
+      delete *trajectory;
+    }
   }
   
   // Put the Collections in the event
@@ -125,6 +134,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   
   event.put(recHitCollection);
   event.put(trackExtraCollection);
+  if ( theTrajectoryFlag ) event.put(trajectoryCollection);
+
   
   return event.put(trackCollection);
 }

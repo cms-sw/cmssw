@@ -9,8 +9,8 @@
  *   starting from a standalone reonstructed muon.
  *
  *
- *   $Date: 2006/07/06 12:35:11 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/08/30 12:56:18 $
+ *   $Revision: 1.4 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -39,8 +39,11 @@ class GlobalMuonProducer : public edm::EDProducer {
  private:
     
   /// Seed STA Label
-  std::string theSTACollectionLabel;
+  edm::InputTag theSTACollectionLabel;
   
+  /// whether put trajectory into event or not
+  bool theTrajectoryFlag;
+
   MuonTrackFinder* theTrackFinder;
     
   /// the event setup proxy, it takes care the services update
