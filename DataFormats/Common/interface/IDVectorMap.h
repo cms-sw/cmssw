@@ -1,6 +1,6 @@
 #ifndef Common_IDVectorMap_h
 #define Common_IDVectorMap_h
-// $Id: IDVectorMap.h,v 1.3 2006/08/11 15:48:21 wmtan Exp $
+// $Id: IDVectorMap.h,v 1.4 2006/08/11 21:58:25 wmtan Exp $
 #include <map>
 #include "DataFormats/Common/interface/traits.h"
 
@@ -14,7 +14,7 @@ namespace edm {
     typedef std::map<ID, C> map;
     typedef typename map::const_iterator map_iterator;
     struct const_iterator {
-      typedef IDVectorMap::value_type value_type;
+      typedef typename IDVectorMap::value_type value_type;
       typedef value_type * pointer;
       typedef value_type & reference;
       typedef typename map_iterator::iterator_category iterator_category;
