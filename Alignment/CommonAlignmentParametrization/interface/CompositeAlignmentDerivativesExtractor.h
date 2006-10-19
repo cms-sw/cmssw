@@ -6,7 +6,13 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
+/// \class CompositeAlignmentDerivativesExtractor
+///
 /// A helper class to extract derivatives from composite alignable objects
+///
+///  $Date: 2006/10/17 11:02:42 $
+///  $Revision: 1.11 $
+/// (last update by $Author: flucke $)
 
 class CompositeAlignmentDerivativesExtractor
 {
