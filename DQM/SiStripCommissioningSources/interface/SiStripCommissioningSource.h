@@ -70,9 +70,6 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   SiStripFecCabling* fecCabling_;
   /** */
   bool cablingTask_;
-
-  /** Defines the MessageLogger category for this class. */
-  static const std::string logCategory_;
   
 };
 
