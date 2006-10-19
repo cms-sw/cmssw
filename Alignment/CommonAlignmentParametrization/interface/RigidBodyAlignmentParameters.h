@@ -9,9 +9,15 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
+/// \class RigidBodyAlignmentParameters
+///
 /// Concrete class for alignment parameters and associated quantities 
 /// [derived from AlignmentParameters]. The number of parameters
 /// N_PARAM is fixed to 6 (3 translations + 3 rotations)
+///
+///  $Date: 2006/10/17 11:02:42 $
+///  $Revision: 1.11 $
+/// (last update by $Author: flucke $)
 
 class AlignableDetUnit;
 
@@ -30,33 +36,33 @@ public:
 
   /// Constructor for full set of parameters
   RigidBodyAlignmentParameters( Alignable* alignable, 
-								const AlgebraicVector& parameters, 
-								const AlgebraicSymMatrix& covMatrix );
+				const AlgebraicVector& parameters, 
+				const AlgebraicSymMatrix& covMatrix );
 
   /// Constructor for selection 
   RigidBodyAlignmentParameters( Alignable* alignable, const AlgebraicVector& parameters, 
-								const AlgebraicSymMatrix& covMatrix, 
-								const std::vector<bool>& selection );
+				const AlgebraicSymMatrix& covMatrix, 
+				const std::vector<bool>& selection );
 
   /// Destructor 
-  ~RigidBodyAlignmentParameters() {};
+  virtual ~RigidBodyAlignmentParameters() {};
 
   /// Clone all parameters (for update of parameters)
   virtual RigidBodyAlignmentParameters* clone( const AlgebraicVector& parameters, 
-											   const AlgebraicSymMatrix& covMatrix ) const;
+					       const AlgebraicSymMatrix& covMatrix ) const;
  
   /// Clone selected parameters (for update of parameters)
-  virtual RigidBodyAlignmentParameters* 
-  cloneFromSelected( const AlgebraicVector& parameters, 
-					 const AlgebraicSymMatrix& covMatrix ) const;
+    virtual RigidBodyAlignmentParameters* 
+      cloneFromSelected( const AlgebraicVector& parameters, 
+			 const AlgebraicSymMatrix& covMatrix ) const;
   
   /// Get all derivatives 
-  virtual AlgebraicMatrix derivatives( const TrajectoryStateOnSurface tsos,
-									   AlignableDet* alignableDet ) const;
+  virtual AlgebraicMatrix derivatives( const TrajectoryStateOnSurface& tsos,
+				       AlignableDet* alignableDet ) const;
 
   /// Get selected derivatives
-  AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface tsos, 
-									   AlignableDet* alignableDet ) const;
+  AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
+				       AlignableDet* alignableDet ) const;
 
   /// Get translation parameters
   AlgebraicVector translation(void) const;

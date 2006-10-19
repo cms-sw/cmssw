@@ -1,3 +1,9 @@
+/** \file CompositeRigidBodyAlignmentParameters.cc
+ *
+ *  $Date: 2005/07/26 10:13:49 $
+ *  $Revision: 1.1 $
+ */
+
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 
@@ -6,8 +12,8 @@
 //__________________________________________________________________________________________________
 CompositeRigidBodyAlignmentParameters::
 CompositeRigidBodyAlignmentParameters( Alignable* object, 
-									   const AlgebraicVector& par, 
-									   const AlgebraicSymMatrix& cov ) :
+				       const AlgebraicVector& par, 
+				       const AlgebraicSymMatrix& cov ) :
   RigidBodyAlignmentParameters(object,par,cov)
 {}
 
@@ -15,9 +21,9 @@ CompositeRigidBodyAlignmentParameters( Alignable* object,
 //__________________________________________________________________________________________________
 CompositeRigidBodyAlignmentParameters::
 CompositeRigidBodyAlignmentParameters(Alignable* object, 
-									  const AlgebraicVector& par, 
-									  const AlgebraicSymMatrix& cov, 
-									  const std::vector<bool>& sel) :
+				      const AlgebraicVector& par, 
+				      const AlgebraicSymMatrix& cov, 
+				      const std::vector<bool>& sel) :
   RigidBodyAlignmentParameters(object,par,cov,sel)
 {}
 
@@ -25,7 +31,7 @@ CompositeRigidBodyAlignmentParameters(Alignable* object,
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters* 
 CompositeRigidBodyAlignmentParameters::clone( const AlgebraicVector& par, 
-											  const AlgebraicSymMatrix& cov ) const 
+					      const AlgebraicSymMatrix& cov ) const 
 {
 
   CompositeRigidBodyAlignmentParameters* rbap = 
@@ -42,14 +48,14 @@ CompositeRigidBodyAlignmentParameters::clone( const AlgebraicVector& par,
 RigidBodyAlignmentParameters* 
 CompositeRigidBodyAlignmentParameters::
 cloneFromSelected( const AlgebraicVector& par, 
-				   const AlgebraicSymMatrix& cov) const
+		   const AlgebraicSymMatrix& cov) const
 {
 
   CompositeRigidBodyAlignmentParameters* rbap = 
     new CompositeRigidBodyAlignmentParameters( alignable(),
-											   expandVector(par,selector()),
-											   expandSymMatrix(cov,selector()),
-											   selector() );
+					       expandVector(par,selector()),
+					       expandSymMatrix(cov,selector()),
+					       selector() );
   if ( userVariables() ) rbap->setUserVariables(userVariables()->clone());
   rbap->setValid(isValid());
 
@@ -60,12 +66,12 @@ cloneFromSelected( const AlgebraicVector& par,
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-CompositeRigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface tsos, 
-													AlignableDet* alidet ) const
+CompositeRigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos, 
+						    AlignableDet* alidet ) const
 {
 
   AlgebraicMatrix dev = KarimakiAlignmentDerivatives()(tsos);
-
+  
   // get alignable belonging to higher level structure to which these
   // alignement parameters are attached 
   Alignable* ali = alignable(); 

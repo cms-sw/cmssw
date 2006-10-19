@@ -1,3 +1,9 @@
+/** \file RigidBodyAlignmentParameters.cc
+ *
+ *  $Date: 2005/07/26 10:13:49 $
+ *  $Revision: 1.1 $
+ */
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -10,28 +16,28 @@
 
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable* alignable, 
-														   const AlgebraicVector& parameters, 
-														   const AlgebraicSymMatrix& covMatrix) :
+							   const AlgebraicVector& parameters, 
+							   const AlgebraicSymMatrix& covMatrix) :
   AlignmentParameters( alignable, parameters, covMatrix )
 {
  
   if ( parameters.num_row() != N_PARAM )
 	edm::LogError("BadParameters") << "Bad parameters size in constructor: "
-								   << parameters.num_row() << " != " << N_PARAM;
+				       << parameters.num_row() << " != " << N_PARAM;
 
 }
 
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable* alignable, 
-														   const AlgebraicVector& parameters, 
-														   const AlgebraicSymMatrix& covMatrix,
-														   const std::vector<bool>& selection ) :
+							   const AlgebraicVector& parameters, 
+							   const AlgebraicSymMatrix& covMatrix,
+							   const std::vector<bool>& selection ) :
   AlignmentParameters( alignable, parameters, covMatrix, selection )
 {  
 
   if ( parameters.num_row() != N_PARAM )
 	edm::LogError("BadParameters") << "Bad parameters size in constructor: "
-								   << parameters.num_row() << " != " << N_PARAM;
+				       << parameters.num_row() << " != " << N_PARAM;
 
 }
 
@@ -39,7 +45,7 @@ RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable* alignable,
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters* 
 RigidBodyAlignmentParameters::clone( const AlgebraicVector& parameters, 
-									 const AlgebraicSymMatrix& covMatrix ) const 
+				     const AlgebraicSymMatrix& covMatrix ) const 
 {
 
   RigidBodyAlignmentParameters* rbap = 
@@ -55,7 +61,7 @@ RigidBodyAlignmentParameters::clone( const AlgebraicVector& parameters,
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters* 
 RigidBodyAlignmentParameters::cloneFromSelected( const AlgebraicVector& parameters,
-												 const AlgebraicSymMatrix& covMatrix ) const
+						 const AlgebraicSymMatrix& covMatrix ) const
 {
 
   RigidBodyAlignmentParameters* rbap = 
@@ -74,8 +80,8 @@ RigidBodyAlignmentParameters::cloneFromSelected( const AlgebraicVector& paramete
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface tsos, 
-										   AlignableDet* alignableDet ) const
+RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos, 
+					   AlignableDet* alignableDet ) const
 {
 
   AlgebraicMatrix dev = KarimakiAlignmentDerivatives()( tsos );
@@ -86,8 +92,8 @@ RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface tsos,
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface tsos, 
-												   AlignableDet* alignableDet ) const
+RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
+						   AlignableDet* alignableDet ) const
 {
 
   AlgebraicMatrix dev = derivatives( tsos, alignableDet );
@@ -99,10 +105,10 @@ RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurfac
   AlgebraicMatrix seldev( nsel, ncols );
 
   int ir2=0;
-  for ( int irow=0; irow<nrows; irow++ )
+  for ( int irow=0; irow<nrows; ++irow )
     if (selector()[irow]) {
-      for ( int icol=0; icol<ncols; icol++ ) seldev[ir2][icol] = dev[irow][icol];
-      ir2++;
+      for ( int icol=0; icol<ncols; ++icol ) seldev[ir2][icol] = dev[irow][icol];
+      ++ir2;
     }
 
   return seldev;
@@ -115,7 +121,7 @@ AlgebraicVector RigidBodyAlignmentParameters::translation(void) const
 { 
 
   AlgebraicVector shift(3);
-  for ( int i=0;i<3;i++ ) shift[i]=theParameters[i];
+  for ( int i=0;i<3;++i ) shift[i]=theParameters[i];
   return shift;
 
 }
@@ -126,7 +132,7 @@ AlgebraicVector RigidBodyAlignmentParameters::rotation(void) const
 {
 
   AlgebraicVector rot(3);
-  for (int i=0;i<3;i++) rot[i] = theParameters[i+3];
+  for (int i=0;i<3;++i) rot[i] = theParameters[i+3];
   return rot;
 
 }

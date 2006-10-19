@@ -1,8 +1,14 @@
+/** \file KarimakiAlignmentDerivatives.cc
+ *
+ *  $Date: 2005/07/26 10:13:49 $
+ *  $Revision: 1.1 $
+ */
+
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
 
 
 AlgebraicMatrix 
-KarimakiAlignmentDerivatives::operator()( const TrajectoryStateOnSurface tsos ) const
+KarimakiAlignmentDerivatives::operator()( const TrajectoryStateOnSurface &tsos ) const
 { 
 
   // Get track parameters on surface

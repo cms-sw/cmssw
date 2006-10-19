@@ -1,10 +1,16 @@
+/** \file FrameToFrameDerivative.cc
+ *
+ *  $Date: 2005/07/26 10:13:49 $
+ *  $Revision: 1.1 $
+ */
+
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-FrameToFrameDerivative::frameToFrameDerivative( AlignableDet* object,
-												Alignable* composedObject )
+FrameToFrameDerivative::frameToFrameDerivative(const AlignableDet* object,
+					       const Alignable* composedObject) const
 {
  
   AlignmentTransformations transform;
@@ -20,8 +26,8 @@ FrameToFrameDerivative::frameToFrameDerivative( AlignableDet* object,
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-FrameToFrameDerivative::frameToFrameDerivative( const GeomDet* object,
-												Alignable* composedObject )
+FrameToFrameDerivative::frameToFrameDerivative(const GeomDet* object,
+					       const Alignable* composedObject) const
 {
  
   AlignmentTransformations transform;
@@ -37,8 +43,9 @@ FrameToFrameDerivative::frameToFrameDerivative( const GeomDet* object,
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-FrameToFrameDerivative::getDerivative( AlgebraicMatrix rotDet,
-									   AlgebraicMatrix rotCompO, AlgebraicVector diffVec )
+FrameToFrameDerivative::getDerivative(const AlgebraicMatrix &rotDet,
+				      const AlgebraicMatrix &rotCompO,
+				      const AlgebraicVector &diffVec) const
 {
 
   AlgebraicMatrix derivative(6,6);
@@ -95,7 +102,8 @@ FrameToFrameDerivative::getDerivative( AlgebraicMatrix rotDet,
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-FrameToFrameDerivative::derivativePosPos( AlgebraicMatrix RotDet, AlgebraicMatrix RotRot )
+FrameToFrameDerivative::derivativePosPos(const AlgebraicMatrix &RotDet,
+					 const AlgebraicMatrix &RotRot) const
 {
 
   return RotDet * RotRot.T();
@@ -105,8 +113,9 @@ FrameToFrameDerivative::derivativePosPos( AlgebraicMatrix RotDet, AlgebraicMatri
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-FrameToFrameDerivative::derivativePosRot( AlgebraicMatrix RotDet,
-										  AlgebraicMatrix RotRot, AlgebraicVector S )
+FrameToFrameDerivative::derivativePosRot(const AlgebraicMatrix &RotDet,
+					 const AlgebraicMatrix &RotRot,
+					 const AlgebraicVector &S) const
 {
 
  AlgebraicVector dEulerA(3);
@@ -142,7 +151,8 @@ FrameToFrameDerivative::derivativePosRot( AlgebraicMatrix RotDet,
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-FrameToFrameDerivative::derivativeRotRot( AlgebraicMatrix RotDet, AlgebraicMatrix RotRot )
+FrameToFrameDerivative::derivativeRotRot(const AlgebraicMatrix &RotDet,
+					 const AlgebraicMatrix &RotRot) const
 {
 
  AlgebraicVector dEulerA(3);
@@ -180,7 +190,7 @@ FrameToFrameDerivative::derivativeRotRot( AlgebraicMatrix RotDet, AlgebraicMatri
 
 //__________________________________________________________________________________________________
 AlgebraicVector 
-FrameToFrameDerivative::linearEulerAngles( AlgebraicMatrix rotDelta )
+FrameToFrameDerivative::linearEulerAngles(const AlgebraicMatrix &rotDelta ) const
 {
   
   AlgebraicMatrix eulerAB(3,3);
