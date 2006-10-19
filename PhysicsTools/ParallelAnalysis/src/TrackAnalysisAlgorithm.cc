@@ -2,6 +2,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include <TCanvas.h>
 #include <TH1.h>
 #include <iostream>
 using namespace examples;
@@ -36,4 +37,19 @@ void TrackAnalysisAlgorithm::postProcess( TList & ) {
   cout << ">> nothing to be done in post-processing" << endl;
 }
 
+void TrackAnalysisAlgorithm::terminate( TList & out ) {
+  cout << ">> terminating" << endl;
+  TCanvas canvas;
+  draw( out, canvas,  kPt );
+  draw( out, canvas, kEta );
+}
 
+void TrackAnalysisAlgorithm::draw( const TList & out, TCanvas & canvas, const char * k ) {
+  TObject * hist = out.FindObject( k );
+  if( 0 != hist ) {
+    hist->Draw();
+    canvas.SaveAs( ( string( k ) + ".jpg" ).c_str() );
+  } else {
+    cerr <<">> no '" << k << "' histogram" << endl;
+  }
+}

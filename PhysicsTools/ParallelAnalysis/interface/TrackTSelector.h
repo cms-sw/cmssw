@@ -7,14 +7,13 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: TrackTSelector.h,v 1.1 2006/06/27 09:53:33 llista Exp $
+ * $Id: TrackTSelector.h,v 1.2 2006/10/17 08:21:58 llista Exp $
  */
 #include "DataFormats/TrackReco/interface/Track.h"
+// needed because missing in TFWLiteSelector.h
 #include <TFile.h>
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelector.h"
 #include "PhysicsTools/ParallelAnalysis/interface/TrackAnalysisAlgorithm.h"
-
-class TCanvas;
 
 namespace examples {
 
@@ -33,10 +32,6 @@ namespace examples {
     TrackTSelector( const TrackTSelector & );
     /// avoid assignment operator
     TrackTSelector operator=( TrackTSelector const & );
-    /// draw an histogram
-    void draw( const TList &, const char * );
-    /// canvas used as temporaty drawing object
-    TCanvas * canvas_;
   };
   
 }

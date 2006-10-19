@@ -23,7 +23,7 @@ under <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/">Physic
   collection of tracks from a standard \ref DataFormats_RecoData "RECO" collection.
 
 \subsection modules Modules
-- examples::TrackTSelectorAnalyzer: EDAnalyzer using examples::TrackAnalysisAlgorithm
+- TSelectorAnalyzer: generic EDAnalyzer using an algorithm (e.g.: examples::TrackAnalysisAlgorithm)
 
 \subsection tests Unit tests and examples
 - <b>trackExample.cfg</b>: batch script running examples::TrackTSelectorAnalyzer

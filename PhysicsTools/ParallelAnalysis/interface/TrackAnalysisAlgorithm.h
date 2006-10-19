@@ -7,11 +7,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision$
+ * \version $Revision: 1.1 $
  */
 
 class TH1F;
 class TList;
+class TCanvas;
 namespace edm { class Event; }
 
 namespace examples {
@@ -23,6 +24,11 @@ namespace examples {
     void process( const edm::Event&  );
     /// post process
     void postProcess( TList & );
+    /// terminate processing
+    static void terminate( TList & );
+  private:
+    /// draw an histogram
+    static void draw( const TList &, TCanvas &, const char * );
     /// histograms
     TH1F * h_pt, * h_eta;
     /// histogram names
