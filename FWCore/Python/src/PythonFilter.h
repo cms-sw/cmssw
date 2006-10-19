@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones & Benedikt Hegner
 //         Created:  Sun Jul 22 10:50:17 EST 2006
-// $Id: PythonFilter.h,v 1.1 2006/07/22 13:17:19 hegner Exp $
+// $Id: PythonFilter.h,v 1.2 2006/07/22 13:47:13 hegner Exp $
 //
 //
 #ifndef PythonFilter_h
