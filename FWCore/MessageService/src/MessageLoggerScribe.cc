@@ -82,6 +82,12 @@
 //            no .cfg file is a sufficient anomoly that the current change
 //            is acceptable. 
 //
+//  14 - 10/18/06 mf  - in configure_error_log()
+//	Finer control of output file name for a given destination:
+//	Accept a parameter extension, to specify some extension other than
+//      .log without needing to place a dot in the Pset name.  Also accept
+//	an explicit filename.
+//
 // ----------------------------------------------------------------------
 
 
@@ -308,12 +314,28 @@ void
      )
   {
     String filename = *it;
-
+    String psetname = filename;
+    
     // check that this destination is not just a placeholder // change log 11
-    PSet  dest_pset = getAparameter<PSet>(job_pset_p,filename,empty_PSet);
+    PSet  dest_pset = getAparameter<PSet>(job_pset_p,psetname,empty_PSet);
     bool is_placeholder 
 	= getAparameter<bool>(&dest_pset,"placeholder", false);
     if (is_placeholder) continue;
+
+    // Modify the file name if extension or name is explicitly specified
+    // change log 14 
+    String explicit_filename 
+        = getAparameter<String>(&dest_pset,"filename",empty_String);
+    if (explicit_filename != empty_String) filename = explicit_filename;
+    String explicit_extension 
+        = getAparameter<String>(&dest_pset,"extension",empty_String);
+    if (explicit_extension != empty_String) {
+      if (explicit_extension[0] == '.') {
+	filename += explicit_extension;             
+      } else {
+	filename = filename + "." + explicit_extension;   
+      }
+    }
 
     // attach the current destination, keeping a control handle to it:
     ELdestControl dest_ctrl;
@@ -340,7 +362,7 @@ void
     //(*errorlog_p)( ELinfo, "added_dest") << filename << endmsg;
 
     // now configure this destination:
-    configure_dest(dest_ctrl, filename);
+    configure_dest(dest_ctrl, psetname);
 
   }  // for [it = destinations.begin() to end()]
 
@@ -361,6 +383,24 @@ void
     // attach the current destination, keeping a control handle to it:
     ELdestControl dest_ctrl;
     String filename = *it;
+    String psetname = filename;
+
+    // Modify the file name if extension or name is explicitly specified
+    // change log 14 
+    PSet  fjr_pset = getAparameter<PSet>(job_pset_p,psetname,empty_PSet);
+    String explicit_filename 
+        = getAparameter<String>(&fjr_pset,"filename",empty_String);
+    if (explicit_filename != empty_String) filename = explicit_filename;
+    String explicit_extension 
+        = getAparameter<String>(&fjr_pset,"extension",empty_String);
+    if (explicit_extension != empty_String) {
+      if (explicit_extension[0] == '.') {
+	filename += explicit_extension;             
+      } else {
+	filename = filename + "." + explicit_extension;   
+      }
+    }
+
     std::string actual_filename = filename;			// change log 4
     const std::string::size_type npos = std::string::npos;
     if ( filename.find('.') == npos ) {
@@ -372,7 +412,7 @@ void
     stream_ps[filename] = os_p;
 
     // now configure this destination:
-    configure_dest(dest_ctrl, filename);	
+    configure_dest(dest_ctrl, psetname);	
 
   }  // for [it = fwkJobReports.begin() to end()]
 
@@ -390,11 +430,28 @@ void
     // either the statistics name or if a Pset by that name has 
     // file = somename, then that specified name.
     String statname = *it;
+    String psetname = statname;
     PSet  stat_pset 
-    	= getAparameter<PSet>(job_pset_p,statname,empty_PSet);
+    	= getAparameter<PSet>(job_pset_p,psetname,empty_PSet);
     String filename 
         = getAparameter<String>(&stat_pset,"output",statname);
     
+    // Modify the file name if extension or name is explicitly specified
+    // change log 14 -- probably suspenders and a belt, because ouput option
+    // is present, but uniformity is nice.
+    String explicit_filename 
+        = getAparameter<String>(&stat_pset,"filename",empty_String);
+    if (explicit_filename != empty_String) filename = explicit_filename;
+    String explicit_extension 
+        = getAparameter<String>(&stat_pset,"extension",empty_String);
+    if (explicit_extension != empty_String) {
+      if (explicit_extension[0] == '.') {
+	filename += explicit_extension;             
+      } else {
+	filename = filename + "." + explicit_extension;   
+      }
+    }
+
     // create (if statistics file does not match any destination file name)
     // or note (if statistics file matches a destination file name) the ostream
     std::ostream * os_p;
@@ -426,7 +483,7 @@ void
     statisticsResets.push_back(reset);
 
     // now configure this destination:
-    configure_dest(dest_ctrl, filename);
+    configure_dest(dest_ctrl, psetname);
 
     // and suppress the desire to do an extra termination summary just because
     // of end-of-job info messages
