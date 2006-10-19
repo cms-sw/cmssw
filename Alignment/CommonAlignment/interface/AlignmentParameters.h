@@ -6,6 +6,8 @@
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
 
+/// \class AlignmentParameters 
+///
 /// Base class for alignment parameters 
 ///
 /// It contains a parameter vector of size N and a covariance matrix of size NxN. 
@@ -16,6 +18,10 @@
 /// The methods *selected* set/return only the active
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
+///
+///  $Date: 2006/10/17 11:02:42 $
+///  $Revision: 1.11 $
+/// (last update by $Author: flucke $)
 
 class Alignable;
 class AlignableDet;
@@ -43,9 +49,9 @@ public:
 
   /// Enforce clone methods in derived classes
   virtual AlignmentParameters* clone(const AlgebraicVector& par,
-									 const AlgebraicSymMatrix& cov) const = 0;
+				     const AlgebraicSymMatrix& cov) const = 0;
   virtual AlignmentParameters* cloneFromSelected(const AlgebraicVector& par,
-												 const AlgebraicSymMatrix& cov) const = 0;
+						 const AlgebraicSymMatrix& cov) const = 0;
  
   /// Get alignment parameter selector vector 
   const std::vector<bool>& selector( void ) const;
@@ -66,10 +72,10 @@ public:
   const AlgebraicSymMatrix& covariance(void) const;
 
   /// Get derivatives of selected parameters
-  virtual AlgebraicMatrix derivatives(const TrajectoryStateOnSurface tsos,
-									  AlignableDet* alidet) const = 0;
-  virtual AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface tsos, 
-											   AlignableDet* alidet) const = 0;
+  virtual AlgebraicMatrix derivatives(const TrajectoryStateOnSurface& tsos,
+				      AlignableDet* alidet) const = 0;
+  virtual AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
+					       AlignableDet* alidet) const = 0;
 
   /// Set pointer to user variables
   void setUserVariables(AlignmentUserVariables* auv);
@@ -91,13 +97,13 @@ protected:
 
   // private helper methods
   AlgebraicSymMatrix collapseSymMatrix(const AlgebraicSymMatrix& m, 
-									   const std::vector<bool>& sel) const; 
+				       const std::vector<bool>& sel) const; 
   AlgebraicVector collapseVector(const AlgebraicVector& m, 
-								 const std::vector<bool>& sel) const;
+				 const std::vector<bool>& sel) const;
   AlgebraicSymMatrix expandSymMatrix(const AlgebraicSymMatrix& m, 
-									 const std::vector<bool>& sel) const;
+				     const std::vector<bool>& sel) const;
   AlgebraicVector expandVector(const AlgebraicVector& m, 
-							   const std::vector<bool>& sel) const;
+			       const std::vector<bool>& sel) const;
 
   // data members
   
