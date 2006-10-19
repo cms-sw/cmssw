@@ -1,12 +1,12 @@
 void DoCompare( char* Energy ){
 
- static const int NHisto = 38;
+ static const int NHisto = 47;
  static const int NHisto2 = 4;
  static const int NHisto3 = 2;
 
  TText* te = new TText();
  te->SetTextSize(0.1);
-
+ 
  gROOT->ProcessLine(".x HistoCompare.C");
  HistoCompare * myPV = new HistoCompare();
 
@@ -56,6 +56,15 @@ void DoCompare( char* Energy ){
  label[35] = "Preshower_E1alphaE2_zp";
  label[36] = "Preshower_E2OverE1_zm";
  label[37] = "Preshower_E2OverE1_zp";
+ label[38] = "Barrel_HitMultiplicity";
+ label[39] = "Barrel_HitEnergy";
+ label[40] = "Barrel_CryMultiplicity";
+ label[41] = "EndcapZPlus_HitMultiplicity";
+ label[42] = "EndcapZPlus_HitEnergy";
+ label[43] = "EndcapZPlus_CryMultiplicity";
+ label[44] = "EndcapZMinus_HitMultiplicity";
+ label[45] = "EndcapZMinus_HitEnergy";
+ label[46] = "EndcapZMinus_CryMultiplicity";
 
 
  TH1F* htemp1[NHisto];
@@ -70,10 +79,14 @@ void DoCompare( char* Energy ){
    htemp2[i]->SetLineColor(4);
    htemp1[i]->SetLineStyle(3);
    htemp2[i]->SetLineStyle(5);
-   if (i>14 && i<19 || i>29 && i< 34 || i == 13) c1.SetLogy();
+   TLegend leg(0.1, 0.15, 0.2, 0.25);
+   leg.AddEntry(htemp1[i], "Reference", "l");
+   leg.AddEntry(htemp2[i], "New ", "l");
+   if (i>14 && i<19 || i>29 && i< 34 || i == 13 || i>37 ) c1.SetLogy();
 
    htemp1[i]->Draw();
    htemp2[i]->Draw("Same"); 
+   leg.Draw();
    myPV->PVCompute(htemp1[i],htemp2[i], te);
    sprintf(title,"%s%s%s", Energy, label[i],".eps");
    c1.Print(title);
@@ -93,23 +106,44 @@ void DoCompare( char* Energy ){
  for ( int i = 0; i< NHisto2 ; i++ ) {
    char title[50];
    TCanvas c1;
-   c1.Divide(2,1);
 
    h2temp1[i]  = dynamic_cast<TH2F*>(reffile->Get(label2[i]));
    h2temp2[i]  = dynamic_cast<TH2F*>(curfile->Get(label2[i]));
    if( h2temp1[i] == 0 || h2temp2[i] == 0) continue; 
-   c1.cd(1);
-   h2temp1[i]->SetMarkerColor(2);
-   h2temp1[i]->SetMarkerStyle(7);
-   h2temp1[i]->Draw();
+   if ( i==1 || i==3 ) {
+      c1.Divide(2,1);
+      c1.cd(1);
+      h2temp1[i]->SetMarkerColor(2);
+      h2temp1[i]->SetMarkerStyle(7);
+      h2temp1[i]->Draw("COLZ");
    
-   c1.cd(2);
-   h2temp2[i]->SetMarkerColor(4);
-   h2temp2[i]->SetMarkerStyle(7);
-   h2temp2[i]->Draw();
-   myPV->PVCompute(h2temp1[i],h2temp2[i], te);
-   sprintf(title,"%s%s%s", Energy, label2[i],".eps");
-   c1.Print(title);
+      c1.cd(2);
+      h2temp2[i]->SetMarkerColor(4);
+      h2temp2[i]->SetMarkerStyle(7);
+      h2temp2[i]->Draw("COLZ");
+      myPV->PVCompute(h2temp1[i],h2temp2[i], te);
+      sprintf(title,"%s%s%s", Energy, label2[i],".eps");
+      c1.Print(title);
+    }else {
+
+      h2temp1[i]->SetMarkerColor(2);
+      h2temp1[i]->SetMarkerStyle(22);
+      h2temp1[i]->Draw();
+      h2temp2[i]->SetMarkerColor(4);
+      h2temp2[i]->SetMarkerStyle(23);
+      h2temp2[i]->Draw("same");
+      TLegend leg(0.65, 0.75, 0.75, 0.85);
+      leg.AddEntry(h2temp1[i], "Reference", "p");
+      leg.AddEntry(h2temp2[i], "New ", "p");
+      leg.Draw();
+      myPV->PVCompute(h2temp1[i],h2temp2[i], te);
+      sprintf(title,"%s%s%s", Energy, label2[i],".eps");
+      c1.Print(title);
+
+
+
+   }
+
  }
 
 
