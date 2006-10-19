@@ -13,7 +13,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CLHEP/Random/RandGauss.h"
-
+namespace cms{
 SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig) : 
 appendMode_(iConfig.getUntrackedParameter<bool>("appendMode",true))
 {
@@ -136,3 +136,4 @@ void
 SiPixelCondObjBuilder::endJob() {
 }
 
+}

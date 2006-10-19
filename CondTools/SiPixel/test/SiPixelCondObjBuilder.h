@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
-
+namespace cms{
 class SiPixelCondObjBuilder : public edm::EDAnalyzer {
 
 public:
@@ -41,4 +41,5 @@ private:
   bool appendMode_;
   SiPixelGainCalibration* SiPixelGainCalibration_;
 };
+}
 #endif

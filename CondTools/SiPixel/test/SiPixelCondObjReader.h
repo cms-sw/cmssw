@@ -24,8 +24,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 
+namespace cms{
 class SiPixelCondObjReader : public edm::EDAnalyzer {
 
 public:
@@ -40,4 +42,5 @@ public:
 private:
 
 };
+}
 #endif
