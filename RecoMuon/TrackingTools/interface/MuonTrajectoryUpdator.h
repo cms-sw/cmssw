@@ -10,14 +10,14 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/09/04 13:28:44 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/09/04 17:13:13 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "RecoMuon/TrackingTools/interface/FitDirection.h"
+#include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 
 #include <functional>
 

@@ -4,15 +4,15 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/09/13 10:42:57 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/10/05 13:19:47 $
+ *  $Revision: 1.23 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "RecoMuon/TrackingTools/interface/FitDirection.h"
+#include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
 
