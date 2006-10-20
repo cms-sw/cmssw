@@ -6,7 +6,7 @@
  *   Description:  Build GMT Tree
 */
 //                
-//   $Date: 2006/05/15 13:56:02 $
+//   $Date: 2006/08/25 15:08:34 $
 //   $Revision: 1.1 $
 //
 //   I. Mikulec            HEPHY Vienna
@@ -39,6 +39,7 @@
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 class TFile;
 class TTree;
@@ -152,6 +153,8 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     edm::ParameterSet m_ps;
     TFile* m_file;
     TTree* m_tree;
+
+    edm::InputTag m_inputTag;
       
 };
 

@@ -6,8 +6,8 @@
  *   Description:  Dump GMT readout
 */
 //                
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/25 15:10:28 $
+//   $Revision: 1.2 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -39,6 +39,7 @@
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 
 //              ---------------------
@@ -56,6 +57,7 @@ class L1MuGMTDump : public edm::EDAnalyzer {
 
   private:
  
+    edm::InputTag m_inputTag;
 
   public:
 

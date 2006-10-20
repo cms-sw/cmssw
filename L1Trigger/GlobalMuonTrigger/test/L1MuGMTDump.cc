@@ -5,8 +5,8 @@
 //   Description:   Dump GMT readout
 //                  
 //                
-//   $Date: 2006/08/25 15:10:23 $
-//   $Revision: 1.4 $
+//   $Date: 2006/08/25 16:51:46 $
+//   $Revision: 1.5 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -40,7 +40,7 @@
 // Constructors --
 //----------------
 L1MuGMTDump::L1MuGMTDump(const edm::ParameterSet& ps) {
-
+  m_inputTag = ps.getUntrackedParameter<edm::InputTag>("GMTInputTag", edm::InputTag("gmt"));
 }
 
 //--------------
@@ -101,7 +101,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   // Get GMTReadoutCollection
 
   edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
-  e.getByType(gmtrc_handle);
+  e.getByLabel(m_inputTag.label(),gmtrc_handle);
   L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
   
   int idt = 0;
@@ -242,6 +242,9 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   nrpcf = irpcf;
   ngmt = igmt;
 
+  // Header
+  edm::LogVerbatim("GMTDump") << "************** GMTDump from " << m_inputTag.label() << ": *************************";
+
   // Generator print
   
   edm::LogVerbatim("GMTDump") << "Number of muons generated: " << ngen << endl;
@@ -348,6 +351,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
                                       << idxCSC[igmt] << idxRPCf[igmt] << endl;
   }
 
+  edm::LogVerbatim("GMTDump") << "**************************************************************";
 }
 
 //define this as a plug-in

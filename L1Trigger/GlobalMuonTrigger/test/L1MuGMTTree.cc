@@ -5,8 +5,8 @@
 //   Description:   Build GMT tree
 //                  
 //                
-//   $Date: 2006/08/25 15:08:39 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/25 16:51:53 $
+//   $Revision: 1.2 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -54,6 +54,7 @@ void L1MuGMTTree::beginJob(const edm::EventSetup& es) {
   string output = m_ps.getUntrackedParameter<string>("OutputFile","L1MuGMTTree.root");
   m_file = new TFile(output.c_str(),"RECREATE");
   m_tree = new TTree("h1","GMT Tree");
+  m_inputTag = m_ps.getUntrackedParameter<edm::InputTag>("GMTInputTag", edm::InputTag("gmt"));
   book();
 }
 
@@ -115,7 +116,7 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
   // Get GMTReadoutCollection
 
   edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
-  e.getByType(gmtrc_handle);
+  e.getByLabel(m_inputTag.label(),gmtrc_handle);
   L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
   
   int idt = 0;

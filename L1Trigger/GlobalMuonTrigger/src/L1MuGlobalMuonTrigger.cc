@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -273,7 +273,7 @@ auto_ptr<L1MuGMTReadoutCollection> L1MuGlobalMuonTrigger::getReadoutCollection()
 
     for ( ;iter!=m_ReadoutRingbuffer.end(); iter++) {
 
-      if ( (*iter)->getBxCounter() == bx ) {
+      if ( (*iter)->getBxInEvent() == bx ) {
         rrc->addRecord(**iter);
         break;
       }
