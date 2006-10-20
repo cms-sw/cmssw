@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova
 //         Created:  Wed Feb  1 17:04:23 CET 2006
-// $Id: MCJetProducer.cc,v 1.3 2006/04/02 10:18:20 kodolova Exp $
+// $Id: JetPlusTrackProducer.cc,v 1.1 2006/10/15 14:31:51 kodolova Exp $
 //
 //
 
@@ -99,6 +99,20 @@ JetPlusTrack::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          " Number of tracks "<<tC.size()<<
 	 " Number of vertices "<<primary_vertices->size()<<
 	 endl;
+	 
+   if( primary_vertices->size() == 0 )
+   {
+// No correction for this event
+   if(jets->size() > 0 )
+   { 
+   for (; jet != jets->end (); jet++) {
+      result->push_back ((*jet)); 
+      cout<<" Size of the result "<<result->size()<<endl;
+   }
+   }
+      return;    
+   }	 
+	 
    VertexCollection::const_iterator pvmax = pv;
    
    double ptmax = -1000.;

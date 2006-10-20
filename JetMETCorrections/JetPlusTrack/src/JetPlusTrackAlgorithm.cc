@@ -59,7 +59,7 @@ reco::CaloJet JetPlusTrackAlgorithm::applyCorrection( const reco::CaloJet& fJet,
          parameters.useEcal = true ;
          parameters.useHcal = false ;
          parameters.useMuon = false ;
-         parameters.dRHcal = 0.03;
+         parameters.dREcal = 0.03;
 //         parameters.dRHcal = 0.07;
 //        parameters.dRMuon = 0.1;
 	 
@@ -141,7 +141,7 @@ reco::CaloJet JetPlusTrackAlgorithm::applyCorrection( const reco::CaloJet& fJet,
        cout<<" Energy of charged= "<<echar<<" energy of jet "<<fJet.energy()<<" "<<NewResponse<<
        " "<<echarsum<<endl;
 	 
-         float mScale = 1.;
+         float mScale = NewResponse/fJet.energy();
          Jet::LorentzVector common (fJet.px()*mScale, fJet.py()*mScale,
                            fJet.pz()*mScale, fJet.energy()*mScale);
 
