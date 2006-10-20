@@ -2,6 +2,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
@@ -18,6 +19,12 @@ namespace {
     edm::Ref<reco::RecoEcalCandidateCollection> r2;
     edm::RefProd<reco::RecoEcalCandidateCollection> rp2;
     edm::RefVector<reco::RecoEcalCandidateCollection> rv2;
+
+    std::map<unsigned int, float> m3;
+    reco::RecoEcalCandidateIsolationMap v3;
+    edm::Wrapper<reco::RecoEcalCandidateIsolationMap> w3;
+    edm::helpers::Key<edm::RefProd<reco::RecoEcalCandidateCollection > > h3;
+
 
     edm::reftobase::Holder<reco::Candidate, reco::RecoEcalCandidateRef> rb1;
     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef> rb2;
