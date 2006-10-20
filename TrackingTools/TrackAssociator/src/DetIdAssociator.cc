@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.4 2006/09/30 05:12:28 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.5 2006/10/09 18:19:22 jribnik Exp $
 //
 //
 
@@ -193,8 +193,10 @@ void DetIdAssociator::buildMap()
    int numberOfDetIdsOutsideEtaRange = 0;
    int numberOfDetIdsActive = 0;
    std::set<DetId> validIds = getASetOfValidDetIds();
-   for (std::set<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {	 
+   for (std::set<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {
       std::vector<GlobalPoint> points = getDetIdPoints(*id_itr);
+      LogTrace("DetIdAssociator")<< "Found " << points.size() << " global points to describe geometry of DetId: " 
+	<< id_itr->rawId();
       int etaMax(-1);
       int etaMin(nEta_);
       int phiMax(-1);
@@ -202,12 +204,18 @@ void DetIdAssociator::buildMap()
       // this is a bit overkill, but it should be 100% proof (when debugged :)
       for(std::vector<GlobalPoint>::const_iterator iter = points.begin(); iter != points.end(); iter++)
 	{
+	   // FIX ME: this should be a fatal error
+	   if(isnan(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
+	      edm::LogWarning("DetIdAssociator") << "Critical error! Bad detector unit geometry:\n\tDetId:" <<
+		id_itr->rawId() << "\t mag(): " << iter->mag() << "\nSkipped the element";
+	      continue;
+	   }
 	   int ieta = iEta(*iter);
 	   int iphi = iPhi(*iter);
 	   if (ieta<0 || ieta>=nEta_) {
 	      LogTrace("DetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() << "\t (ieta,iphi): " 
 		<< ieta << "," << iphi << "\n" << "Point: " << *iter << "\t(eta,phi): " << (*iter).eta() 
-		  << "," << (*iter).phi() << "\n center: " << getPosition(*id_itr) <<"\n";
+		  << "," << (*iter).phi() << "\n center: " << getPosition(*id_itr);
 	      continue;
 	   }
 	   if ( iphi >= nPhi_ ) iphi = iphi % nPhi_;

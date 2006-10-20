@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.12 2006/09/30 05:12:28 dmytro Exp $
+// $Id: TrackAssociator.cc,v 1.13 2006/10/09 18:21:46 jribnik Exp $
 //
 //
 
@@ -314,11 +314,11 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
 
    timers.pop_and_push("TrackAssociator::fillEcal::matching");
    std::set<DetId> ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(ecalTrajectory[0],dR);
-   // std::cout << "ecalIdsInRegion.size(): " << ecalIdsInRegion.size() << std::endl;
+   LogTrace("TrackAssociator::fillEcal::matching") << "ecalIdsInRegion.size(): " << ecalIdsInRegion.size();
    std::set<DetId> ecalIdsInACone =  ecalDetIdAssociator_.getDetIdsInACone(ecalIdsInRegion, ecalTrajectory, dR);
-   // std::cout << "ecalIdsInACone.size(): " << ecalIdsInACone.size() << std::endl;
+   LogTrace("TrackAssociator::fillEcal::matching") << "ecalIdsInACone.size(): " << ecalIdsInACone.size();
    std::set<DetId> crossedEcalIds =  ecalDetIdAssociator_.getCrossedDetIds(ecalIdsInRegion, ecalTrajectory);
-   // std::cout << "crossedEcalIds.size(): " << crossedEcalIds.size() << std::endl;
+   LogTrace("TrackAssociator::fillEcal::matching") << "crossedEcalIds.size(): " << crossedEcalIds.size();
    
    // add EcalRecHits
    timers.pop_and_push("TrackAssociator::fillEcal::addEcalRecHits");
@@ -331,7 +331,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
       else if(eeHit != (*EERecHits).end()) 
          info.crossedEcalRecHits.push_back(*eeHit);
       else  
-         LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+         LogTrace("TrackAssociator::fillEcal") << "Crossed EcalRecHit is not found for DetId: " << itr->rawId();
    }
    for(std::set<DetId>::const_iterator itr=ecalIdsInACone.begin(); itr!=ecalIdsInACone.end();itr++)
    {
@@ -342,7 +342,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
       else if(eeHit != (*EERecHits).end()) 
          info.ecalRecHits.push_back(*eeHit);
       else 
-         LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+         LogTrace("TrackAssociator::fillEcal") << "EcalRecHit from the cone is not found for DetId: " << itr->rawId();
    }
 }
 
@@ -388,8 +388,11 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
    
    timers.push("TrackAssociator::fillCaloTowers::matching");
    std::set<DetId> caloTowerIdsInRegion = caloDetIdAssociator_.getDetIdsCloseToAPoint(hcalTrajectory[0],dR);
+   LogTrace("TrackAssociator::fillHcal::matching") << "caloTowerIdsInRegion.size(): " << caloTowerIdsInRegion.size();
    std::set<DetId> caloTowerIdsInACone = caloDetIdAssociator_.getDetIdsInACone(caloTowerIdsInRegion, hcalTrajectory, dR);
+   LogTrace("TrackAssociator::fillHcal::matching") << "caloTowerIdsInACone.size(): " << caloTowerIdsInACone.size();
    std::set<DetId> crossedCaloTowerIds = caloDetIdAssociator_.getCrossedDetIds(caloTowerIdsInRegion, hcalTrajectory);
+   LogTrace("TrackAssociator::fillHcal::matching") << "crossedCaloTowerIds.size(): " << crossedCaloTowerIds.size();
    
    // add CaloTowers
    timers.push("TrackAssociator::fillCaloTowers::addCaloTowers");
@@ -400,7 +403,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	if(tower != (*caloTowers).end()) 
 	  info.crossedTowers.push_back(*tower);
 	else
-	  LogTrace("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	  LogTrace("TrackAssociator::fillEcal") << "Crossed CaloTower is not found for DetId: " << id.rawId();
      }
 
    for(std::set<DetId>::const_iterator itr=caloTowerIdsInACone.begin(); itr!=caloTowerIdsInACone.end();itr++)
@@ -410,7 +413,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	if(tower != (*caloTowers).end()) 
 	  info.towers.push_back(*tower);
 	else 
-	  LogTrace("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	  LogTrace("TrackAssociator::fillEcal") << "CaloTower from the cone is not found for DetId: " << id.rawId();
      }
    
 }
