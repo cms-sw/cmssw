@@ -17,7 +17,8 @@ CSCWireElectronicsSim::CSCWireElectronicsSim(const edm::ParameterSet & p)
    theFraction(0.5),
    theWireNoise(0.0),
    theWireThreshold(0.),
-   theTimingCalibrationError(p.getParameter<double>("wireTimingError"))
+   theTimingCalibrationError(p.getParameter<double>("wireTimingError")),
+   theOffsetOfBxZero(p.getParameter<int>("timeBitForBxZero"))
 {
   fillAmpResponse();
 }
@@ -120,7 +121,24 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       // no pedestal
       //int adcCounts = 
       //   static_cast<int>( qMax/theSpecs->chargePerCount() );
-      CSCWireDigi newDigi(wireGroup, beamCrossingTag);
+
+      // Wire digi as of Oct-2006 adapted to real data: time word has 16 bits with set bit
+      // flagging appropriate bunch crossing, and bx 0 corresponding to 7th bit i.e.
+
+      //      1st bit set (bit 0) <-> bx -6
+      //      2nd              1  <-> bx -5
+      //      ...           ...       ....
+      //      7th              6  <-> bx  0
+      //      8th              7  <-> bx +1
+      //      ...           ...       ....
+      //     16th             15  <-> bx +9
+
+      // Parameter theOffsetOfBxZero = 6 @@WARNING! Hardware people may change convention!
+
+      int nBitsToOffset = beamCrossingTag + theOffsetOfBxZero;
+      int timeWord = 0; // and this will remain if too early (i.e. earlier than bx -6)
+      if ( nBitsToOffset >= 0 ) timeWord = (1 << nBitsToOffset ); // Set appropriate bit
+      CSCWireDigi newDigi(wireGroup, timeWord);
       LogDebug("CSCWireElectronicsSim") << newDigi;
       digis.insertDigi(layerId(), newDigi);
 

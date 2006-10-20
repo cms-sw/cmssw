@@ -19,7 +19,7 @@ CSCCrossGap:: CSCCrossGap(int iam, float mom,  LocalVector gap)
   // assume it's a muon until there's evidence otherwise
   double mass = 0.105;
   std::string name = "muon";
-  HepParticleData * theParticleData = HepPDT::getParticleData(iam);
+  const HepParticleData * theParticleData = HepPDT::getParticleData(iam);
   // maybe the PDT doesn't exist
   if(theParticleData == 0)
   {

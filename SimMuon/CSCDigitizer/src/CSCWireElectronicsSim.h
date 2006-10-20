@@ -6,10 +6,6 @@
  *
  * \author Rick Wilkinson
  *
- * Last mod: <BR>
- * 30-Jun-00 ptc Minor printout mods. <BR>
- * 06-Jul-00 ptc Update beamCrossingTag to better match reality. <BR>
- *
  */
 
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
@@ -54,6 +50,7 @@ private:
   float theWireNoise;
   float theWireThreshold;
   float theTimingCalibrationError; // in ns
+  int theOffsetOfBxZero; // bit corresponding to bx 0 (counting from 0-15)
 };
 
 #endif

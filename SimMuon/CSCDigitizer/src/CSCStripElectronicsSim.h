@@ -6,19 +6,6 @@
  *
  * \author Rick Wilkinson
  *
- * Last mod: <BR>
- * 28-Jul-99 ptc Stripping reference to CSCLayer* in Digi.<BR>
- * 29-Sep-99 ptc Use Verbose.<BR>
- * 22-May-00 ptc Suppress n_sca_bins which should be superseded by
- *   enum N_SCA_BINS from CSCStripDigi.h. <BR>
- * 30-Jun-00 ptc Add a set of static_cast<int>'s, <BR>
- * 06-Jul-00 ptc Add safety trap on container limits.
- *               Update beamCrossingTag to better match reality. <BR>
- * 07-Jul-00 ptc More static_cast<int>'s.
- * 28-Jul-00 vin more timing and few optimizations.<BR>
- * 12-Dec-00 rpw massive rewrite, including crosstalk and delay.<BR>
- * 13-Jul-01 ptc Make some times configurable.<BR>
- *
  */
 
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
