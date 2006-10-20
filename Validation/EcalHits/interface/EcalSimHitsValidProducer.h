@@ -96,6 +96,9 @@ private:
   int nHitsInES;
   int nHitsIn1ES;
   int nHitsIn2ES;
+  int nCrystalInEB;
+  int nCrystalInEEzp;
+  int nCrystalInEEzm;
 
   int nHitsIn1ESzp;
   int nHitsIn1ESzm;
@@ -119,6 +122,8 @@ private:
   FloatVector  etaOfEECaloG4Hit;
   FloatVector  tOfEECaloG4Hit;
   FloatVector  eOfEECaloG4Hit;
+  FloatVector  eOfEEPlusCaloG4Hit;
+  FloatVector  eOfEEMinusCaloG4Hit;
 
   FloatVector  phiOfEBCaloG4Hit;
   FloatVector  etaOfEBCaloG4Hit;

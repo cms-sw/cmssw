@@ -22,6 +22,7 @@ EcalSimHitsValidProducer::EcalSimHitsValidProducer(const edm::ParameterSet& iPSe
      totalEInEE(0.0),totalEInEB(0),totalEInES(0.0),totalEInEEzp(0.0),totalEInEEzm(0.0),
      totalEInESzp(0.0),totalEInESzm(0.0), 
      totalHits(0),nHitsInEE(0),nHitsInEB(0),nHitsInES(0),nHitsIn1ES(0),nHitsIn2ES(0),
+     nCrystalInEB(0),nCrystalInEEzp(0),nCrystalInEEzm(0),
      nHitsIn1ESzp(0),nHitsIn1ESzm(0),nHitsIn2ESzp(0),nHitsIn2ESzm(0),
      thePID(0),
      label(iPSet.getUntrackedParameter<std::string>("instanceLabel","EcalValidInfo") ) 
@@ -89,7 +90,9 @@ EcalSimHitsValidProducer::fillEventInfo(PEcalValidInfo& product)
    product.nHitsInES  = nHitsInES;
    product.nHitsIn1ES = nHitsIn1ES;
    product.nHitsIn2ES = nHitsIn2ES;
-
+   product.nCrystalInEB   = nCrystalInEB;
+   product.nCrystalInEEzp = nCrystalInEEzp;
+   product.nCrystalInEEzm = nCrystalInEEzm; 
 
    product.nHitsIn1ESzp = nHitsIn1ESzp;
    product.nHitsIn1ESzm = nHitsIn1ESzm;
@@ -110,7 +113,9 @@ EcalSimHitsValidProducer::fillEventInfo(PEcalValidInfo& product)
    product.phiOfEECaloG4Hit = phiOfEECaloG4Hit;
    product.etaOfEECaloG4Hit = etaOfEECaloG4Hit;
    product.eOfEECaloG4Hit   = eOfEECaloG4Hit;
-   product.tOfEECaloG4Hit   = tOfEECaloG4Hit;
+   product.eOfEEPlusCaloG4Hit    = eOfEEPlusCaloG4Hit;
+   product.eOfEEMinusCaloG4Hit   = eOfEEMinusCaloG4Hit;
+   product.tOfEECaloG4Hit        = tOfEECaloG4Hit;
 
    product.phiOfESCaloG4Hit = phiOfESCaloG4Hit;
    product.etaOfESCaloG4Hit = etaOfESCaloG4Hit;
@@ -157,6 +162,10 @@ EcalSimHitsValidProducer::update(const BeginOfEvent*){
   nHitsInES  = 0 ;
   nHitsIn1ES = 0 ;
   nHitsIn2ES = 0 ;
+  nCrystalInEB   = 0;
+  nCrystalInEEzp = 0;
+  nCrystalInEEzm = 0;
+ 
 
   nHitsIn1ESzp = 0 ;
   nHitsIn1ESzm = 0 ;
@@ -181,6 +190,8 @@ EcalSimHitsValidProducer::update(const BeginOfEvent*){
   etaOfEECaloG4Hit.clear();
   tOfEECaloG4Hit.clear();
   eOfEECaloG4Hit.clear();
+  eOfEEPlusCaloG4Hit.clear();
+  eOfEEMinusCaloG4Hit.clear();
 
   phiOfESCaloG4Hit.clear();
   etaOfESCaloG4Hit.clear();
@@ -297,9 +308,11 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
     ebmap[crystid] += aHit->getEnergyDeposit();
 }
 
+    nCrystalInEB = ebmap.size();
 
  //   EE Hit collection start
- MapType eemap;
+ MapType eemap,eezpmap,eezmmap;
+ 
  for (int j=0; j<theEEHC->entries(); j++) {
     CaloG4Hit* aHit = (*theEEHC)[j];
     totalEInEE += aHit->getEnergyDeposit();
@@ -319,14 +332,21 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
     EEDetId myEEid(crystid);
     if ( myEEid.zside() == -1 ) {
           totalEInEEzm += aHit->getEnergyDeposit();
+          eOfEEMinusCaloG4Hit.push_back(he);
+          eezmmap[crystid] += aHit->getEnergyDeposit();
      }
     if ( myEEid.zside() == 1 ) {
           totalEInEEzp += aHit->getEnergyDeposit();
+          eOfEEPlusCaloG4Hit.push_back(he);
+          eezpmap[crystid] += aHit->getEnergyDeposit();
      }
                
 
     eemap[crystid] += aHit->getEnergyDeposit(); 
  }
+
+ nCrystalInEEzm = eezmmap.size();
+ nCrystalInEEzp = eezpmap.size(); 
 
  //Hits from ES
  for (int j=0; j<theSEHC->entries(); j++) {
