@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.16 2006/10/04 19:56:08 rpw Exp $
+// $Id: Entry.cc,v 1.17 2006/10/20 02:07:02 chrjones Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -710,20 +710,25 @@ namespace edm {
       }
       case 'p': // vector<ParameterSet>
       {
-          // Make sure we get the representation of each contained
-          // ParameterSet including *only* tracked parameters
-         std::vector<ParameterSet> whole = entry.getVPSet();
-         std::vector<ParameterSet>::const_iterator i = whole.begin();
-         std::vector<ParameterSet>::const_iterator e = whole.end();
+        // Make sure we get the representation of each contained
+        // ParameterSet including *only* tracked parameters
+        std::vector<ParameterSet> whole = entry.getVPSet();
+        std::vector<ParameterSet>::const_iterator i = whole.begin();
+        std::vector<ParameterSet>::const_iterator e = whole.end();
+        std::string start ="";
+        const std::string between(",");
+        os << "{"<<std::endl;
          for ( ; i != e; ++i )
          {
-           os << "{\n"<< *i << "\n}"<< std::endl;
+           os <<  start<< *i << std::endl;
+           start = between;
          }
+         os<<"\n}";
          break;
       } 
       case 'S':
       {
-        os << entry.getString() ;
+        os << "'" << entry.getString() << "'";
         break;
       }
       case 's':
