@@ -1,3 +1,9 @@
+/// \file AlignmentProducer.cc
+///
+///  \author    : Frederic Ronga
+///  Revision   : $Revision: 1.11 $
+///  last update: $Date$
+///  by         : $Author$
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -32,8 +38,6 @@ using namespace std;
 //_____________________________________________________________________________
 AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops",0) ),
-  stParameterSelector(iConfig.getParameter<std::string>("parameterSelector") ),
-  stAlignableSelector(iConfig.getParameter<std::string>("alignableSelector") ),
   stNFixAlignables(iConfig.getParameter<int>("nFixAlignables") ),
   stRandomShift(iConfig.getParameter<double>("randomShift")),
   stRandomRotation(iConfig.getParameter<double>("randomRotation")),
@@ -55,7 +59,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 
   // Check if found
   if ( !theAlignmentAlgo )
-	throw cms::Exception("BadConfig") << "Couldn't found algorithm called " << algoName;
+	throw cms::Exception("BadConfig") << "Couldn't find algorithm called " << algoName;
 
 }
 
@@ -108,39 +112,10 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   edm::LogWarning("Alignment") <<"[AlignmentProducer] Creating AlignmentParameterBuilder";
   theAlignmentParameterBuilder = new AlignmentParameterBuilder(theAlignableTracker);
 
-  // determine which parameters are fixed/aligned (local coordinates)
-  static const unsigned int npar=6;
-  std::vector<bool> sel(npar,false);
-    edm::LogWarning("Alignment") <<"[AlignmentProducer] ParameterSelector: >" <<stParameterSelector<<"<"; 
-  if (stParameterSelector.length()!=npar) {
-    edm::LogError("Alignment") <<"[AlignmentProducer] ERROR: ParameterSelector vector has wrong size!";
-    exit(1);
-  }
-  else {
-    // shifts
-    if (stParameterSelector.substr(0,1)=="1") 
-      sel[RigidBodyAlignmentParameters::dx]=true;
-    if (stParameterSelector.substr(1,1)=="1") 
-      sel[RigidBodyAlignmentParameters::dy]=true;
-    if (stParameterSelector.substr(2,1)=="1") 
-      sel[RigidBodyAlignmentParameters::dz]=true;
-    // rotations
-    if (stParameterSelector.substr(3,1)=="1") 
-      sel[RigidBodyAlignmentParameters::dalpha]=true;
-    if (stParameterSelector.substr(4,1)=="1") 
-      sel[RigidBodyAlignmentParameters::dbeta]=true;
-    if (stParameterSelector.substr(5,1)=="1") 
-      sel[RigidBodyAlignmentParameters::dgamma]=true;
-
-    for ( unsigned int i=0; i<npar; i++ )
-      if ( sel[i] ) 
-		edm::LogWarning("Alignment") <<"[AlignmentProducer] Parameter "<< i <<" active.";
-   
-  }
-
-  // select alignables 
   edm::LogWarning("Alignment") <<"[AlignmentProducer] select alignables ...";
-  theAlignmentParameterBuilder->addSelection(stAlignableSelector,sel);
+  edm::ParameterSet aliParamBuildCfg = 
+    theParameterSet.getParameter<edm::ParameterSet>("AlignmentParameterBuilder");
+  theAlignmentParameterBuilder->addSelections(aliParamBuildCfg);
 
   // fix alignables
   if (stNFixAlignables>0) theAlignmentParameterBuilder->fixAlignables(stNFixAlignables);
@@ -164,7 +139,9 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   else edm::LogWarning("Alignment") <<"[AlignmentProducer] NOT applying misalignment scenario!";
 
   // apply simple misalignment
-  simpleMisalignment(theAlignables,sel,stRandomShift,stRandomRotation,true);
+  std::vector<bool> selForSimple = theAlignmentParameterBuilder->decodeParamSel
+    (theParameterSet.getParameter<std::string>("parameterSelectorSimple"));
+  simpleMisalignment(theAlignables, selForSimple, stRandomShift, stRandomRotation, true);
   edm::LogWarning("Alignment") <<"[AlignmentProducer] simple misalignment done!";
 
   // initialize alignment algorithm
@@ -267,7 +244,7 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 // ----------------------------------------------------------------------------
 
 void AlignmentProducer::
-simpleMisalignment(Alignables alivec, std::vector<bool> sel, 
+simpleMisalignment(const Alignables &alivec, const std::vector<bool> &sel, 
 		   float shift, float rot, bool local)
 {
   bool first=true;
