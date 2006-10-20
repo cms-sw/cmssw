@@ -1,7 +1,7 @@
 #ifndef JetReco_Jet_h
 #define JetReco_Jet_h
 
- /** \class Jet
+ /** \class reco::Jet
  *
  * \short Base class for all types of Jets
  *
@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.6 2006/06/27 23:15:06 fedor Exp $
+ * \version   $Id: Jet.h,v 1.7 2006/07/21 19:23:14 fedor Exp $
  ************************************************************/
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 

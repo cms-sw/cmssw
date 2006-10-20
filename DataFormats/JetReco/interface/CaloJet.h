@@ -1,7 +1,7 @@
 #ifndef JetReco_CaloJet_h
 #define JetReco_CaloJet_h
 
-/** \class CaloJet
+/** \class reco::CaloJet
  *
  * \short Jets made from CaloTowers
  *
@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.15 2006/06/01 19:23:50 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.16 2006/06/27 23:15:06 fedor Exp $
  ************************************************************/
 
 

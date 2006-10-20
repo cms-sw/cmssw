@@ -1,7 +1,7 @@
 #ifndef JetReco_BasicJet_h
 #define JetReco_BasicJet_h
 
-/** \class BasicJet
+/** \class reco::BasicJet
  *
  * \short Jets made from CaloTowers
  *
@@ -11,7 +11,7 @@
  *
  * \author Fedor Ratnikov, UMd
  *
- * \version   $Id: BasicJet.h,v 1.16 2006/06/27 23:15:06 fedor Exp $
+ * \version   $Id: BasicJet.h,v 1.1 2006/07/19 21:41:27 fedor Exp $
  ************************************************************/
 
 

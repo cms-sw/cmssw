@@ -1,7 +1,7 @@
 #ifndef JetReco_GenJet_h
 #define JetReco_GenJet_h
 
-/** \class GenJet
+/** \class reco::GenJet
  *
  * \short Jets made from MC generator particles
  *
@@ -12,7 +12,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.5 2006/06/01 19:23:50 fedor Exp $
+ * \version   $Id: GenJet.h,v 1.6 2006/06/27 23:15:06 fedor Exp $
  ************************************************************/
 
 
