@@ -361,8 +361,11 @@ namespace cms
     
     MixCollection<PSimHit>::iterator isim;
     
+    int simHitCounter = -1;
+    
     // loop on PSimHits
     for (isim=input.begin(); isim!= input.end();isim++) {
+      simHitCounter++;
       DetId det((*isim).detUnitId());
       unsigned int detid = det.rawId();
       // filter PSimHit (delta rays momentum cut)
@@ -383,13 +386,13 @@ namespace cms
 	  if (theVerboseLevel > 2) {
 	    LogDebug("SiTrackerGaussianSmearingRecHits") << " *** " << std::endl 
 							 << "Created a RecHit with local position " << position << " and local error " << error << "\n"
-							 << "   from a PSimHit with local position " << (*isim).localPosition()
+							 << "   from PSimHit number " << simHitCounter << " with local position " << (*isim).localPosition()
 							 << " from track " << (*isim).trackId()
 							 << " with pixel multiplicity alpha(x) = " << alphaMult << " beta(y) = " << betaMult
 							 << " in detector " << detid
 							 << std::endl;
 	  }
-	  recHits.push_back( new SiTrackerGSRecHit2D( position , error , det, (*isim).trackId(), (*isim) , alphaMult , betaMult ) );
+	  recHits.push_back( new SiTrackerGSRecHit2D( position , error , det, simHitCounter, (*isim).trackId(), alphaMult , betaMult ) );
 	  output.put(det, recHits.begin(), recHits.end());
 	  if (recHits.size() > 0) {
 	    if (theVerboseLevel > 2) 
