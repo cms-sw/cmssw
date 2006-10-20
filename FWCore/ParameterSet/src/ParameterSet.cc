@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.27 2006/07/06 18:47:52 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.28 2006/08/16 17:14:31 rpw Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -334,7 +334,7 @@ namespace edm {
       // indent a bit
       os << "  " << i->first << ": " << i->second << std::endl;
     }
-    os << "}" << std::endl;
+    os << "}";
     return os;
   }
 
