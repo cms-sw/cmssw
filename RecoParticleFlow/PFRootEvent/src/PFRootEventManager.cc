@@ -533,11 +533,7 @@ bool PFRootEventManager::processEntry(int entry) {
 
 
 void PFRootEventManager::readFromSimulation(int entry) {
-    if(hitsBranch_) { 
-      hitsBranch_->GetEntry(entry);
-      for(unsigned i=0; i<rechits_.size(); i++) 
-	rechits_[i].calculatePositionREP();
-    }
+
     if(rechitsECALBranch_) {
       rechitsECALBranch_->GetEntry(entry);
       for(unsigned i=0; i<rechitsECAL_.size(); i++) 
