@@ -36,8 +36,8 @@ double TrackDetMatchInfo::ecalEnergy()
 double TrackDetMatchInfo::ecalConeEnergy()
 {
    double energy(0);
-   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
-     energy += hit->emEnergy();
+   for(std::vector<EcalRecHit>::const_iterator hit=ecalRecHits.begin(); hit!=ecalRecHits.end(); hit++)
+     energy += hit->energy();
    return energy;
 }
 
