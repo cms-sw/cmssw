@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.5 2006/08/04 02:35:23 cavana Exp $
+// $Id: Type1MET.cc,v 1.6 2006/08/08 13:17:59 cavana Exp $
 //
 //
 
@@ -53,15 +53,18 @@ namespace cms
     std::string inputUncorMetLabel;
     std::string inputUncorJetsLabel;
     std::string inputCorJetsLabel;
+    double jetPTthreshold;
   };
 
   // PRODUCER CONSTRUCTORS ------------------------------------------
   Type1MET::Type1MET( const edm::ParameterSet& iConfig ) : alg_() 
   {
     metType             = iConfig.getParameter<std::string>("metType");
+    
     inputUncorMetLabel  = iConfig.getParameter<std::string>("inputUncorMetLabel");
     inputUncorJetsLabel = iConfig.getParameter<std::string>("inputUncorJetsLabel");
     inputCorJetsLabel   = iConfig.getParameter<std::string>("inputCorJetsLabel");
+    jetPTthreshold      = iConfig.getParameter<double>("jetPTthreshold");
     if( metType == "CaloMET" )
       produces<CaloMETCollection>();
     else
@@ -85,7 +88,7 @@ namespace cms
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<CaloMETCollection> output( new CaloMETCollection() );  //Create empty output
 	alg_.run( inputUncorMet.product(), inputUncorJets.product(), 
-		  inputCorJets.product(), *output );                 //Invoke the algorithm
+		  inputCorJets.product(), jetPTthreshold, *output ); //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
     else
@@ -94,7 +97,7 @@ namespace cms
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
 	alg_.run( inputUncorMet.product(), inputUncorJets.product(), 
-		  inputCorJets.product(), *output );                 //Invoke the algorithm
+		  inputCorJets.product(), jetPTthreshold, *output ); //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
   }

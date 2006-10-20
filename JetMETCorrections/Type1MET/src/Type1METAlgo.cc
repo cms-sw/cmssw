@@ -34,29 +34,27 @@ Type1METAlgo::~Type1METAlgo() {}
 //----------------------------------------------------------------------------
 void Type1METAlgo::run(const CaloMETCollection *uncorMET, 
 		       const CaloJetCollection *uncorJet,
-		       const CaloJetCollection *corJet,
+		       const CaloJetCollection *corJet, double jetPTthreshold,
 		       CaloMETCollection &corMET) 
 {
   //Jet j = uncorJet->front(); std::cout << j.px() << std::endl;
   double DeltaPx = 0.0;
   double DeltaPy = 0.0;
   double DeltaSumET = 0.0;
-  std::vector<CaloJet>::const_iterator jet = corJet->begin();
-  //----------------- Calculate jet corrections : start with vector sum over
-  //----------------- corrected jets
-  for( ; jet != corJet->end(); jet++)
-    {
-      DeltaPx    += jet->px();
-      DeltaPy    += jet->py(); 
-      DeltaSumET += jet->et();
-    }
-  // ---------------- Now subtract off the vector sum over uncorrected jets
+  std::vector<CaloJet>::const_iterator jet;
+  std::vector<CaloJet>::const_iterator JET;
+  // ---------------- Calculate jet corrections, but only for those uncorrected jets
+  // ---------------- which are above the given threshold.  This requires that the
+  // ---------------- uncorrected jets be matched with the corrected jets.
   for( jet = uncorJet->begin(); jet != uncorJet->end(); jet++)
-    {
-      DeltaPx    -= jet->px();
-      DeltaPy    -= jet->py();
-      DeltaSumET -= jet->et();
-    }
+    if( jet->pt() > jetPTthreshold )
+      for( JET  = corJet->begin(); JET != corJet->end(); JET++)
+	if( fabs( jet->eta() - JET->eta() ) < 0.001 && fabs( jet->phi() - JET->phi() ) < 0.001 )
+	  {
+	    DeltaPx    += ( JET->px() - jet->px() );
+	    DeltaPy    += ( JET->py() - jet->py() );
+	    DeltaSumET += ( JET->et() - jet->et() );
+	  }
   //----------------- Initialise corrected MET container
   corMET.clear();
   CaloMET u = uncorMET->front();
@@ -92,29 +90,27 @@ void Type1METAlgo::run(const CaloMETCollection *uncorMET,
 //----------------------------------------------------------------------------
 void Type1METAlgo::run(const METCollection *uncorMET, 
 		       const CaloJetCollection *uncorJet,
-		       const CaloJetCollection *corJet,
+		       const CaloJetCollection *corJet, double jetPTthreshold,
 		       METCollection &corMET) 
 {
   //Jet j = uncorJet->front(); std::cout << j.px() << std::endl;
   double DeltaPx = 0.0;
   double DeltaPy = 0.0;
   double DeltaSumET = 0.0;
-  std::vector<CaloJet>::const_iterator jet = corJet->begin();
-  //----------------- Calculate jet corrections : start with vector sum over
-  //----------------- corrected jets
-  for( ; jet != corJet->end(); jet++)
-    {
-      DeltaPx    += jet->px();
-      DeltaPy    += jet->py(); 
-      DeltaSumET += jet->et();
-    }
-  // ---------------- Now subtract off the vector sum over uncorrected jets
+  std::vector<CaloJet>::const_iterator jet;
+  std::vector<CaloJet>::const_iterator JET;
+  // ---------------- Calculate jet corrections, but only for those uncorrected jets
+  // ---------------- which are above the given threshold.  This requires that the
+  // ---------------- uncorrected jets be matched with the corrected jets.
   for( jet = uncorJet->begin(); jet != uncorJet->end(); jet++)
-    {
-      DeltaPx    -= jet->px();
-      DeltaPy    -= jet->py();
-      DeltaSumET -= jet->et();
-    }
+    if( jet->pt() > jetPTthreshold )
+      for( JET  = corJet->begin(); JET != corJet->end(); JET++)
+	if( fabs( jet->eta() - JET->eta() ) < 0.001 && fabs( jet->phi() - JET->phi() ) < 0.001 )
+	  {
+	    DeltaPx    += ( JET->px() - jet->px() );
+	    DeltaPy    += ( JET->py() - jet->py() );
+	    DeltaSumET += ( JET->et() - jet->et() );
+	  }
   //----------------- Initialise corrected MET container
   corMET.clear();
   MET u = uncorMET->front();
