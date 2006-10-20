@@ -23,7 +23,10 @@ class TrackDetMatchInfo {
    
    double outerHcalEnergy();
    double outerHcalConeEnergy();
-   
+
+   double ecalTowerEnergy();
+   double ecalTowerConeEnergy();
+
    int numberOfSegments(){ return segments.size(); }
    int numberOfSegmentsInStation(int station) const;
    int numberOfSegmentsInStation(int station, int detector) const;

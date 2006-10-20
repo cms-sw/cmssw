@@ -149,3 +149,19 @@ double TrackDetMatchInfo::outerHcalEnergy()
    return energy;
 }
 
+double TrackDetMatchInfo::ecalTowerConeEnergy()
+{
+   double energy(0);
+   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
+     energy += hit->emEnergy();
+   return energy;
+}
+
+double TrackDetMatchInfo::ecalTowerEnergy()
+{
+   double energy(0);
+   for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
+     energy += tower->emEnergy();
+   return energy;
+}
+
