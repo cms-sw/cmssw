@@ -18,11 +18,15 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h" 
 //
 
-// Hits
+// PSimHits
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+//
+
+// RecHits
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/Common/interface/OwnVector.h" 
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 //
 
@@ -56,6 +60,10 @@ FamosRecHitAnalysis::FamosRecHitAnalysis(edm::ParameterSet const& pset) :
 #ifdef rrDEBUG
   std::cout << "Start Famos RecHit Analysis" << std::endl;
 #endif
+  //--- PSimHit Containers
+  trackerContainers.clear();
+  trackerContainers = pset.getParameter<std::vector<std::string> >("SimHitList");
+  //
   thePixelMultiplicityFileName = pset.getUntrackedParameter<std::string>( "PixelMultiplicityFile" , "FastSimulation/TrackingRecHitProducer/data/PixelData.root" );
   nAlphaBarrel  = pset.getUntrackedParameter<int>("AlphaBarrelMultiplicity", 4);
   nBetaBarrel   = pset.getUntrackedParameter<int>("BetaBarrelMultiplicity",  6);
@@ -386,6 +394,12 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
     << std::endl;
 #endif
   //
+
+  // Get PSimHit's of the Event
+  edm::Handle<CrossingFrame> cf;
+  event.getByType(cf);
+  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+  //
   
   // RecHits
 #ifdef rrDEBUG
@@ -407,7 +421,7 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
   TH1F* hist_res_beta  = 0;
   //
   
-  // loop on RecHits, no need to associate to PsimHits in Famos, because they have their PSimHit as member
+  // loop on RecHits
   unsigned int iRecHit = 0;
   const std::vector<DetId> theDetIds = theRecHits->ids();
   // loop over detunits
@@ -421,12 +435,25 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
       // loop over RecHits of the same detector
       for(iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
 	iRecHit++;
+	
+	// search the associated original PSimHit
+	PSimHit* simHit = NULL;
+	int simHitNumber = (*iterRecHit).simhitId();
+	int simHitCounter = -1;
+	for (MixCollection<PSimHit>::iterator isim=(*allTrackerHits).begin(); isim!= (*allTrackerHits).end(); isim++) {
+	  simHitCounter++;
+	  if(simHitCounter == simHitNumber) {
+	    simHit = const_cast<PSimHit*>(&(*isim));
+	    break;
+	  }
+	}    
+	//
 	float xRec = (*iterRecHit).localPosition().x();
 	float yRec = (*iterRecHit).localPosition().y();
 	float zRec = (*iterRecHit).localPosition().z();
-	float xSim = (*iterRecHit).simhit().localPosition().x();
-	float ySim = (*iterRecHit).simhit().localPosition().y();
-	float zSim = (*iterRecHit).simhit().localPosition().z();
+	float xSim = simHit->localPosition().x();
+	float ySim = simHit->localPosition().y();
+	float zSim = simHit->localPosition().z();
 	float delta_x = xRec - xSim;
 	float delta_y = yRec - ySim;
 	float delta_z = zRec - zSim;
@@ -434,13 +461,13 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 	float err_y = sqrt((*iterRecHit).localPositionError().yy());
 	float err_z = 0.0;
 	float alpha = 3.141592654 / 2.
-	  - acos( (*iterRecHit).simhit().localDirection().x() /
-		  sqrt( (*iterRecHit).simhit().localDirection().x() * (*iterRecHit).simhit().localDirection().x()
-			+ (*iterRecHit).simhit().localDirection().z() * (*iterRecHit).simhit().localDirection().z() ) );
+	  - acos( simHit->localDirection().x() /
+		  sqrt( simHit->localDirection().x() * simHit->localDirection().x()
+			+ simHit->localDirection().z() * simHit->localDirection().z() ) );
 	float beta = fabs( 3.141592654 / 2.
-			   - acos( (*iterRecHit).simhit().localDirection().y() /
-				   sqrt( (*iterRecHit).simhit().localDirection().y() * (*iterRecHit).simhit().localDirection().y()
-					 + (*iterRecHit).simhit().localDirection().z() * (*iterRecHit).simhit().localDirection().z() ) ) );
+			   - acos( simHit->localDirection().y() /
+				   sqrt( simHit->localDirection().y() * simHit->localDirection().y()
+					 + simHit->localDirection().z() * simHit->localDirection().z() ) ) );
 	unsigned int mult_alpha = (*iterRecHit).simMultX();
 	unsigned int mult_beta  = (*iterRecHit).simMultY();
 #ifdef rrDEBUG

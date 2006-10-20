@@ -103,6 +103,10 @@ private:
   std::vector<TH1F*> histos_TEC_nom_x;
   //
   
+  // PSimHits
+  std::vector<std::string> trackerContainers;
+  //
+  
   // Pixel more detailed analysis
   // multiplicity bins
   unsigned int nAlphaBarrel, nBetaBarrel, nAlphaForward, nBetaForward;
