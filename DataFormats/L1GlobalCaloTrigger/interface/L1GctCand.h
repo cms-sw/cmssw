@@ -1,7 +1,7 @@
 #ifndef L1GCTCAND_H
 #define L1GCTCAND_H
 
-#include "DatFormats/L1CaloTrigger/interface/LCaloRegionDetId.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 /// \class L1GctCand
 /// \brief ABC for GCT EM and jet candidates

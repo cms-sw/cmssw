@@ -34,7 +34,7 @@ public:
   virtual ~L1GctEmCand();
   
   /// region associated with the candidate
-  L1CaloRegionDetId regionId() const { return id; }
+  L1CaloRegionDetId regionId() const { return m_id; }
 
   /// name of object
   std::string name() const;
