@@ -4,8 +4,8 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2006/10/16 16:08:30 $
- * $Revision: 1.1 $
+ * $Date: 2006/10/18 15:04:00 $
+ * $Revision: 1.2 $
  * \author F. Cossutti
  *
 */
@@ -43,6 +43,7 @@
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
@@ -130,11 +131,18 @@ private:
 
  const EcalSimParameterMap * theParameterMap;
  const CaloVShape * theEcalShape;
+ const ESShape * theESShape;
+
  CaloHitResponse * theEcalResponse;
+ CaloHitResponse * theESResponse;
  
- void computeCrystalBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & ebSignalSimMap, const bool & isBarrel, const double & theSimThreshold);
+ void computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & ebSignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold);
 
  void bunchSumTest(std::vector<MonitorElement *> & theBunches, MonitorElement* & theTotal, MonitorElement* & theRatio, int nSample);
+
+ double esBaseline_;
+ double esADCtokeV_;
+ double esThreshold_;
 
  int theMinBunch;
  int theMaxBunch;

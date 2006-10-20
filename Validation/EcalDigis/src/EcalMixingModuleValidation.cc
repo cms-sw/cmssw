@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2006/10/17 13:12:56 $
- * $Revision: 1.2 $
+ * $Date: 2006/10/18 15:04:00 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -44,6 +44,20 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
   theEcalShape = new EcalShape(timePhase);
 
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
+
+  int ESGain = ps.getParameter<int>("ESGain");
+  double ESNoiseSigma = ps.getParameter<double> ("ESNoiseSigma");
+  int ESBaseline = ps.getParameter<int>("ESBaseline");
+  double ESMIPADC = ps.getParameter<double>("ESMIPADC");
+  double ESMIPkeV = ps.getParameter<double>("ESMIPkeV");
+
+  theESShape = new ESShape(ESGain);
+
+  theESResponse = new CaloHitResponse(theParameterMap, theESShape);
+
+  esBaseline_ = (double)ESBaseline;
+  esADCtokeV_ = 1000000.*ESMIPADC/ESMIPkeV;
+  esThreshold_ = 3.*ESNoiseSigma/esADCtokeV_;
 
   theMinBunch = -10;
   theMaxBunch = 10;
@@ -193,6 +207,13 @@ void EcalMixingModuleValidation::endJob(){
     theBunches.push_back(meEEBunchShape_[i]);
   }
   bunchSumTest(theBunches , meEEShape_ , meEEShapeRatio_ , EcalDataFrame::MAXSAMPLES);
+  
+  theBunches.clear();
+  
+  for ( int i = 0 ; i < nBunch ; i++ ) {
+    theBunches.push_back(meESBunchShape_[i]);
+  }
+  bunchSumTest(theBunches , meESShape_ , meESShapeRatio_ , ESDataFrame::MAXSAMPLES);
   
 }
 
@@ -401,7 +422,8 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
         
       } 
     
-    computeCrystalBunchDigi(c, *barrelHits, ebSignalSimMap, isBarrel, ebSimThreshold);
+    EcalSubdetector thisDet = EcalBarrel;
+    computeSDBunchDigi(c, *barrelHits, ebSignalSimMap, thisDet, ebSimThreshold);
   }
   
   
@@ -498,8 +520,8 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
         }
       }
     
-    isBarrel = false;
-    computeCrystalBunchDigi(c, *endcapHits, eeSignalSimMap, isBarrel, eeSimThreshold);
+    EcalSubdetector thisDet = EcalEndcap;
+    computeSDBunchDigi(c, *endcapHits, eeSignalSimMap, thisDet, eeSimThreshold);
   }
 
   if ( isPreshower) {
@@ -507,6 +529,8 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
     const std::string preshowerHitsName ("EcalHitsES") ;
     std::auto_ptr<MixCollection<PCaloHit> > 
       preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product (), preshowerHitsName)) ;
+    
+    MapType esSignalSimMap;
     
     for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin () ;
          hitItr != preshowerHits->end () ;
@@ -521,9 +545,57 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
         << " Track Id = " << hitItr->geantTrackId() << "\n"
         << " Energy = " << hitItr->energy();
 
-      if ( meESbunchCrossing_ ) meESbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+      uint32_t stripid = esid.rawId();
 
+      if ( hitItr->eventId().rawId() == 0 ) esSignalSimMap[stripid] += hitItr->energy();
+      
+      if ( meESbunchCrossing_ ) meESbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+  
+      // loop over Digis
+
+      const ESDigiCollection * preshowerDigi = EcalDigiES.product () ;
+
+      std::vector<double> esADCCounts ;
+      std::vector<double> esADCAnalogSignal ;
+      esADCCounts.reserve(ESDataFrame::MAXSAMPLES);
+      esADCAnalogSignal.reserve(ESDataFrame::MAXSAMPLES);
+
+      for (std::vector<ESDataFrame>::const_iterator digis = preshowerDigi->begin () ;
+           digis != preshowerDigi->end () ;
+           ++digis)
+        {
+          
+          ESDetId esid = digis->id () ;
+          
+          for (int sample = 0 ; sample < digis->size () ; ++sample) {
+            esADCCounts[sample] = 0.;
+            esADCAnalogSignal[sample] = 0.;
+          }
+          
+          for (int sample = 0 ; sample < digis->size () ; ++sample)
+            {
+              esADCCounts[sample] = (digis->sample (sample).adc ()) ;
+              esADCAnalogSignal[sample] = (esADCCounts[sample]-esBaseline_)/esADCtokeV_;
+            }
+          if (verbose_) {
+            LogDebug("DigiInfo") << "Preshower Digi for ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip();
+            for ( int i = 0; i < 3 ; i++ ) {
+              LogDebug("DigiInfo") << "sample " << i << " ADC = " << esADCCounts[i] << " Analog eq = " << esADCAnalogSignal[i];
+            }
+          }
+
+          if ( esSignalSimMap[esid.rawId()] > esThreshold_  && meESShape_ ) {
+            for ( int i = 0; i < 3 ; i++ ) {
+              meESShape_->Fill(i, esADCAnalogSignal[i] );
+            }
+          }
+          
+        } 
+      
     }
+
+    EcalSubdetector thisDet = EcalPreshower;
+    computeSDBunchDigi(c, *preshowerHits, esSignalSimMap, thisDet, esThreshold_);
     
   }
   
@@ -596,8 +668,15 @@ void EcalMixingModuleValidation::findPedestal(const DetId & detId, int gainId, d
   }
 }
 
-void EcalMixingModuleValidation::computeCrystalBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const bool & isBarrel, const double & theSimThreshold)
+void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold)
 {
+
+  if ( thisDet != EcalBarrel && thisDet != EcalEndcap && thisDet != EcalPreshower ) {
+    edm::LogError("EcalMMValid") << "Invalid subdetector type";
+    return;
+  }
+  bool isCrystal = true;
+  if ( thisDet == EcalPreshower ) isCrystal = false;
 
   // load the geometry
 
@@ -609,43 +688,60 @@ void EcalMixingModuleValidation::computeCrystalBunchDigi(const edm::EventSetup &
   // see if we need to update
   if(pGeometry != theGeometry) {
     theGeometry = pGeometry;
-    theEcalResponse->setGeometry(theGeometry);
+    theEcalResponse->setGeometry(theGeometry); 
+    theESResponse->setGeometry(theGeometry); 
   }
 
   // vector of DetId with energy above a fraction of the gun's energy
 
-  std::vector<DetId> theCrystalId;
-  if ( isBarrel ) { theCrystalId = theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel); }
-  else { theCrystalId = theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap); }
+  std::vector<DetId> theSDId;
+  if ( thisDet == EcalBarrel ) { theSDId = theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel); }
+  else if ( thisDet == EcalEndcap ) { theSDId = theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap); }
+  else if ( thisDet == EcalPreshower ) { theSDId = theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower); }
 
   std::vector<DetId> theOverThresholdId;
-  for ( unsigned int i = 0 ; i < theCrystalId.size() ; i++ ) {
+  for ( unsigned int i = 0 ; i < theSDId.size() ; i++ ) {
 
-    int crysId = theCrystalId[i].rawId();
-    if ( SignalSimMap[crysId] > theSimThreshold ) theOverThresholdId.push_back( theCrystalId[i] );
+    int sdId = theSDId[i].rawId();
+    if ( SignalSimMap[sdId] > theSimThreshold ) theOverThresholdId.push_back( theSDId[i] );
 
   }
 
+  int limit = CaloSamples::MAXSAMPLES;
+  if ( ! isCrystal ) limit = ESDataFrame::MAXSAMPLES;
+
    for (int iBunch = theMinBunch ; iBunch <= theMaxBunch ; iBunch++ ) {
 
-     theEcalResponse->setBunchRange(iBunch, iBunch);
-     theEcalResponse->clear();
-     theEcalResponse->run(theHits);
+     if ( isCrystal ) {
+       theEcalResponse->setBunchRange(iBunch, iBunch);
+       theEcalResponse->clear();
+       theEcalResponse->run(theHits);
+     }
+     else {
+       theESResponse->setBunchRange(iBunch, iBunch);
+       theESResponse->clear();
+       theESResponse->run(theHits);
+     }
 
      int iHisto = iBunch - theMinBunch;
 
      for ( std::vector<DetId>::const_iterator idItr = theOverThresholdId.begin() ; idItr != theOverThresholdId.end() ; ++idItr ) {
-
-       CaloSamples * analogSignal = theEcalResponse->findSignal(*idItr);
+       
+       CaloSamples * analogSignal;
+       if ( isCrystal ) 
+         { analogSignal = theEcalResponse->findSignal(*idItr); }
+       else
+         { analogSignal = theESResponse->findSignal(*idItr); }
 
        if ( analogSignal ) {
         
          (*analogSignal) *= theParameterMap->simParameters(analogSignal->id()).photoelectronsToAnalog();
 
-         for ( int i = 0 ; i < CaloSamples::MAXSAMPLES ; i++ ) {
+         for ( int i = 0 ; i < limit ; i++ ) {
 
-           if ( isBarrel ) { meEBBunchShape_[iHisto]->Fill(i,(float)(*analogSignal)[i]); }
-           else { meEEBunchShape_[iHisto]->Fill(i,(float)(*analogSignal)[i]); }
+           if ( thisDet == EcalBarrel ) { meEBBunchShape_[iHisto]->Fill(i,(float)(*analogSignal)[i]); }
+           else if ( thisDet == EcalEndcap ) { meEEBunchShape_[iHisto]->Fill(i,(float)(*analogSignal)[i]); }
+           else if ( thisDet == EcalPreshower ) { meESBunchShape_[iHisto]->Fill(i,(float)(*analogSignal)[i]); }
          }
        }
 
