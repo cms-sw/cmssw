@@ -1,16 +1,15 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_TrackerAlignmentProducer_h
 #define Alignment_CommonAlignmentAlgorithm_TrackerAlignmentProducer_h
 
-//
-// Package:    Alignment/CommonAlignmentAlgorithm
-// Class:      AlignmentProducer
-// 
-//
-// Description: calls alignment algorithms
-//
-//
-// Original Author:  Frederic Ronga
-//
+/// \class AlignmentProducer
+///
+/// Package     : Alignment/CommonAlignmentProducer
+/// Description : calls alignment algorithms
+///
+///  \author    : Frederic Ronga
+///  Revision   : $Revision: 1.11 $
+///  last update: $Date$
+///  by         : $Author$
 
 #include <vector>
 
@@ -74,7 +73,7 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   // private member functions
 
-  void simpleMisalignment(Alignables alivec, std::vector<bool>sel, 
+  void simpleMisalignment(const Alignables &alivec, const std::vector<bool> &sel, 
     float shift, float rot, bool local);
 
   // private data members
@@ -95,8 +94,6 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   unsigned int theMaxLoops;     // Number of loops to loop
 
-  std::string stParameterSelector;
-  std::string stAlignableSelector;
   int stNFixAlignables;
   double stRandomShift,stRandomRotation;
   bool doMisalignmentScenario,saveToDB;
