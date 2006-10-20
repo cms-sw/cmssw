@@ -1,6 +1,8 @@
 #ifndef L1GCTCAND_H
 #define L1GCTCAND_H
 
+#include "DatFormats/L1CaloTrigger/interface/LCaloRegionDetId.h"
+
 /// \class L1GctCand
 /// \brief ABC for GCT EM and jet candidates
 /// \author Jim Brooke
@@ -9,6 +11,9 @@
 
 class L1GctCand {
 public:
+
+  /// access origin of candidate
+  virtual L1CaloRegionDetId regionId() const = 0;
 
   /// empty candidate  - true if object not initialized
   virtual bool empty() const = 0;
@@ -27,6 +32,9 @@ public:
   
   /// get phi index (0-17)
   virtual unsigned phiIndex() const = 0;
+
+
+
 
 };
 
