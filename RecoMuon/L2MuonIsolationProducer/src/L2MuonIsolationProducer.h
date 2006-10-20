@@ -11,16 +11,11 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
 #include "RecoMuon/MuonIsolation/src/CaloExtractor.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-
-namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class L2MuonIsolationProducer : public edm::EDProducer {
 
@@ -42,13 +37,17 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   std::string theSACollectionLabel;
 
   // Isolation cuts
-  std::vector<double> coneCuts_;
-  std::vector<double> edepCuts_;
-  std::vector<double> etaBounds_;
-  double ecalWeight_;
+  muonisolation::Cuts theCuts;
 
-  // MuIsoExtractor settings
-  muonisolation::CaloExtractor theMuIsoExtractor;
+  // Weight of ECAL deposits with respecto HCAL ones
+  double theEcalWeight;
+
+  // Option to write MuIsoDeposits into the event
+  double optOutputIsoDeposits;
+
+  // MuIsoExtractors
+  muonisolation::CaloExtractor theEcalExtractor;
+  muonisolation::CaloExtractor theHcalExtractor;
 
 };
 

@@ -2,14 +2,12 @@
 #define MuonIsolation_CaloExtractor_H
 
 #include <string>
-#include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
 
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
@@ -21,29 +19,27 @@ class CaloExtractor : public MuIsoExtractor {
 
 public:
 
-  CaloExtractor() { }
+  CaloExtractor(){};
   CaloExtractor(const edm::ParameterSet& par);
 
   virtual ~CaloExtractor(){}
 
-  virtual std::vector<reco::MuIsoDeposit> deposits( const edm::Event & ev, 
-      const edm::EventSetup & evSetup, const reco::Track & track, 
-      const std::vector<muonisolation::Direction> & vetoDirs, double coneSize) const; 
+  virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
+  virtual reco::MuIsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
 
   /// Extrapolate muons to calorimeter-object positions
-  GlobalPoint MuonAtCaloPosition(const reco::Track& muon, const GlobalPoint& endpos, bool fixVxy=false, bool fixVz=false) const;
+  static GlobalPoint MuonAtCaloPosition(const reco::Track& muon, const GlobalPoint& endpos, bool fixVxy=false, bool fixVz=false);
   
- private:
 private:
-  
-  void fillDeposits( reco::MuIsoDeposit & ecaldep, reco::MuIsoDeposit & hcaldep, 
-      const reco::Track& mu, const edm::Event& event, const edm::EventSetup& eventSetup) const;
+  // CaloTower Collection Label
+  std::string theCaloTowerCollectionLabel;
 
-private:
-  double theDiff_r, theDiff_z, theDR_Match, theDR_Veto;
-  std::string theCaloTowerCollectionLabel; // CaloTower Collection Label
+  // Label of deposit
+  std::string theDepositLabel;
 
   // Cone cuts and thresholds
+  double theWeight_E;
+  double theWeight_H;
   double theThreshold_E;
   double theThreshold_H;
   double theDR_Veto_E;
@@ -52,15 +48,18 @@ private:
   bool vertexConstraintFlag_XY;
   bool vertexConstraintFlag_Z;
 
+  // Vector of calo Ids to veto
+  std::vector<DetId> theVetoCollection;
+
   // Determine noise for HCAL and ECAL (take some defaults for the time being)
   double noiseEcal(const CaloTower& tower) const;
   double noiseHcal(const CaloTower& tower) const;
 
   // Function to ensure that phi and theta are in range
-  double PhiInRange(const double& phi) const;
+  static double PhiInRange(const double& phi);
 
   // DeltaR function
-  template <class T, class U> double deltaR(const T& t, const U& u) const;
+  template <class T, class U> static double deltaR(const T& t, const U& u);
 };
 
 }

@@ -8,24 +8,34 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace muonisolation;
 
-TrackExtractor::TrackExtractor( double aDdiff_r, double aDiff_z, double aDR_match, double aDR_Veto, 
-  std::string aTrackCollectionLabel, std::string aDepositLabel) 
-  : theDiff_r(aDdiff_r), theDiff_z(aDiff_z), theDR_Match(aDR_match), theDR_Veto(aDR_Veto),
-    theTrackCollectionLabel(aTrackCollectionLabel), theDepositLabel(aDepositLabel) 
-{ }
-
-
-vector<MuIsoDeposit> TrackExtractor::deposits( const Event & event, 
-    const EventSetup & eventSetup, const Track & muon, 
-    const vector<Direction> & vetoDirections, double coneSize) const
+TrackExtractor::TrackExtractor( const ParameterSet& par ) :
+  theTrackCollectionLabel(par.getUntrackedParameter<string>("TrackCollectionLabel")),
+  theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
+  theDiff_r(par.getParameter<double>("Diff_r")),
+  theDiff_z(par.getParameter<double>("Diff_z")),
+  theDR_Max(par.getParameter<double>("theDR_Max")),
+  theDR_Veto(par.getParameter<double>("theDR_Veto"))
 {
-  vector<MuIsoDeposit> result;
+}
+
+void TrackExtractor::fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & muons) {
+
+  theVetoCollection.clear();
+
+  TrackCollection::const_iterator tk;
+  for (tk = muons.begin(); tk != muons.end(); tk++) {
+    theVetoCollection.push_back(&(*tk));
+  }
+
+}
+
+MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eventSetup, const Track & muon) const
+{
   static std::string metname = "RecoMuon/TrackExtractor";
 
   double vtx_z = muon.z();
@@ -36,33 +46,23 @@ vector<MuIsoDeposit> TrackExtractor::deposits( const Event & event,
   const TrackCollection tracks = *(tracksH.product());
   LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracks.size();
 
-  TrackSelector selection( TrackSelector::Range(vtx_z-theDiff_z, vtx_z+theDiff_z),
-       theDiff_r, muonDir, coneSize);
+  TrackSelector selection(TrackSelector::Range(vtx_z-theDiff_z, vtx_z+theDiff_z),
+       theDiff_r, muonDir, theDR_Max);
 
-  TrackCollection selected_tracks = selection(tracks);
-  LogTrace(metname)<<"all tracks: "<<tracks.size()<<" selected: "<<selected_tracks.size();
+  TrackCollection sel_tracks = selection(tracks);
+  LogTrace(metname)<<"all tracks: "<<tracks.size()<<" selected: "<<sel_tracks.size();
 
-  MuIsoDeposit deposit(theDepositLabel, muonDir.eta(), muonDir.phi() );
-  fillDeposits(deposit, selected_tracks, vetoDirections);
-
-  result.push_back(deposit);
-
-  return result;
-}
+  MuIsoDeposit dep(theDepositLabel, muonDir.eta(), muonDir.phi() );
   
+  Direction depDir(dep.getEta(), dep.getPhi());
+  TrackCollection::const_iterator tk;
+  for (tk = sel_tracks.begin(); tk != sel_tracks.end(); tk++) {
+    if (std::find(theVetoCollection.begin(), theVetoCollection.end(), &(*tk))!=theVetoCollection.end()) continue;
 
-void TrackExtractor::fillDeposits( MuIsoDeposit & deposit, 
-    const TrackCollection & tracks, const std::vector<Direction> & vetos) const
-{
-  Direction depDir(deposit.getEta(), deposit.getPhi());
-  for (TrackCollection::const_iterator it = tracks.begin(); it != tracks.end(); it++) {
-    Direction dirTrk(it->eta(), it->phi0());
-    bool skip = false;
-    for (vector<Direction>::const_iterator iv = vetos.begin(); iv != vetos.end(); iv++) {
-      if( dirTrk.deltaR(*iv) < theDR_Veto) { skip = true; break; }
-    }
-    if (skip) continue;
+    Direction dirTrk(tk->eta(), tk->phi0());
     float dr = depDir.deltaR(dirTrk);
-    deposit.addDeposit(dr, it->pt());
+    dep.addDeposit(dr, tk->pt());
   }
+
+  return dep;
 }

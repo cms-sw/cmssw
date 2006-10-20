@@ -18,114 +18,135 @@ using namespace std;
 using namespace reco;
 using namespace muonisolation;
 
-CaloExtractor::CaloExtractor(const ParameterSet& par)
+CaloExtractor::CaloExtractor(const ParameterSet& par) :
+  theCaloTowerCollectionLabel(par.getUntrackedParameter<string>("CaloTowerCollectionLabel")),
+  theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
+  theWeight_E(par.getParameter<double>("Weight_E")),
+  theWeight_H(par.getParameter<double>("Weight_H")),
+  theThreshold_E(par.getParameter<double>("Threshold_E")),
+  theThreshold_H(par.getParameter<double>("Threshold_H")),
+  theDR_Veto_E(par.getParameter<double>("DR_Veto_E")),
+  theDR_Veto_H(par.getParameter<double>("DR_Veto_H")),
+  theDR_Max(par.getParameter<double>("DR_Max")),
+  vertexConstraintFlag_XY(par.getParameter<bool>("Vertex_Constraint_XY")),
+  vertexConstraintFlag_Z(par.getParameter<bool>("Vertex_Constraint_Z"))
 {
-  theCaloTowerCollectionLabel = par.getUntrackedParameter<string>("CaloTowerCollectionLabel");
-  theThreshold_E = par.getParameter<double>("Threshold_E");
-  theThreshold_H = par.getParameter<double>("Threshold_H");
-  theDR_Veto_E = par.getParameter<double>("dR_Veto_E");
-  theDR_Veto_H = par.getParameter<double>("dR_Veto_H");
-  theDR_Max = par.getParameter<double>("dR_Max");
-  vertexConstraintFlag_XY = par.getParameter<bool>("Vertex_Constraint_XY");
-  vertexConstraintFlag_Z = par.getParameter<bool>("Vertex_Constraint_Z");
 }
 
-
-vector<MuIsoDeposit> CaloExtractor::deposits( const Event & event, 
-    const EventSetup& eventSetup, const Track & muon, 
-    const vector<Direction> & vetoDirections, double coneSize) const
+void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& eventSetup, const TrackCollection& muons)
 {
-  vector<MuIsoDeposit> result;
-  static std::string metname = "RecoMuon/CaloExtractor";
+  theVetoCollection.clear();
 
-  MuIsoDeposit edep("ECAL", muon.eta(), muon.phi() );
-  MuIsoDeposit hdep("HCAL", muon.eta(), muon.phi() );
-  fillDeposits(edep, hdep, muon, event, eventSetup);
-
-  result.push_back(edep);
-  result.push_back(hdep);
-
-  return result;
-}
-  
-
-void CaloExtractor::fillDeposits(MuIsoDeposit& depE
-        , MuIsoDeposit& depH, const Track& mu
-        , const Event& event, const EventSetup& eventSetup) const {
   Handle<CaloTowerCollection> towers;
   event.getByLabel(theCaloTowerCollectionLabel,towers);
 
   edm::ESHandle<CaloGeometry> caloGeom;
   eventSetup.get<IdealGeometryRecord>().get(caloGeom);
 
-  LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-      << " >>> Muon eta phi pt: " << mu.eta() 
-      << " " << mu.phi() << " " << mu.pt();
+  TrackCollection::const_iterator mu;
+  CaloTowerCollection::const_iterator cal;
+  for ( mu = muons.begin(); mu != muons.end(); ++mu ) {
+      for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
+            double deltar0 = deltaR(*mu,*cal);
+            if (deltar0>theDR_Max) continue;
 
-  depE.setEta(mu.eta());
-  depE.setPhi(mu.phi());
-  depH.setEta(mu.eta());
-  depH.setPhi(mu.phi());
+            double etecal = cal->emEt();
+            bool doEcal = theWeight_E>0 && etecal>theThreshold_E && etecal>3*noiseEcal(*cal);
+            double ethcal = cal->hadEt();
+            bool doHcal = theWeight_H>0 && ethcal>theThreshold_H && ethcal>3*noiseHcal(*cal);
+            if ((!doEcal) && (!doHcal)) continue;
+
+            DetId calId = cal->id();
+            GlobalPoint endpos = caloGeom->getPosition(calId);
+            GlobalPoint muatcal = MuonAtCaloPosition(*mu,endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
+            double deltar = deltaR(muatcal,endpos);
+
+            if (doEcal) {
+                  if (deltar<theDR_Veto_E) theVetoCollection.push_back(calId);
+            } else {
+                  if (deltar<theDR_Veto_H) theVetoCollection.push_back(calId);
+            }
+      }
+  }
+     
+}
+
+MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
+{
+  MuIsoDeposit dep(theDepositLabel, muon.eta(), muon.phi() );
+
+  Handle<CaloTowerCollection> towers;
+  event.getByLabel(theCaloTowerCollectionLabel,towers);
+
+  edm::ESHandle<CaloGeometry> caloGeom;
+  eventSetup.get<IdealGeometryRecord>().get(caloGeom);
 
   CaloTowerCollection::const_iterator cal;
   for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
-      double deltar0 = deltaR(mu,*cal);
+      double deltar0 = deltaR(muon,*cal);
       if (deltar0>theDR_Max) continue;
-      //LogDebug("Muon|RecoMuon|L2MuonIsolationProducer") << " >>> Calo deltaR0= " << deltar0;
 
       double etecal = cal->emEt();
+      bool doEcal = theWeight_E>0 && etecal>theThreshold_E && etecal>3*noiseEcal(*cal);
       double ethcal = cal->hadEt();
-      bool doEcal = (etecal>theThreshold_E && etecal>3*noiseEcal(*cal));
-      bool doHcal = (ethcal>theThreshold_H && ethcal>3*noiseHcal(*cal));
-
+      bool doHcal = theWeight_H>0 && ethcal>theThreshold_H && ethcal>3*noiseHcal(*cal);
       if ((!doEcal) && (!doHcal)) continue;
 
-      GlobalPoint endpos = caloGeom->getPosition(cal->id());
-      GlobalPoint muatcal = MuonAtCaloPosition(mu,endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
+      DetId calId = cal->id();
+      GlobalPoint endpos = caloGeom->getPosition(calId);
+      GlobalPoint muatcal = MuonAtCaloPosition(muon,endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
       double deltar = deltaR(muatcal,endpos);
-      for (unsigned int i=0; i<cal->constituentsSize(); i++) {
-            DetId calId = cal->constituent(i);
-            endpos = caloGeom->getPosition(calId);
-            muatcal = MuonAtCaloPosition(mu,endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
-            deltar = min(deltar,deltaR(muatcal,endpos));
+
+      if (deltar<theDR_Veto_H) {
+            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
+                  << " >>> Calo deltaR= " << deltar;
+            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
+                  << " >>> Calo eta phi ethcal: " << cal->eta() << " " << cal->phi() << " " << ethcal;
+            GlobalPoint hula = caloGeom->getPosition(cal->id());
+            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
+                  << " >>> Calo position: x " << hula.x()
+                  << " y " << hula.y()
+                  << " z " << hula.z();
       }
 
       if (doEcal) {
             if (deltar<theDR_Veto_E) { 
-                  depE.addMuonEnergy(etecal);
-            } else {
-                  depE.addDeposit(deltar0,etecal);
+                  dep.addMuonEnergy(theWeight_E*etecal);
+                  if (doHcal) dep.addMuonEnergy(theWeight_H*ethcal);
+                  continue;
             }
-      }
-
-      if (doHcal) {
+      } else {
             if (deltar<theDR_Veto_H) { 
-                  depH.addMuonEnergy(ethcal);
-            } else {
-                  depH.addDeposit(deltar0,ethcal);
+                  dep.addMuonEnergy(theWeight_H*ethcal);
+                  continue;
             }
       }
 
-      //LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-           //<< " >>> Muon at calo x y z: " << muatcal.x() << " " << muatcal.y() << " " << muatcal.z();
-      //LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-           //<< " >>> Muon at calo eta phi: " << muatcal.eta() << " " << muatcal.phi();
-      if (deltar<theDR_Veto_H) {
+      if (std::find(theVetoCollection.begin(), theVetoCollection.end()
+                  , calId)!=theVetoCollection.end()) {
             LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-                 << " >>> Calo deltaR= " << deltar;
-            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-                 << " >>> Calo eta phi etHcal: " << cal->eta() << " " << cal->phi() << " " << ethcal;
-            GlobalPoint hula = caloGeom->getPosition(cal->id());
-            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-                 << " >>> Calo position: x " << hula.x()
-                 << " y " << hula.y()
-                 << " z " << hula.z();
+            << " >>> Deposits belongs to other track: deltar, etecal, ethcal= " 
+            << deltar << ", " << etecal << ", " << ethcal;
+            continue;
+      }
+
+      if (doEcal) {
+            if (deltar>theDR_Veto_E) { 
+                  dep.addDeposit(deltar,theWeight_E*etecal);
+                  if (doHcal) dep.addDeposit(deltar,theWeight_H*ethcal);
+            }
+      } else {
+            if (deltar>theDR_Veto_H) { 
+                  dep.addDeposit(deltar,theWeight_H*ethcal);
+            }
       }
   }
 
+  return dep;
+
 }
 
-GlobalPoint CaloExtractor::MuonAtCaloPosition(const Track& muon, const GlobalPoint& endpos, bool fixVxy, bool fixVz) const {
+GlobalPoint CaloExtractor::MuonAtCaloPosition(const Track& muon, const GlobalPoint& endpos, bool fixVxy, bool fixVz) {
       double cur = -muon.transverseCurvature();
       double phi0 = muon.phi0();
       double dca = - muon.d0();
@@ -217,7 +238,7 @@ GlobalPoint CaloExtractor::MuonAtCaloPosition(const Track& muon, const GlobalPoi
       return GlobalPoint(x,y,z);
 }
 
-double CaloExtractor::PhiInRange(const double& phi) const {
+double CaloExtractor::PhiInRange(const double& phi) {
       double phiout = phi;
 
       if( phiout > 2*M_PI || phiout < -2*M_PI) {
@@ -230,7 +251,7 @@ double CaloExtractor::PhiInRange(const double& phi) const {
 }
 
 template <class T, class U>
-double CaloExtractor::deltaR(const T& t, const U& u) const {
+double CaloExtractor::deltaR(const T& t, const U& u) {
       return sqrt(pow(t.eta()-u.eta(),2) +pow(PhiInRange(t.phi()-u.phi()),2));
 }
 

@@ -1,20 +1,24 @@
-#ifndef MuonIsolation_Extractor_H
-#define MuonIsolation_Extractor_H
+#ifndef MuonIsolation_MuIsoExtractor_H
+#define MuonIsolation_MuIsoExtractor_H
 
-#include <vector>
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+                                                                                
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/Framework/interface/Event.h"
 
-namespace muonisolation { class Direction; }
+#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+
+namespace muonisolation {
 
 class MuIsoExtractor {
 public:
-  virtual ~MuIsoExtractor(){}
-  virtual std::vector<reco::MuIsoDeposit> deposits( const edm::Event & ev, 
-      const edm::EventSetup & evSetup, 
-      const reco::Track & track, 
-      const std::vector<muonisolation::Direction> & vetoDirs, double coneSize) const = 0;
+  virtual ~MuIsoExtractor(){};
+  virtual void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) = 0;
+  virtual reco::MuIsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const = 0;
 };
+
+}
 #endif

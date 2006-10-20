@@ -16,25 +16,28 @@ class TrackExtractor : public MuIsoExtractor {
 
 public:
 
-  TrackExtractor() { }
-  TrackExtractor( double aDdiff_r, double aDiff_z, double aDR_match, double aDR_Veto,
-      std::string aTrackCollectionLabel, std::string aDepositLabel);
+  TrackExtractor(){};
+  TrackExtractor(const edm::ParameterSet& par);
 
   virtual ~TrackExtractor(){}
 
-  virtual std::vector<reco::MuIsoDeposit> deposits( const edm::Event & ev, 
-      const edm::EventSetup & evSetup, const reco::Track & track, 
-      const std::vector<muonisolation::Direction> & vetoDirs, double coneSize) const; 
+  virtual void fillVetos (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::TrackCollection & track);
+  virtual reco::MuIsoDeposit deposit (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::Track & track) const;
 
 private:
-  
-  void fillDeposits( reco::MuIsoDeposit & deposit, const reco::TrackCollection & tracks,
-     const std::vector<muonisolation::Direction> & vetos) const;
-
-private:
-  double theDiff_r, theDiff_z, theDR_Match, theDR_Veto;
-  std::string theTrackCollectionLabel; // Isolation track Collection Label
+  // Parameter set
+  std::string theTrackCollectionLabel; // Track Collection Label
   std::string theDepositLabel;         // name for deposit
+  double theDiff_r;                    // transverse distance to vertex
+  double theDiff_z;                    // z distance to vertex
+  double theDR_Max;                    // Maximum cone angle for deposits
+  double theDR_Veto;                   // Veto cone angle
+
+  // Vector of Trks to veto
+  std::vector<const reco::Track*> theVetoCollection;
+                                                                                
 };
 
 }

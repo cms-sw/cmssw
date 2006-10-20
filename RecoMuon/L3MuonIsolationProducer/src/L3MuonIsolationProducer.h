@@ -5,17 +5,14 @@
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include <string>
-#include <vector>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
-namespace reco { class MuIsoDeposit; }
-namespace muonisolation { class Direction; }
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
+#include "RecoMuon/MuonIsolation/src/TrackExtractor.h"
 
+#include <string>
 
 class L3MuonIsolationProducer : public edm::EDProducer {
 
@@ -32,12 +29,17 @@ public:
 
 private:
 
-  double theDiff_r, theDiff_z, theDR_Match, theDR_Veto, theDR_Max;
-  std::string theMuonCollectionLabel;  // Muon track Collection Label
-  std::string theTrackCollectionLabel; // Isolation track Collection Label
-  std::string theDepositLabel;         // name for deposit
+  // Muon track Collection Label
+  std::string theMuonCollectionLabel;
 
+  // Isolation cuts
   muonisolation::Cuts theCuts;
+
+  // Option to write MuIsoDeposits into the event
+  double optOutputIsoDeposits;
+
+  // MuIsoExtractor
+  muonisolation::TrackExtractor theTrackExtractor;
 
 };
 

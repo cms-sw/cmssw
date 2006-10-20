@@ -23,40 +23,25 @@
 using namespace edm;
 using namespace std;
 using namespace reco;
+using namespace muonisolation;
 
 /// constructor with config
-L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par){
+L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
+  theSACollectionLabel(par.getUntrackedParameter<string>("StandAloneCollectionLabel")), 
+  theCuts(par.getParameter<std::vector<double> > ("EtaBounds"),
+          par.getParameter<std::vector<double> > ("ConeSizes"),
+          par.getParameter<std::vector<double> > ("Thresholds")),
+  theEcalWeight(par.getParameter<double> ("EcalWeight")),
+  optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits"))
+{
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")<<" L2MuonIsolationProducer constructor called";
 
-  theSACollectionLabel = par.getUntrackedParameter<string>("StandAloneCollectionLabel");
+  ParameterSet theEcalExtractorPSet = par.getParameter<ParameterSet>("EcalExtractorParameters");
+  theEcalExtractor = muonisolation::CaloExtractor(theEcalExtractorPSet);
+  ParameterSet theHcalExtractorPSet = par.getParameter<ParameterSet>("HcalExtractorParameters");
+  theHcalExtractor = muonisolation::CaloExtractor(theHcalExtractorPSet);
 
-  etaBounds_  = par.getParameter<std::vector<double> > ("EtaBounds");
-  coneCuts_  = par.getParameter<std::vector<double> > ("ConeCuts");
-  edepCuts_  = par.getParameter<std::vector<double> > ("EdepCuts");
-
-  if (etaBounds_.size()==0) etaBounds_.push_back(999.9); // whole eta range if no input
-
-  if (coneCuts_.size()==0) coneCuts_.push_back(0.0); // no isolation if no input
-  if (coneCuts_.size()<etaBounds_.size()) {
-      double conelast = coneCuts_[coneCuts_.size()-1];
-      int nadd = etaBounds_.size()-coneCuts_.size();
-      for (int i=0; i<nadd; i++) coneCuts_.push_back(conelast);
-  }  
-
-  if (edepCuts_.size()==0) edepCuts_.push_back(0.0); // no isolation if no input
-  if (edepCuts_.size()<etaBounds_.size()) {
-      double edeplast = edepCuts_[edepCuts_.size()-1];
-      int nadd = etaBounds_.size()-edepCuts_.size();
-      for (int i=0; i<nadd; i++) edepCuts_.push_back(edeplast);
-  }  
-
-  ecalWeight_  = par.getParameter<double> ("EcalWeight");
-
-  ParameterSet theMuIsoExtractorPSet = par.getParameter<ParameterSet>("MuIsoExtractorParameters");
-  theMuIsoExtractor = muonisolation::CaloExtractor(theMuIsoExtractorPSet);
- 
-
-  produces<MuIsoDepositAssociationMap>();
+  if (optOutputIsoDeposits) produces<MuIsoDepositAssociationMap>();
   produces<MuIsoAssociationMap>();
 }
   
@@ -81,38 +66,29 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   std::auto_ptr<MuIsoDepositAssociationMap> depMap( new MuIsoDepositAssociationMap());
   std::auto_ptr<MuIsoAssociationMap> isoMap( new MuIsoAssociationMap());
 
+  theEcalExtractor.fillVetos(event,eventSetup,*tracks);
+  theHcalExtractor.fillVetos(event,eventSetup,*tracks);
+
   for (unsigned int i=0; i<tracks->size(); i++) {
       TrackRef tk(tracks,i);
-      //LogDebug(metname) << " tketa: " << tk->eta();
 
-      MuIsoDeposit depH("HCAL");
+      MuIsoDeposit eDeposit = theEcalExtractor.deposit(event, eventSetup, *tk);
+      MuIsoDeposit hDeposit = theHcalExtractor.deposit(event, eventSetup, *tk);
+      depMap->insert(tk, eDeposit);
+      depMap->insert(tk, hDeposit);
 
-      vector<muonisolation::Direction> vetoDirections; // zero size for the time being
-      vector<MuIsoDeposit> deposits = theMuIsoExtractor.deposits(event, eventSetup, *tk, vetoDirections, 0.);
-      if (deposits.size()!=2) {
-            // Should we write a warning here?
-            deposits.clear();
-            deposits.push_back(MuIsoDeposit("ECAL", tk->eta(), tk->phi()));
-            deposits.push_back(MuIsoDeposit("HCAL", tk->eta(), tk->phi()));
-      } 
-      depMap->insert(tk, deposits[0]);
-      depMap->insert(tk, deposits[1]);
-
-      double abseta = fabs(tk->eta());
-      int ieta = etaBounds_.size()-1;
-      for (unsigned int i=0; i<etaBounds_.size(); i++) {
-            if (abseta<etaBounds_[i]) { ieta = i; break; }
-      }
-      double conesize = coneCuts_[ieta];
-      double dephlt = ecalWeight_*deposits[0].depositWithin(conesize)
-                       + deposits[1].depositWithin(conesize);
-      if (dephlt<edepCuts_[ieta]) {
+      muonisolation::Cuts::CutSpec cuts_here = theCuts(tk->eta());
+      
+      double conesize = cuts_here.conesize;
+      double dephlt = theEcalWeight*eDeposit.depositWithin(conesize)
+                       + hDeposit.depositWithin(conesize);
+      if (dephlt<cuts_here.threshold) {
             isoMap->insert(tk, true);
       } else {
             isoMap->insert(tk, false);
       }
   }
-  event.put(depMap);
+  if (optOutputIsoDeposits) event.put(depMap);
   event.put(isoMap);
 
   LogDebug(metname) <<" Event loaded"

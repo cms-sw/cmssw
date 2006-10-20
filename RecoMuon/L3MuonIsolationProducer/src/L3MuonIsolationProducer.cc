@@ -35,26 +35,19 @@ using namespace reco;
 using namespace muonisolation;
 
 /// constructor with config
-L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& parameterSet)
-  :
-    theCuts( parameterSet.getParameter<std::vector<double> > ("EtaBounds"), 
-             parameterSet.getParameter<std::vector<double> > ("ConeSizes"),
-             parameterSet.getParameter<std::vector<double> > ("Thresholds") )
+L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
+  theMuonCollectionLabel(par.getUntrackedParameter<string>("MuonCollectionLabel"))
+, theCuts( par.getParameter<std::vector<double> > ("EtaBounds"), 
+             par.getParameter<std::vector<double> > ("ConeSizes"),
+             par.getParameter<std::vector<double> > ("Thresholds") ),
+  optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits"))
   {
   LogDebug("RecoMuon/L3MuonIsolationProducer")<<" L3MuonIsolationProducer CTOR";
 
-  theMuonCollectionLabel = parameterSet.getUntrackedParameter<string>("MuonCollectionLabel");
-  theTrackCollectionLabel = parameterSet.getUntrackedParameter<string>("TrackCollectionLabel");
+  ParameterSet theMuIsoExtractorPSet = par.getParameter<ParameterSet>("MuIsoExtractorParameters");
+  theTrackExtractor = muonisolation::TrackExtractor(theMuIsoExtractorPSet);
 
-  theDiff_r = parameterSet.getParameter<double>("diff_r");
-  theDiff_z = parameterSet.getParameter<double>("diff_z");
-  theDR_Match = parameterSet.getParameter<double>("dR_Match");
-  theDR_Veto  = parameterSet.getParameter<double>("dR_Veto");
-  theDR_Max   = parameterSet.getParameter<double>("dR_Max");  
-
-  theDepositLabel = parameterSet.getUntrackedParameter<string>("DepositLabel");
-
-  produces<MuIsoDepositAssociationMap>();
+  if (optOutputIsoDeposits) produces<MuIsoDepositAssociationMap>();
   produces<MuIsoAssociationMap>();
 }
   
@@ -75,40 +68,25 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   Handle<TrackCollection> muons;
   event.getByLabel(theMuonCollectionLabel,muons);
 
-//  std::string extractorName = "muonisolation::TrackExtractor";
-//  edm::ESHandle<MuIsoExtractor> extractorESH;
-//  eventSetup.get<TrackingComponentsRecord>().get( extractorName, extractorESH);
-//  const MuIsoExtractor * theExtractor = extractorESH.product();
-  muonisolation::TrackExtractor extractor( theDiff_r, theDiff_z, theDR_Match, theDR_Veto,
-      theTrackCollectionLabel, theDepositLabel);
-
   std::auto_ptr<MuIsoDepositAssociationMap> depMap( new MuIsoDepositAssociationMap());
   std::auto_ptr<MuIsoAssociationMap> isoMap( new MuIsoAssociationMap());
 
-  vector<Direction> vetoDirections;
-  for (unsigned int i=0; i<muons->size(); i++) {
-    TrackRef mu(muons,i);
-    vetoDirections.push_back( Direction(mu->eta(), mu->phi0()) );
-  }
- 
+  theTrackExtractor.fillVetos(event, eventSetup,*muons);
+
   for (unsigned int i=0; i<muons->size(); i++) {
     TrackRef mu(muons,i);
 
-    const Cuts::CutSpec & cut = theCuts( mu->eta() );
+    MuIsoDeposit dep = theTrackExtractor.deposit(event, eventSetup, *mu);
+    depMap->insert(mu, dep);
 
-    vector<MuIsoDeposit> deposits = extractor.deposits(event, eventSetup, *mu, vetoDirections, cut.conesize);
-    
-    const MuIsoDeposit & deposit = deposits[0]; //FIXME check size and thrown exception eventually
-
-    depMap->insert(mu, deposit);
-
-    double value = deposit.depositWithin(cut.conesize);
+    const Cuts::CutSpec & cut = theCuts( mu->eta());
+    double value = dep.depositWithin(cut.conesize);
     bool result = (value < cut.threshold); 
     LogTrace(metname)<<"deposit in cone: "<<value<<" is isolated: "<<result;
     isoMap->insert(mu, result);
   }
 
-  event.put(depMap);
+  if (optOutputIsoDeposits) event.put(depMap);
   event.put(isoMap);
 
   LogTrace(metname) <<" END OF EVENT " <<"================================";
