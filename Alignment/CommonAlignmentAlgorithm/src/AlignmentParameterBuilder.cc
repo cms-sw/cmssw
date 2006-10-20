@@ -1,3 +1,9 @@
+/** \file AlignableParameterBuilder.cc
+ *
+ *  $Date: 2005/07/26 10:13:49 $
+ *  $Revision: 1.1 $
+ */
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -28,6 +34,93 @@ AlignmentParameterBuilder::AlignmentParameterBuilder( AlignableTracker* alignabl
 }
 
 //__________________________________________________________________________________________________
+int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &pset)
+{
+   const std::vector<std::string> selections = 
+     pset.getParameter<std::vector<std::string> >("alignableParamSelector");
+   bool allOk = true;
+
+   int addedSets = 0;
+   for (std::vector<std::string>::const_iterator itSel = selections.begin();
+	itSel != selections.end(); ++itSel) {
+     std::vector<std::string> decompSel(this->decompose(*itSel, ','));
+     if (decompSel.size() < 2) {
+       edm::LogError("Alignment") << "@SUB=AlignmentParameterBuilder::addSelections"
+				  << "ignoring " << *itSel << "from alignableParamSelector: "
+				  << "should have at least 2 ','-separated parts";
+       allOk = false;
+       continue;
+     }
+
+     const std::vector<bool> paramSel(this->decodeParamSel(decompSel[1]));
+     if (paramSel.size() != RigidBodyAlignmentParameters::N_PARAM) {
+       allOk = false; // Error already from decodeParamSel
+       continue;
+     }
+     if (decompSel.size() > 2) {
+       edm::LogWarning("Alignment") << "@SUB=AlignmentParameterBuilder::addSelections"
+				    << "r/phi/eta/z-range selection not yet implemented...";
+     }
+     this->addSelection(decompSel[0], paramSel);
+     ++addedSets;
+   }
+
+   if (allOk) return addedSets;
+   else { // @SUB-syntax is not supported by exception, but anyway useful information...
+     throw cms::Exception("BadConfig") <<"@SUB=AlignmentParameterBuilder::addSelections"
+				       << ": Problems decoding 'alignableParamSelector'.";
+     return -1;
+   }
+}
+
+//__________________________________________________________________________________________________
+std::vector<bool> AlignmentParameterBuilder::decodeParamSel(const std::string &selString) const
+{
+
+  if (selString.length() != RigidBodyAlignmentParameters::N_PARAM) {
+    edm::LogError("Alignment") <<"@SUB=AlignmentParameterBuilder::decodeSelections"
+			       << "selectionString has wrong size " << selString.length()
+			       << " instead of " << RigidBodyAlignmentParameters::N_PARAM;
+    return std::vector<bool>();
+  } else {
+    std::vector<bool> result(RigidBodyAlignmentParameters::N_PARAM, false);
+    // shifts
+    if (selString.substr(0,1)=="1") result[RigidBodyAlignmentParameters::dx] = true;
+    if (selString.substr(1,1)=="1") result[RigidBodyAlignmentParameters::dy] = true;
+    if (selString.substr(2,1)=="1") result[RigidBodyAlignmentParameters::dz] = true;
+    // rotations
+    if (selString.substr(3,1)=="1") result[RigidBodyAlignmentParameters::dalpha] = true;
+    if (selString.substr(4,1)=="1") result[RigidBodyAlignmentParameters::dbeta] = true;
+    if (selString.substr(5,1)=="1") result[RigidBodyAlignmentParameters::dgamma] = true;
+
+    return result;
+  }
+
+}
+
+
+//__________________________________________________________________________________________________
+std::vector<std::string> 
+AlignmentParameterBuilder::decompose(const std::string &s, std::string::value_type delimiter) const
+{
+
+  std::vector<std::string> result;
+
+  std::string::size_type previousPos = 0;
+  while (true) {
+    const std::string::size_type delimiterPos = s.find(delimiter, previousPos);
+    if (delimiterPos == std::string::npos) {
+      result.push_back(s.substr(previousPos)); // until end
+      break;
+    }
+    result.push_back(s.substr(previousPos, delimiterPos - previousPos));
+    previousPos = delimiterPos + 1;
+  }
+
+  return result;
+}
+
+//__________________________________________________________________________________________________
 void AlignmentParameterBuilder::addSelection(const std::string &name, const std::vector<bool> &sel)
 {
 
@@ -44,12 +137,16 @@ void AlignmentParameterBuilder::addSelection(const std::string &name, const std:
   else if (name == "BarrelDets")    add(theAlignableTracker->barrelGeomDets(),sel);
   else if (name == "BarrelLayers")  add(theAlignableTracker->barrelLayers(),sel);
 
-  else if (name == "BarrelDSRods")  
-	{
-	  theOnlyDS = true;
-	  add( theAlignableTracker->barrelRods(), sel );
-	  theOnlyDS = false;
-	}
+  else if (name == "BarrelDSRods") {
+    theOnlyDS = true;
+    add(theAlignableTracker->barrelRods(), sel);
+    theOnlyDS = false;
+  }
+  else if (name == "BarrelSSRods") {
+    theOnlySS = true;
+    add(theAlignableTracker->barrelRods(), sel);
+    theOnlySS = false;
+  }
 
   // PXBarrel
   else if (name == "PixelHalfBarrelDets")
@@ -129,7 +226,7 @@ void AlignmentParameterBuilder::addSelection(const std::string &name, const std:
   // Custom scenarios
 
   else if (name == "ScenarioA") {
-	std::vector<bool> mysel(6,false);
+    std::vector<bool> mysel(6,false);
     // pixel barrel dets x,y,z
     mysel[RigidBodyAlignmentParameters::dx]=true;
     mysel[RigidBodyAlignmentParameters::dy]=true;
@@ -147,7 +244,7 @@ void AlignmentParameterBuilder::addSelection(const std::string &name, const std:
   }
 
   else if (name == "ScenarioB") {
-	std::vector<bool> mysel(6,false);
+    std::vector<bool> mysel(6,false);
     // pixel barrel ladders x,y,z
     mysel[RigidBodyAlignmentParameters::dx]=true;
     mysel[RigidBodyAlignmentParameters::dy]=true;
@@ -166,7 +263,7 @@ void AlignmentParameterBuilder::addSelection(const std::string &name, const std:
 
 
   else if (name == "CustomStripLayers") {
-	std::vector<bool> mysel(6,false);
+    std::vector<bool> mysel(6,false);
     mysel[RigidBodyAlignmentParameters::dx]=true;
     mysel[RigidBodyAlignmentParameters::dy]=true;
     mysel[RigidBodyAlignmentParameters::dz]=true;
@@ -188,7 +285,7 @@ void AlignmentParameterBuilder::addSelection(const std::string &name, const std:
   }
 
   else if (name == "CustomStripRods") {
-	std::vector<bool> mysel(6,false);
+    std::vector<bool> mysel(6,false);
     mysel[RigidBodyAlignmentParameters::dx]=true;
     mysel[RigidBodyAlignmentParameters::dy]=true;
     mysel[RigidBodyAlignmentParameters::dz]=true;
@@ -209,11 +306,12 @@ void AlignmentParameterBuilder::addSelection(const std::string &name, const std:
     add(theAlignableTracker->endcapPetals(),mysel);
   }
 
-  else 
-    edm::LogError("BadConfig")<<"[AlignmentParameterBuilder] Selection invalid!";
-
+  else { // @SUB-syntax is not supported by exception, but anyway useful information... 
+    throw cms::Exception("BadConfig") <<"@SUB=AlignmentParameterBuilder::addSelection"
+				      << ": Selection '" << name << "' invalid!";
+  }
   edm::LogInfo("Warning") << "[AlignmentParameterBuilder] Added " 
-    << theAlignables.size()<< " alignables in total";
+			  << theAlignables.size()<< " alignables in total";
 
 }
 
@@ -229,7 +327,7 @@ void AlignmentParameterBuilder::addAllDets(const std::vector<bool> &sel)
   add(theAlignableTracker->pixelEndcapGeomDets(),sel);     // PixelEndcap
 
   edm::LogInfo("Alignment") << "Initialized for "
-											<< theAlignables.size() << " dets";
+			    << theAlignables.size() << " dets";
 }
 
 
@@ -243,7 +341,7 @@ void AlignmentParameterBuilder::addAllRods(const std::vector<bool> &sel)
   add(theAlignableTracker->pixelEndcapPetals(),sel);
 
   edm::LogInfo("Alignment") << "Initialized for "
-											<< theAlignables.size() << " rods";
+			    << theAlignables.size() << " rods";
 }
 
 
@@ -257,7 +355,7 @@ void AlignmentParameterBuilder::addAllLayers(const std::vector<bool> &sel)
   add(theAlignableTracker->pixelEndcapLayers(),sel);
 
   edm::LogInfo("Alignment") << "Initialized for "
-											<< theAlignables.size() << " layers";
+			    << theAlignables.size() << " layers";
 
 }
 
@@ -267,8 +365,8 @@ void AlignmentParameterBuilder::addAllComponents(const std::vector<bool> &sel)
 {
   add(theAlignableTracker->components(),sel);
   edm::LogInfo("Alignment") << "Initialized for "
-											<< theAlignables.size() 
-											<< " Components (HalfBarrel/Endcap)";
+			    << theAlignables.size() 
+			    << " Components (HalfBarrel/Endcap)";
 }
 
 
@@ -298,8 +396,8 @@ void AlignmentParameterBuilder::addAllAlignables(const std::vector<bool> &sel)
 
 
   edm::LogInfo("Alignment") << "Initialized for "
-											<< theAlignables.size() 
-											<< " Components (HalfBarrel/Endcap)";
+			    << theAlignables.size() 
+			    << " Components (HalfBarrel/Endcap)";
 
 }
 
@@ -362,8 +460,8 @@ void AlignmentParameterBuilder::add(const std::vector<Alignable*> &alignables,
   }
 
   edm::LogWarning("Alignment") << "Added " << num_adu 
-    << " Alignables, of which " << num_det << " are Dets and "
-    << num_hlo << " are higher level.";
+			       << " Alignables, of which " << num_det << " are Dets and "
+			       << num_hlo << " are higher level.";
 
 }
 
@@ -373,7 +471,7 @@ void AlignmentParameterBuilder::fixAlignables(int n)
 {
 
   if (n<1 || n>3) {
-	edm::LogError("BadArgument") << " n = " << n << " is not in [1,3]";
+    edm::LogError("BadArgument") << " n = " << n << " is not in [1,3]";
     return;
   }
 
@@ -395,7 +493,8 @@ void AlignmentParameterBuilder::fixAlignables(int n)
   theAlignables = theNewAlignables;
 
   edm::LogWarning("Alignment") << "removing " << n 
-    << " alignables, so that " << theAlignables.size() << " alignables left";
+			       << " alignables, so that " << theAlignables.size() 
+			       << " alignables left";
   
 }
 

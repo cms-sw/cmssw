@@ -7,7 +7,16 @@
 #include <string>
 #include <vector>
 
-/// Build Alignment Parameter Structure 
+/** \class AlignmentParameterBuilder
+ *
+ *  Build Alignment Parameter Structure 
+ *
+ *  $Date: 2006/10/17 11:02:42 $
+ *  $Revision: 1.11 $
+ *  (last update by $Author: flucke $)
+ */
+
+
 
 class AlignmentParameterBuilder 
 {
@@ -18,6 +27,16 @@ public:
 
   /// destructor 
   ~AlignmentParameterBuilder() {};
+
+  /// Add several selections defined by the PSet which must contain a vstring like e.g.
+  /// vstring alignableParamSelector = { "PixelHalfBarrelLadders,111000,pixelSelection",
+  ///                                    "BarrelDSRods,111000",
+  ///                                    "BarrelSSRods,101000"}
+  /// The '11100' part defines which d.o.f. to be aligned (x,y,z,alpha,beta,gamma)
+  /// returns number of added selections or -1 if problems (then also an error is logged)
+  /// If a string contains a third, comma separated part (e.g. ',pixelSelection'),
+  /// a further PSet of that name is expected to select eta/z/phi/r-ranges
+  int addSelections(const edm::ParameterSet &pset);
 
   /// Add predefined selection of alignables defined by a string 
   void addSelection(const std::string &name, const std::vector<bool> &sel);
@@ -46,7 +65,11 @@ public:
   /// Remove n Alignables from list 
   void fixAlignables( int n );
 
-  
+  /// Decoding string to select local rigid body parameters into vector<bool>,
+  /// "101001" will mean x,z,gamma, but not y,alpha,beta
+  /// LogError if problems while decoding (e.g. length of sring)
+  std::vector<bool> decodeParamSel(const std::string &selString) const;
+  std::vector<std::string> decompose(const std::string &s, std::string::value_type delimiter) const;
 private:
 
   // data members
