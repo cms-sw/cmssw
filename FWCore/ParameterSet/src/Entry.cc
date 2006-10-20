@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.18 2006/10/20 11:04:16 chrjones Exp $
+// $Id: Entry.cc,v 1.19 2006/10/20 13:43:02 chrjones Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -717,14 +717,17 @@ namespace edm {
         std::vector<ParameterSet>::const_iterator i = whole.begin();
         std::vector<ParameterSet>::const_iterator e = whole.end();
         std::string start ="";
-        const std::string between(",");
+        const std::string between(",\n");
         os << "{"<<std::endl;
          for ( ; i != e; ++i )
          {
-           os <<  start<< *i << std::endl;
+           os <<  start<< *i;
            start = between;
          }
-         os<<"\n}";
+         if (whole.size()) {
+           os<<std::endl;
+         }
+         os<<"}";
          break;
       } 
       case 'S':
