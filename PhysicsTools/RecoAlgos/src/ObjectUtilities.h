@@ -6,20 +6,26 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 namespace reco {
   namespace modules {
-    /// Framework module to merge an arbitray number of reco::TrackCollection
+    /// merge an arbitray number of reco::TrackCollection
     typedef Merger<reco::TrackCollection> TrackMerger;
 
-    /// Framework module to merge an arbitray number of reco::MuonCollection
+    /// merge an arbitray number of reco::MuonCollection
     typedef Merger<reco::MuonCollection> MuonMerger;
 
-    /// Framework module to merge an arbitray number of reco::ElectronCollection
+    /// merge an arbitray number of reco::ElectronCollection
     typedef Merger<reco::ElectronCollection> ElectronMerger;
 
-    /// Framework module to merge an arbitray number of reco::PhotonCollection
+    /// merge an arbitray number of reco::PhotonCollection
     typedef Merger<reco::PhotonCollection> PhotonMerger;
+
+    /// merge an arbitray number of reco::CaloJet
+    typedef Merger<reco::CaloJetCollection> CaloJetMerger;
+
+
 
     /// Recover a collection of reco::Track
     typedef CollectionRecoverer<reco::TrackCollection> TrackRecoverer; 
