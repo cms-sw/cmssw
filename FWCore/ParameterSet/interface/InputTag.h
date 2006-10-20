@@ -25,9 +25,10 @@ namespace edm {
     std::string instance_;
   };
 
+  std::ostream& operator<<(std::ostream& ost, const InputTag & tag);
+
 }
 
-std::ostream& operator<<(std::ostream& ost, const edm::InputTag & tag);
 
 #endif
 

@@ -40,14 +40,15 @@ namespace edm {
   {
     return label_ + ":" + instance_;
   }
-}
 
-
-std::ostream& operator<<(std::ostream& ost, const edm::InputTag & tag)
+  std::ostream& operator<<(std::ostream& ost, const edm::InputTag & tag)
 {
-  ost << "InputTag:  label = " << tag.label() << ", instance = " << tag.instance();
-  return ost;
+    ost << "InputTag:  label = " << tag.label() << ", instance = " << tag.instance();
+    return ost;
 }
+}
+
+
 
 
 
