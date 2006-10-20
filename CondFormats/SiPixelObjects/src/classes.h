@@ -20,3 +20,9 @@ namespace{
 namespace{
   std::vector<sipixelobjects::PixelFEDCabling> theFedCablings;
 }
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
+template std::vector<char>::iterator;
+template std::vector<char>::const_iterator;
+template std::vector< SiPixelGainCalibration::DetRegistry >::iterator;
+template std::vector< SiPixelGainCalibration::DetRegistry >::const_iterator;

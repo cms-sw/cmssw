@@ -8,7 +8,6 @@
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
   <use name=DataFormats/SiPixelDetId>
-  <use name=FWCore/Framework>
   <use name=rootrflx>
 </export>
 
