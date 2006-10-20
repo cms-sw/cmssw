@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.17 2006/10/20 02:07:02 chrjones Exp $
+// $Id: Entry.cc,v 1.18 2006/10/20 11:04:16 chrjones Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/types.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <algorithm>
 #include <cctype>
@@ -757,7 +758,23 @@ namespace edm {
         os <<entry.getUInt32();
         break;
       }
-
+      case 'v':
+      {
+        //VInputTag needs to be treated seperately because it is encode like
+        // vector<string> rather than using the individual encodings of each InputTag
+        os << "{";
+        std::string start ="";
+        const std::string between(",");
+        std::vector<InputTag> tags = entry.getVInputTag();
+        for(std::vector<InputTag>::const_iterator it = tags.begin();
+            it != tags.end();
+            ++it) {
+          os<<start<<it->encode();
+          start = between;
+        }
+        os <<"}";
+        break;
+      }
       default:
       {
         os << entry.rep;
