@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id$
+// $Id: SiPixelCondObjReader.h,v 1.2 2006/10/19 16:00:27 chiochia Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -26,6 +26,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranch.h"
+#include "TH1F.h"
 
 namespace cms{
 class SiPixelCondObjReader : public edm::EDAnalyzer {
@@ -40,6 +47,15 @@ public:
   virtual void endJob() ;
 
 private:
+
+  edm::ParameterSet conf_;
+  edm::ESHandle<TrackerGeometry> tkgeom;
+  edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
+
+  std::map< uint32_t, TH1F* >  _TH1F_Pedestals_m;
+  std::map< uint32_t, TH1F* >  _TH1F_Gains_m;
+  std::string filename_;
+  TFile* fFile;
 
 };
 }
