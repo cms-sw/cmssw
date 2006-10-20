@@ -85,6 +85,7 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   edm::ESHandle<AlignmentErrors> alignmentErrors;
   iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
 
+  edm::LogVerbatim("DumpAlignments")  << "\n----------------------\n";
   for ( std::vector<AlignTransform>::const_iterator it = alignments->m_align.begin();
 		it != alignments->m_align.end(); it++ )
 	{
@@ -103,6 +104,15 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
 	}
   edm::LogVerbatim("DumpAlignments")  << "\n----------------------\n";
+  edm::LogVerbatim("DumpAlignmentErrors")  << "\n----------------------\n";
+
+  std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
+  for ( std::vector<AlignTransformError>::const_iterator it = alignErrors.begin();
+		it != alignErrors.end(); it++ )
+	{
+	  edm::LogVerbatim("DumpAlignments") << (*it).rawId() << (*it).matrix();
+	}
+  edm::LogVerbatim("DumpAlignmentErrors")  << "\n----------------------\n";
 
   edm::LogInfo("TrackerAlignment") << "Done!";
 
