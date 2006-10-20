@@ -1,9 +1,16 @@
+//
+// $Id: $
+//
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonIsolationAssociation.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+
 
 namespace {
   namespace {
@@ -30,6 +37,17 @@ namespace {
     edm::Ref<reco::ConvertedPhotonCollection> r6;
     edm::RefProd<reco::ConvertedPhotonCollection> rp6;
     edm::RefVector<reco::ConvertedPhotonCollection> rv6;
+
+    std::map<unsigned int, float> m4;
+    reco::PhotonIsolationMap v4;
+    edm::Wrapper<reco::PhotonIsolationMap> w4;
+    edm::helpers::Key<edm::RefProd<reco::PhotonCollection > > h4;
+
+    std::map<unsigned int, float> m7;
+    reco::ElectronIsolationMap v7;
+    edm::Wrapper<reco::ElectronIsolationMap> w7;
+    edm::helpers::Key<edm::RefProd<reco::ElectronCollection > > h7;
+
 
     edm::reftobase::Holder<reco::Candidate, reco::ElectronRef> rb1;
     edm::reftobase::Holder<reco::Candidate, reco::PhotonRef> rb2;

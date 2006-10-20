@@ -34,5 +34,20 @@
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> > >" />
   <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
+
+  <class name="std::map<unsigned int, float>"/>
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Photon>, float, unsigned int > >">
+      <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Photon>, float, unsigned int > > >" />
+  <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::Photon> > >" />
+
+
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Electron>, float, unsigned int > >">
+      <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Electron>, float, unsigned int > > >" />
+  <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::Electron> > >" />
+
 </lcgdict>
 
