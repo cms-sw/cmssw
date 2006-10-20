@@ -6,8 +6,6 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-
 class SiTrackerGSRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
   
 public:
@@ -18,21 +16,21 @@ public:
   
   SiTrackerGSRecHit2D( const LocalPoint&, const LocalError&,
 		       const DetId&,
+		       const int&,
 		       const unsigned int&,
-		       const PSimHit&,
 		       const unsigned int& pixelMultiplicityX,
 		       const unsigned int& pixelMultiplicityY );  
   
   virtual SiTrackerGSRecHit2D * clone() const {return new SiTrackerGSRecHit2D( * this); }
   
+  const int&           simhitId()    const { return simhitId_;}
   const unsigned int&  simtrackId()  const { return simtrackId_;}
-  const PSimHit&       simhit()      const { return simhit_;}
   const unsigned int&  simMultX()    const { return pixelMultiplicityAlpha_;}
   const unsigned int&  simMultY()    const { return pixelMultiplicityBeta_;}
   
 private:
+  int          const simhitId_;
   unsigned int const simtrackId_;
-  PSimHit      const simhit_;
   unsigned int const pixelMultiplicityAlpha_;
   unsigned int const pixelMultiplicityBeta_;
   
