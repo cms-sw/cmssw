@@ -1,4 +1,3 @@
-<use name=Alignment/CSA06AlignmentAlgorithm>
 <use name=Alignment/CommonAlignmentAlgorithm>
 <use name=Alignment/CommonAlignmentParametrization>
 <use name=Alignment/TrackerAlignment>
@@ -16,7 +15,6 @@
 
 <export>
    <lib name=AlignmentCommonAlignmentProducer>
-   <use name=Alignment/CSA06AlignmentAlgorithm>
    <use name=Alignment/CommonAlignmentAlgorithm>
    <use name=Alignment/CommonAlignmentParametrization>
    <use name=Alignment/TrackerAlignment>
