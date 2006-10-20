@@ -48,6 +48,7 @@ class SiPixelGainCalibration {
   bool  put(const uint32_t& detID,Range input, const int& nCols);
   const Range getRange(const uint32_t& detID) const;
   void  getDetIds(std::vector<uint32_t>& DetIds_) const;
+  const int getNCols(const uint32_t& detID) const;
 
   void  setData(float ped, float gain, std::vector<char>& vped);
   float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;

@@ -20,6 +20,15 @@ bool SiPixelGainCalibration::put(const uint32_t& DetId, Range input, const int& 
   return true;
 }
 
+const int SiPixelGainCalibration::getNCols(const uint32_t& DetId) const {
+  // get number of columns of DetId
+  RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibration::StrictWeakOrdering());
+  if (p==indexes.end()|| p->detid!=DetId) 
+    return 0;
+  else
+    return p->ncols; 
+}
+
 const SiPixelGainCalibration::Range SiPixelGainCalibration::getRange(const uint32_t& DetId) const {
   // get SiPixelGainCalibration Range of DetId
   
