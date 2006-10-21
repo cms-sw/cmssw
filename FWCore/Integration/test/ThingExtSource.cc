@@ -33,4 +33,4 @@ namespace edmtest {
   }
 }
 using edmtest::ThingExtSource;
-DEFINE_FWK_INPUT_SOURCE(ThingExtSource)
+DEFINE_FWK_INPUT_SOURCE(ThingExtSource);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.7 2005/12/16 17:27:21 chrjones Exp $
+// $Id: WhatsItAnalyzer.cc,v 1.8 2006/02/13 23:01:31 wmtan Exp $
 //
 //
 
@@ -98,4 +98,4 @@ WhatsItAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iS
 }
 using namespace edmtest;
 //define this as a plug-in
-DEFINE_FWK_MODULE(WhatsItAnalyzer)
+DEFINE_FWK_MODULE(WhatsItAnalyzer);

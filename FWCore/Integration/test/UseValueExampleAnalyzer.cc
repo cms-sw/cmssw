@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chris D Jones
 //         Created:  Thu Sep  8 03:55:42 EDT 2005
-// $Id: UseValueExampleAnalyzer.cc,v 1.1 2005/09/08 10:05:38 chrjones Exp $
+// $Id: UseValueExampleAnalyzer.cc,v 1.2 2005/09/10 02:08:46 wmtan Exp $
 //
 //
 
@@ -88,5 +88,5 @@ UseValueExampleAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::Even
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(UseValueExampleAnalyzer)
+DEFINE_FWK_MODULE(UseValueExampleAnalyzer);
 

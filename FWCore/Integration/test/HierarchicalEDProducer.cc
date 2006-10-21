@@ -18,4 +18,4 @@ namespace edmtest {
   }
 }
 using edmtest::HierarchicalEDProducer;
-DEFINE_FWK_MODULE(HierarchicalEDProducer)
+DEFINE_FWK_MODULE(HierarchicalEDProducer);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:39:39 EDT 2005
-// $Id: DoodadESSource.cc,v 1.8 2005/10/15 01:46:18 wmtan Exp $
+// $Id: DoodadESSource.cc,v 1.9 2006/02/13 23:01:31 wmtan Exp $
 //
 
 // system include files
@@ -103,5 +103,5 @@ DoodadESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 }
 using namespace edmtest;
 
-DEFINE_FWK_EVENTSETUP_SOURCE(DoodadESSource)
+DEFINE_FWK_EVENTSETUP_SOURCE(DoodadESSource);
 

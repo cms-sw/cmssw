@@ -126,4 +126,4 @@ namespace edmtest {
   }
 }
 using edmtest::OtherThingAnalyzer;
-DEFINE_FWK_MODULE(OtherThingAnalyzer)
+DEFINE_FWK_MODULE(OtherThingAnalyzer);

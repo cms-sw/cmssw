@@ -29,4 +29,4 @@ namespace edmtest {
   }
 }
 using edmtest::ThingSource;
-DEFINE_FWK_INPUT_SOURCE(ThingSource)
+DEFINE_FWK_INPUT_SOURCE(ThingSource);

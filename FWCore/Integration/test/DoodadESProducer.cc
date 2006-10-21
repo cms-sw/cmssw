@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: DoodadESProducer.cc,v 1.1 2005/12/16 17:26:57 chrjones Exp $
+// $Id: DoodadESProducer.cc,v 1.2 2006/02/13 23:01:31 wmtan Exp $
 //
 //
 
@@ -99,4 +99,4 @@ DoodadESProducer::produce(const GadgetRcd& iRecord)
 
 using namespace edmtest;
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(DoodadESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(DoodadESProducer);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: WhatsItESProducer.cc,v 1.7 2005/10/15 01:46:18 wmtan Exp $
+// $Id: WhatsItESProducer.cc,v 1.8 2006/02/13 23:01:31 wmtan Exp $
 //
 //
 
@@ -102,4 +102,4 @@ WhatsItESProducer::produce(const GadgetRcd& iRecord)
 
 using namespace edmtest;
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(WhatsItESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(WhatsItESProducer);

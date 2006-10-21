@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:52:01 EDT 2005
-// $Id: ValueExample.cc,v 1.1 2005/09/08 10:05:38 chrjones Exp $
+// $Id: ValueExample.cc,v 1.2 2005/09/10 02:08:46 wmtan Exp $
 //
 
 // system include files
@@ -67,4 +67,4 @@ ValueExample::~ValueExample()
 //
 using namespace edm::serviceregistry;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(ValueExample,ParameterSetMaker<ValueExample>)
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(ValueExample,ParameterSetMaker<ValueExample>);

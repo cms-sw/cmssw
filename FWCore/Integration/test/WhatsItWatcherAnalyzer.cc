@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItWatcherAnalyzer.cc,v 1.8 2006/02/13 23:01:31 wmtan Exp $
+// $Id: WhatsItWatcherAnalyzer.cc,v 1.1 2006/09/23 01:41:29 chrjones Exp $
 //
 //
 
@@ -129,4 +129,4 @@ WhatsItWatcherAnalyzer::watch2(const GadgetRcd& iRcd)
 }
 using namespace edmtest;
 //define this as a plug-in
-DEFINE_FWK_MODULE(WhatsItWatcherAnalyzer)
+DEFINE_FWK_MODULE(WhatsItWatcherAnalyzer);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItExtensionCordAnalyzer.cc,v 1.8 2006/02/13 23:01:31 wmtan Exp $
+// $Id: WhatsItExtensionCordAnalyzer.cc,v 1.1 2006/09/22 19:54:54 chrjones Exp $
 //
 //
 
@@ -125,4 +125,4 @@ WhatsItExtensionCordAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::E
 }
 using namespace edmtest;
 //define this as a plug-in
-DEFINE_FWK_MODULE(WhatsItExtensionCordAnalyzer)
+DEFINE_FWK_MODULE(WhatsItExtensionCordAnalyzer);

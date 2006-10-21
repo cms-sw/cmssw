@@ -26,4 +26,4 @@ namespace edmtest {
   }
 }
 using edmtest::ThingProducer;
-DEFINE_FWK_MODULE(ThingProducer)
+DEFINE_FWK_MODULE(ThingProducer);
