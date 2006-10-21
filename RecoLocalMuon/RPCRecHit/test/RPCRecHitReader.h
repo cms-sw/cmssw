@@ -21,8 +21,28 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
 
-namespace edm {
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include <FWCore/Framework/interface/ESHandle.h>
+
+class TGraph;
+class TFile;
+class TH1F;
+class TH2F;
+
+class RPCRecHit;
+
+namespace edm
+{
   class ParameterSet;
   class Event;
   class EventSetup;
@@ -30,12 +50,17 @@ namespace edm {
 
 //class PSimHit;
 //class RPCDetId;
+using namespace std;
 
-class RPCRecHitReader : public edm::EDAnalyzer {
-public:
+class RPCRecHitReader : public edm::EDAnalyzer
+{
+ public:
   /// Constructor
-  RPCRecHitReader(const edm::ParameterSet& pset);
-
+   RPCRecHitReader(const edm::ParameterSet& pset);
+  
+  virtual void beginJob( const edm::EventSetup& );
+  virtual void endJob();
+  
   /// Destructor
   virtual ~RPCRecHitReader();
 
@@ -44,17 +69,60 @@ public:
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
+  unsigned int layerRecHit(RPCRecHit);
 
-protected:
-
-private: 
-
-  std::string simHitLabel1;
-  std::string simHitLabel2;
+ private:
+  std::string fOutputFileName;
   std::string recHitLabel1;
   std::string recHitLabel2;
-  std::string digiLabel;
 
+  int region;
+  int wheel;
+  int sector;
+  int station;
+  int layer;
+  int subsector;
+
+  float _phi;
+
+  float _trigger;
+  float _spurious;
+  float _spuriousPeak;
+  float _triggerGOOD;
+  float _efficiencyBAD;
+  float _efficiencyGOOD;
+  float _efficiencyBEST;
+
+  TFile* fOutputFile;
+  std::fstream* fout;
+
+  TH2F* histoXY;
+  TH1F* histoSlope;
+  TH1F* histoChi2;
+  TH1F* histoRes;
+  TH1F* histoRes1;
+  TH1F* histoRes2;
+  TH1F* histoRes3;
+  TH1F* histoPool1;
+  TH1F* histoPool2;
+  TH1F* histoPool3;
+
+  TH1F*   histoExpectedOcc;
+  TH1F*   histoRealOcc;
+  TH1F*   histoLocalEff;
+
+  float yLayer;
+
+  bool _trigRPC1;
+  bool _trigRPC2;
+  bool _trigRPC3;
+  bool _trigRPC4;
+  bool _trigRPC5;
+  bool _trigRPC6;
+
+  std::vector<bool> _trigConfig;
+  std::map<int,float> _mapLayer;
+  const RPCRoll* _rollEff;
 };
 
 
