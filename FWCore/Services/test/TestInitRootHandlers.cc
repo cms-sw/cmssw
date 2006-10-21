@@ -448,4 +448,4 @@ TestInitRootHandlers::endJob()
 // std::cout << "\nInteger " << k << " expressed as a string is |" << ktext << "|" << std::endl;
 }
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestInitRootHandlers)
+DEFINE_FWK_MODULE(TestInitRootHandlers);

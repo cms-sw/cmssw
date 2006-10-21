@@ -27,20 +27,20 @@ using edm::service::InitRootHandlers;
 using edm::rootfix::LockService;
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_SERVICE(Tracer)
-DEFINE_ANOTHER_FWK_SERVICE(Timing)
+DEFINE_ANOTHER_FWK_SERVICE(Tracer);
+DEFINE_ANOTHER_FWK_SERVICE(Timing);
 typedef edm::serviceregistry::AllArgsMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker)
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker);
 #if defined(__linux__)
-DEFINE_ANOTHER_FWK_SERVICE(SimpleMemoryCheck)
-DEFINE_ANOTHER_FWK_SERVICE(SimpleProfiling)
-DEFINE_ANOTHER_FWK_SERVICE(InitRootHandlers)
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregistry::AllArgsMaker<EnableFloatingPointExceptions>)
+DEFINE_ANOTHER_FWK_SERVICE(SimpleMemoryCheck);
+DEFINE_ANOTHER_FWK_SERVICE(SimpleProfiling);
+DEFINE_ANOTHER_FWK_SERVICE(InitRootHandlers);
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregistry::AllArgsMaker<EnableFloatingPointExceptions>);
 #endif
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(LoadAllDictionaries,edm::serviceregistry::ParameterSetMaker<LoadAllDictionaries>)
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(LoadAllDictionaries,edm::serviceregistry::ParameterSetMaker<LoadAllDictionaries>);
 typedef edm::serviceregistry::AllArgsMaker<edm::RandomNumberGenerator,RandomNumberGeneratorService> RandomMaker;
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(RandomNumberGeneratorService, RandomMaker)
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(RandomNumberGeneratorService, RandomMaker);
 typedef edm::serviceregistry::AllArgsMaker<edm::JobReport,JobReportService> JobReportMaker;
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(JobReportService, JobReportMaker)
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(JobReportService, JobReportMaker);
 typedef edm::serviceregistry::AllArgsMaker<LockService> LockServiceMaker;
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(LockService, LockServiceMaker)
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(LockService, LockServiceMaker);
