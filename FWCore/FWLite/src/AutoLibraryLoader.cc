@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.11 2006/09/29 00:54:16 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.12 2006/09/30 18:58:51 chrjones Exp $
 //
 
 // system include files
@@ -274,4 +274,4 @@ AutoLibraryLoader::loadAll()
 }
 
 
-ClassImp(AutoLibraryLoader);
+ClassImp(AutoLibraryLoader)

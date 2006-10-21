@@ -2,13 +2,11 @@
 
 /*----------------------------------------------------------------------
   
-$Id: DelayedReader.cc,v 1.2 2005/07/14 22:50:53 wmtan Exp $
+$Id: DelayedReader.cc,v 1.1 2005/09/28 04:51:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 
-namespace edm
-{
-  DelayedReader::~DelayedReader() 
-  { };
+namespace edm {
+  DelayedReader::~DelayedReader() {}
 }

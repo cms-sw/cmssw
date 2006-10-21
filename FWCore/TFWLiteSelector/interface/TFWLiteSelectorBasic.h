@@ -17,7 +17,7 @@ allows you to access data using an edm::Event.
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 16:37:27 EDT 2006
-// $Id: TFWLiteSelectorBasic.h,v 1.3 2006/07/25 23:56:48 chrjones Exp $
+// $Id: TFWLiteSelectorBasic.h,v 1.4 2006/10/17 11:58:48 chrjones Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@ namespace edm {
   
   namespace root {
     struct TFWLiteSelectorMembers;
-  };
+  }
 }
 
 class TFWLiteSelectorBasic : public TSelector

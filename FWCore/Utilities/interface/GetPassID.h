@@ -9,6 +9,6 @@ namespace edm {
     static std::string passID;
     // return empty string for now.
     return passID; 
-  };
+  }
 }
 #endif

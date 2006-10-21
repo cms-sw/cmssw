@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:41 EST 2005
-// $Id: EDProductGetter.cc,v 1.3 2005/12/02 05:24:55 wmtan Exp $
+// $Id: EDProductGetter.cc,v 1.1 2006/02/07 07:01:51 wmtan Exp $
 //
 
 // system include files
@@ -83,7 +83,7 @@ EDProductGetter::set(EDProductGetter const* iGetter)
    EDProductGetter const * previous = s_registry->held_;
    s_registry->held_= iGetter;
    return previous;
-};
+}
 
 EDProductGetter const*
 EDProductGetter::instance()

@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.7 2006/10/12 15:50:03 evansde Exp $
+// $Id: JobReport.h,v 1.8 2006/10/13 17:36:39 evansde Exp $
 //
 
 #include <cstddef>
@@ -305,7 +305,7 @@ namespace edm {
     }
     os << "\n</Branches>";
     return os;
-  };
+  }
 }
 
 #endif

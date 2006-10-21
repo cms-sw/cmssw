@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.17.2.1 2006/07/04 14:14:22 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.18 2006/07/06 19:16:13 wmtan Exp $
 //
 //
 
@@ -61,39 +61,39 @@ static const char* kNameValueSep = "=";
 template<typename T>
 static void doPrint(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<*reinterpret_cast<T*>(iObject.Address())<<"\n";
-};
+}
 
 template<>
 static void doPrint<char>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()))<<"\n";
-};
+}
+
 template<>
 static void doPrint<unsigned char>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()))<<"\n";
-};
+}
 
 template<>
 static void doPrint<bool>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false")<<"\n";
-};
-
+}
 
 typedef void(*FunctionType)(const std::string&,const ROOT::Reflex::Object&, const std::string&);
 typedef std::map<std::string, FunctionType> TypeToPrintMap;
 
 template<typename T>
-static void addToMap(TypeToPrintMap& iMap){
+static void addToMap(TypeToPrintMap& iMap) {
    iMap[typeid(T).name()]=doPrint<T>;
 }
 
 static bool printAsBuiltin(const std::string& iName,
                            const ROOT::Reflex::Object iObject,
-                           const std::string& iIndent){
+                           const std::string& iIndent) {
    typedef void(*FunctionType)(const std::string&,const ROOT::Reflex::Object&, const std::string&);
    typedef std::map<std::string, FunctionType> TypeToPrintMap;
    static TypeToPrintMap s_map;
    static bool isFirst = true;
-   if(isFirst){
+   if(isFirst) {
       addToMap<bool>(s_map);
       addToMap<char>(s_map);
       addToMap<short>(s_map);
@@ -108,13 +108,14 @@ static bool printAsBuiltin(const std::string& iName,
       isFirst=false;
    }
    TypeToPrintMap::iterator itFound =s_map.find(iObject.TypeOf().TypeInfo().name());
-   if(itFound == s_map.end()){
+   if(itFound == s_map.end()) {
       
       return false;
    }
    itFound->second(iName,iObject,iIndent);
    return true;
-};
+}
+
 static bool printAsContainer(const std::string& iName,
                              const ROOT::Reflex::Object& iObject,
                              const std::string& iIndent,
@@ -146,18 +147,18 @@ static void printObject(const std::string& iName,
       indent +=iIndentDelta;
    }
    std::string typeName(objectToPrint.TypeOf().Name());
-   if(typeName.empty()){
+   if(typeName.empty()) {
       typeName="<unknown>";
    }
 
    //see if we are dealing with a typedef
-   if(objectToPrint.TypeOf().IsTypedef()){
+   if(objectToPrint.TypeOf().IsTypedef()) {
      objectToPrint = Object(objectToPrint.TypeOf().ToType(),objectToPrint.Address());
    } 
    if(printAsBuiltin(printName,objectToPrint,indent)) {
       return;
    }
-   if(printAsContainer(printName,objectToPrint,indent,iIndentDelta)){
+   if(printAsContainer(printName,objectToPrint,indent,iIndentDelta)) {
       return;
    }
    
@@ -166,7 +167,7 @@ static void printObject(const std::string& iName,
    //print all the data members
    for(ROOT::Reflex::Member_Iterator itMember = objectToPrint.TypeOf().DataMember_Begin();
        itMember != objectToPrint.TypeOf().DataMember_End();
-       ++itMember){
+       ++itMember) {
       //std::cout <<"     debug "<<itMember->Name()<<" "<<itMember->TypeOf().Name()<<"\n";
       try {
          printObject( itMember->Name(),
@@ -181,12 +182,12 @@ static void printObject(const std::string& iName,
 	std::cout <<indent<<itMember->Name()<<"<unknown exception caught>"<<"\n";
       }
    }
-};
+}
 
 static bool printAsContainer(const std::string& iName,
                              const ROOT::Reflex::Object& iObject,
                              const std::string& iIndent,
-                             const std::string& iIndentDelta){
+                             const std::string& iIndentDelta) {
    using namespace ROOT::Reflex;
    Object sizeObj;
    try {
@@ -215,13 +216,12 @@ static bool printAsContainer(const std::string& iName,
          }
       }
       return true;
-   } catch(const std::exception& x){
+   } catch(const std::exception& x) {
       //std::cerr <<"failed to invoke 'at' because "<<x.what()<<std::endl;
       return false;
    }
    return false;
 }
-
 
 static void printObject(const edm::Event& iEvent,
                         const std::string& iClassName,
@@ -303,7 +303,7 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       std::cout << indentation_ << friendlyName
                 << " \"" << modLabel
                 << "\" \"" << instanceName <<"\"" << std::endl;
-      if(verbose_){
+      if(verbose_) {
          if( moduleLabels_.size() ==0 ||
              std::binary_search(moduleLabels_.begin(),moduleLabels_.end(),modLabel)) {
             //indent one level before starting to print

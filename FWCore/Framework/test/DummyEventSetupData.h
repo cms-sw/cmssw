@@ -19,7 +19,7 @@ namespace edm {
 }
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-EVENTSETUP_DATA_DEFAULT_RECORD(edm::DummyEventSetupData, edm::DummyEventSetupRecord);
+EVENTSETUP_DATA_DEFAULT_RECORD(edm::DummyEventSetupData, edm::DummyEventSetupRecord)
 
 #if !defined(TEST_EXCLUDE_DEF)
 //NOTE: This should really be put into a .cc file

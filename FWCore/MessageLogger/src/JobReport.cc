@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.10 2006/10/12 15:50:02 evansde Exp $
+// $Id: JobReport.cc,v 1.11 2006/10/13 17:36:40 evansde Exp $
 //
 
 
@@ -186,7 +186,7 @@ namespace edm
 	  writeOutputFile(*opos);
 	}
       }
-    };
+    }
 
   JobReport::~JobReport() {impl_->flushFiles();}
 

@@ -31,7 +31,7 @@ namespace edm {
     std::string removeExtraSpaces(std::string const& iIn) {
        return boost::regex_replace(boost::regex_replace(iIn,reBeginSpace,emptyString),
                                     reEndSpace, emptyString);
-    };
+    }
 
     std::string removeAllSpaces(std::string const& iIn) {
       return boost::regex_replace(iIn, reAllSpaces,emptyString);

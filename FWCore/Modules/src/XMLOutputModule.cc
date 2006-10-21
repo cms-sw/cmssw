@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  4 20:45:44 EDT 2006
-// $Id: XMLOutputModule.cc,v 1.1 2006/08/25 14:36:07 chrjones Exp $
+// $Id: XMLOutputModule.cc,v 1.2 2006/09/21 17:21:30 chrjones Exp $
 //
 
 // system include files
@@ -100,21 +100,22 @@ static const std::string& typeidToName(const std::type_info& iID)
 template<typename T>
 static void doPrint(std::ostream& oStream, const std::string&iPrefix, const std::string& iPostfix,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
   oStream << iIndent<<iPrefix <<typeidToName(typeid(T))<<kNameValueSep<<*reinterpret_cast<T*>(iObject.Address())<<iPostfix<<"\n";
-};
+}
 
 template<>
 static void doPrint<char>(std::ostream& oStream, const std::string&iPrefix, const std::string& iPostfix,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
   oStream << iIndent<< iPrefix<<"char"<<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()))<<iPostfix<<"\n";
-};
+}
+
 template<>
 static void doPrint<unsigned char>(std::ostream& oStream, const std::string&iPrefix, const std::string& iPostfix,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
   oStream << iIndent<< iPrefix<< "unsigned char" <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()))<<iPostfix<<"\n";
-};
+}
 
 template<>
 static void doPrint<bool>(std::ostream& oStream, const std::string&iPrefix, const std::string& iPostfix,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
   oStream << iIndent<< iPrefix << "bool" <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false")<<iPostfix<<"\n";
-};
+}
 
 
 typedef void(*FunctionType)(std::ostream&, const std::string&, 
@@ -156,7 +157,7 @@ static bool printAsBuiltin(std::ostream& oStream,
   }
   itFound->second(oStream,iPrefix,iPostfix,iObject,iIndent);
   return true;
-};
+}
 
 static bool printAsContainer(std::ostream& oStream,
                              const std::string& iPrefix,
@@ -234,7 +235,7 @@ static void printObject(std::ostream& oStream,
   printDataMembers(oStream,objectToPrint,objectType,indent+iIndentDelta,iIndentDelta);
   oStream<<indent<<iPostfix<<"\n";
   
-};
+}
 
 static void printDataMembers(std::ostream& oStream,
                              const ROOT::Reflex::Object& iObject,

@@ -66,7 +66,7 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.13 2005/10/01 21:10:51 chrjones Exp $
+// $Id: ESProducer.h,v 1.14 2005/10/03 23:10:43 chrjones Exp $
 //
 
 // system include files
@@ -93,7 +93,7 @@ namespace edm {
       template< typename T, typename TRecord, typename TDecorator >
       inline const TDecorator& createDecoratorFrom(T*, const TRecord*, const TDecorator& iDec) {
          return iDec;
-      };
+      }
    }
 class ESProducer : public ESProxyFactoryProducer
 {
@@ -206,11 +206,11 @@ class ESProducer : public ESProxyFactoryProducer
                                const es::Label& iLabel) {
             registerProduct(iCallback, static_cast<const typename TList::tail_type*>(0), iRecord, iLabel);
             registerProducts(iCallback, static_cast<const typename TList::head_type*>(0), iRecord, iLabel);
-         };
+         }
       template<typename T, typename TRecord>
          void registerProducts(boost::shared_ptr<T>, const eventsetup::produce::Null*, const TRecord*,const es::Label&) {
             //do nothing
-         };
+         }
       
       
       template<typename T, typename TProduct, typename TRecord>
@@ -218,7 +218,7 @@ class ESProducer : public ESProxyFactoryProducer
             registerFactory(new eventsetup::ProxyArgumentFactoryTemplate<
                             eventsetup::CallbackProxy<T, TRecord, TProduct>, boost::shared_ptr<T> >(iCallback),
                             iLabel.default_);
-         };
+         }
       
       template<typename T, typename TProduct, typename TRecord, int IIndex>
          void registerProduct(boost::shared_ptr<T> iCallback, const es::L<TProduct,IIndex>*, const TRecord*,const es::Label& iLabel) {
@@ -230,7 +230,7 @@ class ESProducer : public ESProxyFactoryProducer
             registerFactory(new eventsetup::ProxyArgumentFactoryTemplate<
                             eventsetup::CallbackProxy<T, TRecord, es::L<TProduct,IIndex> >, boost::shared_ptr<T> >(iCallback),
                             iLabel.labels_[IIndex]);
-         };
+         }
       
       // ---------- member data --------------------------------
       // NOTE: the factories share ownership of the callback
