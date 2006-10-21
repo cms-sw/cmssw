@@ -63,4 +63,4 @@ namespace edm {
 
 } //edm
 using edm::SecondaryProducer;
-DEFINE_FWK_MODULE(SecondaryProducer)
+DEFINE_FWK_MODULE(SecondaryProducer);

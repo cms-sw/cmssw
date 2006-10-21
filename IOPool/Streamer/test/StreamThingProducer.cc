@@ -65,4 +65,4 @@ namespace edmtest_thing
 }
 
 using edmtest_thing::StreamThingProducer;
-DEFINE_FWK_MODULE(StreamThingProducer)
+DEFINE_FWK_MODULE(StreamThingProducer);

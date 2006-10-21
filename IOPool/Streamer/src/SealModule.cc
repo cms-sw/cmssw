@@ -39,5 +39,5 @@ DEFINE_ANOTHER_FWK_MODULE(EventStreamFileWriter);
 using namespace edm::serviceregistry;
 using stor::HLTInfo;
 
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(HLTInfo,ParameterSetMaker<HLTInfo>)
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(HLTInfo,ParameterSetMaker<HLTInfo>);
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 11:10:24 EDT 2005
-// $Id: EventSetupRecordDataGetter.cc,v 1.3 2006/08/26 18:41:19 chrjones Exp $
+// $Id: EventSetupRecordDataGetter.cc,v 1.4 2006/09/06 19:44:34 chrjones Exp $
 //
 //
 
@@ -140,4 +140,4 @@ EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::Eve
 }
 }
 //define this as a plug-in
-//DEFINE_FWK_MODULE(EventSetupRecordDataGetter)
+//DEFINE_FWK_MODULE(EventSetupRecordDataGetter);

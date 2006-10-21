@@ -77,4 +77,4 @@ namespace edmtest_thing
 }
 
 using edmtest_thing::StreamThingAnalyzer;
-DEFINE_FWK_MODULE(StreamThingAnalyzer)
+DEFINE_FWK_MODULE(StreamThingAnalyzer);
