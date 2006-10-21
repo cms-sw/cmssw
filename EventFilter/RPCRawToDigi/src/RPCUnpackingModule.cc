@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/09/20 07:17:24 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/10/08 12:11:41 $
+ *  $Revision: 1.21 $
  *
  * \author Ilaria Segoni
  */
@@ -76,7 +76,6 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
 
  std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
- edm::LogInfo ("RPCUnpacker") <<"Starting loop on FEDs, RPC FED ID RANGE: "<<rpcFEDS.first<<" - "<<rpcFEDS.second;
  
  nEvents++; 
  
@@ -101,10 +100,15 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  
       			/// Unpack FED Trailer(s)
       			const unsigned char* trailerIndex=index+fedData.size()- rpc::unpacking::SLINK_WORD_SIZE;
-      			int numberOfTrailers=this->unpackTrailer(trailerIndex, rpcRawData);
+      			int ttsSTatus=this->unpackTrailer(trailerIndex, rpcRawData);
        
-      			edm::LogInfo ("RPCUnpacker") <<"Found "<<numberOfHeaders<<" Headers and "<<numberOfTrailers<<" Trailers";		  
-      
+ 			if(ttsSTatus){
+				edm::LogError ("RPCUnpacker") <<"ERROR REPORTED FROM TTS Status= "<< ttsSTatus;
+			 	break;
+			}
+			
+			
+     				
       			/// Beginning of RPC Records Unpacking
       			index += numberOfHeaders* rpc::unpacking::SLINK_WORD_SIZE; 
        
@@ -143,10 +147,8 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 					
 					
 					catch (cms::Exception & e) {
-              				     LogInfo("Exception catched, skip digi")<<e.what(); 
-            				}
-	  
-	  
+              				     LogError("Exception catched, skip digi")<<e.what(); 
+            				}		  
 	  
 	 		 	}
           
@@ -159,6 +161,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
       			if(instatiateDQM){ 
           			 monitor->process(rpcRawData);
       			}	
+		
 		}
 		
 	}       
@@ -191,6 +194,7 @@ int RPCUnpackingModule::unpackHeader(const unsigned char* headerIndex, RPCFEDDat
   headerIndex++;
  
  }
+        edm::LogInfo ("RPCUnpacker") <<"Found "<< numberOfHeaders<<" Headers";
   
  return numberOfHeaders;    		
 
@@ -202,6 +206,7 @@ int RPCUnpackingModule::unpackHeader(const unsigned char* headerIndex, RPCFEDDat
 int RPCUnpackingModule::unpackTrailer(const unsigned char* trailerIndex, RPCFEDData & rawData) {
  
  int numberOfTrailers=0;
+ int tts=0;
  bool moreTrailers = true;
  
  while(moreTrailers){
@@ -219,17 +224,18 @@ int RPCUnpackingModule::unpackTrailer(const unsigned char* trailerIndex, RPCFEDD
           " Event Fragment Status "<< fedTrailer.evtStatus()<<
           " Value of Trigger Throttling System "<<fedTrailer.ttsBits()<<
           " more Trailers: "<<fedTrailer.moreTrailers();
-    
+        
+	if(fedTrailer.ttsBits()) tts=fedTrailer.ttsBits();
   
-       
   }else{
        moreTrailers=false;
   }
 
  }
  
-  
- return numberOfTrailers;
+        edm::LogInfo ("RPCUnpacker") <<"Found "<< numberOfTrailers<<" Trailers";
+ 
+ return tts;
 }
 
 
