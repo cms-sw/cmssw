@@ -92,4 +92,4 @@ prodname::produce(const recordname& iRecord)
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(prodname)
+DEFINE_FWK_EVENTSETUP_MODULE(prodname);

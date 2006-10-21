@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyESSource.cc,v 1.1 2005/12/16 00:24:54 chrjones Exp $
+// $Id: LoadableDummyESSource.cc,v 1.2 2005/12/22 20:28:28 chrjones Exp $
 //
 
 // system include files
@@ -34,4 +34,4 @@ public:
    }
 };
 
-DEFINE_FWK_EVENTSETUP_SOURCE(LoadableDummyESSource)
+DEFINE_FWK_EVENTSETUP_SOURCE(LoadableDummyESSource);

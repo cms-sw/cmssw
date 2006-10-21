@@ -3,11 +3,11 @@
    Test Module for testScheduler
 
    \author Stefano ARGIRO
-   \version $Id: TestSchedulerModule2.cc,v 1.10 2006/02/08 00:44:26 wmtan Exp $
+   \version $Id: TestSchedulerModule2.cc,v 1.11 2006/02/13 22:36:36 wmtan Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.10 2006/02/08 00:44:26 wmtan Exp $";
+static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.11 2006/02/13 22:36:36 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -47,7 +47,7 @@ namespace edm{
   }
 }//namespace  
 using edm::TestSchedulerModule2;
-DEFINE_FWK_MODULE(TestSchedulerModule2)
+DEFINE_FWK_MODULE(TestSchedulerModule2);
 
 // Configure (x)emacs for this file ...
 // Local Variables:

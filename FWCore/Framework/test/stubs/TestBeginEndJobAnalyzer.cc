@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestBeginEndJobAnalyzer.cc,v 1.2 2005/09/07 19:54:36 wmtan Exp $
+// $Id: TestBeginEndJobAnalyzer.cc,v 1.3 2006/05/03 21:12:14 wmtan Exp $
 //
 //
 
@@ -96,4 +96,4 @@ TestBeginEndJobAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::Even
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestBeginEndJobAnalyzer)
+DEFINE_FWK_MODULE(TestBeginEndJobAnalyzer);

@@ -32,4 +32,4 @@ void TestMod::produce(Event&, EventSetup const&)
   std::cerr << "Hi" << std::endl;
 }
 
-DEFINE_FWK_MODULE(TestMod)
+DEFINE_FWK_MODULE(TestMod);

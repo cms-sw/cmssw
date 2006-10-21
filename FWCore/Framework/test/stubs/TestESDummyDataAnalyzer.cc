@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 22 11:02:00 EST 2005
-// $Id: TestESDummyDataAnalyzer.cc,v 1.2 2006/07/23 01:24:35 valya Exp $
+// $Id: TestESDummyDataAnalyzer.cc,v 1.3 2006/09/01 18:16:43 wmtan Exp $
 //
 //
 
@@ -113,4 +113,4 @@ TestESDummyDataAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetu
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestESDummyDataAnalyzer)
+DEFINE_FWK_MODULE(TestESDummyDataAnalyzer);

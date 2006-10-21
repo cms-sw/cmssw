@@ -13,7 +13,7 @@
 //
 // Original Author:  Valentin Kuznetsov
 //         Created:  Tue Jul 18 10:17:05 EDT 2006
-// $Id: DummyLooper.cc,v 1.2 2006/07/28 13:23:59 valya Exp $
+// $Id: DummyLooper.cc,v 1.3 2006/09/01 18:16:43 wmtan Exp $
 //
 //
 
@@ -107,4 +107,4 @@ DummyLooper::produce(const DummyRecord&)
 }
 
 //define this as a plug-in
-DEFINE_FWK_LOOPER(DummyLooper)
+DEFINE_FWK_LOOPER(DummyLooper);

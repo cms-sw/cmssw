@@ -164,4 +164,4 @@ namespace edmtest
 using edmtest::TestOutputModule;
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TestOutputModule)
+DEFINE_ANOTHER_FWK_MODULE(TestOutputModule);

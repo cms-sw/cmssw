@@ -133,4 +133,4 @@ loopername::endOfJob()
 }
 
 //define this as a plug-in
-DEFINE_FWK_LOOPER(loopername)
+DEFINE_FWK_LOOPER(loopername);

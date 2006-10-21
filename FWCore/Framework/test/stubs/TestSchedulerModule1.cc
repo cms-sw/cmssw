@@ -3,7 +3,7 @@
    Test Modules for ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: TestSchedulerModule1.cc,v 1.9 2006/02/08 00:44:26 wmtan Exp $
+   \version $Id: TestSchedulerModule1.cc,v 1.10 2006/02/13 22:36:36 wmtan Exp $
    \date 19 May 2005
 */
 
@@ -21,7 +21,7 @@
 
 using namespace edm;
 
-static const char CVSId[] = "$Id: TestSchedulerModule1.cc,v 1.9 2006/02/08 00:44:26 wmtan Exp $";
+static const char CVSId[] = "$Id: TestSchedulerModule1.cc,v 1.10 2006/02/13 22:36:36 wmtan Exp $";
 
 class TestSchedulerModule1 : public EDProducer
 {
@@ -39,19 +39,12 @@ private:
 
 void TestSchedulerModule1::produce(Event& e, EventSetup const&)
 {
- 
-
- 
   std::string myname = pset_.getParameter<std::string>("module_name");
   std::auto_ptr<edmtest::StringProduct> product(new edmtest::StringProduct(myname)); 
   e.put(product);
 }
 
-DEFINE_FWK_MODULE(TestSchedulerModule1)
-
-
-
-
+DEFINE_FWK_MODULE(TestSchedulerModule1);
 
 
 // Configure (x)emacs for this file ...

@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyProvider.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+// $Id: LoadableDummyProvider.cc,v 1.4 2005/12/22 20:29:01 chrjones Exp $
 //
 
 // system include files
@@ -28,4 +28,4 @@ public:
    :DummyProxyProvider( edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value",1))) {}
 };
 
-DEFINE_FWK_EVENTSETUP_MODULE(LoadableDummyProvider)
+DEFINE_FWK_EVENTSETUP_MODULE(LoadableDummyProvider);

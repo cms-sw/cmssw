@@ -107,4 +107,4 @@ fltrname::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(fltrname)
+DEFINE_FWK_MODULE(fltrname);

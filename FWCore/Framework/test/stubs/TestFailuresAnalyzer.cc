@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestFailuresAnalyzer.cc,v 1.2 2005/09/07 19:54:36 wmtan Exp $
+// $Id: TestFailuresAnalyzer.cc,v 1.1 2005/12/14 01:34:21 chrjones Exp $
 //
 //
 
@@ -105,4 +105,4 @@ TestFailuresAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSe
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestFailuresAnalyzer)
+DEFINE_FWK_MODULE(TestFailuresAnalyzer);

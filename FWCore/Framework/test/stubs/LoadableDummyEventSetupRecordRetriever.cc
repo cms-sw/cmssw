@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyEventSetupRecordRetriever.cc,v 1.2 2005/12/22 20:28:28 chrjones Exp $
+// $Id: LoadableDummyEventSetupRecordRetriever.cc,v 1.1 2006/04/11 01:52:09 chrjones Exp $
 //
 
 // system include files
@@ -31,4 +31,4 @@ public:
    }
 };
 
-DEFINE_FWK_EVENTSETUP_SOURCE(LoadableDummyEventSetupRecordRetriever)
+DEFINE_FWK_EVENTSETUP_SOURCE(LoadableDummyEventSetupRecordRetriever);
