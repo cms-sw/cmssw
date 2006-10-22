@@ -302,6 +302,7 @@ void RPCRecHitReader::analyze(const Event & event, const EventSetup& eventSetup)
       if(effX.size() > 0){
 	_efficiencyGOOD++;    
 	
+	unsigned int k = 0;
 	for(unsigned int i = 0; i < effX.size(); ++i){
 	  
 	  float res = (effX[i] - prepoint);
@@ -324,13 +325,13 @@ void RPCRecHitReader::analyze(const Event & event, const EventSetup& eventSetup)
 
 	  if(fabs(res) > errcl){
 	    _spurious++;
- 	    *fout<<"Il residuo è maggiore di "<<3*errcl<<" ";
+ 	    *fout<<"Il residuo è maggiore di "<<errcl<<" ";
 	    *fout<<" #Event: "<<event.id().event()<<std::endl;
 	  }
 	  else if(fabs(res) <= errcl){
+	    k++;
 	    rescut.push_back(res);
-	    histoRealOcc->Fill(expStrip);
-
+	    if (k == 1) histoRealOcc->Fill(expStrip);
 	  }
 	}
 
