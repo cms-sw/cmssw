@@ -17,7 +17,7 @@
  <Constant name="CalorBeamR2"  value="8.93*cm"/>
  <Constant name="CalorMuonR"   value="2.950*m"/>
  <Constant name="Eta"          value="0.5655"/>
- <Constant name="Phi"          value="7.5*deg"/>
+ <Constant name="Phi"          value="-7.5*deg"/>
 </ConstantsSection>
 
 <SolidSection label="TBHcal.xml">
