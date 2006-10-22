@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/09/14 17:09:40 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/10/14 14:31:49 $
+ *  $Revision: 1.14 $
  *
  * \author Ilaria Segoni
  */
@@ -61,7 +61,7 @@ RPCMonitorDigi::~RPCMonitorDigi(){
 void RPCMonitorDigi::beginJob(edm::EventSetup const&){
  edm::LogInfo (nameInLog) <<"Beginning DQMMonitorDigi " ;
   
-  GlobalHistogramsFolder="RPC/Digi&RecHits/GlobalHistograms";
+  GlobalHistogramsFolder="RPC/RecHits/GlobalHistograms";
   dbe->setCurrentFolder(GlobalHistogramsFolder);  
 
   GlobalZYHitCoordinates = dbe->book2D("GlobalRecHitZYCoordinates", "Rec Hit Z-Y", 1000, -800, 800, 1000, -800, 800);
@@ -181,6 +181,9 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 
 		sprintf(meId,"BXN_%s",detUnitLabel);
 		meMap[meId]->Fill(bx);
+		
+		sprintf(meId,"BXN_vs_strip_%s",detUnitLabel);
+		meMap[meId]->Fill(strip,bx);
 	
 	}/// loop on Digi
  	sprintf(meId,"BXWithData_%s",detUnitLabel);

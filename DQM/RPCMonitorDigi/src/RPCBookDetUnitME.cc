@@ -28,7 +28,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
  }
  
  char  folder[120];
- sprintf(folder,"RPC/Digi&RecHits/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
+ sprintf(folder,"RPC/RecHits/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
  				detId.ring(),detId.station(),detId.sector());
  
  dbe->setCurrentFolder(folder);
@@ -49,11 +49,15 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
 
  sprintf(meId,"BXN_%s",detUnitLabel);
  sprintf(meTitle,"BXN_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
+ meMap[meId] = dbe->book1D(meId, meTitle, 11, -10.5, 10.5);
+ 
+ sprintf(meId,"BXN_vs_strip_%s",detUnitLabel);
+ sprintf(meTitle,"BXN_vs_strip_for_%s",layerLabel);
+ meMap[meId] = dbe->book2D(meId, meTitle,  100, 0.5, 100.5, 11, -10.5, 10.5);
  
  sprintf(meId,"ClusterSize_%s",detUnitLabel);
  sprintf(meTitle,"ClusterSize_for_%s",layerLabel);
- meMap[meId] = dbe->book1D(meId, meTitle, 11, 0.5, 11.5);
+ meMap[meId] = dbe->book1D(meId, meTitle, 21, 0.5, 20.5);
  
  sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
  sprintf(meTitle,"NumberOfClusters_for_%s",layerLabel);
