@@ -6,6 +6,7 @@
 #define HcalCellType_h
 
 #include <iostream>
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 class HcalCellType {
 
@@ -21,14 +22,15 @@ public:
          flagrz(frz) {}
   };
 
-  HcalCellType(int detType, int etaBin, int phiBin, int depthSegment,
-	       HcalCell cell, int readoutDirection, double samplingFactor);
+  HcalCellType(HcalSubdetector detType, int etaBin, int phiBin, 
+	       int depthSegment, HcalCell cell, int readoutDirection,
+	       double samplingFactor, int numberZ, int nmodule);
   HcalCellType(const HcalCellType&);
   ~HcalCellType();
 
   /// 1=HB, 2=HE, 3=HO, 4=HF (sub detector type)
   /// as in DataFormats/HcalDetId/interface/HcalSubdetector.h
-  int detType() const {return theDetType;}
+  HcalSubdetector detType() const {return theDetType;}
                                                                                
   /// which eta ring it belongs to, starting from one
   int etaBin() const {return theEtaBin;}
@@ -40,12 +42,16 @@ public:
 
   /// the number of these cells in a ring
   int nPhiBins() const {return theNumberOfPhiBins;}
+  int nPhiModule() const {return static_cast<int>(20./thePhiBinWidth);}
                                                                                
   /// phi bin width, in degrees
-  double phiBinWidth() const {return 360./theNumberOfPhiBins;}
+  double phiBinWidth() const {return thePhiBinWidth;}
 
   /// phi offset in degrees
   double phiOffset() const {return thePhiOffset;}
+
+  /// Number of halves (forward/backward)
+  int nHalves() const {return theNumberOfZ;}
                                                                                
   /// which cell will actually do the readout for this cell
   /// 1 means move hits in this cell up, and -1 means down
@@ -73,20 +79,22 @@ protected:
                                                                                
 private:
 
-  int    theDetType;
-  int    theEtaBin;
-  int    theDepthSegment;
-  int    theNumberOfPhiBins;
-  int    theActualReadoutDirection;
+  HcalSubdetector theDetType;
+  int             theEtaBin;
+  int             theDepthSegment;
+  int             theNumberOfPhiBins;
+  int             theNumberOfZ;
+  int             theActualReadoutDirection;
 
-  bool   theRzFlag;
+  bool            theRzFlag;
                                                                                
-  double theEtaMin;
-  double theEtaMax;
-  double thePhiOffset;
-  double theDepthMin;
-  double theDepthMax;
-  double theSamplingFactor;
+  double          theEtaMin;
+  double          theEtaMax;
+  double          thePhiOffset;
+  double          thePhiBinWidth;
+  double          theDepthMin;
+  double          theDepthMax;
+  double          theSamplingFactor;
 };
                                                                                
 std::ostream& operator<<(std::ostream&, const HcalCellType&);

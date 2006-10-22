@@ -6,6 +6,7 @@
 #define HcalNumberingFromDDD_h
 
 #include "Geometry/HcalCommonData/interface/HcalCellType.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
@@ -37,6 +38,7 @@ public:
 			      int iphi, bool corr=true) const;
   std::vector<double> getEtaTable() const;
   std::vector<HcalCellType::HcalCellType> HcalCellTypes() const;
+  std::vector<HcalCellType::HcalCellType> HcalCellTypes(HcalSubdetector) const;
 
 private:
 
@@ -48,6 +50,9 @@ private:
   void           loadGeometry(DDFilteredView);
   std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &,
 				  int&) const;
+  int            getShift(HcalSubdetector subdet, int depth) const;
+  double         getGain (HcalSubdetector subdet, int depth) const;
+  unsigned       find (int element, std::vector<int> array) const;
 
 private:
 
@@ -75,6 +80,8 @@ private:
   std::vector<int>    nOff;     // Speical eta bin #'s in barrel and endcap
   std::vector<double> rHB;      // Radial positions of HB layers
   std::vector<double> zHE;      // Z-positions of HE layers
+  int                 nzHB, nmodHB; // Number of halves and modules in HB
+  int                 nzHE, nmodHE; // Number of halves and modules in HE
 };
 
 #endif

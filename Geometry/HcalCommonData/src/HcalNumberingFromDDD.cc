@@ -4,7 +4,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace std{} using namespace std;
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 
 #include "DetectorDescription/Base/interface/DDException.h"
@@ -23,12 +22,12 @@ namespace std{} using namespace std;
 
 HcalNumberingFromDDD::HcalNumberingFromDDD(std::string & name,
 					   const DDCompactView & cpv) {
-  edm::LogInfo("HcalGeom") << "Creating HcalNumberingFromDDD";
+  edm::LogInfo("HCalGeom") << "Creating HcalNumberingFromDDD";
   initialize(name, cpv);
 }
 
 HcalNumberingFromDDD::~HcalNumberingFromDDD() {
-  edm::LogInfo("HcalGeom") << "Deleting HcalNumberingFromDDD";
+  edm::LogInfo("HCalGeom") << "Deleting HcalNumberingFromDDD";
 }
 
 HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
@@ -76,7 +75,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
   if (hphi < 0)     hphi += twopi;
 
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD: point = " << point << " eta " 
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: point = " << point << " eta " 
 		       << heta << " phi " << hphi;
 #endif
   //Then the phi index
@@ -174,7 +173,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
   HcalNumberingFromDDD::HcalID tmp(det,zside,depth,etaR,phi,iphi_skip,lay);
 
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD: det = " << det << " " 
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: det = " << det << " " 
 		       << tmp.subdet << " zside = " << tmp.zside << " depth = "
 		       << tmp.depth << " eta/R = " << tmp.etaR << " phi = " 
 		       << tmp.phi << " layer = " << tmp.lay;
@@ -235,7 +234,7 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
       } else {
 	ok     = false;
 #ifdef debug
-	LogDebug("HcalGeom") << "HcalNumberingFromDDD: wrong eta " << etaR 
+	LogDebug("HCalGeom") << "HcalNumberingFromDDD: wrong eta " << etaR 
 			     << " ("  << ir << "/" << nR << ") Detector "
 			     << idet;
 #endif
@@ -243,7 +242,7 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
       if (depth != 1 && depth != 2) {
 	ok     = false;
 #ifdef debug
-	LogDebug("HcalGeom") << "HcalNumberingFromDDD: wrong depth " << depth
+	LogDebug("HCalGeom") << "HcalNumberingFromDDD: wrong depth " << depth
 			     << " in Detector " << idet;
 #endif
       }
@@ -259,10 +258,15 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
       } else if (depth == 2) {
 	laymin = depth0+1;
         laymax = depth2[etaR-1];
+	if (etaR==etaMax[0] && idet==static_cast<int>(HcalBarrel) &&
+	    nOff.size()>3) laymax = nOff[3];
       } else  if (depth == 3) {
 	laymin = depth2[etaR-1]+1;
         laymax = depth3[etaR-1];
-	if (etaR<=etaMin[1] && idet==static_cast<int>(HcalEndcap)) laymin=1;
+	if (etaR<=etaMin[1] && idet==static_cast<int>(HcalEndcap)) {
+	  if (nOff.size() > 4) laymin = nOff[4];
+	  else                 laymin = 1;
+	}
       } else {
 	laymin = depth3[etaR-1]+1;
 	laymax = maxlay;
@@ -279,7 +283,7 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
       } else {
 	ok = false;
 #ifdef debug
-	LogDebug("HcalGeom") << "HcalNumberingFromDDD: wrong depth " << depth
+	LogDebug("HCalGeom") << "HcalNumberingFromDDD: wrong depth " << depth
 			     << " (Layer minimum " << laymin << " maximum " 
 			     << laymax << " maxLay " << maxlay << ")";
 #endif
@@ -287,21 +291,21 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
     } else {
       ok = false;
 #ifdef debug
-      LogDebug("HcalGeom") << "HcalNumberingFromDDD: wrong eta " << etaR
+      LogDebug("HCalGeom") << "HcalNumberingFromDDD: wrong eta " << etaR
 			   << "/" << nEta << " Detector " << idet;
 #endif
     }
   } else {
     ok = false;
 #ifdef debug
-    LogDebug("HcalGeom") << "HcalNumberingFromDDD: wrong eta " << etaR 
+    LogDebug("HCalGeom") << "HcalNumberingFromDDD: wrong eta " << etaR 
 			 << " det " << idet;
 #endif
   }
   HcalCellType::HcalCell tmp(ok,eta,deta,phi,dphi,rz,drz,flagrz);
 
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD: det/side/depth/etaR/phi "
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: det/side/depth/etaR/phi "
 		       << det  << "/" << zside << "/" << depth << "/" << etaR
 		       << "/" << iphi << " Cell Flag " << tmp.ok << " " 
 		       << tmp.eta << " " << tmp.deta << " phi " << tmp.phi 
@@ -311,73 +315,84 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
   return tmp;
 }
 
-vector<double> HcalNumberingFromDDD::getEtaTable() const {
+std::vector<double> HcalNumberingFromDDD::getEtaTable() const {
 
-  vector<double> tmp = etaTable;
+  std::vector<double> tmp = etaTable;
   return tmp;
 }
 
-vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes() const{
+std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes() const{
 
-  vector<HcalCellType::HcalCellType> cellTypes;
-  int phi = 1, zside  = 1, subdet;
+  std::vector<HcalCellType::HcalCellType> cellTypes =HcalCellTypes(HcalBarrel);
+#ifdef debug
+  LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << cellTypes.size()
+			<< " cells of type HCal Barrel";
+  for (unsigned int i=0; i<cellTypes.size(); i++)
+    LogDebug ("HCalGeom") << "Cell " << i << " " << cellTypes[i];
+#endif
+  std::vector<HcalCellType::HcalCellType> hoCells   =HcalCellTypes(HcalOuter);
+#ifdef debug
+  LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << hoCells.size()
+			<< " cells of type HCal Outer";
+  for (unsigned int i=0; i<hoCells.size(); i++)
+    LogDebug ("HCalGeom") << "Cell " << i << " " << hoCells[i];
+#endif
+  cellTypes.insert(cellTypes.end(), hoCells.begin(), hoCells.end());
+  std::vector<HcalCellType::HcalCellType> heCells   =HcalCellTypes(HcalEndcap);
+#ifdef debug
+  LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << heCells.size()
+			<< " cells of type HCal Endcap";
+  for (unsigned int i=0; i<heCells.size(); i++)
+    LogDebug ("HCalGeom") << "Cell " << i << " " << heCells[i];
+#endif
+  cellTypes.insert(cellTypes.end(), heCells.begin(), heCells.end());
+  std::vector<HcalCellType::HcalCellType> hfCells   =HcalCellTypes(HcalForward);
+#ifdef debug
+  LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << hfCells.size()
+			<< " cells of type HCal Forward";
+  for (unsigned int i=0; i<hfCells.size(); i++)
+    LogDebug ("HCalGeom") << "Cell " << i << " " << hfCells[i];
+#endif
+  cellTypes.insert(cellTypes.end(), hfCells.begin(), hfCells.end());
+  return cellTypes;
+}
+
+std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes(HcalSubdetector subdet) const {
+  
+  std::vector<HcalCellType::HcalCellType> cellTypes;
+  if (subdet == HcalForward) {
+    if (dzVcal < 0) return cellTypes;
+  }
+
+  int    dmin, dmax, indx, nz, nmod;
+  switch(subdet) {
+  case HcalEndcap:
+    dmin = 1; dmax = 3; indx = 1, nz = nzHE, nmod = nmodHE;
+    break;
+  case HcalForward:
+    dmin = 1; dmax = 2; indx = 2, nz = 2, nmod = 18;
+    break;
+  case HcalOuter:
+    dmin = 4; dmax = 4; indx = 0, nz = nzHB, nmod = nmodHB;
+    break;
+  default:
+    dmin = 1; dmax = 3; indx = 0, nz = nzHB, nmod = nmodHB;
+    break;
+  }
+
+  int phi = 1, zside  = 1;
   bool cor = false;
 
-  // Get the Cells for HB 
-  subdet = static_cast<int>(HcalBarrel);
-  for (int depth=1; depth<=3; depth++) {
-    int    shift = shiftHB[depth-1];
-    double gain  = gainHB[depth-1];
-    for (int eta=etaMin[0]; eta<= etaMax[0]; eta++) {
-      HcalCellType::HcalCell temp1 = cell(subdet, zside, depth, eta, phi, cor);
+  // Get the Cells 
+  int subdet0 = static_cast<int>(subdet);
+  for (int depth=dmin; depth<=dmax; depth++) {
+    int    shift = getShift(subdet, depth);
+    double gain  = getGain (subdet, depth);
+    for (int eta=etaMin[indx]; eta<= etaMax[indx]; eta++) {
+      HcalCellType::HcalCell temp1 = cell(subdet0, zside, depth, eta, phi,cor);
       if (temp1.ok) {
 	HcalCellType::HcalCellType temp2(subdet, eta, phi, depth, temp1,
-					 shift, gain);
-	cellTypes.push_back(temp2);
-      }
-    }
-  }
-
-  // Get the Cells for HO
-  subdet = static_cast<int>(HcalOuter);
-  for (int depth=4; depth<=4; depth++) {
-    int    shift = shiftHB[depth-1];
-    double gain  = gainHB[depth-1];
-    for (int eta=etaMin[0]; eta<= etaMax[0]; eta++) {
-      HcalCellType::HcalCell temp1 = cell(subdet, zside, depth, eta, phi, cor);
-      if (temp1.ok) {
-	HcalCellType::HcalCellType temp2(subdet, eta, phi, depth, temp1,
-					 shift, gain);
-	cellTypes.push_back(temp2);
-      }
-    }
-  }
-
-  // Get the Cells for HE
-  subdet = static_cast<int>(HcalEndcap);
-  for (int depth=1; depth<=3; depth++) {
-    int    shift = shiftHE[depth-1];
-    double gain  = gainHE[depth-1];
-    for (int eta=etaMin[1]; eta<= etaMax[1]; eta++) {
-      HcalCellType::HcalCell temp1 = cell(subdet, zside, depth, eta, phi, cor);
-      if (temp1.ok) {
-	HcalCellType::HcalCellType temp2(subdet, eta, phi, depth, temp1,
-					 shift, gain);
-	cellTypes.push_back(temp2);
-      }
-    }
-  }
-
-  // Get the Cells for HF
-  subdet = static_cast<int>(HcalForward);
-  for (int depth=1; depth<=2; depth++) {
-    int    shift = shiftHF[depth-1];
-    double gain  = gainHF[depth-1];
-    for (int eta=etaMin[2]; eta<= etaMax[2]; eta++) {
-      HcalCellType::HcalCell temp1 = cell(subdet, zside, depth, eta, phi, cor);
-      if (temp1.ok) {
-	HcalCellType::HcalCellType temp2(subdet, eta, phi, depth, temp1,
-					 shift, gain);
+					 shift, gain, nz, nmod);
 	cellTypes.push_back(temp2);
       }
     }
@@ -404,7 +419,7 @@ double HcalNumberingFromDDD::getEta(int det, int etaR, int zside,
   } 
   if (zside == 0) tmp = -tmp;
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD::getEta " << etaR << " " 
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD::getEta " << etaR << " " 
 		       << zside << " " << depth << " ==> " << tmp;
 #endif
   return tmp;
@@ -415,7 +430,7 @@ double HcalNumberingFromDDD::getEta(double r, double z) const {
   double tmp = 0;
   if (z != 0) tmp = -log(tan(0.5*atan(r/z)));
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD::getEta " << r << " " << z 
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD::getEta " << r << " " << z 
 		       << " ==> " << tmp;
 #endif
   return tmp;
@@ -438,7 +453,7 @@ double HcalNumberingFromDDD::deltaEta(int det, int etaR, int depth) const {
     } 
   }
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD::deltaEta " << etaR << " " 
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD::deltaEta " << etaR << " " 
 		       << depth << " ==> " << tmp;
 #endif
   return tmp;
@@ -448,7 +463,7 @@ void HcalNumberingFromDDD::initialize(std::string & name,
 				      const DDCompactView & cpv) {
 
   std::string attribute = "ReadOutName";
-  edm::LogInfo("HcalGeom") << "HcalNumberingFromDDD: Initailise for " << name 
+  edm::LogInfo("HCalGeom") << "HcalNumberingFromDDD: Initailise for " << name 
 			   << " as " << attribute;
 
   DDSpecificsFilter filter;
@@ -465,11 +480,18 @@ void HcalNumberingFromDDD::initialize(std::string & name,
     //Load the Geometry parameters
     loadGeometry(fv);
   } else {
-    edm::LogError("HcalGeom") << "HcalNumberingFromDDD: cannot get filtered "
+    edm::LogError("HCalGeom") << "HcalNumberingFromDDD: cannot get filtered "
 			      << " view for " << attribute << " matching "
 			      << name;
     throw DDException("HcalNumberingFromDDD: cannot match "+attribute+" to "+name);
   }
+
+  std::vector<HcalCellType::HcalCellType> cellTypes =HcalCellTypes();
+  LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << cellTypes.size()
+			<< " cells of type HCal (All)";
+  for (unsigned int i=0; i<cellTypes.size(); i++)
+    LogDebug ("HCalGeom") << "Cell " << i << " " << cellTypes[i];
+
 }
 
 void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
@@ -478,61 +500,61 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
 
   // Phi Offset
   int i, nphi=4;
-  vector<double> tmp1 = getDDDArray("phioff",sv,nphi);
+  std::vector<double> tmp1 = getDDDArray("phioff",sv,nphi);
   phioff.resize(tmp1.size());
   for (i=0; i<nphi; i++) {
     phioff[i] = tmp1[i];
 #ifdef debug
-    LogDebug("HcalGeom") << "HcalNumberingFromDDD: phioff[" << i << "] = "
+    LogDebug("HCalGeom") << "HcalNumberingFromDDD: phioff[" << i << "] = "
 			 << phioff[i]/deg;
 #endif
   }
 
   //Eta table
   nEta     = -1;
-  vector<double> tmp2 = getDDDArray("etaTable",sv,nEta);
+  std::vector<double> tmp2 = getDDDArray("etaTable",sv,nEta);
   etaTable.resize(tmp2.size());
   for (i=0; i<nEta; i++) {
     etaTable[i] = tmp2[i];
 #ifdef debug
-    LogDebug("HcalGeom") << "HcalNumberingFromDDD: etaTable[" << i << "] = "
+    LogDebug("HCalGeom") << "HcalNumberingFromDDD: etaTable[" << i << "] = "
 			 << etaTable[i];
 #endif
   }
 
   //R table
   nR     = -1;
-  vector<double> tmp3 = getDDDArray("rTable",sv,nR);
+  std::vector<double> tmp3 = getDDDArray("rTable",sv,nR);
   rTable.resize(tmp3.size());
   for (i=0; i<nR; i++) {
     rTable[i] = tmp3[i];
 #ifdef debug
-    LogDebug("HcalGeom") << "HcalNumberingFromDDD: rTable[" << i << "] = "
+    LogDebug("HCalGeom") << "HcalNumberingFromDDD: rTable[" << i << "] = "
 			 << rTable[i]/cm;
 #endif
   }
 
   //Phi bins
   nPhi   = nEta + nR - 2;
-  vector<double> tmp4 = getDDDArray("phibin",sv,nPhi);
+  std::vector<double> tmp4 = getDDDArray("phibin",sv,nPhi);
   phibin.resize(tmp4.size());
   for (i=0; i<nPhi; i++) {
     phibin[i] = tmp4[i];
 #ifdef debug
-    LogDebug("HcalGeom") << "HcalNumberingFromDDD: phibin[" << i << "] = "
+    LogDebug("HCalGeom") << "HcalNumberingFromDDD: phibin[" << i << "] = "
 			 << phibin[i]/deg;
 #endif
   }
 
   //Layer boundaries for depths 1, 2, 3, 4
   nDepth            = nEta - 1;
-  vector<double> d1 = getDDDArray("depth1",sv,nDepth);
+  std::vector<double> d1 = getDDDArray("depth1",sv,nDepth);
   nDepth            = nEta - 1;
-  vector<double> d2 = getDDDArray("depth2",sv,nDepth);
+  std::vector<double> d2 = getDDDArray("depth2",sv,nDepth);
   nDepth            = nEta - 1;
-  vector<double> d3 = getDDDArray("depth3",sv,nDepth);
+  std::vector<double> d3 = getDDDArray("depth3",sv,nDepth);
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD: " << nDepth << " Depths";
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: " << nDepth << " Depths";
 #endif
   depth1.resize(nDepth);
   depth2.resize(nDepth);
@@ -542,16 +564,16 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
     depth2[i] = static_cast<int>(d2[i]);
     depth3[i] = static_cast<int>(d3[i]);
 #ifdef debug
-    LogDebug("HcalGeom") << "HcalNumberingFromDDD: depth1[" << i << "] = " 
+    LogDebug("HCalGeom") << "HcalNumberingFromDDD: depth1[" << i << "] = " 
 			 << depth1[i] << " depth2[" << i << "]  = "<< depth2[i]
 			 << " depth3[" << i << "] = " << depth3[i];
 #endif
   }
 
   // Minimum and maximum eta boundaries
-  int             ndx  = 3;
-  vector<double>  tmp5 = getDDDArray("etaMin",sv,ndx);
-  vector<double>  tmp6 = getDDDArray("etaMax",sv,ndx);
+  int ndx  = 3;
+  std::vector<double>  tmp5 = getDDDArray("etaMin",sv,ndx);
+  std::vector<double>  tmp6 = getDDDArray("etaMax",sv,ndx);
   etaMin.resize(ndx);
   etaMax.resize(ndx);
   for (i=0; i<ndx; i++) {
@@ -563,26 +585,26 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
   etaMax[2] = etaMin[2]+nR-2;
 #ifdef debug
   for (i=0; i<ndx; i++) 
-    LogDebug("HcalGeom") << "HcalNumberingFromDDD: etaMin[" << i << "] = "
+    LogDebug("HCalGeom") << "HcalNumberingFromDDD: etaMin[" << i << "] = "
 			 << etaMin[i] << " etaMax[" << i << "] = "<< etaMax[i];
 #endif
 
   // Geometry parameters for HF
   int ngpar = 7;
-  vector<double> gpar = getDDDArray("gparHF",sv,ngpar);
+  std::vector<double> gpar = getDDDArray("gparHF",sv,ngpar);
   zVcal = gpar[6];
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD: zVcal " << zVcal;
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: zVcal " << zVcal;
 #endif
 
   // nOff
-  int             noff = 3;
-  vector<double>  nvec = getDDDArray("noff",sv,noff);
+  int noff = 3;
+  std::vector<double>  nvec = getDDDArray("noff",sv,noff);
   nOff.resize(noff);
   for (i=0; i<noff; i++) {
     nOff[i] = static_cast<int>(nvec[i]);
 #ifdef debug
-    LogDebug("HcalGeom") << "HcalNumberingFromDDD: nOff[" << i << "] = " 
+    LogDebug("HCalGeom") << "HcalNumberingFromDDD: nOff[" << i << "] = " 
 			 << nOff[i];
 #endif
   }
@@ -590,16 +612,16 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
   //Gains and Shifts for HB depths
   ndx                  = 4;
   gainHB               = getDDDArray("HBGains",sv,ndx);
-  vector<double>  tmp7 = getDDDArray("HBShift",sv,ndx);
+  std::vector<double>  tmp7 = getDDDArray("HBShift",sv,ndx);
   shiftHB.resize(ndx);
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD:: Gain factor and Shift for "
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD:: Gain factor and Shift for "
 		       << "HB depth layers:";
 #endif
   for (i=0; i<ndx; i++) {
     shiftHB[i] = static_cast<int>(tmp7[i]);
 #ifdef debug
-    LogDebug("HcalGeom") <<"HcalNumberingFromDDD:: gainHB[" <<  i << "] = " 
+    LogDebug("HCalGeom") <<"HcalNumberingFromDDD:: gainHB[" <<  i << "] = " 
 			 << gainHB[i] << " shiftHB[" << i << "] = " 
 			 << shiftHB[i];
 #endif
@@ -608,16 +630,16 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
   //Gains and Shifts for HB depths
   ndx                  = 4;
   gainHE               = getDDDArray("HEGains",sv,ndx);
-  vector<double>  tmp8 = getDDDArray("HEShift",sv,ndx);
+  std::vector<double>  tmp8 = getDDDArray("HEShift",sv,ndx);
   shiftHE.resize(ndx);
 #ifdef debug
-   LogDebug("HcalGeom") << "HcalNumberingFromDDD:: Gain factor and Shift for "
+   LogDebug("HCalGeom") << "HcalNumberingFromDDD:: Gain factor and Shift for "
 			<< "HE depth layers:";
 #endif
   for (i=0; i<ndx; i++) {
     shiftHE[i] = static_cast<int>(tmp8[i]);
 #ifdef debug
-    LogDebug("HcalGeom") <<"HcalNumberingFromDDD:: gainHE[" <<  i << "] = " 
+    LogDebug("HCalGeom") <<"HcalNumberingFromDDD:: gainHE[" <<  i << "] = " 
 			 << gainHE[i] << " shiftHE[" << i << "] = " 
 			 << shiftHE[i];
 #endif
@@ -626,16 +648,16 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
   //Gains and Shifts for HF depths
   ndx                  = 4;
   gainHF               = getDDDArray("HFGains",sv,ndx);
-  vector<double>  tmp9 = getDDDArray("HFShift",sv,ndx);
+  std::vector<double>  tmp9 = getDDDArray("HFShift",sv,ndx);
   shiftHF.resize(ndx);
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD:: Gain factor and Shift for "
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD:: Gain factor and Shift for "
 		       << "HF depth layers:";
 #endif
   for (i=0; i<ndx; i++) {
     shiftHF[i] = static_cast<int>(tmp9[i]);
 #ifdef debug
-    LogDebug("HcalGeom") <<"HcalNumberingFromDDD:: gainHF[" <<  i << "] = " 
+    LogDebug("HCalGeom") <<"HcalNumberingFromDDD:: gainHF[" <<  i << "] = " 
 			 << gainHF[i] << " shiftHF[" << i << "] = " 
 			 << shiftHF[i];
 #endif
@@ -645,14 +667,15 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
 void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
   
   bool dodet=true, hf=false;
-  vector<double> rb(20,0.0), ze(20,0.0);
-  vector<int>    ib(20,0),   ie(20,0);
-  double         zf = 0;
+  std::vector<double> rb(20,0.0), ze(20,0.0);
+  std::vector<int>    ib(20,0),   ie(20,0);
+  std::vector<int>    izb, phib, ize, phie, izf, phif;
+  double zf = 0;
   dzVcal = -1.;           
 
   while (dodet) {
-    DDTranslation   t    = fv.translation();
-    vector<int>     copy = fv.copyNumbers();
+    DDTranslation    t    = fv.translation();
+    std::vector<int> copy = fv.copyNumbers();
     const DDSolid & sol  = fv.logicalPart().solid();
     int idet = 0, lay = -1;
     int nsiz = (int)(copy.size());
@@ -661,33 +684,49 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
     if (idet == 3) {
       // HB
 #ifdef debug
-      LogDebug("HcalGeom") << "HB " << sol.name() << " Shape " << sol.shape()
+      LogDebug("HCalGeom") << "HB " << sol.name() << " Shape " << sol.shape()
 			   << " Layer " << lay << " R " << t.perp();
 #endif
       if (lay >=0 && lay < 20) {
 	ib[lay]++;
 	rb[lay] += t.perp();
       }
+      if (lay == 0) {
+	int iz = copy[nsiz-5];
+	int fi = copy[nsiz-4];
+	unsigned int it1 = find(iz, izb);
+	if (it1 == izb.size())  izb.push_back(iz);
+	unsigned int it2 = find(fi, phib);
+	if (it2 == phib.size()) phib.push_back(fi);
+      }
     } else if (idet == 4) {
       // HE
 #ifdef debug
-      LogDebug("HcalGeom") << "HE " << sol.name() << " Shape " << sol.shape()
+      LogDebug("HCalGeom") << "HE " << sol.name() << " Shape " << sol.shape()
 			   << " Layer " << lay << " Z " << t.z();
 #endif
       if (lay >=0 && lay < 20) {
 	ie[lay]++;
 	ze[lay] += abs(t.z());
       }
+      if (copy[nsiz-1] == 10) {
+	int iz = copy[nsiz-6];
+	int fi = copy[nsiz-4];
+	unsigned int it1 = find(iz, ize);
+	if (it1 == ize.size())  ize.push_back(iz);
+	unsigned int it2 = find(fi, phie);
+	if (it2 == phie.size()) phie.push_back(fi);
+      }
     } else if (idet == 5) {
       // HF
       if (!hf) {
 	const std::vector<double> & paras = sol.parameters();
 #ifdef debug
-	LogDebug("HcalGeom") << "HF " << sol.name() << " Shape " << sol.shape()
+	LogDebug("HCalGeom") << "HF " << sol.name() << " Shape " << sol.shape()
 			     << " Z " << t.z() << " with " << paras.size()
 			     << " Parameters";
 	for (unsigned j=0; j<paras.size(); j++)
-	  LogDebug("HcalGeom") << "HF Parameter[" << j << "] = " << paras[j];
+	  LogDebug("HCalGeom") << "HF Parameter[" << j << "] = " << paras[j];
 #endif
 	zf  = abs(t.z());
 	if (sol.shape() == ddpolycone_rrz) {
@@ -703,7 +742,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
       }
     } else {
 #ifdef debug
-      LogDebug("HcalGeom") << "Unknown Detector " << idet << " for " 
+      LogDebug("HCalGeom") << "Unknown Detector " << idet << " for " 
 			   << sol.name() << " Shape " << sol.shape() << " R " 
 			   << t.perp() << " Z " << t.z();
 #endif
@@ -724,7 +763,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
   }
 
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD: Maximum Layer for HB " 
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: Maximum Layer for HB " 
 		       << ibmx << " for HE " << iemx << " Z for HF " << zf 
 		       << " extent " << dzVcal;
 #endif
@@ -733,7 +772,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
     for (int i=0; i<ibmx; i++) {
       rHB[i] = rb[i];
 #ifdef debug
-      LogDebug("HcalGeom") << "HcalNumberingFromDDD: rHB[" << i << "] = "
+      LogDebug("HCalGeom") << "HcalNumberingFromDDD: rHB[" << i << "] = "
 			   << rHB[i];
 #endif
     }
@@ -743,37 +782,63 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
     for (int i=0; i<iemx; i++) {
       zHE[i] = ze[i];
 #ifdef debug
-      LogDebug("HcalGeom") << "HcalNumberingFromDDD: zHE[" << i << "] = "
+      LogDebug("HCalGeom") << "HcalNumberingFromDDD: zHE[" << i << "] = "
 			   << zHE[i];
 #endif
     }
   }
+
+  nzHB   = (int)(izb.size());
+  nmodHB = (int)(phib.size());
+#ifdef debug
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD::loadGeometry: " << nzHB
+		       << " barrel half-sectors";
+  for (int i=0; i<nzHB; i++)
+    LogDebug("HCalGeom") << "Section " << i << " Copy number " << izb[i];
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD::loadGeometry: " << nmodHB
+		       << " barrel modules";
+  for (int i=0; i<nmodHB; i++)
+    LogDebug("HCalGeom") << "Module " << i << " Copy number " << phib[i];
+#endif
+  nzHE   = (int)(ize.size());
+  nmodHE = (int)(phie.size());
+#ifdef debug
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD::loadGeometry: " << nzHE
+		       << " endcap half-sectors";
+  for (int i=0; i<nzHE; i++)
+    LogDebug("HCalGeom") << "Section " << i << " Copy number " << ize[i];
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD::loadGeometry: " << nmodHE
+		       << " endcap modules";
+  for (int i=0; i<nmodHE; i++)
+    LogDebug("HCalGeom") << "Module " << i << " Copy number " << phie[i];
+#endif
+
 }
 
-vector<double> HcalNumberingFromDDD::getDDDArray(const string & str, 
-						 const DDsvalues_type & sv, 
-						 int & nmin) const {
+std::vector<double> HcalNumberingFromDDD::getDDDArray(const std::string & str, 
+						      const DDsvalues_type & sv, 
+						      int & nmin) const {
 #ifdef debug
-  LogDebug("HcalGeom") << "HcalNumberingFromDDD:getDDDArray called for " 
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD:getDDDArray called for " 
 		       << str << " with nMin "  << nmin;
 #endif
   DDValue value(str);
   if (DDfetch(&sv,value)) {
 #ifdef debug
-    LogDebug("HcalGeom") << "HcalNumberingFromDDD: " << value;
+    LogDebug("HCalGeom") << "HcalNumberingFromDDD: " << value;
 #endif
-    const vector<double> & fvec = value.doubles();
+    const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nmin > 0) {
       if (nval < nmin) {
-	edm::LogError("HcalGeom") << "HcalNumberingFromDDD : # of " << str 
+	edm::LogError("HCalGeom") << "HcalNumberingFromDDD : # of " << str 
 				  << " bins " << nval << " < " << nmin 
 				  << " ==> illegal";
 	throw DDException("HcalNumberingFromDDD: cannot get array "+str);
       }
     } else {
       if (nval < 2) {
-	edm::LogError("HcalGeom") << "HcalNumberingFromDDD : # of " << str
+	edm::LogError("HCalGeom") << "HcalNumberingFromDDD : # of " << str
 				  << " bins " << nval << " < 2 ==> illegal"
 				  << " (nmin=" << nmin << ")";
 	throw DDException("HcalNumberingFromDDD: cannot get array "+str);
@@ -782,8 +847,55 @@ vector<double> HcalNumberingFromDDD::getDDDArray(const string & str,
     nmin = nval;
     return fvec;
   } else {
-    edm::LogError("HcalGeom") << "HcalNumberingFromDDD: cannot get array "
+    edm::LogError("HCalGeom") << "HcalNumberingFromDDD: cannot get array "
 			      << str;
     throw DDException("HcalNumberingFromDDD: cannot get array "+str);
   }
+}
+
+int HcalNumberingFromDDD::getShift(HcalSubdetector subdet, int depth) const {
+
+  int shift;
+  switch(subdet) {
+  case HcalEndcap:
+    shift = shiftHE[depth-1];
+    break;
+  case HcalForward:
+    shift = shiftHF[depth-1];
+    break;
+  default:
+    shift = shiftHB[depth-1];
+    break;
+  }
+  return shift;
+}
+
+double HcalNumberingFromDDD::getGain(HcalSubdetector subdet, int depth) const {
+
+  double gain;
+  switch(subdet) {
+  case HcalEndcap:
+    gain = gainHE[depth-1];
+    break;
+  case HcalForward:
+    gain = gainHF[depth-1];
+    break;
+  default:
+    gain = gainHB[depth-1];
+    break;
+  }
+  return gain;
+}
+
+unsigned int HcalNumberingFromDDD::find(int element, 
+					std::vector<int> array) const {
+
+  unsigned int id = array.size();
+  for (unsigned int i = 0; i < array.size(); i++) {
+    if (element == array[i]) {
+      id = i;
+      break;
+    }
+  }
+  return id;
 }
