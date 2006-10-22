@@ -37,36 +37,37 @@
  <Constant name="s1Z"           value="-376.0*cm"/>
  <Constant name="s2Dxby2"       value="2.0*cm"/>
  <Constant name="s2Dzby2"       value="5.0*mm"/>
- <Constant name="s2Z"           value="-361.0*cm"/>
+ <Constant name="s2Z"           value="-360.0*cm"/>
  <Constant name="s3Dxby2"       value="1.0*cm"/>
  <Constant name="s3Dzby2"       value="5.0*mm"/>
  <Constant name="s3Z"           value="-344.0*cm"/>
  <Constant name="s4Z"           value="-278.0*cm"/>
  <Constant name="tofDxby2"      value="5.0*cm"/>
  <Constant name="tofDzby2"      value="1.0*cm"/>
- <Constant name="tofZ"          value="-276.0*cm"/>
+ <Constant name="tofZ"          value="-249.0*cm"/>
  <Constant name="bhDxby2"       value="50.0*cm"/>
  <Constant name="bhDyby2"       value="15.0*cm"/>
  <Constant name="bhDzby2"       value="0.5*cm"/>
  <Constant name="bhGap"         value="7.0*cm"/>
  <Constant name="bhX"           value="([bhDxby2]-0.5*[bhGap])"/>
  <Constant name="bhY"           value="([bhDyby2]+0.5*[bhGap])"/>
- <Constant name="bhZ"           value="-275.0*cm"/>
- <Constant name="ck3Rad"        value="10.0*cm"/>
- <Constant name="ck3L"          value="188.0*cm"/>
+ <Constant name="bhZ"           value="-210.0*cm"/>
+ <Constant name="ck3Rad"        value="8.35*cm"/>
+ <Constant name="ck3L"          value="200.0*cm"/>
  <Constant name="ck3Z"          value="-569.0*cm"/>
  <Constant name="downstreamDxby2" value="50.0*cm"/>
  <Constant name="downstreamDyby2" value="50.0*cm"/>
- <Constant name="downstreamDzby2" value="100.0*cm"/>
- <Constant name="downstreamZ"   value="11.0*m"/>
+ <Constant name="downstreamDzby2" value="200.0*cm"/>
+ <Constant name="downstreamZ"   value="10.0*m"/>
+ <Constant name="chamb4Z"       value="850.0*cm"/>
+ <Constant name="chamb5Z"       value="978.0*cm"/>
  <Constant name="mcDxby2"       value="40.0*cm"/>
  <Constant name="mcDzby2"       value="5.0*mm"/>
  <Constant name="mc1Z"          value="10.15*m"/>
  <Constant name="mc2Z"          value="11.77*m"/>
- <Constant name="ironDxby2"     value="40.0*cm"/>
+ <Constant name="ironDxby2"     value="20.0*cm"/>
  <Constant name="ironDzby2"     value="40.0*cm"/>
- <Constant name="ironGap"       value="5.0*cm"/>
- <Constant name="ironZ"         value="([mc2Z]-[ironGap]-2*[ironDzby2])"/>
+ <Constant name="ironZ"         value="11.67*m"/>
 </ConstantsSection>
 
 <SolidSection label="TBHcal06BeamLine.xml">
@@ -396,20 +397,30 @@
    <rChild name="TBHcal06BeamLine:HcalTestBeamLineCK3"/>
   <Translation x="0*fm" y="0*fm" z="([ck3Z]+[upstreamZ]-0.5*[ck3L])" />
  </PosPart>
+ <PosPart copyNumber="4">
+   <rParent name="TBHcal06BeamLine:HcalTestBeamLineDown"/>
+   <rChild name="TBHcal06BeamLine:HcalTestBeamLineWChamb"/>
+  <Translation x="0*fm" y="0*fm" z="([chamb4Z]-[downstreamZ]-[chambDzby2])" />
+ </PosPart>
+ <PosPart copyNumber="5">
+   <rParent name="TBHcal06BeamLine:HcalTestBeamLineDown"/>
+   <rChild name="TBHcal06BeamLine:HcalTestBeamLineWChamb"/>
+  <Translation x="0*fm" y="0*fm" z="([chamb5Z]-[downstreamZ]-[chambDzby2])" />
+ </PosPart>
  <PosPart copyNumber="7">
    <rParent name="TBHcal06BeamLine:HcalTestBeamLineDown"/>
    <rChild name="TBHcal06BeamLine:HcalTestBeamLineMuonCounter"/>
-  <Translation x="0*fm" y="0*fm" z="([mc1Z]-[downstreamZ]+0.5*[mcDzby2])" />
+  <Translation x="0*fm" y="0*fm" z="([mc1Z]-[downstreamZ]-[mcDzby2])" />
  </PosPart>
  <PosPart copyNumber="8">
    <rParent name="TBHcal06BeamLine:HcalTestBeamLineDown"/>
    <rChild name="TBHcal06BeamLine:HcalTestBeamLineMuonCounter"/>
-  <Translation x="0*fm" y="0*fm" z="([mc2Z]-[downstreamZ]+0.5*[mcDzby2])" />
+  <Translation x="0*fm" y="0*fm" z="([mc2Z]-[downstreamZ]-[mcDzby2])" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="TBHcal06BeamLine:HcalTestBeamLineDown"/>
    <rChild name="TBHcal06BeamLine:HcalTestBeamLineIronBlock"/>
-  <Translation x="0*fm" y="0*fm" z="([ironZ]-[downstreamZ]+0.5*[ironDzby2])" />
+  <Translation x="0*fm" y="0*fm" z="([ironZ]-[downstreamZ]-[ironDzby2])" />
  </PosPart>
 </PosPartSection>
 
