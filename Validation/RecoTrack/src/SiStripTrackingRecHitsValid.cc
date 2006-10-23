@@ -524,7 +524,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		clusiz=0;
 		totcharge=0;
 		clusiz = cluster->amplitudes().size();
-		const std::vector<short> amplitudes=cluster->amplitudes();
+		const std::vector<uint16_t> amplitudes=cluster->amplitudes();
 		for(size_t ia=0; ia<amplitudes.size();ia++){
 		  totcharge+=amplitudes[ia];
 		}
@@ -565,7 +565,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		clusiz=0;
 		totcharge=0;
 		clusiz = cluster->amplitudes().size();
-		const std::vector<short> amplitudes=cluster->amplitudes();
+		const std::vector<uint16_t> amplitudes=cluster->amplitudes();
 		for(size_t ia=0; ia<amplitudes.size();ia++){
 		  totcharge+=amplitudes[ia];
 		}
