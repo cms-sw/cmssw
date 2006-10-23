@@ -12,6 +12,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
 #include "DataFormats/BTauReco/interface/TrackTauImpactParameterAssociation.h"
+#include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
 
 namespace {
   namespace {
@@ -69,6 +70,14 @@ namespace {
     edm::Ref<reco::TauImpactParameterInfoCollection> r7;
     edm::RefProd<reco::TauImpactParameterInfoCollection> rp7;
     edm::RefVector<reco::TauImpactParameterInfoCollection> rv7;
+
+    reco::JetEisolAssociationCollection v8;
+    edm::Wrapper<reco::JetEisolAssociationCollection> w8;
+    reco::JetEisolAssociation ra8;
+    reco::JetEisolAssociationRef r8;
+    reco::JetEisolAssociationRefProd rp8;
+    reco::JetEisolAssociationRefVector rv8;
+
 
     std::pair<unsigned int, unsigned int> pp1;
     std::map<unsigned long, std::vector<unsigned long> > m1;
