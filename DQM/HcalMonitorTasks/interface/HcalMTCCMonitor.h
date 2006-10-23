@@ -17,8 +17,8 @@
 
 /** \class HcalMtccmonitor2
   *  
-  * $Date: 2006/08/25 16:07:01 $
-  * $Revision: 1.3 $
+  * $Date: 2006/09/28 22:19:07 $
+  * $Revision: 1.4 $
   * \author W. Fisher - FNAL
   */
 class HcalMTCCMonitor: public HcalBaseMonitor {
@@ -41,6 +41,8 @@ private:
   double occThresh_;
   double etaMax_, etaMin_, phiMax_, phiMin_;
   int etaBins_, phiBins_;
+  const HcalQIEShape* shape_;
+  HcalCalibrations calibs_;
 
 private:  ///Monitoring elements
 
@@ -58,7 +60,7 @@ private:  ///Monitoring elements
     MonitorElement* OCC;
     MonitorElement* E;
     MonitorElement* PEDS;    
-  } hbP, hbM, heP, heM, hoP1, hoM1, hoP2, hoM2; 
+  } hbC, heC, hoP1, hoM1, hoP2, hoM2, hoC; 
 
 };
 

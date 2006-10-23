@@ -63,6 +63,7 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw, con
     // look only at the potential ones, to save time.
     unpack(fed,emap);
   }
+  return;
 }
 
 void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap){

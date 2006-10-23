@@ -170,10 +170,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
   try{
     hbHists.DIGI_NUM->Fill(hbhe.size());
- 
+    
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
-     
+      
       HcalDigiMap::fillErrors<HBHEDataFrame>(digi,hbHists.ERR_MAP_GEO,hbHists.ERR_MAP_ELEC);	  
       HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,hbHists.OCC_MAP_GEO1,hbHists.OCC_MAP_GEO2,hbHists.OCC_MAP_GEO3,hbHists.OCC_MAP_GEO4,hbHists.OCC_MAP_ELEC,occThresh_);	  
       hbHists.DIGI_SIZE->Fill(digi.size());
@@ -200,7 +200,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   }
   
   try{
-     hoHists.DIGI_NUM->Fill(ho.size());
+    hoHists.DIGI_NUM->Fill(ho.size());
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
       const HODataFrame digi = (const HODataFrame)(*j);	
       HcalDigiMap::fillErrors<HODataFrame>(digi,hoHists.ERR_MAP_GEO,hoHists.ERR_MAP_ELEC);  
@@ -255,4 +255,5 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     cout << "HcalDigiMonitor::processEvent  No HF Digis." << endl;
   }
 
+  return;
 }

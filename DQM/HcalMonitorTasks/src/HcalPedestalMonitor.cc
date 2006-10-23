@@ -93,7 +93,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ievt_++;
   meEVT_->Fill(ievt_);
   
-  m_shape = conditions.getHcalShape();
+  if(m_doPerChannel) m_shape = conditions.getHcalShape();
   
   if(!m_dbe) { printf("HcalPedestalMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
 
@@ -135,32 +135,8 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   } catch (...) {
     cout << "HcalPedestalMonitor::processEvent  No HF Digis." << endl;
   }
-  /*
-  map<HcalDetId,map<int, MonitorElement*> >::const_iterator iterO;
-  map<int, MonitorElement*>::const_iterator iterI;
-  MonitorElement* me;
-  float avgR=0, maxR=0, minR=100;
-  float avgM=0, maxM=0, minM=100;
-  for(iterO = hbHists.PEDVALS.begin(); iterO!=hbHists.PEDVALS.end(); iterO++){
-    map<int,MonitorElement*> inner = iterO->second();
 
-    for(iterI =  inner.begin(); iterI != inner.end(); iterI++){
-      me = iterI->second();
-      hbHists.PEDRMS->Fill(me->GetRMS());
-      hbHists.PEDMEAN->Fill(me->GetMean());
-      avgR+=me->GetRMS();
-      avgM+=me->GetMean();
-      if(me->GetRMS()>maxR) maxR = me->GetRMS();
-      if(me->GetMean()>maxM) maxM = me->GetMean();
-      if(me->GetRMS()<minR) minR = me->GetRMS();
-      if(me->GetMean()<minM) minM = me->GetMean();
-    }
-    hbHists.CAPIDRMS  =  m_dbe->book1D("HBHE CapID RMS Variance","HBHE CapID RMS Variance",50,0,0.5);
-    hbHists.CAPIDMEAN =  m_dbe->book1D("HBHE CapID Mean Variance","HBHE CapID Mean Variance",50,0,3);
-    hbHists.QIERMS  =  m_dbe->book1D("HBHE QIE RMS Values","HBHE QIE RMS Values",50,0,3);
-    hbHists.QIEMEAN =  m_dbe->book1D("HBHE QIE Mean Values","HBHE QIE Mean Values",50,0,3);
-  }
-  */
+  return;
 }
 
 void HcalPedestalMonitor::done(){
