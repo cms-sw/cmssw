@@ -30,7 +30,7 @@ to use such a selector, it is best to initialize it directly upon
 construction of the module, rather than creating a new Selector instance
 for every event.
 
-$Id: Selector.h,v 1.11 2006/07/06 19:11:42 wmtan Exp $
+$Id: Selector.h,v 1.12 2006/10/04 14:53:20 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -44,26 +44,9 @@ $Id: Selector.h,v 1.11 2006/07/06 19:11:42 wmtan Exp $
 #include "DataFormats/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/ProvenanceAccess.h"
 
+#include "FWCore/Framework/interface/SelectorBase.h"
 namespace edm 
 {
-  //------------------------------------------------------------------
-  //
-  //// Abstract base class SelectorBase
-  //
-  //------------------------------------------------------------------
-
-  class SelectorBase {
-  public:
-    virtual ~SelectorBase();
-    bool match(ProvenanceAccess const& p) const;
-    bool match(Provenance const& p) const;
-    virtual SelectorBase* clone() const = 0;
-
-  private:
-    virtual bool doMatch(Provenance const& p) const = 0;
-  };
-
-
   //------------------------------------------------------------------
   /// struct template has_match.
   /// Used to declare that a class has a match function.
