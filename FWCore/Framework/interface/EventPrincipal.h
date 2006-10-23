@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.37 2006/10/07 07:26:55 wmtan Exp $
+$Id: EventPrincipal.h,v 1.38 2006/10/13 01:45:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -39,7 +39,7 @@ $Id: EventPrincipal.h,v 1.37 2006/10/07 07:26:55 wmtan Exp $
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Framework/interface/SelectorBase.h"
 
 #include "FWCore/Framework/src/Group.h"
 #include "FWCore/Framework/interface/TypeID.h"
@@ -82,14 +82,19 @@ namespace edm {
 
     BasicHandle  get(ProductID const& oid) const;
 
-    BasicHandle  getBySelector(TypeID const& tid, Selector const& s) const;
+    BasicHandle  getBySelector(TypeID const& tid, SelectorBase const& s) const;
 
     BasicHandle  getByLabel(TypeID const& tid,
 			    std::string const& label,
                             std::string const& productInstanceName) const;
 
+    BasicHandle  getByLabel(TypeID const& tid,
+			    std::string const& label,
+                            std::string const& productInstanceName,
+                            std::string const& processName) const;
+    
     void getMany(TypeID const& tid, 
-		 Selector const&,
+		 SelectorBase const&,
 		 BasicHandleVec& results) const;
 
     BasicHandle  getByType(TypeID const& tid) const;

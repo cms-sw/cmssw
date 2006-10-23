@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.53 2006/10/07 03:50:06 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.54 2006/10/13 01:45:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -230,7 +230,7 @@ namespace edm {
 
   BasicHandle
   EventPrincipal::getBySelector(TypeID const& tid, 
-				Selector const& sel) const {
+				SelectorBase const& sel) const {
     TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
 
     if(i==typeDict_.end()) {
@@ -343,9 +343,35 @@ namespace edm {
       << " with product instance label \"" << (productInstanceName.empty() ? "" : productInstanceName) << "\"\n";
   }
 
+  BasicHandle
+  EventPrincipal::getByLabel(TypeID const& tid, 
+			     string const& label,
+			     string const& productInstanceName,
+                             string const& processName) const 
+  {
+    BranchKey bk(tid.friendlyClassName(), label, productInstanceName, processName);
+    BranchDict::const_iterator i = branchDict_.find(bk);
+      
+    if (i != branchDict_.end()) {
+      // We found what we want.
+      assert(i->second >= 0);
+      assert(unsigned(i->second) < groups_.size());
+      SharedConstGroupPtr group = groups_[i->second];
+      this->resolve_(*group);
+      group->product(); group->provenance();
+      return BasicHandle(group->product(), &group->provenance());    
+    }
+    // We failed to find the product we're looking for
+    throw edm::Exception(errors::ProductNotFound,"NoMatch")
+      << "getByLabel: could not find a product with module label \"" << label
+      << "\"\nof type " << tid
+      << " with product instance label \"" << (productInstanceName.empty() ? "" : productInstanceName) << "\""
+      << " and process name "<<processName<<"\n";
+  }
+  
   void 
   EventPrincipal::getMany(TypeID const& tid, 
-			  Selector const& sel,
+			  SelectorBase const& sel,
 			  BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
