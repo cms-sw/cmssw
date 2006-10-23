@@ -78,14 +78,16 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   edm::Handle<SimVertexContainer>      G4VtxContainer;
   edm::Handle<edm::SimTrackContainer>  G4TrkContainer;
   edm::Handle<CrossingFrame> cf;
-  try {
+//  try {
     event.getByType(cf);      
+    std::auto_ptr<MixCollection<SimTrack> >  trackCollection  (new MixCollection<SimTrack>(cf.product()));
+    std::auto_ptr<MixCollection<SimVertex> > vertexCollection (new MixCollection<SimVertex>(cf.product()));
     event.getByType(G4VtxContainer);
     event.getByType(G4TrkContainer);
-  } catch (std::exception &e) {
-    edm::LogWarning (MessageCategory) << "Geant tracks and/or vertices not found.";
-    return;
-  }    
+//  } catch (std::exception &e) {
+//    edm::LogWarning (MessageCategory) << "Geant tracks and/or vertices not found.";
+//    return;
+//  }    
 
 //  vector<edm::Handle<edm::PSimHitContainer> > AlltheConteiners;
 //  for (vector<string>::const_iterator source = hitLabelsVector_.begin(); source !=
@@ -122,8 +124,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   map<int,int> g4T_G4SourceV; // Map of SimTrack to (source) SimVertex index
   
   int iG4Track = 0;
-  edm::SimTrackContainer::const_iterator itP;
-  for (itP = G4TrkContainer->begin(); itP !=  G4TrkContainer->end(); ++itP){
+//  edm::SimTrackContainer::const_iterator itP;
+  for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin(); itP !=  trackCollection->end(); ++itP){
     TrackingParticle::Charge q = 0;
     CLHEP::HepLorentzVector p = itP -> momentum();
     const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
@@ -155,20 +157,17 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       int  index = 0;
       for (MixCollection<PSimHit>::MixItr hit = hitCollection->begin(); 
            hit != hitCollection->end(); ++hit, ++index) {
-        edm::LogInfo (MessageCategory) << "Check hit " << 
-            hit -> trackId() << " vs. " << simtrackId << " and " ;//<<
-//            hit -> eventId() << " vs. " << trackEventId;
         if (simtrackId == hit->trackId() && trackEventId == hit->eventId() ) {
           edm::LogInfo (MessageCategory) << " Hit is from " << hit -> detUnitId();
           
-//          tp.addPSimHit(TrackPSimHitRef(hit, index));
+          tp.addPSimHit(*hit);
         }
       }
     } catch (std::exception &e) {
       edm::LogWarning (MessageCategory) << "Hit collection not found.";
     }   
    
-    tp.addG4Track(SimTrackRef(G4TrkContainer,iG4Track));
+    tp.addG4Track(*itP);
     if (genPart >= 0) {
       tp.addGenParticle(GenParticleRef(hepMC,genPart));
     }
@@ -180,8 +179,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 // Find and loop over EmbdSimVertex vertices
     
   int indexG4V = 0;
-  for (edm::SimVertexContainer::const_iterator itVtx = G4VtxContainer->begin(); 
-       itVtx != G4VtxContainer->end(); 
+  for (MixCollection<SimVertex>::MixItr itVtx = vertexCollection->begin(); 
+       itVtx != vertexCollection->end(); 
        ++itVtx,++indexG4V) {
 
     CLHEP::HepLorentzVector position = itVtx -> position();  // Get position of ESV
@@ -237,7 +236,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
      
 // Add data to closest vertex
     
-    (*nearestVertex).addG4Vertex(SimVertexRef(G4VtxContainer, indexG4V) ); // Add G4 vertex
+    (*nearestVertex).addG4Vertex(*itVtx); // Add G4 vertex
     if (vertexBarcode != 0) {
       (*nearestVertex).addGenVertex(GenVertexRef(hepMC,vertexBarcode)); // Add HepMC vertex
     }
