@@ -16,9 +16,10 @@ namespace {
 
     reco::TrackCollection v1;
     edm::Wrapper<reco::TrackCollection> c1;
-    edm::Ref<reco::TrackCollection> r1;
-    edm::RefProd<reco::TrackCollection> rp1;
-    edm::RefVector<reco::TrackCollection> rv1;
+    reco::TrackRef r1;
+    reco::TrackRefProd rp1;
+    reco::TrackRefVector rv1;
+    edm::Wrapper<reco::TrackRefVector> wv1;
 
     reco::GsfTrackExtraCollection v4;
     edm::Wrapper<reco::GsfTrackExtraCollection> c4;

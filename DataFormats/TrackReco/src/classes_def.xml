@@ -16,6 +16,7 @@
   <class name="edm::RefProd<std::vector<reco::Track> >"/>
   <class name="edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
   <class name="edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
 
   <class name="reco::GsfComponent5D"/>
   <class name="std::vector<reco::GsfComponent5D>"/>
