@@ -10,6 +10,6 @@ using edm::service::RandomNumberGeneratorService;
 DEFINE_SEAL_MODULE();
 
 typedef edm::serviceregistry::AllArgsMaker<edm::RandomNumberGenerator,RandomNumberGeneratorService> RandomMaker;
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(RandomNumberGeneratorService, RandomMaker)
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(RandomNumberGeneratorService, RandomMaker);
 
 DEFINE_ANOTHER_FWK_MODULE(RandomEngineStateProducer);
