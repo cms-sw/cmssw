@@ -1,0 +1,9 @@
+2006-10-23  Philipp SCHIEFERDECKER  <Philipp.Schieferdecker@cern.ch>
+
+	* tag V00-11-02
+	* add WebGUI class, which allows XDAQ applications to simply
+	  register their parameters and have them managed and displayed via
+	  HyperDAQ automatically (see EventFilter/AutoBU V00-02-00 for an
+	  example)
+	
+
