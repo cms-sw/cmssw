@@ -165,7 +165,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   ///////////////////////////////////////
   //Get the sim hits for the different muon parts
   Handle<PSimHitContainer> simHitsDT;
-  iEvent.getByLabel("SimG4Object", "MuonDTHits", simHitsDT);
+  iEvent.getByLabel("g4SimHits", "MuonDTHits", simHitsDT);
   if (! simHitsDT.isValid() ){
     LogWarning("Geant4e") << "No hits found" << std::endl;
     return;
@@ -173,7 +173,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   LogDebug("Geant4e") << "Got MuonDTHits of size " << simHitsDT->size();
 
   Handle<PSimHitContainer> simHitsCSC;
-  iEvent.getByLabel("SimG4Object", "MuonCSCHits", simHitsCSC);
+  iEvent.getByLabel("g4SimHits", "MuonCSCHits", simHitsCSC);
   if (! simHitsCSC.isValid() ){
     LogWarning("Geant4e") << "No hits found" << std::endl;
     return;
@@ -182,7 +182,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 
 
   Handle<PSimHitContainer> simHitsRPC;
-  iEvent.getByLabel("SimG4Object", "MuonRPCHits", simHitsRPC);
+  iEvent.getByLabel("g4SimHits", "MuonRPCHits", simHitsRPC);
   if (! simHitsRPC.isValid() ){
     LogWarning("Geant4e") << "No hits found" << std::endl;
     return;
@@ -229,7 +229,8 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
     }
     else {
       LogDebug("Geant4e") << "Track PT is enough.";
-      LogDebug("Geant4e") <<" Track P.: PT=" << p3T.mag()
+      LogDebug("Geant4e") << "Track P.: " << p3T
+			  << "\nTrack P.: PT=" << p3T.mag()
 			  << "\tTheta=" << p3T.theta()*TMath::RadToDeg()  
 			  << "\tPhi=" << p3T.phi()*TMath::RadToDeg()
 			  << "--> Rad: Theta=" << p3T.theta() 
@@ -248,9 +249,10 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
       LogDebug("Geant4e") << "Track with no vertex, defaulting to (0,0,0)";
     else
       //seems to be stored in mm --> convert to cm
-      r3T = TrackPropagation::hep3VectorToGlobalPoint((*simVertices)[vtxInd].position().vect()*0.1);
+      r3T = TrackPropagation::hep3VectorToGlobalPoint((*simVertices)[vtxInd].position().vect());
 
-    LogDebug("Geant4e") << "Init point R=" << r3T.mag()
+    LogDebug("Geant4e") << "Init point: " << r3T
+			<< "\nInit point R=" << r3T.mag()
 			<< "\tTheta=" << r3T.theta()*TMath::RadToDeg() 
 			<< "\tPhi=" << r3T.phi()*TMath::RadToDeg() ;
     
