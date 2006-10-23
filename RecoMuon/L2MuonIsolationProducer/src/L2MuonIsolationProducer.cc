@@ -31,15 +31,12 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
   theCuts(par.getParameter<std::vector<double> > ("EtaBounds"),
           par.getParameter<std::vector<double> > ("ConeSizes"),
           par.getParameter<std::vector<double> > ("Thresholds")),
-  theEcalWeight(par.getParameter<double> ("EcalWeight")),
   optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits"))
 {
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")<<" L2MuonIsolationProducer constructor called";
 
-  ParameterSet theEcalExtractorPSet = par.getParameter<ParameterSet>("EcalExtractorParameters");
-  theEcalExtractor = muonisolation::CaloExtractor(theEcalExtractorPSet);
-  ParameterSet theHcalExtractorPSet = par.getParameter<ParameterSet>("HcalExtractorParameters");
-  theHcalExtractor = muonisolation::CaloExtractor(theHcalExtractorPSet);
+  ParameterSet theCalExtractorPSet = par.getParameter<ParameterSet>("CalExtractorParameters");
+  theCalExtractor = muonisolation::CaloExtractor(theCalExtractorPSet);
 
   if (optOutputIsoDeposits) produces<MuIsoDepositAssociationMap>();
   produces<MuIsoAssociationMap>();
@@ -66,22 +63,18 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   std::auto_ptr<MuIsoDepositAssociationMap> depMap( new MuIsoDepositAssociationMap());
   std::auto_ptr<MuIsoAssociationMap> isoMap( new MuIsoAssociationMap());
 
-  theEcalExtractor.fillVetos(event,eventSetup,*tracks);
-  theHcalExtractor.fillVetos(event,eventSetup,*tracks);
+  theCalExtractor.fillVetos(event,eventSetup,*tracks);
 
   for (unsigned int i=0; i<tracks->size(); i++) {
       TrackRef tk(tracks,i);
 
-      MuIsoDeposit eDeposit = theEcalExtractor.deposit(event, eventSetup, *tk);
-      MuIsoDeposit hDeposit = theHcalExtractor.deposit(event, eventSetup, *tk);
-      depMap->insert(tk, eDeposit);
-      depMap->insert(tk, hDeposit);
+      MuIsoDeposit calDeposit = theCalExtractor.deposit(event, eventSetup, *tk);
+      depMap->insert(tk, calDeposit);
 
       muonisolation::Cuts::CutSpec cuts_here = theCuts(tk->eta());
       
       double conesize = cuts_here.conesize;
-      double dephlt = theEcalWeight*eDeposit.depositWithin(conesize)
-                       + hDeposit.depositWithin(conesize);
+      double dephlt = calDeposit.depositWithin(conesize);
       if (dephlt<cuts_here.threshold) {
             isoMap->insert(tk, true);
       } else {

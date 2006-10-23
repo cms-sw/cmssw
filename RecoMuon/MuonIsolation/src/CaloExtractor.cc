@@ -111,8 +111,9 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
 
       if (doEcal) {
             if (deltar<theDR_Veto_E) { 
-                  dep.addMuonEnergy(theWeight_E*etecal);
-                  if (doHcal) dep.addMuonEnergy(theWeight_H*ethcal);
+                  double calodep = theWeight_E*etecal;
+                  if (doHcal) calodep += theWeight_H*ethcal;
+                  dep.addMuonEnergy(calodep);
                   continue;
             }
       } else {
@@ -132,8 +133,9 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
 
       if (doEcal) {
             if (deltar>theDR_Veto_E) { 
-                  dep.addDeposit(deltar,theWeight_E*etecal);
-                  if (doHcal) dep.addDeposit(deltar,theWeight_H*ethcal);
+                  double calodep = theWeight_E*etecal;
+                  if (doHcal) calodep += theWeight_H*ethcal;
+                  dep.addDeposit(deltar,calodep);
             }
       } else {
             if (deltar>theDR_Veto_H) { 

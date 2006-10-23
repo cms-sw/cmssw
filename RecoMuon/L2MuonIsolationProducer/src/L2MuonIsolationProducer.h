@@ -39,15 +39,11 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   // Isolation cuts
   muonisolation::Cuts theCuts;
 
-  // Weight of ECAL deposits with respecto HCAL ones
-  double theEcalWeight;
-
   // Option to write MuIsoDeposits into the event
   double optOutputIsoDeposits;
 
-  // MuIsoExtractors
-  muonisolation::CaloExtractor theEcalExtractor;
-  muonisolation::CaloExtractor theHcalExtractor;
+  // MuIsoExtractor
+  muonisolation::CaloExtractor theCalExtractor;
 
 };
 
