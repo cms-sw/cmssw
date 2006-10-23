@@ -57,7 +57,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
     theRotation=new MuonEndcapFrameRotation();
   } else if (detector->isRpc()) {
     //    cout << "MuonFrameRotation create MuonRpcFrameRotation"<<endl;
-    theRotation=new MuonRpcFrameRotation();
+    theRotation=new MuonRpcFrameRotation( cpv );
   }  else {
     theRotation = 0;
   }
@@ -69,7 +69,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   std::cout << "create MuonSimHitNumberingScheme"<<std::endl;
 #endif
   numbering  = new MuonSimHitNumberingScheme(detector, cpv);
-  g4numbering = new MuonG4Numbering;
+  g4numbering = new MuonG4Numbering(cpv);
   
 
   //

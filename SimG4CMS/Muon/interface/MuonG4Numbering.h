@@ -20,11 +20,12 @@
 
 class G4Step;
 class MuonBaseNumber;
+class DDCompactView;
 
 class MuonG4Numbering {
  public:
 
-  MuonG4Numbering();
+  MuonG4Numbering(const DDCompactView& cpv);
   ~MuonG4Numbering(){};
   
   MuonBaseNumber PhysicalVolumeToBaseNumber(const G4Step* aStep);

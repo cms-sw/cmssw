@@ -9,12 +9,12 @@
 #include <iostream>
 
 //#define DEBUG
-MuonG4Numbering::MuonG4Numbering(){
-  MuonDDDConstants muonConstants;
-  theLevelPart=muonConstants.getValue("[level]");
-  theSuperPart=muonConstants.getValue("[super]");
-  theBasePart=muonConstants.getValue("[base]");
-  theStartCopyNo=muonConstants.getValue("[xml_starts_with_copyno]");
+MuonG4Numbering::MuonG4Numbering(const DDCompactView& cpv){
+  MuonDDDConstants muonConstants(cpv);
+  theLevelPart=muonConstants.getValue("level");
+  theSuperPart=muonConstants.getValue("super");
+  theBasePart=muonConstants.getValue("base");
+  theStartCopyNo=muonConstants.getValue("xml_starts_with_copyno");
 
   // some consistency checks
 

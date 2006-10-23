@@ -14,10 +14,12 @@
 #include "Geometry/Vector/interface/LocalPoint.h"
 
 class MuonSubDetector;
+class DDCompactView;
 
 class MuonFrameRotation {
  public:
-  MuonFrameRotation(){};
+  MuonFrameRotation( const DDCompactView& cpv ) { };
+  MuonFrameRotation( ) { };
   virtual ~MuonFrameRotation(){};
   virtual Local3DPoint transformPoint(Local3DPoint &,G4Step *) const = 0;
 

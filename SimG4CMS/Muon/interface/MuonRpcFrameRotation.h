@@ -16,10 +16,11 @@
 #include "G4Step.hh"
 
 class MuonG4Numbering;
+class DDCompactView;
 
 class MuonRpcFrameRotation : public MuonFrameRotation {
  public:
-  MuonRpcFrameRotation();
+  MuonRpcFrameRotation( const DDCompactView& cpv );
   virtual ~MuonRpcFrameRotation();
   virtual Local3DPoint transformPoint(Local3DPoint &,G4Step *) const;
  private:
