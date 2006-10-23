@@ -72,7 +72,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.41 2006/10/13 01:46:54 wmtan Exp $
+$Id: Event.h,v 1.42 2006/10/14 01:55:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -140,7 +140,7 @@ namespace edm {
 
     template <typename PROD>
     void 
-    get(Selector const&, Handle<PROD>& result) const;
+    get(SelectorBase const&, Handle<PROD>& result) const;
   
     template <typename PROD>
     void 
@@ -157,7 +157,7 @@ namespace edm {
 
     template <typename PROD>
     void 
-    getMany(Selector const&, std::vector<Handle<PROD> >& results) const;
+    getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
 
     template <typename PROD>
     void
@@ -203,16 +203,21 @@ namespace edm {
     get_(ProductID const& oid) const;
 
     BasicHandle 
-    get_(TypeID const& tid, Selector const&) const;
+    get_(TypeID const& tid, SelectorBase const&) const;
     
     BasicHandle 
     getByLabel_(TypeID const& tid,
 		std::string const& label,
 		const std::string& productInstanceName) const;
 
+    BasicHandle 
+      getByLabel_(TypeID const& tid,
+                  std::string const& label,
+                  const std::string& productInstanceName,
+                  const std::string& processName) const;
     void 
     getMany_(TypeID const& tid, 
-	     Selector const& sel, 
+	     SelectorBase const& sel, 
 	     BasicHandleVec& results) const;
 
     BasicHandle 
@@ -421,7 +426,7 @@ namespace edm {
 
   template <typename PROD>
   void 
-  Event::get(Selector const& sel,
+  Event::get(SelectorBase const& sel,
 	     Handle<PROD>& result) const
   {
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
@@ -442,7 +447,13 @@ namespace edm {
   void
   Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const 	 
   { 	 
-    getByLabel(tag.label(), tag.instance(), result); 	 
+    if (tag.process().empty()) {
+      getByLabel(tag.label(), tag.instance(), result); 	 
+    } else {
+      BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(),tag.process());
+      gotProductIDs_.push_back(bh.id());
+      convert_handle(bh, result);  // throws on conversion error
+    }
   } 	 
   	 
   template <typename PROD>
@@ -458,7 +469,7 @@ namespace edm {
 
   template <typename PROD>
   void 
-  Event::getMany(Selector const& sel,
+  Event::getMany(SelectorBase const& sel,
 		 std::vector<Handle<PROD> >& results) const
   { 
     BasicHandleVec bhv;
