@@ -31,7 +31,7 @@ DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset){
 
   theDbe->setCurrentFolder("DT/DTTriggerTask");
   histo = theDbe->book1D("hNTriggerPerType",
-			 "# of trigger per type",20, 0, 20);
+			 "# of trigger per type",21, -1, 20);
 }
 
 DTTriggerCheck::~DTTriggerCheck(){
@@ -59,6 +59,12 @@ void DTTriggerCheck::analyze(const Event& event, const EventSetup& setup) {
     {
       event.getByType(ltcdigis);
       for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
+	if (((*ltc_it).HasTriggered(0)) || 
+	    ((*ltc_it).HasTriggered(1)) || 
+	    ((*ltc_it).HasTriggered(2)) || 
+	    ((*ltc_it).HasTriggered(3)) || 
+	    ((*ltc_it).HasTriggered(4)))
+	  histo->Fill(-1);
 	if ((*ltc_it).HasTriggered(0))
 	  histo->Fill(0);
 	if ((*ltc_it).HasTriggered(1))
