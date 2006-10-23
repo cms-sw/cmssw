@@ -10,7 +10,7 @@
  * Model of 5 perigee parameters for Track fit:<BR>
  * <B> (kappa, theta, phi_0, d_0, z_0) </B><BR>
  * defined as:  <BR>
- *   <DT> kappa = -0.3qB_z/p_T = signed transverse curvature </DT> 
+ *   <DT> kappa = -0.3 q B_z / p_T = signed transverse curvature </DT> 
  *   <DT> theta = polar angle at pca. to the beam line </DT>
  *   <DT> phi_0 = azimuth angle at pca. to the beam line </DT>
  *   <DT> d_0 = signed transverse dca. to the beam line (positive if the beam is outside the circle) </DT>
@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id$
+ * \version $Id: TrackBase.h,v 1.41 2006/09/14 14:51:31 namapane Exp $
  *
  */
 
@@ -65,7 +65,8 @@ namespace reco {
     TrackBase() { }
     /// constructor from fit parameters and error matrix
     TrackBase( double chi2, double ndof,
-	       const ParameterVector & par, double pt, const CovarianceMatrix & cov );
+	       const ParameterVector & par, double pt, const CovarianceMatrix & cov,
+	       int charge = 0, double referenceX = 0, double referenceY = 0 );
     /// set hit pattern from vector of hit references
     template<typename C>
     void setHitPattern( const C & c ) { hitPattern_.set( c.begin(), c.end() ); }
@@ -81,11 +82,9 @@ namespace reco {
     /// chi-squared divided by n.d.o.f.
     double normalizedChi2() const { return chi2_ / ndof_; }
     /// i-th fit parameter ( i = 0, ... 4 )
-    double & parameter( int i ) { return parameters_[ i ]; }
-    /// i-th fit parameter ( i = 0, ... 4 )
-    const double & parameter( int i ) const { return parameters_[ i ]; }
+    double parameter( int i ) const { return parameters_[ i ]; }
     /// track electric charge
-    int charge() const { return transverseCurvature() > 0 ? -1 : 1; }
+    int charge() const { return pt_ > 0 ? 1 : -1; }
     /// The signed transverse curvature
     double transverseCurvature() const { return parameters_[ i_transverseCurvature ]; }
     /// track azimutal angle of point of closest approach to beamline
@@ -106,9 +105,7 @@ namespace reco {
     ParameterVector & fill( ParameterVector & v ) const;
     
     /// (i,j)-th element of covarianve matrix ( i, j = 0, ... 4 )
-    double & covariance( int i, int j ) { return covariance_[ covIndex( i, j ) ]; }
-    /// (i,j)-th element of covarianve matrix ( i, j = 0, ... 4 )
-    const double & covariance( int i, int j ) const { return covariance_[ covIndex( i, j ) ]; }
+    double covariance( int i, int j ) const { return covariance_[ covIndex( i, j ) ]; }
     /// error on specified element
     double error( int i ) const { return sqrt( covariance_[ covIndex( i, i ) ] ); }
     
@@ -132,7 +129,7 @@ namespace reco {
     /// momentum vector magnitude
     double p() const { return momentum().R(); }
     /// track transverse momentum
-    double pt() const { return pt_; }
+    double pt() const { return fabs(pt_); }
     /// x coordinate of momentum vector
     double px() const { return pt() * cos( phi0() ); }
     /// y coordinate of momentum vector
@@ -144,17 +141,11 @@ namespace reco {
     /// pseudorapidity of momentum vector
     double eta() const { return momentum().Eta(); }
     /// x coordinate of point of closest approach to the beamline
-    double vx() const { return d0() * sin( phi0() ); }
+    double vx() const { return referenceX() + d0() * sin( phi0() ); }
     /// y coordinate of point of closest approach to the beamline
-    double vy() const { return - d0() * cos( phi0() ); }
+    double vy() const { return referenceY() - d0() * cos( phi0() ); }
     /// z coordinate of point of closest approach to the beamline
     double vz() const { return dz(); }
-    /// x coordinate of point of closest approach to the beamline
-    double x() const { return vx(); }
-    /// y coordinate of point of closest approach to the beamline
-    double y() const { return vy(); }
-    /// z coordinate of point of closest approach to the beamline
-    double z() const { return vz(); }
     
     //  hit pattern
     const HitPattern & hitPattern() const { return hitPattern_; }
@@ -167,7 +158,12 @@ namespace reco {
       int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
       return b * ( b + 1 ) / 2 + a;
     }
-    
+    /// x coordinate of reference point
+    double referenceX() const { return referenceX_; }
+    /// y coordinate of reference point
+    double referenceY() const { return referenceY_; }
+    /// reference point
+    Point referencePoint() const { return Point( referenceX_, referenceY_, 0 ); }
   private:
     /// chi-squared
     Double32_t chi2_;
@@ -175,12 +171,15 @@ namespace reco {
     Double32_t ndof_;
     // perigee 5 parameters
     Double32_t parameters_[ dimension ];
+    // reference point, defaults to (0,0,0)
+    Double32_t referenceX_, referenceY_;
     /// transverse momentum
     Double32_t pt_;
     /// perigee 5x5 covariance matrix
     Double32_t covariance_[ covarianceSize ];
     /// hit pattern
     HitPattern hitPattern_;
+
   };
     
 }

@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: Track.h,v 1.28 2006/09/14 14:51:31 namapane Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -26,17 +26,17 @@ namespace reco {
     /// notice that the reference point must be 
     /// the point of closest approch to the beamline.    
     Track( double chi2, double ndof,
-	   const ParameterVector & par, double pt, const CovarianceMatrix & cov );
+	   const ParameterVector & par, double pt, const CovarianceMatrix & cov, 
+	   int charge = 0, double referenceX = 0, double referenceY = 0 );
     /// return true if the outermost point is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// return true if the innermost point is valid
     bool innerOk() const { return extra_->innerOk(); }
     /// position of the innermost point
-    const math::XYZPoint & innerPosition()  const { return extra_->innerPosition
-(); }
+    const math::XYZPoint & innerPosition()  const { return extra_->innerPosition(); }
+
     /// momentum vector at the innermost point
-    const math::XYZVector & innerMomentum() const { return extra_->innerMomentum
-(); }
+    const math::XYZVector & innerMomentum() const { return extra_->innerMomentum(); }
     /// position of the outermost point
     const math::XYZPoint & outerPosition()  const { return extra_->outerPosition(); }
     /// momentum vector at the outermost point
