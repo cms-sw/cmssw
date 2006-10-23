@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/10/16 12:37:51 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/10/16 14:30:12 $
+ *  $Revision: 1.20 $
  *
  *  \author Martin Grunewald
  *
@@ -35,8 +35,6 @@
 
 namespace reco
 {
-  using namespace std;
-
   class HLTFilterObjectBase {
 
   private:
@@ -60,7 +58,7 @@ namespace reco
   class HLTFilterObject : public HLTFilterObjectBase {
 
   private:
-    vector<HLTParticle>   particles_; // particles/MET (4-momentum vectors) used by filter
+    std::vector<HLTParticle> particles_; // particles/MET (4-momentum vectors) used by filter
 
   public:
 
