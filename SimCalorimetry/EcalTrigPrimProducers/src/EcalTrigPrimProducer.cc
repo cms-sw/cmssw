@@ -62,12 +62,14 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
 
   //get  binOfMax
   try {
+    binOfMaximum_=0;
     edm::Service<edm::ConstProductRegistry> reg;
     // Loop over provenance of products in registry.
     for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
 	 it != reg->productList().end(); ++it) {
       edm::BranchDescription desc = it->second;
-      if (!desc.friendlyClassName().compare(0,18,"EBDataFramesSorted") & desc.moduleLabel()=="ecaldigi" ) {
+      printf("Classname %s, label %s\n",desc.friendlyClassName().c_str(), desc.moduleLabel().c_str());
+      if (!desc.friendlyClassName().compare(0,18,"EBDataFramesSorted") & desc.moduleLabel()==label_ ) {
 	edm::ParameterSet result = getParameterSet(desc.psetID());
 	binOfMaximum_=result.getParameter<int>("binOfMaximum");
 	break;
@@ -75,10 +77,14 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
     }
   }
   catch(cms::Exception& e) {
-    edm::LogWarning("")<<"Could not find product from ecaldigi, had to set binOfMaximum by Hand";
+    // segv in case product was found but not parameter..
+    edm::LogWarning("")<<"Could not find parameter binOfMaximum in product registry for EBDataFramesSorted, had to set binOfMaximum by Hand";
     binOfMaximum_=6;
   }
-
+  if (binOfMaximum_==0) {
+    edm::LogWarning("")<<"Could not find product registry of EBDataFramesSorted, had to set binOfMaximum by Hand";
+    binOfMaximum_=6;
+  }
 
   algo_ = new EcalTrigPrimFunctionalAlgo(setup, valTree_,binOfMaximum_,nrSamples_,ttfThreshLow_,ttfThreshHigh_);
   edm::LogInfo("constructor") <<"EcalTrigPrimProducer will write: "<<nrSamples_<<" samples for each digi,  binOfMaximum used: "<<binOfMaximum_;
