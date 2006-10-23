@@ -14,8 +14,14 @@
 
 #include "CLHEP/Random/RandGauss.h"
 namespace cms{
-SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig) : 
-appendMode_(iConfig.getUntrackedParameter<bool>("appendMode",true))
+SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig) :
+      conf_(iConfig),
+      appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
+      meanPed_(conf_.getParameter<double>("meanPed")),
+      rmsPed_(conf_.getParameter<double>("rmsPed")),
+      meanGain_(conf_.getParameter<double>("meanGain")),
+      rmsGain_(conf_.getParameter<double>("rmsGain")),
+      numberOfModules_(conf_.getParameter<int>("numberOfModules"))
 {
 }
 
@@ -40,8 +46,10 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
      if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
        uint32_t detid=((*it)->geographicalId()).rawId();
+       
+       // Stop if module limit reached
        nmodules++;
-       if(nmodules>10) break;
+       if( nmodules > numberOfModules_ ) break;
 
        const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>((*it));
        const PixelTopology & topol = pixDet->specificTopology();       
@@ -56,13 +64,9 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
        for(int i=0; i<ncols; i++) {
 	 for(int j=0; j<nrows; j++) {
 	   nchannels++;
-	   float MeanPed  = 100.0;
-	   float RmsPed   =   5.0;
-	   float MeanGain =  25.0;
-	   float RmsGain  =   5.0;
 	   
-	   float ped  = RandGauss::shoot(MeanPed ,RmsPed);
-	   float gain = RandGauss::shoot(MeanGain,RmsGain);
+	   float ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
+	   float gain = RandGauss::shoot( meanGain_ , rmsGain_ );
 
 	   if(i==mycol && j==myrow) {
 	     //std::cout << "       Col "<<i<<" Row "<<j<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
@@ -78,13 +82,14 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    }
    std::cout << " ---> PIXEL Modules  " << nmodules  << std::endl;
    std::cout << " ---> PIXEL Channels " << nchannels << std::endl;
+
    // Try to read object
    int mynmodules =0;
    for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
      if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
        uint32_t mydetid=((*it)->geographicalId()).rawId();
        mynmodules++;
-       if(mynmodules>10) break;   
+       if( mynmodules > numberOfModules_) break;   
        SiPixelGainCalibration::Range myrange = SiPixelGainCalibration_->getRange(mydetid);
        float mypedestal = SiPixelGainCalibration_->getPed (mycol,myrow,myrange,416);
        float mygain     = SiPixelGainCalibration_->getGain(mycol,myrow,myrange,416);
