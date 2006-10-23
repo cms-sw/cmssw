@@ -43,6 +43,13 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 
     TrackBase::ParameterVector rParameters = track->parameters();
     TrackBase::CovarianceMatrix recoTrackCovMatrix = track->covariance();
+    if (onlyDiagonal){
+      for (unsigned int i=0;i<5;i++){
+	for (unsigned int j=0;j<5;j++){
+	  if (i!=j) recoTrackCovMatrix(i,j)=0;
+	}
+      }
+    }
     recoTrackCovMatrix.Invert();
 
     for (SimTrackContainer::const_iterator st=stColl.begin(); st!=stColl.end(); st++){
@@ -79,6 +86,15 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
  
     TrackBase::ParameterVector rParameters = rt->parameters();
     TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
+    if (onlyDiagonal){
+      LogDebug("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms = 0 ---- " <<  "\n";
+      for (unsigned int i=0;i<5;i++){
+	for (unsigned int j=0;j<5;j++){
+	  if (i!=j) recoTrackCovMatrix(i,j)=0;
+	}
+      }
+    } 
+    else LogDebug("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms != 0 ---- " <<  "\n";
     recoTrackCovMatrix.Invert();
 
     int tpindex =0;
@@ -189,6 +205,15 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 	
 	TrackBase::ParameterVector rParameters = rt->parameters();
 	TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
+	if (onlyDiagonal) {
+	  LogDebug("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms = 0 ---- " <<  "\n";
+	  for (unsigned int i=0;i<5;i++){
+	    for (unsigned int j=0;j<5;j++){
+	      if (i!=j) recoTrackCovMatrix(i,j)=0;
+	    }
+	  }
+	}
+	else LogDebug("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms != 0 ---- " <<  "\n";
 	recoTrackCovMatrix.Invert();
 	
 	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
