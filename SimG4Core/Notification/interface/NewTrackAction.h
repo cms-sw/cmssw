@@ -14,6 +14,7 @@ class TrackInformation;
 class NewTrackAction 
 {
 public:
+    NewTrackAction(bool saveDPandConv);
     void primary(const G4Track * aSecondary) const;
     void primary(G4Track * aSecondary) const;
     void secondary(const G4Track * aSecondary,const G4Track & mother) const;
@@ -22,6 +23,7 @@ private:
     void addUserInfoToPrimary(G4Track * aTrack) const;
     void addUserInfoToSecondary(G4Track * aTrack,
 				const TrackInformation & motherInfo) const;
+    bool savePrimaryDecayProductsAndConversions;
 };
 
 #endif

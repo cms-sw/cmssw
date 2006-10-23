@@ -4,6 +4,10 @@
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 
 #include "G4Track.hh"
+#include "G4VProcess.hh"
+
+NewTrackAction::NewTrackAction(bool saveDPandConv) 
+: savePrimaryDecayProductsAndConversions(saveDPandConv) {}
 
 void NewTrackAction::primary(const G4Track * aTrack) const
 { primary(const_cast<G4Track *>(aTrack)); }
@@ -37,5 +41,31 @@ void NewTrackAction::addUserInfoToSecondary(G4Track * aTrack,const TrackInformat
     TrackInformation * trkInfo = new TrackInformation();
     // transfer calo ID from mother (to be checked in TrackingAction)
     trkInfo->setIDonCaloSurface(motherInfo.getIDonCaloSurface());
+
+    if (savePrimaryDecayProductsAndConversions)
+    {
+       // Check whether mother is a primary
+       if (motherInfo.isPrimary())
+       {
+          bool isDecayProduct =
+          (aTrack->GetCreatorProcess()->GetProcessType() == fDecay &&
+          aTrack->GetCreatorProcess()->GetProcessName() == "Decay");
+
+          bool isConversionProduct =
+          (aTrack->GetCreatorProcess()->GetProcessType() == fElectromagnetic &&
+          aTrack->GetCreatorProcess()->GetProcessName() == "conv");
+
+          // Take care of cascade decays
+          if (isDecayProduct)
+             trkInfo->isPrimary(true);
+
+          // Store if decay or conversion
+          if (isDecayProduct || isConversionProduct) 
+          {
+             trkInfo->storeTrack(true);
+             trkInfo->putInHistory();
+          }
+       }
+    }
     aTrack->SetUserInformation(trkInfo);  
 }
