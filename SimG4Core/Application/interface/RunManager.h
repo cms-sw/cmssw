@@ -112,6 +112,7 @@ private:
     edm::ParameterSet m_pPhysics; 
     edm::ParameterSet m_pRunAction;      
     edm::ParameterSet m_pEventAction;
+    edm::ParameterSet m_pStackingAction;
     edm::ParameterSet m_pTrackingAction;
     edm::ParameterSet m_pSteppingAction;
     edm::ParameterSet m_p;

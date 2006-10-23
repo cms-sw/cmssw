@@ -2,13 +2,14 @@
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Notification/interface/NewTrackAction.h"
  
-StackingAction::StackingAction() {}
+StackingAction::StackingAction(const edm::ParameterSet & p) 
+: savePrimaryDecayProductsAndConversions(p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversions",false)) {}
 
 StackingAction::~StackingAction() {}
 
 G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTrack)
 {
-    NewTrackAction newTA;
+    NewTrackAction newTA(savePrimaryDecayProductsAndConversions);
     if (aTrack->GetCreatorProcess()==0 || aTrack->GetParentID()==0)
         newTA.primary(aTrack);
     else

@@ -121,6 +121,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
       m_pEventAction(p.getParameter<edm::ParameterSet>("EventAction")),
+      m_pStackingAction(p.getParameter<edm::ParameterSet>("StackingAction")),
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_p(p)
@@ -382,7 +383,7 @@ void RunManager::initializeUserActions()
         if (m_Override)
         {
 	   edm::LogInfo("SimG4CoreApplication") << " RunManager: user StackingAction overridden " ;
-            eventManager->SetUserAction(new StackingAction);
+            eventManager->SetUserAction(new StackingAction(m_pStackingAction));
         }
     }
     else 
