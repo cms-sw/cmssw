@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.h,v 1.1 2006/07/04 16:32:04 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.2 2006/07/19 09:55:21 uberthon Exp $
 //
 //
 
@@ -50,6 +50,8 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet& iConfig)
     sprintf(title,"%s_fgvb",ecal_parts_[i].c_str());
     ecal_fgvb_[i]=new TH1I(title,"FGVB",10,0,10);
   }
+  label_= iConfig.getParameter<std::string>("Label");
+  producer_= iConfig.getParameter<std::string>("Producer");
 }
 
 
@@ -78,7 +80,7 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // Get input
   edm::Handle<EcalTrigPrimDigiCollection> tp;
-  iEvent.getByType(tp);
+  iEvent.getByLabel(label_,producer_,tp);
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
     int subdet=d.id().subDet()-1;

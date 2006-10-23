@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.h,v 1.1 2006/07/04 16:32:04 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.h,v 1.1 2006/07/10 17:12:35 uberthon Exp $
 //
 //
 
@@ -49,6 +49,9 @@ class EcalTrigPrimAnalyzer : public edm::EDAnalyzer {
   TH1I * ecal_fgvb_[2];
 
   TFile *histfile_;
+  
+  std::string label_;
+  std::string producer_;
 
 };
 
