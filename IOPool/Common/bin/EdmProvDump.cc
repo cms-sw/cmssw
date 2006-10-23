@@ -6,10 +6,56 @@
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
+
+#include "FWCore/Utilities/interface/PersistentNames.h"
 
 #include <iostream>
 #include <sstream>
 #include <assert.h>
+
+namespace {
+  struct HistoryNode {
+    HistoryNode( const edm::ProcessConfiguration& iConfig,
+                 unsigned int iSimpleId): config_(iConfig), simpleId_(iSimpleId) {}
+    edm::ProcessConfiguration config_;
+    std::vector<HistoryNode> children_;
+    unsigned int simpleId_;
+    
+    typedef std::vector<HistoryNode>::const_iterator const_iterator;
+    typedef std::vector<HistoryNode>::iterator iterator;
+    
+    iterator begin() { return children_.begin();}
+    iterator end() { return children_.end();}
+
+    const_iterator begin() const { return children_.begin();}
+    const_iterator end() const { return children_.end();}
+};
+}
+static void printHistory( const edm::ProcessHistory& iHist)
+{
+  const std::string indentDelta("  ");
+  std::string indent = indentDelta;
+   for(edm::ProcessHistory::const_iterator itH = iHist.begin();
+       itH != iHist.end();
+       ++itH) {
+      std::cout << indent <<itH->processName()<<" '"<<itH->passID()<<"' '"<<itH->releaseVersion()<<"' ("<<itH->parameterSetID()<<")"<<std::endl;
+     indent += indentDelta;
+   }
+}
+
+static void printHistory( const HistoryNode& iNode, const std::string& iIndent = std::string("  "))
+{
+  const std::string indentDelta("  ");
+  std::string indent = iIndent;
+  for(HistoryNode::const_iterator itH = iNode.begin();
+      itH != iNode.end();
+      ++itH) {
+    std::cout << indent <<itH->config_.processName()<<" '"<<itH->config_.passID()<<"' '"<<itH->config_.releaseVersion()
+    <<"' ["<<itH->simpleId_<<"] "<<" ("<<itH->config_.parameterSetID()<<")"<<std::endl;
+    printHistory(*itH, indent+indentDelta);
+  }
+}
 
 int main(int argc, char* argv[]) {
    typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
@@ -20,28 +66,94 @@ int main(int argc, char* argv[]) {
       ROOT::Cintex::Cintex::Enable();
       TFile f(argv[1]);
 
-      TTree* meta = dynamic_cast<TTree*>(f.Get("MetaData"));
+      TTree* meta = dynamic_cast<TTree*>(f.Get(edm::poolNames::metaDataTreeName().c_str()));
       assert(0!=meta);
 
       edm::ProductRegistry reg;
       edm::ProductRegistry* pReg=&reg;
-      meta->SetBranchAddress("ProductRegistry",&pReg);
+      meta->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(),&pReg);
 
       ParameterSetMap psm;
       ParameterSetMap* pPsm =&psm;
-      meta->SetBranchAddress("ParameterSetMap",&pPsm);
+      meta->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(),&pPsm);
+
+      edm::ProcessHistoryMap phm;
+      edm::ProcessHistoryMap* pPhm=&phm;
+      meta->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(),&pPhm);
 
       meta->GetEntry(0);
       assert(0!=pReg);
       pReg->setFrozen();
 
-      std::cout << meta->GetEntries()<<std::endl;
+      //std::cout << meta->GetEntries()<<std::endl;
 
-      std::cout << pReg->size()<<std::endl;
+      //std::cout << pReg->size()<<std::endl;
+      edm::ProcessConfiguration dummyConfig;
+      HistoryNode historyGraph(dummyConfig,0);
+      std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
+
+      std::cout << "Processing History:"<<std::endl;
+      if( 1 == phm.size() ) {
+	 printHistory((phm.begin()->second));
+      } else {
+        bool multipleHistories =false;
+        for(edm::ProcessHistoryMap::const_iterator it = phm.begin();
+            it != phm.end();
+            ++it) {
+          //loop over the history entries looking for matches
+          HistoryNode* parent = &historyGraph;
+          for(edm::ProcessHistory::const_iterator itH = it->second.begin();
+              itH != it->second.end();
+              ++itH) {
+            if(parent->children_.size() == 0) {
+              unsigned int id = simpleIDs[itH->id()];
+              if (0 == id) {
+                id = 1;
+                simpleIDs[itH->id()] = id;
+              }
+              parent->children_.push_back(HistoryNode(*itH,id));
+              parent = &(parent->children_.back());
+            } else {
+              //see if this is unique
+              bool unique = true;
+              for(HistoryNode::iterator itChild = parent->children_.begin();
+                  itChild != parent->children_.end();
+                  ++itChild) {
+                if( itChild->config_.id() == itH->id() ) {
+                  unique = false;
+                  parent = &(*itChild);
+                  break;
+                }
+              }
+              if(unique) {
+                multipleHistories = true;
+                simpleIDs[itH->id()]=parent->children_.size()+1;
+                parent->children_.push_back(HistoryNode(*itH,simpleIDs[itH->id()]));
+                parent = &(parent->children_.back());
+              }
+            }
+          }
+        }
+        printHistory(historyGraph);
+      }
+   
+      std::cout <<"------------------"<<std::endl;
+      /*
+      for(std::vector<edm::ProcessHistory>::const_iterator it = uniqueLongHistories.begin();
+	  it != uniqueLongHistories.end();
+	  ++it) {
+	 //ParameterSetMap::const_iterator itpsm = psm.find(psid);
+	 for(edm::ProcessHistory::const_iterator itH = it->begin();
+	     itH != it->end();
+	     ++itH) {
+	    std::cout << edm::ParameterSet(psm[ itH->parameterSetID() ].pset_) <<std::endl;
+	 }
+      }
+       */
 //using edm::ParameterSetID as the key does not work
 //   typedef std::map<edm::ParameterSetID,std::vector<edm::BranchDescription> > IdToBranches
       typedef std::map<std::string,std::vector<edm::BranchDescription> > IdToBranches;
-      typedef std::map<std::string,IdToBranches> ModuleToIdBranches;
+      typedef std::map<std::pair<std::string,std::string>,IdToBranches> ModuleToIdBranches;
       ModuleToIdBranches moduleToIdBranches;
       //IdToBranches idToBranches;
       for( edm::ProductRegistry::ProductList::const_iterator it = 
@@ -61,14 +173,14 @@ int main(int argc, char* argv[]) {
 	 
 	    std::stringstream s;
 	    s <<*itId;
-	    moduleToIdBranches[it->second.moduleLabel()+" "+it->second.processName()][s.str()].push_back(it->second);
+	    moduleToIdBranches[std::make_pair(it->second.processName(),it->second.moduleLabel())][s.str()].push_back(it->second);
 	    //idToBranches[*itId].push_back(it->second);
 	 }
       }
       for(ModuleToIdBranches::const_iterator it = moduleToIdBranches.begin();
 	  it != moduleToIdBranches.end();
 	  ++it) {
-	 std::cout <<"Module: "<<it->first<<std::endl;
+	 std::cout <<"Module: "<<it->first.second<<" "<<it->first.first<<std::endl;
 	 const IdToBranches& idToBranches = it->second;
 	 for(IdToBranches::const_iterator itIdBranch = idToBranches.begin();
      itIdBranch != idToBranches.end();
