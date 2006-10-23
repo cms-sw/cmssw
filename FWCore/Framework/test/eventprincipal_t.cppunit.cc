@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.26 2006/09/27 14:54:14 paterno Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.27 2006/09/27 15:27:24 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 #include <memory>
@@ -244,6 +244,12 @@ void testeventprincipal::getbyLabelTest()
   handle h = pEvent_->getByLabel(tid, label, productInstanceName);
   CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(h.provenance()->moduleLabel() == label);
+  {
+    handle h = pEvent_->getByLabel(tid, label, productInstanceName, processName);
+    CPPUNIT_ASSERT(h.isValid());
+    CPPUNIT_ASSERT(h.provenance()->moduleLabel() == label);
+    CPPUNIT_ASSERT(h.provenance()->processName() == processName);
+  }
 }
 
 void testeventprincipal::getbySelectorTest() 
