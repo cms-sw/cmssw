@@ -15,8 +15,8 @@ TrackingVertex::TrackingVertex(const HepLorentzVector &p, const bool inVolume,
 
 // Add a reference to vertex vectors
 
-void TrackingVertex::addG4Vertex(const SimVertexRef &ref) { 
-  g4Vertices_.push_back(ref);
+void TrackingVertex::addG4Vertex(const SimVertex& v) { 
+  g4Vertices_.push_back(v);
 }
 
 void TrackingVertex::addGenVertex(const GenVertexRef &ref){ 
@@ -47,7 +47,7 @@ TrackingVertex::tp_iterator TrackingVertex::sourceTracks_end()     const { retur
 
 // Accessors for whole vectors
 
-const SimVertexRefVector        TrackingVertex::g4Vertices()     const { return  g4Vertices_;     };
+const std::vector<SimVertex>    TrackingVertex::g4Vertices()     const { return  g4Vertices_;     };
 const GenVertexRefVector        TrackingVertex::genVertices()    const { return  genVertices_;    };
 const TrackingParticleRefVector TrackingVertex::sourceTracks()   const { return  sourceTracks_;   };
 const TrackingParticleRefVector TrackingVertex::daughterTracks() const { return  daughterTracks_; };

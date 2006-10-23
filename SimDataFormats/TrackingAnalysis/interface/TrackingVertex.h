@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.15 2006/08/22 16:12:45 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.16 2006/08/22 20:28:01 ewv Exp $
  *
  */
  
@@ -30,7 +30,7 @@ class TrackingVertex {
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 
   typedef        GenVertexRefVector::iterator genv_iterator;
-  typedef        SimVertexRefVector::iterator  g4v_iterator;
+  typedef    std::vector<SimVertex>::const_iterator  g4v_iterator;
   typedef TrackingParticleRefVector::iterator   tp_iterator;
   
 // Default constructor and constructor from values
@@ -53,13 +53,13 @@ class TrackingVertex {
   tp_iterator      sourceTracks_end()   const; // ....
 
 // Add references to TrackingParticles, Geant4, and HepMC vertices to containers
-  void addG4Vertex(     const SimVertexRef&       );
+  void addG4Vertex(     const SimVertex&       );
   void addGenVertex(    const GenVertexRef&       );
   void addDaughterTrack(const TrackingParticleRef&);
   void addParentTrack(  const TrackingParticleRef&);
  
 // Getters for RefVectors   
-  const SimVertexRefVector            g4Vertices() const;
+  const std::vector<SimVertex>            g4Vertices() const;
   const GenVertexRefVector           genVertices() const;
   const TrackingParticleRefVector   sourceTracks() const;
   const TrackingParticleRefVector daughterTracks() const;
@@ -77,7 +77,7 @@ class TrackingVertex {
   
 // References to G4 and generator vertices and TrackingParticles
 
-  SimVertexRefVector              g4Vertices_;
+  std::vector<SimVertex>             g4Vertices_;
   GenVertexRefVector             genVertices_;
   TrackingParticleRefVector daughterTracks_;
   TrackingParticleRefVector   sourceTracks_;
