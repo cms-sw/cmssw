@@ -366,6 +366,8 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
       getApplicationContext()->postFrame(superFrag,buAppDesc,fuAppDesc);
     }
     
+    if (0!=event) delete event;
+    
     nbEvents_.value_++;
   }
 

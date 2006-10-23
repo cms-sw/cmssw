@@ -1,5 +1,12 @@
 2006-10-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-02-01
+	* fix memory leak: in playback mode, evf::BU must assume ownership
+          of the FEDRawDataCollection received from the
+	  PlaybackRawDataProvider and properly clean it up, which it now does.
+
+2006-10-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
 	* tag V00-02-00
 	* introduce namespace evf::
 	* evf::BU is now a statemachine
