@@ -1,3 +1,23 @@
+2006-10-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-02-00
+	* introduce namespace evf::
+	* evf::BU is now a statemachine
+	  (Configure - Enable - Halt, Suspend - Resume,
+	  see EventFilter/Utilities/EPStateMachine)
+	* evf::BU contains a WebGUI (see EventFilter/Utilities) to take
+          care of managing exported parameters and displaying them on
+	  HyperDAQ webpages
+	* evf::BU measures the number of events and number of MB per
+	  second sent
+	* evf::BU listens to the *change* of the 'mode' parameter and
+          intercepts it, as the mode of the module (RANDOM/PLAYBACK) is
+	  (only!) automatically determined by the absence/presence of a
+	  PlaybackRawDataProvider (see EventFilter/Playback).
+	* changed the internal memory managment, fedData_ and fedSize_ are
+	  now simpler data structures that are allocated only once
+	
+
 2006-09-26  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-01-01

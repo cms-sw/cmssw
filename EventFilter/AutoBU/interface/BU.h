@@ -1,16 +1,25 @@
-#ifndef __BU_h__
-#define __BU_h__
+#ifndef AUTOBU_BU_H
+#define AUTOBU_BU_H 1
 
 
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "EventFilter/Utilities/interface/EPStateMachine.h"
+#include "EventFilter/Utilities/interface/WebGUI.h"
+
 #include "EventFilter/Playback/interface/PlaybackRawDataProvider.h"
 
-#include "xdaq/include/xdaq/WebApplication.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "xdaq/include/xdaq/Application.h"
+
+#include "toolbox/include/toolbox/task/TimerFactory.h"
+#include "toolbox/include/Task.h"
 #include "toolbox/include/toolbox/mem/HeapAllocator.h"
 #include "toolbox/include/toolbox/mem/MemoryPoolFactory.h"
 #include "toolbox/include/toolbox/net/URN.h"
+#include "toolbox/include/toolbox/fsm/exception/Exception.h"
+#include "toolbox/include/BSem.h"
 
+#include "xdata/include/xdata/InfoSpace.h"
 #include "xdata/include/xdata/UnsignedInteger32.h"
 #include "xdata/include/xdata/Boolean.h"
 #include "xdata/include/xdata/String.h"
@@ -34,242 +43,159 @@
 #include <cmath>
 
 
-class BU : public xdaq::WebApplication
-{
-public:
-  //
-  // typedefs
-  //
-  typedef std::vector<unsigned char*> ucharvec_t;
-  typedef std::vector<unsigned int>   uintvec_t;
-  
-  
-  //
-  // xdaq instantiator macro
-  //
-  XDAQ_INSTANTIATOR();
-  
-  
-  //
-  // construction/destruction
-  //
-  BU(xdaq::ApplicationStub *s);
-  virtual ~BU();
-  
-  
-  //
-  // member functions
-  //
-  
-  // i2o callbacks
-  void buAllocateNMsg(toolbox::mem::Reference *bufRef);
-  void buCollectMsg(toolbox::mem::Reference *bufRef);
-  void buDiscardNMsg(toolbox::mem::Reference *bufRef);
-  
-  // generate N dummy FEDs
-  void generateNFedFragments(double     fedSizeMean,
-			     double     fedSizeWidth,
-			     uintvec_t& fedSize);
-  
-  //estimate number of blocks needed for a superfragment
-  int estimateNBlocks(const uintvec_t& fedSize,size_t fullBlockPayload);
-  
-  // create a supefragment
-  toolbox::mem::Reference *createSuperFrag(const I2O_TID& fuTid,
-					   const U32&     fuTransaction,
-					   const U32&     trigNo,
-					   const U32&     iSuperFrag,
-					   const U32&     nSuperFrag);
-  
-  // debug functionality
-  void debug(toolbox::mem::Reference* ref);
-  int  check_event_data(unsigned long* blocks_adrs,int nmb_blocks);
-  void dumpFrame(unsigned char* data,unsigned int len);
-  
-  
-private:
-  //
-  // member data
-  //
-  ucharvec_t                fedData_;
-  uintvec_t                 fedSize_;
-
-  xdata::UnsignedInteger32  dataBufSize_;
-  xdata::UnsignedInteger32  nSuperFrag_;
-  xdata::UnsignedInteger32  nbEventsSent_;
-  xdata::UnsignedInteger32  nbEventsDiscarded_;
-  
-  xdata::UnsignedInteger32  fedSizeMean_;
-  xdata::UnsignedInteger32  fedSizeWidth_;
-  xdata::Boolean            useFixedFedSize_;
-  
-  toolbox::mem::Pool*       pool_;
-  
-  
-  //
-  // static member data
-  //
-  static const int frlHeaderSize_ =sizeof(frlh_t);
-  static const int fedHeaderSize_ =sizeof(fedh_t);
-  static const int fedTrailerSize_=sizeof(fedt_t);
-  
-}; // class BU
+namespace evf {
 
 
-
-/////////////////////////////////////////////////////////////////////////////////
-// implementation of inline functions
-////////////////////////////////////////////////////////////////////////////////
-
-//______________________________________________________________________________
-inline
-void BU::buAllocateNMsg(toolbox::mem::Reference *bufRef)
-{
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"received buAllocate request");
-
-  I2O_MESSAGE_FRAME             *stdMsg;
-  I2O_BU_ALLOCATE_MESSAGE_FRAME *msg;
-
-  stdMsg=(I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
-  msg   =(I2O_BU_ALLOCATE_MESSAGE_FRAME*)stdMsg;
-
-  unsigned int nbEvents=msg->n;
-  
-  // loop over all requested events
-  for(unsigned int i=0;i<nbEvents;i++) {
-    
-    U32     fuTransactionId=msg   ->allocate[i].fuTransactionId; // assigned by FU
-    I2O_TID fuTid          =stdMsg->InitiatorAddress;            // declared to i2o
-    
-    // if a raw data provider is present, request an event from it
-    unsigned int runNumber=0; // not needed
-    unsigned int evtNumber=(nbEventsSent_+1)%0x1000000;
-    FEDRawDataCollection* event(0);
-    if (0!=PlaybackRawDataProvider::instance())
-      event=PlaybackRawDataProvider::instance()->getFEDRawData(runNumber,evtNumber);
-    
-
+  class BU : public xdaq::Application,
+	     public toolbox::task::TimerListener,
+	     public xdata::ActionListener
+  {
+  public:
     //
-    // loop over all superfragments in each event    
+    // typedefs
     //
-    unsigned int nSuperFrag(nSuperFrag_);
-    std::vector<unsigned int> validFedIds;
-    if (0!=event) {
-      for (unsigned int j=0;j<(unsigned int)FEDNumbering::lastFEDId()+1;j++)
-	if (event->FEDData(j).size()>0) validFedIds.push_back(j);
-      nSuperFrag=validFedIds.size();
-    }
+    typedef std::vector<unsigned char*> UCharVec_t;
+    typedef std::vector<unsigned int>   UIntVec_t;
+  
+  
+    //
+    // xdaq instantiator macro
+    //
+    XDAQ_INSTANTIATOR();
+  
     
-    if (0==nSuperFrag) {
-      LOG4CPLUS_INFO(getApplicationLogger(),"no data in FEDRawDataCollection!Skip");
-      continue;
-    }
+    //
+    // construction/destruction
+    //
+    BU(xdaq::ApplicationStub *s);
+    virtual ~BU();
+  
+  
+    //
+    // public member functions
+    //
+
+    // toolbox::task::TimerListener callback
+    void timeExpired(toolbox::task::TimerEvent& e);
+
+    // xdata::ActionListener callback(s)
+    void actionPerformed(xdata::Event& e);
+
+    // finite state machine callbacks
+    void configureAction(toolbox::Event::Reference e)
+      throw (toolbox::fsm::exception::Exception);
+    void enableAction(toolbox::Event::Reference e)
+      throw (toolbox::fsm::exception::Exception);
+    void suspendAction(toolbox::Event::Reference e)
+      throw (toolbox::fsm::exception::Exception);
+    void resumeAction(toolbox::Event::Reference e)
+      throw (toolbox::fsm::exception::Exception);
+    void haltAction(toolbox::Event::Reference e)
+      throw (toolbox::fsm::exception::Exception);
+    void nullAction(toolbox::Event::Reference e)
+      throw (toolbox::fsm::exception::Exception);
     
-    for (unsigned int iSuperFrag=0;iSuperFrag<nSuperFrag;iSuperFrag++) {
-      
-      // "playback", read events from a file
-      if (0!=event) {
-	fedData_.clear();
-	fedSize_.clear();
-	fedData_.push_back(event->FEDData(validFedIds[iSuperFrag]).data());
-	fedSize_.push_back(event->FEDData(validFedIds[iSuperFrag]).size());
-	LOG4CPLUS_DEBUG(getApplicationLogger(),
-			"transId="<<fuTransactionId<<": "
-			<<"fed "<<validFedIds[iSuperFrag]
-			<<" in superfragment "<<iSuperFrag+1<<"/"<<nSuperFrag);
-      }
-      
-      // randomly generate fed data (*including* headers and trailers)
-      else {
-	fedData_.resize(16);
-	fedSize_.resize(16);
-	
-	if(useFixedFedSize_) fedSize_.assign(fedSize_.size(),fedSizeMean_);
-	else generateNFedFragments((double)fedSizeMean_,
-				   (double)fedSizeWidth_,
-				   fedSize_);
-	for (unsigned int iFed=0;iFed<fedData_.size();iFed++)
-	  fedData_[iFed]=new unsigned char[fedSize_[iFed]];
-      }
-      
-      
-      // create super fragment
-      toolbox::mem::Reference *superFrag=
-	createSuperFrag(fuTid,           // fuTid
-			fuTransactionId, // fuTransaction
-			evtNumber,       // current trigger (event) number
-			iSuperFrag,      // current super fragment
-			nSuperFrag       // number of super fragments
-			);
-      
-      debug(superFrag);
-      
-      // clean up randomly generated data
-      if (0==event) {
-	for (unsigned int iFed=0;iFed<fedData_.size();iFed++)
-	  delete [] fedData_[iFed];
-      }
-      
-      I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *frame =
-	(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)(superFrag->getDataLocation());
-      
-      superFrag->setDataSize(frame->PvtMessageFrame.StdMessageFrame.MessageSize<<2);
-      
-      xdaq::ApplicationDescriptor *buAppDesc=
-	getApplicationDescriptor();
-      
-      xdaq::ApplicationDescriptor *fuAppDesc= 
-	i2o::utils::getAddressMap()->getApplicationDescriptor(fuTid);
-      
-      getApplicationContext()->postFrame(superFrag,buAppDesc,fuAppDesc);
-    }
+    xoap::MessageReference fireEvent(xoap::MessageReference msg)
+      throw (xoap::exception::Exception);
+
+    // Hyper DAQ web interface [see Utilities/WebGUI!]
+    void webPageRequest(xgi::Input *in,xgi::Output *out)
+      throw (xgi::exception::Exception);
     
-    nbEventsSent_.value_++;
-  }
+    // i2o callbacks
+    inline void I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef);
+    inline void I2O_BU_COLLECT_Callback(toolbox::mem::Reference *bufRef);
+    inline void I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef);
+    
+    // export parameters to info space(s)
+    void exportParameters();
+    
+    
+  private:
+    //
+    // private member functions
+    //
+    
+    // initialize/clean up internal FED data buffers
+    void initFedBuffers(unsigned int fedN);
+    void clearFedBuffers();
 
-  // Free the request message from the FU
-  bufRef->release();
-}
+    // generate FEDs with random payload (including headers/trailers, not yet valid!)
+    void generateRndmFEDs();
+  
+    //estimate number of blocks needed for a superfragment
+    int estimateNBlocks(size_t fullBlockPayload);
+  
+    // create a supefragment
+    toolbox::mem::Reference *createSuperFrag(const I2O_TID& fuTid,
+					     const U32&     fuTransaction,
+					     const U32&     trigNo,
+					     const U32&     iSuperFrag,
+					     const U32&     nSuperFrag);
+  
+    // debug functionality
+    void debug(toolbox::mem::Reference* ref);
+    int  check_event_data(unsigned long* blocks_adrs,int nmb_blocks);
+    void dumpFrame(unsigned char* data,unsigned int len);
+  
+  
+  private:
+    //
+    // member data
+    //
+    Logger                    log_;
+    EPStateMachine*           fsm_;
+    WebGUI*                   gui_;
+    
+    std::string               xmlClass_;
+    unsigned int              instance_;
+    std::string               sourceId_;
+
+    unsigned int              fedN_;
+    unsigned char           **fedData_;
+    unsigned int             *fedSize_;
+    unsigned int              fedSizeMax_;
+    
+    //UCharVec_t                fedData_;
+    //UIntVec_t                 fedSize_;
+
+    // parameters and counters to be exported
+    xdata::String             mode_;
+    xdata::Boolean            debug_;
+    xdata::UnsignedInteger32  dataBufSize_;
+
+    xdata::UnsignedInteger32  nSuperFrag_;
+    xdata::UnsignedInteger32  fedSizeMean_;
+    xdata::UnsignedInteger32  fedSizeWidth_;
+    xdata::Boolean            useFixedFedSize_;
+    
+    xdata::UnsignedInteger32  nbEvents_;
+    xdata::UnsignedInteger32  nbEventsPerSec_;
+    xdata::UnsignedInteger32  nbDiscardedEvents_;
+    xdata::UnsignedInteger32  nbMBPerSec_;
+    
+    // internal parameters and counters (not to be exported)
+    xdata::UnsignedInteger32  nbEventsLast_; // for nbEventsPerSec measurement
+    xdata::UnsignedInteger32  nbBytes_;      // for MB/s measurement
+    
+    // memory pool for i20 communication
+    toolbox::mem::Pool*       i2oPool_;
+
+    // binary semaphore
+    BSem                      bSem_;
+  
+  
+    //
+    // static member data
+    //
+    static const int frlHeaderSize_ =sizeof(frlh_t);
+    static const int fedHeaderSize_ =sizeof(fedh_t);
+    static const int fedTrailerSize_=sizeof(fedt_t);
+  
+  }; // class BU
 
 
-//______________________________________________________________________________
-inline
-void BU::buCollectMsg(toolbox::mem::Reference *bufRef)
-{
-  LOG4CPLUS_FATAL(this->getApplicationLogger(), "buCollectMsg() NOT IMPLEMENTED");
-  exit(-1);
-}
-
-
-//______________________________________________________________________________
-inline
-void BU::buDiscardNMsg(toolbox::mem::Reference *bufRef)
-{
-  // Does nothing but free the incoming I2O message
-  nbEventsDiscarded_.value_++;
-  bufRef->release();
-}
-
-
-//______________________________________________________________________________
-inline
-void BU::generateNFedFragments(double     fedSizeMean,
-			       double     fedSizeWidth,
-			       uintvec_t& fedSize)
-{
-  for(unsigned int i=0;i<fedSize.size();i++) {
-    int iFedSize(0);
-    while (iFedSize<(fedTrailerSize_+fedHeaderSize_)) {
-      double logSize=RandGauss::shoot(std::log(fedSizeMean),
-				      std::log(fedSizeMean)-
-				      std::log(fedSizeWidth/2.));
-      iFedSize=(int)(std::exp(logSize));
-      
-      iFedSize-=iFedSize % 8; // all blocks aligned to 64 bit words
-    }
-    fedSize[i]=iFedSize;
-  }
-}
+} // namespace evf
 
 
 #endif

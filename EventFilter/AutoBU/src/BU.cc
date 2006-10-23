@@ -7,13 +7,20 @@
 
 
 #include "EventFilter/AutoBU/interface/BU.h"
+
 #include "EventFilter/Utilities/interface/Crc.h"
 
+#include "xoap/include/xoap/SOAPEnvelope.h"
+#include "xoap/include/xoap/SOAPBody.h"
+#include "xoap/include/xoap/domutils.h"
 
 #include <netinet/in.h>
 
+#include <sstream>
+
 
 using namespace std;
+using namespace evf;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,68 +29,458 @@ using namespace std;
 
 //______________________________________________________________________________
 BU::BU(xdaq::ApplicationStub *s) 
-  : xdaq::WebApplication(s)
+  : xdaq::Application(s)
+  , log_(getApplicationLogger())
+  , fsm_(0)
+  , gui_(0)
+  , fedN_(0)
+  , fedData_(0)
+  , fedSize_(0)
+  , fedSizeMax_(16384)
+  , mode_("RANDOM")
+  , debug_(true)
   , dataBufSize_(4096)
   , nSuperFrag_(64)
-  , nbEventsSent_(0)
-  , nbEventsDiscarded_(0)
   , fedSizeMean_(1024)    // mean  of fed size for rnd generation
   , fedSizeWidth_(1024)   // width of fed size for rnd generation
   , useFixedFedSize_(false)
-  , pool_(0)
+  , nbEvents_(0)
+  , nbEventsPerSec_(0)
+  , nbDiscardedEvents_(0)
+  , nbMBPerSec_(0)
+  , nbEventsLast_(0)
+  , nbBytes_(0)
+  , i2oPool_(0)
+  , bSem_(BSem::FULL)
 {
-  xdata::InfoSpace *is = getApplicationInfoSpace();
+  // initialize application info
+  xmlClass_=getApplicationDescriptor()->getClassName();
+  instance_=getApplicationDescriptor()->getInstance();
   
-  is->fireItemAvailable("dataBufSize",      &dataBufSize_);
-  is->fireItemAvailable("nSuperFrag",       &nSuperFrag_);
-  is->fireItemAvailable("nbEventsSent",     &nbEventsSent_);
-  is->fireItemAvailable("nbEventsDiscarded",&nbEventsDiscarded_);
-  is->fireItemAvailable("fedSizeMean",      &fedSizeMean_);
-  is->fireItemAvailable("fedSizeWidth",     &fedSizeWidth_);
-  is->fireItemAvailable("useFixedFedSize",  &useFixedFedSize_);
+  stringstream oss;
+  oss<<xmlClass_<<instance_;
+  sourceId_=oss.str();
   
-  i2o::bind(this,
-	    &BU::buAllocateNMsg,
-	    I2O_BU_ALLOCATE,
-	    XDAQ_ORGANIZATION_ID);
+  // initialize state machine
+  fsm_=new EPStateMachine(log_);
+  fsm_->init<BU>(this);
   
-  i2o::bind(this,
-	    &BU::buCollectMsg,
-	    I2O_BU_COLLECT,
-	    XDAQ_ORGANIZATION_ID);
+  // web interface
+  xgi::bind(this,&evf::BU::webPageRequest,"Default");
+  gui_=new WebGUI(this,fsm_);
+  gui_->setSmallAppIcon("/daq/evb/bu/images/bu32x32.gif");
+  gui_->setLargeAppIcon("/daq/evb/bu/images/bu64x64.gif");
   
-  i2o::bind(this,
-	    &BU::buDiscardNMsg,
-	    I2O_BU_DISCARD,
-	    XDAQ_ORGANIZATION_ID);
+  vector<toolbox::lang::Method*> methods=gui_->getMethods();
+  vector<toolbox::lang::Method*>::iterator it;
+  for (it=methods.begin();it!=methods.end();++it) {
+    if ((*it)->type()=="cgi") {
+      string name=static_cast<xgi::MethodSignature*>(*it)->name();
+      xgi::bind(this,&evf::BU::webPageRequest,name);
+    }
+  }
   
+  // i2o callbacks
+  i2o::bind(this,&BU::I2O_BU_ALLOCATE_Callback,I2O_BU_ALLOCATE,XDAQ_ORGANIZATION_ID);
+  i2o::bind(this,&BU::I2O_BU_COLLECT_Callback, I2O_BU_COLLECT, XDAQ_ORGANIZATION_ID);
+  i2o::bind(this,&BU::I2O_BU_DISCARD_Callback, I2O_BU_DISCARD, XDAQ_ORGANIZATION_ID);
+  
+  // allocate i2o memery pool
+  string i2oPoolName=sourceId_+"_i2oPool";
   try {
     toolbox::mem::HeapAllocator *allocator=new toolbox::mem::HeapAllocator();
-    toolbox::net::URN urn("toolbox-mem-pool","ABU");
+    toolbox::net::URN urn("toolbox-mem-pool",i2oPoolName);
     toolbox::mem::MemoryPoolFactory* poolFactory=
       toolbox::mem::getMemoryPoolFactory();
-    
-    pool_=poolFactory->createPool(urn, allocator);
-    
-    LOG4CPLUS_INFO(getApplicationLogger(),"Created memory pool: "<<"ABU");
+    i2oPool_=poolFactory->createPool(urn,allocator);
   }
   catch (toolbox::mem::exception::Exception& e) {
-    string s="Failed to create pool: ABU ";
-    LOG4CPLUS_FATAL(getApplicationLogger(),s);
+    string s="Failed to create pool: "+i2oPoolName;
+    LOG4CPLUS_FATAL(log_,s);
     XCEPT_RETHROW(xcept::Exception,s,e);
   }
+  
+  // export parameters to info space(s)
+  exportParameters();
 }
 
 
 //______________________________________________________________________________
 BU::~BU()
 {
-  
+  clearFedBuffers();
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
+////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
+void BU::timeExpired(toolbox::task::TimerEvent& e)
+{
+  bSem_.take();
+  gui_->monInfoSpace()->lock();
+  
+  // number of events per second measurement
+  nbEventsPerSec_=nbEvents_-nbEventsLast_;
+  nbEventsLast_  =nbEvents_;
+  
+  // number of MB per second measurement
+  nbMBPerSec_=nbBytes_/1000000;
+  nbBytes_   =0;
+
+  gui_->monInfoSpace()->unlock();
+  bSem_.give();
+}
+
+
+//______________________________________________________________________________
+void BU::actionPerformed(xdata::Event& e)
+{
+  if (e.type()=="ItemChangedEvent") {
+    string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
+    if (item=="mode") {
+      mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
+      LOG4CPLUS_ERROR(log_,"'mode' is read only! Add/Remove Playback data source!");
+    }
+  }
+}
+
+
+//______________________________________________________________________________
+void BU::configureAction(toolbox::Event::Reference e) 
+  throw (toolbox::fsm::exception::Exception)
+{
+  // reset counters
+  if (0!=gui_) gui_->resetCounters();
+
+  // check presence of event source to update 'mode' parameter
+  mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
+
+  // initialze timer for nbEventsPerSec / nbMBPerSec measurements
+  nbEventsLast_=0;
+  nbBytes_=0;
+  toolbox::task::getTimerFactory()->createTimer(sourceId_);
+  toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  timer->stop();
+  
+  LOG4CPLUS_INFO(log_,"BU -> CONFIGURED <-");
+}
+
+
+//______________________________________________________________________________
+void BU::enableAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  // check presence of event source to update 'mode' parameter
+  mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
+  
+  // start timer for nbEventsPerSec / nbMBPerSec measurements
+  toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  if (0!=timer) {
+    toolbox::TimeInterval oneSec(1.);
+    toolbox::TimeVal      startTime=toolbox::TimeVal::gettimeofday();
+    timer->start();
+    timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->monInfoSpace(),sourceId_);
+  }
+  else {
+    LOG4CPLUS_WARN(log_,"could't start timer for nbEventsPerSec measurement");
+  }
+  
+  LOG4CPLUS_INFO(log_,"BU -> ENABLED <-");
+}
+
+
+//______________________________________________________________________________
+void BU::suspendAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  bSem_.take();
+  LOG4CPLUS_INFO(log_,"BU -> SUSPENDED <-");
+}
+
+
+//______________________________________________________________________________
+void BU::resumeAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  bSem_.give();
+  LOG4CPLUS_INFO(log_,"BU -> RESUMED <-");
+}
+
+
+//______________________________________________________________________________
+void BU::haltAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  if (0!=timer) timer->stop();
+  
+  LOG4CPLUS_INFO(log_,"BU -> HALTED <-");
+}
+
+
+//______________________________________________________________________________
+void BU::nullAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  cout<<"BU::nullAction()"<<endl;
+}
+
+
+//______________________________________________________________________________
+xoap::MessageReference BU::fireEvent(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
+{
+  xoap::SOAPPart     part    =msg->getSOAPPart();
+  xoap::SOAPEnvelope env     =part.getEnvelope();
+  xoap::SOAPBody     body    =env.getBody();
+  DOMNode           *node    =body.getDOMNode();
+  DOMNodeList       *bodyList=node->getChildNodes();
+  DOMNode           *command =0;
+  string             commandName;
+  
+  for (unsigned int i=0;i<bodyList->getLength();i++) {
+    command = bodyList->item(i);
+    if(command->getNodeType() == DOMNode::ELEMENT_NODE) {
+      commandName = xoap::XMLCh2String(command->getLocalName());
+      return fsm_->processFSMCommand(commandName);
+    }
+  }
+  XCEPT_RAISE(xoap::exception::Exception,"Command not found");
+}
+
+//______________________________________________________________________________
+void BU::webPageRequest(xgi::Input *in,xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  string name=in->getenv("PATH_INFO");
+  if (name.empty()) name="defaultWebPage";
+  static_cast<xgi::MethodSignature*>(gui_->getMethod(name))->invoke(in,out);
+}
+
+
+//______________________________________________________________________________
+void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
+{
+  LOG4CPLUS_DEBUG(log_,"received I2O_BU_ALLOCATE request");
+
+  // check if the BU is enabled
+  toolbox::fsm::State currentState=fsm_->getCurrentState();
+  if (currentState!='E') {
+    LOG4CPLUS_WARN(log_,"Ignore I2O_BU_ALLOCATE while *not* enabled!");
+    bufRef->release();
+    return;
+  }
+
+  bSem_.take();
+  
+  // process message
+  I2O_MESSAGE_FRAME             *stdMsg;
+  I2O_BU_ALLOCATE_MESSAGE_FRAME *msg;
+
+  stdMsg=(I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
+  msg   =(I2O_BU_ALLOCATE_MESSAGE_FRAME*)stdMsg;
+
+  unsigned int nbEvents=msg->n;
+  
+  // loop over all requested events
+  for(unsigned int i=0;i<nbEvents;i++) {
+    
+    U32     fuTransactionId=msg   ->allocate[i].fuTransactionId; // assigned by FU
+    I2O_TID fuTid          =stdMsg->InitiatorAddress;            // declared to i2o
+    
+    // if a raw data provider is present, request an event from it
+    unsigned int runNumber=0; // not needed
+    unsigned int evtNumber=(nbEvents_+1)%0x1000000;
+    FEDRawDataCollection* event(0);
+    if (0!=PlaybackRawDataProvider::instance()) {
+      mode_="PLAYBACK";
+      event=PlaybackRawDataProvider::instance()->getFEDRawData(runNumber,evtNumber);
+    }
+    else {
+      mode_="RANDOM";
+    }
+    
+    
+    //
+    // loop over all superfragments in each event    
+    //
+    unsigned int nSuperFrag(nSuperFrag_);
+    std::vector<unsigned int> validFedIds;
+    if (0!=event) {
+      for (unsigned int j=0;j<(unsigned int)FEDNumbering::lastFEDId()+1;j++)
+	if (event->FEDData(j).size()>0) validFedIds.push_back(j);
+      nSuperFrag=validFedIds.size();
+    }
+    
+    if (0==nSuperFrag) {
+      LOG4CPLUS_INFO(log_,"No data in FEDRawDataCollection, skip!");
+      continue;
+    }
+    
+    for (unsigned int iSuperFrag=0;iSuperFrag<nSuperFrag;iSuperFrag++) {
+      
+      // "playback", read events from a file
+      if (0!=event) {
+	if (0==fedN_) initFedBuffers(1);
+	fedData_[0]=event->FEDData(validFedIds[iSuperFrag]).data();
+	fedSize_[0]=event->FEDData(validFedIds[iSuperFrag]).size();
+	LOG4CPLUS_DEBUG(log_,
+			"transId="<<fuTransactionId<<": "
+			<<"fed "<<validFedIds[iSuperFrag]
+			<<" in superfragment "<<iSuperFrag+1<<"/"<<nSuperFrag);
+      }
+      
+      // randomly generate fed data (*including* headers and trailers)
+      else {
+	generateRndmFEDs();
+      }
+      
+      
+      // create super fragment
+      toolbox::mem::Reference *superFrag=
+	createSuperFrag(fuTid,           // fuTid
+			fuTransactionId, // fuTransaction
+			evtNumber,       // current trigger (event) number
+			iSuperFrag,      // current super fragment
+			nSuperFrag       // number of super fragments
+			);
+      
+      if (debug_) debug(superFrag);
+      
+      I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *frame =
+	(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)(superFrag->getDataLocation());
+      
+      unsigned int msgSizeInBytes=frame->PvtMessageFrame.StdMessageFrame.MessageSize<<2;
+      superFrag->setDataSize(msgSizeInBytes);
+      nbBytes_.value_+=msgSizeInBytes;
+      
+      xdaq::ApplicationDescriptor *buAppDesc=
+	getApplicationDescriptor();
+      
+      xdaq::ApplicationDescriptor *fuAppDesc= 
+	i2o::utils::getAddressMap()->getApplicationDescriptor(fuTid);
+      
+      getApplicationContext()->postFrame(superFrag,buAppDesc,fuAppDesc);
+    }
+    
+    nbEvents_.value_++;
+  }
+
+  // Free the request message from the FU
+  bufRef->release();
+
+  bSem_.give();
+}
+
+
+//______________________________________________________________________________
+void BU::I2O_BU_COLLECT_Callback(toolbox::mem::Reference *bufRef)
+{
+  bufRef->release();
+  LOG4CPLUS_FATAL(log_,"I2O_BU_COLLECT_Callback() not implemented!");
+  exit(-1);
+}
+
+
+//______________________________________________________________________________
+void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
+{
+  // Does nothing but free the incoming I2O message
+  nbDiscardedEvents_.value_++;
+  bufRef->release();
+}
+
+
+//______________________________________________________________________________
+void BU::initFedBuffers(unsigned int fedN)
+{
+  clearFedBuffers();
+  fedN_=fedN;
+
+  fedData_=new unsigned char*[fedN_];
+  fedSize_=new unsigned int[fedN_];
+
+  for (unsigned int i=0;i<fedN_;i++) {    
+    fedData_[i]=new unsigned char[fedSizeMax_];
+    fedSize_[i]=0;
+  }
+}
+
+
+//______________________________________________________________________________
+void BU::clearFedBuffers()
+{
+  if (0!=fedData_) {
+    for (unsigned int i=0;i<fedN_;i++) delete [] fedData_[i];
+    delete [] fedData_;
+  }
+
+  if (0!=fedSize_) delete [] fedSize_;
+
+  fedN_=0;
+}
+
+
+//______________________________________________________________________________
+void BU::generateRndmFEDs()
+{
+  // 16 FEDs per superfragment
+  if (fedN_<16) initFedBuffers(16);
+  
+  // size of FEDs
+  if(useFixedFedSize_) {
+    for (unsigned int i=0;i<16;i++) fedSize_[i]=fedSizeMean_;
+  }
+  else {
+    for(unsigned int i=0;i<fedN_;i++) {
+      unsigned int iFedSize(0);
+      while (iFedSize<(fedTrailerSize_+fedHeaderSize_)||iFedSize>fedSizeMax_) {
+	double logSize=RandGauss::shoot(std::log((double)fedSizeMean_),
+					std::log((double)fedSizeMean_)-
+					std::log((double)fedSizeWidth_/2.));
+	iFedSize=(int)(std::exp(logSize));
+	iFedSize-=iFedSize % 8; // all blocks aligned to 64 bit words
+      }
+      fedSize_[i]=iFedSize;
+    }
+  }
+}
+
+
+//______________________________________________________________________________
+void BU::exportParameters()
+{
+  if (0==gui_) {
+    LOG4CPLUS_ERROR(log_,"No GUI, can't export parameters");
+    return;
+  }
+  
+  gui_->addMonitorParam("stateName",       &fsm_->stateName_);
+  gui_->addMonitorParam("mode",            &mode_);
+  gui_->addMonitorParam("debug",           &debug_);
+
+  gui_->addStandardParam("dataBufSize",      &dataBufSize_);
+  gui_->addStandardParam("nSuperFrag",       &nSuperFrag_);
+  gui_->addStandardParam("fedSizeMean",      &fedSizeMean_);
+  gui_->addStandardParam("fedSizeWidth",     &fedSizeWidth_);
+  gui_->addStandardParam("useFixedFedSize",  &useFixedFedSize_);
+  
+  gui_->addMonitorCounter("nbEvents",         &nbEvents_);
+  gui_->addMonitorCounter("nbEventsPerSec",   &nbEventsPerSec_);
+  gui_->addMonitorCounter("nbDiscardedEvents",&nbDiscardedEvents_);
+  gui_->addMonitorCounter("nbMBPerSec",       &nbMBPerSec_);
+
+  gui_->exportParameters();
+
+  gui_->monInfoSpace()->addItemChangedListener("mode",this);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// implementation of private member functions
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
@@ -93,26 +490,15 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
 					     const U32&     iSuperFrag,
 					     const U32&     nSuperFrag)
 {
-  bool   errorFound(false);
-  bool   configFeds=(0==PlaybackRawDataProvider::instance());
-  
+  bool   configFeds      =(0==PlaybackRawDataProvider::instance());
   size_t msgHeaderSize   =sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
   size_t fullBlockPayload=dataBufSize_-msgHeaderSize;
   
-  if((fullBlockPayload%4)!=0) {
-    LOG4CPLUS_FATAL(getApplicationLogger(),"The full block payload of "
+  if((fullBlockPayload%4)!=0)
+    LOG4CPLUS_ERROR(log_,"The full block payload of "
 		    <<fullBlockPayload<<" bytes is not a multiple of 4");
-    errorFound = true;
-  }
   
-  unsigned int nBlock=estimateNBlocks(fedSize_,fullBlockPayload);
-
-  if(nBlock==0) {
-    LOG4CPLUS_FATAL(getApplicationLogger(),"No blocks to be created for the chain");
-    errorFound = true;
-  }
-  
-  if(errorFound) exit(-1);
+  unsigned int nBlock=estimateNBlocks(fullBlockPayload);
   
   toolbox::mem::Reference *head  =0;
   toolbox::mem::Reference *tail  =0;
@@ -141,10 +527,10 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
     
     // Allocate memory for a fragment block / message
     try	{
-      bufRef=toolbox::mem::getMemoryPoolFactory()->getFrame(pool_,dataBufSize_);
+      bufRef=toolbox::mem::getMemoryPoolFactory()->getFrame(i2oPool_,dataBufSize_);
     }
     catch(...) {
-      LOG4CPLUS_FATAL(getApplicationLogger(),"xdaq::frameAlloc failed");
+      LOG4CPLUS_FATAL(log_,"xdaq::frameAlloc failed");
       exit(-1);
     }
     
@@ -207,7 +593,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
       fedTrailerLeft   =false;
       
       // if this is the last fed, adjust block (msg) size and set last=true
-      if((iFed==(fedSize_.size()-1)) && !last) {
+      if((iFed==(fedN_-1)) && !last) {
 	frlHeader->segsize-=leftspace;
 	int msgSize=stdMsg->MessageSize << 2;
 	msgSize   -=leftspace;
@@ -246,7 +632,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
 	leftspace       -=remainder;
 	
 	// if this is the last fed in the superfragment, earmark it
-	if(iFed==fedSize_.size()-1) {
+	if(iFed==fedN_-1) {
 	  frlHeader->segsize-=leftspace;
 	  int msgSize=stdMsg->MessageSize << 2;
 	  msgSize   -=leftspace;
@@ -288,7 +674,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
     if(remainder==0) {
       
       // loop on feds
-      while(iFed<fedSize_.size()) {
+      while(iFed<fedN_) {
 	
 	// if the next header does not fit, jump to following block
 	if((int)leftspace<fedHeaderSize_) {
@@ -356,10 +742,10 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
 	// !! increase iFed !!
 	iFed++;
 	
-      } // while (iFed<fedSize_.size())
+      } // while (iFed<fedN_)
       
       // earmark the last block
-      if (iFed==fedSize_.size() && remainder==0 && !last) {
+      if (iFed==fedN_ && remainder==0 && !last) {
 	frlHeader->segsize-=leftspace;
 	int msgSize=stdMsg->MessageSize << 2;
 	msgSize   -=leftspace;
@@ -403,16 +789,16 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
 
 
 //______________________________________________________________________________
-int BU::estimateNBlocks(const uintvec_t& fedSize,size_t fullBlockPayload)
+int BU::estimateNBlocks(size_t fullBlockPayload)
 {
   int result(0);
   
   U32 curbSize=frlHeaderSize_;
   U32 totSize =curbSize;
   
-  for(unsigned int i=0;i<fedSize.size();i++) {
-    curbSize+=fedSize[i];//+fedHeaderSize_+fedTrailerSize_;
-    totSize +=fedSize[i];//+fedHeaderSize_+fedTrailerSize_;
+  for(unsigned int i=0;i<fedN_;i++) {
+    curbSize+=fedSize_[i];
+    totSize +=fedSize_[i];
     
     // the calculation of the number of blocks needed must handle the
     // fact that RUs can accommodate more than one frl block and
@@ -525,7 +911,7 @@ int BU::check_event_data(unsigned long* blocks_adrs, int nmb_blocks)
 	  fedh_t *pfh=(fedh_t *)blk_cursor;
 	  fedid=pfh->sourceid & FED_SOID_MASK;
 	  fedid=fedid >> 8;
-
+	  
 	  // DEBUG
 	  if((pfh->eventid & FED_HCTRLID_MASK)!=0x50000000)
 	    cout<<"check_event_data (1): fedh error! trigno="<<hd_trigno
@@ -626,7 +1012,7 @@ void BU::dumpFrame(unsigned char* data,unsigned int len)
   char right1[20];
   char right2[20];
   
-  //LOG4CPLUS_ERROR(adapter_->getApplicationLogger(),
+  //LOG4CPLUS_ERROR(log_,
   //  toolbox::toString("Byte  0  1  2  3  4  5  6  7\n"));
   printf("Byte  0  1  2  3  4  5  6  7\n");
   
@@ -650,7 +1036,7 @@ void BU::dumpFrame(unsigned char* data,unsigned int len)
     }
     c+=8;
     
-    //LOG4CPLUS_ERROR(adapter_->getApplicationLogger(),
+    //LOG4CPLUS_ERROR(log_,
     //  toolbox::toString("%4d: %s  ||  %s \n", c-8, left, right));
     printf ("%4d: %s%s ||  %s%s  %x\n",
 	    c-8, left1, left2, right1, right2, (int)&data[c-8]);
