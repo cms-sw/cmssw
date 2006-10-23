@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -41,7 +41,7 @@ class RegionalPixelSeedGenerator : public edm::EDProducer
   float originz;
   float deltaEta;
   float deltaPhi;
-  std::string srcDirection;
+  edm::InputTag jetSrc;
   std::string vertexSrc;
 };
 

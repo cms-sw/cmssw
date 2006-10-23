@@ -39,7 +39,7 @@ RegionalPixelSeedGenerator::RegionalPixelSeedGenerator(edm::ParameterSet const& 
   vertexSrc=conf_.getParameter<string>("vertexSrc");
   deltaEta = conf_.getParameter<double>("deltaEtaRegion");
   deltaPhi = conf_.getParameter<double>("deltaPhiRegion");
-  srcDirection = conf_.getParameter<string>("sourceDirection");
+  jetSrc = conf_.getParameter<edm::InputTag>("JetSrc");
 
 }
 
@@ -70,37 +70,40 @@ void RegionalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& e
   e.getByLabel(hitProducer, pixelHits);
   //  e.getByType(pixelHits);
 
+  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());    
 
-
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //
   
   //Get the jet direction
   edm::Handle<CaloJetCollection> jets;
-  e.getByLabel(srcDirection, jets);
+  e.getByLabel(jetSrc, jets);
 
   GlobalVector globalVector(0,0,1);
-  if(jets->size() != 0)
-    {
-      GlobalVector jetVector((jets->begin())->px(),(jets->begin())->py(),(jets->begin())->pz());
-      globalVector = jetVector;
-    }
 
+  //    if(jets->size() > 0)
+  //    {
+      CaloJetCollection::const_iterator iJet = jets->begin();
+      for(;iJet != jets->end();iJet++)
+	{
+	  
+	  GlobalVector jetVector((iJet)->p4().x(),(iJet)->p4().y(),(iJet)->p4().z());
+	  globalVector = jetVector;
+	  
+	  
+	  RectangularEtaPhiTrackingRegion* etaphiRegion = new  RectangularEtaPhiTrackingRegion(globalVector,
+											       GlobalPoint(0,0,originz), 
+											       ptmin,
+											       originradius,
+											       halflength,
+											       deltaEta,
+											       deltaPhi);
+	  
+	  combinatorialSeedGenerator.init(*pixelHits,es);
+	  combinatorialSeedGenerator.run(*etaphiRegion,*output,es);
+	  // write output to file
+	}
+      //    }   
 
-  RectangularEtaPhiTrackingRegion* etaphiRegion = new  RectangularEtaPhiTrackingRegion(globalVector,
-										       GlobalPoint(0,0,originz), 
-										       ptmin,
-										       originradius,
-										       halflength,
-										       deltaEta,
-										       deltaPhi);
-  
-  combinatorialSeedGenerator.init(*pixelHits,es);
-  combinatorialSeedGenerator.run(*etaphiRegion,*output,es);
-
-  // write output to file
-  LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();
-
-
-  e.put(output);
+    LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();
+    e.put(output);
 }
