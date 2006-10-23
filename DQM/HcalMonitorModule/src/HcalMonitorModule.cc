@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/10/13 14:35:23 $
- * $Revision: 1.22 $
+ * $Date: 2006/10/13 14:47:26 $
+ * $Revision: 1.23 $
  * \author W Fisher
  *
 */
@@ -72,7 +72,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_digiMon = NULL; m_dfMon = NULL; 
   m_rhMon = NULL;   m_pedMon = NULL; 
   m_ledMon = NULL;  m_mtccMon = NULL;
-  m_hotMon = NULL; m_mtccMon2 = NULL;
+  m_hotMon = NULL; 
 
   if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) ) {
     m_rhMon = new HcalRecHitMonitor();
@@ -102,9 +102,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   if ( ps.getUntrackedParameter<bool>("MTCCMonitor", false) ) {
     m_mtccMon = new HcalMTCCMonitor();
     m_mtccMon->setup(ps, m_dbe);
-
-    m_mtccMon2 = new HcalMTCCMonitor2();
-    m_mtccMon2->setup(ps, m_dbe);
   }
 
   if ( ps.getUntrackedParameter<bool>("HotCellMonitor", false) ) {
@@ -114,8 +111,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
   offline_ = ps.getUntrackedParameter<bool>("OffLine", false);
 
-  //  if ( m_dbe ) m_dbe->showDirStructure();
-  
 }
 
 HcalMonitorModule::~HcalMonitorModule(){
@@ -131,7 +126,6 @@ HcalMonitorModule::~HcalMonitorModule(){
     if(m_ledMon!=NULL) {  m_ledMon->clearME();}
     if(m_hotMon!=NULL) {  m_hotMon->clearME();}
     if(m_mtccMon!=NULL) {  m_mtccMon->clearME();}
-    if(m_mtccMon2!=NULL) {  m_mtccMon2->clearME();}
     if(m_rhMon!=NULL) {  m_rhMon->clearME();}
     
     m_dbe->setCurrentFolder("HcalMonitor");
@@ -144,7 +138,6 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(m_ledMon!=NULL) { delete m_ledMon; m_ledMon=NULL; }
   if(m_hotMon!=NULL) { delete m_hotMon; m_hotMon=NULL; }
   if(m_mtccMon!=NULL) { delete m_mtccMon; m_mtccMon=NULL; }
-  if(m_mtccMon2!=NULL) { delete m_mtccMon2; m_mtccMon2=NULL; }
   if(m_rhMon!=NULL) { delete m_rhMon; m_rhMon=NULL; }
   delete m_evtSel;
 
@@ -158,6 +151,19 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   
   if ( m_meStatus ) m_meStatus->Fill(0);
   if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
+  
+  // To get information from the event setup, you must request the "Record"
+  // which contains it and then extract the object you need
+  // edm::ESHandle<CaloGeometry> geometry;
+  // eventSetup.get<IdealGeometryRecord>().get(geometry);
+  
+  // get the hcal mapping
+  edm::ESHandle<HcalDbService> pSetup;
+  c.get<HcalDbRecord>().get( pSetup );
+  m_readoutMap=pSetup->getHcalMapping();
+  
+  // get conditions
+  c.get<HcalDbRecord>().get(m_conditions);
 
   return;
 }
@@ -178,7 +184,6 @@ void HcalMonitorModule::endJob(void) {
   if(m_ledMon!=NULL) m_ledMon->done();
   if(m_hotMon!=NULL) m_hotMon->done();
   if(m_mtccMon!=NULL) m_mtccMon->done();
-  if(m_mtccMon2!=NULL) m_mtccMon2->done();
 
   char tmp[150]; bool update = true;
   for ( unsigned int i = 0; i < m_outputFile.size(); i++ ) {
@@ -202,15 +207,20 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Do default setup...
   m_ievt++;
-  m_evtSel->processEvent(e);
-  int evtMask = m_evtSel->getEventMask();
-  int trigMask =  m_evtSel->getTriggerMask();
+  int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON;
+  int trigMask=0;
 
-  if(trigMask&0x01) m_meTrigger->Fill(1);
-  if(trigMask&0x02) m_meTrigger->Fill(2);
-  if(trigMask&0x04) m_meTrigger->Fill(3);
-  if(trigMask&0x08) m_meTrigger->Fill(4);
-  if(trigMask&0x10) m_meTrigger->Fill(5);
+  if(m_mtccMon==NULL){
+    m_evtSel->processEvent(e);
+    evtMask = m_evtSel->getEventMask();
+    trigMask =  m_evtSel->getTriggerMask();
+
+    if(trigMask&0x01) m_meTrigger->Fill(1);
+    if(trigMask&0x02) m_meTrigger->Fill(2);
+    if(trigMask&0x04) m_meTrigger->Fill(3);
+    if(trigMask&0x08) m_meTrigger->Fill(4);
+    if(trigMask&0x10) m_meTrigger->Fill(5);
+  }
 
   edm::EventID id_ = e.id();
   m_runNum = (int)(id_.run());
@@ -222,20 +232,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     m_meEvtMask->Fill(evtMask);
   }
   
-  // To get information from the event setup, you must request the "Record"
-  // which contains it and then extract the object you need
-  // edm::ESHandle<CaloGeometry> geometry;
-  // eventSetup.get<IdealGeometryRecord>().get(geometry);
-  
-  // get the hcal mapping
-  edm::ESHandle<HcalDbService> pSetup;
-  eventSetup.get<HcalDbRecord>().get( pSetup );
-  const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
-  
-  // get conditions
-  edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
-
   // get digis if necessary
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
@@ -250,14 +246,14 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   
   // Digi-dependent monitor tasks
   if((m_digiMon!=NULL) && (evtMask&DO_HCAL_DIGIMON)) m_digiMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi);
-  if((m_pedMon!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON)) m_pedMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions);
+  if((m_pedMon!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON)) m_pedMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
   if((m_ledMon!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON)) m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi);
   
   // Data Format monitor task
   if((m_dfMon != NULL) && (evtMask&DO_HCAL_DFMON)){
     edm::Handle<FEDRawDataCollection> rawraw;  
     try{e.getByType(rawraw);} catch(...){};           
-    m_dfMon->processEvent(*rawraw,*readoutMap);
+    m_dfMon->processEvent(*rawraw,*m_readoutMap);
   }
 
   // Rec Hit monitor task
@@ -274,12 +270,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     m_hotMon->processEvent(*hb_hits,*ho_hits,*hf_hits);
   }
 
-  edm::Handle<LTCDigiCollection> ltc;
-  try{e.getByType(ltc);} catch(...){}; 
-  //  if(m_mtccMon != NULL) m_mtccMon->processEvent(*hb_hits,*ho_hits, *ltc);
-  if(m_mtccMon != NULL) m_mtccMon->processEvent(*hbhe_digi,*ho_digi, *ltc,*conditions);
-  if(m_mtccMon2 != NULL) m_mtccMon2->processEvent(*hbhe_digi,*ho_digi, *ltc,*conditions);
-  
+  if(m_mtccMon != NULL){
+    edm::Handle<LTCDigiCollection> ltc;
+    try{e.getByType(ltc);} catch(...){}; 
+    m_mtccMon->processEvent(*hbhe_digi,*ho_digi, *ltc,*m_conditions);
+  }
   if(m_ievt%1000 == 0)
     cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
 
