@@ -1,14 +1,13 @@
 
-// $Id$
+// $Id: RandomEngineStateProducer.cc,v 1.1 2006/10/17 20:49:40 wdd Exp $
 
-#include "IOMC/RandomEngine/interface/RandomEngineStateProducer.h"
+#include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
 
 #include <vector>
 #include <string>
 #include "boost/cstdint.hpp"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -70,6 +69,3 @@ void
 RandomEngineStateProducer::endJob()
 {
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(RandomEngineStateProducer)

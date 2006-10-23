@@ -5,8 +5,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/MessageLogger>
-<use name=clhep>
-<use name=SimDataFormats/RandomEngine>
 
 <export>
   <lib name=FWCoreServices>
@@ -14,7 +12,5 @@
   <use name=FWCore/Framework>
   <use name=FWCore/Utilities>
   <use name=FWCore/MessageLogger>
-  <use name=clhep>
-  <use name=SimDataFormats/RandomEngine>
 </export>
 

@@ -3,7 +3,7 @@
 // Package:    RandomEngine
 // Class:      RandomEngineStateProducer
 // 
-/**\class RandomEngineStateProducer RandomEngineStateProducer.cc IOMC/RandomEngine/src/RandomEngineStateProducer.cc
+/**\class RandomEngineStateProducer RandomEngineStateProducer.h IOMC/RandomEngine/src/RandomEngineStateProducer.h
 
  Description: Gets the state of the random number engines from
 the related service and stores it in the event.

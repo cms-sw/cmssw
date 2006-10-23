@@ -1,11 +1,11 @@
-#ifndef Services_RandomNumberGeneratorService_h
-#define Services_RandomNumberGeneratorService_h
+#ifndef RandomEngine_RandomNumberGeneratorService_h
+#define RandomEngine_RandomNumberGeneratorService_h
 // -*- C++ -*-
 //
-// Package:     Services
+// Package:     RandomEngine
 // Class  :     RandomNumberGeneratorService
 // 
-/**\class RandomNumberGeneratorService RandomNumberGeneratorService.h FWCore/Services/interface/RandomNumberGeneratorService.h
+/**\class RandomNumberGeneratorService RandomNumberGeneratorService.h IOMC/RandomEngine/src/RandomNumberGeneratorService.h
 
  Description: Manages random number engines for modules and the source
 
@@ -14,8 +14,8 @@
 */
 //
 // Original Authors:  Chris Jones, W. David Dagenhart
-//         Created:  Tue Mar  7 09:43:43 EST 2006
-// $Id: RandomNumberGeneratorService.h,v 1.3 2006/08/05 18:31:32 chrjones Exp $
+//   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
+// $Id$
 //
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -75,6 +75,9 @@ namespace edm {
 
       virtual void snapShot();
       virtual void restoreState(const Event& event);
+
+      // For debugging purposes only
+      virtual void print();
 
     private:
 

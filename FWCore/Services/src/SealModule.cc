@@ -9,7 +9,6 @@
 #include "FWCore/Services/src/Memory.h"
 #include "FWCore/Services/src/Profiling.h"
 #include "FWCore/Services/src/LoadAllDictionaries.h"
-#include "FWCore/Services/src/RandomNumberGeneratorService.h"
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"
 #include "FWCore/Services/src/LockService.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
@@ -20,7 +19,6 @@ using edm::service::Timing;
 using edm::service::SimpleMemoryCheck;
 using edm::service::SimpleProfiling;
 using edm::service::LoadAllDictionaries;
-using edm::service::RandomNumberGeneratorService;
 using edm::service::SiteLocalConfigService;
 using edm::service::EnableFloatingPointExceptions;
 using edm::service::InitRootHandlers;
@@ -38,8 +36,6 @@ DEFINE_ANOTHER_FWK_SERVICE(InitRootHandlers);
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregistry::AllArgsMaker<EnableFloatingPointExceptions>);
 #endif
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(LoadAllDictionaries,edm::serviceregistry::ParameterSetMaker<LoadAllDictionaries>);
-typedef edm::serviceregistry::AllArgsMaker<edm::RandomNumberGenerator,RandomNumberGeneratorService> RandomMaker;
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(RandomNumberGeneratorService, RandomMaker);
 typedef edm::serviceregistry::AllArgsMaker<edm::JobReport,JobReportService> JobReportMaker;
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(JobReportService, JobReportMaker);
 typedef edm::serviceregistry::AllArgsMaker<LockService> LockServiceMaker;

@@ -40,13 +40,16 @@ when random numbers are only generated in modules and not in the source).
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //         Created:  Tue Mar  7 09:30:28 EST 2006
-// $Id: RandomNumberGenerator.h,v 1.1 2006/03/07 19:46:40 chrjones Exp $
+// $Id: RandomNumberGenerator.h,v 1.2 2006/10/17 20:46:47 wdd Exp $
 //
 
 #include <vector>
 #include <string>
 #include "boost/cstdint.hpp"
-#include "CLHEP/Random/RandomEngine.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace edm {
 
@@ -76,6 +79,9 @@ namespace edm {
 
     virtual void snapShot() = 0;
     virtual void restoreState(const Event& event) = 0;
+
+    // For debugging purposes only
+    virtual void print() = 0;
 
   private:
 

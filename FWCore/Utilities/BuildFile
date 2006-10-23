@@ -2,12 +2,10 @@
 <use name=Foundation/PluginManager>
 <use name=Framework/SealKernel>
 <use name=boost_filesystem>
-<use name=clhep>
 <export>
  <lib name=FWCoreUtilities>
  <use name=boost>
  <use name=Foundation/PluginManager>
  <use name=Framework/SealKernel>
  <use name=boost_filesystem> 
- <use name=clhep>
 </export>
