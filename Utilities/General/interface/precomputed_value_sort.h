@@ -8,7 +8,7 @@
  *  values used in the sorting using an Extractor, so that the computation
  *  is performed only once per element.
  *
- *  $Date: 2005/09/06 15:48:28 $
+ *  $Date: 2005/09/21 10:18:42 $
  *  $Revision: 1.1 $
  */
 
@@ -62,7 +62,7 @@ void precomputed_value_sort(RandomAccessIterator begin,
   for (unsigned int i=0; i<tmpvec.size(); i++) {
     *(begin+i) = tmpcopy[tmpvec[i].first - begin];
   }
-};
+}
 
 
 /// Sort using a BinaryPredicate
