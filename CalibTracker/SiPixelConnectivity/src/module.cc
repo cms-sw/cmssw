@@ -7,5 +7,5 @@
 #include "PixelToFEDAssociateFromAsciiESProducer.h"
 
 EVENTSETUP_DATA_REG(PixelToFEDAssociate);
-DEFINE_FWK_EVENTSETUP_MODULE(PixelToFEDAssociateFromAsciiESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(PixelToFEDAssociateFromAsciiESProducer);
 // DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(...)
