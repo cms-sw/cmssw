@@ -1,3 +1,9 @@
+2006-10-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-02-02
+	* turn nbMBPerSec_ from xdata::UnsignedInteger32 into a
+	  xdata::Double
+
 2006-10-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-02-01

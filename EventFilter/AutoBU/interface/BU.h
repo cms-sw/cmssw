@@ -21,6 +21,7 @@
 
 #include "xdata/include/xdata/InfoSpace.h"
 #include "xdata/include/xdata/UnsignedInteger32.h"
+#include "xdata/include/xdata/Double.h"
 #include "xdata/include/xdata/Boolean.h"
 #include "xdata/include/xdata/String.h"
 
@@ -172,7 +173,7 @@ namespace evf {
     xdata::UnsignedInteger32  nbEvents_;
     xdata::UnsignedInteger32  nbEventsPerSec_;
     xdata::UnsignedInteger32  nbDiscardedEvents_;
-    xdata::UnsignedInteger32  nbMBPerSec_;
+    xdata::Double             nbMBPerSec_;
     
     // internal parameters and counters (not to be exported)
     xdata::UnsignedInteger32  nbEventsLast_; // for nbEventsPerSec measurement

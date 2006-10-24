@@ -47,7 +47,7 @@ BU::BU(xdaq::ApplicationStub *s)
   , nbEvents_(0)
   , nbEventsPerSec_(0)
   , nbDiscardedEvents_(0)
-  , nbMBPerSec_(0)
+  , nbMBPerSec_(0.0)
   , nbEventsLast_(0)
   , nbBytes_(0)
   , i2oPool_(0)
@@ -127,7 +127,7 @@ void BU::timeExpired(toolbox::task::TimerEvent& e)
   nbEventsLast_  =nbEvents_;
   
   // number of MB per second measurement
-  nbMBPerSec_=nbBytes_/1000000;
+  nbMBPerSec_=0.000001*nbBytes_;
   nbBytes_   =0;
 
   gui_->monInfoSpace()->unlock();
@@ -460,20 +460,21 @@ void BU::exportParameters()
     return;
   }
   
-  gui_->addMonitorParam("stateName",       &fsm_->stateName_);
-  gui_->addMonitorParam("mode",            &mode_);
-  gui_->addMonitorParam("debug",           &debug_);
+  gui_->addMonitorParam("stateName",          &fsm_->stateName_);
+  gui_->addMonitorParam("mode",               &mode_);
+  gui_->addMonitorParam("debug",              &debug_);
+  gui_->addMonitorParam("nbMBPerSec",         &nbMBPerSec_);
 
-  gui_->addStandardParam("dataBufSize",      &dataBufSize_);
-  gui_->addStandardParam("nSuperFrag",       &nSuperFrag_);
-  gui_->addStandardParam("fedSizeMean",      &fedSizeMean_);
-  gui_->addStandardParam("fedSizeWidth",     &fedSizeWidth_);
-  gui_->addStandardParam("useFixedFedSize",  &useFixedFedSize_);
+  gui_->addStandardParam("dataBufSize",       &dataBufSize_);
+  gui_->addStandardParam("nSuperFrag",        &nSuperFrag_);
+  gui_->addStandardParam("fedSizeMean",       &fedSizeMean_);
+  gui_->addStandardParam("fedSizeWidth",      &fedSizeWidth_);
+  gui_->addStandardParam("useFixedFedSize",   &useFixedFedSize_);
   
   gui_->addMonitorCounter("nbEvents",         &nbEvents_);
   gui_->addMonitorCounter("nbEventsPerSec",   &nbEventsPerSec_);
   gui_->addMonitorCounter("nbDiscardedEvents",&nbDiscardedEvents_);
-  gui_->addMonitorCounter("nbMBPerSec",       &nbMBPerSec_);
+
 
   gui_->exportParameters();
 
