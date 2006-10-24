@@ -1,0 +1,13 @@
+2006-10-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-00
+	* change interface of DaqBaseReader: pass a pointer reference (not
+	a reference) to fillRawData() in order to allow for an allready
+	existing collection to be passed. Traditional Readers will have to
+	call data=new FEDRawDataCollection() within fillRawData().
+	* adjust DaqFakeReader to the interface change above
+	* adjust DaqSource to the interface change above
+	* [EventFilter/FUReader *is* a DaqBaseReader and is adjusted as
+	well!]
+	
+
