@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 correlation matrix for pedestals
 $Author: ratnikov
-$Date: 2006/04/13 22:40:42 $
-$Revision: 1.2 $
+$Date: 2006/04/20 21:41:49 $
+$Revision: 1.3 $
 */
 
 #include <iostream>
@@ -37,3 +37,15 @@ void HcalPedestalWidth::setSigma (int fCapId1, int fCapId2, float fSigma) {
   *(&mSigma00 + offset (fCapId1, fCapId2)) = fSigma;
 }
 
+// produces pedestal noise in assumption of near correlations and small variations
+void HcalPedestalWidth::makeNoise (unsigned fFrames, const double* fGauss, double* fNoise) const {
+  double s_xx_mean = (getSigma (0,0) + getSigma (1,1) + getSigma (2,2) + getSigma (3,3)) / 4;
+  double s_xy_mean = (getSigma (1,0) + getSigma (2,1) + getSigma (3,2) + getSigma (3,0)) / 4;
+  double sigma = sqrt (0.5 * (s_xx_mean + sqrt (s_xx_mean*s_xx_mean - 2*s_xy_mean*s_xy_mean)));
+  double corr = sigma == 0 ? 0 : 0.5*s_xy_mean / sigma;
+  for (unsigned i = 0; i < fFrames; i++) {
+    fNoise [i] = fGauss[i]*sigma;
+    if (i > 0) fNoise [i] += fGauss[i-1]*corr;
+    if (i < fFrames-1) fNoise [i] += fGauss[i+1]*corr;
+  }
+}
