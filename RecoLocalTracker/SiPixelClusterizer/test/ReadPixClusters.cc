@@ -403,4 +403,4 @@ void ReadPixClusters::analyze(const edm::Event& e,
 } // end 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(ReadPixClusters)
+DEFINE_FWK_MODULE(ReadPixClusters);
