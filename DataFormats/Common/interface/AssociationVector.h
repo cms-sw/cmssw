@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision$
+ * \version $Revision: 1.1 $
  */
 
 #include "DataFormats/Common/interface/traits.h"
@@ -138,13 +138,13 @@ namespace edm {
   template<typename CKey, typename CVal>
   inline void AssociationVector<CKey, CVal>::clear() {
     data_.clear();
-    ref_ = CKey();
+    ref_ = KeyRefProd();
   }
 
   template<typename CKey, typename CVal>
   inline void AssociationVector<CKey, CVal>::swap( AssociationVector<CKey, CVal> & other ) {
     data_.swap( other.data_ );
-    ref_.swap( other.ref_ );
+    std::swap( ref_, other.ref_ );
   }
 
   template<typename CKey, typename CVal>
