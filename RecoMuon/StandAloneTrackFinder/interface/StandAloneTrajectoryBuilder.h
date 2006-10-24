@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/09/13 10:46:13 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/10/05 13:21:48 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 
 class TrajectorySeed;
 class StandAloneMuonRefitter;
@@ -60,11 +61,15 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 
  private:
 
-
   /// Navigation type
   /// "Direct","Standard"
   std::string theNavigationType;
 
+  recoMuon::SeedPosition theSeedPosition;
+  
+  /// Propagator for the seed extrapolation
+  std::string theSeedPropagatorName;
+  
   StandAloneMuonRefitter* theRefitter;
   StandAloneMuonRefitter* theBWFilter;
   // FIXME
