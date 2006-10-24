@@ -8,4 +8,4 @@
   using edm::TestSuite;
 
   DEFINE_SEAL_MODULE();
-  DEFINE_ANOTHER_FWK_MODULE(TestSuite)
+DEFINE_ANOTHER_FWK_MODULE(TestSuite);
