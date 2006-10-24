@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:16:00 CEST 2006
-// $Id$
+// $Id: EgammaHLTEcalIsolation.cc,v 1.1 2006/06/20 11:28:14 monicava Exp $
 //
 
 // system include files
@@ -20,37 +20,40 @@
 #define TWOPI 6.283185308
 
 
-float EgammaHLTEcalIsolation::photonPtSum(const reco::Photon *photon, const reco::SuperClusterCollection& sclusters
-					  , const reco::BasicClusterCollection& bclusters
-					  ){
+float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate, 
+					const std::vector<const reco::SuperCluster*> sclusters,
+					const std::vector<const reco::BasicCluster*> bclusters){
+
   float ecalIsol=0.;
   
-  float phoSCphi = photon->superCluster()->phi();
-  float phoSCeta = photon->superCluster()->eta();
+  float candSCphi = recocandidate->superCluster()->phi();
+  float candSCeta = recocandidate->superCluster()->eta();
+
   
-  // match the photon hybrid supercluster with those with Algo==1
+  // match the photon hybrid supercluster with those with Algo==0 (island)
   float delta1=1000.;
   float deltacur=1000.;
   const reco::SuperCluster *matchedsupercluster=0;
   bool MATCHEDSC = false;
-  
-  
-  for(reco::SuperClusterCollection::const_iterator scItr = sclusters.begin(); scItr != sclusters.end(); ++scItr){
+
+
+
+  for(std::vector<const reco::SuperCluster*>::const_iterator scItr = sclusters.begin(); scItr != sclusters.end(); ++scItr){
     
     
-    const reco::SuperCluster *supercluster = &(*scItr);
+    const reco::SuperCluster *supercluster = *scItr;
     
     float SCphi = supercluster->phi();
     float SCeta = supercluster->eta();
-    
-    if(supercluster->seed()->algo() == 1){
+   
+    if(supercluster->seed()->algo() == 0){
       float deltaphi;
-      if(phoSCphi<0) phoSCphi+=TWOPI;
+      if(candSCphi<0) candSCphi+=TWOPI;
       if(SCphi<0) SCphi+=TWOPI;
-      deltaphi=fabs(phoSCphi-SCphi);
+      deltaphi=fabs(candSCphi-SCphi);
       if(deltaphi>TWOPI) deltaphi-=TWOPI;
       if(deltaphi>PI) deltaphi=TWOPI-deltaphi;
-      float deltaeta=fabs(SCeta-phoSCeta);
+      float deltaeta=fabs(SCeta-candSCeta);
       deltacur = sqrt(deltaphi*deltaphi+ deltaeta*deltaeta);
       
       if (deltacur < delta1) {
@@ -61,13 +64,12 @@ float EgammaHLTEcalIsolation::photonPtSum(const reco::Photon *photon, const reco
     }
   }
 
-
   const reco::BasicCluster *cluster= 0;
 
   //loop over basic clusters
-  for(reco::BasicClusterCollection::const_iterator cItr = bclusters.begin(); cItr != bclusters.end(); ++cItr){
+  for(std::vector<const reco::BasicCluster*>::const_iterator cItr = bclusters.begin(); cItr != bclusters.end(); ++cItr){
  
-    cluster = &(*cItr);
+    cluster = *cItr;
     float ebc_bcchi2 = cluster->chi2();
     int   ebc_bcalgo = cluster->algo();
     float ebc_bce    = cluster->energy();
@@ -77,16 +79,14 @@ float EgammaHLTEcalIsolation::photonPtSum(const reco::Photon *photon, const reco
     float newDelta;
 
 
-
-    if (ebc_bcet > etMinG && ebc_bcalgo == 1) {
+    if (ebc_bcet > etMin && ebc_bcalgo == 0) {
       if (ebc_bcchi2 < 30.) {
 	
 	if(MATCHEDSC){
 	  bool inSuperCluster = false;
 
-
 	  reco::basicCluster_iterator theEclust = matchedsupercluster->clustersBegin();
-
+	  // loop over the basic clusters of the matched supercluster
 	  for(;theEclust != matchedsupercluster->clustersEnd();
 	      theEclust++) {
 	    if (&(**theEclust) ==  cluster) inSuperCluster = true;
@@ -94,13 +94,13 @@ float EgammaHLTEcalIsolation::photonPtSum(const reco::Photon *photon, const reco
 	  if (!inSuperCluster) {
 	    float deltaphi;
 	    if(ebc_bcphi<0) ebc_bcphi+=TWOPI;
-	    if(phoSCphi<0) phoSCphi+=TWOPI;
-	    deltaphi=fabs(ebc_bcphi-phoSCphi);
+	    if(candSCphi<0) candSCphi+=TWOPI;
+	    deltaphi=fabs(ebc_bcphi-candSCphi);
 	    if(deltaphi>TWOPI) deltaphi-=TWOPI;
 	    if(deltaphi>PI) deltaphi=TWOPI-deltaphi;
-	    float deltaeta=fabs(ebc_bceta-phoSCeta);
+	    float deltaeta=fabs(ebc_bceta-candSCeta);
 	    newDelta= sqrt(deltaphi*deltaphi+ deltaeta*deltaeta);
-	    if(newDelta < conesizeG) {
+	    if(newDelta < conesize) {
 	      ecalIsol+=ebc_bcet;
 	    }
 	  }
