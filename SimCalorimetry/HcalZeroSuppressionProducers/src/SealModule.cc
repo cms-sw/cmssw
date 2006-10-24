@@ -3,4 +3,4 @@
 #include "SimCalorimetry/HcalZeroSuppressionProducers/interface/HcalSimpleAmplitudeZS.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalSimpleAmplitudeZS)
+DEFINE_ANOTHER_FWK_MODULE(HcalSimpleAmplitudeZS);
