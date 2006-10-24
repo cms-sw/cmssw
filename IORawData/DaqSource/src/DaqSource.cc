@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2006/06/27 11:21:48 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/08/01 13:34:39 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -20,47 +20,69 @@
 
 #include <iostream>
 #include <string>
+#include <sys/time.h>
+
 
 using namespace edm;
 using namespace std;
 
 
+////////////////////////////////////////////////////////////////////////////////
+// construction/destruction
+////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
 DaqSource::DaqSource(const ParameterSet& pset, 
-		     const InputSourceDescription& desc) : 
-  RawInputSource(pset, desc),
-  reader_(0)
+		     const InputSourceDescription& desc) 
+  : RawInputSource(pset,desc)
+  , reader_(0)
 {
   produces<FEDRawDataCollection>();
   
   // Instantiate the requested data source
   string reader = pset.getParameter<string>("reader");
-  reader_ = DaqReaderPluginFactory::get()->create(reader,pset.getParameter<ParameterSet>("pset"));
+  reader_=
+    DaqReaderPluginFactory::get()->create(reader,
+					  pset.getParameter<ParameterSet>("pset"));
 }
 
-DaqSource::~DaqSource(){
+//______________________________________________________________________________
+DaqSource::~DaqSource()
+{
   delete reader_;
 }
 
-#include <sys/time.h>
 
-std::auto_ptr<Event>
-DaqSource::readOneEvent() {
+////////////////////////////////////////////////////////////////////////////////
+// implementation of member functions
+////////////////////////////////////////////////////////////////////////////////
 
+//______________________________________________________________________________
+std::auto_ptr<Event> DaqSource::readOneEvent()
+{
   EventID eventId;
   edm::TimeValue_t time = 0LL;
   gettimeofday((timeval *)(&time),0);
   
   Timestamp tstamp(time);
+  
+  // pass a 0 pointer to fillRawData()!
+  FEDRawDataCollection* fedCollection(0);
 
-  std::auto_ptr<FEDRawDataCollection> bare_product(new FEDRawDataCollection);
-
-  if (!reader_->fillRawData(eventId, tstamp, *bare_product)) {
+  // let reader_ fill the fedCollection 
+  if (!reader_->fillRawData(eventId,tstamp,fedCollection)) {
+    // fillRawData() failed, clean up the fedCollection in case it was allocated!
+    if (0!=fedCollection) delete fedCollection;
     return std::auto_ptr<Event>(0);
   }
-  //  std::cout << " making run " << eventId.run() << " event " << eventId.event()
-  //	    << std::endl;
-  std::auto_ptr<Event> e = makeEvent(eventId, tstamp);
-
+  
+  // make a brand new event
+  std::auto_ptr<Event> e=makeEvent(eventId,tstamp);
+  
+  // have fedCollection managed by a std::auto_ptr<>
+  std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
+  
+  // put the fed collection into the transient event store
   e->put(bare_product);
 
   return e;

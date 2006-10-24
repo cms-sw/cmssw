@@ -5,8 +5,8 @@
  *  Generates empty FEDRawData of random size for all FEDs
  *  Proper headers and trailers are included; but the payloads are all 0s
  *
- *  $Date: 2006/03/15 23:40:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/27 11:21:48 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -14,30 +14,45 @@
 #include <DataFormats/Common/interface/EventID.h>
 #include <algorithm>
 
-class DaqFakeReader : public DaqBaseReader {
+
+class DaqFakeReader : public DaqBaseReader
+{
  public:
-  /// Constructor
+  //
+  // construction/destruction
+  //
   DaqFakeReader(const edm::ParameterSet& pset);
-
-  /// Destructor
   virtual ~DaqFakeReader();
+  
 
-  /// Generate and fill FED raw data for a full event
+  //
+  // public member functions
+  //
+
+  // Generate and fill FED raw data for a full event
   virtual bool fillRawData(edm::EventID& eID,
 			   edm::Timestamp& tstamp, 
-			   FEDRawDataCollection& data);
-
- private:
+			   FEDRawDataCollection*& data);
+  
+private:
+  //
+  // private member functions
+  //
   void fillFEDs(const std::pair<int,int>& fedRange,
 		edm::EventID& eID,
 		edm::Timestamp& tstamp, 
 		FEDRawDataCollection& data,
 		float meansize,
 		float width);
-
-  edm::RunNumber_t runNum;
+  
+private:
+  //
+  // member data
+  //
+  edm::RunNumber_t   runNum;
   edm::EventNumber_t eventNum;
-  bool empty_events;
-};
-#endif
+  bool               empty_events;
 
+};
+
+#endif

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/15 23:40:05 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/27 11:21:48 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
@@ -23,19 +23,37 @@ using namespace std;
 using namespace edm;
 
 
-DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset) : 
-  runNum(1), eventNum(0), empty_events(pset.getUntrackedParameter<bool>("emptyEvents", false)) 
+////////////////////////////////////////////////////////////////////////////////
+// construction/destruction
+////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
+DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset) 
+  : runNum(1)
+  , eventNum(0)
+  , empty_events(pset.getUntrackedParameter<bool>("emptyEvents",false)) 
 {
   // mean = pset.getParameter<float>("mean");
 }
 
+//______________________________________________________________________________
+DaqFakeReader::~DaqFakeReader()
+{
+  
+}
 
-DaqFakeReader::~DaqFakeReader(){}
 
+////////////////////////////////////////////////////////////////////////////////
+// implementation of member functions
+////////////////////////////////////////////////////////////////////////////////
 
+//______________________________________________________________________________
 bool DaqFakeReader::fillRawData(EventID& eID,
 				Timestamp& tstamp, 
-				FEDRawDataCollection& data){
+				FEDRawDataCollection*& data)
+{
+  // a null pointer is passed, need to allocate the fed collection
+  data=new FEDRawDataCollection();
   
   if(!empty_events)
     {
@@ -48,26 +66,29 @@ bool DaqFakeReader::fillRawData(EventID& eID,
       eventNum++;
       // FIXME:
       
-      fillFEDs(FEDNumbering::getSiPixelFEDIds(), eID, tstamp, data, meansize, width);
-      fillFEDs(FEDNumbering::getSiStripFEDIds(), eID, tstamp, data, meansize, width);
+      fillFEDs(FEDNumbering::getSiPixelFEDIds(), eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::getSiStripFEDIds(), eID, tstamp, *data, meansize, width);
       
-      fillFEDs(FEDNumbering::getDTFEDIds(), eID, tstamp, data, meansize, width);
-      fillFEDs(FEDNumbering::getCSCFEDIds(), eID, tstamp, data, meansize, width);
-      fillFEDs(FEDNumbering::getRPCFEDIds(), eID, tstamp, data, meansize, width);
+      fillFEDs(FEDNumbering::getDTFEDIds(), eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::getCSCFEDIds(), eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::getRPCFEDIds(), eID, tstamp, *data, meansize, width);
       
-      fillFEDs(FEDNumbering::getEcalFEDIds(), eID, tstamp, data, meansize, width);
-      fillFEDs(FEDNumbering::getHcalFEDIds(), eID, tstamp, data, meansize, width);
+      fillFEDs(FEDNumbering::getEcalFEDIds(), eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::getHcalFEDIds(), eID, tstamp, *data, meansize, width);
     }
   return true;
 }
 
+
+//______________________________________________________________________________
 void DaqFakeReader::fillFEDs(const pair<int,int>& fedRange,
 			     EventID& eID,
 			     Timestamp& tstamp, 
 			     FEDRawDataCollection& data,
 			     float meansize,
-			     float width){
-
+			     float width)
+{
+  
   // FIXME: last ID included?
   for (int fedId = fedRange.first; fedId <= fedRange.second; ++fedId ) {
     

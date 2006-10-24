@@ -7,30 +7,40 @@
  *  Derived classes must have a constructor accepting a
  *  parameter (const edm::ParameterSet& pset).
  *
- *  $Date: 2005/10/04 18:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/06 18:23:47 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
 class FEDRawDataCollection;
-namespace edm {class EventID; class Timestamp;   class ParameterSet;}
+namespace edm {class EventID; class Timestamp; class ParameterSet;}
 
-class DaqBaseReader {
+
+class DaqBaseReader
+{
 public:
-  /// Constructor
+  //
+  // construction/destruction
+  //
   DaqBaseReader() {}
-
-  /// Destructor
   virtual ~DaqBaseReader() {}
   
-
-  /// Fill in the raw data 
+  //
+  // abstract interface
+  //
+  
+  // overload to fill the fed collection to be put in the transient event store 
   virtual bool fillRawData(edm::EventID& eID,
 			   edm::Timestamp& tstamp, 
-			   FEDRawDataCollection& data) = 0;  
-
+			   FEDRawDataCollection*& data) = 0;  
+  
 private:
+  //
+  // member data
+  //
 
+  
 };
+
 #endif
 
