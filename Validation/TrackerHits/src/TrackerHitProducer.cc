@@ -1094,4 +1094,4 @@ void TrackerHitProducer::clear()
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TrackerHitProducer)
+DEFINE_FWK_MODULE(TrackerHitProducer);
