@@ -40,5 +40,5 @@ class EgammaHLTRecoEcalCandidateProducers : public edm::EDProducer {
   edm::InputTag scIslandEndcapProducer_;
   edm::ParameterSet conf_;
 };
-#endif
+
 
