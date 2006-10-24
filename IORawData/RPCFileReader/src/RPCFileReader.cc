@@ -345,7 +345,7 @@ void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
 				   << " Zeroing partition data.";
 	  }
 	  for(int iBX=FIRST_BX;iBX<LAST_BX;iBX++){	     
-	    if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX+iBX){//Link data collected at L1A bx
+	    if(bxLocal-(int)dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX+iBX){//Link data collected at L1A bx
 	      linkData_[iChip][iBX-FIRST_BX][iL+iLb][dummyPartData.lbNum()]=dummyPartData;	    	
 	    }
 	  }
