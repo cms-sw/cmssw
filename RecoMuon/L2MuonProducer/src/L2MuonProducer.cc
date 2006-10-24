@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/09/15 12:07:37 $
- *   $Revision: 1.13 $
+ *   $Date: 2006/10/12 08:36:05 $
+ *   $Revision: 1.14 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -57,7 +57,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   theService = new MuonServiceProxy(serviceParameters);
 
   // the propagator name for the track loader
-  string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagatorName");
+  string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagator");
 
   // instantiate the concrete trajectory builder in the Track Finder
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet,theService),
