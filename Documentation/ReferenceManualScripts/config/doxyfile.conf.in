@@ -496,6 +496,7 @@ EXAMPLE_PATH           =  "@CMSSW_BASE@/src"
 
 EXAMPLE_PATTERNS       = ./ \ 
                          *.cfi \
+                         *.cff \
                          *.doi
 
 # If the EXAMPLE_RECURSIVE tag is set to YES then subdirectories will be 
