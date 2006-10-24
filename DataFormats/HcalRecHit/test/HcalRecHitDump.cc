@@ -14,8 +14,8 @@ namespace cms {
 
   /** \class HcalRecHitDump
       
-  $Date: 2006/01/25 02:10:24 $
-  $Revision: 1.4 $
+  $Date: 2006/06/27 15:48:28 $
+  $Revision: 1.5 $
   \author J. Mans - Minnesota
   */
   class HcalRecHitDump : public edm::EDAnalyzer {
@@ -110,5 +110,5 @@ namespace cms {
 using namespace cms;
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalRecHitDump)
+DEFINE_ANOTHER_FWK_MODULE(HcalRecHitDump);
 

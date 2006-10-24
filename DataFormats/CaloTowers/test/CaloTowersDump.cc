@@ -12,7 +12,7 @@ using namespace std;
 
   /** \class CaloTowersDump
       
-  $Date: 2005/08/04 18:14:50 $
+  $Date: 2005/10/17 20:25:48 $
   $Revision: 1.1 $
   \author J. Mans - Minnesota
   */
@@ -50,5 +50,5 @@ using namespace std;
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CaloTowersDump)
+DEFINE_ANOTHER_FWK_MODULE(CaloTowersDump);
 
