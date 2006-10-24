@@ -2,7 +2,10 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
+ * $Id:
+ *
  */
+
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducers.h"
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTHcalIsolation.h"
 

@@ -1,6 +1,8 @@
 /** \class EgammaHLTRecoEcalCandidateProducers
  *
- *  \author Monica Vazquez Acosta (Cern)
+ *  \author Monica Vazquez Acosta (CERN)
+ *
+ * $Id:
  *
  */
 

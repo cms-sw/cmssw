@@ -1,6 +1,8 @@
 /** \class EgammaHLTPhotonTrackIsolationProducers
  *
  *  \author Monica Vazquez Acosta (CERN)
+ * 
+ * $Id:
  *
  */
 

@@ -6,9 +6,9 @@
 /**\class EgammaHLTPhotonTrackIsolationProducers EgammaHLTPhotonTrackIsolationProducers.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPhotonTrackIsolationProducers.h
 */
 //
-// Original Author:  Monica Vazquez Acosta
+// Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTPhotonTrackIsolationProducers.h,v 1.1 2006/06/27 17:35:48 monicava Exp $
+// $Id: EgammaHLTPhotonTrackIsolationProducers.h,v 1.1 2006/10/24 13:50:39 monicava Exp $
 //
 //
 

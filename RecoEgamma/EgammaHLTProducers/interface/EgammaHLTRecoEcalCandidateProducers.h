@@ -1,11 +1,16 @@
-#ifndef RecoEgamma_EgammaHLTProducers_EgammaHLTRecoEcalCandidateProducers_h
-#define RecoEgamma_EgammaHLTProducers_EgammaHLTRecoEcalCandidateProducers_h
-/** \class RecoEcalCandidateProducers
- **  
- ** $Id
- **  \author Monica Vazquez Acosta (CERN)
- **
- ***/
+// -*- C++ -*-
+//
+// Package:    EgammaHLTProducers
+// Class:      EgammaHLTRecoEcalCandidateProducers
+// 
+/**\class EgammaHLTRecoEcalCandidateProducers.h EgammaHLTRecoEcalCandidateProducers.cc  RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRecoEcalCandidateProducers.h.h
+*/
+//
+// Original Author:  Monica Vazquez Acosta (CERN)
+//         Created:  Tue Jun 13 14:48:33 CEST 2006
+// $Id:
+//
+//
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

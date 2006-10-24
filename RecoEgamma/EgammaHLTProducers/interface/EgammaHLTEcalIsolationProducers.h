@@ -3,7 +3,7 @@
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTEcalIsolationProducers
 // 
-/**\class EgammaHLTEcalIsolationProducers EgammaHLTEcalIsolationProducers.cc RecoEgamma/EgammaHLTEcalIsolationProducers/interface/EgammaHLTEcalIsolationProducers.h
+/**\class EgammaHLTEcalIsolationProducers EgammaHLTEcalIsolationProducers.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalIsolationProducers.h
 
  Description: <one line class summary>
 
@@ -11,9 +11,9 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Monica Vazquez Acosta
+// Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTEcalIsolationProducers.h,v 1.1 2006/06/27 17:35:19 monicava Exp $
+// $Id: EgammaHLTEcalIsolationProducers.h,v 1.2 2006/10/24 13:47:44 monicava Exp $
 //
 //
 
