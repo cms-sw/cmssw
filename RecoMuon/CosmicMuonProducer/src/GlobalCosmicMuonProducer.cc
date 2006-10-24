@@ -5,8 +5,8 @@
  *  reconstruct muons using dt,csc,rpc and tracker starting from cosmic muon
  *  tracks
  *
- * $Date: 2006/09/22 18:52:37 $
- * $Revision: 1.1 $
+ * $Date: 2006/10/19 21:41:32 $
+ * $Revision: 1.2 $
  * \author:  Chang Liu  - Purdue University <Chang.Liu@cern.ch>
 **/
 
@@ -46,15 +46,14 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   
+  // TrackLoader parameters
+  edm::ParameterSet trackLoaderParameters = iConfig.getParameter<edm::ParameterSet>("TrackLoaderParameters");
+  
   // the services
   theService = new MuonServiceProxy(serviceParameters);
   
-  // the propagator name for the track loader
-  std::string trackLoaderPropagatorName = iConfig.getParameter<std::string>("TrackLoaderPropagatorName");
-  bool theTrajectoryFlag = iConfig.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);
-  
   theTrackFinder = new MuonTrackFinder(new GlobalCosmicMuonTrajectoryBuilder(tbpar,theService),
-				       new MuonTrackLoader(trackLoaderPropagatorName,theTrajectoryFlag, theService));
+				       new MuonTrackLoader(trackLoaderParameters, theService));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();

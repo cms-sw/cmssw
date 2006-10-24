@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/10/12 08:36:05 $
- *   $Revision: 1.14 $
+ *   $Date: 2006/10/24 08:02:09 $
+ *   $Revision: 1.15 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -45,7 +45,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   LogDebug("Muon|RecoMuon|L2MuonProducer")<<"constructor called"<<endl;
 
   // Parameter set for the Builder
-  ParameterSet L2_pSet = parameterSet.getParameter<ParameterSet>("L2TrajBuilderParameters");
+  ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("L2TrajBuilderParameters");
 
   // MuonSeed Collection Label
   theSeedCollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
@@ -53,19 +53,21 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
 
+  // TrackLoader parameters
+  ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
+
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
-  // the propagator name for the track loader
-  string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagator");
-
   // instantiate the concrete trajectory builder in the Track Finder
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet,theService),
-				       new MuonTrackLoader(trackLoaderPropagatorName,theService));
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService),
+				       new MuonTrackLoader(trackLoaderParameters, theService));
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+
+  produces<std::vector<Trajectory> >();
 }
   
 /// destructor

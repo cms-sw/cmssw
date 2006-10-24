@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/10/19 18:43:24 $
- *   $Revision: 1.18 $
+ *   $Date: 2006/10/24 08:06:30 $
+ *   $Revision: 1.19 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -43,31 +43,28 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   LogDebug("Muon|RecoMuon|StandAloneMuonProducer")<<"constructor called"<<endl;
 
   // Parameter set for the Builder
-  ParameterSet STA_pSet = parameterSet.getParameter<ParameterSet>("STATrajBuilderParameters");
+  ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("STATrajBuilderParameters");
   
   // MuonSeed Collection Label
   theSeedCollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
-
+  
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
-
+  
+  // TrackLoader parameters
+  ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
+  
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
-  // the propagator name for the track loader
-
-  string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagator");
-
-  bool theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);
-
   // instantiate the concrete trajectory builder in the Track Finder
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet,theService),
-				       new MuonTrackLoader(trackLoaderPropagatorName,theTrajectoryFlag, theService));
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
+				       new MuonTrackLoader(trackLoaderParameters,theService));
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
-  produces<std::vector<Trajectory> >() ;
+  produces<std::vector<Trajectory> >();
 }
   
 /// destructor

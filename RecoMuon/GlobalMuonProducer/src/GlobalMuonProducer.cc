@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/10/19 18:46:18 $
- *   $Revision: 1.15 $
+ *   $Date: 2006/10/19 19:43:02 $
+ *   $Revision: 1.16 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -43,7 +43,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   LogDebug("Muon|RecoMuon|GlobalMuonProducer") << "constructor called" << endl;
 
   // Parameter set for the Builder
-  ParameterSet GLB_pSet = parameterSet.getParameter<ParameterSet>("GLBTrajBuilderParameters");
+  ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("GLBTrajBuilderParameters");
 
   // STA Muon Collection Label
   theSTACollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
@@ -51,16 +51,15 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
 
+  // TrackLoader parameters
+  ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
+  
   // the services
   theService = new MuonServiceProxy(serviceParameters);
   
-  // the propagator name for the track loader
-  string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagator");
-  bool theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);
-
   // instantiate the concrete trajectory builder in the Track Finder
-  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(GLB_pSet,theService);
-  theTrackFinder = new MuonTrackFinder(gmtb, new MuonTrackLoader(trackLoaderPropagatorName,theTrajectoryFlag, theService) );
+  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
+  theTrackFinder = new MuonTrackFinder(gmtb, new MuonTrackLoader(trackLoaderParameters, theService) );
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
