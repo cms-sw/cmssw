@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.13 2006/07/06 19:11:43 wmtan Exp $
+$Id: InputSource.cc,v 1.14 2006/10/17 20:47:53 wdd Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -18,10 +18,12 @@ namespace edm {
       remainingEvents_(maxEvents_),
       readCount_(0),
       unlimited_(maxEvents_ < 0),
-      isDesc_(desc) {
+      isDesc_(desc),
+      primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")) {
     // Secondary input sources currently do not have a product registry.
-    // So, this assert is commented out. for now.
-    // assert(isDesc.pRoductRegistry_ != 0);
+    if (primary_) {
+      assert(isDesc_.productRegistry_ != 0);
+    }
   }
 
   InputSource::~InputSource() {}
@@ -145,18 +147,22 @@ namespace edm {
   void 
   InputSource::preRead() {
 
-    Service<RandomNumberGenerator> rng;
-    if (rng.isAvailable()) {
-      rng->snapShot();
+    if (primary()) {
+      Service<RandomNumberGenerator> rng;
+      if (rng.isAvailable()) {
+        rng->snapShot();
+      }
     }
   }
 
   void 
   InputSource::postRead(Event& event) {
 
-    Service<RandomNumberGenerator> rng;
-    if (rng.isAvailable()) {
-      rng->restoreState(event);
+    if (primary()) {
+      Service<RandomNumberGenerator> rng;
+      if (rng.isAvailable()) {
+        rng->restoreState(event);
+      }
     }
   }
 }

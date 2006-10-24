@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.36 2006/09/24 17:11:11 wmtan Exp $
+$Id: PoolSource.cc,v 1.37 2006/09/28 20:35:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -20,14 +20,13 @@ namespace edm {
     rootFile_(),
     origRootFile_(),
     origEntryNumber_(),
-    matchMode_(BranchDescription::Permissive),
-    mainInput_(pset.getParameter<std::string>("@module_label") == std::string("@main_input"))
+    matchMode_(BranchDescription::Permissive)
   {
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
     init(*fileIter_);
-    if (mainInput_) {
+    if (primary()) {
       updateProductRegistry();
     }
     setInitialPosition(pset);
@@ -86,7 +85,7 @@ namespace edm {
     if(rootFile_->next()) return true;
     ++fileIter_;
     if(fileIter_ == fileCatalogItems().end()) {
-      if (mainInput_) {
+      if (primary()) {
 	return false;
       } else {
 	fileIter_ = fileCatalogItems().begin();
@@ -100,7 +99,7 @@ namespace edm {
 
     init(*fileIter_);
 
-    ProductRegistry * preg = (mainInput_ ? &productRegistry() : pReg.get());
+    ProductRegistry * preg = (primary() ? &productRegistry() : pReg.get());
 
     // make sure the new product registry is compatible with the main one
     std::string mergeInfo = preg->merge(rootFile_->productRegistry(), fileIter_->fileName(), matchMode_);
@@ -114,7 +113,7 @@ namespace edm {
   bool PoolSource::previous() {
     if(rootFile_->previous()) return true;
     if(fileIter_ == fileCatalogItems().begin()) {
-      if (mainInput_) {
+      if (primary()) {
 	return false;
       } else {
 	fileIter_ = fileCatalogItems().end();
@@ -129,7 +128,7 @@ namespace edm {
 
     init(*fileIter_);
 
-    ProductRegistry * preg = (mainInput_ ? &productRegistry() : pReg.get());
+    ProductRegistry * preg = (primary() ? &productRegistry() : pReg.get());
 
     // make sure the new product registry is compatible to the main one
     std::string mergeInfo = preg->merge(rootFile_->productRegistry(), fileIter_->fileName(), matchMode_);
@@ -160,12 +159,12 @@ namespace edm {
   std::auto_ptr<EventPrincipal>
   PoolSource::read() {
     if (!next()) {
-      if (!mainInput_) {
+      if (!primary()) {
 	repeat();
       }
       return std::auto_ptr<EventPrincipal>(0);
     }
-    return rootFile_->read(mainInput_ ? productRegistry() : rootFile_->productRegistry()); 
+    return rootFile_->read(primary() ? productRegistry() : rootFile_->productRegistry()); 
   }
 
   std::auto_ptr<EventPrincipal>

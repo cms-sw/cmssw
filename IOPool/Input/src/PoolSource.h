@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.25 2006/08/16 23:40:25 wmtan Exp $
+$Id: PoolSource.h,v 1.26 2006/09/21 19:40:32 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -55,7 +55,6 @@ namespace edm {
     RootFileSharedPtr origRootFile_;
     EntryNumber origEntryNumber_;
     BranchDescription::MatchMode matchMode_;
-    bool mainInput_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }
