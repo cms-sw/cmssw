@@ -14,7 +14,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelSimHitsTestForward.cc,v 1.1 2006/06/07 15:44:14 dkotlins Exp $
+// $Id: PixelSimHitsTestForward.cc,v 1.2 2006/08/02 08:17:36 llista Exp $
 //
 //
 // system include files
@@ -589,4 +589,5 @@ void PixelSimHitsTestForward::endJob(){
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(PixelSimHitsTestForward)
+DEFINE_FWK_MODULE(PixelSimHitsTestForward);
+

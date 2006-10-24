@@ -14,7 +14,7 @@
 //
 // Original Author:  V.Chiochia
 //         Created:   CET 2006
-// $Id: PixelMixedSimHitsTest.cc,v 1.1 2006/09/11 13:04:58 chiochia Exp $
+// $Id: PixelMixedSimHitsTest.cc,v 1.2 2006/09/11 14:29:32 chiochia Exp $
 //
 //
 // system include files
@@ -591,4 +591,5 @@ void PixelMixedSimHitsTest::endJob(){
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(PixelMixedSimHitsTest)
+DEFINE_FWK_MODULE(PixelMixedSimHitsTest);
+

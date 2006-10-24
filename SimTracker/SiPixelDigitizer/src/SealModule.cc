@@ -8,6 +8,7 @@
 
 using cms::SiPixelDigitizer;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiPixelDigitizer)
+DEFINE_ANOTHER_FWK_MODULE(SiPixelDigitizer);
+
 
 

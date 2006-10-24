@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.11 2006/08/07 13:09:42 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.13 2006/10/18 06:40:32 dkotlins Exp $
 //
 //
 // system include files
@@ -544,4 +544,4 @@ void PixelDigisTest::endJob(){
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(PixelDigisTest)
+DEFINE_FWK_MODULE(PixelDigisTest);

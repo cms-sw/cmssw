@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelSimHitsTest.cc,v 1.4 2006/08/04 09:29:46 chiochia Exp $
+// $Id: PixelSimHitsTest.cc,v 1.5 2006/09/11 14:29:32 chiochia Exp $
 //
 //
 // system include files
@@ -570,4 +570,4 @@ void PixelSimHitsTest::endJob(){
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(PixelSimHitsTest)
+DEFINE_FWK_MODULE(PixelSimHitsTest);
