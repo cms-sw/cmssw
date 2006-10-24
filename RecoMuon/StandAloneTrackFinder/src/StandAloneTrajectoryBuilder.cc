@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/10/05 13:21:48 $
- *  $Revision: 1.30 $
+ *  $Date: 2006/10/18 16:33:38 $
+ *  $Revision: 1.31 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -38,8 +38,9 @@ using namespace std;
 
 StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const ParameterSet& par, 
 								 const MuonServiceProxy* service):theService(service){
-  LogDebug("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
-    << "constructor called" << endl;
+  const std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
+  
+  LogDebug(metname) << "constructor called" << endl;
 
   // The navigation type:
   // "Direct","Standard"
@@ -50,6 +51,21 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   refitterPSet.addParameter<string>("NavigationType",theNavigationType);
   theRefitter = new StandAloneMuonRefitter(refitterPSet,theService);
 
+  // Fit direction
+  string seedPosition = par.getParameter<string>("SeedPosition");
+  
+  if (seedPosition == "inner" ) theSeedPosition = recoMuon::in;
+  else if (seedPosition == "outer" ) theSeedPosition = recoMuon::out;
+  else 
+    LogError(metname)<<"Wrong seed position chosen in StandAloneMuonRefitter::StandAloneMuonRefitter ParameterSet"
+		     << "\n"
+		     << "Possible choices are:"
+		     << "\n"
+		     << "SeedPosition = inner or SeedPosition = outer";
+  
+  // Propagator for the seed extrapolation
+  theSeedPropagatorName = par.getParameter<string>("SeedPropagator");
+  
   // Disable/Enable the backward filter
   doBackwardRefit = par.getParameter<bool>("DoBackwardRefit");
   
@@ -291,15 +307,17 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(const TrajectorySeed& seed
   LogDebug(metname)<< "TrajectoryStateOnSurface before propagation:" << endl;
   LogDebug(metname) << debug.dumpTSOS(initialState);
 
+
+  PropagationDirection detLayerOrder = (theSeedPosition == recoMuon::in) ? oppositeToMomentum : alongMomentum;
+
   // ask for compatible layers
   vector<const DetLayer*> detLayers;
 
- 
   if(theNavigationType == "Standard")
-    detLayers = initialLayer->compatibleLayers( *initialState.freeState(),oppositeToMomentum); // FIXME 
+    detLayers = initialLayer->compatibleLayers( *initialState.freeState(),detLayerOrder); 
   else if (theNavigationType == "Direct"){
     DirectMuonNavigation navigation( &*theService->detLayerGeometry() );
-    detLayers = navigation.compatibleLayers( *initialState.freeState(),oppositeToMomentum); // FIXME
+    detLayers = navigation.compatibleLayers( *initialState.freeState(),detLayerOrder);
   }
   else
     edm::LogError(metname) << "No Properly Navigation Selected!!"<<endl;
@@ -318,19 +336,23 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(const TrajectorySeed& seed
       LogDebug(metname) << debug.dumpLayer(*layer);
     }
 
-    LogDebug(metname) << "Most internal one:"<<endl;         // FIXME
-    LogDebug(metname) << debug.dumpLayer(detLayers.back());  // FIXME
+    const DetLayer* finalLayer = detLayers.back();
 
+    if(theSeedPosition == recoMuon::in) LogDebug(metname) << "Most internal one:"<<endl;
+    else LogDebug(metname) << "Most external one:"<<endl;
+    
+    LogDebug(metname) << debug.dumpLayer(finalLayer);
+    
     const TrajectoryStateOnSurface propagatedState = 
-      theService->propagator("SteppingHelixPropagatorAny")->propagate(initialState,
-								      detLayers.back()->surface()); // Double FIXME 
+      theService->propagator(theSeedPropagatorName)->propagate(initialState,
+							       finalLayer->surface());
 
     if(propagatedState.isValid()){
-      result = DetLayerWithState(detLayers.back(),propagatedState);
+      result = DetLayerWithState(finalLayer,propagatedState);
       
       LogDebug(metname) << "Trajectory State on Surface after the extrapolation"<<endl;
       LogDebug(metname) << debug.dumpTSOS(propagatedState);
-      LogDebug(metname) << debug.dumpLayer(detLayers.back());
+      LogDebug(metname) << debug.dumpLayer(finalLayer);
     }
     else 
       LogDebug(metname)<< "Extrapolation failed. Keep the original seed state" <<endl;
