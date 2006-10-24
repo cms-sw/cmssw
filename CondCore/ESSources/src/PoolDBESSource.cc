@@ -440,5 +440,5 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 // ------------ method called to produce the data  ------------
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_SOURCE(PoolDBESSource)
+DEFINE_FWK_EVENTSETUP_SOURCE(PoolDBESSource);
   
