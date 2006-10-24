@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  */
 
 #include "DataFormats/Common/interface/traits.h"
@@ -52,7 +52,7 @@ namespace edm {
     void clear();
     void swap(AssociationVector<CKey, CVal> & other);
     const KeyRefProd & keyProduct() { return ref_; }
-    KeyRef key( typename CKey::size_type i ) { return KeyRef( ref_, i ); }
+    KeyRef key( typename CKey::size_type i ) const { return KeyRef( ref_, i ); }
   private:
     CVal data_;
     KeyRefProd ref_;
