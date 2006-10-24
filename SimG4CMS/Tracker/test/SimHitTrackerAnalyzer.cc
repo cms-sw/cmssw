@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.10 2006/08/02 16:25:33 fambrogl Exp $
+// $Id: SimHitTrackerAnalyzer.cc,v 1.11 2006/08/02 16:32:08 fambrogl Exp $
 //
 //
 
@@ -196,4 +196,4 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SimHitTrackerAnalyzer)
+DEFINE_FWK_MODULE(SimHitTrackerAnalyzer);
