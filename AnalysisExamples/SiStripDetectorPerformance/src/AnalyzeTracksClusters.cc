@@ -188,7 +188,7 @@ void AnalyzeTracksClusters::analyze(const edm::Event& e, const edm::EventSetup& 
 	// Loop on hits
 
 	Nclu=0;
-	Nclu_matched==0;
+	Nclu_matched=0;
 
 	for(iter=hitangle.begin();iter!=hitangle.end();iter++)
 	  {
@@ -225,7 +225,7 @@ void AnalyzeTracksClusters::analyze(const edm::Event& e, const edm::EventSetup& 
 	      {	  
 		const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > 
 		  cluster=singlehit->cluster();
-		const std::vector<short> amplitudes=cluster->amplitudes();
+		const std::vector<uint16_t> amplitudes=cluster->amplitudes();
 		Clu_size[Nclu]=amplitudes.size();
 		double cluscharge=0;
 		for(size_t ia=0; ia<amplitudes.size();ia++)
@@ -241,8 +241,7 @@ void AnalyzeTracksClusters::analyze(const edm::Event& e, const edm::EventSetup& 
 		Nclu++;
 	      }
 	    //check if it is a matched SiStripMatchedRecHit2D
-	    if(const SiStripMatchedRecHit2D * rechit = 
-	       dynamic_cast<const SiStripMatchedRecHit2D *>(lo_hit))
+	    if(dynamic_cast<const SiStripMatchedRecHit2D *>(lo_hit))
 	      {	  
 		Nclu_matched++;
 	      }
@@ -306,7 +305,7 @@ void AnalyzeTracksClusters::analyze(const edm::Event& e, const edm::EventSetup& 
 	    float Signal=0;
 	    int posi=ic->firstStrip();
 	    
-	    const std::vector<short> amplitudes=ic->amplitudes();
+	    const std::vector<uint16_t> amplitudes=ic->amplitudes();
 	    for(size_t i=0; i<amplitudes.size();i++)
 	      {
 		if (amplitudes[i]>0)
