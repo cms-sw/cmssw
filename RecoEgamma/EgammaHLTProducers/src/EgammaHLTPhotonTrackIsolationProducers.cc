@@ -7,7 +7,6 @@
  */
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPhotonTrackIsolationProducers.h"
-#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTTrackIsolation.h"
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -45,13 +44,18 @@ EgammaHLTPhotonTrackIsolationProducers::EgammaHLTPhotonTrackIsolationProducers(c
   egTrkIsoRSpan_                = conf_.getParameter<double>("egTrkIsoRSpan");
   egTrkIsoVetoConeSize_         = conf_.getParameter<double>("egTrkIsoVetoConeSize");
 
+
+  test_ = new EgammaHLTTrackIsolation(egTrkIsoPtMin_,egTrkIsoConeSize_,
+				      egTrkIsoZSpan_,egTrkIsoRSpan_,egTrkIsoVetoConeSize_);
+
+
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
 
 }
 
 
-EgammaHLTPhotonTrackIsolationProducers::~EgammaHLTPhotonTrackIsolationProducers(){}
+EgammaHLTPhotonTrackIsolationProducers::~EgammaHLTPhotonTrackIsolationProducers(){delete test_;}
 
 
 //
@@ -75,19 +79,16 @@ EgammaHLTPhotonTrackIsolationProducers::produce(edm::Event& iEvent, const edm::E
 
   reco::RecoEcalCandidateIsolationMap isoMap;
 
-  EgammaHLTTrackIsolation* test = new EgammaHLTTrackIsolation(egTrkIsoPtMin_,egTrkIsoConeSize_,
-							      egTrkIsoZSpan_,egTrkIsoRSpan_,egTrkIsoVetoConeSize_);
 
   for(reco::HLTFilterObjectWithRefs::const_iterator iRecoEcalCand = recoecalcandHandle->begin(); iRecoEcalCand != recoecalcandHandle->end(); iRecoEcalCand++){
 
     
-    //reco::recoEcalCandidateRef recoecalcandref(reco::recoEcalCandidateRef(recoecalcandHandle,iRecoEcalCand-recoecalcandHandle->begin()));
     const reco::RecoEcalCandidateRef recoecalcandref(reco::RecoEcalCandidateRef((recoecalcandHandle->getParticleRef(iRecoEcalCand-recoecalcandHandle->begin())).castTo<reco::RecoEcalCandidateRef>()));
 
     bool usePhotonVertex = false;
 
     const reco::RecoCandidate *tempiRecoEcalCand = &(*recoecalcandref);
-    float isol =  test->photonTrackCount(tempiRecoEcalCand,trackCollection,usePhotonVertex);
+    float isol =  test_->photonTrackCount(tempiRecoEcalCand,trackCollection,usePhotonVertex);
 
     isoMap.insert(recoecalcandref, isol);
 

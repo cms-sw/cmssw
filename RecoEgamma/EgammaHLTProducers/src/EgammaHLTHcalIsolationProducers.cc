@@ -7,7 +7,6 @@
  */
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducers.h"
-#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTHcalIsolation.h"
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -44,12 +43,15 @@ EgammaHLTHcalIsolationProducers::EgammaHLTHcalIsolationProducers(const edm::Para
   egHcalIsoPtMin_               = conf_.getParameter<double>("egHcalIsoPtMin");
   egHcalIsoConeSize_            = conf_.getParameter<double>("egHcalIsoConeSize");
 
+  test_ = new EgammaHLTHcalIsolation(egHcalIsoPtMin_,egHcalIsoConeSize_);
+
+
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
 }
 
 
-EgammaHLTHcalIsolationProducers::~EgammaHLTHcalIsolationProducers(){}
+EgammaHLTHcalIsolationProducers::~EgammaHLTHcalIsolationProducers(){delete test_;}
 
 
 //
@@ -80,14 +82,13 @@ EgammaHLTHcalIsolationProducers::produce(edm::Event& iEvent, const edm::EventSet
   
   reco::RecoEcalCandidateIsolationMap isoMap;
   
-  EgammaHLTHcalIsolation* test = new EgammaHLTHcalIsolation(egHcalIsoPtMin_,egHcalIsoConeSize_);
    
   for(reco::HLTFilterObjectWithRefs::const_iterator iRecoEcalCand = recoecalcandHandle->begin(); iRecoEcalCand != recoecalcandHandle->end(); iRecoEcalCand++){
     
     reco::RecoEcalCandidateRef recoecalcandref(reco::RecoEcalCandidateRef((recoecalcandHandle->getParticleRef(iRecoEcalCand-recoecalcandHandle->begin())).castTo<reco::RecoEcalCandidateRef>()));
     
     const reco::RecoCandidate *tempiRecoEcalCand = &(*recoecalcandref);
-    float isol =  test->isolPtSum(tempiRecoEcalCand,hcalhitBarrelCollection,hcalhitEndcapCollection,caloGeom);
+    float isol =  test_->isolPtSum(tempiRecoEcalCand,hcalhitBarrelCollection,hcalhitEndcapCollection,caloGeom);
     
     isoMap.insert(recoecalcandref, isol);
     

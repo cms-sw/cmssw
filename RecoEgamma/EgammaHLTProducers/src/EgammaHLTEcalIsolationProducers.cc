@@ -11,7 +11,7 @@
 
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalIsolationProducers.h"
-#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTEcalIsolation.h"
+
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -54,11 +54,14 @@ EgammaHLTEcalIsolationProducers::EgammaHLTEcalIsolationProducers(const edm::Para
   egEcalIsoEtMin_       = conf_.getParameter<double>("egEcalIsoEtMin");
   egEcalIsoConeSize_    = conf_.getParameter<double>("egEcalIsoConeSize");
 
+  test_ = new EgammaHLTEcalIsolation(egEcalIsoEtMin_,egEcalIsoConeSize_);
+
+
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
 }
 
-EgammaHLTEcalIsolationProducers::~EgammaHLTEcalIsolationProducers(){}
+EgammaHLTEcalIsolationProducers::~EgammaHLTEcalIsolationProducers(){delete test_;}
 
 // ------------ method called to produce the data  ------------
 
@@ -81,8 +84,6 @@ void EgammaHLTEcalIsolationProducers::produce(edm::Event& iEvent, const edm::Eve
   iEvent.getByLabel(scIslandEndcapProducer_,scEndcapHandle);
   const reco::SuperClusterCollection* scEndcapCollection = (scEndcapHandle.product());
   // Get the RecoEcalCandidate Collection
-  //edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  //iEvent.getByLabel(photonProducer_,recoecalcandHandle);
   edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcandHandle;
   iEvent.getByLabel(recoEcalCandidateProducer_,recoecalcandHandle);
 
@@ -99,17 +100,14 @@ void EgammaHLTEcalIsolationProducers::produce(edm::Event& iEvent, const edm::Eve
 
   reco::RecoEcalCandidateIsolationMap isoMap;
 
-  EgammaHLTEcalIsolation* test = new EgammaHLTEcalIsolation(egEcalIsoEtMin_,egEcalIsoConeSize_);
+
 
   for(reco::HLTFilterObjectWithRefs::const_iterator iRecoEcalCand = recoecalcandHandle->begin(); iRecoEcalCand != recoecalcandHandle->end(); iRecoEcalCand++){
-  //for(reco::PhotonCollection::const_iterator iRecoEcalCand = recoecalcandHandle->begin(); iRecoEcalCand != recoecalcandHandle->end(); iRecoEcalCand++) {
 
     reco::RecoEcalCandidateRef recoecalcandref(reco::RecoEcalCandidateRef((recoecalcandHandle->getParticleRef(iRecoEcalCand-recoecalcandHandle->begin())).castTo<reco::RecoEcalCandidateRef>()));
-    //reco::RecoEcalCandidateRef phref(reco::RecoEcalCandidateRef(recoecalcandHandle,iRecoEcalCand-recoecalcandHandle->begin()));
     
     const reco::RecoCandidate *tempiRecoEcalCand = &(*recoecalcandref);
-    float isol =  test->isolPtSum(tempiRecoEcalCand,scCollection, clusterCollection);
-    //float isol =  test->isolPtSum(&(*iRecoEcalCandidate),scCollection, clusterCollection);
+    float isol =  test_->isolPtSum(tempiRecoEcalCand,scCollection, clusterCollection);
 
     isoMap.insert(recoecalcandref, isol);
 

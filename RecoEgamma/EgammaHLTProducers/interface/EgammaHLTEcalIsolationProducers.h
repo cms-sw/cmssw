@@ -13,7 +13,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTEcalIsolationProducers.h,v 1.2 2006/10/24 13:47:44 monicava Exp $
+// $Id: EgammaHLTEcalIsolationProducers.h,v 1.3 2006/10/24 14:12:56 monicava Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTEcalIsolation.h"
 
 //
 // class declaration
@@ -54,6 +55,8 @@ class EgammaHLTEcalIsolationProducers : public edm::EDProducer {
 
   double  egEcalIsoEtMin_;
   double  egEcalIsoConeSize_;
+
+  EgammaHLTEcalIsolation* test_;
 
 
 };

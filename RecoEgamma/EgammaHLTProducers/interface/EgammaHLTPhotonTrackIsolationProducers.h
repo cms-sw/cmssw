@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTPhotonTrackIsolationProducers.h,v 1.1 2006/10/24 13:50:39 monicava Exp $
+// $Id: EgammaHLTPhotonTrackIsolationProducers.h,v 1.2 2006/10/24 14:12:56 monicava Exp $
 //
 //
 
@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTTrackIsolation.h"
 
 //
 // class declaration
@@ -49,6 +51,8 @@ class EgammaHLTPhotonTrackIsolationProducers : public edm::EDProducer {
   double egTrkIsoZSpan_;   
   double egTrkIsoRSpan_;  
   double egTrkIsoVetoConeSize_;
+
+  EgammaHLTTrackIsolation* test_;
 
 };
 

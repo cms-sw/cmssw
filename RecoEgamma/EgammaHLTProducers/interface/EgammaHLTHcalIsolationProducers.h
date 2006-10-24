@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTHcalIsolationProducers.h,v 1.2 2006/10/24 13:47:44 monicava Exp $
+// $Id: EgammaHLTHcalIsolationProducers.h,v 1.3 2006/10/24 14:12:56 monicava Exp $
 //
 //
 
@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTHcalIsolation.h"
 
 //
 // class declaration
@@ -48,6 +50,7 @@ class EgammaHLTHcalIsolationProducers : public edm::EDProducer {
 
   edm::ParameterSet conf_;
 
+  EgammaHLTHcalIsolation* test_;
 
 };
 
