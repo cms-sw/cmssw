@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.6 2006/08/08 13:17:59 cavana Exp $
+// $Id: Type1MET.cc,v 1.7 2006/10/20 17:50:49 cavana Exp $
 //
 //
 
@@ -102,7 +102,7 @@ namespace cms
       }
   }
 
-  DEFINE_FWK_MODULE(Type1MET)  //define this as a plug-in
+  DEFINE_FWK_MODULE(Type1MET);  //define this as a plug-in
 
 }//end namespace cms
 
