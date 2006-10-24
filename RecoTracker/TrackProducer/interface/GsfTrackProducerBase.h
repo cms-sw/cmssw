@@ -8,6 +8,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoTracker/TrackProducer/interface/GsfTrackProducerAlgorithm.h"
 #include "DataFormats/TrackReco/interface/GsfComponent5D.h"
 
@@ -18,7 +19,8 @@ class TrackerGeometry;
 
 class GsfTrackProducerBase {
 public:
-  GsfTrackProducerBase(){}
+  GsfTrackProducerBase(bool trajectoryInEvent = false):
+    trajectoryInEvent_(trajectoryInEvent){}
 
   virtual ~GsfTrackProducerBase();
   
@@ -37,6 +39,7 @@ public:
 			std::auto_ptr<TrackingRecHitCollection>&,
 			std::auto_ptr<reco::GsfTrackCollection>&,
 			std::auto_ptr<reco::GsfTrackExtraCollection>&,
+			std::auto_ptr<std::vector<Trajectory> >&,
 			AlgoProductCollection&);
 
   virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
@@ -53,6 +56,7 @@ private:
  private:
   edm::ParameterSet conf_;
   std::string src_;
+  bool trajectoryInEvent_;
  protected:
   std::string alias_;
 

@@ -6,10 +6,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig):
+  GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent")),
   theAlgo(iConfig)
 {
   setConf(iConfig);
@@ -21,6 +23,7 @@ GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig):
   produces<reco::GsfTrackCollection>().setBranchAlias( alias_ + "GsfTracks" );
   produces<reco::GsfTrackExtraCollection>().setBranchAlias( alias_ + "GsfTrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
+  produces<std::vector<Trajectory> >() ;
 
 }
 
@@ -34,6 +37,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
   std::auto_ptr<reco::GsfTrackCollection> outputTColl(new reco::GsfTrackCollection);
   std::auto_ptr<reco::GsfTrackExtraCollection> outputTEColl(new reco::GsfTrackExtraCollection);
+  std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
   //
   //declare and get stuff to be retrieved from ES
   //
@@ -61,7 +65,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
   //
   //put everything in the event
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, algoResults);
+  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   LogDebug("GsfTrackProducer") << "end" << "\n";
 }
 
