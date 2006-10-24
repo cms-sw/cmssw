@@ -13,9 +13,10 @@ The Data Format is defined in the following package sets:
 
 \htmlinclude datatable_begin.doi
 
+<!-- new format -->
+\htmlinclude RecoLocalTrackerRECO.doi
+<!-- old format -->
 \htmlinclude TrackRecoCollections.doi
-\htmlinclude StripRecoCollections.doi
-\htmlinclude PixelRecoCollections.doi
 \htmlinclude VertexRecoCollections.doi
 \htmlinclude EcalRecoCollections.doi
 \htmlinclude CaloJetRecoCollections.doi
@@ -25,14 +26,11 @@ The Data Format is defined in the following package sets:
 
 \htmlinclude datatable_end.doi
 
-\section status Status
-Close to completion. Still some collections missing.
-
 \section contact Contact persons
 - Luca Lista
 - Tommaso Boccali
 
 <hr>
-Last updated: 2006-06-14 L.Lista
+Last updated: @DATE@ L.Lista
 
 */

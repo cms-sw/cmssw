@@ -1,27 +1,10 @@
 /*!
 \page Reconstruction Reconstruction Packages
 
-This page lists all packages related to Reconstruction within the <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/?cvsroot=CMSSW>CMSSW repository</a>. Links point to the package documentation.
+This page lists all subsystems related to Reconstruction within the <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/?cvsroot=CMSSW>CMSSW repository</a>.
 
-<h3>Tracking-related packages</h3>
-- <b>Alignment</b><br>
- - \ref Alignment_CommonAlignment "CommonAlignment"<br>
-
-- <b>DataFormats</b><br>
- - \ref DataFormats_TrackingRecHit "TrackingRecHit"<br>
-
-
-- <b>\ref Geometry "Geometry"</b><br>
-
-
-<h3>Detector specific pages</h3>
-- <b>\ref MuonPackages "Muon"</b>
-- <b>\ref CaloPackages "Calorimetry"</b>
-- <b>\ref TrackerPackages "Tracker"</b>
-
-<h3>Examples ofReconstruction sequences</h3>
-- <b>Tracking</b>: <a href="https://twiki.cern.ch/twiki/bin/view/CMS/RoadSearch">RoadSearch track reconstruction</a>
-
+<h3>Reconstruction Subsystems</h3>
+- \ref RecoLocalTracker_Configuration "RecoLocalTracker": local tracker reconstruction
 
 \section contact Contact persons
 - Tommaso Boccali
