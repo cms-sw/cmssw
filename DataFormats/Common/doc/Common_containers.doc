@@ -56,24 +56,27 @@ Commonly used persistent containers.
 </pre>
 \endhtmlonly
 
+- edm::AssociationVector <b>&lt;CKey, CVal&gt;</b>: container very similar to
+  <tt>std::vector&lt;CVal&gt;</tt>, with in addition an <tt>edm::RefProd&lt;CKey&gt;</tt>.
+  Assuming the two collection of types <tt>CKey</tt> and <tt>CVal</tt> are of the same
+  size and properly ordered, this container implements in a very simple way a one-to-one
+  association. In order to get the reference to the <i>i<sup>th</sup></i> object in 
+  the <tt>CKey</tt> collection, the method <tt>key(i)</tt> is implemented. Below
+  a user example:
+\htmlonly
+  edm::AssiciationVector&lt;reco::MuonCollection, std::vector&lt;double&gt; &gt; isolations( muonRefProd );
+  // fill the association ...
+  for( size_t i = 0; i < isolations.size(); ++ i ) {
+    double iso = isolations[ i ];
+    reco::MuonRef muon = isolations.key( i );
+    double pt = muon->pt();
+  }
+\endhtmlonly
+
 - edm::DetSet <b>&lt;T&gt;</b>:
 
 - edm::EDCollection <b>&lt;T&gt;</b>: Functionally equivalent to <tt>std::vector&lt;T&gt;</tt>. 
   Still present for hystorical reason; will be probably removed in one of the next releases.
-
-- edm::ExtCollection <b>&lt;C, Ext&gt;</b>:a collection providing 
-  internally as instance of a collection of type 
-  <tt><b>C</b></tt> plus an intsance of the type <tt><b>Ext</b></tt> 
-  specified as template parameter. The class provides the same interface of 
-  <tt>std::vector&lt;C&gt;</tt> plus the methods:
-\htmlonly
-<pre>
-  Ext & ext() { return ext_; }
-  const Ext & ext() const { return ext_; }
-</pre>
-\endhtmlonly
-that allow to access, and possibly modify, the instance <tt><b>ext_</b></tt> of the 
-type <tt><b>Ext</b></tt>.
 
 - edm::IDVectorMap <b>&lt;ID, C, P&gt;</b>:
 
