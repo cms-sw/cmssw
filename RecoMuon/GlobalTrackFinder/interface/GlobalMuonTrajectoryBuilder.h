@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/09/25 18:57:32 $
- *  $Revision: 1.31 $
+ *  $Date: 2006/10/19 18:14:50 $
+ *  $Revision: 1.32 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -17,7 +17,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
-#include "RecoMuon/TrackingTools/interface/MuonReconstructionEnumerators.h"
+#include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 class RectangularEtaPhiTrackingRegion;
