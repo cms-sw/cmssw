@@ -351,7 +351,7 @@ template <class T> bool copyObject (T* fObject,
       object = fObject ? new T (*fObject) : 0; // copy original object
       if (asciiFile (fOutput)) {
 	if (!traceCounter) std::cout << "USE OUTPUT: ASCII: " << fOutput << std::endl;
-	if (fOutputRun > 0) {
+	if (fObject && allInstances.empty ()) {
 	  std::ofstream outStream (fOutput.c_str ());
 	  HcalDbASCIIIO::dumpObject (outStream, *object);
 	}

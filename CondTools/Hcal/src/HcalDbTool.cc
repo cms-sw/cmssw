@@ -3,7 +3,7 @@
    \class HcalDbTool
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbTool.cc,v 1.5 2006/10/16 22:14:25 fedor Exp $
+   $Id: HcalDbTool.cc,v 1.6 2006/10/17 23:31:27 fedor Exp $
 */
 
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -153,7 +153,7 @@ bool HcalDbTool::updateObject (pool::Ref<T>* fUpdate) {
 
 template <class T>
 bool HcalDbTool::storeIOV (const pool::Ref<T>& fObject, IOVRun fMaxRun, pool::Ref<cond::IOV>* fIov, bool fAppend) {
-  std::cout << "HcalDbTool::storeIOV-> " << fMaxRun << std::endl;
+  if (mVerbose) std::cout << "HcalDbTool::storeIOV-> " << fMaxRun << std::endl;
   IOVRun maxRun = fMaxRun;
   if (fIov->isNull ()) {
     cond::IOV* newIov = new cond::IOV ();
