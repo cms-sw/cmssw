@@ -8,17 +8,17 @@
  */
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitCorrection.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include <map>
-class HcalSimParameterMap;
 
 class HcalHitCorrection : public CaloVHitCorrection
 {
 public:
   typedef std::map<HcalDetId, double> ChargeSumsByChannel;
 
-  HcalHitCorrection(const HcalSimParameterMap * parameterMap);
+  HcalHitCorrection(const CaloVSimParameterMap * parameterMap);
   virtual ~HcalHitCorrection() {}
 
   void fillChargeSums(MixCollection<PCaloHit> & hits);
@@ -42,7 +42,7 @@ public:
 
 private:
 
-  const HcalSimParameterMap * theParameterMap;
+  const CaloVSimParameterMap * theParameterMap;
 
   ChargeSumsByChannel theChargeSumsForTimeBin[10];
 

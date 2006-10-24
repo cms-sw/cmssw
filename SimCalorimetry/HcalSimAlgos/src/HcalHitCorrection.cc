@@ -1,12 +1,12 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HcalHitCorrection::HcalHitCorrection(const HcalSimParameterMap * parameterMap)
+HcalHitCorrection::HcalHitCorrection(const CaloVSimParameterMap * parameterMap)
 : theParameterMap(parameterMap)
 {
 }
@@ -18,7 +18,10 @@ void HcalHitCorrection::fillChargeSums(MixCollection<PCaloHit> & hits)
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
+    LogDebug("HcalHitCorrection") << "HcalHitCorrection::Hit 0x" << std::hex
+				  << hitItr->id() << std::dec;
     int tbin = timeBin(*hitItr);
+    LogDebug("HcalHitCorrection") << "HcalHitCorrection::Hit tbin" << tbin;
     if(tbin >= 0 && tbin < 10) 
     {  
       theChargeSumsForTimeBin[tbin][HcalDetId(hitItr->id())] += charge(*hitItr);
@@ -65,9 +68,10 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
     }
     double totalCharge = totalChargeItr->second;
     delay = HcalTimeSlew::delay(totalCharge, biasSetting);
-//    std::cout << "TIMESLEWcharge " << charge(hit) << "  totalcharge " << totalCharge 
-//              << " olddelay " << HcalTimeSlew::delay(charge(hit), biasSetting) 
-//              << " newdelay " << delay << std::endl;
+    LogDebug("HcalHitCorrection") << "TIMESLEWcharge " << charge(hit) 
+				  << "  totalcharge " << totalCharge 
+				  << " olddelay "  << HcalTimeSlew::delay(charge(hit), biasSetting) 
+				  << " newdelay " << delay;
 
   }
 
