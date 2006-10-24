@@ -7,4 +7,4 @@
 #include "RecoTracker/TransientTrackingRecHit/test/TTRHBuilderTest.cc"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TTRHBuilderTest)
+DEFINE_ANOTHER_FWK_MODULE(TTRHBuilderTest);

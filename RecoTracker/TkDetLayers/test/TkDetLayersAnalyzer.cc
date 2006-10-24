@@ -127,4 +127,4 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TkDetLayersAnalyzer)
+DEFINE_FWK_MODULE(TkDetLayersAnalyzer);
