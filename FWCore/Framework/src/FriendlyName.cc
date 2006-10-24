@@ -3,7 +3,6 @@
  *  CMSSW
  *
  *  Created by Chris Jones on 2/24/06.
- *  Copyright 2006 __MyCompanyName__. All rights reserved.
  *
  */
 #include <string>
@@ -42,7 +41,9 @@ namespace edm {
     static boost::regex const reUnsigned("unsigned ");
     static boost::regex const reLong("long ");
     static boost::regex const reVector("std::vector");
-    static boost::regex const reOwnVector("edm::OwnVector<(.*), *edm::ClonePolicy<(.*)> >");
+    //force first argument to also be the argument to edm::ClonePolicy so that if OwnVector is within
+    // a template it will not eat all the remaining '>'s
+    static boost::regex const reOwnVector("edm::OwnVector<(.*), *edm::ClonePolicy<\\1 *> >");
     static boost::regex const reOneToOne("edm::AssociationMap<(.*), (.*), edm::OneToOne, .*>");
     static boost::regex const reOneToMany("edm::AssociationMap<(.*), (.*), edm::OneToMany, .*>");
     std::string standardRenames(std::string const& iIn) {
