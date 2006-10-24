@@ -12,8 +12,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2006/02/10 21:45:20 $
-$Revision: 1.7 $
+$Date: 2006/06/22 12:41:18 $
+$Revision: 1.8 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -134,5 +134,5 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalDigiDump)
+DEFINE_ANOTHER_FWK_MODULE(HcalDigiDump);
 
