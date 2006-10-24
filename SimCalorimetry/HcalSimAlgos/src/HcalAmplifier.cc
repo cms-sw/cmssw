@@ -1,8 +1,10 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
-#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestal.h"
+#include "CondFormats/HcalObjects/interface/HcalGain.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
+#include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -22,12 +24,13 @@ HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNo
 void HcalAmplifier::amplify(CaloSamples & frame) const {
   assert(theDbService != 0);
   HcalDetId hcalDetId(frame.id());
-  HcalCalibrations calibrations;
-  HcalCalibrationWidths widths;
-  if (!theDbService->makeHcalCalibration (hcalDetId, &calibrations) ||
-      !theDbService->makeHcalCalibrationWidth (hcalDetId, &widths)) 
+  const HcalPedestal* peds = theDbService->getPedestal  (hcalDetId);
+  const HcalGain* gains = theDbService->getGain  (hcalDetId);
+  const HcalPedestalWidth* pwidths = theDbService->getPedestalWidth  (hcalDetId);
+  const HcalGainWidth* gwidths = theDbService->getGainWidth  (hcalDetId);
+  if (!peds || !gains || !pwidths || !gwidths )
   {
-    edm::LogError("HcalAmplifier") << "Could not fetch HCAL conditions" ;
+    edm::LogError("HcalAmplifier") << "Could not fetch HCAL conditions for channel " << hcalDetId;
   }
 
   // the gain is in units of GeV/fC.  We want a constant with fC/pe.
@@ -38,16 +41,20 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
   double GeVperPE = parameters.samplingFactor()
                   / parameters.simHitToPhotoelectrons();
 
+  double gauss [32]; //big enough
+  double noise [32]; //big enough
+  for (int i = 0; i < frame.size(); i++) gauss[i] = RandGauss::shoot(0., 1.);
+  pwidths->makeNoise (frame.size(), gauss, noise);
   for(int tbin = 0; tbin < frame.size(); ++tbin) {
     int capId = (theStartingCapId + tbin)%4;
-    LogDebug("HcalAmplifier") << "PEDS " << capId << " " << calibrations.pedestal(capId)
-        << " " << widths.pedestal(capId) << " " << calibrations.gain(capId) 
-        <<" " << widths.gain(capId);
-    double pedestal = calibrations.pedestal(capId);
-    double gain = calibrations.gain(capId);
+    LogDebug("HcalAmplifier") << "PEDS " << capId << " " << peds->getValue (capId)
+        << " " << pwidths->getWidth (capId) << " " << gains->getValue (capId)
+        << " " << gwidths->getValue (capId);
+    double pedestal = peds->getValue (capId);
+    double gain = gains->getValue (capId);
     if(addNoise_) {
-      pedestal += RandGauss::shoot(0. , widths.pedestal(capId));
-      gain += RandGauss::shoot(0., widths.gain(capId));
+      pedestal += noise [tbin];
+      gain += RandGauss::shoot(0., gwidths->getValue (capId));
     }
     // since gain is (GeV/fC)
     double fCperPE = GeVperPE / gain;
