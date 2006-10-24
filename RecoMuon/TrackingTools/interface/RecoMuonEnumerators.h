@@ -6,4 +6,7 @@ namespace recoMuon{
   enum SeedPosition{in,out};
 }  
 
+enum ReconstructionDirection {insideOut, outsideIn};
+enum MuonReconstructionSeedOption {internalSeeds, externalSeeds};
+
 #endif 
