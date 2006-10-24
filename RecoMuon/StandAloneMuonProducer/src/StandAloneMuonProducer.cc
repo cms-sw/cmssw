@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/09/15 12:04:31 $
- *   $Revision: 1.17 $
+ *   $Date: 2006/10/19 18:43:24 $
+ *   $Revision: 1.18 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -55,7 +55,9 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   theService = new MuonServiceProxy(serviceParameters);
 
   // the propagator name for the track loader
-  string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagatorName");
+
+  string trackLoaderPropagatorName = parameterSet.getParameter<string>("TrackLoaderPropagator");
+
   bool theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);
 
   // instantiate the concrete trajectory builder in the Track Finder
