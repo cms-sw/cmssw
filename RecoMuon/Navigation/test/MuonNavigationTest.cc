@@ -1,8 +1,8 @@
 #include <memory>
 /** \file MuonNavigationTest
  *
- *  $Date: 2006/06/22 13:49:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/28 07:40:15 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu
  */
 
@@ -92,5 +92,5 @@ MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(MuonNavigationTest)
+DEFINE_FWK_MODULE(MuonNavigationTest);
 
