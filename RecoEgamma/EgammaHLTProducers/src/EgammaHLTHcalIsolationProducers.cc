@@ -1,27 +1,52 @@
+/** \class EgammaHLTHcalIsolationProducers
+ *
+ *  \author Monica Vazquez Acosta (CERN)
+ *
+ */
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducers.h"
+#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTHcalIsolation.h"
 
+// Framework
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-EgammaHLTHcalIsolationProducers::EgammaHLTHcalIsolationProducers(const edm::ParameterSet& iConfig)
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+
+#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
+
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+EgammaHLTHcalIsolationProducers::EgammaHLTHcalIsolationProducers(const edm::ParameterSet& config) : conf_(config)
 {
-   //register your products
-/* Examples
-   produces<ExampleData2>();
+ // use configuration file to setup input/output collection names
+  recoEcalCandidateProducer_               = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
 
-   //if do put with a label
-   produces<ExampleData2>("label");
-*/
-   //now do what ever other initialization is needed
+  hbRecHitProducer_           = conf_.getParameter<edm::InputTag>("hbRecHitProducer");
+  hfRecHitProducer_           = conf_.getParameter<edm::InputTag>("hfRecHitProducer");
 
+  egHcalIsoPtMin_               = conf_.getParameter<double>("egHcalIsoPtMin");
+  egHcalIsoConeSize_            = conf_.getParameter<double>("egHcalIsoConeSize");
+
+  //register your products
+  produces < reco::RecoEcalCandidateIsolationMap >();
 }
 
 
-EgammaHLTHcalIsolationProducers::~EgammaHLTHcalIsolationProducers()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
+EgammaHLTHcalIsolationProducers::~EgammaHLTHcalIsolationProducers(){}
 
 
 //
@@ -32,23 +57,42 @@ EgammaHLTHcalIsolationProducers::~EgammaHLTHcalIsolationProducers()
 void
 EgammaHLTHcalIsolationProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-/* This is an event example
-   //Read 'ExampleData' from the Event
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
+  
+  // Get the HLT filtered objects
+  edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcandHandle;
+  iEvent.getByLabel(recoEcalCandidateProducer_,recoecalcandHandle);
+  
+  // Get the barrel hcal hits
+  edm::Handle<HBHERecHitCollection> hhitBarrelHandle;
+  iEvent.getByLabel(hbRecHitProducer_, hhitBarrelHandle);
+  const HBHERecHitCollection* hcalhitBarrelCollection = hhitBarrelHandle.product();
+  // Get the forward hcal hits
+  edm::Handle<HFRecHitCollection> hhitEndcapHandle;
+  iEvent.getByLabel(hfRecHitProducer_, hhitEndcapHandle);
+  const HFRecHitCollection* hcalhitEndcapCollection = hhitEndcapHandle.product();
+  //Get Calo Geometry
+  edm::ESHandle<CaloGeometry> pG;
+  iSetup.get<IdealGeometryRecord>().get(pG);
+  const CaloGeometry* caloGeom = pG.product();
+  
+  reco::RecoEcalCandidateIsolationMap isoMap;
+  
+  EgammaHLTHcalIsolation* test = new EgammaHLTHcalIsolation(egHcalIsoPtMin_,egHcalIsoConeSize_);
+   
+  for(reco::HLTFilterObjectWithRefs::const_iterator iRecoEcalCand = recoecalcandHandle->begin(); iRecoEcalCand != recoecalcandHandle->end(); iRecoEcalCand++){
+    
+    reco::RecoEcalCandidateRef recoecalcandref(reco::RecoEcalCandidateRef((recoecalcandHandle->getParticleRef(iRecoEcalCand-recoecalcandHandle->begin())).castTo<reco::RecoEcalCandidateRef>()));
+    
+    const reco::RecoCandidate *tempiRecoEcalCand = &(*recoecalcandref);
+    float isol =  test->isolPtSum(tempiRecoEcalCand,hcalhitBarrelCollection,hcalhitEndcapCollection,caloGeom);
+    
+    isoMap.insert(recoecalcandref, isol);
+    
+  }
 
-   //Use the ExampleData to create an ExampleData2 which 
-   // is put into the Event
-   std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   iEvent.put(pOut);
-*/
+  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> isolMap(new reco::RecoEcalCandidateIsolationMap(isoMap));
+  iEvent.put(isolMap);
 
-/* this is an EventSetup example
-   //Read SetupData from the SetupRecord in the EventSetup
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-*/
 }
 
 //define this as a plug-in
