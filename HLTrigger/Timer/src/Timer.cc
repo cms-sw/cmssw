@@ -14,7 +14,7 @@
 //
 // Original Author:  Christos Leonidopoulos
 //         Created:  Mon Jul 10 14:13:58 CEST 2006
-// $Id: Timer.cc,v 1.4 2006/08/14 14:52:57 gruen Exp $
+// $Id: Timer.cc,v 1.6 2006/08/14 15:26:49 gruen Exp $
 //
 //
 
@@ -93,4 +93,4 @@ Timer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(Timer)
+DEFINE_FWK_MODULE(Timer);
