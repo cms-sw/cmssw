@@ -1,0 +1,124 @@
+
+/*!
+
+\page RecoLocalTracker_Configuration Package RecoLocalTracker/Configuration
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoLocalTracker/Configuration/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoLocalTracker/Configuration/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc Configuration Package for RecoLocalTracker Sequences and Event Content definitions
+
+\subsection files Configuration Fragments
+
+- \b RecoLocalTracker.cff : configuration fragment which defines the sequences
+
+- \b RecoLocalTracker_EventContent.cff : configuration fragment which contains blocks definitions for FullEvent, RECO and AOD
+
+\subsection seq Sequences
+
+- \b trackerlocalreco : gloabl sequence to perform pixel and strip local reconstruction. 
+- \b striptrackerlocalreco : performs clusterization and global rechit production for strip tracker. Default (sensible) parameters used are
+ - clusterization
+\htmlonly
+<pre>
+module siStripClusters =  SiStripClusterizer {
+	string ClusterMode         = "ThreeThresholdClusterizer"
+	double ChannelThreshold    = 2.0
+	double SeedThreshold       = 3.0
+	double ClusterThreshold    = 5.0
+        int32 MaxHolesInCluster   = 0	
+        using SiStripNoiseServiceParameters
+}
+</pre>
+\endhtmlonly
+ - global tracking rechits
+\htmlonly
+<pre>
+module siStripMatchedRecHits = SiStripRecHitConverter{
+       string StripCPE = "StripCPEfromTrackAngle"
+       string Matcher = "StandardMatcher"
+ }
+</pre>
+\endhtmlonly
+.
+inputs are:
+ - Strip Digis: InputTag = \b siStripDigis
+
+products are:
+ - Strip Clusters: InputTag: \b siStripClusters
+ - Strip RecHits: InputTags: \b siStripRecHits \b siStripMatchedRecHits
+
+- \b pixeltrackerlocalreco : performs clusterization and global rechit production for pixel tracker. Seinsible default parameters are
+ - clusterization
+\htmlonly
+<pre>
+    module siPixelClusters =  SiPixelClusterProducer {
+         InputTag src = siPixelDigis
+         int32 ChannelThreshold = 2500
+         int32 SeedThreshold    = 3000
+         double ClusterThreshold = 5050
+         untracked bool MissCalibrate   = true
+    }
+</pre>
+\endhtmlonly
+ - global tracking rechits
+\htmlonly
+<pre>
+module siPixelRecHits = SiPixelRecHitConverter {
+           string CPE                = "FromDetPosition"
+           double TanLorentzAnglePerTesla = 0.106
+
+           bool  Alpha2Order = true
+}
+</pre>
+\endhtmlonly                                                                    
+.
+inputs are:
+ - Pixel Digis: Inputag = \b siPixelDigis
+
+products are:
+ - Pixel Clusters: InputTag: \b siPixelClusters
+ - Pixel RecHits: InputTag: \b siPixlRecHits
+
+\subsection eventc EventContent
+
+- \b FullEvent : in the FullEvent Tier we save
+\htmlonly
+<pre>
+#Clusters
+   "keep *_siPixelClusters_*_*",
+   "keep *_siStripClusters_*_*"
+#RecHits
+    "keep *_siPixelRecHits_*_*",
+    "keep *_siStripRecHits_*_*",
+    "keep *_siStripMatchedRecHits_*_*"</pre>
+\endhtmlonly
+
+- \b RECO : in the RECO Tier we save
+\htmlonly
+<pre>
+	Nothing!
+</pre>
+\endhtmlonly
+
+- \b AOD : in the AOD Tier we save
+\htmlonly
+<pre>
+	Nothing!
+</pre>
+\endhtmlonly
+
+<hr>
+
+Last updated: @DATE@ Someone
+
+
+*/
+
