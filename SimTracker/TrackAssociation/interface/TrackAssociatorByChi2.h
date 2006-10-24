@@ -20,7 +20,8 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   typedef std::vector< RecoToSimPair > RecoToSimPairAssociation;
 
   TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, edm::ParameterSet conf):
-    chi2cut(conf.getParameter<double>("chi2cut")){
+    chi2cut(conf.getParameter<double>("chi2cut")),
+    onlyDiagonal(conf.getParameter<bool>("onlyDiagonal")){
     theMF=mF;  
   }
 
@@ -56,6 +57,7 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
  private:
   edm::ESHandle<MagneticField> theMF;
   double chi2cut;
+  bool onlyDiagonal;
 };
 
 #endif

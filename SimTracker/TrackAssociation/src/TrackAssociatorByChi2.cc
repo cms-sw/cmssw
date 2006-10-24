@@ -113,7 +113,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 	    vert=Basic3DVector<double>((*v)->position().x(),(*v)->position().y(),(*v)->position().z());
 	  vind++;
 	}
-	vert/=10;//in cm
+
 	//TrackBase::ParameterVector tParameters=parametersAtClosestApproach2Order(vert, momAtVtx, rt->charge());
 	TrackBase::ParameterVector gParameters=parametersAtClosestApproachGeom(vert, momAtVtx, rt->charge());
 
@@ -195,8 +195,6 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 	if (vind==(*t)->vertIndex()) vert=Basic3DVector<double>((*v)->position().x(),(*v)->position().y(),(*v)->position().z());
 	vind++;
       }
-      vert/=10;
-
      
       int tindex=0;
       for (TrackCollection::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
