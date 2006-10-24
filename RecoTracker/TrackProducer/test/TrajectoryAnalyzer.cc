@@ -13,7 +13,7 @@
 //
 // Original Author:  Boris Mangano
 //         Created:  Mon Oct 16 10:38:20 CEST 2006
-// $Id$
+// $Id: TrajectoryAnalyzer.cc,v 1.1 2006/10/16 17:57:18 mangano Exp $
 //
 //
 
@@ -134,4 +134,4 @@ TrajectoryAnalyzer::endJob() {
 
 //define this as a plug-in
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TrajectoryAnalyzer)
+DEFINE_ANOTHER_FWK_MODULE(TrajectoryAnalyzer);
