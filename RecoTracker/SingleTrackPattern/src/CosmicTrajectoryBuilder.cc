@@ -36,43 +36,43 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
 
   //services
   es.get<IdealMagneticFieldRecord>().get(magfield);
-   es.get<TrackerDigiGeometryRecord>().get(tracker);
-
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  
  
- 
-   if (seedplus) { 	 
-     seed_plus=true; 	 
-     thePropagator=      new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) ); 	 
-     thePropagatorOp=    new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );} 	 
-   else {
-     seed_plus=false;
-     thePropagator=      new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) ); 	
-     thePropagatorOp=    new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) );
-   }
+  
+  if (seedplus) { 	 
+    seed_plus=true; 	 
+    thePropagator=      new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) ); 	 
+    thePropagatorOp=    new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );} 	 
+  else {
+    seed_plus=false;
+    thePropagator=      new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) ); 	
+    thePropagatorOp=    new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) );
+  }
+  
+  theUpdator=       new KFUpdator();
+  theEstimator=     new Chi2MeasurementEstimator(chi2cut);
+  
 
-   theUpdator=       new KFUpdator();
-   theEstimator=     new Chi2MeasurementEstimator(chi2cut);
+  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
+  es.get<TransientRecHitRecord>().get(builderName,theBuilder);
+  
 
-
-   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-   std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
-   es.get<TransientRecHitRecord>().get(builderName,theBuilder);
-   
-
-   RHBuilder=   theBuilder.product();
-
-
+  RHBuilder=   theBuilder.product();
 
 
-   theFitter=        new KFTrajectoryFitter(*thePropagator,
-					    *theUpdator,	
-					    *theEstimator) ;
 
 
-    theSmoother=      new KFTrajectorySmoother(*thePropagatorOp,
-					       *theUpdator,	
-					       *theEstimator);
- 
+  theFitter=        new KFTrajectoryFitter(*thePropagator,
+					   *theUpdator,	
+					   *theEstimator) ;
+  
+
+  theSmoother=      new KFTrajectorySmoother(*thePropagatorOp,
+					     *theUpdator,	
+					     *theEstimator);
+  
 }
 
 void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
@@ -85,31 +85,42 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 				  vector<Trajectory> &trajoutput)
 {
 
-  hits.clear();
-  trajFit.clear();
-
-  //order all the hits
-  vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel,collseed);
+ 
 
 
   std::vector<Trajectory> trajSmooth;
   std::vector<Trajectory>::iterator trajIter;
   
- 
   TrajectorySeedCollection::const_iterator iseed;
+  uint IS=0;
   for(iseed=collseed.begin();iseed!=collseed.end();iseed++){
+    bool seedplus=((*iseed).direction()==alongMomentum);
+    init(es,seedplus);
+    hits.clear();
+    trajFit.clear();
+    trajSmooth.clear();
+    //order all the hits
+    vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel,*iseed);
     Trajectory startingTraj = createStartingTrajectory(*iseed);
     AddHit(startingTraj,allHits);
- 
     for (trajIter=trajFit.begin(); trajIter!=trajFit.end();trajIter++){
       trajSmooth=theSmoother->trajectories((*trajIter));
     }
-
     for (trajIter= trajSmooth.begin(); trajIter!=trajSmooth.end();trajIter++){
       if((*trajIter).isValid()){
 	trajoutput.push_back((*trajIter));
       }
     }
+    delete theUpdator;
+    delete theEstimator;
+    delete thePropagator;
+    delete thePropagatorOp;
+    delete theFitter;
+    delete theSmoother;
+    //Only the first 30 seeds are considered
+    if (IS>30) return;
+    IS++;
+
   }
 };
 
@@ -162,7 +173,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
 				  const SiStripRecHit2DCollection &collrphi ,
 				  const SiStripMatchedRecHit2DCollection &collmatched,
 				  const SiPixelRecHitCollection &collpixel,
-				  const TrajectorySeedCollection &collseed){
+				  const TrajectorySeed &seed){
 
 
   //The Hits with global y more than the seed are discarded
@@ -171,8 +182,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
   vector<const TrackingRecHit*> allHits;
 
   SiStripRecHit2DCollection::const_iterator istrip;
-  TrajectorySeedCollection::const_iterator seedbegin=collseed.begin();
-  TrajectorySeed::range hRange= (*seedbegin).recHits();
+  TrajectorySeed::range hRange= seed.recHits();
   TrajectorySeed::const_iterator ihit;
   float yref=0.;
   for (ihit = hRange.first; 
@@ -263,7 +273,6 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
     //find the most compatible hit in the det
     chi2min=20000000;
     ibestdet=1000;
-     
      if (prSt.isValid()){
        LogDebug("CosmicTrackFinder") <<"STATE PROPAGATED AT DET "<<iraw<<" "<<prSt;
        for(icosm2=icosmhit;icosm2<Hits.size();icosm2++){
@@ -283,13 +292,12 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
        LogDebug("CosmicTrackFinder")<<"Chi2 contribution for hit at "
 				    <<RHBuilder->build(Hits[ibestdet])->globalPosition()
 				    <<" is "<<chi2min;
-       if(traj.foundHits()==1){
+       if(traj.foundHits()<3 &&(chi2min<chi2cut)){
 	 //check on the first hit after the seed
  	 GlobalVector ck=RHBuilder->build(Hits[ibestdet])->globalPosition()-
 	   traj.firstMeasurement().updatedState().globalPosition();
-	 if (abs(ck.x()/ck.y())>2) chi2min=300;
+	 if ((abs(ck.x()/ck.y())>2)||(abs(ck.z()/ck.y())>2))  chi2min=300;
        }
-
        if (chi2min<chi2cut)
 	 {	 
 	   TransientTrackingRecHit::RecHitPointer tmphitbestdet=RHBuilder->build(Hits[ibestdet]);
@@ -298,7 +306,6 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
 	     traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[ibestdet])
 			  , chi2min));
-
 	     LogDebug("CosmicTrackFinder") <<
 	       "STATE UPDATED WITH HIT AT POSITION "
 					   <<tmphitbestdet->globalPosition()
@@ -313,7 +320,6 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
      
      
   }
-  
   
   
 

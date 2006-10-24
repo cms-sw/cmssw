@@ -95,7 +95,7 @@ class CosmicTrajectoryBuilder
 					   const SiStripRecHit2DCollection &collrphi ,
 					   const SiStripMatchedRecHit2DCollection &collmatched,
 					   const SiPixelRecHitCollection &collpixel,
-					   const TrajectorySeedCollection &collseed);
+					   const TrajectorySeed &seed);
 
     TSOS startingTSOS(const TrajectorySeed& seed)const;
     void updateTrajectory( Trajectory& traj,

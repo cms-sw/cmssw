@@ -27,9 +27,11 @@ namespace cms
     conf_(conf)
   {
     geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
+    trinevents=conf_.getParameter<bool>("TrajInEvents");
     produces<reco::TrackCollection>();
     produces<TrackingRecHitCollection>();
     produces<reco::TrackExtraCollection>();
+    if (trinevents) produces<std::vector<Trajectory> >();
   }
 
 
@@ -63,7 +65,7 @@ namespace cms
     std::auto_ptr<reco::TrackCollection> output(new reco::TrackCollection);
     std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
     std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
-
+    std::auto_ptr<std::vector<Trajectory> > outputTJ(new std::vector<Trajectory> );
 
     edm::ESHandle<TrackerGeometry> tracker;
     es.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -71,16 +73,6 @@ namespace cms
   
     if((*seed).size()>0){
 
-      bool seedplus=((*(*seed).begin()).direction()==alongMomentum);
-  
-      if (seedplus)
-	LogDebug("CosmicTrackFinder")<<"Reconstruction along momentum ";
-      else
-	LogDebug("CosmicTrackFinder")<<"Reconstruction opposite to momentum";
-      cosmicTrajectoryBuilder_.init(es,seedplus);
-      
-      
-      
       std::vector<Trajectory> trajoutput;
       
       cosmicTrajectoryBuilder_.run(*seed,
@@ -94,12 +86,27 @@ namespace cms
    
       
       if(trajoutput.size()>0){
-	//Trajectory from the algorithm
-	const Trajectory  theTraj =(*trajoutput.begin());
-	
-	//RecHitCollection	
-	//RC const edm::OwnVector< const TransientTrackingRecHit>& transHits = theTraj.recHits();
-	//RC for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	std::vector<Trajectory*> tmpTraj;
+	std::vector<Trajectory>::iterator itr;
+	for (itr=trajoutput.begin();itr!=trajoutput.end();itr++)tmpTraj.push_back(&(*itr));
+
+	//The best track is selected
+	//FOR MTCC the criteria are:
+	//1)# of layers,2) # of Hits,3)Chi2
+	if (geometry=="MTCC")  stable_sort(tmpTraj.begin(),tmpTraj.end(),CompareTrajLay());
+	else  stable_sort(tmpTraj.begin(),tmpTraj.end(),CompareTrajChi());
+
+
+
+	const Trajectory  theTraj = *(*tmpTraj.begin());
+	if(trinevents) outputTJ->push_back(theTraj);
+	bool seedplus=(theTraj.seed().direction()==alongMomentum);
+    
+	if (seedplus)
+	  LogDebug("CosmicTrackFinder")<<"Reconstruction along momentum ";
+	else
+	  LogDebug("CosmicTrackFinder")<<"Reconstruction opposite to momentum";
+
 	Trajectory::RecHitContainer transHits = theTraj.recHits();
 	for(Trajectory::RecHitContainer::const_iterator j=transHits.begin();
 	    j!=transHits.end(); j++){
@@ -172,11 +179,12 @@ namespace cms
 	theTrack.setHitPattern((*theTrackExtraRef).recHits());
 
 	output->push_back(theTrack);
-
+	delete theTrackExtra;
       }
 
     }
 	e.put(output);
-  
+	if (trinevents)	e.put(outputTJ);
+
   }
 }
