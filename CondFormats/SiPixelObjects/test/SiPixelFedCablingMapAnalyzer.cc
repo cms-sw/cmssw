@@ -64,4 +64,4 @@ void SiPixelFedCablingMapAnalyzer::analyze( const edm::Event& iEvent, const edm:
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelFedCablingMapAnalyzer)
+DEFINE_FWK_MODULE(SiPixelFedCablingMapAnalyzer);
