@@ -347,4 +347,4 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(Geant4ePropagatorAnalyzer)
+DEFINE_FWK_MODULE(Geant4ePropagatorAnalyzer);
