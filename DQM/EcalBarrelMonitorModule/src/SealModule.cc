@@ -5,5 +5,5 @@
 
 #include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorModule.h>
 
-DEFINE_FWK_MODULE(EcalBarrelMonitorModule)
+DEFINE_FWK_MODULE(EcalBarrelMonitorModule);
 
