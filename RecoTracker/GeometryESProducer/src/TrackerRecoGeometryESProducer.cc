@@ -37,4 +37,4 @@ TrackerRecoGeometryESProducer::produce(const TrackerRecoGeometryRecord & iRecord
 }
 
 
-DEFINE_FWK_EVENTSETUP_MODULE(TrackerRecoGeometryESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(TrackerRecoGeometryESProducer);

@@ -8,4 +8,4 @@
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
 EVENTSETUP_DATA_REG(MeasurementTracker);
-DEFINE_FWK_EVENTSETUP_MODULE(MeasurementTrackerESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(MeasurementTrackerESProducer);

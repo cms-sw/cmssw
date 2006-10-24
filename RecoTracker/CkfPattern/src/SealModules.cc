@@ -17,6 +17,6 @@ using cms::CkfTrackCandidateMaker;
 
 EVENTSETUP_DATA_REG(TrackerTrajectoryBuilder);
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CkfTrajectoryBuilderESProducer)
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(GroupedCkfTrajectoryBuilderESProducer)
-DEFINE_ANOTHER_FWK_MODULE(CkfTrackCandidateMaker)
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CkfTrajectoryBuilderESProducer);
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(GroupedCkfTrajectoryBuilderESProducer);
+DEFINE_ANOTHER_FWK_MODULE(CkfTrackCandidateMaker);

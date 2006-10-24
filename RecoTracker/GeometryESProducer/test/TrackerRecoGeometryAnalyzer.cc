@@ -79,6 +79,6 @@ TrackerRecoGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TrackerRecoGeometryAnalyzer)
+DEFINE_FWK_MODULE(TrackerRecoGeometryAnalyzer);
  
  
