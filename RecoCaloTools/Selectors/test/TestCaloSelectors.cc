@@ -60,5 +60,5 @@ void TestCaloSelectors::analyze(const edm::Event& evt, const edm::EventSetup& c)
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TestCaloSelectors)
+DEFINE_ANOTHER_FWK_MODULE(TestCaloSelectors);
 
