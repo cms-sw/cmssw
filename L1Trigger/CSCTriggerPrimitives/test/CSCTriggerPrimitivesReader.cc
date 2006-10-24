@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/10/09 14:09:34 $
-//   $Revision: 1.6 $
+//   $Date: 2006/10/13 13:37:01 $
+//   $Revision: 1.7 $
 //
 //   Modifications:
 //
@@ -88,7 +88,7 @@ bool CSCTriggerPrimitivesReader::bookedEfficHistos  = false;
 CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& conf) : eventsAnalyzed(0) {
 
   // Various input parameters.
-  lctProducer_ = conf.getUntrackedParameter<string>("CSCTriggerPrimitivesProducer");
+  lctProducer_ = conf.getUntrackedParameter<string>("CSCTriggerPrimitivesProducer", "");
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
   debug        = conf.getUntrackedParameter<bool>("debug", false);
@@ -834,14 +834,9 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	  int csctype = getCSCType(detid);
 	  hAlctCompFoundCsc[csctype]->Fill(cham);
 	  if (ndata != nemul) {
-	    // Do not worry about differences in stations 3 and 4 for now
-	    // since their patterns were not mirrored.  To be removed for
-	    // MTCC II.
-	    if (stat == 1 || stat == 2) {
-	      LogDebug("CSCTriggerPrimitivesReader")
-		<< "    +++ Different numbers of ALCTs found: data = " << ndata
-		<< " emulator = " << nemul << " +++";
-	    }
+	    if (debug) LogDebug("CSCTriggerPrimitivesReader")
+	      << "    +++ Different numbers of ALCTs found: data = " << ndata
+	      << " emulator = " << nemul << " +++";
 	  }
 	  else {
 	    hAlctCompSameNCsc[csctype]->Fill(cham);
@@ -879,17 +874,12 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 		    data_collB     == emul_collB  &&
 		    data_wiregroup == emul_wiregroup) {
 		  if (ndata == nemul) hAlctCompMatchCsc[csctype]->Fill(cham);
-		  // Again ignore differences in stations 3 and 4 for now.
-		  if (stat == 1 || stat == 2) {
-		    LogDebug("CSCTriggerPrimitivesReader")
-		      << "        Identical ALCTs #" << data_trknmb;
-		  }
+		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+		    << "        Identical ALCTs #" << data_trknmb;
 		}
 		else {
-		  if (stat == 1 || stat == 2) {
-		    LogDebug("CSCTriggerPrimitivesReader")
-		      << "        Different ALCTs #" << data_trknmb;
-		  }
+		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+		    << "        Different ALCTs #" << data_trknmb;
 		}
 	      }
 	    }
@@ -954,7 +944,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	  int csctype = getCSCType(detid);
 	  hClctCompFoundCsc[csctype]->Fill(cham);
 	  if (ndata != nemul) {
-	    LogDebug("CSCTriggerPrimitivesReader")
+	    if (debug) LogDebug("CSCTriggerPrimitivesReader")
 	      << "    +++ Different numbers of CLCTs found: data = " << ndata
 	      << " emulator = " << nemul << " +++";
 	  }
@@ -992,11 +982,11 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		    data_keystrip  == emul_keystrip &&
 		    data_cfeb      == emul_cfeb) {
 		  if (ndata == nemul) hClctCompMatchCsc[csctype]->Fill(cham);
-		  LogDebug("CSCTriggerPrimitivesReader")
+		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 		    << "        Identical CLCTs #" << data_trknmb;
 		}
 		else {
-		  LogDebug("CSCTriggerPrimitivesReader")
+		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 		    << "        Different CLCTs #" << data_trknmb;
 		}
 	      }
@@ -1064,14 +1054,9 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	  int csctype = getCSCType(detid);
 	  hLctCompFoundCsc[csctype]->Fill(cham);
 	  if (ndata != nemul) {
-	    // Do not worry about differences in stations 3 and 4 for now
-	    // since their patterns were not mirrored.  To be removed for
-	    // MTCC II.
-	    if (stat == 1 || stat == 2) {
-	      LogDebug("CSCTriggerPrimitivesReader")
-		<< "    +++ Different numbers of LCTs found: data = " << ndata
-		<< " emulator = " << nemul << " +++";
-	    }
+	    if (debug) LogDebug("CSCTriggerPrimitivesReader")
+	      << "    +++ Different numbers of LCTs found: data = " << ndata
+	      << " emulator = " << nemul << " +++";
 	  }
 	  else {
 	    hLctCompSameNCsc[csctype]->Fill(cham);
@@ -1115,17 +1100,12 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		    data_striptype == emul_striptype &&
 		    data_bend      == emul_bend) {
 		  if (ndata == nemul) hLctCompMatchCsc[csctype]->Fill(cham);
-		  // Again ignore differences in stations 3 and 4 for now.
-		  if (stat == 1 || stat == 2) {
-		    LogDebug("CSCTriggerPrimitivesReader")
-		      << "        Identical LCTs #" << data_trknmb;
-		  }
+		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+		    << "        Identical LCTs #" << data_trknmb;
 		}
 		else {
-		  if (stat == 1 || stat == 2) {
-		    LogDebug("CSCTriggerPrimitivesReader")
-		      << "        Different LCTs #" << data_trknmb;
-		  }
+		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
+		    << "        Different LCTs #" << data_trknmb;
 		}
 	      }
 	    }
@@ -2689,4 +2669,4 @@ double CSCTriggerPrimitivesReader::getHsPerRad(const int idh) {
   return (NCHAMBERS[idh]*MAX_HS[idh]/TWOPI);
 }
 
-DEFINE_FWK_MODULE(CSCTriggerPrimitivesReader)
+DEFINE_FWK_MODULE(CSCTriggerPrimitivesReader);
