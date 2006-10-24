@@ -54,7 +54,7 @@ MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eve
 
   MuIsoDeposit dep(theDepositLabel, muonDir.eta(), muonDir.phi() );
   
-  Direction depDir(dep.getEta(), dep.getPhi());
+  Direction depDir(dep.eta(), dep.phi());
   TrackCollection::const_iterator tk;
   for (tk = sel_tracks.begin(); tk != sel_tracks.end(); tk++) {
     if (std::find(theVetoCollection.begin(), theVetoCollection.end(), &(*tk))!=theVetoCollection.end()) continue;

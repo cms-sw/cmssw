@@ -32,20 +32,14 @@ namespace reco {
     /// Destructor
     virtual ~MuIsoDeposit(){};
 
-    /// Set eta of isolation cone
-    void setEta(double eta) {eta_ = eta;};
-
-    /// Set phi of isolation cone
-    void setPhi(double phi) {phi_ = phi;};
-
     /// Get type of deposit (ECAL, HCAL, Tracker)
     const std::string getType() const {return type_;};
 
     /// Get eta of isolation cone
-    double getEta() const {return eta_;};
+    double eta() const {return eta_;};
 
     /// Get phi of isolation cone
-    double getPhi() const {return phi_;};
+    double phi() const {return phi_;};
 
     /// Add energy or pT
     void addDeposit(double dr, double ene);
