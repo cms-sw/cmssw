@@ -65,83 +65,88 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
  
   
 
-  
  
-  if(HitPairs.size()>0){
+ 
+  //  if(HitPairs.size()>0){
+  for(uint is=0;is<HitPairs.size();is++){
 
-
-    stable_sort(HitPairs.begin(),HitPairs.end(),CompareHitPairsY(iSetup));
+    //   stable_sort(HitPairs.begin(),HitPairs.end(),CompareHitPairsY(iSetup));
     
     
-    GlobalPoint inner = tracker->idToDet(HitPairs[0].inner()->geographicalId())->surface().toGlobal(HitPairs[0].inner()->localPosition());
-    GlobalPoint outer = tracker->idToDet(HitPairs[0].outer()->geographicalId())->surface().toGlobal(HitPairs[0].outer()->localPosition());
- 
+    GlobalPoint inner = tracker->idToDet(HitPairs[is].inner()->geographicalId())->surface().toGlobal(HitPairs[is].inner()->localPosition());
+    GlobalPoint outer = tracker->idToDet(HitPairs[is].outer()->geographicalId())->surface().toGlobal(HitPairs[is].outer()->localPosition());
+    
     LogDebug("CosmicSeedFinder") <<"inner point of the seed "<<inner <<" outer point of the seed "<<outer; 
-    //RC const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[0].outer());  
-    TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[0].outer());
+    //RC const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[is].outer());  
+    TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[is].outer());
 
     edm::OwnVector<TrackingRecHit> hits;
-    hits.push_back(HitPairs[0].outer()->clone());
-    //    hits.push_back(HitPairs[0].inner()->clone());
-    
+    hits.push_back(HitPairs[is].outer()->clone());
+    //    hits.push_back(HitPairs[is].inner()->clone());
 
-    if((outer.y()-inner.y())>0){
-      GlobalTrajectoryParameters Gtp(outer,
-				     inner-outer,
-				     -1, &(*magfield));
-      
-      FreeTrajectoryState CosmicSeed(Gtp,
-				     CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
-      
-      
-      LogDebug("CosmicSeedFinder") << " FirstTSOS "<<CosmicSeed;
-      //First propagation
-      const TSOS outerState =
-	thePropagatorAl->propagate(CosmicSeed,
-				   tracker->idToDet(HitPairs[0].outer()->geographicalId())->surface());
-      if ( outerState.isValid()) {
-	LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
-	const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
-	if ( outerUpdated.isValid()) {
-	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
+    for (int i=0;i<2;i++){
+      //FIRST STATE IS CALCULATED CONSIDERING THAT THE CHARGE CAN BE POSITIVE OR NEGATIVE
+      int predsign=(2*i)-1;
+      if((outer.y()-inner.y())>0){
+	GlobalTrajectoryParameters Gtp(outer,
+				       inner-outer,
+				       predsign, 
+				       &(*magfield));
 	
-	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated, HitPairs[0].outer()->geographicalId().rawId());
-	  
-	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
-	  output.push_back(*trSeed);
-	  
-	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
-      }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
+	FreeTrajectoryState CosmicSeed(Gtp,
+				       CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
+	
+	
+	LogDebug("CosmicSeedFinder") << " FirstTSOS "<<CosmicSeed;
+	//First propagation
+	const TSOS outerState =
+	  thePropagatorAl->propagate(CosmicSeed,
+				     tracker->idToDet(HitPairs[is].outer()->geographicalId())->surface());
+	if ( outerState.isValid()) {
+	  LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
+	  const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
+	  if ( outerUpdated.isValid()) {
+	    LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
+	    
+	    PTrajectoryStateOnDet *PTraj=  
+	      transformer.persistentState(outerUpdated, HitPairs[is].outer()->geographicalId().rawId());
+	    
+	    TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
+	    output.push_back(*trSeed);
+	    
+	  }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
+	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
       
       
-    }
-    else{
-      GlobalTrajectoryParameters Gtp(outer,
-				     outer-inner,
-				     -1, &(*magfield));
-      FreeTrajectoryState CosmicSeed(Gtp,
-				     CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
-      LogDebug("CosmicSeedFinder") << " FirstTSOS "<<CosmicSeed;
-      //First propagation
-      const TSOS outerState =
-	thePropagatorAl->propagate(CosmicSeed,
-				   tracker->idToDet(HitPairs[0].outer()->geographicalId())->surface());
-      if ( outerState.isValid()) {
-
-	LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
-	const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
-	if ( outerUpdated.isValid()) {
+      }
+      else{
+	GlobalTrajectoryParameters Gtp(outer,
+				       outer-inner,
+				       predsign, 
+				       &(*magfield));
+	FreeTrajectoryState CosmicSeed(Gtp,
+				       CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
+	LogDebug("CosmicSeedFinder") << " FirstTSOS "<<CosmicSeed;
+	//First propagation
+	const TSOS outerState =
+	  thePropagatorAl->propagate(CosmicSeed,
+				     tracker->idToDet(HitPairs[is].outer()->geographicalId())->surface());
+	if ( outerState.isValid()) {
+	  
+	  LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
+	  const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
+	  if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated, HitPairs[0].outer()->geographicalId().rawId());
+	    transformer.persistentState(outerUpdated, HitPairs[is].outer()->geographicalId().rawId());
 	  
 	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,oppositeToMomentum);
 	  output.push_back(*trSeed);
 	
-	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
-      }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
+	  }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
+	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
+      }
+      
     }
-
   }
 }

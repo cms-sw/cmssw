@@ -74,23 +74,23 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 	  // for the other geometries must be verified
 	  //Overlaps in the difference in z is decreased and the difference in phi is
 	  //less than 0.05
-	  if ((DeltaR<0)&&(abs(z_diff)<18)&&(abs(ih->phi()-oh->phi())<0.05)&&(dxdy<2)) allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
+	  if ((DeltaR<0)&&(abs(z_diff)<18)&&(abs(ih->phi()-oh->phi())<0.05)&&(dxdy<2)) result.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
 	}
-	else  allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
+	else  result.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
     } 
    }
     
   }
-  stable_sort(allthepairs.begin(),allthepairs.end(),CompareHitPairsY(iSetup));
-  //Seed from overlaps are saved only if 
-  //no others have been saved
+//   stable_sort(allthepairs.begin(),allthepairs.end(),CompareHitPairsY(iSetup));
+//   //Seed from overlaps are saved only if 
+//   //no others have been saved
 
-  if (allthepairs.size()>0) {
-    if (seedfromoverlaps) {
-      if (result.size()==0) result.push_back(allthepairs[0]);
-    }
-    else result.push_back(allthepairs[0]);
-  }
+//   if (allthepairs.size()>0) {
+//     if (seedfromoverlaps) {
+//       if (result.size()==0) result.push_back(allthepairs[0]);
+//     }
+//     else result.push_back(allthepairs[0]);
+//   }
 
 }
 
