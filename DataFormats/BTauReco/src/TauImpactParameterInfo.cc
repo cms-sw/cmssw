@@ -17,6 +17,7 @@ double reco::TauImpactParameterInfo::discriminator (double ip_min,double ip_max,
 	  const TauImpactParameterTrackData* ipData = getTrackData(leadingTrack);
 	  Measurement1D ip = ipData->transverseIp;
 	  if(use3D) ip = ipData->ip3D;
+
 	  if( ip.value() < ip_min ||
 	      ip.value() > ip_max ||
 	      ip.significance() < sip_min ){

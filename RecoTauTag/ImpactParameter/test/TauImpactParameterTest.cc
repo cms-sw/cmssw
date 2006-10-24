@@ -71,14 +71,14 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 
                 cout << "    track pt, eta " << (*iTrack)->pt() << " " 
                                              << (*iTrack)->eta() << endl;
-cout << "check track sip " << (*iTrack)->d0() << endl;
+
 		const reco::TauImpactParameterTrackData* trackData = iJet->getTrackData(*iTrack);
-cout << "check loop 1" << endl;
+
 		if(! trackData == 0){
 		  Measurement1D tip = trackData->transverseIp;
-cout << "check loop 2" << endl;
-		  cout << "    track ip,sip,err " << tip.value()
-		       << " " 			<< tip.significance()
+
+		  cout << "          ip,sip,err " << tip.value()
+		       << " " 	 		  << tip.significance()
                        << " "                     << tip.error() << endl; 
 		}else{
 		  cout << "    track data = 0! " << endl;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: ImpactParameter.cc,v 1.3 2006/06/14 17:38:04 gennai Exp $
+// $Id: ImpactParameter.cc,v 1.1 2006/10/10 07:42:16 slehti Exp $
 //
 //
 
@@ -93,7 +93,6 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           reco::VertexCollection::const_iterator iVertex;
 
 	  for(iVertex = vertCollection.begin();iVertex!=vertCollection.end();iVertex++){
-	    cout << "Vertex loop " << iVertex->z() << endl;
 	    PV = *iVertex;
 	  }
 

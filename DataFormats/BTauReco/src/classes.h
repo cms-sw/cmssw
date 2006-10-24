@@ -66,6 +66,7 @@ namespace {
     edm::RefVector<reco::SoftLeptonTagInfoCollection> rv6;
 
     reco::TauImpactParameterInfoCollection v7;
+    reco::TauImpactParameterTrackData ct7;
     edm::Wrapper<reco::TauImpactParameterInfoCollection> w7;
     edm::Ref<reco::TauImpactParameterInfoCollection> r7;
     edm::RefProd<reco::TauImpactParameterInfoCollection> rp7;
