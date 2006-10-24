@@ -13,7 +13,7 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id$
+// $Id: EgammaHLTEcalIsolationProducers.h,v 1.1 2006/06/27 17:35:19 monicava Exp $
 //
 //
 
@@ -42,6 +42,19 @@ class EgammaHLTEcalIsolationProducers : public edm::EDProducer {
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
+
+  edm::InputTag recoEcalCandidateProducer_;
+  edm::InputTag bcBarrelProducer_;
+  edm::InputTag bcEndcapProducer_;
+  edm::InputTag scIslandBarrelProducer_;
+  edm::InputTag scIslandEndcapProducer_;
+
+  edm::ParameterSet conf_;
+
+  double  egEcalIsoEtMin_;
+  double  egEcalIsoConeSize_;
+
+
 };
 

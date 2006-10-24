@@ -4,16 +4,11 @@
 // Class:      EgammaHLTHcalIsolationProducers
 // 
 /**\class EgammaHLTHcalIsolationProducers EgammaHLTHcalIsolationProducers.cc RecoEgamma/EgammaHLTHcalIsolationProducers/interface/EgammaHLTHcalIsolationProducers.h
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
 */
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id$
+// $Id: EgammaHLTHcalIsolationProducers.h,v 1.1 2006/06/27 17:35:36 monicava Exp $
 //
 //
 
@@ -43,5 +38,16 @@ class EgammaHLTHcalIsolationProducers : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
+
+  edm::InputTag recoEcalCandidateProducer_;
+  edm::InputTag hbRecHitProducer_;
+  edm::InputTag hfRecHitProducer_;
+
+  double egHcalIsoPtMin_;
+  double egHcalIsoConeSize_;
+
+  edm::ParameterSet conf_;
+
+
 };
 
