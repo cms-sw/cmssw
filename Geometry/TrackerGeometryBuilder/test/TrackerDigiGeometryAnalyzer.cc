@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.5 2006/06/21 18:20:18 fambrogl Exp $
+// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.6 2006/07/19 08:12:28 fambrogl Exp $
 //
 //
 
@@ -307,4 +307,4 @@ std::ostream& TrackerDigiGeometryAnalyzer::cylindrical( std::ostream& os,
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TrackerDigiGeometryAnalyzer)
+DEFINE_FWK_MODULE(TrackerDigiGeometryAnalyzer);

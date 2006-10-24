@@ -33,4 +33,4 @@ TrackerGeometricDetESModule::produce(const IdealGeometryRecord & iRecord){
 }
 
 
-DEFINE_FWK_EVENTSETUP_MODULE(TrackerGeometricDetESModule)
+DEFINE_FWK_EVENTSETUP_MODULE(TrackerGeometricDetESModule);

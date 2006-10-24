@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: GeometricDetAnalyzer.cc,v 1.1 2006/03/15 16:40:08 fambrogl Exp $
+// $Id: GeometricDetAnalyzer.cc,v 1.2 2006/04/20 12:52:53 fambrogl Exp $
 //
 //
 
@@ -120,4 +120,4 @@ GeometricDetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GeometricDetAnalyzer)
+DEFINE_FWK_MODULE(GeometricDetAnalyzer);

@@ -58,4 +58,4 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord){
 }
 
 
-DEFINE_FWK_EVENTSETUP_MODULE(TrackerDigiGeometryESModule)
+DEFINE_FWK_EVENTSETUP_MODULE(TrackerDigiGeometryESModule);

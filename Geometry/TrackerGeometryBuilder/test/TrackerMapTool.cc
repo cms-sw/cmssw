@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerMapTool.cc,v 1.1 2006/04/07 14:54:37 fambrogl Exp $
+// $Id: TrackerMapTool.cc,v 1.2 2006/04/12 12:05:08 fambrogl Exp $
 //
 //
 
@@ -272,4 +272,4 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   
 }
 //define this as a plug-in
-DEFINE_FWK_MODULE(TrackerMapTool)
+DEFINE_FWK_MODULE(TrackerMapTool);
