@@ -2,28 +2,24 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/10/12 16:36:07 $
- *  $Revision: 1.28 $
+ *  $Date: 2006/10/19 18:40:43 $
+ *  $Revision: 1.29 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+//#include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -34,10 +30,15 @@
 using namespace edm;
 
 // constructor
-MuonTrackLoader::MuonTrackLoader(std::string trackLoaderPropagatorName, bool putTrajIntoEvent, const MuonServiceProxy *service): 
-  thePropagatorName(trackLoaderPropagatorName),
-  theTrajectoryFlag(putTrajIntoEvent),
-  theService(service){}
+MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServiceProxy *service): 
+  theService(service){
+  
+  // the propagator name for the track loader
+  thePropagatorName = parameterSet.getParameter<std::string>("TrackLoaderPropagator");
+  
+  // Flag to put the trajectory into the event
+  theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);  
+}
 
 
 edm::OrphanHandle<reco::TrackCollection> 

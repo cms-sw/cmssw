@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2006/09/01 15:45:19 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/10/19 18:39:44 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -18,7 +18,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-namespace edm {class Event; class EventSetup;}
+namespace edm {class Event; class EventSetup; class ParameterSet;}
 
 class Trajectory;
 class Propagator;
@@ -31,7 +31,7 @@ class MuonTrackLoader {
     typedef MuonCandidate::CandidateContainer CandidateContainer;
 
     /// Constructor for the STA reco the args must be specify!
-    MuonTrackLoader(std::string trackLoaderPropagatorName = "", bool putTrajectoryIntoEvent = false, const MuonServiceProxy *service =0);
+    MuonTrackLoader(edm::ParameterSet &parameterSet, const MuonServiceProxy *service =0);
 
     /// Destructor
     virtual ~MuonTrackLoader() {}
