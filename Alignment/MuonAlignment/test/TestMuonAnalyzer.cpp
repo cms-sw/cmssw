@@ -158,4 +158,4 @@ void TestMuonAnalyzer::fillTree( const GeomDet* geomDet )
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestMuonAnalyzer)
+DEFINE_FWK_MODULE(TestMuonAnalyzer);

@@ -128,4 +128,4 @@ void TestTrackerHierarchy::dumpAlignable( Alignable* alignable )
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestTrackerHierarchy)
+DEFINE_FWK_MODULE(TestTrackerHierarchy);

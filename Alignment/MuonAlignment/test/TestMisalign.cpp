@@ -158,4 +158,4 @@ void TestMisalign::fillTree( const GeomDet* geomDet )
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestMisalign)
+DEFINE_FWK_MODULE(TestMisalign);

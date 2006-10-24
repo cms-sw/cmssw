@@ -127,4 +127,4 @@ void TestMuonHierarchy::dumpAlignable( Alignable* alignable )
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestMuonHierarchy)
+DEFINE_FWK_MODULE(TestMuonHierarchy);

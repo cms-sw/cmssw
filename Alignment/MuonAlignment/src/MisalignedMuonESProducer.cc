@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/16 14:39:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/10/20 08:59:31 $
+ *  $Revision: 1.7 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -138,4 +138,4 @@ void MisalignedMuonESProducer::saveToDB( void )
 }
 //__________________________________________________________________________________________________
 
-DEFINE_FWK_EVENTSETUP_MODULE(MisalignedMuonESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(MisalignedMuonESProducer);

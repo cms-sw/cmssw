@@ -104,4 +104,4 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 }
 
 
-DEFINE_FWK_EVENTSETUP_MODULE(MisalignedTrackerESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(MisalignedTrackerESProducer);

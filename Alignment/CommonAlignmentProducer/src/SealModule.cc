@@ -9,4 +9,4 @@
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_LOOPER( AlignmentProducer );
 DEFINE_ANOTHER_FWK_MODULE( AlignmentTrackSelectorModule );
-DEFINE_ANOTHER_FWK_MODULE( AlignmentESDataAnalyzer )
+DEFINE_ANOTHER_FWK_MODULE( AlignmentESDataAnalyzer );

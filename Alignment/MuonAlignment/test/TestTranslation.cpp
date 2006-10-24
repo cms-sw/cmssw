@@ -196,4 +196,4 @@ void TestTranslation::apply( Alignable* it )
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestTranslation)
+DEFINE_FWK_MODULE(TestTranslation);
