@@ -59,6 +59,10 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet,
     unsigned int iphi = 1;
     double  dphi = (hcalCells[i].phiBinWidth())*deg;
     double   phi =-(hcalCells[i].phiOffset())*deg + 0.5*dphi;
+    LogDebug("HCalGeom") << "HcalDDDGeometryLoader: Subdet " << subdet
+			 << " eta " << etaRing << " depth " << depthBin
+			 << " modules " << hcalCells[i].nPhiModule() << " "
+			 << phiInc << " phi " << phi/deg << " " << dphi/deg;
     for (int k = 0; k < hcalCells[i].nPhiBins(); k++) {
       LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill Cell " << i
 			   << " eta " << etaRing << " phi " << iphi << "("
