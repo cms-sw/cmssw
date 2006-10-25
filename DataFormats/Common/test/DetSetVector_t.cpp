@@ -1,12 +1,12 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.8 2006/06/14 23:43:43 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.9 2006/08/30 23:28:34 wmtan Exp $
  *  CMSSW
  *
  */
 
 #include <algorithm>
 #include <cassert>
-#include <iostream>
+//#include <iostream>
 #include <iterator>
 #include <ostream>
 #include <vector>
@@ -140,8 +140,8 @@ void sanity_check(coll_type const& c)
   check_outer_collection_order(c);
   for (coll_type::const_iterator i = c.begin(), e = c.end(); i!=e; ++i)
     {
-      printDetSet(*i, std::cerr);
-      std::cerr << '\n';
+//       printDetSet(*i, std::cerr);
+//       std::cerr << '\n';
       check_inner_collection_order(*i);
     }
 }
@@ -167,7 +167,7 @@ void check_ids(coll_type const& c)
 
 void detsetTest() 
 {
-  std::cerr << "\nStart DetSetVector_t detsetTest()\n";
+  //std::cerr << "\nStart DetSetVector_t detsetTest()\n";
   detset d;
   Value v1(1.1);
   Value v2(2.2);
@@ -176,15 +176,15 @@ void detsetTest()
   d.data.push_back(v2);
   std::sort(d.data.begin(), d.data.end());
   check_inner_collection_order(d);  
-  std::cerr << "\nEnd DetSetVector_t detsetTest()\n";
+  //std::cerr << "\nEnd DetSetVector_t detsetTest()\n";
 }
 
 void traitsTest() 
 {
-  std::cerr << "\nStart DetSetVector_t traitsTest()\n";
+  //std::cerr << "\nStart DetSetVector_t traitsTest()\n";
   assert(edm::has_postinsert_trait<int>::value == false);
   assert(edm::has_postinsert_trait<coll_type>::value == true);
-  std::cerr << "\nEnd DetSetVector_t traitsTest()\n";  
+  //std::cerr << "\nEnd DetSetVector_t traitsTest()\n";  
 }
 
 
@@ -472,17 +472,17 @@ int main()
     }
   catch (edm::Exception const& x) 
     {
-      std::cerr << "Exception: " << x << '\n';
+      //std::cerr << "Exception: " << x << '\n';
       rc = 1;
     }
   catch ( std::exception& x )
     {
-      std::cerr << "standard exception: " << x.what() << '\n';
+      //std::cerr << "standard exception: " << x.what() << '\n';
       rc = 3;
     }
   catch (...) 
     {
-      std::cerr << "Unknown exception\n";
+      //std::cerr << "Unknown exception\n";
       rc = 2;
     }
   return rc;

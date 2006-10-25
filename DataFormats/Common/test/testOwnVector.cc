@@ -1,4 +1,4 @@
-// $Id: testOwnVector.cc,v 1.3 2006/02/23 12:33:13 llista Exp $
+// $Id: testOwnVector.cc,v 1.4 2006/05/18 06:15:39 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -39,13 +39,16 @@ namespace test {
   public:
     virtual int f() const = 0;
   };
-  class b : public a {
+
+  class ClassB : public a {
   public:
-    b(int i) : ii(i) {;}
+    ClassB(int i) : ii(i) {;}
     virtual int f() const { return ii;  }
     int ii;
-    
+  private:
+    char waste[1024*1024];    
   };
+
   class ss {
   public:
     bool operator() ( const a & a1, const a & a2 ) const { 
@@ -86,13 +89,15 @@ void testOwnVector::checkAll() {
   CPPUNIT_ASSERT( deleted[ 2 ] );
   {
     edm::OwnVector<test::a> v;
-    test::a * aa = new test::b(2);
+    test::a * aa = new test::ClassB(2);
     v.push_back(aa);
-    aa = new test::b(1);
+    aa = new test::ClassB(1);
     v.push_back(aa);
-    aa = new test::b(3);
+    aa = new test::ClassB(3);
     v.push_back(aa);
     v.sort( test::ss() );
-    std::copy(v.begin(), v.end(), std::ostream_iterator<test::a>(std::cout, "\t"));
+    std::copy(v.begin(), 
+	      v.end(), 
+	      std::ostream_iterator<test::a>(std::cout, "\t"));
   }
 }
