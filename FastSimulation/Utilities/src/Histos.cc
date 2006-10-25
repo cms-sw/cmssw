@@ -20,7 +20,7 @@ Histos* Histos::instance() {
 Histos::~Histos() {}
 
 void 
-Histos::book(string name, 
+Histos::book(const string& name, 
 	     int nx, float xmin, float xmax,
 	     int ny, float ymin, float ymax) {
   
@@ -48,9 +48,9 @@ Histos::book(string name,
 }
 
 void 
-Histos::book(string name, 
+Histos::book(const string& name, 
 	     int nx, float xmin, float xmax,
-	     string option) {
+	     const string& option) {
   
   if ( theHistos.find(name) != theHistos.end() ) { 
 
@@ -66,10 +66,17 @@ Histos::book(string name,
 }
 
 void 
-Histos::put(string file, string name) {
+Histos::put(const string& file, string name) {
 
   TFile * f = new TFile(file.c_str(),"recreate");
   f->cd();
+  
+  HistoItr ho ;
+  for(ho=theObjects.begin();ho!=theObjects.end();++ho)
+    {
+      (*ho).second->Write((*ho).first.c_str());
+    }
+
 
   HistoItr hh = theHistos.find(name);
   if ( name == "" ) 
@@ -98,7 +105,7 @@ Histos::put(string file, string name) {
 }  
 
 void
-Histos::divide(string h1, string h2, string h3) {
+Histos::divide(const string& h1, const string& h2, const string& h3) {
 
   HistoItr hh1 = theHistos.find(h1);
   HistoItr hh2 = theHistos.find(h2);
@@ -142,12 +149,28 @@ Histos::divide(string h1, string h2, string h3) {
 
 }
 
+void Histos::addObject(const string& name, TObject * obj)
+{
+  HistoItr hh = theObjects.find(name);
+  if (hh != theObjects.end())
+    {
+      std::cout << "FamosHistos::addObject() : Object " << name 
+		<< " already exists" << std::endl;
+      return;
+    }
+  // Potential source of memory leaks if not carefully used 
+  theObjects.insert(std::pair<string,TObject*>(name,obj->Clone()));
+}
+
+
 
 void 
-Histos::fill(string name, float val1, float val2,float val3) {
+Histos::fill(const string& name, float val1, float val2,float val3) {
 
+  //  std::cout << " Fill " << name << " " << val1 << " " << val2 << " " << val3 << std::endl;
+  //  std::cout << &theHistos << std::endl;
   HistoItr hh = theHistos.find(name);
-
+  //  std::cout << " Fill done " << std::endl;
   if ( hh == theHistos.end() ) {
 
     std::cout << "Histos::fill() : Histogram " << name 
@@ -164,5 +187,29 @@ Histos::fill(string name, float val1, float val2,float val3) {
     if ( theTypes[name] == 3 ) 
       ( (TProfile*) ( (*hh).second ) )->Fill(val1,val2,val3);
   }
+
+}
+
+void Histos::fillByNumber(const std::string& name,int number,float val1,float val2,float val3)
+{
+  std::ostringstream oss;
+  oss << name << number;
+  fill(oss.str(),val1,val2,val3);
+}
+
+void Histos::bookByNumber(const std::string& name, int n1,int n2,
+			  int nx  , float xmin   , float xmax,
+			  int ny  , float ymin,  float ymax)
+{
+  if(n1>n2)
+    {
+      std::cout <<" Histos: problem with bookByNumber - Do nothing" << std::endl;
+    }
+  for(int ih=n1;ih<=n2;++ih)
+    {
+       std::ostringstream oss;
+       oss << name << ih;
+       book(oss.str(),nx,xmin,xmax,ny,ymin,ymax);
+    }
 
 }
