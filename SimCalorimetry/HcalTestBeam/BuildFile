@@ -1,6 +1,7 @@
 <use name=SimCalorimetry/HcalSimAlgos>
 <use name=SimCalorimetry/CaloSimAlgos>
 <use name=SimDataFormats/CrossingFrame>
+<use name=SimDataFormats/EcalTestBeam>
 <use name=CondFormats/HcalObjects>
 <use name=CalibCalorimetry/HcalAlgos>
 <use name=CalibFormats/HcalObjects>

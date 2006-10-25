@@ -19,6 +19,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
 
 #include<vector>
+#include<string>
 
 class HcalTBDigiProducer : public edm::EDProducer {
 
@@ -72,8 +73,10 @@ private:
 
   std::vector<PCaloHit> theHBHEHits, theHOHits;
 
-  bool   doPhaseShift;
+  std::string ecalTBInfoLabel;
   double thisPhaseShift;
+
+  bool   doPhaseShift;
   double tunePhaseShift;
 };
 

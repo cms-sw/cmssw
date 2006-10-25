@@ -14,6 +14,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 
 HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps) :
   theParameterMap(new HcalTBSimParameterMap(ps)), 
@@ -52,6 +53,7 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps) :
   theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim, doNoise);
 
   tunePhaseShift =  ps.getUntrackedParameter<double>("tunePhaseShiftTB", 1.);
+  ecalTBInfoLabel = ps.getUntrackedParameter<std::string>("EcalTBInfoLabel","SimEcalTBG4Object");
   edm::LogInfo("HcalSim") << "HcalTBDigiProducer initialized with doNoise = "
 			  << doNoise << ", doTimeSlew = " << doTimeSlew
 			  << " and doPhaseShift = " << doPhaseShift
@@ -108,6 +110,17 @@ void HcalTBDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
   std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
   std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
   LogDebug("HcalSim") << "HcalTBDigiProducer::produce Empty collection created";
+  if (doPhaseShift) {
+    
+    edm::Handle<PEcalTBInfo> theEcalTBInfo;
+    e.getByLabel(ecalTBInfoLabel,theEcalTBInfo);
+    thisPhaseShift = theEcalTBInfo->phaseShift();
+
+    DetId detIdHB(DetId::Hcal, 1);
+    setPhaseShift(detIdHB);
+    DetId detIdHO(DetId::Hcal, 3);
+    setPhaseShift(detIdHO);
+  }
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   theHBHEDigitizer->run(*col, *hbheResult);
