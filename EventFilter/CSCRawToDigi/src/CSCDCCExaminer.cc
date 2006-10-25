@@ -517,7 +517,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			fALCT_Header = false;
 			uniqueALCT   = false;
 			CFEB_CRC     = 0;
-			ALCT_WordCount = (buf0[3]&0x03FF);
+			//ALCT_WordCount = (buf0[3]&0x03FF);
+			ALCT_WordCount = (buf0[3]&0x07FF);
 			CFEB_SampleWordCount = 0;
 			cout << "A> ";
 		}
