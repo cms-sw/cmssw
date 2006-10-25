@@ -19,6 +19,8 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // CLHEP headers
@@ -34,7 +36,7 @@
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
-#include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"  
+#include "FastSimulation/GeometryTools/interface/CaloGeometryHelper.h"  
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -129,7 +131,12 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
   if ( myCalorimetry ) {
     edm::ESHandle<CaloGeometry> pG;
     es.get<IdealGeometryRecord>().get(pG);   
-    myCalorimetry->getCalorimeter()->setupGeometry(pG);
+    myCalorimetry->getCalorimeter()->setupGeometry(*pG);
+
+    edm::ESHandle<CaloTopology> theCaloTopology;
+    es.get<CaloTopologyRecord>().get(theCaloTopology);     
+    myCalorimetry->getCalorimeter()->setupTopology(*theCaloTopology);
+    myCalorimetry->getCalorimeter()->initialize();
   }
 
 }
