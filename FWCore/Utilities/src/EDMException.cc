@@ -14,7 +14,9 @@ namespace edm {
       EDM_MAP_ENTRY_NONS(trans_, InsertFailure);
       EDM_MAP_ENTRY_NONS(trans_, Configuration);
       EDM_MAP_ENTRY_NONS(trans_, LogicError);
+      EDM_MAP_ENTRY_NONS(trans_, UnimplementedFeature);
       EDM_MAP_ENTRY_NONS(trans_, InvalidReference);
+      EDM_MAP_ENTRY_NONS(trans_, NullPointerError);
       EDM_MAP_ENTRY_NONS(trans_, EventTimeout);
       EDM_MAP_ENTRY_NONS(trans_, EventCorruption);
       EDM_MAP_ENTRY_NONS(trans_, ModuleFailure);
@@ -23,7 +25,6 @@ namespace edm {
       EDM_MAP_ENTRY_NONS(trans_, FileInPathError);
       EDM_MAP_ENTRY_NONS(trans_, FatalRootError);
       EDM_MAP_ENTRY_NONS(trans_, NotFound);
-      EDM_MAP_ENTRY_NONS(trans_, UnimplementedFeature);
     }
   }
 

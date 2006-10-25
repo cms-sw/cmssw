@@ -31,6 +31,7 @@ namespace edm {
        LogicError,
        UnimplementedFeature,
        InvalidReference,
+       NullPointerError,
        NoProductSpecified,
        EventTimeout,
        EventCorruption,

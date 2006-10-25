@@ -93,6 +93,8 @@ namespace edm {
       actions::SkipEvent;
     map_[edm::Exception::codeToString(errors::InvalidReference)]=
       actions::SkipEvent;
+    map_[edm::Exception::codeToString(errors::NullPointerError)]=
+      actions::SkipEvent;
     map_[edm::Exception::codeToString(errors::EventTimeout)]=
       actions::SkipEvent;
     map_[edm::Exception::codeToString(errors::EventCorruption)]=
