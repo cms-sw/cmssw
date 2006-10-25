@@ -1,6 +1,6 @@
 #ifndef Common_IDVectorMap_h
 #define Common_IDVectorMap_h
-// $Id: IDVectorMap.h,v 1.4 2006/08/11 21:58:25 wmtan Exp $
+// $Id: IDVectorMap.h,v 1.5 2006/10/19 15:01:33 chrjones Exp $
 #include <map>
 #include "DataFormats/Common/interface/traits.h"
 
@@ -96,7 +96,7 @@ namespace edm {
 
     template<typename M>
     struct match_iterator {
-      typedef IDVectorMap::value_type value_type;
+      typedef typename IDVectorMap::value_type value_type;
       typedef value_type * pointer;
       typedef value_type & reference;
       typedef typename map_iterator::iterator_category iterator_category;
