@@ -1,8 +1,7 @@
-#ifndef Calorimeter_h
-#define Calorimeter_h
+#ifndef FastSimulation_CalorimeterProperties_Calorimeter_h
+#define FastSimulation_CalorimeterProperties_Calorimeter_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 //#include "Geometry/Vector/interface/GlobalPoint.h"
@@ -17,6 +16,8 @@ class HCALBarrelProperties;
 class HCALEndcapProperties;
 class HCALForwardProperties;
 class CaloSubdetectorGeometry;
+class CaloTopology;
+class CaloSubdetectorTopology;
 class EcalBarrelGeometry;
 class EcalEndcapGeometry;
 
@@ -27,8 +28,12 @@ class Calorimeter{
   ~Calorimeter();
 
     // Setup the geometry
-  void setupGeometry(const edm::ESHandle<CaloGeometry>& pG);
-  
+  void setupGeometry(const CaloGeometry& pG);
+
+  // Setup the topology
+  void setupTopology(const CaloTopology&);
+
+
  /// ECAL properties
   const ECALProperties* ecalProperties(int onEcal) const;
 
@@ -41,15 +46,15 @@ class Calorimeter{
   /// Preshower Layer2 properties
   const PreshowerLayer2Properties* layer2Properties(int onLayer2) const;
 
-  double preshowerZPosition(int layer) const
-  {
-    return (layer==1) ? psLayer1Z_: psLayer2Z_ ; 
-  }
+  inline const EcalBarrelGeometry * getEcalBarrelGeometry() const {return EcalBarrelGeometry_;} 
+  
+  inline const EcalEndcapGeometry * getEcalEndcapGeometry() const {return EcalEndcapGeometry_;}
 
-  // more user friendly getClosestCell  
-  DetId getClosestCell(const HepPoint3D& point, bool ecal, bool central) const;
+  const CaloSubdetectorGeometry * getEcalGeometry(int subdetn) const;
 
- private:
+  const CaloSubdetectorTopology * getEcalTopology(int subdetn) const;
+
+ protected:
 
   //Calorimeter properties
   PreshowerLayer1Properties*     myPreshowerLayer1Properties_  ;
@@ -60,14 +65,15 @@ class Calorimeter{
   HCALEndcapProperties*          myHCALEndcapProperties_       ;
   HCALForwardProperties*         myHCALForwardProperties_      ;
 
-  // Preshower layer positions
-  double psLayer1Z_,psLayer2Z_;
-
   // The subdetectors geometry
   const EcalBarrelGeometry* EcalBarrelGeometry_;
   const EcalEndcapGeometry* EcalEndcapGeometry_;
   const CaloSubdetectorGeometry* HcalGeometry_;
   const CaloSubdetectorGeometry* PreshowerGeometry_;
+
+  // The ECAL topologies 
+  const CaloSubdetectorTopology* EcalBarrelTopology_;
+  const CaloSubdetectorTopology* EcalEndcapTopology_;
 
 };
 

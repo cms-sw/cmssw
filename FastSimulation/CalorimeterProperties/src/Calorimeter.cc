@@ -1,10 +1,14 @@
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
-#include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
+
+#include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer1Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/ECALBarrelProperties.h"
@@ -14,9 +18,8 @@
 #include "FastSimulation/CalorimeterProperties/interface/HCALForwardProperties.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 
-
-
 #include <iostream>
+#include <algorithm>
 
 Calorimeter::Calorimeter():
   myPreshowerLayer1Properties_(NULL),
@@ -56,8 +59,6 @@ Calorimeter::Calorimeter(const edm::ParameterSet& fastCalo):
   myHCALEndcapProperties_       = new HCALEndcapProperties     (fastDet);
   myHCALForwardProperties_      = new HCALForwardProperties    (fastDet);
 
-  psLayer1Z_ = 303;
-  psLayer2Z_ = 307;
 }
 
 Calorimeter::~Calorimeter()
@@ -92,7 +93,7 @@ Calorimeter::hcalProperties(int onHcal) const {
 	return myHCALEndcapProperties_;
       else {
 	return myHCALForwardProperties_;
-	std::cout << " Calorimeter::hcalProperties : set myHCALForwardProperties" << std::endl;
+	edm::LogInfo("CalorimeterProperties") << " Calorimeter::hcalProperties : set myHCALForwardProperties" << std::endl;
       }
   } else
     return NULL;
@@ -114,39 +115,37 @@ Calorimeter::layer2Properties(int onLayer2) const {
     return NULL;
 }
 
-void Calorimeter::setupGeometry(const edm::ESHandle<CaloGeometry>& pG)
+void Calorimeter::setupGeometry(const CaloGeometry& pG)
 {
-  std::cout << " setupGeometry " << std::endl;
-  EcalBarrelGeometry_ = dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-  EcalEndcapGeometry_ = dynamic_cast<const EcalEndcapGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-  HcalGeometry_ = pG->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-
+  edm::LogInfo("CalorimeterProperties") << " setupGeometry " << std::endl;
+  EcalBarrelGeometry_ = dynamic_cast<const EcalBarrelGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+  EcalEndcapGeometry_ = dynamic_cast<const EcalEndcapGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+  HcalGeometry_ = pG.getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
   // Takes a lot of time
   //  PreshowerGeometry_  = pG->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
 }
 
-
-DetId Calorimeter::getClosestCell(const HepPoint3D& point, bool ecal, bool central) const
+void Calorimeter::setupTopology(const CaloTopology& theTopology)
 {
-  DetId result;
-  //  std::cout << " In getClosestCell " << ecal << " " << central << std::endl;
-  if(ecal)
-    {
-      if(central)
-	{
-	  //	  std::cout << "EcalBarrelGeometry_" << " " << EcalBarrelGeometry_ << std::endl;
-	  result = EcalBarrelGeometry_->getClosestCell(GlobalPoint(point.x(),point.y(),point.z()));
-	}
-      else
-	{
-	  result = EcalEndcapGeometry_->getClosestCell(GlobalPoint(point.x(),point.y(),point.z()));
-	}
-    }
-  else
-    {
-      result=HcalGeometry_->getClosestCell(GlobalPoint(point.x(),point.y(),point.z()));
-    }
-  
-  //  std::cout << " done " << result.rawId() << std::endl;
-  return result;
+  EcalBarrelTopology_ = theTopology.getSubdetectorTopology(DetId::Ecal,EcalBarrel);
+  EcalEndcapTopology_ = theTopology.getSubdetectorTopology(DetId::Ecal,EcalEndcap);
+}
+
+
+
+const CaloSubdetectorGeometry * Calorimeter::getEcalGeometry(int subdetn) const
+{
+  if(subdetn==1) return EcalBarrelGeometry_;
+  if(subdetn==2) return EcalEndcapGeometry_;
+  if(subdetn==3) return PreshowerGeometry_;
+  edm::LogWarning("Calorimeter") << "Requested an invalid ECAL subdetector geometry" << std::endl;
+  return 0;
+}
+
+const CaloSubdetectorTopology * Calorimeter::getEcalTopology(int subdetn) const
+{
+  if(subdetn==1) return EcalBarrelTopology_;
+  if(subdetn==2) return EcalEndcapTopology_;
+  edm::LogWarning("Calorimeter") << "Requested an invalid ECAL subdetector topology " << std::endl;
+  return 0;
 }
