@@ -110,4 +110,4 @@ void HcalDDDGeometryAnalyzer::analyze(const edm::Event& ,
 
 //define this as a plug-in
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalDDDGeometryAnalyzer)
+DEFINE_ANOTHER_FWK_MODULE(HcalDDDGeometryAnalyzer);
