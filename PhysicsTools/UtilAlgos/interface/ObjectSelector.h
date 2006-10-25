@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: ObjectSelector.h,v 1.3 2006/07/26 09:10:47 llista Exp $
+ * $Id: ObjectSelector.h,v 1.4 2006/10/25 10:08:51 llista Exp $
  *
  */
 
@@ -69,7 +69,7 @@ public:
     const std::string filter( "filter" );
     std::vector<std::string> bools = cfg.template getParameterNamesForType<bool>();
     bool found = std::find( bools.begin(), bools.end(), filter ) != bools.end();
-    if ( found ) cfg.template getParameter<bool>( filter );
+    if ( found ) filter_ = cfg.template getParameter<bool>( filter );
   }
   /// destructor
   virtual ~ObjectSelector() { }
@@ -93,7 +93,5 @@ private:
   /// Object collection selector
   S selector_;
 };
-
-
 
 #endif
