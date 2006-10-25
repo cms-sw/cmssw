@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: ObjectSelector.h,v 1.2 2006/07/25 17:20:27 llista Exp $
+ * $Id: ObjectSelector.h,v 1.3 2006/07/26 09:10:47 llista Exp $
  *
  */
 
@@ -21,6 +21,7 @@
 #include <utility>
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 namespace helper {
   template<typename C, typename P = typename edm::clonehelper::CloneTrait<C>::type>
@@ -63,8 +64,12 @@ public:
   explicit ObjectSelector( const edm::ParameterSet & cfg ) :
   B( cfg ),
   src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
-  filter_( cfg.template getParameter<bool>( "filter" ) ),
+  filter_( false ),
   selector_( cfg ) {
+    const std::string filter( "filter" );
+    std::vector<std::string> bools = cfg.template getParameterNamesForType<bool>();
+    bool found = std::find( bools.begin(), bools.end(), filter ) != bools.end();
+    if ( found ) cfg.template getParameter<bool>( filter );
   }
   /// destructor
   virtual ~ObjectSelector() { }
