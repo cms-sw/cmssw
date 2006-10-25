@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjBuilder.h,v 1.2 2006/10/19 16:00:27 chiochia Exp $
+// $Id: SiPixelCondObjBuilder.h,v 1.3 2006/10/23 15:27:37 chiochia Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,6 +25,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
+#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
+#include <string>
+
 namespace cms{
 class SiPixelCondObjBuilder : public edm::EDAnalyzer {
 
@@ -36,6 +39,7 @@ public:
   virtual void beginJob( const edm::EventSetup& );
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
+  bool loadFromFile();
 
 private:
 
@@ -48,6 +52,18 @@ private:
   double meanGain_;
   double rmsGain_;
   int numberOfModules_;
+  bool fromFile_;
+  std::string fileName_; 
+
+  // Internal class
+  class CalParameters {
+  public:
+    float p0;
+    float p1;
+  };
+  // Map for storing calibration constants
+  std::map<int,CalParameters, std::less<int> > calmap_;
+  PixelIndices * pIndexConverter_; // Pointer to the index converter 
 
 };
 }
