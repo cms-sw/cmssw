@@ -12,9 +12,9 @@ namespace reco {
  
 struct SoftLeptonProperties {
     enum {
-        AXIS_ORIGINAL = 0;  // use the original (calorimietric) jet axis
-        AXIS_CHARGED  = 1;  // refine jet axis from all charged tracks
-        AXIS_EXCLUDED = 2;  // refine, without the tagging lepton track
+        AXIS_ORIGINAL = 0,  // use the original (calorimietric) jet axis
+        AXIS_CHARGED  = 1,  // refine jet axis from all charged tracks
+        AXIS_EXCLUDED = 2   // refine, without the tagging lepton track
     };
 
     unsigned int axisRefinement;            // if and how the jet axis is refined
