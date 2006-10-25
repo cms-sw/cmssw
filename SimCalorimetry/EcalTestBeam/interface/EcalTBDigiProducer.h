@@ -24,6 +24,8 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
 
+#include <string>
+
 class EcalTBDigiProducer : public edm::EDProducer
 {
 public:
@@ -71,6 +73,8 @@ private:
   const EcalTrigTowerConstituentsMap * theTTmap;
 
   EcalTBReadout * theTBReadout;
+
+  std::string ecalTBInfoLabel;
 
   bool doPhaseShift;
   double thisPhaseShift;

@@ -6,13 +6,13 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Provenance.h"
+#include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CLHEP/Random/RandFlat.h"
-#include<string>
 
 EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params) 
 : theGeometry(0)
@@ -77,7 +77,7 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
   tdcMin = params.getParameter< std::vector<int> >("tdcMin");
   tdcMax = params.getParameter< std::vector<int> >("tdcMax");
 
-  const std::string ecalTBInfoLabel = params.getUntrackedParameter<std::string>("EcalTBInfoLabel","SimEcalTBG4Object");
+  ecalTBInfoLabel = params.getUntrackedParameter<std::string>("EcalTBInfoLabel","SimEcalTBG4Object");
   doReadout = params.getParameter<bool>("doReadout");
 
   theTBReadout = new EcalTBReadout(ecalTBInfoLabel);
@@ -128,10 +128,11 @@ void EcalTBDigiProducer::produce(edm::Event& event, const edm::EventSetup& event
 
   CaloDigiCollectionSorter sorter(5);
   
-  
   if (doPhaseShift) {
     
-    thisPhaseShift = RandFlat::shoot();
+    edm::Handle<PEcalTBInfo> theEcalTBInfo;
+    event.getByLabel(ecalTBInfoLabel,theEcalTBInfo);
+    thisPhaseShift = theEcalTBInfo->phaseShift();
     
     DetId detId(DetId::Ecal, 1);
     setPhaseShift(detId);
