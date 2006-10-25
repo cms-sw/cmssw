@@ -85,19 +85,12 @@ namespace edm {
   void ActionTable::addDefaults()
   {
     using namespace boost::lambda;
-    // populate defaults
-    map_[edm::Exception::codeToString(errors::Unknown)] = 
-      actions::Rethrow;
+    // populate defaults that are not 'Rethrow'
+    // 'Rethrow' is the default default.
     map_[edm::Exception::codeToString(errors::ProductNotFound)]=
       actions::SkipEvent;
-    map_[edm::Exception::codeToString(errors::NoProductSpecified)]=
-      actions::Rethrow;
     map_[edm::Exception::codeToString(errors::InsertFailure)]=
       actions::SkipEvent;
-    map_[edm::Exception::codeToString(errors::Configuration)]=
-      actions::Rethrow;
-    map_[edm::Exception::codeToString(errors::LogicError)]=
-      actions::Rethrow;
     map_[edm::Exception::codeToString(errors::InvalidReference)]=
       actions::SkipEvent;
     map_[edm::Exception::codeToString(errors::EventTimeout)]=
