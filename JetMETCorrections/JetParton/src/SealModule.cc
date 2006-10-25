@@ -3,4 +3,4 @@
 #include "JetMETCorrections/JetParton/interface/JetPartonProducer.h"
 using cms::JetParton;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(JetParton)
+DEFINE_ANOTHER_FWK_MODULE(JetParton);

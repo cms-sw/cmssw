@@ -3,4 +3,4 @@
 #include "JetMETCorrections/TauJet/interface/TauJetProducer.h"
 using cms::TauJet;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TauJet)
+DEFINE_ANOTHER_FWK_MODULE(TauJet);
