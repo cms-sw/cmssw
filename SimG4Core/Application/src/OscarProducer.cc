@@ -136,5 +136,5 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
     }
 }
  
-DEFINE_FWK_MODULE(OscarProducer)
+DEFINE_FWK_MODULE(OscarProducer);
  
