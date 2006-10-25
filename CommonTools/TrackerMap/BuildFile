@@ -1,0 +1,5 @@
+<use name=qt>
+<export>
+<lib name=CommonToolsTrackerMap>
+<use name=qt>
+</export>
