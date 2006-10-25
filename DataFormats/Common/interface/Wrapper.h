@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.4 2006/07/21 22:29:40 wmtan Exp $
+$Id: Wrapper.h,v 1.5 2006/08/07 23:44:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,17 +46,71 @@ namespace edm {
   // that for any class having a 'swap' member function should call
   // 'swap' rather than copying the object.
 
-  template <class T>
+  template <typename T>
   struct DoSwap
   {
     void operator()(T& a, T& b) { a.swap(b); }
   };
 
-  template <class T>
+  template <typename T>
   struct DoAssign
   {
     void operator()(T& a, T& b) { a = b; }
   };
+
+  //------------------------------------------------------------
+  // Metafunction support for compile-time selection of code used in
+  // Wrapper constructor
+  //
+
+  namespace detail 
+  {
+
+#if __GNUC_PREREQ (3,4)
+  //------------------------------------------------------------
+  // WHEN WE MOVE to a newer compiler version, the following code
+  // should be activated. This code causes compilation failures under
+  // GCC 3.2.3, because of a compiler error in dealing with our
+  // application of SFINAE. GCC 3.4.2 is known to deal with this code
+  // correctly.
+  //------------------------------------------------------------
+    typedef char (& no_tag )[1]; // type indicating FALSE
+    typedef char (& yes_tag)[2]; // type indicating TRUE
+
+    // Definitions for the following struct and function templates are
+    // not needed; we only require the declarations.
+    template <typename T, void (T::*)(T&)>  struct ptmf_helper;
+    template <typename T> no_tag  has_swap_helper(...);
+    template <typename T> yes_tag has_swap_helper(ptmf_helper<T, &T::swap> * dummy);
+
+    template<typename T>
+    struct has_swap_function
+    {
+      static bool const value = 
+	sizeof(has_swap_helper<T>(0)) == sizeof(yes_tag);
+    };
+#else
+    //------------------------------------------------------------
+    // THE FOLLOWING SHOULD BE REMOVED when we move to a newer
+    // compiler; see the note above.
+    //------------------------------------------------------------
+  // has_swap_function is a metafunction of one argument, the type T.
+  // As with many metafunctions, it is implemented as a class with a data
+  // member 'value', which contains the value 'returned' by the
+  // metafunction.
+  //
+  // has_swap_function<T>::value is 'true' if T has the has_swap
+  // member function (with the right signature), and 'false' if T has
+  // no such member function.
+
+
+    template<typename T>
+    struct has_swap_function
+    {
+      static bool const value = has_swap<T>::value;	
+    };
+#endif
+  }
 
   template <class T>
   Wrapper<T>::Wrapper(std::auto_ptr<T> ptr) :
@@ -65,13 +119,11 @@ namespace edm {
     obj()
   { 
     if (present) {
-      // When we move to GCC 3.4, get rid of has_swap<T> trait
-      // and do this with metaprogramming; see Event.h for an example.
-      typename boost::mpl::if_c<has_swap<T>::value, 
+       // The following will call swap if T has such a function,
+       // and use assignment if T has no such function.
+      typename boost::mpl::if_c<detail::has_swap_function<T>::value, 
                                 DoSwap<T>, 
-                                DoAssign<T> 
-                               >::type       swap_or_assign;
-
+                                DoAssign<T> >::type swap_or_assign;
       swap_or_assign(obj, *ptr);	
     }
   }

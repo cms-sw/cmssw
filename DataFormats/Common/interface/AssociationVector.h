@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  */
 
 #include "DataFormats/Common/interface/traits.h"
@@ -152,11 +152,13 @@ namespace edm {
     a.swap( b );
   }
 
+#if ! __GNUC_PREREQ (3,4)
   // has swap function
   template<typename CKey, typename CVal>
   struct has_swap<edm::AssociationVector<CKey, CVal> > {
     static bool const value = true;
   };
+#endif
 
 }
 

@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.8 2006/08/10 23:34:53 wmtan Exp $
+$Id: DetSetVector.h,v 1.9 2006/08/30 23:28:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -51,6 +51,7 @@ namespace edm {
   // Forward declarations
   template <class T> class DetSetVector;
 
+#if ! __GNUC_PREREQ (3,4)
   //------------------------------------------------------------
   // The following template partial specialization can be removed
   // when we move to GCC 3.4.x
@@ -66,6 +67,7 @@ namespace edm {
     static bool const value = 
       ! boost::is_base_of<edm::DoNotSortUponInsertion,T>::value;
   };
+#endif
 
   //------------------------------------------------------------
   // Helper function, to regularize throwing of exceptions.
@@ -372,11 +374,13 @@ namespace edm {
     a.swap(b);
   }
 
+#if ! __GNUC_PREREQ (3,4)
   // has swap function
   template <class T>
   struct has_swap<edm::DetSetVector<T> > {
     static bool const value = true;
   };
+#endif
 
 }
 

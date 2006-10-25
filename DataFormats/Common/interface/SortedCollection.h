@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.3 2006/06/14 23:25:25 wmtan Exp $
+$Id: SortedCollection.h,v 1.4 2006/08/10 23:34:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -41,6 +41,7 @@ namespace edm {
   template <class T> struct StrictWeakOrdering;  
   template <class T, class SORT = StrictWeakOrdering<T> >  class SortedCollection;
   
+#if ! __GNUC_PREREQ (3,4)
   //------------------------------------------------------------
   // The following template partial specialization can be removed
   // when we move to GCC 3.4.x
@@ -55,6 +56,7 @@ namespace edm {
   {
     static bool const value = true;
   };
+#endif
 
   template <class T>
   struct StrictWeakOrdering
@@ -403,13 +405,13 @@ namespace edm {
     return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin());    
   }
 
+#if ! __GNUC_PREREQ (3,4)
   // has swap function
   template <class T, class SORT>
   struct has_swap<edm::SortedCollection<T,SORT> > {
     static bool const value = true;
   };
+#endif
 }
-
-
 
 #endif

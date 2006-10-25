@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.8 2006/06/14 23:43:43 wmtan Exp $
+ *  $Id: Wrapper_t.cpp,v 1.1 2006/08/07 23:44:02 wmtan Exp $
  *  CMSSW
  *
  */
@@ -18,7 +18,9 @@ class CopyNoSwappy
   CopyNoSwappy(CopyNoSwappy const& ) { std::cout << "copied\n"; }
   CopyNoSwappy& operator=(CopyNoSwappy const& ) {std::cout << "assigned\n"; return *this;}
  private:
+#if ! __GNUC_PREREQ (3,4)
   void swap(CopyNoSwappy&); // not implemented
+#endif
 };
 
 class SwappyNoCopy
@@ -31,10 +33,12 @@ class SwappyNoCopy
   SwappyNoCopy& operator=(SwappyNoCopy const&); // not implemented
 };
 
+#if ! __GNUC_PREREQ (3,4)
 namespace edm
 {
   template <> struct has_swap<SwappyNoCopy> { static const bool value=true; };
 }
+#endif
 
 void work()
 {
@@ -57,14 +61,12 @@ void work()
 int main()
 {
   int rc = 0;
-  try
-    {
+  try {
       work();
-    }
-  catch ( ... )
-    {
+  }
+  catch ( ... ) {
       rc = 1;
       std::cerr << "Failure: unidentified exception caught\n";
-    }
+  }
   return rc;
 }

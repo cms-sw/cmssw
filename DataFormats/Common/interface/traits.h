@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.3 2006/08/07 23:44:01 wmtan Exp $
+$Id: traits.h,v 1.4 2006/08/10 23:34:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,6 +36,7 @@ namespace edm
   //
   struct DoNotSortUponInsertion { };
 
+#if ! __GNUC_PREREQ (3,4)
   //------------------------------------------------------------
   //
   // The trait struct template has_postinsert_trait<T> is used to
@@ -130,6 +131,7 @@ namespace edm
   {
     static bool const value = true;
   };
+#endif
 
 }
 

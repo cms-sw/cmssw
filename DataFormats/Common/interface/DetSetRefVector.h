@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetRefVector.h,v 1.3 2006/08/10 23:34:53 wmtan Exp $
+$Id: DetSetRefVector.h,v 1.4 2006/08/30 23:28:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -244,12 +244,13 @@ namespace edm {
     a.swap(b);
   }
 
+#if ! __GNUC_PREREQ (3,4)
   // Has swap function
   template <class T, class C>
   struct has_swap<edm::DetSetRefVector<T,C> > {
     static bool const value = true;
   };
-
+#endif
 
 //specialize behavior of edm::Ref to get access to the 'Det'
 

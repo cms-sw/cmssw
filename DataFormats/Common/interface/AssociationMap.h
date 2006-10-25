@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.24 2006/09/26 10:37:21 llista Exp $
+ * $Id: AssociationMap.h,v 1.25 2006/10/19 15:00:57 chrjones Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -158,11 +158,13 @@ namespace edm {
     };
   }
 
+#if ! __GNUC_PREREQ (3,4)
   /// has post insert trait
   template<typename  T> 
   struct has_postinsert_trait<AssociationMap<T> >  { 
     static bool const value = true; 
   }; 
+#endif
 }
 
 #endif

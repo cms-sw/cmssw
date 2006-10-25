@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.12 2006/08/30 23:28:33 wmtan Exp $
+$Id: Ref.h,v 1.13 2006/10/21 02:48:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -92,7 +92,7 @@ $Id: Ref.h,v 1.12 2006/08/30 23:28:33 wmtan Exp $
 
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)
 
-#if 1
+#if ! __GNUC_PREREQ (3,4)
 // Workaround needed in gcc3.2.3 due to compiler bug
 namespace GCC_3_2_3_WORKAROUND_1 {
 #endif
@@ -102,7 +102,7 @@ namespace GCC_3_2_3_WORKAROUND_1 {
     typedef typename C::key_compare comparison_functor;
     return comparison_functor()(lhs, rhs);
   }
-#if 1
+#if ! __GNUC_PREREQ (3,4)
 // Workaround needed in gcc3.2.3 due to compiler bug
 }
 namespace GCC_3_2_3_WORKAROUND_2 {
@@ -112,7 +112,7 @@ namespace GCC_3_2_3_WORKAROUND_2 {
   compare_key(K const& lhs, K const& rhs) {
     return lhs < rhs;
   }
-#if 1
+#if ! __GNUC_PREREQ (3,4)
 // Workaround needed in gcc3.2.3 due to compiler bug
 }
 #endif
@@ -262,7 +262,7 @@ namespace edm {
   inline
   bool
   operator<(Ref<C, T, F> const& lhs, Ref<C, T, F> const& rhs) {
-#if 1
+#if ! __GNUC_PREREQ (3,4)
     // needed for gcc 3_2_3 compiler bug workaround
     using GCC_3_2_3_WORKAROUND_1::compare_key;
     using GCC_3_2_3_WORKAROUND_2::compare_key;

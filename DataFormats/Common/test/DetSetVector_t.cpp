@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.9 2006/08/30 23:28:34 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.10 2006/10/25 21:32:01 paterno Exp $
  *  CMSSW
  *
  */
@@ -11,7 +11,9 @@
 #include <ostream>
 #include <vector>
 
+#if ! __GNUC_PREREQ (3,4)
 #include "DataFormats/Common/interface/traits.h"
+#endif
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
@@ -179,6 +181,7 @@ void detsetTest()
   //std::cerr << "\nEnd DetSetVector_t detsetTest()\n";
 }
 
+#if ! __GNUC_PREREQ (3,4)
 void traitsTest() 
 {
   //std::cerr << "\nStart DetSetVector_t traitsTest()\n";
@@ -186,8 +189,7 @@ void traitsTest()
   assert(edm::has_postinsert_trait<coll_type>::value == true);
   //std::cerr << "\nEnd DetSetVector_t traitsTest()\n";  
 }
-
-
+#endif
 
 namespace 
 {
@@ -288,7 +290,9 @@ void refTest()
 void work() 
 {
   detsetTest();
+#if ! __GNUC_PREREQ (3,4)
   traitsTest();
+#endif
   refTest();
 
   coll_type c1;

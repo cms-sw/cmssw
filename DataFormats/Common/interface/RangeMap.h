@@ -16,9 +16,9 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.27 $
+ * \version $Revision: 1.28 $
  *
- * $Id: RangeMap.h,v 1.27 2006/08/11 15:48:21 wmtan Exp $
+ * $Id: RangeMap.h,v 1.28 2006/08/11 21:58:25 wmtan Exp $
  *
  */
 #include <map>
@@ -208,6 +208,7 @@ namespace edm {
     a.swap(b);
   }
 
+#if ! __GNUC_PREREQ (3,4)
   /// has swap function
   template<typename  ID, typename C, typename P > 
   struct has_swap<edm::RangeMap<ID,C,P> > {
@@ -219,6 +220,7 @@ namespace edm {
   struct edm::has_postinsert_trait<edm::RangeMap<ID,C,P> >  { 
     static bool const value = true; 
   }; 
+#endif
   
 }
 

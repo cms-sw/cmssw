@@ -6,7 +6,7 @@
 EDCollection: A collection of homogeneous objects that can be used for an EDProduct,
 or as a base class for an EDProduct.
 
-$Id: EDCollection.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: EDCollection.h,v 1.2 2006/08/10 23:34:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -166,10 +166,13 @@ namespace edm {
     a.swap(b);
   }
 
+#if ! __GNUC_PREREQ (3,4)
   template <class T>
   struct has_swap<edm::EDCollection<T> > {
     static bool const value = true;
   };
+#endif
+
 }
 
 #endif

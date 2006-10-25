@@ -8,7 +8,7 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.3 2006/06/05 13:25:47 llista Exp $
+$Id: DetSet.h,v 1.4 2006/08/10 23:34:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -98,11 +98,14 @@ namespace edm {
     a.swap(b);
   }
 
+#if ! __GNUC_PREREQ (3,4)
   //has swap function
   template <class T>
   struct has_swap<edm::DetSet<T> > {
     static bool const value = true;
   };
+#endif
+
 } // namespace edm;
 
 #endif

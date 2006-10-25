@@ -72,7 +72,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.42 2006/10/14 01:55:50 wmtan Exp $
+$Id: Event.h,v 1.43 2006/10/23 23:53:41 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -296,6 +296,8 @@ namespace edm {
 
   namespace detail 
   {
+
+#if __GNUC_PREREQ (3,4)
   //------------------------------------------------------------
   // WHEN WE MOVE to a newer compiler version, the following code
   // should be activated. This code causes compilation failures under
@@ -303,7 +305,6 @@ namespace edm {
   // application of SFINAE. GCC 3.4.2 is known to deal with this code
   // correctly.
   //------------------------------------------------------------
-#if 0
     typedef char (& no_tag )[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
@@ -332,13 +333,11 @@ namespace edm {
     // template.
     //------------------------------------------------------------
 
-
     template<typename T>
     struct has_postinsert
     {
       static bool const value = has_postinsert_trait<T>::value;	
     };
-
 #endif
   }
 

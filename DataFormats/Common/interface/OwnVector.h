@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.9 2006/08/31 07:55:23 llista Exp $
+// $Id: OwnVector.h,v 1.10 2006/10/25 21:32:00 paterno Exp $
 #include <vector>
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -311,11 +311,14 @@ namespace edm {
     a.swap(b);
   }
 
+#if ! __GNUC_PREREQ (3,4)
   /// has swap function
   template<typename T, typename P>
   struct has_swap<edm::OwnVector<T,P> > {
     static bool const value = true;
   };
+#endif
+
 }
 
 #endif
