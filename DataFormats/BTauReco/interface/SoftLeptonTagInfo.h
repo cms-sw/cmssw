@@ -11,16 +11,18 @@
 namespace reco {
  
 struct SoftLeptonProperties {
-    // which jet axis to use? 
-    //  .) calorimetric 
-    //  .) track based 
-    //  .) lepton excluded
-    double probability;                     // probability to be a lepton
+    enum {
+        AXIS_ORIGINAL = 0;  // use the original (calorimietric) jet axis
+        AXIS_CHARGED  = 1;  // refine jet axis from all charged tracks
+        AXIS_EXCLUDED = 2;  // refine, without the tagging lepton track
+    };
+
+    unsigned int axisRefinement;            // if and how the jet axis is refined
     double sip3d;                           // 3D signed inpact parameter
-    double ptRel;                           // ransverse momentum wrt. jet axis
+    double ptRel;                           // transverse momentum wrt. jet axis
     double etaRel;                          // (pseudo)rapidity along jet axis
     double deltaR;                          // pseudoangular distance to jet axis
-    double tag;                             // discriminator using this track as tagging lepton
+    double tag;                             // discriminant using this track as tagging lepton
 };
 
 class SoftLeptonTagInfo {
