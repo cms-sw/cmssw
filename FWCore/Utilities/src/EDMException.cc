@@ -23,6 +23,7 @@ namespace edm {
       EDM_MAP_ENTRY_NONS(trans_, FileInPathError);
       EDM_MAP_ENTRY_NONS(trans_, FatalRootError);
       EDM_MAP_ENTRY_NONS(trans_, NotFound);
+      EDM_MAP_ENTRY_NONS(trans_, UnimplementedFeature);
     }
   }
 

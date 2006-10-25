@@ -41,7 +41,8 @@ namespace edm {
        FileInPathError,
        FatalRootError,
 
-       NotFound
+       NotFound,
+       UnimplementedFeature
     };
 
   }
