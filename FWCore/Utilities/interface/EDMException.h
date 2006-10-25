@@ -29,6 +29,7 @@ namespace edm {
        InsertFailure,
        Configuration,
        LogicError,
+       UnimplementedFeature,
        InvalidReference,
        NoProductSpecified,
        EventTimeout,
@@ -41,8 +42,7 @@ namespace edm {
        FileInPathError,
        FatalRootError,
 
-       NotFound,
-       UnimplementedFeature
+       NotFound
     };
 
   }
