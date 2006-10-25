@@ -130,7 +130,7 @@ class CosmicTrajectoryBuilder
    //RC edm::OwnVector<const TransientTrackingRecHit> hits;
    TransientTrackingRecHit::RecHitContainer  hits;
    bool seed_plus;
-
+   std::string geometry;
 };
 
 #endif

@@ -24,6 +24,8 @@ CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) 
   //cut on chi2
   chi2cut=conf_.getParameter<double>("Chi2Cut");
   edm::LogInfo("CosmicTrackFinder")<<"Minimum number of hits "<<theMinHits<<" Cut on Chi2= "<<chi2cut;
+
+  geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
 }
 
 
@@ -340,8 +342,19 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
 bool 
 CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
-
-  if ( traj.foundHits() >= theMinHits) {
+  int ngoodhits=0;
+  if(geometry=="MTCC"){
+    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits= traj.recHits();
+    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
+    for(hit=hits.begin();hit!=hits.end();hit++){
+      uint iid=(*hit)->hit()->geographicalId().rawId();
+      //CHECK FOR 3 hits r-phi
+      if(((iid>>0)&0x3)!=1) ngoodhits++;
+    }
+  }
+  else ngoodhits=traj.foundHits();
+  
+  if ( ngoodhits >= theMinHits) {
     return true;
   }
   else {
