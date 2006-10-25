@@ -14,6 +14,7 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
 
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -26,10 +27,10 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
 
-typedef PixelTrackCleaner::TrackWithRecHits TrackWithRecHits;
+using namespace pixeltrackfitting;
 
 PixelTrackProducer::PixelTrackProducer(const edm::ParameterSet& conf)
-  : theConfig(conf), theFitter(0), theFilter(0)
+  : theConfig(conf), theFitter(0), theFilter(0), theCleaner(0)
 {
   edm::LogInfo("PixelTrackProducer")<<" construction...";
   produces<reco::TrackCollection>();
@@ -39,21 +40,16 @@ PixelTrackProducer::PixelTrackProducer(const edm::ParameterSet& conf)
 
 
 PixelTrackProducer::~PixelTrackProducer()
-{ }
+{ 
+  delete theFilter;
+  delete theFitter;
+  delete theCleaner;
+}
 
 
 void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   LogDebug("PixelTrackProducer, produce")<<"event# :"<<ev.id();
-
-  buildTracks(ev, es);
-  filterTracks(ev, es);
-  addTracks(ev,es);
-}
-
-
-void PixelTrackProducer::buildTracks(edm::Event& ev, const edm::EventSetup& es)
-{
   typedef std::vector<const TrackingRecHit *> RecHits;
 
   edm::Handle<SiPixelRecHitCollection> pixelHits;
@@ -79,36 +75,39 @@ void PixelTrackProducer::buildTracks(edm::Event& ev, const edm::EventSetup& es)
     theFilter = PixelTrackFilterFactory::get()->create( filterName, filterPSet);
   }
 
-  typedef OrderedHitTriplets::const_iterator IT;
+  if (!theCleaner) theCleaner = new PixelTrackCleaner();
 
   // producing tracks
+  TracksWithRecHits tracks;
 
-  allTracks.clear();
-
+  typedef OrderedHitTriplets::const_iterator IT;
   for (IT it = triplets.begin(); it != triplets.end(); it++) {
     RecHits hits;
     hits.push_back( (*it).inner() );
     hits.push_back( (*it).middle() );
     hits.push_back( (*it).outer() );
+
+    // fitting
     reco::Track* track = theFitter->run(es, hits, region);
-    
-    if ( (*theFilter)(track) ) {
-      allTracks.push_back(TrackWithRecHits(track, hits));
-    } else {
-      delete track;
+
+    // decide if track should be skipped according to filter 
+    if ( ! (*theFilter)(track) ) { 
+      delete track; 
+      continue; 
     }
+
+    // add tracks 
+    tracks.push_back(TrackWithRecHits(track, hits));
   }
+
+  // skip ovelrapped tracks
+  if(theCleaner) tracks = theCleaner->cleanTracks(tracks);
+
+  // store tracks
+  store(ev, tracks);
 }
 
-
-void PixelTrackProducer::filterTracks(edm::Event& ev, const edm::EventSetup& es)
-{
-  PixelTrackCleaner* filter = new PixelTrackCleaner();
-  cleanedTracks = filter->cleanTracks(allTracks);
-}
-
-
-void PixelTrackProducer::addTracks(edm::Event& ev, const edm::EventSetup& es)
+void PixelTrackProducer::store(edm::Event& ev, const TracksWithRecHits & cleanedTracks)
 {
   std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);
   std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
@@ -121,7 +120,7 @@ void PixelTrackProducer::addTracks(edm::Event& ev, const edm::EventSetup& es)
   for (int i = 0; i < nTracks; i++)
   {
     reco::Track* track =  cleanedTracks.at(i).first;
-    RecHits hits = cleanedTracks.at(i).second;
+    const RecHits & hits = cleanedTracks.at(i).second;
 
     for (unsigned int k = 0; k < hits.size(); k++)
     {

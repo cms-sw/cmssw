@@ -8,16 +8,14 @@
 
 using namespace std;
 using namespace reco;
+using namespace pixeltrackfitting;
 
 
-PixelTrackCleaner::PixelTrackCleaner()
-{
-}
 
-
-vector<PixelTrackCleaner::TrackWithRecHits> PixelTrackCleaner::cleanTracks(vector<TrackWithRecHits> trackHitPairs)
+TracksWithRecHits PixelTrackCleaner::cleanTracks(const TracksWithRecHits & trackHitPairs)
 {
   typedef std::vector<const TrackingRecHit *> RecHits;
+  trackOk.clear();
 
   LogDebug("PixelTrackCleaner") << "Cleanering tracks" << "\n";
   int size = trackHitPairs.size();
