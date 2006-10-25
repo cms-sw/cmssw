@@ -1,5 +1,5 @@
 //
-// $Id:$
+// $Id: PEcalTBInfo.cc,v 1.1 2006/05/30 16:43:43 fabiocos Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@ void PEcalTBInfo::clear() {
   dXbeam_ = dYbeam_ = 0.;
 
   evXbeam_ = evYbeam_ = 0.;
+  phaseShift_ = 1.;
 }
   
 void PEcalTBInfo::setCrystal(int nCrystal) {
@@ -72,4 +73,6 @@ void PEcalTBInfo::setBeamPosition(double evXbeam, double evYbeam) {
   evYbeam_ = evYbeam;
 }
 
-
+void PEcalTBInfo::setPhaseShift(double phaseShift) {
+  phaseShift_ = phaseShift;
+}

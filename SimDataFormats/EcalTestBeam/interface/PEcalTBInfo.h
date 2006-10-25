@@ -6,7 +6,7 @@
 // Class  :     PEcalTBInfo
 // 
 //
-// $Id:$
+// $Id: PEcalTBInfo.h,v 1.1 2006/05/30 16:43:42 fabiocos Exp $
 //
 
 // system include files
@@ -16,14 +16,10 @@
 
 // user include files
 
-// forward declarations
-class EcalTBMCInfoProducer;
-
 class PEcalTBInfo {
 
   typedef std::vector<float>  FloatVector;
   typedef std::vector<int>    IntVector;
-  friend class EcalTBMCInfoProducer;
 
 public:
   PEcalTBInfo();
@@ -40,6 +36,8 @@ public:
   double      evXbeam()     const {return evXbeam_; }
   double      evYbeam()     const {return evYbeam_; }
 
+  double      phaseShift()  const {return phaseShift_;}
+
   // ---------- static member functions --------------------
 
   // ---------- member functions ---------------------------
@@ -50,6 +48,7 @@ public:
   void setBeamOffset(double dXbeam, double dYbeam);
 
   void setBeamPosition(double evXbeam, double evYbeam);
+  void setPhaseShift(double phaseShift);
 
 private:
   //  PEcalTBInfo(const PEcalTBInfo&); 
@@ -68,6 +67,8 @@ private:
 
   double evXbeam_,evYbeam_;
 
+  // phase
+  double phaseShift_;
 };
 
 
