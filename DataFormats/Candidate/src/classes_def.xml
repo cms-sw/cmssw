@@ -10,6 +10,7 @@
   <class name="reco::LeafCandidate" />
   <class name="reco::CompositeCandidate" />
   <class name="reco::CompositeRefCandidate" />
+  <class name="reco::CompositeRefBaseCandidate" />
   <class name="reco::ShallowCloneCandidate"/>
   <class name="std::vector<reco::Candidate *>" />
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >" />
@@ -23,6 +24,12 @@
   <class name="std::vector<edm::RefToBase<reco::Candidate> >" />
   <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
   <class name="edm::reftobase::Holder<reco::Candidate,edm::Ref<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > >" />
+  <class name="edm::AssociationVector<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >, std::vector<double> >" />
+  <class name="edm::Wrapper<edm::AssociationVector<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >, std::vector<double> > >" />
+  <class name="edm::AssociationVector<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >, std::vector<float> >" />
+  <class name="edm::Wrapper<edm::AssociationVector<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >, std::vector<float> > >" />
+  <class name="edm::AssociationVector<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >, std::vector<int> >" />
+  <class name="edm::Wrapper<edm::AssociationVector<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >, std::vector<int> > >" />
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >">

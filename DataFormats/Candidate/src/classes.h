@@ -6,6 +6,7 @@
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/AssociationVector.h"
 
 namespace {
   namespace {
@@ -20,5 +21,11 @@ namespace {
     reco::CandidateRefProd rp1;
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
+    edm::AssociationVector<reco::CandidateCollection, std::vector<double> > av1;
+    edm::Wrapper<edm::AssociationVector<reco::CandidateCollection, std::vector<double> > > wav1;
+    edm::AssociationVector<reco::CandidateCollection, std::vector<float> > av2;
+    edm::Wrapper<edm::AssociationVector<reco::CandidateCollection, std::vector<float> > > wav2;
+    edm::AssociationVector<reco::CandidateCollection, std::vector<int> > av3;
+    edm::Wrapper<edm::AssociationVector<reco::CandidateCollection, std::vector<int> > > wav3;
   }
 }
