@@ -1,0 +1,19 @@
+<use name=clhep>
+<use name=FastSimulation/CalorimeterProperties>
+<use name=FastSimulation/ParticlePropagator>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/HcalDetId>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/EcalBarrelAlgo>
+<use name=Geometry/EcalEndcapAlgo>
+
+<export>
+ <lib name=FastSimulationCaloGeometryTools>
+ <use name=FastSimulation/CalorimeterProperties>
+ <use name=FastSimulation/ParticlePropagator>
+ <use name=DataFormats/EcalDetId>
+ <use name=DataFormats/HcalDetId>
+ <use name=Geometry/CaloTopology>
+ <use name=Geometry/EcalBarrelAlgo>
+ <use name=Geometry/EcalEndcapAlgo>
+</export>
