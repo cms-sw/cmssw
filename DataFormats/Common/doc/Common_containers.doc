@@ -64,6 +64,7 @@ Commonly used persistent containers.
   the <tt>CKey</tt> collection, the method <tt>key(i)</tt> is implemented. Below
   a user example:
 \htmlonly
+<pre>
   edm::AssiciationVector&lt;reco::MuonCollection, std::vector&lt;double&gt; &gt; isolations( muonRefProd );
   // fill the association ...
   for( size_t i = 0; i < isolations.size(); ++ i ) {
@@ -71,6 +72,7 @@ Commonly used persistent containers.
     reco::MuonRef muon = isolations.key( i );
     double pt = muon->pt();
   }
+</pre>
 \endhtmlonly
 
 - edm::DetSet <b>&lt;T&gt;</b>:
