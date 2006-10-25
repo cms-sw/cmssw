@@ -19,8 +19,8 @@ namespace edm {
   * Abstract interface for the mutual transcoder required for compressing
   * and uncompressing the ET stored in HCAL and ECAL Trigger Primitives
   * 
-  * $Date: 2006/09/14 18:50:11 $
-  * $Revision: 1.2 $
+  * $Date: 2006/09/14 20:02:05 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoder {
@@ -40,7 +40,7 @@ public:
   /** \brief Uncompression for the Electron/Photon path in the RCT */
   virtual void rctEGammaUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
-				   unsigned int& et, bool& egVecto, bool& activity) const = 0;
+				   unsigned int& et, bool& egVeto, bool& activity) const = 0;
   /** \brief Uncompression for the JET path in the RCT */
   virtual void rctJetUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
