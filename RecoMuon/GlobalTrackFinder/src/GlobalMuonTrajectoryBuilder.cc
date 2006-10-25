@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/09/27 18:36:38 $
- *  $Revision: 1.47 $
+ *  $Date: 2006/10/19 18:14:29 $
+ *  $Revision: 1.48 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -200,7 +200,7 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
   for ( is = tkTs->begin(); is != tkTs->end(); ++is ) {
     iPosition++;
     double deltaEta = staCand.second->eta() - is->eta();
-    double deltaPhi = staCand.second->phi() - is->phi();
+    double deltaPhi(fabs(Geom::Phi<float>(staCand.second->phi())-Geom::Phi<float>(is->phi())));
     double deltaR_tmp = sqrt(pow(deltaEta,2.) + pow(deltaPhi,2.));
     
     if(deltaR_tmp <= deltaR) {
