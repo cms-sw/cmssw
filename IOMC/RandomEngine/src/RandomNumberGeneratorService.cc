@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id$
+// $Id: RandomNumberGeneratorService.cc,v 1.1 2006/10/23 15:27:41 wdd Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -20,6 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
 #include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RanecuEngine.h"
 #include "CLHEP/Random/engineIDulong.h"
 
 using namespace edm::service;
@@ -121,8 +122,13 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
     // Initialize with default engine
     std::string engineName = "HepJamesRandom";
     try {
-      const edm::ParameterSet& moduleEngines = iPSet.getParameter<edm::ParameterSet>("moduleEngines");
-      engineName = moduleEngines.getUntrackedParameter<std::string>(seedIter->first);
+      if (seedIter->first == sourceLabel) {
+         engineName = iPSet.getUntrackedParameter<std::string>("sourceEngine");
+      }
+      else {
+        const edm::ParameterSet& moduleEngines = iPSet.getParameter<edm::ParameterSet>("moduleEngines");
+        engineName = moduleEngines.getUntrackedParameter<std::string>(seedIter->first);
+      }
     }
     catch (const edm::Exception&) {
       // OK if none, use default
@@ -136,7 +142,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
     if (engineName == "HepJamesRandom") {
 
       if (seedIter->second.size() != 1) {
-        throw cms::Exception("RandomNumberFailure")
+        throw edm::Exception(edm::errors::Configuration)
           << "HepJamesRandom engine requires 1 seed and "
           << seedIter->second.size()
           << " seeds were\n"
@@ -145,7 +151,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
       }
 
       if (seedIter->second[0] > 900000000) {
-        throw cms::Exception("RandomNumberFailure")
+        throw edm::Exception(edm::errors::Configuration)
           << "The HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
           << "The seed passed to the RandomNumberGenerationService from the\n"
              "configuration file was " << seedIter->second[0]
@@ -157,12 +163,41 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
       CLHEP::HepRandomEngine* engine = new CLHEP::HepJamesRandom(seedL);
       engineMap_[seedIter->first] = engine;
     }
+    else if (engineName == "RanecuEngine") {
+
+      if (seedIter->second.size() != 2) {
+        throw edm::Exception(edm::errors::Configuration)
+          << "RanecuEngine requires 2 seeds and "
+          << seedIter->second.size()
+          << " seeds were\n"
+          << "specified in the configuration file for "
+          << outputString << ".";
+      }
+
+      if (seedIter->second[0] > 2147483647 ||
+          seedIter->second[1] > 2147483647) {  // They need to fit in a 31 bit integer
+        throw edm::Exception(edm::errors::Configuration)
+          << "The RanecuEngine seeds should be in the range 0 to 2147483647.\n"
+          << "The seeds passed to the RandomNumberGenerationService from the\n"
+	  "configuration file were " << seedIter->second[0] << " and " << seedIter->second[1]
+          << " (or one was negative\nor larger "
+             "than a 32 bit unsigned integer).\nThis was for "
+          << outputString << ".";
+      }
+      long seedL[2];
+      seedL[0] = static_cast<long>(seedIter->second[0]);
+      seedL[1] = static_cast<long>(seedIter->second[1]);
+      CLHEP::HepRandomEngine* engine = new CLHEP::RanecuEngine();
+      engine->setSeeds(seedL, 0);
+      engineMap_[seedIter->first] = engine;
+    }
     else {
-      throw cms::Exception("RandomNumberFailure")
+      throw edm::Exception(edm::errors::Configuration)
         << "The configuration file requested the RandomNumberGeneratorService\n"
            "create an unknown random engine type named \""
         << engineName
-        << "\"\nfor " << outputString;
+        << "\"\nfor " << outputString
+        << "\nCurrently the only valid types are HepJamesRandom and RanecuEngine";
     }
   }
 
@@ -205,7 +240,7 @@ RandomNumberGeneratorService::getEngine() const {
   if (currentEngine_ == engineMap_.end()) {
     if (currentLabel_ != std::string() ) {
       if ( currentLabel_ != sourceLabel) {
-        throw cms::Exception("RandomNumberFailure")
+        throw edm::Exception(edm::errors::Configuration)
           << "The module with label \""
           << currentLabel_
           << "\" requested a random number engine from the \n"
@@ -218,7 +253,7 @@ RandomNumberGeneratorService::getEngine() const {
              "correct type, and that the parameter name matches the module label).";
       }
       else {
-        throw cms::Exception("RandomNumberFailure")
+        throw edm::Exception(edm::errors::Configuration)
           << "The source requested a random number engine from the \n"
              "RandomNumberGeneratorService, but the source was not configured\n"
              "for random numbers.  An engine is created only if a seed(s) is provided\n"
@@ -229,13 +264,13 @@ RandomNumberGeneratorService::getEngine() const {
       }
     }
     else {
-      throw cms::Exception("RandomNumberFailure")
+      throw edm::Exception(edm::errors::Unknown)
         << "Requested a random number engine from the RandomNumberGeneratorService\n"
            "when no module was active.  This is not supposed to be possible.\n"
            "Please rerun the job using a debugger to get a traceback to show\n"
            "what routines were called and then send information to the edm developers.";
     }
-  }  
+  }
   return *(currentEngine_->second); 
 }
 
@@ -248,7 +283,7 @@ RandomNumberGeneratorService::mySeed() const {
   if (iter == seedMap_.end()) {
     if (currentLabel_ != std::string() ) {
       if ( currentLabel_ != sourceLabel) {
-        throw cms::Exception("RandomNumberFailure")
+        throw edm::Exception(edm::errors::Configuration)
           << "The module with label \""
           << currentLabel_
           << "\" requested a random number seed from the \n"
@@ -260,7 +295,7 @@ RandomNumberGeneratorService::mySeed() const {
              "correct type, and that the parameter name matches the module label).";
       }
       else {
-        throw cms::Exception("RandomNumberFailure")
+        throw edm::Exception(edm::errors::Configuration)
           << "The source requested a random number seed from the \n"
              "RandomNumberGeneratorService, but the source was not configured\n"
              "to have a random number seed.  Please change the configuration\n"
@@ -270,7 +305,7 @@ RandomNumberGeneratorService::mySeed() const {
       }
     }
     else {
-      throw cms::Exception("RandomNumberFailure")
+      throw edm::Exception(edm::errors::Unknown)
         << "Requested a random number seed from the RandomNumberGeneratorService\n"
            "when no module was active.  This is not supposed to be possible.\n"
            "Please rerun the job using a debugger to get a traceback to show\n"
@@ -374,7 +409,7 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
     iEvent.getByLabel(restoreStateLabel_, states);
   }
   catch (const edm::Exception&) {
-    throw cms::Exception("RandomNumberFailure")
+    throw edm::Exception(edm::errors::ProductNotFound)
       << "The RandomNumberGeneratorService is trying to restore\n"
       << "the state of the random engines by reading an object from\n"
       << "the event with label \"" << restoreStateLabel_ << "\".  It\n"
@@ -384,6 +419,33 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
       << "a previous process\n";   
   }
 
+  // The service does not currently support restoring the state
+  // of the source random engine.  Throw an exception if the user tries.
+  // If we ever try to implement this, the main step is getting the functions
+  // restoreState and snapShot called at the correct point(s) in time in the 
+  // source.  And you also need a source that both reads an input file and
+  // generates random numbers.  If those things are done, I think one could
+  // simply delete the following error check and everything should
+  // work.  The state of the source is already saved, the problem
+  // involves restoring it.  Currently, the calls to snapShot and restoreState
+  // are in the base class InputSource and also snapShot gets called at the
+  // end of this function.  Alternatively, one could imagine separating the
+  // parts of the source that generate random numbers and putting those
+  // parts in normal modules.
+  EngineMap::iterator sourceEngine = engineMap_.find(sourceLabel);
+  if (sourceEngine != engineMap_.end()) {
+    throw edm::Exception(edm::errors::UnimplementedFeature)
+      << "The RandomNumberGeneratorService was instructed to restore\n"
+      << "the state of the random engines and the source is\n"
+      << "configured to generate random numbers.\n"
+      << "Currently the RandomNumberGeneratorService is not\n"
+      << "capable of restoring the random engine state of the\n"
+      << "source.  This feature has not been implemented yet.\n"
+      << "You need to remove the line in the configuration file\n"
+      << "that gives the source a seed or stop trying to restore\n"
+      << "the state of the random numbers (remove the line that sets\n"
+      << "the \"restoreStateLabel\" in the configuration file).\n";
+  }
 
   // Get the information out of the persistent object into
   // convenient vectors and convert to the type CLHEP requires.
@@ -409,74 +471,57 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
       engineSeedsL.push_back(static_cast<long>(*iVal));
     }
 
-    // We need to handle each type of engine differently because each
-    // has different requirements on the seed or seeds.
-    if (engineStateL[0] == CLHEP::engineIDulong<HepJamesRandom>()) {
-      EngineMap::iterator engine = engineMap_.find(engineLabel);
+    EngineMap::iterator engine = engineMap_.find(engineLabel);
 
-      // Note: It is considered legal for the module label
-      // to be in the event but not in the configuration file.
-      // In this case we just ignore it and do nothing.
+    // Note: It is considered legal for the module label
+    // to be in the event but not in the configuration file.
+    // In this case we just ignore it and do nothing.
 
-      // The converse is also legal.  If the module label is in the
-      // configuration file and not in the event, this is legal.
-      // Again we do nothing.
+    // The converse is also legal.  If the module label is in the
+    // configuration file and not in the event, this is legal.
+    // Again we do nothing.
 
-      // Now deal with the case where the module label appears both
-      // in the input file and also in the configuration file.
+    // Now deal with the case where the module label appears both
+    // in the input file and also in the configuration file.
 
-      if (engine != engineMap_.end()) {
+    if (engine != engineMap_.end()) {
 
-        // Check that the engine type in the event and in the configuration
-        // file match.
-        if (engine->second->name() != std::string("HepJamesRandom")) {
+      seedMap_[engineLabel] = engineSeeds;
 
-          if (engineLabel == sourceLabel) {
-            throw cms::Exception("RandomNumberFailure")
-              << "The RandomNumberGeneratorService is trying to restore\n"
-              << "the state of the random engines for the source.  An\n"
-              << "error was detected because the type of engine in the\n"
-	      << "input file and configuration file do not match.\n"
-              << "In the configuration file the type is \"" << engine->second->name()
-              << "\".\nIn the input file the type is \"HepJamesRandom\".  If\n"
-              << "you are not generating any random numbers in the source, then\n"
-              << "remove the line in the configuration file that gives the source\n"
-              << "a seed and the error will go away.  Otherwise, you must give\n"
-              << "the source the same engine type in the configuration file or\n"
-              << "stop trying to restore the random engine state.\n";
-          }
-          else {
-            throw cms::Exception("RandomNumberFailure")
-              << "The RandomNumberGeneratorService is trying to restore\n"
-              << "the state of the random engines for the module \"" 
-              << engineLabel << "\".  An\n"
-              << "error was detected because the type of engine in the\n"
-	      << "input file and configuration file do not match.\n"
-              << "In the configuration file the type is \"" << engine->second->name()
-              << "\".\nIn the input file the type is \"HepJamesRandom\".  If\n"
-              << "you are not generating any random numbers in this module, then\n"
-              << "remove the line in the configuration file that gives it\n"
-              << "a seed and the error will go away.  Otherwise, you must give\n"
-              << "this module the same engine type in the configuration file or\n"
-              << "stop trying to restore the random engine state.\n";
-          }
+      // We need to handle each type of engine differently because each
+      // has different requirements on the seed or seeds.
+      if (engineStateL[0] == CLHEP::engineIDulong<HepJamesRandom>()) {
 
-        }
+        checkEngineType(engine->second->name(), std::string("HepJamesRandom"), engineLabel);
 
         // These two lines actually restore the seed and engine state.
         engine->second->setSeed(engineSeedsL[0], 0);
         engine->second->get(engineStateL);
 
-        seedMap_[engineLabel] = engineSeeds;
+      }
+      else if (engineStateL[0] == CLHEP::engineIDulong<RanecuEngine>()) {
+
+        checkEngineType(engine->second->name(), std::string("RanecuEngine"), engineLabel);
+
+        // This line actually restores the engine state.
+        engine->second->get(engineStateL);
+
+      }
+      // This should not be possible because this code should be able to restore
+      // any kind of engine whose state can be saved.
+      else {
+        throw edm::Exception(edm::errors::Unknown)
+          << "The RandomNumberGeneratorService is trying to restore the state\n"
+             "of the random engines.  The state in the event indicates an engine\n"
+             "of an unknown type.  This should not be possible unless you are\n"
+             "running with an old code release on a new file that was created\n"
+             "with a newer release which had new engine types added.  In this case\n"
+             "the only solution is to use a newer release.  In any other case, notify\n"
+	     "the EDM developers because this should not be possible\n";
       }
     }
-    // This should not be possible because this code should be able to restore
-    // any kind of engine whose state can be saved.
-    else {
-      throw cms::Exception("RandomNumberFailure")
-        << "Requested unknown random engine when restoring random state";
-    }
   }
+  snapShot();
 }
 
 void
@@ -623,4 +668,43 @@ RandomNumberGeneratorService::pop()
   currentEngine_ = engineStack_.back();
   labelStack_.pop_back();
   currentLabel_ = labelStack_.back();
+}
+
+void
+RandomNumberGeneratorService::checkEngineType(const std::string& typeFromConfig,
+                                              const std::string& typeFromEvent,
+                                              const std::string& engineLabel)
+{
+  if (typeFromConfig != typeFromEvent) {
+
+    if (engineLabel == sourceLabel) {
+      throw edm::Exception(edm::errors::Configuration)
+        << "The RandomNumberGeneratorService is trying to restore\n"
+        << "the state of the random engine for the source.  An\n"
+        << "error was detected because the type of the engine in the\n"
+	<< "input file and the configuration file do not match.\n"
+        << "In the configuration file the type is \"" << typeFromConfig
+        << "\".\nIn the input file the type is \"" << typeFromEvent << "\".  If\n"
+        << "you are not generating any random numbers in the source, then\n"
+        << "remove the line in the configuration file that gives the source\n"
+        << "a seed and the error will go away.  Otherwise, you must give\n"
+        << "the source the same engine type in the configuration file or\n"
+        << "stop trying to restore the random engine state.\n";
+    }
+    else {
+      throw edm::Exception(edm::errors::Configuration)
+        << "The RandomNumberGeneratorService is trying to restore\n"
+        << "the state of the random engine for the module \"" 
+        << engineLabel << "\".  An\n"
+        << "error was detected because the type of the engine in the\n"
+	<< "input file and the configuration file do not match.\n"
+        << "In the configuration file the type is \"" << typeFromConfig
+        << "\".\nIn the input file the type is \"" << typeFromEvent << "\".  If\n"
+        << "you are not generating any random numbers in this module, then\n"
+        << "remove the line in the configuration file that gives it\n"
+        << "a seed and the error will go away.  Otherwise, you must give\n"
+        << "this module the same engine type in the configuration file or\n"
+        << "stop trying to restore the random engine state.\n";
+    }
+  }
 }

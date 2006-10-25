@@ -15,7 +15,7 @@
 //
 // Original Authors:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
-// $Id$
+// $Id: RandomNumberGeneratorService.h,v 1.1 2006/10/23 15:27:41 wdd Exp $
 //
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -90,6 +90,10 @@ namespace edm {
 
       void push(const std::string& iLabel);
       void pop();
+
+      void checkEngineType(const std::string& typeFromConfig,
+                           const std::string& typeFromEvent,
+                           const std::string& engineLabel);
 
       // ---------- member data --------------------------------
 
