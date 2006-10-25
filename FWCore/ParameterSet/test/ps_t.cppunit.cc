@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.7 2006/05/29 18:50:45 rpw Exp $
+ * $Id: ps_t.cppunit.cc,v 1.8 2006/10/25 13:31:02 rpw Exp $
  */
 
 #include <algorithm>
@@ -304,15 +304,11 @@ test_for_name()
   CPPUNIT_ASSERT( names.size() == 1 );
   std::sort(names.begin(), names.end());
   CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "x") );
-  CPPUNIT_ASSERT(ps.template containsParameter<T>("x"));
 
   names = ps.template getParameterNamesForType<T>(false);
   CPPUNIT_ASSERT( names.size() == 1 );
   std::sort(names.begin(), names.end());
   CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "y") );
-  // has to have the right trackiness
-  CPPUNIT_ASSERT( !(ps.template containsParameter<T>("y")) );
-  CPPUNIT_ASSERT(ps.template containsParameter<T>("y", false));
 }
 
 void testps::nameAccessTest()

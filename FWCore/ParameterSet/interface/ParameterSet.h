@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.29 2006/08/16 17:14:30 rpw Exp $
+// $Id: ParameterSet.h,v 1.30 2006/10/25 13:30:14 rpw Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -94,18 +94,6 @@ namespace edm {
       return result;
     }
     
-
-    /// see if the set contains a parameter with a specific name
-    /// for the given type
-    template <class T>
-    bool containsParameter(const std::string & name,
-                           bool trackiness = true) const
-    {
-      std::vector<std::string> allNames = getParameterNamesForType<T>(trackiness);
-      return (std::find( allNames.begin(), allNames.end(), name ) != allNames.end());
-    }
-
-
     template <class T>
     void
     addUntrackedParameter(std::string const& name, T value)
