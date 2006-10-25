@@ -130,5 +130,4 @@ void GeometryProducer::produce(edm::Event & e, const edm::EventSetup & es)
 	++itProd) { (*itProd)->produce(e,es); }
 }
 
-DEFINE_FWK_MODULE(GeometryProducer)
- 
+DEFINE_FWK_MODULE(GeometryProducer);
