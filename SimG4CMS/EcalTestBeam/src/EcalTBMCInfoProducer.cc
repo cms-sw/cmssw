@@ -1,11 +1,12 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.3 2006/06/15 12:42:41 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.cc,v 1.4 2006/07/18 14:09:05 fabiocos Exp $
  *
 */
 
 #include "SimG4CMS/EcalTestBeam/interface/EcalTBMCInfoProducer.h"
+#include "CLHEP/Random/RandFlat.h"
 
 EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
   
@@ -20,8 +21,8 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
   beamEta = (fMaxEta+fMinEta)/2.;
   beamPhi = (fMaxPhi+fMinPhi)/2.;
   beamTheta = 2.0*atan(exp(-beamEta));
-  beamXoff = ps.getUntrackedParameter<double>("BeamMeanX");
-  beamYoff = ps.getUntrackedParameter<double>("BeamMeanX");
+  beamXoff = ps.getUntrackedParameter<double>("BeamMeanX",0.0);
+  beamYoff = ps.getUntrackedParameter<double>("BeamMeanX",0.0);
    
   string fullMapName = CrystalMapFile.fullPath();
   theTestMap = new EcalTBCrystalMap(fullMapName);
@@ -116,7 +117,12 @@ EcalTBMCInfoProducer::~EcalTBMCInfoProducer() {
   partYhodo = eventTBVertex.y();
 
   product->setBeamPosition(partXhodo, partYhodo);
-   
+
+  // Asynchronous phase shift
+  double thisPhaseShift = RandFlat::shoot();
+  product->setPhaseShift(thisPhaseShift);
+  LogDebug("EcalTBInfo") << "Asynchronous Phaseshift = " << thisPhaseShift;
+
   // store the object in the framework event
 
   event.put(product);
