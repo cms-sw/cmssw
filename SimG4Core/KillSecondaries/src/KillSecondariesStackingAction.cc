@@ -6,7 +6,7 @@
 
 G4ClassificationOfNewTrack KillSecondariesStackingAction::ClassifyNewTrack(const G4Track * aTrack) 
 {
-    NewTrackAction newTA;
+    NewTrackAction newTA(true);
     if (aTrack->GetCreatorProcess()==0 || aTrack->GetParentID()==0)     
     {
 	newTA.primary(aTrack);
