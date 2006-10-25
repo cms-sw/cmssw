@@ -1,23 +1,29 @@
-#ifndef EcalHitMaker_h
-#define EcalHitMaker_h
+#ifndef FastSimulation_CaloHitMakers_EcalHitMaker_h
+#define FastSimulation_CaloHitMakers_EcalHitMaker_h
 
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
-#include "FastSimulation/CaloHitMakers/interface/CaloPoint.h"
-#include "FastSimulation/CaloHitMakers/interface/CaloSegment.h"
+#include "FastSimulation/CaloGeometryTools/interface/CaloPoint.h"
+#include "FastSimulation/CaloGeometryTools/interface/CaloSegment.h"
+#include "FastSimulation/CaloGeometryTools/interface/CrystalPad.h"
+#include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
+#include "FastSimulation/Utilities/interface/Histos.h"
 
 // CLHEP headers
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Plane3D.h"
 
+#include <boost/cstdint.hpp>
+
 #include <vector>
 
-class Calorimeter;
+class CaloGeometryHelper;
+class CrystalWindowMap;
 
 class EcalHitMaker: public CaloHitMaker
 {
  public:
-  EcalHitMaker(Calorimeter * calo,
+  EcalHitMaker(CaloGeometryHelper * calo,
 	       const HepPoint3D& ecalentrance,
 	       const DetId& cell,
 	       int onEcal,
@@ -73,7 +79,7 @@ class EcalHitMaker: public CaloHitMaker
   /// ECAL-HCAL transition 
   inline double ecalHcalGapTotalL0() const {  return L0EHGAP_;}
 
-  /// retrieve the segments (the path in the crystal croessed by the extrapolation
+  /// retrieve the segments (the path in the crystal crossed by the extrapolation
   /// of the track. Debugging only 
   inline const std::vector<CaloSegment>& getSegments() const {return segments_;};
 
@@ -82,27 +88,38 @@ class EcalHitMaker: public CaloHitMaker
   
   /// computes the crystals-plan intersection at depth (in X0)
   /// if it is not possible to go at such a depth, the result is false
-  bool getQuads(double depth) ;
+  bool getPads(double depth) ;
 
   inline double getX0back() const {return maxX0_;}
 
   bool addHitDepth(double r,double phi,double depth=-1);
    
-  // must be implemented 
+  /// must be implemented 
   bool addHit(double r,double phi,unsigned layer=0) ;
 
   
   inline void setSpotEnergy(double e) { spotEnergy=e;}
   
-// get the map of the stored hits. Triggers the calculation of the grid if it has
+   /// get the map of the stored hits. Triggers the calculation of the grid if it has
   /// not been done. 
-  const std::map<unsigned,float>& getHits() {return hitMap_;} 
+  const std::map<uint32_t,float>& getHits() {return hitMap_;} 
  
-  // To retrieve the track
+  /// To retrieve the track
   const FSimTrack* getFSimTrack() const {return myTrack_;}
 
-  //   used in FamosHcalHitMaker
+  ///   used in FamosHcalHitMaker
   inline const HepPoint3D& ecalEntrance() const {return EcalEntrance_;};
+
+  inline void setRadiusFactor(double r) {radiusCorrectionFactor_ = r;}
+
+  inline void setPulledPadSurvivalProbability(double val) {pulledPadProbability_ = val;};
+
+  inline void setCrackPadSurvivalProbability(double val ) {crackPadProbability_ = val ;};
+
+  /// for debugging
+  inline const std::vector<Crystal>& getCrystals() const {return regionOfInterest_;}
+
+
 
  private:
  // Computes the intersections of a track with the different calorimeters 
@@ -116,8 +133,25 @@ class EcalHitMaker: public CaloHitMaker
 
  void buildSegments(const std::vector<CaloPoint>& cp);
 
+ // retrieves the 7x7 crystals and builds the map of neighbours
+ void buildGeometry();
+
+ // depth-dependent geometry operations
+ void configureGeometry();
+
+ // project fPoint on the plane (origin,normal)
+ bool pulled(const HepPoint3D & origin, const HepNormal3D& normal, HepPoint3D & fPoint) const ;
+ 
+ //  the numbering within the grid
+ void prepareCrystalNumberArray();
+
+ // find approximately the pad corresponding to (x,y)
+ void convertIntegerCoordinates(double x, double y,unsigned &ix,unsigned &iy) const ;
 
  private:
+
+  // the numbering of the pads
+  std::vector<std::vector<unsigned > > myCrystalNumberArray_;
 
   // The following quantities are related to the path of the track through the detector
   double totalX0_;
@@ -135,15 +169,64 @@ class EcalHitMaker: public CaloHitMaker
   double L0EHGAP_;
  
   double maxX0_;
- 
-  DetId pivot_;
+
+  // Grid construction 
+  Crystal pivot_;
   HepPoint3D EcalEntrance_;
   HepNormal3D normal_;
   int central_;
   int onEcal_;
+
+  bool configuredGeometry_ ;
+  unsigned ncrystals_ ;
+  // size of the grid in the(x,y) plane
+  unsigned nx_,ny_;
+  double xmin_,xmax_,ymin_,ymax_;
+
+  std::vector<DetId> CellsWindow_;
+  std::vector<Crystal> regionOfInterest_;
+  std::vector<float> hits_;
+  // Validity of the pads. To be valid, the intersection of the crytal with the plane should have 4 corners
+  std::vector<bool> validPads_;
+  // Get the index of the crystal (in hits_ or regionOfInterest_) when its CellID is known 
+  // Needed because the navigation uses DetIds. 
+  std::map<DetId,unsigned> DetIdMap_;
+
+  CrystalWindowMap * myCrystalWindowMap_;
+
    // First segment in ECAL
   int ecalFirstSegment_;
 
+  // Properties of the crystal window 
+  unsigned etasize_;
+  unsigned phisize_;
+  // is the grid complete ? 
+  bool truncatedGrid_ ;
+
+
+  // shower simulation quantities
+  // This one is the shower enlargment wrt Grindhammer
+  double radiusCorrectionFactor_;
+  // moliere radius  * radiuscorrectionfactor OR interactionlength
+  double radiusFactor_ ; 
+  // is it necessary to trigger the detailed simulation of the shower tail ? 
+  bool detailedShowerTail_;
+  // current depth
+  double currentdepth_;
+  // magnetic field correction factor
+  double bfactor_;
+  
+  // pads-depth specific quantities 
+  unsigned ncrackpadsatdepth_;
+  unsigned npadsatdepth_;
+  HepPlane3D plan_;
+  // spot survival probability for a pulled pad - corresponding to the front face of a crystal
+  // on the plan located in front of the crystal - Front leaking
+  double pulledPadProbability_;
+  // spot survival probability for the craks
+  double crackPadProbability_;
+  // size of the grid in the plane
+  double sizex_,sizey_;  
 
  //  int fsimtrack_;
   const FSimTrack* myTrack_;
@@ -152,6 +235,20 @@ class EcalHitMaker: public CaloHitMaker
   std::vector<CaloPoint> intersections_;
   // segments obtained from the intersections
   std::vector<CaloSegment> segments_;
+
+
+
+  // the geometrical objects
+  std::vector<CrystalPad> padsatdepth_;
+  std::vector<CrystalPad> crackpadsatdepth_;
+
+
+
+#ifdef FAMOSDEBUG
+  Histos * myHistos;
+#endif
+
+  
 };
 
 #endif

@@ -1,12 +1,12 @@
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
-#include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
+#include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CalorimeterProperties/interface/CalorimeterProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 
-CaloHitMaker::CaloHitMaker(const Calorimeter * theCalo,DetId::Detector basedet,int subdetn,int cal,unsigned sht)
+CaloHitMaker::CaloHitMaker(const CaloGeometryHelper * theCalo,DetId::Detector basedet,int subdetn,int cal,unsigned sht)
   :myCalorimeter(theCalo),theCaloProperties(NULL),base_(basedet),subdetn_(subdetn),onCal_(cal),showerType_(sht)
 {
   //  std::cout << " FamosCalorimeter " << basedet << " " << cal << std::endl;

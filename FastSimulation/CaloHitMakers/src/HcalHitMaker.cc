@@ -1,4 +1,5 @@
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
+#include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 
 #include <algorithm>
 
@@ -7,7 +8,6 @@ HcalHitMaker::HcalHitMaker(EcalHitMaker& grid,unsigned shower)
 		grid.getFSimTrack()->onHcal()?grid.getFSimTrack()->onHcal():grid.getFSimTrack()->onVFcal()+1,shower),
    myGrid(grid),  myTrack((grid.getFSimTrack()))
 {
-  //  std::cout << " Created HcalHitMaker " << std::endl;
   // normalize the direction
   ecalEntrance_=myGrid.ecalEntrance();
   particleDirection=myTrack->ecalEntrance().vect().unit();
@@ -43,19 +43,16 @@ bool HcalHitMaker::addHit(double r,double phi,unsigned layer)
   if(!thecellID.null())
     {
 
-      //      std::cout << " FamosHcalHitMaker::addHit - CellID " << thecellID 
-      //		<< std::endl;
-
-      unsigned cell(thecellID.rawId());
+      uint32_t cell(thecellID.rawId());
   
       //      std::cout << " FamosHcalHitMaker::addHit - the cell num " << cell
-      //		<< std::endl;
+      //      		<< std::endl;
 
-      std::map<unsigned,float>::iterator cellitr;
+      std::map<uint32_t,float>::iterator cellitr;
       cellitr = hitMap_.find(cell);
       if(cellitr==hitMap_.end())
 	{
-	  hitMap_.insert(std::pair<unsigned,float>(cell,spotEnergy));
+	  hitMap_.insert(std::pair<uint32_t,float>(cell,spotEnergy));
 	}
       else
 	{

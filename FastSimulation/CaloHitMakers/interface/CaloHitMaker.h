@@ -12,20 +12,20 @@
 #include <map>
 #include <iostream>
 
-class Calorimeter;
+class CaloGeometryHelper;
 class CalorimeterProperties;
 
 class CaloHitMaker
 {
  public:
-  CaloHitMaker(const Calorimeter * calo,DetId::Detector det,int subdetn,int cal,unsigned sht=0);
+  CaloHitMaker(const CaloGeometryHelper * calo,DetId::Detector det,int subdetn,int cal,unsigned sht=0);
   virtual ~CaloHitMaker(){;}
   
   virtual bool addHit(double r,double phi,unsigned layer=0)=0;
   virtual void setSpotEnergy(double e)=0;
   virtual const std::map<uint32_t,float>& getHits()=0; 
 
-  const Calorimeter * getCalorimeter() const 
+  const CaloGeometryHelper * getCalorimeter() const 
     {
       //      std::cout << "CaloHitMaker is returning myCalorimeter " << myCalorimeter << std::endl;
       return myCalorimeter;
@@ -36,7 +36,7 @@ class CaloHitMaker
   /// and a plan
   static HepPoint3D intersect(const HepPlane3D& p,const HepPoint3D& a,const HepPoint3D& b,double& t,bool segment,bool debug=false) ;
 
-  const Calorimeter * myCalorimeter;    
+  const CaloGeometryHelper * myCalorimeter;    
   const CalorimeterProperties * theCaloProperties;
   double moliereRadius;
   double interactionLength;

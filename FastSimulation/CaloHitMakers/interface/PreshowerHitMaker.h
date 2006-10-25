@@ -9,12 +9,12 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
 
-class Calorimeter;
+class CaloGeometryHelper;
 
 class PreshowerHitMaker : public CaloHitMaker
 {
  public:
-  PreshowerHitMaker(Calorimeter * calo, const HepPoint3D & , const HepVector3D& ,const HepPoint3D& ,const HepVector3D& );
+  PreshowerHitMaker(CaloGeometryHelper * calo, const HepPoint3D & , const HepVector3D& ,const HepPoint3D& ,const HepVector3D& );
   ~PreshowerHitMaker() {;}
   
   inline void setSpotEnergy(double e) { spotEnergy=e;} 

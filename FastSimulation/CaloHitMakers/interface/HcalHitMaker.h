@@ -10,9 +10,14 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
+
+#include <boost/cstdint.hpp>
+
 #include <iostream>
 
-class Calorimeter;
+
+
+class CaloGeometryHelper;
 
 class HcalHitMaker : public CaloHitMaker
 {
@@ -27,7 +32,7 @@ class HcalHitMaker : public CaloHitMaker
   bool addHit(double r,double phi,unsigned layer=0);
   
    /// get the hits
-  const std::map<unsigned,float>& getHits() { return hitMap_ ;} ;
+  const std::map<uint32_t,float>& getHits() { return hitMap_ ;} ;
 
   /// set the depth in X0 or Lambda0 units depending on showerType
   bool setDepth(double); 

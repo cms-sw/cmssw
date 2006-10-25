@@ -1,9 +1,9 @@
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
-#include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
+#include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
-PreshowerHitMaker::PreshowerHitMaker(Calorimeter * calo,
+PreshowerHitMaker::PreshowerHitMaker(CaloGeometryHelper * calo,
 			       const HepPoint3D& layer1entrance, 
 			       const HepVector3D& layer1dir, 
 			       const HepPoint3D& layer2entrance, 
