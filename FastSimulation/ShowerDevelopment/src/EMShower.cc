@@ -10,7 +10,8 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
-
+#include <iostream>
+#include <iomanip>
 #include <math.h>
 
 using std::vector;
@@ -25,12 +26,9 @@ EMShower::EMShower(EMECALShowerParametrization* const myParam,
     theGrid(myGrid),
     thePreshower(myPresh)    
 { 
-
   // Get the Famos Histos pointer
-  myHistos = Histos::instance();
+  //  myHistos = Histos::instance();
   myGammaGenerator = GammaFunctionGenerator::instance();
-  
-  //  std::cout << " Hello EMShower " << std::endl;
   
   hasPreshower = myPresh!=NULL;
   theECAL = myParam->ecalProperties();
@@ -44,11 +42,11 @@ EMShower::EMShower(EMECALShowerParametrization* const myParam,
 
   nPart = thePart->size();
   totalEnergy = 0.;
-  globalMeanDepth = 0.;
+  globalMaximum = 0.;
 
   // Initialize the shower parameters for each particle
   for ( unsigned int i=0; i<nPart; ++i ) {
-    
+    //    std::cout << (*thePart)[i] << std::endl;
     // The particle and the shower energy
     Etot.push_back(0.);
     E.push_back(((*thePart)[i])->e());
@@ -92,8 +90,10 @@ EMShower::EMShower(EMECALShowerParametrization* const myParam,
     a.push_back(aa);
     T.push_back(exp(theMeanLnT + theSigmaLnT * (z1*rhop+z2*rhom)));
     b.push_back((a[i]-1.)/T[i]);
-    meanDepth.push_back(a[i]/b[i]);
-    globalMeanDepth += meanDepth[i]*E[i];
+    maximumOfShower.push_back((a[i]-1.)/b[i]);
+    globalMaximum += maximumOfShower[i]*E[i];
+    //    std::cout << " Adding max " << maximumOfShower[i] << " " << E[i] << " " <<maximumOfShower[i]*E[i] << std::endl; 
+    //    std::cout << std::setw(8) << std::setprecision(5) << " a /b " << a[i] << " " << b[i] << std::endl;
     Ti.push_back(
       a[i]/b[i] * (exp(theMeanLnAlpha)-1.) / exp(theMeanLnAlpha));
   
@@ -111,7 +111,8 @@ EMShower::EMShower(EMECALShowerParametrization* const myParam,
   //       << " Offset : " << myGrid->x0DepthOffset()
   //       << endl;
 
- globalMeanDepth/=totalEnergy;
+ globalMaximum/=totalEnergy;
+ // std::cout << " Total Energy " << totalEnergy << " Global max " << globalMaximum << std::endl;
 }
 
 void
@@ -218,7 +219,7 @@ EMShower::compute() {
 
 //    std::cout << " Step " << tt << std::endl;
 //    std::cout << "ecal " << ecal << " hcal "  << hcal <<std::endl;
-    if (ecal) status=theGrid->getQuads(tt);
+    if (ecal) status=theGrid->getPads(tt);
     if (hcal) 
       {
 	status=theHcalHitMaker->setDepth(tt);
@@ -441,10 +442,10 @@ EMShower::compute() {
   double Etotal=0.;
   for(unsigned i=0;i<nPart;++i)
     {
-      myHistos->fill("h10",Etot[i]);
+      //      myHistos->fill("h10",Etot[i]);
       Etotal+=Etot[i];
     }
-  myHistos->fill("h20",Etotal);
+  //  myHistos->fill("h20",Etotal);
 }
 
 

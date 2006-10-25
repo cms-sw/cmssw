@@ -72,7 +72,7 @@ bool HDRShower::computeShower()
   decal = (depthECAL + depthStart)*0.5;
   qstatus = false;
   if(decal < depthECAL) {
-    qstatus = theGrid->getQuads(decal);
+    qstatus = theGrid->getPads(decal);
 //    if(!qstatus)
 //      cout<<" depth rejected by getQuads(decal="<<decal<<") status="<<qstatus
 //	  <<" depthECAL="<<depthECAL<<endl;

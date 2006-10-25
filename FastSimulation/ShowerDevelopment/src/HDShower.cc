@@ -509,7 +509,7 @@ bool HDShower::compute() {
       }
       else {
 	ecal = 1;
-	bool status = theGrid->getQuads(currentDepthL0);   
+	bool status = theGrid->getPads(currentDepthL0);   
 	
 	if(debug)
 	  LogDebug("FastCalorimetry") << " FamosHDShower::compute - status of Grid = " 

@@ -40,7 +40,10 @@ class EMShower
   void compute();
 
   /// get the depth of the centre of gravity of the shower(s)
-  inline double getMeanDepth() const {return globalMeanDepth;};  
+  //  inline double getMeanDepth() const {return globalMeanDepth;};  
+
+  /// get the depth of the maximum of the shower 
+  inline double getMaximumOfShower() const {return globalMaximum;}
 
   /// set the grid address
   void setGrid(EcalHitMaker * const myGrid) { theGrid=myGrid;}
@@ -91,8 +94,12 @@ class EMShower
   std::vector<double> aSpot; 
   std::vector<double> bSpot;
 
-  std::vector<double> meanDepth;
-  double globalMeanDepth;
+  // F.B : Use the maximum of the shower rather the center of gravity 
+  //  std::vector<double> meanDepth;  
+  //  double globalMeanDepth;
+  std::vector<double> maximumOfShower;
+  double globalMaximum;
+
   double totalEnergy;
 
   // The steps for the longitudinal development
@@ -110,7 +117,7 @@ class EMShower
   // Is there a preshower ? 
   bool hasPreshower;
   // Histos
-  Histos* myHistos;
+  //  Histos* myHistos;
 
   // integer gamma function generator
   GammaFunctionGenerator * myGammaGenerator;
