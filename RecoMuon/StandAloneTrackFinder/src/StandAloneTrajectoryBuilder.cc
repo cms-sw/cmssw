@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/10/18 16:33:38 $
- *  $Revision: 1.31 $
+ *  $Date: 2006/10/24 08:04:44 $
+ *  $Revision: 1.32 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -54,14 +54,15 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   // Fit direction
   string seedPosition = par.getParameter<string>("SeedPosition");
   
-  if (seedPosition == "inner" ) theSeedPosition = recoMuon::in;
-  else if (seedPosition == "outer" ) theSeedPosition = recoMuon::out;
+  if (seedPosition == "in" ) theSeedPosition = recoMuon::in;
+  else if (seedPosition == "out" ) theSeedPosition = recoMuon::out;
   else 
-    LogError(metname)<<"Wrong seed position chosen in StandAloneMuonRefitter::StandAloneMuonRefitter ParameterSet"
-		     << "\n"
-		     << "Possible choices are:"
-		     << "\n"
-		     << "SeedPosition = inner or SeedPosition = outer";
+    throw cms::Exception("StandAloneMuonRefitter constructor") 
+      <<"Wrong seed position chosen in StandAloneMuonRefitter::StandAloneMuonRefitter ParameterSet"
+      << "\n"
+      << "Possible choices are:"
+      << "\n"
+      << "SeedPosition = in or SeedPosition = out";
   
   // Propagator for the seed extrapolation
   theSeedPropagatorName = par.getParameter<string>("SeedPropagator");
