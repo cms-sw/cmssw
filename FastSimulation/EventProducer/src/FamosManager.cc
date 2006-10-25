@@ -36,7 +36,7 @@
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
-#include "FastSimulation/GeometryTools/interface/CaloGeometryHelper.h"  
+#include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"  
 #include <iostream>
 #include <memory>
 #include <vector>
