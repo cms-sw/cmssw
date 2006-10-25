@@ -46,6 +46,7 @@ namespace edm {
     static boost::regex const reOwnVector("edm::OwnVector<(.*), *edm::ClonePolicy<\\1 *> >");
     static boost::regex const reOneToOne("edm::AssociationMap<(.*), (.*), edm::OneToOne, .*>");
     static boost::regex const reOneToMany("edm::AssociationMap<(.*), (.*), edm::OneToMany, .*>");
+    static boost::regex const reToVector("edm::AssociationVector<(.*), (.*)>");
     std::string standardRenames(std::string const& iIn) {
        using boost::regex_replace;
        using boost::regex;
@@ -54,10 +55,11 @@ namespace edm {
        name = regex_replace(name,reSorted,"sSorted<$1>");
        name = regex_replace(name,reUnsigned,"u");
        name = regex_replace(name,reLong,"l");
-       name = regex_replace(name,reOneToOne,"Association<$1,ToOne,$2>");
-       name = regex_replace(name,reOneToMany,"Association<$1,ToMany,$2>");
        name = regex_replace(name,reVector,"s");
        name = regex_replace(name,reOwnVector,"sOwned<$1>");
+       name = regex_replace(name,reToVector,"AssociationVector<$1,To,$2>");
+       name = regex_replace(name,reOneToOne,"Association<$1,ToOne,$2>");
+       name = regex_replace(name,reOneToMany,"Association<$1,ToMany,$2>");
        
        //std::cout <<"standardRenames '"<<name<<"'"<<std::endl;
        return name;
