@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/10/16 14:30:12 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/10/23 12:36:29 $
+ *  $Revision: 1.21 $
  *
  *  \author Martin Grunewald
  *
@@ -29,6 +29,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/ProductID.h"
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 #include <map>
@@ -113,16 +114,16 @@ namespace reco
     HLTFilterObjectWithRefs(int path=0, int module=0)
       : HLTFilterObject(path,module), refs_(), pids_() { }
 
-    /*
+    // template for any ConcreteCollection
     template<typename C>
     void putParticle(const edm::RefProd<C>& refprod, unsigned int i) {
-      putParticle(CandidateBaseRef(refprod,i));
+      putParticle(edm::RefToBase<Candidate>(edm::Ref<C>(refprod,i)));
     }
+    // template specialisation for an HLTFilterObjectWithRefs
     void putParticle(const edm::RefProd<HLTFilterObjectWithRefs>& refprod, unsigned int i) {
       putParticle(refprod->getParticleRef(i));
     }
-    */
-
+    // method to do the actual work
     void putParticle(const edm::RefToBase<Candidate>& ref) {
       this->HLTFilterObject::putParticle(ref);
       refs_.push_back(ref);
@@ -208,6 +209,7 @@ namespace reco
     const_iterator end()   const { return const_iterator(refs_.end()  );}
  
   };
+
 }
 
 #endif
