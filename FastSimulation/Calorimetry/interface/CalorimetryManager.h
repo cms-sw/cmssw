@@ -10,6 +10,8 @@
 #include "FastSimulation/Particle/interface/RawParticle.h"
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
 
+#include "FastSimulation/Calorimetry/interface/FamosDebug.h"
+
 // For the uint32_t
 #include <boost/cstdint.hpp>
 #include <map>
@@ -17,12 +19,14 @@
 class FSimEvent;
 class FSimTrack;
 class RawParticle;
-class Calorimeter;
+class CaloGeometryHelper;
 class Histos;
+
 
 class CalorimetryManager{
 
  public:
+  CalorimetryManager();
   CalorimetryManager(FSimEvent* aSimEvent, const edm::ParameterSet& fastCalo);
   ~CalorimetryManager();
 
@@ -36,7 +40,7 @@ class CalorimetryManager{
   inline std::map<uint32_t,float>& getHMapping() { return HMapping_;}
 
     // Return the address of the Calorimeter 
-  Calorimeter * getCalorimeter() const {return myCalorimeter_;}
+  CaloGeometryHelper * getCalorimeter() const {return myCalorimeter_;}
 
   // load container from edm::Event
   void loadFromEcalBarrel(edm::PCaloHitContainer & c) const;
@@ -65,7 +69,7 @@ class CalorimetryManager{
 
  private:
   FSimEvent* mySimEvent;
-  Calorimeter* myCalorimeter_;
+  CaloGeometryHelper* myCalorimeter_;
 
   Histos * myHistos;
 
@@ -87,6 +91,7 @@ class CalorimetryManager{
   double pulledPadSurvivalProbability_;
   double crackPadSurvivalProbability_;
   double spotFraction_;
+  double radiusFactor_;
   int gridSize_;
   std::vector<double> theCoreIntervals_,theTailIntervals_;
   //FR

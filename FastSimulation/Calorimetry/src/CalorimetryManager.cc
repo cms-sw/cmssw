@@ -7,7 +7,7 @@
 #include "FastSimulation/ShowerDevelopment/interface/HDShowerParametrization.h"
 #include "FastSimulation/ShowerDevelopment/interface/HDShower.h"
 #include "FastSimulation/ShowerDevelopment/interface/HDRShower.h"
-#include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
+#include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
@@ -32,24 +32,42 @@
 using namespace std;
 using namespace edm;
 
+CalorimetryManager::CalorimetryManager():myCalorimeter_(0),myHistos(0)
+{;}
 
 CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent, const edm::ParameterSet& fastCalo)
   :mySimEvent(aSimEvent)
 {
   readParameters(fastCalo);
-  myCalorimeter_ = new Calorimeter(fastCalo);
-  myHistos = Histos::instance();
-  myHistos->book("h10",100,90,110);
-  myHistos->book("h20",100,90,110);
 
+  myHistos = 0; 
+#ifdef FAMOSDEBUG
+  myHistos = Histos::instance();
+  myHistos->book("h10",140,-3.5,3.5,100,-0.5,99.5);
+  myHistos->book("h20",150,0,150.,100,-0.5,99.5);
+  myHistos->book("h100",140,-3.5,3.5,100,0,0.1);
+  myHistos->book("h110",140,-3.5,3.5,100,0,10.);
+  myHistos->book("h120",200,-5.,5.,100,0,0.5);
+
+  myHistos->book("h200",300,0,3.,100,0.,35.);
+  myHistos->book("h210",720,-M_PI,M_PI,100,0,35.);
+  myHistos->book("h212",720,-M_PI,M_PI,100,0,35.);
+
+  myHistos->bookByNumber("h30",0,7,300,0.,3.,100,0.,35.);
+  myHistos->book("h310",75,0.,3.,"");
+#endif
+  myCalorimeter_ = new CaloGeometryHelper(fastCalo);
   myHDResponse = new HCALResponse(fastCalo.getParameter<edm::ParameterSet>("HCALResponse"));
 }
 
 CalorimetryManager::~CalorimetryManager()
 {
-  // This was causing a segmentation fault in some circumstances - frocha
-  //  myHistos->put("histos.root");
-  delete myHistos;
+#ifdef FAMOSDEBUG
+  std::cout << " Bordel FamosDebug is enabled " << std::endl;
+  myHistos->put("Famos.root");
+  if(myHistos) delete myHistos;
+#endif
+
   if(myCalorimeter_) delete myCalorimeter_;
   delete myHDResponse;
 }
@@ -100,6 +118,7 @@ void CalorimetryManager::reconstruct()
   LogInfo("FastCalorimetry") << " Number of  hits (barrel)" << EBMapping_.size() << std::endl;
   LogInfo("FastCalorimetry") << " Number of  hits (Hcal)" << HMapping_.size() << std::endl;
   //  std::cout << " Nombre de hit (endcap)" << EEMapping_.size() << std::endl;
+
 } // reconstruct
 
 // Simulation of electromagnetic showers in PS, ECAL, HCAL 
@@ -220,15 +239,12 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   EMShower theShower(&showerparam,&thePart);
 
 
-  double depth((X0depth+theShower.getMeanDepth())*myCalorimeter_->ecalProperties(onEcal)->radLenIncm());
-  //  std::cout << " Depth in cm "  << depth << std::endl;
+  double depth((X0depth+theShower.getMaximumOfShower())*myCalorimeter_->ecalProperties(onEcal)->radLenIncm());
   HepPoint3D meanShower=ecalentrance+myPart.vect().unit()*depth;
-
   
-  if(onEcal!=1) return ; 
+  //  if(onEcal!=1) return ; 
 
   // The closest crystal
-  //  std::cout << " Before getClosestCell " << myCalorimeter_ <<std::endl;
   DetId pivot(myCalorimeter_->getClosestCell(meanShower, true, onEcal==1));
 
   //  std::cout << " After getClosestCell " << std::endl;
@@ -236,9 +252,10 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   EcalHitMaker myGrid(myCalorimeter_,ecalentrance,pivot,onEcal,size,0);
   //                                             ^^^^
   //                                         for EM showers
-//  myGrid.setPulledPadSurvivalProbability(pulledPadSurvivalProbability);
-//  myGrid.setCrackPadSurvivalProbability(crackPadSurvivalProbability);
-
+  myGrid.setPulledPadSurvivalProbability(pulledPadSurvivalProbability_);
+  myGrid.setCrackPadSurvivalProbability(crackPadSurvivalProbability_);
+  myGrid.setRadiusFactor(radiusFactor_);
+  
   // The shower simulation
   myGrid.setTrackParameters(myPart.vect().unit(),X0depth,myTrack);
 
@@ -260,7 +277,6 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   //  std::cout << " Coming back from compute" << std::endl;
   //myHistos->fill("h502", myPart->eta(),myGrid.totalX0());
   
-  //  std::cout << " Save the hits " << std::endl;
   // Save the hits !
   std::map<uint32_t,float>::const_iterator mapitr;
   std::map<uint32_t,float>::const_iterator endmapitr=myGrid.getHits().end();
@@ -287,9 +303,10 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 	  updateMap(mapitr->first,mapitr->second,ESMapping_);
 	  //      std::cout << " Adding " <<mapitr->first << " " << mapitr->second <<std::endl; 
 	}
+      delete myPreshower;
     }
   //  std::cout << " Deleting myPreshower " << std::endl;
-  delete myPreshower;
+  
 }
 
 
@@ -355,13 +372,11 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
     DetId cell = myCalorimeter_->getClosestCell(trackPosition.vect(),false,false);
     updateMap(cell.rawId(), emeas, HMapping_);
   }
-  //  std::cout << "exit reconstructHCAL " << std::endl;
 }
 
 void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 {
   //  TimeMe t(" FASTEnergyReconstructor::HDShower");
-
   HepLorentzVector moment = myTrack.momentum();
 
   if(debug_)
@@ -461,17 +476,20 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 
     DetId pivot;
     if(myTrack.onEcal())
+      {
 	pivot=myCalorimeter_->getClosestCell(caloentrance,
-					    true, myTrack.onEcal()==1);
+					     true, myTrack.onEcal()==1);
+      }
     else if(myTrack.onHcal())
-	pivot=myCalorimeter_->getClosestCell(caloentrance,
+      {
+	pivot=myCalorimeter_->getClosestCell(caloentrance,					     
 					    false, false);
+      }
 //    if(pivot.isZero())
 //      {
 //	std::cout << " HDShowerSim pivot is Zero "  << std::endl;
 //	std::cout <<" Ecal entrance " << caloentrance << std::endl;
 //      }
-
     EcalHitMaker myGrid(myCalorimeter_,caloentrance,pivot,
 			pivot.null()? 0 : myTrack.onEcal(),hdGridSize_,1);
     // 1=HAD shower
@@ -539,7 +557,6 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
   if(debug_)
     LogDebug("FastCalorimetry") << endl << " FASTEnergyReconstructor::HDShowerSimulation  finished "
 	 << endl;
-
 }
 
 void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
@@ -552,8 +569,9 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   
   theCoreIntervals_ = ECALparameters.getParameter<std::vector<double> >("CoreIntervals");
   theTailIntervals_ = ECALparameters.getParameter<std::vector<double> >("TailIntervals");
-
-
+  
+  radiusFactor_ = ECALparameters.getParameter<double>("RadiusFactor");
+  
   if(gridSize_ <1) gridSize_= 7;
   if(pulledPadSurvivalProbability_ <0. || pulledPadSurvivalProbability_>1 ) pulledPadSurvivalProbability_= 1.;
   if(crackPadSurvivalProbability_ <0. || crackPadSurvivalProbability_>1 ) crackPadSurvivalProbability_= 0.9;
@@ -577,6 +595,7 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
 	{
 	  LogInfo("FastCalorimetry") << " r < " << theTailIntervals_[ir*2] << " R_M : " << theTailIntervals_[ir*2+1] << "        ";
 	}
+      LogInfo("FastCalotimetry") << "Radius correction factor " << radiusFactor_ << std::endl;
       LogInfo("FastCalorimetry") << std::endl;
     }
 
@@ -615,6 +634,7 @@ void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
   for(cellit=EBMapping_.begin();cellit!=barrelEnd;++cellit)
     {
       // Add the PCaloHit. No time, no track number 
+      //      if(DetId(cellit->first).null()) std::cout << " PCaloHit. Ooops null " << std::endl;
       c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
     }
 }
@@ -628,6 +648,7 @@ void CalorimetryManager::loadFromEcalEndcap(edm::PCaloHitContainer & c) const
   for(cellit=EEMapping_.begin();cellit!=endcapEnd;++cellit)
     {
       // Add the PCaloHit. No time, no track number 
+      //      if(DetId(cellit->first).null()) std::cout << " PCaloHit. Ooops null " << std::endl;
       c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
     }
 }
@@ -639,7 +660,8 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
   
   for(cellit=HMapping_.begin();cellit!=hcalEnd;++cellit)
     {
-      // Add the PCaloHit. No time, no track number 
+      // Add the PCaloHit. No time, no track number
+      //      if(DetId(cellit->first).null()) std::cout << " PCaloHit. Ooops null " << std::endl;
       c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
     }
 }
