@@ -1,8 +1,8 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/08/01 15:24:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/07 15:47:36 $
+ *  $Revision: 1.5 $
  *  \authors: R. Bellan
  */
 
@@ -176,4 +176,4 @@ hDigis* DTDigiAnalyzer::WheelHistos(int wheel){
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(DTDigiAnalyzer)
+DEFINE_FWK_MODULE(DTDigiAnalyzer);

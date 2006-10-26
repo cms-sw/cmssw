@@ -1,8 +1,8 @@
 /** \class STAMuonAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/08/16 10:07:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/09/01 14:35:48 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -184,4 +184,4 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
   cout<<"---"<<endl;  
 }
 
-DEFINE_FWK_MODULE(STAMuonAnalyzer)
+DEFINE_FWK_MODULE(STAMuonAnalyzer);

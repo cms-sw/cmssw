@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/13 13:26:46 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/10/19 14:42:16 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - CERN
  */
 
@@ -85,4 +85,4 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
   return boost::shared_ptr<MuonDetLayerGeometry>(muonDetLayerGeometry);
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(MuonDetLayerGeometryESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(MuonDetLayerGeometryESProducer);

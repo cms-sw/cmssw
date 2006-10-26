@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/13 13:26:47 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/19 11:02:27 $
+ *  $Revision: 1.6 $
  */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -314,4 +314,4 @@ string MuonRecoGeometryAnalyzer::dumpLayer(const DetLayer* layer) const {
 
 //define this as a plug-in
 #include <FWCore/Framework/interface/MakerMacros.h>
-DEFINE_FWK_MODULE(MuonRecoGeometryAnalyzer)
+DEFINE_FWK_MODULE(MuonRecoGeometryAnalyzer);

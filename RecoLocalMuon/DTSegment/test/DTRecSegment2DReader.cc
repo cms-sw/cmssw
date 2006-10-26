@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date:  $
- * $Revision:  $
+ * $Date: 2006/05/04 12:19:17 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -76,4 +76,4 @@ void DTRecSegment2DReader::analyze(const edm::Event & event, const
 
 }
 
-DEFINE_FWK_MODULE(DTRecSegment2DReader)
+DEFINE_FWK_MODULE(DTRecSegment2DReader);

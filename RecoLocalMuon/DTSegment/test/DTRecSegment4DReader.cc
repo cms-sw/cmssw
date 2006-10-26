@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date:  $
- * $Revision: $
+ * $Date: 2006/05/04 12:19:17 $
+ * $Revision: 1.1 $
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
@@ -75,4 +75,4 @@ void DTRecSegment4DReader::analyze(const edm::Event & event, const
 
 }
 
-DEFINE_FWK_MODULE(DTRecSegment4DReader)
+DEFINE_FWK_MODULE(DTRecSegment4DReader);

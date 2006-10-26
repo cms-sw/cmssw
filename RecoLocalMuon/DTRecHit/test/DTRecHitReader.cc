@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/22 16:15:36 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/16 15:18:43 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -237,5 +237,5 @@ double DTRecHitReader::findSimHitDist(const DTLayer* layer,
 }
 
 
-DEFINE_FWK_MODULE(DTRecHitReader)
+DEFINE_FWK_MODULE(DTRecHitReader);
 
