@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.11 2006/01/17 18:18:24 fedor Exp $
+// $Id: HcalDbProducer.cc,v 1.12 2006/10/18 23:37:50 fedor Exp $
 //
 //
 
@@ -49,7 +49,10 @@
 #include "HcalDbProducer.h"
 
 HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
-  : mService (new HcalDbService ())
+  : ESProducer(),
+    mService (new HcalDbService ()),
+    mDumpRequest (),
+    mDumpStream(0)
 {
   //the following line is needed to tell the framework what
   // data is being produced
