@@ -141,4 +141,4 @@ void SiPixelFedCablingMapWriter::beginJob( const edm::EventSetup& iSetup ) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelFedCablingMapWriter)
+DEFINE_FWK_MODULE(SiPixelFedCablingMapWriter);
