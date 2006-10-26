@@ -236,4 +236,4 @@ using namespace std;
    std::cout << clmat2 << std::endl;
 
   } //end of ::Analyze()
-  DEFINE_FWK_MODULE(EcalObjectAnalyzer)
+  DEFINE_FWK_MODULE(EcalObjectAnalyzer);

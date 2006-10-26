@@ -99,4 +99,4 @@ CSCGeometryESModule::produce(const MuonGeometryRecord & record) {
 
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(CSCGeometryESModule)
+DEFINE_FWK_EVENTSETUP_MODULE(CSCGeometryESModule);

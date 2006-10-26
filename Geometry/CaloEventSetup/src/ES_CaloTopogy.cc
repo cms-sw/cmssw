@@ -2,4 +2,4 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 
-EVENTSETUP_DATA_REG(CaloTopology)
+EVENTSETUP_DATA_REG(CaloTopology);

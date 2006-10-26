@@ -2,4 +2,4 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 
-EVENTSETUP_DATA_REG(CaloSubdetectorGeometry)
+EVENTSETUP_DATA_REG(CaloSubdetectorGeometry);

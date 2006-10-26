@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/02/23 16:05:05 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/05 09:09:31 $
+ * $Revision: 1.4 $
  *
  * \author A. Ghezzi
  *
@@ -115,7 +115,7 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
 
 };// class EcalDigiDumperModule
 
-DEFINE_FWK_MODULE(EcalDCCHeaderDumperModule)
+DEFINE_FWK_MODULE(EcalDCCHeaderDumperModule);
   
 
 

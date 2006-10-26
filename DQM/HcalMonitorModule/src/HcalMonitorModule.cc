@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/10/13 14:47:26 $
- * $Revision: 1.23 $
+ * $Date: 2006/10/23 19:31:23 $
+ * $Revision: 1.24 $
  * \author W Fisher
  *
 */
@@ -290,5 +290,5 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalMonitorModule)
+DEFINE_ANOTHER_FWK_MODULE(HcalMonitorModule);
 

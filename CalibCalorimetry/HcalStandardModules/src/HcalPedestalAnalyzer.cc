@@ -19,8 +19,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2006/10/04 17:00:59 $
- * $Revision: 1.5 $
+ * $Date: 2006/10/04 22:59:51 $
+ * $Revision: 1.6 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -218,4 +218,4 @@ void HcalPedestalAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
 // #include "FWCore/Framework/interface/MakerMacros.h"
 
 // DEFINE_SEAL_MODULE();
-// DEFINE_ANOTHER_FWK_MODULE(HcalPedestalAnalyzer)
+// DEFINE_ANOTHER_FWK_MODULE(HcalPedestalAnalyzer);

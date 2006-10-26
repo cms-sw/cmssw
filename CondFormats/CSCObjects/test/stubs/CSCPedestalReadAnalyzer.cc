@@ -74,6 +74,6 @@ namespace edmtest
       }
     }
   }
-  DEFINE_FWK_MODULE(CSCPedestalReadAnalyzer)
+  DEFINE_FWK_MODULE(CSCPedestalReadAnalyzer);
 }
 

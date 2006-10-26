@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.5 2006/06/23 14:37:02 meridian Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.6 2006/06/28 18:01:21 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -195,4 +195,4 @@ using namespace std;
 */
 
   } //end of ::Analyze()
-  //DEFINE_FWK_MODULE(EcalTrivialObjectAnalyzer)
+  //DEFINE_FWK_MODULE(EcalTrivialObjectAnalyzer);

@@ -2,4 +2,4 @@
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
 
-EVENTSETUP_DATA_REG(CaloTPGTranscoder)
+EVENTSETUP_DATA_REG(CaloTPGTranscoder);

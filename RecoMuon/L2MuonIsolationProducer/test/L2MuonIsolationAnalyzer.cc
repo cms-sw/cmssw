@@ -136,4 +136,4 @@ void L2MuonIsolationAnalyzer::Puts(const char* va_(fmt), ...) {
       va_end(ap);
 }
 
-DEFINE_FWK_MODULE(L2MuonIsolationAnalyzer)
+DEFINE_FWK_MODULE(L2MuonIsolationAnalyzer);

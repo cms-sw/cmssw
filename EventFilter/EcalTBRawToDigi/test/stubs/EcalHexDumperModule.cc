@@ -110,4 +110,4 @@ void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup&
 }
 
 
-DEFINE_FWK_MODULE(EcalHexDumperModule)
+DEFINE_FWK_MODULE(EcalHexDumperModule);

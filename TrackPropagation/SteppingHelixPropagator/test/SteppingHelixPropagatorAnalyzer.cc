@@ -17,7 +17,7 @@ positions of a muon in the detector.
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.4 2006/06/14 11:35:47 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.6 2006/07/17 22:14:00 slava77 Exp $
 //
 //
 
@@ -593,4 +593,4 @@ void SteppingHelixPropagatorAnalyzer::getFromFTS(const FreeTrajectoryState& fts,
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SteppingHelixPropagatorAnalyzer)
+DEFINE_FWK_MODULE(SteppingHelixPropagatorAnalyzer);

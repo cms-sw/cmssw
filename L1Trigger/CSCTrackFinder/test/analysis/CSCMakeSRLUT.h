@@ -39,6 +39,6 @@ class CSCMakeSRLUT : public edm::EDAnalyzer {
   edm::ParameterSet LUTparam;
 };
 
-DEFINE_FWK_MODULE(CSCMakeSRLUT)
+DEFINE_FWK_MODULE(CSCMakeSRLUT);
 
 #endif

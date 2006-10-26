@@ -1,5 +1,5 @@
 #include "CondFormats/CSCObjects/interface/CSCGains.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-EVENTSETUP_DATA_REG(CSCGains)
+EVENTSETUP_DATA_REG(CSCGains);
 

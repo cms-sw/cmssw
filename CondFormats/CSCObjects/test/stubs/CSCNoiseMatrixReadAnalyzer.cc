@@ -57,6 +57,6 @@ namespace edmtest
       }
     }
   }
-  DEFINE_FWK_MODULE(CSCNoiseMatrixReadAnalyzer)
+  DEFINE_FWK_MODULE(CSCNoiseMatrixReadAnalyzer);
 }
 

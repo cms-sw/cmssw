@@ -56,6 +56,6 @@ namespace edmtest
       }
     }
   }
-  DEFINE_FWK_MODULE(CSCCrossTalkReadAnalyzer)
+  DEFINE_FWK_MODULE(CSCCrossTalkReadAnalyzer);
 }
 

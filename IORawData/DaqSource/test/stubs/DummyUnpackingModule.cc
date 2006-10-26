@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/01/20 11:35:26 $
- * $Revision: 1.5 $
+ * $Date: 2006/05/31 14:12:49 $
+ * $Revision: 1.6 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -58,6 +58,6 @@ namespace test{
 //       }  
     }
   };
-DEFINE_FWK_MODULE(DummyUnpackingModule)
+DEFINE_FWK_MODULE(DummyUnpackingModule);
 }
 

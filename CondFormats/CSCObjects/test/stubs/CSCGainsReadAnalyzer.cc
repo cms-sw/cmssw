@@ -57,6 +57,6 @@ namespace edmtest
       }
     }
   }
-  DEFINE_FWK_MODULE(CSCGainsReadAnalyzer)
+  DEFINE_FWK_MODULE(CSCGainsReadAnalyzer);
 }
 

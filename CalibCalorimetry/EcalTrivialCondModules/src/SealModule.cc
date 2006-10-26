@@ -7,4 +7,4 @@
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(EcalTrivialConditionRetriever)
-DEFINE_ANOTHER_FWK_MODULE(EcalTrivialObjectAnalyzer)
+DEFINE_ANOTHER_FWK_MODULE(EcalTrivialObjectAnalyzer);

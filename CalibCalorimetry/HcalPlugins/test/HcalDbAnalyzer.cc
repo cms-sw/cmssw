@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.15 2006/09/08 23:24:36 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.16 2006/10/18 23:37:51 fedor Exp $
 //
 //
 
@@ -174,4 +174,4 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HcalDbAnalyzer)
+DEFINE_FWK_MODULE(HcalDbAnalyzer);

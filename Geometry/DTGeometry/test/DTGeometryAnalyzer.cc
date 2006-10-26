@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/07 15:27:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/20 21:13:19 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -181,4 +181,4 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
 //define this as a plug-in
 #include <FWCore/Framework/interface/MakerMacros.h>
-DEFINE_FWK_MODULE(DTGeometryAnalyzer)
+DEFINE_FWK_MODULE(DTGeometryAnalyzer);

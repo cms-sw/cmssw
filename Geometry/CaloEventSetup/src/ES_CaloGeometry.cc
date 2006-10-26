@@ -2,4 +2,4 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 
-EVENTSETUP_DATA_REG(CaloGeometry)
+EVENTSETUP_DATA_REG(CaloGeometry);

@@ -1,6 +1,6 @@
 /** \file
  *
- *  $Date: 2006/03/20 23:14:11 $
+ *  $Date: 2006/10/13 00:55:07 $
  *  \author M. Maggi - INFN Bari
  */
 
@@ -38,4 +38,4 @@ RPCGeometryESModule::produce(const MuonGeometryRecord & record) {
   return boost::shared_ptr<RPCGeometry>(builder.build(&(*cpv), *mdc));
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(RPCGeometryESModule)
+DEFINE_FWK_EVENTSETUP_MODULE(RPCGeometryESModule);

@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/10/07 09:01:46 $
- * $Revision: 1.4 $
+ * $Date: 2005/11/01 23:05:13 $
+ * $Revision: 1.5 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -54,7 +54,7 @@
     } // analyze
   };// class DummyHitFinderModule
  
-DEFINE_FWK_MODULE(DummyHitFinderModule)
+DEFINE_FWK_MODULE(DummyHitFinderModule);
 
 
 

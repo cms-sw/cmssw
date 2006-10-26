@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/22 15:58:37 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/10/13 00:55:06 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -63,4 +63,4 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
 
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(DTGeometryESModule)
+DEFINE_FWK_EVENTSETUP_MODULE(DTGeometryESModule);

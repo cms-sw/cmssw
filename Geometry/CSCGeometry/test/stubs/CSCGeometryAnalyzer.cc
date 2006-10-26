@@ -281,4 +281,4 @@ void
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(CSCGeometryAnalyzer)
+DEFINE_FWK_MODULE(CSCGeometryAnalyzer);
