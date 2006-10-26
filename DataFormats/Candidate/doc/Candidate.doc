@@ -67,6 +67,9 @@ have persistent references (edm::RefToBase <b><...></b>) to reco::Candidate stor
 a separate collection of concrete types.
 - reco::ShallowCloneCandidate: a candidate with a reference to a "master clone". All
 methods, except the kinematics, that is copied, are delegated to the master clone.
+- OverlapChecker: utility to check overlap between two candidates, 
+  looking for a common component recursively along daughters.
+
 
 \subsection typedefs 
 - reco::CandidateCollection: collection of reco::Candidate objects
