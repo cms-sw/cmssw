@@ -10,5 +10,5 @@ using cms::SiStripClusterizer;
 using cms::SiStripClusterInfoProducer;
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripClusterizer)
+DEFINE_ANOTHER_FWK_MODULE(SiStripClusterizer);
 DEFINE_ANOTHER_FWK_MODULE(SiStripClusterInfoProducer);
