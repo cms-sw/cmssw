@@ -85,6 +85,6 @@ void XMLIdealGeometryESSource::setIntervalFor(const edm::eventsetup::EventSetupR
 #include "FWCore/Framework/interface/SourceFactory.h"
 
 
-DEFINE_FWK_EVENTSETUP_SOURCE(XMLIdealGeometryESSource)
+DEFINE_FWK_EVENTSETUP_SOURCE(XMLIdealGeometryESSource);
 
 

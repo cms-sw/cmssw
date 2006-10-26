@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.5 2005/11/25 15:11:12 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.6 2006/07/18 01:38:57 case Exp $
 //
 //
 
@@ -36,6 +36,8 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataSvc/RefException.h"
@@ -56,6 +58,7 @@ private:
   // ----------member data ---------------------------
   std::string label_;
   bool dumpHistory_;
+  bool dumpPosInfo_;
   bool dumpSpecs_;
 };
 
@@ -74,6 +77,7 @@ PerfectGeometryAnalyzer::PerfectGeometryAnalyzer( const edm::ParameterSet& iConf
    label_(iConfig.getUntrackedParameter<std::string>("label",""))
 {
   dumpHistory_=iConfig.getUntrackedParameter<bool>("dumpGeoHistory");
+  dumpHistory_=iConfig.getUntrackedParameter<bool>("dumpPosInfo");
   dumpSpecs_=iConfig.getUntrackedParameter<bool>("dumpSpecs");
 }
 
@@ -104,7 +108,10 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
    try {
       DDExpandedView epv(*pDD);
       std::cout << " without firstchild or next... epv.logicalPart() =" << epv.logicalPart() << std::endl;
-      if ( dumpHistory_ ) {
+      if ( dumpHistory_ || dumpPosInfo_) {
+	if ( dumpPosInfo_ ) {
+	  std::cout << "After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33" << std::endl;
+	}
 	typedef DDExpandedView::nav_type nav_type;
 	typedef std::map<nav_type,int> id_type;
 	id_type idMap;
@@ -113,7 +120,14 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
 	do {
 	  nav_type pos = epv.navPos();
 	  idMap[pos]=id;
-	  dump << id << " - " << epv.geoHistory() << std::endl;
+	  dump << id << " - " << epv.geoHistory();
+	  if ( dumpPosInfo_ ) {
+	    dump << epv.translation().x() << "," << epv.translation().y() << "," << epv.translation().z() << ",";
+            dump << epv.rotation().xx() << "," << epv.rotation().xy() << "," << epv.rotation().xz() << ",";
+            dump << epv.rotation().yx() << "," << epv.rotation().yy() << "," << epv.rotation().yz() << ",";
+            dump << epv.rotation().zx() << "," << epv.rotation().zy() << "," << epv.rotation().zz();
+	  }
+	  dump << std::endl;;
 	  ++id;
 	} while (epv.next());
 	dump.close();
