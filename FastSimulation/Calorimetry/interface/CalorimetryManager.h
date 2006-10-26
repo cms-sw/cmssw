@@ -73,7 +73,7 @@ class CalorimetryManager{
 
   Histos * myHistos;
 
-  HCALResponse* myHDResponse;
+  HCALResponse* myHDResponse_;
 
   std::map<unsigned,float> EBMapping_;
   std::map<unsigned,float> EEMapping_;

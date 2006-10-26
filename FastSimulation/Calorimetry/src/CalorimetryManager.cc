@@ -57,19 +57,16 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent, const edm::Paramet
   myHistos->book("h310",75,0.,3.,"");
 #endif
   myCalorimeter_ = new CaloGeometryHelper(fastCalo);
-  myHDResponse = new HCALResponse(fastCalo.getParameter<edm::ParameterSet>("HCALResponse"));
+  myHDResponse_ = new HCALResponse(fastCalo.getParameter<edm::ParameterSet>("HCALResponse"));
 }
 
 CalorimetryManager::~CalorimetryManager()
 {
 #ifdef FAMOSDEBUG
-  std::cout << " Bordel FamosDebug is enabled " << std::endl;
   myHistos->put("Famos.root");
-  if(myHistos) delete myHistos;
 #endif
-
   if(myCalorimeter_) delete myCalorimeter_;
-  delete myHDResponse;
+  if(myHDResponse_) delete myHDResponse_;
 }
 
 void CalorimetryManager::reconstruct()
@@ -345,14 +342,14 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
 
   if(pid == 13) { 
     pair<double,double> response =
-      myHDResponse->responseHCAL(EGen, pathEta, 2); // 2=muon 
+      myHDResponse_->responseHCAL(EGen, pathEta, 2); // 2=muon 
     emeas  = response.first;
     if(debug_)
       LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - MUON !!!" << endl;
   }
   else {
-    e     = myHDResponse->getHCALEnergyResponse(EGen,hit);
-    sigma = myHDResponse->getHCALEnergyResolution(EGen, hit);
+    e     = myHDResponse_->getHCALEnergyResponse(EGen,hit);
+    sigma = myHDResponse_->getHCALEnergyResolution(EGen, hit);
   
     double emeas = 0.;
     emeas = RandGaussQ::shoot(e,sigma);  
@@ -415,12 +412,12 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
   
   // Here to switch between simple formulae and parameterized response 
   if(optionHDSim_ == 1) {
-    e     = myHDResponse->getHCALEnergyResponse  (eGen, hit);
-    sigma = myHDResponse->getHCALEnergyResolution(eGen, hit);
+    e     = myHDResponse_->getHCALEnergyResponse  (eGen, hit);
+    sigma = myHDResponse_->getHCALEnergyResolution(eGen, hit);
   }
   else { // optionHDsim == 2
     pair<double,double> response =
-      myHDResponse->responseHCAL(eGen, pathEta, 1); // 1=hadron 
+      myHDResponse_->responseHCAL(eGen, pathEta, 1); // 1=hadron 
     e     = response.first;
     sigma = response.second;
   }
