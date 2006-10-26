@@ -11,9 +11,13 @@ import java.util.Vector;
 **/
 
 /*
-  $Date: 2006/08/30 15:21:12 $
+  $Date: 2006/08/31 15:24:29 $
   
   $Log: DetIDGenerator.java,v $
+  Revision 1.4  2006/08/31 15:24:29  gbaulieu
+  The TOBCS are directly in the TOB
+  Correction on the Stereo flag
+
   Revision 1.3  2006/08/30 15:21:12  gbaulieu
   Add the TOB analyzer
 
@@ -78,6 +82,7 @@ public class DetIDGenerator
     private CDBConnection c;
     public static boolean mtcc=true;
     public static boolean export=false;
+    public static boolean updateCB=false;
     public static boolean verbose=false;
 
     private String[][] TOBMTCC = {
@@ -116,7 +121,7 @@ public class DetIDGenerator
 
 	    c = CDBConnection.getConnection();
 
-	    if(DetIDGenerator.export){
+	    if(DetIDGenerator.export || DetIDGenerator.updateCB){
 		/*
 		  Just to check that we can connect to the export database
 		  Better to see it now rather than after all the computing...
@@ -168,17 +173,21 @@ public class DetIDGenerator
 	    if(DetIDGenerator.verbose)
 		System.out.println(list.size()+" modules found");
 
-	    if(DetIDGenerator.verbose)
-		System.out.println("Retrieving the fibers length...");
-	    getFiberLength(list);
+	    if(!DetIDGenerator.updateCB){
+		if(DetIDGenerator.verbose)
+		    System.out.println("Retrieving the fibers length...");
+		getFiberLength(list);
+	    }
 
 	    if(DetIDGenerator.verbose)
 		System.out.println("Converting DetIds to 32 bits...");
 	    compactDetIds(list);
-	    
-	    if(DetIDGenerator.verbose)
-		System.out.println("Retrieving the number of APVs...");
-	    getApvNumber(list);
+
+	    if(!DetIDGenerator.updateCB){
+		if(DetIDGenerator.verbose)
+		    System.out.println("Retrieving the number of APVs...");
+		getApvNumber(list);
+	    }
 
 	    if(DetIDGenerator.verbose)
 		System.out.println("Searching the DCU ids...");
@@ -188,9 +197,15 @@ public class DetIDGenerator
 		System.out.println("Reversing the DCU ids...");
 	    reverseDcuIds(list);
 
-	    if(DetIDGenerator.verbose)
-		System.out.println("Exporting...");
-	    exportData(list);
+	    if(!DetIDGenerator.updateCB){
+		if(DetIDGenerator.verbose)
+		    System.out.println("Exporting...");
+		exportData(list);
+	    }
+	    else{
+		System.out.println("updating the construction DB...");
+		updateConstructionDB(list);
+	    }
 
 	    c.disconnect();
 	    
@@ -277,10 +292,12 @@ public class DetIDGenerator
 			}
 		    }
 		    else{
+			v.add("1");
 			throw new Exception("Can not find the length of the aoh "+ aoh_id);
 		    }
 		}
 		else{
+		    v.add("1");
 		    throw new Exception("Can not find the AOH corresponding to module "+v.get(0));
 		}
 		if(DetIDGenerator.verbose)
@@ -309,6 +326,7 @@ public class DetIDGenerator
 		v.add(type);
 	    }
 	    else{
+		v.add("4");
 		Error("Type of hybrid contained in module "+v.get(0)+" unknown!!");
 	    }
 	    if(DetIDGenerator.verbose)
@@ -406,6 +424,37 @@ public class DetIDGenerator
 	c.setPassword(password);
     }
 
+    private void updateConstructionDB(Vector<Vector<String>> list) throws java.sql.SQLException, ClassNotSupportedException, java.lang.Exception{
+	if(DetIDGenerator.updateCB){
+	    c.disconnect();
+
+	    configureExportDatabaseConnection();
+	    c.connect();
+	   
+	    c.beginTransaction();
+	    c.executeQuery("delete tec_detid");
+	    
+	    for(Vector<String> record:list){
+		 int dcuID = Integer.parseInt(record.get(0));
+		 int detID = Integer.parseInt(record.get(1));
+		 DetIdConverter det = new DetIdConverter(detID);
+		 if(det.getSubDetector()==6){//TEC
+		     TECDetIdConverter d = new TECDetIdConverter(detID);
+		     d.compact();
+		     String query = "insert into tec_detid (DETECTOR,DISK,SECTOR,FRONT_BACK,RING,POSITION,STEREO,DCUID,DETID) values (\'TEC"+(d.getTEC()==1?"-":"+")+"\',"+d.getWheel()+","+d.getPetal()+",'"+(d.getFrontBack()==1?"F":"B")+"',"+d.getRing()+","+d.getModNumber()+",'"+((d.getStereo()==1)?"S":(d.getStereo()==0?"G":"M"))+"',"+dcuID+","+detID+")";
+		     System.out.println(query);
+		     c.executeQuery(query);
+		 }
+		 if(det.getSubDetector()==5){//TOB
+		     TOBDetIdConverter d = new TOBDetIdConverter(detID);
+		     d.compact();
+		     System.out.println(dcuID+","+detID+",TOB,"+d.getLayer()+","+d.getRod()+","+d.getFrontBack()+","+d.getModNumber()+","+d.getStereo());
+		 }
+	    }
+	    c.commit();
+	}
+    }
+
     private void exportData(Vector<Vector<String>> list) throws java.sql.SQLException, ClassNotSupportedException{
 	c.disconnect();
 
@@ -432,6 +481,7 @@ public class DetIDGenerator
 	    float length = new java.lang.Float(v.get(2));
 	    int apvNumber = Integer.parseInt(v.get(3));
 	    if(DetIDGenerator.export){
+		System.out.println(v);
 		int res=c.callFunction("PkgDcuInfo.setValues", dcuID, detID, length, apvNumber);
 	    }
 	    else{

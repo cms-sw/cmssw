@@ -12,12 +12,16 @@ public class Launcher{
 	String output = "Generation of the Det_ids";
 	DetIDGenerator.mtcc=false;
 	DetIDGenerator.export=false;
+	DetIDGenerator.updateCB=false;
 	DetIDGenerator.verbose=false;
 
 	for(String param : args){
 	    if(param.equals("-mtcc")){
 		DetIDGenerator.mtcc=true;
 		output="Generation of the Det_ids for the MTCC";
+	    }
+	    if(param.equals("-updateCB")){
+		DetIDGenerator.updateCB=true;
 	    }
 	    if(param.equals("-export")){
 		DetIDGenerator.export=true;
@@ -35,6 +39,7 @@ public class Launcher{
 		System.out.println("By default, generates all informations and print them on the screen.");
 		System.out.println("Options :\n\t-h : This text.\n\t-mtcc : Informations for the magnet test.");
 		System.out.println("\t-export : Export informations to the database defined in $CONFDB.");
+		System.out.println("\t-updateCB : update the Construction DB with the informations.");
 		System.out.println("\t-verbose : Display additional informations during the process.");
 		System.exit(0);
 	    }
