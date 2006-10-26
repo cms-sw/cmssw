@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/10/11 16:46:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/10/19 16:56:44 $
+ *  $Revision: 1.4 $
  *  \author M. Maggi -- INFN
  */
 
@@ -47,7 +47,7 @@ bool RPCRecHitStandardAlgo::compute(const RPCRoll& roll,
   LocalPoint loctemp2(centreOfCluster,0.,0.);
  
   Point = loctemp2;
-  error = roll.localError((cluster.firstStrip()+cluster.firstStrip())/2);
+  error = roll.localError((cluster.firstStrip()+cluster.lastStrip())/2.);
   return true;
 }
 
