@@ -2,6 +2,7 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
+<use name=CommonTools/TrackerMap>
 <use name=boost>
 <export>
 <lib name=DQMSiStripMonitorClient>
@@ -9,5 +10,6 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
+<use name=CommonTools/TrackerMap>
 <use name=boost>
 </export>

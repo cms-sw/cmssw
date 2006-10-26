@@ -1,5 +1,5 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
-#include "DQM/SiStripMonitorClient/interface/TrackerMap.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
 //#include "DQMServices/ClientConfig/interface/QTestHandle.h"
@@ -68,15 +68,34 @@ void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui) {
   // Get the values for the Tracker Map
   mui->cd();
   SiStripActionExecutor::DetMapType valueMap;
-  //  DaqMonitorBEInterface * bei = mui->getBEInterface();
-  //  bei->lock();
+  
   getValuesForTkMap(mui, me_names, valueMap);  
-  //  bei->unlock();
+  if (valueMap.size() == 0) return;
+  MonitorElement* tkmap_me;
+  mui->cd();
+  string path = mui->pwd();
+  path += "/TrackerMapSummary";
+  tkmap_me = mui->get(path);
+
+  if (tkmap_me) {
+    MonitorElementT<TNamed>* obh1 = 
+      dynamic_cast<MonitorElementT<TNamed>*> (tkmap_me);
+    if (obh1) {
+      TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
+      if (root_obh1) root_obh1->Reset();        
+    }  
+  } else {
+    DaqMonitorBEInterface * bei = mui->getBEInterface();
+    tkmap_me = bei->book1D("TrackerMapSummary", "Summary Info for TrackerMap",
+                  valueMap.size(),0.5,valueMap.size()+0.5);
+  }
   int rval = 0;
   int gval = 0;
   int bval = 0;
+  int ibin = 0;
   for (SiStripActionExecutor::DetMapType::const_iterator it = valueMap.begin();
        it != valueMap.end(); it++) {
+    ibin++;
     if (it->second.size() < 1) continue;
     int istat = 0;
     ostringstream comment;
@@ -101,6 +120,11 @@ void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui) {
 	 << " " << comment.str()
          << " Status : " << istat << endl;
     trackerMap.fillc(it->first, rval, gval, bval);
+    tkmap_me->Fill(ibin, istat);
+    ostringstream det_id;
+    det_id << it->first;
+    tkmap_me->setBinLabel(ibin, det_id.str());
+    
     // Fill Tracker Map with Mean Value as Comment
     trackerMap.setText(it->first, comment.str());
   }
@@ -145,13 +169,12 @@ void SiStripActionExecutor::getValuesForTkMap(MonitorUserInterface* mui,
 //
 void SiStripActionExecutor::createSummary(MonitorUserInterface* mui) {
   string structure_name;
-  vector<string> me_names;
-  if (!configParser_->getMENamesForSummary(structure_name, me_names)) {
+  if (!configParser_->getMENamesForSummary(structure_name, summaryMENames)) {
     cout << "SiStripActionExecutor::createSummary: Failed to read Summary configuration parameters!! ";
     return;
   }
   mui->cd();
-  fillSummary(mui, structure_name, me_names);
+  fillSummary(mui);
   mui->cd();
   createLayout(mui);
   string fname = "test.xml";
@@ -162,69 +185,38 @@ void SiStripActionExecutor::createSummary(MonitorUserInterface* mui) {
 //
 // -- Browse through the Folder Structure
 //
-void SiStripActionExecutor::fillSummary(MonitorUserInterface* mui,
-                               string dir_name,vector<string>& me_names) {
+void SiStripActionExecutor::fillSummary(MonitorUserInterface* mui) {
   string currDir = mui->pwd();
-  if (currDir.find(dir_name) != string::npos)  {
-    vector<MonitorElement*> sum_mes;
-    for (vector<string>::const_iterator iv = me_names.begin();
-	 iv != me_names.end(); iv++) {
-      string tag = "Summary_" + (*iv) + "_in_" 
-                                + currDir.substr(currDir.find(dir_name));
-      MonitorElement* temp = getSummaryME(mui, tag);
-      if (temp) sum_mes.push_back(temp);
-    }
-    if (sum_mes.size() == 0) {
-      cout << " Summary MEs can not be created" << endl;
-      return;
-    }
-    vector<string> subdirs = mui->getSubdirs();
-    int ndet = 0;
-    for (vector<string>::const_iterator it = subdirs.begin();
-	 it != subdirs.end(); it++) {
-      if ( (*it).find("module_") == string::npos) continue;
-      mui->cd(*it);
-      ndet++;
-      vector<string> contents = mui->getMEs();    
-      for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
-	   isum != sum_mes.end(); isum++) {
-	for (vector<string>::const_iterator im = contents.begin();
-	     im != contents.end(); im++) {
-          string sname = ((*isum)->getName());
-          string tname = sname.substr(8,(sname.find("_",8)-8));
-
-	  if (((*im)).find(tname) == 0) {
-	    string fullpathname = mui->pwd() + "/" + (*im);
-	    MonitorElement *  me = mui->get(fullpathname);
-	    if (me) (*isum)->Fill(ndet*1.0, me->getMean());
-            break;
-          }
-	}
-      }
-      mui->goUp();
-    }    
+  vector<string> subdirs = mui->getSubdirs();
+  int nmod = 0;
+  for (vector<string>::const_iterator it = subdirs.begin();
+       it != subdirs.end(); it++) {
+    if ( (*it).find("module_") == string::npos) continue;
+    nmod++;       
+  }  
+  if (nmod > 0) {
+    fillSummaryHistos(mui);
   } else {  
     vector<string> subdirs = mui->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
       mui->cd(*it);
-      fillSummary(mui, dir_name, me_names);
+      fillSummary(mui);
       mui->goUp();
     }
-    fillGrandSummaryHistos(mui, me_names);
+    fillGrandSummaryHistos(mui);
   }
 }
-void SiStripActionExecutor::fillGrandSummaryHistos(MonitorUserInterface* mui,
-                                 vector<string>& me_names) {
-  vector<MonitorElement*> gsum_mes;
-  string path_name = mui->pwd();
-  string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
+void SiStripActionExecutor::fillGrandSummaryHistos(MonitorUserInterface* mui) {
+  map<string, MonitorElement*> MEMap;
+  string currDir = mui->pwd();
+  string dir_name =  currDir.substr(currDir.find_last_of("/")+1);
   if ((dir_name.find("SiStrip") == 0) ||
       (dir_name.find("Collector") == 0) ||
       (dir_name.find("MechanicalView") == 0) ||
       (dir_name.find("FU0") == 0) ) return;
   vector<string> subdirs = mui->getSubdirs();
-  int nDirs = subdirs.size();
+  if (subdirs.size() == 0) return;;
   int iDir =0;
   int nbin = 0; 
   for (vector<string>::const_iterator it = subdirs.begin();
@@ -233,33 +225,31 @@ void SiStripActionExecutor::fillGrandSummaryHistos(MonitorUserInterface* mui,
     vector<string> contents = mui->getMEs();
     mui->goUp();
     
-    for (vector<string>::const_iterator im = contents.begin();
-	 im != contents.end(); im++) {
-      for (vector<string>::const_iterator iv = me_names.begin();
-	   iv != me_names.end(); iv++) {
-	if ((*im).find((*iv)) != string::npos) {
-	  string full_path = path_name + "/" + (*it) + "/" +(*im);
-	   MonitorElement * me = mui->get(full_path.c_str());
-	   if (!me) continue; 
-           if (gsum_mes.size() !=  me_names.size()) {
+    for (vector<string>::const_iterator isum = summaryMENames.begin();
+	   isum != summaryMENames.end(); isum++) {
+	string name = "Summary_" + (*isum) + "_in_" 
+                       + currDir.substr(currDir.find_last_of("/")+1);
+      for (vector<string>::const_iterator im = contents.begin();
+	   im != contents.end(); im++) {
+	if ((*im).find((*isum)) != string::npos) {
+	  string full_path = currDir + "/" + (*it) + "/" +(*im);
+	  MonitorElement * me_i = mui->get(full_path);
+	  if (!me_i) continue; 
+          map<string, MonitorElement*>::iterator iPos = MEMap.find((*isum)); 
+          MonitorElement* me; 
+          if (iPos == MEMap.end()) {
 	     MonitorElementT<TNamed>* obh1 = 
-	       dynamic_cast<MonitorElementT<TNamed>*> (me);
+	       dynamic_cast<MonitorElementT<TNamed>*> (me_i);
 	     if (obh1) {
 	       TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
 	       if (root_obh1) nbin = root_obh1->GetNbinsX();        
 	     } else nbin = 20;
-             string me_name = "Summary_" + (*iv) + "_in_" + dir_name;
-             
-	     getGrandSummaryME(mui, nbin*nDirs, me_name, gsum_mes);
-           }
-	   for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
-		igm != gsum_mes.end(); igm++) {
-             if ((*igm)->getName().find((*iv)) != string::npos) {
-	       for (int k = 1; k < nbin+1; k++) {
-		 (*igm)->setBinContent(k+(iDir*nbin), me->getBinContent(k));
-	       }
-             }
-           }
+	     me = getSummaryME(mui, name, nbin);
+	     MEMap.insert(pair<string, MonitorElement*>(*isum, me));
+          } else  me =  iPos->second;
+	  for (int k = 1; k < nbin+1; k++) {
+	    me->setBinContent(k+(iDir*nbin), me_i->getBinContent(k));
+	  }
 	}
       }
     }
@@ -269,14 +259,18 @@ void SiStripActionExecutor::fillGrandSummaryHistos(MonitorUserInterface* mui,
 //
 // -- Get Summary ME
 //
-MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
-                                               string me_name) {
+MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui, 
+                         string& name, int nval) {
   MonitorElement* me = 0;
+  DaqMonitorBEInterface * bei = mui->getBEInterface();
+  int nDir = mui->getSubdirs().size();
+  int nBins  = nval * nDir;
+  string currDir = mui->pwd();
   // If already booked
   vector<string> contents = mui->getMEs();    
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
-    if ((*it).find(me_name) == 0) {
+    if ((*it).find(name) == 0) {
       string fullpathname = mui->pwd() + "/" + (*it); 
       me = mui->get(fullpathname);
       if (me) {
@@ -284,46 +278,36 @@ MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
 	  dynamic_cast<MonitorElementT<TNamed>*> (me);
 	if (obh1) {
 	  TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
-	  if (root_obh1) root_obh1->Reset();        
+	  if (root_obh1) {
+            root_obh1->Reset();
+            root_obh1->GetXaxis()->LabelsOption("uv");
+          }
+	  break;
 	}
-	return me;
       }
     }
   }
-  int nDirs = mui->getSubdirs().size();
-  DaqMonitorBEInterface * bei = mui->getBEInterface();
-  me = bei->book1D(me_name.c_str(), me_name.c_str(),nDirs,0.5,nDirs+0.5);
+  if (!me) {
+    me = bei->book1D(name, name,nBins,0.5,nBins+0.5);
+    if (me) {
+      MonitorElementT<TNamed>* obh1 = 
+	dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if (obh1) {
+	TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
+	if (root_obh1) {
+	  root_obh1->GetXaxis()->LabelsOption("uv");
+	}
+      }
+    }
+    vector<string> subdirs = mui->getSubdirs();  
+    int ibin = nval/2;
+    for (vector<string>::const_iterator it = subdirs.begin();
+       it != subdirs.end(); it++) {
+      me->setBinLabel(ibin, (*it));
+      ibin += nval;
+    }
+  }
   return me;
-}
-//
-// get grand summary ME
-//
-void SiStripActionExecutor::getGrandSummaryME(MonitorUserInterface* mui,
-    int nbin, string& me_name, vector<MonitorElement*> & mes) {
-  vector<string> contents = mui->getMEs();    
-  for (vector<string>::const_iterator it = contents.begin();
-       it != contents.end(); it++) {
-    if ((*it).find(me_name) == 0) {
-      string fullpathname = mui->pwd() + "/" + me_name;
-      MonitorElement* me = mui->get(fullpathname);
-      if (me) {
-	MonitorElementT<TNamed>* obh1 = 
-	  dynamic_cast<MonitorElementT<TNamed>*> (me);
-	if (obh1) {
-	  TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
-	  if (root_obh1) root_obh1->Reset();        
-	  mes.push_back(me);
-          return;
-	}
-      }
-    }
-  }
-  DaqMonitorBEInterface * bei = mui->getBEInterface();
-  MonitorElement* temp_me = bei->book1D(me_name.c_str(), 
-	     me_name.c_str(),nbin, 0.5,nbin+0.5);
-  if (temp_me) {
-    mes.push_back(temp_me);
-  }
 }
 //
 // -- Draw Monitor Elements
@@ -518,4 +502,55 @@ void SiStripActionExecutor::fillLayout(MonitorUserInterface * mui){
 //      
 void SiStripActionExecutor::saveMEs(MonitorUserInterface* mui, string fname){
     mui->save(fname);
+}
+void SiStripActionExecutor::fillSummaryHistos(MonitorUserInterface* mui) {
+  string currDir = mui->pwd();
+  map<string, MonitorElement*> MEMap;
+  vector<string> subdirs = mui->getSubdirs();
+  if (subdirs.size() ==0) return;
+  
+  int ndet = 0;
+  int nval = 1;
+  for (vector<string>::const_iterator it = subdirs.begin();
+	 it != subdirs.end(); it++) {
+    if ( (*it).find("module_") == string::npos) continue;
+    mui->cd(*it);
+    ndet++;
+    vector<string> contents = mui->getMEs();    
+    mui->goUp();
+    for (vector<string>::const_iterator isum = summaryMENames.begin();
+	   isum != summaryMENames.end(); isum++) {
+      string name = "Summary_" + (*isum) + "_in_" 
+                     + currDir.substr(currDir.find_last_of("/")+1);
+      for (vector<string>::const_iterator im = contents.begin();
+	   im != contents.end(); im++) {
+        if ((*im).find(*isum) != string::npos) {
+	  string full_path = mui->pwd() + "/" +(*it)+ "/" + (*im);
+	  MonitorElement * me_i = mui->get(full_path);
+          if (!me_i) continue;
+          map<string, MonitorElement*>::iterator iPos = MEMap.find((*isum)); 
+          MonitorElement* me;
+          if (iPos == MEMap.end()) {
+            if ((*isum).find("Noise") != string::npos)   {
+	      MonitorElementT<TNamed>* obh1 = 
+		dynamic_cast<MonitorElementT<TNamed>*> (me_i);
+	      if (obh1) {
+		TProfile* root_obh1 = dynamic_cast<TProfile *> (obh1->operator->());
+		if (root_obh1) nval = root_obh1->GetNbinsX();
+	      }
+            }
+            me = getSummaryME(mui, name, nval);
+            MEMap.insert(pair<string, MonitorElement*>(*isum, me));
+          } else  me =  iPos->second;
+ 
+            if ((*isum).find("Noise") != string::npos) {
+              for (int k=1; k<nval+1; k++) {
+                me->setBinContent((k+(ndet-1)*nval),me_i->getBinContent(k));
+              }
+            } else me->Fill(ndet*1.0, me_i->getMean());
+          break;
+        }
+      }
+    }
+  }
 }

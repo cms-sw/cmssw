@@ -6,7 +6,7 @@
  *  Base class for Parsers used by DQM
  *
  *
- *  $Date: 2006/05/09 21:28:24 $
+ *  $Date: 2006/08/01 18:14:27 $
  *  $Revision: 1.1 $
  *  \author Suchandra Dutta
  */
@@ -21,8 +21,6 @@
 
 
           
-//using namespace xercesc;
-
 #include<iostream>
 #include<string>
 #include<vector>
