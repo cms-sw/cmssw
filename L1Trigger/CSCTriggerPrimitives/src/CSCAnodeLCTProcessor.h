@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/09/22 09:19:11 $
- * $Revision: 1.3 $
+ * $Date: 2006/09/27 10:08:17 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -90,17 +90,14 @@ class CSCAnodeLCTProcessor
   int first_bx[CSCConstants::MAX_NUM_WIRES];
   int quality[CSCConstants::MAX_NUM_WIRES][3];
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
-  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
+  unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
 
   std::vector<int> theWireHits[CSCConstants::NUM_LAYERS];
 
-  static const int bx_min;
-  static const int bx_max;
-
   /** Configuration parameters. */
-  int bx_width, nph_thresh, nph_pattern, drift_delay, fifo_pretrig;
-  int trig_mode, alct_amode;
-  int fifo_tbins, l1a_window; // only for test beam mode.
+  int fifo_tbins, fifo_pretrig, bx_width, drift_delay;
+  int nph_thresh, nph_pattern;
+  int trig_mode, alct_amode, l1a_window;
 
   /** Clears the quality for a given wire and pattern if it is a ghost. */
   void clear(const int wire, const int pattern);
@@ -114,6 +111,10 @@ class CSCAnodeLCTProcessor
   void lctSearch();
   void trigMode(const int key_wire);
   void alctAmode(const int key_wire);
+
+  std::vector<CSCALCTDigi>
+    bestTrackSelector(const std::vector<CSCALCTDigi>& all_alcts);
+  bool isBetterALCT(const CSCALCTDigi& lhsALCT, const CSCALCTDigi& rhsALCT);
 
   /** Dump ALCT configuration parameters. */
   void dumpConfigParams() const;
