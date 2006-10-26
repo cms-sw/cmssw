@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.2 2006/09/18 13:03:46 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.3 2006/09/27 12:06:04 dmytro Exp $
 //
 //
 
@@ -234,4 +234,4 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(MuonIdProducer)
+DEFINE_FWK_MODULE(MuonIdProducer);

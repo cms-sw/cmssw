@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.1 2006/07/05 08:21:33 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.2 2006/08/09 14:44:00 dmytro Exp $
 //
 //
 
@@ -218,4 +218,4 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestTrackAssociator)
+DEFINE_FWK_MODULE(TestTrackAssociator);
