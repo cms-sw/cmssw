@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2006/08/02 08:02:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/08/15 10:42:53 $
+ *  $Revision: 1.7 $
  *  \author M. Sani
  */
 
@@ -279,6 +279,5 @@ void CSCSegmentReader::analyze(const Event& event, const EventSetup& eventSetup)
 }
 
 
-DEFINE_FWK_MODULE(CSCSegmentReader)
-
+DEFINE_FWK_MODULE(CSCSegmentReader);
 
