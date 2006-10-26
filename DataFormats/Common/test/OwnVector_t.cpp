@@ -2,6 +2,8 @@
 #include <cassert>
 #include "DataFormats/Common/interface/OwnVector.h"
 
+
+
 struct Base
 {
   virtual ~Base();
@@ -137,6 +139,23 @@ void back_with_null_pointer()
     }
 }
 
+void take_an_rvalue()
+{
+  edm::OwnVector<Base> v;
+  v.push_back(new Derived(101));
+  Derived d(102);
+  v.push_back(d.clone());
+}
+
+void take_an_lvalue()
+{
+  edm::OwnVector<Base> v1;
+  Base* p = new Derived(100);
+  v1.push_back(p);
+
+  assert( p==0 );
+}
+
 int main()
 {
   edm::OwnVector<Base> vec;
@@ -152,5 +171,8 @@ int main()
   assign_to_self();
   pop_one();
   back_with_null_pointer();
+
+  take_an_rvalue();
+  take_an_lvalue();
 }
 

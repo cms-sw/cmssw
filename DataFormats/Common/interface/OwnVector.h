@@ -1,11 +1,13 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.10 2006/10/25 21:32:00 paterno Exp $
-#include <vector>
-#include "DataFormats/Common/interface/ClonePolicy.h"
-#include "DataFormats/Common/interface/traits.h"
+// $Id: OwnVector.h,v 1.11 2006/10/25 21:56:29 wmtan Exp $
+
 #include <algorithm>
 #include <functional>
+#include <vector>
+
+#include "DataFormats/Common/interface/ClonePolicy.h"
+#include "DataFormats/Common/interface/traits.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -113,7 +115,8 @@ namespace edm {
     OwnVector<T, P> & operator=( const OwnVector<T, P> & );
       
     void reserve( size_t );
-    template <class D> void push_back( D*& );
+    template <typename D> void push_back( D*& d );
+    template <typename D> void push_back( D* const& d );
     bool is_back_safe() const;
     void pop_back();
     reference back();
@@ -224,10 +227,16 @@ namespace edm {
   }
   
   template<typename T, typename P>
-  template<class D>
-  inline void OwnVector<T, P>::push_back( D*& t ) {
-    data_.push_back( t );
-    t = 0;
+  template<typename D>
+  inline void OwnVector<T, P>::push_back( D*& d ) {
+    data_.push_back( d );
+    d = 0;
+  }
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::push_back( D* const& d ) {
+    data_.push_back( d );
   }
 
   template<typename T, typename P>
