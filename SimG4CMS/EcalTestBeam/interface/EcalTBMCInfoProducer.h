@@ -3,7 +3,7 @@
 /*
  * \file EcalTBMCInfoProducer.h
  *
- * $Id: EcalTBMCInfoProducer.h,v 1.1 2006/05/30 16:51:52 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.h,v 1.2 2006/07/18 14:09:05 fabiocos Exp $
  *
 */
 
@@ -28,9 +28,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
-using namespace cms;
-using namespace std;
 
 class EcalTBMCInfoProducer: public edm::EDProducer{
   
@@ -70,7 +67,7 @@ private:
 
   HepRotation * fromCMStoTB;
 
-  string GenVtxLabel;
+  std::string GenVtxLabel;
 
 };
 

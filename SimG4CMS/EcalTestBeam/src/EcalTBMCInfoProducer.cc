@@ -1,12 +1,15 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.4 2006/07/18 14:09:05 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.cc,v 1.5 2006/10/25 16:54:14 fabiocos Exp $
  *
 */
 
 #include "SimG4CMS/EcalTestBeam/interface/EcalTBMCInfoProducer.h"
 #include "CLHEP/Random/RandFlat.h"
+
+using namespace std;
+using namespace cms;
 
 EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
   

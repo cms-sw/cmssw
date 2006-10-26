@@ -1,11 +1,15 @@
 /*
  * \file FakeTBHodoscopeRawInfoProducer.cc
  *
- * $Id: FakeTBHodoscopeRawInfoProducer.cc,v 1.1 2006/05/31 09:31:58 fabiocos Exp $
+ * $Id: FakeTBHodoscopeRawInfoProducer.cc,v 1.2 2006/06/05 13:57:23 fabiocos Exp $
  *
  */
 
 #include "SimG4CMS/EcalTestBeam/interface/FakeTBHodoscopeRawInfoProducer.h"
+
+using namespace cms;
+using namespace std;
+
 
 FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet& ps) {
   

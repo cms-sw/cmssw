@@ -3,7 +3,7 @@
 /*
  * \file FakeTBEventHeaderProducer.h
  *
- * $Id: FakeTBEventHeaderProducer.h,v 1.1 2006/05/31 09:31:57 fabiocos Exp $
+ * $Id: FakeTBEventHeaderProducer.h,v 1.1 2006/06/19 15:53:34 meridian Exp $
  *
  * Mimic the event header information
  * for the test beam simulation 
@@ -24,9 +24,6 @@
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h"
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
-
-using namespace cms;
-using namespace std;
 
 class FakeTBEventHeaderProducer: public edm::EDProducer{
 
@@ -51,7 +48,7 @@ class FakeTBEventHeaderProducer: public edm::EDProducer{
 
 private:
 
-  string ecalTBInfoLabel_;
+  std::string ecalTBInfoLabel_;
 
 };
 

@@ -3,7 +3,7 @@
 /*
  * \file FakeTBHodoscopeRawInfoProducer.h
  *
- * $Id:$
+ * $Id: FakeTBHodoscopeRawInfoProducer.h,v 1.1 2006/05/31 09:31:57 fabiocos Exp $
  *
  * Mimic the hodoscope raw information using 
  * the generated vertex of the test beam simulation 
@@ -25,9 +25,6 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopePlaneRawHits.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRawInfo.h"
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
-
-using namespace cms;
-using namespace std;
 
 class FakeTBHodoscopeRawInfoProducer: public edm::EDProducer{
 
@@ -54,7 +51,7 @@ private:
 
   EcalTBHodoscopeGeometry * theTBHodoGeom_;
 
-  string ecalTBInfoLabel_;
+  std::string ecalTBInfoLabel_;
 
 };
 

@@ -1,12 +1,16 @@
 /*
  * \file FakeTBEventHeaderProducer.cc
  *
- * $Id: FakeTBEventHeaderProducer.cc,v 1.2 2006/06/05 13:57:23 fabiocos Exp $
+ * $Id: FakeTBEventHeaderProducer.cc,v 1.1 2006/06/19 15:53:35 meridian Exp $
  *
  */
 
 #include "SimG4CMS/EcalTestBeam/interface/FakeTBEventHeaderProducer.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+
+using namespace cms;
+using namespace std;
+
 
 FakeTBEventHeaderProducer::FakeTBEventHeaderProducer(const edm::ParameterSet& ps) {
   produces<EcalTBEventHeader>();
