@@ -46,5 +46,5 @@ namespace edmtest {
               << ro_map->mapRobRos()  << std::endl;
     std::cout << std::distance( ro_map->begin(), ro_map->end() ) << " connections in the map" << std::endl;
   }
-  DEFINE_FWK_MODULE(DTMapPrint)
+  DEFINE_FWK_MODULE(DTMapPrint);
 }

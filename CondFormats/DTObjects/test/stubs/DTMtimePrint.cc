@@ -45,5 +45,5 @@ namespace edmtest {
     std::cout << mTime->version() << std::endl;
     std::cout << std::distance( mTime->begin(), mTime->end() ) << " data in the container" << std::endl;
   }
-  DEFINE_FWK_MODULE(DTMtimePrint)
+  DEFINE_FWK_MODULE(DTMtimePrint);
 }

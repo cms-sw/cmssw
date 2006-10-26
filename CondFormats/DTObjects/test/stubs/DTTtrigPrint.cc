@@ -45,5 +45,5 @@ namespace edmtest {
     std::cout << tTrig->version() << std::endl;
     std::cout << std::distance( tTrig->begin(), tTrig->end() ) << " data in the container" << std::endl;
   }
-  DEFINE_FWK_MODULE(DTTtrigPrint)
+  DEFINE_FWK_MODULE(DTTtrigPrint);
 }
