@@ -125,8 +125,8 @@ elif [ "$CondDb" == "sqlite" ]; then
 	rm -f ${sqliteDb}
 	rm -f ${sqliteCatalog}
         
-	echo "CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP "
-	$CMSSW_BASE/src/CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP 
+	echo "cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP "
+	cmscond_bootstrap_detector.pl --offline_connect $DBfile --auth ${CORAL_AUTH_PATH}/authentication.xml STRIP 
 	pool_insertFileToCatalog -u ${DBcatalog} -t POOL_RDBMS ${DBfile}
 	echo " " 
     fi
