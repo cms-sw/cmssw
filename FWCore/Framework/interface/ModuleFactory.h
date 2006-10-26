@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:31 EDT 2005
-// $Id: ModuleFactory.h,v 1.7 2005/09/01 23:30:49 wmtan Exp $
+// $Id: ModuleFactory.h,v 1.8 2006/07/23 01:24:33 valya Exp $
 //
 
 // system include files
@@ -44,12 +44,25 @@ namespace edm {
    }
 }
 
+#if __GNUC_PREREQ (3,4)
+
+#define DEFINE_FWK_EVENTSETUP_MODULE(type) \
+DEFINE_SEAL_MODULE (); \
+DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<type>,#type)
+
+#define DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(type) \
+DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<type>,#type)
+
+#else
+
 #define DEFINE_FWK_EVENTSETUP_MODULE(type) \
 DEFINE_SEAL_MODULE (); \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<type>,#type);
 
 #define DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(type) \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<type>,#type);
+
+#endif
 
 #endif
 
