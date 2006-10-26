@@ -30,7 +30,7 @@
 using namespace pixeltrackfitting;
 
 PixelTrackProducer::PixelTrackProducer(const edm::ParameterSet& conf)
-  : theConfig(conf), theFitter(0), theFilter(0), theCleaner(0)
+  : theConfig(conf), theFitter(0), theFilter(0), theCleaner(0), theGenerator(0)
 {
   edm::LogInfo("PixelTrackProducer")<<" construction...";
   produces<reco::TrackCollection>();
@@ -44,6 +44,7 @@ PixelTrackProducer::~PixelTrackProducer()
   delete theFilter;
   delete theFitter;
   delete theCleaner;
+  delete theGenerator;
 }
 
 
@@ -55,12 +56,15 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   ev.getByType(pixelHits);
 
-  PixelHitTripletGenerator tripGen;
-  tripGen.init(*pixelHits,es);
+  if (!theGenerator) {
+    edm::ParameterSet tripletsPSet = theConfig.getParameter<edm::ParameterSet>("TripletsPSet");
+    theGenerator = new PixelHitTripletGenerator(tripletsPSet);
+  } 
+  theGenerator->init(*pixelHits,es);
 
   GlobalTrackingRegion region;
   OrderedHitTriplets triplets;
-  tripGen.hitTriplets(region,triplets,es);
+  theGenerator->hitTriplets(region,triplets,es);
   edm::LogInfo("PixelTrackProducer") << "number of triplets: " << triplets.size();
 
   if (!theFitter) {
@@ -105,6 +109,9 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 
   // store tracks
   store(ev, tracks);
+
+  //temporary
+  delete theGenerator; theGenerator = 0;
 }
 
 void PixelTrackProducer::store(edm::Event& ev, const TracksWithRecHits & cleanedTracks)

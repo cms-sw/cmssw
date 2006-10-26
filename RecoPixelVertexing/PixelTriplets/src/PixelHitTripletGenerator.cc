@@ -3,12 +3,16 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/PixelLayerTriplets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
+#include "RecoPixelVertexing/PixelTriplets/src/PixelTripletHLTGenerator.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-PixelHitTripletGenerator::PixelHitTripletGenerator() : thePixel(0)
-{}
+PixelHitTripletGenerator::PixelHitTripletGenerator(const edm::ParameterSet& cfg )
+ : theConfig(cfg), thePixel(0) {}
 
 void PixelHitTripletGenerator::
-    hitTriplets( const TrackingRegion& region, OrderedHitTriplets & result, const edm::EventSetup& iSetup) 
+    hitTriplets( const TrackingRegion& region, OrderedHitTriplets & result, 
+        const edm::EventSetup& iSetup) 
 {
 
   GeneratorContainer::const_iterator ic;
@@ -38,10 +42,17 @@ void PixelHitTripletGenerator::init(const SiPixelRecHitCollection &coll,const ed
     const LayerWithHits * second = (*it).first.second;
     vector<const LayerWithHits *> thirds = (*it).second;
 
-    theGenerators.push_back( new HitTripletGeneratorFromPairAndLayers(
-        HitPairGeneratorFromLayerPair( first, second, &theLayerCache, iSetup),
-        thirds, 
-        &theLayerCache) );
+     
+    std::string       generatorName = theConfig.getParameter<std::string>("Generator");
+    edm::ParameterSet generatorPSet = theConfig.getParameter<edm::ParameterSet>("GeneratorPSet");
+
+    HitTripletGeneratorFromPairAndLayers * aGen = 
+        HitTripletGeneratorFromPairAndLayersFactory::get()->create(generatorName,generatorPSet);
+
+    aGen->init( HitPairGeneratorFromLayerPair( first, second, &theLayerCache, iSetup),
+                thirds, &theLayerCache); 
+
+    theGenerators.push_back( aGen);
   } 
 }
   

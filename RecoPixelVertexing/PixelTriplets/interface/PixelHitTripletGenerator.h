@@ -11,6 +11,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class TrackingRegion;
 class LayerWithHits;
@@ -18,16 +19,17 @@ class DetLayer;
 class HitTripletGeneratorFromPairAndLayers;
 class PixelLayerTriplets;
 
+
 class PixelHitTripletGenerator : public HitTripletGenerator {
 
   typedef vector<HitTripletGeneratorFromPairAndLayers* > GeneratorContainer;
 
 public:
-  PixelHitTripletGenerator();
+  PixelHitTripletGenerator( const edm::ParameterSet& cfg);
+  virtual ~PixelHitTripletGenerator();
 
   typedef LayerHitMapCache  LayerCacheType;
 
-  virtual ~PixelHitTripletGenerator();
 
   /// from base class
   virtual void hitTriplets( const TrackingRegion&, OrderedHitTriplets&, 
@@ -37,9 +39,10 @@ public:
   
 private:
 
+  edm::ParameterSet         theConfig;
   LayerCacheType            theLayerCache;
   GeneratorContainer        theGenerators;
-  PixelLayerTriplets * thePixel;
+  PixelLayerTriplets *      thePixel;
 
 };
 #endif

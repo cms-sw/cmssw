@@ -23,11 +23,12 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() { }
 private:
+  edm::ParameterSet theConfig;
   PixelHitTripletGenerator * generator;
 };
 
 HitTripletProducer::HitTripletProducer(const edm::ParameterSet& conf) 
-  : generator(0)
+  : theConfig(conf), generator(0)
 {
   edm::LogInfo("HitTripletProducer")<<" CTOR";
 }
@@ -44,14 +45,17 @@ void HitTripletProducer::analyze(
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   ev.getByType(pixelHits);
 
-  generator = new PixelHitTripletGenerator;
+  if (!generator) {
+    edm::ParameterSet pset = theConfig.getParameter<edm::ParameterSet>("TripletsPSet");
+    generator = new PixelHitTripletGenerator(pset);
+  }
   generator->init(*pixelHits,es); 
 
   GlobalTrackingRegion region;
   OrderedHitTriplets triplets;
   generator->hitTriplets(region,triplets,es);
   edm::LogInfo("HitTripletProducer") << "size of triplets: "<<triplets.size();
-  delete generator;
+  delete generator; generator=0;
 
 }
-DEFINE_FWK_MODULE(HitTripletProducer)
+DEFINE_FWK_MODULE(HitTripletProducer);

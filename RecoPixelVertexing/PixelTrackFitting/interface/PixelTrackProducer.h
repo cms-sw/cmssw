@@ -10,6 +10,7 @@
 class PixelFitter;
 class PixelTrackCleaner;
 class PixelTrackFilter;
+class PixelHitTripletGenerator;
 
 #include<vector>
 
@@ -31,6 +32,7 @@ private:
   const PixelFitter       * theFitter;
   const PixelTrackFilter  * theFilter;
         PixelTrackCleaner * theCleaner;  
+        PixelHitTripletGenerator * theGenerator;
 
 };
 #endif

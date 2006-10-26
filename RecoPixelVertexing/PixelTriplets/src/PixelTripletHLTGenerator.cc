@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
+#include "RecoPixelVertexing/PixelTriplets/src/PixelTripletHLTGenerator.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvParabola.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
@@ -7,9 +7,17 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+void PixelTripletHLTGenerator::init( const HitPairGenerator & pairs,
+      std::vector<const LayerWithHits*> layers,
+      LayerCacheType* layerCache)
+{
+  thePairGenerator = pairs.clone();
+  theLayers = layers;
+  theLayerCache = layerCache;
+}
 
 
-void HitTripletGeneratorFromPairAndLayers::hitTriplets( 
+void PixelTripletHLTGenerator::hitTriplets( 
     const TrackingRegion& region, 
     OrderedHitTriplets & result,
     const edm::EventSetup& iSetup)
@@ -25,7 +33,7 @@ void HitTripletGeneratorFromPairAndLayers::hitTriplets(
 
   const LayerHitMap **thirdHitMap = new const LayerHitMap* [size];
   for (int il=0; il <=size-1; il++) {
-     thirdHitMap[il] = &theLayerCache(theLayers[il], region, iSetup);
+     thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, iSetup);
   }
 
   edm::ESHandle<TrackerGeometry> tracker;
