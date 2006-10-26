@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.3 2006/03/08 12:57:07 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.4 2006/07/24 06:33:58 llista Exp $
  *
  */
 namespace reco {
@@ -105,7 +105,8 @@ namespace reco {
   };
 
   inline void CompositeCandidate::addDaughter( const Candidate & cand ) { 
-    dau.push_back( cand.clone() ); 
+    Candidate * c = cand.clone();
+    dau.push_back( c ); 
   }
 }
 
