@@ -423,5 +423,5 @@ RPCRecHitReader::~RPCRecHitReader(){
 }
 
 
-DEFINE_FWK_MODULE(RPCRecHitReader)
+DEFINE_FWK_MODULE(RPCRecHitReader);
   
