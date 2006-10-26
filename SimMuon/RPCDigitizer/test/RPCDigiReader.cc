@@ -4,8 +4,8 @@
 /** \class RPCDigiReader
  *  Analyse the RPC digitizer (derived from R. Bellan DTDigiReader. 
  *  
- *  $Date: 2006/06/23 07:41:32 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/01 15:27:46 $
+ *  $Revision: 1.5 $
  *  \authors: M. Maggi -- INFN Bari
  */
 
@@ -88,4 +88,5 @@ private:
 };
 #endif    
 #include <FWCore/Framework/interface/MakerMacros.h>
-DEFINE_FWK_MODULE(RPCDigiReader)
+DEFINE_FWK_MODULE(RPCDigiReader);
+

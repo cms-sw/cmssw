@@ -128,5 +128,6 @@ RPCFakeEvent::produce(edm::Event & e, const edm::EventSetup& c)
   e.put(pDigis);
 }
 
-DEFINE_FWK_MODULE(RPCFakeEvent)
+DEFINE_FWK_MODULE(RPCFakeEvent);
+
   

@@ -100,5 +100,6 @@ RPCEventDump::produce(edm::Event & e, const edm::EventSetup& c)
   e.put(pDigis);
 }
 
-DEFINE_FWK_MODULE(RPCEventDump)
+DEFINE_FWK_MODULE(RPCEventDump);
+
   
