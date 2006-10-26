@@ -17,7 +17,11 @@ public:
     Width(cluster.amplitudes().size()),
     MaxCharge(0),
     MaxPosition(0)
-    {};
+    {
+      RawDigiAmplitudesL=std::vector<uint16_t>(0);
+      RawDigiAmplitudesR=std::vector<uint16_t>(0);
+      StripNoises=std::vector<float>(0);
+    };
   
 
   uint16_t firstStrip() const {return FirstStrip;}
