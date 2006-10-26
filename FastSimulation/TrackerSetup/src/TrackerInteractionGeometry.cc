@@ -290,63 +290,63 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   ++fl;
   const SimpleDiskBounds TEC1(
 	  (**fl).specificSurface().innerRadius()-2.0, 
-	  (**fl).specificSurface().outerRadius()+11.,
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC1(0.,0,(**fl).surface().position().z()); 
   // Second TEC: Z pos 145.892 radii 23.3749, 99.1967
   ++fl;
   const SimpleDiskBounds TEC2(
 	  (**fl).specificSurface().innerRadius()-2.0, 
-	  (**fl).specificSurface().outerRadius()+11.,
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC2(0.,0.,(**fl).surface().position().z());
   // Third TEC: Z pos 159.892 radii 23.3749, 99.1967
   ++fl;
   const SimpleDiskBounds TEC3(
 	  (**fl).specificSurface().innerRadius()-2.0, 
-	  (**fl).specificSurface().outerRadius()+11.,
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC3(0.,0.,(**fl).surface().position().z());
   // Fourth TEC: Z pos 173.892 radii 32.1263, 99.1967
   ++fl;
   const SimpleDiskBounds TEC4(
 	  (**fl).specificSurface().innerRadius()-2.0, 
-	  (**fl).specificSurface().outerRadius()+11.,
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC4(0.,0.,(**fl).surface().position().z());
   // Fifth TEC: Z pos 187.892 radii 32.1263, 99.1967
   ++fl;
   const SimpleDiskBounds TEC5(
 	  (**fl).specificSurface().innerRadius()-2.0, 
-	  (**fl).specificSurface().outerRadius()+11.,
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC5(0.,0.,(**fl).surface().position().z());
   // Sixth TEC: Z pos 205.392 radii 32.1263, 99.1967
   ++fl;
   const SimpleDiskBounds TEC6(
 	  (**fl).specificSurface().innerRadius()-2.0, 
-	  (**fl).specificSurface().outerRadius()+11.,
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC6(0.,0.,(**fl).surface().position().z());
   // Seventh TEC: Z pos 224.121 radii 44.7432, 99.1967
   ++fl;
   const SimpleDiskBounds TEC7(
-	  (**fl).specificSurface().innerRadius()-2.0-5.0, 
-	  (**fl).specificSurface().outerRadius()+11.,
+	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC7(0.,0.,(**fl).surface().position().z());
   // Eighth TEC: Z pos 244.621 radii 44.7432, 99.1967
   ++fl;
   const SimpleDiskBounds TEC8(
-	  (**fl).specificSurface().innerRadius()-2.0-5.0, 
-	  (**fl).specificSurface().outerRadius()+11.,
+	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC8(0.,0.,(**fl).surface().position().z());
   // Nineth TEC: Z pos 266.121 radii 56.1781, 99.1967
   ++fl;
   const SimpleDiskBounds TEC9(
-	  (**fl).specificSurface().innerRadius()-2.0-5.0, 
-	  (**fl).specificSurface().outerRadius()+11.,
+	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC9(0.,0.,(**fl).surface().position().z());
 
@@ -592,6 +592,13 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 	<< " has dimensions smaller than previous cylinder : " << endl
 	<< " zout/zin = " << zout << " " << zin << endl
 	<< " rout/rin = " << rout << " " << rin << endl;
+    } else {
+      //      cout << " Cylinder number " << nCyl 
+      //	   << " (Active Layer Number = " <<  cyliterOut->layerNumber() 
+      //	   << " Forward ? " <<  cyliterOut->forward() << " ) "
+      //	<< " has dimensions of : " 
+      //	<< " zout = " << zout << "; " 
+      //	<< " rout = " << rout << endl;
     }
     // Go to the next cylinder
     cyliterOut++;
