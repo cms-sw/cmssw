@@ -4,4 +4,4 @@
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorPedestals.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripMonitorPedestals)
+DEFINE_ANOTHER_FWK_MODULE(SiStripMonitorPedestals);
