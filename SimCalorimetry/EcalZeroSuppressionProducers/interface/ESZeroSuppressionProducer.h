@@ -1,7 +1,6 @@
 #ifndef ESZEROSUPPRESSIONPRODUCER_H
 #define ESZEROSUPPRESSIONPRODUCER_H
 
-using namespace std;
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"

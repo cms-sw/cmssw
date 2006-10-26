@@ -4,8 +4,8 @@
 /*
  * \file TrivialAmplitudeAlgo.h
  *
- * $Date: 2006/05/15 09:11:00 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/27 17:45:06 $
+ * $Revision: 1.2 $
  * \author F. Cossutti
  *
  * simple weights algorithm for energy and pedestal reconstruction
@@ -25,8 +25,6 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include <vector>
-
-using namespace std;
 
 template<class C> class TrivialAmplitudeAlgo 
 {
