@@ -171,4 +171,4 @@ void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup ) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(RPCReadOutMapBuilder)
+DEFINE_FWK_MODULE(RPCReadOutMapBuilder);

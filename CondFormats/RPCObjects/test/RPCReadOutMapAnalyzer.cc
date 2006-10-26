@@ -82,4 +82,4 @@ void RPCReadOutMapAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(RPCReadOutMapAnalyzer)
+DEFINE_FWK_MODULE(RPCReadOutMapAnalyzer);
