@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/10/08 12:11:41 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/10/21 12:20:39 $
+ *  $Revision: 1.22 $
  *
  * \author Ilaria Segoni
  */
@@ -241,4 +241,4 @@ int RPCUnpackingModule::unpackTrailer(const unsigned char* trailerIndex, RPCFEDD
 
 
 
-DEFINE_FWK_MODULE(RPCUnpackingModule)
+DEFINE_FWK_MODULE(RPCUnpackingModule);
