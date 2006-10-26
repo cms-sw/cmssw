@@ -123,7 +123,7 @@ bool TruncatedPyramid::inside(const GlobalPoint & Point) const
 }
 
 
-const vector<GlobalPoint> & TruncatedPyramid::getCorners() const
+const std::vector<GlobalPoint> & TruncatedPyramid::getCorners() const
 { return corners ; }
 
 //----------------------------------------------------------------------
@@ -223,13 +223,13 @@ void TruncatedPyramid::dump(const char * prefix="") const {
 
   // a crystal must have eight corners (not only the front face...)
   assert(getCorners().size() == 8);
-  cout << prefix << "Center: " <<  CaloCellGeometry::getPosition() << endl;
+  std::cout << prefix << "Center: " <<  CaloCellGeometry::getPosition() << std::endl;
   float thetaaxis_= getThetaAxis();
   float phiaxis_= getPhiAxis();
-  cout << prefix << "Axis: " <<  thetaaxis_ << " " << phiaxis_ << endl;
+  std::cout << prefix << "Axis: " <<  thetaaxis_ << " " << phiaxis_ << std::endl;
   //  vector<HepPoint3D> xtCorners=getCorners();
   for ( unsigned int  ci=0; ci !=corners.size(); ci++) {
-    cout << prefix << "Corner: " << corners[ci] << endl;
+    std::cout << prefix << "Corner: " << corners[ci] << std::endl;
   }
 }
 //----------------------------------------------------------------------

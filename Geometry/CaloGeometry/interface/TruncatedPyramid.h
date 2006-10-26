@@ -17,8 +17,6 @@
    
 */
 
-using namespace std;
-
 
 class TruncatedPyramid : public CaloCellGeometry
 {
@@ -41,10 +39,10 @@ public:
   virtual bool inside(const GlobalPoint & point) const;  
   
   //! Access to data
-  virtual const vector<HepPlane3D> & getBoundaries() const { return boundaries; };
+  virtual const std::vector<HepPlane3D> & getBoundaries() const { return boundaries; };
   
   //! Access to data
-  virtual const vector<GlobalPoint> & getCorners() const;  
+  virtual const std::vector<GlobalPoint> & getCorners() const;  
 
   /** Position corresponding to the center of the front face at a certain
       depth (default is zero) along the crystal axis.
@@ -93,7 +91,7 @@ public:
 protected:
   
   //! Keep corners info
-  vector<GlobalPoint> corners;
+  std::vector<GlobalPoint> corners;
   
   /** Polar angle of the axis of the cristal */
   float thetaAxis;
@@ -102,7 +100,7 @@ protected:
   float phiAxis;
 
   /** Bondary planes of the cristal */
-  vector<HepPlane3D> boundaries;
+  std::vector<HepPlane3D> boundaries;
 
   /** constructs the crystal from the Geant3 like parameters.
       The trapezoid's center is at (0,0,0). 

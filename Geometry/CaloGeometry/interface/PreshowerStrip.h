@@ -15,13 +15,11 @@
 
    \brief A base class to handle the shape of preshower strips.
 
-$Date: 2006/02/21 17:46:06 $
+$Date: 2006/02/23 09:48:30 $
 $Revision: 1.1 $
 \author F. Cossutti
    
 */
-
-using namespace std;
 
 
 class PreshowerStrip : public CaloCellGeometry
@@ -38,7 +36,7 @@ public:
   virtual bool inside(const GlobalPoint & point) const;  
   
   //! Access to data
-  virtual const vector<GlobalPoint> & getCorners() const;  
+  virtual const std::vector<GlobalPoint> & getCorners() const;  
 
   /** Transform (e.g. move or rotate) this box.
       Transforms the corner points and the reference point.
@@ -48,7 +46,7 @@ public:
 protected:
   
   //! Keep corners info
-  vector<GlobalPoint> corners;
+  std::vector<GlobalPoint> corners;
 
  private:
 
