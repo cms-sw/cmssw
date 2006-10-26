@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoChargedCandidate.h,v 1.3 2006/04/26 07:56:20 llista Exp $
+ * \version $Id: RecoChargedCandidate.h,v 1.4 2006/08/03 14:54:34 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -27,12 +27,12 @@ namespace reco {
     virtual RecoChargedCandidate * clone() const;
     /// set reference to track
     void setTrack( const reco::TrackRef & r ) { track_ = r; }
+    /// reference to a track
+    virtual reco::TrackRef track() const;
 
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
-    /// reference to a track
-    virtual reco::TrackRef track() const;
     /// reference to a track
     reco::TrackRef track_;
   };

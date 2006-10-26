@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoEcalCandidate.h,v 1.2 2006/08/03 14:54:34 llista Exp $
+ * \version $Id: RecoEcalCandidate.h,v 1.3 2006/10/25 16:29:14 rahatlou Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -25,15 +25,15 @@ namespace reco {
     virtual ~RecoEcalCandidate();
     /// returns a clone of the candidate
     virtual RecoEcalCandidate * clone() const;
-    /// set reference to track
+    /// set reference to superCluster
     void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
+    /// reference to a superCluster
+    virtual reco::SuperClusterRef superCluster() const;
 
+  private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
-    /// reference to a track
-    virtual reco::SuperClusterRef superCluster() const;
-    /// reference to a track
-  private:
+    /// reference to a superCluster
     reco::SuperClusterRef superCluster_;
   };
   
