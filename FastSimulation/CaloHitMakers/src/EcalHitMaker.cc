@@ -17,8 +17,6 @@
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
 
-#include "FastSimulation/Calorimetry/interface/FamosDebug.h"
-
 #include <algorithm>
 
 EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
@@ -61,12 +59,6 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   // Same size in eta-phi
   etasize_ = size;
   phisize_ = size;
-
-
-
-#ifdef FAMOSDEBUG
-  myHistos = Histos::instance();
-#endif
 
 
   // Build the grid
