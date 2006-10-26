@@ -126,4 +126,4 @@ void PixelTrackVal::endJob()
   if (f_) f_->Write();
 }
 
-DEFINE_FWK_MODULE(PixelTrackVal)
+DEFINE_FWK_MODULE(PixelTrackVal);

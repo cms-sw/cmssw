@@ -39,4 +39,4 @@ void PixelVertexVal::endJob() {
   out_->close();
 }
 
-DEFINE_FWK_MODULE(PixelVertexVal)
+DEFINE_FWK_MODULE(PixelVertexVal);
