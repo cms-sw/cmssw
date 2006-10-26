@@ -1579,4 +1579,4 @@ void GlobalHitsProducer::clear()
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GlobalHitsProducer)
+DEFINE_FWK_MODULE(GlobalHitsProducer);
