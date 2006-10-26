@@ -1,14 +1,18 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/10/06 12:57:30 $
- * $Revision: 1.12 $
+ * $Date: 2006/10/13 13:13:14 $
+ * $Revision: 1.13 $
  * \author F. Cossutti
  *
 */
 
 #include <Validation/EcalDigis/interface/EcalEndcapDigisValidation.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
   EEdigiCollection_(ps.getParameter<edm::InputTag>("EEdigiCollection"))

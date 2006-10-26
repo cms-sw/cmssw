@@ -1,13 +1,17 @@
 /*
  * \file EcalEndcapRecHitsValidation.cc
  *
- * $Date: 2006/07/21 16:05:39 $
+ * $Date: 2006/10/17 09:56:12 $
  * \author C. Rovelli
  *
  */
 
 #include <Validation/EcalRecHits/interface/EcalEndcapRecHitsValidation.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps){
 

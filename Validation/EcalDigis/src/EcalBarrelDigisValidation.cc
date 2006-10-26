@@ -1,14 +1,18 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/10/06 12:57:30 $
- * $Revision: 1.11 $
+ * $Date: 2006/10/13 13:13:14 $
+ * $Revision: 1.12 $
  * \author F. Cossutti
  *
 */
 
 #include <Validation/EcalDigis/interface/EcalBarrelDigisValidation.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps):
   EBdigiCollection_(ps.getParameter<edm::InputTag>("EBdigiCollection"))

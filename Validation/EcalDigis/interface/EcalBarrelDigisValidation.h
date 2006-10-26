@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelDigisValidation.h
  *
- * $Date: 2006/07/26 14:55:26 $
- * $Revision: 1.2 $
+ * $Date: 2006/10/13 13:13:14 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -33,18 +33,14 @@
 #include <vector>
 #include <map>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+class EcalBarrelDigisValidation: public edm::EDAnalyzer{
 
-class EcalBarrelDigisValidation: public EDAnalyzer{
-
-    typedef map<uint32_t,float,less<uint32_t> >  MapType;
+    typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
 public:
 
 /// Constructor
-EcalBarrelDigisValidation(const ParameterSet& ps);
+EcalBarrelDigisValidation(const edm::ParameterSet& ps);
 
 /// Destructor
 ~EcalBarrelDigisValidation();
@@ -52,10 +48,10 @@ EcalBarrelDigisValidation(const ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);
@@ -68,11 +64,11 @@ private:
  
  DaqMonitorBEInterface* dbe_;
  
- string outputFile_;
+ std::string outputFile_;
 
  edm::InputTag EBdigiCollection_;
  
- map<int, double, less<int> > gainConv_;
+ std::map<int, double, std::less<int> > gainConv_;
 
  double barrelADCtoGeV_;
  double endcapADCtoGeV_;

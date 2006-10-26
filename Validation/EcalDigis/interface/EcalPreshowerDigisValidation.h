@@ -4,8 +4,8 @@
 /*
  * \file EcalPreshowerDigisValidation.h
  *
- * $Date: 2006/07/26 14:55:26 $
- * $Revision: 1.3 $
+ * $Date: 2006/10/13 13:13:14 $
+ * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -33,18 +33,14 @@
 #include <vector>
 #include <map>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+class EcalPreshowerDigisValidation: public edm::EDAnalyzer{
 
-class EcalPreshowerDigisValidation: public EDAnalyzer{
-
-    typedef map<uint32_t,float,less<uint32_t> >  MapType;
+    typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
 public:
 
 /// Constructor
-EcalPreshowerDigisValidation(const ParameterSet& ps);
+EcalPreshowerDigisValidation(const edm::ParameterSet& ps);
 
 /// Destructor
 ~EcalPreshowerDigisValidation();
@@ -52,10 +48,10 @@ EcalPreshowerDigisValidation(const ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);
@@ -66,7 +62,7 @@ private:
  
  DaqMonitorBEInterface* dbe_;
  
- string outputFile_;
+ std::string outputFile_;
 
  edm::InputTag ESdigiCollection_;
 

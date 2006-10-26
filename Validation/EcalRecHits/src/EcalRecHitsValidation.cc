@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2006/08/22 09:27:25 $
+ * $Date: 2006/10/17 09:56:12 $
  * \author C. Rovelli
  *
 */
@@ -10,6 +10,10 @@
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
 

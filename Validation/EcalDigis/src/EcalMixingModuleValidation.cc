@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2006/10/18 15:04:00 $
- * $Revision: 1.3 $
+ * $Date: 2006/10/20 16:39:17 $
+ * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -14,6 +14,10 @@
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
   HepMCLabel(ps.getParameter<std::string>("moduleLabelMC")),

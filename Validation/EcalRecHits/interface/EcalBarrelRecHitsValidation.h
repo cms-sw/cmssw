@@ -4,7 +4,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.h
  *
- * $Date: 2006/06/29 11:07:41 $
+ * $Date: 2006/10/17 09:56:12 $
  * \author C. Rovelli
  *
 */
@@ -35,16 +35,12 @@
 #include <vector>
 #include <map>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class EcalBarrelRecHitsValidation: public EDAnalyzer{
+class EcalBarrelRecHitsValidation: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EcalBarrelRecHitsValidation(const ParameterSet& ps);
+EcalBarrelRecHitsValidation(const edm::ParameterSet& ps);
 
 /// Destructor
 ~EcalBarrelRecHitsValidation();
@@ -52,10 +48,10 @@ EcalBarrelRecHitsValidation(const ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);

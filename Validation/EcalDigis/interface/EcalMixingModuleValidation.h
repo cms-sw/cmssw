@@ -4,8 +4,8 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2006/10/18 15:04:00 $
- * $Revision: 1.2 $
+ * $Date: 2006/10/20 16:39:16 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -53,18 +53,14 @@
 #include <vector>
 #include <map>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+class EcalMixingModuleValidation: public edm::EDAnalyzer{
 
-class EcalMixingModuleValidation: public EDAnalyzer{
-
-    typedef map<uint32_t,float,less<uint32_t> >  MapType;
+    typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
 public:
 
 /// Constructor
-EcalMixingModuleValidation(const ParameterSet& ps);
+EcalMixingModuleValidation(const edm::ParameterSet& ps);
 
 /// Destructor
 ~EcalMixingModuleValidation();
@@ -72,10 +68,10 @@ EcalMixingModuleValidation(const ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);
@@ -88,19 +84,19 @@ private:
 
  void checkCalibrations(const edm::EventSetup & c);
  
- string HepMCLabel;
+ std::string HepMCLabel;
  
  bool verbose_;
 
  DaqMonitorBEInterface* dbe_;
  
- string outputFile_;
+ std::string outputFile_;
 
  edm::InputTag EBdigiCollection_;
  edm::InputTag EEdigiCollection_;
  edm::InputTag ESdigiCollection_;
  
- map<int, double, less<int> > gainConv_;
+ std::map<int, double, std::less<int> > gainConv_;
 
  double barrelADCtoGeV_;
  double endcapADCtoGeV_;

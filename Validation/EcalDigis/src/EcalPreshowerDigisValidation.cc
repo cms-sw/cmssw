@@ -1,13 +1,17 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2006/07/26 14:55:26 $
- * $Revision: 1.6 $
+ * $Date: 2006/10/13 13:13:14 $
+ * $Revision: 1.7 $
  * \author F. Cossutti
  *
 */
 
 #include <Validation/EcalDigis/interface/EcalPreshowerDigisValidation.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& ps):
   ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection"))

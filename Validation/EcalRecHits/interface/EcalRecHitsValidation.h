@@ -4,7 +4,7 @@
 /*
  * \file EcalRecHitsValidation.h
  *
- * $Date: 2006/06/29 11:07:41 $
+ * $Date: 2006/10/17 09:56:12 $
  * \author C. Rovelli
  *
 */
@@ -41,18 +41,14 @@
 #include <vector>
 #include <map>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+class EcalRecHitsValidation: public edm::EDAnalyzer{
 
-class EcalRecHitsValidation: public EDAnalyzer{
-
-  typedef map<uint32_t,float,less<uint32_t> >  MapType;
+  typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
 public:
 
 /// Constructor
-EcalRecHitsValidation(const ParameterSet& ps);
+EcalRecHitsValidation(const edm::ParameterSet& ps);
 
 /// Destructor
 ~EcalRecHitsValidation();
@@ -60,23 +56,23 @@ EcalRecHitsValidation(const ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);
 
 private:
 
- string HepMCLabel;
+ std::string HepMCLabel;
  
  bool verbose_;
  
  DaqMonitorBEInterface* dbe_;
  
- string outputFile_;
+ std::string outputFile_;
 
  edm::InputTag EBrechitCollection_;
  edm::InputTag EErechitCollection_;

@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/10/13 13:13:14 $
- * $Revision: 1.16 $
+ * $Date: 2006/10/16 13:13:54 $
+ * $Revision: 1.17 $
  * \author F. Cossutti
  *
 */
@@ -12,6 +12,10 @@
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
   HepMCLabel(ps.getParameter<std::string>("moduleLabelMC")),

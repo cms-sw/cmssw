@@ -1,13 +1,17 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2006/07/21 16:05:06 $
+ * $Date: 2006/10/17 09:56:12 $
  * \author C. Rovelli
  *
  */
 
 #include <Validation/EcalRecHits/interface/EcalBarrelRecHitsValidation.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps){
   
