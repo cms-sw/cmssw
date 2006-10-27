@@ -126,12 +126,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 	
 	//use parametersAtClosestApproachGeom
 	TrackBase::ParameterVector diffParameters = rParameters - gParameters;
-// 	LogDebug("TrackAssociator") << "ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters): " 
-// 				    << ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters) << "\n"
-// 				    << "ROOT::Math::Dot(diffParameters, recoTrackCovMatrix * diffParameters): " 
-// 				    << ROOT::Math::Dot(diffParameters, recoTrackCovMatrix * diffParameters) << "\n"
-// 				    << "ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix): " 
-// 				    << ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix) << "\n";
+
 	chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
 	chi2 /= 5;
 
