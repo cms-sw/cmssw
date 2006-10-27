@@ -15,6 +15,7 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -62,7 +63,14 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   } 
   theGenerator->init(*pixelHits,es);
 
-  GlobalTrackingRegion region;
+  edm::ParameterSet regionPSet = theConfig.getParameter<edm::ParameterSet>("RegionPSet");
+  GlobalTrackingRegion region(
+    regionPSet.getParameter<double>("ptMin"),
+    regionPSet.getParameter<double>("originRadius"),
+    regionPSet.getParameter<double>("originHalfLength"),
+    regionPSet.getParameter<double>("originZPos"),
+    regionPSet.getParameter<bool>("precise") );
+
   OrderedHitTriplets triplets;
   theGenerator->hitTriplets(region,triplets,es);
   edm::LogInfo("PixelTrackProducer") << "number of triplets: " << triplets.size();
@@ -79,7 +87,11 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
     theFilter = PixelTrackFilterFactory::get()->create( filterName, filterPSet);
   }
 
-  if (!theCleaner) theCleaner = new PixelTrackCleaner();
+  if (!theCleaner) {
+    std::string       cleanerName = theConfig.getParameter<std::string>("Cleaner");
+    edm::ParameterSet cleanerPSet = theConfig.getParameter<edm::ParameterSet>("CleanerPSet");
+    theCleaner = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
+  }
 
   // producing tracks
   TracksWithRecHits tracks;

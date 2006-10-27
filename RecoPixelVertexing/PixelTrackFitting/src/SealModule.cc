@@ -20,3 +20,8 @@ DEFINE_SEAL_PLUGIN(PixelTrackFilterFactory, PixelTrackFilterByKinematics, "Pixel
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterByHelixProjections.h"
 DEFINE_SEAL_PLUGIN(PixelFitterFactory, PixelFitterByConformalMappingAndLine, "PixelFitterByConformalMappingAndLine");
 DEFINE_SEAL_PLUGIN(PixelFitterFactory, PixelFitterByHelixProjections, "PixelFitterByHelixProjections");
+
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerBySharedHits.h"
+DEFINE_SEAL_PLUGIN(PixelTrackCleanerFactory, PixelTrackCleanerBySharedHits, "PixelTrackCleanerBySharedHits");

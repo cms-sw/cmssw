@@ -1,38 +1,23 @@
-#ifndef PixelTrackCleaner_H
-#define PixelTrackCleaner_H
+#ifndef PixelTrackFitting_PixelTrackCleaner_H
+#define PixelTrackFitting_PixelTrackCleaner_H
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+/**
+class PixelTrackCleaner:
+Discards reconstructed tracks that reflects one real track.
+**/
+
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
-
-#include <utility>
-#include <vector>
-
-
-/*
-PixelTrackCleaner:
-
-Discards tracks with more than one common recHit.
-
-*/
-
 
 class PixelTrackCleaner {
 
 public:
-     typedef pixeltrackfitting::TracksWithRecHits TracksWithRecHits;
-     TracksWithRecHits cleanTracks(const TracksWithRecHits & tracksWithRecHits);
+
+  virtual ~PixelTrackCleaner(){}
+
+  typedef pixeltrackfitting::TracksWithRecHits TracksWithRecHits;
+  virtual TracksWithRecHits cleanTracks(const TracksWithRecHits & tracksWithRecHits) = 0;
 
 private:
-
-  void cleanTrack();
-  bool recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2);
-
-  std::vector<bool> trackOk;
-  reco::Track *track1, *track2;
-  int iTrack1, iTrack2;
 
 };
 

@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerBySharedHits.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -10,14 +10,18 @@ using namespace std;
 using namespace reco;
 using namespace pixeltrackfitting;
 
+PixelTrackCleanerBySharedHits::PixelTrackCleanerBySharedHits( const edm::ParameterSet& cfg)
+{}
 
+PixelTrackCleanerBySharedHits::~PixelTrackCleanerBySharedHits()
+{}
 
-TracksWithRecHits PixelTrackCleaner::cleanTracks(const TracksWithRecHits & trackHitPairs)
+TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRecHits & trackHitPairs)
 {
   typedef std::vector<const TrackingRecHit *> RecHits;
   trackOk.clear();
 
-  LogDebug("PixelTrackCleaner") << "Cleanering tracks" << "\n";
+  LogDebug("PixelTrackCleanerBySharedHits") << "Cleanering tracks" << "\n";
   int size = trackHitPairs.size();
   for (int i = 0; i < size; i++) trackOk.push_back(true);
 
@@ -58,14 +62,14 @@ TracksWithRecHits PixelTrackCleaner::cleanTracks(const TracksWithRecHits & track
 }
 
 
-void PixelTrackCleaner::cleanTrack()
+void PixelTrackCleanerBySharedHits::cleanTrack()
 {
   if (track1->pt() > track2->pt()) trackOk.at(iTrack2) = false;
   else trackOk.at(iTrack1) = false;
 }
 
 
-bool PixelTrackCleaner::recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2)
+bool PixelTrackCleanerBySharedHits::recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2)
 {
   if (recHit1->geographicalId() != recHit2->geographicalId()) return false;
   LocalPoint pos1 = recHit1->localPosition();
