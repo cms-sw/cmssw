@@ -47,8 +47,7 @@ void PixelHitTripletGenerator::init(const SiPixelRecHitCollection &coll,const ed
     edm::ParameterSet generatorPSet = theConfig.getParameter<edm::ParameterSet>("GeneratorPSet");
 
     HitTripletGeneratorFromPairAndLayers * aGen = 
- //       HitTripletGeneratorFromPairAndLayersFactory::get()->create(generatorName,generatorPSet);
-    new PixelTripletHLTGenerator(generatorPSet);
+        HitTripletGeneratorFromPairAndLayersFactory::get()->create(generatorName,generatorPSet);
 
     aGen->init( HitPairGeneratorFromLayerPair( first, second, &theLayerCache, iSetup),
                 thirds, &theLayerCache); 
