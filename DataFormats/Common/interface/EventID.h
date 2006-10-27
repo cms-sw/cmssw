@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  8 15:13:14 EDT 2005
-// $Id: EventID.h,v 1.3 2006/08/22 05:50:16 wmtan Exp $
+// $Id: EventID.h,v 1.4 2006/08/24 22:15:44 wmtan Exp $
 //
 
 // system include files
@@ -25,11 +25,11 @@
 #include <iosfwd>
 
 // user include files
+#include "DataFormats/Common/interface/RunID.h"
 
 // forward declarations
 namespace edm {
 
-   typedef unsigned long RunNumber_t;
    typedef unsigned long EventNumber_t;
 
    

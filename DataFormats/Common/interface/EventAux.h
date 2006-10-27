@@ -10,11 +10,14 @@
 #include "DataFormats/Common/interface/Timestamp.h"
 #include "DataFormats/Common/interface/LuminosityBlockID.h"
 
-// Aux2iliary event data that is persistent
+// Auxiliary event data that is persistent
 
 namespace edm
 {
   struct EventAux {
+    typedef EventID IDValue;
+    typedef Timestamp TimeValue;
+    typedef LuminosityBlockID LumiValue;
     EventAux() :
 	processHistoryID_(),
 	id_(),
@@ -26,7 +29,7 @@ namespace edm
 	id_(theId),
 	time_(),
 	luminosityBlockID_() {}
-    EventAux(EventID const& theId, Timestamp const& theTime, LuminosityBlockID lb) :
+    EventAux(EventID const& theId, Timestamp const& theTime, LuminosityBlockID lb = 1UL) :
 	processHistoryID_(),
 	id_(theId),
 	time_(theTime),
