@@ -26,5 +26,5 @@ namespace edm {
    typedef unsigned long RunNumber_t;
 
    
-};
+}
 #endif
