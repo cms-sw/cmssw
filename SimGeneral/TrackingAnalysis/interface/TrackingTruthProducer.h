@@ -20,6 +20,7 @@ private:
   double                   volumeRadius_;
   double                   volumeZ_;
   bool                     discardOutVolume_;
+  bool                     discardHitsFromDeltas_;
   std::string		   simHitLabel_;		   
   
 };

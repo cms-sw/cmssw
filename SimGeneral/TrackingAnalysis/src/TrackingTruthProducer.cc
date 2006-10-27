@@ -30,19 +30,21 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   produces<TrackingParticleCollection>("TrackTruth");
 
   conf_ = conf;
-  distanceCut_      = conf_.getParameter<double>("vertexDistanceCut");
-  dataLabels_       = conf_.getParameter<vector<string> >("HepMCDataLabels");
-  simHitLabel_	    = conf_.getParameter<string>("simHitLabel");
-  hitLabelsVector_  = conf_.getParameter<vector<string> >("TrackerHitLabels");
-  volumeRadius_     = conf_.getParameter<double>("volumeRadius");   
-  volumeZ_          = conf_.getParameter<double>("volumeZ");   
-  discardOutVolume_ = conf_.getParameter<bool>("discardOutVolume");     
+  distanceCut_           = conf_.getParameter<double>("vertexDistanceCut");
+  dataLabels_            = conf_.getParameter<vector<string> >("HepMCDataLabels");
+  simHitLabel_	         = conf_.getParameter<string>("simHitLabel");
+  hitLabelsVector_       = conf_.getParameter<vector<string> >("TrackerHitLabels");
+  volumeRadius_          = conf_.getParameter<double>("volumeRadius");   
+  volumeZ_               = conf_.getParameter<double>("volumeZ");   
+  discardOutVolume_      = conf_.getParameter<bool>("discardOutVolume");     
+  discardHitsFromDeltas_ = conf_.getParameter<bool>("DiscardHitsFromDeltas");
 
   edm::LogInfo (MessageCategory) << "Setting up TrackingTruthProducer";
   edm::LogInfo (MessageCategory) << "Vertex distance cut set to " << distanceCut_  << " mm";
   edm::LogInfo (MessageCategory) << "Volume radius set to "       << volumeRadius_ << " mm";
   edm::LogInfo (MessageCategory) << "Volume Z      set to "       << volumeZ_      << " mm";
   edm::LogInfo (MessageCategory) << "Discard out of volume? "     << discardOutVolume_;
+  edm::LogInfo (MessageCategory) << "Discard Hits from Deltas? "     << discardHitsFromDeltas_;
 
   /* Uncommenting will print out the various hit collections that will be scanned  
 
@@ -148,20 +150,23 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       theVertex = math::XYZPoint(v.x(), v.y(), v.z());
       time = v.t(); 
     }
+
     TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, trackEventId);
     
     typedef vector<std::auto_ptr<MixCollection<PSimHit> > >::const_iterator cont_iter;
+
     unsigned int simtrackId = itP -> trackId();
     try{ 
       std::auto_ptr<MixCollection<PSimHit> > hitCollection (new MixCollection<PSimHit>(cf.product(),hitLabelsVector_));
-      int  index = 0;
       for (MixCollection<PSimHit>::MixItr hit = hitCollection->begin(); 
-           hit != hitCollection->end(); ++hit, ++index) {
+           hit != hitCollection->end(); ++hit) {
         if (simtrackId == hit->trackId() && trackEventId == hit->eventId() ) {
-          edm::LogInfo (MessageCategory) << " Hit is from " << hit -> detUnitId();
-          
-          tp.addPSimHit(*hit);
-        }
+	  float pratio = hit->pabs()/p.mag();
+	  if (!discardHitsFromDeltas_ || ( discardHitsFromDeltas_ &&  0.5 < pratio && pratio < 2) ) {  
+	    edm::LogInfo (MessageCategory) << " Hit is from " << hit -> detUnitId();
+	    tp.addPSimHit(*hit);
+          }
+        } 
       }
     } catch (std::exception &e) {
       edm::LogWarning (MessageCategory) << "Hit collection not found.";
