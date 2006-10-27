@@ -18,10 +18,10 @@ namespace edm {
     InputTag(const std::string & s);
     std::string encode() const;
 
-    const std::string& label()    const {return label_;} 
-    const std::string& instance() const {return instance_;}
+    std::string label()    const {return label_;} 
+    std::string instance() const {return instance_;}
     ///an empty string means find the most recently produced product with the label and instance
-    const std::string& process() const {return process_;} 
+    std::string process() const {return process_;} 
     
   private:
     std::string label_;
