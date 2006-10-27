@@ -47,6 +47,9 @@ void AlignableTrackerModifier::init_( void )
   dX_           = 0.;        // X displacement [cm]
   dY_           = 0.;        // Y displacement [cm]
   dZ_           = 0.;        // Z displacement [cm]
+  dXlocal_      = 0.;        // Local X displacement [cm]
+  dYlocal_      = 0.;        // Local Y displacement [cm]
+  dZlocal_      = 0.;        // Local Z displacement [cm]
   twist_        = 0.;        // Twist angle [rad]
   shear_        = 0.;        // Shear angle [rad]
 
@@ -106,6 +109,9 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
 	  else if ( (*iParam) == "dX" )       dX_       = pSet.getParameter<double>( *iParam );
 	  else if ( (*iParam) == "dY" )       dY_       = pSet.getParameter<double>( *iParam );
 	  else if ( (*iParam) == "dZ" )       dZ_       = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dXlocal" )  dXlocal_  = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dYlocal" )  dYlocal_  = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dZlocal" )  dZlocal_  = pSet.getParameter<double>( *iParam );
 	  else if ( (*iParam) == "twist" )    twist_    = pSet.getParameter<double>( *iParam );
 	  else if ( (*iParam) == "shear" )    shear_    = pSet.getParameter<double>( *iParam );
 	  else if ( pSet.retrieve( *iParam ).typeCode() != 'P' )
@@ -125,6 +131,11 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
   // Apply displacements
   if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 && setTranslations_ )
 	this->moveAlignable( alignable, random_, gaussian_, scale_*dX_, scale_*dY_, scale_*dZ_ );
+
+  // Apply local displacements
+  if ( fabs(dXlocal_) + fabs(dYlocal_) + fabs(dZlocal_) > 0 && setTranslations_ )
+ 	this->moveAlignableLocal( alignable, random_, gaussian_, 
+ 							  scale_*dXlocal_, scale_*dYlocal_, scale_*dZlocal_ );
 
   // Apply rotations
   if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 && setRotations_ )
@@ -156,6 +167,12 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
 	  if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 && setTranslations_ )
 		this->addAlignmentPositionError( alignable, 
 										 scaleError_*dX_, scaleError_*dY_, scaleError_*dZ_ );
+
+ 	  // Error on local displacements
+ 	  if ( fabs(dXlocal_) + fabs(dYlocal_) + fabs(dZlocal_) > 0 && setTranslations_ )
+ 		this->addAlignmentPositionErrorLocal( alignable,
+ 											  scaleError_*dXlocal_, scaleError_*dYlocal_, 
+ 											  scaleError_*dZlocal_ );
 
 	  // Error on rotations
 	  if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 && setRotations_ )
@@ -228,17 +245,19 @@ void AlignableTrackerModifier::moveAlignable( Alignable* alignable, bool random,
   GlobalVector moveV( sigmaX, sigmaY, sigmaZ ); // Default: fixed
   if ( random ) 
 	{
+	  std::vector<float> randomNumbers;
 	  message << "random ";
 	  if (gaussian)
 		{
-		  moveV = this->gaussianRandomVector_( sigmaX, sigmaY, sigmaZ );
+		  randomNumbers = this->gaussianRandomVector_( sigmaX, sigmaY, sigmaZ );
 		  message << "gaussian ";
 		}
 	  else 
 		{
-		  moveV = flatRandomVector_( sigmaX, sigmaY, sigmaZ );
+		  randomNumbers = this->flatRandomVector_( sigmaX, sigmaY, sigmaZ );
 		  message << "flat ";
 		}
+	  moveV = GlobalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
 	}
   
   message << " move with sigma " << sigmaX << " " << sigmaY << " " << sigmaZ;
@@ -247,6 +266,46 @@ void AlignableTrackerModifier::moveAlignable( Alignable* alignable, bool random,
 
   LogDebug("PrintMovement") << "applied displacement: " << moveV; // Actual movements
   alignable->move(moveV);
+  m_modified++;
+
+
+}
+
+//__________________________________________________________________________________________________
+/// If 'random' is false, the given movements are strictly applied. Otherwise, a random
+/// number is generated according to a gaussian or a flat distribution depending on 'gaussian'.
+void AlignableTrackerModifier::moveAlignableLocal( Alignable* alignable, bool random, bool gaussian,
+												   float sigmaX, float sigmaY, float sigmaZ )
+{
+
+  
+  std::ostringstream message;
+ 
+  // Get movement vector according to arguments
+  LocalVector moveV( sigmaX, sigmaY, sigmaZ ); // Default: fixed
+  if ( random ) 
+	{
+	  std::vector<float> randomNumbers;
+	  message << "random ";
+	  if (gaussian)
+		{
+		  randomNumbers = this->gaussianRandomVector_( sigmaX, sigmaY, sigmaZ );
+		  message << "gaussian ";
+		}
+	  else 
+		{
+		  randomNumbers = this->flatRandomVector_( sigmaX, sigmaY, sigmaZ );
+		  message << "flat ";
+		}
+	  moveV = LocalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
+	}
+  
+  message << " move with sigma " << sigmaX << " " << sigmaY << " " << sigmaZ;
+
+  LogDebug("PrintArgs") << message.str(); // Arguments
+
+  LogDebug("PrintMovement") << "applied local displacement: " << moveV; // Actual movements
+  alignable->move( alignable->surface().toGlobal(moveV) );
   m_modified++;
 
 
@@ -267,17 +326,19 @@ void AlignableTrackerModifier::rotateAlignable( Alignable* alignable, bool rando
   GlobalVector rotV( sigmaPhiX, sigmaPhiY, sigmaPhiZ ); // Default: fixed
   if ( random ) 
 	{
+	  std::vector<float> randomNumbers;
 	  message << "random ";
 	  if (gaussian)
 		{
-		  rotV = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
+		  randomNumbers = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "gaussian ";
 		}
 	  else 
 		{
-		  rotV = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
+		  randomNumbers = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "flat ";
 		}
+	  rotV = GlobalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
 	}
   
   message << "global rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
@@ -305,20 +366,22 @@ AlignableTrackerModifier::rotateAlignableLocal( Alignable* alignable, bool rando
   std::ostringstream message;
 
   // Get rotation vector according to arguments
-  GlobalVector rotV( sigmaPhiX, sigmaPhiY, sigmaPhiZ ); // Default: fixed
+  LocalVector rotV( sigmaPhiX, sigmaPhiY, sigmaPhiZ ); // Default: fixed
   if ( random ) 
     {
+	  std::vector<float> randomNumbers;
       message << "random ";
       if (gaussian)
-	{
-	  rotV = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
-	  message << "gaussian ";
-	}
+		{
+		  randomNumbers = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
+		  message << "gaussian ";
+		}
       else 
-	{
-	  rotV = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
-	  message << "flat ";
-	}
+		{
+		  randomNumbers = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
+		  message << "flat ";
+		}
+	  rotV = LocalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
     }
   
   message << "local rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
@@ -336,7 +399,7 @@ AlignableTrackerModifier::rotateAlignableLocal( Alignable* alignable, bool rando
 
 
 //__________________________________________________________________________________________________
-const GlobalVector 
+const std::vector<float> 
 AlignableTrackerModifier::gaussianRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const
 {
 
@@ -362,13 +425,18 @@ AlignableTrackerModifier::gaussianRandomVector_( float sigmaX, float sigmaY, flo
   RandGauss aGaussObjY( *theDRand48Engine, 0., sigmaY );
   RandGauss aGaussObjZ( *theDRand48Engine, 0., sigmaZ );
 
-  return GlobalVector( aGaussObjX.fire(), aGaussObjY.fire(), aGaussObjZ.fire() );
+  std::vector<float> randomVector;
+  randomVector.push_back( aGaussObjX.fire() );
+  randomVector.push_back( aGaussObjY.fire() );
+  randomVector.push_back( aGaussObjZ.fire() );
+
+  return randomVector;
 
 }
 
 
 //__________________________________________________________________________________________________
-const GlobalVector 
+const  std::vector<float> 
 AlignableTrackerModifier::flatRandomVector_( float sigmaX,float sigmaY, float sigmaZ ) const
 {
 
@@ -393,7 +461,12 @@ AlignableTrackerModifier::flatRandomVector_( float sigmaX,float sigmaY, float si
   RandFlat aFlatObjY( *theDRand48Engine, -sigmaY, sigmaY );
   RandFlat aFlatObjZ( *theDRand48Engine, -sigmaZ, sigmaZ );
 
-  return GlobalVector( aFlatObjX.fire(), aFlatObjY.fire(), aFlatObjZ.fire() );
+  std::vector<float> randomVector;
+  randomVector.push_back( aFlatObjX.fire() );
+  randomVector.push_back( aFlatObjY.fire() );
+  randomVector.push_back( aFlatObjZ.fire() );
+
+  return randomVector;
 
 }
 
@@ -408,6 +481,22 @@ void AlignableTrackerModifier::addAlignmentPositionError( Alignable* alignable,
 							<< dx << " "  << dy << " "  << dz;
 
   AlignmentPositionError ape(dx,dy,dz);
+  alignable->addAlignmentPositionError( ape );
+
+}
+
+
+//__________________________________________________________________________________________________
+void AlignableTrackerModifier::addAlignmentPositionErrorLocal( Alignable* alignable, 
+															   float dx, float dy, float dz )
+{
+
+  LogDebug("PrintArgs") << "Adding a local AlignmentPositionError of size " 
+						<< dx << " "  << dy << " "  << dz;
+
+  GlobalVector error = alignable->surface().toGlobal( LocalVector(dx,dy,dz) );
+
+  AlignmentPositionError ape( error.x(), error.y(), error.z() );
   alignable->addAlignmentPositionError( ape );
 
 }

@@ -39,6 +39,10 @@ public:
   void moveAlignable( Alignable* alignable, bool random, bool gaussian,
 					  float sigmaX, float sigmaY, float sigmaZ );
 
+  /// Move alignable in local space according to parameters
+  void moveAlignableLocal( Alignable* alignable, bool random, bool gaussian,
+ 						   float sigmaX, float sigmaY, float sigmaZ );
+
   /// Rotate alignable in global space according to parameters
   void rotateAlignable( Alignable* alignable, bool random, bool gaussian,
 						float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ );
@@ -50,6 +54,10 @@ public:
   /// Add the AlignmentPositionError (in global frame) to Alignable
   void addAlignmentPositionError( Alignable* alignable, 
 								  float dx, float dy, float dz );
+
+  /// Add the AlignmentPositionError (in local frame) to Alignable
+  void addAlignmentPositionErrorLocal( Alignable* alignable, 
+									   float dx, float dy, float dz );
 
   /// Add alignment position error resulting from rotation in global frame
   void addAlignmentPositionErrorFromRotation( Alignable* alignable, 
@@ -80,10 +88,11 @@ private:
 
   /// Initialisation of all parameters
   void init_(); 
+
   /// Return a vector of random numbers (gaussian distribution)
-  const GlobalVector gaussianRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
+  const std::vector<float> gaussianRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
   /// Return a vector of random numbers (flat distribution)
-  const GlobalVector flatRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
+  const std::vector<float> flatRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
 
   int m_modified; // Indicates if a modification was performed
 
@@ -96,6 +105,7 @@ private:
   double phiX_, phiY_, phiZ_;
   double localX_, localY_, localZ_;
   double dX_, dY_, dZ_;
+  double dXlocal_, dYlocal_, dZlocal_;
   double twist_, shear_;
 
 };
