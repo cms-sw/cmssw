@@ -5,7 +5,7 @@
 /*----------------------------------------------------------------------
   
 VectorInputSource: Abstract interface for vector input sources.
-$Id: VectorInputSource.h,v 1.4 2006/04/04 22:15:21 wmtan Exp $
+$Id: VectorInputSource.h,v 1.5 2006/04/06 23:26:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,9 +14,9 @@ $Id: VectorInputSource.h,v 1.4 2006/04/04 22:15:21 wmtan Exp $
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/EDInputSource.h"
+#include "FWCore/Framework/interface/EventPrincipalFwd.h"
 
 namespace edm {
-  class EventPrincipal;
   class InputSourceDescription;
   class ParameterSet;
   class VectorInputSource : public EDInputSource {

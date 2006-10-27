@@ -2,16 +2,16 @@
 #define Framework_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.2 2006/04/04 22:15:21 wmtan Exp $
+$Id: RawInputSource.h,v 1.3 2006/04/13 22:24:07 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
 
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/EventPrincipalFwd.h"
 
 namespace edm {
   class Event;
-  class EventPrincipal;
   class InputSourceDescription;
   class ParameterSet;
   class Timestamp;

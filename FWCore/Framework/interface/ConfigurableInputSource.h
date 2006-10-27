@@ -2,10 +2,11 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.6 2006/07/23 01:24:33 valya Exp $
+$Id: ConfigurableInputSource.h,v 1.7 2006/08/16 23:39:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/EventPrincipalFwd.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 

@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.26 2006/09/27 14:54:13 paterno Exp $
+$Id: Frameworkfwd.h,v 1.27 2006/10/23 23:49:40 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,12 +18,12 @@ namespace edm {
   class ConfigurableInputSource;
   class CurrentProcessingContext;
   class DelayedReader;
+  class DataBlockImpl;
   class EDAnalyzer;
   class EDFilter;
   class EDProducer;
   class Event;
   class EventAux;
-  class EventPrincipal;
   class EventSetup;
   class ExternalInputSource;
   class GeneratedInputSource;
@@ -54,7 +54,6 @@ namespace edm {
   struct PathSummary;
   struct TriggerReport;
 
-
   template <typename T> class Handle;
 }
 
@@ -62,5 +61,6 @@ namespace edm {
 #include "DataFormats/Common/interface/ConditionsID.h"
 #include "DataFormats/Common/interface/PassID.h"
 #include "DataFormats/Common/interface/ReleaseVersion.h"
+#include "FWCore/Framework/interface/EventPrincipalFwd.h"
 
 #endif

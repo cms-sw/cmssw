@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.3 2006/08/26 18:37:13 chrjones Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.4 2006/10/07 07:26:11 wmtan Exp $
 //
 
 // system include files
@@ -246,7 +246,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 
       try {
 	 m_->reader_->setEntry(iEntry);
-	 edm::EventPrincipal ep(aux.id(), aux.time(),m_->reg_, aux.luminosityBlockID(),  aux.processHistoryID(), m_->reader_);
+	 edm::EventPrincipal ep(aux.id(), aux.time(), m_->reg_, aux.luminosityBlockID(), aux.processHistoryID(), m_->reader_);
          m_->processNames_ = ep.processHistory();
 //OLD	 edm::EventPrincipal ep(aux.id_, aux.time_,m_->reg_, m_->processNames_, m_->reader_);
 
@@ -266,7 +266,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 edm::Event event(ep,md);
 	 
 	 //Make the event principal accessible to edm::Ref's
-	 edm::EDProductGetter::Operate sentry(&ep);
+	 edm::EDProductGetter::Operate sentry(ep.prodGetter());
 	 process(event);
       } catch( const std::exception& iEx ) {
 	 std::cout <<"While processing entry "<<iEntry<<" the following exception was caught \n"
