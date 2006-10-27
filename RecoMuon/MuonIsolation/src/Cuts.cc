@@ -11,6 +11,7 @@ Cuts::Cuts(const vector<double> & etaBounds, const vector<double> & coneSizes,
   double threshold = 0;
   unsigned int nEta = etaBounds.size();
   for (unsigned int i=0; i< nEta; i++) {
+    if (i>0) minEta = etaBounds[i-1];
     double maxEta = etaBounds[i];
     if (i < coneSizes.size()) coneSize = coneSizes[i]; 
     if (i < thresholds.size()) threshold = thresholds[i]; 

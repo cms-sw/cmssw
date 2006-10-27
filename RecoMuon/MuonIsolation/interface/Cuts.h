@@ -17,6 +17,10 @@ public:
 
   const CutSpec & operator()(double eta) const;
 
+  const CutSpec & operator[](unsigned int i) const {return theCuts[i];};
+
+  unsigned int size() {return theCuts.size();};
+
 private:
   std::vector<CutSpec> theCuts;
 };

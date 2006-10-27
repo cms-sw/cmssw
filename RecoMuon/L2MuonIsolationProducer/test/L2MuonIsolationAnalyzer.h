@@ -42,7 +42,9 @@ private:
 
   // Cone and Et sets to be tested
   std::vector<double> theConeCases;
-  std::vector<double> theEtCases;
+  double theEtMin;
+  double theEtMax;
+  unsigned int theEtBins;
 
   // Reference isolation cuts
   muonisolation::Cuts theCuts;
@@ -51,16 +53,19 @@ private:
   std::string theRootFileName;
   TFile* theRootFile;
 
+  // Text output file
+  std::string theTxtFileName;
+  FILE* theTxtFile;
+
   // Histograms
   TH1F *hEtSum;
   TH1F *hEffVsCone;
   TH1F *hEffVsEt;
+  std::vector<TH1F*> hEffVsEtArray;
 
-  // Counters
+  // Counters and vectors
   unsigned int numberOfEvents;
   unsigned int numberOfMuons;
-  std::vector<unsigned int> numberOfSelectedMuonsVsCone;
-  std::vector<unsigned int> numberOfSelectedMuonsVsEt;
   
 };
 #endif
