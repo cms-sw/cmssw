@@ -65,6 +65,9 @@ public:
   }
 
 
+  /// these custom classes do seem to be a hassle
+  /// to wrap, compared to, say, InputTag
+  /// maybe we will need to template these someday
   void addPSet(bool tracked, std::string const& name,
                const PythonParameterSet & ppset)
   {
@@ -79,19 +82,9 @@ public:
 
 
   void addVPSet(bool tracked, std::string const& name,
-                boost::python::list  value)
-  {
-    std::vector<PythonParameterSet> v 
-      = edm::toVector<PythonParameterSet>(value);
-    std::vector<edm::ParameterSet> v2;
-    v2.reserve(v.size());
-    for(std::vector<PythonParameterSet>::iterator ppsetItr = v.begin();
-        ppsetItr != v.end(); ++ppsetItr)
-    {
-      v2.push_back(ppsetItr->theParameterSet);
-    }
-    addParameter(tracked, name, v2);
-  }
+                boost::python::list  value);
+
+  boost::python::list getVPSet(bool tracked, std::string const& name);
 
 private:
   edm::ParameterSet theParameterSet;
