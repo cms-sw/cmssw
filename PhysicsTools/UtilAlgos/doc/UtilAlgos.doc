@@ -120,6 +120,8 @@ Framework generic utility modules
           > ElectronPairMassFilter;
 </pre>
 \endhtmlonly
+- StopAfterNEvents: EDFilter that filters out all events but the first N, N being a configurable parameter. 
+It can be used to write out only the first N events, for instance for file size measurements.
 
 \subsection other Other utility modules
 - Merger: merges an arbitrary number of collections into a single collection. 
