@@ -15,7 +15,7 @@ private:
 	int  dataType;
 
 public:
-	bool fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection& data);
+	bool fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection *& data);
 
 	CSCFileReader(const edm::ParameterSet& pset);
 	virtual ~CSCFileReader(void){}
