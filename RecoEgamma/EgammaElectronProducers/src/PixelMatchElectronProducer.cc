@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronProducer.cc,v 1.6 2006/10/05 17:25:58 uberthon Exp $
+// $Id: PixelMatchElectronProducer.cc,v 1.7 2006/10/17 09:24:19 uberthon Exp $
 //
 //
 
@@ -35,8 +35,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 
 #include <iostream>
 
@@ -45,7 +44,7 @@ using namespace reco;
 PixelMatchElectronProducer::PixelMatchElectronProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
 {
   //register your products
-  produces<ElectronCollection>();
+  produces<PixelMatchGsfElectronCollection>();
 
   //create algo
   algo_ = new PixelMatchElectronAlgo(iConfig.getParameter<double>("maxEOverP"),
@@ -71,7 +70,7 @@ void PixelMatchElectronProducer::produce(edm::Event& e, const edm::EventSetup& i
 {
 
   // Create the output collections   
-  std::auto_ptr<ElectronCollection> pOutEle(new ElectronCollection);
+  std::auto_ptr<PixelMatchGsfElectronCollection> pOutEle(new PixelMatchGsfElectronCollection);
   
   // invoke algorithm
     algo_->run(e,*pOutEle);

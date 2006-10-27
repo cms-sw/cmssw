@@ -12,7 +12,8 @@
  *
  ************************************************************/
 
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+//#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -58,12 +59,12 @@ public:
 
   void setupES(const EventSetup& setup, const ParameterSet& conf);
   //  void run(const Event&, TrackCandidateCollection&, ElectronCollection&);
-  void run(Event&, ElectronCollection&);
+  void run(Event&, PixelMatchGsfElectronCollection&);
 
  private:
 
   // create electrons from tracks
-  void process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss, ElectronCollection & outEle);
+  void process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss, PixelMatchGsfElectronCollection & outEle);
    // preselection method
   bool preSelection(const SuperCluster& clus, const Track& track);
   

@@ -12,13 +12,13 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.13 2006/10/05 17:28:05 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.17 2006/10/17 09:24:47 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
 
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+//#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -101,7 +101,7 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   assEndcapInstanceName_ = conf.getParameter<string>("SCLEndcapProducer");
 }
 
-void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
+void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & outEle) {
 
   // get the input 
   edm::Handle<TrackCollection> tracksBarrelH;
@@ -116,7 +116,7 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
     <<"\n\n Treating "<<e.id()<<", Number of seeds Barrel:"
     <<barrelH.product()->size()<<" Number of seeds Endcap:"<<endcapH.product()->size();
   
-  // create electrons from tracks in 2 steps: barrel + endcap
+//   // create electrons from tracks in 2 steps: barrel + endcap
   const SeedSuperClusterAssociationCollection  *sclAss=&(*barrelH);
   process(tracksBarrelH,sclAss,outEle);
   sclAss=&(*endcapH);
@@ -128,7 +128,7 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
   str << "Event " << e.id();
   str << "Number of final electron tracks: " << tracksBarrelH.product()->size()+ tracksEndcapH.product()->size();
   str << "Number of final electrons: " << outEle.size();
-  for (vector<Electron>::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
+  for (vector<PixelMatchGsfElectron>::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
     str << "New electron with charge, pt, eta, phi : "  << it->charge() << " , " 
         << it->pt() << " , " << it->eta() << " , " << it->phi();
   }
@@ -138,7 +138,7 @@ void  PixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
   return;
 }
 
-void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH,const SeedSuperClusterAssociationCollection *sclAss,ElectronCollection & outEle) {
+void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH,const SeedSuperClusterAssociationCollection *sclAss,PixelMatchGsfElectronCollection & outEle) {
   const TrackCollection *tracks=tracksH.product();
   for (unsigned int i=0;i<tracks->size();++i) {
     const Track & t=(*tracks)[i];
@@ -158,22 +158,35 @@ void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH,const 
       LogWarning("") <<" No seed corresponding to track was found!!";
       continue;
     }
-    // for the time being take the momentum from the track 
     const SuperCluster theClus=*((*sclAss)[seed]);
     if (preSelection(theClus,t)) {
-      LogInfo("")<<"Constructed new electron with eneregy  "<< (*sclAss)[seed]->energy();
+      //       LogInfo("")<<"Constructed new electron with eneregy  "<< (*sclAss)[seed]->energy();
+      //       TSCPBuilderNoMaterial tscpBuilder;
+      //       TrajectoryStateTransform tsTransform;
+      //       FreeTrajectoryState fts = tsTransform.innerFreeState(t,theMagField.product());
+      //       TrajectoryStateClosestToPoint tscp = tscpBuilder(fts, Global3DPoint(0,0,0) );
+      //       const math::XYZTLorentzVector momentum(tscp.momentum().x(),
+      // 					     tscp.momentum().y(),
+      // 					     tscp.momentum().z(),
+      // 					     sqrt(tscp.momentum().mag2() + electron_mass_c2*electron_mass_c2*1.e-6) );
+      //       Electron ele(t.charge(),momentum,math::XYZPoint( 0, 0, 0 ));
+      //       ele.setSuperCluster((*sclAss)[seed]);
+      //       edm::Ref<TrackCollection> myRef(tracksH,i);
+      //       ele.setTrack(myRef);
+      // extrapolate track inner momentum to nominal vertex
       TSCPBuilderNoMaterial tscpBuilder;
       TrajectoryStateTransform tsTransform;
-      FreeTrajectoryState fts = tsTransform.innerFreeState(t,theMagField.product());
-      TrajectoryStateClosestToPoint tscp = tscpBuilder(fts, Global3DPoint(0,0,0) );
-      const math::XYZTLorentzVector momentum(tscp.momentum().x(),
-					     tscp.momentum().y(),
-					     tscp.momentum().z(),
-					     sqrt(tscp.momentum().mag2() + electron_mass_c2*electron_mass_c2*1.e-6) );
-      Electron ele(t.charge(),momentum,math::XYZPoint( 0, 0, 0 ));
-      ele.setSuperCluster((*sclAss)[seed]);
-      edm::Ref<TrackCollection> myRef(tracksH,i);
-      ele.setTrack(myRef);
+      FreeTrajectoryState fts_scl = tsTransform.outerFreeState(t,theMagField.product());
+      TrajectoryStateClosestToPoint tscp_scl = tscpBuilder(fts_scl, GlobalPoint(theClus.position().x(),theClus.position().y(),theClus.position().z()));
+      FreeTrajectoryState fts_seed = tsTransform.outerFreeState(t,theMagField.product());
+      TrajectoryStateClosestToPoint tscp_seed = tscpBuilder(fts_seed,GlobalPoint(theClus.seed()->position().x(),theClus.seed()->position().y(),theClus.seed()->position().z()));
+      edm::Ref<TrackCollection> trackRef(tracksH,i);
+      const GlobalPoint pscl=tscp_scl.position();
+      const GlobalVector mscl=tscp_scl.momentum();
+      const GlobalPoint pseed=tscp_seed.position();
+      const GlobalVector mseed=tscp_seed.momentum();
+      PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,pscl,mscl,pseed,mseed);
+      //      PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,tscp_scl.position(),tscp_scl.momentum(),tscp_seed.position(),tscp_seed.momentum());
       outEle.push_back(ele);
     }
   }  // loop over tracks
@@ -215,7 +228,8 @@ bool PixelMatchElectronAlgo::equal(edm::Ref<TrajectorySeedCollection> ts, const 
 }
 
 bool PixelMatchElectronAlgo::compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const {
-       const float eps=.001;
+  //FIXME: Teddy's class for comparison??
+       const float eps=.002;
        return ((TMath::Abs(rh1.localPosition().x()-rh2.localPosition().x())<eps)
 		&& (TMath::Abs(rh1.localPosition().y()-rh2.localPosition().y())<eps)
 	       &&(TMath::Abs(rh1.localPosition().z()-rh2.localPosition().z())<eps));
