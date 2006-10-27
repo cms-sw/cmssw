@@ -467,10 +467,10 @@ void DaqMonitorBEInterface::removeCopies(const string & pathname)
   // and remove contents from all directories <pathname>
   for(sdir_it subs = Subscribers.begin(); subs!= Subscribers.end(); ++subs)
     { // loop over all subscribers
-      MonitorElementRootFolder * dir = getDirectory(pathname, subs->second);
+       MonitorElementRootFolder * dir = getDirectory(pathname, subs->second);
       // skip subscriber if no such pathname
-      if(!dir)return;
-      removeContents(dir);
+      if(!dir)continue;
+       removeContents(dir);
     } // loop over all subscribers
     
 
@@ -478,7 +478,7 @@ void DaqMonitorBEInterface::removeCopies(const string & pathname)
     { // loop over all tags
       MonitorElementRootFolder * dir = getDirectory(pathname, tag->second);
       // skip tag if no such pathname
-      if(!dir)return;
+      if(!dir)continue;
       removeContents(dir);
    } // loop over all tags
 
@@ -486,7 +486,7 @@ void DaqMonitorBEInterface::removeCopies(const string & pathname)
     { // loop over all CMEs
       MonitorElementRootFolder* dir=getDirectory(pathname,(*cme)->contents_);
       // skip CME is no such pathname
-      if(!dir)return;
+      if(!dir)continue;
       removeContents(dir);
     } // loop over all CMEs
 
