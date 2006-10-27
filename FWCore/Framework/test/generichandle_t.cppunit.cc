@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.10 2006/07/06 19:11:44 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.11 2006/10/13 01:45:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -17,6 +17,7 @@ $Id: generichandle_t.cppunit.cc,v 1.10 2006/07/06 19:11:44 wmtan Exp $
 #include "FWCore/Framework/interface/TypeID.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
 #include "FWCore/Framework/interface/GenericHandle.h"
