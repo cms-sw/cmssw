@@ -100,4 +100,4 @@ EgammaHLTHcalIsolationProducers::produce(edm::Event& iEvent, const edm::EventSet
 }
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(EgammaHLTHcalIsolationProducers)
+//DEFINE_FWK_MODULE(EgammaHLTHcalIsolationProducers);

@@ -366,6 +366,6 @@ float CSCGainsStudy::getStripGainAvg() {
 }
 
 
-DEFINE_FWK_MODULE(CSCGainsStudy)
+DEFINE_FWK_MODULE(CSCGainsStudy);
 
 

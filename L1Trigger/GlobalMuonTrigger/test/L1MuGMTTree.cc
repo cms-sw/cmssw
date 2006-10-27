@@ -5,8 +5,8 @@
 //   Description:   Build GMT tree
 //                  
 //                
-//   $Date: 2006/08/25 16:51:53 $
-//   $Revision: 1.2 $
+//   $Date: 2006/10/20 12:53:08 $
+//   $Revision: 1.3 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -455,4 +455,4 @@ void L1MuGMTTree::book() {
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1MuGMTTree)
+DEFINE_FWK_MODULE(L1MuGMTTree);

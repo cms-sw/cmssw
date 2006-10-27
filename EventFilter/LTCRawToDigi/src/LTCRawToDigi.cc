@@ -13,7 +13,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Tue May  9 07:47:59 CDT 2006
-// $Id: LTCRawToDigi.cc,v 1.2 2006/05/26 14:41:23 wittich Exp $
+// $Id: LTCRawToDigi.cc,v 1.3 2006/06/27 11:26:51 meschi Exp $
 //
 //
 
@@ -111,4 +111,4 @@ LTCRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(LTCRawToDigi)
+DEFINE_FWK_MODULE(LTCRawToDigi);

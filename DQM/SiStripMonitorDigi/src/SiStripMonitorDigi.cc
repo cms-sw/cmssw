@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.13 2006/06/27 07:52:34 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.14 2006/08/17 07:57:42 dkcira Exp $
 //
 //
 
@@ -208,4 +208,4 @@ void SiStripMonitorDigi::endJob(void){
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SiStripMonitorDigi)
+DEFINE_FWK_MODULE(SiStripMonitorDigi);

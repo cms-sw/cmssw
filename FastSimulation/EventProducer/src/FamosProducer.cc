@@ -98,5 +98,5 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 
 }
 
-DEFINE_FWK_MODULE(FamosProducer)
+DEFINE_FWK_MODULE(FamosProducer);
  

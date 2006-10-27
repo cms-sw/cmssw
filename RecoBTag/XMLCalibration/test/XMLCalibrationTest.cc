@@ -105,4 +105,4 @@ XMLCalibrationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 
 }
 
-DEFINE_FWK_MODULE(XMLCalibrationTest)
+DEFINE_FWK_MODULE(XMLCalibrationTest);

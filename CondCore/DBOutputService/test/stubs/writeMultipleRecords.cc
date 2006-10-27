@@ -79,4 +79,4 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(writeMultipleRecords)
+DEFINE_FWK_MODULE(writeMultipleRecords);

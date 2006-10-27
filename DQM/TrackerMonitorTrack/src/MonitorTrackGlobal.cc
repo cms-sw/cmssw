@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.cc,v 1.10 2006/08/06 21:26:11 dkcira Exp $
+// $Id: MonitorTrackGlobal.cc,v 1.11 2006/08/17 07:56:51 dkcira Exp $
 //
 //
 
@@ -152,4 +152,4 @@ void MonitorTrackGlobal::endJob(void)
 }
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(MonitorTrackGlobal)
+//DEFINE_FWK_MODULE(MonitorTrackGlobal);

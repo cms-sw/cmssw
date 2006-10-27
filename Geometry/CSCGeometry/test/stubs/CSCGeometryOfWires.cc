@@ -392,4 +392,4 @@ void
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(CSCGeometryOfWires)
+DEFINE_FWK_MODULE(CSCGeometryOfWires);

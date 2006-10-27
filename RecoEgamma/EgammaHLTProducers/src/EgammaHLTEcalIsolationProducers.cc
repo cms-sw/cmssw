@@ -119,4 +119,4 @@ void EgammaHLTEcalIsolationProducers::produce(edm::Event& iEvent, const edm::Eve
 }
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(EgammaHLTEcalIsolationProducers)
+//DEFINE_FWK_MODULE(EgammaHLTEcalIsolationProducers);

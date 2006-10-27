@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  * 
- * $Id: $
+ * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.1 2006/10/26 20:51:01 monicava Exp $
  *
  */
 
@@ -96,4 +96,4 @@ EgammaHLTElectronTrackIsolationProducers::produce(edm::Event& iEvent, const edm:
 }
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(EgammaHLTTrackIsolationProducers)
+//DEFINE_FWK_MODULE(EgammaHLTTrackIsolationProducers);

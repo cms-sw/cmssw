@@ -84,4 +84,4 @@ void PixelVZeroTest::analyze(
   } 
 }
 
-DEFINE_FWK_MODULE(PixelVZeroTest)
+DEFINE_FWK_MODULE(PixelVZeroTest);

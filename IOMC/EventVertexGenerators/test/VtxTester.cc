@@ -95,4 +95,4 @@ void VtxTester::endJob()
    return ;
 }
 
-DEFINE_FWK_MODULE(VtxTester)
+DEFINE_FWK_MODULE(VtxTester);

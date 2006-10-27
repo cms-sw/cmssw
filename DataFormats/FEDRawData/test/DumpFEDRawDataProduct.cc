@@ -1,8 +1,8 @@
 /** \file
  * 
  * 
- * $Date: 2006/02/06 15:15:59 $
- * $Revision: 1.4 $
+ * $Date: 2006/07/27 21:40:44 $
+ * $Revision: 1.5 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -72,6 +72,6 @@ namespace test{
       }
     }
   };
-DEFINE_FWK_MODULE(DumpFEDRawDataProduct)
+DEFINE_FWK_MODULE(DumpFEDRawDataProduct);
 }
 

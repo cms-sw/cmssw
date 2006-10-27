@@ -11,7 +11,7 @@
 //
 // Original Author:  Oliver Gutsche
 //         Created:  Sun Nov 20 16:30:00 CEST 2005
-// $Id: RoadMapTest.cc,v 1.1 2006/01/12 21:29:45 gutsche Exp $
+// $Id: RoadMapTest.cc,v 1.2 2006/03/23 01:52:10 gutsche Exp $
 //
 //
 
@@ -90,4 +90,4 @@ RoadMapTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(RoadMapTest)
+DEFINE_FWK_MODULE(RoadMapTest);

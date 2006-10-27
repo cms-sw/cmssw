@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/05/31 13:43:26 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -25,4 +25,4 @@ std::auto_ptr<MagneticField> UniformMagneticFieldESProducer::produce(const Ideal
   return s;
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(UniformMagneticFieldESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(UniformMagneticFieldESProducer);

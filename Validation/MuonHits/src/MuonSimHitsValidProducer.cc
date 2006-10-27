@@ -792,4 +792,4 @@ void MuonSimHitsValidProducer::clear()
 }
 
 /// define this as a plug-in
-DEFINE_FWK_MODULE(MuonSimHitsValidProducer)
+DEFINE_FWK_MODULE(MuonSimHitsValidProducer);

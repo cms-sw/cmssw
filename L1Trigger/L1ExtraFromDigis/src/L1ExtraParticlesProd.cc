@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id$
+// $Id: L1ExtraParticlesProd.cc,v 1.1 2006/10/17 21:41:32 wsun Exp $
 //
 //
 
@@ -520,4 +520,4 @@ L1ExtraParticlesProd::endJob() {
 }
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(L1ExtraParticlesProd)
+//DEFINE_FWK_MODULE(L1ExtraParticlesProd);

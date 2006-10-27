@@ -84,4 +84,4 @@ void VZeroTest::analyze(
   } 
 }
 
-DEFINE_FWK_MODULE(VZeroTest)
+DEFINE_FWK_MODULE(VZeroTest);

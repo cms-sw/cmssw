@@ -73,4 +73,4 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
   iEvent.put(rec3);
 }
 
-DEFINE_FWK_MODULE(CaloRecHitsProducer)
+DEFINE_FWK_MODULE(CaloRecHitsProducer);

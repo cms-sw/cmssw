@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Thu Sep 28 16:40:29 PDT 2006
-// $Id: MuonNumberingInitialization.cc,v 1.1 2006/10/09 18:25:36 case Exp $
+// $Id: MuonNumberingInitialization.cc,v 1.2 2006/10/12 19:54:06 case Exp $
 //
 //
 
@@ -175,4 +175,4 @@ void MuonNumberingInitialization::initializeMuonDDDConstants( const IdealGeometr
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(MuonNumberingInitialization)
+DEFINE_FWK_EVENTSETUP_MODULE(MuonNumberingInitialization);

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/05/31 13:52:51 $
+ *  $Revision: 1.5 $
  */
 
 #include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
@@ -46,4 +46,4 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
   return s;
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(VolumeBasedMagneticFieldESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(VolumeBasedMagneticFieldESProducer);

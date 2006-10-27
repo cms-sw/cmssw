@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed May 24 11:58:16 EDT 2006
-// $Id: LTCDQMSource.cc,v 1.3 2006/08/01 11:50:04 wittich Exp $
+// $Id: LTCDQMSource.cc,v 1.4 2006/08/05 11:49:15 wittich Exp $
 //
 //
 
@@ -200,4 +200,4 @@ LTCDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(LTCDQMSource)
+DEFINE_FWK_MODULE(LTCDQMSource);

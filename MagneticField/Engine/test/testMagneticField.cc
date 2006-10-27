@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/12/12 18:19:07 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -42,5 +42,5 @@ class testMagneticField : public edm::EDAnalyzer {
  private:
 };
 
-DEFINE_FWK_MODULE(testMagneticField)
+DEFINE_FWK_MODULE(testMagneticField);
 

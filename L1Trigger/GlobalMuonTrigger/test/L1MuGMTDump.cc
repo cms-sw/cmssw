@@ -5,8 +5,8 @@
 //   Description:   Dump GMT readout
 //                  
 //                
-//   $Date: 2006/08/25 16:51:46 $
-//   $Revision: 1.5 $
+//   $Date: 2006/10/20 12:53:08 $
+//   $Revision: 1.6 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -355,4 +355,4 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1MuGMTDump)
+DEFINE_FWK_MODULE(L1MuGMTDump);

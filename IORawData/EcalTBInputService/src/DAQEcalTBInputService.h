@@ -6,8 +6,8 @@
  *
  *  For the time being, reuses the services of DaqFileReader from DaqPrototype.
  *
- *  $Date: 2006/02/07 13:30:47 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/14 12:51:15 $
+ *  $Revision: 1.7 $
  *  \author N. Marinelli
  */
 
@@ -48,7 +48,7 @@ class DAQEcalTBInputService : public edm::ExternalInputSource
   
   }; 
  
-//  DEFINE_FWK_INPUT_SOURCE(DAQEcalTBInputService)
+//  DEFINE_FWK_INPUT_SOURCE(DAQEcalTBInputService);
 
 
 #endif

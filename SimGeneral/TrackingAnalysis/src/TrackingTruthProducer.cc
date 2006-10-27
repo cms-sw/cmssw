@@ -265,4 +265,4 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   event.put(tVC,"VertexTruth");
 }
   
-DEFINE_FWK_MODULE(TrackingTruthProducer)
+DEFINE_FWK_MODULE(TrackingTruthProducer);

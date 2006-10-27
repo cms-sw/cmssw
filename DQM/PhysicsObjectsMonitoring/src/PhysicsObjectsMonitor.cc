@@ -1,8 +1,8 @@
 /** \class PhysicsObjectsMonitor
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/10/15 11:07:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/10/15 12:25:06 $
+ *  $Revision: 1.3 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -187,4 +187,4 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
   }  
 }
 
-DEFINE_FWK_MODULE(PhysicsObjectsMonitor)
+DEFINE_FWK_MODULE(PhysicsObjectsMonitor);

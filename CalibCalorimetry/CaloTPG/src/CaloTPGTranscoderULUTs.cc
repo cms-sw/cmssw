@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: CaloTPGTranscoderULUTs.cc,v 1.1 2006/09/15 18:59:13 mansj Exp $
+// $Id: CaloTPGTranscoderULUTs.cc,v 1.1 2006/09/18 20:31:26 mansj Exp $
 //
 //
 
@@ -106,4 +106,4 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_SOURCE(CaloTPGTranscoderULUTs)
+DEFINE_FWK_EVENTSETUP_SOURCE(CaloTPGTranscoderULUTs);

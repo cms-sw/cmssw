@@ -7,4 +7,4 @@
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-DEFINE_FWK_EVENTSETUP_MODULE(SteppingHelixPropagatorESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(SteppingHelixPropagatorESProducer);

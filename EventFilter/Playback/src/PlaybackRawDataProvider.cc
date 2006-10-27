@@ -138,4 +138,4 @@ FEDRawDataCollection* PlaybackRawDataProvider::getFEDRawData(unsigned int& runNu
 // framework module implementation macro
 ////////////////////////////////////////////////////////////////////////////////
 
-DEFINE_FWK_MODULE(PlaybackRawDataProvider)
+DEFINE_FWK_MODULE(PlaybackRawDataProvider);

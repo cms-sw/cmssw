@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id$
+// $Id: L1ExtraParticleMapProd.cc,v 1.1 2006/10/17 21:41:32 wsun Exp $
 //
 //
 
@@ -977,4 +977,4 @@ L1ExtraParticleMapProd::evaluateDoubleDifferentObjectTrigger(
 
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(L1ExtraParticleMapProd)
+//DEFINE_FWK_MODULE(L1ExtraParticleMapProd);

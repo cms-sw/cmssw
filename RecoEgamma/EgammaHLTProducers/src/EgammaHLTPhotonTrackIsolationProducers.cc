@@ -100,4 +100,4 @@ EgammaHLTPhotonTrackIsolationProducers::produce(edm::Event& iEvent, const edm::E
 }
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(EgammaHLTTrackIsolationProducers)
+//DEFINE_FWK_MODULE(EgammaHLTTrackIsolationProducers);

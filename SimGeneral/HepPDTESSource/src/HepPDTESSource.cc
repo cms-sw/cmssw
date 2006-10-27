@@ -37,4 +37,4 @@ void HepPDTESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&
 }
 
 //define this as a plug-in
-//DEFINE_FWK_EVENTSETUP_SOURCE( HepPDTESSource )
+//DEFINE_FWK_EVENTSETUP_SOURCE( HepPDTESSource );

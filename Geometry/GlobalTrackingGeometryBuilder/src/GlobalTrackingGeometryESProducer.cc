@@ -1,7 +1,7 @@
 /** \file GlobalTrackingGeometryESProducer.cc
  *
- *  $Date: 2006/07/12 11:03:13 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/18 08:40:56 $
+ *  $Revision: 1.8 $
  *  \author Matteo Sani
  */
 
@@ -78,4 +78,4 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   return boost::shared_ptr<GlobalTrackingGeometry>(builder.build(&(*tk), &(*dt), &(*csc), &(*rpc)));
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(GlobalTrackingGeometryESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(GlobalTrackingGeometryESProducer);

@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/03 22:23:12 $
-// $Revision: 1.3 $
+// $Date: 2006/03/23 01:55:48 $
+// $Revision: 1.4 $
 //
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h"
@@ -85,4 +85,4 @@ RoadMapMakerESProducer::produce(const TrackerDigiGeometryRecord& iRecord)
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(RoadMapMakerESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(RoadMapMakerESProducer);

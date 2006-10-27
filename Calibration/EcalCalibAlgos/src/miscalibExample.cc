@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: miscalibExample.cc,v 1.1 2006/09/19 08:38:05 lorenzo Exp $
+// $Id: miscalibExample.cc,v 1.2 2006/09/20 12:22:25 malgeri Exp $
 //
 //
 
@@ -156,4 +156,4 @@ miscalibExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(miscalibExample)
+//DEFINE_FWK_MODULE(miscalibExample);

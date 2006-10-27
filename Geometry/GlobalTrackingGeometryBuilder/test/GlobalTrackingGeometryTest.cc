@@ -1,8 +1,8 @@
 /*
  * \file GlobalTrackingGeometryTest.cc
  *
- *  $Date: 2006/07/25 09:47:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/26 13:35:17 $
+ *  $Revision: 1.2 $
  *  \author M. Sani
  */
 
@@ -193,4 +193,4 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& iEvent, const edm::E
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GlobalTrackingGeometryTest)
+DEFINE_FWK_MODULE(GlobalTrackingGeometryTest);

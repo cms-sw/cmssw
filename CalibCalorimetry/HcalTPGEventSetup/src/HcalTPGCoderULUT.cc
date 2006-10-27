@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id$
+// $Id: HcalTPGCoderULUT.cc,v 1.1 2006/09/15 18:59:13 mansj Exp $
 //
 //
 
@@ -106,4 +106,4 @@ HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_SOURCE(HcalTPGCoderULUT)
+DEFINE_FWK_EVENTSETUP_SOURCE(HcalTPGCoderULUT);

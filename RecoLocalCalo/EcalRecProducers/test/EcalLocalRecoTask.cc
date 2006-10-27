@@ -1,7 +1,7 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: EcalLocalRecoTask.cc,v 1.1 2006/04/07 12:38:49 meridian Exp $
+ * $Id: EcalLocalRecoTask.cc,v 1.2 2006/06/06 16:36:25 meridian Exp $
  *
 */
 
@@ -310,5 +310,5 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(EcalLocalRecoTask)
+DEFINE_FWK_MODULE(EcalLocalRecoTask);
                                                                                                                                                              

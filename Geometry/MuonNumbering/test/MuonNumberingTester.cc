@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Mon 2006/10/02
-// $Id: MuonNumberingTester.cc,v 1.6 2006/07/18 01:38:57 case Exp $
+// $Id: MuonNumberingTester.cc,v 1.1 2006/10/09 18:25:36 case Exp $
 //
 //
 
@@ -132,4 +132,4 @@ MuonNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(MuonNumberingTester)
+DEFINE_FWK_MODULE(MuonNumberingTester);

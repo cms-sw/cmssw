@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.18 2006/09/29 17:03:44 goitom Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.19 2006/10/09 15:09:16 dkcira Exp $
 //
 //
 
@@ -258,4 +258,4 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 }
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(MonitorTrackResiduals)
+//DEFINE_FWK_MODULE(MonitorTrackResiduals);

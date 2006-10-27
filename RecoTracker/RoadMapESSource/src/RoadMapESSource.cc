@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 00:59:13 $
+// $Revision: 1.2 $
 //
 
 #include "RecoTracker/RoadMapESSource/interface/RoadMapESSource.h"
@@ -62,5 +62,5 @@ void RoadMapESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey 
 
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_SOURCE(RoadMapESSource)
+DEFINE_FWK_EVENTSETUP_SOURCE(RoadMapESSource);
 
