@@ -165,3 +165,16 @@ float HcalPulseShapes::Shape::at(double t) const {
   if (i>=0 || i<nbin_) rv=shape_[i];
   return rv;
 }
+
+float HcalPulseShapes::Shape::integrate(double t1, double t2) const {
+  static const float int_delta_ns = 0.25f; 
+  double intval = 0.0;
+
+  for (double t = t1; t < t2; t+= int_delta_ns) {
+    float loedge = at(t);
+    float hiedge = at(t+int_delta_ns);
+    intval += (loedge+hiedge)*int_delta_ns/2.0;
+  }
+
+  return (float)intval;
+}
