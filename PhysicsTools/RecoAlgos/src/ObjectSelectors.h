@@ -11,6 +11,7 @@
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 #include "PhysicsTools/Utilities/interface/RangeObjectPairSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleElementRefVectorCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SortCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectPairCollectionSelector.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
@@ -64,6 +65,16 @@ namespace reco {
                 EtMinSelector<reco::CaloJet>
               >
             > EtMinCaloJetSelector;
+
+    /// select calo jets above a give Et 
+    /// storing a polymorphic collection of 
+    /// shallow clone candidates
+    typedef ObjectSelector<
+              SingleElementRefVectorCollectionSelector<
+                reco::CaloJetCollection,
+                EtMinSelector<reco::CaloJet>
+              >
+            > EtMinCaloJetShallowCloneSelector;
 
      /// select electrons above a give pt
     typedef ObjectSelector<

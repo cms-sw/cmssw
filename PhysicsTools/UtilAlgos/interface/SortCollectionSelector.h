@@ -6,13 +6,14 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: SortCollectionSelector.h,v 1.2 2006/07/31 13:30:48 llista Exp $
+ * $Id: SortCollectionSelector.h,v 1.3 2006/09/21 11:56:48 llista Exp $
  *
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include <vector>
 #include <algorithm>
 namespace edm { class Event; }
@@ -27,9 +28,9 @@ struct SortCollectionSelector {
     maxNumber_( cfg.template getParameter<unsigned int>( "maxNumber" ) ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select( const C & c, const edm::Event & ) {
+  void select( const edm::Handle<C> & c, const edm::Event & ) {
     container v;
-    for( typename C::const_iterator i = c.begin(); i != c.end(); ++ i )
+    for( typename C::const_iterator i = c->begin(); i != c->end(); ++ i )
       v.push_back( & * i );
     std::sort( v.begin(), v.end(), compare_ );
     selected_.clear();

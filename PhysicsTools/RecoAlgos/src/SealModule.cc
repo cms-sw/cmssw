@@ -31,6 +31,7 @@ DEFINE_ANOTHER_FWK_MODULE( PtMinTrackSelector );
 DEFINE_ANOTHER_FWK_MODULE( PtMinElectronSelector );
 DEFINE_ANOTHER_FWK_MODULE( EtMinPhotonSelector );
 DEFINE_ANOTHER_FWK_MODULE( EtMinCaloJetSelector );
+DEFINE_ANOTHER_FWK_MODULE( EtMinCaloJetShallowCloneSelector );
 DEFINE_ANOTHER_FWK_MODULE( EtaPtMinElectronSelector );
 DEFINE_ANOTHER_FWK_MODULE( LargestPtTrackSelector )
 DEFINE_ANOTHER_FWK_MODULE( LargestEtCaloJetSelector )

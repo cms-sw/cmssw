@@ -7,14 +7,15 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ObjectPairCollectionSelector.h,v 1.2 2006/09/21 11:56:48 llista Exp $
+ * $Id: ObjectPairCollectionSelector.h,v 1.1 2006/10/03 10:47:40 llista Exp $
  *
  */
 
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include <vector>
 namespace edm { class Event; }
 
@@ -27,17 +28,17 @@ struct ObjectPairCollectionSelector {
     select_( cfg ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select( const reco::TrackCollection & c, const edm::Event & ) {
-    unsigned int s = c.size();
+  void select( const edm::Handle<C> & c, const edm::Event & ) {
+    unsigned int s = c->size();
     std::vector<bool> v( s, false );
     for( unsigned int i = 0; i < s; ++ i )
       for( unsigned int j = i + 1; j < s; ++ j ) {
-	if ( select_( c[ i ], c[ j ] ) )
+	if ( select_( (*c)[ i ], (*c)[ j ] ) )
 	  v[ i ] = v[ j ] = true;
       }
     selected_.clear();
-    for( unsigned int i = 0; i < c.size(); ++i )
-      if ( v[ i ] ) selected_.push_back( & c[ i ] );
+    for( unsigned int i = 0; i < s; ++i )
+      if ( v[ i ] ) selected_.push_back( & (*c)[ i ] );
   }
   
 private:

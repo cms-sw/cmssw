@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: ObjectSelector.h,v 1.4 2006/10/25 10:08:51 llista Exp $
+ * $Id: ObjectSelector.h,v 1.5 2006/10/25 10:30:03 llista Exp $
  *
  */
 
@@ -18,20 +18,31 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/Common/interface/RefVector.h"
 #include <utility>
 #include <vector>
 #include <memory>
 #include <algorithm>
 
 namespace helper {
+
   template<typename C, typename P = typename edm::clonehelper::CloneTrait<C>::type>
+  struct CloneFromIterator {
+    template<typename I>
+    static const typename C::value_type & makeClone( const I & i ) {
+      return P::clone( * * i );
+    }
+  };
+  
+  template<typename C, 
+	   typename M = CloneFromIterator<C> >
   struct SimpleCollectionStoreManager {
     SimpleCollectionStoreManager() : selected_( new C ) { 
     }
     template<typename I>
     void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
-      for( I i = begin; i != end; ++ i ) 
-        selected_->push_back( P::clone( * * i ) );
+      for( I i = begin; i != end; ++ i )
+        selected_->push_back( M::makeClone( i ) );
     }
     void put( edm::Event & evt ) {
       evt.put( selected_ );
@@ -80,7 +91,7 @@ private:
     edm::Handle<typename S::collection> source;
     evt.getByLabel( src_, source );
     M manager;
-    selector_.select( * source, evt );
+    selector_.select( source, evt );
     manager.cloneAndStore( selector_.begin(), selector_.end(), evt );
     if ( filter_ && manager.empty() ) return false;
     manager.put( evt );
