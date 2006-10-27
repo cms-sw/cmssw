@@ -68,4 +68,4 @@ void PixelTrackTest::myprint(const reco::Track & track) const
 }
 
  
-DEFINE_FWK_MODULE(PixelTrackTest)
+DEFINE_FWK_MODULE(PixelTrackTest);

@@ -140,4 +140,4 @@ void PixelTrackRoot::store(){
 tthtree->Fill();
 }
  
-DEFINE_FWK_MODULE(PixelTrackRoot)
+DEFINE_FWK_MODULE(PixelTrackRoot);

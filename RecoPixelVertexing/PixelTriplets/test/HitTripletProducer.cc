@@ -14,9 +14,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/PixelHitTripletGenerator.h"
 
-#include "RecoPixelVertexing/PixelTriplets/interface/XXXPixelTrackFilter.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/XXXPixelTrackFilterFactory.h"
-
 
 class HitTripletProducer : public edm::EDAnalyzer {
 public:
