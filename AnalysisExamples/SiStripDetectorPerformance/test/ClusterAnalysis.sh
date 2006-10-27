@@ -1,5 +1,6 @@
 #!/bin/sh
-
+#Author domenico.giordano@cern.ch
+ 
 function usage(){
     echo -e "\n[usage] ClusterAnalysis.sh [options]"
     echo -e " -help  this message"
@@ -9,7 +10,23 @@ function usage(){
     echo -e " -CondDb=<sqlite>, <devdb10>, <orcon>, <orcoff> (default is orcoff)"
     echo -e " -sqliteDb=<dbfile> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db)"
     echo -e " -sqliteCatalog=<dbcatalog> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db )"
-    echo -e " -castor (to get input files from castor)"
+    echo -e " -castor=<file name, or regular-expression> (to get input files from castor)"
+
+    
+    echo -e "\nEXAMPLES:"
+    echo -e "\n\tSingle Local File access"
+    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/data/giordano/ClusterAnalysis/data/2501/reco_full_2501.root -Flag=Run2501" 
+
+    echo -e "\n\tMultiple Local Files access"
+    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/data/giordano/ClusterAnalysis/data/25[0-4]\*/\*full\* -Flag=Runs2501-2549" 
+
+    echo -e "\n\tSingle Castor File access"
+    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2 -castor=2501_reco_full.root -Flag=Run2501" 
+
+    echo -e "\n\tMultiple Castor Files access (using regular expressions)"
+    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2 -castor='26\(\(3[7-9]\)\|\(4[0-2]\)\)_reco_full.root' -Flag=Runs2637-2642"  
+    
+    echo
     exit
 }
 
@@ -33,7 +50,7 @@ function getCastorRunList(){
     inputfilenames=""
     for file in `nsls ${InputFilePath} | grep -E $castor 2> /dev/null`
       do
-      inputfilenames="${inputfilenames},\"rfio:${InputFilePath}/$file\""
+      inputfilenames="${inputfilenames},\"castor:${InputFilePath}/$file\""
     done
     
     inputfilenames=`echo $inputfilenames | sed -e "s@,@@"`
@@ -69,7 +86,6 @@ function getParameter(){
 
 test_area=/tmp/$USER/ClusterAnalysis
 
-echo $@
 getParameter InputFilePath $@ .
 getParameter TestArea      $@ ${test_area}
 getParameter Flag          $@ ""
