@@ -161,7 +161,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       for (MixCollection<PSimHit>::MixItr hit = hitCollection->begin(); 
            hit != hitCollection->end(); ++hit) {
         if (simtrackId == hit->trackId() && trackEventId == hit->eventId() ) {
-	  float pratio = hit->pabs()/p.mag();
+	  float pratio = hit->pabs()/(itP->momentum()).mag();
+	  
 	  if (!discardHitsFromDeltas_ || ( discardHitsFromDeltas_ &&  0.5 < pratio && pratio < 2) ) {  
 	    edm::LogInfo (MessageCategory) << " Hit is from " << hit -> detUnitId();
 	    tp.addPSimHit(*hit);
