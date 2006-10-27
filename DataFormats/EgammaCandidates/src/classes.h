@@ -1,9 +1,10 @@
 //
-// $Id: $
+// $Id: classes.h,v 1.12 2006/10/20 13:00:11 rahatlou Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonIsolationAssociation.h"
@@ -25,6 +26,12 @@ namespace {
     edm::Ref<reco::ElectronCollection> r2;
     edm::RefProd<reco::ElectronCollection> rp2;
     edm::RefVector<reco::ElectronCollection> rv2;
+
+    reco::PixelMatchGsfElectronCollection v3;
+    edm::Wrapper<reco::PixelMatchGsfElectronCollection> w3;
+    edm::Ref<reco::PixelMatchGsfElectronCollection> r3;
+    edm::RefProd<reco::PixelMatchGsfElectronCollection> rp3;
+    edm::RefVector<reco::PixelMatchGsfElectronCollection> rv3;
 
     reco::SiStripElectronCollection v5;
     edm::Wrapper<reco::SiStripElectronCollection> w5;

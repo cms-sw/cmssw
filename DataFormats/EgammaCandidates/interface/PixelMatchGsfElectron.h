@@ -18,20 +18,29 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.1  2006/10/18 15:29:56  uberthon
+// add PixelMatchGsfElectron class interface
+//
 // initial version
 //
 //
 //-------------------------------------------------------------------
 
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/TrackReco/interface/GsfTrack.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+//FIXME #include "DataFormats/TrackReco/interface/GsfTrack.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/Math/interface/Point3D.h"
+//#include "DataFormats/Math/interface/Point3D.h"
+//#include "DataFormats/Math/interface/Vector3D.h"
+//#include "DataFormats/Math/interface/LorentzVector.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/Vector/interface/GlobalVector.h"
+
 
 #include <vector>
-
-class TrajectoryStateOnSurface; 
 
 class ElectronMomentumCorrector;
 class ElectronEnergyCorrector;
@@ -39,15 +48,16 @@ class ElectronClassification;
 
 namespace reco {
 
-class PixelMatchGsfElectron : public Electron {
+  // inheritance of the Electron class is not possible because of the different track type (lack of polymorphism!)
+class PixelMatchGsfElectron : public LeafCandidate {
 
  public:
   
-  PixelMatchGsfElectron(): Electron(){};
-  //  PixelMatchGsfElectron(const SuperCluster *, const GsfTrack *, 
-  PixelMatchGsfElectron(const GsfTrackRef gsft,
-	       const TrajectoryStateOnSurface& tssuper,
-			  const TrajectoryStateOnSurface& tsseed) :Electron(), gsfTrack_(gsft) {;} 
+  PixelMatchGsfElectron(): LeafCandidate() {;}
+/*   PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft, */
+/* 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom); */
+  PixelMatchGsfElectron(const SuperClusterRef scl, const TrackRef gsft,
+			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom);
 
   virtual ~PixelMatchGsfElectron(){};
 
@@ -69,13 +79,13 @@ class PixelMatchGsfElectron : public Electron {
   //! the super cluster position
   math::XYZPoint caloPosition() const {return superCluster()->position();}
   //! the track momentum at vertex
-  math::XYZPoint trackMomentumAtVtx() const {return trackMomentumAtVtx_;}
+  // same as momentum.... math::XYZVector trackMomentumAtVtx() const {return trackMomentumAtVtx_;}
   //! the track impact point state position
-  math::XYZPoint TrackPositionAtVtx() const {return trackPositionAtVtx_;}
+  math::XYZVector TrackPositionAtVtx() const {return trackPositionAtVtx_;}
   //! the track momentum extrapolated at the supercluster position
-  math::XYZPoint trackMomentumAtCalo() const {return trackMomentumAtCalo_;}
+  math::XYZVector trackMomentumAtCalo() const {return trackMomentumAtCalo_;}
   //! the track extrapolated position at min distance to the supercluster position
-  math::XYZPoint TrackPositionAtCalo() const {return trackPositionAtCalo_;}
+  math::XYZVector TrackPositionAtCalo() const {return trackPositionAtCalo_;}
   //! the supercluster energy / track momentum at impact point
   float eSuperClusterOverP() const {return eSuperClusterOverP_;}
   //! the seed cluster energy / track momentum at calo from outermost state
@@ -90,7 +100,8 @@ class PixelMatchGsfElectron : public Electron {
   float deltaPhiSeedClusterTrackAtCalo() const {return deltaPhiSeedClusterAtCalo_;}
 
   //! the hadronic over electromagnetic fraction
-  float hadronicOverEm() const {return hadOverEm_;}
+  //  float hadronicOverEm() const {return hadOverEm_;}
+  float hadronicOverEm() const {edm::LogWarning("")<<" Not yet implemented!!";return 0;}
 
   // corrections
   //! tell if class dependant escale correction have been applied
@@ -110,23 +121,33 @@ class PixelMatchGsfElectron : public Electron {
   float caloEnergyError() const {return energyError_;}
   float trackMomentumError() const {return trackMomentumError_;}
 
+  //! get associated superCluster Pointer
+  const SuperClusterRef superCluster() const { return superCluster_; } 
+
   //! get associated GsfTrack pointer
-  const GsfTrackRef getGsfTrack() const { return gsfTrack_; } 
+  //  const GsfTrackRef track() const { return gsfTrack_; } 
+  const TrackRef track() const { return gsfTrack_; } 
 
   //! number of related brem clusters
-  int numberOfBrems() const {return numberOfBrems_;}
+  int numberOfClusters() const {return superCluster_->clustersSize();}
+
   //! array of pointers to the related brem clusters
-  BasicClusterRefVector getBremClusters() const {;}
+  //  BasicClusterRefVector getBremClusters() const;
+  basicCluster_iterator basicClustersBegin() const { return superCluster_->clustersBegin(); }
+  basicCluster_iterator basicClustersEnd() const { return superCluster_->clustersEnd(); }
 
 
  private:
 
-  void setNumberOfBrems();
 
-  math::XYZPoint trackMomentumAtVtx_;
-  math::XYZPoint trackPositionAtVtx_;
-  math::XYZPoint trackMomentumAtCalo_;
-  math::XYZPoint trackPositionAtCalo_;
+  // temporary
+  float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
+  float ecalPhi(float PtParticle, float EtaParticle, float PhiParticle, int ChargeParticle, float Rstart);
+
+  //  math::XYZVector trackMomentumAtVtx_;
+  math::XYZVector trackPositionAtVtx_;
+  math::XYZVector trackMomentumAtCalo_;
+  math::XYZVector trackPositionAtCalo_;
 
   float energyError_;
   float trackMomentumError_;
@@ -142,9 +163,10 @@ class PixelMatchGsfElectron : public Electron {
   float deltaPhiSeedClusterAtCalo_;
 
   float hadOverEm_;
-  int numberOfBrems_;
 
-  GsfTrackRef gsfTrack_;
+  reco::SuperClusterRef superCluster_;
+  //  reco::GsfTrackRef gsfTrack_;
+  reco::TrackRef gsfTrack_;
 
   bool energyScaleCorrected_;
   bool momentumFromEpCombination_;
