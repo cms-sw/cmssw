@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.54 2006/10/13 01:45:22 wmtan Exp $
+$Id: DataBlockImpl.cc,v 1.53 2006/10/07 03:50:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -8,22 +8,16 @@ $Id: EventPrincipal.cc,v 1.54 2006/10/13 01:45:22 wmtan Exp $
 
 #include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/EPEventProvenanceFiller.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/UnscheduledHandler.h"
+#include "FWCore/Framework/interface/DataBlockImpl.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace std;
 
 namespace edm {
 
-  EventPrincipal::EventPrincipal(EventID const& evtID,
-				 Timestamp const& theTime,
-                                 ProductRegistry const& reg,
-				 LuminosityBlockID const& lb,
+  DataBlockImpl::DataBlockImpl(ProductRegistry const& reg,
 				 ProcessHistoryID const& hist,
 				 boost::shared_ptr<DelayedReader> rtrv) :
-    aux_(evtID, theTime, lb),
     processHistoryID_(hist),
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
     groups_(),
@@ -35,8 +29,7 @@ namespace edm {
     inactiveProductDict_(),
     inactiveTypeDict_(),
     preg_(&reg),
-    store_(rtrv),
-    unscheduledHandler_()
+    store_(rtrv)
   {
     if (processHistoryID_ != ProcessHistoryID()) {
       assert(ProcessHistoryRegistry::instance()->size());
@@ -44,29 +37,18 @@ namespace edm {
       assert(found);
     }
     groups_.reserve(reg.productList().size());
-    aux_.processHistoryID_ = processHistoryID_;
   }
 
-  EventPrincipal::~EventPrincipal() {
-  }
-
-  EventID
-  EventPrincipal::id() const {
-    return aux_.id();
-  }
-
-  Timestamp
-  EventPrincipal::time() const {
-    return aux_.time();
+  DataBlockImpl::~DataBlockImpl() {
   }
 
   unsigned long
-  EventPrincipal::numEDProducts() const {
+  DataBlockImpl::numEDProducts() const {
     return groups_.size();
   }
    
   void 
-  EventPrincipal::addGroup(auto_ptr<Group> group) {
+  DataBlockImpl::addGroup(auto_ptr<Group> group) {
     assert (!group->productDescription().className().empty());
     assert (!group->productDescription().friendlyClassName().empty());
     assert (!group->productDescription().moduleLabel().empty());
@@ -86,9 +68,9 @@ namespace edm {
     BranchDict::iterator itFound = branchDict.find(bk);
     if (itFound != branchDict.end()) {
        if(!groups[itFound->second]->product()) {
-          //is null, so this new one must be the one generated 'unscheduled'
-          groups[itFound->second]->swapProduct( *g );
-          //NOTE: other API's of EventPrincipal give out the Provenance* so need to preserve the memory
+          // is null, so this new one must be the one generated 'unscheduled'
+          groups[itFound->second]->swapProduct(*g);
+          //NOTE: other API's of DataBlockImpl give out the Provenance* so need to preserve the memory
           groups[itFound->second]->provenance() = g->provenance();
           return;
        } else {
@@ -124,13 +106,13 @@ namespace edm {
   }
 
   void
-  EventPrincipal::addToProcessHistory(ProcessConfiguration const& processConfiguration) {
+  DataBlockImpl::addToProcessHistory(ProcessConfiguration const& processConfiguration) {
     ProcessHistory& ph = *processHistoryPtr_;
     std::string const& processName = processConfiguration.processName();
     for (ProcessHistory::const_iterator it = ph.begin(); it != ph.end(); ++it) {
       if (processName == it->processName()) {
 	throw edm::Exception(errors::Configuration, "Duplicate Process")
-	  << "The process name " << processName << " was previously used on these events.\n"
+	  << "The process name " << processName << " was previously used on these products.\n"
 	  << "Please modify the configuration file to use a distinct process name.";
       }
     }
@@ -144,16 +126,15 @@ namespace edm {
     // which persists for longer than one Event
     ProcessHistoryRegistry::instance()->insertMapped(ph);
     processHistoryID_ = ph.id();
-    aux_.processHistoryID_ = processHistoryID_;
   }
 
   ProcessHistory const&
-  EventPrincipal::processHistory() const {
+  DataBlockImpl::processHistory() const {
     return *processHistoryPtr_;
   }
 
   void 
-  EventPrincipal::put(auto_ptr<EDProduct> edp,
+  DataBlockImpl::put(auto_ptr<EDProduct> edp,
 		      auto_ptr<Provenance> prov) {
 
     if (prov->productID() == ProductID()) {
@@ -180,8 +161,8 @@ namespace edm {
     this->addGroup(g);
   }
 
-  EventPrincipal::SharedConstGroupPtr const
-  EventPrincipal::getGroup(ProductID const& oid, bool resolve) const {
+  DataBlockImpl::SharedConstGroupPtr const
+  DataBlockImpl::getGroup(ProductID const& oid, bool resolve) const {
     ProductDict::const_iterator i = productDict_.find(oid);
     if (i == productDict_.end()) {
 	return getInactiveGroup(oid);
@@ -196,8 +177,8 @@ namespace edm {
     return g;
   }
 
-  EventPrincipal::SharedConstGroupPtr const
-  EventPrincipal::getInactiveGroup(ProductID const& oid) const {
+  DataBlockImpl::SharedConstGroupPtr const
+  DataBlockImpl::getInactiveGroup(ProductID const& oid) const {
     ProductDict::const_iterator i = inactiveProductDict_.find(oid);
     if (i == inactiveProductDict_.end()) {
 	return SharedConstGroupPtr();
@@ -210,7 +191,7 @@ namespace edm {
   }
 
   BasicHandle
-  EventPrincipal::get(ProductID const& oid) const {
+  DataBlockImpl::get(ProductID const& oid) const {
     if (oid == ProductID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "get by product ID: invalid ProductID supplied\n";
@@ -229,7 +210,7 @@ namespace edm {
   }
 
   BasicHandle
-  EventPrincipal::getBySelector(TypeID const& tid, 
+  DataBlockImpl::getBySelector(TypeID const& tid, 
 				SelectorBase const& sel) const {
     TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
 
@@ -273,12 +254,10 @@ namespace edm {
 
     BasicHandle result;
 
-    //the cast is needed in order to update the EventPrincipal's 'cache' of data
-    EPEventProvenanceFiller filler(unscheduledHandler_, const_cast<EventPrincipal*>(this) );
     while(ib!=ie) {
 	SharedGroupPtr const& g = groups_[*ib];
-        ProvenanceAccess provAccess( (&g->provenance()), &filler);
-	if(sel.match(provAccess)) {
+
+	if (fillAndMatchSelector(g->provenance(), sel)) {
 	    ++found_count;
 	    if (found_count > 1) {
 		throw edm::Exception(edm::errors::ProductNotFound,
@@ -305,12 +284,12 @@ namespace edm {
 
     
   BasicHandle
-  EventPrincipal::getByLabel(TypeID const& tid, 
+  DataBlockImpl::getByLabel(TypeID const& tid, 
 			     string const& label,
 			     string const& productInstanceName) const {
     // The following is not the most efficient way of doing this. It
     // is the simplest implementation of the required policy, given
-    // the current organization of the EventPrincipal. This should be
+    // the current organization of the DataBlockImpl. This should be
     // reviewed.
 
     // THE FOLLOWING IS A HACK! It must be removed soon, with the
@@ -330,7 +309,6 @@ namespace edm {
             assert(unsigned(i->second) < groups_.size());
 	    SharedConstGroupPtr group = groups_[i->second];
 	    this->resolve_(*group);
-            group->product(); group->provenance();
 	    return BasicHandle(group->product(), &group->provenance());    
 	}
 	++iproc;
@@ -344,33 +322,33 @@ namespace edm {
   }
 
   BasicHandle
-  EventPrincipal::getByLabel(TypeID const& tid, 
+  DataBlockImpl::getByLabel(TypeID const& tid,
 			     string const& label,
 			     string const& productInstanceName,
-                             string const& processName) const 
+			     string const& processName) const
   {
     BranchKey bk(tid.friendlyClassName(), label, productInstanceName, processName);
     BranchDict::const_iterator i = branchDict_.find(bk);
-      
-    if (i != branchDict_.end()) {
-      // We found what we want.
-      assert(i->second >= 0);
-      assert(unsigned(i->second) < groups_.size());
-      SharedConstGroupPtr group = groups_[i->second];
-      this->resolve_(*group);
-      group->product(); group->provenance();
-      return BasicHandle(group->product(), &group->provenance());    
+ 
+    if (i == branchDict_.end()) {
+      // We failed to find the product we're looking for
+      throw edm::Exception(errors::ProductNotFound,"NoMatch")
+        << "getByLabel: could not find a product with module label \"" << label
+        << "\"\nof type " << tid
+        << " with product instance label \"" << (productInstanceName.empty() ? "" : productInstanceName) << "\""
+        << " and process name " << processName << "\n";
     }
-    // We failed to find the product we're looking for
-    throw edm::Exception(errors::ProductNotFound,"NoMatch")
-      << "getByLabel: could not find a product with module label \"" << label
-      << "\"\nof type " << tid
-      << " with product instance label \"" << (productInstanceName.empty() ? "" : productInstanceName) << "\""
-      << " and process name "<<processName<<"\n";
+    // We found what we want.
+    assert(i->second >= 0);
+    assert(unsigned(i->second) < groups_.size());
+    SharedConstGroupPtr group = groups_[i->second];
+    this->resolve_(*group);
+    return BasicHandle(group->product(), &group->provenance());
   }
-  
+ 
+
   void 
-  EventPrincipal::getMany(TypeID const& tid, 
+  DataBlockImpl::getMany(TypeID const& tid, 
 			  SelectorBase const& sel,
 			  BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
@@ -397,18 +375,16 @@ namespace edm {
     vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
     while(ib != ie) {
       SharedGroupPtr const& g = groups_[*ib];
-      EventProvenanceFiller* filler=0;
-      ProvenanceAccess provAccess( (&g->provenance()), filler);
-	if(sel.match(provAccess)) {
-	    this->resolve_(*g);
-	    results.push_back(BasicHandle(g->product(), &g->provenance()));
-	}
-	++ib;
+      if (sel.match(g->provenance())) {
+        this->resolve_(*g);
+        results.push_back(BasicHandle(g->product(), &g->provenance()));
+      }
+      ++ib;
     }
   }
 
   BasicHandle
-  EventPrincipal::getByType(TypeID const& tid) const {
+  DataBlockImpl::getByType(TypeID const& tid) const {
 
     TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
 
@@ -439,7 +415,7 @@ namespace edm {
   }
 
   void 
-  EventPrincipal::getManyByType(TypeID const& tid, 
+  DataBlockImpl::getManyByType(TypeID const& tid, 
 			  BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
@@ -472,7 +448,7 @@ namespace edm {
   }
 
   Provenance const&
-  EventPrincipal::getProvenance(ProductID const& oid) const {
+  DataBlockImpl::getProvenance(ProductID const& oid) const {
     if (oid == ProductID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "getProvenance: invalid ProductID supplied\n";
@@ -491,30 +467,25 @@ namespace edm {
   }
 
   void
-  EventPrincipal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
+  DataBlockImpl::getAllProvenance(std::vector<Provenance const*> & provenances) const {
     provenances.clear();
-    for (EventPrincipal::const_iterator i = groups_.begin(); i != groups_.end(); ++i) {
+    for (DataBlockImpl::const_iterator i = groups_.begin(); i != groups_.end(); ++i) {
       provenances.push_back(&(*i)->provenance());
     }
   }
 
   void
-  EventPrincipal::resolve_(Group const& g, bool unconditional) const {
+  DataBlockImpl::resolve_(Group const& g, bool unconditional) const {
     if (!unconditional && !g.isAccessible())
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
 	<< g.provenance();
 
     if (g.product()) return; // nothing to do.
-    
-    if(unscheduledHandler_ && unscheduledHandler_->tryToFill(g.provenance(), *const_cast<EventPrincipal*>(this)) ) {
-       //see if actually here
-       if(!g.product()) {
-          throw edm::Exception(errors::ProductNotFound, "InaccessibleProduct")
-          <<"product not accessible\n"<<g.provenance();
-       }
-       return;
-    }
+
+    // Try unscheduled production.
+    if (unscheduledFill(g)) return;
+
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.productDescription());
     auto_ptr<EDProduct> edp(store_->get(bk, this));
@@ -524,12 +495,7 @@ namespace edm {
   }
 
   EDProduct const *
-  EventPrincipal::getIt(ProductID const& oid) const {
+  DataBlockImpl::getIt(ProductID const& oid) const {
     return get(oid).wrapper();
   }
-   
-   void EventPrincipal::setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler) {
-      unscheduledHandler_ = iHandler;
-   }
-
 }
