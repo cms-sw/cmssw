@@ -96,10 +96,10 @@ class EcalHitMaker: public CaloHitMaker
 
   bool addHitDepth(double r,double phi,double depth=-1);
    
-  /// must be implemented 
   bool addHit(double r,double phi,unsigned layer=0) ;
 
-  
+  unsigned fastInsideCell(const Hep2Vector & point,double & sp,bool debug=false) ;
+
   inline void setSpotEnergy(double e) { spotEnergy=e;}
   
    /// get the map of the stored hits. Triggers the calculation of the grid if it has
@@ -171,6 +171,8 @@ class EcalHitMaker: public CaloHitMaker
   double L0EHGAP_;
  
   double maxX0_;
+  double rearleakage_ ;
+  double outsideWindowEnergy_;
 
   // Grid construction 
   Crystal pivot_;

@@ -17,6 +17,8 @@
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
 
+#include "CLHEP/Random/RandFlat.h"
+
 #include <algorithm>
 
 EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
@@ -43,7 +45,10 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   L0HCAL_ = 0.;
   maxX0_ = 0.;
   totalX0_ = 0;
-  totalL0_ = 0. ;
+  totalL0_ = 0.;
+  outsideWindowEnergy_ = 0.;
+  rearleakage_ = 0.;
+
   if(onEcal) 
     myCalorimeter->buildCrystal(cell,pivot_);
   else
@@ -102,31 +107,168 @@ EcalHitMaker::~EcalHitMaker()
 
 bool EcalHitMaker::addHitDepth(double r,double phi,double depth)
 {
-  std::map<unsigned,float>::iterator itcheck=hitMap_.find(pivot_.getDetId().rawId());
-  if(itcheck==hitMap_.end())
+//  std::cout << " Add hit depth called; Current deph is "  << currentdepth_;
+//  std::cout << " Required depth is " << depth << std::endl;
+  depth+=X0depthoffset_;
+  double sp(1.);
+  r*=radiusFactor_;
+  Hep2Vector point(r*cos(phi),r*sin(phi));
+  //  CellID cellid=insideCell(point,sp);
+  unsigned xtal=fastInsideCell(point,sp);  
+  //  if(cellid.isZero()) std::cout << " cell is Zero " << std::endl;
+//  if(xtal<1000) 
+//    {
+//      std::cout << "Result " << regionOfInterest_[xtal].getX0Back() << " " ;
+//      std::cout << depth << std::endl;
+//    }
+//  myHistos->fill("h5000",depth);
+  if(xtal<1000)
     {
-      hitMap_.insert(std::pair<uint32_t,float>(pivot_.getDetId().rawId(),spotEnergy));
+      //      myHistos->fill("h5002",regionOfInterest_[xtal].getX0Back(),depth);
+      //      myHistos->fill("h5003",ecalentrance_.eta(),maxX0_);
+      if(regionOfInterest_[xtal].getX0Back()>depth) 
+	{
+	  hits_[xtal]+=spotEnergy;	
+	  //	  myHistos->fill("h5005",r);
+	  return true;
+	}
+      else
+	{
+	  rearleakage_+=spotEnergy;
+	}
     }
-  else
-    {
-      itcheck->second+=spotEnergy;
-    }
-  return true;
+  //  std::cout << " Return false " << std::endl;
+  outsideWindowEnergy_+=spotEnergy;
+  return false;
 }
 
 
+//bool EcalHitMaker::addHitDepth(double r,double phi,double depth)
+//{
+//  std::map<unsigned,float>::iterator itcheck=hitMap_.find(pivot_.getDetId().rawId());
+//  if(itcheck==hitMap_.end())
+//    {
+//      hitMap_.insert(std::pair<uint32_t,float>(pivot_.getDetId().rawId(),spotEnergy));
+//    }
+//  else
+//    {
+//      itcheck->second+=spotEnergy;
+//    }
+//  return true;
+//}
+
 bool EcalHitMaker::addHit(double r,double phi,unsigned layer)
 {
-  std::map<unsigned,float>::iterator itcheck=hitMap_.find(pivot_.getDetId().rawId());
-  if(itcheck==hitMap_.end())
+  //  std::cout <<" Addhit " << std::endl;
+  //  std::cout << " Before insideCell " << std::endl;
+  double sp(1.);
+  r*=radiusFactor_;
+  Hep2Vector point(r*cos(phi),r*sin(phi));
+  //  CellID cellid=insideCell(point,sp);
+  unsigned xtal=fastInsideCell(point,sp);  
+  //  if(cellid.isZero()) std::cout << " cell is Zero " << std::endl;
+  if(xtal<1000) 
     {
-      hitMap_.insert(std::pair<uint32_t,float>(pivot_.getDetId().rawId(),spotEnergy));
+      if(sp==1.)
+	hits_[xtal]+=spotEnergy;	
+      else      
+	hits_[xtal]+=(RandFlat::shoot()<sp)*spotEnergy;
+      return true;
     }
-  else
+
+  outsideWindowEnergy_+=spotEnergy;
+  return false;
+}
+
+// Temporary solution
+//bool EcalHitMaker::addHit(double r,double phi,unsigned layer)
+//{
+//  std::map<unsigned,float>::iterator itcheck=hitMap_.find(pivot_.getDetId().rawId());
+//  if(itcheck==hitMap_.end())
+//    {
+//      hitMap_.insert(std::pair<uint32_t,float>(pivot_.getDetId().rawId(),spotEnergy));
+//    }
+//  else
+//    {
+//      itcheck->second+=spotEnergy;
+//    }
+//  return true;
+//}
+
+
+unsigned EcalHitMaker::fastInsideCell(const Hep2Vector & point,double & sp,bool debug) 
+{
+
+  bool found=false;
+  unsigned niter=0;
+  // something clever has to be implemented here
+  unsigned d1,d2;
+  convertIntegerCoordinates(point.x(),point.y(),d1,d2);
+  // std::cout << "Fastinside cell " << point.x() << " " <<  point.y() << " " << d1 << " "<< d2 << " " << nx_ << " " << ny_ << std::endl;
+  if(d1>=nx_||d2>=ny_) 
     {
-      itcheck->second+=spotEnergy;
+      //      std::cout << " Not in the map " << myCellIDMap.size() << std::endl;
+      //      std::cout << "Cell is Zero : " << std::endl;
+      //      return insideCell(point,sp);
+      //      std::cout << " Out of range " << std::endl;
+      return 9999;
     }
-  return true;
+  unsigned cell=myCrystalNumberArray_[d1][d2];
+  // We are likely to be lucky
+  //  std::cout << " Got the cell " << cell << std::endl;
+  if (validPads_[cell]&&padsatdepth_[cell].inside(point)) 
+    {
+      //      std::cout << " We are lucky " << std::endl;
+      sp = padsatdepth_[cell].survivalProbability();
+      return cell;
+    }
+  
+  //  std::cout << "Starting the loop " << std::endl;
+  bool status(true);
+  const std::vector<unsigned>& localCellVector(myCrystalWindowMap_->getCrystalWindow(cell,status));
+  if(status) 
+    {
+      unsigned size=localCellVector.size();      
+      for(unsigned ic=0;ic<8&&ic<size;++ic)
+	{
+	  //	  std::cout << " Testing " << ic ; 
+	  unsigned iq=localCellVector[ic];
+	  //	  std::cout << " " << iq ;
+	  if(validPads_[iq]&&padsatdepth_[iq].inside(point))
+	    {
+	      //	      std::cout << " Yes " << std::endl;
+	      //	      myHistos->fill("h1000",niter);
+	      sp = padsatdepth_[iq].survivalProbability();
+            //	  std::cout << "Finished the loop " << niter << std::endl;
+	      //	      std::cout << "Inside " << std::endl;
+	      return iq;
+	    }
+	  //	  std::cout << " Not inside " << std::endl;
+	  //	  std::cout << "No " << std::endl;
+	  ++niter;
+	}
+    }
+  if(debug) std::cout << " not found in a quad, let's check the " << npadsatdepth_ << " cracks " << std::endl;
+  //  std::cout << "Finished the loop " << niter << std::endl;
+  // Let's check the cracks 
+  //   std::cout << " Let's check the cracks " << ncrackquadsatdepth_ << " " << crackquadsatdepth_.size() << std::endl;
+  unsigned iquad=0;
+  unsigned iquadinside=999;
+  while(iquad<ncrackpadsatdepth_&&!found)
+    {
+      //      std::cout << " Inside the while " << std::endl;
+      if(crackpadsatdepth_[iquad].inside(point)) 
+	{
+	  iquadinside=iquad;
+	  found=true;
+	  sp = crackpadsatdepth_[iquad].survivalProbability();
+	}
+      ++iquad;
+      ++niter;
+    }
+  //  myHistos->fill("h1002",niter);
+  if(!found&&debug) std::cout << " Not found in the cracks " << std::endl;
+  return (found) ? crackpadsatdepth_[iquadinside].getNumber(): 9999;
 }
 
 
