@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAnalyzer.cc,v 1.4 2006/10/27 15:04:05 uberthon Exp $
+// $Id: PixelMatchElectronAnalyzer.cc,v 1.5 2006/10/27 21:57:09 uberthon Exp $
 //
 //
 
@@ -98,7 +98,6 @@ PixelMatchElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
     //electron quantities
     histCharge_->Fill((*MyS).charge());
     histMass_->Fill((*MyS).mass());
-    printf("masse %f\n",(*MyS).mass());
     histEn_->Fill((*MyS).energy());
     if ((*MyS).et()<150.) histEt_->Fill((*MyS).et());
     histEta_->Fill((*MyS).eta());
