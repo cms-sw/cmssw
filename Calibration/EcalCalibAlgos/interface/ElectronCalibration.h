@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ElectronCalibration.h,v 1.1 2006/09/19 09:12:47 lorenzo Exp $
+// $Id: ElectronCalibration.h,v 1.2 2006/10/13 14:38:28 lorenzo Exp $
 //
 //
 
@@ -64,6 +64,8 @@ class ElectronCalibration : public edm::EDAnalyzer {
       edm::InputTag trackLabel_;
       std::string calibAlgo_;
       CalibrationCluster calibCluster;
+      CalibrationCluster::CalibMap ReducedMap;
+      
       int read_events;
       
       int calibClusterSize;
@@ -74,5 +76,14 @@ class ElectronCalibration : public edm::EDAnalyzer {
       vector<int> MaxCCphi;
       MinL3Algorithm* MyL3Algo1;
       vector<float> solution;
+      vector<float> newCalibs;
+      vector<float> oldCalibs;
+      
+      TH1F * e25;
+      TH1F * scE;
+      TH1F * trP;
+      TH1F * EoP;
+      TH1F * calibs;
+      
 };
 #endif
