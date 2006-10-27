@@ -29,13 +29,21 @@ vector<EBDetId> CalibrationCluster::get5x5Id(EBDetId const & maxHitId){
      {
        unsigned int row = icry / 5;
        unsigned int column= icry %5;
+//       std::cout << "CalibrationCluster::icry = " << icry << std::endl;
        
-       
+       int curr_eta=maxHitId.ieta() + column - (5/2);
+       int curr_phi=maxHitId.iphi() + row - (5/2);
+	      
+       if (curr_eta * maxHitId.ieta() <= 0) {if (maxHitId.ieta() > 0) curr_eta--; else curr_eta++; }  // JUMP over 0
+       if (curr_phi < 1) curr_phi += 360;
+       if (curr_phi > 360) curr_phi -= 360;
+      
        try
 	 {
-         Xtals5x5.push_back(EBDetId(maxHitId.ieta()+column-2,maxHitId.iphi()+row-2,EBDetId::ETAPHIMODE));
+//         Xtals5x5.push_back(EBDetId(maxHitId.ieta()+column-2,maxHitId.iphi()+row-2,EBDetId::ETAPHIMODE));
+         Xtals5x5.push_back(EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE));
 	 }
-       catch ( std::runtime_error &e )
+       catch ( ... )
 	 {
 	   std::cout << "Cannot construct 5x5 matrix around EBDetId " << maxHitId << std::endl;
 	 }
@@ -60,7 +68,7 @@ vector<EBDetId> CalibrationCluster::get3x3Id(EBDetId const & maxHitId){
 	 {
          Xtals3x3.push_back(EBDetId(maxHitId.ieta()+column-1,maxHitId.iphi()+row-1,EBDetId::ETAPHIMODE));
 	 }
-       catch ( std::runtime_error &e )
+       catch ( ... )
 	 {
 	   std::cout << "Cannot construct 3x3 matrix around EBDetId " << maxHitId << std::endl;
 	 }
@@ -90,7 +98,7 @@ CalibrationCluster::CalibMap CalibrationCluster::getMap(int minEta, int maxEta, 
 	 {
          calibRegion.insert(pippo(EBDetId(eta,phi,EBDetId::ETAPHIMODE),icry));
 	 }
-       catch ( std::runtime_error &e )
+       catch ( ... )
 	 {
 	   std::cout << "Cannot construct full matrix !!! " << std::endl;
 	 }
