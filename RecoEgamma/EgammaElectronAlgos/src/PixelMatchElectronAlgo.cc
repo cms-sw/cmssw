@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.17 2006/10/17 09:24:47 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.18 2006/10/27 15:04:31 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -25,8 +25,15 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
@@ -50,15 +57,20 @@
 #include <TMath.h>
 #include <sstream>
 
+#include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
+
 using namespace edm;
 using namespace std;
 using namespace reco;
 //using namespace math; // conflicts with DataFormat/Math/interface/Point3D.h!!!!
 
-PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverP, double maxHOverE, 
+PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPEndcaps, 
+                                               double hOverEConeSize, double maxHOverE, 
                                                double maxDeltaEta, double maxDeltaPhi):  
- maxEOverP_(maxEOverP), maxHOverE_(maxHOverE), maxDeltaEta_(maxDeltaEta), 
- maxDeltaPhi_(maxDeltaPhi), theCkfTrajectoryBuilder(0), theTrajectoryCleaner(0),
+ maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
+ hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
+ maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), 
+ theCkfTrajectoryBuilder(0), theTrajectoryCleaner(0),
  theInitialStateEstimator(0), theNavigationSchool(0) {}
 
 PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
@@ -75,6 +87,9 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
   es.get<IdealMagneticFieldRecord>().get(theMagField);
 
+  // get calo geometry
+   es.get<IdealGeometryRecord>().get(theCaloGeom);
+  
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
   theInitialStateEstimator       = new TransientInitialStateEstimator( es,tise_params);
@@ -106,6 +121,10 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   // get the input 
   edm::Handle<TrackCollection> tracksBarrelH;
   edm::Handle<TrackCollection> tracksEndcapH;
+  // to check existance
+  edm::Handle<HBHERecHitCollection> hbhe;
+  if (hOverEConeSize_ > 0.) e.getByType(hbhe);
+  HBHERecHitMetaCollection mhbhe(*hbhe);
   e.getByLabel(trackBarrelLabel_,trackBarrelInstanceName_,tracksBarrelH);
   e.getByLabel(trackEndcapLabel_,trackEndcapInstanceName_,tracksEndcapH);
   edm::Handle<SeedSuperClusterAssociationCollection> barrelH;
@@ -116,11 +135,11 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
     <<"\n\n Treating "<<e.id()<<", Number of seeds Barrel:"
     <<barrelH.product()->size()<<" Number of seeds Endcap:"<<endcapH.product()->size();
   
-//   // create electrons from tracks in 2 steps: barrel + endcap
+  // create electrons from tracks in 2 steps: barrel + endcap
   const SeedSuperClusterAssociationCollection  *sclAss=&(*barrelH);
-  process(tracksBarrelH,sclAss,outEle);
+  process(tracksBarrelH,sclAss,mhbhe,outEle);
   sclAss=&(*endcapH);
-  process(tracksEndcapH,sclAss,outEle);
+  process(tracksEndcapH,sclAss,mhbhe,outEle);
 
   std::ostringstream str;
 
@@ -138,7 +157,8 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   return;
 }
 
-void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH,const SeedSuperClusterAssociationCollection *sclAss,PixelMatchGsfElectronCollection & outEle) {
+void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss,
+                                     HBHERecHitMetaCollection mhbhe, PixelMatchGsfElectronCollection & outEle) {
   const TrackCollection *tracks=tracksH.product();
   for (unsigned int i=0;i<tracks->size();++i) {
     const Track & t=(*tracks)[i];
@@ -159,21 +179,8 @@ void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH,const 
       continue;
     }
     const SuperCluster theClus=*((*sclAss)[seed]);
-    if (preSelection(theClus,t)) {
-      //       LogInfo("")<<"Constructed new electron with eneregy  "<< (*sclAss)[seed]->energy();
-      //       TSCPBuilderNoMaterial tscpBuilder;
-      //       TrajectoryStateTransform tsTransform;
-      //       FreeTrajectoryState fts = tsTransform.innerFreeState(t,theMagField.product());
-      //       TrajectoryStateClosestToPoint tscp = tscpBuilder(fts, Global3DPoint(0,0,0) );
-      //       const math::XYZTLorentzVector momentum(tscp.momentum().x(),
-      // 					     tscp.momentum().y(),
-      // 					     tscp.momentum().z(),
-      // 					     sqrt(tscp.momentum().mag2() + electron_mass_c2*electron_mass_c2*1.e-6) );
-      //       Electron ele(t.charge(),momentum,math::XYZPoint( 0, 0, 0 ));
-      //       ele.setSuperCluster((*sclAss)[seed]);
-      //       edm::Ref<TrackCollection> myRef(tracksH,i);
-      //       ele.setTrack(myRef);
-      // extrapolate track inner momentum to nominal vertex
+    if (preSelection(theClus,t,mhbhe)) {
+      LogInfo("")<<"Constructed new electron with energy  "<< (*sclAss)[seed]->energy();
       TSCPBuilderNoMaterial tscpBuilder;
       TrajectoryStateTransform tsTransform;
       FreeTrajectoryState fts_scl = tsTransform.outerFreeState(t,theMagField.product());
@@ -192,9 +199,55 @@ void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH,const 
   }  // loop over tracks
 }
 
-bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Track& track) 
+bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Track& track, HBHERecHitMetaCollection mhbhe) 
 {
-  // to be implemented
+  LogInfo("")<< "========== preSelection ==========";
+ 
+  // extrapolate track inner momentum to nominal vertex
+  TSCPBuilderNoMaterial tscpBuilder;
+  TrajectoryStateTransform tsTransform;
+  FreeTrajectoryState ftsin = tsTransform.innerFreeState(track,theMagField.product());
+  TrajectoryStateClosestToPoint tscpin = tscpBuilder(ftsin, Global3DPoint(0,0,0) );
+  // extrapolate track inner momentum to supercluster position
+  FreeTrajectoryState ftscalo = tsTransform.innerFreeState(track,theMagField.product());
+  TrajectoryStateClosestToPoint tscpcalo = tscpBuilder(ftscalo, Global3DPoint(clus.x(),clus.y(),clus.z()) );  
+  // E/p criteria
+  LogInfo("") << "E/p : " << clus.energy()/tscpin.momentum().mag();
+  // temporary, exact identification of barrel and endcap case would be better
+  if ((fabs(clus.eta()) < 1.479) && (clus.energy()/tscpin.momentum().mag() > maxEOverPBarrel_)) return false;
+  if ((fabs(clus.eta()) >= 1.479) && (clus.energy()/tscpin.momentum().mag() > maxEOverPEndcaps_)) return false;
+  LogInfo("") << "E/p criteria is satisfied ";
+  // delta eta criteria
+  double etaclu = clus.eta();
+  double etatrk = tscpcalo.position().eta();
+  double deta = etaclu-etatrk;
+  LogInfo("") << "delta eta : " << deta;
+  if (fabs(deta) > maxDeltaEta_) return false;
+  LogInfo("") << "Delta eta criteria is satisfied ";
+  // delta phi criteria
+  double phiclu = clus.phi();
+  double phitrk = tscpcalo.position().phi();
+  double dphi = phiclu-phitrk;
+  LogInfo("") << "delta phi : " << dphi;
+  if (fabs(dphi) > maxDeltaPhi_) return false;
+  LogInfo("") << "Delta phi criteria is satisfied ";
+  // had/em criteria if non zero cone size given
+  if (hOverEConeSize_ > 0.) {
+    //cout << "calo position is eta-phi = " << clus.eta() << " " << clus.phi() << endl;
+    CaloConeSelector sel(hOverEConeSize_, theCaloGeom.product(), DetId::Hcal);
+    GlobalPoint pclu(clus.x(),clus.y(),clus.z());
+    double hcalEnergy = 0.;
+    std::auto_ptr<CaloRecHitMetaCollectionV> chosen=sel.select(pclu,mhbhe);
+    for (CaloRecHitMetaCollectionV::const_iterator i=chosen->begin(); i!=chosen->end(); i++) {
+      //std::cout << HcalDetId(i->detid()) << " : " << (*i) << std::endl;
+      hcalEnergy += i->energy();
+    }
+    LogInfo("") << "H/E : " << hcalEnergy/clus.energy();
+    if (hcalEnergy/clus.energy() > maxHOverE_) return false;
+    LogInfo("") << "H/E criteria is satisfied ";
+  }
+  LogInfo("") << "electron has passed preselection criteria ";
+  LogInfo("") << "=================================================";
   return true;  
 }  
 //**************************************************************************
