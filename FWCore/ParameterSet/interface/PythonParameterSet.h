@@ -9,84 +9,89 @@ class PythonParameterSet
 {
 public:
   PythonParameterSet();
-/*
-  void addInt32(const std::string & name, int value);
-  void addUInt32(const std::string & name, unsigned int value);
-  void addVInt32(const std::string & name, const std::vector<int> & value);
-  void addVUInt32(const std::string & name, const std::vector<unsigned int> &  value);
-  void addUntrackedInt32(const std::string & name, int value);
-  void addUntrackedUInt32(const std::string & name, unsigned int value);
-  void addUntrackedVInt32(const std::string & name, const std::vector<int> & value);
-  void addUntrackedVUInt32(const std::string & name, const std::vector<unsigned int> &  value);
 
-  void addInt64(const std::string & name, int value);
-  void addUInt64(const std::string & name, unsigned int value);
-  void addVInt64(const std::string & name, const std::vector<int> & value);
-  void addVUInt64(const std::string & name, const std::vector<unsigned int> &  value);
-  void addUntrackedInt64(const std::string & name, int value);
-  void addUntrackedUInt64(const std::string & name, unsigned int value);
-  void addUntrackedVInt64(const std::string & name, const std::vector<int> & value);
-  void addUntrackedVUInt64(const std::string & name, const std::vector<unsigned int> &  value);
+  PythonParameterSet(const edm::ParameterSet & p)
+  : theParameterSet(p) {}
 
-  void addDouble(const std::string & name, double value);
-  void addVDouble(const std::string & name, const std::vector<double> & value);
-  void addUntrackedDouble(const std::string & name, double value);
-  void addUntrackedVDouble(const std::string & name, const std::vector<double> & value);
-
-  void addString(const std::string & name, const std::string & value);
-  void addVString(const std::string & name, const std::vector<std::string> & value);
-  void addUntrackedString(const std::string & name, const std::string & value);
-  void addUntrackedVString(const std::string & name, const std::vector<std::string> & value);
-*/
-    template <class T>
-    T
-    getParameter(bool tracked, std::string const& name) const 
+  template <class T>
+  T
+  getParameter(bool tracked, std::string const& name) const 
+  {
+    T result;
+    if(tracked)
     {
-      T result;
-      if(tracked)
-      {
-        result = theParameterSet.template getParameter<T>(name);
-      }
-      else 
-      {
-        result = theParameterSet.template getUntrackedParameter<T>(name, result);
-      }
-      return result;
+      result = theParameterSet.template getParameter<T>(name);
     }
-
-
-    template <class T>
-    void
-    addParameter(bool tracked, std::string const& name, T value)
+    else 
     {
-     if(tracked)
-     {
-       theParameterSet.template addParameter<T>(name, value);
-     }
-     else 
-     {
-       theParameterSet.template addUntrackedParameter<T>(name, value);
-     }
+      result = theParameterSet.template getUntrackedParameter<T>(name, result);
     }
+    return result;
+  }
 
 
-    /// templated on the type of the contained object
-    template <class T>
-    boost::python::list
-    getParameters(bool tracked, const std::string & name) const
+  template <class T>
+  void
+  addParameter(bool tracked, std::string const& name, T value)
+  {
+   if(tracked)
+   {
+     theParameterSet.template addParameter<T>(name, value);
+   }
+   else 
+   {
+     theParameterSet.template addUntrackedParameter<T>(name, value);
+   }
+  }
+
+
+  /// templated on the type of the contained object
+  template <class T>
+  boost::python::list
+  getParameters(bool tracked, const std::string & name) const
+  {
+    std::vector<T> v = getParameter<std::vector<T> >(tracked, name);
+    return edm::toPythonList(v);
+  }
+
+  /// unfortunate side effect: destroys the original list!
+  template <class T>
+  void
+  addParameters(bool tracked, std::string const& name, 
+                boost::python::list  value)
+  {
+    std::vector<T> v = edm::toVector<T>(value);
+    addParameter(tracked, name, v);
+  }
+
+
+  void addPSet(bool tracked, std::string const& name,
+               const PythonParameterSet & ppset)
+  {
+    addParameter(tracked, name, ppset.theParameterSet);
+  }
+
+
+  PythonParameterSet getPSet(bool tracked, std::string const& name) const
+  {
+    return PythonParameterSet(getParameter<edm::ParameterSet>(tracked, name));
+  }
+
+
+  void addVPSet(bool tracked, std::string const& name,
+                boost::python::list  value)
+  {
+    std::vector<PythonParameterSet> v 
+      = edm::toVector<PythonParameterSet>(value);
+    std::vector<edm::ParameterSet> v2;
+    v2.reserve(v.size());
+    for(std::vector<PythonParameterSet>::iterator ppsetItr = v.begin();
+        ppsetItr != v.end(); ++ppsetItr)
     {
-      std::vector<T> v = getParameter<std::vector<T> >(tracked, name);
-      return edm::toPythonList(v);
+      v2.push_back(ppsetItr->theParameterSet);
     }
-
-    /// unfortunate side effect: destroys the original list!
-    template <class T>
-    void
-    addParameters(bool tracked, std::string const& name, boost::python::list  value)
-    {
-      std::vector<T> v = edm::toVector<T>(value);
-      addParameter(tracked, name, v);
-    }
+    addParameter(tracked, name, v2);
+  }
 
 private:
   edm::ParameterSet theParameterSet;
