@@ -127,9 +127,9 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
    myGeometry.initialize();
    
    // Take a point in the barrel
-   HepPoint3D p1(129,0.,50);
+   HepPoint3D p1(129,0.,-50);
    testpoint(p1,"barrel",true);
-   HepPoint3D p2(317,60,60);
+   HepPoint3D p2(60,60,-317);
    testpoint(p1,"endcap",false);
 }
 

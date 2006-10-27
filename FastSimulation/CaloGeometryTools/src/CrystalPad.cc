@@ -91,7 +91,7 @@ CrystalPad::CrystalPad(unsigned number, const std::vector<HepPoint3D>& corners,c
       //      std::cout << " Constructor 2; input corners "  << std::endl;
       for(unsigned ic=0;ic<4;++ic)
 	{	
-	  HepPoint3D corner=corners[ic];
+	  HepPoint3D corner(corners[ic]);
 	  //	  std::cout << corner << " " ;
 	  corner.transform(trans_);
 	  //	  std::cout << corner << std::endl ;
