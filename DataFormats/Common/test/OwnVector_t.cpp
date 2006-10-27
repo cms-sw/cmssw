@@ -1,7 +1,8 @@
 #include <algorithm>
 #include <cassert>
-#include "DataFormats/Common/interface/OwnVector.h"
+#include <memory>
 
+#include "DataFormats/Common/interface/OwnVector.h"
 
 
 struct Base
@@ -156,6 +157,14 @@ void take_an_lvalue()
   assert( p==0 );
 }
 
+void take_an_auto_ptr()
+{
+  edm::OwnVector<Base> v1;
+  std::auto_ptr<Base> p(new Derived(100));
+  v1.push_back(p);
+  assert( p.get() == 0 );
+}
+
 int main()
 {
   edm::OwnVector<Base> vec;
@@ -172,7 +181,10 @@ int main()
   pop_one();
   back_with_null_pointer();
 
+  std::cerr << "Sending RVALUES\n";
   take_an_rvalue();
+  std::cerr << "Sending LVALUES\n";
   take_an_lvalue();
+  std::cerr << "Sending auto_ptr\n";
+  take_an_auto_ptr();
 }
-

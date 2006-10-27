@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.11 2006/10/25 21:56:29 wmtan Exp $
+// $Id: OwnVector.h,v 1.12 2006/10/26 16:49:42 paterno Exp $
 
 #include <algorithm>
 #include <functional>
@@ -15,6 +15,7 @@
 #include "DataFormats/Common/interface/debugging_allocator.h"
 #endif
 
+#include <iostream>
 
 namespace edm {
 
@@ -116,7 +117,8 @@ namespace edm {
       
     void reserve( size_t );
     template <typename D> void push_back( D*& d );
-    template <typename D> void push_back( D* const& d );
+    template <typename D> void push_back( D* const&  d );
+    template <typename D> void push_back( std::auto_ptr<D> d);
     bool is_back_safe() const;
     void pop_back();
     reference back();
@@ -229,6 +231,11 @@ namespace edm {
   template<typename T, typename P>
   template<typename D>
   inline void OwnVector<T, P>::push_back( D*& d ) {
+    // C++ does not yet support rvalue references, so d should only be
+    // able to bind to an lvalue.
+    // This should be called only for lvalues.
+    std::cerr << "Looks like an LVALUE, argument shall be modified\n";
+
     data_.push_back( d );
     d = 0;
   }
@@ -236,8 +243,22 @@ namespace edm {
   template<typename T, typename P>
   template<typename D>
   inline void OwnVector<T, P>::push_back( D* const& d ) {
+
+    // C++ allows d to be bound to an lvalue or rvalue. But the other
+    // signature should be a better match for an lvalue (because it
+    // does not require an lvalue->rvalue conversion). Thus this
+    // signature should only be chosen for rvalues.
+    std::cerr << "Looks like an RVALUE, argument shall not be modified\n";
     data_.push_back( d );
   }
+
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::push_back( std::auto_ptr<D> d ) {
+    data_.push_back( d.release() );
+  }
+
 
   template<typename T, typename P>
   inline void OwnVector<T, P>::pop_back() {
