@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include<map>
 
@@ -22,6 +23,16 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, edm::ParameterSet conf):
     chi2cut(conf.getParameter<double>("chi2cut")),
     onlyDiagonal(conf.getParameter<bool>("onlyDiagonal")){
+    theMF=mF;  
+    if (onlyDiagonal)
+      edm::LogInfo("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms = 0 ---- " <<  "\n";
+    else 
+      edm::LogInfo("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms != 0 ---- " <<  "\n";
+  }
+
+  TrackAssociatorByChi2(const edm::ESHandle<MagneticField> mF, double chi2Cut, bool onlyDiag){
+    chi2cut=chi2Cut;
+    onlyDiagonal=onlyDiag;
     theMF=mF;  
   }
 

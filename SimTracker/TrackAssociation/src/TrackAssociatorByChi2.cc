@@ -4,7 +4,6 @@
 #include "TrackingTools/GeomPropagators/interface/HelixExtrapolatorToLine2Order.h"
 #include "Geometry/Surface/interface/Line.h"
 #include "Geometry/Vector/interface/Pi.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
 using namespace reco;
@@ -83,18 +82,21 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 
   int tindex=0;
   for (TrackCollection::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
+
+    LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
+				 << "rec::Track #"<<tindex<<" with pt=" << rt->pt() <<  "\n"
+				 << "===========================================" << "\n";
  
     TrackBase::ParameterVector rParameters = rt->parameters();
     TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
     if (onlyDiagonal){
-      LogDebug("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms = 0 ---- " <<  "\n";
       for (unsigned int i=0;i<5;i++){
 	for (unsigned int j=0;j<5;j++){
 	  if (i!=j) recoTrackCovMatrix(i,j)=0;
 	}
       }
     } 
-    else LogDebug("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms != 0 ---- " <<  "\n";
+
     recoTrackCovMatrix.Invert();
 
     int tpindex =0;
@@ -114,7 +116,6 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 	  vind++;
 	}
 
-	//TrackBase::ParameterVector tParameters=parametersAtClosestApproach2Order(vert, momAtVtx, rt->charge());
 	TrackBase::ParameterVector gParameters=parametersAtClosestApproachGeom(vert, momAtVtx, rt->charge());
 
 	//sParameters[0] = k;
@@ -123,44 +124,33 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 	//sParameters[3] = d0;
 	//sParameters[4] = dz;
 	
-// 	LogDebug("TrackAssociator") << "============NEW TRACKING PARTICLE=============" << "\n" 
-// 				    << "============WITH PT=" << (*t)->momentum().perp() << "\n" 
-// 				    << "k     simG: " << gParameters[0] << "\n" 
-// 				    << "theta simG: " << gParameters[1] << "\n" 
-// 				    << "phi0  simG: " << gParameters[2] << "\n" 
-// 				    << "d0    simG: " << gParameters[3] << "\n" 
-// 				    << "dz    simG: " << gParameters[4] << "\n" 
-// 				    << ": " /*<< */ << "\n" 
-// 	  // 				    << "k     sim2: " << tParameters[0] << "\n" 
-// 	  // 				     << "theta sim2: " << tParameters[1] << "\n" 
-// 	  // 				     << "phi0  sim2: " << tParameters[2] << "\n" 
-// 	  // 				     << "d0    sim2: " << tParameters[3] << "\n" 
-// 	  // 				     << "dz    sim2: " << tParameters[4] << "\n" 
-// 	  // 				     << ": " /*<< */ << "\n" 
-// 				    << "k     rec: " << rt->transverseCurvature() << "\n" 
-// 				    << "theta rec: " << rt->theta() << "\n" 
-// 				    << "phi0  rec: " << rt->phi0() << "\n" 
-// 				    << "d0    rec: " << rt->d0() << "\n" 
-// 				    << "dz    rec: " << rt->dz() << "\n" 
-// 				    << ": " /*<< */ << "\n" 
-// 				    << "k     simV: "<<-rt->charge()*2.99792458e-3*theMF->inTesla((GlobalPoint) vert).z()
-// 	  /momAtVtx.perp()<<"\n" 
-// 				    << "theta simV: " << momAtVtx.theta() << "\n" 
-// 				    << "phi0  simV: " << momAtVtx.phi() << "\n" 
-// 				    << "d0    simV: " << vert.perp() << "\n" 
-// 				    << "dz    simV: " << vert.z() << "\n" 
-// 				    << ": " /*<< */ << "\n" 
-// 				    << ": " /*<< */ << "\n" 
-// 				    << ": " /*<< */ << "\n";
-	
 	//use parametersAtClosestApproachGeom
 	TrackBase::ParameterVector diffParameters = rParameters - gParameters;
-	chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
+// 	LogDebug("TrackAssociator") << "ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters): " 
+// 				    << ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters) << "\n"
+// 				    << "ROOT::Math::Dot(diffParameters, recoTrackCovMatrix * diffParameters): " 
+// 				    << ROOT::Math::Dot(diffParameters, recoTrackCovMatrix * diffParameters) << "\n"
+// 				    << "ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix): " 
+// 				    << ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix) << "\n";
+	chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
 	chi2 /= 5;
-// 	LogDebug("TrackAssociator") << "chi2: " << chi2 << "\n";
+
+	LogDebug("TrackAssociator") << "====NEW TRACKING PARTICLE WITH PT=" << (*t)->momentum().perp() << "====\n" 
+				    << "k     simG: " << gParameters[0] << "\n" 
+				    << "theta simG: " << gParameters[1] << "\n" 
+				    << "phi0  simG: " << gParameters[2] << "\n" 
+				    << "d0    simG: " << gParameters[3] << "\n" 
+				    << "dz    simG: " << gParameters[4] << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "k     rec: " << rt->transverseCurvature() << "\n" 
+				    << "theta rec: " << rt->theta() << "\n" 
+				    << "phi0  rec: " << rt->phi0() << "\n" 
+				    << "d0    rec: " << rt->d0() << "\n" 
+				    << "dz    rec: " << rt->dz() << "\n" 
+				    << ": " /*<< */ << "\n" 
+				    << "chi2: " << chi2 << "\n";
 
 	if (chi2<chi2cut) {
-	
 	  outputCollection.insert(reco::TrackRef(tCH,tindex), 
 				  std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),chi2));
 	}
@@ -186,6 +176,12 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
   int tpindex =0;
   for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
     for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
+
+      if ((*t)->momentum().perp()<0.5) continue;
+
+    LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
+				 << "TrackingParticle #"<<tpindex<<" with pt=" << (*t)->momentum().perp() << "\n"
+				 << "===========================================" << "\n";
       
       Basic3DVector<double> momAtVtx((*t)->momentum().x(),(*t)->momentum().y(),(*t)->momentum().z());
       Basic3DVector<double> vert;//(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
@@ -204,19 +200,20 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 	TrackBase::ParameterVector rParameters = rt->parameters();
 	TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
 	if (onlyDiagonal) {
-	  LogDebug("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms = 0 ---- " <<  "\n";
 	  for (unsigned int i=0;i<5;i++){
 	    for (unsigned int j=0;j<5;j++){
 	      if (i!=j) recoTrackCovMatrix(i,j)=0;
 	    }
 	  }
 	}
-	else LogDebug("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms != 0 ---- " <<  "\n";
+
 	recoTrackCovMatrix.Invert();
 	
 	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-	LogDebug("TrackAssociator") << "============NEW TRACKING PARTICLE=============" << "\n" 
-				    << "============WITH PT=" << (*t)->momentum().perp() << "\n" 
+
+	chi2 = ROOT::Math::Similarity(recoTrackCovMatrix, diffParameters);
+	chi2 /= 5;
+	LogDebug("TrackAssociator") << "====NEW RECO TRACK WITH PT=" << rt->pt() << "====\n" 
 				    << "k     simG: " << sParameters[0] << "\n" 
 				    << "theta simG: " << sParameters[1] << "\n" 
 				    << "phi0  simG: " << sParameters[2] << "\n" 
@@ -229,11 +226,7 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 				    << "d0    rec: " << rt->d0() << "\n" 
 				    << "dz    rec: " << rt->dz() << "\n" 
 				    << ": " /*<< */ << "\n" 
-				    << ": " /*<< */ << "\n" 
-				    << ": " /*<< */ << "\n";
-	chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
-	chi2 /= 5;
-	LogDebug("TrackAssociator") << "chi2: " << chi2 << "\n";
+				    << "chi2: " << chi2 << "\n";
 
 	if (chi2<chi2cut) {
 	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
@@ -281,7 +274,7 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproach2Or
   sParameters[2] = momAtPca.phi();
   sParameters[3] = d0simT;
   sParameters[4] = pca.z();
-
+#if 0
   LogDebug("TrackAssociator") << "+++++++++++++++parametersAtClosestApproach2ORDER++++++++++++++" << "\n"
 			       << "vertex.x(): " << vertex.x() << "\n"
 			       << "vertex.y(): " << vertex.y() << "\n"
@@ -314,7 +307,7 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproach2Or
 			       << "dz   : " << sParameters[4] << "\n"
 			       << " " /*<< */ << "\n"
 			       << " " /*<< */ << "\n";
-  
+#endif  
   return sParameters;
 }
 
@@ -369,6 +362,7 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeo
   sParameters[3] = d0sim1;
   sParameters[4] = dzsim1;
 
+#if 0
   LogDebug("TrackAssociator") << "+++++++++++++++parametersAtClosestApproachGEOM++++++++++++++" << "\n"
     //<< "alpha: " << atan2(cos(phiAtVtx)*vertex.x()+sin(phiAtVtx)*vertex.y(),
     //rho-sin(phiAtVtx)*vertex.x()+cos(phiAtVtx)*vertex.y()) << "\n"
@@ -408,7 +402,7 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeo
 			      << "dz   : " << sParameters[4] << "\n"
 			      << " " /*<< */ << "\n"
 			      << " " /*<< */ << "\n";
-
+#endif
   return sParameters;
 }
 	
