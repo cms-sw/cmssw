@@ -26,23 +26,15 @@
 
 namespace helper {
 
-  template<typename C, typename P = typename edm::clonehelper::CloneTrait<C>::type>
-  struct CloneFromIterator {
-    template<typename I>
-    static const typename C::value_type & makeClone( const I & i ) {
-      return P::clone( * * i );
-    }
-  };
-  
   template<typename C, 
-	   typename M = CloneFromIterator<C> >
+	   typename P = typename edm::clonehelper::CloneTrait<C>::type>
   struct SimpleCollectionStoreManager {
     SimpleCollectionStoreManager() : selected_( new C ) { 
     }
     template<typename I>
     void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
       for( I i = begin; i != end; ++ i )
-        selected_->push_back( M::makeClone( i ) );
+        selected_->push_back( P::clone( * * i ) );
     }
     void put( edm::Event & evt ) {
       evt.put( selected_ );
