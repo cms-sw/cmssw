@@ -4,5 +4,5 @@
 #include "IORawData/SiStripInputSources/interface/TBRUInputSource.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(TBRUInputSource)
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(TBRUInputSource);
 

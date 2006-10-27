@@ -9,6 +9,6 @@
 
 
 EVENTSETUP_DATA_REG(TransientTrackBuilder);
-DEFINE_FWK_EVENTSETUP_MODULE(TransientTrackBuilderESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(TransientTrackBuilderESProducer);
 
 

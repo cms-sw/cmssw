@@ -6,5 +6,5 @@ DEFINE_SEAL_PLUGIN(DaqReaderPluginFactory, CSCFileReader, "CSCFileReader");
 
 #include "CSCFileDumper.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_ANOTHER_FWK_MODULE(CSCFileDumper)
+DEFINE_ANOTHER_FWK_MODULE(CSCFileDumper);
 

@@ -5,5 +5,5 @@
 #include "DQM/TrackerMonitorTrack/interface/MonitorTrackGlobal.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MonitorTrackGlobal)
-DEFINE_ANOTHER_FWK_MODULE(MonitorTrackResiduals)
+DEFINE_ANOTHER_FWK_MODULE(MonitorTrackGlobal);
+DEFINE_ANOTHER_FWK_MODULE(MonitorTrackResiduals);

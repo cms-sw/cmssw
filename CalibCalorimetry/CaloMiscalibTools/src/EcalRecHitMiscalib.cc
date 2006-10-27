@@ -129,4 +129,4 @@ EcalRecHitMiscalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //define it as module
-//DEFINE_ANOTHER_FWK_MODULE(EcalRecHitMiscalib)
+//DEFINE_ANOTHER_FWK_MODULE(EcalRecHitMiscalib);

@@ -2,8 +2,8 @@
  * 
  *  implementation of CSCMonitor class
  *
- *  $Date: 2006/06/28 09:56:51 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/08/30 13:11:09 $
+ *  $Revision: 1.15 $
  *
  * \author Ilaria Segoni
  */
@@ -93,7 +93,7 @@ using namespace edm::serviceregistry;
 typedef ParameterSetMaker<CSCMonitorInterface,CSCMonitor> maker;
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(CSCMonitor,maker)
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(CSCMonitor,maker);
 
 
 

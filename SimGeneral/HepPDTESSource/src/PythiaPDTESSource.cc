@@ -38,4 +38,4 @@ void PythiaPDTESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordK
 }
 
 //define this as a plug-in
-//DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE( PythiaPDTESSource )
+//DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE( PythiaPDTESSource );

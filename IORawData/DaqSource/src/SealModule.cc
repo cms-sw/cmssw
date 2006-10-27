@@ -4,7 +4,7 @@
 
 // The DaqSource input source
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(DaqSource)
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(DaqSource);
 
 
 // DaqFakeReader as a SEAL plugin

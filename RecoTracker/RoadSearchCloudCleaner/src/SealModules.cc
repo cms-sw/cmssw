@@ -7,4 +7,4 @@
 
 using cms::RoadSearchCloudCleaner;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RoadSearchCloudCleaner)
+DEFINE_ANOTHER_FWK_MODULE(RoadSearchCloudCleaner);

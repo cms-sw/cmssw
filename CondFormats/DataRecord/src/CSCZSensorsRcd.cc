@@ -4,4 +4,4 @@
 // #include "FWCore/Framework/interface/SourceFactory.h"
 
 EVENTSETUP_RECORD_REG(CSCZSensorsRcd);
-// DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCZSensorsRcd)
+// DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCZSensorsRcd);

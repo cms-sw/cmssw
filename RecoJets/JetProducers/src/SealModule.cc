@@ -13,7 +13,7 @@ using cms::KtJetProducer;
 using cms::IterativeConeJetProducer;
 using cms::ToyJetCorrector;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MidpointJetProducer)
-DEFINE_ANOTHER_FWK_MODULE(KtJetProducer)
-DEFINE_ANOTHER_FWK_MODULE(IterativeConeJetProducer)
-DEFINE_ANOTHER_FWK_MODULE(ToyJetCorrector)
+DEFINE_ANOTHER_FWK_MODULE(MidpointJetProducer);
+DEFINE_ANOTHER_FWK_MODULE(KtJetProducer);
+DEFINE_ANOTHER_FWK_MODULE(IterativeConeJetProducer);
+DEFINE_ANOTHER_FWK_MODULE(ToyJetCorrector);

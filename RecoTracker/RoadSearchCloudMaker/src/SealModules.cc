@@ -7,4 +7,4 @@
 
 using cms::RoadSearchCloudMaker;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RoadSearchCloudMaker)
+DEFINE_ANOTHER_FWK_MODULE(RoadSearchCloudMaker);

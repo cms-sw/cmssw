@@ -7,4 +7,4 @@
 
 using cms::RoadSearchTrackCandidateMaker;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RoadSearchTrackCandidateMaker)
+DEFINE_ANOTHER_FWK_MODULE(RoadSearchTrackCandidateMaker);

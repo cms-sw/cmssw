@@ -12,15 +12,15 @@
 /*
   using edm::MCFileSource; 
   DEFINE_SEAL_MODULE();
-  DEFINE_ANOTHER_FWK_INPUT_SOURCE(MCFileSource)
+  DEFINE_ANOTHER_FWK_INPUT_SOURCE(MCFileSource);
 */
 // particle gun prototypes
 //
   DEFINE_SEAL_MODULE();
   
 using edm::FlatEGunASCIIWriter;
-DEFINE_ANOTHER_FWK_MODULE(FlatEGunASCIIWriter)
+DEFINE_ANOTHER_FWK_MODULE(FlatEGunASCIIWriter);
 using edm::FlatRandomEGunSource;
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(FlatRandomEGunSource)
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(FlatRandomEGunSource);
 using edm::FlatRandomPtGunSource;
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(FlatRandomPtGunSource)
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(FlatRandomPtGunSource);

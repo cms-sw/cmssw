@@ -4,5 +4,5 @@
 #include "SimTracker/TrackAssociatorESProducer/src/TrackAssociatorByChi2ESProducer.hh"
 #include "SimTracker/TrackAssociatorESProducer/src/TrackAssociatorByHitsESProducer.hh"
 
-DEFINE_FWK_EVENTSETUP_MODULE(TrackAssociatorByHitsESProducer)
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(TrackAssociatorByChi2ESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(TrackAssociatorByHitsESProducer);
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(TrackAssociatorByChi2ESProducer);

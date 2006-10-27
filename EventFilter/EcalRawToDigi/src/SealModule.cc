@@ -3,4 +3,4 @@
 #include "PluginManager/ModuleDef.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(EcalRawToDigi)
+DEFINE_ANOTHER_FWK_MODULE(EcalRawToDigi);

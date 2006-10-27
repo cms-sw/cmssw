@@ -4,5 +4,5 @@
 #include <EventFilter/CSCRawToDigi/interface/DigiAnalyzer.h>
 
 
-DEFINE_FWK_MODULE(CSCDCCUnpacker)
+DEFINE_FWK_MODULE(CSCDCCUnpacker);
 DEFINE_ANOTHER_FWK_MODULE(DigiAnalyzer);

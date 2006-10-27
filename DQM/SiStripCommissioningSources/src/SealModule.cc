@@ -4,5 +4,5 @@
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSource.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningSource)
+DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningSource);
   

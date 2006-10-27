@@ -8,5 +8,5 @@
 using cms::ReadTrackCandidates;
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(ReadTrackCandidates)
+DEFINE_ANOTHER_FWK_MODULE(ReadTrackCandidates);
 

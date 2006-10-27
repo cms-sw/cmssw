@@ -6,5 +6,5 @@
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialObjectAnalyzer.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(EcalTrivialConditionRetriever)
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(EcalTrivialConditionRetriever);
 DEFINE_ANOTHER_FWK_MODULE(EcalTrivialObjectAnalyzer);

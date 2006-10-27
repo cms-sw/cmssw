@@ -5,4 +5,4 @@
 
   DEFINE_SEAL_MODULE();
   using edm::H2RootNtplSource;
-  DEFINE_ANOTHER_FWK_INPUT_SOURCE(H2RootNtplSource)
+  DEFINE_ANOTHER_FWK_INPUT_SOURCE(H2RootNtplSource);

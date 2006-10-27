@@ -4,5 +4,5 @@
 #include "RecoTBCalo/HcalTBTools/interface/HcalTBTriggerFilter.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalTBTriggerFilter)
+DEFINE_ANOTHER_FWK_MODULE(HcalTBTriggerFilter);
 
