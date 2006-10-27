@@ -5,6 +5,9 @@
 #include <string>
 #include <boost/python.hpp>
 
+// bad form?
+using namespace boost::python;
+
 namespace edm {
 //  boost::python::list toPythonList(const std::vector<std::string> & v);
   // utility to translate from an STL vector of strings to
@@ -27,25 +30,22 @@ namespace edm {
   std::vector<T> toVector(boost::python::list & l)
   {
     std::vector<T> result;
-    bool is_ok = true;
     try
     {
-      while( is_ok ) {
-        boost::python::extract<T>  x( l.pop( 0 ));
+      object iter_obj = object( handle<>( PyObject_GetIter( l.ptr() ) ));
 
-        if( x.check()) {
-          result.push_back( x());
-        } else {
-          is_ok = false;
-        }
-      }
+      while( 1 )
+	    {
+	      object obj = extract<object>( iter_obj.attr( "next" )() );
+	      result.push_back(extract<T>( obj )); 
+	    }
     }
-    // the pop will end in an exception
-    catch(...)
+    catch( error_already_set )
     {
+      PyErr_Clear(); 
     }
 
-    return result;
+  return result;
   }
 
 }
