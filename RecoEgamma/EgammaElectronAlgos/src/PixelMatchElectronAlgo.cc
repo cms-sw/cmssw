@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.18 2006/10/27 15:04:31 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.19 2006/10/27 16:30:56 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -123,8 +123,11 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   edm::Handle<TrackCollection> tracksEndcapH;
   // to check existance
   edm::Handle<HBHERecHitCollection> hbhe;
-  if (hOverEConeSize_ > 0.) e.getByType(hbhe);
-  HBHERecHitMetaCollection mhbhe(*hbhe);
+  HBHERecHitMetaCollection *mhbhe=0;
+  if (hOverEConeSize_ > 0.) {
+    e.getByType(hbhe);
+    mhbhe=  &HBHERecHitMetaCollection(*hbhe);
+  }
   e.getByLabel(trackBarrelLabel_,trackBarrelInstanceName_,tracksBarrelH);
   e.getByLabel(trackEndcapLabel_,trackEndcapInstanceName_,tracksEndcapH);
   edm::Handle<SeedSuperClusterAssociationCollection> barrelH;
@@ -158,7 +161,7 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
 }
 
 void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss,
-                                     HBHERecHitMetaCollection mhbhe, PixelMatchGsfElectronCollection & outEle) {
+                                     HBHERecHitMetaCollection *mhbhe, PixelMatchGsfElectronCollection & outEle) {
   const TrackCollection *tracks=tracksH.product();
   for (unsigned int i=0;i<tracks->size();++i) {
     const Track & t=(*tracks)[i];
@@ -199,7 +202,7 @@ void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, const
   }  // loop over tracks
 }
 
-bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Track& track, HBHERecHitMetaCollection mhbhe) 
+bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Track& track, HBHERecHitMetaCollection *mhbhe) 
 {
   LogInfo("")<< "========== preSelection ==========";
  
@@ -231,13 +234,13 @@ bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Track&
   LogInfo("") << "delta phi : " << dphi;
   if (fabs(dphi) > maxDeltaPhi_) return false;
   LogInfo("") << "Delta phi criteria is satisfied ";
-  // had/em criteria if non zero cone size given
-  if (hOverEConeSize_ > 0.) {
+  // had/em criteria if hcal rechits available
+  if (mhbhe) {
     //cout << "calo position is eta-phi = " << clus.eta() << " " << clus.phi() << endl;
     CaloConeSelector sel(hOverEConeSize_, theCaloGeom.product(), DetId::Hcal);
     GlobalPoint pclu(clus.x(),clus.y(),clus.z());
     double hcalEnergy = 0.;
-    std::auto_ptr<CaloRecHitMetaCollectionV> chosen=sel.select(pclu,mhbhe);
+    std::auto_ptr<CaloRecHitMetaCollectionV> chosen=sel.select(pclu,*mhbhe);
     for (CaloRecHitMetaCollectionV::const_iterator i=chosen->begin(); i!=chosen->end(); i++) {
       //std::cout << HcalDetId(i->detid()) << " : " << (*i) << std::endl;
       hcalEnergy += i->energy();
