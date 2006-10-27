@@ -60,7 +60,7 @@ public:
   virtual ~Geant4ePropagatorAnalyzer() {}
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  virtual void endJob();
   virtual void beginJob(edm::EventSetup const & iSetup);
 
 
@@ -70,8 +70,12 @@ protected:
   int theEvent;
 
   Propagator* thePropagator;
-  std::auto_ptr<sim::FieldBuilder> theFieldBuilder;
+  //std::auto_ptr<sim::FieldBuilder> theFieldBuilder;
+
+  //Magnetic field
   edm::ParameterSet theMagneticFieldPSet;
+  
+
 
 };
 
@@ -88,6 +92,11 @@ Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet& p)
 
 void Geant4ePropagatorAnalyzer::beginJob(edm::EventSetup const & iSetup) {
   LogDebug("Geant4e") << "Nothing done in beginJob...";
+}
+
+void Geant4ePropagatorAnalyzer::endJob() {
+  
+  TimingReport::current()->dump(std::cout);
 }
 
 void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent, 
@@ -203,9 +212,16 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 
     //DEBUG
     counter++;
-    LogDebug("Geant4e") << "Iterating over " << counter << " track. Number: " 
+    LogDebug("Geant4e") << "G4e -- Iterating over " << counter 
+			<< " track. Number: " 
 			<< simTracksIt->genpartIndex();
     //DEBUG
+
+    int simTrackPDG = simTracksIt->type();
+    if (abs(simTrackPDG) != 13 ) {
+      continue;
+    }
+    LogDebug("Geant4e") << "G4e -- Track PDG " << simTrackPDG;
 
     //- Timing
     TimeMe tProp("Geant4ePropagatorAnalyzer::analyze::propagate");
@@ -270,19 +286,20 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 
 
     ////////////////////////////////////////////////
-    //- Iterate over Hits in DT and check propagation
+    //- Iterate over Sim Hits in DT and check propagation
     for (PSimHitContainer::const_iterator simHitDTIt = simHitsDT->begin(); 
 	 simHitDTIt != simHitsDT->end(); 
 	 simHitDTIt++){
 
-      //+ Skip if this hit does not belong to the track
-//       if (simHitDTIt->trackId() != trkInd ) {
-// 	LogDebug("Geant4e") << "Hit (in tr " << simHitDTIt->trackId()
-// 			    << ") does not belong to track "<< trkInd;
-// 	continue;
-//       }
 
-//       LogDebug("Geant4e") << "Hit belongs to track";
+      //+ Skip if this hit does not belong to the track
+      if (simHitDTIt->trackId() != trkInd ) {
+ 	LogDebug("Geant4e") << "Hit (in tr " << simHitDTIt->trackId()
+ 			    << ") does not belong to track "<< trkInd;
+ 	continue;
+      }
+
+      LogDebug("Geant4e") << "G4e -- Hit belongs to track " << simHitDTIt->trackId();
 
       //+ Skip if it is not a muon (this is checked before also)
       if (abs(simHitDTIt->particleType()) != 13) {
