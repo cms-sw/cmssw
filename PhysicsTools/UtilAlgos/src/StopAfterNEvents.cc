@@ -1,7 +1,7 @@
-#include "PhysicsTools/RecoQA/src/StopAfterNEvents.h"
+#include "PhysicsTools/UtilAlgos/src/StopAfterNEvents.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <iostream>
-// $Id: StopAfterNEvents.cc,v 1.2 2006/04/23 16:11:08 wmtan Exp $ 
+// $Id: StopAfterNEvents.cc,v 1.1 2006/10/25 09:54:48 llista Exp $ 
 
 using namespace std;
 using namespace edm;
