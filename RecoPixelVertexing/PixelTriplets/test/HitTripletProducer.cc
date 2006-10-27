@@ -14,6 +14,9 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/PixelHitTripletGenerator.h"
 
+#include "RecoPixelVertexing/PixelTriplets/interface/XXXPixelTrackFilter.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/XXXPixelTrackFilterFactory.h"
+
 
 class HitTripletProducer : public edm::EDAnalyzer {
 public:
@@ -44,6 +47,12 @@ void HitTripletProducer::analyze(
 {
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   ev.getByType(pixelHits);
+
+//    edm::ParameterSet pset = theConfig.getParameter<edm::ParameterSet>("TripletsPSet");
+//    XXXPixelTrackFilter * aGen =
+//    XXXPixelTrackFilterFactory::get()->create("XXXPixelTrackFilterByKinematics",pset);
+//    aGen->koko();
+
 
   if (!generator) {
     edm::ParameterSet pset = theConfig.getParameter<edm::ParameterSet>("TripletsPSet");
