@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerMapTool.cc,v 1.2 2006/04/12 12:05:08 fambrogl Exp $
+// $Id: TrackerMapTool.cc,v 1.3 2006/10/24 11:35:08 fambrogl Exp $
 //
 //
 
@@ -254,8 +254,8 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
         nmod=(int)((phi/(2.*M_PI))*24+.1)+1;
       }
     } //end of endcap part
-    if (isStereo==2) nmod=nmod+100;
-    name4=" "; if (isStereo==2)name4=" stereo";
+    if (isStereo==1) nmod=nmod+100;
+    name4=" "; if (isStereo==1)name4=" stereo";
     ostringstream outs;
     if(subdet==6)
       outs << nameDet<<" "<<name0<<" layer " <<layer<<name1<<ringno<<name2<<petalno<<name5<<" module  "<<moduleno<<name3<<" "<<name4;
