@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAnalyzer.cc,v 1.3 2006/10/17 09:24:19 uberthon Exp $
+// $Id: PixelMatchElectronAnalyzer.cc,v 1.4 2006/10/27 15:04:05 uberthon Exp $
 //
 //
 
@@ -130,8 +130,12 @@ PixelMatchElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
 
     // correlation etc
     histESclOPTr_->Fill((sclRef->energy())/pTr);
-    histDeltaEta_->Fill(sclRef->eta()-(*tr).outerEta());
-    histDeltaPhi_->Fill(sclRef->phi()-(*tr).outerPhi());
+    //CC@@
+    //histDeltaEta_->Fill(sclRef->eta()-(*tr).outerEta());
+    histDeltaEta_->Fill((*MyS).deltaEtaSuperClusterTrackAtVtx());
+    //CC@@
+    //histDeltaPhi_->Fill(sclRef->phi()-(*tr).outerPhi());
+    histDeltaPhi_->Fill((*MyS).deltaPhiSuperClusterTrackAtVtx());
 
   }
   
