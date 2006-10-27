@@ -7,29 +7,30 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: SingleElementCollectionSelector.h,v 1.2 2006/07/25 17:20:27 llista Exp $
+ * $Id: SingleElementCollectionSelector.h,v 1.3 2006/10/27 07:55:03 llista Exp $
  *
  */
-#include <vector>
-#include "FWCore/Framework/interface/Handle.h"
+#include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
 
-namespace edm { class Event; }
-
-template<typename C, typename S>
+template<typename C, typename S, 
+	 typename SC = std::vector<const typename C::value_type *>, 
+	 typename A = typename helper::SelectionAdderTrait<SC>::type>
 struct SingleElementCollectionSelector {
   typedef C collection;
-  typedef std::vector<const typename C::value_type *> container;
+  typedef SC container;
   typedef typename container::const_iterator const_iterator;
   SingleElementCollectionSelector( const edm::ParameterSet & cfg ) : 
     select_( cfg ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
   void select( const edm::Handle<C> & c, const edm::Event & ) {
-    selected_.clear();
-    for( typename C::const_iterator i = c->begin(); i != c->end(); ++ i )
-      if ( select_( * i ) ) selected_.push_back( & * i );
+    selected_.clear();    
+    for( size_t idx = 0; idx < c->size(); ++ idx ) {
+      if ( select_( ( * c )[ idx ] ) ) 
+	A::add( selected_, c, idx );
+    }
   }
 private:
   container selected_;

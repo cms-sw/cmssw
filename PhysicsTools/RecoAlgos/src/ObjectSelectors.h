@@ -70,8 +70,11 @@ namespace reco {
     /// storing a polymorphic collection of 
     /// shallow clone candidates
     typedef ObjectShallowCloneSelector<
-              reco::CaloJetCollection,
-              EtMinSelector<reco::CaloJet>
+              SingleElementCollectionSelector<
+                reco::CaloJetCollection,
+                EtMinSelector<reco::CaloJet>,
+                edm::RefVector<reco::CaloJetCollection>
+              >
             > EtMinCaloJetShallowCloneSelector;
 
      /// select electrons above a give pt

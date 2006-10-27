@@ -6,7 +6,6 @@
  *
  */
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementRefVectorCollectionSelector.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
@@ -28,20 +27,21 @@ namespace helper {
     std::auto_ptr<reco::CandidateCollection> selected_;
   };
 
+  template<typename C>
+  struct ShallowCloneCollectionStoreManager {
+    typedef RefVectorShallowCloneStoreMananger type;
+    typedef ObjectSelectorBase<reco::CandidateCollection> base;
+  };
+ 
 }
 
-template<typename C, 
-	 typename S, 
-	 typename B = ObjectSelector<
-                        SingleElementRefVectorCollectionSelector<C, S>,
-                        helper::RefVectorShallowCloneStoreMananger,
-                        helper::ObjectSelectorBase<reco::CandidateCollection>
-                      > 
-        >
-class ObjectShallowCloneSelector : public B {
+template<typename S, 
+	 typename M = typename helper::CollectionStoreManager<typename S::collection>::type, 
+	 typename B = typename helper::CollectionStoreManager<typename S::collection>::base>
+class ObjectShallowCloneSelector : public ObjectSelector<S, M, B> {
 public:
   explicit ObjectShallowCloneSelector( const edm::ParameterSet & cfg ) :
-    B( cfg ) { }
+    ObjectSelector<S, M, B>( cfg ) { }
 };
 
 #endif

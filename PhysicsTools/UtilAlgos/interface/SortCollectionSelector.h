@@ -6,43 +6,48 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: SortCollectionSelector.h,v 1.3 2006/09/21 11:56:48 llista Exp $
+ * $Id: SortCollectionSelector.h,v 1.4 2006/10/27 07:55:03 llista Exp $
  *
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include <vector>
+#include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include <algorithm>
+#include <utility>
 namespace edm { class Event; }
 
-template<typename C, typename CMP>
-struct SortCollectionSelector {
+template<typename C, typename CMP, 
+	 typename SC = std::vector<const typename C::value_type *>, 
+	 typename A = typename helper::SelectionAdderTrait<SC>::type>
+class SortCollectionSelector {
   typedef C collection;
-  typedef std::vector<const typename C::value_type *> container;
+  typedef const typename C::value_type * reference;
+  typedef std::pair<reference, size_t> pair;
+  typedef std::vector<reference> container;
   typedef typename container::const_iterator const_iterator;
+
+public:
   SortCollectionSelector( const edm::ParameterSet & cfg ) : 
     compare_( CMP() ),
     maxNumber_( cfg.template getParameter<unsigned int>( "maxNumber" ) ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
   void select( const edm::Handle<C> & c, const edm::Event & ) {
-    container v;
-    for( typename C::const_iterator i = c->begin(); i != c->end(); ++ i )
-      v.push_back( & * i );
+    std::vector<pair> v;
+    for( size_t idx = 0; idx < c->size(); ++ idx )
+      v.push_back( std::make_pair( & ( * c )[ idx ], idx ) );
     std::sort( v.begin(), v.end(), compare_ );
     selected_.clear();
-    for( unsigned int i = 0; i < maxNumber_ && i < v.size(); ++i )
-      selected_.push_back( v[ i ] );
+    for( size_t i = 0; i < maxNumber_ && i < v.size(); ++i )
+      A::add( selected_, c, v[ i ].second );
   }
 private:
   struct Comparator {
-    typedef typename C::value_type value_type;
     Comparator( const CMP & cmp ) : cmp_( cmp ) { }
-    bool operator()( const value_type * t1, const value_type * t2 ) const {
-      return cmp_( * t1, * t2 );
+    bool operator()( const pair & t1, const pair & t2 ) const {
+      return cmp_( * t1.first, * t2.first );
     } 
     CMP cmp_;
   };

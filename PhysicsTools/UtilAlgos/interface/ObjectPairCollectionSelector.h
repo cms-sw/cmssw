@@ -7,23 +7,27 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ObjectPairCollectionSelector.h,v 1.1 2006/10/03 10:47:40 llista Exp $
+ * $Id: ObjectPairCollectionSelector.h,v 1.2 2006/10/27 07:55:03 llista Exp $
  *
  */
 
-#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include <vector>
 namespace edm { class Event; }
 
-template<typename C, typename S>
-struct ObjectPairCollectionSelector {
+template<typename C, typename S,
+	 typename SC = std::vector<const typename C::value_type *>, 
+	 typename A = typename helper::SelectionAdderTrait<SC>::type>
+class ObjectPairCollectionSelector {
   typedef C collection;
-  typedef std::vector<const typename C::value_type *> container;
+  typedef const typename C::value_type * reference;
+  typedef std::vector<reference> container;
   typedef typename container::const_iterator const_iterator;
+
+public:
   ObjectPairCollectionSelector( const edm::ParameterSet & cfg ) : 
     select_( cfg ) { }
   const_iterator begin() const { return selected_.begin(); }
@@ -38,7 +42,7 @@ struct ObjectPairCollectionSelector {
       }
     selected_.clear();
     for( unsigned int i = 0; i < s; ++i )
-      if ( v[ i ] ) selected_.push_back( & (*c)[ i ] );
+      if ( v[ i ] ) A::add( selected_, c, i );
   }
   
 private:
