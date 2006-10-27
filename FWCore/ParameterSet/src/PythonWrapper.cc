@@ -8,6 +8,20 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(libFWCoreParameterSet)
 {
+   class_<edm::InputTag>("InputTag", init<std::string>())
+       .def(init<std::string, std::string>())
+       .def("label",    &edm::InputTag::label)
+       .def("instance", &edm::InputTag::instance)
+       .def("process",  &edm::InputTag::process)
+   ;
+
+
+   class_<edm::FileInPath>("FileInPath", init<std::string>())
+       .def("fullPath",     &edm::FileInPath::fullPath)
+       .def("relativePath", &edm::FileInPath::relativePath)
+       .def("isLocal",      &edm::FileInPath::isLocal)
+   ;
+
 
    class_<PythonParseTree>("PythonParseTree", init<std::string>())
        .def("modules",       &PythonParseTree::modules)
@@ -23,30 +37,35 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
        .def("dumpTree",      &PythonParseTree::dumpTree)
    ;
 
-  class_<PythonParameterSet>("PythonParameterSet")
+  class_<PythonParameterSet>("ParameterSet")
     .def("addInt32", &PythonParameterSet::addParameter<int>)
     .def("getInt32", &PythonParameterSet::getParameter<int>)
     .def("addVInt32", &PythonParameterSet::addParameters<int>)
     .def("getVInt32", &PythonParameterSet::getParameters<int>)
+    .def("addUInt32", &PythonParameterSet::addParameter<unsigned int>)
+    .def("getUInt32", &PythonParameterSet::getParameter<unsigned int>)
+    .def("addVUInt32", &PythonParameterSet::addParameters<unsigned int>)
+    .def("getVUInt32", &PythonParameterSet::getParameters<unsigned int>)
     .def("addDouble", &PythonParameterSet::addParameter<double>)
     .def("getDouble", &PythonParameterSet::getParameter<double>)
     .def("addVDouble", &PythonParameterSet::addParameters<double>)
     .def("getVDouble", &PythonParameterSet::getParameters<double>)
+    .def("addBool", &PythonParameterSet::addParameter<bool>)
+    .def("getBool", &PythonParameterSet::getParameter<bool>)
     .def("addString", &PythonParameterSet::addParameter<std::string>)
     .def("getString", &PythonParameterSet::getParameter<std::string>)
     .def("addVString", &PythonParameterSet::addParameters<std::string>)
     .def("getVString", &PythonParameterSet::getParameters<std::string>)
-//    .def("addInputTag", &PythonParameterSet::addParameter<edm::InputTag>)
-//    .def("getInputTag", &PythonParameterSet::getParameter<edm::InputTag>)
-//    .def("addVInputTag", &PythonParameterSet::addParameters<edm::InputTag>)
-//    .def("getVInt32", &PythonParameterSet::getParameters<edm::InputTag>)
-//    .def("addPSet", &PythonParameterSet::addParameter<int>)
-//    .def("getPSet", &PythonParameterSet::getParameter<int>)
-//    .def("addVPSet", &PythonParameterSet::addParameters<int>)
-//    .def("getVPSet", &PythonParameterSet::getParameters<int>)
-
-
-
+    .def("addInputTag", &PythonParameterSet::addParameter<edm::InputTag>)
+    .def("getInputTag", &PythonParameterSet::getParameter<edm::InputTag>)
+    .def("addVInputTag", &PythonParameterSet::addParameters<edm::InputTag>)
+    .def("getVInputTag", &PythonParameterSet::getParameters<edm::InputTag>)
+    .def("addPSet", &PythonParameterSet::addPSet)
+    .def("getPSet", &PythonParameterSet::getPSet)
+    .def("addVPSet", &PythonParameterSet::addParameters<edm::ParameterSet>)
+    .def("getVPSet", &PythonParameterSet::getParameters<edm::ParameterSet>)
+    .def("addFileInPath", &PythonParameterSet::addParameter<edm::FileInPath>)
+    .def("getFileInPath", &PythonParameterSet::getParameter<edm::FileInPath>)
   ;
      
    register_exception_translator<edm::Exception>(PythonParseTree::exceptionTranslator);
