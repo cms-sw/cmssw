@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: ObjectPairCollectionSelector.h,v 1.2 2006/10/27 07:55:03 llista Exp $
+ * $Id: ObjectPairCollectionSelector.h,v 1.3 2006/10/27 10:03:45 llista Exp $
  *
  */
 
@@ -24,7 +24,7 @@ template<typename C, typename S,
 class ObjectPairCollectionSelector {
   typedef C collection;
   typedef const typename C::value_type * reference;
-  typedef std::vector<reference> container;
+  typedef SC container;
   typedef typename container::const_iterator const_iterator;
 
 public:

@@ -25,7 +25,7 @@ class SortCollectionSelector {
   typedef C collection;
   typedef const typename C::value_type * reference;
   typedef std::pair<reference, size_t> pair;
-  typedef std::vector<reference> container;
+  typedef SC container;
   typedef typename container::const_iterator const_iterator;
 
 public:

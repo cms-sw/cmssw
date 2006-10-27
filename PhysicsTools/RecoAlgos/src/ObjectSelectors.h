@@ -112,6 +112,15 @@ namespace reco {
               > 
             > LargestEtCaloJetSelector;
 
+    /// select the N calo jets with highest Et
+    typedef ObjectShallowCloneSelector<
+              SortCollectionSelector<
+                reco::CaloJetCollection, 
+                EtInverseComparator<reco::CaloJet>,
+                edm::RefVector<reco::CaloJetCollection>
+              > 
+            > LargestEtCaloJetShallowCloneSelector;
+
     /// select track pairs within a given mass window
     typedef ObjectSelector<
               ObjectPairCollectionSelector<
