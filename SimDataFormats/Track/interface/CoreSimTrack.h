@@ -27,12 +27,13 @@ public:
     /// particle type (HEP PDT convension)
     int type() const { return thePID;}
     /// charge
-    //    float charge() const;
+    float charge() const;
     void setEventId(EncodedEventId e) {eId=e;}
     EncodedEventId eventId() const {return eId;}
     void setTrackId(unsigned int t) {tId=t;}
     unsigned int trackId() const {return tId;}
 private:
+    int chargeValue(const int&)const;
     EncodedEventId eId;
     unsigned int tId;
     int thePID;
