@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.3 2006/06/14 23:40:33 wmtan Exp $
+$Id: RefProd.h,v 1.4 2006/06/17 19:41:20 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -77,7 +77,7 @@ namespace edm {
 
     /// Returns C++ pointer to the product
     T const* get() const {
-      return this->operator->();
+      return isNull() ? 0 : this->operator->();
     }
 
     /// Checks for null

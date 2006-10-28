@@ -47,7 +47,7 @@ namespace edm {
     }
     /// return values collection
     static val_type val( const ref_type & ref, const map_assoc & iv ) {
-      val_type v( ref.val.id() );
+      val_type v;
       for( typename map_assoc::const_iterator idx = iv.begin(); idx != iv.end(); ++ idx )
 	v.push_back( edm::Ref<CVal>( ref.val, * idx ) );
       return v;

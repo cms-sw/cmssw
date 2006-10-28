@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.13 2006/10/21 02:48:57 wmtan Exp $
+$Id: Ref.h,v 1.14 2006/10/25 21:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -203,7 +203,7 @@ namespace edm {
 
     /// Returns C++ pointer to the item
     T const* get() const {
-      return this->operator->();
+      return isNull() ? 0 : this->operator->();
     }
 
     /// Checks for null
@@ -223,7 +223,9 @@ namespace edm {
 
     /// Accessor for product collection
     // Accessor must get the product if necessary
-    C const* product() const {return getProduct<C>(ref_.product());}
+    C const* product() const {
+      return isNull() ? 0 : getProduct<C>(ref_.product());
+    }
 
     /// Accessor for product key.
     key_type key() const {return ref_.item().key();}
