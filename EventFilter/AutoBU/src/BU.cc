@@ -39,7 +39,7 @@ BU::BU(xdaq::ApplicationStub *s)
   , fedSizeMax_(16384)
   , mode_("RANDOM")
   , debug_(true)
-  , dataBufSize_(4096)
+  , dataBufSize_(32768)
   , nSuperFrag_(64)
   , fedSizeMean_(1024)    // mean  of fed size for rnd generation
   , fedSizeWidth_(1024)   // width of fed size for rnd generation
@@ -140,16 +140,11 @@ void BU::timeExpired(toolbox::task::TimerEvent& e)
 void BU::actionPerformed(xdata::Event& e)
 {
   gui_->lockInfoSpaces();
-  if (e.type()=="ItemChangedEvent") {
-    string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
-    if (item=="mode") {
-      mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
-      LOG4CPLUS_ERROR(log_,"'mode' is read only! Add/Remove Playback data source!");
-    }
-  }
-  
   if (e.type()=="ItemRetrieveEvent") {
     string item=dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
+    if (item=="mode") {
+      mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
+    }
     if (item=="memUsedInMB") {
       if (0!=i2oPool_) memUsedInMB_=i2oPool_->getMemoryUsage().getUsed()*0.000001;
       else             memUsedInMB_=0.0;
@@ -166,9 +161,6 @@ void BU::configureAction(toolbox::Event::Reference e)
   // reset counters
   if (0!=gui_) gui_->resetCounters();
 
-  // check presence of event source to update 'mode' parameter
-  mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
-
   // initialze timer for nbEventsPerSec / nbMBPerSec measurements
   nbEventsLast_=0;
   nbBytes_=0;
@@ -184,9 +176,6 @@ void BU::configureAction(toolbox::Event::Reference e)
 void BU::enableAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
-  // check presence of event source to update 'mode' parameter
-  mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
-  
   // start timer for nbEventsPerSec / nbMBPerSec measurements
   toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
   if (0!=timer) {
@@ -309,11 +298,7 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     unsigned int evtNumber=(nbEvents_+1)%0x1000000;
     FEDRawDataCollection* event(0);
     if (0!=PlaybackRawDataProvider::instance()) {
-      mode_="PLAYBACK";
       event=PlaybackRawDataProvider::instance()->getFEDRawData(runNumber,evtNumber);
-    }
-    else {
-      mode_="RANDOM";
     }
     
     
@@ -489,11 +474,11 @@ void BU::exportParameters()
   gui_->addMonitorCounter("nbEventsPerSec",   &nbEventsPerSec_);
   gui_->addMonitorCounter("nbDiscardedEvents",&nbDiscardedEvents_);
 
-
   gui_->exportParameters();
 
-  gui_->addItemChangedListener("mode",this);
+  gui_->addItemRetrieveListener("mode",       this);
   gui_->addItemRetrieveListener("memUsedInMB",this);
+
 }
 
 

@@ -128,12 +128,13 @@ namespace evf {
     int estimateNBlocks(size_t fullBlockPayload);
   
     // create a supefragment
+    inline
     toolbox::mem::Reference *createSuperFrag(const I2O_TID& fuTid,
 					     const U32&     fuTransaction,
 					     const U32&     trigNo,
 					     const U32&     iSuperFrag,
 					     const U32&     nSuperFrag);
-  
+    
     // debug functionality
     void debug(toolbox::mem::Reference* ref);
     int  check_event_data(unsigned long* blocks_adrs,int nmb_blocks);
