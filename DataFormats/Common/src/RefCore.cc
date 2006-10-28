@@ -9,6 +9,12 @@ namespace edm {
   }
 
   void
+  RefCore::nullID() const {
+    throw edm::Exception(errors::InvalidReference,"NullID")
+      << "RefCore::getProduct: Attempt to use a null Ref.";
+  }
+
+  void
   wrongRefType(std::string const& found, std::string const& requested) {
     throw edm::Exception(errors::InvalidReference,"WrongType")
       << "getProduct_<T>: Collection is of wrong type:\n"

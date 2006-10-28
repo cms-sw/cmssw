@@ -5,7 +5,7 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.5 2006/08/30 23:28:33 wmtan Exp $
+$Id: RefCore.h,v 1.6 2006/10/28 02:07:36 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <typeinfo>
@@ -30,9 +30,20 @@ namespace edm {
 
     void setProductPtr(void const* prodPtr) const {prodPtr_ = prodPtr;}
 
+    // Checks for null
+    bool isNull() const {return id() == ProductID();}
+
+    // Checks for non-null
+    bool isNonnull() const {return !isNull();}
+
+    // Checks for null
+    bool operator!() const {return isNull();}
+
     EDProductGetter const* productGetter() const {return prodGetter_;}
 
     void setProductGetter(EDProductGetter const* prodGetter) const {prodGetter_ = prodGetter;}
+
+    void nullID() const;
 
   private:
     void badID() const;
@@ -65,8 +76,8 @@ namespace edm {
 
   template <typename T>
   T const* getProduct_(RefCore const& product) {
-    if (product.id() == ProductID()) {
-      return 0;
+    if (product.isNull()) {
+      product.nullID();
     }
     if (!product.productGetter()) {
       product.setProductGetter(EDProductGetter::instance());
