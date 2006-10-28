@@ -44,11 +44,12 @@ BU::BU(xdaq::ApplicationStub *s)
   , fedSizeMean_(1024)    // mean  of fed size for rnd generation
   , fedSizeWidth_(1024)   // width of fed size for rnd generation
   , useFixedFedSize_(false)
+  , nbMBPerSec_(0.0)
+  , memUsedInMB_(0.0)
   , nbEvents_(0)
   , nbEventsPerSec_(0)
   , nbDiscardedEvents_(0)
-  , nbMBPerSec_(0.0)
-  , nbEventsLast_(0)
+ , nbEventsLast_(0)
   , nbBytes_(0)
   , i2oPool_(0)
   , bSem_(BSem::FULL)
@@ -138,6 +139,7 @@ void BU::timeExpired(toolbox::task::TimerEvent& e)
 //______________________________________________________________________________
 void BU::actionPerformed(xdata::Event& e)
 {
+  gui_->lockInfoSpaces();
   if (e.type()=="ItemChangedEvent") {
     string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
     if (item=="mode") {
@@ -145,6 +147,15 @@ void BU::actionPerformed(xdata::Event& e)
       LOG4CPLUS_ERROR(log_,"'mode' is read only! Add/Remove Playback data source!");
     }
   }
+  
+  if (e.type()=="ItemRetrieveEvent") {
+    string item=dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
+    if (item=="memUsedInMB") {
+      if (0!=i2oPool_) memUsedInMB_=i2oPool_->getMemoryUsage().getUsed()*0.000001;
+      else             memUsedInMB_=0.0;
+    }
+  }
+  gui_->unlockInfoSpaces();
 }
 
 
@@ -266,6 +277,8 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 {
   LOG4CPLUS_DEBUG(log_,"received I2O_BU_ALLOCATE request");
 
+  LOG4CPLUS_WARN(log_,"received I2O_BU_ALLOCATE request");
+
   // check if the BU is enabled
   toolbox::fsm::State currentState=fsm_->getCurrentState();
   if (currentState!='E') {
@@ -373,7 +386,7 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 
   // Free the request message from the FU
   bufRef->release();
-
+  
   bSem_.give();
 }
 
@@ -464,6 +477,7 @@ void BU::exportParameters()
   gui_->addMonitorParam("mode",               &mode_);
   gui_->addMonitorParam("debug",              &debug_);
   gui_->addMonitorParam("nbMBPerSec",         &nbMBPerSec_);
+  gui_->addMonitorParam("memUsedInMB",        &memUsedInMB_);
 
   gui_->addStandardParam("dataBufSize",       &dataBufSize_);
   gui_->addStandardParam("nSuperFrag",        &nSuperFrag_);
@@ -478,7 +492,8 @@ void BU::exportParameters()
 
   gui_->exportParameters();
 
-  gui_->monInfoSpace()->addItemChangedListener("mode",this);
+  gui_->addItemChangedListener("mode",this);
+  gui_->addItemRetrieveListener("memUsedInMB",this);
 }
 
 

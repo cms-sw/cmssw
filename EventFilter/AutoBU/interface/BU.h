@@ -157,9 +157,6 @@ namespace evf {
     unsigned int             *fedSize_;
     unsigned int              fedSizeMax_;
     
-    //UCharVec_t                fedData_;
-    //UIntVec_t                 fedSize_;
-
     // parameters and counters to be exported
     xdata::String             mode_;
     xdata::Boolean            debug_;
@@ -169,11 +166,14 @@ namespace evf {
     xdata::UnsignedInteger32  fedSizeMean_;
     xdata::UnsignedInteger32  fedSizeWidth_;
     xdata::Boolean            useFixedFedSize_;
+
+    xdata::Double             nbMBPerSec_;
+    xdata::Double             memUsedInMB_;
     
     xdata::UnsignedInteger32  nbEvents_;
     xdata::UnsignedInteger32  nbEventsPerSec_;
     xdata::UnsignedInteger32  nbDiscardedEvents_;
-    xdata::Double             nbMBPerSec_;
+
     
     // internal parameters and counters (not to be exported)
     xdata::UnsignedInteger32  nbEventsLast_; // for nbEventsPerSec measurement
