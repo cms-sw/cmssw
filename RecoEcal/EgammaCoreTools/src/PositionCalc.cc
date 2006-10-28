@@ -99,11 +99,11 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
     double e_j = itj->energy();
 
     if (param_LogWeighted_) {
-      if(eTot<=0.) {
-        weight = 0.;
-      } else {
-        weight = max(0., param_W0_ + log( fabs(e_j)/eTot) );
-      }
+       if(eTot<=0.) {
+         weight = 0.;
+       } else {
+         weight = std::max(0., param_W0_ + log( fabs(e_j)/eTot) );
+       }
     } else {
       weight = e_j/eTot;
     }
