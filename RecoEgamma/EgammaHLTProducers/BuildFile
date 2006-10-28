@@ -2,19 +2,9 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/EgammaCandidates>
-<use name=DataFormats/TrajectorySeed>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloTopology>
 <use name=RecoEgamma/EgammaHLTAlgos>
-<use name=RecoEcal/EgammaClusterAlgos>
-<use name=RecoEgamma/EgammaPhotonAlgos>
-<use name=RecoEgamma/EgammaElectronAlgos>
-<use name=RecoEgamma/EgammaHLTAlgos>
-<use name=DataFormats/Math>
-<use name=RecoEcal/EgammaClusterProducers>
-<use name=RecoTracker/MeasurementDet>
-<use name=RecoTracker/CkfPattern>
 <flags SEAL_PLUGIN_NAME="RecoEgammaEgammaHLTProducers">
 <export>
    <lib name=RecoEgammaEgammaHLTProducers>
@@ -22,18 +12,7 @@
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/EgammaCandidates>
-   <use name=DataFormats/TrajectorySeed>
    <use name=Geometry/CaloEventSetup>
    <use name=Geometry/CaloGeometry>
-   <use name=Geometry/CaloTopology>
    <use name=RecoEgamma/EgammaHLTAlgos>
-   <use name=RecoEcal/EgammaClusterAlgos>
-   <use name=RecoEgamma/EgammaPhotonAlgos>
-   <use name=RecoEgamma/EgammaElectronAlgos>
-   <use name=RecoEgamma/EgammaHLTAlgos>
-   <use name=DataFormats/Math>
-   <use name=RecoEcal/EgammaClusterProducers>
-   <use name=RecoTracker/MeasurementDet>
-   <use name=RecoTracker/CkfPattern>
-   <use name=clhep>
 </export>
