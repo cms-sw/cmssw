@@ -33,6 +33,7 @@ namespace evf {
     typedef xdata::UnsignedInteger32                        Counter_t;
     typedef std::vector<std::pair<std::string,Param_t*> >   ParamVec_t;
     typedef std::vector<std::pair<std::string,Counter_t*> > CounterVec_t;
+    typedef std::vector<std::pair<std::string,void*> >      UpdateVec_t;
     typedef xgi::Input                                      Input_t;
     typedef xgi::Output                                     Output_t;
     typedef const std::string                               CString_t;
@@ -86,7 +87,8 @@ namespace evf {
     void addParamsToInfoSpace(const ParamVec_t& params,xdata::InfoSpace* infoSpace);
     void addCountersToParams();
     bool isMonitorParam(CString_t& name);
-    
+    void updateParams();
+
     void htmlTable(Input_t*in,Output_t*out,
 		   CString_t& title,const ParamVec_t& params);
     void htmlHead(Input_t*in,Output_t*out,
@@ -117,6 +119,8 @@ namespace evf {
     CounterVec_t       monitorCounters_;
     CounterVec_t       debugCounters_;
     
+    UpdateVec_t        updateParams_;
+
     bool               parametersExported_;
     bool               countersAddedToParams_;
 

@@ -1,5 +1,13 @@
 2006-10-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-11-04
+	* keep track of parameters with an ItemRetrieveListener
+	registered, and call cdata::InfoSpace::fireItemValueRetrieve to
+	trigger for those parameters to be updated every time a webpage is
+	reloaded.
+
+2006-10-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
 	* tag V00-11-03
 	* add methods 'addItemChangedListener' and
 	'addItemRetrieveListener'. Spare the user to figure out which

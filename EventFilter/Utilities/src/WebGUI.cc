@@ -80,7 +80,7 @@ WebGUI::~WebGUI()
 //______________________________________________________________________________
 void WebGUI::defaultWebPage(Input_t *in,Output_t *out) throw (WebGUI::XgiException_t)
 {
-  if (!countersAddedToParams_) addCountersToParams();
+  updateParams();
   
   *out<<html()<<endl;
   htmlHead(in,out,sourceId_);
@@ -99,8 +99,8 @@ void WebGUI::defaultWebPage(Input_t *in,Output_t *out) throw (WebGUI::XgiExcepti
 //______________________________________________________________________________
 void WebGUI::debugWebPage(Input_t *in,Output_t *out) throw (WebGUI::XgiException_t)
 {
-  if (!countersAddedToParams_) addCountersToParams();
-  
+  updateParams();
+
   *out<<html()<<endl;
   htmlHead(in,out,sourceId_+" [DEBUG]");
   *out<<body()<<endl;
@@ -190,6 +190,7 @@ void WebGUI::addDebugCounter(CString_t& name,Counter_t* counter)
 void WebGUI::exportParameters()
 {
   if (parametersExported_) return;
+
   if (!countersAddedToParams_) addCountersToParams();
 
   addParamsToInfoSpace(standardParams_,appInfoSpace());
@@ -264,6 +265,7 @@ void WebGUI::addItemRetrieveListener(CString_t& name,xdata::ActionListener* l)
   
   try {
     appInfoSpace()->addItemRetrieveListener(name,l);
+    updateParams_.push_back(make_pair(name,l));
   }
   catch (xcept::Exception) {
     LOG4CPLUS_ERROR(log_,"failed to add ItemRetrieveListener to "
@@ -353,6 +355,15 @@ bool WebGUI::isMonitorParam(CString_t& name)
   for (it=monitorParams_.begin();it!=monitorParams_.end();++it)
     if (it->first==name) return true;
   return false;
+}
+
+
+//______________________________________________________________________________
+void WebGUI::updateParams()
+{
+  UpdateVec_t::iterator it;
+  for (it=updateParams_.begin();it!=updateParams_.end();++it)
+    appInfoSpace()->fireItemValueRetrieve(it->first,it->second);
 }
 
 
