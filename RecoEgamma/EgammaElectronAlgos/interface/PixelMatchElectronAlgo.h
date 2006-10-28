@@ -58,9 +58,9 @@ public:
 
   // create electrons from tracks
   void process(edm::Handle<reco::TrackCollection> tracksH, const reco::SeedSuperClusterAssociationCollection *sclAss,
-   HBHERecHitMetaCollection mhbhe, reco::PixelMatchGsfElectronCollection & outEle);
+   HBHERecHitMetaCollection *mhbhe, reco::PixelMatchGsfElectronCollection & outEle);
   // preselection method
-  bool preSelection(const reco::SuperCluster& clus, const reco::Track& track, HBHERecHitMetaCollection mhbhe);
+  bool preSelection(const reco::SuperCluster& clus, const reco::Track& track, HBHERecHitMetaCollection *mhbhe);
   
   // temporary to get seed corresponding to track
   bool equal(edm::Ref<TrajectorySeedCollection> ts, const reco::Track& t);
