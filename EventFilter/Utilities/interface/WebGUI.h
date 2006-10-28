@@ -60,17 +60,23 @@ namespace evf {
     void addStandardCounter(CString_t& name,Counter_t* counter);
     void addMonitorCounter(CString_t& name,Counter_t* counter);
     void addDebugCounter(CString_t& name,Counter_t* counter);
-    
+
     void exportParameters(); // must be called once after registering all params!
     void resetCounters();
+    
+    void addItemChangedListener(CString_t& name,xdata::ActionListener* l);
+    void addItemRetrieveListener(CString_t& name,xdata::ActionListener* l);
+
+    void lockInfoSpaces();
+    void unlockInfoSpaces();
+
+    xdata::InfoSpace* appInfoSpace() { return appInfoSpace_; }
+    xdata::InfoSpace* monInfoSpace() { return monInfoSpace_; }
     
     void setLargeAppIcon(CString_t& icon) { largeAppIcon_=icon; }
     void setSmallAppIcon(CString_t& icon) { smallAppIcon_=icon; }
     void setSmallDbgIcon(CString_t& icon) { smallDbgIcon_=icon; }
     void setHyperDAQIcon(CString_t& icon) { hyperDAQIcon_=icon; }
-
-    xdata::InfoSpace* appInfoSpace() { return appInfoSpace_; }
-    xdata::InfoSpace* monInfoSpace() { return monInfoSpace_; }
     
 
   private:
@@ -79,6 +85,7 @@ namespace evf {
     //
     void addParamsToInfoSpace(const ParamVec_t& params,xdata::InfoSpace* infoSpace);
     void addCountersToParams();
+    bool isMonitorParam(CString_t& name);
     
     void htmlTable(Input_t*in,Output_t*out,
 		   CString_t& title,const ParamVec_t& params);

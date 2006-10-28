@@ -123,6 +123,10 @@ void WebGUI::css(Input_t *in,Output_t *out) throw (WebGUI::XgiException_t)
 //______________________________________________________________________________
 void WebGUI::addStandardParam(CString_t& name,Param_t* param)
 {
+  if (parametersExported_) {
+    LOG4CPLUS_ERROR(log_,"Failed to add standard parameter '"<<name<<"'.");
+    return;
+  }
   standardParams_.push_back(make_pair(name,param));
 }
 
@@ -130,6 +134,10 @@ void WebGUI::addStandardParam(CString_t& name,Param_t* param)
 //______________________________________________________________________________
 void WebGUI::addMonitorParam(CString_t& name,Param_t* param)
 {
+  if (parametersExported_) {
+    LOG4CPLUS_ERROR(log_,"Failed to add monitor parameter '"<<name<<"'.");
+    return;
+  }
   monitorParams_.push_back(make_pair(name,param));
 }
 
@@ -137,6 +145,10 @@ void WebGUI::addMonitorParam(CString_t& name,Param_t* param)
 //______________________________________________________________________________
 void WebGUI::addDebugParam(CString_t& name,Param_t* param)
 {
+  if (parametersExported_) {
+    LOG4CPLUS_ERROR(log_,"Failed to add debug parameter '"<<name<<"'.");
+    return;
+  }
   debugParams_.push_back(make_pair(name,param));
 }
 
@@ -210,6 +222,83 @@ void WebGUI::resetCounters()
   }
 }
 
+
+//______________________________________________________________________________
+void WebGUI::addItemChangedListener(CString_t& name,xdata::ActionListener* l)
+{
+  if (!parametersExported_) {
+    LOG4CPLUS_ERROR(log_,"Can't add ItemChangedListener for parameter '"<<name
+		    <<"' before WebGUI::exportParameters() is called.");
+    return;
+  }
+  
+  try {
+    appInfoSpace()->addItemChangedListener(name,l);
+  }
+  catch (xcept::Exception) {
+    LOG4CPLUS_ERROR(log_,"failed to add ItemChangedListener to "
+		    <<"application infospace for parameter '"<<name<<"'.");
+  }
+  
+  if (isMonitorParam(name)) {
+    try {
+      monInfoSpace()->addItemChangedListener(name,l);
+    }
+    catch (xcept::Exception) {
+      LOG4CPLUS_ERROR(log_,"failed to add ItemChangedListener to "
+		      <<"monitor infospace for parameter '"<<name<<"'.");
+    }
+  }
+  
+}
+
+
+//______________________________________________________________________________
+void WebGUI::addItemRetrieveListener(CString_t& name,xdata::ActionListener* l)
+{
+  if (!parametersExported_) {
+    LOG4CPLUS_ERROR(log_,"Can't add ItemRetrieveListener for parameter '"<<name
+		    <<"' before WebGUI::exportParameters() is called.");
+    return;
+  }
+  
+  try {
+    appInfoSpace()->addItemRetrieveListener(name,l);
+  }
+  catch (xcept::Exception) {
+    LOG4CPLUS_ERROR(log_,"failed to add ItemRetrieveListener to "
+		    <<"application infospace for parameter '"<<name<<"'.");
+  }
+  
+  if (isMonitorParam(name)) {
+    try {
+      monInfoSpace()->addItemRetrieveListener(name,l);
+    }
+    catch (xcept::Exception) {
+      LOG4CPLUS_ERROR(log_,"failed to add ItemRetrieveListener to "
+		      <<"monitor infospace for parameter '"<<name<<"'.");
+    }
+  }
+}
+
+
+//______________________________________________________________________________
+void WebGUI::lockInfoSpaces()
+{
+  appInfoSpace()->lock();
+  monInfoSpace()->lock();
+}
+
+
+//______________________________________________________________________________
+void WebGUI::unlockInfoSpaces()
+{
+  appInfoSpace()->unlock();
+  monInfoSpace()->unlock();
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of private member functions
 ////////////////////////////////////////////////////////////////////////////////
@@ -254,6 +343,16 @@ void WebGUI::addCountersToParams()
 				     debugCounters_[i].second));
   }
   countersAddedToParams_=true;
+}
+
+
+//______________________________________________________________________________
+bool WebGUI::isMonitorParam(CString_t& name)
+{
+  ParamVec_t::const_iterator it;
+  for (it=monitorParams_.begin();it!=monitorParams_.end();++it)
+    if (it->first==name) return true;
+  return false;
 }
 
 

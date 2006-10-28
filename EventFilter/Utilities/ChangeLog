@@ -1,4 +1,15 @@
-2006-10-23  Philipp SCHIEFERDECKER  <Philipp.Schieferdecker@cern.ch>
+2006-10-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-11-03
+	* add methods 'addItemChangedListener' and
+	'addItemRetrieveListener'. Spare the user to figure out which
+	parmater is in which info space, add the listener to both the
+	application and monitor infospace if registered for a monitor
+	parameter.
+	* add 'lockInfoSpaces()' and 'unlockInfoSpaces()' methods. Should
+	be called in the ActionListener's actionPerformed() method.
+
+2006-10-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-11-02
 	* add WebGUI class, which allows XDAQ applications to simply
