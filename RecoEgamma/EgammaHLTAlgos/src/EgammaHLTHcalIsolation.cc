@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:16:41 CEST 2006
-// $Id$
+// $Id: EgammaHLTHcalIsolation.cc,v 1.1 2006/06/20 11:28:24 monicava Exp $
 //
 
 // include files
@@ -21,45 +21,45 @@
 
 
 
-float EgammaHLTHcalIsolation::electronPtSum(const reco::Electron *electron, const HBHERecHitCollection& hbhe, const HFRecHitCollection& hf, const CaloGeometry& geometry){
+float EgammaHLTHcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate, const HBHERecHitCollection* hbhe, const HFRecHitCollection* hf, const CaloGeometry* geometry){
 
   float hcalIsol=0.;
 
-  float eleSCphi = electron->superCluster()->phi();
-  float eleSCeta = electron->superCluster()->eta();
+  float candSCphi = recocandidate->superCluster()->phi();
+  float candSCeta = recocandidate->superCluster()->eta();
+
   
-  
-  for(HBHERecHitCollection::const_iterator hbheItr = hbhe.begin(); hbheItr != hbhe.end(); ++hbheItr){
+  for(HBHERecHitCollection::const_iterator hbheItr = hbhe->begin(); hbheItr != hbhe->end(); ++hbheItr){
     double HcalHit_energy=hbheItr->energy();
-    double HcalHit_eta=geometry.getPosition(hbheItr->id()).eta();
-    double HcalHit_phi=geometry.getPosition(hbheItr->id()).phi();
+    double HcalHit_eta=geometry->getPosition(hbheItr->id()).eta();
+    double HcalHit_phi=geometry->getPosition(hbheItr->id()).phi();
     float HcalHit_pth=HcalHit_energy*sin(2*atan(exp(-HcalHit_eta)));
     if(HcalHit_pth>ptMin) {
       float deltaphi;
       if(HcalHit_phi<0) HcalHit_phi+=TWOPI;
-      if(eleSCphi<0) eleSCphi+=TWOPI;
-      deltaphi=fabs(HcalHit_phi-eleSCphi);
+      if(candSCphi<0) candSCphi+=TWOPI;
+      deltaphi=fabs(HcalHit_phi-candSCphi);
       if(deltaphi>TWOPI) deltaphi-=TWOPI;
       if(deltaphi>PI) deltaphi=TWOPI-deltaphi;
-      float deltaeta=fabs(HcalHit_eta-eleSCeta);
+      float deltaeta=fabs(HcalHit_eta-candSCeta);
       float newDelta= sqrt(deltaphi*deltaphi+ deltaeta*deltaeta);
       if(newDelta<conesize) hcalIsol+=HcalHit_pth;
     }      
   }
 
-  for(HFRecHitCollection::const_iterator hfItr = hf.begin(); hfItr != hf.end(); ++hfItr){
+  for(HFRecHitCollection::const_iterator hfItr = hf->begin(); hfItr != hf->end(); ++hfItr){
     double HcalHit_energy=hfItr->energy();
-    double HcalHit_eta=geometry.getPosition(hfItr->id()).eta();
-    double HcalHit_phi=geometry.getPosition(hfItr->id()).phi();
+    double HcalHit_eta=geometry->getPosition(hfItr->id()).eta();
+    double HcalHit_phi=geometry->getPosition(hfItr->id()).phi();
     float HcalHit_pth=HcalHit_energy*sin(2*atan(exp(-HcalHit_eta)));
     if(HcalHit_pth>ptMin) {
       float deltaphi;
       if(HcalHit_phi<0) HcalHit_phi+=TWOPI;
-      if(eleSCphi<0) eleSCphi+=TWOPI;
-      deltaphi=fabs(HcalHit_phi-eleSCphi);
+      if(candSCphi<0) candSCphi+=TWOPI;
+      deltaphi=fabs(HcalHit_phi-candSCphi);
       if(deltaphi>TWOPI) deltaphi-=TWOPI;
       if(deltaphi>PI) deltaphi=TWOPI-deltaphi;
-      float deltaeta=fabs(HcalHit_eta-eleSCeta);
+      float deltaeta=fabs(HcalHit_eta-candSCeta);
       float newDelta= sqrt(deltaphi*deltaphi+ deltaeta*deltaeta);
       if(newDelta<conesize) hcalIsol+=HcalHit_pth;
     }
@@ -69,51 +69,3 @@ float EgammaHLTHcalIsolation::electronPtSum(const reco::Electron *electron, cons
   
 }
 
-
-float EgammaHLTHcalIsolation::photonPtSum(const reco::Photon *photon, const HBHERecHitCollection& hbhe, const HFRecHitCollection& hf, const CaloGeometry& geometry){
-
-  float hcalIsol=0.;
-
-  float phoSCphi = photon->superCluster()->phi();
-  float phoSCeta = photon->superCluster()->eta();
-
-  
-  for(HBHERecHitCollection::const_iterator hbheItr = hbhe.begin(); hbheItr != hbhe.end(); ++hbheItr){
-    double HcalHit_energy=hbheItr->energy();
-    double HcalHit_eta=geometry.getPosition(hbheItr->id()).eta();
-    double HcalHit_phi=geometry.getPosition(hbheItr->id()).phi();
-    float HcalHit_pth=HcalHit_energy*sin(2*atan(exp(-HcalHit_eta)));
-    if(HcalHit_pth>ptMinG) {
-      float deltaphi;
-      if(HcalHit_phi<0) HcalHit_phi+=TWOPI;
-      if(phoSCphi<0) phoSCphi+=TWOPI;
-      deltaphi=fabs(HcalHit_phi-phoSCphi);
-      if(deltaphi>TWOPI) deltaphi-=TWOPI;
-      if(deltaphi>PI) deltaphi=TWOPI-deltaphi;
-      float deltaeta=fabs(HcalHit_eta-phoSCeta);
-      float newDelta= sqrt(deltaphi*deltaphi+ deltaeta*deltaeta);
-      if(newDelta<conesizeG) hcalIsol+=HcalHit_pth;
-    }      
-  }
-
-  for(HFRecHitCollection::const_iterator hfItr = hf.begin(); hfItr != hf.end(); ++hfItr){
-    double HcalHit_energy=hfItr->energy();
-    double HcalHit_eta=geometry.getPosition(hfItr->id()).eta();
-    double HcalHit_phi=geometry.getPosition(hfItr->id()).phi();
-    float HcalHit_pth=HcalHit_energy*sin(2*atan(exp(-HcalHit_eta)));
-    if(HcalHit_pth>ptMinG) {
-      float deltaphi;
-      if(HcalHit_phi<0) HcalHit_phi+=TWOPI;
-      if(phoSCphi<0) phoSCphi+=TWOPI;
-      deltaphi=fabs(HcalHit_phi-phoSCphi);
-      if(deltaphi>TWOPI) deltaphi-=TWOPI;
-      if(deltaphi>PI) deltaphi=TWOPI-deltaphi;
-      float deltaeta=fabs(HcalHit_eta-phoSCeta);
-      float newDelta= sqrt(deltaphi*deltaphi+ deltaeta*deltaeta);
-      if(newDelta<conesizeG) hcalIsol+=HcalHit_pth;
-    }
-  }
-
-  return hcalIsol;
-  
-}

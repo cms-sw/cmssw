@@ -5,12 +5,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
-
-class PixelFitter;
-class PixelTrackFilter;
-
-#include<vector>
 
 class PixelTrackProducer :  public edm::EDProducer {
 
@@ -20,17 +14,9 @@ public:
   ~PixelTrackProducer();
 
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
-  void buildTracks(edm::Event& ev, const edm::EventSetup& es);
-  void filterTracks(edm::Event& ev, const edm::EventSetup& es);
-  void addTracks(edm::Event& ev, const edm::EventSetup& es);
 
 private:
 
-  edm::ParameterSet theConfig;
-  std::vector <PixelTrackCleaner::TrackWithRecHits> allTracks, cleanedTracks;
-
-  const PixelFitter      * theFitter;
-  const PixelTrackFilter * theFilter;
-
+  edm::ParameterSet theConfig; 
 };
 #endif

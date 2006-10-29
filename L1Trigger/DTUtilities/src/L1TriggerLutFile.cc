@@ -6,13 +6,14 @@
 //                Look-up table files
 //
 //
-//   $Date: 2006/07/19 10:33:17 $
+//   $Date: 2003/10/17 12:39:42 $
 //   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
 //
 //--------------------------------------------------
+//#include "Utilities/Configuration/interface/Architecture.h"
 
 //-----------------------
 // This Class's Header --
@@ -48,13 +49,15 @@ L1TriggerLutFile::L1TriggerLutFile(const L1TriggerLutFile& in) : m_file(in.m_fil
 //--------------
 // Destructor --
 //--------------
-
 L1TriggerLutFile::~L1TriggerLutFile() {}
 
 //--------------
 // Operations --
 //--------------
 
+//
+// assignment operator
+//
 L1TriggerLutFile& L1TriggerLutFile::operator=(const L1TriggerLutFile& lut) {
 
   m_file = lut.m_file;
@@ -63,6 +66,9 @@ L1TriggerLutFile& L1TriggerLutFile::operator=(const L1TriggerLutFile& lut) {
 }
 
 
+//
+// open file
+//
 int L1TriggerLutFile::open() {
 
   const char* file_name = m_file.c_str();
@@ -78,6 +84,9 @@ int L1TriggerLutFile::open() {
 }
 
 
+//
+// read and ignore n lines from file
+//
 void L1TriggerLutFile::ignoreLines(int n) {
 
   char buf[256];
@@ -86,6 +95,9 @@ void L1TriggerLutFile::ignoreLines(int n) {
 }
 
 
+//
+// read one integer from file
+//
 int L1TriggerLutFile::readInteger() { 
 
   int tmp = 0;
@@ -95,6 +107,9 @@ int L1TriggerLutFile::readInteger() {
 }
 
 
+//
+// read one hex from file
+//
 int L1TriggerLutFile::readHex() { 
 
   int tmp = 0;
@@ -104,6 +119,9 @@ int L1TriggerLutFile::readHex() {
 }
 
 
+//
+// read one string from file
+//
 string L1TriggerLutFile::readString() {
 
   string tmp;

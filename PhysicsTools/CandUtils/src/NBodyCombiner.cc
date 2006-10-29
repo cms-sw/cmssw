@@ -70,49 +70,54 @@ NBodyCombiner::combine( const vector<const CandidateCollection * > & src ) const
       }
     }
   } else {
-    CandStack stack;
-    combine( 0, undetermined, stack, src.begin(), src.end(), comps );
+    const CandidateCollection & src0 = * src[ 0 ];
+    for( CandidateCollection::const_iterator  c = src0.begin(); c != src0.end(); ++ c ) {
+      ChargeInfo chkCharge = undetermined;
+      if ( checkCharge_ ) {
+	int q = c->charge();
+	ChargeInfo ch = chargeInfo( q, dauCharge_[ 0 ] );
+	if ( ch == invalid ) continue;
+	if ( q != 0 ) chkCharge = ch;
+      }
+      vector<const Candidate *> cv;
+      cv.push_back( & * c );
+      combine( 1, chkCharge, cv, src.begin() + 1, src.end(), comps );
+    }
   }
 
   return comps;
 }
 
 
-void NBodyCombiner::combine( size_t collectionIndex, ChargeInfo chkCharge, CandStack & stack,
-			     vector<const CandidateCollection * >::const_iterator collBegin,
-			     vector<const CandidateCollection * >::const_iterator collEnd,
+void NBodyCombiner::combine( size_t collectionIndex, ChargeInfo chkCharge, vector<const Candidate *> cv,
+			     const vector<const CandidateCollection * >::const_iterator begin,
+			     const vector<const CandidateCollection * >::const_iterator end,
 			     auto_ptr<CandidateCollection> & comps
 			     ) const {
-  if( collBegin == collEnd ) {
+  if( begin == end ) {
     CompositeCandidate * cmp( new CompositeCandidate );
-    for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i )
-      cmp->addDaughter( * ( i->first ) );
+    for( vector<const Candidate*>::const_iterator i = cv.begin(); i != cv.end(); ++ i )
+      cmp->addDaughter( * * i );
     addp4_.set( * cmp );
-    if ( select_( * cmp ) )
-      comps->push_back( cmp );
+    comps->push_back( cmp );
   } else {
-    const CandidateCollection & src = * * collBegin;
-    CandidateCollection::const_iterator candBegin = src.begin(), candEnd = src.end();
-    for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i ) 
-      if ( * collBegin == * i->second ) 
-	candBegin = i->first + 1;
-    for( CandidateCollection::const_iterator  cand = candBegin; cand != candEnd; ++ cand ) {
+    const CandidateCollection & src = * * begin;
+    for( CandidateCollection::const_iterator  c = src.begin(); c != src.end(); ++ c ) {
       if ( checkCharge_ ) {
-	int q = cand->charge();
+	int q = c->charge();
 	ChargeInfo ch = chargeInfo( q, dauCharge_[ collectionIndex ] );
 	if( ch == invalid ) continue;
 	if ( chkCharge == undetermined && q != 0 ) chkCharge = ch;
       }
       bool noOverlap = true;
-      for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i ) 
-	if ( overlap_( * cand, * ( i->first ) ) ) { 
+      for( vector<const Candidate *>::const_iterator i = cv.begin(); i != cv.end(); ++i ) 
+	if ( overlap_( * c, ** i ) ) { 
 	  noOverlap = false; 
 	  break; 
 	}
       if ( noOverlap ) {
-	stack.push_back( make_pair( cand, collBegin ) );
-	combine( collectionIndex + 1, chkCharge, stack, collBegin + 1, collEnd, comps );
-	stack.pop_back();
+	cv.push_back( & * c );
+	combine( collectionIndex + 1, chkCharge, cv, begin + 1, end, comps );
       }
     }
   }

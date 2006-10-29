@@ -95,17 +95,16 @@ Bounds * TrackerShapeToBounds::buildTrap(const std::vector<double>& paras ) cons
     the following orcaCorrection-rotation will be a unit-matrix.
   */
   
-
   if(paras[0]<5){
     bounds = new TrapezoidalPlaneBounds(paras[4]/cm,
-					paras[9]/cm,
-					paras[3]/cm,
-					paras[0]/cm);
+					 paras[9]/cm,
+					 paras[3]/cm,
+					 paras[0]/cm);
   }else if(paras[0]>paras[3]){
     bounds = new TrapezoidalPlaneBounds(paras[4]/cm,
-					paras[9]/cm,
-					paras[0]/cm,
-					paras[3]/cm);
+					 paras[9]/cm,
+					 paras[0]/cm,
+					 paras[3]/cm);
   }  
   return bounds;
 } 

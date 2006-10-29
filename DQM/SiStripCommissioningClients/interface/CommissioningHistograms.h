@@ -1,7 +1,6 @@
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistograms_H
 #define DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -28,8 +27,7 @@ class CommissioningHistograms {
   typedef std::map<uint32_t,uint32_t> FedToFecMap;
   
   /** */
-  CommissioningHistograms( MonitorUserInterface*,
-			   const sistrip::Task& );
+  CommissioningHistograms( MonitorUserInterface* );
   /** */
   virtual ~CommissioningHistograms();
 
@@ -83,8 +81,6 @@ class CommissioningHistograms {
   
   /** */
   sistrip::Action action_;
-
-  sistrip::Task task_;
   
 };
 

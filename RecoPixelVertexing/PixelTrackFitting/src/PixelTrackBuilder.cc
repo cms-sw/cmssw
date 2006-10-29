@@ -1,6 +1,5 @@
 #include "PixelTrackBuilder.h"
 
-
 #include "Geometry/Surface/interface/LocalError.h"
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"

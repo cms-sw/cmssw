@@ -17,8 +17,7 @@ using namespace std;
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap, 
                                  const CaloVShape * shape)
-: theAnalogSignalMap(),
-  theParameterMap(parametersMap), 
+: theParameterMap(parametersMap), 
   theShape(shape),  
   theHitCorrection(0),
   theHitFilter(0),
@@ -84,7 +83,7 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 
   // assume bins count from zero, go for center of bin
   const double tzero = parameters.timePhase() -jitter -
-     BUNCHSPACE*(parameters.binOfMaximum()-thePhaseShift_);
+     BUNCHSPACE*((double)parameters.binOfMaximum()-thePhaseShift_);
   double binTime = tzero;
 
   CaloSamples result(makeBlankSignal(detId));

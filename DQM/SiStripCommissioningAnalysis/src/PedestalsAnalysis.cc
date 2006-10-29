@@ -163,7 +163,7 @@ void PedestalsAnalysis::extract( const vector<TProfile*>& histos ) {
 // -----------------------------------------------------------------------------
 // 
 void PedestalsAnalysis::analyse() {
-
+  
   // Checks on whether pedestals histo exists and if binning is correct
   if ( hPeds_.first ) {
     if ( hPeds_.first->GetNbinsX() != 256 ) {
@@ -198,13 +198,13 @@ void PedestalsAnalysis::analyse() {
     // Iterate through strips of APV
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
       static uint16_t strip;
-      strip = iapv*128 + istr;
+      strip = iapv*2 + istr;
       // Pedestals 
       if ( hPeds_.first ) {
 	if ( hPeds_.first->GetBinEntries(strip+1) ) {
 	  peds_[iapv][istr] = hPeds_.first->GetBinContent(strip+1);
 	  p_sum += peds_[iapv][istr];
-	  p_sum2 += (peds_[iapv][istr] * peds_[iapv][istr]);
+	  p_sum2 += peds_[iapv][istr] * peds_[iapv][istr];
 	  if ( peds_[iapv][istr] > p_max ) { p_max = peds_[iapv][istr]; }
 	  if ( peds_[iapv][istr] < p_min ) { p_min = peds_[iapv][istr]; }
 	}
@@ -214,7 +214,7 @@ void PedestalsAnalysis::analyse() {
 	if ( hNoise_.first->GetBinEntries(strip+1) ) {
 	  noise_[iapv][istr] = hNoise_.first->GetBinError(strip+1);
 	  n_sum += noise_[iapv][istr];
-	  n_sum2 += (noise_[iapv][istr] * noise_[iapv][istr]);
+	  n_sum2 += noise_[iapv][istr] * noise_[iapv][istr];
 	  if ( noise_[iapv][istr] > n_max ) { n_max = noise_[iapv][istr]; }
 	  if ( noise_[iapv][istr] < n_min ) { n_min = noise_[iapv][istr]; }
 	}
@@ -227,7 +227,9 @@ void PedestalsAnalysis::analyse() {
       p_sum /= static_cast<float>( peds_[iapv].size() );
       p_sum2 /= static_cast<float>( peds_[iapv].size() );
       pedsMean_[iapv] = p_sum;
-      pedsSpread_[iapv] = sqrt( fabs(p_sum2 - p_sum*p_sum) );
+      if ( p_sum2 >= p_sum*p_sum ) { 
+	pedsSpread_[iapv] = sqrt( p_sum2 - p_sum*p_sum );
+      }
     }
     
     // Calc mean and rms for noise
@@ -235,7 +237,9 @@ void PedestalsAnalysis::analyse() {
       n_sum /= static_cast<float>( noise_[iapv].size() );
       n_sum2 /= static_cast<float>( noise_[iapv].size() );
       noiseMean_[iapv] = n_sum;
-      noiseSpread_[iapv] = sqrt( fabs(n_sum2 - n_sum*n_sum) );
+      if ( n_sum2 >= n_sum*n_sum ) { 
+	noiseSpread_[iapv] = sqrt( n_sum2 - n_sum*n_sum );
+      } 
     }
     
     // Set max and min values for both peds and noise

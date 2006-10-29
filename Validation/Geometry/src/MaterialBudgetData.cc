@@ -15,7 +15,6 @@ MaterialBudgetData::MaterialBudgetData()
 
   //instantiate categorizer to assing an ID to volumes and materials
   myMaterialBudgetCategorizer = 0;
-  allStepsToTree = false;
 }
 
 void MaterialBudgetData::SetAllStepsToTree()

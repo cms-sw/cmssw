@@ -115,17 +115,12 @@ public:
   /// Obtain type and layer from Alignable 
   std::pair<int,int> typeAndLayer( Alignable* ali );
 
-protected:
+private:
 
   // Methods to manage correlation map 
   AlgebraicMatrix correlations(Alignable* ap1, Alignable* ap2) const;
 
   void setCorrelations(Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& mat);
-
-  // correlations 
-  Correlations theCorrelations;
-
-private:
 
   // Celper used by constructor to get all DetIds per Alignable
   DetIds findDetIds( Alignable* alignable );
@@ -135,7 +130,10 @@ private:
   // alignables 
   Alignables theAlignables;
 
-   // Map of DetIds and Alignables
+  // correlations 
+  Correlations theCorrelations;
+ 
+  // Map of DetIds and Alignables
   typedef  std::map<unsigned int,Alignable*> ActiveAlignablesByDetIdMap;
   ActiveAlignablesByDetIdMap theActiveAlignablesByDetId;
 

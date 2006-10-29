@@ -1,4 +1,4 @@
-// $Id: HepMCCandidateProducer.cc,v 1.4 2006/03/14 17:05:14 llista Exp $
+// $Id: HepMCCandidateProducer.cc,v 1.5 2006/04/12 07:33:17 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/HepMCCandidateProducer.h"
 //#include "PhysicsTools/HepPDTProducer/interface/PDTRecord.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <fstream>
@@ -48,11 +49,14 @@ void HepMCCandidateProducer::beginJob( const EventSetup & es ) {
 void HepMCCandidateProducer::produce( Event& evt, const EventSetup& ) {
   Handle<HepMCProduct> mcp;
   evt.getByLabel( source, mcp );
-  const HepMC::GenEvent& mc = mcp->getHepMCData();
+  const HepMC::GenEvent * mc = mcp->GetEvent();
+  if( mc == 0 ) 
+    throw edm::Exception( edm::errors::InvalidReference ) 
+      << "HepMC has null pointer to GenEvent" << endl;
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
-  cands->reserve( mc.particles_size() );
-  for( HepMC::GenEvent::particle_const_iterator p = mc.particles_begin(); 
-       p != mc.particles_end(); ++ p ) {
+  cands->reserve( mc->particles_size() );
+  for( HepMC::GenEvent::particle_const_iterator p = mc->particles_begin(); 
+       p != mc->particles_end(); ++ p ) {
     if ( (*p)->status() == 1 || ! stableOnly ) {
       int id = abs( (*p)->pdg_id() );
       if ( excludedIds.find( id ) == excludedIds.end() ) {

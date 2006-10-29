@@ -39,6 +39,7 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   timeToIdleState_ = activeTimeout;
   timeToDisconnectedState_ = activeTimeout + idleTimeout;
   lastEventRequestTime_ = time(NULL);
+  initializationDone = false;
 
   // assign the consumer ID
   boost::mutex::scoped_lock scopedLockForRootId(rootIdLock_);
@@ -92,6 +93,9 @@ void ConsumerPipe::initializeSelection(InitMsgView const& initView)
   // create our event selector
   eventSelector_.reset(new EventSelector(*requestParamSet_, processName,
                                          triggerNameList));
+
+  // indicate that initialization is complete
+  initializationDone = true;
 }
 
 /**
@@ -120,6 +124,9 @@ bool ConsumerPipe::isDisconnected() const
  */
 bool ConsumerPipe::isReadyForEvent() const
 {
+  // 13-Oct-2006, KAB - we're not ready if we haven't been initialized
+  if (! initializationDone) return false;
+
   // for now, just test if we are in the active state
   time_t timeDiff = time(NULL) - lastEventRequestTime_;
   return (timeDiff < timeToIdleState_);

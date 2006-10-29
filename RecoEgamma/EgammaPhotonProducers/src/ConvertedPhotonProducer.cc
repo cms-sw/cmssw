@@ -25,8 +25,8 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
 // Class header file
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConvertedPhotonProducer.h"
-
-
+//
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionSeedFinder.h"
@@ -36,7 +36,6 @@
 
 ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config) : 
   conf_(config), 
-  theMeasurementTracker_(0), 
   theNavigationSchool_(0), 
   theOutInSeedFinder_(0), 
   theOutInTrackFinder_(0), 
@@ -50,18 +49,16 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
 
   // use onfiguration file to setup input/output collection names
  
-
-  bcProducer_       = conf_.getParameter<std::string>("bcProducer");
+  bcProducer_             = conf_.getParameter<std::string>("bcProducer");
   bcBarrelCollection_     = conf_.getParameter<std::string>("bcBarrelCollection");
   bcEndcapCollection_     = conf_.getParameter<std::string>("bcEndcapCollection");
-
   
- scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
- scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
- 
- scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
- scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
-
+  scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
+  scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
+  
+  scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
+  scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
+  
   ConvertedPhotonCollection_ = conf_.getParameter<std::string>("convertedPhotonCollection");
 
   // Register the product
@@ -73,7 +70,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
 
 ConvertedPhotonProducer::~ConvertedPhotonProducer() {
 
-  delete theMeasurementTracker_;
+  //  delete theMeasurementTracker_;
   delete theOutInSeedFinder_; 
   delete theOutInTrackFinder_;
   delete theInOutSeedFinder_;  
@@ -91,21 +88,23 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
   theEventSetup .get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker_ );
 
 
-    // get the measurement tracker 
-    //ParameterSet mt_params = conf_.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
-    theMeasurementTracker_ = new MeasurementTracker(theEventSetup, conf_);
-    theLayerMeasurements_  = new LayerMeasurements(theMeasurementTracker_);
-    theNavigationSchool_   = new SimpleNavigationSchool( &(*theGeomSearchTracker_)  , &(*theMF_));
-    NavigationSetter setter( *theNavigationSchool_);
-
-    // get the Out In Seed Finder  
-    edm::LogInfo("ConvertedPhotonProducer") << "get the OutInSeedFinder" << "\n";
-    theOutInSeedFinder_ = new OutInConversionSeedFinder (   &(*theMF_) ,  theMeasurementTracker_ );
-
+  // get the measurement tracker   
+  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
+  theEventSetup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+  theMeasurementTracker_ = measurementTrackerHandle.product();
+  
+  theLayerMeasurements_  = new LayerMeasurements(theMeasurementTracker_);
+  theNavigationSchool_   = new SimpleNavigationSchool( &(*theGeomSearchTracker_)  , &(*theMF_));
+  NavigationSetter setter( *theNavigationSchool_);
+  
+  // get the Out In Seed Finder  
+  edm::LogInfo("ConvertedPhotonProducer") << "get the OutInSeedFinder" << "\n";
+  theOutInSeedFinder_ = new OutInConversionSeedFinder (   &(*theMF_) ,  theMeasurementTracker_ );
+  
     // get the Out In Track Finder
-    edm::LogInfo("ConvertedPhotonProducer") << "get the OutInTrackFinder" << "\n";
-    theOutInTrackFinder_ = new OutInConversionTrackFinder ( theEventSetup, conf_, &(*theMF_),  theMeasurementTracker_  );
-
+  edm::LogInfo("ConvertedPhotonProducer") << "get the OutInTrackFinder" << "\n";
+  theOutInTrackFinder_ = new OutInConversionTrackFinder ( theEventSetup, conf_, &(*theMF_),  theMeasurementTracker_  );
+  
 
     // get the In Out Seed Finder  
     edm::LogInfo("ConvertedPhotonProducer") << "get the InOutSeedFinder" << "\n";
@@ -182,6 +181,9 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   int myCands=0;
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
+
+
+
     theOutInSeedFinder_->setCandidate(*aClus);
     theOutInSeedFinder_->makeSeeds( bcBarrelHandle.product()  );
 

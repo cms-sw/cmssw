@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.9 2006/08/23 09:51:31 charlot Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.10 2006/08/24 08:41:35 charlot Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -43,6 +43,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(float iephimin1, float iephimax1,
 			                               float ipphimin1, float ipphimax1,
@@ -58,7 +59,7 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(float iephimin1, float ie
 
 ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
 
-  delete theMeasurementTracker;
+  //B.M. delete theMeasurementTracker;
   delete theNavigationSchool;
   delete myMatchEle;
   delete myMatchPos;
@@ -85,12 +86,15 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
 
   theUpdator = new KFUpdator();
   thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField)); 
-
   theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
 
-  using edm::ParameterSet;
-  ParameterSet mt_params = conf.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
-  theMeasurementTracker = new MeasurementTracker(setup,mt_params);
+  //B.M. using edm::ParameterSet;
+  //B.M. ParameterSet mt_params = conf.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
+  //B.M. theMeasurementTracker = new MeasurementTracker(setup,mt_params);
+
+  edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
+  setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+  theMeasurementTracker = measurementTrackerHandle.product();
 
   myMatchEle->setES(&(*theMagField),theMeasurementTracker);
   myMatchPos->setES(&(*theMagField),theMeasurementTracker);

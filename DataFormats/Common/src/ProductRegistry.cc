@@ -4,16 +4,17 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.7 2006/08/09 05:29:01 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.9 2006/08/22 05:46:40 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.7 2006/08/09 05:29:01 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.9 2006/08/22 05:46:40 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <algorithm>
+#include <sstream>
 
 namespace edm {
   void
@@ -81,31 +82,41 @@ namespace edm {
   ProductRegistry::addCalled(BranchDescription const&, bool) {
   }
 
-  bool
-  ProductRegistry::merge(ProductRegistry const& other, BranchDescription::MatchMode m) {
-    if (nextID() < other.nextID()) return false;
-    if (size() < other.size()) return false;
-    ProductRegistry::ProductList::const_iterator j = productList().begin();
-    ProductRegistry::ProductList::const_iterator s = productList().end();
-    int nProduced = 0;
-    for ( ; j != s; ++j) {
-      if(j->second.produced()) ++nProduced;
-    }
-    if (size() != (other.size() + nProduced)) return false;
+  std::string
+  ProductRegistry::merge(ProductRegistry const& other,
+	std::string const& fileName,
+	BranchDescription::MatchMode m) {
+    std::ostringstream differences;
+
+    ProductRegistry::ProductList::iterator j = productList_.begin();
+    ProductRegistry::ProductList::iterator s = productList_.end();
     ProductRegistry::ProductList::const_iterator i = other.productList().begin();
     ProductRegistry::ProductList::const_iterator e = other.productList().end();
 
-    j = productList().begin();
-    for( ; i != e; ++i, ++j) {
-      while (j->second.produced()) ++j;
-      if (i->first != j->first) return false;
+    // Loop over entries in the main product registry.
+    while(j != s || i != e) {
+      if (j != s && j->second.produced()) {
+	// Ignore branches just produced (i.e. not in input file).
+	++j;
+      } else if (j == s || i->first < j->first) {
+	differences << "Branch '" << i->second.branchName() << "' is in file '" << fileName << "'\n";
+	differences << "    but not in previous files.\n";
+	++i;
+      } else if (i == e || j->first < i->first) {
+	differences << "Branch '" << j->second.branchName() << "' is in previous files\n";
+	differences << "    but not in file '" << fileName << "'.\n";
+	++j;
+      } else {
+	std::string difs = match(j->second, i->second, fileName, m);
+	if (difs.empty()) {
+	  if (m == BranchDescription::Permissive) j->second.merge(i->second);
+	} else {
+	  differences << difs;
+	}
+	++i;
+	++j;
+      }
     }
-    i = other.productList().begin();
-    ProductRegistry::ProductList::iterator k = productList_.begin();
-    for( ; i != e; ++i, ++k) {
-      while (k->second.produced()) ++k;
-      if (!k->second.merge(i->second, m)) return false;
-    }
-    return true;
+    return differences.str();
   }
 }

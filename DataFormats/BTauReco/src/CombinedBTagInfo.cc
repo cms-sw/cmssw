@@ -1,239 +1,265 @@
+// -*- C++ -*-
+//
+// Package:    CombinedBTagInfo
+// Class:      CombinedBTagInfo
+// 
+/**\class CombinedBTagInfo CombinedBTagInfo.cc DataFormats/BTauReco/src/CombinedBTagInfo.cc
+
+ Description: Extended information for combined b-jet tagging
+
+ Implementation:
+     <Notes on implementation>
+*/
+
+
+// this class header
+
 #include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
-#include <limits>
 
-using namespace std;
-
-namespace {
-  typedef std::numeric_limits<double> num;
-  typedef std::numeric_limits<int> numi;
-}
-
+//------------------------------------------------------------------------------
+// Constructors
+//------------------------------------------------------------------------------
 reco::CombinedBTagInfo::CombinedBTagInfo() {
-  reset();
+
+  // reset everything
+  reco::CombinedBTagInfo::reset();
+
+  // fill map with string name of tagging variable
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::Category]                        = "Category";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::VertexMass]                      = "VertexMass";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::VertexMultiplicity]              = "VertexMultiplicity";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::FlightDistance2DSignificance]    = "FlightDistance2DSignificance";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::ESVXOverE]                       = "ESVXOverE";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::TrackRapidity]                   = "TrackRapidity";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::TrackIP2DSignificance]           = "TrackIP2DSignificance";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::TrackIP2DSignificanceAboveCharm] = "TrackIP2DSignificanceAboveCharm";
+  
+} // constructor
+
+
+//------------------------------------------------------------------------------
+// Destructor
+//------------------------------------------------------------------------------
+reco::CombinedBTagInfo::~CombinedBTagInfo() {
+
 }
 
-reco::CombinedBTagInfo::~CombinedBTagInfo() { }
 
-bool reco::CombinedBTagInfo::existTrackData( const reco::TrackRef & trackRef)
-{
-  return ( trackDataMap_.find(trackRef) != trackDataMap_.end() );
-}
+// -------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------
+
+//
+// map related
+//
+
+std::string reco::CombinedBTagInfo::getTaggingVarName(reco::CombinedBTagInfo::TaggingVariable taggingVar) {
+
+  std::map <reco::CombinedBTagInfo::TaggingVariable, std::string>::const_iterator iter;
+  iter = reco::CombinedBTagInfo::taggingVarName_.find(taggingVar);
+
+  if (iter != reco::CombinedBTagInfo::taggingVarName_.end())
+    return reco::CombinedBTagInfo::taggingVarName_[taggingVar];
+  else
+    return "notFound";
+  
+
+} // void printTaggingVarName
+
+// -------------------------------------------------------------------------------
+bool reco::CombinedBTagInfo::existTrackData(reco::TrackRef trackRef) {
+
+  bool returnValue = false;
+
+  reco::CombinedBTagInfo::TrackDataAssociation::const_iterator iter;
+  iter = reco::CombinedBTagInfo::trackDataMap_.find(trackRef);
+  if (iter != reco::CombinedBTagInfo::trackDataMap_.end()) {
+    returnValue = true;
+  }
+  
+  return returnValue;
+
+} // bool exitTrackData
+// -------------------------------------------------------------------------------
 
 void reco::CombinedBTagInfo::flushTrackData() {
-  //  trackDataMap_.clear();
-}
 
-void reco::CombinedBTagInfo::storeTrackData( const reco::TrackRef & trackRef,
-                                             const reco::CombinedBTagTrack & trackData)
-{
-  // trackDataMap_[trackRef]=trackData;
-  trackDataMap_.erase(trackRef );
-  trackDataMap_.insert(trackRef, trackData);
-}
+  //  reco::CombinedBTagInfo::trackDataMap_.clear();
+  
+} // void flushTrackData
+// -------------------------------------------------------------------------------
 
-int reco::CombinedBTagInfo::sizeTrackData() const
-{
-  return trackDataMap_.size();
-}
+void reco::CombinedBTagInfo::storeTrackData(reco::TrackRef trackRef,
+					    const reco::CombinedBTagInfo::TrackData& trackData) {
+  
+  //  std::cout << "*** trackData to store " << std::endl;
+  //  trackData.print();
 
-const reco::CombinedBTagTrack * reco::CombinedBTagInfo::getTrackData(
-    const reco::TrackRef & trackRef ) const
-{
-  TrackDataAssociation::const_iterator iter = trackDataMap_.find(trackRef);
-  if (iter != trackDataMap_.end()) {
-    return &(iter->val);
-  } else {
-    return 0;
-  }
-}
+  reco::CombinedBTagInfo::trackDataMap_.insert(trackRef, trackData);
 
-void reco::CombinedBTagInfo::printTrackData() const
-{
-  for ( TrackDataAssociation::const_iterator mapIter = trackDataMap_.begin();
-        mapIter != trackDataMap_.end(); mapIter++)
-  {
-    const reco::CombinedBTagTrack & trackData = mapIter->val;
+//   reco::CombinedBTagInfo::TrackDataAssociation::const_iterator iter;
+//   iter = reco::CombinedBTagInfo::trackDataMap_.find(trackRef);
+//   if (iter != reco::CombinedBTagInfo::trackDataMap_.end())
+//     (iter->val).print();
+
+} //void storeTrackData
+// -------------------------------------------------------------------------------
+
+int reco::CombinedBTagInfo::sizeTrackData() {
+  
+  int size = reco::CombinedBTagInfo::trackDataMap_.size();
+
+  return size;
+
+} // int sizeTrackData
+// -------------------------------------------------------------------------------
+
+const reco::CombinedBTagInfo::TrackData* reco::CombinedBTagInfo::getTrackData(reco::TrackRef trackRef) {
+
+ reco::CombinedBTagInfo::TrackDataAssociation::const_iterator iter;
+
+ iter = reco::CombinedBTagInfo::trackDataMap_.find(trackRef);
+
+ if (iter != reco::CombinedBTagInfo::trackDataMap_.end()) {
+
+   return &(iter->val);
+
+ } else {
+
+   return 0;
+
+ } //if iter != end
+
+} // TrackData* getTrackData
+// -------------------------------------------------------------------------------
+void reco::CombinedBTagInfo::printTrackData() {
+
+  reco::CombinedBTagInfo::TrackDataAssociation::const_iterator mapIter;
+  reco::CombinedBTagInfo::TrackDataAssociation::const_iterator mapBegin = reco::CombinedBTagInfo::trackDataMap_.begin();
+  reco::CombinedBTagInfo::TrackDataAssociation::const_iterator mapEnd   = reco::CombinedBTagInfo::trackDataMap_.end();
+
+  for (mapIter = mapBegin; mapIter != mapEnd; mapIter++) {
+
+    const reco::CombinedBTagInfo::TrackData& trackData = mapIter->val;
     trackData.print();
-  }
-}
 
-bool reco::CombinedBTagInfo::existVertexData(vector<reco::Vertex>::const_iterator vertexRef)
-{
-  return ( vertexDataMap_.find(vertexRef) != vertexDataMap_.end() );
-}
+
+  } // for mapIter
+  
+} // void printTrackData
+// -------------------------------------------------------------------------------
+
+bool reco::CombinedBTagInfo::existVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) {
+
+  bool returnValue = false;
+
+  std::map <std::vector<reco::Vertex>::const_iterator, reco::CombinedBTagInfo::VertexData>::const_iterator iter;
+
+  // try to find element
+  iter = reco::CombinedBTagInfo::vertexDataMap_.find(vertexRef);
+  if (iter != reco::CombinedBTagInfo::vertexDataMap_.end())
+    returnValue = true;
+
+  return returnValue;
+
+} // bool exitVertexData
+// -------------------------------------------------------------------------------
 
 void reco::CombinedBTagInfo::flushVertexData() {
-  //  vertexDataMap_.clear();
-}
+  //  reco::CombinedBTagInfo::vertexDataMap_.clear();
+  
+} // void flushVertexData
+// -------------------------------------------------------------------------------
 
-void reco::CombinedBTagInfo::storeVertexData( vector<reco::Vertex>::const_iterator vertexRef,
-                                              const reco::CombinedBTagVertex & vertexData) {
-  vertexDataMap_[vertexRef] = vertexData;
-}
+void reco::CombinedBTagInfo::storeVertexData(std::vector<reco::Vertex>::const_iterator vertexRef,
+					     const reco::CombinedBTagInfo::VertexData& vertexData) {
+  
+  reco::CombinedBTagInfo::vertexDataMap_[vertexRef] = vertexData;
 
-int reco::CombinedBTagInfo::sizeVertexData() const
-{
-  return vertexDataMap_.size();
-}
+} //void storeVertexData
+// -------------------------------------------------------------------------------
 
-reco::CombinedBTagVertex *
-    reco::CombinedBTagInfo::getVertexData(vector<reco::Vertex>::const_iterator vertexRef) const
-{
+int reco::CombinedBTagInfo::sizeVertexData() {
+  
+  int size = reco::CombinedBTagInfo::vertexDataMap_.size();
+
+  return size;
+
+} // int sizeVertexData
+// -------------------------------------------------------------------------------
+
+reco::CombinedBTagInfo::VertexData* reco::CombinedBTagInfo::getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) {
+
+  std::map <std::vector<reco::Vertex>::const_iterator, reco::CombinedBTagInfo::VertexData>::const_iterator iter;
+
   // try to find element
-  map <vector<reco::Vertex>::const_iterator, reco::CombinedBTagVertex>::const_iterator iter =
-    vertexDataMap_.find(vertexRef);
+  iter = reco::CombinedBTagInfo::vertexDataMap_.find(vertexRef);
 
-  if (iter != vertexDataMap_.end()) {
+  if (iter != reco::CombinedBTagInfo::vertexDataMap_.end()) {
+
     // found element
-    return &vertexDataMap_[vertexRef];
+    return &reco::CombinedBTagInfo::vertexDataMap_[vertexRef];
+
   } else {
+    
     // element not found
     return 0;
-  } //if iter != end
-} // VertexData* getVertexData
 
-void reco::CombinedBTagInfo::reset()
-{
+  } //if iter != end
+
+} // VertexData* getVertexData
+// -------------------------------------------------------------------------------
+void reco::CombinedBTagInfo::reset() {
+
+  //
   // reset all information
-  GlobalVector resetVector (num::quiet_NaN(), num::quiet_NaN(), num::quiet_NaN());
+  //
+  GlobalVector resetVector (-999.0,-999.0,-999.0);
 
   // flush maps and vectors
-  flushTrackData();
-  flushVertexData();
-  secondaryVertices_.clear();
-  tracksAboveCharm_.clear();
-  tracksAtSecondaryVertex_.clear();
-
+  reco::CombinedBTagInfo::flushTrackData();
+  reco::CombinedBTagInfo::flushVertexData();
+  reco::CombinedBTagInfo::secondaryVertices_.clear();
+  reco::CombinedBTagInfo::tracksAboveCharm_.clear();
+  reco::CombinedBTagInfo::tracksAtSecondaryVertex_.clear();
+  
   // reset variables
-  vertexType_                       = reco::CombinedBTagEnums::NotDefined;
-  jetPt_                            = num::quiet_NaN();
-  jetEta_                           = num::quiet_NaN();
-  pB_                               = resetVector;
-  pAll_                             = resetVector;
-  bPLong_                           = num::quiet_NaN();
-  bPt_                              = num::quiet_NaN();
-  vertexMass_                       = num::quiet_NaN();
-  vertexMultiplicity_               = numi::quiet_NaN();
-  eSVXOverE_                        = num::quiet_NaN();
-  meanTrackY_                       = num::quiet_NaN();
-  energyBTracks_                    = num::quiet_NaN();
-  energyAllTracks_                  = num::quiet_NaN();
-  angleGeomKinJet_                  = num::quiet_NaN();
-  angleGeomKinVertex_               = num::quiet_NaN();
-  flightDistance2D_                 = MinMeanMax();
-  flightDistanceSignificance2D_     = MinMeanMax();
-  flightDistance3D_                 = MinMeanMax();
-  flightDistanceSignificance3D_     = MinMeanMax();
-  first2DSignedIPSigniAboveCut_     = num::quiet_NaN();
+  reco::CombinedBTagInfo::vertexType_                       = reco::CombinedBTagInfo::NotDefined;
+						            
+  reco::CombinedBTagInfo::jetPt_                            = -999;
+  reco::CombinedBTagInfo::jetEta_                           = -999;
+  				
+  reco::CombinedBTagInfo::pB_                               = resetVector;
+  reco::CombinedBTagInfo::pAll_                             = resetVector;   
+  reco::CombinedBTagInfo::bPLong_                           = -999;
+  reco::CombinedBTagInfo::bPt_                              = -999;
+  reco::CombinedBTagInfo::vertexMass_                       = -999;
+  reco::CombinedBTagInfo::vertexMultiplicity_               = -999;
+  reco::CombinedBTagInfo::eSVXOverE_                        = -999;
+  reco::CombinedBTagInfo::meanTrackY_                       = -999;
+  
+  reco::CombinedBTagInfo::energyBTracks_                    = -999;
+  reco::CombinedBTagInfo::energyAllTracks_                  = -999;
+  						            
+  reco::CombinedBTagInfo::angleGeomKinJet_                  = -999;
+  reco::CombinedBTagInfo::angleGeomKinVertex_               = -999;  
+
+  reco::CombinedBTagInfo::flightDistance2DMin_              = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance2DMin_  = -999;
+  reco::CombinedBTagInfo::flightDistance3DMin_              = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance3DMin_  = -999;
+
+  reco::CombinedBTagInfo::flightDistance2DMax_              = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance2DMax_  = -999;
+  reco::CombinedBTagInfo::flightDistance3DMax_              = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance3DMax_  = -999;
+
+  reco::CombinedBTagInfo::flightDistance2DMean_             = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance2DMean_ = -999;
+  reco::CombinedBTagInfo::flightDistance3DMean_             = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance3DMean_ = -999;
+
+  reco::CombinedBTagInfo::first2DSignedIPSigniAboveCut_     = -999;
+  
 } //reset
 
-double reco::CombinedBTagInfo::jetPt() const
-{
-  return jetPt_;
-}
-
-double reco::CombinedBTagInfo::jetEta() const
-{
-  return jetEta_;
-}
-
-reco::Vertex reco::CombinedBTagInfo::primaryVertex() const
-{
-  return primaryVertex_;
-}
-
-vector<reco::Vertex> reco::CombinedBTagInfo::secVertices() const
-{
-  return secondaryVertices_;
-}
-
-vector<reco::TrackRef> reco::CombinedBTagInfo::tracksAboveCharm() const
-{
-  return tracksAboveCharm_;
-}
-
-vector<reco::TrackRef> reco::CombinedBTagInfo::tracksAtSecondaryVertex() const
-{
-  return tracksAtSecondaryVertex_;
-}
-
-int reco::CombinedBTagInfo::nSecVertices() const
-{
-  return secondaryVertices_.size();
-}
-
-reco::CombinedBTagEnums::VertexType reco::CombinedBTagInfo::vertexType() const
-{
-  return vertexType_;
-}
-
-double reco::CombinedBTagInfo::vertexMass() const
-{return vertexMass_;}
-
-int reco::CombinedBTagInfo::vertexMultiplicity() const
-{return vertexMultiplicity_;}
-
-double reco::CombinedBTagInfo::eSVXOverE() const {return eSVXOverE_;}
-
-GlobalVector reco::CombinedBTagInfo::pAll() const {return pAll_;}
-
-GlobalVector reco::CombinedBTagInfo::pB() const {return pB_;}
-
-double reco::CombinedBTagInfo::pBLong() const {return bPLong_;}
-
-double reco::CombinedBTagInfo::pBPt() const {return bPt_;}
-
-double reco::CombinedBTagInfo::meanTrackRapidity() const {return meanTrackY_;}
-
-double reco::CombinedBTagInfo::angleGeomKinJet() const {return angleGeomKinJet_;}
-
-double reco::CombinedBTagInfo::angleGeomKinVertex() const {return angleGeomKinVertex_;}
-
-MinMeanMax reco::CombinedBTagInfo::flightDistance2D() const {return flightDistance2D_; }
-MinMeanMax reco::CombinedBTagInfo::flightDistanceSignificance2D() const 
-    {return flightDistanceSignificance2D_; }
-MinMeanMax reco::CombinedBTagInfo::flightDistance3D() const {return flightDistance3D_; }
-MinMeanMax reco::CombinedBTagInfo::flightDistanceSignificance3D() const 
-    {return flightDistanceSignificance3D_; }
-
-double reco::CombinedBTagInfo::first2DSignedIPSigniAboveCut() const
-  {return first2DSignedIPSigniAboveCut_;}
-
-void reco::CombinedBTagInfo::setJetPt (double pt) {jetPt_ = pt;}
-
-void reco::CombinedBTagInfo::setJetEta(double eta) {jetEta_ = eta;}
-
-void reco::CombinedBTagInfo::setPrimaryVertex( const reco::Vertex & pv) {primaryVertex_ = pv;}
-
-void reco::CombinedBTagInfo::addSecondaryVertex( const reco::Vertex & sv) {secondaryVertices_.push_back(sv);}
-
-void reco::CombinedBTagInfo::addTrackAtSecondaryVertex(reco::TrackRef trackRef)
-  {tracksAtSecondaryVertex_.push_back(trackRef);}
-
-void reco::CombinedBTagInfo::setVertexType( reco::CombinedBTagEnums::VertexType type) {vertexType_ = type;}
-void reco::CombinedBTagInfo::setVertexMass( double mass) {vertexMass_ = mass;}
-void reco::CombinedBTagInfo::setVertexMultiplicity( int mult ) {vertexMultiplicity_ = mult;}
-void reco::CombinedBTagInfo::setESVXOverE( double e) {eSVXOverE_ = e; }
-void reco::CombinedBTagInfo::setEnergyBTracks(double energy) {energyBTracks_ = energy;}
-void reco::CombinedBTagInfo::setEnergyAllTracks(double energy) {energyAllTracks_ = energy;}
-void reco::CombinedBTagInfo::setPAll( const GlobalVector & p) { pAll_ = p;}
-void reco::CombinedBTagInfo::setPB( const GlobalVector & p ) { pB_ = p;}
-void reco::CombinedBTagInfo::setBPLong(double pLong) { bPLong_ = pLong;}
-void reco::CombinedBTagInfo::setBPt(double pt) {bPt_ = pt;}
-void reco::CombinedBTagInfo::setMeanTrackRapidity(double meanY) {meanTrackY_ = meanY;}
-void reco::CombinedBTagInfo::setAngleGeomKinJet(double angle) {angleGeomKinJet_ = angle;}
-void reco::CombinedBTagInfo::setAngleGeomKinVertex(double angle) {angleGeomKinVertex_ = angle;}
-void reco::CombinedBTagInfo::addTrackAboveCharm(reco::TrackRef trackRef) {tracksAboveCharm_.push_back(trackRef);}
-void reco::CombinedBTagInfo::setFlightDistance2D( const MinMeanMax & v ) {flightDistance2D_ = v;}
-void reco::CombinedBTagInfo::setFlightDistanceSignificance2D ( const MinMeanMax & v )
-    {flightDistanceSignificance2D_ = v;}
-void reco::CombinedBTagInfo::setFlightDistance3D( const MinMeanMax & v ) {flightDistance3D_ = v;}
-void reco::CombinedBTagInfo::setFlightDistanceSignificance3D ( const MinMeanMax & v )
-    {flightDistanceSignificance3D_ = v;}
-
-void reco::CombinedBTagInfo::setFirst2DSignedIPSigniAboveCut(double ipSignificance) {first2DSignedIPSigniAboveCut_ = ipSignificance;}
-
-std::string reco::CombinedBTagInfo::getVertexTypeName() const
-{
-  return reco::CombinedBTagEnums::typeOfVertex ( vertexType_ );
-}
+// -------------------------------------------------------------------------------

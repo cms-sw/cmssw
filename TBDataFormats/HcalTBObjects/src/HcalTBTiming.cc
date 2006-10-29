@@ -5,13 +5,11 @@ using namespace std;
   HcalTBTiming::HcalTBTiming() :
     triggerTime_(0),
     ttcL1Atime_(0),
+    beamCoincidence_(0),
     laserFlash_(0),
     qiePhase_(0),
-    TOF1Stime_(0),
-    TOF1Jtime_(0),
-    TOF2Stime_(0),
-    TOF2Jtime_(0),
-    beamCoincidenceHits_(),
+    TOF1time_(0),
+    TOF2time_(0),
     m1hits_(),
     m2hits_(),
     m3hits_(),
@@ -23,25 +21,22 @@ using namespace std;
     bh2hits_(),
     bh3hits_(),
     bh4hits_() {
-    for (int i=0;i<32;i++)V775_[i]=-1;
   }
 
   void HcalTBTiming::setTimes (const double trigger_time,
 			       const double ttc_l1a_time,
+			       const double beam_coincidence,
 			       const double laser_flash,
 			       const double qie_phase,
-                               const double TOF1S_time,
-			       const double TOF1J_time,
-			       const double TOF2S_time,
-			       const double TOF2J_time) {
+			       const double TOF1_time,
+			       const double TOF2_time) {
     triggerTime_     = trigger_time;
     ttcL1Atime_      = ttc_l1a_time;
+    beamCoincidence_ = beam_coincidence;
     laserFlash_      = laser_flash;
     qiePhase_        = qie_phase;
-    TOF1Stime_       = TOF1S_time;
-    TOF1Jtime_       = TOF1J_time;
-    TOF2Stime_       = TOF2S_time;
-    TOF2Jtime_       = TOF2J_time;
+    TOF1time_        = TOF1_time;
+    TOF2time_        = TOF2_time;
   }
 
   void HcalTBTiming::setHits  (const std::vector<double>& m1hits,
@@ -54,8 +49,7 @@ using namespace std;
 			       const std::vector<double>& bh1hits,
 			       const std::vector<double>& bh2hits,
 			       const std::vector<double>& bh3hits,
-			       const std::vector<double>& bh4hits,
-			       const std::vector<double>& beamCoincidenceHits) {
+			       const std::vector<double>& bh4hits) {
     m1hits_ = m1hits;
     m2hits_ = m2hits;
     m3hits_ = m3hits;
@@ -69,25 +63,17 @@ using namespace std;
     bh2hits_ = bh2hits;
     bh3hits_ = bh3hits;
     bh4hits_ = bh4hits;
-    beamCoincidenceHits_ = beamCoincidenceHits;
   }
 
-    void HcalTBTiming::setV775 (int *V775)
- {
-    for (int i=0;i<32;i++)V775_[i]=V775[i];
- }
-
-  
   ostream& operator<<(ostream& s, const HcalTBTiming& htbtmg) {
 
     s << "Trigger time     = " << htbtmg.triggerTime() << endl;
     s << "TTC L1A time     = " << htbtmg.ttcL1Atime() << endl;
+    s << "Beam Coincidence = " << htbtmg.beamCoincidence() << endl;
     s << "Laser Flash      = " << htbtmg.laserFlash() << endl;
     s << "QIE Phase        = " << htbtmg.qiePhase() << endl;
-    s << "TOF1S            = " << htbtmg.TOF1Stime() << endl;
-    s << "TOF1J            = " << htbtmg.TOF1Jtime() << endl;
-    s << "TOF2S            = " << htbtmg.TOF2Stime() << endl;
-    s << "TOF2J            = " << htbtmg.TOF2Jtime() << endl;
+    s << "TOF1             = " << htbtmg.TOF1time() << endl;
+    s << "TOF2             = " << htbtmg.TOF2time() << endl;
 
     s << "M1 hits: ";
     for (int i=0; i<htbtmg.M1Count(); i++) {
@@ -163,13 +149,6 @@ using namespace std;
     for (int i=0; i<htbtmg.BH4Count(); i++) {
       if (i) s << ", ";
       s << htbtmg.BH4Hits(i);
-    }
-    s << endl;
-
-    s << "Beam Coincidence hits: ";
-    for (int i=0; i<htbtmg.BeamCoincidenceCount(); i++) {
-      if (i) s << ", ";
-      s << htbtmg.BeamCoincidenceHits(i);
     }
     s << endl;
 

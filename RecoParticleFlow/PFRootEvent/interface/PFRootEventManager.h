@@ -159,9 +159,10 @@ class PFRootEventManager {
 
   /// display track (for rectracks and particles)
   void displayTrack(const std::vector<reco::PFTrajectoryPoint>& points, 
-		    unsigned viewType, double phi0, 
-		    double sign, bool displayInitial, 
-		    int linestyle, int mstyle, int color);  
+		    unsigned viewType, double phi0 = 0., 
+		    double sign=1, bool displayInitial=true, 
+		    int linestyle=1, 
+		    int color=1);  
 
 
   /// unzooms all support histograms
@@ -368,9 +369,6 @@ class PFRootEventManager {
   /// clustering on/off. If on, rechits from tree are used to form 
   /// clusters. If off, clusters from tree are used.
   bool   clusteringIsOn_;
-
-  /// debug printouts for clustering on/off
-  bool   clusteringDebug_;
 
   /// ecal barrel threshold
   double threshEcalBarrel_;

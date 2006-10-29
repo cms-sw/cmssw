@@ -85,12 +85,15 @@ namespace stor
     void set_hlt_bit_count(uint32 count) { hlt_bit_cnt_ = count; }
     void set_l1_bit_count(uint32 count) { l1_bit_cnt_ = count; }
     void set_outoption(bool stream_only) { streamerOnly_ = stream_only; }
-    void set_outfile(std::string outfilestart, unsigned long maxFileSize,
-                     double highWaterMark, std::string path, std::string mpath) 
+    void set_outfile(std::string outfilestart, uint32 runNum, unsigned long maxFileSize,
+                     double highWaterMark, std::string path, std::string mpath,
+		     std::string catalog, int disks) 
                        { filen_ = outfilestart; 
+                         runNumber_ = runNum;
                          maxFileSize_ = maxFileSize;
                          highWaterMark_ = highWaterMark;
-                         path_ = path; mpath_ = mpath; }
+                         path_ = path; mpath_ = mpath; 
+		         catalog_ = catalog; disks_ = disks;}
     std::list<std::string>& get_filelist() { return writer_->get_filelist();  }
     std::list<std::string>& get_currfiles() { return writer_->get_currfiles(); }
   private:
@@ -98,10 +101,14 @@ namespace stor
     uint32 l1_bit_cnt_;
     bool streamerOnly_;
     std::string filen_;
+    uint32 runNumber_;
     unsigned long maxFileSize_;
     double highWaterMark_;
     std::string path_;
     std::string mpath_;
+    std::string catalog_;
+    uint32 disks_;
+
     //ofstream ost_;
     std::auto_ptr<edm::StreamerOutSrvcManager> writer_;
 

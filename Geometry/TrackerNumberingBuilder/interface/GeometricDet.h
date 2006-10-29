@@ -101,12 +101,6 @@ class GeometricDet {
 
   virtual ConstGeometricDetContainer deepComponents() const;
 
-  //rr
-  /** parents() retuns the geometrical history
-   */
-  virtual std::vector< DDExpandedNode > parents() const {return _parents;}
-  //rr  
-  
   /**
    *geometricalID() returns the ID associated to the GeometricDet.
    */
@@ -127,12 +121,6 @@ class GeometricDet {
    */
   virtual const Bounds * bounds() const; 
   
-  virtual int copyno() const {return _copy;}
-  virtual double volume() const {return _volume;}
-  virtual double density() const {return _density;}
-  virtual double weight() const {return _weight;}
-  virtual std::string material() const {return _material;}
-  
  private:
 
   GeometricDetContainer _container;
@@ -144,13 +132,6 @@ class GeometricDet {
   GeometricEnumType _type;
   std::vector<double> _params;
   DetId _geographicalID;
-
-  std::vector< DDExpandedNode > _parents;
-  double _volume;
-  double _density;
-  double _weight;
-  int    _copy;
-  std::string _material;
 };
 
 #endif

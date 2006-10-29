@@ -1,3 +1,5 @@
+// $Id: StreamerOutputService.cc,v 1.15 2006/10/11 15:03:52 klute Exp $
+
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
@@ -11,11 +13,13 @@
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
 
 using namespace edm;
 using namespace std;
@@ -32,7 +36,7 @@ std::string itoa(int i){
 /* No one will use this CTOR anyways, we can remove it in future */
 StreamerOutputService::StreamerOutputService():
  maxFileSize_(1073741824),
- maxFileEventCount_(10000),
+ maxFileEventCount_(50),
  currentFileSize_(0),
  totalEventCount_(0),
  eventsInFile_(0),
@@ -50,7 +54,7 @@ StreamerOutputService::StreamerOutputService():
  // defaulting - need numbers from Emilio
  //StreamerOutputService::StreamerOutputService():
  maxFileSize_(1073741824),
- maxFileEventCount_(10000),
+ maxFileEventCount_(50),
  currentFileSize_(0),
  totalEventCount_(0),
  eventsInFile_(0),
@@ -63,18 +67,41 @@ StreamerOutputService::StreamerOutputService():
   }
 
 void StreamerOutputService::init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
-                                 std::string path, std::string mpath, InitMsgView const& view)
+                                 std::string path, std::string mpath, 
+				 std::string catalog, uint32 disks,
+				 InitMsgView const& view)
   { 
    maxFileSize_ = maxFileSize;
    highWaterMark_ = highWaterMark;
    path_ = path;
    mpath_ = mpath;
    filen_ = fileName;
-   fileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
-   indexFileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
-   
+   nLogicalDisk_   = disks;
+
+   // create file names ( can be move to seperate method )
+   std::ostringstream newFileName;
+   newFileName << path_ << "/";
+   catalog_        = newFileName.str() + catalog;
+   lockFileName_   = newFileName.str() + "nolock";
+
+   if (nLogicalDisk_ != 0 )
+     {
+       newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
+       lockFileName_   = newFileName.str() + ".lock";
+       ofstream *lockFile = new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+       delete(lockFile);
+     }
+
+   newFileName << filen_ << "." << fileNameCounter_ ;
+   fileName_      = newFileName.str() + ".dat";
+   indexFileName_ = newFileName.str() + ".ind";
+                                                                                                           
+   statistics_  = boost::shared_ptr<edm::StreamerStatWriteService> 
+     (new edm::StreamerStatWriteService(0, "-", indexFileName_, fileName_, catalog_));
+
    streamNindex_writer_ = boost::shared_ptr<StreamerFileWriter>(new StreamerFileWriter(fileName_, indexFileName_));
 
+   
    //dumpInitHeader(&view);
    
    writeHeader(view);
@@ -83,9 +110,9 @@ void StreamerOutputService::init(std::string fileName, unsigned long maxFileSize
 
    // save the INIT message for when writing to the next file
    // that is openned
-   unsigned char* pos = (unsigned char*) &saved_initmsg_[0];
+   char* pos = &saved_initmsg_[0];
    unsigned char* from = view.startAddress();
-   int dsize = (int)view.size();
+   unsigned int dsize = view.size();
    copy(from,from+dsize,pos);
 
    // initialize event selector
@@ -103,7 +130,7 @@ void StreamerOutputService::initializeSelection(InitMsgView const& initView)
 
   /* ---printout the trigger names in the INIT message*/
   std::cout << ">>>>>>>>>>>Trigger names:" << std::endl;
-  for(int i=0; i< triggerNameList.size(); ++i)
+  for(unsigned int i=0; i< triggerNameList.size(); ++i)
     std::cout<< ">>>>>>>>>>>  name = " << triggerNameList[i] << std::endl;
   /* */
 
@@ -114,24 +141,37 @@ void StreamerOutputService::initializeSelection(InitMsgView const& initView)
 
 StreamerOutputService::~StreamerOutputService()
   {
-   // expect to do this manually at the end of a run
-   // stop();   //Remove this from destructor if you want higher class to do that at its will.
-              // and if stop() is ever made Public.
-   writeToMailBox();
-   std::ostringstream entry;
-   entry << fileNameCounter_ << " "
-         << fileName_
-         << " " << eventsInFile_
-         << "   " << currentFileSize_;
-   files_.push_back(entry.str());
-   closedFiles_ += ", ";
-   closedFiles_ += fileName_;
-   // HEREHERE for test
-   std::cout << "#    name                             evt        size     " << endl;
-   for(std::list<std::string>::const_iterator it = files_.begin(); it != files_.end(); it++)
-     std::cout << *it << endl;
-   std::cout << "Disk Usage = " << diskUsage_ << endl;
-   std::cout << "Closed files = " << closedFiles_ << endl;
+    // write to summary catalog and mailbox if file has an entry.
+    if ( eventsInFile_ > 0 )
+      {
+	writeToMailBox();
+	statistics_  -> setFileSize((uint32) currentFileSize_ );
+	statistics_  -> setEventCount((uint32) eventsInFile_ ); 
+	statistics_  -> writeStat();
+      }
+
+    std::ostringstream newFileName;
+    newFileName << path_ << "/";
+    if (nLogicalDisk_ != 0 )
+      {
+	newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
+	remove( lockFileName_.c_str() );
+      }
+    
+    std::ostringstream entry;
+    entry << fileNameCounter_ << " "
+	  << fileName_
+	  << " " << eventsInFile_
+	  << "   " << currentFileSize_;
+    files_.push_back(entry.str());
+    closedFiles_ += ", ";
+    closedFiles_ += fileName_;
+    
+    std::cout << "#    name                             evt        size     " << endl;
+    for(std::list<std::string>::const_iterator it = files_.begin(); it != files_.end(); it++)
+      std::cout << *it << endl;
+    std::cout << "Disk Usage = " << diskUsage_ << endl;
+    std::cout << "Closed files = " << closedFiles_ << endl;
   }
 
 void StreamerOutputService::stop()
@@ -150,63 +190,84 @@ void StreamerOutputService::writeHeader(InitMsgView const& init_message)
     currentFileSize_ += init_message.size();
 
   }
-
-void StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize)
+  
+bool StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize)
   { 
+    bool returnVal = true;
 
-        //Check if this event meets the selection criteria, if not skip it.
-        if ( ! wantsEvent(eview) ) 
-            {
-            //cout <<"This event is UNWANTED"<<endl; 
-            return;
-            }
+    //Check if this event meets the selection criteria, if not skip it.
+    if ( ! wantsEvent(eview) ) 
+      return returnVal;
 
-        // check for number of events is no longer required 09/22/2006
-        //if ( eventsInFile_ > maxFileEventCount_  || currentFileSize_ > maxFileSize_ )
-        if ( currentFileSize_ > maxFileSize_ )
-           {
-             checkFileSystem(); // later should take some action
-             stop();
-             writeToMailBox();
-             fileNameCounter_++;
+    // since only the file size is checked here, we don't care that one event
+    // will be written even though the condition for closing the file
+    // is satisfied ... has to change later.
+    if ( currentFileSize_ >= maxFileSize_ )
+      returnVal = false;
 
-             string tobeclosedFile = fileName_;
+    //Write the Event Message to Streamer and index
+    streamNindex_writer_->doOutputEvent(eview);
+    
+    eventsInFile_++;
+    totalEventCount_++;
+    currentFileSize_ += eview.size();
 
-             //std::cout<<" better to use temp variable as not sure if writer is still using"<<std::endl;
-             // them? shouldn't be! (no time to look now)
-             // writer is not using them !! - AA
+    return returnVal;
+  }
 
-             // also should be checking the filesystem here at path_
-             fileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
-             indexFileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
-
-             streamNindex_writer_.reset(new StreamerFileWriter(fileName_, indexFileName_));
-
-             // write out the summary line for this last file
-             std::ostringstream entry;
-             entry << (fileNameCounter_ - 1) << " " 
-                   << fileName_
-                   << " " << eventsInFile_
-                   << "   " << currentFileSize_;
-             files_.push_back(entry.str());
-             if(fileNameCounter_!=1) closedFiles_ += ", ";
-             closedFiles_ += tobeclosedFile;
-
-             eventsInFile_ = 0; 
-             currentFileSize_ = 0;
-             // write the Header for the newly openned file
-             // from the previously saved INIT msg
-             InitMsgView myview(&saved_initmsg_[0]);
-
-             writeHeader(myview);
-           }
-                     
-           //Write the Event Message to Streamer and index
-           streamNindex_writer_->doOutputEvent(eview);
-
-           eventsInFile_++;
-           totalEventCount_++;
-           currentFileSize_ += eview.size();
+void StreamerOutputService::closeFile(EventMsgView const& eview)
+  {
+    checkFileSystem(); // later should take some action
+    stop();
+    writeToMailBox();
+    
+    statistics_  -> setFileSize((uint32) currentFileSize_ );
+    statistics_  -> setEventCount((uint32) eventsInFile_ ); 
+    statistics_  -> setRunNumber((uint32) eview.run());
+    statistics_  -> writeStat();
+    
+    fileNameCounter_++;
+    
+    string tobeclosedFile = fileName_;
+    
+    std::ostringstream newFileName;
+    newFileName << path_ << "/";
+    if (nLogicalDisk_ != 0 )
+      {
+	newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
+	remove( lockFileName_.c_str() );
+	lockFileName_   = newFileName.str() + ".lock";
+	ofstream *lockFile =
+	  new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+	delete(lockFile);
+      }
+    
+    newFileName << filen_ << "." << fileNameCounter_ ;
+    fileName_      = newFileName.str() + ".dat";
+    indexFileName_ = newFileName.str() + ".ind";
+    
+    statistics_  = boost::shared_ptr<edm::StreamerStatWriteService> 
+      (new edm::StreamerStatWriteService(eview.run(), "-", indexFileName_, fileName_, catalog_));
+    
+    streamNindex_writer_.reset(new StreamerFileWriter(fileName_, indexFileName_));
+    
+    // write out the summary line for this last file
+    std::ostringstream entry;
+    entry << (fileNameCounter_ - 1) << " " 
+	  << tobeclosedFile
+	  << " " << eventsInFile_
+	  << "   " << currentFileSize_;
+    files_.push_back(entry.str());
+    if(fileNameCounter_!=1) closedFiles_ += ", ";
+    closedFiles_ += tobeclosedFile;
+    
+    eventsInFile_ = 0; 
+    currentFileSize_ = 0;
+    // write the Header for the newly openned file
+    // from the previously saved INIT msg
+    InitMsgView myview(&saved_initmsg_[0]);
+    
+    writeHeader(myview);
   }
 
 bool StreamerOutputService::wantsEvent(EventMsgView const& eventView) 
@@ -218,7 +279,7 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
     std::cout << ">>>>>>>>>>>Trigger bits:" << std::endl;
     for(int i=0; i< hlt_out.size(); ++i)
     {
-      unsigned test = (unsigned int)hlt_out[i];
+      unsigned int test = static_cast<unsigned int>(hlt_out[i]);
       std::cout<< hex << ">>>>>>>>>>>  bits = " << test << " " << hlt_out[i] << std::endl;
     }
     cout << "\nhlt bits=\n(";

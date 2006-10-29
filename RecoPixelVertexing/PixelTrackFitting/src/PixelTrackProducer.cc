@@ -11,7 +11,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -24,35 +23,21 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
 
-typedef PixelTrackCleaner::TrackWithRecHits TrackWithRecHits;
-
 PixelTrackProducer::PixelTrackProducer(const edm::ParameterSet& conf)
-  : theConfig(conf), theFitter(0), theFilter(0)
+  : theConfig(conf)
 {
-  edm::LogInfo("PixelTrackProducer")<<" construction...";
+  edm::LogInfo("PixelTrackProducer")<<" constuction...";
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
 }
 
-
 PixelTrackProducer::~PixelTrackProducer()
 { }
-
 
 void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   LogDebug("PixelTrackProducer, produce")<<"event# :"<<ev.id();
-
-  buildTracks(ev, es);
-  filterTracks(ev, es);
-  addTracks(ev,es);
-}
-
-
-void PixelTrackProducer::buildTracks(edm::Event& ev, const edm::EventSetup& es)
-{
-  typedef std::vector<const TrackingRecHit *> RecHits;
 
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   ev.getByType(pixelHits);
@@ -63,81 +48,44 @@ void PixelTrackProducer::buildTracks(edm::Event& ev, const edm::EventSetup& es)
   GlobalTrackingRegion region;
   OrderedHitTriplets triplets;
   tripGen.hitTriplets(region,triplets,es);
-  edm::LogInfo("PixelTrackProducer") << "number of triplets: " << triplets.size();
+  edm::LogInfo("PixelTrackProducer") << "size of triplets: "<<triplets.size();
 
-  if (!theFitter) {
-    std::string fitterName = theConfig.getParameter<std::string>("Fitter");
-    edm::ESHandle<PixelFitter> fitterESH;
-    es.get<TrackingComponentsRecord>().get(fitterName,fitterESH);
-    theFitter = fitterESH.product();
-  }
+  // get fitter
+  std::string fitterName = theConfig.getParameter<std::string>("Fitter");
+  edm::ESHandle<PixelFitter> fitter;
+  es.get<TrackingComponentsRecord>().get(fitterName,fitter);
 
-  if (!theFilter) {
-    std::string filterName = theConfig.getParameter<std::string>("Filter");
-    edm::ESHandle<PixelTrackFilter> filterESH;
-    es.get<TrackingComponentsRecord>().get(filterName,filterESH);
-    theFilter = filterESH.product();
-  }
+
+  std::auto_ptr<reco::TrackCollection> result(new reco::TrackCollection);
+  std::auto_ptr<TrackingRecHitCollection> outputRHColl(new TrackingRecHitCollection);
+  std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
+  std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
 
   typedef OrderedHitTriplets::const_iterator IT;
-
-  // producing tracks
-
-  allTracks.clear();
-
+  int nTracks = 0;
   for (IT it = triplets.begin(); it != triplets.end(); it++) {
-    RecHits hits;
+    std::vector<const TrackingRecHit *> hits;
     hits.push_back( (*it).inner() );
     hits.push_back( (*it).middle() );
     hits.push_back( (*it).outer() );
-    reco::Track* track = theFitter->run(es, hits, region);
-    
-    if ( (*theFilter)(track) ) {
-      allTracks.push_back(TrackWithRecHits(track, hits));
-    } else {
+    const reco::Track *track = fitter->run(es,hits,region);
+    if (track) {
+      nTracks++;
+
+      result->push_back(*track);
       delete track;
+
+      outputRHColl->push_back( ( (*it).inner() )->clone() );
+      outputRHColl->push_back( ( (*it).middle() )->clone() );
+      outputRHColl->push_back( ( (*it).outer() )->clone() );
     }
   }
-}
-
-
-void PixelTrackProducer::filterTracks(edm::Event& ev, const edm::EventSetup& es)
-{
-  PixelTrackCleaner* filter = new PixelTrackCleaner();
-  cleanedTracks = filter->cleanTracks(allTracks);
-}
-
-
-void PixelTrackProducer::addTracks(edm::Event& ev, const edm::EventSetup& es)
-{
-  std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);
-  std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
-  typedef std::vector<const TrackingRecHit *> RecHits;
-
-
-  int cc = 0, nTracks = cleanedTracks.size();
-
-  for (int i = 0; i < nTracks; i++)
-  {
-    reco::Track* track =  cleanedTracks.at(i).first;
-    RecHits hits = cleanedTracks.at(i).second;
-
-    for (unsigned int k = 0; k < hits.size(); k++)
-    {
-      TrackingRecHit *hit = (hits.at(k))->clone();
-      recHits->push_back(hit);
-      track->setHitPattern(*hit, k);
-    }
-    tracks->push_back(*track);
-    delete track;
-
-  }
+  cout << "nTracks" << nTracks << endl;
 
   LogDebug("TrackProducer") << "put the collection of TrackingRecHit in the event" << "\n";
-  edm::OrphanHandle <TrackingRecHitCollection> ohRH = ev.put( recHits );
+  edm::OrphanHandle <TrackingRecHitCollection> ohRH = ev.put( outputRHColl );
 
-
+  int cc = 0;
   for (int k = 0; k < nTracks; k++)
   {
     reco::TrackExtra* theTrackExtra = new reco::TrackExtra();
@@ -149,18 +97,25 @@ void PixelTrackProducer::addTracks(edm::Event& ev, const edm::EventSetup& es)
       cc++;
     }
 
-    trackExtras->push_back(*theTrackExtra);
+    outputTEColl->push_back(*theTrackExtra);
     delete theTrackExtra;
   }
 
+  //put the collection of TrackExtra in the event
   LogDebug("TrackProducer") << "put the collection of TrackExtra in the event" << "\n";
-  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = ev.put(trackExtras);
+  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = ev.put(outputTEColl);
 
   for (int k = 0; k < nTracks; k++)
   {
+    //create a TrackExtraRef
     const reco::TrackExtraRef theTrackExtraRef(ohTE,k);
-    (tracks->at(k)).setExtra(theTrackExtraRef);
-  }
 
-  ev.put(tracks);
+    //use the TrackExtraRef to assign the TrackExtra to the Track
+    (result->at(k)).setExtra(theTrackExtraRef);
+
+  }
+//
+
+
+  ev.put(result);
 }

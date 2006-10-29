@@ -1,7 +1,6 @@
 #ifndef DQM_SiStripCommon_SummaryGenerator_H
 #define DQM_SiStripCommon_SummaryGenerator_H
 
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "boost/cstdint.hpp"
 #include <string>
@@ -21,8 +20,6 @@ class SummaryGenerator {
 
  public: 
 
-  // ---------- General ----------
-
   SummaryGenerator();
   virtual ~SummaryGenerator() {;}
 
@@ -34,11 +31,8 @@ class SummaryGenerator {
   /** Creates instance of derived class based on view parameter. */
   static SummaryGenerator* instance( const sistrip::View& );
 
-  // ---------- Contruct name and TObject ----------
-
   /** Constructs the summary histogram name. */
-  static std::string name( const sistrip::Task&, 
-			   const sistrip::SummaryHisto&, 
+  static std::string name( const sistrip::SummaryHisto&, 
 			   const sistrip::SummaryType&,
 			   const sistrip::View&, 
 			   const std::string& directory );
@@ -46,15 +40,13 @@ class SummaryGenerator {
   /** Creates instance of derived class based on view parameter. */
   static TH1* histogram( const sistrip::SummaryType&,
 			 const uint32_t& xbins );
-  
-  // ---------- Fill map and update histogram ----------
 
   /** Fills the map that is used to generate the histogram(s). */
   void fillMap( const std::string& top_level_dir,
 		const sistrip::Granularity&,
 		const uint32_t& key, 
 		const float& value, 
-	const float& error = 0. );
+		const float& error = 0. );
 
 
   /** Clear the map that is used to generate the histogram(s). */
@@ -77,25 +69,17 @@ class SummaryGenerator {
       parameter (y-axis) binned as a function of position within the
       given logical structure, which is view-dependent (x-axis). */
   void summaryProf( TH1& );
-
-  // ---------- Histogram formatting ----------
   
   /** Some generic formatting of histogram. */
-  void format( const sistrip::Task&, 
-	       const sistrip::SummaryHisto&, 
-	       const sistrip::SummaryType&,
-	       const sistrip::View&, 
-	       const std::string& directory,
-	       const sistrip::Granularity&,
-	       TH1& );
+  static void format( const sistrip::SummaryHisto&, 
+		      const sistrip::SummaryType&,
+		      const sistrip::View&, 
+		      const std::string& directory,
+		      TH1& );
   
-  /** Optionally set axis label */ 
-  inline void axisLabel( const std::string& );
-  
-  /** Retrieve size of map (ie, number of bins). */
   inline uint32_t size() const;
-  
- protected: // ---------- Protected methods and data ----------
+
+ protected:
   
   /** Fills the map used to generate the histogram. */
   virtual void fill( const std::string& top_level_dir,
@@ -111,11 +95,9 @@ class SummaryGenerator {
   uint32_t entries_;
   float max_;
   float min_;
-  std::string label_;
   
 };
 
 uint32_t SummaryGenerator::size() const { return map_.size(); }
-void SummaryGenerator::axisLabel( const std::string& label ) { label_ = label; }
 
 #endif // DQM_SiStripCommon_SummaryGenerator_H

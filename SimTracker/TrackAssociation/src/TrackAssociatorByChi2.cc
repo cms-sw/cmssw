@@ -1,5 +1,5 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
 using namespace edm;
 using namespace reco;
@@ -67,7 +67,7 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
       
       TrackBase::ParameterVector diffParameters = rParameters - sParameters;
       double chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
-
+//       std::cout << "FROM SIM TRACK - chi2: " << chi2 << std::endl;
 
       chi2/=5;
       if (chi2<50) outMap[chi2]=*st;
@@ -79,8 +79,7 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 
 
 RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::TrackCollection>& tCH, 
-							      edm::Handle<TrackingParticleCollection>& tPCH,
-							      const edm::Event * e ){
+							      edm::Handle<TrackingParticleCollection>& tPCH){
 
   RecoToSimCollection  outputCollection;
   double chi2;
@@ -133,70 +132,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 
 	if (chi2<50) {
 	  outputCollection.insert(reco::TrackRef(tCH,tindex), 
-				  std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),chi2));
-	}
-      }
-    }
-    
-  }
-  return outputCollection;
-}
-
-
-
-SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::TrackCollection>& tCH, 
-							      edm::Handle<TrackingParticleCollection>& tPCH,
-							      const edm::Event * e ){
-
-  SimToRecoCollection  outputCollection;
-  double chi2;
-
-  const TrackCollection tC = *(tCH.product());
-  const TrackingParticleCollection tPC= *(tPCH.product());
-
-  int tpindex =0;
-  for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
-    for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
-      
-      double thetares = (*t)->momentum().theta();
-      double phi0res = (*t)->momentum().phi();
-      GlobalPoint vert;
-      const TrackingVertex * tv = &(*(tp->parentVertex()));
-      int vind=0;
-      for (TrackingVertex::g4v_iterator v=tv->g4Vertices_begin(); v!=tv->g4Vertices_end(); v++){
-	if (vind==(*t)->vertIndex()) vert=GlobalPoint((*v)->position().x(),(*v)->position().y(),(*v)->position().z());
-	vind++;
-      }
-      double d0res = vert.perp();
-      double dzres = vert.z();
-      GlobalVector magField = theMF->inTesla( vert);
-      //should use *t->charge when implemented
-      
-      int tindex=0;
-      for (TrackCollection::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
-	
-	TrackBase::ParameterVector rParameters = rt->parameters();
-	TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
-	recoTrackCovMatrix.Invert();
-	
-	//should use charge of simTrack
-	double kres= -1 * rt->charge() * 2.99792458e-3 * magField.mag() / (*t)->momentum().perp();
-	
-	TrackBase::ParameterVector sParameters;
-	sParameters[0] = kres;
-	sParameters[1] = thetares;
-	sParameters[2] = phi0res;
-	sParameters[3] = d0res;
-	sParameters[4] = dzres;
-	
-	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-	chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
-// 	std::cout << "FROM TRACKING PARTICLE - chi2: " << chi2 << std::endl;
-	chi2 /= 5;
-
-	if (chi2<50) {
-	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
-				  std::make_pair(reco::TrackRef(tCH,tindex),chi2));
+				  edm::Ref<TrackingParticleCollection>(tPCH, tpindex));
 	}
       }
     }

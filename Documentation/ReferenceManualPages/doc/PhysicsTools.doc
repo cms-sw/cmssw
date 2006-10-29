@@ -21,10 +21,10 @@ Common utilities to manipulate and analyze particle candidates
 - <b>Framework module packages</b><br>
 Framework module for common particle candidate manupulation
  - \ref PhysicsTools_UtilAlgos "UtilAlgos": genericl framework modules.<br>
- - \ref PhysicsTools_CandAlgos "CandAlgos": common framework modules for \ref DataFormats_Candidate "particle candidates".<br>
+ - \ref PhysicsTools_CandAlgos "CandAlgos": common framework modules for \ref PhysicsTools_Candidate "particle candidates".<br>
  - \ref PhysicsTools_RecoAlgos "RecoAlgos": common framework modules for \ref RecoPackages "Reco objects".<br>
- - \ref PhysicsTools_RecoCandAlgos "RecoCandAlgos": framework modules that produce \ref DataFormats_Candidate "particle candidates" with \ref RecoPackages "Reco" components.<br>
- - \ref PhysicsTools_HepMCCandAlgos "HepMCCandAlgos": framework modules that produce \ref DataFormats_Candidate "particle candidates" with HepMC Generator components.<br>
+ - \ref PhysicsTools_RecoCandAlgos "RecoCandAlgos": framework modules that produce \ref PhysicsTools_Candidate "particle candidates" with \ref RecoPackages "Reco" components.<br>
+ - \ref PhysicsTools_HepMCCandAlgos "HepMCCandAlgos": framework modules that produce \ref PhysicsTools_Candidate "particle candidates" with HepMC Generator components.<br>
 
 - <b>Example packages</b><br>
  - \ref PhysicsTools_CandExamples "CandExamples": common analysis examples based on particle candidates.<br>

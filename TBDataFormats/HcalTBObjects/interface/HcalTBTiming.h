@@ -11,8 +11,8 @@
 This class contains timing information unpacked from the
 Time-to-Digital Converter (TDC).
       
-  $Date: 2006/08/25 17:25:30 $
-  $Revision: 1.8 $
+  $Date: 2006/07/27 03:03:31 $
+  $Revision: 1.5 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTiming {
@@ -27,22 +27,18 @@ Time-to-Digital Converter (TDC).
     /// Returns the Level 1 Accept time in ns
     double ttcL1Atime()      const { return ttcL1Atime_;      }
 
+    /// Returns the beam coincidence time in ns
+    double beamCoincidence() const { return beamCoincidence_; }
     /// Returns the laser activation time in ns
     double laserFlash()      const { return laserFlash_;      }
     /// Returns the QIE phase for 2003 testbeam data (zero otherwise)
     double qiePhase()        const { return qiePhase_;        }
 
-    /// Returns the TOF1S time (zero otherwise)
-    double TOF1Stime()       const { return TOF1Stime_;       }
-    /// Returns the TOF1J time (zero otherwise)
-    double TOF1Jtime()       const { return TOF1Jtime_;       }
-    /// Returns the TOF2S time (zero otherwise)
-    double TOF2Stime()       const { return TOF2Stime_;       }
-    /// Returns the TOF2J time (zero otherwise)
-    double TOF2Jtime()       const { return TOF2Jtime_;       }
+    /// Returns the TOF1 time (zero otherwise)
+    double TOF1time()        const { return TOF1time_;        }
+    /// Returns the TOF2 time (zero otherwise)
+    double TOF2time()        const { return TOF2time_;        }
 
-    /// Returns the number of hits from Beam Coincidence
-    int    BeamCoincidenceCount()         const { return beamCoincidenceHits_.size();   }
     /// Returns the number of hits from muon veto scintillator M1
     int    M1Count()         const { return m1hits_.size();   }
     /// Returns the number of hits from muon veto scintillator M2
@@ -68,8 +64,6 @@ Time-to-Digital Converter (TDC).
     /// Returns the number of hits from beam halo counter down horizontal
     int    BH4Count()         const { return bh4hits_.size();   }
 
-    /// Returns the indexed hit time from Beam Coincidence
-    double BeamCoincidenceHits(int index) const { return beamCoincidenceHits_[index];   }
     /// Returns the indexed hit time from muon veto scintillator M1
     double M1Hits(int index) const { return m1hits_[index];   }
     /// Returns the indexed hit time from muon veto scintillator M2
@@ -94,18 +88,15 @@ Time-to-Digital Converter (TDC).
     double BH3Hits(int index) const { return bh3hits_[index];   }
     /// Returns the indexed hit time from beam halo counter DOWN HORZINTAL.
     double BH4Hits(int index) const { return bh4hits_[index];   }
-    /// Returns the hit in the specified channel 
-    int V775(int index)  const {return V775_[index];}
 
     // Setter methods
     void   setTimes (const double trigger_time,
 		     const double ttc_l1a_time,
+		     const double beam_coincidence,
 		     const double laser_flash,
 		     const double qie_phase,
-		     const double TOF1S_time,
-		     const double TOF1J_time,
-		     const double TOF2S_time,
-		     const double TOF2J_time);
+		     const double TOF1_time,
+		     const double TOF2_time);
 
     void   setHits  (const std::vector<double>& m1hits,
 		     const std::vector<double>& m2hits,
@@ -117,24 +108,16 @@ Time-to-Digital Converter (TDC).
 		     const std::vector<double>& bh1hits,
 		     const std::vector<double>& bh2hits,
 		     const std::vector<double>& bh3hits,
-		     const std::vector<double>& bh4hits,
-		     const std::vector<double>& beamCoincidenceHits);
-
-  void setV775 (int *V775);
-
+		     const std::vector<double>& bh4hits);
 
   private:
     double triggerTime_;
     double ttcL1Atime_;
+    double beamCoincidence_;
     double laserFlash_;
     double qiePhase_;
-    double TOF1Stime_;
-    double TOF1Jtime_;
-    double TOF2Stime_;
-    double TOF2Jtime_;
-
-    int V775_[32];
-    std::vector<double> beamCoincidenceHits_;
+    double TOF1time_;
+    double TOF2time_;
 
     std::vector<double> m1hits_;
     std::vector<double> m2hits_;

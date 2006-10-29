@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2006/07/08 17:07:15 $
- * $Revision: 1.11 $
+ * $Date: 2006/07/08 15:31:38 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -95,7 +95,7 @@ void EBOccupancyTask::endJob(void) {
 
   LogInfo("EBOccupancyTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  this->cleanup();
 
 }
 

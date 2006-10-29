@@ -4,10 +4,6 @@
 //#include <math>
 #include <vector>
 #include <bitset>
-#include <iostream>
-//#include <fstream>
-#include <iomanip>
-
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTNeighborMap.h"
 
@@ -84,10 +80,6 @@ class L1RCT {
   //Will make use of the internal neighborMap
   void configureCards();
   void shareNeighbors();
-
-  unsigned short calcCrate(unsigned short rct_iphi, short ieta);
-  unsigned short calcCard(unsigned short rct_iphi, unsigned short absIeta);
-  unsigned short calcTower(unsigned short rct_iphi, unsigned short absIeta);
 
   L1RCTRegion empty;
 

@@ -4,8 +4,8 @@
  *  map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) 
  * method
  *
- *  $Date: 2006/01/18 11:20:07 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/02/10 10:30:55 $
+ *  $Revision: 1.7 $
  *
  * \author Ilaria Segoni
  */
@@ -38,7 +38,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 	edm::LogInfo ("CSC DQM: ") << "CSCMonitor::book_chamber, Booking ME's for Chamber: "<< ChamberID <<
 	"DMB: "<<dmbID<<"CRATE: "<< crateID;
 
-	dir= Form("DMB_%d/crate_%d",dmbID,crateID);
+	dir= Form("CSC/DMB_%d/crate_%d",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
                 // BINCHECKER USED FOR NEXT FOUR ME'S
@@ -68,7 +68,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 //DMBs
 //	edm::LogInfo ("CSC DQM: ")<< "D**EmuBookChamber> New DMB Canvases are booking ...";
 
-	dir= Form("DMB_%d/crate_%d/DMB",dmbID,crateID);
+	dir= Form("CSC/DMB_%d/crate_%d/DMB",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
 
@@ -109,7 +109,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //ALCTs
 	//edm::LogInfo ("CSC DQM: ") << "D**EmuBookChamber> New ALCT Canvases are booking ...";
-	dir= Form("DMB_%d/crate_%d/ALCT",dmbID,crateID);
+	dir= Form("CSC/DMB_%d/crate_%d/ALCT",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
 
@@ -153,7 +153,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //TMB
 	//edm::LogInfo ("CSC DQM: ") << "D**EmuBookChamber> New TMB Canvases are booking ..." ;
-	dir= Form("DMB_%d/crate_%d/TMB",dmbID,crateID);
+	dir= Form("CSC/DMB_%d/crate_%d/TMB",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
 
@@ -260,7 +260,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 // CFEBs
 	//edm::LogInfo ("CSC DQM: ") << "D**EmuBookChamber> New CFEB Canvases are booking ...";
-	dir= Form("DMB_%d/crate_%d/CFEB",dmbID,crateID);
+	dir= Form("CSC/DMB_%d/crate_%d/CFEB",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
  
@@ -336,7 +336,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //SYNC
 	//edm::LogInfo ("CSC DQM: ")<< "D**EmuBookChamber> New SYNC Canvases are booking ..." ;
-	dir= Form("DMB_%d/crate_%d/SYNC",dmbID,crateID);
+	dir= Form("CSC/DMB_%d/crate_%d/SYNC",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
 

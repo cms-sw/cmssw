@@ -31,8 +31,9 @@ namespace edm {
 
   /** Handles arrival of New Init Message */
   //Currently the fileName parameter is ignored
-  void manageInitMsg(std::string fileName, unsigned long maxFileSize, double highWaterMark,
-		  std::string path, std::string mpath, InitMsgView& init_message);
+  void manageInitMsg(std::string fileName, uint32 runNum, unsigned long maxFileSize, double highWaterMark,
+		     std::string path, std::string mpath, std::string catalog, uint32 disks, 
+		     InitMsgView& init_message);
 
   /** mages event messages */
   void manageEventMsg(EventMsgView& msg);

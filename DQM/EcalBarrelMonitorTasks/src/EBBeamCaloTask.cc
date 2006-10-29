@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/09/21 07:22:41 $
- * $Revision: 1.34 $
+ * $Date: 2006/08/09 12:40:38 $
+ * $Revision: 1.32 $
  * \author A. Ghezzi
  *
  */
@@ -57,7 +57,6 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
 //     meBBCaloE1Cry_[u]=0;
 //   }
   
-  meEBBCaloDesync_ = 0;
 
 }
 
@@ -313,7 +312,7 @@ void EBBeamCaloTask::endJob(void){
   LogInfo("EBBeamCaloTask") << "analyzed " << ievt_ << " events";
   //cout<<"EBBeamCaloTask : analyzed " << ievt_ << " events"<<endl;
 
-  if ( init_ ) this->cleanup();
+  this->cleanup();
 
 }
 

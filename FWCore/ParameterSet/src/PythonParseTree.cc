@@ -93,12 +93,6 @@ void PythonParseTree::dump(const std::string & dotDelimitedNode) const
 }
 
 
-std::string PythonParseTree::typeOf(const std::string & dotDelimitedNode) const
-{
-  return theTree.typeOf(dotDelimitedNode);
-}
-
-
 std::string PythonParseTree::value(const std::string & dotDelimitedNode) const
 {
   return theTree.value(dotDelimitedNode);
@@ -141,7 +135,6 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
        .def("replaceValue",  &PythonParseTree::replaceValue)
        .def("replaceValues", &PythonParseTree::replaceValues)
        .def("dump",          &PythonParseTree::dump)
-       .def("typeOf",         &PythonParseTree::typeOf)
        .def("value",         &PythonParseTree::value)
        .def("values",        &PythonParseTree::values)
        .def("children",      &PythonParseTree::children)

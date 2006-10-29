@@ -6,21 +6,15 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
 #include "PixelFitterByConformalMappingAndLineESProducer.h"
 #include "PixelFitterByHelixProjectionsESProducer.h"
-#include "PixelTrackFilterByKinematicsESProducer.h"
 
 EVENTSETUP_DATA_REG(PixelFitter);
 DEFINE_FWK_EVENTSETUP_MODULE(PixelFitterByConformalMappingAndLineESProducer)
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelFitterByHelixProjectionsESProducer)
-
-EVENTSETUP_DATA_REG(PixelTrackFilter);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelTrackFilterByKinematicsESProducer)
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackProducer.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelHitPairTrackProducer.h"
-DEFINE_ANOTHER_FWK_MODULE(PixelTrackProducer)
-DEFINE_ANOTHER_FWK_MODULE(PixelHitPairTrackProducer)
 
+DEFINE_ANOTHER_FWK_MODULE(PixelTrackProducer)

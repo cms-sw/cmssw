@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.21 2006/07/06 19:33:07 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.22 2006/08/02 16:29:57 afaq Exp $
 //
 // Class EventStreamOutput module
 //
@@ -160,7 +160,7 @@ namespace edm
 	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	  << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
       }
-      EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
+      EventPrincipal::SharedConstGroupPtr const group = e.getGroup(id);
       assert(group.get());
       // ModuleDescription md = group->provenance().moduleDescription();
       if (group->product() == 0) {

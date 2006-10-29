@@ -9,18 +9,17 @@
 
  Description: sum Et of all island basic clusters in cone around candidate
 
- Usage:
-    <usage>
-
 */
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:18:22 CEST 2006
-// $Id$
+// $Id: EgammaHLTEcalIsolation.h,v 1.1 2006/06/20 11:27:27 monicava Exp $
 //
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -29,45 +28,36 @@ class EgammaHLTEcalIsolation
 {
 
    public:
-    
-  // default values tuned for HLT selection (only photon)
-  EgammaHLTEcalIsolation(float egEcalIso_Photon_EtMin = 0.,
-			 float egEcalIso_Photon_ConeSize = 0.3){
-    etMinG = egEcalIso_Photon_EtMin;
-    conesizeG = egEcalIso_Photon_ConeSize;
-  
-    /*  
-    edm::LogInfo ("category") << "EgammaHLTEcalIsolation instance:"
-			      << " ptMin=" << etMinG
-			      << " conesize=" << conesizeG
-			      << std::endl;
-    */
-  }
-  
 
+  //EgammaHLTEcalIsolation(float egEcalIso_Photon_EtMin = 0., float egEcalIso_Photon_ConeSize = 0.3) : 
+  EgammaHLTEcalIsolation(double egEcalIso_EtMin, double egEcalIso_ConeSize) : 
+    etMin(egEcalIso_EtMin), conesize(egEcalIso_ConeSize) {
+      /*
+      std::cout << "EgammaHLTEcalIsolation instance:"
+      << " ptMin=" << etMin
+      << " conesize=" << conesize
+      << std::endl;
+      */
 
-  virtual ~EgammaHLTEcalIsolation();
+    }
   
- private:
-  
-  
-  float photonPtSum(const reco::Photon *photon, const reco::SuperClusterCollection& sclusters
-		    , const reco::BasicClusterCollection& bclusters
-		    );
-   
-  
+  float isolPtSum(const reco::RecoCandidate *recocandidate, 
+		  const std::vector<const reco::SuperCluster*> sclusters,
+		  const std::vector<const reco::BasicCluster*> bclusters);
+
   /// Get Et cut for ecal hits
-  float getetMin() { return etMinG; }
+  float getetMin() { return etMin; }
   /// Get isolation cone size. 
-  float getConeSize() { return conesizeG; }
+  float getConeSize() { return conesize; }
+
+ private:
   
   // ---------- member data --------------------------------
   
   // Parameters of isolation cone geometry. 
   // Photon case
-  float etMinG;
-  float conesizeG;
-  
+  double etMin;
+  double conesize;
 
 };
 

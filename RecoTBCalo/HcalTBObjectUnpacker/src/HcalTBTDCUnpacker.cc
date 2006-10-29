@@ -15,14 +15,12 @@ static const int lcScint1          = 93;
 static const int lcScint2          = 94;
 static const int lcScint3          = 95;
 static const int lcScint4          = 96;
-static const int lcBeamHalo1       = 50;
-static const int lcBeamHalo2       = 51;
-static const int lcBeamHalo3       = 55;
-static const int lcBeamHalo4       = 63;
-static const int lcTOF1S           = 129;
-static const int lcTOF1J           = 130;
-static const int lcTOF2S           = 131;
-static const int lcTOF2J           = 132;
+static const int lcBeamHalo1       = 97;
+static const int lcBeamHalo2       = 98;
+static const int lcBeamHalo3       = 99;
+static const int lcBeamHalo4       = 100;
+static const int lcTOF1            = 129;
+static const int lcTOF2            = 130;
 
 namespace hcaltb {
 
@@ -82,7 +80,7 @@ void HcalTBTDCUnpacker::setCalib(const vector<vector<string> >& calibLines_) {
 			       HcalTBTiming& timing) const {
     std::vector<Hit> hits;
 
-    unpackHits(raw, hits, timing);
+    unpackHits(raw, hits);
     
     reconstructWC(hits, pos);
     reconstructTiming(hits, timing);
@@ -106,7 +104,7 @@ void HcalTBTDCUnpacker::setCalib(const vector<vector<string> >& calibLines_) {
 //static const double CONVERSION_FACTOR=25.0/32.0;
 
 void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
-				   std::vector<Hit>& hits,HcalTBTiming& timing) const {
+				   std::vector<Hit>& hits) const {
   const ClassicTDCDataFormat* tdc=(const ClassicTDCDataFormat*)raw.data();
 
   if (raw.size()<3*8) {
@@ -141,8 +139,6 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
   }
 
   // new TDC (V775)
-  int v775[32];
-  for (int i=0;i<32;i++) v775[i]=-1;
   if (tdc->n_max_hits!=192) {
     const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
     hitbase=(unsigned int*)(qdctdc);
@@ -150,18 +146,16 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
     hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
     hitbase+=(qdctdc->n_tdc_hits&0xFFFF); // same length
     totalhits=(qdctdc->n_tdc_hits&0xFFFF0000)>>16; // mask off high bits    
+    
     for (unsigned int i=0; i<totalhits; i++) {
       Hit h;    
-//      h.channel=129+i;
-      h.channel=129+((hitbase[i]&0x3F0000)>>16);
+      h.channel=129+i;
       h.time=(hitbase[i]&0xFFF)*tdc_convers[h.channel] ;
       hits.push_back(h);
-      if ( (h.channel-129)<32 ) 
-	 v775[(h.channel-129)] = (hitbase[i]&0xFFF);
       //      printf("V775: %d %f\n",h.channel,h.time);
     }
   }
-  timing.setV775(v775);
+
 }
 
 void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
@@ -169,21 +163,20 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
   std::vector<Hit>::const_iterator j;
   double trigger_time=0;
   double ttc_l1a_time=0;
+  double beam_coinc=0;
   double laser_flash=0;
   double qie_phase=0;
-  double TOF1S_time=0;
-  double TOF1J_time=0;
-  double TOF2S_time=0;
-  double TOF2J_time=0;
+  double TOF1_time=0;
+  double TOF2_time=0;
   
   std::vector<double> m1hits, m2hits, m3hits, s1hits, s2hits, s3hits, s4hits,
-                      bh1hits, bh2hits, bh3hits, bh4hits,beam_coinc;
+                      bh1hits, bh2hits, bh3hits, bh4hits;
 
   for (j=hits.begin(); j!=hits.end(); j++) {
     switch (j->channel) {
     case lcTriggerTime:     trigger_time   = j->time-tdc_ped[lcTriggerTime];  break;
     case lcTTCL1ATime:      ttc_l1a_time   = j->time-tdc_ped[lcTTCL1ATime];  break;
-    case lcBeamCoincidence: beam_coinc.push_back(j->time-tdc_ped[lcBeamCoincidence]);  break;
+    case lcBeamCoincidence: beam_coinc     = j->time-tdc_ped[lcBeamCoincidence];  break;
     case lcLaserFlash:      laser_flash    = j->time-tdc_ped[lcLaserFlash];  break;
     case lcQIEPhase:        qie_phase      = j->time-tdc_ped[lcQIEPhase];  break;
     case lcMuon1:           m1hits.push_back(j->time-tdc_ped[lcMuon1]); break;
@@ -193,10 +186,8 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
     case lcScint2:          s2hits.push_back(j->time-tdc_ped[lcScint2]); break;
     case lcScint3:          s3hits.push_back(j->time-tdc_ped[lcScint3]); break;
     case lcScint4:          s4hits.push_back(j->time-tdc_ped[lcScint4]); break;
-    case lcTOF1S:           TOF1S_time   = j->time-tdc_ped[lcTOF1S];  break;
-    case lcTOF1J:           TOF1J_time   = j->time-tdc_ped[lcTOF1J];  break;
-    case lcTOF2S:           TOF2S_time   = j->time-tdc_ped[lcTOF2S];  break;
-    case lcTOF2J:           TOF2J_time   = j->time-tdc_ped[lcTOF2J];  break;
+    case lcTOF1:            TOF1_time   = j->time-tdc_ped[lcTOF1];  break;
+    case lcTOF2:            TOF2_time   = j->time-tdc_ped[lcTOF2];  break;
     case lcBeamHalo1:       bh1hits.push_back(j->time-tdc_ped[lcBeamHalo1]); break;
     case lcBeamHalo2:       bh2hits.push_back(j->time-tdc_ped[lcBeamHalo2]); break;
     case lcBeamHalo3:       bh3hits.push_back(j->time-tdc_ped[lcBeamHalo3]); break;
@@ -205,8 +196,8 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
     }
   }
 
-  timing.setTimes(trigger_time,ttc_l1a_time,laser_flash,qie_phase,TOF1S_time,TOF1J_time,TOF2S_time,TOF2J_time);
-  timing.setHits (m1hits,m2hits,m3hits,s1hits,s2hits,s3hits,s4hits,bh1hits,bh2hits,bh3hits,bh4hits,beam_coinc);
+  timing.setTimes(trigger_time,ttc_l1a_time,beam_coinc,laser_flash,qie_phase,TOF1_time,TOF2_time);
+  timing.setHits (m1hits,m2hits,m3hits,s1hits,s2hits,s3hits,s4hits,bh1hits,bh2hits,bh3hits,bh4hits);
 
 }
 
@@ -217,16 +208,17 @@ const int HcalTBTDCUnpacker::WC_CHANNELIDS[PLANECOUNT*3] = {
 						     20, 21, 25, // WCB UD plane
 						     32, 33, 34, // WCC LR plane
 						     30, 31, 35, // WCC UD plane
-						     101, 102, 104, // WCD LR plane
-						     107, 108, 110, // WCD UD plane
-						     113, 114, 116, // WCE LR plane
-						     97, 98, 99, // WCE UD plane 
-						    42, 43, -1, // WCF LR plane (was WC1)
-						    44, 60, -1, // WCF UD plane (was WC1)
-						    40, 41, -1, // WCG LR plane (was WC2)
-						    45, 61, -1, // WCG UD plane (was WC2)
-						    52, 53, -1, // WCH LR plane (was WC3)
-						    54, 62, -1  // WCH UD plane (was WC3)
+						     42, 43, 44, // WCD LR plane
+						     40, 41, 45, // WCD UD plane
+						     52, 53, 54, // WCE LR plane
+						     50, 51, 55, // WCE UD plane 
+						    101, 102, 103, // WCF LR plane (was WC1)
+						    104, 105, 106, // WCF UD plane (was WC1)
+						    107, 108, 109, // WCG LR plane (was WC2)
+						    110, 111, 112, // WCG UD plane (was WC2)
+						    113, 114, 115, // WCH LR plane (was WC3)
+						    116, 117, 118, // WCH UD plane (was WC3)
+
 };
 
 static const double TDC_OFFSET_CONSTANT = 12000;
@@ -276,7 +268,6 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventP
     n1=0; n2=0; nA=0;
 
     std::vector<double> plane_hits;
-    double hit_time;
 
     chan1=WC_CHANNELIDS[plane*3];
     chan2=WC_CHANNELIDS[plane*3+1];
@@ -309,33 +300,21 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventP
 	}	      
       }
       if (jmin>=0) {
-	hit_time = wc_[plane].b0 +
-                             wc_[plane].b1 * (hits1[ii]-hits2[jmin]);
-	if((plane%2)==0)
-		{
-		plane_hits.push_back(-hit_time);
-		}else{
-		plane_hits.push_back(hit_time);
-		}
+	plane_hits.push_back(wc_[plane].b0 + 
+			     wc_[plane].b1 * (hits1[ii]-hits2[jmin]));
 	hits1[ii]=-99999;
 	hits2[jmin]=-99999;
 	hitsA[lmin]=99999;
       }
     }
 
-    if (includeUnmatchedHits_||plane>9)   // unmatched hits (all pairs get in here)
+    if (includeUnmatchedHits_)   // unmatched hits (all pairs get in here)
       for (int ii=0; ii<n1; ii++) {
 	if (hits1[ii]<-99990) continue;
 	for (int jj=0; jj<n2; jj++) {
 	  if (hits2[jj]<-99990) continue;
-	  hit_time = wc_[plane].b0 +
-                             wc_[plane].b1 * (hits1[ii]-hits2[jj]);
-	  if((plane%2)==0)
-		{
-		plane_hits.push_back(-hit_time);
-		}else{
-		plane_hits.push_back(hit_time);
-		}
+	  plane_hits.push_back(wc_[plane].b0 + 
+			       wc_[plane].b1 * (hits1[ii]-hits2[jj]));
 	}
       }
 

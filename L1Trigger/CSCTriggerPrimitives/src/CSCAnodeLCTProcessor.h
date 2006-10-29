@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/09/22 09:19:11 $
- * $Revision: 1.3 $
+ * $Date: 2005/05/31 18:52:28 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -98,8 +98,8 @@ class CSCAnodeLCTProcessor
   static const int bx_max;
 
   /** Configuration parameters. */
-  int bx_width, nph_thresh, nph_pattern, drift_delay, fifo_pretrig;
-  int trig_mode, alct_amode;
+  int nph_thresh, nph_pattern, drift_delay, fifo_pretrig;
+  int trig_mode, alct_amode, bx_width;
   int fifo_tbins, l1a_window; // only for test beam mode.
 
   /** Clears the quality for a given wire and pattern if it is a ghost. */
@@ -114,12 +114,6 @@ class CSCAnodeLCTProcessor
   void lctSearch();
   void trigMode(const int key_wire);
   void alctAmode(const int key_wire);
-
-  /** Dump ALCT configuration parameters. */
-  void dumpConfigParams() const;
-
-  /** Dump digis on wire groups. */
-  void dumpDigis(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
 
   /** Set times on all layers for all wires. */
   void saveAllHits(const int wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);

@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorSelector.cc
  * 
- * $Date: 2006/08/21 20:03:49 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/04 19:26:04 $
+ * $Revision: 1.2 $
  * \author W Fisher
  *
 */
@@ -22,31 +22,26 @@ HcalMonitorSelector::~HcalMonitorSelector(){
 void HcalMonitorSelector::processEvent(const edm::Event& e){
   m_eventMask = 0;
 
-  ///Just pass these through for now...
-  m_eventMask = DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON;
-
   edm::Handle<HcalTBTriggerData> triggerD;
   try{
     e.getByType(triggerD);
   }
-  catch(...) { 
-    m_runNum=-1; 
-    //If we don't have the trigger data, just activate everyone!
-    m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON; 
-    return; 
-  }
+  catch(...) { m_runNum=-1; return; }
   const HcalTBTriggerData trigger = *triggerD;
   
   m_runNum = trigger.runNumber();
 
   // check trigger contents
-  if (trigger.wasBeamTrigger())             m_eventMask = m_eventMask|HCAL_BEAM_TRIGGER;
+  if (trigger.wasBeamTrigger()) m_eventMask = m_eventMask|HCAL_BEAM_TRIGGER;
   if (trigger.wasOutSpillPedestalTrigger()) m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON;
-  if (trigger.wasInSpillPedestalTrigger())  m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON;
-  if (trigger.wasLEDTrigger())              m_eventMask = m_eventMask|DO_HCAL_LED_CALIBMON;
-  if (trigger.wasLaserTrigger())            m_eventMask = m_eventMask|DO_HCAL_LASER_CALIBMON;
+  if (trigger.wasInSpillPedestalTrigger()) m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON;
+  if (trigger.wasLEDTrigger()) m_eventMask = m_eventMask|DO_HCAL_LED_CALIBMON;
+  if (trigger.wasLaserTrigger()) m_eventMask = m_eventMask|DO_HCAL_LASER_CALIBMON;
 
-  if(m_eventMask&DO_HCAL_PED_CALIBMON) m_eventMask = m_eventMask^DO_HCAL_RECHITMON;
+  ///Just pass these through for now...
+  m_eventMask = m_eventMask|DO_HCAL_DIGIMON;
+  m_eventMask = m_eventMask|DO_HCAL_DFMON;
+  m_eventMask = m_eventMask|DO_HCAL_RECHITMON;
 
   return;
 }

@@ -11,4 +11,16 @@ void LogStatistics() {
 LogDebug_ dummyLogDebugObject_( "dummy_id", __FILE__, __LINE__ );
 LogTrace_ dummyLogTraceObject_( "dummy_id" );
 
+bool isDebugEnabled() {
+  return ( edm::MessageDrop::instance()->debugEnabled );
+}
+
+bool isInfoEnabled() {
+  return( edm::MessageDrop::instance()->infoEnabled );
+}
+
+bool isWarningEnabled() {
+  return( edm::MessageDrop::instance()->warningEnabled );
+}
+
 }  // namespace edm

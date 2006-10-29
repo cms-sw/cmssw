@@ -1,14 +1,11 @@
-<flags GENREFLEX_ARGS="--">
+<flags LCGDICT_ARGS="--">
+<use name=Dictionary/Reflex>
 <use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
-<use name=DataFormats/SiPixelDetId>
-<use name=rootrflx>
+<use name=boost>
 <export>
-  <lib name=CondFormatsSiPixelObjects>
-  <use name=FWCore/Framework>
-  <use name=FWCore/MessageLogger>
-  <use name=DataFormats/SiPixelDetId>
-  <use name=FWCore/Framework>
-  <use name=rootrflx>
+   <lib name=CondFormatsSiPixelObjects>
+   <use name=Dictionary/Reflex>
+   <use name=FWCore/Framework>
+   <use name=boost>
 </export>
 

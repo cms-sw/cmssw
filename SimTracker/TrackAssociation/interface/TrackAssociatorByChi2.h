@@ -36,12 +36,13 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 					      const edm::SimVertexContainer&) ;
  
   reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>&, 
-						edm::Handle<TrackingParticleCollection>&, 
-						const edm::Event * event = 0) ;
+						edm::Handle<TrackingParticleCollection>& ) ;
 
   reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
-						edm::Handle<TrackingParticleCollection>& ,
-						const edm::Event * event = 0);
+						edm::Handle<TrackingParticleCollection>& ) {
+    reco::SimToRecoCollection p;
+    return p;
+  }
 
  private:
   edm::ESHandle<MagneticField> theMF;

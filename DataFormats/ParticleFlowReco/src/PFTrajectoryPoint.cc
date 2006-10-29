@@ -5,12 +5,15 @@ using namespace reco;
 
 PFTrajectoryPoint::PFTrajectoryPoint() : 
   isTrackerLayer_(false),
-  detId_(-1),
-  layer_(-1) {}
+  detId_(0),
+  layer_(0),
+  posxyz_(math::XYZPoint(0.,0.,0.)),
+  posrep_(REPPoint(0.,0.,0.)),
+  momentum_(math::XYZTLorentzVector(0., 0., 0., 0.)) { }
 
 
-PFTrajectoryPoint::PFTrajectoryPoint(int detId,
-				     int layer, 
+PFTrajectoryPoint::PFTrajectoryPoint(unsigned detId,
+				     unsigned layer, 
 				     const math::XYZPoint& posxyz, 
 				     const math::XYZTLorentzVector& momentum) :
   isTrackerLayer_(false),

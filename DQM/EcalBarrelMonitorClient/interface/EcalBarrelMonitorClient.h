@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/09/12 15:35:34 $
- * $Revision: 1.56 $
+ * $Date: 2006/07/10 12:40:04 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,7 +36,6 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
 
 using namespace cms;
 using namespace std;
@@ -115,8 +114,6 @@ int jevt_;
 bool collateSources_;
 bool cloneME_;
 bool enableQT_;
-
-bool enableTCC_;
  
 bool verbose_;
 

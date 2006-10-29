@@ -42,10 +42,16 @@ namespace edmtestp
 				 edm::EventBuffer& to,
 				 edm::ProductRegistry& prods):
     filename_(filename),
-    ist_(filename_.c_str(),ios_base::binary | ios_base::in),
-    reader_(ist_),
+    //ist_(filename_.c_str(),ios_base::binary | ios_base::in),
+    //reader_(ist_),
+    stream_reader_(new StreamerInputFile(filename)),
     to_(&to)
   {
+
+   const InitMsgView* init =  stream_reader_->startMessage();
+   std::auto_ptr<edm::SendJobHeader> p = StreamTranslator::deserializeRegistry(*init);
+
+    /**
     if(!ist_)
       {
 	throw cms::Exception("Configuration","TestFileReader")
@@ -54,6 +60,9 @@ namespace edmtestp
 
     std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist_);
     // just get rid of the header
+
+    **/
+
     if(edm::registryIsSubset(*p,prods)==false)
       {
 	throw cms::Exception("Configuration","TestFileReader")
@@ -64,6 +73,7 @@ namespace edmtestp
 
   TestFileReader::~TestFileReader()
   {
+     delete stream_reader_;
   }
 
   void TestFileReader::start()
@@ -83,6 +93,21 @@ namespace edmtestp
 
   void TestFileReader::readEvents()
   {
+
+   while( stream_reader_->next() ) { 
+       EventBuffer::ProducerBuffer b(*to_);
+       const EventMsgView* eview =  stream_reader_->currentRecord();
+       stor::FragEntry* msg =
+          new (b.buffer()) stor::FragEntry(eview->startAddress(),
+                                           eview->startAddress(),
+                                           eview->size(),1,1,
+                                           eview->code(),1);
+        assert(msg);
+        b.commit(sizeof(stor::FragEntry));
+
+   }
+
+   /***
     while(1)
       {
 	int len=0;
@@ -116,7 +141,7 @@ namespace edmtestp
 	b.commit(sizeof(stor::FragEntry));
 	//cout << "commit frag " << sizeof(stor::FragEntry) << endl;
 	//sleep(2);
-      }
+      } **/
   }
 
 }
