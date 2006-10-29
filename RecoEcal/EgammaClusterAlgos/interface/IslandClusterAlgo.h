@@ -13,13 +13,12 @@
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 #include "RecoCaloTools/Navigation/interface/EcalEndcapNavigator.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
 // C/C++ headers
 #include <string>
 #include <vector>
 #include <set>
-
-//
 
 typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
@@ -41,15 +40,14 @@ class IslandClusterAlgo
   enum EcalPart { barrel = 0, endcap = 1 };
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
 
-  IslandClusterAlgo()
-    {
-    }
+  IslandClusterAlgo() {
+  }
 
-  IslandClusterAlgo(double ebst, double ecst, VerbosityLevel the_verbosity = pERROR) : 
-    ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst), verbosity(the_verbosity)
-    {
-    }
-  
+  IslandClusterAlgo(double ebst, double ecst, const PositionCalc& posCalc, VerbosityLevel the_verbosity = pERROR) : 
+    ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst), verbosity(the_verbosity) {
+    posCalculator_ = posCalc;
+  }
+
   virtual ~IslandClusterAlgo()
     {
     }
@@ -60,22 +58,26 @@ class IslandClusterAlgo
     }
 
   // this is the method that will start the clusterisation
-  std::vector<reco::BasicCluster> makeClusters(const EcalRecHitCollection *the_rechitsMap_p,
-					       const CaloSubdetectorGeometry *geometry,
-					       const CaloSubdetectorTopology *topology_p,
-					       EcalPart ecalPart);
+  std::vector<reco::BasicCluster> makeClusters(const EcalRecHitCollection* hits,
+                                               const CaloSubdetectorGeometry *geometry,
+                                               const CaloSubdetectorTopology *topology_p,
+                                               EcalPart ecalPart);
 
   /// point in the space
   typedef math::XYZPoint Point;
 
  private: 
-  
+
+  //algo to compute position of clusters
+  PositionCalc posCalculator_;
+
+
   // Energy required for a seed:
   double ecalBarrelSeedThreshold;
   double ecalEndcapSeedThreshold;
   
-  // The map of hits
-  const EcalRecHitCollection *rechitsMap_p;
+  // collection of all rechits
+  const EcalRecHitCollection *recHits_;
 
   // The vector of seeds:
   std::vector<EcalRecHit> seeds;
@@ -92,7 +94,10 @@ class IslandClusterAlgo
   // The verbosity level
   VerbosityLevel verbosity;
 
-  void mainSearch(EcalPart ecalPart, const CaloSubdetectorTopology *topology_p); 
+  void mainSearch(const EcalRecHitCollection* hits,
+                  const CaloSubdetectorGeometry *geometry_p,
+                  const CaloSubdetectorTopology *topology_p,
+                  EcalPart ecalPart);
  
   void searchNorth(const CaloNavigator<DetId> &navigator);
   void searchSouth(const CaloNavigator<DetId> &navigator);
@@ -101,7 +106,7 @@ class IslandClusterAlgo
 
   bool shouldBeAdded(EcalRecHitCollection::const_iterator candidate_it, EcalRecHitCollection::const_iterator previous_it);
 
-  void makeCluster();
+  void makeCluster(const EcalRecHitCollection* hits,const CaloSubdetectorGeometry *geometry_p);
 
  };
 

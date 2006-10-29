@@ -45,7 +45,8 @@ class HybridClusterAlgo
   //but DetId doesn't  know what EcalRecHit it is. 
   //  std::map<DetId, EcalRecHit>  rechits_m;
 
-  const EcalRecHitCollection *rechits_m;
+  // colection of all rechits
+  const EcalRecHitCollection *recHits_;
 
   //Set of DetIds that have already been used.
   std::set<DetId> useddetids;
@@ -59,11 +60,14 @@ class HybridClusterAlgo
   //Control the verbosity.
   int debugLevel_;
 
+  //algo to calulate position of clusters
+  PositionCalc posCalculator_;
+
  public:
    enum DebugLevel { pDEBUG = 0, pINFO = 1, pERROR = 2 }; 
   
   //The default constructor
-  HybridClusterAlgo(){}
+  HybridClusterAlgo(){ }
   
 
   //The real constructor
@@ -72,20 +76,17 @@ class HybridClusterAlgo
 		    double ethresh, 
 		    double eseed,
 		    double ewing,
-		    DebugLevel debugLevel = pINFO) : eb_st(eb_str), 
-    phi_steps(step), Ethres(ethresh), Eseed(eseed),  Ewing(ewing), debugLevel_(debugLevel)
-  {
-    
-  }
-  
+                const PositionCalc& posCalculator,
+		    DebugLevel debugLevel = pINFO);
+
   //Hand over the map, the geometry, and I'll hand you back clusters.
-  void makeClusters(const EcalRecHitCollection* , const CaloSubdetectorGeometry *, reco::BasicClusterCollection &basicClusters);
+  void makeClusters(const EcalRecHitCollection* , const CaloSubdetectorGeometry * geometry, reco::BasicClusterCollection &basicClusters);
 
   //Make superclusters from the references to the BasicClusters in the event.
   reco::SuperClusterCollection makeSuperClusters(const reco::BasicClusterRefVector&);
 
   //The routine doing the real work.
-  void mainSearch();
+  void mainSearch(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry * geometry);
   
   //Make dominos for the hybrid method.
   double makeDomino(EcalBarrelNavigator &navigator, std::vector <EcalRecHit> &cells);
