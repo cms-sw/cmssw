@@ -6,10 +6,10 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: HepMCCandidate.h,v 1.5 2006/04/07 11:38:36 llista Exp $
+ * \version $Id: HepMCCandidate.h,v 1.6 2006/07/27 07:13:41 llista Exp $
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 namespace HepMC {
   class GenParticle;
 }
@@ -19,11 +19,11 @@ namespace reco {
   class HepMCCandidate : public LeafCandidate {
   public:
     /// reference to HepMC::GenParticle
-    typedef const HepMC::GenParticle * GenParticleRef;
+    typedef edm::Ref<edm::HepMCProduct,HepMC::GenParticle> GenParticleRef;
     /// default constructor
-    HepMCCandidate() : LeafCandidate(), genParticle_( 0 ) { }
+    HepMCCandidate() : LeafCandidate() { }
     /// constroctor from pointer to generator particle
-    HepMCCandidate( const HepMC::GenParticle * );
+    HepMCCandidate( const GenParticleRef & );
     /// destructor
     virtual ~HepMCCandidate();
     /// pointer to generator particle

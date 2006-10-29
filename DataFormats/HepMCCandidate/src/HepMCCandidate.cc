@@ -1,11 +1,11 @@
-// $Id: HepMCCandidate.cc,v 1.4 2006/04/07 11:38:37 llista Exp $
+// $Id: HepMCCandidate.cc,v 1.5 2006/06/20 14:53:18 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
 #include <CLHEP/HepMC/GenParticle.h>
 #include <CLHEP/HepMC/GenVertex.h>
 #include <iostream>
 using namespace reco;
 
-HepMCCandidate::HepMCCandidate( const HepMC::GenParticle * p ) : 
+HepMCCandidate::HepMCCandidate( const GenParticleRef & p ) : 
   LeafCandidate(), genParticle_( p ) {
   q_ = p->particleID().threeCharge() / 3;
   CLHEP::HepLorentzVector p4 =p->momentum();
@@ -24,8 +24,8 @@ HepMCCandidate::~HepMCCandidate() { }
 bool HepMCCandidate::overlap( const Candidate & c ) const {
   const HepMCCandidate * mcc = dynamic_cast<const HepMCCandidate *>( & c );
   if ( mcc == 0 ) return false;
-  const HepMC::GenParticle * g1 = genParticle(), * g2 = mcc->genParticle();
-  return g1 != 0 && g2 != 0 && g1 == g2;
+  GenParticleRef g1 = genParticle(), g2 = mcc->genParticle();
+  return g1.isNonnull() && g2.isNonnull() && g1 == g2;
   /**
    * WARNING: should also check here the full decay chain 
    * for possible overlap of daughters
