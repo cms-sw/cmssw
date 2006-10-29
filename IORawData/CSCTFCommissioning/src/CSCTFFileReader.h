@@ -12,7 +12,7 @@ class CSCTFFileReader : public DaqBaseReader
   SPReader* ___ddu;
   
  public:
-  bool fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection& data);
+  bool fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection*& data);
   
   CSCTFFileReader(const edm::ParameterSet& pset);
   virtual ~CSCTFFileReader();

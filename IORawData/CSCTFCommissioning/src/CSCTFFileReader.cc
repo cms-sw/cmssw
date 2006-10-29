@@ -49,9 +49,10 @@ CSCTFFileReader::~CSCTFFileReader()
   delete ___ddu;
 }
 
-bool CSCTFFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection& data){
-	// Event buffer and its length
-  
+bool CSCTFFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection*& data){
+  data = new FEDRawDataCollection();
+
+  // Event buffer and its length
   size_t length=0;
 	
   // Read DDU record
@@ -59,7 +60,10 @@ bool CSCTFFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FED
   const unsigned short* dduBuf = reinterpret_cast<unsigned short*>(___ddu->data());
   length = ___ddu->dataLength();
   
-  if(!length) return false;
+  if(!length) {
+    delete data; data=0;
+    return false;
+  }
   
   int runNumber   = 0; // Unknown at the level of EMu local DAQ
   int eventNumber =((dduBuf[2])&0x0FFF) | ((dduBuf[3]&0x0FFF)<<12); // L1A Number
@@ -70,7 +74,7 @@ bool CSCTFFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FED
   memcpy(dccBuf,dduBuf,length);
 
   // The FED ID
-  FEDRawData& fedRawData = data.FEDData( FEDNumbering::getCSCFEDIds().first );
+  FEDRawData& fedRawData = data->FEDData( FEDNumbering::getCSCFEDIds().first );
   int newlength = 0;
   if(length%8)
     {
