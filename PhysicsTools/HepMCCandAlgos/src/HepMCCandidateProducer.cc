@@ -1,4 +1,4 @@
-// $Id: HepMCCandidateProducer.cc,v 1.6 2006/09/29 09:33:39 llista Exp $
+// $Id: HepMCCandidateProducer.cc,v 1.7 2006/10/06 12:06:59 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/HepMCCandidateProducer.h"
 //#include "PhysicsTools/HepPDTProducer/interface/PDTRecord.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -63,7 +63,8 @@ void HepMCCandidateProducer::produce( Event& evt, const EventSetup& ) {
 	if ( verbose_ )
 	  LogInfo( "INFO" ) << "Adding candidate for particle with id: " 
 			    << (*p)->pdg_id() << ", status: " << (*p)->status();
-	cands->push_back( new HepMCCandidate( * p ) );
+	HepMCCandidate::GenParticleRef ref( mcp, (*p)->barcode() );
+	cands->push_back( new HepMCCandidate( ref ) );
       }
     }
   }
