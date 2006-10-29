@@ -50,3 +50,9 @@ ostream& operator<<(ostream& s, const L1GctEmCand& cand) {
   s << ", iso=" << cand.isolated();
   return s;
 }
+
+L1CaloRegionDetId L1GctEmCand::regionId() const {
+  // get global eta
+  unsigned eta = ( etaSign()==1 ? 11-(etaIndex()&0x7)  : (etaIndex()&0x7)+11 );
+  return L1CaloRegionDetId(eta, phiIndex());
+}

@@ -34,7 +34,7 @@ public:
   virtual ~L1GctEmCand();
   
   /// region associated with the candidate
-  L1CaloRegionDetId regionId() const { return m_id; }
+  L1CaloRegionDetId regionId() const;
 
   /// name of object
   std::string name() const;
@@ -61,8 +61,6 @@ public:
   bool isolated() const { return m_iso; }
 
  private:
-
-  L1CaloRegionDetId m_id;
 
   uint16_t m_data;
   bool m_iso;
