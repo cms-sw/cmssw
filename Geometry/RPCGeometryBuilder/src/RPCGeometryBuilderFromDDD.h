@@ -23,7 +23,7 @@ class RPCGeometryBuilderFromDDD
 { 
  public:
 
-  RPCGeometryBuilderFromDDD();
+  RPCGeometryBuilderFromDDD(bool comp11);
 
   ~RPCGeometryBuilderFromDDD();
 
@@ -38,6 +38,7 @@ class RPCGeometryBuilderFromDDD
   //			   const std::string& type);
 
   //std::vector<double> extractParameters(DDFilteredView& fview);
+  bool theComp11Flag;
 
 };
 

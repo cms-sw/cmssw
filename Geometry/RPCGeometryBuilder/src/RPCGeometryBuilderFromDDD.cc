@@ -26,7 +26,7 @@
 #include <iostream>
 #include <algorithm>
 
-RPCGeometryBuilderFromDDD::RPCGeometryBuilderFromDDD()
+RPCGeometryBuilderFromDDD::RPCGeometryBuilderFromDDD(bool comp11) : theComp11Flag(comp11)
 { }
 
 RPCGeometryBuilderFromDDD::~RPCGeometryBuilderFromDDD() 
@@ -178,15 +178,18 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       pars.push_back(length);
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
 
-      //Change of axes for the +z part only.
-      //Including the 0 whell
-      if (tran.z() >-1500. ){
-	Basic3DVector<float> newX(-1.,0.,0.);
-	Basic3DVector<float> newY(0.,-1.,0.);
-	Basic3DVector<float> newZ(0.,0.,1.);
-	rot.rotateAxes (newX, newY,newZ);
+      if (!theComp11Flag) {
+	//Correction of the orientation to get the REAL geometry.
+        //Change of axes for the +z part only.
+        //Including the 0 whell
+        if (tran.z() >-1500. ){
+          Basic3DVector<float> newX(-1.,0.,0.);
+          Basic3DVector<float> newY(0.,-1.,0.);
+          Basic3DVector<float> newZ(0.,0.,1.);
+          rot.rotateAxes (newX, newY,newZ);
+        }
       }
-
+      
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel,name,pars);
 #ifdef LOCAL_DEBUG  
       std::cout <<"Barrel "<<name

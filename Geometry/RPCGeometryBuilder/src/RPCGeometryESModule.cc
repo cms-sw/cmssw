@@ -1,6 +1,6 @@
 /** \file
  *
- *  $Date: 2006/10/13 00:55:07 $
+ *  $Date: 2006/10/26 23:35:45 $
  *  \author M. Maggi - INFN Bari
  */
 
@@ -22,6 +22,7 @@ using namespace edm;
 
 RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet & p){
   setWhatProduced(this);
+  comp11 = p.getUntrackedParameter<bool>("compatibiltyWith11",true);
 }
 
 
@@ -34,7 +35,7 @@ RPCGeometryESModule::produce(const MuonGeometryRecord & record) {
   record.getRecord<IdealGeometryRecord>().get(cpv);
   edm::ESHandle<MuonDDDConstants> mdc;
   record.getRecord<MuonNumberingRecord>().get(mdc);
-  RPCGeometryBuilderFromDDD builder;
+  RPCGeometryBuilderFromDDD builder(comp11);
   return boost::shared_ptr<RPCGeometry>(builder.build(&(*cpv), *mdc));
 }
 
