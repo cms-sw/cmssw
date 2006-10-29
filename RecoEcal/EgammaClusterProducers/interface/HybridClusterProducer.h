@@ -38,12 +38,12 @@ class HybridClusterProducer : public edm::EDProducer
       std::string hitproducer_;
       std::string hitcollection_;
       std::string clustershapecollection_;
-      bool clustershape_logweighted;
-      float clustershape_x0;
-      float clustershape_t0;
-      float clustershape_w0;
-      HybridClusterAlgo * hybrid_p;
-      HybridClusterAlgo::DebugLevel debugL;  
+
+      HybridClusterAlgo::DebugLevel debugL;
+
+      HybridClusterAlgo * hybrid_p; // clustering algorithm
+      PositionCalc posCalculator_; // position calculation algorithm
+      ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
 };

@@ -23,6 +23,9 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/HybridClusterProducer.h"
@@ -41,21 +44,30 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
   if      (debugString == "DEBUG")   debugL = HybridClusterAlgo::pDEBUG;
   else if (debugString == "INFO")    debugL = HybridClusterAlgo::pINFO;
   else                               debugL = HybridClusterAlgo::pERROR;
-  hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
-				   ps.getParameter<int>("step"),
-				   ps.getParameter<double>("ethresh"),
-				   ps.getParameter<double>("eseed"),
-				   ps.getParameter<double>("ewing"),
-				   debugL);
 
   basicclusterCollection_ = ps.getParameter<std::string>("basicclusterCollection");
   superclusterCollection_ = ps.getParameter<std::string>("superclusterCollection");
   hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
   hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
-  clustershape_logweighted = ps.getParameter<bool>("coretools_logweight");
-  clustershape_x0 = ps.getParameter<double>("coretools_x0");
-  clustershape_t0 = ps.getParameter<double>("coretools_t0");
-  clustershape_w0 = ps.getParameter<double>("coretools_w0");
+
+  //Setup for core tools objects.
+  std::map<std::string,double> providedParameters;  
+  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("coretools_logweight")));
+  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("coretools_x0")));
+  providedParameters.insert(std::make_pair("T0",ps.getParameter<double>("coretools_t0")));
+  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("coretools_w0")));
+
+  posCalculator_ = PositionCalc(providedParameters);
+  shapeAlgo_ = ClusterShapeAlgo(posCalculator_);
+
+  hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
+                                   ps.getParameter<int>("step"),
+                                   ps.getParameter<double>("ethresh"),
+                                   ps.getParameter<double>("eseed"),
+                                   ps.getParameter<double>("ewing"),
+                                   posCalculator_,
+                                   debugL);
+
   clustershapecollection_ = ps.getParameter<std::string>("clustershapecollection");
 
   produces< reco::ClusterShapeCollection>(clustershapecollection_);
@@ -90,25 +102,22 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   es.get<IdealGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometry_p;
+  std::auto_ptr<const CaloSubdetectorTopology> topology;
 
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "\n\n\n" << hitcollection_ << "\n\n" << std::endl;
 
-  if(hitcollection_ == "EcalRecHitsEB") geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  else if(hitcollection_ == "EcalRecHitsEE") geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  else if(hitcollection_ == "EcalRecHitsPS") geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  else throw(std::runtime_error("\n\nHybrid Cluster Producer encountered invalied ecalhitcollection type.\n\n"));
+  if(hitcollection_ == "EcalRecHitsEB") {
+    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    topology.reset(new EcalBarrelTopology(geoHandle));
+  } else if(hitcollection_ == "EcalRecHitsEE") {
+    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    topology.reset(new EcalEndcapTopology(geoHandle));
+  } else if(hitcollection_ == "EcalRecHitsPS") {
+    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+    topology.reset(new EcalPreshowerTopology (geoHandle));
+  } else throw(std::runtime_error("\n\nHybrid Cluster Producer encountered invalied ecalhitcollection type.\n\n"));
     
-  //Setup for core tools objects.
-  std::map<std::string,double> providedParameters;  
-  providedParameters.insert(std::make_pair("LogWeighted",clustershape_logweighted));
-  providedParameters.insert(std::make_pair("X0",clustershape_x0));
-  providedParameters.insert(std::make_pair("T0",clustershape_t0));
-  providedParameters.insert(std::make_pair("W0",clustershape_w0));
-  PositionCalc::Initialize(providedParameters, hit_collection, &(*geometry_p));
-  ClusterShapeAlgo::Initialize(hit_collection, &geoHandle);
-  //Done with setup
-  
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
   hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters);
@@ -117,7 +126,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   std::vector <reco::ClusterShape> ClusVec;
   for (int erg=0;erg<int(basicClusters.size());++erg){
-    reco::ClusterShape TestShape = ClusterShapeAlgo::Calculate(basicClusters[erg]);
+    reco::ClusterShape TestShape = shapeAlgo_.Calculate(basicClusters[erg],hit_collection,geometry_p,topology.get());
     ClusVec.push_back(TestShape);
   }
   std::auto_ptr< reco::ClusterShapeCollection> clustersshapes_p(new reco::ClusterShapeCollection);

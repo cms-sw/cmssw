@@ -13,6 +13,8 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
@@ -21,7 +23,6 @@
 
 class IslandClusterProducer : public edm::EDProducer 
 {
-  
   public:
 
       IslandClusterProducer(const edm::ParameterSet& ps);
@@ -34,7 +35,7 @@ class IslandClusterProducer : public edm::EDProducer
 
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
- 
+
       IslandClusterAlgo::VerbosityLevel verbosity;
 
       std::string barrelHitProducer_;
@@ -45,15 +46,11 @@ class IslandClusterProducer : public edm::EDProducer
       std::string barrelClusterCollection_;
       std::string endcapClusterCollection_;
 
-      // Position correction parameters
       std::string clustershapecollectionEB_;
       std::string clustershapecollectionEE_;
 
-      bool clustershape_logweighted;
-      float clustershape_x0;
-      float clustershape_t0;
-      float clustershape_w0;
-
+      PositionCalc posCalculator_; // position calculation algorithm
+      ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
       IslandClusterAlgo * island_p;
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
@@ -64,10 +61,10 @@ class IslandClusterProducer : public edm::EDProducer
 
 
       void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-			      const std::string& hitProducer,
-			      const std::string& hitCollection,
-			      const std::string& clusterCollection,
-			      const IslandClusterAlgo::EcalPart& ecalPart);
+                              const std::string& hitProducer,
+                              const std::string& hitCollection,
+                              const std::string& clusterCollection,
+                              const IslandClusterAlgo::EcalPart& ecalPart);
 
       void outputValidationInfo(reco::BasicClusterRefVector &clusterRefVector);
 };

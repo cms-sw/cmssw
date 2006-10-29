@@ -1,9 +1,9 @@
 #ifndef RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 #define RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 
-// $Author: futyand $
-// $Id: PiZeroDiscriminatorProducer.h,v 1.1 2006/09/11 12:21:31 futyand Exp $
-// $Date: 2006/09/11 12:21:31 $
+// $Author: rahatlou $
+// $Id: PiZeroDiscriminatorProducer.h,v 1.1 2006/09/23 14:22:24 rahatlou Exp $
+// $Date: 2006/09/23 14:22:24 $
 
 #include <memory>
 
@@ -19,6 +19,9 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/EndcapPiZeroDiscriminatorAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
+
 
 #include "TH1.h"
 class TFile;
@@ -49,15 +52,13 @@ class PiZeroDiscriminatorProducer : public edm::EDProducer {
   std::string endcapSClusterCollection_;
   std::string endcapSClusterProducer_;
 
-  bool clustershape_logweighted;
-  float clustershape_x0;
-  float clustershape_t0;
-  float clustershape_w0;
-
   std::string endcapPiZeroDiscriminatorCollection_;
   std::string barrelPiZeroDiscriminatorCollection_;
 
   EndcapPiZeroDiscriminatorAlgo * presh_pi0_algo; // algorithm doing the real work
+  PositionCalc posCalculator_; // position calculation algorithm
+  ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
+
 
   EndcapPiZeroDiscriminatorAlgo::DebugLevel_pi0 debugL_pi0;
 };

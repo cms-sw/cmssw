@@ -59,10 +59,15 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
   double barrelSeedThreshold = ps.getParameter<double>("IslandBarrelSeedThr");
   double endcapSeedThreshold = ps.getParameter<double>("IslandEndcapSeedThr");
 
-  clustershape_logweighted = ps.getParameter<bool>("coretools_logweight");
-  clustershape_x0 = ps.getParameter<double>("coretools_x0");
-  clustershape_t0 = ps.getParameter<double>("coretools_t0");
-  clustershape_w0 = ps.getParameter<double>("coretools_w0");
+  // Parameters for the position calculation:
+  std::map<std::string,double> providedParameters;
+  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("coretools_logweight")));
+  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("coretools_x0")));
+  providedParameters.insert(std::make_pair("T0",ps.getParameter<double>("coretools_t0")));
+  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("coretools_w0")));
+  posCalculator_ = PositionCalc(providedParameters);
+  shapeAlgo_ = ClusterShapeAlgo(posCalculator_);
+
   clustershapecollectionEB_ = ps.getParameter<std::string>("clustershapecollectionEB");
   clustershapecollectionEE_ = ps.getParameter<std::string>("clustershapecollectionEE");
 
@@ -73,7 +78,7 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
   produces< reco::ClusterShapeCollection>(clustershapecollectionEB_);
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
 
-  island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, verbosity);
+  island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_,verbosity);
 
   nEvt_ = 0;
 }
@@ -145,25 +150,15 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
       topology_p = new EcalEndcapTopology(geoHandle); 
    }
 
-  // Parameters for the position calculation:
-  std::map<std::string,double> providedParameters;
-  providedParameters.insert(std::make_pair("LogWeighted",clustershape_logweighted));
-  providedParameters.insert(std::make_pair("X0",clustershape_x0));
-  providedParameters.insert(std::make_pair("T0",clustershape_t0));
-  providedParameters.insert(std::make_pair("W0",clustershape_w0));
-  PositionCalc::Initialize(providedParameters, hitCollection_p, geometry_p);
 
   // Run the clusterization algorithm:
   reco::BasicClusterCollection clusters;
   clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, ecalPart);
 
-  //Code added by A. Askew to calculate clustershapes.
-  ClusterShapeAlgo::Initialize(hitCollection_p, &geoHandle);
-
   //Create associated ClusterShape objects.
   std::vector <reco::ClusterShape> ClusVec;
   for (int erg=0;erg<int(clusters.size());++erg){
-    reco::ClusterShape TestShape = ClusterShapeAlgo::Calculate(clusters[erg]);
+    reco::ClusterShape TestShape = shapeAlgo_.Calculate(clusters[erg],hitCollection_p,geometry_p,topology_p);
     ClusVec.push_back(TestShape);
   }
 
@@ -172,11 +167,10 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   clustersshapes_p->assign(ClusVec.begin(), ClusVec.end());
   edm::OrphanHandle<reco::ClusterShapeCollection> clusHandle; 
   if (ecalPart == IslandClusterAlgo::barrel) 
-    clusHandle= evt.put(clustersshapes_p, 
-			clustershapecollectionEB_);
+    clusHandle= evt.put(clustersshapes_p, clustershapecollectionEB_);
   else
-    clusHandle= evt.put(clustersshapes_p, 
-			clustershapecollectionEE_);
+    clusHandle= evt.put(clustersshapes_p, clustershapecollectionEE_);
+
   //Set references from BasicClusters to ClusterShapes.
   reco::ClusterShapeCollection clusColl= *clusHandle;
   for (unsigned int i = 0; i < clusColl.size(); i++){

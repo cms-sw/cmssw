@@ -27,6 +27,7 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -40,11 +41,9 @@
 #include "DataFormats/EgammaReco/interface/ClusterPi0Discriminator.h"
 
 // Class for Cluster Shape Algorithm
-#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
 #include "TFile.h"
 
@@ -62,11 +61,14 @@ PiZeroDiscriminatorProducer::PiZeroDiscriminatorProducer(const edm::ParameterSet
   float preshStripECut = ps.getParameter<double>("preshStripEnergyCut");
   int preshNst = ps.getParameter<int>("preshPi0Nstrip");
 
-  clustershape_logweighted = ps.getParameter<bool>("coretools_logweight");
-  clustershape_x0 = ps.getParameter<double>("coretools_x0");
-  clustershape_t0 = ps.getParameter<double>("coretools_t0");
-  clustershape_w0 = ps.getParameter<double>("coretools_w0");
-  
+  std::map<std::string,double> providedParameters;  
+  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("coretools_logweight")));
+  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("coretools_x0")));
+  providedParameters.insert(std::make_pair("T0",ps.getParameter<double>("coretools_t0")));
+  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("coretools_w0")));
+  posCalculator_ = PositionCalc(providedParameters);
+  shapeAlgo_ = ClusterShapeAlgo(posCalculator_);
+
   // Name of a SuperClusterCollection to make associations:
   endcapSClusterCollection_ = ps.getParameter<std::string>("endcapSClusterCollection");
   endcapSClusterProducer_   = ps.getParameter<std::string>("endcapSClusterProducer");
@@ -140,7 +142,9 @@ void PiZeroDiscriminatorProducer::produce(edm::Event& evt, const edm::EventSetup
 
   const CaloSubdetectorGeometry *geometry_pee;
   geometry_pee = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-				
+  EcalEndcapTopology topology_EE(geoHandle);
+  //CaloSubdetectorTopology * topology_p = &topology;
+
   // fetch the ECAL Endcap product (RecHits)
   edm::Handle<EcalRecHitCollection> rhcHandle;
 //  evt.getByLabel("ecalRecHit", "EcalRecHitsEE", rhcHandle);
@@ -173,16 +177,9 @@ void PiZeroDiscriminatorProducer::produce(edm::Event& evt, const edm::EventSetup
           ostr << "SC centroind = " << pointSC << std::endl;
           reco::BasicClusterRef BS_clus_Id = it_super->seed();
           double SC_seed_energy = it_super->seed()->energy();
-  // Parameters for the position calculation:
-          std::map<std::string,double> providedParameters;  
-          providedParameters.insert(std::make_pair("LogWeighted",clustershape_logweighted));
-          providedParameters.insert(std::make_pair("X0",clustershape_x0));
-          providedParameters.insert(std::make_pair("T0",clustershape_t0));
-          providedParameters.insert(std::make_pair("W0",clustershape_w0));
-          PositionCalc::Initialize(providedParameters, hit_collection, geometry_pee);
 
-          ClusterShapeAlgo::Initialize(hit_collection, &geoHandle);
-          reco::ClusterShape TestShape = ClusterShapeAlgo::Calculate(*BS_clus_Id);
+          //ClusterShapeAlgo::Initialize(hit_collection, &geoHandle);
+          reco::ClusterShape TestShape = shapeAlgo_.Calculate(*BS_clus_Id,hit_collection,geometry_pee,&topology_EE);
           double SC_seed_Shape_E1 = TestShape.eMax();
           double SC_seed_Shape_E3x3 = TestShape.e3x3();
           double SC_seed_Shape_E5x5 = TestShape.e5x5();
