@@ -56,3 +56,19 @@ ostream& operator<<(ostream& s, const L1GctJetCand& cand) {
   else { s << "central"; }
   return s;
 }
+
+L1CaloRegionDetId L1GctJetCand::regionId() const {
+
+  // get global eta
+  unsigned eta;
+  if ( !isForward() ) {
+    eta = ( etaSign()==1 ? 11-(etaIndex()&0x7)  : (etaIndex()&0x7)+11 );
+  }
+  else {
+    eta = ( etaSign()==1 ? 3-(etaIndex()&0x7) : (etaIndex()&0x7)+18 );
+  }
+
+  return L1CaloRegionDetId(eta, phiIndex());
+
+}
+
