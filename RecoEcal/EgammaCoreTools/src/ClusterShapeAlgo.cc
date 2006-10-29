@@ -8,40 +8,50 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 
-ClusterShapeAlgo::ClusterShapeAlgo(PositionCalc *passedPositionCalc, const EcalRecHitCollection *passedRecHitsMap, const edm::ESHandle<CaloGeometry> *geoHandle)
-{
-	if(storedRecHitsMap_ == NULL || storedGeoHandle_ == NULL)
-  	throw(std::runtime_error("\n\nOh No! ClusterShapeAlgo created with invalid parameters.\n\n"));
- 
-	storedPositionCalc_ = passedPositionCalc;
-  storedRecHitsMap_ = passedRecHitsMap;
-  storedGeoHandle_ = geoHandle;
+ClusterShapeAlgo::ClusterShapeAlgo(const PositionCalc& passedPositionCalc) {
+  posCalculator_ = passedPositionCalc;
 }
 
-reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedCluster)
+reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedCluster,
+                                               const EcalRecHitCollection *hits,
+                                               const CaloSubdetectorGeometry * geometry,
+                                               const CaloSubdetectorTopology* topology)
 {
-  Calculate_TopEnergy(passedCluster);
-  Calculate_2ndEnergy(passedCluster);
-  Create_Map();
+
+  //std::cout << " Calculate_TopEnergy" << std::endl;
+  Calculate_TopEnergy(passedCluster,hits);
+  //std::cout << " Calculate_2ndEnergy" << std::endl;
+  Calculate_2ndEnergy(passedCluster,hits);
+  //std::cout << " Create_Map" << std::endl;
+  Create_Map(hits,topology);
+  //std::cout << " Calculate_e2x2" << std::endl;
   Calculate_e2x2();
+  //std::cout << " Calculate_e3x2" << std::endl;
   Calculate_e3x2();
+  //std::cout << " Calculate_e3x3" << std::endl;
   Calculate_e3x3();
+  //std::cout << "Calculate_e4x4 " << std::endl;
   Calculate_e4x4();
+  //std::cout << "Calculate_e5x5 " << std::endl;
   Calculate_e5x5();
-  Calculate_Location();
-  Calculate_Covariances();
-  Calculate_BarrelBasketEnergyFraction(passedCluster, Eta);
-	Calculate_BarrelBasketEnergyFraction(passedCluster, Phi);
-	
+  //std::cout << "Calculate_Location " << std::endl;
+  Calculate_Location(hits,geometry);
+  //std::cout << "Calculate_Covariances " << std::endl;
+  Calculate_Covariances(hits,geometry);
+  //std::cout << "Calculate_BarrelBasketEnergyFraction " << std::endl;
+  Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Eta, geometry);
+  //std::cout << "Calculate_BarrelBasketEnergyFraction " << std::endl;
+  Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Phi, geometry);
+
   return reco::ClusterShape(covEtaEta_, covEtaPhi_, covPhiPhi_, eMax_, eMaxId_, e2nd_, e2ndId_,
-			     									e2x2_, e3x2_, e3x3_,e4x4_, e5x5_, e3x2Ratio_, location_,
-			     									energyBasketFractionEta_, energyBasketFractionPhi_);
+                            e2x2_, e3x2_, e3x3_,e4x4_, e5x5_, e3x2Ratio_, location_,
+                            energyBasketFractionEta_, energyBasketFractionPhi_);
 }
 
-void ClusterShapeAlgo::Calculate_TopEnergy(const reco::BasicCluster &passedCluster)
+void ClusterShapeAlgo::Calculate_TopEnergy(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits)
 {
   double eMax=0;
-  DetId eMaxId;
+  DetId eMaxId(0);
 
   std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
   std::vector<DetId>::iterator posCurrent;
@@ -50,27 +60,27 @@ void ClusterShapeAlgo::Calculate_TopEnergy(const reco::BasicCluster &passedClust
 
   for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
   {
-    if ((*posCurrent != DetId(0)) && (storedRecHitsMap_->find(*posCurrent) != storedRecHitsMap_->end()))
+    if ((*posCurrent != DetId(0)) && (hits->find(*posCurrent) != hits->end()))
     {
-      EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(*posCurrent);
+      EcalRecHitCollection::const_iterator itt = hits->find(*posCurrent);
       testEcalRecHit = *itt;
-      
+
       if(testEcalRecHit.energy() > eMax)
-	{
-	  eMax = testEcalRecHit.energy();
-	  eMaxId = testEcalRecHit.id();
-	} 
+      {
+        eMax = testEcalRecHit.energy();
+        eMaxId = testEcalRecHit.id();
+      }
     }
   }
-  
+
   eMax_ = eMax;
   eMaxId_ = eMaxId;
 }
 
-void ClusterShapeAlgo::Calculate_2ndEnergy(const reco::BasicCluster &passedCluster)
+void ClusterShapeAlgo::Calculate_2ndEnergy(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits)
 {
   double e2nd=0;
-  DetId e2ndId;
+  DetId e2ndId(0);
 
   std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
   std::vector<DetId>::iterator posCurrent;
@@ -79,53 +89,37 @@ void ClusterShapeAlgo::Calculate_2ndEnergy(const reco::BasicCluster &passedClust
 
   for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
   { 
-    if ((*posCurrent != DetId(0)) && (storedRecHitsMap_->find(*posCurrent) != storedRecHitsMap_->end()))
+    if ((*posCurrent != DetId(0)) && (hits->find(*posCurrent) != hits->end()))
     {
-      EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(*posCurrent);
+      EcalRecHitCollection::const_iterator itt = hits->find(*posCurrent);
       testEcalRecHit = *itt;
-      
+
       if(testEcalRecHit.energy() > e2nd && testEcalRecHit.id() != eMaxId_)
-	{
-	  e2nd = testEcalRecHit.energy();
-	  e2ndId = testEcalRecHit.id();
-	} 
+      {
+        e2nd = testEcalRecHit.energy();
+        e2ndId = testEcalRecHit.id();
+      }
     }
   }
- 
+
   e2nd_ = e2nd;
-  e2ndId_ = e2ndId;  
+  e2ndId_ = e2ndId;
 }
 
-void ClusterShapeAlgo::Create_Map()
+void ClusterShapeAlgo::Create_Map(const EcalRecHitCollection *hits,const CaloSubdetectorTopology* topology)
 {
   EcalRecHit tempEcalRecHit;
-  CaloNavigator<DetId> posCurrent;
+  CaloNavigator<DetId> posCurrent = CaloNavigator<DetId>(eMaxId_,topology );
 
-  std::auto_ptr<const CaloSubdetectorTopology> topology;
-  switch(eMaxId_.subdetId())
-  {
-     case EcalBarrel:
-        topology.reset(new EcalBarrelTopology(*storedGeoHandle_));
-        break;
-     case EcalEndcap:
-        topology.reset(new EcalEndcapTopology(*storedGeoHandle_));
-        break;
-     case EcalPreshower:
-        topology.reset(new EcalPreshowerTopology (*storedGeoHandle_));
-        break;
-     default: throw(std::runtime_error("\n\nClusterShapeAlgo: No known topology for given subdetId. Giving up... =(\n\n"));
-  }
-  posCurrent = CaloNavigator<DetId>(eMaxId_,topology.get() );
-  
   for(int x = 0; x < 5; x++)
     for(int y = 0; y < 5; y++)
     {
       posCurrent.home();
       posCurrent.offsetBy(-2+x,-2+y);
 
-      if((*posCurrent != DetId(0)) && (storedRecHitsMap_->find(*posCurrent) != storedRecHitsMap_->end()))
+      if((*posCurrent != DetId(0)) && (hits->find(*posCurrent) != hits->end()))
       {
-				EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(*posCurrent);
+				EcalRecHitCollection::const_iterator itt = hits->find(*posCurrent);
 				tempEcalRecHit = *itt;
 				energyMap_[y][x] = std::make_pair(tempEcalRecHit.id(),tempEcalRecHit.energy()); 
       }
@@ -188,7 +182,7 @@ void ClusterShapeAlgo::Calculate_e2x2()
 void ClusterShapeAlgo::Calculate_e3x2()
 {
   double e3x2 = 0;
-  double e3x2Ratio=0, e3x2RatioNumerator, e3x2RatioDenominator;
+  double e3x2Ratio=0, e3x2RatioNumerator(0.), e3x2RatioDenominator(0.);
 
   int e2ndX = 2, e2ndY=2; 
   bool e2ndInX = false;
@@ -227,7 +221,7 @@ void ClusterShapeAlgo::Calculate_e3x2()
 
 void ClusterShapeAlgo::Calculate_e3x3()
 {
-  double e3x3=0; 
+  double e3x3=0;
 
   for(int i = 1; i <= 3; i++)
     for(int j = 1; j <= 3; j++)
@@ -239,7 +233,7 @@ void ClusterShapeAlgo::Calculate_e3x3()
 
 void ClusterShapeAlgo::Calculate_e4x4()
 {
-  double e4x4=0; 
+  double e4x4=0;
 	
   int startX=-1, startY=-1;
 
@@ -264,7 +258,7 @@ void ClusterShapeAlgo::Calculate_e4x4()
 
 void ClusterShapeAlgo::Calculate_e5x5()
 {
-  double e5x5=0; 
+  double e5x5=0;
 
   for(int i = 0; i <= 4; i++)
     for(int j = 0; j <= 4; j++)
@@ -274,88 +268,93 @@ void ClusterShapeAlgo::Calculate_e5x5()
 
 }
 
-void ClusterShapeAlgo::Calculate_Location()
+void ClusterShapeAlgo::Calculate_Location(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry* geometry)
 {
   std::vector<DetId> usedDetIds;
+  location_ = math::XYZPoint(0.,0.,0.);
 
   for(int i = 0; i <= 4; i++)
     for(int j = 0; j <= 4; j++)
       if(!energyMap_[i][j].first.null()) usedDetIds.push_back(energyMap_[i][j].first);
 
-  location_ = storedPositionCalc_->Calculate_Location(usedDetIds);
+  location_ = posCalculator_.Calculate_Location(usedDetIds,hits,geometry);
 }
 
 
-void ClusterShapeAlgo::Calculate_Covariances()
+void ClusterShapeAlgo::Calculate_Covariances(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry* geometry)
 {
   std::vector<DetId> usedDetIds;
+  covEtaEta_ = 0.;
+  covEtaPhi_ = 0.;
+  covPhiPhi_ = 0.;
 
   for(int i = 0; i <= 4; i++)
     for(int j = 0; j <= 4; j++)
       if(!energyMap_[i][j].first.null()) usedDetIds.push_back(energyMap_[i][j].first);
 
-  std::map<std::string,double> covReturned = storedPositionCalc_->Calculate_Covariances(location_,usedDetIds);
+  std::map<std::string,double> covReturned = posCalculator_.Calculate_Covariances(location_,usedDetIds,hits,geometry);
 
   covEtaEta_ = covReturned.find("covEtaEta")->second;
   covEtaPhi_ = covReturned.find("covEtaPhi")->second;
   covPhiPhi_ = covReturned.find("covPhiPhi")->second;
 }
 
-void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster, const int EtaPhi)
-{  
+void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster,
+                                                            const EcalRecHitCollection *hits,
+                                                            const int EtaPhi,
+                                                            const CaloSubdetectorGeometry* geometry) 
+{
+  if(  (hits!=0) && ( ((*hits)[0]).id().subdetId() != EcalBarrel )  ) {
+     //std::cout << "No basket correction for endacap!" << std::endl;
+     return;
+  }
+
   std::map<int,double> indexedBasketEnergy;
   std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
-  const EcalBarrelGeometry* subDetGeometry = (EcalBarrelGeometry*)(storedGeoHandle_->product())->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const EcalBarrelGeometry* subDetGeometry = (const EcalBarrelGeometry*) geometry;
 
   for(std::vector<DetId>::iterator posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
   {
-  	int basketIndex = 999;
-  	
-		if(EtaPhi == Eta)
-		{
-	    int unsignedIEta = abs(EBDetId(*posCurrent).ieta());    
-	    std::vector<int> etaBasketSize = subDetGeometry->getEtaBaskets();
+    int basketIndex = 999;
 
-	    for(unsigned int i = 0; i < etaBasketSize.size(); i++)
-	    {
-			unsignedIEta -= etaBasketSize[i];
-			if(unsignedIEta - 1 < 0)
-			{
-		  		basketIndex = i;
-		  		break;
-			}
-	    }
-	    
-	    basketIndex = (basketIndex+1)*(EBDetId(*posCurrent).ieta() > 0 ? 1 : -1);
-		}
-	else if(EtaPhi == Phi)
-	{
-		int halfNumBasketInPhi = (EBDetId::MAX_IPHI - EBDetId::MIN_IPHI + 1)/subDetGeometry->getBasketSizeInPhi()/2;
+    if(EtaPhi == Eta) {
+      int unsignedIEta = abs(EBDetId(*posCurrent).ieta());
+      std::vector<int> etaBasketSize = subDetGeometry->getEtaBaskets();
 
-    basketIndex = (EBDetId(*posCurrent).iphi() - 1)/subDetGeometry->getBasketSizeInPhi() 
-     							- (EBDetId(clusterDetIds[0]).iphi() - 1)/subDetGeometry->getBasketSizeInPhi();
+      for(unsigned int i = 0; i < etaBasketSize.size(); i++) {
+        unsignedIEta -= etaBasketSize[i];
+        if(unsignedIEta - 1 < 0)
+        {
+          basketIndex = i;
+          break;
+        }
+      }
+      basketIndex = (basketIndex+1)*(EBDetId(*posCurrent).ieta() > 0 ? 1 : -1);
 
-    if(basketIndex >= halfNumBasketInPhi)			basketIndex -= 2*halfNumBasketInPhi;
-    else if(basketIndex <  -1*halfNumBasketInPhi)	basketIndex += 2*halfNumBasketInPhi;    	
+    } else if(EtaPhi == Phi) {
+      int halfNumBasketInPhi = (EBDetId::MAX_IPHI - EBDetId::MIN_IPHI + 1)/subDetGeometry->getBasketSizeInPhi()/2;
 
-	}
-	else throw(std::runtime_error("\n\nOh No! Calculate_BarrelBasketEnergyFraction called on invalid index.\n\n"));
+      basketIndex = (EBDetId(*posCurrent).iphi() - 1)/subDetGeometry->getBasketSizeInPhi()
+                  - (EBDetId(clusterDetIds[0]).iphi() - 1)/subDetGeometry->getBasketSizeInPhi();
 
-   indexedBasketEnergy[basketIndex] += (storedRecHitsMap_->find(*posCurrent))->energy();
+      if(basketIndex >= halfNumBasketInPhi)             basketIndex -= 2*halfNumBasketInPhi;
+      else if(basketIndex <  -1*halfNumBasketInPhi)     basketIndex += 2*halfNumBasketInPhi;
+
+    } else throw(std::runtime_error("\n\nOh No! Calculate_BarrelBasketEnergyFraction called on invalid index.\n\n"));
+
+    indexedBasketEnergy[basketIndex] += (hits->find(*posCurrent))->energy();
   }
-    
+
   std::vector<double> energyFraction;
-  
   for(std::map<int,double>::iterator posCurrent = indexedBasketEnergy.begin(); posCurrent != indexedBasketEnergy.end(); posCurrent++)
   {
-  	energyFraction.push_back(indexedBasketEnergy[posCurrent->first]/passedCluster.energy());
-  }  
+    energyFraction.push_back(indexedBasketEnergy[posCurrent->first]/passedCluster.energy());
+  }
 
   switch(EtaPhi)
   {
-  	case 0: energyBasketFractionEta_ = energyFraction; break;
-  	case 1: energyBasketFractionPhi_ = energyFraction; break;
+    case Eta: energyBasketFractionEta_ = energyFraction; break;
+    case Phi: energyBasketFractionPhi_ = energyFraction; break;
   }
 
 }
-

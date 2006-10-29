@@ -3,22 +3,30 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-PositionCalc::PositionCalc(std::map<std::string,double> providedParameters, 
-			      EcalRecHitCollection const *passedRecHitsMap,
-			      const CaloSubdetectorGeometry *passedGeometry) 
+PositionCalc::PositionCalc(std::map<std::string,double> providedParameters)
 {
   param_LogWeighted_ = providedParameters.find("LogWeighted")->second;
   param_X0_ = providedParameters.find("X0")->second;
   param_T0_ = providedParameters.find("T0")->second; 
   param_W0_ = providedParameters.find("W0")->second;
 
-  storedRecHitsMap_ = passedRecHitsMap;
-  storedSubdetectorGeometry_ = passedGeometry;
+  //storedRecHitsMap_ = passedRecHitsMap;
+  //storedSubdetectorGeometry_ = passedGeometry;
 }
 
-math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
+const PositionCalc& PositionCalc::operator=(const PositionCalc& rhs) {
+  param_LogWeighted_ = rhs.param_LogWeighted_;
+  param_X0_ = rhs.param_X0_;
+  param_T0_ = rhs.param_T0_;
+  param_W0_ = rhs.param_W0_;
+  return *this;
+}
+
+math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds,
+                                                EcalRecHitCollection const * storedRecHitsMap_,
+                                                const CaloSubdetectorGeometry * storedSubdetectorGeometry_)
 {
-  
+
   // Throw an error if the cluster was not initialized properly
 
   if(storedRecHitsMap_ == NULL || storedSubdetectorGeometry_ == NULL)
@@ -152,7 +160,9 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
 }
 
 std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint passedPoint,
-								 std::vector<DetId> passedDetIds)
+                                                                 std::vector<DetId> passedDetIds,
+                                                                 const EcalRecHitCollection* hits,
+                                                                 const CaloSubdetectorGeometry * geometry)
 {
 
   std::vector<DetId> validDetIds;
@@ -161,7 +171,7 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
   std::vector<DetId>::iterator m;
   for (m = passedDetIds.begin(); m != passedDetIds.end(); m++) {
     if (((*m) != DetId(0))
-	&& (storedRecHitsMap_->find(*m) != storedRecHitsMap_->end()))
+	&& (hits->find(*m) != hits->end()))
       validDetIds.push_back(*m);
   }
 
@@ -170,7 +180,7 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
 
   // Check to see that PositionCalc was initialized.  Throw an error if not.
 
-  if(storedRecHitsMap_ == NULL || storedSubdetectorGeometry_ == NULL)
+  if(hits == NULL ||geometry == NULL)
     throw(std::runtime_error("\n\nPositionCalc::Calculate_Covariance called uninitialized or wrong initialization.\n\n"));
 
   // Init cov variable
@@ -181,7 +191,7 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
   std::vector<DetId>::iterator n;
 
   for (n = passedDetIds.begin(); n != passedDetIds.end(); n++) {
-    EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(*n);
+    EcalRecHitCollection::const_iterator itt = hits->find(*n);
     eTot += itt->energy();
   }
 
@@ -204,7 +214,7 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
 
       // Find out what the physical location of the kth cell is
       DetId id_ = *k;
-      const CaloCellGeometry *this_cell = storedSubdetectorGeometry_->getGeometry(id_);
+      const CaloCellGeometry *this_cell = geometry->getGeometry(id_);
       GlobalPoint posi = this_cell->getPosition();
       math::XYZPoint posi2(posi.x(),posi.y(),posi.z());
 
@@ -214,7 +224,7 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
 
       kEta = posi2.Eta();
       kPhi = atan2(kY,kX);
-      EcalRecHitCollection::const_iterator itk = storedRecHitsMap_->find(*k);
+      EcalRecHitCollection::const_iterator itk = hits->find(*k);
       double e_k = itk->energy();
 
       // Do the log weighting

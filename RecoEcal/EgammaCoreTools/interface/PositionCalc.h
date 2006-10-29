@@ -8,7 +8,7 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.5 2006/08/10 13:42:49 askew Exp $
+ * \version $Id: PositionCalc.h,v 1.6 2006/09/19 19:48:55 mabalazs Exp $
  *
  */
 
@@ -27,28 +27,34 @@ class PositionCalc
   // You must call Initialize before you can calculate positions or 
   // covariances.
 
-  PositionCalc(std::map<std::string,double> providedParameters,
-               const EcalRecHitCollection *passedRecHitsMap, const CaloSubdetectorGeometry *passedGeometry);  
+  PositionCalc(std::map<std::string,double> providedParameters);
+  PositionCalc() { };
+
+  const PositionCalc& operator=(const PositionCalc& rhs);
 
   // Calculate_Location calculates an arithmetically or logarithmically
   // weighted average position of a vector of DetIds, which should be
   // a subset of the map used to Initialize.
 
-  math::XYZPoint Calculate_Location(std::vector<DetId> passedDetIds);
+  math::XYZPoint Calculate_Location(std::vector<DetId> passedDetIds,
+                                    const EcalRecHitCollection *passedRecHitsMap,
+                                    const CaloSubdetectorGeometry *passedGeometry);
 
   // Calculate_Covariances calculates the variance in eta, variance in phi,
   // and covariance in eta and phi.  It must be given a vector of DetIds
   // which are a subset of the DetIds used to Initialize.
 
-  std::map<std::string,double> Calculate_Covariances(math::XYZPoint passedPoint, std::vector<DetId> passedDetIds);
-
+  std::map<std::string,double> Calculate_Covariances(math::XYZPoint passedPoint,
+                                                     std::vector<DetId> passedDetIds,
+                                                     const EcalRecHitCollection *passedRecHitsMap,
+                                                     const CaloSubdetectorGeometry *passedGeometry);
  private:
   bool        param_LogWeighted_;
   Double32_t  param_X0_;
   Double32_t  param_T0_;
   Double32_t  param_W0_;
-  const EcalRecHitCollection  *storedRecHitsMap_;
-  const CaloSubdetectorGeometry *storedSubdetectorGeometry_;
+  //const EcalRecHitCollection  *storedRecHitsMap_;
+  //const CaloSubdetectorGeometry *storedSubdetectorGeometry_;
 
 };
 
