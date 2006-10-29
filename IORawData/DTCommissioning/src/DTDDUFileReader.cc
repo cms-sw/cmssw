@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/01 08:15:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/08/03 14:46:06 $
+ *  $Revision: 1.8 $
  *  \author M. Zanetti
  */
 
@@ -62,7 +62,7 @@ DTDDUFileReader::~DTDDUFileReader(){
 
 bool DTDDUFileReader::fillRawData(EventID& eID,
 				  Timestamp& tstamp, 
-				  FEDRawDataCollection& data){
+				  FEDRawDataCollection*& data){
 
   vector<uint64_t> eventData;
   size_t estimatedEventDimension = 1024; // dimensione hardcoded
@@ -127,7 +127,7 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
   //if (eventData.size() > estimatedEventDimension) throw 2;
   
   // Eventually skipping events
-  if (eventNumber >= skipEvents) {
+  if ((int)eventNumber >= skipEvents) {
 
     // Setting the Event ID
     eID = EventID( runNumber, eventNumber);
@@ -136,7 +136,7 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
     int eventDataSize = eventData.size()*dduWordLength;
     
     // The FED ID is always the first in the DT range
-    FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
+    FEDRawData& fedRawData = data->FEDData( FEDNumbering::getDTFEDIds().first );
     fedRawData.resize(eventDataSize);
     
     copy(reinterpret_cast<unsigned char*>(&eventData[0]),

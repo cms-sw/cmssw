@@ -4,8 +4,8 @@
 /** \class DTROS8FileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2006/03/15 23:40:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/01 08:15:23 $
+ *  $Revision: 1.5 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -26,7 +26,7 @@ class DTROS8FileReader : public DaqBaseReader {
   /// Generate and fill FED raw data for a full event
   virtual bool fillRawData(edm::EventID& eID,
 			   edm::Timestamp& tstamp, 
-			   FEDRawDataCollection& data);
+			   FEDRawDataCollection*& data);
 
   virtual bool checkEndOfFile();
 

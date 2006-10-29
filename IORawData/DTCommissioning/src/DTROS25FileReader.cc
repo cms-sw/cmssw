@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/28 08:59:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/01 08:15:23 $
+ *  $Revision: 1.4 $
  *  \author M. Zanetti
  */
 
@@ -48,7 +48,7 @@ DTROS25FileReader::~DTROS25FileReader(){
 
 bool DTROS25FileReader::fillRawData(EventID& eID,
 				    Timestamp& tstamp, 
-				    FEDRawDataCollection& data){
+				    FEDRawDataCollection*& data){
 
 
   vector<uint32_t> eventData;
@@ -97,7 +97,7 @@ bool DTROS25FileReader::fillRawData(EventID& eID,
     int adjustment = (eventDataSize/4)%2 == 1 ? 4 : 0; 
 
     // The FED ID is always the first in the DT range
-    FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
+    FEDRawData& fedRawData = data->FEDData( FEDNumbering::getDTFEDIds().first );
     fedRawData.resize(eventDataSize+adjustment);
     
     copy(reinterpret_cast<unsigned char*>(&eventData[0]),

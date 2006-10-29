@@ -4,8 +4,8 @@
 /** \class DTROS25FileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2006/03/15 23:40:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/01 08:15:23 $
+ *  $Revision: 1.3 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -28,7 +28,7 @@ class DTROS25FileReader : public DaqBaseReader {
   /// Generate and fill FED raw data for a full event
   virtual bool fillRawData(edm::EventID& eID,
 			   edm::Timestamp& tstamp, 
-			   FEDRawDataCollection& data);
+			   FEDRawDataCollection*& data);
 
 
   /// check for a 32 bits word to be a ROS25 header
