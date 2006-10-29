@@ -4,6 +4,7 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 /*! \class L1CaloEmCand
  * \brief Level-1 Region Calorimeter Trigger EM candidate
@@ -48,6 +49,8 @@ public:
   /// which stream did this come from
   bool isolated() const { return m_iso; }
 
+  /// get DetID object
+  L1CaloRegionDetId regionId() const { return L1CaloRegionDetId(false,rctCrate(),rctCard(),rctRegion()); }
 
  private:
 
