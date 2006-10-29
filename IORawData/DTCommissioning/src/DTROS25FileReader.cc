@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/01 08:15:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/10/29 09:26:37 $
+ *  $Revision: 1.5 $
  *  \author M. Zanetti
  */
 
@@ -49,7 +49,7 @@ DTROS25FileReader::~DTROS25FileReader(){
 bool DTROS25FileReader::fillRawData(EventID& eID,
 				    Timestamp& tstamp, 
 				    FEDRawDataCollection*& data){
-
+  data = new FEDRawDataCollection();
 
   vector<uint32_t> eventData;
   size_t estimatedEventDimension = 1024; // dimensione hardcoded
@@ -110,12 +110,14 @@ bool DTROS25FileReader::fillRawData(EventID& eID,
 
     if ( i == 1 ){
       cout<<"[DTROS25FileReader]: ERROR! failed to get the trailer"<<endl;
+      delete data; data=0;
       return false;
     }    
     else {
       cout<<"[DTROS25FileReader]:"
 	  <<" ERROR! ROS data exceeding estimated event dimension. Event size = "
 	  <<eventData.size()<<endl;
+      delete data; data=0;
       return false;
     }
     

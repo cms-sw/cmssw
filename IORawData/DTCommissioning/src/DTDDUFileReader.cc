@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/03 14:46:06 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/10/29 09:26:37 $
+ *  $Revision: 1.9 $
  *  \author M. Zanetti
  */
 
@@ -63,6 +63,7 @@ DTDDUFileReader::~DTDDUFileReader(){
 bool DTDDUFileReader::fillRawData(EventID& eID,
 				  Timestamp& tstamp, 
 				  FEDRawDataCollection*& data){
+  data = new FEDRawDataCollection();
 
   vector<uint64_t> eventData;
   size_t estimatedEventDimension = 1024; // dimensione hardcoded
@@ -85,6 +86,7 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
       word = dmaUnpack(dataTag,nread);
       if ( nread<=0 ) {
 	cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
+	delete data; data=0;
 	return false;
       }
     }
@@ -94,6 +96,7 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
       dataTag = false;
       if ( nread<=0 ) {
 	cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
+	delete data; data=0;
 	return false;
       }
     }
