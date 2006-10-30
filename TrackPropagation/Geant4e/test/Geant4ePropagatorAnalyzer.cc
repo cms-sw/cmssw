@@ -53,6 +53,8 @@
 
 using namespace std;
 
+enum testMuChamberType {DT, RPC, CSC};
+
 class Geant4ePropagatorAnalyzer: public edm::EDAnalyzer {
 
 public:
@@ -62,6 +64,10 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
   virtual void beginJob(edm::EventSetup const & iSetup);
+  void iterateOverHits(edm::Handle<edm::PSimHitContainer> simHits,
+		       testMuChamberType muonChamberType,
+		       unsigned int trkIndex,
+		       const FreeTrajectoryState& ftsTrack);
 
 
 protected:
@@ -74,6 +80,9 @@ protected:
 
   //Magnetic field
   edm::ParameterSet theMagneticFieldPSet;
+
+  //Geometry
+  edm::ESHandle<DTGeometry> dtGeomESH;
   
 
 
@@ -116,7 +125,6 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   //Build geometry
 
   //- DT...
-  ESHandle<DTGeometry> dtGeomESH;
   iSetup.get<MuonGeometryRecord>().get(dtGeomESH);
   LogDebug("Geant4e") << "Got DTGeometry " << std::endl;
 
@@ -255,9 +263,6 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
     }
       
 
-    //- Get index of generated particle. Used further down
-    //uint trkInd = simTracksIt->genpartIndex();
-
     //- Vertex fixes the starting point
     int vtxInd = simTracksIt->vertIndex();
     GlobalPoint r3T(0.,0.,0.);
@@ -285,83 +290,110 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
     FreeTrajectoryState ftsTrack(trackPars, covT);
 
 
+    //- Get index of generated particle. Used further down
+    unsigned int trkInd = simTracksIt->genpartIndex();
+
     ////////////////////////////////////////////////
     //- Iterate over Sim Hits in DT and check propagation
-    for (PSimHitContainer::const_iterator simHitDTIt = simHitsDT->begin(); 
-	 simHitDTIt != simHitsDT->end(); 
-	 simHitDTIt++){
-
-
-      //+ Skip if this hit does not belong to the track
-      if (simHitDTIt->trackId() != trkInd ) {
- 	LogDebug("Geant4e") << "Hit (in tr " << simHitDTIt->trackId()
- 			    << ") does not belong to track "<< trkInd;
- 	continue;
-      }
-
-      LogDebug("Geant4e") << "G4e -- Hit belongs to track " << simHitDTIt->trackId();
-
-      //+ Skip if it is not a muon (this is checked before also)
-      if (abs(simHitDTIt->particleType()) != 13) {
-	LogDebug("Geant4e") << "Associated track is not a muon: " << trkPDG;
-	continue;
-      }
-      LogDebug("Geant4e") << "Found a hit corresponding to a muon " << trkPDG;
-
-      //+ Build the surface
-      DTWireId wId(simHitDTIt->detUnitId());
-      const DTLayer* layer = dtGeomESH->layer(wId);
-      if (layer == 0){
-	LogDebug("Geant4e") << "Failed to get detector unit" << std::endl;
-	continue;
-      }
-      const Surface& surf = layer->surface();
-      //==>DEBUG
-      const BoundPlane& bp = layer->surface();
-      const Bounds& bounds = bp.bounds();
-      LogDebug("Geant4e") << "Surface: length = " << bounds.length() 
-			  << ", thickness = " << bounds.thickness() 
-			  << ", width = " << bounds.width();
-      //<==DEBUG
-
-       //+ Discard hits with very low momentum ???
-      GlobalVector p3Hit = surf.toGlobal(simHitDTIt->momentumAtEntry());
-      if (p3Hit.mag() < 0.5 ) 
-	continue;
-      GlobalPoint posHit = surf.toGlobal(simHitDTIt->localPosition());
-      Point3DBase< float, GlobalTag > surfpos = surf.position();
-      LogDebug("Geant4e") << "Sim Hit position  R=" << posHit.mag()
-			  << "\tTheta=" << posHit.theta()*TMath::RadToDeg() 
-			  << "\tPhi=" << posHit.phi()*TMath::RadToDeg() ;
-      LogDebug("Geant4e") << "Layer position    R=" << surfpos.mag()
-			  << "\tTheta=" << surfpos.theta()*TMath::RadToDeg() 
-			  << "\tPhi=" << surfpos.phi()*TMath::RadToDeg() ;
-      LogDebug("Geant4e") << "Sim Hit Momentum PT=" << p3Hit.mag()
-			  << "\tTheta=" << p3Hit.theta()*TMath::RadToDeg() 
-			  << "\tPhi=" << p3Hit.phi()*TMath::RadToDeg() ;
-      
-
-
-      //+ Propagate: Need to explicetely
-      TrajectoryStateOnSurface tSOSDest = 
-	thePropagator->propagate(ftsTrack, surf);
-
-      //+ Get hit position and extrapolation position to compare
-      GlobalPoint posExtrap = tSOSDest.freeState()->position();
-
-      LogDebug("Geant4e") << "G4e -- Difference between hit and final position: " 
-			  << (posExtrap - posHit).mag() << " cm.";
-      LogDebug("Geant4e") << "G4e -- Extrapolated position:" << posExtrap 
-			  << " cm\n"
-			  << "G4e -- Hit position: " << posHit 
-			  << " cm";
-    } // <-- for over DT sim hits
+    iterateOverHits(simHitsDT, DT, trkInd, ftsTrack);
 
 
 
   } // <-- for over sim tracks
 }
 
+
+void
+Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> simHits, 
+					   testMuChamberType muonChamberType,
+					   unsigned int trkIndex,
+					   const FreeTrajectoryState& ftsTrack) {
+
+  using namespace edm;
+  
+  for (PSimHitContainer::const_iterator simHitIt = simHits->begin(); 
+       simHitIt != simHits->end(); 
+       simHitIt++){
+
+    ///////////////
+    // Skip if this hit does not belong to the track
+    if (simHitIt->trackId() != trkIndex ) {
+      LogDebug("Geant4e") << "Hit (in tr " << simHitIt->trackId()
+			  << ") does not belong to track "<< trkIndex;
+      continue;
+    }
+    
+    LogDebug("Geant4e") << "G4e -- Hit belongs to track " << trkIndex;
+    
+    //////////////
+    // Skip if it is not a muon (this is checked before also)
+    int trkPDG = simHitIt->particleType();
+    if (abs(trkPDG) != 13) {
+      LogDebug("Geant4e") << "Associated track is not a muon: " << trkPDG;
+      continue;
+    }
+    LogDebug("Geant4e") << "G4e -- Found a hit corresponding to a muon " << trkPDG;
+    
+    /////////////
+    // Build the surface. This is different for DT, RPC, CSC
+    const GeomDetUnit* layer = 0;
+    if (muonChamberType == DT) {
+      DTWireId wId(simHitIt->detUnitId());
+      layer = dtGeomESH->layer(wId);
+      if (layer == 0){
+	LogDebug("Geant4e") << "Failed to get detector unit" << std::endl;
+	continue;
+      }
+    }
+
+    const Surface& surf = layer->surface();
+    
+    //==>DEBUG
+    //const BoundPlane& bp = layer->surface();
+    //const Bounds& bounds = bp.bounds();
+    //LogDebug("Geant4e") << "Surface: length = " << bounds.length() 
+    //		  << ", thickness = " << bounds.thickness() 
+    //		<< ", width = " << bounds.width();
+    //<==DEBUG
+    
+    ////////////
+    // Discard hits with very low momentum ???
+    GlobalVector p3Hit = surf.toGlobal(simHitIt->momentumAtEntry());
+    if (p3Hit.mag() < 0.5 ) 
+      continue;
+    GlobalPoint posHit = surf.toGlobal(simHitIt->localPosition());
+    Point3DBase< float, GlobalTag > surfpos = surf.position();
+    LogDebug("Geant4e") << "Sim Hit position  R=" << posHit.mag()
+			<< "\tTheta=" << posHit.theta()*TMath::RadToDeg() 
+			<< "\tPhi=" << posHit.phi()*TMath::RadToDeg() ;
+    LogDebug("Geant4e") << "Layer position    R=" << surfpos.mag()
+			<< "\tTheta=" << surfpos.theta()*TMath::RadToDeg() 
+			<< "\tPhi=" << surfpos.phi()*TMath::RadToDeg() ;
+    LogDebug("Geant4e") << "Sim Hit Momentum PT=" << p3Hit.mag()
+			<< "\tTheta=" << p3Hit.theta()*TMath::RadToDeg() 
+			<< "\tPhi=" << p3Hit.phi()*TMath::RadToDeg() ;
+    
+    
+    /////////////////////////////////////////
+    // Propagate: Need to explicetely
+    TrajectoryStateOnSurface tSOSDest = 
+      thePropagator->propagate(ftsTrack, surf);
+    
+    /////////////////////
+    // Get hit position and extrapolation position to compare
+    GlobalPoint posExtrap = tSOSDest.freeState()->position();
+    
+    LogDebug("Geant4e") << "G4e -- Difference between hit and final position: " 
+			<< (posExtrap - posHit).mag() << " cm.";
+    LogDebug("Geant4e") << "G4e -- Extrapolated position:" << posExtrap 
+			<< " cm\n"
+			<< "G4e -- Hit position: " << posHit 
+			<< " cm";
+    
+    
+  } //<== For over simhits
+
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(Geant4ePropagatorAnalyzer);
