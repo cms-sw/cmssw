@@ -6,7 +6,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>

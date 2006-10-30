@@ -21,8 +21,8 @@ class PedestalsTask : public CommissioningTask {
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   
-  vector<HistoSet> peds_;
-  vector<HistoSet> cm_;
+  std::vector<HistoSet> peds_;
+  std::vector<HistoSet> cm_;
   
 };
 

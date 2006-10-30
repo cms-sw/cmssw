@@ -20,7 +20,7 @@ class VpspScanTask : public CommissioningTask {
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   
-  vector<HistoSet> vpsp_;
+  std::vector<HistoSet> vpsp_;
   
 };
 

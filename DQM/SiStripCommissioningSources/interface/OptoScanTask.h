@@ -22,7 +22,7 @@ class OptoScanTask : public CommissioningTask {
   virtual void update();
 
   void locateTicks( const edm::DetSet<SiStripRawDigi>& scope_mode_data,
-		    pair< uint16_t, uint16_t >& digital_range, 
+		    std::pair< uint16_t, uint16_t >& digital_range, 
 		    bool first_tick_only = false );
   
  private: // ----- data members -----
@@ -30,7 +30,7 @@ class OptoScanTask : public CommissioningTask {
   /** "Histo sets" for the various gain settings and digital 0 and 1
       levels. First index is gain (0->3) and the second index is the
       digital level ("0" or "1"). */
-  vector< vector<HistoSet> > opto_;
+  std::vector< std::vector<HistoSet> > opto_;
 
   uint16_t nBins_;
 
