@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2006/10/30 11:14:16 $
- * $Revision: 1.1 $
+ * $Date: 2006/10/30 13:12:32 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -53,7 +53,6 @@ void EBClusterTask::setup(void){
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBClusterTask");
 
-    dbe->setCurrentFolder("EcalBarrel/EBClusterTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPOT pedestal SM%02d G12", i+1);
       mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
@@ -73,7 +72,6 @@ void EBClusterTask::cleanup(void){
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBClusterTask");
 
-    dbe->setCurrentFolder("EcalBarrel/EBClusterTask/Gain12");
     for ( int i = 0; i < 36; i++ ) {
       if ( mePedMapG12_[i] ) dbe->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
@@ -99,52 +97,10 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EBDigiCollection> digis;
-  e.getByLabel("ecalEBunpacker", digis);
-
-  int nebd = digis->size();
-  LogDebug("EBClusterTask") << "event " << ievt_ << " digi collection size " << nebd;
-
-  for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
-
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
-
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
-
-    int ism = id.ism();
-
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
-
-    LogDebug("EBClusterTask") << " det id = " << id;
-    LogDebug("EBClusterTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-    for (int i = 0; i < 3; i++) {
-
-      EcalMGPASample sample = dataframe.sample(i);
-      int adc = sample.adc();
-
-      MonitorElement* mePedMap = 0;
-
-      if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
-      if ( sample.gainId() == 2 ) mePedMap = 0;
-      if ( sample.gainId() == 3 ) mePedMap = 0;
-
-      float xval = float(adc);
-
-      if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
-
-    }
-
-  }
-
   try {
 
     Handle<BasicClusterCollection> bclusters;
-    e.getByLabel("islandBasicClusterProducer", bclusters);
+    e.getByLabel("islandBasicClusterProducer", "islandBarrelBasicClusterCollection", bclusters);
 
     int nbcc = bclusters->size();
     LogDebug("EBClusterTask") << "event " << ievt_ << " basic cluster collection size " << nbcc;
@@ -153,6 +109,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
       BasicCluster bcluster = *(bclusterItr);
 
+      cout << "basic cluster" << endl;
       cout << "number of crystals " << bcluster.getHitsByDetId().size() << endl;
       cout << "energy " << bcluster.energy() << endl;
       cout << "eta " << bcluster.eta() << endl;
@@ -166,8 +123,8 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   try {
 
-    Handle<reco::SuperClusterCollection> sclusters;
-    e.getByLabel("islandSuperClusterProducer", sclusters);
+    Handle<SuperClusterCollection> sclusters;
+    e.getByLabel("islandSuperClusterProducer", "islandBarrelSuperClusterCollection", sclusters);
 
     int nscc = sclusters->size();
     LogDebug("EBClusterTask") << "event " << ievt_ << " super cluster collection size " << nscc; 
@@ -176,14 +133,15 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   
       SuperCluster scluster = *(sclusterItr);
 
+      cout << "super cluster" << endl;
       cout << "number of crystals " << scluster.getHitsByDetId().size() << endl;
       cout << "energy " << scluster.energy() << endl;
       cout << "eta " << scluster.eta() << endl;
       cout << "phi " << scluster.phi() << endl;
-      cout << "eMax " << scluster.eMax() << endl;
-      cout << "e2x2 " << scluster.e2x2() << endl;
-      cout << "e3x3 " << scluster.e3x3() << endl;
-      cout << "e5x5 " << scluster.e5x5() << endl;
+//      cout << "eMax " << scluster.eMax() << endl;
+//      cout << "e2x2 " << scluster.e2x2() << endl;
+//      cout << "e3x3 " << scluster.e3x3() << endl;
+//      cout << "e5x5 " << scluster.e5x5() << endl;
 
     }
 
