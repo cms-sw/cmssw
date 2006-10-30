@@ -7,8 +7,6 @@
 
 class SiStripDigiToRaw;
 
-using namespace std;
-
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripDigiToRawModule.h
    @class SiStripDigiToRawModule 
@@ -30,7 +28,7 @@ class SiStripDigiToRawModule : public edm::EDProducer {
   
  private:
 
-  string inputModuleLabel_;
+  std::string inputModuleLabel_;
   SiStripDigiToRaw* digiToRaw_;
   uint32_t eventCounter_;
 

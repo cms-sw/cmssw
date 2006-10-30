@@ -8,13 +8,10 @@
 #include "Fed9UUtils.hh"
 #include "boost/cstdint.hpp"
 #include <string>
-#include <vector>
 
 class SiStripFedCabling;
 class FEDRawDataCollection;
 class SiStripDigi;
-
-using namespace std;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h
@@ -27,20 +24,20 @@ class SiStripDigiToRaw {
   
  public: // ----- public interface -----
   
-  SiStripDigiToRaw( string readout_mode, 
+  SiStripDigiToRaw( std::string readout_mode, 
 		    int16_t appended_bytes );
   ~SiStripDigiToRaw();
   
   void createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabling,
 			 edm::Handle< edm::DetSetVector<SiStripDigi> >& digis,
-			 auto_ptr<FEDRawDataCollection>& buffers );
+			 std::auto_ptr<FEDRawDataCollection>& buffers );
   
-  inline void fedReadoutMode( string mode )     { readoutMode_ = mode; }
+  inline void fedReadoutMode( std::string mode ) { readoutMode_ = mode; }
   inline void nAppendedBytes( uint16_t nbytes ) { nAppendedBytes_ = nbytes; }
   
  private: // ----- private data members -----
 
-  string readoutMode_;
+  std::string readoutMode_;
   uint16_t nAppendedBytes_;
 
   SiStripTrivialDigiAnalysis anal_;
