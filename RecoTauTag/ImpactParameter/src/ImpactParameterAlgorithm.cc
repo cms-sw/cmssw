@@ -48,6 +48,15 @@ pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const Isolated
 	  SignedImpactParameter3D signed_ip3D;
 	  Measurement1D ip3D = signed_ip3D.apply(*transientTrack,direction,pv).second;
 
+
+	  if(!use_sign){
+	    Measurement1D tmp2D(fabs(ip.value()),ip.error());
+	    ip = tmp2D;
+
+	    Measurement1D tmp3D(fabs(ip3D.value()),ip3D.error());
+            ip3D = tmp3D;
+	  }
+
           reco::TauImpactParameterTrackData theData;
 
 	  theData.transverseIp = ip;
