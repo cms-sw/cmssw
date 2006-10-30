@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.18 2006/07/06 19:16:13 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.19 2006/10/21 02:49:02 wmtan Exp $
 //
 //
 
@@ -291,37 +291,40 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    for(Provenances::iterator itProv  = provenances.begin();
                              itProv != provenances.end();
                            ++itProv) {
-      friendlyName = (*itProv)->friendlyClassName();
-      //if(friendlyName.empty())  friendlyName = std::string("||");
-
-      modLabel = (*itProv)->moduleLabel();
-      //if(modLabel.empty())  modLabel = std::string("||");
-
-      instanceName = (*itProv)->productInstanceName();
-      //if(instanceName.empty())  instanceName = std::string("||");
-      
-      std::cout << indentation_ << friendlyName
-                << " \"" << modLabel
-                << "\" \"" << instanceName <<"\"" << std::endl;
-      if(verbose_) {
+     if( (*itProv)->isPresent() ) {
+       friendlyName = (*itProv)->friendlyClassName();
+       //if(friendlyName.empty())  friendlyName = std::string("||");
+       
+       modLabel = (*itProv)->moduleLabel();
+       //if(modLabel.empty())  modLabel = std::string("||");
+       
+       instanceName = (*itProv)->productInstanceName();
+       //if(instanceName.empty())  instanceName = std::string("||");
+       
+       std::cout << indentation_ << friendlyName
+		 << " \"" << modLabel
+		 << "\" \"" << instanceName <<"\"" << std::endl;
+       if(verbose_) {
          if( moduleLabels_.size() ==0 ||
              std::binary_search(moduleLabels_.begin(),moduleLabels_.end(),modLabel)) {
-            //indent one level before starting to print
-            std::string startIndent = indentation_+verboseIndentation_;
-            printObject(iEvent,
-                        (*itProv)->className(),
-                        (*itProv)->moduleLabel(),
-                        (*itProv)->productInstanceName(),
-                        startIndent,
-                        verboseIndentation_);
+	   //indent one level before starting to print
+	   std::string startIndent = indentation_+verboseIndentation_;
+	   printObject(iEvent,
+		       (*itProv)->className(),
+		       (*itProv)->moduleLabel(),
+		       (*itProv)->productInstanceName(),
+		       startIndent,
+		       verboseIndentation_);
          }
-      }
+       }
       
-      key = friendlyName
-          + std::string(" + \"") + modLabel
-          + std::string("\" + \"") + instanceName+"\"";
-      ++cumulates_[key];
+       key = friendlyName
+	 + std::string(" + \"") + modLabel
+	 + std::string("\" + \"") + instanceName+"\"";
+       ++cumulates_[key];
+     }
    }
+   std::cout <<"Mine"<<std::endl;
    ++evno_;
 }
 
