@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.13 2006/08/31 13:43:19 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.14 2006/10/10 14:34:38 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "DeviceFactory.h"
 #include "boost/cstdint.hpp"
