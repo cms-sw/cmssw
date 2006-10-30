@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/09/14 10:49:23 $
- * $Revision: 1.178 $
+ * $Date: 2006/10/18 16:57:52 $
+ * $Revision: 1.179 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -359,15 +359,14 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   if ( enableTCC_ ) {
     clients_.push_back( new EBTriggerTowerClient(ps) );
     clientNames_.push_back( "TriggerTower" );
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
   }
+
+  clients_.push_back(  new EBClusterClient(ps) );
+  clientNames_.push_back( "Cluster" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
   cout << endl;
 

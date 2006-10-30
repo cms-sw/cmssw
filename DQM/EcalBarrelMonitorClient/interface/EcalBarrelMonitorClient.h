@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/09/12 15:35:34 $
- * $Revision: 1.56 $
+ * $Date: 2006/09/14 10:49:22 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,15 +28,16 @@
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 
 using namespace cms;
 using namespace std;
