@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.5 2006/04/23 13:24:29 dkcira Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.6 2006/04/23 13:26:20 dkcira Exp $
 //
 
 #include <iostream>
@@ -152,7 +152,7 @@ void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid){
     rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel()<<sep<<petal_bkw_frw<<sep<<"petal_"<<(tec1.petal()).at(1)<<sep<<"ring_"<<tec1.ring()<<sep<<fec_stereo_mono<<sep<<"module_"<<rawdetid;
   }else{
   // ---------------------------  ???  --------------------------- //
-    LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<endl;
+    LogWarning("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<endl;
     return;
   }
 

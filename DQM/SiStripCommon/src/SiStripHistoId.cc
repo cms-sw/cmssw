@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.2 2006/03/29 15:10:36 dkcira Exp $
+// $Id: SiStripHistoId.cc,v 1.3 2006/03/29 21:41:38 dkcira Exp $
 //
 
 #include<boost/cstdint.hpp>
@@ -42,13 +42,13 @@ std::string SiStripHistoId::createHistoId(std::string description, std::string i
       string local_histo_id = description + separator1 + id_type + separator2 + compid.str();
       return local_histo_id;
     }else{
-      LogError("SiStripTkDQM|WrongInput")<<"no such type of component accepted: "<<id_type
+      LogWarning("SiStripTkDQM|WrongInput")<<"no such type of component accepted: "<<id_type
                             <<" . id_type can be: fed, det, or fec."
                             <<"   Throwing exception";
       throw string("Exception thrown");
     }
   }else{
-    LogError("SiStripTkDQM|WrongInput")<<"histogram description cannot contain: "<<separator1<<" or: "<<separator2
+    LogWarning("SiStripTkDQM|WrongInput")<<"histogram description cannot contain: "<<separator1<<" or: "<<separator2
                           <<" histogram description = "<<description
                           <<" . Throwing exception";
     throw string("Exception thrown");
