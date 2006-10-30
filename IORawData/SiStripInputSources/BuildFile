@@ -3,6 +3,7 @@
 <use name=FWCore/MessageLogger>
 <use name=Foundation/PluginManager>
 <use name=DataFormats/FEDRawData>
+<use name=DataFormats/SiStripCommon>
 <use name=TkOnlineSw>
 <use name=oracle>
 <use name=root>
@@ -16,6 +17,7 @@
    <use name=FWCore/MessageLogger>
    <use name=Foundation/PluginManager>
    <use name=DataFormats/FEDRawData>
+   <use name=DataFormats/SiStripCommon>
    <use name=TkOnlineSw>
    <use name=oracle>
    <use name=root>
