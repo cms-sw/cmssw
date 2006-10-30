@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.5 2006/09/01 10:25:16 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.6 2006/10/10 14:35:45 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
@@ -32,13 +32,14 @@ void SiStripConfigDb::getDeviceDescriptions( SiStripConfigDb::DeviceDescriptions
   }
   
   // Debug
-  ostringstream os; 
-  if ( descriptions.empty() ) { os << " Found no device descriptions (for"; }
-  else { os << " Found " << descriptions.size() << " device descriptions (for"; }
-  if ( !all_devices_except ) { os << " devices of type " << deviceType( device_type ) << ")"; }
-  else { os << " all devices NOT of type " << deviceType( device_type ) << ")"; }
-  if ( descriptions.empty() ) { edm::LogError(mlConfigDb_) << os; }
-  else { LogTrace(mlConfigDb_) << os; }
+  stringstream ss; 
+  ss << "[SiStripConfigDb::" << __func__ << "]";
+  if ( descriptions.empty() ) { ss << " Found no device descriptions (for"; }
+  else { ss << " Found " << descriptions.size() << " device descriptions (for"; }
+  if ( !all_devices_except ) { ss << " devices of type " << deviceType( device_type ) << ")"; }
+  else { ss << " all devices NOT of type " << deviceType( device_type ) << ")"; }
+  if ( descriptions.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
+  else { LogTrace(mlConfigDb_) << ss; }
 
 }
 
@@ -59,20 +60,21 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 							   devices_,
 							   partition_.major_,
 							   partition_.minor_ );
-    deviceFactory(__FUNCTION__)->getDcuDescriptions( partition_.name_, 
- 						     devices_ );
+//     deviceFactory(__FUNCTION__)->getDcuDescriptions( partition_.name_, 
+//  						     devices_ );
     resetDevices_ = false;
   }
   catch (...) { handleException( __FUNCTION__ ); }
 
   // Debug 
-  ostringstream os; 
-  if ( devices_.empty() ) { os << " Found no device descriptions"; }
-  else { os << " Found " << devices_.size() << " device descriptions"; }
-  if ( !usingDb_ ) { os << " in " << inputFecXml_.size() << " 'fec.xml' file(s)"; }
-  else { os << " in database partition '" << partition_.name_ << "'"; }
-  if ( devices_.empty() ) { edm::LogError(mlConfigDb_) << os; }
-  else { LogTrace(mlConfigDb_) << os; }
+  stringstream ss; 
+  ss << "[SiStripConfigDb::" << __func__ << "]";
+  if ( devices_.empty() ) { ss << " Found no device descriptions"; }
+  else { ss << " Found " << devices_.size() << " device descriptions"; }
+  if ( !usingDb_ ) { ss << " in " << inputFecXml_.size() << " 'fec.xml' file(s)"; }
+  else { ss << " in database partition '" << partition_.name_ << "'"; }
+  if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
+  else { LogTrace(mlConfigDb_) << ss; }
 
   return devices_;
 }
@@ -155,13 +157,13 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 				  0x10,  // CCU channel
 				  0x0 ); // I2C address
 
-	uint32_t dcu_id = SiStripControlKey::key( icrate->fecCrate(), 
-						  ifec->fecSlot(), 
-						  iring->fecRing(), 
-						  0x7F,  // CCU address
-						  0x10,  // CCU channel
-						  0x0 ); // I2C address
-
+	uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
+					      ifec->fecSlot(), 
+					      iring->fecRing(), 
+					      0x7F,  // CCU address
+					      0x10,  // CCU channel
+					      0x0 ); // I2C address
+	
 	// Add DCU (to "dummy" CCU) at FEC ring level
 	dcuDescription* dcu = new dcuDescription( index, // access key
 						  0,     // timestamp
@@ -170,10 +172,11 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 	dcu->setFecHardwareId( fec_hardware_id.str() );
 	static_device_descriptions.push_back( dcu );
 
-	ostringstream os;
-	os << " Added DCU to 'dummy' CCU at 'FEC ring' level, with address 0x" 
+	stringstream ss;
+	ss << "[SiStripConfigDb::" << __func__ << "]"
+	   << " Added DCU to 'dummy' CCU at 'FEC ring' level, with address 0x" 
 	   << hex << setw(8) << setfill('0') << index << dec;
-	edm::LogInfo(mlConfigDb_) << os;
+	LogTrace(mlConfigDb_) << ss;
 	
 	for ( vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
 	  
@@ -183,13 +186,13 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 				    0x10,  // CCU channel
 				    0x0 ); // I2C address
 
-	  uint32_t dcu_id = SiStripControlKey::key( icrate->fecCrate(), 
-						    ifec->fecSlot(), 
-						    iring->fecRing(), 
-						    iccu->ccuAddr(), 
-						    0x10,  // CCU channel
-						    0x0 ); // I2C address
-
+	  uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
+						ifec->fecSlot(), 
+						iring->fecRing(), 
+						iccu->ccuAddr(), 
+						0x10,  // CCU channel
+						0x0 ); // I2C address
+	  
 	  // Add DCU description at CCU level
 	  dcuDescription* dcu = new dcuDescription( index, // access key
 						    0,     // timestamp
@@ -197,10 +200,11 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 						    0,0,0,0,0,0,0,0 ); // DCU channels
 	  dcu->setFecHardwareId( fec_hardware_id.str() );
 	  static_device_descriptions.push_back( dcu );
-	  ostringstream os1;
-	  os1 << " Added DCU at 'CCU level', with address 0x" 
+	  stringstream ss1;
+	  ss1 << "[SiStripConfigDb::" << __func__ << "]"
+	      << " Added DCU at 'CCU level', with address 0x" 
 	      << hex << setw(8) << setfill('0') << index << dec;
-	  edm::LogInfo(mlConfigDb_) << os1;
+	  LogTrace(mlConfigDb_) << ss1;
   
 	  // Add two DOH description at CCU level (for CCU = 1 or 2)
 	  if ( iccu->ccuAddr() == 1 || iccu->ccuAddr() == 2 ) {
@@ -213,10 +217,11 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 	    doh->setAccessKey( index ) ;
 	    doh->setFecHardwareId( fec_hardware_id.str() );
 	    static_device_descriptions.push_back( doh ) ;
-	    ostringstream os2;
-	    os2 << " Added DOH at 'CCU level' with address 0x" 
+	    stringstream ss2;
+	    ss2 << "[SiStripConfigDb::" << __func__ << "]"
+		<< " Added DOH at 'CCU level' with address 0x" 
 		<< hex << setw(8) << setfill('0') << index << dec;
-	    edm::LogInfo(mlConfigDb_) << os2;
+	    LogTrace(mlConfigDb_) << ss2;
 	  }
 	  
 	  for ( vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
@@ -235,10 +240,11 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 	      apv->setAccessKey( index | setAddressKey(*iapv) ) ;
 	      apv->setFecHardwareId( fec_hardware_id.str() );
 	      static_device_descriptions.push_back( apv );
-	      ostringstream os3;
-	      os3 << " Added APV at 'module' level, with address 0x"
+	      stringstream ss3;
+	      ss3 << "[SiStripConfigDb::" << __func__ << "]"
+		  << " Added APV at 'module' level, with address 0x"
 		  << hex << setw(8) << setfill('0') << uint32_t( index | setAddressKey(*iapv) ) << dec;
-	      edm::LogInfo(mlConfigDb_) << os3;
+	      LogTrace(mlConfigDb_) << ss3;
 	    }
 	    
 	    // Add DCU description at module level
@@ -248,40 +254,44 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 						      0,0,0,0,0,0,0,0 ); // DCU channels
 	    dcu->setFecHardwareId( fec_hardware_id.str() );
 	    static_device_descriptions.push_back( dcu ) ;
-	    ostringstream os4;
-	    os4 << " Added DCU at 'module' level, with address 0x"
+	    stringstream ss4;
+	    ss4 << "[SiStripConfigDb::" << __func__ << "]"
+		<< " Added DCU at 'module' level, with address 0x"
 		<< hex << setw(8) << setfill('0') << index << dec;
-	    edm::LogInfo(mlConfigDb_) << os4;
+	    LogTrace(mlConfigDb_) << ss4;
 
 	    // Add MUX description at module level
 	    muxDescription* mux = new muxDescription( mux_default );
 	    mux->setAccessKey( index | 0x43 );
 	    mux->setFecHardwareId( fec_hardware_id.str() );
 	    static_device_descriptions.push_back( mux );
-	    ostringstream os5;
-	    os5 << " Added MUX at 'module' level, with address 0x"
+	    stringstream ss5;
+	    ss5 << "[SiStripConfigDb::" << __func__ << "]"
+		<< " Added MUX at 'module' level, with address 0x"
 		<< hex << setw(8) << setfill('0') << uint32_t( index | 0x43 ) << dec;
-	    edm::LogInfo(mlConfigDb_) << os5;
+	    LogTrace(mlConfigDb_) << ss5;
 
 	    // Add PLL description at module level
 	    pllDescription* pll = new pllDescription( pll_default );
 	    pll->setAccessKey( index | 0x44 );
 	    pll->setFecHardwareId( fec_hardware_id.str() );
 	    static_device_descriptions.push_back( pll );
-	    ostringstream os6;
-	    os6 << " Added PLL at 'module' level, with address 0x"
+	    stringstream ss6;
+	    ss6 << "[SiStripConfigDb::" << __func__ << "]"
+		<< " Added PLL at 'module' level, with address 0x"
 		<< hex << setw(8) << setfill('0') << uint32_t( index | 0x44 ) << dec;
-	    edm::LogInfo(mlConfigDb_) << os6;
+	    LogTrace(mlConfigDb_) << ss6;
 
 	    // Add AOH description at module level
 	    laserdriverDescription* aoh = new laserdriverDescription( aoh_default ) ;
 	    aoh->setAccessKey( index | 0x60 ) ;
 	    aoh->setFecHardwareId( fec_hardware_id.str() );
 	    static_device_descriptions.push_back( aoh ) ;
-	    ostringstream os7;
-	    os7 << " Added AOH at 'module' level, with address 0x"
+	    stringstream ss7;
+	    ss7 << "[SiStripConfigDb::" << __func__ << "]"
+		<< " Added AOH at 'module' level, with address 0x"
 		<< hex << setw(8) << setfill('0') << uint32_t( index | 0x60 ) << dec;
-	    edm::LogInfo(mlConfigDb_) << os7;
+	    LogTrace(mlConfigDb_) << ss7;
 	      
 	  }
 	}
@@ -290,7 +300,9 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
   }
 
   if ( static_device_descriptions.empty() ) {
-    edm::LogError(mlConfigDb_) << "No device descriptions created!";
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " No device descriptions created!";
   } 
   
   return static_device_descriptions;

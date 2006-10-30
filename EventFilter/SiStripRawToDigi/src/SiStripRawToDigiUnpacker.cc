@@ -280,14 +280,6 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       // Determine APV pair number (needed only when using DetId)
       uint16_t ipair = ( useFedKey_ || mode == sistrip::SCOPE_MODE ) ? 0 : conn.apvPairNumber();
 
-      //@@ WORKING HERE !!!!!!!!
-
-//       stringstream sss;
-//       sss << "[SiStripRawToDigiUnpacker::" << __func__ << "]" << endl
-// 	  << "  FedId/FedCh: " << *ifed << "/" << chan << endl
-// 	  << conn;
-//       LogTrace(mlRawToDigi_) << sss.str();
-
       if ( mode == sistrip::SCOPE_MODE ) {
 
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert( key );

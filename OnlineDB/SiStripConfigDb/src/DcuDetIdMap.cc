@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIdMap.cc,v 1.6 2006/08/31 19:49:41 bainbrid Exp $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.7 2006/10/10 14:35:45 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuDetIdMap.cc,v $
 
@@ -10,7 +10,6 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
-  edm::LogInfo(mlConfigDb_) << __func__ << " Retrieving DetId-DCU mapping...";
   
   if ( !deviceFactory(__func__) ) { return dcuDetIdMap_; }
   if ( !resetDcuDetIdMap_ ) { return dcuDetIdMap_; }
@@ -24,13 +23,14 @@ const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
   }
   
   // Debug
-  ostringstream os; 
-  if ( devices_.empty() ) { os << " Found no entries in DCU-DetId map"; }
-  else { os << " Found " << devices_.size() << " entries in DCU-DetId map"; }
-  if ( !usingDb_ ) { os << " in " << inputDcuInfoXml_.size() << " 'dcuinfo.xml' file(s)"; }
-  else { os << " in database partition '" << partition_.name_ << "'"; }
-  if ( devices_.empty() ) { edm::LogError(mlConfigDb_) << os; }
-  else { LogTrace(mlConfigDb_) << os; }
+  stringstream ss; 
+  ss << "[SiStripConfigDb::" << __func__ << "]";
+  if ( devices_.empty() ) { ss << " Found no entries in DCU-DetId map"; }
+  else { ss << " Found " << devices_.size() << " entries in DCU-DetId map"; }
+  if ( !usingDb_ ) { ss << " in " << inputDcuInfoXml_.size() << " 'dcuinfo.xml' file(s)"; }
+  else { ss << " in database partition '" << partition_.name_ << "'"; }
+  if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
+  else { LogTrace(mlConfigDb_) << ss; }
 
   return dcuDetIdMap_;
 }

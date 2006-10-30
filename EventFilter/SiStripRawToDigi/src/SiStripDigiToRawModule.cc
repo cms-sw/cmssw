@@ -18,6 +18,8 @@
 // std
 #include <cstdlib>
 
+using namespace std;
+
 // -----------------------------------------------------------------------------
 /** 
     Creates instance of DigiToRaw converter, defines EDProduct type.
@@ -27,7 +29,7 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
   digiToRaw_(0),
   eventCounter_(0)
 {
-  edm::LogInfo("DigiToRaw") << "[SiStripDigiToRawModule::SiStripDigiToRawModule] Constructing object...";
+  LogDebug("DigiToRaw") << "[SiStripDigiToRawModule::SiStripDigiToRawModule] Constructing object...";
   
   // Create instance of DigiToRaw formatter
   string mode    = pset.getUntrackedParameter<string>("FedReadoutMode","VIRGIN_RAW");
@@ -41,7 +43,7 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
 // -----------------------------------------------------------------------------
 /** */
 SiStripDigiToRawModule::~SiStripDigiToRawModule() {
-  edm::LogInfo("DigiToRaw") << "[SiStripDigiToRawModule::~SiStripDigiToRawModule] Destructing object...";
+  LogDebug("DigiToRaw") << "[SiStripDigiToRawModule::~SiStripDigiToRawModule] Destructing object...";
   if ( digiToRaw_ ) delete digiToRaw_;
 }
 
@@ -56,7 +58,7 @@ void SiStripDigiToRawModule::produce( edm::Event& iEvent,
 				      const edm::EventSetup& iSetup ) {
 
   eventCounter_++; 
-  edm::LogInfo("DigiToRaw") << "[SiStripDigiToRawModule::produce] Event number: " << eventCounter_;
+  LogDebug("DigiToRaw") << "[SiStripDigiToRawModule::produce] Event number: " << eventCounter_;
   
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get( cabling );

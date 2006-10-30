@@ -1,4 +1,4 @@
-// Last commit: $Id: PiaResetDescriptions.cc,v 1.3 2006/08/31 19:49:41 bainbrid Exp $
+// Last commit: $Id: PiaResetDescriptions.cc,v 1.4 2006/10/10 14:35:45 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/PiaResetDescriptions.cc,v $
 
@@ -22,7 +22,7 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::getPiaResetDescrip
   }
   
   if ( piaResets_.empty() ) {
-    edm::LogError(mlConfigDb_) << "No PIA reset descriptions found!";
+    edm::LogWarning(mlConfigDb_) << "No PIA reset descriptions found!";
   }
   
   return piaResets_;
@@ -85,7 +85,7 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::createPiaResetDesc
 	  ostringstream os;
 	  os << " Added PIA reset at 'CCU level', with address 0x" 
 	     << hex << setw(8) << setfill('0') << index << dec;
-	  edm::LogInfo(mlConfigDb_) << os;
+	  LogTrace(mlConfigDb_) << os;
 	  
 	}
       }
@@ -93,7 +93,7 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::createPiaResetDesc
   }
 
   if ( static_pia_resets.empty() ) {
-    edm::LogError(mlConfigDb_) << "No PIA reset descriptions created!";;
+    edm::LogWarning(mlConfigDb_) << "No PIA reset descriptions created!";;
   }
   
   return static_pia_resets;

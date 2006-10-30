@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.3 2006/08/31 19:49:41 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.4 2006/10/10 14:35:45 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
@@ -25,13 +25,14 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::getFedConnections() {
   }
   
   // Debug 
-  ostringstream os; 
-  if ( connections_.empty() ) { os << " Found no FED connections"; }
-  else { os << " Found " << connections_.size() << " FED connections"; }
-  if ( !usingDb_ ) { os << " in " << inputModuleXml_.size() << " 'module.xml' file"; }
-  else { os << " in database partition '" << partition_.name_ << "'"; }
-  if ( connections_.empty() ) { edm::LogError(mlConfigDb_) << os; }
-  else { LogTrace(mlConfigDb_) << os; }
+  stringstream ss; 
+  ss << "[SiStripConfigDb::" << __func__ << "]";
+  if ( connections_.empty() ) { ss << " Found no FED connections"; }
+  else { ss << " Found " << connections_.size() << " FED connections"; }
+  if ( !usingDb_ ) { ss << " in " << inputModuleXml_ << " 'module.xml' file"; }
+  else { ss << " in database partition '" << partition_.name_ << "'"; }
+  if ( connections_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
+  else { LogTrace(mlConfigDb_) << ss; }
   
   return connections_;
 }
@@ -105,7 +106,9 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::createFedConnections( co
   }
   
   if ( static_fed_connections.empty() ) {
-    edm::LogError(mlConfigDb_) << "No FED connections created!";
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " No FED connections created!";
   }
   
   return static_fed_connections;

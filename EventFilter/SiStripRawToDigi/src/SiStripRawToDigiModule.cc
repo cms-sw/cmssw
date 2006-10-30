@@ -10,6 +10,7 @@
 // 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
@@ -22,15 +23,17 @@
 #include <cstdlib>
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
 SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) :
   rawToDigi_(0),
-  createDigis_( true ) //@@ force this for the time being...
-  //createDigis_( pset.getUntrackedParameter<bool>("CreateDigis",true) )
+  createDigis_( pset.getUntrackedParameter<bool>("CreateDigis",true) )
 {
-  edm::LogVerbatim("RawToDigi") << "[" __func__ "] Constructing object...";
+  LogTrace(mlRawToDigi_)
+    << "[SiStripRawToDigiModule::" << __func__ << "]"
+    << " Constructing object...";
   
   int16_t appended_bytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
   int16_t dump_frequency = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
@@ -48,13 +51,17 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   produces< edm::DetSetVector<SiStripDigi> >("ZeroSuppressed");
   produces< SiStripDigiCollection >("SiStripDigiCollection");
   
+  createDigis_ = true; //@@ force this for the time being...  
+
 }
 
 // -----------------------------------------------------------------------------
 /** */
 SiStripRawToDigiModule::~SiStripRawToDigiModule() {
-  edm::LogInfo("RawToDigi") << "[" << __func__ << "] Destructing object...";
   if ( rawToDigi_ ) delete rawToDigi_;
+  LogTrace(mlRawToDigi_)
+    << "[SiStripRawToDigiModule::" << __func__ << "]"
+    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -64,20 +71,25 @@ SiStripRawToDigiModule::~SiStripRawToDigiModule() {
     SiStripDigiCollection (EDProduct), uses RawToDigi converter to fill the
     DetSetVector, attaches StripDigiCollection to Event.
 */
-void SiStripRawToDigiModule::produce( edm::Event& iEvent, 
-				      const edm::EventSetup& iSetup ) {
+void SiStripRawToDigiModule::produce( edm::Event& event, 
+				      const edm::EventSetup& setup ) {
+  LogTrace(mlRawToDigi_) 
+    << "[SiStripRawToDigiModule::" << __func__ << "]"
+    << " Analyzing run/event "
+    << event.id().run() << "/"
+    << event.id().event();
   
   // Retrieve FED cabling
   edm::ESHandle<SiStripFedCabling> cabling;
-  iSetup.get<SiStripFedCablingRcd>().get( cabling );
+  setup.get<SiStripFedCablingRcd>().get( cabling );
 
   // Retrieve FED raw data ("source" label is now fixed by fwk)
   edm::Handle<FEDRawDataCollection> buffers;
-  iEvent.getByType( buffers ); 
+  event.getByType( buffers ); 
   
   // Populate SiStripEventSummary object with "trigger FED" info
   auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
-  rawToDigi_->triggerFed( buffers, summary ); 
+  rawToDigi_->triggerFed( *buffers, *summary ); 
   
   // Create auto pointers for digi products
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm( new edm::DetSetVector<SiStripRawDigi> );
@@ -87,15 +99,15 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   auto_ptr<SiStripDigiCollection> digis( new SiStripDigiCollection() );
 
   // Create "real" or "pseudo" digis
-  if ( !createDigis_ ) { rawToDigi_->createDigis( cabling, buffers, digis ); }
-  else { rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs ); }
+  if ( !createDigis_ ) { rawToDigi_->createDigis( *cabling, buffers, *summary, digis ); }
+  else { rawToDigi_->createDigis( *cabling, *buffers, *summary, *sm, *vr, *pr, *zs ); }
   
-  iEvent.put( summary );
-  iEvent.put( sm, "ScopeMode" );
-  iEvent.put( vr, "VirginRaw" );
-  iEvent.put( pr, "ProcessedRaw" );
-  iEvent.put( zs, "ZeroSuppressed" );
-  iEvent.put( digis, "SiStripDigiCollection" );
+  event.put( summary );
+  event.put( sm, "ScopeMode" );
+  event.put( vr, "VirginRaw" );
+  event.put( pr, "ProcessedRaw" );
+  event.put( zs, "ZeroSuppressed" );
+  event.put( digis, "SiStripDigiCollection" );
   
 }
 

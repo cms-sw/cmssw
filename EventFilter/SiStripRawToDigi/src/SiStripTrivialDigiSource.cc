@@ -37,7 +37,7 @@ SiStripTrivialDigiSource::SiStripTrivialDigiSource( const edm::ParameterSet& pse
   rmsOcc_( pset.getUntrackedParameter<double>("RmsOccupancy",0.1) ),
   anal_()
 {
-  edm::LogInfo("TrivialDigiSource") << "[SiStripTrivialDigiSource::SiStripTrivialDigiSource] Constructing object...";
+  LogDebug("TrivialDigiSource") << "[SiStripTrivialDigiSource::SiStripTrivialDigiSource] Constructing object...";
   
   //srand( time( NULL ) ); // seed for random number generator
   produces< edm::DetSetVector<SiStripDigi> >();
@@ -46,7 +46,7 @@ SiStripTrivialDigiSource::SiStripTrivialDigiSource( const edm::ParameterSet& pse
 // -----------------------------------------------------------------------------
 /** */
 SiStripTrivialDigiSource::~SiStripTrivialDigiSource() {
-  edm::LogInfo("TrivialDigiSource") << "[SiStripTrivialDigiSource::~SiStripTrivialDigiSource] Destructing object...";
+  LogDebug("TrivialDigiSource") << "[SiStripTrivialDigiSource::~SiStripTrivialDigiSource] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& iEvent,
 					const edm::EventSetup& iSetup ) {
   
   eventCounter_++; 
-  edm::LogInfo("TrivialDigiSource") << "[SiStripTrivialDigiSource::produce] Event: " << eventCounter_;
+  LogDebug("TrivialDigiSource") << "[SiStripTrivialDigiSource::produce] Event: " << eventCounter_;
   //anal_.addEvent();
   
   edm::ESHandle<SiStripFedCabling> cabling;
@@ -72,9 +72,9 @@ void SiStripTrivialDigiSource::produce( edm::Event& iEvent,
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
       const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
       if ( !conn.detId() ) { // Check DetID is non-zero
-	edm::LogError("TrivialDigiSource") << "[SiStripTrivialDigiSource::produce]"
-					   << " Zero DetId returned for FED id " << *ifed
-					   << " and channel " << ichan;
+	edm::LogWarning("TrivialDigiSource") << "[SiStripTrivialDigiSource::produce]"
+					     << " Zero DetId returned for FED id " << *ifed
+					     << " and channel " << ichan;
 	continue; 
       }
       //anal_.addChan(); nchans++;

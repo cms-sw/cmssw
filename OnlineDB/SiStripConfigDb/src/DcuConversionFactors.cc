@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuConversionFactors.cc,v 1.4 2006/08/31 19:49:41 bainbrid Exp $
+// Last commit: $Id: DcuConversionFactors.cc,v 1.5 2006/10/10 14:35:45 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuConversionFactors.cc,v $
 
@@ -11,33 +11,27 @@ using namespace sistrip;
 // 
 const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::getDcuConversionFactors() {
 
-  if ( !deviceFactory(__FUNCTION__) ) { return dcuConversionFactors_; }
+  if ( !deviceFactory(__func__) ) { return dcuConversionFactors_; }
   if ( !resetDcuConvs_ ) { return dcuConversionFactors_; }
   
   
   try {
-    dcuConversionFactors_ = deviceFactory(__FUNCTION__)->getConversionFactors();
+    dcuConversionFactors_ = deviceFactory(__func__)->getConversionFactors();
     resetDcuConvs_ = false;
   }
   catch (...) { 
-    handleException( __FUNCTION__, "Problems retrieving DCU conversion factors!" ); 
+    handleException( __func__, "Problems retrieving DCU conversion factors!" ); 
   }
-  
+
+  // Debug
   stringstream ss; 
-  if ( dcuConversionFactors_.empty() ) {
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " No DCU conversion factors found";
-    if ( !usingDb_ ) { ss << " in input 'dcuconv.xml' file " << inputDcuConvXml_; }
-    else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogError(mlConfigDb_) << ss.str();
-    throw cms::Exception(mlConfigDb_) << ss.str();
-  } else {
-    ss << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Found " << dcuConversionFactors_.size() << " DCU conversion factors";
-    if ( !usingDb_ ) { ss << " in input 'dcuconv.xml' file " << inputDcuConvXml_; }
-    else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogInfo(mlConfigDb_) << ss.str();
-  }
+  ss << "[SiStripConfigDb::" << __func__ << "]";
+  if ( dcuConversionFactors_.empty() ) { ss << " Found no DCU conversion factors"; }
+  else { ss << " Found " << dcuConversionFactors_.size() << " DCU conversion factors"; }
+  if ( !usingDb_ ) { ss << " in " << inputDcuConvXml_ << " 'module.xml' file"; }
+  else { ss << " in database partition '" << partition_.name_ << "'"; }
+  if ( dcuConversionFactors_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
+  else { LogTrace(mlConfigDb_) << ss; }
   
   return dcuConversionFactors_;
 }
@@ -115,12 +109,12 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 				  0x10,  // CCU channel
 				  0x0 ); // I2C address
 
-	uint32_t dcu_id = SiStripControlKey::key( icrate->fecCrate(), 
-						  ifec->fecSlot(), 
-						  iring->fecRing(), 
-						  0x7F,  // CCU address
-						  0x10,  // CCU channel
-						  0x0 ); // I2C address
+	uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
+					      ifec->fecSlot(), 
+					      iring->fecRing(), 
+					      0x7F,  // CCU address
+					      0x10,  // CCU channel
+					      0x0 ); // I2C address
       
 	// Add DCU conversion factors (for DCU of dummy CCU) at FEC ring level
 	TkDcuConversionFactors* dcu_conv = new TkDcuConversionFactors( dcu_conv_default );
@@ -130,15 +124,16 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	  static_dcu_conversions[dcu_id] = dcu_conv;
 	} else {
 	  stringstream ss;
-	  ss << "[" << __PRETTY_FUNCTION__ << "]" << " DCU id " << dcu_id
+	  ss << "[SiStripConfig::" << __func__ << "]" 
+	     << " DCU id " << dcu_id
 	     << " already exists within map of DCU conversion factors!";
-	  edm::LogError(mlConfigDb_) << ss.str() << "\n";
-	  //throw cms::Exception(mlConfigDb_) << ss.str();
+	  edm::LogWarning(mlConfigDb_) << ss.str();
 	}
-	edm::LogInfo(mlConfigDb_)
-	  << "[SiStripConfigDb::createPartition]" 
-	  << " Added conversion factors for DCU with address 0x"
-	  << hex << setw(8) << setfill('0') << index << dec;
+	stringstream ss;
+	ss << "[SiStripConfig::" << __func__ << "]" 
+	   << " Added conversion factors for DCU with address 0x"
+	   << hex << setw(8) << setfill('0') << index << dec;
+	LogTrace(mlConfigDb_) << ss.str();
       
 	for ( vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
 
@@ -148,12 +143,12 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 				    0x10,  // CCU channel
 				    0x0 ); // I2C address
 
-	  uint32_t dcu_id = SiStripControlKey::key( icrate->fecCrate(), 
-						    ifec->fecSlot(), 
-						    iring->fecRing(), 
-						    iccu->ccuAddr(), 
-						    0x10,  // CCU channel
-						    0x0 ); // I2C address
+	  uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
+						ifec->fecSlot(), 
+						iring->fecRing(), 
+						iccu->ccuAddr(), 
+						0x10,  // CCU channel
+						0x0 ); // I2C address
 
 	  // Add DCU conversion factors at CCU level
 	  TkDcuConversionFactors* dcu_conv = new TkDcuConversionFactors( dcu_conv_default );
@@ -163,15 +158,16 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	    static_dcu_conversions[dcu_id] = dcu_conv;
 	  } else {
 	    stringstream ss;
-	    ss << "[" << __PRETTY_FUNCTION__ << "]" << " DCU id " << dcu_id
+	    ss << "[SiStripConfig::" << __func__ << "]" 
+	       << " DCU id " << dcu_id
 	       << " already exists within map of DCU conversion factors!";
-	    edm::LogError(mlConfigDb_) << ss.str() << "\n";
-	    //throw cms::Exception(mlConfigDb_) << ss.str();
+	    edm::LogWarning(mlConfigDb_) << ss.str();
 	  }
-	  edm::LogInfo(mlConfigDb_)
-	    << "[SiStripConfigDb::createPartition]" 
-	    << " Added conversion factors for DCU at address 0x"
-	    << hex << setw(8) << setfill('0') << index << dec;
+	  stringstream ss;
+	  ss << "[SiStripConfig::" << __func__ << "]" 
+	     << " Added conversion factors for DCU at address 0x"
+	     << hex << setw(8) << setfill('0') << index << dec;
+	  LogTrace(mlConfigDb_) << ss.str();
 	  
 	  for ( vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
 	    
@@ -181,12 +177,12 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 				      imod->ccuChan(), 
 				      0x0 ); // I2C address
 
-	    uint32_t dcu_id = SiStripControlKey::key( icrate->fecCrate(), 
-						      ifec->fecSlot(), 
-						      iring->fecRing(), 
-						      iccu->ccuAddr(), 
-						      imod->ccuChan(),
-						      0x0 );
+	    uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
+						  ifec->fecSlot(), 
+						  iring->fecRing(), 
+						  iccu->ccuAddr(), 
+						  imod->ccuChan(),
+						  0x0 );
 	    
 	    // Add DCU conversion factors
 	    TkDcuConversionFactors* dcu_conv = new TkDcuConversionFactors( dcu_conv_default );
@@ -196,15 +192,16 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	      static_dcu_conversions[dcu_id] = dcu_conv;
 	    } else {
 	      stringstream ss;
-	      ss << "[" << __PRETTY_FUNCTION__ << "]" << " DCU id " << dcu_id
+	      ss << "[SiStripConfig::" << __func__ << "]" 
+		 << " DCU id " << dcu_id
 		 << " already exists within map of DCU conversion factors!";
-	      edm::LogError(mlConfigDb_) << ss.str() << "\n";
-	      //throw cms::Exception(mlConfigDb_) << ss.str();
+	      edm::LogWarning(mlConfigDb_) << ss.str();
 	    }
-	    edm::LogInfo(mlConfigDb_)
-	      << "[SiStripConfigDb::createPartition]" 
-	      << " Added conversion factors for DCU with address 0x"
-	      << hex << setw(8) << setfill('0') << index << dec;
+	    stringstream ss;
+	    ss << "[SiStripConfig::" << __func__ << "]" 
+	       << " Added conversion factors for DCU at address 0x"
+	       << hex << setw(8) << setfill('0') << index << dec;
+	    LogTrace(mlConfigDb_) << ss.str();
 	    
 	  }
 	}
@@ -214,11 +211,11 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 
   if ( static_dcu_conversions.empty() ) {
     stringstream ss;
-    ss << "[" << __PRETTY_FUNCTION__ << "] No DCU conversion factors created!";
-    edm::LogError(mlConfigDb_) << ss.str() << "\n";
-    //throw cms::Exception(mlConfigDb_) << ss.str() << "\n";
+    ss << "[SiStripConfig::" << __func__ << "]"
+       << " No DCU conversion factors created!";
+    edm::LogWarning(mlConfigDb_) << ss.str();
   }
-
+  
   return static_dcu_conversions;
   
 }

@@ -12,6 +12,8 @@
 #include <sstream>
 #include <vector>
 
+using namespace std;
+
 // -----------------------------------------------------------------------------
 /** */
 SiStripDigiToRaw::SiStripDigiToRaw( string mode, int16_t nbytes ) : 
@@ -19,13 +21,13 @@ SiStripDigiToRaw::SiStripDigiToRaw( string mode, int16_t nbytes ) :
   nAppendedBytes_(nbytes)
   //anal_("SiStripDigiToRaw")
 {
-  edm::LogInfo("DigiToRaw") << "[SiStripDigiToRaw::SiStripDigiToRaw] Constructing object...";
+  LogDebug("DigiToRaw") << "[SiStripDigiToRaw::SiStripDigiToRaw] Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 SiStripDigiToRaw::~SiStripDigiToRaw() {
-  edm::LogInfo("DigiToRaw") << "[SiStripDigiToRaw::~SiStripDigiToRaw] Destructing object...";
+  LogDebug("DigiToRaw") << "[SiStripDigiToRaw::~SiStripDigiToRaw] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -64,7 +66,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 
 	vector< edm::DetSet<SiStripDigi> >::const_iterator digis = collection->find( conn.detId() );
 	if ( digis->data.empty() ) { 
-	  edm::LogError("DigiToRaw") << "[SiStripDigiToRaw::createFedBuffers] Zero digis found!"; 
+	  edm::LogWarning("DigiToRaw") << "[SiStripDigiToRaw::createFedBuffers] Zero digis found!"; 
 	}
 	edm::DetSet<SiStripDigi>::const_iterator idigi;
 	for ( idigi = digis->data.begin(); idigi != digis->data.end(); idigi++ ) {
@@ -75,7 +77,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 	    stringstream ss;
 	    ss << "[SiStripDigiToRaw::createFedBuffers]"
 	       << " strip >= strips_per_fed";
-	    edm::LogError("DigiToRaw") << ss.str();
+	    edm::LogWarning("DigiToRaw") << ss.str();
 	  }
 	  LogDebug("DigiToRaw") << "[SiStripDigiToRaw::createFedBuffers]"
 				<< " Retrieved digi!"
@@ -93,7 +95,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 	       << "  FedStrip: " << strip
 	       << "  AdcValue: " << (*idigi).adc()
 	       << "  RawData[" << strip << "]: " << raw_data[strip];
-	    edm::LogError("DigiToRaw") << ss.str();
+	    edm::LogWarning("DigiToRaw") << ss.str();
 	  }
 	  // Add digi to buffer
 	  raw_data[strip] = (*idigi).adc();
@@ -121,7 +123,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
       } else if ( readoutMode_ == "ZERO_SUPPRESSED" ) {
 	creator = new Fed9U::Fed9UBufferCreatorZS();
       } else {
-	edm::LogError("DigiToRaw") << "UNKNOWN readout mode";
+	edm::LogWarning("DigiToRaw") << "UNKNOWN readout mode";
       }
       
       // generate FED buffer and pass to Daq
@@ -142,8 +144,8 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
     
   }
   catch ( string err ) {
-    edm::LogError("DigiToRaw") << "SiStripDigiToRaw::createFedBuffers] " 
-			       << "Exception caught : " << err;
+    edm::LogWarning("DigiToRaw") << "SiStripDigiToRaw::createFedBuffers] " 
+				 << "Exception caught : " << err;
   }
   
 }

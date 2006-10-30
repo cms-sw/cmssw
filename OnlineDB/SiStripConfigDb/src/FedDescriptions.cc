@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.4 2006/09/14 07:54:10 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.5 2006/10/10 14:35:45 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
@@ -27,13 +27,14 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
   }
   
   // Debug 
-  ostringstream os; 
-  if ( feds_.empty() ) { os << " Found no FED descriptions"; }
-  else { os << " Found " << feds_.size() << " FED descriptions"; }
-  if ( !usingDb_ ) { os << " in " << inputFecXml_.size() << " 'fed.xml' file(s)"; }
-  else { os << " in database partition '" << partition_.name_ << "'"; }
-  if ( feds_.empty() ) { edm::LogError(mlConfigDb_) << os; }
-  else { LogTrace(mlConfigDb_) << os; }
+  stringstream ss; 
+  ss << "[SiStripConfigDb::" << __func__ << "]";
+  if ( feds_.empty() ) { ss << " Found no FED descriptions"; }
+  else { ss << " Found " << feds_.size() << " FED descriptions"; }
+  if ( !usingDb_ ) { ss << " in " << inputFedXml_.size() << " 'fed.xml' file(s)"; }
+  else { ss << " in database partition '" << partition_.name_ << "'"; }
+  if ( feds_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
+  else { LogTrace(mlConfigDb_) << ss; }
   
   return feds_;
 }
@@ -112,7 +113,9 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::createFedDescriptions( 
   } 
   
   if ( static_fed_descriptions.empty() ) {
-    edm::LogError(mlConfigDb_) << "No FED connections created!";
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " No FED connections created!";
   }
   
   return static_fed_descriptions;
@@ -132,7 +135,9 @@ const vector<uint16_t>& SiStripConfigDb::getFedIds() {
     fed_ids.push_back( (*ifed)->getFedId() );
   }
   if ( fed_ids.empty() ) {
-    edm::LogError(mlConfigDb_) << "No FED ids found!"; 
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " No FED ids found!"; 
   }
   return fed_ids;
 }
