@@ -16,23 +16,23 @@ public:
   
   SiTrackerGSRecHit2D( const LocalPoint&, const LocalError&,
 		       const DetId&,
-		       const int&,
-		       const unsigned int&,
-		       const unsigned int& pixelMultiplicityX,
-		       const unsigned int& pixelMultiplicityY );  
+		       const int simhitId,
+		       const int simtrackId,
+		       const int pixelMultiplicityX,
+		       const int pixelMultiplicityY );  
   
   virtual SiTrackerGSRecHit2D * clone() const {return new SiTrackerGSRecHit2D( * this); }
   
-  const int&           simhitId()    const { return simhitId_;}
-  const unsigned int&  simtrackId()  const { return simtrackId_;}
-  const unsigned int&  simMultX()    const { return pixelMultiplicityAlpha_;}
-  const unsigned int&  simMultY()    const { return pixelMultiplicityBeta_;}
+  const int& simhitId()    const { return simhitId_;}
+  const int& simtrackId()  const { return simtrackId_;}
+  const int& simMultX()    const { return pixelMultiplicityAlpha_;}
+  const int& simMultY()    const { return pixelMultiplicityBeta_;}
   
 private:
-  int          const simhitId_;
-  unsigned int const simtrackId_;
-  unsigned int const pixelMultiplicityAlpha_;
-  unsigned int const pixelMultiplicityBeta_;
+  int const simhitId_;
+  int const simtrackId_;
+  int const pixelMultiplicityAlpha_;
+  int const pixelMultiplicityBeta_;
   
 };
 
