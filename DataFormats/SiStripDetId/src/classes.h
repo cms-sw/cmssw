@@ -3,6 +3,3 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/SiStripFecKey.h"
-#include "DataFormats/SiStripDetId/interface/SiStripFedKey.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetKey.h"
