@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,11 +14,11 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 FedCablingTask::FedCablingTask( DaqMonitorBEInterface* dqm,
-			    const FedChannelConnection& conn ) :
+				const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "FedCablingTask" ),
   cabling_()
 {
-  LogDebug(mlCommSource_)
+  LogTrace(mlDqmSource_)
     << "[FedCablingTask::" << __func__ << "]"
     << " Constructing object...";
 }
@@ -26,7 +26,7 @@ FedCablingTask::FedCablingTask( DaqMonitorBEInterface* dqm,
 // -----------------------------------------------------------------------------
 //
 FedCablingTask::~FedCablingTask() {
-  LogDebug(mlCommSource_)
+  LogTrace(mlDqmSource_)
     << "[FedCablingTask::" << __func__ << "]"
     << " Destructing object...";
 }
@@ -46,18 +46,17 @@ void FedCablingTask::book() {
     if ( iter == 0 )      { nbins = 1024; extra_info = sistrip::fedId_; }
     else if ( iter == 1 ) { nbins = 96;   extra_info = sistrip::fedChannel_; }
     else {
-      edm::LogWarning(mlCommSource_)
+      edm::LogWarning(mlDqmSource_)
 	<< "[FedCablingTask::" << __func__ << "]"
 	<< " Unexpected number of HistoSets: " << iter;
     }
     
-    title = SiStripHistoNamingScheme::histoTitle( sistrip::FED_CABLING,
-						  sistrip::COMBINED, 
-						  sistrip::FED_KEY, 
-						  fedKey(),
-						  sistrip::LLD_CHAN, 
-						  connection().lldChannel(),
-						  extra_info );
+    title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::FED_CABLING,
+							      sistrip::FED_KEY, 
+							      fecKey(),
+							      sistrip::LLD_CHAN, 
+							      connection().lldChannel(),
+							      extra_info ) );
 
     cabling_[iter].histo_ = dqm()->bookProfile( title, title, 
 						nbins, -0.5, nbins*1.-0.5,
@@ -77,9 +76,10 @@ void FedCablingTask::book() {
 void FedCablingTask::fill( const SiStripEventSummary& summary,
 			   const uint16_t& fed_id,
 			   const map<uint16_t,float>& fed_ch ) {
-  
+  LogTrace(mlDqmSource_) << "[FedCablingTask::" << __func__ << "]";
+
   if ( fed_ch.empty() ) { 
-    edm::LogWarning(mlCommSource_) 
+    edm::LogWarning(mlDqmSource_)  
       << "[FedCablingTask::" << __func__ << "]"
       << " No FED channels with high signal!";
     return; 
@@ -90,23 +90,22 @@ void FedCablingTask::fill( const SiStripEventSummary& summary,
   for ( ; ichan != fed_ch.end(); ichan++ ) {
     updateHistoSet( cabling_[0], fed_id, ichan->second );
     updateHistoSet( cabling_[1], ichan->first, ichan->second );
-    LogDebug(mlCommSource_) 
+    LogTrace(mlDqmSource_)
       << "[FedCablingTask::" << __func__ << "]"
-      << " Found possible connection between device "
+      << " Found possible connection between device 0x"
       << setfill('0') << setw(8) << hex << summary.deviceId() << dec
-      << " with control path " 
+      << " with Crate/FEC/Ring/CCU/Module/LLDchannel: " 
       << connection().fecCrate() << "/"
       << connection().fecSlot() << "/"
       << connection().fecRing() << "/"
       << connection().ccuAddr() << "/"
       << connection().ccuChan() << "/"
       << connection().lldChannel()
-      << " and FED id/channel "
+      << " and FedId/Ch: "
       << fed_id << "/" << ichan->first
       << " with signal " << ichan->second 
       << " [adc] over background " << "XXX +/- YYY [adc]" 
-      << "(S/N = " << "ZZZ" << ")";
-
+      << " (S/N = " << "ZZZ" << ")";
   } 
   
 }
@@ -114,6 +113,7 @@ void FedCablingTask::fill( const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void FedCablingTask::update() {
+  LogTrace(mlDqmSource_) << "[FedCablingTask::" << __func__ << "]";
   for ( uint32_t iter = 0; iter < cabling_.size(); iter++ ) {
     updateHistoSet( cabling_[iter] );
   }

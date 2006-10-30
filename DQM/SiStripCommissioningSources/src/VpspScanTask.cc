@@ -1,9 +1,13 @@
 #include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+
+using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
@@ -12,19 +16,23 @@ VpspScanTask::VpspScanTask( DaqMonitorBEInterface* dqm,
   CommissioningTask( dqm, conn, "VpspScanTask" ),
   vpsp_()
 {
-  edm::LogInfo("Commissioning") << "[VpspScanTask::VpspScanTask] Constructing object...";
+  LogTrace(mlDqmSource_) 
+    << "[VpspScanTask::" << __func__ << "]"
+    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 VpspScanTask::~VpspScanTask() {
-  edm::LogInfo("Commissioning") << "[VpspScanTask::VpspScanTask] Constructing object...";
+  LogTrace(mlDqmSource_)
+    << "[VpspScanTask::" << __func__ << "]"
+    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 void VpspScanTask::book() {
-  edm::LogInfo("Commissioning") << "[VpspScanTask::book]";
+  LogTrace(mlDqmSource_) << "[VpspScanTask::" << __func__ << "]";
   
   uint16_t nbins = 60;
  
@@ -37,13 +45,12 @@ void VpspScanTask::book() {
       stringstream extra_info; 
       extra_info << sistrip::apv_ << iapv;
       
-      title = SiStripHistoNamingScheme::histoTitle( sistrip::VPSP_SCAN, 
-						    sistrip::COMBINED, 
-						    sistrip::FED_KEY, 
-						    fedKey(),
-						    sistrip::LLD_CHAN, 
-						    connection().lldChannel(),
-						    extra_info.str() );
+      title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::VPSP_SCAN, 
+								sistrip::FED_KEY, 
+								fedKey(),
+								sistrip::LLD_CHAN, 
+								connection().lldChannel(),
+								extra_info.str() ) );
       
       vpsp_[iapv].histo_ = dqm()->bookProfile( title, title, 
 					       nbins, -0.5, nbins*1.-0.5,
@@ -62,25 +69,28 @@ void VpspScanTask::book() {
 //
 void VpspScanTask::fill( const SiStripEventSummary& summary,
 			 const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogDebug("Commissioning") << "[VpspScanTask::fill]";
+  LogTrace(mlDqmSource_) << "[VpspScanTask::" << __func__ << "]";
 
   // Retrieve VPSP setting from SiStripEventSummary
   uint32_t vpsp = const_cast<SiStripEventSummary&>(summary).vpsp();
-  LogDebug("Commissioning") << "[VpspScanTask::fill]" 
-			    << "  VPSP: " << vpsp;
+  LogTrace(mlDqmSource_)
+    << "[VpspScanTask::" << __func__ << "]"
+    << " VPSP: " << vpsp;
   
   if ( digis.data.size() != 256 ) {
-    edm::LogError("Commissioning") << "[VpspScanTask::fill]" 
-				   << " Unexpected number of digis! " 
-				   << digis.data.size(); 
+    edm::LogWarning(mlDqmSource_)
+      << "[VpspScanTask::" << __func__ << "]"
+      << " Unexpected number of digis! " 
+      << digis.data.size(); 
     return;
   } else {
 
     for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
       
       if ( vpsp >= vpsp_[iapv].vNumOfEntries_.size() ) { 
-	edm::LogError("Commissioning") << "[VpspScanTask::fill]" 
-				       << "  Unexpected VPSP value! " << vpsp;
+	edm::LogWarning(mlDqmSource_)
+	  << "[VpspScanTask::" << __func__ << "]"
+	  << " Unexpected VPSP value! " << vpsp;
 	return;
       }
 
@@ -107,7 +117,7 @@ void VpspScanTask::fill( const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void VpspScanTask::update() {
-  LogDebug("Commissioning") << "[VpspScanTask::update]";
+  LogTrace(mlDqmSource_) << "[VpspScanTask::" << __func__ << "]";
   for ( uint32_t iapv = 0; iapv < vpsp_.size(); iapv++ ) {
     updateHistoSet( vpsp_[iapv] );
   }

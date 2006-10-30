@@ -1,9 +1,13 @@
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+
+using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
@@ -13,19 +17,23 @@ PedestalsTask::PedestalsTask( DaqMonitorBEInterface* dqm,
   peds_(),
   cm_()
 {
-  edm::LogInfo("Commissioning") << "[PedestalsTask::PedestalsTask] Constructing object...";
+  LogTrace(mlDqmSource_)
+    << "[PedestalsTask::" << __func__ << "]"
+    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 PedestalsTask::~PedestalsTask() {
-  edm::LogInfo("Commissioning") << "[PedestalsTask::PedestalsTask] Destructing object...";
+  LogTrace(mlDqmSource_)
+    << "[PedestalsTask::" << __func__ << "]"
+    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 void PedestalsTask::book() {
-  edm::LogInfo("Commissioning") << "[PedestalsTask::book]";
+  LogTrace(mlDqmSource_) << "[PedestalsTask::" << __func__ << "]";
   
   uint16_t nbins;
   string title;
@@ -40,13 +48,12 @@ void PedestalsTask::book() {
     else if ( ihisto == 1 ) { extra_info = sistrip::residualsAndNoise_; } // "ResidualsAndNoise"; }
     else { /**/ }
     
-    title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
-						  sistrip::COMBINED, 
-						  sistrip::FED_KEY, 
-						  fedKey(),
-						  sistrip::LLD_CHAN, 
-						  connection().lldChannel(),
-						  extra_info );
+    title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::PEDESTALS, 
+							      sistrip::FED_KEY, 
+							      fedKey(),
+							      sistrip::LLD_CHAN, 
+							      connection().lldChannel(),
+							      extra_info ) );
     
     peds_[ihisto].histo_ = dqm()->bookProfile( title, title, 
 					       nbins, -0.5, nbins*1.-0.5,
@@ -63,13 +70,12 @@ void PedestalsTask::book() {
   nbins = 1024;
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) { 
 
-    title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
-						  sistrip::COMBINED, 
-						  sistrip::FED_KEY, 
-						  fedKey(),
-						  sistrip::APV, 
-						  connection().i2cAddr(iapv),
-						  sistrip::commonMode_ );
+    title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::PEDESTALS, 
+							      sistrip::FED_KEY, 
+							      fedKey(),
+							      sistrip::APV, 
+							      connection().i2cAddr(iapv),
+							      sistrip::commonMode_ ) );
 
     cm_[iapv].histo_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
     cm_[iapv].isProfile_ = false;
@@ -85,14 +91,15 @@ void PedestalsTask::book() {
 //
 void PedestalsTask::fill( const SiStripEventSummary& summary,
 			  const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogDebug("Commissioning") << "[PedestalsTask::fill]";
-
+  LogTrace(mlDqmSource_) << "[PedestalsTask::" << __func__ << "]";
+  
   if ( digis.data.size() != peds_[0].vNumOfEntries_.size() ) {
-    edm::LogError("Commissioning") << "[PedestalsTask::fill]" 
-				   << " Unexpected number of digis! " 
-				   << digis.data.size(); 
+    edm::LogWarning(mlDqmSource_)
+      << "[PedestalsTask::" << __func__ << "]"
+      << " Unexpected number of digis! " 
+      << digis.data.size(); 
   }
-
+  
   // Check number of digis
   uint16_t nbins = peds_[0].vNumOfEntries_.size();
   if ( digis.data.size() < nbins ) { nbins = digis.data.size(); }
@@ -138,8 +145,9 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
   }
   
   if ( cm.size() < cm_.size() ) {
-    edm::LogError("Commissioning") << "[PedestalsTask::fill]"
-				   << " Fewer CM values than expected!";
+    edm::LogWarning(mlDqmSource_)
+      << "[PedestalsTask::" << __func__ << "]"
+      << " Fewer CM values than expected!";
   }
   
   updateHistoSet( cm_[0], cm[0], 1 ); // (value is ignored)
@@ -150,9 +158,10 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void PedestalsTask::update() {
-  LogDebug("Commissioning") << "[PedestalsTask::update]"
-			    << " Updating pedestal histograms for FEC key "
-			    << hex << setw(8) << setfill('0') << fecKey();
+  LogTrace(mlDqmSource_)
+    << "[PedestalsTask::" << __func__ << "]"
+    << " Updating pedestal histograms for FEC key "
+    << hex << setw(8) << setfill('0') << fecKey();
   
   // Pedestals and noise
   updateHistoSet( peds_[0] );

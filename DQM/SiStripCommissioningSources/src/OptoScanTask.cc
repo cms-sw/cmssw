@@ -1,9 +1,13 @@
 #include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+
+using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
@@ -12,20 +16,24 @@ OptoScanTask::OptoScanTask( DaqMonitorBEInterface* dqm,
   CommissioningTask( dqm, conn, "OptoScanTask" ),
   opto_()
 {
-  edm::LogInfo("Commissioning") << "[OptoScanTask::OptoScanTask] Constructing object...";
+  LogTrace(mlDqmSource_) 
+    << "[OptoScanTask::" << __func__ << "]"
+    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 OptoScanTask::~OptoScanTask() {
-  edm::LogInfo("Commissioning") << "[OptoScanTask::~OptoScanTask] Destructing object...";
+  LogTrace(mlDqmSource_)
+    << "[OptoScanTask::" << __func__ << "]"
+    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 void OptoScanTask::book() {
-  edm::LogInfo("Commissioning") << "[OptoScanTask::book]";
-  
+  LogTrace(mlDqmSource_) << "[OptoScanTask::" << __func__ << "]";
+
   uint16_t nbins = 51; //@@ correct?
   uint16_t gains = 4;
 
@@ -44,13 +52,12 @@ void OptoScanTask::book() {
       extra_info << sistrip::gain_ << igain 
 		 << sistrip::digital_ << ilevel;
       
-      title = SiStripHistoNamingScheme::histoTitle( sistrip::OPTO_SCAN, 
-						    sistrip::COMBINED, 
-						    sistrip::FED_KEY, 
-						    fedKey(),
-						    sistrip::LLD_CHAN, 
-						    connection().lldChannel(),
-						    extra_info.str() );
+      title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::OPTO_SCAN, 
+								sistrip::FED_KEY, 
+								fedKey(),
+								sistrip::LLD_CHAN, 
+								connection().lldChannel(),
+								extra_info.str() ) );
 
       opto_[igain][ilevel].histo_  = dqm()->bookProfile( title, title, 
 							 nbins, -0.5, nbins*1.-0.5,
@@ -74,14 +81,15 @@ void OptoScanTask::book() {
 */
 void OptoScanTask::fill( const SiStripEventSummary& summary,
 			 const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogDebug("Commissioning") << "[OptoScanTask::fill]";
+  LogTrace(mlDqmSource_) << "[OptoScanTask::" << __func__ << "]";
 
   //@@ if scope mode length is in trigger fed, then 
   //@@ can add check here on number of digis
   if ( digis.data.empty() ) {
-    edm::LogError("Commissioning") << "[OptoScanTask::fill]" 
-				   << " Unexpected number of digis! " 
-				   << digis.data.size(); 
+    edm::LogWarning(mlDqmSource_)
+      << "[OptoScanTask::" << __func__ << "]"
+      << " Unexpected number of digis! " 
+      << digis.data.size(); 
   } else {
     
     // Retrieve opt bias and gain setting from SiStripEventSummary
@@ -93,55 +101,32 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
       for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
 	if ( opto_[gain].size() != 2 ) { opto_[gain].resize( 2 ); }
       }
-      edm::LogWarning("Commissioning") << "[OptoScanTask::fill]" 
-				       << "  Unexpected gain value! " << gain;
+      edm::LogWarning(mlDqmSource_)  
+	<< "[OptoScanTask::" << __func__ << "]"
+	<< " Unexpected gain value! " << gain;
     }
-    LogDebug("Commissioning") << "[OptoScanTask::fill]" 
-			      << "  Gain: " << opto.first 
-			      << "  Bias: " << opto.second;
-    
+    LogTrace(mlDqmSource_) 
+      << "[OptoScanTask::" << __func__ << "]"
+      << " Gain: " << opto.first 
+      << " Bias: " << opto.second;
     
     // Find digital "0" and digital "1" levels from tick marks within scope mode data
     pair< uint16_t, uint16_t > digital_range;
     locateTicks( digis, digital_range, false );
-    LogDebug("Commissioning") << "[OptoScanTask::fill]" 
-			      << "  Digital \"0\" level: " << digital_range.first 
-			      << "  Digital \"1\" level: " << digital_range.second;
-
-//     uint32_t remaining;
-//     uint32_t squared_value;
-
+    LogTrace(mlDqmSource_)
+      << "[OptoScanTask::" << __func__ << "]"
+      << " Digital \"0\" level: " << digital_range.first 
+      << " Digital \"1\" level: " << digital_range.second;
+    
     // Digital "0"
     if ( digital_range.first <= 1024 ) {
       updateHistoSet( opto_[gain][0], bias, digital_range.first );
     }
-//       remaining = 0xFFFFFFFF - opto_[gain][0].vSumOfSquares_[bias]; // 
-//       squared_value = digital_range.first * digital_range.first;
-//       if ( remaining <= squared_value ) { // check if overflow cntr is needed
-// 	opto_[gain][0].vSumOfSquaresOverflow_[bias] +=1;
-// 	opto_[gain][0].vSumOfSquares_[bias] = squared_value - remaining;
-//       } else { 
-// 	opto_[gain][0].vSumOfSquares_[bias] = squared_value;
-//       }
-//       opto_[gain][0].vSumOfContents_[bias] += digital_range.first;
-//       opto_[gain][0].vNumOfEntries_[bias]++;
-//     }
     
     // Digital "1"
     if ( digital_range.second <= 1024 ) {
       updateHistoSet( opto_[gain][1], bias, digital_range.second );
     }
-//       remaining = 0xFFFFFFFF - opto_[gain][1].vSumOfSquares_[bias]; // 
-//       squared_value = digital_range.first * digital_range.first;
-//       if ( remaining <= squared_value ) { // check if overflow cntr is needed
-// 	opto_[gain][1].vSumOfSquaresOverflow_[bias] +=1;
-// 	opto_[gain][1].vSumOfSquares_[bias] = squared_value - remaining;
-//       } else { 
-// 	opto_[gain][1].vSumOfSquares_[bias] = squared_value;
-//       }
-//       opto_[gain][1].vSumOfContents_[bias] += digital_range.first;
-//       opto_[gain][1].vNumOfEntries_[bias]++;
-//     }
 
   }
 
@@ -151,8 +136,8 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void OptoScanTask::update() {
-  LogDebug("Commissioning") << "[OptoScanTask::update]";
-
+  LogTrace(mlDqmSource_) << "[OptoScanTask::" << __func__ << "]";
+  
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
     for ( uint16_t ilevel = 0; ilevel < opto_[igain].size(); ilevel++ ) { 
       updateHistoSet( opto_[igain][ilevel] );
