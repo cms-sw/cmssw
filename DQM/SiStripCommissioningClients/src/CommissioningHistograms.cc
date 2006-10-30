@@ -1,8 +1,11 @@
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -13,20 +16,26 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
     action_(sistrip::NO_ACTION),
     task_(task)
 {
-  cout << "[" << __func__ << "]" << " Constructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Constructing object..." << endl;
   collations_.clear();
 }
 
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistograms::~CommissioningHistograms() {
-  cout << "[" << __func__ << "]" << " Destructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::createCollations( const vector<string>& contents ) {
-  cout << "Creating CollateMonitorElements..." << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << "Creating CollateMonitorElements..." << endl;
 
   if ( contents.empty() ) { return; }
   
@@ -35,12 +44,8 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
     
     // Extract directory paths
     string collector_dir = idir->substr( 0, idir->find(":") );
-    const SiStripHistoNamingScheme::ControlPath& path = SiStripHistoNamingScheme::controlPath( collector_dir );
-    string client_dir = SiStripHistoNamingScheme::controlPath( path.fecCrate_,
-							       path.fecSlot_,
-							       path.fecRing_,
-							       path.ccuAddr_,
-							       path.ccuChan_ );
+    SiStripFecKey::Path path = SiStripHistoNamingScheme::controlPath( collector_dir );
+    string client_dir = SiStripHistoNamingScheme::controlPath( path );
     
     if ( path.fecCrate_ == sistrip::invalid_ ||
 	 path.fecSlot_ == sistrip::invalid_ ||
@@ -62,7 +67,7 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       TH1F* his = ExtractTObject<TH1F>().extract( me );
       if ( prof ) { prof->SetErrorOption("s"); } //@@ is this necessary? (until bug fix applied to dqm)...
 
-      static SiStripHistoNamingScheme::HistoTitle title;
+      static HistoTitle title;
       title = SiStripHistoNamingScheme::histoTitle( *ime );
       
       uint16_t channel;
@@ -72,16 +77,17 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 	channel = title.channel_;
       } else {
 	channel = 0;
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unexpected histogram granularity: "
-	     << title.granularity_ << endl;
+	cerr << endl // edm::LogWarning(mlDqmClient_)
+	  << "[CommissioningHistograms::" << __func__ << "]"
+	  << " Unexpected histogram granularity: "
+	  << title.granularity_ << endl;
       }
-      uint32_t key = SiStripControlKey::key( sistrip::invalid_, //@@ WARNING: only good for one partition only!!!
-					     path.fecSlot_,
-					     path.fecRing_,
-					     path.ccuAddr_,
-					     path.ccuChan_,
-					     channel );
+      uint32_t key = SiStripFecKey::key( sistrip::invalid_, //@@ WARNING: only good for one partition only!!!
+					 path.fecSlot_,
+					 path.fecRing_,
+					 path.ccuAddr_,
+					 path.ccuChan_,
+					 channel );
       
       // Fill map linking FED key to FEC key
       mapping_[title.keyValue_] = key;
@@ -91,7 +97,12 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       if ( iter == collations_.end() ) {
 	if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); }
 	else if ( his ) { cme = mui()->collate1D( *ime, *ime, client_dir ); }
-	else { cme = 0; cerr << "[" << __PRETTY_FUNCTION__ << "] NULL pointers to histos!" << endl; }
+	else { 
+	  cme = 0; 
+	  cerr << endl // edm::LogWarning(mlDqmClient_)
+	    << "[CommissioningHistograms::" << __func__ << "]"
+	    << " NULL pointers to histos!" << endl; 
+	}
 	if ( cme ) {
 	  mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
 	  if ( collations_[key].capacity() != 10 ) { collations_[key].reserve(10); }
@@ -101,7 +112,12 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 	if ( find( iter->second.begin(), iter->second.end(), client_dir+(*ime) ) == iter->second.end() ) {
 	  if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); }
 	  else if ( his ) { cme = mui()->collate1D( *ime, *ime, client_dir ); }
-	  else { cme = 0; cerr << "[" << __PRETTY_FUNCTION__ << "] NULL pointers to histos!" << endl; }
+	  else { 
+	    cme = 0; 
+	    cerr << endl // edm::LogWarning(mlDqmClient_)
+	      << "[CommissioningHistograms::" << __func__ << "]"
+	      << " NULL pointers to histos!" << endl; 
+	  }
 	  if ( cme ) {
 	    mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
 	    if ( collations_[key].capacity() != 10 ) { collations_[key].reserve(10); }
@@ -117,8 +133,9 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::histoAnalysis( bool debug ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" 
-       << " (Derived) implementation to come..." << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " (Derived) implementation to come..." << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -127,15 +144,17 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::SummaryHisto& h
 						  const sistrip::SummaryType& type, 
 						  const string& directory,
 						  const sistrip::Granularity& gran ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" 
-       << " (Derived) implementation to come..." << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " (Derived) implementation to come..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::uploadToConfigDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" 
-       << " (Derived) implementation to come..." << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " (Derived) implementation to come..." << endl;
 }
 
 // -----------------------------------------------------------------------------

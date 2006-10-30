@@ -1,10 +1,13 @@
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -12,14 +15,17 @@ VpspScanHistograms::VpspScanHistograms( MonitorUserInterface* mui )
   : CommissioningHistograms( mui, sistrip::VPSP_SCAN ),
     factory_( new Factory )
 {
-  cout << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Created object for VPSP SCAN histograms" << endl;
+  LogTrace(mlDqmClient_) 
+    << "[VpspScanHistograms::" << __func__ << "]"
+    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 VpspScanHistograms::~VpspScanHistograms() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  LogTrace(mlDqmClient_) 
+    << "[VpspScanHistograms::" << __func__ << "]"
+    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------	 
@@ -35,8 +41,9 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
     
     // Check vector of histos is not empty (should be 2 histos)
     if ( iter->second.empty() ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Zero collation histograms found!" << endl;
+      edm::LogWarning(mlDqmClient_) 
+	<< "[VpspScanHistograms::" << __func__ << "]"
+	<< " Zero collation histograms found!" << endl;
       continue;
     }
     
@@ -62,10 +69,11 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
     
   }
   
-  cout << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Analyzed histograms for " 
-       << collations().size() 
-       << " FED channels" << endl;
+  LogTrace(mlDqmClient_) 
+    << "[VpspScanHistograms::" << __func__ << "]"
+    << " Analyzed histograms for " 
+    << collations().size() 
+    << " FED channels" << endl;
   
 }
 
@@ -75,7 +83,7 @@ void VpspScanHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo,
 					     const sistrip::SummaryType& type, 
 					     const string& directory,
 					     const sistrip::Granularity& gran ) {
-  cout << "[" << __PRETTY_FUNCTION__ <<"]" << endl;
+  LogTrace(mlDqmClient_) << "[VpspScanHistograms::" << __func__ << "]";
   
   // Check view 
   sistrip::View view = SiStripHistoNamingScheme::view(directory);

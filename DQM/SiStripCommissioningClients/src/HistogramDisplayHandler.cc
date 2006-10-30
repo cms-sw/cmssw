@@ -121,7 +121,7 @@ const CgiEnvironment& env = cgi.getEnvironment();
        vector<string> contents;
        mui_->getContents( contents ); 
 	ostringstream xmlstr;
-	bool modulefound=false;
+	//bool modulefound=false;
 	//out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   	//*out << "<?xml version=\"1.0\" ?>" << endl;
 	//xmlstr << "Content-Type: text/xml\n Cache-Control: no-store, no-cache, must-revalidate, max-age=0"<< endl; 
@@ -222,7 +222,7 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	  cout << mui_->pwd()<<endl;
 
 	  vector<string> tme = mui_->getMEs();
-	  for (int j=0;j<tme.size();j++)
+	  for (unsigned int j=0;j<tme.size();j++)
 	    cout << tme[j] <<endl;
 
 	  string  hname="SiStrip/ControlView/"+mod_id+"/"+hlist[i];

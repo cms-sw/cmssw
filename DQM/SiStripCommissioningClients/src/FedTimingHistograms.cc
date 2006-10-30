@@ -102,7 +102,7 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
     return; 
   }
   
-  SiStripControlKey::ControlPath max = SiStripControlKey::path( device_max );
+  SiStripFecKey::Path max = SiStripFecKey::path( device_max );
   cout << " Device (FEC/slot/ring/CCU/module/channel) " 
        << max.fecCrate_ << "/" 
        << max.fecSlot_ << "/" 
@@ -111,7 +111,7 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
 	 << max.ccuChan_ << "/"
        << " has maximum delay (rising edge) [ns]:" << time_max << endl;
   
-  SiStripControlKey::ControlPath min = SiStripControlKey::path( device_min );
+  SiStripFecKey::Path min = SiStripFecKey::path( device_min );
   cout << " Device (FEC/slot/ring/CCU/module/channel): " 
        << min.fecCrate_ << "/" 
        << min.fecSlot_ << "/" 

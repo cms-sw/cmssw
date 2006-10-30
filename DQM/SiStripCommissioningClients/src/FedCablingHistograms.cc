@@ -1,10 +1,13 @@
 #include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -12,20 +15,24 @@ FedCablingHistograms::FedCablingHistograms( MonitorUserInterface* mui )
   : CommissioningHistograms( mui, sistrip::FED_CABLING ),
     factory_( new Factory )
 {
-  cout << "[FedCablingHistograms::FedCablingHistograms]"
-       << " Created object for FED CABLING histograms" << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+    << "[FedCablingHistograms::" << __func__ << "]"
+    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 FedCablingHistograms::~FedCablingHistograms() {
-  cout << "[FedCablingHistograms::~FedCablingHistograms]" << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+    << "[FedCablingHistograms::" << __func__ << "]"
+    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------	 
 /** */	 
 void FedCablingHistograms::histoAnalysis( bool debug ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+    << "[FedCablingHistograms::" << __func__ << "]";
 
   // Clear map holding analysis objects
   data_.clear();
@@ -36,8 +43,9 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     
     // Check vector of histos is not empty (should be 1 histo)
     if ( iter->second.empty() ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Zero collation histograms found!" << endl;
+      cerr << endl // edm::LogWarning(mlDqmClient_)
+	<< "[FedCablingHistograms::" << __func__ << "]"
+	<< " Zero collation histograms found!" << endl;
       continue;
     }
     
@@ -63,10 +71,11 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     
   }
   
-  cout << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Analyzed histograms for " 
-       << collations().size() 
-       << " FED channels" << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+    << "[FedCablingHistograms::" << __func__ << "]"
+    << " Analyzed histograms for " 
+    << collations().size() 
+    << " FED channels" << endl;
   
 }
 
@@ -76,7 +85,8 @@ void FedCablingHistograms::createSummaryHisto( const sistrip::SummaryHisto& hist
 					       const sistrip::SummaryType& type, 
 					       const string& directory,
 					       const sistrip::Granularity& gran ) {
-  cout << "[" << __PRETTY_FUNCTION__ <<"]" << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+    << "[FedCablingHistograms::" << __func__ << "]";
   
   // Check view 
   sistrip::View view = SiStripHistoNamingScheme::view(directory);
