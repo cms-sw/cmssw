@@ -1,26 +1,28 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 
 using namespace std;
-
-// -----------------------------------------------------------------------------
-//
-const string SiStripFecCabling::logCategory_ = "SiStrip|Cabling";
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
 SiStripFecCabling::SiStripFecCabling( const SiStripFedCabling& fed_cabling ) : crates_() {
-  edm::LogVerbatim(logCategory_) << "[SiStripFecCabling::SiStripFecCabling] Constructing object...";
+  LogTrace(mlCabling_)
+    << "[SiStripFecCabling::" << __func__ << "]"
+    << " Constructing object...";
   buildFecCabling( fed_cabling );
 }
 
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCabling::buildFecCabling( const SiStripFedCabling& fed_cabling ) {
-  edm::LogVerbatim(logCategory_) << "[SiStripFecCabling::buildFecCabling]";
+  LogTrace(mlCabling_)
+    << "[SiStripFecCabling::" << __func__ << "]"
+    << " Building FEC cabling...";
   // Retrieve and iterate through FED ids
   const vector<uint16_t>& feds = fed_cabling.feds();
   vector<uint16_t>::const_iterator ifed;
@@ -39,7 +41,7 @@ void SiStripFecCabling::buildFecCabling( const SiStripFedCabling& fed_cabling ) 
       for ( vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
 	for ( vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
 	  for ( vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
-	    imod->print(); //@@ need consistency checks here!
+	    //@@ need consistency checks here!
 	  }
 	}
       }
@@ -70,7 +72,7 @@ void SiStripFecCabling::connections( vector<FedChannelConnection>& conns ) const
 	for ( vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
 	  for ( vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
 	    for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
-	      conns.push_back( FedChannelConnection( 0, ifec->fecSlot(), iring->fecRing(), iccu->ccuAddr(), imod->ccuChan(), 
+	      conns.push_back( FedChannelConnection( icrate->fecCrate(), ifec->fecSlot(), iring->fecRing(), iccu->ccuAddr(), imod->ccuChan(), 
 						     imod->activeApvPair( imod->lldChannel(ipair) ).first, 
 						     imod->activeApvPair( imod->lldChannel(ipair) ).second,
 						     imod->dcuId(), imod->detId(), imod->nApvPairs(),
@@ -82,8 +84,6 @@ void SiStripFecCabling::connections( vector<FedChannelConnection>& conns ) const
       }
     }
   }
-  edm::LogVerbatim(logCategory_) << "[SiStripFecCabling::connections]" 
-				 << " Found " << conns.size() << " FED channel connection objects";
 }
 
 // -----------------------------------------------------------------------------
@@ -105,21 +105,26 @@ const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn
 	  while ( imod != iccu->modules().end() && imod->ccuChan() != conn.ccuChan() ) { imod++; }
 	  if ( imod != iccu->modules().end() ) { 
 	    return *imod;
-	  } else { edm::LogError(logCategory_) << "[SiStripFecCabling::module]"
-					       << " CCU channel " << conn.ccuChan() 
-					       << " not found!"; }
-	} else { edm::LogError(logCategory_) << "[SiStripFecCabling::module]"
-					     << " CCU address " << conn.ccuAddr() 
-					     << " not found!"; }
-      } else { edm::LogError(logCategory_) << "[SiStripFecCabling::module]"
-					   << " FEC ring " << conn.fecRing() 
-					   << " not found!"; }
-    } else { edm::LogError(logCategory_) << "[SiStripFecCabling::module]"
-					 << " FEC slot " << conn.fecSlot() 
-					 << " not found!"; }
-  } else { edm::LogError(logCategory_) << "[SiStripFecCabling::module]"
-				       << " FEC crate " << conn.fecCrate() 
-				       << " not found!"; }
+	  } else { edm::LogWarning(mlCabling_)
+	    << "[SiStripFecCabling::" << __func__ << "]"
+	    << " CCU channel " << conn.ccuChan() 
+	    << " not found!"; }
+	} else { edm::LogWarning(mlCabling_)
+	  << "[SiStripFecCabling::" << __func__ << "]"
+	  << " CCU address " << conn.ccuAddr() 
+	  << " not found!"; }
+      } else { edm::LogWarning(mlCabling_)
+	<< "[SiStripFecCabling::" << __func__ << "]"
+	<< " FEC ring " << conn.fecRing() 
+	<< " not found!"; }
+    } else { edm::LogWarning(mlCabling_)
+      << "[SiStripFecCabling::" << __func__ << "]"
+      << " FEC slot " << conn.fecSlot() 
+      << " not found!"; }
+  } else { edm::LogWarning(mlCabling_)
+    << "[SiStripFecCabling::" << __func__ << "]"
+    << " FEC crate " << conn.fecCrate() 
+    << " not found!"; }
   static FedChannelConnection temp;
   static const SiStripModule module(temp);
   return module;
@@ -157,31 +162,41 @@ const NumberOfDevices& SiStripFecCabling::countDevices() const {
       for ( vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
 	for ( vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
 	  for ( vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
+
 	    // APVs
-	    if ( (*imod).activeApv(32) ) { num_of_devices.nApvs_++; }
-	    if ( (*imod).activeApv(33) ) { num_of_devices.nApvs_++; }
-	    if ( (*imod).activeApv(34) ) { num_of_devices.nApvs_++; }
-	    if ( (*imod).activeApv(35) ) { num_of_devices.nApvs_++; }
-	    if ( (*imod).activeApv(36) ) { num_of_devices.nApvs_++; }
-	    if ( (*imod).activeApv(37) ) { num_of_devices.nApvs_++; }
-	    if ( (*imod).dcuId() ) { num_of_devices.nDcuIds_++; }
-	    if ( (*imod).detId() ) { num_of_devices.nDetIds_++; }
+	    if ( imod->activeApv(32) ) { num_of_devices.nApvs_++; }
+	    if ( imod->activeApv(33) ) { num_of_devices.nApvs_++; }
+	    if ( imod->activeApv(34) ) { num_of_devices.nApvs_++; }
+	    if ( imod->activeApv(35) ) { num_of_devices.nApvs_++; }
+	    if ( imod->activeApv(36) ) { num_of_devices.nApvs_++; }
+	    if ( imod->activeApv(37) ) { num_of_devices.nApvs_++; }
+	    if ( imod->dcuId() ) { num_of_devices.nDcuIds_++; }
+	    if ( imod->detId() ) { num_of_devices.nDetIds_++; }
+
 	    // APV pairs
-	    num_of_devices.nApvPairs_ += (*imod).nApvPairs();
+	    num_of_devices.nApvPairs_ += imod->nApvPairs();
+	    if      ( imod->nApvPairs() == 0 ) { num_of_devices.nApvPairs0_++; }
+	    else if ( imod->nApvPairs() == 1 ) { num_of_devices.nApvPairs1_++; }
+	    else if ( imod->nApvPairs() == 2 ) { num_of_devices.nApvPairs2_++; }
+	    else if ( imod->nApvPairs() == 3 ) { num_of_devices.nApvPairs3_++; }
+	    else { num_of_devices.nApvPairsX_++; }
+
 	    // FED ids and channels
-	    for ( uint16_t ipair = 0; ipair < (*imod).nApvPairs(); ipair++ ) {
-	      uint16_t fed_id = (*imod).fedCh(ipair).first;
+	    for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
+	      uint16_t fed_id = imod->fedCh(ipair).first;
 	      if ( fed_id ) { 
 		ifed = find ( fed_ids.begin(), fed_ids.end(), fed_id );
 		if ( ifed != fed_ids.end() ) { num_of_devices.nFedIds_++; }
 		num_of_devices.nFedChans_++;
 	      }
 	    }
+
 	    // FE devices
-	    if ( (*imod).dcu() ) { num_of_devices.nDcus_++; }
-	    if ( (*imod).mux() ) { num_of_devices.nMuxes_++; }
-	    if ( (*imod).pll() ) { num_of_devices.nPlls_++; }
-	    if ( (*imod).lld() ) { num_of_devices.nLlds_++; }
+	    if ( imod->dcu() ) { num_of_devices.nDcus_++; }
+	    if ( imod->mux() ) { num_of_devices.nMuxes_++; }
+	    if ( imod->pll() ) { num_of_devices.nPlls_++; }
+	    if ( imod->lld() ) { num_of_devices.nLlds_++; }
+
 	    // FE modules
 	    num_of_devices.nCcuChans_++;
 	  } 
