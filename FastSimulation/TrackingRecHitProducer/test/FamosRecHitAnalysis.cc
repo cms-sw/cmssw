@@ -285,6 +285,10 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
     // change name to the nominal one
     histos_nom_alpha[iHist]->SetTitle( Form( "Hit Local Position angle #alpha^{Sim} %s (multiplicity %u) probability;#alpha^{Sim} [rad];Probability" , det , iHist+1 ) );
     histos_nom_alpha[iHist]->SetName(  Form( "hist_%s_%u_nom_prob_alpha" , det , iHist+1 ) );
+#ifdef rrDEBUG
+    for(int iBin = 1; iBin<=histos_nom_alpha[iHist]->GetNbinsX(); iBin++ )
+      std::cout << "\tNominal Probability " << histos_nom_alpha[iHist]->GetName() << " bin " << iBin << " is " << histos_nom_alpha[iHist]->GetBinContent(iBin) << std::endl;
+#endif
   }
   //
   //
@@ -295,6 +299,10 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
     // change name to the nominal one
     histos_nom_beta[iHist]->SetTitle( Form( "Hit Local Position angle #beta^{Sim} %s (multiplicity %u) probability;#beta^{Sim} [rad];Probability" , det , iHist+1 ) );
     histos_nom_beta[iHist]->SetName(  Form( "hist_%s_%u_nom_prob_beta" , det , iHist+1 ) );
+#ifdef rrDEBUG
+    for(int iBin = 1; iBin<=histos_nom_beta[iHist]->GetNbinsX(); iBin++ )
+      std::cout << "\tNominal Probability " << histos_nom_beta[iHist]->GetName() << " bin " << iBin << " is " << histos_nom_beta[iHist]->GetBinContent(iBin) << std::endl;
+#endif
   }
   //
 }
@@ -604,10 +612,10 @@ void FamosRecHitAnalysis::endJob() {
   write(histos_TEC_err_z);
   write(histos_TEC_nom_x);
   //
-  rootComparison( histos_PXB_alpha , histos_PXB_nom_alpha , 1 , 0 );
-  rootComparison( histos_PXB_beta  , histos_PXB_nom_beta  , 1 , 0 );
-  rootComparison( histos_PXF_alpha , histos_PXF_nom_alpha , 1 , 0 );
-  rootComparison( histos_PXF_beta  , histos_PXF_nom_beta  , 1 , 0 );
+  rootComparison( histos_PXB_alpha , histos_PXB_nom_alpha , -1 , 0 );
+  rootComparison( histos_PXB_beta  , histos_PXB_nom_beta  , -1 , 0 );
+  rootComparison( histos_PXF_alpha , histos_PXF_nom_alpha , -1 , 0 );
+  rootComparison( histos_PXF_beta  , histos_PXF_nom_beta  , -1 , 0 );
   rootComparison( histos_PXB_res_alpha , histos_PXB_nom_res_alpha , 20 );
   rootComparison( histos_PXB_res_beta  , histos_PXB_nom_res_beta  , 20 );
   rootComparison( histos_PXF_res_alpha , histos_PXF_nom_res_alpha , 20 );
@@ -888,24 +896,24 @@ void FamosRecHitAnalysis::rootMacroPixel( std::vector<TH1F*>& histos_angle ) {
       if(iHist!=0) hist_tot->SetBinContent(iBin+1, hist_tot->GetBinContent(iBin+1)+histos_angle[iHist]->GetBinContent(iBin+1) );
       if(iHist!=0) hist_tot->SetBinError(iBin+1, 0.00 );
 #ifdef rrDEBUG
-      std::cout << "\tTotal Probability after " << histos_angle[iHist]->GetName() << iHist << " bin " << iBin << " is " << hist_tot->GetBinContent(iBin+1) << std::endl;
+      std::cout << "\tTotal Probability after " << histos_angle[iHist]->GetName() << " bin " << iBin << " is " << hist_tot->GetBinContent(iBin+1) << std::endl;
 #endif
     }
   }
   
   for(unsigned int iHist = 0; iHist < histos_angle.size(); iHist++) {
     histos_angle[iHist]->Divide(hist_tot);
-#ifdef rrDEBUG
-    for(unsigned int iMult = 0; iMult<histos_angle.size(); iMult++) {
-      std::cout << " Multiplicity probability " << histos_angle[iMult]->GetName() << std::endl;
-      for(int iBin = 1; iBin<=histos_angle[iMult]->GetNbinsX(); iBin++) {
-	std::cout << " Multiplicity " << iMult+1 << " bin " << iBin << " low edge = " << histos_angle[iMult]->GetBinLowEdge(iBin)
-		  << " prob = " << (histos_angle[iMult])->GetBinContent(iBin) // remember in ROOT bin starts from 1 (0 underflow, nBin+1 overflow)
-		  << std::endl;
-      }
-    }
-#endif
   }
+#ifdef rrDEBUG
+  for(unsigned int iMult = 0; iMult<histos_angle.size(); iMult++) {
+    std::cout << " Multiplicity probability " << histos_angle[iMult]->GetName() << std::endl;
+    for(int iBin = 1; iBin<=histos_angle[iMult]->GetNbinsX(); iBin++) {
+      std::cout << " Multiplicity " << iMult+1 << " bin " << iBin << " low edge = " << histos_angle[iMult]->GetBinLowEdge(iBin)
+		<< " prob = " << (histos_angle[iMult])->GetBinContent(iBin) // remember in ROOT bin starts from 1 (0 underflow, nBin+1 overflow)
+		<< std::endl;
+    }
+  }
+#endif
   
 }
 //
@@ -931,12 +939,14 @@ void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std:
     histos_nominal[iHist]->SetLineColor(102); // dark red
     histos_nominal[iHist]->SetFillColor(0); // white
     //
-    histos_value[iHist]->Rebin(binFactor);
-    histos_nominal[iHist]->Rebin(binFactor);
-    histos_value[iHist]->GetXaxis()->SetRangeUser( histos_value[iHist]->GetMean() - 3 * histos_value[iHist]->GetRMS() , 
-						   histos_value[iHist]->GetMean() + 3 * histos_value[iHist]->GetRMS() );
-    // normalise entries of nominal histo to value histo (useful for pixel)
-    if(histos_nominal[iHist]->GetEntries()!=0) histos_nominal[iHist]->Scale(histos_value[iHist]->GetEntries()/histos_nominal[iHist]->GetEntries());
+    if(binFactor!=-1) {
+      histos_value[iHist]->Rebin(binFactor);
+      histos_nominal[iHist]->Rebin(binFactor);
+      histos_value[iHist]->GetXaxis()->SetRangeUser( histos_value[iHist]->GetMean() - 3 * histos_value[iHist]->GetRMS() , 
+						     histos_value[iHist]->GetMean() + 3 * histos_value[iHist]->GetRMS() );
+      // normalise entries of nominal histo to value histo (useful for pixel)
+      if(histos_nominal[iHist]->GetEntries()!=0) histos_nominal[iHist]->Scale(histos_value[iHist]->GetEntries()/histos_nominal[iHist]->GetEntries());
+    }
     //
     // Draw
     histos_nominal[iHist]->Draw("HIST");
