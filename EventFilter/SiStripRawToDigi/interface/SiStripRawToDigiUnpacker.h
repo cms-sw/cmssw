@@ -1,8 +1,7 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "boost/cstdint.hpp"
@@ -36,27 +35,27 @@ class SiStripRawToDigiUnpacker {
   /** */
   ~SiStripRawToDigiUnpacker();
 
-  typedef edm::ESHandle<SiStripFedCabling>  FedCabling;
-  typedef edm::Handle<FEDRawDataCollection> FedBuffers;
-  typedef edm::DetSetVector<SiStripDigi>    Digis;
+  typedef edm::DetSetVector<SiStripDigi> Digis;
   typedef edm::DetSetVector<SiStripRawDigi> RawDigis;
   
   /** Creates "pseudo" digis. */
-  void createDigis( const FedCabling&,
-  		    const FedBuffers&,
-  		    std::auto_ptr<SiStripDigiCollection>& );
+  void createDigis( const SiStripFedCabling&,
+  		    const edm::Handle<FEDRawDataCollection>&,
+  		    const SiStripEventSummary&,
+		    std::auto_ptr<SiStripDigiCollection>& );
   
   /** Creates "real" digis. */
-  void createDigis( const FedCabling&,
-		    const FedBuffers&,
-		    std::auto_ptr<RawDigis>& scope_mode,
-		    std::auto_ptr<RawDigis>& virgin_raw,
-		    std::auto_ptr<RawDigis>& proc_raw,
-		    std::auto_ptr<Digis>& zero_suppr );
+  void createDigis( const SiStripFedCabling&,
+		    const FEDRawDataCollection&,
+		    const SiStripEventSummary&,
+		    RawDigis& scope_mode,
+		    RawDigis& virgin_raw,
+		    RawDigis& proc_raw,
+		    Digis& zero_suppr );
   
   /** */
-  void triggerFed( const FedBuffers&, 
-		   std::auto_ptr<SiStripEventSummary>& );
+  void triggerFed( const FEDRawDataCollection&, 
+		   SiStripEventSummary& );
 
  private:
   
@@ -74,8 +73,8 @@ class SiStripRawToDigiUnpacker {
   
   /** Catches all possible exceptions and rethrows them as
       cms::Exception's that are caught by the framework. */ 
-  void handleException( const std::string& method_name,
-			const std::string& extra_info = "" ); // throw (cms::Exception);
+  void handleException( std::string method_name,
+			std::string extra_info = "" ); // throw (cms::Exception);
   
  private:
   
