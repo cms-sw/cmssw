@@ -171,7 +171,7 @@ void L2MuonIsolationAnalyzer::analyze(const Event & event, const EventSetup& eve
 
       unsigned int n = 0;
       for (unsigned int j=0; j<theConeCases.size() ; j++) {
-            float etsum = dep.depositWithin(conesize);
+            float etsum = dep.depositWithin(theConeCases[j]);
             for (unsigned int k=0; k<theCuts.size() ; k++) {
                   hEffVsEtArray[n]->Fill(theEtMax+999.);
                   for (unsigned int l=0; l<theEtBins; l++) {
