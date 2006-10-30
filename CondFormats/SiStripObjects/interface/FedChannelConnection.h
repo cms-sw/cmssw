@@ -52,20 +52,22 @@ class FedChannelConnection {
     fedId_(fed_id), fedCh_(fed_ch), length_(length),
     dcu0x00_(dcu), mux0x43_(mux), pll0x44_(pll), lld0x60_(lld) { dcu_id ? dcu0x00_=true : dcu0x00_=false; }
   
+  /** Default constructor. */
   ~FedChannelConnection() {;}
 
   // ----- Control structure -----
-
+  
   inline const uint16_t& fecCrate() const;
   inline const uint16_t& fecSlot() const;
   inline const uint16_t& fecRing() const;
   inline const uint16_t& ccuAddr() const;
   inline const uint16_t& ccuChan() const;
 
-  // ----- APV I2C addresses -----
+  // ----- APV devices -----
 
+  /** Returns I2C address of APV0 or APV1. */
   const uint16_t& i2cAddr( const uint16_t& apv ) const; 
-
+  
   // ----- Other hybrid devices -----
 
   inline const bool& dcu() const;
@@ -73,18 +75,29 @@ class FedChannelConnection {
   inline const bool& pll() const;
   inline const bool& lld() const;
   
-  // ----- Module / Detector -----
+  // ----- Module information -----
 
+  /** Returns DCU id for associated module. */
   inline const uint32_t& dcuId() const;
-  inline const uint32_t& detId() const;
-  inline const uint16_t& nApvPairs() const;
-  /** Returns APV pair number for this connection (this can be either
-      0->1 or 0->2, depending on number of detector strips). */
-  uint16_t apvPairNumber() const;
+
   /** Returns LLD channel on hybrid (0->2) for this connection. */
   uint16_t lldChannel() const; 
   
-  // ----- FED -----
+  // ----- Detector information -----
+
+  inline const uint32_t& detId() const;
+
+  /** Returns APV pair number for this connection (this can be either
+      0->1 or 0->2, depending on number of detector strips). */
+  uint16_t apvPairNumber() const;
+
+  /** Number of APV pairs for associated module. */
+  inline const uint16_t& nApvPairs() const;
+  
+  /** Number of detector strips for associated module. */
+  inline uint16_t nDetStrips() const;
+  
+  // ----- FED connection information -----
 
   inline const uint16_t& fedId() const;
   inline const uint16_t& fedCh() const;
@@ -92,8 +105,9 @@ class FedChannelConnection {
   inline void fedId( uint16_t& fed_id );
   inline void fedCh( uint16_t& fed_ch );
   
-  // ----- Misc -----
+  // ----- Miscellaneous -----
 
+  /** Prints all connection information. */
   void print( std::stringstream& ) const;
 
  private: 
@@ -145,6 +159,7 @@ const bool& FedChannelConnection::lld() const { return lld0x60_; }
 const uint32_t& FedChannelConnection::dcuId() const { return dcuId_; }
 const uint32_t& FedChannelConnection::detId() const { return detId_; }
 const uint16_t& FedChannelConnection::nApvPairs() const { return nApvPairs_; }
+uint16_t FedChannelConnection::nDetStrips() const { return 256*nApvPairs_; }
 
 const uint16_t& FedChannelConnection::fedId() const { return fedId_; }
 const uint16_t& FedChannelConnection::fedCh() const { return fedCh_; }
