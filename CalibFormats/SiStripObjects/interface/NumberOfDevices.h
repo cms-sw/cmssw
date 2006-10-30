@@ -23,6 +23,8 @@ class NumberOfDevices {
   
   uint32_t nFecCrates_, nFecSlots_, nFecRings_;      // FECs and rings
   uint32_t nCcuAddrs_, nCcuChans_, nApvs_, nDcuIds_; // CCUs and modules
+  uint32_t nApvPairs0_, nApvPairsX_;                 // Number of APVs per module (0,unknown)
+  uint32_t nApvPairs1_, nApvPairs2_, nApvPairs3_;    // Number of APVs per module (1->3)
   uint32_t nDetIds_, nApvPairs_;                     // Geometry
   uint32_t nFedIds_, nFedChans_;                     // FED
   uint32_t nDcus_, nMuxes_, nPlls_, nLlds_;          // Ancilliary devices
