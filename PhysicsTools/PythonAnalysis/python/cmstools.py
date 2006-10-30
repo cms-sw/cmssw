@@ -35,12 +35,12 @@ def all(container):
     except:
       pass
 
-   # loop over containers with begin and end iterators
-   def loop(begin, end):
-       """Convert a pair of C++ iterators into a python generator"""
-       while (begin != end):
-           yield begin.__deref__()  #*b
-           begin.__preinc__()       #++b 
+ # loop over containers with begin and end iterators
+def loop(begin, end):
+    """Convert a pair of C++ iterators into a python generator"""
+    while (begin != end):
+        yield begin.__deref__()  #*b
+        begin.__preinc__()       #++b 
 
 ### auto branch types (Chris Jones)
 def createBranchBuffer(branch):
