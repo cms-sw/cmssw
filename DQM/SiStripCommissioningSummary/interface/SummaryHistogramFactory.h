@@ -1,7 +1,7 @@
 #ifndef DQM_SiStripCommissioningSummary_SummaryHistogramFactory_H
 #define DQM_SiStripCommissioningSummary_SummaryHistogramFactory_H
 
-#include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include <boost/cstdint.hpp>
 #include "TH1.h"
 #include <string>
