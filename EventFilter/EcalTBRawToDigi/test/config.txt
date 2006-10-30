@@ -3,7 +3,7 @@ process TEST = {
      module ecalEBunpacker = EcalDCCUnpackingModule{ }
 
      module digi = EcalDigiDumperModule{
-	 untracked int32 verbosity = 0
+	 untracked int32 verbosity = 1
       }
      
      path p = {ecalEBunpacker, digi}
@@ -13,5 +13,15 @@ process TEST = {
 	       untracked int32 maxEvents = -1
                untracked bool isBinary = true
     }
+
+
+       source = PoolSource {
+           untracked int32 maxEvents = -1
+           untracked vstring fileNames={'file:/localdisk/franzoni/data/h4b.00015785.A.0.0.root'}
+           untracked uint32 debugVebosity = 10
+           untracked bool   debugFlag     = true
+          }
+
+
 
 }
