@@ -2,13 +2,12 @@
 #define DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
-#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
-#include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
-#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include <boost/cstdint.hpp>
 #include "TProfile.h"
 #include "TH1.h"
@@ -65,7 +64,7 @@ class CommissioningHistograms {
   TH1* histogram( const sistrip::SummaryHisto&, 
 		  const sistrip::SummaryType&, 
 		  const sistrip::View&,
-		  const string& directory,
+		  const std::string& directory,
 		  const uint32_t& xbins );
 
  private:

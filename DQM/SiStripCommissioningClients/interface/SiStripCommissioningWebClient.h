@@ -2,7 +2,7 @@
 #define DQM_SiStripCommissioningClients_SiStripCommissioningWebClient_H
 
 #include "DQMServices/WebComponents/interface/WebInterface.h"
-#include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include <string>
 #include <map>
 

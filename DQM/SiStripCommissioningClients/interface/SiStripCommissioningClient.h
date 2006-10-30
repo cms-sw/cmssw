@@ -1,11 +1,11 @@
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningClient_H
 
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQMServices/Components/interface/DQMBaseClient.h"
 #include "DQMServices/Components/interface/UpdateObserver.h"
 #include "DQMServices/Components/interface/Updater.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include <string>
 #include <vector>
 #include <BSem.h>
