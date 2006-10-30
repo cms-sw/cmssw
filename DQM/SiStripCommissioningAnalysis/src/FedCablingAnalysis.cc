@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedCablingAnalysis.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/MeanAndStdDev.h"
 #include "TProfile.h"
 #include <iostream>
@@ -38,14 +39,25 @@ FedCablingAnalysis::FedCablingAnalysis()
 void FedCablingAnalysis::print( stringstream& ss, uint32_t not_used ) { 
   if ( key() ) {
     ss << "FED CABLING monitorables for channel key 0x"
-       << hex << setw(8) << setfill('0') << key() << dec << "\n";
+       << hex << setw(8) << setfill('0') << key() << dec << endl;
   } else {
-    ss << "FED CABLING monitorables" << "\n";
+    ss << "FED CABLING monitorables" << endl;
   }
-  ss << " FED id              : " << fedId_ << "\n" 
-     << " FED channel         : " << fedCh_ << "\n"
-     << " Signal level [adc]  : " << level_ << "\n"
-     << " Number of candidates: " << num_ << "\n";
+  if ( key() ) {
+    SiStripFecKey::Path path = SiStripFecKey::path( key() );
+    ss << " Crate/FEC/ring/CCU/module/channel: " 
+       << path.fecCrate_ << "/"
+       << path.fecSlot_ << "/"
+       << path.fecRing_ << "/"
+       << path.ccuAddr_ << "/"
+       << path.ccuChan_ << "/"
+       << path.channel_ 
+       << endl;
+  }
+  ss << " FED id              : " << fedId_ << endl 
+     << " FED channel         : " << fedCh_ << endl
+     << " Signal level [adc]  : " << level_ << endl
+     << " Number of candidates: " << num_ << endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -83,7 +95,7 @@ void FedCablingAnalysis::extract( const vector<TProfile*>& histos ) {
     }
     
     // Check name
-    static SiStripHistoNamingScheme::HistoTitle title;
+    static HistoTitle title;
     title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
     if ( title.task_ != sistrip::FED_CABLING ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"

@@ -1,5 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
 #include <iostream>
 #include <iomanip>
@@ -46,8 +46,8 @@ void ApvTimingAnalysis::print( stringstream& ss, uint32_t not_used ) {
     ss << "APV TIMING monitorables" << "\n";
   }
   float adjust = sistrip::invalid_;
-  if ( time_ < sistrip::maximum_ && 
-       delay_ < sistrip::maximum_ ) { adjust = time_ + delay_; }
+  if ( time_ <= sistrip::maximum_ && 
+       delay_ <= sistrip::maximum_ ) { adjust = time_ + delay_; }
   ss << " Time of tick mark rising edge [ns]        : " << time_ << "\n" 
      << " Error on time of rising edge [ns]         : " << error_ << "\n"
      << " Sampling point of last tick mark [ns]     : " << maxTime_ + optimumSamplingPoint_ << "\n" 
@@ -109,7 +109,7 @@ void ApvTimingAnalysis::extract( const vector<TProfile*>& histos ) {
     }
     
     // Check name
-    static SiStripHistoNamingScheme::HistoTitle title;
+    static HistoTitle title;
     title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
     if ( title.task_ != sistrip::APV_TIMING ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
@@ -313,7 +313,7 @@ void ApvTimingAnalysis::analyse() {
   }
   
   // Set monitorables
-  if ( deriv_bin < sistrip::maximum_ ) {
+  if ( deriv_bin <= sistrip::maximum_ ) {
     time_      = deriv_bin * 25. / 24.;
     error_     = 0.;
     base_      = baseline;

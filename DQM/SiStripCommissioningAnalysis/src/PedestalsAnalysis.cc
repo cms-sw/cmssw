@@ -1,5 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAnalysis.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
 #include <iostream>
 #include <iomanip>
@@ -132,7 +132,7 @@ void PedestalsAnalysis::extract( const vector<TProfile*>& histos ) {
     }
     
     // Check name
-    static SiStripHistoNamingScheme::HistoTitle title;
+    static HistoTitle title;
     title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
     if ( title.task_ != sistrip::PEDESTALS ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"

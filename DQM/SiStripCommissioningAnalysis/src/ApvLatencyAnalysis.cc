@@ -1,5 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvLatencyAnalysis.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
 #include <iostream>
 #include <cmath>
@@ -52,7 +52,7 @@ void ApvLatencyAnalysis::extract( const vector<TProfile*>& histos ) {
     }
     
     // Check name
-    static SiStripHistoNamingScheme::HistoTitle title;
+    static HistoTitle title;
     title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
     if ( title.task_ != sistrip::APV_LATENCY ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
@@ -103,12 +103,12 @@ void ApvLatencyAnalysis::deprecated() {
 //
 void ApvLatencyAnalysis::analysis( const vector<const TProfile*>& histos, 
 				   vector<unsigned short>& monitorables ) {
-  //edm::LogInfo("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]";
+  //LogDebug("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]";
 
     //extract root histogram
     //check 
   if (histos.size() != 1) { 
-//     edm::LogError("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
+//     edm::LogWarning("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
     monitorables.push_back(0);
     return; 
   }

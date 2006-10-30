@@ -1,5 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAnalysis.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/LinearFit.h"
 #include "TProfile.h"
 #include <iostream>
@@ -118,7 +118,7 @@ void OptoScanAnalysis::extract( const vector<TProfile*>& histos ) {
     }
     
     // Check name
-    static SiStripHistoNamingScheme::HistoTitle title;
+    static HistoTitle title;
     title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
     if ( title.task_ != sistrip::OPTO_SCAN ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
@@ -277,8 +277,8 @@ void OptoScanAnalysis::analyse() {
       }
     }
     float zero_light_thres = sistrip::invalid_;
-    if ( zero_light_level < sistrip::maximum_ && 
-	 zero_light_error < sistrip::maximum_ ) { 
+    if ( zero_light_level <= sistrip::maximum_ && 
+	 zero_light_error <= sistrip::maximum_ ) { 
       zero_light_thres = zero_light_level + 5. * zero_light_error;
     } else {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
@@ -417,7 +417,7 @@ void OptoScanAnalysis::analyse() {
     // ---------- Set all parameters ----------
 
     // Check "lift off" value and set bias setting accordingly
-    if ( lift_off < sistrip::maximum_ ) {
+    if ( lift_off <= sistrip::maximum_ ) {
       bias_[igain] = static_cast<uint16_t>( lift_off ) + 2;
     } else { bias_[igain] = 0; } //@@ "default" should be what?
 
@@ -430,8 +430,8 @@ void OptoScanAnalysis::analyse() {
     threshold_[igain] = 0.45 * ( lift_off - width/2. );
     
     // Calculate tick mark height
-    if ( low_params.b_ < sistrip::maximum_ &&
-	 width <  sistrip::maximum_ ) {
+    if ( low_params.b_ <= sistrip::maximum_ &&
+	 width <= sistrip::maximum_ ) {
       tickHeight_[igain] = width * low_params.b_;
     }
 
@@ -540,7 +540,7 @@ void OptoScanAnalysis::deprecated() {
 //
 void OptoScanAnalysis::anal( const vector<const TProfile*>& histos, 
 			     vector<float>& monitorables ) {
-  //edm::LogInfo("Commissioning|Analysis") << "[OptoScanAnalysis::analysis]";
+  //LogDebug("Commissioning|Analysis") << "[OptoScanAnalysis::analysis]";
   
   //extract root histograms
   //check 

@@ -1,5 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
 #include <iostream>
 #include <iomanip>
@@ -102,7 +102,7 @@ void FedTimingAnalysis::extract( const vector<TProfile*>& histos ) {
     }
     
     // Check name
-    static SiStripHistoNamingScheme::HistoTitle title;
+    static HistoTitle title;
     title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
     if ( title.task_ != sistrip::APV_TIMING ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
