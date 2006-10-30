@@ -1,6 +1,10 @@
 #ifndef DataFormats_SiStripCommon_SiStripEnumeratedTypes_H
 #define DataFormats_SiStripCommon_SiStripEnumeratedTypes_H
 
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+
+// -------------------- Commissioning tasks --------------------
+
 namespace sistrip { 
 
   /** 
@@ -23,47 +27,164 @@ namespace sistrip {
    * apv baseline scan (VPSPSCAN = 14), 
    * scope mode readout (SCOPE = 15), 
    */
-  enum Task { UNKNOWN_TASK,
-	      UNDEFINED_TASK,
-	      FED_CABLING,
-	      APV_TIMING,
-	      FED_TIMING,
-	      OPTO_SCAN,
-	      VPSP_SCAN,
-	      PEDESTALS,
-	      APV_LATENCY,
-	      PHYSICS 
+  enum Task { UNKNOWN_TASK = sistrip::unknown_,
+	      UNDEFINED_TASK = sistrip::invalid_,
+	      FED_CABLING = 13,
+	      APV_TIMING = 5,
+	      FED_TIMING = 12,
+	      OPTO_SCAN = 4,
+	      VPSP_SCAN = 14,
+	      PEDESTALS = 2,
+	      APV_LATENCY = 6,
+	      PHYSICS = 1 
+  };
+
+}
+
+// -------------------- FED-related enumerated types --------------------
+
+namespace sistrip { 
+
+  /** */
+  enum FedReadoutMode { UNKNOWN_FED_READOUT_MODE = sistrip::unknown_,
+			UNDEFINED_FED_READOUT_MODE = sistrip::invalid_,
+			SCOPE_MODE = 1, 
+			VIRGIN_RAW = 2, 
+			PROC_RAW = 6, 
+			ZERO_SUPPR = 10,
+			ZERO_SUPPR_LITE = 12
   };
 
   /** */
-  enum FedReadoutMode { UNKNOWN_FED_READOUT_MODE,
-			UNDEFINED_FED_READOUT_MODE,
-			SCOPE_MODE, 
-			VIRGIN_RAW, 
-			PROC_RAW, 
-			ZERO_SUPPR,
-			ZERO_SUPPR_LITE 
+  enum FedReadoutPath { UNKNOWN_FED_READOUT_PATH = sistrip::unknown_,
+			UNDEFINED_FED_READOUT_PATH = sistrip::invalid_,
+			VME_READOUT = 1, 
+			SLINK_READOUT = 2 
   };
+  
+  /** */
+  enum FedBufferFormat { UNKNOWN_FED_BUFFER_FORMAT = sistrip::unknown_,
+			 UNDEFINED_FED_BUFFER_FORMAT = sistrip::invalid_,
+			 FULL_DEBUG_FORMAT = 1, 
+			 APV_ERROR_FORMAT = 2 
+  };
+  
+  /** */
+  enum FedSuperMode { UNKNOWN_FED_SUPER_MODE = sistrip::unknown_,
+		      UNDEFINED_FED_SUPER_MODE = sistrip::invalid_,
+		      REAL = 0, 
+		      FAKE = 1 
+  };
+  
+}
 
-  /** */
-  enum FedReadoutPath { UNKNOWN_FED_READOUT_PATH,
-			UNDEFINED_FED_READOUT_PATH,
-			VME_READOUT, 
-			SLINK_READOUT 
+// -------------------- DQM histograms --------------------
+
+namespace sistrip { 
+  
+  /** Detector views. */
+  enum View { UNKNOWN_VIEW = sistrip::unknown_, 
+	      UNDEFINED_VIEW = sistrip::invalid_, 
+	      READOUT = 1, 
+	      CONTROL = 2, 
+	      DETECTOR = 3 
   };
   
-  /** */
-  enum FedBufferFormat { UNKNOWN_FED_BUFFER_FORMAT,
-			 UNDEFINED_FED_BUFFER_FORMAT,
-			 FULL_DEBUG_FORMAT, 
-			 APV_ERROR_FORMAT 
+  /** Key type used as an identifier. */
+  enum KeyType { UNKNOWN_KEY = sistrip::unknown_,  
+		 UNDEFINED_KEY = sistrip::invalid_,  
+		 //NO_KEY = 0, 
+		 FED_KEY = 1, 
+		 FEC_KEY = 2, 
+		 DET_KEY = 3 
   };
   
-  /** */
-  enum FedSuperMode { UNKNOWN_FED_SUPER_MODE,
-		      UNDEFINED_FED_SUPER_MODE,
-		      REAL, 
-		      FAKE 
+  /** Histogram granularity. */
+  enum Granularity { UNKNOWN_GRAN = sistrip::unknown_, 
+		     UNDEFINED_GRAN = sistrip::invalid_, 
+		     //NO_GRAN = 0,
+		     TRACKER = 1, PARTITION = 2, TIB = 3, TOB = 4, TEC = 5,                  // System
+		     FEC_CRATE = 6, FEC_SLOT = 7, FEC_RING = 8, CCU_ADDR = 9, CCU_CHAN = 10, // Control
+		     FED = 11, FE_UNIT = 12, FED_FE_CHAN = 13, FED_CHANNEL = 14,             // Readout 
+		     LAYER = 15, ROD = 16, STRING = 17, DISK = 18, PETAL = 19, RING = 20,    // Sub-structures 
+		     MODULE = 21, LLD_CHAN = 22, APV = 23                                    // Module and below
+  };
+  
+  /** Defines action to be taken by web client. */
+  enum Action { UNKNOWN_ACTION = sistrip::unknown_, 
+		UNDEFINED_ACTION = sistrip::invalid_, 
+		NO_ACTION = 0, 
+		ANALYZE_HISTOS = 1,
+		SAVE_HISTOS_TO_DISK = 2,
+		CREATE_SUMMARY_HISTOS = 3, 
+		CREATE_TRACKER_MAP = 4,
+		UPLOAD_TO_DATABASE = 5
+  };
+  
+}
+
+// -------------------- Summary plots --------------------
+
+namespace sistrip { 
+  
+  /** Defines the type of summary histogram. */
+  enum SummaryType { UNKNOWN_SUMMARY_TYPE = sistrip::unknown_, 
+		     UNDEFINED_SUMMARY_TYPE = sistrip::invalid_, 
+		     SUMMARY_DISTR = 1,
+		     SUMMARY_1D = 2,
+		     SUMMARY_2D = 3,
+		     SUMMARY_PROF = 4
+  };
+ 
+  /** Defines the various summary histograms available. */
+  enum SummaryHisto { UNKNOWN_SUMMARY_HISTO = sistrip::unknown_, 
+		      UNDEFINED_SUMMARY_HISTO = sistrip::invalid_, 
+		      // FED CABLING
+		      FED_CABLING_FED_ID = 1301, 
+		      FED_CABLING_FED_CH = 1301, 
+		      // APV TIMING
+		      APV_TIMING_TIME = 501, 
+		      APV_TIMING_MAX_TIME = 502, 
+		      APV_TIMING_DELAY = 503, 
+		      APV_TIMING_ERROR = 504, 
+		      APV_TIMING_BASE = 505, 
+		      APV_TIMING_PEAK = 506, 
+		      APV_TIMING_HEIGHT = 507,
+		      // FED TIMING
+		      FED_TIMING_TIME = 501, 
+		      FED_TIMING_MAX_TIME = 502, 
+		      FED_TIMING_DELAY = 1203, 
+		      FED_TIMING_ERROR = 1204, 
+		      FED_TIMING_BASE = 1205, 
+		      FED_TIMING_PEAK = 1206, 
+		      FED_TIMING_HEIGHT = 1207,
+		      // OPTO SCAN
+		      OPTO_SCAN_LLD_GAIN_SETTING = 401,
+		      OPTO_SCAN_LLD_BIAS_SETTING = 402,
+		      OPTO_SCAN_MEASURED_GAIN = 403, 
+		      OPTO_SCAN_ZERO_LIGHT_LEVEL = 404, 
+		      OPTO_SCAN_LINK_NOISE = 405,
+		      OPTO_SCAN_BASELINE_LIFT_OFF = 406,
+		      OPTO_SCAN_LASER_THRESHOLD = 407,  
+		      OPTO_SCAN_TICK_HEIGHT = 408,
+		      // VPSP SCAN
+		      VPSP_SCAN_BOTH_APVS = 1401, 
+		      VPSP_SCAN_APV0 = 1402, 
+		      VPSP_SCAN_APV1 = 1403, 
+		      // PEDESTALS / NOISE
+		      PEDESTALS_ALL_STRIPS = 201, 
+		      PEDESTALS_MEAN = 202, 
+		      PEDESTALS_SPREAD = 203, 
+		      PEDESTALS_MAX = 204, 
+		      PEDESTALS_MIN = 205, 
+		      NOISE_ALL_STRIPS = 206, 
+		      NOISE_MEAN = 207, 
+		      NOISE_SPREAD = 208, 
+		      NOISE_MAX = 209, 
+		      NOISE_MIN = 210, 
+		      NUM_OF_DEAD = 211, 
+		      NUM_OF_NOISY = 212
+		      //@@ add other summary histos here... 
   };
   
 }
