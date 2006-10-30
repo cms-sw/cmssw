@@ -54,7 +54,7 @@ void CSCRPCData::Print() const {
     // make the two pad words into one and see if it's empty
     //int pad = theData[pos] & 0xff + ((theData[pos+1] & 0x3f) << 8);
   
-    int bxnnew = (((theData[pos+1] >> 8)  & 0x3 )<<2) | ((theData[pos+1]>>6)&0x3) ;
+    int bxnnew = ((theData[pos+1] >> 8)  & 0x7 );
   
     int rpc  = (theData[pos]   >> 12) & 0x7;
     int tbin = (theData[pos]   >> 8)  & 0xf;
@@ -97,7 +97,7 @@ std::vector<CSCRPCDigi> CSCRPCData::digis() const {
       edm::LogInfo("CSCRPCData") << "+++ CSCRPCData " << std::hex << theData[pos] 
 				 << " " << theData[pos+1];
     // make the two pad words into one and see if it's empty
-    int pad = theData[pos] & 0xff + ((theData[pos+1] & 0x3f) << 8);
+    int pad = theData[pos] & 0xff + ((theData[pos+1] & 0xff) << 8);
 
     bxnnew = (((theData[pos+1] >> 8)  & 0x3 )<<2) | ((theData[pos+1]>>6)&0x3) ;
     if ( linePair == 0 ) bxnold = bxnnew;
