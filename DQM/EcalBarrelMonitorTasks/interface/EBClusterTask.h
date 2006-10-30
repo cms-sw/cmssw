@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2006/06/17 10:07:47 $
- * $Revision: 1.7 $
+ * $Date: 2006/10/30 11:14:16 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -42,6 +42,7 @@
 using namespace cms;
 using namespace edm;
 using namespace std;
+using namespace reco;
 
 class EBClusterTask: public EDAnalyzer{
 

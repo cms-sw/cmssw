@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2006/09/22 06:01:40 $
- * $Revision: 1.15 $
+ * $Date: 2006/10/30 11:14:16 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -139,6 +139,56 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
+  }
+
+  try {
+
+    Handle<BasicClusterCollection> bclusters;
+    e.getByLabel("islandBasicClusterProducer", bclusters);
+
+    int nbcc = bclusters->size();
+    LogDebug("EBClusterTask") << "event " << ievt_ << " basic cluster collection size " << nbcc;
+
+    for ( BasicClusterCollection::const_iterator bclusterItr = bclusters->begin(); bclusterItr != bclusters->end(); ++bclusterItr ) {
+
+      BasicCluster bcluster = *(bclusterItr);
+
+      cout << "number of crystals " << bcluster.getHitsByDetId().size() << endl;
+      cout << "energy " << bcluster.energy() << endl;
+      cout << "eta " << bcluster.eta() << endl;
+      cout << "phi " << bcluster.phi() << endl;
+
+    }
+
+  } catch ( std::exception& ex ) {
+    LogDebug("EBClusterTask") << " BasicClusterCollection not in event.";
+  }
+
+  try {
+
+    Handle<reco::SuperClusterCollection> sclusters;
+    e.getByLabel("islandSuperClusterProducer", sclusters);
+
+    int nscc = sclusters->size();
+    LogDebug("EBClusterTask") << "event " << ievt_ << " super cluster collection size " << nscc; 
+
+    for ( SuperClusterCollection::const_iterator sclusterItr = sclusters->begin(); sclusterItr != sclusters->end(); ++sclusterItr ) {
+  
+      SuperCluster scluster = *(sclusterItr);
+
+      cout << "number of crystals " << scluster.getHitsByDetId().size() << endl;
+      cout << "energy " << scluster.energy() << endl;
+      cout << "eta " << scluster.eta() << endl;
+      cout << "phi " << scluster.phi() << endl;
+      cout << "eMax " << scluster.eMax() << endl;
+      cout << "e2x2 " << scluster.e2x2() << endl;
+      cout << "e3x3 " << scluster.e3x3() << endl;
+      cout << "e5x5 " << scluster.e5x5() << endl;
+
+    }
+
+  } catch ( std::exception& ex ) {
+    LogDebug("EBClusterTask") << " SuperClusterCollection not in event.";
   }
 
 }
