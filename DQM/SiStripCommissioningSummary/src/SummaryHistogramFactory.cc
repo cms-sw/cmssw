@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningSummary/interface/SummaryHistogramFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include <iostream>
 #include <sstream>
 

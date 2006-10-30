@@ -1,7 +1,7 @@
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorControlView.h"
 //#include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorReadoutView.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include <iostream>
 #include <sstream>
 #include "TH1F.h"

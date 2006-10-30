@@ -1,7 +1,7 @@
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorControlView.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
-#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -43,16 +43,12 @@ void SummaryGeneratorControlView::fill( const string& top_level_dir,
   }
   
   // Create key representing "top level" directory 
-  SiStripHistoNamingScheme::ControlPath top = SiStripHistoNamingScheme::controlPath( top_level_dir );
+  SiStripFecKey::Path top = SiStripHistoNamingScheme::controlPath( top_level_dir );
 
   // Path and string for "present working directory" as defined by device key
-  SiStripControlKey::ControlPath path = SiStripControlKey::path( device_key );
-  string pwd = SiStripHistoNamingScheme::controlPath( path.fecCrate_,
-						      path.fecSlot_,
-						      path.fecRing_,
-						      path.ccuAddr_,
-						      path.ccuChan_ );
-
+  SiStripFecKey::Path path = SiStripFecKey::path( device_key );
+  string pwd = SiStripHistoNamingScheme::controlPath( path );
+  
   // Check path is "within" top-level directory structure 
   if ( ( ( path.fecCrate_ == top.fecCrate_ ) || ( top.fecCrate_ == sistrip::invalid_ ) )  && path.fecCrate_ != sistrip::invalid_  &&
        ( ( path.fecSlot_  == top.fecSlot_  ) || ( top.fecSlot_  == sistrip::invalid_ ) )  && path.fecSlot_  != sistrip::invalid_  &&
@@ -78,7 +74,7 @@ void SummaryGeneratorControlView::fill( const string& top_level_dir,
       if (pos != string::npos) {
       sub_dir = pwd.substr( 0, pwd.find(sistrip::dir_,pos) );}
  
-    SiStripHistoNamingScheme::ControlPath sub_path = SiStripHistoNamingScheme::controlPath( sub_dir );
+    SiStripFecKey::Path sub_path = SiStripHistoNamingScheme::controlPath( sub_dir );
     
     // Construct bin label
     stringstream bin;
