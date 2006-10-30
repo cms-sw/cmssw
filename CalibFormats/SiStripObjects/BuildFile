@@ -1,16 +1,15 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/SiStripCommon>
 <use name=CondFormats/SiStripObjects>
 <use name=CondCore/SiStripPlugins>
 <use name=boost>
-#<flags SEAL_PLUGIN_NAME="CalibFormatsSiStripObjects">
 
 <export>
    <lib name=CalibFormatsSiStripObjects>
    <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
-   <use name=DataFormats/SiStripDetId>
+   <use name=DataFormats/SiStripCommon>
    <use name=CondFormats/SiStripObjects>
    <use name=CondCore/SiStripPlugins>
    <use name=boost>
