@@ -157,15 +157,15 @@ const uint16_t& SiStripDigiCollection::adc( const uint16_t& fed_id,
 
   // Check on FED id/channel and sample
   if ( fed_id > 1023 || fed_ch > 95 || sample > 1022 ) { 
-    edm::LogError(error_) << "["<<__PRETTY_FUNCTION__<<"]" 
-			  << "Invalid FED id/channel or sample: " 
-			  << fed_id << "/" << fed_ch << "/" << sample;
+    edm::LogWarning(error_) << "["<<__PRETTY_FUNCTION__<<"]" 
+			    << "Invalid FED id/channel or sample: " 
+			    << fed_id << "/" << fed_ch << "/" << sample;
     return invalid_; 
   }
   
   if ( !feds_[fed_id] ) { 
-    edm::LogError(error_) << "["<<__PRETTY_FUNCTION__<<"]" 
-			  << "FED id " << fed_id << "is not available!";
+    edm::LogWarning(error_) << "["<<__PRETTY_FUNCTION__<<"]" 
+			    << "FED id " << fed_id << "is not available!";
     return invalid_; 
   }
   
