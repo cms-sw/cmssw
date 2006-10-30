@@ -10,7 +10,6 @@
 <use name=CalibFormats/SiStripObjects>
 <use name=DataFormats/Common>
 <use name=DataFormats/SiStripCommon>
-<use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiStripDigi>
 <use name=boost>
 <flags SEAL_PLUGIN_NAME="DQMSiStripCommissioningSources">
@@ -29,7 +28,6 @@
    <use name=CalibFormats/SiStripObjects>
    <use name=DataFormats/Common>
    <use name=DataFormats/SiStripCommon>
-   <use name=DataFormats/SiStripDetId>
    <use name=DataFormats/SiStripDigi>
    <use name=boost>
 </export>
