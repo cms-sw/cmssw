@@ -35,6 +35,12 @@ def all(container):
     except:
       pass
 
+   # loop over containers with begin and end iterators
+   def loop(begin, end):
+       """Convert a pair of C++ iterators into a python generator"""
+       while (begin != end):
+           yield begin.__deref__()  #*b
+           begin.__preinc__()       #++b 
 
 ### auto branch types (Chris Jones)
 def createBranchBuffer(branch):
@@ -54,6 +60,7 @@ class EventTree(object):
           self._tree = ttree
           self._usedBranches = dict()
           self._index = -1
+          self._aliases = ttree.GetListOfAliases()
       def branch(self,name):
           # support for aliases
           alias = self._tree.GetAlias(name)
@@ -63,6 +70,8 @@ class EventTree(object):
               return self._usedBranches[name]
           self._usedBranches[name]=EventBranch(self,name)
           return self._usedBranches[name]
+      def getListOfAliases(self):
+          return self._aliases
       def tree(self):
           return self._tree
       def index(self):
