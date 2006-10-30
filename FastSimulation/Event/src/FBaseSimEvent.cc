@@ -30,6 +30,7 @@ using namespace HepPDT;
 // system include
 #include <iostream>
 #include <iomanip>
+#include <map>
 
 FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
 			     const edm::ParameterSet& kine) 
@@ -124,7 +125,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 
   // Watch out there ! A SimVertex is in mm (stupid), 
   //            while a FSimVertex is in cm (clever).
-
+  
   clear();
 
   unsigned nVtx = simVertices.size();
@@ -136,6 +137,14 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   // Two arrays for internal use.
   vector<int> myVertices(nVtx,-1);
   vector<int> myTracks(nTks,-1);
+
+  // create a map associating geant particle id and position in the 
+  // event SimTrack vector
+  
+  map<unsigned, unsigned> geantToIndex;
+  for( unsigned it=0; it<simTracks.size(); ++it ) {
+    geantToIndex[ simTracks[it].trackId() ] = it;
+  }  
 
   // Set the main vertex for the kine particle filter
   // SimVertices were in mm until 110_pre2
@@ -157,7 +166,16 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     SimVertex vertex = simVertices[vertexId];
 
     // The mother track 
-    int motherId = vertex.noParent() ? -1 : vertex.parentIndex();
+    int motherId = -1;
+    if( vertex.parentIndex() ) { // there is a parent to this vertex
+
+      // geant id of the mother
+      unsigned motherGeandId =   vertex.parentIndex(); 
+      map<unsigned, unsigned >::iterator association  
+	= geantToIndex.find( motherGeandId );
+      if(association != geantToIndex.end() )
+	motherId = association->second;
+    }
     int originId = motherId == - 1 ? -1 : myTracks[motherId];
 
     // Add the vertex (if it does not already exist!)
@@ -169,7 +187,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 
     // Add the track (with protection for brem'ing electrons)
     int motherType = motherId == -1 ? 0 : simTracks[motherId].type();
-    
+
     if ( abs(motherType) != 11 || motherType != track.type() ) {
       // SimVertices were in mm until 110_pre2
       // RawParticle part(track.momentum(), vertex.position()/10.);
@@ -180,7 +198,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     } else {
       myTracks[trackId] = myTracks[motherId];
     }
-      
+    
   }
 
   // Now loop over the remaining end vertices !
@@ -193,7 +211,16 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     SimVertex vertex = simVertices[vertexId];
 
     // The mother track 
-    int motherId = vertex.noParent() ? -1 : vertex.parentIndex();
+    int motherId = !vertex.parentIndex() ? -1 : vertex.parentIndex();
+    if( vertex.parentIndex() ) { // there is a parent to this vertex
+
+      // geant id of the mother
+      unsigned motherGeandId =   vertex.parentIndex(); 
+      map<unsigned, unsigned >::iterator association  
+	= geantToIndex.find( motherGeandId );
+      if(association != geantToIndex.end() )
+	motherId = association->second;
+    }
 
     // Add the vertex (if it does not already exist!)
     if ( motherId != -1 && myVertices[vertexId] == -1 ) 
