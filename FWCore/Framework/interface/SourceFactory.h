@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.14 2006/07/23 01:24:33 valya Exp $
+// $Id: SourceFactory.h,v 1.15 2006/10/26 20:38:09 wmtan Exp $
 //
 
 // system include files
@@ -26,6 +26,9 @@
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+
 // forward declarations
 
 namespace edm {
@@ -68,7 +71,7 @@ namespace edm {
    }
 }
 
-#if __GNUC_PREREQ (3,4)
+#if GCC_PREREQUISITE(3,4,4)
 
 #define DEFINE_FWK_EVENTSETUP_SOURCE(type) \
 DEFINE_SEAL_MODULE (); \

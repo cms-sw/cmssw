@@ -6,13 +6,15 @@
 EDCollection: A collection of homogeneous objects that can be used for an EDProduct,
 or as a base class for an EDProduct.
 
-$Id: EDCollection.h,v 1.2 2006/08/10 23:34:53 wmtan Exp $
+$Id: EDCollection.h,v 1.3 2006/10/25 21:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 
 #include "DataFormats/Common/interface/traits.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
   template <class T>
@@ -166,7 +168,7 @@ namespace edm {
     a.swap(b);
   }
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   template <class T>
   struct has_swap<edm::EDCollection<T> > {
     static bool const value = true;

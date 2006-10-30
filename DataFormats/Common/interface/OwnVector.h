@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.12 2006/10/26 16:49:42 paterno Exp $
+// $Id: OwnVector.h,v 1.13 2006/10/27 17:57:30 paterno Exp $
 
 #include <algorithm>
 #include <functional>
@@ -10,6 +10,8 @@
 #include "DataFormats/Common/interface/traits.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 #if defined CMS_USE_DEBUGGING_ALLOCATOR
 #include "DataFormats/Common/interface/debugging_allocator.h"
@@ -341,7 +343,7 @@ namespace edm {
     a.swap(b);
   }
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   /// has swap function
   template<typename T, typename P>
   struct has_swap<edm::OwnVector<T,P> > {

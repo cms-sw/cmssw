@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.4 2006/08/10 23:34:53 wmtan Exp $
+$Id: SortedCollection.h,v 1.5 2006/10/25 21:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,6 +31,8 @@ $Id: SortedCollection.h,v 1.4 2006/08/10 23:34:53 wmtan Exp $
 #include <vector>
 
 #include "DataFormats/Common/interface/traits.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -41,7 +43,7 @@ namespace edm {
   template <class T> struct StrictWeakOrdering;  
   template <class T, class SORT = StrictWeakOrdering<T> >  class SortedCollection;
   
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   //------------------------------------------------------------
   // The following template partial specialization can be removed
   // when we move to GCC 3.4.x
@@ -405,7 +407,7 @@ namespace edm {
     return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin());    
   }
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   // has swap function
   template <class T, class SORT>
   struct has_swap<edm::SortedCollection<T,SORT> > {

@@ -72,7 +72,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.41 2006/10/13 01:46:54 wmtan Exp $
+$Id: DataViewImpl.h,v 1.1 2006/10/27 20:56:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -98,6 +98,8 @@ $Id: DataViewImpl.h,v 1.41 2006/10/13 01:46:54 wmtan Exp $
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -296,7 +298,7 @@ namespace edm {
   // application of SFINAE. GCC 3.4.2 is known to deal with this code
   // correctly.
   //------------------------------------------------------------
-#if __GNUC_PREREQ (3,4)
+#if GCC_PREREQUISITE(3,4,4)
     typedef char (& no_tag )[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 

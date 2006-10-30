@@ -72,7 +72,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.43 2006/10/23 23:53:41 chrjones Exp $
+$Id: Event.h,v 1.45 2006/10/27 20:56:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -83,9 +83,11 @@ $Id: Event.h,v 1.43 2006/10/23 23:53:41 chrjones Exp $
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+
 namespace edm {
 
-#if __GNUC_PREREQ (3,4)
+#if GCC_PREREQUISITE(3,4,4)
   class Event : private DataViewImpl
 #else
   // Bug in gcc3.2.3 compiler forces public inheritance

@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.4 2006/08/10 23:34:53 wmtan Exp $
+$Id: traits.h,v 1.5 2006/10/25 21:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,6 +15,8 @@ $Id: traits.h,v 1.4 2006/08/10 23:34:53 wmtan Exp $
 #include <set>
 #include <vector>
 #include <string>
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm
 {
@@ -36,7 +38,7 @@ namespace edm
   //
   struct DoNotSortUponInsertion { };
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   //------------------------------------------------------------
   //
   // The trait struct template has_postinsert_trait<T> is used to

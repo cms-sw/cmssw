@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetLazyVector.h,v 1.4 2006/09/15 21:58:50 chrjones Exp $
+$Id: DetSetLazyVector.h,v 1.5 2006/10/25 21:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,6 +38,8 @@ $Id: DetSetLazyVector.h,v 1.4 2006/09/15 21:58:50 chrjones Exp $
 #include "DataFormats/Common/interface/DetSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/Ref.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -263,7 +265,7 @@ private:
     a.swap(b);
   }
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   // has swap function
   template <class T>
   struct has_swap<edm::DetSetLazyVector<T> > {

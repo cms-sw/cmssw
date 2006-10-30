@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceMaker.h,v 1.3 2005/09/12 23:34:00 wmtan Exp $
+// $Id: ServiceMaker.h,v 1.4 2006/10/26 20:38:09 wmtan Exp $
 //
 
 // system include files
@@ -27,6 +27,8 @@
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
 #include "FWCore/ServiceRegistry/interface/ServicePluginFactory.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 // forward declarations
 
@@ -108,7 +110,7 @@ private:
 }
 
 
-#if __GNUC_PREREQ (3,4)
+#if GCC_PREREQUISITE(3,4,4)
 
 #define DEFINE_FWK_SERVICE(type) \
 DEFINE_SEAL_MODULE (); \

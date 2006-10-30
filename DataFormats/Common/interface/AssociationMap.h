@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.25 2006/10/19 15:00:57 chrjones Exp $
+ * $Id: AssociationMap.h,v 1.26 2006/10/25 21:56:29 wmtan Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -14,6 +14,8 @@
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "DataFormats/Common/interface/OneToMany.h"
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
   template<typename Tag>
@@ -158,7 +160,7 @@ namespace edm {
     };
   }
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   /// has post insert trait
   template<typename  T> 
   struct has_postinsert_trait<AssociationMap<T> >  { 

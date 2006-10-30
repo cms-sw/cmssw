@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: LooperFactory.h,v 1.1 2006/07/23 01:24:33 valya Exp $
+// $Id: LooperFactory.h,v 1.2 2006/10/26 20:38:09 wmtan Exp $
 //
 
 // system include files
@@ -26,6 +26,9 @@
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+
 // forward declarations
 
 namespace edm {
@@ -80,7 +83,7 @@ namespace edm {
    }
 }
 
-#if __GNUC_PREREQ (3,4)
+#if GCC_PREREQUISITE(3,4,4)
 
 #define DEFINE_FWK_LOOPER(type) \
 DEFINE_SEAL_MODULE (); \

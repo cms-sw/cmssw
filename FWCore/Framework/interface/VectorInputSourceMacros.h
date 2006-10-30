@@ -5,8 +5,9 @@
 #include "FWCore/Framework/src/VectorInputSourceFactory.h"
 #include "FWCore/Framework/interface/VectorInputSource.h"
 
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
-#if __GNUC_PREREQ (3,4)
+#if GCC_PREREQUISITE(3,4,4)
 
 #define DEFINE_FWK_VECTOR_INPUT_SOURCE(type) \
   DEFINE_SEAL_MODULE (); \

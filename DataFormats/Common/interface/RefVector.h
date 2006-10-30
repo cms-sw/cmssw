@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.13 2006/10/28 04:10:59 wmtan Exp $
+$Id: RefVector.h,v 1.14 2006/10/28 23:50:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,6 +19,8 @@ $Id: RefVector.h,v 1.13 2006/10/28 04:10:59 wmtan Exp $
 #include "DataFormats/Common/interface/ProductID.h"
 
 #include "DataFormats/Common/interface/traits.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -130,7 +132,7 @@ namespace edm {
     a.swap(b);
   }
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   // has swap function
   template <typename C, typename T, typename F>
   struct has_swap<edm::RefVector<C, T, F> > {

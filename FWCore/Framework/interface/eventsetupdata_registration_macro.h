@@ -28,7 +28,7 @@ the file that uses the 'EVENTSETUP_DATA_REG' macro must be in the same library a
 //
 // Author:      Chris Jones
 // Created:     Wed Apr  6 15:21:58 EDT 2005
-// $Id: eventsetupdata_registration_macro.h,v 1.3 2005/09/01 04:56:37 wmtan Exp $
+// $Id: eventsetupdata_registration_macro.h,v 1.4 2006/10/26 20:38:09 wmtan Exp $
 //
 
 // system include files
@@ -38,7 +38,9 @@ the file that uses the 'EVENTSETUP_DATA_REG' macro must be in the same library a
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
 
-#if __GNUC_PREREQ (3,4)
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+
+#if GCC_PREREQUISITE(3,4,4)
 
 #define EVENTSETUP_DATA_REG(_dataclass_) template<> const char* \
 edm::eventsetup::heterocontainer::HCTypeTagTemplate<_dataclass_, edm::eventsetup::DataKey>::className() { return # _dataclass_; } \

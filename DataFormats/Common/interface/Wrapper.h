@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.5 2006/08/07 23:44:01 wmtan Exp $
+$Id: Wrapper.h,v 1.6 2006/10/25 21:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,8 @@ $Id: Wrapper.h,v 1.5 2006/08/07 23:44:01 wmtan Exp $
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/traits.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -66,7 +68,7 @@ namespace edm {
   namespace detail 
   {
 
-#if __GNUC_PREREQ (3,4)
+#if GCC_PREREQUISITE(3,4,4)
   //------------------------------------------------------------
   // WHEN WE MOVE to a newer compiler version, the following code
   // should be activated. This code causes compilation failures under

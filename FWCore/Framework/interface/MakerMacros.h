@@ -5,7 +5,9 @@
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 
-#if __GNUC_PREREQ (3,4)
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+
+#if GCC_PREREQUISITE(3,4,4)
 
 #define DEFINE_FWK_MODULE(type) \
   DEFINE_SEAL_MODULE (); \

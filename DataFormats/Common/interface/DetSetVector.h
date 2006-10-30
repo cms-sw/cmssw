@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.9 2006/08/30 23:28:33 wmtan Exp $
+$Id: DetSetVector.h,v 1.10 2006/10/25 21:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -41,9 +41,9 @@ $Id: DetSetVector.h,v 1.9 2006/08/30 23:28:33 wmtan Exp $
 #include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -51,7 +51,7 @@ namespace edm {
   // Forward declarations
   template <class T> class DetSetVector;
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   //------------------------------------------------------------
   // The following template partial specialization can be removed
   // when we move to GCC 3.4.x
@@ -374,7 +374,7 @@ namespace edm {
     a.swap(b);
   }
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   // has swap function
   template <class T>
   struct has_swap<edm::DetSetVector<T> > {

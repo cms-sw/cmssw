@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.14 2006/10/25 21:56:29 wmtan Exp $
+$Id: Ref.h,v 1.15 2006/10/28 23:50:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -90,9 +90,11 @@ $Id: Ref.h,v 1.14 2006/10/25 21:56:29 wmtan Exp $
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/ProductID.h"
 
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
 // Workaround needed in gcc3.2.3 due to compiler bug
 namespace GCC_3_2_3_WORKAROUND_1 {
 #endif
@@ -102,7 +104,7 @@ namespace GCC_3_2_3_WORKAROUND_1 {
     typedef typename C::key_compare comparison_functor;
     return comparison_functor()(lhs, rhs);
   }
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
 // Workaround needed in gcc3.2.3 due to compiler bug
 }
 namespace GCC_3_2_3_WORKAROUND_2 {
@@ -112,7 +114,7 @@ namespace GCC_3_2_3_WORKAROUND_2 {
   compare_key(K const& lhs, K const& rhs) {
     return lhs < rhs;
   }
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
 // Workaround needed in gcc3.2.3 due to compiler bug
 }
 #endif
@@ -264,7 +266,7 @@ namespace edm {
   inline
   bool
   operator<(Ref<C, T, F> const& lhs, Ref<C, T, F> const& rhs) {
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
     // needed for gcc 3_2_3 compiler bug workaround
     using GCC_3_2_3_WORKAROUND_1::compare_key;
     using GCC_3_2_3_WORKAROUND_2::compare_key;

@@ -16,9 +16,9 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.28 $
+ * \version $Revision: 1.29 $
  *
- * $Id: RangeMap.h,v 1.28 2006/08/11 21:58:25 wmtan Exp $
+ * $Id: RangeMap.h,v 1.29 2006/10/25 21:56:29 wmtan Exp $
  *
  */
 #include <map>
@@ -27,6 +27,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
   
@@ -208,7 +210,7 @@ namespace edm {
     a.swap(b);
   }
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   /// has swap function
   template<typename  ID, typename C, typename P > 
   struct has_swap<edm::RangeMap<ID,C,P> > {

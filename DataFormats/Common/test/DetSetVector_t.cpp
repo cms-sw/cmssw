@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.10 2006/10/25 21:32:01 paterno Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.11 2006/10/25 21:56:29 wmtan Exp $
  *  CMSSW
  *
  */
@@ -11,11 +11,13 @@
 #include <ostream>
 #include <vector>
 
-#if ! __GNUC_PREREQ (3,4)
-#include "DataFormats/Common/interface/traits.h"
-#endif
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+#if ! GCC_PREREQUISITE(3,4,4)
+#include "DataFormats/Common/interface/traits.h"
+#endif
 
 using namespace edm;
 
@@ -181,7 +183,7 @@ void detsetTest()
   //std::cerr << "\nEnd DetSetVector_t detsetTest()\n";
 }
 
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
 void traitsTest() 
 {
   //std::cerr << "\nStart DetSetVector_t traitsTest()\n";
@@ -290,7 +292,7 @@ void refTest()
 void work() 
 {
   detsetTest();
-#if ! __GNUC_PREREQ (3,4)
+#if ! GCC_PREREQUISITE(3,4,4)
   traitsTest();
 #endif
   refTest();
