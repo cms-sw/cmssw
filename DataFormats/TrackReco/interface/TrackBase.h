@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.41 2006/09/14 14:51:31 namapane Exp $
+ * \version $Id: TrackBase.h,v 1.42 2006/10/23 13:09:53 llista Exp $
  *
  */
 
@@ -66,7 +66,7 @@ namespace reco {
     /// constructor from fit parameters and error matrix
     TrackBase( double chi2, double ndof,
 	       const ParameterVector & par, double pt, const CovarianceMatrix & cov,
-	       int charge = 0, double referenceX = 0, double referenceY = 0 );
+	       int charge = 0 );
     /// set hit pattern from vector of hit references
     template<typename C>
     void setHitPattern( const C & c ) { hitPattern_.set( c.begin(), c.end() ); }
@@ -141,9 +141,9 @@ namespace reco {
     /// pseudorapidity of momentum vector
     double eta() const { return momentum().Eta(); }
     /// x coordinate of point of closest approach to the beamline
-    double vx() const { return referenceX() + d0() * sin( phi0() ); }
+    double vx() const { return d0() * sin( phi0() ); }
     /// y coordinate of point of closest approach to the beamline
-    double vy() const { return referenceY() - d0() * cos( phi0() ); }
+    double vy() const { return d0() * cos( phi0() ); }
     /// z coordinate of point of closest approach to the beamline
     double vz() const { return dz(); }
     
@@ -158,12 +158,7 @@ namespace reco {
       int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
       return b * ( b + 1 ) / 2 + a;
     }
-    /// x coordinate of reference point
-    double referenceX() const { return referenceX_; }
-    /// y coordinate of reference point
-    double referenceY() const { return referenceY_; }
-    /// reference point
-    Point referencePoint() const { return Point( referenceX_, referenceY_, 0 ); }
+
   private:
     /// chi-squared
     Double32_t chi2_;
@@ -171,8 +166,6 @@ namespace reco {
     Double32_t ndof_;
     // perigee 5 parameters
     Double32_t parameters_[ dimension ];
-    // reference point, defaults to (0,0,0)
-    Double32_t referenceX_, referenceY_;
     /// transverse momentum
     Double32_t pt_;
     /// perigee 5x5 covariance matrix

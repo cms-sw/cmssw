@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.28 2006/09/14 14:51:31 namapane Exp $
+ * \version $Id: Track.h,v 1.29 2006/10/23 13:09:53 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -27,7 +27,7 @@ namespace reco {
     /// the point of closest approch to the beamline.    
     Track( double chi2, double ndof,
 	   const ParameterVector & par, double pt, const CovarianceMatrix & cov, 
-	   int charge = 0, double referenceX = 0, double referenceY = 0 );
+	   int charge = 0 );
     /// return true if the outermost point is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// return true if the innermost point is valid

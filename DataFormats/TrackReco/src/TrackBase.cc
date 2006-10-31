@@ -5,9 +5,8 @@ using namespace reco;
 
 TrackBase::TrackBase( double chi2, double ndof,
 		      const ParameterVector & par, double pt, const CovarianceMatrix & cov, 
-		      int charge, double referenceX, double referenceY ) :
-  chi2_( chi2 ), ndof_( ndof ), 
-  referenceX_( referenceX ), referenceY_( referenceY ) {
+		      int charge ) :
+  chi2_( chi2 ), ndof_( ndof ) {
   if ( charge == 0 ) charge = par[ 0 ] < 0 ? + 1 : - 1;
   pt_ = charge > 0 ? fabs( pt ) : - fabs( pt );
   std::copy( par.begin(), par.end(), parameters_ );
