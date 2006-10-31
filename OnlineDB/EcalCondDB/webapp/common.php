@@ -9,7 +9,7 @@
 
 function get_conn_params() {
   return array('user' => "cond01",
-	       'pass' => "oracond01",
+	       'pass' => "",
 	       'sid'  => "ecalh4db");
 }
 
@@ -87,7 +87,9 @@ function get_task_array() {
 	       'PD' => 'Pedestal Task',
 	       'PO' => 'Pedestals Online Task',
 	       'TP' => 'Test Pulse Task',
-	       'BM' => 'Beam Task');
+	       'BC' => 'Beam Calo Task',
+               'BH' => 'Beam Hodo Task',
+               'TT' => 'Trigger Tower Task');
 }
 
 function get_task_outcome($list_bits, $outcome_bits) {

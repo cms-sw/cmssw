@@ -3,7 +3,7 @@
  * test_funcs.php
  *
  * Scratch space to see that functions are behaving
- * $Id$
+ * $Id: test_funcs.php,v 1.2 2006/07/23 16:47:58 egeland Exp $
  */
 -->
 
@@ -15,29 +15,33 @@
 <?php
 require_once 'db_functions.php';
 
-$locs = get_loc_list();
-var_dump($locs);
+echo build_mon_dataset_sql("MON_CRYSTAL_CONSISTENCY_DAT",
+			   "task_status = :ts"
+			   ), "\n";
 
-$extents = get_run_num_extents();
-var_dump($extents);
+$data = fetch_mon_dataset_data("MON_CRYSTAL_CONSISTENCY_DAT", 75, "task_status != 0");
+echo " data ";
+var_dump($data);
 
-$extents = get_run_date_extents();
-var_dump($extents);
+$headers = fetch_mon_dataset_headers("MON_CRYSTAL_CONSISTENCY_DAT");
+echo " headers ";
+var_dump($headers);
+
+$t_meta = fetch_table_meta("MON_CRYSTAL_CONSISTENCY_DAT");
+echo " table meta ";
+var_dump($t_meta);
+
+$f_meta = fetch_field_meta("MON_CRYSTAL_CONSISTENCY_DAT");
+echo " field meta ";
+var_dump($f_meta);
+
+$c_meta = fetch_channel_meta("EB_crystal_number");
+echo " channel meta ";
+var_dump($c_meta);
 
 ?>
 </pre>
 
-<?php
-require_once 'index.php';
-
-echo "<form>";
-draw_location_box();
-draw_runtype_box();
-draw_rungentag_box();
-draw_run_select_box();
-draw_interested_box();
-echo "</form>";
-?>
 
 </body>
 </html>

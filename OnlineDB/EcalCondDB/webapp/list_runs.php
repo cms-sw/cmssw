@@ -3,7 +3,7 @@
  * list_runs.php
  *
  * List a page of runs and subtables for various data categories
- * $Id: list_runs.php,v 1.2 2006/07/23 16:47:58 egeland Exp $
+ * $Id: list_runs.php,v 1.4 2006/09/27 20:37:57 egeland Exp $
  */
 
 require_once 'common.php';
@@ -80,7 +80,7 @@ function fill_monitoring_table($run, $run_iov_id, $runtype) {
       $dqm_url = htmlentities(get_dqm_url($loc, $runtype, $run));
       $list_bits = $monresults['TASK_LIST'][$i];
       $outcome_bits = $monresults['TASK_OUTCOME'][$i];
-      echo "<td>", draw_tasklist($list_bits, $outcome_bits), "</td>";
+      echo "<td>", draw_tasklist($list_bits, $outcome_bits, $run, $loc, $iov_id), "</td>";
       echo "<td><a href='$dqm_url'>DQM</a></td>";
       echo "<td class='dbplot'>",  draw_plotlink('MON', $exists_str, $run, $iov_id), "</td>";
       echo "</tr>\n";
@@ -139,6 +139,9 @@ function fill_beam_table($run) {
     foreach($beamselect_headers as $db_handle => $head) {
       echo "<th>$head</th>";
     }
+
+    echo "<th>Beam line data</th>";
+
     echo "</tr>";
     for ($i = 0; $i < $nbeamrows; $i++) {
       echo "<tr>\n";
@@ -146,6 +149,11 @@ function fill_beam_table($run) {
 	$head = $beamresults[$db_handle][$i];
 	echo "<td>", $head, "</td>\n";
       }
+
+      // Uncomment for popup
+      //    echo "<td class='dbplot'>",  draw_beamlink($run, $loc), "</td>";
+      echo "<td class='dbplot'><a href=beam.php?run_num=$run&loc=$loc>Data</td>";
+      
       echo "</tr>\n";
     }
   } else {
@@ -153,6 +161,23 @@ function fill_beam_table($run) {
           <th class='typehead'>BEAM</th>
           <td class='noresults'>No BEAM results</td></tr>";
   }
+}
+function draw_beamlink( $run, $loc) {
+ 
+    $url = htmlentities("beam.php?run_num=$run&loc=$loc");
+    $target = "beam$run$loc";
+
+
+    echo "<div class='ttp bc'>";
+     echo "<a onclick=\"return popup(this, '$target', 700)\" href='$url' >Data</a>";
+    
+    //   echo "<div class='rtt tt'><b>Data Available:</b><br/>";
+    //  foreach (split(',', $exists_str) as $t) {
+    //  echo "$t<br />";
+    //  }
+     echo "</div>";
+     //  </div>";
+ 
 }
 
 function draw_plotlink($datatype, $exists_str, $run, $iov_id) {
@@ -162,7 +187,7 @@ function draw_plotlink($datatype, $exists_str, $run, $iov_id) {
 
 
     echo "<div class='ttp bc'>";
-    echo "<a onclick=\"return popup(this, '$target')\" href='$url' >Plot</a>";
+    echo "<a onclick=\"return popup(this, '$target', 700)\" href='$url' >Plot</a>";
     echo "<div class='rtt tt'><b>Data Available:</b><br/>";
     foreach (split(',', $exists_str) as $t) {
       echo "$t<br />";
@@ -180,7 +205,7 @@ if (isset($_GET['run_select']) && $_GET['run_select'] == 'last_100') {
           <meta http-equiv='Cache-Control' content='no-cache' />";
 }
 
-function draw_tasklist($list_bits, $outcome_bits) {
+function draw_tasklist($list_bits, $outcome_bits, $run, $loc, $iov_id) {
   $tasks = get_task_array();
   $outcome = get_task_outcome($list_bits, $outcome_bits);
   
@@ -188,7 +213,11 @@ function draw_tasklist($list_bits, $outcome_bits) {
 
   foreach ($outcome as $taskcode => $result) {
     $status = $result ? 'good' : 'bad';
-    echo "<div class='ttp bl $status'>$taskcode
+    $url = htmlentities("bad_channels.php?run=$run&loc=$loc&iov_id=$iov_id&taskcode=$taskcode");
+    $target = "bad_channels$run$loc$iov_id$taskcode";
+
+    echo "<div class='ttp bl $status'>
+           <a onclick=\"return popup(this, '$target', 1000)\" href='$url'>$taskcode</a>
            <div class='tt' style='width:  150px'>$tasks[$taskcode]</div></div>";
   }
 }
@@ -203,7 +232,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <?php echo get_stylelinks(); ?>
 <script type="text/javascript">
 <!--
-function popup(mylink, windowname)
+function popup(mylink, windowname, width)
 {
   if (! window.focus)return true;
   var href;
@@ -211,7 +240,8 @@ function popup(mylink, windowname)
   href=mylink;
   else
   href=mylink.href;
-  window.open(href, windowname, 'width=700,height=600,scrollbars=on');
+  var param  = 'width='+width+',height=600,scrollbars=yes';
+  window.open(href, windowname, param);
   return false;
 }
 //-->
@@ -231,6 +261,7 @@ if ($errors = input_errors()) {
   $binds = $sqlresult['binds'];
   
   $total_rows = count_rows($conn, $sql, $binds);
+  $sum_events = fetch_sum_events($sqlresult);
 
   if ($total_rows == 0) {
     echo "<h3>No results found.</h3>";
@@ -264,7 +295,7 @@ if ($errors = input_errors()) {
     // Top header and plot select
     echo "<table><tr><td>";
     // Result information
-    echo "<h3>$total_rows runs returned</h3>";
+    echo "<h3>$total_rows runs returned - $sum_events events</h3>";
     echo "<h6>Showing page $page of $total_pages, $rows_per_page runs per page</h6>";
     echo "</td><td>";
     // Help information?

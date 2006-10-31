@@ -3,7 +3,7 @@
  * index.php
  *
  * Run selection page
- * $Id: index.php,v 1.2 2006/07/23 16:47:58 egeland Exp $
+ * $Id: index.php,v 1.3 2006/08/25 19:46:46 egeland Exp $
  */
 
 require_once 'common.php';
@@ -26,6 +26,27 @@ function draw_sm_box() {
   echo "<select name='SM'>";
   foreach($supermodules as $sm) {
     echo "<option value='$sm'>$sm";
+  }
+  echo "</select>";
+}
+
+/* Returns a list of crystals */
+function get_xtal_list() {
+  $crystals= array();
+  for ($i=1; $i<1701; $i++){
+    $crystals[$i]=$i;
+ }
+
+  return ($crystals);
+}
+
+function draw_xtal_box() {
+  $crystals = get_xtal_list();
+  array_unshift($crystals, 'Any');
+
+  echo "<select name='CRYSTAL'>";
+  foreach($crystals as $xt) {
+    echo "<option value='$xt'>$xt";
   }
   echo "</select>";
 }
@@ -120,6 +141,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <table class='runselect'>
 <tr><th>Location:</th><td><?php draw_location_box(); ?></td></tr>
 <tr><th>SM:</th><td><?php draw_sm_box(); ?></td></tr>
+<tr><th>Crystal:</th><td><?php draw_xtal_box(); ?></td></tr>
 <tr><th>Run Type:</th><td><?php draw_runtype_box(); ?></td></tr>
 <tr><th>General Tag:</th><td><?php draw_rungentag_box(); ?></td></tr>
 <tr><th>Run Selection:</th><td><?php draw_run_select_box(); ?></td></tr>

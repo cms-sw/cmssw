@@ -3,7 +3,7 @@
  * db_functions.php
  *
  * All the functions used to connect to and query the DB
- * $Id: db_functions.php,v 1.4 2006/09/27 20:37:57 egeland Exp $
+ * $Id: db_functions.php,v 1.5 2006/09/27 20:48:10 egeland Exp $
  */
 
 require_once 'common.php';
@@ -61,6 +61,7 @@ function get_sm_list() {
 
   return array_values($results['SM']);
 }
+
 
 /* Returns a list of run types available from RUN_TYPE_DEF */
 function get_runtype_list() {
@@ -155,6 +156,15 @@ function build_runselect_sql($params) {
     $where .= " AND (cv.id1 = :SM OR cv.name = 'ECAL')";
     $binds[':SM'] = $params['SM'];
   }
+  if ($params['SM'] != 'Any'&& $params['CRYSTAL'] != 'Any' && $params['run_type'] == 'BEAM') {
+    $selectfrom .=" left join run_h4_table_position_dat rtbdat on rtbdat.iov_id = riov.iov_id 
+        left join channelview cv2 on rtbdat.logic_id = cv2.logic_id 
+                        and cv2.name = 'EB_crystal_number'
+                        and cv2.name = cv2.maps_to";
+    $where .= " AND cv2.id1=:SM AND cv2.id2 = :CRYSTAL ";
+    $binds[':SM'] = $params['SM'];
+    $binds[':CRYSTAL'] = $params['CRYSTAL'];
+  }
 
   if ($params['run_type'] == 'All except TEST') {
     $where .= " AND rtype.run_type != 'TEST'";
@@ -189,6 +199,27 @@ function build_runselect_sql($params) {
 
   return array('sql' => $sql, 'binds' => $binds);
 }
+
+/* Returns the sum of the events given an sql string and binds from get_runselect_sql */
+function fetch_sum_events($runselect_output) {
+  global $conn;
+
+  $sql = $runselect_output['sql'];
+  $binds = $runselect_output['binds'];
+
+  $sql = "select sum(num_events) total_events from ($sql)";
+
+  $stmt = oci_parse($conn, $sql);
+
+  foreach($binds as $handle => $var) {
+    oci_bind_by_name($stmt, $handle, $binds[$handle]);
+  }
+  
+  oci_execute($stmt);
+  $row = oci_fetch_row($stmt);
+  return $row[0];
+}
+
 
 /* Returns an associative array of headers for the monitoring query
    returns array($db_handle => $header) */
@@ -268,6 +299,28 @@ function get_beamselect_headers() {
 	       'SPECIAL_SETTINGS' => 'Special Settings');
 }
 
+function fetch_all_beam_data( $run_num, $loc) {
+  global $conn;
+  
+  if ($loc == 'H4B') {
+    $beamtable = "RUN_H4_BEAM_DAT";
+  } elseif ($loc == 'H2') {
+    $beamtable = "RUN_H2_BEAM_DAT";
+  } else {
+    return array();
+  }
+
+  $sql = "select * from $beamtable bdat, run_iov riov where bdat.iov_id=riov.iov_id and riov.run_num = :run ";
+
+  $stmt = oci_parse($conn, $sql);
+  
+  oci_bind_by_name($stmt, ':run', $run_num);
+  oci_execute($stmt);
+  oci_fetch_all($stmt, $results);
+  
+  return $results;
+}
+
 function fetch_beam_data($run, $loc) {
   global $conn;
   
@@ -298,6 +351,141 @@ function fetch_beam_data($run, $loc) {
   
   return $results;
 }
+
+
+/* Returns a general pupose SQL statement for querying a MON_ table
+   Required bind is :iov_id, the iov_id in the MON_ table
+   Additional binds can be added to the $where clause
+   This function takes "channelview.ID1" from the data in the RUN_DAT table
+     NOT from the data table.  This is a temporary solution while the DQM does not
+     write the SM number
+   This function performs no checks that the sql is valid
+ */
+function build_mon_dataset_sql($table, $where = NULL, $order = NULL) {
+    $sql = "SELECT
+            riov.run_num run,
+            cv2.id1,
+            cv.id2,
+            cv.id3,
+            dat.*
+          FROM ( $table dat
+                 JOIN channelview cv ON cv.logic_id = dat.logic_id AND cv.name = cv.maps_to
+                 JOIN mon_run_iov miov ON miov.iov_id = dat.iov_id
+                 JOIN run_iov riov ON riov.iov_id = miov.run_iov_id )
+               LEFT OUTER JOIN run_dat rdat ON rdat.iov_id = riov.iov_id
+               LEFT OUTER JOIN channelview cv2 ON cv2.logic_id = rdat.logic_id AND cv2.name = cv2.maps_to
+          WHERE miov.iov_id = :iov_id";
+
+  if ($where) {
+    $sql .= " AND ".$where;
+  }
+
+  if ($order) {
+    $sql .= " ORDER BY ".join(", ", $order);
+  } else {
+    $sql .= " ORDER BY run, id1, id2, id3";   
+  }
+
+  return $sql;
+}
+
+
+
+function fetch_mon_dataset_headers($table) {
+  global $conn;
+
+  $headers = array();
+  $headers['RUN'] = 'Run';
+  
+  $table_meta = fetch_table_meta($table);
+  $field_meta = fetch_field_meta($table);
+  $chan_meta = fetch_channel_meta($table_meta['LOGIC_ID_NAME']);
+
+  foreach(array('ID1NAME' => 'ID1', 'ID2NAME' => 'ID2', 'ID3NAME' => 'ID3') as $name => $col) {
+    if ($chan_meta[$name]) {
+      $headers[$col] = $chan_meta[$name];
+    }
+  }
+
+  foreach($field_meta as $field => $meta) {
+    $headers[$field] = $meta['LABEL'];
+  }
+
+  return $headers;
+}
+
+
+
+function fetch_mon_dataset_data($table, $iov_id, $where = NULL, $additional_binds = NULL, $order = NULL) {
+  global $conn;
+
+  $sql = build_mon_dataset_sql($table, $where, $order);
+  $stmt = oci_parse($conn, $sql);
+  
+  oci_bind_by_name($stmt, ':iov_id', $iov_id);
+
+  if ($additional_binds) {
+    foreach ($additional_binds as $bind_var => $bind_val) {
+      oci_bind_by_name($stmt, $bind_var, $bind_val);
+    }
+  }
+
+  oci_execute($stmt);
+  oci_fetch_all($stmt, $results);
+  return $results;
+}
+
+
+
+function fetch_table_meta($table) {
+  global $conn;
+
+  $sql = "select * from cond_table_meta where table_name = :1";
+  $stmt = oci_parse($conn, $sql);
+  oci_bind_by_name($stmt, ':1', $table);
+  oci_execute($stmt);
+  $results = oci_fetch_assoc($stmt);
+  return $results;
+}
+
+
+
+function fetch_field_meta($table) {
+  global $conn;
+
+  $sql = "select f.*
+           from cond_table_meta t 
+           join cond_field_meta f on f.tab_id = t.def_id 
+           where t.table_name = :1
+           order by table_name, field_name";
+
+  $stmt = oci_parse($conn, $sql);
+  oci_bind_by_name($stmt, ':1', $table);
+  oci_execute($stmt);
+  $results = array();
+  while ($row = oci_fetch_assoc($stmt)) {
+    $field = $row['FIELD_NAME'];
+    unset($row['FIELD_NAME']);
+    $results[$field] = $row;
+  }
+  return $results;
+}
+
+
+
+function fetch_channel_meta($name) {
+  global $conn;
+
+  $sql = "select * from viewdescription where name = :1";
+
+  $stmt = oci_parse($conn, $sql);
+  oci_bind_by_name($stmt, ':1', $name);
+  oci_execute($stmt);
+  $results = oci_fetch_assoc($stmt);
+  return $results;
+}
+
+
 
 function fetch_field_array($prefix) {
   global $conn;

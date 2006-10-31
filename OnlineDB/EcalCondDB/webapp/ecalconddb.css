@@ -2,13 +2,13 @@
  * ecalconddb.css
  * 
  * CSS styling for the application
- * $Id$
+ * $Id: ecalconddb.css,v 1.2 2006/07/23 16:47:58 egeland Exp $
  */
 
 .r { background:  red; }
 
 body {
-  font-family:  sans-serif;
+  font-family:  sans-serif; 
 }
 
 table.runselect {
@@ -47,6 +47,45 @@ table.runs td {
 
 table.runs td a {
   text-decoration:  none;
+}
+
+table.bads {
+/*  width:  800px; */
+  border:  thick solid #003355;
+  border-collapse:  collapse;
+  background:  #f0f0ff;
+  margin:  3px;
+}
+
+table.bads tr {
+  border:  thin solid #003355;
+}c
+
+table.bads th, table.bads td {
+  text-align:  center;
+  font-size: 10pt;
+}
+
+table.bads th {
+  border:  thin solid #003355;
+  padding:  1px 3px;
+  font-size:  10pt;
+}
+
+table.bads td {
+/*  border-left:  thin solid #003355;
+  border-right:  thin solid #003355;*/
+  border:  thin solid #003355;
+  text-align:  right;
+  padding:  1px 20px;
+}
+
+table.bads td a {
+  text-decoration:  none;
+}
+
+tr.bads  {
+  background:  #fff0f0;
 }
 
 th.typehead {
@@ -168,7 +207,7 @@ div.pager strong {
   font-weight:  bold;
 }
 
-.good,.bad { 
+.good a, .bad a { 
   color:  white;
 }
 
