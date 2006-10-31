@@ -1,3 +1,6 @@
+#ifndef RecoBTag_SoftLepton_SoftLepton
+#define RecoBTag_SoftLepton_SoftLepton
+
 // -*- C++ -*-
 //
 // Package:    SoftLepton
@@ -13,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id$
+// $Id: SoftLepton.h,v 1.1 2006/10/18 16:38:28 fwyzard Exp $
 //
 
 // system include files
@@ -22,6 +25,8 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+
+#include "RecoBTag/SoftLepton/interface/SoftLeptonAlgorithm.h"
 
 class edm::ParameterSet;
 class edm::EventSetup;
@@ -39,10 +44,16 @@ private:
 
   // configuration   
   const edm::ParameterSet& m_config;
-  std::string m_associator;
-  std::string m_primaryVertexProducer;
-  std::string m_outputInstanceName;
+  const std::string m_jetTracksAssociator;
+  const std::string m_primaryVertexProducer;
+  const std::string m_leptonProducer;
+  const std::string m_outputInstanceName;
 
   // concrete algorithm
   SoftLeptonAlgorithm m_algo;
+
+  // nominal beam spot position
+  const reco::Vertex * m_nominalBeamSpot;
 };
+
+#endif // RecoBTag_SoftLepton_SoftLepton
