@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 
@@ -24,12 +24,11 @@
 
 // User switches for HcalPedestalAnalysis to set in cfg are:
 //   nevtsample - number of events per sample in which data will be divided
-//                for stability checks (default: 9999999),
+//                for stability checks (default: 0 = do not use),
 //   hiSaveflag - flag to save histos of charge per cap-id (default: 0),
 //   pedValflag - pedestal validation flag:
-//                1 - write new constants and compare with nominal,
-//                0 - do not compare, just calculate new constants,
-//                2 - compare with nominal, update only if changed.
+//                0 - write out current raw constants (default)
+//                1 - write out validated constants
 
 class HcalPedestals;
 class HcalPedestalWidths;
@@ -45,8 +44,11 @@ public:
   HcalPedestalAnalysis(const edm::ParameterSet& ps);  
   /// Destructor
   ~HcalPedestalAnalysis();
+
   void setup(const std::string& m_outputFileROOT);
+
   void SampleAnalysis();
+
   int done(const HcalPedestals* fInputPedestals, 
 	    const HcalPedestalWidths* fInputWidths,
 	    HcalPedestals* fOutputPedestals, 
@@ -57,6 +59,17 @@ public:
 		    const HFDigiCollection& hf,
 		    const HcalDbService& cond);
 
+// pedestal validation: HcalPedVal=-1 means not validated,
+//                                  0 everything OK,
+//                                  N>0 : mod(N,100000) drifts + width changes
+//                                        int(N/100000) missing channels
+  int HcalPedVal(int nstat[4], const HcalPedestals* fRefPedestals,
+            const HcalPedestalWidths* fRefPedestalWidths,
+            HcalPedestals* fRawPedestals,
+            HcalPedestalWidths* fRawPedestalWidths,
+            HcalPedestals* fValPedestals,
+            HcalPedestalWidths* fValPedestalWidths);
+
 protected:
   
   
@@ -66,38 +79,36 @@ private:
   //#  For each HcalDetId (channel) a map<int, PEDBUNCH> is associated;
   //#  int is cap-id (1-4);
   //#  PEDBUNCH is a pair - first element is the main 
-  //#  histo with the ADC values and second one is another pair;
+  //#  histo with the pedestal distribution and second one is another pair;
   //#  this pair contains map<int, std::vector<double> > as a first element;
   //#  int is cap-id, and vector contains some useful variables;
   //#  the second element is a vector of histos (pointers);
-  //#  for the "trend" analysis the main histo (with ADC values) is reset every 
+  //#  for the "trend" analysis the main histo (with pedestals) is reset every 
   //#  nevt_ped events and info is put in the other part of the PEDBUNCH;
   //#  so at the end we have the trends for the variables in concern
   //#  which are written in THE vector<TH1F*>; 
   //###  
   typedef std::pair<TH1F*,std::pair<std::map<int, std::vector<double> >,std::vector<TH1F*> > > PEDBUNCH;
-  TFile* m_file;
+
   void per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, std::map<HcalDetId, std::map<int,PEDBUNCH> > &toolT);
+
   void GetPedConst(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* PedMeans, TH1F* PedWidths);
+
   void Trendings(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2);
-  int PedValidtn(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, int nTS);
+
   void AllChanHists(const HcalDetId detid, const HcalQIESample& qie0, const HcalQIESample& qie1, const HcalQIESample& qie2, const HcalQIESample& qie3, const HcalQIESample& qie4, const HcalQIESample& qie5, std::map<HcalDetId, std::map<int,PEDBUNCH> > &toolT);
+
+  TFile* m_file;
+
   std::string m_outputFileROOT;
   std::string m_outputFileMean;
   std::string m_outputFileWidth;
   std::ofstream m_logFile;
-  
   int m_startTS;
   int m_endTS;
   int m_nevtsample;
   int m_hiSaveflag;
   int m_pedValflag;
-
-// m_AllPedsOK says whether all new pedestals are consistent with nominal
-// values (e.g. from DB): m_AllPedsOK = 1 everything consistent,
-//                                      0 some inconsistencies found,
-//                                     -1 validation not requested,
-//                                     -2 no data to validate.
   int m_AllPedsOK;
   
   const HcalQIEShape* m_shape;
@@ -112,15 +123,16 @@ private:
     TH1F* CAPID_CHI2;
   } hbHists, hfHists, hoHists;
   std::map<HcalDetId,std::map<int, PEDBUNCH > >::iterator _meot;
-  HcalPedestals* pedCan;
-  HcalPedestalWidths* widthCan;
-  const HcalPedestals* pedCan_nominal;
-  const HcalPedestalWidths* widthCan_nominal;
-  HcalPedestals* meansper2caps;
-  HcalPedestals* widthsper2caps;
+  const HcalPedestals* fRefPedestals;
+  const HcalPedestalWidths* fRefPedestalWidths;
+  HcalPedestals* fRawPedestals;
+  HcalPedestalWidths* fRawPedestalWidths;
+  HcalPedestals* fValPedestals;
+  HcalPedestalWidths* fValPedestalWidths;
   int evt;
   int sample;
   int evt_curr;
+  float m_stat[4];
   std::vector<bool> state;
 
 // flag to make gaussian fits to charge dists
