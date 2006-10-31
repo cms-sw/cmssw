@@ -82,7 +82,9 @@ protected:
   edm::ParameterSet theMagneticFieldPSet;
 
   //Geometry
-  edm::ESHandle<DTGeometry> dtGeomESH;
+  edm::ESHandle<DTGeometry> theDTGeomESH; //DTs
+  edm::ESHandle<RPCGeometry> theRPCGeomESH; //RPC
+  edm::ESHandle<CSCGeometry> theCSCGeomESH; //CSC
   
 
 
@@ -125,18 +127,16 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   //Build geometry
 
   //- DT...
-  iSetup.get<MuonGeometryRecord>().get(dtGeomESH);
-  LogDebug("Geant4e") << "Got DTGeometry " << std::endl;
+  iSetup.get<MuonGeometryRecord>().get(theDTGeomESH);
+  LogDebug("Geant4e") << "Got DTGeometry";
 
   //- CSC...
-  ESHandle<CSCGeometry> cscGeomESH;
-  iSetup.get<MuonGeometryRecord>().get(cscGeomESH);
-  LogDebug("Geant4e") << "Got CSCGeometry " << std::endl;
+  iSetup.get<MuonGeometryRecord>().get(theCSCGeomESH);
+  LogDebug("Geant4e") << "Got CSCGeometry";
 
   //- RPC...
-  ESHandle<RPCGeometry> rpcGeomESH;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeomESH);
-  LogDebug("Geant4e") << "Got RPCGeometry " << std::endl;
+  iSetup.get<MuonGeometryRecord>().get(theRPCGeomESH);
+  LogDebug("Geant4e") << "Got RPCGeometry";
 
 
   ///////////////////////////////////////
@@ -296,6 +296,12 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
     ////////////////////////////////////////////////
     //- Iterate over Sim Hits in DT and check propagation
     iterateOverHits(simHitsDT, DT, trkInd, ftsTrack);
+    ////////////////////////////////////////////////
+    //- Iterate over Sim Hits in RPC and check propagation
+    iterateOverHits(simHitsRPC, RPC, trkInd, ftsTrack);
+    ////////////////////////////////////////////////
+    //- Iterate over Sim Hits in CSC and check propagation
+    iterateOverHits(simHitsCSC, CSC, trkInd, ftsTrack);
 
 
 
@@ -310,6 +316,13 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
 					   const FreeTrajectoryState& ftsTrack) {
 
   using namespace edm;
+
+  if (muonChamberType == DT)
+    LogDebug("Geant4e") << "G4e -- Iterating over DT hits";
+  else if (muonChamberType == RPC)
+    LogDebug("Geant4e") << "G4e -- Iterating over RPC hits";
+  else if (muonChamberType == CSC)
+    LogDebug("Geant4e") << "G4e -- Iterating over CSC hits";
   
   for (PSimHitContainer::const_iterator simHitIt = simHits->begin(); 
        simHitIt != simHits->end(); 
@@ -334,16 +347,38 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
     }
     LogDebug("Geant4e") << "G4e -- Found a hit corresponding to a muon " << trkPDG;
     
-    /////////////
+    //////////////////////////////////////////////////////////
     // Build the surface. This is different for DT, RPC, CSC
-    const GeomDetUnit* layer = 0;
+    //const GeomDetUnit* layer = 0;
+    const GeomDet* layer = 0;
+    // * DT
     if (muonChamberType == DT) {
       DTWireId wId(simHitIt->detUnitId());
-      layer = dtGeomESH->layer(wId);
+      layer = theDTGeomESH->layer(wId);
       if (layer == 0){
-	LogDebug("Geant4e") << "Failed to get detector unit" << std::endl;
+	LogDebug("Geant4e") << "Failed to get detector unit";
 	continue;
       }
+    }
+    // * RPC
+    else if (muonChamberType == RPC) {
+      RPCDetId wId(simHitIt->detUnitId());
+      layer = theRPCGeomESH->idToDet(wId);
+      if (layer == 0){
+	LogDebug("Geant4e") << "Failed to get detector unit";
+	continue;
+      }
+    }
+
+    // * CSC
+    else if (muonChamberType ==CSC) {
+      CSCDetId wId(simHitIt->detUnitId());
+      layer = theCSCGeomESH->idToDet(wId);
+      if (layer == 0){
+	LogDebug("Geant4e") << "Failed to get detector unit";
+	continue;
+      }
+
     }
 
     const Surface& surf = layer->surface();
