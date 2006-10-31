@@ -177,7 +177,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	if (sqrt(tp->momentum().perp2())<minpt) continue;
 	if ((fabs(tp->parentVertex()->position().perp()))>3.5) continue;
 	if ((fabs(tp->parentVertex()->position().z()))>30) continue;
-	int type = tp->g4Track_begin()->product()->begin()->type();
+	int type = tp->g4Track_begin()->type();
 	if (abs(type)!=13&&abs(type)!=11&&abs(type)!=211&&abs(type)!=321&&abs(type)!=2212) continue;
 	// 	LogDebug("TrackValidator") << "tp->charge(): " << tp->charge()
 	// 				   << "\ntp->trackPSimHit().size(): " << tp->trackPSimHit().size() 
@@ -264,8 +264,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  at++;
 
 	  TrackingParticleRef tpr = tp.begin()->first;
-	  SimTrackRefVector::iterator it=tpr->g4Track_begin();
-	  const SimTrack * assocTrack = &(**it);
+	  //SimTrackRefVector::iterator it=tpr->g4Track_begin();
+	  const SimTrack * assocTrack = &(*tpr->g4Track_begin());
 	
 	  if (associators[ww]=="TrackAssociatorByChi2"){
 	    //association chi2

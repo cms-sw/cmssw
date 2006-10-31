@@ -104,16 +104,16 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
       for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
 	
 	//FIXME correct?
-	if ((*t)->momentum().perp()<0.5) continue;
+	if (t->momentum().perp()<0.5) continue;
 	
-	Basic3DVector<double> momAtVtx((*t)->momentum().x(),(*t)->momentum().y(),(*t)->momentum().z());
+	Basic3DVector<double> momAtVtx(t->momentum().x(),t->momentum().y(),t->momentum().z());
 	Basic3DVector<double> vert;
 	const TrackingVertex * tv = &(*(tp->parentVertex()));
 	int vind=0;
 	for (TrackingVertex::g4v_iterator v=tv->g4Vertices_begin(); v!=tv->g4Vertices_end(); v++){
-	  if (vind==(*t)->vertIndex()) 
-	    vert=Basic3DVector<double>((*v)->position().x(),(*v)->position().y(),(*v)->position().z());
-	  vind++;
+	  if (vind==t->vertIndex()) 
+	    vert=Basic3DVector<double>(v->position().x(),v->position().y(),v->position().z());
+	  vind++;   
 	}
 
 	TrackBase::ParameterVector gParameters=parametersAtClosestApproachGeom(vert, momAtVtx, rt->charge());
@@ -130,7 +130,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 	chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
 	chi2 /= 5;
 
-	LogDebug("TrackAssociator") << "====NEW TRACKING PARTICLE WITH PT=" << (*t)->momentum().perp() << "====\n" 
+	LogDebug("TrackAssociator") << "====NEW TRACKING PARTICLE WITH PT=" << t->momentum().perp() << "====\n" 
 				    << "k     simG: " << gParameters[0] << "\n" 
 				    << "theta simG: " << gParameters[1] << "\n" 
 				    << "phi0  simG: " << gParameters[2] << "\n" 
@@ -172,18 +172,18 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
   for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
     for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
 
-      if ((*t)->momentum().perp()<0.5) continue;
+      if (t->momentum().perp()<0.5) continue;
 
     LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
-				 << "TrackingParticle #"<<tpindex<<" with pt=" << (*t)->momentum().perp() << "\n"
+				 << "TrackingParticle #"<<tpindex<<" with pt=" << t->momentum().perp() << "\n"
 				 << "===========================================" << "\n";
       
-      Basic3DVector<double> momAtVtx((*t)->momentum().x(),(*t)->momentum().y(),(*t)->momentum().z());
+      Basic3DVector<double> momAtVtx(t->momentum().x(),t->momentum().y(),t->momentum().z());
       Basic3DVector<double> vert;//(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
       const TrackingVertex * tv = &(*(tp->parentVertex()));
       int vind=0;
       for (TrackingVertex::g4v_iterator v=tv->g4Vertices_begin(); v!=tv->g4Vertices_end(); v++){
-	if (vind==(*t)->vertIndex()) vert=Basic3DVector<double>((*v)->position().x(),(*v)->position().y(),(*v)->position().z());
+	if (vind==t->vertIndex()) vert=Basic3DVector<double>(v->position().x(),v->position().y(),v->position().z());
 	vind++;
       }
      
