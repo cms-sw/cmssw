@@ -3,14 +3,11 @@
 
 /*----------------------------------------------------------------------
   
-EventPrincipal: This is the class responsible for management of
-per event EDProducts. It is not seen by reconstruction code;
+EventPrincipal: This is a typedef for the class responsible for
+management of per event EDProducts. It is not seen by reconstruction code;
 such code sees the Event class, which is a proxy for EventPrincipal.
 
-The major internal component of the EventPrincipal
-is the DataBlock.
-
-$Id: EventPrincipal.h,v 1.39 2006/10/23 23:51:56 chrjones Exp $
+$Id: EventPrincipal.h,v 1.40 2006/10/27 20:56:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

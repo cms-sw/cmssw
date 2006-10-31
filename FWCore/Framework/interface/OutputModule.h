@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.26 2006/09/09 06:37:55 afaq Exp $
+$Id: OutputModule.h,v 1.27 2006/10/04 14:53:10 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -39,6 +39,14 @@ namespace edm {
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
     void writeEvent(EventPrincipal const& e, ModuleDescription const& d,
+		    CurrentProcessingContext const* c);
+    void doBeginRun(RunPrincipal const& e, ModuleDescription const& d,
+		    CurrentProcessingContext const* c);
+    void doEndRun(RunPrincipal const& e, ModuleDescription const& d,
+		    CurrentProcessingContext const* c);
+    void doBeginLuminosityBlock(LuminosityBlockPrincipal const& e, ModuleDescription const& d,
+		    CurrentProcessingContext const* c);
+    void doEndLuminosityBlock(LuminosityBlockPrincipal const& e, ModuleDescription const& d,
 		    CurrentProcessingContext const* c);
     bool selected(BranchDescription const& desc) const;
 
@@ -92,6 +100,10 @@ namespace edm {
 
     virtual void write(EventPrincipal const& e) = 0;
     bool wantEvent(EventPrincipal const& e);
+    virtual void beginRun(RunPrincipal const& r){}
+    virtual void endRun(RunPrincipal const& r){}
+    virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb){}
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb){}
 
     std::string process_name_;
     GroupSelector groupSelector_;

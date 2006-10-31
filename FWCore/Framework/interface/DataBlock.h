@@ -6,7 +6,10 @@
 DataBlock: These are the classes responsible for management of
 EDProducts. It is not seen by reconstruction code;
 
-$Id: DataBlock.h,v 1.36 2006/10/07 03:50:06 wmtan Exp $
+The template parameter, AUX, contains the information for the Event,
+Luminosity Block, or Run, that is not in an EDProduct.
+
+$Id: DataBlock.h,v 1.1 2006/10/27 20:56:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -89,6 +92,7 @@ namespace edm {
     AUX aux_;
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
+    // Provenance filler for unscheduled modules
     boost::shared_ptr<EPEventProvenanceFiller> provenanceFiller_;
   };
   

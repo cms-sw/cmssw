@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.27 2006/10/23 23:49:40 chrjones Exp $
+$Id: Frameworkfwd.h,v 1.28 2006/10/27 20:46:38 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,7 +31,7 @@ namespace edm {
   class Group;
   class InputSource;
   class InputSourceDescription;
-  class LuminositySection;
+  class LuminosityBlock;
   class ModuleDescription;
   class ModuleDescriptionSelector;
   class OutputModule;
@@ -62,5 +62,7 @@ namespace edm {
 #include "DataFormats/Common/interface/PassID.h"
 #include "DataFormats/Common/interface/ReleaseVersion.h"
 #include "FWCore/Framework/interface/EventPrincipalFwd.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipalFwd.h"
+#include "FWCore/Framework/interface/RunPrincipalFwd.h"
 
 #endif

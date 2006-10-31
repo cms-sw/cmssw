@@ -1,7 +1,7 @@
 
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.21 2006/04/20 22:33:22 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.22 2006/06/20 23:13:27 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -40,11 +40,11 @@ namespace edm
   }
 
   void ProducerWorker::implBeginJob(EventSetup const& es) {
-    producer_->beginJob(es);
+    producer_->doBeginJob(es);
   }
 
   void ProducerWorker::implEndJob() {
-    producer_->endJob();
+    producer_->doEndJob();
   }
   
   std::string ProducerWorker::workerType() const {

@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.9 2006/04/20 22:33:22 wmtan Exp $
+$Id: EDProducer.cc,v 1.10 2006/06/20 23:13:27 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,16 +13,51 @@ namespace edm {
 
   EDProducer::~EDProducer() { }
 
-  void EDProducer::doProduce(Event& e, EventSetup const& s,
-			     CurrentProcessingContext const* cpc)
-  {
+  void
+  EDProducer::doProduce(Event& e, EventSetup const& c,
+			     CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    this->produce(e,s);
+    this->produce(e, c);
   }
 
-  void EDProducer::beginJob(EventSetup const&) { }
+  void 
+  EDProducer::doBeginJob(EventSetup const& es) {
+    this->beginJob(es);
+  }
+  
+  void 
+  EDProducer::doEndJob() {
+    this->endJob();
+  }
 
-  void EDProducer::endJob() { }
+  void
+  EDProducer::doBeginRun(Run & r, EventSetup const& c,
+			CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
+    this->beginRun(r, c);
+  }
+
+  void
+  EDProducer::doEndRun(Run & r, EventSetup const& c,
+			CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
+    this->endRun(r, c);
+  }
+
+  void
+  EDProducer::doBeginLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
+			CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
+    this->beginLuminosityBlock(lb, c);
+  }
+
+  void
+  EDProducer::doEndLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
+			CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
+    this->endLuminosityBlock(lb, c);
+  }
+
 
   CurrentProcessingContext const*
   EDProducer::currentContext() const

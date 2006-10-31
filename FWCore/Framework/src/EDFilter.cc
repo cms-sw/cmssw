@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDFilter.cc,v 1.5 2006/06/20 23:13:27 paterno Exp $
+$Id: EDFilter.cc,v 1.6 2006/06/21 19:03:13 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,30 +15,47 @@ namespace edm
 
   bool
   EDFilter::doFilter(Event& e, EventSetup const& c,
-		     CurrentProcessingContext const* cpc)
-  {
+		     CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     return this->filter(e, c);
   }
 
   void 
-  EDFilter::doBeginJob(EventSetup const& es) 
-  { 
+  EDFilter::doBeginJob(EventSetup const& es) { 
     this->beginJob(es);
   }
    
-  void EDFilter::doEndJob()
-  { 
+  void EDFilter::doEndJob() { 
     this->endJob();
   }
 
-  void 
-  EDFilter::beginJob(EventSetup const&) 
-  { }
-   
-  void 
-  EDFilter::endJob()
-  { }
+  bool
+  EDFilter::doBeginRun(Run & r, EventSetup const& c,
+			CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
+    return this->beginRun(r, c);
+  }
+
+  bool
+  EDFilter::doEndRun(Run & r, EventSetup const& c,
+			CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
+    return this->endRun(r, c);
+  }
+
+  bool
+  EDFilter::doBeginLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
+			CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
+    return this->beginLuminosityBlock(lb, c);
+  }
+
+  bool
+  EDFilter::doEndLuminosityBlock(LuminosityBlock & lb, EventSetup const& c,
+			CurrentProcessingContext const* cpc) {
+    detail::CPCSentry sentry(current_context_, cpc);
+    return this->endLuminosityBlock(lb, c);
+  }
 
   CurrentProcessingContext const*
   EDFilter::currentContext() const

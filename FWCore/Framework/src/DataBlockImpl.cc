@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataBlockImpl.cc,v 1.53 2006/10/07 03:50:06 wmtan Exp $
+$Id: DataBlockImpl.cc,v 1.1 2006/10/27 20:55:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -18,6 +18,7 @@ namespace edm {
   DataBlockImpl::DataBlockImpl(ProductRegistry const& reg,
 				 ProcessHistoryID const& hist,
 				 boost::shared_ptr<DelayedReader> rtrv) :
+    EDProductGetter(),
     processHistoryID_(hist),
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
     groups_(),

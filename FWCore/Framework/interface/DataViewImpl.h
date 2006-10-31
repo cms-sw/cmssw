@@ -8,7 +8,7 @@
 // 
 /**\class DataViewImpl DataViewImpl.h FWCore/Framework/interface/DataViewImpl.h
 
-Description: This is the implementation for accessing EDProducts inserting new derived products.
+Description: This is the implementation for accessing EDProducts and inserting new EDproducts.
 
 Usage:
 
@@ -19,6 +19,8 @@ The edm::DataViewImpl class provides many 'get*" methods for getting data it con
 The primary method for getting data is to use getByLabel(). The labels are the label of the module assigned
 in the configuration file and the 'product instance label' (which can be omitted in the case the 'product instance label'
 is the default value).  The C++ type of the product plus the two labels uniquely identify a product in the DataViewImpl.
+
+We use an event in the examples, but a run or a luminosity block can also hold products.
 
 \code
   edm::Handle<AppleCollection> apples;
@@ -72,7 +74,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.1 2006/10/27 20:56:42 wmtan Exp $
+$Id: DataViewImpl.h,v 1.2 2006/10/30 23:07:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -304,9 +306,9 @@ namespace edm {
 
     // Definitions forthe following struct and function templates are
     // not needed; we only require the declarations.
-    template <typename T, void (T::*)()>  struct ptmf_helper;
+    template <typename T, void (T::*)()>  struct postinsert_function;
     template <typename T> no_tag  has_postinsert_helper(...);
-    template <typename T> yes_tag has_postinsert_helper(ptmf_helper<T, &T::post_insert> * p);
+    template <typename T> yes_tag has_postinsert_helper(postinsert_function<T, &T::post_insert> * p);
 
     template<typename T>
     struct has_postinsert

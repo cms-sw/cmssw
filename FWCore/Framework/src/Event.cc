@@ -7,5 +7,4 @@ namespace edm {
 	DataViewImpl(dbk.impl(), md),
 	aux_(dbk.aux()) {
     }
-    Event::~Event() {}
 }

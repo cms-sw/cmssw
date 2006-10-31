@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.20 2006/08/28 22:32:33 wmtan Exp $
+$Id: OutputModule.cc,v 1.21 2006/09/09 06:38:56 afaq Exp $
 ----------------------------------------------------------------------*/
 
 #include <vector>
@@ -152,6 +152,54 @@ namespace edm
     FDEBUG(2) << "Accept event " << ep.id() << " " << rc << "\n";
     FDEBUG(2) << "Mask: " << *prod_ << "\n";
     return rc;
+  }
+
+  void OutputModule::doBeginRun(RunPrincipal const& rp,
+                                ModuleDescription const& md,
+                                CurrentProcessingContext const* c)
+  {
+    detail::CPCSentry sentry(current_context_, c);
+    //Save the current Mod Desc
+    current_md_ = &md;
+
+    FDEBUG(2) << "beginRun called\n";
+    beginRun(rp);
+  }
+
+  void OutputModule::doEndRun(RunPrincipal const& rp,
+                                ModuleDescription const& md,
+                                CurrentProcessingContext const* c)
+  {
+    detail::CPCSentry sentry(current_context_, c);
+    //Save the current Mod Desc
+    current_md_ = &md;
+
+    FDEBUG(2) << "endRun called\n";
+    endRun(rp);
+  }
+
+  void OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                ModuleDescription const& md,
+                                CurrentProcessingContext const* c)
+  {
+    detail::CPCSentry sentry(current_context_, c);
+    //Save the current Mod Desc
+    current_md_ = &md;
+
+    FDEBUG(2) << "beginLuminosityBlock called\n";
+    beginLuminosityBlock(lbp);
+  }
+
+  void OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                ModuleDescription const& md,
+                                CurrentProcessingContext const* c)
+  {
+    detail::CPCSentry sentry(current_context_, c);
+    //Save the current Mod Desc
+    current_md_ = &md;
+
+    FDEBUG(2) << "endLuminosityBlock called\n";
+    endLuminosityBlock(lbp);
   }
 
   CurrentProcessingContext const*
