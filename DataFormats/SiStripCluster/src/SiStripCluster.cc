@@ -8,16 +8,18 @@ SiStripCluster::SiStripCluster( uint32_t detid, const SiStripDigiRange& range) :
   int sumx = 0;
   int suma = 0;
 
-  uint16_t lastStrip = -1;;
+  uint16_t lastStrip=0;
+  bool firstInloop = true;
   for (SiStripDigiIter i=range.first; i!=range.second; i++) {
 
     /// check if digis consecutive
-    if (lastStrip>0 && i->strip() != lastStrip + 1) {
+    if (!firstInloop && i->strip() != lastStrip + 1) {
       for (int j=0; j < i->strip()-(lastStrip+1); j++) {
 	amplitudes_.push_back( 0);
       }
     }
     lastStrip = i->strip();
+    firstInloop = false;
 
     uint16_t amp = i->adc();       // FIXME: gain correction here
     amplitudes_.push_back( amp);
