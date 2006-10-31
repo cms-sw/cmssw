@@ -41,13 +41,16 @@ void DTTriggerCheck::beginJob(const EventSetup& setup){
 }
 
 void DTTriggerCheck::endJob(){
+
+  if(debug)
+    cout<<"[DTTriggerCheck] endjob called!"<<endl;
+  
   // Write the histos
   if (parameters.getUntrackedParameter<bool>("writeHisto", true)) theDbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTTriggerCheck.root"));
-
-  theDbe->setCurrentFolder("DT/DTTriggerTask");
-  theDbe->removeContents();
- 
+  
+  theDbe->rmdir("DT/DTTriggerTask");
 }
+
 void DTTriggerCheck::analyze(const Event& event, const EventSetup& setup) {
   if(debug)
     cout << "[DTTriggerCheck] Analyze #Run: " << event.id().run()

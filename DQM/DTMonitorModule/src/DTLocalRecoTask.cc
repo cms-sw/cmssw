@@ -86,11 +86,12 @@ void DTLocalRecoTask::beginJob(const EventSetup& setup){
 }
 
 void DTLocalRecoTask::endJob(){
+  if(debug)
+    cout<<"[DTLocalRecoTask] endjob called!"<<endl;
   // Write the histos
   if ( writeHisto ) 
     dbe->save(theRootFileName);
-  dbe->setCurrentFolder("DT/DTLocalRecoTask");
-  dbe->removeContents();
+  dbe->rmdir("DT/DTLocalRecoTask");
 }
 
 void DTLocalRecoTask::analyze(const Event& event, const EventSetup& setup){

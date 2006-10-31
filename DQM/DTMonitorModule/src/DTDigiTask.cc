@@ -79,11 +79,13 @@ DTDigiTask::~DTDigiTask(){
 
 void DTDigiTask::endJob(){
 
-if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
-  dbe->save(outputFile);
+  if(debug)
+    cout<<"[DTDigiTask] endjob called!"<<endl;
 
- dbe->setCurrentFolder("DT/DTDigiTask");
- dbe->removeContents();
+  if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
+    dbe->save(outputFile);
+  
+  dbe->rmdir("DT/DTDigiTask");
 }
 
 void DTDigiTask::beginJob(const edm::EventSetup& context){
@@ -563,16 +565,15 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	    if ((digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end()) && 
 	    !parameters.getUntrackedParameter<bool>("MTCC", false)  )
 	      bookHistos( (*dtLayerId_It).first, histoTag );
-
 	    (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
-	  
+
 	    //Occupancies per chamber
 	    histoTag = "OccupancyInTimeHits_perCh";
 	    if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end())  && 
 		!parameters.getUntrackedParameter<bool>("MTCC", false)  ){
 	      bookHistos( dtChId, string("Occupancies"), histoTag );
 	    }
-	    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),(layer_number+(superlayer_number-1)*4)-1);
+	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),(layer_number+(superlayer_number-1)*4)-1);
 	    
 	    // TimeBoxes
 	    histoTag = "TimeBoxInTimeHits" + triggerSource();
