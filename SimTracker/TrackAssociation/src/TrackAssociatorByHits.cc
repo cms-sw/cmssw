@@ -21,6 +21,7 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 using namespace reco;
+using namespace std;
 
 /* Constructor */
 TrackAssociatorByHits::TrackAssociatorByHits (const edm::ParameterSet& conf) :  conf_(conf)  
@@ -95,7 +96,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	      {
 		for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();
 		     g4T !=  t -> g4Track_end(); ++g4T) {
-		  if((*g4T)->trackId() == matchedIds[j]){
+		  if((*g4T).trackId() == matchedIds[j]){
 		    // 		    std::cout << " Match ID = " << (*g4T)->trackId() 
 		    // 			      << " Nrh = " << ri << " Nshared = " << n << std::endl;
 		    // 		    std::cout << " G4  Track Momentum " << (*g4T)->momentum() << std::endl;   
@@ -110,7 +111,9 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 		      outputCollection.insert(reco::TrackRef(trackCollectionH,tindex), 
 					      std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
 							     fraction));
-		      //nshared));
+		      cout <<"reco::Track number " << tindex  << " associated with hit fraction =" << fraction << endl;
+		    } else {
+		      cout <<"reco::Track number " << tindex << " NOT associated with hit fraction =" << fraction << endl;
 		    }
 		  }
 		}
@@ -145,7 +148,6 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
   const  reco::TrackCollection  tC = *(trackCollectionH.product()); 
 //   std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
 
-
   //get the ID of the recotrack  by hits 
 
   int tindex=0;
@@ -154,19 +156,39 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
       matchedIds.clear();
       int ri=0;
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
-	if ((*it)->isValid()){
-	  ri++;
-	  SimTrackIds.clear();	  
-	  SimTrackIds = associate->associateHitId((**it));
-	  if(!SimTrackIds.empty()){
-	    for(size_t j=0; j<SimTrackIds.size(); j++){
-	      //std::cout << " hit # " << ri << " SimId " << SimTrackIds[j] << std::endl; 
-	      matchedIds.push_back(SimTrackIds[j]);
+	  if ((*it)->isValid()){
+	    const TrackingRecHit * prova = (*it).get();
+	    const SiStripMatchedRecHit2D * mhit = dynamic_cast<const SiStripMatchedRecHit2D *>(prova);
+	    if ( mhit==0 ){
+	      ri++;
+	      SimTrackIds.clear();	  
+	      SimTrackIds = associate->associateHitId((**it));
+	      if(!SimTrackIds.empty()){
+		for(size_t j=0; j<SimTrackIds.size(); j++){
+		  //std::cout << " hit # " << ri << " SimId " << SimTrackIds[j] << std::endl; 
+		  matchedIds.push_back(SimTrackIds[j]);
+		}
+	      }
+	    } else {
+	      ri+=2;
+	      SimTrackIds.clear();	  
+	      SimTrackIds = associate->associateHitId(* dynamic_cast<const TrackingRecHit *>(mhit->monoHit()));
+	      if(!SimTrackIds.empty()){
+		for(size_t j=0; j<SimTrackIds.size(); j++){
+		  matchedIds.push_back(SimTrackIds[j]);
+		}
+	      }
+	      SimTrackIds.clear();	  
+	      SimTrackIds = associate->associateHitId(* dynamic_cast<const TrackingRecHit *>(mhit->stereoHit()));
+	      if(!SimTrackIds.empty()){
+		for(size_t j=0; j<SimTrackIds.size(); j++){
+		  matchedIds.push_back(SimTrackIds[j]);
+		}
+	      }
 	    }
+	  }else{
+	    std::cout <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId()<<std::endl;
 	  }
-	}else{
-	  std::cout <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId()<<std::endl;
-	}
       }
       //save id for the track
       std::vector<unsigned int> idcachev;
@@ -182,10 +204,10 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 	    for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	      for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();
 		   g4T !=  t -> g4Track_end(); ++g4T) {
-		if((*g4T)->trackId() == matchedIds[j]){
+		if((*g4T).trackId() == matchedIds[j]){
 		  nshared = std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
 		  int nsimhit = t->trackPSimHit().size(); 
-		  //	  if(nsimhit!=0) fraction = n/nsimhit;
+		  if(nsimhit!=0) fraction = ((double) nshared)/((double) nsimhit);
 		  // 		  std::cout << " Match ID = " << (*g4T)->trackId() 
 		  // 			    << " Nrh = " << ri << " Nshared = " << n << " Nsim = " << nsimhit << std::endl;
 		  // 		  std::cout << " G4  Track Momentum " << (*g4T)->momentum() << std::endl;   
@@ -193,8 +215,14 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 		  //NOTE: not sorted for quality yet
 		  //for now save the number of shared hits: n instead of the fraction 
 		  //Until we solve the problem with the number of Simhits associated to the TP
-		  outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
-					  std::make_pair(reco::TrackRef(trackCollectionH,tindex),nshared));
+		  if (fraction>0.5) {
+		    outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
+					    std::make_pair(reco::TrackRef(trackCollectionH,tindex),fraction));
+		    cout << "TrackingParticle number " << tpindex << " associated with hit fraction =" << fraction << endl;
+		  }
+		  else {
+		    cout << "TrackingParticle number " << tpindex << " NOT associated with fraction =" << fraction << endl;
+		  }
 		}
 	      }
 	    }
