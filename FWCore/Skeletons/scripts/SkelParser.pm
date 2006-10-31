@@ -62,7 +62,7 @@ BEGIN {
     # set the version for version checking
     $VERSION     = 1.00;
     # if using RCS/CVS, this may be preferred
-    $VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)/g;
+    $VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)/g;
     
     @ISA         = qw(Exporter);
     @EXPORT      = qw(&copy_file &make_file &grandparent_parent_dir &mk_package_structure &find_mkTemplate_dir);
@@ -96,7 +96,34 @@ sub find_mkTemplate_dir {
   return "$base_dir/mkTemplates";
 }
 
+
+sub verifypath () {
+  my $envvar = "CMSSW_BASE";
+  if (!exists $ENV{$envvar}) {
+    print STDERR "$envvar not set: Please do 'scramv1 run'.\n";
+    return 0;
+  }
+  
+  my $basepath = $ENV{$envvar};
+  # strip off all but the last component of the basepath
+  $basepath =~ s!.*/!!;
+
+  my $cwd = `pwd`;
+  chomp($cwd);
+
+  # check that the current working directory is of the form
+  # $basepath/src/something and return the result.
+  # 
+  # This form allows subsubdirectories:
+  #$cwd =~ m!$basepath/src/..*!;
+
+  # If subsubdirectories aren't allowed, use this form:    
+  $cwd =~ m!$basepath/src/.[^/]*$!;
+}
+
+
 sub mk_package_structure {
+  if (! verifypath() ) { die "Packages must be created in a 'subsystem'.\n  Please go to '\$CMSSW_RELEASE_BASE/src', create or choose a subdirectory from there\n  and then run the script from that subdirectory.\n"; }
     my $name = $_[0];
 
     mkdir("$name", 0777) || die "can not make dir $name";
