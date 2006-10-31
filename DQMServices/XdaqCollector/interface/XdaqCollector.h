@@ -6,6 +6,7 @@
 #include "toolbox/include/Task.h"
 #include "xdata/include/xdata/String.h"
 #include "xdata/include/xdata/Integer.h"
+#include "xdata/include/xdata/Boolean.h"
 #include "xdaq/include/xdaq/Application.h"
 #include "xgi/include/xgi/Utils.h"
 #include "xgi/include/xgi/Method.h"
@@ -25,7 +26,7 @@
 #include "DQMServices/Components/interface/StateMachine.h"
 #include <iostream>
 
-class XdaqCollector : public dqm::StateMachine
+class XdaqCollector : public dqm::StateMachine, public xdata::ActionListener
 {
 	
  public:
@@ -65,6 +66,8 @@ protected:
       
     public:
       virtual void process(){}
+      void enableClients(){enableClients_ = true;}
+      void disableClients(){enableClients_ = false;}
       DummyConsumerServer(int port) : CollectorRoot("EvF",port), Task("Collector")
 	{
 	  inputAvail_=true;
@@ -97,10 +100,12 @@ protected:
       }
     private:
       static CollectorRoot * instance_;
+
     };
   
-  
+  void actionPerformed (xdata::Event& e);  
   xdata::Integer port_;
+  xdata::Boolean enableClients_;
 };
 
 #endif

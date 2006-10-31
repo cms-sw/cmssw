@@ -8,8 +8,10 @@ CollectorRoot *XdaqCollector::DummyConsumerServer::instance_=0;
 XdaqCollector::XdaqCollector(xdaq::ApplicationStub * s) : dqm::StateMachine(s)
 {	
   port_ = 9090;
+  enableClients_ = false;
   xdata::InfoSpace *sp = getApplicationInfoSpace();
   sp->fireItemAvailable("listenPort",&port_);
+  sp->fireItemAvailable("enableClients",&enableClients_);
   sp->fireItemAvailable("stateName",stateName());
   xgi::bind(this, &XdaqCollector::Default, "Default");
   xgi::bind(this, &XdaqCollector::general, "general");
@@ -84,6 +86,14 @@ void XdaqCollector::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exc
     *out << port_ << std::endl;
     *out << "</td>" << std::endl;
     *out << "  </tr>" << std::endl;                   
+    *out << "<tr>" << std::endl;
+    *out << "<td >" << std::endl;
+    *out << "Clients Enabled" << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "<td>" << std::endl;
+    *out << enableClients_ << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "  </tr>" << std::endl;                   
     *out << "</table>" << std::endl;
 
     *out << "<table frame=\"void\" rules=\"rows\" class=\"modules\">" << std::endl;
@@ -148,7 +158,8 @@ void XdaqCollector::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exc
 void XdaqCollector::configureAction(toolbox::Event::Reference e) 
   throw (toolbox::fsm::exception::Exception)
 {
-  DummyConsumerServer::instance(port_);
+  DummyConsumerServer *dcs = DummyConsumerServer::instance(port_);
+  //dcs->disableClients();
 }
   
 void XdaqCollector::enableAction(toolbox::Event::Reference e) 
@@ -180,6 +191,31 @@ void XdaqCollector::nullAction(toolbox::Event::Reference e) throw (toolbox::fsm:
 
 }
 
+
+void XdaqCollector::actionPerformed (xdata::Event& e)
+{
+  if (e.type() == "ItemChangedEvent" )
+    {
+      std::string item = dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
+      DummyConsumerServer *dcs = 0;
+      dcs = (DummyConsumerServer *)DummyConsumerServer::instance(0);
+      /*
+      if ( item == "enableClients")
+	{
+	  if(enableClients_)
+	    {
+	      if(dcs != 0)
+		dcs->enableClients();
+	    }
+	  else
+	    {
+	      if(dcs != 0)
+		dcs->disableClients();
+	    }
+	}
+      */
+    }
+}
 
 
 XDAQ_INSTANTIATOR_IMPL(XdaqCollector);
