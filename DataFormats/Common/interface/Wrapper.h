@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.6 2006/10/25 21:56:29 wmtan Exp $
+$Id: Wrapper.h,v 1.7 2006/10/30 23:07:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -81,9 +81,9 @@ namespace edm {
 
     // Definitions for the following struct and function templates are
     // not needed; we only require the declarations.
-    template <typename T, void (T::*)(T&)>  struct ptmf_helper;
+    template <typename T, void (T::*)(T&)>  struct swap_function;
     template <typename T> no_tag  has_swap_helper(...);
-    template <typename T> yes_tag has_swap_helper(ptmf_helper<T, &T::swap> * dummy);
+    template <typename T> yes_tag has_swap_helper(swap_function<T, &T::swap> * dummy);
 
     template<typename T>
     struct has_swap_function
