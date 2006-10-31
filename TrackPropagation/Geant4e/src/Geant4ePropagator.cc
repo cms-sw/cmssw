@@ -30,9 +30,7 @@ Geant4ePropagator::Geant4ePropagator(const MagneticField* field,
   theField(field),
   theParticleName(particleName),
   theG4eManager(G4eManager::GetG4eManager()),
-  theSteppingAction(new Geant4eSteppingAction) {
-
-  theG4eManager->SetUserAction(theSteppingAction);
+  theSteppingAction(0) {
 }
 
 /** Destructor. 
@@ -52,6 +50,12 @@ Geant4ePropagator::~Geant4ePropagator() {
 TrajectoryStateOnSurface 
 Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
 			      const Plane& pDest) const {
+
+  if (!theSteppingAction) {
+    theG4eManager->InitGeant4e();
+    theSteppingAction = new Geant4eSteppingAction;
+    theG4eManager->SetUserAction(theSteppingAction);
+  }
 
   ///////////////////////////////
   // Construct the target surface
@@ -79,7 +83,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 		      << normalPlane << "\n"
 		      << "G4e -- Destination G4  plane normal  : " 
 		      << normalPlane;
-  LogDebug("Geant4e") << "G4e -- Distance from point to plane: " 
+  LogDebug("Geant4e") << "G4e -- Distance from plane position to plane: " 
 		      << pDest.localZ(posPlane);
   //DEBUG
 
@@ -112,7 +116,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 		      << " GeV\n"
 		      << "G4e -- Initial G4  momentum      :" << g4InitMom 
 		      << " MeV";
-  LogDebug("Geant4e") << "G4e -- Distance from point to plane: " 
+  LogDebug("Geant4e") << "G4e -- Distance from initial point to plane: " 
 		      << pDest.localZ(cmsInitPos);
   //DEBUG
 
@@ -181,7 +185,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 		      << " GeV\n"
 		      << "G4e -- Final G4  momentum      :" << momEnd 
 		      << " MeV";
-  LogDebug("Geant4e") << "G4e -- Distance from point to plane: " 
+  LogDebug("Geant4e") << "G4e -- Distance from final point to plane: " 
 		      << pDest.localZ(posEndGV);
   //DEBUG
 
