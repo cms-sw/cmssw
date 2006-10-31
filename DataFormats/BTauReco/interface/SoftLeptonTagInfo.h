@@ -7,6 +7,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 
 namespace reco {
  
@@ -22,6 +23,8 @@ struct SoftLeptonProperties {
     double ptRel;                           // transverse momentum wrt. jet axis
     double etaRel;                          // (pseudo)rapidity along jet axis
     double deltaR;                          // pseudoangular distance to jet axis
+    double ratio;                           // momentum over jet energy
+    double ratioRel;                        // momentum parallet to jet axis over jet energy
     double tag;                             // discriminant using this track as tagging lepton
 };
 
@@ -52,8 +55,13 @@ public:
         m_leptons.insert( lepton, properties );
     }
 
+    void setJetTag(const JetTagRef & ref) {
+        m_jetTag = ref;
+    }
+    
 private:
     LeptonMap m_leptons;
+    edm::Ref<JetTagCollection> m_jetTag;
 
     LeptonMap::const_iterator find_iterator(size_t i) const {
         LeptonMap::const_iterator it = m_leptons.begin();
