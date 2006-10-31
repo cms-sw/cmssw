@@ -45,9 +45,17 @@
 //			debug messages. 
 //  6/06/06	mf	Verbatim
 //  6/12/06	mf	Set preambleMode true when printing the header
-//  10/18/06	mf	In format_time(): Initialized ts[] with 5 extra
+//
+// Change Log
+//
+//  1 10/18/06	mf	In format_time(): Initialized ts[] with 5 extra
 //			spaces, to cover cases where time zone is more than
-//			3 characters long.
+//			3 characters long
+//
+//  2 10/30/06  mf	In log():  if severity indicated is SEVERE, do not
+//			impose limits.  This is to implement the LogSystem
+//			feature:  Those messages are never to be ignored.
+//
 // ----------------------------------------------------------------------
 
 
@@ -325,8 +333,12 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   // if it was not already present:
   //
   if ( xid.severity < threshold        )  return false;
-  if ( thisShouldBeIgnored(xid.module) )  return false;
-  if ( ! limits.add( xid )             )  return false;
+  if ( thisShouldBeIgnored(xid.module) 
+  	&& (xid.severity < ELsevere) /* change log 2 */ )  
+					  return false;
+  if ( ! limits.add( xid )              
+    	&& (xid.severity < ELsevere) /* change log 2 */ )  
+					  return false;
 
   #ifdef ELoutputTRACE_LOG
     std::cerr << "    =:=:=: Limits table work done \n";
@@ -336,7 +348,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   //
   preambleMode = true;
 
-  if  ( !msg.is_verbatim() ) {
+  if  ( !msg.is_verbatim()  ) {
     emit( preamble );
     emit( xid.severity.getSymbol() );
     emit( " " );
@@ -350,7 +362,8 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   #endif
   // Output serial number of message:
   //
-  if  ( !msg.is_verbatim() ) {
+  if  ( !msg.is_verbatim()  ) 
+ {
     if ( wantSerial )  {
       std::ostringstream s;
       s << msg.serial();
@@ -375,7 +388,8 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   // Provide further identification:
   //
   bool needAspace = true;
-  if  ( !msg.is_verbatim() ) {
+  if  ( !msg.is_verbatim()  ) 
+ {
     if ( wantEpilogueSeparate )  {
       if ( xid.module.length() + xid.subroutine.length() > 0 )  {
 	emit("\n");
@@ -402,7 +416,8 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 
   // Provide time stamp:
   //
-  if  ( !msg.is_verbatim() ) {
+  if  ( !msg.is_verbatim() ) 
+ {
     if ( wantTimestamp )  {
       if ( wantTimeSeparate )  {
 	emit( ELstring("\n") );
@@ -419,7 +434,8 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 
   // Provide the context information:
   //
-  if  ( !msg.is_verbatim() ) {
+  if  ( !msg.is_verbatim() ) 
+ {
     if ( wantSomeContext ) {
       if (needAspace) { emit(ELstring(" ")); needAspace = false; }
       #ifdef ELoutputTRACE_LOG
@@ -450,7 +466,8 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   bool insertNewlineAfterHeader = ( msg.xid().severity != ELsuccess );
   // ELsuccess is what LogDebug issues
   
-  if  ( !msg.is_verbatim() ) {
+  if  ( !msg.is_verbatim() ) 
+ {
     if ( msg.xid().severity >= traceThreshold )  {
       emit( ELstring("\n")
             + ELadministrator::instance()->getContextSupplier().traceRoutine()

@@ -515,7 +515,6 @@ void
   char *  severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
   vString const  severities(severity_array+0, severity_array+4);
 
-
   // grab list of categories
   vString  categories
      = getAparameter<vString>(job_pset_p,"categories", empty_vString);
