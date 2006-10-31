@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed May 24 11:58:16 EDT 2006
-// $Id: LTCDQMSource.cc,v 1.4 2006/08/05 11:49:15 wittich Exp $
+// $Id: LTCDQMSource.cc,v 1.5 2006/10/27 01:35:20 wmtan Exp $
 //
 //
 
@@ -112,8 +112,8 @@ LTCDQMSource::LTCDQMSource(const edm::ParameterSet& iConfig):
   event        = dbe->bookInt("event");
   gps_time     = dbe->bookInt("gps_time");
 
-  saveMe_ = iConfig.getParameter<bool>("saveRootFile");
-  rootFileName_ = iConfig.getParameter<std::string>("RootFileName");
+  saveMe_ = iConfig.getUntrackedParameter<bool>("saveRootFile",false);
+  rootFileName_ = iConfig.getUntrackedParameter<std::string>("RootFileName","ciccio.root");
 
 
   //    // contents of h5 & h6 will be reset at end of monitoring cycle
@@ -144,7 +144,9 @@ void LTCDQMSource::endJob(void)
 {
   std::cout << "LTCDQMSource: saw " << nev_ << " events. " << std::endl;
   if ( saveMe_ ) 
-    dbe->save(rootFileName_);  
+    dbe->save(rootFileName_);
+  dbe->setCurrentFolder("L1Trigger/LTC");
+  dbe->removeContents();
 }
 
 // ------------ method called to produce the data  ------------
