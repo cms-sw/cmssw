@@ -14,6 +14,9 @@
 namespace edm
 {
   struct RunAux {
+    typedef RunNumber_t IDValue;
+    typedef Timestamp TimeValue;
+    typedef int LumiValue;
     RunAux() :
 	processHistoryID_(),
 	id_(),
