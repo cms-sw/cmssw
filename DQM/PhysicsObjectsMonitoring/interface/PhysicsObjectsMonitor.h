@@ -5,8 +5,8 @@
  *  For now: Analyzer of StandAlone muon tracks
  *  Later: Add other detectors and more Reco
  * 
- *  $Date: 2006/10/12 07:24:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/15 11:07:09 $
+ *  $Revision: 1.2 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -70,6 +70,10 @@ private:
   MonitorElement  *NDThits;
   MonitorElement  *NCSChits;
   MonitorElement  *DTvsCSC;
+  MonitorElement  *DTvsRPC;
+  MonitorElement  *CSCvsRPC;
+  MonitorElement  *NRPChits;
+
 
   // Counters
   int numberOfSimTracks;

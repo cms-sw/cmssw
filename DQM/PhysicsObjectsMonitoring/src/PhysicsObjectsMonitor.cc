@@ -1,8 +1,8 @@
 /** \class PhysicsObjectsMonitor
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/10/15 12:25:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/10/27 01:35:20 $
+ *  $Revision: 1.4 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -83,7 +83,21 @@ void PhysicsObjectsMonitor::beginJob(const EventSetup& eventSetup){
   Nrechits = dbe->book1D("Nrechits","Number of RecHits/Segments on track",21,-.5,21.5);
   NDThits = dbe->book1D("NDThits","Number of DT Hits/Segments on track",31,-.5,31.5);
   NCSChits = dbe->book1D("NCSChits","Number of CSC Hits/Segments on track",31,-.5,31.5);
+  NRPChits = dbe->book1D("NRPChits","Number of RPC hits on track",11,-.5,11.5);
+
   DTvsCSC = dbe->book2D("DTvsCSC","Number of DT vs CSC hits on track",29,-.5,28.5,29,-.5,28.5);
+  MonitorElementT<TNamed>* ob =
+               dynamic_cast<MonitorElementT<TNamed>*> (DTvsCSC);
+  if(ob)
+  {
+   TH2F * root_ob = dynamic_cast<TH2F *> (ob->operator->());
+   if(root_ob) {
+     root_ob->SetXTitle("Number of DT hits");
+     root_ob->SetYTitle("Number of CSC hits");
+   }
+  }
+
+
 }
 
 void PhysicsObjectsMonitor::endJob(){
@@ -149,6 +163,8 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
     int nrechits=0;
     int nDThits=0;
     int nCSChits=0;
+    int nRPChits=0;
+
     for (trackingRecHit_iterator it = track.recHitsBegin ();  it != track.recHitsEnd (); it++) {
       if ((*it)->isValid ()) {	    
 	edm::LogInfo ("PhysicsObjectsMonitor") << "Analyzer:  Aha this looks like a Rechit!" << std::endl;
@@ -156,6 +172,8 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
 	  nDThits++;
 	} else if((*it)->geographicalId().subdetId() == MuonSubdetId::CSC) {
 	  nCSChits++;
+        } else if((*it)->geographicalId().subdetId() == MuonSubdetId::RPC) {
+          nRPChits++;
 	} else {
 	 edm::LogInfo ("PhysicsObjectsMonitor") <<  "This is an UNKNOWN hit !! " << std::endl;
 	}
@@ -167,6 +185,7 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
     NDThits->Fill(nDThits);
     NCSChits->Fill(nCSChits);
     DTvsCSC->Fill(nDThits,nCSChits);
+    NRPChits->Fill(nRPChits);
 
     debug.dumpFTS(track.impactPointTSCP().theState());
     
