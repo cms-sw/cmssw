@@ -3,7 +3,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
 
 
 /// Abstract base class for updators for the KalmanAlignmentAlgorithm.

@@ -4,8 +4,9 @@
 // includes for alignment
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 
+#include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryPlugin.h"
+
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdatorPlugin.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/TrajectoryFactoryPlugin.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentInitialization.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUserVariables.h"
 

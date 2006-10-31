@@ -2,9 +2,10 @@
 #define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentAlgorithm_h
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
+
 
 /// The main class for the Kalman alignment algorithm. It is the stage on which all the protagonists
 /// are playing: the refitter, the trajectory factory and the updator.

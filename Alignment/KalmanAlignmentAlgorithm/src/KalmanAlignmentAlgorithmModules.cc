@@ -1,8 +1,8 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/DataCollector.h"
 
-#include "Alignment/KalmanAlignmentAlgorithm/interface/TrajectoryFactoryPlugin.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/ReferenceTrajectoryFactory.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentAlgorithm.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdatorPlugin.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/SingleTrajectoryUpdator.h"
@@ -17,9 +17,6 @@ using namespace serviceregistry;
 using namespace alignmentservices;
 
 DEFINE_SEAL_MODULE();
-DEFINE_SEAL_PLUGIN( TrajectoryFactoryPlugin, ReferenceTrajectoryFactory, "ReferenceTrajectoryFactory" );
+DEFINE_SEAL_PLUGIN( AlignmentAlgorithmPluginFactory, KalmanAlignmentAlgorithm, "KalmanAlignmentAlgorithm");
 DEFINE_SEAL_PLUGIN( KalmanAlignmentUpdatorPlugin, SingleTrajectoryUpdator, "SingleTrajectoryUpdator" );
 DEFINE_ANOTHER_FWK_SERVICE_MAKER( DataCollector, ParameterSetMaker< DataCollector > )
-
-
-
