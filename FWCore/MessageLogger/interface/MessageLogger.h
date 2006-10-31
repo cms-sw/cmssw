@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.17 2006/08/18 18:52:31 marafino Exp $
+// $Id: MessageLogger.h,v 1.18 2006/10/02 20:31:21 marafino Exp $
 //
 // =================================================
 // Change log
@@ -23,6 +23,8 @@
 //		    to avoid the run-together with the run and event number
 //
 // 2 mf 6/6/06	    Added LogVerbatim and LogTrace
+//
+// 3 mf 10/30/06    Added LogSystem and LogPrint
 //
 // =================================================
 
@@ -84,6 +86,27 @@ private:
 
 };  // LogError
 
+class LogSystem
+{
+public:
+  explicit LogSystem( std::string const & id ) 
+    : ap( new MessageSender(ELsevere,id) )
+  { }
+
+  template< class T >
+    LogSystem & 
+    operator<< (T const & t)  { (*ap) << t; return *this; }
+  LogSystem & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    				      { (*ap) << f; return *this; }
+  LogSystem & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    				      { (*ap) << f; return *this; }     
+
+private:
+  std::auto_ptr<MessageSender> ap; 
+
+};  // LogSystem
 
 class LogInfo
 {
@@ -127,7 +150,29 @@ public:
 private:
   std::auto_ptr<MessageSender> ap; 
   
-};  // LogInfo
+};  // LogVerbaitm
+
+class LogPrint						// change log 3
+{
+public:
+  explicit LogPrint( std::string const & id ) 
+    : ap( new MessageSender(ELwarning,id,true) ) // the true is the Print arg 
+  { }
+
+  template< class T >
+    LogPrint & 
+    operator<< (T const & t)  { (*ap) << t; return *this; }
+  LogPrint & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    				      { (*ap) << f; return *this; }
+  LogPrint & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    				      { (*ap) << f; return *this; }     
+
+private:
+  std::auto_ptr<MessageSender> ap; 
+  
+};  // LogPrint
 
 static 
 std::string
