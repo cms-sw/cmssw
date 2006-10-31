@@ -181,10 +181,7 @@ int main()
   pop_one();
   back_with_null_pointer();
 
-  std::cerr << "Sending RVALUES\n";
   take_an_rvalue();
-  std::cerr << "Sending LVALUES\n";
   take_an_lvalue();
-  std::cerr << "Sending auto_ptr\n";
   take_an_auto_ptr();
 }

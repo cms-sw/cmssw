@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.13 2006/10/27 17:57:30 paterno Exp $
+// $Id: OwnVector.h,v 1.14 2006/10/30 23:07:52 wmtan Exp $
 
 #include <algorithm>
 #include <functional>
@@ -16,8 +16,6 @@
 #if defined CMS_USE_DEBUGGING_ALLOCATOR
 #include "DataFormats/Common/interface/debugging_allocator.h"
 #endif
-
-#include <iostream>
 
 namespace edm {
 
@@ -236,8 +234,6 @@ namespace edm {
     // C++ does not yet support rvalue references, so d should only be
     // able to bind to an lvalue.
     // This should be called only for lvalues.
-    std::cerr << "Looks like an LVALUE, argument shall be modified\n";
-
     data_.push_back( d );
     d = 0;
   }
@@ -250,7 +246,6 @@ namespace edm {
     // signature should be a better match for an lvalue (because it
     // does not require an lvalue->rvalue conversion). Thus this
     // signature should only be chosen for rvalues.
-    std::cerr << "Looks like an RVALUE, argument shall not be modified\n";
     data_.push_back( d );
   }
 
