@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripClient.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
+#include <SealBase/Callback.h>
 
 SiStripClient::SiStripClient(xdaq::ApplicationStub *stub) 
   : DQMBaseClient(
@@ -67,15 +68,40 @@ void SiStripClient::endRun()
 */
 void SiStripClient::onUpdate() const
 {
+  if (!mui_) return;
+  int nUpdate = mui_->getNumUpdates();
+  if (nUpdate == 0) mui_->subscribe("Collector/*");
+
   // put here the code that needs to be executed on every update:
   std::vector<std::string> uplist;
   mui_->getUpdatedContents(uplist);
-  int nUpdate = mui_->getNumUpdates();
-  if (nUpdate == 5) webInterface_p->setupQTests();
+
+  // Collation of Monitor Element
+  if (nUpdate == 10) {
+    webInterface_p->setActionFlag(SiStripWebInterface::Collate);
+    seal::Callback action(seal::CreateCallback(webInterface_p, 
+			&SiStripWebInterface::performAction));
+    mui_->addCallback(action); 
+  }
+  
+  // Set Up Quality Tests
+  if (nUpdate == 20) webInterface_p->setupQTests();
+
+
+  // Creation of Summary 
+  if (nUpdate == 50) {
+    webInterface_p->setActionFlag(SiStripWebInterface::Summary);
+    seal::Callback action(seal::CreateCallback(webInterface_p, 
+				 &SiStripWebInterface::performAction));
+    mui_->addCallback(action);	 
+  }	
+  // Creation of TrackerMap
   if (updateFrequencyForTrackerMap_ != -1 ) {
     if (nUpdate > 1 && nUpdate%updateFrequencyForTrackerMap_ == 1) {
       webInterface_p->setActionFlag(SiStripWebInterface::TemporaryTkMap);
-      webInterface_p->createTkMap();
+      seal::Callback action(seal::CreateCallback(webInterface_p, 
+				 &SiStripWebInterface::performAction));
+      mui_->addCallback(action); 
     }
   }
 }

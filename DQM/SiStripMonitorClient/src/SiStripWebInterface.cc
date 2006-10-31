@@ -205,7 +205,7 @@ void SiStripWebInterface::performAction() {
     {
       cout << " Saving Monitoring Elements " << endl;
       //  (*mui_p)->save("SiStripWebInterface.root", "Collector/Collated",90);
-      (*mui_p)->save("SiStripWebInterface.root");
+      (*mui_p)->save("SiStripWebInterface.root","Collector/Collated");
       //      actionExecutor_->saveMEs((*mui_p), "SiStripWebInterface.root");
       break;
     }
