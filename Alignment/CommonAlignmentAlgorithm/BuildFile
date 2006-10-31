@@ -1,5 +1,3 @@
-#  last update: $Date$
-#  by         : $Author$
 <use name=Alignment/CommonAlignmentParametrization>
 <use name=RecoTracker/TrackProducer>
 <use name=FWCore/ParameterSet>
@@ -16,6 +14,9 @@
 <use name=Geometry/Vector>
 <use name=Geometry/CommonDetUnit>
 <use name=DataFormats/TrajectoryState>
+
+<flags SEAL_PLUGIN_NAME="AlignmentCommonAlignmentAlgorithm">
+
 <export>
   <lib name=AlignmentCommonAlignmentAlgorithm>
   <use name=Alignment/CommonAlignmentParametrization>
