@@ -104,7 +104,8 @@ class EcalHitMaker: public CaloHitMaker
   
    /// get the map of the stored hits. Triggers the calculation of the grid if it has
   /// not been done. 
-  const std::map<uint32_t,float>& getHits() {return hitMap_;} 
+    
+  const std::map<uint32_t,float>& getHits() ;
  
   /// To retrieve the track
   const FSimTrack* getFSimTrack() const {return myTrack_;}
@@ -246,7 +247,7 @@ class EcalHitMaker: public CaloHitMaker
   std::vector<CrystalPad> padsatdepth_;
   std::vector<CrystalPad> crackpadsatdepth_;
 
-
+  bool hitmaphasbeencalculated_ ;
 
 #ifdef FAMOSDEBUG
   Histos * myHistos;

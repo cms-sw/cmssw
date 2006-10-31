@@ -48,6 +48,7 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   totalL0_ = 0.;
   outsideWindowEnergy_ = 0.;
   rearleakage_ = 0.;
+  hitmaphasbeencalculated_ = false;
 
   if(onEcal) 
     myCalorimeter->buildCrystal(cell,pivot_);
@@ -113,7 +114,7 @@ bool EcalHitMaker::addHitDepth(double r,double phi,double depth)
   double sp(1.);
   r*=radiusFactor_;
   Hep2Vector point(r*cos(phi),r*sin(phi));
-  //  CellID cellid=insideCell(point,sp);
+
   unsigned xtal=fastInsideCell(point,sp);  
   //  if(cellid.isZero()) std::cout << " cell is Zero " << std::endl;
 //  if(xtal<1000) 
@@ -137,7 +138,14 @@ bool EcalHitMaker::addHitDepth(double r,double phi,double depth)
 	  rearleakage_+=spotEnergy;
 	}
     }
-  //  std::cout << " Return false " << std::endl;
+  else
+    {
+//      std::cout << " Return false " << std::endl;
+//      std::cout << " Add hit depth called; Current deph is "  << currentdepth_;
+//      std::cout << " Required depth is " << depth << std::endl;
+//      std::cout << " R = " << r << " " << radiusFactor_ << std::endl; 
+    }
+
   outsideWindowEnergy_+=spotEnergy;
   return false;
 }
@@ -162,8 +170,10 @@ bool EcalHitMaker::addHit(double r,double phi,unsigned layer)
   //  std::cout <<" Addhit " << std::endl;
   //  std::cout << " Before insideCell " << std::endl;
   double sp(1.);
+  //  std::cout << " Trying to add " << r << " " << phi << " " << radiusFactor_ << std::endl; 
   r*=radiusFactor_;
   Hep2Vector point(r*cos(phi),r*sin(phi));
+  //  std::cout << "point " << point << std::endl;
   //  CellID cellid=insideCell(point,sp);
   unsigned xtal=fastInsideCell(point,sp);  
   //  if(cellid.isZero()) std::cout << " cell is Zero " << std::endl;
@@ -177,7 +187,9 @@ bool EcalHitMaker::addHit(double r,double phi,unsigned layer)
     }
 
   outsideWindowEnergy_+=spotEnergy;
-  return false;
+  //  std::cout << " False " << std::endl;
+
+    return false;
 }
 
 // Temporary solution
@@ -199,18 +211,16 @@ bool EcalHitMaker::addHit(double r,double phi,unsigned layer)
 unsigned EcalHitMaker::fastInsideCell(const Hep2Vector & point,double & sp,bool debug) 
 {
 
+  //  debug = true;
   bool found=false;
   unsigned niter=0;
   // something clever has to be implemented here
   unsigned d1,d2;
   convertIntegerCoordinates(point.x(),point.y(),d1,d2);
-  // std::cout << "Fastinside cell " << point.x() << " " <<  point.y() << " " << d1 << " "<< d2 << " " << nx_ << " " << ny_ << std::endl;
+  //  std::cout << "Fastinside cell " << point.x() << " " <<  point.y() << " " << d1 << " "<< d2 << " " << nx_ << " " << ny_ << std::endl;
   if(d1>=nx_||d2>=ny_) 
     {
-      //      std::cout << " Not in the map " << myCellIDMap.size() << std::endl;
-      //      std::cout << "Cell is Zero : " << std::endl;
-      //      return insideCell(point,sp);
-      //      std::cout << " Out of range " << std::endl;
+      //      std::cout << " Not in the map " <<std::endl;
       return 9999;
     }
   unsigned cell=myCrystalNumberArray_[d1][d2];
@@ -218,7 +228,7 @@ unsigned EcalHitMaker::fastInsideCell(const Hep2Vector & point,double & sp,bool 
   //  std::cout << " Got the cell " << cell << std::endl;
   if (validPads_[cell]&&padsatdepth_[cell].inside(point)) 
     {
-      //      std::cout << " We are lucky " << std::endl;
+      //      std::cout << " We are lucky " << cell << std::endl;
       sp = padsatdepth_[cell].survivalProbability();
       return cell;
     }
@@ -229,17 +239,26 @@ unsigned EcalHitMaker::fastInsideCell(const Hep2Vector & point,double & sp,bool 
   if(status) 
     {
       unsigned size=localCellVector.size();      
+      //      std::cout << " Starting from " << EBDetId(regionOfInterest_[cell].getDetId()) << std::endl;
+      //      const std::vector<DetId>& neighbours=myCalorimeter->getNeighbours(regionOfInterest_[cell].getDetId());
+//      std::cout << " The neighbours are " << std::endl;
+//      for(unsigned ic=0;ic<neighbours.size(); ++ic)
+//	{
+//	  std::cout << EBDetId(neighbours[ic]) << std::endl;
+//	}
+//      std::cout << " Done " << std::endl;
       for(unsigned ic=0;ic<8&&ic<size;++ic)
 	{
-	  //	  std::cout << " Testing " << ic ; 
 	  unsigned iq=localCellVector[ic];
-	  //	  std::cout << " " << iq ;
+//	  std::cout << " Testing " << EBDetId(regionOfInterest_[iq].getDetId()) << std::endl; ; 
+//	  std::cout << " " << iq << std::endl;
+//	  std::cout << padsatdepth_[iq] ;
 	  if(validPads_[iq]&&padsatdepth_[iq].inside(point))
 	    {
 	      //	      std::cout << " Yes " << std::endl;
 	      //	      myHistos->fill("h1000",niter);
 	      sp = padsatdepth_[iq].survivalProbability();
-            //	  std::cout << "Finished the loop " << niter << std::endl;
+	      //	      std::cout << "Finished the loop " << niter << std::endl;
 	      //	      std::cout << "Inside " << std::endl;
 	      return iq;
 	    }
@@ -247,11 +266,11 @@ unsigned EcalHitMaker::fastInsideCell(const Hep2Vector & point,double & sp,bool 
 	  //	  std::cout << "No " << std::endl;
 	  ++niter;
 	}
-    }
-  if(debug) std::cout << " not found in a quad, let's check the " << npadsatdepth_ << " cracks " << std::endl;
+          }
+  if(debug) std::cout << " not found in a quad, let's check the " << ncrackpadsatdepth_ << " cracks " << std::endl;
   //  std::cout << "Finished the loop " << niter << std::endl;
   // Let's check the cracks 
-  //   std::cout << " Let's check the cracks " << ncrackquadsatdepth_ << " " << crackquadsatdepth_.size() << std::endl;
+  //  std::cout << " Let's check the cracks " << ncrackpadsatdepth_ << " " << crackpadsatdepth_.size() << std::endl;
   unsigned iquad=0;
   unsigned iquadinside=999;
   while(iquad<ncrackpadsatdepth_&&!found)
@@ -288,6 +307,66 @@ void EcalHitMaker::setTrackParameters(const HepNormal3D& normal,
 //    {
 //      std::cout << segments_[ii] << std::endl;
 //    }
+
+
+  // This is only needed in case of electromagnetic showers 
+  if(EMSHOWER&&onEcal_&&ecalTotalX0()>0.)
+    {
+      //      std::cout << "Total X0  " << ecalTotalX0() << std::endl;
+      for(unsigned ic=0;ic<ncrystals_;++ic)
+	{
+	  for(unsigned idir=0;idir<4;++idir)
+	    {
+	      HepVector3D norm=regionOfInterest_[ic].exitingNormal(CaloDirectionOperations::Side(idir));
+	      regionOfInterest_[ic].crystalNeighbour(idir).setToBeGlued((norm*normal_<0.));
+	    }
+	  // Now calculate the distance in X0 of the back sides of the crystals
+	  // (only for EM showers)
+	  if(EMSHOWER)
+	    {
+	      HepVector3D dir=regionOfInterest_[ic].getBackCenter()-segments_[ecalFirstSegment_].entrance();
+	      double dist=dir.dot(normal_);
+	      double absciss= dist+segments_[ecalFirstSegment_].sEntrance();
+	      std::vector<CaloSegment>::const_iterator segiterator;
+	      // First identify the correct segment
+	      //      std::cout << " Crystal " << ic  << regionOfInterest_[ic].getBackCenter() ;
+	      //      std::cout << " Entrance : " << segments_[ecalFirstSegment_].entrance()<< std::endl;
+	      //      std::cout << " Looking for the segment " << dist << std::endl;
+	      segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inSegment(absciss));
+	      //      std::cout << " Done " << std::endl;
+	      if(segiterator==segments_.end() )
+		{
+		  // in this case, we won't have any problem. No need to 
+		  // calculate the real depth. 
+		  regionOfInterest_[ic].setX0Back(9999);
+		}
+	      else
+		{
+		  DetId::Detector det(segiterator->whichDetector());
+		  if(det!=DetId::Ecal)
+		    {
+		      regionOfInterest_[ic].setX0Back(9999);
+		    }
+		  else
+		    {
+		      double x0=segiterator->x0FromCm(dist);
+		      if(x0<maxX0_) maxX0_=x0;
+		      regionOfInterest_[ic].setX0Back(x0);
+		    }
+		}
+	      //  myHistos->fill("h4000",ecalentrance_.eta(), regionOfInterest_[ic].getX0Back());
+	      //}
+	      //      else
+	      //{
+	      //   // in this case, we won't have any problem. No need to 
+	      //  // calculate the real depth. 
+	      //  regionOfInterest_[ic].setX0Back(9999);
+	      //}
+	    }//EMSHOWER  
+	} // ndir
+      //      myHistos->fill("h6000",segments_[ecalFirstSegment_].entrance().eta(),maxX0_);
+    }
+  //  std::cout << "Leaving setTrackParameters" << std::endl
 }
 
 
@@ -907,7 +986,7 @@ void EcalHitMaker::configureGeometry()
       //      std::cout << " Building " << cellids_[ic] << std::endl;
       for(unsigned idir=0;idir<8;++idir)
 	{
-	  //	  std::cout << " Direction " << FamosCrystal::neighbourDirection(idir) << std::endl;
+
 	  unsigned oppdir=CaloDirectionOperations::oppositeDirection(idir);
 	  // Is there something else to do ? 
 	  // The relationship with the neighbour may have been set previously.
@@ -1004,3 +1083,13 @@ void EcalHitMaker::convertIntegerCoordinates(double x, double y,unsigned &ix,uns
   if(tiy>=0) iy=(unsigned)tiy;
 }
 
+const std::map<uint32_t,float>& EcalHitMaker::getHits() 
+{
+  if (hitmaphasbeencalculated_) return hitMap_;
+  for(unsigned ic=0;ic<ncrystals_;++ic)
+    {
+      hitMap_.insert(std::pair<uint32_t,double>(regionOfInterest_[ic].getDetId().rawId(),hits_[ic]));
+    }
+  hitmaphasbeencalculated_=true;
+  return hitMap_;
+}
