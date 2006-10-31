@@ -48,6 +48,9 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   totalL0_ = 0.;
   outsideWindowEnergy_ = 0.;
   rearleakage_ = 0.;
+
+  ncrystals_ = 0;
+
   hitmaphasbeencalculated_ = false;
 
   if(onEcal) 
