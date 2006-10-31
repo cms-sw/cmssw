@@ -1,4 +1,3 @@
-
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -11,23 +10,28 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include <TFile.h>
 
+//
+// Michal Szleper, Oct 30, 2006
+//
+
 using namespace std;
 
 HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
-  : pedCan (0),
-    widthCan (0),
-    pedCan_nominal (0),
-    widthCan_nominal (0),
-    meansper2caps (0),
-    widthsper2caps (0)
+  : fRefPedestals (0),
+    fRefPedestalWidths (0),
+    fRawPedestals (0),
+    fRawPedestalWidths (0),
+    fValPedestals (0),
+    fValPedestalWidths (0)
 {
-  // init
   evt=0;
   sample=0;
   m_file=0;
   m_AllPedsOK=0;
-  // output files
-  for(int k=0;k<4;k++) state.push_back(true); // 4 capid
+  for(int i=0; i<4; i++) m_stat[i]=0;
+  for(int k=0;k<4;k++) state.push_back(true);
+
+// user cfg parameters
   m_outputFileMean = ps.getUntrackedParameter<string>("outputFileMeans", "");
   if ( m_outputFileMean.size() != 0 ) {
     cout << "Hcal pedestal means will be saved to " << m_outputFileMean.c_str() << endl;
@@ -40,15 +44,24 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   if ( m_outputFileROOT.size() != 0 ) {
     cout << "Hcal pedestal histograms will be saved to " << m_outputFileROOT.c_str() << endl;
   } 
-  m_nevtsample = ps.getUntrackedParameter<int>("nevtsample",9999999);
+  m_nevtsample = ps.getUntrackedParameter<int>("nevtsample",0);
+// for compatibility with previous versions
+  if(m_nevtsample==9999999) m_nevtsample=0;
   m_hiSaveflag = ps.getUntrackedParameter<int>("hiSaveflag",0);
   m_pedValflag = ps.getUntrackedParameter<int>("pedValflag",0);
+  if(m_pedValflag<0) m_pedValflag=0;
+  if (m_nevtsample>0 && m_pedValflag>0) {
+    cout<<"WARNING - incompatible cfg options: nevtsample = "<<m_nevtsample<<", pedValflag = "<<m_pedValflag<<endl;
+    cout<<"Setting pedValflag = 0"<<endl;
+    m_pedValflag=0;
+  }
+  if(m_pedValflag>1) m_pedValflag=1;
   m_startTS = ps.getUntrackedParameter<int>("firstTS", 0);
   if(m_startTS<0) m_startTS=0;
   m_endTS = ps.getUntrackedParameter<int>("lastTS", 9);
-  m_logFile.open("HcalPedestalAnalysis.log");
 
-  // histogram booking
+//  m_logFile.open("HcalPedestalAnalysis.log");
+
   hbHists.ALLPEDS = new TH1F("HBHE All Pedestals","HBHE All Peds",10,0,9);
   hbHists.PEDRMS= new TH1F("HBHE All Pedestal Widths","HBHE All Pedestal RMS",100,0,3);
   hbHists.PEDMEAN= new TH1F("HBHE All Pedestal Means","HBHE All Pedestal Means",100,0,9);
@@ -67,7 +80,7 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
 
 //-----------------------------------------------------------------------------
 HcalPedestalAnalysis::~HcalPedestalAnalysis(){
-  ///All done, clean up!!
+
   for(_meot=hbHists.PEDTRENDS.begin(); _meot!=hbHists.PEDTRENDS.end(); _meot++){
     for(int i=0; i<16; i++) _meot->second[i].first->Delete();
   }
@@ -106,513 +119,19 @@ void HcalPedestalAnalysis::setup(const std::string& m_outputFileROOT) {
 }
 
 //-----------------------------------------------------------------------------
-void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT, TH1F* PedMeans, TH1F* PedWidths){
-  double mean; double rms; double param2[4]; double param1[4]; double dsigma;
-  double dparam2[4]; double dparam1[4]; double chi2; double sigma;
-
-  for(_meot=toolT.begin(); _meot!=toolT.end(); _meot++){
-    for(int i=0; i<4; i++){
-      if(fitflag>0){
-        _meot->second[i].first->Fit("gaus","Q");
-        TF1 *fit = _meot->second[i].first->GetFunction("gaus");
-        chi2=0;
-        if(fit->GetNDF()!=0){
-          chi2=fit->GetChisquare()/fit->GetNDF();
-        }
-        if(chi2>10.){
-          _meot->second[i].first->Fit("gaus","Q","",0.,fit->GetParameter(1)+fit->GetParameter(2));
-        }
-        fit = _meot->second[i].first->GetFunction("gaus");
-        param1[i]=fit->GetParameter(1);
-        dparam1[i]=fit->GetParError(1);
-        param2[i]=fit->GetParameter(2);
-        dparam2[i]=fit->GetParError(2);
-      }
-      else{
-        param1[i] = _meot->second[i].first->GetMean();
-        param2[i] = _meot->second[i].first->GetRMS();
-//        dparam1[i] = param2[i]/sqrt(_meot->second[i].first->GetEntries());
-        dparam1[i] = param2[i]/sqrt(evt_curr*2.5);
-        dparam2[i] = dparam1[i]*param2[i]/param1[i];
-        chi2=0.;
-      }
-      _meot->second[i].first->GetXaxis()->SetTitle("Charge, fC");
-      _meot->second[i].first->GetYaxis()->SetTitle("CapID samplings");
-      if(m_hiSaveflag>0)_meot->second[i].first->Write();
-      _meot->second[i].second.first[0].push_back(param1[i]);
-      _meot->second[i].second.first[1].push_back(dparam1[i]);
-      _meot->second[i].second.first[2].push_back(param2[i]);
-      _meot->second[i].second.first[3].push_back(dparam2[i]);
-      _meot->second[i].second.first[4].push_back(chi2);
-      PedMeans->Fill(param1[i]);
-      PedWidths->Fill(param2[i]);
-    }
-    if(m_hiSaveflag==-100){
-      for(int i=16; i<19; i++){
-        _meot->second[i].first->GetXaxis()->SetTitle("Charge, fC");
-        _meot->second[i].first->GetYaxis()->SetTitle("Events");
-        _meot->second[i].first->Write();
-      }
-    }
-// Product histos for correlations
-    for(int i=0; i<4; i++){
-      _meot->second[i+4].first->GetXaxis()->SetTitle("Charge^2, fC^2");
-      _meot->second[i+4].first->GetYaxis()->SetTitle("2-CapID samplings");
-      if(m_hiSaveflag>10)_meot->second[i+4].first->Write();
-      _meot->second[i+8].first->GetXaxis()->SetTitle("Charge^2, fC^2");
-      _meot->second[i+8].first->GetYaxis()->SetTitle("2-CapID samplings");
-      if(m_hiSaveflag>10)_meot->second[i+8].first->Write();
-      _meot->second[i+12].first->GetXaxis()->SetTitle("Charge^2, fC^2");
-      _meot->second[i+12].first->GetYaxis()->SetTitle("2-CapID samplings");
-      if(m_hiSaveflag>10)_meot->second[i+12].first->Write();
-// here calculate the correlation coefficients between cap-ids
-// errors on coefficients are grossly approximative
-      mean = _meot->second[i+4].first->GetMean();
-      rms = _meot->second[i+4].first->GetRMS();
-      sigma = mean-param1[i]*param1[(i+1)%4];
-      float stats = _meot->second[i+4].first->GetEntries();
-      dsigma = param1[i]*dparam1[(i+1)%4]*param1[i]*dparam1[(i+1)%4]+param1[(i+1)%4]*dparam1[i]*param1[(i+1)%4]*dparam1[i];
-      dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
-      _meot->second[i].second.first[5].push_back(sigma);
-      _meot->second[i].second.first[6].push_back(dsigma);
-      mean = _meot->second[i+8].first->GetMean();
-      rms = _meot->second[i+8].first->GetRMS();
-      sigma = mean-param1[i]*param1[(i+2)%4];
-      stats = _meot->second[i+8].first->GetEntries();
-      dsigma = param1[i]*dparam1[(i+2)%4]*param1[i]*dparam1[(i+2)%4]+param1[(i+2)%4]*dparam1[i]*param1[(i+2)%4]*dparam1[i];
-      dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
-      _meot->second[i].second.first[7].push_back(sigma);
-      _meot->second[i].second.first[8].push_back(dsigma);
-      mean = _meot->second[i+12].first->GetMean();
-      rms = _meot->second[i+12].first->GetRMS();
-      sigma = mean-param1[i]*param1[(i+3)%4];
-      stats = _meot->second[i+12].first->GetEntries();
-      dsigma = param1[i]*dparam1[(i+3)%4]*param1[i]*dparam1[(i+3)%4]+param1[(i+3)%4]*dparam1[i]*param1[(i+3)%4]*dparam1[i];
-      dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
-      _meot->second[i].second.first[9].push_back(sigma);
-      _meot->second[i].second.first[10].push_back(dsigma);
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
-void HcalPedestalAnalysis::SampleAnalysis(){
-  // it is called every m_nevtsample events (a sample) and the end of run
-  char PedSampleNum[20];
-
-// Compute pedestal constants for each HBHE, HO, HF
-  sprintf(PedSampleNum,"HB_Sample%d",sample);
-  m_file->cd();
-  m_file->mkdir(PedSampleNum);
-  m_file->cd(PedSampleNum);
-  GetPedConst(hbHists.PEDTRENDS,hbHists.PEDMEAN,hbHists.PEDRMS);
-  sprintf(PedSampleNum,"HO_Sample%d",sample);
-  m_file->cd();
-  m_file->mkdir(PedSampleNum);
-  m_file->cd(PedSampleNum);
-  GetPedConst(hoHists.PEDTRENDS,hoHists.PEDMEAN,hoHists.PEDRMS);
-  sprintf(PedSampleNum,"HF_Sample%d",sample);
-  m_file->cd();
-  m_file->mkdir(PedSampleNum);
-  m_file->cd(PedSampleNum);
-  GetPedConst(hfHists.PEDTRENDS,hfHists.PEDMEAN,hfHists.PEDRMS);
-}
-
-//-----------------------------------------------------------------------------
-void HcalPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT,
-TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2){
-  map<int, std::vector<double> > AverageValues;
-
-  for(_meot=toolT.begin(); _meot!=toolT.end(); _meot++){
-    for(int i=0; i<4; i++){
-      char name[1024];
-      HcalDetId detid = _meot->first;
-      sprintf(name,"Pedestal trend, eta=%d phi=%d d=%d cap=%d",detid.ieta(),detid.iphi(),detid.depth(),i);
-      int bins = _meot->second[i].second.first[0].size();
-      float lo =0.5;
-      float hi = (float)bins+0.5;
-      _meot->second[i].second.second.push_back(new TH1F(name,name,bins,lo,hi));
-      sprintf(name,"Pedestal sigma trend, eta=%d phi=%d d=%d cap=%d",detid.ieta(),detid.iphi(),detid.depth(),i);
-      bins = _meot->second[i].second.first[2].size();
-      hi = (float)bins+0.5;
-      _meot->second[i].second.second.push_back(new TH1F(name,name,bins,lo,hi));
-      sprintf(name,"Correlation coeff trend, eta=%d phi=%d d=%d caps=%d*%d",detid.ieta(),detid.iphi(),detid.depth(),i,(i+1)%4);
-      bins = _meot->second[i].second.first[5].size();
-      hi = (float)bins+0.5;
-      _meot->second[i].second.second.push_back(new TH1F(name,name,bins,lo,hi));
-      sprintf(name,"Correlation coeff trend, eta=%d phi=%d d=%d caps=%d*%d",detid.ieta(),detid.iphi(),detid.depth(),i,(i+2)%4);
-      bins = _meot->second[i].second.first[7].size();
-      hi = (float)bins+0.5;
-      _meot->second[i].second.second.push_back(new TH1F(name,name,bins,lo,hi));
-      sprintf(name,"Correlation coeff trend, eta=%d phi=%d d=%d caps=%d*%d",detid.ieta(),detid.iphi(),detid.depth(),i,(i+3)%4);
-      bins = _meot->second[i].second.first[9].size();
-      hi = (float)bins+0.5;
-      _meot->second[i].second.second.push_back(new TH1F(name,name,bins,lo,hi));
-                                                                                
-      std::vector<double>::iterator sample_it;
-      // Pedestal mean - put content and errors
-      int j=0;
-      for(sample_it=_meot->second[i].second.first[0].begin();
-          sample_it!=_meot->second[i].second.first[0].end();sample_it++){
-        _meot->second[i].second.second[0]->SetBinContent(++j,*sample_it);
-      }
-      j=0;
-      for(sample_it=_meot->second[i].second.first[1].begin();
-          sample_it!=_meot->second[i].second.first[1].end();sample_it++){
-        _meot->second[i].second.second[0]->SetBinError(++j,*sample_it);
-      }
-      // fit with a constant - extract parameters
-      _meot->second[i].second.second[0]->Fit("pol0","Q");
-      TF1 *fit = _meot->second[i].second.second[0]->GetFunction("pol0");
-      AverageValues[0].push_back(fit->GetParameter(0));
-      AverageValues[1].push_back(fit->GetParError(0));
-      if(sample>1)
-      AverageValues[2].push_back(fit->GetChisquare()/fit->GetNDF());
-      else
-      AverageValues[2].push_back(fit->GetChisquare());
-      sprintf(name,"Sample (%d events)",m_nevtsample);
-      _meot->second[i].second.second[0]->GetXaxis()->SetTitle(name);
-      _meot->second[i].second.second[0]->GetYaxis()->SetTitle("Pedestal value");      _meot->second[i].second.second[0]->Write();
-      // Pedestal sigma - put content and errors
-      j=0;
-      for(sample_it=_meot->second[i].second.first[2].begin();
-          sample_it!=_meot->second[i].second.first[2].end();sample_it++){
-        _meot->second[i].second.second[1]->SetBinContent(++j,*sample_it);
-      }
-      j=0;
-      for(sample_it=_meot->second[i].second.first[3].begin();
-          sample_it!=_meot->second[i].second.first[3].end();sample_it++){
-        _meot->second[i].second.second[1]->SetBinError(++j,*sample_it);
-      }
-      _meot->second[i].second.second[1]->GetXaxis()->SetTitle(name);
-      _meot->second[i].second.second[1]->GetYaxis()->SetTitle("Pedestal width");
-//      _meot->second[i].second.second[1]->Write();
-      // Correlation coeffs - put contents and errors
-      j=0;
-      for(sample_it=_meot->second[i].second.first[5].begin();
-          sample_it!=_meot->second[i].second.first[5].end();sample_it++){
-        _meot->second[i].second.second[2]->SetBinContent(++j,*sample_it);
-      }
-      j=0;
-      for(sample_it=_meot->second[i].second.first[6].begin();
-          sample_it!=_meot->second[i].second.first[6].end();sample_it++){
-        _meot->second[i].second.second[2]->SetBinError(++j,*sample_it);
-      }
-      _meot->second[i].second.second[2]->GetXaxis()->SetTitle(name);
-      _meot->second[i].second.second[2]->GetYaxis()->SetTitle("Correlation");
-//     _meot->second[i].second.second[2]->Write();
-      j=0;
-      for(sample_it=_meot->second[i].second.first[7].begin();
-          sample_it!=_meot->second[i].second.first[7].end();sample_it++){
-        _meot->second[i].second.second[3]->SetBinContent(++j,*sample_it);
-      }
-      j=0;
-      for(sample_it=_meot->second[i].second.first[8].begin();
-          sample_it!=_meot->second[i].second.first[8].end();sample_it++){
-        _meot->second[i].second.second[3]->SetBinError(++j,*sample_it);
-      }
-      _meot->second[i].second.second[3]->GetXaxis()->SetTitle(name);
-      _meot->second[i].second.second[3]->GetYaxis()->SetTitle("Correlation");
-//      _meot->second[i].second.second[3]->Write();
-      j=0;
-      for(sample_it=_meot->second[i].second.first[9].begin();
-          sample_it!=_meot->second[i].second.first[9].end();sample_it++){
-        _meot->second[i].second.second[4]->SetBinContent(++j,*sample_it);
-      }
-      j=0;
-      for(sample_it=_meot->second[i].second.first[10].begin();
-          sample_it!=_meot->second[i].second.first[10].end();sample_it++){
-        _meot->second[i].second.second[4]->SetBinError(++j,*sample_it);
-      }
-      _meot->second[i].second.second[4]->GetXaxis()->SetTitle(name);
-      _meot->second[i].second.second[4]->GetYaxis()->SetTitle("Correlation");
-//      _meot->second[i].second.second[4]->Write();
-      // chi2
-      j=0;
-      for(sample_it=_meot->second[i].second.first[4].begin();
-          sample_it!=_meot->second[i].second.first[4].end();sample_it++){
-        Chi2->Fill(*sample_it);
-      }
-    }
-  }
-  CapidAverage= new TH1F("Constant fit: Pedestal Values",
-                         "Constant fit: Pedestal Values",
-                         AverageValues[0].size(),0.,AverageValues[0].size());
-  std::vector<double>::iterator sample_it;
-  int j=0;
-  for(sample_it=AverageValues[0].begin();
-      sample_it!=AverageValues[0].end();sample_it++){
-    CapidAverage->SetBinContent(++j,*sample_it);
-  }
-  j=0;
-  for(sample_it=AverageValues[1].begin();
-      sample_it!=AverageValues[1].end();sample_it++){
-    CapidAverage->SetBinError(++j,*sample_it);
-  }
-  CapidChi2= new TH1F("Constant fit: Chi2/ndf",
-                      "Constant fit: Chi2/ndf",
-                      AverageValues[2].size(),0.,AverageValues[2].size());
-  j=0;
-  for(sample_it=AverageValues[2].begin();
-      sample_it!=AverageValues[2].end();sample_it++){
-    CapidChi2->SetBinContent(++j,*sample_it);
-    //CapidChi2->SetBinError(++j,0);
-  }
-  Chi2->GetXaxis()->SetTitle("Chi2/ndf");
-  Chi2->GetYaxis()->SetTitle("50 x [(16+2) x 4 x 4] `events`");
-  Chi2->Write();
-  CapidAverage->GetYaxis()->SetTitle("Pedestal value");
-  CapidAverage->GetXaxis()->SetTitle("(16+2) x 4 x 4 `events`");
-  CapidAverage->Write();
-  CapidChi2->GetYaxis()->SetTitle("Chi2/ndf");
-  CapidChi2->GetXaxis()->SetTitle("(16+2) x 4 x 4 `events`");
-  CapidChi2->Write();
-
-}
-
-//-----------------------------------------------------------------------------
-int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT, int nTS)
-{
-  int PedsOK=1;
-  float sum0, sum1, sum2, sum3;
-  for(_meot=toolT.begin(); _meot!=toolT.end(); _meot++){
-    HcalDetId detid = _meot->first;
-    float cap_new[4]; float sig_new[4][4];
-    float dcap_new[4]; float dsig_new[4][4];
-    float cap_nom[4]; float sig_nom[4][4];
-    if(fitflag>0){
-      cap_new[0]=_meot->second[0].first->GetFunction("gaus")->GetParameter(1);
-      cap_new[1]=_meot->second[1].first->GetFunction("gaus")->GetParameter(1);
-      cap_new[2]=_meot->second[2].first->GetFunction("gaus")->GetParameter(1);
-      cap_new[3]=_meot->second[3].first->GetFunction("gaus")->GetParameter(1);
-      dcap_new[0]=_meot->second[0].first->GetFunction("gaus")->GetParError(1);
-      dcap_new[1]=_meot->second[1].first->GetFunction("gaus")->GetParError(1);
-      dcap_new[2]=_meot->second[2].first->GetFunction("gaus")->GetParError(1);
-      dcap_new[3]=_meot->second[3].first->GetFunction("gaus")->GetParError(1);
-      sig_new[0][0]=_meot->second[0].first->GetFunction("gaus")->GetParameter(2);
-      sig_new[1][1]=_meot->second[1].first->GetFunction("gaus")->GetParameter(2);
-      sig_new[2][2]=_meot->second[2].first->GetFunction("gaus")->GetParameter(2);
-      sig_new[3][3]=_meot->second[3].first->GetFunction("gaus")->GetParameter(2);
-    }
-    else{
-      cap_new[0]=_meot->second[0].first->GetMean();
-      cap_new[1]=_meot->second[1].first->GetMean();
-      cap_new[2]=_meot->second[2].first->GetMean();
-      cap_new[3]=_meot->second[3].first->GetMean();
-      sig_new[0][0]=_meot->second[0].first->GetRMS();
-      sig_new[1][1]=_meot->second[1].first->GetRMS();
-      sig_new[2][2]=_meot->second[2].first->GetRMS();
-      sig_new[3][3]=_meot->second[3].first->GetRMS();
-      sum0=sum1=sum2=sum3=0.;
-      for(int i=0; i<10; i++){
-        sum0+=_meot->second[0].first->GetBinContent(i+1);
-        sum1+=_meot->second[1].first->GetBinContent(i+1);
-        sum2+=_meot->second[2].first->GetBinContent(i+1);
-        sum3+=_meot->second[3].first->GetBinContent(i+1);
-      }
-      dcap_new[0]=sig_new[0][0]/sqrt(sum0);
-      dcap_new[1]=sig_new[1][1]/sqrt(sum1);
-      dcap_new[2]=sig_new[2][2]/sqrt(sum2);
-      dcap_new[3]=sig_new[3][3]/sqrt(sum3);
-    }
-    sig_new[0][0]=sig_new[0][0]*sig_new[0][0];
-    sig_new[1][1]=sig_new[1][1]*sig_new[1][1];
-    sig_new[2][2]=sig_new[2][2]*sig_new[2][2];
-    sig_new[3][3]=sig_new[3][3]*sig_new[3][3];
-    if(fitflag>0) {
-      dsig_new[0][0]=2*sig_new[0][0]*_meot->second[0].first->GetFunction("gaus")->GetParError(2);
-      dsig_new[1][1]=2*sig_new[1][1]*_meot->second[1].first->GetFunction("gaus")->GetParError(2);
-      dsig_new[2][2]=2*sig_new[2][2]*_meot->second[2].first->GetFunction("gaus")->GetParError(2);
-      dsig_new[3][3]=2*sig_new[3][3]*_meot->second[3].first->GetFunction("gaus")->GetParError(2);
-    }
-    else{
-// this is an approximation that works pretty good
-      dsig_new[0][0]=2*sig_new[0][0]*dcap_new[0];
-      dsig_new[1][1]=2*sig_new[1][1]*dcap_new[1];
-      dsig_new[2][2]=2*sig_new[2][2]*dcap_new[2];
-      dsig_new[3][3]=2*sig_new[3][3]*dcap_new[3];
-    }
-    sig_new[0][1]= _meot->second[4].first->GetMean()-cap_new[0]*cap_new[1];
-    sig_new[0][2]= _meot->second[8].first->GetMean()-cap_new[0]*cap_new[2];
-    sig_new[1][2]= _meot->second[5].first->GetMean()-cap_new[1]*cap_new[2];
-    sig_new[1][3]= _meot->second[9].first->GetMean()-cap_new[1]*cap_new[3];
-    sig_new[2][3]= _meot->second[6].first->GetMean()-cap_new[2]*cap_new[3];
-    sig_new[0][3]= _meot->second[7].first->GetMean()-cap_new[3]*cap_new[0];
-    if(m_pedValflag>0 && pedCan_nominal && widthCan_nominal){
-      cap_nom[0]=pedCan_nominal->getValue(_meot->first,0);
-      cap_nom[1]=pedCan_nominal->getValue(_meot->first,1);
-      cap_nom[2]=pedCan_nominal->getValue(_meot->first,2);
-      cap_nom[3]=pedCan_nominal->getValue(_meot->first,3);
-      sig_nom[0][0]=widthCan_nominal->getSigma(_meot->first,0,0);
-      sig_nom[0][1]=widthCan_nominal->getSigma(_meot->first,0,1);
-      sig_nom[0][2]=widthCan_nominal->getSigma(_meot->first,0,2);
-      sig_nom[1][1]=widthCan_nominal->getSigma(_meot->first,1,1);
-      sig_nom[1][2]=widthCan_nominal->getSigma(_meot->first,1,2);
-      sig_nom[1][3]=widthCan_nominal->getSigma(_meot->first,1,3);
-      sig_nom[2][2]=widthCan_nominal->getSigma(_meot->first,2,2);
-      sig_nom[2][3]=widthCan_nominal->getSigma(_meot->first,2,3);
-      sig_nom[3][3]=widthCan_nominal->getSigma(_meot->first,3,3);
-      sig_nom[0][3]=widthCan_nominal->getSigma(_meot->first,3,0);
-    }
-// here compute and store the quantities useful for physics analysis:
-// means and widths in pairs of adjacent cap-ids; pairs are numbered
-// after the first paired cap-id.
-//---> F.R. I believe it is not used, thus I've commented it out. Otherwise objects must be created first
-//   meansper2caps.addValue(_meot->first,cap_new[0]+cap_new[1],cap_new[1]+cap_new[2],cap_new[2]+cap_new[3],cap_new[3]+cap_new[0]);
-//   widthsper2caps.addValue(_meot->first,sqrt(sig_new[0][0]+sig_new[1][1]+2*sig_new[0][1]),sqrt(sig_new[1][1]+sig_new[2][2]+2*sig_new[1][2]),sqrt(sig_new[2][2]+sig_new[3][3]+2*sig_new[2][3]),sqrt(sig_new[3][3]+sig_new[0][0]+2*sig_new[3][0]));
-// here should go code that compares new values against nominal ones,
-// in the present implementation, an update of the DB is deemed necessary
-// if any mean pedestal deviates from its nominal value by more than 0.5 ADC
-// counts plus the statistical error on its current measurement (using 1 or
-// 2 time slices), or when any width deviates by more than 0.1 plus the 
-// statistical error from its nominal value
-    if(m_pedValflag>0){
-      for(int i=0; i<4; i++){
-        int i2=(i+1)%4;
-        if(nTS==1){
-          if(cap_new[i]>0 && abs(cap_new[i]-cap_nom[i])>0.5+dcap_new[i]){
-            PedsOK=0;
-            m_logFile<<"PedValidtn: drift in channel "<<detid<<" cap "<<i<<": "<<cap_new[i]<<" +- "<<dcap_new[i]<<" vs "<<cap_nom[i]<<std::endl;
-          }
-          else cap_new[i]=cap_nom[i];
-        }
-        if(nTS==2){
-          if(cap_new[i]>0 && cap_new[i2]>0 && abs(cap_new[i]+cap_new[i2]-cap_nom[i]-cap_nom[i2])>0.5+sqrt(dcap_new[i]*dcap_new[i]+dcap_new[i2]*dcap_new[i2])){
-            PedsOK=0;
-            m_logFile<<"PedValidtn: drift in channel "<<detid<<" caps "<<i<<"+"<<i2<<": "<<cap_new[i]<<"+"<<cap_new[i2]<<" +- "<<sqrt(dcap_new[i]*dcap_new[i]+dcap_new[i2]*dcap_new[i2])<<" vs "<<cap_nom[i]<<"+"<<cap_nom[i2]<<std::endl;
-          }
-// if channel was not read out restore the nominal value
-          else if(cap_new[i]<=0 || m_pedValflag==2) cap_new[i]=cap_nom[i];
-        }
-        if(sig_new[i][i]>0 && abs(sig_new[i][i]-sig_nom[i][i])>0.1+dsig_new[i][i]){
-          PedsOK=0;
-          m_logFile<<"PedValidtn: sigma changed in channel "<<detid<<" cap "<<i<<": "<<sig_new[i][i]<<" +- "<<dsig_new[i][i]<<" vs "<<sig_nom[i][i]<<std::endl;
-        }
-        else if(sig_new[i]<=0 || m_pedValflag==2) sig_new[i][i]=sig_nom[i][i];
-
-// off-diagonal elements are not validated at the moment, since it is
-// not clear how and it is not clear if we even need to do it
-        if(m_pedValflag==2) {
-          for(int j=i+1; j<4; j++) sig_new[i][j]=sig_nom[i][j];
-        }
-//        if(nTS==2){
-//          for(int j=i+1; j<4; j++){
-//            if(abs(sig_new[i][j]-sig_nom[i][j])>0.2+max(dsig_new[i][i],dsig_new[j][j])){
-//              PedsOK=0;
-//            }
-//            else sig_new[i][j]=sig_nom[i][j];
-//          }
-//        }
-//        if(nTS==1) for(int j=i+1; j<4; j++) sig_new[i][j]=sig_nom[i][j];
-      }
-    }
-    if (pedCan) pedCan->addValue(_meot->first,cap_new[0],cap_new[1],cap_new[2],cap_new[3]);
-    if (widthCan) {
-      HcalPedestalWidth* widthsp = widthCan->setWidth(_meot->first);
-      widthsp->setSigma(0,0,sig_new[0][0]);
-      widthsp->setSigma(0,1,sig_new[0][1]);
-      widthsp->setSigma(0,2,sig_new[0][2]);
-      widthsp->setSigma(1,1,sig_new[1][1]);
-      widthsp->setSigma(1,2,sig_new[1][2]);
-      widthsp->setSigma(1,3,sig_new[1][3]);
-      widthsp->setSigma(2,2,sig_new[2][2]);
-      widthsp->setSigma(2,3,sig_new[2][3]);
-      widthsp->setSigma(3,3,sig_new[3][3]);
-      widthsp->setSigma(3,0,sig_new[0][3]);
-    }
-  }
-  return PedsOK;
-}
-
-//-----------------------------------------------------------------------------
-int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals, 
-				const HcalPedestalWidths* fInputPedestalWidths,
-				HcalPedestals* fOutputPedestals, 
-				HcalPedestalWidths* fOutputPedestalWidths)
-{
-  map<int, std::vector<double> > AverageValues;
-
-// First process the last sample (remaining events).
-  if(evt%m_nevtsample!=0) SampleAnalysis();
-
-// Now do the end of run analysis: trending histos
-  if(sample>1){
-    m_file->cd();
-    m_file->cd("HB");
-    Trendings(hbHists.PEDTRENDS,hbHists.CHI2,hbHists.CAPID_AVERAGE,hbHists.CAPID_CHI2);
-    m_file->cd();
-    m_file->cd("HO");
-    Trendings(hoHists.PEDTRENDS,hoHists.CHI2,hoHists.CAPID_AVERAGE,hoHists.CAPID_CHI2);
-    m_file->cd();
-    m_file->cd("HF");
-    Trendings(hfHists.PEDTRENDS,hfHists.CHI2,hfHists.CAPID_AVERAGE,hfHists.CAPID_CHI2);
-  }
-
-//  Pedestal validation
-//  nominal values from DB
-  // inputs...
-  pedCan_nominal = fInputPedestals;
-  widthCan_nominal = fInputPedestalWidths;
-  // outputs...
-  pedCan = fOutputPedestals;
-  widthCan = fOutputPedestalWidths;
-
-  int HBPedsOK=PedValidtn(hbHists.PEDTRENDS,2);
-  int HOPedsOK=PedValidtn(hoHists.PEDTRENDS,2);
-  int HFPedsOK=PedValidtn(hfHists.PEDTRENDS,1);
-// m_AllPedsOK says whether new pedestals are consistent with the ones
-// we read at input.  m_AllPedsOK=0 means not consistent, -1 not checked,
-// -2 no data to validate.
-  if(m_pedValflag==1){
-    m_AllPedsOK=HBPedsOK*HOPedsOK*HFPedsOK;
-    if(evt<100)m_AllPedsOK=-2;
-  }
-  else m_AllPedsOK=-1;
-  if(m_AllPedsOK==1){
-    m_logFile<<"PedValidtn: All pedestals checked OK"<<std::endl;
-  }
-  if (pedCan && widthCan) {
-    pedCan->sort();
-    widthCan->sort();
-  }
-  // Write other histograms.
-  // HB
-  m_file->cd();
-  m_file->cd("HB");
-  hbHists.ALLPEDS->Write();
-  hbHists.PEDRMS->Write();
-  hbHists.PEDMEAN->Write();
-  // HO
-  m_file->cd();
-  m_file->cd("HO");
-  hoHists.ALLPEDS->Write();
-  hoHists.PEDRMS->Write();
-  hoHists.PEDMEAN->Write();
-  // HF
-  m_file->cd();
-  m_file->cd("HF");
-  hfHists.ALLPEDS->Write();
-  hfHists.PEDRMS->Write();
-  hfHists.PEDMEAN->Write();
-
-  // Write the histo file and close it
-// The following line was creating problems, so I've commented it out
-//  m_file->Write();
-  m_file->Close();
-  cout << "Hcal histograms written to " << m_outputFileROOT.c_str() << endl;
-  return (int)m_AllPedsOK;
-}
-
-//-----------------------------------------------------------------------------
 void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
 					const HODigiCollection& ho,
 					const HFDigiCollection& hf,
 					const HcalDbService& cond)
 {
   evt++;
-  sample = (evt-1)/m_nevtsample +1;
-  evt_curr = evt%m_nevtsample;
-  if(evt_curr==0)evt_curr=m_nevtsample;
+  sample=1;
+  evt_curr=evt;
+  if(m_nevtsample>0) {
+    sample = (evt-1)/m_nevtsample +1;
+    evt_curr = evt%m_nevtsample;
+    if(evt_curr==0)evt_curr=m_nevtsample;
+  }
 
   m_shape = cond.getHcalShape();
   // Get data for every CAPID.
@@ -683,19 +202,22 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
 //    m_logFile << "Event with " << i<<" HF Digis passed." << std::endl;
   } 
   // Call the function every m_nevtsample events
-  if(evt%m_nevtsample==0) SampleAnalysis();
+  if(m_nevtsample>0) {
+    if(evt%m_nevtsample==0) SampleAnalysis();
+  }
 }
+
 //-----------------------------------------------------------------------------
 void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, map<HcalDetId, map<int,PEDBUNCH> > &toolT) {
 
-// this function is due to be called for every time slice, it fills a histo
-// for the current cap and for the correlation with another cap
+// this function is due to be called for every time slice, it fills either a charge
+// histo for a single capID (flag=0) or a product histo for two capIDs (flag>0)
 
   static const int bins=10;
   static const int bins2=100;
-  float lo=-1; float hi=9; float lo2=-1; float hi2=9;
-  float slope[4]; float offset[4];
+  float lo=0; float hi=0;
   map<int,PEDBUNCH> _mei;
+  static map<HcalDetId, map<int,float> > QieCalibMap;
   string type = "HBHE";
 
   if(id==0){
@@ -710,15 +232,18 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
   else if(id==2) type = "HF"; 
 
   _meot = toolT.find(detid);
+
+// if histos for the current channel do not exist, first create them,
   if (_meot==toolT.end()){
-// if histos for these cap-ids do not exist, first create them
     map<int,PEDBUNCH> insert;
+    map<int,float> qiecalib;
     char name[1024];
     for(int i=0; i<4; i++){
+      getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
+      qiecalib[i]=(hi-lo)/bins;
+      qiecalib[i+4]=lo+0.5;
       sprintf(name,"%s Pedestal, eta=%d phi=%d d=%d cap=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);  
       insert[i].first =  new TH1F(name,name,bins,lo,hi);
-      slope[i]=(hi-lo)/bins;
-      offset[i]=lo+0.5;
       sprintf(name,"%s Product, eta=%d phi=%d d=%d caps=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+1)%4);  
       insert[4+i].first = new TH1F(name,name,bins2,0.,100.);
       sprintf(name,"%s Product, eta=%d phi=%d d=%d caps=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+2)%4);  
@@ -734,34 +259,39 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
     insert[18].first = new TH1F(name,name,21,-10.5,10.5);
     toolT[detid] = insert;
     _meot = toolT.find(detid);
+// store QIE calibrations in a map for later reuse
+    QieCalibMap[detid]=qiecalib;
   }
+
   _mei = _meot->second;
+
+// fill single capID histo
   if(flag==0){
-    if((evt-1)%m_nevtsample==0 && state[qie1.capid()]){
-      state[qie1.capid()]=false; 
-      _mei[qie1.capid()].first->Reset();
-      _mei[qie1.capid()+4].first->Reset();
-      _mei[qie1.capid()+8].first->Reset();
-      _mei[qie1.capid()+12].first->Reset();
+    if(m_nevtsample>0) {
+      if((evt-1)%m_nevtsample==0 && state[qie1.capid()]){
+        state[qie1.capid()]=false; 
+        _mei[qie1.capid()].first->Reset();
+        _mei[qie1.capid()+4].first->Reset();
+        _mei[qie1.capid()+8].first->Reset();
+        _mei[qie1.capid()+12].first->Reset();
+      }
     }
-    slope[qie1.capid()]=(hi-lo)/bins;
-    offset[qie1.capid()]=lo+0.5;
-    float charge1=qie1.adc()*slope[qie1.capid()]+offset[qie1.capid()];
+//    map<int,float> qiecalib = QieCalibMap[detid];
+//    float charge1=qie1.adc()*qiecalib[qie1.capid()]+qiecalib[qie1.capid()+4];
     if (qie1.adc()<bins){
-//      _mei[qie1.capid()].first->AddBinContent(qie1.adc()+1,1);
-      _mei[qie1.capid()].first->Fill(charge1);
+      _mei[qie1.capid()].first->AddBinContent(qie1.adc()+1,1);
+//      _mei[qie1.capid()].first->Fill(charge1);
     }
     else if(qie1.adc()>=bins){
       _mei[qie1.capid()].first->AddBinContent(bins+1,1);
     }
   }
+
+// fill 2 capID histo
   if(flag>0){
-    slope[qie1.capid()]=(hi-lo)/bins;
-    offset[qie1.capid()]=lo+0.5;
-    float charge1=qie1.adc()*slope[qie1.capid()]+offset[qie1.capid()];
-    slope[qie2.capid()]=(hi2-lo2)/bins;
-    offset[qie2.capid()]=lo2+0.5;
-    float charge2=qie2.adc()*slope[qie2.capid()]+offset[qie2.capid()];
+    map<int,float> qiecalib = QieCalibMap[detid];
+    float charge1=qie1.adc()*qiecalib[qie1.capid()]+qiecalib[qie1.capid()+4];
+    float charge2=qie2.adc()*qiecalib[qie2.capid()]+qiecalib[qie2.capid()+4];
     if (charge1*charge2<bins2){
       _mei[qie1.capid()+4*flag].first->Fill(charge1*charge2);
     }
@@ -771,17 +301,12 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
   }
 
   if(flag==0){
-    if(id==0) {
-      hbHists.ALLPEDS->Fill(qie1.adc());
-    }
-    else if(id==1){ 
-      hoHists.ALLPEDS->Fill(qie1.adc());
-    }
-    else if(id==2){
-      hfHists.ALLPEDS->Fill(qie1.adc());
-    }
+    if(id==0) hbHists.ALLPEDS->Fill(qie1.adc());
+    else if(id==1) hoHists.ALLPEDS->Fill(qie1.adc());
+    else if(id==2) hfHists.ALLPEDS->Fill(qie1.adc());
   }
 }
+
 //-----------------------------------------------------------------------------
 void HcalPedestalAnalysis::AllChanHists(const HcalDetId detid, const HcalQIESample& qie0, const HcalQIESample& qie1, const HcalQIESample& qie2, const HcalQIESample& qie3, const HcalQIESample& qie4, const HcalQIESample& qie5, map<HcalDetId, map<int,PEDBUNCH> > &toolT) { 
 
@@ -793,3 +318,576 @@ void HcalPedestalAnalysis::AllChanHists(const HcalDetId detid, const HcalQIESamp
   _mei[17].first->Fill(qie4.adc()+qie5.adc()-qie2.adc()-qie3.adc());
   _mei[18].first->Fill(qie4.adc()+qie5.adc()-(qie0.adc()+qie1.adc()+qie2.adc()+qie3.adc())/2.);
 }
+
+//-----------------------------------------------------------------------------
+void HcalPedestalAnalysis::SampleAnalysis(){
+  // it is called every m_nevtsample events (a sample) and the end of run
+  char PedSampleNum[20];
+
+// Compute pedestal constants for each HBHE, HO, HF
+  sprintf(PedSampleNum,"HB_Sample%d",sample);
+  m_file->cd();
+  m_file->mkdir(PedSampleNum);
+  m_file->cd(PedSampleNum);
+  GetPedConst(hbHists.PEDTRENDS,hbHists.PEDMEAN,hbHists.PEDRMS);
+  sprintf(PedSampleNum,"HO_Sample%d",sample);
+  m_file->cd();
+  m_file->mkdir(PedSampleNum);
+  m_file->cd(PedSampleNum);
+  GetPedConst(hoHists.PEDTRENDS,hoHists.PEDMEAN,hoHists.PEDRMS);
+  sprintf(PedSampleNum,"HF_Sample%d",sample);
+  m_file->cd();
+  m_file->mkdir(PedSampleNum);
+  m_file->cd(PedSampleNum);
+  GetPedConst(hfHists.PEDTRENDS,hfHists.PEDMEAN,hfHists.PEDRMS);
+}
+
+//-----------------------------------------------------------------------------
+void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT, TH1F* PedMeans, TH1F* PedWidths)
+{
+// Completely rewritten version oct 2006
+// Compute pedestal constants and fill into HcalPedestals and HcalPedestalWidths objects
+  float cap[4]; float sig[4][4]; float dcap[4]; float dsig[4][4]; float chi2[4];
+
+  for(_meot=toolT.begin(); _meot!=toolT.end(); _meot++){
+    HcalDetId detid = _meot->first;
+
+// take mean and width from a Gaussian fit or directly from the histo
+    if(fitflag>0){
+      for (int i=0; i<4; i++) {
+        TF1 *fit = _meot->second[i].first->GetFunction("gaus");
+        chi2[i]=0;
+        if(fit->GetNDF()!=0) chi2[i]=fit->GetChisquare()/fit->GetNDF();
+        cap[i]=fit->GetParameter(1);
+        sig[i][i]=fit->GetParameter(2);
+        dcap[i]=fit->GetParError(1);
+        dsig[i][i]=fit->GetParError(2);
+      }
+    }
+    else{
+      for (int i=0; i<4; i++) {
+        cap[i]=_meot->second[i].first->GetMean();
+        sig[i][i]=_meot->second[i].first->GetRMS();
+        m_stat[i]=0;
+
+        for(int j=m_startTS; j<m_endTS+1; j++){
+          m_stat[i]+=_meot->second[i].first->GetBinContent(j+1);
+        }
+        dcap[i] = sig[i][i]/sqrt(m_stat[i]);
+//        dsig[i][i] = dcap[i]*sig[i][i]/cap[i];
+        dsig[i][i] = sig[i][i]/sqrt(2.*m_stat[i]);
+        chi2[i]=0.;
+      }
+    }
+
+    for (int i=0; i<4; i++) {
+      if(m_hiSaveflag>0) {
+        _meot->second[i].first->GetXaxis()->SetTitle("Charge, fC");
+        _meot->second[i].first->GetYaxis()->SetTitle("CapID samplings");
+        _meot->second[i].first->Write();
+      }
+      if(m_nevtsample>0) {
+        _meot->second[i].second.first[0].push_back(cap[i]);
+        _meot->second[i].second.first[1].push_back(dcap[i]);
+        _meot->second[i].second.first[2].push_back(sig[i][i]);
+        _meot->second[i].second.first[3].push_back(dsig[i][i]);
+        _meot->second[i].second.first[4].push_back(chi2[i]);
+      }
+      PedMeans->Fill(cap[i]);
+      PedWidths->Fill(sig[i][i]);
+    }
+
+// special histos for Shuichi
+    if(m_hiSaveflag==-100){
+      for(int i=16; i<19; i++){
+        _meot->second[i].first->GetXaxis()->SetTitle("Charge, fC");
+        _meot->second[i].first->GetYaxis()->SetTitle("Events");
+        _meot->second[i].first->Write();
+      }
+    }
+
+// diagonal sigma is width squared
+    sig[0][0]=sig[0][0]*sig[0][0];
+    sig[1][1]=sig[1][1]*sig[1][1];
+    sig[2][2]=sig[2][2]*sig[2][2];
+    sig[3][3]=sig[3][3]*sig[3][3];
+
+// off diagonal sigmas (correlations) are computed from 3 histograms
+// here we still have all 4*3=12 combinations
+    sig[0][1]= _meot->second[4].first->GetMean()-cap[0]*cap[1];
+    sig[0][2]= _meot->second[8].first->GetMean()-cap[0]*cap[2];
+    sig[1][2]= _meot->second[5].first->GetMean()-cap[1]*cap[2];
+    sig[1][3]= _meot->second[9].first->GetMean()-cap[1]*cap[3];
+    sig[2][3]= _meot->second[6].first->GetMean()-cap[2]*cap[3];
+    sig[0][3]= _meot->second[12].first->GetMean()-cap[0]*cap[3];
+    sig[1][0]= _meot->second[13].first->GetMean()-cap[1]*cap[0];
+    sig[2][0]= _meot->second[10].first->GetMean()-cap[2]*cap[0];
+    sig[2][1]= _meot->second[14].first->GetMean()-cap[2]*cap[1];
+    sig[3][1]= _meot->second[11].first->GetMean()-cap[3]*cap[1];
+    sig[3][2]= _meot->second[15].first->GetMean()-cap[3]*cap[2];
+    sig[3][0]= _meot->second[7].first->GetMean()-cap[3]*cap[0];
+
+// there is no proper error calculation for the correlation coefficients
+    for(int i=0; i<4; i++){
+      if(m_nevtsample>0) {
+        _meot->second[i].second.first[5].push_back(sig[i][(i+1)%4]);
+        _meot->second[i].second.first[6].push_back(2*sig[i][i]*dsig[i][i]);
+        _meot->second[i].second.first[7].push_back(sig[i][(i+2)%4]);
+        _meot->second[i].second.first[8].push_back(2*sig[i][i]*dsig[i][i]);
+        _meot->second[i].second.first[9].push_back(sig[i][(i+3)%4]);
+        _meot->second[i].second.first[10].push_back(2*sig[i][i]*dsig[i][i]);
+      }
+// save product histos if desired
+      if(m_hiSaveflag>10) {
+        _meot->second[i+4].first->GetXaxis()->SetTitle("Charge^2, fC^2");
+        _meot->second[i+4].first->GetYaxis()->SetTitle("2-CapID samplings");
+        _meot->second[i+4].first->Write();
+        _meot->second[i+8].first->GetXaxis()->SetTitle("Charge^2, fC^2");
+        _meot->second[i+8].first->GetYaxis()->SetTitle("2-CapID samplings");
+        _meot->second[i+8].first->Write();
+        _meot->second[i+12].first->GetXaxis()->SetTitle("Charge^2, fC^2");
+        _meot->second[i+12].first->GetYaxis()->SetTitle("2-CapID samplings");
+        _meot->second[i+12].first->Write();
+      }
+    }
+
+// fill the objects - at this point only close and medium correlations are stored
+// and the matrix is assumed symmetric
+    if (m_nevtsample<1) {
+      sig[1][0]=sig[0][1];
+      sig[2][0]=sig[0][2];
+      sig[2][1]=sig[1][2];
+      sig[3][1]=sig[1][3];
+      sig[3][2]=sig[2][3];
+      sig[0][3]=sig[3][0];
+      if (fRawPedestals) fRawPedestals->addValue(detid,cap[0],cap[1],cap[2],cap[3]);
+      if (fRawPedestalWidths) {
+        HcalPedestalWidth* widthsp = fRawPedestalWidths->setWidth(detid);
+        widthsp->setSigma(0,0,sig[0][0]);
+        widthsp->setSigma(0,1,sig[0][1]);
+        widthsp->setSigma(0,2,sig[0][2]);
+        widthsp->setSigma(1,1,sig[1][1]);
+        widthsp->setSigma(1,2,sig[1][2]);
+        widthsp->setSigma(1,3,sig[1][3]);
+        widthsp->setSigma(2,2,sig[2][2]);
+        widthsp->setSigma(2,3,sig[2][3]);
+        widthsp->setSigma(3,3,sig[3][3]);
+        widthsp->setSigma(3,0,sig[0][3]);
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals, 
+				const HcalPedestalWidths* fInputPedestalWidths,
+				HcalPedestals* fOutputPedestals, 
+				HcalPedestalWidths* fOutputPedestalWidths)
+{
+   int nstat[4];
+
+// Pedestal objects
+  // inputs...
+  fRefPedestals = fInputPedestals;
+  fRefPedestalWidths = fInputPedestalWidths;
+  
+  // outputs...
+  if(m_pedValflag>0) {
+    fValPedestals = fOutputPedestals;
+    fValPedestalWidths = fOutputPedestalWidths;
+    fRawPedestals = new HcalPedestals();
+    fRawPedestalWidths = new HcalPedestalWidths();
+  }
+  else {
+    fRawPedestals = fOutputPedestals;
+    fRawPedestalWidths = fOutputPedestalWidths;
+    fValPedestals = new HcalPedestals();
+    fValPedestalWidths = new HcalPedestalWidths();
+  }
+
+// compute pedestal constants
+  if(m_nevtsample<1) SampleAnalysis();
+  if(m_nevtsample>0) {
+    if(evt%m_nevtsample!=0) SampleAnalysis();
+  }
+
+// trending histos
+  if(m_nevtsample>0){
+    m_file->cd();
+    m_file->cd("HB");
+    Trendings(hbHists.PEDTRENDS,hbHists.CHI2,hbHists.CAPID_AVERAGE,hbHists.CAPID_CHI2);
+    m_file->cd();
+    m_file->cd("HO");
+    Trendings(hoHists.PEDTRENDS,hoHists.CHI2,hoHists.CAPID_AVERAGE,hoHists.CAPID_CHI2);
+    m_file->cd();
+    m_file->cd("HF");
+    Trendings(hfHists.PEDTRENDS,hfHists.CHI2,hfHists.CAPID_AVERAGE,hfHists.CAPID_CHI2);
+  }
+
+  if (m_nevtsample<1) {
+    if(fRawPedestals && fRawPedestalWidths) {
+      fRawPedestals->sort();
+      fRawPedestalWidths->sort();
+    }
+
+// pedestal validation: m_AllPedsOK=-1 means not validated,
+//                                   0 everything OK,
+//                                   N>0 : mod(N,100000) drifts + width changes
+//                                         int(N/100000) missing channels
+    m_AllPedsOK=-1;
+    if(m_pedValflag>0) {
+      for (int i=0; i<4; i++) nstat[i]=(int)m_stat[i];
+      int NPedErrors=HcalPedVal(nstat,fRefPedestals,fRefPedestalWidths,
+                            fRawPedestals,fRawPedestalWidths,
+                            fValPedestals,fValPedestalWidths);
+      m_AllPedsOK=NPedErrors;
+    }
+// setting m_AllPedsOK=-2 will inhibit writing pedestals out
+//    if(m_pedValflag==1){
+//      if(evt<100)m_AllPedsOK=-2;
+//    }
+
+    if(fValPedestals && fValPedestalWidths) {
+      fValPedestals->sort();
+      fValPedestalWidths->sort();
+    }
+  }
+
+  // Write other histograms.
+  // HB
+  m_file->cd();
+  m_file->cd("HB");
+  hbHists.ALLPEDS->Write();
+  hbHists.PEDRMS->Write();
+  hbHists.PEDMEAN->Write();
+  // HO
+  m_file->cd();
+  m_file->cd("HO");
+  hoHists.ALLPEDS->Write();
+  hoHists.PEDRMS->Write();
+  hoHists.PEDMEAN->Write();
+  // HF
+  m_file->cd();
+  m_file->cd("HF");
+  hfHists.ALLPEDS->Write();
+  hfHists.PEDRMS->Write();
+  hfHists.PEDMEAN->Write();
+
+  m_file->Close();
+  cout << "Hcal histograms written to " << m_outputFileROOT.c_str() << endl;
+  return (int)m_AllPedsOK;
+}
+
+//-----------------------------------------------------------------------------
+void HcalPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT, TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2){
+
+// check stability of pedestal constants in a single long run
+
+  map<int, std::vector<double> > AverageValues;
+
+  for(_meot=toolT.begin(); _meot!=toolT.end(); _meot++){
+    for(int i=0; i<4; i++){
+      char name[1024];
+      HcalDetId detid = _meot->first;
+      sprintf(name,"Pedestal trend, eta=%d phi=%d d=%d cap=%d",detid.ieta(),detid.iphi(),detid.depth(),i);
+      int bins = _meot->second[i].second.first[0].size();
+      float lo =0.5;
+      float hi = (float)bins+0.5;
+      _meot->second[i].second.second.push_back(new TH1F(name,name,bins,lo,hi));
+      sprintf(name,"Width trend, eta=%d phi=%d d=%d cap=%d",detid.ieta(),detid.iphi(),detid.depth(),i);
+      bins = _meot->second[i].second.first[2].size();
+      hi = (float)bins+0.5;
+      _meot->second[i].second.second.push_back(new TH1F(name,name,bins,lo,hi));
+      sprintf(name,"Correlation trend, eta=%d phi=%d d=%d caps=%d*%d",detid.ieta(),detid.iphi(),detid.depth(),i,(i+1)%4);
+      bins = _meot->second[i].second.first[5].size();
+      hi = (float)bins+0.5;
+      _meot->second[i].second.second.push_back(new TH1F(name,name,bins,lo,hi));
+/*      sprintf(name,"Correlation trend, eta=%d phi=%d d=%d caps=%d*%d",detid.ieta(),detid.iphi(),detid.depth(),i,(i+2)%4);
+      bins = _meot->second[i].second.first[7].size();
+      hi = (float)bins+0.5;
+      _meot->second[i].second.second.push_back(new TH1F(name,name,bins,lo,hi));
+      sprintf(name,"Correlation trend, eta=%d phi=%d d=%d caps=%d*%d",detid.ieta(),detid.iphi(),detid.depth(),i,(i+3)%4);
+      bins = _meot->second[i].second.first[9].size();
+      hi = (float)bins+0.5;
+      _meot->second[i].second.second.push_back(new TH1F(name,name,bins,lo,hi)); */
+
+      std::vector<double>::iterator sample_it;
+      // Pedestal mean - put content and errors
+      int j=0;
+      for(sample_it=_meot->second[i].second.first[0].begin();
+          sample_it!=_meot->second[i].second.first[0].end();sample_it++){
+        _meot->second[i].second.second[0]->SetBinContent(++j,*sample_it);
+      }
+      j=0;
+      for(sample_it=_meot->second[i].second.first[1].begin();
+          sample_it!=_meot->second[i].second.first[1].end();sample_it++){
+        _meot->second[i].second.second[0]->SetBinError(++j,*sample_it);
+      }
+      // fit with a constant - extract parameters
+      _meot->second[i].second.second[0]->Fit("pol0","Q");
+      TF1 *fit = _meot->second[i].second.second[0]->GetFunction("pol0");
+      AverageValues[0].push_back(fit->GetParameter(0));
+      AverageValues[1].push_back(fit->GetParError(0));
+      if(sample>1)
+      AverageValues[2].push_back(fit->GetChisquare()/fit->GetNDF());
+      else
+      AverageValues[2].push_back(fit->GetChisquare());
+      sprintf(name,"Sample (%d events)",m_nevtsample);
+      _meot->second[i].second.second[0]->GetXaxis()->SetTitle(name);
+      _meot->second[i].second.second[0]->GetYaxis()->SetTitle("Pedestal value");
+      _meot->second[i].second.second[0]->Write();
+      // Pedestal width - put content and errors
+      j=0;
+      for(sample_it=_meot->second[i].second.first[2].begin();
+          sample_it!=_meot->second[i].second.first[2].end();sample_it++){
+        _meot->second[i].second.second[1]->SetBinContent(++j,*sample_it);
+      }
+      j=0;
+      for(sample_it=_meot->second[i].second.first[3].begin();
+          sample_it!=_meot->second[i].second.first[3].end();sample_it++){
+        _meot->second[i].second.second[1]->SetBinError(++j,*sample_it);
+      }
+      _meot->second[i].second.second[1]->GetXaxis()->SetTitle(name);
+      _meot->second[i].second.second[1]->GetYaxis()->SetTitle("Pedestal width");
+      _meot->second[i].second.second[1]->Write();
+      // Correlation coeffs - put contents and errors
+      j=0;
+      for(sample_it=_meot->second[i].second.first[5].begin();
+          sample_it!=_meot->second[i].second.first[5].end();sample_it++){
+        _meot->second[i].second.second[2]->SetBinContent(++j,*sample_it);
+      }
+      j=0;
+      for(sample_it=_meot->second[i].second.first[6].begin();
+          sample_it!=_meot->second[i].second.first[6].end();sample_it++){
+        _meot->second[i].second.second[2]->SetBinError(++j,*sample_it);
+      }
+      _meot->second[i].second.second[2]->GetXaxis()->SetTitle(name);
+      _meot->second[i].second.second[2]->GetYaxis()->SetTitle("Close correlation");
+      _meot->second[i].second.second[2]->Write();
+ /*     j=0;
+      for(sample_it=_meot->second[i].second.first[7].begin();
+          sample_it!=_meot->second[i].second.first[7].end();sample_it++){
+        _meot->second[i].second.second[3]->SetBinContent(++j,*sample_it);
+      }
+      j=0;
+      for(sample_it=_meot->second[i].second.first[8].begin();
+          sample_it!=_meot->second[i].second.first[8].end();sample_it++){
+        _meot->second[i].second.second[3]->SetBinError(++j,*sample_it);
+      }
+      _meot->second[i].second.second[3]->GetXaxis()->SetTitle(name);
+      _meot->second[i].second.second[3]->GetYaxis()->SetTitle("Intermediate correlation");
+      _meot->second[i].second.second[3]->Write();
+      j=0;
+      for(sample_it=_meot->second[i].second.first[9].begin();
+          sample_it!=_meot->second[i].second.first[9].end();sample_it++){
+        _meot->second[i].second.second[4]->SetBinContent(++j,*sample_it);
+      }
+      j=0;
+      for(sample_it=_meot->second[i].second.first[10].begin();
+          sample_it!=_meot->second[i].second.first[10].end();sample_it++){
+        _meot->second[i].second.second[4]->SetBinError(++j,*sample_it);
+      }
+      _meot->second[i].second.second[4]->GetXaxis()->SetTitle(name);
+      _meot->second[i].second.second[4]->GetYaxis()->SetTitle("Distant correlation");
+      _meot->second[i].second.second[4]->Write(); */
+      // chi2
+      j=0;
+      for(sample_it=_meot->second[i].second.first[4].begin();
+          sample_it!=_meot->second[i].second.first[4].end();sample_it++){
+        Chi2->Fill(*sample_it);
+      }
+    }
+  }
+  CapidAverage= new TH1F("Constant fit: Pedestal Values",
+                         "Constant fit: Pedestal Values",
+                         AverageValues[0].size(),0.,AverageValues[0].size());
+  std::vector<double>::iterator sample_it;
+  int j=0;
+  for(sample_it=AverageValues[0].begin();
+      sample_it!=AverageValues[0].end();sample_it++){
+    CapidAverage->SetBinContent(++j,*sample_it);
+  }
+  j=0;
+  for(sample_it=AverageValues[1].begin();
+      sample_it!=AverageValues[1].end();sample_it++){
+    CapidAverage->SetBinError(++j,*sample_it);
+  }
+  CapidChi2= new TH1F("Constant fit: Chi2/ndf",
+                      "Constant fit: Chi2/ndf",
+                      AverageValues[2].size(),0.,AverageValues[2].size());
+  j=0;
+  for(sample_it=AverageValues[2].begin();
+      sample_it!=AverageValues[2].end();sample_it++){
+    CapidChi2->SetBinContent(++j,*sample_it);
+    //CapidChi2->SetBinError(++j,0);
+  }
+  Chi2->GetXaxis()->SetTitle("Chi2/ndf");
+  Chi2->GetYaxis()->SetTitle("50 x [(16+2) x 4 x 4] `events`");
+  Chi2->Write();
+  CapidAverage->GetYaxis()->SetTitle("Pedestal value");
+  CapidAverage->GetXaxis()->SetTitle("(16+2) x 4 x 4 `events`");
+  CapidAverage->Write();
+  CapidChi2->GetYaxis()->SetTitle("Chi2/ndf");
+  CapidChi2->GetXaxis()->SetTitle("(16+2) x 4 x 4 `events`");
+  CapidChi2->Write();
+
+}
+
+//-----------------------------------------------------------------------------
+int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPedestals, 
+				const HcalPedestalWidths* fRefPedestalWidths,
+                                HcalPedestals* fRawPedestals,
+                                HcalPedestalWidths* fRawPedestalWidths,
+				HcalPedestals* fValPedestals, 
+				HcalPedestalWidths* fValPedestalWidths)
+{
+// new version of pedestal validation - it is designed to be as independent of
+// all the rest as possible - you only need to provide valid pedestal objects
+// and a vector of statistics per capID to use this as standalone code
+  HcalDetId detid;
+  float RefPedVals[4]; float RefPedSigs[4][4];
+  float RawPedVals[4]; float RawPedSigs[4][4];
+  map<HcalDetId,bool> isinRaw;
+  map<HcalDetId,bool> isinRef;
+  std::vector<DetId> RefChanns=fRefPedestals->getAllChannels();
+  std::vector<DetId> RawChanns=fRawPedestals->getAllChannels();
+  std::ofstream PedValLog;
+  PedValLog.open("HcalPedVal.log");
+
+  if(nstat[0]+nstat[1]+nstat[2]+nstat[3]<2500) PedValLog<<"HcalPedVal: warning - low statistics"<<std::endl;
+// find complete list of channels in current data and reference
+  for (int i=0; i<(int)RawChanns.size(); i++){
+    isinRef[HcalDetId(RawChanns[i])]=false;
+  }
+  for (int i=0; i<(int)RefChanns.size(); i++){
+    detid=HcalDetId(RefChanns[i]);
+    isinRaw[detid]=false;
+    isinRef[detid]=true;
+  }
+  for (int i=0; i<(int)RawChanns.size(); i++){
+    detid=HcalDetId(RawChanns[i]);
+    isinRaw[detid]=true;
+    if (isinRef[detid]==false) {
+      PedValLog<<"HcalPedVal: channel "<<detid<<" not found in reference set"<<std::endl;
+      std::cerr<<"HcalPedVal: channel "<<detid<<" not found in reference set"<<std::endl;
+    }
+  }
+
+// main loop over channels
+  int erflag=0;
+  for (int i=0; i<(int)RefChanns.size(); i++){
+    detid=HcalDetId(RefChanns[i]);
+    for (int icap=0; icap<4; icap++) {
+      RefPedVals[icap]=fRefPedestals->getValue(detid,icap);
+      for (int icap2=icap; icap2<4; icap2++) {
+        RefPedSigs[icap][icap2]=fRefPedestalWidths->getSigma(detid,icap,icap2);
+        if(icap2!=icap)RefPedSigs[icap2][icap]=RefPedSigs[icap][icap2];
+      }
+    }
+
+// read new raw values
+    if(isinRaw[detid]) {
+      for (int icap=0; icap<4; icap++) {
+        RawPedVals[icap]=fRawPedestals->getValue(detid,icap);
+        for (int icap2=icap; icap2<4; icap2++) {
+          RawPedSigs[icap][icap2]=fRawPedestalWidths->getSigma(detid,icap,icap2);
+          if(icap2!=icap)RawPedSigs[icap2][icap]=RawPedSigs[icap][icap2];
+        }
+      }
+
+// first quick check if raw values make sense: if not, the channel is treated like absent
+      for (int icap=0; icap<4; icap++) {
+        if(RawPedVals[icap]<1. || RawPedSigs[icap][icap]<0.01) isinRaw[detid]=false;
+        for (int icap2=icap; icap2<4; icap2++){
+          if(fabs(RawPedSigs[icap][icap2]/sqrt(RawPedSigs[icap][icap]*RawPedSigs[icap2][icap2]))>1.) isinRaw[detid]=false;
+        }
+      }
+    }
+
+// check raw values against reference
+    if(isinRaw[detid]) {
+      for (int icap=0; icap<4; icap++) {
+        int icap2=(icap+1)%3;
+        float width=sqrt(RawPedSigs[icap][icap]);
+        float erof1=width/sqrt((float)nstat[icap]);
+        float erof2=sqrt(erof1*erof1+RawPedSigs[icap][icap]/(float)nstat[icap]);
+        float erofwidth=width/sqrt(2.*nstat[icap]);
+        float diffof1=RawPedVals[icap]-RefPedVals[icap];
+        float diffof2=RawPedVals[icap]+RawPedVals[icap2]-RefPedVals[icap]-RefPedVals[icap2];
+        float diffofw=width-sqrt(RefPedSigs[icap][icap]);
+
+// validation in 2 TS for HB, HE, HO, in 1 TS for HF
+        int nTS=2;
+        if(detid.subdet()==HcalForward) nTS=1;
+        if(nTS==1 && fabs(diffof1)>0.5+erof1) { 
+          erflag+=1;
+          PedValLog<<"HcalPedVal: drift in channel "<<detid<<" cap "<<icap<<": "<<RawPedVals[icap]<<" - "<<RefPedVals[icap]<<" = "<<diffof1<<std::endl;
+        }
+        if(nTS==2 && fabs(diffof2)>0.5+erof2) { 
+          erflag+=1;
+          PedValLog<<"HcalPedVal: drift in channel "<<detid<<" caps "<<icap<<"+"<<icap2<<": "<<RawPedVals[icap]<<"+"<<RawPedVals[icap2]<<" - "<<RefPedVals[icap]<<"+"<<RefPedVals[icap2]<<" = "<<diffof2<<std::endl;
+        }
+        if(fabs(diffofw)>0.15*width+erofwidth) {
+          erflag+=1;
+          PedValLog<<"HcalPedVal: width changed in channel "<<detid<<" cap "<<icap<<": "<<width<<" - "<<sqrt(RefPedSigs[icap][icap])<<" = "<<diffofw<<std::endl;
+        }
+      }
+    }
+
+// for disconnected/bad channels restore reference values
+    else {
+      PedValLog<<"HcalPedVal: no valid data from channel "<<detid<<std::endl;
+      erflag+=100000;
+      fValPedestals->addValue(detid,RefPedVals[0],RefPedVals[1],RefPedVals[2],RefPedVals[3]);
+      HcalPedestalWidth* widthsp = fValPedestalWidths->setWidth(detid);
+      for (int icap=0; icap<4; icap++) {
+        for (int icap2=icap; icap2<4; icap2++) widthsp->setSigma(icap2,icap,RefPedSigs[icap2][icap]);
+      }
+    }
+
+// end of channel loop
+  }
+
+  if(erflag==0) PedValLog<<"HcalPedVal: all pedestals checked OK"<<std::endl;
+
+// now construct the remaining part of the validated objects
+// if nothing changed outside tolerance, validated set = reference set
+  if(erflag%100000 == 0) {
+    for (int i=0; i<(int)RefChanns.size(); i++){
+      detid=HcalDetId(RefChanns[i]);
+      if (isinRaw[detid]) {
+        HcalPedestalWidth* widthsp = fValPedestalWidths->setWidth(detid);
+        for (int icap=0; icap<4; icap++) {
+          RefPedVals[icap]=fRefPedestals->getValue(detid,icap);
+          for (int icap2=icap; icap2<4; icap2++) {
+            RefPedSigs[icap][icap2]=fRefPedestalWidths->getSigma(detid,icap,icap2);
+            if(icap2!=icap)RefPedSigs[icap2][icap]=RefPedSigs[icap][icap2];
+            widthsp->setSigma(icap2,icap,RefPedSigs[icap2][icap]);
+          }
+        }
+      }
+      fValPedestals->addValue(detid,RefPedVals[0],RefPedVals[1],RefPedVals[2],RefPedVals[3]);
+    }
+  }
+
+// if anything changed, validated set = raw set + reference for missing/bad channels
+  else {
+    for (int i=0; i<(int)RawChanns.size(); i++){
+      detid=HcalDetId(RawChanns[i]);
+      if (isinRaw[detid]) {
+        HcalPedestalWidth* widthsp = fValPedestalWidths->setWidth(detid);
+        for (int icap=0; icap<4; icap++) {
+          RawPedVals[icap]=fRawPedestals->getValue(detid,icap);
+          for (int icap2=icap; icap2<4; icap2++) {
+            RawPedSigs[icap][icap2]=fRawPedestalWidths->getSigma(detid,icap,icap2);
+            if(icap2!=icap)RawPedSigs[icap2][icap]=RawPedSigs[icap][icap2];
+            widthsp->setSigma(icap2,icap,RawPedSigs[icap2][icap]);
+          }
+        }
+        fValPedestals->addValue(detid,RawPedVals[0],RawPedVals[1],RawPedVals[2],RawPedVals[3]);
+      }
+    }
+  }
+  return erflag;
+}
+
