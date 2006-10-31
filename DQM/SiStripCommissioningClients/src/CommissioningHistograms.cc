@@ -17,8 +17,8 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
     task_(task)
 {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " Constructing object..." << endl;
+       << "[CommissioningHistograms::" << __func__ << "]"
+       << " Constructing object...";
   collations_.clear();
 }
 
@@ -26,16 +26,16 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
 /** */
 CommissioningHistograms::~CommissioningHistograms() {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " Destructing object..." << endl;
+       << "[CommissioningHistograms::" << __func__ << "]"
+       << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::createCollations( const vector<string>& contents ) {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << "Creating CollateMonitorElements..." << endl;
+       << "[CommissioningHistograms::" << __func__ << "]"
+       << "Creating CollateMonitorElements...";
 
   if ( contents.empty() ) { return; }
   
@@ -78,9 +78,9 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       } else {
 	channel = 0;
 	cerr << endl // edm::LogWarning(mlDqmClient_)
-	  << "[CommissioningHistograms::" << __func__ << "]"
-	  << " Unexpected histogram granularity: "
-	  << title.granularity_ << endl;
+	     << "[CommissioningHistograms::" << __func__ << "]"
+	     << " Unexpected histogram granularity: "
+	     << title.granularity_;
       }
       uint32_t key = SiStripFecKey::key( sistrip::invalid_, //@@ WARNING: only good for one partition only!!!
 					 path.fecSlot_,
@@ -100,8 +100,8 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 	else { 
 	  cme = 0; 
 	  cerr << endl // edm::LogWarning(mlDqmClient_)
-	    << "[CommissioningHistograms::" << __func__ << "]"
-	    << " NULL pointers to histos!" << endl; 
+	       << "[CommissioningHistograms::" << __func__ << "]"
+	       << " NULL pointers to histos!"; 
 	}
 	if ( cme ) {
 	  mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
@@ -115,8 +115,8 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 	  else { 
 	    cme = 0; 
 	    cerr << endl // edm::LogWarning(mlDqmClient_)
-	      << "[CommissioningHistograms::" << __func__ << "]"
-	      << " NULL pointers to histos!" << endl; 
+		 << "[CommissioningHistograms::" << __func__ << "]"
+		 << " NULL pointers to histos!"; 
 	  }
 	  if ( cme ) {
 	    mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
@@ -134,8 +134,8 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 /** */
 void CommissioningHistograms::histoAnalysis( bool debug ) {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " (Derived) implementation to come..." << endl;
+       << "[CommissioningHistograms::" << __func__ << "]"
+       << " (Derived) implementation to come...";
 }
 
 // -----------------------------------------------------------------------------
@@ -145,16 +145,16 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::SummaryHisto& h
 						  const string& directory,
 						  const sistrip::Granularity& gran ) {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " (Derived) implementation to come..." << endl;
+       << "[CommissioningHistograms::" << __func__ << "]"
+       << " (Derived) implementation to come...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::uploadToConfigDb() {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[CommissioningHistograms::" << __func__ << "]"
-    << " (Derived) implementation to come..." << endl;
+       << "[CommissioningHistograms::" << __func__ << "]"
+       << " (Derived) implementation to come..."; 
 }
 
 // -----------------------------------------------------------------------------

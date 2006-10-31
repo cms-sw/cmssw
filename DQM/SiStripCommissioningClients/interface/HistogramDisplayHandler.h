@@ -1,29 +1,25 @@
 #ifndef DQM_HistogramDisplayHandlers_HistogramDisplayHandler_H
 #define DQM_HistogramDisplayHandlers_HistogramDisplayHandler_H
-#include "DQMServices/Components/interface/DQMBaseClient.h"
+
 #include "DQMServices/Components/interface/UpdateObserver.h"
 #include "DQMServices/Components/interface/Updater.h"
-
+#include "DQMServices/Components/interface/DQMBaseClient.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
-#include <string>
-#include <vector>
 #include "TCanvas.h"
 #include "BSem.h"
+#include <string>
+#include <vector>
 
+class HistogramDisplayHandler {
 
-
-
-class HistogramDisplayHandler 
-{
-public:
-  
+ public:
   
   HistogramDisplayHandler( MonitorUserInterface* mui,BSem* b );
   ~HistogramDisplayHandler(){delete fCanvas;}
-  
   
   void HistogramViewer(xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
   bool hasKey(const std::string& key);

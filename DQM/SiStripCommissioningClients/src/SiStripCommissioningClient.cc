@@ -52,7 +52,7 @@ SiStripCommissioningClient::~SiStripCommissioningClient() {
 /** Called whenever the client enters the "Configured" state. */
 void SiStripCommissioningClient::configure() {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningClient::" << __func__ << "]";
+       << "[SiStripCommissioningClient::" << __func__ << "]";
   web_ = new SiStripCommissioningWebClient( this,
 					    getContextURL(),
 					    getApplicationURL(), 
@@ -64,7 +64,7 @@ void SiStripCommissioningClient::configure() {
 /** Called whenever the client enters the "Enabled" state. */
 void SiStripCommissioningClient::newRun() {
   cout << endl // LogTrace(mlDqmClient_) 
-    << "[SiStripCommissioningClient::" << __func__ << "]";
+       << "[SiStripCommissioningClient::" << __func__ << "]";
   ( this->upd_ )->registerObserver( this ); 
   subscribeAll(); 
   first_ = true;
@@ -74,7 +74,7 @@ void SiStripCommissioningClient::newRun() {
 /** Called whenever the client enters the "Halted" state. */
 void SiStripCommissioningClient::endRun() {
   cout << endl // LogTrace(mlDqmClient_) 
-    << "[SiStripCommissioningClient::" << __func__ << "]";
+       << "[SiStripCommissioningClient::" << __func__ << "]";
   unsubscribeAll(); 
   if ( histos_ ) { delete histos_; histos_ = 0; }
   if (hdis_) { delete hdis_; hdis_ = 0; }
@@ -86,15 +86,15 @@ void SiStripCommissioningClient::onUpdate() const {
   
   if ( !mui_ ) {
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to MonitorUserInterface!";
     return;
   }
   
   // Print number of updates
   cout << endl // LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningClient::" << __func__ << "]"
-    << " Number of updates: " << mui_->getNumUpdates();
+       << "[SiStripCommissioningClient::" << __func__ << "]"
+       << " Number of updates: " << mui_->getNumUpdates();
   
   // Retrieve a list of all subscribed histograms
   //if ( first_ ) { mui_->subscribe( "*" ); first_ = false; }
@@ -103,8 +103,8 @@ void SiStripCommissioningClient::onUpdate() const {
   
   if ( contents.empty() ) { 
     cout << endl // LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Request for 'Contents': vector is empty!";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Request for 'Contents': vector is empty!";
     return; 
   }
   
@@ -123,7 +123,7 @@ void SiStripCommissioningClient::onUpdate() const {
 /** Extract "commissioning task" string from "added contents". */
 sistrip::Task SiStripCommissioningClient::extractTask( const vector<string>& contents ) const {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningClient::" << __func__ << "]";
+       << "[SiStripCommissioningClient::" << __func__ << "]";
   
   // Iterate through added contents
   vector<string>::const_iterator istr = contents.begin();
@@ -132,17 +132,17 @@ sistrip::Task SiStripCommissioningClient::extractTask( const vector<string>& con
     // Search for "commissioning task" string
     string::size_type pos = istr->find( sistrip::commissioningTask_ );
     cout << endl // LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Looking for 'SiStripCommissioningTask' within string: " 
-      << *istr;
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Looking for 'SiStripCommissioningTask' within string: " 
+	 << *istr;
     if ( pos != string::npos ) { 
       // Extract commissioning task from string 
       string value = istr->substr( pos+sistrip::commissioningTask_.size()+1, string::npos ); 
       if ( !value.empty() ) { 
 	cout << endl // LogTrace(mlDqmClient_)
-	  << "[SiStripCommissioningClient::" << __func__ << "]"
-	  << " Found string " <<  istr->substr(pos,string::npos)
-	  << " with value " << value;
+	     << "[SiStripCommissioningClient::" << __func__ << "]"
+	     << " Found string " <<  istr->substr(pos,string::npos)
+	     << " with value " << value;
 	if ( !(mui_->get(sistrip::root_+"/"+istr->substr(pos,string::npos))) ) { 
 	  mui_->setCurrentFolder(sistrip::root_);
 	  mui_->getBEInterface()->bookString( istr->substr(pos,string::npos), value ); 
@@ -174,8 +174,8 @@ void SiStripCommissioningClient::createHistograms( const sistrip::Task& task ) c
   else if ( task == sistrip::UNKNOWN_TASK ) {
     histos_ = 0;
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Unknown commissioning task!";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Unknown commissioning task!";
   }
   
 }
@@ -186,8 +186,8 @@ void SiStripCommissioningClient::general( xgi::Input* in, xgi::Output* out ) thr
   if ( web_ ) { web_->Default( in, out ); }
   else { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to WebPage!";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to WebPage!";
   }
 }
 
@@ -197,8 +197,8 @@ void SiStripCommissioningClient::handleWebRequest( xgi::Input* in, xgi::Output* 
   if ( web_ ) { web_->handleRequest(in, out); }
   else { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to WebPage!"; 
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to WebPage!"; 
   }
 }
 
@@ -216,15 +216,15 @@ void SiStripCommissioningClient::CBHistogramViewer( xgi::Input* in, xgi::Output*
 
   if ( mui_ ) { 
     cout << endl // LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Scheduling this action...";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Scheduling this action...";
     mui_->addCallback(action); 
     fCallBack->take();
     fCallBack->give();
   } else { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"; 
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to MonitorUserInterface!"; 
     fCallBack->give();
     return;
   }
@@ -248,13 +248,13 @@ void SiStripCommissioningClient::histoAnalysis( bool debug ) {
   
   if ( mui_ ) { 
     cout << endl // LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Scheduling this action...";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Scheduling this action...";
     mui_->addCallback(action); 
   } else { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"; 
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to MonitorUserInterface!"; 
     return;
   }
   
@@ -273,13 +273,13 @@ void SiStripCommissioningClient::subscribeAll( string pattern ) {
 
   if ( mui_ ) { 
     cout << endl // LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Scheduling this action...";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Scheduling this action...";
     mui_->addCallback(action); 
   } else { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"; 
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to MonitorUserInterface!"; 
     return;
   }
   
@@ -295,13 +295,13 @@ void SiStripCommissioningClient::updateHistos() {
   
   if ( mui_ ) { 
     cout << endl // LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Scheduling this action...";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Scheduling this action...";
     mui_->addCallback(action); 
   } else { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"; 
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to MonitorUserInterface!"; 
     return;
   }
   
@@ -320,13 +320,13 @@ void SiStripCommissioningClient::unsubscribeAll( string pattern ) {
   
   if ( mui_ ) { 
     cout << endl // LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Scheduling this action...";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Scheduling this action...";
     mui_->addCallback(action); 
   } else { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"; 
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to MonitorUserInterface!"; 
     return;
   }
   
@@ -345,13 +345,13 @@ void SiStripCommissioningClient::removeAll( string pattern ) {
   
   if ( mui_ ) { 
     cout << endl // LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Scheduling this action...";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Scheduling this action...";
     mui_->addCallback(action); 
   } else { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"; 
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to MonitorUserInterface!"; 
     return;
   }
   
@@ -368,13 +368,13 @@ void SiStripCommissioningClient::saveHistos( string name ) {
 
   if ( mui_ ) { 
     cout << endl // LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Scheduling this action...";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Scheduling this action...";
     mui_->addCallback(action); 
   } else { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"; 
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to MonitorUserInterface!"; 
     return;
   }
   
@@ -389,8 +389,8 @@ void SiStripCommissioningClient::createSummaryHisto( sistrip::SummaryHisto histo
   
   if ( !histos_ ) { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to CommissioningHistograms!"; 
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to CommissioningHistograms!"; 
     return;
   }
   
@@ -403,13 +403,13 @@ void SiStripCommissioningClient::createSummaryHisto( sistrip::SummaryHisto histo
   
   if ( mui_ ) { 
     cout << endl // LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Scheduling this action...";
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " Scheduling this action...";
     mui_->addCallback(action); 
   } else { 
     cerr << endl // edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"; 
+	 << "[SiStripCommissioningClient::" << __func__ << "]"
+	 << " NULL pointer to MonitorUserInterface!"; 
     return;
   }
   
@@ -419,15 +419,15 @@ void SiStripCommissioningClient::createSummaryHisto( sistrip::SummaryHisto histo
 /** */
 void SiStripCommissioningClient::uploadToConfigDb() {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningClient::" << __func__ << "]"
-    << " Derived implementation to come..."; 
+       << "[SiStripCommissioningClient::" << __func__ << "]"
+       << " Derived implementation to come..."; 
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void SiStripCommissioningClient::subscribe( string pattern ) {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningClient::" << __func__ << "]";
+       << "[SiStripCommissioningClient::" << __func__ << "]";
   if ( mui_ ) { mui_->subscribe(pattern); }
 }
 
@@ -441,7 +441,7 @@ void SiStripCommissioningClient::update() {
 /** */
 void SiStripCommissioningClient::unsubscribe( string pattern ) {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningClient::" << __func__ << "]";
+       << "[SiStripCommissioningClient::" << __func__ << "]";
   if ( mui_ ) { mui_->unsubscribe(pattern); }
 }
 
@@ -449,7 +449,7 @@ void SiStripCommissioningClient::unsubscribe( string pattern ) {
 /** */
 void SiStripCommissioningClient::remove( string pattern ) {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningClient::" << __func__ << "]";
+       << "[SiStripCommissioningClient::" << __func__ << "]";
   if ( mui_ ) { mui_->getBEInterface()->rmdir(pattern); }
 }
 
@@ -460,7 +460,7 @@ void SiStripCommissioningClient::save( string name ) {
   if ( name == "" ) { ss << "Client.root"; }
   else { ss << name; }
   cout << endl // LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningClient::" << __func__ << "]"
-    << " Saving histogams to file '" << ss.str() << "'...";
+       << "[SiStripCommissioningClient::" << __func__ << "]"
+       << " Saving histogams to file '" << ss.str() << "'...";
   if ( mui_ ) { mui_->save( ss.str() ); }
 }

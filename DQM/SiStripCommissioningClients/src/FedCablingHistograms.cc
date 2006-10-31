@@ -16,23 +16,23 @@ FedCablingHistograms::FedCablingHistograms( MonitorUserInterface* mui )
     factory_( new Factory )
 {
   cout << endl // LogTrace(mlDqmClient_) 
-    << "[FedCablingHistograms::" << __func__ << "]"
-    << " Constructing object...";
+       << "[FedCablingHistograms::" << __func__ << "]"
+       << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 FedCablingHistograms::~FedCablingHistograms() {
   cout << endl // LogTrace(mlDqmClient_) 
-    << "[FedCablingHistograms::" << __func__ << "]"
-    << " Destructing object...";
+       << "[FedCablingHistograms::" << __func__ << "]"
+       << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------	 
 /** */	 
 void FedCablingHistograms::histoAnalysis( bool debug ) {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[FedCablingHistograms::" << __func__ << "]";
+       << "[FedCablingHistograms::" << __func__ << "]";
 
   // Clear map holding analysis objects
   data_.clear();
@@ -44,8 +44,8 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     // Check vector of histos is not empty (should be 1 histo)
     if ( iter->second.empty() ) {
       cerr << endl // edm::LogWarning(mlDqmClient_)
-	<< "[FedCablingHistograms::" << __func__ << "]"
-	<< " Zero collation histograms found!" << endl;
+	   << "[FedCablingHistograms::" << __func__ << "]"
+	   << " Zero collation histograms found!";
       continue;
     }
     
@@ -65,17 +65,18 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
       static uint16_t cntr = 0;
       stringstream ss;
       anal.print( ss ); 
-      cout << ss.str() << endl;
+      cout << endl // LogTrace(mlDqmClient_)
+	   << ss.str();
       cntr++;
     }
     
   }
   
   cout << endl // LogTrace(mlDqmClient_)
-    << "[FedCablingHistograms::" << __func__ << "]"
-    << " Analyzed histograms for " 
-    << collations().size() 
-    << " FED channels" << endl;
+       << "[FedCablingHistograms::" << __func__ << "]"
+       << " Analyzed histograms for " 
+       << collations().size() 
+       << " FED channels";
   
 }
 
@@ -86,7 +87,7 @@ void FedCablingHistograms::createSummaryHisto( const sistrip::SummaryHisto& hist
 					       const string& directory,
 					       const sistrip::Granularity& gran ) {
   cout << endl // LogTrace(mlDqmClient_)
-    << "[FedCablingHistograms::" << __func__ << "]";
+       << "[FedCablingHistograms::" << __func__ << "]";
   
   // Check view 
   sistrip::View view = SiStripHistoNamingScheme::view(directory);

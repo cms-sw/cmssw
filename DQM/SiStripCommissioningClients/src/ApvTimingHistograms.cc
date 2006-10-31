@@ -15,17 +15,17 @@ ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui )
   : CommissioningHistograms( mui, sistrip::APV_TIMING ),
     factory_( new Factory )
 {
-  LogTrace(mlDqmClient_) 
-    << "[ApvTimingHistograms::" << __func__ << "]"
-    << " Constructing object...";
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[ApvTimingHistograms::" << __func__ << "]"
+       << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistograms::~ApvTimingHistograms() {
-  LogTrace(mlDqmClient_) 
-    << "[ApvTimingHistograms::" << __func__ << "]"
-    << " Constructing object...";
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[ApvTimingHistograms::" << __func__ << "]"
+       << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------	 
@@ -47,9 +47,9 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     // Check vector of histos is not empty (should be 1 histo)
     if ( iter->second.empty() ) {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[ApvTimingHistograms::" << __func__ << "]"
-	<< " Zero collation histograms found!";
+      cerr << endl // edm::LogWarning(mlDqmClient_) 
+	   << "[ApvTimingHistograms::" << __func__ << "]"
+	   << " Zero collation histograms found!";
       continue;
     }
     
@@ -68,9 +68,9 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     // Check tick height is valid
     if ( anal.height() < 100. ) { 
-      edm::LogWarning(mlDqmClient_) 
-	<< "[ApvTimingHistograms::" << __func__ << "]"
-	<< " Tick mark height too small: " << anal.height();
+      cerr << endl // edm::LogWarning(mlDqmClient_) 
+	   << "[ApvTimingHistograms::" << __func__ << "]"
+	   << " Tick mark height too small: " << anal.height();
       continue; 
     }
 
@@ -91,43 +91,43 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
   }
   
-  LogTrace(mlDqmClient_) 
-    << "[ApvTimingHistograms::" << __func__ << "]"
-    << " Analyzed histograms for " 
-    << collations().size() 
-    << " FED channels";
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[ApvTimingHistograms::" << __func__ << "]"
+       << " Analyzed histograms for " 
+       << collations().size() 
+       << " FED channels";
 
   // Check max time
   if ( time_max > sistrip::maximum_ ||
        time_max < -1.*sistrip::maximum_ ) { 
-    edm::LogWarning(mlDqmClient_) 
-      << "[ApvTimingHistograms::" << __func__ << "]"
-      << " Unable to set maximum time! Found unexpected value: "
-      << time_max;
+    cerr << endl // edm::LogWarning(mlDqmClient_) 
+	 << "[ApvTimingHistograms::" << __func__ << "]"
+	 << " Unable to set maximum time! Found unexpected value: "
+	 << time_max;
     return; 
   }
   
   SiStripFecKey::Path max = SiStripFecKey::path( device_max );
-  LogTrace(mlDqmClient_) 
-    << "[ApvTimingHistograms::" << __func__ << "]"
-    << " Device (FEC/slot/ring/CCU/module/channel) " 
-    << max.fecCrate_ << "/" 
-    << max.fecSlot_ << "/" 
-    << max.fecRing_ << "/" 
-    << max.ccuAddr_ << "/"
-    << max.ccuChan_ << "/"
-    << " has maximum delay (rising edge) [ns]:" << time_max << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[ApvTimingHistograms::" << __func__ << "]"
+       << " Device (FEC/slot/ring/CCU/module/channel) " 
+       << max.fecCrate_ << "/" 
+       << max.fecSlot_ << "/" 
+       << max.fecRing_ << "/" 
+       << max.ccuAddr_ << "/"
+       << max.ccuChan_ << "/"
+       << " has maximum delay (rising edge) [ns]:" << time_max;
   
   SiStripFecKey::Path min = SiStripFecKey::path( device_min );
-  LogTrace(mlDqmClient_) 
-    << "[ApvTimingHistograms::" << __func__ << "]"
-    << " Device (FEC/slot/ring/CCU/module/channel) " 
-    << min.fecCrate_ << "/" 
-    << min.fecSlot_ << "/" 
-    << min.fecRing_ << "/" 
-    << min.ccuAddr_ << "/"
-    << min.ccuChan_ << "/"
-    << " has minimum delay (rising edge) [ns]:" << time_min << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[ApvTimingHistograms::" << __func__ << "]"
+       << " Device (FEC/slot/ring/CCU/module/channel) " 
+       << min.fecCrate_ << "/" 
+       << min.fecSlot_ << "/" 
+       << min.fecRing_ << "/" 
+       << min.ccuAddr_ << "/"
+       << min.ccuChan_ << "/"
+       << " has minimum delay (rising edge) [ns]:" << time_min;
   
   // Set maximum time for all analysis objects
   map<uint32_t,ApvTimingAnalysis>::iterator ianal = data_.begin();
@@ -137,7 +137,8 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     if ( debug ) {
       stringstream ss;
       ianal->second.print( ss ); 
-      cout << ss.str() << endl;
+      cout << endl // LogTrace(mlDqmClient_) 
+	   << ss.str();
       cntr++;
     }
   }
@@ -150,7 +151,8 @@ void ApvTimingHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo
 					      const sistrip::SummaryType& type, 
 					      const string& directory,
 					      const sistrip::Granularity& gran ) {
-  LogTrace(mlDqmClient_) << "[ApvTimingHistograms::" << __func__ << "]";
+  cout << endl // LogTrace(mlDqmClient_)
+       << "[ApvTimingHistograms::" << __func__ << "]";
   
   // Check view 
   sistrip::View view = SiStripHistoNamingScheme::view(directory);

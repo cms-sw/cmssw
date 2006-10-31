@@ -15,17 +15,17 @@ OptoScanHistograms::OptoScanHistograms( MonitorUserInterface* mui )
   : CommissioningHistograms( mui, sistrip::OPTO_SCAN ),
     factory_( new Factory )
 {
-  LogTrace(mlDqmClient_) 
-    << "[OptoScanHistograms::" << __func__ << "]"
-    << " Constructing object...";
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[OptoScanHistograms::" << __func__ << "]"
+       << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 OptoScanHistograms::~OptoScanHistograms() {
-  LogTrace(mlDqmClient_) 
-    << "[OptoScanHistograms::" << __func__ << "]"
-    << " Denstructing object...";
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[OptoScanHistograms::" << __func__ << "]"
+       << " Denstructing object...";
 }
 
 // -----------------------------------------------------------------------------	 
@@ -41,9 +41,9 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
     
     // Check vector of histos is not empty (should be 2 histos)
     if ( iter->second.empty() ) {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[OptoScanHistograms::" << __func__ << "]"
-	<< " Zero collation histograms found!" << endl;
+      cerr << endl // edm::LogWarning(mlDqmClient_) 
+	   << "[OptoScanHistograms::" << __func__ << "]"
+	   << " Zero collation histograms found!";
       continue;
     }
     
@@ -63,17 +63,18 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
       static uint16_t cntr = 0;
       stringstream ss;
       anal.print( ss ); 
-      cout << ss.str() << endl;
+      cout << endl // LogTrace(mlDqmClient_) 
+	   << ss.str();
       cntr++;
     }
 
   }
   
-  LogTrace(mlDqmClient_) 
-    << "[OptoScanHistograms::" << __func__ << "]"
-    << " Analyzed histograms for " 
-    << collations().size() 
-    << " FED channels" << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[OptoScanHistograms::" << __func__ << "]"
+       << " Analyzed histograms for " 
+       << collations().size() 
+       << " FED channels";
   
 }
 
@@ -83,7 +84,8 @@ void OptoScanHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo,
 					     const sistrip::SummaryType& type, 
 					     const string& directory,
 					     const sistrip::Granularity& gran ) {
-  LogTrace(mlDqmClient_) << "[OptoScanHistograms::" << __func__ << "]";
+  cout << endl // LogTrace(mlDqmClient_)
+       << "[OptoScanHistograms::" << __func__ << "]";
   
   // Check view 
   sistrip::View view = SiStripHistoNamingScheme::view(directory);
