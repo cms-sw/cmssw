@@ -6,19 +6,17 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
-//#include "DataFormats/RegionalCaloTrigger/interface/L1RCTEcal.h"
-//#include "DataFormats/RegionalCaloTrigger/interface/L1RCTHcal.h"
-
-//#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
-//#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
+#include "L1Trigger/L1Scales/interface/L1EmEtScaleRcd.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

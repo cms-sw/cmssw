@@ -17,11 +17,15 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
+
 class L1RCT {
 
  public:
   
   L1RCT();
+
+  void setGctEmScale(const L1CaloEtScale* scale);
 
   //Should organize the input into the crates and cards then pass on
   //the output.  The data will come into the trigger in the form
@@ -33,6 +37,7 @@ class L1RCT {
   //vector<vector<unsigned short> >
   void input(vector<vector<vector<unsigned short> > > barrel,
 	     vector<vector<unsigned short> > hf);
+
   //Should send commands to all crates to send commands to all RCs to
   //process the input data and then send it on to the EICs and then
   //to the JSCs
@@ -106,6 +111,9 @@ class L1RCT {
   //While 9-17 are eta 0 -> 5
   //Crate i and crate i+9 are next to each other  
   vector<L1RCTCrate> crates;
+
+  // scale for converting electron energy to GCT rank
+  const L1CaloEtScale* gctEmScale;
 };
 
 #endif

@@ -9,6 +9,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
+<use name=L1Trigger/L1Scales>
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep>
 
@@ -26,6 +27,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
+<use name=L1Trigger/L1Scales>
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep>
 </export>

@@ -33,6 +33,10 @@ L1RCT::L1RCT() : empty(),neighborMap(){
   }
 }
 
+void L1RCT::setGctEmScale(const L1CaloEtScale* scale){
+  gctEmScale = scale;
+}
+
 void L1RCT::input(vector<vector<vector<unsigned short> > > barrel,
 		  vector<vector<unsigned short> > hf){
   //cout << "L1RCT::input() entered" << endl;
@@ -95,7 +99,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
   vector<vector<unsigned short> > hcalBarrel(72,vector<unsigned short>(56));
   //vector<vector<unsigned short> > hcalForward(18,vector<unsigned short>(8));
 
-  std::ofstream file_out("towerinput.txt", std::ios::app);
+  std::ofstream file_out("rct_towers.txt", std::ios::app);
   if (!file_out){
     std::cerr << "Tower input file did not open!" << endl;
     return;
@@ -346,7 +350,7 @@ void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
   //vector<vector<unsigned short> > hcalForward(18,vector<unsigned short>(8));
 
 
-  std::ofstream file_out("towerinput.txt", std::ios::app);
+  std::ofstream file_out("cratetest_towerinputs.txt", std::ios::app);
   if (!file_out){
     std::cerr << "Tower input file did not open!" << endl;
     return;
@@ -413,7 +417,7 @@ void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
     unsigned short hcalInput = energy*2 + fineGrain;
 
     if (absIeta <= 28){
-/*
+
       // for file diagram of digi inputs
       if (ieta > 0){
 	hcalBarrel.at(iphi).at(ieta - 1) = hcalInput;
@@ -421,7 +425,7 @@ void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
       else {
 	hcalBarrel.at(iphi).at(56 + ieta) = hcalInput;
       }
-*/
+
       // put input into correct crate/card/tower of barrel
       if ((crate<18) && (card<7) && ((tower - 1)<32)) {
         barrel.at(crate).at(card).at(tower - 1 + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
@@ -460,6 +464,7 @@ void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
 
 
   file_out << "iphi goes from 1-72 down rows, ieta goes from -28 to 28 across columns." << endl << endl;
+/*
   file_out << "ECAL:" << endl;
   for (int i = 0; i < 72; i++){
     for (int j = 0; j < 28; j++){
@@ -472,6 +477,7 @@ void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
     }
     file_out << endl;
   }
+*/
   file_out << "\n\n\n\n\n" << endl;
   file_out << "HCAL:" << endl;
   for (int i = 0; i < 72; i++){
@@ -485,6 +491,7 @@ void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
     }
     file_out << endl;
   }
+/*
   file_out << "\n\n\n\n\n" << endl;
 
   file_out << "HF:" << endl;
@@ -510,6 +517,7 @@ void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
     }
     file_out << endl;
   }
+*/
   file_out << "\n\n\n\n\n" << endl;
   file_out.close();
 
@@ -694,7 +702,9 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
     unsigned short rgn = ((isoEmObjects.at(i)) & 1);
     unsigned short crd = (((isoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((isoEmObjects.at(i))/16);
-    L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
+    unsigned short rank = gctEmScale->rank(energy);
+    //L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
+    L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
     // cout << "card " << crd << "region " << rgn << "energy " << energy << endl;
     isoEmCands.push_back(isoCand);
   }
@@ -711,7 +721,9 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
     unsigned short rgn = ((nonIsoEmObjects.at(i)) & 1);
     unsigned short crd = (((nonIsoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((nonIsoEmObjects.at(i))/16);
-    L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
+    unsigned short rank = gctEmScale->rank(energy);
+    //L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
+    L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
     nonIsoEmCands.push_back(nonIsoCand);
   }
   return nonIsoEmCands;

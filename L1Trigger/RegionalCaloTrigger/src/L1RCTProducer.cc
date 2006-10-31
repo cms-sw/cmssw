@@ -21,30 +21,27 @@ L1RCTProducer::~L1RCTProducer(){
   //std::cout << "One L1RCTProducer deleted!" << std::endl;
 }
 
-void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup&)
+void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
 {
   //vector<vector<vector<unsigned short> > > barrel;
   //vector<vector<unsigned short> > hf;
   
   //std::cout << "produce method entered" << std::endl;
 
-  /* ???
-  edm::Handle<L1RCTEcal> ecal;
-  edm::Handle<L1RCTHcal> hcal;
-  emd::Handle<L1RCTHF> hf;
-  e.getByLabel(ecal,src);
-  e.getByLabel(hcal,src);
-  e.getByLabel(hf,src);
-  */
-
   if (!orcaFileInput){
     // my try:
     edm::Handle<EcalTrigPrimDigiCollection> ecal;
     edm::Handle<HcalTrigPrimDigiCollection> hcal;
-    /*EcalTrigPrimDigiCollection ecalDigiCollection = */e.getByType(ecal);
-//    /*HcalTrigPrimDigiCollection hcalDigiCollection = */e.getByType(hcal);
+    edm::ESHandle<L1CaloEtScale> emScale;
+    e.getByType(ecal);
+    //e.getByType(hcal);
     e.getByLabel("hcalTriggerPrimitiveDigis",hcal);
-    //rct->digiInput(ecalDigiCollection, hcalDigiCollection); // also need hf input separately? no
+    c.get<L1EmEtScaleRcd>().get(emScale);
+
+    // as in L1GctEmulator.cc
+    if (emScale.product() != 0) {
+      rct->setGctEmScale(emScale.product());
+    }
     rct->digiInput(*ecal, *hcal);
   }
   
@@ -53,7 +50,8 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup&)
     //rct->fileInput("../data/rct-input-1.dat");
     //const char* filename = src.c_str();
     //std::cout << "filename is " << filename << endl;
-    rct->fileInput(src.c_str()/*filename*/);
+    rct->fileInput(src.c_str());
+    //rct->fileInput(filename);
     //std::cout << "file has been inputted" << std::endl;
   } 
 

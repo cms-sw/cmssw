@@ -106,9 +106,9 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 
   
   vector<unsigned short> candidates;
-  unsigned short fullIsoElectron = isoElectron*16 + cardNo*2;  // any problems with adding to int? (cardNo was int)
+  unsigned short fullIsoElectron = isoElectron*16 + cardNo*2;  // leaves room for last bit -- region number, added in Crate.cc
   candidates.push_back(fullIsoElectron);
-  unsigned short fullNonIsoElectron = nonIsoElectron*16 + cardNo*2;
+  unsigned short fullNonIsoElectron = nonIsoElectron*16 + cardNo*2;  // leaves room for region info in last bit
   candidates.push_back(fullNonIsoElectron);
 
   return candidates;
