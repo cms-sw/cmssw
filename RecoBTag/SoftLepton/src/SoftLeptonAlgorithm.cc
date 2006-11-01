@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.1 2006/10/18 16:38:28 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.1 2006/10/31 02:53:09 fwyzard Exp $
 //
 
 // STL
@@ -113,7 +113,7 @@ SoftLeptonAlgorithm::tag(
     reco::SoftLeptonTagInfo info;
     return std::pair<reco::JetTag, reco::SoftLeptonTagInfo>(tag, info);
   }
-  #endif // DENUG
+  #endif // DEBUG
 
   SignedImpactParameter3D sip3D;
   const GlobalVector chargedAxis = refineJetAxis( jet, tracks );
