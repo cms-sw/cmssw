@@ -91,9 +91,9 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         double pz = track->pz();
         double ptrack = sqrt(px*px+py*py+pz*pz);
         if(m_histoFlag==1){
-          IsoHists.vx->Fill(track->x());
-          IsoHists.vy->Fill(track->y());
-          IsoHists.vz->Fill(track->z());
+          IsoHists.vx->Fill(track->vx());
+          IsoHists.vy->Fill(track->vy());
+          IsoHists.vz->Fill(track->vz());
           IsoHists.eta->Fill(track->outerEta());
           IsoHists.phi->Fill(track->outerPhi());
           IsoHists.p->Fill(ptrack);
@@ -104,9 +104,9 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             {
                itrk1++;
                if (track == track1) continue;
-               double dx = fabs(track->x()-track1->x());
-               double dy = fabs(track->y()-track1->y());
-               double dz = fabs(track->z()-track1->z());
+               double dx = fabs(track->vx()-track1->vx());
+               double dy = fabs(track->vy()-track1->vy());
+               double dz = fabs(track->vz()-track1->vz());
                double drvert = sqrt(dx*dx+dy*dy+dz*dz);
 //               cout <<" ...with track "<<itrk1<<": drvert ="<<drvert;
                if(m_histoFlag==1){
