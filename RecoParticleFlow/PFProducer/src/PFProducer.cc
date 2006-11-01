@@ -338,7 +338,7 @@ void PFProducer::produce(Event& iEvent,
       int side = 100;
 
       // Closest approach of the beamline
-      math::XYZPoint posClosest(theTrack->x(), theTrack->y(), theTrack->z());
+      math::XYZPoint posClosest(theTrack->vx(), theTrack->vy(), theTrack->vz());
       math::XYZTLorentzVector momClosest(theTrack->px(), theTrack->py(), 
 					 theTrack->pz(), theTrack->p());
       reco::PFTrajectoryPoint 

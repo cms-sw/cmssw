@@ -1,4 +1,4 @@
 #!/bin/csh
 cd ../..
-cvs co -r CMSSW_1_2_0_pre1 Configuration/Examples/data/RECO.cff
+cvs co Configuration/Examples/data/RECO.cff
 cp -r ~cbern/public/CMSSW/CMSSW_1_2_0_pre1/RECO.cff Configuration/Examples/data/RECO.cff
