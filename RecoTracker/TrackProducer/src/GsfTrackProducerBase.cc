@@ -154,8 +154,8 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
     for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
 	 j != transHits.end(); j ++ ) {
       TrackingRecHit * hit = (**j).hit()->clone();
-      selHits->push_back( hit );
       track.setHitPattern( * hit, i ++ );
+      selHits->push_back( hit );
       tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
     }
     delete theTrack;
