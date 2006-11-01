@@ -202,8 +202,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }
 	    if (rt.size()!=0) {
 	      reco::TrackRef t = rt.begin()->first;
- 	      if (t->numberOfValidHits()<8) continue;//FIXME TRY WITH SECOND
-	      //if (t->numberOfValidHits()>=8) {
+ 	      if (t->numberOfValidHits()<8) continue;
 	      ats++;
 	      totASS[w][f]++;
 	      hitseta[w][f]+=t->numberOfValidHits();
@@ -421,12 +420,19 @@ void MultiTrackValidator::endJob() {
       }
       
       //fill efficiency plot
-      double eff;
+      double eff,err;
       for (unsigned int j=0; j<totASS[w].size(); j++){
         if (totSIM[w][j]!=0){
           eff = ((double) totASS[w][j])/((double) totSIM[w][j]);
+	  err = sqrt(eff*(1-eff)/((double) totSIM[w][j]));
+	  edm::LogVerbatim("TrackValidatorInfo") 
+	    << "efficiency in eta interval [" << etaintervals[w][j] << ","
+	    << etaintervals[w][j+1] << "] is "
+	    << eff << " (" << totASS[w][j] << "/" << totSIM[w][j] << ") +- "
+	    << err ;
+
           h_effic[w]->setBinContent(j+1, eff);
-          h_effic[w]->setBinError(j+1,sqrt((eff*(1-eff))/((double) totASS[w][j])));
+          h_effic[w]->setBinError(j+1,err);
         }
         else {
           h_effic[w]->setBinContent(j+1, 0);
