@@ -1,0 +1,15 @@
+# How to use the python examples in CMSSW
+
+# You need to include cms helper classes in PYTHONPATH ("cmstools")
+bash: export PYTHONPATH=$CMSSW_BASE/src/PhysicsTools/PythonAnalysis/python:$PYTHONPATH
+csh: setenv PYTHONPATH $CMSSW_BASE/src/PhysicsTools/PythonAnalysis/python:$PYTHONPATH
+
+#execute examples via
+python example.py
+
+# read generatorOutput.root and print the generated event number
+python MCTruth.py    # standard ROOT and FWLite
+python MCTruth2.py   # with cmstools
+
+# makes some tracker plots
+python trackerHits.py 
