@@ -11,6 +11,12 @@ namespace {
     std::vector<EcalTBHodoscopePlaneRawHits> vHplaneRawHits_;
     
     EcalTBEventHeader EHw_;
+ 
+    EcalTBEventHeader::magnetsMeasurement aMagnetMeasurement_;
+    //    EcalTBEventHeader::magnetsMeasurement_t aMagnetMeasurement_t;
+
+    std::vector< EcalTBEventHeader::magnetsMeasurement > aVMagnetMeasurement_;
+    //    std::vector< EcalTBEventHeader::magnetsMeasurement_t > aVMagnetMeasurement_t;
 
     EcalTBTDCRawInfo TDCw_;
     EcalTBTDCRecInfo RecTDCw_;

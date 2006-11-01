@@ -9,7 +9,7 @@
 /** \class EcalTBEventHeader
  *  Container for event ancilllary informations defined in TB raw data formats  
  *
- *  $Id: EcalTBEventHeader.h,v 1.6 2006/09/21 10:03:42 meridian Exp $
+ *  $Id: EcalTBEventHeader.h,v 1.7 2006/10/16 22:03:09 franzoni Exp $
  */
 
 
@@ -20,6 +20,20 @@ class EcalTBEventHeader {
   EcalTBEventHeader() {};
   
   ~EcalTBEventHeader() {};
+
+  typedef struct magnetsMeasurement {
+    int    magnet6IRead_ampere;
+    int    magnet6ISet_ampere;
+
+    int    magnet7IRead_ampere;
+    int    magnet7ISet_ampere;
+
+    int    magnet7VMeas_uvolt;
+    int    magnet7IMeas_uampere;
+
+    int    magnet6VMeas_uvolt;
+    int    magnet6IMeas_uampere;
+  } magnetsMeasurement_t;
 
   //! Returns the event number
   int eventNumber() const{
@@ -155,21 +169,9 @@ class EcalTBEventHeader {
     return S6ADC_ ; 
     }
 
-  int  nominalMagnet6ReadAmpere() const { return nominalMagnet6ReadAmpere_; }
-
-  int  nominalMagnet7ReadAmpere() const { return nominalMagnet7ReadAmpere_; }
-
-  int  nominalMagnet6SetAmpere() const { return nominalMagnet6SetAmpere_; }
-
-  int  nominalMagnet7SetAmpere() const { return nominalMagnet7SetAmpere_; }
-
-  int  measuredMagnet6MicroAmpere() const { return measuredMagnet6MicroAmpere_; }
-
-  int  measuredMagnet7MicrodAmpere() const { return measuredMagnet7MicroAmpere_; }
-
-  int  measuredMagnet6Volt() const { return measuredMagnet6Volt_; }
-
-  int  measuredMagnet7Volt() const { return measuredMagnet7Volt_; }
+  int  numberOfMagnetMeasurements() const { return numberOfMagnetMeasurements_; }
+  
+  const std::vector<magnetsMeasurement_t>&  magnetMeasurements() const { return magnetMeasurements_; }
 
   int  scaler(int scalerId) const {
     if (scalerId < ((int) scalers_.size() ) )
@@ -227,14 +229,8 @@ class EcalTBEventHeader {
 
   void setS6ADC (const int& S6ADC) { S6ADC_ = S6ADC ; }
 
-  void setNominalMagnet6ReadAmpere(const int& nominalMagnet6ReadAmpere) { nominalMagnet6ReadAmpere_ = nominalMagnet6ReadAmpere;}
-  void setNominalMagnet7ReadAmpere(const int& nominalMagnet7ReadAmpere) { nominalMagnet7ReadAmpere_ = nominalMagnet7ReadAmpere;}
-  void setNominalMagnet6SetAmpere(const int& nominalMagnet6SetAmpere) { nominalMagnet6SetAmpere_ = nominalMagnet6SetAmpere;}
-  void setNominalMagnet7SetAmpere(const int& nominalMagnet7SetAmpere) { nominalMagnet7SetAmpere_ = nominalMagnet7SetAmpere;}
-  void setMeasuredMagnet6MicroAmpere(const int& measuredMagnet6MicroAmpere) { measuredMagnet6MicroAmpere_ = measuredMagnet6MicroAmpere;}
-  void setMeasuredMagnet7MicroAmpere(const int& measuredMagnet7MicroAmpere) { measuredMagnet7MicroAmpere_ = measuredMagnet7MicroAmpere;}
-  void setMeasuredMagnet6Volt(const int& measuredMagnet6Volt) { measuredMagnet6Volt_ = measuredMagnet6Volt; }
-  void setMeasuredMagnet7Volt(const int& measuredMagnet7Volt) { measuredMagnet7Volt_ = measuredMagnet7Volt; }
+  void setNumberOfMagnetMeasurements(const int& numberOfMagnetMeasurements) { numberOfMagnetMeasurements_ = numberOfMagnetMeasurements;}
+  void setMagnetMeasurements(const std::vector<magnetsMeasurement_t>& magnetMeasurements) { magnetMeasurements_ = magnetMeasurements;}
 
   void setScalers (const std::vector<int> & scalers) { scalers_ = scalers; }
 
@@ -258,14 +254,17 @@ class EcalTBEventHeader {
   int      triggerMask_;      ///< The trigger mask 
 
   /// Magnet currents 
-  int      nominalMagnet6ReadAmpere_;
-  int      nominalMagnet7ReadAmpere_;
-  int      nominalMagnet6SetAmpere_;
-  int      nominalMagnet7SetAmpere_;
-  int      measuredMagnet6MicroAmpere_;
-  int      measuredMagnet7MicroAmpere_;
-  int      measuredMagnet6Volt_;
-  int      measuredMagnet7Volt_;
+  int      numberOfMagnetMeasurements_;
+  std::vector<magnetsMeasurement_t> magnetMeasurements_;
+  
+  /*   int      nominalMagnet6ReadAmpere_; */
+  /*   int      nominalMagnet7ReadAmpere_; */
+  /*   int      nominalMagnet6SetAmpere_; */
+  /*   int      nominalMagnet7SetAmpere_; */
+  /*   int      measuredMagnet6MicroAmpere_; */
+  /*   int      measuredMagnet7MicroAmpere_; */
+  /*   int      measuredMagnet6Volt_; */
+  /*   int      measuredMagnet7Volt_; */
 
 
   int      date_;             ///< The date when the run was taken

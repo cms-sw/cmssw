@@ -12,5 +12,7 @@
    <class name="EcalTBTDCRecInfo"/>
    <class name="edm::Wrapper< EcalTBTDCRecInfo >" id="709E9311-641C-F9FB-85B0-0AC689F982DD"/>
    <class name="EcalTBEventHeader"/>
+   <class name="EcalTBEventHeader::magnetsMeasurement"/>
+   <class name="std::vector<EcalTBEventHeader::magnetsMeasurement>"/>
    <class name="edm::Wrapper< EcalTBEventHeader >" id="30CB005B-6BFD-A149-1D96-9279DB5C3441"/>
 </lcgdict>
