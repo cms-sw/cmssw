@@ -31,7 +31,7 @@ photonBranch = events.branch("photons")
 print "Start looping over four events"
 for event in events:
       photons = photonBranch() 
-      print "  Number of photons in event %i: %i" % (event, photons.__len__())
+      print "  Number of photons in event %i: %i" % (event, len(photons))
       if event > 2: break  # workaround will become obsolete 
 
 
