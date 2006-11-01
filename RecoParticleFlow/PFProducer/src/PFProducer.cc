@@ -252,7 +252,7 @@ void PFProducer::produce(Event& iEvent,
 			 const EventSetup& iSetup) 
 {
   
-  LogDebug("PFProducer")<<"Produce event: "<<iEvent.id().event()
+  LogDebug("PFProducer")<<"START event: "<<iEvent.id().event()
 			<<" in run "<<iEvent.id().run()<<endl;
   
   
@@ -330,10 +330,9 @@ void PFProducer::produce(Event& iEvent,
 	itTrack != algoResults.end(); itTrack++) {
       Trajectory*  theTraj  = (*itTrack).first;
       vector<TrajectoryMeasurement> measurements = theTraj->measurements();
+
       reco::Track* theTrack = (*itTrack).second;
-      // COLIN: changed to be able to compile with 0_9_2
-      //     reco::PFRecTrack track(theTrack->parameters().charge(), 
-      // 			   reco::PFRecTrack::KF);
+
       reco::PFRecTrack track(theTrack->charge(), 
 			     reco::PFRecTrack::KF);
       int side = 100;
@@ -362,6 +361,11 @@ void PFProducer::produce(Event& iEvent,
 	  getStateOnSurface(PFGeometry::BeamPipeWall, innerTSOS, 
 			    bkwdPropagator, side);
 	  //	  bkwdPropagator.propagate(innerTSOS, *beamPipe_);
+	
+	
+	// invalid TSOS, skip track
+	if(!beamPipeTSOS.isValid() ) continue;  
+
 
 	GlobalPoint vBeamPipe  = beamPipeTSOS.globalParameters().position();
 	GlobalVector pBeamPipe = beamPipeTSOS.globalParameters().momentum();
@@ -375,7 +379,7 @@ void PFProducer::produce(Event& iEvent,
 	reco::PFTrajectoryPoint beamPipePt(-1, 
 					   reco::PFTrajectoryPoint::BeamPipe, 
 					   posBeamPipe, momBeamPipe);
-
+	
 	track.addPoint(beamPipePt);
 	LogDebug("PFProducer")<<"beam pipe point "<<beamPipePt<<endl;
       }
@@ -416,6 +420,10 @@ void PFProducer::produce(Event& iEvent,
       TrajectoryStateOnSurface ecalTSOS = 
 	getStateOnSurface(PFGeometry::ECALInnerWall, outerTSOS, 
 			  fwdPropagator, ecalSide);
+
+      // invalid TSOS, skip track
+      if(!ecalTSOS.isValid() ) continue;  
+
       //fwdPropagator.propagate(outerTSOS, *ecalInnerWall_);
       GlobalPoint vECAL  = ecalTSOS.globalParameters().position();
       GlobalVector pECAL = ecalTSOS.globalParameters().momentum();
@@ -430,6 +438,10 @@ void PFProducer::produce(Event& iEvent,
 	TrajectoryStateOnSurface ps1TSOS = 
 	  getStateOnSurface(PFGeometry::PS1Wall, outerTSOS, 
 			    fwdPropagator, side);
+
+	// invalid TSOS, skip track
+	if(! ps1TSOS.isValid() ) continue;  
+	
 	//  fwdPropagator.propagate(outerTSOS, *ps1Wall_);
 	GlobalPoint vPS1  = ps1TSOS.globalParameters().position();
 	GlobalVector pPS1 = ps1TSOS.globalParameters().momentum();
@@ -452,6 +464,10 @@ void PFProducer::produce(Event& iEvent,
 	TrajectoryStateOnSurface ps2TSOS = 
 	  getStateOnSurface(PFGeometry::PS2Wall, outerTSOS, 
 			    fwdPropagator, side);
+
+	// invalid TSOS, skip track
+	if(! ps2TSOS.isValid() ) continue;  
+
 	//  fwdPropagator.propagate(outerTSOS, *ps2Wall_);
 	GlobalPoint vPS2  = ps2TSOS.globalParameters().position();
 	GlobalVector pPS2 = ps2TSOS.globalParameters().momentum();
@@ -528,6 +544,10 @@ void PFProducer::produce(Event& iEvent,
 	TrajectoryStateOnSurface hcalTSOS = 
 	  getStateOnSurface(PFGeometry::HCALInnerWall, ecalTSOS, 
 			    fwdPropagator, side);
+
+	// invalid TSOS, skip track
+	if(! hcalTSOS.isValid() ) continue;  
+
 	//  fwdPropagator.propagate(ecalTSOS, *hcalInnerWall_);
 	GlobalPoint vHCAL  = hcalTSOS.globalParameters().position();
 	GlobalVector pHCAL = hcalTSOS.globalParameters().momentum();
@@ -859,9 +879,14 @@ void PFProducer::produce(Event& iEvent,
     delete *iele;
   }
   
+  LogDebug("PFProducer")<<"Putting products in the event"<<endl;
+  
   iEvent.put(pOutputPFRecTrackCollection);
   iEvent.put(pOutputPFParticleCollection);
   iEvent.put(pOutputCandidateCollection);
+
+  LogDebug("PFProducer")<<"STOP event: "<<iEvent.id().event()
+			<<" in run "<<iEvent.id().run()<<endl;
 }
 
 
@@ -900,6 +925,15 @@ PFProducer::getStateOnSurface( PFGeometry::Surface_t iSurf,
       side = 0;
     }
   }
+
+  if( !finalTSOS.isValid() ) {
+    LogError("PFProducer")<<"invalid trajectory state on surface: "
+			  <<" iSurf = "<<iSurf
+			  <<" tan theta = "<<p.perp()/p.z()
+			  <<" pz = "<<p.z()
+			  <<endl;
+  }
+
   return finalTSOS;
 }
 
