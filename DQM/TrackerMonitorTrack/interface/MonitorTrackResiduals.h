@@ -16,14 +16,15 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.3 2006/06/27 07:52:56 dkcira Exp $
+// $Id: MonitorTrackResiduals.h,v 1.4 2006/09/29 17:03:44 goitom Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-
+#include <fstream>
+ 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -40,8 +41,12 @@
 //
 // class decleration
 //
+
+  using namespace std;
+
 typedef std::map<std::string, MonitorElement *> HistoClass;
 typedef std::map<int, MonitorElement *> HistoClass2;
+typedef std::map<long, long> Numerator;
 
 class MonitorTrackResiduals : public edm::EDAnalyzer {
    public:
@@ -61,6 +66,8 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
 
   HistoClass HitResidual;
   HistoClass2 HitResidual2;
+  Numerator DetIdToInt;
+  Numerator IntToDetId;
 };
 
 #endif
