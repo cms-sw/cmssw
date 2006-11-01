@@ -118,10 +118,10 @@ class PFRootEventManager {
   virtual bool processEntry(int entry);
 
   /// read data from simulation tree
-  void readFromSimulation(int entry);
+  bool readFromSimulation(int entry);
 
   /// read data from testbeam tree
-  void readFromRealData(int entry);
+  bool readFromRealData(int entry);
 
   /// performs clustering 
   void clustering();
@@ -387,6 +387,10 @@ class PFRootEventManager {
 
   /// verbosity
   int                      verbosity_;
+
+  //----------------- filter ------------------------------------
+  
+  unsigned nParticles_;
 
   //----------------- clustering parameters ---------------------
 

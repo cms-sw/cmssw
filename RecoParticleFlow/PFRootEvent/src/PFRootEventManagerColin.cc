@@ -22,7 +22,8 @@ PFRootEventManagerColin::~PFRootEventManagerColin() {
 
 
 bool PFRootEventManagerColin::processEntry(int entry) {
-  PFRootEventManager::processEntry(entry);
+  if( ! PFRootEventManager::processEntry(entry) )
+    return false; // event not accepted
 
   // fill histos here
 

@@ -63,6 +63,11 @@ void PFRootEventManager::reset() {
   rechitsHCAL_.clear();
   rechitsPS_.clear();
   recTracks_.clear();
+  clustersECAL_->clear();
+  clustersHCAL_->clear();
+  clustersPS_->clear();
+  clustersIslandBarrel_.clear();
+  trueParticles_.clear();
 }
 
 
@@ -200,7 +205,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 	  <<clustersIslandBarrelbranchname<< endl;
     }
     else {
-      cerr<<"setting address"<<endl;
+      // cerr<<"setting address"<<endl;
       clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
     }    
   }
@@ -294,7 +299,13 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   options_->GetOpt("display", "zoom_factor", displayZoomFactor_);
 
 
-  // clustering parameters 
+  // filter --------------------------------------------------------------
+
+  nParticles_ = 0;
+  options_->GetOpt("filter", "nparticles", nParticles_);
+  
+
+  // clustering parameters -----------------------------------------------
 
   threshEcalBarrel_ = 0.1;
   options_->GetOpt("clustering", "thresh_Ecal_Barrel", threshEcalBarrel_);
@@ -499,8 +510,12 @@ bool PFRootEventManager::processEntry(int entry) {
     cout<<"process entry "<< entry << endl;
   
 
-  if(fromRealData_) readFromRealData(entry); 
-  else readFromSimulation(entry); 
+  if(fromRealData_) {
+    if( !readFromRealData(entry) ) return false;
+  }
+  else {
+    if(! readFromSimulation(entry) ) return false;
+  } 
 
   if(verbosity_ == VERBOSE ) {
     cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
@@ -527,13 +542,21 @@ bool PFRootEventManager::processEntry(int entry) {
 
   particleFlow();
 
-  return false;
+  return true;
 }
 
 
 
-void PFRootEventManager::readFromSimulation(int entry) {
+bool PFRootEventManager::readFromSimulation(int entry) {
 
+    if(trueParticlesBranch_ ) {
+      trueParticlesBranch_->GetEntry(entry);
+      if(nParticles_ && 
+	 trueParticles_.size() != nParticles_ ) {
+	//	cerr<<trueParticles_.size()<<" p, skip"<<endl;
+	return false;
+      }
+    }
     if(rechitsECALBranch_) {
       rechitsECALBranch_->GetEntry(entry);
       for(unsigned i=0; i<rechitsECAL_.size(); i++) 
@@ -568,12 +591,13 @@ void PFRootEventManager::readFromSimulation(int entry) {
       clustersIslandBarrelBranch_->GetEntry(entry);
     }
     if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
-    if(trueParticlesBranch_) trueParticlesBranch_->GetEntry(entry);
+
+    return true;
 }
 
 
 
-void PFRootEventManager::readFromRealData(int entry) {
+bool PFRootEventManager::readFromRealData(int entry) {
 
   static const int ncrystalmax = 100;
   static const int npartmax = 2;
@@ -757,6 +781,8 @@ void PFRootEventManager::readFromRealData(int entry) {
     
     trueParticles_.push_back( particle );
   }
+  
+  return true;
 }
 
 
