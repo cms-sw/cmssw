@@ -144,8 +144,8 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithRecHits & cleaned
     for (unsigned int k = 0; k < hits.size(); k++)
     {
       TrackingRecHit *hit = (hits.at(k))->clone();
-      recHits->push_back(hit);
       track->setHitPattern(*hit, k);
+      recHits->push_back(hit);
     }
     tracks->push_back(*track);
     delete track;
