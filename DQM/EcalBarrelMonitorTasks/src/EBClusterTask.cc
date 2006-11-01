@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2006/10/30 16:25:21 $
- * $Revision: 1.3 $
+ * $Date: 2006/11/01 07:59:16 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -135,7 +135,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
       cout << "super cluster" << endl;
       cout << "number of crystals " << scluster.getHitsByDetId().size() << endl;
-      cout << "number of basic clusters " << scluster.clustersSize() << endl;
+      cout << "number of basic clusters " << (1+scluster.clustersSize()) << endl;
       cout << "energy " << scluster.energy() << endl;
       cout << "eta " << scluster.eta() << endl;
       cout << "phi " << scluster.phi() << endl;
