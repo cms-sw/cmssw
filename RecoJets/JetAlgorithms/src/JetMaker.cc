@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.11 2006/06/21 19:53:32 fedor Exp $
+/// $Id: JetMaker.cc,v 1.12 2006/07/21 19:26:03 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -194,9 +194,10 @@ GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
   barcodes.reserve (towers->size ());
   ProtoJet::Candidates::const_iterator mcCandidate = towers->begin ();
   for (; mcCandidate != towers->end (); mcCandidate++) {
-    const HepMC::GenParticle* genParticle = (*mcCandidate)->get<HepMCCandidate::GenParticleRef>();
-    if (genParticle) {
-      mcParticles.push_back (genParticle);
+   HepMCCandidate::GenParticleRef genParticle = 
+    (*mcCandidate)->get<HepMCCandidate::GenParticleRef>();
+    if (genParticle.isNonnull()) {
+      mcParticles.push_back (& * genParticle);
       barcodes.push_back (genParticle->barcode ());
     }
     else {
