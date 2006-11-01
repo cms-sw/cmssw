@@ -225,7 +225,7 @@ GlobalPoint CaloExtractor::MuonAtCaloPosition(const Track& muon, const GlobalPoi
       double x = endpos.x() - dcaf*sin(phif);
       double y = endpos.y() + dcaf*cos(phif);
 
-      double deltas =  (x-muon.x())*cphi0 + (y-muon.y())*sphi0;
+      double deltas =  (x-muon.vx())*cphi0 + (y-muon.vy())*sphi0;
       double deltaphi = PhiInRange(phif-phi0);
       if (deltaphi!=0) deltas = deltas*deltaphi/sin(deltaphi);
 

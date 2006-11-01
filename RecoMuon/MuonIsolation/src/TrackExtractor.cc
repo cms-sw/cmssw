@@ -38,7 +38,7 @@ MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eve
 {
   static std::string metname = "RecoMuon/TrackExtractor";
 
-  double vtx_z = muon.z();
+  double vtx_z = muon.vz();
   Direction muonDir(muon.eta(), muon.phi0());
 
   Handle<TrackCollection> tracksH;
