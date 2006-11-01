@@ -69,7 +69,7 @@ void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
       TrackRef tkref(tracks,i);
       Particle::Charge q = tkref->charge();
       Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
-      Particle::Point vtx(tkref->x(),tkref->y(), tkref->z());
+      Particle::Point vtx(tkref->vx(),tkref->vy(), tkref->vz());
       RecoChargedCandidate cand(q, p4, vtx);
       cand.setTrack(tkref);
       candidates->push_back(cand);
