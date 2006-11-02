@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.10 2006/07/07 12:18:31 gennai Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.11 2006/07/10 07:50:18 gennai Exp $
 //
 //
 
@@ -141,6 +141,9 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 
 	  hid = hidmanager.createHistoId("NoisyStrips","det", key_id);
 	  local_modmes.NoisyStrips = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
+
+	  hid = hidmanager.createHistoId("NoisyStripDistribution","det", key_id);
+      	  local_modmes.NoisyStripDistribution = dbe_->book1D(hid, hid, 11, -0.5,10.5);
 
 	  //Common Mode histos
 	  hid = hidmanager.createHistoId("CMDistribution","det", key_id);
@@ -291,6 +294,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 		  (local_modmes.NoisyStrips)->Fill(ibin,0.);
 	      }else{
 		(local_modmes.NoisyStrips)->Fill(ibin,static_cast<float>(*iped));
+		(local_modmes.NoisyStripDistribution)->Fill(static_cast<float>(*iped));
 	      }
 	    }
 	  }
@@ -298,7 +302,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 
 	}
     }
-    
+  usleep(500000);
 }
     
 
@@ -306,6 +310,6 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 void SiStripMonitorPedestals::endJob(void){
 
       //  dbe_->showDirStructure();
-  dbe_->save(outPutFileName);
+//  dbe_->save(outPutFileName);
 }
 

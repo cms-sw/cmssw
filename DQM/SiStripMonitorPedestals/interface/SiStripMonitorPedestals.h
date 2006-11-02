@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.4 2006/07/06 17:04:13 gennai Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.5 2006/07/07 08:22:52 gennai Exp $
 //
 
 // system include files
@@ -84,6 +84,7 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
 	 MonitorElement* CMSubNoiseProfile;
 	 MonitorElement* RawNoiseProfile;
 	 MonitorElement* NoisyStrips;
+	 MonitorElement* NoisyStripDistribution;
 
 	 MonitorElement* CMDistribution;
 	 
