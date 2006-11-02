@@ -27,14 +27,35 @@
 
   #include <cstdlib>
   #include <iostream>
-  
+  #include <string>
+
+ inline const char* ddDebug() {
+  static const char* c = getenv("DDEBUG");
+  return c;
+}
+
+ inline const char* ddDebugV() {
+  static  const char* c = getenv("DDEBUG_V");
+  return c;
+}
+
+inline const  std::string & ddDebugS() {
+  static const std::string s(ddDebug()? ddDebug(): ""); 
+  return s;
+}
+
+inline const  std::string & ddDebugVS() {
+  static const std::string s(ddDebugV()? ddDebugV(): "");
+  return s; 
+}
+     
       
-  #define DCOUT(M_v_Y,M_v_S) if (char* M_v_c = getenv("DDEBUG")){ std::string M_v_t(M_v_c); for(std::string::size_type M_v_i=0; M_v_i < M_v_t.size(); M_v_i++) if(M_v_t[M_v_i]==M_v_Y) LogDebug("DDdebug") << M_v_t[M_v_i] << " : " << M_v_S << std::endl; }   
-  #define DCOUT_V(M_v_Y,M_v_S) if (char* M_v_c = getenv("DDEBUG_V")){ std::string M_v_t(M_v_c); for(std::string::size_type M_v_i=0; M_v_i < M_v_t.size(); M_v_i++) if(M_v_t[M_v_i]==M_v_Y) LogDebug("DDdebug") << M_v_t[M_v_i] << "v: " << M_v_S << std::endl; }         
+  #define DCOUT(M_v_Y,M_v_S) { for(std::string::size_type M_v_i=0; M_v_i < ddDebugS().size(); M_v_i++) if(ddDebugS()[M_v_i]==M_v_Y) LogDebug("DDdebug") << ddDebugS()[M_v_i] << " : " << M_v_S << std::endl; }   
+  #define DCOUT_V(M_v_Y,M_v_S) { for(std::string::size_type M_v_i=0; M_v_i < ddDebugVS().size(); M_v_i++) if(ddDebugVS()[M_v_i]==M_v_Y) LogDebug("DDdebug") << ddDebugVS()[M_v_i] << "v: " << M_v_S << std::endl; }         
   
   // backward compatiblility, don't use anymore! 
-  #define DEBUGOUT(s) if (getenv("DDEBUG")) { LogDebug("DDdebug") << s << std::endl; }
-  #define DEBUGOUT_V(s) if (getenv("DDEBUG_V")) { LogDebug("DDdebug") << s << std::endl; }
+  #define DEBUGOUT(s) if (ddDebug()) { LogDebug("DDdebug") << s << std::endl; }
+  #define DEBUGOUT_V(s) if (ddDebugV()) { LogDebug("DDdebug") << s << std::endl; }
  
  #else
   
