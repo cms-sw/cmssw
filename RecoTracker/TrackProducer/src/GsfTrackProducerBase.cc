@@ -86,7 +86,6 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
 				 std::auto_ptr<TrackingRecHitCollection>& selHits,
 				 std::auto_ptr<reco::GsfTrackCollection>& selTracks,
 				 std::auto_ptr<reco::GsfTrackExtraCollection>& selTrackExtras,
-				 std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
 				 AlgoProductCollection& algoResults)
 {
 
@@ -98,7 +97,6 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
   edm::Ref<reco::GsfTrackExtraCollection>::key_type hidx = 0;
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
-    if(trajectoryInEvent_) selTrajectories->push_back(*theTraj);
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
 
     reco::GsfTrack * theTrack = (*i).second;
@@ -165,7 +163,6 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
   evt.put( selTracks );
   evt.put( selTrackExtras );
   evt.put( selHits );
-  if(trajectoryInEvent_) evt.put(selTrajectories);
 }
 
 void
