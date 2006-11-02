@@ -27,8 +27,8 @@ namespace dqm
       
       ~Updater()
 	{
-	  // recommended by Benigno Gobbo to fix crash for following sequence:
-	  // Configure/Enable/Halt + Configure/Enable
+	  /// recommended by Benigno Gobbo to fix crash for following sequence:
+	  /// Configure/Enable/Halt + Configure/Enable
 	  pthread_cancel( worker );
 	}
       
@@ -36,7 +36,7 @@ namespace dqm
 
       void request_update();
       
-      // this is the function the thread will execute
+      /// this is the function the thread will execute
       static void *start(void *pthis);
       
       void setRunning()

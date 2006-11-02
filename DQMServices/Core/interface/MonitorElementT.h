@@ -19,30 +19,30 @@ class MonitorElementT : public MonitorElement
   }
 
   void clear(){} 
-  // pointer to val_
+  /// pointer to val_
   T * operator->(){
     update();
     return val_;
   }
-  // const pointer to val_
+  /// const pointer to val_
   const T * const_ptr() const
   {
     return (const T *) val_;
   }
 
-  // return *val_ by reference
+  /// return *val_ by reference
   T & operator*()
     {
       update();
       return *val_;
     }
-  // return *val_ by value
+  /// return *val_ by value
   T operator*() const {return *val_;}
   
-  // noarg functor (do we need this?)
+  /// noarg functor (do we need this?)
   T operator()(){return *val_;}
 
-  // explicit cast overload
+  /// explicit cast overload
   operator T(){return *val_;}
 
   virtual std::string getName() const {return name_;}
@@ -52,7 +52,7 @@ class MonitorElementT : public MonitorElement
 
   virtual std::string valueString() const {return std::string();};
 
-  // whether soft-reset is enabled
+  /// whether soft-reset is enabled
   bool isSoftResetEnabled(void) const{return reference_ != 0;}
   
   float doNotUseMethod(std::string method) const
@@ -62,76 +62,76 @@ class MonitorElementT : public MonitorElement
     return -999;
   }
 
-  // get mean value of histogram along x, y or z axis (axis=1, 2, 3 respectively)
+  /// get mean value of histogram along x, y or z axis (axis=1, 2, 3 respectively)
   virtual float getMean(int axis = 1) const
   {return doNotUseMethod("getMean");}
-  // get mean value uncertainty of histogram along x, y or z axis 
-  // get (axis=1, 2, 3 respectively)
+  /// get mean value uncertainty of histogram along x, y or z axis 
+  /// get (axis=1, 2, 3 respectively)
   virtual float getMeanError(int axis = 1) const
   {return doNotUseMethod("getMeanError");}
-  // get RMS of histogram along x, y or z axis (axis=1, 2, 3 respectively)
+  /// get RMS of histogram along x, y or z axis (axis=1, 2, 3 respectively)
   virtual float getRMS(int axis = 1) const
   {return doNotUseMethod("getRMS");}
-  // get RMS uncertainty of histogram along x, y or z axis (axis=1,2,3 respectively)
+  /// get RMS uncertainty of histogram along x, y or z axis(axis=1,2,3 respectively)
   virtual float getRMSError(int axis = 1) const
   {return doNotUseMethod("getRMSError");}
-  // get content of bin (1-D)
+  /// get content of bin (1-D)
   virtual float getBinContent(int binx) const
   {return doNotUseMethod("getBinContent(binx)");}
-  // get content of bin (2-D)
+  /// get content of bin (2-D)
   virtual float getBinContent(int binx, int biny) const
   {return doNotUseMethod("getBinContent(binx,biny)");}
-  // get content of bin (3-D)
+  /// get content of bin (3-D)
   virtual float getBinContent(int binx, int biny, int binz) const
   {return doNotUseMethod("getBinContent(binx,biny,binz)");}
-  // get uncertainty on content of bin (1-D) - See TH1::GetBinError for details
+  /// get uncertainty on content of bin (1-D) - See TH1::GetBinError for details
   virtual float getBinError(int binx) const
   {return doNotUseMethod("getBinError(binx)");}
-  // get uncertainty on content of bin (2-D) - See TH1::GetBinError for details
+  /// get uncertainty on content of bin (2-D) - See TH1::GetBinError for details
   virtual float getBinError(int binx, int biny) const
   {return doNotUseMethod("getBinError(binx,biny)");}
-  // get uncertainty on content of bin (3-D) - See TH1::GetBinError for details
+  /// get uncertainty on content of bin (3-D) - See TH1::GetBinError for details
   virtual float getBinError(int binx, int biny, int binz) const
   {return doNotUseMethod("getBinError(binx,biny,binz)");}
-  // get # of entries
+  /// get # of entries
   virtual float getEntries(void) const {return 1;}
-  // get # of bin entries (for profiles)
+  /// get # of bin entries (for profiles)
   virtual float getBinEntries(int bin) const
   {return doNotUseMethod("getBinEntries");}
-  // get min Y value (for profiles)
+  /// get min Y value (for profiles)
   virtual float getYmin(void) const
   {return doNotUseMethod("getYmin");}
-  // get max Y value (for profiles)
+  /// get max Y value (for profiles)
   virtual float getYmax(void) const 
   {return doNotUseMethod("getXmin");}
 
-  // set content of bin (1-D)
+  /// set content of bin (1-D)
   virtual void setBinContent(int binx, float content)
   {doNotUseMethod("setBinContent(binx,content)");}
-  // set content of bin (2-D)
+  /// set content of bin (2-D)
   virtual void setBinContent(int binx, int biny, float content)
   {doNotUseMethod("setBinContent(binx,biny,content)");}
-  // set content of bin (3-D)
+  /// set content of bin (3-D)
   virtual void setBinContent(int binx, int biny, int binz, float content)
   {doNotUseMethod("setBinContent(binx,biny,binz,content)");}
-  // set uncertainty on content of bin (1-D)
+  /// set uncertainty on content of bin (1-D)
   virtual void setBinError(int binx, float error)
   {doNotUseMethod("setBinError(binx,error)");}
-  // set uncertainty on content of bin (2-D)
+  /// set uncertainty on content of bin (2-D)
   virtual void setBinError(int binx, int biny, float error)
   {doNotUseMethod("setBinError(binx,biny,error)");}
-  // set uncertainty on content of bin (3-D)
+  /// set uncertainty on content of bin (3-D)
   virtual void setBinError(int binx, int biny, int binz, float error)
   {doNotUseMethod("setBinError(binx,biny,binz,error)");}
-  // set # of entries
+  /// set # of entries
   virtual void setEntries(float nentries){}
-  // set bin label for x, y or z axis (axis=1, 2, 3 respectively)
+  /// set bin label for x, y or z axis (axis=1, 2, 3 respectively)
   virtual void setBinLabel(int bin, std::string label, int axis = 1)
   {doNotUseMethod("setBinLabel");}
-  // set x-, y- or z-axis range (axis=1, 2, 3 respectively)
+  /// set x-, y- or z-axis range (axis=1, 2, 3 respectively)
   virtual void setAxisRange(float xmin, float xmax, int axis = 1)
   {doNotUseMethod("setAxisRange");}
-  // set (ie. change) histogram/profile title
+  /// set (ie. change) histogram/profile title
   virtual void setTitle(std::string new_title)
   {doNotUseMethod("setTitle");}
 
@@ -141,16 +141,16 @@ class MonitorElementT : public MonitorElement
   T * val_;
  protected:
 
-  // make sure axis is one of 1 (x), 2 (y) or 3 (z)
+  /// make sure axis is one of 1 (x), 2 (y) or 3 (z)
   bool checkAxis(int axis) const
   {
     if (axis < 1 || axis > 3) return false;
     return true;
   }
 
-  T * reference_; // this is set to "val_" upon a "softReset"
+  T * reference_; /// this is set to "val_" upon a "softReset"
 
-  // delete reference_
+  /// delete reference_
   void deleteReference(void)
   {
     if(!reference_)
@@ -163,10 +163,10 @@ class MonitorElementT : public MonitorElement
     reference_ = 0;
   }
 
-  // adds reference_ back into val_ contents (ie. reverts action of softReset)
+  /// adds reference_ back into val_ contents (ie. reverts action of softReset)
   virtual void unresetContents(void){}
 
-  // for description: see DQMServices/Core/interface/MonitorElement.h
+  /// for description: see DQMServices/Core/interface/MonitorElement.h
   void disableSoftReset(void)
   {
     if(isSoftResetEnabled())

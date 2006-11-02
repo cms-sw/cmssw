@@ -23,7 +23,7 @@ namespace dqm
 
   public:
 
-    //transition methods to be implemented by the application
+    ///transition methods to be implemented by the application
     virtual void configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception) = 0;
     virtual void enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception) = 0;
     virtual void suspendAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception) = 0;
@@ -62,9 +62,9 @@ namespace dqm
     void failurePage(xgi::Output * out, xgi::exception::Exception & e)  
       throw (xgi::exception::Exception);
 
-    //
-    // Web Events that trigger state changes
-    //
+    /**
+       Web Events that trigger state changes 
+    */
     void webConfigure(xgi::Input * in ) throw (xgi::exception::Exception)
     {
       
