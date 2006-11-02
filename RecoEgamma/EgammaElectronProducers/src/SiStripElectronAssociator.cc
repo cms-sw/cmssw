@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Tue Aug  1 15:24:02 EDT 2006
-// $Id: SiStripElectronAssociator.cc,v 1.1 2006/08/02 16:36:30 pivarski Exp $
+// $Id: SiStripElectronAssociator.cc,v 1.2 2006/09/20 12:18:42 rahatlou Exp $
 //
 //
 
@@ -140,9 +140,9 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
 							       trackPtr->py(),
 							       trackPtr->pz(),
 							       trackPtr->p()),
-				       math::XYZPoint(trackPtr->x(),
-						      trackPtr->y(),
-						      trackPtr->z()));
+				       math::XYZPoint(trackPtr->vx(),
+						      trackPtr->vy(),
+						      trackPtr->vz()));
 	       electron.setSuperCluster(strippyIter->superCluster());
 	       electron.setTrack(reco::TrackRef(tracks, i));
 	       
