@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateProducer.cc,v 1.1 2006/10/05 15:24:48 llista Exp $
+// $Id: GenParticleCandidateProducer.cc,v 1.2 2006/10/06 12:06:59 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateProducer.h"
 //#include "PhysicsTools/HepPDTProducer/interface/PDTRecord.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -27,7 +27,7 @@ GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet &
   ptMinNeutral_( p.getParameter<double>( "ptMinNeutral" ) ),
   ptMinCharged_( p.getParameter<double>( "ptMinCharged" ) ),
   verbose_( p.getUntrackedParameter<bool>( "verbose" ) ) {
-  produces<CandidateCollection>();
+  produces<GenParticleCandidateCollection>();
 }
 
 GenParticleCandidateProducer::~GenParticleCandidateProducer() { 
@@ -62,8 +62,8 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
   if( mc == 0 ) 
     throw edm::Exception( edm::errors::InvalidReference ) 
       << "HepMC has null pointer to GenEvent" << endl;
-  auto_ptr<CandidateCollection> cands( new CandidateCollection );
-  ref_ = evt.getRefBeforePut<CandidateCollection>();
+  auto_ptr<GenParticleCandidateCollection> cands( new GenParticleCandidateCollection );
+  ref_ = evt.getRefBeforePut<GenParticleCandidateCollection>();
   size_t size = mc->particles_size();
   cands->reserve( size );
   ptrMap_.clear();
@@ -72,15 +72,15 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
        p != mc->particles_end(); ++ p ) {
     const GenParticle * part = * p;
     int mapIdx = -1;
-    GenParticleCandidate * cand = 0;
+    reco::GenParticleCandidate * cand = 0;
     if ( ! stableOnly_ || part->status() == 1 ) {
       int id = part->pdg_id();
       if ( excludedIds_.find( abs( id ) ) == excludedIds_.end() ) {
 	double ptMin = part->particleID().threeCharge() == 0 ? ptMinNeutral_ : ptMinCharged_;
 	if ( part->momentum().perp() > ptMin ) {
-	  cand = new GenParticleCandidate( part );
 	  mapIdx = idx ++;
-	  cands->push_back( cand );
+	  cands->push_back( GenParticleCandidate( part ) );
+	  GenParticleCandidate * cand = & cands->back();
 	  if ( verbose_ ) {
 	    const DefaultConfig::ParticleData * p = pdt->particle( id );
 	    if ( p == 0 )
@@ -126,7 +126,7 @@ void GenParticleCandidateProducer::addDaughters( GenParticleCandidate * cand, co
       int dauIdx = f->second.first;
       if ( dauIdx >= 0 ) {
 	assert( cand != 0 );
-	cand->addDaughter( CandidateRef( ref_, dauIdx ) );
+	cand->addDaughter( CandidateBaseRef( GenParticleCandidateRef( ref_, dauIdx ) ) );
       } else {
 	const GenParticle * dauPart = f->first;
 	addDaughters( cand, dauPart );

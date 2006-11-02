@@ -4,17 +4,16 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.h,v 1.1 2006/10/05 15:24:48 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.h,v 1.2 2006/10/06 12:06:59 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include <string>
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
 #include <vector>
 #include <set>
 
 namespace edm { class ParameterSet; }
-namespace reco { class GenParticleCandidate; }
 namespace HepMC { class GenParticle; }
 
 class GenParticleCandidateProducer : public edm::EDProducer {
@@ -50,7 +49,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   /// pointer map
   mutable PtrMap ptrMap_;
   /// reference to candidate collection
-  mutable reco::CandidateRefProd ref_;
+  mutable reco::GenParticleCandidateRefProd ref_;
 };
 
 #endif
