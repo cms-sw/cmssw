@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateProducer.cc,v 1.2 2006/10/06 12:06:59 llista Exp $
+// $Id: GenParticleCandidateProducer.cc,v 1.3 2006/11/02 10:25:09 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateProducer.h"
 //#include "PhysicsTools/HepPDTProducer/interface/PDTRecord.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -80,7 +80,7 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
 	if ( part->momentum().perp() > ptMin ) {
 	  mapIdx = idx ++;
 	  cands->push_back( GenParticleCandidate( part ) );
-	  GenParticleCandidate * cand = & cands->back();
+	  cand = & cands->back();
 	  if ( verbose_ ) {
 	    const DefaultConfig::ParticleData * p = pdt->particle( id );
 	    if ( p == 0 )

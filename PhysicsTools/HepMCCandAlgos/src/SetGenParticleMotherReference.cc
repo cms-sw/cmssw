@@ -12,10 +12,10 @@ SetGenParticleMotherReference::SetGenParticleMotherReference( const ParameterSet
 }
 
 void SetGenParticleMotherReference::analyze( const Event & event, const EventSetup & ) {
-  Handle<CandidateCollection> particles;
+  Handle<GenParticleCandidateCollection> particles;
   event.getByLabel( src_, particles );
   
-  for( CandidateCollection::const_iterator p = particles->begin();
+  for( GenParticleCandidateCollection::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
     for( size_t i = 0; i < p->numberOfDaughters(); ++ i ) {
       const Candidate & d = p->daughter( i );
