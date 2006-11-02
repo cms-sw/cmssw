@@ -158,7 +158,9 @@ void XdaqCollector::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exc
 void XdaqCollector::configureAction(toolbox::Event::Reference e) 
   throw (toolbox::fsm::exception::Exception)
 {
-  DummyConsumerServer *dcs = DummyConsumerServer::instance(port_);
+  DummyConsumerServer *dcs = dynamic_cast<DummyConsumerServer *> 
+    (DummyConsumerServer::instance(port_) );
+  if(dcs){} // trying to fix warning for unused variable
   //dcs->disableClients();
 }
   
@@ -205,11 +207,13 @@ void XdaqCollector::actionPerformed (xdata::Event& e)
 	  if(enableClients_)
 	    {
 	      if(dcs != 0)
-		dcs->enableClients();
+	      // this modifies DummyConsumerServer::enableClients_
+		dcs->enableClients(); 
 	    }
 	  else
 	    {
 	      if(dcs != 0)
+	      // this modifies DummyConsumerServer::enableClients_
 		dcs->disableClients();
 	    }
 	}

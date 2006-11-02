@@ -100,6 +100,7 @@ protected:
       }
     private:
       static CollectorRoot * instance_;
+      xdata::Boolean enableClients_;
 
     };
   
