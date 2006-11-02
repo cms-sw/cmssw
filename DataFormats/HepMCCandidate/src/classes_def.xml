@@ -1,9 +1,15 @@
 <lcgdict>
   <class name="reco::HepMCCandidate" />
+  <class name="edm::Wrapper<reco::HepMCCandidate>"/>
+
   <class name="reco::GenParticleCandidate">
     <field name="mother_" transient="true" />
   </class>
-  <class name="edm::Wrapper<reco::HepMCCandidate>"/>
   <class name="edm::Wrapper<reco::GenParticleCandidate>"/>
+  <class name="std::vector<reco::GenParticleCandidate>"/>
+  <class name="edm::Wrapper<std::vector<reco::GenParticleCandidate> >"/>
+  <class name="edm::Ref<std::vector<reco::GenParticleCandidate>,reco::GenParticleCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticleCandidate>,reco::GenParticleCandidate> >" />
+  <class name="edm::RefVector<std::vector<reco::GenParticleCandidate>,reco::GenParticleCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticleCandidate>,reco::GenParticleCandidate> >" />
+  <class name="edm::RefProd<std::vector<reco::GenParticleCandidate> >" />
 </lcgdict>
  

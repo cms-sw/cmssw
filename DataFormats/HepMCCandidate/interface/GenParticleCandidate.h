@@ -6,9 +6,10 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.1 2006/10/05 14:22:42 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.2 2006/10/30 16:54:12 llista Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
 
 namespace HepMC {
   class GenParticle;
