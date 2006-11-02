@@ -63,7 +63,7 @@ public:
 //                                  0 everything OK,
 //                                  N>0 : mod(N,100000) drifts + width changes
 //                                        int(N/100000) missing channels
-  int HcalPedVal(int nstat[4], const HcalPedestals* fRefPedestals,
+  static int HcalPedVal(int nstat[4], const HcalPedestals* fRefPedestals,
             const HcalPedestalWidths* fRefPedestalWidths,
             HcalPedestals* fRawPedestals,
             HcalPedestalWidths* fRawPedestalWidths,
