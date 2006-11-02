@@ -13,7 +13,7 @@ class EventVertexGeneratorMakerBase
       EventVertexGeneratorMakerBase() {}
       virtual ~EventVertexGeneratorMakerBase() {}
       virtual std::auto_ptr<BaseEventVertexGenerator> 
-         make( const edm::ParameterSet&, const long& ) = 0 ;
+         make( const edm::ParameterSet&) = 0 ;
 };
 
 #endif

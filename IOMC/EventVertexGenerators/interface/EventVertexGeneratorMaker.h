@@ -11,9 +11,9 @@ class EventVertexGeneratorMaker : public EventVertexGeneratorMakerBase
    public:
       EventVertexGeneratorMaker(){}
       virtual std::auto_ptr<BaseEventVertexGenerator> 
-         make(const edm::ParameterSet& p, const long& seed)
+         make(const edm::ParameterSet& p)
       {
-	std::auto_ptr<T> returnValue(new T(p,seed));
+	std::auto_ptr<T> returnValue(new T(p));
 	return std::auto_ptr<BaseEventVertexGenerator>(returnValue);
       }
 };

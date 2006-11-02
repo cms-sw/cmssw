@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2006/07/06 16:02:00 $
-*  $Revision: 1.5 $
+*  $Date: 2006/08/08 23:00:18 $
+*  $Revision: 1.6 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/VertexGenerator.h"
@@ -13,9 +13,6 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -32,30 +29,26 @@ VertexGenerator::VertexGenerator( const ParameterSet& pset )
    // 1st of all, check on module_label - must be VtxSmeared !
    if ( pset.getParameter<string>("@module_label") != "VtxSmeared" )
    {
-      throw Exception( errors::Configuration, 
-                       "Invalid moduleLabel VG; the label of this module MUST be VtxSmeared" ) ;
+      throw cms::Exception("Configuration")
+        << "VertexGenerator has an invalid module label. The label of this module MUST be VtxSmeared.";
    }
       
    auto_ptr<EventVertexGeneratorMakerBase> 
       VtxGenMaker( EventVertexGeneratorFactory::get()->create
                    (pset.getParameter<std::string> ("type")) );
    
-   Service<RandomNumberGenerator> rng;
-   long seed = (long)(rng->mySeed()) ;
-   // cout << " seed= " << seed << endl ;
-
    if(VtxGenMaker.get()==0) 
    {
-        throw Exception(errors::Configuration,
-	                "Unable to find the event vertex generator requested") ;
+      throw cms::Exception("Configuration")
+        << "Unable to find the type of vertex generator requested";
    }
-   fEventVertexGenerator = VtxGenMaker->make(pset,seed) ;
+   fEventVertexGenerator = VtxGenMaker->make(pset) ;
 
    if (fEventVertexGenerator.get()==0) 
-      throw Exception(errors::Configuration,"EventVertexGenerator construction failed");
+      throw cms::Exception("Configuration")
+        << "EventVertexGenerator construction failed";
    
    produces<HepMCProduct>() ;
-   
 }
 
 VertexGenerator::~VertexGenerator() 
@@ -75,7 +68,8 @@ void VertexGenerator::produce( Event& evt, const EventSetup& )
       if ( !AllHepMCEvt[i].isValid() )
       {
          // in principal, should never happen, as it's taken care of bt Framework
-	 throw Exception(errors::InvalidReference, "Invalid reference to HepMCProduct") ;
+         throw cms::Exception("InvalidReference")
+            << "Invalid reference to HepMCProduct\n";
       }
    
       // now the "real" check,
@@ -85,13 +79,15 @@ void VertexGenerator::produce( Event& evt, const EventSetup& )
       //
       if ( AllHepMCEvt[i].provenance()->moduleLabel() == "VtxSmeared" )
       {
-	 throw Exception(errors::LogicError, "VtxSmeared HepMCProduce already exists") ;
+         throw cms::Exception("LogicError")
+            << "VtxSmeared HepMCProduce already exists\n";
       }
    }
    
    if ( fEventVertexGenerator.get() == 0 ) // overprotection
    {
-      throw Exception(errors::Configuration, "Invalid VertexGenerator" ) ;
+      throw cms::Exception("Configuration")
+         << "Invalid VertexGenerator\n";
    }
    
    // Note : for some reason, creating an object (rather than a pointer)
@@ -107,7 +103,7 @@ void VertexGenerator::produce( Event& evt, const EventSetup& )
    // vertex ietself
    //
    Hep3Vector* VtxPos = fEventVertexGenerator.get()->newVertex() ; 
-   
+
    // here loop over NewEvent and shift with NewVtx
    //
    for ( GenEvent::vertex_iterator vt=fEvt->vertices_begin();
