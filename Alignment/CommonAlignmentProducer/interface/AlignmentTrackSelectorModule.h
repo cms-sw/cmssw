@@ -21,10 +21,10 @@ struct TrackConfigSelector {
   const_iterator end() const { return selected_.end(); }
   bool empty() const { return selected_.empty(); }
 
-  void select( const reco::TrackCollection & c,  const edm::Event & evt) {
+  void select( const edm::Handle<reco::TrackCollection> & c,  const edm::Event & evt) {
     all_.clear();
     selected_.clear();
-    for( reco::TrackCollection::const_iterator i=c.begin();i!=c.end();++i){
+    for( reco::TrackCollection::const_iterator i=c.product()->begin();i!=c.product()->end();++i){
       all_.push_back(& * i );
     }
     selected_=theSelector.select(all_,evt);
