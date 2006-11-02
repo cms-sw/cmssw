@@ -19,7 +19,8 @@ void SetGenParticleMotherReference::analyze( const Event & event, const EventSet
        p != particles->end(); ++ p ) {
     for( size_t i = 0; i < p->numberOfDaughters(); ++ i ) {
       const Candidate & d = p->daughter( i );
-      const GenParticleCandidate * dau = dynamic_cast<const GenParticleCandidate *>( & d );
+      const GenParticleCandidate * dau = 
+	dynamic_cast<const GenParticleCandidate *>( & d );
       if( dau == 0 )
 	throw cms::Exception( "InvalidReference" ) 
 	  << "input collection contains candidates that"
