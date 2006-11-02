@@ -129,6 +129,6 @@ bool SiStripConfigParser::getFrequencyForSummary(int& u_freq) {
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
   if (! structureElement) return false;		 
 		
-  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))).c_str());
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
   return true;
 }

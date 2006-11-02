@@ -24,14 +24,14 @@ class SiStripInformationExtractor {
   SiStripInformationExtractor();
  ~SiStripInformationExtractor();
 
-  void readModuleAndHistoList(MonitorUserInterface* mui,xgi::Output * out);
+  void readModuleAndHistoList(MonitorUserInterface* mui,xgi::Output * out, bool coll_flag);
   void plotSingleModuleHistos(MonitorUserInterface * mui,
                       std::multimap<std::string, std::string>& req_map);
   void plotSummaryHistos(MonitorUserInterface * mui,
                       std::multimap<std::string, std::string>& req_map);
   const std::ostringstream& getImage() const;
   void readSummaryHistoList(MonitorUserInterface* mui, 
-    std::string& str_name, xgi::Output * out);
+    std::string& str_name, xgi::Output * out, bool coll_flag);
 
  private:
 

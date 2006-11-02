@@ -13,7 +13,6 @@
 class SiStripActionExecutor {
 
  public:
-  typedef std::map<int,std::vector <std::pair <int,float> > > DetMapType;
 
   SiStripActionExecutor();
  ~SiStripActionExecutor();
@@ -29,20 +28,18 @@ class SiStripActionExecutor {
  void createLayout(MonitorUserInterface * mui);
  void fillLayout(MonitorUserInterface * mui);
  void saveMEs(MonitorUserInterface * mui, std::string fname);
-
+ bool getCollationFlag(){return collationDone;}
 
  private:
  MonitorElement* getSummaryME(MonitorUserInterface* mui, std::string& name, int nval);
-  void getValuesForTkMap(MonitorUserInterface* mui,
-     std::vector<std::string> me_names, SiStripActionExecutor::DetMapType& values);
   void fillSummary(MonitorUserInterface* mui);
-  void drawMEs(int idet, std::vector<MonitorElement*>& mon_elements, 
-                    std::vector<std::pair <int, float> > & values);
+
   void fillGrandSummaryHistos(MonitorUserInterface* mui);
   void fillSummaryHistos(MonitorUserInterface* mui);
 
   SiStripConfigParser* configParser_;
   SiStripConfigWriter* configWriter_;
   std::vector<std::string> summaryMENames;
+  bool collationDone;
 };
 #endif

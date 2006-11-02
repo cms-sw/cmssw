@@ -36,11 +36,12 @@ SiStripWebInterface::SiStripWebInterface(std::string theContextURL, std::string 
 void SiStripWebInterface::createAll() { 
   Navigator * nav = new Navigator(getApplicationURL(), "50px", "50px");
   ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "50px");
-  GifDisplay * dis = new GifDisplay(getApplicationURL(), "25px","300px", "400px", "550px", "MyGifDisplay"); 
+  GifDisplay * dis = new GifDisplay(getApplicationURL(), "25px","300px", "500px", "600px", "MyGifDisplay"); 
   
+
   /*  Button * subcrBut = new Button(getApplicationURL(), "340px", "50px", "SubscribeAll", "Subscribe All");
   Button * compBut = new Button(getApplicationURL(), "380px", "50px", "CheckQTResults", "Check QTest Results");
-  Button * sumBut = new Button(getApplicationURL(), "420px", "50px", "CreateSummary", "Create Summary");
+  Button * sumBut = new Button(getApplicationURL(), "420px", "50px", "UpdateSummary", "Create Summary");
   Button * collBut = new Button(getApplicationURL(), "460px", "50px", "CollateME", "Collate ME");
   Button * saveBut = new Button(getApplicationURL(), "500px", "50px", "SaveToFile", "Save To File");
   
@@ -112,12 +113,15 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   } 
   else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
-    infoExtractor_->readModuleAndHistoList((*mui_p), out);    
+    
+    infoExtractor_->readModuleAndHistoList((*mui_p), out,
+                          actionExecutor_->getCollationFlag() );    
   } 
   else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-   infoExtractor_->readSummaryHistoList((*mui_p), sname, out);    
+   infoExtractor_->readSummaryHistoList((*mui_p), sname, out,
+                           actionExecutor_->getCollationFlag());    
   } 
   else if (requestID == "PlotAsModule") {
     theActionFlag = PlotSingleModuleHistos;    

@@ -21,6 +21,7 @@ SiStripClient::SiStripClient(xdaq::ApplicationStub *stub)
 */
 void SiStripClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception)
 {
+
    string link = getContextURL() + "/temporary/Online.html";
    webInterface_p->createButton(out, link);
 
@@ -77,23 +78,25 @@ void SiStripClient::onUpdate() const
   mui_->getUpdatedContents(uplist);
 
   // Collation of Monitor Element
-  if (nUpdate == 10) {
+  /*  if (nUpdate == 10) {
     webInterface_p->setActionFlag(SiStripWebInterface::Collate);
     seal::Callback action(seal::CreateCallback(webInterface_p, 
 			&SiStripWebInterface::performAction));
     mui_->addCallback(action); 
-  }
+    }*/
   
   // Set Up Quality Tests
   if (nUpdate == 20) webInterface_p->setupQTests();
 
 
   // Creation of Summary 
-  if (nUpdate == 50) {
-    webInterface_p->setActionFlag(SiStripWebInterface::Summary);
-    seal::Callback action(seal::CreateCallback(webInterface_p, 
-				 &SiStripWebInterface::performAction));
-    mui_->addCallback(action);	 
+  if (updateFrequencyForSummary_ != -1 ) {
+    if (nUpdate ==  30 || nUpdate%updateFrequencyForSummary_ == 1) {
+      webInterface_p->setActionFlag(SiStripWebInterface::Summary);
+      seal::Callback action(seal::CreateCallback(webInterface_p, 
+			        &SiStripWebInterface::performAction));
+      mui_->addCallback(action);	 
+    }
   }	
   // Creation of TrackerMap
   if (updateFrequencyForTrackerMap_ != -1 ) {

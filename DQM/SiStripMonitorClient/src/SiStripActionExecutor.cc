@@ -1,13 +1,13 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
+#include "DQM/SiStripMonitorClient/interface/TrackerMapCreator.h"
 //#include "DQMServices/ClientConfig/interface/QTestHandle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
-#include "TText.h"
+
 #include <iostream>
 using namespace std;
 //
@@ -18,6 +18,7 @@ SiStripActionExecutor::SiStripActionExecutor() {
     " Creating SiStripActionExecutor " << "\n" ;
   configParser_ = 0;
   configWriter_ = 0;
+  collationDone = false;
 }
 //
 // --  Destructor
@@ -65,103 +66,15 @@ void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui) {
     return;
   }
   cout << " # of MEs in Tk Map " << me_names.size() << endl;
-  TrackerMap trackerMap(tkmap_name);
-  // Get the values for the Tracker Map
+ 
+  // Create and Fill the Tracker Map
   mui->cd();
-  mui->cd("Collector/Collate/SiStrip");
+  if (collationDone) mui->cd("Collector/Collated/SiStrip");
 
-  SiStripActionExecutor::DetMapType valueMap;
+  TrackerMapCreator tkmap_creator;
+  tkmap_creator.create(mui, me_names);
   
-  getValuesForTkMap(mui, me_names, valueMap);  
-  if (valueMap.size() == 0) return;
-  MonitorElement* tkmap_me;
-  mui->cd();
-  string path = mui->pwd();
-  path += "/TrackerMapSummary";
-  tkmap_me = mui->get(path);
-  if (tkmap_me) {
-    TH1F* hist1 = ExtractTObject<TH1F>().extract(tkmap_me);
-    hist1->Reset();
-  } else {
-    DaqMonitorBEInterface * bei = mui->getBEInterface();
-    tkmap_me = bei->book1D("TrackerMapSummary", "Summary Info for TrackerMap",
-                  valueMap.size(),0.5,valueMap.size()+0.5);
-  }
-  int rval = 0;
-  int gval = 0;
-  int bval = 0;
-  int ibin = 0;
-  for (SiStripActionExecutor::DetMapType::const_iterator it = valueMap.begin();
-       it != valueMap.end(); it++) {
-    ibin++;
-    if (it->second.size() < 1) continue;
-    int istat = 0;
-    ostringstream comment;
-    comment << "Mean Value(s) : ";
-    for (vector<pair <int,float> >::const_iterator iv = it->second.begin();
-	 iv != it->second.end();  iv++) {
-      if (iv->first > istat ) istat = iv->first;
-      comment <<   iv->second <<  " : " ;
-     // Fill Tracker Map with Mean Value of the first element
-      if (iv == it->second.begin()) trackerMap.fill_current_val(it->first, iv->first);
-    }
-
-   // Fill Tracker Map with color from the status
-    if (istat == dqm::qstatus::STATUS_OK) { 
-      rval = 0;   gval = 255;   bval = 0; 
-    } else if (istat == dqm::qstatus::WARNING) { 
-      rval = 255; gval = 255; bval = 0;
-    } else if (istat == dqm::qstatus::ERROR) { 
-      rval = 255; gval = 0;  bval = 0;
-    }
-    cout << " Detector ID : " << it->first 
-	 << " " << comment.str()
-         << " Status : " << istat << endl;
-    trackerMap.fillc(it->first, rval, gval, bval);
-    tkmap_me->Fill(ibin, istat);
-    ostringstream det_id;
-    det_id << it->first;
-    tkmap_me->setBinLabel(ibin, det_id.str());
-    
-    // Fill Tracker Map with Mean Value as Comment
-    trackerMap.setText(it->first, comment.str());
-  }
-  trackerMap.print(true);
-  return;
-}
-//
-// -- Browse through monitorable and get values need for TrackerMap
-//
-void SiStripActionExecutor::getValuesForTkMap(MonitorUserInterface* mui,
- vector<string> me_names, SiStripActionExecutor::DetMapType & values) {
-  string currDir = mui->pwd();
-  vector<string> contentVec;
-  mui->getContents(contentVec);
-
-  for (vector<string>::iterator it = contentVec.begin();
-       it != contentVec.end(); it++) {
-    if ((*it).find("module_") == string::npos) continue;
-    vector<string> contents;
-    int nval = SiStripUtility::getMEList((*it), contents);
-    if (nval == 0) continue;
-    // get module id
-    int id = atoi(((*it).substr((*it).find("module_")+7)).c_str());
-    vector<MonitorElement*> me_vec;
-    vector<pair <int, float> > vtemp;
-    
-    //  browse through monitorable; check  if required MEs exist    
-    for (vector<string>::const_iterator ic = contents.begin();
-	      ic != contents.end(); ic++) {
-      for (vector<string>::const_iterator im = me_names.begin();
-	   im != me_names.end(); im++) {
-	if ((*ic).find((*im)) == string::npos) continue;
-        MonitorElement * me = mui->get((*ic));
-        if (me) me_vec.push_back(me);
-      }
-    }
-    drawMEs(id, me_vec, vtemp);
-    values.insert(pair<int,vector <pair <int,float> > >(id, vtemp));
-  }
+  mui->cd();  
 }
 // -- Browse through the Folder Structure
 //
@@ -172,9 +85,12 @@ void SiStripActionExecutor::createSummary(MonitorUserInterface* mui) {
     return;
   }
   mui->cd();
-  mui->cd("Collector/Collated/SiStrip");
-  fillSummary(mui);
-  mui->cd();
+  if (collationDone) {
+    cout << " Creating Summary with Collated Monitor Elements " << endl;
+    mui->cd("Collector/Collated/SiStrip");
+    fillSummary(mui);
+    mui->cd();
+} else fillSummary(mui);
   createLayout(mui);
   string fname = "test.xml";
   configWriter_->write(fname);
@@ -296,71 +212,12 @@ MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
   return me;
 }
 //
-// -- Draw Monitor Elements
-//
-void SiStripActionExecutor::drawMEs(int idet, 
-  vector<MonitorElement*>& mon_elements, vector<pair <int, float> > & values) {
-
-  TCanvas canvas("display");
-  canvas.Clear();
-  if (mon_elements.size() == 2) canvas.Divide(1,2);
-  if (mon_elements.size() == 3) canvas.Divide(1,3);
-  if (mon_elements.size() == 4) canvas.Divide(2,2);
-  int status;
-  int icol;
-  string tag;
-  
-  for (unsigned int i = 0; i < mon_elements.size(); i++) {
-    // Mean Value
-    float mean_val = mon_elements[i]->getMean();
-    // Status after comparison to Referece 
-    if (mon_elements[i]->getQReports().size() == 0) {
-      status = 0;
-      tag = " ";
-      icol = 1;
-    } else if (mon_elements[i]->hasError()) {
-      status = dqm::qstatus::ERROR;
-      tag = "Error";
-      icol = 2;
-    } else if (mon_elements[i]->hasWarning()) {
-      status = dqm::qstatus::WARNING;
-      tag = "Warning";
-      icol = 5;
-    } else if (mon_elements[i]->hasOtherReport()) {
-      status = dqm::qstatus::OTHER;
-      tag = "Other";
-      icol = 1;
-    } else {  
-      status = dqm::qstatus::STATUS_OK;
-      tag = "Ok";
-      icol = 3;
-    }
-    // Access the Root object and plot
-    MonitorElementT<TNamed>* ob = 
-        dynamic_cast<MonitorElementT<TNamed>*>(mon_elements[i]);
-    if (ob) {
-      canvas.cd(i+1);
-      TText tt;
-      tt.SetTextSize(0.15);
-      tt.SetTextColor(icol);
-      ob->operator->()->Draw();
-      tt.DrawTextNDC(0.6, 0.5, tag.c_str());
-      canvas.Update();
-    }
-    values.push_back(pair<int,float>(status, mean_val));
-  }
-  ostringstream name_str;
-  name_str << idet << ".jpg";
-  canvas.SaveAs(name_str.str().c_str());    
-  
-}
-//
 // -- Setup Quality Tests 
 //
 void SiStripActionExecutor::setupQTests(MonitorUserInterface * mui) {
   SiStripQualityTester qtester;
   mui->cd();
-  mui->cd("Collector/Collated/SiStrip");
+  if (collationDone) mui->cd("Collector/Collated/SiStrip");
   qtester.setupQTests(mui);
   mui->cd();
   cout << " Setting Up Quality Tests " << endl;
@@ -462,6 +319,7 @@ void SiStripActionExecutor::createCollation(MonitorUserInterface * mui){
       if (coll_me) mui->add(coll_me, me_path);
     }
   }
+  collationDone = true;
 }
 void SiStripActionExecutor::createLayout(MonitorUserInterface * mui){
   if (configWriter_ == 0) {

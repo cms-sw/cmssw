@@ -230,10 +230,10 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 //
 // read the Module And HistoList
 //
-void SiStripInformationExtractor::readModuleAndHistoList(MonitorUserInterface* mui, 
-                                                         xgi::Output * out) {
+void SiStripInformationExtractor::readModuleAndHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag) {
    std::vector<std::string> hnames;
    std::vector<std::string> mod_names;
+   if (coll_flag)  mui->cd("Collector/Collated");
    fillModuleAndHistoList(mui, mod_names, hnames);
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   *out << "<?xml version=\"1.0\" ?>" << std::endl;
@@ -253,13 +253,14 @@ void SiStripInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
    }
    *out << "</HistoList>" << endl;
    *out << "</ModuleAndHistoList>" << endl;
-
+   if (coll_flag)  mui->cd();
 }
 //
 // read the Structure And SummaryHistogram List
 //
-void SiStripInformationExtractor::readSummaryHistoList(MonitorUserInterface* mui, std::string& str_name, xgi::Output * out) {
+void SiStripInformationExtractor::readSummaryHistoList(MonitorUserInterface* mui, std::string& str_name, xgi::Output * out, bool coll_flag) {
 
+   if (coll_flag)  mui->cd("Collector/Collated");
    std::vector<std::string> hnames;
    fillSummaryHistoList(mui, str_name, hnames);
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
@@ -271,6 +272,7 @@ void SiStripInformationExtractor::readSummaryHistoList(MonitorUserInterface* mui
      *out << "<SummaryHisto>" << *ih << "</SummaryHisto>" << endl;     
    }
    *out << "</SummaryHistoList>" << endl;
+   if (coll_flag)  mui->cd();
 }
 //
 // Get elements from multi map
