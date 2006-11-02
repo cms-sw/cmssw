@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2006/11/01 07:59:16 $
- * $Revision: 1.4 $
+ * $Date: 2006/11/01 08:13:27 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -13,9 +13,20 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
 
   init_ = false;
 
-  for (int i = 0; i < 36 ; i++) {
-    mePedMapG12_[i] = 0;
-  }
+  meBEne_ = 0;
+  meBNum_ = 0;
+  meBCry_ = 0;
+
+  meSEneMap_ = 0;
+  meSNumMap_ = 0;
+
+  meSEne_ = 0;
+  meSNum_ = 0;
+
+  meSSiz_ = 0;
+
+  meSEneMap_ = 0;
+  meSNumMap_ = 0;
 
 }
 
@@ -53,10 +64,35 @@ void EBClusterTask::setup(void){
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBClusterTask");
 
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPOT pedestal SM%02d G12", i+1);
-      mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-    }
+    sprintf(histo, "EBCLT basic cluster energy");
+    meBEne_ = dbe->book1D(histo, histo, 100, 0., 500.);
+
+    sprintf(histo, "EBCLT basic cluster number");
+    meBNum_ = dbe->book1D(histo, histo, 100, 0., 100.);
+
+    sprintf(histo, "EBCLT basic cluster crystals");
+    meBCry_ = dbe->book1D(histo, histo, 100, 0., 100.);
+
+    sprintf(histo, "EBCLT basic cluster energy map");
+    meBEneMap_ = dbe->bookProfile2D(histo, histo, 170, -1.479, 1.479, 360, 0., 6.2832, 100, 0., 500., "s");
+
+    sprintf(histo, "EBCLT basic cluster number map");
+    meBNumMap_ = dbe->book2D(histo, histo, 170, -1.479, 1.479, 360, 0., 6.2832);
+
+    sprintf(histo, "EBCLT super cluster energy");
+    meSEne_ = dbe->book1D(histo, histo, 100, 0., 500.);
+
+    sprintf(histo, "EBCLT super cluster number");
+    meSNum_ = dbe->book1D(histo, histo, 100, 0., 100.);
+
+    sprintf(histo, "EBCLT super cluster size");
+    meSSiz_ = dbe->book1D(histo, histo, 20, 0., 20.);
+
+    sprintf(histo, "EBCLT super cluster energy map");
+    meSEneMap_ = dbe->bookProfile2D(histo, histo, 170, -1.479, 1.479, 360, 0., 6.2832, 100, 0., 500., "s");
+
+    sprintf(histo, "EBCLT super cluster number map");
+    meSNumMap_ = dbe->book2D(histo, histo, 170, -1.479, 1.479, 360, 0., 6.2832);
 
   }
 
@@ -72,10 +108,35 @@ void EBClusterTask::cleanup(void){
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBClusterTask");
 
-    for ( int i = 0; i < 36; i++ ) {
-      if ( mePedMapG12_[i] ) dbe->removeElement( mePedMapG12_[i]->getName() );
-      mePedMapG12_[i] = 0;
-    }
+    if ( meBEne_ ) dbe->removeElement( meBEne_->getName() );
+    meBEne_ = 0;
+
+    if ( meBNum_ ) dbe->removeElement( meBNum_->getName() );
+    meBNum_ = 0;
+
+    if ( meBEneMap_ ) dbe->removeElement( meBEneMap_->getName() );
+    meBEneMap_ = 0;
+
+    if ( meBNumMap_ ) dbe->removeElement( meBNumMap_->getName() );
+    meBNumMap_ = 0;
+
+    if ( meBCry_ ) dbe->removeElement( meBCry_->getName() );
+    meBCry_ = 0;
+
+    if ( meSEne_ ) dbe->removeElement( meSEne_->getName() );
+    meSEne_ = 0;
+
+    if ( meSNum_ ) dbe->removeElement( meSNum_->getName() );
+    meSNum_ = 0;
+
+    if ( meSSiz_ ) dbe->removeElement( meSSiz_->getName() );
+    meSSiz_ = 0;
+
+    if ( meSEneMap_ ) dbe->removeElement( meSEneMap_->getName() );
+    meSEneMap_ = 0;
+
+    if ( meSNumMap_ ) dbe->removeElement( meSNumMap_->getName() );
+    meSNumMap_ = 0;
 
   }
 
@@ -105,15 +166,17 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     int nbcc = bclusters->size();
     LogDebug("EBClusterTask") << "event " << ievt_ << " basic cluster collection size " << nbcc;
 
+    meBNum_->Fill(float(nbcc));
+
     for ( BasicClusterCollection::const_iterator bclusterItr = bclusters->begin(); bclusterItr != bclusters->end(); ++bclusterItr ) {
 
       BasicCluster bcluster = *(bclusterItr);
 
-      cout << "basic cluster" << endl;
-      cout << "number of crystals " << bcluster.getHitsByDetId().size() << endl;
-      cout << "energy " << bcluster.energy() << endl;
-      cout << "eta " << bcluster.eta() << endl;
-      cout << "phi " << bcluster.phi() << endl;
+      meBEne_->Fill(bcluster.energy());
+      meBCry_->Fill(float(bcluster.getHitsByDetId().size()));
+
+      meBEneMap_->Fill(bcluster.eta(), bcluster.phi(), bcluster.energy());
+      meBNumMap_->Fill(bcluster.eta(), bcluster.phi());
 
     }
 
@@ -129,20 +192,17 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     int nscc = sclusters->size();
     LogDebug("EBClusterTask") << "event " << ievt_ << " super cluster collection size " << nscc; 
 
+    meSNum_->Fill(float(nscc));
+
     for ( SuperClusterCollection::const_iterator sclusterItr = sclusters->begin(); sclusterItr != sclusters->end(); ++sclusterItr ) {
   
       SuperCluster scluster = *(sclusterItr);
 
-      cout << "super cluster" << endl;
-      cout << "number of crystals " << scluster.getHitsByDetId().size() << endl;
-      cout << "number of basic clusters " << (1+scluster.clustersSize()) << endl;
-      cout << "energy " << scluster.energy() << endl;
-      cout << "eta " << scluster.eta() << endl;
-      cout << "phi " << scluster.phi() << endl;
-//      cout << "eMax " << scluster.eMax() << endl;
-//      cout << "e2x2 " << scluster.e2x2() << endl;
-//      cout << "e3x3 " << scluster.e3x3() << endl;
-//      cout << "e5x5 " << scluster.e5x5() << endl;
+      meSEne_->Fill(scluster.energy());
+      meSSiz_->Fill(float(1+scluster.clustersSize()));
+
+      meSEneMap_->Fill(scluster.eta(), scluster.phi(), scluster.energy());
+      meSNumMap_->Fill(scluster.eta(), scluster.phi());
 
     }
 

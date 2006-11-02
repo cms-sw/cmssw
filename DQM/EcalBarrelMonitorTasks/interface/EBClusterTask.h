@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2006/10/30 11:14:16 $
- * $Revision: 1.1 $
+ * $Date: 2006/10/30 13:12:31 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -75,7 +75,19 @@ private:
 
 int ievt_;
 
-MonitorElement* mePedMapG12_[36];
+MonitorElement* meBEne_;
+MonitorElement* meBNum_;
+MonitorElement* meBCry_;
+
+MonitorElement* meBEneMap_;
+MonitorElement* meBNumMap_;
+
+MonitorElement* meSEne_;
+MonitorElement* meSNum_;
+MonitorElement* meSSiz_;
+
+MonitorElement* meSEneMap_;
+MonitorElement* meSNumMap_;
 
 bool init_;
 
