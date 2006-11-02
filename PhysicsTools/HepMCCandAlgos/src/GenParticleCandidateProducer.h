@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.h,v 1.2 2006/10/06 12:06:59 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.h,v 1.3 2006/11/02 10:25:09 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -44,8 +44,6 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   bool verbose_;
   /// pointer map type
   typedef std::map<const HepMC::GenParticle *, std::pair<int, reco::GenParticleCandidate*> > PtrMap;
-  /// add daughters to a candidate
-  void addDaughters( reco::GenParticleCandidate *, const HepMC::GenParticle * ) const;
   /// pointer map
   mutable PtrMap ptrMap_;
   /// reference to candidate collection
