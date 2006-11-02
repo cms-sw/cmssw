@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2006/10/18 16:57:51 $
- * $Revision: 1.20 $
+ * $Date: 2006/10/30 11:15:16 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -102,25 +102,21 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 
-CollateMonitorElement* me_h03_[36];
+CollateMonitorElement* me_h01_[3];
+CollateMonitorElement* me_h02_;
+CollateMonitorElement* me_h03_;
 
-MEContentsProf2DWithinRangeROOT* qth03_[36];
+CollateMonitorElement* me_i01_[3];
+CollateMonitorElement* me_i02_;
+CollateMonitorElement* me_i03_;
 
-MonitorElement* meh03_[36];
+TH1F* h01_[3];
+TProfile2D* h02_;
+TH2F* h03_;
 
-TProfile2D* h03_[36];
-
-MonitorElement* meg03_[36];
-
-MonitorElement* mep03_[36];
-
-MonitorElement* mer03_[36];
-
-// Quality check on crystals, one per each gain
-
-float expectedMean_;
-float discrepancyMean_;
-float RMSThreshold_;
+TH1F* i01_[3];
+TProfile2D* i02_;
+TH2F* i03_;
 
 };
 
