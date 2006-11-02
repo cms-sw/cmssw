@@ -6,9 +6,9 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.2 2006/10/30 16:54:12 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.3 2006/11/02 10:05:21 llista Exp $
  */
-#include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
 
 namespace HepMC {
@@ -17,7 +17,7 @@ namespace HepMC {
 
 namespace reco {
 
-  class GenParticleCandidate : public CompositeRefCandidate {
+  class GenParticleCandidate : public CompositeRefBaseCandidate {
   public:
     /// default constructor
     GenParticleCandidate() { }

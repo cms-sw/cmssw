@@ -1,4 +1,4 @@
-// $Id: HepMCCandidate.cc,v 1.5 2006/06/20 14:53:18 llista Exp $
+// $Id: GenParticleCandidate.cc,v 1.1 2006/10/05 14:22:43 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include <CLHEP/HepMC/GenParticle.h>
 #include <CLHEP/HepMC/GenVertex.h>
@@ -6,7 +6,7 @@
 using namespace reco;
 
 GenParticleCandidate::GenParticleCandidate( const HepMC::GenParticle * p ) : 
-  CompositeRefCandidate(), 
+  CompositeRefBaseCandidate(), 
   pdgId_( p->pdg_id() ), 
   status_( p->status() ) {
   q_ = p->particleID().threeCharge() / 3;
