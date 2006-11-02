@@ -26,3 +26,6 @@ template std::vector<char>::iterator;
 template std::vector<char>::const_iterator;
 template std::vector< SiPixelGainCalibration::DetRegistry >::iterator;
 template std::vector< SiPixelGainCalibration::DetRegistry >::const_iterator;
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
+// &&& Not sure what we need for templates here.
