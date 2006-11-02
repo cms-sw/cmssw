@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.1 2006/10/23 15:27:41 wdd Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.2 2006/10/25 17:43:23 wdd Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -490,7 +490,7 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
 
       // We need to handle each type of engine differently because each
       // has different requirements on the seed or seeds.
-      if (engineStateL[0] == CLHEP::engineIDulong<HepJamesRandom>()) {
+      if (engineStateL[0] == CLHEP::engineIDulong<CLHEP::HepJamesRandom>()) {
 
         checkEngineType(engine->second->name(), std::string("HepJamesRandom"), engineLabel);
 
@@ -499,7 +499,7 @@ RandomNumberGeneratorService::restoreState(const edm::Event& iEvent) {
         engine->second->get(engineStateL);
 
       }
-      else if (engineStateL[0] == CLHEP::engineIDulong<RanecuEngine>()) {
+      else if (engineStateL[0] == CLHEP::engineIDulong<CLHEP::RanecuEngine>()) {
 
         checkEngineType(engine->second->name(), std::string("RanecuEngine"), engineLabel);
 
