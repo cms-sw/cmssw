@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: StreamerOutSrvcManager.cc,v 1.7 2006/10/11 15:03:52 klute Exp $
 #include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
 
@@ -179,7 +179,8 @@ std::list<std::string>& StreamerOutSrvcManager::get_filelist()
         {
             std::list<std::string>& sub_list = (*it)->get_filelist();
             if(sub_list.size() > 0)
-              filelist_.assign(sub_list.begin(), sub_list.end() );
+              filelist_.insert(filelist_.end(), sub_list.begin(), sub_list.end() );
+//              filelist_.assign(sub_list.begin(), sub_list.end() );
         } 
      return filelist_; 
     }
