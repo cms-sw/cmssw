@@ -1,5 +1,6 @@
 #include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
@@ -9,6 +10,7 @@ namespace {
     reco::GenParticleCandidateRefVector rv1;
     reco::GenParticleCandidateRefProd rp1;
     edm::Wrapper<reco::GenParticleCandidateCollection> w3;
-    
+
+    edm::reftobase::Holder<reco::Candidate, reco::GenParticleCandidateRef> rb1;
   }
 }

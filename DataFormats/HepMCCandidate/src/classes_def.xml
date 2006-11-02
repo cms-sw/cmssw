@@ -8,5 +8,7 @@
   <class name="edm::Ref<std::vector<reco::GenParticleCandidate>,reco::GenParticleCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticleCandidate>,reco::GenParticleCandidate> >" />
   <class name="edm::RefVector<std::vector<reco::GenParticleCandidate>,reco::GenParticleCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticleCandidate>,reco::GenParticleCandidate> >" />
   <class name="edm::RefProd<std::vector<reco::GenParticleCandidate> >" />
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenParticleCandidate>,reco::GenParticleCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticleCandidate>,reco::GenParticleCandidate> > >" />
+
 </lcgdict>
  
