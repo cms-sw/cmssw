@@ -104,14 +104,14 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
    LogDebug("TrackLocalAngle") << "Transient rechit filled" << "\n";
   
   //SORT RECHITS ALONGMOMENTUM
-  const TransientTrackingRecHit::ConstRecHitPointer *firstHit;
+  const TransientTrackingRecHit::ConstRecHitPointer *firstHit=0;
   for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++){
     if ((**it).isValid()) {
       firstHit = &(*it);
       break;
     }
   }
-  const TransientTrackingRecHit::ConstRecHitPointer *lastHit;
+  const TransientTrackingRecHit::ConstRecHitPointer *lastHit=0;
   for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
     if ((**it).isValid()) {
       lastHit= &(*it);
