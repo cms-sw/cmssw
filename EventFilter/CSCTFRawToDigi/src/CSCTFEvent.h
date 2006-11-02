@@ -7,7 +7,7 @@
 class CSCTFEvent {
 private:
 	CSCSPEvent sp[12];
-	bool nRecords;
+	int nRecords;
 
 public:
 	// Before we do unpacking, we need to do basic TF format checks (TF Binary Examiner)
