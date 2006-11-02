@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.3 2006/11/02 10:05:21 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.4 2006/11/02 10:23:56 llista Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
@@ -32,9 +32,10 @@ namespace reco {
     /// status code
     int status() const { return status_; }
     /// get candidate mother
-    const Candidate & mother() const { return * mother_; }
+    const GenParticleCandidateRef & mother() const { return mother_; }
     /// set mother reference
-    void setMother( const CandidateRef & ref) const { mother_ = ref; }
+    void setMother( const GenParticleCandidateRef & ref ) const { mother_ = ref; }
+
   private:
     /// checp overlap with another candidate
     bool overlap( const Candidate & ) const;
@@ -43,7 +44,7 @@ namespace reco {
     /// status code
     int status_;
     /// reference to mother
-    mutable CandidateRef mother_;
+    mutable GenParticleCandidateRef mother_;
  };
 
 }
