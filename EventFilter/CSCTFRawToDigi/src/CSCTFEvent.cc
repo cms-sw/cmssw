@@ -38,6 +38,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 				break;
 			}
 			spHeader=true;
+			spTrailer=false;
 			// number of 64-bit words between header and trailer
 			spWordCount=0;
 			spWordCountExpected=0;
@@ -81,6 +82,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 				coruptions |= MISSING_HEADER;
 				break;
 			}
+			spHeader=false;
 			spTrailer=true;
 
 			if( spWordCount!=spWordCountExpected+2 ){
