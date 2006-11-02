@@ -24,7 +24,7 @@ void SetGenParticleMotherReference::analyze( const Event & event, const EventSet
 	throw cms::Exception( "InvalidReference" ) 
 	  << "input collection contains candidates that"
 	  << "are not of type GenParticleCandidate";
-      dau->setMother( CandidateRef( particles, i ) );
+      dau->setMother( GenParticleCandidateRef( particles, i ) );
     }
   }
 }
