@@ -237,14 +237,7 @@ class SiPixelTemplate {
   
   // The actual template store is a std::vector container
 
-  std::vector< int > _dummyV1;
   std::vector< SiPixelTemplateStore > thePixelTemp;
-  SiPixelTemplateEntry  _dummyE;
-  SiPixelTemplateHeader _dummyH;
-  SiPixelTemplateStore  _dummyS;
-  
-  //std::vector <SiPixelTemplateStore> thePixelTemp;	
-  std::vector <int> _dummyV;
 } ;
 
 
