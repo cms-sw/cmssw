@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.10 $
-///  last update: $Date: 2006/10/20 13:07:07 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.11 $
+///  last update: $Date: 2006/11/03 11:00:57 $
+///  by         : $Author: fpschill $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -124,13 +124,10 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 
   // create alignment parameter builder
   edm::LogWarning("Alignment") <<"[AlignmentProducer] Creating AlignmentParameterBuilder";
-  theAlignmentParameterBuilder = new AlignmentParameterBuilder(theAlignableTracker);
-
-  edm::LogWarning("Alignment") <<"[AlignmentProducer] select alignables ...";
   edm::ParameterSet aliParamBuildCfg = 
     theParameterSet.getParameter<edm::ParameterSet>("AlignmentParameterBuilder");
-  theAlignmentParameterBuilder->addSelections(aliParamBuildCfg);
-
+  theAlignmentParameterBuilder = new AlignmentParameterBuilder(theAlignableTracker,
+                                                               aliParamBuildCfg);
   // fix alignables
   if (stNFixAlignables>0) theAlignmentParameterBuilder->fixAlignables(stNFixAlignables);
 
