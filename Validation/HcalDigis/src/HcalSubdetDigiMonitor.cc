@@ -35,7 +35,7 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DaqMonitorBEInterface* dbe,
   HistLim ratioPlot(200, 0., 1000.);
   float sumWithNoiseMax = 500.;
   HistLim pedestalPlot(50, 0., 20.);
-  HistLim fracPlot(50, 0., 1.);
+  HistLim fracPlot(52, -0.02, 1.02);
 
   if(subdet_ == "HE")
   {
