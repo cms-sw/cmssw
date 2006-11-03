@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateProducer.cc,v 1.5 2006/11/02 20:41:25 llista Exp $
+// $Id: GenParticleCandidateProducer.cc,v 1.6 2006/11/02 22:51:43 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateProducer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -82,13 +82,18 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
 	}
       }
     }
+    cout << "inserting: " 
+	 << pdt->particle( part->pdg_id() )->name()
+	 << " -> " <<( cand != 0 ? pdt->particle( cand->pdgId() )->name() : "--" )<< " @ " 
+	 << mapIdx << endl;
     ptrMap_.insert( make_pair( part, make_pair( mapIdx, cand ) ) );
   }
   for( PtrMap::const_iterator i = ptrMap_.begin(); i != ptrMap_.end(); ++ i ) {
-    int idx = i->second.first;
-    if ( idx >= 0 ) {
+    int dauIdx = i->second.first;
+    if ( dauIdx >= 0 ) {
       const GenParticle * part = i->first;
       GenParticleCandidate * cand = i->second.second;
+      cout << "mother of " << pdt->particle( cand->pdgId() )->name() << " @ " << dauIdx << " is: ";
       assert( cand != 0 );
       if ( part->hasParents() ) {
 	const GenParticle * mother = part->mother();
@@ -101,8 +106,14 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
 	    mother = mother->hasParents() ? mother->mother() : 0;
 	  }
 	}
-	if ( motherCand != 0 )
-	  motherCand->addDaughter( CandidateBaseRef( GenParticleCandidateRef( ref_, idx ) ) );
+	if ( motherCand != 0 ) {
+	  motherCand->addDaughter( CandidateBaseRef( GenParticleCandidateRef( ref_, dauIdx ) ) );
+	  cout << pdt->particle( motherCand->pdgId() )->name() << endl;
+	} else {
+	  cout << "null" << endl;
+	}
+      } else {
+	cout << "not exsisting" << endl;
       }
     }
   }

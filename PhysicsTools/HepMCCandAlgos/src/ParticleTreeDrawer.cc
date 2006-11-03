@@ -56,7 +56,7 @@ void ParticleTreeDrawer::printDecay( const reco::GenParticleCandidate & c, const
       const GenParticleCandidate * d = 
 	dynamic_cast<const GenParticleCandidate *>( & c.daughter( i ) );
       assert( d != 0 );
-      const DefaultConfig::ParticleData * pd = pdt_->particle( id );  
+      const DefaultConfig::ParticleData * pd = pdt_->particle( d->pdgId() );  
       assert( pd != 0 );
       cout << pd->name();
       if ( i != ndau - 1 )
