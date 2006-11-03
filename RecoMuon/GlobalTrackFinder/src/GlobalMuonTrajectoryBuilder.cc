@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/10/25 15:00:24 $
- *  $Revision: 1.49 $
+ *  $Date: 2006/11/03 17:54:38 $
+ *  $Revision: 1.50 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -208,7 +208,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   
   // convert tracks to TrackCands
   vector<TrackCand> tkTrackCands;
-  for ( int position = 0; position != allTrackerTracks->size(); ++position ) {
+  for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
     reco::TrackRef tkTrackRef(allTrackerTracks,position);
     TrackCand tkCand = TrackCand(0,tkTrackRef);
     if ( tkTrajsAvailable ) {
