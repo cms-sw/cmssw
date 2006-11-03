@@ -42,51 +42,51 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   
   //definition of histograms
   xtime = TH1F("time", "time", 50, 0, 500 );
-  pulseshape_ch1_cfeb1 = TH2F("pulse01","strip8",  100,-100,500,100,-100,1100);
-  pulseshape_ch1_cfeb2 = TH2F("pulse02","strip24", 100,-100,500,100,-100,1100);
-  pulseshape_ch1_cfeb3 = TH2F("pulse03","strip40", 100,-100,500,100,-100,1100);
-  pulseshape_ch1_cfeb4 = TH2F("pulse04","strip56", 100,-100,500,100,-100,1100);
-  pulseshape_ch1_cfeb5 = TH2F("pulse05","strip72", 100,-100,500,100,-100,1100);
-  pulseshape_ch2_cfeb1 = TH2F("pulse11","strip8",  100,-100,500,100,-100,1100);
-  pulseshape_ch2_cfeb2 = TH2F("pulse12","strip24", 100,-100,500,100,-100,1100);
-  pulseshape_ch2_cfeb3 = TH2F("pulse13","strip40", 100,-100,500,100,-100,1100);
-  pulseshape_ch2_cfeb4 = TH2F("pulse14","strip56", 100,-100,500,100,-100,1100);
-  pulseshape_ch2_cfeb5 = TH2F("pulse15","strip72", 100,-100,500,100,-100,1100);
-  pulseshape_ch3_cfeb1 = TH2F("pulse21","strip8",  100,-100,500,100,-100,1100);
-  pulseshape_ch3_cfeb2 = TH2F("pulse22","strip24", 100,-100,500,100,-100,1100);
-  pulseshape_ch3_cfeb3 = TH2F("pulse23","strip40", 100,-100,500,100,-100,1100);
-  pulseshape_ch3_cfeb4 = TH2F("pulse24","strip56", 100,-100,500,100,-100,1100);
-  pulseshape_ch3_cfeb5 = TH2F("pulse25","strip72", 100,-100,500,100,-100,1100);
-  pulseshape_ch4_cfeb1 = TH2F("pulse31","strip8",  100,-100,500,100,-100,1100);
-  pulseshape_ch4_cfeb2 = TH2F("pulse32","strip24", 100,-100,500,100,-100,1100);
-  pulseshape_ch4_cfeb3 = TH2F("pulse33","strip40", 100,-100,500,100,-100,1100);
-  pulseshape_ch4_cfeb4 = TH2F("pulse34","strip56", 100,-100,500,100,-100,1100);
-  pulseshape_ch4_cfeb5 = TH2F("pulse35","strip72", 100,-100,500,100,-100,1100);
-  pulseshape_ch5_cfeb1 = TH2F("pulse41","strip8",  100,-100,500,100,-100,1100);
-  pulseshape_ch5_cfeb2 = TH2F("pulse42","strip24", 100,-100,500,100,-100,1100);
-  pulseshape_ch5_cfeb3 = TH2F("pulse43","strip40", 100,-100,500,100,-100,1100);
-  pulseshape_ch5_cfeb4 = TH2F("pulse44","strip56", 100,-100,500,100,-100,1100);
-  pulseshape_ch5_cfeb5 = TH2F("pulse45","strip72", 100,-100,500,100,-100,1100);
-  pulseshape_ch6_cfeb1 = TH2F("pulse51","strip8",  100,-100,500,100,-100,1100);
-  pulseshape_ch6_cfeb2 = TH2F("pulse52","strip24", 100,-100,500,100,-100,1100);
-  pulseshape_ch6_cfeb3 = TH2F("pulse53","strip40", 100,-100,500,100,-100,1100);
-  pulseshape_ch6_cfeb4 = TH2F("pulse54","strip56", 100,-100,500,100,-100,1100);
-  pulseshape_ch6_cfeb5 = TH2F("pulse55","strip72", 100,-100,500,100,-100,1100);
-  pulseshape_ch7_cfeb1 = TH2F("pulse61","strip8",  100,-100,500,100,-100,1100);
-  pulseshape_ch7_cfeb2 = TH2F("pulse62","strip24", 100,-100,500,100,-100,1100);
-  pulseshape_ch7_cfeb3 = TH2F("pulse63","strip40", 100,-100,500,100,-100,1100);
-  pulseshape_ch7_cfeb4 = TH2F("pulse64","strip56", 100,-100,500,100,-100,1100);
-  pulseshape_ch7_cfeb5 = TH2F("pulse65","strip72", 100,-100,500,100,-100,1100);
-  pulseshape_ch8_cfeb1 = TH2F("pulse71","strip8",  100,-100,500,100,-100,1100);
-  pulseshape_ch8_cfeb2 = TH2F("pulse72","strip24", 100,-100,500,100,-100,1100);
-  pulseshape_ch8_cfeb3 = TH2F("pulse73","strip40", 100,-100,500,100,-100,1100);
-  pulseshape_ch8_cfeb4 = TH2F("pulse74","strip56", 100,-100,500,100,-100,1100);
-  pulseshape_ch8_cfeb5 = TH2F("pulse75","strip72", 100,-100,500,100,-100,1100);
-  pulseshape_ch9_cfeb1 = TH2F("pulse81","strip8",  100,-100,500,100,-100,1100);
-  pulseshape_ch9_cfeb2 = TH2F("pulse82","strip24", 100,-100,500,100,-100,1100);
-  pulseshape_ch9_cfeb3 = TH2F("pulse83","strip40", 100,-100,500,100,-100,1100);
-  pulseshape_ch9_cfeb4 = TH2F("pulse84","strip56", 100,-100,500,100,-100,1100);
-  pulseshape_ch9_cfeb5 = TH2F("pulse85","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb1 = TH2F("pulse01","strip8",  96,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb2 = TH2F("pulse02","strip24", 96,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb3 = TH2F("pulse03","strip40", 96,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb4 = TH2F("pulse04","strip56", 96,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb5 = TH2F("pulse05","strip72", 96,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb1 = TH2F("pulse11","strip8",  96,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb2 = TH2F("pulse12","strip24", 96,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb3 = TH2F("pulse13","strip40", 96,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb4 = TH2F("pulse14","strip56", 96,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb5 = TH2F("pulse15","strip72", 96,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb1 = TH2F("pulse21","strip8",  96,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb2 = TH2F("pulse22","strip24", 96,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb3 = TH2F("pulse23","strip40", 96,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb4 = TH2F("pulse24","strip56", 96,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb5 = TH2F("pulse25","strip72", 96,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb1 = TH2F("pulse31","strip8",  96,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb2 = TH2F("pulse32","strip24", 96,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb3 = TH2F("pulse33","strip40", 96,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb4 = TH2F("pulse34","strip56", 96,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb5 = TH2F("pulse35","strip72", 96,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb1 = TH2F("pulse41","strip8",  96,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb2 = TH2F("pulse42","strip24", 96,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb3 = TH2F("pulse43","strip40", 96,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb4 = TH2F("pulse44","strip56", 96,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb5 = TH2F("pulse45","strip72", 96,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb1 = TH2F("pulse51","strip8",  96,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb2 = TH2F("pulse52","strip24", 96,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb3 = TH2F("pulse53","strip40", 96,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb4 = TH2F("pulse54","strip56", 96,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb5 = TH2F("pulse55","strip72", 96,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb1 = TH2F("pulse61","strip8",  96,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb2 = TH2F("pulse62","strip24", 96,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb3 = TH2F("pulse63","strip40", 96,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb4 = TH2F("pulse64","strip56", 96,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb5 = TH2F("pulse65","strip72", 96,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb1 = TH2F("pulse71","strip8",  96,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb2 = TH2F("pulse72","strip24", 96,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb3 = TH2F("pulse73","strip40", 96,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb4 = TH2F("pulse74","strip56", 96,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb5 = TH2F("pulse75","strip72", 96,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb1 = TH2F("pulse81","strip8",  96,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb2 = TH2F("pulse82","strip24", 96,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb3 = TH2F("pulse83","strip40", 96,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb4 = TH2F("pulse84","strip56", 96,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb5 = TH2F("pulse85","strip72", 96,-100,500,100,-100,1100);
 
   ped_mean_all    = TH1F("pedMean","Mean baseline noise", 100,300,900);
   maxADC          = TH1F("maxADC","Peak ADC", 100,800,1300);
@@ -213,7 +213,7 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		int strip = digis[i].getStrip();
                 std::vector<int> adc = digis[i].getADCCounts();
 		pedMean1 =(adc[0]+adc[1])/2;
-		int offset = evt / 20;
+		int offset = (evt-1) / 20;
                 int smain[5],splus[5],sminus[5]; //5 for CFEBs
                 for(int s=0;s<5;s++) smain[s]  = s*16+offset;
                 for(int s=0;s<5;s++) splus[s]  = s*16+offset+1;
@@ -231,9 +231,9 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		    ped_mean_all.Fill(pedMean);  
 		    xtime.Fill(time);
 
-		    if (time>440 && (adc[k]-pedMean)>500) {
-		      std::cout <<" Cham "<< chamber <<" strip "<< strip<< " adc[k] "<<adc[k]<<" k " <<k<<" event " <<evt<<" layer " <<layer<<std::endl;
-		    }
+		    //if (time>242 && time<250 && (adc[k]-pedMean)<10) {
+		      // std::cout <<" Cham "<< chamber <<" strip "<< strip<< " adc[k] "<<adc[k]<<" adc[k]-pedMean "<<adc[k]-pedMean<<" k " <<k<<" event " <<evt<<" layer " <<layer<<std::endl;
+		    //}
 
 		    if(chamber==0  && strip==8)  pulseshape_ch1_cfeb1.Fill(time,adc[k]-pedMean);
 		    if(chamber==0  && strip==24) pulseshape_ch1_cfeb2.Fill(time,adc[k]-pedMean);
@@ -297,9 +297,9 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 
 		    maxADC.Fill(max1-pedMean1);
 
-                    int kk=8*k-evt%20+19;//19 to zero everything, for binning 120
+                    int kk=8*k-(evt-1)%20+19;//19 to zero everything, for binning 120
 		    
-                    thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-evt%20+19;
+                    thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-(evt-1)%20+19;
 		    thetime[iDDU][chamber][layer-1][strip-1][kk] = time;
 		    
                     if(iuse==strip-1)  theadccountsc[iDDU][chamber][layer-1][iuse][kk] = adc[k];
