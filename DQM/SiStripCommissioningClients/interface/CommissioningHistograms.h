@@ -59,7 +59,7 @@ class CommissioningHistograms {
   /** */
   inline const CollationsMap& collations() const;
   /** */
-  inline const FedToFecMap mapping() const;
+  inline const FedToFecMap& mapping() const;
   
   TH1* histogram( const sistrip::SummaryHisto&, 
 		  const sistrip::SummaryType&, 
@@ -91,7 +91,7 @@ class CommissioningHistograms {
 
 MonitorUserInterface* const CommissioningHistograms::mui() const { return mui_; }
 const CommissioningHistograms::CollationsMap& CommissioningHistograms::collations() const { return collations_; }
-const CommissioningHistograms::FedToFecMap CommissioningHistograms::mapping() const { return mapping_; }
+const CommissioningHistograms::FedToFecMap& CommissioningHistograms::mapping() const { return mapping_; }
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
