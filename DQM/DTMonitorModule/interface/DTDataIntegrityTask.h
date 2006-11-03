@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2006/06/27 16:37:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/18 18:03:50 $
+ *  $Revision: 1.6 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -22,6 +22,8 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+
 #include <fstream>
 #include <map>
 #include <string>
@@ -35,7 +37,7 @@ class DTDataIntegrityTask : public DTDataMonitorInterface {
 
 public:
 
-  explicit DTDataIntegrityTask( const edm::ParameterSet& ps);
+  explicit DTDataIntegrityTask( const edm::ParameterSet& ps,edm::ActivityRegistry& reg);
   
   virtual ~DTDataIntegrityTask();
    
@@ -44,6 +46,7 @@ public:
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & data, int dduID);
 
+  void postEndJob();
 
 private:
 

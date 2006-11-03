@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/08/01 17:42:34 $
- * $Revision: 1.11 $
+ * $Date: 2006/10/18 17:56:21 $
+ * $Revision: 1.13 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -29,8 +29,10 @@
 using namespace std;
 using namespace edm;
 
-DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) {
+DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::ActivityRegistry& reg) {
 
+  reg.watchPostEndJob(this,&DTDataIntegrityTask::postEndJob);
+ 
   debug = ps.getUntrackedParameter<bool>("debug", "false");
   if (debug)
     cout<<"[DTDataIntegrityTask]: Constructor"<<endl;
@@ -67,6 +69,11 @@ Folder Structure:
   with the chosen granularity (simply change the histo name)
 */
 
+void DTDataIntegrityTask::postEndJob(){
+ if(debug)
+   cout<<"[DTDataIntegrityTask]: postEndJob called!"<<endl;
+   dbe->rmdir("DT/FED770");
+}
 
 void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
