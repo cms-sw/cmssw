@@ -81,7 +81,8 @@ void OptoScanTask::book() {
 */
 void OptoScanTask::fill( const SiStripEventSummary& summary,
 			 const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogTrace(mlDqmSource_) << "[OptoScanTask::" << __func__ << "]";
+  LogTrace(mlDqmSource_)
+    << "[OptoScanTask::" << __func__ << "]";
 
   //@@ if scope mode length is in trigger fed, then 
   //@@ can add check here on number of digis

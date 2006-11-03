@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.5 2006/10/10 14:35:45 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.6 2006/10/30 21:03:12 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
@@ -56,9 +56,9 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { //@@ thi
     SiStripConfigDb::FedDescriptions::iterator ifed = feds_.begin();
     for ( ; ifed != feds_.end(); ifed++ ) {
       deviceFactory(__func__)->setFed9UDescription( **ifed, 
-						    (uint16_t*)(&partition_.major_), 
-						    (uint16_t*)(&partition_.minor_),
-						    (new_major_version?1:0) );
+ 						    (uint16_t*)(&partition_.major_), 
+ 						    (uint16_t*)(&partition_.minor_),
+ 						    (new_major_version?1:0) );
     }
   }
   catch (...) { 

@@ -32,7 +32,7 @@ ApvTimingTask::~ApvTimingTask() {
 // -----------------------------------------------------------------------------
 //
 void ApvTimingTask::book() {
-  LogTrace(mlDqmSource_) << "[ApvTimingTask::" << __func__ << "]";
+  LogTrace(mlDqmSource_) << "[CommissioningTask::" << __func__ << "]";
 
   uint16_t nbins = 24 * nBins_; // 24 "fine" pll skews possible
 

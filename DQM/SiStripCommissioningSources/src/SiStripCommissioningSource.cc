@@ -117,6 +117,8 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   task_ = sistrip::UNDEFINED_TASK;
   cablingTask_ = false;
   
+  dqm()->rmdir(sistrip::root_);
+
   clearCablingTasks();
   clearTasks();
   
@@ -125,6 +127,7 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
 // -----------------------------------------------------------------------------
 //
 void SiStripCommissioningSource::endJob() {
+
   LogTrace(mlDqmSource_) 
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " Halting..." << endl;
@@ -160,16 +163,17 @@ void SiStripCommissioningSource::endJob() {
   else { name = filename_.substr( 0, filename_.find(".root",0) ); }
   stringstream ss; ss << name << "_" << setfill('0') << setw(7) << run_ << ".root";
   dqm()->save( ss.str() ); 
+  // write map to root file here
 
   // ---------- Delete histograms ----------
   
   // Remove all MonitorElements in "SiStrip" dir and below
-  dqm()->rmdir(sistrip::root_);
+  //dqm()->rmdir(sistrip::root_);
 
   // Delete histogram objects
-  clearCablingTasks();
-  clearTasks();
-
+  //clearCablingTasks();
+  //clearTasks();
+  
   // ---------- Delete cabling ----------
 
   if ( fedCabling_ ) { fedCabling_ = 0; }
@@ -268,23 +272,35 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
   uint32_t fec_key = SiStripFecKey::key( fec_path );
   
   stringstream ss;
-  ss << "[SiStripCommissioningSource::" << __func__ << "]" << endl
-     << " SiStripSummaryEvent info: DcuId: 0x" 
-     << hex << setw(8) << setfill('0') << summary->dcuId() << dec
-     << " DeviceId: 0x" 
-     << hex << setw(8) << setfill('0') << summary->deviceId() << dec
-     << " LldChannel: " << fec_path.channel_ << endl
-     << " FecKey: 0x"
-     << hex << setw(8) << setfill('0') << fec_key << dec
-     << " Crate/FEC/ring/CCU/module/channel: "
+  ss << "[SiStripCommissioningSource::" << __func__ << "]" 
+     << " SiStripSummaryEvent info:" 
+     << "  DcuId: 0x" << hex << setw(8) << setfill('0') << summary->dcuId() << dec 
+     << " LldChannel: " << fec_path.channel_ 
+     << "  FecKey: 0x" << hex << setw(8) << setfill('0') << fec_key << dec
+     << " Crate/FEC/ring/CCU/module/LLDchan: "
      << fec_path.fecCrate_ << "/"
      << fec_path.fecSlot_ << "/"
      << fec_path.fecRing_ << "/"
      << fec_path.ccuAddr_ << "/"
      << fec_path.ccuChan_ << "/"
-     << fec_path.channel_
-     << endl;
+     << fec_path.channel_;
   LogTrace(mlDqmSource_) << ss.str();
+
+  // Check on whether DCU id is found
+  if ( !fec_path.fecCrate_ &&
+       !fec_path.fecSlot_ &&
+       !fec_path.ccuAddr_ &&
+       !fec_path.ccuChan_ &&
+       !fec_path.channel_ ) {
+    stringstream ss;
+    ss << "[SiStripCommissioningSource::" << __func__ << "]" 
+       << " DcuId 0x"
+       << hex << setw(8) << setfill('0') << summary->dcuId() << dec 
+       << " in 'DAQ register' field not found in cabling map!"
+       << " (NULL values returned for FEC path)";
+    edm::LogWarning(mlDqmSource_) << ss.str();
+    return;
+  }
     
   // Iterate through FED ids
   vector<uint16_t>::const_iterator ifed = fedCabling_->feds().begin(); 
@@ -407,9 +423,9 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
       SiStripFecKey::Path path = SiStripFecKey::path( fec_key );
       stringstream ss;
       ss << "[SiStripCommissioningSource::" << __func__ << "]"
-	 << " Unable to find CommissioningTask object with FEC key " 
+	 << " Unable to find CommissioningTask object with FecKey: " 
 	 << hex << setfill('0') << setw(8) << fec_key << dec
-	 << " and Crate/FEC/ring/CCU/module/LLDchannel " 
+	 << " and Crate/FEC/ring/CCU/module/LLDchan: " 
 	 << path.fecCrate_ << "/"
 	 << path.fecSlot_ << "/"
 	 << path.fecRing_ << "/"

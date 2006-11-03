@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.19 2006/10/10 14:35:20 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.20 2006/10/30 21:03:12 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
@@ -331,21 +331,14 @@ void SiStripConfigDb::usingDatabase() {
   }
   
   try { 
-    deviceFactory(__func__)->setUsingDb( usingDb_ ); //@@ necessary?
+    deviceFactory(__func__)->setUsingDb( usingDb_ ); 
   } catch (...) { 
     handleException( __func__, "Attempted to 'setUsingDb'" );
   }
   
-  try { 
-    deviceFactory(__func__)->createInputDBAccess();
-  } catch (...) { 
-    handleException( __func__, "Attempted to 'createInputDBAccess' for FED-FEC connections!" );
-  }
-
   // DCU-DetId 
   try { 
     deviceFactory(__func__)->addDetIdPartition( partition_.name_ );
-    //deviceFactory(__func__)->addAllDetId();
   } catch (...) { 
     stringstream ss;
     ss << "Attempted to 'addDetIdPartition; for partition: " << partition_.name_;
@@ -353,6 +346,12 @@ void SiStripConfigDb::usingDatabase() {
   }
 
   // FED-FEC connections
+  try { 
+    deviceFactory(__func__)->createInputDBAccess();
+  } catch (...) { 
+    handleException( __func__, "Attempted to 'createInputDBAccess' for FED-FEC connections!" );
+  }
+
   try {
     deviceFactory(__func__)->setInputDBVersion( partition_.name_,
 						partition_.major_,
@@ -385,7 +384,7 @@ void SiStripConfigDb::usingXmlFiles() {
     handleException( __func__, "Attempting to create DeviceFactory for use with xml files" );
   }
   
-  // Check for valid pointer to DeviceFactory
+ // Check for valid pointer to DeviceFactory
   if ( deviceFactory(__func__) ) { 
     stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"

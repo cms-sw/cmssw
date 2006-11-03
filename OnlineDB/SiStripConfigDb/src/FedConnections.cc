@@ -1,8 +1,9 @@
-// Last commit: $Id: FedConnections.cc,v 1.4 2006/10/10 14:35:45 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.5 2006/10/30 21:03:12 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+#include <ostream>
 
 using namespace std;
 using namespace sistrip;
@@ -49,26 +50,37 @@ void SiStripConfigDb::resetFedConnections() {
 void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
 
   if ( !deviceFactory(__func__) ) { return; }
-
-  try { 
-
-    if ( usingDb_ ) {
-      deviceFactory(__func__)->setInputDBVersion( partition_.name_, //@@ ???
-						  partition_.major_,
-						  partition_.minor_ );
+  
+  if ( usingDb_ ) {
+    
+    try { 
+      
+      SiStripConfigDb::FedConnections::iterator ifed = connections_.begin();
+      for ( ; ifed != connections_.end(); ifed++ ) {
+	deviceFactory(__func__)->addFedChannelConnection( *ifed );
+      }
+      deviceFactory(__func__)->upload();
+      
     }
-
+    catch (...) {
+      handleException( __func__ );
+    }
+    
+  } else {
+    
+    ofstream out( outputModuleXml_.c_str() );
+    out << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" << endl
+	<< "<!DOCTYPE TrackerDescription SYSTEM \"http://cmsdoc.cern.ch/cms/cmt/System_aspects/Daq/dtd/trackerdescription.dtd\">" << endl
+	<< "<TrackerDescription>" << endl
+	<< "<FedChannelList>" << endl;
     SiStripConfigDb::FedConnections::iterator ifed = connections_.begin();
-    for ( ; ifed != connections_.end(); ifed++ ) {
-      deviceFactory(__func__)->addFedChannelConnection( *ifed );
-    }
-    deviceFactory(__func__)->upload();
+    for ( ; ifed != connections_.end(); ifed++ ) { (*ifed)->toXML(out); out << endl; }
+    out << "</FedChannelList>" << endl
+	<< "</TrackerDescription>" << endl;
+    out.close();
 
   }
-  catch (...) {
-    handleException( __func__ );
-  }
-
+  
 }
 
 // -----------------------------------------------------------------------------

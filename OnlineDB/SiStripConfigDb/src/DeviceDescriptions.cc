@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.6 2006/10/10 14:35:45 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.7 2006/10/30 21:03:12 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
@@ -47,7 +47,7 @@ void SiStripConfigDb::getDeviceDescriptions( SiStripConfigDb::DeviceDescriptions
 // 
 const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescriptions() {
   
-  if ( !deviceFactory(__FUNCTION__) ) { return devices_; }
+  if ( !deviceFactory(__func__) ) { return devices_; }
   if ( !resetDevices_ ) { return devices_; }
 
   // Retrieve descriptions
@@ -56,15 +56,15 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
       resetPiaResetDescriptions();
       getPiaResetDescriptions();
     }
-    deviceFactory(__FUNCTION__)->getFecDeviceDescriptions( partition_.name_, 
-							   devices_,
-							   partition_.major_,
-							   partition_.minor_ );
-//     deviceFactory(__FUNCTION__)->getDcuDescriptions( partition_.name_, 
-//  						     devices_ );
+    deviceFactory(__func__)->getFecDeviceDescriptions( partition_.name_, 
+						       devices_,
+						       partition_.major_,
+						       partition_.minor_ );
+    deviceFactory(__func__)->getDcuDescriptions( partition_.name_, 
+						 devices_ );
     resetDevices_ = false;
   }
-  catch (...) { handleException( __FUNCTION__ ); }
+  catch (...) { handleException( __func__ ); }
 
   // Debug 
   stringstream ss; 
@@ -92,13 +92,13 @@ void SiStripConfigDb::resetDeviceDescriptions() {
 //@@ if new major, upload all desc. if not, upload just modified ones... ???
 void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
 
-  if ( !deviceFactory(__FUNCTION__) ) { return; }
+  if ( !deviceFactory(__func__) ) { return; }
   
   try { 
     
     if ( !usingDb_ ) {
-      deviceFactory(__FUNCTION__)->setPiaResetDescriptions( piaResets_, 
-							    partition_.name_ );
+      deviceFactory(__func__)->setPiaResetDescriptions( piaResets_, 
+							partition_.name_ );
     }
 
     // Retrieve all devices except DCUs
@@ -106,15 +106,15 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
     getDeviceDescriptions( devices, DCU, true );
 
     // Upload devices
-    deviceFactory(__FUNCTION__)->setFecDeviceDescriptions( devices,
-							   partition_.name_, 
-							   &partition_.major_,
-							   &partition_.minor_,
-							   new_major_version );
+    deviceFactory(__func__)->setFecDeviceDescriptions( devices,
+						       partition_.name_, 
+						       &partition_.major_,
+						       &partition_.minor_,
+						       new_major_version );
     
   }
   catch (...) { 
-    handleException( __FUNCTION__ ); 
+    handleException( __func__ ); 
   }
   
 }
@@ -326,7 +326,7 @@ const SiStripConfigDb::DeviceAddress& SiStripConfigDb::deviceAddress( const devi
   // Retrieve FEC key
   keyType key;
   try { key = const_cast<deviceDescription&>(description).getKey(); }
-  catch (...) { handleException( __PRETTY_FUNCTION__ ); }
+  catch (...) { handleException( __func__ ); }
   
   // Extract hardware addresses
   addr.fecCrate_ = static_cast<uint16_t>( 0 ); //@@ getCrateKey(key) );

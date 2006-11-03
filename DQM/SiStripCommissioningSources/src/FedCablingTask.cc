@@ -34,7 +34,8 @@ FedCablingTask::~FedCablingTask() {
 // -----------------------------------------------------------------------------
 //
 void FedCablingTask::book() {
-  
+  LogTrace(mlDqmSource_) << "[CommissioningTask::" << __func__ << "]";
+
   cabling_.resize(2);
   
   string title;
@@ -53,7 +54,7 @@ void FedCablingTask::book() {
     
     title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::FED_CABLING,
 							      sistrip::FED_KEY, 
-							      fecKey(),
+							      fedKey(),
 							      sistrip::LLD_CHAN, 
 							      connection().lldChannel(),
 							      extra_info ) );

@@ -36,12 +36,12 @@ CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
   
   LogTrace(mlDqmSource_)
     << "[CommissioningTask::" << __func__ << "]" 
-
-    << " Constructing object for FecKey/FedKey: "
+    << " Constructing '" << myName_
+    << "' object for FecKey/FedKey: "
     << "0x" << hex << setw(8) << setfill('0') << fecKey_ << dec
     << "/"
     << "0x" << hex << setw(8) << setfill('0') << fedKey_ << dec
-    << " Crate/FEC/ring/CCU/module/LLDchannel: " 
+    << " and Crate/FEC/ring/CCU/module/LLDchan: " 
     << connection_.fecCrate() << "/"
     << connection_.fecSlot() << "/" 
     << connection_.fecRing() << "/" 
@@ -59,6 +59,19 @@ CommissioningTask::~CommissioningTask() {
   LogTrace(mlDqmSource_)
     << "[CommissioningTask::" << __func__ << "]" 
     << " Destructing object for FED id/ch " 
+    << " Constructing '" << myName_
+    << "' object for FecKey/FedKey: "
+    << "0x" << hex << setw(8) << setfill('0') << fecKey_ << dec
+    << "/"
+    << "0x" << hex << setw(8) << setfill('0') << fedKey_ << dec
+    << " and Crate/FEC/ring/CCU/module/LLDchan: " 
+    << connection_.fecCrate() << "/"
+    << connection_.fecSlot() << "/" 
+    << connection_.fecRing() << "/" 
+    << connection_.ccuAddr() << "/" 
+    << connection_.ccuChan() << "/" 
+    << connection_.lldChannel() 
+    << " and FedId/Ch: " 
     << connection_.fedId() << "/" 
     << connection_.fedCh();
 }
@@ -101,14 +114,8 @@ void CommissioningTask::update() {
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::bookHistograms() {
-  LogTrace(mlDqmSource_)
-    << "[CommissioningTask::" << __func__ << "]"
-    << " Booking histograms for FED id/ch: "
-    << connection_.fedId() << "/"
-    << connection_.fedCh();
   book();
   booked_ = true;
-  
 }
 
 // -----------------------------------------------------------------------------
