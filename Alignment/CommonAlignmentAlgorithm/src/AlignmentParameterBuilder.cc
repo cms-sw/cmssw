@@ -5,13 +5,18 @@
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
-#include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeRigidBodyAlignmentParameters.h"
+
+//#include "Alignment/TrackerAlignment/interface/AlignableTracker.h" not needed since only forwarded
+
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignableSelector.h"
 
 // This class's header
 
@@ -19,71 +24,100 @@
 
 
 //__________________________________________________________________________________________________
-AlignmentParameterBuilder::AlignmentParameterBuilder( AlignableTracker* alignableTracker )
+AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker) :
+  theAlignables(), theAlignableTracker(alignableTracker)
 {
-
-  theAlignableTracker = alignableTracker;
-
-  theTrackerAlignableId = new TrackerAlignableId();
-  theOnlyDS=false;
-  theOnlySS=false;
-  theSelLayers=false;
-  theMinLayer=-1;
-  theMaxLayer=999;
-
 }
 
 //__________________________________________________________________________________________________
-int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &pset)
+AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker,
+						     const edm::ParameterSet &pSet) :
+  theAlignables(), theAlignableTracker(alignableTracker)
 {
-   const std::vector<std::string> selections = 
-     pset.getParameter<std::vector<std::string> >("alignableParamSelector");
-   bool allOk = true;
+  this->addSelections(pSet);
+}
 
-   int addedSets = 0;
-   for (std::vector<std::string>::const_iterator itSel = selections.begin();
-	itSel != selections.end(); ++itSel) {
-     std::vector<std::string> decompSel(this->decompose(*itSel, ','));
+//__________________________________________________________________________________________________
+unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &pSet)
+{
+
+  const char *setName = "alignableParamSelector";
+  const std::vector<std::string> selections = pSet.getParameter<std::vector<std::string> >(setName);
+
+   unsigned int addedSets = 0;
+   AlignableSelector selector(theAlignableTracker);
+   // loop via index instead of iterator due to possible enlargement inside loop
+   for (unsigned int iSel = 0; iSel < selections.size(); ++iSel) {
+
+     std::vector<std::string> decompSel(this->decompose(selections[iSel], ','));
+     if (decompSel.empty()) continue; // edm::LogError or even cms::Exception??
+
+     selector.clear();
+
+//      // special scenarios mixing alignable and parameter selection
+//      const std::string geoSelSpecial(decompSel.size() > 1 ? "," + decompSel[1] : "");
+//      if (decompSel[0] == "ScenarioA") {
+//        selections.push_back(std::string("PixelHalfBarrelDets,111000") += geoSelSpecial);
+//        selections.push_back(std::string("BarrelDSRods,111000") += geoSelSpecial);
+//        selections.push_back(std::string("BarrelSSRods,101000") += geoSelSpecial);
+//        continue;
+//      } else if (decompSel[0] == "ScenarioB") {
+//        selections.push_back(std::string("PixelHalfBarrelLadders,111000") += geoSelSpecial);
+//        selections.push_back(std::string("BarrelDSLayers,111000") += geoSelSpecial);
+//        selections.push_back(std::string("BarrelSSLayers,101000") += geoSelSpecial);
+//        continue;
+//      } else if (decompSel[0] == "CustomStripLayers") {
+//        selections.push_back(std::string("BarrelDSLayers,111000") += geoSelSpecial);
+//        selections.push_back(std::string("BarrelSSLayers,110000") += geoSelSpecial);
+//        selections.push_back(std::string("TIDLayers,111000") += geoSelSpecial);
+//        selections.push_back(std::string("TECLayers,110000") += geoSelSpecial);
+//        continue;
+//      } else if (decompSel[0] == "CustomStripRods") {
+//        selections.push_back(std::string("BarrelDSRods,111000") += geoSelSpecial);
+//        selections.push_back(std::string("BarrelSSRods,101000") += geoSelSpecial);
+//        selections.push_back(std::string("TIDRings,111000") += geoSelSpecial);
+//        selections.push_back(std::string("TECPetals,110000") += geoSelSpecial);
+//        continue;
+//      } else if (decompSel[0] == "CSA06Selection") {
+//        selections.push_back(std::string("TOBDSRods,111111") += geoSelSpecial);
+//        selections.push_back(std::string("TOBSSRods15,100111") += geoSelSpecial);
+//        selections.push_back(std::string("TIBDSDets,111111") += geoSelSpecial);
+//        selections.push_back(std::string("TIBSSDets,100111") += geoSelSpecial);
+//        continue;
+//      }
+
      if (decompSel.size() < 2) {
-       edm::LogError("Alignment") << "@SUB=AlignmentParameterBuilder::addSelections"
-				  << "ignoring " << *itSel << "from alignableParamSelector: "
-				  << "should have at least 2 ','-separated parts";
-       allOk = false;
-       continue;
+       throw cms::Exception("BadConfig") << "@SUB=AlignmentParameterBuilder::addSelections"
+                                         << selections[iSel]<<" from alignableParamSelector: "
+                                         << " should have at least 2 ','-separated parts";
+     } else if (decompSel.size() > 2) {
+       const edm::ParameterSet geoSel(pSet.getParameter<edm::ParameterSet>(decompSel[2].c_str()));
+       selector.addSelection(decompSel[0], geoSel);
+     } else {
+       selector.addSelection(decompSel[0]); // previous selection already cleared above
      }
 
-     const std::vector<bool> paramSel(this->decodeParamSel(decompSel[1]));
-     if (paramSel.size() != RigidBodyAlignmentParameters::N_PARAM) {
-       allOk = false; // Error already from decodeParamSel
-       continue;
-     }
-     if (decompSel.size() > 2) {
-       edm::LogWarning("Alignment") << "@SUB=AlignmentParameterBuilder::addSelections"
-				    << "r/phi/eta/z-range selection not yet implemented...";
-     }
-     this->addSelection(decompSel[0], paramSel);
+     this->add(selector.selectedAlignables(), this->decodeParamSel(decompSel[1]));
+
      ++addedSets;
    }
 
-   if (allOk) return addedSets;
-   else { // @SUB-syntax is not supported by exception, but anyway useful information...
-     throw cms::Exception("BadConfig") <<"@SUB=AlignmentParameterBuilder::addSelections"
-				       << ": Problems decoding 'alignableParamSelector'.";
-     return -1;
-   }
+   edm::LogInfo("Alignment") << "@SUB=AlignmentParameterBuilder::addSelections"
+                             << " added " << addedSets << " sets of alignables"
+                             << " from PSet " << setName;
+   return addedSets;
 }
 
 //__________________________________________________________________________________________________
 std::vector<bool> AlignmentParameterBuilder::decodeParamSel(const std::string &selString) const
 {
 
+  std::vector<bool> result(RigidBodyAlignmentParameters::N_PARAM, false);
   if (selString.length() != RigidBodyAlignmentParameters::N_PARAM) {
-    edm::LogError("Alignment") <<"@SUB=AlignmentParameterBuilder::decodeSelections"
-			       << "selectionString has wrong size " << selString.length()
-			       << " instead of " << RigidBodyAlignmentParameters::N_PARAM;
-    return std::vector<bool>();
+    throw cms::Exception("BadConfig") <<"@SUB=AlignmentParameterBuilder::decodeSelections"
+                                      << selString << " has wrong size != "
+                                      << RigidBodyAlignmentParameters::N_PARAM;
   } else {
-    std::vector<bool> result(RigidBodyAlignmentParameters::N_PARAM, false);
     // shifts
     if (selString.substr(0,1)=="1") result[RigidBodyAlignmentParameters::dx] = true;
     if (selString.substr(1,1)=="1") result[RigidBodyAlignmentParameters::dy] = true;
@@ -92,10 +126,9 @@ std::vector<bool> AlignmentParameterBuilder::decodeParamSel(const std::string &s
     if (selString.substr(3,1)=="1") result[RigidBodyAlignmentParameters::dalpha] = true;
     if (selString.substr(4,1)=="1") result[RigidBodyAlignmentParameters::dbeta] = true;
     if (selString.substr(5,1)=="1") result[RigidBodyAlignmentParameters::dgamma] = true;
-
-    return result;
   }
 
+  return result;
 }
 
 
@@ -114,330 +147,11 @@ AlignmentParameterBuilder::decompose(const std::string &s, std::string::value_ty
       break;
     }
     result.push_back(s.substr(previousPos, delimiterPos - previousPos));
-    previousPos = delimiterPos + 1;
+    previousPos = delimiterPos + 1; // +1: skip delimiter
   }
 
   return result;
 }
-
-//__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addSelection(const std::string &name, const std::vector<bool> &sel)
-{
-
-  edm::LogWarning("Alignment") << "[AlignmentParameterBuilder] Called for selection >" << name<<"<";
-
-  if      (name == "AllDets")       addAllDets(sel);
-  else if (name == "AllRods")       addAllRods(sel);
-  else if (name == "AllLayers")     addAllLayers(sel);
-  else if (name == "AllComponents") addAllComponents(sel);
-  else if (name == "AllAlignables") addAllAlignables(sel);
-
-  // TIB+TOB
-  else if (name == "BarrelRods")    add(theAlignableTracker->barrelRods(),sel);
-  else if (name == "BarrelDets")    add(theAlignableTracker->barrelGeomDets(),sel);
-  else if (name == "BarrelLayers")  add(theAlignableTracker->barrelLayers(),sel);
-
-  else if (name == "BarrelDSRods") {
-    theOnlyDS = true;
-    add(theAlignableTracker->barrelRods(), sel);
-    theOnlyDS = false;
-  }
-  else if (name == "BarrelSSRods") {
-    theOnlySS = true;
-    add(theAlignableTracker->barrelRods(), sel);
-    theOnlySS = false;
-  }
-
-  // PXBarrel
-  else if (name == "PixelHalfBarrelDets")
-	add(theAlignableTracker->pixelHalfBarrelGeomDets(),sel);
-  else if (name == "PixelHalfBarrelLadders") 
-	add(theAlignableTracker->pixelHalfBarrelLadders(),sel);
-  else if (name == "PixelHalfBarrelLayers")  
-	add(theAlignableTracker->pixelHalfBarrelLayers(),sel);
-
-  else if (name == "PixelHalfBarrelLaddersLayers12") {
-    theSelLayers=true; theMinLayer=1; theMaxLayer=2;
-    add(theAlignableTracker->pixelHalfBarrelLadders(),sel);
-    theSelLayers = false;
-  }
-
-
-  // PXEndcap
-  else if (name == "PXECDets")      add(theAlignableTracker->pixelEndcapGeomDets(),sel);
-  else if (name == "PXECPetals")    add(theAlignableTracker->pixelEndcapPetals(),sel);
-  else if (name == "PXECLayers")    add(theAlignableTracker->pixelEndcapLayers(),sel);
-
-  // Pixel Barrel+endcap
-  else if (name == "PixelDets") {
-    add(theAlignableTracker->pixelHalfBarrelGeomDets(),sel);
-    add(theAlignableTracker->pixelEndcapGeomDets(),sel);
-  }
-  else if (name == "PixelRods") {
-    add(theAlignableTracker->pixelHalfBarrelLadders(),sel);
-    add(theAlignableTracker->pixelEndcapPetals(),sel);
-  }
-  else if (name == "PixelLayers") {
-    add(theAlignableTracker->pixelHalfBarrelLayers(),sel);
-    add(theAlignableTracker->pixelEndcapLayers(),sel);
-  }
-
-  // TID
-  else if (name == "TIDLayers")     add(theAlignableTracker->TIDLayers(),sel);
-  else if (name == "TIDRings")      add(theAlignableTracker->TIDRings(),sel);
-  else if (name == "TIDDets")       add(theAlignableTracker->TIDGeomDets(),sel);
-
-  // TEC
-  else if (name == "TECDets")       add(theAlignableTracker->endcapGeomDets(),sel); 
-  else if (name == "TECPetals")     add(theAlignableTracker->endcapPetals(),sel);
-  else if (name == "TECLayers")     add(theAlignableTracker->endcapLayers(),sel);
-
-  // StripEndcap (TID+TEC)
-  else if (name == "EndcapDets") {
-    add(theAlignableTracker->TIDGeomDets(),sel);
-    add(theAlignableTracker->endcapGeomDets(),sel); 
-  }
-  else if (name == "EndcapPetals") {
-    add(theAlignableTracker->TIDRings(),sel);
-    add(theAlignableTracker->endcapPetals(),sel);
-  }
-  else if (name == "EndcapLayers") {
-    add(theAlignableTracker->TIDLayers(),sel);
-    add(theAlignableTracker->endcapLayers(),sel);
-  }
-
-  // Strip Barrel+endcap
-  else if (name == "StripDets") {
-    add(theAlignableTracker->barrelGeomDets(),sel);
-    add(theAlignableTracker->TIDGeomDets(),sel);
-    add(theAlignableTracker->endcapGeomDets(),sel); 
-  }
-  else if (name == "StripRods") {
-    add(theAlignableTracker->barrelRods(),sel);
-    add(theAlignableTracker->TIDRings(),sel);
-    add(theAlignableTracker->endcapPetals(),sel);
-  }
-  else if (name == "StripLayers") {
-    add(theAlignableTracker->barrelLayers(),sel);
-    add(theAlignableTracker->TIDLayers(),sel);
-    add(theAlignableTracker->endcapLayers(),sel);
-  }
-
-
-  // Custom scenarios
-
-  else if (name == "ScenarioA") {
-    std::vector<bool> mysel(6,false);
-    // pixel barrel dets x,y,z
-    mysel[RigidBodyAlignmentParameters::dx]=true;
-    mysel[RigidBodyAlignmentParameters::dy]=true;
-    mysel[RigidBodyAlignmentParameters::dz]=true;
-    add(theAlignableTracker->pixelHalfBarrelGeomDets(),mysel);
-    // strip barrel double sided
-    theOnlyDS = true;
-    add(theAlignableTracker->barrelRods(),mysel);
-    theOnlyDS = false;
-    // strip barrel single sided
-    mysel[RigidBodyAlignmentParameters::dy]=false;
-    theOnlySS = true;
-    add(theAlignableTracker->barrelRods(),mysel);
-    theOnlySS = false;
-  }
-
-  else if (name == "ScenarioB") {
-    std::vector<bool> mysel(6,false);
-    // pixel barrel ladders x,y,z
-    mysel[RigidBodyAlignmentParameters::dx]=true;
-    mysel[RigidBodyAlignmentParameters::dy]=true;
-    mysel[RigidBodyAlignmentParameters::dz]=true;
-    add(theAlignableTracker->pixelHalfBarrelLadders(),mysel);
-    // strip barrel layers double sided
-    theOnlyDS = true;
-    add(theAlignableTracker->barrelLayers(),mysel);
-    theOnlyDS = false;
-    // strip barrel layers single sided
-    mysel[RigidBodyAlignmentParameters::dy]=false;
-    theOnlySS = true;
-    add(theAlignableTracker->barrelLayers(),mysel);
-    theOnlySS = false;
-  }
-
-
-  else if (name == "CustomStripLayers") {
-    std::vector<bool> mysel(6,false);
-    mysel[RigidBodyAlignmentParameters::dx]=true;
-    mysel[RigidBodyAlignmentParameters::dy]=true;
-    mysel[RigidBodyAlignmentParameters::dz]=true;
-    // strip barrel layers double sided
-    theOnlyDS = true;
-    add(theAlignableTracker->barrelLayers(),mysel);
-    theOnlyDS = false;
-    // strip barrel layers single sided
-    mysel[RigidBodyAlignmentParameters::dz]=false;
-    theOnlySS = true;
-    add(theAlignableTracker->barrelLayers(),mysel);
-    theOnlySS = false;
-    // TID
-    mysel[RigidBodyAlignmentParameters::dz]=true;
-    add(theAlignableTracker->TIDLayers(),mysel);
-    // TEC
-    mysel[RigidBodyAlignmentParameters::dz]=false;
-    add(theAlignableTracker->endcapLayers(),mysel);
-  }
-
-  else if (name == "CustomStripRods") {
-    std::vector<bool> mysel(6,false);
-    mysel[RigidBodyAlignmentParameters::dx]=true;
-    mysel[RigidBodyAlignmentParameters::dy]=true;
-    mysel[RigidBodyAlignmentParameters::dz]=true;
-    // strip barrel layers double sided
-    theOnlyDS = true;
-    add(theAlignableTracker->barrelRods(),mysel);
-    theOnlyDS = false;
-    // strip barrel layers single sided
-    mysel[RigidBodyAlignmentParameters::dy]=false;
-    theOnlySS = true;
-    add(theAlignableTracker->barrelRods(),mysel);
-    theOnlySS = false;
-    // TID
-    mysel[RigidBodyAlignmentParameters::dy]=true;
-    add(theAlignableTracker->TIDRings(),mysel);
-    // TEC
-    mysel[RigidBodyAlignmentParameters::dz]=false;
-    add(theAlignableTracker->endcapPetals(),mysel);
-  }
-
-  else if (name == "CSA06Selection") {
-    std::vector<bool> mysel(6,false);
-    mysel[RigidBodyAlignmentParameters::dx]=true;
-    mysel[RigidBodyAlignmentParameters::dy]=true;
-    mysel[RigidBodyAlignmentParameters::dz]=true;
-    mysel[RigidBodyAlignmentParameters::dalpha]=true;
-    mysel[RigidBodyAlignmentParameters::dbeta]=true;
-    mysel[RigidBodyAlignmentParameters::dgamma]=true;
-//  TOB outermost layer (5) kept fixed
-    theSelLayers=true; theMinLayer=1; theMaxLayer=5;
-//  TOB rods double sided   
-    theOnlyDS=true;
-    add(theAlignableTracker->outerBarrelRods(),mysel);
-    theOnlyDS=false;
-// TOB rods single sided   
-    mysel[RigidBodyAlignmentParameters::dy]=false;
-    mysel[RigidBodyAlignmentParameters::dz]=false;
-    theOnlySS=true;
-    add(theAlignableTracker->outerBarrelRods(),mysel);
-    theOnlySS=false;
-    mysel[RigidBodyAlignmentParameters::dy]=true;
-    mysel[RigidBodyAlignmentParameters::dz]=true;
-//
-    theSelLayers=false; 
- // TIB dets double sided   
-    theOnlyDS=true;
-    add(theAlignableTracker->innerBarrelGeomDets(),mysel);
-    theOnlyDS=false;
- // TIB dets single sided   
-    mysel[RigidBodyAlignmentParameters::dy]=false;
-    mysel[RigidBodyAlignmentParameters::dz]=false;
-    theOnlySS=true;
-    add(theAlignableTracker->innerBarrelGeomDets(),mysel);
-    theOnlySS=false;
-  }
-
-  else { // @SUB-syntax is not supported by exception, but anyway useful information... 
-    throw cms::Exception("BadConfig") <<"@SUB=AlignmentParameterBuilder::addSelection"
-				      << ": Selection '" << name << "' invalid!";
-  }
-  edm::LogInfo("Warning") << "[AlignmentParameterBuilder] Added " 
-			  << theAlignables.size()<< " alignables in total";
-
-}
-
-
-//__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllDets(const std::vector<bool> &sel)
-{
-
-  add(theAlignableTracker->barrelGeomDets(),sel);          // TIB+TOB
-  add(theAlignableTracker->endcapGeomDets(),sel);          // TEC
-  add(theAlignableTracker->TIDGeomDets(),sel);             // TID
-  add(theAlignableTracker->pixelHalfBarrelGeomDets(),sel); // PixelBarrel
-  add(theAlignableTracker->pixelEndcapGeomDets(),sel);     // PixelEndcap
-
-  edm::LogInfo("Alignment") << "Initialized for "
-			    << theAlignables.size() << " dets";
-}
-
-
-//__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllRods(const std::vector<bool> &sel)
-{
-  add(theAlignableTracker->barrelRods(),sel);
-  add(theAlignableTracker->pixelHalfBarrelLadders(),sel);
-  add(theAlignableTracker->endcapPetals(),sel);
-  add(theAlignableTracker->TIDRings(),sel);
-  add(theAlignableTracker->pixelEndcapPetals(),sel);
-
-  edm::LogInfo("Alignment") << "Initialized for "
-			    << theAlignables.size() << " rods";
-}
-
-
-//__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllLayers(const std::vector<bool> &sel)
-{
-  add(theAlignableTracker->barrelLayers(),sel);
-  add(theAlignableTracker->pixelHalfBarrelLayers(),sel);
-  add(theAlignableTracker->endcapLayers(),sel);
-  add(theAlignableTracker->TIDLayers(),sel);
-  add(theAlignableTracker->pixelEndcapLayers(),sel);
-
-  edm::LogInfo("Alignment") << "Initialized for "
-			    << theAlignables.size() << " layers";
-
-}
-
-
-//__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllComponents(const std::vector<bool> &sel)
-{
-  add(theAlignableTracker->components(),sel);
-  edm::LogInfo("Alignment") << "Initialized for "
-			    << theAlignables.size() 
-			    << " Components (HalfBarrel/Endcap)";
-}
-
-
-//__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllAlignables(const std::vector<bool> &sel)
-{
-
-  add(theAlignableTracker->barrelGeomDets(),sel);          
-  add(theAlignableTracker->endcapGeomDets(),sel);          
-  add(theAlignableTracker->TIDGeomDets(),sel);             
-  add(theAlignableTracker->pixelHalfBarrelGeomDets(),sel); 
-  add(theAlignableTracker->pixelEndcapGeomDets(),sel);     
-
-  add(theAlignableTracker->barrelRods(),sel);
-  add(theAlignableTracker->pixelHalfBarrelLadders(),sel);
-  add(theAlignableTracker->endcapPetals(),sel);
-  add(theAlignableTracker->TIDRings(),sel);
-  add(theAlignableTracker->pixelEndcapPetals(),sel);
-
-  add(theAlignableTracker->barrelLayers(),sel);
-  add(theAlignableTracker->pixelHalfBarrelLayers(),sel);
-  add(theAlignableTracker->endcapLayers(),sel);
-  add(theAlignableTracker->TIDLayers(),sel);
-  add(theAlignableTracker->pixelEndcapLayers(),sel);
-
-  add(theAlignableTracker->components(),sel);
-
-
-  edm::LogInfo("Alignment") << "Initialized for "
-			    << theAlignables.size() 
-			    << " Components (HalfBarrel/Endcap)";
-
-}
-
 
 //__________________________________________________________________________________________________
 void AlignmentParameterBuilder::add(const std::vector<Alignable*> &alignables,
@@ -453,53 +167,51 @@ void AlignmentParameterBuilder::add(const std::vector<Alignable*> &alignables,
         ia!=alignables.end();  ia++ ) {
     Alignable* ali=(*ia);
 
-    // select on single/double sided barrel layers
-	std::pair<int,int> tl=theTrackerAlignableId->typeAndLayerFromAlignable( ali );
-    int type = tl.first;
-    int layer = tl.second;
+//     // select on single/double sided barrel layers
+// 	std::pair<int,int> tl=theTrackerAlignableId->typeAndLayerFromAlignable( ali );
+//     int type = tl.first;
+//     int layer = tl.second;
+//
+//     bool keep=true;
+//     if (theOnlySS) // only single sided
+//       if ( (abs(type)==3 || abs(type)==5) && layer<=2 ) 
+// 		keep=false;
+//
+//     if (theOnlyDS) // only double sided
+//       if ( (abs(type)==3 || abs(type)==5) && layer>2 )
+// 		keep=false;
+//
+//     // reject layers
+//     if ( theSelLayers && (layer<theMinLayer || layer>theMaxLayer) )  
+// 	  keep=false;
+//
+//
+//     if (keep) {
+    AlgebraicVector par(6,0);
+    AlgebraicSymMatrix cov(6,0);
 
-    bool keep=true;
-    if (theOnlySS) // only single sided
-      if ( (abs(type)==3 || abs(type)==5) && layer<=2 ) 
-		keep=false;
-
-    if (theOnlyDS) // only double sided
-      if ( (abs(type)==3 || abs(type)==5) && layer>2 )
-		keep=false;
-
-    // reject layers
-    if ( theSelLayers && (layer<theMinLayer || layer>theMaxLayer) )  
-	  keep=false;
-
-
-    if (keep) {
-
-	  AlgebraicVector par(6,0);
-	  AlgebraicSymMatrix cov(6,0);
-
-	  AlignableDet* alidet = dynamic_cast<AlignableDet*>(ali);
-	  if (alidet !=0) { // alignable Det
-		RigidBodyAlignmentParameters* dap = 
-		  new RigidBodyAlignmentParameters(ali,par,cov,sel);
-		ali->setAlignmentParameters(dap);
-		num_det++;
-	  } else { // higher level object
-		CompositeRigidBodyAlignmentParameters* dap = 
-		  new CompositeRigidBodyAlignmentParameters(ali,par,cov,sel);
-		ali->setAlignmentParameters(dap);
-		num_hlo++;
-	  }
-
-	  theAlignables.push_back(ali);
-	  num_adu++;
-
+    AlignableDet* alidet = dynamic_cast<AlignableDet*>(ali);
+    if (alidet !=0) { // alignable Det
+      RigidBodyAlignmentParameters* dap = 
+        new RigidBodyAlignmentParameters(ali,par,cov,sel);
+      ali->setAlignmentParameters(dap);
+      num_det++;
+    } else { // higher level object
+      CompositeRigidBodyAlignmentParameters* dap = 
+        new CompositeRigidBodyAlignmentParameters(ali,par,cov,sel);
+      ali->setAlignmentParameters(dap);
+      num_hlo++;
     }
+    
+    theAlignables.push_back(ali);
+    num_adu++;
+//     }
   }
 
-  edm::LogWarning("Alignment") << "Added " << num_adu 
-			       << " Alignables, of which " << num_det << " are Dets and "
-			       << num_hlo << " are higher level.";
-
+  edm::LogInfo("Alignment") << "@SUB=AlignmentParameterBuilder::add"
+                            << "Added " << num_adu 
+                            << " Alignables, of which " << num_det << " are Dets and "
+                            << num_hlo << " are higher level.";
 }
 
 
