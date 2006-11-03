@@ -19,6 +19,7 @@ DEFINE_ANOTHER_FWK_MODULE(DTTriggerCheck);
 
 using namespace edm::serviceregistry;
 
-typedef ParameterSetMaker<DTDataMonitorInterface,DTDataIntegrityTask> maker;
+//typedef ParameterSetMaker<DTDataMonitorInterface,DTDataIntegrityTask> maker;
+typedef edm::serviceregistry::AllArgsMaker<DTDataMonitorInterface,DTDataIntegrityTask> maker;
 
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(DTDataIntegrityTask,maker);
