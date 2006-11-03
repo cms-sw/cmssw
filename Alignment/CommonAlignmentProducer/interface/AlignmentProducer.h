@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.11 $
-///  last update: $Date$
-///  by         : $Author$
+///  Revision   : $Revision: 1.6 $
+///  last update: $Date: 2006/10/20 13:05:43 $
+///  by         : $Author: flucke $
 
 #include <vector>
 
@@ -96,7 +96,7 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   int stNFixAlignables;
   double stRandomShift,stRandomRotation;
-  bool doMisalignmentScenario,saveToDB;
+  bool applyDbAlignment_,doMisalignmentScenario,saveToDB;
 
 };
 

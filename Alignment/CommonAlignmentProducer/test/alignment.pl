@@ -8,39 +8,44 @@ $host=`echo \$HOST`;
 if    ( $host =~ /fpslife/ ) { $location="fpslife"; }
 elsif ( $host =~ /lxplus/ )  { $location="lxplus"; }
 elsif ( $host =~ /cnaf/ )    { $location="cnaf"; }
+elsif ( $host =~ /lxcms/ )  { $location="lxplus"; }
 
 # job steering ----------------------------------------------------------------
 
 # name of job
-$jobname="partest";
+$jobname="test";
 
 # cfg file
 $steering="alignment.cfg";
 
-# db files to be deleted except for last iteration
+# db output files to be deleted except for last iteration
 $dbfiles="Alignments.db condbcatalog.xml";
 
 # db authentication file to be copied to exec dir
 $authfile="authentication.xml";
 
+# db input file
+# $sqlitefile="CSA06Scenario.db"; $condbcatalogfile="condbcatalog.xml";
+$sqlitefile=""; $condbcatalogfile="";
+
 # number of events per job
-$nevent=500;
+$nevent=10000;
 
 # first event
 $firstev=0;
 
 # number of jobs
-$njobs=3;
+$njobs=1;
 
 # number of iterations (excluding initial step)
 $iterations=3;
 
 # interactive or lxbatch queue
-# $farm="I";
+$farm="I";
 # $farm="8nm"; $resource="";
-$farm="dedicated"; $resource="cmsalca";
+# $farm="dedicated -R cmsalca";
 
-$cmsswvers="CMSSW_0_9_0";
+$cmsswvers="CMSSW_1_2_0_pre3";
 $scramarch="slc3_ia32_gcc323";
 $scram=scramv1;
 
@@ -72,7 +77,7 @@ else {
 
 # -----------------------------------------------------------------------------
 
-$workdir="${basedir}/src/Alignment/CSA06AlignmentAlgorithm/test";
+$workdir="${basedir}/src/Alignment/CommonAlignmentProducer/test";
 
 print "\n";
 print "-------------------------------------------------------------------------------\n";
@@ -135,7 +140,7 @@ if ($njobs == 1) {
   }
   else {
     print "Submit to farm ...\n";
-    system("bsub -i /tmp/junk -q $farm -R $resource < $dir/subjob");
+    system("bsub -i /tmp/junk -q $farm < $dir/subjob");
   }
 
 }
@@ -313,13 +318,13 @@ while ( $ijob <= $njobs ) {
 
   if ( $farm eq "I" ) {
     print "Run job $ijob interactively ...\n";
-    system("$dir/job$ijob/subjob");
+    system("$dir/job$ijob/subjob &");
   }
   else {
     print "Submit job $ijob ... ";
     $test=0;
     while($test == 0) {
-      $rc=system("cd $dir ; bsub -o /tmp/junk -q $farm -R $resource < job$ijob/subjob");
+      $rc=system("cd $dir ; bsub -o /tmp/junk -q $farm < job$ijob/subjob");
       if ($rc == 0) { $test=1; }
       else {
 	print "ERROR in submitting job: $rc  .. retrying in 10s ...\n";
@@ -343,6 +348,8 @@ $single=@_[1];
 
 system("mkdir $dir");
 system("cp ${workdir}/$authfile $dir");
+if ($sqlitefile !="") { system("cp ${workdir}/$sqlitefile $dir"); }
+if ($condbcatalogfile !="") { system("cp ${workdir}/$condbcatalogfile $dir"); }
 
 if ($single == 1) {
 

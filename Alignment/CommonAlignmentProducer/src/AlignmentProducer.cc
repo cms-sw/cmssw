@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.11 $
-///  last update: $Date$
-///  by         : $Author$
+///  Revision   : $Revision: 1.10 $
+///  last update: $Date: 2006/10/20 13:07:07 $
+///  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -25,9 +25,12 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "Alignment/TrackerAlignment/interface/MisalignmentScenarioBuilder.h"
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
@@ -41,6 +44,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   stNFixAlignables(iConfig.getParameter<int>("nFixAlignables") ),
   stRandomShift(iConfig.getParameter<double>("randomShift")),
   stRandomRotation(iConfig.getParameter<double>("randomRotation")),
+  applyDbAlignment_( iConfig.getUntrackedParameter<bool>("applyDbAlignment",false) ),
   doMisalignmentScenario(iConfig.getParameter<bool>("doMisalignmentScenario")),
   saveToDB(iConfig.getParameter<bool>("saveToDB"))
 {
@@ -105,6 +109,16 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
   theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),&(*gD)) );
   
+  // Retrieve and apply alignments, if requested (requires DB setup)
+  if ( applyDbAlignment_ ) {
+    edm::ESHandle<Alignments> alignments;
+    iSetup.get<TrackerAlignmentRcd>().get( alignments );
+    edm::ESHandle<AlignmentErrors> alignmentErrors;
+    iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
+    GeometryAligner aligner;
+    aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors) );
+  }
+
   // create alignable tracker
   theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
 
@@ -221,7 +235,7 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 {
   nevent++;
 
-  edm::LogInfo("Alignment") << "[AlignmentProducer] New Event --------------------------------------------------------------";
+  //edm::LogInfo("Alignment") << "[AlignmentProducer] New Event --------------------------------------------------------------";
 
   if ((nevent<100 && nevent%10==0) 
       ||(nevent<1000 && nevent%100==0) 
@@ -234,9 +248,17 @@ AlignmentProducer::duringLoop( const edm::Event& event,
   AlgoProductCollection m_algoResults = theAlignmentAlgo->refitTracks( event, setup );
 
 
-  edm::LogInfo("Alignment") << "[AlignmentProducer] call algorithm for #Tracks: " << m_algoResults.size();
+  //edm::LogInfo("Alignment") << "[AlignmentProducer] call algorithm for #Tracks: " << m_algoResults.size();
   // Run the alignment algorithm
   theAlignmentAlgo->run(  setup, m_algoResults );
+
+  // Clean-up
+  for ( AlgoProductCollection::const_iterator it=m_algoResults.begin();
+       it!=m_algoResults.end();it++) {
+    delete (*it).first;
+    delete (*it).second;
+  }
+  m_algoResults.clear();
 
   return kContinue;
 }

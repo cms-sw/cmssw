@@ -1,7 +1,7 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2005/07/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/20 13:24:55 $
+ *  $Revision: 1.5 $
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -306,6 +306,42 @@ void AlignmentParameterBuilder::addSelection(const std::string &name, const std:
     add(theAlignableTracker->endcapPetals(),mysel);
   }
 
+  else if (name == "CSA06Selection") {
+    std::vector<bool> mysel(6,false);
+    mysel[RigidBodyAlignmentParameters::dx]=true;
+    mysel[RigidBodyAlignmentParameters::dy]=true;
+    mysel[RigidBodyAlignmentParameters::dz]=true;
+    mysel[RigidBodyAlignmentParameters::dalpha]=true;
+    mysel[RigidBodyAlignmentParameters::dbeta]=true;
+    mysel[RigidBodyAlignmentParameters::dgamma]=true;
+//  TOB outermost layer (5) kept fixed
+    theSelLayers=true; theMinLayer=1; theMaxLayer=5;
+//  TOB rods double sided   
+    theOnlyDS=true;
+    add(theAlignableTracker->outerBarrelRods(),mysel);
+    theOnlyDS=false;
+// TOB rods single sided   
+    mysel[RigidBodyAlignmentParameters::dy]=false;
+    mysel[RigidBodyAlignmentParameters::dz]=false;
+    theOnlySS=true;
+    add(theAlignableTracker->outerBarrelRods(),mysel);
+    theOnlySS=false;
+    mysel[RigidBodyAlignmentParameters::dy]=true;
+    mysel[RigidBodyAlignmentParameters::dz]=true;
+//
+    theSelLayers=false; 
+ // TIB dets double sided   
+    theOnlyDS=true;
+    add(theAlignableTracker->innerBarrelGeomDets(),mysel);
+    theOnlyDS=false;
+ // TIB dets single sided   
+    mysel[RigidBodyAlignmentParameters::dy]=false;
+    mysel[RigidBodyAlignmentParameters::dz]=false;
+    theOnlySS=true;
+    add(theAlignableTracker->innerBarrelGeomDets(),mysel);
+    theOnlySS=false;
+  }
+
   else { // @SUB-syntax is not supported by exception, but anyway useful information... 
     throw cms::Exception("BadConfig") <<"@SUB=AlignmentParameterBuilder::addSelection"
 				      << ": Selection '" << name << "' invalid!";
@@ -423,11 +459,11 @@ void AlignmentParameterBuilder::add(const std::vector<Alignable*> &alignables,
 
     bool keep=true;
     if (theOnlySS) // only single sided
-      if ( (abs(type)==3 || abs(type)==5) && layer<2 ) 
+      if ( (abs(type)==3 || abs(type)==5) && layer<=2 ) 
 		keep=false;
 
     if (theOnlyDS) // only double sided
-      if ( (abs(type)==3 || abs(type)==5) && layer>1 )
+      if ( (abs(type)==3 || abs(type)==5) && layer>2 )
 		keep=false;
 
     // reject layers
