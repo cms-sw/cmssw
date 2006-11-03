@@ -93,7 +93,7 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     // temporary protection copied from KFTrajectoryFitter.
     //
     if ( (**ihit).det() == 0) {
-      edm::LogError("GsfTrajectoryFitter") 
+      edm::LogDebug("GsfTrajectoryFitter") 
 	<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
