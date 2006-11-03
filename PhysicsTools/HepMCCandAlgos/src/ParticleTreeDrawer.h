@@ -8,7 +8,6 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include <deque>
 
 namespace reco { class GenParticleCandidate; }
 
@@ -18,7 +17,7 @@ public:
 private:
   void analyze( const edm::Event &, const edm::EventSetup & );
   edm::InputTag src_;
-  std::deque<std::string> decay( const reco::GenParticleCandidate & ) const;
+  void printDecay( const reco::GenParticleCandidate &, const std::string & pre ) const;
   edm::ESHandle<DefaultConfig::ParticleDataTable> pdt_;
 };
 
