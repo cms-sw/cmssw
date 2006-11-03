@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.23 2006/10/10 14:37:36 bainbrid Exp $
-// Latest tag:  $Name: TIF_101006 $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.24 2006/10/30 21:09:43 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,6 +10,7 @@
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 
 using namespace std;
@@ -290,8 +291,20 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
     edm::LogWarning(mlCabling_)
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
       << " No DCU descriptions found!";
+  } else {
+    stringstream ss;
+    ss << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
+       << " Found " << dcu_desc.size() << " DCUs with following hardware ids:";
+    SiStripConfigDb::DeviceDescriptions::const_iterator idcu;
+    for ( idcu = dcu_desc.begin(); idcu != dcu_desc.end(); idcu++ ) {
+      dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
+      if ( dcu ) { 
+	ss << endl << "0x" << hex << setw(8) << setfill('0') << dcu->getDcuHardId() << dec;
+      }
+    }
+    LogTrace(mlCabling_) << ss.str();
   }
-
+  
   SiStripConfigDb::DcuDetIdMap cached_map = db->getDcuDetIdMap();
   if ( cached_map.empty() ) { 
     edm::LogWarning(mlCabling_)
