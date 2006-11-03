@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2006/09/22 18:58:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/03 16:43:52 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -58,12 +58,36 @@ GlobalCosmicMuonTrajectoryBuilder::~GlobalCosmicMuonTrajectoryBuilder() {
 void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   event.getByLabel(theTkTrackLabel,theTrackerTracks);
 
+  edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
+  try
+    {
+      event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
+      tkTrajsAvailable = true;
+      allTrackerTrajs = &*handleTrackerTrajs;   
+      
+      LogInfo("GlobalCosmicMuonTrajectoryBuilder") 
+	<< "Tk Trajectories Found! " << endl;
+    }
+  catch (...)
+    {
+      LogInfo("GlobalCosmicMuonTrajectoryBuilder") 
+	<< "No Tk Trajectories Found! " << endl;
+      tkTrajsAvailable = false;
+    }
+
 }
 
 //
 // reconstruct trajectories
 //
 MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectories(const reco::TrackRef& muTrack) {
+
+  TrackCand muCand = TrackCand(0,muTrack);
+  return trajectories(muCand);
+
+}
+
+MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectories(const TrackCand& muCand) {
 
   const std::string metname = "GlobalCosmicMuonTrajectoryBuilder";
 
@@ -75,16 +99,21 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
   //at most 1 track by SingleTrackPattern
   reco::TrackRef tkTrack(theTrackerTracks,0); 
   MuonCandidate::CandidateContainer result;
+  reco::TrackRef muTrack = muCand.second;
 
   if ( !match(*muTrack,*tkTrack).first ) return result;
-
-  std::vector<Trajectory> muTrajs = theTrackConverter->convert(*muTrack);
-  LogDebug(metname) <<"Converted "<<muTrajs.size()<<" muon Trajectory";
+  std::vector<Trajectory> muTrajs;
+  if (muCand.first == 0) muTrajs = theTrackConverter->convert(*muTrack);
+  else if ( !muCand.first->isValid() ) muTrajs = theTrackConverter->convert(*muTrack);
+  else muTrajs.push_back(*muCand.first);
+  LogDebug(metname) <<"There're "<<muTrajs.size()<<" muon Trajectory";
   if ( muTrajs.empty() ) return result;
   ConstRecHitContainer muRecHits = muTrajs.front().recHits();
   LogDebug(metname)<<"mu RecHits: "<<muRecHits.size();
 
-  std::vector<Trajectory> tkTrajs = theTrackConverter->convert(*tkTrack);
+  std::vector<Trajectory> tkTrajs;
+  if (!tkTrajsAvailable) tkTrajs = theTrackConverter->convert(*tkTrack);
+  else tkTrajs = *allTrackerTrajs;
   LogDebug(metname) <<"Converted "<<tkTrajs.size()<<" tracker Trajectory";
 
   ConstRecHitContainer hits = theTrackConverter->getTransientRecHits(*tkTrack);
