@@ -41,10 +41,3 @@ void ModuleWebRegistry::publish(xdata::InfoSpace *is)
 void ModuleWebRegistry::clear(){clm_.clear();}
 
 
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-using namespace edm::serviceregistry;
-
-typedef ParameterSetMaker<ModuleWebRegistry> maker;
-
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(ModuleWebRegistry,maker);
