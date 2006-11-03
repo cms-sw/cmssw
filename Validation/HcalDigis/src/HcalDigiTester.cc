@@ -98,11 +98,14 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
         }
         fAdcSum += fDigiSum;
 
-        monitor()->fillPedestal((*ihbhe)[0]);
-        monitor()->fillPedestal((*ihbhe)[1]);
+        monitor()->fillPedestal((*ihbhe)[0].adc());
+        monitor()->fillPedestal((*ihbhe)[1].adc());
  
         if(fDigiSum > 50.)
         {
+//std::cout << (*ihbhe) << std::endl;
+//std::cout << tool << std::endl;
+//std::cout << pedvalue << std::endl;
           // now do a few selected individual bins, if it's big enough
           float fBin4  = tool[3];
           float fBin56 = tool[4] + tool[5];
