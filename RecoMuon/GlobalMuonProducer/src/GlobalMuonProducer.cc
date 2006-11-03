@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/10/19 19:43:02 $
- *   $Revision: 1.16 $
+ *   $Date: 2006/10/24 09:41:31 $
+ *   $Revision: 1.17 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -90,18 +90,35 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   const std::string metname = "Muon|RecoMuon|GlobalMuonProducer";  
   LogDebug(metname)<<endl<<endl<<endl;
   LogDebug(metname)<<"Global Muon Reconstruction started"<<endl;  
-  
-  // Take the STA muon container
-  LogDebug(metname)<<"Taking the Stand Alone Muons "<<theSTACollectionLabel.label()<<endl; 
-  Handle<reco::TrackCollection> staMuons;
-  event.getByLabel(theSTACollectionLabel,staMuons);
-  
+
+  typedef std::vector<Trajectory> TrajColl;
+
   // Update the services
   theService->update(eventSetup);
-  
-  // Reconstruct the tracks in the tracker+muon system
-  LogDebug(metname)<<"Track Reconstruction"<<endl;
-  theTrackFinder->reconstruct(staMuons,event);
+
+  // Take the STA muon container(s)
+  LogDebug(metname)<<"Taking the Stand Alone Muons "<<theSTACollectionLabel.label()<<endl;
+  try
+    {
+      Handle<reco::TrackCollection> staMuons;
+      event.getByLabel(theSTACollectionLabel,staMuons);
+      const reco::TrackCollection staTC = *(staMuons.product());
+      
+      Handle<std::vector<Trajectory> > staMuonsTraj;
+      event.getByLabel(theSTACollectionLabel,staMuonsTraj);
+      const TrajColl staTrajC = *(staMuonsTraj.product());  
+      
+      edm::LogInfo(metname)<<"Track Reconstruction (tracks, trajs) "<< staTC.size() << " " << staTrajC.size() <<endl;
+      
+      theTrackFinder->reconstruct(staMuons, staMuonsTraj, event);      
+    }
+  catch (...)
+    {
+      Handle<reco::TrackCollection> staMuons;
+      event.getByLabel(theSTACollectionLabel,staMuons);
+      edm::LogInfo(metname)<<"Track Reconstruction (staTracks)"<<endl;
+      theTrackFinder->reconstruct(staMuons,event);
+    }
   
   LogDebug(metname)<<"Event loaded"
                    <<"================================"

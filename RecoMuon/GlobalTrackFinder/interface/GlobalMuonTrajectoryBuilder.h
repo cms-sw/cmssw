@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/10/19 18:14:50 $
- *  $Revision: 1.32 $
+ *  $Date: 2006/10/24 09:45:44 $
+ *  $Revision: 1.33 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -13,6 +13,7 @@
  */
 
 #include "FWCore/Framework/interface/Handle.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -31,6 +32,8 @@ class MuonDetLayerMeasurements;
 class MuonTrackReFitter;
 class MuonTrackConverter;
 class MuonServiceProxy;
+class Trajectory;
+class TrackerSeedGenerator;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -62,6 +65,8 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     /// reconstruct trajectories from standalone and tracker only Tracks
     MuonTrajectoryBuilder::CandidateContainer trajectories(const reco::TrackRef&);
+    
+    MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&);
 
     /// reconstruct trajectories from trajectory seed
     MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&){ return MuonTrajectoryBuilder::TrajectoryContainer(); }
@@ -70,10 +75,10 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     virtual void setEvent(const edm::Event&);
 
   private:
-
+    
     /// choose tracker tracks within region of interest
     std::vector<TrackCand> chooseRegionalTrackerTracks(const TrackCand&, 
-                                                       const edm::Handle<reco::TrackCollection>&) const;
+                                                       const std::vector<TrackCand>&) const;
 
     /// define region of interest with tracker
     RectangularEtaPhiTrackingRegion defineRegionOfInterest(const reco::TrackRef&) const;
@@ -106,6 +111,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     MuonDetLayerMeasurements* theLayerMeasurements;
 
     MuonTrackConverter* theTrackConverter;
+    TrackerSeedGenerator* theTkSeedGenerator;
 
     int   theMuonHitsOption;
     ReconstructionDirection theDirection;
@@ -116,12 +122,14 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theCSCChi2Cut;
     float theRPCChi2Cut;
     bool convert;
+    bool tkTrajsAvailable;
+    bool tkSeedFlag;
 
     std::string theTkTrackLabel;
 
     edm::Handle<reco::TrackCollection> allTrackerTracks;
-
-
+    std::vector<Trajectory> *allTrackerTrajs;
+ 
     const MuonServiceProxy *theService;
     
 };
