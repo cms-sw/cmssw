@@ -93,10 +93,56 @@ definire plus e minus
       <Parameter name="TkDDDStructure" value="TIDDet"/>
     </SpecPar>
 
+    <SpecPar name="TOBSubDetPar">
+      <PartSelector path="//TOB" />
+      <Parameter name="TkDDDStructure" value="TOB"/>
+    </SpecPar>
+
+    <SpecPar name="TOBSubDetLayerPar">
+      <PartSelector path="//TOBLayer0" />
+      <PartSelector path="//TOBLayer1" />
+      <PartSelector path="//TOBLayer2" />
+      <PartSelector path="//TOBLayer3" />
+      <PartSelector path="//TOBLayer4" />
+      <PartSelector path="//TOBLayer5" />
+      <Parameter name="TkDDDStructure" value="TOBLayer"/>
+    </SpecPar>
+
+    <SpecPar name="TOBSubDetRodPar">
+      <PartSelector path="//TOBRod0L" />
+      <PartSelector path="//TOBRod0H" />
+      <PartSelector path="//TOBRod1L" />
+      <PartSelector path="//TOBRod1H" />
+      <PartSelector path="//TOBRod2L" />
+      <PartSelector path="//TOBRod2H" />
+      <PartSelector path="//TOBRod3L" />
+      <PartSelector path="//TOBRod3H" />
+      <PartSelector path="//TOBRod4L" />
+      <PartSelector path="//TOBRod4H" />
+      <PartSelector path="//TOBRod5L" />
+      <PartSelector path="//TOBRod5H" />
+      <Parameter name="TkDDDStructure" value="TOBRod"/>
+    </SpecPar>
+
+    <SpecPar name="TOBSubDetGluedDetPar">
+      <PartSelector path="//TOBModule0" />
+      <Parameter name="TkDDDStructure" value="TOBGluedDet"/>
+    </SpecPar>
+
+    <SpecPar name="TOBSubDetDetPar">
+      <PartSelector path="//TOBActiveRphi0" />
+      <PartSelector path="//TOBActiveSter0" />
+      <PartSelector path="//TOBActiveRphi2" />
+      <PartSelector path="//TOBActiveRphi4" />
+      <Parameter name="TkDDDStructure" value="TOBDet"/>
+    </SpecPar>
+
+
   <SpecPar name="TrackerStereoDetectorsPar">
       <PartSelector path="//TIBActiveSter0" />
       <PartSelector path="//TIDModule0StereoActive" />
       <PartSelector path="//TIDModule1StereoActive" />
+      <PartSelector path="//TOBActiveSter0" />
       <Parameter name="TrackerStereoDetectors" value="true"/>
   </SpecPar>
 
@@ -108,12 +154,16 @@ definire plus e minus
       <PartSelector path="//TIDModule0StereoActive" />
       <PartSelector path="//TIDModule1RphiActive" />
       <PartSelector path="//TIDModule1StereoActive" />
+      <PartSelector path="//TOBActiveRphi4" />
       <Parameter name="SiliconAPVNumber" value="6"/>
   </SpecPar>
 
   <SpecPar name="TrackerAPVNumber4Par">
       <PartSelector path="//TIBActiveRphi2" />
       <PartSelector path="//TIDModule2RphiActive" />
+      <PartSelector path="//TOBActiveRphi0" />
+      <PartSelector path="//TOBActiveSter0" />
+      <PartSelector path="//TOBActiveRphi2" />
       <Parameter name="SiliconAPVNumber" value="4"/>
   </SpecPar>
 
