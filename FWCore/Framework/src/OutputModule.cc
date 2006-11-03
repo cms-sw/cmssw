@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.21 2006/09/09 06:38:56 afaq Exp $
+$Id: OutputModule.cc,v 1.22 2006/10/31 23:54:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <vector>
@@ -99,11 +99,15 @@ namespace edm
 
   OutputModule::~OutputModule() { }
 
-  void OutputModule::beginJob(EventSetup const&) { }
+  void OutputModule::doBeginJob(EventSetup const& c) {
+    beginJob(c);
+  }
 
-  void OutputModule::endJob() { }
+  void OutputModule::doEndJob() {
+    endJob();
+  }
 
- const Trig& OutputModule::getTrigMask(EventPrincipal const& ep) const
+  Trig const& OutputModule::getTrigMask(EventPrincipal const& ep) const
   {
     if (! prod_.isValid())
     {

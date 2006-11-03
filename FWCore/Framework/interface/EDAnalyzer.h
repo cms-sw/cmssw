@@ -35,13 +35,13 @@ namespace edm {
     CurrentProcessingContext const* currentContext() const;
 
   private:
-    virtual void analyze(Event const&, EventSetup const&) {}
-    virtual void beginJob(EventSetup const&) {}
-    virtual void endJob() {}
-    virtual void beginRun(Run const&, EventSetup const&) {}
-    virtual void endRun(Run const&, EventSetup const&) {}
-    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
+    virtual void analyze(Event const&, EventSetup const&) = 0;
+    virtual void beginJob(EventSetup const&){}
+    virtual void endJob(){}
+    virtual void beginRun(Run const&, EventSetup const&){}
+    virtual void endRun(Run const&, EventSetup const&){}
+    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
+    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
 
     CurrentProcessingContext const* current_context_;
   };

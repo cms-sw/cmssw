@@ -1,10 +1,8 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.16 2006/04/15 04:45:43 wmtan Exp $
+$Id: OutputWorker.cc,v 1.17 2006/06/20 23:13:27 paterno Exp $
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
@@ -42,13 +40,50 @@ namespace edm {
   void 
   OutputWorker::implBeginJob(EventSetup const& es) {
     mod_->selectProducts();
-    mod_->beginJob(es);
+    mod_->doBeginJob(es);
   }
 
   void 
   OutputWorker::implEndJob() {
-    mod_->endJob();
+    mod_->doEndJob();
   }
+
+  bool OutputWorker::implBeginRun(RunPrincipal& rp, EventSetup const&,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    mod_->doBeginRun(rp,description(),cpc);
+    rc = true;
+    return rc;
+  }
+
+  bool OutputWorker::implEndRun(RunPrincipal& rp, EventSetup const&,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    mod_->doEndRun(rp,description(),cpc);
+    rc = true;
+    return rc;
+  }
+
+  bool OutputWorker::implBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const&,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    mod_->doBeginLuminosityBlock(lbp,description(),cpc);
+    rc = true;
+    return rc;
+  }
+
+  bool OutputWorker::implEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const&,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    mod_->doEndLuminosityBlock(lbp,description(),cpc);
+    rc = true;
+    return rc;
+  }
+
 
   std::string OutputWorker::workerType() const {
     return "OutputModule";

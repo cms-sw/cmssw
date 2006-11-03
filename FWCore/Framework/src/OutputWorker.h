@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.16 2006/04/24 22:36:30 wmtan Exp $
+$Id: OutputWorker.h,v 1.17 2006/06/20 23:13:27 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -40,6 +40,14 @@ namespace edm
 
     virtual void implBeginJob(EventSetup const&) ;
     virtual void implEndJob() ;
+    virtual bool implBeginRun(RunPrincipal& rp, EventSetup const& c,
+			    CurrentProcessingContext const* cpc);
+    virtual bool implEndRun(RunPrincipal& rp, EventSetup const& c,
+			    CurrentProcessingContext const* cpc);
+    virtual bool implBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+			    CurrentProcessingContext const* cpc);
+    virtual bool implEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+			    CurrentProcessingContext const* cpc);
     virtual std::string workerType() const;
     
     boost::shared_ptr<OutputModule> mod_;

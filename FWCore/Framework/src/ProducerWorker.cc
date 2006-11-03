@@ -1,13 +1,14 @@
 
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.22 2006/06/20 23:13:27 paterno Exp $
+$Id: ProducerWorker.cc,v 1.23 2006/10/31 23:54:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
 
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -47,6 +48,50 @@ namespace edm
     producer_->doEndJob();
   }
   
+  bool ProducerWorker::implBeginRun(RunPrincipal& rp, EventSetup const& c,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    Run r(rp,description());
+    producer_->doBeginRun(r,c,cpc);
+    r.commit_();
+    rc = true;
+    return rc;
+  }
+
+  bool ProducerWorker::implEndRun(RunPrincipal& rp, EventSetup const& c,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    Run r(rp,description());
+    producer_->doEndRun(r,c,cpc);
+    r.commit_();
+    rc = true;
+    return rc;
+  }
+
+  bool ProducerWorker::implBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    LuminosityBlock lb(lbp,description());
+    producer_->doBeginLuminosityBlock(lb,c,cpc);
+    lb.commit_();
+    rc = true;
+    return rc;
+  }
+
+  bool ProducerWorker::implEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    LuminosityBlock lb(lbp,description());
+    producer_->doEndLuminosityBlock(lb,c,cpc);
+    lb.commit_();
+    rc = true;
+    return rc;
+  }
+
   std::string ProducerWorker::workerType() const {
     return "EDProducer";
   }

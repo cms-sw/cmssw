@@ -917,7 +917,7 @@ namespace edm {
     EventSetup const& es =
       esp_->eventSetupForInstance(IOVSyncValue::beginOfTime());
     try {
-    input_->beginJob(es);
+    input_->doBeginJob(es);
     } catch(cms::Exception& e) {
       LogError("BeginJob") << "A cms::Exception happened while processing the beginJob of the 'source'\n";
       e<<"A cms::Exception happened while processing the beginJob of the 'source'\n";
@@ -956,17 +956,17 @@ namespace edm {
     }
     catch(...) {
       try {
-	input_->endJob();
+	input_->doEndJob();
       }
       catch (...) {
-	// If schedule_->endJob() and input_->endJob() both throw, we will
-	// lose the exception information from input_->endJob().  So what!
+	// If schedule_->endJob() and input_->doEndJob() both throw, we will
+	// lose the exception information from input_->doEndJob().  So what!
       }
       actReg_->postEndJobSignal_();
       throw;
     }
     try {
-	input_->endJob();
+	input_->doEndJob();
     }
     catch(...) {
       actReg_->postEndJobSignal_();

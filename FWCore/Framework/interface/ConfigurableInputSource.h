@@ -2,17 +2,15 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.7 2006/08/16 23:39:52 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.8 2006/10/27 20:45:20 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/InputSource.h"
-#include "FWCore/Framework/interface/EventPrincipalFwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 
 namespace edm {
-  class Event;
-  class InputSourceDescription;
   class ParameterSet;
   class ConfigurableInputSource : public InputSource {
   public:
@@ -37,6 +35,10 @@ namespace edm {
   private:
     virtual void setRunAndEventInfo();
     virtual bool produce(Event & e) = 0;
+    virtual bool beginRun(Run &){return true;}
+    virtual void endRun(Run &){}
+    virtual bool beginLiminosityBlock(LuminosityBlock &){return true;}
+    virtual void endLuminosityBlock(Run &){}
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
     virtual std::auto_ptr<EventPrincipal> read();
     virtual void skip(int offset);

@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.13 2006/10/24 20:29:00 wmtan Exp $
+$Id: InputSource.h,v 1.14 2006/10/27 20:45:20 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -49,13 +49,10 @@ $Id: InputSource.h,v 1.13 2006/10/24 20:29:00 wmtan Exp $
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "FWCore/Framework/interface/EventPrincipalFwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
-  class InputSourceDescription;
-  class EventSetup;
   class ParameterSet;
-  class Event;
 
   class InputSource : public ProductRegistryHelper {
   public:
@@ -79,6 +76,12 @@ namespace edm {
 
     /// Begin again at the first event
     void rewind() {rewind_();}
+
+    /// Read next run
+    std::auto_ptr<RunPrincipal> readRun();
+
+    /// Read next luminosity block
+    std::auto_ptr<LuminosityBlockPrincipal> readLuminosityBlock();
 
     /// Wake up the input source
     void wakeUp() {wakeUp_();}
@@ -109,10 +112,10 @@ namespace edm {
     ModuleDescription const& moduleDescription() const {return isDesc_.moduleDescription_;}
 
     /// Called by framework at beginning of job
-    virtual void beginJob(EventSetup const&);
+    void doBeginJob(EventSetup const&);
 
     /// Called by framework at end of job
-    virtual void endJob();
+    void doEndJob();
 
     bool const primary() const {return primary_;}
 
@@ -130,6 +133,12 @@ namespace edm {
 
     virtual void skip(int);
 
+#if 0
+    virtual std::auto_ptr<RunPrincipal> readRun_() = 0;
+
+    virtual std::auto_ptr<LuminosityBlockPrincipal> readLuminosityBlock_() = 0;
+#endif
+
     virtual void setRun(RunNumber_t r);
 
     virtual void rewind_();
@@ -139,6 +148,10 @@ namespace edm {
     void preRead();
 
     void postRead(Event& event);
+
+    virtual void beginJob(EventSetup const&) {}
+
+    virtual void endJob() {}
 
   private:
 

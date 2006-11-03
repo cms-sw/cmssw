@@ -1,9 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.14 2006/10/17 20:47:53 wdd Exp $
+$Id: InputSource.cc,v 1.15 2006/10/24 20:29:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -29,10 +31,14 @@ namespace edm {
   InputSource::~InputSource() {}
 
   void
-  InputSource::beginJob(EventSetup const&) { }
+  InputSource::doBeginJob(EventSetup const& c) {
+    beginJob(c);
+  }
 
   void
-  InputSource::endJob() { }
+  InputSource::doEndJob() {
+    endJob();
+  }
 
   void
   InputSource::registerProducts() {
@@ -70,7 +76,6 @@ namespace edm {
     return ep;
   }
 
-
   std::auto_ptr<EventPrincipal>
   InputSource::readEvent_(EventID const& eventID) {
 
@@ -104,6 +109,29 @@ namespace edm {
   InputSource::skipEvents(int offset) {
     this->skip(offset);
   }
+
+#if 0
+  std::auto_ptr<RunPrincipal>
+  InputSource::readRun() {
+    // Do we need any error handling (e.g. exception translation) here?
+    std::auto_ptr<RunPrincipal> rp(readRun_());
+    if (rp.get()) {
+	rp->addToProcessHistory(isDesc_.moduleDescription_.processConfiguration());
+    }
+    return rp;
+  }
+
+  std::auto_ptr<LuminosityBlockPrincipal>
+  InputSource::readLuminosityBlock() {
+    // Do we need any error handling (e.g. exception translation) here?
+    std::auto_ptr<LuminosityBlockPrincipal> lbp = readLuminosityBlock_();
+    if (lbp.get()) {
+	lbp->addToProcessHistory(isDesc_.moduleDescription_.processConfiguration());
+    }
+    return lbp;
+  }
+#endif
+
   void
   InputSource::issueReports(EventID const& eventID) {
     LogInfo("FwkReport") << "Begin processing the " << readCount_

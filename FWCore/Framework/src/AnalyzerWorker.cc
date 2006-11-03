@@ -1,12 +1,13 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.11 2006/02/08 00:44:25 wmtan Exp $
+$Id: AnalyzerWorker.cc,v 1.12 2006/06/20 23:13:27 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/AnalyzerWorker.h"
 
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/src/WorkerParams.h"
@@ -53,6 +54,46 @@ namespace edm
     analyzer_->doEndJob();
   }
   
+  bool AnalyzerWorker::implBeginRun(RunPrincipal& rp, EventSetup const& c,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    Run r(rp,description());
+    analyzer_->doBeginRun(r,c,cpc);
+    rc = true;
+    return rc;
+  }
+
+  bool AnalyzerWorker::implEndRun(RunPrincipal& rp, EventSetup const& c,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    Run r(rp,description());
+    analyzer_->doEndRun(r,c,cpc);
+    rc = true;
+    return rc;
+  }
+
+  bool AnalyzerWorker::implBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    LuminosityBlock lb(lbp,description());
+    analyzer_->doBeginLuminosityBlock(lb,c,cpc);
+    rc = true;
+    return rc;
+  }
+
+  bool AnalyzerWorker::implEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+				  CurrentProcessingContext const* cpc)
+  {
+    bool rc = false;
+    LuminosityBlock lb(lbp,description());
+    analyzer_->doEndLuminosityBlock(lb,c,cpc);
+    rc = true;
+    return rc;
+  }
+
   std::string AnalyzerWorker::workerType() const {
     return "EDAnalyzer";
   }
