@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.h,v 1.3 2006/11/02 10:25:09 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.h,v 1.4 2006/11/02 20:41:33 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -40,6 +40,8 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   std::set<int> excludedIds_;
   /// minimum pt
   double ptMinNeutral_, ptMinCharged_;
+  /// keep initial protons
+  bool keepInitialParticles_;
   /// verbose flag
   bool verbose_;
   /// pointer map type

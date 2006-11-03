@@ -13,7 +13,9 @@ using namespace reco;
 using namespace HepMC;
 
 ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
-  src_( cfg.getParameter<InputTag>( "src" ) ) {
+  src_( cfg.getParameter<InputTag>( "src" ) ),
+  printP4_( cfg.getUntrackedParameter<bool>( "printP4", false ) ),
+  printPtEtaPhi_( cfg.getUntrackedParameter<bool>( "printPtEtaPhi", false ) ) {
 }
 
 void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
@@ -30,28 +32,32 @@ void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
   }
 }
 
+void ParticleTreeDrawer::printP4( const reco::GenParticleCandidate & c ) const {
+  if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")"; 
+  if ( printPtEtaPhi_ ) cout << " [" << c.pt() << ": " << c.eta() << ", " << c.phi() << "]";
+}
+
 void ParticleTreeDrawer::printDecay( const reco::GenParticleCandidate & c, const std::string & pre ) const {
   int id = c.pdgId();
   unsigned int ndau = c.numberOfDaughters();
   const DefaultConfig::ParticleData * pd = pdt_->particle( id );  
   assert( pd != 0 );
 
-  if ( ndau == 0 ) {
-    cout << pd->name() << endl;
-    return;
-  }
+  cout << pd->name(); 
+  printP4( c );
+  cout << endl;
+
+  if ( ndau == 0 ) return;
 
   bool lastLevel = true;
-  for( size_t i = 0; i < ndau; ++ i ) {
+  for( size_t i = 0; i < ndau; ++ i )
     if ( c.daughter( i ).numberOfDaughters() != 0 ) {
       lastLevel = false;
       break;
-    }
-  }      
+    }      
 
   if ( lastLevel ) {
-    cout << pd->name() << endl
-	 << pre << "+-> ";
+    cout << pre << "+-> ";
     for( size_t i = 0; i < ndau; ++ i ) {
       const GenParticleCandidate * d = 
 	dynamic_cast<const GenParticleCandidate *>( & c.daughter( i ) );
@@ -59,6 +65,7 @@ void ParticleTreeDrawer::printDecay( const reco::GenParticleCandidate & c, const
       const DefaultConfig::ParticleData * pd = pdt_->particle( d->pdgId() );  
       assert( pd != 0 );
       cout << pd->name();
+      printP4( * d );
       if ( i != ndau - 1 )
 	cout << " ";
     }
@@ -66,7 +73,6 @@ void ParticleTreeDrawer::printDecay( const reco::GenParticleCandidate & c, const
     return;
   }
 
-  cout << pd->name() << endl;
   for( size_t i = 0; i < ndau; ++i ) {
     const GenParticleCandidate * d =
       dynamic_cast<const GenParticleCandidate *>( & c.daughter( i ) );

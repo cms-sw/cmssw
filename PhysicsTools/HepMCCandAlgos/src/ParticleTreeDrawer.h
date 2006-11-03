@@ -19,6 +19,10 @@ private:
   edm::InputTag src_;
   void printDecay( const reco::GenParticleCandidate &, const std::string & pre ) const;
   edm::ESHandle<DefaultConfig::ParticleDataTable> pdt_;
+  /// print parameters
+  bool printP4_, printPtEtaPhi_;
+  /// print 4 momenta
+  void printP4( const reco::GenParticleCandidate & ) const;
 };
 
 #endif
