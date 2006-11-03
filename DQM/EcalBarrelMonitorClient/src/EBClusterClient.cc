@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2006/10/30 11:17:35 $
- * $Revision: 1.2 $
+ * $Date: 2006/11/02 16:24:45 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -456,7 +456,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgNameB[3], imgNameBMap[2], imgNameS[3], imgNameSMap[2], imgName, meName;
 
   TCanvas* cEne = new TCanvas("cEne", "Temp", csize, csize);
-  TCanvas* cMap = new TCanvas("cMap", "Temp", 2*csize, csize);
+  TCanvas* cMap = new TCanvas("cMap", "Temp", int(1.5*csize), 2*int(1.5*csize));
 
   TH1F* obj1f = 0;
   TProfile2D* objp;
@@ -535,6 +535,11 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
+    objp->GetXaxis()->SetNdivisions(2);
+    objp->GetYaxis()->SetNdivisions(18, kFALSE);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    cMap->SetRightMargin(0.15);
     if ( objp->GetMaximum(histMax) > 0. ) {
       gPad->SetLogz(1);
     } else {
@@ -566,6 +571,11 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
+    obj2f->GetXaxis()->SetNdivisions(2);
+    obj2f->GetYaxis()->SetNdivisions(18, kFALSE);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    cMap->SetRightMargin(0.15);
     if ( obj2f->GetMaximum(histMax) > 0. ) {
       gPad->SetLogz(1); 
     } else {
@@ -668,6 +678,11 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
+    objp->GetXaxis()->SetNdivisions(2);
+    objp->GetYaxis()->SetNdivisions(18, kFALSE);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    cMap->SetRightMargin(0.15);
     if ( objp->GetMaximum(histMax) > 0. ) {
       gPad->SetLogz(1);
     } else {
@@ -699,6 +714,11 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
+    obj2f->GetXaxis()->SetNdivisions(2);
+    obj2f->GetYaxis()->SetNdivisions(18, kFALSE);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    cMap->SetRightMargin(0.15);
     if ( obj2f->GetMaximum(histMax) > 0. ) {
       gPad->SetLogz(1);
     } else { 
