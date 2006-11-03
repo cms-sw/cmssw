@@ -7,8 +7,6 @@
 
 #include "EventFilter/Playback/interface/PlaybackRawDataProvider.h"
 
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
 #include "xdaq/include/xdaq/Application.h"
 
 #include "toolbox/include/toolbox/task/TimerFactory.h"
@@ -53,13 +51,6 @@ namespace evf {
   {
   public:
     //
-    // typedefs
-    //
-    typedef std::vector<unsigned char*> UCharVec_t;
-    typedef std::vector<unsigned int>   UIntVec_t;
-  
-  
-    //
     // xdaq instantiator macro
     //
     XDAQ_INSTANTIATOR();
@@ -79,7 +70,7 @@ namespace evf {
     // toolbox::task::TimerListener callback
     void timeExpired(toolbox::task::TimerEvent& e);
 
-    // xdata::ActionListener callback(s)
+    // xdata::ActionListener callback
     void actionPerformed(xdata::Event& e);
 
     // finite state machine callbacks
@@ -99,7 +90,7 @@ namespace evf {
     xoap::MessageReference fireEvent(xoap::MessageReference msg)
       throw (xoap::exception::Exception);
 
-    // Hyper DAQ web interface [see Utilities/WebGUI!]
+    // Hyper DAQ web interface [see Utilities/WebGUI]
     void webPageRequest(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
     
@@ -149,36 +140,46 @@ namespace evf {
     EPStateMachine*           fsm_;
     WebGUI*                   gui_;
     
-    std::string               xmlClass_;
-    unsigned int              instance_;
     std::string               sourceId_;
 
     unsigned int              fedN_;
     unsigned char           **fedData_;
     unsigned int             *fedSize_;
     unsigned int              fedSizeMax_;
+    unsigned int            **fedId_;
     
     // parameters and counters to be exported
     xdata::String             mode_;
     xdata::Boolean            debug_;
+    xdata::Double             nbMBPerSec_;
+    xdata::Double             memUsedInMB_;
+    xdata::String             url_;
+    xdata::String             class_;
+    xdata::UnsignedInteger32  instance_;
+    xdata::String             hostname_;
+    xdata::UnsignedInteger32  runNumber_;
+    xdata::UnsignedInteger32  nbEventsInBU_;
+    xdata::Double             deltaT_;
+    xdata::UnsignedInteger32  deltaN_;
+    xdata::UnsignedInteger32  deltaSumOfSquares_;
+    xdata::UnsignedInteger32  deltaSumOfSizes_;
+    
+    xdata::UnsignedInteger32  nbEvents_;
+    xdata::UnsignedInteger32  nbEventsPerSec_;
+    xdata::UnsignedInteger32  nbDiscardedEvents_;
+    
     xdata::UnsignedInteger32  dataBufSize_;
-
     xdata::UnsignedInteger32  nSuperFrag_;
     xdata::UnsignedInteger32  fedSizeMean_;
     xdata::UnsignedInteger32  fedSizeWidth_;
     xdata::Boolean            useFixedFedSize_;
 
-    xdata::Double             nbMBPerSec_;
-    xdata::Double             memUsedInMB_;
-    
-    xdata::UnsignedInteger32  nbEvents_;
-    xdata::UnsignedInteger32  nbEventsPerSec_;
-    xdata::UnsignedInteger32  nbDiscardedEvents_;
-
     
     // internal parameters and counters (not to be exported)
     xdata::UnsignedInteger32  nbEventsLast_; // for nbEventsPerSec measurement
     xdata::UnsignedInteger32  nbBytes_;      // for MB/s measurement
+    xdata::UnsignedInteger32  sumOfSquares_;
+    xdata::UnsignedInteger32  sumOfSizes_;
     
     // memory pool for i20 communication
     toolbox::mem::Pool*       i2oPool_;

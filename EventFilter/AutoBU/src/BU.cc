@@ -3,12 +3,16 @@
 // BU
 // --
 //
+//                                         Emilio Meschi <emilio.meschi@cern.ch>
+//                       Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
 ////////////////////////////////////////////////////////////////////////////////
 
 
 #include "EventFilter/AutoBU/interface/BU.h"
 
 #include "EventFilter/Utilities/interface/Crc.h"
+
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "xoap/include/xoap/SOAPEnvelope.h"
 #include "xoap/include/xoap/SOAPBody.h"
@@ -36,30 +40,44 @@ BU::BU(xdaq::ApplicationStub *s)
   , fedN_(0)
   , fedData_(0)
   , fedSize_(0)
-  , fedSizeMax_(16384)
+  , fedSizeMax_(2048)
+  , fedId_(0)
   , mode_("RANDOM")
   , debug_(true)
-  , dataBufSize_(32768)
-  , nSuperFrag_(64)
-  , fedSizeMean_(1024)    // mean  of fed size for rnd generation
-  , fedSizeWidth_(1024)   // width of fed size for rnd generation
-  , useFixedFedSize_(false)
   , nbMBPerSec_(0.0)
   , memUsedInMB_(0.0)
+  , instance_(0)
+  , runNumber_(0)
+  , nbEventsInBU_(0)
+  , deltaT_(0.0)
+  , deltaN_(0)
+  , deltaSumOfSquares_(0)
+  , deltaSumOfSizes_(0)
   , nbEvents_(0)
   , nbEventsPerSec_(0)
   , nbDiscardedEvents_(0)
- , nbEventsLast_(0)
+  , dataBufSize_(32768)
+  , nSuperFrag_(64)
+  , fedSizeMean_(1024)   // mean  of fed size for rnd generation
+  , fedSizeWidth_(256)   // width of fed size for rnd generation
+  , useFixedFedSize_(false)
+  , nbEventsLast_(0)
   , nbBytes_(0)
+  , sumOfSquares_(0)
+  , sumOfSizes_(0)
   , i2oPool_(0)
   , bSem_(BSem::FULL)
 {
   // initialize application info
-  xmlClass_=getApplicationDescriptor()->getClassName();
+  url_     =
+    getApplicationDescriptor()->getContextDescriptor()->getURL()+"/"+
+    getApplicationDescriptor()->getURN();
+  class_   =getApplicationDescriptor()->getClassName();
   instance_=getApplicationDescriptor()->getInstance();
+  hostname_=getApplicationDescriptor()->getContextDescriptor()->getURL();
   
   stringstream oss;
-  oss<<xmlClass_<<instance_;
+  oss<<class_.toString()<<instance_.toString();
   sourceId_=oss.str();
   
   // initialize state machine
@@ -120,8 +138,9 @@ BU::~BU()
 //______________________________________________________________________________
 void BU::timeExpired(toolbox::task::TimerEvent& e)
 {
+  
   bSem_.take();
-  gui_->monInfoSpace()->lock();
+  gui_->lockInfoSpaces();
   
   // number of events per second measurement
   nbEventsPerSec_=nbEvents_-nbEventsLast_;
@@ -131,7 +150,21 @@ void BU::timeExpired(toolbox::task::TimerEvent& e)
   nbMBPerSec_=0.000001*nbBytes_;
   nbBytes_   =0;
 
-  gui_->monInfoSpace()->unlock();
+  // time interval since last evaluation
+  deltaT_=1.0;
+
+  // number of events processed in that interval
+  deltaN_=nbEventsPerSec_;
+  
+  // sum of squared events sizes
+  deltaSumOfSquares_=sumOfSquares_;
+  sumOfSquares_=0;
+
+  // sum of squared events sizes
+  deltaSumOfSizes_=sumOfSizes_;
+  sumOfSizes_=0;
+
+  gui_->unlockInfoSpaces();
   bSem_.give();
 }
 
@@ -163,7 +196,7 @@ void BU::configureAction(toolbox::Event::Reference e)
 
   // initialze timer for nbEventsPerSec / nbMBPerSec measurements
   nbEventsLast_=0;
-  nbBytes_=0;
+  nbBytes_     =0;
   toolbox::task::getTimerFactory()->createTimer(sourceId_);
   toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
   timer->stop();
@@ -182,7 +215,7 @@ void BU::enableAction(toolbox::Event::Reference e)
     toolbox::TimeInterval oneSec(1.);
     toolbox::TimeVal      startTime=toolbox::TimeVal::gettimeofday();
     timer->start();
-    timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->monInfoSpace(),sourceId_);
+    timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->appInfoSpace(),sourceId_);
   }
   else {
     LOG4CPLUS_WARN(log_,"could't start timer for nbEventsPerSec measurement");
@@ -251,6 +284,7 @@ xoap::MessageReference BU::fireEvent(xoap::MessageReference msg)
   XCEPT_RAISE(xoap::exception::Exception,"Command not found");
 }
 
+
 //______________________________________________________________________________
 void BU::webPageRequest(xgi::Input *in,xgi::Output *out)
   throw (xgi::exception::Exception)
@@ -266,8 +300,6 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 {
   LOG4CPLUS_DEBUG(log_,"received I2O_BU_ALLOCATE request");
 
-  LOG4CPLUS_WARN(log_,"received I2O_BU_ALLOCATE request");
-
   // check if the BU is enabled
   toolbox::fsm::State currentState=fsm_->getCurrentState();
   if (currentState!='E') {
@@ -275,9 +307,8 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     bufRef->release();
     return;
   }
-
-  bSem_.take();
   
+
   // process message
   I2O_MESSAGE_FRAME             *stdMsg;
   I2O_BU_ALLOCATE_MESSAGE_FRAME *msg;
@@ -286,10 +317,11 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
   msg   =(I2O_BU_ALLOCATE_MESSAGE_FRAME*)stdMsg;
 
   unsigned int nbEvents=msg->n;
-  
   // loop over all requested events
   for(unsigned int i=0;i<nbEvents;i++) {
     
+    unsigned int evtSizeInBytes(0);
+
     U32     fuTransactionId=msg   ->allocate[i].fuTransactionId; // assigned by FU
     I2O_TID fuTid          =stdMsg->InitiatorAddress;            // declared to i2o
     
@@ -354,7 +386,8 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
       unsigned int msgSizeInBytes=frame->PvtMessageFrame.StdMessageFrame.MessageSize<<2;
       superFrag->setDataSize(msgSizeInBytes);
       nbBytes_.value_+=msgSizeInBytes;
-      
+      evtSizeInBytes +=msgSizeInBytes;
+
       xdaq::ApplicationDescriptor *buAppDesc=
 	getApplicationDescriptor();
       
@@ -367,12 +400,12 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     if (0!=event) delete event;
     
     nbEvents_.value_++;
+    sumOfSquares_.value_+=evtSizeInBytes*evtSizeInBytes;
+    sumOfSizes_.value_  +=evtSizeInBytes;
   }
 
   // Free the request message from the FU
   bufRef->release();
-  
-  bSem_.give();
 }
 
 
@@ -419,6 +452,11 @@ void BU::clearFedBuffers()
   }
 
   if (0!=fedSize_) delete [] fedSize_;
+  
+  if (0!=fedId_) {
+    for (unsigned int i=0;i<nSuperFrag_;i++) delete [] fedId_[i];
+    delete [] fedId_;
+  }
 
   fedN_=0;
 }
@@ -427,12 +465,35 @@ void BU::clearFedBuffers()
 //______________________________________________________________________________
 void BU::generateRndmFEDs()
 {
-  // 16 FEDs per superfragment
-  if (fedN_<16) initFedBuffers(16);
+  // determine valid FED Ids and number of FEDs per superfragment
+  if (fedN_==0) {
+    vector<unsigned int> validFedIds;
+    for (int i=0;i<FEDNumbering::lastFEDId()+1;i++)
+      if (FEDNumbering::inRange(i)) validFedIds.push_back(i);
+    
+    if (validFedIds.size()<nSuperFrag_) nSuperFrag_=validFedIds.size();
+    
+    unsigned int fedN=validFedIds.size()/nSuperFrag_;
+    unsigned int nValidFeds=fedN*nSuperFrag_;
+    initFedBuffers(fedN);
+    
+    fedId_=new unsigned int*[nSuperFrag_];
+    for (unsigned int i=0;i<nSuperFrag_;i++) fedId_[i]=new unsigned int[fedN_];
+    
+    unsigned int i=0;
+    unsigned int j=0;
+    for (unsigned int k=0;k<nValidFeds;k++) {
+      unsigned int fedId=validFedIds[k];
+      fedId_[i][j]=fedId;
+      j++;
+      if (j%fedN_==0) { j=0; i++; }
+    }
+    
+  }
   
   // size of FEDs
   if(useFixedFedSize_) {
-    for (unsigned int i=0;i<16;i++) fedSize_[i]=fedSizeMean_;
+    for (unsigned int i=0;i<fedN_;i++) fedSize_[i]=fedSizeMean_;
   }
   else {
     for(unsigned int i=0;i<fedN_;i++) {
@@ -458,11 +519,25 @@ void BU::exportParameters()
     return;
   }
   
-  gui_->addMonitorParam("stateName",          &fsm_->stateName_);
   gui_->addMonitorParam("mode",               &mode_);
   gui_->addMonitorParam("debug",              &debug_);
   gui_->addMonitorParam("nbMBPerSec",         &nbMBPerSec_);
   gui_->addMonitorParam("memUsedInMB",        &memUsedInMB_);
+  gui_->addMonitorParam("url",                &url_);
+  gui_->addMonitorParam("class",              &class_);
+  gui_->addMonitorParam("instance",           &instance_);
+  gui_->addMonitorParam("hostname",           &hostname_);
+  gui_->addMonitorParam("runNumber",          &runNumber_);
+  gui_->addMonitorParam("nbEventsInBU",       &nbEventsInBU_);
+  gui_->addMonitorParam("deltaT",             &deltaT_);
+  gui_->addMonitorParam("deltaN",             &deltaN_);
+  gui_->addMonitorParam("deltaSumOfSquares",  &deltaSumOfSquares_);
+  gui_->addMonitorParam("deltaSumOfSizes",    &deltaSumOfSizes_);
+  gui_->addMonitorParam("stateName",          &fsm_->stateName_);
+  
+  gui_->addMonitorCounter("nbEvents",         &nbEvents_);
+  gui_->addMonitorCounter("nbEventsPerSec",   &nbEventsPerSec_);
+  gui_->addMonitorCounter("nbDiscardedEvents",&nbDiscardedEvents_);
 
   gui_->addStandardParam("dataBufSize",       &dataBufSize_);
   gui_->addStandardParam("nSuperFrag",        &nSuperFrag_);
@@ -470,15 +545,11 @@ void BU::exportParameters()
   gui_->addStandardParam("fedSizeWidth",      &fedSizeWidth_);
   gui_->addStandardParam("useFixedFedSize",   &useFixedFedSize_);
   
-  gui_->addMonitorCounter("nbEvents",         &nbEvents_);
-  gui_->addMonitorCounter("nbEventsPerSec",   &nbEventsPerSec_);
-  gui_->addMonitorCounter("nbDiscardedEvents",&nbDiscardedEvents_);
 
   gui_->exportParameters();
 
-  gui_->addItemRetrieveListener("mode",       this);
-  gui_->addItemRetrieveListener("memUsedInMB",this);
-
+  gui_->addItemRetrieveListener("mode",             this);
+  gui_->addItemRetrieveListener("memUsedInMB",      this);
 }
 
 
@@ -556,13 +627,14 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
     stdMsg->InitiatorAddress=i2o::utils::getAddressMap()->getTid(buAppDesc);
     stdMsg->TargetAddress   =fuTid;
 
-    block->buResourceId           =fuTransaction; // whatever!?
+    block->buResourceId           =fuTransaction;
     block->fuTransactionId        =fuTransaction;
     block->blockNb                =iBlock;
     block->nbBlocksInSuperFragment=nBlock;
     block->superFragmentNb        =iSuperFrag;
     block->nbSuperFragmentsInEvent=nSuperFrag;
-
+    block->eventNumber            =trigNo;
+    
     // Fill in payload 
     startOfPayload   =(unsigned char*)block+msgHeaderSize;
     frlh_t* frlHeader=(frlh_t*)startOfPayload;
@@ -690,7 +762,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
 	  fedh_t *fedHeader  =(fedh_t*)fedData_[iFed];
 	  fedHeader->eventid =trigNo;
 	  fedHeader->eventid|=0x50000000;
-	  fedHeader->sourceid=((iFed+iSuperFrag*16) << 8) & FED_SOID_MASK;
+	  fedHeader->sourceid=((fedId_[iSuperFrag][iFed]) << 8) & FED_SOID_MASK;
 	}
 	
 	memcpy(startOfFedBlocks,fedData_[iFed],fedHeaderSize_);

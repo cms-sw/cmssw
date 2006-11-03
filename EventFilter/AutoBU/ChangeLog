@@ -1,3 +1,13 @@
+2006-11-03  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-02-04
+	* add monitor parameters monitored by the 'real' BU
+	* in "RANDOM" mode, only generate 'valid' FED IDs
+	(DataFormats/FEDRawData/FEDNumbering); equaly distribute all valid
+	FED IDs over superfragments. Don't use FED IDs which are 'left'
+	due to the fact that nFEDs%nSF!=0.
+	
+
 2006-10-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-02-03
