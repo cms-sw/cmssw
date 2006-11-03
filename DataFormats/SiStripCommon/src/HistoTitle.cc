@@ -9,20 +9,20 @@ using namespace std;
 /** */
 void HistoTitle::print( stringstream& ss ) const {
   ss << "[HistoTitle::" << __func__ << "]" << endl
-     << "  CommissioningTask: " 
+     << "  CommissioningTask:  " 
      << SiStripHistoNamingScheme::task(task_)
      << endl
-     << "  KeyType/KeyValue:  " 
+     << "  KeyType/Value(hex): " 
      << SiStripHistoNamingScheme::keyType(keyType_) 
-     << "/"
-     << hex << "0x" << setfill('0') << setw(8) << keyValue_ << dec
+     << " / "
+     << hex << setfill('0') << setw(8) << keyValue_ << dec
      << endl
-     << "  Gran/Channel:      "
+     << "  Gran/Channel:       "
      << SiStripHistoNamingScheme::granularity(granularity_) 
-     << "/"
+     << " / "
      << channel_
      << endl
-     << "  ExtraInfo:         ";
+     << "  ExtraInfo:          ";
   if ( extraInfo_ != "" ) { ss << extraInfo_; }
   else { ss << "(none)"; }
 }
