@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/03 17:54:38 $
- *  $Revision: 1.50 $
+ *  $Date: 2006/11/03 19:59:29 $
+ *  $Revision: 1.51 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -213,9 +213,8 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
     TrackCand tkCand = TrackCand(0,tkTrackRef);
     if ( tkTrajsAvailable ) {
       std::vector<Trajectory>::const_iterator it = allTrackerTrajs->begin()+position;
-      const Trajectory* trajRef = &*it;
-      Trajectory* trajRef2 = const_cast<Trajectory*>(trajRef);            
-      if( trajRef2->isValid() ) tkCand = TrackCand(trajRef2,tkTrackRef);
+      Trajectory trajRef = *it;
+      if( trajRef.isValid() ) tkCand = TrackCand(&trajRef,tkTrackRef);
     } 
     tkTrackCands.push_back(tkCand);          
   }
