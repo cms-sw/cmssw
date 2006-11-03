@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/09/22 18:58:17 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -74,8 +74,9 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   //at most 1 track by SingleTrackPattern
   reco::TrackRef tkTrack(theTrackerTracks,0); 
-
   MuonCandidate::CandidateContainer result;
+
+  if ( !match(*muTrack,*tkTrack).first ) return result;
 
   std::vector<Trajectory> muTrajs = theTrackConverter->convert(*muTrack);
   LogDebug(metname) <<"Converted "<<muTrajs.size()<<" muon Trajectory";
@@ -149,11 +150,15 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   Trajectory* myTraj = new Trajectory(refitted.front());
 
+  std::vector<TrajectoryMeasurement> mytms = myTraj->measurements(); 
+  LogDebug(metname)<<"measurements in final trajectory "<<mytms.size();
+  if ( mytms.size() <= tkTrack->found() ) {
+     LogDebug(metname)<<"too little measurements. skip... ";
+     return result;
+  }
+
   MuonCandidate* myCand = new MuonCandidate(myTraj,muTrack,tkTrack);
   result.push_back(myCand);
-
-  std::vector<TrajectoryMeasurement> mytms = myTraj->measurements(); 
-  LogDebug(metname)<<"measurements "<<mytms.size();
 
   for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin();
        itm != mytms.end(); ++itm ) {
@@ -164,5 +169,15 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 }
 
 std::pair<bool,double> GlobalCosmicMuonTrajectoryBuilder::match(const reco::Track& muTrack, const reco::Track& tkTrack) {
-  return pair<bool,double>(true, 0);
+
+  float deltaPhi = muTrack.phi() - tkTrack.phi();
+  float deltaEta = muTrack.eta() - tkTrack.eta();
+
+  float deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
+
+  if (deltaR < 2 )
+   return pair<bool,double>(true, 0);
+
+  return pair<bool,double>(false, 0);
+
 } 
