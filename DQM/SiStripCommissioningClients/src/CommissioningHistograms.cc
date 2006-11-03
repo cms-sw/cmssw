@@ -70,13 +70,12 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       static HistoTitle title;
       title = SiStripHistoNamingScheme::histoTitle( *ime );
       
-      uint16_t channel;
+      uint16_t channel = sistrip::invalid_;
       if ( title.granularity_ == sistrip::APV ) {
 	channel = (title.channel_-32)/2;
       } else if ( title.granularity_ == sistrip::LLD_CHAN ) {
 	channel = title.channel_;
       } else {
-	channel = 0;
 	cerr << endl // edm::LogWarning(mlDqmClient_)
 	     << "[CommissioningHistograms::" << __func__ << "]"
 	     << " Unexpected histogram granularity: "

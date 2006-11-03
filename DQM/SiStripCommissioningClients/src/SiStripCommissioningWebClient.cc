@@ -39,13 +39,15 @@ void SiStripCommissioningWebClient::defineWidgets() {
   // Commissioning-specific buttons 
   Button* subsc   = new Button( url, "20px", "20px", "SubscribeAll", "Subscribe all" );
   Button* unsub   = new Button( url, "50px", "20px", "UnsubscribeAll", "Unsubscribe all" );
-  Button* save    = new Button( url, "80px", "20px", "SaveHistos", "Save histos to file" );
-  Button* anal    = new Button( url, "110px", "20px", "HistoAnalysis", "Analyze histograms" );
-  Button* summary = new Button( url, "140px", "20px", "SummaryHisto", "Create summary histo" );
-  Button* upload  = new Button( url, "170px", "20px", "UploadToDb", "Upload to database" );
-  Button* remove  = new Button( url, "200px", "20px", "RemoveAll", "Remove all" );
+  Button* update  = new Button( url, "80px", "20px", "UpdateHistos", "Update histograms" );
+  Button* save    = new Button( url, "110px", "20px", "SaveHistos", "Save histos to file" );
+  Button* anal    = new Button( url, "140px", "20px", "HistoAnalysis", "Analyze histograms" );
+  Button* summary = new Button( url, "170px", "20px", "SummaryHisto", "Create summary histo" );
+  Button* upload  = new Button( url, "200px", "20px", "UploadToDb", "Upload to database" );
+  Button* remove  = new Button( url, "230px", "20px", "RemoveAll", "Remove all" );
   this->add( "SubscribeAll", subsc );
   this->add( "UnsubscribeAll", unsub );
+  this->add( "UpdateHistos", update );
   this->add( "SaveHistos", save );
   this->add( "HistoAnalysis", anal );
   this->add( "SummaryHisto", summary );
@@ -55,7 +57,7 @@ void SiStripCommissioningWebClient::defineWidgets() {
   // Collector connection parameters, contents drop-down menu, viewer
   ContentViewer* con = new ContentViewer( url, "20px", "190px");
   ConfigBox* box = new ConfigBox( url, "20px", "340px");
-  GifDisplay* dis = new GifDisplay( url, "230px", "20px", "500px", "700px", "GifDisplay" ); 
+  GifDisplay* dis = new GifDisplay( url, "260px", "20px", "500px", "700px", "GifDisplay" ); 
   add( "ConfigBox", box );
   add( "ContentViewer", con );
   add( "GifDisplay", dis );
@@ -76,7 +78,7 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   multimap<string,string> requests;
   reader.read_form(requests);
   if ( requests.empty() ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+    cerr << "[SiStripCommissioningClient::" << __func__ << "]"
 	 << " Unable to handle empty request map!" 
 	 << endl;
     return; 
@@ -84,7 +86,7 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   
   string request = get_from_multimap( requests, "RequestID" );
   if ( request == "" ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+    cerr << "[SiStripCommissioningClient::" << __func__ << "]"
 	 << " Unable to handle empty request!" 
 	 << endl;
     return; 
@@ -102,6 +104,8 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
     if ( client_ ) { client_->subscribeAll( "*" ); }
   } else if ( request == "UnsubscribeAll" ) { 
     if ( client_ ) { client_->unsubscribeAll( "*" ); }
+  } else if ( request == "UpdateHistos" ) { 
+    if ( client_ ) { client_->onUpdate(); }
   } else if ( request == "SaveHistos" ) { 
     if ( client_ ) { client_->saveHistos( filename ); }
   } else if ( request == "HistoAnalysis" ) { 
@@ -111,10 +115,9 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   } else if ( request == "UploadToDb" ) { 
     if ( client_ ) { client_->uploadToConfigDb(); }
   } else {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+    cerr << "[SiStripCommissioningClient::" << __func__ << "]"
 	 << " Unknown request: " << request 
 	 << endl;
   }
   
 }
-
