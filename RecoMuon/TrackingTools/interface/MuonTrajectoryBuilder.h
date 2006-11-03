@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2006/08/30 12:56:50 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/31 18:24:17 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -24,6 +24,7 @@ class MuonTrajectoryBuilder {
   
     typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
     typedef MuonCandidate::CandidateContainer CandidateContainer;
+    typedef std::pair<Trajectory*, reco::TrackRef> TrackCand;
 
     /// constructor
     MuonTrajectoryBuilder() {}
@@ -36,6 +37,7 @@ class MuonTrajectoryBuilder {
 
     /// return a container reconstructed muons starting from a given track
     virtual CandidateContainer trajectories(const reco::TrackRef&) = 0;
+    virtual CandidateContainer trajectories(const TrackCand&) = 0;
 
     /// pass the Event to the algo at each event
     virtual void setEvent(const edm::Event& event) = 0;

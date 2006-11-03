@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/07/25 13:01:05 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/08/31 18:24:17 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -46,10 +46,14 @@ class MuonTrackFinder {
                      edm::Event&);
                      
     void reconstruct(const edm::Handle<reco::TrackCollection>&,  
-                     edm::Event&);
-
-  private:
-
+		     edm::Event&);
+    
+    void reconstruct(const edm::Handle<reco::TrackCollection>&,  
+		     const edm::Handle<std::vector<Trajectory> >&,  
+		     edm::Event&);
+    
+ private:
+    
     /// percolate the Event Setup
     void setEvent(const edm::Event&);
 
