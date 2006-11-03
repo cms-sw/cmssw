@@ -1,7 +1,7 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2006/10/20 13:24:55 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/11/03 11:00:55 $
+ *  $Revision: 1.6 $
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -159,6 +159,7 @@ void AlignmentParameterBuilder::addSelection(const std::string &name, const std:
   else if (name == "PixelHalfBarrelLaddersLayers12") {
     theSelLayers=true; theMinLayer=1; theMaxLayer=2;
     add(theAlignableTracker->pixelHalfBarrelLadders(),sel);
+    theSelLayers = false;
   }
 
 
