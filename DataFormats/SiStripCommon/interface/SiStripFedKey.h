@@ -15,11 +15,11 @@ class SiStripFedKey {
   public:
     uint16_t fedCrate_; // FED crate   [1-60]
     uint16_t fedSlot_;  // FED slot    [1-21]
-    uint16_t fedId_;    // FED id      [0-1023]
+    uint16_t fedId_;    // FED id      [1-1022]
     uint16_t fedCh_;    // FED channel [0-95]
     uint16_t fedApv_;   // APV         [1-2]
-    uint16_t feUnit_;   // FE unit     [0-7]
-    uint16_t feChan_;   // FE channel  [0-11]
+    uint16_t feUnit_;   // FE unit     [1-8]
+    uint16_t feChan_;   // FE channel  [1-12]
     Path();
     Path( const uint16_t& fed_id,
 	  const uint16_t& fed_ch,
