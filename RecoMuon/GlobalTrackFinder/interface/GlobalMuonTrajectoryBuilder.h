@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/10/24 09:45:44 $
- *  $Revision: 1.33 $
+ *  $Date: 2006/11/03 17:54:38 $
+ *  $Revision: 1.34 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -128,7 +128,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     std::string theTkTrackLabel;
 
     edm::Handle<reco::TrackCollection> allTrackerTracks;
-    std::vector<Trajectory> *allTrackerTrajs;
+    const std::vector<Trajectory> *allTrackerTrajs;
  
     const MuonServiceProxy *theService;
     
