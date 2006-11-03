@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2006/11/02 16:24:45 $
- * $Revision: 1.3 $
+ * $Date: 2006/11/03 10:39:03 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -456,7 +456,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgNameB[3], imgNameBMap[2], imgNameS[3], imgNameSMap[2], imgName, meName;
 
   TCanvas* cEne = new TCanvas("cEne", "Temp", csize, csize);
-  TCanvas* cMap = new TCanvas("cMap", "Temp", int(1.5*csize), 2*int(1.5*csize));
+  TCanvas* cMap = new TCanvas("cMap", "Temp", csize, 2*csize);
 
   TH1F* obj1f = 0;
   TProfile2D* objp;
