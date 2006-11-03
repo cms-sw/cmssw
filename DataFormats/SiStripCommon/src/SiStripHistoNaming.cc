@@ -47,14 +47,16 @@ HistoTitle SiStripHistoNamingScheme::histoTitle( const string& histo_title ) {
   uint32_t position = 0;
   
   // Extract Task
-  title.task_ = SiStripHistoNamingScheme::task( histo_title.substr(position) );
+  title.task_ = SiStripHistoNamingScheme::task( histo_title.substr(position,histo_title.find(sistrip::sep_)) );
   string task = SiStripHistoNamingScheme::task( title.task_ );
   position += histo_title.substr(position).find( task ) + task.size();
+  if ( position == string::npos ) { return title; }
   
   // Extract KeyType
-  title.keyType_ = SiStripHistoNamingScheme::keyType( histo_title.substr(position) );
+  title.keyType_ = SiStripHistoNamingScheme::keyType( histo_title.substr(position,histo_title.find(sistrip::sep_)) );
   string key_type = SiStripHistoNamingScheme::keyType( title.keyType_ );
   position += histo_title.substr(position).find( key_type ) + key_type.size();
+  if ( position == string::npos ) { return title; }
   
   // Extract KeyValue
   uint16_t key_size = 8;
@@ -62,11 +64,13 @@ HistoTitle SiStripHistoNamingScheme::histoTitle( const string& histo_title ) {
   stringstream key; key << histo_title.substr( position, key_size );
   key >> hex >> title.keyValue_;
   position += key_size;
+  if ( position == string::npos ) { return title; }
   
   // Extract Granularity
-  title.granularity_ = SiStripHistoNamingScheme::granularity( histo_title.substr(position) );
+  title.granularity_ = SiStripHistoNamingScheme::granularity( histo_title.substr(position,histo_title.find(sistrip::sep_)) );
   string gran = SiStripHistoNamingScheme::granularity( title.granularity_ );
   position += histo_title.substr(position).find( gran ) + gran.size();
+  if ( position == string::npos ) { return title; }
 
   // Extract Channel 
   uint32_t chan_size = histo_title.find( sistrip::sep_, position ) - position;
@@ -74,6 +78,7 @@ HistoTitle SiStripHistoNamingScheme::histoTitle( const string& histo_title ) {
   chan << histo_title.substr( position, chan_size );
   chan >> dec >> title.channel_;
   position += chan_size;
+  if ( position == string::npos ) { return title; }
   
   // Extract ExtraInfo
   uint32_t pos = histo_title.find( sistrip::sep_, position );
