@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.4 2006/11/02 10:23:56 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.5 2006/11/02 12:28:09 llista Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
@@ -32,7 +32,7 @@ namespace reco {
     /// status code
     int status() const { return status_; }
     /// get candidate mother
-    const GenParticleCandidateRef & mother() const { return mother_; }
+    GenParticleCandidateRef mother() const { return mother_; }
     /// set mother reference
     void setMother( const GenParticleCandidateRef & ref ) const { mother_ = ref; }
 
@@ -46,6 +46,24 @@ namespace reco {
     /// reference to mother
     mutable GenParticleCandidateRef mother_;
  };
+
+  /// PDG id component tag
+  struct PdgIdTag { };
+
+  /// status code component tag
+  struct StatusTag { };
+
+  /// mother reference component tag
+  struct MotherRefTag { };
+
+  /// get PDG id component
+  GET_CANDIDATE_COMPONENT( GenParticleCandidate, int, pdgId, PdgIdTag );
+
+  /// get status code component
+  GET_CANDIDATE_COMPONENT( GenParticleCandidate, int, status, StatusTag );
+
+  /// get mother reference component
+  GET_CANDIDATE_COMPONENT( GenParticleCandidate, GenParticleCandidateRef, mother, MotherRefTag );
 
 }
 
