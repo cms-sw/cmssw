@@ -5,6 +5,15 @@
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=RecoEgamma/EgammaHLTAlgos>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=DataFormats/DetId>
+<use name=DataFormats/SiPixelCluster>
+<use name=DataFormats/TrackerRecHit2D>
+<use name=DataFormats/TrackingRecHit>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=SimDataFormats/HepMCProduct>
 <flags SEAL_PLUGIN_NAME="RecoEgammaEgammaHLTProducers">
 <export>
    <lib name=RecoEgammaEgammaHLTProducers>
@@ -15,4 +24,13 @@
    <use name=Geometry/CaloEventSetup>
    <use name=Geometry/CaloGeometry>
    <use name=RecoEgamma/EgammaHLTAlgos>
+   <use name=MagneticField/Engine>
+   <use name=MagneticField/Records>
+   <use name=DataFormats/DetId>
+   <use name=DataFormats/SiPixelCluster>
+   <use name=DataFormats/TrackerRecHit2D>
+   <use name=DataFormats/TrackingRecHit>
+   <use name=Geometry/CommonDetUnit>
+   <use name=Geometry/TrackerGeometryBuilder>
+   <use name=SimDataFormats/HepMCProduct>
 </export>
