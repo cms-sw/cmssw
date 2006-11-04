@@ -6,8 +6,8 @@
  *  Navigation School for both Muon and Tk
  *  different from the one in ORCA
  *
- *  $Date: 2006/06/19 19:00:58 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/13 13:52:56 $
+ *  $Revision: 1.2 $
  *
  * \author : Chang Liu - Purdue University
  * \author Stefano Lacaprara - INFN Padova 
@@ -63,14 +63,22 @@ class MuonTkNavigationSchool : public NavigationSchool {
     float calculateEta(float r, float z) const;
 
   private:
-    typedef std::vector<const DetLayer*>         DLC;
+
+    struct delete_layer
+    {
+      template <typename T>
+      void operator()(T*& p)
+      {
+        if( p)
+        {
+          delete p;
+          p = 0;
+        }
+      }
+    };
+
     typedef std::vector<BarrelDetLayer*>         BDLC;
     typedef std::vector<ForwardDetLayer*>        FDLC;
-    typedef DLC::iterator                        DLI;
-    typedef BDLC::iterator                       BDLI;
-    typedef FDLC::iterator                       FDLI;
-    typedef BDLC::const_iterator                 ConstBDLI;
-    typedef FDLC::const_iterator                 ConstFDLI;
 
     MapB theBarrelLayers;
     MapE theForwardLayers;   // +z

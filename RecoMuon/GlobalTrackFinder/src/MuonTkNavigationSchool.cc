@@ -5,8 +5,8 @@
  *  Navigation School for both Muon and Tk
  *  different algo from the one in ORCA
  *
- *  $Date: 2006/10/13 15:10:41 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/10/18 20:36:34 $
+ *  $Revision: 1.7 $
  *
  * \author : Chang Liu - Purdue University
  * \author : Stefano Lacaprara - INFN Padova
@@ -80,6 +80,14 @@ MuonTkNavigationSchool::MuonTkNavigationSchool(const MuonDetLayerGeometry * muon
 }
 
 MuonTkNavigationSchool::~MuonTkNavigationSchool() {
+
+   for_each(theTkBarrelNLC.begin(),theTkBarrelNLC.end(), delete_layer());
+   for_each(theTkForwardNLC.begin(),theTkForwardNLC.end(), delete_layer());
+   for_each(theTkBackwardNLC.begin(),theTkBackwardNLC.end(), delete_layer());
+   for_each(theMuonBarrelNLC.begin(),theMuonBarrelNLC.end(), delete_layer());
+   for_each(theMuonForwardNLC.begin(),theMuonForwardNLC.end(), delete_layer());
+   for_each(theMuonBackwardNLC.begin(),theMuonBackwardNLC.end(), delete_layer());
+
 
 }
 /* Operations as NavigationSchool */
