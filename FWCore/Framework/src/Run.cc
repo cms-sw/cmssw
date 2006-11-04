@@ -4,7 +4,7 @@
 namespace edm {
 
     Run::Run(RunPrincipal& dbk, ModuleDescription const& md) :
-	DataViewImpl(dbk.impl(), md),
+	DataViewImpl(dbk.impl(), md, InRun),
 	aux_(dbk.aux()) {
     }
 }

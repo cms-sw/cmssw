@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.1 2006/10/27 20:55:14 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.2 2006/11/04 07:17:39 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -17,11 +17,14 @@ using namespace std;
 
 namespace edm {
 
-  DataViewImpl::DataViewImpl(DataBlockImpl & dbk, ModuleDescription const& md) :
+  DataViewImpl::DataViewImpl(DataBlockImpl & dbk,
+	ModuleDescription const& md,
+	BranchType const& branchType)  :
     put_products_(),
     gotProductIDs_(),
     dbk_(dbk),
-    md_(md)
+    md_(md),
+    branchType_(branchType)
   {  }
 
   struct deleter {
@@ -125,9 +128,8 @@ namespace edm {
   }
 
   BranchDescription const&
-  DataViewImpl::getBranchDescription(BranchType const& branchType_,
-                      std::string const& friendlyClassName,
-                      std::string const& productInstanceName) const {
+  DataViewImpl::getBranchDescription(std::string const& friendlyClassName,
+      std::string const& productInstanceName) const {
     BranchKey const bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
     ProductRegistry::ProductList const& pl = dbk_.productRegistry().productList();
     ProductRegistry::ProductList::const_iterator it = pl.find(bk);

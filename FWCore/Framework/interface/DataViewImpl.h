@@ -74,7 +74,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.3 2006/10/31 23:54:01 wmtan Exp $
+$Id: DataViewImpl.h,v 1.4 2006/11/04 07:17:38 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -106,11 +106,13 @@ $Id: DataViewImpl.h,v 1.3 2006/10/31 23:54:01 wmtan Exp $
 
 namespace edm {
 
-  class DataViewImpl
-  {
+  class DataViewImpl {
   public:
-    DataViewImpl(DataBlockImpl & dbk, ModuleDescription const& md);
-    virtual ~DataViewImpl();
+    DataViewImpl(DataBlockImpl & dbk,
+        ModuleDescription const& md,
+	BranchType const& branchType);
+
+    ~DataViewImpl();
 
     template <typename PROD>
     void 
@@ -151,19 +153,17 @@ namespace edm {
     void
     getAllProvenance(std::vector<Provenance const*> &provenances) const;
 
-protected:
-
     ///Put a new product where the product is gotten using a 'product instance name'
     template <typename PROD>
     OrphanHandle<PROD>
-    put_(BranchType const& branchType, std::auto_ptr<PROD> product, std::string const& productInstanceName);
+    put(std::auto_ptr<PROD> product, std::string const& productInstanceName = std::string());
 
     ///Returns a RefProd to a product before that product has been placed into the DataViewImpl
     /// The RefProd (and any Ref's made from it) will no work properly until after the
     /// DataViewImpl has been committed (which happens after leaving the EDProducer::produce method)
     template <typename PROD>
     RefProd<PROD>
-    getRefBeforePut_(BranchType const& branchType, std::string const& productInstanceName = std::string());
+    getRefBeforePut(std::string const& productInstanceName = std::string());
     
   private:
 
@@ -177,7 +177,7 @@ protected:
     //
 
     BranchDescription const&
-    getBranchDescription(BranchType const& branchType_, std::string const& friendlyClassName, std::string const& productInstanceName) const;
+    getBranchDescription(std::string const& friendlyClassName, std::string const& productInstanceName) const;
 
     // commit_ is called to complete the transaction represented by
     // this DataViewImpl. The friendships required seems gross, but any
@@ -228,8 +228,8 @@ protected:
     //------------------------------------------------------------
     // Copying and assignment of DataViewImpls is disallowed
     //
-    DataViewImpl(const DataViewImpl&);                  // not implemented
-    const void operator=(const DataViewImpl&);   // not implemented
+    DataViewImpl(DataViewImpl const&);                  // not implemented
+    DataViewImpl const& operator=(DataViewImpl const&);   // not implemented
 
     //------------------------------------------------------------
     // Data members
@@ -238,21 +238,24 @@ protected:
     // put_products_ is the holding pen for EDProducts inserted into
     // this DataViewImpl. Pointers in this collection own the products to
     // which they point.
-    ProductPtrVec            put_products_;
+    ProductPtrVec put_products_;
 
     // gotProductIDs_ must be mutable because it records all 'gets',
     // which do not logically modify the DataViewImpl. gotProductIDs_ is
     // merely a cache reflecting what has been retreived from the
     // DataBlockImpl class.
-    mutable ProductIDVec        gotProductIDs_;
+    mutable ProductIDVec gotProductIDs_;
 
     // Each DataViewImpl must have an associated DataBlockImpl, used as the
     // source of all 'gets' and the target of 'puts'.
-    DataBlockImpl&          dbk_;
+    DataBlockImpl & dbk_;
 
     // Each DataViewImpl must have a description of the module executing the
     // "transaction" which the DataViewImpl represents.
-    const ModuleDescription& md_;
+    ModuleDescription const& md_;
+
+    // Is this an Event, a LuminosityBlock, or a Run.
+    BranchType const branchType_;
   };
 
 
@@ -366,7 +369,7 @@ protected:
 
   template <typename PROD>
   OrphanHandle<PROD> 
-  DataViewImpl::put_(BranchType const& branchType_, std::auto_ptr<PROD> product, std::string const& productInstanceName)
+  DataViewImpl::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
   {
     PROD* p = product.get();
     assert (p);                // null pointer is illegal
@@ -379,7 +382,7 @@ protected:
     maybe_inserter(p);
 
     BranchDescription const& desc =
-       getBranchDescription(branchType_, TypeID(*p).friendlyClassName(), productInstanceName);
+       getBranchDescription(TypeID(*p).friendlyClassName(), productInstanceName);
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));
 
@@ -393,10 +396,10 @@ protected:
 
   template <typename PROD>
   RefProd<PROD>
-  DataViewImpl::getRefBeforePut_(BranchType const& branchType_, std::string const& productInstanceName) {
+  DataViewImpl::getRefBeforePut(std::string const& productInstanceName) {
     PROD* p = 0;
     BranchDescription const& desc =
-       getBranchDescription(branchType_, TypeID(*p).friendlyClassName(), productInstanceName);
+       getBranchDescription(TypeID(*p).friendlyClassName(), productInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'
     return RefProd<PROD>(desc.productID(), prodGetter());
