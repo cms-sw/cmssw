@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: ProductRegistryHelper.cc,v 1.11 2006/07/20 23:43:36 wmtan Exp $
+$Id: ProductRegistryHelper.cc,v 1.12 2006/07/21 18:00:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -24,7 +24,8 @@ namespace edm {
                              ProductRegistry& iReg,
                              bool iIsListener) {
     for (TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
-      BranchDescription pdesc(iDesc.moduleLabel(),
+      BranchDescription pdesc(p->branchType_,
+                              iDesc.moduleLabel(),
                               iDesc.processName(),
                               p->typeID_.userClassName(),
                               p->typeID_.friendlyClassName(), 

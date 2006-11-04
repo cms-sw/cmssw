@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataBlockImpl.cc,v 1.1 2006/10/27 20:55:14 wmtan Exp $
+$Id: DataBlockImpl.cc,v 1.2 2006/10/31 23:54:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -139,20 +139,9 @@ namespace edm {
 		      auto_ptr<Provenance> prov) {
 
     if (prov->productID() == ProductID()) {
-      ProductRegistry::ProductList const& pl = preg_->productList();
-      BranchKey const bk(prov->product);
-      ProductRegistry::ProductList::const_iterator it = pl.find(bk);
-      if (it == pl.end()) {
-	throw edm::Exception(edm::errors::InsertFailure,"Not Registered")
-	  << "put: Problem found while adding product. "
-	  << "No product is registered for ("
-	  << bk.friendlyClassName_ << ","
-          << bk.moduleLabel_ << ","
-          << bk.productInstanceName_ << ","
-          << bk.processName_
-	  << ")\n";
-      }
-      prov->product.productID_ = it->second.productID_;
+	throw edm::Exception(edm::errors::InsertFailure,"Null Product ID")
+	  << "put: Cannot put product with null Product ID."
+	  << "\n";
     }
     ProductID oid = prov->productID();
 

@@ -5,13 +5,14 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.8 2006/05/24 01:52:51 wmtan Exp $
+$Id: ProductRegistryHelper.h,v 1.9 2006/08/30 23:34:01 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/TypeID.h"
 #include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/BranchType.h"
 #include <string>
 #include <list>
 #include "boost/shared_ptr.hpp"
@@ -27,10 +28,12 @@ namespace edm {
     virtual ~ProductRegistryHelper();
  
     struct TypeLabelItem {
-      TypeLabelItem (TypeID const& tid, std::string const& pin) :
+      TypeLabelItem (BranchType const& branchType, TypeID const& tid, std::string const& pin) :
+	branchType_(branchType),
         typeID_(tid),
         productInstanceName_(pin),
         branchAlias_() {}
+      BranchType branchType_;
       TypeID typeID_;
       std::string productInstanceName_;
       mutable std::string branchAlias_;
@@ -56,19 +59,30 @@ namespace edm {
         \endcode
         should be added to the producer ctor for every product */
 
+
     template <class ProductType> 
+    TypeLabelItem const& produces() {
+      return produces<ProductType, InEvent>(std::string());
+    }
+
+    template <class ProductType> 
+    TypeLabelItem const& produces(std::string const& instanceName) {
+      return produces<ProductType, InEvent>(instanceName);
+    }
+
+    template <typename ProductType, BranchType B> 
+    TypeLabelItem const& produces() {
+      return produces<ProductType, B>(std::string());
+    }
+
+    template <typename ProductType, BranchType B> 
     TypeLabelItem const& produces(std::string const& instanceName) {
 
       ProductType aproduct;
       TypeID tid(aproduct);
-      TypeLabelItem tli(tid, instanceName);
+      TypeLabelItem tli(B, tid, instanceName);
       typeLabelList_.push_back(tli);
       return *typeLabelList_.rbegin();
-    }
-
-    template <class ProductType> 
-    TypeLabelItem const& produces() {
-      return produces<ProductType>(std::string());
     }
 
   private:

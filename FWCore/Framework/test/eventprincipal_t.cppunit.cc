@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.27 2006/09/27 15:27:24 paterno Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.28 2006/10/23 23:52:36 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <memory>
@@ -133,6 +133,12 @@ void testeventprincipal::put_a_product(std::string const& processName,
 
   pProductRegistry_->addProduct(provenance->product);
   pProductRegistry_->setProductIDs();
+
+  edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
+  edm::BranchKey const bk(provenance->product);
+  edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
+  provenance->product.productID_ = it->second.productID_;
+
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
@@ -326,6 +332,12 @@ void testeventprincipal::getProvenanceTest()
 
   pProductRegistry_->addProduct(pprov->product);
   pProductRegistry_->setProductIDs();
+
+  edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
+  edm::BranchKey const bk(pprov->product);
+  edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
+  pprov->product.productID_ = it->second.productID_;
+
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
@@ -334,7 +346,6 @@ void testeventprincipal::getProvenanceTest()
   pEvent_->put(pprod, pprov);
 
   edm::ProductID id(1);
-  
 
   edm::Provenance const& prov = pEvent_->getProvenance(id);
   CPPUNIT_ASSERT(prov.productID() == id);
@@ -363,6 +374,12 @@ void testeventprincipal::getAllProvenanceTest()
 
   pProductRegistry_->addProduct(pprov->product);
   pProductRegistry_->setProductIDs();
+
+  edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
+  edm::BranchKey const bk(pprov->product);
+  edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
+  pprov->product.productID_ = it->second.productID_;
+
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
