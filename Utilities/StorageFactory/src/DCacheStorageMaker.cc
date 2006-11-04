@@ -22,13 +22,14 @@
 std::string
 DCacheStorageMaker::pathForUrl (const std::string &proto, const std::string &path)
 {
-    if (proto == "gsidcap" || (path [0] == '/' && path [1] == '/'))
-	// it's url, return the full thing
-	return proto + ':' + path;
-    else
-	// assume it's /pnfs, return only unix-like path
-	return path;
+  size_t p=path.find("/pnfs");
+  if (p<3) return (proto == "gsidcap") ? proto + ':'+ path.substr(p) : path.substr(p);
+  // remove multiple "/"
+  p=path.find_first_not_of('/');
+  // it's url, return the full thing
+  return proto + "://" + path.substr(p);
 }
+
 
 /** Open a storage object for the given URL (protocol + path), using the
     @a mode bits.  No temporary files are downloaded.  */
