@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.28 2006/10/13 01:46:54 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.1 2006/10/27 20:55:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -125,7 +125,8 @@ namespace edm {
   }
 
   BranchDescription const&
-  DataViewImpl::getBranchDescription(std::string const& friendlyClassName,
+  DataViewImpl::getBranchDescription(BranchType const& branchType_,
+                      std::string const& friendlyClassName,
                       std::string const& productInstanceName) const {
     BranchKey const bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
     ProductRegistry::ProductList const& pl = dbk_.productRegistry().productList();
@@ -139,6 +140,19 @@ namespace edm {
           << bk.productInstanceName_ << ","
           << bk.processName_
           << ")\n";
+    }
+    if(it->second.branchType() != branchType_) {
+        throw edm::Exception(edm::errors::InsertFailure,"Not Registered")
+          << "put: Problem found while adding product. "
+          << "The product for ("
+          << bk.friendlyClassName_ << ","
+          << bk.moduleLabel_ << ","
+          << bk.productInstanceName_ << ","
+          << bk.processName_
+          << ")\n"
+          << "is registered for a(n) " << it->second.branchType()
+          << " instead of for a(n) " << branchType_
+          << ".\n";
     }
     return it->second;
   }

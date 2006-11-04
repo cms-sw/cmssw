@@ -16,10 +16,11 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.46 2006/10/30 23:07:53 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.1 2006/10/31 23:54:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/BranchType.h"
 #include "DataFormats/Common/interface/LuminosityBlockAux.h"
 #include "DataFormats/Common/interface/LuminosityBlockID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
@@ -46,6 +47,22 @@ namespace edm {
     LuminosityBlockID id() const {return aux_.id();}
     Timestamp time() const {return aux_.time();}
 
+    ///Put a new product where the product is gotten using a 'product instance name'
+    template <typename PROD>
+    OrphanHandle<PROD>
+    put(std::auto_ptr<PROD> product, std::string const& productInstanceName = std::string()) {
+      return put_<PROD>(InLumi, product, productInstanceName);
+    }
+
+    ///Returns a RefProd to a product before that product has been placed into the DataViewImpl
+    /// The RefProd (and any Ref's made from it) will no work properly until after the
+    /// DataViewImpl has been committed (which happens after leaving the EDProducer::produce method)
+    template <typename PROD>
+    RefProd<PROD>
+    getRefBeforePut(std::string const& productInstanceName = std::string()) {
+      return getRefBeforePut_<PROD>(InLumi, productInstanceName);
+    }
+
     using DataViewImpl::get;
     using DataViewImpl::getAllProvenance;
     using DataViewImpl::getByLabel;
@@ -53,7 +70,6 @@ namespace edm {
     using DataViewImpl::getMany;
     using DataViewImpl::getManyByType;
     using DataViewImpl::getProvenance;
-    using DataViewImpl::put;
 
   private:
     // commit_() is called to complete the transaction represented by
