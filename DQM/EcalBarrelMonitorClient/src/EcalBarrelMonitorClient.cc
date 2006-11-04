@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/10/18 16:57:52 $
- * $Revision: 1.179 $
+ * $Date: 2006/10/30 11:15:16 $
+ * $Revision: 1.180 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -597,7 +597,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   runtag.setGeneralTag( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] );
 
-  // fetch the RunIOV from the DB
+  // fetch the RunIOV from the DB (first try)
 
   bool foundRunIOV = false;
 
@@ -612,6 +612,27 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       cerr << e.what() << endl;
       foundRunIOV = false;
     }
+  }
+
+  // fetch the RunIOV from the DB (second try)
+
+  if ( ! foundRunIOV ) {
+
+    sleep(10);
+
+    if ( econn ) {
+      try {
+        cout << "Fetching RunIOV (2) ... " << flush;
+        runiov_ = econn->fetchRunIOV(&runtag, run_);
+//        runiov_ = econn->fetchRunIOV(location_, run_);
+        cout << "done." << endl;
+        foundRunIOV = true;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+        foundRunIOV = false;
+      }
+    }
+
   }
 
   // begin - setup the RunIOV (on behalf of the DAQ)
