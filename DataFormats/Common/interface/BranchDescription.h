@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.21 2006/09/28 20:35:10 wmtan Exp $
+$Id: BranchDescription.h,v 1.22 2006/11/04 00:34:35 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -141,7 +141,7 @@ namespace edm {
   
   inline
   std::ostream&
-  operator<<(std::ostream& os, const BranchDescription& p) {
+  operator<<(std::ostream& os, BranchDescription const& p) {
     p.write(os);
     return os;
   }

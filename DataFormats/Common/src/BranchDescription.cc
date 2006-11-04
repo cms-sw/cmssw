@@ -6,7 +6,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.18 2006/09/28 20:35:10 wmtan Exp $
+$Id: BranchDescription.cc,v 1.19 2006/11/04 00:34:36 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -114,6 +114,7 @@ namespace edm {
 
   void
   BranchDescription::write(std::ostream& os) const {
+    os << "Branch Type = " << branchType() << std::endl;
     os << "Process Name = " << processName() << std::endl;
     os << "ModuleLabel = " << moduleLabel() << std::endl;
     os << "Product ID = " << productID() << '\n';
