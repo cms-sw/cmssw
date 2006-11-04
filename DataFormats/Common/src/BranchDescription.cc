@@ -6,12 +6,13 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.17 2006/08/30 23:28:34 wmtan Exp $
+$Id: BranchDescription.cc,v 1.18 2006/09/28 20:35:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
   BranchDescription::BranchDescription() :
+    branchType_(InEvent),
     moduleLabel_(),
     processName_(),
     productID_(),
@@ -30,6 +31,7 @@ namespace edm {
   { }
 
   BranchDescription::BranchDescription(
+			BranchType const& branchType,
 			std::string const& mdLabel, 
 			std::string const& procName, 
 			std::string const& name, 
@@ -39,6 +41,7 @@ namespace edm {
 			std::set<ParameterSetID> const& psIDs,
 			std::set<ProcessConfigurationID> const& procConfigIDs,
 			std::set<std::string> const& aliases) :
+    branchType_(branchType),
     moduleLabel_(mdLabel),
     processName_(procName),
     productID_(),

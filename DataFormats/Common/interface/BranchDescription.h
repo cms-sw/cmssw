@@ -6,12 +6,13 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.20 2006/08/30 23:28:33 wmtan Exp $
+$Id: BranchDescription.h,v 1.21 2006/09/28 20:35:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
 #include <set>
 
+#include "DataFormats/Common/interface/BranchType.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ModuleDescriptionID.h"
@@ -34,7 +35,9 @@ namespace edm {
 
     BranchDescription();
 
-    explicit BranchDescription(std::string const& mdLabel, 
+    explicit BranchDescription(
+		BranchType const& branchType,
+		std::string const& mdLabel, 
 		std::string const& procName, 
 		std::string const& name, 
 		std::string const& fName, 
@@ -70,8 +73,14 @@ namespace edm {
     std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
     std::string const& branchName() const {return branchName_;}
+    BranchType const& branchType() const {return branchType_;}
+
 
   //TODO: Make all the data private!
+
+    // What tree is the branch in?
+    BranchType branchType_;
+
     // A human friendly string that uniquely identifies the EDProducer
     // and becomes part of the identity of a product that it produces
     std::string moduleLabel_;
@@ -117,11 +126,11 @@ namespace edm {
     // rather than in a previous process
     bool produced_;
 
-    // Is the branch present in the events tree
+    // Is the branch present in the product tree
     // in the input file (or any of the input files)
     mutable bool present_;
 
-    // Is the branch present in the eventMetaData tree
+    // Is the branch present in the provenance tree
     // in the input file (or any of the input files)
     mutable bool provenancePresent_;
 
