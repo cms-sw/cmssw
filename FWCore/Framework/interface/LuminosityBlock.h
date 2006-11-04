@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.2 2006/11/04 07:17:38 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.3 2006/11/04 18:56:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -62,10 +62,10 @@ namespace edm {
     // this DataViewImpl. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
-    //friend class ConfigurableInputSource;
-    //friend class RawInputSource;
-    //friend class FilterWorker;
-    //friend class ProducerWorker;
+    friend class ConfigurableInputSource;
+    friend class RawInputSource;
+    friend class FilterWorker;
+    friend class ProducerWorker;
 
     LuminosityBlockAux const& aux_;
   };
