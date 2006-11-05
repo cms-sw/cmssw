@@ -9,7 +9,12 @@
 class L1RCTLookupTables {
  
  public:
-  //function needs to output an unsigned long
+
+  // constructor
+
+  L1RCTLookupTables(const std::string& filename);
+
+  // function needs to output an unsigned long
 
   unsigned long lookup(unsigned short ecal, 
 		       unsigned short hcal,
@@ -30,6 +35,9 @@ class L1RCTLookupTables {
   static float jetMETLSB() {return 0.5;}
 
  private:
+
+  L1RCTLookupTables();  // Do not implement so one cannot instantiate without input file
+
   float convertEcal(unsigned short ecal);
   unsigned short calcActivityBit(unsigned short ecal,unsigned short hcal);
   unsigned short calcHEBit(float ecal,float hcal);

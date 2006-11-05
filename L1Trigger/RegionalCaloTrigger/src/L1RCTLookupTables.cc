@@ -7,6 +7,13 @@
 using std::cout;
 using std::endl;
 
+// constructor
+
+L1RCTLookupTables::L1RCTLookupTables(const std::string& filename)
+{
+  loadHcalConstants(filename);
+}
+
 // lookup method for HF
 unsigned short L1RCTLookupTables::lookup(unsigned short hfenergy,
 					 unsigned short crtNo,
@@ -94,6 +101,7 @@ void L1RCTLookupTables::loadHcalConstants(const std::string& filename)
 	  hcalConversionConstants_.at(iAbsEta-1).at(hcalETAddress) = value;
 	}
       }
+      userfile.close();
     }
   else 
     {

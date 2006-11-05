@@ -3,7 +3,8 @@
 using std::cout;
 using std::endl;
 int main() {
-  L1RCTLookupTables lut;
+  std::string filename("../data/TPGcalc.txt");
+  L1RCTLookupTables lut(filename);
   cout << lut.lookup(0,0,0,0,0,0) << " should equal 0" << endl;
   cout << lut.lookup(2,0,0,0,0,0) << " should equal 514" << endl;
   cout << lut.lookup(10,0,0,0,0,0) << " should equal 133642 " << endl;

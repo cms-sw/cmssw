@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTORCAMap.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
@@ -12,8 +13,9 @@ using std::ios;
 
 int main (){
   L1RCTORCAMap theMap;
-  L1RCT rct;
-  L1RCTLookupTables lut;
+  std::string filename("../data/TPGcalc.txt");
+  L1RCT rct(filename);
+  L1RCTLookupTables* lut = rct.getLUT();
   vector<int> data(4);
   vector<int> location(3);
   unsigned long lookupValue;
@@ -36,8 +38,8 @@ int main (){
       location = theMap.orcamap(data.at(0),data.at(1));
       barrel.at(location.at(0)).at(location.at(1)).at(location.at(2)) = data.at(2);
       barrel.at(location.at(0)).at(location.at(1)).at(location.at(2)+32) = data.at(3);
-      lookupValue = lut.lookup(data.at(2)&255,data.at(3)&255,(data.at(2)<<8)&1,
-			       location.at(0), location.at(1), location.at(2));
+      lookupValue = lut->lookup(data.at(2)&255,data.at(3)&255,(data.at(2)<<8)&1,
+				location.at(0), location.at(1), location.at(2));
       output << lookupValue << endl;
   }
   rct.input(barrel,hf);

@@ -6,6 +6,8 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTElectronIsolationCard.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
 
+class L1RCTLookupTables;
+
 class L1RCTCrate {
 
  public:
@@ -26,7 +28,8 @@ class L1RCTCrate {
   //to the JSC for this crate.  The RCs never see the HF data.  Instead
   //the JSC acts like a primitive RC for these regions.
   void input(vector<vector<unsigned short> > RCInput,
-	     vector<unsigned short> HFInput);
+	     vector<unsigned short> HFInput,
+	     L1RCTLookupTables *lut);
   //The two following are methods for running the actual data processing
   //in the RCs and the EICs.  They're to be called for each card
   //from the L1RCT process method

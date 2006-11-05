@@ -1,7 +1,10 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTReceiverCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 #include <vector>
 using std::vector;
 int main() {
+  std::string filename("../data/TPGcalc.txt");
+  L1RCTLookupTables lut(filename);
   L1RCTReceiverCard flip(9,0);
   L1RCTReceiverCard card(0,0);
   L1RCTReceiverCard six(0,6);
@@ -21,7 +24,7 @@ int main() {
   //The energy sum should be 300 and
   //the tau bit should be set to on because
   //the phi pattern is 1101
-  card.fillInput(input1);
+  card.fillInput(input1, &lut);
   card.fillTauBits();
   card.fillRegionSums();
   card.fillMuonBits();
@@ -36,7 +39,7 @@ int main() {
   //The tau bit should be off.
   input2.at(0) = 50;
   input2.at(32) = 50;
-  card.fillInput(input2);
+  card.fillInput(input2, &lut);
   card.fillTauBits();
   card.fillRegionSums();
   card.fillMuonBits();
@@ -53,7 +56,7 @@ int main() {
   //should be on and the tau bit should be off.
   input3.at(32) = 356;
   input3.at(1) = 356;
-  card.fillInput(input3);
+  card.fillInput(input3,&lut);
   card.fillTauBits();
   card.fillRegionSums();
   card.fillMuonBits();
@@ -66,19 +69,19 @@ int main() {
 
   for(int i =0;i<32;i++)
     input4.at(i)=i+1;
-  card.fillInput(input4);
+  card.fillInput(input4,&lut);
   card.fillMuonBits();
   card.fillTauBits();
   card.fillRegionSums();
   card.print();
 
-  flip.fillInput(input4);
+  flip.fillInput(input4,&lut);
   flip.fillMuonBits();
   flip.fillTauBits();
   flip.fillRegionSums();
   flip.print();
 
-  six.fillInput(input4);
+  six.fillInput(input4,&lut);
   six.fillMuonBits();
   six.fillTauBits();
   six.fillRegionSums();

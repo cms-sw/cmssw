@@ -32,5 +32,6 @@ class L1RCTTestProducer : public edm::EDProducer
   L1RCT* rct;
   std::string src;
   bool orcaFileInput;
+  std::string lutFile;
 };
 #endif

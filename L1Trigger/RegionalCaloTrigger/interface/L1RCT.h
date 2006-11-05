@@ -7,6 +7,7 @@
 #include <iostream>
 //#include <fstream>
 #include <iomanip>
+#include <string>
 
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTNeighborMap.h"
@@ -19,11 +20,13 @@
 
 #include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
 
+class L1RCTLookupTables;
+
 class L1RCT {
 
  public:
   
-  L1RCT();
+  L1RCT(std::string lutFile);
 
   void setGctEmScale(const L1CaloEtScale* scale);
 
@@ -91,8 +94,12 @@ class L1RCT {
   static short calcIEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower); // negative eta is used
   static unsigned short calcIPhi(unsigned short iCrate, unsigned short iCard, unsigned short iTower);
   
+  L1RCTLookupTables* getLUT() {return lut;}
+
  private:
   
+  L1RCT();  // Do not implement this
+
   //Method called by constructor to set all the neighbors properly.
   //Will make use of the internal neighborMap
   void configureCards();
@@ -117,6 +124,9 @@ class L1RCT {
 
   // scale for converting electron energy to GCT rank
   const L1CaloEtScale* gctEmScale;
+
+  L1RCTLookupTables* lut;
+
 };
 
 #endif

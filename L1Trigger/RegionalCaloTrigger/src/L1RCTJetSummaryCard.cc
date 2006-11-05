@@ -1,10 +1,11 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
+
 #include <iostream>
 using std::cout;
 using std::endl;
 
-L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):lut(),
-						    isolatedEGObjects(4),
+L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):isolatedEGObjects(4),
 						    nonisolatedEGObjects(4),
 						    jetRegions(22),
 						    HFRegions(8),
@@ -19,11 +20,11 @@ L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):lut(),
 {
 }
 
-void L1RCTJetSummaryCard::fillHFRegionSums(vector<unsigned short> hfRegionSums){
+void L1RCTJetSummaryCard::fillHFRegionSums(vector<unsigned short> hfRegionSums, L1RCTLookupTables *lut){
   //cout << "JSC.fillHFRegionSums() entered" << endl;
   for(int i=0;i<8;i++){
     //cout << "filling hf region at " << i << endl;
-    HFRegions.at(i) = lut.lookup( (hfRegionSums.at(i)), crtNo, 999, i);
+    HFRegions.at(i) = lut->lookup( (hfRegionSums.at(i)), crtNo, 999, i);
     //cout << "hf region " << i << " et filled" << endl;
     hfFineGrainBits.at(i) = (hfRegionSums.at(i)&1);
     //cout << "hf region " << i << " fine grain bit filled" << endl;

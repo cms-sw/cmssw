@@ -1,5 +1,9 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
+
 #include <fstream>
+#include <string>
+
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 //Main method to process a single event, hence the name.
 //First it sets up all the neighbors, sharing the pointers to the proper
@@ -26,7 +30,8 @@ void L1RCT::processEvent(){
   }
 }
 
-L1RCT::L1RCT() : empty(),neighborMap(){
+L1RCT::L1RCT(std::string lutFile) : empty(),neighborMap(){
+  lut = new L1RCTLookupTables(lutFile);
   for(int i = 0; i<18; i++){
     L1RCTCrate c(i);
     crates.push_back(c);
@@ -42,7 +47,7 @@ void L1RCT::input(vector<vector<vector<unsigned short> > > barrel,
   //cout << "L1RCT::input() entered" << endl;
   for(int i = 0; i<18; i++){
     //cout << "calling Crate.input() for crate " << i << endl;
-    crates.at(i).input(barrel.at(i),hf.at(i));
+    crates.at(i).input(barrel.at(i),hf.at(i),lut);
   }
 }
 

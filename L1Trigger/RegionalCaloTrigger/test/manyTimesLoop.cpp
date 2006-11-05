@@ -5,7 +5,8 @@ using namespace std;
 
 int main (){
   double diff;
-  L1RCT l1rct;
+  std::string filename("../data/TPGcalc.txt");
+  L1RCT l1rct(filename);
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
   vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
   time_t s1 = time (NULL);

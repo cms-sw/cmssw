@@ -4,7 +4,8 @@
 
 int main(){
   char inputname[256];
-  L1RCT rct;
+  std::string filename("../data/TPGcalc.txt");
+  L1RCT rct(filename);
   for(int i=1; i<=100;i++){
     sprintf(inputname,"data/rct-input-%i.dat",i);
     rct.fileInput(inputname);

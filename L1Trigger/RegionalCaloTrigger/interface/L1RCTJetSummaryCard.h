@@ -4,13 +4,12 @@
 #include <bitset>
 #include <vector>
 #include <algorithm>
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
-
-//#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
 using std::sort;
 using std::bitset;
 using std::vector;
+
+class L1RCTLookupTables;
 
 class L1RCTJetSummaryCard
 {
@@ -78,7 +77,7 @@ class L1RCTJetSummaryCard
 
   vector<unsigned short> getHFFineGrainBits() {return hfFineGrainBits;}
 
-  void fillHFRegionSums(vector<unsigned short> hfRegionSums);
+  void fillHFRegionSums(vector<unsigned short> hfRegionSums, L1RCTLookupTables *lut);
   void fillRegionSums(vector<unsigned short> regSums){
     barrelRegions = regSums;
   }
@@ -94,9 +93,6 @@ class L1RCTJetSummaryCard
 
   void print();
  private:
-  //Lookup table needed to process the raw data coming from the HF
-  //regions
-  L1RCTLookupTables lut;
 
   vector<unsigned short> isolatedEGObjects;
   vector<unsigned short> nonisolatedEGObjects;

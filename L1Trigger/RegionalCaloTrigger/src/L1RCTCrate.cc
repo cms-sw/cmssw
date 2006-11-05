@@ -1,4 +1,5 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 L1RCTCrate::L1RCTCrate(int crtNo) : jetSummaryCard(crtNo),crtNo(crtNo)
 {
@@ -10,15 +11,16 @@ L1RCTCrate::L1RCTCrate(int crtNo) : jetSummaryCard(crtNo),crtNo(crtNo)
   }
 }
 void L1RCTCrate::input(vector<vector<unsigned short> > RCInput,
-		       vector<unsigned short> HFInput){
+		       vector<unsigned short> HFInput,
+		       L1RCTLookupTables *lut){
   //cout << "Crate.input() entered" << endl;
   for(int i =0; i<7; i++){
     //cout << "calling RC.fillInput() for RC " << i << endl;
-    receiverCards.at(i).fillInput(RCInput.at(i));
+    receiverCards.at(i).fillInput(RCInput.at(i), lut);
     //cout << "RC " << i << " filled" << endl;
   }
   //cout << "calling JSC.fillHFRegionSums()" << endl;
-  jetSummaryCard.fillHFRegionSums(HFInput);
+  jetSummaryCard.fillHFRegionSums(HFInput, lut);
   //cout << "JSC.fillHF called" << endl;
 } 
 void L1RCTCrate::processReceiverCards(){

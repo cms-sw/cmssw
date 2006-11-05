@@ -1,6 +1,9 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 int main() {
+  std::string filename("../data/TPGcalc.txt");
+  L1RCTLookupTables lut(filename);
   L1RCTJetSummaryCard jsc(0);
   vector<unsigned short> hfregions(8);
   vector<unsigned short> bregions(14);
@@ -30,7 +33,7 @@ int main() {
   jsc.fillNonIsolatedEGObjects(nonIsoElectrons);
   jsc.fillIsolatedEGObjects(isoElectrons);
   jsc.fillRegionSums(bregions);
-  jsc.fillHFRegionSums(hfregions);
+  jsc.fillHFRegionSums(hfregions,&lut);
   jsc.fillQuietBits();
   jsc.fillJetRegions();
   jsc.print();

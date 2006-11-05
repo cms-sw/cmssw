@@ -1,7 +1,9 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTTestProducer.h"
 
-L1RCTTestProducer::L1RCTTestProducer(const edm::ParameterSet& conf) 
-  : src(conf.getParameter<string>("src")), orcaFileInput(conf.getUntrackedParameter<bool>("orcaFileInput"))
+L1RCTTestProducer::L1RCTTestProducer(const edm::ParameterSet& conf) : 
+  src(conf.getParameter<string>("src")), 
+  orcaFileInput(conf.getUntrackedParameter<bool>("orcaFileInput")),
+  lutFile(conf.getParameter<string>("lutFile"))
 {
   //produces<JSCOutput>();
 
@@ -12,7 +14,7 @@ L1RCTTestProducer::L1RCTTestProducer(const edm::ParameterSet& conf)
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
 
-  rct = new L1RCT();
+  rct = new L1RCT(lutFile);
   //std::cout << "One L1RCTProducer constructed!" << std::endl;
 }
 

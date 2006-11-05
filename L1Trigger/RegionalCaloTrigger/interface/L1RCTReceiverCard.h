@@ -8,13 +8,14 @@
 #include <bitset>
 #include <string>
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTRegion.h"
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 using std::vector;
 using std::bitset;
 using std::string;
 using std::cout;
 using std::endl;
+
+class L1RCTLookupTables;
 
 class L1RCTReceiverCard {
 
@@ -50,7 +51,7 @@ class L1RCTReceiverCard {
   //In either case it is set up as so that 0-31 are the 8bit ecal energies
   //plus the fine grain bit, and 32-63 are the 8bit hcal energies plus
   //the muon bit.
-  void fillInput(vector<unsigned short> input);
+  void fillInput(vector<unsigned short> input, L1RCTLookupTables *lut);
   void fillTauBits();
   void fillRegionSums();
   void fillMuonBits();
@@ -74,8 +75,8 @@ class L1RCTReceiverCard {
     regions.at(1).printEdges();
   }
 
-  void randomInput();
-  void fileInput(char* filename);
+  void randomInput(L1RCTLookupTables *lut);
+  void fileInput(char* filename, L1RCTLookupTables *lut);
  private:
  
   vector<L1RCTRegion> regions;
@@ -85,8 +86,6 @@ class L1RCTReceiverCard {
   unsigned short calcMuonBit(L1RCTRegion region);
   unsigned short crtNo;
   unsigned short cardNo;
-  //The lookup table
-  L1RCTLookupTables lut;
   vector<unsigned short> etIn10Bits;
   vector<unsigned short> overFlowBits;
   vector<unsigned short> muonBits;
