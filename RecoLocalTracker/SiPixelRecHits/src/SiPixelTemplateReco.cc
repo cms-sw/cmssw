@@ -44,7 +44,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		    float& yrec, float& sigmay, float& xrec, float& sigmax)
 {
     // Local variables 
-	int i, j, k, minbin, binl, binh, binq, midpix, nclusx, nclusy;
+	int i, j, k, minbin, binl, binh, binq, midpix;
+	unsigned int nclusx, nclusy;
 	std::vector<float> ysig2(25), xsig2(11);
 	float sythr, sxthr, rnorm, delta, sigma, sigavg;
 	float chimin, ss2, ssa, sa2, ssba, saba, sba2, rat, chi2, sigi, sigi2, sigi3, sigi4, fq;

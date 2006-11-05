@@ -9,6 +9,7 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/DetId>
 <use name=DataFormats/Common>
+<use name=CondFormats/SiPixelObjects>
 <use name=Geometry/CommonDetAlgo>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
@@ -32,6 +33,7 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/DetId>
 <use name=DataFormats/Common>
+<use name=CondFormats/SiPixelObjects>
 <use name=Geometry/CommonDetAlgo>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
