@@ -83,6 +83,13 @@ class L1RCT {
 
   vector<L1CaloRegion> getRegions(int crate);
 
+  // Helper methods to convert from trigger tower (iphi, ieta) to RCT (crate, card, tower)
+  // Static methods that are globally accessible for now -- this should be designed better!
+  static unsigned short calcCrate(unsigned short rct_iphi, short ieta);
+  static unsigned short calcCard(unsigned short rct_iphi, unsigned short absIeta);
+  static unsigned short calcTower(unsigned short rct_iphi, unsigned short absIeta);
+  static short calcIEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower); // negative eta is used
+  static unsigned short calcIPhi(unsigned short iCrate, unsigned short iCard, unsigned short iTower);
   
  private:
   
@@ -90,10 +97,6 @@ class L1RCT {
   //Will make use of the internal neighborMap
   void configureCards();
   void shareNeighbors();
-
-  unsigned short calcCrate(unsigned short rct_iphi, short ieta);
-  unsigned short calcCard(unsigned short rct_iphi, unsigned short absIeta);
-  unsigned short calcTower(unsigned short rct_iphi, unsigned short absIeta);
 
   L1RCTRegion empty;
 

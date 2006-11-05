@@ -58,22 +58,11 @@ void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
   vector<unsigned short> hcalMuon(32);
 
   for(int i = 0; i<32; i++){
-// Replace with section below
-//    ecalInput.at(i) = input.at(i)&255;       // need to change this to work with digis, maybe
-//    ecalFG.at(i) = (input.at(i)>>8)&1;       //
-//    hcalInput.at(i) = input.at(i+32)&255;    //
-//    hcalMuon.at(i) = (input.at(i+32)>>8)&1;  //
-
     ecalInput.at(i) = input.at(i)/2;
-//    cout << i << " ECAL energy: " << ecalInput.at(i) << "\t";
-    ecalFG.at(i) = input.at(i)%2;
-//    cout << "FG: " << ecalFG.at(i) << "\t";
+    ecalFG.at(i) = input.at(i) & 1;
     hcalInput.at(i) = input.at(i+32)/2;
-//    cout << "HCAL energy: " << hcalInput.at(i) << "\t";
-    hcalMuon.at(i) = input.at(i+32)%2;
-//    cout << "Muon: " << hcalMuon.at(i) << endl;
-
-    unsigned long lookup = lut.lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i));
+    hcalMuon.at(i) = input.at(i+32) & 1;
+    unsigned long lookup = lut.lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i),crtNo, cardNo, i+1);
     unsigned short etIn7Bits = lookup&127;
     unsigned short etIn9Bits = (lookup >> 8)&511;
     unsigned short HE_FGBit = (lookup>>7)&1;

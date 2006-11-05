@@ -1,4 +1,7 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
+#include <iostream>
+using std::cout;
+using std::endl;
 
 L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):lut(),
 						    isolatedEGObjects(4),
@@ -20,7 +23,7 @@ void L1RCTJetSummaryCard::fillHFRegionSums(vector<unsigned short> hfRegionSums){
   //cout << "JSC.fillHFRegionSums() entered" << endl;
   for(int i=0;i<8;i++){
     //cout << "filling hf region at " << i << endl;
-    HFRegions.at(i) = lut.lookup( (hfRegionSums.at(i))/2 );
+    HFRegions.at(i) = lut.lookup( (hfRegionSums.at(i)), crtNo, 999, i);
     //cout << "hf region " << i << " et filled" << endl;
     hfFineGrainBits.at(i) = (hfRegionSums.at(i)&1);
     //cout << "hf region " << i << " fine grain bit filled" << endl;
