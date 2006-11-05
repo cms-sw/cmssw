@@ -36,7 +36,8 @@ int main (){
       location = theMap.orcamap(data.at(0),data.at(1));
       barrel.at(location.at(0)).at(location.at(1)).at(location.at(2)) = data.at(2);
       barrel.at(location.at(0)).at(location.at(1)).at(location.at(2)+32) = data.at(3);
-      lookupValue = lut.lookup(data.at(2)&255,data.at(3)&255,(data.at(2)<<8)&1);
+      lookupValue = lut.lookup(data.at(2)&255,data.at(3)&255,(data.at(2)<<8)&1,
+			       location.at(0), location.at(1), location.at(2));
       output << lookupValue << endl;
   }
   rct.input(barrel,hf);
