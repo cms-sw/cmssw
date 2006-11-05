@@ -271,8 +271,14 @@ void METTester::FillMETResHisto()
   gStyle->SetOptFit(111);
   TCanvas cGeneric("cGeneric","", 400, 900);
   // Histogram filled with RMS of MEx slices
-  TH1F h_SigMETxvSumET("hSigMETvSumET", "#sigma(E_{x}^{Reco}) vs. #SigmaE_{T}^{Reco}", 100,0,5000);
-  TH1F h_SigMETx2vSumET("hSigMETx2vSumET", "#sigma^{2}(E_{x}^{Reco}) vs. #SigmaE_{T}^{Reco}", 100,0,5000);
+  TH1F h_SigMETxvSumET("hSigMETvSumET", "#sigma(E_{x}^{Reco}) vs. #SigmaE_{T}^{Reco}", 
+		       CaloMExResHistoSumETNumBin_,
+		       CaloMExResHistoLowSumET_,
+		       CaloMExResHistoHighSumET_);
+  TH1F h_SigMETx2vSumET("hSigMETx2vSumET", "#sigma^{2}(E_{x}^{Reco}) vs. #SigmaE_{T}^{Reco}", 
+		       CaloMExResHistoSumETNumBin_,
+		       CaloMExResHistoLowSumET_,
+		       CaloMExResHistoHighSumET_);
   h_SigMETxvSumET.GetYaxis()->SetTitle("#sigma(E_{x}) (GeV)"); 
   h_SigMETxvSumET.GetXaxis()->SetTitle("#SigmaE_{T} (GeV)");
   h_SigMETx2vSumET.GetYaxis()->SetTitle("#sigma^{2}(E_{x}) (GeV)"); 
