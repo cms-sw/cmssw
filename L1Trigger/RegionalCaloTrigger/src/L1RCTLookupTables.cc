@@ -23,7 +23,7 @@ unsigned short L1RCTLookupTables::lookup(unsigned short hfenergy,
   short iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
   unsigned short iAbsEta = abs(iEta);
   if(iAbsEta < 29 || iAbsEta > 32) throw cms::Exception("Invalid Data") << "29 <= |iEta| <= 32, is " << iAbsEta;
-  float energy = hcalConversionConstants_.at(iAbsEta).at(hfenergy);
+  float energy = hcalConversionConstants_[iAbsEta-1][hfenergy];
   return convertToInteger(energy, jetMETLSB(), 8);
 }
 
@@ -40,7 +40,7 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   unsigned short iAbsEta = abs(iEta);
   if(iAbsEta < 1 || iAbsEta > 28) throw cms::Exception("Invalid Data") << "1 <= |IEta| <= 28, is " << iAbsEta;
   float ecalLinear = convertEcal(ecal);
-  float hcalLinear = hcalConversionConstants_.at(iAbsEta).at(hcal);
+  float hcalLinear = hcalConversionConstants_[iAbsEta-1][hcal];
   float etLinear = ecalLinear + hcalLinear;
   unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
   unsigned long etIn7Bits = convertToInteger(etLinear, eGammaLSB(), 7);
@@ -85,21 +85,22 @@ void L1RCTLookupTables::loadHcalConstants(const std::string& filename)
   if( userfile )
     {
       char junk[256];
-      userfile >> junk;
-      userfile >> junk;
-      userfile >> junk;
-      userfile >> junk;
-      userfile >> junk;
-      hcalConversionConstants_.resize(N_ET_CONSTS);
-      for(int iAbsEta = 1; iAbsEta <= N_TOWERS; iAbsEta++) {
-	hcalConversionConstants_.at(iAbsEta).resize(N_ET_CONSTS);
+      userfile.getline(junk, 256);
+      userfile.getline(junk, 256);
+      userfile.getline(junk, 256);
+      userfile.getline(junk, 256);
+      userfile.getline(junk, 256);
+      hcalConversionConstants_.resize(N_TOWERS);
+      for(int iAbsEta = 0; iAbsEta < N_TOWERS; iAbsEta++) {
+	hcalConversionConstants_[iAbsEta].resize(N_ET_CONSTS);
       }
       for(int hcalETAddress = 0; hcalETAddress < N_ET_CONSTS; hcalETAddress++) {
 	for(int iAbsEta = 1; iAbsEta <= N_TOWERS; iAbsEta++) {
 	  float value;
 	  userfile >> value;
-	  hcalConversionConstants_.at(iAbsEta-1).at(hcalETAddress) = value;
+	  hcalConversionConstants_[iAbsEta-1][hcalETAddress] = value;
 	}
+	cout << endl;
       }
       userfile.close();
     }

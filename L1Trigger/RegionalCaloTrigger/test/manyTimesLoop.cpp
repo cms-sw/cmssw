@@ -13,6 +13,8 @@ int main (){
   for(int i=0;i<10000;i++){
     l1rct.input(barrel,hf);
     l1rct.processEvent();
+    cout << ".";
+    if(!(i % 100)) cout << " " << i << " ";
   }
   time_t s2 = time (NULL);
   diff =difftime (s2,s1);

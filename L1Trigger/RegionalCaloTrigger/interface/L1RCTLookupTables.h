@@ -50,7 +50,6 @@ class L1RCTLookupTables {
   void loadHcalConstants(const std::string& filename);
   static const int N_TOWERS = 32;     // Number of |eta| towers - reflect to -eta and rotate for all phi
   static const int N_ET_CONSTS = 256; // Corresponding to 8-bits of ET for ECAL and HCAL
-  std::vector<std::vector<float> > hcalConversionConstants_; // Lookup floating point ET corresponding to NL hcal compressed ET
-
+  std::vector<std::vector<float> > hcalConversionConstants_;
 };
 #endif
