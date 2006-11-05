@@ -3,6 +3,12 @@
 
 // author: Mike Schmitt (The University of Florida)
 // date: 8/24/2006
+// modification: Bobby Scurlock 
+// date: 03.11.2006
+// note: added RMS(METx) vs SumET capability 
+// modification: Rick Cavanaugh
+// date: 05.11.2006 
+// note: added configuration parameters 
 
 #include <memory>
 #include "PluginManager/ModuleDef.h"
@@ -29,6 +35,21 @@
 #include <algorithm>
 #include <cmath>
 
+//---ROOT
+#include <TROOT.h>
+#include <TSystem.h>
+#include <TStyle.h>
+#include <Cintex/Cintex.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TBranch.h>
+#include <TCanvas.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TH1.h>
+#include <TF1.h>
+#include <TPaveStats.h>
+#include <TPaveLabel.h>
 //
 // class declaration
 //
@@ -46,7 +67,8 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void endJob() ;
- 
+  void FillMETResHisto();
+
  private:
 
   DaqMonitorBEInterface* dbe_;
@@ -88,6 +110,19 @@ public:
   // Sigma := fabs(CaloMET - GenMET)
   MonitorElement* meMETSigmaVsGenSumET;
 
+  MonitorElement* meCaloMETvsCaloSumET;
+  MonitorElement* meCaloMExvsCaloSumET;
+  TH2F* h_CaloMExvsCaloSumET;
+  float CaloMExResFitMin_;
+  float CaloMExResFitMax_;
+  int   CaloMExResHistoSumETNumBin_;
+  double CaloMExResHistoLowSumET_;
+  double CaloMExResHistoHighSumET_;
+  int   CaloMExResHistoMExNumBin_;
+  double CaloMExResHistoLowMEx_;
+  double CaloMExResHistoHighMEx_;
+  string InputGenMETLabel_;
+  string InputCaloMETLabel_; 
 };
 
 #endif
