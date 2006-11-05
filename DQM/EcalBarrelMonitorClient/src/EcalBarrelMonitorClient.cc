@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/11/04 16:04:14 $
- * $Revision: 1.181 $
+ * $Date: 2006/11/04 21:34:19 $
+ * $Revision: 1.182 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -610,48 +610,8 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       foundRunIOV = true;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
-      sleep(10);
-      try {
-        cout << "Fetching RunIOV (2) ... " << flush;
-        runiov_ = econn->fetchRunIOV(&runtag, run_);
-//        runiov_ = econn->fetchRunIOV(location_, run_);
-        cout << "done." << endl;
-        foundRunIOV = true;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
-        sleep(10);
-        try {
-          cout << "Fetching RunIOV (3) ... " << flush;
-          runiov_ = econn->fetchRunIOV(&runtag, run_);
-//          runiov_ = econn->fetchRunIOV(location_, run_);
-          cout << "done." << endl;
-          foundRunIOV = true;
-        } catch (runtime_error &e) {
-          cerr << e.what() << endl;
-        }
-      }
+      foundRunIOV = false;
     }
-  }
-
-  // fetch the RunIOV from the DB (second try)
-
-  if ( ! foundRunIOV ) {
-
-    sleep(10);
-
-    if ( econn ) {
-      try {
-        cout << "Fetching RunIOV (2) ... " << flush;
-        runiov_ = econn->fetchRunIOV(&runtag, run_);
-//        runiov_ = econn->fetchRunIOV(location_, run_);
-        cout << "done." << endl;
-        foundRunIOV = true;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
-        foundRunIOV = false;
-      }
-    }
-
   }
 
   // begin - setup the RunIOV (on behalf of the DAQ)
@@ -673,6 +633,17 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
         cout << "done." << endl;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
+        foundRunIOV = false;
+        try {
+          cout << "Fetching RunIOV (again) ... " << flush;
+          runiov_ = econn->fetchRunIOV(&runtag, run_);
+//          runiov_ = econn->fetchRunIOV(location_, run_);
+          cout << "done." << endl;
+          foundRunIOV = true;
+        } catch (runtime_error &e) {
+          cerr << e.what() << endl;
+          foundRunIOV = false;
+        }
       }
     }
 
