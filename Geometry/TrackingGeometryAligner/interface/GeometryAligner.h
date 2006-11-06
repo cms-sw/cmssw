@@ -79,9 +79,8 @@ void GeometryAligner::applyAlignments( C* geometry, const Alignments* alignments
 				  (*iAlign).rotation().yx(), (*iAlign).rotation().yy(), (*iAlign).rotation().yz(),
 				  (*iAlign).rotation().zx(), (*iAlign).rotation().zy(), (*iAlign).rotation().zz() );
 
-	  AlignmentPositionError ape( (*iAlignError).matrix()(1,1),
-								  (*iAlignError).matrix()(2,2),
-								  (*iAlignError).matrix()(3,3) );
+	  GlobalError error( (*iAlignError).matrix() );
+	  AlignmentPositionError ape( error );
 
 	  // Apply new quantities
 	  GeomDet* iGeomDet = (*iPair).second;
