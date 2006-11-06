@@ -18,6 +18,14 @@
     <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
     <Parameter name="ReadOutName" value="TrackerHitsTID" />
   </SpecPar>
+  <SpecPar name="ROUHitsTrackerTOB">
+    <PartSelector path="//TOBActiveRphi0" />
+    <PartSelector path="//TOBActiveSter0" />
+    <PartSelector path="//TOBActiveRphi2" />
+    <PartSelector path="//TOBActiveRphi4" />
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsTOB" />
+  </SpecPar>
 </SpecParSection>
 </DDDefinition>
  
