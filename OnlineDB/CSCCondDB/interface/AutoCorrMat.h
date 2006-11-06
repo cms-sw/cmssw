@@ -43,12 +43,12 @@ class AutoCorrMat{
     }
     
     for(int i=0;i<12;i++){
-      N[i]=N[i]+1;
-
-  //Add values within 3 sigma of mean only
+      
+      //Add values within 3 sigma of mean only
       float threeSigma0 = 3. * sqrt(variance[pairs[i][0]]/evt);
       float threeSigma1 = 3. * sqrt(variance[pairs[i][1]]/evt);
       if (adc[pairs[i][0]]-ped<threeSigma0 && adc[pairs[i][1]]-ped<threeSigma1){
+	N[i]=N[i]+1;
 	Mat[i]=Mat[i]+(adc[pairs[i][0]]-ped)*(adc[pairs[i][1]]-ped);
       }
       //end 3 sigma 
