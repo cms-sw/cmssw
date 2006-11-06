@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
   
-<SpecParSection label="trackerProdCuts.xml" eval="true">
+<SpecParSection label="trackerProdCuts_twentyfivepercent.xml" eval="true">
   <SpecPar name="tracker-dead">
     <PartSelector path="//Tracker" />
     <Parameter name="CMSCutsRegion" value="TrackerDeadRegion" eval="false"/>

@@ -23,21 +23,13 @@
 definire plus e minus
 
     <SpecPar name="TIBSubDetStringPar">
-      <PartSelector path="//TIBString0LoMin1" />
       <PartSelector path="//TIBString0LoPls1" />
-      <PartSelector path="//TIBString0UpMin1" />
       <PartSelector path="//TIBString0UpPls1" />
-      <PartSelector path="//TIBString1LoMin1" />
       <PartSelector path="//TIBString1LoPls1" />
-      <PartSelector path="//TIBString1UpMin1" />
       <PartSelector path="//TIBString1UpPls1" />
-      <PartSelector path="//TIBString2LoMin1" />
       <PartSelector path="//TIBString2LoPls1" />
-      <PartSelector path="//TIBString2UpMin1" />
       <PartSelector path="//TIBString2UpPls1" />
-      <PartSelector path="//TIBString3LoMin1" />
       <PartSelector path="//TIBString3LoPls1" />
-      <PartSelector path="//TIBString3UpMin1" />
       <PartSelector path="//TIBString3UpPls1" />
       <Parameter name="TkDDDStructure" value="TIBString"/>
     </SpecPar>				
@@ -56,13 +48,11 @@ definire plus e minus
     </SpecPar>
 
     <SpecPar name="TIDSubDetPar">
-      <PartSelector path="//TIDB" />
       <PartSelector path="//TIDF" />
       <Parameter name="TkDDDStructure" value="TID"/>
     </SpecPar>
 
     <SpecPar name="TIDSubDetWheelPar">
-      <PartSelector path="//TIDWheelB" />
       <PartSelector path="//TIDWheelF" />
       <Parameter name="TkDDDStructure" value="TIDWheel"/>
     </SpecPar>
@@ -70,17 +60,13 @@ definire plus e minus
     <SpecPar name="TIDSubDetRingPar">
       <PartSelector path="//TIDRing0F" />
       <PartSelector path="//TIDRing1F" />
-      <PartSelector path="//TIDRing0B" />
-      <PartSelector path="//TIDRing1B" />
       <PartSelector path="//TIDRing2" />
       <Parameter name="TkDDDStructure" value="TIDRing"/>
     </SpecPar>
 
     <SpecPar name="TIDSubDetGluedDetPar">
       <PartSelector path="//TIDModule0L" />
-      <PartSelector path="//TIDModule0R" />
       <PartSelector path="//TIDModule1L" />
-      <PartSelector path="//TIDModule1R" />
       <Parameter name="TkDDDStructure" value="TIDGluedDet"/>
     </SpecPar>
 
@@ -109,18 +95,12 @@ definire plus e minus
     </SpecPar>
 
     <SpecPar name="TOBSubDetRodPar">
-      <PartSelector path="//TOBRod0L" />
       <PartSelector path="//TOBRod0H" />
       <PartSelector path="//TOBRod1L" />
-      <PartSelector path="//TOBRod1H" />
-      <PartSelector path="//TOBRod2L" />
       <PartSelector path="//TOBRod2H" />
       <PartSelector path="//TOBRod3L" />
-      <PartSelector path="//TOBRod3H" />
-      <PartSelector path="//TOBRod4L" />
       <PartSelector path="//TOBRod4H" />
       <PartSelector path="//TOBRod5L" />
-      <PartSelector path="//TOBRod5H" />
       <Parameter name="TkDDDStructure" value="TOBRod"/>
     </SpecPar>
 
