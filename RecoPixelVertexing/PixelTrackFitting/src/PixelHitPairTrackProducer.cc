@@ -28,6 +28,8 @@
 #include "RecoTracker/TkHitPairs/interface/PixelSeedLayerPairs.h"
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
 
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 PixelHitPairTrackProducer::PixelHitPairTrackProducer(const edm::ParameterSet& conf)
   : theConfig(conf), theFitter(0), theFilter(0), pixelLayers(0)
 {
@@ -46,7 +48,9 @@ void PixelHitPairTrackProducer::produce(edm::Event& ev, const edm::EventSetup& e
   typedef std::vector<const TrackingRecHit *> RecHits;
 
   edm::Handle<SiPixelRecHitCollection> pixelHits;
-  ev.getByType(pixelHits);
+  edm::InputTag hitCollectionLabel = theConfig.getParameter<edm::InputTag>("HitCollectionLabel");
+  ev.getByLabel( hitCollectionLabel, pixelHits);
+
 
   pixelLayers->init(*pixelHits,es);
   CombinedHitPairGenerator theGenerator(*pixelLayers,es);

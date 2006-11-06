@@ -28,6 +28,8 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
 
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 using namespace pixeltrackfitting;
 
 PixelTrackProducer::PixelTrackProducer(const edm::ParameterSet& conf)
@@ -55,7 +57,8 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   typedef std::vector<const TrackingRecHit *> RecHits;
 
   edm::Handle<SiPixelRecHitCollection> pixelHits;
-  ev.getByType(pixelHits);
+  edm::InputTag hitCollectionLabel = theConfig.getParameter<edm::InputTag>("HitCollectionLabel");
+  ev.getByLabel( hitCollectionLabel, pixelHits);
 
   if (!theGenerator) {
     edm::ParameterSet tripletsPSet = theConfig.getParameter<edm::ParameterSet>("TripletsPSet");
