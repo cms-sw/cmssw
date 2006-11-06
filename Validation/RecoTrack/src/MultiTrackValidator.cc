@@ -134,7 +134,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
-  LogDebug("TrackValidator") << "\n====================================================" << "\n"
+  edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 			       << "Analyzing new event" << "\n"
 			       << "====================================================\n" << "\n";
 
