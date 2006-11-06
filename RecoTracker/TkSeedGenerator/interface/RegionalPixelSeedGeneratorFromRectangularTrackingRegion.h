@@ -1,9 +1,9 @@
-#ifndef RegionalPixelSeedGeneratorFromMuon_h
-#define RegionalPixelSeedGeneratorFromMuon_h
+#ifndef RegionalPixelSeedGeneratorFromRectangularTrackingRegion_h
+#define RegionalPixelSeedGeneratorFromRectangularTrackingRegion_h
 
 //
-// Package:         RecoTracker/RegionalPixelSeedGeneratorFromMuon
-// Class:           RegionalPixelSeedGeneratorFromMuon
+// Package:         RecoTracker/RegionalPixelSeedGeneratorFromRectangularTrackingRegion
+// Class:           RegionalPixelSeedGeneratorFromRectangularTrackingRegion
 // 
 // Description:     Calls RoadSeachSeedFinderAlgorithm
 //                  to find TrackingSeeds.
@@ -22,13 +22,13 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
-class RegionalPixelSeedGeneratorFromMuon : public edm::EDProducer
+class RegionalPixelSeedGeneratorFromRectangularTrackingRegion : public edm::EDProducer
 {
  public:
 
-  explicit RegionalPixelSeedGeneratorFromMuon(const edm::ParameterSet& conf);
+  explicit RegionalPixelSeedGeneratorFromRectangularTrackingRegion(const edm::ParameterSet& conf);
 
-  virtual ~RegionalPixelSeedGeneratorFromMuon();
+  virtual ~RegionalPixelSeedGeneratorFromRectangularTrackingRegion();
 
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
@@ -41,8 +41,7 @@ class RegionalPixelSeedGeneratorFromMuon : public edm::EDProducer
   float originz;
   float deltaEta;
   float deltaPhi;
-  edm::InputTag jetSrc;
-  std::string vertexSrc;
+  edm::InputTag regSrc;
 };
 
 #endif
