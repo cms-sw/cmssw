@@ -90,7 +90,7 @@ bool MiscalibReaderFromXML::parseXMLMiscalibFile(std::string configFile){
 
         
 unsigned int linkTagsNum = doc->getElementsByTagName(_toDOMS("Cell"))->getLength();
-        std::cout << "Number of Cells = " << linkTagsNum << std::endl;
+        std::cout << "Read number of Cells = " << linkTagsNum << std::endl;
         
         int count=0;	
 	for (unsigned int i=0; i<linkTagsNum; i++){
@@ -127,7 +127,7 @@ unsigned int linkTagsNum = doc->getElementsByTagName(_toDOMS("Cell"))->getLength
 		
 	}
  
-        std::cout << "Numero celle =" << count << std::endl;
+	//        std::cout << "Numero celle =" << count << std::endl;
 	return false;
 
 }
