@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //reco track
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -19,12 +20,25 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-
+//##---new stuff
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 using namespace reco;
 using namespace std;
 
 /* Constructor */
-TrackAssociatorByHits::TrackAssociatorByHits (const edm::ParameterSet& conf) :  conf_(conf)  
+TrackAssociatorByHits::TrackAssociatorByHits (const edm::ParameterSet& conf) :  
+  conf_(conf),
+  theMinHitFraction(conf_.getParameter<double>("MinHitFraction"))
 {
 }
 
@@ -44,7 +58,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 					  edm::Handle<TrackingParticleCollection>&  TPCollectionH,     
 					  const edm::Event * e ){
 
-  const float minHitFraction = 0;
+  const double minHitFraction = theMinHitFraction;
   int nshared =0;
   float fraction=0;
   std::vector<unsigned int> SimTrackIds;
@@ -72,12 +86,12 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	  //save all the id of matched simtracks
 	  if(!SimTrackIds.empty()){
 	    for(size_t j=0; j<SimTrackIds.size(); j++){
-	      //std::cout << " hit # " << ri << " SimId " << SimTrackIds[j] << std::endl; 
+	      // std::cout << " hit # " << ri << " SimId " << SimTrackIds[j] << std::endl; 
 	      matchedIds.push_back(SimTrackIds[j]);
 	    }
 	  }
 	}else{
-	  std::cout <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId()<<std::endl;
+	  edm::LogVerbatim("TrackValidator") <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId();
 	}
       }
       //save id for the track
@@ -105,15 +119,15 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 		    if(ri!=0) fraction = (static_cast<double>(nshared)/static_cast<double>(ri));
 		    //for now save the number of shared hits between the reco and sim track
 		    //cut on the fraction
-		    if(fraction>0.5){
+		    if(fraction>minHitFraction){
 		      if(fraction>1.) std::cout << " **** fraction >1 " << " nshared = " << nshared 
 						<< "rechits = " << ri << " hit found " << track->found() <<  std::endl;
 		      outputCollection.insert(reco::TrackRef(trackCollectionH,tindex), 
 					      std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
 							     fraction));
-		      cout <<"reco::Track number " << tindex  << " associated with hit fraction =" << fraction << endl;
+		      edm::LogVerbatim("TrackValidator") <<"reco::Track number " << tindex  << " associated with hit fraction =" << fraction;
 		    } else {
-		      cout <<"reco::Track number " << tindex << " NOT associated with hit fraction =" << fraction << endl;
+		      edm::LogVerbatim("TrackValidator") <<"reco::Track number " << tindex << " NOT associated with hit fraction =" << fraction;
 		    }
 		  }
 		}
@@ -133,7 +147,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 					  TPCollectionH, 
 					  const edm::Event * e ){
   
-  const float minHitFraction = 0;
+  const double minHitFraction = theMinHitFraction;
   float fraction=0;
   int nshared = 0;
   std::vector<unsigned int> SimTrackIds;
@@ -157,37 +171,19 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
       int ri=0;
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
 	  if ((*it)->isValid()){
-	    const TrackingRecHit * prova = (*it).get();
-	    const SiStripMatchedRecHit2D * mhit = dynamic_cast<const SiStripMatchedRecHit2D *>(prova);
-	    if ( mhit==0 ){
-	      ri++;
-	      SimTrackIds.clear();	  
-	      SimTrackIds = associate->associateHitId((**it));
-	      if(!SimTrackIds.empty()){
-		for(size_t j=0; j<SimTrackIds.size(); j++){
-		  //std::cout << " hit # " << ri << " SimId " << SimTrackIds[j] << std::endl; 
-		  matchedIds.push_back(SimTrackIds[j]);
-		}
-	      }
-	    } else {
-	      ri+=2;
-	      SimTrackIds.clear();	  
-	      SimTrackIds = associate->associateHitId(* dynamic_cast<const TrackingRecHit *>(mhit->monoHit()));
-	      if(!SimTrackIds.empty()){
-		for(size_t j=0; j<SimTrackIds.size(); j++){
-		  matchedIds.push_back(SimTrackIds[j]);
-		}
-	      }
-	      SimTrackIds.clear();	  
-	      SimTrackIds = associate->associateHitId(* dynamic_cast<const TrackingRecHit *>(mhit->stereoHit()));
-	      if(!SimTrackIds.empty()){
-		for(size_t j=0; j<SimTrackIds.size(); j++){
-		  matchedIds.push_back(SimTrackIds[j]);
-		}
+	    ri++;
+	    //	    DetId t_detid=  (*it)->geographicalId();
+	    //uint32_t t_detID = t_detid.rawId();
+	    SimTrackIds.clear();	  
+	    SimTrackIds = associate->associateHitId((**it));
+	    if(!SimTrackIds.empty()){
+	      for(size_t j=0; j<SimTrackIds.size(); j++){
+		//std::cout << " hit # " << ri << "det id = " << t_detID << " SimId " << SimTrackIds[j] << std::endl; 
+		matchedIds.push_back(SimTrackIds[j]);
 	      }
 	    }
 	  }else{
-	    std::cout <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId()<<std::endl;
+	    edm::LogVerbatim("TrackValidator") <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId();
 	  }
       }
       //save id for the track
@@ -207,21 +203,75 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 		if((*g4T).trackId() == matchedIds[j]){
 		  nshared = std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
 		  int nsimhit = t->trackPSimHit().size(); 
-		  if(nsimhit!=0) fraction = ((double) nshared)/((double) nsimhit);
-		  // 		  std::cout << " Match ID = " << (*g4T)->trackId() 
-		  // 			    << " Nrh = " << ri << " Nshared = " << n << " Nsim = " << nsimhit << std::endl;
-		  // 		  std::cout << " G4  Track Momentum " << (*g4T)->momentum() << std::endl;   
-		  // 		  std::cout << " reco Track Momentum " << track->momentum() << std::endl;  
-		  //NOTE: not sorted for quality yet
-		  //for now save the number of shared hits: n instead of the fraction 
-		  //Until we solve the problem with the number of Simhits associated to the TP
-		  if (fraction>0.5) {
+		  
+		  //count the TP simhit, counting only once the hits on glued detectors
+		  float totsimhit = 0; 
+		  float totsimhitlay = 0; 
+		  int glue_cache = 0;
+
+		  //counting the TP hits using the layers (as in ORCA). 
+		  //does seem to find less hits. maybe b/c layer is a number now, not a pointer
+		  int oldlay = 0;
+		  int newlay = 0;
+		  int olddet = 0;
+		  int newdet = 0;
+		  for(std::vector<PSimHit>::const_iterator TPhit = t->pSimHit_begin(); TPhit != t->pSimHit_end(); TPhit++){
+		    unsigned int detid = TPhit->detUnitId();
+		    DetId detId = DetId(TPhit->detUnitId());
+		    oldlay = newlay;
+		    olddet = newdet;
+		    newlay = LayerFromDetid(detId);
+		    newdet = detId.subdetId();
+		    if(oldlay !=newlay || (oldlay==newlay && olddet!=newdet) ){
+		      totsimhitlay++;
+		      edm::LogVerbatim("TrackValidator") <<  " hit = " << TPhit->trackId() << " det ID = " << detid 
+							 << " SUBDET = " << detId.subdetId() << "layer = " << LayerFromDetid(detId); 
+		    }
+		    
+// 		    //======counting using glued detector flag =====
+// 		    //
+// 		    if(detId.subdetId() == StripSubdetector::TIB ||
+// 		       detId.subdetId() == StripSubdetector::TOB || 
+// 		       detId.subdetId() == StripSubdetector::TID ||
+// 		       detId.subdetId() == StripSubdetector::TEC) {
+// 		      StripSubdetector stripId = detId;
+// 		      unsigned int glued = stripId.glued();
+// 		      if(glued!=0){
+// 			if(glued != glue_cache) {
+// 			  glue_cache = glued;
+// 			  totsimhit++;
+// 			  //std::cout << " hit = " << TPhit->trackId() << " det ID = " << detid 
+// 			  //<< " SUBDET = " << detId.subdetId() << " glued = " << glued << " tothit = " << totsimhit << std::endl;
+// 			} else {
+// 			  //std::cout << " hit = " << TPhit->trackId() << " det ID = " << detid 
+// 			  //<<  " SUBDET = " << detId.subdetId() << " glued = " << glued << " tothit = " << totsimhit << std::endl;    
+// 			}
+// 		      }else {
+// 			totsimhit++;
+// 			//std::cout << " hit = " << TPhit->trackId() << " det ID = " << detid 
+// 			//<<  " SUBDET = " << detId.subdetId() << " glued = " << glued << " tothit = " << totsimhit << std::endl;
+// 		      }
+// 		    } 
+// 		    else if( detId.subdetId() == PixelSubdetector::PixelBarrel || 
+// 			     detId.subdetId() == PixelSubdetector::PixelEndcap) {
+// 		      totsimhit++;
+// 		      //std::cout << " hit = " << TPhit->trackId() << " det ID = " << detid << " pixel! "  
+// 		      //<< " tothit = " << totsimhit << std::endl;
+// 		    }
+		    
+		  }//loop over TP simhit
+		  
+		  totsimhit = totsimhitlay;
+		  if(totsimhit!=0) fraction = ((double) nshared)/((double)totsimhit);
+		  edm::LogVerbatim("TrackValidator") << "Final count: nhit(TP) = " << nsimhit << " re-counted = " << totsimhit 
+						     << "re-count(lay) = " << totsimhitlay << " nshared = " << nshared << " nrechit = " << ri;
+		  if (fraction>minHitFraction) {
 		    outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
 					    std::make_pair(reco::TrackRef(trackCollectionH,tindex),fraction));
-		    cout << "TrackingParticle number " << tpindex << " associated with hit fraction =" << fraction << endl;
+		    edm::LogVerbatim("TrackValidator") << "TrackingParticle number " << tpindex << " associated with hit fraction =" << fraction;
 		  }
 		  else {
-		    cout << "TrackingParticle number " << tpindex << " NOT associated with fraction =" << fraction << endl;
+		    edm::LogVerbatim("TrackValidator") << "TrackingParticle number " << tpindex << " NOT associated with fraction =" << fraction;
 		  }
 		}
 	      }
@@ -233,4 +283,43 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
   delete associate;
   return outputCollection;
 }
+
+int TrackAssociatorByHits::LayerFromDetid(const DetId& detId )
+{
+  int layerNumber=0;
+  unsigned int subdetId = static_cast<unsigned int>(detId.subdetId()); 
+  if ( subdetId == StripSubdetector::TIB) 
+    { 
+      TIBDetId tibid(detId.rawId()); 
+      layerNumber = tibid.layer();
+    }
+  else if ( subdetId ==  StripSubdetector::TOB )
+    { 
+      TOBDetId tobid(detId.rawId()); 
+      layerNumber = tobid.layer();
+    }
+  else if ( subdetId ==  StripSubdetector::TID) 
+    { 
+      TIDDetId tidid(detId.rawId());
+      layerNumber = tidid.wheel();
+    }
+  else if ( subdetId ==  StripSubdetector::TEC )
+    { 
+      TECDetId tecid(detId.rawId()); 
+      layerNumber = tecid.wheel(); 
+    }
+  else if ( subdetId ==  PixelSubdetector::PixelBarrel ) 
+    { 
+      PXBDetId pxbid(detId.rawId()); 
+      layerNumber = pxbid.layer();  
+    }
+  else if ( subdetId ==  PixelSubdetector::PixelEndcap ) 
+    { 
+      PXFDetId pxfid(detId.rawId()); 
+      layerNumber = pxfid.disk();  
+    }
+  else
+    edm::LogVerbatim("TrackValidator") << "Unknown subdetid: " <<  subdetId;
   
+  return layerNumber;
+} 

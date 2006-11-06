@@ -42,7 +42,8 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
  private:
   // ----- member data
   const edm::ParameterSet& conf_;
-  const float theMinHitFraction;    
+  const double theMinHitFraction;    
+  int LayerFromDetid(const DetId&);
 };
 
 #endif
