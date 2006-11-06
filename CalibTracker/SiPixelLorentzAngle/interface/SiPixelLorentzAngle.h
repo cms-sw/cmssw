@@ -32,8 +32,13 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TH3F.h>
 #include <TF1.h>
 #include <TProfile.h>
+#include <TMatrixFSym.h>
+#include <TVectorF.h>
+#include <TMinuit.h>
+#include "TROOT.h"
 
 class SiPixelLorentzAngle : public edm::EDAnalyzer
 {
@@ -50,12 +55,18 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 				       const edm::Event& e, 
 					const edm::EventSetup& es);
   TrajectoryStateOnSurface startingTSOS(const TrajectorySeed& seed)const;
-  
+// 	void fit_chi2_fcn(int &npar, double *gin, double &chi2, double* par, int iflag);
+	
  private:
- 
+	 
+// 	void fit_chi2_fcn(int &npar, double *gin, double &chi2, double* par, int iflag);
+	void fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol);
+	void fillHistograms();
+	void fitLinear(int i);
+	
   edm::ParameterSet conf_;
   std::string filename_;
-  
+	int event_counter_;
   TrackLocalAngle *anglefinder_;
 	
   int run_;
@@ -110,8 +121,7 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 		float y;
 	} rechit_;
 	
-	void fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol);
-
+	
   TFile* hFile_;
   TTree* SiPixelLorentzAngleTree_;
 	
@@ -129,6 +139,10 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	int hist_depth_;
 	int hist_drift_;
 	
+// 	int lower_bin_;
+	int upper_bin_;
+	
+	// trackhit histograms
 	TH2F *h_cluster_shape_adc_;
 	TH2F *h_cluster_shape_noadc_;
 	TH2F *h_cluster_shape_;
@@ -136,10 +150,59 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	TH2F *h_cluster_shape_noadc_rot_;
 	TH2F *h_cluster_shape_rot_;
 	TH2F *h_drift_depth_adc_;
+	TH2F *h_drift_depth_adc2_;
+	TH2F *h_drift_depth_adc_error2_;
 	TH2F *h_drift_depth_noadc_;
 	TH2F *h_drift_depth_;
+	TH2F *h_drift_depth_error2_;
 	TH2F *h_drift_depth_int_;
-		
+	TH3F *h_drift_depth_int_error_matrix_;
+	TH1F *h_drift_depth_int_slice_;
+	TH1F *h_drift_depth_adc_slice_;
+// 	TH1F h_drift_depth_int_slice2_;
+	TH2F *h_drift_depth_int_slice_error_matrix_;
+	TH1F *h_fit_middle_;
+	TH1F *h_fit_width_;
+	TH1F *h_mean_;
+	std::map<int, TH1F*> _h_drift_depth_int_slice_;
+	std::map<int, TF1*> _f_drift_depth_int_slice_;
+	std::map<int, TH1F*> _h_drift_depth_adc_slice_;
+	
+	// simhit histograms
+	TH2F *h_cluster_shape_adc_sim_;
+	TH2F *h_cluster_shape_noadc_sim_;
+	TH2F *h_cluster_shape_sim_;
+	TH2F *h_cluster_shape_adc_rot_sim_;
+	TH2F *h_cluster_shape_noadc_rot_sim_;
+	TH2F *h_cluster_shape_rot_sim_;
+	TH2F *h_drift_depth_adc_sim_;
+	TH2F *h_drift_depth_adc2_sim_;
+	TH2F *h_drift_depth_adc_error2_sim_;
+	TH2F *h_drift_depth_noadc_sim_;
+	TH2F *h_drift_depth_sim_;
+	TH2F *h_drift_depth_error2_sim_;
+	TH2F *h_drift_depth_int_sim_;
+	TH3F *h_drift_depth_int_error_matrix_sim_;
+	TH1F *h_drift_depth_int_slice_sim_;
+	TH1F *h_drift_depth_adc_slice_sim_;
+// 	TH1F h_drift_depth_int_slice2_;
+	TH2F *h_drift_depth_int_slice_error_matrix_sim_;
+	TH1F *h_fit_middle_sim_;
+	TH1F *h_fit_width_sim_;
+	TH1F *h_mean_sim_;
+	
+	std::map<int, TH1F*> _h_drift_depth_int_slice_sim_;
+	std::map<int, TF1*> _f_drift_depth_int_slice_sim_;
+	std::map<int, TH1F*> _h_drift_depth_adc_slice_sim_;
+	
+	TMatrixFSym *m_covariance_;
+// 	TMatrixFSym m_covariance_inv_;
+// 	TVectorF *v_chi2_;
+	float data_covariance_[10000];
+// 	float* data_covariance_;
+// 	float * delta_x_;
+	TMinuit* minuit;	
+	
 	bool seed_plus_;
   PropagatorWithMaterial  *thePropagator;
   PropagatorWithMaterial  *thePropagatorOp;

@@ -115,7 +115,7 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
 		int i=0;
 		LogDebug("TrackLocalAngle::findtrackangle")<<"Loop on rechit and TSOS";
 		for (itm=TMeas.begin();itm!=TMeas.end();itm++){
-			std::cout<<"hit: "<<i++<<std::endl;
+// 			std::cout<<"hit: "<<i++<<std::endl;
 			TrajectoryStateOnSurface tsos=itm->updatedState();
 			const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
 			const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
@@ -126,7 +126,7 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
 				GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matchedhit->geographicalId());
 				
 				GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
-				std::cout<<"Track direction trasformed in global direction"<<std::endl;
+// 				std::cout<<"Track direction trasformed in global direction"<<std::endl;
 				
 				//cluster and trackdirection on mono det
 				
@@ -216,7 +216,7 @@ std::vector<std::pair<const TrackingRecHit*,TrackLocalAngle::Trackhit> > TrackLo
 		int i=0;
 		LogDebug("TrackLocalAngle::findtrackangle")<<"Loop on rechit and TSOS";
 		for (itm=TMeas.begin();itm!=TMeas.end();itm++){
-			std::cout<<"hit: "<<i++<<std::endl;
+// 			std::cout<<"hit: "<<i++<<std::endl;
 			TrajectoryStateOnSurface tsos=itm->updatedState();
 			const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
 			const SiPixelRecHit * rechit = dynamic_cast<const SiPixelRecHit *>((*thit).hit());
@@ -240,6 +240,8 @@ std::vector<std::pair<const TrackingRecHit*,TrackLocalAngle::Trackhit> > TrackLo
 			}
 			LogDebug("TrackLocalAngle")<<"I found "<<i<<" hits.";
 		}
+// 		delete theTraj;
+// 		theTraj = 0;
 	}
 	return hitangleassociation;
 }
@@ -340,7 +342,7 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
   TransientTrackingRecHit::RecHitContainer tmp;
   TransientTrackingRecHit::RecHitContainer hits;
   
-  float ndof=0;
+//   float ndof=0;
   for (trackingRecHit_iterator i=theT.recHitsBegin();
        i!=theT.recHitsEnd(); i++){
     // 	hits.push_back(builder->build(&**i ));
@@ -408,10 +410,10 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
       //  cout<<"TM "<<TMeas.size()<<endl;
 
       vector<TrajectoryMeasurement>::iterator itm;
-      int i=0;
+//       int i=0;
       LogDebug("AnalyzeMTCCTracks::findtrackangle")<<"Loop on rechit and TSOS";
       for (itm=TMeas.begin();itm!=TMeas.end();itm++){
-				std::cout<<"hit: "<<i++<<std::endl;
+// 				std::cout<<"hit: "<<i++<<std::endl;
 				TrajectoryStateOnSurface tsos=itm->updatedState();
 				const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
 				//	TrackingRecHitCollection::const_iterator rhiterator;
@@ -431,7 +433,7 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
 					GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matchedhit->geographicalId());
 					
 					GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
-					std::cout<<"Track direction trasformed in global direction"<<std::endl;
+// 					std::cout<<"Track direction trasformed in global direction"<<std::endl;
 					
 					//cluster and trackdirection on mono det
 					
@@ -471,7 +473,7 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
 				}  
 	
       }
-      std::cout<<"I found "<<i<<" hits."<<std::endl;
+//       std::cout<<"I found "<<i<<" hits."<<std::endl;
       
     }
   }
