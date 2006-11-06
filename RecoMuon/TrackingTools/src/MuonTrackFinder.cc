@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/11/03 18:49:13 $
- *  $Revision: 1.25 $
+ *  $Date: 2006/11/06 17:50:18 $
+ *  $Revision: 1.26 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -25,6 +25,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 using namespace std;
+using namespace edm;
 
 // constructor. For the STA reconstruction the trackLoader must have the propagator.
 MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBuilder,
@@ -48,30 +49,30 @@ MuonTrackFinder::~MuonTrackFinder() {
 }
 
 // percolate the event setup
-void MuonTrackFinder::setEvent(const edm::Event& event) {
+void MuonTrackFinder::setEvent(const Event& event) {
   theTrajBuilder->setEvent(event);
 }
 
 // convert the trajectories into tracks and load them in to the event
 void MuonTrackFinder::load(const TrajectoryContainer& trajectories, 
-			   edm::Event& event) {
+			   Event& event) {
 
   theTrackLoader->loadTracks(trajectories, event);
 }
 
 // convert the trajectories into tracks and load them in to the event
 void MuonTrackFinder::load(const CandidateContainer& muonCands,
-			   edm::Event& event) {
+			   Event& event) {
                            
     theTrackLoader->loadTracks(muonCands, event);
 
 }
 
 // reconstruct trajectories
-void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds,
-				  edm::Event& event){
+void MuonTrackFinder::reconstruct(const Handle<TrajectorySeedCollection>& seeds,
+				  Event& event){
 
-  const std::string metname = "Muon|RecoMuon|MuonTrackFinder";
+  const string metname = "Muon|RecoMuon|MuonTrackFinder";
   
   // Percolate the event 
   LogDebug(metname)<<"Event percolation"<<endl;  
@@ -101,11 +102,13 @@ void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& s
 
 }
 
+
 // reconstruct trajectories
-void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& staTracks,
-				  edm::Event& event){
-  
-  const std::string metname = "Muon|RecoMuon|MuonTrackFinder";
+void MuonTrackFinder::reconstruct(const Handle<reco::TrackCollection>& staTracks,
+				  const Handle<vector<Trajectory> >& staTrajs,
+				  Event& event){
+
+  const string metname = "Muon|RecoMuon|MuonTrackFinder";
 
   typedef MuonTrajectoryBuilder::TrackCand TrackCand;
 
@@ -115,52 +118,25 @@ void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& staT
   // Muon Candidate container
   CandidateContainer muonCandidates;
 
+  bool validTrajs = staTrajs.isValid();
+  if ( validTrajs && staTrajs->size()!=staTracks->size()){
+    LogError(metname) << "MuonTrackFinder::reconstruct: Size of trajectory and track collections do not match";
+    validTrajs=false;
+  }
+
   // reconstruct the muon candidates
+  vector<Trajectory> trajCollection = *(staTrajs.product());
   for (unsigned int position = 0; position != staTracks->size(); ++position) {
     LogDebug(metname)<<"+++ New Track +++"<<endl;
     reco::TrackRef staTrack(staTracks,position);
 
-    TrackCand staCand = TrackCand(0,staTrack);
+    TrackCand staCand(0,staTrack);
 
-    CandidateContainer muonCands_temp = theTrajBuilder->trajectories(staCand);
-    muonCandidates.insert(muonCandidates.end(), muonCands_temp.begin(),muonCands_temp.end());
-  }                                  
-  
-  // clean the cloned candidates
-  //theTrajCleaner->clean(muonCandidates);
-  theTrajCleaner->checkGhosts(muonCandidates);
-
-  // convert the trajectories into staTracks and load them into the event
-  LogDebug(metname)<<"Load Muon Candidates into the event"<<endl;
-  load(muonCandidates,event);
-
-}
-
-// reconstruct trajectories
-void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& staTracks,
-				  const edm::Handle<std::vector<Trajectory> >& staTrajs,
-				  edm::Event& event){
-
-  const std::string metname = "Muon|RecoMuon|MuonTrackFinder";
-
-  typedef MuonTrajectoryBuilder::TrackCand TrackCand;
-
-  // percolate the event 
-  setEvent(event);
-
-  // Muon Candidate container
-  CandidateContainer muonCandidates;
-
-  // reconstruct the muon candidates
-  std::vector<Trajectory> trajCollection = *(staTrajs.product());
-  for (unsigned int position = 0; position != staTracks->size(); ++position) {
-    LogDebug(metname)<<"+++ New Track +++"<<endl;
-    reco::TrackRef staTrack(staTracks,position);
-
-    std::vector<Trajectory>::iterator it = trajCollection.begin()+position;
-    Trajectory* trajRef(&*it);
-
-    const TrackCand staCand = ( trajRef->isValid() ) ? TrackCand(trajRef,staTrack) : TrackCand(0,staTrack);
+    if (validTrajs) {
+      vector<Trajectory>::iterator it = trajCollection.begin()+position;
+      Trajectory* trajRef(&*it);  
+      if ( trajRef->isValid() ) staCand.first = trajRef;
+    }
 
     CandidateContainer muonCands_temp = theTrajBuilder->trajectories(staCand);
     muonCandidates.insert(muonCandidates.end(), muonCands_temp.begin(),muonCands_temp.end());

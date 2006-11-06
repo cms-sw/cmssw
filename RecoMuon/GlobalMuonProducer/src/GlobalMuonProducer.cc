@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/10/24 09:41:31 $
- *   $Revision: 1.17 $
+ *   $Date: 2006/11/03 17:49:53 $
+ *   $Revision: 1.18 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -64,7 +64,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
-  produces<std::vector<Trajectory> >() ;
+  produces<vector<Trajectory> >() ;
 
   produces<reco::MuonCollection>();
 
@@ -87,38 +87,33 @@ GlobalMuonProducer::~GlobalMuonProducer() {
 // reconstruct muons
 //
 void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
-  const std::string metname = "Muon|RecoMuon|GlobalMuonProducer";  
+  const string metname = "Muon|RecoMuon|GlobalMuonProducer";  
   LogDebug(metname)<<endl<<endl<<endl;
   LogDebug(metname)<<"Global Muon Reconstruction started"<<endl;  
 
-  typedef std::vector<Trajectory> TrajColl;
+  typedef vector<Trajectory> TrajColl;
 
   // Update the services
   theService->update(eventSetup);
 
   // Take the STA muon container(s)
   LogDebug(metname)<<"Taking the Stand Alone Muons "<<theSTACollectionLabel.label()<<endl;
-  try
-    {
-      Handle<reco::TrackCollection> staMuons;
-      event.getByLabel(theSTACollectionLabel,staMuons);
-      const reco::TrackCollection staTC = *(staMuons.product());
+
+  Handle<reco::TrackCollection> staMuons;
+  event.getByLabel(theSTACollectionLabel,staMuons);
+
+  Handle<vector<Trajectory> > staMuonsTraj;
+
+  try {
+    event.getByLabel(theSTACollectionLabel,staMuonsTraj);      
+    LogDebug(metname)<<"Track Reconstruction (tracks, trajs) "<< staMuons.product()->size() << " " << staMuonsTraj.product()->size() <<endl;
       
-      Handle<std::vector<Trajectory> > staMuonsTraj;
-      event.getByLabel(theSTACollectionLabel,staMuonsTraj);
-      const TrajColl staTrajC = *(staMuonsTraj.product());  
-      
-      edm::LogInfo(metname)<<"Track Reconstruction (tracks, trajs) "<< staTC.size() << " " << staTrajC.size() <<endl;
-      
-      theTrackFinder->reconstruct(staMuons, staMuonsTraj, event);      
-    }
-  catch (...)
-    {
-      Handle<reco::TrackCollection> staMuons;
-      event.getByLabel(theSTACollectionLabel,staMuons);
-      edm::LogInfo(metname)<<"Track Reconstruction (staTracks)"<<endl;
-      theTrackFinder->reconstruct(staMuons,event);
-    }
+  } catch (...) {
+    LogDebug(metname)<<"Track Reconstruction (staTracks)"<<endl;
+  }
+
+  theTrackFinder->reconstruct(staMuons, staMuonsTraj, event);      
+
   
   LogDebug(metname)<<"Event loaded"
                    <<"================================"
