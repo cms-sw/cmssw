@@ -18,6 +18,10 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "Validation/RecoTrack/interface/TrackEfficiencySelector.h"
+#include "Validation/RecoTrack/interface/TPEfficiencySelector.h"
+#include "Validation/RecoTrack/interface/TrackFakeRateSelector.h"
+
 #include <iostream>
 #include <string>
 #include <TH1F.h>
@@ -37,7 +41,10 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     min(pset.getParameter<double>("min")),
     max(pset.getParameter<double>("max")),
     nint(pset.getParameter<int>("nint")),
-    minpt(pset.getParameter<double>("minpt"))
+    selectTracks4Efficiency(pset.getParameter<edm::ParameterSet>("TracksEfficCuts")),
+    selectTPs4Efficiency(pset.getParameter<edm::ParameterSet>("TPEfficCuts")),
+    selectTracks4FakeRate(pset.getParameter<edm::ParameterSet>("TracksFakeRateCuts")),
+    selectTPs4FakeRate(pset.getParameter<edm::ParameterSet>("TPFakeRateCuts"))
     {
       dbe_ = Service<DaqMonitorBEInterface>().operator->();
     }
@@ -57,7 +64,6 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   string out;
   double  min, max;
   int nint;
-  double minpt;
   
   vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
   vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits,  h_ptrmsh, h_d0rmsh, h_charge;
@@ -77,7 +83,10 @@ class MultiTrackValidator : public edm::EDAnalyzer {
 
   vector<TrackAssociatorBase*> associator;
   TrackAssociatorByChi2 * associatorForParamAtPca;
-  
+  TrackEfficiencySelector selectTracks4Efficiency;
+  TPEfficiencySelector selectTPs4Efficiency;
+  TrackFakeRateSelector   selectTracks4FakeRate;
+  TPEfficiencySelector selectTPs4FakeRate;
 };
 
 

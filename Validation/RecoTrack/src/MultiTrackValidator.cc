@@ -145,7 +145,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
-      LogDebug("TrackValidator") << "Analyzing " << label[www].c_str() << " with " << associators[ww].c_str() <<"\n";
+      edm::LogVerbatim("TrackValidator") << "Analyzing " << label[www].c_str() << " with " 
+					 << associators[ww].c_str() <<"\n";
       //
       //get collections from the event
       //
@@ -154,11 +155,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       const reco::TrackCollection tC = *(trackCollection.product());
       
       //associate tracks
-      LogDebug("TrackValidator") << "Calling associateRecoToSim method" << "\n";
+      LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
       reco::RecoToSimCollection recSimColl=associator[ww]->associateRecoToSim(trackCollection,
 									      TPCollectionH,
 									      &event);
-      LogDebug("TrackValidator") << "Calling associateSimToReco method" << "\n";
+      LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
       reco::SimToRecoCollection simRecColl=associator[ww]->associateSimToReco(trackCollection,
 									      TPCollectionH, 
 									      &event);
@@ -167,16 +168,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //fill simulation histograms
       //compute number of tracks per eta interval
       //
-      LogDebug("TrackValidator") << "\n# of TrackingParticles (before cuts): " << tPC.size() << "\n";
+      edm::LogVerbatim("TrackValidator") << "\n# of TrackingParticles (before cuts): " << tPC.size() << "\n";
       int ats = 0;
       int st=0;
       for (TrackingParticleCollection::size_type i=0; i<tPC.size(); i++){
 	TrackingParticleRef tp(TPCollectionH, i);
-	if (fabs(tp->momentum().eta())>max || 
-	    fabs(tp->momentum().eta())<min) continue;
-	if (sqrt(tp->momentum().perp2())<minpt) continue;
-	if ((fabs(tp->parentVertex()->position().perp()))>3.5) continue;
-	if ((fabs(tp->parentVertex()->position().z()))>30) continue;
+	if (!selectTPs4Efficiency( *tp )) continue;
 	int type = tp->g4Track_begin()->type();
 	if (abs(type)!=13&&abs(type)!=11&&abs(type)!=211&&abs(type)!=321&&abs(type)!=2212) continue;
 	// 	LogDebug("TrackValidator") << "tp->charge(): " << tp->charge()
@@ -196,19 +193,19 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    try {
 	      rt = simRecColl[tp];
 	    } catch (cms::Exception e) {
-	      LogDebug("TrackValidator") << "TrackingParticle #" << st << " with pt=" << sqrt(tp->momentum().perp2()) 
-					 << " NOT associated to any reco::Track" << "\n";
+	      edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st 
+						 << " with pt=" << sqrt(tp->momentum().perp2()) 
+						 << " NOT associated to any reco::Track" << "\n";
 	      edm::LogError("TrackValidator") << e.what() << "\n";
 	    }
 	    if (rt.size()!=0) {
 	      reco::TrackRef t = rt.begin()->first;
- 	      if (t->numberOfValidHits()<8) continue;
+ 	      if ( !selectTracks4Efficiency( *t ) ) continue;//FIXME TRY WITH SECOND
 	      ats++;
 	      totASS[w][f]++;
 	      hitseta[w][f]+=t->numberOfValidHits();
-	      LogDebug("TrackValidator") << "TrackingParticle #" << st << " with pt=" << t->pt() 
+	      edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st << " with pt=" << t->pt() 
 					 << " associated with quality:" << rt.begin()->second <<"\n";
-	      //}
 	    }
 	  }
 	}
@@ -219,18 +216,13 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       //fill reconstructed track histograms
       // 
-      LogDebug("TrackValidator") << "\n# of reco::Tracks with " << label[www].c_str()  
-				 << "(before cuts): " << tC.size() << "\n";
+      edm::LogVerbatim("TrackValidator") << "\n# of reco::Tracks with " << label[www].c_str()  
+					 << "(before cuts): " << tC.size() << "\n";
       int at=0;
       int rT=0;
       for(reco::TrackCollection::size_type i=0; i<tC.size(); ++i){
 	reco::TrackRef track(trackCollection, i);
-	if (fabs(track->eta())>max || fabs(track->eta())<min) continue;
-	if (track->pt() < minpt) continue;
-	if (track->d0()>3.5) continue;
-	if (track->dz()>30) continue;
-	if (track->numberOfValidHits()<8) continue;
-
+	if ( !selectTracks4FakeRate( *track ) ) continue;
 	rT++;
 
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
@@ -242,15 +234,14 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    try {
 	      tp = recSimColl[track];
 	    } catch (cms::Exception e) {
-	      LogDebug("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
+	      edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
 					 << " NOT associated to any TrackingParticle" << "\n";
 	      edm::LogError("TrackValidator") << e.what() << "\n";
 	    }
 	    if (tp.size()!=0) {
-	      if ( fabs(tp.begin()->first->parentVertex()->position().perp()) > 120 ) continue;
-	      if ( fabs(tp.begin()->first->parentVertex()->position().z()) > 250 ) continue;//FIXME TRY WITH SECOND
+	      if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME TRY WITH SECOND
 	      totASS2[w][f]++;
-	      LogDebug("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
+	      edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
 					 << " associated with quality:" << tp.begin()->second <<"\n";
 	    }
 	  }
@@ -310,7 +301,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	      ((track->theta()-thetaSim)/track->thetaError())/5;
 	    double contrib_phi0 = ((track->phi0()-phi0Sim)/track->phi0Error())*
 	      ((track->phi0()-phi0Sim)/track->phi0Error())/5;
-	    LogDebug("TrackValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
+	    LogTrace("TrackValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
 					   << "" <<  "\n"
 					   << "ptREC=" << track->pt() << "\n"
 					   << "etaREC=" << track->eta() << "\n"
@@ -382,11 +373,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       }
       if (at!=0) h_tracks[w]->Fill(at);
       h_fakes[w]->Fill(rT-at);
-      LogDebug("TrackValidator") << "Total Simulated: " << st << "\n";
-      LogDebug("TrackValidator") << "Total Associated (simToReco): " << ats << "\n";
-      LogDebug("TrackValidator") << "Total Reconstructed: " << rT << "\n";
-      LogDebug("TrackValidator") << "Total Associated (recoToSim): " << at << "\n";
-      LogDebug("TrackValidator") << "Total Fakes: " << rT-at << "\n";
+      edm::LogVerbatim("TrackValidator") << "Total Simulated: " << st << "\n"
+					 << "Total Associated (simToReco): " << ats << "\n"
+					 << "Total Reconstructed: " << rT << "\n"
+					 << "Total Associated (recoToSim): " << at << "\n"
+					 << "Total Fakes: " << rT-at << "\n";
       nrec_vs_nsim[w]->Fill(rT,st);
       w++;
     }
@@ -425,11 +416,12 @@ void MultiTrackValidator::endJob() {
         if (totSIM[w][j]!=0){
           eff = ((double) totASS[w][j])/((double) totSIM[w][j]);
 	  err = sqrt(eff*(1-eff)/((double) totSIM[w][j]));
-	  edm::LogVerbatim("TrackValidatorInfo") 
+	  //	  edm::LogVerbatim("TrackValidatorInfo") 
+	  cout
 	    << "efficiency in eta interval [" << etaintervals[w][j] << ","
 	    << etaintervals[w][j+1] << "] is "
 	    << eff << " (" << totASS[w][j] << "/" << totSIM[w][j] << ") +- "
-	    << err ;
+	    << err <<"\n";
 
           h_effic[w]->setBinContent(j+1, eff);
           h_effic[w]->setBinError(j+1,err);
