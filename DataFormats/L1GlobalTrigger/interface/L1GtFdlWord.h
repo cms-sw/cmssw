@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -21,9 +21,11 @@
 #include <boost/cstdint.hpp>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 // forward declarations
+
+// class interface
 
 class L1GtFdlWord
 {
@@ -38,9 +40,9 @@ public:
         uint16_t bxInEventValue,
         uint16_t bxNrValue,
         uint32_t eventNrValue,
-        L1GlobalTriggerReadoutRecord::TechnicalTriggerWord gtTechnicalTriggerValue,
-        L1GlobalTriggerReadoutRecord::DecisionWord gtDecisionValue,
-        L1GlobalTriggerReadoutRecord::DecisionWordExtended gtDecisionExtendedValue,
+        L1GlobalTriggerReadoutSetup::TechnicalTriggerWord gtTechnicalTriggerWordValue,
+        L1GlobalTriggerReadoutSetup::DecisionWord gtDecisionWordValue,
+        L1GlobalTriggerReadoutSetup::DecisionWordExtended gtDecisionWordExtendedValue,
         uint16_t finalORValue,
         uint16_t localBxNrValue
     ); 
@@ -48,6 +50,12 @@ public:
 
     /// destructor
     virtual ~L1GtFdlWord();
+
+    /// equal operator
+    bool operator==(const L1GtFdlWord&) const;
+
+    /// unequal operator
+    bool operator!=(const L1GtFdlWord&) const;
 
 public:
 
@@ -68,24 +76,32 @@ public:
     void setEventNr(uint32_t eventNrValue) { m_eventNr = eventNrValue; }
     
     /// get/set technical trigger bits
-    inline const L1GlobalTriggerReadoutRecord::TechnicalTriggerWord gtTechnicalTrigger() const { return m_gtTechnicalTrigger; }
-    void setGtTechnicalTrigger (L1GlobalTriggerReadoutRecord::TechnicalTriggerWord gtTechnicalTriggerValue) { m_gtTechnicalTrigger = gtTechnicalTriggerValue; } 
+    inline const L1GlobalTriggerReadoutSetup::TechnicalTriggerWord gtTechnicalTriggerWord() const { return m_gtTechnicalTriggerWord; }
+    void setGtTechnicalTriggerWord (L1GlobalTriggerReadoutSetup::TechnicalTriggerWord gtTechnicalTriggerWordValue) { m_gtTechnicalTriggerWord = gtTechnicalTriggerWordValue; } 
+    void printGtTechnicalTriggerWord(std::ostream& myCout) const; 
 
-    /// get/set algorithms bits (decision word) 
-    inline const L1GlobalTriggerReadoutRecord::DecisionWord gtDecision() const { return m_gtDecision; }
-    void setGtDecision (L1GlobalTriggerReadoutRecord::DecisionWord gtDecisionValue) { m_gtDecision = gtDecisionValue; } 
+    /// get/set/print algorithms bits (decision word) 
+    inline const L1GlobalTriggerReadoutSetup::DecisionWord gtDecisionWord() const { return m_gtDecisionWord; }
+    void setGtDecisionWord(L1GlobalTriggerReadoutSetup::DecisionWord gtDecisionWordValue) { m_gtDecisionWord = gtDecisionWordValue; } 
+    void printGtDecisionWord(std::ostream& myCout) const; 
 
     /// get/set extended algorithms bits (extended decision word) 
-    inline const L1GlobalTriggerReadoutRecord::DecisionWordExtended gtDecisionExtended() const { return m_gtDecisionExtended; }
-    void setGtDecisionExtended (L1GlobalTriggerReadoutRecord::DecisionWordExtended gtDecisionExtendedValue) { m_gtDecisionExtended = gtDecisionExtendedValue; } 
+    inline const L1GlobalTriggerReadoutSetup::DecisionWordExtended gtDecisionWordExtended() const { return m_gtDecisionWordExtended; }
+    void setGtDecisionWordExtended (L1GlobalTriggerReadoutSetup::DecisionWordExtended gtDecisionWordExtendedValue) { m_gtDecisionWordExtended = gtDecisionWordExtendedValue; } 
 
     /// get/set "Final OR" bits
     inline const uint16_t finalOR() const { return m_finalOR; } 
     void setFinalOR(uint16_t finalORValue) { m_finalOR = finalORValue; }
 
+    inline const bool globalDecision() const { return static_cast<bool> (m_finalOR); } 
+    
     /// get/set local bunch cross number of the actual bx
     inline const uint16_t localBxNr() const { return m_localBxNr; }     
     void setLocalBxNr(uint16_t localBxNrValue) { m_localBxNr = localBxNrValue; }
+    
+    /// reset the content of a L1GtFdlWord
+    void reset();
+    
             
 private:
 
@@ -100,14 +116,14 @@ private:
     uint16_t m_bxNr;           // 12: bunch cross number of the actual bx
     uint32_t m_eventNr;        // 24: event number since last L1 reset generated in FDL
 //
-    L1GlobalTriggerReadoutRecord::TechnicalTriggerWord m_gtTechnicalTrigger;
+    L1GlobalTriggerReadoutSetup::TechnicalTriggerWord m_gtTechnicalTriggerWord;
                                // 64: technical trigger bits
                                
-    L1GlobalTriggerReadoutRecord::DecisionWord m_gtDecision;
-                               // 128: algorithm bits
+    L1GlobalTriggerReadoutSetup::DecisionWord m_gtDecisionWord;
+                               //128: algorithm bits
 
-    L1GlobalTriggerReadoutRecord::DecisionWordExtended m_gtDecisionExtended;
-                               // 192: algorithm bits
+    L1GlobalTriggerReadoutSetup::DecisionWordExtended m_gtDecisionWordExtended;
+                               // 64: algorithm bits, in addition to 128
 //
     uint16_t m_finalOR;        // 16: FINOR (7:0) Final OR bits. 
                                //     FINOR(i) is connected to Partition (i); 

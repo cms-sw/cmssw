@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -24,6 +24,8 @@
 //   base class
 
 // forward declarations
+
+// class interface
 
 class L1TcsWord
 {
@@ -47,6 +49,12 @@ public:
 
     /// destructor
     virtual ~L1TcsWord();
+
+    /// equal operator
+    bool operator==(const L1TcsWord&) const;
+
+    /// unequal operator
+    bool operator!=(const L1TcsWord&) const;
 
 public:
 

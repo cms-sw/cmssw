@@ -21,51 +21,59 @@
 // system include files
 #include <iostream>
 #include <iomanip>
+#include <bitset>
+#include <boost/cstdint.hpp>
+
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/RefProd.h"
+
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // constructors
-L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord() 
-    : m_gtBxId(0), m_bxInEvent(0), m_gtGlobalDecision(false) {
+L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord() {
 
-    // decision word  std::vector<bool>      
-    m_gtDecision.reserve(NumberPhysTriggers);
-    m_gtDecision.assign(NumberPhysTriggers, false);
-
-    // technical triggers
-    m_gtTechnicalTrigger.reserve(NumberTechnicalTriggers);
-    m_gtTechnicalTrigger.assign(NumberTechnicalTriggers, false);
+    m_gtfeWord = L1GtfeWord();
     
+    // reserve just one L1GtFdlWord
+    m_gtFdlWord.reserve(1);
+    m_gtFdlWord.assign(1, L1GtFdlWord());
     
-    for (unsigned int indexCand = 0; indexCand < NumberL1Muons; ++indexCand) {
-        m_gtMuon[indexCand] = 0;		
-	}  
+    // TODO FIXME RefProd m_muCollRefProd ?     
 
-    for (unsigned int indexCand = 0; indexCand < NumberL1Electrons; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1Electrons; ++indexCand) {
         m_gtElectron[indexCand] = 0;        
     }  
     
-    for (unsigned int indexCand = 0; indexCand < NumberL1IsolatedElectrons; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; ++indexCand) {
         m_gtIsoElectron[indexCand] = 0;        
     }  
 
-    for (unsigned int indexCand = 0; indexCand < NumberL1CentralJets; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1CentralJets; ++indexCand) {
         m_gtCJet[indexCand] = 0;        
     }  
 
-    for (unsigned int indexCand = 0; indexCand < NumberL1ForwardJets; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; ++indexCand) {
         m_gtFJet[indexCand] = 0;        
     }  
     
-    for (unsigned int indexCand = 0; indexCand < NumberL1TauJets; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1TauJets; ++indexCand) {
         m_gtTJet[indexCand] = 0;        
     }  
 
@@ -73,8 +81,50 @@ L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord()
     m_gtTotalEt = 0;    
     m_gtTotalHt = 0;
   
-    m_gtJetNr.reserve(NumberL1JetCounts);
-    m_gtJetNr.assign(NumberL1JetCounts, 0);
+    m_gtJetNr.reserve(L1GlobalTriggerReadoutSetup::NumberL1JetCounts);
+    m_gtJetNr.assign(L1GlobalTriggerReadoutSetup::NumberL1JetCounts, 0);
+                  
+}
+
+L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord(int NumberBxInEvent) {
+
+    m_gtfeWord = L1GtfeWord();
+    
+    m_gtFdlWord.reserve(NumberBxInEvent);
+    m_gtFdlWord.assign(NumberBxInEvent, L1GtFdlWord());
+    
+    for (int iBx = 0; iBx < NumberBxInEvent; ++iBx) {  // TODO review here after hw discussion
+        m_gtFdlWord[iBx].setBxInEvent(iBx);
+    }        
+         
+    // TODO FIXME RefProd m_muCollRefProd ?     
+
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1Electrons; ++indexCand) {
+        m_gtElectron[indexCand] = 0;        
+    }  
+    
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; ++indexCand) {
+        m_gtIsoElectron[indexCand] = 0;        
+    }  
+
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1CentralJets; ++indexCand) {
+        m_gtCJet[indexCand] = 0;        
+    }  
+
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; ++indexCand) {
+        m_gtFJet[indexCand] = 0;        
+    }  
+    
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1TauJets; ++indexCand) {
+        m_gtTJet[indexCand] = 0;        
+    }  
+
+    m_gtMissingEt = 0;
+    m_gtTotalEt = 0;    
+    m_gtTotalHt = 0;
+  
+    m_gtJetNr.reserve(L1GlobalTriggerReadoutSetup::NumberL1JetCounts);
+    m_gtJetNr.assign(L1GlobalTriggerReadoutSetup::NumberL1JetCounts, 0);
                   
 }
 
@@ -82,35 +132,28 @@ L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord()
 L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord(
     const L1GlobalTriggerReadoutRecord& result) {
 
-    m_gtBxId    = result.m_gtBxId;
-    m_bxInEvent = result.m_bxInEvent;
+    m_gtfeWord = result.m_gtfeWord;
+    m_gtFdlWord = result.m_gtFdlWord;
         
-    m_gtDecision       = result.m_gtDecision;
-    m_gtGlobalDecision = result.m_gtGlobalDecision;
-
-    m_gtTechnicalTrigger = result.m_gtTechnicalTrigger;
-
-    for (unsigned int indexCand = 0; indexCand < NumberL1Muons; ++indexCand) {  
-        m_gtMuon[indexCand] = result.m_gtMuon[indexCand];
-    }
+    m_muCollRefProd = result.m_muCollRefProd;
     
-    for (unsigned int indexCand = 0; indexCand < NumberL1Electrons; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1Electrons; ++indexCand) {
         m_gtElectron[indexCand] = result.m_gtElectron[indexCand];  
     }
     
-    for (unsigned int indexCand = 0; indexCand < NumberL1IsolatedElectrons; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; ++indexCand) {
         m_gtIsoElectron[indexCand] = result.m_gtIsoElectron[indexCand];
     }
       
-    for (unsigned int indexCand = 0; indexCand < NumberL1CentralJets; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1CentralJets; ++indexCand) {
         m_gtCJet[indexCand] = result.m_gtCJet[indexCand];  
     }
     
-    for (unsigned int indexCand = 0; indexCand < NumberL1ForwardJets; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; ++indexCand) {
         m_gtFJet[indexCand] = result.m_gtFJet[indexCand];  
     }
     
-    for (unsigned int indexCand = 0; indexCand < NumberL1TauJets; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1TauJets; ++indexCand) {
         m_gtTJet[indexCand] = result.m_gtTJet[indexCand];
     }
   
@@ -124,6 +167,8 @@ L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord(
 
 // destructor
 L1GlobalTriggerReadoutRecord::~L1GlobalTriggerReadoutRecord() {
+    
+    
 }
       
 // assignment operator
@@ -131,35 +176,29 @@ L1GlobalTriggerReadoutRecord& L1GlobalTriggerReadoutRecord::operator=(
     const L1GlobalTriggerReadoutRecord& result) {
 
     if ( this != &result ) {
-        m_gtBxId    = result.m_gtBxId;
-        m_bxInEvent = result.m_bxInEvent;
-        
-        m_gtDecision       = result.m_gtDecision;
-        m_gtGlobalDecision = result.m_gtGlobalDecision;
 
-        m_gtTechnicalTrigger = result.m_gtTechnicalTrigger;
+        m_gtfeWord = result.m_gtfeWord;
+        m_gtFdlWord  = result.m_gtFdlWord;
         
-        for (unsigned int indexCand = 0; indexCand < NumberL1Muons; ++indexCand) {  
-            m_gtMuon[indexCand] = result.m_gtMuon[indexCand];
-        }
+        m_muCollRefProd = result.m_muCollRefProd;
     
-        for (unsigned int indexCand = 0; indexCand < NumberL1Electrons; ++indexCand) {
+        for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup::NumberL1Electrons; ++indexCand) {
             m_gtElectron[indexCand] = result.m_gtElectron[indexCand];  
         }
     
-        for (unsigned int indexCand = 0; indexCand < NumberL1IsolatedElectrons; ++indexCand) {
+        for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; ++indexCand) {
             m_gtIsoElectron[indexCand] = result.m_gtIsoElectron[indexCand];
         }
       
-        for (unsigned int indexCand = 0; indexCand < NumberL1CentralJets; ++indexCand) {
+        for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1CentralJets; ++indexCand) {
             m_gtCJet[indexCand] = result.m_gtCJet[indexCand];  
         }
     
-        for (unsigned int indexCand = 0; indexCand < NumberL1ForwardJets; ++indexCand) {
+        for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; ++indexCand) {
             m_gtFJet[indexCand] = result.m_gtFJet[indexCand];  
         }
     
-        for (unsigned int indexCand = 0; indexCand < NumberL1TauJets; ++indexCand) {
+        for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1TauJets; ++indexCand) {
             m_gtTJet[indexCand] = result.m_gtTJet[indexCand];
         }
   
@@ -178,15 +217,11 @@ L1GlobalTriggerReadoutRecord& L1GlobalTriggerReadoutRecord::operator=(
 bool L1GlobalTriggerReadoutRecord::operator==(
     const L1GlobalTriggerReadoutRecord& result) const {
 
-    if (m_gtBxId    != result.m_gtBxId) return false;
-    if (m_bxInEvent != result.m_bxInEvent) return false;
-        
-    if (m_gtDecision       != result.m_gtDecision) return false;
-    if (m_gtGlobalDecision != result.m_gtGlobalDecision) return false;  
+    if (m_gtfeWord != result.m_gtfeWord) return false;
+    
+    if (m_gtFdlWord  != result.m_gtFdlWord)  return false;
 
-    if (m_gtTechnicalTrigger != result.m_gtTechnicalTrigger) return false;
-
-    if (m_gtMuon != result.m_gtMuon) return false;
+    if (m_muCollRefProd != result.m_muCollRefProd) return false;
   
     if (m_gtElectron    != result.m_gtElectron) return false;  
     if (m_gtIsoElectron != result.m_gtIsoElectron) return false;
@@ -213,55 +248,241 @@ bool L1GlobalTriggerReadoutRecord::operator!=(
     return !( result == *this);
     
 }
+// methods
 
-// get/set physical candidates 
 
-// return muon candidate(s)
+// get Global Trigger decision
+//    general bxInEvent 
+const bool L1GlobalTriggerReadoutRecord::decision(unsigned int bxInEventValue) const {
 
-const L1MuGMTCand L1GlobalTriggerReadoutRecord::muonCand(
-    unsigned int indexCand, unsigned int bxInEvent) const {
+    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); 
+        itBx != m_gtFdlWord.end(); ++itBx) {
         
-    // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1Muons );
-    return L1MuGMTCand( m_gtMuon[indexCand] );
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+            return (*itBx).finalOR();
+        }               
+    }
+    
+    // if bunch cross not found, throw exception (action: SkipEvent) // TODO re-evaluate action 
+    
+    throw cms::Exception("NotFound")
+        << "\nError: requested GtFdlWord for bx = " << bxInEventValue << " does not exist.\n"
+        << "Can not return global decision for this bx!\n"
+        << std::endl;
+
+    return false;          
+}
+
+//    bxInEvent = 0  
+const bool L1GlobalTriggerReadoutRecord::decision() const {
+    
+    unsigned int bxInEventL1Accept = 0;
+    return decision(bxInEventL1Accept);
+}
+
+// get Global Trigger decision word
+
+const L1GlobalTriggerReadoutRecord::DecisionWord 
+    L1GlobalTriggerReadoutRecord::decisionWord(unsigned int bxInEventValue) const {
+
+    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); 
+        itBx != m_gtFdlWord.end(); ++itBx) {
+        
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+            return (*itBx).gtDecisionWord();
+        }               
+    }
+    
+    // if bunch cross not found, throw exception (action: SkipEvent) // TODO re-evaluate action
+    
+    throw cms::Exception("NotFound")
+        << "\nError: requested GtFdlWord for bx = " << bxInEventValue << " does not exist.\n"
+        << "Can not return decision word for this bx!\n"
+        << std::endl;
+
+    DecisionWord dW; // empty; it does not arrive here
+    return dW;          
+}
+
+const L1GlobalTriggerReadoutRecord::DecisionWord 
+    L1GlobalTriggerReadoutRecord::decisionWord() const { 
+    
+    unsigned int bxInEventL1Accept = 0;
+    return decisionWord(bxInEventL1Accept);
+}
+  
+
+// set global decision
+//    general 
+void L1GlobalTriggerReadoutRecord::setDecision(bool t, unsigned int bxInEventValue) { 
+
+    for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); 
+        itBx != m_gtFdlWord.end(); ++itBx) {
+        
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+            (*itBx).setFinalOR(static_cast<uint16_t> (t)); // TODO FIXME when manipulating partitions
+        }               
+    }
+    
+    // if bunch cross not found, throw exception (action: SkipEvent)
+    
+    throw cms::Exception("NotFound")
+        << "\nError: requested GtFdlWord for bx = " << bxInEventValue << " does not exist.\n"
+        << "Can not set global decision for this bx!\n"
+        << std::endl;
+
+}
+
+//    bxInEvent = 0  
+void L1GlobalTriggerReadoutRecord::setDecision(bool t) { 
+
+    unsigned int bxInEventL1Accept = 0;
+    setDecision(t, bxInEventL1Accept);
+}
+
+// set decision word
+void L1GlobalTriggerReadoutRecord::setDecisionWord(
+    const L1GlobalTriggerReadoutRecord::DecisionWord& decisionWordValue, 
+    unsigned int bxInEventValue) {
+
+    for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); 
+        itBx != m_gtFdlWord.end(); ++itBx) {
+        
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+            (*itBx).setGtDecisionWord (decisionWordValue);
+        }               
+    }
+    
+    // if bunch cross not found, throw exception (action: SkipEvent)
+    
+    throw cms::Exception("NotFound")
+        << "\nError: requested GtFdlWord for bx = " << bxInEventValue << " does not exist.\n"
+        << "Can not set decision word for this bx!\n"
+        << std::endl;
+
+}
+
+void L1GlobalTriggerReadoutRecord::setDecisionWord(
+    const L1GlobalTriggerReadoutRecord::DecisionWord& decisionWordValue) {
+
+    unsigned int bxInEventL1Accept = 0;
+    setDecisionWord(decisionWordValue, bxInEventL1Accept);
+
+}
+
+// print global decision and algorithm decision word
+void L1GlobalTriggerReadoutRecord::printGtDecision(
+    std::ostream& myCout, unsigned int bxInEventValue
+    ) const {
+        
+    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); 
+        itBx != m_gtFdlWord.end(); ++itBx) {
+        
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+
+            myCout << "\nL1 Global Trigger Record: " << std::endl;
+        
+            myCout << "\t Bunch cross " << bxInEventValue 
+                << std::endl
+                << "\t Global Decision = " << std::setw(5) << (*itBx).globalDecision()
+                 << std::endl 
+                << "\t Decision word (bitset style) = "; 
+            
+            (*itBx).printGtDecisionWord(myCout);
+        }               
+    }      
+
+    myCout << std::endl;
     
 }
 
-const L1MuGMTCand L1GlobalTriggerReadoutRecord::muonCand(
-    unsigned int indexCand) const {
-
-    // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1Muons );
-    return L1MuGMTCand( m_gtMuon[indexCand] );
-
-}        
-
-std::vector<L1MuGMTCand> L1GlobalTriggerReadoutRecord::muonCands(
-    unsigned int bxInEvent) const {
-
-    // TODO bxInEvent dependence
-    vector<L1MuGMTCand> result;
-
-    for ( unsigned int i = 0; i != NumberL1Muons; i++ ) {
-        L1MuGMTCand cand(muonCand(i));
-        if ( !cand.empty() ) result.push_back(cand);
-    }
-
-    return result;
-
+void L1GlobalTriggerReadoutRecord::printGtDecision(std::ostream& myCout) const {
+    
+    unsigned int bxInEventL1Accept = 0;
+    printGtDecision(myCout, bxInEventL1Accept);
+        
 }
 
-std::vector<L1MuGMTCand> L1GlobalTriggerReadoutRecord::muonCands() const {
+// print technical trigger word (reverse order for vector<bool>)
+void L1GlobalTriggerReadoutRecord::printTechnicalTrigger(
+    std::ostream& myCout, unsigned int bxInEventValue
+    ) const {
+        
+    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); 
+        itBx != m_gtFdlWord.end(); ++itBx) {
+        
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
 
-    // TODO bxInEvent dependence
-    vector<L1MuGMTCand> result;
+            myCout << "\nL1 Global Trigger Record: " << std::endl;
+        
+            myCout << "\t Bunch cross " << bxInEventValue 
+                << std::endl
+                << "\t Technical Trigger word (bitset style) = "; 
+            
+            (*itBx).printGtTechnicalTriggerWord(myCout);
+        }               
+    }      
 
-    for ( unsigned int i = 0; i != NumberL1Muons; i++ ) {
-        L1MuGMTCand cand(muonCand(i));
-        if ( !cand.empty() ) result.push_back(cand);
-    }
+    myCout << std::endl;
+    
+}
 
-    return result;
+void L1GlobalTriggerReadoutRecord::printTechnicalTrigger(std::ostream& myCout) const {
+    
+    unsigned int bxInEventL1Accept = 0;
+    printTechnicalTrigger(myCout, bxInEventL1Accept);
+        
+}
+
+
+// get/set physical candidates 
+
+// muons
+
+// get / set reference to L1MuGMTReadoutCollection
+const edm::RefProd<L1MuGMTReadoutCollection> 
+    L1GlobalTriggerReadoutRecord::muCollectionRefProd() const {
+        
+    return m_muCollRefProd; 
+}
+
+void L1GlobalTriggerReadoutRecord::setMuCollectionRefProd(
+    edm::Handle<L1MuGMTReadoutCollection>& muHandle
+    ) {
+
+    m_muCollRefProd = edm::RefProd<L1MuGMTReadoutCollection>(muHandle);; 
+
+} 
+
+// return muon candidate(s)
+
+const L1MuGMTExtendedCand L1GlobalTriggerReadoutRecord::muonCand(
+    unsigned int indexCand, unsigned int bxInEvent) const {
+        
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1Muons );
+    return (*m_muCollRefProd).getRecord(bxInEvent).getGMTCands()[indexCand];
+    
+}
+
+const L1MuGMTExtendedCand L1GlobalTriggerReadoutRecord::muonCand(
+    unsigned int indexCand) const {
+        
+    unsigned int bxInEventL1Accept = 0;
+    return muonCand(indexCand, bxInEventL1Accept);
+    
+}
+
+std::vector<L1MuGMTExtendedCand> L1GlobalTriggerReadoutRecord::muonCands(
+    unsigned int bxInEvent) const {
+
+    return (*m_muCollRefProd).getRecord(bxInEvent).getGMTCands();
+    
+}
+
+std::vector<L1MuGMTExtendedCand> L1GlobalTriggerReadoutRecord::muonCands() const {
+
+    unsigned int bxInEventL1Accept = 0;
+    return muonCands(bxInEventL1Accept);
 
 }
 
@@ -271,7 +492,7 @@ const L1GctEmCand L1GlobalTriggerReadoutRecord::electronCand(
     unsigned int indexCand, unsigned int bxInEvent) const {
 
     // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1Electrons );
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1Electrons );
 
     bool electronIso = false;
     return L1GctEmCand( m_gtElectron[indexCand], electronIso );
@@ -282,7 +503,7 @@ const L1GctEmCand L1GlobalTriggerReadoutRecord::electronCand(
     unsigned int indexCand) const {
 
     // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1Electrons );
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1Electrons );
 
     bool electronIso = false;
     return L1GctEmCand( m_gtElectron[indexCand], electronIso );
@@ -295,7 +516,7 @@ std::vector<L1GctEmCand> L1GlobalTriggerReadoutRecord::electronCands(
     // TODO bxInEvent dependence
     vector<L1GctEmCand> result;
 
-    for ( unsigned int  i = 0; i != NumberL1Electrons; i++ ) {
+    for ( unsigned int  i = 0; i != L1GlobalTriggerReadoutSetup::NumberL1Electrons; i++ ) {
         L1GctEmCand cand(electronCand(i));
         if ( !cand.empty() ) result.push_back(cand);
     }
@@ -309,7 +530,7 @@ std::vector<L1GctEmCand> L1GlobalTriggerReadoutRecord::electronCands() const {
     // TODO bxInEvent dependence
     vector<L1GctEmCand> result;
 
-    for ( unsigned int  i = 0; i != NumberL1Electrons; i++ ) {
+    for ( unsigned int  i = 0; i != L1GlobalTriggerReadoutSetup::NumberL1Electrons; i++ ) {
         L1GctEmCand cand(electronCand(i));
         if ( !cand.empty() ) result.push_back(cand);
     }
@@ -323,7 +544,7 @@ const L1GctEmCand L1GlobalTriggerReadoutRecord::isolatedElectronCand(
     unsigned int indexCand, unsigned int bxInEvent) const {
 
     // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1IsolatedElectrons );
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons );
 
     bool electronIso = true;
     return L1GctEmCand( m_gtIsoElectron[indexCand], electronIso );
@@ -333,7 +554,7 @@ const L1GctEmCand L1GlobalTriggerReadoutRecord::isolatedElectronCand(
     unsigned int indexCand) const {
 
     // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1IsolatedElectrons );
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons );
 
     bool electronIso = true;
     return L1GctEmCand( m_gtIsoElectron[indexCand], electronIso );
@@ -346,7 +567,7 @@ std::vector<L1GctEmCand> L1GlobalTriggerReadoutRecord::isolatedElectronCands(
     // TODO bxInEvent dependence
     vector<L1GctEmCand> result;
 
-    for ( unsigned int  i = 0; i != NumberL1IsolatedElectrons; i++ ) {
+    for ( unsigned int  i = 0; i != L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; i++ ) {
         L1GctEmCand cand(isolatedElectronCand(i));
         if ( !cand.empty() ) result.push_back(cand);
     }
@@ -360,7 +581,7 @@ std::vector<L1GctEmCand> L1GlobalTriggerReadoutRecord::isolatedElectronCands() c
     // TODO bxInEvent dependence
     vector<L1GctEmCand> result;
 
-    for ( unsigned int  i = 0; i != NumberL1IsolatedElectrons; i++ ) {
+    for ( unsigned int  i = 0; i != L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; i++ ) {
         L1GctEmCand cand(isolatedElectronCand(i));
         if ( !cand.empty() ) result.push_back(cand);
     }
@@ -374,7 +595,7 @@ const L1GctJetCand L1GlobalTriggerReadoutRecord::centralJetCand(
     unsigned int indexCand, unsigned int bxInEvent) const {
 
     // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1CentralJets );
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1CentralJets );
 
     bool isTau = false;
     bool isFor = false;
@@ -386,7 +607,7 @@ const L1GctJetCand L1GlobalTriggerReadoutRecord::centralJetCand(
     unsigned int indexCand) const {
 
     // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1CentralJets );
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1CentralJets );
 
     bool isTau = false;
     bool isFor = false;
@@ -400,7 +621,7 @@ std::vector<L1GctJetCand> L1GlobalTriggerReadoutRecord::centralJetCands(
     // TODO bxInEvent dependence
     vector<L1GctJetCand> result;
 
-    for ( unsigned int  i = 0; i != NumberL1CentralJets; i++ ) {
+    for ( unsigned int  i = 0; i != L1GlobalTriggerReadoutSetup::NumberL1CentralJets; i++ ) {
         L1GctJetCand cand(centralJetCand(i));
         if ( !cand.empty() ) result.push_back(cand);
     }
@@ -414,7 +635,7 @@ std::vector<L1GctJetCand> L1GlobalTriggerReadoutRecord::centralJetCands() const 
     // TODO bxInEvent dependence
     vector<L1GctJetCand> result;
 
-    for ( unsigned int  i = 0; i != NumberL1CentralJets; i++ ) {
+    for ( unsigned int  i = 0; i != L1GlobalTriggerReadoutSetup::NumberL1CentralJets; i++ ) {
         L1GctJetCand cand(centralJetCand(i));
         if ( !cand.empty() ) result.push_back(cand);
     }
@@ -428,7 +649,7 @@ const L1GctJetCand L1GlobalTriggerReadoutRecord::forwardJetCand(
     unsigned int indexCand, unsigned int bxInEvent) const {
 
     // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1ForwardJets );
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets );
 
     bool isTau = false;
     bool isFor = true;
@@ -440,7 +661,7 @@ const L1GctJetCand L1GlobalTriggerReadoutRecord::forwardJetCand(
     unsigned int indexCand) const {
 
     // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1ForwardJets );
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets );
 
     bool isTau = false;
     bool isFor = true;
@@ -454,7 +675,7 @@ std::vector<L1GctJetCand> L1GlobalTriggerReadoutRecord::forwardJetCands(
     // TODO bxInEvent dependence
     vector<L1GctJetCand> result;
 
-    for ( unsigned int  i = 0; i != NumberL1ForwardJets; i++ ) {
+    for ( unsigned int  i = 0; i != L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; i++ ) {
         L1GctJetCand cand(forwardJetCand(i));
         if ( !cand.empty() ) result.push_back(cand);
     }
@@ -468,7 +689,7 @@ std::vector<L1GctJetCand> L1GlobalTriggerReadoutRecord::forwardJetCands() const 
     // TODO bxInEvent dependence
     vector<L1GctJetCand> result;
 
-    for ( unsigned int  i = 0; i != NumberL1ForwardJets; i++ ) {
+    for ( unsigned int  i = 0; i != L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; i++ ) {
         L1GctJetCand cand(forwardJetCand(i));
         if ( !cand.empty() ) result.push_back(cand);
     }
@@ -482,7 +703,7 @@ const L1GctJetCand L1GlobalTriggerReadoutRecord::tauJetCand(
     unsigned int indexCand, unsigned int bxInEvent) const {
 
     // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1TauJets );
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1TauJets );
 
     bool isTau = true;
     bool isFor = false;
@@ -494,7 +715,7 @@ const L1GctJetCand L1GlobalTriggerReadoutRecord::tauJetCand(
     unsigned int indexCand) const {
 
     // TODO bxInEvent dependence
-    assert( indexCand >= 0 && indexCand < NumberL1TauJets );
+    assert( indexCand >= 0 && indexCand < L1GlobalTriggerReadoutSetup::NumberL1TauJets );
 
     bool isTau = true;
     bool isFor = false;
@@ -508,7 +729,7 @@ std::vector<L1GctJetCand> L1GlobalTriggerReadoutRecord::tauJetCands(
     // TODO bxInEvent dependence
     vector<L1GctJetCand> result;
 
-    for ( unsigned int  i = 0; i != NumberL1TauJets; i++ ) {
+    for ( unsigned int  i = 0; i != L1GlobalTriggerReadoutSetup::NumberL1TauJets; i++ ) {
         L1GctJetCand cand(tauJetCand(i));
         if ( !cand.empty() ) result.push_back(cand);
     }
@@ -522,7 +743,7 @@ std::vector<L1GctJetCand> L1GlobalTriggerReadoutRecord::tauJetCands() const {
     // TODO bxInEvent dependence
     vector<L1GctJetCand> result;
 
-    for ( unsigned int  i = 0; i != NumberL1TauJets; i++ ) {
+    for ( unsigned int  i = 0; i != L1GlobalTriggerReadoutSetup::NumberL1TauJets; i++ ) {
         L1GctJetCand cand(tauJetCand(i));
         if ( !cand.empty() ) result.push_back(cand);
     }
@@ -598,13 +819,14 @@ const L1GctJetCounts L1GlobalTriggerReadoutRecord::jetCounts() const {
 // set candidate data words (all non-empty candidates)
   
 // muon
+
 void L1GlobalTriggerReadoutRecord::setMuons(
     const std::vector<MuonDataWord>& vec, unsigned int bxInEvent) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1Muons ) ? vec.size() : NumberL1Muons;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1Muons ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1Muons;
     for (int i = 0; i < max; i++) {
-        m_gtMuon[i] = vec[i];
+//        m_gtMuon[i] = vec[i]; // FIXME
     }
 
 }
@@ -613,9 +835,9 @@ void L1GlobalTriggerReadoutRecord::setMuons(
     const std::vector<MuonDataWord>& vec) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1Muons ) ? vec.size() : NumberL1Muons;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1Muons ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1Muons;
     for (int i = 0; i < max; i++) {
-        m_gtMuon[i] = vec[i];
+//        m_gtMuon[i] = vec[i]; // FIXME
     }
         
 }
@@ -625,7 +847,7 @@ void L1GlobalTriggerReadoutRecord::setElectrons(
     const std::vector<CaloDataWord>& vec, unsigned int bxInEvent) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1Electrons ) ? vec.size() : NumberL1Electrons;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1Electrons ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1Electrons;
     for (int i = 0; i < max; i++) {
         m_gtElectron[i] = vec[i];
     }
@@ -636,7 +858,7 @@ void L1GlobalTriggerReadoutRecord::setElectrons(
     const std::vector<CaloDataWord>& vec) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1Electrons ) ? vec.size() : NumberL1Electrons;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1Electrons ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1Electrons;
     for (int i = 0; i < max; i++) {
         m_gtElectron[i] = vec[i];
     }
@@ -648,7 +870,7 @@ void L1GlobalTriggerReadoutRecord::setIsolatedElectrons(
     const std::vector<CaloDataWord>& vec, unsigned int bxInEvent) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1IsolatedElectrons ) ? vec.size() : NumberL1IsolatedElectrons;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons;
     for (int i = 0; i < max; i++) {
         m_gtIsoElectron[i] = vec[i];
     }
@@ -659,7 +881,7 @@ void L1GlobalTriggerReadoutRecord::setIsolatedElectrons(
     const std::vector<CaloDataWord>& vec) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1IsolatedElectrons ) ? vec.size() : NumberL1IsolatedElectrons;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons;
     for (int i = 0; i < max; i++) {
         m_gtIsoElectron[i] = vec[i];
     }
@@ -671,7 +893,7 @@ void L1GlobalTriggerReadoutRecord::setCentralJets(
     const std::vector<CaloDataWord>& vec, unsigned int bxInEvent) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1CentralJets ) ? vec.size() : NumberL1CentralJets;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1CentralJets ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1CentralJets;
     for (int i = 0; i < max; i++) {
         m_gtCJet[i] = vec[i];
     }
@@ -682,7 +904,7 @@ void L1GlobalTriggerReadoutRecord::setCentralJets(
     const std::vector<CaloDataWord>& vec) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1CentralJets ) ? vec.size() : NumberL1CentralJets;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1CentralJets ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1CentralJets;
     for (int i = 0; i < max; i++) {
         m_gtCJet[i] = vec[i];
     }
@@ -695,7 +917,7 @@ void L1GlobalTriggerReadoutRecord::setForwardJets(
     const std::vector<CaloDataWord>& vec, unsigned int bxInEvent) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1ForwardJets ) ? vec.size() : NumberL1ForwardJets;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1ForwardJets ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1ForwardJets;
     for (int i = 0; i < max; i++) {
         m_gtFJet[i] = vec[i];
     }
@@ -705,7 +927,7 @@ void L1GlobalTriggerReadoutRecord::setForwardJets(
     const std::vector<CaloDataWord>& vec) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1ForwardJets ) ? vec.size() : NumberL1ForwardJets;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1ForwardJets ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1ForwardJets;
     for (int i = 0; i < max; i++) {
         m_gtFJet[i] = vec[i];
     }
@@ -718,7 +940,7 @@ void L1GlobalTriggerReadoutRecord::setTauJets(
     const std::vector<CaloDataWord>& vec, unsigned int bxInEvent) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1TauJets ) ? vec.size() : NumberL1TauJets;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1TauJets ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1TauJets;
     for (int i = 0; i < max; i++) {
         m_gtTJet[i] = vec[i];
     }
@@ -729,7 +951,7 @@ void L1GlobalTriggerReadoutRecord::setTauJets(
     const std::vector<CaloDataWord>& vec) {
 
     // TODO bxInEvent dependence
-    int max = ( vec.size() <= NumberL1TauJets ) ? vec.size() : NumberL1TauJets;
+    int max = ( vec.size() <= L1GlobalTriggerReadoutSetup::NumberL1TauJets ) ? vec.size() : L1GlobalTriggerReadoutSetup::NumberL1TauJets;
     for (int i = 0; i < max; i++) {
         m_gtTJet[i] = vec[i];
     }
@@ -804,207 +1026,174 @@ void L1GlobalTriggerReadoutRecord::setJetCounts(
         
 }
 
-// print global decision and algorithm decision word
-void L1GlobalTriggerReadoutRecord::print() const {
-
-    std::cout << "\nL1 Global Trigger Record : " << std::endl
-        << "\t Global Decision = " << std::setw(5) << m_gtGlobalDecision << std::endl 
-        << "\t Decision word (bitset style) = "; 
-
-    for (std::vector<bool>::const_reverse_iterator ritBit = m_gtDecision.rbegin(); 
-        ritBit != m_gtDecision.rend(); ++ritBit) {
-        
-        std::cout << (*ritBit ? '1' : '0');
-                
-    }      
-
-    std::cout << std::endl;
-    
-}
-
-// print technical trigger word (reverse order for vector<bool>)
-void L1GlobalTriggerReadoutRecord::printTechnicalTrigger() const {
-
-    std::cout << "\nL1 Global Trigger Record : " << std::endl
-        << "\t Technical Trigger word (bitset style) = "; 
-
-    for (std::vector<bool>::const_reverse_iterator ritBit = m_gtTechnicalTrigger.rbegin(); 
-        ritBit != m_gtTechnicalTrigger.rend(); ++ritBit) {
-        
-        std::cout << (*ritBit ? '1' : '0');
-                
-    }      
-
-    std::cout << std::endl;
-    
-}
-
-
-
 // print all L1 Trigger Objects (use int to bitset conversion) 
-void L1GlobalTriggerReadoutRecord::printL1Objects() const {
+void L1GlobalTriggerReadoutRecord::printL1Objects(
+    std::ostream& myCout, unsigned int bxInEventValue) const {
 
-    std::cout << "\nL1GlobalTriggerReadoutRecord: L1 Trigger Objects \n" << std::endl;
+    // TODO FIXME add bunch cross dependence
+    myCout << "\nL1GlobalTriggerReadoutRecord: L1 Trigger Objects \n" << std::endl;
      
-    std::cout << "   GMT Muons " << std::endl;
-    for (unsigned int i = 0; i < NumberL1Muons; i++) { 
-        std::cout << std::bitset<NumberMuonBits>(m_gtMuon[i]) << std::endl;
-    }
-    
-    std::cout << "   GCT Non Isolated Electrons " << std::endl;
-    for (unsigned int i = 0; i < NumberL1Electrons; i++) { 
-        std::cout << std::bitset<NumberCaloBits>(m_gtElectron[i]) << std::endl;
-    }
-    
-    std::cout << "   GCT Isolated Electrons " << std::endl;
-    for ( unsigned int  i = 0; i < NumberL1IsolatedElectrons; i++) {
-        std::cout << std::bitset<NumberCaloBits>(m_gtIsoElectron[i]) << std::endl;
-    }
-    
-    std::cout << "   GCT Central Jets " << std::endl;
-    for ( unsigned int  i = 0; i < NumberL1CentralJets; i++) {
-        std::cout << std::bitset<NumberCaloBits>(m_gtCJet[i]) << std::endl;
-    }
-    
-    std::cout << "   GCT Forward Jets " << std::endl;
-    for ( unsigned int  i = 0; i < NumberL1ForwardJets; i++) {
-        std::cout << std::bitset<NumberCaloBits>(m_gtFJet[i]) << std::endl;
-    }
-    
-    std::cout << "   GCT Tau Jets " << std::endl;
-    for ( unsigned int  i = 0; i < NumberL1TauJets; i++) {
-        std::cout << std::bitset<NumberCaloBits>(m_gtTJet[i]) << std::endl;
-    }
-    
-    std::cout << "   GCT Missing Transverse Energy " << std::endl;
-    std::cout << std::bitset<NumberMissingEtBits>(m_gtMissingEt) << std::endl;
+    myCout << "   GMT Muons " << std::endl;
+    L1MuGMTReadoutRecord muRecord = (*m_muCollRefProd).getRecord(bxInEventValue);
 
-    std::cout << "   GCT Total Transverse Energy " << std::endl;
-    std::cout << std::bitset<NumberCaloBits>(m_gtTotalEt) << std::endl;
-
-    std::cout << "   GCT Total Hadron Transverse Energy " << std::endl;
-    std::cout << std::bitset<NumberCaloBits>(m_gtTotalHt) << std::endl;
-
-    std::cout << "   GCT Jet Counts " << std::endl;
-    std::cout << "To be done" << std::endl; // TODO fix the way to print jet counts
+    std::vector<L1MuGMTExtendedCand> exc = muRecord.getGMTCands();
+    for(std::vector<L1MuGMTExtendedCand>::const_iterator muRecIt = exc.begin(); 
+        muRecIt != exc.end(); muRecIt++) {
         
-    std::cout << std::endl;
+        myCout << *muRecIt << std::endl;
+    
+    }
+    
+    myCout << "   GCT Non Isolated Electrons " << std::endl;
+    for (unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Electrons; i++) { 
+        myCout << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>(m_gtElectron[i]) << std::endl;
+    }
+    
+    myCout << "   GCT Isolated Electrons " << std::endl;
+    for ( unsigned int  i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; i++) {
+        myCout << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>(m_gtIsoElectron[i]) << std::endl;
+    }
+    
+    myCout << "   GCT Central Jets " << std::endl;
+    for ( unsigned int  i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1CentralJets; i++) {
+        myCout << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>(m_gtCJet[i]) << std::endl;
+    }
+    
+    myCout << "   GCT Forward Jets " << std::endl;
+    for ( unsigned int  i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; i++) {
+        myCout << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>(m_gtFJet[i]) << std::endl;
+    }
+    
+    myCout << "   GCT Tau Jets " << std::endl;
+    for ( unsigned int  i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1TauJets; i++) {
+        myCout << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>(m_gtTJet[i]) << std::endl;
+    }
+    
+    myCout << "   GCT Missing Transverse Energy " << std::endl;
+    myCout << std::bitset<L1GlobalTriggerReadoutSetup::NumberMissingEtBits>(m_gtMissingEt) << std::endl;
+
+    myCout << "   GCT Total Transverse Energy " << std::endl;
+    myCout << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>(m_gtTotalEt) << std::endl;
+
+    myCout << "   GCT Total Hadron Transverse Energy " << std::endl;
+    myCout << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>(m_gtTotalHt) << std::endl;
+
+    myCout << "   GCT Jet Counts " << std::endl;
+    myCout << "To be done" << std::endl; // TODO fix the way to print jet counts
+        
+    myCout << std::endl;
         
 }
 
+void L1GlobalTriggerReadoutRecord::printL1Objects(std::ostream& myCout) const {
 
+    unsigned int bxInEventL1Accept = 0;
+    printL1Objects(myCout, bxInEventL1Accept);
+    
+}
+    
 // get/set hardware-related words
 
-// get/set DAQ and EVM words. Beware setting the words: they are correlated!
+// get / set GTFE word (record) in the GT readout record
+const L1GtfeWord L1GlobalTriggerReadoutRecord::gtfeWord() const {
 
-// get / set DAQ readout record
-const L1GlobalTriggerReadoutRecord::L1GlobalTriggerDaqWord 
-    L1GlobalTriggerReadoutRecord::daqWord() const {
-
-    // TODO edit it when defined
-    L1GlobalTriggerDaqWord voidValue;
-    return voidValue;
-}
-
-void L1GlobalTriggerReadoutRecord::setDaqWord(const L1GlobalTriggerDaqWord& daqWordValue) {
-
-    // TODO edit it when defined
+    return m_gtfeWord;
     
 }
 
-// get / set EVM readout record
-const L1GlobalTriggerReadoutRecord::L1GlobalTriggerEvmWord 
-    L1GlobalTriggerReadoutRecord::evmWord() const {
+void L1GlobalTriggerReadoutRecord::setGtfeWord(const L1GtfeWord& gtfeWordValue) {
 
-    // TODO edit it when defined
-    L1GlobalTriggerEvmWord voidValue;
-    return voidValue;
+    m_gtfeWord = gtfeWordValue;
 
 }
 
-void L1GlobalTriggerReadoutRecord::setEvmWord(const L1GlobalTriggerEvmWord& evmWordValue) {
+// get / set FDL word (record) in the GT readout record
+const L1GtFdlWord L1GlobalTriggerReadoutRecord::gtFdlWord(unsigned int bxInEventValue) const {
 
-    // TODO edit it when defined
+    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); 
+        itBx != m_gtFdlWord.end(); ++itBx) {
         
-}
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+            return (*itBx);
+        }               
+    }      
+    
+    // if bunch cross not found, throw exception (action: SkipEvent) 
+    
+    throw cms::Exception("NotFound")
+        << "\nError: requested L1GtFdlWord for bx = " << bxInEventValue << " does not exist.\n"
+        << std::endl;
 
-// TODO: type for boardId; temporary unsigned int 
-
-// get word for PSB board 
-const L1GlobalTriggerReadoutRecord::L1GlobalTriggerPsbWord 
-    L1GlobalTriggerReadoutRecord::psbWord(
-    unsigned int boardId, unsigned int bxInEvent) const {
-
-    // TODO edit it when defined
-    L1GlobalTriggerPsbWord voidValue;
-    return voidValue;
+    // return empty record - actually does not arrive here 
+    return L1GtFdlWord();          
     
 }
 
-const L1GlobalTriggerReadoutRecord::L1GlobalTriggerPsbWord 
-    L1GlobalTriggerReadoutRecord::psbWord(
-    unsigned int boardId) const {
+const L1GtFdlWord L1GlobalTriggerReadoutRecord::gtFdlWord() const {
 
-    // TODO edit it when defined
-    L1GlobalTriggerPsbWord voidValue;
-    return voidValue;
-    
+    unsigned int bxInEventL1Accept = 0;
+    return gtFdlWord(bxInEventL1Accept);
 }
 
-// set word for PSB board:
-void L1GlobalTriggerReadoutRecord::setPsbWord(
-    const L1GlobalTriggerPsbWord& psbWordValue, unsigned int bxInEvent) {
+void L1GlobalTriggerReadoutRecord::setGtFdlWord(
+    const L1GtFdlWord& gtFdlWordValue, unsigned int bxInEventValue) {
 
-    // TODO edit it when defined
+    // if a L1GtFdlWord exists for bxInEventValue, replace it
+    for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); 
+        itBx != m_gtFdlWord.end(); ++itBx) {
         
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+            *itBx = gtFdlWordValue;
+            LogDebug("L1GlobalTriggerReadoutRecord") 
+                << "Replacing L1GtFdlWord for bunch bx = " << bxInEventValue << "\n" 
+                << std::endl;
+            return;
+        }               
+    }
+    
+    // if bunch cross not found, throw exception (action: SkipEvent) 
+    // all L1GtFdlWord are created in the record constructor for allowed bunch crosses
+    
+    throw cms::Exception("NotFound")
+        << "\nError: Cannot set L1GtFdlWord for bx = " << bxInEventValue 
+        << std::endl;
+
 }
 
-void L1GlobalTriggerReadoutRecord::setPsbWord(
-    const L1GlobalTriggerPsbWord& psbWordValue) {
+void L1GlobalTriggerReadoutRecord::setGtFdlWord(const L1GtFdlWord& gtFdlWordValue) {
 
-    // TODO edit it when defined
-
+    unsigned int bxInEventL1Accept = 0;
+    setGtFdlWord(gtFdlWordValue, bxInEventL1Accept);
+    
 }
+
 
 // other methods
 
 // clear the record
 void L1GlobalTriggerReadoutRecord::reset() {
 
-    m_gtBxId = 0;
-    m_bxInEvent = 0;
-        
-    m_gtGlobalDecision = false;
-
-    for (unsigned int iBit = 0; iBit < m_gtDecision.size(); ++iBit) {
-		m_gtDecision[iBit] = false;
-	}
-
-    for (unsigned int iBit = 0; iBit < m_gtTechnicalTrigger.size(); ++iBit) {
-        m_gtTechnicalTrigger[iBit] = false;
-    }
-
-    for (unsigned int indexCand = 0; indexCand < NumberL1Muons; ++indexCand) {
-        m_gtMuon[indexCand] = 0;        
-    }  
-
-    for (unsigned int indexCand = 0; indexCand < NumberL1Electrons; ++indexCand) {
+    // TODO FIXME clear GTFE, FDL?
+    
+    // TODO FIXME reset GMT collection?
+    
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1Electrons; ++indexCand) {
         m_gtElectron[indexCand] = 0;        
     }  
     
-    for (unsigned int indexCand = 0; indexCand < NumberL1IsolatedElectrons; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; ++indexCand) {
         m_gtIsoElectron[indexCand] = 0;        
     }  
 
-    for (unsigned int indexCand = 0; indexCand < NumberL1CentralJets; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1CentralJets; ++indexCand) {
         m_gtCJet[indexCand] = 0;        
     }  
 
-    for (unsigned int indexCand = 0; indexCand < NumberL1ForwardJets; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; ++indexCand) {
         m_gtFJet[indexCand] = 0;        
     }  
     
-    for (unsigned int indexCand = 0; indexCand < NumberL1TauJets; ++indexCand) {
+    for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1TauJets; ++indexCand) {
         m_gtTJet[indexCand] = 0;        
     }  
 
@@ -1012,7 +1201,7 @@ void L1GlobalTriggerReadoutRecord::reset() {
     m_gtTotalEt = 0;    
     m_gtTotalHt = 0;
   
-    CaloJetCountsWord tmpJetNr(NumberL1JetCounts);
+    CaloJetCountsWord tmpJetNr(L1GlobalTriggerReadoutSetup::NumberL1JetCounts);
     m_gtJetNr = tmpJetNr;
                   
     
@@ -1020,16 +1209,9 @@ void L1GlobalTriggerReadoutRecord::reset() {
   
 // output stream operator
 std::ostream& operator<<(std::ostream& s, const L1GlobalTriggerReadoutRecord& result) {
-    s << "Global Decision = " << std::setw(5) << result.decision() << std::endl
-      << "Decision = ";
-          
-    for (std::vector<bool>::const_iterator itBit = result.m_gtDecision.begin(); 
-        itBit != result.m_gtDecision.end(); ++itBit) {
+    // TODO FIXME put together all prints
+    s << "Not available yet - sorry";
         
-        s << (*itBit ? '1' : '0');
-        		
-	}      
-    
   return s;
     
 }

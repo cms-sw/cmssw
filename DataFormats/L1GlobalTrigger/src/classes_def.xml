@@ -11,8 +11,32 @@
 
   <class name="L1GtFdlWord"/>
   <class name="edm::Wrapper<L1GtFdlWord>"/>
+  
+  <class name="L1GlobalTriggerReadoutSetup"/>
+  <class name="edm::Wrapper<L1GlobalTriggerReadoutSetup>"/>
 
   <class name="L1GlobalTriggerReadoutRecord"/>
   <class name="edm::Wrapper<L1GlobalTriggerReadoutRecord>"/>
+  
+  <class name="L1GlobalTriggerEvmReadoutRecord"/>
+  <class name="edm::Wrapper<L1GlobalTriggerEvmReadoutRecord>"/>
+
+ 
+  <class name="L1MuRegionalCand"/>
+  <class name="std::vector<L1MuRegionalCand>"/>
+  <class name="edm::Wrapper<std::vector<L1MuRegionalCand> >"/>
+ 
+  <class name="L1MuGMTCand"/>
+  <class name="std::vector<L1MuGMTCand>"/>
+  <class name="edm::Ref<std::vector<L1MuGMTCand>,L1MuGMTCand,edm::refhelper::FindUsingAdvance<std::vector<L1MuGMTCand>,L1MuGMTCand>>"/>
+  <class name="edm::Wrapper<std::vector<L1MuGMTCand> >"/>
+ 
+  <class name="L1MuGMTExtendedCand"/>
+ 
+  <class name="L1MuGMTReadoutRecord"/>
+
+  <class name="L1MuGMTReadoutCollection"/>
+  <class name="edm::Wrapper<L1MuGMTReadoutCollection>"/>
+  <class name="edm::RefProd<L1MuGMTReadoutCollection>"/>
   
 </lcgdict>

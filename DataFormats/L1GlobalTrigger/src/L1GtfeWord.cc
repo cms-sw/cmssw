@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -67,6 +67,33 @@ L1GtfeWord::L1GtfeWord(
 
 // destructor
 L1GtfeWord::~L1GtfeWord() {
+}
+
+// equal operator
+bool L1GtfeWord::operator==(const L1GtfeWord& result) const {
+
+    if(m_boardId != result.m_boardId) return false;
+    if(m_recordLength != result.m_recordLength) return false;  
+    if(m_bxNr != result.m_bxNr) return false; 
+    if(m_setupVersion != result.m_setupVersion) return false; 
+    if(m_activeBoards != result.m_activeBoards) return false;
+    if(m_totalTriggerNr != result.m_totalTriggerNr) return false;
+    
+    for (int iB = 0; iB < NumberGpsTimes; ++iB) {
+        if(m_gpsTime[iB] != result.m_gpsTime[iB]) return false;                          
+    }
+
+
+    // all members identical
+    return true;
+    
+}
+
+// unequal operator
+bool L1GtfeWord::operator!=(const L1GtfeWord& result) const{
+    
+    return !( result == *this);
+    
 }
 
 // methods

@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -69,3 +69,29 @@ L1TcsWord::L1TcsWord(
 // destructor
 L1TcsWord::~L1TcsWord() {
 }
+
+// equal operator
+bool L1TcsWord::operator==(const L1TcsWord& result) const {
+
+    if (m_daqNr != result.m_daqNr) return false;
+    if (m_triggerType != result.m_triggerType) return false;
+    if (m_status != result.m_status) return false;
+    if (m_bxNr != result.m_bxNr) return false;
+    if (m_partTrigNr != result.m_partTrigNr) return false;
+    if (m_partRunNr != result.m_partRunNr) return false;
+    if (m_eventNr != result.m_eventNr) return false; 
+    if (m_assignedPartitions != result.m_assignedPartitions) return false; 
+    if (m_orbitNr != result.m_orbitNr) return false;
+
+    // all members identical
+    return true;
+    
+}
+
+// unequal operator
+bool L1TcsWord::operator!=(const L1TcsWord& result) const{
+    
+    return !( result == *this);
+    
+}
+

@@ -21,9 +21,10 @@
 #include <boost/cstdint.hpp>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 // forward declarations
+
+// class interface
 
 class L1GtPsbWord
 {
@@ -37,7 +38,7 @@ public:
     /// constructors
     L1GtPsbWord();    // empty constructor, all members set to zero;
 
-    // constructor from unpacked values;
+    /// constructor from unpacked values;
     L1GtPsbWord(
         uint16_t boardIdValue,
         uint16_t bxInEventValue,

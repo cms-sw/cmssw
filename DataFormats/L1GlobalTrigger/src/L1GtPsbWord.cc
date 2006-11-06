@@ -20,8 +20,6 @@
 // system include files
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-
 #include "FWCore/Utilities/interface/EDMException.h"
 
 

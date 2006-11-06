@@ -18,17 +18,27 @@
  */
 
 // system include files
-#include <bitset>
 #include <string>
 #include <vector>
+#include <iostream>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
+
+#include "DataFormats/Common/interface/RefProd.h"
+#include "FWCore/Framework/interface/Event.h"
 
 // forward declarations
 
@@ -41,6 +51,8 @@ public:
 
     /// constructors
     L1GlobalTriggerReadoutRecord();
+
+    L1GlobalTriggerReadoutRecord(int NumberBxInEvent);
 
     /// copy constructor
     L1GlobalTriggerReadoutRecord(const L1GlobalTriggerReadoutRecord&);
@@ -59,77 +71,60 @@ public:
 
 public:
 
-    static const unsigned int NumberPhysTriggers = 128;    
-    static const unsigned int NumberPhysTriggersExtended = 192;    
-    static const unsigned int NumberTechnicalTriggers = 64;    
-
-    static const unsigned int NumberL1Muons = 4;
-        
-    static const unsigned int NumberL1Electrons = 4;    
-    static const unsigned int NumberL1IsolatedElectrons = 4;    
-    
-    static const unsigned int NumberL1CentralJets = 4;    
-    static const unsigned int NumberL1ForwardJets = 4;    
-    static const unsigned int NumberL1TauJets = 4;    
-    
-    static const unsigned int NumberL1JetCounts = 12;
-
-public:
-
-    /// typedefs          
+    /// typedefs taken from L1GlobalTriggerReadoutSetup.h         
 
     /// algorithm bits: 128 bits
-    typedef std::vector<bool> DecisionWord;
+    typedef L1GlobalTriggerReadoutSetup::DecisionWord DecisionWord;
 
-    /// extended decision word: 192 bits (extend DecisionWord with 64 bits)
+    /// extend DecisionWord with 64 bits (128 - 192)
     /// need a new FDL chip :-)  
-    typedef std::vector<bool> DecisionWordExtended;
+    typedef L1GlobalTriggerReadoutSetup::DecisionWordExtended DecisionWordExtended;
 
     /// technical trigger bits (64 bits)
-    typedef std::vector<bool> TechnicalTriggerWord;
+    typedef L1GlobalTriggerReadoutSetup::TechnicalTriggerWord TechnicalTriggerWord;
 
-    // muons are represented as 32 bits (actually 26 bits)     
-    typedef unsigned MuonDataWord;
-    static const unsigned int NumberMuonBits = 32;
+    /// muons are represented as 32 bits (actually 26 bits)     
+    typedef L1GlobalTriggerReadoutSetup::MuonDataWord MuonDataWord;
 
-    // e-gamma, jet objects have 16 bits
-    typedef uint16_t CaloDataWord;
-    static const unsigned int NumberCaloBits = 16;
+    /// e-gamma, jet objects have 16 bits
+    typedef L1GlobalTriggerReadoutSetup::CaloDataWord CaloDataWord;
 
-    // missing Et has 32 bits
-    typedef uint32_t CaloMissingEtWord;
-    static const unsigned int NumberMissingEtBits = 32;
+    /// missing Et has 32 bits
+    typedef L1GlobalTriggerReadoutSetup::CaloMissingEtWord CaloMissingEtWord;
 
-    // twelve jet counts, encoded in five bits per count; six jets per 32-bit word 
-    // code jet count = 31 indicate overflow condition 
-    typedef std::vector<unsigned> CaloJetCountsWord;
-    static const unsigned int NumberJetCountsBits = 32;
-    static const unsigned int NumberJetCountsWords = 2;
-    static const unsigned int NumberCountBits = 5;
+    /// twelve jet counts, encoded in five bits per count; six jets per 32-bit word 
+    /// code jet count = 31 indicate overflow condition 
+    typedef L1GlobalTriggerReadoutSetup::CaloJetCountsWord CaloJetCountsWord;
     
-
-    typedef std::vector< std::bitset<64> > L1GlobalTriggerDaqWord; 
-    typedef std::vector< std::bitset<64> > L1GlobalTriggerEvmWord;
-    typedef std::vector< std::bitset<64> > L1GlobalTriggerPsbWord;
-      
+public:
 
     /// get Global Trigger decision and the decision word
-    inline const bool decision() const { return m_gtGlobalDecision; }
-    inline const DecisionWord decisionWord() const { return m_gtDecision; }
+    ///   overloaded w.r.t. bxInEvent argument
+    ///   bxInEvent not given: for bunch cross with L1Accept
+    const bool decision(unsigned int bxInEvent) const;
+    const bool decision() const;
+
+    const DecisionWord decisionWord(unsigned int bxInEvent) const;
+    const DecisionWord decisionWord() const;
   
-    /// set global decision
-    void setDecision(bool t) { m_gtGlobalDecision = t; }
-  
-    /// set decision
-    void setDecisionWord(const DecisionWord& decision) { m_gtDecision = decision; }
+    /// set global decision and the decision word
+    void setDecision(bool t, unsigned int bxInEvent);
+    void setDecision(bool t);
+
+    void setDecisionWord(const DecisionWord& decisionWordValue, unsigned int bxInEvent);
+    void setDecisionWord(const DecisionWord& decisionWordValue);
+
+    /// print global decision and algorithm decision word
+    void printGtDecision(std::ostream& myCout, unsigned int bxInEventValue) const;
+    void printGtDecision(std::ostream& myCout) const;
+    
+    /// print technical triggers
+    void printTechnicalTrigger(std::ostream& myCout, unsigned int bxInEventValue) const;
+    void printTechnicalTrigger(std::ostream& myCout) const;
     
 // TODO after inserting the configuration
 //    ///  set decision for given configuration
 //    ///  disable trigger item(s)
-
-
-    /// return bunch-crossing identifier from header
-    int bxId() const { return m_gtBxId; }
 
     //**************************************************************************
     // get/set physical candidates 
@@ -146,12 +141,17 @@ public:
     ///     no argument:   for bunch cross with L1Accept
 
     /// muon 
+    
+    /// get / set reference to L1MuGMTReadoutCollection
+    const edm::RefProd<L1MuGMTReadoutCollection> muCollectionRefProd() const;
+    void setMuCollectionRefProd(edm::Handle<L1MuGMTReadoutCollection>&);
+    
+    
+    const L1MuGMTExtendedCand muonCand(unsigned int indexCand, unsigned int bxInEvent) const;
+    const L1MuGMTExtendedCand muonCand(unsigned int indexCand) const;
 
-    const L1MuGMTCand muonCand(unsigned int indexCand, unsigned int bxInEvent) const;
-    const L1MuGMTCand muonCand(unsigned int indexCand) const;
-
-    std::vector<L1MuGMTCand> muonCands(unsigned int bxInEvent) const;
-    std::vector<L1MuGMTCand> muonCands() const;
+    std::vector<L1MuGMTExtendedCand> muonCands(unsigned int bxInEvent) const;
+    std::vector<L1MuGMTExtendedCand> muonCands() const;
 
     /// electron
 
@@ -210,6 +210,7 @@ public:
     ///     one argument:    candidate index, for bunch cross with L1Accept
   
     /// muon
+
     void setMuons(const std::vector<MuonDataWord>&, unsigned int bxInEvent);
     void setMuons(const std::vector<MuonDataWord>&);
 
@@ -249,15 +250,10 @@ public:
     void setJetCounts(const CaloJetCountsWord&, unsigned int bxInEvent);
     void setJetCounts(const CaloJetCountsWord&);
 
-
-    /// print global decision and algorithm decision word
-    void print() const;
-    
-    /// print technical triggers
-    void printTechnicalTrigger() const;
     
     /// print all L1 Trigger Objects
-    void printL1Objects() const;
+    void printL1Objects(std::ostream& myCout, unsigned int bxInEventValue) const;
+    void printL1Objects(std::ostream& myCout) const;
 
 
     //**************************************************************************
@@ -267,24 +263,17 @@ public:
     //**************************************************************************
 
 
-    // get/set DAQ and EVM words. Beware setting the words: they are correlated!
-    
-    /// get / set DAQ readout record
-    const L1GlobalTriggerDaqWord daqWord() const;
-    void setDaqWord(const std::vector< std::bitset<64> >&);
-    
-    /// get / set EVM readout record
-    const L1GlobalTriggerEvmWord evmWord() const;
-    void setEvmWord(const L1GlobalTriggerEvmWord&);
+    /// get / set GTFE word (record) in the GT readout record
+    const L1GtfeWord gtfeWord() const;
+    void setGtfeWord(const L1GtfeWord&);
 
-    // TODO: type for boardId; temporary unsigned int 
+    /// get / set FDL word (record) in the GT readout record
+    const L1GtFdlWord gtFdlWord(unsigned int bxInEvent) const;
+    const L1GtFdlWord gtFdlWord() const;
 
-    /// get / set word for PSB board     
-    const L1GlobalTriggerPsbWord psbWord(unsigned int boardId, unsigned int bxInEvent) const;
-    const L1GlobalTriggerPsbWord psbWord(unsigned int boardId) const;
-    void setPsbWord(const L1GlobalTriggerPsbWord&, unsigned int bxInEvent);
-    void setPsbWord(const L1GlobalTriggerPsbWord&);
-    
+    void setGtFdlWord(const L1GtFdlWord&, unsigned int bxInEvent);
+    void setGtFdlWord(const L1GtFdlWord&);
+
     // other methods
     
     /// clear the record
@@ -296,23 +285,17 @@ public:
 
 private:
 
+    L1GtfeWord m_gtfeWord;
+    std::vector<L1GtFdlWord> m_gtFdlWord;
     
-    int m_gtBxId;               // reference bunch cross number from CMS header 
-    unsigned int m_bxInEvent;   // bunch cross from GT event record 
-        
-    DecisionWord m_gtDecision;
-    bool m_gtGlobalDecision;
-
-    TechnicalTriggerWord m_gtTechnicalTrigger;
+    edm::RefProd<L1MuGMTReadoutCollection> m_muCollRefProd;        
        
-    MuonDataWord m_gtMuon[NumberL1Muons];
-    
-    CaloDataWord m_gtElectron[NumberL1Electrons];  
-    CaloDataWord m_gtIsoElectron[NumberL1IsolatedElectrons];
+    CaloDataWord m_gtElectron[L1GlobalTriggerReadoutSetup::NumberL1Electrons];  
+    CaloDataWord m_gtIsoElectron[L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons];
   
-    CaloDataWord m_gtCJet[NumberL1CentralJets];  
-    CaloDataWord m_gtFJet[NumberL1ForwardJets];  
-    CaloDataWord m_gtTJet[NumberL1TauJets];
+    CaloDataWord m_gtCJet[L1GlobalTriggerReadoutSetup::NumberL1CentralJets];  
+    CaloDataWord m_gtFJet[L1GlobalTriggerReadoutSetup::NumberL1ForwardJets];  
+    CaloDataWord m_gtTJet[L1GlobalTriggerReadoutSetup::NumberL1TauJets];
   
     CaloMissingEtWord m_gtMissingEt;
     
