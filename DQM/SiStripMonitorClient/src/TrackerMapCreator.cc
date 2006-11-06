@@ -30,6 +30,8 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
   int ndet = contentVec.size();
   tempVec.clear();
   int ibin = 0;
+  string gname = "GobalFlag";
+  MonitorElement* tkmap_gme = getTkMapMe(mui,gname,ndet); 
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
     ibin++;
@@ -40,6 +42,7 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
     string det_id = ((*it).substr((*it).find("module_")+7)).c_str();
     
     map<int, MonitorElement*> local_mes;
+    int gstat = 0;
     //  browse through monitorable; check  if required MEs exist    
     for (vector<string>::const_iterator ic = contents.begin();
 	      ic != contents.end(); ic++) {
@@ -53,11 +56,18 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
         istat =  getStatus(me); 
         local_mes.insert(pair<int, MonitorElement*>(istat, me));
 	
+        if (istat > gstat) gstat = istat;
         MonitorElement* tkmap_me = getTkMapMe(mui,me_name,ndet);
-	if (tkmap_me)  tkmap_me->Fill(ibin, istat);
-	tkmap_me->setBinLabel(ibin, det_id.c_str());
+	if (tkmap_me){
+          tkmap_me->Fill(ibin, istat);
+	  tkmap_me->setBinLabel(ibin, det_id.c_str());
+        }
       }
     }
+    if (tkmap_gme) {
+       tkmap_gme->Fill(ibin, gstat);
+       tkmap_gme->setBinLabel(ibin, det_id.c_str());
+    }    
     drawMEs(atoi(det_id.c_str()), local_mes);
   }
   trackerMap->print(true);  
@@ -82,6 +92,7 @@ void TrackerMapCreator::drawMEs(int det_id, map<int, MonitorElement*>& me_map) {
 
   MonitorElement* me;
   int i = 0;
+
   for (map<int, MonitorElement*>::const_iterator it = me_map.begin(); 
               it != me_map.end(); it++) {
     i++;
