@@ -10,6 +10,7 @@
 <use name=SimTracker/TrackerHitAssociation>
 <use name=rootcintex>
 <use name=root>
+<lib name=Minuit>
 <use name=clhep>
 <use name=boost>
 <export>
