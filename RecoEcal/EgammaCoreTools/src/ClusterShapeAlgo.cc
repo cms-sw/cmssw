@@ -17,7 +17,6 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedC
                                                const CaloSubdetectorGeometry * geometry,
                                                const CaloSubdetectorTopology* topology)
 {
-
   //std::cout << " Calculate_TopEnergy" << std::endl;
   Calculate_TopEnergy(passedCluster,hits);
   //std::cout << " Calculate_2ndEnergy" << std::endl;
@@ -34,17 +33,15 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedC
   Calculate_e4x4();
   //std::cout << "Calculate_e5x5 " << std::endl;
   Calculate_e5x5();
-  //std::cout << "Calculate_Location " << std::endl;
-  Calculate_Location(hits,geometry);
   //std::cout << "Calculate_Covariances " << std::endl;
-  Calculate_Covariances(hits,geometry);
+  Calculate_Covariances(passedCluster,hits,geometry);
   //std::cout << "Calculate_BarrelBasketEnergyFraction " << std::endl;
   Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Eta, geometry);
   //std::cout << "Calculate_BarrelBasketEnergyFraction " << std::endl;
   Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Phi, geometry);
 
   return reco::ClusterShape(covEtaEta_, covEtaPhi_, covPhiPhi_, eMax_, eMaxId_, e2nd_, e2ndId_,
-                            e2x2_, e3x2_, e3x3_,e4x4_, e5x5_, e3x2Ratio_, location_,
+                            e2x2_, e3x2_, e3x3_,e4x4_, e5x5_, e3x2Ratio_, 
                             energyBasketFractionEta_, energyBasketFractionPhi_);
 }
 
@@ -268,20 +265,7 @@ void ClusterShapeAlgo::Calculate_e5x5()
 
 }
 
-void ClusterShapeAlgo::Calculate_Location(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry* geometry)
-{
-  std::vector<DetId> usedDetIds;
-  location_ = math::XYZPoint(0.,0.,0.);
-
-  for(int i = 0; i <= 4; i++)
-    for(int j = 0; j <= 4; j++)
-      if(!energyMap_[i][j].first.null()) usedDetIds.push_back(energyMap_[i][j].first);
-
-  location_ = posCalculator_.Calculate_Location(usedDetIds,hits,geometry);
-}
-
-
-void ClusterShapeAlgo::Calculate_Covariances(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry* geometry)
+void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster &passedCluster, const EcalRecHitCollection* hits, const CaloSubdetectorGeometry* geometry)
 {
   std::vector<DetId> usedDetIds;
   covEtaEta_ = 0.;
@@ -292,7 +276,7 @@ void ClusterShapeAlgo::Calculate_Covariances(const EcalRecHitCollection* hits, c
     for(int j = 0; j <= 4; j++)
       if(!energyMap_[i][j].first.null()) usedDetIds.push_back(energyMap_[i][j].first);
 
-  std::map<std::string,double> covReturned = posCalculator_.Calculate_Covariances(location_,usedDetIds,hits,geometry);
+  std::map<std::string,double> covReturned = posCalculator_.Calculate_Covariances(passedCluster.position(),usedDetIds,hits,geometry);
 
   covEtaEta_ = covReturned.find("covEtaEta")->second;
   covEtaPhi_ = covReturned.find("covEtaPhi")->second;
