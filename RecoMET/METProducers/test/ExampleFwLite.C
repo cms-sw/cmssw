@@ -46,7 +46,6 @@ for ( unsigned int index = 0; index < tree->GetEntries(); ++index )
   
   reco::GenMET*  genMet = (reco::GenMET*)GenMETCollection[0]; 
   reco::CaloMET*    met = (reco::CaloMET*)CaloMETCollection[0]; 
-  reco::CaloMET* corMet = (reco::CaloMET*)CaloCorMETCollection[0]; 
   if( CaloMETCollection.size() > 0 ) 
     {
       h01->Fill(genMet->pt(), weight);
