@@ -4,8 +4,8 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2006/09/22 18:59:54 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/03 20:00:18 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -41,18 +41,15 @@ public:
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
-  typedef MuonTrajectoryBuilder::TrackCand TrackCand;
 
 
   GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service);
   virtual ~GlobalCosmicMuonTrajectoryBuilder();
 
-  // fake implementation
+  /// dummy implementation, unused in this class
   std::vector<Trajectory*> trajectories(const TrajectorySeed&) {return std::vector<Trajectory*>();}
 
   /// choose tk Track and build combined trajectories
-  virtual CandidateContainer trajectories(const reco::TrackRef&);
-
   virtual CandidateContainer trajectories(const TrackCand&);
 
 

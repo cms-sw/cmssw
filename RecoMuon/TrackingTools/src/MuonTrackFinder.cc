@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/10/12 16:39:30 $
- *  $Revision: 1.24 $
+ *  $Date: 2006/11/03 18:49:13 $
+ *  $Revision: 1.25 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -107,7 +107,7 @@ void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& staT
   
   const std::string metname = "Muon|RecoMuon|MuonTrackFinder";
 
-  typedef std::pair<Trajectory*, reco::TrackRef> TrackCand;
+  typedef MuonTrajectoryBuilder::TrackCand TrackCand;
 
   // percolate the event 
   setEvent(event);
@@ -143,7 +143,7 @@ void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& staT
 
   const std::string metname = "Muon|RecoMuon|MuonTrackFinder";
 
-  typedef std::pair<Trajectory*, reco::TrackRef> TrackCand;
+  typedef MuonTrajectoryBuilder::TrackCand TrackCand;
 
   // percolate the event 
   setEvent(event);

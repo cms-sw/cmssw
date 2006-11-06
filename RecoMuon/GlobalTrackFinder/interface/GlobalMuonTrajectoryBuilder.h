@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/11/03 17:54:38 $
- *  $Revision: 1.34 $
+ *  $Date: 2006/11/03 19:58:52 $
+ *  $Revision: 1.35 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -40,8 +40,6 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
   public:
-
-    typedef std::pair<Trajectory*, reco::TrackRef> TrackCand;
     typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
     typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
     typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
@@ -63,12 +61,10 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     /// destructor
     ~GlobalMuonTrajectoryBuilder();
 
-    /// reconstruct trajectories from standalone and tracker only Tracks
-    MuonTrajectoryBuilder::CandidateContainer trajectories(const reco::TrackRef&);
-    
+    /// reconstruct trajectories from standalone and tracker only Tracks    
     MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&);
 
-    /// reconstruct trajectories from trajectory seed
+    /// dummy implementation, unused in this class
     MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&){ return MuonTrajectoryBuilder::TrajectoryContainer(); }
 
     /// pass the Event to the algo at each event

@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2006/09/03 02:47:40 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/11/03 19:49:37 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -32,11 +32,7 @@ public:
 
   std::vector<Trajectory*> trajectories(const TrajectorySeed&);
 
-   // fake implementation 
-   // return a container reconstructed muons starting from a given track
-  virtual CandidateContainer trajectories(const reco::TrackRef&) {
-    return CandidateContainer();
-  }
+  /// dummy implementation, unused in this class
   virtual CandidateContainer trajectories(const TrackCand&) {
     return CandidateContainer();
   }

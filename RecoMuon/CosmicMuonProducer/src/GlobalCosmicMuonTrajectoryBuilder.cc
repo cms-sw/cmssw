@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2006/11/03 16:43:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/03 20:00:55 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -80,13 +80,6 @@ void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 //
 // reconstruct trajectories
 //
-MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectories(const reco::TrackRef& muTrack) {
-
-  TrackCand muCand = TrackCand(0,muTrack);
-  return trajectories(muCand);
-
-}
-
 MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectories(const TrackCand& muCand) {
 
   const std::string metname = "GlobalCosmicMuonTrajectoryBuilder";

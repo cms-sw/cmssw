@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/03 19:59:29 $
- *  $Revision: 1.51 $
+ *  $Date: 2006/11/03 21:05:23 $
+ *  $Revision: 1.52 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -167,14 +167,6 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 
 }
 
-
-//
-// reconstruct trajectories
-//
-MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const reco::TrackRef& staTrack) {
-  TrackCand staCand = TrackCand(0,staTrack);
-  return trajectories(staCand);
-}
 
 //
 // reconstruct trajectories

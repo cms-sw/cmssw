@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/10/24 08:02:47 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/11/03 18:53:50 $
+ *  $Revision: 1.18 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -29,7 +29,6 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 
  public:
   typedef std::pair<const DetLayer*,TrajectoryStateOnSurface> DetLayerWithState;    
-  typedef std::pair<Trajectory*, reco::TrackRef> TrackCand;
   
  public:
   /// Constructor with Parameter set and MuonServiceProxy
@@ -42,8 +41,7 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
   // the given seed.
   TrajectoryContainer trajectories(const TrajectorySeed&);
 
-  // FIXME: not relevant here?
-  virtual CandidateContainer trajectories(const reco::TrackRef&) {return CandidateContainer();}
+  /// dummy implementation, unused in this class
   virtual CandidateContainer trajectories(const TrackCand&) {return CandidateContainer();}
 
   StandAloneMuonRefitter* refitter() const {return theRefitter;}
