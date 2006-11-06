@@ -176,12 +176,12 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Get RecoMET objects from event
   Handle<CaloMETCollection> calo;
-  iEvent.getByLabel("met", calo);
+  iEvent.getByLabel(InputCaloMETLabel_, calo);
   const CaloMETCollection *calometcol = calo.product();
   const CaloMET calomet = calometcol->front();
 
   Handle<GenMETCollection> gen;
-  iEvent.getByLabel("genMet", gen);
+  iEvent.getByLabel(InputGenMETLabel_, gen);
   const GenMETCollection *genmetcol = gen.product();
   const GenMET genmet = genmetcol->front();
 
