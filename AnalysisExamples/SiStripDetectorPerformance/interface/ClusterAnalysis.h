@@ -33,6 +33,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 //Services
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
@@ -77,11 +78,12 @@ namespace cms{
       void analyze(const edm::Event& e, const edm::EventSetup& c);
 
     private:
-
+      void book();
       void AllClusters();
       void trackStudy();
       void clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag);	
       const SiStripClusterInfo* MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid);	
+      std::pair<std::string,uint32_t> GetSubDetAndLayer(const uint32_t& detid);
 
     private:
   
@@ -93,8 +95,12 @@ namespace cms{
       edm::Handle< edm::DetSetVector<SiStripClusterInfo> >  dsv_SiStripClusterInfo;
       edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
       edm::Handle<reco::TrackCollection> trackCollection;
+      edm::Handle<LTCDigiCollection> ltcdigis;
+      edm::Handle<uint16_t> filterWord;
 
       std::vector<const SiStripCluster*> vPSiStripCluster;
+      
+      std::map<std::pair<std::string,uint32_t>,bool> DetectedLayers;
 
       std::string filename_;
       std::string psfilename_;
@@ -108,13 +114,15 @@ namespace cms{
 
       SiStripNoiseService SiStripNoiseService_;  
       SiStripPedestalsService SiStripPedestalsService_;  
+      edm::InputTag Filter_src_;
       edm::InputTag Track_src_;
       edm::InputTag ClusterInfo_src_;
       edm::InputTag Cluster_src_;
-
+ 
       bool not_the_first_event;
 
-      int countOn, countOff, countAll;
+      int countOn, countOff, countAll, NClus[4][3];
+      
     };
 }
 #endif

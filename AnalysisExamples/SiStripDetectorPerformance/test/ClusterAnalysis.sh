@@ -25,6 +25,8 @@ function usage(){
 
     echo -e "\n\tMultiple Castor Files access (using regular expressions)"
     echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2 -castor='26\(\(3[7-9]\)\|\(4[0-2]\)\)_reco_full.root' -Flag=Runs2637-2642"  
+
+    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2_with_alignment -castor='26\(\(3[7-9]\)\|\(4[0-2]\)\)_reco_full.root' -Flag=Runs2637-2642_Align"  
     
     echo
     exit
@@ -137,10 +139,13 @@ eval `scramv1 runtime -sh`
 
 inputfilelist=`getRunList`
 
+[ "$inputfilelist" == "" ] && echo "No file exists for the specified path" && exit
+
 cat template_ClusterAnalysis.cfg | sed -e "s#insert_DBfile#$DBfile#" -e "s#insert_DBcatalog#$DBcatalog#" -e "s#insert_root_filename#${root_filename}#" -e "s#insert_ps_filename#${ps_filename}#" -e "s#insert_input_file_list#$inputfilelist#" > ${cfg_file}
 echo "cmsRun ${cfg_file}"
 cmsRun ${cfg_file} > ${TestArea}/ClusterAnalysis_${Flag}.out
 
-
+echo -e "\nlog file " ${TestArea}/ClusterAnalysis_${Flag}.out
+echo
 echo -e "\nroot file and postscript file with histos can be found in  ${TestArea}\n\t ${root_filename} \n\t ${ps_filename}" 
 echo -e "\nto see .ps file do\ngv  ${ps_filename}&"
