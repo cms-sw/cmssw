@@ -108,8 +108,8 @@ public:
     const DecisionWord decisionWord() const;
   
     /// set global decision and the decision word
-    void setDecision(bool t, unsigned int bxInEvent);
-    void setDecision(bool t);
+    void setDecision(const bool& t, unsigned int bxInEvent);
+    void setDecision(const bool& t);
 
     void setDecisionWord(const DecisionWord& decisionWordValue, unsigned int bxInEvent);
     void setDecisionWord(const DecisionWord& decisionWordValue);

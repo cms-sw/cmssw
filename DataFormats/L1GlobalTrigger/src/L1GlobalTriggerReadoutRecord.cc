@@ -51,9 +51,12 @@ L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord() {
 
     m_gtfeWord = L1GtfeWord();
     
-    // reserve just one L1GtFdlWord
+    // reserve just one L1GtFdlWord, set bunch cross 0
     m_gtFdlWord.reserve(1);
     m_gtFdlWord.assign(1, L1GtFdlWord());
+
+    int iBx = 0; // not really necessary, default bxInEvent in L1GtFdlWord() is zero   
+    m_gtFdlWord[iBx].setBxInEvent(iBx);
     
     // TODO FIXME RefProd m_muCollRefProd ?     
 
@@ -314,13 +317,15 @@ const L1GlobalTriggerReadoutRecord::DecisionWord
 
 // set global decision
 //    general 
-void L1GlobalTriggerReadoutRecord::setDecision(bool t, unsigned int bxInEventValue) { 
+void L1GlobalTriggerReadoutRecord::setDecision(const bool& t, unsigned int bxInEventValue) { 
 
     for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); 
         itBx != m_gtFdlWord.end(); ++itBx) {
         
         if ( (*itBx).bxInEvent() == bxInEventValue ) {
+
             (*itBx).setFinalOR(static_cast<uint16_t> (t)); // TODO FIXME when manipulating partitions
+            return;            
         }               
     }
     
@@ -334,7 +339,7 @@ void L1GlobalTriggerReadoutRecord::setDecision(bool t, unsigned int bxInEventVal
 }
 
 //    bxInEvent = 0  
-void L1GlobalTriggerReadoutRecord::setDecision(bool t) { 
+void L1GlobalTriggerReadoutRecord::setDecision(const bool& t) { 
 
     unsigned int bxInEventL1Accept = 0;
     setDecision(t, bxInEventL1Accept);
@@ -349,7 +354,9 @@ void L1GlobalTriggerReadoutRecord::setDecisionWord(
         itBx != m_gtFdlWord.end(); ++itBx) {
         
         if ( (*itBx).bxInEvent() == bxInEventValue ) {
+
             (*itBx).setGtDecisionWord (decisionWordValue);
+            return;
         }               
     }
     
