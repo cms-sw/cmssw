@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateProducer.cc,v 1.7 2006/11/03 11:11:49 llista Exp $
+// $Id: GenParticleCandidateProducer.cc,v 1.8 2006/11/03 13:15:58 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateProducer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -9,11 +9,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <fstream>
 #include <vector>
 #include <map>
 #include <iostream>
+#include <algorithm>
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -27,8 +27,8 @@ GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet &
   excludeList_( p.getParameter<vstring>( "excludeList" ) ),
   ptMinNeutral_( p.getParameter<double>( "ptMinNeutral" ) ),
   ptMinCharged_( p.getParameter<double>( "ptMinCharged" ) ),
-  keepInitialParticles_( p.getParameter<bool>( "keepInitialParticles" ) ),
-  verbose_( p.getUntrackedParameter<bool>( "verbose" ) ) {
+  keepInitialProtons_( p.getParameter<bool>( "keepInitialProtons" ) ),
+  excludeUnfragmentedClones_( p.getParameter<bool>( "excludeUnfragmentedClones" ) ) {
   produces<GenParticleCandidateCollection>();
 }
 
@@ -39,16 +39,12 @@ void GenParticleCandidateProducer::beginJob( const EventSetup & es ) {
   ESHandle<DefaultConfig::ParticleDataTable> pdt;
   es.getData( pdt );
   
-  if ( verbose_ && stableOnly_ )
-    LogInfo ( "INFO" ) << "Excluding unstable particles";
   for( vstring::const_iterator e = excludeList_.begin(); 
        e != excludeList_.end(); ++ e ) {
     const DefaultConfig::ParticleData * p = pdt->particle( * e );
     if ( p == 0 ) 
       throw cms::Exception( "ConfigError", "can't find particle" )
 	<< "can't find particle: " << * e;
-    if ( verbose_ )
-      LogInfo ( "INFO" ) << "Excluding particle \"" << *e << "\", id: " << p->pid();
     excludedIds_.insert( abs( p->pid() ) );
   }
 }
@@ -63,79 +59,122 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
   if( mc == 0 ) 
     throw edm::Exception( edm::errors::InvalidReference ) 
       << "HepMC has null pointer to GenEvent" << endl;
-  auto_ptr<GenParticleCandidateCollection> cands( new GenParticleCandidateCollection );
-  ref_ = evt.getRefBeforePut<GenParticleCandidateCollection>();
-  size_t size = mc->particles_size();
-  cands->reserve( size );
-  ptrMap_.clear();
-  int idx = 0;
-  for( GenEvent::particle_const_iterator p = mc->particles_begin(); 
-       p != mc->particles_end(); ++ p ) {
-    const GenParticle * part = * p;
-    int mapIdx = -1;
-    reco::GenParticleCandidate * cand = 0;
+  const size_t size = mc->particles_size();
+
+  // copy particle pointers
+  vector<const GenParticle *> particles( size );
+  copy( mc->particles_begin(), mc->particles_end(), particles.begin() );
+  // fill mother indices
+  vector<int> mothers( size );
+  for( size_t i = 0; i < size; ++ i ) {
+    const GenParticle * part = particles[ i ];
+    if ( part->hasParents() ) {
+      const GenParticle * mother = part->mother();
+      vector<const GenParticle *>::const_iterator f = find( particles.begin(), particles.end(), mother );
+      assert( f != particles.end() );
+      mothers[ i ] = f - particles.begin();
+    } else {
+      mothers[ i ] = -1;
+    }
+  }
+  // fill daughters indices
+  vector<vector<int> > daughters( size );
+  for( size_t i = 0; i < size; ++ i ) {
+    int mother = mothers[ i ];
+    if ( mother != -1 )
+      daughters[ mother ].push_back( i );
+  } 
+
+  // fill skip vector
+  vector<bool> skip( size );
+  for( size_t i = 0; i < size; ++ i ) {
+    const GenParticle * part = particles[ i ];
+    const int pdgId = part->pdg_id();
+    const int status = part->status();
     
-    bool skip = false;
+    bool skipped = false;
     bool pass = false;
-    if (  keepInitialParticles_ ) {
-      bool initialProton = ( ! part->hasParents() && part->pdg_id() == protonId );
+    if (  keepInitialProtons_ ) {
+      bool initialProton = ( mothers[ i ] == -1 && pdgId == protonId );
       if ( initialProton ) pass = true;
     }
     if ( ! pass ) {
-      if ( stableOnly_ && ! part->status() == 1 ) skip = true;
-      else if ( excludedIds_.find( abs( part->pdg_id() ) ) != excludedIds_.end() ) skip = true;
+      if ( stableOnly_ && ! status == 1 ) skipped = true;
+      else if ( excludedIds_.find( abs( pdgId ) ) != excludedIds_.end() ) skipped = true;
       else {
-	if ( part->status() == 1 ) {
-	  double ptMin = part->particleID().threeCharge() == 0 ? ptMinNeutral_ : ptMinCharged_;
-	  if ( part->momentum().perp() < ptMin ) skip = true;
+	if ( status == 1 ) {
+	  const double ptMin = part->particleID().threeCharge() == 0 ? ptMinNeutral_ : ptMinCharged_;
+	  if ( part->momentum().perp() < ptMin ) skipped = true;
 	}
       }
     }
-    if ( ! skip ) {
-      mapIdx = idx ++;
-      cands->push_back( GenParticleCandidate( part ) );
-      cand = & cands->back();
-    }
-    if ( verbose_ )
-      cout << "inserting: " 
-	   << pdt->particle( part->pdg_id() )->name()
-	   << " -> " <<( cand != 0 ? pdt->particle( cand->pdgId() )->name() : "--" )<< " @ " 
-	   << mapIdx << endl;
-    ptrMap_.insert( make_pair( part, make_pair( mapIdx, cand ) ) );
+    skip[ i ] = skipped;
   }
-  for( PtrMap::const_iterator i = ptrMap_.begin(); i != ptrMap_.end(); ++ i ) {
-    int dauIdx = i->second.first;
-    if ( dauIdx >= 0 ) {
-      const GenParticle * part = i->first;
-      GenParticleCandidate * cand = i->second.second;
-      if ( verbose_ )
-	cout << "mother of " << pdt->particle( cand->pdgId() )->name() << " @ " << dauIdx << " is: ";
-      assert( cand != 0 );
-      if ( part->hasParents() ) {
-	const GenParticle * mother = part->mother();
-	GenParticleCandidate * motherCand = 0;
-	if ( verbose_ )
-	  cout << pdt->particle( mother->pdg_id() )->name() << "; ";
-	while ( motherCand == 0 && mother != 0 ) {
-	  PtrMap::const_iterator f = ptrMap_.find( mother );
-	  assert( f != ptrMap_.end() );
-	  motherCand = f->second.second;
-	  if ( motherCand == 0 ) {
-	    mother = mother->hasParents() ? mother->mother() : 0;
+
+  // reverse particle order to avoir recursive calls
+  for( int i = size - 1; i >= 0; -- i ) {
+    const GenParticle * part = particles[ i ];
+    const int pdgId = part->pdg_id();
+    const int status = part->status();
+    if ( status == 2 ) {
+      
+      int m = mothers[ i ];
+      if( m != -1 ) {
+	const GenParticle * mother = particles[ m ];
+	if ( excludeUnfragmentedClones_ && mother->status() == 3 && mother->pdg_id() == pdgId )
+	  skip[ m ] = true;
+      }
+      
+      if ( ! skip[ i ] ) {
+	bool allDaughtersSkipped = true;
+	const vector<int> & ds = daughters[ i ];
+	for( vector<int>::const_iterator j = ds.begin(); j != ds.end(); ++ j ) {
+	  if ( ! skip[ * j ] ) {
+	    allDaughtersSkipped = false;
+	    break;
 	  }
 	}
-	if ( motherCand != 0 ) {
-	  motherCand->addDaughter( CandidateBaseRef( GenParticleCandidateRef( ref_, dauIdx ) ) );
-	  if ( verbose_ )
-	    cout << pdt->particle( motherCand->pdgId() )->name() << endl;
-	} else {
-	  if ( verbose_ )
-	    cout << "null" << endl;
-	}
-      } else {
-	if ( verbose_ )
-	  cout << "not exsisting" << endl;
+	if ( allDaughtersSkipped ) 
+	  skip[ i ] = true;
+	else {
+	  for( vector<int>::const_iterator j = ds.begin(); j != ds.end(); ++ j ) {
+	    skip[ * j ] = false;
+	  }
+	}	    
       }
+    }
+  }
+
+  // fill output collection and save association
+  auto_ptr<GenParticleCandidateCollection> cands( new GenParticleCandidateCollection );
+  GenParticleCandidateRefProd ref = evt.getRefBeforePut<GenParticleCandidateCollection>();
+  cands->reserve( size );
+
+  vector<size_t> indices;
+  vector<GenParticleCandidate *> candidates;
+  for( size_t i = 0; i < size; ++ i ) {
+    const GenParticle * part = particles[ i ];
+    GenParticleCandidate * cand = 0;
+    if ( ! skip[ i ] ) {
+      cands->push_back( GenParticleCandidate( part ) );
+      cand = & cands->back();
+      indices.push_back( i );
+    }
+    candidates.push_back( cand );
+  }
+  assert( candidates.size() == size );
+  assert( cands->size() == indices.size() );
+  // fill references to daughters
+  for( size_t i = 0; i < cands->size(); ++ i ) {
+    int m = mothers[ indices[ i ] ];
+    GenParticleCandidate * mother = 0;
+    while ( mother == 0 && m != -1 ) {
+      if ( ( mother = candidates[ m ] ) == 0 ) {
+	m = ( m != -1 ) ? mothers[ m ] : -1;
+      }
+    }
+    if ( mother != 0 ) {
+      mother->addDaughter( CandidateBaseRef( GenParticleCandidateRef( ref, i ) ) );
     }
   }
 

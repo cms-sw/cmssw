@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.h,v 1.4 2006/11/02 20:41:33 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.h,v 1.5 2006/11/03 13:15:58 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -41,15 +41,9 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   /// minimum pt
   double ptMinNeutral_, ptMinCharged_;
   /// keep initial protons
-  bool keepInitialParticles_;
-  /// verbose flag
-  bool verbose_;
-  /// pointer map type
-  typedef std::map<const HepMC::GenParticle *, std::pair<int, reco::GenParticleCandidate*> > PtrMap;
-  /// pointer map
-  mutable PtrMap ptrMap_;
-  /// reference to candidate collection
-  mutable reco::GenParticleCandidateRefProd ref_;
+  bool keepInitialProtons_;
+  /// suppress unfragmented partons (status=3) clones
+  bool excludeUnfragmentedClones_;
 };
 
 #endif
