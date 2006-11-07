@@ -119,7 +119,7 @@ class EcalTrigPrimFunctionalAlgo
   TTree * valTree_;
 
   int binOfMaximum_;
-  int nrSamplesToWrite_;
+  unsigned int nrSamplesToWrite_;
 
   // thresholds for TTF calculation
   double threshLow_;

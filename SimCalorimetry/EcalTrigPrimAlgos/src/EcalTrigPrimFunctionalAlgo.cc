@@ -84,33 +84,37 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 
   
 // loop over dataframes and fill map for barrel
-  for(unsigned int i = 0; i < ebdcol->size() ; ++i) {
-    const EBDetId & myid=(*ebdcol)[i].id();
-    const EcalTrigTowerDetId coarser= myid.tower();
-    if(coarser.null())  
-      {
-	LogDebug("")<< "Cell " << myid << " has trivial coarser granularity (probably EFRY corner, not in this tower map; hit ignored)";
-	continue;
-      }	
+  if (ebdcol) {
+    for(unsigned int i = 0; i < ebdcol->size() ; ++i) {
+      const EBDetId & myid=(*ebdcol)[i].id();
+      const EcalTrigTowerDetId coarser= myid.tower();
+      if(coarser.null())  
+	{
+	  LogDebug("")<< "Cell " << myid << " has trivial coarser granularity (probably EFRY corner, not in this tower map; hit ignored)";
+	  continue;
+	}	
 	
-   nhitsb++;
-   fillBarrel(coarser,(*ebdcol)[i]);
-  }// loop over all CaloDataFrames
-  LogDebug("")<< "[EcalTrigPrimFunctionalAlgo] (found " << nhitsb << " frames in " 
-  	    << sumBarrel_.size() << " EBRY towers  ";
+      nhitsb++;
+      fillBarrel(coarser,(*ebdcol)[i]);
+    }// loop over all CaloDataFrames
+    LogDebug("")<< "[EcalTrigPrimFunctionalAlgo] (found " << nhitsb << " frames in " 
+		<< sumBarrel_.size() << " Barrel towers  ";
+  }
 
   // loop over dataframes and fill map for endcap
   mapEndcap_.clear();
-  for(unsigned int i = 0; i < eedcol->size() ; ++i) {
-    const EEDetId & myid=(*eedcol)[i].id();
-    EcalTrigTowerDetId coarser=(*eTTmap_).towerOf(myid);
+  if (eedcol) {
+    for(unsigned int i = 0; i < eedcol->size() ; ++i) {
+      const EEDetId & myid=(*eedcol)[i].id();
+      EcalTrigTowerDetId coarser=(*eTTmap_).towerOf(myid);
 
-    nhitse++;
-    fillEndcap(coarser,(*eedcol)[i]);
+      nhitse++;
+      fillEndcap(coarser,(*eedcol)[i]);
 
-  }// loop over all EEDataFrames
-  LogDebug("") << "[EcalTrigPrimFunctionalAlgo] (found " << nhitse << " frames in " 
-		   << mapEndcap_.size() << " EFRY towers  ";
+    }// loop over all EEDataFrames
+    LogDebug("") << "[EcalTrigPrimFunctionalAlgo] (found " << nhitse << " frames in " 
+		 << mapEndcap_.size() << " Endcap towers  ";
+  }
 
   // prepare writing of TP-s
 
@@ -202,13 +206,13 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
         tptow.push_back(EcalTriggerPrimitiveDigi(thisTower));
       }
       // fill TP-s for each sample
-      int nrSamples=mapEndcap_[thisTower][0].size();
+      unsigned int nrSamples=mapEndcap_[thisTower][0].size();
       if (nrSamples<nrSamplesToWrite_)  { //UB FIXME: exception?
 	edm::LogWarning("Endcap") <<"Too few samples produced, nr is "<<nrSamples;
 	break;
       }
       std::vector<EcalTriggerPrimitiveSample> primitives[2];
-      for (int i=0;i<nrSamples;++i) {
+      for (unsigned int i=0;i<nrSamples;++i) {
 	int et=0,etmax=0;
 
 	for (int ii=0;ii<nrFrames;++ii) {
