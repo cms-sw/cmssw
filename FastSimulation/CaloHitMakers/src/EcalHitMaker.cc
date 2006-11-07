@@ -6,7 +6,6 @@
 #include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloDirection.h"
 
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
@@ -50,6 +49,8 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   rearleakage_ = 0.;
 
   ncrystals_ = 0;
+
+  doreorg_ = !showertype;
 
   hitmaphasbeencalculated_ = false;
 
@@ -190,9 +191,14 @@ bool EcalHitMaker::addHit(double r,double phi,unsigned layer)
     }
 
   outsideWindowEnergy_+=spotEnergy;
-  //  std::cout << " False " << std::endl;
-
-    return false;
+//  std::cout << " This hit ; r= " << point << " hasn't been added "<<std::endl;
+//  std::cout << " Xtal " << xtal << std::endl;
+//  for(unsigned ip=0;ip<npadsatdepth_;++ip)
+//    {
+//      std::cout << padsatdepth_[ip] << std::endl;
+//    }
+  
+  return false;
 }
 
 // Temporary solution
@@ -763,9 +769,13 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 //	  std::cout << segments_[ii] << std::endl;
 //	}
 //    }
-  myHistos->fillByNumber("h30",ncrossedxtals,fabs(EcalEntrance_.eta()),X0ECAL_);
-  myHistos->fill("h310",fabs(EcalEntrance_.eta()),X0ECAL_);
+  myHistos->fillByNumber("h30",ncrossedxtals,EcalEntrance_.eta(),X0ECAL_);
   
+  double zvertex = myTrack_->vertex().position().z();
+
+  myHistos->fill("h310",EcalEntrance_.eta(),X0ECAL_);
+  if(X0ECAL_<22)   myHistos->fill("h410",EcalEntrance_.phi());
+  myHistos->fill("h400",zvertex,X0ECAL_);
   #endif
   //  std::cout << " Finished the segments " << std::endl;
     
@@ -943,7 +953,7 @@ bool EcalHitMaker::getPads(double depth)
 	}
     }
   //  std::cout << " Number of quads " << quadsatdepth_.size() << std::endl; 
-  //  if(doreorg_)reorganizeQuads();
+  if(doreorg_)reorganizePads();
   //  std::cout << "Finished to reorganize " << std::endl;
   npadsatdepth_=nquads;
   //  std::cout << " prepareCellIDMap " << std::endl;
@@ -1096,3 +1106,307 @@ const std::map<uint32_t,float>& EcalHitMaker::getHits()
   hitmaphasbeencalculated_=true;
   return hitMap_;
 }
+
+
+///////////////////////////// GAPS/CRACKS TREATMENT////////////
+
+void EcalHitMaker::reorganizePads()
+{
+
+  // Some cleaning first 
+  //  std::cout << " Starting reorganize " << std::endl;
+  crackpadsatdepth_.clear();
+  ncrackpadsatdepth_=0;
+  std::vector<neighbour> gaps;
+  std::vector<std::vector<neighbour> > cracks;  
+  cracks.clear();
+  cracks.resize(ncrystals_);
+
+
+  for(unsigned iq=0;iq<ncrystals_;++iq)
+    {
+      if(!validPads_[iq]) continue;
+
+      gaps.clear();
+      //    std::cout << padsatdepth_[iq] << std::endl;
+      //check all the directions
+      for(unsigned iside=0;iside<4;++iside)
+	{
+	  //	  std::cout << " To be glued " << iside << " " << regionOfInterest_[iq].crystalNeighbour(iside).toBeGlued() << std::endl;
+	  CaloDirection thisside=CaloDirectionOperations::Side(iside);
+	  if(regionOfInterest_[iq].crystalNeighbour(iside).toBeGlued())
+	    {
+	      // look for the neighbour and check that it exists
+	      int neighbourstatus=regionOfInterest_[iq].crystalNeighbour(iside).status();
+	      if(neighbourstatus<0)
+		continue;
+
+	      unsigned neighbourNumber=regionOfInterest_[iq].crystalNeighbour(iside).number();
+	      if(!validPads_[neighbourNumber]) continue;
+	      // there is a crack between 
+	      if(neighbourstatus==1)
+		{
+		  //		  std::cout << " 1 Crack : " << thisside << " " << cellids_[iq]<< " " << cellids_[neighbourNumber] << std::endl;
+		  cracks[iq].push_back(neighbour(thisside,neighbourNumber));
+		} // else it is a gap 
+	      else
+		{
+		  gaps.push_back(neighbour(thisside,neighbourNumber));
+		}
+	    }
+	}
+      // Now lift the gaps
+      gapsLifting(gaps,iq);
+    }
+
+  unsigned ncracks=cracks.size();
+  //  std::cout << " Cracks treatment : " << cracks.size() << std::endl;
+  for(unsigned icrack=0;icrack<ncracks;++icrack)
+    {
+      //      std::cout << " Crack number " << crackiter->first << std::endl;
+      cracksPads(cracks[icrack],icrack);
+    }
+
+}
+
+//dir 2 = N,E,W,S
+Hep2Vector & EcalHitMaker::correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) 
+{
+  CaloDirection dir=CaloDirectionOperations::oppositeSide(myneighbour.first);
+  CaloDirection corner=CaloDirectionOperations::add2d(dir,dir2);
+  //  std::cout << "Corresponding Edge " << dir<< " " << dir2 << " " << corner << std::endl;
+  return padsatdepth_[myneighbour.second].edge(corner);  
+}
+
+bool EcalHitMaker::diagonalEdge(unsigned myPad, CaloDirection dir,Hep2Vector & point)
+{
+  unsigned idir=CaloDirectionOperations::neighbourDirection(dir);
+  if(regionOfInterest_[myPad].crystalNeighbour(idir).status()<0)
+    return false;
+  unsigned nneighbour=regionOfInterest_[myPad].crystalNeighbour(idir).number();
+  if(!validPads_[nneighbour])
+    {
+      //      std::cout << " Wasn't able to move " << std::endl;
+      return false;
+    }
+  point = padsatdepth_[nneighbour].edge(CaloDirectionOperations::oppositeSide(dir));
+  return true;
+}
+
+bool EcalHitMaker::unbalancedDirection(const vector<neighbour>& dirs,unsigned & unb,unsigned & dir1, unsigned & dir2)
+{
+  if(dirs.size()==1) return false;
+  if(dirs.size()%2==0) return false;
+  CaloDirection tmp;
+  tmp=CaloDirectionOperations::add2d(dirs[0].first,dirs[1].first);
+  if(tmp==NONE) 
+    {
+      unb=2;
+      dir1=0;
+      dir2=1;
+      return true;
+    }
+  tmp=CaloDirectionOperations::add2d(dirs[0].first,dirs[2].first);
+  if(tmp==NONE)
+    { 
+      unb=1;
+      dir1=0;
+      dir2=2;
+      return true;
+    }
+  unb=0;
+  dir1=1;
+  dir2=2;
+  return true;
+}
+
+
+void EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
+{
+  //  std::cout << " Entering gapsLifting "  << std::endl;
+  CrystalPad & myPad = padsatdepth_[iq];
+  unsigned ngaps=gaps.size();
+  bool debug=false;
+  if(ngaps==1)
+    {
+      if(debug)
+	{
+	  std::cout << " Avant " << ngaps << " " <<gaps[0].first<< std::endl;
+	  std::cout << myPad << std::endl;
+	}
+      if(gaps[0].first==NORTH||gaps[0].first==SOUTH)
+	{
+	  CaloDirection dir1=CaloDirectionOperations::add2d(gaps[0].first,EAST);
+	  CaloDirection dir2=CaloDirectionOperations::add2d(gaps[0].first,WEST);
+	  myPad.edge(dir1)=correspondingEdge(gaps[0],EAST);
+	  myPad.edge(dir2)=correspondingEdge(gaps[0],WEST);
+	}
+      else
+	{
+	  CaloDirection dir1=CaloDirectionOperations::add2d(gaps[0].first,NORTH);
+	  CaloDirection dir2=CaloDirectionOperations::add2d(gaps[0].first,SOUTH);
+	  myPad.edge(dir1)=correspondingEdge(gaps[0],NORTH);
+	  myPad.edge(dir2)=correspondingEdge(gaps[0],SOUTH);
+	}
+      if(debug)
+	{
+      	  std::cout << " Apres " << std::endl;
+      	  std::cout << myPad << std::endl;
+	}
+    }
+  else
+    if(ngaps==2)
+      {
+	if(debug)
+	  {
+	    std::cout << " Avant " << ngaps << " " <<gaps[0].first<< " " <<gaps[1].first << std::endl;
+	    std::cout << myPad << std::endl;
+	    std::cout << " Voisin 1 " << (gaps[0].second) << std::endl;
+	    std::cout << " Voisin 2 " << (gaps[1].second) << std::endl;
+	  }
+	CaloDirection corner0=CaloDirectionOperations::add2d(gaps[0].first,gaps[1].first);
+
+	Hep2Vector point;
+	if(corner0!=NONE&&diagonalEdge(iq,corner0,point))
+	  {
+	    CaloDirection corner1=CaloDirectionOperations::add2d(CaloDirectionOperations::oppositeSide(gaps[0].first),gaps[1].first);
+	    CaloDirection corner2=CaloDirectionOperations::add2d(gaps[0].first,CaloDirectionOperations::oppositeSide(gaps[1].first));
+	    myPad.edge(corner0) = point;
+	    myPad.edge(corner1) = correspondingEdge(gaps[1],CaloDirectionOperations::oppositeSide(gaps[0].first));
+	    myPad.edge(corner2) = correspondingEdge(gaps[0],CaloDirectionOperations::oppositeSide(gaps[1].first));
+	  }
+	else
+	  if(corner0==NONE)
+	    {
+	      if(gaps[0].first==EAST||gaps[0].first==WEST)
+		{
+		  CaloDirection corner1=CaloDirectionOperations::add2d(gaps[0].first,NORTH);
+		  CaloDirection corner2=CaloDirectionOperations::add2d(gaps[0].first,SOUTH);
+		  myPad.edge(corner1)=correspondingEdge(gaps[0],NORTH);
+		  myPad.edge(corner2)=correspondingEdge(gaps[0],SOUTH);
+		  
+		  corner1=CaloDirectionOperations::add2d(gaps[1].first,NORTH);
+		  corner2=CaloDirectionOperations::add2d(gaps[1].first,SOUTH);
+		  myPad.edge(corner1)=correspondingEdge(gaps[1],NORTH);
+		  myPad.edge(corner2)=correspondingEdge(gaps[1],SOUTH);
+		}
+	      else
+		{
+		  CaloDirection corner1=CaloDirectionOperations::add2d(gaps[0].first,EAST);
+		  CaloDirection corner2=CaloDirectionOperations::add2d(gaps[0].first,WEST);
+		  myPad.edge(corner1)=correspondingEdge(gaps[0],EAST);
+		  myPad.edge(corner2)=correspondingEdge(gaps[0],WEST);
+		  
+		  corner1=CaloDirectionOperations::add2d(gaps[1].first,EAST);
+		  corner2=CaloDirectionOperations::add2d(gaps[1].first,WEST);
+		  myPad.edge(corner1)=correspondingEdge(gaps[1],EAST);
+		  myPad.edge(corner2)=correspondingEdge(gaps[1],WEST);
+		}
+	    }
+	if(debug)
+	  {
+	    std::cout << " Apres " << std::endl;
+	    std::cout << myPad << std::endl;
+	  }
+      }
+    else
+      if(ngaps==3)
+	{
+	  // in this case the four corners have to be changed 
+	  unsigned iubd,idir1,idir2;
+	  CaloDirection diag;
+	  Hep2Vector point;
+	  //	  std::cout << " Yes : 3 gaps" << std::endl;
+	  if(unbalancedDirection(gaps,iubd,idir1,idir2))		
+	    {
+	      CaloDirection ubd(gaps[iubd].first),dir1(gaps[idir1].first);
+	      CaloDirection dir2(gaps[idir2].first);
+	      
+	      //	      std::cout << " Avant " << std::endl << myPad << std::endl;
+	      //	      std::cout << ubd << " " << dir1 << " " << dir2 << std::endl;
+	      diag=CaloDirectionOperations::add2d(ubd,dir1);
+	      if(diagonalEdge(iq,diag,point))
+		myPad.edge(diag)=point;
+	      diag=CaloDirectionOperations::add2d(ubd,dir2);
+	      if(diagonalEdge(iq,diag,point))
+		myPad.edge(diag)=point;
+	      CaloDirection oppside=CaloDirectionOperations::oppositeSide(ubd);
+	      myPad.edge(CaloDirectionOperations::add2d(oppside,dir1))=correspondingEdge(gaps[idir1],oppside);
+	      myPad.edge(CaloDirectionOperations::add2d(oppside,dir2))=correspondingEdge(gaps[idir2],oppside);
+	      //	      std::cout << " Apres " << std::endl << myPad << std::endl;
+	    }		 	      
+	}
+      else
+	if(ngaps==4)
+	  {
+	    //	    std::cout << " Waouh :4 gaps" << std::endl;
+	    //	    std::cout << " Avant " << std::endl;
+	    //	    std::cout << myPad<< std::endl;
+	    Hep2Vector point;
+	    if(diagonalEdge(iq,NORTHEAST,point)) 
+	      myPad.edge(NORTHEAST)=point;
+	    if(diagonalEdge(iq,NORTHWEST,point)) 
+	      myPad.edge(NORTHWEST)=point;
+	    if(diagonalEdge(iq,SOUTHWEST,point)) 
+	      myPad.edge(SOUTHWEST)=point;
+	    if(diagonalEdge(iq,SOUTHEAST,point)) 
+	      myPad.edge(SOUTHEAST)=point;	
+	    //	    std::cout << " Apres " << std::endl;
+	    //	    std::cout << myPad<< std::endl;
+	  }                        
+}
+
+void EcalHitMaker::cracksPads(std::vector<neighbour> & cracks, unsigned iq)
+{
+  //  std::cout << " myPad " << &myPad << std::endl;
+  unsigned ncracks=cracks.size();
+  CrystalPad & myPad = padsatdepth_[iq];
+  for(unsigned ic=0;ic<ncracks;++ic)
+    {
+      std::vector<Hep2Vector> mycorners;
+      switch(cracks[ic].first)
+	{
+	case NORTH:
+	  {
+	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(SOUTHWEST));
+	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(SOUTHEAST));
+	    mycorners.push_back(myPad.edge(NORTHEAST));
+	    mycorners.push_back(myPad.edge(NORTHWEST));
+	  }
+	  break;
+	case SOUTH:
+	  {
+	    mycorners.push_back(myPad.edge(SOUTHWEST));
+	    mycorners.push_back(myPad.edge(SOUTHEAST));
+	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(NORTHEAST));
+	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(NORTHWEST));
+	  }
+	  break;
+	case EAST:
+	  {
+	    mycorners.push_back(myPad.edge(NORTHEAST));
+	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(NORTHWEST));
+	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(SOUTHWEST));
+	    mycorners.push_back(myPad.edge(SOUTHEAST));
+	  }
+	  break;
+	case WEST:
+	  {
+	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(NORTHEAST));
+	    mycorners.push_back(myPad.edge(NORTHWEST));
+	    mycorners.push_back(myPad.edge(SOUTHWEST));
+	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(SOUTHEAST));
+	  }
+	  break;
+	default:
+	  {
+	  }
+	}  
+      CrystalPad crackpad(ic,mycorners);
+      // to be tuned. A simpleconfigurable should be used
+      crackpad.setSurvivalProbability(crackPadProbability_);   
+      crackpadsatdepth_.push_back(crackpad);
+    }
+  //  std::cout << " Finished cracksPads " << std::endl;
+}
+

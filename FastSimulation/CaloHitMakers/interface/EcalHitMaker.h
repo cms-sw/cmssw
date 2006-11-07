@@ -1,6 +1,8 @@
 #ifndef FastSimulation_CaloHitMakers_EcalHitMaker_h
 #define FastSimulation_CaloHitMakers_EcalHitMaker_h
 
+#include "Geometry/CaloTopology/interface/CaloDirection.h"
+
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloPoint.h"
@@ -125,6 +127,9 @@ class EcalHitMaker: public CaloHitMaker
 
 
  private:
+
+
+
  // Computes the intersections of a track with the different calorimeters 
  void cellLine(std::vector<CaloPoint>& cp) ;
 
@@ -151,6 +156,25 @@ class EcalHitMaker: public CaloHitMaker
  // find approximately the pad corresponding to (x,y)
  void convertIntegerCoordinates(double x, double y,unsigned &ix,unsigned &iy) const ;
 
+ // pads reorganization (to lift the gaps)
+ void reorganizePads();
+
+ // retrieves the coordinates of a corner belonging to the neighbour
+ typedef std::pair<CaloDirection,unsigned > neighbour;
+ Hep2Vector & correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) ;
+
+ // almost the same
+ bool diagonalEdge(unsigned myPad, CaloDirection dir,Hep2Vector & point);
+
+ // check if there is an unbalanced direction in the input vertor. If the result is true, 
+ // the cooresponding directions are returned dir1+dir2=unb
+ bool unbalancedDirection(const std::vector<neighbour>& dirs,unsigned & unb,unsigned & dir1, unsigned & dir2);
+
+ // glue the pads together if there is no crack between them 
+ void gapsLifting(std::vector<neighbour>& gaps,unsigned iq);
+
+ // creates a crack
+ void cracksPads(std::vector<neighbour> & cracks, unsigned iq);
  private:
 
   // the numbering of the pads
@@ -240,14 +264,17 @@ class EcalHitMaker: public CaloHitMaker
   std::vector<CaloPoint> intersections_;
   // segments obtained from the intersections
   std::vector<CaloSegment> segments_;
-
-
+  // should the pads be reorganized (most of the time YES! )
+  bool doreorg_;
 
   // the geometrical objects
   std::vector<CrystalPad> padsatdepth_;
   std::vector<CrystalPad> crackpadsatdepth_;
 
   bool hitmaphasbeencalculated_ ;
+
+
+
 
 #ifdef FAMOSDEBUG
   Histos * myHistos;
