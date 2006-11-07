@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.48 2006/09/21 19:41:45 rpw Exp $
+ * $Id: pset_parse.y,v 1.49 2006/11/07 18:40:05 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -574,7 +574,9 @@ any:             VALUE_tok
                  }
                ;
 
-/* with or without a colon */
+/* with or without a colon.  Some people even use the "source"
+   keyword as their tag.  Whatever.  We'll allow it
+ */
 anyproducttag:   PRODUCTTAG_tok
                  {
                    DBPRINT("anyproducttag: PRODUCTTAG");
