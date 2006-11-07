@@ -7,6 +7,7 @@
 // 
 //   History: v1.0 
 //   Pedro Arce
+
 #ifndef FIT_H
 #define FIT_H
 

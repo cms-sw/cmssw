@@ -131,7 +131,7 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
   ALIbool moreDataSets = 1;
   if(CocoaDaqReader::GetDaqReader() != 0) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
 
-  //-    if(ALIUtils::debug >= 3)  std::cout << "$$$$$$$$$$$$$$$ moreData Sets " << moreDataSets << std::endl;
+     if(ALIUtils::debug >= -3)  std::cout << CocoaDaqReader::GetDaqReader() << "$$$$$$$$$$$$$$$ moreData Sets " << moreDataSets << std::endl;
   if( moreDataSets ) {
     if( ALIUtils::debug >= 2 ) std::cout << "@@@@@@@@@@@@@@@@@@ Starting fit ..." << std::endl;
 
@@ -231,7 +231,7 @@ void Fit::setFittableEntries()
     // Number the parameters that are going to be fitted
       if ( (*vecite)->quality() >= theMinimumEntryQuality ) {
           (*vecite)->setFitPos( No_entry_to_fit );
-          if( ALIUtils::debug >= 4 ) std::cout << " Entry To Fit= " << No_entry_to_fit << " " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " quality " << (*vecite)->quality() << std::endl; 
+          if( ALIUtils::debug >= 4 ) std::cout << " Entry To Fit= " << No_entry_to_fit << " " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << "   with quality= " << (*vecite)->quality() << std::endl; 
           No_entry_to_fit++;
       }
   }
@@ -506,21 +506,21 @@ void Fit::CreateMatrices()
   if( ALIUtils::debug >= 9) std::cout << "NOMEAS" << NoMeas << std::endl;
 
    //-------- Count number of 'cal'ibrated parameters
-  ALIint NoEnt_cal = 0;
+  ALIint nEnt_cal = 0;
   ALIint noent = 0;
   //-  std::cout << Model::EntryList().size() << std::endl;
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   if ( gomgr->GlobalOptions()[ "calcul_type" ] == 0) { // fit also 'cal' parameters
-    //-  if( ALIUtils::debug >= 9) std::cout << "NOENTCALLL " << NoEnt_cal << std::endl;
+    //-  if( ALIUtils::debug >= 9) std::cout << "NOENTCALLL " << nEnt_cal << std::endl;
     if( ALIUtils::debug >= 5 ) std::cout << " Count number of 'cal'ibrated parameters " << std::endl;
     std::vector< Entry* >::iterator veite;
     for ( veite = Model::EntryList().begin();
           veite != Model::EntryList().end(); veite++ ) {
-      if ( (*veite)->quality() == 1 ) NoEnt_cal++; 
+      if ( (*veite)->quality() == 1 ) nEnt_cal++; 
       noent++;
       if( ALIUtils::debug >= 6) {
 	std::cout <<(*veite)->quality() << " " << (*veite)->OptOCurrent()->name() << " "
-	     << (*veite)->name() << " # ENT CAL " << NoEnt_cal << " # ENT " << noent << std::endl; 
+	     << (*veite)->name() << " # ENT CAL " << nEnt_cal << " # ENT " << noent << std::endl; 
       }
     }
   }
@@ -538,7 +538,7 @@ void Fit::CreateMatrices()
   }  
  
   //---------- Create Matrices
-  ALIint NoLinesA = NoMeas + NoEnt_cal;
+  ALIint NoLinesA = NoMeas + nEnt_cal;
   ALIint NoColumnsA = NoParamFit;
   AMatrix = new ALIMatrix( NoLinesA, NoColumnsA );
 
@@ -656,7 +656,7 @@ void Fit::FillMatricesWithCalibratedParameters()
   if(ALIUtils::debug>=4) std::cout << "@@FillMatricesWithCalibratedParameters" << std::endl;
 
   std::vector< Entry* >::const_iterator vecite;
-  ALIint NoEntcal = 0;
+  ALIint nEntcal = 0;
   //---------- Loop entries 
   for ( vecite = Model::EntryList().begin();
 	vecite != Model::EntryList().end(); vecite++ ) {
@@ -665,8 +665,8 @@ void Fit::FillMatricesWithCalibratedParameters()
     //----- Take entries of quality = 'cal' 
     if ( (*vecite)->quality() == 1 ){
       //--- Matrix A: fill diagonals with 1. (derivatives of entry w.r.t itself)
-      ALIint lineNo = NolinMes + NoEntcal;  
-      ALIint columnNo = (*vecite)->fitPos();  //=? NoEntcal
+      ALIint lineNo = NolinMes + nEntcal;  
+      ALIint columnNo = (*vecite)->fitPos();  //=? nEntcal
       AMatrix->AddData( lineNo, columnNo, 1. );
       if(ALIUtils::debug >= 4) std::cout << "Fit::FillMatricesWithCalibratedParameters:  AMatrix ( " << lineNo << " , " << columnNo  << ") = " << 1. << std::endl;
 
@@ -693,7 +693,7 @@ void Fit::FillMatricesWithCalibratedParameters()
         yfMatrix->AddData( lineNo, 0, 0. );
       }
       //t      if(ALIUtils::debug >= 5) std::cout << "Fit::FillMatricesWithCalibratedParameters:  yfMatrix ( " << lineNo << " , " << columnNo  << ") = " << (*yfMatrix)(lineNo)(0) << std::endl;
-      NoEntcal++;
+      nEntcal++;
     }
   }
   
@@ -715,7 +715,7 @@ void Fit::setCorrelationsInWMatrix()
   for( ii = 0; ii < ALIuint(siz); ii++ ){
   //t    if(ALIUtils::debug >= 5) std::cout << "globaloption cmslink fit" << Model::GlobalOptions()["cms_link"] << std::endl;
     ErrorCorrelation* corr = corrMgr->getCorrelation( ii );
-    setCorrelationFromParamFitted( corr->entry1(), corr->entry2(), corr->correlation() );
+    setCorrelationFromParamFitted( corr->getEntry1(), corr->getEntry2(), corr->getCorrelation() );
   }
 
 }
@@ -792,26 +792,26 @@ void Fit::multiplyMatrices()
          << " Prog.Error" << " Orig.Error" << std::endl;
   }
 
-  ALIint NoEnt = 0;
-  ALIint NoEntUnk = 0;
+  ALIint nEnt = 0;
+  ALIint nEntUnk = 0;
   for ( vecite = Model::EntryList().begin();
     vecite != Model::EntryList().end(); vecite++ ) {
 //------------------ Number of parameters 'cal' 
 //                  (= No parameters to be fitted - No parameters 'unk' )
     if( (*vecite)->quality() >= theMinimumEntryQuality ){
       if( ALIUtils::debug >= 4) {
-        std::cout << NoEnt << "PARAM" << std::setw(26) 
+        std::cout << nEnt << "PARAM" << std::setw(26) 
 	     << (*vecite)->OptOCurrent()->name().c_str() 
 	     << std::setw(8) << " " << (*vecite)->name().c_str() << " " 
 	     << std::setw(8) << " " << (*vecite)->value() << " " 
-	     << std::setw(8) << sqrt(AtWAMatrix->Mat()->me[NoEnt][NoEnt]) / 
+	     << std::setw(8) << sqrt(AtWAMatrix->Mat()->me[nEnt][nEnt]) / 
                 (*vecite)->OutputSigmaDimensionFactor() 
 	     << " " << (*vecite)->sigma() / (*vecite)->OutputSigmaDimensionFactor() 
              << " Q" << (*vecite)->quality() << std::endl;
       }
-      NoEnt++;
+      nEnt++;
     }
-    if ( (*vecite)->quality() == 2 ) NoEntUnk++;
+    if ( (*vecite)->quality() == 2 ) nEntUnk++;
   }
 
   if(ALIUtils::debug >= 5) yfMatrix->Dump("PD(y-f)Matrix final");  
@@ -995,7 +995,7 @@ void Fit::addDaMatrixToEntries()
             << "          Optical Object       Parameter   xxxxxx " << std::endl;
 	    }*/
 
-  ALIint NoEnt = 0;
+  ALIint nEnt = 0;
   std::vector<Entry*>::const_iterator vecite; 
   for ( vecite = Model::EntryList().begin();
     vecite != Model::EntryList().end(); vecite++ ) {
@@ -1006,7 +1006,7 @@ void Fit::addDaMatrixToEntries()
       if ( ALIUtils::debug >= 5) {
         std::cout << std::endl << " @@@ PENTRY change " 
 		  << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " 
-		  << " change= " << (*DaMatrix)(NoEnt,0)
+		  << " change= " << (*DaMatrix)(nEnt,0)
 		  << " value= " << (*vecite)->valueDisplacementByFitting()
 		  << std::endl;
       }
@@ -1014,7 +1014,7 @@ void Fit::addDaMatrixToEntries()
         ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
         fileout << "dd" << std::setw(30) << (*vecite)->OptOCurrent()->name() 
                 << std::setw(8) << " " << (*vecite)->name() << " " 
-                << std::setw(8) << " " << (*DaMatrix)(NoEnt,0) / (*vecite)->OutputValueDimensionFactor()
+                << std::setw(8) << " " << (*DaMatrix)(nEnt,0) / (*vecite)->OutputValueDimensionFactor()
 	        << " " << (*vecite)->valueDisplacementByFitting() / (*vecite)->OutputValueDimensionFactor() << " fitpos " << (*vecite)->fitPos()
                 << std::endl;
 		}*/
@@ -1022,10 +1022,10 @@ void Fit::addDaMatrixToEntries()
       //----- Store this displacement 
       if(ALIUtils::debug >= 4) std::cout << " old valueDisplacementByFitting " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << " original value " <<  (*vecite)->value() <<std::endl; 
 
-      (*vecite)->addFittedDisplacementToValue( (*DaMatrix)(NoEnt,0) );
+      (*vecite)->addFittedDisplacementToValue( (*DaMatrix)(nEnt,0) );
 
-      if(ALIUtils::debug >= 4) std::cout << NoEnt << " new valueDisplacementByFitting " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " = " << (*vecite)->valueDisplacementByFitting() << " " << (*DaMatrix)(NoEnt,0) << std::endl ; 
-      NoEnt++;
+      if(ALIUtils::debug >= 4) std::cout << nEnt << " new valueDisplacementByFitting " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " = " << (*vecite)->valueDisplacementByFitting() << " " << (*DaMatrix)(nEnt,0) << std::endl ; 
+      nEnt++;
     }
   }
 
@@ -1044,7 +1044,7 @@ void Fit::substractLastDisplacementToEntries( const ALIdouble factor )
   std::vector<Entry*>::const_iterator vecite; 
   for ( vecite = Model::EntryList().begin(); vecite != Model::EntryList().end(); vecite++ ) {
     if ( (*vecite)->quality() >= theMinimumEntryQuality ){
-      //--     (*vecite)->addFittedDisplacementToValue( -(*DaMatrix)(NoEnt,0) );!!! it is not substracting the new value of DaMatrix, but substracting the value that was added last iteration, with which the new value of DaMatrix has been calculated for this iteration
+      //--     (*vecite)->addFittedDisplacementToValue( -(*DaMatrix)(nEnt,0) );!!! it is not substracting the new value of DaMatrix, but substracting the value that was added last iteration, with which the new value of DaMatrix has been calculated for this iteration
 
       ALIdouble lastadd = (*vecite)->lastAdditionToValueDisplacementByFitting() * factor;
       //-      if( lastadd < 0 ) lastadd *= -1;
@@ -1074,7 +1074,7 @@ void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors )
   //---------- Dump header
   if(ALIUtils::debug >= 0) std::cout << std::endl << "FITTED VALUES " << std::endl; 
   fileout << std::endl << "FITTED VALUES " << std::endl 
-	  << "NoEnt_unk"
+	  << "nEnt_unk"
 	  << "             Optical Object" 
 	  << "        Parameter  ";
   if( printErrors ) {
@@ -1087,7 +1087,7 @@ void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors )
   fileout << " quality" 
 	  << std::endl; 
 
-  ALIint NoEntUnk = 0;
+  ALIint nEntUnk = 0;
   //---------- Iterate over OptO list
   std::vector< Entry* > entries;
   //  const Entry* entry;
@@ -1131,24 +1131,24 @@ void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors )
       }else if( ii == 2 ) {
 	entryvalue = centreLocal.z();
 	}*/
-      dumpEntryAfterFit( fileout, entries[ii], NoEntUnk, centreLocal[ii] / entries[ii]->OutputValueDimensionFactor() );
+      dumpEntryAfterFit( fileout, entries[ii], nEntUnk, centreLocal[ii] / entries[ii]->OutputValueDimensionFactor() );
     }
 
     //----- Dump entry angles coordinates
     std::vector<double> entryvalues = entries[5]->OptOCurrent()->GetLocalRotationAngles( entries );
     //-    std::cout << " after return entryvalues[0] " << entryvalues[0] << " entryvalues[1] " << entryvalues[1] << " entryvalues[2] " << entryvalues[2] << std::endl;
     for( ii = 3; ii < siz; ii++ ){
-      dumpEntryAfterFit( fileout, entries[ii], NoEntUnk, entryvalues[ii-3]/ entries[ii]->OutputValueDimensionFactor() );
+      dumpEntryAfterFit( fileout, entries[ii], nEntUnk, entryvalues[ii-3]/ entries[ii]->OutputValueDimensionFactor() );
     }
     entries = (*vocite)->ExtraEntryList();
     siz = entries.size();
     for( ii = 0; ii < siz; ii++ ){
       double entryvalue = getEntryValue( entries[ii] );
-      dumpEntryAfterFit( fileout, entries[ii], NoEntUnk, entryvalue );
+      dumpEntryAfterFit( fileout, entries[ii], nEntUnk, entryvalue );
     }
   }
 
-  dumpEntryCorrelations( fileout, NoEntUnk );
+  dumpEntryCorrelations( fileout, nEntUnk );
 
 }
 
@@ -1167,7 +1167,7 @@ double Fit::getEntryValue( const Entry* entry )
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& NoEntUnk, double entryvalue, ALIbool printErrors )
+void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& nEntUnk, double entryvalue, ALIbool printErrors )
 {
   //-  std::cout << " Fit::dumpEntryAfterFit " << entryvalue << std::endl;
   ALIdouble dimv = entry->OutputValueDimensionFactor();
@@ -1184,8 +1184,10 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& NoEnt
   
   if ( entry->quality() == 2 ) {
     fileout << "UNK: " << entry->fitPos() << " "; 
+    //-    fileout << "UNK: " << nEntUnk << " "; 
   } else if ( entry->quality() == 1 ) {
-    fileout << "CAL: -1 "; 
+    fileout << "CAL: " << entry->fitPos() << " "; 
+    //    fileout << "CAL: -1 "; 
   } else {
     fileout << "FIX: -1 ";
   }
@@ -1210,35 +1212,55 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& NoEnt
   }
   fileout << std::endl;
 
-  if ( entry->quality() == 2 ) NoEntUnk++;
+  if ( entry->quality() == 2 ) nEntUnk++;
   
 }
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void Fit::dumpEntryCorrelations( ALIFileOut& fileout, const int NoEntUnk )
+void Fit::dumpEntryCorrelations( ALIFileOut& fileout, const int nEntUnk )
 {
   //----- Only dump correlations bigger than a factor
   ALIdouble minCorrel = 1.E-6;
   //----- Dump correlations
   fileout << std::endl << "CORRELATION BETWEEN 'unk' ENTRIES: (>= " << minCorrel<< " )" << std::endl
-	  << "No_1  No_2   correlation" << NoEntUnk << std::endl;
+	  << "No_1  No_2   correlation " << nEntUnk << std::endl;
 
-  ALIuint ii;
-  for( ii = 0; ii < ALIuint(NoEntUnk); ii++) {
-    for(ALIuint jj = ii+1; jj < ALIuint(NoEntUnk); jj++) {
-      ALIdouble corr = AtWAMatrix->Mat()->me[ii][jj];
-      if (corr >= minCorrel ) {
-	ALIdouble corrf = corr / sqrt(AtWAMatrix->Mat()->me[ii][ii])
-	  / sqrt(AtWAMatrix->Mat()->me[jj][jj]);
+  ALIuint i1,i2;
+  std::vector< Entry* >::iterator veite1, veite2;
+  std::string E1, E2;
+  for ( veite1 = Model::EntryList().begin();
+	veite1 != Model::EntryList().end(); veite1++ ) {
+    if( (*veite1)->quality() == 0 ) {
+      continue;
+    } else if( (*veite1)->quality() == 1 ) {
+      E1 = "C";
+    } else if( (*veite1)->quality() == 2 ) {
+      E1 = "U";
+    }
+    i1 = (*veite1)->fitPos();
+
+    for ( veite2 = veite1+1;
+	veite2 != Model::EntryList().end(); veite2++ ) {
+      i2 = (*veite2)->fitPos(); 
+      if( (*veite2)->quality() == 0 ) {
+	continue;
+      } else if( (*veite2)->quality() == 1 ) {
+	E2 = "C";
+      } else if( (*veite2)->quality() == 2 ) {
+	E2 = "U";
+      }
+      ALIdouble corr = AtWAMatrix->Mat()->me[i1][i2];
+      ALIdouble corrf = corr / sqrt(AtWAMatrix->Mat()->me[i1][i1])
+	  / sqrt(AtWAMatrix->Mat()->me[i2][i2]);
+      if (fabs(corrf) >= minCorrel ) {
         if(ALIUtils::debug >= 0) {
-          std::cout << "PARACORRlas (" << ii << ")(" << jj << ") " << corrf << std::endl;
+	  std::cout  << "CORR:" << E1 << "" << E2 << " (" << i1 << ")" <<  " (" << i2 << ")" << " " << corrf << std::endl;
 	}
-	fileout << "(" << ii << ")     (" << jj << ") " << corrf << std::endl;
+	fileout  << "CORR:" << E1 << "" << E2 << " (" << i1 << ")" <<  " (" << i2 << ")" << " " << corrf << std::endl;
       }
     }
   }
-
   //------- Dump optical object list 
   if( ALIUtils::debug >= 2) OpticalObjectMgr::getInstance()->dumpOptOs();
  
