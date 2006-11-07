@@ -19,7 +19,7 @@ AlignmentParametersIO::write(const std::vector<Alignable*>& alivec,
     }
   }
   edm::LogInfo("AlignmentParametersIO::write") << "Write parameters all,written: " 
-											   << alivec.size() <<","<< icount;
+                                               << alivec.size() <<","<< icount;
   return 0;
 
 }
@@ -39,6 +39,6 @@ AlignmentParametersIO::read(const std::vector<Alignable*>& alivec, int& ierr)
     if (ad!=0 && ierr2==0) { retvec.push_back(ad); icount++; }
   }
   edm::LogInfo("AlignmentParametersIO::write") << "Read parameters all,read: " 
-											   << alivec.size() <<","<< icount;
+                                               << alivec.size() <<","<< icount;
   return retvec;
 }

@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.12 $
-///  last update: $Date: 2006/11/03 16:41:45 $
+///  Revision   : $Revision: 1.13 $
+///  last update: $Date: 2006/11/07 10:33:47 $
 ///  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
@@ -51,7 +51,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   saveToDB(iConfig.getParameter<bool>("saveToDB"))
 {
 
-  edm::LogWarning("Alignment") << "[AlignmentProducer] Constructor called ...";
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";
 
   theParameterSet=iConfig;
 
@@ -86,7 +86,7 @@ AlignmentProducer::ReturnType
 AlignmentProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 {
 
-  edm::LogWarning("Alignment") << "[AlignmentProducer] At producer method ...";
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::produce";
 
   return theTracker;
   
@@ -99,7 +99,7 @@ AlignmentProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 {
 
-  edm::LogWarning("Alignment") << "[AlignmentProducer] At begin job ...";
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob";
 
   nevent=0;
 
@@ -125,7 +125,8 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
 
   // create alignment parameter builder
-  edm::LogWarning("Alignment") <<"[AlignmentProducer] Creating AlignmentParameterBuilder";
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
+                            << "Creating AlignmentParameterBuilder";
   edm::ParameterSet aliParamBuildCfg = 
     theParameterSet.getParameter<edm::ParameterSet>("AlignmentParameterBuilder");
   theAlignmentParameterBuilder = new AlignmentParameterBuilder(theAlignableTracker,
@@ -135,33 +136,39 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 
   // get alignables
   Alignables theAlignables = theAlignmentParameterBuilder->alignables();
-  edm::LogWarning("Alignment") <<"[AlignmentProducer] got alignables: "<<theAlignables.size();
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
+                            << "got " << theAlignables.size() << " alignables";
 
   // create AlignmentParameterStore 
   theAlignmentParameterStore = new AlignmentParameterStore(theAlignables);
-  edm::LogWarning("Alignment") <<"[AlignmentProducer] AlignmentParameterStore created!";
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
+                            << "AlignmentParameterStore created!";
 
   // Create misalignment scenario, apply to geometry
   if (doMisalignmentScenario) {
-    edm::LogWarning("Alignment") <<"[AlignmentProducer] applying misalignment scenario ...";
+    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
+                              << "applying misalignment scenario ...";
     edm::ParameterSet scenarioConfig 
       = theParameterSet.getParameter<edm::ParameterSet>( "MisalignmentScenario" );
     MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
     scenarioBuilder.applyScenario( scenarioConfig );
+  } else {
+    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
+                              << "NOT applying misalignment scenario!";
   }
-  else edm::LogWarning("Alignment") <<"[AlignmentProducer] NOT applying misalignment scenario!";
 
   // apply simple misalignment
   const std::string sParSel(theParameterSet.getParameter<std::string>("parameterSelectorSimple"));
   this->simpleMisalignment(theAlignables, sParSel, stRandomShift, stRandomRotation, true);
-  edm::LogWarning("Alignment") <<"[AlignmentProducer] simple misalignment done!";
+  //  edm::LogInfo("Alignment") <<"[AlignmentProducer] simple misalignment done!"; anyway 'messaged'
 
   // initialize alignment algorithm
   theAlignmentAlgo->initialize( iSetup, theAlignableTracker, theAlignmentParameterStore );
-  edm::LogWarning("Alignment") <<"[AlignmentProducer] after call init algo...";
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
+                            << "after call init algo...\n"
+                            << "Now physically apply alignments to tracker geometry...";
 
   // actually execute all misalignments
-  edm::LogWarning("Alignment") <<"[AlignmentProducer] Now physically apply alignments to tracker geometry...";
   GeometryAligner aligner;
   std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
   std::auto_ptr<AlignmentErrors> alignmentErrors(theAlignableTracker->alignmentErrors());
@@ -175,13 +182,15 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 void AlignmentProducer::endOfJob()
 {
 
-  edm::LogWarning("Alignment") << "[AlignmentProducer] At end of job: terminating algorithm";
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob" 
+                            << "Terminating algorithm.";
   theAlignmentAlgo->terminate();
 
   // write alignments to database
 
   if (saveToDB) {
-    edm::LogWarning("Alignment") << "[AlignmentProducer] Writing Alignments to DB...";
+    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob" 
+                              << "Writing Alignments to DB...";
     // Call service
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
     if( !poolDbService.isAvailable() ) // Die if not available
@@ -206,8 +215,8 @@ void AlignmentProducer::endOfJob()
 // Called at beginning of loop
 void AlignmentProducer::startingNewLoop(unsigned int iLoop )
 {
-
-  edm::LogWarning("Alignment") << "[AlignmentProducer] Starting loop number " << iLoop;
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::startingNewLoop" 
+                            << "Starting loop number " << iLoop;
 
 }
 
@@ -218,7 +227,8 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
 edm::EDLooper::Status 
 AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
 {
-  edm::LogWarning("Alignment") << "[AlignmentProducer] Ending loop " << iLoop;
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfLoop" 
+                            << "Ending loop " << iLoop;
 
   if ( iLoop == theMaxLoops-1 || iLoop >= theMaxLoops ) return kStop;
   else return kContinue;
@@ -233,20 +243,17 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 {
   nevent++;
 
-  //edm::LogInfo("Alignment") << "[AlignmentProducer] New Event --------------------------------------------------------------";
-
   if ((nevent<100 && nevent%10==0) 
       ||(nevent<1000 && nevent%100==0) 
       ||(nevent<10000 && nevent%100==0) 
       ||(nevent<100000 && nevent%1000==0) 
-      ||(nevent<10000000 && nevent%1000==0))
-    edm::LogWarning("Alignment") << "[AlignmentProducer] Events processed: "<<nevent;
-
+      ||(nevent<10000000 && nevent%1000==0)) {
+    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::duringLoop" 
+                              << "Events processed: " << nevent;
+  }
   // Run the refitter algorithm
   AlgoProductCollection m_algoResults = theAlignmentAlgo->refitTracks( event, setup );
 
-
-  //edm::LogInfo("Alignment") << "[AlignmentProducer] call algorithm for #Tracks: " << m_algoResults.size();
   // Run the alignment algorithm
   theAlignmentAlgo->run(  setup, m_algoResults );
 

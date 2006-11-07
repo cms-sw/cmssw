@@ -8,7 +8,7 @@
  
 AlignmentUserVariablesIO::~AlignmentUserVariablesIO()
 {
-  edm::LogInfo("Alignment") <<"[AlignmentUserVariablesIO] destructor called";
+  LogDebug("Alignment") <<"@SUB=AlignmentUserVariablesIO::~AlignmentUserVariablesIO";
   //int i=0;
   //for (vector<AlignmentUserVariables*>::iterator 
   //   it=theReadUserVariables.begin(); it!=theReadUserVariables.end(); it++) {
@@ -34,7 +34,8 @@ AlignmentUserVariablesIO::write(const std::vector<Alignable*>& alivec,
       if (iret!=0) return iret;
     }
   }
-  edm::LogWarning("Alignment") <<"[AlignmentUserVariablesIO::write] Write variables all,written: " << alivec.size() <<","<< icount;
+  edm::LogInfo("Alignment") << "@SUB=AlignmentUserVariablesIO::write"
+                            << "Write variables all,written: " << alivec.size() <<","<< icount;
   return 0;
 }
 
@@ -61,6 +62,8 @@ AlignmentUserVariablesIO::read(const std::vector<Alignable*>& alivec, int& ierr)
     if (ad!=0) theReadUserVariables.push_back(ad);
 
   }
-  edm::LogWarning("Alignment") <<"[AlignmentUserVariablesIO::read] Read variables all,read,valid: " << alivec.size() <<","<< icount <<","<< icount2;
+  edm::LogInfo("Alignment") << "@SUB=AlignmentUserVariablesIO::read"
+                            << "Read variables all,read,valid: " << alivec.size() <<","
+                            << icount <<","<< icount2;
   return retvec;
 }

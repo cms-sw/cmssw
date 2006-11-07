@@ -1,7 +1,7 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2006/11/03 16:28:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/11/07 10:22:56 $
+ *  $Revision: 1.9 $
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -131,9 +131,8 @@ void AlignmentParameterBuilder::fixAlignables(int n)
 
   theAlignables = theNewAlignables;
 
-  edm::LogWarning("Alignment") << "removing " << n 
-			       << " alignables, so that " << theAlignables.size() 
-			       << " alignables left";
-  
+  edm::LogInfo("Alignment") << "@SUB=AlignmentParameterBuilder::fixAlignables"
+                            << "removing " << n << " alignables, so that " 
+                            << theAlignables.size() << " alignables left";
 }
 

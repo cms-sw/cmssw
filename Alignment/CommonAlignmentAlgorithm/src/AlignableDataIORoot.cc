@@ -52,8 +52,8 @@ void AlignableDataIORoot::setBranchAddresses(void)
 int AlignableDataIORoot::findEntry(unsigned int detId,int comp)
 {
   if (newopen) { // we're here first time
-	edm::LogInfo("FindEntry")
-	  <<"Filling map ...";
+    edm::LogInfo("Alignment") << "@SUB=AlignableDataIORoot::findEntry"
+                              << "Filling map ...";
     treemap.erase(treemap.begin(),treemap.end());
     for (int ev = 0;ev<tree->GetEntries();ev++) {
       tree->GetEntry(ev); 

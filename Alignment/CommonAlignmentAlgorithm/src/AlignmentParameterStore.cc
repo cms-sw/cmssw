@@ -31,7 +31,8 @@ AlignmentParameterStore::AlignmentParameterStore( std::vector<Alignable*> alivec
 	}
 
 
-  edm::LogWarning("Alignment") << "[AlignmentParameterStore] Created.";
+  edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::AlignmentParameterStore"
+                            << "Created.";
 }
 
 //__________________________________________________________________________________________________
@@ -161,10 +162,10 @@ std::vector<Alignable*> AlignmentParameterStore::validAlignables(void) const
 	   iali != theAlignables.end(); iali++)
 	if ( (*iali)->alignmentParameters()->isValid() ) result.push_back(*iali);
 
-  edm::LogInfo("Alignment") << "Valid alignables: " << result.size()
-    << "out of " << theAlignables.size();
+  LogDebug("Alignment") << "@SUB=AlignmentParameterStore::validAlignables"
+                        << "Valid alignables: " << result.size()
+                        << "out of " << theAlignables.size();
   return result;
-
 }
 
 
@@ -328,26 +329,27 @@ void AlignmentParameterStore::resetParameters(void)
 void AlignmentParameterStore::resetParameters( Alignable* ali )
 {
   if ( ali ) 
-	{
-	  // Get alignment parameters for this alignable
-	  AlignmentParameters* ap = ali->alignmentParameters();
-	  if ( ap ) 
-		{
-		  int npar=ap->numSelected();
-		
-		  AlgebraicVector par(npar,0);
-		  AlgebraicSymMatrix cov(npar,0);
-		  AlignmentParameters* apnew = ap->cloneFromSelected(par,cov);
-		  ali->setAlignmentParameters(apnew);
-		  apnew->setValid(false);
-		}
-	  else 
-		edm::LogError("BadArgument") 
-		  << "resetParameters: alignable has no alignment parameter";
-	}
+    {
+      // Get alignment parameters for this alignable
+      AlignmentParameters* ap = ali->alignmentParameters();
+      if ( ap ) 
+        {
+          int npar=ap->numSelected();
+          
+          AlgebraicVector par(npar,0);
+          AlgebraicSymMatrix cov(npar,0);
+          AlignmentParameters* apnew = ap->cloneFromSelected(par,cov);
+          ali->setAlignmentParameters(apnew);
+          apnew->setValid(false);
+        }
+      else 
+        edm::LogError("BadArgument") << "@SUB=AlignmentParameterStore::resetParameters"
+                                     << "alignable has no alignment parameter";
+    }
   else
-	edm::LogError("BadArgument") << "resetParameters argument is NULL";
-
+    edm::LogError("BadArgument") << "@SUB=AlignmentParameterStore::resetParameters"
+                                 << "argument is NULL";
+  
 }
 
 
@@ -446,7 +448,7 @@ applyAlignableAbsolutePositions( const Alignables& alivec,
 			  // shift needed to move from current to new position
 			  GlobalVector shift = pnew - pold;
 			  ali->move( shift );
-			  edm::LogInfo("NewPosition") << "moving by" << shift;
+			  LogDebug("NewPosition") << "moving by" << shift;
 				
 			  // Delta-rotation needed to rotate from current to new rotation
 			  int ierr;
@@ -462,7 +464,7 @@ applyAlignableAbsolutePositions( const Alignables& alivec,
 				  Surface::RotationType rotfixed = alignTransform.rectify(rot);
 				  ali->rotateInGlobalFrame(rotfixed);
 				  AlgebraicMatrix mrot = alignTransform.algebraicMatrix( rotfixed );
-				  edm::LogInfo("NewRotation") << "rotating by: " << mrot;
+				  LogDebug("NewRotation") << "rotating by: " << mrot;
 				}
 				
 			  // add position error
@@ -479,8 +481,8 @@ applyAlignableAbsolutePositions( const Alignables& alivec,
 	edm::LogError("Mismatch") << "Applied only " << nappl << " new positions" 
 							  << " out of " << newpos.size();
 
-  edm::LogInfo("NewPositions") << "Applied new positions for " << nappl
-							   << " out of " << alivec.size() <<" alignables.";
+  LogDebug("NewPositions") << "Applied new positions for " << nappl
+                           << " out of " << alivec.size() <<" alignables.";
 
 }
 
@@ -535,8 +537,7 @@ applyAlignableRelativePositions( const Alignables& alivec,
 	edm::LogError("Mismatch") << "Applied only " << nappl << " new positions" 
 							  << " out of " << shifts.size();
 
-  edm::LogInfo("NewPositions") 
-	<< "Applied new positions for " << nappl << " alignables.";
+  LogDebug("NewPositions") << "Applied new positions for " << nappl << " alignables.";
 
 }
 
@@ -590,7 +591,7 @@ void AlignmentParameterStore::attachAlignmentParameters( const Alignables& alive
 	}
   if (ifail>0) ierr=-1;
   
-  edm::LogInfo("attachAlignmentParameters") 
+  LogDebug("attachAlignmentParameters") 
 	<< " Parameters, Alignables: "<< parvec.size() <<"," << alivec.size()
 	<< "\n pass,fail: " << ipass <<","<< ifail;
 }
@@ -631,16 +632,16 @@ void AlignmentParameterStore::attachCorrelations( const Alignables& alivec,
 			icount++;
 		  }
 		else 
-		  edm::LogWarning("AlreadyExists") 
+		  edm::LogInfo("AlreadyExists") 
 			<< "Correlation existing and not overwritten";
 	  else 
-		edm::LogWarning("IgnoreCorrelation") 
+		edm::LogInfo("IgnoreCorrelation") 
 		  << "Ignoring correlation with no alignables!";
 	}
 
-  edm::LogInfo("attachCorrelations") 
-	<< " Alignables,Correlations: " << alivec.size() <<","<< cormap.size() 
-	<< "\n applied: " << icount ;
+  LogDebug("attachCorrelations") 
+    << " Alignables,Correlations: " << alivec.size() <<","<< cormap.size() 
+    << "\n applied: " << icount ;
 
 }
 
@@ -653,8 +654,8 @@ attachUserVariables( const Alignables& alivec,
 
   ierr=0;
 
-  edm::LogInfo("DumpArguments") << "size of alivec:   "  << alivec.size()
-								<< "\nsize of uvarvec: " << uvarvec.size();
+  LogDebug("DumpArguments") << "size of alivec:   "  << alivec.size()
+                            << "\nsize of uvarvec: " << uvarvec.size();
 
   std::vector<AlignmentUserVariables*>::const_iterator iuvar=uvarvec.begin();
 
@@ -682,7 +683,7 @@ void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alive
 		AlignmentPositionError ape(valshift,valshift,valshift);
 		(*iali)->addAlignmentPositionError(ape);
 		if (first)
-		  edm::LogInfo("StoreAPE") << "Store APE from shift: " << valshift;
+		  LogDebug("StoreAPE") << "Store APE from shift: " << valshift;
 	  }
 	  if (valrot>0) {
 		AlignmentTransformations alignTransform;
@@ -692,7 +693,7 @@ void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alive
 		  = alignTransform.rotationType( alignTransform.rotMatrix3(r) );
 		(*iali)->addAlignmentPositionErrorFromRotation(aperot);
 		if (first) 
-		  edm::LogInfo("StoreAPE") << "Store APE from rotation: " << valrot;
+		  LogDebug("StoreAPE") << "Store APE from rotation: " << valrot;
 	  }
 	  first=false;
 	}

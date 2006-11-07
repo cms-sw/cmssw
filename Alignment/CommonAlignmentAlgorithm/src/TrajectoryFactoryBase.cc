@@ -1,8 +1,6 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
-
-#include <iostream>
-
 
 TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config ) {}
 
@@ -17,8 +15,9 @@ const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffe
   if ( strME == "Combined" ) return ReferenceTrajectoryBase::combined;
   if ( strME == "None" ) return ReferenceTrajectoryBase::none;
 
-  std::cout << "[TrajectoryFactoryBase::materialEffects] Unknown parameter \'" 
-	    << strME << "\'. I use \'Combined\' instead." << std::endl;
+  edm::LogError("Alignment") << "@SUB=TrajectoryFactoryBase::materialEffects" 
+                             << "Unknown parameter \'" << strME 
+                             << "\'. I use \'Combined\' instead.";
 
   return ReferenceTrajectoryBase::combined;
 }

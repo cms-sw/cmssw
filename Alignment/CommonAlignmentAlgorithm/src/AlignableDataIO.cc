@@ -111,7 +111,7 @@ int AlignableDataIO::writeAbsPos(const std::vector<Alignable*>& alivec,
 	  int iret = writeAbsPos(*it,validCheck);
 	  if (iret==0) icount++;
 	}
-  edm::LogInfo("WriteAbsPos") << "all,written: " << alivec.size() <<","<< icount;
+  LogDebug("WriteAbsPos") << "all,written: " << alivec.size() <<","<< icount;
 
   return 0;
 
@@ -133,7 +133,7 @@ AlignableDataIO::readAbsPos(const std::vector<Alignable*>& alivec, int& ierr)
 	  if (ierr2==0) retvec.push_back(ad);
 	}
   
-  edm::LogInfo("ReadAbsPos") << "all,written: " << alivec.size() <<"," << retvec.size();
+  LogDebug("ReadAbsPos") << "all,written: " << alivec.size() <<"," << retvec.size();
 
   return retvec;
 
@@ -153,7 +153,7 @@ int AlignableDataIO::writeOrgPos( const std::vector<Alignable*>& alivec,
 	  if (iret==0) icount++;
 	}
   
-  edm::LogInfo("WriteOrgPos") << "all,written: " << alivec.size() <<"," << icount;
+  LogDebug("WriteOrgPos") << "all,written: " << alivec.size() <<"," << icount;
   return 0;
 
 }
@@ -174,7 +174,7 @@ AlignableDataIO::readOrgPos(const std::vector<Alignable*>& alivec, int& ierr)
 	  if (ierr2==0) retvec.push_back(ad);
 	}
 
-  edm::LogInfo("ReadOrgPos") << "all,read: " << alivec.size() <<", "<< retvec.size();
+  LogDebug("ReadOrgPos") << "all,read: " << alivec.size() <<", "<< retvec.size();
 
   return retvec;
 
@@ -192,7 +192,7 @@ int AlignableDataIO::writeRelPos(const std::vector<Alignable*>& alivec,
     int iret=writeRelPos(*it,validCheck);
     if (iret==0) icount++;
   }
-  edm::LogInfo("WriteRelPos") << "all,written: " << alivec.size() <<", "<< icount;
+  LogDebug("WriteRelPos") << "all,written: " << alivec.size() <<", "<< icount;
   return 0;
 
 }
@@ -212,7 +212,7 @@ AlignableDataIO::readRelPos(const std::vector<Alignable*>& alivec, int& ierr)
 	  AlignableRelData ad=readRelPos(*it, ierr2);
 	  if (ierr2==0) retvec.push_back(ad);
 	}
-  edm::LogInfo("ReadRelPos") << "all,read: " << alivec.size() <<", "<< retvec.size();
+  LogDebug("ReadRelPos") << "all,read: " << alivec.size() <<", "<< retvec.size();
 
   return retvec;
 
