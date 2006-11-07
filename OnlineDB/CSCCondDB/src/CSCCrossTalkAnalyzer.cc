@@ -354,7 +354,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 
   //get name of run file from .cfg and name root output after that
   string::size_type runNameStart = name.find("\"",0);
-  string::size_type runNameEnd   = name.find("bin",0);
+  string::size_type runNameEnd   = name.find("raw",0);
   string::size_type rootStart    = name.find("Crosstalk",0);
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
