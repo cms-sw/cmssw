@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.35 2006/09/28 16:09:52 wmtan Exp $
+$Id: RootFile.cc,v 1.36 2006/09/28 20:33:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -20,6 +20,8 @@ $Id: RootFile.cc,v 1.35 2006/09/28 16:09:52 wmtan Exp $
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+//used for friendlyName translation
+#include "FWCore/Framework/src/FriendlyName.h"
 
 #include "TTree.h"
 #include "Rtypes.h"
@@ -51,7 +53,10 @@ namespace edm {
     open();
 
     // Set up buffers for registries.
-    ProductRegistry *ppReg = productRegistry_.get();
+    //CDJ need to read to a temporary registry so we can do a translation of the BranchKeys
+    ProductRegistry tempReg;
+    ProductRegistry *ppReg = &tempReg;
+    //ProductRegistry *ppReg = productRegistry_.get();
     typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
     ProcessHistoryMap pHistMap;
@@ -70,8 +75,28 @@ namespace edm {
     metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
 
     metaDataTree->GetEntry(0);
-    productRegistry().setFrozen();
+    //CDJ freeze our temporary
+    tempReg.setFrozen();
+    //productRegistry().setFrozen();
 
+    //Do the translation from the persistent registry to the transient one
+    std::map<std::string,std::string> newBranchToOldBranch;
+    {
+      const ProductRegistry::ProductList& prodList = tempReg.productList();
+      for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
+           it != prodList.end(); ++it) {
+        BranchDescription const& prod = it->second;
+	//need to call init to cause the branch name to be recalculated
+	prod.init();
+        BranchDescription newBD(prod);
+        newBD.friendlyClassName_ = friendlyname::friendlyName(newBD.className());
+
+        newBD.init();
+        productRegistry_->addProduct(newBD);
+	newBranchToOldBranch[newBD.branchName()]=prod.branchName();
+      }
+      productRegistry().setFrozen();
+    }
     // Merge into the registries. For now, we do NOT merge the product registry.
     pset::Registry& psetRegistry = *pset::Registry::instance();
     for (PsetMap::const_iterator i = psetMap.begin(); i != psetMap.end(); ++i) {
@@ -104,19 +129,22 @@ namespace edm {
         it != prodList.end(); ++it) {
       BranchDescription const& prod = it->second;
       prod.init();
-      prod.provenancePresent_ = (eventMetaTree_->GetBranch(prod.branchName().c_str()) != 0);
-      TBranch * branch = eventTree_->GetBranch(prod.branchName().c_str());
+      //use the translated branch name 
+      std::string branchName = newBranchToOldBranch[prod.branchName()];
+      prod.provenancePresent_ = (eventMetaTree_->GetBranch(branchName.c_str()) != 0);
+      TBranch * branch = eventTree_->GetBranch(branchName.c_str());
       prod.present_ = (branch != 0);
       if (prod.provenancePresent()) {
         std::string const &name = prod.className();
         std::string const className = wrappedClassName(name);
         if (branch != 0) branches_->insert(std::make_pair(it->first, std::make_pair(className, branch)));
         productMap_.insert(std::make_pair(it->second.productID(), it->second));
+	//we want the new branch name for the JobReport
         branchNames_.push_back(prod.branchName());
         int n = eventProvenance_.size();
         eventProvenance_.push_back(BranchEntryDescription());
         eventProvenancePtrs_.push_back(&eventProvenance_[n]);
-        eventMetaTree_->SetBranchAddress(prod.branchName().c_str(),(&eventProvenancePtrs_[n]));
+        eventMetaTree_->SetBranchAddress(branchName.c_str(),(&eventProvenancePtrs_[n]));
       }
     }
   }
