@@ -24,7 +24,8 @@ void L2TauJetMerger::produce(edm::Event& iEvent, const edm::EventSetup& iES)
    edm::Handle<CaloJetCollection> tauJets;
    iEvent.getByLabel( * s, tauJets );
    CaloJetCollection::const_iterator iTau = tauJets->begin();
-   mergedTaus->push_back(*iTau);
+   if(iTau != tauJets->end())
+     mergedTaus->push_back(*iTau);
  }
 
  cout <<"Number of Selected Taus "<<mergedTaus->size()<<endl;
