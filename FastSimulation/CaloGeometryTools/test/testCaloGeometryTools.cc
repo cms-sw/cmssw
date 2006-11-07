@@ -93,7 +93,7 @@ private:
 testCaloGeometryTools::testCaloGeometryTools( const edm::ParameterSet& iConfig )
 {
   myHistos = Histos::instance();
-  myHistos->book("h100",150,0.,1.5,0.,35.);
+  myHistos->book("h100",150,0.,1.5,100,0.,35.);
 }
 
 
