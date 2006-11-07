@@ -8,8 +8,8 @@
  *
  *  Build Alignment Parameter Structure 
  *
- *  $Date: 2006/10/20 13:24:55 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/11/03 16:28:54 $
+ *  $Revision: 1.4 $
  *  (last update by $Author: flucke $)
  */
 
@@ -24,24 +24,25 @@ public:
 
   /// Constructor
   explicit AlignmentParameterBuilder(AlignableTracker *alignableTracker);
-  /// Constructor adding selection using int addSelections(const edm::ParameterSet &pSet)
+  /// Constructor adding selections by passing the ParameterSet named 'AlignmentParameterSelector'
+  /// (expected in pSet) to addSelections(..)
   AlignmentParameterBuilder(AlignableTracker *alignableTracker, const edm::ParameterSet &pSet);
 
   /// destructor 
   virtual ~AlignmentParameterBuilder() {};
 
-  /// Add several selections defined by the PSet which must contain a vstring like e.g.
-  /// vstring alignableParamSelector = { "PixelHalfBarrelLadders,111000,pixelSelection",
-  ///                                    "BarrelDSRods,111000",
-  ///                                    "BarrelSSRods,101000"}
-  /// The '11100' part defines which d.o.f. to be aligned (x,y,z,alpha,beta,gamma)
-  /// returns number of added selections or -1 if problems (then also an error is logged)
-  /// If a string contains a third, comma separated part (e.g. ',pixelSelection'),
-  /// a further PSet of that name is expected to select eta/z/phi/r-ranges
+  /// Add selections of Alignables, using AlignmenParameterSelector::addSelections.
+  /// For each Alignable, (Composite)RigidBodyAlignmentParameters will be attached
+  /// using the selection of active parameters done in AlignmenParameterSelector,
+  /// e.g. a selection string '11100' selects the degrees of freedom in (x,y,z), 
+  /// but not (alpha,beta,gamma).
+  /// Returns number of added selections 
   unsigned int addSelections(const edm::ParameterSet &pset);
 
-  /// Add arbitrary selection of Alignables 
-  void add (const std::vector<Alignable*>& alignables, const std::vector<bool> &sel);
+  /// Add arbitrary selection of Alignables, return number of higher level Alignables
+  unsigned int add(const std::vector<Alignable*> &alignables, const std::vector<bool> &sel);
+  /// Add a single Alignable, true if it is higher level, false if it is an AlignableDet 
+  bool add(Alignable *alignable, const std::vector<bool> &sel);
 
   /// Get list of alignables for which AlignmentParameters are built 
   std::vector<Alignable*> alignables() { return theAlignables; };
@@ -49,12 +50,6 @@ public:
   /// Remove n Alignables from list 
   void fixAlignables( int n );
 
-  /// Decoding string to select local rigid body parameters into vector<bool>,
-  /// "101001" will mean x,z,gamma, but not y,alpha,beta
-  /// cms::Exception if problems while decoding (e.g. length of sring)
-  std::vector<bool> decodeParamSel(const std::string &selString) const;
-  /// Decomposing input string 's' into parts separated by 'delimiter'
-  std::vector<std::string> decompose(const std::string &s, std::string::value_type delimiter) const;
 private:
 
   // data members
