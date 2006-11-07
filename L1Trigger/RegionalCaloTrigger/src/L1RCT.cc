@@ -656,9 +656,9 @@ short L1RCT::calcIEta(unsigned short iCrate, unsigned short iCard, unsigned shor
     absIEta = (iCard % 3) * 8 + ((iTower - 1) / 4) + 1;
   else if(iCard == 6) {
     if(iTower < 17)
-      absIEta = ((iTower - 1) / 4) + 25;
+      absIEta = 25 + (iTower - 1) / 4;
     else
-      absIEta = ((iTower - 29) / 4) + 25;
+      absIEta = 28 - ((iTower - 17) / 4);
   }
   else
     absIEta = 29 + iTower % 4;

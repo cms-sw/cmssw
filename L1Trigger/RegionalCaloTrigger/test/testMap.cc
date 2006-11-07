@@ -9,26 +9,42 @@ int main()
   L1RCT rct(filename);
   const unsigned short iPhiMax = 72;
   const short iAbsEtaMax = 32;
-  unsigned short crate[iPhiMax][2*iAbsEtaMax+1];
-  unsigned short card[iPhiMax][2*iAbsEtaMax+1];
-  unsigned short tower[iPhiMax][2*iAbsEtaMax+1];
   for(unsigned short iPhi = 0; iPhi < iPhiMax; iPhi++)
     {
       for(short iEta = -iAbsEtaMax; iEta <= iAbsEtaMax; iEta++)
 	{
-	  unsigned iAEta = iEta + iAbsEtaMax;
-	  if(iEta != 0)
+	  unsigned short iCrate;
+	  unsigned short iCard;
+	  unsigned short iTower;
+	  if(abs(iEta) > 28 && iPhi > 17) 
 	    {
-	      crate[iPhi][iAEta] = rct.calcCrate(iPhi, iEta);
-	      card[iPhi][iAEta] = rct.calcCard(iPhi, (unsigned short) abs(iEta));
-	      tower[iPhi][iAEta] = rct.calcTower(iPhi, (unsigned short) abs(iEta));
+	      iCrate = 777;
+	      iCard = 777;
+	      iTower = 777;
 	    }
 	  else
-	    {
-	      crate[iPhi][iAEta] = 999;
-	      tower[iPhi][iAEta] = 999;
-	      tower[iPhi][iAEta] = 999;
-	    }
+	    if(iEta != 0)
+	      {
+		iCrate = rct.calcCrate(iPhi, iEta);
+		iCard = rct.calcCard(iPhi, (unsigned short) abs(iEta));
+		iTower = rct.calcTower(iPhi, (unsigned short) abs(iEta));
+		short jEta = rct.calcIEta(iCrate, iCard, iTower);
+		unsigned short jPhi = rct.calcIPhi(iCrate, iCard, iTower);
+		if(iEta != jEta || iPhi != jPhi)
+		  std::cout << "Problem 1: "
+			    << "\tiEta   = " << iEta << "\tjEta   = " << jEta 
+			    << "\tiPhi   = " << iPhi << "\tjPhi   = " << jPhi 
+			    << "\tcrate[][] = " << iCrate 
+			    << "\tcard[][]  = " << iCard 
+			    << "\ttower[][] = " << iTower
+			    << std::endl;
+	      }
+	    else
+	      {
+		iCrate = 888;
+		iCard = 888;
+		iTower = 888;
+	      }
 	}
     }
   for(unsigned short iCrate = 0; iCrate < 18; iCrate++)
@@ -38,20 +54,15 @@ int main()
 	  for(unsigned short iTower = 1; iTower <= 32; iTower++)
 	    {
 	      short iEta = rct.calcIEta(iCrate, iCard, iTower);
-	      short iPhi = rct.calcIPhi(iCrate, iCard, iTower);
+	      unsigned short iPhi = rct.calcIPhi(iCrate, iCard, iTower);
 	      short jCrate = rct.calcCrate(iPhi, iEta);
 	      short jCard = rct.calcCard(iPhi, (unsigned short) abs(iEta));
 	      short jTower = rct.calcTower(iPhi, (unsigned short) abs(iEta));
-	      short jEta = rct.calcIEta(jCrate, jCard, jTower);
-	      short jPhi = rct.calcIPhi(jCrate, jCard, jTower);
-	      unsigned short iAEta = iEta + iAbsEtaMax;
-	      if(iCrate != crate[iPhi][iAEta] || iCard != card[iPhi][iAEta] || iTower != tower[iPhi][iAEta])
-		std::cout << "Problem:"
-			  << "\tiCrate = " << iCrate << "\tcrate[][] = " << crate[iPhi][iAEta] << "\tjCrate = " << jCrate 
-			  << "\tiCard  = " << iCard  << "\tcard[][]  = " << card[iPhi][iAEta]  << "\tjCard  = " << jCard  
-			  << "\tiTower = " << iTower << "\ttower[][] = " << tower[iPhi][iAEta] << "\tjTower = " << jTower 
-			  << "\tiEta   = " << iEta << "\tjEta   = " << jEta
-			  << "\tiPhi   = " << iPhi << "\tjPhi   = " << jPhi
+	      if(iCrate != jCrate || iCard != jCard || iTower != jTower)
+		std::cout << "Problem 2:"
+			  << "\tiCrate = " << iCrate << "\tiCard  = " << iCard << "\tiTower = " << iTower 
+			  << "\tjCrate = " << jCrate << "\tjCard  = " << jCard << "\tjTower = " << jTower 
+			  << "\tiEta   = " << iEta << "\tiPhi   = " << iPhi
 			  << std::endl;
 	    }
 	}
@@ -66,18 +77,13 @@ int main()
 	  short jCrate = rct.calcCrate(iPhi, iEta);
 	  short jCard = rct.calcCard(iPhi, (unsigned short) abs(iEta));
 	  short jTower = rct.calcTower(iPhi, (unsigned short) abs(iEta));
-	  short jEta = rct.calcIEta(jCrate, jCard, jTower);
-	  short jPhi = rct.calcIPhi(jCrate, jCard, jTower);
 	  unsigned short iAEta = iEta + iAbsEtaMax;
-	  if(iCrate != crate[iPhi][iAEta] || iCard != card[iPhi][iAEta] || iTower != tower[iPhi][iAEta])
-	    std::cout << "Problem:"
-		      << "\tiCrate = " << iCrate << "\tcrate[][] = " << crate[iPhi][iAEta] << "\tjCrate = " << jCrate 
-		      << "\tiCard  = " << iCard  << "\tcard[][]  = " << card[iPhi][iAEta]  << "\tjCard  = " << jCard  
-		      << "\tiTower = " << iTower << "\ttower[][] = " << tower[iPhi][iAEta] << "\tjTower = " << jTower 
-		      << "\tiEta   = " << iEta << "\tjEta   = " << jEta
-		      << "\tiPhi   = " << iPhi << "\tjPhi   = " << jPhi
+	  if(iCrate != jCrate || iCard != jCard || iTower != jTower)
+	    std::cout << "Problem 2:"
+		      << "\tiCrate = " << iCrate << "\tiCard  = " << iCard << "\tiTower = " << iTower 
+		      << "\tjCrate = " << jCrate << "\tjCard  = " << jCard << "\tjTower = " << jTower 
+		      << "\tiEta   = " << iEta << "\tiPhi   = " << iPhi
 		      << std::endl;
 	}
     }
 }
-
