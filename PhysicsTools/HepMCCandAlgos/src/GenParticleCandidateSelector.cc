@@ -1,8 +1,8 @@
-// $Id: HepMCCandidateProducer.cc,v 1.8 2006/10/29 21:09:39 llista Exp $
-#include "PhysicsTools/HepMCCandAlgos/src/HepMCCandidateProducer.h"
+// $Id: GenParticleCandidateSelector.cc,v 1.8 2006/10/29 21:09:39 llista Exp $
+#include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateSelector.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -15,7 +15,7 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-HepMCCandidateProducer::HepMCCandidateProducer( const ParameterSet & p ) :
+GenParticleCandidateSelector::GenParticleCandidateSelector( const ParameterSet & p ) :
   src_( p.getParameter<string>( "src" ) ),
   stableOnly_( p.getParameter<bool>( "stableOnly" ) ),
   excludeList_( p.getParameter<vstring>( "excludeList" ) ),
@@ -23,10 +23,10 @@ HepMCCandidateProducer::HepMCCandidateProducer( const ParameterSet & p ) :
   produces<CandidateCollection>();
 }
 
-HepMCCandidateProducer::~HepMCCandidateProducer() { 
+GenParticleCandidateSelector::~GenParticleCandidateSelector() { 
 }
 
-void HepMCCandidateProducer::beginJob( const EventSetup & es ) {
+void GenParticleCandidateSelector::beginJob( const EventSetup & es ) {
   //  const PDTRecord & rec = es.get<PDTRecord>();
   ESHandle<DefaultConfig::ParticleDataTable> pdt;
   es.getData( pdt );
@@ -45,25 +45,22 @@ void HepMCCandidateProducer::beginJob( const EventSetup & es ) {
   }
 }
 
-void HepMCCandidateProducer::produce( Event& evt, const EventSetup& ) {
-  Handle<HepMCProduct> mcp;
-  evt.getByLabel( src_, mcp );
-  const HepMC::GenEvent * mc = mcp->GetEvent();
-  if( mc == 0 ) 
-    throw edm::Exception( edm::errors::InvalidReference ) 
-      << "HepMC has null pointer to GenEvent" << endl;
+void GenParticleCandidateSelector::produce( Event& evt, const EventSetup& ) {
+  Handle<GenParticleCandidateCollection> particles;
+  evt.getByLabel( src_, particles );
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
-  cands->reserve( mc->particles_size() );
-  for( HepMC::GenEvent::particle_const_iterator p = mc->particles_begin(); 
-       p != mc->particles_end(); ++ p ) {
-    if ( ! stableOnly_ || (*p)->status() == 1 ) {
-      int id = abs( (*p)->pdg_id() );
+  cands->reserve( particles->size() );
+  size_t idx = 0;
+  for( GenParticleCandidateCollection::const_iterator p = particles->begin(); 
+       p != particles->end(); ++ p, ++ idx ) {
+    if ( ! stableOnly_ || p->status() == 1 ) {
+      int id = abs( p->pdgId() );
       if ( excludedIds_.find( id ) == excludedIds_.end() ) {
 	if ( verbose_ )
 	  LogInfo( "INFO" ) << "Adding candidate for particle with id: " 
-			    << (*p)->pdg_id() << ", status: " << (*p)->status();
-	HepMCCandidate::GenParticleRef ref( mcp, (*p)->barcode() );
-	cands->push_back( new HepMCCandidate( ref ) );
+			    << id << ", status: " << p->status();
+	CandidateBaseRef ref( GenParticleCandidateRef( particles, idx ) );
+	cands->push_back( new ShallowCloneCandidate( ref ) );
       }
     }
   }

@@ -15,7 +15,8 @@ using namespace HepMC;
 ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
   src_( cfg.getParameter<InputTag>( "src" ) ),
   printP4_( cfg.getUntrackedParameter<bool>( "printP4", false ) ),
-  printPtEtaPhi_( cfg.getUntrackedParameter<bool>( "printPtEtaPhi", false ) ) {
+  printPtEtaPhi_( cfg.getUntrackedParameter<bool>( "printPtEtaPhi", false ) ),
+  printStatus_( cfg.getUntrackedParameter<bool>( "printStatus", false ) ) {
 }
 
 void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
@@ -35,6 +36,7 @@ void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
 void ParticleTreeDrawer::printP4( const reco::GenParticleCandidate & c ) const {
   if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")"; 
   if ( printPtEtaPhi_ ) cout << " [" << c.pt() << ": " << c.eta() << ", " << c.phi() << "]";
+  if ( printStatus_ ) cout << "{status: " << c.status() << "}";
 }
 
 void ParticleTreeDrawer::printDecay( const reco::GenParticleCandidate & c, const std::string & pre ) const {
