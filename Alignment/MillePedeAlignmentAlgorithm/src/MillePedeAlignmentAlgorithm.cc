@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.11 $
- *  $Date$
- *  (last update by $Author$)
+ *  $Revision: 1.1 $
+ *  $Date: 2006/10/20 13:57:03 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -115,7 +115,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     ReferenceTrajectoryBase::ReferenceTrajectoryPtr refTrajPtr = 
       this->referenceTrajectory(traj->measurements().back().updatedState(),
 				traj->recHits(), magField);
-    if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit
+    if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
 
     int nValidHits = 0;
     // Use recHits from ReferenceTrajectory (since they have the right order!):
@@ -227,21 +227,17 @@ int MillePedeAlignmentAlgorithm::globalDerivatives(const ConstRecHitPointer &rec
     return -1;
   }
 
-  this->recursiveFillLabelHist(ali); // FIXME: not needed?
+  //this->recursiveFillLabelHist(ali); // FIXME: not needed?
 
   const std::vector<bool> &selPars = params->selector();
-  const AlgebraicMatrix derivs(params->selectedDerivatives(tsos, alidet));
-  // cols: 2, i.e. x&y, rows: 0-6, i.e. selected active parameters
-  for (unsigned int iSel = 0, iParam = 0; iSel < selPars.size(); ++iSel) {
+  const AlgebraicMatrix derivs(params->derivatives(tsos, alidet));
+  // cols: 2, i.e. x&y, rows: parameters, usually RigidBodyAlignmentParameters::N_PARAM
+  for (unsigned int iSel = 0; iSel < selPars.size(); ++iSel) {
     if (selPars[iSel]) {
-      // derivs has length of selected oarameters, so use iParam here:
-      globalDerivatives.push_back(derivs[iParam][xOrY]);
-      // label is unique, be it selected or not: use iSel and not iParam here:
+      globalDerivatives.push_back(derivs[iSel][xOrY]);
       globalLabels.push_back(thePedeSteer->parameterLabel(alignableLabel, iSel));
-      ++iParam; 
     }
   }
-
   return 1;
 }
 
@@ -264,7 +260,7 @@ void MillePedeAlignmentAlgorithm::callMille
     localDerivs[i] = locDerivMatrix[xyIndex][i];
   }
 
-  // FIXME: verify that &vector[0] is valid for all vector implementations
+  // FIXME: verify that &(vector[0]) is valid for all vector implementations
   theMille->mille(localDerivs.GetSize(), localDerivs.GetArray(),
 		  globalDerivatives.size(), &(globalDerivatives[0]), &(globalLabels[0]),
 		  residuum, sigma);
