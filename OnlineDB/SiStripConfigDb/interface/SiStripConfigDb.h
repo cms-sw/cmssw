@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.14 2006/10/10 14:34:38 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripConfigDb.h,v 1.15 2006/10/30 21:02:22 bainbrid Exp $
+// Latest tag:  $Name: TIF_031106 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
 #ifndef SiStripConfigDb_H
@@ -8,7 +8,9 @@
 #define DATABASE //@@ necessary?
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -17,6 +19,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <ostream>
 #include <vector>
 #include <string>
 #include <map>
@@ -32,6 +35,12 @@ class SiStripConfigDb {
   
   // -------------------- Constructors, destructors --------------------
   
+  /** Constructor when using the "service" mode, which takes as an
+      argument a ParameterSet (containing the database connection
+      parameters). */
+  SiStripConfigDb( const edm::ParameterSet&,
+		   const edm::ActivityRegistry& );
+
   /** Constructor when using the configuration database, which takes
       as arguments the database connection parameters. */
   SiStripConfigDb( std::string confdb, 
@@ -78,6 +87,36 @@ class SiStripConfigDb {
   typedef Sgi::hash_map<unsigned long, TkDcuConversionFactors*> DcuConversionFactors;
   
   // -------------------- Structs and enums --------------------
+  
+  /** Struct containing database connection parameters. */
+  class DbParams { 
+  public:
+    // Constructor, destructor
+    DbParams();
+    ~DbParams();
+    // Debug 
+    void print( std::stringstream& ) const; 
+    // Database connection params
+    bool usingDb_;
+    std::string user_;
+    std::string passwd_;
+    std::string path_;
+    // Partition and version info
+    std::string partition_; 
+    uint32_t major_;
+    uint32_t minor_;
+    // Input XML files
+    std::string inputModuleXml_;
+    std::string inputDcuInfoXml_;
+    std::vector<std::string> inputFecXml_;
+    std::vector<std::string> inputFedXml_;
+    std::string inputDcuConvXml_;
+    // Output XML files
+    std::string outputModuleXml_;
+    std::string outputDcuInfoXml_;
+    std::string outputFecXml_;
+    std::string outputFedXml_;
+  };
   
   /** Struct containing partition name and version. */
   struct Partition { 
@@ -282,6 +321,9 @@ class SiStripConfigDb {
   
   /** Pointer to the DeviceFactory API. */
   DeviceFactory* factory_; 
+
+  /** Instance of struct that holds all DB connection parameters. */
+  DbParams dbParams_;
   
   /** Switch to identify whether using configuration database or not
       (if not, then the xml files are used). */
@@ -399,6 +441,9 @@ void SiStripConfigDb::setPartitionNameAndVersion( const std::string& partition_n
 
 void SiStripConfigDb::usingStrips( bool using_strips ) { usingStrips_ = using_strips; }
 const bool& SiStripConfigDb::usingStrips() const { return usingStrips_; }
+
+/** Debug info for FedChannelConnection class. */
+std::ostream& operator<< ( std::ostream&, const SiStripConfigDb::DbParams& );
 
 #endif // SiStripConfigDb_H
 
