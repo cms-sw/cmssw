@@ -10,8 +10,8 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/22 01:16:15 $
+// $Author: gutsche $
+// $Date: 2006/03/28 23:15:44 $
 // $Revision: 1.1 $
 //
 
@@ -22,6 +22,7 @@
 
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,6 +47,7 @@ namespace cms
   {
     // Step A: Get Inputs 
 
+
     // retrieve producer name of raw CloudCollection
     std::string cleanCloudProducer = conf_.getParameter<std::string>("CleanCloudProducer");
     edm::Handle<RoadSearchCloudCollection> cleanClouds;
@@ -55,7 +57,7 @@ namespace cms
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
 
     // Step C: Invoke the cloud cleaning algorithm
-    roadSearchTrackCandidateMakerAlgorithm_.run(cleanClouds.product(),es,*output);
+    roadSearchTrackCandidateMakerAlgorithm_.run(cleanClouds.product(),e,es,*output);
 
     // Step D: write output to file
     e.put(output);

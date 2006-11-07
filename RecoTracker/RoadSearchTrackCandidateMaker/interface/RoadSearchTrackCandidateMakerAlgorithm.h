@@ -12,18 +12,34 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/03/28 23:15:44 $
-// $Revision: 1.1 $
+// $Author: burkett $
+// $Date: 2006/08/28 23:05:45 $
+// $Revision: 1.2 $
 //
 
 #include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
 
+#include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+
+class TrajectoryStateUpdator;
+class MeasurementEstimator;
+class PropagatorWithMaterial;
+class SteppingHelixPropagator;
+
 
 class RoadSearchTrackCandidateMakerAlgorithm 
 {
@@ -34,8 +50,20 @@ class RoadSearchTrackCandidateMakerAlgorithm
 
   /// Runs the algorithm
   void run(const RoadSearchCloudCollection* input,
+	   const edm::Event& e,
 	   const edm::EventSetup& es,
 	   TrackCandidateCollection &output);
+
+  //  edm::OwnVector<TrackingRecHit> 
+  std::vector<TrajectoryMeasurement>  FindBestHitsByDet(const TrajectoryStateOnSurface& tsosBefore,
+		      const std::set<const GeomDet*>& theDets,
+		      edm::OwnVector<TrackingRecHit>& theHits);
+
+
+  std::vector<TrajectoryMeasurement>  FindBestHit(const TrajectoryStateOnSurface& tsosBefore,
+				     const std::set<const GeomDet*>& theDets,
+				     edm::OwnVector<TrackingRecHit>& theHits);
+
 
  private:
   edm::ParameterSet conf_;
@@ -43,6 +71,14 @@ class RoadSearchTrackCandidateMakerAlgorithm
   unsigned int theNumHitCut;
   double theChi2Cut;
 
+    const MeasurementTracker*  theMeasurementTracker;
+    const TrackerGeometry* geom;
+    const TransientTrackingRecHitBuilder* ttrhBuilder;
+
+    PropagatorWithMaterial* thePropagator;
+    PropagatorWithMaterial* theRevPropagator;
+    TrajectoryStateUpdator* theUpdator;
+    MeasurementEstimator* theEstimator;
 };
 
 #endif

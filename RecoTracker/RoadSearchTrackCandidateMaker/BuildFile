@@ -10,7 +10,11 @@
 <use name=Geometry/Records>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
+<use name=TrackingTools/MeasurementDet>
+<use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/TrackProducer>
+<use name=RecoTracker/TkDetLayers>
+<use name=RecoTracker/TkSeedGenerator>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/TrajectoryCleaning>
@@ -27,7 +31,11 @@
  <use name=Geometry/Records>
  <use name=MagneticField/Records>
  <use name=MagneticField/Engine>
+ <use name=TrackingTools/MeasurementDet>
+ <use name=RecoTracker/MeasurementDet>
  <use name=RecoTracker/TrackProducer>
+ <use name=RecoTracker/TkDetLayers>
+ <use name=RecoTracker/TkSeedGenerator>
  <use name=TrackingTools/TrajectoryState>
  <use name=TrackingTools/GeomPropagators>
  <use name=TrackingTools/TrajectoryCleaning>
