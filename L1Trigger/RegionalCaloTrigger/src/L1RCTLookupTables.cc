@@ -100,7 +100,6 @@ void L1RCTLookupTables::loadHcalConstants(const std::string& filename)
 	  userfile >> value;
 	  hcalConversionConstants_[iAbsEta-1][hcalETAddress] = value;
 	}
-	cout << endl;
       }
       userfile.close();
     }

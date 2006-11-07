@@ -24,7 +24,7 @@ void L1RCTJetSummaryCard::fillHFRegionSums(vector<unsigned short> hfRegionSums, 
   //cout << "JSC.fillHFRegionSums() entered" << endl;
   for(int i=0;i<8;i++){
     //cout << "filling hf region at " << i << endl;
-    HFRegions.at(i) = lut->lookup( (hfRegionSums.at(i)), crtNo, 999, i);
+    HFRegions.at(i) = lut->lookup( (hfRegionSums.at(i)/2), crtNo, 999, i);
     //cout << "hf region " << i << " et filled" << endl;
     hfFineGrainBits.at(i) = (hfRegionSums.at(i)&1);
     //cout << "hf region " << i << " fine grain bit filled" << endl;

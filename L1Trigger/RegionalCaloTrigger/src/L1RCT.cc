@@ -599,6 +599,7 @@ void L1RCT::print(){
 // maps rct iphi, ieta of tower to crate
 unsigned short L1RCT::calcCrate(unsigned short rct_iphi, short ieta){
   unsigned short crate = rct_iphi/8;
+  if(abs(ieta) > 28) crate = rct_iphi / 2;
   if (ieta > 0){
     crate = crate + 9;
   }
@@ -636,7 +637,7 @@ unsigned short L1RCT::calcTower(unsigned short rct_iphi, unsigned short absIeta)
       tower = (absIeta-25)*4 + (iphi%4) + 1;   // towers from 1-32, modified Aug. 1 Jessica Leonard
     }
     else {
-      tower = (absIeta-25)*4 + (iphi%4) + 17;
+      tower = 29 + iphi % 4 + (25 - absIeta) * 4;
     }
   }
   // absIeta >= 29 (HF regions)
@@ -657,7 +658,7 @@ short L1RCT::calcIEta(unsigned short iCrate, unsigned short iCard, unsigned shor
     if(iTower < 17)
       absIEta = ((iTower - 1) / 4) + 25;
     else
-      absIEta = ((iTower - 17) / 4) + 25;
+      absIEta = ((iTower - 29) / 4) + 25;
   }
   else
     absIEta = 29 + iTower % 4;
