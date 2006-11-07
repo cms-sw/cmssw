@@ -612,7 +612,7 @@ unsigned short L1RCT::calcCard(unsigned short rct_iphi, unsigned short absIeta){
   // Note absIeta counts from 1-32 (not 0-31)
   if (absIeta <= 24){
     // card =  ((absIeta-1)/8) + ((rct_iphi / 4) % 2) * 3;  // Sridhara's line
-    card =  ((absIeta-1)/8)*2 + (iphi%8)/4; // Jessica's line
+    card =  ((absIeta-1)/8)*2 + (rct_iphi%8)/4; // Jessica's line
   }
   // 25 <= absIeta <= 28 (card 6)
   else if ((absIeta >= 25) && (absIeta <= 28)){
