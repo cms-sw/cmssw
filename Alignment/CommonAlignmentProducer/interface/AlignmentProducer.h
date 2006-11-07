@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.6 $
-///  last update: $Date: 2006/10/20 13:05:43 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.7 $
+///  last update: $Date: 2006/11/03 11:00:56 $
+///  by         : $Author: fpschill $
 
 #include <vector>
 
@@ -30,9 +30,6 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-
-#include "TFile.h"
-#include "TTree.h"
 
 
 class AlignmentProducer : public edm::ESProducerLooper
@@ -73,8 +70,8 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   // private member functions
 
-  void simpleMisalignment(const Alignables &alivec, const std::vector<bool> &sel, 
-    float shift, float rot, bool local);
+  void simpleMisalignment(const Alignables &alivec, const std::string &selection,
+			  float shift, float rot, bool local);
 
   // private data members
 
