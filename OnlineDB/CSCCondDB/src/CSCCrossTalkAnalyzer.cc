@@ -34,59 +34,61 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 
   debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0, Nddu=0,chamber=0;
-  strip=0,misMatch=0,max1 =-9999999.,max2=-9999999.;
+  strip=0,misMatch=0,max1 =-9999999.,max2=-9999999., min1=9999999.;
   layer=0,reportedChambers=0;
   length=1,myevt=0,flagRMS=-9,flagNoise=-9;
   aPeak=0.0,sumFive=0.0,maxPed=-99999.0,maxRMS=-99999.0;
+  maxPeakTime=-9999.0, maxPeakADC=-999.0;
+  minPeakTime=9999.0, minPeakADC=999.0;
   pedMean=0.0,evt=0,NChambers=0;
   
   //definition of histograms
   xtime = TH1F("time", "time", 50, 0, 500 );
-  pulseshape_ch1_cfeb1 = TH2F("pulse01","strip8",  96,-100,500,100,-100,1100);
-  pulseshape_ch1_cfeb2 = TH2F("pulse02","strip24", 96,-100,500,100,-100,1100);
-  pulseshape_ch1_cfeb3 = TH2F("pulse03","strip40", 96,-100,500,100,-100,1100);
-  pulseshape_ch1_cfeb4 = TH2F("pulse04","strip56", 96,-100,500,100,-100,1100);
-  pulseshape_ch1_cfeb5 = TH2F("pulse05","strip72", 96,-100,500,100,-100,1100);
-  pulseshape_ch2_cfeb1 = TH2F("pulse11","strip8",  96,-100,500,100,-100,1100);
-  pulseshape_ch2_cfeb2 = TH2F("pulse12","strip24", 96,-100,500,100,-100,1100);
-  pulseshape_ch2_cfeb3 = TH2F("pulse13","strip40", 96,-100,500,100,-100,1100);
-  pulseshape_ch2_cfeb4 = TH2F("pulse14","strip56", 96,-100,500,100,-100,1100);
-  pulseshape_ch2_cfeb5 = TH2F("pulse15","strip72", 96,-100,500,100,-100,1100);
-  pulseshape_ch3_cfeb1 = TH2F("pulse21","strip8",  96,-100,500,100,-100,1100);
-  pulseshape_ch3_cfeb2 = TH2F("pulse22","strip24", 96,-100,500,100,-100,1100);
-  pulseshape_ch3_cfeb3 = TH2F("pulse23","strip40", 96,-100,500,100,-100,1100);
-  pulseshape_ch3_cfeb4 = TH2F("pulse24","strip56", 96,-100,500,100,-100,1100);
-  pulseshape_ch3_cfeb5 = TH2F("pulse25","strip72", 96,-100,500,100,-100,1100);
-  pulseshape_ch4_cfeb1 = TH2F("pulse31","strip8",  96,-100,500,100,-100,1100);
-  pulseshape_ch4_cfeb2 = TH2F("pulse32","strip24", 96,-100,500,100,-100,1100);
-  pulseshape_ch4_cfeb3 = TH2F("pulse33","strip40", 96,-100,500,100,-100,1100);
-  pulseshape_ch4_cfeb4 = TH2F("pulse34","strip56", 96,-100,500,100,-100,1100);
-  pulseshape_ch4_cfeb5 = TH2F("pulse35","strip72", 96,-100,500,100,-100,1100);
-  pulseshape_ch5_cfeb1 = TH2F("pulse41","strip8",  96,-100,500,100,-100,1100);
-  pulseshape_ch5_cfeb2 = TH2F("pulse42","strip24", 96,-100,500,100,-100,1100);
-  pulseshape_ch5_cfeb3 = TH2F("pulse43","strip40", 96,-100,500,100,-100,1100);
-  pulseshape_ch5_cfeb4 = TH2F("pulse44","strip56", 96,-100,500,100,-100,1100);
-  pulseshape_ch5_cfeb5 = TH2F("pulse45","strip72", 96,-100,500,100,-100,1100);
-  pulseshape_ch6_cfeb1 = TH2F("pulse51","strip8",  96,-100,500,100,-100,1100);
-  pulseshape_ch6_cfeb2 = TH2F("pulse52","strip24", 96,-100,500,100,-100,1100);
-  pulseshape_ch6_cfeb3 = TH2F("pulse53","strip40", 96,-100,500,100,-100,1100);
-  pulseshape_ch6_cfeb4 = TH2F("pulse54","strip56", 96,-100,500,100,-100,1100);
-  pulseshape_ch6_cfeb5 = TH2F("pulse55","strip72", 96,-100,500,100,-100,1100);
-  pulseshape_ch7_cfeb1 = TH2F("pulse61","strip8",  96,-100,500,100,-100,1100);
-  pulseshape_ch7_cfeb2 = TH2F("pulse62","strip24", 96,-100,500,100,-100,1100);
-  pulseshape_ch7_cfeb3 = TH2F("pulse63","strip40", 96,-100,500,100,-100,1100);
-  pulseshape_ch7_cfeb4 = TH2F("pulse64","strip56", 96,-100,500,100,-100,1100);
-  pulseshape_ch7_cfeb5 = TH2F("pulse65","strip72", 96,-100,500,100,-100,1100);
-  pulseshape_ch8_cfeb1 = TH2F("pulse71","strip8",  96,-100,500,100,-100,1100);
-  pulseshape_ch8_cfeb2 = TH2F("pulse72","strip24", 96,-100,500,100,-100,1100);
-  pulseshape_ch8_cfeb3 = TH2F("pulse73","strip40", 96,-100,500,100,-100,1100);
-  pulseshape_ch8_cfeb4 = TH2F("pulse74","strip56", 96,-100,500,100,-100,1100);
-  pulseshape_ch8_cfeb5 = TH2F("pulse75","strip72", 96,-100,500,100,-100,1100);
-  pulseshape_ch9_cfeb1 = TH2F("pulse81","strip8",  96,-100,500,100,-100,1100);
-  pulseshape_ch9_cfeb2 = TH2F("pulse82","strip24", 96,-100,500,100,-100,1100);
-  pulseshape_ch9_cfeb3 = TH2F("pulse83","strip40", 96,-100,500,100,-100,1100);
-  pulseshape_ch9_cfeb4 = TH2F("pulse84","strip56", 96,-100,500,100,-100,1100);
-  pulseshape_ch9_cfeb5 = TH2F("pulse85","strip72", 96,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb1 = TH2F("pulse01","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb2 = TH2F("pulse02","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb3 = TH2F("pulse03","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb4 = TH2F("pulse04","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch1_cfeb5 = TH2F("pulse05","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb1 = TH2F("pulse11","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb2 = TH2F("pulse12","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb3 = TH2F("pulse13","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb4 = TH2F("pulse14","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch2_cfeb5 = TH2F("pulse15","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb1 = TH2F("pulse21","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb2 = TH2F("pulse22","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb3 = TH2F("pulse23","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb4 = TH2F("pulse24","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch3_cfeb5 = TH2F("pulse25","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb1 = TH2F("pulse31","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb2 = TH2F("pulse32","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb3 = TH2F("pulse33","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb4 = TH2F("pulse34","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch4_cfeb5 = TH2F("pulse35","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb1 = TH2F("pulse41","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb2 = TH2F("pulse42","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb3 = TH2F("pulse43","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb4 = TH2F("pulse44","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch5_cfeb5 = TH2F("pulse45","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb1 = TH2F("pulse51","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb2 = TH2F("pulse52","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb3 = TH2F("pulse53","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb4 = TH2F("pulse54","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch6_cfeb5 = TH2F("pulse55","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb1 = TH2F("pulse61","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb2 = TH2F("pulse62","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb3 = TH2F("pulse63","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb4 = TH2F("pulse64","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch7_cfeb5 = TH2F("pulse65","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb1 = TH2F("pulse71","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb2 = TH2F("pulse72","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb3 = TH2F("pulse73","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb4 = TH2F("pulse74","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch8_cfeb5 = TH2F("pulse75","strip72", 100,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb1 = TH2F("pulse81","strip8",  100,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb2 = TH2F("pulse82","strip24", 100,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb3 = TH2F("pulse83","strip40", 100,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb4 = TH2F("pulse84","strip56", 100,-100,500,100,-100,1100);
+  pulseshape_ch9_cfeb5 = TH2F("pulse85","strip72", 100,-100,500,100,-100,1100);
 
   ped_mean_all    = TH1F("pedMean","Mean baseline noise", 100,300,900);
   maxADC          = TH1F("maxADC","Peak ADC", 100,800,1300);
@@ -105,6 +107,7 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
     newRMS[i]                    = 0.0;
     newPeakRMS[i]                = 0.0;
     newPeak[i]                   = 0.0;
+    newPeakMin[i]                = 0.0; 
     newSumFive[i]                = 0.0;
   }
   
@@ -132,6 +135,7 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 	    arrayOfPedSquare[iii][i][j][k] = 0.;
 	    arrayPed[iii][i][j][k]         = 0.;
 	    arrayPeak[iii][i][j][k]        = 0.;
+	    arrayPeakMin[iii][i][j][k]     = 0.;
 	    arrayOfPeak[iii][i][j][k]      = 0.; 
 	    arrayOfPeakSquare[iii][i][j][k]= 0.;
 	    arraySumFive[iii][i][j][k]     = 0.;
@@ -213,7 +217,7 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		int strip = digis[i].getStrip();
                 std::vector<int> adc = digis[i].getADCCounts();
 		pedMean1 =(adc[0]+adc[1])/2;
-		int offset = (evt-1) / 20;
+		int offset = evt / 20;
                 int smain[5],splus[5],sminus[5]; //5 for CFEBs
                 for(int s=0;s<5;s++) smain[s]  = s*16+offset;
                 for(int s=0;s<5;s++) splus[s]  = s*16+offset+1;
@@ -230,11 +234,6 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		    pedMean =(adc[0]+adc[1])/2;
 		    ped_mean_all.Fill(pedMean);  
 		    xtime.Fill(time);
-
-		    //if (time>242 && time<250 && (adc[k]-pedMean)<10) {
-		      // std::cout <<" Cham "<< chamber <<" strip "<< strip<< " adc[k] "<<adc[k]<<" adc[k]-pedMean "<<adc[k]-pedMean<<" k " <<k<<" event " <<evt<<" layer " <<layer<<std::endl;
-		    //}
-
 		    if(chamber==0  && strip==8)  pulseshape_ch1_cfeb1.Fill(time,adc[k]-pedMean);
 		    if(chamber==0  && strip==24) pulseshape_ch1_cfeb2.Fill(time,adc[k]-pedMean);
 		    if(chamber==0  && strip==40) pulseshape_ch1_cfeb3.Fill(time,adc[k]-pedMean);
@@ -295,11 +294,15 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		      max2=sumFive;
 		    }
 
+		    if (min1 > aPeak){
+		      min1=aPeak;
+		    }
+
 		    maxADC.Fill(max1-pedMean1);
 
-                    int kk=8*k-(evt-1)%20+19;//19 to zero everything, for binning 120
+                    int kk=8*k-evt%20+19;//19 to zero everything, for binning 120
 		    
-                    thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-(evt-1)%20+19;
+                    thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-evt%20+19;
 		    thetime[iDDU][chamber][layer-1][strip-1][kk] = time;
 		    
                     if(iuse==strip-1)  theadccountsc[iDDU][chamber][layer-1][iuse][kk] = adc[k];
@@ -312,6 +315,7 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		arrayOfPed[iDDU][chamber][layer-1][strip-1] += pedMean1;
 		arrayOfPedSquare[iDDU][chamber][layer-1][strip-1] += pedMean1*pedMean1 ;
 		arrayPeak[iDDU][chamber][layer-1][strip-1] = max1-pedMean1;
+		arrayPeakMin[iDDU][chamber][layer-1][strip-1] = min1;
 		arrayOfPeak[iDDU][chamber][layer-1][strip-1] += max1-pedMean1;
 		arrayOfPeakSquare[iDDU][chamber][layer-1][strip-1] += (max1-pedMean1)*(max1-pedMean1);
 		arraySumFive[iDDU][chamber][layer-1][strip-1] = (max2-pedMean1)/(max1-pedMean1);
@@ -350,7 +354,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 
   //get name of run file from .cfg and name root output after that
   string::size_type runNameStart = name.find("\"",0);
-  string::size_type runNameEnd   = name.find("raw",0);
+  string::size_type runNameEnd   = name.find("bin",0);
   string::size_type rootStart    = name.find("Crosstalk",0);
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
@@ -377,7 +381,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   TCalibCrossTalkEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Crosstalk");
-  calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:id/I:flagRMS/I:flagNoise/I:MaxPed[9]/F:MaxRMS[9]/F");
+  calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:id/I:flagRMS/I:flagNoise/I:MaxPed[9]/F:MaxRMS[9]/F:MaxPeakTime[9]/F:MinPeakTime[9]/F:MaxPeakADC[9]/F:MinPeakADC[9]/F");
   xtime.Write();
   ped_mean_all.Write();
   maxADC.Write();
@@ -458,6 +462,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
       thePedestal =0.0;
       theRSquare  =0.0;
       thePeak     =0.0;
+      thePeakMin  =0.0;//minimum of the high's  
       thePeakRMS  =0.0;
       theSumFive  =0.0;
       
@@ -626,11 +631,13 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  newRMS[fff]  = theRMS;
 	  theRSquare   = (thePedestal-meanPedestal)*(thePedestal-meanPedestal)/(theRMS*theRMS*theRMS*theRMS);
 	  thePeak      = arrayPeak[iii][i][j][k];
+	  thePeakMin   = arrayPeakMin[iii][i][j][k];
 	  meanPeak     = arrayOfPeak[iii][i][j][k] / evt;
 	  meanPeakSquare = arrayOfPeakSquare[iii][i][j][k] / evt;
 	  thePeakRMS   = sqrt(abs(meanPeakSquare - meanPeak*meanPeak));
 	  newPeakRMS[fff] = thePeakRMS;
 	  newPeak[fff] = thePeak;
+	  newPeakMin[fff] = thePeakMin;
 	  
 	  theSumFive = arraySumFive[iii][i][j][k];
 	  newSumFive[fff]=theSumFive;
@@ -642,6 +649,13 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  if(maxRMS<theRMS){
 	    maxRMS=theRMS;
 	  }
+	  
+	  if(maxPeakTime<the_peakTime){
+	    maxPeakTime=the_peakTime;
+	  }
+	  if(minPeakTime>the_peakTime){
+	    minPeakTime=the_peakTime;
+	      }
 
 	  //introducing flags for RMS and baseline
 	  if (theRMS >1.5 && theRMS <6.0)  flagRMS = 1; // ok
@@ -651,13 +665,13 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  
 	  if (meanPedestal <50.)                         flagNoise = 2; // warning/failure too low pedestal 
 	  if (meanPedestal>50. && meanPedestal<200.)     flagNoise = 3; // warning low pedestal
-	  if (meanPedestal >1000. && meanPedestal<3000.) flagNoise = 4; // warning high pedestal
+	  if (meanPedestal >1000. && meanPedestal<3000.) flagNoise = 4; // warning high pedstal
 	  if (meanPedestal>3000.)                        flagNoise = 5; // warning/failure too high pedestal 
 	  if (meanPedestal>200. && meanPedestal<1000.)   flagNoise = 1; // ok
 
-	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" flagRMS "<<flagRMS<<std::endl;
-	  calib_evt.xtalk_slope_left  = xtalk_slope_left[iii][i][j][k];
-	  calib_evt.xtalk_slope_right = xtalk_slope_right[iii][i][j][k];
+	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<< "minADC of Max" << thePeakMin <<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" flagRMS "<<flagRMS<<std::endl;
+	  calib_evt.xtalk_slope_left  = xtalk_slope_left[iii][i][j][k]; 
+	  calib_evt.xtalk_slope_right = xtalk_slope_right[iii][i][j][k]; 
 	  calib_evt.xtalk_int_left    = xtalk_intercept_left[iii][i][j][k];
 	  calib_evt.xtalk_int_right   = xtalk_intercept_right[iii][i][j][k];
 	  calib_evt.xtalk_chi2_left   = xtalk_chi2_left[iii][i][j][k];
@@ -676,7 +690,11 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  calib_evt.sum               = newSumFive[fff];
 	  calib_evt.MaxPed[i]         = maxPed;
 	  calib_evt.MaxRMS[i]         = maxRMS;
-	  
+	  calib_evt.MaxPeakTime[i]    = maxPeakTime;
+	  calib_evt.MinPeakTime[i]    = minPeakTime;
+	  calib_evt.MaxPeakADC[i]     = newPeak[fff];
+	  calib_evt.MinPeakADC[i]     = newPeakMin[fff];
+
 	  calibtree.Fill();
 	  cn->obj[layer_id][k].resize(2);
 	  cn->obj[layer_id][k][0] = meanPedestal;

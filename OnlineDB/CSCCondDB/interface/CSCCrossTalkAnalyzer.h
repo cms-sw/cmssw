@@ -41,6 +41,10 @@ class TCalibCrossTalkEvt {
   Int_t flagNoise;
   Float_t MaxPed[9];
   Float_t MaxRMS[9];
+  Float_t MaxPeakTime[9];
+  Float_t MinPeakTime[9];
+  Float_t MaxPeakADC[9];
+  Float_t MinPeakADC[9];
 };
 
 class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
@@ -49,14 +53,14 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   ~CSCCrossTalkAnalyzer();
 
-#define CHAMBERS_xt 18
+#define CHAMBERS_xt 9
 #define LAYERS_xt 6
 #define STRIPS_xt 80
 #define TIMEBINS_xt 8
-#define DDU_xt 36
+#define DDU_xt 9
 #define TOTALSTRIPS_xt 480
 #define TOTALEVENTS_xt 320
-
+  //TH2F *g1=new TH2F("g1","Baseline RMS",100,0,80,100,0,200);
  private:
   int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
   int chamber,layer,reportedChambers,chamber_num,sector,record,NChambers ;
@@ -67,9 +71,10 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   int theadccountsc[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
   int theadccountsl[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
   int theadccountsr[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
-  float pedMean,pedMean1,time,max1,max2,aPeak,sumFive,maxRMS,maxPed;
+  float pedMean,pedMean1,time,max1,max2,min1, aPeak,sumFive,maxRMS,maxPed;
+  float maxPeakTime, minPeakTime, maxPeakADC, minPeakADC;
   float meanPedestal,meanPeak,meanPeakSquare,meanPedestalSquare,theRMS;
-  float thePeak,thePeakRMS,theSumFive,thePedestal,theRSquare;
+  float thePeak,thePeakMin, thePeakRMS,theSumFive,thePedestal,theRSquare;
   float thetime[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
   float xtalk_intercept_left[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
   float xtalk_intercept_right[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
@@ -84,6 +89,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   float arrayOfPedSquare[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
   float arrayPed[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
   float arrayPeak[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float arrayPeakMin[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
   float arrayOfPeak[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
   float arrayOfPeakSquare[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
   float arraySumFive[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
@@ -94,6 +100,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   float newRMS[TOTALSTRIPS_xt];
   float newPeakRMS[TOTALSTRIPS_xt];
   float newPeak[TOTALSTRIPS_xt];
+  float newPeakMin[TOTALSTRIPS_xt];
   float newSumFive[TOTALSTRIPS_xt];
   float new_xtalk_intercept_right[TOTALSTRIPS_xt];
   float new_xtalk_intercept_left[TOTALSTRIPS_xt];
