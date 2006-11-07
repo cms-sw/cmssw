@@ -8,7 +8,7 @@
  *  additional constraints on eta, phi, r or z are possible.
  *  Furthermore stores the 'selection' of selected AlignmentParameters.
  *
- *  $Date: 2006/11/03 16:46:57 $
+ *  $Date: 2006/11/07 10:22:56 $
  *  $Revision: 1.1 $
  *  (last update by $Author: flucke $)
  */
@@ -52,12 +52,12 @@ class AlignmentParameterSelector {
   /// (slices defined by vdouble 'etaRanges', 'phiRanges', 'zRanges' and 'rRanges',
   /// empty array means no restriction)
   void setGeometryCuts(const edm::ParameterSet &pSet);
-  /// add Alignables corresponding to predefined name, taking into account geometrical restrictions,
-  /// returns number of added alignables
-    unsigned int addSelection(const std::string &name, const std::vector<bool> &paramSel);
+  /// add Alignables corresponding to predefined name, taking into account geometrical restrictions
+  /// as defined in setSpecials, returns number of added alignables
+  unsigned int addSelection(const std::string &name, const std::vector<bool> &paramSel);
   /// as addSelection with one argument, but overwriting geometrical restrictions
-      unsigned int addSelection(const std::string &name, const std::vector<bool> &paramSel, 
-				const edm::ParameterSet &pSet);
+  unsigned int addSelection(const std::string &name, const std::vector<bool> &paramSel, 
+			    const edm::ParameterSet &pSet);
 
   /// true if geometrical restrictions in eta, phi, r, z not satisfied
   bool outsideRanges(const Alignable *alignable) const;
@@ -73,7 +73,7 @@ class AlignmentParameterSelector {
 
  protected:
   /// adding alignables which fulfil geometrical restrictions and special switches 
-   unsigned int add(const std::vector<Alignable*> &alignables, const std::vector<bool> &paramSel);
+  unsigned int add(const std::vector<Alignable*> &alignables, const std::vector<bool> &paramSel);
   /// some helper methods
   unsigned int addAllDets(const std::vector<bool> &paramSel);
   unsigned int addAllRods(const std::vector<bool> &paramSel);
@@ -97,6 +97,12 @@ class AlignmentParameterSelector {
   bool theSelLayers;
   int  theMinLayer;
   int  theMaxLayer;
+  /// Setting the special switches and returning input string, but after removing the 'special
+  /// indicators' from it. Known specials are:
+  /// "SS" anywhere in name: in TIB/TOB restrict to single sided Dets/Rods/Layers
+  /// "DS" anywhere in name: in TIB/TOB restrict to double sided Dets/Rods/Layers
+  /// "Layers14" at end of name: in TIB/TOB restrict to layers 1 to 4, similar for other digits
+  std::string setSpecials(const std::string &name);
 
 };
 #endif

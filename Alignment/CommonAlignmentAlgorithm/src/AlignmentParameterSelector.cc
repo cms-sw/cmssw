@@ -1,10 +1,12 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2006/11/03 16:46:58 $
+ *  $Date: 2006/11/07 10:22:56 $
  *  $Revision: 1.1 $
  *  (last update by $Author: flucke $)
  */
+
+#include <cctype>
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -21,9 +23,9 @@
 //________________________________________________________________________________
 AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTracker) :
   theTracker(aliTracker), theSelectedAlignables(), 
-  theRangesEta(), theRangesPhi(), theRangesR(), theRangesZ(),
-  theOnlyDS(false), theOnlySS(false), theSelLayers(false), theMinLayer(-1), theMaxLayer(999)
+  theRangesEta(), theRangesPhi(), theRangesR(), theRangesZ()
 {
+  this->setSpecials(""); // init theOnlyDS, theOnlySS, theSelLayers, theMinLayer, theMaxLayer
 }
 
 //________________________________________________________________________________
@@ -145,9 +147,11 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &name,
 }
 
 //________________________________________________________________________________
-unsigned int AlignmentParameterSelector::addSelection(const std::string &name, 
+unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInput, 
                                                       const std::vector<bool> &paramSel)
 {
+
+  const std::string name(this->setSpecials(nameInput)); // possibly changing name
 
   unsigned int numAli = 0;
 
@@ -159,45 +163,15 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &name,
   //
   // TIB+TOB
   //
-  else if (name == "BarrelRods")    numAli += this->add(theTracker->barrelRods(), paramSel);
-  else if (name == "BarrelDets")    numAli += this->add(theTracker->barrelGeomDets(), paramSel);
-  else if (name == "BarrelLayers")  numAli += this->add(theTracker->barrelLayers(), paramSel);
-  else if (name == "BarrelDSRods") {
-    theOnlyDS = true;
-    numAli += this->add(theTracker->barrelRods(), paramSel);
-    theOnlyDS = false;
-  } else if (name == "BarrelSSRods") {
-    theOnlySS = true;
-    numAli += this->add(theTracker->barrelRods(), paramSel);
-    theOnlySS = false;
-  } else if (name == "BarrelDSLayers") { // new
-    theOnlyDS = true;
-    numAli += this->add(theTracker->barrelLayers(), paramSel);
-    theOnlyDS = false;
-  } else if (name == "BarrelSSLayers") { // new
-    theOnlySS = true;
-    numAli += this->add(theTracker->barrelLayers(), paramSel);
-    theOnlySS = false;
-  } else if (name == "TOBDSRods") { // new for CSA06Selection
-    theOnlyDS = true; 
-    numAli += this->add(theTracker->outerBarrelRods(), paramSel);
-    theOnlyDS = false;
-  } else if (name == "TOBSSRodsLayers15") { // new for CSA06Selection
-    // FIXME: make Layers15 flexible
-    theSelLayers = theOnlySS = true; 
-    theMinLayer = 1;
-    theMaxLayer = 5; //  TOB outermost layer (6) kept fixed
-    numAli += this->add(theTracker->outerBarrelRods(), paramSel);
-    theSelLayers = theOnlySS = false;
-  } else if (name == "TIBDSDets") { // new for CSA06Selection
-    theOnlyDS = true; 
-    numAli += this->add(theTracker->innerBarrelGeomDets(), paramSel);
-    theOnlyDS = false;
-  } else if (name == "TIBSSDets") { // new for CSA06Selection
-    theOnlySS = true; 
-    numAli += this->add(theTracker->innerBarrelGeomDets(), paramSel);
-    theOnlySS = false;
-  }
+  else if (name == "BarrelRods")   numAli += this->add(theTracker->barrelRods(), paramSel);
+  else if (name == "BarrelDets")   numAli += this->add(theTracker->barrelGeomDets(), paramSel);
+  else if (name == "BarrelLayers") numAli += this->add(theTracker->barrelLayers(), paramSel);
+  else if (name == "TOBDets")      numAli += this->add(theTracker->outerBarrelGeomDets(), paramSel);
+  else if (name == "TOBRods")      numAli += this->add(theTracker->outerBarrelRods(), paramSel);
+  else if (name == "TOBLayers")    numAli += this->add(theTracker->outerBarrelLayers(), paramSel);
+  else if (name == "TIBDets")      numAli += this->add(theTracker->innerBarrelGeomDets(), paramSel);
+  else if (name == "TIBRods")      numAli += this->add(theTracker->innerBarrelRods(), paramSel);
+  else if (name == "TIBLayers")    numAli += this->add(theTracker->innerBarrelLayers(), paramSel);
   //
   // PXBarrel
   //
@@ -207,13 +181,6 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &name,
     numAli += this->add(theTracker->pixelHalfBarrelLadders(), paramSel);
   } else if (name == "PixelHalfBarrelLayers") {
     numAli += this->add(theTracker->pixelHalfBarrelLayers(), paramSel);
-  } else if (name == "PixelHalfBarrelLaddersLayers12") {
-    // FIXME: make Layers12 flexible
-    theSelLayers = true; 
-    theMinLayer = 1;
-    theMaxLayer = 2;
-    numAli += this->add(theTracker->pixelHalfBarrelLadders(), paramSel);
-    theSelLayers = false;
   }
   //
   // PXEndcap
@@ -275,11 +242,15 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &name,
     numAli += this->add(theTracker->TIDLayers(), paramSel);
     numAli += this->add(theTracker->endcapLayers(), paramSel);
   }
+  //
   // not found!
+  //
   else { // @SUB-syntax is not supported by exception, but anyway useful information... 
     throw cms::Exception("BadConfig") <<"@SUB=TrackerAlignmentSelector::addSelection"
 				      << ": Selection '" << name << "' invalid!";
   }
+
+  this->setSpecials(""); // reset
   
   return numAli;
 }
@@ -423,6 +394,54 @@ std::vector<bool> AlignmentParameterSelector::decodeParamSel(const std::string &
   }
 
   return result;
+}
+
+
+//________________________________________________________________________________
+std::string AlignmentParameterSelector::setSpecials(const std::string &name)
+{
+  // Use new string only, although direct erasing of found indicator causes problems for 'DSS',
+  // but 'DSS' makes absolutely no sense!
+  std::string newName(name); 
+
+  const std::string::size_type ss = newName.rfind("SS");
+  if (ss != std::string::npos) {
+    newName.erase(ss, 2); // 2: length of 'SS'
+    theOnlySS = true;
+  } else {
+    theOnlySS = false;
+  }
+
+  const std::string::size_type ds = newName.rfind("DS");
+  if (ds != std::string::npos) {
+    newName.erase(ds, 2); // 2: length of 'DS'
+    theOnlyDS = true;
+  } else {
+    theOnlyDS = false;
+  }
+  
+  const std::string::size_type size = newName.size();
+  const std::string::size_type layers = newName.rfind("Layers");
+  if (layers != std::string::npos && size - layers - 2 == 6 // 2 digits, 6: length of 'Layers'
+      && isdigit(newName[size-1]) && isdigit(newName[size-2])) {
+    theSelLayers = true;
+    theMinLayer = newName[size-2] - '0';
+    theMaxLayer = newName[size-1] - '0';
+    newName.erase(layers);
+  } else {
+    theSelLayers = false;
+    theMinLayer = -1;
+    theMaxLayer = 99999;
+  }
+
+  if (newName != name) {
+    LogDebug("Alignment") << "@SUB=AlignmentParameterSelector::setSpecials"
+                          << name << " makes theOnlySS " << theOnlySS
+                          << ", theOnlyDS " << theOnlyDS << ", theSelLayers " << theSelLayers
+                          << ", theMinLayer " << theMinLayer << ", theMaxLayer " << theMaxLayer;
+  }
+
+  return newName;
 }
 
 //________________________________________________________________________________
