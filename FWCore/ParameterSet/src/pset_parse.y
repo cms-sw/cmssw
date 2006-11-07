@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.47 2006/09/21 18:46:48 rpw Exp $
+ * $Id: pset_parse.y,v 1.48 2006/09/21 19:41:45 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -586,6 +586,8 @@ anyproducttag:   PRODUCTTAG_tok
                    DBPRINT("anyproducttag: LETTERSTART");
                    $<str>$ = $<str>1;
                  }
+               |
+                 SOURCE_tok
                ;
 
 replaceEntry:    VALUE_tok
