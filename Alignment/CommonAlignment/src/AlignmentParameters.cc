@@ -26,16 +26,16 @@ AlignmentParameters::AlignmentParameters(Alignable* object, const AlgebraicVecto
 {
 
   if ( par.num_row() != cov.num_row() )
-	throw cms::Exception("LogicError") << "Size mismatch in constructor";
-  
+    throw cms::Exception("LogicError") << "@SUB=AlignmentParameters::AlignmentParameters "
+                                       << "Size mismatch: parameter size " << par.num_row() 
+                                       << ", covariance size " << cov.num_row() << ".";
 }
 
 
 //__________________________________________________________________________________________________
-AlignmentParameters::AlignmentParameters(Alignable* object, 
-										 const AlgebraicVector& par, 
-										 const AlgebraicSymMatrix& cov, 
-										 const std::vector<bool>& sel) :
+AlignmentParameters::AlignmentParameters(Alignable* object, const AlgebraicVector& par, 
+                                         const AlgebraicSymMatrix& cov, 
+                                         const std::vector<bool>& sel) :
   theAlignable(object),
   theParameters(par),
   theCovariance(cov),
@@ -44,8 +44,10 @@ AlignmentParameters::AlignmentParameters(Alignable* object,
 {  
 
   if ( (par.num_row() != cov.num_row()) || (par.num_row() != static_cast<int>(sel.size())) )
-	throw cms::Exception("LogicError") << "Size mismatch in constructor";
-
+    throw cms::Exception("LogicError") << "@SUB=AlignmentParameters::AlignmentParameters "
+                                       << "Size mismatch: parameter size " << par.num_row() 
+                                       << ", covariance size " << cov.num_row()
+                                       << ", selection size " << sel.size() << ".";
 }
 
 
@@ -152,8 +154,8 @@ void AlignmentParameters::setValid(bool v)
 
 //__________________________________________________________________________________________________
 AlgebraicSymMatrix 
-AlignmentParameters::collapseSymMatrix(const AlgebraicSymMatrix& m, 
-									   const std::vector<bool>& sel ) const
+AlignmentParameters::collapseSymMatrix(const AlgebraicSymMatrix& m,
+                                       const std::vector<bool>& sel ) const
 {
 
   int nRows = m.num_row();
@@ -161,18 +163,18 @@ AlignmentParameters::collapseSymMatrix(const AlgebraicSymMatrix& m,
 
   // Check size matching
   if ( nRows != size ) 
-	throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters";
 
   // If OK, continue
   std::vector<int> rowvec;
   for ( int i=0; i<nRows; i++ ) 
-	if ( sel[i] ) rowvec.push_back(i);
+    if ( sel[i] ) rowvec.push_back(i);
  
   int nSelectedRows = rowvec.size();
   AlgebraicSymMatrix result( nSelectedRows, 0 );
   for (int i=0; i<nSelectedRows; i++) 
-	for (int j=0; j<nSelectedRows; j++)
-	  result[i][j] = m[ rowvec[i] ][ rowvec[j] ];
+    for (int j=0; j<nSelectedRows; j++)
+      result[i][j] = m[ rowvec[i] ][ rowvec[j] ];
 
   return result;
 
@@ -181,7 +183,7 @@ AlignmentParameters::collapseSymMatrix(const AlgebraicSymMatrix& m,
 
 //__________________________________________________________________________________________________
 AlgebraicVector AlignmentParameters::collapseVector(const AlgebraicVector& m, 
-													const std::vector<bool>& sel ) const
+                                                    const std::vector<bool>& sel ) const
 {
 
   int nRows = m.num_row();
@@ -189,17 +191,17 @@ AlgebraicVector AlignmentParameters::collapseVector(const AlgebraicVector& m,
 
   // Check size matching
   if ( nRows != size ) 
-	throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters";
 
   // If OK, continue
   std::vector<int> rowvec;
   for ( int i=0; i<nRows; i++ ) 
-	if ( sel[i] ) rowvec.push_back(i);
+    if ( sel[i] ) rowvec.push_back(i);
 
   int nSelectedRows=rowvec.size();
   AlgebraicVector result( nSelectedRows, 0 );
   for ( int i=0; i<nSelectedRows; i++ )
-	result[i] = m[ (int)rowvec[i] ];
+    result[i] = m[ (int)rowvec[i] ];
 
   return result;
 
@@ -208,7 +210,7 @@ AlgebraicVector AlignmentParameters::collapseVector(const AlgebraicVector& m,
 
 //__________________________________________________________________________________________________
 AlgebraicSymMatrix AlignmentParameters::expandSymMatrix(const AlgebraicSymMatrix& m, 
-														const std::vector<bool>& sel) const
+                                                        const std::vector<bool>& sel) const
 {
 
   int nRows = m.num_row();
@@ -216,25 +218,25 @@ AlgebraicSymMatrix AlignmentParameters::expandSymMatrix(const AlgebraicSymMatrix
 
   std::vector<int> rowvec;
   for ( int i=0; i<size; i++ ) 
-	if ( sel[i] ) rowvec.push_back(i);
+    if ( sel[i] ) rowvec.push_back(i);
 
   // Check size matching
   if( nRows != static_cast<int>(rowvec.size()) ) 
-	throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters";
 
   // If OK, continue
   AlgebraicSymMatrix result(size,0);
   for ( int i=0; i<nRows; i++ )
-	for (int j=0; j<nRows; j++)
-	  result[ rowvec[i] ][ rowvec[j] ] = m[i][j];
-  return result;
+    for (int j=0; j<nRows; j++)
+      result[ rowvec[i] ][ rowvec[j] ] = m[i][j];
 
+  return result;
 }
 
 
 //__________________________________________________________________________________________________
 AlgebraicVector AlignmentParameters::expandVector(const AlgebraicVector& m, 
-												  const std::vector<bool>& sel) const
+                                                  const std::vector<bool>& sel) const
 {
 
   int nRows = m.num_row();
@@ -242,11 +244,11 @@ AlgebraicVector AlignmentParameters::expandVector(const AlgebraicVector& m,
 
   std::vector<int> rowvec;
   for ( int i=0; i<size; i++ ) 
-	if (sel[i]==true) rowvec.push_back(i);
+    if (sel[i]==true) rowvec.push_back(i);
 
   // Check size matching
   if( nRows != static_cast<int>(rowvec.size()) ) 
-	throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters";
 
   // If OK, continue
   AlgebraicVector result(size,0);
