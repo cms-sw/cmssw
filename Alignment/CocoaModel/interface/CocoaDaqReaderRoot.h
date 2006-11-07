@@ -3,11 +3,11 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "Alignment/CocoaDaq/interface/CocoaDaqReader.h"
-class AlignmentEvent;
-class Position2D;
-class Position4x1D;
-class Tilt1D;
-class Distance;
+class CocoaDaqRootEvent;
+class AliDaqPosition2D;
+class AliDaqPositionCOPS;
+class AliDaqTilt;
+class AliDaqDistance;
 class OpticalAlignMeasurementInfo;
 
 class CocoaDaqReaderRoot : public CocoaDaqReader {
@@ -21,13 +21,13 @@ class CocoaDaqReaderRoot : public CocoaDaqReader {
  public:
   int GetNEvents() const { return nev; }
  private:
-  OpticalAlignMeasurementInfo GetMeasFromPosition2D( Position2D* pos2D );
-  OpticalAlignMeasurementInfo GetMeasFromPosition4x1D( Position4x1D* pos4x1D );
-  OpticalAlignMeasurementInfo GetMeasFromTilt1D( Tilt1D* tilt1D );
-  OpticalAlignMeasurementInfo GetMeasFromDist( Distance* dist );
+  OpticalAlignMeasurementInfo GetMeasFromPosition2D( AliDaqPosition2D* pos2D );
+  OpticalAlignMeasurementInfo GetMeasFromPositionCOPS( AliDaqPositionCOPS* posCOPS );
+  OpticalAlignMeasurementInfo GetMeasFromTilt( AliDaqTilt* tilt );
+  OpticalAlignMeasurementInfo GetMeasFromDist( AliDaqDistance* dist );
 
   private:
- AlignmentEvent *theEvent;
+ CocoaDaqRootEvent *theEvent;
  TFile* theFile;
  TTree* theTree;
  int nev;
