@@ -673,7 +673,7 @@
 </PosPartSection>
 
 <Algorithm name="hcal:DDHCalAngular">
-   <rParent name="cms:MBWheel_0"/>
+   <rParent name="muonBase:MBWheel_0"/>
    <String  name="ChildName"    value="MBAT"/>
    <String  name="RotNameSpace" value="hcalrotations"/>
    <Numeric name="n"            value="12" />
@@ -686,7 +686,7 @@
    <Numeric name="zoffset"      value="0*fm"/>
 </Algorithm>
 <Algorithm name="hcal:DDHCalAngular">
-   <rParent name="cms:MBWheel_0"/>
+   <rParent name="muonBase:MBWheel_0"/>
    <String  name="ChildName"    value="MBBT"/>
    <String  name="RotNameSpace" value="hcalrotations"/>
    <Numeric name="n"            value="12" />
@@ -699,7 +699,7 @@
    <Numeric name="zoffset"      value="0*fm"/>
 </Algorithm>
 <Algorithm name="hcal:DDHCalAngular">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <String  name="ChildName"    value="MBBT"/>
    <String  name="RotNameSpace" value="hcalrotations"/>
    <Numeric name="n"            value="3" />
@@ -712,7 +712,7 @@
    <Numeric name="zoffset"      value="0*fm"/>
 </Algorithm>
 <Algorithm name="hcal:DDHCalAngular">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <String  name="ChildName"    value="MBBT_R1P"/>
    <String  name="RotNameSpace" value="hcalrotations"/>
    <Numeric name="n"            value="1" />
@@ -725,7 +725,7 @@
    <Numeric name="zoffset"      value="0*fm"/>
 </Algorithm>
 <Algorithm name="hcal:DDHCalAngular">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <String  name="ChildName"    value="MBBT"/>
    <String  name="RotNameSpace" value="hcalrotations"/>
    <Numeric name="n"            value="8" />
@@ -738,7 +738,7 @@
    <Numeric name="zoffset"      value="0*fm"/>
 </Algorithm>
 <Algorithm name="hcal:DDHCalAngular">
-   <rParent name="cms:MBWheel_2P"/>
+   <rParent name="muonBase:MBWheel_2P"/>
    <String  name="ChildName"    value="MBBT"/>
    <String  name="RotNameSpace" value="hcalrotations"/>
    <Numeric name="n"            value="12" />
@@ -751,7 +751,7 @@
    <Numeric name="zoffset"      value="0*fm"/>
 </Algorithm>
 <Algorithm name="hcal:DDHCalAngular">
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
    <String  name="ChildName"    value="MBBT"/>
    <String  name="RotNameSpace" value="hcalrotations"/>
    <Numeric name="n"            value="2" />
@@ -764,7 +764,7 @@
    <Numeric name="zoffset"      value="0*fm"/>
 </Algorithm>
 <Algorithm name="hcal:DDHCalAngular">
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
    <String  name="ChildName"    value="MBBT_R1M"/>
    <String  name="RotNameSpace" value="hcalrotations"/>
    <Numeric name="n"            value="1" />
@@ -777,7 +777,7 @@
    <Numeric name="zoffset"      value="0*fm"/>
 </Algorithm>
 <Algorithm name="hcal:DDHCalAngular">
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
    <String  name="ChildName"    value="MBBT"/>
    <String  name="RotNameSpace" value="hcalrotations"/>
    <Numeric name="n"            value="9" />
@@ -790,7 +790,7 @@
    <Numeric name="zoffset"      value="0*fm"/>
 </Algorithm>
 <Algorithm name="hcal:DDHCalAngular">
-   <rParent name="cms:MBWheel_2N"/>
+   <rParent name="muonBase:MBWheel_2N"/>
    <String  name="ChildName"    value="MBBT"/>
    <String  name="RotNameSpace" value="hcalrotations"/>
    <Numeric name="n"            value="12" />

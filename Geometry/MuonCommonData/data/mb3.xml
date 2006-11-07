@@ -574,7 +574,7 @@
 <!-- ####  MB3: DTBX chamber -->
 
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_0"/>
+   <rParent name="muonBase:MBWheel_0"/>
    <rChild name="mb3:MB3N"/>
    <ParE name="startCopyNo" value="1" />
    <ParE name="incrCopyNo" value="4" />
@@ -595,7 +595,7 @@
    <ParE name="rotateSolid" value="270.*deg-[MB3PosAngle]"/>
   </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_0"/>
+   <rParent name="muonBase:MBWheel_0"/>
    <rChild name="mb3:MB3P"/>
    <ParE name="startCopyNo" value="2" />
    <ParE name="incrCopyNo" value="4" />
@@ -613,7 +613,7 @@
    <ParE name="rotateSolid" value="270.*deg-[MB3PosAngle]"/>
   </AlgoPosPart>
   <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_0"/>
+   <rParent name="muonBase:MBWheel_0"/>
    <rChild name="mb3:MB3P"/>
    <ParE name="startCopyNo" value="3" />
    <ParE name="incrCopyNo" value="4" />
@@ -631,7 +631,7 @@
    <ParE name="rotateSolid" value="270.*deg-[MB3PosAngle]"/>
   </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="cms:MBWheel_0"/>
+  <rParent name="muonBase:MBWheel_0"/>
    <rChild name="mb3:MB3N"/>
    <ParE name="startCopyNo" value="4" />
    <ParE name="incrCopyNo" value="4" />
@@ -654,31 +654,31 @@
 
 
  <PosPart copyNumber="1">
-  <rParent name="cms:MBWheel_1P"/>
+  <rParent name="muonBase:MBWheel_1P"/>
   <rChild name="mb3:MB3P"/>
   <rRotation name="rotations:RM1872"/>
   <Translation x="[MB3UnitRadius]*cos([MB3PosAngle])" y="[MB3UnitRadius]*sin([MB3PosAngle])" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="2">
-  <rParent name="cms:MBWheel_1P"/>
+  <rParent name="muonBase:MBWheel_1P"/>
   <rChild name="mb3:MB3P"/>
   <rRotation name="rotations:RM1882"/>
   <Translation x="[MB3UnitRadius]*cos([MB3PosAngle]+30*deg)" y="[MB3UnitRadius]*sin([MB3PosAngle]+30*deg)" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="3">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <rChild name="mb3:MB3P"/>
   <rRotation name="rotations:RM1892"/>
   <Translation x="[MB3UnitRadius]*cos([MB3PosAngle]+60*deg)" y="[MB3UnitRadius]*sin([MB3PosAngle]+60*deg)" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="4">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <rChild name="mb3:MB3ChimP"/>
   <rRotation name="rotations:RM1902"/>
   <Translation x="[MB3UnitRadius]*cos([MB3PosAngle]+90*deg)" y="[MB3UnitRadius]*sin([MB3PosAngle]+90*deg)" z="[mbCommon:MBChimPos_z]" />
  </PosPart>
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <rChild name="mb3:MB3P"/>
    <ParE name="startCopyNo" value="5" />
    <ParE name="incrCopyNo" value="1" />
@@ -698,25 +698,25 @@
   </AlgoPosPart>
 
   <PosPart copyNumber="1">
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
    <rChild name="mb3:MB3N"/>
    <rRotation name="rotations:E127"/>
    <Translation x="[MB3UnitRadius]*cos([MB3PosAngle])" y="[MB3UnitRadius]*sin([MB3PosAngle])" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="2">
-  <rParent name="cms:MBWheel_1N"/>
+  <rParent name="muonBase:MBWheel_1N"/>
   <rChild name="mb3:MB3N"/>
   <rRotation name="rotations:MM200"/>
   <Translation x="[MB3UnitRadius]*cos([MB3PosAngle]+30.*deg)" y="[MB3UnitRadius]*sin([MB3PosAngle]+30.*deg)" z="[mbCommon:MBPos_z]" />
  </PosPart> 
  <PosPart copyNumber="3">
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
    <rChild name="mb3:MB3ChimN"/>
   <rRotation name="rotations:MM300"/>
   <Translation x="[MB3UnitRadius]*cos([MB3PosAngle]+60.*deg)" y="[MB3UnitRadius]*sin([MB3PosAngle]+60.*deg)" z="-[mbCommon:MBChimPos_z]" />
  </PosPart>
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
    <rChild name="mb3:MB3N"/>
    <ParE name="startCopyNo" value="4" />
    <ParE name="incrCopyNo" value="1" />
@@ -739,7 +739,7 @@
   </AlgoPosPart>
 
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_2P"/>
+   <rParent name="muonBase:MBWheel_2P"/>
    <rChild name="mb3:MB3P"/>
    <ParE name="startCopyNo" value="1" />
    <ParE name="incrCopyNo" value="1" />
@@ -758,7 +758,7 @@
   </AlgoPosPart>
 
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_2N"/>
+   <rParent name="muonBase:MBWheel_2N"/>
    <rChild name="mb3:MB3N"/>
    <ParE name="startCopyNo" value="1" />
    <ParE name="incrCopyNo" value="1" />

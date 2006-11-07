@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+  
+<SpecParSection label="trackerProdCuts.xml" eval="true">
+  <SpecPar name="BeamPipe">
+    <PartSelector path="//BEAM" />
+    <Parameter name="CMSCutsRegion" value="BeamPipe" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
+    <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
+  </SpecPar>
+
+  <SpecPar name="BeamPipeNotBeryllium">
+    <PartSelector path="//BEAM" />
+    <Parameter name="CMSCutsRegion" value="BeamPipeInternal" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
+    <Parameter name="ProdCutsForGamma" value="10000*mm"/>
+  </SpecPar>
+
+</SpecParSection>
+
+</DDDefinition>
+
+

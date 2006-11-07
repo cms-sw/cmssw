@@ -264,14 +264,6 @@
 <LogicalPartSection label="mb2.xml">
 <!-- ####  MB2 Unit -->
 <!-- ####  MB2: DTBX -->
- <LogicalPart name="MB2P" category="unspecified">
-  <rSolid name="MB2P"/>
-  <rMaterial name="materials:M_B_Air"/>
- </LogicalPart>
- <LogicalPart name="MB2N" category="unspecified">
-  <rSolid name="MB2N"/>
-  <rMaterial name="materials:M_B_Air"/>
- </LogicalPart>
 <!-- # There are several combinations of DT and RPC chambers for this station: mixing DT positive and negative and RPC positive with 3 gas volumes inner and 2 outer, positive with 2 gas volumes inner and 2 outer, negative with 3 gas volumes inner and 2 outer, negative with 2 gas volumes inner and 2 outer
 Wheel_0:  DT pos, RPC pos 3/2  -  MB2P32P
 Wheel_0:  DT neg, RPC pos 3/2  -  MB2N32P
@@ -655,7 +647,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
 <!-- ####  MB2: DTBX chamber -->
 
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_0"/>
+   <rParent name="muonBase:MBWheel_0"/>
    <rChild name="mb2:MB2N32P"/>
    <ParE name="startCopyNo" value="1" />
    <ParE name="incrCopyNo" value="4" />
@@ -676,7 +668,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
    <ParE name="rotateSolid" value="270.*deg-[MB2PosAngle]"/>
   </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_0"/>
+   <rParent name="muonBase:MBWheel_0"/>
    <rChild name="mb2:MB2P32P"/>
    <ParE name="startCopyNo" value="2" />
    <ParE name="incrCopyNo" value="4" />
@@ -694,7 +686,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
    <ParE name="rotateSolid" value="270.*deg-[MB2PosAngle]"/>
   </AlgoPosPart>
   <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_0"/>
+   <rParent name="muonBase:MBWheel_0"/>
    <rChild name="mb2:MB2P32P"/>
    <ParE name="startCopyNo" value="3" />
    <ParE name="incrCopyNo" value="4" />
@@ -712,7 +704,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
    <ParE name="rotateSolid" value="270.*deg-[MB2PosAngle]"/>
   </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="cms:MBWheel_0"/>
+  <rParent name="muonBase:MBWheel_0"/>
    <rChild name="mb2:MB2N32P"/>
    <ParE name="startCopyNo" value="4" />
    <ParE name="incrCopyNo" value="4" />
@@ -735,31 +727,31 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
 
 
  <PosPart copyNumber="1">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <rChild name="mb2:MB2P32P"/>
   <rRotation name="rotations:RM1872"/>
   <Translation x="[MB2Pos_x]" y="[MB2Pos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="2">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <rChild name="mb2:MB2P32P"/>
   <rRotation name="rotations:RM1882"/>
   <Translation x="[MB2Pos_x]*0.86602543*mm-[MB2Pos_y]*0.5*mm" y="[MB2Pos_x]*0.5*mm+[MB2Pos_y]*0.86602543*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="3">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <rChild name="mb2:MB2P32P"/>
   <rRotation name="rotations:RM1892"/>
   <Translation x="[MB2Pos_x]*0.5*mm-[MB2Pos_y]*0.86602543*mm" y="[MB2Pos_x]*0.86602543*mm+[MB2Pos_y]*0.5*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="4">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <rChild name="mb2:MB2ChimP"/>
   <rRotation name="rotations:RM1902"/>
   <Translation x="-[MB2Pos_y]" y="[MB2Pos_x]" z="[mbCommon:MBChimPos_z]" />
  </PosPart>
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
    <rChild name="mb2:MB2P32P"/>
    <ParE name="startCopyNo" value="5" />
    <ParE name="incrCopyNo" value="1" />
@@ -779,25 +771,25 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
   </AlgoPosPart>
 
   <PosPart copyNumber="1">
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
    <rChild name="mb2:MB2N32N"/>
   <rRotation name="rotations:E127"/>
   <Translation x="[MB2Pos_x]" y="[MB2Pos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="2">
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
    <rChild name="mb2:MB2N32N"/>
   <rRotation name="rotations:MM200"/>
   <Translation x="[MB2Pos_x]*0.86602543*mm-[MB2Pos_y]*0.5*mm" y="[MB2Pos_x]*0.5*mm+[MB2Pos_y]*0.86602543*mm" z="[mbCommon:MBPos_z]" />
  </PosPart> 
  <PosPart copyNumber="3">
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
    <rChild name="mb2:MB2ChimN"/>
   <rRotation name="rotations:MM300"/>
   <Translation x="[MB2Pos_x]*0.5*mm-[MB2Pos_y]*0.86602543*mm" y="[MB2Pos_x]*0.86602543*mm+[MB2Pos_y]*0.5*mm" z="-[mbCommon:MBChimPos_z]" />
  </PosPart>
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
    <rChild name="mb2:MB2N32N"/>
    <ParE name="startCopyNo" value="4" />
    <ParE name="incrCopyNo" value="1" />
@@ -820,7 +812,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
   </AlgoPosPart>
 
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_2P"/>
+   <rParent name="muonBase:MBWheel_2P"/>
    <rChild name="mb2:MB2P23P"/>
    <ParE name="startCopyNo" value="1" />
    <ParE name="incrCopyNo" value="1" />
@@ -839,7 +831,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
   </AlgoPosPart>
 
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_2N"/>
+   <rParent name="muonBase:MBWheel_2N"/>
    <rChild name="mb2:MB2N23N"/>
    <ParE name="startCopyNo" value="1" />
    <ParE name="incrCopyNo" value="1" />

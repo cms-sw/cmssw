@@ -29,23 +29,6 @@
   </SpecPar>
 
 
-
-  <SpecPar name="BeamPipe">
-    <PartSelector path="//BEAM" />
-    <Parameter name="CMSCutsRegion" value="BeamPipe" eval="false"/>
-    <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
-    <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
-    <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
-  </SpecPar>
-
-  <SpecPar name="BeamPipeNotBeryllium">
-    <PartSelector path="//BEAM" />
-    <Parameter name="CMSCutsRegion" value="BeamPipeInternal" eval="false"/>
-    <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
-    <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
-    <Parameter name="ProdCutsForGamma" value="10000*mm"/>
-  </SpecPar>
-
   <SpecPar name="TIB_Ledge_Side_Prod_Cuts">
     <PartSelector path="//TIBModCoolSide" />
     <Parameter name="CMSCutsRegion" value="TIB_Ledge_Side_ProdCuts" eval="false"/>

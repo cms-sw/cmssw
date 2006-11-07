@@ -1,4 +1,7 @@
 <?xml version="1.0"?>
+<!-- 2006-09-19 Michael Case:  As per Sunanda Banerjee's request, this file
+     should be kept around for background studies. 
+-->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="cavern.xml" eval="true">

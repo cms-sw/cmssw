@@ -1449,7 +1449,7 @@
   <ParE name="center" value="10.73*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.771*deg"/> 
@@ -1463,7 +1463,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_b4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.771*deg"/> 
@@ -1477,7 +1477,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.8778*deg"/> 
@@ -1491,7 +1491,7 @@
   <ParE name="center" value="0.62495*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_b5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.8778*deg"/> 
@@ -1505,7 +1505,7 @@
   <ParE name="center" value="-0.62495*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="348.0669*deg"/> 
@@ -1519,7 +1519,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.771*deg"/> 
@@ -1533,7 +1533,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.771*deg"/> 
@@ -1547,7 +1547,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="7.9027*deg"/> 
@@ -1561,7 +1561,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="7.9027*deg"/> 
@@ -1575,7 +1575,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="4.294*deg"/> 
@@ -1589,7 +1589,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b3"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -1604,7 +1604,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -1619,13 +1619,13 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1Chim_w1N_b3"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="4.67312*m*cos(64.294*deg)" y="4.67312*m*sin(64.294*deg)" z="1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="3"/> 
@@ -1640,7 +1640,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b4"/> 
   <ParE name="startCopyNo" value="5" />
   <ParE name="n" value="8"/> 
@@ -1655,7 +1655,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -1670,7 +1670,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -1685,7 +1685,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="355.706*deg"/> 
@@ -1699,7 +1699,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b5"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -1714,7 +1714,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b5"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9 "/> 
@@ -1729,13 +1729,13 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1Chim_w1N_b5"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="4.67312*m*cos(55.706*deg)" y="4.67312*m*sin(55.706*deg)" z="1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="352.9603*deg"/> 
@@ -1749,7 +1749,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="352.9603*deg"/> 
@@ -1763,7 +1763,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b7"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.8778*deg"/> 
@@ -1777,7 +1777,7 @@
   <ParE name="center" value="0.186*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b7"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.8778*deg"/> 
@@ -1791,7 +1791,7 @@
   <ParE name="center" value="-0.186*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_b8"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="348.0669*deg"/> 
@@ -1805,7 +1805,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_b8"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="348.0669*deg"/> 
@@ -1819,7 +1819,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB1_w2P_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.771*deg"/> 
@@ -1833,7 +1833,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB1_w2N_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.771*deg"/> 
@@ -1847,7 +1847,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB1_w2P_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.8778*deg"/> 
@@ -1861,7 +1861,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB1_w2N_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.8778*deg"/> 
@@ -1875,7 +1875,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB1_w2P_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="348.0669*deg"/> 
@@ -1889,7 +1889,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB1_w2N_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="348.0669*deg"/> 
@@ -1903,7 +1903,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1917,7 +1917,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_m2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1931,7 +1931,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="10.132*deg"/> 
@@ -1945,7 +1945,7 @@
   <ParE name="center" value="-1.073*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="10.132*deg"/> 
@@ -1959,7 +1959,7 @@
   <ParE name="center" value="1.073*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_m2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="4.1649*deg"/> 
@@ -1973,7 +1973,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_m2"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -1988,7 +1988,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_m2"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -2003,13 +2003,13 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1Chim_w1N_m2"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="4.81772*m*cos(64.1649*deg)" y="4.81772*m*sin(64.1649*deg)" z="1.0729*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_m3"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="3"/> 
@@ -2024,7 +2024,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_m3"/> 
   <ParE name="startCopyNo" value="5" />
   <ParE name="n" value="8"/> 
@@ -2039,13 +2039,13 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="4">
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1Chim_w1P_m3"/> 
   <rRotation name="rotations:000D"/>
   <Translation x="4.805*m*cos(90.*deg)" y="4.805*m*sin(90.*deg)" z="-1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_m3"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -2060,7 +2060,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_m3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -2075,13 +2075,13 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1Chim_w1N_m3"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="4.805*m*cos(60*deg)" y="4.805*m*sin(60*deg)" z="1.0729*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_m4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="355.8351*deg"/> 
@@ -2095,7 +2095,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_m4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -2110,7 +2110,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_m4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -2125,13 +2125,13 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1Chim_w1N_m4"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="4.81772*m*cos(55.8351*deg)" y="4.81772*m*sin(55.8351*deg)" z="1.0729*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_m5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="349.8677*deg"/> 
@@ -2145,7 +2145,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_m5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="349.8677*deg"/> 
@@ -2159,7 +2159,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1_w1P_m6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -2173,7 +2173,7 @@
   <ParE name="center" value="0.195*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB1_w1N_m6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -2187,7 +2187,7 @@
   <ParE name="center" value="-0.195*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB1_w2P_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -2201,7 +2201,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB1_w2N_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -2215,7 +2215,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YBSepar2_w0_1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.776*deg"/> 
@@ -2229,7 +2229,7 @@
   <ParE name="center" value="0.63405*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YBSepar2_w0_2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.776*deg"/> 
@@ -2243,7 +2243,7 @@
   <ParE name="center" value="-0.63405*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YBSepar2_w1P"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.776*deg"/> 
@@ -2257,7 +2257,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YBSepar2_w1N"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.776*deg"/> 
@@ -2271,7 +2271,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YBSepar2_w2P"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.776*deg"/> 
@@ -2285,7 +2285,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YBSepar2_w2N"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="12.776*deg"/> 
@@ -2299,7 +2299,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.084*deg"/> 
@@ -2313,7 +2313,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_b4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.084*deg"/> 
@@ -2327,7 +2327,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.6287*deg"/> 
@@ -2341,7 +2341,7 @@
   <ParE name="center" value="0.62495*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_b5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.6287*deg"/> 
@@ -2355,7 +2355,7 @@
   <ParE name="center" value="-0.62495*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.5636*deg"/> 
@@ -2369,7 +2369,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_b6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.5636*deg"/> 
@@ -2383,7 +2383,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.085*deg"/> 
@@ -2397,7 +2397,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.085*deg"/> 
@@ -2411,7 +2411,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="7.8748*deg"/> 
@@ -2425,7 +2425,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="7.8748*deg"/> 
@@ -2439,7 +2439,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="3.7125*deg"/> 
@@ -2453,7 +2453,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <ParE name="startCopyNo" value="1" />
   <rChild name="YB2_w1N_b3"/> 
   <ParE name="n" value="2"/> 
@@ -2468,7 +2468,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <ParE name="startCopyNo" value="4" />
   <rChild name="YB2_w1N_b3"/> 
   <ParE name="n" value="9"/> 
@@ -2483,13 +2483,13 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_b3"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="5.40384*m*cos(63.7125*deg)" y="5.40384*m*sin(63.7125*deg)" z="1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="3"/> 
@@ -2504,7 +2504,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b4"/> 
   <ParE name="startCopyNo" value="5" />
   <ParE name="n" value="8"/> 
@@ -2519,7 +2519,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -2534,7 +2534,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -2549,7 +2549,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="356.2875*deg"/> 
@@ -2563,7 +2563,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b5"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -2578,7 +2578,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b5"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -2593,13 +2593,13 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_b5"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="5.40384*m*cos(56.2875*deg)" y="5.40384*m*sin(56.2875*deg)" z="1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="351.7612*deg"/> 
@@ -2613,7 +2613,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="351.7612*deg"/> 
@@ -2627,7 +2627,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b7"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.6287*deg"/> 
@@ -2641,7 +2641,7 @@
   <ParE name="center" value="0.186*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b7"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.6287*deg"/> 
@@ -2655,7 +2655,7 @@
   <ParE name="center" value="-0.186*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_b8"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.5636*deg"/> 
@@ -2669,7 +2669,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_b8"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.5636*deg"/> 
@@ -2683,7 +2683,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.085*deg"/> 
@@ -2697,7 +2697,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.085*deg"/> 
@@ -2711,7 +2711,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.6287*deg"/> 
@@ -2725,7 +2725,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.6287*deg"/> 
@@ -2739,7 +2739,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.5636*deg"/> 
@@ -2753,7 +2753,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.5636*deg"/> 
@@ -2767,7 +2767,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -2781,7 +2781,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_m2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -2795,7 +2795,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="9.7567*deg"/> 
@@ -2809,7 +2809,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="9.7567*deg"/> 
@@ -2823,7 +2823,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_m2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="3.5375*deg"/> 
@@ -2837,7 +2837,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_m2"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -2852,7 +2852,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_m2"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -2867,13 +2867,13 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_m2"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="5.67081*m*cos(63.5375*deg)" y="5.67081*m*sin(63.5375*deg)" z="1.0729*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_m3"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="3"/> 
@@ -2888,7 +2888,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_m3"/> 
   <ParE name="startCopyNo" value="5" />
   <ParE name="n" value="8"/> 
@@ -2903,13 +2903,13 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="4">
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2Chim_w1P_m3"/> 
   <rRotation name="rotations:000D"/>
   <Translation x="5.66*m*cos(90.*deg)" y="5.66*m*sin(90.*deg)" z="-1.0739*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_m3"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -2924,7 +2924,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_m3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -2939,13 +2939,13 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_m3"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="5.66*m*cos(60*deg)" y="5.66*m*sin(60*deg)" z="1.0729*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_m4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="356.4625*deg"/> 
@@ -2959,7 +2959,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_m4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -2974,7 +2974,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_m4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -2989,13 +2989,13 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_m4"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="5.67081*m*cos(56.4625*deg)" y="5.67081*m*sin(56.4625*deg)" z="1.0729*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_m5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="350.2433*deg"/> 
@@ -3009,7 +3009,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_m5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="350.2433*deg"/> 
@@ -3023,7 +3023,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_m6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -3037,7 +3037,7 @@
   <ParE name="center" value="0.195*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_m6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -3051,7 +3051,7 @@
   <ParE name="center" value="-0.195*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -3065,7 +3065,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -3079,7 +3079,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_t1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.399*deg"/> 
@@ -3093,7 +3093,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_t4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.399*deg"/> 
@@ -3107,7 +3107,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_t2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.5026*deg"/> 
@@ -3121,7 +3121,7 @@
   <ParE name="center" value="0.62495*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_t5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.5026*deg"/> 
@@ -3135,7 +3135,7 @@
   <ParE name="center" value="-0.62495*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_t3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="347.0778*deg"/> 
@@ -3149,7 +3149,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB2_w0_t6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="347.0778*deg"/> 
@@ -3163,7 +3163,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.399*deg"/> 
@@ -3177,7 +3177,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.399*deg"/> 
@@ -3191,7 +3191,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="7.9976*deg"/> 
@@ -3205,7 +3205,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="7.9976*deg"/> 
@@ -3219,7 +3219,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="3.3782*deg"/> 
@@ -3233,7 +3233,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t3"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -3248,7 +3248,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -3263,13 +3263,13 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_t3"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="5.93782*m*cos(63.3782*deg)" y="5.93782*m*sin(63.3782*deg)" z="1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="3"/> 
@@ -3284,7 +3284,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t4"/> 
   <ParE name="startCopyNo" value="5" />
   <ParE name="n" value="8"/> 
@@ -3299,7 +3299,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -3314,7 +3314,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -3329,7 +3329,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="356.6218*deg"/> 
@@ -3343,7 +3343,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t5"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -3358,7 +3358,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t5"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -3373,13 +3373,13 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2Chim_w1N_t5"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="5.93782*m*cos(56.6218*deg)" y="5.93782*m*sin(56.6218*deg)" z="1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="352.4959*deg"/> 
@@ -3393,7 +3393,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="352.4959*deg"/> 
@@ -3407,7 +3407,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t7"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.5026*deg"/> 
@@ -3421,7 +3421,7 @@
   <ParE name="center" value="0.186*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t7"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.5026*deg"/> 
@@ -3435,7 +3435,7 @@
   <ParE name="center" value="-0.186*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2_w1P_t8"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="347.0778*deg"/> 
@@ -3449,7 +3449,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB2_w1N_t8"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="347.0778*deg"/> 
@@ -3463,7 +3463,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_t1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.399*deg"/> 
@@ -3477,7 +3477,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_t1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.399*deg"/> 
@@ -3491,7 +3491,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_t2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.5026*deg"/> 
@@ -3505,7 +3505,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_t2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.5026*deg"/> 
@@ -3519,7 +3519,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB2_w2P_t3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="347.0778*deg"/> 
@@ -3533,7 +3533,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB2_w2N_t3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="347.0778*deg"/> 
@@ -3547,7 +3547,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YBSepar3_w0_1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.8409*deg"/> 
@@ -3561,7 +3561,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YBSepar3_w0_2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.8409*deg"/> 
@@ -3575,7 +3575,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YBSepar3_w1P"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.8409*deg"/> 
@@ -3589,7 +3589,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YBSepar3_w1N"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.8409*deg"/> 
@@ -3603,7 +3603,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YBSepar3_w2P"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.8409*deg"/> 
@@ -3617,7 +3617,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YBSepar3_w2N"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.8409*deg"/> 
@@ -3631,7 +3631,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.533*deg"/> 
@@ -3645,7 +3645,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_b4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.533*deg"/> 
@@ -3659,7 +3659,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.2228*deg"/> 
@@ -3673,7 +3673,7 @@
   <ParE name="center" value="0.62495*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_b5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.2228*deg"/> 
@@ -3687,7 +3687,7 @@
   <ParE name="center" value="-0.62495*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.6774*deg"/> 
@@ -3701,7 +3701,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_b6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.6774*deg"/> 
@@ -3715,7 +3715,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.533*deg"/> 
@@ -3729,7 +3729,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.533*deg"/> 
@@ -3743,7 +3743,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="7.9814*deg"/> 
@@ -3757,7 +3757,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="7.9814*deg"/> 
@@ -3771,7 +3771,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="3.1208*deg"/> 
@@ -3785,7 +3785,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b3"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -3800,7 +3800,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -3815,13 +3815,13 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_b3"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="6.42703*m*cos(63.1208*deg)" y="6.42703*m*sin(63.1208*deg)" z="1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="3"/> 
@@ -3836,7 +3836,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b4"/> 
   <ParE name="startCopyNo" value="5" />
   <ParE name="n" value="8"/> 
@@ -3851,7 +3851,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -3866,7 +3866,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -3881,7 +3881,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="356.8792*deg"/> 
@@ -3895,7 +3895,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b5"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -3910,7 +3910,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b5"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -3925,13 +3925,13 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_b5"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="6.42703*m*cos(56.8792*deg)" y="6.42703*m*sin(56.8792*deg)" z="1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="352.2371*deg"/> 
@@ -3945,7 +3945,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="352.2371*deg"/> 
@@ -3959,7 +3959,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b7"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.2228*deg"/> 
@@ -3973,7 +3973,7 @@
   <ParE name="center" value="0.186*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b7"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.2228*deg"/> 
@@ -3987,7 +3987,7 @@
   <ParE name="center" value="-0.186*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_b8"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.6774*deg"/> 
@@ -4001,7 +4001,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_b8"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.6774*deg"/> 
@@ -4015,7 +4015,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB3_w2P_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.542*deg"/> 
@@ -4029,7 +4029,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB3_w2N_b1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.542*deg"/> 
@@ -4043,7 +4043,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB3_w2P_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.2234*deg"/> 
@@ -4057,7 +4057,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB3_w2N_b2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0.2234*deg"/> 
@@ -4071,7 +4071,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB3_w2P_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.6774*deg"/> 
@@ -4085,7 +4085,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB3_w2N_b3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.6774*deg"/> 
@@ -4099,7 +4099,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -4113,7 +4113,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_m2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -4127,7 +4127,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="9.4324*deg"/> 
@@ -4141,7 +4141,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="9.4324*deg"/> 
@@ -4155,7 +4155,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_m2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="2.9962*deg"/> 
@@ -4169,7 +4169,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_m2"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -4184,7 +4184,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_m2"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -4199,13 +4199,13 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_m2"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="6.69415*m*cos(62.9962*deg)" y="6.69415*m*sin(62.9962*deg)" z="1.0729*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_m3"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="3"/> 
@@ -4220,7 +4220,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_m3"/> 
   <ParE name="startCopyNo" value="8" />
   <ParE name="n" value="8"/> 
@@ -4235,13 +4235,13 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="4">
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3Chim_w1P_m3"/> 
   <rRotation name="rotations:000D"/>
   <Translation x="6.685*m*cos(90.*deg)" y="6.685*m*sin(90.*deg)" z="-1.0729*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_m3"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -4256,7 +4256,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_m3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -4271,13 +4271,13 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_m3"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="6.685*m*cos(60*deg)" y="6.685*m*sin(60*deg)" z="1.0729*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_m4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="357.0038*deg"/> 
@@ -4291,7 +4291,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_m4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -4306,7 +4306,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_m4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -4321,13 +4321,13 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_m4"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="6.69415*m*cos(57.0038*deg)" y="6.69415*m*sin(57.0038*deg)" z="1.0729*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_m5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="350.5676*deg"/> 
@@ -4341,7 +4341,7 @@
   <ParE name="center" value="-1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_m5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="350.5676*deg"/> 
@@ -4355,7 +4355,7 @@
   <ParE name="center" value="1.0729*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_m6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -4369,7 +4369,7 @@
   <ParE name="center" value="0.195*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_m6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -4383,7 +4383,7 @@
   <ParE name="center" value="-0.195*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB3_w2P_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -4397,7 +4397,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB3_w2N_m1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -4411,7 +4411,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_t1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.051*deg"/> 
@@ -4425,7 +4425,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_t4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.051*deg"/> 
@@ -4439,7 +4439,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_t2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.3702*deg"/> 
@@ -4453,7 +4453,7 @@
   <ParE name="center" value="0.62495*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_t5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.3702*deg"/> 
@@ -4467,7 +4467,7 @@
   <ParE name="center" value="-0.62495*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_t3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.3522*deg"/> 
@@ -4481,7 +4481,7 @@
   <ParE name="center" value="0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_0"/> 
+  <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB3_w0_t6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.3522*deg"/> 
@@ -4495,7 +4495,7 @@
   <ParE name="center" value="-0.63395*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_t1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.052*deg"/> 
@@ -4509,7 +4509,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.052*deg"/> 
@@ -4523,7 +4523,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_t2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="7.337*deg"/> 
@@ -4537,7 +4537,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="7.337*deg"/> 
@@ -4551,7 +4551,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_t3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="2.8811*deg"/> 
@@ -4565,7 +4565,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t3"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -4580,7 +4580,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -4595,13 +4595,13 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_t3"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="6.9613*m*cos(62.8811*deg)" y="6.9613*m*sin(62.8811*deg)" z="1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_t4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="3"/> 
@@ -4616,7 +4616,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_t4"/> 
   <ParE name="startCopyNo" value="5" />
   <ParE name="n" value="8"/> 
@@ -4631,7 +4631,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t4"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -4646,7 +4646,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -4661,7 +4661,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_t5"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="357.1189*deg"/> 
@@ -4675,7 +4675,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t5"/> 
   <ParE name="startCopyNo" value="1" />
   <ParE name="n" value="2"/> 
@@ -4690,7 +4690,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t5"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
@@ -4705,13 +4705,13 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <PosPart copyNumber="3">
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3Chim_w1N_t5"/> 
   <rRotation name="rotations:R330"/>
   <Translation x="6.9613*m*cos(57.1189*deg)" y="6.9613*m*sin(57.1189*deg)" z="1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_t6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="352.0437*deg"/> 
@@ -4725,7 +4725,7 @@
   <ParE name="center" value="-1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t6"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="352.0437*deg"/> 
@@ -4739,7 +4739,7 @@
   <ParE name="center" value="1.0639*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_t7"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.3696*deg"/> 
@@ -4753,7 +4753,7 @@
   <ParE name="center" value="0.186*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t7"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.3696*deg"/> 
@@ -4767,7 +4767,7 @@
   <ParE name="center" value="-0.186*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1P"/> 
+  <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB3_w1P_t8"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.3516*deg"/> 
@@ -4781,7 +4781,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_1N"/> 
+  <rParent name="muonBase:MBWheel_1N"/> 
   <rChild name="YB3_w1N_t8"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.3516*deg"/> 
@@ -4795,7 +4795,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB3_w2P_t1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.052*deg"/> 
@@ -4809,7 +4809,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB3_w2N_t1"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="13.052*deg"/> 
@@ -4823,7 +4823,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB3_w2P_t2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.3696*deg"/> 
@@ -4837,7 +4837,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB3_w2N_t2"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="359.3696*deg"/> 
@@ -4851,7 +4851,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2P"/> 
+  <rParent name="muonBase:MBWheel_2P"/> 
   <rChild name="YB3_w2P_t3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.3516*deg"/> 
@@ -4865,7 +4865,7 @@
   <ParE name="center" value="0*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="cms:MBWheel_2N"/> 
+  <rParent name="muonBase:MBWheel_2N"/> 
   <rChild name="YB3_w2N_t3"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="346.3516*deg"/> 
@@ -4881,7 +4881,7 @@
 
 <!--- #### Non iron volumes --> 
  <AlgoPosPart algo="global:angular">
-   <rParent name="cms:MBWheel_0"/>
+   <rParent name="muonBase:MBWheel_0"/>
    <rChild name="YBSepar_1"/>
    <ParE name="n" value="12" />
    <ParE name="radius" value="4.23467*m"/>

@@ -102,7 +102,7 @@
 
 <PosPartSection label="hcalalgo.xml">
  <PosPart copyNumber="1">
-   <rParent name="cms:CALO"/>
+   <rParent name="caloBase:CALO"/>
    <rChild name="hcalalgo:HCal"/>
   <rRotation name="rotations:000D"/>
  </PosPart>

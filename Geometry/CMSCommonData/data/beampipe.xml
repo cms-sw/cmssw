@@ -575,16 +575,6 @@
 
 <PosPartSection label="beampipe.xml">
  <PosPart copyNumber="1">
-   <rParent name="cms:CMSE"/>
-   <rChild name="beampipe:BEAM"/>
-  <rRotation name="rotations:000D"/>
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="cms:CMSE"/>
-   <rChild name="beampipe:BEAM"/>
-  <rRotation name="rotations:180D"/>
- </PosPart>
- <PosPart copyNumber="1">
    <rParent name="beampipe:BEAM"/>
    <rChild name="beampipe:BeamTube1"/>
   <rRotation name="rotations:000D"/>

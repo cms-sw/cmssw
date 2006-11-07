@@ -412,6 +412,41 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
 <PosPartSection label="mbCommon.xml">
 
+ <PosPart copyNumber="1">
+   <rParent name="muonBase:MUON"/>
+   <rChild name="muonBase:MB"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="muonBase:MB"/>
+   <rChild name="muonBase:MBWheel_2N"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="-5.342*m" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="muonBase:MB"/>
+   <rChild name="muonBase:MBWheel_1N"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="-2.686*m" />
+ </PosPart>
+<PosPart copyNumber="3">
+   <rParent name="muonBase:MB"/>
+   <rChild name="muonBase:MBWheel_0"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="4">
+   <rParent name="muonBase:MB"/>
+   <rChild name="muonBase:MBWheel_1P"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="2.686*m" />
+ </PosPart>
+ <PosPart copyNumber="5">
+   <rParent name="muonBase:MB"/>
+   <rChild name="muonBase:MBWheel_2P"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="5.342*m" />
+ </PosPart>
+
 <!--%%%%%%%%%%%  Cables inside wheels -->
 
  <PosPart copyNumber="1">
@@ -442,7 +477,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="1">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -454,7 +489,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="2">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -466,7 +501,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="3">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -478,7 +513,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="4">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_IntChim"/>
 
@@ -490,7 +525,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="5">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -502,7 +537,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="6">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -514,7 +549,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="7">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -526,7 +561,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="8">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -538,7 +573,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="9">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -550,7 +585,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="10">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -562,7 +597,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="11">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -574,7 +609,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="12">
 
-   <rParent name="cms:MBWheel_1P"/>
+   <rParent name="muonBase:MBWheel_1P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -588,7 +623,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <AlgoPosPart algo="global:angular">
 
-   <rParent name="cms:MBWheel_2P"/>
+   <rParent name="muonBase:MBWheel_2P"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -610,7 +645,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="1">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -622,7 +657,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="2">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -634,7 +669,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="3">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_IntChim"/>
 
@@ -646,7 +681,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="4">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -658,7 +693,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="5">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -670,7 +705,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="6">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -682,7 +717,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="7">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -694,7 +729,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="8">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -706,7 +741,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="9">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -718,7 +753,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="10">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -730,7 +765,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="11">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -742,7 +777,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="12">
 
-   <rParent name="cms:MBWheel_1N"/>
+   <rParent name="muonBase:MBWheel_1N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -756,7 +791,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <AlgoPosPart algo="global:angular">
 
-   <rParent name="cms:MBWheel_2N"/>
+   <rParent name="muonBase:MBWheel_2N"/>
 
    <rChild name="mbCommon:MBCablesBox_Int"/>
 
@@ -782,7 +817,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <AlgoPosPart algo="global:angular">
 
-   <rParent name="cms:MB"/>
+   <rParent name="muonBase:MB"/>
 
    <rChild name="mbCommon:MBCables_Wheels0_1"/>
 
@@ -808,7 +843,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <AlgoPosPart algo="global:angular">
 
-   <rParent name="cms:MB"/>
+   <rParent name="muonBase:MB"/>
 
    <rChild name="mbCommon:MBCables_Wheels0_1"/>
 
@@ -834,7 +869,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
   <AlgoPosPart algo="global:angular">
 
-   <rParent name="cms:MB"/>
+   <rParent name="muonBase:MB"/>
 
    <rChild name="mbCommon:MBCables_Wheels1_2"/>
 
@@ -860,7 +895,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
   <AlgoPosPart algo="global:angular">
 
-   <rParent name="cms:MB"/>
+   <rParent name="muonBase:MB"/>
 
    <rChild name="mbCommon:MBCables_Wheels1_2"/>
 
@@ -888,7 +923,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="1">
 
-   <rParent name="cms:MB"/>
+   <rParent name="muonBase:MB"/>
 
    <rChild name="mbCommon:MBCables_Ext"/>
 
@@ -900,7 +935,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="2">
 
-   <rParent name="cms:MB"/>
+   <rParent name="muonBase:MB"/>
 
    <rChild name="mbCommon:MBCables_Ext"/>
 
@@ -912,7 +947,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="3">
 
-   <rParent name="cms:MB"/>
+   <rParent name="muonBase:MB"/>
 
    <rChild name="mbCommon:MBCables_Ext"/>
 
@@ -924,7 +959,7 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
  <PosPart copyNumber="4">
 
-   <rParent name="cms:MB"/>
+   <rParent name="muonBase:MB"/>
 
    <rChild name="mbCommon:MBCables_Ext"/>
 
