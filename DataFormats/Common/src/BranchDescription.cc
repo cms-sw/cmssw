@@ -6,7 +6,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.19 2006/11/04 00:34:36 wmtan Exp $
+$Id: BranchDescription.cc,v 1.20 2006/11/04 07:16:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -137,6 +137,8 @@ namespace edm {
     if (b.productInstanceName() < a.productInstanceName()) return false;
     if (a.moduleLabel() < b.moduleLabel()) return true;
     if (b.moduleLabel() < a.moduleLabel()) return false;
+    if (a.branchType() < b.branchType()) return true;
+    if (b.branchType() < a.branchType()) return false;
     if (a.psetIDs() < b.psetIDs()) return true;
     if (b.psetIDs() < a.psetIDs()) return false;
     if (a.processConfigurationIDs() < b.processConfigurationIDs()) return true;
@@ -151,6 +153,7 @@ namespace edm {
   bool
   operator==(BranchDescription const& a, BranchDescription const& b) {
     return
+    (a.branchType() == b.branchType()) &&
     (a.processName() == b.processName()) &&
     (a.productID() == b.productID()) &&
     (a.fullClassName() == b.fullClassName()) &&
@@ -175,6 +178,10 @@ namespace edm {
       // (a.moduleLabel() != b.moduleLabel())
       // (a.productInstanceName() != b.productInstanceName())
       // (a.processName() != b.processName())
+    }
+    if (a.branchType() != b.branchType()) {
+      differences << "Branch '" << b.branchName() << "' is a(n) '" << b.branchType() << "' branch\n";
+      differences << "    in file '" << fileName << "', but a(n) '" << a.branchType() << "' branch in previous files.\n";
     }
     if (a.productID() != b.productID()) {
       differences << "Branch '" << b.branchName() << "' has a product ID of '" << b.productID() << "'\n";
