@@ -4,7 +4,6 @@
 //   History: v1.0 
 //   Pedro Arce
 
-
 #include "Alignment/CocoaToDDL/interface/CocoaToDDLMgr.h"
 #include "Alignment/CocoaToDDL/interface/UnitConverter.h"
 #define UC(val,category) UnitConverter(val,category).ucstring()
