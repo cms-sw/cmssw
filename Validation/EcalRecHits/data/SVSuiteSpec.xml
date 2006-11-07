@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<SVSuite>
+
+	<SVSuiteSpec Name="SVSuite-EcalChain-Photon30GeV-all" Type="Processing">
+	        <Parameter Name="InputDataset" Value="/SVSuite100-EcalHits-Photon30GeVAll-GenEvents/GEN/CMSSW_1_0_0-GEN-1159911421"/>
+		<Parameter Name="SplitSize" Value="200"/>
+		<Parameter Name="SplitType" Value="event"/>
+		<Parameter Name="SaveCMSRunOutput" Value="False"/>
+		<Parameter Name="NumberOfJobs" Value="10"/>
+		<Parameter Name="Configuration" Value="Validation/EcalRecHits/test/Photon_E30GeV_all.cfg"/>
+		<ReferenceLFN>
+			/store/SVSuite/Reference/SVSuite-data-EcalChain-CMSSW_1_2_x.tar.gz
+		</ReferenceLFN>
+		<Tool Name="runEcalChain"/>
+	</SVSuiteSpec>
+
+	<SVSuiteSpec Name="SVSuite-EcalChain-Photon400GeV-all" Type="Processing">
+	        <Parameter Name="InputDataset" Value="/SVSuite100-EcalHits-Photon400GeVAll-GenEvents/GEN/CMSSW_1_0_0-GEN-1160684806"/>
+		<Parameter Name="SplitSize" Value="100"/>
+		<Parameter Name="SplitType" Value="event"/>
+		<Parameter Name="SaveCMSRunOutput" Value="False"/>
+		<Parameter Name="NumberOfJobs" Value="2"/>
+		<Parameter Name="Configuration" Value="Validation/EcalRecHits/test/Photon_E30GeV_all.cfg"/>
+		<ReferenceLFN>
+			/store/SVSuite/Reference/SVSuite-data-EcalChain-CMSSW_1_2_x.tar.gz
+		</ReferenceLFN>
+		<Tool Name="runEcalChain"/>
+	</SVSuiteSpec>
+
+	<SVSuiteSpec Name="SVSuite-EcalChain-PionPt60GeV-all" Type="Processing">
+	        <Parameter Name="InputDataset" Value="/SVSuite100-EcalHits-PionPt60GeVAll-GenEvents/GEN/CMSSW_1_0_0-GEN-1160594258"/>
+		<Parameter Name="SplitSize" Value="200"/>
+		<Parameter Name="SplitType" Value="event"/>
+		<Parameter Name="SaveCMSRunOutput" Value="False"/>
+		<Parameter Name="NumberOfJobs" Value="10"/>
+		<Parameter Name="Configuration" Value="Validation/EcalRecHits/test/Photon_E30GeV_all.cfg"/>
+		<ReferenceLFN>
+			/store/SVSuite/Reference/SVSuite-data-EcalChain-CMSSW_1_2_x.tar.gz
+		</ReferenceLFN>
+		<Tool Name="runEcalChain"/>
+	</SVSuiteSpec>
+
+</SVSuite>
