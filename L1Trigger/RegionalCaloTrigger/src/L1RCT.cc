@@ -106,7 +106,9 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
   int ecalSum = 0;
-  int hcalSum = 0;
+  int hbSum = 0;
+  int heSum = 0;
+  int hfSum = 0;
   for (int i = 0; i < nEcalDigi; i++){
     short ieta = (short) ecalCollection[i].id().ieta(); 
     // Note absIeta counts from 1-28 (not 0-27)
@@ -132,7 +134,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     tower = calcTower(iphi, absIeta);
 
     unsigned short energy = ecalCollection[i].compressedEt();
-    ecalSum += energy;
+    if(energy > 5) ecalSum += energy;
     unsigned short fineGrain = (unsigned short) ecalCollection[i].fineGrain();  // 0 or 1
     unsigned short ecalInput = energy*2 + fineGrain;
 
@@ -187,7 +189,6 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     tower = calcTower(iphi, absIeta);
 
     unsigned short energy = hcalCollection[i].SOI_compressedEt();     // access only sample of interest
-    hcalSum += energy;
     unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();
     unsigned short hcalInput = energy*2 + fineGrain;
 
@@ -198,6 +199,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       }
       else { cout << "out of range!"; }
       //      cout << "Hcal:\t" << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
+      if(absIeta < 24) hbSum += energy;
+      if(absIeta > 24) heSum += energy;
     }
     else if ((absIeta >= 29) && (absIeta <= 32)){
       // put input into correct crate/region of HF
@@ -206,10 +209,15 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       }
       else { cout << "out of range!"; }
       //      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
+      hfSum += energy;
     }
   }
 
-  cout << "*********  " << ecalSum << " ***********" << "*********  " << hcalSum << " ***********" << endl;
+  cout << "  *********  " << ecalSum
+       << "  *********  " << hbSum
+       << "  *********  " << heSum
+       << "  *********  " << hfSum
+       << endl;
 
   /*  Why do we need to write a file always -- this should be optional -- In any case we should reuse "barrel" and "hf"
 

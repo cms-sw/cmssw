@@ -65,7 +65,7 @@ unsigned short L1RCTLookupTables::calcActivityBit(unsigned short ecal, unsigned 
 
 // calculates h-over-e veto bit (true if hcal/ecal energy > 5%)
 unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal){
-  return ((hcal/ecal)>0.05);
+  return ((ecal > 3) && (hcal/ecal)>0.05);
 }
 
 // integerize given an LSB and set maximum value of 2^precision
