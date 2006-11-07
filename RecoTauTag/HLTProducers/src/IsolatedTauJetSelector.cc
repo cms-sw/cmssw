@@ -3,8 +3,6 @@
 //
 // class decleration
 //
-using namespace reco;
-using namespace edm;
 
 
 IsolatedTauJetsSelector::IsolatedTauJetsSelector(const edm::ParameterSet& iConfig)
@@ -28,12 +26,14 @@ IsolatedTauJetsSelector::~IsolatedTauJetsSelector(){ }
 void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 {
 
- using namespace edm;
+using namespace reco;
+using namespace edm;
+
  using namespace std;
- using namespace reco;
+
 
  auto_ptr<CaloJetCollection> selectedTaus(new CaloJetCollection);
- std::auto_ptr<reco::JetTagCollection> resultBase(new JetTagCollection);
+ auto_ptr<reco::JetTagCollection> resultBase(new JetTagCollection);
 
  for( vtag::const_iterator s = jetSrc.begin(); s != jetSrc.end(); ++ s ) {
    edm::Handle<IsolatedTauTagInfoCollection> tauJets;
