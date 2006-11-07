@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.1 $
- *  $Date: 2006/10/20 13:57:03 $
+ *  $Revision: 1.2 $
+ *  $Date: 2006/11/07 10:43:23 $
  *  (last update by $Author: flucke $)
  */
 
@@ -196,7 +196,7 @@ unsigned int PedeSteerer::fixParameters(AlignmentParameterStore *store,
     }
 
     const unsigned int aliLabel = this->alignableLabel(*iAli);
-    for (unsigned int iParam = 0; iParam < params->size(); ++iParam) {
+    for (int iParam = 0; iParam < params->size(); ++iParam) {
       if (!(*iParamSel)[iParam]) continue;
       ++numFixed;
       mySteerFile << this->parameterLabel(aliLabel, iParam) << "  0.0  -1.0";
