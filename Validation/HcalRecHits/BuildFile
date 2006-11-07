@@ -1,0 +1,31 @@
+<flags SEAL_PLUGIN_NAME="ValidationHcalRecHits">
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DQMServices/CoreROOT>
+<use name=boost>
+<use name=root>
+<use name=DataFormats/Common>
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/CaloRecHit>
+<use name=DataFormats/HcalRecHits>
+<use name=Geometry/CaloEventSetup>
+
+<export>
+  <lib name=ValidationHcalRecHits>
+  <use name=FWCore/Framework>	
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=DQMServices/CoreROOT>
+  <use name=boost>
+  <use name=root>
+  <use name=DataFormats/HcalDetId>
+  <use name=DataFormats/CaloRecHit>
+  <use name=DataFormats/Common>	 
+  <use name=DataFormats/HcalRecHits>
+  <use name=Geometry/CaloEventSetup>
+
+</export>
+
