@@ -26,7 +26,7 @@ ErrorCorrelationMgr* ErrorCorrelationMgr::getInstance()
 //----------------------------------------------------------------------------
 void ErrorCorrelationMgr::readFromReportFile( const ALIstring& filename )
 {
-  std::cout << " ErrorCorrelationMgr::readFromReportFile " << std::endl;
+  if( ALIUtils::debug >= 4 ) std::cout << " ErrorCorrelationMgr::readFromReportFile " << std::endl;
   //------ Open the file
   ALIFileIn fin = ALIFileIn::getInstance( filename );
 
@@ -39,31 +39,55 @@ void ErrorCorrelationMgr::readFromReportFile( const ALIstring& filename )
   for(;;) {
     if( fin.getWordsInLine( wl ) == 0 ) break;
     // build the list of entries 
-    if( ALIUtils::IsNumber( wl[0] ) ) {
-      if(wl[0] != "-1") {
-	if( ALIUtils::debug >= -4 ) ALIUtils::dumpVS( wl, " ErrorCorrelationMgr: reading entry ");
-	theEntries[ALIUtils::getInt( wl[0] )] = std::pair<ALIstring,ALIstring>( wl[1], wl[2] );
-      }
-    } else if( wl[0][0] == '(' ) {
+    if( wl[0] == "CAL:" || wl[0] == "UNK:" ) {
+      if( ALIUtils::debug >= 4 ) ALIUtils::dumpVS( wl, " ErrorCorrelationMgr: reading entry ");
+      theEntries[ALIUtils::getInt( wl[1] )] = std::pair<ALIstring,ALIstring>( wl[2], wl[3] );
+    //    } else if( wl[0][0] == '(' ) {
+    } else if( wl[0].substr(0,5) == "CORR:" ) {
       // find the two entries 
-      ALIstring sno = wl[0].substr(1,wl[0].size()-2);
-      missite = theEntries.find( ALIUtils::getInt( sno ) );
-      std::pair<ALIstring,ALIstring> entry1 = (*missite).second;
-      sno = wl[1].substr(1,wl[1].size()-2);
-      missite = theEntries.find( ALIUtils::getInt( sno ) );
-      std::pair<ALIstring,ALIstring> entry2 = (*missite).second;
-      // build an ErrorCorrelation
-      ErrorCorrelation* corr = new ErrorCorrelation( entry1, entry2, ALIUtils::getFloat( wl[2] ) );
-      if( ALIUtils::debug >= -4 ) {
-	std::cout << " ErrorCorrelationMgr: correlation read " << entry1.first << " " << entry1.second << "  " << entry2.first << " " << entry2.second << "  " << wl[2] << std::endl;
+      int p1 = wl[1].find('(');
+      int p2 = wl[1].find(')');
+      //      std::cout << "( found " << p1 << " " << p2 << " = " << wl[1].substr(p1+1,p2-p1-1) << std::endl;
+      if( p2 == -1 ) {
+	std::cerr << "!!!ERROR:  ErrorCorrelationMgr::readFromReportFile. Word found that starts with '(' but has no ')'" << wl[1] << std::endl;
+	std::exception(); 
       }
-      theCorrs.push_back( corr );
+      ALIint nent = ALIUtils::getInt( wl[1].substr(p1+1,p2-p1-1));
+      missite = theEntries.find( nent );
+      std::pair<ALIstring,ALIstring> entry1 = (*missite).second;
+      
+      p1 = wl[2].find('(');
+      p2 = wl[2].find(')');
+      //      std::cout << "( found " << p1 << " " << p2 << " = " << wl[2].substr(p1+1,p2-p1-1) << std::endl;
+      if( p2 == -1 ){
+	std::cerr << "!!!ERROR:  ErrorCorrelationMgr::readFromReportFile. Word found that starts with '(' but has no ')'" << wl[2] << std::endl;
+	std::exception(); 
+      }
+      nent = ALIUtils::getInt( wl[2].substr(p1+1,p2-p1-1));
+      missite = theEntries.find( nent );
+      std::pair<ALIstring,ALIstring> entry2 = (*missite).second;
+
+      // build an ErrorCorrelation or update it if it exists
+      std::vector<ErrorCorrelation*>::iterator itecorr = findErrorCorrelation( entry1, entry2 );
+      if( itecorr == theCorrs.end() ){
+	ErrorCorrelation* corr = new ErrorCorrelation( entry1, entry2, ALIUtils::getFloat( wl[3] ) );
+	if( ALIUtils::debug >= 4 ) {
+	  std::cout << " ErrorCorrelationMgr: correlation created " << entry1.first << " " << entry1.second << "  " << entry2.first << " " << entry2.second << "  " << wl[3] << std::endl;
+	}
+	theCorrs.push_back( corr );
+      } else {
+	(*itecorr)->update( ALIUtils::getFloat( wl[3] ) );
+	if( ALIUtils::debug >=  4 ) {
+	  std::cout << " ErrorCorrelationMgr: correlation updated " << entry1.first << " " << entry1.second << "  " << entry2.first << " " << entry2.second << "  " << wl[3] << std::endl;
+	}
+      }
     }
   }
 
 }
 
 
+//----------------------------------------------------------------------------
 ErrorCorrelation* ErrorCorrelationMgr::getCorrelation( ALIint ii )
 {
   if( ii < 0 || ii >= ALIint(theCorrs.size()) ){
@@ -74,4 +98,16 @@ ErrorCorrelation* ErrorCorrelationMgr::getCorrelation( ALIint ii )
   }
 }
 
+//----------------------------------------------------------------------------
+std::vector<ErrorCorrelation*>::iterator ErrorCorrelationMgr::findErrorCorrelation( pss& entry1, pss& entry2 )
+{
+  std::vector<ErrorCorrelation*>::iterator itecorr;
+  for( itecorr = theCorrs.begin(); itecorr != theCorrs.end(); itecorr++ ) {
+    if( (*itecorr)->getEntry1() == entry1 &&  (*itecorr)->getEntry2() == entry2 ) {
+      return itecorr;
+    }
+  }
 
+  return itecorr;
+
+}

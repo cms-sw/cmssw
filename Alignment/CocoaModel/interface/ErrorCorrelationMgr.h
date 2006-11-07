@@ -14,7 +14,7 @@
 #include <map>
 typedef std::map<ALIstring, ALIdouble, std::less<ALIstring> > msd;
 
-class ErrorCorrelation;
+#include "ErrorCorrelation.h"
 
 class ErrorCorrelationMgr {
 
@@ -28,6 +28,9 @@ class ErrorCorrelationMgr {
 
   ALIint getNumberOfCorrelations(){ 
     return theCorrs.size(); }
+
+ private:
+  std::vector<ErrorCorrelation*>::iterator findErrorCorrelation( pss& entry1, pss& entry2 );
 
  private:
   static ErrorCorrelationMgr* theInstance;

@@ -16,13 +16,15 @@ typedef std::pair<ALIstring, ALIstring> pss;
 class ErrorCorrelation {
 
  public:
-  ErrorCorrelation( const pss& entry1, const pss& entry2, const ALIdouble corr ): theEntry1(entry1), theEntry2(entry2), theCorr(corr) {}
+  ErrorCorrelation( const pss& entry1, const pss& entry2, const ALIdouble corr );
 
-  const pss& entry1() const {
+  void update( const ALIdouble corr );
+
+  const pss& getEntry1() const {
     return theEntry1; }
-  const pss& entry2() const {
+  const pss& getEntry2() const {
     return theEntry2; }
-  const ALIdouble correlation() const {
+  const ALIdouble getCorrelation() const {
     return theCorr; }
 
  private:
