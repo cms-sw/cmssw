@@ -156,48 +156,42 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const {
 }
     
 
-void L1GlobalTriggerEsumsTemplate::printThresholds() const {
+void L1GlobalTriggerEsumsTemplate::printThresholds(std::ostream& myCout) const {
 
-    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
-        << "L1GlobalTriggerEsumsTemplate: Threshold values " << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
-        << "Condition Name: " << getName() << std::endl;
+    myCout << "L1GlobalTriggerEsumsTemplate: Threshold values " << std::endl;
+    myCout << "Condition Name: " << getName() << std::endl;
 
     switch (p_sumtype) {
 		case ETM:
-            edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") << "Type of Sum: " << "etm";			
+            myCout << "Type of Sum: " << "etm";			
 			break;
         case ETT:
-            edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") << "Type of Sum: " << "ett";         
+            myCout << "Type of Sum: " << "ett";         
             break;
         case HTT:
-            edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") << "Type of Sum: " << "htt";         
+            myCout << "Type of Sum: " << "htt";         
             break;
 		default:
             // nothing
 			break;
 	}
 
-    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
-        << "\ngreater or equal bit: " << p_ge_eq << std::endl;
+    myCout << "\ngreater or equal bit: " << p_ge_eq << std::endl;
 
-    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") << "\n  TEMPLATE " << "0" // only one  
+    myCout << "\n  TEMPLATE " << "0" // only one  
         << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
-        << "    et_threshold          " 
+    myCout << "    et_threshold          " 
         << std::hex << p_conditionparameter.et_threshold 
         << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
-        << "    en_overflow           " 
+    myCout << "    en_overflow           " 
         << std::hex << p_conditionparameter.en_overflow << std::endl; 
     if (p_sumtype == ETM) {
-        edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") 
-            << "    phi                   " 
+        myCout << "    phi                   " 
             << std::hex << p_conditionparameter.phi << std::endl;
     }
       
      // reset to decimal output
-     edm::LogVerbatim("L1GlobalTriggerEsumsTemplate") << std::dec << std::endl;      
+     myCout << std::dec << std::endl;      
 }
 
 

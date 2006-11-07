@@ -23,6 +23,7 @@
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
@@ -45,10 +46,10 @@
 L1GlobalTriggerGTL::L1GlobalTriggerGTL(const L1GlobalTrigger& gt) 
     : 
     m_GT(gt), 
-    glt_muonCand( new GMTVector(L1GlobalTriggerReadoutRecord::NumberL1Muons) ) {
+    glt_muonCand( new GMTVector(L1GlobalTriggerReadoutSetup::NumberL1Muons) ) {
 
-    glt_algorithmOR.reset();
-    glt_decision.reset(); 
+    m_gtlAlgorithmOR.reset();
+    m_gtlDecisionWord.reset(); 
     
     for ( int i = 0; i < 9; i++) {
         glt_cond[i].reset();
@@ -56,7 +57,7 @@ L1GlobalTriggerGTL::L1GlobalTriggerGTL(const L1GlobalTrigger& gt)
         glt_particleConditions.push_back( new conditions( L1GlobalTriggerSetup::MaxItem ) );
     }
 
-    glt_muonCand->reserve(L1GlobalTriggerReadoutRecord::NumberL1Muons);
+    glt_muonCand->reserve(L1GlobalTriggerReadoutSetup::NumberL1Muons);
     
 }
 
@@ -78,7 +79,7 @@ L1GlobalTriggerGTL::~L1GlobalTriggerGTL() {
 
 // receive input data
 
-void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent) {
+void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent, int iBxInEvent) {
 
     reset(); 
     
@@ -96,7 +97,7 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent) {
                 << std::endl;
 
             // set all muon candidates empty                
-            for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutRecord::NumberL1Muons; iMuon++ ) {
+            for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutSetup::NumberL1Muons; iMuon++ ) {
         
                 L1GlobalTriggerGTL::MuonDataWord dataword = 0; 
                 (*glt_muonCand)[iMuon] = new L1MuGMTCand( dataword );
@@ -120,7 +121,7 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent) {
     edm::Handle<std::vector<L1MuGMTCand> > muonData;
     iEvent.getByLabel("gmt", muonData);
 
-    for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutRecord::NumberL1Muons; iMuon++ ) {
+    for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutSetup::NumberL1Muons; iMuon++ ) {
 
         L1GlobalTriggerGTL::MuonDataWord dataword = 0; 
         unsigned int nMuon = 0;
@@ -128,8 +129,8 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent) {
         for ( std::vector<L1MuGMTCand>::const_iterator itMuon = muonData->begin(); 
             itMuon != muonData->end(); itMuon++ ) {
             
-            // retrieving info for BX = 0 only !!
-            if ( (*itMuon).bx() == 0 ) {
+            // retrieving info for a given bx only
+            if ( (*itMuon).bx() == iBxInEvent ) {
                 if ( nMuon == iMuon ) {
                     dataword = (*itMuon).getDataWord();
                     break;
@@ -140,12 +141,12 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent) {
         (*glt_muonCand)[iMuon] = new L1MuGMTCand( dataword );
     }
     
-    printGmtData();    
+    printGmtData(iBxInEvent);    
 
 }
 
 // run GTL
-void L1GlobalTriggerGTL::run() {
+void L1GlobalTriggerGTL::run(int iBxInEvent) {
         
 //    LogDebug ("Trace") << "**** L1GlobalTriggerGTL run " << std::endl;
 
@@ -237,7 +238,7 @@ void L1GlobalTriggerGTL::run() {
     
                 if (itxml->second->getLastResult()) {
                     if (itxml->second->getOutputPin() > 0) {
-                        glt_algorithmOR.set( itxml->second->getOutputPin()-1);
+                        m_gtlAlgorithmOR.set( itxml->second->getOutputPin()-1);
                     }
                 }
 
@@ -260,14 +261,14 @@ void L1GlobalTriggerGTL::run() {
     
                 if (itxml->second->getLastResult()) {
                     if (prealgoNumber > 0) {
-                        glt_algorithmOR.set( prealgoNumber-1);
+                        m_gtlAlgorithmOR.set( prealgoNumber-1);
                         
                     }
                 }
                 
                 edm::LogVerbatim("L1GlobalTriggerGTL")
                     << " Bit " << prealgoNumber-1
-                    << " " << prealgoName << ": " << glt_algorithmOR[ prealgoNumber-1 ]
+                    << " " << prealgoName << ": " << m_gtlAlgorithmOR[ prealgoNumber-1 ]
                     << std::endl;
 
             }
@@ -287,20 +288,20 @@ void L1GlobalTriggerGTL::reset() {
         }
     }
 
-    glt_decision.reset();
+    m_gtlDecisionWord.reset();
     
     // TODO get rid of 9 hardwired!!!!!
     for (int i = 0; i < 9; i++) {
         glt_cond[i].reset();
     }
 
-    glt_algorithmOR.reset();
+    m_gtlAlgorithmOR.reset();
 
 }
 
 // print Global Muon Trigger data
 
-void L1GlobalTriggerGTL::printGmtData() const {
+void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const {
     
     edm::LogVerbatim("L1GlobalTriggerGTL") 
         << "\nMuon data received by GTL:" << std::endl;
@@ -312,6 +313,12 @@ void L1GlobalTriggerGTL::printGmtData() const {
             << "\nIterator value = " << (*iter) << std::endl;
 
         (*iter)->print();
+        
+        LogTrace("L1GlobalTriggerGTL")
+            << "Indices: pt = " << (*iter)->ptIndex() 
+            << " eta = " << (*iter)->etaIndex()  
+            << " phi = " << (*iter)->phiIndex()
+            << std::endl;  
 
     }
 
@@ -322,9 +329,9 @@ void L1GlobalTriggerGTL::printGmtData() const {
 
 const std::vector<L1GlobalTriggerGTL::MuonDataWord> L1GlobalTriggerGTL::getMuons() const { 
 
-    std::vector<L1GlobalTriggerGTL::MuonDataWord> muon(L1GlobalTriggerReadoutRecord::NumberL1Muons);
+    std::vector<L1GlobalTriggerGTL::MuonDataWord> muon(L1GlobalTriggerReadoutSetup::NumberL1Muons);
 
-    for (unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1Muons; i++) {
+    for (unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Muons; i++) {
         muon[i] = (*glt_muonCand)[i]->getDataWord(); 
     }
 

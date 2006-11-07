@@ -70,7 +70,7 @@ public:
     virtual const bool blockCondition() const = 0;
   
     /// print thresholds
-    virtual void printThresholds() const = 0;
+    virtual void printThresholds(std::ostream& myCout) const = 0;
 
     /// get numeric expression
     virtual std::string getNumericExpression() { if (p_lastresult) { return "1"; } else { return "0";} }

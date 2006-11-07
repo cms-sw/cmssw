@@ -23,7 +23,7 @@
 #include <bitset>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 
@@ -46,21 +46,21 @@
 // constructor
 L1GlobalTriggerPSB::L1GlobalTriggerPSB(L1GlobalTrigger& gt) 
     : m_GT(gt), 
-    glt_electronList        ( new CaloVector(L1GlobalTriggerReadoutRecord::NumberL1Electrons) ),
-    glt_isolatedElectronList( new CaloVector(L1GlobalTriggerReadoutRecord::NumberL1IsolatedElectrons) ),
-    glt_centralJetList      ( new CaloVector(L1GlobalTriggerReadoutRecord::NumberL1CentralJets) ),
-    glt_forwardJetList      ( new CaloVector(L1GlobalTriggerReadoutRecord::NumberL1ForwardJets) ),
-    glt_tauJetList          ( new CaloVector(L1GlobalTriggerReadoutRecord::NumberL1TauJets) ),
+    glt_electronList        ( new CaloVector(L1GlobalTriggerReadoutSetup::NumberL1Electrons) ),
+    glt_isolatedElectronList( new CaloVector(L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons) ),
+    glt_centralJetList      ( new CaloVector(L1GlobalTriggerReadoutSetup::NumberL1CentralJets) ),
+    glt_forwardJetList      ( new CaloVector(L1GlobalTriggerReadoutSetup::NumberL1ForwardJets) ),
+    glt_tauJetList          ( new CaloVector(L1GlobalTriggerReadoutSetup::NumberL1TauJets) ),
     glt_missingEtList(0),
     glt_totalEtList(0),
     glt_totalHtList(0),
     glt_jetCountsList(0) { 
 
-    glt_electronList->reserve(L1GlobalTriggerReadoutRecord::NumberL1Electrons);
-    glt_isolatedElectronList->reserve(L1GlobalTriggerReadoutRecord::NumberL1IsolatedElectrons);
-    glt_centralJetList->reserve(L1GlobalTriggerReadoutRecord::NumberL1CentralJets);
-    glt_forwardJetList->reserve(L1GlobalTriggerReadoutRecord::NumberL1ForwardJets);
-    glt_tauJetList->reserve(L1GlobalTriggerReadoutRecord::NumberL1TauJets);
+    glt_electronList->reserve(L1GlobalTriggerReadoutSetup::NumberL1Electrons);
+    glt_isolatedElectronList->reserve(L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons);
+    glt_centralJetList->reserve(L1GlobalTriggerReadoutSetup::NumberL1CentralJets);
+    glt_forwardJetList->reserve(L1GlobalTriggerReadoutSetup::NumberL1ForwardJets);
+    glt_tauJetList->reserve(L1GlobalTriggerReadoutSetup::NumberL1TauJets);
 
 }
 
@@ -110,7 +110,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
                 << std::endl;
                 
             // empty electrons
-            for ( unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1Electrons; i++ ) {
+            for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Electrons; i++ ) {
         
                 L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
                 
@@ -120,7 +120,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
             }
         
             // empty isolated electrons
-            for ( unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1IsolatedElectrons; i++ ) {
+            for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; i++ ) {
         
                 L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
                 
@@ -130,7 +130,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
             }
         
             // empty central jets 
-            for ( unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1CentralJets; i++ ) {
+            for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1CentralJets; i++ ) {
         
                 L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
                 
@@ -141,7 +141,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
             }
             
             // empty forward jets 
-            for ( unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1ForwardJets; i++ ) {
+            for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; i++ ) {
         
                 L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
                 
@@ -152,7 +152,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
             }
         
             // empty tau jets 
-            for ( unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1TauJets; i++ ) {
+            for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1TauJets; i++ ) {
         
                 L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
                 
@@ -211,7 +211,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
 //    iEvent.getByLabel("gct", jetCounts);
     
     // electrons
-    for ( unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1Electrons; i++ ) {
+    for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Electrons; i++ ) {
 
         L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
         unsigned int nElec = 0;
@@ -235,7 +235,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
     }
 
     // isolated electrons
-    for ( unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1IsolatedElectrons; i++ ) {
+    for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; i++ ) {
 
         L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
         unsigned int nElec = 0;
@@ -259,7 +259,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
     }
 
     // central jets 
-    for ( unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1CentralJets; i++ ) {
+    for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1CentralJets; i++ ) {
 
         L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
         unsigned int nJet = 0;
@@ -284,7 +284,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
     }
     
     // forward jets 
-    for ( unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1ForwardJets; i++ ) {
+    for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; i++ ) {
 
         L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
         unsigned int nJet = 0;
@@ -309,7 +309,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
     }
 
     // tau jets 
-    for ( unsigned int i = 0; i < L1GlobalTriggerReadoutRecord::NumberL1TauJets; i++ ) {
+    for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1TauJets; i++ ) {
 
         L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
         unsigned int nJet = 0;
@@ -403,9 +403,9 @@ void L1GlobalTriggerPSB::printGctData() const {
     edm::LogVerbatim("L1GlobalTriggerPSB") << "   GCT Non Isolated Electrons " << std::endl;
     for ( iter = glt_electronList->begin(); iter < glt_electronList->end(); iter++ ) {
 //        edm::LogVerbatim("L1GlobalTriggerPSB") 
-//            << std::bitset<L1GlobalTriggerReadoutRecord::NumberCaloBits>( (*iter)->rank() ) 
-//            << std::bitset<L1GlobalTriggerReadoutRecord::NumberCaloBits>( (*iter)->etaIndex() ) 
-//            << std::bitset<L1GlobalTriggerReadoutRecord::NumberCaloBits>( (*iter)->phiIndex() ) 
+//            << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>( (*iter)->rank() ) 
+//            << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>( (*iter)->etaIndex() ) 
+//            << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>( (*iter)->phiIndex() ) 
 //            << std::endl;
 
         edm::LogVerbatim("L1GlobalTriggerPSB") 
@@ -453,21 +453,21 @@ void L1GlobalTriggerPSB::printGctData() const {
 
     edm::LogVerbatim("L1GlobalTriggerPSB") << "   GCT Missing Transverse Energy " << std::endl;
     if ( glt_missingEtList ) {
-//        edm::LogVerbatim("L1GlobalTriggerPSB") << std::bitset<L1GlobalTriggerReadoutRecord::NumberMissingEtBits>(glt_missingEtList->et()) << std::endl;
-//        edm::LogVerbatim("L1GlobalTriggerPSB") << std::bitset<L1GlobalTriggerReadoutRecord::NumberMissingEtBits>(glt_missingEtList->phi()) << std::endl;
+//        edm::LogVerbatim("L1GlobalTriggerPSB") << std::bitset<L1GlobalTriggerReadoutSetup::NumberMissingEtBits>(glt_missingEtList->et()) << std::endl;
+//        edm::LogVerbatim("L1GlobalTriggerPSB") << std::bitset<L1GlobalTriggerReadoutSetup::NumberMissingEtBits>(glt_missingEtList->phi()) << std::endl;
         edm::LogVerbatim("L1GlobalTriggerPSB") << "ET  = " << glt_missingEtList->et() << std::endl;
         edm::LogVerbatim("L1GlobalTriggerPSB") << "phi = " << glt_missingEtList->phi() << std::endl;
     }
 
     edm::LogVerbatim("L1GlobalTriggerPSB") << "   GCT Total Transverse Energy " << std::endl;
     if ( glt_totalEtList )   {
-//        edm::LogVerbatim("L1GlobalTriggerPSB") << std::bitset<L1GlobalTriggerReadoutRecord::NumberCaloBits>(glt_totalEtList->et()) << std::endl;
+//        edm::LogVerbatim("L1GlobalTriggerPSB") << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>(glt_totalEtList->et()) << std::endl;
         edm::LogVerbatim("L1GlobalTriggerPSB") <<  "ET  = " << glt_totalEtList->et() << std::endl;
     }
 
     edm::LogVerbatim("L1GlobalTriggerPSB") << "   GCT Total Hadron Transverse Energy " << std::endl;
     if ( glt_totalHtList )   {
-//        edm::LogVerbatim("L1GlobalTriggerPSB") << std::bitset<L1GlobalTriggerReadoutRecord::NumberCaloBits>(glt_totalHtList->et()) << std::endl;
+//        edm::LogVerbatim("L1GlobalTriggerPSB") << std::bitset<L1GlobalTriggerReadoutSetup::NumberCaloBits>(glt_totalHtList->et()) << std::endl;
         edm::LogVerbatim("L1GlobalTriggerPSB") <<  "ET  = " << glt_totalHtList->et() << std::endl;
     }
 

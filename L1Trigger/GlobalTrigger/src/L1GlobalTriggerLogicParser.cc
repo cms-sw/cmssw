@@ -21,6 +21,7 @@
 // system include files
 #include <string>
 #include <stack>
+#include <iostream>
 
 // user include files
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
@@ -290,14 +291,14 @@ int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
 
         // print the error
         if (actoperation == OP_INVALID) {
-            edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+            edm::LogError("L1GlobalTriggerLogicParser") 
                 << "    Syntax error while parsing algorithm: " << getName() 
                 << std::endl;
             errorpos = expr_iss.tellg();
-            edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+            edm::LogError("L1GlobalTriggerLogicParser") 
                 << "    " << expr_iss.str().substr(0,errorpos) << " <-- ERROR!" 
                 << std::endl;
-            edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+            edm::LogError("L1GlobalTriggerLogicParser") 
                 << expr_iss.str().substr(errorpos) 
                 << std::endl;
             return -1;
@@ -350,15 +351,15 @@ int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
 
             // check if the operatorstack is empty
             if (operatorstack.empty()) {
-                edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+                edm::LogError("L1GlobalTriggerLogicParser") 
                     << "    Syntax error while parsing algorithm - misplaced ')': " 
                     << getName() 
                     << std::endl;
                 errorpos = expr_iss.tellg();
-                edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+                edm::LogError("L1GlobalTriggerLogicParser") 
                     << expr_iss.str().substr(0,errorpos) << "<-- ERROR!" 
                     << std::endl;
-                edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+                edm::LogError("L1GlobalTriggerLogicParser") 
                     << expr_iss.str().substr(errorpos) 
                     << std::endl;
                 return -1;
@@ -371,14 +372,14 @@ int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
                     operatorstack.pop();
                 }
                 if (operatorstack.empty()) { // the operatorstack must not be empty
-                    edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+                    edm::LogError("L1GlobalTriggerLogicParser") 
                         << "    Syntax error while parsing algorithm - misplaced ')': " 
                         << getName() << std::endl;
                     errorpos = expr_iss.tellg();
-                    edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+                    edm::LogError("L1GlobalTriggerLogicParser") 
                         << expr_iss.str().substr(0,errorpos) << "<-- ERROR!" 
                         << std::endl;
-                    edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+                    edm::LogError("L1GlobalTriggerLogicParser") 
                         << expr_iss.str().substr(errorpos) << std::endl;
                     return -1;
                 }
@@ -395,7 +396,7 @@ int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
 
     while (!operatorstack.empty()) {
         if (operatorstack.top().operation == OP_OPENBRACKET) {
-            edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+            edm::LogError("L1GlobalTriggerLogicParser") 
                 << "    Syntax error while parsing algorithm - missing ')': " 
                 << getName() << std::endl;
             return -1;
@@ -411,7 +412,7 @@ int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
         if (it->operation == OP_OPERAND) counter++;
         if (it->operation == OP_OR || it->operation == OP_AND) counter--;
         if (counter < 1) {
-            edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+            edm::LogError("L1GlobalTriggerLogicParser") 
                 << "    Syntax error while parsing algorithm (too many operators) : " 
                 << getName() << std::endl;
             return -1;
@@ -419,7 +420,7 @@ int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
     }
 
     if (counter > 1) {
-        edm::LogVerbatim("L1GlobalTriggerLogicParser") 
+        edm::LogError("L1GlobalTriggerLogicParser") 
             << "    Syntax error while parsing algorithm (too many operands) : " 
             << getName() << std::endl;
         return -1;
@@ -509,18 +510,13 @@ const bool L1GlobalTriggerLogicParser::blockCondition() const {
     return resultstack.top();
 }
     
-void L1GlobalTriggerLogicParser::printThresholds() const {
+void L1GlobalTriggerLogicParser::printThresholds(std::ostream& myCout) const {
 
-    edm::LogVerbatim("L1GlobalTriggerLogicParser") 
-        << "\nL1GlobalTriggerLogicParser: Threshold values " << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerLogicParser") 
-        << "  Name:               " << getName() << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerLogicParser") 
-        << "  Output pin:         " << getOutputPin() << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerLogicParser") 
-        << "  Expression:         " << p_expression << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerLogicParser") 
-        << "  Postfix expression: " << p_rpnexpression << "\n "<< std::endl 
+    myCout << "\nL1GlobalTriggerLogicParser: Threshold values " << std::endl;
+    myCout << "  Name:               " << getName() << std::endl;
+    myCout << "  Output pin:         " << getOutputPin() << std::endl;
+    myCout << "  Expression:         " << p_expression << std::endl;
+    myCout << "  Postfix expression: " << p_rpnexpression << "\n "<< std::endl 
         << std::endl;
 }
 

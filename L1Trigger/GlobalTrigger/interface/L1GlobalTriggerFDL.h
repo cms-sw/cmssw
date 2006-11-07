@@ -12,8 +12,8 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -22,10 +22,11 @@
 #include <bitset>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 // forward declarations
 class L1GlobalTrigger;
+class L1GtFdlWord;
 
 // class declaration
 class L1GlobalTriggerFDL {
@@ -39,23 +40,21 @@ public:
     virtual ~L1GlobalTriggerFDL();
   
     /// run the FDL
-    void run();
+    void run(int iBxInEvent);
   
     /// clear FDL
     void reset(); 
 
-    /// return decision word
-    inline const std::bitset<L1GlobalTriggerReadoutRecord::NumberPhysTriggers>& getDecisionWord() const { return theDecisionWord; }
-
-    /// return global decision
-    inline bool getDecision() const { return theDecision; }
+    /// return the GtFdlWord
+    inline L1GtFdlWord* gtFdlWord() const { return m_gtFdlWord; }
+    
+    
  
   private:
 
     const L1GlobalTrigger& m_GT;
     
-    std::bitset<L1GlobalTriggerReadoutRecord::NumberPhysTriggers> theDecisionWord;
-    bool theDecision;
+    L1GtFdlWord* m_gtFdlWord;
 
 };
   

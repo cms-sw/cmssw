@@ -20,6 +20,7 @@
 
 // system include files
 #include <string>
+#include <iosfwd>
 
 // user include files
 //   base class
@@ -52,7 +53,7 @@ public:
         L1GlobalTriggerConfig::ConditionsMap* operandmap, unsigned int nummap=1);
     
     /// print thresholds
-    virtual void printThresholds() const;
+    virtual void printThresholds(std::ostream& myCout) const;
 
 private:
 

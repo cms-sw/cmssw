@@ -34,13 +34,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward classes
 class L1GlobalTriggerSetup;
 class L1GlobalTriggerPSB;
 class L1GlobalTriggerGTL;
 class L1GlobalTriggerFDL;
-class L1GlobalTriggerReadoutRecord;
+//class L1GlobalTriggerReadoutRecord;
 
 
 // class declaration
@@ -73,6 +74,10 @@ private:
     L1GlobalTriggerPSB* m_gtPSB;
     L1GlobalTriggerGTL* m_gtGTL;
     L1GlobalTriggerFDL* m_gtFDL;
+    
+    int m_totalBxInEvent;
+    
+    edm::InputTag m_muInputTag;
         
 };
 

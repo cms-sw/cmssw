@@ -16,8 +16,8 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -25,12 +25,23 @@
 #include <vector>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
 // forward declarations
 class L1GlobalTrigger;
+
+class L1GctCand;
+
+class L1GctEmCand;
+class L1GctJetCand;
+
+class L1GctEtMiss;
+class L1GctEtTotal;
+class L1GctEtHad;
+
+class L1GctJetCounts;
 
 // class declaration
 class L1GlobalTriggerPSB 
@@ -46,7 +57,7 @@ public:
     
 public:
   
-    typedef L1GlobalTriggerReadoutRecord::CaloDataWord CaloDataWord;
+    typedef L1GlobalTriggerReadoutSetup::CaloDataWord CaloDataWord;
 
     typedef std::vector<L1GctCand*> CaloVector;
 

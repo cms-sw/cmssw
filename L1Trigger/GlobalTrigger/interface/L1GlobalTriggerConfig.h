@@ -22,12 +22,16 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <fstream>
 #include <bitset>
+
+#include <fstream>
+#include <iosfwd>
+
 
 // user include files
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConditions.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -65,7 +69,7 @@ public:
     static const int OrderConditionChip[NumberConditionChips];      
 
     // maximum number of algorithms accepted by FDL board
-    static const unsigned int MaxNumberAlgorithms = L1GlobalTriggerReadoutRecord::NumberPhysTriggers;       
+    static const unsigned int MaxNumberAlgorithms = L1GlobalTriggerReadoutSetup::NumberPhysTriggers;       
     
     // number of input modules: 2 (GMT, GCT)
     static const unsigned int NumberInputModules = 2;  
@@ -297,7 +301,7 @@ private:
          unsigned int value, std::ofstream& ofs);
         
     // print all thresholds from conditions
-    void printThresholds();
+    void printThresholds(std::ostream& myCout);
     
     L1GlobalTrigger* m_GT;
     

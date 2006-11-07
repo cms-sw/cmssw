@@ -136,16 +136,25 @@ const bool L1GlobalTriggerMuonTemplate::blockCondition() const {
   
     // first check if there is a permutation that matches
     do {
+        LogTrace("L1GlobalTriggerMuonTemplate") 
+            << "\n  Trigger object permutation " << std::endl;
+        
         tmpResult = true;
         for (int i = 0; i < (int) p_number; i++) {
+            LogTrace("L1GlobalTriggerMuonTemplate") 
+                << "  Current condition index = " << i 
+                << " < last index = " << p_number
+                << std::endl;
+            
             tmpResult &= checkParticle(i, *(v)[index[i]] );
         }
     
         if (tmpResult) break; 
+                    
     } while (std::next_permutation(index, index + p_number) );
 
     if (tmpResult == false) {
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
+        LogTrace("L1GlobalTriggerMuonTemplate") 
             << "  L1GlobalTriggerMuonTemplate: no permutation match for all four muon candidates.\n" 
             << std::endl;
         return false;
@@ -282,69 +291,51 @@ const bool L1GlobalTriggerMuonTemplate::blockCondition() const {
     
 }
 
-void L1GlobalTriggerMuonTemplate::printThresholds() const {
+void L1GlobalTriggerMuonTemplate::printThresholds(std::ostream& myCout) const {
 
-    edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-        << "L1GlobalTriggerMuonTemplate: threshold values " << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-        << "Condition Name: " << getName() << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-        << "\ngreater or equal bit: " << p_ge_eq << std::endl;
+    myCout << "L1GlobalTriggerMuonTemplate: threshold values " << std::endl;
+    myCout << "Condition Name: " << getName() << std::endl;
+    myCout << "\ngreater or equal bit: " << p_ge_eq << std::endl;
 
     for (unsigned int i = 0; i < p_number; i++) {
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") << "  TEMPLATE " << i << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    pt_h_threshold        " 
+        myCout << std::endl;
+        myCout << "  TEMPLATE " << i << std::endl;
+        myCout << "    pt_h_threshold        " 
             <<  std::hex << p_particleparameter[i].pt_h_threshold << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    pt_l_threshold        " 
+        myCout << "    pt_l_threshold        " 
             <<  std::hex << p_particleparameter[i].pt_l_threshold << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    enable mip            " 
+        myCout << "    enable mip            " 
             <<  p_particleparameter[i].en_mip << std::endl;          
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    enable iso            " 
+        myCout << "    enable iso            " 
             <<  p_particleparameter[i].en_iso << std::endl;        
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    quality               " 
+        myCout << "    quality               " 
             <<  std::hex << p_particleparameter[i].quality << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    eta                   " 
+        myCout << "    eta                   " 
             <<  std::hex << p_particleparameter[i].eta << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    phi_h                 " 
+        myCout << "    phi_h                 " 
             <<  std::hex << p_particleparameter[i].phi_h << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    phi_l                 " 
+        myCout << "    phi_l                 " 
             <<  std::hex << p_particleparameter[i].phi_l << std::endl;
     }
 
-    edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-        << "    Correlation parameters:" <<  std::endl;
-    edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-        << "    charge_correlation    " 
+    myCout << "    Correlation parameters:" <<  std::endl;
+    myCout << "    charge_correlation    " 
         << std::hex << p_conditionparameter.charge_correlation << std::endl; 
     if (p_wsc) {
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    delta_eta             " 
+        myCout << "    delta_eta             " 
             << std::hex << p_conditionparameter.delta_eta << std::endl; 
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    delta_eta_maxbits     " 
+        myCout << "    delta_eta_maxbits     " 
             << std::dec << p_conditionparameter.delta_eta_maxbits << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    delta_phih            " 
+        myCout << "    delta_phih            " 
             << std::hex << p_conditionparameter.delta_phih << std::endl; 
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    delta_phil            " 
+        myCout << "    delta_phil            " 
             << std::hex << p_conditionparameter.delta_phil << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerMuonTemplate") 
-            << "    delta_phi_maxbits     " 
+        myCout << "    delta_phi_maxbits     " 
             << std::dec << p_conditionparameter.delta_phi_maxbits << std::endl;
     }
 
     // reset to decimal output
-    edm::LogVerbatim("L1GlobalTriggerMuonTemplate") << std::dec << std::endl;
+    myCout << std::dec << std::endl;
 }
 
 
@@ -391,7 +382,7 @@ const bool L1GlobalTriggerMuonTemplate::checkParticle(
     //      check isolation if "enable isolation" set and if it is an isolated candidate
     
     // checkThreshold always check ">=" or ">" 
-    // ==> checkThreshold = false for high pt threshold: check isolation  
+    // if checkThreshold = false for high pt threshold: check isolation  
     if (!checkThreshold(p_particleparameter[ncondition].pt_h_threshold, cand.ptIndex())) {
     
         LogTrace("L1GlobalTriggerMuonTemplate") 

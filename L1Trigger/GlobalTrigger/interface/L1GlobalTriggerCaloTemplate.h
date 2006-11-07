@@ -19,6 +19,7 @@
  */
 
 // system include files
+#include <iosfwd>
 #include <string>
 
 // user include files
@@ -90,7 +91,7 @@ public:
     const bool blockCondition() const;
 
     // print thresholds
-    void printThresholds() const;
+    void printThresholds(std::ostream& myCout) const;
     
 
 private:   

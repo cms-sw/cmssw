@@ -25,6 +25,8 @@
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
@@ -103,7 +105,7 @@ const bool L1GlobalTriggerJetCountsTemplate::blockCondition() const {
 
     L1GctJetCounts* jetNr = m_GT.gtPSB()->getJetCountsList();
 
-    const unsigned int nJetCounts = L1GlobalTriggerReadoutRecord::NumberL1JetCounts;
+    const unsigned int nJetCounts = L1GlobalTriggerReadoutSetup::NumberL1JetCounts;
      
     unsigned int jetCount[nJetCounts];
     for (unsigned int i = 0; i < nJetCounts; ++i) {
@@ -121,27 +123,22 @@ const bool L1GlobalTriggerJetCountsTemplate::blockCondition() const {
     return true;
 }
   
-void L1GlobalTriggerJetCountsTemplate::printThresholds() const {
+void L1GlobalTriggerJetCountsTemplate::printThresholds(std::ostream& myCout) const {
 
-    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") 
-        << "L1GlobalTriggerJetCountsTemplate: Threshold values " << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") 
-        << "Condition Name: " << getName() << std::endl;
+    myCout << "L1GlobalTriggerJetCountsTemplate: Threshold values " << std::endl;
+    myCout << "Condition Name: " << getName() << std::endl;
 
-    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") << std::endl;
+    myCout << std::endl;
 
-    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") 
-        << "Greater equal bit:    " 
+    myCout << "Greater equal bit:    " 
         << p_ge_eq << std::endl;
 
-    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") 
-        << "et_threshold          " << 
+    myCout << "et_threshold          " << 
         std::hex << p_conditionparameter.et_threshold << std::endl; 
-    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") 
-        << "type		         " 
+    myCout << "type		         " 
         << std::dec << p_conditionparameter.type << std::endl; 
 
     //reset to decimal output
-    edm::LogVerbatim("L1GlobalTriggerJetCountsTemplate") << std::dec << std::endl;
+    myCout << std::dec << std::endl;
         
 }

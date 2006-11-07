@@ -24,6 +24,8 @@
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
@@ -66,22 +68,22 @@ public:
 public:
 
     /// receive data from Global Muon Trigger
-    void receiveData(edm::Event&);
+    void receiveData(edm::Event&, int iBxInEvent);
     
     /// run the GTL
-    void run();
+    void run(int iBxInEvent);
     
     /// clear GTL
     void reset(); 
     
     /// print received Muon dataWord
-    void printGmtData() const;
+    void printGmtData(int iBxInEvent) const;
 
     /// return decision
-    inline const std::bitset<L1GlobalTriggerReadoutRecord::NumberPhysTriggers>& getDecision() const { return glt_decision; }
+    inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getDecisionWord() const { return m_gtlDecisionWord; }
     
     /// return algorithm OR decision
-    inline const std::bitset<L1GlobalTriggerReadoutRecord::NumberPhysTriggers>& get_algorithmOR() const { return glt_algorithmOR; }
+    inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getAlgorithmOR() const { return m_gtlAlgorithmOR; }
     
     /// return muon decision
     inline const std::bitset<L1GlobalTriggerSetup::MaxItem>& getDecision_MUON() const { return glt_cond[0]; }
@@ -115,7 +117,7 @@ public:
     
 // TODO un-comment if I decide to keep the MenuItem enum
 //    /// return decision
-//    inline const bool getDecision(L1GlobalTriggerSetup::MenuItem item) const { return glt_decision.element(item); }
+//    inline const bool getDecision(L1GlobalTriggerSetup::MenuItem item) const { return m_gtlDecisionWord.element(item); }
     
     /// return global muon trigger candidate data words
     const std::vector< MuonDataWord > getMuons() const;
@@ -129,12 +131,12 @@ private:
 
     GMTVector* glt_muonCand;
     
-    std::bitset<L1GlobalTriggerReadoutRecord::NumberPhysTriggers> glt_algorithmOR;
-    std::bitset<L1GlobalTriggerReadoutRecord::NumberPhysTriggers> glt_decision;
+    std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
+    std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
 
     std::bitset<L1GlobalTriggerSetup::MaxItem> glt_cond[9];
     
-    std::bitset<L1GlobalTriggerReadoutRecord::NumberPhysTriggers> glt_generalAND;
+    std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> glt_generalAND;
     
     algoVector glt_algos;
 

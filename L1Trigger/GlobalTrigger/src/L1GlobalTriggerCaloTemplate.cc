@@ -132,12 +132,22 @@ const bool L1GlobalTriggerCaloTemplate::blockCondition() const {
   
     // first check if there is a permutation that matches
     do {
+        LogTrace("L1GlobalTriggerCaloTemplate") 
+            << "\n  Trigger object permutation " << std::endl;
+
         tmpResult = true;
+
         for (int i = 0; i < (int) p_number; i++) {
+            LogTrace("L1GlobalTriggerCaloTemplate") 
+                << "  Current condition index = " << i 
+                << " < last index = " << p_number
+                << std::endl;
+                
             tmpResult &= checkParticle(i, *(v)[index[i]] );
         }
     
         if (tmpResult) break; 
+        
     } while (std::next_permutation(index, index + p_number) );
 
     if (tmpResult == false) {
@@ -233,69 +243,57 @@ const bool L1GlobalTriggerCaloTemplate::blockCondition() const {
     return tmpResult;
 }
 
-void L1GlobalTriggerCaloTemplate::printThresholds() const {
+void L1GlobalTriggerCaloTemplate::printThresholds(std::ostream& myCout) const {
 
-    edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-        << "L1GlobalTriggerCaloTemplate: Threshold values " << std::endl;
-    edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-        << "Condition Name: " << getName() << std::endl;
+    myCout << "L1GlobalTriggerCaloTemplate: Threshold values " << std::endl;
+    myCout << "Condition Name: " << getName() << std::endl;
 
     switch (p_particletype) {
         case EG:        
-            edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << "Particle: " << "eg";
+            myCout << "Particle: " << "eg";
             break;
         case IEG:       
-            edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << "Particle: " << "ieg";
+            myCout << "Particle: " << "ieg";
             break;
         case CJET:       
         case FJET:    
         case TJET:      
-            edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << "Particle: " << "jet";
+            myCout << "Particle: " << "jet";
             break;
         default:
             // write nothing - should not arrive here
             break;
     }
 
-    edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-        << "\ngreater or equal bit: " << p_ge_eq << std::endl;
+    myCout << "\ngreater or equal bit: " << p_ge_eq << std::endl;
 
     for(unsigned int i = 0; i < p_number; i++) {
 
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << "\n  TEMPLATE " << i 
-            << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << "    et_threshold          " 
+        myCout << "\n  TEMPLATE " << i << std::endl;
+        myCout << "    et_threshold          " 
             << std::hex << p_particleparameter[i].et_threshold 
             << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << "    eta                   " 
+        myCout << "    eta                   " 
             <<  std::hex << p_particleparameter[i].eta 
             << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << "    phi                   " 
+        myCout << "    phi                   " 
             <<  std::hex << p_particleparameter[i].phi << std::endl;
     }
 
     if (p_wsc) {
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << "    Correlation parameters:" << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << "    delta_eta             " 
+        myCout << "    Correlation parameters:" << std::endl;
+        myCout << "    delta_eta             " 
             << std::hex << p_conditionparameter.delta_eta << std::endl; 
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << "    delta_eta_maxbits     " 
+        myCout << "    delta_eta_maxbits     " 
             << std::dec << p_conditionparameter.delta_eta_maxbits << std::endl;
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << "    delta_phi             " 
+        myCout << "    delta_phi             " 
             << std::hex << p_conditionparameter.delta_phi << std::endl; 
-        edm::LogVerbatim("L1GlobalTriggerCaloTemplate") 
-            << "    delta_phi_maxbits     " 
+        myCout << "    delta_phi_maxbits     " 
             << std::dec << p_conditionparameter.delta_phi_maxbits << std::endl;
     }
 
     //reset to decimal output
-    edm::LogVerbatim("L1GlobalTriggerCaloTemplate") << std::dec << std::endl;
+    myCout << std::dec << std::endl;
     
 }
 

@@ -50,11 +50,6 @@
 XERCES_CPP_NAMESPACE_USE
 
 // constructors
-//L1GlobalTriggerConfig::L1GlobalTriggerConfig() {
-//
-//    edm::LogVerbatim("L1GlobalTriggerConfig") ("Trace") << "Entering " << __PRETTY_FUNCTION__ << std::endl; 
-////    m_xmlErrHandler = 0;
-//}
 
 L1GlobalTriggerConfig::L1GlobalTriggerConfig(
     L1GlobalTrigger* gt,
@@ -92,20 +87,22 @@ void L1GlobalTriggerConfig::parseTriggerMenu(std::string& defFile, std::string& 
     LogDebug ("Trace") << "Entering " << __PRETTY_FUNCTION__ << std::endl;
                 
     XercesDOMParser* parser;
-    edm::LogVerbatim("L1GlobalTriggerConfig") << "\nOpening XML-File: \n  " << defFile << std::endl;
+    LogTrace("L1GlobalTriggerConfig") << "\nOpening XML-File: \n  " << defFile << std::endl;
     if ((parser = initXML(defFile)) != 0) {
         workXML(parser);
     }
     cleanupXML(parser);
 
-    printThresholds();
+    std::ostringstream myCoutStream;
+    printThresholds(myCoutStream);
+    LogTrace("L1GlobalTriggerConfig") << myCoutStream.str() << std::endl;
 
 
     // part to generate vme-bus preamble
 
     if (vmeFile != "") {
         
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Writing vme-bus preamble" << std::endl;
+        LogTrace("L1GlobalTriggerConfig") << "Writing vme-bus preamble" << std::endl;
         if ((parser = initXML(vmeFile)) != 0) {
              parseVmeXML(parser);
         }
@@ -130,7 +127,7 @@ XercesDOMParser* L1GlobalTriggerConfig::initXML(const std::string &xmlFile) {
         XMLPlatformUtils::Initialize();
     } catch (const XMLException& toCatch) {
         char *message = XMLString::transcode(toCatch.getMessage());
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error during Xerces-c initialization! :"
             << message << std::endl;
         XMLString::release(&message);
@@ -153,7 +150,7 @@ XercesDOMParser* L1GlobalTriggerConfig::initXML(const std::string &xmlFile) {
         parser->parse(xmlFile.c_str());
     } catch(const XMLException &toCatch) {
         char *message = XMLString::transcode(toCatch.getMessage());
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Exception while parsing XML: \n"
             << message << std::endl;
         XMLString::release(&message);
@@ -163,7 +160,7 @@ XercesDOMParser* L1GlobalTriggerConfig::initXML(const std::string &xmlFile) {
         return 0;
     } catch (const DOMException &toCatch) {
         char *message = XMLString::transcode(toCatch.msg);
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "DOM-Exception while parsing XML: \n"
             << message << std::endl;
         XMLString::release(&message);
@@ -172,7 +169,7 @@ XercesDOMParser* L1GlobalTriggerConfig::initXML(const std::string &xmlFile) {
         m_xmlErrHandler = 0;
         return 0;
     } catch (...) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Unexpected Exception while parsing XML!" 
             << std::endl;
         delete parser;
@@ -413,19 +410,19 @@ int L1GlobalTriggerConfig::insertIntoConditionsMap(
     L1GlobalTriggerConditions *cond, unsigned int chipNr = 0) {
 
     std::string name = cond->getName();
-    edm::LogVerbatim("L1GlobalTriggerConfig") 
+    LogTrace("L1GlobalTriggerConfig") 
         << "    Trying to insert condition (" << name << ")" ;
     
     //no condition name has to appear twice!
     if (conditionsmap[chipNr].count(name) != 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "      Condition already exists - not inserted!" 
             << std::endl;
         return -1;
     }
 
     conditionsmap[chipNr][name] = cond;
-    edm::LogVerbatim("L1GlobalTriggerConfig") 
+    LogTrace("L1GlobalTriggerConfig") 
         << "      OK - condition inserted!" 
         << std::endl;
     
@@ -452,7 +449,7 @@ int L1GlobalTriggerConfig::insertAlgoIntoMap(DOMNode* node,
     unsigned int nummap) {
 
     if (node == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "    Node is 0 in " << __PRETTY_FUNCTION__ 
             << std::endl;
         return -1;
@@ -462,7 +459,7 @@ int L1GlobalTriggerConfig::insertAlgoIntoMap(DOMNode* node,
 
     // check if there is already such name
     if (insertmap->count(algoname) != 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "    Duplicate algorithm with name: " << algoname << " not inserted" 
             << std::endl;
         return -1;
@@ -475,7 +472,7 @@ int L1GlobalTriggerConfig::insertAlgoIntoMap(DOMNode* node,
     std::string expression = getXMLTextValue(node);
     
     if ( algoparser->setExpression(expression, operandmap, nummap) != 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "    Error parsing expression: " << expression 
             << std::endl;
         delete algoparser;
@@ -510,7 +507,7 @@ int L1GlobalTriggerConfig::insertAlgoIntoMap(DOMNode* node,
         if (pinnode == 0) {
             algoparser->setOutputPin(0);
             algoparser->setAlgoNumber(0);
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            LogTrace("L1GlobalTriggerConfig") 
                 << "    Warning: No pin number found for algorithm: " 
                 << algoparser->getName() 
                 << std::endl;
@@ -518,7 +515,7 @@ int L1GlobalTriggerConfig::insertAlgoIntoMap(DOMNode* node,
     }
 
     if (algoparser->getOutputPin() > (int) PinsOnConditionChip) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "    Warning: Pin out of range for algorithm:    "
             << algoparser->getName() << std::endl;
         algoparser->setOutputPin(0);
@@ -527,7 +524,7 @@ int L1GlobalTriggerConfig::insertAlgoIntoMap(DOMNode* node,
 
     // check the number of algorithms
     if (insertmap->size() > MaxNumberAlgorithms) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "    Warning: too many algorithms! Can not insert algorithm "
             << algoparser->getName() << std::endl;
         algoparser->setOutputPin(0);
@@ -552,7 +549,7 @@ int L1GlobalTriggerConfig::insertAlgoIntoMap(DOMNode* node,
 int L1GlobalTriggerConfig::getBitFromNode(DOMNode* node) {
 
         if (getXMLAttribute(node, xml_attr_mode) != xml_attr_mode_bit) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            edm::LogError("L1GlobalTriggerConfig") 
                 << "Invalid mode for single bit" 
                 << std::endl;
             return -1;
@@ -564,7 +561,7 @@ int L1GlobalTriggerConfig::getBitFromNode(DOMNode* node) {
         } else if (tmpstr == "1") {
             return 1;
         } else {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            edm::LogError("L1GlobalTriggerConfig") 
                 << "Bad bit value (" << tmpstr << ")" 
                 << std::endl;
             return -1;
@@ -584,7 +581,7 @@ int L1GlobalTriggerConfig::getBitFromNode(DOMNode* node) {
 int L1GlobalTriggerConfig::getGeEqFlag(DOMNode* node, const std::string& nodeName) {
         
     if (node == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "node == 0 in " << __PRETTY_FUNCTION__ 
             << std::endl;
         return -1;
@@ -598,7 +595,7 @@ int L1GlobalTriggerConfig::getGeEqFlag(DOMNode* node, const std::string& nodeNam
     if (n1 != 0) {
         n1 = findXMLChild( n1->getFirstChild(), xml_geeq_tag);
         if (n1 == 0) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            LogTrace("L1GlobalTriggerConfig") 
                 << "No greater equal tag found" 
                 << std::endl;
             return -1;
@@ -630,7 +627,7 @@ int L1GlobalTriggerConfig::getXMLHexTextValue(DOMNode *node, u_int64_t& dst) {
     if (getXMLHexTextValue128(node, tempuint, dummyh) != 0) return -1;
 
     if (dummyh != 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Too large hex-value!" << std::endl;
+        edm::LogError("L1GlobalTriggerConfig") << "Too large hex-value!" << std::endl;
         return -1;
     }
 
@@ -653,7 +650,7 @@ int L1GlobalTriggerConfig::getXMLHexTextValue128(DOMNode *node,
     u_int64_t &dstl, u_int64_t &dsth) {
 
     if (node == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "node == 0 in " << __PRETTY_FUNCTION__ 
             << std::endl; 
         return -1;
@@ -702,7 +699,7 @@ int L1GlobalTriggerConfig::hexString2UInt128(const string& hex,
     hexend = tempstr.find_first_not_of(valid_hex_end, hexstart);
 
     if (hexstart == hexend) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "No hex value found in: " << tempstr << std::endl;
         return -1;
     }
@@ -710,7 +707,7 @@ int L1GlobalTriggerConfig::hexString2UInt128(const string& hex,
     tempstr = tempstr.substr(hexstart, hexend - hexstart);
     
     if (tempstr == "") {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "Empty value in " << __PRETTY_FUNCTION__ << std::endl;
         return -1;
     }
@@ -728,7 +725,7 @@ int L1GlobalTriggerConfig::hexString2UInt128(const string& hex,
     endptr = (char*) tempstrl.c_str();
     tempuintl = strtoull(tempstrl.c_str(), &endptr, 16);
     if (*endptr != 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "Unable to convert " << tempstr << " to hex." << std::endl;
         return -1;
     }
@@ -737,7 +734,7 @@ int L1GlobalTriggerConfig::hexString2UInt128(const string& hex,
     endptr = (char*) tempstrh.c_str();
     tempuinth = strtoull(tempstrh.c_str(), &endptr, 16);
     if (*endptr != 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "Unable to convert " << tempstr << " to hex." << std::endl;
         return -1;
     }
@@ -764,7 +761,7 @@ int L1GlobalTriggerConfig::countConditionChildMaxBits(DOMNode *node,
 
     // should never happen, but lets check 
     if (node == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "node == 0 in " << __PRETTY_FUNCTION__ << std::endl;
         return -1;
     }
@@ -775,7 +772,7 @@ int L1GlobalTriggerConfig::countConditionChildMaxBits(DOMNode *node,
 
     // if child not found
     if (n1 == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "Child of condition not found ( " << childname << ")" 
             << std::endl;
         return -1;
@@ -784,7 +781,7 @@ int L1GlobalTriggerConfig::countConditionChildMaxBits(DOMNode *node,
     n2 = findXMLChild(n1->getFirstChild(), xml_value_tag);
 
     if (n2 == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "No value tag found for child " << childname << " in " << __PRETTY_FUNCTION__ 
             << std::endl;
         return -1;
@@ -797,7 +794,7 @@ int L1GlobalTriggerConfig::countConditionChildMaxBits(DOMNode *node,
         maxstring = getXMLAttribute(n2, xml_attr_max); // try next value tag
         // if no max was found neither in value nor in the childname tag
         if (maxstring == "") {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            LogTrace("L1GlobalTriggerConfig") 
                 << "No Max value found for " << childname 
                 << std::endl;
             return -1;
@@ -810,7 +807,7 @@ int L1GlobalTriggerConfig::countConditionChildMaxBits(DOMNode *node,
     if (hexString2UInt128(maxstring, maxbitsl, maxbitsh) != 0 ) return -1;
 
     // count the bits
-    edm::LogVerbatim("L1GlobalTriggerConfig") 
+    LogTrace("L1GlobalTriggerConfig") 
         << "      Counting maxbits: high value = " << maxbitsh << " low value = " << maxbitsl 
         << std::endl;
 
@@ -819,7 +816,7 @@ int L1GlobalTriggerConfig::countConditionChildMaxBits(DOMNode *node,
     while (maxbitsl != 0) {
         // check if bits set countinously
         if ( (maxbitsl & 1) == 0 ) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            edm::LogError("L1GlobalTriggerConfig") 
                 << "      Confused by not continous set bits for max value " 
                 << maxstring << "(child=" << childname << ")" 
                 << std::endl;
@@ -830,7 +827,7 @@ int L1GlobalTriggerConfig::countConditionChildMaxBits(DOMNode *node,
     }
     
     if (maxbitsh != 0 && counter != 64) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "      Confused by not continous set bits for max value " 
             << maxstring << "(child=" << childname << ")" 
             << std::endl;
@@ -841,7 +838,7 @@ int L1GlobalTriggerConfig::countConditionChildMaxBits(DOMNode *node,
     while (maxbitsh != 0) {
         //check if bits set countinously
         if ( (maxbitsh & 1) == 0 ) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            edm::LogError("L1GlobalTriggerConfig") 
                 << "      Confused by not continous set bits for max value " 
                 << maxstring << "(child=" << childname << ")" 
                 << std::endl;
@@ -872,7 +869,7 @@ int L1GlobalTriggerConfig::getConditionChildValues(DOMNode *node,
 
     // should never happen, but lets check 
     if (node == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "node == 0 in " << __PRETTY_FUNCTION__ 
             << std::endl;
         return -1;
@@ -882,7 +879,7 @@ int L1GlobalTriggerConfig::getConditionChildValues(DOMNode *node,
 
     // if child not found
     if (n1 == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "Child of condition not found ( " << childname << ")" 
             << std::endl;    
         return -1;
@@ -894,14 +891,14 @@ int L1GlobalTriggerConfig::getConditionChildValues(DOMNode *node,
     n1 = findXMLChild(n1->getFirstChild(), xml_value_tag);
     for (unsigned int i = 0; i < num; i++) {
         if (n1 == 0) { 
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            LogTrace("L1GlobalTriggerConfig") 
                 << "Not enough values in condition child ( " << childname << ")" 
                 << std::endl;
             return -1; // too less values
         }
 
         if (getXMLHexTextValue(n1, dst[i]) != 0) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            edm::LogError("L1GlobalTriggerConfig") 
                 << "Error converting condition child ( " << childname << ") value." 
                 << std::endl;
             return -1;
@@ -952,7 +949,7 @@ int L1GlobalTriggerConfig::getMuonMipIsoBits(DOMNode *node,
 
         mipdst[i] = (tmpint != 0);
 
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "      MIP bit value for muon " << i << " = " << mipdst[i]
             << std::endl;
 
@@ -966,7 +963,7 @@ int L1GlobalTriggerConfig::getMuonMipIsoBits(DOMNode *node,
 
         isodst[i] = (tmpint != 0);
 
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "      Iso bit value for muon " << i << " = " << isodst[i]
             << std::endl;
 
@@ -1002,7 +999,7 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     std::string type = getXMLAttribute(node, xml_condition_attr_type);
 
     if (particle != xml_condition_attr_particle_muon) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Wrong particle for muon-condition (" << particle << ")" 
             << std::endl;
         return -1;
@@ -1010,7 +1007,7 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
 
     int numtype = getNumFromType(type); // the number of particles
     if (numtype < 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Unknown type for muon-condition (" << type << ")" 
             << std::endl;
         return -1;
@@ -1023,7 +1020,7 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     // temporary integer for greater equal flag
     int ge_eqint = getGeEqFlag(node, xml_pththreshold_tag);
     if (ge_eqint < 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
         << "Error getting greater equal flag" 
         << std::endl;
         return -1;
@@ -1044,7 +1041,7 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     for (int i = 0; i < numtype; i++) {
         particleparameter[i].pt_h_threshold = tmpvalues[i];
 
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "      Muon high threshold (hex) for muon " << i << " = " 
             << std::hex << tmpvalues[i] << std::dec 
             << std::endl;
@@ -1058,7 +1055,7 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     
     // fill into structure
     for (int i = 0; i < numtype; i++) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "      Muon low threshold word (hex) for muon " << i << " = " 
             << std::hex << tmpvalues[i] << std::dec 
             << std::endl;
@@ -1066,7 +1063,7 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
         // one takes mipbit at therefore one divide by 16 // TODO ?
         tmpvalues[i] = tmpvalues[i]/16;
         
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "        Muon low threshold (hex) for muon " << i << " = " 
             << std::hex << tmpvalues[i] << std::dec 
             << std::endl;
@@ -1116,7 +1113,7 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     if (getXMLHexTextValue(findXMLChild(node->getFirstChild(), 
         xml_chargecorrelation_tag), tmpvalues[0]) != 0) {
         
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "    Error getting charge correlation from muon condition (" 
             << name << ")" << std::endl;
         return -1;
@@ -1129,7 +1126,7 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     bool tmpmip[4];     // TODO: macro instead of 4
 
     if (getMuonMipIsoBits(node, numtype, tmpmip, tmpiso) != 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "    Could not get mip and iso bits from muon condition (" 
             << name << ")" << std::endl;
         return -1;
@@ -1154,7 +1151,7 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
         // deltaphi is larger than 64bit
         if (getXMLHexTextValue128(findXMLChild(node->getFirstChild(), 
             xml_deltaphi_tag), tmpvalues[0], tmpvalues[1]) != 0) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            edm::LogError("L1GlobalTriggerConfig") 
                 << "    Could not get delta_phi for muon condition with wsc (" << name << ")" 
                 << std::endl;
             return -1;
@@ -1192,7 +1189,7 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     if (insertIntoConditionsMap(muoncond, chipNr) != 0) {
         delete muoncond;
         muoncond = 0;
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "    Error: duplicate condition (" << name << ")" 
             << std::endl;
         return -1;
@@ -1238,7 +1235,7 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
     } else if (particle == xml_condition_attr_particle_fwdjet) {
         particletype = L1GlobalTriggerCaloTemplate::FJET;
     } else {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Wrong particle for calo-condition (" << particle << ")" 
             << std::endl;
         return -1;
@@ -1246,7 +1243,7 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
 
     int numtype = getNumFromType(type); // the number of particles
     if (numtype < 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Unknown type for calo-condition (" << type << ")" 
             << std::endl;
         return -1;
@@ -1259,7 +1256,7 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
     // temporary integer for greater equal flag
     int ge_eqint = getGeEqFlag(node, xml_etthreshold_tag);
     if (ge_eqint < 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Error getting greater equal flag" << std::endl;
+        edm::LogError("L1GlobalTriggerConfig") << "Error getting greater equal flag" << std::endl;
         return -1;
     }
     // set the boolean value for the ge_eq mode
@@ -1307,7 +1304,7 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
         }
         
         conditionparameter.delta_eta = tmpvalues[0];        
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "      delta eta calo = " << tmpvalues[0] 
             << std::endl;
         
@@ -1316,13 +1313,13 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
         }
         
         conditionparameter.delta_phi = tmpvalues[0];
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "      delta phi calo = " << tmpvalues[0] 
             << std::endl;
 
         // get maxbits for deltaeta
 
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "      Counting delta_eta_maxbits" 
             << std::endl; 
         unsigned int maxbits;     // maximal bit counts for wsc values        
@@ -1333,7 +1330,7 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
         conditionparameter.delta_eta_maxbits = maxbits;
 
         // get maxbits for deltaphi
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "      Counting delta_phi_maxbits" 
             << std::endl; 
         if (countConditionChildMaxBits(node, xml_deltaphi_tag, maxbits) != 0) {
@@ -1357,7 +1354,7 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
     if (insertIntoConditionsMap(calocond, chipNr) != 0) {
         delete calocond;
         calocond = 0;
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error: duplicate condition (" << name << ")" 
             << std::endl;
         return -1;
@@ -1407,7 +1404,7 @@ int L1GlobalTriggerConfig::parseESums(DOMNode* node,
         sumtype = L1GlobalTriggerEsumsTemplate::HTT;
         
     } else {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Wrong particle or type for Esums-condition (" 
             << particle << ", " << type << ")" 
             << std::endl;
@@ -1417,7 +1414,7 @@ int L1GlobalTriggerConfig::parseESums(DOMNode* node,
     // get greater equal flag
     int ge_eqint = getGeEqFlag(node,xml_etthreshold_tag);
     if (ge_eqint < 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error getting greater equal flag" 
             << std::endl;
         return -1;
@@ -1474,7 +1471,7 @@ int L1GlobalTriggerConfig::parseESums(DOMNode* node,
     if (insertIntoConditionsMap(esumscond, chipNr) != 0) {
         delete esumscond;
         esumscond = 0;
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error duplicate condition (" << name << ")" 
             << std::endl;
         return -1;
@@ -1528,7 +1525,7 @@ int L1GlobalTriggerConfig::parseJetCounts(DOMNode* node,
     // get greater equal flag
     int ge_eqint = getGeEqFlag(node,xml_etthreshold_tag);
     if (ge_eqint < 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error getting greater equal flag" 
             << std::endl;
         return -1;
@@ -1556,7 +1553,7 @@ int L1GlobalTriggerConfig::parseJetCounts(DOMNode* node,
     if (insertIntoConditionsMap(jetcntscond, chipNr) != 0) {
         delete jetcntscond;
         jetcntscond = 0;
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error duplicate condition (" << name << ")" 
             << std::endl;
         return -1;
@@ -1588,13 +1585,13 @@ int L1GlobalTriggerConfig::workCondition(
     std::string type = getXMLAttribute(node, xml_condition_attr_type);
 
     if (condition == "" || particle == "" || type == "") {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Missing attributes for condition " 
             << name << std::endl;
         return -1;
     }
 
-    edm::LogVerbatim("L1GlobalTriggerConfig") 
+    LogTrace("L1GlobalTriggerConfig") 
         << "    condition: " << condition << ", particle: " << particle 
         << ", type: " << type << std::endl;
 
@@ -1609,7 +1606,7 @@ int L1GlobalTriggerConfig::workCondition(
     } else if (condition == xml_condition_attr_condition_jetcnts) {
         return parseJetCounts(node, name, chipNr);
     } else {
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Unknown condition (" << condition << ")" << std::endl;
+        edm::LogError("L1GlobalTriggerConfig") << "Unknown condition (" << condition << ")" << std::endl;
         return -1;
     }
      
@@ -1631,7 +1628,7 @@ int L1GlobalTriggerConfig::workCondition(
 int L1GlobalTriggerConfig::parseConditions(XercesDOMParser *parser) {
 
  
-    edm::LogVerbatim("L1GlobalTriggerConfig") << "\nParsing conditions" << std::endl;
+    LogTrace("L1GlobalTriggerConfig") << "\nParsing conditions" << std::endl;
 
     DOMNode *doc = parser->getDocument();
     DOMNode *n1 = doc->getFirstChild();
@@ -1641,7 +1638,7 @@ int L1GlobalTriggerConfig::parseConditions(XercesDOMParser *parser) {
     // TODO def tag
     DOMNode *chipNode = n1->getFirstChild();
     if (chipNode == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error: No child of <def> found" 
             << std::endl;
         return -1;
@@ -1652,7 +1649,7 @@ int L1GlobalTriggerConfig::parseConditions(XercesDOMParser *parser) {
     std::string chipName;        // name of the actual chip
     chipNode = findXMLChild(chipNode, xml_chip_tag, true, &chipName);
     if (chipNode == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "  Error: Could not find <" << xml_chip_tag 
             << std::endl;
         return -1;
@@ -1665,14 +1662,14 @@ int L1GlobalTriggerConfig::parseConditions(XercesDOMParser *parser) {
         DOMNode *conditionsNode = chipNode->getFirstChild();
         conditionsNode = findXMLChild(conditionsNode, xml_conditions_tag);
         if (conditionsNode == 0) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            edm::LogError("L1GlobalTriggerConfig") 
                 << "Error: No <" << xml_conditions_tag << "> child found in Chip " 
                 << chipName << std::endl;
             return -1;
         }             
 
         char* nodeName = XMLString::transcode(chipNode->getNodeName());
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "\n  Found Chip: " << nodeName << " Name: " << chipName 
             << std::endl;
         XMLString::release(&nodeName);
@@ -1682,7 +1679,7 @@ int L1GlobalTriggerConfig::parseConditions(XercesDOMParser *parser) {
         std::string conditionNameNodeName;
         conditionNameNode = findXMLChild(conditionNameNode, "", true, &conditionNameNodeName);
         while (conditionNameNode != 0) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            LogTrace("L1GlobalTriggerConfig") 
                 << "\n    Found a condition with name: "<< conditionNameNodeName 
                 << std::endl;
             if (workCondition(conditionNameNode, conditionNameNodeName, chipNr) != 0) {
@@ -1714,7 +1711,7 @@ int L1GlobalTriggerConfig::parsePreAlgos(DOMNode *node) {
 
     DOMNode *chipNode = node->getFirstChild();
     if (chipNode == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "  Error: No child of <def> found" 
             << std::endl;
         return -1;
@@ -1725,7 +1722,7 @@ int L1GlobalTriggerConfig::parsePreAlgos(DOMNode *node) {
 
     chipNode = findXMLChild(chipNode, xml_chip_tag, true, &chipName);
     if (chipNode == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "  Error: Could not find <" << xml_chip_tag 
             << std::endl;
         return -1;
@@ -1734,10 +1731,10 @@ int L1GlobalTriggerConfig::parsePreAlgos(DOMNode *node) {
     unsigned int chipNr = 0;    
     do {    
 
-        edm::LogVerbatim("L1GlobalTriggerConfig") << std::endl;
+        LogTrace("L1GlobalTriggerConfig") << std::endl;
 
         std::string nodeName = xml_chip_tag + chipName;
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "  Found Chip: " << nodeName << " Name: " << chipName 
             << std::endl;
  
@@ -1745,7 +1742,7 @@ int L1GlobalTriggerConfig::parsePreAlgos(DOMNode *node) {
         DOMNode *prealgosNode = chipNode->getFirstChild();
         prealgosNode = findXMLChild(prealgosNode, xml_prealgos_tag);
         if (prealgosNode == 0) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            edm::LogError("L1GlobalTriggerConfig") 
                 << "    Error: No <" << xml_prealgos_tag << "> child found in chip " << chipName 
                 << std::endl;
             return -1;
@@ -1756,7 +1753,7 @@ int L1GlobalTriggerConfig::parsePreAlgos(DOMNode *node) {
         std::string prealgoNameNodeName;
         prealgoNameNode = findXMLChild(prealgoNameNode, "", true, &prealgoNameNodeName);
         while (prealgoNameNode != 0) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            LogTrace("L1GlobalTriggerConfig") 
                 << "    Found a prealgo with name: " << prealgoNameNodeName 
                 << std::endl;
             if (insertAlgoIntoMap(prealgoNameNode, prealgoNameNodeName, 
@@ -1788,11 +1785,11 @@ int L1GlobalTriggerConfig::parsePreAlgos(DOMNode *node) {
 int L1GlobalTriggerConfig::parseAlgos(DOMNode* node)
 {
 
-    edm::LogVerbatim("L1GlobalTriggerConfig") << std::endl;
+    LogTrace("L1GlobalTriggerConfig") << std::endl;
     
     DOMNode *algosNode = node->getFirstChild();
     if (algosNode == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error: No child of <def> found" 
             << std::endl;
         return -1;
@@ -1801,7 +1798,7 @@ int L1GlobalTriggerConfig::parseAlgos(DOMNode* node)
     // find algos tag 
     algosNode=findXMLChild(algosNode, xml_algos_tag);
     if (algosNode == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error: Could not find <" << xml_algos_tag << ">" 
             << std::endl;
         return -1;
@@ -1818,7 +1815,7 @@ int L1GlobalTriggerConfig::parseAlgos(DOMNode* node)
         algoNr++;
         std::ostringstream algoNrOss;
         algoNrOss << algoNr;          // convert algoNr to string
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "    Found an algo with name: "<< algoNameNodeName 
             << std::endl;
         
@@ -1848,7 +1845,7 @@ int L1GlobalTriggerConfig::parseAlgos(DOMNode* node)
 
 int L1GlobalTriggerConfig::parseAllAlgos(XercesDOMParser* parser) {
 
-    edm::LogVerbatim("L1GlobalTriggerConfig") << "\nParsing prealgos and algos" << std::endl;
+    LogTrace("L1GlobalTriggerConfig") << "\nParsing prealgos and algos" << std::endl;
 
     DOMNode *doc = parser->getDocument();
     DOMNode *n1 = doc->getFirstChild();
@@ -1876,7 +1873,7 @@ int L1GlobalTriggerConfig::parseAllAlgos(XercesDOMParser* parser) {
 
 int L1GlobalTriggerConfig::checkVersion(XercesDOMParser* parser) {
     
-    edm::LogVerbatim("L1GlobalTriggerConfig") << "\nChecking XML-file version....." << std::endl;
+    LogTrace("L1GlobalTriggerConfig") << "\nChecking XML-file version....." << std::endl;
 
     DOMNode *doc = parser->getDocument();
     DOMNode *n1 = doc->getFirstChild();
@@ -1886,7 +1883,7 @@ int L1GlobalTriggerConfig::checkVersion(XercesDOMParser* parser) {
     // find chip_def tag
     n1 = findXMLChild(n1->getFirstChild(), xml_chipdef_tag);
     if (n1 == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error: Could not find <" << xml_chipdef_tag << "> tag." 
             << std::endl;
         return -1;
@@ -1895,7 +1892,7 @@ int L1GlobalTriggerConfig::checkVersion(XercesDOMParser* parser) {
     // find chip1 tag
     n1 = findXMLChild(n1->getFirstChild(), xml_chip1_tag);
     if (n1 == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error: Could not find <" << xml_chip1_tag << "> tag." 
             << std::endl;
         return -1;
@@ -1909,7 +1906,7 @@ int L1GlobalTriggerConfig::checkVersion(XercesDOMParser* parser) {
     for (int i=0; i < 4; i++) {
         n1 = findXMLChild(n1, xml_ca_tag, true);
         if (n1 == 0) {
-            edm::LogVerbatim("L1GlobalTriggerConfig") 
+            edm::LogError("L1GlobalTriggerConfig") 
                 << "Error: Too less <ca >-tags" 
                 << std::endl;
         }
@@ -1920,12 +1917,12 @@ int L1GlobalTriggerConfig::checkVersion(XercesDOMParser* parser) {
     n1 = findXMLChild(n1, xml_ca_tag, true);
     if (n1 == 0) {
         p_xmlfileversion = VERSION_PROTOTYPE;
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "  XML-File is prototype version (6U)" 
             << std::endl;
     } else {
         p_xmlfileversion = VERSION_FINAL;
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        LogTrace("L1GlobalTriggerConfig") 
             << "  XML-File is final version (9U)" 
             << std::endl;
     }
@@ -1948,7 +1945,7 @@ int L1GlobalTriggerConfig::workXML(XercesDOMParser *parser) {
     DOMNode *n1 = doc->getFirstChild();
 
     if (n1 == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Error: Found no XML child" 
+        edm::LogError("L1GlobalTriggerConfig") << "Error: Found no XML child" 
             << std::endl;
         return -1;
     }
@@ -1956,13 +1953,13 @@ int L1GlobalTriggerConfig::workXML(XercesDOMParser *parser) {
     char* nodeName = XMLString::transcode(n1->getNodeName());
     // TODO def as static std::string
     if (XMLString::compareIString(nodeName, "def")) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
+        edm::LogError("L1GlobalTriggerConfig") 
             << "Error: First XML child is not \"def\"" 
             << std::endl;
         return -1;
     }
 
-    edm::LogVerbatim("L1GlobalTriggerConfig") 
+    LogTrace("L1GlobalTriggerConfig") 
         << "\nFirst node name is: " << nodeName 
         << std::endl;
     XMLString::release(&nodeName);
@@ -1993,34 +1990,31 @@ int L1GlobalTriggerConfig::workXML(XercesDOMParser *parser) {
  *
  */
 
-void L1GlobalTriggerConfig::printThresholds() {
+void L1GlobalTriggerConfig::printThresholds(std::ostream& myCout) {
 
 
     for (unsigned int i = 0; i < NumberConditionChips; i++) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") 
-            << "\n-------Chip " << i+1 << " --------" << std::endl;
+        myCout << "\n-------Chip " << i+1 << " --------" << std::endl;
         // print all
         for (ConditionsMap::iterator it = conditionsmap[i].begin(); 
             it != conditionsmap[i].end(); it++) {
             
-            it->second->printThresholds();
+            it->second->printThresholds(myCout);
         }
     }
 
-    edm::LogVerbatim("L1GlobalTriggerConfig") 
-        << "\n-------- prealgos --------" << std::endl;
+    myCout << "\n-------- prealgos --------" << std::endl;
     for (ConditionsMap::iterator it = prealgosmap.begin(); 
         it != prealgosmap.end(); it++) {
             
-            it->second->printThresholds();
+            it->second->printThresholds(myCout);
     }
 
-    edm::LogVerbatim("L1GlobalTriggerConfig") 
-        << "\n-------- algos --------" << std::endl;
+    myCout << "\n-------- algos --------" << std::endl;
     for (ConditionsMap::iterator it = algosmap.begin(); 
         it != algosmap.end(); it++) {
         
-            it->second->printThresholds();
+            it->second->printThresholds(myCout);
     }
 
 
@@ -2044,14 +2038,14 @@ int L1GlobalTriggerConfig::parseVmeXML(XercesDOMParser *parser) {
     DOMNode *n1 = doc->getFirstChild();
 
     if (n1 == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Error: Found no XML child" << std::endl;
+        edm::LogError("L1GlobalTriggerConfig") << "Error: Found no XML child" << std::endl;
         return -1;
     }
 
     // find "vme"-tag
     n1 = findXMLChild(n1, vmexml_vme_tag);
     if (n1 == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Error: No vme tag found." << std::endl;
+        edm::LogError("L1GlobalTriggerConfig") << "Error: No vme tag found." << std::endl;
         return -1;
     }
     n1 = n1->getFirstChild();
@@ -2079,7 +2073,7 @@ int L1GlobalTriggerConfig::parseVmeXML(XercesDOMParser *parser) {
                 while ((walknode = findXMLChild(walknode, "")) != 0) {
                     addressnode=walknode->getFirstChild();
                     while ((addressnode = findXMLChild(addressnode, vmexml_address_tag)) != 0) {
-                        // edm::LogVerbatim("L1GlobalTriggerConfig") << getXMLTextValue(addressnode);
+                        // LogTrace("L1GlobalTriggerConfig") << getXMLTextValue(addressnode);
                         addVmeAddress(addressnode, ofs);
                         addressnode = addressnode->getNextSibling();
                     }
@@ -2088,7 +2082,7 @@ int L1GlobalTriggerConfig::parseVmeXML(XercesDOMParser *parser) {
             } else { // other particles than muon just contain adress nodes
                 addressnode = particlenode->getFirstChild();
                 while ((addressnode = findXMLChild(addressnode, vmexml_address_tag)) != 0) {
-                    // edm::LogVerbatim("L1GlobalTriggerConfig") << getXMLTextValue(addressnode);
+                    // LogTrace("L1GlobalTriggerConfig") << getXMLTextValue(addressnode);
                     addVmeAddress(addressnode, ofs);
                     addressnode = addressnode->getNextSibling();
                 }
@@ -2122,7 +2116,7 @@ int L1GlobalTriggerConfig::addVmeAddress(DOMNode *node, std::ofstream& ofs) {
     unsigned int endpos = addrsrc.find_first_not_of(binarynumbers,startpos); // end position
 
     if (startpos == endpos) { // TODO write a better message
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Error: No address value found." << std::endl;
+        edm::LogError("L1GlobalTriggerConfig") << "Error: No address value found." << std::endl;
         return -1; 
     }
 
@@ -2136,7 +2130,7 @@ int L1GlobalTriggerConfig::addVmeAddress(DOMNode *node, std::ofstream& ofs) {
     unsigned long int address = strtoul(addrsrc.c_str(), &endptr, 2); // integer value of address
 
     if (*endptr != 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Error converting binary address." << std::endl;
+        edm::LogError("L1GlobalTriggerConfig") << "Error converting binary address." << std::endl;
         return -1;
     }
 
@@ -2145,7 +2139,7 @@ int L1GlobalTriggerConfig::addVmeAddress(DOMNode *node, std::ofstream& ofs) {
 
     valuenode = findXMLChild(node->getFirstChild(), vmexml_value_tag);
     if (valuenode == 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Found no value node for address." << hex << address 
+        edm::LogError("L1GlobalTriggerConfig") << "Found no value node for address." << hex << address 
             << dec << std::endl;
         return -1;
     }
@@ -2156,7 +2150,7 @@ int L1GlobalTriggerConfig::addVmeAddress(DOMNode *node, std::ofstream& ofs) {
     endpos = valuesrc.find_first_not_of(binarynumbers, startpos);
 
     if (startpos == endpos) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Error: No binary value found." << std::endl;
+        edm::LogError("L1GlobalTriggerConfig") << "Error: No binary value found." << std::endl;
         return -1;
     }
 
@@ -2164,7 +2158,7 @@ int L1GlobalTriggerConfig::addVmeAddress(DOMNode *node, std::ofstream& ofs) {
     endptr = (char*) valuesrc.c_str();
     unsigned long int value = strtoul(valuesrc.c_str(), &endptr, 2); // integer value of value
     if (*endptr != 0) {
-        edm::LogVerbatim("L1GlobalTriggerConfig") << "Error converting binary value." << std::endl;
+        edm::LogError("L1GlobalTriggerConfig") << "Error converting binary value." << std::endl;
         return -1;
     }
 
