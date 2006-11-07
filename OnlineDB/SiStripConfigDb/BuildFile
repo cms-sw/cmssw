@@ -1,4 +1,5 @@
 <use name=FWCore/Utilities>
+<use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/SiStripCommon>
 <use name=CondFormats/SiStripObjects>
@@ -11,6 +12,7 @@
 <export>
    <lib name=OnlineDBSiStripConfigDb>
    <use name=FWCore/Utilities>
+   <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
    <use name=DataFormats/SiStripCommon>
    <use name=CondFormats/SiStripObjects>
