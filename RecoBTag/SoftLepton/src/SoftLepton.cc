@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.2 2006/10/18 16:38:29 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.3 2006/10/31 02:53:09 fwyzard Exp $
 //
 
 
@@ -48,11 +48,11 @@ reco::Vertex s_nominalBeamSpot(  );
 
 SoftLepton::SoftLepton(const edm::ParameterSet& iConfig) :
   m_config( iConfig ),
-  m_jetTracksAssociator(   iConfig.getParameter<std::string>(       "jetTracks"          ) ),
-  m_primaryVertexProducer( iConfig.getParameter<std::string>(       "primaryVertex"      ) ),
-  m_leptonProducer(        iConfig.getParameter<std::string>(       "leptons"            ) ),
-  m_outputInstanceName(    iConfig.getParameter<std::string>(       "outputInstanceName" ) ),
-  // m_algo(                  iConfig.getParameter<edm::ParameterSet>( "AlgorithmPSet"      ) )
+  m_jetTracksAssociator(   iConfig.getParameter<std::string>( "jetTracks"          ) ),
+  m_primaryVertexProducer( iConfig.getParameter<std::string>( "primaryVertex"      ) ),
+  m_leptonProducer(        iConfig.getParameter<std::string>( "leptons"            ) ),
+  m_outputInstanceName(    iConfig.getParameter<std::string>( "outputInstanceName" ) ),
+//m_algo(                  iConfig.getParameter<edm::ParameterSet>( "AlgorithmPSet" ) )
   m_algo()
 {
   produces<reco::JetTagCollection>( m_outputInstanceName );     // several producers - use a label
@@ -64,6 +64,9 @@ SoftLepton::SoftLepton(const edm::ParameterSet& iConfig) :
   e(1,1) = 0.0015 * 0.0015;
   e(2,2) = 15. * 15.;
   m_nominalBeamSpot = new reco::Vertex( p, e, 1, 1, 0 );
+
+  m_algo.setDeltaRCut( m_config.getParameter<double>("deltaRCut") );
+  m_algo.refineJetAxis( m_config.getParameter<unsigned int>("refineJetAxis") );
 }
 
 

@@ -1,10 +1,36 @@
-<use name=FWCore/Framework>
+<use name=Root>
+
 <use name=Foundation/PluginManager>
+<use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=DataFormats/VertexReco>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/EgammaCandidates>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=TrackingTools/TransientTrack>
+<use name=RecoBTag/BTagTools>
+
 <flags SEAL_PLUGIN_NAME="RecoBTagSoftLepton">
+
 <export>
    <lib name=RecoBTagSoftLepton>
-   <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
+   <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
+   <use name=DataFormats/Common>
+   <use name=DataFormats/VertexReco>
+   <use name=DataFormats/TrackReco>
+   <use name=DataFormats/MuonReco>
+   <use name=DataFormats/BTauReco>
+   <use name=DataFormats/JetReco>
+   <use name=DataFormats/EgammaCandidates>
+   <use name=MagneticField/Engine>
+   <use name=MagneticField/Records>
+   <use name=TrackingTools/TransientTrack>
+   <use name=RecoBTag/BTagTools>
 </export>

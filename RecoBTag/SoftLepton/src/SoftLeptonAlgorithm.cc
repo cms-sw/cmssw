@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.1 2006/10/31 02:53:09 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.2 2006/11/01 13:00:38 fwyzard Exp $
 //
 
 // STL
@@ -123,6 +123,12 @@ SoftLeptonAlgorithm::tag(
   for (unsigned int i = 0; i < leptons.size(); i++) {
     reco::TrackRef lepton = leptons[i];
 
+    // Temporary TVector3 vecotrs
+    TVector3 _original_axis( jet->px(), jet->py(), jet->pz() );
+    TVector3 _lepton( lepton->x(), lepton->y(), lepton->z() );
+    if (_lepton.DeltaR(_originl_axis) > m_deltaRCut)
+      continue;
+
     reco::SoftLeptonProperties properties;
     properties.axisRefinement = m_refineJetAxis;
     
@@ -147,11 +153,10 @@ SoftLeptonAlgorithm::tag(
     delete transientTrack;
     
     // Temporary TVector3 vecotrs
-    TVector3 _axis(   jetAxis.x(), jetAxis.y(), jetAxis.z() );
-    TVector3 _lepton( lepton->x(), lepton->y(), lepton->z() );
+    TVector3 _axis( jetAxis.x(), jetAxis.y(), jetAxis.z() );
+    properties.deltaR   = _lepton.DeltaR(_axis);
     properties.ptRel    = _lepton.Perp(_axis);
     properties.etaRel   = relativeEta(_lepton, _axis);
-    properties.deltaR   = _lepton.DeltaR(_axis);
     properties.ratio    = _lepton.Mag() / _axis.Mag();
     properties.ratioRel = _lepton.Dot(_axis) / _axis.Mag2();
     properties.tag      = m_concreteTagger->discriminant( _axis, _lepton, properties);
@@ -164,7 +169,6 @@ SoftLeptonAlgorithm::tag(
   reco::JetTag tag( discriminant, jetTracks );
   return std::pair<reco::JetTag, reco::SoftLeptonTagInfo>( tag, info );
 }
-
 
 GlobalVector
 SoftLeptonAlgorithm::refineJetAxis (
