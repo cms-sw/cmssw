@@ -1,5 +1,5 @@
-#ifndef L2TAUJETSMERGER_H
-#define L2TAUJETSMERGER_H
+#ifndef L2TAUJETMERGER_H
+#define L2TAUJETMERGER_H
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
