@@ -807,7 +807,7 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
 // check raw values against reference
     if(isinRaw[detid]) {
       for (int icap=0; icap<4; icap++) {
-        int icap2=(icap+1)%3;
+        int icap2=(icap+1)%4;
         float width=sqrt(RawPedSigs[icap][icap]);
         float erof1=width/sqrt((float)nstat[icap]);
         float erof2=sqrt(erof1*erof1+RawPedSigs[icap][icap]/(float)nstat[icap]);
