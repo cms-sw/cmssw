@@ -112,7 +112,6 @@ void SiStripActionExecutor::fillSummary(MonitorUserInterface* mui) {
   if (nmod > 0) {
     fillSummaryHistos(mui);
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
       mui->cd(*it);
@@ -129,7 +128,7 @@ void SiStripActionExecutor::fillGrandSummaryHistos(MonitorUserInterface* mui) {
   if ((dir_name.find("SiStrip") == 0) ||
       (dir_name.find("Collector") == 0) ||
       (dir_name.find("MechanicalView") == 0) ||
-      (dir_name.find("FU0") == 0) ) return;
+      (dir_name.find("FU") == 0) ) return;
   vector<string> subdirs = mui->getSubdirs();
   if (subdirs.size() == 0) return;;
   int iDir =0;

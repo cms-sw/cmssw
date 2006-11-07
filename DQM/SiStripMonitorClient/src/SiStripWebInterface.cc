@@ -9,6 +9,7 @@
 #include "DQMServices/WebComponents/interface/ContentViewer.h"
 #include "DQMServices/WebComponents/interface/GifDisplay.h"
 #include "DQMServices/WebComponents/interface/Select.h"
+#include "DQMServices/WebComponents/interface/HTMLLink.h"
 
 #include <SealBase/Callback.h>
 #include <map>
@@ -37,6 +38,10 @@ void SiStripWebInterface::createAll() {
   Navigator * nav = new Navigator(getApplicationURL(), "50px", "50px");
   ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "50px");
   GifDisplay * dis = new GifDisplay(getApplicationURL(), "25px","300px", "500px", "600px", "MyGifDisplay"); 
+  // an html link
+  HTMLLink *link = new HTMLLink(getApplicationURL(), "400px", "10px", 
+				"<i>SiStripWebInterface</i>", 
+				"/temporary/Online.html");
   
 
   /*  Button * subcrBut = new Button(getApplicationURL(), "340px", "50px", "SubscribeAll", "Subscribe All");
@@ -53,6 +58,7 @@ void SiStripWebInterface::createAll() {
   page_p->add("navigator", nav);
   page_p->add("contentViewer", cont);
   page_p->add("gifDisplay", dis);
+  page_p->add("htmlLink", link);
   /*  page_p->add("Sbbutton", subcrBut);
   page_p->add("Cbutton", compBut);
   page_p->add("Smbutton", sumBut);
@@ -229,18 +235,6 @@ void SiStripWebInterface::performAction() {
     }
   }
   setActionFlag(SiStripWebInterface::NoAction);
-}
-void SiStripWebInterface::createButton(xgi::Output * out, string& href) {
-
-  std::string position = "position:absolute; left:50px; top: 350px;";
-  *out << cgicc::div().set("style", position.c_str()) << std::endl;
-
-  std::string js_command = "var w = window.open('" + href +"');w.focus()";
-  *out << cgicc::input().set("type", "button")
-    .set("value", "Open SiStrip Interface")
-    .set("onclick", js_command.c_str()) << std::endl;
-
-  *out << cgicc::div()   << std::endl;
 }
 void SiStripWebInterface::returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment){
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");

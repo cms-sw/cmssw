@@ -29,6 +29,23 @@ function getApplicationURL()
 
   return url;
 }
+function getApplicationURL2()
+{
+  var url = window.location.href;
+  // remove the cgi request from the end of the string
+  var index = url.indexOf("?");
+  if (index >= 0)
+  {
+    url = url.substring(0, index);
+  }
+
+  index = url.lastIndexOf("temporary");
+  url = url.substring(0, index);
+
+  // add the cgi request
+  url += "urn:xdaq-application:lid=15";
+  return url;
+}
 
 function getContextURL()
 {

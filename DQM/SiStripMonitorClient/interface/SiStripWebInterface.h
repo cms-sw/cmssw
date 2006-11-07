@@ -31,7 +31,6 @@ class SiStripWebInterface : public WebInterface
 
   SiStripActionType getActionFlag() {return theActionFlag;}
   void setActionFlag(SiStripActionType flag) {theActionFlag = flag;}
-  void createButton(xgi::Output * out, std::string& href);
 
   bool createTkMap();
    
