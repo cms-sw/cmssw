@@ -53,8 +53,10 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent, const edm::Paramet
   myHistos->book("h210",720,-M_PI,M_PI,100,0,35.);
   myHistos->book("h212",720,-M_PI,M_PI,100,0,35.);
 
-  myHistos->bookByNumber("h30",0,7,300,0.,3.,100,0.,35.);
-  myHistos->book("h310",75,0.,3.,"");
+  myHistos->bookByNumber("h30",0,7,300,-3.,3.,100,0.,35.);
+  myHistos->book("h310",75,-3.,3.,"");
+  myHistos->book("h400",100,-10.,10.,100,0.,35.);
+  myHistos->book("h410",720,-M_PI,M_PI);
 #endif
   myCalorimeter_ = new CaloGeometryHelper(fastCalo);
   myHDResponse_ = new HCALResponse(fastCalo.getParameter<edm::ParameterSet>("HCALResponse"));
@@ -627,13 +629,16 @@ void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
 {
   std::map<unsigned,float>::const_iterator cellit;
   std::map<unsigned,float>::const_iterator barrelEnd=EBMapping_.end();
-  
+  //  float sum=0.;
   for(cellit=EBMapping_.begin();cellit!=barrelEnd;++cellit)
     {
       // Add the PCaloHit. No time, no track number 
       //      if(DetId(cellit->first).null()) std::cout << " PCaloHit. Ooops null " << std::endl;
       c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
+      //      sum+=cellit->second;
     }
+  //  std::cout << " SUM : " << sum << std::endl;
+  //  std::cout << " Added " <<c.size() << " hits " <<std::endl;
 }
 
 
