@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.11 $
- *  $Date$
- *  (last update by $Author$)
+ *  $Revision: 1.1 $
+ *  $Date: 2006/10/20 13:57:03 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "PedeSteerer.h"
@@ -17,11 +17,15 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
 #include <fstream>
+#include <algorithm>
+
+const unsigned int PedeSteerer::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM;
 
 //___________________________________________________________________________
 
@@ -39,7 +43,8 @@ PedeSteerer::PedeSteerer(AlignableTracker *alignableTracker, AlignmentParameterS
 
   this->buildMap(alignableTracker);
 
-  this->fixParameters(store, config.getParameter<edm::ParameterSet>("fixParameters"));
+  this->fixParameters(store, alignableTracker,
+                      config.getParameter<edm::ParameterSet>("fixedParameterSelection"));
 }
 
 //___________________________________________________________________________
@@ -105,8 +110,12 @@ unsigned int PedeSteerer::alignableLabel(const Alignable *alignable) const
 //_________________________________________________________________________
 unsigned int PedeSteerer::parameterLabel(unsigned int aliLabel, unsigned int parNum) const
 {
-
-  return aliLabel+ parNum; // FIXME: check whether alignable has >= parNum + 1 parameters
+  if (parNum >= theMaxNumParam) {
+    throw cms::Exception("Alignment") << "@SUB=PedeSteerer::parameterLabel" 
+                                      << "parameter number " << parNum 
+                                      << " out of range 0 <= num < " << theMaxNumParam;
+  }
+  return aliLabel + parNum;
 
   /*
   const unsigned int bitOffset = 20;
@@ -149,7 +158,7 @@ unsigned int PedeSteerer::buildMap(Alignable *highestLevelAli)
   for (std::vector<Alignable*>::const_iterator iter = allComps.begin();
        iter != allComps.end(); ++iter) {
     myAlignableToIdMap.insert(AlignableToIdPair(*iter, id));
-    id += RigidBodyAlignmentParameters::N_PARAM; // FIXME: We rely on rigidbody model...
+    id += theMaxNumParam;
   }
 
   return allComps.size();
@@ -157,70 +166,48 @@ unsigned int PedeSteerer::buildMap(Alignable *highestLevelAli)
 
 //_________________________________________________________________________
 unsigned int PedeSteerer::fixParameters(AlignmentParameterStore *store,
+                                        AlignableTracker *alignableTracker,
 					const edm::ParameterSet &config)
 {
   // return number of fixed parameters
-  // currently fix only full alignables...
   if (!store) return 0;
 
-  const std::vector<double> etaRanges(config.getParameter<std::vector<double> >("etaRanges"));
-  const std::vector<double> zRanges  (config.getParameter<std::vector<double> >("zRanges"  ));
-  const std::vector<double> rRanges  (config.getParameter<std::vector<double> >("rRanges"  ));
-  const std::vector<double> phiRanges(config.getParameter<std::vector<double> >("phiRanges"));
+  AlignmentParameterSelector selector(alignableTracker);
+  selector.addSelections(config);
+  const std::vector<Alignable*> &alignables = selector.selectedAlignables();
+  const std::vector<std::vector<bool> > &paramSels = selector.selectedParameters();
 
+  const AlignmentParameterStore::Alignables &storeAli = store->alignables();
   unsigned int numFixed = 0;
 
-  const std::vector<Alignable*> &alignables = store->alignables();
-  for (std::vector<Alignable*>::const_iterator iAli = alignables.begin();
-       iAli != alignables.end(); ++iAli) {
-    const GlobalPoint position((*iAli)->globalPosition());
-    if (this->insideRanges(static_cast<double>(position.eta()), etaRanges) ||
-	this->insideRanges(static_cast<double>(position.z()), zRanges) ||
-	this->insideRanges(static_cast<double>(position.perp()), rRanges)
-	//	|| this->outsidePhiRanges(position.phi(), phiRanges)
-	) {
-      const AlignmentParameters *params = (*iAli)->alignmentParameters();
-      if (!params) {
-	edm::LogError("Alignment") << "@SUB=PedeSteerer::fixParameters" 
-				   << "no parameters for Alignable in AlignmentParameterStore";
-	continue;
+  std::vector<Alignable*>::const_iterator iAli = alignables.begin();
+  std::vector<std::vector<bool> >::const_iterator iParamSel = paramSels.begin();
+  for ( ; iAli != alignables.end() && iParamSel != paramSels.end(); ++iAli, ++iParamSel) {
+
+    const AlignmentParameters *params = (*iAli)->alignmentParameters();
+    if (!params) {
+      if (find(storeAli.begin(), storeAli.end(), *iAli) != storeAli.end()) {
+        edm::LogError("Alignment") << "@SUB=PedeSteerer::fixParameters" 
+                                   << "no parameters for Alignable in AlignmentParameterStore";
+      } else {
+        edm::LogInfo("Alignment") << "@SUB=PedeSteerer::fixParameters" << "ali NOT in store";
       }
-      const unsigned int aliLabel = this->alignableLabel(*iAli);
-      const unsigned int numSelParams = params->numSelected();
-      for (unsigned int iParam = 0; iParam < numSelParams; ++iParam) {
-	mySteerFile << this->parameterLabel(aliLabel, iParam) << "  0.0  -1.0";
-	if (0) { // debug
-	  mySteerFile << " eta " << position.eta() << ", z " << position.z()
-		      << ", r " << position.perp() << ", phi " << position.phi();
-	}
-	mySteerFile << std::endl; // "\n"?
-	++numFixed;
+      continue;
+    }
+
+    const unsigned int aliLabel = this->alignableLabel(*iAli);
+    for (unsigned int iParam = 0; iParam < params->size(); ++iParam) {
+      if (!(*iParamSel)[iParam]) continue;
+      ++numFixed;
+      mySteerFile << this->parameterLabel(aliLabel, iParam) << "  0.0  -1.0";
+      if (0) { // debug
+        const GlobalPoint position((*iAli)->globalPosition());
+        mySteerFile << " eta " << position.eta() << ", z " << position.z()
+                    << ", r " << position.perp() << ", phi " << position.phi();
       }
+      mySteerFile << "\n";
     }
   }
 
   return numFixed;
-}
-
-//_________________________________________________________________________
-bool PedeSteerer::insideRanges(double value, const std::vector<double> &ranges) const
-{
-  // might become templated on <double> ?
-
-  //  if (ranges.empty()) return false; // no ranges defined: all is fine
-
-  if (ranges.size()%2 != 0) {
-    edm::LogError("Alignment") << "@SUB=PedeSteerer::insideRanges" 
-			       << "need even number of entries in ranges instead of "
-			       << ranges.size();
-    return false;
-  }
-
-  for (unsigned int i = 0; i < ranges.size(); i += 2) {
-    if (value >= ranges[i] && value < ranges[i+1]) {
-      return true;
-    }
-  }
-
-  return false;
 }

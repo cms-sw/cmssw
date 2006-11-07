@@ -8,9 +8,9 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date$
- * $Revision$
- * (last update by $Author$)
+ * $Date: 2006/10/20 13:57:03 $
+ * $Revision: 1.1 $
+ * (last update by $Author: flucke $)
  */
 
 #include <fstream>
@@ -45,12 +45,13 @@ class PedeSteerer
   typedef std::pair<const Alignable*, unsigned int> AlignableToIdPair;
 
   unsigned int buildMap(Alignable *highestLevelAli);
-  unsigned int fixParameters(AlignmentParameterStore *store, const edm::ParameterSet &config);
-  bool insideRanges(double value, const std::vector<double> &ranges) const;
+  unsigned int fixParameters(AlignmentParameterStore *store, AlignableTracker *alignableTracker,
+			     const edm::ParameterSet &config);
 
   std::ofstream     mySteerFile; // text file
   AlignableToIdMap  myAlignableToIdMap; 
 
+  static const unsigned int theMaxNumParam;
 };
 
 #endif
