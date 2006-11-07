@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/11/06 17:50:18 $
- *  $Revision: 1.26 $
+ *  $Date: 2006/11/06 18:42:22 $
+ *  $Revision: 1.27 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -118,14 +118,20 @@ void MuonTrackFinder::reconstruct(const Handle<reco::TrackCollection>& staTracks
   // Muon Candidate container
   CandidateContainer muonCandidates;
 
+
+  const vector<Trajectory>* trajCollection = 0;
+
   bool validTrajs = staTrajs.isValid();
   if ( validTrajs && staTrajs->size()!=staTracks->size()){
     LogError(metname) << "MuonTrackFinder::reconstruct: Size of trajectory and track collections do not match";
     validTrajs=false;
+  } 
+
+  if (validTrajs) {
+    trajCollection = staTrajs.product();
   }
 
   // reconstruct the muon candidates
-  vector<Trajectory> trajCollection = *(staTrajs.product());
   for (unsigned int position = 0; position != staTracks->size(); ++position) {
     LogDebug(metname)<<"+++ New Track +++"<<endl;
     reco::TrackRef staTrack(staTracks,position);
@@ -133,8 +139,8 @@ void MuonTrackFinder::reconstruct(const Handle<reco::TrackCollection>& staTracks
     TrackCand staCand(0,staTrack);
 
     if (validTrajs) {
-      vector<Trajectory>::iterator it = trajCollection.begin()+position;
-      Trajectory* trajRef(&*it);  
+      vector<Trajectory>::const_iterator it = trajCollection->begin()+position;
+      const Trajectory* trajRef(&*it);  
       if ( trajRef->isValid() ) staCand.first = trajRef;
     }
 
