@@ -589,7 +589,7 @@ std::string ALIUtils::changeName( const std::string& oldName, const std::string&
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotation& rmLocal, double origAngleX, double origAngleY, double origAngleZ )
+std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotation& rotm, double origAngleX, double origAngleY, double origAngleZ )
 {
   double pii = acos(0.)*2;
   std::vector<double> newang(3);
@@ -602,27 +602,29 @@ std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotat
   }
 
   //-  std::cout << name () << " vdbf " << angleX << " " << angleY << " " << angleZ << std::endl;
-  double rotzx = approxTo0( rmLocal.zx() );
-  double rotzy = approxTo0( rmLocal.zy() );
-  double rotzz = approxTo0( rmLocal.zz() );
-  double rotyx = approxTo0( rmLocal.yx() );
-  double rotxx = approxTo0( rmLocal.xx() );
+  double rotzx = approxTo0( rotm.zx() );
+  double rotzy = approxTo0( rotm.zy() );
+  double rotzz = approxTo0( rotm.zz() );
+  double rotyx = approxTo0( rotm.yx() );
+  double rotxx = approxTo0( rotm.xx() );
   if( rotzy == 0. && rotzz == 0. ) {
     //check that entry is z angle
     newang[0] = angleX;
     //beware of aa <==> pii - aa
-    if( eq2ang( rmLocal.zx(), -1. ) ) {
-      double aa = asin( rmLocal.xy() );
-      if( diff2pi( angleZ, - aa + newang[0] ) < diff2pi( angleZ, - pii + aa + newang[0] )  ) {
+    if( approxTo0( rotzx + 1. ) == 0. ) { // angy = 90
+      double aa = asin( rotm.xy() );
+      // Two angles gave same sin (aa & pii-aa), check which it could be
+      if( diff2pi( angleZ, - aa + newang[0] ) < diff2pi( angleZ, - (pii - aa) + newang[0] )  ) {
 	newang[2] = -aa + newang[0];
 	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = -aa + newang[0] " << std::endl;
-      } else {
-	newang[2] = -pii + aa + newang[0];
-	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = -pii + aa + newang[0] " << newang[0] << " " << aa << " " << newang[2] << std::endl;
+      } else { 
+	newang[2] = - (pii - aa) + newang[0];
+	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = - (pii - aa) + newang[0] " << newang[0] << " " << aa << " " << newang[2] << std::endl;
       }
-    } else {
-      double aa = asin( -rmLocal.xy() );
-      if( diff2pi( angleZ, aa - newang[0] ) < diff2pi( angleZ, pii - aa - newang[0] )  ) {
+    } else { // angy = 270
+      double aa = asin( -rotm.xy() );
+      // Two angles gave same sin (aa & pii-aa), check which it could be
+     if( diff2pi( angleZ, aa - newang[0] ) < diff2pi( angleZ, pii - aa - newang[0] )  ) {
 	newang[2] = aa - newang[0];
 	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = aa - newang[2] " << std::endl;
       } else {
@@ -635,10 +637,10 @@ std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotat
     newang[2] = atan( rotyx / rotxx );
   }
   if( rotzx < -1. ) {
-    //-    std::cerr << " rotzx too small " << rotzx << " = " << rmLocal.zx() << " " << rotzx-rmLocal.zx() << std::endl;
+    //-    std::cerr << " rotzx too small " << rotzx << " = " << rotm.zx() << " " << rotzx-rotm.zx() << std::endl;
     rotzx = -1.;
   } else if( rotzx > 1. ) {
-    //-    std::cerr << " rotzx too big " << rotzx << " = " << rmLocal.zx() << " " << rotzx-rmLocal.zx() << std::endl;
+    //-    std::cerr << " rotzx too big " << rotzx << " = " << rotm.zx() << " " << rotzx-rotm.zx() << std::endl;
     rotzx = 1.;
   }
   newang[1] = -asin( rotzx );
@@ -647,7 +649,7 @@ std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotat
 			       << " newang[1] " << newang[1] << " rotzx " << rotzx << std::endl
 			       << " newang[2] " << newang[2] << " rotyx " << rotyx << " rotxx " << rotxx << std::endl;
   
-  //    newang[2] = acos( rmLocal.xx() / cos( newang[1] ) );
+  //    newang[2] = acos( rotm.xx() / cos( newang[1] ) );
   //----- CHECK if the angles are OK (there are several symmetries)
   //--- Check if the predictions with the angles obtained match the values of the rotation matrix (they may differ for exampole by a sign or more in complicated formulas)
   double sx = sin(newang[0]);
@@ -667,28 +669,28 @@ std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotat
   double rotnewzy = sx*cy;
   double rotnewzz = cx*cy;
 
-  bool eqxx = eq2ang( rotnewxx, rmLocal.xx() );
-  bool eqxy = eq2ang( rotnewxy, rmLocal.xy() );
-  bool eqxz = eq2ang( rotnewxz, rmLocal.xz() );
-  bool eqyx = eq2ang( rotnewyx, rmLocal.yx() );
-  bool eqyy = eq2ang( rotnewyy, rmLocal.yy() );
-  bool eqyz = eq2ang( rotnewyz, rmLocal.yz() );
-  bool eqzx = eq2ang( rotnewzx, rmLocal.zx() );
-  bool eqzy = eq2ang( rotnewzy, rmLocal.zy() );
-  bool eqzz = eq2ang( rotnewzz, rmLocal.zz() );
+  bool eqxx = eq2ang( rotnewxx, rotm.xx() );
+  bool eqxy = eq2ang( rotnewxy, rotm.xy() );
+  bool eqxz = eq2ang( rotnewxz, rotm.xz() );
+  bool eqyx = eq2ang( rotnewyx, rotm.yx() );
+  bool eqyy = eq2ang( rotnewyy, rotm.yy() );
+  bool eqyz = eq2ang( rotnewyz, rotm.yz() );
+  bool eqzx = eq2ang( rotnewzx, rotm.zx() );
+  bool eqzy = eq2ang( rotnewzy, rotm.zy() );
+  bool eqzz = eq2ang( rotnewzz, rotm.zz() );
 
   //--- Check if one of the tree angles should be changed
   if( ALIUtils::debug >= 5 ) {
-    std::cout << " pred rm.xx " << rotnewxx << " =? " << rmLocal.xx() << " eqxx " << eqxx << std::endl
-	      << " pred rm.xy " << rotnewxy << " =? " << rmLocal.xy() << " eqxy " << eqxy << std::endl
-	      << " pred rm.xz " << rotnewxz << " =? " << rmLocal.xz() << " eqxz " << eqxz << std::endl
-	      << " pred rm.yx " << rotnewyx << " =? " << rmLocal.yx() << " eqyx " << eqyx << std::endl
-	      << " pred rm.yy " << rotnewyy << " =? " << rmLocal.yy() << " eqyy " << eqyy << std::endl
-	      << " pred rm.yz " << rotnewyz << " =? " << rmLocal.yz() << " eqyz " << eqyz << std::endl
-	      << " pred rm.zx " << rotnewzx << " =? " << rmLocal.zx() << " eqzx " << eqzx << std::endl
-	      << " pred rm.zy " << rotnewzy << " =? " << rmLocal.zy() << " eqzy " << eqzy << std::endl
-	      << " pred rm.zz " << rotnewzz << " =? " << rmLocal.zz() << " eqzz " << eqzz << std::endl;
-    //-    std::cout << " rotnewxx " << rotnewxx << " = " << rmLocal.xx() << " " << fabs( rotnewxx - rmLocal.xx() ) << " " <<(fabs( rotnewxx - rmLocal.xx() ) < 0.0001) << std::endl;
+    std::cout << " pred rm.xx " << rotnewxx << " =? " << rotm.xx() << " eqxx " << eqxx << std::endl
+	      << " pred rm.xy " << rotnewxy << " =? " << rotm.xy() << " eqxy " << eqxy << std::endl
+	      << " pred rm.xz " << rotnewxz << " =? " << rotm.xz() << " eqxz " << eqxz << std::endl
+	      << " pred rm.yx " << rotnewyx << " =? " << rotm.yx() << " eqyx " << eqyx << std::endl
+	      << " pred rm.yy " << rotnewyy << " =? " << rotm.yy() << " eqyy " << eqyy << std::endl
+	      << " pred rm.yz " << rotnewyz << " =? " << rotm.yz() << " eqyz " << eqyz << std::endl
+	      << " pred rm.zx " << rotnewzx << " =? " << rotm.zx() << " eqzx " << eqzx << std::endl
+	      << " pred rm.zy " << rotnewzy << " =? " << rotm.zy() << " eqzy " << eqzy << std::endl
+	      << " pred rm.zz " << rotnewzz << " =? " << rotm.zz() << " eqzz " << eqzz << std::endl;
+    //-    std::cout << " rotnewxx " << rotnewxx << " = " << rotm.xx() << " " << fabs( rotnewxx - rotm.xx() ) << " " <<(fabs( rotnewxx - rotm.xx() ) < 0.0001) << std::endl;
   }
 
   if( eqxx & !eqzz ) {
@@ -711,8 +713,8 @@ std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotat
     newang[2] = addPii( newang[2] );
     double rotnewxy = -sin( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - cos( newang[0] )* sin( newang[2] );
     double rotnewxz = -cos( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - sin( newang[0] )* sin( newang[2] );
-    if( ALIUtils::debug >= 5 ) std::cout << " rotnewxy " << rotnewxy << " = " << rmLocal.xy()
-	 << " rotnewxz " << rotnewxz << " = " << rmLocal.xz() << std::endl;
+    if( ALIUtils::debug >= 5 ) std::cout << " rotnewxy " << rotnewxy << " = " << rotm.xy()
+	 << " rotnewxz " << rotnewxz << " = " << rotm.xz() << std::endl;
   }
   if( diff2pi(angleX, newang[0] ) + diff2pi(angleY, newang[1] ) +diff2pi(angleZ, newang[2] )
 	   > diff2pi(angleX, pii+newang[0] ) + diff2pi(angleY, pii-newang[1] ) + diff2pi(angleZ, pii+newang[2] ) ){
@@ -723,8 +725,8 @@ std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotat
     newang[2] = addPii( newang[2] );
     double rotnewxy = -sin( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - cos( newang[0] )* sin( newang[2] );
     double rotnewxz = -cos( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - sin( newang[0] )* sin( newang[2] );
-    if( ALIUtils::debug >= 5 ) std::cout << " rotnewxy " << rotnewxy << " = " << rmLocal.xy()
-	 << " rotnewxz " << rotnewxz << " = " << rmLocal.xz() << std::endl;
+    if( ALIUtils::debug >= 5 ) std::cout << " rotnewxy " << rotnewxy << " = " << rotm.xy()
+	 << " rotnewxz " << rotnewxz << " = " << rotm.xz() << std::endl;
   }
   
   for (int ii=0; ii<3; ii++) {  
@@ -732,9 +734,9 @@ std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotat
   }
   //  double rotnewyx = cos( newang[1] ) * sin( newang[2] );
 
-  if(  checkMatrixEquations( newang[0], newang[1], newang[2], &rmLocal ) != 0 ){
+  if(  checkMatrixEquations( newang[0], newang[1], newang[2], &rotm ) != 0 ){
     std::cerr << " wrong rotation matrix " <<  newang[0] << " " << newang[1] << " " << newang[2] << std::endl;
-    ALIUtils::dumprm( rmLocal, " matrix is " );
+    ALIUtils::dumprm( rotm, " matrix is " );
   }
   if( ALIUtils::debug >= 5 ) {
     std::cout << "Final angles:  newang[0] " << newang[0] << " newang[1] " << newang[1] << " newang[2] " << newang[2] << std::endl;
@@ -745,7 +747,148 @@ std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotat
     ALIUtils::dumprm( rot, " new rot after Y ");
     rot.rotateZ( newang[2] );
     ALIUtils::dumprm( rot, " new rot ");
-    ALIUtils::dumprm( rmLocal, " rmLocal " );
+    ALIUtils::dumprm( rotm, " rotm " );
+    //-    ALIUtils::dumprm( theRmGlobOriginal, " theRmGlobOriginal " );
+  }
+
+  //-  std::cout << " before return newang[0] " << newang[0] << " newang[1] " << newang[1] << " newang[2] " << newang[2] << std::endl;
+  return newang;
+
+}
+
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotation& rotm )
+{
+  double pii = acos(0.)*2;
+  std::vector<double> newang(3);
+  //-  double angleX = origAngleX;
+  //-  double angleY = origAngleY;
+  //-  double angleZ = origAngleZ;
+  double rotzx = approxTo0( rotm.zx() );
+  double rotzy = approxTo0( rotm.zy() );
+  double rotzz = approxTo0( rotm.zz() );
+  double rotyx = approxTo0( rotm.yx() );
+  double rotxx = approxTo0( rotm.xx() );
+  double rotxy = approxTo0( rotm.xy() );
+  if( rotzy == 0. && rotzz == 0. ) {
+    //check that entry is z angle
+    double xmz;
+    if( approxTo0( rotzx + 1. ) == 0. ) { // angy = 90
+      xmz = asin( rotxy );  // angx - angz
+    } else {  // angy = 270
+      xmz = asin( -rotxy );  // angx - angz      
+    }
+    //    std::cout << "  angy = 90  xmz= " <<  xmz << std::endl; 
+    //!!! Any value of angx would give the same matrix if angx-angz is kept constant
+    newang[0] = 0.;
+    newang[2] = xmz; 
+    if( ALIUtils::debug >= 0 ) std::cerr << "!!! WARNING  ALIUtils::GetRotationAnglesFromMatrix: when angle Y is 90/-90, any value of angle X would give the same matrix if angle_X-angle_Z is kept constant; angle_X = 0. has been chosen " << std::endl;
+  } else {
+    newang[0] = atan( rotzy / rotzz );
+    newang[2] = atan( rotyx / rotxx );
+  }
+  if( rotzx < -1. ) {
+    //-    std::cerr << " rotzx too small " << rotzx << " = " << rotm.zx() << " " << rotzx-rotm.zx() << std::endl;
+    rotzx = -1.;
+  } else if( rotzx > 1. ) {
+    //-    std::cerr << " rotzx too big " << rotzx << " = " << rotm.zx() << " " << rotzx-rotm.zx() << std::endl;
+    rotzx = 1.;
+  }
+  newang[1] = -asin( rotzx );
+  if( ALIUtils::debug >= 5 ) std::cout << "First calculation of angles: " << std::endl 
+			       << " newang[0] " << newang[0] << " rotzy " << rotzy << " rotzz " << rotzz << std::endl
+			       << " newang[1] " << newang[1] << " rotzx " << rotzx << std::endl
+			       << " newang[2] " << newang[2] << " rotyx " << rotyx << " rotxx " << rotxx << std::endl;
+  
+  //    newang[2] = acos( rotm.xx() / cos( newang[1] ) );
+  //----- CHECK if the angles are OK (there are several symmetries)
+  //--- Check if the predictions with the angles obtained match the values of the rotation matrix (they may differ for exampole by a sign or more in complicated formulas)
+  double sx = sin(newang[0]);
+  double cx = cos(newang[0]);
+  double sy = sin(newang[1]);
+  double cy = cos(newang[1]);
+  double sz = sin(newang[2]);
+  double cz = cos(newang[2]);
+
+  double rotnewxx = cy*cz;
+  double rotnewxy = sx*sy*cz-cx*sz;
+  double rotnewxz = cx*sy*cz+sx*sz;
+  double rotnewyx = cy*sz;
+  double rotnewyy = sx*sy*sz+cx*cz;
+  double rotnewyz = cx*sy*sz-sx*cz;
+  double rotnewzx = -sy;
+  double rotnewzy = sx*cy;
+  double rotnewzz = cx*cy;
+
+  bool eqxx = eq2ang( rotnewxx, rotm.xx() );
+  bool eqxy = eq2ang( rotnewxy, rotm.xy() );
+  bool eqxz = eq2ang( rotnewxz, rotm.xz() );
+  bool eqyx = eq2ang( rotnewyx, rotm.yx() );
+  bool eqyy = eq2ang( rotnewyy, rotm.yy() );
+  bool eqyz = eq2ang( rotnewyz, rotm.yz() );
+  bool eqzx = eq2ang( rotnewzx, rotm.zx() );
+  bool eqzy = eq2ang( rotnewzy, rotm.zy() );
+  bool eqzz = eq2ang( rotnewzz, rotm.zz() );
+
+  //--- Check if one of the tree angles should be changed
+  if( ALIUtils::debug >= 5 ) {
+    std::cout << " pred rm.xx " << rotnewxx << " =? " << rotm.xx() << " eqxx " << eqxx << std::endl
+	      << " pred rm.xy " << rotnewxy << " =? " << rotm.xy() << " eqxy " << eqxy << std::endl
+	      << " pred rm.xz " << rotnewxz << " =? " << rotm.xz() << " eqxz " << eqxz << std::endl
+	      << " pred rm.yx " << rotnewyx << " =? " << rotm.yx() << " eqyx " << eqyx << std::endl
+	      << " pred rm.yy " << rotnewyy << " =? " << rotm.yy() << " eqyy " << eqyy << std::endl
+	      << " pred rm.yz " << rotnewyz << " =? " << rotm.yz() << " eqyz " << eqyz << std::endl
+	      << " pred rm.zx " << rotnewzx << " =? " << rotm.zx() << " eqzx " << eqzx << std::endl
+	      << " pred rm.zy " << rotnewzy << " =? " << rotm.zy() << " eqzy " << eqzy << std::endl
+	      << " pred rm.zz " << rotnewzz << " =? " << rotm.zz() << " eqzz " << eqzz << std::endl;
+    //-    std::cout << " rotnewxx " << rotnewxx << " = " << rotm.xx() << " " << fabs( rotnewxx - rotm.xx() ) << " " <<(fabs( rotnewxx - rotm.xx() ) < 0.0001) << std::endl;
+  }
+
+  if( eqxx & !eqzz ) {
+    newang[0] = pii + newang[0];
+    if( ALIUtils::debug >= 5 ) std::cout << " change newang[0] " << newang[0] << std::endl;
+  } else  if( !eqxx & !eqzz ) {
+    newang[1] = pii - newang[1];
+    if( ALIUtils::debug >= 5 ) std::cout << " change newang[1] " << newang[1] << std::endl;
+  } else  if( !eqxx & eqzz ) {
+    newang[2] = pii + newang[2];
+    if( ALIUtils::debug >= 5 ) std::cout << " change newang[2] " << newang[2] << std::endl;
+  }
+
+  //--- Check if the 3 angles should be changed (previous check is invariant to the 3 changing)
+  if( !eqxy || !eqxz || !eqyy || !eqyz ) {
+    // check also cases where one of the above 'eq' is OK because it is = 0
+    if( ALIUtils::debug >= 5 ) std::cout << " change the 3 newang " << std::endl;
+    newang[0] = addPii( newang[0] );
+    newang[1] = pii - newang[1];
+    newang[2] = addPii( newang[2] );
+    double rotnewxy = -sin( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - cos( newang[0] )* sin( newang[2] );
+    double rotnewxz = -cos( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - sin( newang[0] )* sin( newang[2] );
+    if( ALIUtils::debug >= 5 ) std::cout << " rotnewxy " << rotnewxy << " = " << rotm.xy()
+	 << " rotnewxz " << rotnewxz << " = " << rotm.xz() << std::endl;
+  }
+
+  for (int ii=0; ii<3; ii++) {  
+    newang[ii] = approxTo0( newang[ii] );
+  }
+  //  double rotnewyx = cos( newang[1] ) * sin( newang[2] );
+
+  if(  checkMatrixEquations( newang[0], newang[1], newang[2], &rotm ) != 0 ){
+    std::cerr << " wrong rotation matrix " <<  newang[0] << " " << newang[1] << " " << newang[2] << std::endl;
+    ALIUtils::dumprm( rotm, " matrix is " );
+  }
+  if( ALIUtils::debug >= 5 ) {
+    std::cout << "Final angles:  newang[0] " << newang[0] << " newang[1] " << newang[1] << " newang[2] " << newang[2] << std::endl;
+    CLHEP::HepRotation rot;
+    rot.rotateX( newang[0] );
+    ALIUtils::dumprm( rot, " new rot after X ");
+    rot.rotateY( newang[1] );
+    ALIUtils::dumprm( rot, " new rot after Y ");
+    rot.rotateZ( newang[2] );
+    ALIUtils::dumprm( rot, " new rot ");
+    ALIUtils::dumprm( rotm, " rotm " );
     //-    ALIUtils::dumprm( theRmGlobOriginal, " theRmGlobOriginal " );
   }
 
@@ -772,7 +915,7 @@ bool ALIUtils::eq2ang( double ang1, double ang2 )
   double pii = acos(0.)*2;
   double diff = diff2pi( ang1, ang2 );
   if( diff > 0.00001 ) {
-    if( fabs( diff - 2*pii ) > 0.00001 ) {
+    if( approxTo0( fabs( diff - 2*pii ) ) == 0. ) {
       //-      std::cout << " diff " << diff << " " << ang1 << " " << ang2 << std::endl;
       beq = false;
     }
