@@ -2156,7 +2156,7 @@ std::vector<ALIstring> OpticalObject::getCoordinateFromOptAlignParam( const Opti
   wordlist.push_back( oaParam.name() );
   gcvt( oaParam.value(), 10, chartmp );
   wordlist.push_back( chartmp );
-  gcvt( oaParam.error(), 10, chartmp );
+  gcvt( oaParam.sigma(), 10, chartmp );
   wordlist.push_back( chartmp );
   if( oaParam.quality() == 0 ) {
     wordlist.push_back("fix");
