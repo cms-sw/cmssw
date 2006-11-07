@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  4 20:45:42 EDT 2006
-// $Id$
+// $Id: XMLOutputModule.h,v 1.1 2006/08/25 14:36:07 chrjones Exp $
 //
 
 // system include files
@@ -30,11 +30,10 @@
 
 // forward declarations
 namespace edm {
-  class XMLOutputModule : public OutputModule
-{
+  class XMLOutputModule : public OutputModule {
 
    public:
-      XMLOutputModule(const edm::ParameterSet& );
+      XMLOutputModule(edm::ParameterSet const&);
       virtual ~XMLOutputModule();
 
       // ---------- const member functions ---------------------
@@ -42,17 +41,20 @@ namespace edm {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void write(const EventPrincipal& e);
 
    private:
-      XMLOutputModule(const XMLOutputModule&); // stop default
+      virtual void write(EventPrincipal const& e);
+      virtual void endLuminosityBlock(LuminosityBlockPrincipal const&){}
+      virtual void endRun(RunPrincipal const&){}
 
-      const XMLOutputModule& operator=(const XMLOutputModule&); // stop default
+      XMLOutputModule(XMLOutputModule const&); // stop default
+
+      const XMLOutputModule& operator=(XMLOutputModule const&); // stop default
 
       // ---------- member data --------------------------------
       std::ofstream stream_;
       std::string indentation_;
-};
+  };
 }
 
 #endif

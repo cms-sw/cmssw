@@ -6,13 +6,15 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.28 2006/10/31 23:54:01 wmtan Exp $
+$Id: OutputModule.h,v 1.29 2006/11/03 17:57:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
+#include "boost/array.hpp"
 #include <vector>
 
 #include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/BranchType.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/Provenance.h"
 
@@ -33,6 +35,7 @@ namespace edm {
   public:
     typedef OutputModule ModuleType;
     typedef std::vector<BranchDescription const *> Selections;
+    typedef boost::array<Selections, 3> SelectionsArray;
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();
@@ -81,8 +84,8 @@ namespace edm {
     // 
     // We do not own the BranchDescriptions to which we point.
   protected:
-    Selections descVec_;
-    Selections droppedVec_;
+    SelectionsArray descVec_;
+    SelectionsArray droppedVec_;
 
   private:
 //     class ResultsSelector : public edm::Selector
@@ -103,11 +106,9 @@ namespace edm {
     virtual void beginJob(EventSetup const&){}
     virtual void endJob(){}
     virtual void beginRun(RunPrincipal const& r){}
-    virtual void endRun(RunPrincipal const& r){}
-    //virtual void endRun(RunPrincipal const& r) = 0; // QQQ
+    virtual void endRun(RunPrincipal const& r) = 0;
     virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb){}
-    //virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0; // QQQ
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb){}
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
 
     std::string process_name_;
     GroupSelector groupSelector_;

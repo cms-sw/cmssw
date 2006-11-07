@@ -3,18 +3,20 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.11 2006/08/31 23:27:15 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.12 2006/10/05 23:23:53 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
-// Author: Luca Lista
-// Co-Author: Bill Tanenbaum
+// Oringinal Author: Luca Lista
+// Current Author: Bill Tanenbaum
 //
 //////////////////////////////////////////////////////////////////////
 
 #include <memory>
 #include <string>
 #include <iosfwd>
+#include "boost/array.hpp"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/FileCatalog.h"
@@ -36,9 +38,6 @@ namespace edm {
     class PoolFile;
     explicit PoolOutputModule(ParameterSet const& ps);
     virtual ~PoolOutputModule();
-    virtual void beginJob(EventSetup const&);
-    virtual void endJob();
-    virtual void write(EventPrincipal const& e);
     std::string const& fileName() const {return catalog_.fileName();}
     std::string const& logicalFileName() const {return catalog_.logicalFileName();}
 
@@ -46,6 +45,12 @@ namespace edm {
     pool::IDataSvc *context() const {return context_.context();}
 
   private:
+    virtual void beginJob(EventSetup const&);
+    virtual void endJob();
+    virtual void write(EventPrincipal const& e);
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb){}
+    virtual void endRun(RunPrincipal const& r){}
+
     mutable OutputFileCatalog catalog_;
     mutable PoolDataSvc context_;
     unsigned long commitInterval_;
@@ -74,33 +79,33 @@ namespace edm {
 
   private:
     struct OutputItem {
-      OutputItem() : branchDescription_(0), selected_(false), provenancePlacement_(), eventPlacement_() {}
+      OutputItem() : branchDescription_(0), selected_(false), provenancePlacement_(), productPlacement_() {}
       OutputItem(BranchDescription const* bd, bool sel, pool::Placement const& plProv,
 		pool::Placement const& plEvent = pool::Placement()) :
 		branchDescription_(bd), selected_(sel),
-		provenancePlacement_(plProv), eventPlacement_(plEvent) {}
+		provenancePlacement_(plProv), productPlacement_(plEvent) {}
       ~OutputItem() {}
       BranchDescription const* branchDescription_;
       bool selected_;
       pool::Placement provenancePlacement_;
-      pool::Placement eventPlacement_;
+      pool::Placement productPlacement_;
     };
     typedef std::vector<OutputItem> OutputItemList;
-    OutputItemList outputItemList_;
-    std::vector<std::string> branchNames_;
+    typedef boost::array<OutputItemList, 3> OutputItemListArray;
+    typedef boost::array<std::vector<std::string>, 3> BranchNamesArray;
+    OutputItemListArray outputItemList_;
+    BranchNamesArray branchNames_;
     std::string file_;
     std::string lfn_;
     JobReport::Token reportToken_;
     unsigned long eventCount_;
     unsigned long fileSizeCheckEvent_;
-    pool::Placement auxiliaryPlacement_;
+    boost::array<pool::Placement, 3> auxiliaryPlacement_;
     pool::Placement productDescriptionPlacement_;
     pool::Placement parameterSetPlacement_;
     pool::Placement moduleDescriptionPlacement_;
     pool::Placement processHistoryPlacement_;
     pool::Placement fileFormatVersionPlacement_;
-    pool::Placement runBlockPlacement_;
-    pool::Placement luminosityBlockPlacement_;
     PoolOutputModule const* om_;
   };
 }

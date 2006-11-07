@@ -71,9 +71,11 @@ namespace edm
     explicit EventStreamingModule(ParameterSet const& ps);
 
     virtual ~EventStreamingModule();
+  private:
     virtual void write(EventPrincipal const& e);
     virtual void beginJob(EventSetup const&);
-  private:
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const&){}
+    virtual void endRun(RunPrincipal const&){}
     // bufs_ needs to live until the end of all threads using it (end of job)
     EventBuffer* bufs_;
     EventStreamerImpl es_;
@@ -95,7 +97,7 @@ namespace edm
     OutputModule(ps),
     bufs_(getEventBuffer(ps.template getParameter<int>("max_event_size"),
 			 ps.template getParameter<int>("max_queue_depth"))),
-    es_(ps,&descVec_,bufs_),
+    es_(ps,&descVec_[InEvent],bufs_),
     c_(ps.template getParameter<ParameterSet>("consumer_config"),bufs_)
   {
     // temporary hack
@@ -132,7 +134,7 @@ namespace edm
   {
     //std::cerr << "In beginJob" << std::endl;
 
-    es_.serializeRegistry(descVec_);
+    es_.serializeRegistry(descVec_[InEvent]);
     c_.sendRegistry(es_.registryBuffer(),es_.registryBufferSize());
 
   }

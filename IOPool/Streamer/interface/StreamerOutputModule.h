@@ -100,8 +100,11 @@ namespace edm
     virtual void write(EventPrincipal const& e);
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const&){}
+    virtual void endRun(RunPrincipal const&){}
 
     std::auto_ptr<InitMsgBuilder> serializeRegistry();
+
     std::auto_ptr<EventMsgBuilder> serializeEvent(EventPrincipal const& e); 
 
     void setHltMask(EventPrincipal const& e);
@@ -133,7 +136,7 @@ namespace edm
 template <class Consumer>
 StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps):
   OutputModule(ps),
-  selections_(&descVec_),
+  selections_(&descVec_[InEvent]),
   prod_reg_buf_(1000 * 1000),
   maxEventSize_(ps.template getParameter<int>("max_event_size")),
   useCompression_(ps.template getParameter<bool>("use_compression")),

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  4 20:45:44 EDT 2006
-// $Id: XMLOutputModule.cc,v 1.2 2006/09/21 17:21:30 chrjones Exp $
+// $Id: XMLOutputModule.cc,v 1.3 2006/10/21 02:49:02 wmtan Exp $
 //
 
 // system include files
@@ -45,16 +45,16 @@ using namespace edm;
 
 //remove characters from a string which are not allowed to be used in XML
 static
-std::string formatXML(const std::string& iO)
+std::string formatXML(std::string const& iO)
 {
   std::string result(iO);
-  static const std::string kSubs("<>&");
-  static const std::string kLeft("&lt;");
-  static const std::string kRight("&gt;");
-  static const std::string kAmp("&");
+  static std::string const kSubs("<>&");
+  static std::string const kLeft("&lt;");
+  static std::string const kRight("&gt;");
+  static std::string const kAmp("&");
   
   std::string::size_type i = 0;
-  while( std::string::npos != ( i= result.find_first_of(kSubs,i) ) ) {
+  while( std::string::npos != (i = result.find_first_of(kSubs,i))) {
     switch( result.at(i) ) {
       case '<':
         result.replace(i,1,kLeft);
@@ -70,14 +70,14 @@ std::string formatXML(const std::string& iO)
   return result;
 }
 
-static const char* kNameValueSep = "\">";
-static const char* kContainerOpen = "<container size=\"";
-static const char* kContainerClose = "</container>";
-static const std::string kObjectOpen = "<object type=\"";
-static const std::string kObjectClose = "</object>";
+static char const* kNameValueSep = "\">";
+static char const* kContainerOpen = "<container size=\"";
+static char const* kContainerClose = "</container>";
+static std::string const kObjectOpen = "<object type=\"";
+static std::string const kObjectClose = "</object>";
 ///convert the object information to the correct type and print it
 #define FILLNAME(_type_) s_toName[typeid(_type_).name()]= #_type_;
-static const std::string& typeidToName(const std::type_info& iID)
+static std::string const& typeidToName(std::type_info const& iID)
 {
   static std::map<std::string, std::string> s_toName;
   if(s_toName.empty()) {
@@ -98,28 +98,28 @@ static const std::string& typeidToName(const std::type_info& iID)
 }
 
 template<typename T>
-static void doPrint(std::ostream& oStream, const std::string&iPrefix, const std::string& iPostfix,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+static void doPrint(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, ROOT::Reflex::Object const& iObject, std::string const& iIndent) {
   oStream << iIndent<<iPrefix <<typeidToName(typeid(T))<<kNameValueSep<<*reinterpret_cast<T*>(iObject.Address())<<iPostfix<<"\n";
 }
 
 template<>
-static void doPrint<char>(std::ostream& oStream, const std::string&iPrefix, const std::string& iPostfix,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+static void doPrint<char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, ROOT::Reflex::Object const& iObject, std::string const& iIndent) {
   oStream << iIndent<< iPrefix<<"char"<<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()))<<iPostfix<<"\n";
 }
 
 template<>
-static void doPrint<unsigned char>(std::ostream& oStream, const std::string&iPrefix, const std::string& iPostfix,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+static void doPrint<unsigned char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, ROOT::Reflex::Object const& iObject, std::string const& iIndent) {
   oStream << iIndent<< iPrefix<< "unsigned char" <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()))<<iPostfix<<"\n";
 }
 
 template<>
-static void doPrint<bool>(std::ostream& oStream, const std::string&iPrefix, const std::string& iPostfix,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+static void doPrint<bool>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix,ROOT::Reflex::Object const& iObject, std::string const& iIndent) {
   oStream << iIndent<< iPrefix << "bool" <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false")<<iPostfix<<"\n";
 }
 
 
-typedef void(*FunctionType)(std::ostream&, const std::string&, 
-                            const std::string&,const ROOT::Reflex::Object&, const std::string&);
+typedef void(*FunctionType)(std::ostream&, std::string const&, 
+                            std::string const&, ROOT::Reflex::Object const&, std::string const&);
 typedef std::map<std::string, FunctionType> TypeToPrintMap;
 
 template<typename T>
@@ -128,11 +128,11 @@ static void addToMap(TypeToPrintMap& iMap){
 }
 
 static bool printAsBuiltin(std::ostream& oStream,
-                           const std::string& iPrefix,
-                           const std::string& iPostfix,
-                           const ROOT::Reflex::Object iObject,
-                           const std::string& iIndent){
-  typedef void(*FunctionType)(std::ostream&, const std::string&, const std::string&,const ROOT::Reflex::Object&, const std::string&);
+                           std::string const& iPrefix,
+                           std::string const& iPostfix,
+                           ROOT::Reflex::Object const iObject,
+                           std::string const& iIndent){
+  typedef void(*FunctionType)(std::ostream&, std::string const&, std::string const&, ROOT::Reflex::Object const&, std::string const&);
   typedef std::map<std::string, FunctionType> TypeToPrintMap;
   static TypeToPrintMap s_map;
   static bool isFirst = true;
@@ -160,24 +160,24 @@ static bool printAsBuiltin(std::ostream& oStream,
 }
 
 static bool printAsContainer(std::ostream& oStream,
-                             const std::string& iPrefix,
-                             const std::string& iPostfix,
-                             const ROOT::Reflex::Object& iObject,
-                             const std::string& iIndent,
-                             const std::string& iIndentDelta);
+                             std::string const& iPrefix,
+                             std::string const& iPostfix,
+                             ROOT::Reflex::Object const& iObject,
+                             std::string const& iIndent,
+                             std::string const& iIndentDelta);
 
 static void printDataMembers(std::ostream& oStream,
-                             const ROOT::Reflex::Object& iObject,
-                             const ROOT::Reflex::Type& iType,
-                             const std::string& iIndent,
-                             const std::string& iIndentDelta);
+                             ROOT::Reflex::Object const& iObject,
+                             ROOT::Reflex::Type const& iType,
+                             std::string const& iIndent,
+                             std::string const& iIndentDelta);
 
 static void printObject(std::ostream& oStream,
-                        const std::string& iPrefix,
-                        const std::string& iPostfix,
-                        const ROOT::Reflex::Object& iObject,
-                        const std::string& iIndent,
-                        const std::string& iIndentDelta) {
+                        std::string const& iPrefix,
+                        std::string const& iPostfix,
+                        ROOT::Reflex::Object const& iObject,
+                        std::string const& iIndent,
+                        std::string const& iIndentDelta) {
   using namespace ROOT::Reflex;
   Object objectToPrint = iObject;
   std::string indent(iIndent);
@@ -238,10 +238,10 @@ static void printObject(std::ostream& oStream,
 }
 
 static void printDataMembers(std::ostream& oStream,
-                             const ROOT::Reflex::Object& iObject,
-                             const ROOT::Reflex::Type& iType,
-                             const std::string& iIndent,
-                             const std::string& iIndentDelta)
+                             ROOT::Reflex::Object const& iObject,
+                             ROOT::Reflex::Type const& iType,
+                             std::string const& iIndent,
+                             std::string const& iIndentDelta)
 {
   //print all the base class data members
   for(ROOT::Reflex::Base_Iterator itBase = iType.Base_Begin();
@@ -249,9 +249,9 @@ static void printDataMembers(std::ostream& oStream,
       ++itBase) {
     printDataMembers(oStream, iObject.CastObject(itBase->ToType()), itBase->ToType(), iIndent, iIndentDelta); 
   }
-  static const std::string kPrefix("<datamember name=\"");
-  static const std::string ktype("\" type=\"");
-  static const std::string kPostfix("</datamember>");
+  static std::string const kPrefix("<datamember name=\"");
+  static std::string const ktype("\" type=\"");
+  static std::string const kPostfix("</datamember>");
   
   for(ROOT::Reflex::Member_Iterator itMember = iType.DataMember_Begin();
       itMember != iType.DataMember_End();
@@ -279,12 +279,12 @@ static void printDataMembers(std::ostream& oStream,
 }
 
 static bool printContentsOfStdContainer(std::ostream& oStream,
-                                        const std::string& iPrefix,
-                                        const std::string& iPostfix,
+                                        std::string const& iPrefix,
+                                        std::string const& iPostfix,
                                         ROOT::Reflex::Object iBegin,
-                                        const ROOT::Reflex::Object& iEnd,
-                                        const std::string& iIndent,
-                                        const std::string& iIndentDelta){
+                                        ROOT::Reflex::Object const& iEnd,
+                                        std::string const& iIndent,
+                                        std::string const& iIndentDelta){
   using namespace ROOT::Reflex;
   size_t size=0;
   std::ostringstream sStream;
@@ -318,7 +318,7 @@ static bool printContentsOfStdContainer(std::ostream& oStream,
       printObject(sStream,kObjectOpen,kObjectClose,deref.Invoke(iBegin),indexIndent,iIndentDelta);                  
       //std::cerr <<"printed"<<std::endl;
     }
-  } catch( const std::exception& iE) {
+  } catch( std::exception const& iE) {
     std::cerr <<"while printing std container caught exception "<<iE.what()<<std::endl;
     return false;
   }
@@ -331,10 +331,10 @@ static bool printContentsOfStdContainer(std::ostream& oStream,
 }
 
 static bool printAsContainer(std::ostream& oStream,
-                             const std::string& iPrefix, const std::string& iPostfix,
-                             const ROOT::Reflex::Object& iObject,
-                             const std::string& iIndent,
-                             const std::string& iIndentDelta){
+                             std::string const& iPrefix, std::string const& iPostfix,
+                             ROOT::Reflex::Object const& iObject,
+                             std::string const& iIndent,
+                             std::string const& iIndentDelta){
   using namespace ROOT::Reflex;
   Object sizeObj;
   try {
@@ -370,7 +370,7 @@ static bool printAsContainer(std::ostream& oStream,
     oStream <<iIndent<<kContainerClose<<std::endl;
     oStream <<iIndent<<iPostfix<<std::endl;
     return true;
-  } catch(const std::exception& x){
+  } catch(std::exception const& x){
     //std::cerr <<"failed to invoke 'at' because "<<x.what()<<std::endl;
     try {
       //oStream <<iIndent<<iPrefix<<formatXML(typeName)<<"\">\n";
@@ -390,23 +390,23 @@ static bool printAsContainer(std::ostream& oStream,
         }
         return true;
       }
-    } catch(const std::exception& x) {
+    } catch(std::exception const& x) {
     }
     return false;
   }
   return false;
 }
 static void printObject(std::ostream& oStream,
-                        const edm::Event& iEvent,
-                        const std::string& iClassName,
-                        const std::string& iModuleLabel,
-                        const std::string& iInstanceLabel,
-                        const std::string& iIndent,
-                        const std::string& iIndentDelta) {
+                        edm::Event const& iEvent,
+                        std::string const& iClassName,
+                        std::string const& iModuleLabel,
+                        std::string const& iInstanceLabel,
+                        std::string const& iIndent,
+                        std::string const& iIndentDelta) {
   using namespace edm;
   try {
     GenericHandle handle(iClassName);
-  }catch(const edm::Exception&) {
+  }catch(edm::Exception const&) {
     std::cout <<iIndent<<" \""<<iClassName<<"\""<<" is an unknown type"<<std::endl;
     return;
   }
@@ -423,7 +423,7 @@ static void printObject(std::ostream& oStream,
 //
 // constructors and destructor
 //
-XMLOutputModule::XMLOutputModule(const ParameterSet& iPSet) :
+XMLOutputModule::XMLOutputModule(ParameterSet const& iPSet) :
 OutputModule(iPSet),
 stream_(iPSet.getUntrackedParameter<std::string>("fileName").c_str()),
 indentation_("  ")
@@ -434,7 +434,7 @@ indentation_("  ")
   stream_<<"<cmsdata>"<<std::endl;
 }
 
-// XMLOutputModule::XMLOutputModule(const XMLOutputModule& rhs)
+// XMLOutputModule::XMLOutputModule(XMLOutputModule const& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -447,7 +447,7 @@ XMLOutputModule::~XMLOutputModule()
 //
 // assignment operators
 //
-// const XMLOutputModule& XMLOutputModule::operator=(const XMLOutputModule& rhs)
+// XMLOutputModule const& XMLOutputModule::operator=(XMLOutputModule const& rhs)
 // {
 //   //An exception safe implementation is
 //   XMLOutputModule temp(rhs);
@@ -460,14 +460,14 @@ XMLOutputModule::~XMLOutputModule()
 // member functions
 //
 void
-XMLOutputModule::write(const EventPrincipal& iEP)
+XMLOutputModule::write(EventPrincipal const& iEP)
 {
   ModuleDescription desc;
   edm::Event event(const_cast<EventPrincipal&>(iEP),desc);
   stream_ <<"<event run=\""<< event.id().run()<< "\" number=\""<< event.id().event()<<"\" >\n";
   std::string startIndent = indentation_;
-  for(Selections::const_iterator itBD = descVec_.begin();
-      itBD != descVec_.end();
+  for(Selections::const_iterator itBD = descVec_[InEvent].begin();
+      itBD != descVec_[InEvent].end();
       ++itBD) {
     stream_<<"<product type=\""<<(*itBD)->friendlyClassName()
            <<"\" module=\""<<(*itBD)->moduleLabel()

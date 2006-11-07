@@ -66,10 +66,12 @@ namespace edmtest
     explicit TestOutputModule(edm::ParameterSet const&);
     virtual ~TestOutputModule();
 
-    virtual void write(edm::EventPrincipal const& e);
-    void endJob();
-
   private:
+    virtual void write(edm::EventPrincipal const& e);
+    virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&){}
+    virtual void endRun(edm::RunPrincipal const&){}
+    virtual void endJob();
+
     string name_;
     int bitMask_;
     std::vector<unsigned char> hltbits_;

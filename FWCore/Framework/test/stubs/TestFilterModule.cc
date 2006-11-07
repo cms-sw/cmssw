@@ -68,10 +68,12 @@ namespace edmtest
     explicit SewerModule(edm::ParameterSet const&);
     virtual ~SewerModule();
 
-    virtual void write(edm::EventPrincipal const& e);
-    void endJob();
-
   private:
+    virtual void write(edm::EventPrincipal const& e);
+    virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&){}
+    virtual void endRun(edm::RunPrincipal const&){}
+    virtual void endJob();
+
     string name_;
     int num_pass_;
     int total_;

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.h,v 1.1 2005/10/11 17:09:22 wmtan Exp $
+$Id: AsciiOutputModule.h,v 1.2 2005/10/12 02:34:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -14,9 +14,11 @@ namespace edm {
     // We do not take ownership of passed stream.
     explicit AsciiOutputModule(ParameterSet const& pset, std::ostream* os = &std::cout);
     virtual ~AsciiOutputModule();
-    virtual void write(const EventPrincipal& e);
 
   private:
+    virtual void write(EventPrincipal const& e);
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const&){}
+    virtual void endRun(RunPrincipal const&){}
     int prescale_;
     int verbosity_;
     int counter_;

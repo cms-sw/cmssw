@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.49 2006/10/12 20:21:42 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.50 2006/10/30 20:15:56 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -8,10 +8,10 @@
 
 #include "DataFormats/Common/interface/BranchKey.h"
 #include "DataFormats/Common/interface/FileFormatVersion.h"
-#include "DataFormats/Common/interface/LuminosityBlock.h"
-#include "DataFormats/Common/interface/RunBlock.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -67,8 +67,8 @@ namespace edm {
     SetCustomStreamer<ModuleDescriptionMap>();
     SetCustomStreamer<FileFormatVersion>();
     SetCustomStreamer<BranchEntryDescription>();
-    SetCustomStreamer<LuminosityBlock>();
-    SetCustomStreamer<RunBlock>();
+    SetCustomStreamer<LuminosityBlockAux>();
+    SetCustomStreamer<RunAux>();
   }
 
   void PoolOutputModule::beginJob(EventSetup const&) {
@@ -100,8 +100,6 @@ namespace edm {
       moduleDescriptionPlacement_(),
       processHistoryPlacement_(),
       fileFormatVersionPlacement_(),
-      runBlockPlacement_(),
-      luminosityBlockPlacement_(),
       om_(om) {
     TTree::SetMaxTreeSize(kMaxLong64);
     std::string suffix(".root");
@@ -122,7 +120,6 @@ namespace edm {
       file_ = fileBase + suffix;
       lfn_ = om_->logicalFileName();
     }
-    makePlacement(poolNames::eventTreeName(), poolNames::auxiliaryBranchName(), auxiliaryPlacement_);
     makePlacement(poolNames::metaDataTreeName(), poolNames::productDescriptionBranchName(),
 	productDescriptionPlacement_);
     makePlacement(poolNames::metaDataTreeName(), poolNames::parameterSetMapBranchName(),
@@ -133,25 +130,31 @@ namespace edm {
 	processHistoryPlacement_);
     makePlacement(poolNames::metaDataTreeName(), poolNames::fileFormatVersionBranchName(),
 	fileFormatVersionPlacement_);
-    makePlacement(poolNames::runTreeName(), poolNames::runBranchName(),
-	runBlockPlacement_);
-    makePlacement(poolNames::luminosityBlockTreeName(), poolNames::luminosityBlockBranchName(),
-	luminosityBlockPlacement_);
    
-    for (Selections::const_iterator it = om_->descVec_.begin();
-      it != om_->descVec_.end(); ++it) {
-      pool::Placement provenancePlacement;
-      pool::Placement eventPlacement;
-      makePlacement(poolNames::eventMetaDataTreeName(), (*it)->branchName(), provenancePlacement);
-      makePlacement(poolNames::eventTreeName(), (*it)->branchName(), eventPlacement);
-      outputItemList_.push_back(OutputItem(*it, true, provenancePlacement, eventPlacement));
-      branchNames_.push_back((*it)->branchName());
-    }
-    for (Selections::const_iterator it = om_->droppedVec_.begin();
-      it != om_->droppedVec_.end(); ++it) {
-      pool::Placement provenancePlacement;
-      makePlacement(poolNames::eventMetaDataTreeName(), (*it)->branchName(), provenancePlacement);
-      outputItemList_.push_back(OutputItem(*it, false, provenancePlacement));
+    for (int i = InEvent; i < EndBranchType; ++i) {
+      BranchType branchType = static_cast<BranchType>(i);
+      std::string productTreeName = BranchTypeToProductTreeName(branchType);
+      std::string metaDataTreeName = BranchTypeToMetaDataTreeName(branchType);
+      OutputItemList & outputItemList = outputItemList_[branchType];
+      std::vector<std::string> & branchNames = branchNames_[branchType];
+      Selections const& descVec = om_->descVec_[branchType];
+      Selections const& droppedVec = om_->droppedVec_[branchType];
+      
+      makePlacement(productTreeName, BranchTypeToAuxiliaryBranchName(branchType),
+		    auxiliaryPlacement_[branchType]);
+      for (Selections::const_iterator it = descVec.begin(); it != descVec.end(); ++it) {
+        pool::Placement provenancePlacement;
+        pool::Placement productPlacement;
+        makePlacement(metaDataTreeName, (*it)->branchName(), provenancePlacement);
+        makePlacement(productTreeName, (*it)->branchName(), productPlacement);
+        outputItemList.push_back(OutputItem(*it, true, provenancePlacement, productPlacement));
+        branchNames.push_back((*it)->branchName());
+      }
+      for (Selections::const_iterator it = droppedVec.begin(); it != droppedVec.end(); ++it) {
+        pool::Placement provenancePlacement;
+        makePlacement(metaDataTreeName, (*it)->branchName(), provenancePlacement);
+        outputItemList.push_back(OutputItem(*it, false, provenancePlacement));
+      }
     }
 
     pool::FileCatalog::FileID fid = om_->catalog_.registerFile(file_, lfn_);
@@ -165,16 +168,6 @@ namespace edm {
     // Now, we can set the ROOT compression level
     om_->context_.setCompressionLevel(file_, om_->compressionLevel_);
 
-    // For now, just one run block per file.
-    RunBlock runBlock;
-    pool::Ref<RunBlock const> rblk(om_->context(), &runBlock);
-    rblk.markWrite(runBlockPlacement_);
-
-    // For now, just one luminosity block per file.
-    LuminosityBlock luminosityBlock;
-    pool::Ref<LuminosityBlock const> lblk(om_->context(), &luminosityBlock);
-    lblk.markWrite(luminosityBlockPlacement_);
-
     commitAndFlushTransaction();
     // Register the output file with the JobReport service
     // and get back the token for it.
@@ -186,7 +179,7 @@ namespace edm {
 		      moduleName,   // module class name
 		      om_->moduleLabel_,  // module label
 		      fid, // file id (guid)
-		      branchNames_); // branch names being written
+		      branchNames_[InEvent]); // branch names being written
   }
 
   void PoolOutputModule::PoolFile::startTransaction() const {
@@ -217,13 +210,13 @@ namespace edm {
     aux.time_ = e.time();
 
     pool::Ref<EventAux const> ra(context(), &aux);
-    ra.markWrite(auxiliaryPlacement_);	
+    ra.markWrite(auxiliaryPlacement_[InEvent]);	
 
     std::list<BranchEntryDescription> dummyProvenances;
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for (OutputItemList::const_iterator i = outputItemList_.begin();
-	 i != outputItemList_.end(); ++i) {
+    for (OutputItemList::const_iterator i = outputItemList_[InEvent].begin();
+	 i != outputItemList_[InEvent].end(); ++i) {
       ProductID const& id = i->branchDescription_->productID_;
 
       if (id == ProductID()) {
@@ -283,7 +276,7 @@ namespace edm {
 	  product = static_cast<EDProduct *>(cp->New());
 	}
 	pool::Ref<EDProduct const> ref(context(), product);
-	ref.markWrite(i->eventPlacement_);
+	ref.markWrite(i->productPlacement_);
       }
     }
 
@@ -353,8 +346,8 @@ namespace edm {
     TTree *t = dynamic_cast<TTree *>(f.Get(poolNames::eventTreeName().c_str()));
     if (t) {
       t->BuildIndex("id_.run_", "id_.event_");
-      for (Selections::const_iterator i = om_->descVec_.begin();
-	i != om_->descVec_.end(); ++i) {
+      for (Selections::const_iterator i = om_->descVec_[InEvent].begin();
+	i != om_->descVec_[InEvent].end(); ++i) {
 	BranchDescription const& pd = **i;
 	std::string const& full = pd.branchName() + "obj";
 	if (pd.branchAliases().empty()) {
