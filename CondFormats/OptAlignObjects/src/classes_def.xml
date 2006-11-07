@@ -15,10 +15,6 @@
  <class name="CSCZSensorData"/>
  <class name="std::vector<CSCZSensorData>"/>
 
- <class name="CSCRSensors"/>
- <class name="CSCRSensorData"/>
- <class name="std::vector<CSCRSensorData>"/>
-
  <class name="std::vector<OpticalAlignInfo>"/>
  <class name="std::vector<OpticalAlignMeasurementInfo>"/>
  <class name="std::vector<OpticalAlignParam>"/>
@@ -33,10 +29,6 @@
  <class name="edm::Wrapper<OpticalAlignments>"/>
  <class name="edm::Wrapper<OpticalAlignMeasurements>"/>
 
- <class name="Inclinometers"/>
- <class name="Inclinometers::Item"/>
- <class name="std::vector<Inclinometers::Item>"/>  
- <class name="PXsensors"/>
- <class name="PXsensors::Item"/>
- <class name="std::vector<PXsensors::Item>" /> 
+ <class pattern="*iterator*"/>
+ <class pattern="*vector*"/>
 </lcgdict>

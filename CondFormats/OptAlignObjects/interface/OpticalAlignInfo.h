@@ -37,7 +37,7 @@ class OpticalAlignParam {
 
   std::string name() const { return name_; }
   double value() const { return value_; }
-  double error() const { return error_; }
+  double sigma() const { return error_; }
   int quality() const { return quality_; }
   std::string dimType() const { return dim_type_; }
 

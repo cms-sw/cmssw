@@ -4,6 +4,7 @@
 /* #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h" */
 
 #include <vector>
+#include <iostream>
 #include <string>
 
 /**
@@ -16,12 +17,11 @@
 
 class CSCZSensorData {
  public:
-  std::string sensorType_;
   int sensorNo_;
   std::string meLayer_;
   std::string logicalAlignmentName_;
   std::string cernDesignator_;
-  std::string cernBarcode_;
+  long long cernBarcode_;
   float absSlope_;
   float absSlopeError_;
   float normSlope_;

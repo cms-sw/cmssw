@@ -33,11 +33,12 @@ class  OpticalAlignMeasurementInfo {
   unsigned long ID_;
 
   void clear() {
+    ID_ = 0;
     type_ = "";
     name_ = "";
     measObjectNames_.clear();
-    ID_ = 0;
     values_.clear();
+    isSimulatedValue_.clear();
   }
 };
 
