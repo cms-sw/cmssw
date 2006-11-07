@@ -1193,7 +1193,7 @@ bool EcalHitMaker::diagonalEdge(unsigned myPad, CaloDirection dir,Hep2Vector & p
   return true;
 }
 
-bool EcalHitMaker::unbalancedDirection(const vector<neighbour>& dirs,unsigned & unb,unsigned & dir1, unsigned & dir2)
+bool EcalHitMaker::unbalancedDirection(const std::vector<neighbour>& dirs,unsigned & unb,unsigned & dir1, unsigned & dir2)
 {
   if(dirs.size()==1) return false;
   if(dirs.size()%2==0) return false;
