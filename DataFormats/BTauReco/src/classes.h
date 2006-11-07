@@ -16,6 +16,8 @@
 
 namespace {
   namespace {
+    std::pair<unsigned int, std::vector<unsigned int> > pair_vec;
+    
     reco::JetTagCollection v1;
     edm::Wrapper<reco::JetTagCollection> w1;
     edm::Ref<reco::JetTagCollection> r1;
@@ -59,6 +61,9 @@ namespace {
     edm::RefProd<reco::IsolatedTauTagInfoCollection> rp5;
     edm::RefVector<reco::IsolatedTauTagInfoCollection> rv5;
 
+    reco::SoftLeptonProperties ext1;
+    std::pair<unsigned int, reco::SoftLeptonProperties> ext_pair1;
+    edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, reco::SoftLeptonProperties, unsigned int> > ext_map1; 
     reco::SoftLeptonTagInfoCollection v6;
     edm::Wrapper<reco::SoftLeptonTagInfoCollection> w6;
     edm::Ref<reco::SoftLeptonTagInfoCollection> r6;
@@ -78,7 +83,6 @@ namespace {
     reco::JetEisolAssociationRef r8;
     reco::JetEisolAssociationRefProd rp8;
     reco::JetEisolAssociationRefVector rv8;
-
 
     std::pair<unsigned int, unsigned int> pp1;
     std::map<unsigned long, std::vector<unsigned long> > m1;

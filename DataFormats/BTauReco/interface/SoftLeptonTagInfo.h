@@ -31,7 +31,7 @@ struct SoftLeptonProperties {
 class SoftLeptonTagInfo {
 public:
 
-    typedef edm::AssociationMap< edm::OneToValue< TrackCollection, SoftLeptonProperties, unsigned long > > LeptonMap;
+    typedef edm::AssociationMap< edm::OneToValue< TrackCollection, SoftLeptonProperties, unsigned int > > LeptonMap;
     
     SoftLeptonTagInfo(void) : m_leptons() {}
 
