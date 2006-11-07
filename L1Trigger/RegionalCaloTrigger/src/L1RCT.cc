@@ -105,6 +105,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
 //  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
+  int ecalSum = 0;
+  int hcalSum = 0;
   for (int i = 0; i < nEcalDigi; i++){
     short ieta = (short) ecalCollection[i].id().ieta(); 
     // Note absIeta counts from 1-28 (not 0-27)
@@ -130,6 +132,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     tower = calcTower(iphi, absIeta);
 
     unsigned short energy = ecalCollection[i].compressedEt();
+    ecalSum += energy;
     unsigned short fineGrain = (unsigned short) ecalCollection[i].fineGrain();  // 0 or 1
     unsigned short ecalInput = energy*2 + fineGrain;
 
@@ -184,6 +187,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     tower = calcTower(iphi, absIeta);
 
     unsigned short energy = hcalCollection[i].SOI_compressedEt();     // access only sample of interest
+    hcalSum += energy;
     unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();
     unsigned short hcalInput = energy*2 + fineGrain;
 
@@ -204,6 +208,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       //      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
     }
   }
+
+  cout << "*********  " << ecalSum << " ***********" << "*********  " << hcalSum << " ***********" << endl;
 
   /*  Why do we need to write a file always -- this should be optional -- In any case we should reuse "barrel" and "hf"
 
@@ -611,8 +617,7 @@ unsigned short L1RCT::calcCard(unsigned short rct_iphi, unsigned short absIeta){
   unsigned short card = 999;
   // Note absIeta counts from 1-32 (not 0-31)
   if (absIeta <= 24){
-    // card =  ((absIeta-1)/8) + ((rct_iphi / 4) % 2) * 3;  // Sridhara's line
-    card =  ((absIeta-1)/8)*2 + (rct_iphi%8)/4; // Jessica's line
+    card =  ((absIeta-1)/8)*2 + (rct_iphi%8)/4;
   }
   // 25 <= absIeta <= 28 (card 6)
   else if ((absIeta >= 25) && (absIeta <= 28)){
@@ -654,7 +659,7 @@ short L1RCT::calcIEta(unsigned short iCrate, unsigned short iCard, unsigned shor
 {
   unsigned short absIEta;
   if(iCard < 6) 
-    absIEta = (iCard % 3) * 8 + ((iTower - 1) / 4) + 1;
+    absIEta = (iCard / 2) * 8 + ((iTower - 1) / 4) + 1;
   else if(iCard == 6) {
     if(iTower < 17)
       absIEta = 25 + (iTower - 1) / 4;
@@ -673,7 +678,7 @@ unsigned short L1RCT::calcIPhi(unsigned short iCrate, unsigned short iCard, unsi
 {
   short iPhi;
   if(iCard < 6)
-    iPhi = (iCrate % 9) * 8 + (iCard / 3) * 4 + ((iTower - 1) % 4);
+    iPhi = (iCrate % 9) * 8 + (iCard % 2) * 4 + ((iTower - 1) % 4);
   else if(iCard == 6){
     if(iTower < 17)
       iPhi = (iCrate % 9) * 8 + ((iTower - 1) % 4);
@@ -696,8 +701,8 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
     unsigned short crd = (((isoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((isoEmObjects.at(i))/16);
     unsigned short rank = gctEmScale->rank(energy);
-    //L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
-    L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
+    L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
+    //L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
     // cout << "card " << crd << "region " << rgn << "energy " << energy << endl;
     isoEmCands.push_back(isoCand);
   }
@@ -715,8 +720,8 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
     unsigned short crd = (((nonIsoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((nonIsoEmObjects.at(i))/16);
     unsigned short rank = gctEmScale->rank(energy);
-    //L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
-    L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
+    L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
+    //L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
     nonIsoEmCands.push_back(nonIsoCand);
   }
   return nonIsoEmCands;
