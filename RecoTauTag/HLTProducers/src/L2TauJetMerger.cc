@@ -19,15 +19,14 @@ void L2TauJetMerger::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  using namespace edm;
  using namespace std;
  using namespace reco;
- auto_ptr<CaloJetCollection> selectedTaus(new CaloJetCollection);
+ auto_ptr<CaloJetCollection> mergedTaus(new CaloJetCollection);
  for( vtag::const_iterator s = jetSrc.begin(); s != jetSrc.end(); ++ s ) {
    edm::Handle<CaloJetCollection> tauJets;
+   iEvent.getByLabel( * s, tauJets );
    CaloJetCollection::const_iterator iTau = tauJets->begin();
-   selectedTaus->push_back(*iTau);
+   mergedTaus->push_back(*iTau);
  }
 
- cout <<"Number of Selected Taus "<<selectedTaus->size()<<endl;
-  iEvent.put(selectedTaus);
-
-
+ cout <<"Number of Selected Taus "<<mergedTaus->size()<<endl;
+  iEvent.put(mergedTaus);
 }
