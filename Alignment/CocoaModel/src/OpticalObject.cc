@@ -622,7 +622,7 @@ void OpticalObject::setGlobalCentre()
   if ( type() != ALIstring("system") && !centreIsGlobal ) {
     SetCentreGlobFromCentreLocal();
   }
-  if( centreIsGlobal ){
+  if( anglesIsGlobal ){
     std::cerr << "!!!FATAL ERROR: angles in global coordinates not supported momentarily " << std::endl;
     abort();
   }
@@ -795,13 +795,16 @@ void OpticalObject::SetCentreGlobFromCentreLocal()
     ALIUtils::dump3v( parent()->centreGlob(), ( " parent centreGlob" + parent()->name() ).c_str() );
     ALIUtils::dumprm( parent()->rmGlob(), " parent rmGlob ");
   }
-  CLHEP::Hep3Vector cLocal2 = theCentreGlob - parent()->centreGlob();
+
+  /*  CLHEP::Hep3Vector cLocal2 = theCentreGlob - parent()->centreGlob();
   CLHEP::HepRotation rmParentInv = inverseOf( parent()->rmGlob() );
   cLocal2 = rmParentInv * cLocal2;
   if( (cLocal2 - cLocal).mag() > 1.E-9 ) {
     std::cerr << "!!!! CALCULATE LOCAL WRONG. Diff= " << (cLocal2 - cLocal).mag() << " " << cLocal2 << " " << cLocal << std::endl;
-    exit(1);
-  }
+    if( (cLocal2 - cLocal).mag() > 1.E-4 ) {
+      std::exception();
+    }
+    }*/
 }
 
 
@@ -2201,7 +2204,7 @@ void OpticalObject::createComponentOptOsFromOptAlignInfo()
 	std::cout << " extra entry " << exent[ij].dimType();
 	std::cout << " extra entry " << exent[ij].value_;
 	std::cout << " extra entry " << exent[ij].error_;
-	std::cout << " extra entry " << exent[ij].qual_;
+	std::cout << " extra entry " << exent[ij].quality_;
 	} */
       //      std::cout << "createComponentOptOsFromOptAlignInfo: 3 to push_back " << Model::getOpticalAlignments()[ii] << std::endl;
       OpticalAlignInfo oaInfochild =  Model::getOpticalAlignments()[ii];
