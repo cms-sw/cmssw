@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/09/01 15:48:53 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/09/20 16:38:09 $
+ *  $Revision: 1.15 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -31,7 +31,7 @@ class GlobalMuonTrackMatcher {
 
   public:
 
-    typedef std::pair<Trajectory*,reco::TrackRef> TrackCand;
+    typedef std::pair<const Trajectory*,reco::TrackRef> TrackCand;
 
     /// constructor
     GlobalMuonTrackMatcher(const edm::ParameterSet& par,

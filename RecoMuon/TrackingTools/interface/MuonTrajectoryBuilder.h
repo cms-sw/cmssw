@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2006/11/03 18:21:39 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/11/06 17:50:18 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -24,7 +24,7 @@ class MuonTrajectoryBuilder {
   
     typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
     typedef MuonCandidate::CandidateContainer CandidateContainer;
-    typedef std::pair<Trajectory*, reco::TrackRef> TrackCand;
+    typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
 
     /// constructor
     MuonTrajectoryBuilder() {}
