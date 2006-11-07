@@ -8,7 +8,7 @@
 <use name=DataFormats/Math>
 <use name=boost>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="RecoTauTagConeIsolation">
+<flags SEAL_PLUGIN_NAME="RecoTauTagHLTProducers">
 <export>
    <lib name=RecoTauTagConeIsolation>
    <use name=FWCore/Framework>
