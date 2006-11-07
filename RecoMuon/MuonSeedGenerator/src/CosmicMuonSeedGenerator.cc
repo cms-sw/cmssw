@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/09/17 03:27:11 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/09/24 00:45:16 $
+ *  $Revision: 1.11 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -71,7 +71,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   
   auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
   
-  TrajectorySeedCollection theSeeds;
+  TrajectorySeedCollection seeds;
 
   // Muon Geometry - DT, CSC and RPC 
   eSetup.get<MuonRecoGeometryRecord>().get(theMuonLayers);
@@ -108,6 +108,8 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 				    theDTRecSegmentLabel,theCSCRecSegmentLabel);
 
   muonMeasurements.setEvent(event);
+
+  MuonRecHitContainer allHits;
 
   // ------------        EndCap disk z<0
   MuonRecHitContainer RHBME4 = muonMeasurements.recHits(ME4Bwd);
@@ -147,44 +149,44 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
                                      <<RHBME12.size()<<" : "
                                      <<RHBME11.size()<<" .\n"; 
 
-  // generate Seeds upside-down (try the nnermost first)
-  // only lower part works now
+  allHits.insert(allHits.end(),RHMB4.begin(),RHMB4.end());
+  allHits.insert(allHits.end(),RHMB3.begin(),RHMB3.end());
+  allHits.insert(allHits.end(),RHMB2.begin(),RHMB2.end());
+  allHits.insert(allHits.end(),RHMB1.begin(),RHMB1.end());
 
-  createSeeds(theSeeds,RHMB1,eSetup);
-  createSeeds(theSeeds,RHFME12,eSetup);
-  createSeeds(theSeeds,RHBME12,eSetup);
+  allHits.insert(allHits.end(),RHFME4.begin(),RHFME4.end());
+  allHits.insert(allHits.end(),RHFME3.begin(),RHFME3.end());
+  allHits.insert(allHits.end(),RHFME2.begin(),RHFME2.end());
+  allHits.insert(allHits.end(),RHFME12.begin(),RHFME12.end());
+  allHits.insert(allHits.end(),RHFME11.begin(),RHFME11.end());
 
-  createSeeds(theSeeds,RHFME11,eSetup);
-  createSeeds(theSeeds,RHBME11,eSetup);
+  allHits.insert(allHits.end(),RHBME4.begin(),RHBME4.end());
+  allHits.insert(allHits.end(),RHBME3.begin(),RHBME3.end());
+  allHits.insert(allHits.end(),RHBME2.begin(),RHBME2.end());
+  allHits.insert(allHits.end(),RHBME12.begin(),RHBME12.end());
+  allHits.insert(allHits.end(),RHBME11.begin(),RHBME11.end());
 
-  createSeeds(theSeeds,RHFME2,eSetup);
-  createSeeds(theSeeds,RHBME2,eSetup);
+  selectSegments(allHits);
 
-  createSeeds(theSeeds,RHFME3,eSetup);
-  createSeeds(theSeeds,RHBME3,eSetup);
+  if ( allHits.empty() )
+    LogDebug("CosmicMuonSeedGenerator")<<"No qualified Segments in Event! ";
+  else {
+    stable_sort(allHits.begin(),allHits.end(),DecreasingGlobalY());
+    createSeeds(seeds,allHits,eSetup);
 
-  if ( theSeeds.empty() ) {
-
-    createSeeds(theSeeds,RHMB2,eSetup);
-
-    createSeeds(theSeeds,RHMB3,eSetup);
-
-    createSeeds(theSeeds,RHMB4,eSetup);
-    createSeeds(theSeeds,RHFME4,eSetup);
-    createSeeds(theSeeds,RHBME4,eSetup);
-
+    for(std::vector<TrajectorySeed>::iterator seed = seeds.begin();
+        seed != seeds.end(); ++seed)
+        output->push_back(*seed);
   }
-
-  for(std::vector<TrajectorySeed>::iterator seed = theSeeds.begin();
-      seed != theSeeds.end(); ++seed)
-      output->push_back(*seed);
   event.put(output);
 }
 
 
-bool CosmicMuonSeedGenerator::checkQuality(MuonRecHitPointer hit) const {
+bool CosmicMuonSeedGenerator::checkQuality(const MuonRecHitPointer& hit) const {
 
   // only use 4D segments
+  if ( !hit->isValid() ) return false;
+
   if (hit->degreesOfFreedom() < 4) {
     LogDebug("CosmicMuonSeedGenerator")<<"dim < 4";
     return false;
@@ -200,6 +202,44 @@ bool CosmicMuonSeedGenerator::checkQuality(MuonRecHitPointer hit) const {
   return true;
 
 } 
+
+void CosmicMuonSeedGenerator::selectSegments(MuonRecHitContainer& hits) const {
+  MuonRecHitContainer result;
+
+  //Only select good quality Segments
+  for (MuonRecHitContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
+    if ( checkQuality(*hit) ) result.push_back(*hit);
+  }
+  hits.clear();
+  if ( result.empty() ) return;
+
+  //avoid selecting Segments with similar direction
+  for (MuonRecHitContainer::iterator hit = result.begin(); hit != result.end()-1; hit++) {
+    if (*hit == 0) continue;
+    if ( !(*hit)->isValid() ) continue;
+    bool good = true;
+    GlobalVector dir1 = (*hit)->globalDirection();
+    GlobalPoint pos1 = (*hit)->globalPosition();
+    for (MuonRecHitContainer::iterator hit2 = hit + 1; hit2 != result.end(); hit2++) {
+        if (*hit2 == 0) continue;
+        if ( !(*hit2)->isValid() ) continue;
+
+          //compare direction and position
+        GlobalVector dir2 = (*hit2)->globalDirection();
+        GlobalPoint pos2 = (*hit2)->globalPosition();
+        if ((dir1 - dir2).mag() > 0.1 || (pos1-pos2).mag() > 2.0 ) continue;
+        if ((*hit)->chi2() > (*hit2)->chi2() ) { 
+           good = false;
+           (*hit2) = 0; 
+        }
+    }
+    if ( good ) hits.push_back(*hit);
+  }
+
+  result.clear();
+  return;
+
+}
 
 void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results, 
                                           const MuonRecHitContainer& hits, 
