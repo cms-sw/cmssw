@@ -1,20 +1,19 @@
 #ifndef IOMC_GaussEvtVtxGenerator_H
 #define IOMC_GaussEvtVtxGenerator_H
 
-#include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
-
 /**
  * Generate event vertices according to a Gauss distribution. 
  * Attention: All values are assumed to be cm!
+ *
+ * $Id$
  */
+
+#include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 
 namespace CLHEP {
    class RandGauss;
 }
 
-
-namespace edm
-{
 class GaussEvtVtxGenerator : public BaseEvtVtxGenerator 
 {
 public:
@@ -22,7 +21,7 @@ public:
   virtual ~GaussEvtVtxGenerator();
 
   /// return a new event vertex
-  virtual Hep3Vector * newVertex();
+  virtual CLHEP::Hep3Vector * newVertex();
 
   /// set resolution in X in cm
   void sigmaX(double s=1.0);
@@ -32,11 +31,11 @@ public:
   void sigmaZ(double s=1.0);
 
   /// set mean in X in cm
-  void meanX(double m=0) { fMeanX=m; };
+  void meanX(double m=0) { fMeanX=m; }
   /// set mean in Y in cm
-  void meanY(double m=0) { fMeanY=m; };
+  void meanY(double m=0) { fMeanY=m; }
   /// set mean in Z in cm
-  void meanZ(double m=0) { fMeanZ=m; };
+  void meanZ(double m=0) { fMeanZ=m; }
   
 private:
   /** Copy constructor */
@@ -46,8 +45,7 @@ private:
 private:
   double fSigmaX, fSigmaY, fSigmaZ;
   double fMeanX,  fMeanY,  fMeanZ;
-  RandGauss*  fRandom ; 
+  CLHEP::RandGauss*  fRandom ; 
 };
-}
 
 #endif

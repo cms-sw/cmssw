@@ -15,9 +15,6 @@ DEFINE_SEAL_MODULE ();
 
 using edm::VertexGenerator;
 DEFINE_ANOTHER_FWK_MODULE(VertexGenerator) ;
-using edm::GaussEvtVtxGenerator;
 DEFINE_ANOTHER_FWK_MODULE(GaussEvtVtxGenerator) ;
-using edm::FlatEvtVtxGenerator;
 DEFINE_ANOTHER_FWK_MODULE(FlatEvtVtxGenerator) ;
-using edm::BeamProfileVtxGenerator;
 DEFINE_ANOTHER_FWK_MODULE(BeamProfileVtxGenerator) ;

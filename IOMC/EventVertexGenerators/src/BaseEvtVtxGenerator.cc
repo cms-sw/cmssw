@@ -1,24 +1,23 @@
 
 /*
-*  $Date: $
-*  $Revision: $
+*  $Date: 2006/09/29 17:02:11 $
+*  $Revision: 1.1 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
-// #include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "CLHEP/HepMC/GenEvent.h"
+#include "CLHEP/Vector/ThreeVector.h"
 
 using namespace edm;
 using namespace std;
@@ -26,47 +25,38 @@ using namespace CLHEP;
 using namespace HepMC;
 
 BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset ) 
-   : fEngine(0), fVertex(0), fEvt(0)
+  : fVertex(0), fEvt(0), fEngine(0)
 {
    
    // 1st of all, check on module_label - must be VtxSmeared !
    if ( pset.getParameter<string>("@module_label") != "VtxSmeared" )
    {
-      throw Exception( errors::Configuration, 
-                       "Invalid moduleLabel VG; the label of this module MUST be VtxSmeared" ) ;
+      throw cms::Exception("Configuration")
+        << "Module has an invalid module label. "
+           "The label of this module MUST be VtxSmeared.";
    }
       
-/*
-   auto_ptr<EventVertexGeneratorMakerBase> 
-      VtxGenMaker( EventVertexGeneratorFactory::get()->create
-                   (pset.getParameter<std::string> ("type")) );
-*/   
    Service<RandomNumberGenerator> rng;
-   long seed = (long)(rng->mySeed()) ;
-   // cout << " seed= " << seed << endl ;
-   fEngine = new HepJamesRandom(seed) ;
 
-/*
-   if(VtxGenMaker.get()==0) 
-   {
-        throw Exception(errors::Configuration,
-	                "Unable to find the event vertex generator requested") ;
+   if ( ! rng.isAvailable()) {
+
+     throw cms::Exception("Configuration")
+       << "The BaseEvtVtxGenerator requires the RandomNumberGeneratorService\n"
+          "which is not present in the configuration file.  You must add the service\n"
+          "in the configuration file or remove the modules that require it.";
    }
-   fEventVertexGenerator = VtxGenMaker->make(pset,seed) ;
 
-   if (fEventVertexGenerator.get()==0) 
-      throw Exception(errors::Configuration,"EventVertexGenerator construction failed");
-*/   
-   produces<HepMCProduct>() ;
-   
+   HepRandomEngine& engine = rng->getEngine();
+   fEngine = &engine;
+
+   produces<HepMCProduct>();   
 }
 
 BaseEvtVtxGenerator::~BaseEvtVtxGenerator() 
 {
-   if ( fEngine != NULL ) delete fEngine ;
-   if ( fVertex != NULL ) delete fVertex ;
+   delete fVertex ;
    // no need since now it's done in HepMCProduct
-   //if ( fEvt != NULL ) delete fEvt ;
+   // delete fEvt ;
 }
 
 void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
@@ -80,7 +70,8 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
       if ( !AllHepMCEvt[i].isValid() )
       {
          // in principal, should never happen, as it's taken care of bt Framework
-	 throw Exception(errors::InvalidReference, "Invalid reference to HepMCProduct") ;
+         throw cms::Exception("InvalidReference")
+            << "Invalid reference to HepMCProduct\n";
       }
    
       // now the "real" check,
@@ -90,16 +81,11 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
       //
       if ( AllHepMCEvt[i].provenance()->moduleLabel() == "VtxSmeared" )
       {
-	 throw Exception(errors::LogicError, "VtxSmeared HepMCProduce already exists") ;
+         throw cms::Exception("LogicError")
+            << "VtxSmeared HepMCProduce already exists\n";
       }
    }
    
-/*
-   if ( fEventVertexGenerator.get() == 0 ) // overprotection
-   {
-      throw Exception(errors::Configuration, "Invalid VertexGenerator" ) ;
-   }
-*/   
    // Note : for some reason, creating an object (rather than a pointer)
    //        somehow creates rubish in the HepMCProduct, don't know why...
    //        so I've decided to go with a pointer
@@ -110,11 +96,10 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    //
    fEvt = new GenEvent(*AllHepMCEvt[0]->GetEvent()) ;
          
-   // vertex ietself
+   // vertex itself
    //
-   //Hep3Vector* VtxPos = fEventVertexGenerator.get()->newVertex() ; 
    Hep3Vector* VtxPos = newVertex() ;
-   
+
    // here loop over NewEvent and shift with NewVtx
    //
    for ( GenEvent::vertex_iterator vt=fEvt->vertices_begin();
@@ -134,5 +119,9 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    evt.put( NewProduct ) ;
       
    return ;
+}
 
+CLHEP::HepRandomEngine& BaseEvtVtxGenerator::getEngine() 
+{
+   return *fEngine;
 }

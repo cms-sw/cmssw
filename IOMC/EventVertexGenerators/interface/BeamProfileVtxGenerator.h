@@ -1,22 +1,22 @@
 #ifndef IOMC_BeamProfileVtxGenerator_H
 #define IOMC_BeamProfileVtxGenerator_H
 
-#include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
-
 /**
  * Generate event vertices according to a Gaussian distribution transverse
  * to beam direction (given by eta and phi
  * Attention: Units are assumed to be cm and radian!
  * \author Sunanda Banerjee
+ *
+ * $Id$
  */
+
+#include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 
 namespace CLHEP
 {
    class HepRandom;
 }
 
-namespace edm
-{
 class BeamProfileVtxGenerator : public BaseEvtVtxGenerator
 {
 public:
@@ -24,7 +24,7 @@ public:
   virtual ~BeamProfileVtxGenerator();
 
   /// return a new event vertex
-  virtual Hep3Vector * newVertex();
+  virtual CLHEP::Hep3Vector * newVertex();
 
   /// set resolution in X in cm
   void sigmaX(double s=1.0);
@@ -32,16 +32,16 @@ public:
   void sigmaY(double s=1.0);
 
   /// set mean in X in cm
-  void meanX(double m=0)   {fMeanX=m;};
+  void meanX(double m=0)   {fMeanX=m;}
   /// set mean in Y in cm
-  void meanY(double m=0)   {fMeanY=m;};
+  void meanY(double m=0)   {fMeanY=m;}
   /// set mean in Z in cm
-  void beamPos(double m=0) {fMeanZ=m;};
+  void beamPos(double m=0) {fMeanZ=m;}
 
   /// set eta
   void eta(double m=0);
   /// set phi in radian
-  void phi(double m=0)     {fPhi=m;};
+  void phi(double m=0)     {fPhi=m;}
   /// set type
   void setType(bool m=true);
   
@@ -55,8 +55,7 @@ private:
   double      fMeanX,  fMeanY, fMeanZ;
   double      fEta,    fPhi,   fTheta;
   bool        fType;
-  HepRandom*  fRandom;   
+  CLHEP::HepRandom*  fRandom;   
 };
-}
 
 #endif
