@@ -25,6 +25,8 @@ void OptAlignDataConverter::endJob()
   while (! myfile.eof() ){
     std::string line;
     std::getline (myfile,line);
+    std::cout << " line read " << line << std::endl;
+
     CSVBlankLineParser blank;
     if(blank.isBlank(line)){
       continue;
@@ -53,52 +55,71 @@ void OptAlignDataConverter::endJob()
       throw cms::Exception("unable to parse data :")<<line;
     }
     std::vector<boost::any> result=dataParser.result();
-    OpticalAlignInfo* data = new OpticalAlignInfo;
+    OpticalAlignInfo* oaInfo = new OpticalAlignInfo;
     std::string theLastExtraEntryName;
     OpticalAlignParam* theLastExtraEntry = 0;
+    std::vector<OpticalAlignParam*> theExtraEntries;
+
     int idx=0;
-    for(std::vector<boost::any>::iterator it=result.begin(); 
-	it!=result.end(); ++it, ++idx){
+    for(std::vector<boost::any>::iterator it=result.begin(); it!=result.end(); ++it, ++idx){
       std::string fieldName=m_fieldMap.fieldName(idx);
+      //      std::cout << " idx " << idx << " = " << fieldName << std::endl;
       if(fieldName=="ID"){
 	//std::cout<<"fieldName "<<fieldName<<" field type "<<m_fieldMap.fieldTypeName(idx)<<std::endl;
 	if( m_fieldMap.fieldType(idx)!= typeid(int) ) throw cond::Exception("unexpected type");
-	data->ID_=boost::any_cast<int>(*it);
+	oaInfo->ID_=boost::any_cast<int>(*it);
       } else if(fieldName=="type"){
 	//std::cout<<"fieldName "<<fieldName<<" field type "<<m_fieldMap.fieldTypeName(idx)<<std::endl;
 	if( m_fieldMap.fieldType(idx)!= typeid(std::string) ) throw cond::Exception("unexpected type");
-	data->type_=boost::any_cast<std::string>(*it);
+	oaInfo->type_=boost::any_cast<std::string>(*it);
       }
       if(fieldName=="name"){
 	//std::cout<<"fieldName "<<fieldName<<" field type "<<m_fieldMap.fieldTypeName(idx)<<std::endl;
 	if( m_fieldMap.fieldType(idx)!= typeid(std::string) ) throw cond::Exception("unexpected type");
-	data->name_=boost::any_cast<std::string>(*it);
+	oaInfo->name_=boost::any_cast<std::string>(*it);
       }
       if(fieldName=="centre_X"){
 	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
-	data->x_.value_=boost::any_cast<double>(*it);
+	oaInfo->x_.value_=boost::any_cast<double>(*it);
       } else if(fieldName=="centre_Y"){
 	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
-	data->y_.value_=boost::any_cast<double>(*it);
+	oaInfo->y_.value_=boost::any_cast<double>(*it);
       } else if(fieldName=="centre_Z"){
 	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
-	data->z_.value_=boost::any_cast<double>(*it);
+	oaInfo->z_.value_=boost::any_cast<double>(*it);
+      } else if(fieldName=="centre_sigma_X" || fieldName=="centre_error_X"){
+	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
+	oaInfo->x_.error_=boost::any_cast<double>(*it);
+      } else if(fieldName=="centre_sigma_Y" || fieldName=="centre_error_Y"){
+	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
+	oaInfo->y_.error_=boost::any_cast<double>(*it);
+      } else if(fieldName=="centre_sigma_Z" || fieldName=="centre_error_Z"){
+	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
+	oaInfo->z_.error_=boost::any_cast<double>(*it);
       } else if(fieldName=="angles_X"){
 	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
-	data->angx_.value_=boost::any_cast<double>(*it);
+	oaInfo->angx_.value_=boost::any_cast<double>(*it);
       } else if(fieldName=="angles_Y"){
 	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
-	data->angy_.value_=boost::any_cast<double>(*it);
+	oaInfo->angy_.value_=boost::any_cast<double>(*it);
       } else if(fieldName=="angles_Z"){
 	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
-	data->angz_.value_=boost::any_cast<double>(*it);
+	oaInfo->angz_.value_=boost::any_cast<double>(*it);
+      } else if(fieldName=="angles_sigma_X" || fieldName=="angles_error_X"){
+	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
+	oaInfo->angx_.error_=boost::any_cast<double>(*it);
+      } else if(fieldName=="angles_sigma_Y" || fieldName=="angles_error_Y"){
+	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
+	oaInfo->angy_.error_=boost::any_cast<double>(*it);
+      } else if(fieldName=="angles_sigma_Z" || fieldName=="angles_error_Z"){
+	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
+	oaInfo->angz_.error_=boost::any_cast<double>(*it);
       } else if( fieldName.substr(0,5) == "param" && fieldName.substr(fieldName.length()-4,4) == "name"){
 	if( m_fieldMap.fieldType(idx) != typeid(std::string) ) throw cond::Exception("unexpected type");
 	std::string name = boost::any_cast<std::string>(*it);
-	OpticalAlignParam* extraEntry = new OpticalAlignParam;
-	extraEntry->name_ = name;
-	if( theLastExtraEntry != 0 ) delete theLastExtraEntry;
-	theLastExtraEntry = extraEntry;
+	theLastExtraEntry = new OpticalAlignParam;
+	theExtraEntries.push_back( theLastExtraEntry );
+	theLastExtraEntry->name_ = name;
 	if( name != "None" ){
 	  theLastExtraEntryName = name;
 	}
@@ -107,12 +128,25 @@ void OptAlignDataConverter::endJob()
 	if( boost::any_cast<double>(*it) != -9.999E9 ){
 	  if( theLastExtraEntryName == "None" ) throw cond::Exception("unexpected type: setting a value != -9.999E9 for a parameter that is 'None' ");
 	  theLastExtraEntry->value_ = boost::any_cast<double>(*it);
-	  data->extraEntries_.push_back( *theLastExtraEntry );
 	}
-      }
+      } else if( fieldName.substr(0,5) == "param" && ( fieldName.substr(fieldName.length()-5,5) == "sigma" || fieldName.substr(fieldName.length()-5,5) == "error") ) {
+	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
+	if( boost::any_cast<double>(*it) != -9.999E9 ){
+	  if( theLastExtraEntryName == "None" ) throw cond::Exception("unexpected type: setting an error != -9.999E9 for a parameter that is 'None' ");
+	  theLastExtraEntry->error_ = boost::any_cast<double>(*it);
+	}
+      } // end loop to one oaInfo
+    } 
+
+    for( size_t kk = 0; kk < theExtraEntries.size(); kk++) {
+      oaInfo->extraEntries_.push_back( *(theExtraEntries[kk]) );
+      delete theExtraEntries[kk];
     }
-    myobj->opticalAlignments_.push_back(*data);
-    delete data;
+
+    myobj->opticalAlignments_.push_back(*oaInfo);
+    std::cout << " OptAlignInfo read " << *oaInfo << std::endl;
+
+    delete oaInfo;
     ++counter;
   }
   myfile.close();

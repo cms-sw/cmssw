@@ -35,18 +35,18 @@ void CocoaAnalyzer::beginJob( const edm::EventSetup& evts )
 
   CorrectOptAlignments( oaListCalib );
 
-  CocoaDaqReaderRoot* daqReader = new CocoaDaqReaderRoot( theCocoaDaqRootFileName );
-  
-  /*t
+  new CocoaDaqReaderRoot( theCocoaDaqRootFileName );
+ 
+  /*-
   int nEvents = daqReader->GetNEvents();
-  for( size_t ii = 0; ii < nEvents; ii++) {
-    std::vector<OpticalAlignMeasurementInfo> measList = daqReader->ReadEvent( ii );
-    daqReader->BuildMeasurementsFromOptAlign( measList );
-
+  for( int ii = 0; ii < nEvents; ii++) {
+    if( ! daqReader->ReadEvent( ii ) ) break;
   }
-  */
-  
+  */ 
+
   RunCocoa();
+
+  //  std::cout << "!!!! NOT  DumpCocoaResults() " << std::endl;  
 
   DumpCocoaResults();  
 }
@@ -293,6 +293,7 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
 	    measParamSigmas[*vsite] = sit->second.doubles();
 	  }else if (sit->second.name() == "meas_is_simulated_value_"+(*vsite)) {
 	    measIsSimulatedValue[*vsite] = sit->second.doubles(); // this is not in OptAlignParam info
+	    std::cout << *vsite << " setting issimu " << measIsSimulatedValue[*vsite][0] << std::endl;
 	  }
 	  if(ALIUtils::debug >= 4) {
 	    std::cout << "CocoaAnalyser: looped measObjectNames " << "meas_object_name_"+(*vsite) << " n obj " << measObjectNames[*vsite].size() << std::endl;
@@ -343,8 +344,18 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
 	    oaParam.name_ = measParamNames[oaMeas.name_][ind2];
 	    oaParam.value_ = measParamValues[oaMeas.name_][ind2];
 	    oaParam.error_ = measParamSigmas[oaMeas.name_][ind2];
+	    if( oaMeas.type_ == "SENSOR2D" || oaMeas.type_ == "COPS" || oaMeas.type_ == "DISTANCEMETER" || oaMeas.type_ == "DISTANCEMETER!DIM" || oaMeas.type_ == "DISTANCEMETER3DIM" ) {
+	      oaParam.dim_type_ = "length";
+	    } else if( oaMeas.type_ == "TILTMETER" ) {
+	      oaParam.dim_type_ = "angle";
+	    } else {
+	      std::cerr << "CocoaAnalyzer::ReadXMLFile. Invalid measurement type: " <<  oaMeas.type_ << std::endl;
+	      std::exception();
+	    }
+	    
 	    oaMeas.values_.push_back( oaParam );
 	    oaMeas.isSimulatedValue_.push_back( measIsSimulatedValue[oaMeas.name_][ind2] );
+	    std::cout << oaMeas.name_ << " copying issimu " << oaMeas.isSimulatedValue_[oaMeas.isSimulatedValue_.size()-1]  << " = " << measIsSimulatedValue[oaMeas.name_][ind2] << std::endl;
 	    //-           std::cout << ind2 << " adding meas value " << oaParam << std::endl;
             oaParam.clear();	
 	  }
@@ -612,6 +623,7 @@ std::string CocoaAnalyzer:: myFetchString(const DDsvalues_type& dvst,
 //-----------------------------------------------------------------------
 bool CocoaAnalyzer::DumpCocoaResults()
 {
+
   OpticalAlignments* myobj=new OpticalAlignments;
 
   static std::vector< OpticalObject* > optolist = Model::OptOList();
@@ -620,34 +632,36 @@ bool CocoaAnalyzer::DumpCocoaResults()
     if( (*ite)->type() == "system" ) continue;    
     OpticalAlignInfo data = GetOptAlignInfoFromOptO( *ite );
     myobj->opticalAlignments_.push_back(data);
-  }
+  std::cout << "@@@@ OPTALIGNINFO WRITTEN TO DB " 
+	    << data 
+	    << std::endl;  }
 
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
     //    try{
-      mydbservice->newValidityForNewPayload<OpticalAlignments>(myobj,mydbservice->endOfTime());
-      /*  }std::catch(const cond::Exception& er){
-	  std::cout<<er.what()<<std::endl;
-	  }catch(const std::exception& er){
-	  std::cout<<"caught std::exception "<<er.what()<<std::endl;
-	  }catch(...){
-	  std::cout<<"Funny error"<<std::endl;
-      }*/
+       mydbservice->newValidityForNewPayload<OpticalAlignments>(myobj,mydbservice->endOfTime());
+       /*? compilation error??
+    }catch(const cond::Exception& er){
+      std::cout<<er.what()<<std::endl;
+    }catch(const std::exception& er){
+      std::cout<<"caught std::exception "<<er.what()<<std::endl;
+    }catch(...){
+      std::cout<<"Funny error"<<std::endl;
+    }
+       */
   }
 
-  std::cout << "@@@@ OPTICALALIGNMENTS WRITTEN TO DB " 
-<< *myobj 
-<< std::endl;
+  //? gives unreadable error???  std::cout << "@@@@ OPTICALALIGNMENTS WRITTEN TO DB " << *myobj << std::endl;
 
+  return TRUE;
 }
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 OpticalAlignInfo CocoaAnalyzer::GetOptAlignInfoFromOptO( OpticalObject* opto )
 {
-  OpticalAlignInfo data;
   std::cout << " CocoaAnalyzer::GetOptAlignInfoFromOptO " << opto->name() << std::endl;
-/*
+  OpticalAlignInfo data;
   data.ID_=opto->cmsSwID();
   data.type_=opto->type();
   data.name_=opto->name();
@@ -660,39 +674,33 @@ OpticalAlignInfo CocoaAnalyzer::GetOptAlignInfoFromOptO( OpticalObject* opto )
   const std::vector< Entry* > theCoordinateEntryVector = opto->CoordinateEntryList();
   std::cout << " CocoaAnalyzer::GetOptAlignInfoFromOptO starting coord " <<std::endl;
 
-  Entry* entry = theCoordinateEntryVector[0];
   data.x_.value_= centreLocal.x() / 100.; // in cm
   std::cout << " matrix " << Fit::GetAtWAMatrix() << std::endl;
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << entry->fitPos() << std::endl;
-  data.x_.error_= sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry->fitPos()][entry->fitPos()]) / 100.;
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << " " << theCoordinateEntryVector[0]->fitPos() << std::endl;
+  data.x_.error_= GetEntryError( theCoordinateEntryVector[0] ) / 100.; // in cm
 
-  entry = theCoordinateEntryVector[1];
   data.y_.value_= centreLocal.y() / 100.; // in cm
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << entry->fitPos() << std::endl;
-  data.y_.error_= sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry->fitPos()][entry->fitPos()]) / 100.;
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat()  << " " << theCoordinateEntryVector[1]->fitPos() << std::endl;
+  data.y_.error_= GetEntryError( theCoordinateEntryVector[1] ) / 100.; // in cm
 
-  entry = theCoordinateEntryVector[2];
   data.z_.value_= centreLocal.z() / 100.; // in cm
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << entry->fitPos() << std::endl;
-  data.z_.error_= sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry->fitPos()][entry->fitPos()]) / 100.;
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat()  << " " << theCoordinateEntryVector[2]->fitPos() << std::endl;
+  data.z_.error_= GetEntryError( theCoordinateEntryVector[2] ) / 100.; // in cm
 
   //----- angles in local coordinates
   std::vector<double> anglocal = opto->GetLocalRotationAngles( theCoordinateEntryVector );
 
-  entry = theCoordinateEntryVector[3];
-  data.angx_.value_= anglocal[0] / entry->ValueDimensionFactor()*180./M_PI; // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << entry->fitPos() << std::endl;
-  data.angx_.error_= sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry->fitPos()][entry->fitPos()]) / entry->SigmaDimensionFactor()*180./M_PI; // in deg;
+  data.angx_.value_= anglocal[0] *180./M_PI; // in deg
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[3]->fitPos() << std::endl;
+  data.angx_.error_= GetEntryError( theCoordinateEntryVector[3] ) * 180./M_PI; // in deg;
 
-  entry = theCoordinateEntryVector[4];
-  data.angy_.value_= anglocal[1] / entry->ValueDimensionFactor()*180./M_PI; // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << entry->fitPos() << std::endl;
-  data.angy_.error_= sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry->fitPos()][entry->fitPos()]) / entry->SigmaDimensionFactor()*180./M_PI; // in deg;
+  data.angy_.value_= anglocal[1] * 180./M_PI; // in deg
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[4]->fitPos() << std::endl;
+  data.angy_.error_= GetEntryError( theCoordinateEntryVector[4] ) * 180./M_PI; // in deg;;
 
-  entry = theCoordinateEntryVector[5];
-  data.angz_.value_= anglocal[2] / entry->ValueDimensionFactor()*180./M_PI; // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << entry->fitPos() << std::endl;
-  data.angz_.error_= sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry->fitPos()][entry->fitPos()]) / entry->SigmaDimensionFactor()*180./M_PI; // in deg;
+  data.angz_.value_= anglocal[2] *180./M_PI; // in deg
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[5]->fitPos() << std::endl;
+  data.angz_.error_= GetEntryError( theCoordinateEntryVector[5] ) * 180./M_PI; // in deg;
 
   
   const std::vector< Entry* > theExtraEntryVector = opto->ExtraEntryList();  std::cout << " CocoaAnalyzer::GetOptAlignInfoFromOptO starting entry " << std::endl;
@@ -710,7 +718,16 @@ OpticalAlignInfo CocoaAnalyzer::GetOptAlignInfoFromOptO( OpticalObject* opto )
 
   }
 
-*/
   return data;
-
 }
+
+
+double CocoaAnalyzer::GetEntryError( const Entry* entry )
+{
+  if( entry->quality() > 0 ) {
+    return sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry->fitPos()][entry->fitPos()]) / 100.;
+  } else { //entry not fitted, return original error
+    return entry->sigma();
+  }
+}
+

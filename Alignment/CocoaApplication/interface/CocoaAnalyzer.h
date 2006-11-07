@@ -25,6 +25,7 @@
 
 class Event;
 class EventSetup;
+class Entry;
 //#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -68,8 +69,9 @@ class CocoaAnalyzer : public edm::EDAnalyzer
 
   void RunCocoa();
 
-  bool DumpCocoaResults();
-
+  bool DumpCocoaResults(); 
+  double GetEntryError( const Entry* entry );
+ 
   OpticalAlignInfo GetOptAlignInfoFromOptO( OpticalObject* opto );
   double myFetchDbl(const DDsvalues_type& dvst, 
 	        		      const std::string& spName,
