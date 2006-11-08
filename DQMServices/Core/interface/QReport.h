@@ -77,7 +77,7 @@ class QReport
   /// for running the quality test
   friend class MonitorElement;
   /// for setting QReport parameters after receiving report
-  friend class ReceiverBase;
+  friend class DaqMonitorROOTBackEnd;
   /// for calling resetUpdate
   friend class DaqMonitorBEInterface;
 }; 

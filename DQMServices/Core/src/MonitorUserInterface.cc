@@ -436,7 +436,7 @@ void MonitorUserInterface::subscribeNew(string subsc_request, bool useSubFolders
 }
 
 
-// subscription request for all MEs with given tag in last monitoring cycle ==> FAST
+// subscription request for all MEs with given tag in last monitoring cycle==> FAST
 void MonitorUserInterface::subscribeNew(unsigned int tag)
 {
   if(!needUpstreamConnections()) return;

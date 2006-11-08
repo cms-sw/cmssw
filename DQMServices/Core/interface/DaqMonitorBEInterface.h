@@ -19,6 +19,7 @@ class QCriterion;
 class MonitorElementRootFolder;
 class DQMTagHelper;
 class CollateMonitorElement;
+class TObject;
 
 class DaqMonitorBEInterface: public StringUtil
 {
@@ -101,6 +102,11 @@ class DaqMonitorBEInterface: public StringUtil
   /// if directory="", save full monitoring structure
   virtual void save(std::string filename, std::string directory="",
 		    int minimum_status=dqm::qstatus::STATUS_OK) = 0;
+  /// open/read root file <filename>, and copy MonitorElements;
+  /// if flag=true, overwrite identical MonitorElements (default: false);
+  /// if directory != "", read only selected directory
+    virtual void open(std::string filename, bool overwrite = false,
+		      std::string directory="") = 0;
   /// cycle through all monitoring objects, draw one at time
   virtual void drawAll(void) = 0;
   /// get list of subdirectories of current directory
@@ -112,17 +118,6 @@ class DaqMonitorBEInterface: public StringUtil
   /// get verbose level
   unsigned getVerbose(void) const {return DQM_VERBOSE;}
 
-  /// unpack QReport (with name, value) into ME_name, qtest_name, status, message;
-  /// return success flag; Expected format of QReport is a TNamed variable with
-  /// (a) name in the form: <ME_name>.<QTest_name>
-  /// (b) title (value) in the form: st.<status>.<the message here>
-  /// (where <status> is defined in Core/interface/QTestStatus.h)
-  bool unpackQReport(std::string name, std::string value, 
-		     std::string ME_name, std::string qtest_name,
-		     int & status, std::string message) const
-  {return StringUtil::unpackQReport(name, value, ME_name, qtest_name,
-				    status, message);}
-  
   // -------------------- Deleting ----------------------------------
   
   /// remove directory
@@ -247,8 +242,8 @@ class DaqMonitorBEInterface: public StringUtil
   virtual MonitorElementRootFolder * getRootFolder
     (const dqm::me_util::rootDir & Dir) const = 0;
 
-  /// get tags for various maps, return vector with strings of the form
-  /// <dir pathname>:<obj1>/<tag1>/<tag2>,<obj2>/<tag1>/<tag3>, etc.
+  /** get tags for various maps, return vector with strings of the form
+      <dir pathname>:<obj1>/<tag1>/<tag2>,<obj2>/<tag1>/<tag3>, etc. */
   virtual void getAllTags(std::vector<std::string> & put_here) const = 0;
   virtual void getAddedTags(std::vector<std::string> & put_here) const = 0;
   virtual void getRemovedTags(std::vector<std::string> & put_here) const = 0;
@@ -319,6 +314,14 @@ class DaqMonitorBEInterface: public StringUtil
      clients have callResetStuff = false, so GUI/WebInterface can access the 
      modifications in monitorable & monitoring) */
   void doneSending(bool resetMEs, bool callResetStuff);
+  /// extract object (TH1F, TH2F, ...) from <to>; return success flag
+  /// flag fromRemoteNode indicating if ME arrived from different node
+  virtual bool extractObject(TObject * to, MonitorElementRootFolder * dir, 
+			     bool fromRemoteNode)=0;
+  /// true if Monitoring Element <me> in directory <folder> has isDesired = true;
+  /// if warning = true and <me> does not exist, show warning
+  virtual bool isDesired(MonitorElementRootFolder * folder, 
+		 std::string me, bool warning) const=0;
  
   // ------------------- Booking ---------------------------
 
