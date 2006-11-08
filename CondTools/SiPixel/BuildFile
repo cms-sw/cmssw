@@ -1,0 +1,17 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiPixelObjects>
+
+<export>
+<lib name=CondToolsSiPixel>
+
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiPixelObjects>
+
+</export>
