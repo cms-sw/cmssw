@@ -94,6 +94,9 @@ class DaqMonitorBEInterface: public StringUtil
   static const std::string monitorDirName;
   // ---------------- Miscellaneous -----------------------------
   
+  /// true if directory exists
+  bool dirExists(std::string inpath) const
+  {return pathExists(inpath, Own);}
   /// show directory structure
   virtual void showDirStructure(void) const = 0;
   /// save directory with monitoring objects into root file <filename>;

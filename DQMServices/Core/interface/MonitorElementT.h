@@ -75,6 +75,15 @@ class MonitorElementT : public MonitorElement
   /// get RMS uncertainty of histogram along x, y or z axis(axis=1,2,3 respectively)
   virtual float getRMSError(int axis = 1) const
   {return doNotUseMethod("getRMSError");}
+  /// get # of bins in X-axis
+  virtual int getNbinsX() const
+  {return int(doNotUseMethod("getNbinsX"));}
+  /// get # of bins in Y-axis
+  virtual int getNbinsY() const
+  {return int(doNotUseMethod("getNbinsY"));}
+  /// get # of bins in Z-axis
+  virtual int getNbinsZ() const
+  {return int(doNotUseMethod("getNbinsZ"));}
   /// get content of bin (1-D)
   virtual float getBinContent(int binx) const
   {return doNotUseMethod("getBinContent(binx)");}

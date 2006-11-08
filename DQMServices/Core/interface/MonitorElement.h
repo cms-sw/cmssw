@@ -92,6 +92,12 @@ class MonitorElement
   virtual float getRMS(int axis = 1) const = 0;
   /// get RMS uncertainty of histogram along x, y or z axis(axis=1,2,3 respectively)
   virtual float getRMSError(int axis = 1) const = 0;
+  /// get # of bins in X-axis
+  virtual int getNbinsX() const = 0;
+  /// get # of bins in Y-axis
+  virtual int getNbinsY() const = 0;
+  /// get # of bins in Z-axis
+  virtual int getNbinsZ() const = 0;
   /// get content of bin (1-D)
   virtual float getBinContent(int binx) const = 0;
   /// get content of bin (2-D)
