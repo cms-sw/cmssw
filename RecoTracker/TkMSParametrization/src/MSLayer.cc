@@ -11,9 +11,8 @@ template <class T> T sqr( T t) {return t*t;}
 //----------------------------------------------------------------------
 ostream& operator<<( ostream& s, const MSLayer & l) 
 {
-  //MP
-  //s <<"face: "<<l.face() 
-    s <<" pos:"<<l.position()<<", "
+  s <<" face: "<<l.face() 
+    <<" pos:"<<l.position()<<", "
     <<" range:"<<l.range()<<", "
     <<l.theX0Data;
   return s;

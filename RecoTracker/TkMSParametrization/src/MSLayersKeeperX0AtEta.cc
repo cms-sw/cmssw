@@ -31,7 +31,6 @@ void MSLayersKeeperX0AtEta::init(const edm::EventSetup &iSetup)
 {
   if (isInitialised) return;
   isInitialised = true;
-//  cout << "HERE INITIALISATION! MSLayersKeeperX0AtEta"<<endl;
   const float BIG = 99999.;
 
   // set size from data file
@@ -93,14 +92,14 @@ void MSLayersKeeperX0AtEta::init(const edm::EventSetup &iSetup)
 
 // cout << "LAYERS, size=: "<<theLayersData.size()<< endl;
 /*
-  for (int idxbin = 0; idxbin < theHalfNBins; idxbin+=50) {
+  for (int idxbin = 0; idxbin <= theHalfNBins; idxbin+=25) {
     float etaValue = eta(idxbin);
     const MSLayersAtAngle & layers= theLayersData[idxbin];
     cout << "ETA: "<< etaValue <<" (bin:"<<idxbin<<") #layers:"
          <<layers.size()<<endl;
     layers.print();
   }
-  for (int idxbin = 2*theHalfNBins-1; idxbin > theHalfNBins; idxbin-=50) {
+  for (int idxbin = 2*theHalfNBins-1; idxbin > theHalfNBins; idxbin-=25) {
     float etaValue = eta(idxbin);
     const MSLayersAtAngle & layers= theLayersData[idxbin];
     cout << "ETA: "<< etaValue <<" (bin:"<<idxbin<<") #layers:"

@@ -1,5 +1,3 @@
-//#include "Utilities/Configuration/interface/Architecture.h"
-
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
@@ -35,8 +33,6 @@ MultipleScatteringGeometry::MultipleScatteringGeometry(const edm::EventSetup &iS
   for (ib = barrelLayers.begin(); ib != barrelLayers.end(); ib++)
     theLayers.push_back(*ib);
 
- 
-
 //   forwardLayers = accessor.negativeEndcapLayers();
   for (ie = forwardPosLayers.begin(); ie != forwardPosLayers.end(); ie++)
     theLayers.push_back(*ie);
@@ -50,8 +46,7 @@ vector<MSLayer> MultipleScatteringGeometry::detLayers(const edm::EventSetup &iSe
 {
   vector<MSLayer> result;
   vector<const DetLayer*>::const_iterator il;
-  for (il=theLayers.begin();il!=theLayers.end();il++) 
-    result.push_back(MSLayer(*il)); 
+  for (il=theLayers.begin();il!=theLayers.end();il++) result.push_back(MSLayer(*il)); 
   return result;
 }
     
@@ -70,30 +65,39 @@ vector<MSLayer> MultipleScatteringGeometry::detLayers(float eta, float z,const e
   TrajectoryStateOnSurface tsos;
   for (il = theLayers.begin(); il != theLayers.end(); il++) {
     bool contains=false;
-    if ((*il)->subDetector() != PixelBarrel && (*il)->subDetector()!= PixelEndcap) continue;
+//  if ((*il)->subDetector() != PixelBarrel && (*il)->subDetector()!= PixelEndcap) continue;
+
     if ( (*il)->location() == barrel ) {
-      const BarrelDetLayer * bl =
-          dynamic_cast<const BarrelDetLayer*>(*il);
+      const BarrelDetLayer * bl = dynamic_cast<const BarrelDetLayer*>(*il);
       if (!bl) continue;
       tsos = propagator.propagate(fts, bl->specificSurface());
       if (!tsos.isValid()) continue;
+      float r=bl->specificSurface().radius();
+      float dr = bl->specificSurface().bounds().thickness();
+      float z=bl->position().z();
+      float dz = bl->specificSurface().bounds().length(); 
+      PixelRecoRange<float> rRange(r-dr/2., r+dr/2.);
+      PixelRecoRange<float> zRange(z-dz/2., z+dz/2.);
+      contains =    rRange.inside(tsos.globalPosition().perp()) 
+                 && zRange.inside(tsos.globalPosition().z());
       //     contains = bl->contains((*il)->toLocal(tsos.globalPosition()));
-      //MP
-      contains=true;
     }
     else if ((*il)->location() == endcap) {
-      const ForwardDetLayer * fl =
-           dynamic_cast<const ForwardDetLayer*>(*il);
+      const ForwardDetLayer * fl = dynamic_cast<const ForwardDetLayer*>(*il);
       if (!fl) continue;
       if (fl->position().z() * eta < 0) continue;
-      tsos = propagator.propagate(fts, fl->specificSurface());
+      const BoundDisk & disk = fl->specificSurface();
+      tsos = propagator.propagate(fts, disk);
       if (!tsos.isValid()) continue;
-      //MP
-      contains=true;
+      float zMin = disk.position().z()-disk.bounds().thickness()/2;
+      float zMax = disk.position().z()+disk.bounds().thickness()/2;
+      PixelRecoRange<float> rRange(disk.innerRadius(), disk.outerRadius());
+      PixelRecoRange<float> zRange(zMin, zMax);
+      contains = rRange.inside(tsos.globalPosition().perp()) 
+              && zRange.inside(tsos.globalPosition().z());
       //     contains = fl->contains(fl->toLocal(tsos.globalPosition()));
     }
-    if (!contains) continue;
-    result.push_back(MSLayer(*il));
+    if (contains) result.push_back(MSLayer(*il));
   }
   return result;
 }

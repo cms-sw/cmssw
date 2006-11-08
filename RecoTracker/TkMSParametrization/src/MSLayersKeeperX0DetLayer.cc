@@ -13,11 +13,10 @@ void MSLayersKeeperX0DetLayer::init(const edm::EventSetup &iSetup)
 {
   if (isInitialised) return;
   isInitialised = true;
-  cout << "HERE INITIALISATION! MSLayersKeeperX0DetLayer"<<endl;
   //  vector<MSLayer> allLayers = MSLayersKeeperX0DetLayerGeom().detLayers();
   //MP
   vector<MSLayer> allLayers;
- theLayersData = MSLayersAtAngle(allLayers);
+  theLayersData = MSLayersAtAngle(allLayers);
   
   vector<MSLayer>::iterator it;
   PixelRecoPointRZ zero(0.,0.); 
