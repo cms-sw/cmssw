@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: PrimaryVertexAnalyzer.h,v 1.5 2006/09/17 16:43:23 vanlaer Exp $
+// $Id: PrimaryVertexAnalyzer.h,v 1.6 2006/09/29 11:36:14 werdmann Exp $
 //
 //
 
@@ -21,7 +21,8 @@
 // system include files
 #include <memory>
 #include <string>
-
+#include <vector>
+ 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -32,6 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CLHEP/HepMC/GenParticle.h"
 
 // vertex stuff
 #include <DataFormats/VertexReco/interface/Vertex.h>
@@ -42,43 +44,46 @@
 #include <TFile.h>
 
 
+
 // class declaration
-//
 
 class PrimaryVertexAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit PrimaryVertexAnalyzer(const edm::ParameterSet&);
-      ~PrimaryVertexAnalyzer();
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&);
-      virtual void endJob();
 
-   private:
-      // ----------member data ---------------------------
-      // root file to store histograms
-      std::string outputFile_; // output file
-      std::string vtxSample_; // which vertices to analyze
-      TFile*  rootFile_;
-  //      TH1*   h1_nbtks_in_event_; 
-  //      TH1*   h1_tks_chi2_;
-  //      TH1*   h1_tks_ndf_;
-      TH1*   h1_nbvtx_in_event_; 
-      TH1*   h1_nbtks_in_vtx_; 
-      TH1*   h1_resx_; 
-      TH1*   h1_resy_;
-      TH1*   h1_resz_;
-      TH1*   h1_pullx_; 
-      TH1*   h1_pully_;
-      TH1*   h1_pullz_;
-      TH1*   h1_vtx_chi2_;
-      TH1*   h1_vtx_ndf_;
-      TH1*   h1_tklinks_;
-      TH1*   h1_nans_;
-  TH1*   h1_xrec_;
-  TH1*   h1_yrec_;
-  TH1*   h1_zrec_;
+// auxiliary class holding simulated primary vertices
+class simPrimaryVertex {
+public:
+  simPrimaryVertex(double x1,double y1,double z1):x(x1),y(y1),z(z1){};
+  double x,y,z;
+  std::vector<int> simTrackIndex;
+  std::vector<int> genVertexIndex;
+  const reco::Vertex *recVtx;
+};
+
+
+
+public:
+  explicit PrimaryVertexAnalyzer(const edm::ParameterSet&);
+  ~PrimaryVertexAnalyzer();
+  
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void beginJob(edm::EventSetup const&);
+  virtual void endJob();
+  
+private:
+  bool matchVertex(const simPrimaryVertex  &vsim, 
+		   const reco::Vertex       &vrec);
+  bool isResonance(const HepMC::GenParticle * p);
+  
+  // ----------member data ---------------------------
+  std::string recoTrackProducer_;
+  std::string outputFile_;       // output file
+  std::string vtxSample_;        // which vertices to analyze
+  TFile*  rootFile_;             
   bool verbose_;
   edm::InputTag simG4_;
+  double simUnit_;               
+
+  std::map<std::string, TH1*> h;
 };
 
