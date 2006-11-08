@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.3 2006/11/07 18:42:42 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.4 2006/11/07 20:20:53 fwyzard Exp $
 //
 
 // STL
@@ -125,7 +125,7 @@ SoftLeptonAlgorithm::tag(
 
     // Temporary TVector3 vecotrs
     TVector3 _original_axis( jet->px(), jet->py(), jet->pz() );
-    TVector3 _lepton( lepton->x(), lepton->y(), lepton->z() );
+    TVector3 _lepton( lepton->px(), lepton->py(), lepton->pz() );
     if (_lepton.DeltaR(_original_axis) > m_deltaRCut)
       continue;
 
