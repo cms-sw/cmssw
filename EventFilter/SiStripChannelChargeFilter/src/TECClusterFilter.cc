@@ -61,10 +61,10 @@ namespace cms
 	      { if(*imod == thedetId.rawId()) exclude_this_detid = true;  } // found in exclusion list
 	    if(  (! exclude_this_detid ) && (thedetId.subdetId()==StripSubdetector::TEC) ) // if not excluded and if TEC module
 	      { // calculate sum of amplitudes
-		// unsigned int amplclus=0;
-		int amplclus=0;
-		//for(vector<uint16_t>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
-		  for(vector<short>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
+		unsigned int amplclus=0;
+		// int amplclus=0;
+		for(vector<uint16_t>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
+		// for(vector<short>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
 		  { if ((*ia)>0) amplclus+=(*ia); } // why should this be negative?
 		if(amplclus>ChargeThresholdTEC) nr_clusters_above_threshold++;
 	      }
