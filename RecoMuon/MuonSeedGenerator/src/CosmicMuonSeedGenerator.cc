@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/11/07 21:36:19 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/11/08 00:33:27 $
+ *  $Revision: 1.13 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -230,8 +230,7 @@ void CosmicMuonSeedGenerator::selectSegments(MuonRecHitContainer& hits) const {
         if ((dir1 - dir2).mag() > 0.1 || (pos1-pos2).mag() > 2.0 ) continue;
         if ((*hit)->chi2() > (*hit2)->chi2() ) { 
            good = false;
-           (*hit2) = 0; 
-        }
+        } else (*hit2) = 0;
     }
     if ( good ) hits.push_back(*hit);
   }
