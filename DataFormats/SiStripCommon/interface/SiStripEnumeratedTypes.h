@@ -41,6 +41,19 @@ namespace sistrip {
 
 }
 
+// -------------------- "Sources" of cabling object info --------------------
+
+namespace sistrip { 
+
+  enum CablingSource { UNKNOWN_CABLING_SOURCE = sistrip::unknown_,
+		       UNDEFINED_CABLING_SOURCE = sistrip::invalid_,
+		       CABLING_FROM_CONNS = 1,
+		       CABLING_FROM_DEVICES = 2,
+		       CABLING_FROM_DETIDS = 3
+  };
+  
+}
+
 // -------------------- FED-related enumerated types --------------------
 
 namespace sistrip { 
@@ -135,13 +148,14 @@ namespace sistrip {
 		     SUMMARY_2D = 3,
 		     SUMMARY_PROF = 4
   };
- 
+  
   /** Defines the various summary histograms available. */
   enum SummaryHisto { UNKNOWN_SUMMARY_HISTO = sistrip::unknown_, 
 		      UNDEFINED_SUMMARY_HISTO = sistrip::invalid_, 
 		      // FED CABLING
 		      FED_CABLING_FED_ID = 1301, 
-		      FED_CABLING_FED_CH = 1301, 
+		      FED_CABLING_FED_CH = 1302, 
+		      FED_CABLING_SIGNAL_LEVEL = 1303, 
 		      // APV TIMING
 		      APV_TIMING_TIME = 501, 
 		      APV_TIMING_MAX_TIME = 502, 
