@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2006/10/20 16:39:17 $
- * $Revision: 1.4 $
+ * $Date: 2006/10/26 08:30:32 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
 */
@@ -59,9 +59,18 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
 
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
 
+  double effwei = 1.;
+ 
+  if (ESGain == 0)
+    effwei = 1.45;
+  else if (ESGain == 1)
+    effwei = 0.9066;
+  else if (ESGain == 2)
+    effwei = 0.8815;
+ 
   esBaseline_ = (double)ESBaseline;
   esADCtokeV_ = 1000000.*ESMIPADC/ESMIPkeV;
-  esThreshold_ = 3.*ESNoiseSigma/esADCtokeV_;
+  esThreshold_ = 3.*effwei*ESNoiseSigma/esADCtokeV_;
 
   theMinBunch = -10;
   theMaxBunch = 10;
@@ -162,17 +171,17 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
 
       sprintf (histo, "EcalDigiTask Preshower shape bunch crossing %02d", i-10 );
       meESBunchShape_[i] = dbe_->bookProfile(histo, histo, 3, 0, 3, 4000, 0., 400.);
-                        
+
     }
 
     sprintf (histo, "EcalDigiTask Barrel shape digi");
-    meEBShape_ = dbe_->bookProfile(histo, histo, 10, 0, 10, 4000, 0., 400.);
+    meEBShape_ = dbe_->bookProfile(histo, histo, 10, 0, 10, 4000, 0., 2000.);
 
     sprintf (histo, "EcalDigiTask Endcap shape digi");
-    meEEShape_ = dbe_->bookProfile(histo, histo, 10, 0, 10, 4000, 0., 400.);
+    meEEShape_ = dbe_->bookProfile(histo, histo, 10, 0, 10, 4000, 0., 2000.);
 
     sprintf (histo, "EcalDigiTask Preshower shape digi");
-    meESShape_ = dbe_->bookProfile(histo, histo, 3, 0, 3, 4000, 0., 400.);
+    meESShape_ = dbe_->bookProfile(histo, histo, 3, 0, 3, 4000, 0., 2000.);
 
     sprintf (histo, "EcalDigiTask Barrel shape digi ratio");
     meEBShapeRatio_ = dbe_->book1D(histo, histo, 10, 0, 10.);
@@ -345,7 +354,7 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
     MapType ebSignalSimMap;
 
     double ebSimThreshold = 0.5*theGunEnergy;
-    
+
     for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin () ;
          hitItr != barrelHits->end () ;
          ++hitItr) {
@@ -581,11 +590,9 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
               esADCCounts[sample] = (digis->sample (sample).adc ()) ;
               esADCAnalogSignal[sample] = (esADCCounts[sample]-esBaseline_)/esADCtokeV_;
             }
-          if (verbose_) {
-            LogDebug("DigiInfo") << "Preshower Digi for ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip();
-            for ( int i = 0; i < 3 ; i++ ) {
-              LogDebug("DigiInfo") << "sample " << i << " ADC = " << esADCCounts[i] << " Analog eq = " << esADCAnalogSignal[i];
-            }
+          LogDebug("DigiInfo") << "Preshower Digi for ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip();
+          for ( int i = 0; i < 3 ; i++ ) {
+            LogDebug("DigiInfo") << "sample " << i << " ADC = " << esADCCounts[i] << " Analog eq = " << esADCAnalogSignal[i];
           }
 
           if ( esSignalSimMap[esid.rawId()] > esThreshold_  && meESShape_ ) {
