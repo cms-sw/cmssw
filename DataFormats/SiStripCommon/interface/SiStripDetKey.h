@@ -35,8 +35,8 @@ class SiStripDetKey {
 
  private: 
 
-/*   static const uint16_t offset_ = 20; */
-/*   static const uint16_t mask_   = 0x7; */
+  /*   static const uint16_t offset_ = 20; */
+  /*   static const uint16_t mask_   = 0x7; */
   
 };
 

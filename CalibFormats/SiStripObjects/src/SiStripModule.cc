@@ -266,6 +266,7 @@ bool SiStripModule::fedCh( const uint16_t& apv_address,
     return false;
   }
   // Search for entry in map
+  //@@ use FedKey as key instead of lld chan? what about "duplicates"? always append to map? then can have >3 entries. useful for debug?
   FedCabling::iterator ipair = cabling_.find( lld_ch );
   if ( ipair == cabling_.end() ) { cabling_[lld_ch] = fed_ch; }
   else { ipair->second = fed_ch; }

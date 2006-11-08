@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripModule.h,v 1.4 2006/10/10 13:06:48 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripModule.h,v 1.5 2006/10/30 20:09:56 bainbrid Exp $
+// Latest tag:  $Name: TIF_031106 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibFormats/SiStripObjects/interface/SiStripModule.h,v $
 
 #ifndef CalibFormats_SiStripObjects_SiStripModule_H
@@ -181,7 +181,9 @@ class SiStripModule {
   uint32_t detId_;
   uint16_t nApvPairs_;
   
-  // FED cabling: KEY = APV pair footprint position, DATA = FedId + FedCh
+  /** FED cabling: 
+      KEY = LLD channel (APV pair footprint position)
+      DATA = FedId + FedCh */
   FedCabling cabling_;
   uint16_t length_;
   
