@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.49 2006/11/07 18:40:05 rpw Exp $
+ * $Id: pset_parse.y,v 1.50 2006/11/07 19:18:30 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -378,16 +378,6 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                    $<_Node>$ = en;
                  }
                |
-                 untracked PSET_tok LETTERSTART_tok EQUAL_tok any
-                 {
-		   DBPRINT("node: PSET (any)");
-		   bool tr = $<_bool>1;
-                   string name(toString($<str>3));
-                   string value(toString($<str>5));
-                   PSetRefNode* en(new PSetRefNode(name,value,tr,lines));
-                   $<_Node>$ = en;
-                 }
-               |
                  untracked VPSET_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok nodesarray SCOPE_END_tok
                  {
                    DBPRINT("node: VPSET");
@@ -719,10 +709,13 @@ procnode:        eitherlevelnode
                  }
                ;
 
-toplevelnode:    BLOCK_tok procinlinenodes
+toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  {
                    DBPRINT("procnode: BLOCK");
-                   $<_Node>$ = $<_PSetNode>2;
+                   string name(toString($<str>2));
+                   NodePtrListPtr value($<_NodePtrList>4);
+                   PSetNode* en(new PSetNode("block",name,value, false, lines));
+                   $<_Node>$ = en;
                  }
                |
                  REPLACE_tok DOTDELIMITED_tok EQUAL_tok replaceEntry
@@ -972,17 +965,6 @@ blankscoped:     SCOPE_START_tok SCOPE_END_tok
                    DBPRINT("scope: empty");
                    NodePtrList* nodelist(new NodePtrList);
                    $<_NodePtrList>$ = nodelist;
-                 }
-               ;
-
-/* Returns a Node pointer */
-procinlinenodes: LETTERSTART_tok EQUAL_tok SCOPE_START_tok nodes SCOPE_END_tok
-                 {
-                   DBPRINT("procinlinenodes:NAME");
-                   string name(toString($<str>1));
-                   NodePtrListPtr value($<_NodePtrList>4);
-                   PSetNode* en(new PSetNode("block",name,value, false, lines));
-                   $<_Node>$ = en;
                  }
                ;
 
