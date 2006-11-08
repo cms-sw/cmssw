@@ -22,7 +22,7 @@ TrackClusterizerInZ::clusterize(const vector<reco::TransientTrack> & tracks)
 {
 
   vector<reco::TransientTrack> tks = tracks; // copy to be sorted
-
+  
   vector< vector<reco::TransientTrack> > clusters;
   if (tks.empty()) return clusters;
 
@@ -46,8 +46,8 @@ TrackClusterizerInZ::clusterize(const vector<reco::TransientTrack> & tracks)
       // store current cluster, start new one
       clusters.push_back(currentCluster);
       currentCluster.clear();
-      it++; if (it == tks.end()) break;
       currentCluster.push_back(*it);
+      it++; if (it == tks.end()) break;
     }
   }
 
