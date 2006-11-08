@@ -1,7 +1,7 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2006/11/07 10:22:56 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/11/07 17:48:25 $
+ *  $Revision: 1.10 $
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,7 +34,7 @@ AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignable
 						     const edm::ParameterSet &pSet) :
   theAlignables(), theAlignableTracker(alignableTracker)
 {
-  this->addSelections(pSet.getParameter<edm::ParameterSet>("AlignmentParameterSelector"));
+  this->addSelections(pSet.getParameter<edm::ParameterSet>("Selector"));
 }
 
 //__________________________________________________________________________________________________

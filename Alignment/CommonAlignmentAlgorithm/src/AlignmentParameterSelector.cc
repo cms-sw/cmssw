@@ -1,8 +1,8 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2006/11/07 10:22:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/07 15:41:13 $
+ *  $Revision: 1.2 $
  *  (last update by $Author: flucke $)
  */
 
@@ -67,7 +67,7 @@ unsigned int AlignmentParameterSelector::addSelections(const edm::ParameterSet &
 {
 
   const std::vector<std::string> selections
-    = pSet.getParameter<std::vector<std::string> >("alignableParamSelector");
+    = pSet.getParameter<std::vector<std::string> >("alignParams");
   
   unsigned int addedSets = 0;
 
