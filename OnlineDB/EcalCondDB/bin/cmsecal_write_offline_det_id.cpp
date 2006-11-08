@@ -48,7 +48,7 @@ public:
   {
     std::cout << "Loading services..." << std::flush;
     seal::PluginManager::get()->initialise();
-    seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader( m_context );
+    seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader( m_context.get() );
     loader->load( "CORAL/Services/RelationalService" );
 
     loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
@@ -91,7 +91,6 @@ public:
   ~CondDBApp() 
   {
     m_session->disconnect();
-    delete m_context;
   }
 
   void writeMapping()
@@ -240,7 +239,7 @@ public:
 
 
 private:
-  seal::Context* m_context;
+  seal::Handle< seal::Context > m_context;
   std::auto_ptr<coral::ISession> m_session;
 };
 
