@@ -1,6 +1,7 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/ServiceRegistry>
 <use name=DataFormats/SiStripCommon>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
@@ -8,12 +9,14 @@
 <use name=xerces-c>
 <use name=oracle>
 <use name=boost>
+<flags SEAL_PLUGIN_NAME="OnlineDBSiStripConfigDb">
 
 <export>
    <lib name=OnlineDBSiStripConfigDb>
    <use name=FWCore/Utilities>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
+   <use name=FWCore/ServiceRegistry>
    <use name=DataFormats/SiStripCommon>
    <use name=CondFormats/SiStripObjects>
    <use name=CalibFormats/SiStripObjects>
