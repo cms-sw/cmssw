@@ -904,6 +904,7 @@ void FamosRecHitAnalysis::rootMacroPixel( std::vector<TH1F*>& histos_angle ) {
   for(unsigned int iHist = 0; iHist < histos_angle.size(); iHist++) {
     histos_angle[iHist]->Divide(hist_tot);
   }
+  
 #ifdef rrDEBUG
   for(unsigned int iMult = 0; iMult<histos_angle.size(); iMult++) {
     std::cout << " Multiplicity probability " << histos_angle[iMult]->GetName() << std::endl;

@@ -52,21 +52,21 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   //
   if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
     // Resolution Barrel    
-    resAlpha_binMin   = pset.getUntrackedParameter<double>("AlphaBarrel_BinMin"   ,  -0.2);
-    resAlpha_binWidth = pset.getUntrackedParameter<double>("AlphaBarrel_BinWidth" ,   0.1);
-    resAlpha_binN     = pset.getUntrackedParameter<int>("AlphaBarrel_BinN"        ,   4  );
-    resBeta_binMin    = pset.getUntrackedParameter<double>("BetaBarrel_BinMin"    ,   0.0);
-    resBeta_binWidth  = pset.getUntrackedParameter<double>("BetaBarrel_BinWidth"  ,   0.2);
-    resBeta_binN      = pset.getUntrackedParameter<int>(   "BetaBarrel_BinN"      ,   7  );
+    resAlpha_binMin   = pset.getParameter<double>("AlphaBarrel_BinMin"  );
+    resAlpha_binWidth = pset.getParameter<double>("AlphaBarrel_BinWidth");
+    resAlpha_binN     = pset.getParameter<int>("AlphaBarrel_BinN"       );
+    resBeta_binMin    = pset.getParameter<double>("BetaBarrel_BinMin"   );
+    resBeta_binWidth  = pset.getParameter<double>("BetaBarrel_BinWidth" );
+    resBeta_binN      = pset.getParameter<int>(   "BetaBarrel_BinN"     );
     //
   } else if( thePixelPart == GeomDetEnumerators::PixelEndcap ) {
     // Resolution Forward
-    resAlpha_binMin   = pset.getUntrackedParameter<double>("AlphaForward_BinMin"   ,  0.0);
-    resAlpha_binWidth = pset.getUntrackedParameter<double>("AlphaForward_BinWidth" ,  0.0);
-    resAlpha_binN     = pset.getUntrackedParameter<int>("AlphaBarrel_BinN"         ,  4  );
-    resBeta_binMin    = pset.getUntrackedParameter<double>("BetaForward_BinMin"    ,  0.0);
-    resBeta_binWidth  = pset.getUntrackedParameter<double>("BetaForward_BinWidth"  ,  0.0);
-    resBeta_binN      = pset.getUntrackedParameter<int>(   "BetaBarrel_BinN"       ,  7  );
+    resAlpha_binMin   = pset.getParameter<double>("AlphaForward_BinMin"  );
+    resAlpha_binWidth = pset.getParameter<double>("AlphaForward_BinWidth");
+    resAlpha_binN     = pset.getParameter<int>("AlphaBarrel_BinN"        );
+    resBeta_binMin    = pset.getParameter<double>("BetaForward_BinMin"   );
+    resBeta_binWidth  = pset.getParameter<double>("BetaForward_BinWidth" );
+    resBeta_binN      = pset.getParameter<int>(   "BetaBarrel_BinN"      );
   }
   //
   

@@ -77,59 +77,59 @@ namespace cms
     trackerContainers.clear();
     trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
     //--- delta rays p cut [GeV/c] to filter PSimHits with p>
-    deltaRaysPCut = conf.getUntrackedParameter<double>("DeltaRaysMomentumCut",0.5);
+    deltaRaysPCut = conf.getParameter<double>("DeltaRaysMomentumCut");
     LogDebug("SiTrackerGaussianSmearingRecHits") << "PSimHit filter delta rays cut in momentum p > " << deltaRaysPCut << " GeV/c" << std::endl;
     //--- switch to have RecHit == PSimHit
-    trackingPSimHits = conf.getUntrackedParameter<bool>("trackingPSimHits",false);
+    trackingPSimHits = conf.getParameter<bool>("trackingPSimHits");
     if(trackingPSimHits) LogDebug("SiTrackerGaussianSmearingRecHits") << "### trackingPSimHits chosen " << trackingPSimHits << std::endl;
     //
     // TIB
-    localPositionResolution_TIB1x = conf.getUntrackedParameter<double>("TIB1x",0.00195);
-    localPositionResolution_TIB1y = conf.getUntrackedParameter<double>("TIB1y",11.7/sqrt(12.));
-    localPositionResolution_TIB2x = conf.getUntrackedParameter<double>("TIB2x",0.00191);
-    localPositionResolution_TIB2y = conf.getUntrackedParameter<double>("TIB2y",11.7/sqrt(12.));
-    localPositionResolution_TIB3x = conf.getUntrackedParameter<double>("TIB3x",0.00325);
-    localPositionResolution_TIB3y = conf.getUntrackedParameter<double>("TIB3y",11.7/sqrt(12.));
-    localPositionResolution_TIB4x = conf.getUntrackedParameter<double>("TIB4x",0.00323);
-    localPositionResolution_TIB4y = conf.getUntrackedParameter<double>("TIB4y",11.7/sqrt(12.));
+    localPositionResolution_TIB1x = conf.getParameter<double>("TIB1x");
+    localPositionResolution_TIB1y = conf.getParameter<double>("TIB1y");
+    localPositionResolution_TIB2x = conf.getParameter<double>("TIB2x");
+    localPositionResolution_TIB2y = conf.getParameter<double>("TIB2y");
+    localPositionResolution_TIB3x = conf.getParameter<double>("TIB3x");
+    localPositionResolution_TIB3y = conf.getParameter<double>("TIB3y");
+    localPositionResolution_TIB4x = conf.getParameter<double>("TIB4x");
+    localPositionResolution_TIB4y = conf.getParameter<double>("TIB4y");
     //
     // TID
-    localPositionResolution_TID1x = conf.getUntrackedParameter<double>("TID1x",0.00262);
-    localPositionResolution_TID1y = conf.getUntrackedParameter<double>("TID1y",12.7/sqrt(12.));
-    localPositionResolution_TID2x = conf.getUntrackedParameter<double>("TID2x",0.00354);
-    localPositionResolution_TID2y = conf.getUntrackedParameter<double>("TID2y",12.7/sqrt(12.));
-    localPositionResolution_TID3x = conf.getUntrackedParameter<double>("TID3x",0.00391);
-    localPositionResolution_TID3y = conf.getUntrackedParameter<double>("TID3y",11.9/sqrt(12.));
+    localPositionResolution_TID1x = conf.getParameter<double>("TID1x");
+    localPositionResolution_TID1y = conf.getParameter<double>("TID1y");
+    localPositionResolution_TID2x = conf.getParameter<double>("TID2x");
+    localPositionResolution_TID2y = conf.getParameter<double>("TID2y");
+    localPositionResolution_TID3x = conf.getParameter<double>("TID3x");
+    localPositionResolution_TID3y = conf.getParameter<double>("TID3y");
     //
     // TOB
-    localPositionResolution_TOB1x = conf.getUntrackedParameter<double>("TOB1x",0.00461);
-    localPositionResolution_TOB1y = conf.getUntrackedParameter<double>("TOB1y",2*9.1514/sqrt(12.));
-    localPositionResolution_TOB2x = conf.getUntrackedParameter<double>("TOB2x",0.00458);
-    localPositionResolution_TOB2y = conf.getUntrackedParameter<double>("TOB2y",2*9.1514/sqrt(12.));
-    localPositionResolution_TOB3x = conf.getUntrackedParameter<double>("TOB3x",0.00488);
-    localPositionResolution_TOB3y = conf.getUntrackedParameter<double>("TOB3y",2*9.1514/sqrt(12.));
-    localPositionResolution_TOB4x = conf.getUntrackedParameter<double>("TOB4x",0.00491);
-    localPositionResolution_TOB4y = conf.getUntrackedParameter<double>("TOB4y",2*9.1514/sqrt(12.));
-    localPositionResolution_TOB5x = conf.getUntrackedParameter<double>("TOB5x",0.00293);
-    localPositionResolution_TOB5y = conf.getUntrackedParameter<double>("TOB5y",2*9.1514/sqrt(12.));
-    localPositionResolution_TOB6x = conf.getUntrackedParameter<double>("TOB6x",0.00299);
-    localPositionResolution_TOB6y = conf.getUntrackedParameter<double>("TOB6y",2*9.1514/sqrt(12.));
+    localPositionResolution_TOB1x = conf.getParameter<double>("TOB1x");
+    localPositionResolution_TOB1y = conf.getParameter<double>("TOB1y");
+    localPositionResolution_TOB2x = conf.getParameter<double>("TOB2x");
+    localPositionResolution_TOB2y = conf.getParameter<double>("TOB2y");
+    localPositionResolution_TOB3x = conf.getParameter<double>("TOB3x");
+    localPositionResolution_TOB3y = conf.getParameter<double>("TOB3y");
+    localPositionResolution_TOB4x = conf.getParameter<double>("TOB4x");
+    localPositionResolution_TOB4y = conf.getParameter<double>("TOB4y");
+    localPositionResolution_TOB5x = conf.getParameter<double>("TOB5x");
+    localPositionResolution_TOB5y = conf.getParameter<double>("TOB5y");
+    localPositionResolution_TOB6x = conf.getParameter<double>("TOB6x");
+    localPositionResolution_TOB6y = conf.getParameter<double>("TOB6y");
     //
     // TEC
-    localPositionResolution_TEC1x = conf.getUntrackedParameter<double>("TEC1x",0.00262);
-    localPositionResolution_TEC1y = conf.getUntrackedParameter<double>("TEC1y",12.7/sqrt(12.));
-    localPositionResolution_TEC2x = conf.getUntrackedParameter<double>("TEC2x",0.00354);
-    localPositionResolution_TEC2y = conf.getUntrackedParameter<double>("TEC2y",12.7/sqrt(12.));
-    localPositionResolution_TEC3x = conf.getUntrackedParameter<double>("TEC3x",0.00391);
-    localPositionResolution_TEC3y = conf.getUntrackedParameter<double>("TEC3y",11.9/sqrt(12.));
-    localPositionResolution_TEC4x = conf.getUntrackedParameter<double>("TEC4x",0.00346);
-    localPositionResolution_TEC4y = conf.getUntrackedParameter<double>("TEC4y",12.1/sqrt(12.));
-    localPositionResolution_TEC5x = conf.getUntrackedParameter<double>("TEC5x",0.00378);
-    localPositionResolution_TEC5y = conf.getUntrackedParameter<double>("TEC5y",2*12.3/sqrt(12.));
-    localPositionResolution_TEC6x = conf.getUntrackedParameter<double>("TEC6x",0.00508);
-    localPositionResolution_TEC6y = conf.getUntrackedParameter<double>("TEC6y",2*11.9/sqrt(12.));
-    localPositionResolution_TEC7x = conf.getUntrackedParameter<double>("TEC7x",0.00422);
-    localPositionResolution_TEC7y = conf.getUntrackedParameter<double>("TEC7y",2*12.1/sqrt(12.));
+    localPositionResolution_TEC1x = conf.getParameter<double>("TEC1x");
+    localPositionResolution_TEC1y = conf.getParameter<double>("TEC1y");
+    localPositionResolution_TEC2x = conf.getParameter<double>("TEC2x");
+    localPositionResolution_TEC2y = conf.getParameter<double>("TEC2y");
+    localPositionResolution_TEC3x = conf.getParameter<double>("TEC3x");
+    localPositionResolution_TEC3y = conf.getParameter<double>("TEC3y");
+    localPositionResolution_TEC4x = conf.getParameter<double>("TEC4x");
+    localPositionResolution_TEC4y = conf.getParameter<double>("TEC4y");
+    localPositionResolution_TEC5x = conf.getParameter<double>("TEC5x");
+    localPositionResolution_TEC5y = conf.getParameter<double>("TEC5y");
+    localPositionResolution_TEC6x = conf.getParameter<double>("TEC6x");
+    localPositionResolution_TEC6y = conf.getParameter<double>("TEC6y");
+    localPositionResolution_TEC7x = conf.getParameter<double>("TEC7x");
+    localPositionResolution_TEC7y = conf.getParameter<double>("TEC7y");
     //
     localPositionResolution_z = 0.0001; // not to be changed, set to minimum (1 um), Kalman Filter will crash if errors are exactly 0, setting 1 um means 0
     //
@@ -159,82 +159,80 @@ namespace cms
     //    
     // from FAMOS: take into account the angle of the strips in the barrel
     //--- The name of the files with the Pixel information
-    thePixelMultiplicityFileName = conf.getUntrackedParameter<std::string>( "PixelMultiplicityFile" , "FastSimulation/TrackingRecHitProducer/data/PixelData.root" );
+    thePixelMultiplicityFileName = conf.getParameter<std::string>( "PixelMultiplicityFile" );
     LogDebug("SiTrackerGaussianSmearingRecHits") << "Pixel multiplicity data are taken from file " << thePixelMultiplicityFileName << std::endl;
     //--- Number of histograms for alpha/beta barrel/forward multiplicity
-    nAlphaBarrel  = conf.getUntrackedParameter<int>("AlphaBarrelMultiplicity", 4);
-    nBetaBarrel   = conf.getUntrackedParameter<int>("BetaBarrelMultiplicity",  6);
-    nAlphaForward = conf.getUntrackedParameter<int>("AlphaForwardMultiplicity",3);
-    nBetaForward  = conf.getUntrackedParameter<int>("BetaForwardMultiplicity", 3);
+    nAlphaBarrel  = conf.getParameter<int>("AlphaBarrelMultiplicity");
+    nBetaBarrel   = conf.getParameter<int>("BetaBarrelMultiplicity");
+    nAlphaForward = conf.getParameter<int>("AlphaForwardMultiplicity");
+    nBetaForward  = conf.getParameter<int>("BetaForwardMultiplicity");
     LogDebug("SiTrackerGaussianSmearingRecHits") << "Pixel maximum multiplicity set to " 
 						 << "\nBarrel"  << "\talpha " << nAlphaBarrel  << "\tbeta " << nBetaBarrel
 						 << "\nForward" << "\talpha " << nAlphaForward << "\tbeta " << nBetaForward
 						 << std::endl;
     // Resolution Barrel    
-    thePixelBarrelResolutionFileName = conf.getUntrackedParameter<std::string>( "PixelBarrelResolutionFile" ,
-										"FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution.root" );
-    resAlphaBarrel_binMin   = conf.getUntrackedParameter<double>("AlphaBarrel_BinMin"   ,  -0.2);
-    resAlphaBarrel_binWidth = conf.getUntrackedParameter<double>("AlphaBarrel_BinWidth" ,   0.1);
-    resAlphaBarrel_binN     = conf.getUntrackedParameter<int>(   "AlphaBarrel_BinN"     ,   4  );
-    resBetaBarrel_binMin    = conf.getUntrackedParameter<double>("BetaBarrel_BinMin"    ,   0.0);
-    resBetaBarrel_binWidth  = conf.getUntrackedParameter<double>("BetaBarrel_BinWidth"  ,   0.2);
-    resBetaBarrel_binN      = conf.getUntrackedParameter<int>(   "BetaBarrel_BinN"      ,   7  );
+    thePixelBarrelResolutionFileName = conf.getParameter<std::string>( "PixelBarrelResolutionFile");
+    resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMin"  );
+    resAlphaBarrel_binWidth = conf.getParameter<double>("AlphaBarrel_BinWidth");
+    resAlphaBarrel_binN     = conf.getParameter<int>(   "AlphaBarrel_BinN"    );
+    resBetaBarrel_binMin    = conf.getParameter<double>("BetaBarrel_BinMin"   );
+    resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidth" );
+    resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinN"     );
     LogDebug("SiTrackerGaussianSmearingRecHits") << "Barrel Pixel resolution data are taken from file " << thePixelBarrelResolutionFileName 
 						 << "\n"
 						 << "Alpha bin min = " << resAlphaBarrel_binMin
 						 << "\twidth = "       << resAlphaBarrel_binWidth
 						 << "\tbins = "        << resAlphaBarrel_binN
 						 << "\n"
-						 << "Beta bin min = "  << resBetaBarrel_binMin
+						 << " Beta bin min = " << resBetaBarrel_binMin
 						 << "\twidth = "       << resBetaBarrel_binWidth
 						 << "\tbins = "        << resBetaBarrel_binN
 						 << std::endl;
     //
     
     // Resolution Forward
-    thePixelForwardResolutionFileName = conf.getUntrackedParameter<std::string>( "PixelForwardResolutionFile" ,
-										 "FastSimulation/TrackingRecHitProducer/data/PixelForwardResolution.root" );
-    resAlphaForward_binMin   = conf.getUntrackedParameter<double>("AlphaForward_BinMin"   ,  0.0);
-    resAlphaForward_binWidth = conf.getUntrackedParameter<double>("AlphaForward_BinWidth" ,  0.0);
-    resAlphaBarrel_binN      = conf.getUntrackedParameter<int>(   "AlphaBarrel_BinN"      ,  0  );
-    resBetaForward_binMin    = conf.getUntrackedParameter<double>("BetaForward_BinMin"    ,  0.0);
-    resBetaForward_binWidth  = conf.getUntrackedParameter<double>("BetaForward_BinWidth"  ,  0.0);
-    resBetaForward_binN      = conf.getUntrackedParameter<int>(   "BetaForward_BinN"      ,  0);
+    thePixelForwardResolutionFileName = conf.getParameter<std::string>( "PixelForwardResolutionFile");
+    resAlphaForward_binMin   = conf.getParameter<double>("AlphaForward_BinMin"   );
+    resAlphaForward_binWidth = conf.getParameter<double>("AlphaForward_BinWidth" );
+    resAlphaForward_binN     = conf.getParameter<int>(   "AlphaForward_BinN"     );
+    resBetaForward_binMin    = conf.getParameter<double>("BetaForward_BinMin"    );
+    resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidth"  );
+    resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinN"      );
     LogDebug("SiTrackerGaussianSmearingRecHits") << "Forward Pixel resolution data are taken from file " << thePixelForwardResolutionFileName 
 						 << "\n"
 						 << "Alpha bin min = " << resAlphaForward_binMin
 						 << "\twidth = "       << resAlphaForward_binWidth
 						 << "\tbins = "        << resAlphaForward_binN
 						 << "\n"
-						 << "Beta bin min = "  << resBetaForward_binMin
+						 << " Beta bin min = " << resBetaForward_binMin
 						 << "\twidth = "       << resBetaForward_binWidth
 						 << "\tbins = "        << resBetaForward_binN
 						 << std::endl;
     //
     
     // Hit Finding Probability
-    theHitFindingProbability_PXB  = conf.getUntrackedParameter<double>("HitFindingProbability_PXB"  , 1.00 );
-    theHitFindingProbability_PXF  = conf.getUntrackedParameter<double>("HitFindingProbability_PXF"  , 1.00 );
-    theHitFindingProbability_TIB1 = conf.getUntrackedParameter<double>("HitFindingProbability_TIB1" , 1.00 );
-    theHitFindingProbability_TIB2 = conf.getUntrackedParameter<double>("HitFindingProbability_TIB2" , 1.00 );
-    theHitFindingProbability_TIB3 = conf.getUntrackedParameter<double>("HitFindingProbability_TIB3" , 1.00 );
-    theHitFindingProbability_TIB4 = conf.getUntrackedParameter<double>("HitFindingProbability_TIB4" , 1.00 );
-    theHitFindingProbability_TID1 = conf.getUntrackedParameter<double>("HitFindingProbability_TID1" , 1.00 );
-    theHitFindingProbability_TID2 = conf.getUntrackedParameter<double>("HitFindingProbability_TID2" , 1.00 );
-    theHitFindingProbability_TID3 = conf.getUntrackedParameter<double>("HitFindingProbability_TID3" , 1.00 );
-    theHitFindingProbability_TOB1 = conf.getUntrackedParameter<double>("HitFindingProbability_TOB1" , 1.00 );
-    theHitFindingProbability_TOB2 = conf.getUntrackedParameter<double>("HitFindingProbability_TOB2" , 1.00 );
-    theHitFindingProbability_TOB3 = conf.getUntrackedParameter<double>("HitFindingProbability_TOB3" , 1.00 );
-    theHitFindingProbability_TOB4 = conf.getUntrackedParameter<double>("HitFindingProbability_TOB4" , 1.00 );
-    theHitFindingProbability_TOB5 = conf.getUntrackedParameter<double>("HitFindingProbability_TOB5" , 1.00 );
-    theHitFindingProbability_TOB6 = conf.getUntrackedParameter<double>("HitFindingProbability_TOB6" , 1.00 );
-    theHitFindingProbability_TEC1 = conf.getUntrackedParameter<double>("HitFindingProbability_TEC1" , 1.00 );
-    theHitFindingProbability_TEC2 = conf.getUntrackedParameter<double>("HitFindingProbability_TEC2" , 1.00 );
-    theHitFindingProbability_TEC3 = conf.getUntrackedParameter<double>("HitFindingProbability_TEC3" , 1.00 );
-    theHitFindingProbability_TEC4 = conf.getUntrackedParameter<double>("HitFindingProbability_TEC4" , 1.00 );
-    theHitFindingProbability_TEC5 = conf.getUntrackedParameter<double>("HitFindingProbability_TEC5" , 1.00 );
-    theHitFindingProbability_TEC6 = conf.getUntrackedParameter<double>("HitFindingProbability_TEC6" , 1.00 );
-    theHitFindingProbability_TEC7 = conf.getUntrackedParameter<double>("HitFindingProbability_TEC7" , 1.00 );
+    theHitFindingProbability_PXB  = conf.getParameter<double>("HitFindingProbability_PXB" );
+    theHitFindingProbability_PXF  = conf.getParameter<double>("HitFindingProbability_PXF" );
+    theHitFindingProbability_TIB1 = conf.getParameter<double>("HitFindingProbability_TIB1");
+    theHitFindingProbability_TIB2 = conf.getParameter<double>("HitFindingProbability_TIB2");
+    theHitFindingProbability_TIB3 = conf.getParameter<double>("HitFindingProbability_TIB3");
+    theHitFindingProbability_TIB4 = conf.getParameter<double>("HitFindingProbability_TIB4");
+    theHitFindingProbability_TID1 = conf.getParameter<double>("HitFindingProbability_TID1");
+    theHitFindingProbability_TID2 = conf.getParameter<double>("HitFindingProbability_TID2");
+    theHitFindingProbability_TID3 = conf.getParameter<double>("HitFindingProbability_TID3");
+    theHitFindingProbability_TOB1 = conf.getParameter<double>("HitFindingProbability_TOB1");
+    theHitFindingProbability_TOB2 = conf.getParameter<double>("HitFindingProbability_TOB2");
+    theHitFindingProbability_TOB3 = conf.getParameter<double>("HitFindingProbability_TOB3");
+    theHitFindingProbability_TOB4 = conf.getParameter<double>("HitFindingProbability_TOB4");
+    theHitFindingProbability_TOB5 = conf.getParameter<double>("HitFindingProbability_TOB5");
+    theHitFindingProbability_TOB6 = conf.getParameter<double>("HitFindingProbability_TOB6");
+    theHitFindingProbability_TEC1 = conf.getParameter<double>("HitFindingProbability_TEC1");
+    theHitFindingProbability_TEC2 = conf.getParameter<double>("HitFindingProbability_TEC2");
+    theHitFindingProbability_TEC3 = conf.getParameter<double>("HitFindingProbability_TEC3");
+    theHitFindingProbability_TEC4 = conf.getParameter<double>("HitFindingProbability_TEC4");
+    theHitFindingProbability_TEC5 = conf.getParameter<double>("HitFindingProbability_TEC5");
+    theHitFindingProbability_TEC6 = conf.getParameter<double>("HitFindingProbability_TEC6");
+    theHitFindingProbability_TEC7 = conf.getParameter<double>("HitFindingProbability_TEC7");
     //
     LogDebug("SiTrackerGaussianSmearingRecHits") << "RecHit finding probability set to" << "\n"
 						 << "\tPXB  = " << theHitFindingProbability_PXB  << "\n"
