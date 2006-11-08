@@ -61,7 +61,10 @@ namespace edm {
       /// names of the nodes below this one.  Includes are transparent
       std::vector<std::string> children(const std::string & dotDelimitedNode) const;
 
-      
+      /// makes sure there are no duplicate names
+      /// in modulesAndSources      
+      void validate() const;
+
     private:
       /// doesn't change the nodes_ field.
       void clear();

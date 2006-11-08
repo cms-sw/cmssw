@@ -162,6 +162,9 @@ namespace edm {
 
         // reassemble(contents);
       }
+
+      // check for duplicate names
+      validate();
     }
 
 
@@ -536,9 +539,20 @@ namespace edm {
           << "Cannot replace a node that has already been modified: " << targetNode->name();
       }
     }
-      
 
-          
+   
+    void ParseTree::validate() const
+    {
+      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin();
+          moduleMapItr != modulesAndSources_.end(); ++moduleMapItr)
+      {
+        CompositeNode * compositeNode
+          = dynamic_cast<CompositeNode*>(moduleMapItr->second.get());
+        assert(compositeNode != 0);
+        compositeNode->validate();
+      }
+    }
+
   }  // pset namespace
 } // edm namespace
 
