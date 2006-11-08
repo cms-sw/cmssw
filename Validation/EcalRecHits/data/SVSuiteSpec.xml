@@ -11,7 +11,7 @@
 		<ReferenceLFN>
 			/store/SVSuite/Reference/SVSuite-data-EcalChain-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
-		<Tool Name="runEcalChain"/>
+		<Tool Name="runEcalChain Simhit30GeV_all"/>
 	</SVSuiteSpec>
 
 	<SVSuiteSpec Name="SVSuite-EcalChain-Photon400GeV-all" Type="Processing">
@@ -24,7 +24,7 @@
 		<ReferenceLFN>
 			/store/SVSuite/Reference/SVSuite-data-EcalChain-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
-		<Tool Name="runEcalChain"/>
+		<Tool Name="runEcalChain Simhit400GeV_all"/>
 	</SVSuiteSpec>
 
 	<SVSuiteSpec Name="SVSuite-EcalChain-PionPt60GeV-all" Type="Processing">
@@ -37,7 +37,7 @@
 		<ReferenceLFN>
 			/store/SVSuite/Reference/SVSuite-data-EcalChain-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
-		<Tool Name="runEcalChain"/>
+		<Tool Name="runEcalChain SimhitPion_all"/>
 	</SVSuiteSpec>
 
 </SVSuite>
