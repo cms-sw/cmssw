@@ -14,8 +14,6 @@ namespace edm {
     { throw edm::Exception(errors::LogicError,"attempt to visit EntryNode"); }
     void Visitor::visitVEntry(const VEntryNode&)
     { throw edm::Exception(errors::LogicError,"attempt to visit VEntryNode"); }
-    void Visitor::visitPSetRef(const PSetRefNode&)
-    { throw edm::Exception(errors::LogicError,"attempt to visit PSetRefNode"); }
     void Visitor::visitContents(const ContentsNode&)
     { throw edm::Exception(errors::LogicError,"attempt to visit ContentsNode"); }
     void Visitor::visitInclude(const IncludeNode &)

@@ -8,7 +8,6 @@ namespace edm {
     class StringNode;
     class EntryNode;
     class VEntryNode;
-    class PSetRefNode;
     class ContentsNode;
     class  IncludeNode;
     class PSetNode;
@@ -32,7 +31,6 @@ namespace edm {
       virtual void visitString(const StringNode&);
       virtual void visitEntry(const EntryNode&);
       virtual void visitVEntry(const VEntryNode&);
-      virtual void visitPSetRef(const PSetRefNode&);
       virtual void visitContents(const ContentsNode&);
       virtual void visitPSet(const PSetNode&);
       virtual void visitVPSet(const VPSetNode&);

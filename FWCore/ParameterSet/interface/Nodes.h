@@ -116,31 +116,6 @@ namespace edm {
 
     /*
       -----------------------------------------
-      PSetRefs hold: local name or ID of a PSet
-    */
-
-    class PSetRefNode : public Node
-    {
-    public:
-      PSetRefNode(const std::string& name, 
-		  const std::string& value,
-		  bool tracked,
-		  int line=-1);
-      virtual Node * clone() const { return new PSetRefNode(*this);}
-      virtual std::string type() const;
-      std::string value() const {return value_;}
-      bool isTracked() const {return tracked_;}
-      virtual void print(std::ostream& ost, PrintOptions options) const;
-
-      virtual void accept(Visitor& v) const;
-
-    private:
-      std::string value_;
-      bool tracked_;
-    };
-
-    /*
-      -----------------------------------------
       Contents hold: Nodes
     */
 

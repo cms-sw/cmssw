@@ -91,33 +91,6 @@ namespace edm {
     }
 
 
-
-    //--------------------------------------------------
-    // PSetRefNode
-    //--------------------------------------------------
-
-    PSetRefNode::PSetRefNode(const string& name, 
-			     const string& value,
-			     bool tracked,
-			     int line) :
-      Node(name, line),
-      value_(value),
-      tracked_(tracked)
-    { }
-
-    string PSetRefNode::type() const { return "PSetRef"; }
-
-
-    void PSetRefNode::print(ostream& ost, Node::PrintOptions options) const
-    {
-      ost << "PSet " << name() << " = " << value_;
-    }
-
-    void PSetRefNode::accept(Visitor& v) const
-    {
-      v.visitPSetRef(*this);
-    }
-
     //--------------------------------------------------
     // ContentsNode
     //--------------------------------------------------
