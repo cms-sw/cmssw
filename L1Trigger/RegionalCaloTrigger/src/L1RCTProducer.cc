@@ -1,9 +1,9 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h"
 
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) : 
-  src(conf.getParameter<string>("src")), 
+  src(conf.getParameter<edm::FileInPath>("src")),
   orcaFileInput(conf.getUntrackedParameter<bool>("orcaFileInput")),
-  lutFile(conf.getParameter<string>("lutFile"))
+  lutFile(conf.getParameter<edm::FileInPath>("lutFile"))
 {
   //produces<JSCOutput>();
 
@@ -14,7 +14,7 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
 
-  rct = new L1RCT(lutFile);
+  rct = new L1RCT(lutFile.fullPath());
   //std::cout << "One L1RCTProducer constructed!" << std::endl;
 }
 
@@ -52,7 +52,7 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
     //rct->fileInput("../data/rct-input-1.dat");
     //const char* filename = src.c_str();
     //std::cout << "filename is " << filename << endl;
-    rct->fileInput(src.c_str());
+    rct->fileInput(src.fullPath().c_str());
     //rct->fileInput(filename);
     //std::cout << "file has been inputted" << std::endl;
   } 

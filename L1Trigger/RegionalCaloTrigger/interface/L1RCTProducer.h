@@ -28,8 +28,8 @@ class L1RCTProducer : public edm::EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
  private:
   L1RCT* rct;
-  std::string src;
+  edm::FileInPath src;
   bool orcaFileInput;
-  std::string lutFile;
+  edm::FileInPath lutFile;
 };
 #endif
