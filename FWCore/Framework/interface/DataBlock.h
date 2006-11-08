@@ -9,7 +9,7 @@ EDProducts. It is not seen by reconstruction code;
 The template parameter, AUX, contains the information for the Event,
 Luminosity Block, or Run, that is not in an EDProduct.
 
-$Id: DataBlock.h,v 1.1 2006/10/27 20:56:42 wmtan Exp $
+$Id: DataBlock.h,v 1.2 2006/10/31 23:54:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -78,6 +78,7 @@ namespace edm {
     using DataBlockImpl::getMany;
     using DataBlockImpl::getManyByType;
     using DataBlockImpl::getProvenance;
+    using DataBlockImpl::groupGetter;
     using DataBlockImpl::numEDProducts;
     using DataBlockImpl::processHistory;
     using DataBlockImpl::processHistoryID;

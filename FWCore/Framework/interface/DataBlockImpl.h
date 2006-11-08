@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.36 2006/10/07 03:50:06 wmtan Exp $
+$Id: DataBlockImpl.h,v 1.1 2006/10/27 20:56:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -55,7 +55,9 @@ namespace edm {
 
     virtual ~DataBlockImpl();
 
-    EDProductGetter const* prodGetter() {return this;}
+    EDProductGetter const* prodGetter() const {return this;}
+
+    DataBlockImpl const& groupGetter() const {return *this;}
 
     // Return the number of EDProducts contained.
     unsigned long numEDProducts() const;
