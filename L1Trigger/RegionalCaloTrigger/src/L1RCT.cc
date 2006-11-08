@@ -213,12 +213,6 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     }
   }
 
-  cout << "  *********  " << ecalSum
-       << "  *********  " << hbSum
-       << "  *********  " << heSum
-       << "  *********  " << hfSum
-       << endl;
-
   /*  Why do we need to write a file always -- this should be optional -- In any case we should reuse "barrel" and "hf"
 
   vector<vector<unsigned short> > ecalBarrel(72,vector<unsigned short>(56));
