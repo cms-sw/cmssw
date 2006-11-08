@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/03 21:05:23 $
- *  $Revision: 1.52 $
+ *  $Date: 2006/11/06 17:50:17 $
+ *  $Revision: 1.53 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -72,7 +72,8 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonTrackConverter.h"
-//#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
+#include "RecoMuon/TrackerSeedGenerator/src/TrackerSeedGenerator.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 using namespace std;
 using namespace edm;
@@ -82,13 +83,15 @@ using namespace edm;
 //----------------
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
-							 const MuonServiceProxy* service) : theService(service) {
+							 const MuonServiceProxy* service) : 
+  theService(service)
+{
 
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new MuonTrackReFitter(refitterPSet,theService);
 
   ParameterSet seedGeneratorPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
-  //theTkSeedGenerator = new TrackerSeedGenerator(seedGeneratorPSet,theService);  
+  theTkSeedGenerator = new TrackerSeedGenerator(seedGeneratorPSet,theService);  
 
   theLayerMeasurements = new MuonDetLayerMeasurements();
   
@@ -116,7 +119,32 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
   convert = true;
   tkTrajsAvailable = false;
- 
+
+  /*
+  const ParameterSet ckfPSet = par.getParameter<ParameterSet>("CKFParameters");
+  
+  std::string updatorName  = ckfPSet.getParameter<std::string>("updator");   
+  std::string estimatorName     = ckfPSet.getParameter<std::string>("estimator");
+  std::string recHitBuilderName = ckfPSet.getParameter<std::string>("TTRHBuilder");
+ edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
+ edm::ESHandle<Chi2MeasurementEstimatorBase>   estimatorHandle;
+ edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
+ edm::ESHandle<MeasurementTracker>             measurementTrackerHandle;
+ theService->eventSetup().get<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(updatorName,updatorHandle);
+ theService->eventSetup().get<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);
+ theService->eventSetup().get<CkfComponentsRecord>().getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);
+ theService->eventSetup().get<CkfComponentsRecord>().get(measurementTrackerHandle);  
+  */
+ /* 
+ CkfTrajectoryBuilder* theCkfBuilder;
+ theCkfBuilder = new CkfTrajectoryBuilder(ckfPSet,
+					   updatorHandle.product(),
+					   &*theService->propagator("PropagatorWithMaterial"),
+					   &*theService->propagator("PropagatorWithMaterialOpposite"),
+					   estimatorHandle.product(),
+					   recHitBuilderHandle.product(),
+					   measurementTrackerHandle.product());
+ */
 }
 
 
@@ -130,7 +158,7 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theTrackMatcher) delete theTrackMatcher;
   if (theLayerMeasurements) delete theLayerMeasurements;
   if (theTrackConverter) delete theTrackConverter;
-
+  //if(theCkfBuilder) delete theCkfBuilder;
 }
 
 
@@ -140,8 +168,12 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
 void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   
   // get tracker TrackCollection from Event
-  event.getByLabel(theTkTrackLabel,allTrackerTracks);
-  
+  if( ! tkSeedFlag ) {
+    event.getByLabel(theTkTrackLabel,allTrackerTracks);
+      LogInfo("GlobalMuonTrajectoryBuilder") 
+      << "Found " << allTrackerTracks->size() 
+      << " tracker Tracks with label "<< theTkTrackLabel <<endl;
+  }  
   edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
   try
     {
@@ -159,12 +191,9 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
       tkTrajsAvailable = false;
     }
   
-  LogInfo("GlobalMuonTrajectoryBuilder") 
-    << "Found " << allTrackerTracks->size() 
-    << " tracker Tracks with label "<< theTkTrackLabel <<endl;
-  
   theLayerMeasurements->setEvent(event);  
-
+  theTkSeedGenerator->setEvent(event);
+  //theCkfBuilder->setEvent(event);
 }
 
 
@@ -192,10 +221,13 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
     staCand = TrackCand(new Trajectory(*(staCandIn.first)),staCandIn.second);
   }
 
-  // make tracker seeds and tracks  
-  if( tkSeedFlag ) {
-    //tkSeeds = theTkSeedGenerator->trajectorySeeds(staCand.first);
-    //allTrackerTracks = makeTracks(tkSeeds); 
+  // make tracker seeds and tracks 
+  std::vector<TrajectorySeed*> tkSeeds; 
+  std::vector<reco::Track> allTkTracks;
+  if( true || tkSeedFlag ) {
+    tkSeeds = theTkSeedGenerator->trackerSeeds(*(staCand.first));
+    LogInfo("GlobalMuonTrajectoryBuilder") << "Found " << tkSeeds.size() << " tracker seeds" << endl;
+    allTkTracks = makeTracks(tkSeeds); 
   }
   
   // convert tracks to TrackCands
@@ -855,4 +887,10 @@ void GlobalMuonTrajectoryBuilder::printHits(const ConstRecHitContainer& hits) co
     << "  " << (*ir)->det()->subDetector();
   }
 
+}
+
+vector<reco::Track> GlobalMuonTrajectoryBuilder::makeTracks(const vector<TrajectorySeed*>& tkSeeds) 
+{
+  cout << "tkSeeds: " <<tkSeeds.size() << endl;
+  return vector<reco::Track>();
 }

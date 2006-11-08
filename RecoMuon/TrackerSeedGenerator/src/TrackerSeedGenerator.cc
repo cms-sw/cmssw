@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/08/25 15:35:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/09/02 01:02:14 $
+ *  $Revision: 1.7 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -32,8 +32,8 @@
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/PrimitiveMuonSeed.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/MuonSeedFromConsecutiveHits.h"
+//#include "RecoMuon/TrackerSeedGenerator/interface/PrimitiveMuonSeed.h"
+//#include "RecoMuon/TrackerSeedGenerator/interface/MuonSeedFromConsecutiveHits.h"
 #include "RecoTracker/TkSeedGenerator/interface/CombinatorialSeedGeneratorFromPixel.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
@@ -49,16 +49,33 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
+using namespace std;
+using namespace edm;
 
 //---------------------------------
 //       class TrackerSeedGenerator
 //---------------------------------
 
-TrackerSeedGenerator::TrackerSeedGenerator(const edm::ParameterSet& par, const edm::EventSetup& setup) :
-   theVertexPos(GlobalPoint(0.0,0.0,0.0)),
-   theVertexErr(GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09))
+TrackerSeedGenerator::TrackerSeedGenerator(const edm::ParameterSet& par, const MuonServiceProxy *service) :
+  theService(service),
+  theVertexPos(GlobalPoint(0.0,0.0,0.0)),
+  theVertexErr(GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09)),
+  combinatorialSeedGenerator(par)
 {
+  ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
+  theUpdator = new MuonUpdatorAtVertex(updatorPSet,theService);
+
+  theErrorRescale = par.getParameter<double>("ErrorRescaleFactor");
+  theOption = par.getParameter<int>("SeedOption");
+  hitProducer = par.getParameter<std::string>("HitProducer");
+  theMaxSeeds = par.getParameter<int>("MaxSeeds");
+
+  //ParameterSet pixelPSet = par.getParameter<ParameterSet>("PixelParameters");
+  //combinatorialSeedGenerator = new CombinatorialSeedGeneratorFromPixel(par);
+  //theDirection = static_cast<ReconstructionDirection>(par.getParameter<int>("Direction")); 
+  /*
   edm::LogInfo ("TrackSeedGeneratorFromMuon")<<"TrackerSeedGeneratorFromMuon";
   
   setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
@@ -67,18 +84,18 @@ TrackerSeedGenerator::TrackerSeedGenerator(const edm::ParameterSet& par, const e
   thePropagator = new AnalyticalPropagator(&*theField, oppositeToMomentum);
   theStepPropagator = new SteppingHelixPropagator(&*theField,oppositeToMomentum);
 
-  theOption = par.getParameter<int>("SeedOption");
-  theDirection = static_cast<ReconstructionDirection>(par.getParameter<int>("Direction")); 
+
+  
   theUseVertex = par.getParameter<bool>("UseVertex");
-  theMaxSeeds = par.getParameter<int>("MaxSeeds");
+  
   theMaxLayers = par.getParameter<int>("MaxLayers");
-  theErrorRescale = par.getParameter<double>("ErrorRescaleFactor");
+
   edm::ParameterSet meastkPar = par.getParameter<edm::ParameterSet>("MeasurementTrackerParameters");
   theMeasurementTracker = new MeasurementTracker(setup,meastkPar);
   theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
   edm::ParameterSet seedPar = par.getParameter<edm::ParameterSet>("SeedGeneratorParameters");
   theSeedGenerator = new CombinatorialSeedGeneratorFromPixel(seedPar);
-
+  */
 }
 
 
@@ -87,45 +104,53 @@ TrackerSeedGenerator::TrackerSeedGenerator(const edm::ParameterSet& par, const e
 //----------------
 
 TrackerSeedGenerator::~TrackerSeedGenerator() {
+  if(theUpdator) delete theUpdator;
+  //if(combinatorialSeedGenerator) delete combinatorialSeedGenerator;
+  /*
+    delete theSeedGenerator;
+    delete theStepPropagator;
+    delete thePropagator;
+    delete theLayerMeasurements;
+    delete theMeasurementTracker;
+  */
+}
 
-  delete theSeedGenerator;
-  delete theStepPropagator;
-  delete thePropagator;
-  delete theLayerMeasurements;
-  delete theMeasurementTracker;
-
+void TrackerSeedGenerator::setEvent(const edm::Event &event)
+{
+  event.getByLabel(hitProducer, pixelHits);
 }
 
 //
-BTSeedCollection TrackerSeedGenerator::trackerSeeds(const Trajectory& muon, const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+BTSeedCollection TrackerSeedGenerator::trackerSeeds(const Trajectory& muon) {
    theSeeds.clear();
-   findSeeds(muon, iEvent, iSetup);
+   findSeeds(muon);
    return BTSeedCollection(theSeeds);
 
 }
 //
-void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const edm::Event& iEvent, const edm::EventSetup& iSetup) {
- // track at innermost muon station
+void TrackerSeedGenerator::findSeeds(const Trajectory& muon) {
+  
+  // track at innermost muon station
   TrajectoryStateOnSurface traj = muon.firstMeasurement().updatedState();
   if ( muon.direction() == oppositeToMomentum ) 
     traj = muon.lastMeasurement().updatedState();
-
+  
   //FIXME: the result of STA should contain Trajectory or something more
   if ( !traj.isValid() ) return;
-
+  
   // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm)
-  MuonUpdatorAtVertex updator;
-  MuonVertexMeasurement vm = updator.update(traj);
+  //MuonUpdatorAtVertex updator;
+  MuonVertexMeasurement vm = theUpdator->update(traj);
   TrajectoryStateOnSurface traj_trak = vm.stateAtTracker();
-
+  
   if ( !traj_trak.isValid() ) return;
-
+  
   // rescale errors
   traj_trak.rescaleError(theErrorRescale);
   
   // find list of possible start layers
-  findLayerList(traj_trak);  
-
+  //findLayerList(traj_trak);  
+  
   // define tracker region of interest
   GlobalVector mom = traj_trak.globalMomentum();
 
@@ -169,6 +194,7 @@ void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const edm::Event& i
   RectangularEtaPhiTrackingRegion rectRegion(direction, theVertexPos,
                                              minPt, 0.2, deltaZ, deltaEta, deltaPhi);
 
+    
   // seed options:
   // 0 = primitive seeds  
   // 1 = consecutive seeds 
@@ -178,26 +204,28 @@ void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const edm::Event& i
 
   switch ( theOption ) {
     case 0 : { primitiveSeeds(muon,traj_trak); break; }
-    case 1 : { consecutiveHitsSeeds(muon,traj_trak,iSetup,rectRegion); break; }
-    case 2 : { pixelSeeds(muon,traj_trak,iSetup,rectRegion,deltaEta,deltaPhi); break; }
+    case 1 : { consecutiveHitsSeeds(muon,traj_trak,theService->eventSetup(),rectRegion); break; }
+    case 2 : { pixelSeeds(muon,traj_trak,rectRegion,deltaEta,deltaPhi); break; }
     case 3 : { primitiveSeeds(muon,traj_trak);
-               consecutiveHitsSeeds(muon,traj_trak,iSetup,rectRegion);
+               consecutiveHitsSeeds(muon,traj_trak,theService->eventSetup(),rectRegion);
                break; }
-    case 4 : { pixelSeeds(muon,traj_trak,iSetup,rectRegion,deltaEta,deltaPhi);
-               consecutiveHitsSeeds(muon,traj_trak,iSetup,rectRegion);
+    case 4 : { pixelSeeds(muon,traj_trak,rectRegion,deltaEta,deltaPhi);
+               consecutiveHitsSeeds(muon,traj_trak,theService->eventSetup(),rectRegion);
                break; }
-    default : { if ( theDirection == outsideIn ) {
-                  primitiveSeeds(muon,traj_trak);
-                  if ( theSeeds.size() == 0 ) consecutiveHitsSeeds(muon,traj_trak,iSetup,rectRegion);
-                }
-                else {
-                  pixelSeeds(muon,traj_trak,iSetup,rectRegion,deltaEta,deltaPhi);
-                  if ( theSeeds.size() == 0 ) consecutiveHitsSeeds(muon,traj_trak,iSetup,rectRegion);
-                }     
-                break; }
+      /*
+	default : { if ( theDirection == outsideIn ) {
+	primitiveSeeds(muon,traj_trak);
+	if ( theSeeds.size() == 0 ) consecutiveHitsSeeds(muon,traj_trak,theService->eventSetup(),rectRegion);
+	}
+	else {
+	pixelSeeds(muon,traj_trak,rectRegion,deltaEta,deltaPhi);
+	if ( theSeeds.size() == 0 ) consecutiveHitsSeeds(muon,traj_trak,theService->eventSetup(),rectRegion);
+	}     
+	break; }
+      */
   }
 
-
+  
 
 }
 
@@ -205,7 +233,7 @@ void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const edm::Event& i
 // get ordered list of tracker layers which may be used as seeds
 //
 void TrackerSeedGenerator::findLayerList(const TrajectoryStateOnSurface& traj) {
-                
+  /*            
   theLayerList.clear();
   // we start from the outer surface of the tracker so it's oppositeToMomentum
 
@@ -256,12 +284,14 @@ void TrackerSeedGenerator::findLayerList(const TrajectoryStateOnSurface& traj) {
   }
   else edm::LogInfo("TrackerSeedGenerator")<< "Direction Error";
 
+  */  
 }
 
 // primitive seeds
 //
 void TrackerSeedGenerator::primitiveSeeds(const Trajectory& muon,
 					  const TrajectoryStateOnSurface& traj) {
+  /*
   int nseeds = theSeeds.size();
   int nlayers = 0;
   bool validLayer = false;
@@ -319,6 +349,7 @@ void TrackerSeedGenerator::primitiveSeeds(const Trajectory& muon,
       }
     }
   }
+  */
 }
 
 
@@ -329,7 +360,7 @@ void TrackerSeedGenerator::consecutiveHitsSeeds(const Trajectory& muon,
 						const TrajectoryStateOnSurface& traj,
 						const edm::EventSetup& iSetup,
                                                 const TrackingRegion& regionOfInterest) {
-
+  /*
   if ( theLayerList.size() < 2 ) return;
 
   int nlayers = 0;
@@ -352,7 +383,7 @@ void TrackerSeedGenerator::consecutiveHitsSeeds(const Trajectory& muon,
       nseeds = newseeds;
     }  
   }
-
+  */
 }
 
 
@@ -363,6 +394,7 @@ void TrackerSeedGenerator::createSeed(const MuonSeedDetLayer& outer,
                                       const MuonSeedDetLayer& inner,
                                       const edm::EventSetup& iSetup,
                                       const TrackingRegion& regionOfInterest) {
+  /*
   int nseeds = theSeeds.size();
   
   PropagationDirection dir = alongMomentum;
@@ -442,6 +474,7 @@ void TrackerSeedGenerator::createSeed(const MuonSeedDetLayer& outer,
       }
     }   
   }
+  */
 }
 
 
@@ -450,16 +483,33 @@ void TrackerSeedGenerator::createSeed(const MuonSeedDetLayer& outer,
 //
 void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon, 
                                       const TrajectoryStateOnSurface& traj,
-                                      const edm::EventSetup& iSetup,
-                                      const TrackingRegion& regionOfInterest,
+                                      const RectangularEtaPhiTrackingRegion& regionOfInterest,
                                       float deltaEta, float deltaPhi) {
-
-  int nseeds = theSeeds.size();
-  TrajectoryStateTransform tsTransform;
+  
+  //std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
   vector<TrajectorySeed> ss;
-  theSeedGenerator->seeds(ss, iSetup, regionOfInterest);
+  
+  RectangularEtaPhiTrackingRegion region = RectangularEtaPhiTrackingRegion(regionOfInterest);
+  
+  combinatorialSeedGenerator.init(*pixelHits,theService->eventSetup());
+  combinatorialSeedGenerator.run(region,ss,theService->eventSetup());
+  
+  int nseeds = theSeeds.size();
   vector<TrajectorySeed>::const_iterator is;
   for ( is = ss.begin(); is != ss.end(); is++ ) {
+    if ( nseeds < theMaxSeeds ) {
+      theSeeds.push_back(const_cast<TrajectorySeed*>(&((*is)))); 
+      nseeds++;
+    }
+  }
+
+  /*
+    int nseeds = theSeeds.size();
+    TrajectoryStateTransform tsTransform;
+    vector<TrajectorySeed> ss;
+    theSeedGenerator->seeds(ss, theService->eventSetup(), regionOfInterest);
+    vector<TrajectorySeed>::const_iterator is;
+    for ( is = ss.begin(); is != ss.end(); is++ ) {
     PTrajectoryStateOnDet ptsos = (*is).startingState();
     const GeomDet* gdet = theTrackingGeometry->idToDet(DetId(ptsos.detId()));
     TrajectoryStateOnSurface tsos = tsTransform.transientState(ptsos, &(gdet->surface()), &*theField);
@@ -469,12 +519,12 @@ void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon,
     float dphi(fabs(Geom::Phi<float>(phi)-Geom::Phi<float>(regionOfInterest.direction().phi())));
     if ( deta > deltaEta || dphi > deltaPhi ) continue;     
     if ( nseeds < theMaxSeeds ) {
-      theSeeds.push_back(const_cast<TrajectorySeed*>(&((*is)))); 
-      nseeds++;
+    theSeeds.push_back(const_cast<TrajectorySeed*>(&((*is)))); 
+    nseeds++;
     }
     else {
-      break;
+    break;
     } 
-  }  
-
+    }  
+  */
 }

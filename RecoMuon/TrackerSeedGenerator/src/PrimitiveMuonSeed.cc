@@ -3,8 +3,8 @@
  *   Primitive tracker seed from muon which
  *   consists of one measurement and a trajectory state
  *
- *   $Date: 2006/07/26 20:26:47 $
- *   $Revision: 1.4 $
+ *   $Date: 2006/07/27 08:49:59 $
+ *   $Revision: 1.5 $
  *
  *   \author   N. Neumeister   - Purdue University
  */
@@ -19,7 +19,8 @@ PrimitiveMuonSeed::PrimitiveMuonSeed(const PTrajectoryStateOnDet& state,
                                      const PropagationDirection& direction,
 				     const recHitContainer layerRecHits,
 				     const TrajectoryMeasurement& meas) :
-  theTrajectorySeed(state,layerRecHits,direction),
+  TrajectorySeed(state,layerRecHits,direction),
+  //theTrajectorySeed(state,layerRecHits,direction),
   theMeasurement(meas) 
 {
   
@@ -54,40 +55,40 @@ bool PrimitiveMuonSeed::share(const BasicTrajectorySeed&) const {
 //
 //
 //
-PropagationDirection PrimitiveMuonSeed::direction() const {
-
-  return theDirection;
-
-}
+//PropagationDirection PrimitiveMuonSeed::direction() const {
+//
+//return theDirection;
+//
+//}
 
 
 //
 //
 //
-PrimitiveMuonSeed* PrimitiveMuonSeed::clone() const {
-
-  return new PrimitiveMuonSeed(*this);
-  
-}
+//PrimitiveMuonSeed* PrimitiveMuonSeed::clone() const {
+//
+//  return new PrimitiveMuonSeed(*this);
+//  
+//}
 
 
 //
 //
 //
-PTrajectoryStateOnDet PrimitiveMuonSeed::startingState() const {
-
-  return theState;
-
-}
+//PTrajectoryStateOnDet PrimitiveMuonSeed::startingState() const {
+//
+//  return theState;
+//
+//}
 
 
 //
 //
 //
-BasicTrajectorySeed::range PrimitiveMuonSeed::recHits() const {
-
-  range result;
-  return result;
-
-}
+//BasicTrajectorySeed::range PrimitiveMuonSeed::recHits() const {
+//
+//  range result;
+//  return result;
+//
+//}
 

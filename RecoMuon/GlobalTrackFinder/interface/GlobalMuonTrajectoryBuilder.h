@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/11/03 19:58:52 $
- *  $Revision: 1.35 $
+ *  $Date: 2006/11/06 17:50:16 $
+ *  $Revision: 1.36 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -20,6 +20,10 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
+
+#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include <boost/shared_ptr.hpp>
 
 class RectangularEtaPhiTrackingRegion;
 class TrajectoryStateOnSurface;
@@ -34,6 +38,8 @@ class MuonTrackConverter;
 class MuonServiceProxy;
 class Trajectory;
 class TrackerSeedGenerator;
+
+//class CkfTrajectoryBuilder;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -98,6 +104,8 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     //// print all RecHits of a trajectory
     void printHits(const ConstRecHitContainer&) const;
 
+    std::vector<reco::Track> makeTracks(const std::vector<TrajectorySeed*>&);
+
   private:
 
     GlobalPoint theVertexPos;
@@ -105,6 +113,8 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     GlobalMuonTrackMatcher* theTrackMatcher;
     MuonTrackReFitter* theRefitter;
     MuonDetLayerMeasurements* theLayerMeasurements;
+    //boost::shared_ptr<TrackerTrajectoryBuilder>  theCkfBuilder;
+    //CkfTrajectoryBuilder* theCkfBuilder;
 
     MuonTrackConverter* theTrackConverter;
     TrackerSeedGenerator* theTkSeedGenerator;

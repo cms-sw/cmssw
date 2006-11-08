@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/09/25 18:55:35 $
- *  $Revision: 1.31 $
+ *  $Date: 2006/09/27 18:36:33 $
+ *  $Revision: 1.32 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -92,8 +92,22 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
     float deltaR = 1000.0;
     
     for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
-      double deltaEta = staCand.second->eta() - (*is).second->eta();
-      double deltaPhi = staCand.second->phi() - (*is).second->phi();
+      double Eta1 = staCand.second->eta();
+      double Eta2;
+      if((*is).first != 0) {
+	Eta2 = (*is).first->firstMeasurement().updatedState().globalMomentum().eta();
+      } else {
+	Eta2 = (*is).second->eta();
+      }
+      double Phi1 = staCand.second->phi();
+      double Phi2;
+      if((*is).first != 0) {
+	Phi2 = (*is).first->firstMeasurement().updatedState().globalMomentum().phi();
+      } else {
+	Phi2 = (*is).second->phi();
+      }
+      double deltaEta = Eta1 - Eta2;
+      double deltaPhi(fabs(Geom::Phi<float>(Phi1)-Geom::Phi<float>(Phi2)));
       double deltaR_tmp = sqrt(pow(deltaEta,2.) + pow(deltaPhi,2.));
       
       if(deltaR_tmp < deltaR) {
