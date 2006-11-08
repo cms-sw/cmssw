@@ -28,7 +28,7 @@ SiStripMonitorFilter::SiStripMonitorFilter(const edm::ParameterSet& iConfig)
 void SiStripMonitorFilter::beginJob(const edm::EventSetup& es){
   dbe_->setCurrentFolder(FilterDirectory);
   std::string FilterProducer = conf_.getParameter<std::string>("FilterProducer");
-  FilterDecision = dbe_->book1D(FilterProducer+"_FilterDecision", FilterProducer+"FilterDecision", 2, -0.5, 1.5);
+  FilterDecision = dbe_->book1D(FilterProducer+"_Decision", FilterProducer+"Decision", 2, -0.5, 1.5);
 }
 
 void SiStripMonitorFilter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
