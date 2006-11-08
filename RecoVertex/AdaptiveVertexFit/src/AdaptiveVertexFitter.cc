@@ -136,9 +136,9 @@ CachingVertex AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & 
                   const GlobalError& priorError) const
 
 {
-  if ( tracks.size() < 2 )
+  if ( tracks.size() < 1 )
   {
-    throw VertexException( "Supplied fewer than two tracks" );
+    throw VertexException( "Supplied no tracks" );
   };
   VertexState seed (priorPos, priorError);
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, seed);
@@ -155,9 +155,9 @@ CachingVertex AdaptiveVertexFitter::vertex(
                   const GlobalPoint& priorPos,
                   const GlobalError& priorError) const
 {
-  if ( tracks.size() < 2 )
+  if ( tracks.size() < 1 )
   {
-    throw VertexException( "Supplied fewer than two tracks" );
+    throw VertexException( "Supplied no tracks" );
   };
   VertexState seed (priorPos, priorError);
   return fit(tracks, seed, true);
@@ -424,7 +424,7 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
      << " final temp=" << theAssProbComputer->currentTemp() 
      << " lpsteps=" << lpStep << endl;
 
-  if ( theWeightThreshold > 0. &&  ns_trks < 2 )
+  if ( theWeightThreshold > 0. &&  ns_trks < 2 && !withPrior ) 
   {
     ostringstream o;
     o << "fewer than two significant tracks (w>" << theWeightThreshold << ")";
