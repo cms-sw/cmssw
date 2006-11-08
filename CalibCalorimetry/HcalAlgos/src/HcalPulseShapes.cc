@@ -154,7 +154,7 @@ float HcalPulseShapes::Shape::operator()(double t) const {
   // shape is in 1 ns steps
   int i=(int)(t+0.5);
   float rv=0;
-  if (i>=0 || i<nbin_) rv=shape_[i];
+  if (i>=0 && i<nbin_) rv=shape_[i];
   return rv;
 }
 
@@ -162,12 +162,12 @@ float HcalPulseShapes::Shape::at(double t) const {
   // shape is in 1 ns steps
   int i=(int)(t+0.5);
   float rv=0;
-  if (i>=0 || i<nbin_) rv=shape_[i];
+  if (i>=0 && i<nbin_) rv=shape_[i];
   return rv;
 }
 
 float HcalPulseShapes::Shape::integrate(double t1, double t2) const {
-  static const float int_delta_ns = 0.25f; 
+  static const float int_delta_ns = 0.05f; 
   double intval = 0.0;
 
   for (double t = t1; t < t2; t+= int_delta_ns) {
