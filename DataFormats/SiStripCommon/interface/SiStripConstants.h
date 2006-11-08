@@ -89,6 +89,18 @@ namespace sistrip {
 
 }
 
+// -------------------- "Sources" of cabling object info --------------------
+
+namespace sistrip { 
+  
+  static const std::string unknownCablingSource_ = "UnknownCablingSource";
+  static const std::string undefinedCablingSource_ = "UndefinedCablingSource";
+  static const std::string cablingFromConns_ = "CablingFromConnections";
+  static const std::string cablingFromDevices_ = "CablingFromDevices";
+  static const std::string cablingFromDetIds_ = "CablingFromDetIds";
+
+}
+
 // -------------------- DQM histograms --------------------
 
 namespace sistrip { 
@@ -158,7 +170,7 @@ namespace sistrip {
 
   // module granularity  
   static const std::string module_ = "Module";
-  static const std::string lldChan_ = "LldChan";
+  static const std::string lldChan_ = "LldChannel";
   static const std::string apv_ = "Apv";
 
   // misc granularity
@@ -186,6 +198,11 @@ namespace sistrip {
   static const std::string unknownSummaryHisto_ = "UnknownSummaryHisto";
   static const std::string undefinedSummaryHisto_ = "UndefinedSummaryHisto";
   
+  // summary histo names (fed cabling)
+  static const std::string fedCablingFedId_ = "FedCablingFedId";
+  static const std::string fedCablingFedCh_ = "FedCablingFedCh";
+  static const std::string fedCablingSignalLevel_ = "FedCablingSignalLevel";
+
   // summary histo names (apv timing)
   static const std::string apvTimingTime_ = "TimingDelay";
   static const std::string apvTimingMax_ = "ApvTimingMax";
