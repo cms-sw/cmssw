@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.15 2006/10/30 21:02:22 bainbrid Exp $
-// Latest tag:  $Name: TIF_031106 $
+// Last commit: $Id: SiStripConfigDb.h,v 1.16 2006/11/07 10:23:58 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
 #ifndef SiStripConfigDb_H
@@ -94,10 +94,12 @@ class SiStripConfigDb {
     // Constructor, destructor
     DbParams();
     ~DbParams();
-    // Debug 
+    // Methods
     void print( std::stringstream& ) const; 
+    void confdb( const std::string& );
     // Database connection params
     bool usingDb_;
+    std::string confdb_;
     std::string user_;
     std::string passwd_;
     std::string path_;
