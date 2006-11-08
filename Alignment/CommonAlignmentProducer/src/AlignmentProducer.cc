@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.13 $
-///  last update: $Date: 2006/11/07 10:33:47 $
+///  Revision   : $Revision: 1.14 $
+///  last update: $Date: 2006/11/07 17:48:25 $
 ///  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
@@ -128,7 +128,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
                             << "Creating AlignmentParameterBuilder";
   edm::ParameterSet aliParamBuildCfg = 
-    theParameterSet.getParameter<edm::ParameterSet>("AlignmentParameterBuilder");
+    theParameterSet.getParameter<edm::ParameterSet>("ParameterBuilder");
   theAlignmentParameterBuilder = new AlignmentParameterBuilder(theAlignableTracker,
                                                                aliParamBuildCfg);
   // fix alignables
