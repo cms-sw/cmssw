@@ -163,6 +163,11 @@ sistrip::Granularity SiStripHistoNamingScheme::granularity( const string& granul
 // 
 string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& histo ) {
 
+  // fed cabling
+  if ( histo == sistrip::FED_CABLING_FED_ID ) { return sistrip::fedCablingFedId_; } 
+  else if ( histo == sistrip::FED_CABLING_FED_CH ) { return sistrip::fedCablingFedCh_; } 
+  else if ( histo == sistrip::FED_CABLING_SIGNAL_LEVEL ) { return sistrip::fedCablingSignalLevel_; }
+
   // apv timing
   if ( histo == sistrip::APV_TIMING_TIME ) { return sistrip::apvTimingTime_; } 
   else if ( histo == sistrip::APV_TIMING_MAX_TIME ) { return sistrip::apvTimingMax_; }
@@ -295,6 +300,29 @@ sistrip::SummaryType SiStripHistoNamingScheme::summaryType( const string& type )
   else { return sistrip::UNKNOWN_SUMMARY_TYPE; }
 }  
 
+// -----------------------------------------------------------------------------
+// 
+std::string SiStripHistoNamingScheme::cablingSource( const sistrip::CablingSource& source ) {
+  if ( source == sistrip::CABLING_FROM_CONNS ) { return sistrip::cablingFromConns_; } 
+  else if ( source == sistrip::CABLING_FROM_DEVICES ) { return sistrip::cablingFromDevices_; }
+  else if ( source == sistrip::CABLING_FROM_DETIDS ) { return sistrip::cablingFromDetIds_; }
+  else if ( source == sistrip::UNDEFINED_CABLING_SOURCE ) { return sistrip::undefinedCablingSource_; }
+  else { return sistrip::unknownCablingSource_; }
+}
+
+// -----------------------------------------------------------------------------
+// 
+sistrip::CablingSource SiStripHistoNamingScheme::cablingSource( const std::string& source ) {
+  if ( source == "CONNECTIONS" || 
+       source.find( sistrip::cablingFromConns_ ) != string::npos ) { return sistrip::CABLING_FROM_CONNS; }
+  else if ( source == "DEVICES" || 
+	    source.find( sistrip::cablingFromDevices_ ) != string::npos ) { return sistrip::CABLING_FROM_DEVICES; }
+  else if ( source == "DETIDS" || 
+	    source.find( sistrip::cablingFromDetIds_ ) != string::npos ) { return sistrip::CABLING_FROM_DETIDS; }
+  else if ( source == "UNDEFINED" || 
+	    source.find( sistrip::undefinedCablingSource_ ) != string::npos ) { return sistrip::UNDEFINED_CABLING_SOURCE; }
+  else { return sistrip::UNKNOWN_CABLING_SOURCE; }
+}
 
 
 

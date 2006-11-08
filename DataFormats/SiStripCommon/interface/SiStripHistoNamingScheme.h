@@ -35,8 +35,11 @@ class SiStripHistoNamingScheme {
 
   static std::string summaryType( const sistrip::SummaryType& );
   static sistrip::SummaryType summaryType( const std::string& summary_type );
-  
 
+  static std::string cablingSource( const sistrip::CablingSource& );
+  static sistrip::CablingSource cablingSource( const std::string& cabling_source );
+
+  
   // ---------- Formulation of histogram titles ----------
 
 
