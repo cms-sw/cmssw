@@ -47,6 +47,9 @@ namespace edm {
       /// inserts all subnodes
       virtual void insertInto(ParameterSet & pset) const;
 
+      /// checks that no node name is duplicated
+      virtual void validate() const;
+
     protected:
       NodePtrListPtr nodes_;
     };

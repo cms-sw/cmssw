@@ -244,6 +244,37 @@ namespace edm {
       }
     }
 
+
+    void CompositeNode::validate() const
+    {
+      // makesure no node is duplicated
+      std::vector<std::string> nodeNames;
+      nodeNames.reserve(nodes_->size());
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        if(std::find(nodeNames.begin(), nodeNames.end(), (**i).name())
+           == nodeNames.end())
+        {
+          nodeNames.push_back((**i).name());
+        }
+        else
+        {
+          std::ostringstream errorMessage, trace;
+          errorMessage << "Duplicate node name: parameter " << (**i).name() 
+            << " in " << name();
+          printTrace(trace);
+          if(!trace.str().empty())
+          {
+            errorMessage << " from: " << trace.str();
+          } 
+
+          throw edm::Exception(errors::Configuration,"") << errorMessage.str();
+        }
+      }
+ 
+    }
+
   }
 }
 
