@@ -1,4 +1,3 @@
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -7,7 +6,7 @@
 #include <CalibCalorimetry/HcalStandardModules/interface/HcalLedAnalyzer.h>
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CondTools/Hcal/interface/HcalDbPool.h"
+#include "CondTools/Hcal/interface/HcalDbTool.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 
 #include <iostream>
@@ -42,7 +41,7 @@ namespace {
     }
     else if (dbFile (fDb)) {
       std::cout << "HcalLedAnalyzer-> USE INPUT: Pool " << fDb << std::endl;
-      HcalDbPool poolDb (fDb);
+      HcalDbTool poolDb (fDb);
       return poolDb.getObject (fObject, fTag, fRun);
     }
     else {
