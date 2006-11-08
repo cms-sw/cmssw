@@ -198,12 +198,6 @@ namespace edm
     }
 
     void
-    PythonFormWriter::visitPSetRef(const PSetRefNode&)
-    { 
-      MYDEBUG(5) << "Saw a PSetRefNode: unimplemented\n";
-    }
-
-    void
     PythonFormWriter::visitContents(const ContentsNode& n)
     { 
       MYDEBUG(5) << "Saw a ContentsNode\n";

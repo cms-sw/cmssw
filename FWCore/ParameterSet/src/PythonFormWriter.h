@@ -3,7 +3,7 @@
 
 
 //------------------------------------------------------------
-// $Id: PythonFormWriter.h,v 1.10 2006/08/23 05:15:23 rpw Exp $
+// $Id: PythonFormWriter.h,v 1.11 2006/09/08 01:14:10 rpw Exp $
 //
 //
 // PythonFormWriter defines a class that is to be used to walk the
@@ -54,7 +54,6 @@ namespace edm
       virtual void visitString(const StringNode&);
       virtual void visitEntry(const EntryNode&);
       virtual void visitVEntry(const VEntryNode&);
-      virtual void visitPSetRef(const PSetRefNode&);
       virtual void visitContents(const ContentsNode&);
       virtual void visitInclude(const IncludeNode&);
       virtual void visitPSet(const PSetNode&);
