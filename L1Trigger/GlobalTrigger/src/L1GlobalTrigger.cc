@@ -36,6 +36,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
@@ -48,6 +49,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+
 
 
 // constructors
@@ -87,16 +89,6 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& iConfig) {
         << std::endl; 
 
 
-    // input tag for muon collection
-    m_muInputTag = m_gtSetup->getParameterSet()->getUntrackedParameter<edm::InputTag>(
-        "GmtInputTag", edm::InputTag("gmt"));
-    LogDebug("L1GlobalTrigger") 
-        << "\nInput tag for muon collection: " 
-        << m_muInputTag.label() << " \n"
-        << std::endl; 
-
-    
-       
 }
 
 // destructor
@@ -173,8 +165,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             LogDebug("L1GlobalTrigger") 
                 << "\nL1GlobalTrigger : running PSB for bx = " << iBxInEvent << "\n"
                 << std::endl;
-//            m_gtPSB->receiveData(iEvent, iBxInEvent);
-            m_gtPSB->receiveData(iEvent);
+            m_gtPSB->receiveData(iEvent, iBxInEvent);
+//            m_gtPSB->receiveData(iEvent);
         }  
     
         // * receive GMT data via GTL
@@ -259,31 +251,37 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
     }
         
-// TODO FIXME 
-//    if ( gtConf->getInputMask()[1] ) {
-//
-//        LogDebug("L1GlobalTriggerGTL") 
-//            << "\n**** Global Muon input disabled! \n  inputMask[1] = " 
-//            << gtConf->getInputMask()[1]
-//            << "     No persistent reference for L1MuGMTReadoutCollection." << "\n**** \n"
-//            << std::endl;
-//    } else {
+    if ( m_gtSetup->gtConfig()->getInputMask()[1] ) {
+
+        LogDebug("L1GlobalTrigger") 
+            << "\n**** Global Muon input disabled! \n  inputMask[1] = " 
+            << m_gtSetup->gtConfig()->getInputMask()[1]
+            << "\n  No persistent reference for L1MuGMTReadoutCollection." 
+            << "\n**** \n"
+            << std::endl;
+    } else {
 
         // ** set muons in L1GlobalTriggerReadoutRecord
     
+        LogDebug("L1GlobalTrigger") 
+            << "\n**** " 
+            << "\n  Persistent reference for L1MuGMTReadoutCollection with input tag: " 
+            << m_gtSetup->muGmtInputTag().label()
+            << "\n**** \n"
+            << std::endl;
+
         // get L1MuGMTReadoutCollection reference and set it in GT record
     
         edm::Handle<L1MuGMTReadoutCollection> gmtRcHandle; 
-        iEvent.getByLabel(m_muInputTag.label(), gmtRcHandle);
+        iEvent.getByLabel(m_gtSetup->muGmtInputTag().label(), gmtRcHandle);
         
         gtReadoutRecord->setMuCollectionRefProd(gmtRcHandle);    
            
-//    }
+    }
     
     // test muon part in L1GlobalTriggerReadoutRecord
     
-//    if ( edm::isDebugEnabled() && gtConf->getInputMask()[1]) {
-    if ( edm::isDebugEnabled() ) {
+    if ( edm::isDebugEnabled() && !( m_gtSetup->gtConfig()->getInputMask()[1] ) ) {
 
         LogTrace("L1GlobalTrigger")
             << "\n Test muon collection in the GT readout record"

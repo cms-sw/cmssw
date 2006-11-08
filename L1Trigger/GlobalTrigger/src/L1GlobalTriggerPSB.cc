@@ -92,7 +92,8 @@ L1GlobalTriggerPSB::~L1GlobalTriggerPSB() {
 
 // receive input data
 
-void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
+//void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
+void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
 
     reset();
     
@@ -101,13 +102,22 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent) {
     const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
 
     if ( gtConf != 0 ) { 
-        if ( gtConf->getInputMask()[0] ) {
+//        if ( gtConf->getInputMask()[0] ) { // TODO FIXME use this line when bunch cross available in GCT
+        if ( gtConf->getInputMask()[0] || ( iBxInEvent != 0 ) ) {
 
-            LogDebug("L1GlobalTriggerPSB") 
-                << "\n**** Calorimeter input disabled! \n     inputMask[0] = " 
-                << gtConf->getInputMask()[0] 
-                << "     All candidates empty." << "\n**** \n"
-                << std::endl;
+            if ( gtConf->getInputMask()[0] ) {
+                LogDebug("L1GlobalTriggerPSB") 
+                    << "\n**** Calorimeter input disabled! \n     inputMask[0] = " 
+                    << gtConf->getInputMask()[0] 
+                    << "     All candidates empty." << "\n**** \n"
+                    << std::endl;
+            } else { // TODO FIXME
+                LogDebug("L1GlobalTriggerPSB") 
+                    << "\n**** Temporary fix for bunch cross treatment in GCT" 
+                    << "\n     Bunch cross " << iBxInEvent 
+                    << ": all candidates empty." << "\n**** \n"
+                    << std::endl;
+            }
                 
             // empty electrons
             for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Electrons; i++ ) {

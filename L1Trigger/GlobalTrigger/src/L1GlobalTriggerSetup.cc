@@ -26,6 +26,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward declarations
 
@@ -39,6 +40,24 @@ L1GlobalTriggerSetup::L1GlobalTriggerSetup(
     
     m_pSet = &iConfig;
 
+    // input tag for muon collection from GMT
+    m_muGmtInputTag = m_pSet->getUntrackedParameter<edm::InputTag>(
+        "GmtInputTag", edm::InputTag("gmt"));
+
+    LogDebug("L1GlobalTriggerSetup") 
+        << "\nInput tag for muon collection from GMT: " 
+        << m_muGmtInputTag.label() << " \n"
+        << std::endl; 
+
+    // input tag for calorimeter collection from GCT
+    m_caloGctInputTag = m_pSet->getUntrackedParameter<edm::InputTag>(
+        "GctInputTag", edm::InputTag("gct"));
+
+    LogDebug("L1GlobalTriggerSetup") 
+        << "\nInput tag for calorimeter collection from GCT: " 
+        << m_caloGctInputTag.label() << " \n"
+        << std::endl; 
+
 }
 
 // destructor
@@ -46,6 +65,22 @@ L1GlobalTriggerSetup::~L1GlobalTriggerSetup() {
     if (m_gtConfig) { delete m_gtConfig; }
     m_gtConfig = 0;
 }
+
+
+// methods
+
+
+// input tag for muon collection from GMT 
+const edm::InputTag L1GlobalTriggerSetup::muGmtInputTag() const {
+        
+    return m_muGmtInputTag;
+}
+
+const edm::InputTag L1GlobalTriggerSetup::caloGctInputTag() const {
+
+    return m_caloGctInputTag;
+}    
+        
 
 //
 void L1GlobalTriggerSetup::setTriggerMenu(std::string& menuDir) {

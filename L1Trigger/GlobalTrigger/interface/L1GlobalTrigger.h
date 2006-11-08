@@ -41,7 +41,6 @@ class L1GlobalTriggerSetup;
 class L1GlobalTriggerPSB;
 class L1GlobalTriggerGTL;
 class L1GlobalTriggerFDL;
-//class L1GlobalTriggerReadoutRecord;
 
 
 // class declaration
@@ -77,8 +76,6 @@ private:
     
     int m_totalBxInEvent;
     
-    edm::InputTag m_muInputTag;
-        
 };
 
 #endif /*GlobalTrigger_L1GlobalTrigger_h*/

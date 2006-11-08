@@ -64,7 +64,8 @@ public:
 public:
   
     /// receive input data
-    void receiveData(edm::Event&);
+    void receiveData(edm::Event&, int iBxInEvent);
+//    void receiveData(edm::Event&);
     
     /// clear PSB
     void reset();

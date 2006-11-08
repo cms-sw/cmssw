@@ -22,6 +22,7 @@
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward declarations
 class L1GlobalTrigger;
@@ -45,6 +46,9 @@ public:
     
     static const edm::ParameterSet* getParameterSet() { return m_pSet; }
     
+    const edm::InputTag muGmtInputTag() const;
+    const edm::InputTag caloGctInputTag() const;  
+        
     virtual void setTriggerMenu(std::string&);
     
     const L1GlobalTriggerConfig* gtConfig() const { return m_gtConfig; }
@@ -55,6 +59,10 @@ private:
 
     static const edm::ParameterSet* m_pSet;
     static L1GlobalTriggerConfig* m_gtConfig;
+    
+    edm::InputTag m_muGmtInputTag;
+    edm::InputTag m_caloGctInputTag;
+    
     
 };
 

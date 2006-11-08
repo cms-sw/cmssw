@@ -111,7 +111,8 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent, int iBxInEvent) {
     }
 
     LogDebug("L1GlobalTriggerGTL") 
-        << "**** L1GlobalTriggerGTL receiving muon data" 
+        << "**** L1GlobalTriggerGTL receiving muon data from input tag " 
+        << m_GT.gtSetup()->muGmtInputTag().label()
         << std::endl;
     
 
@@ -119,7 +120,7 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent, int iBxInEvent) {
     // the GLT receives 4 * 26 bits from the Global Muon Trigger
 
     edm::Handle<std::vector<L1MuGMTCand> > muonData;
-    iEvent.getByLabel("gmt", muonData);
+    iEvent.getByLabel(m_GT.gtSetup()->muGmtInputTag().label(), muonData);
 
     for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutSetup::NumberL1Muons; iMuon++ ) {
 
