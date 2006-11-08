@@ -121,7 +121,12 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       theTrackClusterizer.clusterize(seltks);
 
     if(fVerbose){
-      cout << "PrimaryVertexProducerAlgorithm::vertices  clusters =" << clusters.size() << endl;
+      cout << "PrimaryVertexProducerAlgorithm::vertices  clusters       =" << clusters.size() << endl;
+      int i=0;
+      for (vector< vector<reco::TransientTrack> >::const_iterator iclus
+	     = clusters.begin(); iclus != clusters.end(); iclus++) {
+	cout << "PrimaryVertexProducerAlgorithm::vertices  cluster  " << i++ << ")  tracks =" << (*iclus).size() << endl;
+      }
     }
 
     // look for primary vertices in each cluster
@@ -150,15 +155,25 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       }
       */
 
-      if(fUseBeamConstraint){
-	//KalmanVertexFitter kvf;
+      if( fUseBeamConstraint &&((*iclus).size()>0) ){
+	if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
         TransientVertex v = theFitter->vertex(*iclus, theBeamSpot.position(), theBeamSpot.error());
-        pvCand.push_back(v);
+
+	if (fVerbose){
+	  cout << "beamspot   x="<< theBeamSpot.position().x() 
+	       << " y=" << theBeamSpot.position().y()
+	       << " z=" << theBeamSpot.position().z()
+	       << " dx=" << sqrt(theBeamSpot.error().cxx())
+	       << " dy=" << sqrt(theBeamSpot.error().cyy())
+	       << " dz=" << sqrt(theBeamSpot.error().czz())
+	       << std::endl;
+	  cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
+	}
+	pvCand.push_back(v);
       }else if((*iclus).size()>1){
-	cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;
-	//KalmanVertexFitter kvf;
+	if (fVerbose){cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;}
 	TransientVertex v = theFitter->vertex(*iclus); 
-	cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
+	if (fVerbose){cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;}
 	pvCand.push_back(v);
       }else if (fVerbose){
 	cout <<  "cluster dropped" << endl;
