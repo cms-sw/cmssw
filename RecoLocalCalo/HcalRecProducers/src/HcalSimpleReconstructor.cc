@@ -16,9 +16,9 @@ using namespace std;
 
     
     HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
-      reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew")),
-      inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))
-	
+      reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"),
+	    conf.getParameter<bool>("correctForPhaseContainment"),conf.getParameter<double>("correctionPhaseNS")),
+      inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))	
     {
       std::string subd=conf.getParameter<std::string>("Subdetector");
       if (!strcasecmp(subd.c_str(),"HBHE")) {
