@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/09/24 00:45:16 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/11/07 21:36:19 $
+ *  $Revision: 1.12 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -266,13 +266,6 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
-  // FIXME: put it into a parameter set  
-  edm::ESHandle<Chi2MeasurementEstimatorBase> estimator;
-  eSetup.get<TrackingComponentsRecord>().get("Chi2MeasurementEstimator",estimator);
-  
-  // FIXME: put it into a parameter set
-  edm::ESHandle<Propagator> propagator;
-  eSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",propagator);
 
   // set the pt and spt by hand
   double pt = 5.0;
