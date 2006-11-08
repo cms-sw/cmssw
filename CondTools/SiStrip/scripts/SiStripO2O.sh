@@ -47,7 +47,6 @@ function settings (){
     getParameter help $@ 0
     [ "$help" = 1 ] && usage
 
-#    export TNS_ADMIN=/afs/cern.ch/project/oracle/admin
     if [ ! -n "$CORAL_AUTH_PATH" ];
 	then
 	export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
@@ -108,7 +107,7 @@ settings "$@"
 
 
 eval `scramv1 runtime -sh`
-
+export TNS_ADMIN=/afs/cern.ch/project/oracle/admin
   
 if [ "$CondDb" == "devdb10" ]; then
     DBfile="oracle://devdb10/CMS_COND_STRIP"
@@ -153,7 +152,11 @@ cfg_file=${test_area}/SiStripO2O_IOV_${IOV}.cfg
 echo DBfile $DBfile
 echo DBcatalog $DBcatalog
 
-cat template_SiStripO2O.cfg | sed -e "s#insert_DBfile#$DBfile#g" -e "s#insert_DBcatalog#$DBcatalog#g"  -e "s#insert_IOV#${IOV}#" -e "s#insert_appendflag#${append}#g" -e "s@#appendMode_${append}@@g" \
+templatefile=${CMSSW_BASE}/src/CondTools/SiStrip/scripts/template_SiStripO2O.cfg 
+[ ! -e $templatefile ] && templatefile=${CMSSW_RELEASE_BASE}/src/CondTools/SiStrip/scripts/template_SiStripO2O.cfg 
+[ ! -e $templatefile ] && echo "ERROR: expected template file doesn't exist both in your working area and in release area. Please fix it." && exit
+
+cat $templatefile | sed -e "s#insert_DBfile#$DBfile#g" -e "s#insert_DBcatalog#$DBcatalog#g"  -e "s#insert_IOV#${IOV}#" -e "s#insert_appendflag#${append}#g" -e "s@#appendMode_${append}@@g" \
 -e "s#insert_ConfigDbUser#${ConfigDbUser}#" -e "s#insert_ConfigDbPasswd#${ConfigDbPasswd}#" -e "s#insert_ConfigDbPath#${ConfigDbPath}#"	-e "s#insert_ConfigDbPartition#${ConfigDbPartition}#" -e "s#insert_ConfigDbMajorVersion#${ConfigDbMajorVersion}#" -e "s#insert_ConfigDbMinorVersion#${ConfigDbMinorVersion}#" \
 -e "s#insert_doPedNoiseTransfer#$doPedNoiseTransfer#" -e "s#insert_doFedCablingTransfer#$doFedCablingTransfer#" -e "s@${o2otrans}@@"> ${cfg_file}
 

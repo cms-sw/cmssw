@@ -75,7 +75,11 @@ export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
 
 eval `scramv1 runtime -sh`
 
-cat template_SiStripCondObjDisplay.cfg | sed -e "s#insert_DBfile#$DBfile#" -e "s#insert_DBcatalog#$DBcatalog#" -e "s#insert_output_filename#${output_file_name}#" -e "s#insert_ps_filename#${ps_file_name}#" -e "s#insert_runNb#${run}#" > ${cfg_file}
+templatefile=${CMSSW_BASE}/src/CondTools/SiStrip/scripts/template_SiStripCondObjDisplay.cfg
+[ ! -e $templatefile ] && templatefile=${CMSSW_RELEASE_BASE}/src/CondTools/SiStrip/scripts/template_SiStripCondObjDisplay.cfg
+[ ! -e $templatefile ] && echo "ERROR: expected template file doesn't exist both in your working area and in release area. Please fix it." && exit
+
+cat $templatefile | sed -e "s#insert_DBfile#$DBfile#" -e "s#insert_DBcatalog#$DBcatalog#" -e "s#insert_output_filename#${output_file_name}#" -e "s#insert_ps_filename#${ps_file_name}#" -e "s#insert_runNb#${run}#" > ${cfg_file}
 echo "cmsRun ${cfg_file}"
 cmsRun ${cfg_file} > ${test_area}/out_diplay_${run}
 
