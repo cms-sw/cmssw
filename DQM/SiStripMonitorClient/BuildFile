@@ -1,4 +1,5 @@
 <use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
@@ -7,6 +8,7 @@
 <export>
 <lib name=DQMSiStripMonitorClient>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
