@@ -13,6 +13,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalCalibRecHit.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
 
 /** \class HcalSimpleRecAlgo
 
@@ -23,13 +24,18 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2006/03/24 16:56:31 $
-   $Revision: 1.5 $
+   $Date: 2006/09/25 22:00:51 $
+   $Revision: 1.6 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
 public:
-  HcalSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew);
+  /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
+  HcalSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew, 
+		    bool correctForContainment, float fixedPhaseNs);
+  /** Simple constructor for PMT-based detectors */
+  HcalSimpleRecAlgo(int firstSample, int samplesToAdd);
+
   HBHERecHit reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HFRecHit reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HORecHit reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
@@ -38,6 +44,7 @@ public:
 private:
   int firstSample_, samplesToAdd_;
   bool correctForTimeslew_;
+  std::auto_ptr<HcalPulseContainmentCorrection> pulseCorr_;
 };
 
 #endif

@@ -2,7 +2,21 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include <algorithm> // for "max"
-HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew) : firstSample_(firstSample), samplesToAdd_(samplesToAdd), correctForTimeslew_(correctForTimeslew) {
+
+static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
+
+HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
+  firstSample_(firstSample), 
+  samplesToAdd_(samplesToAdd), 
+  correctForTimeslew_(correctForTimeslew) {
+  if (correctForPulse) 
+    pulseCorr_=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(samplesToAdd_,phaseNS,MaximumFractionalError));
+}
+
+HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd) : 
+  firstSample_(firstSample), 
+  samplesToAdd_(samplesToAdd), 
+  correctForTimeslew_(false) {
 }
 
 ///Timeshift correction for HPDs based on the position of the peak ADC measurement.
@@ -19,7 +33,7 @@ static float timeshift_ns_hf(float wpksamp);
 namespace HcalSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
-		     int ifirst, int n, bool slewCorrect, HcalTimeSlew::BiasSetting slewFlavor) {
+		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
 
@@ -56,6 +70,12 @@ namespace HcalSimpleRecAlgoImpl {
     float wpksamp = (maxA + 2.0*t2) / (t0 + maxA + t2);
     float time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
 
+    if (corr!=0) {
+      // Apply phase-based amplitude correction:
+      ampl *= corr->getCorrection(fc_ampl);
+//      std::cout << fc_ampl << " --> " << corr->getCorrection(fc_ampl) << std::endl;
+    }
+
     
     if (slewCorrect) time-=HcalTimeSlew::delay(std::max(0.0,fc_ampl),slewFlavor);
 
@@ -66,24 +86,28 @@ namespace HcalSimpleRecAlgoImpl {
 HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
 							       firstSample_,samplesToAdd_,correctForTimeslew_,
+							       pulseCorr_.get(),
 							       HcalTimeSlew::Medium);
 }
 
 HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,
 							   firstSample_,samplesToAdd_,correctForTimeslew_,
+							   pulseCorr_.get(),
 							   HcalTimeSlew::Slow);
 }
 
 ZDCRecHit HcalSimpleRecAlgo::reconstruct(const ZDCDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
 							     firstSample_,samplesToAdd_,false,
+							     0,
 							     HcalTimeSlew::Fast);
 }
 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HcalCalibDataFrame,HcalCalibRecHit>(digi,coder,calibs,
-									 firstSample_,samplesToAdd_,false,
+									 firstSample_,samplesToAdd_,correctForTimeslew_,
+									 pulseCorr_.get(),
 									 HcalTimeSlew::Fast);
 }
 
