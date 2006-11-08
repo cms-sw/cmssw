@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/10/24 09:20:06 $
- *  $Revision: 1.30 $
+ *  $Date: 2006/11/02 05:55:04 $
+ *  $Revision: 1.31 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -41,9 +41,9 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServicePr
 }
 
 
-edm::OrphanHandle<reco::TrackCollection> 
+OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
-			    edm::Event& event) {
+			    Event& event) {
   
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
 
@@ -141,9 +141,9 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   return event.put(trackCollection);
 }
 
-edm::OrphanHandle<reco::MuonCollection> 
+OrphanHandle<reco::MuonCollection> 
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
-			    edm::Event& event) {
+			    Event& event) {
 
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
   
@@ -174,7 +174,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   
   // create the TrackCollection of combined Trajectories
   // FIXME: could this be done one track at a time in the previous loop?
-  edm::OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
+  OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
   
   reco::MuonCollection::iterator muon = muonCollection->begin();
   for ( unsigned int position = 0; position != combinedTracks->size(); position++ ) {
@@ -193,7 +193,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   
   // put the MuonCollection in the event
   LogDebug(metname) << "put the MuonCollection in the event" << "\n";
-  edm::OrphanHandle<reco::MuonCollection> orphanHandleMuon = event.put(muonCollection);
+  OrphanHandle<reco::MuonCollection> orphanHandleMuon = event.put(muonCollection);
   
   return orphanHandleMuon;
 
@@ -216,7 +216,7 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
     LogDebug(metname)<<"oppositeToMomentum";
     innerTSOS = trajectory.lastMeasurement().updatedState();
   }
-  else edm::LogError(metname)<<"Wrong propagation direction!";
+  else LogError(metname)<<"Wrong propagation direction!";
   
   LogDebug(metname) << debug.dumpTSOS(innerTSOS);
 
@@ -226,7 +226,7 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
   TrajectoryStateOnSurface tscp = tipe.extrapolate(innerTSOS,vtx);
   
   if ( !tscp.isValid() ) {
-    edm::LogError(metname)<<"Extrapolation to vertex failed!";
+    LogError(metname)<<"Extrapolation to vertex failed!";
     return reco::Track(); // FIXME: how to report this?
   }
   PerigeeConversions conv;
@@ -248,7 +248,8 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 		    ndof,
 		    perigeeParameters, 
 		    pt,
-		    perigeeError);
+		    perigeeError,
+		    innerTSOS.charge());
   return track;
 
 }
@@ -281,7 +282,7 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
     outerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
     innerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
   }
-  else edm::LogError(metname)<<"Wrong propagation direction!";
+  else LogError(metname)<<"Wrong propagation direction!";
   
   //build the TrackExtra
   GlobalPoint v = outerTSOS.globalParameters().position();
