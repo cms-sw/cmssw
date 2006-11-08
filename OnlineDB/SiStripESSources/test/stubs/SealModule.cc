@@ -8,12 +8,8 @@ DEFINE_ANOTHER_FWK_MODULE(PopulateConfigDb);
 #include "OnlineDB/SiStripESSources/test/stubs/AnalyzeFedCabling.h"
 DEFINE_ANOTHER_FWK_MODULE(AnalyzeFedCabling);
 
-#include "OnlineDB/SiStripESSources/test/stubs/test_FedCablingBuilder.h"
-DEFINE_ANOTHER_FWK_MODULE(test_FedCablingBuilder);
+#include "OnlineDB/SiStripESSources/test/stubs/test_FedCablingBuilderFromDb.h"
+DEFINE_ANOTHER_FWK_MODULE(test_FedCablingBuilderFromDb);
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_DatabaseService.h"
 DEFINE_ANOTHER_FWK_MODULE(test_DatabaseService);
-
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-DEFINE_ANOTHER_FWK_SERVICE(SiStripConfigDb);
