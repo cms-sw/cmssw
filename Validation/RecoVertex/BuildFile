@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
+<use name=SimDataFormats/Track>
 <use name=SimGeneral/HepPDT>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=root>
@@ -15,6 +16,7 @@
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/VertexReco>
+   <use name=SimDataFormats/Track>
    <use name=SimGeneral/HepPDT>
    <use name=RecoVertex/PrimaryVertexProducer>
    <use name=root>
