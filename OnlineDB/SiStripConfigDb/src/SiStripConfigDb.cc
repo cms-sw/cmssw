@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.21 2006/11/03 11:17:24 bainbrid Exp $
-// Latest tag:  $Name: TIF_031106 $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.22 2006/11/07 10:24:04 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -58,25 +58,9 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
     << " Constructing object..."
     << " (Class instance: " << cntr_ << ")";
   
-  string confdb = pset.getUntrackedParameter<string>("ConfDb",""); //@@
-  uint32_t ipass = confdb.find("/");
-  uint32_t ipath = confdb.find("@");
-  if ( ipass != string::npos && 
-       ipath != string::npos ) {
-    user_   = confdb.substr(0,ipass); 
-    passwd_ = confdb.substr(ipass+1,ipath-ipass-1); 
-    path_   = confdb.substr(ipath+1,confdb.size());
-  } else {
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " Unexpected value for 'ConfDb' configurable: " << confdb;
-  }
-
   // Set all DB params in struct
   dbParams_.usingDb_ = pset.getUntrackedParameter<bool>("UsingDb",true); 
-  dbParams_.user_ = user_;
-  dbParams_.passwd_ = passwd_;
-  dbParams_.path_ = path_;
+  dbParams_.confdb( pset.getUntrackedParameter<string>("ConfDb","") );
   dbParams_.partition_ = pset.getUntrackedParameter<string>("Partition","");
   dbParams_.major_ = pset.getUntrackedParameter<unsigned int>("MajorVersion",0);
   dbParams_.minor_ = pset.getUntrackedParameter<unsigned int>("MinorVersion",0);
@@ -92,9 +76,9 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   
   // Copy values to private member data 
   usingDb_ = dbParams_.usingDb_;
-  //user_ = dbParams_.user_;
-  //passwd_ = dbParams_.passwd_;
-  //path_ = dbParams_.path_;
+  user_ = dbParams_.user_;
+  passwd_ = dbParams_.passwd_;
+  path_ = dbParams_.path_;
   partition_.name_ = dbParams_.partition_;
   partition_.major_ = dbParams_.major_;
   partition_.minor_ = dbParams_.minor_;
@@ -292,7 +276,7 @@ SiStripConfigDb::SiStripConfigDb( string input_module_xml,
 // -----------------------------------------------------------------------------
 //
 SiStripConfigDb::~SiStripConfigDb() {
-  closeDbConnection();
+  //closeDbConnection();
   LogTrace(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Destructing object...";
@@ -362,6 +346,24 @@ void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
 
 // -----------------------------------------------------------------------------
 // 
+void SiStripConfigDb::DbParams::confdb( const string& confdb ) {
+  confdb_ = confdb;
+  uint32_t ipass = confdb.find("/");
+  uint32_t ipath = confdb.find("@");
+  if ( ipass != string::npos && 
+       ipath != string::npos ) {
+    user_   = confdb.substr(0,ipass); 
+    passwd_ = confdb.substr(ipass+1,ipath-ipass-1); 
+    path_   = confdb.substr(ipath+1,confdb.size());
+//   } else {
+//     edm::LogWarning(mlConfigDb_)
+//       << "[SiStripConfigDb::DbConfdb::" << __func__ << "]"
+//       << " Unexpected value for \"confdb\": \"" << confdb_ << "\"";
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 
 ostream& operator<< ( ostream& os, const SiStripConfigDb::DbParams& params ) {
   stringstream ss;
   params.print(ss);
@@ -399,11 +401,12 @@ void SiStripConfigDb::closeDbConnection() {
 DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const { 
   if ( factory_ ) { return factory_; }
   else { 
-    stringstream ss;
-    if ( method_name != "" ) { ss << "[SiStripConfigDb::" << method_name << "]"; }
-    else { ss << "[SiStripConfigDb]"; }
-    ss << " NULL pointer to DeviceFactory!";
-    edm::LogError(mlConfigDb_) << ss.str();
+    if ( method_name != "" ) { 
+      stringstream ss;
+      ss << "[SiStripConfigDb::" << method_name << "]"
+	 << " NULL pointer to DeviceFactory!";
+      edm::LogError(mlConfigDb_) << ss.str();
+    }
     return 0;
   }
 }
