@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/09/27 10:17:22 $
-//   $Revision: 1.8 $
+//   $Date: 2006/10/09 13:59:49 $
+//   $Revision: 1.9 $
 //
 //   Modifications: 
 //
@@ -146,13 +146,17 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   static bool config_dumped = false;
 
   // CLCT configuration parameters.
-  bx_width    = conf.getParameter<int>("clctBxWidth");    // def = 6 (==150 ns)
-  hs_thresh   = conf.getParameter<int>("clctHsThresh");   // def = 4
-  ds_thresh   = conf.getParameter<int>("clctDsThresh");   // def = 4
+  bx_width     = conf.getParameter<int>("clctBxWidth");     // def = 6
+  drift_delay  = conf.getParameter<int>("clctDriftDelay");  // def = 2
+  hs_thresh    = conf.getParameter<int>("clctHsThresh");    // def = 2
+  ds_thresh    = conf.getParameter<int>("clctDsThresh");    // def = 2
+  nph_pattern  = conf.getParameter<int>("clctNphPattern");  // def = 4
 
   // Currently used only in the test-beam mode.
-  drift_delay = conf.getParameter<int>("clctDriftDelay"); // def = 2
-  nph_pattern = conf.getParameter<int>("clctNphPattern"); // def = 4
+  fifo_tbins   = conf.getParameter<int>("clctFifoTbins");   // def = 12
+
+  // Not used yet.
+  fifo_pretrig = conf.getParameter<int>("clctFifoPretrig"); // def = 7
 
   // Verbosity level, set to 0 (no print) by default.
   infoV = conf.getUntrackedParameter<int>("verbosity", 0);
@@ -191,13 +195,17 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
   static bool config_dumped = false;
 
   // CLCT configuration parameters.
-  bx_width    = 6;
-  hs_thresh   = 4;
-  ds_thresh   = 4;
-  drift_delay = 2;
-  nph_pattern = 4;
+  bx_width     =  6;
+  drift_delay  =  2;
+  hs_thresh    =  2;
+  ds_thresh    =  2;
+  nph_pattern  =  4;
 
-  infoV       = 2;
+  fifo_tbins   = 12;
+
+  fifo_pretrig =  7;
+
+  infoV        =  2;
 
   // Print configuration parameters.
   if (!config_dumped) {
@@ -238,6 +246,18 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
   }
 
   // clear(); // redundant; called by L1MuCSCMotherboard.
+
+#ifndef TB
+  // Keep large [bxwin_min; bxwin_max] in official ORCA for now and let CSC TF
+  // handle it.
+  int bxwin_min = CSCConstants::MIN_BUNCH;
+  int bxwin_max = CSCConstants::MAX_BUNCH + 1;
+#else
+  // Total number of time bins in DAQ readout is given by fifo_tbins, which
+  // thus determines the maximum length of time interval.
+  int bxwin_min = 0;
+  int bxwin_max = fifo_tbins;
+#endif
 
   // Get the number of wire groups for the given chamber.
   CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
@@ -323,25 +343,16 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
       thisDigiBx -= 9; // temp hack for MC
 #endif
       //note: MIN_BUNCH = -6, MAX_BUNCH = 6, TOT_BUNCH = 13
-#ifndef TB2004
-      if (thisDigiBx >= CSCConstants::MIN_BUNCH &&
-	  thisDigiBx <= CSCConstants::MAX_BUNCH) {
-#endif
+      if (thisDigiBx >= bxwin_min && thisDigiBx < bxwin_max) {
+#ifndef TB
 	// Shift all times of interest by TIME_OFFSET, so that they will
 	// be non-negative, and fill the corresponding arrays
 	thisDigiBx += CSCConstants::TIME_OFFSET;
-#ifndef TB2004
-	if (thisDigiBx < 0 || thisDigiBx > CSCConstants::TOT_BUNCH) {
-	  edm::LogWarning("CSCCathodeLCTProcessor")
-	    << "Mismatch in cathode BX times: digi #" << j
-	    << ", bx = " << thisDigiBx << " +++ \n";
-	  continue;
-	}
 #endif
 
 	// If there is more than one hit in the same strip, pick one
 	// which occurred earlier.
-	if (time[i][thisStrip] <= 0 || time[i][thisStrip] > thisDigiBx) {
+	if (time[i][thisStrip] == -999 || time[i][thisStrip] > thisDigiBx) {
 	  digiNum[i][thisStrip] = j;
 	  time[i][thisStrip]    = thisDigiBx;
 	  triad[i][thisStrip]   = thisComparator;
@@ -358,14 +369,12 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 	      << " stagger "         << stagger[i];
 	  }
 	}
-#ifndef TB2004
       }
       else {
 	edm::LogWarning("CSCCathodeLCTProcessor")
 	  << "Unexpected BX time of strip digi: strip = " << thisStrip
 	  << ", layer = " << i << ", bx = " << thisDigiBx << " +++ \n";
       }
-#endif
     }
   }
   
@@ -648,8 +657,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int strip[CSCCon
   int first_bx = 999;
   const int max_lct_num = 2;
   const int adjacent_strips = 2;
-  const int ptrn_thrsh[2] = {4,3}; //distrip,halfstrip pattern threshold (-1)
-  //const int ptrn_thrsh[2] = {3,3}; //previous -- default LHC? value
+  // Distrip, halfstrip pattern threshold.
+  const int ptrn_thrsh[2] = {nph_pattern, nph_pattern};
   int highest_quality = 0;
 
   int keystrip_data[CSCConstants::NUM_HALF_STRIPS][7];
@@ -688,11 +697,11 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int strip[CSCCon
     }
 
     for (j = 0; j < max_lct_num; j++){
-      // Only report LCTs if the number of layers hit is greater than
-      // the (variable) valid pattern threshold ptrn_thrsh.
+      // Only report LCTs if the number of layers hit is greater than or
+      // equal to the (variable) valid pattern threshold ptrn_thrsh.
       int keystrip = final_lcts[j];
       if (keystrip >= 0 &&
-	  keystrip_data[keystrip][CLCT_QUALITY] > ptrn_thrsh[stripType]) {
+	  keystrip_data[keystrip][CLCT_QUALITY] >= ptrn_thrsh[stripType]) {
      	// assign the stripType here. 1 = halfstrip, 0 = distrip.
      	keystrip_data[keystrip][CLCT_STRIP_TYPE] = stripType;
 	// Now make the LCT words for the 2 highest, and store them in a list
@@ -833,31 +842,15 @@ void CSCCathodeLCTProcessor::getKeyStripData(const int strip[CSCConstants::NUM_L
   // Now we need to look at all the keystrips and take the best pattern
   // for each.  There are multiple patterns available for each keystrip.
 
-#ifdef TB
-  // Test beam TMB -- search over individual CFEB boards 
-  // (only 1 lct per board taken into account in LCT sorting).
-  int icfeb, istrip;
-  for (icfeb = 0; icfeb < MAX_CFEBS; icfeb++) for (istrip = 0; istrip < cfeb_strips[stripType]; istrip++) {
-    key_strip = icfeb*cfeb_strips[stripType] + istrip;
-#else
   for (key_strip = 0; key_strip < (nStrips-stripType); key_strip++){
-#endif
-
     nullPattern = true;
     for (int pattern_strip = 0; pattern_strip < NUM_PATTERN_STRIPS; pattern_strip++){
       this_layer = pre_hit_pattern[0][pattern_strip];
       this_strip = pre_hit_pattern[1][pattern_strip] + key_strip;
-#ifdef TB
-      //Change conditional statement for loop over individual boards
-      if (this_strip >= (icfeb*cfeb_strips[stripType]) &&
-	  this_strip <  (icfeb+1)*cfeb_strips[stripType] &&
-	  strip[this_layer][this_strip] >= 0){
-#else
       // This conditional statement prevents us from looking at strips
       // that don't exist along the chamber boundaries.
       if ((this_strip >= 0 && this_strip < nStrips) &&
 	  strip[this_layer][this_strip] >= 0){
-#endif
 	if (nullPattern) nullPattern = false;
 	lct_pattern[pattern_strip] = strip[this_layer][this_strip];
       }
@@ -878,7 +871,9 @@ void CSCCathodeLCTProcessor::getKeyStripData(const int strip[CSCConstants::NUM_L
     // Exclude pattern 0 since it is not defined.
     for (int pattern_num = CSCConstants::NUM_CLCT_PATTERNS; pattern_num > 0; pattern_num--) {
       // Get the pattern quality from lct_pattern.
-      getPattern(pattern_num, lct_pattern, first_bx, quality, bend);
+      // TMB latches LCTs drift_delay clocks after pretrigger.
+      int latch_bx = first_bx + drift_delay;
+      getPattern(pattern_num, lct_pattern, latch_bx, quality, bend);
       if (infoV > 1) {
 	LogDebug("CSCCathodeLCTProcessor")
 	  << "Key_strip " << key_strip << " quality of pattern_num "
@@ -941,8 +936,10 @@ void CSCCathodeLCTProcessor::getPattern(int pattern_num,
 }
 
 bool CSCCathodeLCTProcessor::hitIsGood(int hitTime, int BX) {
-  // Find out if hit time is good.  hitTime should be within 4 of the bunch-crossing.
-  if (hitTime >= 0 && abs(hitTime - BX) < 4) {return true;}
+  // Find out if hit time is good.  Hit should have occurred no more than
+  // bx_width clocks before the latching time.
+  int dt = BX - hitTime;
+  if (dt >= 0 && dt <= bx_width) {return true;}
   else {return false;}
 }
 
@@ -985,6 +982,30 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
 	<< "half bx " << _bx[0] << " di bx " << _bx[1] << " first " << first_bx
 	<< "\n ..... waiting drift delay ..... ";
     }
+
+    // Empirically-found trick allowing to dramatically improve agreement
+    // with MTCC-II data.  Needs to be better understood.
+    // The trick is to ignore hits in a few first time bins when latching
+    // hits for priority encode envelopes.  For MTCC-II, we need to ignore
+    // hits in time bins 0-3 inclusively.
+    int max_bx = 4;
+    for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
+      for (int istrip = 0; istrip < CSCConstants::NUM_HALF_STRIPS; istrip++) {
+	for (int bx = 0; bx < max_bx; bx++) {
+	  if (((h_pulse[ilayer][istrip] >> bx) & 1) == 1) {
+	    h_pulse[ilayer][istrip] = 0;
+	  }
+	}
+      }
+      for (int istrip = 0; istrip < CSCConstants::NUM_DI_STRIPS; istrip++) {
+	for (int bx = 0; bx < max_bx; bx++) {
+	  if (((d_pulse[ilayer][istrip] >> bx) & 1) == 1) {
+	    d_pulse[ilayer][istrip] = 0;
+	  }
+	}
+      }
+    }
+
     // TMB latches LCTs drift_delay clocks after pretrigger.
     int latch_bx = first_bx + drift_delay;
     latchLCTs(h_pulse, h_keyStrip, h_nhits, 1, CSCConstants::NUM_HALF_STRIPS,
@@ -1046,13 +1067,6 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
 	   unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 	   const int stripType, const int nStrips, int& first_bx) {
 
-  const int bx_min = 0;          // start for loop over bx time
-#ifndef TB2004
-  const int bx_max = CSCConstants::TOT_BUNCH;  // stop for loop over bx time
-#else
-  const int bx_max = 32;         // stop for loop over bx time
-#endif
-
   if (infoV > 1)
     LogDebug("CSCCathodeLCTProcessor")
       << "....................PreTrigger...........................";
@@ -1082,7 +1096,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
   }
 
   // Now do a loop over bx times to see (if/when) track goes over threshold
-  for (int bx_time = bx_min; bx_time <= bx_max; bx_time++) {
+  for (int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
     // For any given bunch-crossing, start at the lowest keystrip and look for
     // the number of separate layers in the pattern for that keystrip that have
     // pulses at that bunch-crossing time.  Do the same for the next keystrip, 
@@ -1262,7 +1276,9 @@ void CSCCathodeLCTProcessor::priorityEncode(
 	key_phits[icfeb] = h_nhits[icfeb] + 8; // halfstrip promotion
 	strip_type[icfeb]= 1;
       }
-      // else if (d_nhits[icfeb] >= ds_thresh) { // ????
+      // For di-strip envelope there is no requirement that the number of
+      // layers hit is >= ds_thresh!!!
+      // else if (d_nhits[icfeb] >= ds_thresh) {
       else {
 	key_strip[icfeb] = d_keyStrip[icfeb];
 	key_phits[icfeb] = d_nhits[icfeb];
@@ -1277,7 +1293,7 @@ void CSCCathodeLCTProcessor::priorityEncode(
       }
     }
     else if (d_keyStrip[icfeb] != -1) {
-      // if (d_nhits[icfeb] >= ds_thresh) { // ????
+      // if (d_nhits[icfeb] >= ds_thresh) {
 	key_strip[icfeb] = d_keyStrip[icfeb];
 	key_phits[icfeb] = d_nhits[icfeb];
 	strip_type[icfeb]= 0;
@@ -1550,14 +1566,18 @@ void CSCCathodeLCTProcessor::dumpConfigParams() const {
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   strm << " bx_width     [duration of signal pulse, in 25 ns bins] = "
        << bx_width << "\n";
+  strm << " drift_delay  [time after pre-trigger before TMB latches LCTs] = "
+       << drift_delay << "\n";
   strm << " hs_thresh    [min. number of layers hit for pre-trigger] = "
        << hs_thresh << "\n";
   strm << " ds_thresh    [min. number of layers hit for pre-trigger] = "
        << ds_thresh << "\n";
-  strm << " drift_delay  [time after pre-trigger before TMB latches LCTs] = "
-       << drift_delay << "\n";
   strm << " nph_pattern  [min. number of layers hit for trigger] = "
        << nph_pattern << "\n";
+  strm << " fifo_tbins   [total number of time bins in DAQ readout] = "
+       << fifo_tbins << "\n";
+  strm << " fifo_pretrig [start time of cathode raw hits in DAQ readout] = "
+       << fifo_pretrig << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCCathodeLCTProcessor") << strm.str();
 }

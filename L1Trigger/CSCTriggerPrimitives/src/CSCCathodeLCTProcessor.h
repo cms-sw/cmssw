@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/09/27 10:17:22 $
- * $Revision: 1.6 $
+ * $Date: 2006/10/09 13:59:49 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -127,8 +127,8 @@ class CSCCathodeLCTProcessor
   std::vector<int> theDiStripHits[CSCConstants::NUM_LAYERS];
 
   /** Configuration parameters. */
-  int bx_width, hs_thresh, ds_thresh;
-  int drift_delay, nph_pattern; // only for test beam mode.
+  int bx_width, drift_delay, hs_thresh, ds_thresh, nph_pattern;
+  int fifo_tbins, fifo_pretrig; // only for test beam mode.
 
   //----------------------- Default ORCA Fcns ---------------------------------
   std::vector<CSCCLCTDigi> findLCTs(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
