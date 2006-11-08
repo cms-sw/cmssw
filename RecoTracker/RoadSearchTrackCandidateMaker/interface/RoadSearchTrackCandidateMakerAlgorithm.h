@@ -13,8 +13,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/08/28 23:05:45 $
-// $Revision: 1.2 $
+// $Date: 2006/11/07 16:09:03 $
+// $Revision: 1.3 $
 //
 
 #include <string>
@@ -70,6 +70,8 @@ class RoadSearchTrackCandidateMakerAlgorithm
 
   unsigned int theNumHitCut;
   double theChi2Cut;
+
+  bool debug_;
 
     const MeasurementTracker*  theMeasurementTracker;
     const TrackerGeometry* geom;

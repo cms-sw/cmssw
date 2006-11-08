@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/09/01 22:23:04 $
-// $Revision: 1.20 $
+// $Author: burkett $
+// $Date: 2006/11/07 16:09:03 $
+// $Revision: 1.21 $
 //
 
 #include <vector>
@@ -69,8 +69,6 @@
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
-bool DEBUG = false;
-
 RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
 
   theNumHitCut = (unsigned int)conf_.getParameter<int>("NumHitCut");
@@ -78,6 +76,8 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
 
   theEstimator = new Chi2MeasurementEstimator(theChi2Cut);
   theUpdator = new KFUpdator();
+ 
+  debug_ = false;
 
 }
 
@@ -139,7 +139,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   KFTrajectorySmoother theSmoother(*theRevPropagator, *theUpdator, *theEstimator);
 
   LogDebug("RoadSearch") << "Clean Clouds input size: " << input->size();
-  if (DEBUG) std::cout << std::endl << std::endl
+  if (debug_) std::cout << std::endl << std::endl
 	    << "*** NEW EVENT: Clean Clouds input size: " << input->size() << std::endl;
 
   int i_c = 0;
@@ -194,13 +194,13 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       if (ih->localPositionError().yy()<1.) lstereo[ilayer] = true;      
       cloud_layer_map.insert(make_pair(hitLayer, &(*ih)));
       GlobalPoint gp = tracker->idToDet(ih->geographicalId())->surface().toGlobal(ih->localPosition());
-      if (DEBUG) std::cout << "Hit "<< ih-recHits.begin()
+      if (debug_) std::cout << "Hit "<< ih-recHits.begin()
 			   << " r/z = "
 			   << gp.perp() << " " << gp.z()
 			   <<" in layer " << hitLayer << " layer number " << ilayer
 			   << " with " << nhits_l[ilayer] << "  hits " << std::endl;
     }
-    if (DEBUG) std::cout<<"CLOUD LAYER MAP SIZE IS " << cloud_layer_map.size() << std::endl;
+    if (debug_) std::cout<<"CLOUD LAYER MAP SIZE IS " << cloud_layer_map.size() << std::endl;
     
     /*
     //    for (edm::OwnVector<TrackingRecHit>::const_iterator ih=recHits.begin(); ih!=recHits.end(); ++ih) {
@@ -219,7 +219,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       ++nhits_l[nlayers-1];
       if (ih->second->localPositionError().yy()<1.) lstereo[nlayers-1] = true;
       GlobalPoint gp = tracker->idToDet(ih->second->geographicalId())->surface().toGlobal(ih->second->localPosition());
-      if (DEBUG) std::cout << "Hit "<< hit_counter
+      if (debug_) std::cout << "Hit "<< hit_counter
                 << " r/z = "
 		<< gp.perp() << " " << gp.z()
 		<<" in layer " << hitLayer << " layer number " << nlayers-1
@@ -230,11 +230,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     */
 
     LogDebug("RoadSearch")<<"Cloud #"<<i_c<<" has "<<recHits.size()<<" hits in "<<nlayers<<" layers ";
-    if (DEBUG) std::cout <<"Cloud "<<i_c<<" has "<<recHits.size()<<" hits in " << nlayers << " layers ";
+    if (debug_) std::cout <<"Cloud "<<i_c<<" has "<<recHits.size()<<" hits in " << nlayers << " layers ";
     ++i_c;
 
     /*
-    // For DEBUG, map of all layers in cloud
+    // For debug_, map of all layers in cloud
     map<const DetLayer*, int> cloud_layer_reference; // for debugging
     for (int ilayer = 0; ilayer < nlayers; ++ilayer) {
       cloud_layer_reference.insert(make_pair(layers[ilayer], ilayer));
@@ -256,7 +256,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       vector<Trajectory> CleanChunks;
 
       //edm::LogInfo("RoadSearch") << "*** START NEW CHUNK --> layer range " << ilayer0 << "-" << nlayers-1 ;
-      if (DEBUG) std::cout  << "*** START NEW CHUNK --> layer range (" << ilayer0 << "-" << nlayers-1 << ")";
+      if (debug_) std::cout  << "*** START NEW CHUNK --> layer range (" << ilayer0 << "-" << nlayers-1 << ")";
 
       // skip hits from previous layer
       if (ilayer0>0) prev_layers.insert(layers[ilayer0-1]);
@@ -287,14 +287,14 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
 
 
-      if (DEBUG) std::cout<<std::endl<<"   Available layers are: ";
+      if (debug_) std::cout<<std::endl<<"   Available layers are: ";
       for (multimap<int, const DetLayer*>::iterator ilm1 = layer_map.begin();
            ilm1 != layer_map.end(); ++ilm1) {
         map<const DetLayer*, int>::iterator ilr = layer_reference.find(ilm1->second);
-        if (ilr != layer_reference.end() && DEBUG) 
+        if (ilr != layer_reference.end() && debug_) 
 	  std::cout << "Layer " << ilr->second << " with " << nhits_l[ilr->second]<<" hits" <<std::endl;;
       }
-      if (DEBUG) cout << std::endl;
+      if (debug_) cout << std::endl;
 
 
       // consider the best nfound_min layers + other layers with only one hit
@@ -314,14 +314,14 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
         ++ilm;
       }
       set<const DetLayer*> good_layers;
-      if (DEBUG) std::cout << " With useful layers: ";
+      if (debug_) std::cout << " With useful layers: ";
       for (multimap<int, const DetLayer*>::iterator ilm1 = layer_map.begin();
            ilm1 != ilm; ++ilm1) {
         good_layers.insert(ilm1->second);
         map<const DetLayer*, int>::iterator ilr = layer_reference.find(ilm1->second);
-        if (ilr != layer_reference.end() && DEBUG) std::cout << " " << ilr->second;
+        if (ilr != layer_reference.end() && debug_) std::cout << " " << ilr->second;
       }
-      if (DEBUG) cout << std::endl;
+      if (debug_) cout << std::endl;
 
       // choose intermediate layers
       const int max_middle_layers = 2;
@@ -385,10 +385,10 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           const DetLayer* outerHitLayer =
                   theMeasurementTracker->geometricSearchTracker()->detLayer(outerHit->geographicalId());
 
-	  if (DEBUG) std::cout << "Try trajectory with Inner Hit on Layer " << ilayer0 << " and  " ;
+	  if (debug_) std::cout << "Try trajectory with Inner Hit on Layer " << ilayer0 << " and  " ;
 	  map<const DetLayer*, int>::iterator ilro = layer_reference.find(outerHitLayer);
-	  if (ilro != layer_reference.end() && DEBUG) std::cout << "Outer Hit on Layer " << ilro->second ;
-	  if (DEBUG) std::cout << std::endl;
+	  if (ilro != layer_reference.end() && debug_) std::cout << "Outer Hit on Layer " << ilro->second ;
+	  if (debug_) std::cout << std::endl;
 
 
 	  LogDebug("RoadSearch") << "inner hit: r/phi/z = "<< inner.perp() << " " << inner.phi() << " " << inner.z() ;
@@ -426,7 +426,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	  const TrajectoryStateOnSurface innerState = 
 	    thePropagator->propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
 	  if ( !innerState.isValid()) {
-	    if (DEBUG) std::cout<<"*******DISASTER ********* seed doesn't make it to first hit!!!!!" << std::endl;
+	    if (debug_) std::cout<<"*******DISASTER ********* seed doesn't make it to first hit!!!!!" << std::endl;
 	    continue;
 	  }
 	  TransientTrackingRecHit::RecHitPointer intrhit = ttrhBuilder->build(&(*innerHit));
@@ -444,7 +444,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
             edm::OwnVector<TrackingRecHit>& hits = ilhv->second;
             vector<Trajectory> newTrajectories;
 
-	    if (DEBUG){
+	    if (debug_){
 	      map<const DetLayer*, int>::iterator ilr = cloud_layer_reference.find(ilhv->first);
 	      if (ilr != cloud_layer_reference.end())
 		std::cout << "extrapolating " << rawTrajectories.size() 
@@ -462,7 +462,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
                 if (thisLayer == innerHitLayer){
 		  // Right now we are assuming that ONLY single hit layers are in this initial collection
 		  //if (thisLayer == innerHitLayer && !(ihit->recHit() == innerHit->recHit())){
-		//  if (DEBUG) std::cout<<"On inner hit layer, but have wrong hit?!?!?" << std::endl;
+		//  if (debug_) std::cout<<"On inner hit layer, but have wrong hit?!?!?" << std::endl;
 		  continue;
 		}
                 //if (thisLayer == outerHitLayer && !(ihit == outerHit)){
@@ -473,7 +473,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
                 TransientTrackingRecHit::RecHitPointer rhit = ttrhBuilder->build(&(*ihit));
 
-		if (DEBUG){
+		if (debug_){
 		  if (rhit->isValid()) {
 		    LogDebug("RoadSearch") << "RecHit " << ihit-hits.begin()
 					   << ", det " << rhit->det() << ", r/phi/z = "
@@ -501,7 +501,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 		  continue;
 		}
                 TrajectoryMeasurement tm;
-		if (DEBUG){
+		if (debug_){
 		  std::cout<< "trajectory " << itr-rawTrajectories.begin() 
 			   << " at r/z=" <<  det->surface().position().perp() 
 			   << "  " <<  det->surface().position().z() 
@@ -514,7 +514,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
                 // update
                 MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rhit);
-		if (DEBUG) std::cout << "estimation: " << est.first << " " << est.second << std::endl;
+		if (debug_) std::cout << "estimation: " << est.first << " " << est.second << std::endl;
                 if (!est.first) continue;
                 currTsos = theUpdator->update(predTsos, *rhit);
                 tm = TrajectoryMeasurement(predTsos, currTsos, &(*rhit),est.second,thisLayer);
@@ -524,16 +524,16 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
             }
 
            if (newTrajectories.empty()) {
-	     if (DEBUG) std::cout<<" Could not add the hit in this layer " << std::endl;
+	     if (debug_) std::cout<<" Could not add the hit in this layer " << std::endl;
               // layer missed
 	     continue;
             }
             rawTrajectories = newTrajectories;
           }
-	  if (rawTrajectories.size()==0) if (DEBUG) std::cout<<" --> yields ZERO raw trajectories!" << std::endl;
+	  if (rawTrajectories.size()==0) if (debug_) std::cout<<" --> yields ZERO raw trajectories!" << std::endl;
 	  for (vector<Trajectory>::const_iterator it = rawTrajectories.begin();
 	       it != rawTrajectories.end(); it++) {
-	    if (DEBUG) std::cout << " --> yields trajectory has "<<it->recHits().size()<<" hits with chi2="
+	    if (debug_) std::cout << " --> yields trajectory has "<<it->recHits().size()<<" hits with chi2="
 		      <<it->chiSquared()<<" and is valid? "<<it->isValid() <<std::endl;
 	  }
           vector<Trajectory> rawCleaned;
@@ -551,13 +551,13 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
               used_layers.insert(theMeasurementTracker->geometricSearchTracker()->detLayer(rh->geographicalId()));
             }
 	    /*
-	    if (DEBUG) {
+	    if (debug_) {
 	      cout<<"Raw trajectory " << itr-rawTrajectories.begin() << " has " << used_layers.size() 
 		  << " used layers:  ";
 	      for (set<const DetLayer*>::iterator iul = used_layers.begin();
 		   iul != used_layers.end(); ++iul) {
 		map<const DetLayer*, int>::iterator ilr = layer_reference.find(*iul);
-		if (ilr != layer_reference.end() && DEBUG) cout << " " << ilr->second;
+		if (ilr != layer_reference.end() && debug_) cout << " " << ilr->second;
 	      }
 		cout<<endl;
 	    }
@@ -579,7 +579,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       // We clean these trajectories first, and then try to add hits from the skipped layers
 
       //    }
-      if (DEBUG) 
+      if (debug_) 
 	std::cout << "Clean the " << ChunkTrajectories.size()<<" trajectories for this chunk" << std::endl;
       // clean the intermediate result
       theTrajectoryCleaner.clean(ChunkTrajectories);
@@ -602,7 +602,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
 	}
       }
-      if (DEBUG) std::cout <<"After cleaning there are " << CleanChunks.size() 
+      if (debug_) std::cout <<"After cleaning there are " << CleanChunks.size() 
 		<< " trajectories for this chunk" << std::endl;
 
 
@@ -633,11 +633,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	  if (ilr != layer_reference.end())
 	    skipped_layer_detmap.insert(make_pair(ilr->second,thisLayer));
 	  else
-	    if (DEBUG) std::cout<<"Couldn't find thisLayer to insert into map..."<<std::endl;
+	    if (debug_) std::cout<<"Couldn't find thisLayer to insert into map..."<<std::endl;
         }
       }
 
-      if (DEBUG){
+      if (debug_){
 	if (skipped_layers.empty()) {
 	  std::cout << "all layers have been used" << std::endl;
 	} else {
@@ -655,7 +655,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       for (vector<Trajectory>::const_iterator i = CleanChunks.begin();
            i != CleanChunks.end(); i++) {
         if (!(*i).isValid()) continue;
-	if (DEBUG) std::cout<< "Now process CleanChunk trajectory " << i-CleanChunks.begin() << std::endl;
+	if (debug_) std::cout<< "Now process CleanChunk trajectory " << i-CleanChunks.begin() << std::endl;
         if (skipped_layers.empty() && i->measurements().size() >= theNumHitCut) {
           extendedChunks.insert(extendedChunks.end(), *i);
         } 
@@ -673,11 +673,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	      map<const DetLayer*, int>::iterator ilr = cloud_layer_reference.find(Layer);
 	      if (ilr != cloud_layer_reference.end()){
 		used_layer_detmap.insert(make_pair(Layer,ilr->second));
-		if (DEBUG) std::cout << "Add DetLayer " << Layer << " to used_layer_detmap for layer "
+		if (debug_) std::cout << "Add DetLayer " << Layer << " to used_layer_detmap for layer "
 				     << ilr->second << std::endl;
 	      }
 	      else
-		if (DEBUG) std::cout<<"Couldn't find thisLayer to insert into map..."<<std::endl;
+		if (debug_) std::cout<<"Couldn't find thisLayer to insert into map..."<<std::endl;
 	  }
 
 
@@ -689,7 +689,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	      //Add this layer to the skipped layers
 	      map<const DetLayer*, int>::iterator il = cloud_layer_reference.find(thisLayer);
 	      skipped_layer_detmap.insert(make_pair(il->second,thisLayer));
-	      if (DEBUG) {
+	      if (debug_) {
 		std::cout << "Can't find a hit on layer Hit #"<< il->second << std::endl;
 	      }
 	    }
@@ -707,11 +707,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 		theMeasurementTracker->geometricSearchTracker()->detLayer(rh->geographicalId());      
 	      map<const DetLayer*, int>::iterator ilr = cloud_layer_reference.find(Layer);
 	      if (ilr != cloud_layer_reference.end())
-		if (DEBUG) std::cout << "   Hit #"<<ih-tmv.begin() << " of " << tmv.size()
+		if (debug_) std::cout << "   Hit #"<<ih-tmv.begin() << " of " << tmv.size()
 				     <<" is on Layer " 
 				     << ilr->second << std::endl;
 	      else 
-		if (DEBUG) std::cout << "   Layer for Hit #"<<ih-tmv.begin() <<" can't be found " << std::endl;
+		if (debug_) std::cout << "   Layer for Hit #"<<ih-tmv.begin() <<" can't be found " << std::endl;
 	  }
 
 	  // Loop over the layers in the cloud
@@ -725,11 +725,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
 	  std::vector<Trajectory> freshStart = theSmoother.trajectories(*i);
 	  if (!freshStart.empty()){
-	    if (DEBUG) std::cout<< "Smoothing of trajectory " <<i-CleanChunks.begin() << " has succeeded with " 
+	    if (debug_) std::cout<< "Smoothing of trajectory " <<i-CleanChunks.begin() << " has succeeded with " 
 		     <<freshStart.begin()->measurements().size() << " hits.  Now add hits." <<std::endl;
 	  }
 	  else {
-	    if (DEBUG) std::cout<< "Smoothing of trajectory " <<i-CleanChunks.begin() <<" has failed"<<std::endl;
+	    if (debug_) std::cout<< "Smoothing of trajectory " <<i-CleanChunks.begin() <<" has failed"<<std::endl;
 	    continue;
 	  }
 	  TrajectoryStateOnSurface NewFirstTsos = freshStart.begin()->lastMeasurement().updatedState();
@@ -754,20 +754,20 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	  map<const DetLayer*, int>::iterator ilr = cloud_layer_reference.find(firstDetLayer);
 	  int firstlyr = 0;
 	  if (ilr != cloud_layer_reference.end() ){
-	    if (DEBUG) std::cout << "   First hit is on layer  " << ilr->second << std::endl;
+	    if (debug_) std::cout << "   First hit is on layer  " << ilr->second << std::endl;
 	    firstlyr = ilr->second;
 	    ++im;
 	  }
 
 	  for (int ilayer = firstlyr+1; ilayer < nlayers; ++ilayer) {
-	    if (DEBUG) std::cout<<"   Layer " << ilayer ;
+	    if (debug_) std::cout<<"   Layer " << ilayer ;
 	      
 	    TrajectoryStateOnSurface predTsos;
 	    TrajectoryStateOnSurface currTsos;
 	    TrajectoryMeasurement tm;
 
 	    if (layers[ilayer] == imap->second) {
-	      if (DEBUG) std::cout<<" is one of the skipped layers " << std::endl;
+	      if (debug_) std::cout<<" is one of the skipped layers " << std::endl;
 
 	      //collect hits in the skipped layer
 	      edm::OwnVector<TrackingRecHit> skipped_hits;
@@ -784,7 +784,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
 	      map<const DetLayer*, int>::iterator ilr = layer_reference.find(imap->second);
 	      if (ilr != layer_reference.end()) 
-		if (DEBUG)
+		if (debug_)
 		  std::cout<<"   ---> probing missing hits (nh="<< skipped_hits.size() << ", nd=" << dets.size() 
 			   << ")  in layer " << ilr->second <<std::endl;
 		
@@ -800,13 +800,13 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	      TransientTrackingRecHit::ConstRecHitPointer rh = im->recHit();
 	      if (rh->isValid() && 
 		  theMeasurementTracker->geometricSearchTracker()->detLayer(rh->geographicalId()) == layers[ilayer]) {
-		if (DEBUG) std::cout<<" has a good hit " << std::endl;
+		if (debug_) std::cout<<" has a good hit " << std::endl;
 		++im;
 
 		const GeomDet* det = geom->idToDet(rh->geographicalId());
 	    
 		if (newTrajectory.measurements().empty())
-		  if (DEBUG) std::cout<<"How the heck does this have no measurements!!!" <<std::endl;
+		  if (debug_) std::cout<<"How the heck does this have no measurements!!!" <<std::endl;
 
 
 		currTsos = newTrajectory.measurements().back().updatedState();
@@ -814,7 +814,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 		if (!predTsos.isValid()) continue;
 		MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rh);
 		if (!est.first) {
-		  if (DEBUG) std::cout<<"Failed to add one of the original hits on a low occupancy layer!!!!" << std::endl;
+		  if (debug_) std::cout<<"Failed to add one of the original hits on a low occupancy layer!!!!" << std::endl;
 		  continue;
 		}
 		currTsos = theUpdator->update(predTsos, *rh);
@@ -823,12 +823,12 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
 	      }
 	      else {
-		if (DEBUG) std::cout<<" has no hit" << std::endl;
+		if (debug_) std::cout<<" has no hit" << std::endl;
 	      }
 	    }	    
 	  }
 
-	  if (DEBUG) std::cout<<"Finished loop over layers in cloud.  Trajectory now has " <<newTrajectory.measurements().size()
+	  if (debug_) std::cout<<"Finished loop over layers in cloud.  Trajectory now has " <<newTrajectory.measurements().size()
 		   << " hits. " << std::endl;
 	  // DO WE NEED TO SMOOTH THIS TRAJECTORY?
 	  //newSmoothed = theSmoother.trajectories(newTrajectory);
@@ -840,12 +840,12 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	    extendedChunks.insert(extendedChunks.end(), newTrajectory);
         }
       }
-      if (DEBUG) std::cout<< "Extended chunks: " << extendedChunks.size() << endl;
+      if (debug_) std::cout<< "Extended chunks: " << extendedChunks.size() << endl;
       //if (!extendedChunks.empty()) {
       //  smoothedResult.insert(smoothedResult.end(), extendedChunks.begin(), extendedChunks.end());
       //  break;
       //}
-      if (DEBUG) std::cout<< "Now Clean the extended chunks " <<std::endl;
+      if (debug_) std::cout<< "Now Clean the extended chunks " <<std::endl;
       theTrajectoryCleaner.clean(extendedChunks);
       for (vector<Trajectory>::const_iterator it = extendedChunks.begin();
 	   it != extendedChunks.end(); it++) {
@@ -855,7 +855,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
 // ********************* END NEW ADDITION
 
-    if (DEBUG) std::cout<< "Finished with the cloud, so clean the " 
+    if (debug_) std::cout<< "Finished with the cloud, so clean the " 
 	     << CloudTrajectories.size() << " cloud trajectories "<<std::endl ;
     theTrajectoryCleaner.clean(CloudTrajectories);
     for (vector<Trajectory>::const_iterator it = CloudTrajectories.begin();
@@ -863,15 +863,15 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       if (it->isValid()) FinalTrajectories.push_back(*it);
     }
 
-    if (DEBUG) std::cout<<" Final trajectories now has size " << FinalTrajectories.size()<<std::endl ;
+    if (debug_) std::cout<<" Final trajectories now has size " << FinalTrajectories.size()<<std::endl ;
 
   } // End loop over Cloud Collection
 
-  if (DEBUG) std::cout<< " Finished loop over all clouds " <<std::endl;
+  if (debug_) std::cout<< " Finished loop over all clouds " <<std::endl;
     theTrajectoryCleaner.clean(FinalTrajectories);
     for (vector<Trajectory>::const_iterator it = FinalTrajectories.begin();
 	 it != FinalTrajectories.end(); it++) {
-      if (DEBUG) std::cout<< " Trajectory has "<<it->recHits().size()<<" hits with chi2="
+      if (debug_) std::cout<< " Trajectory has "<<it->recHits().size()<<" hits with chi2="
 			     <<it->chiSquared()<<" and is valid? "<<it->isValid()<<std::endl;
       if (it->isValid()){
 
@@ -884,7 +884,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	  goodHits.push_back((*rhit)->hit()->clone());
 	}
 
-	if (DEBUG) std::cout<<" Trajectory has " << goodHits.size() << " good hits "<<std::endl;
+	if (debug_) std::cout<<" Trajectory has " << goodHits.size() << " good hits "<<std::endl;
 	// clone 
 	//TrajectorySeed seed = *((*ref).clone());
 	PTrajectoryStateOnDet state = it->seed().startingState();
@@ -894,7 +894,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	// exclude if first state on first hit is not valid
       
 	DetId FirstHitId = (*(it->recHits().begin()))->geographicalId();
-	if (DEBUG) std::cout<< " FirstHitId is null ? "<< FirstHitId.null()<<std::endl;
+	if (debug_) std::cout<< " FirstHitId is null ? "<< FirstHitId.null()<<std::endl;
 
 	// propagate back to first hit
 
@@ -918,7 +918,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     }
 
 
-    if (DEBUG) std::cout<< "Found " << output.size() << " track candidates."<<std::endl;
+    if (debug_) std::cout<< "Found " << output.size() << " track candidates."<<std::endl;
 
 }
 
@@ -1046,11 +1046,11 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHit(const TrajectoryStateOnSurfa
   }
 
   if (theBestHits.empty()){
-    if (DEBUG) std::cout<< "no hits to add! " <<std::endl;
+    if (debug_) std::cout<< "no hits to add! " <<std::endl;
   }
   else{
     for (std::vector<TrajectoryMeasurement>::const_iterator im=theBestHits.begin();im!=theBestHits.end();++im)
-      if (DEBUG) std::cout<<" Measurement on layer "
+      if (debug_) std::cout<<" Measurement on layer "
 			  << theMeasurementTracker->geometricSearchTracker()->detLayer(im->recHit()->geographicalId())
 			  << " with estimate " << im->estimate()<<std::endl ;
   }
