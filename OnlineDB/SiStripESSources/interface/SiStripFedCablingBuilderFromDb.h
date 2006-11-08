@@ -1,11 +1,12 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.6 2006/07/28 20:47:03 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.7 2006/10/10 14:36:26 bainbrid Exp $
+// Latest tag:  $Name: TIF_031106 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 
 #include "CalibTracker/SiStripConnectivity/interface/SiStripFedCablingESSource.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "boost/cstdint.hpp"
 #include <vector>
@@ -20,12 +21,20 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
  public:
 
   SiStripFedCablingBuilderFromDb( const edm::ParameterSet& );
-  ~SiStripFedCablingBuilderFromDb(); 
+  virtual ~SiStripFedCablingBuilderFromDb(); 
   
   /** Builds FED cabling using information from TK config DB. */
   virtual SiStripFedCabling* makeFedCabling();
   
   // ----------------------------------------------------------------------
+  
+  /** Generic method which builds FEC cabling. Call ones of the three
+      methods below depending on the cabling "source" parameter
+      (connections, devices, detids). */
+  static void buildFecCabling( SiStripConfigDb* const,
+			       SiStripFecCabling&,
+			       SiStripConfigDb::DcuDetIdMap&,
+			       const sistrip::CablingSource& );
   
   /** Generic method which builds FEC cabling. Call ones of the three
       methods below depending on what descriptions are available
@@ -78,21 +87,16 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
       cabling to be written to the conds DB (local or otherwise). */
   virtual void writeFedCablingToCondDb( const SiStripFedCabling& ) {;}
   
-  /** Returns pointer to database interface for any derived classes
-      that implement writeFedCablingToCondDb(). */
-  inline SiStripConfigDb* const database();
-  
- private:
-  
   /** Access to the configuration DB interface class. */
   SiStripConfigDb* db_;
   
-  /** Vector of strings holding partition names. */
-  std::vector<std::string> partitions_;
+  /** Container for DB connection parameters. */
+  SiStripConfigDb::DbParams dbParams_;
+  
+  /** Defines "source" (conns, devices, detids) of cabling info. */
+  sistrip::CablingSource source_;
   
 };
-
-SiStripConfigDb* const SiStripFedCablingBuilderFromDb::database() { return db_; }
 
 #endif // OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 
