@@ -11,13 +11,13 @@
 //#include "CondCore/BlobStreamingService/interface/BlobStreamingService.h"
 #include "POOLCore/POOLContext.h"
 cond::ServiceLoader::ServiceLoader(){
-  m_context=new seal::Context();
+  m_context = new seal::Context();
   seal::PluginManager* pm = seal::PluginManager::get();
   pm->initialise();
-  m_loader = new seal::ComponentLoader( m_context );
+  m_loader = new seal::ComponentLoader( m_context.get() );
 }
 cond::ServiceLoader::~ServiceLoader(){
-  delete m_context;
+  //delete m_context;
 }
 void cond::ServiceLoader::loadMessageService( cond::MessageLevel level ){
   pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );

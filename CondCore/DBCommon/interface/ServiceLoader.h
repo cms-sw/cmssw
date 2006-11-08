@@ -40,8 +40,8 @@ namespace cond{
     /// load external streaming service
     void loadBlobStreamingService( const std::string& componentName );
   private:
-    seal::Context* m_context;
-    seal::Handle<seal::ComponentLoader> m_loader;
+    seal::Handle< seal::Context > m_context;
+    seal::Handle< seal::ComponentLoader > m_loader;
   };
 }//ns cond
 #endif
