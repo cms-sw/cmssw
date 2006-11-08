@@ -492,7 +492,13 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
       data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
       size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
       fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
-      if ( fed_trailer->conscheck != 0xDEADFACE ) { triggerFedId_ = 0; }
+      if ( fed_trailer->conscheck != 0xDEADFACE ) { 
+	edm::LogWarning(mlRawToDigi_) 
+	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << " Unexpected stamp found in DAQ trailer (ie, not 0xDEADFACE)!"
+	  << " Buffer appears not to contain 'trigger FED' data!";
+	triggerFedId_ = 0; 
+      }
     }
       
   } else { 
