@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.22 2006/08/22 22:13:00 dkcira Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.1 2006/11/08 15:40:02 samvel Exp $
 //
 //
 
@@ -31,8 +31,9 @@
 using edm::LogInfo;
 
 SiStripOfflineDQM::SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET)
-  : bVerbose( roPARAMETER_SET.getParameter<bool>( "verbose")),
+  : bVerbose( roPARAMETER_SET.getUntrackedParameter<bool>( "verbose")),
     poMui( new MonitorUIRoot()) {
+
   // Create MessageSender
   LogInfo( "SiStripOfflineDQM");
 }
