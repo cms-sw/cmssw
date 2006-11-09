@@ -1,4 +1,6 @@
 #include "FWCore/ParameterSet/interface/VPSetNode.h"
+#include "FWCore/ParameterSet/interface/PSetNode.h"
+#include "FWCore/ParameterSet/interface/Nodes.h"
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
@@ -149,6 +151,13 @@ namespace edm {
       if(ptr->type() == "")
       {
         nodes_->push_back(ptr);
+      }
+      else if(ptr->type() == "PSet")
+      {
+        // make a ContentsNode from this PSetNode
+        PSetNode * psetNode =  dynamic_cast<PSetNode*>(ptr.get());
+        NodePtr n(new ContentsNode(psetNode->nodes(), psetNode->line()));
+        nodes_->push_back(n);
       }
       else
       {
