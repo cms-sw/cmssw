@@ -11,7 +11,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.10 2006/08/23 15:40:05 meridian Exp $
+ *  $Id: EBDetId.h,v 1.11 2006/09/07 17:09:49 meridian Exp $
  */
 
 
@@ -48,6 +48,8 @@ class EBDetId : public DetId {
   EcalTrigTowerDetId tower() const { return EcalTrigTowerDetId(zside(),EcalBarrel,abs(tower_ieta()),tower_iphi()); }
   /// get the ECAL/SM id
   int ism() const;
+  /// get the number of module inside the SM (1-4)
+  int im() const;
   /// get ECAL/crystal number inside SM
   int ic() const;
   /// get the crystal ieta in the SM convention (1-85)
@@ -64,6 +66,8 @@ class EBDetId : public DetId {
   static const int MAX_IPHI = 360;
   static const int kChannelsPerCard = 5;
   static const int kTowersInPhi = 4;  // per SM
+  static const int kModulesPerSM = 4;
+  static const int kModuleBoundaries[4] ;
   static const int kCrystalsInPhi = 20; // per SM
   static const int kCrystalsInEta = 85; // per SM
   static const int kCrystalsPerSM = 1700;
@@ -71,6 +75,7 @@ class EBDetId : public DetId {
   static const int MAX_SM = 36;
   static const int MIN_C = 1;
   static const int MAX_C = kCrystalsPerSM;
+
 
   // function modes for (int, int) constructor
   static const int ETAPHIMODE = 0;

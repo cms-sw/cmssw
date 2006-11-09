@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 //#include <iostream>
+const int EBDetId::kModuleBoundaries[4] = { 25, 45, 65, 85 };
 
 EBDetId::EBDetId() : DetId() {
 }
@@ -61,6 +62,14 @@ int EBDetId::ism() const {
   int id = ( iphi() - 1 ) / kCrystalsInPhi + 1;
   if ( zside() < 0 ) id += 18;
   return id;
+}
+
+int EBDetId::im() const {
+  for (int i=0; i < 4 ; i++)
+    if ( ietaAbs() <= kModuleBoundaries[i] )
+      return i+1;
+  //Shold never be reached!
+  return -1;
 }
 
 //Following TB 2004  numbering scheme 
