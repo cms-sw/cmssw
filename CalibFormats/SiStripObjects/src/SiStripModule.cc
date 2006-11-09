@@ -181,7 +181,7 @@ uint16_t SiStripModule::lldChannel( const uint16_t& apv_pair_num ) const {
   if ( nApvPairs_ != 2 && nApvPairs_ != 3 ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
-      << " Unexpected nunber of APV pairs!";
+      << " Unexpected number of APV pairs: " << nApvPairs_;
     return 0;
   }
   if ( nApvPairs_ == 2 && apv_pair_num == 1 ) { return 2; }
