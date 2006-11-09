@@ -1,3 +1,14 @@
+2006-11-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-02-05
+	* fix bug regarding the FRL_LAST_SEGM flag not being set
+	  appropriately in rare cases, spotted by Emilio
+	* To distribute all valid feds among all superfragments, allow for
+	  two different numbers of feds per superfragment. See
+	  initFedBuffers(nFed), which is looking at (and possibly
+	  changing!) nSuperFrag_ to distribute all FED Ids into
+	  superfragments.
+
 2006-11-03  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-02-04

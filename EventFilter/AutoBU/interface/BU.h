@@ -109,15 +109,15 @@ namespace evf {
     //
     
     // initialize/clean up internal FED data buffers
-    void initFedBuffers(unsigned int fedN);
+    void initFedBuffers(unsigned int nFed);
     void clearFedBuffers();
 
     // generate FEDs with random payload (including headers/trailers, not yet valid!)
-    void generateRndmFEDs();
+    void generateRndmFEDs(unsigned int iSuperFrag);
   
     //estimate number of blocks needed for a superfragment
-    int estimateNBlocks(size_t fullBlockPayload);
-  
+    int  estimateNBlocks(unsigned int iSuperFrag,unsigned int fullBlockPayload);
+    
     // create a supefragment
     inline
     toolbox::mem::Reference *createSuperFrag(const I2O_TID& fuTid,
@@ -142,22 +142,24 @@ namespace evf {
     
     std::string               sourceId_;
 
-    unsigned int              fedN_;
-    unsigned char           **fedData_;
-    unsigned int             *fedSize_;
-    unsigned int              fedSizeMax_;
-    unsigned int            **fedId_;
+    unsigned int             *fedN_;       // nFED/SF, [iSF]
+    unsigned char           **fedData_;    // current SF, [iFED][pos]
+    unsigned int             *fedSize_;    // current SF, [iFED]
+
+    unsigned int            **fedId_;      // fedid, [iSF][iFED] (RANDOM only)
     
     // parameters and counters to be exported
-    xdata::String             mode_;
-    xdata::Boolean            debug_;
-    xdata::Double             nbMBPerSec_;
-    xdata::Double             memUsedInMB_;
     xdata::String             url_;
     xdata::String             class_;
     xdata::UnsignedInteger32  instance_;
     xdata::String             hostname_;
     xdata::UnsignedInteger32  runNumber_;
+    xdata::Double             nbMBTot_;
+    xdata::Double             nbMBPerSec_;
+    xdata::Double             nbMBPerSecMin_;
+    xdata::Double             nbMBPerSecMax_;
+    xdata::Double             nbMBPerSecAvg_;
+    xdata::Double             memUsedInMB_;
     xdata::UnsignedInteger32  nbEventsInBU_;
     xdata::Double             deltaT_;
     xdata::UnsignedInteger32  deltaN_;
@@ -166,20 +168,27 @@ namespace evf {
     
     xdata::UnsignedInteger32  nbEvents_;
     xdata::UnsignedInteger32  nbEventsPerSec_;
+    xdata::UnsignedInteger32  nbEventsPerSecMin_;
+    xdata::UnsignedInteger32  nbEventsPerSecMax_;
+    xdata::UnsignedInteger32  nbEventsPerSecAvg_;
     xdata::UnsignedInteger32  nbDiscardedEvents_;
     
+    xdata::String             mode_;
+    xdata::Boolean            debug_;
     xdata::UnsignedInteger32  dataBufSize_;
     xdata::UnsignedInteger32  nSuperFrag_;
+    xdata::UnsignedInteger32  fedSizeMax_;
     xdata::UnsignedInteger32  fedSizeMean_;
     xdata::UnsignedInteger32  fedSizeWidth_;
     xdata::Boolean            useFixedFedSize_;
 
     
     // internal parameters and counters (not to be exported)
-    xdata::UnsignedInteger32  nbEventsLast_; // for nbEventsPerSec measurement
-    xdata::UnsignedInteger32  nbBytes_;      // for MB/s measurement
-    xdata::UnsignedInteger32  sumOfSquares_;
-    xdata::UnsignedInteger32  sumOfSizes_;
+    unsigned int              nbMeasurements_;
+    unsigned int              nbEventsLast_;
+    unsigned int              nbBytes_;
+    unsigned int              sumOfSquares_;
+    unsigned int              sumOfSizes_;
     
     // memory pool for i20 communication
     toolbox::mem::Pool*       i2oPool_;

@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 //
 // BU
 // --
@@ -40,14 +40,15 @@ BU::BU(xdaq::ApplicationStub *s)
   , fedN_(0)
   , fedData_(0)
   , fedSize_(0)
-  , fedSizeMax_(2048)
   , fedId_(0)
-  , mode_("RANDOM")
-  , debug_(true)
-  , nbMBPerSec_(0.0)
-  , memUsedInMB_(0.0)
   , instance_(0)
   , runNumber_(0)
+  , nbMBTot_(0.0)
+  , nbMBPerSec_(0.0)
+  , nbMBPerSecMin_(0.0)
+  , nbMBPerSecMax_(0.0)
+  , nbMBPerSecAvg_(0.0)
+  , memUsedInMB_(0.0)
   , nbEventsInBU_(0)
   , deltaT_(0.0)
   , deltaN_(0)
@@ -55,12 +56,19 @@ BU::BU(xdaq::ApplicationStub *s)
   , deltaSumOfSizes_(0)
   , nbEvents_(0)
   , nbEventsPerSec_(0)
+  , nbEventsPerSecMin_(0)
+  , nbEventsPerSecMax_(0)
+  , nbEventsPerSecAvg_(0)
   , nbDiscardedEvents_(0)
+  , mode_("RANDOM")
+  , debug_(true)
   , dataBufSize_(32768)
   , nSuperFrag_(64)
+  , fedSizeMax_(65536)
   , fedSizeMean_(1024)   // mean  of fed size for rnd generation
   , fedSizeWidth_(256)   // width of fed size for rnd generation
   , useFixedFedSize_(false)
+  , nbMeasurements_(0)
   , nbEventsLast_(0)
   , nbBytes_(0)
   , sumOfSquares_(0)
@@ -141,15 +149,28 @@ void BU::timeExpired(toolbox::task::TimerEvent& e)
   
   bSem_.take();
   gui_->lockInfoSpaces();
+
+  nbMeasurements_++;
   
   // number of events per second measurement
   nbEventsPerSec_=nbEvents_-nbEventsLast_;
   nbEventsLast_  =nbEvents_;
-  
-  // number of MB per second measurement
-  nbMBPerSec_=0.000001*nbBytes_;
-  nbBytes_   =0;
+  if (nbEventsPerSec_.value_>0) {
+    if (nbEventsPerSec_<nbEventsPerSecMin_) nbEventsPerSecMin_=nbEventsPerSec_;
+    if (nbEventsPerSec_>nbEventsPerSecMax_) nbEventsPerSecMax_=nbEventsPerSec_;
+  }
+  nbEventsPerSecAvg_=nbEvents_/nbMeasurements_;
 
+  // throughput measurements
+  nbMBPerSec_=9.53674e-07*(nbBytes_);
+  nbBytes_=0;
+  nbMBTot_.value_+=nbMBPerSec_;
+  if (nbMBPerSec_.value_>0.0) {
+    if (nbMBPerSec_<nbMBPerSecMin_) nbMBPerSecMin_=nbMBPerSec_;
+    if (nbMBPerSec_>nbMBPerSecMax_) nbMBPerSecMax_=nbMBPerSec_;
+  }
+  nbMBPerSecAvg_=nbMBTot_/nbMeasurements_;
+  
   // time interval since last evaluation
   deltaT_=1.0;
 
@@ -194,9 +215,17 @@ void BU::configureAction(toolbox::Event::Reference e)
   // reset counters
   if (0!=gui_) gui_->resetCounters();
 
-  // initialze timer for nbEventsPerSec / nbMBPerSec measurements
-  nbEventsLast_=0;
-  nbBytes_     =0;
+  // reset counters for throughput measurements
+  nbEventsPerSecMin_=10000;
+  nbMBPerSecMin_    =1e06;
+  nbMBPerSecMax_    =0.0;
+  nbMeasurements_   =0;
+  nbEventsLast_     =0;
+  nbBytes_          =0;
+  sumOfSquares_     =0;
+  sumOfSizes_       =0;
+
+  // initialze timer for nbEventsPerSec / throughput measurements
   toolbox::task::getTimerFactory()->createTimer(sourceId_);
   toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
   timer->stop();
@@ -258,7 +287,7 @@ void BU::haltAction(toolbox::Event::Reference e)
 void BU::nullAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
-  cout<<"BU::nullAction()"<<endl;
+  LOG4CPLUS_INFO(log_,"BU::nullAction()");
 }
 
 
@@ -298,8 +327,6 @@ void BU::webPageRequest(xgi::Input *in,xgi::Output *out)
 //______________________________________________________________________________
 void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 {
-  LOG4CPLUS_DEBUG(log_,"received I2O_BU_ALLOCATE request");
-
   // check if the BU is enabled
   toolbox::fsm::State currentState=fsm_->getCurrentState();
   if (currentState!='E') {
@@ -308,7 +335,7 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     return;
   }
   
-
+  
   // process message
   I2O_MESSAGE_FRAME             *stdMsg;
   I2O_BU_ALLOCATE_MESSAGE_FRAME *msg;
@@ -316,8 +343,8 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
   stdMsg=(I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
   msg   =(I2O_BU_ALLOCATE_MESSAGE_FRAME*)stdMsg;
 
-  unsigned int nbEvents=msg->n;
   // loop over all requested events
+  unsigned int nbEvents=msg->n;
   for(unsigned int i=0;i<nbEvents;i++) {
     
     unsigned int evtSizeInBytes(0);
@@ -343,6 +370,7 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
       for (unsigned int j=0;j<(unsigned int)FEDNumbering::lastFEDId()+1;j++)
 	if (event->FEDData(j).size()>0) validFedIds.push_back(j);
       nSuperFrag=validFedIds.size();
+      if (0==fedN_) initFedBuffers(nSuperFrag);
     }
     
     if (0==nSuperFrag) {
@@ -354,18 +382,18 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
       
       // "playback", read events from a file
       if (0!=event) {
-	if (0==fedN_) initFedBuffers(1);
 	fedData_[0]=event->FEDData(validFedIds[iSuperFrag]).data();
 	fedSize_[0]=event->FEDData(validFedIds[iSuperFrag]).size();
-	LOG4CPLUS_DEBUG(log_,
-			"transId="<<fuTransactionId<<": "
-			<<"fed "<<validFedIds[iSuperFrag]
-			<<" in superfragment "<<iSuperFrag+1<<"/"<<nSuperFrag);
+	if (fedSize_[0]>fedSizeMax_) {
+	  LOG4CPLUS_FATAL(log_,"fedSize too big. fedSize:"<<fedSize_[0]
+			  <<" fedSizeMax:"<<fedSizeMax_);
+	  exit(1);
+	}
       }
       
       // randomly generate fed data (*including* headers and trailers)
       else {
-	generateRndmFEDs();
+	generateRndmFEDs(iSuperFrag);
       }
       
       
@@ -385,8 +413,8 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
       
       unsigned int msgSizeInBytes=frame->PvtMessageFrame.StdMessageFrame.MessageSize<<2;
       superFrag->setDataSize(msgSizeInBytes);
-      nbBytes_.value_+=msgSizeInBytes;
-      evtSizeInBytes +=msgSizeInBytes;
+      nbBytes_      +=msgSizeInBytes;
+      evtSizeInBytes+=msgSizeInBytes;
 
       xdaq::ApplicationDescriptor *buAppDesc=
 	getApplicationDescriptor();
@@ -400,8 +428,8 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     if (0!=event) delete event;
     
     nbEvents_.value_++;
-    sumOfSquares_.value_+=evtSizeInBytes*evtSizeInBytes;
-    sumOfSizes_.value_  +=evtSizeInBytes;
+    sumOfSquares_+=evtSizeInBytes*evtSizeInBytes;
+    sumOfSizes_  +=evtSizeInBytes;
   }
 
   // Free the request message from the FU
@@ -428,18 +456,33 @@ void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
 
 
 //______________________________________________________________________________
-void BU::initFedBuffers(unsigned int fedN)
+void BU::initFedBuffers(unsigned int nFed)
 {
   clearFedBuffers();
-  fedN_=fedN;
 
-  fedData_=new unsigned char*[fedN_];
-  fedSize_=new unsigned int[fedN_];
+  if (nFed<nSuperFrag_) nSuperFrag_=nFed;
+    
+  fedN_ =new unsigned int[nSuperFrag_];
+  fedId_=new unsigned int*[nSuperFrag_];
+  
+  unsigned int fedN1=nFed/nSuperFrag_;
+  unsigned int fedN2=fedN1;
+  unsigned int mod  =nFed%nSuperFrag_;
+  if (mod>0) fedN2++;
 
-  for (unsigned int i=0;i<fedN_;i++) {    
+  for (unsigned int i=0;i<nSuperFrag_;i++) {
+    fedN_[i] =(i<mod)?fedN2:fedN1;
+    fedId_[i]=new unsigned int[fedN_[i]];
+  }
+
+  fedData_=new unsigned char*[fedN2];
+  fedSize_=new unsigned int[fedN2];
+
+  for (unsigned int i=0;i<fedN2;i++) {    
     fedData_[i]=new unsigned char[fedSizeMax_];
     fedSize_[i]=0;
   }
+
 }
 
 
@@ -447,23 +490,25 @@ void BU::initFedBuffers(unsigned int fedN)
 void BU::clearFedBuffers()
 {
   if (0!=fedData_) {
-    for (unsigned int i=0;i<fedN_;i++) delete [] fedData_[i];
+    for (unsigned int i=0;i<fedN_[0];i++) delete [] fedData_[i];
     delete [] fedData_;
+    fedData_=0;
   }
 
-  if (0!=fedSize_) delete [] fedSize_;
+  if (0!=fedSize_) delete [] fedSize_; fedSize_=0;
   
   if (0!=fedId_) {
     for (unsigned int i=0;i<nSuperFrag_;i++) delete [] fedId_[i];
     delete [] fedId_;
+    fedId_=0;
   }
 
-  fedN_=0;
+  if (0!=fedN_) delete [] fedN_; fedN_=0;
 }
 
 
 //______________________________________________________________________________
-void BU::generateRndmFEDs()
+void BU::generateRndmFEDs(unsigned int iSuperFrag)
 {
   // determine valid FED Ids and number of FEDs per superfragment
   if (fedN_==0) {
@@ -471,32 +516,26 @@ void BU::generateRndmFEDs()
     for (int i=0;i<FEDNumbering::lastFEDId()+1;i++)
       if (FEDNumbering::inRange(i)) validFedIds.push_back(i);
     
-    if (validFedIds.size()<nSuperFrag_) nSuperFrag_=validFedIds.size();
+    unsigned int nFed=validFedIds.size();
     
-    unsigned int fedN=validFedIds.size()/nSuperFrag_;
-    unsigned int nValidFeds=fedN*nSuperFrag_;
-    initFedBuffers(fedN);
-    
-    fedId_=new unsigned int*[nSuperFrag_];
-    for (unsigned int i=0;i<nSuperFrag_;i++) fedId_[i]=new unsigned int[fedN_];
-    
-    unsigned int i=0;
-    unsigned int j=0;
-    for (unsigned int k=0;k<nValidFeds;k++) {
+    initFedBuffers(nFed);
+
+    unsigned int i(0),j(0);
+    for (unsigned int k=0;k<nFed;k++) {
       unsigned int fedId=validFedIds[k];
       fedId_[i][j]=fedId;
       j++;
-      if (j%fedN_==0) { j=0; i++; }
+      if (j%fedN_[i]==0) { j=0; i++; }
     }
-    
   }
   
   // size of FEDs
   if(useFixedFedSize_) {
-    for (unsigned int i=0;i<fedN_;i++) fedSize_[i]=fedSizeMean_;
+    for (unsigned int i=0;i<fedN_[iSuperFrag];i++)
+      fedSize_[i]=fedSizeMean_;
   }
   else {
-    for(unsigned int i=0;i<fedN_;i++) {
+    for(unsigned int i=0;i<fedN_[iSuperFrag];i++) {
       unsigned int iFedSize(0);
       while (iFedSize<(fedTrailerSize_+fedHeaderSize_)||iFedSize>fedSizeMax_) {
 	double logSize=RandGauss::shoot(std::log((double)fedSizeMean_),
@@ -519,37 +558,45 @@ void BU::exportParameters()
     return;
   }
   
-  gui_->addMonitorParam("mode",               &mode_);
-  gui_->addMonitorParam("debug",              &debug_);
-  gui_->addMonitorParam("nbMBPerSec",         &nbMBPerSec_);
-  gui_->addMonitorParam("memUsedInMB",        &memUsedInMB_);
   gui_->addMonitorParam("url",                &url_);
   gui_->addMonitorParam("class",              &class_);
   gui_->addMonitorParam("instance",           &instance_);
   gui_->addMonitorParam("hostname",           &hostname_);
   gui_->addMonitorParam("runNumber",          &runNumber_);
+  gui_->addMonitorParam("stateName",          &fsm_->stateName_);
+  gui_->addMonitorParam("nbMBTot",            &nbMBTot_);
+  gui_->addMonitorParam("nbMBPerSec",         &nbMBPerSec_);
+  gui_->addMonitorParam("nbMBPerSecMin",      &nbMBPerSecMin_);
+  gui_->addMonitorParam("nbMBPerSecMax",      &nbMBPerSecMax_);
+  gui_->addMonitorParam("nbMBPerSecAvg",      &nbMBPerSecAvg_);
+  gui_->addMonitorParam("memUsedInMB",        &memUsedInMB_);
   gui_->addMonitorParam("nbEventsInBU",       &nbEventsInBU_);
   gui_->addMonitorParam("deltaT",             &deltaT_);
   gui_->addMonitorParam("deltaN",             &deltaN_);
   gui_->addMonitorParam("deltaSumOfSquares",  &deltaSumOfSquares_);
   gui_->addMonitorParam("deltaSumOfSizes",    &deltaSumOfSizes_);
-  gui_->addMonitorParam("stateName",          &fsm_->stateName_);
+
   
   gui_->addMonitorCounter("nbEvents",         &nbEvents_);
   gui_->addMonitorCounter("nbEventsPerSec",   &nbEventsPerSec_);
+  gui_->addMonitorCounter("nbEventsPerSecMin",&nbEventsPerSecMin_);
+  gui_->addMonitorCounter("nbEventsPerSecMax",&nbEventsPerSecMax_);
+  gui_->addMonitorCounter("nbEventsPerSecAvg",&nbEventsPerSecAvg_);
   gui_->addMonitorCounter("nbDiscardedEvents",&nbDiscardedEvents_);
 
+  gui_->addStandardParam("mode",              &mode_);
+  gui_->addStandardParam("debug",             &debug_);
   gui_->addStandardParam("dataBufSize",       &dataBufSize_);
   gui_->addStandardParam("nSuperFrag",        &nSuperFrag_);
+  gui_->addStandardParam("fedSizeMax",        &fedSizeMax_);
   gui_->addStandardParam("fedSizeMean",       &fedSizeMean_);
   gui_->addStandardParam("fedSizeWidth",      &fedSizeWidth_);
   gui_->addStandardParam("useFixedFedSize",   &useFixedFedSize_);
   
-
   gui_->exportParameters();
 
-  gui_->addItemRetrieveListener("mode",             this);
-  gui_->addItemRetrieveListener("memUsedInMB",      this);
+  gui_->addItemRetrieveListener("mode",       this);
+  gui_->addItemRetrieveListener("memUsedInMB",this);
 }
 
 
@@ -564,15 +611,15 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
 					     const U32&     iSuperFrag,
 					     const U32&     nSuperFrag)
 {
-  bool   configFeds      =(0==PlaybackRawDataProvider::instance());
-  size_t msgHeaderSize   =sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
-  size_t fullBlockPayload=dataBufSize_-msgHeaderSize;
+  bool         configFeds      =(0==PlaybackRawDataProvider::instance());
+  unsigned int msgHeaderSize   =sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
+  unsigned int fullBlockPayload=dataBufSize_-msgHeaderSize;
   
   if((fullBlockPayload%4)!=0)
-    LOG4CPLUS_ERROR(log_,"The full block payload of "
-		    <<fullBlockPayload<<" bytes is not a multiple of 4");
+    LOG4CPLUS_ERROR(log_,"The full block payload of "<<fullBlockPayload
+		    <<" bytes is not a multiple of 4");
   
-  unsigned int nBlock=estimateNBlocks(fullBlockPayload);
+  unsigned int nBlock=estimateNBlocks(iSuperFrag,fullBlockPayload);
   
   toolbox::mem::Reference *head  =0;
   toolbox::mem::Reference *tail  =0;
@@ -668,7 +715,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
       fedTrailerLeft   =false;
       
       // if this is the last fed, adjust block (msg) size and set last=true
-      if((iFed==(fedN_-1)) && !last) {
+      if((iFed==(fedN_[iSuperFrag]-1)) && !last) {
 	frlHeader->segsize-=leftspace;
 	int msgSize=stdMsg->MessageSize << 2;
 	msgSize   -=leftspace;
@@ -707,7 +754,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
 	leftspace       -=remainder;
 	
 	// if this is the last fed in the superfragment, earmark it
-	if(iFed==fedN_-1) {
+	if(iFed==fedN_[iSuperFrag]-1) {
 	  frlHeader->segsize-=leftspace;
 	  int msgSize=stdMsg->MessageSize << 2;
 	  msgSize   -=leftspace;
@@ -749,7 +796,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
     if(remainder==0) {
       
       // loop on feds
-      while(iFed<fedN_) {
+      while(iFed<fedN_[iSuperFrag]) {
 	
 	// if the next header does not fit, jump to following block
 	if((int)leftspace<fedHeaderSize_) {
@@ -802,6 +849,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
 	  leftspace         -=(fedSize_[iFed]-fedHeaderSize_-fedTrailerSize_);
 	  frlHeader->segsize-=leftspace;
 	  fedTrailerLeft     =true;
+	  remainder          =fedTrailerSize_;
 
 	  break;
 	}
@@ -810,7 +858,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
 	  memcpy(startOfFedBlocks,fedData_[iFed]+fedHeaderSize_,leftspace);
 	  remainder=fedSize_[iFed]-fedHeaderSize_-leftspace;
 	  leftspace=0;
-
+	  
 	  break;
 	}
 	
@@ -820,7 +868,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
       } // while (iFed<fedN_)
       
       // earmark the last block
-      if (iFed==fedN_ && remainder==0 && !last) {
+      if (iFed==fedN_[iSuperFrag] && remainder==0 && !last) {
 	frlHeader->segsize-=leftspace;
 	int msgSize=stdMsg->MessageSize << 2;
 	msgSize   -=leftspace;
@@ -837,7 +885,7 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
       tail=bufRef;
     }
     else {
-      tail->setNextReference(bufRef); //set link in list
+      tail->setNextReference(bufRef);
       tail=bufRef;
     }
     
@@ -850,13 +898,11 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
   
   // fix case where block estimate was wrong
   if(warning) {
-    bufRef=head;
+    toolbox::mem::Reference* next=head;
     do {
-      stdMsg=(I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
-      pvtMsg=(I2O_PRIVATE_MESSAGE_FRAME*)stdMsg;
-      block =(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)stdMsg;
+      block =(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)next->getDataLocation();
       block->nbBlocksInSuperFragment=nBlock;		
-    } while((bufRef=bufRef->getNextReference()));
+    } while((next=next->getNextReference()));
   }
   
   return head; // return the top of the chain
@@ -864,14 +910,14 @@ toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
 
 
 //______________________________________________________________________________
-int BU::estimateNBlocks(size_t fullBlockPayload)
+int BU::estimateNBlocks(unsigned int iSuperFrag,unsigned int fullBlockPayload)
 {
   int result(0);
   
   U32 curbSize=frlHeaderSize_;
   U32 totSize =curbSize;
   
-  for(unsigned int i=0;i<fedN_;i++) {
+  for(unsigned int i=0;i<fedN_[iSuperFrag];i++) {
     curbSize+=fedSize_[i];
     totSize +=fedSize_[i];
     
