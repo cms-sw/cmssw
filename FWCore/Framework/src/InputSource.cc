@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.15 2006/10/24 20:29:01 wmtan Exp $
+$Id: InputSource.cc,v 1.16 2006/11/03 17:57:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -109,28 +109,6 @@ namespace edm {
   InputSource::skipEvents(int offset) {
     this->skip(offset);
   }
-
-#if 0
-  std::auto_ptr<RunPrincipal>
-  InputSource::readRun() {
-    // Do we need any error handling (e.g. exception translation) here?
-    std::auto_ptr<RunPrincipal> rp(readRun_());
-    if (rp.get()) {
-	rp->addToProcessHistory(isDesc_.moduleDescription_.processConfiguration());
-    }
-    return rp;
-  }
-
-  std::auto_ptr<LuminosityBlockPrincipal>
-  InputSource::readLuminosityBlock() {
-    // Do we need any error handling (e.g. exception translation) here?
-    std::auto_ptr<LuminosityBlockPrincipal> lbp = readLuminosityBlock_();
-    if (lbp.get()) {
-	lbp->addToProcessHistory(isDesc_.moduleDescription_.processConfiguration());
-    }
-    return lbp;
-  }
-#endif
 
   void
   InputSource::issueReports(EventID const& eventID) {

@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.14 2006/10/27 20:45:20 wmtan Exp $
+$Id: InputSource.h,v 1.15 2006/11/03 17:57:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -77,12 +77,6 @@ namespace edm {
     /// Begin again at the first event
     void rewind() {rewind_();}
 
-    /// Read next run
-    std::auto_ptr<RunPrincipal> readRun();
-
-    /// Read next luminosity block
-    std::auto_ptr<LuminosityBlockPrincipal> readLuminosityBlock();
-
     /// Wake up the input source
     void wakeUp() {wakeUp_();}
 
@@ -111,13 +105,14 @@ namespace edm {
     /// Accessor for 'module' description.
     ModuleDescription const& moduleDescription() const {return isDesc_.moduleDescription_;}
 
+    /// Accessor fpr primary input source flag
+    bool const primary() const {return primary_;}
+
     /// Called by framework at beginning of job
     void doBeginJob(EventSetup const&);
 
     /// Called by framework at end of job
     void doEndJob();
-
-    bool const primary() const {return primary_;}
 
   private:
 
@@ -133,25 +128,19 @@ namespace edm {
 
     virtual void skip(int);
 
-#if 0
-    virtual std::auto_ptr<RunPrincipal> readRun_() = 0;
-
-    virtual std::auto_ptr<LuminosityBlockPrincipal> readLuminosityBlock_() = 0;
-#endif
-
     virtual void setRun(RunNumber_t r);
 
     virtual void rewind_();
 
-    virtual void wakeUp_() {}
+    virtual void wakeUp_(){}
 
     void preRead();
 
     void postRead(Event& event);
 
-    virtual void beginJob(EventSetup const&) {}
+    virtual void beginJob(EventSetup const&){}
 
-    virtual void endJob() {}
+    virtual void endJob(){}
 
   private:
 
