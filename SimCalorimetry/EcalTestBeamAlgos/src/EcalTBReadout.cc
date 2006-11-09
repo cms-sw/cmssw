@@ -32,15 +32,15 @@ void EcalTBReadout::findTTlist(const int & crysId, const EcalTrigTowerConstituen
   unsigned int ncount = 0;
   bool found = false;
   
-  while  ( (ncount <= theDetIds.size()) && !found ) 
+  while  ( (ncount < theDetIds.size()) && !found ) 
   {
-    ++idItr;
-    ++ncount;
     EBDetId thisEBdetid(idItr->rawId());
     if (thisEBdetid.ic() == crysId) {
       theTargetId = thisEBdetid;
       found = true;
     }
+    ++idItr;
+    ++ncount;
   }
   if ( !found ) {
     throw cms::Exception("ObjectNotFound", "Ecal TB target crystal not found in geometry");
@@ -66,15 +66,15 @@ void EcalTBReadout::findTTlist(const int & crysId, const EcalTrigTowerConstituen
       ncount = 0;
       found = false;
   
-      while  ( (ncount <= theDetIds.size()) && !found ) 
+      while  ( (ncount < theDetIds.size()) && !found ) 
         {
-          ++idItr;
-          ++ncount;
           EBDetId myEBdetid(idItr->rawId());
           if ( (myEBdetid.ieta() == icrysEta) && (myEBdetid.iphi() == icrysPhi) ) {
             thisEBdetid = myEBdetid;
             found = true;
           }
+          ++idItr;
+          ++ncount;
         }
 
       if ( found ) {
