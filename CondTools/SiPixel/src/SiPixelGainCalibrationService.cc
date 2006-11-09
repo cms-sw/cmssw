@@ -2,7 +2,9 @@
 
 SiPixelGainCalibrationService::SiPixelGainCalibrationService(const edm::ParameterSet& conf):
   conf_(conf),
-  UseCalibDataFromDB_(conf.getParameter<bool>("UseCalibDataFromDB")) {
+  UseCalibDataFromDB_(conf.getParameter<bool>("UseCalibDataFromDB")),
+  PedestalValue_(conf.getParameter<double>("PedestalValue")),
+  GainValue_(conf.getParameter<double>("GainValue")) {
 
   if (UseCalibDataFromDB_==false){  
     edm::LogInfo("SiPixelGainCalibrationService")  << "[SiPixelGainCalibrationService::SiPixelGainCalibrationService] Using a Single Value for Pedestal and Gain";

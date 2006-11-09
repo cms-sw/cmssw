@@ -9,7 +9,8 @@
 namespace cms{
 SiPixelCondObjReader::SiPixelCondObjReader(const edm::ParameterSet& conf): 
     conf_(conf),
-    filename_(conf.getParameter<std::string>("fileName"))
+    filename_(conf.getParameter<std::string>("fileName")),
+    SiPixelGainCalibrationService_(conf)
 {
 }
 
@@ -25,16 +26,16 @@ SiPixelCondObjReader::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   edm::LogInfo("SiPixelCondObjReader") <<" There are "<<tkgeom->dets().size() <<" detectors"<<std::endl;
   
   // Get the calibration data
-  iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
-  edm::LogInfo("SiPixelCondObjReader") << "[SiPixelCondObjReader::analyze] End Reading CondObjects" << std::endl;
+  //iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
+  //edm::LogInfo("SiPixelCondObjReader") << "[SiPixelCondObjReader::analyze] End Reading CondObjects" << std::endl;
+  //SiPixelGainCalibrationService_.setESObjects(iSetup);
 
   //  for(TrackerGeometry::DetContainer::const_iterator it = tkgeom->dets().begin(); it != tkgeom->dets().end(); it++){
   //   if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
   //     uint32_t detid=((*it)->geographicalId()).rawId();
   // Get the list of DetId's
   
-  std::vector<uint32_t> vdetId_;
-  SiPixelGainCalibration_->getDetIds(vdetId_);
+  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
   // Loop over DetId's
   for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
     uint32_t detid = *detid_iter;
@@ -54,18 +55,20 @@ SiPixelCondObjReader::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     int nrows = topol.nrows();      // rows in x
     int ncols = topol.ncolumns();   // cols in y
     
-    int dbcols = SiPixelGainCalibration_->getNCols(detid);
+    //int dbcols = SiPixelGainCalibration_->getNCols(detid);
     //std::cout << " ---> PIXEL DETID " << detid << " Geom Cols " << ncols << " DB Cols " << dbcols << std::endl;
     
-    SiPixelGainCalibration::Range theRange = SiPixelGainCalibration_->getRange(detid);
+    //SiPixelGainCalibration::Range theRange = SiPixelGainCalibration_->getRange(detid);
     for(int col_iter=0; col_iter<ncols; col_iter++) {
       for(int row_iter=0; row_iter<nrows; row_iter++) {
 	nchannels++;
-	float ped  = SiPixelGainCalibration_->getPed (col_iter, row_iter, theRange, dbcols);
-	   p_iter->second->Fill( ped );
-	   float gain = SiPixelGainCalibration_->getGain(col_iter, row_iter, theRange, dbcols);
-	   g_iter->second->Fill( gain );
-	   //std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
+	//float ped  = SiPixelGainCalibration_->getPed (col_iter, row_iter, theRange, dbcols);
+	float ped  = SiPixelGainCalibrationService_.getPedestal(detid, col_iter, row_iter);
+	p_iter->second->Fill( ped );
+	//float gain = SiPixelGainCalibration_->getGain(col_iter, row_iter, theRange, dbcols);
+	float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter, row_iter);
+	g_iter->second->Fill( gain );
+	//std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
 	   
       }
     }
@@ -95,11 +98,12 @@ SiPixelCondObjReader::beginJob(const edm::EventSetup& iSetup)
 
   // Get the calibration data
   //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
-  iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
+  //iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
+  SiPixelGainCalibrationService_.setESObjects(iSetup);
   edm::LogInfo("SiPixelCondObjReader") << "[SiPixelCondObjReader::beginJob] End Reading CondObjects" << std::endl;
   // Get the list of DetId's
-  std::vector<uint32_t> vdetId_;
-  SiPixelGainCalibration_->getDetIds(vdetId_);
+  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
+  //SiPixelGainCalibration_->getDetIds(vdetId_);
   // Loop over DetId's
   for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
     uint32_t detid = *detid_iter;
