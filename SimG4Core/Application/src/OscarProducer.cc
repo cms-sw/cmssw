@@ -16,10 +16,40 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/Random.h"
+
 #include <iostream>
 
-OscarProducer::OscarProducer(edm::ParameterSet const & p) 
-{    
+namespace {
+    //
+    // this machinery allows to set CLHEP static engine
+    // to the one defined by RandomNumberGenerator service
+    // at the beginning of an event, and reset it back to
+    // "default-default" at the end of the event;
+    // Dave D. has decided to implement it this way because
+    // we don't know if there're other modules using CLHEP
+    // static engine, thus we want to ensure that the one
+    // we use for OscarProducer is unique to OscarProducer
+    //
+    class StaticRandomEngineSetUnset {
+    public:
+        StaticRandomEngineSetUnset();
+        explicit StaticRandomEngineSetUnset(CLHEP::HepRandomEngine * engine);
+        ~StaticRandomEngineSetUnset();
+        CLHEP::HepRandomEngine* getEngine() const;
+    private:
+        CLHEP::HepRandomEngine* m_currentEngine;
+        CLHEP::HepRandomEngine* m_previousEngine;
+    };
+}
+
+OscarProducer::OscarProducer(edm::ParameterSet const & p)
+{   
+    StaticRandomEngineSetUnset random;
+    m_engine = random.getEngine();
+    
     produces<edm::SimTrackContainer>();
     produces<edm::SimVertexContainer>();
     produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelLowTof");
@@ -64,7 +94,6 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
 	++itProd) {
        (*itProd)->registerProducts(*this);
     }
-    
 }
 
 OscarProducer::~OscarProducer() 
@@ -76,6 +105,8 @@ OscarProducer::~OscarProducer()
 
 void OscarProducer::beginJob(const edm::EventSetup & es)
 {
+    StaticRandomEngineSetUnset random(m_engine);
+
     std::cout << " OscarProducer initializing " << std::endl;
     m_runManager->initG4(es);
 }
@@ -85,6 +116,8 @@ void OscarProducer::endJob()
  
 void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
+    StaticRandomEngineSetUnset random(m_engine);
+
     std::vector<SensitiveTkDetector*>& sTk = m_runManager->sensTkDetectors();
     std::vector<SensitiveCaloDetector*>& sCalo = m_runManager->sensCaloDetectors();
 
@@ -135,6 +168,39 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
        throw edm::Exception( edm::errors::EventCorruption ) ;
     }
 }
- 
+
+
+StaticRandomEngineSetUnset::StaticRandomEngineSetUnset() {
+
+    using namespace edm;
+    Service<RandomNumberGenerator> rng;
+
+    if ( ! rng.isAvailable()) {
+        throw cms::Exception("Configuration")
+            << "The OscarProducer module requires the RandomNumberGeneratorService\n"
+               "which is not present in the configuration file.  You must add the service\n"
+               "in the configuration file if you want to run OscarProducer";
+    }
+    m_currentEngine = &(rng->getEngine());
+
+    m_previousEngine = HepRandom::getTheEngine();
+    HepRandom::setTheEngine(m_currentEngine);
+}
+
+StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(CLHEP::HepRandomEngine * engine) {
+
+    m_currentEngine = engine;
+
+    m_previousEngine = HepRandom::getTheEngine();
+    HepRandom::setTheEngine(m_currentEngine);
+}
+
+StaticRandomEngineSetUnset::~StaticRandomEngineSetUnset() {
+    HepRandom::setTheEngine(m_previousEngine);
+}
+
+CLHEP::HepRandomEngine*
+StaticRandomEngineSetUnset::getEngine() const { return m_currentEngine; }
+
 DEFINE_FWK_MODULE(OscarProducer);
  

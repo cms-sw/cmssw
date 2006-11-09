@@ -43,9 +43,6 @@
 
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 
-#include "CLHEP/Random/JamesRandom.h"
-#include "Randomize.hh"
-
 #include <iostream>
 #include <memory>
 #include <strstream>
@@ -104,13 +101,12 @@ RunManager * RunManager::instance()
 
 RunManager::RunManager(edm::ParameterSet const & p) 
   :   m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
-      m_primaryTransformer(0), m_engine(0), m_managerInitialized(false), 
+      m_primaryTransformer(0), 
+      m_managerInitialized(false), 
       m_geometryInitialized(true), m_physicsInitialized(true),
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_currentRun(0), m_currentEvent(0), m_simEvent(0), 
-      m_rndmStore(p.getParameter<bool>("StoreRndmSeeds")),
-      m_rndmRestore(p.getParameter<bool>("RestoreRndmSeeds")),
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
       m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
@@ -128,7 +124,6 @@ RunManager::RunManager(edm::ParameterSet const & p)
 {    
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
-    m_engine= dynamic_cast<HepJamesRandom*>(HepRandom::getTheEngine());
     m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
     std::cout << " Run Manager constructed " << std::endl;
     if (m_nonBeam) std::cout << " Run Manager: simulating non beam events!!! " << std::endl;
@@ -276,33 +271,7 @@ G4Event * RunManager::generateEvent(edm::Event & inpevt)
        // inpevt.getByType(HepMCEvt);       
        // inpevt.getManyByType(AllHepMCEvt);
     inpevt.getByLabel( m_InTag, HepMCEvt ) ;
-    //std::cout << "Found MCProduct labeled " << HepMCEvt.provenance()->moduleLabel() << std::endl;
         
-/*
-    if ( AllHepMCEvt.size() <= 0 )
-    {
-       throw SimG4Exception("Container of (Handles to) HepMCProduct's is EMPTY !  ");
-    }
-       
-    unsigned int i=0; 
-    for (; i<AllHepMCEvt.size(); i++)
-    {
-       if (!AllHepMCEvt[i].isValid())
-       {
-             throw SimG4Exception("Invalid Handle to HepMCProduct(HepMC::GenEvent) in edm::Event  ");
-       }
-       if (AllHepMCEvt[i].provenance()->moduleLabel() == "VtxSmeared")
-       {
-	  HepMCEvt = AllHepMCEvt[i];
-	  break;
-       }
-    }
-       
-    if (i >= AllHepMCEvt.size())
-    {
-       HepMCEvt = AllHepMCEvt[0];
-    }
-*/
     // actually, it's a double protection - it's not even necessary 
     // because getByLabel will throw if the correct product isn't there         
     if (!HepMCEvt.isValid())
@@ -404,8 +373,6 @@ void RunManager::initializeRun()
     G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
     if (m_userRunAction!=0) m_userRunAction->BeginOfRunAction(m_currentRun);
     m_runAborted = false;
-    if (m_rndmStore) runRNDMstore(m_currentRun->GetRunID());
-    if (m_rndmRestore) runRNDMrestore(m_currentRun->GetRunID());
     m_runInitialized = true;
     
     return ;
@@ -443,59 +410,3 @@ void RunManager::abortRun(bool softAbort)
     
 }
 
-void RunManager::runRNDMstore(int run)
-{
-    std::ostrstream dir;
-    dir << "Run" << run << '\0';
-    std::string cmd = std::string("/control/shell mkdir -p ")+dir.str();
-    G4UImanager::GetUIpointer()->ApplyCommand(cmd);
-    std::ostrstream os;
-    os << "Run" << run << "/run" << run << ".rndm" << '\0';
-    m_engine->saveStatus(os.str());
-    std::cout << "Random number status saved in: " << os.str() << std::endl;
-    m_engine->showStatus();
-}
- 
-void RunManager::runRNDMrestore(int run)
-{
-    std::ostrstream os;
-    os << "Run" << run << "/run" << run << ".rndm" << '\0';
-    if (!std::ifstream(os.str(), std::ios::in))
-    {
-        std::cout << " rndm directory does not exist for run " << run << std::endl;
-        return;
-    }
-    m_engine->restoreStatus(os.str());
-    std::cout << "Random number status restored from: " << os.str() << std::endl;
-    m_engine->showStatus();
-}
- 
-void RunManager::eventRNDMstore(int run, int event)
-{
-    std::ostrstream os;
-    os << "Run" << run << "/evt" << event << ".rndm" << '\0';
-    m_engine->saveStatus(os.str());
-    if (m_EvtMgrVerbosity>2)
-    {
-        std::cout << " random numbers saved in: " << os.str() << std::endl;
-        m_engine->showStatus();
-    }
-}
-
-void RunManager::eventRNDMrestore(int run, int event)
-{
-    std::ostrstream os;
-    os << "Run" << run << "/evt" << event << ".rndm" << '\0';
-    if (!std::ifstream(os.str(), std::ios::in))
-    {
-        std::cout << " rndm file does not exist for event " << event << std::endl;
-        return;
-    }
-    m_engine->restoreStatus(os.str());
-    if (m_EvtMgrVerbosity>2)
-    {
-        std::cout << "Random number status restored from: " << os.str() <<std:: endl;
-        m_engine->showStatus();
-    }
-}
- 

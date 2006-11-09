@@ -9,7 +9,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "SimG4Core/Application/interface/RunManager.h"
- 
+
+namespace CLHEP {
+    class HepRandomEngine;
+}
+
 class OscarProducer : public edm::EDProducer
 {
 public:
@@ -23,6 +27,9 @@ public:
 protected:
     RunManager*   m_runManager;
     Producers     m_producers;
+
+private:
+    CLHEP::HepRandomEngine*  m_engine;
 };
 
 #endif

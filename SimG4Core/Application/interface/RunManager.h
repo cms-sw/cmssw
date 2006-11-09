@@ -61,10 +61,6 @@ public:
     G4SimEvent * simEvent() { return m_simEvent; }
     std::vector<SensitiveTkDetector*>& sensTkDetectors() { return m_sensTkDets; }
     std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { return m_sensCaloDets; }
-    void runRNDMstore(int run);
-    void runRNDMrestore(int run);
-    void eventRNDMstore(int run, int event);
-    void eventRNDMrestore(int run, int event);
 
     std::vector<boost::shared_ptr<SimProducer> > producers() const {
        return m_producers;
@@ -85,7 +81,6 @@ private:
     bool m_nonBeam;
     std::auto_ptr<PhysicsList> m_physicsList;
     PrimaryTransformer * m_primaryTransformer;
-    CLHEP::HepJamesRandom * m_engine;
     bool m_managerInitialized;
     bool m_geometryInitialized;
     bool m_physicsInitialized;
@@ -97,8 +92,6 @@ private:
     G4Event * m_currentEvent;
     G4SimEvent * m_simEvent;
     G4UserRunAction * m_userRunAction;
-    bool m_rndmStore;
-    bool m_rndmRestore;
     std::string m_PhysicsTablesDir;
     bool m_StorePhysicsTables;
     bool m_RestorePhysicsTables;
