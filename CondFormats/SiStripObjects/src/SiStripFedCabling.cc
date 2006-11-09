@@ -76,7 +76,7 @@ void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& inp
     
     // Fill appropriate container
     bool detected  = input[iconn].i2cAddr(0) || input[iconn].i2cAddr(1);
-    bool connected = input[iconn].fedId();
+    bool connected = input[iconn].fedId(); //@@ should check also FeUnit/FeChan are not invalid ???
     if ( detected && connected ) {
       connected_[fed_id][fed_ch] = input[iconn];
     } else if ( detected && !connected ) {
