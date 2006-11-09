@@ -12,6 +12,35 @@ UpdateTProfile::UpdateTProfile() {;}
 UpdateTProfile::~UpdateTProfile() {;}
 
 // -----------------------------------------------------------------------------
+/** */
+void UpdateTProfile::setBinContents( TProfile* const prof,
+				     const uint32_t& bin, 
+				     const double& num_of_entries, 
+				     const double& sum_of_contents,
+				     const double& sum_of_squares ) {
+  //   cout << "[UpdateTProfile::setBinContents]" << endl;
+  
+  double mean = 0.;
+  double spread = 0.;
+  if ( num_of_entries ) { 
+    mean = sum_of_contents / num_of_entries;
+    spread = sqrt( sum_of_squares/ num_of_entries - mean * mean ); 
+  }
+  
+  //   cout << "[UpdateTProfile::setBinContents]"
+  //        << " bin: " << bin
+  //        << " entries: " << num_of_entries
+  //        << " contents: " << sum_of_contents
+  //        << " squared: " << sum_of_squares
+  //        << " mean: " << mean
+  //        << " spread: " << spread
+  //        << endl;
+  
+  UpdateTProfile::setBinContent( prof, bin, num_of_entries, mean, spread );
+  
+}
+
+// -----------------------------------------------------------------------------
 /** 
     Error option "s" means that the error returned using the
     GetBinError() method is the spread for that bin. (If the default
@@ -108,32 +137,4 @@ void UpdateTProfile::setBinContent( TProfile* const prof,
   
 }
 
-// -----------------------------------------------------------------------------
-/** */
-void UpdateTProfile::setBinContents( TProfile* const prof,
-				     const uint32_t& bin, 
-				     const double& num_of_entries, 
-				     const double& sum_of_contents,
-				     const double& sum_of_squares ) {
-  //   cout << "[UpdateTProfile::setBinContents]" << endl;
-  
-  double mean = 0.;
-  double spread = 0.;
-  if ( num_of_entries ) { 
-    mean = sum_of_contents / num_of_entries;
-    spread = sqrt( sum_of_squares/ num_of_entries - mean * mean ); 
-  }
-  
-  //   cout << "[UpdateTProfile::setBinContents]"
-  //        << " bin: " << bin
-  //        << " entries: " << num_of_entries
-  //        << " contents: " << sum_of_contents
-  //        << " squared: " << sum_of_squares
-  //        << " mean: " << mean
-  //        << " spread: " << spread
-  //        << endl;
-  
-  UpdateTProfile::setBinContent( prof, bin, num_of_entries, mean, spread );
-  
-}
 
