@@ -74,7 +74,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.4 2006/11/04 07:17:38 wmtan Exp $
+$Id: DataViewImpl.h,v 1.5 2006/11/04 18:56:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -153,17 +153,26 @@ namespace edm {
     void
     getAllProvenance(std::vector<Provenance const*> &provenances) const;
 
-    ///Put a new product where the product is gotten using a 'product instance name'
+    ///Put a new product.
     template <typename PROD>
     OrphanHandle<PROD>
-    put(std::auto_ptr<PROD> product, std::string const& productInstanceName = std::string());
+    put(std::auto_ptr<PROD> product) {return put(product, std::string());}
+
+    ///Put a new product with a 'product instance name'
+    template <typename PROD>
+    OrphanHandle<PROD>
+    put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
 
     ///Returns a RefProd to a product before that product has been placed into the DataViewImpl
     /// The RefProd (and any Ref's made from it) will no work properly until after the
     /// DataViewImpl has been committed (which happens after leaving the EDProducer::produce method)
     template <typename PROD>
     RefProd<PROD>
-    getRefBeforePut(std::string const& productInstanceName = std::string());
+    getRefBeforePut() {return getRefBeforePut(std::string());}
+
+    template <typename PROD>
+    RefProd<PROD>
+    getRefBeforePut(std::string const& productInstanceName);
     
   private:
 
