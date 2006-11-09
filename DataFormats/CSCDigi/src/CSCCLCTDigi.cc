@@ -2,8 +2,8 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date: 2006/06/20 10:33:26 $
- * $Revision: 1.8 $
+ * $Date: 2006/06/20 14:47:50 $
+ * $Revision: 1.9 $
  *
  * \author N. Terentiev, CMU
  */
@@ -68,6 +68,8 @@ bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
 
 #ifdef TB
   // Test beams' implementation.
+#ifdef TBs
+  // This algo below was used in 2003 and 2004 test beams, but not in MTCC.
   if (stripType == rhsStripType) { // both di-strip or half-strip
     if      (quality >  rhsQuality) {returnValue = true;}
 #ifdef LATER
@@ -89,6 +91,10 @@ bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
     // Always select half-strip pattern over di-strip pattern.
     returnValue = true;
   }
+#else
+  // MTCC variant.
+  if (quality > rhsQuality) {returnValue = true;}
+#endif
 
 #else
   // Hack to preserve old behaviour; needs to be clarified.
