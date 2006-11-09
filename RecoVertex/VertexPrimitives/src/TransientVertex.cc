@@ -3,9 +3,6 @@
 // #include "CommonReco/PatternTools/interface/RefittedRecTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include <algorithm>
-#include <Rtypes.h>
-#include <Math/Cartesian3D.h>
-#include <Math/Point3D.h>
 
 using namespace std;
 using namespace reco;
