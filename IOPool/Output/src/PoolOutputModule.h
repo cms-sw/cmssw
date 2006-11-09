@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.12 2006/10/05 23:23:53 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.13 2006/11/07 18:06:55 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -48,8 +48,8 @@ namespace edm {
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
     virtual void write(EventPrincipal const& e);
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb){}
-    virtual void endRun(RunPrincipal const& r){}
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb);
+    virtual void endRun(RunPrincipal const& r);
 
     mutable OutputFileCatalog catalog_;
     mutable PoolDataSvc context_;
@@ -67,6 +67,8 @@ namespace edm {
     ~PoolFile() {}
     bool writeOne(EventPrincipal const& e);
     void endFile();
+    void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
+    void writeRun(RunPrincipal const& r);
 
   private:
     void makePlacement(std::string const& treeName, std::string const& branchName,
@@ -93,6 +95,9 @@ namespace edm {
     typedef std::vector<OutputItem> OutputItemList;
     typedef boost::array<OutputItemList, 3> OutputItemListArray;
     typedef boost::array<std::vector<std::string>, 3> BranchNamesArray;
+
+    void fillBranches(OutputItemList const& items, DataBlockImpl const& dataBlock) const;
+
     OutputItemListArray outputItemList_;
     BranchNamesArray branchNames_;
     std::string file_;

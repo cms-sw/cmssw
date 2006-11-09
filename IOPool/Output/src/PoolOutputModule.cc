@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.50 2006/10/30 20:15:56 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.51 2006/11/07 18:06:55 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -87,6 +87,14 @@ namespace edm {
 	++fileCount_;
 	poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(this));
       }
+  }
+
+  void PoolOutputModule::endLuminosityBlock(LuminosityBlockPrincipal const& lb) {
+      poolFile_->writeLuminosityBlock(lb);
+  }
+
+  void PoolOutputModule::endRun(RunPrincipal const& r) {
+      poolFile_->writeRun(r);
   }
 
   PoolOutputModule::PoolFile::PoolFile(PoolOutputModule *om) :
@@ -212,6 +220,65 @@ namespace edm {
     pool::Ref<EventAux const> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_[InEvent]);	
 
+    fillBranches(outputItemList_[InEvent], e.groupGetter());
+
+    commitTransaction();
+
+    // Report event written 
+    Service<JobReport> reportSvc;
+    reportSvc->eventWrittenToFile(reportToken_, e.id());
+
+    if (eventCount_ >= fileSizeCheckEvent_) {
+	unsigned int const oneK = 1024;
+	size_t size = om_->context_.getFileSize(file_)/oneK;
+	unsigned long eventSize = std::max(size/eventCount_, 1UL);
+	if (size + 2*eventSize >= om_->maxFileSize_) {
+	  endFile();
+	  return true;
+	} else {
+	  unsigned long increment = (om_->maxFileSize_ - size)/eventSize;
+	  increment -= increment/8;	// Prevents overshoot
+	  fileSizeCheckEvent_ = eventCount_ + increment;
+	}
+    }
+    if (eventCount_ % om_->commitInterval_ == 0) {
+      commitAndFlushTransaction();
+      startTransaction();
+    }
+    return false;
+  }
+
+  void
+  PoolOutputModule::PoolFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
+    startTransaction();
+    // Write auxiliary branch
+    LuminosityBlockAux aux;
+    aux.processHistoryID_ = lb.processHistoryID();
+    aux.id_ = lb.id();
+    aux.time_ = lb.time();
+    pool::Ref<LuminosityBlockAux const> ra(context(), &aux);
+    ra.markWrite(auxiliaryPlacement_[InLumi]);	
+    fillBranches(outputItemList_[InLumi], lb.groupGetter());
+    commitTransaction();
+  }
+
+  void
+  PoolOutputModule::PoolFile::writeRun(RunPrincipal const& r) {
+    startTransaction();
+    // Write auxiliary branch
+    RunAux aux;
+    aux.processHistoryID_ = r.processHistoryID();
+    aux.id_ = r.id();
+    aux.time_ = r.time();
+    pool::Ref<RunAux const> ra(context(), &aux);
+    ra.markWrite(auxiliaryPlacement_[InRun]);	
+    fillBranches(outputItemList_[InRun], r.groupGetter());
+    commitTransaction();
+  }
+
+  void
+  PoolOutputModule::PoolFile::fillBranches(OutputItemList const& items, DataBlockImpl const& dataBlock) const {
+
     std::list<BranchEntryDescription> dummyProvenances;
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
@@ -225,25 +292,25 @@ namespace edm {
       }
 
       EDProduct const* product = 0;
-      EventPrincipal::SharedConstGroupPtr const g = e.getGroup(id, i->selected_);
+      DataBlockImpl::SharedConstGroupPtr const g = dataBlock.getGroup(id, i->selected_);
       if (g.get() == 0) {
 	// No Group with this ID is in the event.
 	// Create and write the provenance.
 	if (i->branchDescription_->produced_) {
-          BranchEntryDescription event;
-	  event.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
-	  event.productID_ = id;
-	  event.status_ = BranchEntryDescription::CreatorNotRun;
-	  event.isPresent_ = false;
-	  event.cid_ = 0;
+          BranchEntryDescription provenance;
+	  provenance.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
+	  provenance.productID_ = id;
+	  provenance.status_ = BranchEntryDescription::CreatorNotRun;
+	  provenance.isPresent_ = false;
+	  provenance.cid_ = 0;
 	  
-	  dummyProvenances.push_front(event); 
+	  dummyProvenances.push_front(provenance); 
           pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
           refp.markWrite(i->provenancePlacement_);
 	} else {
 	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
 	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
-	      << "No group in event " << aux.id_ << "\nfor branch" << i->branchDescription_->branchName_ << '\n';
+	      << "No group for branch" << i->branchDescription_->branchName_ << '\n';
 	}
       } else {
 	// There is a Group with this ID is in the event.  Write the provenance.
@@ -279,30 +346,6 @@ namespace edm {
 	ref.markWrite(i->productPlacement_);
       }
     }
-
-    commitTransaction();
-    // Report event written 
-    Service<JobReport> reportSvc;
-    reportSvc->eventWrittenToFile(reportToken_, e.id());
-
-    if (eventCount_ >= fileSizeCheckEvent_) {
-	unsigned int const oneK = 1024;
-	size_t size = om_->context_.getFileSize(file_)/oneK;
-	unsigned long eventSize = std::max(size/eventCount_, 1UL);
-	if (size + 2*eventSize >= om_->maxFileSize_) {
-	  endFile();
-	  return true;
-	} else {
-	  unsigned long increment = (om_->maxFileSize_ - size)/eventSize;
-	  increment -= increment/8;	// Prevents overshoot
-	  fileSizeCheckEvent_ = eventCount_ + increment;
-	}
-    }
-    if (eventCount_ % om_->commitInterval_ == 0) {
-      commitAndFlushTransaction();
-      startTransaction();
-    }
-    return false;
   }
 
   void PoolOutputModule::PoolFile::endFile() {
