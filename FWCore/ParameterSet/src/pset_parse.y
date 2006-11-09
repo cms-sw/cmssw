@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.50 2006/11/07 19:18:30 rpw Exp $
+ * $Id: pset_parse.y,v 1.51 2006/11/08 00:27:44 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -388,7 +388,7 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                    $<_Node>$ = en;
                  }
                |
-                untracked VPSET_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok SCOPE_END_tok
+                 untracked VPSET_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok SCOPE_END_tok
                  {
                    DBPRINT("node: VPSET (empty)");
                    bool tr = $<_bool>1;
@@ -428,7 +428,7 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
 		 }
 	       ;
 
-/* Returns a NodePtrList pointer */
+/* Returns a NodePtrList pointer.  This is for explicit VPSets */
 nodesarray:      nodesarray COMMA_tok scoped
                  {
                    NodePtrList* p = $<_NodePtrList>1;
@@ -462,6 +462,31 @@ nodesarray:      nodesarray COMMA_tok scoped
                    NodePtr n(new StringNode(word,lines));
                    NodePtrList* p(new NodePtrList);
                    p->push_back(n);
+                   $<_NodePtrList>$ = p;
+                 }
+               ;
+
+/* We need to be a little more explicit about what goes into
+   a VPSet used in a replace statement, because we can't have
+   any ambiguity: is p1 an InputTag or the name of a top-level PSet?
+   Dot-delimited names of PSets aren't allowed just yet
+*/
+
+vpset:           vpset COMMA_tok scoped
+                 {
+                   NodePtrList* p = $<_NodePtrList>1;
+                   NodePtrListPtr nodes($<_NodePtrList>3);
+                   NodePtr n(new ContentsNode(nodes,lines));
+                   p->push_back(n);
+                   $<_NodePtrList>$ = p;
+                 }
+               |
+                 scoped
+                 {
+                   NodePtrListPtr n($<_NodePtrList>1);
+                   NodePtr newnode(new ContentsNode(n,lines));
+                   NodePtrList* p(new NodePtrList);
+                   p->push_back(newnode);
                    $<_NodePtrList>$ = p;
                  }
                ;
@@ -807,7 +832,7 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                    $<_Node>$ = wn;
                  }
                |
-                 REPLACE_tok DOTDELIMITED_tok EQUAL_tok SCOPE_START_tok nodesarray SCOPE_END_tok
+                 REPLACE_tok DOTDELIMITED_tok EQUAL_tok SCOPE_START_tok vpset SCOPE_END_tok
                  {
                    DBPRINT("procnode: REPLACE_VPSET");
                    string name(toString($<str>2));
@@ -815,6 +840,28 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                    VPSetNode* en(new VPSetNode("VPSet",name,value,false,lines));
                    NodePtr vpsetNodePtr(en);
                    ReplaceNode* wn(new ReplaceNode("replace", name, vpsetNodePtr, false, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok DOTDELIMITED_tok PLUSEQUAL_tok nonblankscoped
+                 {
+                   // need to add a rule for appending with a dot-delimited PSet
+                   DBPRINT("procnode: SINGLE_APPEND_VPSET");
+                   string name(toString($<str>2));
+                   NodePtrListPtr value($<_NodePtrList>4);
+                   NodePtr contentsPtr(new ContentsNode(value, lines));
+                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, contentsPtr, true, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok DOTDELIMITED_tok PLUSEQUAL_tok SCOPE_START_tok vpset SCOPE_END_tok
+                 {
+                   DBPRINT("procnode: MULTIPLE_APPEND_VPSET");
+                   string name(toString($<str>2));
+                   NodePtrListPtr value($<_NodePtrList>5);
+                   VPSetNode* en(new VPSetNode("VPSet",name,value,false,lines));
+                   NodePtr vpsetNodePtr(en);
+                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, vpsetNodePtr, true, lines));
                    $<_Node>$ = wn;
                  }
                |

@@ -8,6 +8,7 @@
 
 #include <ostream>
 #include <iterator>
+#include <iostream>
 using namespace std;
 
 namespace edm {
@@ -113,13 +114,65 @@ namespace edm {
 
     void VPSetNode::replaceWith(const ReplaceNode * replaceNode)
     {
-      VPSetNode * replacement = replaceNode->value<VPSetNode>();
-      assert(replacement != 0);
+      // see if it's a replace or an append
+      if(replaceNode->type() == "replace")
+      {
+        VPSetNode * replacement = replaceNode->value<VPSetNode>();
 
-      nodes_ = replacement->nodes_;
+        if(replacement == 0) {
+          throw edm::Exception(errors::Configuration)
+            << "Cannot replace entry vector" << name()
+            <<   " with " << replaceNode->type();
+        }
+       
+        nodes_ = replacement->nodes_;
+      }
+      else if(replaceNode->type() == "replaceAppend")
+      {
+        append(replaceNode->value());
+      }
+      else
+      {
+         throw edm::Exception(errors::Configuration)
+            << "Cannot replace entry vector" << name()
+            <<   " with " << replaceNode->type();
+      }
+
       setModified(true);
-
     }
+
+
+    void VPSetNode::append(NodePtr ptr)
+    {
+      // single or multiple?  ContentsNodes never say their type.
+      // they represent a single PSet
+      if(ptr->type() == "")
+      {
+        nodes_->push_back(ptr);
+      }
+      else
+      {
+        // try VPSet
+        VPSetNode * vpsetNode =  dynamic_cast<VPSetNode*>(ptr.get());
+        if(vpsetNode != 0)
+        {
+          NodePtrListPtr entries = vpsetNode->nodes_;
+          for(NodePtrList::const_iterator itr = entries->begin();
+              itr != entries->end(); ++itr)
+          {
+            nodes_->push_back(*itr);
+          }
+        }
+        // neither Entry or VPSet
+        else
+        {
+          throw edm::Exception(errors::Configuration)
+            << "Bad type to append to VPSet "
+            <<  ptr->type();
+        }
+      }
+    }
+
 
   }
 }

@@ -39,6 +39,7 @@ namespace edm {
       /// makes a ParameterSet Entry for this Node
       virtual edm::Entry makeEntry() const;
       virtual void replaceWith(const ReplaceNode * replaceNode);
+      void append(NodePtr p);
 
     private:
       std::string type_;
