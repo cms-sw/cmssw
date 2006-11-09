@@ -2,7 +2,7 @@
 
 typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
 
-TrackingParticle::TrackingParticle( Charge q, const LorentzVector & p4, const Point & vtx,
+TrackingParticle::TrackingParticle( float q, const LorentzVector & p4, const Point & vtx,
 				    double t, const int pdgId, const EncodedEventId eventId) :
   reco::Particle( q, p4, vtx ), t_( t ), pdgId_( pdgId ), eventId_( eventId ){
 }
@@ -57,3 +57,7 @@ void TrackingParticle::setParentVertex(const TrackingVertexRef &ref) {
 void TrackingParticle::setDecayVertex(const TrackingVertexRef &ref) {
   decayVertex_ = ref;
 }  
+
+void TrackingParticle::setMatchedHit(const int &hitnumb) {
+  matchedHit_ = hitnumb;
+}

@@ -38,7 +38,7 @@ public:
   // destructor
   ~TrackingParticle();
   /// constructor from pointer to generator particle
-  TrackingParticle( Charge q, const LorentzVector & p4, const Point & vtx,
+  TrackingParticle( float q, const LorentzVector & p4, const Point & vtx,
 		    double t, const int pdgId,  const EncodedEventId eventId);
   
   /// PDG id, signal source, crossing number  
@@ -61,22 +61,28 @@ public:
   void addPSimHit(const PSimHit&);
   void setParentVertex(const TrackingVertexRef&);
   void  setDecayVertex(const TrackingVertexRef&);
-  
+  void setMatchedHit(const int&);
+
 // Getters for Embd and Sim Tracks
   GenParticleRefVector	 genParticle() const { return genParticles_; }
   std::vector<SimTrack>     g4Tracks() const { return g4Tracks_ ;    }
-   std::vector<PSimHit> trackPSimHit() const { return trackPSimHit_; }
+  std::vector<PSimHit> trackPSimHit() const { return trackPSimHit_; }
 
   TrackingVertexRef parentVertex() const { return parentVertex_; }
   TrackingVertexRef  decayVertex() const { return  decayVertex_; }
   
+  int matchedHit() const {return matchedHit_;}
+
 private:
   /// production time
   double t_;
   /// PDG identifier, signal source, crossing number
   int pdgId_;
   EncodedEventId eventId_;
-  
+
+  /// Number of Hit to be used for tracking Study
+  int matchedHit_;
+
   /// references to G4 and HepMC tracks
   std::vector<SimTrack> g4Tracks_;
   GenParticleRefVector  genParticles_;

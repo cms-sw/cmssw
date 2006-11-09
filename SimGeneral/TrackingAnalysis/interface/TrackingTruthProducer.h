@@ -12,6 +12,7 @@ public:
 
 private:
   void produce( edm::Event &, const edm::EventSetup & );
+  int LayerFromDetid(const unsigned int&);
 
   edm::ParameterSet conf_;
   double                   distanceCut_;

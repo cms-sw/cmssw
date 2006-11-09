@@ -14,6 +14,17 @@
 
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthProducer.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
+
 #include <map>
 
 using namespace edm;
@@ -128,7 +139,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   int iG4Track = 0;
 //  edm::SimTrackContainer::const_iterator itP;
   for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin(); itP !=  trackCollection->end(); ++itP){
-    TrackingParticle::Charge q = 0;
+    float q = itP -> charge();
     CLHEP::HepLorentzVector p = itP -> momentum();
     const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
     double time =  0; 
@@ -155,6 +166,16 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     
     typedef vector<std::auto_ptr<MixCollection<PSimHit> > >::const_iterator cont_iter;
 
+    //count the TP simhit, counting only once the hits on glued detectors
+    int totsimhit = 0; 
+
+    //counting the TP hits using the layers (as in ORCA). 
+    //does seem to find less hits. maybe b/c layer is a number now, not a pointer
+    int oldlay = 0;
+    int newlay = 0;
+    int olddet = 0;
+    int newdet = 0;
+
     unsigned int simtrackId = itP -> trackId();
     try{ 
       std::auto_ptr<MixCollection<PSimHit> > hitCollection (new MixCollection<PSimHit>(cf.product(),hitLabelsVector_));
@@ -166,9 +187,20 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 	  if (!discardHitsFromDeltas_ || ( discardHitsFromDeltas_ &&  0.5 < pratio && pratio < 2) ) {  
 	    edm::LogInfo (MessageCategory) << " Hit is from " << hit -> detUnitId();
 	    tp.addPSimHit(*hit);
+	    unsigned int detid = hit->detUnitId();	
+	    DetId detId = DetId(detid);
+	    oldlay = newlay;
+	    olddet = newdet;
+	    newlay = LayerFromDetid(detid);
+	    newdet = detId.subdetId();
+	    if(oldlay !=newlay || (oldlay==newlay && olddet!=newdet) ){
+	      totsimhit++;
+	    }
           }
         } 
       }
+      tp.setMatchedHit(totsimhit);
+
     } catch (std::exception &e) {
       edm::LogWarning (MessageCategory) << "Hit collection not found.";
     }   
@@ -270,5 +302,46 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   event.put(tPC,"TrackTruth");
   event.put(tVC,"VertexTruth");
 }
+
+int TrackingTruthProducer::LayerFromDetid(const unsigned int& detid )
+{
+  DetId detId = DetId(detid);
+  int layerNumber=0;
+  unsigned int subdetId = static_cast<unsigned int>(detId.subdetId()); 
+  if ( subdetId == StripSubdetector::TIB) 
+    { 
+      TIBDetId tibid(detId.rawId()); 
+      layerNumber = tibid.layer();
+    }
+  else if ( subdetId ==  StripSubdetector::TOB )
+    { 
+      TOBDetId tobid(detId.rawId()); 
+      layerNumber = tobid.layer();
+    }
+  else if ( subdetId ==  StripSubdetector::TID) 
+    { 
+      TIDDetId tidid(detId.rawId());
+      layerNumber = tidid.wheel();
+    }
+  else if ( subdetId ==  StripSubdetector::TEC )
+    { 
+      TECDetId tecid(detId.rawId()); 
+      layerNumber = tecid.wheel(); 
+    }
+  else if ( subdetId ==  PixelSubdetector::PixelBarrel ) 
+    { 
+      PXBDetId pxbid(detId.rawId()); 
+      layerNumber = pxbid.layer();  
+    }
+  else if ( subdetId ==  PixelSubdetector::PixelEndcap ) 
+    { 
+      PXFDetId pxfid(detId.rawId()); 
+      layerNumber = pxfid.disk();  
+    }
+  else
+    edm::LogVerbatim("TrackingTruthProducer") << "Unknown subdetid: " <<  subdetId;
+  
+  return layerNumber;
+} 
   
 DEFINE_FWK_MODULE(TrackingTruthProducer);
