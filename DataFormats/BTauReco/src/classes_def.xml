@@ -1,5 +1,6 @@
 <lcgdict>
   <class name="std::pair<unsigned int, std::vector<unsigned int> >" />
+<class name="std::vector<unsigned int>" />
   <class name="edm::RefProd<std::vector<reco::CaloJet> >" />
 
   <class name="reco::JetTag" />

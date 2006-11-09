@@ -85,7 +85,9 @@ namespace {
     reco::JetEisolAssociationRefVector rv8;
 
     std::pair<unsigned int, unsigned int> pp1;
+    std::vector<unsigned int> pp8;
     std::map<unsigned long, std::vector<unsigned long> > m1;
     edm::RefProd<reco::CaloJetCollection> rpj1;
+
   }
 }

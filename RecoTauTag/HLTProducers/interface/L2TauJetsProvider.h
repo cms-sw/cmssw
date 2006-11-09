@@ -1,3 +1,4 @@
+
 #ifndef L2TAUJETSPROVIDER_H
 #define L2TAUJETSPROVIDER_H
 
@@ -23,5 +24,6 @@ class L2TauJetsProvider: public edm::EDProducer {
   float mEt_SingleTau;
   float mEt_DoubleTau;
   float mEt_CombTau;
+
 };
 #endif
