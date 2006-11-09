@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.23 2006/11/03 17:57:52 wmtan Exp $
+$Id: OutputModule.cc,v 1.24 2006/11/07 18:06:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <vector>
@@ -131,7 +131,7 @@ namespace edm
     detail::CPCSentry sentry(current_context_, c);
     //Save the current Mod Desc
     current_md_ = &md;
-
+    assert (current_md_ == c->moduleDescription());
     FDEBUG(2) << "writeEvent called\n";
     if(eventSelector_.wantAll() || wantEvent(ep)) {
          write(ep);
@@ -165,7 +165,7 @@ namespace edm
     detail::CPCSentry sentry(current_context_, c);
     //Save the current Mod Desc
     current_md_ = &md;
-
+    assert (current_md_ == c->moduleDescription());
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
   }
@@ -177,7 +177,7 @@ namespace edm
     detail::CPCSentry sentry(current_context_, c);
     //Save the current Mod Desc
     current_md_ = &md;
-
+    assert (current_md_ == c->moduleDescription());
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
   }
@@ -189,7 +189,7 @@ namespace edm
     detail::CPCSentry sentry(current_context_, c);
     //Save the current Mod Desc
     current_md_ = &md;
-
+    assert (current_md_ == c->moduleDescription());
     FDEBUG(2) << "beginLuminosityBlock called\n";
     beginLuminosityBlock(lbp);
   }
@@ -201,7 +201,7 @@ namespace edm
     detail::CPCSentry sentry(current_context_, c);
     //Save the current Mod Desc
     current_md_ = &md;
-
+    assert (current_md_ == c->moduleDescription());
     FDEBUG(2) << "endLuminosityBlock called\n";
     endLuminosityBlock(lbp);
   }
