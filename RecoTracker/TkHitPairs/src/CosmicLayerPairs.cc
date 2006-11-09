@@ -33,6 +33,12 @@ vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()()
     result.push_back( LayerPair(lh2,lh2));
   }
 
+  if (_geometry=="CRACK"){
+    result.push_back( LayerPair(lh2,lh1));
+//    result.push_back( LayerPair(lh3,lh1));
+//    result.push_back( LayerPair(lh3,lh2));
+  }
+
   return result;
 }
 CosmicLayerPairs::~CosmicLayerPairs()
@@ -94,5 +100,25 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
     lh2=new  LayerWithHits(bl2,rphi_range2); allLayersWithHits.push_back(lh2);
     lh3=new  LayerWithHits(bl3,rphi_range3); allLayersWithHits.push_back(lh3);
     lh4=new  LayerWithHits(bl4,rphi_range4); allLayersWithHits.push_back(lh4);
+  }
+
+
+  if (_geometry=="CRACK"){
+
+    LogDebug("CosmicSeedFinder") <<" Using CRack seeding "<< _geometry << endl;
+    match_range1=collmatched.get(acc.stripTOBLayer(7));
+    rphi_range2=collrphi.get(acc.stripTOBLayer(6));
+    match_range3=collmatched.get(acc.stripTOBLayer(4));
+    
+    const TOBLayer*  bl1=dynamic_cast<TOBLayer*>(bl[6]);
+    const TOBLayer*  bl2=dynamic_cast<TOBLayer*>(bl[5]);
+    const TOBLayer*  bl3=dynamic_cast<TOBLayer*>(bl[3]);
+    
+    
+    //LayersWithHits
+    lh1=new  LayerWithHits(bl1,match_range1);
+    lh2=new  LayerWithHits(bl2,rphi_range2);
+    lh3=new  LayerWithHits(bl3,match_range3);
+    
   }
 }

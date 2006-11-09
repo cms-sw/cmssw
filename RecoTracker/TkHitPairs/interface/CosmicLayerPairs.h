@@ -43,6 +43,7 @@ private:
 
   SiStripMatchedRecHit2DCollection::range match_range1;
   SiStripMatchedRecHit2DCollection::range match_range2;
+  SiStripMatchedRecHit2DCollection::range match_range3;
   TrackerLayerIdAccessor acc;
   
   LayerWithHits *lh1;
