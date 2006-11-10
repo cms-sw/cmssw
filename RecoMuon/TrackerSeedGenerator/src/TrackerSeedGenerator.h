@@ -4,8 +4,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/07/10 13:20:35 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/11/08 08:04:54 $
+ *  $Revision: 1.6 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -37,7 +37,7 @@ class MuonUpdatorAtVertex;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-typedef std::vector<TrajectorySeed*> BTSeedCollection;
+typedef std::vector<TrajectorySeed> BTSeedCollection;
 
 class TrackerSeedGenerator {
 

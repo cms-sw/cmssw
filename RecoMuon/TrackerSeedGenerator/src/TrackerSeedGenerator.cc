@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/09/02 01:02:14 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/11/08 08:04:54 $
+ *  $Revision: 1.8 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -23,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
@@ -50,6 +51,8 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace edm;
@@ -498,9 +501,11 @@ void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon,
   vector<TrajectorySeed>::const_iterator is;
   for ( is = ss.begin(); is != ss.end(); is++ ) {
     if ( nseeds < theMaxSeeds ) {
-      theSeeds.push_back(const_cast<TrajectorySeed*>(&((*is)))); 
+      //theSeeds.push_back(const_cast<TrajectorySeed*>(&((*is)))); 
+      theSeeds.push_back(*is); 
       nseeds++;
     }
+
   }
 
   /*
