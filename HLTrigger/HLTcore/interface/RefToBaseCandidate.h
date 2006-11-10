@@ -8,8 +8,8 @@
  *  based on a RefProd<C> and a key. The collection C can be either a
  *  ConcreteCollection of Candidates or an HLTFilterObjectWithRefs.
  *
- *  $Date: 2006/10/26 17:05:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/06 09:36:07 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -31,7 +31,7 @@ namespace edm {
     (const edm::RefProd<C>                             & refprod,
      unsigned int key) {
     return edm::RefToBase<reco::Candidate>(Ref<C>(refprod,key));
-  };
+  }
 
   edm::RefToBase<reco::Candidate> RefToBaseCandidate
     (const edm::RefProd<reco::HLTFilterObjectWithRefs> & refprod,

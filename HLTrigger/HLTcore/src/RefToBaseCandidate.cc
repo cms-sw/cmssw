@@ -3,8 +3,8 @@
  *  
  *  See header file for documentation
  *
- *  $Date: 2006/10/26 17:05:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/06 09:36:08 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -29,6 +29,6 @@ namespace edm {
     (const edm::RefProd<reco::HLTFilterObjectWithRefs> & refprod,
      unsigned int key) {
     return refprod->getParticleRef(key);
-  };
+  }
 
 }
