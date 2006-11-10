@@ -7,6 +7,8 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
+
 /*! \class L1GctEmCand
  * \brief Level-1 Trigger EM candidate at output of GCT
  *
@@ -30,7 +32,10 @@ public:
   /// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
   L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso);
 
-   /// destructor (virtual to prevent compiler warnings)
+  /// construct from RCT output candidate
+  L1GctEmCand(L1CaloEmCand& c);
+
+  /// destructor (virtual to prevent compiler warnings)
   virtual ~L1GctEmCand();
   
   /// region associated with the candidate
@@ -59,6 +64,11 @@ public:
 
   /// which stream did this come from
   bool isolated() const { return m_iso; }
+
+ private:
+
+  // set internal data from rank and region ieta, iphi
+  void construct(unsigned rank, unsigned eta, unsigned phi);
 
  private:
 
