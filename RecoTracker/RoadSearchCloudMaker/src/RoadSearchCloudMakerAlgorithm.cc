@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/10/10 19:38:37 $
-// $Revision: 1.28 $
+// $Date: 2006/10/13 16:20:22 $
+// $Revision: 1.29 $
 //
 
 #include <vector>
@@ -459,7 +459,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 
   LogDebug("RoadSearch") << "Found " << output.size() << " clouds."; 
 
-};
+}
 
 //=========BEGIN: new code===========
 void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id, double d0, double phi0, double k0, Roads::type roadType, double ringPhi,

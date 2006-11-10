@@ -8,8 +8,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/08/29 22:18:39 $
-// $Revision: 1.3 $
+// $Date: 2006/09/09 00:17:25 $
+// $Revision: 1.4 $
 //
 
 #include <vector>
@@ -152,6 +152,6 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
 
   LogDebug("RoadSearch") << "Found " << output.size() << " clean clouds.";
 
-};
+}
 
 
