@@ -6,13 +6,15 @@
  *  
  *  Reference: DaqPrototype/DaqPersistentData/interface/DaqFEDOpaqueData.h
  *
- *  $Date: 2005/10/18 13:28:12 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/20 22:41:11 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - S. Argiro'
  */
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include "DataFormats/Common/interface/traits.h"
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+
 #include <vector>
 
 
@@ -45,12 +47,14 @@ void swap(FEDRawDataCollection & a, FEDRawDataCollection & b) {
   a.swap(b);
 }
 
+#if ! GCC_PREREQUISITE(3,4,4)
 namespace edm {
-  template <>
-  struct has_swap<FEDRawDataCollection> {
+  template <> struct has_swap<FEDRawDataCollection> {
     static bool const value = true;
   };
 }
+#endif
+
 
 #endif
 
