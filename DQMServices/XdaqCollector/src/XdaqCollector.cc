@@ -222,5 +222,5 @@ void XdaqCollector::actionPerformed (xdata::Event& e)
 }
 
 
-XDAQ_INSTANTIATOR_IMPL(XdaqCollector);
+XDAQ_INSTANTIATOR_IMPL(XdaqCollector)
 
