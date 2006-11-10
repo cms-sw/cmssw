@@ -18,8 +18,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2006/05/02 07:07:16 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/29 17:18:27 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -123,6 +123,9 @@ class DTRecSegment2D : public RecSegment{
   /// the Covariance Matrix 
   AlgebraicSymMatrix covMatrix() const {return theCovMatrix;}
 
+  /// Get the segment t0 (if recomputed, 0 is returned otherwise)
+  double t0() const {return theT0;}
+
  protected:
   friend class DTSegmentUpdator;
   void setPosition(const LocalPoint& pos);
@@ -144,7 +147,7 @@ class DTRecSegment2D : public RecSegment{
 
   double theChi2;           // chi2 of the fit
   double theT0;             // T0 as coming from the fit
-  
+
   std::vector<DTRecHit1D> theHits; // the hits with defined R/L
   
 
