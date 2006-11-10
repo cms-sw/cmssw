@@ -6,7 +6,7 @@
 #include <map>
 #include <iostream>
 
-;
+
 
 // Adjecencylist graph
 
@@ -408,7 +408,7 @@ void graph<N,E>::clear()
 template<class N, class E>
 void graph<N,E>::dump_graph() const
 {
-  std::cout << adjl_ << std::endl;
+  //  std::cout << adjl_ << std::endl;
 /*
    std::cout << "Nodes and their indices:" << std::endl;
    typename indexer_type::const_iterator it = indexer_.begin();

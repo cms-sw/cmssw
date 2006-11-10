@@ -18,7 +18,7 @@ namespace DDI { class BooleanSolid; }
 //using DDI::Solid;
 using DDI::Reflection;
 using DDI::BooleanSolid;
-;
+
 
 
 //class DDSolidImpl;

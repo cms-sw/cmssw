@@ -17,7 +17,7 @@
 
 class DDPartSelector;
 class DDPhysicalPart;
-;
+
 
 /**
   Navigation through the compact view of the detector ...

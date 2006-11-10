@@ -6,9 +6,9 @@
 #include <iostream>
 #include <string>
 
-;
 
-;
+
+
 
 template<class N, class E>
 void output(const graph<N,E> & g, const N & root)

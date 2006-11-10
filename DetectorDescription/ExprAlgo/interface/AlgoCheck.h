@@ -5,17 +5,15 @@
 #include <map>
 #include "DetectorDescription/Base/interface/DDAlgoPar.h"
 
-;
-
 
 //! base class for generated checking code for algorithm parameters. 
 class AlgoCheck
 {
 public:
   //! the ctor of the derived class has to fill the members constraintsE_,S_
-  AlgoCheck()  { };
+  AlgoCheck()  { }
   
-  virtual ~AlgoCheck() { };
+  virtual ~AlgoCheck() { }
   
   //! constraints as defined for algorithm-parameters in the XML schema Algorithm.xsd, expressions
   struct ConstraintE {
