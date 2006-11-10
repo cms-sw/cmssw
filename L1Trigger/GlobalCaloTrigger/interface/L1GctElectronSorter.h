@@ -70,7 +70,7 @@ class L1GctElectronSorter : public L1GctProcessor
 	}else{ return x.phiIndex() > y.phiIndex();}}}};
 
   /// converts from L1CaloEmCand to L1GctEmCand
-  std::vector<L1GctEmCand> convertCaloToGct(std::vector<L1CaloEmCand> cand);
+  //  std::vector<L1GctEmCand> convertCaloToGct(std::vector<L1CaloEmCand> cand);
   
  private:
   ///
