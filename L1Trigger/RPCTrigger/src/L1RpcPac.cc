@@ -5,7 +5,7 @@
 *  Porting to CMSSW - Tomasz Fruboes
 *                                                                              *
 *******************************************************************************/
-#include <math.h>
+#include <cmath>
 #include <bitset>
 #include "L1Trigger/RPCTrigger/src/L1RpcPac.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
@@ -156,7 +156,7 @@ void L1RpcPac::InsertQualityRecord(unsigned int qualityTabNumber,
   else
     throw L1RpcException("InsertQualityRecord(): wrong qualityTabNumber");
     //edm::LogError("RPCTrigger") << "InsertQualityRecord(): wrong qualityTabNumber";
-};
+}
 
 
 void L1RpcPac::InsertPatterns(const L1RpcPatternsVec& patternsVec) {
@@ -194,7 +194,7 @@ void L1RpcPac::InsertPatterns(const L1RpcPatternsVec& patternsVec) {
     EnergeticPatternsGroupList.sort();           //to jest potrzebne, bo w Run() przechodzi                                                                         //pierwszy paettern, ktory ma Maxymalna quality, wiec grupy musza byc 
     EnergeticPatternsGroupList.reverse();
   } 
-};
+}
 
 void L1RpcPac::Init(const L1RpcPatternsParser& parser) {
   for(unsigned int i = 0; i < parser.GetQualityVec().size(); i++) {    
@@ -255,7 +255,7 @@ L1RpcPacMuon L1RpcPac::RunTrackPatternsGroup(const L1RpcLogCone& cone) const {
     }
   }
   return bestMuon;
-};
+}
 
 L1RpcPacMuon L1RpcPac::RunEnergeticPatternsGroups(const L1RpcLogCone& cone) const {
   L1RpcPacMuon bestMuon;
@@ -339,7 +339,7 @@ L1RpcPacMuon L1RpcPac::Run(const L1RpcLogCone& cone) const {  //symualcja
   int refStripNum = GetPattern(bestMuon.GetPatternNum()).GetStripFrom(L1RpcConst::REF_PLANE[abs(CurrConeCrdnts.Tower)]) + CurrConeCrdnts.LogSector * 96 + CurrConeCrdnts.LogSegment * 8;
 	bestMuon.SetRefStripNum(refStripNum);
   return bestMuon;
-};
+}
 //------------------------------------------------------------------------------
 
 

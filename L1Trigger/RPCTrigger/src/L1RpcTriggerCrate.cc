@@ -50,4 +50,4 @@ L1RpcTBMuonsVec L1RpcTriggerCrate::RunTCGBSorter() {
 void L1RpcTriggerCrate::RunCone(const L1RpcLogCone& cone) {
   if(TBsVec[TriggerConfig->GetTBNum(cone.GetConeCrdnts())].RunCone(cone) )
     WasMuon = true;
-};
+}

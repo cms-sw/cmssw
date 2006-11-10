@@ -119,7 +119,7 @@ L1RpcTBMuonsVec L1RpcTBGhostBuster::GBPhi(L1RpcTBMuonsVec &pacMuonsVec) const {
     outputMuons.pop_back();
 
   return outputMuons;
-};
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

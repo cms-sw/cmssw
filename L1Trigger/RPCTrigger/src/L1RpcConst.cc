@@ -249,7 +249,7 @@ int L1RpcConst::StringToInt(std::string str) {
       throw L1RpcException("Error in StringToInt(): the string cannot be converted to a number");
       //edm::LogError("RPCTrigger")<< "Error in StringToInt(): the string cannot be converted to a number";
   return atoi(str.c_str());
-};
+}
 
 //inline
 std::string L1RpcConst::IntToString(int number) {
@@ -265,7 +265,7 @@ std::string L1RpcConst::IntToString(int number) {
   sprintf(tmp,"%d",number);
   str.append(tmp);
   return str;
-};
+}
 
  bool L1RpcConst::L1RpcConeCrdnts::operator < (const L1RpcConeCrdnts& cone) const{
   if(Tower != cone.Tower)

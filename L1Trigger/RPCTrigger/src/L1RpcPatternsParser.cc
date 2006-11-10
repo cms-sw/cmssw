@@ -47,7 +47,7 @@ const L1RpcPatternsVec& L1RpcPatternsParser::GetPatternsVec(const L1RpcConst::L1
     //edm::LogError("RPCTrigger")<< "no such a cone in PatternsVecsMap";
   }
   return patVecIt->second; // XXX - TMF - was in if{}, changed to avoid warning
-};
+}
 
 // ---------------------------------------------------------------------------
 //  This is a simple class that lets us do easy (though not terribly efficient)

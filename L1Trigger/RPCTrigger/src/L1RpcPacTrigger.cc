@@ -113,7 +113,7 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
 
 
   return GBFinalMuons;
-};
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 

@@ -18,7 +18,7 @@ int L1RpcBasicTrigConfig::TowNum2TowNum2Comp(int towNum) {
     return towNum;
   else
     return 0x3F + towNum + 1;  
-};
+}
 
 //#############################################################################################
 //
@@ -46,7 +46,7 @@ int L1RpcBasicTrigConfig::GetTBsInTC() { return TB_IN_TC_CNT; }
 */
 int L1RpcBasicTrigConfig::GetTCNum(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts) {
   return coneCrdnts.LogSector;
-};
+}
 /**
  *
  * Returns the count of Towers (3 or 4), that are covered by given TB.
@@ -54,7 +54,7 @@ int L1RpcBasicTrigConfig::GetTCNum(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts
 */
 int L1RpcBasicTrigConfig::GetTowsCntOnTB(int tbNum) {
   return TOWERS_CNT_ON_TB[tbNum];
-};
+}
 /** Converts TC GB-Sorter input tower address <0...35> ("tower number natural")
  * to tower number <-16...0...16>
  * TC GB-Sorter input tower address is 8 bits: [7...2] TB num, [1...0] tower num on TB.*/
@@ -67,7 +67,7 @@ int L1RpcBasicTrigConfig::TowAddr2TowNum(int towAddr) {
 
 
   return TOW_ADDR_2_TOW_NUM[towAddr];
-};
+}
 
 int L1RpcBasicTrigConfig::GetTowerNumOnTb(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts) {
   return TOWER_ON_TB[L1RpcConst::ITOW_MAX + coneCrdnts.Tower];
