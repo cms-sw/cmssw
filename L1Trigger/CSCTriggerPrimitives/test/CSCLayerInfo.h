@@ -6,7 +6,7 @@
  * \author Jason Mumford, Slava Valuev  21 August 2001
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/09/12 15:51:21 $
+ * $Date: 2006/09/12 09:00:29 $
  * $Revision: 1.1 $
  *
  */
@@ -86,18 +86,18 @@ std::ostream& operator<< (std::ostream& output,
   std::vector<TYPE> thisLayerDigis = info.getRecDigis();
   // vector<TYPE>::iterator prd; /* upsets pedantic compillation on LINUX */
   if (thisLayerDigis.size() > 0) {
-    output << "Layer: " << setw(1) << info.getId().layer();
+    output << "Layer: " << std::setw(1) << info.getId().layer();
     for (unsigned int i = 0; i < thisLayerDigis.size(); i++) {
       output << " RecDigi # " << i+1 << ": " << thisLayerDigis[i] << '\t';
     }
   }
   std::vector<PSimHit> thisLayerHits = info.getSimHits();
   if (thisLayerHits.size() > 0) {
-    output << "Layer: " << setw(1) << info.getId().layer();
+    output << "Layer: " << std::setw(1) << info.getId().layer();
     for (unsigned int i = 0; i < thisLayerHits.size(); i++) {
       output << " SimHit # " << i+1 << ": " << thisLayerHits[i] << '\t';
     }
-    cout << endl;
+    output << std::endl;
   }
   return output;
 }
