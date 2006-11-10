@@ -5,6 +5,7 @@
 <use name=DQMServices/ClientConfig>
 <use name=CommonTools/TrackerMap>
 <use name=boost>
+<flags SEAL_PLUGIN_NAME="DQMSiStripMonitorClient">
 <export>
 <lib name=DQMSiStripMonitorClient>
 <use name=FWCore/MessageLogger>
