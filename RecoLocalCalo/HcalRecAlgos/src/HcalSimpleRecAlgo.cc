@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include <algorithm> // for "max"
+#include <math.h>
 
 static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
