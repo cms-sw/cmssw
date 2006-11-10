@@ -188,8 +188,8 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     cond::ServiceLoader* loader=new cond::ServiceLoader;
     std::string usr = "CORAL_AUTH_USER="+userName_;
     std::string pass = "CORAL_AUTH_PASSWORD="+password_;
-    ::putenv(usr.c_str());
-    ::putenv(pass.c_str());
+    ::putenv(const_cast<char*>(usr.c_str()));
+    ::putenv(const_cast<char*>(pass.c_str()));
 //     std::cout << ::getenv("CORAL_AUTH_USER") << std::endl;
 //     std::cout << ::getenv("CORAL_AUTH_PASSWORD") << std::endl;
     loader->loadAuthenticationService( cond::Env );
