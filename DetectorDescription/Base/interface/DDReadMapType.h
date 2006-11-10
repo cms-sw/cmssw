@@ -16,8 +16,8 @@ template<class V> class ReadMapType : public std::map<std::string,V>
 
   const V & operator[](const std::string & key) const throw (DDException)
    { 
-      typename std::map<std::string,V>::const_iterator it = find(key); 
-      if (it == end()) {
+      typename std::map<std::string,V>::const_iterator it = this->find(key); 
+      if (it == this->end()) {
 	std::string message("ReadMapType::operator[] key not found:" + key);
 	throw DDException(message);
       }

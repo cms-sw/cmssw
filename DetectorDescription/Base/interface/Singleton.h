@@ -26,5 +26,5 @@ namespace DDI {
    Singleton& operator=(const Singleton &);
    //static pointer_type instance_;
  };
-};
+}
 #endif

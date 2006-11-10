@@ -44,5 +44,5 @@ namespace DDI {
    operator bool() const { return init_; }	 
  };
 
-};
+}
 #endif

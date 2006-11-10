@@ -41,7 +41,7 @@ private:
 
 template<class T> T* clone(const T* tp)
 {
-	return tclone(p);
+	return tclone(tp);
 }
 
 

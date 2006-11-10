@@ -179,6 +179,6 @@ bool Store<N,I,K>::isDefined(const name_type & n ) const
 }
 
 
-};
+}
 
 #endif
