@@ -21,8 +21,8 @@ public:
     minRapidity_( cfg.getParameter<double>( "minRapidity" ) ),
     maxRapidity_( cfg.getParameter<double>( "maxRapidity" ) ),
     tip_( cfg.getParameter<double>( "tip" ) ),
-    lip_( cfg.getParameter<double>( "lip" ) )
-    //minHit_( cfg.getParameter<int>( "minHit" ) ) 
+    lip_( cfg.getParameter<double>( "lip" ) ),
+    minHit_( cfg.getParameter<int>( "minHit" ) ) 
   { }
   
   const_iterator begin() const { return selected_.begin(); }
@@ -41,7 +41,7 @@ public:
 private:
   bool makeSelection( const TrackingParticle & tp ) const { 
     return  
-      (//t.numberOfValidHits() >= minHit_ &&
+      (tp.matchedHit() >= minHit_ &&
        sqrt(tp.momentum().perp2()) >= ptMin_ && 
        fabs(tp.momentum().eta()) >= minRapidity_ && fabs(tp.momentum().eta()) <= maxRapidity_ && 
        fabs(tp.parentVertex()->position().perp()) <= tip_ &&

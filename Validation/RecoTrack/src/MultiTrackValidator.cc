@@ -175,7 +175,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	TrackingParticleRef tp(TPCollectionH, i);
 	if (!selectTPs4Efficiency( *tp )) continue;
 	int type = tp->g4Track_begin()->type();
-	if (abs(type)!=13&&abs(type)!=11&&abs(type)!=211&&abs(type)!=321&&abs(type)!=2212) continue;
+	if (tp->charge()==0) continue;
+	//if (abs(type)!=13&&abs(type)!=11&&abs(type)!=211&&abs(type)!=321&&abs(type)!=2212) continue;
 	// 	LogDebug("TrackValidator") << "tp->charge(): " << tp->charge()
 	// 				   << "\ntp->trackPSimHit().size(): " << tp->trackPSimHit().size() 
 	// 				   << "\n";
