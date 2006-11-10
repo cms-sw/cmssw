@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/04/01 16:11:49 $
-// $Revision: 1.5 $
+// $Author: stevew $
+// $Date: 2006/04/10 22:06:41 $
+// $Revision: 1.6 $
 //
 
 #include <vector>
@@ -150,7 +150,7 @@ void RoadSearchHelixMakerAlgorithm::run(const TrackCandidateCollection* input,
 
   edm::LogInfo("RoadSearch") << "Created " << output.size() << " tracks.";
 
-};
+}
 
 bool RoadSearchHelixMakerAlgorithm::isBarrelSensor(DetId id) {
 

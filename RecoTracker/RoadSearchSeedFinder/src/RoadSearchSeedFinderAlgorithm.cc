@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/09/01 21:15:31 $
-// $Revision: 1.18 $
+// $Author: gutsche $
+// $Date: 2006/09/08 19:26:19 $
+// $Revision: 1.19 $
 //
 
 #include <vector>
@@ -151,7 +151,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 
   LogDebug("RoadSearch") << "Found " << output.size() << " seeds."; 
 
-};
+}
 
 CurvilinearTrajectoryError RoadSearchSeedFinderAlgorithm::
 initialError( const TrackingRecHit* outerHit,

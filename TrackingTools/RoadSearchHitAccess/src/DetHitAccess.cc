@@ -5,10 +5,10 @@ DetHitAccess::DetHitAccess(){
   // default for access mode
   accessMode_ = standard;
 
-};
+}
 
 DetHitAccess::~DetHitAccess(){
-};
+}
 
 DetHitAccess::DetHitAccess(const SiStripRecHit2DCollection* rphiRecHits,
 			   const SiStripRecHit2DCollection* stereoRecHits,
