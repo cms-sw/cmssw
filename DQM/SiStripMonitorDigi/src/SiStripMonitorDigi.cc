@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.14 2006/08/17 07:57:42 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.15 2006/10/27 01:35:21 wmtan Exp $
 //
 //
 
@@ -35,9 +35,6 @@
 #include "DQM/SiStripMonitorDigi/interface/SiStripMonitorDigi.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
-using namespace std;
-using namespace edm;
-
 
 SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig)
 {
@@ -57,10 +54,10 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
    bool show_readout_view = conf_.getParameter<bool>("ShowReadoutView");
    bool show_control_view = conf_.getParameter<bool>("ShowControlView");
    bool select_all_detectors = conf_.getParameter<bool>("SelectAllDetectors");
-   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowMechanicalStructureView = "<<show_mechanical_structure_view;
-   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowReadoutView = "<<show_readout_view;
-   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowControlView = "<<show_control_view;
-   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"SelectAllDetectors = "<<select_all_detectors;
+   edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowMechanicalStructureView = "<<show_mechanical_structure_view;
+   edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowReadoutView = "<<show_readout_view;
+   edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowControlView = "<<show_control_view;
+   edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"SelectAllDetectors = "<<select_all_detectors;
 
 
   if ( show_mechanical_structure_view ){
@@ -69,11 +66,11 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
     es.get<SiStripDetCablingRcd>().get(tkmechstruct);
 
     // get list of active detectors from SiStripDetCabling
-    vector<uint32_t> activeDets; 
+    std::vector<uint32_t> activeDets; 
     activeDets.clear(); // just in case
     tkmechstruct->addActiveDetectorsRawIds(activeDets);
 
-    vector<uint32_t> SelectedDetIds;
+    std::vector<uint32_t> SelectedDetIds;
     if(select_all_detectors){
       // select all detectors if appropriate flag is set,  for example for the mtcc
       SelectedDetIds = activeDets;
@@ -97,27 +94,27 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
      SiStripFolderOrganizer folder_organizer;
 
     // loop over detectors and book MEs
-    LogInfo("SiStripTkDQM|SiStripMonitorDigi")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
-    for(vector<uint32_t>::const_iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
+    edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
+    for(std::vector<uint32_t>::const_iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
       ModMEs local_modmes;
-      string hid;
+      std::string hid;
       // set appropriate folder using SiStripFolderOrganizer
       folder_organizer.setDetectorFolder(*detid_iterator); // pass the detid to this method
 //
 //      // create ADCs per strip
-//      string hid = hidmanager.createHistoId("ADCsPerStrip_detector", *detid_iterator);
+//      std::string hid = hidmanager.createHistoId("ADCsPerStrip_detector", *detid_iterator);
 //      local_me = dbe_->book2D(hid, hid, 20,-0.5,767.5, 20,-0.5,255.5);
 //      ADCsPerStrip.insert( pair<uint32_t, MonitorElement*>(*detid_iterator,local_me) );
 //
       // create Digis per detector - not too useful - maybe can remove later
       hid = hidmanager.createHistoId("NumberOfDigis","det",*detid_iterator);
-      local_modmes.NumberOfDigis = dbe_->book1D(hid, hid, 21, -0.5, 20.5);
+      local_modmes.NumberOfDigis = dbe_->book1D(hid, hid, 21, -0.5, 20.5); dbe_->tag(local_modmes.NumberOfDigis, *detid_iterator);
       // create ADCs per "hottest" strip
       hid = hidmanager.createHistoId("ADCsHottestStrip","det",*detid_iterator);
-      local_modmes.ADCsHottestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.);
+      local_modmes.ADCsHottestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.); dbe_->tag(local_modmes.ADCsHottestStrip, *detid_iterator);
       // create ADCs per "coolest" strip
       hid = hidmanager.createHistoId("ADCsCoolestStrip","det",*detid_iterator);
-      local_modmes.ADCsCoolestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.);
+      local_modmes.ADCsCoolestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.); dbe_->tag(local_modmes.ADCsCoolestStrip, *detid_iterator);
       // append to DigiMEs
       DigiMEs.insert( std::make_pair(*detid_iterator, local_modmes));
       //
@@ -158,7 +155,7 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    iEvent.getByLabel(digiProducer,digiLabel,digi_detsetvektor);
 
    // loop over all MEs
-    for (map<uint32_t, ModMEs >::const_iterator iterMEs = DigiMEs.begin() ; iterMEs!=DigiMEs.end() ; iterMEs++) {
+    for (std::map<uint32_t, ModMEs >::const_iterator iterMEs = DigiMEs.begin() ; iterMEs!=DigiMEs.end() ; iterMEs++) {
       uint32_t detid = iterMEs->first; ModMEs local_modmes = iterMEs->second; // get detid and type of ME
       // get from DetSetVector the DetSet of digis belonging to one detid - first make sure there exists digis with this id
       edm::DetSetVector<SiStripDigi>::const_iterator isearch = digi_detsetvektor->find(detid); // search  digis of detid
@@ -190,18 +187,18 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 void SiStripMonitorDigi::endJob(void){
    bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-   string outputFileName = conf_.getParameter<string>("OutputFileName");
+   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
-    ofstream monitor_summary("monitor_digi_summary.txt");
-    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-    monitor_summary<<"SiStripMonitorDigi::endJob DigiMEs.size()="<<DigiMEs.size()<<endl;
+    std::ofstream monitor_summary("monitor_digi_summary.txt");
+    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
+    monitor_summary<<"SiStripMonitorDigi::endJob DigiMEs.size()="<<DigiMEs.size()<<std::endl;
     for(std::map<uint32_t, ModMEs>::const_iterator idet = DigiMEs.begin(); idet!= DigiMEs.end(); idet++ ){
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"      ++++++detid  "<<idet->first<<endl<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ NumberOfDigis "<<(idet->second).NumberOfDigis->getEntries()<<" "<<(idet->second).NumberOfDigis->getMean()<<" "<<(idet->second).NumberOfDigis->getRMS()<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ ADCsHottestStrip "<<(idet->second).ADCsHottestStrip->getEntries()<<" "<<(idet->second).ADCsHottestStrip->getMean()<<" "<<(idet->second).ADCsHottestStrip->getRMS()<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ ADCsCoolestStrip "<<(idet->second).ADCsCoolestStrip->getEntries()<<" "<<(idet->second).ADCsCoolestStrip->getMean()<<" "<<(idet->second).ADCsCoolestStrip->getRMS()<<endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"      ++++++detid  "<<idet->first<<std::endl<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ NumberOfDigis "<<(idet->second).NumberOfDigis->getEntries()<<" "<<(idet->second).NumberOfDigis->getMean()<<" "<<(idet->second).NumberOfDigis->getRMS()<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ ADCsHottestStrip "<<(idet->second).ADCsHottestStrip->getEntries()<<" "<<(idet->second).ADCsHottestStrip->getMean()<<" "<<(idet->second).ADCsHottestStrip->getRMS()<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ ADCsCoolestStrip "<<(idet->second).ADCsCoolestStrip->getEntries()<<" "<<(idet->second).ADCsCoolestStrip->getMean()<<" "<<(idet->second).ADCsCoolestStrip->getRMS()<<std::endl;
     }
-    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
     // save histograms in a file
     dbe_->save(outputFileName);
   }

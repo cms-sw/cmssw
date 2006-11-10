@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.22 2006/08/22 22:13:00 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.23 2006/10/23 07:51:03 pioppi Exp $
 //
 //
 
@@ -37,9 +37,6 @@
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorCluster.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
-using namespace std;
-using namespace edm;
-
 SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig):
 dbe_(edm::Service<DaqMonitorBEInterface>().operator->()),
 conf_(iConfig),
@@ -61,10 +58,10 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
    bool show_readout_view = conf_.getParameter<bool>("ShowReadoutView");
    bool show_control_view = conf_.getParameter<bool>("ShowControlView");
    bool select_all_detectors = conf_.getParameter<bool>("SelectAllDetectors");
-   LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ShowMechanicalStructureView = "<<show_mechanical_structure_view;
-   LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ShowReadoutView = "<<show_readout_view;
-   LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ShowControlView = "<<show_control_view;
-   LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"SelectAllDetectors = "<<select_all_detectors;
+   edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ShowMechanicalStructureView = "<<show_mechanical_structure_view;
+   edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ShowReadoutView = "<<show_readout_view;
+   edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ShowControlView = "<<show_control_view;
+   edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"SelectAllDetectors = "<<select_all_detectors;
 
   if ( show_mechanical_structure_view ){
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
@@ -72,11 +69,11 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
     es.get<SiStripDetCablingRcd>().get(tkmechstruct);
 
     // get list of active detectors from SiStripDetCabling - this will change and be taken from a SiStripDetControl object
-    vector<uint32_t> activeDets;
+    std::vector<uint32_t> activeDets;
     activeDets.clear(); // just in case
     tkmechstruct->addActiveDetectorsRawIds(activeDets);
 
-    vector<uint32_t> SelectedDetIds;
+    std::vector<uint32_t> SelectedDetIds;
     if(select_all_detectors){
       // select all detectors if appropriate flag is set,  for example for the mtcc
       SelectedDetIds = activeDets;
@@ -103,39 +100,41 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
     charge_of_each_cluster = dbe_->book1D("ChargeOfEachCluster","ChargeOfEachCluster",300,-0.5,300.5);
 
     // loop over detectors and book MEs
-    LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
-    for(vector<uint32_t>::const_iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
+    edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
+    for(std::vector<uint32_t>::const_iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
       ModMEs local_modmes;
-      string hid;
+      std::string hid;
       // set appropriate folder using SiStripFolderOrganizer
       folder_organizer.setDetectorFolder(*detid_iterator); // pass the detid to this method
       //nr. of clusters per module
       hid = hidmanager.createHistoId("NumberOfClusters","det",*detid_iterator);
-      local_modmes.NumberOfClusters = dbe_->book1D(hid, hid, 5,-0.5,4.5);
+      local_modmes.NumberOfClusters = dbe_->book1D(hid, hid, 5,-0.5,4.5); dbe_->tag(local_modmes.NumberOfClusters, *detid_iterator);
       //ClusterPosition
       hid = hidmanager.createHistoId("ClusterPosition","det",*detid_iterator);
-      local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 24,-0.5,767.5); // 6 APVs -> 768 strips
+      // 6 APVs -> 768 strips
+      local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 24,-0.5,767.5); dbe_->tag(local_modmes.ClusterPosition, *detid_iterator);
       //ClusterWidth
       hid = hidmanager.createHistoId("ClusterWidth","det",*detid_iterator);
-      local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 11,-0.5,10.5);
+      local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 11,-0.5,10.5); dbe_->tag(local_modmes.ClusterWidth, *detid_iterator);
       //ClusterCharge
       hid = hidmanager.createHistoId("ClusterCharge","det",*detid_iterator);
-      local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,100.5);
+      local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,100.5); dbe_->tag(local_modmes.ClusterCharge, *detid_iterator);
       //ClusterNoise
       hid = hidmanager.createHistoId("ClusterNoise","det",*detid_iterator);
-      local_modmes.ClusterNoise = dbe_->book1D(hid, hid, 80,0.,10.);
+      local_modmes.ClusterNoise = dbe_->book1D(hid, hid, 80,0.,10.); dbe_->tag(local_modmes.ClusterNoise, *detid_iterator);
       //ClusterSignal
       hid = hidmanager.createHistoId("ClusterSignal","det",*detid_iterator);
-      local_modmes.ClusterSignal = dbe_->book1D(hid, hid, 100,0.,200.);
+      local_modmes.ClusterSignal = dbe_->book1D(hid, hid, 100,0.,200.); dbe_->tag(local_modmes.ClusterSignal, *detid_iterator);
       //ClusterSignalOverNoise
       hid = hidmanager.createHistoId("ClusterSignalOverNoise","det",*detid_iterator);
-      local_modmes.ClusterSignalOverNoise = dbe_->book1D(hid, hid, 100,0.,50.);
+      local_modmes.ClusterSignalOverNoise = dbe_->book1D(hid, hid, 100,0.,50.); dbe_->tag(local_modmes.ClusterSignalOverNoise, *detid_iterator);
       //ModuleLocalOccupancy
       hid = hidmanager.createHistoId("ModuleLocalOccupancy","det",*detid_iterator);
-      local_modmes.ModuleLocalOccupancy = dbe_->book1D(hid, hid, 20,-0.005,0.05);// occupancy goes from 0 to 1, probably not over some limit value (here 0.1)
+      // occupancy goes from 0 to 1, probably not over some limit value (here 0.1)
+      local_modmes.ModuleLocalOccupancy = dbe_->book1D(hid, hid, 20,-0.005,0.05); dbe_->tag(local_modmes.ModuleLocalOccupancy, *detid_iterator);
       //NrOfClusterizedStrips
       hid = hidmanager.createHistoId("NrOfClusterizedStrips","det",*detid_iterator);
-      local_modmes.NrOfClusterizedStrips = dbe_->book1D(hid, hid, 10,-0.5,9.5);
+      local_modmes.NrOfClusterizedStrips = dbe_->book1D(hid, hid, 10,-0.5,9.5); dbe_->tag(local_modmes.NrOfClusterizedStrips, *detid_iterator);
       // append to ClusterMEs
       ClusterMEs.insert( std::make_pair(*detid_iterator, local_modmes));
     }
@@ -182,7 +181,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   }
   //
   // loop over MEs. Mechanical structure view. No need for condition here. If map is empty, nothing should happen.
-  for (map<uint32_t, ModMEs>::const_iterator iterMEs = ClusterMEs.begin() ; iterMEs!=ClusterMEs.end() ; iterMEs++) {
+  for (std::map<uint32_t, ModMEs>::const_iterator iterMEs = ClusterMEs.begin() ; iterMEs!=ClusterMEs.end() ; iterMEs++) {
     uint32_t detid = iterMEs->first;  ModMEs local_modmes = iterMEs->second;
     // get from DetSetVector the DetSet of clusters belonging to one detid - first make sure there exists clusters with this id
     edm::DetSetVector<SiStripCluster>::const_iterator isearch = cluster_detsetvektor->find(detid); // search  clusters of detid
@@ -258,35 +257,35 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
 void SiStripMonitorCluster::endJob(void){
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  string outputFileName = conf_.getParameter<string>("OutputFileName");
+  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
-    ofstream monitor_summary("monitor_cluster_summary.txt");
-    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-    monitor_summary<<"SiStripMonitorCluster::endJob ClusterMEs.size()="<<ClusterMEs.size()<<endl;
+    std::ofstream monitor_summary("monitor_cluster_summary.txt");
+    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
+    monitor_summary<<"SiStripMonitorCluster::endJob ClusterMEs.size()="<<ClusterMEs.size()<<std::endl;
     for(std::map<uint32_t, ModMEs>::const_iterator idet = ClusterMEs.begin(); idet!= ClusterMEs.end(); idet++ ){
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"      ++++++detid  "<<idet->first<<endl<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ NumberOfClusters "<<(idet->second).NumberOfClusters->getEntries()<<" "<<(idet->second).NumberOfClusters->getMean()<<" "<<(idet->second).NumberOfClusters->getRMS()<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterPosition "<<(idet->second).ClusterPosition->getEntries()<<" "<<(idet->second).ClusterPosition->getMean()<<" "<<(idet->second).ClusterPosition->getRMS()<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterWidth "<<(idet->second).ClusterWidth->getEntries()<<" "<<(idet->second).ClusterWidth->getMean()<<" "<<(idet->second).ClusterWidth->getRMS()<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterCharge "<<(idet->second).ClusterCharge->getEntries()<<" "<<(idet->second).ClusterCharge->getMean()<<" "<<(idet->second).ClusterCharge->getRMS()<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterSignal "<<(idet->second).ClusterSignal->getEntries()<<" "<<(idet->second).ClusterSignal->getMean()<<" "<<(idet->second).ClusterSignal->getRMS()<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterNoise "<<(idet->second).ClusterNoise->getEntries()<<" "<<(idet->second).ClusterNoise->getMean()<<" "<<(idet->second).ClusterNoise->getRMS()<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterSignalOverNoise "<<(idet->second).ClusterSignalOverNoise->getEntries()<<" "<<(idet->second).ClusterSignalOverNoise->getMean()<<" "<<(idet->second).ClusterSignalOverNoise->getRMS()<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ModuleLocalOccupancy "<<(idet->second).ModuleLocalOccupancy->getEntries()<<" "<<(idet->second).ModuleLocalOccupancy->getMean()<<" "<<(idet->second).ModuleLocalOccupancy->getRMS()<<endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ NrOfClusterizedStrips "<<(idet->second).NrOfClusterizedStrips->getEntries()<<" "<<(idet->second).NrOfClusterizedStrips->getMean()<<" "<<(idet->second).NrOfClusterizedStrips->getRMS()<<endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"      ++++++detid  "<<idet->first<<std::endl<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ NumberOfClusters "<<(idet->second).NumberOfClusters->getEntries()<<" "<<(idet->second).NumberOfClusters->getMean()<<" "<<(idet->second).NumberOfClusters->getRMS()<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterPosition "<<(idet->second).ClusterPosition->getEntries()<<" "<<(idet->second).ClusterPosition->getMean()<<" "<<(idet->second).ClusterPosition->getRMS()<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterWidth "<<(idet->second).ClusterWidth->getEntries()<<" "<<(idet->second).ClusterWidth->getMean()<<" "<<(idet->second).ClusterWidth->getRMS()<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterCharge "<<(idet->second).ClusterCharge->getEntries()<<" "<<(idet->second).ClusterCharge->getMean()<<" "<<(idet->second).ClusterCharge->getRMS()<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterSignal "<<(idet->second).ClusterSignal->getEntries()<<" "<<(idet->second).ClusterSignal->getMean()<<" "<<(idet->second).ClusterSignal->getRMS()<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterNoise "<<(idet->second).ClusterNoise->getEntries()<<" "<<(idet->second).ClusterNoise->getMean()<<" "<<(idet->second).ClusterNoise->getRMS()<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterSignalOverNoise "<<(idet->second).ClusterSignalOverNoise->getEntries()<<" "<<(idet->second).ClusterSignalOverNoise->getMean()<<" "<<(idet->second).ClusterSignalOverNoise->getRMS()<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ModuleLocalOccupancy "<<(idet->second).ModuleLocalOccupancy->getEntries()<<" "<<(idet->second).ModuleLocalOccupancy->getMean()<<" "<<(idet->second).ModuleLocalOccupancy->getRMS()<<std::endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ NrOfClusterizedStrips "<<(idet->second).NrOfClusterizedStrips->getEntries()<<" "<<(idet->second).NrOfClusterizedStrips->getMean()<<" "<<(idet->second).NrOfClusterizedStrips->getRMS()<<std::endl;
     }
-    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
     // save histos in a file
      dbe_->save(outputFileName);
    }
 
   // delete MEs
-//  LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"pwd="<<dbe_->pwd();
+//  edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"pwd="<<dbe_->pwd();
 //  SiStripFolderOrganizer folder_organizer;
 ////  std::string folder_to_delete = dbe_->monitorDirName + "/" + folder_organizer.getSiStripFolder();
 //  dbe_->cd();
 //  std::string folder_to_delete = folder_organizer.getSiStripFolder();
-//  LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<" Removing whole directory "<<folder_to_delete;
+//  edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<" Removing whole directory "<<folder_to_delete;
 //  dbe_->rmdir(folder_to_delete);
 }
 

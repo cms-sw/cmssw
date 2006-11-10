@@ -13,28 +13,17 @@
     <usage>
 
 */
-//
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.8 2006/08/04 13:34:03 dkcira Exp $
-//
-
-// system include files
+// $Id: SiStripMonitorCluster.h,v 1.9 2006/08/07 12:21:36 dkcira Exp $
 #include <memory>
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-//#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class SiStripMonitorCluster : public edm::EDAnalyzer {
    public:
