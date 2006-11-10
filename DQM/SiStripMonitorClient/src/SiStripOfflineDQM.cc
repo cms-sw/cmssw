@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.1 2006/11/08 15:40:02 samvel Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.2 2006/11/09 15:47:36 samvel Exp $
 //
 //
 
@@ -31,7 +31,9 @@
 using edm::LogInfo;
 
 SiStripOfflineDQM::SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET)
-  : bVerbose( roPARAMETER_SET.getUntrackedParameter<bool>( "verbose")),
+  : bVerbose( roPARAMETER_SET.getUntrackedParameter<bool>( "bVerbose")),
+    bSaveInFile( roPARAMETER_SET.getUntrackedParameter<bool>( "bOutputMEsInRootFile")),
+    oFILE_NAME( roPARAMETER_SET.getUntrackedParameter<std::string>( "oOutputFile")),
     poMui( new MonitorUIRoot()) {
 
   // Create MessageSender
@@ -60,10 +62,16 @@ void SiStripOfflineDQM::endJob() {
   if( bVerbose) {
     LogInfo( "SiStripOfflineDQM") << "[endJob] start";
   }
-  SiStripActionExecutor oActionExecutor;
+
+  SiStripActionExecutor oActionExecuter;
   // Essential: creates some object that are used in createSummary
-  oActionExecutor.readConfiguration();
-  oActionExecutor.createSummary( poMui);
+  oActionExecuter.readConfiguration();
+  oActionExecuter.createSummary( poMui);
+
+  if( bSaveInFile) {
+    oActionExecuter.saveMEs( poMui, oFILE_NAME);
+  }
+
   if( bVerbose) {
     LogInfo( "SiStripOfflineDQM") << "[endJob] done";
   }

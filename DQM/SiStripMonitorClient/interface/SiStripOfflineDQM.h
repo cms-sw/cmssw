@@ -20,6 +20,8 @@
 //         Created:  Wed Oct 5 16:47:14 CET 2006
 //
 
+#include <string>
+
 // Forward classes declarations
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -39,6 +41,8 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
 
   private:
     bool bVerbose;
+    bool bSaveInFile;
+    const std::string oFILE_NAME;
 
     MonitorUserInterface *poMui;
 };
