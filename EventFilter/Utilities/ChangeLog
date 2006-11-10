@@ -1,3 +1,9 @@
+2006-11-10  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-11-05
+	* insignificant fixes to src/WebGUI.cc and src/SealModule.cc
+	regarding the transition to slc4/gcc3.45.
+
 2006-10-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-11-04

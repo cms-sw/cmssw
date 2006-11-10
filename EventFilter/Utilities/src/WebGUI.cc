@@ -393,9 +393,9 @@ void WebGUI::htmlTable(Input_t*in,Output_t*out,
 //______________________________________________________________________________
 void WebGUI::htmlHead(Input_t *in,Output_t* out,CString_t& pageTitle)
 {
-  *out<<head()<<endl<<link().set("type","text/css")
-                            .set("rel","stylesheet")
-                            .set("href",urn_+"/styles.css")
+  *out<<head()<<endl<<cgicc::link().set("type","text/css")
+                                   .set("rel","stylesheet")
+                                   .set("href",urn_+"/styles.css")
       <<endl<<title(pageTitle.c_str())<<endl<<head()<<endl;
 }
 
