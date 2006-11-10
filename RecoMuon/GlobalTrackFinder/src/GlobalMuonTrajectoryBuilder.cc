@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/06 17:50:17 $
- *  $Revision: 1.53 $
+ *  $Date: 2006/11/08 08:04:53 $
+ *  $Revision: 1.54 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -86,19 +86,19 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 							 const MuonServiceProxy* service) : 
   theService(service)
 {
-
+  std::string metname = "GLBTrajBuilder::constructor";
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new MuonTrackReFitter(refitterPSet,theService);
 
   ParameterSet seedGeneratorPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
-  theTkSeedGenerator = new TrackerSeedGenerator(seedGeneratorPSet,theService);  
+  theTkSeedGenerator = new TrackerSeedGenerator(seedGeneratorPSet,theService);
 
   theLayerMeasurements = new MuonDetLayerMeasurements();
   
   tkSeedFlag = false;
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");  
   if (theTkTrackLabel == "") {
-    LogInfo("GlobalMuonTrajectoryBuilder") << "TkTrackCollectionLabel unspecified" ;  
+    LogInfo(metname) << "TkTrackCollectionLabel unspecified" ;  
     tkSeedFlag = true;
   }
 
@@ -119,32 +119,10 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
   convert = true;
   tkTrajsAvailable = false;
-
-  /*
-  const ParameterSet ckfPSet = par.getParameter<ParameterSet>("CKFParameters");
+  first = true;
   
-  std::string updatorName  = ckfPSet.getParameter<std::string>("updator");   
-  std::string estimatorName     = ckfPSet.getParameter<std::string>("estimator");
-  std::string recHitBuilderName = ckfPSet.getParameter<std::string>("TTRHBuilder");
- edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
- edm::ESHandle<Chi2MeasurementEstimatorBase>   estimatorHandle;
- edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
- edm::ESHandle<MeasurementTracker>             measurementTrackerHandle;
- theService->eventSetup().get<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(updatorName,updatorHandle);
- theService->eventSetup().get<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);
- theService->eventSetup().get<CkfComponentsRecord>().getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);
- theService->eventSetup().get<CkfComponentsRecord>().get(measurementTrackerHandle);  
-  */
- /* 
- CkfTrajectoryBuilder* theCkfBuilder;
- theCkfBuilder = new CkfTrajectoryBuilder(ckfPSet,
-					   updatorHandle.product(),
-					   &*theService->propagator("PropagatorWithMaterial"),
-					   &*theService->propagator("PropagatorWithMaterialOpposite"),
-					   estimatorHandle.product(),
-					   recHitBuilderHandle.product(),
-					   measurementTrackerHandle.product());
- */
+  std::string ckfBuilderName = par.getParameter<std::string>("ckfBuilder");
+
 }
 
 
@@ -158,7 +136,7 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theTrackMatcher) delete theTrackMatcher;
   if (theLayerMeasurements) delete theLayerMeasurements;
   if (theTrackConverter) delete theTrackConverter;
-  //if(theCkfBuilder) delete theCkfBuilder;
+
 }
 
 
@@ -166,34 +144,39 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
 // set Event
 //
 void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
-  
+
+  std::string metname = "GLBTrajBuilder::setEvent";
+
   // get tracker TrackCollection from Event
   if( ! tkSeedFlag ) {
     event.getByLabel(theTkTrackLabel,allTrackerTracks);
-      LogInfo("GlobalMuonTrajectoryBuilder") 
+    LogInfo(metname) 
       << "Found " << allTrackerTracks->size() 
-      << " tracker Tracks with label "<< theTkTrackLabel <<endl;
+      << " tracker Tracks with label "<< theTkTrackLabel;
   }  
   edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
   try
     {
       event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
       tkTrajsAvailable = true;
-      allTrackerTrajs = &*handleTrackerTrajs;   
-      
-      LogInfo("GlobalMuonTrajectoryBuilder") 
-	<< "Tk Trajectories Found! " << endl;
+      allTrackerTrajs = &*handleTrackerTrajs;         
+      if( first ) LogInfo(metname) << "Tk Trajectories Found! ";
     }
   catch (...)
     {
-      LogInfo("GlobalMuonTrajectoryBuilder") 
-	<< "No Tk Trajectories Found! " << endl;
+      if( first ) LogInfo(metname) << "No Tk Trajectories Found! ";
       tkTrajsAvailable = false;
     }
   
   theLayerMeasurements->setEvent(event);  
   theTkSeedGenerator->setEvent(event);
-  //theCkfBuilder->setEvent(event);
+  
+  if( first ) {
+    first = false;
+    LogInfo(metname) << "Constructing a CkfBuilder";
+    theService->eventSetup().get<CkfComponentsRecord>().get("CkfTrajectoryBuilder",theCkfBuilder);
+  }
+  theCkfBuilder->setEvent(event);
 }
 
 
@@ -202,58 +185,24 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 //
 MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
 
+  std::string metname = "GLBTrajBuilder::trajectories";
   // cut on muons with low momenta
   if ( (staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut || (staCandIn).second->innerMomentum().R() < 2.5 ) return CandidateContainer();
   
   // convert the STA track into a Trajectory if Trajectory not already present
-  TrackCand staCand;
-  if(staCandIn.first == 0) {
-    staCand = TrackCand(0,staCandIn.second);
-    if ( convert ) {
-      LogInfo("GlobalMuonTrajectoryBuilder") 
-	<< "Making new StaTrackCand" << endl;
-      TC staTrajs = theTrackConverter->convert(staCandIn.second);
-      staCand = ( !staTrajs.empty() ) ? TrackCand(new Trajectory(staTrajs.front()),staCandIn.second) : TrackCand(0,staCandIn.second);
-    }
-  } else {
-    LogInfo("GlobalMuonTrajectoryBuilder") 
-      << "Using pre-made StaTrackCand" << endl;
-    staCand = TrackCand(new Trajectory(*(staCandIn.first)),staCandIn.second);
-  }
+  TrackCand staCand = TrackCand(staCandIn);
+  addTraj(staCand);
 
-  // make tracker seeds and tracks 
-  std::vector<TrajectorySeed*> tkSeeds; 
-  std::vector<reco::Track> allTkTracks;
-  if( true || tkSeedFlag ) {
-    tkSeeds = theTkSeedGenerator->trackerSeeds(*(staCand.first));
-    LogInfo("GlobalMuonTrajectoryBuilder") << "Found " << tkSeeds.size() << " tracker seeds" << endl;
-    allTkTracks = makeTracks(tkSeeds); 
-  }
+  vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
+  LogInfo(metname) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
   
-  // convert tracks to TrackCands
-  vector<TrackCand> tkTrackCands;
-  for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
-    reco::TrackRef tkTrackRef(allTrackerTracks,position);
-    TrackCand tkCand = TrackCand(0,tkTrackRef);
-    if ( tkTrajsAvailable ) {
-      std::vector<Trajectory>::const_iterator it = allTrackerTrajs->begin()+position;
-      Trajectory trajRef = *it;
-      if( trajRef.isValid() ) tkCand = TrackCand(&trajRef,tkTrackRef);
-    } 
-    tkTrackCands.push_back(tkCand);          
-  }
-  
-  // select tracker tracks in eta-phi cone around muon
-  vector<TrackCand> regionalTkTracks = chooseRegionalTrackerTracks(staCand,tkTrackCands);
-
-  LogInfo("GlobalMuonTrajectoryBuilder") << "Found " << regionalTkTracks.size() << " tracks within region of interest" << endl;
-
   // match tracker tracks to muon track
   vector<TrackCand> trackerTracks = theTrackMatcher->match(staCand, regionalTkTracks);
-  LogInfo("GlobalMuonTrajectoryBuilder") << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest" << endl;
+  LogInfo(metname) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
 
   // build a combined tracker-muon MuonCandidate
   CandidateContainer result = build(staCand, trackerTracks);
+  LogInfo(metname) << "Found "<< result.size() << " GLBMuons from one STACand";
 
   // free memory
   if ( staCand.first != 0) {
@@ -291,16 +240,10 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
     double deltaR_tmp = sqrt(pow(deltaEta,2.) + pow(deltaPhi,2.));
     
     if(deltaR_tmp <= deltaR) {
-      TrackCand tkCand = TrackCand(0,is->second);
-      if(is->first == 0 || !(is->first->isValid()) ) {
-	TC tkTrajs_tmp = theTrackConverter->convert(is->second);
-	tkCand = ( !tkTrajs_tmp.empty() ) ? TrackCand(new Trajectory(tkTrajs_tmp.front()),is->second) : TrackCand(0,is->second);	
-      } else {
-	tkCand = TrackCand(new Trajectory(*(is->first)),is->second);
-      }
-      result.push_back(tkCand);      
-    }
-    
+      TrackCand tmpCand = TrackCand(*is);
+      addTraj(tmpCand);
+      result.push_back(tmpCand);      
+    }    
   }
   
   return result; 
@@ -889,8 +832,86 @@ void GlobalMuonTrajectoryBuilder::printHits(const ConstRecHitContainer& hits) co
 
 }
 
-vector<reco::Track> GlobalMuonTrajectoryBuilder::makeTracks(const vector<TrajectorySeed*>& tkSeeds) 
-{
-  cout << "tkSeeds: " <<tkSeeds.size() << endl;
-  return vector<reco::Track>();
+
+//
+// build a tracker Trajectory from a seed
+//
+GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::makeTrajsFromSeeds(const vector<TrajectorySeed>& tkSeeds) const {
+
+  std::string metname = "GLBTrajBuilder::makeTrajsFromSeeds";
+  TC result;
+  
+  LogInfo(metname) << "Tracker Seeds from L2/STA Muon: " << tkSeeds.size();
+  
+  int nseed = 0;
+  std::vector<TrajectorySeed>::const_iterator seed;
+  for(seed = tkSeeds.begin(); seed != tkSeeds.end(); ++seed) {
+    nseed++;
+    LogDebug(metname) << "Building a trajectory from seed " << nseed;
+        
+    TC tkTrajs = theCkfBuilder->trajectories(*seed);
+    
+    LogDebug(metname) << "Trajectories from Seed " << tkTrajs.size();
+    result.insert(result.end(), tkTrajs.begin(), tkTrajs.end());
+  }
+  LogInfo(metname) << "Trajectories from all seeds " << result.size();
+  return result;
+}
+
+
+//
+// make a TrackCand collection using tracker Track, Trajectory information
+//
+vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) const {
+  
+  std::string metname = "GLBTrajBuilder::makeTkCandColl";
+  vector<TrackCand> tkCandColl;
+  
+  // Tracks not available, make seeds and trajectories
+  if ( tkSeedFlag ) {
+    LogDebug(metname) << "Making Seeds";
+    std::vector<TrajectorySeed> tkSeeds; 
+    TC allTkTrajs;
+    if( tkSeedFlag && staCand.first->isValid() ) {
+      tkSeeds = theTkSeedGenerator->trackerSeeds(*(staCand.first));
+      LogDebug(metname) << "Found " << tkSeeds.size() << " tracker seeds";
+      allTkTrajs = makeTrajsFromSeeds(tkSeeds);
+      
+      for (TC::const_iterator tt=allTkTrajs.begin();tt!=allTkTrajs.end();++tt){
+	tkCandColl.push_back(TrackCand(new Trajectory(*tt),reco::TrackRef()));
+      } 
+    }
+    LogDebug(metname) << "Found " << tkCandColl.size() << " tkCands from seeds";
+  } // Tracks are already in edm
+  else {
+    vector<TrackCand> tkTrackCands;
+    for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
+      reco::TrackRef tkTrackRef(allTrackerTracks,position);
+      TrackCand tkCand = TrackCand(0,tkTrackRef);
+      if ( tkTrajsAvailable ) {
+	std::vector<Trajectory>::const_iterator it = allTrackerTrajs->begin()+position;
+	Trajectory trajRef = *it;
+	if( trajRef.isValid() ) tkCand = TrackCand(&trajRef,tkTrackRef);
+      } 
+      tkTrackCands.push_back(tkCand);          
+    }
+    tkCandColl = chooseRegionalTrackerTracks(staCand,tkTrackCands);
+  }
+  
+  return tkCandColl;
+}
+
+
+//
+// add Trajectory* to TrackCand if not already present
+//
+void GlobalMuonTrajectoryBuilder::addTraj(TrackCand& candIn) const {
+
+  std::string metname = "GLBTrajBuilder::addTraj";
+  if( candIn.first == 0 || !(candIn.first->isValid()) ) {
+    if( candIn.first ) delete candIn.first;
+    LogDebug(metname) << "Making new trajectory from TrackRef";
+    TC staTrajs = theTrackConverter->convert(candIn.second);
+    candIn = ( !staTrajs.empty() ) ? TrackCand(new Trajectory(staTrajs.front()),candIn.second) : TrackCand(0,candIn.second);    
+  } 
 }

@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/11/06 17:50:16 $
- *  $Revision: 1.36 $
+ *  $Date: 2006/11/08 08:04:53 $
+ *  $Revision: 1.37 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -23,7 +23,6 @@
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
-#include <boost/shared_ptr.hpp>
 
 class RectangularEtaPhiTrackingRegion;
 class TrajectoryStateOnSurface;
@@ -101,10 +100,17 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     /// calculate chi2 probability (-ln(P))
     double trackProbability(const Trajectory&) const;    
 
-    //// print all RecHits of a trajectory
+    /// print all RecHits of a trajectory
     void printHits(const ConstRecHitContainer&) const;
 
-    std::vector<reco::Track> makeTracks(const std::vector<TrajectorySeed*>&);
+    /// build a tracker Trajectory from a seed
+    TC makeTrajsFromSeeds(const std::vector<TrajectorySeed>&) const;
+
+    /// make a TrackCand collection using tracker Track, Trajectory information
+    std::vector<TrackCand> makeTkCandCollection(const TrackCand&) const;
+
+    /// if TrackCand has only a TrackRef, attempt to add Trajectory*
+    void addTraj(TrackCand&) const;
 
   private:
 
@@ -113,12 +119,9 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     GlobalMuonTrackMatcher* theTrackMatcher;
     MuonTrackReFitter* theRefitter;
     MuonDetLayerMeasurements* theLayerMeasurements;
-    //boost::shared_ptr<TrackerTrajectoryBuilder>  theCkfBuilder;
-    //CkfTrajectoryBuilder* theCkfBuilder;
-
     MuonTrackConverter* theTrackConverter;
     TrackerSeedGenerator* theTkSeedGenerator;
-
+    
     int   theMuonHitsOption;
     ReconstructionDirection theDirection;
     float thePtCut;
@@ -127,13 +130,16 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theDTChi2Cut;
     float theCSCChi2Cut;
     float theRPCChi2Cut;
+    std::string theTkTrackLabel;
+
     bool convert;
     bool tkTrajsAvailable;
     bool tkSeedFlag;
+    bool first;
 
-    std::string theTkTrackLabel;
-
+    edm::ESHandle<TrackerTrajectoryBuilder> theCkfBuilder;
     edm::Handle<reco::TrackCollection> allTrackerTracks;
+
     const std::vector<Trajectory> *allTrackerTrajs;
  
     const MuonServiceProxy *theService;
