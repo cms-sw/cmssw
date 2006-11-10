@@ -1,10 +1,13 @@
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 SiPixelGainCalibrationService::SiPixelGainCalibrationService(const edm::ParameterSet& conf):
   conf_(conf),
   UseCalibDataFromDB_(conf.getParameter<bool>("UseCalibDataFromDB")),
   PedestalValue_(conf.getParameter<double>("PedestalValue")),
-  GainValue_(conf.getParameter<double>("GainValue")) {
+  GainValue_(conf.getParameter<double>("GainValue")),
+  ESetupInit_(false)
+{
 
   if (UseCalibDataFromDB_==false){  
     edm::LogInfo("SiPixelGainCalibrationService")  << "[SiPixelGainCalibrationService::SiPixelGainCalibrationService] Using a Single Value for Pedestal and Gain";
@@ -20,6 +23,7 @@ SiPixelGainCalibrationService::SiPixelGainCalibrationService(const edm::Paramete
 void SiPixelGainCalibrationService::setESObjects( const edm::EventSetup& es ) {
   if ( UseCalibDataFromDB_ == true ) {
     es.get<SiPixelGainCalibrationRcd>().get(ped);
+    ESetupInit_ = true;
   }
 };
 
@@ -36,7 +40,6 @@ std::vector<uint32_t> SiPixelGainCalibrationService::getDetIds() {
 }
 
 float SiPixelGainCalibrationService::getPedestal (const uint32_t& detID,const int& col, const int& row) {
-
   if (UseCalibDataFromDB_==false){  
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     //Case of SingleValue of Pedestals for all pixels
@@ -44,17 +47,19 @@ float SiPixelGainCalibrationService::getPedestal (const uint32_t& detID,const in
     return (float) PedestalValue_;
   } 
   else {
-    //&&&&&&&&&&&&&&&&&&&&
-    //Access from DB
-    //&&&&&&&&&&&&&&&&&&&&
-    if (detID != old_detID){
-      old_detID=detID;
-      old_range = ped->getRange(detID);
-      old_cols  = ped->getNCols(detID);
-    }
-    //std::cout<<" Pedestal "<<ped->getPed(col, row, old_range, old_cols)<<std::endl;
-    return  ped->getPed(col, row, old_range, old_cols);
-
+    if(ESetupInit_) {
+      //&&&&&&&&&&&&&&&&&&&&
+      //Access from DB
+      //&&&&&&&&&&&&&&&&&&&&
+      if (detID != old_detID){
+	old_detID=detID;
+	old_range = ped->getRange(detID);
+	old_cols  = ped->getNCols(detID);
+      }
+      //std::cout<<" Pedestal "<<ped->getPed(col, row, old_range, old_cols)<<std::endl;
+      return  ped->getPed(col, row, old_range, old_cols);
+    } else throw cms::Exception("NullPointer")
+      << "[SiPixelGainCalibrationService::getPedestal] SiPixelGainCalibrationRcd not initialized ";
   }
 }
 
@@ -67,14 +72,17 @@ float SiPixelGainCalibrationService::getGain (const uint32_t& detID,const int& c
     return (float) GainValue_;
   } 
   else {
-    //&&&&&&&&&&&&&&&&&&&&
-    //Access from DB
-    //&&&&&&&&&&&&&&&&&&&&
-    if (detID != old_detID){
-      old_detID=detID;
-      old_range = ped->getRange(detID);
-      old_cols  = ped->getNCols(detID);
-    }
-    return ped->getGain(col, row, old_range, old_cols);
+   if(ESetupInit_) {
+     //&&&&&&&&&&&&&&&&&&&&
+     //Access from DB
+     //&&&&&&&&&&&&&&&&&&&&
+     if (detID != old_detID){
+       old_detID=detID;
+       old_range = ped->getRange(detID);
+       old_cols  = ped->getNCols(detID);
+     }
+     return ped->getGain(col, row, old_range, old_cols);
+   } else throw cms::Exception("NullPointer")
+     << "[SiPixelGainCalibrationService::getGain] SiPixelGainCalibrationRcd not initialized ";
   }
 }
