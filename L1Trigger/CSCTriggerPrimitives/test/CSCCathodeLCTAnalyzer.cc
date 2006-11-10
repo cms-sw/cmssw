@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/09/12 09:00:29 $
- * $Revision: 1.1 $
+ * $Date: 2006/09/20 12:34:09 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -75,8 +75,10 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
   CSCCathodeLayerInfo tempInfo;
   vector<CSCCathodeLayerInfo> vectInfo;
 
-  // Time window for accepting hits; should become a config. parameter.
-  const int bx_width = 3;
+  // Parameters defining time window for accepting hits; should come from
+  // configuration file eventually.
+  const int bx_width    = 6;
+  const int drift_delay = 2;
 
   // Inquire the clct for its key half-strip, strip type and pattern number.
   int clct_keystrip  = clct.getKeyStrip();
@@ -142,9 +144,9 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
 	  // be non-negative.
 	  bx_time += CSCConstants::TIME_OFFSET;
 
-	  // Do not use digis arrived later than bx_width clocks after the
-	  // CLCT time.  Just an approximation and needs to be worked on.
-	  if (bx_time - clct_bx > bx_width) {
+	  // Do not use digis which could not have contributed to a given CLCT.
+	  int latch_bx = clct_bx + drift_delay;
+	  if (bx_time <= latch_bx-bx_width || bx_time > latch_bx) {
 	    if (debug) LogDebug("lctDigis")
 	      << "Late comparator digi: layer " << i_layer
 	      << " strip/comparator/time =" << (*digiIt) << " skipping...";

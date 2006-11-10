@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/09/12 09:00:29 $
- * $Revision: 1.1 $
+ * $Date: 2006/09/20 10:55:33 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -70,8 +70,11 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(
   CSCAnodeLayerInfo tempInfo;
   vector<CSCAnodeLayerInfo> vectInfo;
 
-  // Time window for accepting hits; should become a config. parameter.
-  const int bx_width = 6;
+  // Parameters defining time window for accepting hits; should come from
+  // configuration file eventually.
+  const int fifo_tbins  = 16;
+  const int bx_width    =  6;
+  const int drift_delay =  3;
 
   // Inquire the alct for its pattern and key wiregroup.
   int alct_pattern = 0;
@@ -106,13 +109,12 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(
          digiIt != rwired.second; ++digiIt) {
       if (debug) LogDebug("lctDigis")
 	<< "Wire digi: layer " << i_layer << (*digiIt);
-      int bx_time = (*digiIt).getBeamCrossingTag();
-      if (bx_time >=  CSCConstants::MIN_BUNCH &&
-	  bx_time <=  CSCConstants::MAX_BUNCH) {
+      int bx_time = (*digiIt).getTimeBin();
+      if (bx_time >= 0 && bx_time < fifo_tbins) {
 
-	// Do not use digis arrived later than bx_width clocks after the
-	// CLCT time.  Just an approximation and needs to be worked on.
-	if (bx_time + CSCConstants::TIME_OFFSET- alct_bx > bx_width) {
+	// Do not use digis which could not have contributed to a given ALCT.
+	int latch_bx = alct_bx + drift_delay;
+	if (bx_time <= latch_bx-bx_width || bx_time > latch_bx) {
 	  if (debug) LogDebug("lctDigis")
 	    << "Late wire digi: layer " << i_layer
 	    << " " << (*digiIt) << " skipping...";
@@ -124,7 +126,7 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(
 	// If there is more than one digi on the same wire, pick the one
 	// which occurred earlier.
 	if (digiMap.count(i_wire) > 0) {
-	  if (digiMap[i_wire].getBeamCrossingTag() > bx_time) {
+	  if (digiMap[i_wire].getTimeBin() > bx_time) {
 	    if (debug) {
 	      LogDebug("lctDigis")
 		<< " Replacing good wire digi on wire " << i_wire;
