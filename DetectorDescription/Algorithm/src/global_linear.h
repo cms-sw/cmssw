@@ -13,7 +13,7 @@
 #include <string>
 #include <iostream>
 
-;
+
 #define MAX_DOUBLE DBL_MAX
 //#include <climits>
 
@@ -76,9 +76,6 @@ public:
   DDRotationMatrix  rotation();
   
   
-
-  
-
 // no XML counterpart, but usefull.
   void stream(std::ostream  &) const;
 
@@ -104,7 +101,7 @@ class global_linear_Check : public AlgoCheck
 public:
   // only ctor-code is generated!
   global_linear_Check();
-  ~global_linear_Check() { };
+  ~global_linear_Check() { }
 };
 
 #endif

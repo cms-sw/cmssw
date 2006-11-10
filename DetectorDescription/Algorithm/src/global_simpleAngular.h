@@ -13,7 +13,7 @@
 #include <string>
 #include <iostream>
 
-;
+
 #define MAX_DOUBLE DBL_MAX
 //#include <climits>
 
