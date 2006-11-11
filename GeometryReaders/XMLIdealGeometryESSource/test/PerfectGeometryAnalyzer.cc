@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.6 2006/07/18 01:38:57 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.9 2006/11/08 08:29:47 case Exp $
 //
 //
 
@@ -168,4 +168,4 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(PerfectGeometryAnalyzer)
+DEFINE_FWK_MODULE(PerfectGeometryAnalyzer);
