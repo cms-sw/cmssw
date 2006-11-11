@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/27 11:21:48 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/10/24 15:11:50 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 
@@ -18,6 +18,8 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <CLHEP/Random/RandGauss.h>
+
+#include <cmath>
    
 using namespace std;
 using namespace edm;
@@ -93,8 +95,9 @@ void DaqFakeReader::fillFEDs(const pair<int,int>& fedRange,
   for (int fedId = fedRange.first; fedId <= fedRange.second; ++fedId ) {
     
     // Generate size...
-    float logsiz = RandGauss::shoot(log(meansize),log(meansize)-log(width/2.));
-    size_t size = int(exp(logsiz));
+    float logsiz = RandGauss::shoot(std::log(meansize),
+				    std::log(meansize)-std::log(width/2.));
+    size_t size = int(std::exp(logsiz));
     size -= size % 8; // all blocks aligned to 64 bit words
 
     FEDRawData& feddata = data.FEDData(fedId);

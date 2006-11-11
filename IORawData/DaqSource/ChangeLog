@@ -1,3 +1,9 @@
+2006-11-11  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-01
+	* src/DaqFakeReader.cc (fillFEDs): include <cmath> and change
+	  log -> std::log and exp -> std::exp for slc4/gcc3.4.5 compliance.
+
 2006-10-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-03-00
