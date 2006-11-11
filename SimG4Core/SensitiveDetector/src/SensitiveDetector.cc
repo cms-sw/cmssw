@@ -31,7 +31,7 @@ void SensitiveDetector::AssignSD(string & vname)
     for (it = theStore->begin(); it != theStore->end(); it++)
     {
 	G4LogicalVolume * v = *it;
-	if (v->GetName() == vname.c_str()) v->SetSensitiveDetector(this);
+	if (vname==v->GetName()) v->SetSensitiveDetector(this);
     }
 }
 
