@@ -1,7 +1,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-//#include <iostream>
+#include <iostream>
 const int EEDetId::QuadColLimits[EEDetId::nCols+1] = { 0, 8,17,27,36,45,54,62,70,76,79 };
 const int EEDetId::iYoffset[EEDetId::nCols+1]      = { 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -175,6 +175,28 @@ int EEDetId::iy(int iSC, int iCrys) const
   return iyCrys;
 }
 
+int EEDetId::ixQuadrantOne() const
+{ 
+  int iQuadrant = iquadrant();
+  if ( iQuadrant == 1 || iQuadrant == 4)
+    return (ix() - 50);
+  else if ( iQuadrant == 2 || iQuadrant == 3)
+    return (51 - ix());
+  //Should never be reached
+  return -1;
+}
+
+int EEDetId::iyQuadrantOne() const
+{ 
+  int iQuadrant = iquadrant();
+  if ( iQuadrant == 1 || iQuadrant == 2)
+    return (iy() - 50);
+  else if ( iQuadrant == 3 || iQuadrant == 4)
+    return 51 - iy();
+  //Should never be reached
+  return -1;
+}
+
 int EEDetId::iquadrant() const {
   if (ix()>50)
     {
@@ -190,14 +212,75 @@ int EEDetId::iquadrant() const {
       else
 	return 3;
     }
+  //Should never be reached
+  return -1;
 }  
 
-int EEDetId::isc() const {
-  throw cms::Exception("MethodNotImplemented") << "EEDetId: Method not yet implemented";
+int EEDetId::isc() const 
+{
+  /*
+   *  Return SC number from (x,y) coordinates.
+   *
+   *  Author    : B W Kennedy
+   *  Version   : 1.00
+   *  Created   : 5 May 2006
+   *  Last Mod  :
+   *
+   *  Input     : ix, iy - (x,y) position of crystal
+   */
+  
+  int iCol = int((ixQuadrantOne() - 1)/nCrys) + 1;
+  int iRow = int((iyQuadrantOne() - 1)/nCrys) + 1;
+  int nSCinQuadrant = QuadColLimits[nCols];
+  int iSC;
+  
+  if (iRow <= iYoffset[iCol]) 
+    return -1;
+  else 
+    iSC = QuadColLimits[iCol-1] + iRow - iYoffset[iCol];
+
+  if (iSC > QuadColLimits[iCol]) 
+    return -2;
+  
+  if (iSC>0) 
+      iSC += nSCinQuadrant*(iquadrant()-1);
+  
+  return iSC;
 }  
 
-int EEDetId::ic() const {
-  throw cms::Exception("MethodNotImplemented") << "EEDetId: Method not yet implemented";
+int EEDetId::ic() const 
+{
+  /*
+   *  Return crystal number from (x,y) coordinates.
+   *
+   *  Author    : B W Kennedy
+   *  Version   : 1.00
+   *  Created   : 5 May 2006
+   *  Last Mod  :
+   *
+   *  Input     : ix, iy - (x,y) position of crystal
+   */
+
+  /*  Useful constants . */
+  int iQuadrant = iquadrant();
+  int icrCol=-1;
+  int icrRow=-1;
+
+  if (iQuadrant == 1 || iQuadrant == 3)
+    {
+      icrCol=(ixQuadrantOne()-1) % nCrys;
+      icrRow=(iyQuadrantOne()-1) % nCrys;
+    }
+  
+  else if (iQuadrant == 2 || iQuadrant == 4)
+    {
+      icrRow=(ixQuadrantOne()-1) % nCrys;
+      icrCol=(iyQuadrantOne()-1) % nCrys;
+    } 
+
+  int icrys = 5*icrCol + icrRow + 1;
+  
+  return icrys;
 }  
 
 bool EEDetId::validDetId(int crystal_ix, int crystal_iy, int iz) const {

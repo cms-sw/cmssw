@@ -10,7 +10,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.6 2006/05/25 15:29:36 meridian Exp $
+ *  $Id: EEDetId.h,v 1.7 2006/08/23 15:40:05 meridian Exp $
  */
 
 
@@ -58,16 +58,19 @@ class EEDetId : public DetId {
   static const int XYMODE = 0;
   static const int SCCRYSTALMODE = 1;
 
-  
+
  private:
 
   //Functions from B. Kennedy to retrieve ix and iy from SC and Crystal number
 
   static const int nCols = 10;
+  static const int nCrys = 5; /* Number of crystals per row in SC */
   static const int QuadColLimits[nCols+1];
   static const int iYoffset[nCols+1];
   int ix(int iSC,int iCrys) const;
   int iy(int iSC,int iCrys) const;
+  int ixQuadrantOne() const;
+  int iyQuadrantOne() const;
   /// check if a valid index combination
   bool validDetId(int i, int j, int iz) const;
 };
