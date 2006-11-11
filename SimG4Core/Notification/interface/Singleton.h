@@ -81,7 +81,7 @@ inline typename Singleton<T>::self * Singleton<T>::instance() {
     new self(); // instance now set in constructor of helper...
   }
   return nakedInstance().get();
-};
+}
 
 template<class T>
 inline void Singleton<T>::setInstance(typename Singleton<T>::self * it) {
