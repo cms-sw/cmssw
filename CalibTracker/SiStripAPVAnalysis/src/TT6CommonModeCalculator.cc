@@ -1,4 +1,6 @@
 #include "CalibTracker/SiStripAPVAnalysis/interface/TT6CommonModeCalculator.h"
+#include <cmath>
+
 using namespace std;
 TT6CommonModeCalculator::TT6CommonModeCalculator(TkNoiseCalculator* noise_calc, TkApvMask* mask_calc, float sig_cut) : 
   theNoiseCalculator(noise_calc),
