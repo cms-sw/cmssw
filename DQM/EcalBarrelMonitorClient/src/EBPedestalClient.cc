@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/10/18 07:22:09 $
- * $Revision: 1.89 $
+ * $Date: 2006/10/18 16:57:52 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1107,7 +1107,7 @@ void EBPedestalClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( abs(mean01 - expectedMean_[0]) > discrepancyMean_[0] )
+          if ( fabs(mean01 - expectedMean_[0]) > discrepancyMean_[0] )
             val = 0.;
           if ( rms01 > RMSThreshold_[0] )
             val = 0.;
@@ -1123,7 +1123,7 @@ void EBPedestalClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( abs(mean02 - expectedMean_[1]) > discrepancyMean_[1] )
+          if ( fabs(mean02 - expectedMean_[1]) > discrepancyMean_[1] )
             val = 0.;
           if ( rms02 > RMSThreshold_[1] )
             val = 0.;
@@ -1139,7 +1139,7 @@ void EBPedestalClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( abs(mean03 - expectedMean_[2]) > discrepancyMean_[2] )
+          if ( fabs(mean03 - expectedMean_[2]) > discrepancyMean_[2] )
             val = 0.;
           if ( rms03 > RMSThreshold_[2] )
             val = 0.;
@@ -1234,19 +1234,19 @@ void EBPedestalClient::analyze(void){
                                        j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip));
 
           z3val01 = -999.;
-          if ( x3val01 != 0 && y3val01 != 0 ) z3val01 = sqrt(abs(x3val01 - y3val01));
+          if ( x3val01 != 0 && y3val01 != 0 ) z3val01 = sqrt(fabs(x3val01 - y3val01));
           if ( (x3val01 - y3val01) < 0 ) z3val01 = -z3val01;
 
           if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent(ie, ip, z3val01);
 
           z3val02 = -999.;
-          if ( x3val02 != 0 && y3val02 != 0 ) z3val02 = sqrt(abs(x3val02 - y3val02));
+          if ( x3val02 != 0 && y3val02 != 0 ) z3val02 = sqrt(fabs(x3val02 - y3val02));
           if ( (x3val02 - y3val02) < 0 ) z3val02 = -z3val02;
           
           if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent(ie, ip, z3val02);
 
           z3val03 = -999.;
-          if ( x3val03 != 0 && y3val03 != 0 ) z3val03 = sqrt(abs(x3val03 - y3val03));
+          if ( x3val03 != 0 && y3val03 != 0 ) z3val03 = sqrt(fabs(x3val03 - y3val03));
           if ( (x3val03 - y3val03) < 0 ) z3val03 = -z3val03;
           
           if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ie, ip, z3val03);
@@ -1305,19 +1305,19 @@ void EBPedestalClient::analyze(void){
                                        k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip));
 
           z5val01 = -999.;
-          if ( x5val01 != 0 && y5val01 != 0 ) z5val01 = sqrt(abs(x5val01 - y5val01));
+          if ( x5val01 != 0 && y5val01 != 0 ) z5val01 = sqrt(fabs(x5val01 - y5val01));
           if ( (x5val01 - y5val01) < 0 ) z5val01 = -z5val01;
 
           if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ie, ip, z5val01);
 
           z5val02 = -999.;
-          if ( x5val02 != 0 && y5val02 != 0 ) z5val02 = sqrt(abs(x5val02 - y5val02));
+          if ( x5val02 != 0 && y5val02 != 0 ) z5val02 = sqrt(fabs(x5val02 - y5val02));
           if ( (x5val02 - y5val02) < 0 ) z5val02 = -z5val02;
           
           if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ie, ip, z5val02);
 
           z5val03 = -999.;
-          if ( x5val03 != 0 && y5val03 != 0 ) z5val03 = sqrt(abs(x5val03 - y5val03));
+          if ( x5val03 != 0 && y5val03 != 0 ) z5val03 = sqrt(fabs(x5val03 - y5val03));
           if ( (x5val03 - y5val03) < 0 ) z5val03 = -z5val03;
           
           if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ie, ip, z5val03);

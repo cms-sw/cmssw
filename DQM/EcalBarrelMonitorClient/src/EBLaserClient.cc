@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/09/05 09:11:59 $
- * $Revision: 1.88 $
+ * $Date: 2006/10/18 16:57:52 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  *
 */
@@ -2209,7 +2209,7 @@ void EBLaserClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( abs(mean01 - meanAmplL1) > abs(percentVariation_ * meanAmplL1) )
+          if ( fabs(mean01 - meanAmplL1) > fabs(percentVariation_ * meanAmplL1) )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2229,7 +2229,7 @@ void EBLaserClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( abs(mean03 - meanAmplL2) > abs(percentVariation_ * meanAmplL2) )
+          if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val);
 
@@ -2249,7 +2249,7 @@ void EBLaserClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( abs(mean05 - meanAmplL3) > abs(percentVariation_ * meanAmplL3) )
+          if ( fabs(mean05 - meanAmplL3) > fabs(percentVariation_ * meanAmplL3) )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2269,7 +2269,7 @@ void EBLaserClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( abs(mean07 - meanAmplL4) > abs(percentVariation_ * meanAmplL4) )
+          if ( fabs(mean07 - meanAmplL4) > fabs(percentVariation_ * meanAmplL4) )
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, val );
 
