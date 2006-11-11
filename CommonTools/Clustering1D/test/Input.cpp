@@ -18,14 +18,14 @@ Cluster1D<string> createCluster ( float pos, float err, float weight, string nam
     names.push_back ( new string(name) );
     Cluster1D<string> ret ( Measurement1D ( pos, err ), names, weight );
     return ret;
-};
+}
 
 char nameCtr='a';
 
 void resetClusterName()
 {
     nameCtr='a';
-};
+}
 
 Cluster1D<string> createCluster ( float pos, float err, float weight )
 {
@@ -37,7 +37,7 @@ Cluster1D<string> createCluster ( float pos, float err, float weight )
     nameCtr++;
     Cluster1D<string> ret ( Measurement1D ( pos, err ), names, weight );
     return ret;
-};
+}
 
 void deleteCluster ( vector < Cluster1D<string> > & clus )
 {
@@ -53,7 +53,7 @@ void deleteCluster ( vector < Cluster1D<string> > & clus )
         };
     };
     cout << " done." << endl;
-};
+}
 
 // makes sure that the leftmost cluster is called 'a'
 // and so on
@@ -71,7 +71,7 @@ vector < Cluster1D < string > > sortCluster (
                                         i->weight() ) );
     };
     return ret;
-};
+}
 
 vector < Cluster1D<string> > trivialInput()
 {
@@ -80,7 +80,7 @@ vector < Cluster1D<string> > trivialInput()
     ret.push_back ( createCluster ( 5.0, 0.32, .4 ) );
     ret.push_back ( createCluster ( 10.0, 0.22, .7 ) );
     return ret;
-};
+}
 
 vector < Cluster1D<string> > threeItems()
 {
@@ -89,7 +89,7 @@ vector < Cluster1D<string> > threeItems()
     ret.push_back ( createCluster ( 5.0, 0.32, .9 ) );
     ret.push_back ( createCluster ( 10.0, 0.22, .6 ) );
     return ret;
-};
+}
 
 vector < Cluster1D<string> > fourItems()
 {
@@ -99,7 +99,7 @@ vector < Cluster1D<string> > fourItems()
     ret.push_back ( createCluster ( 10.0, 0.22, .5 ) );
     ret.push_back ( createCluster ( 12.0, 0.22, .8 ) );
     return ret;
-};
+}
 
 /**
  *  User calls this, or the next.
@@ -128,7 +128,7 @@ vector < Cluster1D<string> > createInput( string name )
 
     cout << "[Input.cc] input " << name << " unknown" << endl;
     exit(-1);
-};
+}
 
 /**
  *  The user gives the number of clusters
@@ -148,6 +148,6 @@ vector < Cluster1D<string> > createInput ( int n )
     return sortCluster ( ret );
     //    sort ( ret.begin(), ret.end(), ClusterizerCommons::ComparePairs<string>() );
     //    return ret;
-};
+}
 
-};
+}

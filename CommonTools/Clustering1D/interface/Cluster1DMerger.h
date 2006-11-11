@@ -3,6 +3,7 @@
 
 #include "CommonTools/Clustering1D/interface/Cluster1D.h"
 #include "CommonTools/Clustering1D/interface/WeightEstimator.h"
+#include <cmath>
 
 /**
  *  The class that should always be used to merge
