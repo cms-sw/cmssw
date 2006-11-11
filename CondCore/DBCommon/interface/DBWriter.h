@@ -4,8 +4,9 @@
 #include "DataSvc/Ref.h"
 #include "POOLCore/Exception.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
+
 namespace cond{
-  class DBSession;
   class DBWriter{
   public:
     DBWriter( cond::DBSession& session,
