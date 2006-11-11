@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id: MatacqDataFormatter.cc,v 1.2 2006/09/08 13:23:38 pgras Exp $
+// $Id: MatacqDataFormatter.cc,v 1.3 2006/09/21 12:22:36 pgras Exp $
 
 #include "EventFilter/EcalTBRawToDigi/src/MatacqDataFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -103,4 +103,4 @@ void MatacqDataFormatter::printData(ostream& out, const MatacqRawEvent& matacq) 
   }
   cout << "=================================================="
     "==================================================\n\n";   
-};
+}
