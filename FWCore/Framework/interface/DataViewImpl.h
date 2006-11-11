@@ -74,7 +74,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.5 2006/11/04 18:56:22 wmtan Exp $
+$Id: DataViewImpl.h,v 1.6 2006/11/09 00:28:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -156,7 +156,7 @@ namespace edm {
     ///Put a new product.
     template <typename PROD>
     OrphanHandle<PROD>
-    put(std::auto_ptr<PROD> product) {return put(product, std::string());}
+    put(std::auto_ptr<PROD> product) {return put<PROD>(product, std::string());}
 
     ///Put a new product with a 'product instance name'
     template <typename PROD>
@@ -168,7 +168,7 @@ namespace edm {
     /// DataViewImpl has been committed (which happens after leaving the EDProducer::produce method)
     template <typename PROD>
     RefProd<PROD>
-    getRefBeforePut() {return getRefBeforePut(std::string());}
+    getRefBeforePut() {return getRefBeforePut<PROD>(std::string());}
 
     template <typename PROD>
     RefProd<PROD>
