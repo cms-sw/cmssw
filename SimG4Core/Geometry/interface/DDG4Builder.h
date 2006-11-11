@@ -40,7 +40,7 @@ protected:
     std::map<DDSolid,G4VSolid*> sols_;    
     std::map<DDLogicalPart,G4LogicalVolume*> logs_;
 private:
-    DDCompactView* compactView;
+    const DDCompactView* compactView;
     static DDG4DispContainer * theVectorOfDDG4Dispatchables_;
     bool           check_;
 };
