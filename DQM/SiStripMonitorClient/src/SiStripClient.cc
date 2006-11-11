@@ -88,7 +88,7 @@ void SiStripClient::onUpdate() const
 
   // Creation of Summary 
   if (updateFrequencyForSummary_ != -1 ) {
-    if (nUpdate > 30 && nUpdate%updateFrequencyForSummary_ == 1) {
+    if (nUpdate > 0 && nUpdate%updateFrequencyForSummary_ == 0) {
       webInterface_p->setActionFlag(SiStripWebInterface::Summary);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 			        &SiStripWebInterface::performAction));
@@ -96,8 +96,8 @@ void SiStripClient::onUpdate() const
     }
   }	
   // Creation of TrackerMap
-  if (updateFrequencyForTrackerMap_ != -1 ) {
-    if (nUpdate > 1 && nUpdate%updateFrequencyForTrackerMap_ == 1) {
+  if (updateFrequencyForTrackerMap_ != -1 && nUpdate > 30) {
+    if (nUpdate%updateFrequencyForTrackerMap_ == 1) {
       webInterface_p->setActionFlag(SiStripWebInterface::TemporaryTkMap);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 				 &SiStripWebInterface::performAction));

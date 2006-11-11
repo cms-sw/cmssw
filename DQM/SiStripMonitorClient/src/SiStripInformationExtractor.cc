@@ -82,6 +82,41 @@ void SiStripInformationExtractor::fillSummaryHistoList(MonitorUserInterface * mu
   }
 }
 //
+// --  Fill Summary Histo List
+// 
+void SiStripInformationExtractor::printSummaryHistoList(MonitorUserInterface * mui, ostringstream& str_val){
+  static string indent_str = "";
+
+  string currDir = mui->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  if (dname.find("module_") ==0) return;
+  str_val << "<li><a href=\"#\" id=\"" 
+          << currDir << "\">" << dname << "</a>" << endl;
+  vector<string> meVec = mui->getMEs(); 
+  vector<string> subDirVec = mui->getSubdirs();
+  if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
+    str_val << "</li> "<< endl;    
+    return;
+  }
+  str_val << "<ul>" << endl;      
+  for (vector<string>::const_iterator it = meVec.begin();
+       it != meVec.end(); it++) {
+    if ((*it).find("Summary") == 0) {
+      str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:DrawSingleHisto('"
+           << currDir << "/"<< (*it) << "')\">" << (*it) << "</a></li>" << endl;
+    }
+  }
+
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    mui->cd(*ic);
+    printSummaryHistoList(mui, str_val);
+    mui->goUp();
+  }
+  str_val << "</ul> "<< endl;  
+  str_val << "</li> "<< endl;  
+}
+//
 // --  Get Selected Monitor Elements
 // 
 void SiStripInformationExtractor::selectSingleModuleHistos(MonitorUserInterface * mui, string mid, vector<string>& names, vector<MonitorElement*>& mes) {
@@ -185,6 +220,23 @@ void SiStripInformationExtractor::plotSummaryHistos(MonitorUserInterface * mui,
   plotHistos(req_map,me_list);
 }
 //
+// -- plot Summary Histos
+//
+void SiStripInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui,
+		       std::multimap<std::string, std::string>& req_map){
+  vector<string> item_list;  
+
+  string path_name = getItemValue(req_map,"Path");
+  if (path_name.size() == 0) return;
+  
+  MonitorElement* me = mui->get(path_name);
+  vector<MonitorElement*> me_list;
+  if (me) {
+    me_list.push_back(me);
+    plotHistos(req_map,me_list);
+  }
+}
+//
 //  plot Histograms in a Canvas
 //
 void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map, 
@@ -254,6 +306,24 @@ void SiStripInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
    *out << "</HistoList>" << endl;
    *out << "</ModuleAndHistoList>" << endl;
    if (coll_flag)  mui->cd();
+}
+//
+// read the Structure And SummaryHistogram List
+//
+void SiStripInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui, std::string& str_name, xgi::Output * out, bool coll_flag) {
+ 
+  ostringstream sumtree;
+  if (goToDir(mui, str_name, coll_flag)) {
+    sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
+    printSummaryHistoList(mui,sumtree);
+    sumtree <<"</ul>" << endl;   
+    cout <<  sumtree.str() << endl;
+  } else {
+    sumtree << "Desired Directory does not exist";
+  }
+  out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
+  *out << sumtree.str();
+   mui->cd();
 }
 //
 // read the Structure And SummaryHistogram List
@@ -340,4 +410,26 @@ void SiStripInformationExtractor::fillImageBuffer(TCanvas& c1) {
 //
 const ostringstream&  SiStripInformationExtractor::getImage() const {
   return pictureBuffer_;
+}
+//
+// go to a specific directory after scanning
+//
+bool SiStripInformationExtractor::goToDir(MonitorUserInterface* mui, string& sname, bool flg){ 
+  mui->cd();
+  mui->cd("Collector");
+  cout << mui->pwd() << endl;
+  vector<string> subdirs;
+  subdirs = mui->getSubdirs();
+  if (subdirs.size() == 0) return false;
+  
+  if (flg) mui->cd("Collated");
+  else mui->cd(subdirs[0]);
+  cout << mui->pwd() << endl;
+  subdirs.clear();
+  subdirs = mui->getSubdirs();
+  if (subdirs.size() == 0) return false;
+  mui->cd(sname);
+  string dirName = mui->pwd();
+  if (dirName.find(sname) != string::npos) return true;
+  else return false;  
 }

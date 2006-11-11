@@ -32,6 +32,10 @@ class SiStripInformationExtractor {
   const std::ostringstream& getImage() const;
   void readSummaryHistoList(MonitorUserInterface* mui, 
     std::string& str_name, xgi::Output * out, bool coll_flag);
+  void readSummaryHistoTree(MonitorUserInterface* mui, 
+    std::string& str_name, xgi::Output * out, bool coll_flag);
+  void printSummaryHistoList(MonitorUserInterface* mui, std::ostringstream& str_val);
+  void plotSingleHistogram(MonitorUserInterface * mui,std::multimap<std::string, std::string>& req_map);
 
  private:
 
@@ -52,7 +56,7 @@ class SiStripInformationExtractor {
 	 std::string& str_name, std::vector<std::string>& histos);
   void plotHistos(std::multimap<std::string, std::string>& req_map, 
                   std::vector<MonitorElement*> me_list);
-
+  bool goToDir(MonitorUserInterface* mui, std::string& sname, bool flg);
   std::ostringstream pictureBuffer_;
 };
 #endif

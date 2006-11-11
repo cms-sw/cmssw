@@ -126,7 +126,7 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-   infoExtractor_->readSummaryHistoList((*mui_p), sname, out,
+   infoExtractor_->readSummaryHistoTree((*mui_p), sname, out,
                            actionExecutor_->getCollationFlag());    
   } 
   else if (requestID == "PlotAsModule") {
@@ -135,6 +135,10 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "PlotSummaryHistos") {
     theActionFlag = PlotSummaryHistos;    
   }
+  else if (requestID == "PlotSingleHistogram") {
+   theActionFlag = PlotSingleHistogram;
+  } 
+
   else if (requestID == "UpdatePlot") {
    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
@@ -227,6 +231,11 @@ void SiStripWebInterface::performAction() {
   case SiStripWebInterface::PlotSummaryHistos :
     {
       infoExtractor_->plotSummaryHistos((*mui_p), requestMap_);
+      break;
+    }
+  case SiStripWebInterface::PlotSingleHistogram :
+    {
+      infoExtractor_->plotSingleHistogram((*mui_p), requestMap_);
       break;
     }
   case SiStripWebInterface::NoAction :
