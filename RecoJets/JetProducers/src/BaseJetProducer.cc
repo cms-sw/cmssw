@@ -1,8 +1,7 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.2 2006/09/08 23:34:35 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.3 2006/11/11 14:27:40 oehler Exp $
 //--------------------------------------------
-//test
 #include <memory>
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
