@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/11/05 10:00:45 $
- * $Revision: 1.183 $
+ * $Date: 2006/11/05 10:29:32 $
+ * $Revision: 1.184 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -99,9 +99,21 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   unknowns_ = 0;
 
+  // DQM ROOT input
+
+  inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
+
+  if ( inputFile_.size() != 0 ) {
+    cout << " Reading DQM from inputFile = '" << inputFile_ << "'" << endl;
+  }
+
   // DQM ROOT output
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
+
+  if ( outputFile_.size() != 0 ) {
+    cout << " Writing DQM to outputFile = '" << outputFile_ << "'" << endl;
+  }
 
   // Ecal Cond DB
 
@@ -416,6 +428,15 @@ void EcalBarrelMonitorClient::beginJob(void){
     mui_->setVerbose(1);
   } else {
     mui_->setVerbose(0);
+  }
+
+  if ( ! enableStateMachine_ ) {
+    if ( ! enableMonitorDaemon_ ) {
+      if ( inputFile_.size() != 0 ) {
+        DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+        dbe->open(inputFile_);
+      }
+    }
   }
 
   mui_->setMaxAttempts2Reconnect(99999);
@@ -995,6 +1016,15 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
+    if ( inputFile_.size() != 0 ) {
+      if ( ievt_ == 1 ) {
+        cout << endl;
+        cout << " Reading DQM from file, forcing 'begin-of-run'" << endl;
+        cout << endl;
+        status_ = "begin-of-run";
+      }
+    }
+
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUN").c_str());
     me = mui_->get(histo);
     if ( me ) {
@@ -1130,7 +1160,7 @@ void EcalBarrelMonitorClient::analyze(void){
       }
 
     }
-    
+
   }
   
   if ( status_ == "end-of-run" ) {
@@ -1145,7 +1175,7 @@ void EcalBarrelMonitorClient::analyze(void){
     
   }
 
-  // BEGIN: run-time fixes for missing state trasitions
+  // BEGIN: run-time fixes for missing state transitions
   
   if ( status_ == "unknown" ) {
     
@@ -1203,12 +1233,13 @@ void EcalBarrelMonitorClient::analyze(void){
 
   }
   
-  // END: run-time fixes for missing state trasitions
+  // END: run-time fixes for missing state transitions
 
 }
 
 void EcalBarrelMonitorClient::htmlOutput(void){
 
+  cout << endl;
   cout << "Preparing EcalBarrelMonitorClient html output ..." << endl;
 
   char tmp[10];
