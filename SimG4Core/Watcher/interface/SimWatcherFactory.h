@@ -20,8 +20,6 @@ private:
 
 //This pattern was taken from the framework factory code
 
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-
 #define DEFINE_SIMWATCHER(type) \
   DEFINE_SEAL_PLUGIN(SimWatcherFactory, SimWatcherMaker<type>,#type)
 
