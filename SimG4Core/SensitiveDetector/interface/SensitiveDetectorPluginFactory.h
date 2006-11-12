@@ -18,5 +18,5 @@ class SensitiveDetectorPluginFactory : public seal::PluginFactory<SensitiveDetec
 };
 
 #define DEFINE_SENSITIVEDETECTOR(type) \
-  DEFINE_SEAL_PLUGIN(SensitiveDetectorPluginFactory, SensitiveDetectorMaker<type>, #type);
+  DEFINE_SEAL_PLUGIN(SensitiveDetectorPluginFactory, SensitiveDetectorMaker<type>, #type)
 #endif
