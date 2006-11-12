@@ -21,6 +21,6 @@ private:
 //NOTE: the prefix "IOMC/EventVertexGenerators/" is there for 'backwards compatability
 // and should eventually be removed (which will require changes to config files)
 #define DEFINE_EVENTVERTEXGENERATOR(type) \
-  DEFINE_SEAL_PLUGIN(EventVertexGeneratorFactory, EventVertexGeneratorMaker<type>,"IOMC/EventVertexGenerators/" #type);
+  DEFINE_SEAL_PLUGIN(EventVertexGeneratorFactory, EventVertexGeneratorMaker<type>,"IOMC/EventVertexGenerators/" #type)
 
 #endif
