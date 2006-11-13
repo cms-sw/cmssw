@@ -124,7 +124,7 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
     IS++;
 
   }
-};
+}
 
 Trajectory CosmicTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& seed) const
 {
@@ -164,7 +164,7 @@ CosmicTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   }
 
   return result;
-};
+}
 
 
 
@@ -242,7 +242,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
   }
 
   return allHits;
-};
+}
 
 TrajectoryStateOnSurface
 CosmicTrajectoryBuilder::startingTSOS(const TrajectorySeed& seed)const
