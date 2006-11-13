@@ -4,6 +4,7 @@
 #include <qpainter.h>
 #include <qbitmap.h>
 #include <iostream>
+using namespace std;
 
 VisTrackerMap::VisTrackerMap( QWidget *parent, const char *name, QLabel* labelinfo )
   : QWidget( parent, name )

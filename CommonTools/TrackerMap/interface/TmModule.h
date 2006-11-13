@@ -1,6 +1,5 @@
 #include <map>
 #include <string>
-using namespace std;
 
 
 class TmModule  {
@@ -12,8 +11,8 @@ class TmModule  {
   int red,green,blue;
   float value;
   int count;	
-  string text;
-  string name;
+  std::string text;
+  std::string name;
   int histNumber;
   int getId(){return idModule; }
   int getKey(){return layer*100000+ring*1000+idModule; }
@@ -31,13 +30,13 @@ class TmModule  {
 
 class SvgModuleMap {
  public:
-  static map<const int  , TmModule *> smoduleMap;
+  static std::map<const int  , TmModule *> smoduleMap;
  };
 
 
 class IdModuleMap {
  public:
-  static map<const int  , TmModule *> imoduleMap;
+  static std::map<const int  , TmModule *> imoduleMap;
  };
 
 

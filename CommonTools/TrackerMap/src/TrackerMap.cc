@@ -2,6 +2,7 @@
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include <fstream>
 #include <iostream>
+using namespace std;
 
 /**********************************************************
 Allocate all the modules in a map of TmModule

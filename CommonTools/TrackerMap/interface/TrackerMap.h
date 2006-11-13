@@ -2,15 +2,15 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 class TmModule;
 class EventSetup;
-using namespace std;
 
 class TrackerMap {
  public:
   TrackerMap(){TrackerMap(" ");};   //!< default constructor
-  TrackerMap(string s=" ",int xsize1=340,int ysize1=200);
+  TrackerMap(std::string s=" ",int xsize1=340,int ysize1=200);
   ~TrackerMap();  //!< default destructor
  
   void build();
@@ -21,14 +21,14 @@ class TrackerMap {
   void fill(int idmod, float qty );
   void fillc(int idmod, int red, int green, int blue);
   void fillc(int layer,int ring, int nmod, int red, int green, int blue);
-  void setText(int idmod , string s );
-  void setText(int layer, int ring, int nmod , string s );
+  void setText(int idmod , std::string s );
+  void setText(int layer, int ring, int nmod , std::string s );
   int getxsize(){return xsize;};
   int getysize(){return ysize;};
   int getNumMod(){return number_modules;};
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
-  string title;
+  std::string title;
   double phival(double x, double y){
     double phi;
     double phi1=atan(y/x);
@@ -231,9 +231,9 @@ void defwindow(int num_lay){
   return -1; 
   }
 
-  string layername(int layer){
-    string s= " ";
-    ostringstream ons;
+  std::string layername(int layer){
+    std::string s= " ";
+    std::ostringstream ons;
      
     if(layer < 10) ons << "TEC -z Layer " << layer;
     if(layer < 13 && layer > 9) ons << "TID -z Layer " << layer-9;
@@ -258,8 +258,8 @@ void defwindow(int num_lay){
   double xmin,xmax,ymin,ymax;
   bool posrel;
   bool firstcall;
-  ofstream * svgfile;
-  ifstream * jsfile;
+  std::ofstream * svgfile;
+  std::ifstream * jsfile;
   float minvalue,maxvalue;
   int number_modules;
 };
