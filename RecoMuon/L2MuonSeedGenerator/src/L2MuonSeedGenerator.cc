@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: $
- *   $Revision: $
+ *   $Date: 2006/10/17 16:09:25 $
+ *   $Revision: 1.3 $
  *
  *   \author  A.Everett, R.Bellan
  *
@@ -83,21 +83,6 @@ L2MuonSeedGenerator::~L2MuonSeedGenerator(){
   if (theEstimator) delete theEstimator;
 }
 
-
-// definition of the bit fields
-unsigned L2MuonSeedGenerator::readDataField(unsigned start, unsigned count) const {
-  unsigned mask = ( (1 << count) - 1 ) << start;
-  return (theDataWord & mask) >> start;
-}
-
-bool L2MuonSeedGenerator::isFwd() const{ 
-  return readDataField( FWDBIT_START, FWDBIT_LENGTH) == 1; 
-}
-
-bool L2MuonSeedGenerator::isRPC() const { 
-  return readDataField( ISRPCBIT_START, ISRPCBIT_LENGTH) == 1; 
-}
-
 void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   const std::string metname = "Muon|RecoMuon|L2MuonSeedGenerator";
@@ -127,29 +112,26 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     float theta =  2*atan(exp(-eta));
     float phi   =  (*it).phi();      
     int charge  =  (*it).charge();
+    bool barrel = !(*it).isForward();
 
     if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
     
-    LogDebug(metname) << "NEW L2 Muon Seed";
+    LogDebug(metname) << "New L2 Muon Seed";
     LogDebug(metname) << "Pt = " << pt << " GeV/c";
     LogDebug(metname) << "eta = " << eta;
     LogDebug(metname) << "theta = " << theta << " rad";
     LogDebug(metname) << "phi = " << phi << " rad";
     LogDebug(metname) << "charge = "<< charge;
+    LogDebug(metname) << "In Barrel? = "<< barrel;
     
     unsigned int quality = 0;
-    bool barrel =  false;
-
 
     if (tmpCand){
       quality =  tmpCand->quality();
-      theDataWord = tmpCand->getDataWord();
-      barrel = !isFwd();    
     }
     else{
       // FIXME! Temporary to handle the MC input
       quality = 7;
-      barrel = (abs(eta) < 1.1) ? true : false;
     }
 
     if ( quality <= theL1MinQuality ) continue;

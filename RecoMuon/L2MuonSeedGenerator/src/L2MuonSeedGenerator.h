@@ -10,8 +10,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: $
- *   $Revision: $
+ *   $Date: 2006/10/17 16:09:25 $
+ *   $Revision: 1.3 $
  *
  *   \author  A.Everett, R.Bellan
  *
@@ -29,14 +29,7 @@ class MeasurementEstimator;
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class L2MuonSeedGenerator : public edm::EDProducer {
-
- private:
-
-  enum { IDXDTCSC_START=26}; enum { IDXDTCSC_LENGTH = 2}; // Bit  26:27 DT/CSC muon index
-  enum { IDXRPC_START=28};   enum { IDXRPC_LENGTH = 2};   // Bit  28:29 RPC muon index
-  enum { FWDBIT_START=30};   enum { FWDBIT_LENGTH = 1};   // Bit  30    fwd bit
-  enum { ISRPCBIT_START=31}; enum { ISRPCBIT_LENGTH = 1}; // Bit  31    isRPC bit
-  
+ 
  public:
   
   /// Constructor
@@ -48,26 +41,13 @@ class L2MuonSeedGenerator : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
  private:
-  
-  /// definition of the bit fields
-  unsigned readDataField(unsigned start, unsigned count) const; 
-  
-  /// get forward bit (true=forward, false=barrel)
-  bool isFwd() const;
-  
-  /// get RPC bit (true=RPC, false = DT/CSC or matched)
-  bool isRPC() const;
 
- private:
   edm::InputTag theSource;
   std::string thePropagatorName;
 
   const double theL1MinPt;
   const double theL1MaxEta;
   const unsigned theL1MinQuality;
-
-  /// muon data word (26 bits)
-  unsigned theDataWord;
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy *theService;  
