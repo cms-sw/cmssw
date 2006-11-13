@@ -8,7 +8,7 @@
  * \author Michael A. Balazs, UVa
  * \author Luca Lista, INFN
  *
- * \version $Id: ClusterShape.h,v 1.4 2006/09/19 18:24:50 mabalazs Exp $
+ * \version $Id: ClusterShape.h,v 1.5 2006/11/06 14:38:47 mabalazs Exp $
  *
  */
 
@@ -25,8 +25,9 @@ namespace reco {
     ClusterShape() { }
     ClusterShape( double cEE, double cEP, double cPP, 
                   double eMax, DetId eMaxId, double e2nd, DetId e2ndId,
-		  						double e2x2, double e3x2, double e3x3, double e4x4, double e5x5,
-                  double e3x2Ratio, 
+		  double e2x2, double e3x2, double e3x3, double e4x4,
+		  double e5x5, double E10_Right_, double E10_Left_,
+		  double E10_Top_, double E10_Bottom_, double e3x2Ratio, 
                   std::vector<double> energyBasketFractionEta_,
                   std::vector<double> energyBasketFractionPhi_);
     double eMax() const { return eMax_; }
@@ -36,10 +37,15 @@ namespace reco {
     double e3x3() const { return e3x3_; }
     double e4x4() const { return e4x4_; }
     double e5x5() const { return e5x5_; }
+    double e2x5Right() const { return e2x5Right_; }
+    double e2x5Left() const { return e2x5Left_; }
+    double e2x5Top() const { return e2x5Top_; }
+    double e2x5Bottom() const { return e2x5Bottom_; }
     double e3x2Ratio() const { return e3x2Ratio_; }
     double covEtaEta() const { return covEtaEta_; }
     double covEtaPhi() const { return covEtaPhi_; }
     double covPhiPhi() const { return covPhiPhi_; }
+
     std::vector<double> energyBasketFractionEta() const { return energyBasketFractionEta_;}
     std::vector<double> energyBasketFractionPhi() const { return energyBasketFractionPhi_;}
     DetId eMaxId() const { return eMaxId_;}
@@ -48,6 +54,7 @@ namespace reco {
   private:
     Double32_t covEtaEta_, covEtaPhi_, covPhiPhi_;
     Double32_t eMax_, e2nd_, e2x2_, e3x2_, e3x3_, e4x4_, e5x5_;
+    Double32_t e2x5Right_, e2x5Left_, e2x5Top_, e2x5Bottom_;
     Double32_t e3x2Ratio_;
     std::vector<double> energyBasketFractionEta_;
     std::vector<double> energyBasketFractionPhi_;

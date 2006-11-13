@@ -33,6 +33,10 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedC
   Calculate_e4x4();
   //std::cout << "Calculate_e5x5 " << std::endl;
   Calculate_e5x5();
+  Calculate_e2x5Right();
+  Calculate_e2x5Left();
+  Calculate_e2x5Top();
+  Calculate_e2x5Bottom();
   //std::cout << "Calculate_Covariances " << std::endl;
   Calculate_Covariances(passedCluster,hits,geometry);
   //std::cout << "Calculate_BarrelBasketEnergyFraction " << std::endl;
@@ -40,8 +44,10 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedC
   //std::cout << "Calculate_BarrelBasketEnergyFraction " << std::endl;
   Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Phi, geometry);
 
-  return reco::ClusterShape(covEtaEta_, covEtaPhi_, covPhiPhi_, eMax_, eMaxId_, e2nd_, e2ndId_,
-                            e2x2_, e3x2_, e3x3_,e4x4_, e5x5_, e3x2Ratio_, 
+  return reco::ClusterShape(covEtaEta_, covEtaPhi_, covPhiPhi_, eMax_, eMaxId_,
+			    e2nd_, e2ndId_, e2x2_, e3x2_, e3x3_,e4x4_, e5x5_,
+			    e2x5Right_, e2x5Left_, e2x5Top_, e2x5Bottom_,
+			    e3x2Ratio_, 
                             energyBasketFractionEta_, energyBasketFractionPhi_);
 }
 
@@ -263,6 +269,52 @@ void ClusterShapeAlgo::Calculate_e5x5()
 
   e5x5_ = e5x5;
 
+}
+
+void ClusterShapeAlgo::Calculate_e2x5Right()
+{
+double e2x5R=0.0;
+  for(int i = 0; i <= 4; i++){
+    for(int j = 0; j <= 4; j++){
+      if(j>2){e2x5R +=energyMap_[i][j].second;}
+    }
+  }
+  e2x5Right_=e2x5R;
+}
+
+void ClusterShapeAlgo::Calculate_e2x5Left()
+{
+double e2x5L=0.0;
+  for(int i = 0; i <= 4; i++){
+    for(int j = 0; j <= 4; j++){
+      if(j<2){e2x5L +=energyMap_[i][j].second;}
+    }
+  }
+  e2x5Left_=e2x5L;
+}
+
+void ClusterShapeAlgo::Calculate_e2x5Bottom()
+{
+double e2x5B=0.0;
+  for(int i = 0; i <= 4; i++){
+    for(int j = 0; j <= 4; j++){
+
+      if(i>2){e2x5B +=energyMap_[i][j].second;}
+    }
+  }
+  e2x5Bottom_=e2x5B;
+}
+
+void ClusterShapeAlgo::Calculate_e2x5Top()
+{
+double e2x5T=0.0;
+  for(int i = 0; i <= 4; i++){
+    for(int j = 0; j <= 4; j++){
+
+      if(i<2){e2x5T +=energyMap_[i][j].second;}
+    }
+  }
+  e2x5Top_=e2x5T;
 }
 
 void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster &passedCluster, const EcalRecHitCollection* hits, const CaloSubdetectorGeometry* geometry)

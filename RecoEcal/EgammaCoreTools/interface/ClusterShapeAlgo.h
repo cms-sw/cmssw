@@ -7,7 +7,7 @@
  *
  * \author Michael A. Balazs, UVa
  * 
- * \version $Id: ClusterShapeAlgo.h,v 1.12 2006/10/29 10:34:52 rahatlou Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.13 2006/11/06 14:42:38 mabalazs Exp $
  *
  */
 
@@ -46,8 +46,13 @@ class ClusterShapeAlgo
   void Calculate_e3x3();
   void Calculate_e4x4();
   void Calculate_e5x5();
-	void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster &passedCluster, const EcalRecHitCollection* hits, 
-																		  		     const CaloSubdetectorGeometry* geometry);
+  void Calculate_e2x5Right();
+  void Calculate_e2x5Left();
+  void Calculate_e2x5Top();
+  void Calculate_e2x5Bottom();
+  void Calculate_Covariances(const reco::BasicCluster &passedCluster,
+			     const EcalRecHitCollection* hits,
+			     const CaloSubdetectorGeometry* geometry);
   void Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits,
                                             const int EtaPhi,const CaloSubdetectorGeometry * geometry);
 
@@ -58,6 +63,7 @@ class ClusterShapeAlgo
 
   double covEtaEta_, covEtaPhi_, covPhiPhi_;
   double eMax_, e2nd_, e2x2_, e3x2_, e3x3_, e4x4_, e5x5_;
+  double e2x5Right_, e2x5Left_, e2x5Top_, e2x5Bottom_;
   double e3x2Ratio_;
   std::vector<double> energyBasketFractionEta_;
   std::vector<double> energyBasketFractionPhi_;
