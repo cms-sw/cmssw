@@ -42,3 +42,15 @@ NoiseEvolution.C
 			
 			
 
+
+
+%%%%%%%%%%%%%%%%%%%
+BadStrips.C
+%%%%%%%%%%%%%%%%%%%
+
+	  the macro allows to evaluate bad strips for each module looking apv noise profile, and cutting on absolute ad relative strip noise thresholds 
+
+	root -b -l -q 'BadStrips.C("<input_file_path>","<output_file_path>",relative LowTh, relative HighTh, absolute LowTh, absolute HTh)'
+
+	eg:.
+	root -b -l -q 'BadStrips.C("/tmp/cmstacuser/Display/Display_PedNoise_RunNb_1.root","./Badstrips.root",3,5,2,6 )' > ! AsbThout.log
