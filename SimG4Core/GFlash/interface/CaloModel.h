@@ -1,6 +1,6 @@
 #ifndef SimG4Core_GFlash_CaloModel_H
 #define SimG4Core_GFlash_CaloModel_H
-//#define G4v7
+
 // Joanna Weng 08.2005
 // setup of volumes for GFLASH
 
