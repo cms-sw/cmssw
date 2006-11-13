@@ -198,4 +198,4 @@ void L2MuonIsolationAnalyzer::Puts(const char* va_(fmt), ...) {
       LogVerbatim("") << chout;
 }
 
-DEFINE_FWK_MODULE(L2MuonIsolationAnalyzer)
+DEFINE_FWK_MODULE(L2MuonIsolationAnalyzer);
