@@ -26,7 +26,7 @@ AlignableDetUnit::AlignableDetUnit( const GeomDetUnit* geomDetUnit ) :
 //__________________________________________________________________________________________________
 AlignableDetUnit::~AlignableDetUnit() {
   delete theAlignmentPositionError;
-};
+}
 
 //__________________________________________________________________________________________________
 void AlignableDetUnit::recursiveComponents(std::vector<Alignable*> &result) const

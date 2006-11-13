@@ -27,7 +27,7 @@ AlignableComposite::AlignableComposite( const GeomDet* geomDet ) :
 void AlignableComposite::recursiveComponents(std::vector<Alignable*> &result) const
 {
 
-  std::vector<Alignable*> components(this->components());
+  std::vector<Alignable*> components = this->components();
   if (components.size() <= 1) return; // Non-glued AlignableDets contain themselves
 
   for (std::vector<Alignable*>::const_iterator iter = components.begin();
@@ -215,7 +215,7 @@ void AlignableComposite::deactivateMisalignment ()
     }
   
   // Forward to components
-  std::vector<Alignable*> components(components());
+  std::vector<Alignable*> components = this->components();
   for ( std::vector<Alignable*>::iterator i=components.begin(); i!=components.end(); i++ ) 
     (**i).deactivateMisalignment();
   
@@ -236,7 +236,7 @@ void AlignableComposite::reactivateMisalignment ()
   }
   
   // Forward to components
-  std::vector<Alignable*> components(components());
+  std::vector<Alignable*> components = this->components();
   for ( std::vector<Alignable*>::iterator i=components.begin(); i!=components.end(); i++ )  
     (**i).reactivateMisalignment();
 
