@@ -70,7 +70,7 @@ template<typename T>
 bool findNameSpaces(T dummy, ns_type & m)
 {
    bool result=true;
-   typename T::iterator<T> it,ed;
+   typename T::template iterator<T> it,ed;
    ed.end();
    for (; it != ed; ++it) {
      result = it->isDefined().second;
@@ -86,7 +86,7 @@ template<typename T>
 bool findNameSpaces(T dummy, ns_nm_type & m)
 {
    bool result=true;
-   typename T::iterator<T> it,ed;
+   typename T::template iterator<T> it,ed;
    ed.end();
    for (; it != ed; ++it) {
      result = it->isDefined().second;
@@ -102,8 +102,8 @@ template <class C> const std::map<string, set<C> > & dd_error_scan(const C &)
 {
     typedef std::map<std::string, set<C> > error_type;
     static error_type result_;
-    typename C::iterator<C> it;
-    typename C::iterator<C> ed(C::end());
+    typename C::template iterator<C> it;
+    typename C::template iterator<C> ed(C::end());
     for (; it != ed; ++it) {
       if (!it->isDefined().second) {
         result_[it->name().ns()].insert(*it);

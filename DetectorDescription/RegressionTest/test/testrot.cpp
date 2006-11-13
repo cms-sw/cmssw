@@ -3,4 +3,4 @@
 int main() {
  testrot();
  return 0;
-};
+}

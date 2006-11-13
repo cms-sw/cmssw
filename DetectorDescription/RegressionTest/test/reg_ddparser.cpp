@@ -4,4 +4,4 @@ int main() {
  testParser();
  output("pout");
  return 0;
-};
+}

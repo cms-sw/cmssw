@@ -5,4 +5,4 @@ int main() {
  regressionTest_first();
  output("nix");
  return 0;
-};
+}
