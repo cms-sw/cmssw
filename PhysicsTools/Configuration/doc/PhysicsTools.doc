@@ -1,0 +1,42 @@
+/*!
+\page PhysicsTools Physics Tools Packages
+
+This page lists all packages related to Physics Analysis Tools within the <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/?cvsroot=CMSSW>CMSSW repository</a>. Links point to the package documentation.
+
+For additional information please visit the <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/candidates/">candidate model</a> under the <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/">Phisics Tools Web page</a> . 
+
+- <b>Data Formats</b><br>
+Generic particle candidates. Those packages are also listed under the  \ref RecoPackages "Reco data format" section.
+ - \ref DataFormats_Candidate "Candidate": generic particle candidates definitions.<br>
+ - \ref DataFormats_RecoCandidate "RecoCandidate": candidates with compontents from \ref RecoPackages "Reco objects".<br>
+ - \ref DataFormats_HepMCCandidate "HepMCCandidate": candidates with compontents from HepMC Generator particle.<br>
+
+- <b>Utility packages</b><br>
+Common utilities to manipulate and analyze particle candidates
+ - \ref PhysicsTools_Utilities "Utilities": genericl utility classes.<br>
+ - \ref PhysicsTools_CandUtils "CandUtils": candidate common utilities.<br>
+ - \ref PhysicsTools_Parser "Parser": cut string parser.<br>
+ - \ref PhysicsTools_PythonAnalysis "PythonAnalysis": interactive python analysis tools.<br>
+
+- <b>Framework module packages</b><br>
+Framework module for common particle candidate manupulation
+ - \ref PhysicsTools_UtilAlgos "UtilAlgos": genericl framework modules.<br>
+ - \ref PhysicsTools_CandAlgos "CandAlgos": common framework modules for \ref DataFormats_Candidate "particle candidates".<br>
+ - \ref PhysicsTools_RecoAlgos "RecoAlgos": common framework modules for \ref RecoPackages "Reco objects".<br>
+ - \ref PhysicsTools_RecoCandAlgos "RecoCandAlgos": framework modules that produce \ref DataFormats_Candidate "particle candidates" with \ref RecoPackages "Reco" components.<br>
+ - \ref PhysicsTools_HepMCCandAlgos "HepMCCandAlgos": framework modules that produce \ref DataFormats_Candidate "particle candidates" with HepMC Generator components.<br>
+
+- <b>Example packages</b><br>
+ - \ref PhysicsTools_CandExamples "CandExamples": common analysis examples based on particle candidates.<br>
+ - \ref PhysicsTools_RecoExamples "RecoExamples": common analysis examples based on \ref RecoPackages "Reco objects".<br>
+ - \ref PhysicsTools_RecoQA "RecoQA": utilities and script to perform "standard" quality evaluation, including
+   object count and event size.<br>
+ - \ref PhysicsTools_ParallelAnalysis "ParallelAnalysis": examples of interactive analysis based on TSelector
+   to be used under Proof, ROOT's parallel processing system accessing EDM data.<br>
+
+\section contact Contact persons
+- Luca Lista
+
+<hr>
+Last updated: 2006-04-05 L.Lista
+*/
