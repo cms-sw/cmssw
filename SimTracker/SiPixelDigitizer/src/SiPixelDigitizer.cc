@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.21 2006/07/24 13:00:41 fambrogl Exp $
+// $Id: SiPixelDigitizer.cc,v 1.22 2006/08/02 11:20:13 chiochia Exp $
 //
 //
 
@@ -82,7 +82,7 @@ namespace cms
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     
-    std::string alias ( iConfig.template getParameter<std::string>("@module_label") ); 
+    std::string alias ( iConfig.getParameter<std::string>("@module_label") ); 
 
     produces<edm::DetSetVector<PixelDigi> >().setBranchAlias( alias );
     produces<edm::DetSetVector<PixelDigiSimLink> >().setBranchAlias ( alias + "siPixelDigiSimLink");
