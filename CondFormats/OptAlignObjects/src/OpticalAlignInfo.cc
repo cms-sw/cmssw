@@ -7,7 +7,7 @@ OpticalAlignParam::OpticalAlignParam()
 {
   quality_ = -1;
   dim_type_ = "";
-};
+}
 
 std::ostream & operator<<(std::ostream & os, const OpticalAlignInfo & r)
 {
@@ -70,8 +70,8 @@ OpticalAlignParam::OpticalAlignParam( const OpticalAlignParam &rhs )
 OpticalAlignParam* OpticalAlignInfo::findExtraEntry( std::string& name )
 {
   OpticalAlignParam* param = 0;
-  std::vector<OpticalAlignParam>::const_iterator ite;
-  for( std::vector<OpticalAlignParam>::const_iterator ite = extraEntries_.begin(); ite != extraEntries_.end(); ite++ ){
+  std::vector<OpticalAlignParam>::iterator ite;
+  for( ite = extraEntries_.begin(); ite != extraEntries_.end(); ite++ ){
     if( (*ite).name_ == name ){
       param = &(*ite);
       break;
