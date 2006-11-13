@@ -20,13 +20,19 @@ using namespace std;
 using namespace HepMC;
 
 static const int protonId = 2212;
+static const int gluonId = 21;
+static const int uId = 1;
+static const int tId = 6;
+static const int stringId = 92;
+static const int clusterId = 92;
 
 GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet & p ) :
   src_( p.getParameter<string>( "src" ) ),
   stableOnly_( p.getParameter<bool>( "stableOnly" ) ),
   excludeList_( p.getParameter<vstring>( "excludeList" ) ),
-  eMinNeutral_( p.getParameter<double>( "eMinNeutral" ) ),
+  ptMinNeutral_( p.getParameter<double>( "ptMinNeutral" ) ),
   ptMinCharged_( p.getParameter<double>( "ptMinCharged" ) ),
+  ptMinGluon_( p.getParameter<double>( "ptMinGluon" ) ),
   keepInitialProtons_( p.getParameter<bool>( "keepInitialProtons" ) ),
   excludeUnfragmentedClones_( p.getParameter<bool>( "excludeUnfragmentedClones" ) ) {
   produces<CandidateCollection>();
@@ -91,28 +97,34 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
     const GenParticle * part = particles[ i ];
     const int pdgId = part->pdg_id();
     const int status = part->status();
-    
-    bool skipped = false;
-    bool pass = false;
-    if (  keepInitialProtons_ ) {
-      bool initialProton = ( mothers[ i ] == -1 && pdgId == protonId );
-      if ( initialProton ) pass = true;
-    }
-    if ( ! pass ) {
-      if ( stableOnly_ && ! status == 1 ) skipped = true;
-      else if ( excludedIds_.find( abs( pdgId ) ) != excludedIds_.end() ) skipped = true;
-      else {
-	if ( status == 1 ) {
+    {
+      bool skipped = false;
+      bool pass = false;
+      /// keep initial protons anyway, if keepInitialProtons_ set
+      if ( keepInitialProtons_ ) {
+	bool initialProton = ( mothers[ i ] == -1 && pdgId == protonId );
+	if ( initialProton ) pass = true;
+      }
+      if ( ! pass ) {
+	/// skip unstable particles if stableOnly_ set
+	if ( stableOnly_ && ! status == 1 ) skipped = true;
+	/// skip particles with excluded id's
+	else if ( excludedIds_.find( abs( pdgId ) ) != excludedIds_.end() ) skipped = true;
+	/// apply minimun pt cuts on final state neutrals and charged
+	else if ( status == 1 ) {
 	  if ( part->particleID().threeCharge() == 0 ) {
-	    if ( part->momentum().e() < eMinNeutral_ ) skipped = true;	  
+	    if ( part->momentum().perp() < ptMinNeutral_ ) skipped = true;	  
 	  }
 	  else {
 	    if ( part->momentum().perp() < ptMinCharged_ ) skipped = true;
 	  }
+	  /// apply minimum pt cut on gluons
+	} else if ( pdgId == gluonId ) {
+	  if ( part->momentum().perp() < ptMinGluon_ ) skipped = true;
 	}
       }
+      skip[ i ] = skipped;
     }
-    skip[ i ] = skipped;
   }
 
   // reverse particle order to avoir recursive calls
@@ -120,16 +132,18 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
     const GenParticle * part = particles[ i ];
     const int pdgId = part->pdg_id();
     const int status = part->status();
-    if ( status == 2 ) {
-      
-      int m = mothers[ i ];
-      if( m != -1 ) {
-	const GenParticle * mother = particles[ m ];
-	if ( excludeUnfragmentedClones_ && mother->status() == 3 && mother->pdg_id() == pdgId )
-	  skip[ m ] = true;
-      }
-      
-      if ( ! skip[ i ] ) {
+    if ( ! skip[ i ] ) {
+      if ( status == 2 ) {
+	/// skip unfragmented clones (status = 3 if excludeUnfragmentedClones_ set)
+	if ( excludeUnfragmentedClones_ ) {
+	  int m = mothers[ i ];
+	  if( m != -1 ) {
+	    const GenParticle * mother = particles[ m ];
+	    if ( mother->status() == 3 && mother->pdg_id() == pdgId )
+	      skip[ m ] = true;
+	  }
+	}
+	/// drop mothers if all daughters dropped, but keep complete decays
 	bool allDaughtersSkipped = true;
 	const vector<int> & ds = daughters[ i ];
 	for( vector<int>::const_iterator j = ds.begin(); j != ds.end(); ++ j ) {
@@ -138,11 +152,16 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
 	    break;
 	  }
 	}
+	bool canDropDaughters =
+	  ( pdgId >= uId && pdgId <= tId ) || 
+	  pdgId == stringId || pdgId == clusterId;
 	if ( allDaughtersSkipped ) 
 	  skip[ i ] = true;
-	else {
+	else if ( ! canDropDaughters ){
 	  for( vector<int>::const_iterator j = ds.begin(); j != ds.end(); ++ j ) {
-	    skip[ * j ] = false;
+	    const GenParticle * dau = particles[ * j ];
+	    if ( dau->status() == 1 )
+	      skip[ * j ] = false;
 	  }
 	}	    
       }

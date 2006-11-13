@@ -37,8 +37,8 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   vstring excludeList_;
   /// set of excluded particle id's
   std::set<int> excludedIds_;
-  /// minimum pt
-  double eMinNeutral_, ptMinCharged_;
+  /// minimum thresholds
+  double ptMinNeutral_, ptMinCharged_, ptMinGluon_;
   /// keep initial protons
   bool keepInitialProtons_;
   /// suppress unfragmented partons (status=3) clones
