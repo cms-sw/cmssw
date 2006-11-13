@@ -7,6 +7,7 @@
 
 #include <boost/cstdint.hpp>
 #include <iostream>
+#include <cmath>
 
 class CaloHit {
 
