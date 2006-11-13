@@ -15,7 +15,7 @@ namespace geomsort{
  *
  *  precomputed_value_sort(v.begin(), v.end(), DetR());
  *
- *  $Date: 2006/03/16 17:58:56 $
+ *  $Date: 2006/03/17 15:02:05 $
  *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
@@ -35,7 +35,7 @@ namespace geomsort{
  *
  *  precomputed_value_sort(v.begin(), v.end(), DetPhi());
  *
- *  $Date: 2006/03/16 17:58:56 $
+ *  $Date: 2006/03/17 15:02:05 $
  *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
@@ -51,7 +51,7 @@ namespace geomsort{
  *
  *  precomputed_value_sort(v.begin(), v.end(), DetZ());
  *
- *  $Date: 2006/03/16 17:58:56 $
+ *  $Date: 2006/03/17 15:02:05 $
  *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
@@ -59,7 +59,7 @@ namespace geomsort{
   typedef ExtractZ<GeomDet,float> DetZ;
 
 
-};
+}
 #endif
 
 
