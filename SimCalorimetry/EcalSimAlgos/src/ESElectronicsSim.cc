@@ -84,7 +84,7 @@ ESElectronicsSim::encode(const CaloSamples& timeframe) const
     double noi = 0;
     double signal = 0;    
 
-    if (addNoise_) noi = RandGauss::shoot(0., sigma_);
+    if (addNoise_) noi = RandGaussQ::shoot(0., sigma_);
 
     if (gain_ == 0) { 
       signal = timeframe[i]*1000000. + noi + baseline_;     
