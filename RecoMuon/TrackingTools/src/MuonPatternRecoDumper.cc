@@ -9,7 +9,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
@@ -71,8 +71,9 @@ string MuonPatternRecoDumper::dumpMuonId(const DetId &id) const{
   stringstream output;
   
   if(id.subdetId() == MuonSubdetId::DT ){
-    DTChamberId chamberId(id.rawId());
-    output<<"(DT): "<<chamberId<<endl;  
+    DTWireId wireId(id.rawId());
+
+    output<<"(DT): "<<wireId<<endl;  
   }
   else if(id.subdetId() == MuonSubdetId::CSC){
     CSCDetId chamberId(id.rawId());
