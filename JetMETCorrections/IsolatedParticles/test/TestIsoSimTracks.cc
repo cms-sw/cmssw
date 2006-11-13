@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    TestIsoTracks
+// Package:    TestIsoSimTracks
 // Class:      IsolatedParticles
 // 
 /*
@@ -80,28 +80,11 @@
 #include "TH1F.h"
 #include <TFile.h>
 
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include <map>
-#include <string>
-#include <vector>
-#include "CLHEP/Vector/LorentzVector.h"
-
-using namespace std;
-using namespace reco;
-
-
-class TestIsoTracks : public edm::EDAnalyzer {
+class TestIsoSimTracks : public edm::EDAnalyzer {
  public:
-   explicit TestIsoTracks(const edm::ParameterSet&);
-   virtual ~TestIsoTracks(){};
+   explicit TestIsoSimTracks(const edm::ParameterSet&);
+   virtual ~TestIsoSimTracks(){};
    
-  void setPrimaryVertex(const reco::Vertex & a){theRecVertex = a;}
-  void setTracksFromPrimaryVertex(vector<reco::Track> & a){theTrack = a;}
    virtual void analyze (const edm::Event&, const edm::EventSetup&);
    void endJob(void);
 
@@ -114,26 +97,14 @@ class TestIsoTracks : public edm::EDAnalyzer {
         TH1F* pt;
         TH1F* isomult;
       } IsoHists;  
-
-    edm::InputTag mInputPVfCTF;
-    std::string m_inputTrackLabel;
-
-
-  double theRvert;
-  reco::Vertex theRecVertex; 
-  vector<reco::Track> theTrack; 
    TrackAssociator trackAssociator_;
    bool useEcal_;
    bool useHcal_;
    bool useMuon_;
 };
 
-TestIsoTracks::TestIsoTracks(const edm::ParameterSet& iConfig): 
-					   mInputPVfCTF(iConfig.getParameter<edm::InputTag>("src3")),
-					   theRvert(iConfig.getParameter<double>("rvert"))
+TestIsoSimTracks::TestIsoSimTracks(const edm::ParameterSet& iConfig)
 {
-   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
-
    useEcal_ = iConfig.getParameter<bool>("useEcal");
    useHcal_ = iConfig.getParameter<bool>("useHcal");
    useMuon_ = iConfig.getParameter<bool>("useMuon");
@@ -145,8 +116,8 @@ TestIsoTracks::TestIsoTracks(const edm::ParameterSet& iConfig):
    boost::smatch matches;
 	
    m_Hfile=new TFile("IsoHists.root","RECREATE");
-    IsoHists.eta = new TH1F("Eta","Track eta",50,-2.5,2.5);
-    IsoHists.phi = new TH1F("Phi","Track phi",50,-3.2,3.2);
+    IsoHists.eta = new TH1F("Eta","Track eta",100,-5.,5.);
+    IsoHists.phi = new TH1F("Phi","Track phi",100,-3.5,3.5);
     IsoHists.p = new TH1F("Momentum","Track momentum",100,0.,20.);
     IsoHists.pt = new TH1F("pt","Track pt",100,0.,10.);
     IsoHists.isomult = new TH1F("IsoMult","Iso Mult",10,-0.5,9.5);
@@ -167,7 +138,7 @@ TestIsoTracks::TestIsoTracks(const edm::ParameterSet& iConfig):
    trackAssociator_.useDefaultPropagator();
 }
 
-void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
@@ -178,15 +149,6 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
      
 // mine! e
 
-// Take Reco Vertex collection   
-   edm::Handle<reco::VertexCollection> primary_vertices;                 //Define Inputs (vertices)
-   iEvent.getByLabel(mInputPVfCTF, primary_vertices);                  //Get Inputs    (vertices)
-
- // Take Reco Track Collection
-   edm::Handle<reco::TrackCollection> trackCollection;
-   iEvent.getByLabel(m_inputTrackLabel,trackCollection);
-   const reco::TrackCollection tC = *(trackCollection.product());
-
    // get list of tracks and their vertices
    Handle<SimTrackContainer> simTracks;
    iEvent.getByType<SimTrackContainer>(simTracks);
@@ -194,32 +156,24 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
    Handle<SimVertexContainer> simVertices;
    iEvent.getByType<SimVertexContainer>(simVertices);
    if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
-
    
-   // loop over tracks
-
-   std::cout << "Number of tracks found in the event: " << trackCollection->size() << std::endl;
-
-//   for(SimTrackContainer::const_iterator tracksCI = simTracks->begin(); 
-//       tracksCI != simTracks->end(); tracksCI++){
-
-  for(reco::TrackCollection::const_iterator tracksCI=tC.begin(); tracksCI!=tC.end(); tracksCI++){ 
-       
-                double mome_pt =   sqrt ( tracksCI->momentum().x()*tracksCI->momentum().x() +
-			          tracksCI->momentum().y()*tracksCI->momentum().y());    
-				   
-				  // skip low Pt tracks
-      if (mome_pt < 0.5) {
-	 std::cout << "Skipped low Pt track (Pt: " << mome_pt << ")" <<std::endl;
+   // loop over simulated tracks
+   std::cout << "Number of simulated tracks found in the event: " << simTracks->size() << std::endl;
+   for(SimTrackContainer::const_iterator tracksCI = simTracks->begin(); 
+       tracksCI != simTracks->end(); tracksCI++){
+      
+      // skip low Pt tracks
+      if (tracksCI->momentum().perp() < 0.7) {
+//	 std::cout << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" <<std::endl;
 	 continue;
       }
       
       // get vertex
-//      int vertexIndex = tracksCI->vertIndex();
+      int vertexIndex = tracksCI->vertIndex();
       // uint trackIndex = tracksCI->genpartIndex();
       
-//      SimVertex vertex(Hep3Vector(0.,0.,0.),0);
-//      if (vertexIndex >= 0) vertex = (*simVertices)[vertexIndex];
+      SimVertex vertex(Hep3Vector(0.,0.,0.),0);
+      if (vertexIndex >= 0) vertex = (*simVertices)[vertexIndex];
       
       // skip tracks originated away from the IP
 //      if (vertex.position().rho() > 50) {
@@ -227,7 +181,7 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 //	 continue;
 //      }
       
-      std::cout << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << mome_pt << " , " <<
+      std::cout << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
 	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() << std::endl;
       
       // Simply get ECAL energy of the crossed crystals
@@ -247,7 +201,7 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
       
 //      std::cout << "Details:\n" <<std::endl;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
-							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI),
+							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex),
 							  parameters);
 //      std::cout << "ECAL, if track reach ECAL:     " << info.isGoodEcal << std::endl;
 //      std::cout << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() << std::endl;
@@ -269,8 +223,7 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 
           if (info.isGoodEcal==1 && fabs(info.trkGlobPosAtEcal.eta()) < 2.6){
  	   AllTracks.push_back(GlobalPoint(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa));
-	    if (mome_pt > 2. && fabs(info.trkGlobPosAtEcal.eta()) < 2.1) 
-	    if (fabs(info.trkGlobPosAtEcal.eta()) < 2.1) 
+	    if (tracksCI->momentum().perp() > 2. && fabs(info.trkGlobPosAtEcal.eta()) < 2.1) 
 	     {				 
 	     AllTracks1.push_back(GlobalPoint(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa));
 	     }
@@ -292,7 +245,7 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 // mine! b
 
   std::cout << " NUMBER of tracks  " << AllTracks.size() << "  and candidates for iso tracks  " << AllTracks1.size() <<std::endl;
-  
+
   double imult=0.;
       
   for (unsigned int ia1=0; ia1<AllTracks1.size(); ia1++) 
@@ -319,12 +272,10 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
     IsoHists.phi->Fill(AllTracks1[ia1].phi());
     IsoHists.p->Fill(AllTracks1[ia1].mag());
     IsoHists.pt->Fill(AllTracks1[ia1].perp());
-    
     imult = imult+1.;
 
     }
   }
-
     IsoHists.isomult->Fill(imult);
 
 // mine! e
@@ -332,7 +283,7 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 
-void TestIsoTracks::endJob(void) {
+void TestIsoSimTracks::endJob(void) {
 
     m_Hfile->cd();
     IsoHists.eta->Write();
@@ -347,4 +298,4 @@ void TestIsoTracks::endJob(void) {
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestIsoTracks);
+DEFINE_FWK_MODULE(TestIsoSimTracks);
