@@ -20,13 +20,13 @@
 #include "HLTrigger/HLTexample/interface/HLTSinglet.h"
 #include "HLTrigger/HLTexample/src/HLTSinglet.cc"
 
-template HLTSinglet<reco::Electron>             ;
-template HLTSinglet<reco::Photon>               ;
-template HLTSinglet<reco::Muon>                 ;
-template HLTSinglet<reco::CaloJet>              ;
-template HLTSinglet<reco::CaloMET>              ;
-template HLTSinglet<reco::RecoChargedCandidate> ;
-template HLTSinglet<reco::RecoEcalCandidate>    ;
+// template HLTSinglet<reco::Electron>             ;
+// template HLTSinglet<reco::Photon>               ;
+// template HLTSinglet<reco::Muon>                 ;
+// template HLTSinglet<reco::CaloJet>              ;
+// template HLTSinglet<reco::CaloMET>              ;
+// template HLTSinglet<reco::RecoChargedCandidate> ;
+// template HLTSinglet<reco::RecoEcalCandidate>    ;
 
 typedef HLTSinglet<reco::Electron> HLT1Electron ;
 typedef HLTSinglet<reco::Photon>   HLT1Photon   ;
@@ -40,13 +40,13 @@ typedef HLTSinglet<reco::RecoEcalCandidate>    HLT1SuperCluster;
 #include "HLTrigger/HLTexample/interface/HLTSmartSinglet.h"
 #include "HLTrigger/HLTexample/src/HLTSmartSinglet.cc"
 
-template HLTSmartSinglet<reco::Electron>             ;
-template HLTSmartSinglet<reco::Photon>               ;
-template HLTSmartSinglet<reco::Muon>                 ;
-template HLTSmartSinglet<reco::CaloJet>              ;
-template HLTSmartSinglet<reco::CaloMET>              ;
-template HLTSmartSinglet<reco::RecoChargedCandidate> ;
-template HLTSmartSinglet<reco::RecoEcalCandidate>    ;
+// template HLTSmartSinglet<reco::Electron>             ;
+// template HLTSmartSinglet<reco::Photon>               ;
+// template HLTSmartSinglet<reco::Muon>                 ;
+// template HLTSmartSinglet<reco::CaloJet>              ;
+// template HLTSmartSinglet<reco::CaloMET>              ;
+// template HLTSmartSinglet<reco::RecoChargedCandidate> ;
+// template HLTSmartSinglet<reco::RecoEcalCandidate>    ;
 
 typedef HLTSmartSinglet<reco::Electron> HLT1SmartElectron ;
 typedef HLTSmartSinglet<reco::Photon>   HLT1SmartPhoton   ;
