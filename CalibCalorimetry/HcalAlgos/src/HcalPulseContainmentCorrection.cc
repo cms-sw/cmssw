@@ -3,7 +3,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm> // for "max","min"
-
+#include <math.h>
 #include <iostream>
 
 // Function generates a lookup map for a passed-in function (via templated object algoObject,

@@ -1,4 +1,5 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
+#include <math.h>
 
 void getLinearizedADC(const HcalQIEShape& shape,
 		      const HcalQIECoder* coder,
