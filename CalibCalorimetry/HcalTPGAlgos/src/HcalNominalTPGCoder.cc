@@ -6,7 +6,7 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcalNominalTPGCoder.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
-
+#include <math.h>
 
 HcalNominalTPGCoder::HcalNominalTPGCoder(double LSB_GeV, bool doET) {
   lsbGeV_=LSB_GeV;
