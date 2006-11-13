@@ -205,12 +205,12 @@ EcalTrapezoidParameters::vertexList() const
    const double ph ( phi() ) ;
    const HepPoint3D fc ( dztanth*cos(ph), dztanth*sin(ph), dz() ) ;
 
-   const double h ( h() ) ;
-   const double H ( H() ) ;
-   const double b ( b() ) ;
-   const double B ( B() ) ;
-   const double a ( a() ) ;
-   const double A ( A() ) ;
+   const double h_ ( h() ) ;
+   const double H_ ( H() ) ;
+   const double b_ ( b() ) ;
+   const double B_ ( B() ) ;
+   const double a_ ( a() ) ;
+   const double A_ ( A() ) ;
 
 //   const double tl1 ( tl1() ) ;
 
@@ -222,20 +222,20 @@ EcalTrapezoidParameters::vertexList() const
 
    const HepPoint3D f1 ( -HepPoint3D( bl2() + h2()*tanalp2,  h2(), 0 ) ) ;
 
-   const HepPoint3D f2 ( HepPoint3D( -h*tana1, h, 0 ) + f1 ) ;
+   const HepPoint3D f2 ( HepPoint3D( -h_*tana1, h_, 0 ) + f1 ) ;
 
-   const HepPoint3D f3 ( f2 + HepPoint3D( b,0,0 ) ) ;
+   const HepPoint3D f3 ( f2 + HepPoint3D( b_,0,0 ) ) ;
 
-   const HepPoint3D f4 ( HepPoint3D( a,0,0 ) + f1 ) ;
+   const HepPoint3D f4 ( HepPoint3D( a_,0,0 ) + f1 ) ;
 
 
    const HepPoint3D f5 ( -HepPoint3D( bl1() + h1()*tanalp1,  h1(),      0 ) ) ;
 
-   const HepPoint3D f6 ( HepPoint3D( -H*tana1, H, 0 ) + f5 ) ;
+   const HepPoint3D f6 ( HepPoint3D( -H_*tana1, H_, 0 ) + f5 ) ;
 
-   const HepPoint3D f7 ( f6 + HepPoint3D( B,0,0 ) ) ;
+   const HepPoint3D f7 ( f6 + HepPoint3D( B_,0,0 ) ) ;
 
-   const HepPoint3D f8 ( HepPoint3D( A,0,0 ) + f5 ) ;
+   const HepPoint3D f8 ( HepPoint3D( A_,0,0 ) + f5 ) ;
 
    vtx.push_back(  fc + f1 ) ;
    vtx.push_back(  fc + f2 ) ;

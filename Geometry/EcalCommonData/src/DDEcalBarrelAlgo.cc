@@ -1819,15 +1819,15 @@ void DDEcalBarrelAlgo::execute()
 
 //=================================================
 
-	 DDName dryAirTubeName ( ddname( dryAirTubeName() + int_to_string( iMod+1 ) ) ) ; 
+	 DDName dryAirTubeName_ ( ddname( dryAirTubeName() + int_to_string( iMod+1 ) ) ) ; 
 
-	 DDSolid dryAirTubeSolid ( DDSolidFactory::tubs( dryAirTubeName ,
+	 DDSolid dryAirTubeSolid ( DDSolidFactory::tubs( dryAirTubeName_ ,
 							 pipeLength/2,
 							 dryAirTubeInnDiam()/2, 
 							 dryAirTubeOutDiam()/2,
 							 0*deg, 360*deg ) ) ;
 
-	 const DDLogicalPart dryAirTubeLog ( dryAirTubeName, 
+	 const DDLogicalPart dryAirTubeLog ( dryAirTubeName_ , 
 					     dryAirTubeMat(), 
 					     dryAirTubeSolid ) ;
 
