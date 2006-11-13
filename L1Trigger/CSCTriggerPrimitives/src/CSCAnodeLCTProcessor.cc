@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/10/09 13:48:12 $
-//   $Revision: 1.8 $
+//   $Date: 2006/10/26 12:54:37 $
+//   $Revision: 1.9 $
 //
 //   Modifications: 
 //
@@ -180,7 +180,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
   alct_amode   =  1;
   l1a_window   =  5;
 
-  infoV        = 2;
+  infoV        =  2;
 
   // Print configuration parameters.
   if (!config_dumped) {
@@ -446,7 +446,7 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire) {
 
   // Loop over bx times, accelerator and collision patterns to 
   // look for pretrigger.
-  for (int bx_time = 0; bx_time <= fifo_tbins; bx_time++) {
+  for (int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
     for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
       for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
 	hit_layer[i_layer] = false;
