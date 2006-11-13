@@ -148,7 +148,7 @@ void MaterialBudgetTree::fillEndTrack()
       t_FinalZ[ii]   = theData->getStepFinalZ(ii);
       
       t_VolumeID[ii]     = theData->getStepVolumeID(ii);
-      t_VolumeName[ii]   = theData->getStepVolumeName(ii).c_str();
+      t_VolumeName[ii]   = const_cast<char*> (theData->getStepVolumeName(ii).c_str());
       t_VolumeCopy[ii]   = theData->getStepVolumeCopy(ii);
       t_VolumeX[ii]      = theData->getStepVolumeX(ii);
       t_VolumeY[ii]      = theData->getStepVolumeY(ii);
@@ -164,7 +164,7 @@ void MaterialBudgetTree::fillEndTrack()
       t_VolumeZaxis3[ii] = theData->getStepVolumeZaxis(ii).z();
       
       t_MaterialID[ii]   = theData->getStepMaterialID(ii);
-      t_MaterialName[ii] = theData->getStepMaterialName(ii).c_str();
+      t_MaterialName[ii] = const_cast<char*> (theData->getStepMaterialName(ii).c_str());
       t_MaterialX0[ii]   = theData->getStepMaterialX0(ii);
       
       t_ParticleStepID[ii]            = theData->getStepID(ii);
