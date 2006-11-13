@@ -20,7 +20,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizerAlgorithm.h"
 #include <gsl/gsl_sf_erf.h>
-#include "CLHEP/Random/RandGauss.h"
+//#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
 //#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -876,7 +877,8 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 
   // First add noise to hit pixels
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
-    float noise  = RandGauss::shoot(0.,theNoiseInElectrons) ;
+    //float noise  = RandGauss::shoot(0.,theNoiseInElectrons) ;
+    float noise  = RandGaussQ::shoot(0.,theNoiseInElectrons) ;
     (*i).second += Amplitude( noise,0,-1.);
   
   }
@@ -1038,8 +1040,8 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
 // Fluctuate the gain and offset for the amplitude calibration
 // Use gaussian smearing.
 //float SiPixelDigitizerAlgorithm::missCalibrate(const float amp) const {
-  //float gain  = RandGauss::shoot(1.,theGainSmearing);
-  //float offset  = RandGauss::shoot(0.,theOffsetSmearing);
+  //float gain  = RandGaussQ::shoot(1.,theGainSmearing);
+  //float offset  = RandGaussQ::shoot(0.,theOffsetSmearing);
   //float newAmp = amp * gain + offset;
   // More complex misscalibration 
 float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
@@ -1082,10 +1084,10 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
   //
   // Use random smearing 
   // Randomize the pixel response
-  //float pp0  = RandGauss::shoot(p0,s0);
-  //float pp1  = RandGauss::shoot(p1,s1);
-  //float pp2  = RandGauss::shoot(p2,s2);
-  //float pp3  = RandGauss::shoot(p3,s3);
+  //float pp0  = RandGaussQ::shoot(p0,s0);
+  //float pp1  = RandGaussQ::shoot(p1,s1);
+  //float pp2  = RandGaussQ::shoot(p2,s2);
+  //float pp3  = RandGaussQ::shoot(p3,s3);
 
   //newAmp = pp3 + pp2 * tanh(pp0*signal - pp1); // Final signal
 
