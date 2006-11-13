@@ -1,0 +1,446 @@
+#!/bin/env perl
+#################################################################
+#
+#  File and Version Information:
+#       $Id$
+#  
+#  Environment:
+#        Software developed for the CMS Detector at CERN LHC
+#
+#  Author List:
+#        Dmytro Kovalskyi
+#
+#################################################################
+use warnings;
+use strict;
+use Data::Dumper;
+use Getopt::Long;
+
+###########################################################
+## Default setings
+###########################################################
+my $cmssw_base = $ENV{CMSSW_BASE};
+my $cmssw_release_base = $ENV{CMSSW_RELEASE_BASE};
+my ($debug,$className,$fileName,$show,$verbose);
+my $outputFile = "diagram.violet";
+my $violet = "/afs/cern.ch/user/d/dmytro/public/files/violet-0.15.jar";
+my $dX = 300;
+my $dY = 200;
+my $X0 = 30;
+my $Y0 = 30;
+
+# structure
+my %classTree = ();
+# each class is:
+#   perents [],
+#   new_public_methods {},
+#   other_public_methods {},
+#   variables [],
+#   files []
+
+sub help{
+        system("perldoc $0");
+        exit;
+    }
+
+help() if (@ARGV==0);                                                                                                                                                          
+GetOptions("help|h"      => sub{ help() }
+    , "debug|d" => \$debug
+    , "output|o=s" => \$outputFile
+    , "verbose|v" => \$verbose
+    , "class|c=s" => \$className
+    , "file|f=s" => \$fileName
+    , "show|s" => \$show
+    , "editor|e=s" => \$violet
+)
+    or help();
+
+###########################################################
+
+die "Source file name is not provided. Abort" if (!defined $fileName);
+die "Class name is not provided. Abort" if (!defined $className);
+
+sub parents{
+    my @orderedClasses = @_;
+    my @allParents = ();
+    # die scalar @{$orderedClasses[0]},"\n";
+    # print Dumper @{$list};
+    foreach my $class( @{$orderedClasses[0]} ){
+	push @allParents, @{$classTree{$class}->[0]};
+    }
+    my %parents = ();
+    foreach my $parent(@allParents){
+	if (! defined findClassInOrderList(\@orderedClasses,$parent)){
+	    $parents{$parent}++;
+	}
+    }
+    print "Unique parents of ",join(" ",@{$orderedClasses[0]}),":\n", join("\n",keys %parents),"\n" if (defined $debug);
+    # print Dumper @orderedClasses;
+    return keys %parents;
+}
+
+sub findClassInOrderList{
+    my ($list,$className) = @_;
+    my $iX = 0;
+    foreach my $x(@{$list}){
+	my $iY = 0;
+	foreach my $class(@{$x}){
+	    return ($iX,$iY) if ($class eq $className);
+	    $iY++;
+	}
+	$iX++;
+    }
+    return undef;
+}
+
+sub getXmlCompliantText{
+    my $text = shift;
+    $text =~ s/\</&lt;/g;
+    $text =~ s/\>/&gt;/g;
+    $text =~ s/\&/&amp;/g;
+    $text =~ s/\=/&eq;/g;
+    $text =~ s/\//&slash;/g;
+    return $text;
+}
+
+sub print_uml{
+    open(OUT,">$outputFile")||die "Cannot open file $outputFile\n$!\n";
+       print OUT <<"EOF";
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.5.0_06" class="java.beans.XMLDecoder">
+ <object class="com.horstmann.violet.ClassDiagramGraph">      
+EOF
+
+    my $x = $X0;
+    my $y = $Y0;
+    
+    # sort classes for presentation
+    my @orderedClasses = ([$className]);
+
+    while (scalar parents(@orderedClasses) > 0){
+	my @parents = parents(@orderedClasses);
+	unshift @orderedClasses, \@parents;
+    }
+    
+    my $connections = "";
+    foreach my $classSet (@orderedClasses){
+	$x = $X0;
+	foreach my $class (@{$classSet}){
+	    print OUT '<void method="addNode"><object id="'.$class.'" ';
+	    print OUT 'class="com.horstmann.violet.ClassNode">',"\n";
+	    print OUT '<void property="attributes"><void property="text"><string>';
+	    foreach my $var(@{$classTree{$class}->[3]}){
+		print OUT getXmlCompliantText("$var\n");
+	    }
+	    print OUT "</string></void></void>\n";
+	    print OUT '<void property="methods"><void property="text"><string>';
+	    foreach my $method(sort keys %{$classTree{$class}->[2]}){
+		print OUT getXmlCompliantText("$method()\n");
+	    }
+	    print OUT "</string></void></void>\n";
+	    print OUT '<void property="name"><void property="text"><string>'.($class).'</string></void></void></object>';
+	    print OUT '<object class="java.awt.geom.Point2D$Double"><void method="setLocation"><double>'.($x).'</double>';
+	    print OUT '<double>'.($y)."</double></void></object></void>\n";
+	    $x+=$dX;
+	    foreach my $parent(@{$classTree{$class}->[0]}){
+		$connections .= '<void method="connect"><object class="com.horstmann.violet.ClassRelationshipEdge">';
+		# $connections .= '<void property="bentStyle"><object class="com.horstmann.violet.BentStyle" field="VH"/></void>';
+		$connections .= '<void property="endArrowHead"><object class="com.horstmann.violet.ArrowHead" field="TRIANGLE"/>';
+		$connections .= '</void></object><object idref="'.($class).'"/><object idref="'.($parent).'"/></void>'."\n";
+	    }
+	}
+	$y+=$dY;
+    }
+    print OUT "$connections\n</object></java>\n";
+    close OUT;
+}
+
+sub get_parents{
+    my ($inheritance) = @_;
+    my @parents = ();
+    my @classes = split(/\,/,$inheritance);
+    my $public_inheritance = 0;
+    foreach my $class (@classes){
+	print "debug: $class\n" if (defined $debug);
+	$class =~ s/virtual//gs;
+	if ($class =~ /^\s*public\s/i){
+	    $class =~ s/^\s*public\s+//i;
+	    $public_inheritance = 1;
+	}
+	if ($class =~ /^\s*private\s/i){
+	    $class =~ s/^\s*private\s+//i;
+	    $public_inheritance = 0;
+	}
+	if ($class =~ /^\s*protected\s/i){
+	    $class =~ s/^\s*protected\s+//i;
+	    $public_inheritance = 0;
+	}
+	if ($public_inheritance && $class =~ /^\s*(\S+)\s*$/){
+	    my $className = $1;
+            # strip out templates
+	    $className =~ s/\<.*?\>//g;
+	    push @parents,$className;
+	}
+	print "debug: $class\n" if(defined $debug);
+    }
+    return @parents;
+}
+
+sub get_details{
+    my $source = shift;
+    my $className = shift;
+    my %methods = ();
+    my @data = ();
+    # first get rid of blocks in {}
+    # to do this for implementations we need to repeat a few times
+    # print "debug:\n$source\n" if (defined $debug);
+    while ($source =~ s/\{[^\}\{]*\}/;/gs){}
+    $source =~ s/\}.*//gs;
+    
+    # get rid of method arguments
+    $source =~ s/\([^\)]+\)/\(\)/gs;
+    
+    # get rid of compiler commands
+    $source =~ s/\#.*$//mg;
+
+    print "debug:\n$source\n" if (defined $debug);
+    
+    
+    # # get rid of constructors
+    # $source =~ s/$className\s*\(\).*?\;//sg;
+	
+    # # get rif of destructor traces
+    # $source =~ s/~//sg;
+
+    $source =~ s/\n\s*\n/\n/sg;
+    
+    my @blocks = split(/;/,$source);
+    my $public_block = 0;
+    foreach my $block(@blocks){
+	$public_block = 1 if ($block =~ s/^\s*public\s*://i);
+	$public_block = 0 if ($block =~ s/^\s*private\s*://i);
+	$public_block = 0 if ($block =~ s/^\s*protected\s*://i);
+	$block =~ s/\~+//;
+	  
+	print "### debug: $block\n" if (defined $debug);
+	
+	if ($block =~ /([^\s\:]+)\s*\(\)/s){
+	    my $match = $1;
+            # found method
+	    $match =~ s/^\*//;
+	    $match =~ s/^\&//;
+	    next if($match eq $className);
+	    $methods{$match}++ if ($public_block); # ignore non-public methods.
+	}else{
+	    next if ( ($block =~ /^\s*enum /)
+		|| ($block =~ /^\s*class /)
+		|| ($block =~ /^\s*struct /)
+		|| ($block =~ /^\s*template/)
+		|| ($block =~ /^\s*friend\s+class /)
+		|| ($block =~ /^\s*const /)
+		|| ($block =~ /^\s*typedef /)
+	        || ($block =~ /^\s*using /));
+	    $block =~ s/\n/ /g;
+	    $block =~ s/\s+/ /g;
+	    
+	    push @data, $block if($block =~ /\S/);
+	}
+    }
+
+    return [\%methods,\@data];
+}
+
+sub find_class{
+    my ($fileNames, $className) = @_;
+    foreach my $fileName (@{$fileNames}){
+	my $file = $fileName;
+	$file = "$cmssw_base/src/$fileName" if (! -e $file);
+	$file = "$cmssw_release_base/src/$fileName" if (! -e $file);
+	die "Cannot find file $fileName. Abort\n" if (! -e $file);
+	
+	# search for class defenition
+	my @parents = ();
+	my $source = `cat $file`;
+	print "processing file $file ...\n" if (defined $debug);
+	# get rid of comments
+	$source =~ s/\/\*.*?\*\///gs;
+	$source =~ s/\/\/.*$//mg;
+    	my $full_source = $source;
+	if ($source =~ s/.*?class\s+$className([^\w\s\_\{]|\s*)([^\;\(\)\{]*?)\{//is){
+	    print "debug:\n$source\n" if (defined $debug);
+	    my $inheritance = "$1$2";
+	    $inheritance =~ s/.*?://; $inheritance =~ s/\n//g;
+	    @parents = get_parents($inheritance);
+	    if(defined $debug){
+		print "class $className inherits from\n";
+		foreach my $parent(@parents){
+		    print "\t$parent\n";
+		}
+	    }
+	    
+	    ## search for public methods and data.
+	    
+	    my $details = get_details($source,$className);
+	    my %methods = %{$details->[0]};
+	    my @data = @{$details->[1]};
+	    if (defined $debug){
+		print "public methods:\n";
+		foreach my $method (sort keys %methods){
+		    print "\t$method()\n";
+		}
+		print "data:\n";
+		foreach my $var (@data){
+		    print "\t$var\n";
+		}
+	    }
+	    
+	    my @fileList = ();
+	    # collect include files information if there are any parents.
+	    if (scalar @parents > 0){
+		# @fileList = ($full_source =~ /\#include\s*[\"\<]([^\"\>]+)[\"\<]/gm);
+		@fileList = ($full_source =~ /^\#include\s*\W([A-Z][^\"\>\<]+.h)/gm);
+		push @fileList, $fileName;
+		if (defined $debug){
+		    print "Include files:\n";
+		    foreach my $file(@fileList){
+			print "\t$file\n";
+		    }
+		}
+	    }
+	    return [\@parents,{},\%methods,\@data,\@fileList];
+	}
+    }
+    if (defined $debug){
+	print "Cannot find class $className among files:\n";
+	foreach my $file(@{$fileNames}){
+	    print "\t$file\n";
+	}
+    }
+    return undef;
+}
+
+# name of classes that has to be analyzed
+# along with files that can contain information about these classes
+my @classesToProcess = (); 
+unshift @classesToProcess, [[$fileName],$className];
+while (scalar @classesToProcess > 0){
+    my $classInfo = find_class(@{$classesToProcess[0]});
+    print "Cannot find class $classesToProcess[0]->[1]\n" if (! defined $classInfo);
+    # TODO: sort includes by a resonable chance to find a class defenition
+    
+    $classTree{$classesToProcess[0]->[1]} = $classInfo;
+    shift  @classesToProcess;
+    
+    # check that all classes are known
+    foreach my $parent (@{$classInfo->[0]}){
+	unshift @classesToProcess, [$classInfo->[4],$parent] if (! defined $classTree{$parent});
+    }
+    print "number of classes to analyze: ", scalar @classesToProcess, "\n\n" if (defined $debug);
+} 
+print_uml();
+
+if (defined $show){
+    if (! -e "$violet"){
+	print "Cannot find Violet editor: $violet. Exit.\n";
+    }else{
+	system("java -jar $violet $outputFile&");
+    }
+}
+
+exit;
+
+=head1 NAME
+
+classdiagram - a tool to analyze inheritance structure of C++ classes in CMSSW environment
+  
+=head1 SYNOPSYS
+
+classdiagram [-h|--help] [-c|--class <class name>] [-f|--file <interface file>] [-s|--show]
+  [-o|--output <output file>] [-d|--debug] [-e|--editor <jar file>]
+
+=head1 OPTIONS
+
+=over
+
+=item -c, --class <class name>
+
+Name of the class to analyze.
+
+=item -f, --file <file>
+
+Name of the file that contains declaration of the class.
+
+=item -s, --show
+
+Open the output file with Violet.
+
+=item -o, --output <file>
+
+Output file name to store the XML version of the class diagram.
+
+=item -e, --editor <jar file>
+
+Specify the jar file of Violet editor location
+
+=item -h, --help
+
+=back
+
+=head1 DESCRIPTION
+
+classdiagram is a simple tool to analyze a class structure in CMSSW environment. Its main
+goal is to provide a quick view of the most important aspects of a class hierarchy in the
+form of UML class diagram. The standard CMSSW code browsing and search tools, such as 
+Doxygen and LXR provide all necessary information that one needs to understand the class 
+structure, but unfortunately quite often amount of details can be overwhelming to get an
+idea of how classes are organized quickly.
+  
+The program is based on a assumption that in most cases it is sufficient to know class
+data members and public methods to get an idea of what this class can and cannot do.
+Stripping out the rest one can get a compact and easy to read class diagram, which
+normally fits in the working window. It is also assumed that all public methods and 
+data members have meaningful names, otherwise it is close to impossible to get a 
+quick overview of the class structure without reading and understanding the source code
+and/or class documentation.
+  
+The output of the program is an XML data file in the format of Violet UML editor
+developed by Cay Horstmann, which is a free Java based graphical editor with an 
+intuitive interface. http://horstmann.com/violet/. The editor allows you to modify, 
+save and even export as a gif image the class diagram.
+  
+classdiagram takes as input a class name and a header file where the interface 
+is defined. It parses the code looking for base class information in the include
+files. A typical way to use it:
+
+=over
+
+classdiagram -f Geometry/Surface/interface/BoundPlane.h -c BoundPlane
+
+=back
+
+or
+
+=over
+
+classdiagram -f Geometry/Surface/interface/BoundPlane.h -c BoundPlane -s
+
+=back
+
+In the first example the class diagram is built for class BoundPlane and stored
+in an XML format in diagram.violet file. The second example also starts Violet 
+editor which to show the class diagram. 
+  
+WARNING: since distributing properly classes in the class diagram can be 
+non-trivial task, it is expected that a user will move classes around to make
+the diagram look the he/she likes. No information is lost or changed in such 
+manipulations.
+  
+=head1 AUTHOR
+                                                                                                                                                         
+Dmytro Kovalskyi, Unversity of California
+                                                                                                                                                           
+dmytro@slac.standford.edu
+
+Santa Barbar, 2006
+                                                                                                                                                           
+=cut
