@@ -1,5 +1,5 @@
-#ifndef SimG4CMS_HcalQie_H
-#define SimG4CMS_HcalQie_H
+#ifndef SimG4CMS_Calo_HcalQie_H
+#define SimG4CMS_Calo_HcalQie_H
 ///////////////////////////////////////////////////////////////////////////////
 // File: HcalQie.h
 // Qie simulation for HCal hits
@@ -7,7 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimG4CMS/Calo/interface/CaloHit.h"
+#include "SimDataFormats/CaloHit/interface/CaloHit.h"
 
 #include <vector>
 

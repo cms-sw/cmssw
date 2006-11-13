@@ -8,10 +8,10 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 
-#include "SimG4CMS/Calo/interface/CaloHit.h"
+#include "SimDataFormats/CaloHit/interface/CaloHit.h"
+#include "SimDataFormats/CaloTest/interface/HcalTestHistoClass.h"
 #include "SimG4CMS/Calo/interface/HcalQie.h"
 #include "SimG4CMS/Calo/interface/HcalTestHistoManager.h"
-#include "SimG4CMS/Calo/interface/HcalTestHistoClass.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 

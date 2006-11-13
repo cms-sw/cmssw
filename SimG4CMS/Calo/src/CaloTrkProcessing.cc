@@ -243,6 +243,7 @@ G4String CaloTrkProcessing::detName(const G4VTouchable* touch, int level,
 void CaloTrkProcessing::detectorLevel(const G4VTouchable* touch, int& level,
 				      int* copyno, G4String* name) const {
 
+  static const std::string unknown("Unknown");
   //Get name and copy numbers
   if (level > 0) {
     for (int ii = 0; ii < level; ii++) {
@@ -251,7 +252,7 @@ void CaloTrkProcessing::detectorLevel(const G4VTouchable* touch, int& level,
       if (pv != 0) 
 	name[ii] = pv->GetName();
       else
-	name[ii] = "Unknown";
+	name[ii] = unknown;
       copyno[ii] = touch->GetReplicaNumber(i);
     }
   }

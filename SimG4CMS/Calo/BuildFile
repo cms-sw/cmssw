@@ -7,6 +7,7 @@
 <use name=DataFormats/HcalDetId> 
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/CaloTest>
 <use name=Geometry/HcalCommonData>
 <use name=Geometry/EcalCommonData>
 <use name=DetectorDescription/Core>
