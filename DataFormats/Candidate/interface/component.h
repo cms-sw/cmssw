@@ -6,10 +6,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: component.h,v 1.4 2006/06/20 14:54:25 llista Exp $
+ * \version $Id: component.h,v 1.5 2006/07/27 07:13:40 llista Exp $
  *
  */
-#include <boost/static_assert.hpp>
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace reco {
@@ -51,10 +50,7 @@ namespace reco {
   }
 
   template<typename T, typename M, typename Tag = DefaultComponentTag>
-  struct component {
-    /// fail non specialized instances
-    BOOST_STATIC_ASSERT(false);
-  };
+  struct component { };
 
   template<typename T>
   inline T get( const Candidate & c ) {
