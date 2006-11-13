@@ -56,7 +56,7 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
   //  bool kineCut = ( etaCut && eneCut && pTCut ) || pId==0;
 
   // Cut on the origin vertex position (prior to the ECAL for all 
-  // particles, except for muons
+  // particles, except for muons  ! Just modified: Muons included as well !
   HepLorentzVector position = p->vertex();
   double radius = position.perp();
   double zed = fabs(position.z());
@@ -64,14 +64,16 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
   // Ecal entrance
   bool ecalAcc = ( (radius<129.01 && zed<317.01) ||
 		(eta>1.479 && eta<1.594 && radius<171.11 && zed<317.01) );
+  return ecalAcc;
+
+  // OBSOLETE
   // Hcal entrance
-  bool hcalAcc = (radius<285. && zed<560.);
+  //  bool hcalAcc = (radius<285. && zed<560.);
   // The vertex position condition
-  bool vertexCut = (hcalAcc && pId == 13) || ecalAcc;
-
-  if ( !vertexCut ) return false;
-
-  //  return ( particleCut && vertexCut && kineCut );
-  return true;
+  // This condition is actually not valid: pions may start showering in the 
+  // ECAL, and then no decay to muons should be allowed.
+  //  bool vertexCut = (hcalAcc && pId == 13 ) || ecalAcc;
+  //  if ( !vertexCut ) return false;
+  //  return true;
 
 }
