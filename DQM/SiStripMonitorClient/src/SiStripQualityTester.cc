@@ -2,8 +2,8 @@
  *
  *  Implementation of SiStripQualityTester
  *
- *  $Date: 2006/06/25 13:50:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/01 18:14:28 $
+ *  $Revision: 1.11 $
  *  \author Suchandra Dutta
  */
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
@@ -103,7 +103,7 @@ void SiStripQualityTester::setXRangeTest(MonitorUserInterface * mui,
   
   QCriterion* qc = mui->createQTest(ContentsXRangeROOT::getAlgoName(),name);
 
-  MEContentsXRangeROOT * me_qc = (MEContentsXRangeROOT *) qc;
+  MEContentsXRangeROOT * me_qc = dynamic_cast<MEContentsXRangeROOT *> (qc);
   if (params.size() < 4) return;
   cout << " Setting Parameters for " <<ContentsXRangeROOT::getAlgoName()
        << endl; 
@@ -122,7 +122,7 @@ void SiStripQualityTester::setXRangeTest(MonitorUserInterface * mui,
 void SiStripQualityTester::setMeanWithinExpectedTest(MonitorUserInterface* mui,
                           string name, map<string, string>& params){
   QCriterion* qc = mui->createQTest(MeanWithinExpectedROOT::getAlgoName(),name);
-  MEMeanWithinExpectedROOT * me_qc = (MEMeanWithinExpectedROOT *) qc;
+  MEMeanWithinExpectedROOT * me_qc = dynamic_cast<MEMeanWithinExpectedROOT *> (qc);
   if (params.size() < 6 ) return;
   cout << " Setting Parameters for " <<MeanWithinExpectedROOT::getAlgoName()
        << endl; 

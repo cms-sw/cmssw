@@ -1,8 +1,9 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 #include "TText.h"
 #include "TROOT.h"
@@ -30,6 +31,7 @@ SiStripInformationExtractor::~SiStripInformationExtractor() {
   edm::LogInfo("SiStripInformationExtractor") << 
     " Deleting SiStripInformationExtractor " << "\n" ;
   //  if (theCanvas) delete theCanvas;
+ //  if (theCanvas) delete theCanvas;
 }
 //
 // --  Fill Histo and Module List
@@ -54,30 +56,6 @@ void SiStripInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * 
       mui->cd(*it);
       fillModuleAndHistoList(mui, modules, histos);
       mui->goUp();
-    }
-  }
-}
-//
-// --  Fill Summary Histo List
-// 
-void SiStripInformationExtractor::fillSummaryHistoList(MonitorUserInterface * mui, string& str_name, vector<string>& histos){
-  string currDir = mui->pwd();
-  vector<string> contentVec;
-  mui->getContents(contentVec);
-  
-  for (vector<string>::iterator it = contentVec.begin();
-       it != contentVec.end(); it++) {
-    if ((*it).find(str_name) == string::npos) continue;
-    if ((*it).find("module_") != string::npos) continue;
-    vector<string> contents;
-    int nval = SiStripUtility::getMEList((*it), contents);
-    if (nval == 0) continue;
-    for (vector<string>::const_iterator ic = contents.begin();
-	 ic != contents.end(); ic++) {
-      if ((*ic).find("Summary") != string::npos) {
-        string me_name =  (*ic).substr((*ic).find(str_name)+str_name.size()+1);
-        histos.push_back(me_name);
-      }
     }
   }
 }
@@ -117,6 +95,53 @@ void SiStripInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
   str_val << "</li> "<< endl;  
 }
 //
+// --  Fill Alarm List
+// 
+void SiStripInformationExtractor::printAlarmList(MonitorUserInterface * mui, ostringstream& str_val){
+  static string indent_str = "";
+
+  string currDir = mui->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  string image_name;
+  selectImage(image_name,mui->getStatus(currDir));
+  str_val << "<li><a href=\"#\" id=\"" 
+          << currDir << "\">" << dname << "</a> <img src=\"" 
+          << image_name << "\">" << endl;
+  vector<string> subDirVec = mui->getSubdirs();
+  vector<string> meVec = mui->getMEs(); 
+  if (subDirVec.size() == 0 && meVec.size() == 0) {
+    str_val << "</li> "<< endl;    
+    return;
+  }
+  str_val << "<ul>" << endl;
+  if (dname.find("module") != string::npos) {
+    if (meVec.size() > 0) {
+      for (vector<string>::const_iterator it = meVec.begin();
+	   it != meVec.end(); it++) {
+        string full_path = currDir + "/" + (*it);
+	MonitorElement * me = mui->get(full_path);
+	if (!me) continue;
+        dqm::qtests::QR_map my_map = me->getQReports();
+        if (my_map.size() > 0) {
+	  string image_name1;
+	  selectImage(image_name1,my_map);
+	  str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:ReadStatus('"
+		<< full_path<< "')\">" << (*it) << "</a><img src=\""
+		<< image_name1 << "\""<< "</li>" << endl;
+        }
+      }
+    }
+  }
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    mui->cd(*ic);
+    printAlarmList(mui, str_val);
+    mui->goUp();
+  }
+  str_val << "</ul> "<< endl;  
+  str_val << "</li> "<< endl;  
+}
+//
 // --  Get Selected Monitor Elements
 // 
 void SiStripInformationExtractor::selectSingleModuleHistos(MonitorUserInterface * mui, string mid, vector<string>& names, vector<MonitorElement*>& mes) {
@@ -149,37 +174,6 @@ void SiStripInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
   }
 }
 //
-// --  Get Selected Summary Monitor Elements
-// 
-void SiStripInformationExtractor::selectSummaryHistos(MonitorUserInterface * mui,string str_name, vector<string>& names, vector<MonitorElement*>& mes) {
-  
-  vector<string> contentVec;
-  mui->getContents(contentVec);
-  
-  for (vector<string>::iterator it = contentVec.begin();
-       it != contentVec.end(); it++) {
-    if ((*it).find(str_name) == string::npos) continue;
-    if ((*it).find("module_") != string::npos) continue;
-    vector<string> contents;
-    string dir_path;
-    int nval = SiStripUtility::getMEList((*it), dir_path, contents);
-    if (nval == 0) continue;
-    for (vector<string>::const_iterator ic = contents.begin();
-	 ic != contents.end(); ic++) {
-      for (vector<string>::const_iterator im = names.begin();
-	   im != names.end(); im++) {
-        string hname = (*im).substr((*im).find_last_of("/")+1);
-	if ((*ic).find(hname) != string::npos) {
-	  string full_path = dir_path + "/" + (*ic);
-	  MonitorElement * me = mui->get(full_path.c_str());
-	  if (me) mes.push_back(me);
-	}
-      }
-    }
-    if ( mes.size() == names.size()) return;
-  }
-}
-//
 // --  Plot Selected Monitor Elements
 // 
 void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* mui, multimap<string, string>& req_map) {
@@ -200,27 +194,7 @@ void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   plotHistos(req_map,me_list);
 }
 //
-// -- plot Summary Histos
-//
-void SiStripInformationExtractor::plotSummaryHistos(MonitorUserInterface * mui,
-		       std::multimap<std::string, std::string>& req_map){
-  vector<string> item_list;  
-
-  string str_name = getItemValue(req_map,"StructureName");
-  if (str_name.size() == 0) return;
-  item_list.clear();     
-  getItemList(req_map,"histo", item_list);
-
-  vector<MonitorElement*> me_list;
-
-  mui->cd();
-  selectSummaryHistos(mui, str_name, item_list, me_list);
-  mui->cd();
-
-  plotHistos(req_map,me_list);
-}
-//
-// -- plot Summary Histos
+// -- plot a Histogram
 //
 void SiStripInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui,
 		       std::multimap<std::string, std::string>& req_map){
@@ -310,14 +284,13 @@ void SiStripInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
 //
 // read the Structure And SummaryHistogram List
 //
-void SiStripInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui, std::string& str_name, xgi::Output * out, bool coll_flag) {
+void SiStripInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui, string& str_name, xgi::Output * out, bool coll_flag) {
  
   ostringstream sumtree;
   if (goToDir(mui, str_name, coll_flag)) {
     sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
     printSummaryHistoList(mui,sumtree);
     sumtree <<"</ul>" << endl;   
-    cout <<  sumtree.str() << endl;
   } else {
     sumtree << "Desired Directory does not exist";
   }
@@ -326,23 +299,21 @@ void SiStripInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui
    mui->cd();
 }
 //
-// read the Structure And SummaryHistogram List
+// read the Structure And Alarm Tree
 //
-void SiStripInformationExtractor::readSummaryHistoList(MonitorUserInterface* mui, std::string& str_name, xgi::Output * out, bool coll_flag) {
-
-   if (coll_flag)  mui->cd("Collector/Collated");
-   std::vector<std::string> hnames;
-   fillSummaryHistoList(mui, str_name, hnames);
-   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
-   *out << "<?xml version=\"1.0\" ?>" << std::endl;
-   *out << "<SummaryHistoList>" << endl;
-
-   for (std::vector<std::string>::iterator ih = hnames.begin();
-        ih != hnames.end(); ih++) {
-     *out << "<SummaryHisto>" << *ih << "</SummaryHisto>" << endl;     
-   }
-   *out << "</SummaryHistoList>" << endl;
-   if (coll_flag)  mui->cd();
+void SiStripInformationExtractor::readAlarmTree(MonitorUserInterface* mui, 
+                  string& str_name, xgi::Output * out, bool coll_flag){
+  ostringstream alarmtree;
+  if (goToDir(mui, str_name, coll_flag)) {
+    alarmtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
+    printAlarmList(mui,alarmtree);
+    alarmtree <<"</ul>" << endl; 
+  } else {
+    alarmtree << "Desired Directory does not exist";
+  }
+  out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
+  *out << alarmtree.str();
+   mui->cd();
 }
 //
 // Get elements from multi map
@@ -433,3 +404,50 @@ bool SiStripInformationExtractor::goToDir(MonitorUserInterface* mui, string& sna
   if (dirName.find(sname) != string::npos) return true;
   else return false;  
 }
+//
+// -- Get Image name from status
+//
+void SiStripInformationExtractor::selectImage(string& name, int status){
+  if (status == dqm::qstatus::STATUS_OK) name="images/LI_green.gif";
+  else if (status == dqm::qstatus::WARNING) name="images/LI_yellow.gif";
+  else if (status == dqm::qstatus::ERROR) name="images/LI_red.gif";
+  else if (status == dqm::qstatus::OTHER) name="images/LI_orange.gif";
+  else  name="images/LI_blue.gif";
+}
+//
+// -- Get Image name from ME
+//
+void SiStripInformationExtractor::selectImage(string& name, dqm::qtests::QR_map& test_map){
+  int istat = 999;
+  int status = 0;
+  for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
+       it++) {
+    status = it->second->getStatus();
+    if (status > istat) istat = status;
+  }
+  selectImage(name, status);
+}
+//
+// -- Get Warning/Error Messages
+//
+void SiStripInformationExtractor::readStatusMessage(MonitorUserInterface* mui, string& path,xgi::Output * out) {
+  MonitorElement* me = mui->get(path);
+  ostringstream test_status;
+  if (!me) {
+    test_status << " ME Does not exist ! ";
+  } else {
+    dqm::qtests::QR_map test_map = me->getQReports();
+    for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
+	 it++) {
+      int status = it->second->getStatus();
+      if (status == dqm::qstatus::WARNING) test_status << " Warning : ";
+      else if (status == dqm::qstatus::ERROR) test_status << " Error : ";
+      else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok : ";
+      else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") : ";
+      test_status << it->second->getMessage();
+    }      
+  }
+  out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
+  *out << test_status.str();
+}
+

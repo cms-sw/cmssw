@@ -83,7 +83,7 @@ void SiStripClient::onUpdate() const
     }*/
   
   // Set Up Quality Tests
-  if (nUpdate == 20) webInterface_p->setupQTests();
+  if (nUpdate == 2) webInterface_p->setupQTests();
 
 
   // Creation of Summary 

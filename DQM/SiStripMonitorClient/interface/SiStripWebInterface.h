@@ -15,9 +15,8 @@ class SiStripWebInterface : public WebInterface
   enum SiStripActionType{NoAction=0, SubscribeAll=1, Summary=2, Collate=3,
                          QTestResult=4, PersistantTkMap=5, 
                          TemporaryTkMap=6, SaveData=7, 
-                         PlotSingleModuleHistos=8, 
-                         PlotSummaryHistos=9,
-                         PlotSingleHistogram=10};
+                         PlotSingleModuleHistos=-8, 
+                         PlotSingleHistogram=9};
 
   SiStripWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
  ~SiStripWebInterface();

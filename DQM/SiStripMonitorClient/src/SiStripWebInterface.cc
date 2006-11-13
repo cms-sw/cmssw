@@ -39,33 +39,15 @@ void SiStripWebInterface::createAll() {
   ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "50px");
   GifDisplay * dis = new GifDisplay(getApplicationURL(), "25px","300px", "500px", "600px", "MyGifDisplay"); 
   // an html link
-  HTMLLink *link = new HTMLLink(getApplicationURL(), "400px", "10px", 
+  HTMLLink *link = new HTMLLink(getApplicationURL(), "380px", "50px", 
 				"<i>SiStripWebInterface</i>", 
 				"/temporary/Online.html");
   
-
-  /*  Button * subcrBut = new Button(getApplicationURL(), "340px", "50px", "SubscribeAll", "Subscribe All");
-  Button * compBut = new Button(getApplicationURL(), "380px", "50px", "CheckQTResults", "Check QTest Results");
-  Button * sumBut = new Button(getApplicationURL(), "420px", "50px", "UpdateSummary", "Create Summary");
-  Button * collBut = new Button(getApplicationURL(), "460px", "50px", "CollateME", "Collate ME");
-  Button * saveBut = new Button(getApplicationURL(), "500px", "50px", "SaveToFile", "Save To File");
-  
-  Select *selTkMap = new Select(getApplicationURL(), "540px", "50px", "SelectTkMap", "Select Tk Map");
-
-  selTkMap->setOptionsVector(tkMapOptions_); */
-
   page_p = new WebPage(getApplicationURL());
   page_p->add("navigator", nav);
   page_p->add("contentViewer", cont);
   page_p->add("gifDisplay", dis);
   page_p->add("htmlLink", link);
-  /*  page_p->add("Sbbutton", subcrBut);
-  page_p->add("Cbutton", compBut);
-  page_p->add("Smbutton", sumBut);
-  page_p->add("SvButton", saveBut);
-  page_p->add("ClButton", collBut);
-  page_p->add("Tselect", selTkMap); */
-
 }
 //
 // --  Destructor
@@ -129,16 +111,23 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
    infoExtractor_->readSummaryHistoTree((*mui_p), sname, out,
                            actionExecutor_->getCollationFlag());    
   } 
+  else if (requestID == "AlarmList") {
+    theActionFlag = NoAction;
+    string sname = get_from_multimap(requestMap_, "StructureName");
+    infoExtractor_->readAlarmTree((*mui_p), sname, out,
+                           actionExecutor_->getCollationFlag());    
+  } 
+  else if (requestID == "ReadQTestStatus") {
+    theActionFlag = NoAction;
+    string path = get_from_multimap(requestMap_, "Path");
+    infoExtractor_->readStatusMessage((*mui_p), path, out);
+  } 
   else if (requestID == "PlotAsModule") {
     theActionFlag = PlotSingleModuleHistos;    
-  }
-  else if (requestID == "PlotSummaryHistos") {
-    theActionFlag = PlotSummaryHistos;    
   }
   else if (requestID == "PlotSingleHistogram") {
    theActionFlag = PlotSingleHistogram;
   } 
-
   else if (requestID == "UpdatePlot") {
    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
@@ -226,11 +215,6 @@ void SiStripWebInterface::performAction() {
   case SiStripWebInterface::PlotSingleModuleHistos :
     {
       infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
-      break;
-    }
-  case SiStripWebInterface::PlotSummaryHistos :
-    {
-      infoExtractor_->plotSummaryHistos((*mui_p), requestMap_);
       break;
     }
   case SiStripWebInterface::PlotSingleHistogram :

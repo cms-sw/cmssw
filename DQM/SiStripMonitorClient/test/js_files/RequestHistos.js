@@ -17,6 +17,17 @@ function RequestSummaryHistoList() {
   url += queryString; 
   makeRequest(url, FillSummaryHistoList);     
 }
+function RequestAlarmList() {
+  var queryString;
+  var url = getApplicationURL2();
+  url += "/Request?";
+  queryString = "RequestID=AlarmList";
+  var obj = document.getElementById("structure_for_alarm");
+  var sname =  obj.options[obj.selectedIndex].value;
+  queryString += '&StructureName='+sname;
+  url += queryString; 
+  makeRequest(url, FillAlarmList);     
+}
 function FillModuleHistoList() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {
@@ -102,6 +113,23 @@ function FillSummaryHistoList() {
       try {
         var text = http_request.responseText;
         var obj = document.getElementById("tree_list");
+        if (obj != null) {
+          obj.innerHTML = text;
+          initTree();
+        }       
+      }
+      catch (err) {
+//        alert ("Error detail: " + err.message); 
+      }
+    }
+  }
+}
+function FillAlarmList() {
+  if (http_request.readyState == 4) {
+    if (http_request.status == 200) {
+      try {
+        var text = http_request.responseText;
+        var obj = document.getElementById("alarm_list");
         if (obj != null) {
           obj.innerHTML = text;
           initTree();
