@@ -34,8 +34,10 @@ public:
 private:
     bool particlePassesPrimaryCuts(const G4PrimaryParticle * p) const;
     bool particlePassesPrimaryCuts( const HepLorentzVector& mom ) const ;
+    void particleAssignDaughters(G4PrimaryParticle * p, HepMC::GenParticle * hp, double length);
     void setGenId(G4PrimaryParticle* p, int id) const 
-    { p->SetUserInformation(new GenParticleInfo(id)); }
+      {p->SetUserInformation(new GenParticleInfo(id));}
+
 private:
     bool   fPtCuts;
     bool   fEtaCuts;
@@ -46,6 +48,7 @@ private:
     double theMaxEtaCut;
     double theMinPtCut;
     double theMaxPtCut;
+    double theDecLenCut;
     int verbose;
     HepMC::GenEvent*  evt_;
     HepLorentzVector* vtx_;
