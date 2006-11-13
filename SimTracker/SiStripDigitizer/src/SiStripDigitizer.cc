@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.24 2006/08/02 16:42:45 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.25 2006/10/13 17:53:18 fambrogl Exp $
 //
 //
 
@@ -63,7 +63,7 @@ namespace cms
   SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) : 
     conf_(conf),SiStripNoiseService_(conf)
   {
-    std::string alias ( conf.template getParameter<std::string>("@module_label") );
+    std::string alias ( conf.getParameter<std::string>("@module_label") );
     produces<edm::DetSetVector<SiStripDigi> >().setBranchAlias( alias );
     produces<edm::DetSetVector<StripDigiSimLink> >().setBranchAlias ( alias + "siStripDigiSimLink");
     trackerContainers.clear();
