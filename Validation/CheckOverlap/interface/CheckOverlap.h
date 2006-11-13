@@ -1,4 +1,3 @@
-//#define G4v7
 #ifndef Validation_CheckOverlap_H
 #define Validation_CheckOverlap_H
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
