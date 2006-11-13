@@ -6,10 +6,9 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.5 2006/11/02 12:28:09 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.6 2006/11/03 18:30:10 llista Exp $
  */
-#include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
+#include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 
 namespace HepMC {
   class GenParticle;
@@ -17,7 +16,7 @@ namespace HepMC {
 
 namespace reco {
 
-  class GenParticleCandidate : public CompositeRefBaseCandidate {
+  class GenParticleCandidate : public CompositeRefCandidate {
   public:
     /// default constructor
     GenParticleCandidate() { }
@@ -32,9 +31,9 @@ namespace reco {
     /// status code
     int status() const { return status_; }
     /// get candidate mother
-    GenParticleCandidateRef mother() const { return mother_; }
+    CandidateRef mother() const { return mother_; }
     /// set mother reference
-    void setMother( const GenParticleCandidateRef & ref ) const { mother_ = ref; }
+    void setMother( const CandidateRef & ref ) const { mother_ = ref; }
 
   private:
     /// checp overlap with another candidate
@@ -44,7 +43,7 @@ namespace reco {
     /// status code
     int status_;
     /// reference to mother
-    mutable GenParticleCandidateRef mother_;
+    mutable CandidateRef mother_;
  };
 
   /// PDG id component tag
@@ -63,7 +62,19 @@ namespace reco {
   GET_CANDIDATE_COMPONENT( GenParticleCandidate, int, status, StatusTag );
 
   /// get mother reference component
-  GET_CANDIDATE_COMPONENT( GenParticleCandidate, GenParticleCandidateRef, mother, MotherRefTag );
+  GET_CANDIDATE_COMPONENT( GenParticleCandidate, CandidateRef, mother, MotherRefTag );
+
+  inline int pdgId( const Candidate & c ) {
+    return c.get<int, PdgIdTag>();
+  }
+
+  inline int status( const Candidate & c ) {
+    return c.get<int, StatusTag>();
+  }
+
+  inline CandidateRef mother( const Candidate & c ) {
+    return c.get<CandidateRef, MotherRefTag>();
+  }
 
 }
 
