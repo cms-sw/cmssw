@@ -84,7 +84,8 @@ StorageFactory::open (const std::string &url, int mode, const std::string &tmpdi
   seal::Storage * ret = 0;
   if (StorageMaker *maker = getMaker (url, protocol, rest)) {
     if (m_accounting) 
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "open")));	if (seal::Storage *storage = maker->open (protocol, rest, mode, tmpdir))
+      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "open")));
+    if (seal::Storage *storage = maker->open (protocol, rest, mode, tmpdir))
 	ret = m_accounting ? new StorageAccountProxy (protocol, storage) : storage;
     if (stats) stats->tick();
   } 

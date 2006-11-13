@@ -20,7 +20,18 @@ LocalStorageMaker::open (const std::string & /* proto */,
 			 const std::string &path,
 			 int mode,
 			 const std::string & /* tmpdir */)
-{ return new seal::File (path, mode); }
+{ 
+  // FIXME
+  // Force unbuffered mode (bypassing page cache) off.  We
+  // currently make so small reads that unbuffered access
+  // will cause significant system load.  The unbuffered
+  // hint is really for networked files (rfio, dcap, etc.),
+  // where we don't want extra caching on client side due
+  // non-sequential access patterns.
+  mode &= ~seal::IOFlags::OpenUnbuffered;
+  
+  return new seal::File (path, mode); 
+}
 
 bool
 LocalStorageMaker::check (const std::string &proto,
