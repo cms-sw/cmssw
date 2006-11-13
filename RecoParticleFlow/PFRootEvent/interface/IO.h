@@ -15,7 +15,6 @@
 #include <fnmatch.h>
 #endif
 
-using namespace std;
 
 /// \brief General option file parser
 ///
@@ -29,7 +28,7 @@ using namespace std;
 class IO {
  private:
   /// all non empty, uncommented lines
-  vector< pair<string,string> > fAllLines;
+  std::vector< std::pair< std::string, std::string> > fAllLines;
 
   /// parse one file
   bool ParseFile(const char* filename);
@@ -38,10 +37,10 @@ class IO {
   int fCurline;
   
   /// current key 
-  string fCurkey;
+  std::string fCurkey;
   
   /// current tag 
-  string fCurtag;
+  std::string fCurtag;
  
 
  public:
@@ -53,10 +52,10 @@ class IO {
   ~IO() {fAllLines.clear();}
 
   /// dumps fAllLines
-  void Dump(ostream& out = cout) const;
+  void Dump(std::ostream& out = std::cout) const;
 
   /// dumps fAllLines
-  friend ostream& operator<<(ostream& out, IO& io);
+  friend std::ostream& operator<<(std::ostream& out, IO& io);
 
   /// true if constructor went wrong
   bool IsZombie() const {return !fAllLines.size();}
@@ -64,14 +63,14 @@ class IO {
 #ifndef __CINT__
   /// reads a vector of T
   template <class T>
-  bool GetOpt(const char* tag, const char* key, vector< T >& values) const; 
+  bool GetOpt(const char* tag, const char* key, std::vector< T >& values) const; 
   
   /// reads a T
   template <class T>
   bool GetOpt(const char* tag, const char* key, T& value) const; 
 
   /// reads a string
-  bool GetOpt(const char* tag, const char* key, string& value) const;
+  bool GetOpt(const char* tag, const char* key, std::string& value) const;
 
   /// \brief reads a vector of T
   ///
@@ -81,7 +80,7 @@ class IO {
   /// //    do something...
   /// \endcode
   template <class T>  
-  bool GetAllOpt(const char* tag, const char* key, vector< T >& values);       
+  bool GetAllOpt(const char* tag, const char* key, std::vector< T >& values);       
 
   /// \brief reads a T
   ///
@@ -94,8 +93,8 @@ class IO {
   template <class T>
   bool GetAllOpt(const char* tag, const char* key, T& value); 
 
-  string GetLineData(const char* tag, const char* key) const;
-  string GetNextLineData(const char* tag, const char* key);
+  std::string GetLineData(const char* tag, const char* key) const;
+  std::string GetNextLineData(const char* tag, const char* key);
 
   
 #endif
@@ -104,10 +103,10 @@ class IO {
 #ifndef __CINT__
 
 template <class T>
-bool IO::GetOpt(const char* tag, const char* key, vector< T >& values) const {
-  string data = GetLineData(tag,key);
+bool IO::GetOpt(const char* tag, const char* key, std::vector< T >& values) const {
+  std::string data = GetLineData(tag,key);
  
-  istringstream in(data.c_str());  
+  std::istringstream in(data.c_str());  
   while(1) {
     T tmp;
     in>>tmp;
@@ -120,25 +119,25 @@ bool IO::GetOpt(const char* tag, const char* key, vector< T >& values) const {
 
 template <class T>
 bool IO::GetOpt(const char* tag, const char* key, T& value) const {
-  string data = GetLineData(tag,key);
+  std::string data = GetLineData(tag,key);
   
-  istringstream in(data.c_str());  
+  std::istringstream in(data.c_str());  
   in>>value;
   if(in.good()) return true;
   else return false;
 }
 
 template <class T>  
-bool IO::GetAllOpt(const char* tag, const char* key, vector< T >& values) {
+bool IO::GetAllOpt(const char* tag, const char* key, std::vector< T >& values) {
   return false;
 } 
 
 template <class T>
 bool IO::GetAllOpt(const char* tag, const char* key, T& value) {
-  string data = GetNextLineData(tag, key);
+  std::string data = GetNextLineData(tag, key);
   if(data.empty()) return false;
   
-  istringstream in(data.c_str());  
+  std::istringstream in(data.c_str());  
   in>>value;
   if(in) {
     return true;

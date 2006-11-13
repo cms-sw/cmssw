@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 
 class TCanvas;
 class TVector3;
@@ -24,10 +23,10 @@ class Utils {
   static TCanvas* DivideCanvas( TCanvas *cv, int nPads );
 
   /// get all files matching pattern
-  static vector<string>  Glob(const char* pattern);
+  static std::vector<std::string>  Glob(const char* pattern);
 
   /// returns the date
-  static string   Date();
+  static std::string   Date();
 
   /// converts a vector (in eta,phi,R) to a vector in (x,y,z)
   static TVector3 VectorEPRtoXYZ( const TVector3& posepr );

@@ -7,6 +7,8 @@
 #include <TCanvas.h>
 #include <TVector3.h>
 
+using namespace std;
+
 bool Utils::StringMatch(const char* str, const char* pattern) {
   int    status;
   regex_t    re;

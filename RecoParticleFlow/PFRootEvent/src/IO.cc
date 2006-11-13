@@ -1,6 +1,8 @@
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h"
 
+using namespace std;
+
 const unsigned IO::sLinesize = 1000;
 
 IO::IO(const char* filepattern) :  fCurline(0) {
