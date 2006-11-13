@@ -4,8 +4,6 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-
 /// A factory that produces instances of class ReferenceTrajectory from a given TrajTrackPairCollection.
 
 
@@ -13,8 +11,6 @@ class ReferenceTrajectoryFactory : public TrajectoryFactoryBase
 {
 
 public:
-
-  typedef std::pair< TrajectoryStateOnSurface, TransientTrackingRecHit::ConstRecHitContainer > TrajectoryInput;
 
   ReferenceTrajectoryFactory( const edm::ParameterSet & config );
   virtual ~ReferenceTrajectoryFactory( void );
@@ -27,11 +23,6 @@ public:
 
 protected:
 
-  virtual const TrajectoryInput innermostStateAndRecHits( const TrajTrackPair & track ) const;
-  virtual const Trajectory::DataContainer orderedTrajectoryMeasurements( const Trajectory & trajectory ) const;
-
-  bool theHitsAreReverse;
-  MaterialEffects theMaterialEffects;
   double theMass;
 };
 
