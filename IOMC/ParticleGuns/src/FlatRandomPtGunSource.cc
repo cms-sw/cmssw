@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/07/17 23:17:15 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/28 21:26:42 $
+ *  $Revision: 1.11 $
  *  \author Julia Yarba
  */
 
@@ -80,7 +80,8 @@ bool FlatRandomPtGunSource::produce(Event &e)
        double eta    = fRandomGenerator->fire(fMinEta, fMaxEta) ;
        double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
        int PartID = fPartIDs[ip] ;
-       DefaultConfig::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
+       const DefaultConfig::ParticleData* 
+          PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
        double mass   = PData->mass().value() ;
        double theta  = 2.*atan(exp(-eta)) ;
        double mom    = pt/sin(theta) ;
