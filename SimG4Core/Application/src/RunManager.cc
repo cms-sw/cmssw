@@ -281,8 +281,14 @@ G4Event * RunManager::generateEvent(edm::Event & inpevt)
     else
     {
        m_generator->setGenEvent(HepMCEvt->GetEvent());
-       if (!m_nonBeam) m_generator->HepMC2G4(HepMCEvt->GetEvent(),e);
-       else m_generator->nonBeamEvent2G4(HepMCEvt->GetEvent(),e);
+       if (!m_nonBeam) 
+       {
+	  m_generator->HepMC2G4(HepMCEvt->GetEvent(),e);
+       }
+       else 
+       {
+          m_generator->nonBeamEvent2G4(HepMCEvt->GetEvent(),e);
+       }
     }
     
     return e;
