@@ -1,0 +1,11 @@
+<export>
+ <lib name=SimDataFormatsCaloTest>
+ <use name=DataFormats/Common>
+ <use name=SimDataFormats/CaloHit>
+ <use name=FWCore/MessageLogger>
+ <use name=boost>
+</export>
+<use name=DataFormats/Common>
+<use name=SimDataFormats/CaloHit>
+<use name=FWCore/MessageLogger>
+<use name=boost>
