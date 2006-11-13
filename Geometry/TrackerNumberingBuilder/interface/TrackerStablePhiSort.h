@@ -124,6 +124,6 @@ void TrackerStablePhiSort(RandomAccessIterator begin,
   for (unsigned int i=0; i<tmpcop.size(); i++) {
     *(begin+i) = tmpcopy[tmpcop[i].first - begin];
   }
-};
+}
 
 #endif
