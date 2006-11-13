@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue 16 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTB04XtalNumberingScheme.cc,v 1.2 2006/06/04 13:59:38 sunanda Exp $
 //
   
 // system include files
@@ -49,7 +49,7 @@ uint32_t HcalTB04XtalNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber
     if (baseNumber.getLevels() > 1) idl = baseNumber.getCopyNumber(1);
   }
   int  det = 10;
-  uint32_t idunit = HcalTestNumberingScheme::packHcalIndex(det,0,1,idl,idx,1);
+  uint32_t idunit = HcalTestNumbering::packHcalIndex(det,0,1,idl,idx,1);
 
   LogDebug("HcalTBSim") << "HcalTB04XtalNumberingScheme : Crystal " << idx 
 			<< " Layer " << idl << " UnitID = 0x" << std::hex

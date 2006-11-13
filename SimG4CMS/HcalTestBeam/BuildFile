@@ -13,8 +13,6 @@
 <use name=geant4>
 <use name=boost>
 <use name=root>
-<use name=DataSvc>
-<use name=rootrflx>
 
 <export>
  <lib name=SimG4CMSHcalTestBeam>
@@ -33,8 +31,6 @@
  <use name=geant4>
  <use name=boost>
  <use name=root>
- <use name=DataSvc>
- <use name=rootrflx>
 </export>
 
 <Flags SEAL_PLUGIN_NAME="SimG4CMSHcalTestBeam">

@@ -1,5 +1,5 @@
-#ifndef HcalTestBeam_HcalTB02Analysis_H
-#define HcalTestBeam_HcalTB02Analysis_H
+#ifndef SimG4CMS_HcalTestBeam_HcalTB02Analysis_H
+#define SimG4CMS_HcalTestBeam_HcalTB02Analysis_H
 // -*- C++ -*-
 //
 // Package:     HcalTestBeam
@@ -14,25 +14,25 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTB02Analysis.h,v 1.1 2006/05/23 10:53:29 sunanda Exp $
 //
   
 // system include files
 #include <iostream>
 #include <memory>
+#include <map>
 #include <vector>
 #include <string>
  
 // user include files
-#include "SimG4Core/Watcher/interface/SimWatcher.h"
+#include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
  
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02Histo.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02HistoManager.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02HistoClass.h"
+#include "SimDataFormats/HcalTestBeam/interface/HcalTB02HistoClass.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -40,8 +40,7 @@
 
 #include <boost/cstdint.hpp>
 
-class HcalTB02Analysis : public SimWatcher,
-			 public Observer<const BeginOfJob *>,
+class HcalTB02Analysis : public SimProducer,
 			 public Observer<const BeginOfEvent *>,
 			 public Observer<const EndOfEvent *> {
 
@@ -50,29 +49,43 @@ public:
   HcalTB02Analysis(const edm::ParameterSet &p);
   virtual ~HcalTB02Analysis();
 
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+
 private:
 
   HcalTB02Analysis(const HcalTB02Analysis&); // stop default
   const HcalTB02Analysis& operator=(const HcalTB02Analysis&);
  
   // observer methods
-  void update(const BeginOfJob * job);
   void update(const BeginOfEvent * evt);
   void update(const EndOfEvent * evt);
 
-  void  finish();
+  void fillEvent(HcalTB02HistoClass&);
+  void clear();
+  void finish();
  
 private:
 
   // Private Tuples
-  std::auto_ptr<HcalTB02HistoManager> tuplesManager;
-  HcalTB02HistoClass*                 tuples;
   HcalTB02Histo*                      histo;
 
   // to read from parameter set
   bool                                hcalOnly;
   std::string                         fileNameTuple;
   std::vector<std::string>            names;
+
+  //To be saved
+  std::map<int,float>                 energyInScints, energyInCrystals;
+  std::map<int,float>                 primaries;
+  int                                 particleType;
+  double                              eta, phi, pInit, incidentEnergy;
+  float                               SEnergy, E7x7Matrix, E5x5Matrix;
+  float                               SEnergyN, E7x7MatrixN, E5x5MatrixN;
+  int                                 maxTime;
+  double                              xIncidentEnergy;
+  float                               xSEnergy, xSEnergyN;
+  float                               xE3x3Matrix, xE5x5Matrix;
+  float                               xE3x3MatrixN, xE5x5MatrixN;
  };
 
 #endif

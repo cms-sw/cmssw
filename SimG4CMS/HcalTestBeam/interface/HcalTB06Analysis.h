@@ -1,5 +1,5 @@
-#ifndef HcalTestBeam_HcalTB06Analysis_H
-#define HcalTestBeam_HcalTB06Analysis_H
+#ifndef SimG4CMS_HcalTestBeam_HcalTB06Analysis_H
+#define SimG4CMS_HcalTestBeam_HcalTB06Analysis_H
 // -*- C++ -*-
 //
 // Package:     HcalTestBeam
@@ -26,9 +26,9 @@
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
  
-#include "SimG4CMS/Calo/interface/CaloHit.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB06Histo.h"
 
+#include "SimDataFormats/CaloHit/interface/CaloHit.h"
 #include "SimDataFormats/HcalTestBeam/interface/PHcalTB06Info.h"
 
 #include "G4Step.hh"

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB06Analysis.cc,v 1.3 2006/06/04 13:59:38 sunanda Exp $
+// $Id: HcalTB06Analysis.cc,v 1.1 2006/10/11 09:15:22 sunanda Exp $
 //
   
 // system include files
@@ -448,7 +448,7 @@ void HcalTB06Analysis::fillBuffer(const EndOfEvent * evt) {
     double px = thePrim->GetPx();
     double py = thePrim->GetPy();
     double pz = thePrim->GetPz();
-    double p  = sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
+    double p  = std::sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
     pInit     = p/GeV;
     if (p==0) 
       edm::LogWarning("HcalTBSim") << "HcalTB06Analysis:: EndOfEvent ERR: "

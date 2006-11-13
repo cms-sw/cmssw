@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun 21 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTB02HcalNumberingScheme.cc,v 1.1 2006/06/04 13:59:38 sunanda Exp $
 //
   
 // system include files
@@ -45,7 +45,7 @@ int HcalTB02HcalNumberingScheme::getUnitID(const G4Step* aStep) const {
   float hx = hitPoint.x();
   float hy = hitPoint.y();
   float hz = hitPoint.z();
-  float hr = sqrt( pow(hx,2)+pow(hy,2) );
+  float hr = std::sqrt( pow(hx,2)+pow(hy,2) );
 
   // Check if hit happened in first HO layer or second.
 

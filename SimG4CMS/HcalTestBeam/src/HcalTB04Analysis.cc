@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Analysis.cc,v 1.3 2006/06/04 13:59:38 sunanda Exp $
+// $Id: HcalTB04Analysis.cc,v 1.4 2006/10/11 09:15:22 sunanda Exp $
 //
   
 // system include files
@@ -143,7 +143,7 @@ void HcalTB04Analysis::init() {
     nCrystal = 0;
     for (int lay=1; lay<8; lay++) {
       for (int icr=1; icr<8; icr++) {
-	id1    = HcalTestNumberingScheme::packHcalIndex(det,0,1,icr,lay,1);
+	id1    = HcalTestNumbering::packHcalIndex(det,0,1,icr,lay,1);
 	int id = unitID(id1);
 	idEcal.push_back(id1);
 	idXtal.push_back(id);
@@ -418,7 +418,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
       double eta      = -log(tan(theta * 0.5));
       double phi      = pos.phi();
       int det, z, group, ieta, iphi, layer;
-      HcalTestNumberingScheme::unpackHcalIndex(id,det,z,group,ieta,iphi,layer);
+      HcalTestNumbering::unpackHcalIndex(id,det,z,group,ieta,iphi,layer);
       double jitter   = time-timeOfFlight(det,layer,eta);
       if (jitter<0) jitter = 0;
       if (e < 0 || e > 1.) e = 0;
@@ -542,7 +542,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
       double phi      = pos.phi();
       if (e < 0 || e > 100000.) e = 0;
       int det, z, group, ieta, iphi, layer;
-      HcalTestNumberingScheme::unpackHcalIndex(id,det,z,group,ieta,iphi,layer);
+      HcalTestNumbering::unpackHcalIndex(id,det,z,group,ieta,iphi,layer);
       CaloHit hit(det,0,e,eta,phi,time,id);
       ehits.push_back(hit);
       primaries[aHit->getTrackID()]+= e;
@@ -628,7 +628,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
     double px = thePrim->GetPx();
     double py = thePrim->GetPy();
     double pz = thePrim->GetPz();
-    double p  = sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
+    double p  = std::sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
     pInit     = p/GeV;
     if (p==0) 
       edm::LogWarning("HcalTBSim") << "HcalTB04Analysis:: EndOfEvent ERR: "
@@ -794,7 +794,7 @@ void HcalTB04Analysis::finalAnalysis() {
   for (int i=0; i<nTower; i++) {
     int det, z, group, ieta, iphi, layer;
     id = idTower[i];
-    HcalTestNumberingScheme::unpackHcalIndex(id,det,z,group,ieta,iphi,layer);
+    HcalTestNumbering::unpackHcalIndex(id,det,z,group,ieta,iphi,layer);
     iphi -= (icphi - 1);
     if (icphi > 4) {
       if (ieta == 0) ieta = 2;
@@ -836,7 +836,7 @@ void HcalTB04Analysis::finalAnalysis() {
   for (int i=0; i<nTower; i++) {
     int det, z, group, ieta, iphi, layer;
     id = idTower[i];
-    HcalTestNumberingScheme::unpackHcalIndex(id,det,z,group,ieta,iphi,layer);
+    HcalTestNumbering::unpackHcalIndex(id,det,z,group,ieta,iphi,layer);
     iphi  -= (icphi - 1);
     layer -= 1;
     if (iphi >= 0 && iphi < 3 && layer >= 0 && layer < 20) {
@@ -885,7 +885,7 @@ void HcalTB04Analysis::fillEvent (PHcalTB04Info& product) {
   for (i=0, itr=ecalHitCache.begin(); itr!=ecalHitCache.end(); i++,itr++) {
     uint32_t id = itr->id();
     int det, z, group, ieta, iphi, lay;
-    HcalTestNumberingScheme::unpackHcalIndex(id,det,z,group,ieta,iphi,lay);
+    HcalTestNumbering::unpackHcalIndex(id,det,z,group,ieta,iphi,lay);
     product.saveHit(det, lay, ieta, iphi, itr->e(), itr->t());
     nhit++;
 #ifdef debug
@@ -906,7 +906,7 @@ void HcalTB04Analysis::fillEvent (PHcalTB04Info& product) {
   for (i=hit, itr=hcalHitCache.begin(); itr!=hcalHitCache.end(); i++,itr++) {
     uint32_t id = itr->id();
     int det, z, group, ieta, iphi, lay;
-    HcalTestNumberingScheme::unpackHcalIndex(id,det,z,group,ieta,iphi,lay);
+    HcalTestNumbering::unpackHcalIndex(id,det,z,group,ieta,iphi,lay);
     product.saveHit(det, lay, ieta, iphi, itr->e(), itr->t());
     nhit++;
 #ifdef debug
@@ -971,7 +971,7 @@ void HcalTB04Analysis::clear(){
 int HcalTB04Analysis::unitID(uint32_t id) {
 
   int det, z, group, ieta, iphi, lay;
-  HcalTestNumberingScheme::unpackHcalIndex(id,det,z,group,ieta,iphi,lay);
+  HcalTestNumbering::unpackHcalIndex(id,det,z,group,ieta,iphi,lay);
   group  = (det&15)<<20;
   group += ((lay-1)&31)<<15;
   group += (z&1)<<14;

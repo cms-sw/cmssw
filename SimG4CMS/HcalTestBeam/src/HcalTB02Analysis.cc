@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun May 21 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTB02Analysis.cc,v 1.1 2006/06/04 13:59:38 sunanda Exp $
 //
   
 // system include files
@@ -38,14 +38,14 @@
 // constructors and destructor
 //
 
-HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet &p): 
-  tuplesManager(0), tuples(0), histo(0) {
+HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet &p): histo(0) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTB02Analysis");
   hcalOnly      = m_Anal.getUntrackedParameter<bool>("HcalClusterOnly",true);
-  fileNameTuple = m_Anal.getUntrackedParameter<std::string>("TupleFileName", "HcalTB02Tuple.root");
   names         = m_Anal.getParameter<std::vector<std::string> >("Names");
   
+  produces<HcalTB02HistoClass>();
+
   edm::LogInfo("HcalTBSim") << "HcalTB02Analysis:: Initialised as observer of "
 			    << "BeginOfJob/BeginOfEvent/EndOfEvent with "
 			    << "Parameter values:\n \thcalOnly = " << hcalOnly;
@@ -68,19 +68,18 @@ HcalTB02Analysis::~HcalTB02Analysis() {
 // member functions
 //
 
-void HcalTB02Analysis::update(const BeginOfJob * ) {
+void HcalTB02Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 
-  // Ntuples
-  tuplesManager.reset(new HcalTB02HistoManager(fileNameTuple));
+  std::auto_ptr<HcalTB02HistoClass> product(new HcalTB02HistoClass);
+  fillEvent(*product);
+  e.put(product);
 }
 
 void HcalTB02Analysis::update(const BeginOfEvent * evt) {
  
   edm::LogInfo("HcalTBSim") << "HcalTB02Analysis: =====> Begin of event = "
 			    << (*evt) ()->GetEventID();
-
-  // create tuple object
-  tuples = new HcalTB02HistoClass();
+  clear();
 }
 
 void HcalTB02Analysis::update(const EndOfEvent * evt) {
@@ -127,16 +126,10 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
   LogDebug("HcalTBSim") << "HcalTB02Analysis :: There are " << nentries 
 			<< " HCal hits, and" << xentries  << " xtal hits";
 
-  float ETot=0., SEnergy=0., SEnergyN=0.;
-  float xETot=0., xSEnergy=0., xSEnergyN=0.;
-  float E5x5Matrix=0., E5x5MatrixN=0, E7x7Matrix=0., E7x7MatrixN=0;
-  float xE3x3Matrix=0., xE5x5Matrix=0., xE3x3MatrixN=0., xE5x5MatrixN=0.;
+  float ETot=0., xETot=0.;
   //float maxE = 0.; 
   //int maxI=0, 
-  int maxTime=0;
   int scintID=0, xtalID=0;
-  std::map<int,float,less<int> > energyInScints, energyInCrystals;
-  std::map<int,float,less<int> > primaries;
 
   // HCAL
 
@@ -193,7 +186,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 	TowerEne[(int)phi][(int)eta] += ETot;
 
 	TowerEneCF[(int)phi][(int)eta] += ETot*(1.+ 0.1*RandGauss::shoot() );
-	double dR=0.08727*sqrt( (eta-8.)*(eta-8.) + (phi-3.)*(phi-3.) );
+	double dR=0.08727*std::sqrt( (eta-8.)*(eta-8.) + (phi-3.)*(phi-3.) );
 	EnRing[(int)(dR/0.01)] += ETot;
       }
 
@@ -247,7 +240,6 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     // Find Primary info:
     //	
     int trackID = 0;
-    int particleType = 0;
     G4PrimaryParticle* thePrim=0;
     G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
     LogDebug("HcalTBSim") << "HcalTB02Analysis :: Event has " << nvertex 
@@ -271,13 +263,12 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     }
     
     double px=0.,py=0.,pz=0.;
-    double eta = 0., phi = 0., pInit = 0.;
     
     if (thePrim != 0) {
       px = thePrim->GetPx();
       py = thePrim->GetPy();
       pz = thePrim->GetPz();
-      pInit = sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
+      pInit = std::sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
       if (pInit==0) {
 	edm::LogWarning("HcalTBSim") << "HcalTB02Analysis:: End Of Event "
 				     << " ERROR: primary has p=0 ";
@@ -293,24 +284,8 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 			    << " not find primary ";
     }
     
-    //
-    // Fill-in ntuple
-    //
     CaloG4Hit* firstHit =(*theHCHC)[0];
-    tuples->set_Nprim(float(primaries.size()));
-    tuples->set_partType(particleType );
-    tuples->set_Einit(pInit/GeV);
-    tuples->set_eta( eta);
-    tuples->set_phi( phi);
-    tuples->set_Eentry( firstHit->getIncidentEnergy()/GeV);
-    tuples->set_ETot( SEnergy/GeV );
-    tuples->set_E7x7( E7x7Matrix/GeV );
-    tuples->set_E5x5( E5x5Matrix/GeV );
-    tuples->set_ETotN(SEnergyN/GeV);
-    tuples->set_E7x7N( E7x7MatrixN/GeV );
-    tuples->set_E5x5N( E5x5MatrixN/GeV );
-    tuples->set_NUnit(float( energyInScints.size()));
-    tuples->set_Ntimesli( float(maxTime));
+    incidentEnergy = (firstHit->getIncidentEnergy()/GeV);
     
   }// number of Hits > 0
 
@@ -336,7 +311,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 	  xCrysEne[irow][jcol]=0.;
 	}
       }
-	
+      
       for (map<int,float,less<int> >::iterator is = energyInCrystals.begin();
 	   is!= energyInCrystals.end(); is++) {
 	int xtalID = (*is).first;
@@ -344,12 +319,12 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 	    
 	int irow = (int)(xtalID/100.);
 	int jcol = (int)(xtalID-100.*irow);
-	    
+	
 	xSEnergy += xETot;
 	xCrysEne[irow][jcol] = xETot;
 	    
-	float dR=sqrt( 0.01619*0.01619*(jcol-3)*(jcol-3) + 
-		       0.01606*0.01606*(irow-3)*(irow-3) );
+	float dR=std::sqrt( 0.01619*0.01619*(jcol-3)*(jcol-3) + 
+			    0.01606*0.01606*(irow-3)*(irow-3) );
 	histo->fillTransProf(dR,xETot*1.05);
 	    
 	if ( (irow>0) && (irow<6) ) {
@@ -365,39 +340,21 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 	      }    
 	    }
 	  }
-	}	  
+	}  
 	
       }      
-
-      //
-      // Fill-in ntuple
-      //
-
 
       if (!hcalOnly) {
 	//	assert(theXTHC);
 	if ( theXTHC != 0 ) {
 	  CaloG4Hit* xfirstHit =(*theXTHC)[0];
-	  tuples->set_xEentry( xfirstHit->getIncidentEnergy()/GeV);
-	  tuples->set_xNUnit(float( energyInCrystals.size()));
-	  tuples->set_xETot(xSEnergy/GeV);
-	  tuples->set_xETotN(xSEnergyN/GeV);
-	  tuples->set_xE5x5(xE5x5Matrix/GeV);
-	  tuples->set_xE3x3(xE3x3Matrix/GeV);
-	  tuples->set_xE5x5N(xE5x5MatrixN/GeV);
-	  tuples->set_xE3x3N(xE3x3MatrixN/GeV);
+	  xIncidentEnergy = xfirstHit->getIncidentEnergy()/GeV;
 	}
       }
-	
+      
     }// number of Hits > 0
 
   }
-  
-  
-  // Writing the data to the Tree
-  tuplesManager->fillTree(tuples); // (no need to delete it...)
-  tuples = 0; // but avoid to reuse it...
-  LogDebug("HcalTBSim") << "HcalTB02Analysis:: --- after fillTree";
 
   int iEvt = (*evt)()->GetEventID();
   if (iEvt < 10) 
@@ -408,6 +365,54 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     std::cout << " Event " << iEvt << std::endl;
   else if ((iEvt < 10000) && (iEvt%1000 == 0)) 
     std::cout << " Event " << iEvt << std::endl;
+}
+
+void HcalTB02Analysis::fillEvent(HcalTB02HistoClass& product) {
+
+  //Beam information
+  product.set_Nprim(float(primaries.size()));
+  product.set_partType(particleType);
+  product.set_Einit(pInit/GeV);
+  product.set_eta(eta);
+  product.set_phi(phi);
+  product.set_Eentry(incidentEnergy);
+
+  //Calorimeter energy
+  product.set_ETot(SEnergy/GeV );
+  product.set_E7x7(E7x7Matrix/GeV );
+  product.set_E5x5(E5x5Matrix/GeV );
+  product.set_ETotN(SEnergyN/GeV);
+  product.set_E7x7N(E7x7MatrixN/GeV );
+  product.set_E5x5N(E5x5MatrixN/GeV );
+  product.set_NUnit(float(energyInScints.size()));
+  product.set_Ntimesli(float(maxTime));
+
+  //crystal information
+  product.set_xEentry(xIncidentEnergy);
+  product.set_xNUnit(float(energyInCrystals.size()));
+  product.set_xETot(xSEnergy/GeV);
+  product.set_xETotN(xSEnergyN/GeV);
+  product.set_xE5x5(xE5x5Matrix/GeV);
+  product.set_xE3x3(xE3x3Matrix/GeV);
+  product.set_xE5x5N(xE5x5MatrixN/GeV);
+  product.set_xE3x3N(xE3x3MatrixN/GeV);
+}
+
+void HcalTB02Analysis::clear() {
+
+  primaries.clear();
+  particleType = 0;
+  pInit = eta = phi = incidentEnergy = 0;
+
+  SEnergy = E7x7Matrix = E5x5Matrix = SEnergyN = 0;
+  E7x7MatrixN = E5x5MatrixN = 0;
+  energyInScints.clear();
+  maxTime = 0;
+
+  xIncidentEnergy = 0;
+  energyInCrystals.clear();
+  xSEnergy = xSEnergyN = xE5x5Matrix = xE3x3Matrix = 0;
+  xE5x5MatrixN = xE3x3MatrixN = 0;
 }
 
 void HcalTB02Analysis::finish() {

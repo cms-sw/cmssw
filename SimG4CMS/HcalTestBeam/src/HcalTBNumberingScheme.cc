@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTBNumberingScheme.cc,v 1.2 2006/06/04 13:59:38 sunanda Exp $
 //
   
 // system include files
@@ -28,8 +28,8 @@ uint32_t HcalTBNumberingScheme::getUnitID(const uint32_t idHit,
 					  const int mode) {
 
   int   subdet, zside, group, ieta, iphi, lay;
-  HcalTestNumberingScheme::unpackHcalIndex(idHit, subdet, zside, group,
-					   ieta, iphi, lay);
+  HcalTestNumbering::unpackHcalIndex(idHit, subdet, zside, group,
+				     ieta, iphi, lay);
   LogDebug("HcalTBSim") << "HcalTBNumberingScheme: i/p ID 0x" << std::hex
 			<< idHit << std::dec << " det " << zside << " group "
 			<< group << " layer " << lay << " eta " << ieta 
@@ -45,24 +45,24 @@ uint32_t HcalTBNumberingScheme::getUnitID(const uint32_t idHit,
       if (lay <= 17) {
 	// HB2 (unmasked and masked)
 	if (ieta > 4 && ieta < 10) {
-	  idunit = HcalTestNumberingScheme::packHcalIndex(0,0,1,0,iphi,lay);
+	  idunit = HcalTestNumbering::packHcalIndex(0,0,1,0,iphi,lay);
 	} else {
-	  idunit=HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,group);
+	  idunit = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,group);
 	}
       } else {
 	// HO behind HB2
-	idunit = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,18);
+	idunit = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,18);
       }
     } else {
       // HB1, HE, HO behind HB1
-      idunit = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,group);
+      idunit = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,group);
     }
   } else {
-    idunit = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,group);
+    idunit = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,group);
   }
 
-  HcalTestNumberingScheme::unpackHcalIndex(idunit, subdet, zside, group,
-					   ieta, iphi, lay);
+  HcalTestNumbering::unpackHcalIndex(idunit, subdet, zside, group,
+				     ieta, iphi, lay);
   LogDebug("HcalTBSim") << "HcalTBNumberingScheme: idHit 0x" << std::hex 
 			<< idHit << " idunit 0x" << idunit << std::dec << "\n"
 			<< "HcalTBNumberingScheme: o/p ID 0x" << std::hex 
@@ -86,21 +86,21 @@ std::vector<uint32_t> HcalTBNumberingScheme::getUnitIDs(const int type,
       // HB1 and masked part of HB2
       for (ieta=1; ieta<17; ieta++) {
 	for (iphi=1; iphi<9; iphi++) {
-	  id = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,1);
+	  id = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,1);
 	  tmp.push_back(id);
 	}
       }
       // HO behind HB1
       for (ieta=1; ieta<16; ieta++) {
 	for (iphi=2; iphi<5; iphi++) {
-	  id = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,2);
+	  id = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,2);
 	  tmp.push_back(id);
 	}
       }
       // HB2
       for (lay=1; lay<18; lay++) {
 	for (iphi=5; iphi<9; iphi++) {
-	  id = HcalTestNumberingScheme::packHcalIndex(0,0,1,0,iphi,lay);
+	  id = HcalTestNumbering::packHcalIndex(0,0,1,0,iphi,lay);
 	  tmp.push_back(id);
 	}
       }
@@ -108,7 +108,7 @@ std::vector<uint32_t> HcalTBNumberingScheme::getUnitIDs(const int type,
       lay = 18;
       for (ieta=1; ieta<16; ieta++) {
 	for (iphi=5; iphi<8; iphi++) {
-	  id = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,lay);
+	  id = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,lay);
 	  tmp.push_back(id);
 	}
       }
@@ -116,14 +116,14 @@ std::vector<uint32_t> HcalTBNumberingScheme::getUnitIDs(const int type,
       // HB1 & HB2
       for (ieta=1; ieta<17; ieta++) {
 	for (iphi=1; iphi<9; iphi++) {
-	  id = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,1);
+	  id = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,1);
 	  tmp.push_back(id);
 	}
       }
       // HO behind HB
       for (ieta=1; ieta<16; ieta++) {
 	for (iphi=2; iphi<8; iphi++) {
-	  id = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,2);
+	  id = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,2);
 	  tmp.push_back(id);
 	}
       }
@@ -134,18 +134,18 @@ std::vector<uint32_t> HcalTBNumberingScheme::getUnitIDs(const int type,
     // Include HE id's
     for (ieta=15; ieta<17; ieta++) {
       for (iphi=3; iphi<7; iphi++) {
-	id = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,3);
+	id = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,3);
 	tmp.push_back(id);
       }
     }
     for (iphi=3; iphi<7; iphi++) {
-      id = HcalTestNumberingScheme::packHcalIndex(0,0,1,17,iphi,1);
+      id = HcalTestNumbering::packHcalIndex(0,0,1,17,iphi,1);
       tmp.push_back(id);
     }
     for (ieta=18; ieta<21; ieta++) {
       for (iphi=3; iphi<7; iphi++) {
 	for (int idep=1; idep<3; idep++) {
-	  id = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,idep);
+	  id = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,idep);
 	  tmp.push_back(id);
 	}
       }
@@ -153,7 +153,7 @@ std::vector<uint32_t> HcalTBNumberingScheme::getUnitIDs(const int type,
     for (ieta=21; ieta<26; ieta++) {
       for (iphi=2; iphi<4; iphi++) {
 	for (int idep=1; idep<3; idep++) {
-	  id = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,idep);
+	  id = HcalTestNumbering::packHcalIndex(0,0,1,ieta,iphi,idep);
 	  tmp.push_back(id);
 	}
       }

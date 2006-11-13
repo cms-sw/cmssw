@@ -14,7 +14,7 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTB04Analysis.h,v 1.3 2006/05/23 10:53:29 sunanda Exp $
 //
   
 // system include files
@@ -27,10 +27,10 @@
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
  
-#include "SimG4CMS/Calo/interface/CaloHit.h"
 #include "SimG4CMS/Calo/interface/HcalQie.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB04Histo.h"
 
+#include "SimDataFormats/CaloHit/interface/CaloHit.h"
 #include "SimDataFormats/HcalTestBeam/interface/PHcalTB04Info.h"
 
 #include "G4Step.hh"
