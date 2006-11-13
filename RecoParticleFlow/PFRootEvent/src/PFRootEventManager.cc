@@ -96,6 +96,9 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   if(file_->IsZombie() ) {
     return;
   }
+  else 
+    cout<<"PFRootEventManager::ReadOptions : rootfile "<<inFileName_
+	<<" opened"<<endl;
 
   fromRealData_ = false;
   tree_ = (TTree*) file_->Get("Events");  
