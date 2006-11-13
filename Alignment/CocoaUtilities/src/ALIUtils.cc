@@ -952,7 +952,7 @@ double ALIUtils::addPii( double val )
 int ALIUtils::checkMatrixEquations( double angleX, double angleY, double angleZ, const CLHEP::HepRotation* rotorig)
 {
   if( ALIUtils::debug >= 5 ) std::cout << " checkMatrixEquations " << angleX << " " << angleY << " " << angleZ << std::endl;
-  CLHEP::HepRotation* rot = rotorig;
+  CLHEP::HepRotation* rot = const_cast<CLHEP::HepRotation*>(rotorig);
   if( rot == 0 ) {
     rot = new CLHEP::HepRotation();
     rot->rotateX( angleX );

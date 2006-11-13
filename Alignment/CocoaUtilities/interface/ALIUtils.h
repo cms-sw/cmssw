@@ -109,7 +109,7 @@ public:
     maximum_deviation_derivative = val; }
 
   static std::vector<double> GetRotationAnglesFromMatrix( const CLHEP::HepRotation& rmLocal, double origAngleX, double origAngleY, double origAngleZ );
-std::vector<double> GetRotationAnglesFromMatrix( const CLHEP::HepRotation& rmLocal );
+  std::vector<double> GetRotationAnglesFromMatrix( const CLHEP::HepRotation& rmLocal );
   static double diff2pi( double ang1, double ang2 );
   static bool eq2ang( double ang1, double ang2 );
   static double approxTo0( double val );
