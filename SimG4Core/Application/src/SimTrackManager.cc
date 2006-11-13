@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.4 2006/09/11 10:04:03 fambrogl Exp $
+// $Id: SimTrackManager.cc,v 1.5 2006/09/25 13:24:49 sunanda Exp $
 //
 
 // system include files
@@ -87,10 +87,10 @@ SimTrackManager::deleteTracks()
 }
 
 /// this saves a track and all its parents looping over the non ordered vector
-void SimTrackManager::saveTrackAndItsBranch(int i)
+void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory * trkWHist)
 {
     using namespace std;
-    TrackWithHistory * trkH = (*m_trksForThisEvent)[i];
+    TrackWithHistory * trkH = trkWHist;
     if (trkH == 0)
     {
         edm::LogError("SimG4CoreApplication") << " SimTrackManager::saveTrackAndItsBranch got 0 pointer ";
@@ -100,23 +100,23 @@ void SimTrackManager::saveTrackAndItsBranch(int i)
     trkH->save();
     unsigned int parent = trkH->parentID();
     bool parentExists=false;
-    int numParent=-1;
-    // search for parent. please note that now the vector is not ordered nor compact
-    for (unsigned int it = 0; it < m_trksForThisEvent->size(); it++)
-    {
-        if ((*m_trksForThisEvent)[it]->trackID() == parent)
-        {
-            numParent = it;
-            parentExists=true;
-            break;
-        }
+
+    TrackContainer::const_iterator tk_itr = std::lower_bound((*m_trksForThisEvent).begin(),(*m_trksForThisEvent).end(),
+						      parent,SimTrackManager::StrictWeakOrdering());
+    TrackWithHistory * tempTk = new TrackWithHistory(**tk_itr);
+    if (tk_itr!=m_trksForThisEvent->end() && (*tk_itr)->trackID()==parent) { 
+      parentExists=true;  
     }
-    if (parentExists) saveTrackAndItsBranch(numParent);
+
+    if (parentExists) saveTrackAndItsBranch(tempTk);
 }
 
 void SimTrackManager::storeTracks(G4SimEvent* simEvent)
 {
     using namespace std;
+
+    stable_sort(m_trksForThisEvent->begin(),m_trksForThisEvent->end(),trkIDLess());
+    
     LogDebug("SimTrackManager")  << " SimTrackManager::storeTracks knows " << m_trksForThisEvent->size()
 	      << " tracks with history before branching";
     for (unsigned int it =0;  it <(*m_trksForThisEvent).size(); it++)
@@ -128,7 +128,7 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
     for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++)
       {
 	TrackWithHistory * t = (*m_trksForThisEvent)[i];
-	if (t->saved()) saveTrackAndItsBranch(i);
+	if (t->saved()) saveTrackAndItsBranch(t);
       }
     
     // now eliminate from the vector the tracks with only history but not save
@@ -159,8 +159,6 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
 		<< " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
 		<< " mother " << (*m_trksForThisEvent)[it]->parentID()
 		<< " status " << (*m_trksForThisEvent)[it]->saved();
-    
-    stable_sort(m_trksForThisEvent->begin(),m_trksForThisEvent->end(),trkIDLess());
     
     LogDebug("SimTrackManager")   << "SimTrackManager::storeTracks -  TRACKS to be saved starting with "
 	       << (*m_trksForThisEvent).size();
