@@ -1,4 +1,6 @@
 <lcgdict>
+  <class name="HcalTB02HistoClass"/>
+  <class name="edm::Wrapper<HcalTB02HistoClass>"/>
   <class name="PHcalTB04Info"/>
   <class name="std::vector<int>"/>
   <class name="std::vector<float>"/>
