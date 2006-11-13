@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaBasicClusters.h,v 1.0 2006/11/06 18:21:12 mbalazs Exp $
+// $Id: EgammaBasicClusters.h,v 1.1 2006/11/08 16:04:01 mabalazs Exp $
 //
 #include <string>
 
@@ -34,6 +34,7 @@ class EgammaBasicClusters : public edm::EDAnalyzer
 
 	private:
 			std::string outputFile_;
+			std::string CMSSW_Version_;
 
 			bool verboseDBE_;
 			DaqMonitorBEInterface* dbe_;
