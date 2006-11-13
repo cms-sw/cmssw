@@ -1,4 +1,5 @@
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
+#include <math.h>
 
 using namespace std;
 using namespace muonisolation;
