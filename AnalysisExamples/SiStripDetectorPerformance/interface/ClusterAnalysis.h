@@ -121,6 +121,9 @@ namespace cms{
  
       bool not_the_first_event;
 
+      bool tracksCollection_in_EventTree;
+      bool ltcdigisCollection_in_EventTree;
+
       int countOn, countOff, countAll, NClus[4][3];
       
     };

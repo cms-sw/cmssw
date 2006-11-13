@@ -1,6 +1,6 @@
 /*
-* $Date: $
-* $Revision:  $
+* $Date: 2006/11/06 13:24:50 $
+* $Revision: 1.2 $
 *
 * \author: D. Giordano, domenico.giordano@cern.ch
 */
@@ -29,7 +29,9 @@ namespace cms{
     Filter_src_( conf.getParameter<edm::InputTag>( "Filter_src" ) ),
     Track_src_( conf.getParameter<edm::InputTag>( "Track_src" ) ),
     ClusterInfo_src_( conf.getParameter<edm::InputTag>( "ClusterInfo_src" ) ),
-    Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) )
+    Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) ),
+    tracksCollection_in_EventTree(true),
+    ltcdigisCollection_in_EventTree(true)
   {};
 
   ClusterAnalysis::~ClusterAnalysis(){};
@@ -401,7 +403,9 @@ namespace cms{
     TCanvas Canvas("c","c");//("c","c",600,300);
     for (int ih=0; ih<Hlist->GetEntries();ih++){
       edm::LogInfo("ClusterAnalysis") << "Histos " << ih << " name " << (*Hlist)[ih]->GetName() << " title " <<  (*Hlist)[ih]->GetTitle() << std::endl;
-      (*Hlist)[ih]->Draw();
+      if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL)
+	if (dynamic_cast<TH1F*>((*Hlist)[ih])->GetEntries() != 0)
+	(*Hlist)[ih]->Draw();
       Canvas.Update();
       ps.NewPage();
     }
@@ -428,10 +432,28 @@ namespace cms{
     //Get input 
     e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
     e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
-    e.getByLabel(Track_src_, trackCollection);
-    e.getByType(ltcdigis);
     e.getByLabel( Filter_src_, filterWord);
+  
+    try{
+      e.getByType(ltcdigis);
+    } catch ( cms::Exception& er ) {
+      LogTrace("ClusterAnalysis")<<"caught std::exception "<<er.what()<<std::endl;
+      ltcdigisCollection_in_EventTree=false;
+    }catch ( ... ) {
+      LogTrace("ClusterAnalysis")<< " funny error " <<std::endl;
+      ltcdigisCollection_in_EventTree=false;
+    }
 
+    try{
+      e.getByLabel(Track_src_, trackCollection);
+    } catch ( cms::Exception& er ) {
+      LogTrace("ClusterAnalysis")<<"caught std::exception "<<er.what()<<std::endl;
+      tracksCollection_in_EventTree=false;
+    } catch ( ... ) {
+      LogTrace("ClusterAnalysis")<<" funny error " <<std::endl;
+      tracksCollection_in_EventTree=false;
+    }
+    
     vPSiStripCluster.clear();
     countOn=0;
     countOff=0;
@@ -456,7 +478,8 @@ namespace cms{
       
     }
     //Perform track study
-    trackStudy();
+    if (tracksCollection_in_EventTree)
+      trackStudy();
     
     std::stringstream ss;
     ss << "\nList of SiStripClusterPointer\n";

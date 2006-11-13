@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/ClusterAnalysisFilter.h"
@@ -17,14 +18,26 @@ namespace cms
   bool ClusterAnalysisFilter::filter(edm::Event & e, edm::EventSetup const& c) {
 
     //Get input 
-    e.getByType(ltcdigis);
     e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
     e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
-    e.getByLabel( Track_src_, trackCollection);
 
-    bool TrackNumberSelector_Decision_ =TrackNumberSelector();
+    bool TrackNumberSelector_Decision_;
+    try{
+      e.getByLabel( Track_src_, trackCollection);
+      TrackNumberSelector_Decision_ =TrackNumberSelector();
+    } catch ( ... ) {
+      TrackNumberSelector_Decision_ = true;
+    }
+
+    bool TriggerSelector_Decision_;
+    try{
+      e.getByType(ltcdigis);
+      TriggerSelector_Decision_=TriggerSelector();
+    } catch ( ... ) {
+      TriggerSelector_Decision_=true;
+    }
+
     bool ClusterNumberSelector_Decision_=ClusterNumberSelector();
-    bool TriggerSelector_Decision_=TriggerSelector();
     bool ClusterInModuleSelector_Decision_=ClusterInModuleSelector();
 
     bool decision = 
@@ -103,16 +116,17 @@ namespace cms
 	 )
 	;
     
-      std::cout << "Filter " 	
-		<< "Mask " <<  ((*ltc_it).externTriggerMask() & 0x1Fu)
-		<< " DT " <<  (ps.getParameter<bool>("DT") & 0x1u)
-		<< " CSC " << (( ps.getParameter<bool>("CSC") & 0x1u ) << 1 )
-		<< " RBC1 " << (( ps.getParameter<bool>("RBC1") & 0x1u )  << 2 )
-		<< " RBC2 " << (( ps.getParameter<bool>("RBC2") & 0x1u ) << 3 ) 
-		<< " RPCTB " << (( ps.getParameter<bool>("RPCTB") & 0x1u ) << 4 ) 
-		<< " word " << word
-		<< std::endl;
-	}
+      LogTrace("ClusterAnalysisFilter")
+	<< "Filter " 	
+	<< "Mask " <<  ((*ltc_it).externTriggerMask() & 0x1Fu)
+	<< " DT " <<  (ps.getParameter<bool>("DT") & 0x1u)
+	<< " CSC " << (( ps.getParameter<bool>("CSC") & 0x1u ) << 1 )
+	<< " RBC1 " << (( ps.getParameter<bool>("RBC1") & 0x1u )  << 2 )
+	<< " RBC2 " << (( ps.getParameter<bool>("RBC2") & 0x1u ) << 3 ) 
+	<< " RPCTB " << (( ps.getParameter<bool>("RPCTB") & 0x1u ) << 4 ) 
+	<< " word " << word
+	<< std::endl;
+    }
     return word;    
   }
 
