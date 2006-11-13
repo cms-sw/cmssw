@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/10/24 08:04:44 $
- *  $Revision: 1.32 $
+ *  $Date: 2006/10/25 07:50:06 $
+ *  $Revision: 1.33 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -119,8 +119,9 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // the trajectory container. In principle starting from one seed we can
   // obtain more than one trajectory. TODO: this feature is not yet implemented!
   TrajectoryContainer trajectoryContainer;
-  
-  Trajectory trajectoryFW(seed,alongMomentum);
+
+  PropagationDirection fwDirection = (theSeedPosition == recoMuon::in) ? alongMomentum : oppositeToMomentum;  
+  Trajectory trajectoryFW(seed,fwDirection);
 
   DetLayerWithState inputFromSeed = propagateTheSeedTSOS(seed); // it returns DetLayer-TSOS pair
   
@@ -208,7 +209,8 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   else
     LogWarning(metname) << "Wrong seed type for the backward filter!";
 
-  Trajectory trajectoryBW(seedForBW,oppositeToMomentum);
+  PropagationDirection bwDirection = (theSeedPosition == recoMuon::in) ?  oppositeToMomentum : alongMomentum;
+  Trajectory trajectoryBW(seedForBW,bwDirection);
 
   static const string t2 = "StandAloneMuonTrajectoryBuilder::backwardfiltering";
   TimeMe timer2(t2,timing);
