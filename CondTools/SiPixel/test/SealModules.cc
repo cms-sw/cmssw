@@ -7,5 +7,5 @@ using cms::SiPixelCondObjBuilder;
 using cms::SiPixelCondObjReader;
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiPixelCondObjBuilder)
-DEFINE_ANOTHER_FWK_MODULE(SiPixelCondObjReader)
+DEFINE_ANOTHER_FWK_MODULE(SiPixelCondObjBuilder);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelCondObjReader);

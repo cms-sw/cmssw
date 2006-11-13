@@ -25,7 +25,7 @@ void SiPixelGainCalibrationService::setESObjects( const edm::EventSetup& es ) {
     es.get<SiPixelGainCalibrationRcd>().get(ped);
     ESetupInit_ = true;
   }
-};
+}
 
 std::vector<uint32_t> SiPixelGainCalibrationService::getDetIds() {
 
