@@ -938,4 +938,4 @@ PFProducer::getStateOnSurface( PFGeometry::Surface_t iSurf,
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(PFProducer);
+// DEFINE_FWK_MODULE(PFProducer);
