@@ -74,15 +74,15 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
   //This have to be modified taking L1 bits
 
-  if(singleTauSize > 0)
-    {
-      if(singleTauSize < 2 && doubleTauSize == 0)    l1Decision = 1; //Pure SingleTau Trigger
-      if(singleTauSize >1 && doubleTauSize == 0)     l1Decision = 2;//Single && DoubleTau
-      if(singleTauSize >1 && doubleTauSize > 0) l1Decision = 2;//Single && DoubleTau      
-      if(singleTauSize == 1 && doubleTauSize > 0) l1Decision = 2;//Single && DoubleTau, To check the mixed case 
-    }
-  if(singleTauSize == 0 && doubleTauSize >1) l1Decision = 3;//Pure Double
+
+  if(singleTauSize < 2 && doubleTauSize == 0)    l1Decision = 1; //Pure SingleTau Trigger
+  if(singleTauSize >1 && doubleTauSize == 0)     l1Decision = 2;//Single && DoubleTau
+  if(singleTauSize >1 && doubleTauSize > 0) l1Decision = 3;//Single && DoubleTau      
+  if(singleTauSize == 1 && doubleTauSize > 0) l1Decision = 4;//Single && DoubleTau, To check the mixed case 
+  if(singleTauSize == 0 && doubleTauSize >1) l1Decision = 6;//Pure Double
   
+  //There is missing the mixed case!!!!!!!!
+
   auto_ptr< vector<int> > myL1BookKeep(new vector<int>);
   myL1BookKeep->push_back(l1Decision);
   
