@@ -1,5 +1,6 @@
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBTDCUnpacker.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <math.h>
 
 // Timing channels
 static const int lcTriggerTime     = 1;
