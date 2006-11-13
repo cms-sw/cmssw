@@ -22,13 +22,16 @@ ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
 void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
   es.getData( pdt_ );
 
-  Handle<GenParticleCandidateCollection> particles;
+  Handle<CandidateCollection> particles;
   event.getByLabel( src_, particles );
-  for( GenParticleCandidateCollection::const_iterator p = particles->begin();
+  for( CandidateCollection::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
-    if ( p->mother().isNull() ) {
+    const GenParticleCandidate * c = 
+      dynamic_cast<const GenParticleCandidate *>( & * p );
+    assert( c != 0 );
+    if ( c->mother().isNull() ) {
       cout << "-- decay: --" << endl;
-      printDecay( * p, "" );
+      printDecay( * c, "" );
     }
   }
 }
@@ -36,7 +39,7 @@ void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
 void ParticleTreeDrawer::printP4( const reco::GenParticleCandidate & c ) const {
   if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")"; 
   if ( printPtEtaPhi_ ) cout << " [" << c.pt() << ": " << c.eta() << ", " << c.phi() << "]";
-  if ( printStatus_ ) cout << "{status: " << c.status() << "}";
+  if ( printStatus_ ) cout << "{status: " << status( c ) << "}";
 }
 
 void ParticleTreeDrawer::printDecay( const reco::GenParticleCandidate & c, const std::string & pre ) const {

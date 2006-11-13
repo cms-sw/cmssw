@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateProducer.cc,v 1.8 2006/11/03 13:15:58 llista Exp $
+// $Id: GenParticleCandidateProducer.cc,v 1.9 2006/11/07 16:28:38 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateProducer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -29,7 +29,7 @@ GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet &
   ptMinCharged_( p.getParameter<double>( "ptMinCharged" ) ),
   keepInitialProtons_( p.getParameter<bool>( "keepInitialProtons" ) ),
   excludeUnfragmentedClones_( p.getParameter<bool>( "excludeUnfragmentedClones" ) ) {
-  produces<GenParticleCandidateCollection>();
+  produces<CandidateCollection>();
 }
 
 GenParticleCandidateProducer::~GenParticleCandidateProducer() { 
@@ -146,8 +146,8 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
   }
 
   // fill output collection and save association
-  auto_ptr<GenParticleCandidateCollection> cands( new GenParticleCandidateCollection );
-  GenParticleCandidateRefProd ref = evt.getRefBeforePut<GenParticleCandidateCollection>();
+  auto_ptr<CandidateCollection> cands( new CandidateCollection );
+  CandidateRefProd ref = evt.getRefBeforePut<CandidateCollection>();
   cands->reserve( size );
 
   vector<size_t> indices;
@@ -156,8 +156,9 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
     const GenParticle * part = particles[ i ];
     GenParticleCandidate * cand = 0;
     if ( ! skip[ i ] ) {
-      cands->push_back( GenParticleCandidate( part ) );
-      cand = & cands->back();
+      GenParticleCandidate * c = new GenParticleCandidate( part );
+      cand = c;
+      cands->push_back( c );
       indices.push_back( i );
     }
     candidates.push_back( cand );
@@ -174,7 +175,7 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
       }
     }
     if ( mother != 0 ) {
-      mother->addDaughter( CandidateBaseRef( GenParticleCandidateRef( ref, i ) ) );
+      mother->addDaughter( CandidateRef( ref, i ) );
     }
   }
 

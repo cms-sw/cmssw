@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateSelector.cc,v 1.8 2006/10/29 21:09:39 llista Exp $
+// $Id: GenParticleCandidateSelector.cc,v 1.1 2006/11/07 12:54:02 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateSelector.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -46,20 +46,21 @@ void GenParticleCandidateSelector::beginJob( const EventSetup & es ) {
 }
 
 void GenParticleCandidateSelector::produce( Event& evt, const EventSetup& ) {
-  Handle<GenParticleCandidateCollection> particles;
+  Handle<CandidateCollection> particles;
   evt.getByLabel( src_, particles );
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
   cands->reserve( particles->size() );
   size_t idx = 0;
-  for( GenParticleCandidateCollection::const_iterator p = particles->begin(); 
+  for( CandidateCollection::const_iterator p = particles->begin(); 
        p != particles->end(); ++ p, ++ idx ) {
-    if ( ! stableOnly_ || p->status() == 1 ) {
-      int id = abs( p->pdgId() );
+    int status = reco::status( * p );
+    if ( ! stableOnly_ || status == 1 ) {
+      int id = abs( reco::pdgId( * p ) );
       if ( excludedIds_.find( id ) == excludedIds_.end() ) {
 	if ( verbose_ )
 	  LogInfo( "INFO" ) << "Adding candidate for particle with id: " 
-			    << id << ", status: " << p->status();
-	CandidateBaseRef ref( GenParticleCandidateRef( particles, idx ) );
+			    << id << ", status: " << status;
+	CandidateBaseRef ref( CandidateRef( particles, idx ) );
 	cands->push_back( new ShallowCloneCandidate( ref ) );
       }
     }

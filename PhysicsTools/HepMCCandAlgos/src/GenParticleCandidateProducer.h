@@ -4,12 +4,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.h,v 1.5 2006/11/03 13:15:58 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.h,v 1.6 2006/11/07 16:28:38 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
 #include <vector>
 #include <set>
 

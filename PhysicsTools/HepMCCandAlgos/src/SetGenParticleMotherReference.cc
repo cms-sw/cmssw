@@ -12,10 +12,10 @@ SetGenParticleMotherReference::SetGenParticleMotherReference( const ParameterSet
 }
 
 void SetGenParticleMotherReference::analyze( const Event & event, const EventSetup & ) {
-  Handle<GenParticleCandidateCollection> particles;
+  Handle<CandidateCollection> particles;
   event.getByLabel( src_, particles );
   
-  for( GenParticleCandidateCollection::const_iterator p = particles->begin();
+  for( CandidateCollection::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
     for( size_t i = 0; i < p->numberOfDaughters(); ++ i ) {
       const Candidate & d = p->daughter( i );
@@ -25,7 +25,7 @@ void SetGenParticleMotherReference::analyze( const Event & event, const EventSet
 	throw cms::Exception( "InvalidReference" ) 
 	  << "input collection contains candidates that"
 	  << "are not of type GenParticleCandidate";
-      dau->setMother( GenParticleCandidateRef( particles, i ) );
+      dau->setMother( CandidateRef( particles, i ) );
     }
   }
 }
