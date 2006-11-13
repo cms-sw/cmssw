@@ -19,4 +19,4 @@ using namespace alignmentservices;
 DEFINE_SEAL_MODULE();
 DEFINE_SEAL_PLUGIN( AlignmentAlgorithmPluginFactory, KalmanAlignmentAlgorithm, "KalmanAlignmentAlgorithm");
 DEFINE_SEAL_PLUGIN( KalmanAlignmentUpdatorPlugin, SingleTrajectoryUpdator, "SingleTrajectoryUpdator" );
-DEFINE_ANOTHER_FWK_SERVICE_MAKER( DataCollector, ParameterSetMaker< DataCollector > )
+DEFINE_ANOTHER_FWK_SERVICE_MAKER( DataCollector, ParameterSetMaker< DataCollector > );
