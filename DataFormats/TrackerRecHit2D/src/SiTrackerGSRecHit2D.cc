@@ -9,6 +9,6 @@ SiTrackerGSRecHit2D::SiTrackerGSRecHit2D( const LocalPoint& pos, const LocalErro
 					  const int pixelMultiplicityY = -1 ):
   BaseSiTrackerRecHit2DLocalPos(pos,err,id) ,
   simhitId_(simhitId) ,
-  simtrackId_ (simtrackId) ,
-  pixelMultiplicityAlpha_ (pixelMultiplicityX), 
-  pixelMultiplicityBeta_  (pixelMultiplicityY) {}
+  simtrackId_(simtrackId) ,
+  pixelMultiplicityAlpha_(pixelMultiplicityX), 
+  pixelMultiplicityBeta_(pixelMultiplicityY) {}

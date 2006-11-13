@@ -10,7 +10,11 @@ class SiTrackerGSRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
   
 public:
   
-  SiTrackerGSRecHit2D(): BaseSiTrackerRecHit2DLocalPos() {}
+  SiTrackerGSRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),
+			 simhitId_(),
+			 simtrackId_(),
+			 pixelMultiplicityAlpha_(), 
+			 pixelMultiplicityBeta_() {}
   
   ~SiTrackerGSRecHit2D() {}
   
