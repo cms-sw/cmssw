@@ -22,10 +22,10 @@ namespace{
 }
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
-template std::vector<char>::iterator;
-template std::vector<char>::const_iterator;
-template std::vector< SiPixelGainCalibration::DetRegistry >::iterator;
-template std::vector< SiPixelGainCalibration::DetRegistry >::const_iterator;
+std::vector<char>::iterator p1;
+std::vector<char>::const_iterator p2;
+std::vector< SiPixelGainCalibration::DetRegistry >::iterator p3;
+std::vector< SiPixelGainCalibration::DetRegistry >::const_iterator p4;
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
 // &&& Not sure what we need for templates here.

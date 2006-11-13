@@ -3,7 +3,7 @@
 
 
 class SiPixelFedCablingMap;
-namespace sipixelobjects { class PixelFEDCabling; };
+namespace sipixelobjects { class PixelFEDCabling; }
 
 #include <boost/cstdint.hpp>
 
