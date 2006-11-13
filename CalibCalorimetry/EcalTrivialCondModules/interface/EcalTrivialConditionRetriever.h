@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.7 2006/08/09 17:36:39 rahatlou Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.8 2006/08/10 12:14:15 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -44,7 +44,7 @@
 
 namespace edm{
   class ParameterSet;
-};
+}
 
 class EcalTrivialConditionRetriever : public edm::ESProducer, 
                                       public edm::EventSetupRecordIntervalFinder
