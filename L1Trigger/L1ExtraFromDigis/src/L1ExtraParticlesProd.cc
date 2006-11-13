@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.1 2006/10/17 21:41:32 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.2 2006/10/27 01:35:33 wmtan Exp $
 //
 //
 
@@ -198,14 +198,8 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    muColl->push_back(
 	       L1MuonParticle( muItr->charge(),
 			       p4,
-			       muItr->isol(),
-			       muItr->mip(),
-			       muItr->isFwd(),
-			       muItr->isRPC(),
-			       muItr->detector() )
-	       ) ;
-// 			       Ref< vector< L1MuGMTCand> >( hwMuCollection,
-// 							    i ) ) ) ;
+			       *muItr )
+ 	       ) ;
 	 }
       }
 
