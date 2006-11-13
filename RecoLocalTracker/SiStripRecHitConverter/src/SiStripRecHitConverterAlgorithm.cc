@@ -153,5 +153,5 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripC
 					 << nstereo << "  clusters in partners stereo detectors\n"
 					 << nmatch << "  matched RecHit\n"
 					 << nunmatch << "  unmatched clusters";
-};
+}
 

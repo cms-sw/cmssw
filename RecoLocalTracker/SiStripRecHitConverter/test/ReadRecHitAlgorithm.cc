@@ -59,7 +59,7 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DCollection* input)
       }
     }
   }
-};
+}
 
 
 void ReadRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input)

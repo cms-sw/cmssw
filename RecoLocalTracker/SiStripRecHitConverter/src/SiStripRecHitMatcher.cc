@@ -9,7 +9,7 @@
 
   SiStripRecHitMatcher::SiStripRecHitMatcher(const edm::ParameterSet& conf){   
     scale_=conf.getParameter<double>("NSigmaInside");  
-  };
+  }
 
 
 
