@@ -25,7 +25,7 @@ GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet &
   src_( p.getParameter<string>( "src" ) ),
   stableOnly_( p.getParameter<bool>( "stableOnly" ) ),
   excludeList_( p.getParameter<vstring>( "excludeList" ) ),
-  ptMinNeutral_( p.getParameter<double>( "ptMinNeutral" ) ),
+  eMinNeutral_( p.getParameter<double>( "eMinNeutral" ) ),
   ptMinCharged_( p.getParameter<double>( "ptMinCharged" ) ),
   keepInitialProtons_( p.getParameter<bool>( "keepInitialProtons" ) ),
   excludeUnfragmentedClones_( p.getParameter<bool>( "excludeUnfragmentedClones" ) ) {
@@ -103,8 +103,12 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
       else if ( excludedIds_.find( abs( pdgId ) ) != excludedIds_.end() ) skipped = true;
       else {
 	if ( status == 1 ) {
-	  const double ptMin = part->particleID().threeCharge() == 0 ? ptMinNeutral_ : ptMinCharged_;
-	  if ( part->momentum().perp() < ptMin ) skipped = true;
+	  if ( part->particleID().threeCharge() == 0 ) {
+	    if ( part->momentum().e() < eMinNeutral_ ) skipped = true;	  
+	  }
+	  else {
+	    if ( part->momentum().perp() < ptMinCharged_ ) skipped = true;
+	  }
 	}
       }
     }
