@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.2 2005/11/28 00:43:10 chrjones Exp $
+// $Id: SimTrackManager.h,v 1.3 2006/09/11 10:03:48 fambrogl Exp $
 //
 
 // system include files
@@ -34,6 +34,11 @@ class SimTrackManager
 {
 
    public:
+
+  class StrictWeakOrdering{
+  public:
+    bool operator() ( TrackWithHistory * & p,const unsigned int& i) const {return p->trackID() < i;}
+  };
   //      enum SpecialNumbers {InvalidID = 65535};
       /// this map contains association between vertex number and position
       typedef std::pair<int,Hep3Vector> MapVertexPosition;
@@ -67,7 +72,7 @@ class SimTrackManager
 
       const SimTrackManager& operator=(const SimTrackManager&); // stop default
 
-      void saveTrackAndItsBranch(int i);
+      void saveTrackAndItsBranch(TrackWithHistory *);
       int getOrCreateVertex(TrackWithHistory *,int,G4SimEvent * simEvent);
       void cleanVertexMap();
       void reallyStoreTracks(G4SimEvent * simEvent);
