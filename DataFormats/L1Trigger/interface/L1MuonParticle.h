@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1MuonParticle.h,v 1.5 2006/08/10 18:47:41 wsun Exp $
+// $Id: L1MuonParticle.h,v 1.6 2006/10/17 21:35:17 wsun Exp $
 //
 
 // system include files
@@ -24,8 +24,7 @@
 // user include files
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 
 // forward declarations
 
@@ -43,7 +42,7 @@ namespace l1extra {
 
 	 L1MuonParticle( Charge q,
 			 const LorentzVector& p4,
-			 const edm::Ref< std::vector< L1MuGMTCand> >& aRef ) ;
+			 const L1MuGMTExtendedCand& aCand ) ;
 
          // Creates null Ref.
          L1MuonParticle( Charge q,
@@ -69,15 +68,8 @@ namespace l1extra {
 	 bool isRPC() const
 	 { return rpc_ ; }
 
-	 // See L1MuGMTExtendedCand.h for code.
-	 unsigned int detector() const
-	 { return detector_ ; }
-
-	 const edm::Ref< std::vector< L1MuGMTCand > >& gmtMuonCandRef() const
-	 { return ref_ ; }
-
-	 const L1MuGMTCand* gmtMuonCand() const
-	 { return ref_.get() ; }
+	 const L1MuGMTExtendedCand& gmtMuonCand() const
+	 { return cand_ ; }
 
 	 // ---------- static member functions --------------------
 
@@ -94,9 +86,6 @@ namespace l1extra {
 	 void setRPC( bool isRPC )
 	 { rpc_ = isRPC ; }
 
-	 void setDetector( unsigned int detector )
-	 { detector_ = detector ; }
-
       private:
 	 // L1MuonParticle(const L1MuonParticle&); // stop default
 
@@ -107,8 +96,7 @@ namespace l1extra {
          bool mip_ ;
 	 bool forward_ ;
 	 bool rpc_ ;
-	 unsigned int detector_ ;
-	 edm::Ref< std::vector< L1MuGMTCand> > ref_ ;
+	 L1MuGMTExtendedCand cand_ ;
    };
 }
 

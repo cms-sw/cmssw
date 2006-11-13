@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 17:51:21 EDT 2006
-// $Id: L1MuonParticle.cc,v 1.3 2006/08/10 18:47:42 wsun Exp $
+// $Id: L1MuonParticle.cc,v 1.4 2006/10/17 21:35:18 wsun Exp $
 //
 
 // system include files
@@ -36,19 +36,14 @@ L1MuonParticle::L1MuonParticle()
 L1MuonParticle::L1MuonParticle(
    Charge q,
    const LorentzVector& p4,
-   const edm::Ref< std::vector< L1MuGMTCand> >& aRef )
-//   : ParticleWithCharge( q, p4 ),
-   : LeafCandidate( q, p4 ),
-     ref_( aRef )
+   const L1MuGMTExtendedCand& aCand )
+  : LeafCandidate( q, p4 ),
+     cand_( aCand )
 {
-   if( ref_.isNonnull() )
-   {
-      isolated_ = gmtMuonCand()->isol() ;
-      mip_ = gmtMuonCand()->mip() ;
-      forward_ = false ;
-      rpc_ = false ;
-      detector_ = 0 ;
-   }
+   isolated_ = cand_.isol() ;
+   mip_ = cand_.mip() ;
+   forward_ = cand_.isFwd() ;
+   rpc_ = cand_.isRPC() ;
 }
 
 L1MuonParticle::L1MuonParticle( Charge q,
@@ -63,8 +58,7 @@ L1MuonParticle::L1MuonParticle( Charge q,
      mip_( mip ),
      forward_( forward ),
      rpc_( rpc ),
-     detector_( detector ),
-     ref_( edm::Ref< std::vector< L1MuGMTCand> >() )
+     cand_( L1MuGMTExtendedCand() )
 {
 }
 
