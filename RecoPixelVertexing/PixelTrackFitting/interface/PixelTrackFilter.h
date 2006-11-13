@@ -1,7 +1,7 @@
 #ifndef PixelTrackFitting_PixelTrackFilter_H
 #define PixelTrackFitting_PixelTrackFilter_H
 
-namespace reco { class Track; };
+namespace reco { class Track; }
 
 class PixelTrackFilter {
 public:
