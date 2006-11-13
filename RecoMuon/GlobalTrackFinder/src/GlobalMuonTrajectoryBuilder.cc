@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/08 08:04:53 $
- *  $Revision: 1.54 $
+ *  $Date: 2006/11/10 17:23:27 $
+ *  $Revision: 1.55 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -121,7 +121,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   tkTrajsAvailable = false;
   first = true;
   
-  std::string ckfBuilderName = par.getParameter<std::string>("ckfBuilder");
+  std::string ckfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
 
 }
 
