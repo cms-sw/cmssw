@@ -24,7 +24,7 @@ class AlignmentIORootBase
   virtual ~AlignmentIORootBase(){};
 
   /// open IO 
-  int openRoot(char* filename, int iteration, bool writemode);
+  int openRoot(const char* filename, int iteration, bool writemode);
 
   /// close IO 
   int closeRoot(void);
@@ -36,10 +36,10 @@ class AlignmentIORootBase
   virtual void setBranchAddresses(void) = 0;
 
   /// test if file is existing and if so, what the highest iteration is 
-  int testFile(char* filename, TString tname);
+  int testFile(const char* filename, const TString &tname);
 
   /// compose tree name 
-  TString treeName(int iter,TString tname);
+  TString treeName(int iter, const TString &tname);
 
   // data members
 

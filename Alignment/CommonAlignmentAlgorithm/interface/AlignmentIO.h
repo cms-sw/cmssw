@@ -25,43 +25,43 @@ class AlignmentIO
 
   /// write AlignmentParameters 
   virtual void writeAlignmentParameters (const Alignables& alivec, 
-    char* filename, int iter, bool validCheck, int& ierr) = 0;
+    const char* filename, int iter, bool validCheck, int& ierr) = 0;
 
   /// read AlignmentParameters 
   virtual Parameters readAlignmentParameters (const Alignables& alivec, 
-    char* filename, int iter, int& ierr) = 0;
+    const char* filename, int iter, int& ierr) = 0;
 
   /// write Correlations 
   virtual void writeCorrelations (const Correlations& cormap, 
-    char* filename, int iter, bool validCheck, int& ierr) = 0;
+    const char* filename, int iter, bool validCheck, int& ierr) = 0;
 
   /// read Correlations 
   virtual Correlations readCorrelations (const Alignables& alivec, 
-    char* filename, int iter, int& ierr) = 0;
+    const char* filename, int iter, int& ierr) = 0;
 
   /// write Alignable current absolute positions 
   virtual void writeAlignableAbsolutePositions (const Alignables& alivec, 
-    char* filename, int iter, bool validCheck, int& ierr) = 0;
+    const char* filename, int iter, bool validCheck, int& ierr) = 0;
 
   /// read Alignable current absolute positions 
   virtual AlignablePositions readAlignableAbsolutePositions (const Alignables&
-    alivec, char* filename, int iter, int& ierr) = 0;
+    alivec, const char* filename, int iter, int& ierr) = 0;
 
   /// write Alignable original (before misalignment) absolute positions 
   virtual void writeAlignableOriginalPositions (const Alignables& alivec, 
-    char* filename, int iter, bool validCheck, int& ierr) = 0;
+    const char* filename, int iter, bool validCheck, int& ierr) = 0;
 
   /// read Alignable original (before misalignment) absolute positions 
   virtual AlignablePositions readAlignableOriginalPositions (const Alignables&
-    alivec, char* filename, int iter, int& ierr) = 0;
+    alivec, const char* filename, int iter, int& ierr) = 0;
 
   /// write Alignable relative positions (shift,rotation) 
   virtual  void writeAlignableRelativePositions (const Alignables& alivec, 
-    char* filename, int iter, bool validCheck, int& ierr) = 0;
+    const char* filename, int iter, bool validCheck, int& ierr) = 0;
 
   /// read Alignable relative positions (shift,rotation) 
   virtual AlignableShifts readAlignableRelativePositions (const Alignables&
-    alivec, char* filename, int iter, int& ierr) = 0;
+    alivec, const char* filename, int iter, int& ierr) = 0;
 
 };
 

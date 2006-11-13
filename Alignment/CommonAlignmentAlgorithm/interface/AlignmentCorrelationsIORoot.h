@@ -10,8 +10,7 @@
 
 /// Concrete class for ROOT based IO of Correlations 
 
-class AlignmentCorrelationsIORoot : public AlignmentIORootBase,
-                                      public AlignmentCorrelationsIO
+class AlignmentCorrelationsIORoot : public AlignmentIORootBase, public AlignmentCorrelationsIO
 {
   friend class AlignmentIORoot;
 
@@ -24,7 +23,7 @@ class AlignmentCorrelationsIORoot : public AlignmentIORootBase,
   AlignmentCorrelationsIORoot();
 
   /// open IO 
-  int open(char* filename, int iteration, bool writemode) {
+  int open(const char* filename, int iteration, bool writemode) {
     return openRoot(filename,iteration,writemode);
   };
 

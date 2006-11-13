@@ -40,8 +40,7 @@ void AlignmentCorrelationsIORoot::setBranchAddresses(void)
 
 // ----------------------------------------------------------------------------
 
-int AlignmentCorrelationsIORoot::write(const Correlations& cor, 
-									   bool validCheck)
+int AlignmentCorrelationsIORoot::write(const Correlations& cor, bool validCheck)
 {
   int icount=0;
   TrackerAlignableId converter;
@@ -67,7 +66,7 @@ int AlignmentCorrelationsIORoot::write(const Correlations& cor,
     }
   }
   edm::LogInfo("AlignmentCorrelationsIORoot") << "Writing correlations: all,written: " 
-											  << cor.size() << "," << icount;
+                                              << cor.size() << "," << icount;
   return 0;
 }
 
@@ -75,8 +74,7 @@ int AlignmentCorrelationsIORoot::write(const Correlations& cor,
 // read correlations for those alignables in vector given as argument
 
 AlignmentCorrelationsIORoot::Correlations 
-AlignmentCorrelationsIORoot::read(const std::vector<Alignable*>& alivec, 
-								  int& ierr)
+AlignmentCorrelationsIORoot::read(const std::vector<Alignable*>& alivec, int& ierr)
 {
   Correlations theMap;
   TrackerAlignableId converter;
@@ -112,7 +110,7 @@ AlignmentCorrelationsIORoot::read(const std::vector<Alignable*>& alivec,
 	}
 
   edm::LogInfo("AlignmentCorrelationsIORoot") << "Read correlations: all,read: " 
-											  << alivec.size() << "," << nfound;
+                                              << alivec.size() << "," << nfound;
 
   ierr=0;
   return theMap;

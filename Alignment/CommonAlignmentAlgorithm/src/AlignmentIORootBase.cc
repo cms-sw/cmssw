@@ -6,7 +6,7 @@
 // ----------------------------------------------------------------------------
 // open file/trees for write
 
-int AlignmentIORootBase::openRoot(char* filename, int iteration, bool write)
+int AlignmentIORootBase::openRoot(const char* filename, int iteration, bool write)
 {
   bWrite=write;
   int iter;
@@ -111,7 +111,7 @@ int AlignmentIORootBase::closeRoot(void)
 // returns highest existing iteration in file
 // if file does not exist: return -1
 
-int AlignmentIORootBase::testFile(char* filename, TString tname)
+int AlignmentIORootBase::testFile(const char* filename, const TString &tname)
 {
   FILE* testFILE;
   testFILE = fopen(filename,"r");
@@ -134,11 +134,7 @@ int AlignmentIORootBase::testFile(char* filename, TString tname)
 // ----------------------------------------------------------------------------
 // create tree name from stub+iteration
 
-TString AlignmentIORootBase::treeName(int iter,TString tname)
+TString AlignmentIORootBase::treeName(int iter, const TString &tname)
 {
-  char iterString[5];
-  sprintf(iterString, "%i",iter);
-  tname.Append(":");
-  tname.Append(iterString);
-  return tname;
+  return TString(tname + Form(":%i",iter));
 }

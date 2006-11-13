@@ -21,43 +21,43 @@ class AlignmentIORoot : public AlignmentIO
 
   /// write AlignmentParameters 
   void writeAlignmentParameters (const Alignables& alivec, 
-								 char* filename, int iter, bool validCheck, int& ierr );
+				 const char* filename, int iter, bool validCheck, int& ierr );
 
   /// read AlignmentParameters 
   Parameters readAlignmentParameters (const Alignables& alivec, 
-									  char* filename, int iter, int& ierr);
+				      const char* filename, int iter, int& ierr);
 
   /// write Correlations 
   void writeCorrelations (const Correlations& cormap, 
-						  char* filename, int iter, bool validCheck, int& ierr);
+			  const char* filename, int iter, bool validCheck, int& ierr);
 
   /// read Correlations 
   Correlations readCorrelations (const Alignables& alivec, 
-								 char* filename, int iter, int& ierr);
+				 const char* filename, int iter, int& ierr);
   
   /// write Alignable current absolute positions 
   void writeAlignableAbsolutePositions (const Alignables& alivec, 
-										char* filename, int iter, bool validCheck, int& ierr);
+					const char* filename, int iter, bool validCheck, int& ierr);
   
   /// read Alignable current absolute positions 
   AlignablePositions readAlignableAbsolutePositions (const Alignables& alivec,
-													 char* filename, int iter, int& ierr);
+						     const char* filename, int iter, int& ierr);
   
   /// write Alignable original (before misalignment) absolute positions 
   void writeAlignableOriginalPositions (const Alignables& alivec, 
-										char* filename, int iter, bool validCheck, int& ierr);
+					const char* filename, int iter, bool validCheck, int& ierr);
   
   /// read Alignable original (before misalignment) absolute positions 
   AlignablePositions readAlignableOriginalPositions (const Alignables& alivec,
-													 char* filename, int iter, int& ierr);
+						     const char* filename, int iter, int& ierr);
   
   /// write Alignable relative positions (shift,rotation) 
   void writeAlignableRelativePositions (const Alignables& alivec, 
-										char* filename, int iter, bool validCheck, int& ierr);
+					const char* filename, int iter, bool validCheck, int& ierr);
   
   /// read Alignable relative positions (shift,rotation) 
   AlignableShifts readAlignableRelativePositions (const Alignables& alivec,
-												  char* filename, int iter, int& ierr);
+						  const char* filename, int iter, int& ierr);
 
 };
 

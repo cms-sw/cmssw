@@ -12,8 +12,7 @@
 
 /// concrete class for ROOT based IO of Alignable positions 
 
-class AlignableDataIORoot : public AlignmentIORootBase,
-							public AlignableDataIO
+class AlignableDataIORoot : public AlignmentIORootBase, public AlignableDataIO
 {
 
   friend class AlignmentIORoot;
@@ -23,18 +22,18 @@ class AlignableDataIORoot : public AlignmentIORootBase,
   AlignableDataIORoot(PosType p); 
 
   /// open IO 
-  int open(char* filename, int iteration, bool writemode)
+  int open(const char* filename, int iteration, bool writemode)
   { newopen=true; return openRoot(filename,iteration,writemode); }
 
   /// close IO 
   int close(void){ return closeRoot(); }
 
   /// write absolute positions 
-  int writeAbsRaw(AlignableAbsData ad);
+  int writeAbsRaw(const AlignableAbsData &ad);
   /// read absolute positions 
   AlignableAbsData readAbsRaw(Alignable* ali,int& ierr);
   /// write relative positions 
-  int writeRelRaw(AlignableRelData ad);
+  int writeRelRaw(const AlignableRelData &ad);
   /// read relative positions 
   AlignableRelData readRelRaw(Alignable* ali,int& ierr);
 

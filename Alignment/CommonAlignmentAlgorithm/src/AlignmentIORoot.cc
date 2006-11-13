@@ -10,8 +10,8 @@
 
 void 
 AlignmentIORoot::writeAlignmentParameters(const Alignables& alivec, 
-										  char* filename, int iter, 
-										  bool validCheck, int& ierr)
+                                          const char* filename, int iter, 
+                                          bool validCheck, int& ierr)
 {
   AlignmentParametersIORoot theIO;
   ierr=0;
@@ -28,7 +28,7 @@ AlignmentIORoot::writeAlignmentParameters(const Alignables& alivec,
 // read alignment parameters 
 AlignmentIO::Parameters 
 AlignmentIORoot::readAlignmentParameters(const Alignables& alivec, 
-										 char* filename, int iter, int& ierr)
+                                         const char* filename, int iter, int& ierr)
 {
   Parameters result;
 
@@ -50,7 +50,7 @@ AlignmentIORoot::readAlignmentParameters(const Alignables& alivec,
 
 void 
 AlignmentIORoot::writeCorrelations (const Correlations& cormap, 
-									char* filename, int iter, bool validCheck, int& ierr)
+                                    const char* filename, int iter, bool validCheck, int& ierr)
 {
   AlignmentCorrelationsIORoot theIO;
   ierr=0;
@@ -67,8 +67,8 @@ AlignmentIORoot::writeCorrelations (const Correlations& cormap,
 // read correlations
 
 AlignmentIO::Correlations 
-AlignmentIORoot::readCorrelations (const Alignables& alivec, char* filename, 
-								   int iter, int& ierr)
+AlignmentIORoot::readCorrelations (const Alignables& alivec, const char* filename, 
+                                   int iter, int& ierr)
 {   
   Correlations result;
 
@@ -90,8 +90,8 @@ AlignmentIORoot::readCorrelations (const Alignables& alivec, char* filename,
 // write absolute position of alignable
 
 void AlignmentIORoot::writeAlignableAbsolutePositions ( const Alignables& alivec, 
-														char* filename, int iter, 
-														bool validCheck, int& ierr)
+                                                        const char* filename, int iter, 
+                                                        bool validCheck, int& ierr)
 {
   AlignableDataIORoot theIO(AlignableDataIORoot::Abs);
   ierr=0;
@@ -109,7 +109,7 @@ void AlignmentIORoot::writeAlignableAbsolutePositions ( const Alignables& alivec
 
 AlignablePositions 
 AlignmentIORoot::readAlignableAbsolutePositions (const Alignables& alivec, 
-												 char* filename, int iter, int& ierr)
+                                                 const char* filename, int iter, int& ierr)
 {
   AlignablePositions result;
 
@@ -130,8 +130,8 @@ AlignmentIORoot::readAlignableAbsolutePositions (const Alignables& alivec,
 // write original position of alignable
 
 void AlignmentIORoot::writeAlignableOriginalPositions ( const Alignables& alivec, 
-														char* filename, int iter, 
-														bool validCheck, int& ierr)
+                                                        const char* filename, int iter, 
+                                                        bool validCheck, int& ierr)
 {
   AlignableDataIORoot theIO(AlignableDataIORoot::Org);
   ierr=0;
@@ -149,7 +149,7 @@ void AlignmentIORoot::writeAlignableOriginalPositions ( const Alignables& alivec
 
 AlignablePositions 
 AlignmentIORoot::readAlignableOriginalPositions (const Alignables& alivec, 
-												 char* filename, int iter, int& ierr)
+                                                 const char* filename, int iter, int& ierr)
 {
   AlignablePositions result;
 
@@ -170,8 +170,8 @@ AlignmentIORoot::readAlignableOriginalPositions (const Alignables& alivec,
 // write relative position of alignable
 
 void AlignmentIORoot::writeAlignableRelativePositions( const Alignables& alivec,
-													   char* filename, int iter, bool validCheck, 
-													   int& ierr)
+                                                       const char* filename,
+                                                       int iter, bool validCheck, int& ierr)
 {
   AlignableDataIORoot theIO(AlignableDataIORoot::Rel);
   ierr=0;
@@ -189,7 +189,7 @@ void AlignmentIORoot::writeAlignableRelativePositions( const Alignables& alivec,
 
 AlignableShifts 
 AlignmentIORoot::readAlignableRelativePositions (const Alignables& alivec, 
-												 char* filename, int iter, int& ierr)
+                                                 const char* filename, int iter, int& ierr)
 {
   AlignableShifts result;
 

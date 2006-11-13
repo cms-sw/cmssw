@@ -16,8 +16,7 @@
 
 /// Concrete class for ROOT-based I/O of AlignmentParameters 
 
-class AlignmentParametersIORoot : public AlignmentIORootBase,
-								  public AlignmentParametersIO
+class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentParametersIO
 {
   friend class AlignmentIORoot;
 
@@ -33,7 +32,7 @@ class AlignmentParametersIORoot : public AlignmentIORootBase,
   AlignmentParameters* readOne(Alignable* ali, int& ierr);
 
   /// Open IO 
-  int open(char* filename, int iteration, bool writemode)
+  int open(const char* filename, int iteration, bool writemode)
     {return openRoot(filename,iteration,writemode);};
 
   /// Close IO 

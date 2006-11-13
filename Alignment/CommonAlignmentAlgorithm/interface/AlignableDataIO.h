@@ -21,7 +21,7 @@ class AlignableDataIO
   virtual ~AlignableDataIO(){};
 
   /// Open IO handle
-  virtual int open( char* filename, int iteration, bool writemode ) = 0;
+  virtual int open( const char* filename, int iteration, bool writemode ) = 0;
 
   /// Close IO handle
   virtual int close(void) = 0;
@@ -68,11 +68,11 @@ class AlignableDataIO
   // must be provided by concrete derived class
 
   /// Write absolute positions 
-  virtual int writeAbsRaw(AlignableAbsData ad) =0;
+  virtual int writeAbsRaw(const AlignableAbsData &ad) =0;
   /// Read absolute positions 
   virtual AlignableAbsData readAbsRaw(Alignable* ali,int& ierr) =0;
   /// Write relative positions 
-  virtual int writeRelRaw(AlignableRelData ad) =0;
+  virtual int writeRelRaw(const AlignableRelData &ad) =0;
   /// Read relative positions 
   virtual AlignableRelData readRelRaw(Alignable* ali,int& ierr) =0;
 

@@ -71,7 +71,7 @@ int AlignableDataIORoot::findEntry(unsigned int detId,int comp)
 }
 
 // ----------------------------------------------------------------------------
-int AlignableDataIORoot::writeAbsRaw(AlignableAbsData ad)
+int AlignableDataIORoot::writeAbsRaw(const AlignableAbsData &ad)
 {
   GlobalPoint pos = ad.pos();
   Surface::RotationType rot = ad.rot();
@@ -86,7 +86,7 @@ int AlignableDataIORoot::writeAbsRaw(AlignableAbsData ad)
 }
 
 // ----------------------------------------------------------------------------
-int AlignableDataIORoot::writeRelRaw(AlignableRelData ad)
+int AlignableDataIORoot::writeRelRaw(const AlignableRelData &ad)
 {
   GlobalVector pos = ad.pos();
   Surface::RotationType rot = ad.rot();

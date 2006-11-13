@@ -21,7 +21,7 @@ class AlignmentCorrelationsIO
   virtual ~AlignmentCorrelationsIO(){}; 
 
   /// open IO 
-  virtual int open(char* filename, int iteration, bool writemode) = 0;
+  virtual int open(const char* filename, int iteration, bool writemode) = 0;
 
   /// close IO 
   virtual int close(void) = 0;
