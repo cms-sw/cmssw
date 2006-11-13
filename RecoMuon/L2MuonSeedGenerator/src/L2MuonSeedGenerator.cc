@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2006/10/17 16:09:25 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/11/13 13:49:44 $
+ *   $Revision: 1.4 $
  *
  *   \author  A.Everett, R.Bellan
  *
@@ -98,14 +98,17 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   L1MuonParticleCollection::const_iterator it;
   for(it = muColl->begin(); it != muColl->end(); it++) {
     
-    const L1MuGMTCand *tmpCand = 0 ;
-    
-    if ( !(*it).gmtMuonCandRef().isNonnull() ) {
+    const L1MuGMTCand muonCand = (*it).gmtMuonCand();
+    unsigned int quality = 0;
+
+    if ( muonCand.empty() ) {
       LogWarning(metname) << "L2MuonSeedGenerator: WARNING, no L1MuGMTCand! " << endl;
       LogWarning(metname) << "L2MuonSeedGenerator:   this should make sense only within MC tests" << endl;
+      // FIXME! Temporary to handle the MC input
+      quality = 7;
     }
     else
-       tmpCand = (*it).gmtMuonCand();    
+      quality =  muonCand.quality();
     
     float pt    =  (*it).pt();
     float eta   =  (*it).eta();
@@ -124,16 +127,6 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     LogDebug(metname) << "charge = "<< charge;
     LogDebug(metname) << "In Barrel? = "<< barrel;
     
-    unsigned int quality = 0;
-
-    if (tmpCand){
-      quality =  tmpCand->quality();
-    }
-    else{
-      // FIXME! Temporary to handle the MC input
-      quality = 7;
-    }
-
     if ( quality <= theL1MinQuality ) continue;
     LogDebug(metname) << "quality = "<< quality; 
     
