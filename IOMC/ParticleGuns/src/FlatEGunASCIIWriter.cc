@@ -131,7 +131,7 @@ void FlatEGunASCIIWriter::analyze( const Event& ,
        double energy = RandFlat::shoot( fMinE, fMaxE ) ;
        double eta    = RandFlat::shoot( fMinEta, fMaxEta ) ;
        double phi    = RandFlat::shoot( fMinPhi, fMaxPhi ) ;
-       DefaultConfig::ParticleData* 
+       const DefaultConfig::ParticleData* 
           PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
        double mass   = PData->mass().value() ;
        double mom2   = energy*energy - mass*mass ;
