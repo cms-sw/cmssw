@@ -10,6 +10,8 @@
  <use name=SimG4CMS/Calo>
  <use name=Geometry/HcalCommonData>
  <use name=DataFormats/HcalDetId> 
+ <use name=SimDataFormats/CaloHit>
+ <use name=SimDataFormats/CaloTest>
  <use name=SimDataFormats/HcalValidation>
 </export>
 
@@ -23,6 +25,8 @@
 <use name=SimG4CMS/Calo>
 <use name=Geometry/HcalCommonData>
 <use name=DataFormats/HcalDetId> 
+<use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/CaloTest>
 <use name=SimDataFormats/HcalValidation>
 
 <Flags SEAL_PLUGIN_NAME="ValidationHcalHits">

@@ -2,10 +2,10 @@
 // File: SimG4HcalHitJetFinder.h
 // Jet finder class for analysis in SimG4HcalValidation
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SimG4HcalHitJetFinder_H
-#define SimG4HcalHitJetFinder_H
+#ifndef Validation_HcalHits_SimG4HcalHitJetFinder_H
+#define Validation_HcalHits_SimG4HcalHitJetFinder_H
 
-#include "SimG4CMS/Calo/interface/CaloHit.h"
+#include "SimDataFormats/CaloHit/interface/CaloHit.h"
 #include "Validation/HcalHits/interface/SimG4HcalHitCluster.h"
 
 #include <vector>

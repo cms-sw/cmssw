@@ -662,8 +662,8 @@ void SimG4HcalValidation::fetchHits(PHcalValidInfoLayer& product) {
   for (i = 0, itr = hitcache.begin(); itr != hitcache.end(); i++, itr++) {
     uint32_t unitID=itr->id();
     int   subdet, zside, group, ieta, iphi, lay;
-    HcalTestNumberingScheme::unpackHcalIndex(unitID,subdet,zside,group,
-                                             ieta,iphi,lay);
+    HcalTestNumbering::unpackHcalIndex(unitID,subdet,zside,group,
+				       ieta,iphi,lay);
     subdet = itr->det();
     lay    = itr->layer();
     group  = (subdet&15)<<20;

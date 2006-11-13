@@ -2,18 +2,18 @@
 // File: SimG4HcalValidation.h
 // Analysis and validation of simhits of HCal inside the CMSSW framework
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SimG4HcalValidation_H
-#define SimG4HcalValidation_H
+#ifndef Validation_HcalHits_SimG4HcalValidation_H
+#define Validation_HcalHits_SimG4HcalValidation_H
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 
-#include "SimG4CMS/Calo/interface/CaloHit.h"
 #include "Validation/HcalHits/interface/SimG4HcalHitCluster.h"
 #include "Validation/HcalHits/interface/SimG4HcalHitJetFinder.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 
+#include "SimDataFormats/CaloHit/interface/CaloHit.h"
 #include "SimDataFormats/HcalValidation/interface/PHcalValidInfoLayer.h"
 #include "SimDataFormats/HcalValidation/interface/PHcalValidInfoNxN.h"
 #include "SimDataFormats/HcalValidation/interface/PHcalValidInfoJets.h"

@@ -2,10 +2,10 @@
 // File: SimG4HcalHitCluster.h
 // Cluster class for analysis in SimG4HcalValidation
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SimG4HcalHitCluster_H
-#define SimG4HcalHitCluster_H
+#ifndef Validation_HcalHits_SimG4HcalHitCluster_H
+#define Validation_HcalHits_SimG4HcalHitCluster_H
 
-#include "SimG4CMS/Calo/interface/CaloHit.h"
+#include "SimDataFormats/CaloHit/interface/CaloHit.h"
 #include <iostream>
 #include <vector>
 
