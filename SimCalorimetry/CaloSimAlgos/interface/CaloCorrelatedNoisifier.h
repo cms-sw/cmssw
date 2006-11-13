@@ -7,7 +7,7 @@
    \brief adds noise to the given frame
 
 */
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 class CaloSamples;
 
@@ -32,7 +32,7 @@ public:
 
 private:
   HepSymMatrix theMatrix;
-  mutable RandGauss theRandomGaussian;
+  mutable RandGaussQ theRandomGaussian;
   int theSize; 
   std::vector<double> theNorma;
   bool normaDone;
