@@ -3,10 +3,11 @@
 \author Fedor Ratnikov (UMd)
 correlation matrix for pedestals
 $Author: ratnikov
-$Date: 2006/04/20 21:41:49 $
-$Revision: 1.3 $
+$Date: 2006/10/24 23:30:01 $
+$Revision: 1.4 $
 */
 
+#include <math.h>
 #include <iostream>
 
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
