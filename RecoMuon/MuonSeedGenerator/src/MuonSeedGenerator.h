@@ -4,12 +4,13 @@
 /** \class MuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2006/07/06 08:06:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/01 15:53:04 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
@@ -43,10 +44,10 @@ class MuonSeedGenerator: public edm::EDProducer {
   std::vector<TrajectorySeed> theSeeds;
 
   /// the name of the DT rec hits collection
-  std::string theDTRecSegmentLabel;
+  edm::InputTag theDTRecSegmentLabel;
 
   /// the name of the CSC rec hits collection
-  std::string theCSCRecSegmentLabel;
+  edm::InputTag theCSCRecSegmentLabel;
 
   ///Enable the DT measurement
   bool enableDTMeasurement;

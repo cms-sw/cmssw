@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/09/21 15:49:27 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/10/04 16:25:01 $
+ *  $Revision: 1.13 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -63,11 +63,11 @@ MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset){
 
   if(enableDTMeasurement)
     // the name of the DT rec hits collection
-    theDTRecSegmentLabel = pset.getUntrackedParameter<string>("DTRecSegmentLabel");
+    theDTRecSegmentLabel = pset.getParameter<edm::InputTag>("DTRecSegmentLabel");
 
   if(enableCSCMeasurement)
     // the name of the CSC rec hits collection
-    theCSCRecSegmentLabel = pset.getUntrackedParameter<string>("CSCRecSegmentLabel");
+    theCSCRecSegmentLabel = pset.getParameter<edm::InputTag>("CSCRecSegmentLabel");
 }
 
 // Destructor
@@ -118,7 +118,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   // instantiate the accessor
   // Don not use RPC for seeding
   MuonDetLayerMeasurements muonMeasurements(enableDTMeasurement,enableCSCMeasurement,false, 
-					    theDTRecSegmentLabel,theCSCRecSegmentLabel);
+					    theDTRecSegmentLabel.label(),theCSCRecSegmentLabel.label());
 
   // ------------        EndCap disk z<0 + barrel
 
