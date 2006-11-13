@@ -1,4 +1,3 @@
-//#define G4v7
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 
 #include "SimG4Core/Geometry/interface/DDG4Builder.h"
