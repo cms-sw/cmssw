@@ -18,8 +18,8 @@ TrackExtractor::TrackExtractor( const ParameterSet& par ) :
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
-  theDR_Max(par.getParameter<double>("theDR_Max")),
-  theDR_Veto(par.getParameter<double>("theDR_Veto"))
+  theDR_Max(par.getParameter<double>("DR_Max")),
+  theDR_Veto(par.getParameter<double>("DR_Veto"))
 {
 }
 
