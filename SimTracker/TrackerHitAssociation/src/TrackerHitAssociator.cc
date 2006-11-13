@@ -68,7 +68,6 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
 //
 TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf)  : 
   myEvent_(e), 
-  conf_(conf),
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ) {
 
@@ -276,7 +275,7 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
     vector<float> tmpchg;
     float simchg;
     float simfraction;
-    std::map<float, unsigned int, greater<float>> temp_map;
+    std::map<float, unsigned int, greater<float> > temp_map;
     simchg=0;
     //loop over the unique ID's
     vector<unsigned int>::iterator new_end = unique(cache_simtrackid.begin(),cache_simtrackid.end());

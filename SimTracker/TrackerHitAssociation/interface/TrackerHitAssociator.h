@@ -75,7 +75,6 @@ class TrackerHitAssociator {
  
  private:
   const edm::Event& myEvent_;
-  const edm::ParameterSet& conf_;
   typedef std::vector<std::string> vstring;
   vstring trackerContainers;
 
