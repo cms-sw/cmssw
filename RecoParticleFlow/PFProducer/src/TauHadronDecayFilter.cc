@@ -62,7 +62,7 @@ TauHadronDecayFilter::filter(edm::Event& iEvent,
    
   mySimEvent->fill( *simTracks, *simVertices );
  
-  if( mySimEvent->nTracks() == 2 ) {
+  if( mySimEvent->nTracks() >= 2 ) {
     FSimTrack& gene = mySimEvent->track(0); 
     if( abs(gene.type()) != 15) { 
       // first particle is not a tau. 
