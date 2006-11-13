@@ -10,7 +10,6 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "CLHEP/Random/TripleRand.h"
 
 #include <algorithm>
 
@@ -25,9 +24,7 @@ namespace edm {
       fixed_(type_ == "fixed"),
       none_(type_ == "none"),
       maxEventsToSkip_(pset.getUntrackedParameter<unsigned int>("maxEventsToSkip", 0)),
-      seed_(0),
       input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, InputSourceDescription()).release()),
-      eng_(0),
       poissonDistribution_(0),
       flatDistribution_(0) {
 
@@ -39,10 +36,10 @@ namespace edm {
           "in the configuration file or remove the modules that require it.";
    }
 
-   seed_ = static_cast<long>(rng->mySeed());
-   eng_ = new CLHEP::TripleRand(seed_);
-   poissonDistribution_ = new CLHEP::RandPoisson(*eng_, averageNumber_);
-   flatDistribution_ = new CLHEP::RandFlat(*eng_, 0, maxEventsToSkip_ + 1);
+   CLHEP::HepRandomEngine& engine = rng->getEngine();
+
+   poissonDistribution_ = new CLHEP::RandPoisson(engine, averageNumber_);
+   flatDistribution_ = new CLHEP::RandFlat(engine, 0, maxEventsToSkip_ + 1);
 
     if (!(poisson_ || fixed_ || none_)) {
       throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
@@ -57,7 +54,6 @@ namespace edm {
   }
 
   PileUp::~PileUp() {
-    delete eng_;
     delete poissonDistribution_;
     delete flatDistribution_;
   }

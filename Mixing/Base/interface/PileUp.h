@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/VectorInputSource.h"
 
 namespace CLHEP {
-  class TripleRand;
   class RandPoisson;
   class RandFlat;
 }
@@ -25,7 +24,6 @@ namespace edm {
     int maxBunch() const {return maxBunch_;}
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}
-    long seed() const {return seed_;}
     bool doPileup() {return none_ ? false :  averageNumber_>0.;}
 
   private:
@@ -38,9 +36,7 @@ namespace edm {
     bool const fixed_;
     bool const none_;
     unsigned int const maxEventsToSkip_;
-    long seed_;
     VectorInputSource * const input_;
-    CLHEP::TripleRand *eng_;
     CLHEP::RandPoisson *poissonDistribution_;
     CLHEP::RandFlat *flatDistribution_;
   };
