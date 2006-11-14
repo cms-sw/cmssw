@@ -114,9 +114,9 @@ namespace edm
   // ----------------------------------
 
   StreamerI2OWriter::StreamerI2OWriter(edm::ParameterSet const& ps):
-    worker_(new I2OStreamWorker(ps.template getParameter<string>("DestinationName"),
-				ps.template getUntrackedParameter<int>("smInstance",-1))),
-    i2o_max_size_(ps.template getUntrackedParameter<int>("i2o_max_size",I2O_MAX_SIZE))
+    worker_(new I2OStreamWorker(ps.getParameter<string>("DestinationName"),
+				ps.getUntrackedParameter<int>("smInstance",-1))),
+    i2o_max_size_(ps.getUntrackedParameter<int>("i2o_max_size",I2O_MAX_SIZE))
   {
     FDEBUG(10) << "StreamerI2OWriter: Constructor" << std::endl;
     // max i2o frame size must be less than 262140 or less we get
@@ -684,7 +684,7 @@ namespace edm
   //void StreamerI2OWriter::writeI2OOther(OtherMessageBuilder& othermsg)
   void StreamerI2OWriter::writeI2OOther(OtherMessageBuilder othermsg)
   {
-    char* buffer = (char*) othermsg.startAddress();
+    // char* buffer = (char*) othermsg.startAddress();
     unsigned int size = othermsg.size();
     FDEBUG(9) << "StreamerI2OWriter: write other message size = " << size << std::endl;
     size_t msgSizeInBytes = sizeof(I2O_SM_OTHER_MESSAGE_FRAME);
