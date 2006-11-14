@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  Level-1 bits and extraction of seed objects.
  *
- *  $Date: 2006/08/23 17:03:01 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/10/04 16:02:42 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -32,7 +32,9 @@ class HLTLevel1Seed : public HLTFilter {
 
   private:
 
-    edm::InputTag inputTag_; // L1 Extra EDProduct
+    edm::InputTag l1CollectionsTag_;  // L1 Extra EDProduct for particle collections
+    edm::InputTag l1ParticleMapTag_;  // L1 Extra EDProduct for particle map
+    edm::InputTag l1GTReadoutRecTag_; // L1 Extra EDProduct for L1 GT RR
 
     bool andOr_;
     // false=and-mode (all), true=or-mode(at least one)
