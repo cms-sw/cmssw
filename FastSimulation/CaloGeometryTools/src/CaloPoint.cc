@@ -11,7 +11,7 @@ std::ostream & operator<<(std::ostream& ost ,const CaloPoint& cid)
   //  ost << " Side " << cid.getSide() << " Point " << (HepPoint3D)cid;
   ost << " Point " << (HepPoint3D)cid;
   return ost;
-};
+}
 
 // For the ECAL
 CaloPoint::CaloPoint(const DetId & cell, CaloDirection side, const HepPoint3D& position):

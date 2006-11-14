@@ -146,5 +146,5 @@ std::ostream & operator<<(std::ostream& ost ,const CaloSegment& seg)
       ost << "GAP " ;
     }
   return ost;
-};
+}
 

@@ -4,6 +4,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
+#include "math.h"
 GaussianTail::GaussianTail(double sigma,double threshold):sigma_(sigma),threshold_(threshold)
 {
   s_=threshold_/sigma_;

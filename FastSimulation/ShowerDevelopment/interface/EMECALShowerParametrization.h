@@ -14,6 +14,7 @@
  * \date: 25-Jan-2004
  */ 
 #include <vector>
+#include "math.h"
 
 class EMECALShowerParametrization
 {
