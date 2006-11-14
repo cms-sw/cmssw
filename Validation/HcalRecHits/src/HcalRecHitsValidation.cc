@@ -4,8 +4,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<string>("outputFile", "myfile.root");
 
-  
-  if ( outputFile_.size() != 0 ) {
+    if ( outputFile_.size() != 0 ) {
     LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
@@ -25,7 +24,6 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     cout << " dbe_->setCurrentFolder" << endl; 
     dbe_->setCurrentFolder("HcalRecHitTask");
  
-
     // ************** BARREL   **********************************
     if (hcalselector_ == "HB" ){
       
@@ -68,7 +66,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       me2D= dbe_->book2D(histo, histo, 1000, -5., 95.,  1100, -10., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HB" ) ;
-      me2Dprofile= dbe_->bookProfile(histo, histo, 1000, -5., 95.,  1100, -10., 100.); 
+      me2Dprofile= dbe_->bookProfile(histo, histo, 100, -5., 95.,  100, -10., 100.); 
       
 
       
@@ -137,14 +135,14 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_energy_ecal+hcal_HE" ) ;
       meEcalHcalEnergy= dbe_->book1D(histo,histo, 100 , 0., 200.);
       
-      sprintf (histo, "HcalRecHitTask_energy_ecal+hcal_in_cone_HB" ) ;
+      sprintf (histo, "HcalRecHitTask_energy_ecal+hcal_in_cone_HE" ) ;
       meEcalHcalEnergyCone =  dbe_->book1D(histo,histo, 100 , 0., 200.);  
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE" ) ;
       me2D= dbe_->book2D(histo, histo, 1000, -5., 95.,  1100, -10., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HE" ) ;
-      me2Dprofile= dbe_->bookProfile(histo, histo, 1000, -5., 95.,  1100, -10., 100.); 
+      me2Dprofile= dbe_->bookProfile(histo, histo, 100, -5., 95.,  100, -10., 100.); 
       
 
       
@@ -221,7 +219,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       me2D= dbe_->book2D(histo, histo, 1000, -5., 95.,  10000, -10., 1700.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HF" ) ;
-      me2Dprofile= dbe_->bookProfile(histo, histo, 1000, -5., 95.,  1100, -10., 1700.); 
+      me2Dprofile= dbe_->bookProfile(histo, histo, 100, -5., 95.,  100, -10., 1700.); 
       
 
       
@@ -232,7 +230,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       meRecHitsEnergyNoise = dbe_->book1D(histo, histo, 1000 , -1. , 1.);       
       
       sprintf (histo, "HcalRecHitTask_sum_of_RecHits_in_cone_HF" ) ;
-      meSumRecHitsEnergyCone= dbe_->book1D(histo,histo, 1200 , -10., 500.);   
+      meSumRecHitsEnergyCone= dbe_->book1D(histo,histo, 50 , -10., 150.);   
 
       sprintf (histo, "HcalRecHitTask_timing_HF" ) ;
       meTime = dbe_->book1D(histo, histo, 20000 , -100. , 100.); 
@@ -298,9 +296,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       me2D= dbe_->book2D(histo, histo, 1000, -5., 95.,  1100, -10., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HO" ) ;
-      me2Dprofile= dbe_->bookProfile(histo, histo, 1000, -5., 95.,  1100, -10., 100.); 
+      me2Dprofile= dbe_->bookProfile(histo, histo, 100, -5., 95.,  100, -10., 100.); 
       
-      sprintf (histo, "HcalRecHitTask_sum_of_RecHits energy_HO" ) ;
+      sprintf (histo, "HcalRecHitTask_sum_of_RecHits_energy_HO" ) ;
       meSumRecHitsEnergy= dbe_->book1D(histo,histo, 50 , -10., 150.);
 
       sprintf (histo, "HcalRecHitTask_energy_of_RecHits_HO (-1,1)" ) ;
@@ -327,8 +325,6 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
     }
 
-
-
   }
 }
 
@@ -351,15 +347,31 @@ void HcalRecHitsValidation::beginJob(const edm::EventSetup& c){
 
 }
 void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& c) {
-  
-  cout << " ======================================================================"<<endl;
+
   int subdet = 1;
+  // energy in HCAL
   Double_t eHcal = 0.;
+  // energy in cone HCAL 
+  Double_t eHcalCone = 0.;  
+
+  // energy in ECAL
   Double_t eEcal = 0.;
+  // energy in coneECAL
+  Double_t eEcalCone = 0.;
+
+  // energy, eta and phi for most energetic HCAL crystal
   Double_t maxEnergyHcal = 0.;
   Double_t maxPhi=-1000.;
   Double_t maxEta=-1000.;
   
+  // Total numbet of RecHits in HCAL
+  Int_t nrechits = 0;
+  // Number of rechits in HCAL in the cone
+  Int_t nrechitsCone = 0;
+  // Number of rechits in HCAL above 1GeV 
+  Int_t nrechitsThresh = 0;
+
+
       
   if (hcalselector_ == "HB"  ) subdet = 1;
   if (hcalselector_ == "HE"  ) subdet = 2;
@@ -367,20 +379,11 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
   if (hcalselector_ == "HF"  ) subdet = 4;
   
   c.get<IdealGeometryRecord>().get (geometry);
-  Double_t totalenergy=0;
-  Double_t totalEnergyCone=0.;
+
   using namespace edm;
  
   
-  Float_t esum = 0.;
-  // Total numbet of RecHits in HCAL
-  Int_t nrechits = 0;
-  // Number of rechits in HCAL above 1GeV 
-  Int_t nrechitsCone = 0;
-  Int_t nrechitsThresh = 0;
 
-
-  Double_t energyHB = 0.;
   if (hcalselector_ == "HO")
     {
       std::vector<edm::Handle<HBHERecHitCollection> > colls;
@@ -401,7 +404,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 		    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 		  double fEta = cellGeometry->getPosition().eta () ;
 		  double fPhi = cellGeometry->getPosition().phi () ;
-		  energyHB += j->energy();
 		  if ( (j->energy()) > maxEnergyHcal ) 
 		    {
 		      maxEnergyHcal = j->energy();
@@ -452,6 +454,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 	      if (cell.subdet() == subdet)
 		{
 		  nrechits++;
+
 		  Int_t depth = cell.depth();
 		  const CaloCellGeometry* cellGeometry =
 		    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
@@ -476,22 +479,23 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 		    meEtaPhiDepth2->Fill(fEta, fPhi);
 		  if (depth == 3)
 		    meEtaPhiDepth3->Fill(fEta, fPhi);
-		  
+		  if (depth == 4)
+		    meEtaPhiDepth4->Fill(fEta, fPhi);
 		  
 		  meTime->Fill(j->time());
 		  Double_t eRHhcal =  j->energy();
 		  meRecHitsEnergy->Fill(eRHhcal);
 		  meRecHitsEnergyNoise->Fill(eRHhcal);
 
-		  totalenergy += eRHhcal;
+		  eHcal += eRHhcal;
 		 
 		  if( r<0.3){
-		    esum += eRHhcal;
-		    totalEnergyCone += eRHhcal;
-		    eHcal += eRHhcal;
+		    eHcalCone += eRHhcal;
 		    nrechitsCone++;
 		  }
+		  
 		  if(eRHhcal>1.) nrechitsThresh++;
+		  
 		  me2D->Fill( eRHhcal,  j->time() );
 		  me2Dprofile->Fill(eRHhcal,j->time() );
 		}
@@ -514,14 +518,11 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 	  for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++)
 	    {
 	      HcalDetId cell(j->id());
-	      // We are looking for maximum for HO in HB region
 	     
-
 	      const CaloCellGeometry* cellGeometry =
 		geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	      double fEta = cellGeometry->getPosition().eta () ;
 	      double fPhi = cellGeometry->getPosition().phi () ;
-	      energyHB += j->energy();
 	      if ( (j->energy()) > maxEnergyHcal ) 
 		{
 		  maxEnergyHcal = j->energy();
@@ -534,8 +535,9 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 	  
 	  for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++)
 	    {
-	      HcalDetId cell(j->id());
 	      nrechits++;
+
+	      HcalDetId cell(j->id());
 	      Int_t depth = cell.depth();
 	      const CaloCellGeometry* cellGeometry =
 		geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
@@ -559,21 +561,25 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 		meEtaPhiDepth2->Fill(fEta, fPhi);
 	      if (depth == 3)
 		meEtaPhiDepth3->Fill(fEta, fPhi);
+	      if (depth == 4)
+		meEtaPhiDepth4->Fill(fEta, fPhi);
+
 	      meTime->Fill(j->time());
 	      Double_t eRHhcal =  j->energy();
 	      meRecHitsEnergy->Fill(eRHhcal);
 	      meRecHitsEnergyNoise->Fill(eRHhcal);
 	       
-		
-	      totalenergy += eRHhcal;
-		 
+	      
+	      eHcal += eRHhcal;
+	      
 	      if( r<0.3){
-		esum += eRHhcal;
-		totalEnergyCone += eRHhcal;
-		eHcal += eRHhcal;
+		eHcalCone += eRHhcal;
 		nrechitsCone++;
 	      }
+
+
 	      if(eRHhcal>1.) nrechitsThresh++;
+
 	      me2D->Fill( eRHhcal,  j->time() );
 	      me2Dprofile->Fill(eRHhcal,j->time() );
 
@@ -632,15 +638,17 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 		  meRecHitsEnergy->Fill(eRHhcal);
 		  meRecHitsEnergyNoise->Fill(eRHhcal);
 
-		  totalenergy += eRHhcal;
-		 
+
+
+		  eHcal += eRHhcal;
+		  
 		  if( r<0.3){
-		    esum += eRHhcal;
-		    totalEnergyCone += eRHhcal;
-		    eHcal += eRHhcal;
+		    eHcalCone += eRHhcal;
 		    nrechitsCone++;
 		  }
+
 		  if(eRHhcal>1.) nrechitsThresh++;
+
 		  me2D->Fill( eRHhcal,  j->time() );
 		  me2Dprofile->Fill(eRHhcal,j->time() );
 		}
@@ -649,9 +657,9 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 	}
     }
  
-  meSumRecHitsEnergy ->Fill( esum );
+  meSumRecHitsEnergy ->Fill( eHcal );
 
-  meSumRecHitsEnergyCone ->Fill(totalEnergyCone);
+  meSumRecHitsEnergyCone ->Fill(eHcalCone);
 
 
 
@@ -659,7 +667,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
   meNumRecHitsCone->Fill(nrechitsCone);
   meNumRecHitsThresh->Fill(nrechitsThresh);
 
-  Double_t rhHB =0.;
   // Getting Ecal EB and EE Rechits 
   Int_t numrechitsEcal = 0;
   if (hcalselector_ == "HB"){
@@ -686,15 +693,12 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 	Double_t r = sqrt(deltaeta* deltaeta + deltaphi*deltaphi);
 
 
-	totalenergy = totalenergy + RecHit->energy();
+	eEcal += RecHit->energy();
 
 	if (r<0.3){
 	  Double_t energy = RecHit->energy();
 	  numrechitsEcal++;
-	
-	  totalEnergyCone +=  energy;
-	  eEcal +=  energy;
-	  rhHB +=  energy;
+	  eEcalCone +=  energy;
 	}
       }
   }
@@ -702,33 +706,33 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 
   if (hcalselector_ == "HE"){
     Handle<EERecHitCollection> EcalRecHitEE;
-	
+    
     e.getByLabel( "ecalRecHit" ,"EcalRecHitsEE" , EcalRecHitEE);
-	
+    
     const EERecHitCollection *EERecHit = EcalRecHitEE.product();
-	
+    
     for (EcalRecHitCollection::const_iterator RecHit = EERecHit->begin(); RecHit != EERecHit->end() ; ++RecHit)
       {
 	EEDetId EEid = EEDetId(RecHit->id());
-	    
+	
 	const CaloCellGeometry* cellGeometry =
 	  geometry->getSubdetectorGeometry (EEid)->getGeometry (EEid) ;
 	double fEta = cellGeometry->getPosition ().eta () ;
 	double fPhi = cellGeometry->getPosition ().phi () ;
-	   
+	
 	Double_t PI = 3.141592653589;
 	float deltaphi= maxPhi-fPhi;
 	if (fPhi>maxPhi) { deltaphi= fPhi - maxPhi;}
 	if (deltaphi>PI) {deltaphi=2*PI-deltaphi;}
 	float deltaeta = fEta - maxEta;
 	Double_t r = sqrt(deltaeta* deltaeta + deltaphi*deltaphi);
-
-	totalenergy +=  RecHit->energy();
-
+	
+	eEcal +=  RecHit->energy();
+	
 	if (r<0.3){
 	  Double_t energy = RecHit->energy();	
-	  totalEnergyCone += energy;
-	  eEcal +=  energy;
+	  
+	  eEcalCone +=  energy;
 	 
 	}
       }
@@ -736,29 +740,21 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
       
 
 
-  meEcalHcalEnergy->Fill(totalenergy);
-  /*
-  if (totalenergy>100.) {
-    cout << "HOenergy avone 100 GeV "<< totalenergy << endl;
-    cout << "corresponding energy in HB " << energyHB << endl;
-
-  }
-  */
-  meEcalHcalEnergyCone->Fill(totalEnergyCone);
+  meEcalHcalEnergy->Fill(eEcal+eHcal);
+  meEcalHcalEnergyCone->Fill(eEcalCone+eHcalCone);
+  meNumEcalRecHitsCone->Fill(numrechitsEcal);
 
 
-
-  
-
-  if (eHcal>90.) meNumEcalRecHitsCone->Fill(numrechitsEcal);
   // Getting SimHits
   edm::Handle<PCaloHitContainer> hcalHits ;
   e.getByLabel("SimG4Object","HcalHits",hcalHits);
-  const PCaloHitContainer * SimHitResult = hcalHits.product () ;
 
+  // e.getByLabel("g4SimHits","HcalHits",hcalHits);
+  const PCaloHitContainer * SimHitResult = hcalHits.product () ;
+  
   float fEnergySimHits = 0;
   // sum of subdet SimHits.
-
+  
   for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin () ;
        SimHits != SimHitResult->end() ;
        ++SimHits)
@@ -769,12 +765,15 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
 	  fEnergySimHits += SimHits->energy();
 	}
     }
- 
-
-  meRecHitSimHit->Fill( fEnergySimHits,esum );
-  meRecHitSimHitProfile->Fill( fEnergySimHits,esum );
-  if (hcalselector_=="HE" || hcalselector_=="HB")  meEnergyHcalVsEcal -> Fill(eEcal,eHcal);
   
+
+  meRecHitSimHit->Fill( fEnergySimHits,eHcalCone );
+  meRecHitSimHitProfile->Fill( fEnergySimHits,eHcalCone);
+
+  if (hcalselector_=="HE" || hcalselector_=="HB")  
+    {
+      meEnergyHcalVsEcal -> Fill(eEcalCone,eHcalCone);
+    }
 }
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

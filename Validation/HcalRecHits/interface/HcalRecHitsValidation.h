@@ -1,15 +1,12 @@
 #ifndef HcalRecHitsValidation_H
 #define HcalRecHitsValidation_H
- 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -17,30 +14,13 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
 #include "FWCore/Framework/interface/Selector.h"
-#include <iostream>
-
-
-#include "PluginManager/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
-
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
-
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-
 
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-//#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
 
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -82,12 +62,25 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   string hcalselector_;
   string noiseflag;
   // HE Monitor Elements
+
+  // number of rechits in event 
   MonitorElement* meNumRecHits;
+
+  // number of rechits above threshold 1GEV
   MonitorElement* meNumRecHitsThresh;
+
+  // number of rechits in the cone
   MonitorElement* meNumRecHitsCone;
+
+  // time?
   MonitorElement* meTime;
+
+  // energy of rechits
   MonitorElement* meRecHitsEnergy;
+
+
   MonitorElement* me2D;
+  
   MonitorElement*  meSumRecHitsEnergy;
   MonitorElement* meSumRecHitsEnergyCone;
   MonitorElement* meEcalHcalEnergy;
@@ -95,21 +88,32 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   
   MonitorElement* meEcalHcalEnergyCone; 
  
- 
+
+  // Histo for eta of each rechit 
   MonitorElement* meEta;
+
+  // Histo for phi of each rechit 
   MonitorElement* mePhi;
-  MonitorElement* meDist;
+
+
   MonitorElement* me2Dprofile;
+
+  // Histo for 2D plot of eta and phi for each depth.
   MonitorElement* meEtaPhiDepth0;
   MonitorElement* meEtaPhiDepth1;
   MonitorElement* meEtaPhiDepth2;
   MonitorElement* meEtaPhiDepth3;
   MonitorElement* meEtaPhiDepth4;
 
+  // Histo (2D plot) for sum of RecHits vs SimHits (hcal only)
   MonitorElement* meRecHitSimHit;
+  // profile histo (2D plot) for sum of RecHits vs SimHits (hcal only)
   MonitorElement* meRecHitSimHitProfile;
+  // 2D plot of sum of RecHits in HCAL as function of ECAL's one
   MonitorElement* meEnergyHcalVsEcal;
+  
   MonitorElement* meRecHitsEnergyNoise;
+  // number of ECAL's rechits in cone 0.3 
   MonitorElement* meNumEcalRecHitsCone;
 
   ESHandle<CaloGeometry> geometry ;
