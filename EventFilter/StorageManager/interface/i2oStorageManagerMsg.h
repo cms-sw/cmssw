@@ -70,8 +70,8 @@ typedef struct _I2O_SM_PREAMBLE_MESSAGE_FRAME {
    unsigned long             numFrames;
    unsigned long             frameCount;
    unsigned long             originalSize;
-   char                      data[];
-   //char                      data[MAX_I2O_REGISTRY_DATASIZE];
+   //char                    data[];
+   char                      data[MAX_I2O_REGISTRY_DATASIZE];
    char* dataPtr()           { return (char*) data; }
 } I2O_SM_PREAMBLE_MESSAGE_FRAME, *PI2O_SM_PREAMBLE_MESSAGE_FRAME;
 
@@ -93,8 +93,8 @@ typedef struct _I2O_SM_DATA_MESSAGE_FRAME {
    unsigned long             numFrames;
    unsigned long             frameCount;
    unsigned long             originalSize;
-   char                      data[];
-   //char                      data[MAX_I2O_SM_DATASIZE];
+   //char                    data[];
+   char                      data[MAX_I2O_SM_DATASIZE];
    char* dataPtr()           { return (char*) data; }
 } I2O_SM_DATA_MESSAGE_FRAME, *PI2O_SM_DATA_MESSAGE_FRAME;
 
