@@ -82,7 +82,7 @@ void CheckOverlap::checkHierarchyLeafPVLV(G4LogicalVolume * lv,
 void CheckOverlap::checkPV(G4VPhysicalVolume * pv, uint leafDepth) {
 
   //----- PV info
-#ifndef G4v7
+#ifndef G4V7
   std::string mother = "World";
   if (pv->GetMotherLogical()) mother = pv->GetMotherLogical()->GetName();
   if (!pv->IsReplicated()) {
