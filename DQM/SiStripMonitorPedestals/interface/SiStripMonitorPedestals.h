@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.5 2006/07/07 08:22:52 gennai Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.6 2006/11/02 19:23:48 dutta Exp $
 //
 
 // system include files
@@ -46,7 +46,6 @@
 //
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
 
-#include "Fed9UUtils.hh"
 #include "boost/cstdint.hpp"
 #include <iostream>
 #include <sstream>
