@@ -21,6 +21,8 @@ root -b -q 'MaterialBudget.C("PixFwdPlus")'
 root -b -q 'MaterialBudget.C("PixFwdMinus")'
 root -b -q 'MaterialBudget.C("Tracker")'
 root -b -q 'MaterialBudget.C("TrackerSum")'
+root -b -q 'MaterialBudget.C("Pixel")'
+root -b -q 'MaterialBudget.C("Strip")'
 
 root -b -q 'MaterialBudget_TDR.C()'
 
