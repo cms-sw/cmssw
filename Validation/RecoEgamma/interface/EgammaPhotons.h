@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaPhotons.h,v 1.1 2006/11/13 19:20:39 mabalazs Exp $
+// $Id: EgammaPhotons.h,v 1.1 2006/11/14 15:40:34 mabalazs Exp $
 //
 #include <string>
 
@@ -39,6 +39,7 @@ class EgammaPhotons : public edm::EDAnalyzer
 			bool verboseDBE_;
 			DaqMonitorBEInterface* dbe_;
 
+      edm::InputTag MCTruthCollection_;
       edm::InputTag PhotonCollection_;
  
       MonitorElement* hist_Photon_Size_;
@@ -64,5 +65,29 @@ class EgammaPhotons : public edm::EDAnalyzer
       double hist_min_Phi_;
       double hist_max_Phi_;
       int    hist_bins_Phi_;
+
+      MonitorElement* hist_Photon_EToverTruth_;
+
+      double hist_min_EToverTruth_;
+      double hist_max_EToverTruth_;
+      int    hist_bins_EToverTruth_;
+
+      MonitorElement* hist_Photon_deltaEta_;
+
+      double hist_min_deltaEta_;
+      double hist_max_deltaEta_;
+      int    hist_bins_deltaEta_;
+
+      MonitorElement* hist_Photon_deltaPhi_;
+
+      double hist_min_deltaPhi_;
+      double hist_max_deltaPhi_;
+      int    hist_bins_deltaPhi_;
+
+      MonitorElement* hist_Photon_deltaR_;
+
+      double hist_min_deltaR_;
+      double hist_max_deltaR_;
+      int    hist_bins_deltaR_;
 };
 #endif

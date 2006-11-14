@@ -4,6 +4,7 @@
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/EgammaCandidates>
+<use name=SimDataFormats/HepMCProduct>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=RecoLocalCalo/EcalRecAlgos>
@@ -27,6 +28,7 @@
   <use name=DataFormats/EcalRecHit>
   <use name=DataFormats/EgammaReco>
 	<use name=DataFormats/EgammaCandidates>
+	<use name=SimDataFormats/HepMCProduct>
   <use name=CondFormats/EcalObjects>
   <use name=CondFormats/DataRecord>
   <use name=RecoLocalCalo/EcalRecAlgos>
