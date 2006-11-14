@@ -36,7 +36,7 @@ CSCSaturationAnalyzer::CSCSaturationAnalyzer(edm::ParameterSet const& conf) {
   eventNumber=0,evt=0,Nddu=0;
   strip=0,misMatch=0,NChambers=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
-  length=1,gainSlope=-999.0,gainIntercept=-999.0;
+  length=1;
   aVar=0.0,bVar=0.0;
 
   gain_vs_charge  = TH2F("Saturation"   ,"ADC_vs_charge", 100,300,900,100,0,4000);
@@ -111,13 +111,7 @@ CSCSaturationAnalyzer::CSCSaturationAnalyzer(edm::ParameterSet const& conf) {
 	}
       }
     }
-  }
-  
-  for (int i=0; i<480; i++){
-    newGain[i]     =0.0;
-    newIntercept[i]=0.0;
-    newChi2[i]     =0.0;
-  }
+  }  
 }
 
 void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
@@ -177,10 +171,11 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 		}
 		adcMean_max[iDDU][i_chamber][i_layer-1][strip-1] += adcMax[iDDU][i_chamber][i_layer-1][strip-1]/20.;  
 		
-		//On the 20th event save
+		//On the 20th event save one value
 		if (evt%20 == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN_sat){
-		  int ten = int((evt-1)/20)%NUMBERPLOTTED_sat ;
-		  maxmodten[ten][i_chamber][i_layer-1][strip-1] = adcMean_max[iDDU][i_chamber][i_layer-1][strip-1];
+		  //save 24 values from 24 settings
+		  int twentyfour = int((evt-1)/20)%NUMBERPLOTTED_sat ;
+		  maxmodten[twentyfour][i_chamber][i_layer-1][strip-1] = adcMean_max[iDDU][i_chamber][i_layer-1][strip-1];
 		}
 	      }//end digis loop
 	    }//end cfeb.available loop
@@ -242,14 +237,14 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
     
   //DB object and map
   CSCobject *cn = new CSCobject();
-  cscmap *map = new cscmap();
-  condbon *dbon = new condbon();
-  
+  //cscmap *map = new cscmap();
+  //condbon *dbon = new condbon();
+
   //root ntuple information
   TCalibSaturationEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Saturation");
-  calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I:id/I");
+  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:id/I");
 
   for (int dduiter=0;dduiter<Nddu;dduiter++){
     for(int chamberiter=0; chamberiter<NChambers; chamberiter++){
@@ -260,8 +255,8 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 	int new_crateID = crateID[cham];
 	int new_dmbID   = dmbID[cham];
 	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
-	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+	//map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+	//std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
 	
 	calib_evt.id=chamber_num;
 	
@@ -274,25 +269,16 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 	      int layer_id=chamber_num+j+1;
 	      if(sector==-100)continue;
 	      cn->obj[layer_id].resize(size[cham]);
+
 	      for (int k=0; k<size[cham]; k++){//strip
 		if (k != stripiter) continue;
-		float sumOfX    = 0.0;
-		float sumOfY    = 0.0;
-		float sumOfXY   = 0.0;
-		float sumx2     = 0.0;
-		float gainSlope = 0.0;
-		float gainIntercept = 0.0;
-		float chi2      = 0.0;
-		float chi2_sat  = 0.0;
 		
-		float charge[NUMBERPLOTTED_sat]={336.0, 358.4, 380.8, 403.2, 425.6, 448.0, 470.4, 492.8, 515.2, 537.6, 560.0, 582.4, 604.8, 627.2, 649.6, 672.0, 694.4, 716.8, 739.2, 761.6, 784.0, 806.4, 828.8, 851.2, 873.6};
+		for (int st=0;st<NUMBERPLOTTED_sat;st++){
+		  myCharge[st]=0.0;
+		  mySatADC[st]=0.0;
+		}
 		
-
 		for(int ii=0; ii<NUMBERPLOTTED_sat; ii++){//numbers    
-		  sumOfX  += charge[ii];
-		  sumOfY  += maxmodten[ii][cham][j][k];
-		  sumOfXY += (charge[ii]*maxmodten[ii][cham][j][k]);
-		  sumx2   += (charge[ii]*charge[ii]);
 		  myCharge[ii] = 335.0 +(22.4*ii);
 		  mySatADC[ii] = maxmodten[ii][cham][j][k];
 		  gain_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);//fill one histogram with all values for all chambers
@@ -343,27 +329,8 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		  if(cham==8 && k==56) gain84_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
 		  if(cham==8 && k==72) gain85_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
 
-		  //Use Minuit to do the fitting
-		  //float (*charge_ptr)[NUMBERPLOTTED_sat] = &myCharge;
-		  //float (*adc_ptr)[NUMBERPLOTTED_sat]    = &mySatADC;
-
-		  //std::cout <<" charge_ptr "<<(*charge_ptr)[NUMBERPLOTTED_sat]<<" adc_ptr "<<mySatADC[ii]<<std::endl;
-
-		  //Fit parameters for straight line from gains
-		  gainSlope     = ((NUMBERPLOTTED_sat*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED_sat*sumx2) - (sumOfX*sumOfX));//k
-		  gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((NUMBERPLOTTED_sat*sumx2)-(sumOfX*sumOfX));//m
+		  //Use Minuit to do the fit
 		  
-		  for(int ii=0; ii<NUMBERPLOTTED_sat; ii++){
-		    chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(NUMBERPLOTTED_sat*NUMBERPLOTTED_sat);
-
-		    chi2_sat +=gainSlope -(aVar*charge[ii]/(bVar+charge[ii]));
-		  }
-
-		  //	  SaturationFit s(NUMBERPLOTTED_sat,myCharge,mySatADC);
-		  
-		  calib_evt.slope     = gainSlope;
-		  calib_evt.intercept = gainIntercept;
-		  calib_evt.chi2      = chi2;
 		  calib_evt.strip     = k;
 		  calib_evt.layer     = j;
 		  calib_evt.cham      = cham;
@@ -371,10 +338,13 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		  calibtree.Fill();
 		  
 		  cn->obj[layer_id][k].resize(3);
-		  cn->obj[layer_id][k][0] = gainSlope;
-		  cn->obj[layer_id][k][1] = gainIntercept;
-		  cn->obj[layer_id][k][2] = chi2;
 		}//number_plotted
+
+		//for (int jj=0; jj<NUMBERPLOTTED_sat;jj++){
+		//  std::cout <<"Strip "<<k<<" Charge "<<myCharge[jj]<<" ADC "<<mySatADC[jj]<<std::endl;
+		//}
+		SaturationFit s(NUMBERPLOTTED_sat,myCharge,mySatADC);
+		      
 	      }//strip
 	    }//j loop
 	  }//stripiter loop
@@ -384,9 +354,9 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
   }//dduiter
 
   //send data to DB
-  dbon->cdbon_last_record("gains",&record);
-  std::cout<<"Last gains record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
-  if(debug) dbon->cdbon_write(cn,"gains",11,myTime);
+  //dbon->cdbon_last_record("gains",&record);
+  //std::cout<<"Last gains record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
+  //if(debug) dbon->cdbon_write(cn,"gains",11,myTime);
 
   //write histograms 
   gain_vs_charge.Write();

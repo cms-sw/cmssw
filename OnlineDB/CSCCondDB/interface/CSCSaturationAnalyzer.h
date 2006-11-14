@@ -1,5 +1,5 @@
 /** 
- * Analyzer for reading gains information
+ * Analyzer for reading gains saturation information
  * author S. Durkin, O.Boeriu 18/03/06 
  *   
  */
@@ -12,8 +12,6 @@
 #include "OnlineDB/CSCCondDB/interface/CSCMap.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
-//#include "OnlineDB/CSCCondDB/interface/SaturationFit.h"
-//#include "OnlineDB/CSCCondDB/interface/SaturationFcn.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TH2F.h"
@@ -37,8 +35,8 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
 #define CHAMBERS_sat 9
 #define LAYERS_sat 6
 #define STRIPS_sat 80
-#define NUMBERPLOTTED_sat 25 
-#define NUMMODTEN_sat 500
+#define NUMBERPLOTTED_sat 24 
+#define NUMMODTEN_sat 480
 #define DDU_sat 2
 
   ~CSCSaturationAnalyzer();
@@ -52,18 +50,14 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
   int fff,ret_code,length,strip,misMatch,NChambers,Nddu,record;
   time_t rawtime;
   int dmbID[CHAMBERS_sat],crateID[CHAMBERS_sat],size[CHAMBERS_sat]; 
-  float gainSlope,gainIntercept;
   float adcMax[DDU_sat][CHAMBERS_sat][LAYERS_sat][STRIPS_sat];
   float adcMean_max[DDU_sat][CHAMBERS_sat][LAYERS_sat][STRIPS_sat];
   float maxmodten[NUMMODTEN_sat][CHAMBERS_sat][LAYERS_sat][STRIPS_sat];
-  float newGain[480];
-  float newIntercept[480];
-  float newChi2[480];
   int lines;
   std::ifstream filein;
   std::string PSet,name;
   bool debug;
-  float myCharge[25],mySatADC[25],aVar,bVar;
+  float myCharge[24],mySatADC[24],aVar,bVar;
   TH2F gain_vs_charge;
   TH2F gain01_vs_charge;
   TH2F gain02_vs_charge;
