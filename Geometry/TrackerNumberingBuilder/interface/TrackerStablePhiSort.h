@@ -66,12 +66,10 @@ void TrackerStablePhiSort(RandomAccessIterator begin,
       
 	copy1.insert(copy1.begin(),tmpvec[i]);
 	tmpcop.insert(tmpcop.begin(),tmpvec[i]);
-	  if(check){
-	    edm::LogError("StableSort")<<"Two modules are close to 0";
-	    abort();
-	  }
+	if(check) throw cms::Exception("Configuration")<<"Two modules are close to 0 \n"
+						       <<" There is a problem on Tracker geometry description \n";
 	check= true;
-      }else{
+      }else{ 
 	copy1.push_back(tmpvec[i]);
 	tmpcop.push_back(tmpvec[i]);
       }
@@ -84,24 +82,23 @@ void TrackerStablePhiSort(RandomAccessIterator begin,
 	  copy1.push_back(SortPair(tmpvec[jj].first,(2*pi-tmpvec[jj].second)));
 	}
 	std::sort(copy1.begin(), copy1.end(),LessPair<RandomAccessIterator,Scalar>());
-
+	
 	for(unsigned int ii = 0;ii <vecSize; ii++){
 	  double res = fabs(copy1[ii].second);
-
+	  
 	  LogDebug("StableSort")<<"Component sorted again # "<<ii;
 	  LogDebug("StableSort")<<" Phi = "<<tmpvec[i].second<<" resolution = "<<res;
-      
+	  
 	  double dist = std::max(res,0.001);
 	  if(dist==0.001){
-
+	    
 	    LogDebug("StableSort")<<"Object close to 0 again";
-      
+	    
 	    copy2.insert(copy2.begin(),copy1[ii]);
 	    tmpcop.insert(tmpcop.begin(),copy1[ii]);
-	    if(check1){
-	      edm::LogError("StableSort")<<"Two modules are close to 0";
-	      abort();
-	    }
+	    if(check1)
+	      throw cms::Exception("Configuration")<<"Two modules are close to 0 \n"
+						   <<" There is a problem on Tracker geometry description \n";
 	    check1= true;
 	  }else{
 	    copy2.push_back(copy1[ii]);

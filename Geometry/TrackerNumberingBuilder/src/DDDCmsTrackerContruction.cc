@@ -25,8 +25,8 @@ const GeometricDet* DDDCmsTrackerContruction::construct(const DDCompactView* cpv
     fv.firstChild();
     if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker){
       
-      throw cms::Exception("NoTrackerDDD") <<" The first child of the DDFilteredView is not what is expected \""<<ExtractStringFromDDD::getString(attribute,&fv)<<"\"";
-    abort();
+      throw cms::Exception("Configuration") <<" The first child of the DDFilteredView is not what is expected \n"
+					    <<ExtractStringFromDDD::getString(attribute,&fv)<<"\n";
     }
   }
   

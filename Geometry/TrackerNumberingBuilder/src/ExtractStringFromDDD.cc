@@ -1,9 +1,10 @@
 #include "Geometry/TrackerNumberingBuilder/interface/ExtractStringFromDDD.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include <vector>
 #include <string>
+
+using namespace cms;
 
 std::string ExtractStringFromDDD::getString(std::string s,DDFilteredView* fv){ 
   std::vector<std::string> temp;
@@ -18,8 +19,7 @@ std::string ExtractStringFromDDD::getString(std::string s,DDFilteredView* fv){
   if (foundIt)   { 
     temp = val.strings();
     if (temp.size() != 1) {
-      edm::LogError("ExtractStringFromDDD")<< " ERROR: I need 1 "<< s << " tags";
-      abort();
+     throw cms::Exception("Configuration")<< " ERROR: I need 1 "<< s << " tags";
     }
     return temp[0]; 
   }
