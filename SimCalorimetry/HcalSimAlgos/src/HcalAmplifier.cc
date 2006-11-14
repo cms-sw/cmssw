@@ -43,7 +43,7 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
 
   double gauss [32]; //big enough
   double noise [32]; //big enough
-  for (int i = 0; i < frame.size(); i++) gauss[i] = RandGauss::shoot(0., 1.);
+  for (int i = 0; i < frame.size(); i++) gauss[i] = RandGaussQ::shoot(0., 1.);
   pwidths->makeNoise (frame.size(), gauss, noise);
   for(int tbin = 0; tbin < frame.size(); ++tbin) {
     int capId = (theStartingCapId + tbin)%4;
@@ -54,7 +54,7 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
     double gain = gains->getValue (capId);
     if(addNoise_) {
       pedestal += noise [tbin];
-      gain += RandGauss::shoot(0., gwidths->getValue (capId));
+      gain += RandGaussQ::shoot(0., gwidths->getValue (capId));
     }
     // since gain is (GeV/fC)
     double fCperPE = GeVperPE / gain;
