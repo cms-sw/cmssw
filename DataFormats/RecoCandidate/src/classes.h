@@ -3,6 +3,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+#include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
@@ -20,7 +22,6 @@ namespace {
     edm::RefProd<reco::RecoEcalCandidateCollection> rp2;
     edm::RefVector<reco::RecoEcalCandidateCollection> rv2;
 
-    std::map<unsigned int, float> m3;
     reco::RecoEcalCandidateIsolationMap v3;
     edm::Wrapper<reco::RecoEcalCandidateIsolationMap> w3;
     edm::helpers::Key<edm::RefProd<reco::RecoEcalCandidateCollection > > h3;
@@ -28,5 +29,10 @@ namespace {
 
     edm::reftobase::Holder<reco::Candidate, reco::RecoEcalCandidateRef> rb1;
     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef> rb2;
+    edm::reftobase::Holder<CaloRecHit, HBHERecHitRef> rb4;
+    edm::reftobase::Holder<CaloRecHit, HORecHitRef > rb5;
+    edm::reftobase::Holder<CaloRecHit, HFRecHitRef> rb6;
+    edm::reftobase::Holder<CaloRecHit, ZDCRecHitRef> rb7;
+    edm::RefToBase<CaloRecHit> rbh3;
   }
 }

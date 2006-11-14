@@ -2,6 +2,8 @@
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/CaloTowers>
+<use name=DataFormats/HCalRecHit>
+<use name=DataFormats/CaloRecHit>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
 <export>
@@ -10,6 +12,8 @@
  <use name=DataFormats/VertexReco>
  <use name=DataFormats/TrackReco>
  <use name=DataFormats/CaloTowers>
+ <use name=DataFormats/HCalRecHit>
+ <use name=DataFormats/CaloRecHit>
  <use name=DataFormats/Candidate>
  <use name=DataFormats/Common>
 </export>
