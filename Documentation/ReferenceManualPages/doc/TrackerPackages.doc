@@ -141,16 +141,21 @@ A set of tools used in track reconstruction
 - <b>RecoVertex</b><br>
  Vertexing algorithms
  - \ref RecoVertex_KalmanVertexFit "KalmanVertexFit"<br> 
+ - \ref RecoVertex_AdaptiveVertexFit "AdaptiveVertexFit"<br> 
+ - \ref RecoVertex_TrimmedKalmanVertexFinder "TrimmedKalmanVertexFinder"<br> 
  - \ref RecoVertex_KinematicFit "KinematicFit"<br>
  - \ref RecoVertex_KinematicFitPrimitives "KinematicFitPrimitives"<br>
  - \ref RecoVertex_LinearizationPointFinders "LinearizationPointFinders"<br> 
  - \ref RecoVertex_PrimaryVertexProducer "PrimaryVertexProducer"<br> 
- - \ref RecoVertex_TrimmedKalmanVertexFinder "TrimmedKalmanVertexFinder"<br> 
  - \ref RecoVertex_VertexPrimitives "VertexPrimitives"<br> 
  - \ref RecoVertex_VertexTools "VertexTools"<br> 
 
 - <b>RecoPixelVertexing</b><br>
- pixel stand-alone vertex reconstruction 
+ pixel stand-alone vertex reconstruction for HLT
+ - \ref RecoPixelVertexing_PixelTrackFitting "PixelTrackFitting"<br> 
+ - \ref RecoPixelVertexing_PixelTriplets "PixelTriplets"<br> 
+ - \ref RecoPixelVertexing_PixelVertexFinding "PixelVertexFinding"<br> 
+
 
 - <b>RecoBTag</b><br>
  b-tagging algorithms 
