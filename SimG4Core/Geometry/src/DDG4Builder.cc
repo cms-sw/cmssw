@@ -148,7 +148,7 @@ G4LogicalVolume * DDG4Builder::BuildGeometry()
 		G4Translate3D transl = gra.edgeData(cit->second)->trans_;
 		// G3 convention of defining rot-matrices ...
 		G4Transform3D trfrm  = transl * G4Rotate3D(rm);//.inverse();
-#ifdef G4v7
+#ifdef G4V7
 		refFact
 		    ->Place(trfrm, // transformation containing a possible reflection
 			    gra.nodeData(cit->first).name().name(),

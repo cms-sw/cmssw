@@ -9,7 +9,7 @@
 #include "G4Electron.hh"
 #include "G4FastSimulationManager.hh"
 #include "G4LogicalVolumeStore.hh"
-#ifdef G4v7
+#ifdef G4V7
 #include "GFlashHomoShowerParamterisation.hh"
 #else
 #include "GFlashHomoShowerParameterisation.hh"
@@ -76,7 +76,7 @@ void CaloModel::build()
 	PbWO4->AddElement(W, fractionmass=0.40403397);	
 	// ***************************************************************** 
 
-#ifdef G4v7
+#ifdef G4V7
 	theParametrisation = new GFlashHomoShowerParamterisation(PbWO4);
 	theShowerModel  = new GFlashShowerModel("endcap",ecap_log);
 	theShowerModel->SetParametrisation(*theParametrisation);

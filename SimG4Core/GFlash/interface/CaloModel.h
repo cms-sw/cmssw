@@ -6,7 +6,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
-#ifdef G4v7
+#ifdef G4V7
 class GFlashHomoShowerParamterisation;
 #else
 class GFlashHomoShowerParameterisation;
@@ -25,7 +25,7 @@ public:
     ~CaloModel();
 private:
     void build();  
-#ifdef G4v7
+#ifdef G4V7
     GFlashHomoShowerParamterisation *theParametrisation;
 #else
     GFlashHomoShowerParameterisation *theParameterisation;
