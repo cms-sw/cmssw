@@ -3,6 +3,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackSeedAssociation.h"
 // #include "DataFormats/TrackReco/interface/GsfComponent5D.h"
 #include <vector>
 
@@ -33,6 +34,13 @@ namespace {
     edm::RefProd<reco::GsfTrackCollection> rp2;
     edm::RefVector<reco::GsfTrackCollection> rv2;
 
+    reco::TrackSeedAssociationCollection v5;
+    edm::Wrapper<reco::TrackSeedAssociationCollection> c5;
+    reco::TrackSeedAssociation vv5;
+    reco::TrackSeedAssociationRef r5;
+    reco::TrackSeedAssociationRefProd rp5;
+    reco::TrackSeedAssociationRefVector rv5;
+    
 //     reco::GsfComponent5D s5;
   }
 }

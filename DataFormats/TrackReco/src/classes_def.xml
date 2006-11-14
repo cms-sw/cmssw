@@ -34,4 +34,14 @@
   <class name="edm::RefProd<std::vector<reco::GsfTrack> >"/>
   <class name="edm::Ref<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> >"/>
   <class name="edm::RefVector<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> >"/>
-</lcgdict>
+
+ <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>, std::vector<TrajectorySeed>, unsigned int > >" >
+    <field name="transientMap_" transient="true" />
+  </class>
+  <class pattern="edm::KeyVal<*>" />
+  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
+  <class pattern="edm::Ref<edm::AssociationMap<*>" />
+  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
+  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >, edm::RefProd<std::vector<TrajectorySeed> > >"/> 
+  </lcgdict>
