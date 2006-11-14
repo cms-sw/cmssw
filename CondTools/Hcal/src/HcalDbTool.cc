@@ -3,7 +3,7 @@
    \class HcalDbTool
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbTool.cc,v 1.6 2006/10/17 23:31:27 fedor Exp $
+   $Id: HcalDbTool.cc,v 1.7 2006/10/24 23:48:33 fedor Exp $
 */
 
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -28,7 +28,7 @@ namespace {
 }
 
 typedef std::map<HcalDbTool::IOVRun,std::string> IOVCollection;
-const HcalDbTool::IOVRun endOfTime = 0xffffffffffffffff;
+const HcalDbTool::IOVRun endOfTime = 0xffffffffffffffffuLL;
 
 template <class T>
 bool HcalDbTool::storeObject (T* fObject, const std::string& fContainer, pool::Ref<T>* fRef) {
