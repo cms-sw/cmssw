@@ -23,7 +23,7 @@ public:
   virtual  int binIndex( T phi) const {
     T tmp = fmod((phi - thePhiOffset), twoPi()) / thePhiStep;
     if ( tmp < 0) tmp += theNbins;
-    return min( int(tmp), theNbins-1);
+    return std::min( int(tmp), theNbins-1);
   }
 
   /// returns an index in the valid range, modulo Nbins

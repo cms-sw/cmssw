@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2004/06/22 17:05:14 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/06 15:49:19 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -20,7 +20,7 @@ using namespace std;
 MagBSector::MagBSector(vector<MagBRod*>& rods, Geom::Phi<float> phiMin) : 
   theRods(rods),
   thePhiMin(phiMin)
-{};
+{}
 
 MagBSector::~MagBSector(){
   for (vector<MagBRod *>::const_iterator irod = theRods.begin();

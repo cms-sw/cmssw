@@ -15,8 +15,8 @@ namespace MagBinFinders {
 /** \class GeneralBinFinderInR
  *  A R binfinder for a non-periodic group of detectors.
  *
- *  $Date: 2005/09/06 15:49:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/26 14:47:13 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -77,7 +77,7 @@ public:
 
   /// Returns an index in the valid range
   virtual int binIndex( int i) const {
-    return min( max( i, 0), theNbins-1);
+    return std::min( std::max( i, 0), theNbins-1);
   }
    
   /// The middle of the bin
@@ -185,7 +185,7 @@ public:
 
   /// returns an index in the valid range
   virtual int binIndex( int i) const {
-    return min( max( i, 0), theNbins-1);
+    return std::min( std::max( i, 0), theNbins-1);
   }
    
   /// the middle of the bin.
