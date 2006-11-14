@@ -1,15 +1,15 @@
-#ifndef Validation_RecoEgamma_EgammaElectrons_h
-#define Validation_RecoEgamma_EgammaElectrons_h
+#ifndef Validation_RecoEgamma_EgammaPhotons_h
+#define Validation_RecoEgamma_EgammaPhotons_h
 
-/**\class EgammaElectrons
+/**\class EgammaPhotons
 
- Description: SVSuite Electron Validation
+ Description: SVSuite Photon Validation
 
  Implementation:
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaElectrons.h,v 1.1 2006/11/13 19:20:39 mabalazs Exp $
+// $Id: EgammaPhotons.h,v 1.1 2006/11/13 19:20:39 mabalazs Exp $
 //
 #include <string>
 
@@ -22,11 +22,11 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
-class EgammaElectrons : public edm::EDAnalyzer
+class EgammaPhotons : public edm::EDAnalyzer
 {
 	public:
-      explicit EgammaElectrons( const edm::ParameterSet& );
-      ~EgammaElectrons();
+      explicit EgammaPhotons( const edm::ParameterSet& );
+      ~EgammaPhotons();
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
       virtual void beginJob(edm::EventSetup const&);
@@ -39,42 +39,30 @@ class EgammaElectrons : public edm::EDAnalyzer
 			bool verboseDBE_;
 			DaqMonitorBEInterface* dbe_;
 
-      edm::InputTag ElectronCollection_;
+      edm::InputTag PhotonCollection_;
  
-      MonitorElement* hist_Electron_Size_;
+      MonitorElement* hist_Photon_Size_;
 
       double hist_min_Size_;
       double hist_max_Size_;
       int    hist_bins_Size_;
 
-      MonitorElement* hist_Electron_ET_;
+      MonitorElement* hist_Photon_ET_;
 
       double hist_min_ET_;
       double hist_max_ET_;
       int    hist_bins_ET_;
 
-      MonitorElement* hist_Electron_Eta_;
+      MonitorElement* hist_Photon_Eta_;
 
       double hist_min_Eta_;
       double hist_max_Eta_;
       int    hist_bins_Eta_;
 
-      MonitorElement* hist_Electron_Phi_;
+      MonitorElement* hist_Photon_Phi_;
 
       double hist_min_Phi_;
       double hist_max_Phi_;
       int    hist_bins_Phi_;
-
-      MonitorElement* hist_Electron_EoverP_;
-
-      double hist_min_EoverP_;
-      double hist_max_EoverP_;
-      int    hist_bins_EoverP_;
-
-      MonitorElement* hist_Electron_deltaEtaSCtoTrack_;
-
-      double hist_min_deltaEtaSCtoTrack_;
-      double hist_max_deltaEtaSCtoTrack_;
-      int    hist_bins_deltaEtaSCtoTrack_;
 };
 #endif
