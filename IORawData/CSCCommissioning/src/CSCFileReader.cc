@@ -20,11 +20,6 @@
 #include <iostream>
 #include <algorithm>
 
-#include "FileReaderDDU.h"
-namespace ___CSC {
-	FileReaderDDU ddu;
-};
-
 CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 	// Define type of the output data first: if DAQ - wrapp DDU buffer into fake DCC, if not - not
 	if( pset.getUntrackedParameter<std::string>("dataType") != "TF" )
@@ -37,15 +32,15 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 	currentFile = fileNames.begin();
 	if( currentFile != fileNames.end() ){
 		try {
-			___CSC::ddu.open(currentFile->c_str());
+			ddu.open(currentFile->c_str());
 		} catch ( std::runtime_error err ){
 			throw cms::Exception("InputFileMissing ")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
 		}
 	} else  throw cms::Exception("NoFilesSpecified for CSCFileReader");
 	// Filter out possible corruptions
-	___CSC::ddu.reject(FileReaderDDU::DDUoversize|FileReaderDDU::FFFF|FileReaderDDU::Unknown);
+	ddu.reject(FileReaderDDU::DDUoversize|FileReaderDDU::FFFF|FileReaderDDU::Unknown);
 	// Do not select anything in particular
-	___CSC::ddu.select(0);
+	ddu.select(0);
 }
 
 bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection *& data){
@@ -57,7 +52,7 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 
 	try {
 		// Read DDU record
-		length = ___CSC::ddu.next(dduBuf);
+		length = ddu.next(dduBuf);
 	} catch ( std::runtime_error err ){
 		throw cms::Exception("EndOfStream")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
 	}
@@ -65,7 +60,7 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 	if( length==0 ){ // end of file, try next one
 		if( ++currentFile != fileNames.end() ){
 			try {
-				___CSC::ddu.open(currentFile->c_str());
+				ddu.open(currentFile->c_str());
 			} catch ( std::runtime_error err ){
 				throw cms::Exception("InputFileMissing ")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
 			}

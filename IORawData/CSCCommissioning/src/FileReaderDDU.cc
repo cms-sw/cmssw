@@ -1,4 +1,3 @@
-// Author: Khristian Kotov
 #include "FileReaderDDU.h"
 #include <iostream>    // cerr
 #include <errno.h>     // errno
@@ -9,11 +8,7 @@
 #include <fcntl.h>     // open
 #include <unistd.h>    // read, close
 
-//#ifdef WITHOUT_DDUREADER
 FileReaderDDU::FileReaderDDU(void){
-//#else
-//FileReaderDDU::FileReaderDDU(void):DDUReader(){
-//#endif
 	if( sizeof(unsigned long long)!=8 || sizeof(unsigned short)!=2 )
 		throw std::runtime_error(std::string("Wrong platform: sizeof(unsigned long long)!=8 || sizeof(unsigned short)!=2"));
 	end = (file_buffer_end = file_buffer + sizeof(file_buffer)/sizeof(unsigned long long));

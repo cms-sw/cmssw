@@ -7,12 +7,16 @@
 #include <vector>
 #include <string>
 
+#include "FileReaderDDU.h"
+
 class CSCFileReader : public DaqBaseReader {
 private:
 	std::vector<std::string> fileNames;
 	std::vector<std::string>::const_iterator currentFile;
 	enum {DAQ=1,TF=2};
 	int  dataType;
+
+	FileReaderDDU ddu;
 
 public:
 	bool fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection *& data);
