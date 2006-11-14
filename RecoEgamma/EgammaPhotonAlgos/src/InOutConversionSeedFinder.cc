@@ -45,13 +45,13 @@ InOutConversionSeedFinder::~InOutConversionSeedFinder() {
 
 
 
-void InOutConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection* allBC )  const  {
+void InOutConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& allBC )  const  {
 
   std::cout << "  InOutConversionSeedFinder::makeSeeds() " << std::endl;
   theSeeds_.clear();
-  std::cout << " Check Basic cluster collection size " << allBC->size() << std::endl;  
+  std::cout << " Check Basic cluster collection size " << allBC.size() << std::endl;  
   theSCPosition_= GlobalPoint ( theSC_->x(), theSC_->y(), theSC_->z() );
-  bcCollection_=allBC;
+  bcCollection_= allBC;
 
 
   findLayers();
@@ -94,24 +94,21 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 
 
     vector<const DetLayer*> myLayers;
-    int len=measurements.size();
-    //    myLayers.resize(len);
     myLayers.clear();    
     
     vector<TrajectoryMeasurement*> myItr;
     TrajectoryMeasurement* myPointer=0;
     std::cout << "  InOutConversionSeedFinder::fillClusterSeeds measurements.size " << measurements.size() <<std::endl;
  
-    int iMea= measurements.size();
-    int iGood=0;
+ 
+ 
     for(measurementItr = measurements.begin(); measurementItr != measurements.end();  ++measurementItr) {
-      //     iMea--;
+ 
       if( (*measurementItr).recHit()->isValid()) {
 	
 	std::cout << "  InOutConversionSeedFinder::fillClusterSeeds measurement on  layer  " << measurementItr->layer() <<   " " <<&(*measurementItr) <<  " postion " << measurementItr->recHit()->globalPosition() <<   " R " << sqrt( measurementItr->recHit()->globalPosition().x()*measurementItr->recHit()->globalPosition().x() + measurementItr->recHit()->globalPosition().y()*measurementItr->recHit()->globalPosition().y() ) << std::endl;
 	
-	
-        //myLayers[iMea]= measurementItr->layer(); 
+	        
 	myLayers.push_back( measurementItr->layer() ) ; 
 	myItr.push_back( &(*measurementItr) );
         
@@ -160,10 +157,10 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	std::cout << "Layer " << ilayer << "  contains the first valid measurement " << std::endl; 	
 	if ( (myLayers[1])->location() == GeomDetEnumerators::barrel ) {
 	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[1]);
-
+	  std::cout << " InOutConversionSeedFinder::fillClusterSeeds  **** 2ndHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  endl;
 	} else {
 	  const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(myLayers[1]);
-	  std::cout << " InOutwardConversionSeedFinder::fillClusterSeeds  ****  2ndHitfound on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  std::endl;
+	  std::cout << " InOutwardConversionSeedFinder::fillClusterSeeds  ****  2ndHitfound on forw layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  std::endl;
 	}
 
 
@@ -264,17 +261,18 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	  // debug
 	  for(bcItr = bcVec.begin(); bcItr != bcVec.end(); ++bcItr) {
 
-	    theSecondBC_ = *bcItr;
+	    //	    theSecondBC_ = *bcItr;
 	    // std::cout << " InOutConversionSeedFinder::fillClusterSeeds bc eta " << theSecondBC_->position().eta() << " phi " <<  theSecondBC_->position().phi() << " x = " << 130.*cos(theSecondBC_->position().phi() )  << " y= " << 130.*sin(theSecondBC_->position().phi() ) << std::endl;
 	  }
 	  //
 
 	  for(bcItr = bcVec.begin(); bcItr != bcVec.end(); ++bcItr) {
 
-	    theSecondBC_ = *bcItr;
-	    GlobalPoint bcPos((theSecondBC_->position()).x(),
-			      (theSecondBC_->position()).y(),
-                              (theSecondBC_->position()).z());
+	    theSecondBC_ = **bcItr;
+	    //theSecondBC_ = *bcItr;
+	    GlobalPoint bcPos((theSecondBC_.position()).x(),
+			      (theSecondBC_.position()).y(),
+                              (theSecondBC_.position()).z());
 
 	    //	    std::cout << " InOutConversionSeedFinder::fillClusterSeed bc position x " << bcPos.x() << " y " <<  bcPos.y() << " z  " <<  bcPos.z() << " eta " <<  bcPos.eta() << " phi " <<  bcPos.phi() << std::endl;
 	    GlobalVector dir = stateAtPreviousLayer.globalDirection();
@@ -299,8 +297,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 
 std::vector<const reco::BasicCluster*> InOutConversionSeedFinder::getSecondBasicClusters(const GlobalPoint & conversionPosition, float charge) const {
 
-  const float pi=3.141592654;
-  const float twopi=2*pi;
+
   std::vector<const reco::BasicCluster*> result;
 
   std::cout << " InOutConversionSeedFinder::getSecondBasicClusters" << endl;
@@ -309,8 +306,8 @@ std::vector<const reco::BasicCluster*> InOutConversionSeedFinder::getSecondBasic
  
  
 
-  int nBc=0;
-  for( reco::BasicClusterCollection::const_iterator bcItr = bcCollection_->begin(); bcItr != bcCollection_->end(); bcItr++) {
+
+  for( reco::BasicClusterCollection::const_iterator bcItr = bcCollection_.begin(); bcItr != bcCollection_.end(); bcItr++) {
     Geom::Phi<float> theBcPhi(bcItr->position().phi());
     std::cout << "InOutConversionSeedFinder::getSecondBasicClusters  Basic cluster phi " << theBcPhi << std::endl;
     // Require phi of cluster to be consistent with the conversion 
@@ -341,7 +338,7 @@ std::vector<const reco::BasicCluster*> InOutConversionSeedFinder::getSecondBasic
 
 void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & startingState,
 					  float transverseCurvature, 
-					  int startingLayer) const {
+					  unsigned int startingLayer) const {
  
 
   vector<const DetLayer*> allLayers=layerList();
@@ -412,7 +409,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 	// Make a new helix as in fillClusterSeeds() but using the hit position
 
         std::cout << " InOutConversionSeedFinder::findSeeds 1st hit position " << tmItr->recHit()->globalPosition() << " R " << sqrt(tmItr->recHit()->globalPosition().x()*tmItr->recHit()->globalPosition().x() + tmItr->recHit()->globalPosition().y()*tmItr->recHit()->globalPosition().y()   ) <<std::endl;
-	GlobalPoint bcPos((theSecondBC_->position()).x(),(theSecondBC_->position()).y(),(theSecondBC_->position()).z());
+	GlobalPoint bcPos((theSecondBC_.position()).x(),(theSecondBC_.position()).y(),(theSecondBC_.position()).z());
 	GlobalVector dir = startingState.globalDirection();
 	GlobalPoint back1mm = tmItr->recHit()->globalPosition();
 	back1mm -= dir.unit()*0.1;

@@ -4,9 +4,9 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.2 2006/06/23 14:18:32 nancy Exp $ 
- **  $Date: 2006/06/23 14:18:32 $ 
- **  $Revision: 1.2 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.3 2006/07/10 17:56:28 nancy Exp $ 
+ **  $Date: 2006/07/10 17:56:28 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -55,7 +55,10 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   virtual ~InOutConversionSeedFinder();
     
 
-  virtual void  makeSeeds( const reco::BasicClusterCollection* allBc) const ; 
+   virtual void  makeSeeds( const reco::BasicClusterCollection& allBc) const ; 
+  //virtual void  makeSeeds( edm::Ref<BasicClusterCollection>  allBc); 
+
+
   void setTracks(std::vector<Trajectory> in) { theOutInTracks_.clear(); theOutInTracks_ = in;}
  
 
@@ -65,7 +68,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   virtual void fillClusterSeeds() const ;
   void startSeed(FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int layer) const ;
   virtual void findSeeds(const TrajectoryStateOnSurface & startingState,
-			 float signedpt, int startingLayer) const ;
+			 float signedpt, unsigned int startingLayer) const ;
    
   std::vector<const reco::BasicCluster*> getSecondBasicClusters(const GlobalPoint & conversionPosition, float charge) const;
   void completeSeed(const TrajectoryMeasurement & m1,FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const;
@@ -86,8 +89,8 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   mutable vector<TrajectoryMeasurement> theFirstMeasurements_;
   
   const LayerMeasurements*      theLayerMeasurements_;
-  mutable reco::BasicCluster* theSecondBC_;
-  mutable reco::BasicClusterCollection*  bcCollection_;
+  mutable reco::BasicCluster theSecondBC_;
+  mutable reco::BasicClusterCollection  bcCollection_;
 
   
 };

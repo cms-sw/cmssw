@@ -47,7 +47,7 @@ OutInConversionSeedFinder::~OutInConversionSeedFinder() {
 
 
 // Return a vector of seeds 
-void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection* allBC )  const  {
+void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& allBC )  const  {
 
   std::cout << "  OutInConversionSeedFinder::makeSeeds() " << std::endl;
   theSeeds_.clear();
@@ -64,7 +64,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection* a
 
   
 
-  std::cout << " Check Basic cluster collection size " << allBC->size() << std::endl;
+  std::cout << " Check Basic cluster collection size " << allBC.size() << std::endl;
   
   float  theSCPhi=theSCPosition_.phi();
   float  theSCEta=theSCPosition_.eta();
@@ -73,7 +73,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection* a
 
   //  Loop over the Basic Clusters  in the event looking for seeds 
   reco::BasicClusterCollection::const_iterator bcItr;
-  for(bcItr = allBC->begin(); bcItr != allBC->end(); bcItr++) {
+  for(bcItr = allBC.begin(); bcItr != allBC.end(); bcItr++) {
     theBCEnergy_=bcItr->energy();
     if ( theBCEnergy_ < 1.5 ) continue;
 
@@ -138,7 +138,7 @@ FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const
   double curvature = theMF_->inTesla(theBCPosition_).z() * c_light * 1.e-3 / momentumWithoutCurvature.perp() ;
   curvature /= 100. ; // in cm-1 !!
 
-  //  cout << " OutInConversionSeedFinder::makeTrackState gpOrigine " << gpOrigine.x() << " " <<  gpOrigine.y() << " " <<  gpOrigine.z() << " momentumWithoutCurvature" << momentumWithoutCurvature << " curvature " << curvature << std::endl;
+  cout << " OutInConversionSeedFinder::makeTrackState gpOrigine " << gpOrigine.x() << " " <<  gpOrigine.y() << " " <<  gpOrigine.z() << " momentumWithoutCurvature" << momentumWithoutCurvature << " curvature " << curvature << std::endl;
 
   // define rotation angle
   float R = theBCPosition_.perp();
@@ -147,21 +147,23 @@ FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const
   // from the formula for the intersection of two circles
   // turns out to be about 2/3 of the deflection of the old formula
   float d = sqrt(r*r+rho*rho);
-  float u = rho + rho/d/d*(R*R-rho*rho) - r/d/d*sqrt((R*R-r*r+2*rho*R)*(R*R-r*r+2*rho*R));
+   float u = rho + rho/d/d*(R*R-rho*rho) - r/d/d*sqrt((R*R-r*r+2*rho*R)*(R*R-r*r+2*rho*R));
+  //float u = rho + rho/d/d*(R*R-rho*rho) ;
+
 
   double newdphi = charge * asin(0.5*u/R);
 
-  //  std::cout << " OutInConversionSeedFinder::makeTrackState charge " << charge << " u/R " << u/R << " asin(0.5*u/R) " << asin(0.5*u/R) << std::endl;
+  std::cout << " OutInConversionSeedFinder::makeTrackState charge " << charge << " u/R " << u/R << " asin(0.5*u/R) " << asin(0.5*u/R) << std::endl;
 
   HepTransform3D rotation =  HepRotate3D(newdphi, HepVector3D(0., 0. ,1.));
 
 
   HepPoint3D momentumInTracker = momentumWithoutCurvature.transform(rotation) ;
-  //  cout << " OutInConversionSeedFinder::makeTrackState  R " << R << " r " << r << " rho " << rho  << " d " << d  << " u " << u << " newdphi " << newdphi << " momentumInTracker " <<  momentumInTracker << std::endl;
+  cout << " OutInConversionSeedFinder::makeTrackState  R " << R << " r " << r << " rho " << rho  << " d " << d  << " u " << u << " newdphi " << newdphi << " momentumInTracker " <<  momentumInTracker << std::endl;
 
   HepPoint3D hepStartingPoint(gpOrigine.x(), gpOrigine.y(), gpOrigine.z()) ;
 
-  //  cout << " OutInConversionSeedFinder::makeTrackState hepStartingPoint " << hepStartingPoint << std::endl;
+  cout << " OutInConversionSeedFinder::makeTrackState hepStartingPoint " << hepStartingPoint << std::endl;
 
   hepStartingPoint.transform(rotation);
 

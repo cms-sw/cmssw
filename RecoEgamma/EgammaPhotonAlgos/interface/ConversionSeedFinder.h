@@ -3,9 +3,9 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.2 2006/06/23 14:17:51 nancy Exp $ 
- **  $Date: 2006/06/23 14:17:51 $ 
- **  $Revision: 1.2 $
+ **  $Id: ConversionSeedFinder.h,v 1.3 2006/07/10 17:54:57 nancy Exp $ 
+ **  $Date: 2006/07/10 17:54:57 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -59,8 +59,8 @@ class ConversionSeedFinder {
   virtual ~ConversionSeedFinder(){}
 
   
-  virtual void makeSeeds(const reco::BasicClusterCollection* allBc ) const  =0 ;
-
+  virtual void makeSeeds(const reco::BasicClusterCollection& allBc ) const  =0 ;
+ 
 
 
   TrajectorySeedCollection seeds() {std::cout << " Returning  seeds " << std::endl; return theSeeds_;}

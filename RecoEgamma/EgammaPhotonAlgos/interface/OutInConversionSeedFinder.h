@@ -4,9 +4,9 @@
 /** \class OutInConversionSeedFinder
  **  
  **
- **  $Id: OutInConversionSeedFinder.h,v 1.1 2006/06/09 15:51:24 nancy Exp $ 
- **  $Date: 2006/06/09 15:51:24 $ 
- **  $Revision: 1.1 $
+ **  $Id: OutInConversionSeedFinder.h,v 1.2 2006/07/10 17:57:01 nancy Exp $ 
+ **  $Date: 2006/07/10 17:57:01 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -50,7 +50,7 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
   
   
   
-  virtual void  makeSeeds(const reco::BasicClusterCollection* allBc) const  ;
+  virtual void  makeSeeds(const reco::BasicClusterCollection& allBc) const  ;
 
 
  private:
