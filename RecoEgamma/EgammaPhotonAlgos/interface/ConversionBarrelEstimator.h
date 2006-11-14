@@ -4,8 +4,8 @@
  * \class ConversionBarrelEstimator
  *  Defines the search area in the barrel 
  *
- *   $Date:  $
- *   $Revision:  $
+ *   $Date: 2006/06/09 15:50:06 $
+ *   $Revision: 1.1 $
  *   \author Nancy Marinelli, U. of Notre Dame, US
  */
 
@@ -20,11 +20,12 @@ class BoundPlane;
 
 class ConversionBarrelEstimator : public MeasurementEstimator {
 public:
+
   ConversionBarrelEstimator() {};
   ConversionBarrelEstimator( float phiRangeMin, float phiRangeMax, 
-                                 float zRangeMin, float zRangeMax ) : 
+                                 float zRangeMin, float zRangeMax, double nSigma = 3. ) : 
                            thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax),
-                           theZRangeMin( zRangeMin), theZRangeMax( zRangeMax) {
+                           theZRangeMin( zRangeMin), theZRangeMax( zRangeMax), theNSigma(nSigma) {
     std::cout << " ConversionBarrelEstimator CTOR " << std::endl;
 }
 
@@ -44,7 +45,7 @@ public:
   virtual Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const;
 
 
-
+  double nSigmaCut() const {return theNSigma;}
 
 private:
 
@@ -52,7 +53,7 @@ private:
   float thePhiRangeMax;
   float theZRangeMin;
   float theZRangeMax;
-
+  double theNSigma;
 
 
 
