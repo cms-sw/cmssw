@@ -17,6 +17,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -69,10 +70,12 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
                                    debugL);
 
   clustershapecollection_ = ps.getParameter<std::string>("clustershapecollection");
+  clusterShapeAssociation_ = ps.getParameter<std::string>("shapeAssociation");
 
   produces< reco::ClusterShapeCollection>(clustershapecollection_);
   produces< reco::BasicClusterCollection >(basicclusterCollection_);
   produces< reco::SuperClusterCollection >(superclusterCollection_);
+  produces< reco::BasicClusterShapeAssociationCollection >(clusterShapeAssociation_);
   nEvt_ = 0;
 }
 
@@ -173,6 +176,13 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   std::auto_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
   superclusters_p->assign(superClusters.begin(), superClusters.end());
   evt.put(superclusters_p, superclusterCollection_);
+
+  // BasicClusterShapeAssociationMap
+  std::auto_ptr<reco::BasicClusterShapeAssociationCollection> shapeAssocs_p(new reco::BasicClusterShapeAssociationCollection);
+  for (unsigned int i = 0; i < clusterCollection.size(); i++){
+    shapeAssocs_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
+  }  
+  evt.put(shapeAssocs_p,clusterShapeAssociation_);
 
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Hybrid Clusters (Basic/Super) added to the Event! :-)" << std::endl;

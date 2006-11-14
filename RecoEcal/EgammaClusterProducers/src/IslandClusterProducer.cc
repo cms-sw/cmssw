@@ -17,6 +17,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -71,12 +72,18 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
   clustershapecollectionEB_ = ps.getParameter<std::string>("clustershapecollectionEB");
   clustershapecollectionEE_ = ps.getParameter<std::string>("clustershapecollectionEE");
 
+  //AssociationMap
+  barrelClusterShapeAssociation_ = ps.getParameter<std::string>("barrelShapeAssociation");
+  endcapClusterShapeAssociation_ = ps.getParameter<std::string>("endcapShapeAssociation");
+
   // Produces a collection of barrel and a collection of endcap clusters
 
   produces< reco::ClusterShapeCollection>(clustershapecollectionEE_);
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
   produces< reco::ClusterShapeCollection>(clustershapecollectionEB_);
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
+  produces< reco::BasicClusterShapeAssociationCollection >(barrelClusterShapeAssociation_);
+  produces< reco::BasicClusterShapeAssociationCollection >(endcapClusterShapeAssociation_);
 
   island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_,verbosity);
 
@@ -92,9 +99,8 @@ IslandClusterProducer::~IslandClusterProducer()
 
 void IslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, IslandClusterAlgo::endcap); 
-  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, IslandClusterAlgo::barrel);
-
+  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, IslandClusterAlgo::endcap); 
+  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, IslandClusterAlgo::barrel);
   nEvt_++;
 }
 
@@ -126,6 +132,7 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
                                                const std::string& hitProducer,
                                                const std::string& hitCollection,
                                                const std::string& clusterCollection,
+					       const std::string& clusterShapeAssociation,
                                                const IslandClusterAlgo::EcalPart& ecalPart)
 {
   // get the hit collection from the event:
@@ -183,10 +190,19 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
+  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
   if (ecalPart == IslandClusterAlgo::barrel) 
-    evt.put(clusters_p, barrelClusterCollection_);
+    bccHandle = evt.put(clusters_p, barrelClusterCollection_);
   else
-    evt.put(clusters_p, endcapClusterCollection_);
+    bccHandle = evt.put(clusters_p, endcapClusterCollection_);
+
+
+  // BasicClusterShapeAssociationMap
+  std::auto_ptr<reco::BasicClusterShapeAssociationCollection> shapeAssocs_p(new reco::BasicClusterShapeAssociationCollection);
+  for (unsigned int i = 0; i < clusColl.size(); i++){
+    shapeAssocs_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
+  }  
+  evt.put(shapeAssocs_p,clusterShapeAssociation);
 
   delete topology_p;
 }
