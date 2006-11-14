@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.2 2006/10/31 02:53:10 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.3 2006/11/07 18:42:42 fwyzard Exp $
 //
 
 // system include files
@@ -51,7 +51,6 @@ private:
 
   // concrete algorithm
   SoftLeptonAlgorithm m_algo;
-  const double        m_deltaRCut;
 
   // nominal beam spot position
   const reco::Vertex * m_nominalBeamSpot;
