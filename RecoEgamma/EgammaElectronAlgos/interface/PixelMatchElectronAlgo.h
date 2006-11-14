@@ -19,7 +19,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+#include "DataFormats/TrackReco/interface/TrackSeedAssociation.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -35,6 +35,7 @@
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -57,14 +58,14 @@ public:
  private:
 
   // create electrons from tracks
-  void process(edm::Handle<reco::TrackCollection> tracksH, const reco::SeedSuperClusterAssociationCollection *sclAss,
+  void process(edm::Handle<reco::TrackCollection> tracksH, const reco::SeedSuperClusterAssociationCollection *sclAss, const reco::TrackSeedAssociationCollection *tsAss,
    HBHERecHitMetaCollection *mhbhe, reco::PixelMatchGsfElectronCollection & outEle);
   // preselection method
-  bool preSelection(const reco::SuperCluster& clus, const reco::Track& track, HBHERecHitMetaCollection *mhbhe);
+  bool preSelection(const reco::SuperCluster& clus, const reco::Track& track,double HoE);
   
   // temporary to get seed corresponding to track
-  bool equal(edm::Ref<TrajectorySeedCollection> ts, const reco::Track& t);
-  bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
+  //  bool equal(edm::Ref<TrajectorySeedCollection> ts, const reco::Track& t);
+  //  bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
 
  // preselection parameters
   // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state  
@@ -89,6 +90,10 @@ public:
   std::string assBarrelInstanceName_;
   std::string assEndcapLabel_;
   std::string assEndcapInstanceName_;
+  std::string assBarrelTrTSLabel_;
+  std::string assBarrelTrTSInstanceName_;
+  std::string assEndcapTrTSLabel_;
+  std::string assEndcapTrTSInstanceName_;
 
   const TrackerTrajectoryBuilder*  theCkfTrajectoryBuilder;
   TrajectoryCleaner*               theTrajectoryCleaner;

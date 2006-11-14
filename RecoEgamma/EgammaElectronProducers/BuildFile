@@ -14,6 +14,8 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/EgammaCandidates>
 <use name=RecoEgamma/EgammaElectronAlgos>
+<use name=RecoTracker/CkfPattern>
+<use name=RecoTracker/TrackProducer>
 <flags SEAL_PLUGIN_NAME="RecoEgammaEgammaElectronProducers">
 <export>
    <lib name=RecoEgammaEgammaElectronProducers>
@@ -31,4 +33,6 @@
    <use name=SimDataFormats/HepMCProduct>
    <use name=DataFormats/EgammaCandidates>
    <use name=RecoEgamma/EgammaElectronAlgos>
+   <use name=RecoTracker/CkfPattern>
+   <use name=RecoTracker/TrackProducer>
 </export>

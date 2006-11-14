@@ -12,12 +12,11 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.19 2006/10/27 16:30:56 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.20 2006/10/27 21:45:21 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
 
-//#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -114,6 +113,10 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   assBarrelInstanceName_ = conf.getParameter<string>("SCLBarrelProducer");
   assEndcapLabel_ = conf.getParameter<string>("SCLEndcapLabel");
   assEndcapInstanceName_ = conf.getParameter<string>("SCLEndcapProducer");
+  assBarrelTrTSLabel_ = conf.getParameter<string>("AssocTrTSBarrelLabel");
+  assBarrelTrTSInstanceName_ = conf.getParameter<string>("AssocTrTBarrelProducer");
+  assEndcapTrTSLabel_ = conf.getParameter<string>("AssocTrTEndcapLabel");
+  assEndcapTrTSInstanceName_ = conf.getParameter<string>("AssocTrTEndcapProducer");
 }
 
 void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & outEle) {
@@ -125,24 +128,30 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   edm::Handle<HBHERecHitCollection> hbhe;
   HBHERecHitMetaCollection *mhbhe=0;
   if (hOverEConeSize_ > 0.) {
-    e.getByType(hbhe);
-    mhbhe=  &HBHERecHitMetaCollection(*hbhe);
+    e.getByType(hbhe);  
+    mhbhe=  &HBHERecHitMetaCollection(*hbhe);  //FIXME, generates warning
   }
   e.getByLabel(trackBarrelLabel_,trackBarrelInstanceName_,tracksBarrelH);
   e.getByLabel(trackEndcapLabel_,trackEndcapInstanceName_,tracksEndcapH);
+
   edm::Handle<SeedSuperClusterAssociationCollection> barrelH;
   edm::Handle<SeedSuperClusterAssociationCollection> endcapH;
   e.getByLabel(assBarrelLabel_,assBarrelInstanceName_,barrelH);
   e.getByLabel(assEndcapLabel_,assEndcapInstanceName_,endcapH);
+
+  edm::Handle<TrackSeedAssociationCollection> barrelTSAssocH;
+  edm::Handle<TrackSeedAssociationCollection> endcapTSAssocH;
+  e.getByLabel(assBarrelTrTSLabel_,assBarrelTrTSInstanceName_,barrelTSAssocH);
+  e.getByLabel(assEndcapTrTSLabel_,assEndcapTrTSInstanceName_,endcapTSAssocH);
   edm::LogInfo("") 
     <<"\n\n Treating "<<e.id()<<", Number of seeds Barrel:"
     <<barrelH.product()->size()<<" Number of seeds Endcap:"<<endcapH.product()->size();
   
   // create electrons from tracks in 2 steps: barrel + endcap
   const SeedSuperClusterAssociationCollection  *sclAss=&(*barrelH);
-  process(tracksBarrelH,sclAss,mhbhe,outEle);
+  process(tracksBarrelH,sclAss,barrelTSAssocH.product(),mhbhe,outEle);
   sclAss=&(*endcapH);
-  process(tracksEndcapH,sclAss,mhbhe,outEle);
+  process(tracksEndcapH,sclAss,endcapTSAssocH.product(),mhbhe,outEle);
 
   std::ostringstream str;
 
@@ -160,29 +169,31 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   return;
 }
 
-void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss,
+void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss, const TrackSeedAssociationCollection *tsAss,
                                      HBHERecHitMetaCollection *mhbhe, PixelMatchGsfElectronCollection & outEle) {
   const TrackCollection *tracks=tracksH.product();
   for (unsigned int i=0;i<tracks->size();++i) {
     const Track & t=(*tracks)[i];
-    // look for corresponding seed
-    //temporary as long as there is no way to have a pointer to the seed from the track
-    edm::Ref<TrajectorySeedCollection> seed;
-    bool found = false;
-    for( SeedSuperClusterAssociationCollection::const_iterator it= sclAss->begin(); it != sclAss->end(); ++it) {
-      seed=(*it).key;
-      if (equal(seed,t)) {
-	found=true;
-	break;
-      }
-    }
-    
-    if (!found) {
-      LogWarning("") <<" No seed corresponding to track was found!!";
-      continue;
-    }
+    const TrackRef trackRef = edm::Ref<TrackCollection>(tracksH,i);
+    edm::Ref<TrajectorySeedCollection> seed = (*tsAss)[trackRef];
     const SuperCluster theClus=*((*sclAss)[seed]);
-    if (preSelection(theClus,t,mhbhe)) {
+
+    // calculate HoE
+    double HoE;
+    if (mhbhe) {
+      CaloConeSelector sel(hOverEConeSize_, theCaloGeom.product(), DetId::Hcal);
+      GlobalPoint pclu(theClus.x(),theClus.y(),theClus.z());
+      double hcalEnergy = 0.;
+      std::auto_ptr<CaloRecHitMetaCollectionV> chosen=sel.select(pclu,*mhbhe);
+      for (CaloRecHitMetaCollectionV::const_iterator i=chosen->begin(); i!=chosen->end(); i++) {
+	//std::cout << HcalDetId(i->detid()) << " : " << (*i) << std::endl;
+	hcalEnergy += i->energy();
+      }
+      HoE = hcalEnergy/theClus.energy();
+      LogInfo("") << "H/E : " << HoE;
+    } else HoE=0;
+
+    if (preSelection(theClus,t,HoE)) {
       LogInfo("")<<"Constructed new electron with energy  "<< (*sclAss)[seed]->energy();
       TSCPBuilderNoMaterial tscpBuilder;
       TrajectoryStateTransform tsTransform;
@@ -195,14 +206,14 @@ void PixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, const
       const GlobalVector mscl=tscp_scl.momentum();
       const GlobalPoint pseed=tscp_seed.position();
       const GlobalVector mseed=tscp_seed.momentum();
-      PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,pscl,mscl,pseed,mseed);
+      PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,pscl,mscl,pseed,mseed,HoE);
       //      PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,tscp_scl.position(),tscp_scl.momentum(),tscp_seed.position(),tscp_seed.momentum());
       outEle.push_back(ele);
     }
   }  // loop over tracks
 }
 
-bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Track& track, HBHERecHitMetaCollection *mhbhe) 
+bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Track& track, double HoE) 
 {
   LogInfo("")<< "========== preSelection ==========";
  
@@ -235,59 +246,20 @@ bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Track&
   if (fabs(dphi) > maxDeltaPhi_) return false;
   LogInfo("") << "Delta phi criteria is satisfied ";
   // had/em criteria if hcal rechits available
-  if (mhbhe) {
-    //cout << "calo position is eta-phi = " << clus.eta() << " " << clus.phi() << endl;
-    CaloConeSelector sel(hOverEConeSize_, theCaloGeom.product(), DetId::Hcal);
-    GlobalPoint pclu(clus.x(),clus.y(),clus.z());
-    double hcalEnergy = 0.;
-    std::auto_ptr<CaloRecHitMetaCollectionV> chosen=sel.select(pclu,*mhbhe);
-    for (CaloRecHitMetaCollectionV::const_iterator i=chosen->begin(); i!=chosen->end(); i++) {
-      //std::cout << HcalDetId(i->detid()) << " : " << (*i) << std::endl;
-      hcalEnergy += i->energy();
-    }
-    LogInfo("") << "H/E : " << hcalEnergy/clus.energy();
-    if (hcalEnergy/clus.energy() > maxHOverE_) return false;
-    LogInfo("") << "H/E criteria is satisfied ";
-  }
+//   if (mhbhe) {
+//     //cout << "calo position is eta-phi = " << clus.eta() << " " << clus.phi() << endl;
+//     CaloConeSelector sel(hOverEConeSize_, theCaloGeom.product(), DetId::Hcal);
+//     GlobalPoint pclu(clus.x(),clus.y(),clus.z());
+//     double hcalEnergy = 0.;
+//     std::auto_ptr<CaloRecHitMetaCollectionV> chosen=sel.select(pclu,*mhbhe);
+//     for (CaloRecHitMetaCollectionV::const_iterator i=chosen->begin(); i!=chosen->end(); i++) {
+//       //std::cout << HcalDetId(i->detid()) << " : " << (*i) << std::endl;
+//       hcalEnergy += i->energy();
+//     }
+  if (HoE > maxHOverE_) return false; //FIXME: passe dans tous les cas?
+  LogInfo("") << "H/E criteria is satisfied ";
+
   LogInfo("") << "electron has passed preselection criteria ";
   LogInfo("") << "=================================================";
   return true;  
 }  
-//**************************************************************************
-// all the following  is temporary, to be replaced by a method Track::seed()
-//**************************************************************************
-bool PixelMatchElectronAlgo::equal(edm::Ref<TrajectorySeedCollection> ts, const Track& t) {
-  // we have 2 valid rechits from the seed
-  // which we have to find in the track
-  // curiously, they are not the first ones...
-  typedef edm::OwnVector<TrackingRecHit> recHitContainer;
-  typedef recHitContainer::const_iterator const_iterator;
-  typedef std::pair<const_iterator,const_iterator> range;
-  range r=ts->recHits();
-  int foundHits=0;
-  for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) {
-    if ((*rhits).isValid()) {
-      for (unsigned int j=0;j<t.recHitsSize();j++) {
-	TrackingRecHitRef rh =t.recHit(j);
-	if (rh->isValid()) {
-	  if (compareHits((*rhits),(*rh))) {
-	    foundHits++;
-	    break;
-	  }
-	}
-      }
-    }
-  }
-  if (foundHits==2) return true;
-
-  return false;
-}
-
-bool PixelMatchElectronAlgo::compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const {
-  //FIXME: Teddy's class for comparison??
-       const float eps=.002;
-       return ((TMath::Abs(rh1.localPosition().x()-rh2.localPosition().x())<eps)
-		&& (TMath::Abs(rh1.localPosition().y()-rh2.localPosition().y())<eps)
-	       &&(TMath::Abs(rh1.localPosition().z()-rh2.localPosition().z())<eps));
-     }
-  
