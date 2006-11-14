@@ -49,6 +49,10 @@ class IslandClusterProducer : public edm::EDProducer
       std::string clustershapecollectionEB_;
       std::string clustershapecollectionEE_;
 
+      //BasicClusterShape AssociationMap
+      std::string barrelClusterShapeAssociation_;
+      std::string endcapClusterShapeAssociation_; 
+
       PositionCalc posCalculator_; // position calculation algorithm
       ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
       IslandClusterAlgo * island_p;
@@ -64,6 +68,7 @@ class IslandClusterProducer : public edm::EDProducer
                               const std::string& hitProducer,
                               const std::string& hitCollection,
                               const std::string& clusterCollection,
+			      const std::string& clusterShapeAssociation,
                               const IslandClusterAlgo::EcalPart& ecalPart);
 
       void outputValidationInfo(reco::BasicClusterRefVector &clusterRefVector);
