@@ -44,6 +44,7 @@ MaterialBudget(TString detector) {
      && theDetector!="TOB" && theDetector!="TEC" && theDetector!="TkStrct" 
      && theDetector!="PixBar" && theDetector!="PixFwdPlus" && theDetector!="PixFwdMinus" 
      && theDetector!="Tracker" && theDetector!="TrackerSum"
+     && theDetector!="Pixel" && theDetector!="Strip"
      ){
     cerr << "MaterialBudget - ERROR detector not found " << theDetector << endl;
     break;
@@ -52,7 +53,23 @@ MaterialBudget(TString detector) {
   
   // files
   theDetectorFileName = "matbdg_" + theDetector + ".root";
-  if(theDetector == "TrackerSum") theDetectorFileName = "matbdg_TIB.root";
+  unsigned int iFirst = 1;
+  unsigned int iLast  = 8;
+  if(theDetector == "TrackerSum") {
+    iFirst = 1;
+    iLast  = 8;
+    theDetectorFileName = "matbdg_TIB.root";
+  }
+  if(theDetector == "Pixel") {
+    iFirst = 6;
+    iLast  = 8;
+    theDetectorFileName = "matbdg_PixBar.root";
+  }
+  if(theDetector == "Strip") {
+    iFirst = 1;
+    iLast  = 4;
+    theDetectorFileName = "matbdg_TIB.root";
+  }
   cout << "*** Open file... " << endl;
   cout << theDetectorFileName << endl;
   cout << "***" << endl;
@@ -84,7 +101,7 @@ MaterialBudget(TString detector) {
   //
   if(theDetector=="TrackerSum") {
     TString subDetector = "TIB";
-    for(unsigned int i_detector=1; i_detector<=8; i_detector++) {
+    for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
       switch(i_detector) {
       case 1: {
 	subDetector = "TIDF";
