@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.13 2006/06/22 07:28:25 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.14 2006/07/27 07:13:42 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -60,17 +60,17 @@ namespace reco {
   struct CombinedMuonTag { };
 
   /// get default Track component
-  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, track );
+  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, track )
   /// get multuple tracks
-  GET_DEFAULT_CANDIDATE_MULTIPLECOMPONENTS( RecoCandidate, TrackRef, track, numberOfTracks );
+  GET_DEFAULT_CANDIDATE_MULTIPLECOMPONENTS( RecoCandidate, TrackRef, track, numberOfTracks )
   /// get stand-alone muon Track component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, standAloneMuon, StandAloneMuonTag );
+  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, standAloneMuon, StandAloneMuonTag )
   /// get combined muon Track component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, combinedMuon, CombinedMuonTag );
+  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, combinedMuon, CombinedMuonTag )
   /// get default SuperCluster component
-  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, SuperClusterRef, superCluster );
+  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, SuperClusterRef, superCluster )
   /// get default CaloTower component
-  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, CaloTowerRef, caloTower );
+  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, CaloTowerRef, caloTower )
   
 }
 
