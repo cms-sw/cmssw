@@ -38,6 +38,7 @@ class HybridClusterProducer : public edm::EDProducer
       std::string hitproducer_;
       std::string hitcollection_;
       std::string clustershapecollection_;
+      std::string clusterShapeAssociation_; //association map
 
       HybridClusterAlgo::DebugLevel debugL;
 
