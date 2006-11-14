@@ -1,6 +1,6 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
 //
-#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
+//#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
@@ -22,19 +22,15 @@ OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es
   
   seedClean_ = conf_.getParameter<bool>("outInSeedCleaning");
   // get nested parameter set for the TransientInitialStateEstimator
-
   edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
-
   theInitialState_       = new TransientInitialStateEstimator( es,  tise_params );
-  
-  //  theCkfTrajectoryBuilder_ = new CkfTrajectoryBuilder(conf_,es,theMeasurementTracker_);
-  
+
+  // Get the TrajectoryBuilder  
   std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
   edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
-
   es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
   theCkfTrajectoryBuilder_ = theTrajectoryBuilderHandle.product();
-
+  //
   theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
   
 
@@ -70,12 +66,13 @@ std::vector<Trajectory>  OutInConversionTrackFinder::tracks(const TrajectorySeed
 
 
   for(TrajectorySeedCollection::const_iterator iSeed=outInSeeds.begin(); iSeed!=outInSeeds.end();iSeed++){
-    
+
+    /*    
     std::cout << " OutInConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << std::endl;
     std::cout << " OutInConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << std::endl;
     std::cout << " OutInConversionTrackFinder::tracks seed  starting state para, vector  " << iSeed->startingState().parameters().vector() << std::endl;
     
-    
+    */
     
     std::vector<Trajectory> theTmpTrajectories;
 
@@ -102,9 +99,9 @@ std::vector<Trajectory>  OutInConversionTrackFinder::tracks(const TrajectorySeed
   
   for (std::vector<Trajectory>::const_iterator itraw = rawResult.begin(); itraw != rawResult.end(); itraw++) {
     if((*itraw).isValid()) {
-          unsmoothedResult.push_back( *itraw);
-	  tmpO.push_back( *itraw );
-	  std::cout << " rawResult num hits " << (*itraw).foundHits() << std::endl;
+      //  unsmoothedResult.push_back( *itraw);
+      tmpO.push_back( *itraw );
+      std::cout << " rawResult num hits " << (*itraw).foundHits() << std::endl;
     }
   }
   
@@ -123,19 +120,39 @@ std::vector<Trajectory>  OutInConversionTrackFinder::tracks(const TrajectorySeed
   for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
     std::cout << " OutInConversionTrackFinder  tmpO  num of hits " << (*it).foundHits() << std::endl; 
 
+
+  }
+
+  for (int i=tmpO.size()-1; i>=0; i--) {
+    unsmoothedResult.push_back(  tmpO[i] );  
+  }
+  std::cout << " OutInConversionTrackFinder  unsmoothedResult size  " <<  unsmoothedResult.size() << std::endl;   
+
+  for (std::vector<Trajectory>::const_iterator it =  unsmoothedResult.begin(); it !=  unsmoothedResult.end(); it++) {
+    std::cout << " OutInConversionTrackFinder  unsmoothedResult  after reordering " <<(*it).foundHits() <<  std::endl; 
+
   }
 
 
-  if ( tmpO.size() ) {
-    vector<Trajectory>::iterator it=tmpO.begin();
+
+  if ( unsmoothedResult.size() ) {
+    vector<Trajectory>::iterator it=unsmoothedResult.begin();
 
     // only send out the two best tracks 
     result.push_back(*it);      
-    if ( tmpO.size() > 1) result.push_back(*(++it));
+    if ( unsmoothedResult.size() > 1) result.push_back(*(++it));
   }
 
 
-  std::cout << "  Returning " << tmpO.size() << " Out In Tracks " << std::endl;
+
+
+  for (std::vector<Trajectory>::const_iterator it =result.begin(); it != result.end(); it++) {
+    std::cout << " OutInConversionTrackFinder  Result  num of hits " << (*it).foundHits() << std::endl; 
+
+  }
+
+
+  std::cout << "  Returning " << result.size() << " Out In Tracks " << std::endl;
   return result;
 
 }
