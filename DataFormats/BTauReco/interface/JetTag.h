@@ -25,9 +25,7 @@ namespace reco {
     double discriminator () const { return m_discriminator; }  
     const Jet & jet() const { return *m_jetTracksAssociation->key; }
     const edm::RefVector<TrackCollection> & tracks() const { return m_jetTracksAssociation->val; } 
-const JetTracksAssociationRef& jtaRef() const {
-  return m_jetTracksAssociation;
-}
+    const JetTracksAssociationRef& jtaRef() const { return m_jetTracksAssociation; }
 
   private:
     double m_discriminator;

@@ -1,22 +1,30 @@
+#include <utility>
+#include <vector>
+
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 // #include "DataFormats/Common/interface/OneToValue.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
 #include "DataFormats/BTauReco/interface/TrackTauImpactParameterAssociation.h"
 #include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
 
 namespace {
   namespace {
+    std::vector<unsigned int> pp8;
+    std::pair<unsigned int, unsigned int> pp1;
     std::pair<unsigned int, std::vector<unsigned int> > pair_vec;
+    std::map<unsigned long, std::vector<unsigned long> > m1;
+    
+    edm::RefProd<reco::CaloJetCollection> rpj1;
     
     reco::JetTagCollection v1;
     edm::Wrapper<reco::JetTagCollection> w1;
@@ -62,8 +70,11 @@ namespace {
     edm::RefVector<reco::IsolatedTauTagInfoCollection> rv5;
 
     reco::SoftLeptonProperties ext1;
-    std::pair<unsigned int, reco::SoftLeptonProperties> ext_pair1;
-    edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, reco::SoftLeptonProperties, unsigned int> > ext_map1; 
+    std::pair<reco::TrackRef, reco::SoftLeptonProperties> ep1;
+    std::vector<std::pair<reco::TrackRef, reco::SoftLeptonProperties> > em1;
+    //std::pair<unsigned int, reco::SoftLeptonProperties> ep1;
+    //edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, reco::SoftLeptonProperties, unsigned int> > em1;
+
     reco::SoftLeptonTagInfoCollection v6;
     edm::Wrapper<reco::SoftLeptonTagInfoCollection> w6;
     edm::Ref<reco::SoftLeptonTagInfoCollection> r6;
@@ -83,11 +94,5 @@ namespace {
     reco::JetEisolAssociationRef r8;
     reco::JetEisolAssociationRefProd rp8;
     reco::JetEisolAssociationRefVector rv8;
-
-    std::pair<unsigned int, unsigned int> pp1;
-    std::vector<unsigned int> pp8;
-    std::map<unsigned long, std::vector<unsigned long> > m1;
-    edm::RefProd<reco::CaloJetCollection> rpj1;
-
   }
 }

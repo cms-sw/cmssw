@@ -39,10 +39,14 @@
   <class name="edm::RefVector<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo> >" />
 
   <class name="reco::SoftLeptonProperties" />
+  <class name="std::pair< edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >, reco::SoftLeptonProperties >" />
+  <class name="std::vector< std::pair< edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >, reco::SoftLeptonProperties > >" />
+  <!--
   <class name="std::pair<unsigned int, reco::SoftLeptonProperties>" />
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, reco::SoftLeptonProperties, unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
+  -->
   <class name="reco::SoftLeptonTagInfo" />
   <class name="std::vector<reco::SoftLeptonTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::SoftLeptonTagInfo> >" />
