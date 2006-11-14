@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.1 $
- *  $Date: 2006/10/20 13:57:03 $
+ *  $Revision: 1.2 $
+ *  $Date: 2006/11/07 10:45:09 $
  *  (last update by $Author: flucke $)
  */
 
@@ -23,7 +23,11 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
 #include "Mille.h"       // 'unpublished' interface located in src
 #include "PedeSteerer.h" // dito
+#include "PedeReader.h" // dito
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
+
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariablesIORoot.h"
 
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // Algebraic matrices
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
@@ -74,20 +78,62 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   // get alignables
   theAlignables = theAlignmentParameterStore->alignables();
 
-  theMille = new Mille(theConfig.getParameter<std::string>("binaryFile").c_str());
-  const std::string monitorFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
-  if (!monitorFile.empty()) {
-    theMonitor = new MillePedeMonitor(monitorFile.c_str());
-  }
   thePedeSteer = new PedeSteerer(tracker, theAlignmentParameterStore,
-				 theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
+                                 theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
+
+  AlignmentIORoot aliIO;
+  const std::string file(theConfig.getParameter<std::string>("treeFile"));
+  // pedeOut defines whether alignment should be read in from pede output or produced from tracks
+  const std::string pedeOut(theConfig.getUntrackedParameter<std::string>("pedeOut"));
+  if (pedeOut.empty()) {
+    theMille = new Mille(theConfig.getParameter<std::string>("binaryFile").c_str());
+    const std::string monitorFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
+    if (!monitorFile.empty()) {
+      theMonitor = new MillePedeMonitor(monitorFile.c_str());
+    }
+    const int loop = 0;
+    int ioerr = 0;
+    aliIO.writeAlignableOriginalPositions(theAlignables, file.c_str(), loop, false, ioerr);
+    if (ioerr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+                                          << "problem " << ioerr 
+                                          << " in writeAlignableOriginalPositions";
+    // get misalignment parameters and write to root file
+    aliIO.writeAlignmentParameters(theAlignables, file.c_str(), loop, false, ioerr);
+    if (ioerr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+                                          << "problem " << ioerr << " writeAlignmentParameters";
+
+
+  } else {
+    // FIXME: initialise everything despite of reading in from pede for pede internal iterations?
+    if (this->readFromPede(pedeOut)) {
+      edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+                                << "read successfully from " << pedeOut;
+      const int loop = 1;
+      int ierr = 0;
+      MillePedeVariablesIORoot millePedeIO;
+      millePedeIO.writeMillePedeVariables(theAlignables, file.c_str(), loop, false, ierr);
+      if (ierr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+                                           << "error " << ierr << " writing MillePedeVariables";
+      // get misaligned positions and write to root file
+      aliIO.writeAlignableAbsolutePositions(theAlignables, file.c_str(), loop, false, ierr);
+      if (ierr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+                                           << "problem " << ierr 
+                                           << " in writeAlignableAbsolutePositions";
+      aliIO.writeAlignmentParameters(theAlignables, file.c_str(), loop, false, ierr);
+      if (ierr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+                                           << "problem " << ierr << " writeAlignmentParameters";
+    } else {
+      edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+                                 << "problems reading from " << pedeOut;
+    }
+  }
+
 }
 
 // Call at end of job ---------------------------------------------------------
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::terminate()
 {
-
   // FIXME: should we delete here or in destructor?
   delete theAlignableNavigator;
   theAlignableNavigator = 0;
@@ -202,7 +248,7 @@ int MillePedeAlignmentAlgorithm::globalDerivatives(const ConstRecHitPointer &rec
   }
 
   // get relevant Alignable
-  const Alignable *ali = theAlignmentParameterStore->alignableFromAlignableDet(alidet);
+  Alignable *ali = theAlignmentParameterStore->alignableFromAlignableDet(alidet);
   if (!ali) { // FIXME: if not selected to be aligned? need regardAllHits, cf. below?
     // happens e.g. for pixel alignables if pixel not foreseen to be aligned
     const GlobalPoint posDet(alidet->globalPosition());
@@ -293,7 +339,7 @@ MillePedeAlignmentAlgorithm::getMagneticField(const edm::EventSetup &setup) //co
 
 
 //____________________________________________________
-void MillePedeAlignmentAlgorithm::recursiveFillLabelHist(const Alignable *ali) const
+void MillePedeAlignmentAlgorithm::recursiveFillLabelHist(Alignable *ali) const
 {
 
   while (ali) {
@@ -301,4 +347,22 @@ void MillePedeAlignmentAlgorithm::recursiveFillLabelHist(const Alignable *ali) c
     if (theMonitor) theMonitor->fillDetLabel(aliLabel);
     ali = ali->mother();
   }
+}
+
+//__________________________________________________________________________________________________
+bool MillePedeAlignmentAlgorithm::readFromPede(const std::string &pedeOutName)
+{
+
+  PedeReader reader(pedeOutName.c_str(), *thePedeSteer);
+  std::vector<Alignable*> alis;
+  bool okRead = reader.read(alis);
+
+  if (!okRead || alis.size() != theAlignables.size()) {
+    edm::LogWarning("Alignment") << "@SUB=readFromPede"
+                                 << "read " << alis.size() << " alignables, while " 
+                                 << theAlignables.size() << " in store, read " 
+                                 << (okRead ? "OK" : "not OK");
+  }
+  
+  return okRead;
 }
