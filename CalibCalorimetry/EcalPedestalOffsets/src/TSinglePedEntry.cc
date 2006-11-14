@@ -1,6 +1,7 @@
 
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TSinglePedEntry.h"
 #include <iostream>
+#include <cmath>
 
 TSinglePedEntry::TSinglePedEntry () : 
   m_pedestalSqSum (0),
