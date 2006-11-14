@@ -129,7 +129,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
        // see if it's close enough to the boundary that we have to throw noise
        if(addNoise_ && (signal <= maxADC[igain]+threeSigmaADCNoise[igain]) ) {
          // width is the actual final noise, subtract the additional one from the trivial quantization
-         double trueRMS = sqrt(widths[igain]*widths[igain]-1./12.);
+         double trueRMS = std::sqrt(widths[igain]*widths[igain]-1./12.);
          ///ped = RandGauss::shoot(ped, trueRMS);
          ped = ped + trueRMS*noiseframe[i];
          signal = ped + caloSamples[i] / LSB[igain];
