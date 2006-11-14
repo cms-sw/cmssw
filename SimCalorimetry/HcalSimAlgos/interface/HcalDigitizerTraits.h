@@ -4,6 +4,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 
 class HBHEDigitizerTraits {
+public:
   typedef HBHEDigiCollection DigiCollection;
   typedef HBHEDataFrame Digi;
   typedef HcalElectronicsSim ElectronicsSim;
@@ -11,6 +12,7 @@ class HBHEDigitizerTraits {
 
 
 class HODigitizerTraits {
+public:
   typedef HODigiCollection DigiCollection;
   typedef HODataFrame Digi;
   typedef HcalElectronicsSim ElectronicsSim;
@@ -18,6 +20,7 @@ class HODigitizerTraits {
 
 
 class HFDigitizerTraits {
+public:
   typedef HFDigiCollection DigiCollection;
   typedef HFDataFrame Digi;
   typedef HcalElectronicsSim ElectronicsSim;

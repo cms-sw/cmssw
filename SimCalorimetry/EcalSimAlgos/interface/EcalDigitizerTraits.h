@@ -10,6 +10,7 @@
  *
  */
 class EBDigitizerTraits {
+public:
   /// the digis collection
   typedef EBDigiCollection DigiCollection;
   /// the dataframes
@@ -24,6 +25,7 @@ class EBDigitizerTraits {
  *
  */
 class EEDigitizerTraits {
+public:
   /// the digis collection
   typedef EEDigiCollection DigiCollection;
   /// the dataframes
@@ -38,6 +40,7 @@ class EEDigitizerTraits {
  *
  */
 class ESDigitizerTraits {
+public:
   /// the digis collection
   typedef ESDigiCollection DigiCollection;
   /// the dataframes
