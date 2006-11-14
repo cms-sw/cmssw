@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.2 2006/08/22 22:09:41 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.3 2006/09/29 08:11:58 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -87,8 +87,13 @@ void SiStripHistoricInfoClient::endRun()
   for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
      cout<<"      ++++++detid  "<<imapmes->first<<endl;
      vector<MonitorElement*> locvec = imapmes->second;
+     DaqMonitorBEInterface * dbe_ = mui_->getBEInterface();
+     vector<MonitorElement*> tagged_mes = dbe_->get(imapmes->first);
      for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
        cout<<"          ++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
+     }
+     for(vector<MonitorElement*>::const_iterator imep = tagged_mes.begin(); imep != tagged_mes.end() ; imep++){
+       cout<<"tagged_mes++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
      }
   }
   cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
