@@ -41,9 +41,12 @@ namespace edm {
       virtual std::string type() const = 0;
 
       virtual void  setParent(Node*  parent) { parent_ = parent;}
-      virtual Node* getParent() { return parent_; }
+      virtual Node* getParent() const { return parent_; }
       /// leaf nodes won't do anything
       virtual void setAsChildrensParent() {}
+
+      /// shows a dot-delimited path of all modules & PSets including this Node
+      virtual void dotDelimitedPath(std::string & path) const;
       /// Shows where this was included from
       /// default passes up to parent
       virtual void printTrace(std::ostream& ost) const;

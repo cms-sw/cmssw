@@ -19,6 +19,10 @@ namespace edm {
       virtual std::string type() const {return type_;}
       virtual Node * clone() const { return new IncludeNode(*this);}
       virtual void accept(Visitor& v) const;
+
+     /// IncludeNodes don't add their names to the path
+      virtual void dotDelimitedPath(std::string & path) const;
+
       virtual void print(std::ostream & ost, PrintOptions options) const;
 
       /// prints file and line number, and passes up

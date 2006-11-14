@@ -27,6 +27,17 @@ namespace edm {
     }
 
 
+    void IncludeNode::dotDelimitedPath(std::string & path) const
+    {
+      // don't add your name
+      Node * parent = getParent();
+      if(parent != 0)
+      {
+        parent->dotDelimitedPath(path);
+      }
+    }
+
+
     void IncludeNode::print(std::ostream & ost, Node::PrintOptions options) const
     {
       // if it's modified, we have to print out everything

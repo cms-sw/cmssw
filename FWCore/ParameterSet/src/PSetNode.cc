@@ -28,6 +28,17 @@ namespace edm {
 
     string PSetNode::type() const { return type_; }
 
+
+    void PSetNode::dotDelimitedPath(std::string & path) const
+    {
+      // processes don't add their names to the path
+      if(type() != "process")
+      {
+        CompositeNode::dotDelimitedPath(path);
+      }
+    }
+
+
     void PSetNode::print(ostream& ost, Node::PrintOptions options) const
     {
       const char* t = !tracked_ ? "" : "untracked ";

@@ -31,6 +31,22 @@ namespace edm {
     }
 
 
+    void Node::dotDelimitedPath(std::string & path) const
+    {
+      if(!path.empty())
+      {
+        path.insert(0, ".");
+      }
+      path.insert(0, name());
+
+      // add parents, if any
+      if(parent_ != 0)
+      {
+        parent_->dotDelimitedPath(path);
+      }
+    }
+
+
     void Node::printTrace(std::ostream & out) const 
     {
       // default behavior is to pass the message up to the parent,

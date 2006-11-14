@@ -17,6 +17,9 @@ namespace edm {
       virtual Node * clone() const { return new PSetNode(*this);}
       virtual std::string type() const;
       bool isTracked() const {return tracked_;}
+
+      /// if it's the process, don't add your name to the path
+      virtual void dotDelimitedPath(std::string & path) const;
       virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual bool isModified() const;
 
