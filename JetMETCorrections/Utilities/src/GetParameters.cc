@@ -7,5 +7,5 @@ using namespace std;
 class KtParam;
 class JetParameters;
 
-GetParameters::GetParameters(JetParameters a){theJetPar = a;};
+GetParameters::GetParameters(JetParameters a){theJetPar = a;}
 

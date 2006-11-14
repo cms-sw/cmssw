@@ -64,7 +64,7 @@ double ParametrizationTauJet::value(double et, double eta)const{
     break;
   }
   return etnew;
-};
+}
 
 class   JetCalibrationParameterSetTauJet{
 public:

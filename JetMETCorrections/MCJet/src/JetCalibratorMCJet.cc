@@ -68,7 +68,7 @@ double ParametrizationMCJet::value(double e)const{
     break;
   }
   return enew;
-};
+}
 
 class   JetCalibrationParameterSetMCJet{
 public:

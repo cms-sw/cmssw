@@ -92,7 +92,7 @@ double ParametrizationJetParton::value(double e, double eta)const{
     break;
   }
   return enew;
-};
+}
 
 class   JetPartonCalibrationParameterSet{
  public:
