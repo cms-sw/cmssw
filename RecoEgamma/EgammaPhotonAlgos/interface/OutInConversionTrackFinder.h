@@ -3,9 +3,9 @@
 /** \class OutInConversionTrackFinder
  **  
  **
- **  $Id: OutInConversionTrackFinder.h,v 1.2 2006/06/23 14:19:13 nancy Exp $ 
- **  $Date: 2006/06/23 14:19:13 $ 
- **  $Revision: 1.2 $
+ **  $Id: OutInConversionTrackFinder.h,v 1.3 2006/07/10 17:57:18 nancy Exp $ 
+ **  $Date: 2006/07/10 17:57:18 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -26,7 +26,7 @@
 //
 
 class MagneticField;
-class CkfTrajectoryBuilder;
+class TrackerTrajectoryBuilder;
 class KFUpdator;
 class TrajectoryCleanerBySharedHits;
 class TransientInitialStateEstimator;
@@ -44,7 +44,7 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
    
   
   
-  //  virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const;
+  // virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const ;
   virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const;
 
 
@@ -57,7 +57,7 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
  private: 
 
   edm::ParameterSet                         conf_;
-  CkfTrajectoryBuilder*  theCkfTrajectoryBuilder_;
+  const TrackerTrajectoryBuilder*  theCkfTrajectoryBuilder_;
   KFUpdator*                          theUpdator_;
   TrajectoryCleanerBySharedHits* theTrajectoryCleaner_;
  
