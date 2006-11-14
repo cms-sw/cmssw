@@ -58,6 +58,7 @@ namespace { namespace {
   edm::Wrapper<std::map<unsigned long, std::vector<unsigned long> > > dymmywmv1;
   edm::Wrapper<std::map<unsigned int, std::vector<unsigned int> > > dymmywmv2;
   edm::Wrapper<std::map<unsigned short, std::vector<unsigned short> > > dymmypwmv3;
+  edm::Wrapper<std::map<unsigned int, float> > dummyypwmv4;
 
   edm::Wrapper<unsigned long> dummyw1;
   edm::Wrapper<unsigned int> dummyw2;

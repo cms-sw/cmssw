@@ -45,6 +45,7 @@
  <class name="std::map<unsigned long, unsigned long>"/>
  <class name="std::map<unsigned int, unsigned int>"/>
  <class name="std::map<unsigned short, unsigned short>"/>
+ <class name="std::map<unsigned int, float>"/>
  <class name="std::map<unsigned long, std::vector<unsigned long> >"/>
  <class name="std::map<unsigned int, std::vector<unsigned int> >"/>
  <class name="std::map<unsigned short, std::vector<unsigned short> >"/>
@@ -76,6 +77,7 @@
  <class name="edm::Wrapper<std::map<unsigned long, unsigned long> >"/>
  <class name="edm::Wrapper<std::map<unsigned int, unsigned int> >"/>
  <class name="edm::Wrapper<std::map<unsigned short, unsigned short> >"/>
+ <class name="edm::Wrapper<std::map<unsigned int, float> >"/>
  <class name="edm::Wrapper<std::map<unsigned long, std::vector<unsigned long> > >"/>
  <class name="edm::Wrapper<std::map<unsigned int, std::vector<unsigned int> > >"/>
  <class name="edm::Wrapper<std::map<unsigned short, std::vector<unsigned short> > >"/>
