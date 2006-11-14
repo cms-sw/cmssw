@@ -74,13 +74,15 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection* a
   //  Loop over the Basic Clusters  in the event looking for seeds 
   reco::BasicClusterCollection::const_iterator bcItr;
   for(bcItr = allBC->begin(); bcItr != allBC->end(); bcItr++) {
+    theBCEnergy_=bcItr->energy();
+    if ( theBCEnergy_ < 1.5 ) continue;
 
     theBCPosition_ = GlobalPoint(bcItr->position().x(), bcItr->position().y(), bcItr->position().z() ) ;
-    theBCEnergy_=bcItr->energy();
+   
    
     float theBcEta=  theBCPosition_.eta();
     float theBcPhi=  theBCPosition_.phi();
-    std::cout << " BC eta  " << theBcEta << " phi " <<  theBcPhi << std::endl;
+    std::cout << " BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << std::endl;
 
 
 
@@ -132,12 +134,11 @@ FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const
   HepPoint3D radiusBc(gvBcRadius.x(),gvBcRadius.y(),gvBcRadius.z()) ;
   HepPoint3D momentumWithoutCurvature = radiusBc.unit() * theBCEnergy_ ;
 
-
   // compute momentum direction at calo
   double curvature = theMF_->inTesla(theBCPosition_).z() * c_light * 1.e-3 / momentumWithoutCurvature.perp() ;
   curvature /= 100. ; // in cm-1 !!
 
-
+  //  cout << " OutInConversionSeedFinder::makeTrackState gpOrigine " << gpOrigine.x() << " " <<  gpOrigine.y() << " " <<  gpOrigine.z() << " momentumWithoutCurvature" << momentumWithoutCurvature << " curvature " << curvature << std::endl;
 
   // define rotation angle
   float R = theBCPosition_.perp();
@@ -146,14 +147,26 @@ FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const
   // from the formula for the intersection of two circles
   // turns out to be about 2/3 of the deflection of the old formula
   float d = sqrt(r*r+rho*rho);
-  float u = rho + rho/d/d*(R*R-rho*rho) - r/d/d*sqrt((R*R-r*r+2*rho*R)*(r*r-R*R+2*rho*R));
+  float u = rho + rho/d/d*(R*R-rho*rho) - r/d/d*sqrt((R*R-r*r+2*rho*R)*(R*R-r*r+2*rho*R));
+
   double newdphi = charge * asin(0.5*u/R);
 
+  //  std::cout << " OutInConversionSeedFinder::makeTrackState charge " << charge << " u/R " << u/R << " asin(0.5*u/R) " << asin(0.5*u/R) << std::endl;
+
   HepTransform3D rotation =  HepRotate3D(newdphi, HepVector3D(0., 0. ,1.));
+
+
   HepPoint3D momentumInTracker = momentumWithoutCurvature.transform(rotation) ;
+  //  cout << " OutInConversionSeedFinder::makeTrackState  R " << R << " r " << r << " rho " << rho  << " d " << d  << " u " << u << " newdphi " << newdphi << " momentumInTracker " <<  momentumInTracker << std::endl;
+
   HepPoint3D hepStartingPoint(gpOrigine.x(), gpOrigine.y(), gpOrigine.z()) ;
+
+  //  cout << " OutInConversionSeedFinder::makeTrackState hepStartingPoint " << hepStartingPoint << std::endl;
+
   hepStartingPoint.transform(rotation);
+
   GlobalPoint startingPoint(hepStartingPoint.x(), hepStartingPoint.y(), hepStartingPoint.z());
+
   cout << " OutInConversionSeedFinder::makeTrackState startingPoint " << startingPoint << " calo position " << theBCPosition_ << endl;
   GlobalVector gvTracker(momentumInTracker.x(), momentumInTracker.y(), momentumInTracker.z());
   GlobalTrajectoryParameters gtp(startingPoint, gvTracker, charge, theMF_);
@@ -280,6 +293,7 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
   MeasurementEstimator * newEstimator=0;
   const DetLayer * layer = theLayerList_[ilayer];
   //cout << "no. hits on layer: " << layer->recHits().size() << endl;
+
   if ( layer->location() == GeomDetEnumerators::barrel ) {
     // z error for 2nd hit is  2 sigma quadded with 5 cm
     std::cout << " Barrel OutInConversionSeedFinder::completeSeed " << the2ndHitdznSigma_ << " " << the2ndHitdzConst_ << " " << the2ndHitdphi_ << std::endl;
@@ -344,6 +358,7 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 
   if ( state1.isValid() ) {
     TrajectoryStateOnSurface updatedState1 = theUpdator_.update(state1,  *m1.recHit() );
+
     if ( updatedState1.isValid() ) {
       TrajectoryStateOnSurface state2 = thePropagatorWithMaterial_.propagate(*updatedState1.freeTrajectoryState(),  m2.recHit()->det()->surface());
 
@@ -352,13 +367,7 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 	TrajectoryStateOnSurface updatedState2 = theUpdator_.update(state2, *m2.recHit() );
 	TrajectoryMeasurement meas1(state1, updatedState1,  m1.recHit()  , m1.estimate(), m1.layer());
 	TrajectoryMeasurement meas2(state2, updatedState2,  m2.recHit()  , m2.estimate(), m2.layer());
-
-
-
-
-	//	vector<TrajectoryMeasurement> measurements;
-	//measurements.push_back(meas1);
-	//measurements.push_back(meas2);
+	
         edm::OwnVector<TrackingRecHit> myHits;
 	myHits.push_back(meas1.recHit()->hit()->clone());
 	myHits.push_back(meas2.recHit()->hit()->clone());
@@ -368,7 +377,6 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 	//	InwardSeed * seed = new InwardSeed(measurements, theBasicCluster, oppositeToMomentum);
 	//  cout << " InwardConversionSeedFinder seed direction " << seed->direction() << endl;
 	TrajectoryStateTransform tsTransform;
-
 	PTrajectoryStateOnDet* ptsod= tsTransform.persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
 	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, oppositeToMomentum )); 
       }
