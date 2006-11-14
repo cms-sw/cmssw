@@ -16,7 +16,7 @@ std::pair<bool,double> ConversionBarrelEstimator::estimate( const TrajectoryStat
 						       const TransientTrackingRecHit& hit) const {
   std::pair<bool,double> result;
   
-  std::cout << "  ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, const TransientTrackingRecHit& hit) " << std::endl;
+  //std::cout << "  ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, const TransientTrackingRecHit& hit) " << std::endl;
  
   float tsPhi = ts.globalParameters().position().phi();
   GlobalPoint gp = hit.globalPosition();
@@ -67,38 +67,32 @@ std::pair<bool,double> ConversionBarrelEstimator::estimate( const TrajectoryStat
 
 bool ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 						       const BoundPlane& plane) const {
+  
   typedef     std::pair<float,float>   Range;
-
-
-
-
+  //  std::cout << "  ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, const BoundPlane& plane) " << std::endl;
 
   GlobalPoint trajPos(ts.globalParameters().position());
   GlobalDetRangeZPhi detRange(plane);
   Range trajZRange(trajPos.z() - 2.*theZRangeMax, trajPos.z() + 2.*theZRangeMax);
   Range trajPhiRange(trajPos.phi() + thePhiRangeMin, trajPos.phi() + thePhiRangeMax);
 
-  
-
 
    if(rangesIntersect(trajZRange, detRange.zRange()) &&
       rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess())) {
-   
+     //     std::cout << "   ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, const BoundPlane& plane)  IN RANGE " << std::endl;  
     return true;   
 
 
 
   } else {
 
-
+    //    std::cout << "   ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, const BoundPlane& plane) NOT IN RANGE " << std::endl;  
     return false;
 
   }
 
 
 }
-
-
 
 
 MeasurementEstimator::Local2DVector
@@ -111,9 +105,9 @@ ConversionBarrelEstimator::maximalLocalDisplacement( const TrajectoryStateOnSurf
   
   if ( ts.hasError() ) {
     LocalError le = ts.localError().positionError();
-    std::cout << "  ConversionBarrelEstimator::maximalLocalDisplacent local error " << le.xx() << " " << le.yy() << std::endl;
-    //return Local2DVector( sqrt(le.xx())*nSigmaCut(), sqrt(le.yy())*nSigmaCut());
-    return Local2DVector( sqrt(le.xx()), sqrt(le.yy()) );
+    //    std::cout << "  ConversionBarrelEstimator::maximalLocalDisplacent local error " << le.xx() << " " << le.yy() << std::endl;
+    return Local2DVector( sqrt(le.xx())*nSigmaCut(), sqrt(le.yy())*nSigmaCut());
+    //    return Local2DVector( sqrt(le.xx()), sqrt(le.yy()) );
   }
   else return Local2DVector(0,0);
  
