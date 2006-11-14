@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/11/08 00:33:27 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/11/08 17:42:17 $
+ *  $Revision: 1.14 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -187,7 +187,7 @@ bool CosmicMuonSeedGenerator::checkQuality(const MuonRecHitPointer& hit) const {
   // only use 4D segments
   if ( !hit->isValid() ) return false;
 
-  if (hit->degreesOfFreedom() < 4) {
+  if (hit->dimension() < 4) {
     LogDebug("CosmicMuonSeedGenerator")<<"dim < 4";
     return false;
   }
