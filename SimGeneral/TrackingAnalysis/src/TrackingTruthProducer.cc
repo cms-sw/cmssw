@@ -8,9 +8,6 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthProducer.h"
 
@@ -88,34 +85,16 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   }  
   const HepMC::GenEvent *genEvent = mcp -> GetEvent();
    
-  edm::Handle<SimVertexContainer>      G4VtxContainer;
-  edm::Handle<edm::SimTrackContainer>  G4TrkContainer;
   edm::Handle<CrossingFrame> cf;
-//  try {
+  try {
     event.getByType(cf);      
-    std::auto_ptr<MixCollection<SimTrack> >  trackCollection  (new MixCollection<SimTrack>(cf.product()));
-    std::auto_ptr<MixCollection<SimVertex> > vertexCollection (new MixCollection<SimVertex>(cf.product()));
-    event.getByType(G4VtxContainer);
-    event.getByType(G4TrkContainer);
-//  } catch (std::exception &e) {
-//    edm::LogWarning (MessageCategory) << "Geant tracks and/or vertices not found.";
-//    return;
-//  }    
-
-//  vector<edm::Handle<edm::PSimHitContainer> > AlltheConteiners;
-//  for (vector<string>::const_iterator source = hitLabelsVector_.begin(); source !=
-//      hitLabelsVector_.end(); ++source){
-//      try{ 
-//      edm::Handle<edm::PSimHitContainer> HitContainer;
-//      event.getByLabel(simHitLabel_,*source, HitContainer);
-//      AlltheConteiners.push_back(HitContainer);
-//      } catch (std::exception &e) {
-//      
-//    }
-//      
-//  }   
-
-//   vector<std::auto_ptr<MixCollection<PSimHit> > > hitCollections;
+  } catch (std::exception &e) {
+    edm::LogWarning (MessageCategory) << "Crossing frame not found.";
+    return;
+  }    
+  std::auto_ptr<MixCollection<SimTrack> >   trackCollection (new MixCollection<SimTrack>(cf.product()));
+  std::auto_ptr<MixCollection<SimVertex> > vertexCollection (new MixCollection<SimVertex>(cf.product()));
+  std::auto_ptr<MixCollection<PSimHit> >      hitCollection (new MixCollection<PSimHit>(cf.product(),hitLabelsVector_));
 
 //  genEvent.print();
 //  genEvent ->  signal_process_id();
@@ -137,73 +116,69 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   map<int,int> g4T_G4SourceV; // Map of SimTrack to (source) SimVertex index
   
   int iG4Track = 0;
-//  edm::SimTrackContainer::const_iterator itP;
   for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin(); itP !=  trackCollection->end(); ++itP){
-    float q = itP -> charge();
-    CLHEP::HepLorentzVector p = itP -> momentum();
+    float                     q = itP -> charge();
+    CLHEP::HepLorentzVector   p = itP -> momentum();
+    unsigned int     simtrackId = itP -> trackId();
+    EncodedEventId trackEventId = itP -> eventId(); 
+    int                 genPart = itP -> genpartIndex();
+    int                 genVert = itP -> vertIndex(); // Is this a HepMC vertex # or GenVertex #?
+    
+    bool signalEvent = (trackEventId.event() == 0 && trackEventId.bunchCrossing() == 0);
     const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
-    double time =  0; 
-    int pdgId = 0;
-    EncodedEventId trackEventId = itP->eventId(); 
+    double  time = 0; 
+    int    pdgId = 0;
+
     const HepMC::GenParticle * gp = 0;       
-    int genPart = itP -> genpartIndex();
-    if (genPart >= 0) {
+
+    if (genPart >= 0 && signalEvent) {
       gp = genEvent -> barcode_to_particle(genPart);  //pointer to the generating part.
       pdgId = gp -> pdg_id();
     }
+    
     math::XYZPoint theVertex;
-    // = Point(0, 0, 0);
-    int genVert = itP -> vertIndex(); // Is this a HepMC vertex # or GenVertex #?
     if (genVert >= 0){
       g4T_G4SourceV.insert(pair<int,int>(iG4Track,genVert));
-      const SimVertex &gv = (*G4VtxContainer)[genVert];
-      const CLHEP::HepLorentzVector &v = gv.position();
-      theVertex = math::XYZPoint(v.x(), v.y(), v.z());
-      time = v.t(); 
+//      const SimVertex &gv = (*G4VtxContainer)[genVert];
+//      const CLHEP::HepLorentzVector &v = gv.position();
+//      theVertex = math::XYZPoint(v.x(), v.y(), v.z());
+//      time = v.t(); 
     }
 
     TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, trackEventId);
     
-    typedef vector<std::auto_ptr<MixCollection<PSimHit> > >::const_iterator cont_iter;
-
-    //count the TP simhit, counting only once the hits on glued detectors
+// Counting the TP hits using the layers (as in ORCA). 
+// Does seem to find less hits. maybe b/c layer is a number now, not a pointer
     int totsimhit = 0; 
-
-    //counting the TP hits using the layers (as in ORCA). 
-    //does seem to find less hits. maybe b/c layer is a number now, not a pointer
     int oldlay = 0;
     int newlay = 0;
     int olddet = 0;
     int newdet = 0;
 
-    unsigned int simtrackId = itP -> trackId();
-    try{ 
-      std::auto_ptr<MixCollection<PSimHit> > hitCollection (new MixCollection<PSimHit>(cf.product(),hitLabelsVector_));
-      for (MixCollection<PSimHit>::MixItr hit = hitCollection->begin(); 
-           hit != hitCollection->end(); ++hit) {
-        if (simtrackId == hit->trackId() && trackEventId == hit->eventId() ) {
-	  float pratio = hit->pabs()/(itP->momentum().v().mag());
-	  
-	  if (!discardHitsFromDeltas_ || ( discardHitsFromDeltas_ &&  0.5 < pratio && pratio < 2) ) {  
-	    edm::LogInfo (MessageCategory) << " Hit is from " << hit -> detUnitId();
-	    tp.addPSimHit(*hit);
-	    unsigned int detid = hit->detUnitId();	
-	    DetId detId = DetId(detid);
-	    oldlay = newlay;
-	    olddet = newdet;
-	    newlay = LayerFromDetid(detid);
-	    newdet = detId.subdetId();
-	    if(oldlay !=newlay || (oldlay==newlay && olddet!=newdet) ){
-	      totsimhit++;
-	    }
-          }
-        } 
-      }
-      tp.setMatchedHit(totsimhit);
+    for (MixCollection<PSimHit>::MixItr hit = hitCollection -> begin(); 
+         hit != hitCollection -> end(); ++hit) {
+      if (simtrackId == hit->trackId() && trackEventId == hit->eventId() ) {
+	float pratio = hit->pabs()/(itP->momentum().v().mag());
+        
+// Discard hits from delta rays if requested        
+	
+        if (!discardHitsFromDeltas_ || ( discardHitsFromDeltas_ &&  0.5 < pratio && pratio < 2) ) {  
+	  tp.addPSimHit(*hit);
+	  unsigned int detid = hit->detUnitId();      
+	  DetId detId = DetId(detid);
+	  oldlay = newlay;
+	  olddet = newdet;
+	  newlay = LayerFromDetid(detid);
+	  newdet = detId.subdetId();
 
-    } catch (std::exception &e) {
-      edm::LogWarning (MessageCategory) << "Hit collection not found.";
-    }   
+// Count hits using layers for glued detectors
+           
+	  if (oldlay != newlay || (oldlay==newlay && olddet!=newdet) ) {
+	    totsimhit++;
+	  }
+        }
+      }
+    }
    
     tp.addG4Track(*itP);
     if (genPart >= 0) {
@@ -233,9 +208,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     int vertexBarcode = 0;       
     unsigned int vtxParent = itVtx -> parentIndex();    
     if (vtxParent >= 0) {                      
-      edm::SimTrackContainer::const_iterator itP;
-      for (itP = G4TrkContainer->begin(); itP != G4TrkContainer->end(); ++itP){
-	if(vtxParent==itP->trackId()){
+      for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin(); itP != trackCollection->end(); ++itP){
+	if(vtxParent==itP->trackId() && itP.bunch() == itVtx.bunch()){
 	  int parentBC = itP->genpartIndex();  
 	  HepMC::GenParticle *parentParticle = genEvent -> barcode_to_particle(parentBC);
 	  if (parentParticle != 0) {
@@ -301,6 +275,19 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 // Put TrackingParticles and TrackingVertices in event
   event.put(tPC,"TrackTruth");
   event.put(tVC,"VertexTruth");
+
+// Testing code  
+  cout << "---EVENT---" << endl;
+  for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin(); itP !=  trackCollection->end(); ++itP){
+    int t = itP -> trackId();
+    cout << "Track: " << t << " B " << itP.bunch() << " T " << itP.getTrigger()
+         << endl;
+  }      
+  for (MixCollection<PSimHit>::MixItr hit = hitCollection->begin(); hit != hitCollection->end(); ++hit){
+    int t = hit -> trackId();
+    cout << "Hit:   " << t << " B " << hit.bunch() << " T " << hit.getTrigger() << endl;
+  }      
+    
 }
 
 int TrackingTruthProducer::LayerFromDetid(const unsigned int& detid )
