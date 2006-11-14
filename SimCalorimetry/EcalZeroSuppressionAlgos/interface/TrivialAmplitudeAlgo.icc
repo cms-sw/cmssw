@@ -58,7 +58,7 @@ template <class C> double TrivialAmplitudeAlgo<C>::pedestal(const C & frame)
     {
       int gain = (frame.sample (sample).gainId());
       if (gain >= 1 || gain <=3 ) {
-        PrePed = PrePed+theWeights[sample]*(frame.sample (sample).adc ())*theGainFactor[gain];
+        PrePed = PrePed+theWeights[sample]*(frame.sample (sample).adc ())*theGainFactors[gain];
       }
       else {
         edm::LogWarning("EcalAmplitudeError") << "Wrong gain in frame " << sample << " \n" << frame;

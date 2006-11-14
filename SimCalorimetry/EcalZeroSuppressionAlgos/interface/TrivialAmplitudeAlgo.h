@@ -4,8 +4,8 @@
 /*
  * \file TrivialAmplitudeAlgo.h
  *
- * $Date: 2006/06/27 17:45:06 $
- * $Revision: 1.2 $
+ * $Date: 2006/10/26 07:48:28 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
  * simple weights algorithm for energy and pedestal reconstruction
@@ -40,7 +40,7 @@ public:
  private:
 
   std::vector<double> theWeights;
-  std::vector<double> theGainFactors;;
+  std::vector<double> theGainFactors;
 
 };
 
