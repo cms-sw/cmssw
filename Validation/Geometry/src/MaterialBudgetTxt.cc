@@ -7,7 +7,7 @@
 MaterialBudgetTxt::MaterialBudgetTxt( MaterialBudgetData* data, const std::string& fileName ): MaterialBudgetFormat( data )
 {
   const char * fnamechar = fileName.c_str();
-  theFile = new ofstream(fnamechar, std::ios::out);
+  theFile = new std::ofstream(fnamechar, std::ios::out);
   std::cout <<"Dumping  Material Budget to " << fileName << std::endl;
   if (theFile->fail()){
     std::cerr <<" Error opening file" << fileName << std::endl;

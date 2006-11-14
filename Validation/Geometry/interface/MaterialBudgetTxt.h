@@ -1,7 +1,7 @@
 #ifndef MaterialBudgetTxt_h
 #define MaterialBudgetTxt_h 1
 
-#include <fstream.h>
+#include <fstream>
 
 #include "Validation/Geometry/interface/MaterialBudgetFormat.h"
 
@@ -17,7 +17,7 @@ class MaterialBudgetTxt : public MaterialBudgetFormat
   virtual void fillEndTrack();
 
  private:
-  ofstream* theFile;
+  std::ofstream* theFile;
 
 };
 
