@@ -2,4 +2,4 @@
 cd ../..
 cvs co Configuration/Examples/data/RECO.cff
 cp -r ~cbern/public/CMSSW/CMSSW_1_2_0_pre1/RECO.cff Configuration/Examples/data/RECO.cff
-cvs co -r V00-02-02 FastSimulation/Event
+cvs co -r V00-02-04 FastSimulation/Event
