@@ -12,9 +12,9 @@ using namespace reco;
 // PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft,
 // 					     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom) :LeafCandidate(),
 PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const TrackRef gsft,
-					     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom) :LeafCandidate(),
+					     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom, const double HoE) :LeafCandidate(),
 //	       const TrajectoryStateClosestToPoint& tssuper, const TrajectoryStateClosestToPoint& tsseed) :LeafCandidate(), 
-               superCluster_(scl),gsfTrack_(gsft)   
+               hadOverEm_(HoE), superCluster_(scl), gsfTrack_(gsft)   
 {
   //
   // electron particle quantities
@@ -77,14 +77,18 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Tr
   //  dphi                       = seedClus->phi() - tsseed.globalPosition().phi();
   deltaEtaSeedClusterAtCalo_ = seedClus->eta() - tsseedPos.eta();
   dphi                       = seedClus->phi() - tsseedPos.phi();
- if (fabs(dphi)>pi)
-      dphi = dphi < 0? pi2 + dphi : dphi - pi2;
+  if (fabs(dphi)>pi)
+    dphi = dphi < 0? pi2 + dphi : dphi - pi2;
   deltaPhiSeedClusterAtCalo_ = dphi;
 
   //
   // other quantities
   //
 
+  //temporary
+  momentumFromEpCombination_=false;
+  trackMomentumError_=0;
+  
   //FIXME  hadOverEm_ = superCluster_->seed()->getHoe();
   //FIXME  hadOverEm_ *= seedClus->energy()/superCluster_->energy();
 

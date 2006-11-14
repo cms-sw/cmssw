@@ -18,6 +18,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.2  2006/10/27 15:02:49  uberthon
+// add PixelMatchGsfElectron
+//
 // Revision 1.1  2006/10/18 15:29:56  uberthon
 // add PixelMatchGsfElectron class interface
 //
@@ -53,11 +56,11 @@ class PixelMatchGsfElectron : public LeafCandidate {
 
  public:
   
-  PixelMatchGsfElectron(): LeafCandidate() {;}
+  PixelMatchGsfElectron(): LeafCandidate() {;}  //FIXME: defaults
 /*   PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft, */
 /* 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom); */
   PixelMatchGsfElectron(const SuperClusterRef scl, const TrackRef gsft,
-			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom);
+			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom, double HoE);
 
   virtual ~PixelMatchGsfElectron(){};
 
@@ -100,8 +103,7 @@ class PixelMatchGsfElectron : public LeafCandidate {
   float deltaPhiSeedClusterTrackAtCalo() const {return deltaPhiSeedClusterAtCalo_;}
 
   //! the hadronic over electromagnetic fraction
-  //  float hadronicOverEm() const {return hadOverEm_;}
-  float hadronicOverEm() const {edm::LogWarning("")<<" Not yet implemented!!";return 0;}
+  float hadronicOverEm() const {return hadOverEm_;}
 
   // corrections
   //! tell if class dependant escale correction have been applied
