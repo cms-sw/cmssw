@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: HepMCCandidate.h,v 1.6 2006/07/27 07:13:41 llista Exp $
+ * \version $Id: HepMCCandidate.h,v 1.7 2006/10/29 21:03:27 llista Exp $
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
@@ -39,7 +39,7 @@ namespace reco {
   };
 
   /// get GenParticle component
-  GET_DEFAULT_CANDIDATE_COMPONENT( HepMCCandidate, HepMCCandidate::GenParticleRef, genParticle );
+  GET_DEFAULT_CANDIDATE_COMPONENT( HepMCCandidate, HepMCCandidate::GenParticleRef, genParticle )
 }
 
 #endif

@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.6 2006/11/03 18:30:10 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.7 2006/11/13 12:42:56 llista Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 
@@ -56,13 +56,13 @@ namespace reco {
   struct MotherRefTag { };
 
   /// get PDG id component
-  GET_CANDIDATE_COMPONENT( GenParticleCandidate, int, pdgId, PdgIdTag );
+  GET_CANDIDATE_COMPONENT( GenParticleCandidate, int, pdgId, PdgIdTag )
 
   /// get status code component
-  GET_CANDIDATE_COMPONENT( GenParticleCandidate, int, status, StatusTag );
+  GET_CANDIDATE_COMPONENT( GenParticleCandidate, int, status, StatusTag )
 
   /// get mother reference component
-  GET_CANDIDATE_COMPONENT( GenParticleCandidate, CandidateRef, mother, MotherRefTag );
+  GET_CANDIDATE_COMPONENT( GenParticleCandidate, CandidateRef, mother, MotherRefTag )
 
   inline int pdgId( const Candidate & c ) {
     return c.get<int, PdgIdTag>();
