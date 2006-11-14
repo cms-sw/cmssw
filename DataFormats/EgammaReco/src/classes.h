@@ -8,6 +8,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
 namespace { 
   namespace {
@@ -64,6 +65,13 @@ namespace {
     edm::Ref<reco::PreshowerClusterCollection> psr5;
     edm::RefProd<reco::PreshowerClusterCollection> psrp5;
     edm::RefVector<reco::PreshowerClusterCollection> psrv5;
+
+    reco::BasicClusterShapeAssociationCollection v7;
+    edm::Wrapper<reco::BasicClusterShapeAssociationCollection> w7;
+    reco::BasicClusterShapeAssociation va7;
+    reco::BasicClusterShapeAssociationRef vr7;
+    reco::BasicClusterShapeAssociationRefProd vrp7;
+    reco::BasicClusterShapeAssociationRefVector vrv7;
 
   }
 }
