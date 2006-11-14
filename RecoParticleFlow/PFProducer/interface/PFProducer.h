@@ -20,6 +20,8 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+
 /**\class PFProducer 
 \brief Producer for particle flow tracks, particles and 
 reconstructed particles 
@@ -42,7 +44,13 @@ class PFProducer : public edm::EDProducer {
 
  private:
 
-  // ----------member data ---------------------------------
+  /// process reconstructed tracks 
+  void processRecTracks(std::auto_ptr< reco::PFRecTrackCollection >& 
+			trackCollection, 
+			edm::Event& iEvent, 
+			const edm::EventSetup& iSetup);
+    
+    
   /// Get position of track on a given surface
   TrajectoryStateOnSurface 
     getStateOnSurface(PFGeometry::Surface_t iSurf, 
