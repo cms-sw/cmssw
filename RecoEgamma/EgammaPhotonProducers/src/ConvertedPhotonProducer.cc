@@ -140,8 +140,6 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   std::auto_ptr< reco::ConvertedPhotonCollection > outputConvPhotonCollection(new reco::ConvertedPhotonCollection);
   std::cout << " Created empty ConvertedPhotonCollection size " <<   std::endl;
 
-  
-
 
 
   // Get the basic cluster collection in the Barrel 
@@ -184,11 +182,13 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
   
-    //    if ( abs( aClus->eta() ) > 0.9 ) return; 
+    if ( abs( aClus->eta() ) > 0.9 ) return; 
     std::cout << "  ConvertedPhotonProducer SC eta " <<  aClus->eta() << " phi " <<  aClus->phi() << std::endl;
 
     theOutInSeedFinder_->setCandidate(*aClus);
-    theOutInSeedFinder_->makeSeeds( bcBarrelHandle.product()  );
+    //theOutInSeedFinder_->makeSeeds( bcBarrelHandle.product()  );
+    theOutInSeedFinder_->makeSeeds(  clusterCollectionBarrel );
+    
 
     // std::vector<const Trajectory*> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
     std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
@@ -196,7 +196,10 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
     theInOutSeedFinder_->setCandidate(*aClus);
     theInOutSeedFinder_->setTracks(  theOutInTracks );   
-    theInOutSeedFinder_->makeSeeds(  bcBarrelHandle.product() );
+    //  theInOutSeedFinder_->makeSeeds(  bcBarrelHandle.product() );
+    theInOutSeedFinder_->makeSeeds(  clusterCollectionBarrel );
+  
+
  
     //    std::vector<const TrajectoryMeasurement*> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
     std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
