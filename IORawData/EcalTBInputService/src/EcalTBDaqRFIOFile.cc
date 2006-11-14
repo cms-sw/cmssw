@@ -18,7 +18,7 @@ extern "C" {
   extern int rfio_fseek (FILE *fp, long offset, int whence);
   extern int rfio_feof (FILE *fp);
   extern long rfio_ftell (FILE *fp);
-};
+}
 
 using namespace edm;
 
