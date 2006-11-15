@@ -12,7 +12,7 @@
 class Propagator;
 class GeomDet;
 class Trajectory;
-namespace edm { class EventSetup;};
+namespace edm { class EventSetup;}
 
 /// Computes the trajectory state to be used as a starting state for the track fit
 /// from the vector of hits. The parameters of this stat are close to the final fit parameters.
