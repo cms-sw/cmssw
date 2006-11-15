@@ -6,6 +6,7 @@
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
 
 #include <vector>
+#include <cmath>
 
 
 class EcalTBHodoscopeRecInfoAlgo {
