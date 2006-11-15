@@ -1,8 +1,8 @@
 
 /** \file CSCSegmentBuilder.cc
  *
- * $Date: 2006/05/17 14:38:44 $
- * $Revision: 1.7 $
+ * $Date: 2006/09/26 09:00:39 $
+ * $Revision: 1.10 $
  * \author M. Sani
  *
  *
@@ -75,7 +75,7 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
                 insert = false;
 	
         if (insert)
-            chambers.push_back((*it2).cscDetId());
+            chambers.push_back((*it2).cscDetId().chamberId());
     }
 
     for(chIt=chambers.begin(); chIt != chambers.end(); ++chIt) {
