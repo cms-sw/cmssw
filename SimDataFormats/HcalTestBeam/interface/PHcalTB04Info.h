@@ -17,13 +17,14 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Sun May 14 10:14:34 CEST 2006
-// $Id$
+// $Id: PHcalTB04Info.h,v 1.1 2006/05/15 10:18:47 sunanda Exp $
 //
 
 // system include files
 #include <string>
 #include <vector>
 #include <memory>
+#include <cmath>
 
 // user include files
 

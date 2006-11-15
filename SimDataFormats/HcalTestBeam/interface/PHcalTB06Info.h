@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <cmath>
 
 // user include files
 
