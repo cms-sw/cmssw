@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.28 2006/10/23 23:52:36 chrjones Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.29 2006/11/04 00:35:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <memory>
@@ -262,7 +262,8 @@ void testeventprincipal::getbySelectorTest()
 {
   std::string processName("PROD");
   std::string label("fred");
-  put_a_product<edmtest::DummyProduct>(processName, label);
+  std::string instanceName("inst");
+  put_a_product<edmtest::DummyProduct>(processName, label, instanceName);
 
   edmtest::DummyProduct example;
   edm::TypeID tid(example);
@@ -270,7 +271,26 @@ void testeventprincipal::getbySelectorTest()
   
   handle h = pEvent_->getBySelector(tid, pnsel);
   CPPUNIT_ASSERT(h.isValid());
+  CPPUNIT_ASSERT(h.provenance()->processName() == processName);
+
+  edm::ModuleLabelSelector mlsel(label);
+  h = pEvent_->getBySelector(tid, mlsel);
+  CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(h.provenance()->moduleLabel() == label);
+
+  edm::ProductInstanceNameSelector pinsel(instanceName);
+  h = pEvent_->getBySelector(tid, pinsel);
+  CPPUNIT_ASSERT(h.isValid());
+  CPPUNIT_ASSERT(h.provenance()->productInstanceName() == instanceName);  
+
+  // Warning: we don't actually expect the following selector to match
+  // something, because I don't now have the time to form a proper
+  // ModuleDescription and to get its ID. This only makes sure that
+  // the class and its functions are instantiable.
+  edm::ModuleDescription md;
+  edm::ModuleDescriptionID mdid = md.id();
+  edm::ModuleDescriptionSelector mdsel(mdid);
+  h = pEvent_->getBySelector(tid, mdsel);
 }
 
 void testeventprincipal::processNameSelectorTest()

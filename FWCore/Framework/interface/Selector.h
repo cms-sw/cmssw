@@ -30,7 +30,7 @@ to use such a selector, it is best to initialize it directly upon
 construction of the module, rather than creating a new Selector instance
 for every event.
 
-$Id: Selector.h,v 1.12 2006/10/04 14:53:20 paterno Exp $
+$Id: Selector.h,v 1.13 2006/10/23 23:50:34 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -74,13 +74,13 @@ namespace edm
   class ModuleDescriptionSelector : public SelectorBase 
   {
   public:
-    ModuleDescriptionSelector(const ModuleDescriptionID& md) :
-      md_(md) 
+    ModuleDescriptionSelector(const ModuleDescriptionID& mdid) :
+      mdid_(mdid) 
     { }
     
     virtual bool doMatch(Provenance const& p) const 
     {
-      return p.moduleDescriptionID() == md_;
+      return p.moduleDescriptionID() == mdid_;
     }
 
     virtual ModuleDescriptionSelector* clone() const
@@ -89,7 +89,7 @@ namespace edm
     }
 
   private:
-    ModuleDescriptionID md_;
+    ModuleDescriptionID mdid_;
   };
 
   //------------------------------------------------------------------
@@ -163,7 +163,7 @@ namespace edm
     
     virtual bool doMatch(Provenance const& p) const 
     {
-      return p.productInstanceName() == label_;
+      return p.moduleLabel() == label_;
     }
 
     virtual ModuleLabelSelector* clone() const
