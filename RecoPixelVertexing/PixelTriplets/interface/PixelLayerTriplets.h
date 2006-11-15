@@ -6,7 +6,7 @@
     hit pairs and the associated vector of layers to generate
     a third hit confirming layer pair
  */
-
+#include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
 #include "RecoTracker/TkHitPairs/interface/PixelSeedLayerPairs.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,15 +18,19 @@
 class BarrelDetLayer;
 class ForwardDetLayer;
 
-using namespace std;
+//using namespace std;
 
-class PixelLayerTriplets {
+class PixelLayerTriplets  : public LayerTriplets{
 public:
   PixelLayerTriplets();
   ~PixelLayerTriplets();
   typedef PixelSeedLayerPairs::LayerPair LayerPair;
-  typedef pair<LayerPair, vector<const LayerWithHits*> > LayerPairAndLayers;
-  vector<LayerPairAndLayers> layers() ;
+  //  typedef pair<LayerPair, vector<const LayerWithHits*> > LayerPairAndLayers;
+  std::vector<LayerPairAndLayers> layers() ;
+/*   std::vector<LayerTriplet> operator()(){ */
+/*     std::vector<LayerTriplet> laytriplet; */
+/*     laytriplet.clear(); */
+/*     return laytriplet;}; */
   void init(const SiPixelRecHitCollection &coll,const edm::EventSetup& iSetup);
 
 private:

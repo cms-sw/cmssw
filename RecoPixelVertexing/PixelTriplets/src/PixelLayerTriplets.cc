@@ -25,7 +25,7 @@ vector<PixelLayerTriplets::LayerPairAndLayers> PixelLayerTriplets::layers()
 
   {
     ThirdLayer thirds;
-    LayerPair base(lh1,lh2);
+    SeedLayerPairs::LayerPair base(lh1,lh2);
     thirds.push_back(lh3);
     thirds.push_back(pos1);
     thirds.push_back(neg1);
