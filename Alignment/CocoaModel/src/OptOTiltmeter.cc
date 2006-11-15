@@ -106,7 +106,7 @@ void OptOTiltmeter::makeMeasurement( LightRay& lightray, Measurement& meas )
   }
   */
   
-};
+}
 
 #ifdef COCOA_VIS
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

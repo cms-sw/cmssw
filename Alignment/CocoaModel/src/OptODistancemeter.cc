@@ -76,7 +76,7 @@ void OptODistancemeter::makeMeasurement( LightRay& lightray, Measurement& meas )
     std::cout << "REAL value: D: " << meas.value()[0]*1000. 
 	 << " (mm)  " << (this)->name() << std::endl;
   }
-};
+}
 
 
 #ifdef COCOA_VIS

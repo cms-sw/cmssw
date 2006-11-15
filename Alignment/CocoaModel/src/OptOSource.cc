@@ -23,7 +23,7 @@ OptOSource::OptOSource()
 { 
   setRmGlobalOriginal( CLHEP::HepRotation() ); 
   setRmGlobal( CLHEP::HepRotation() ); 
-};
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Default behaviour: create a LightRay object
@@ -32,7 +32,7 @@ void OptOSource::defaultBehaviour( LightRay& lightray, Measurement& meas )
 {
   if(ALIUtils::debug >= 3) std::cout << "create laser lightray " << std::endl; 
   lightray.startLightRay( this );
-};
+}
 
 
 #ifdef COCOA_VIS

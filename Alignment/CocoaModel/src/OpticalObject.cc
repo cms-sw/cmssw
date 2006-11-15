@@ -40,8 +40,6 @@
 #include "Alignment/CocoaDDLObjects/interface/CocoaMaterialElementary.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
-#include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
-
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <stdlib.h>
@@ -314,16 +312,12 @@ void OpticalObject::transformSpherical2Cartesian()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::fillCoordinateEntry( const ALIstring& coor_type, const std::vector<ALIstring>& wordlist )
 {
-
   //---------- Select which type of entry to create
   Entry* entry = 0;
   if ( coor_type == ALIstring("centre") ) {
     entry = new EntryLengthAffCentre( coor_type );
   }else if ( coor_type == ALIstring("angles") ) {
     entry = new EntryAngleAffAngles( coor_type );
-  } else {
-    std::cerr << " !!! FATAL ERROR at  OpticalObject::fillCoordinateEntry : wrong coordinate type " << coor_type << std::endl;
-    exit(1);
   }
 
   //---------- Set link from entry to OptO it belongs to
@@ -522,15 +516,63 @@ void OpticalObject::createComponentOptOs( ALIFileIn& filein )
     //    if ( ALIUtils::debug >= 6 ) std::cout << "MAKE NAME " << name() << " TO " << component_name << std::endl;
 
     //---------- Create OpticalObject of the corresponding type
-    OpticalObject* OptOcomponent = createNewOptO( this, *vsite, component_name, fcopyComponents );
-
-    //----- Fill CMS software ID
-    if( wordlist.size() == 3 ) {
-      OptOcomponent->setID( ALIUtils::getInt( wordlist[2] ) );
+    OpticalObject* OptOcomponent;
+    if( *vsite == "laser" ) {
+      OptOcomponent =  
+	new OptOLaser( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "source" ) {
+      OptOcomponent =  
+	new OptOSource( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "Xlaser" ) {
+      OptOcomponent =  
+	new OptOXLaser( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "mirror" ){
+      OptOcomponent =  
+	new OptOMirror( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "plate_splitter" ) {
+      OptOcomponent =  
+	new OptOPlateSplitter( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "cube_splitter" ) {
+      OptOcomponent =  
+	new OptOCubeSplitter( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "modified_rhomboid_prism" ) {
+      OptOcomponent =  
+	new OptOModifiedRhomboidPrism( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "pseudo_pentaprism" || *vsite == "optical_square" ) {
+      OptOcomponent =  
+	new OptOOpticalSquare( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "lens" ) {
+      OptOcomponent =  
+	new OptOLens( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "Risley_prism" ) {
+      OptOcomponent =  
+	new OptORisleyPrism( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "sensor2D" ) {
+      OptOcomponent =  
+	new OptOSensor2D( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "distancemeter" || *vsite == "distancemeter1dim" ) {
+      OptOcomponent =  
+	new OptODistancemeter( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "distancemeter3dim" ) {
+      OptOcomponent =  
+	new OptODistancemeter3dim( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "distance_target" ) {
+      OptOcomponent =  
+	new OptOScreen( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "tiltmeter" ) {
+      OptOcomponent =  
+	new OptOTiltmeter( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "pinhole" ) {
+      OptOcomponent =  
+	new OptOPinhole( this, *vsite, component_name, fcopyComponents );
+    } else if( *vsite == "COPS" ) {
+      OptOcomponent =  
+	new OptOCOPS( this, *vsite, component_name, fcopyComponents );
     } else {
-      OptOcomponent->setID( OpticalObjectMgr::getInstance()->buildCmsSwID() );
+      OptOcomponent =  
+	//o	new OpticalObject( this, *vsite, component_name, fcopyComponents );
+	new OptOUserDefined( this, *vsite, component_name, fcopyComponents );
     }
-
     //---------- Construct it (read data and 
     OptOcomponent->construct(); 
 
@@ -538,71 +580,6 @@ void OpticalObject::createComponentOptOs( ALIFileIn& filein )
     Model::OptOList().push_back( OptOcomponent ); 
   }
 
-}
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-OpticalObject* OpticalObject::createNewOptO( OpticalObject* parent, ALIstring optoType, ALIstring optoName, ALIbool fcopyComponents )
-{
-  if ( ALIUtils::debug >= 3 ) std::cout << " OpticalObject::createNewOptO optoType " << optoType << " optoName " << optoName << " parent " << parent->name() << std::endl;
-  OpticalObject* OptOcomponent;
-  if( optoType == "laser" ) {
-    OptOcomponent =  
-      new OptOLaser( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "source" ) {
-    OptOcomponent =  
-      new OptOSource( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "Xlaser" ) {
-    OptOcomponent =  
-	new OptOXLaser( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "mirror" ){
-    OptOcomponent =  
-      new OptOMirror( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "plate_splitter" ) {
-    OptOcomponent =  
-      new OptOPlateSplitter( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "cube_splitter" ) {
-    OptOcomponent =  
-      new OptOCubeSplitter( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "modified_rhomboid_prism" ) {
-    OptOcomponent =  
-      new OptOModifiedRhomboidPrism( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "pseudo_pentaprism" || optoType == "optical_square" ) {
-    OptOcomponent =  
-      new OptOOpticalSquare( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "lens" ) {
-    OptOcomponent =  
-      new OptOLens( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "Risley_prism" ) {
-    OptOcomponent =  
-      new OptORisleyPrism( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "sensor2D" ) {
-    OptOcomponent =  
-      new OptOSensor2D( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "distancemeter" || optoType == "distancemeter1dim" ) {
-    OptOcomponent =  
-      new OptODistancemeter( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "distancemeter3dim" ) {
-    OptOcomponent =  
-      new OptODistancemeter3dim( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "distance_target" ) {
-    OptOcomponent =  
-      new OptOScreen( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "tiltmeter" ) {
-    OptOcomponent =  
-      new OptOTiltmeter( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "pinhole" ) {
-    OptOcomponent =  
-      new OptOPinhole( this, optoType, optoName, fcopyComponents );
-  } else if( optoType == "COPS" ) {
-    OptOcomponent =  
-      new OptOCOPS( this, optoType, optoName, fcopyComponents );
-  } else {
-    OptOcomponent =  
-      //o	new OpticalObject( this, optoType, optoName, fcopyComponents );
-      new OptOUserDefined( this, optoType, optoName, fcopyComponents );
-  }
-
-  return OptOcomponent;
 }
 
 
@@ -622,7 +599,7 @@ void OpticalObject::setGlobalCentre()
   if ( type() != ALIstring("system") && !centreIsGlobal ) {
     SetCentreGlobFromCentreLocal();
   }
-  if( anglesIsGlobal ){
+  if( centreIsGlobal ){
     std::cerr << "!!!FATAL ERROR: angles in global coordinates not supported momentarily " << std::endl;
     abort();
   }
@@ -795,16 +772,13 @@ void OpticalObject::SetCentreGlobFromCentreLocal()
     ALIUtils::dump3v( parent()->centreGlob(), ( " parent centreGlob" + parent()->name() ).c_str() );
     ALIUtils::dumprm( parent()->rmGlob(), " parent rmGlob ");
   }
-
-  /*  CLHEP::Hep3Vector cLocal2 = theCentreGlob - parent()->centreGlob();
+  CLHEP::Hep3Vector cLocal2 = theCentreGlob - parent()->centreGlob();
   CLHEP::HepRotation rmParentInv = inverseOf( parent()->rmGlob() );
   cLocal2 = rmParentInv * cLocal2;
   if( (cLocal2 - cLocal).mag() > 1.E-9 ) {
     std::cerr << "!!!! CALCULATE LOCAL WRONG. Diff= " << (cLocal2 - cLocal).mag() << " " << cLocal2 << " " << cLocal << std::endl;
-    if( (cLocal2 - cLocal).mag() > 1.E-4 ) {
-      std::exception();
-    }
-    }*/
+    exit(1);
+  }
 }
 
 
@@ -973,7 +947,7 @@ void OpticalObject::userDefinedBehaviour( LightRay& lightray, Measurement& meas,
   std::cerr << "!!! Optical Object " << name() << " of type " << type() << " does not implement user defined behaviour = " << behav << std::endl;
   std::cerr << " Please read documentation for this object type" << std::endl;  
   exit(1);
-};
+}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -1662,8 +1636,8 @@ void OpticalObject::resetOriginalOriginalCoordinates()
 
   //---------- Reset extra entry values list
   std::vector<ALIdouble>::iterator vdite;
-  std::vector<ALIdouble>::iterator vdite_o = ExtraEntryValueOriginalList().begin() ;
-  std::vector<ALIdouble>::const_iterator vdcite_oo = ExtraEntryValueOriginalOriginalList().begin() ;
+  std::vector<ALIdouble>::iterator vdite_o = theExtraEntryValueOriginalVector.begin() ;
+  std::vector<ALIdouble>::const_iterator vdcite_oo = theExtraEntryValueOriginalOriginalVector.begin() ;
   std::vector<Entry*>::const_iterator vdciteE = ExtraEntryList().begin() ;
   for (vdite = ExtraEntryValueList().begin(); 
        vdite != ExtraEntryValueList().end(); vdite++,vdite_o++,vdcite_oo++,vdciteE++) {
@@ -1730,18 +1704,10 @@ std::ostream& operator << (std::ostream& os, const OpticalObject& c) {
   return os;
 
 }
+  // Lists of entries
+//  std::vector< Entry* > theCoordinateEntryVector;
+//  std::vector< Entry* > theExtraEntryVector;
 
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-const HepRotation OpticalObject::rmLocal() const
-{
-  HepRotation rm;
-  rm.rotateX( theCoordinateEntryVector[3]->value() );
-  rm.rotateY( theCoordinateEntryVector[4]->value() );
-  rm.rotateZ( theCoordinateEntryVector[5]->value() );
-
-  return rm;
-}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 std::vector<double> OpticalObject::GetLocalRotationAngles( std::vector< Entry* > entries )
@@ -1777,11 +1743,155 @@ std::vector<double> OpticalObject::GetRotationAnglesFromMatrix( CLHEP::HepRotati
   double angleX = entries[3]->value()+entries[3]->valueDisplacementByFitting();
   double angleY = entries[4]->value()+entries[4]->valueDisplacementByFitting();
   double angleZ = entries[5]->value()+entries[5]->valueDisplacementByFitting();
+
   if( ALIUtils::debug >= 4 ) {
     std::cout << " angles as value entries: X= " << angleX << " Y= " << angleY << " Z " << angleZ << std::endl;
   }
-  return ALIUtils::GetRotationAnglesFromMatrix( rmLocal, angleX, angleY, angleZ );
+
+  //-  std::cout << name () << " vdbf " << angleX << " " << angleY << " " << angleZ << std::endl;
+  double rotzx = approxTo0( rmLocal.zx() );
+  double rotzy = approxTo0( rmLocal.zy() );
+  double rotzz = approxTo0( rmLocal.zz() );
+  double rotyx = approxTo0( rmLocal.yx() );
+  double rotxx = approxTo0( rmLocal.xx() );
+  if( rotzy == 0. && rotzz == 0. ) {
+    //check that entry is z angle
+    newang[0] = angleX;
+    //beware of aa <==> pii - aa
+    if( eq2ang( rmLocal.zx(), -1. ) ) {
+      double aa = asin( rmLocal.xy() );
+      if( diff2pi( angleZ, - aa + newang[0] ) < diff2pi( angleZ, - pii + aa + newang[0] )  ) {
+	newang[2] = -aa + newang[0];
+	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = -aa + newang[0] " << std::endl;
+      } else {
+	newang[2] = -pii + aa + newang[0];
+	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = -pii + aa + newang[0] " << newang[0] << " " << aa << " " << newang[2] << std::endl;
+      }
+    } else {
+      double aa = asin( -rmLocal.xy() );
+      if( diff2pi( angleZ, aa - newang[0] ) < diff2pi( angleZ, pii - aa - newang[0] )  ) {
+	newang[2] = aa - newang[0];
+	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = aa - newang[2] " << std::endl;
+      } else {
+	newang[2] = pii - aa - newang[0];
+	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = pii - aa - newang[2] " << newang[0] << " " << aa << " " << newang[2] << std::endl;
+      }
+    } 
+  } else {
+    newang[0] = atan( rotzy / rotzz );
+    newang[2] = atan( rotyx / rotxx );
+  }
+  if( rotzx < -1. ) {
+    //-    std::cerr << " rotzx too small " << rotzx << " = " << rmLocal.zx() << " " << rotzx-rmLocal.zx() << std::endl;
+    rotzx = -1.;
+  } else if( rotzx > 1. ) {
+    //-    std::cerr << " rotzx too big " << rotzx << " = " << rmLocal.zx() << " " << rotzx-rmLocal.zx() << std::endl;
+    rotzx = 1.;
+  }
+  newang[1] = -asin( rotzx );
+  if( ALIUtils::debug >= 5 ) std::cout << "First calculation of angles: " << std::endl 
+			       << " newang[0] " << newang[0] << " " << rotzy << " " << rotzz << std::endl
+			       << " newang[1] " << newang[1] << " " << rotzx << std::endl
+			       << " newang[2] " << newang[2] << " " << rotyx << " " << rotxx << std::endl;
+  
+  //    newang[2] = acos( rmLocal.xx() / cos( newang[1] ) );
+  //----- CHECK if the angles are OK (there are several symmetries)
+  //--- Check if the predictions with the angles obtained match the values of the rotation matrix (they may differ for exampole by a sign or more in complicated formulas)
+  double rotnewxx = cos( newang[1] ) * cos( newang[2] );
+  double rotnewzz = cos( newang[0] ) * cos( newang[1] );
+  double rotnewxy = sin( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - cos( newang[0] )* sin( newang[2] );
+  double rotnewxz = cos( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) + sin( newang[0] )* sin( newang[2] );
+  double rotnewyy = sin( newang[0] ) * sin( newang[1] ) * sin( newang[2] ) + cos( newang[0] )* cos( newang[2] );
+  double rotnewyz = cos( newang[0] ) * sin( newang[1] ) * sin( newang[2] ) - sin( newang[0] )* cos( newang[2] );
+
+  bool eqxx = eq2ang( rotnewxx, rmLocal.xx() );
+  bool eqzz = eq2ang( rotnewzz, rmLocal.zz() );
+  bool eqxy = eq2ang( rotnewxy, rmLocal.xy() );
+  bool eqxz = eq2ang( rotnewxz, rmLocal.xz() );
+  bool eqyy = eq2ang( rotnewyy, rmLocal.yy() );
+  bool eqyz = eq2ang( rotnewyz, rmLocal.yz() );
+
+  //--- Check if one of the tree angles should be changed
+  if( ALIUtils::debug >= 5 ) {
+    std::cout << " pred rm.xx " << rotnewxx << " =? " << rmLocal.xx() 
+	 << " pred rm.zz " << rotnewzz << " =? " << rmLocal.zz() 
+	 << std::endl;
+    std::cout << " eqxx " << eqxx << " eqzz " << eqzz << std::endl;
+    //-    std::cout << " rotnewxx " << rotnewxx << " = " << rmLocal.xx() << " " << fabs( rotnewxx - rmLocal.xx() ) << " " <<(fabs( rotnewxx - rmLocal.xx() ) < 0.0001) << std::endl;
+  }
+
+  if( eqxx & !eqzz ) {
+    newang[0] = pii + newang[0];
+    if( ALIUtils::debug >= 5 ) std::cout << " change newang[0] " << newang[0] << std::endl;
+  } else  if( !eqxx & !eqzz ) {
+    newang[1] = pii - newang[1];
+    if( ALIUtils::debug >= 5 ) std::cout << " change newang[1] " << newang[1] << std::endl;
+  } else  if( !eqxx & eqzz ) {
+    newang[2] = pii + newang[2];
+    if( ALIUtils::debug >= 5 ) std::cout << " change newang[2] " << newang[2] << std::endl;
+  }
+
+  //--- Check if the 3 angles should be changed (previous check is invariant to the 3 changing)
+  if( ALIUtils::debug >= 5 ) {
+    std::cout << " pred rm.xy " << rotnewxy << " =? " << rmLocal.xy() 
+	 << " pred rm.xz " << rotnewxz << " =? " << rmLocal.xz() 
+	 << " pred rm.yy " << rotnewyy << " =? " << rmLocal.yy()
+	 << " pred rm.yz " << rotnewyz << " =? " << rmLocal.yz()
+	 << std::endl;
+    std::cout << " eqxy " << eqxy << " eqxz " << eqxz << " eqyy " << eqyy << " eqyz " << eqyz << std::endl;
+  }
+
+  if( !eqxy || !eqxz || !eqyy || !eqyz ) {
+    // check also cases where one of the above 'eq' is OK because it is = 0
+    if( ALIUtils::debug >= 5 ) std::cout << " change the 3 newang " << std::endl;
+    newang[0] = addPii( newang[0] );
+    newang[1] = pii - newang[1];
+    newang[2] = addPii( newang[2] );
+    double rotnewxy = -sin( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - cos( newang[0] )* sin( newang[2] );
+    double rotnewxz = -cos( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - sin( newang[0] )* sin( newang[2] );
+    if( ALIUtils::debug >= 5 ) std::cout << " rotnewxy " << rotnewxy << " = " << rmLocal.xy()
+	 << " rotnewxz " << rotnewxz << " = " << rmLocal.xz() << std::endl;
+  }
+  if( diff2pi(angleX, newang[0] ) + diff2pi(angleY, newang[1] ) +diff2pi(angleZ, newang[2] )
+	   > diff2pi(angleX, pii+newang[0] ) + diff2pi(angleY, pii-newang[1] ) + diff2pi(angleZ, pii+newang[2] ) ){
+    // check also cases where one of the above 'eq' is OK because it is = 0
+    if( ALIUtils::debug >= 5 ) std::cout << " change the 3 newang " << std::endl;
+    newang[0] = addPii( newang[0] );
+    newang[1] = pii - newang[1];
+    newang[2] = addPii( newang[2] );
+    double rotnewxy = -sin( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - cos( newang[0] )* sin( newang[2] );
+    double rotnewxz = -cos( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - sin( newang[0] )* sin( newang[2] );
+    if( ALIUtils::debug >= 5 ) std::cout << " rotnewxy " << rotnewxy << " = " << rmLocal.xy()
+	 << " rotnewxz " << rotnewxz << " = " << rmLocal.xz() << std::endl;
+  }
+  
+  for (int ii=0; ii<3; ii++) {  
+    newang[ii] = approxTo0( newang[ii] );
+  }
+  //  double rotnewyx = cos( newang[1] ) * sin( newang[2] );
+
+  if(  checkMatrixEquations( newang[0], newang[1], newang[2], &rmLocal ) != 0 ){
+    std::cerr << " wrong rotation matrix " <<  newang[0] << " " << newang[1] << " " << newang[2] << std::endl;
+    ALIUtils::dumprm( rmLocal, " matrix is " );
+  }
+  if( ALIUtils::debug >= 5 ) {
+    std::cout << "Final angles:  newang[0] " << newang[0] << " newang[1] " << newang[1] << " newang[2] " << newang[2] << std::endl;
+    CLHEP::HepRotation rot;
+    rot.rotateX( newang[0] );
+    ALIUtils::dumprm( rot, " new rot after X ");
+    rot.rotateY( newang[1] );
+    ALIUtils::dumprm( rot, " new rot after Y ");
+    rot.rotateZ( newang[2] );
+    ALIUtils::dumprm( rot, " new rot ");
+    ALIUtils::dumprm( rmLocal, " rmLocal " );
+    //-    ALIUtils::dumprm( theRmGlobOriginal, " theRmGlobOriginal " );
+  }
+
+  //-  std::cout << " before return newang[0] " << newang[0] << " newang[1] " << newang[1] << " newang[2] " << newang[2] << std::endl;
+  return newang;
+
 }
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::calculateLocalRotationAxisInGlobal()
@@ -1877,7 +1987,7 @@ double OpticalObject::diff2pi( double ang1, double ang2 )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 bool OpticalObject::eq2ang( double ang1, double ang2 ) 
 {
-  bool beq = true;
+  bool beq;
 
   double pii = acos(0.)*2;
   double diff = diff2pi( ang1, ang2 );
@@ -1886,6 +1996,8 @@ bool OpticalObject::eq2ang( double ang1, double ang2 )
       //-      std::cout << " diff " << diff << " " << ang1 << " " << ang2 << std::endl;
       beq = false;
     }
+  } else {
+    beq = true;
   }
 
   return beq;
@@ -2045,14 +2157,14 @@ const double OpticalObject::getEntryCentre( const XYZcoor coor ) const
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 const double OpticalObject::getEntryCentre( const ALIstring& coorstr ) const
 {
-  XYZcoor coor = XCoor;
+  XYZcoor coor;
   if( coorstr == "X" ) {
     coor = XCoor;
   }else if( coorstr == "Y" ) {
     coor = YCoor;
   }else  if( coorstr == "Z" ) {
     coor = ZCoor;
-  } 
+  }
   Entry* ce = theCoordinateEntryVector[coor];
   //  std::cout << coor << " getEntryCentre " << ce->value() << " + " << ce->valueDisplacementByFitting() << std::endl; 
   return ce->value() + ce->valueDisplacementByFitting();
@@ -2069,7 +2181,7 @@ const double OpticalObject::getEntryRMangle( const XYZcoor coor ) const{
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 const double OpticalObject::getEntryRMangle(  const ALIstring& coorstr ) const
 {
-  XYZcoor coor = XCoor;
+  XYZcoor coor;
   if( coorstr == "X" ) {
     coor = XCoor;
   }else if( coorstr == "Y" ) {
@@ -2077,7 +2189,7 @@ const double OpticalObject::getEntryRMangle(  const ALIstring& coorstr ) const
   }else  if( coorstr == "Z" ) {
     coor = ZCoor;
   }
- Entry* ce = theCoordinateEntryVector[coor+3];
+  Entry* ce = theCoordinateEntryVector[coor+3];
   //  std::cout << coor << " getEntryRMangle " << ce->value() << " + " << ce->valueDisplacementByFitting() << " size = " << theCoordinateEntryVector.size() << " ce = " << ce << " entry name " << ce->name() << " opto name " << name() << std::endl; 
   
   return ce->value() + ce->valueDisplacementByFitting();
@@ -2088,7 +2200,7 @@ const double OpticalObject::getEntryRMangle(  const ALIstring& coorstr ) const
 void OpticalObject::constructMaterial()
 {
 
-  theMaterial =  new CocoaMaterialElementary( "Hydrogen", 70.8*mg/cm3, "H", 1.00794 , 1 );
+  theMaterial =  new CocoaMaterialElementary( "Hydrogen", 1.*g/cm3, "H", 1 , 1 );
 
 }
 
@@ -2097,154 +2209,3 @@ void OpticalObject::constructSolidShape()
 {
   theSolidShape = new CocoaSolidShapeBox( "Box", 10.*cm, 10.*cm, 10.*cm );
 }
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OpticalObject::constructFromOptAligInfo( const OpticalAlignInfo& oaInfo )
-{
-  if( theParent != 0 ) { //----- OptO 'system' has no parent (and no affine frame)
-    //---------- Build Data
-   //---------- See if there are extra entries and read them
-    std::vector<OpticalAlignParam> exEnt = oaInfo.extraEntries_;
-    std::vector<OpticalAlignParam>::iterator ite;
-    std::vector<ALIstring> wordlist;
-    for( ite = exEnt.begin(); ite != exEnt.end(); ite++ ){
-      wordlist = getCoordinateFromOptAlignParam( *ite );
-      wordlist.insert(wordlist.begin(), (*ite).dimType() );
-      fillExtraEntry( wordlist );
-    }
-
-    //--------- set centre and angles not global (default behaviour)
-    centreIsGlobal = 0;
-    anglesIsGlobal = 0;
-    
-    //--------- build Coordinates 
-    fillCoordinateEntry( "centre", getCoordinateFromOptAlignParam( oaInfo.x_ ) );
-    fillCoordinateEntry( "centre", getCoordinateFromOptAlignParam( oaInfo.y_ ) );
-    fillCoordinateEntry( "centre", getCoordinateFromOptAlignParam( oaInfo.z_ ) );
-    fillCoordinateEntry( "angles", getCoordinateFromOptAlignParam( oaInfo.angx_ ) );
-    fillCoordinateEntry( "angles", getCoordinateFromOptAlignParam( oaInfo.angy_ ) );
-    fillCoordinateEntry( "angles", getCoordinateFromOptAlignParam( oaInfo.angz_ ) );
-    
-    //---------- Set global coordinates 
-    setGlobalCoordinates();
-
-    //---------- Set original entry values
-    setOriginalEntryValues();
-  }
-
-  //---------- Construct material
-  constructMaterial();
-
-  //---------- Construct solid shape
-  constructSolidShape();
-
-  if ( ALIUtils::debug >= 5 ) {
-    std::cout << "constructFromOptAligInfo constructed: " << *this << std::endl;
-  }
-
-  //---------- Create the OptO that compose this one
-  createComponentOptOsFromOptAlignInfo();
-}
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::vector<ALIstring> OpticalObject::getCoordinateFromOptAlignParam( const OpticalAlignParam& oaParam )
-{
-  char chartmp[20];
-  std::vector<ALIstring> wordlist;
-  wordlist.push_back( oaParam.name() );
-  gcvt( oaParam.value(), 10, chartmp );
-  wordlist.push_back( chartmp );
-  gcvt( oaParam.sigma(), 10, chartmp );
-  wordlist.push_back( chartmp );
-  if( oaParam.quality() == 0 ) {
-    wordlist.push_back("fix");
-  } else if( oaParam.quality() == 1 ) {
-    wordlist.push_back("cal");
-  } else if( oaParam.quality() == 2 ) {
-    wordlist.push_back("unk");
-  }
-  
-  if ( ALIUtils::debug >= 5 ) {
-    ALIUtils::dumpVS( wordlist, " getCoordinateFromOptAlignParam " + oaParam.name() );
-  }
-
-  return wordlist;
-
-}
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OpticalObject::createComponentOptOsFromOptAlignInfo()
-{
-  //----- Build children list of this object
-  std::vector<OpticalAlignInfo> children;
-
-  std::vector<OpticalAlignInfo>::const_iterator ite;
-  if ( ALIUtils::debug >= 5 ) {
-    std::cout << " Model::getOpticalAlignments().size " << Model::getOpticalAlignments().size() << std::endl;
-  }
-  //  for( ite = Model::getOpticalAlignments().begin(); ite != Model::getOpticalAlignments().end(); ite++ ){
-  int siz=  Model::getOpticalAlignments().size();
-  for(uint ii = 0; ii < siz; ii++ ){
-    //    std::cout << " OpticalObject::getComponentOptOsFromOptAlignInfo name " <<  (*ite).name_ << std::endl;
- //   std::cout << " OpticalObject::getComponentOptOsFromOptAlignInfo " <<  (*ite).parentName_ << " =? " << theName << std::endl;
-    //    std::cout <<  " OpticalObject::getComponentOptOsFromOptAlignInfo name " <<  ii << std::endl;
-    //    if( (*ite)parentName_. == oaInfo.name() && (*ite).name() != "simple2DWithMirror:mirror1" ) {
-    if( Model::getOpticalAlignments()[ii].parentName_ == theName ) {
-      //    if( (*ite).parentName_ == theName ) {
-      
-      //      std::cout << "createComponentOptOsFromOptAlignInfo: 1 to push_back " << std::endl;
-      std::vector<OpticalAlignParam> exent =  Model::getOpticalAlignments()[ii].extraEntries_;
-      //    std::vector<OpticalAlignParam> exent = (*ite).extraEntries_;
-      //-      std::cout << "createComponentOptOsFromOptAlignInfo: 2 to push_back " << std::endl;
-      /*      for( uint ij = 0; ij < exent.size(); ij++ ){
-	std::cout << " extra entry " << exent[ij].name_;
-	std::cout << " extra entry " << exent[ij].dimType();
-	std::cout << " extra entry " << exent[ij].value_;
-	std::cout << " extra entry " << exent[ij].error_;
-	std::cout << " extra entry " << exent[ij].quality_;
-	} */
-      //      std::cout << "createComponentOptOsFromOptAlignInfo: 3 to push_back " << Model::getOpticalAlignments()[ii] << std::endl;
-      OpticalAlignInfo oaInfochild =  Model::getOpticalAlignments()[ii];
-      //    OpticalAlignInfo oaInfochild =  *ite;
-      //      std::cout << "createComponentOptOsFromOptAlignInfo: 4 to push_back " << std::endl;
-      children.push_back(oaInfochild);
-      if ( ALIUtils::debug >= 5 ) {
-	std::cout << theName << "createComponentOptOsFromOptAlignInfo: children added " << oaInfochild.name_ << std::endl;
-      }
-    }
-    //    std::cout << "createComponentOptOsFromOptAlignInfo: 6 push_backed " << std::endl;
-    
-  }
-  //  std::cout << "createComponentOptOsFromOptAlignInfo: 10 push_backed " << std::endl;
-
-
-  if ( ALIUtils::debug >= 5 ) {
-    std::cout << "OpticalObject::createComponentsFromAlignInfo: N components = " << children.size() << std::endl;
-  }
-  for( ite = children.begin(); ite != children.end(); ite++ ){
-
-    //---------- Get component type 
-    ALIstring optoType = (*ite).type_;
-    //-    //---------- Get composite component name 
-    //-  ALIstring optoName = name()+"/"+(*ite).name_;
-    //---------- Get component name 
-    ALIstring optoName = (*ite).name_;
-    ALIbool fcopyComponents = 0;
-
-    //---------- Create OpticalObject of the corresponding type
-    OpticalObject* OptOcomponent = createNewOptO( this, optoType, optoName, fcopyComponents );
-
-    //---------- Construct it (read data and 
-    OptOcomponent->constructFromOptAligInfo( *ite );
-
-    //---------- Fill OptO tree and OptO list 
-    Model::OptOList().push_back( OptOcomponent ); 
-  }
-  
-
-}
-
-

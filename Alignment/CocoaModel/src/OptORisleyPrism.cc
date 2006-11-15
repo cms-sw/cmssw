@@ -16,4 +16,4 @@ void OptORisleyPrism::participateInMeasurement( LightRay& lightray, Measurement&
 {
  std::cerr << "object not implemented yet " << std::endl;
  exit(1);      
-};
+}

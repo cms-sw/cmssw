@@ -22,7 +22,7 @@ void OptOXLaser::defaultBehaviour( LightRay& lightray, Measurement& meas )
   if(ALIUtils::debug >= 3) std::cout << "create laser lightray " << std::endl; 
   lightray.startLightRay( this );
 
-};
+}
 
 #ifdef COCOA_VIS
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

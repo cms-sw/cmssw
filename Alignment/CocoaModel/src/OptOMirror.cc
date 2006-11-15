@@ -20,7 +20,7 @@
 void OptOMirror::defaultBehaviour( LightRay& lightray, Measurement& meas ) 
 {
   detailedDeviatesLightRay( lightray );
-};
+}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

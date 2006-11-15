@@ -21,14 +21,14 @@ OptOLens::OptOLens()
 { 
   setRmGlobalOriginal( CLHEP::HepRotation() ); 
   setRmGlobal( CLHEP::HepRotation() ); 
-};
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOLens::participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav )
 {
  std::cerr << "object not implemented yet " << std::endl;
  exit(1);      
-};
+}
 
 #ifdef COCOA_VIS
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

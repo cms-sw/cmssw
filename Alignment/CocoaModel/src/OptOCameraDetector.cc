@@ -16,4 +16,4 @@ void OptOCameraDetector::participateInMeasurement( LightRay& lightray, Measureme
 {
  std::cerr << "object not implemented yet " << std::endl;
  exit(1);      
-};
+}
