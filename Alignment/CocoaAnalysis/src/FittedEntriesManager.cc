@@ -35,7 +35,7 @@ void FittedEntriesManager::AddFittedEntriesSet( FittedEntriesSet* fents)
 {
   theFittedEntriesSets.push_back( fents );
 
-};
+}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

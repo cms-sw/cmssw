@@ -31,7 +31,7 @@ FittedEntriesSet::FittedEntriesSet( MatrixMeschach* AtWAMatrix )
   
   Fill();
 
-};
+}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
@@ -46,7 +46,7 @@ FittedEntriesSet::FittedEntriesSet( std::vector<ALIstring> wl )
   
   FillEntriesFromFile( wl );
 
-};
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 FittedEntriesSet::FittedEntriesSet( std::vector<FittedEntriesSet*> vSets )

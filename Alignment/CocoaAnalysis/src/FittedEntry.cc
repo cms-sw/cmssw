@@ -36,7 +36,7 @@ FittedEntry::FittedEntry( Entry* entry, ALIint order, ALIdouble sigma)
   theQuality = entry->quality();
 
   //-std::cout << this << " FE value" << this->theValue << "sigma" << this->theSigma << std::endl;
-};
+}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
@@ -70,7 +70,7 @@ FittedEntry::FittedEntry( ALIstring name, float value, float sigma)
   theQuality = 2;
 
   //-std::cout << this << " FE value" << this->theValue << "sigma" << this->theSigma << std::endl;
-};
+}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
