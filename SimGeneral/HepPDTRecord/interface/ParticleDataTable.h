@@ -1,6 +1,6 @@
 #ifndef HepPDTProducer_ParticleDataTable_h
 #define HepPDTProducer_ParticleDataTable_h
-// $Id: ParticleDataTable.h,v 1.2 2006/03/14 17:01:38 llista Exp $
+// $Id: ParticleDataTable.h,v 1.3 2006/08/03 08:23:34 fmoortga Exp $
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include <CLHEP/HepPDT/DefaultConfig.hh>
@@ -11,6 +11,6 @@ typedef DefaultConfig::ParticleDataTable ParticleDataTable;
 typedef DefaultConfig::ParticleData ParticleData;
 
 
-EVENTSETUP_DATA_DEFAULT_RECORD( DefaultConfig::ParticleDataTable, PDTRecord );
+EVENTSETUP_DATA_DEFAULT_RECORD( DefaultConfig::ParticleDataTable, PDTRecord )
 
 #endif
