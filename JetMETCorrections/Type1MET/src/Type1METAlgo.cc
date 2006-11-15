@@ -35,7 +35,7 @@ Type1METAlgo::~Type1METAlgo() {}
 void Type1METAlgo::run(const CaloMETCollection *uncorMET, 
 		       const CaloJetCollection *uncorJet,
 		       const CaloJetCollection *corJet, double jetPTthreshold,
-		       CaloMETCollection &corMET) 
+		       double jetEMfracLimit, CaloMETCollection &corMET) 
 {
   //Jet j = uncorJet->front(); std::cout << j.px() << std::endl;
   double DeltaPx = 0.0;
@@ -47,7 +47,7 @@ void Type1METAlgo::run(const CaloMETCollection *uncorMET,
   // ---------------- which are above the given threshold.  This requires that the
   // ---------------- uncorrected jets be matched with the corrected jets.
   for( jet = uncorJet->begin(); jet != uncorJet->end(); jet++)
-    if( jet->pt() > jetPTthreshold )
+    if( jet->pt() > jetPTthreshold && jet->emEnergyFraction() < jetEMfracLimit )
       for( JET  = corJet->begin(); JET != corJet->end(); JET++)
 	if( fabs( jet->eta() - JET->eta() ) < 0.001 && fabs( jet->phi() - JET->phi() ) < 0.001 )
 	  {
@@ -91,7 +91,7 @@ void Type1METAlgo::run(const CaloMETCollection *uncorMET,
 void Type1METAlgo::run(const METCollection *uncorMET, 
 		       const CaloJetCollection *uncorJet,
 		       const CaloJetCollection *corJet, double jetPTthreshold,
-		       METCollection &corMET) 
+		       double jetEMfracLimit, METCollection &corMET) 
 {
   //Jet j = uncorJet->front(); std::cout << j.px() << std::endl;
   double DeltaPx = 0.0;
@@ -103,7 +103,7 @@ void Type1METAlgo::run(const METCollection *uncorMET,
   // ---------------- which are above the given threshold.  This requires that the
   // ---------------- uncorrected jets be matched with the corrected jets.
   for( jet = uncorJet->begin(); jet != uncorJet->end(); jet++)
-    if( jet->pt() > jetPTthreshold )
+    if( jet->pt() > jetPTthreshold && jet->emEnergyFraction() < jetEMfracLimit )
       for( JET  = corJet->begin(); JET != corJet->end(); JET++)
 	if( fabs( jet->eta() - JET->eta() ) < 0.001 && fabs( jet->phi() - JET->phi() ) < 0.001 )
 	  {

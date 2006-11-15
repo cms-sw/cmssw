@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.7 2006/10/20 17:50:49 cavana Exp $
+// $Id: Type1MET.cc,v 1.8 2006/10/24 22:39:30 cavana Exp $
 //
 //
 
@@ -54,6 +54,7 @@ namespace cms
     std::string inputUncorJetsLabel;
     std::string inputCorJetsLabel;
     double jetPTthreshold;
+    double jetEMfracLimit;
   };
 
   // PRODUCER CONSTRUCTORS ------------------------------------------
@@ -65,6 +66,7 @@ namespace cms
     inputUncorJetsLabel = iConfig.getParameter<std::string>("inputUncorJetsLabel");
     inputCorJetsLabel   = iConfig.getParameter<std::string>("inputCorJetsLabel");
     jetPTthreshold      = iConfig.getParameter<double>("jetPTthreshold");
+    jetEMfracLimit      = iConfig.getParameter<double>("jetEMfracLimit");
     if( metType == "CaloMET" )
       produces<CaloMETCollection>();
     else
@@ -88,7 +90,8 @@ namespace cms
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<CaloMETCollection> output( new CaloMETCollection() );  //Create empty output
 	alg_.run( inputUncorMet.product(), inputUncorJets.product(), 
-		  inputCorJets.product(), jetPTthreshold, *output ); //Invoke the algorithm
+		  inputCorJets.product(), jetPTthreshold, jetEMfracLimit, 
+		  *output );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
     else
@@ -97,7 +100,8 @@ namespace cms
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
 	alg_.run( inputUncorMet.product(), inputUncorJets.product(), 
-		  inputCorJets.product(), jetPTthreshold, *output ); //Invoke the algorithm
+		  inputCorJets.product(), jetPTthreshold, jetEMfracLimit,
+		  *output );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
   }

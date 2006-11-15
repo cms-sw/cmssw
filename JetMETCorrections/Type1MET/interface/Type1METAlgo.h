@@ -31,10 +31,12 @@ class Type1METAlgo
   virtual ~Type1METAlgo();
   virtual void run(const METCollection*, 
 		   const CaloJetCollection*, 
-		   const CaloJetCollection*, double, METCollection &);
+		   const CaloJetCollection*, double, double, 
+		   METCollection &);
   virtual void run(const CaloMETCollection*, 
 		   const CaloJetCollection*, 
-		   const CaloJetCollection*, double, CaloMETCollection &);
+		   const CaloJetCollection*, double, double,
+		   CaloMETCollection &);
 };
 
 #endif // Type1METAlgo_h
