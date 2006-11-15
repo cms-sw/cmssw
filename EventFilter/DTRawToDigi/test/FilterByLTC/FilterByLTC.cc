@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: Novenber 2006$
- *  $Revision: 1.0 $
+ *  $Date: 2006/11/09 11:31:40 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN TO
  */
 
@@ -118,6 +118,24 @@ bool FilterByLTC::filter(Event & event, const EventSetup& eventSetup){
       selectThisEvent = true;
     break;
 
+  case 11:
+    //DT at least
+    if(DTtrig)
+      selectThisEvent = true;
+    break;
+  
+  case 12:
+    //CSC at least
+    if(CSCtrig)
+      selectThisEvent = true;
+    break;
+   
+  case 13:
+    //RPC at least
+    if(RPCtrig)
+      selectThisEvent = true;
+    break;
+   
   default : 
     cout<<"[FilterByLTC] Wrong trigger source selected"<<endl;
 

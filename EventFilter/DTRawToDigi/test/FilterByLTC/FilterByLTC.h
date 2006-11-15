@@ -6,8 +6,8 @@
  *  Class to select events depending on the trigger source
  *  (DT,CSC,RPC,DT+CSC,DT+RPC,CSC+RPC,DT+CSC+RPC,NoDT,NoCSC,NoRPC)
  *
- *  $Date: November 2006$
- *  $Revision: 1.0$
+ *  $Date: 2006/11/09 11:31:26 $
+ *  $Revision: 1.1 $
  */
 
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -32,10 +32,11 @@ class FilterByLTC : public edm::EDFilter {
   // counters
   int nEventsProcessed;
   int nEventsSelected;
-  //trigger source 1,...,10 = (
+  //trigger source 1,...,13 = (
   // only DT, CSC, RPC, 
   // both DT&&CSC,DT&&RPC,CSC&&RPC,CSC&&RPC&&DT, 
-  // NoDT,NoCSC,NoRPC)
+  // NoDT,NoCSC,NoRPC
+  // DT+anything else, CSC+anything else, RPC+anything else)
   int theTriggerSource;
 };
 #endif
