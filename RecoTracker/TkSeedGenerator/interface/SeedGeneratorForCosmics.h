@@ -20,6 +20,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CosmicHitTripletGenerator.h"
 class PixelSeedLayerPairs;
 
 class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
@@ -42,7 +43,8 @@ class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
  private:
   edm::ParameterSet conf_;
   GlobalTrackingRegion region;
-  CosmicHitPairGenerator* thePairGenerator; 
+  CosmicHitPairGenerator* thePairGenerator;
+  CosmicHitTripletGenerator* theTripletGenerator; 
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<TrackerGeometry> tracker;
   TrajectoryStateTransform transformer;
@@ -52,7 +54,9 @@ class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
   const TransientTrackingRecHitBuilder *TTTRHBuilder;
   std::string builderName;
   std::string geometry;
+  std::string hitsforseeds;
   OrderedHitPairs HitPairs;
+  OrderedHitTriplets HitTriplets;
 };
 #endif
 

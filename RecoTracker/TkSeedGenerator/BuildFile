@@ -15,6 +15,7 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/SiStripDetId>
 <use name=RecoTracker/TkHitPairs>
+<use name=RecoPixelVertexing/PixelTriplets>
 <use name=RecoTracker/TkTrackingRegions>
 <use name=TrackingTools/PatternTools>
 <use name=MagneticField/Records>
@@ -45,4 +46,5 @@
  <use name=MagneticField/Engine>
  <use name=TrackingTools/KalmanUpdators>
  <use name=RecoTracker/TransientTrackingRecHit>
+ <use name=RecoPixelVertexing/PixelTriplets>
 </export>
