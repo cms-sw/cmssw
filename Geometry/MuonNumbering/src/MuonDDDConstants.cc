@@ -67,7 +67,7 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
 
 MuonDDDConstants::~MuonDDDConstants() { 
   //  std::cout << "destructed!!!" << std::endl;
-};
+}
 
 int MuonDDDConstants::getValue( const std::string& name ) const {
   //  std::cout << "about to look for ... " << name << std::endl;
