@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.2 $
- *  $Date: 2006/11/07 10:45:09 $
+ *  $Revision: 1.3 $
+ *  $Date: 2006/11/14 08:47:53 $
  *  (last update by $Author: flucke $)
  */
 
@@ -78,53 +78,62 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   // get alignables
   theAlignables = theAlignmentParameterStore->alignables();
 
+  std::string dir(theConfig.getUntrackedParameter<std::string>("fileDir"));
+  if (!dir.empty()) dir += '/';
+
   thePedeSteer = new PedeSteerer(tracker, theAlignmentParameterStore,
-                                 theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
+                                 theConfig.getParameter<edm::ParameterSet>("pedeSteerer"),
+                                 dir.c_str());
 
   AlignmentIORoot aliIO;
-  const std::string file(theConfig.getParameter<std::string>("treeFile"));
+  const std::string file(dir + theConfig.getParameter<std::string>("treeFile"));
   // pedeOut defines whether alignment should be read in from pede output or produced from tracks
   const std::string pedeOut(theConfig.getUntrackedParameter<std::string>("pedeOut"));
   if (pedeOut.empty()) {
-    theMille = new Mille(theConfig.getParameter<std::string>("binaryFile").c_str());
+    theMille = new Mille((dir + theConfig.getParameter<std::string>("binaryFile")).c_str());
     const std::string monitorFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
-    if (!monitorFile.empty()) {
-      theMonitor = new MillePedeMonitor(monitorFile.c_str());
-    }
+    if (!monitorFile.empty()) theMonitor = new MillePedeMonitor((dir+monitorFile).c_str());
+
     const int loop = 0;
     int ioerr = 0;
     aliIO.writeAlignableOriginalPositions(theAlignables, file.c_str(), loop, false, ioerr);
     if (ioerr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
                                           << "problem " << ioerr 
                                           << " in writeAlignableOriginalPositions";
-    // get misalignment parameters and write to root file
-    aliIO.writeAlignmentParameters(theAlignables, file.c_str(), loop, false, ioerr);
+//     // get misalignment parameters and write to root file
+//     aliIO.writeAlignmentParameters(theAlignables, file.c_str(), loop, false, ioerr);
+//     if (ioerr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+//                                           << "problem " << ioerr << " writeAlignmentParameters";
+    aliIO.writeAlignableAbsolutePositions(theAlignables, file.c_str(), loop, false, ioerr);
     if (ioerr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-                                          << "problem " << ioerr << " writeAlignmentParameters";
-
-
+                                          << "problem " << ioerr 
+                                          << " in writeAlignableAbsolutePositions, " << loop;
+    
   } else {
     // FIXME: initialise everything despite of reading in from pede for pede internal iterations?
-    if (this->readFromPede(pedeOut)) {
+    if (this->readFromPede(dir + pedeOut)) {
       edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-                                << "read successfully from " << pedeOut;
+                                << "read successfully from " << dir + pedeOut;
+      // FIXME: problem if read in does not correspond to store
+      // or if scenario is non-zero (then there might be some doubling for fixed parameters)
+//       theAlignmentParameterStore->applyParameters();
       const int loop = 1;
       int ierr = 0;
       MillePedeVariablesIORoot millePedeIO;
       millePedeIO.writeMillePedeVariables(theAlignables, file.c_str(), loop, false, ierr);
       if (ierr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
                                            << "error " << ierr << " writing MillePedeVariables";
-      // get misaligned positions and write to root file
+      // get aligned positions and write to root file
       aliIO.writeAlignableAbsolutePositions(theAlignables, file.c_str(), loop, false, ierr);
       if (ierr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
                                            << "problem " << ierr 
-                                           << " in writeAlignableAbsolutePositions";
+                                           << " in writeAlignableAbsolutePositions, " << loop;
       aliIO.writeAlignmentParameters(theAlignables, file.c_str(), loop, false, ierr);
       if (ierr) edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
                                            << "problem " << ierr << " writeAlignmentParameters";
     } else {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-                                 << "problems reading from " << pedeOut;
+                                 << "problems reading from " << dir + pedeOut;
     }
   }
 
