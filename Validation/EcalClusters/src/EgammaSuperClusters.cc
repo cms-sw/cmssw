@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 EgammaSuperClusters::EgammaSuperClusters( const edm::ParameterSet& ps )
@@ -42,6 +43,15 @@ EgammaSuperClusters::EgammaSuperClusters( const edm::ParameterSet& ps )
 	hist_max_S25toE_   		= ps.getParameter<double>("hist_max_S25toE");
 	hist_bins_S25toE_  		= ps.getParameter<int>   ("hist_bins_S25toE");
 
+	hist_min_EToverTruth_   				    = ps.getParameter<double>("hist_min_EToverTruth");
+	hist_max_EToverTruth_  							= ps.getParameter<double>("hist_max_EToverTruth");
+	hist_bins_EToverTruth_ 							= ps.getParameter<int>   ("hist_bins_EToverTruth");
+	
+	hist_min_deltaEta_   								= ps.getParameter<double>("hist_min_deltaEta");
+	hist_max_deltaEta_   								= ps.getParameter<double>("hist_max_deltaEta");
+	hist_bins_deltaEta_  								= ps.getParameter<int>   ("hist_bins_deltaEta");
+
+	MCTruthCollection_ 							  	= ps.getParameter<edm::InputTag>("MCTruthCollection");
 	hybridBarrelSuperClusterCollection_ = ps.getParameter<edm::InputTag>("hybridBarrelSuperClusterCollection");
   islandBarrelSuperClusterCollection_ = ps.getParameter<edm::InputTag>("islandBarrelSuperClusterCollection");
   islandEndcapSuperClusterCollection_ = ps.getParameter<edm::InputTag>("islandEndcapSuperClusterCollection");
@@ -90,11 +100,29 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
   hist_HybridEB_SC_S25toE_	   = dbe_->book1D("hist_HybridEB_SC_S25toE_","S25/E of Super Clusters with Hybrid in Barrel",hist_bins_S25toE_,hist_min_S25toE_,hist_max_S25toE_);
   hist_IslandEB_SC_S25toE_		 = dbe_->book1D("hist_IslandEB_SC_S25toE_","S25/E of Super Clusters with Island in Barrel",hist_bins_S25toE_,hist_min_S25toE_,hist_max_S25toE_);
   hist_IslandEE_SC_S25toE_ 		 = dbe_->book1D("hist_IslandEE_SC_S25toE_","S25/E of Super Clusters with Island in Endcap",hist_bins_S25toE_,hist_min_S25toE_,hist_max_S25toE_);
+
+  hist_HybridEB_SC_EToverTruth_			   = dbe_->book1D("hist_HybridEB_SC_EToverTruth_","ET/True ET of Super Clusters with Hybrid in Barrel",hist_bins_EToverTruth_,hist_min_EToverTruth_,hist_max_EToverTruth_);
+  hist_IslandEB_SC_EToverTruth_				 = dbe_->book1D("hist_IslandEB_SC_EToverTruth_","ET/True ET of Super Clusters with Island in Barrel",hist_bins_EToverTruth_,hist_min_EToverTruth_,hist_max_EToverTruth_);
+  hist_IslandEE_SC_EToverTruth_ 			 = dbe_->book1D("hist_IslandEE_SC_EToverTruth_","ET/True ET of Super Clusters with Island in Endcap",hist_bins_EToverTruth_,hist_min_EToverTruth_,hist_max_EToverTruth_);
+
+  hist_HybridEB_SC_deltaEta_			     = dbe_->book1D("hist_HybridEB_SC_deltaEta_","Eta-True Eta of Super Clusters with Hybrid in Barrel",hist_bins_deltaEta_,hist_min_deltaEta_,hist_max_deltaEta_);
+  hist_IslandEB_SC_deltaEta_			  	 = dbe_->book1D("hist_IslandEB_SC_deltaEta_","Eta-True Eta of Super Clusters with Island in Barrel",hist_bins_deltaEta_,hist_min_deltaEta_,hist_max_deltaEta_);
+  hist_IslandEE_SC_deltaEta_ 			     = dbe_->book1D("hist_IslandEE_SC_deltaEta_","Eta-True Eta of Super Clusters with Island in Endcap",hist_bins_deltaEta_,hist_min_deltaEta_,hist_max_deltaEta_);
 }
 
 
 void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup& es )
 {
+ 	edm::Handle<edm::HepMCProduct> pMCTruth ;
+  try
+	{
+		evt.getByLabel(MCTruthCollection_, pMCTruth);
+  }
+	catch ( cms::Exception& ex )
+	{
+		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " << MCTruthCollection_.label();
+  }
+
   edm::Handle<reco::SuperClusterCollection> pHybridBarrelSuperClusters;
   try
 	{
@@ -157,6 +185,70 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
 		hist_IslandEE_SC_Eta_				->Fill(aClus->position().eta());
 		hist_IslandEE_SC_Phi_				->Fill(aClus->position().phi());
   }
+
+	const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
+  for( HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); currentParticle != genEvent->particles_end(); currentParticle++ )
+  {
+	  if((*currentParticle)->status()==1) 
+		{
+			double etaCurrent, etaFound = 0, etaTrue = (*currentParticle)->momentum().eta();
+			double phiCurrent,               phiTrue = (*currentParticle)->momentum().phi();;
+			double etCurrent,  etFound  = 0, etTrue  = (*currentParticle)->momentum().et();
+
+			double closestParticleDistance = 999; 
+
+		  for(reco::SuperClusterCollection::const_iterator aClus = hybridBarrelSuperClusters->begin(); aClus != hybridBarrelSuperClusters->end(); aClus++)
+			{
+				etaCurrent = 	aClus->position().eta();
+				phiCurrent = 	aClus->position().phi();
+				etCurrent  =  aClus->energy()*aClus->position().theta();
+
+				double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2)); 
+
+				if(deltaR < closestParticleDistance)
+				{
+					etFound  = etCurrent;
+					etaFound = etaCurrent;
+					closestParticleDistance = deltaR;
+				}
+			}
+	
+		  for(reco::SuperClusterCollection::const_iterator aClus = islandBarrelSuperClusters->begin(); aClus != islandBarrelSuperClusters->end(); aClus++)
+			{
+				etaCurrent = 	aClus->position().eta();
+				phiCurrent = 	aClus->position().phi();
+				etCurrent  =  aClus->energy()*aClus->position().theta();
+
+				double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2)); ; 
+
+				if(deltaR < closestParticleDistance)
+				{
+					etFound  = etCurrent;
+					etaFound = etaCurrent;
+					closestParticleDistance = deltaR;
+				}
+			}
+
+		  for(reco::SuperClusterCollection::const_iterator aClus = islandEndcapSuperClusters->begin(); aClus != islandEndcapSuperClusters->end(); aClus++)
+			{
+				etaCurrent = 	aClus->position().eta();
+				phiCurrent = 	aClus->position().phi();
+				etCurrent  =  aClus->energy()*aClus->position().theta();
+
+				double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2)); 
+
+				if(deltaR < closestParticleDistance)
+				{
+					etFound  = etCurrent;
+					etaFound = etaCurrent;
+					closestParticleDistance = deltaR;
+				}
+			}
+			
+			hist_HybridEB_SC_EToverTruth_->Fill(etFound/etTrue);
+			hist_IslandEE_SC_deltaEta_->Fill(etaFound-etaTrue);
+		}
+	}
 }
 
 void EgammaSuperClusters::endJob()

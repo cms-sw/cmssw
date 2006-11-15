@@ -53,7 +53,7 @@ void EgammaBasicClusters::beginJob(edm::EventSetup const&)
 	else 
 		dbe_->setVerbose(0);
 
-	dbe_->setCurrentFolder"CMSSW_"+CMSSW_Version_+"/EcalClusters/BasicClusters/");
+	dbe_->setCurrentFolder("CMSSW_"+CMSSW_Version_+"/EcalClusters/BasicClusters/");
 
 	hist_HybridEB_BC_Size_			 = dbe_->book1D("hist_HybridEB_BC_Size_","# Basic Clusters from Hybrid in Barrel",hist_bins_Size_,hist_min_Size_,hist_max_Size_);
   hist_IslandEB_BC_Size_			 = dbe_->book1D("hist_IslandEB_BC_Size_","# Basic Clusters from Island in Barrel",hist_bins_Size_,hist_min_Size_,hist_max_Size_);

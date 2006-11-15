@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaSuperClusters.h,v 1.1 2006/11/08 16:04:01 mabalazs Exp $
+// $Id: EgammaSuperClusters.h,v 1.1 2006/11/13 15:23:03 mabalazs Exp $
 //
 #include <string>
 
@@ -39,6 +39,7 @@ class EgammaSuperClusters : public edm::EDAnalyzer
 			bool verboseDBE_;
 			DaqMonitorBEInterface* dbe_;
 
+      edm::InputTag MCTruthCollection_;
       edm::InputTag hybridBarrelSuperClusterCollection_;
       edm::InputTag islandBarrelSuperClusterCollection_;
       edm::InputTag islandEndcapSuperClusterCollection_;
@@ -98,5 +99,21 @@ class EgammaSuperClusters : public edm::EDAnalyzer
       double hist_min_S25toE_;
       double hist_max_S25toE_;
       int    hist_bins_S25toE_;
+
+      MonitorElement* hist_HybridEB_SC_EToverTruth_;
+      MonitorElement* hist_IslandEB_SC_EToverTruth_;
+      MonitorElement* hist_IslandEE_SC_EToverTruth_;
+
+      double hist_min_EToverTruth_;
+      double hist_max_EToverTruth_;
+      int    hist_bins_EToverTruth_;
+
+      MonitorElement* hist_HybridEB_SC_deltaEta_;
+      MonitorElement* hist_IslandEB_SC_deltaEta_;
+      MonitorElement* hist_IslandEE_SC_deltaEta_;
+
+      double hist_min_deltaEta_;
+      double hist_max_deltaEta_;
+      int    hist_bins_deltaEta_;
 };
 #endif
