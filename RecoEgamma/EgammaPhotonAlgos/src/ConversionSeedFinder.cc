@@ -22,7 +22,7 @@ ConversionSeedFinder::ConversionSeedFinder( const MagneticField* field, const Me
 
   std::cout << " ConversionSeedFinder CTOR " << std::endl;
       
-};
+}
 
 
 
