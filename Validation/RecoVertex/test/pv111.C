@@ -8,11 +8,12 @@ TBrowser a;
 
 Events->SetAlias("pv", "recoVertexs_offlinePrimaryVerticesFromCTFTracks__Demo.obj");
 
+// position distributions
 Events->Draw("pv.x()");
 Events->Draw("pv.z()");
 
 // error on x
 Events->Draw("sqrt(pv.covariance(0, 0))");
 
-// pull on z
-Events->Draw("pv.z()/sqrt(pv.covariance(2, 2))");
+// pull on x
+Events->Draw("pv.x()/sqrt(pv.covariance(0, 0))");
