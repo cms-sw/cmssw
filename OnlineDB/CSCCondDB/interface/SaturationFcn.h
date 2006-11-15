@@ -16,13 +16,12 @@ class SaturationFcn : public FCNBase{
 
 
  void set_data(int N,float *charge_ptr,float *adc_ptr){
-   N=24;
+
    float x[24],y[24];
 
    for(int i=0;i<N;i++){
      x[i]=charge_ptr[i];
      y[i]=adc_ptr[i];
-     //std::cout<<"This is charge: "<<x[i]<<" and adc: "<<y[i]<<std::endl;
      datx[i]=x[i];
      daty[i]=y[i];
      printf("%d  datx daty %f %f \n",i,datx[i],daty[i]);
@@ -38,6 +37,7 @@ class SaturationFcn : public FCNBase{
  
  virtual double operator()(const std::vector<double>& x) const {
    double chisq = 0.0;  
+   int N=24;
   for(int i=0;i<N;i++){
     double val=1.0+pow(x[1]*datx[i],x[2]);
     double val2=1.0/x[2];
@@ -58,7 +58,7 @@ class SaturationFcn : public FCNBase{
  private:
  
  double datx[24],daty[24];
- int N;
+
 }; 
 
 #endif
