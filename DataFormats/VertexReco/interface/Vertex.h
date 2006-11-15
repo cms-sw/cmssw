@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.21 2006/09/19 17:13:31 llista Exp $
+ * \version $Id: Vertex.h,v 1.22 2006/10/06 12:24:39 walten Exp $
  *
  */
 #include <Rtypes.h>
@@ -82,17 +82,6 @@ namespace reco {
       std::cout << "reco::Vertex::error(i, j) OBSOLETE, use covariance(i, j)"
 		<< std::endl;
       return covariance_[ idx( i, j ) ]; 
-    }
-    /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double & error( int i, int j ) { 
-      std::cout << "reco::Vertex::error(i, j) & NON-CONST, use covariance(i, j)"
-		<< std::endl;
-      return covariance_[ idx( i, j ) ]; 
-    }
-    /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double & covariance( int i, int j ) {
-      std::cout << "reco::Vertex::covariance(i, j) & NON-CONST, use covariance(i, j)" << std::endl;
-      return covariance_[ idx( i, j ) ];
     }
     double covariance( int i, int j ) const { 
       return covariance_[ idx( i, j ) ]; 
