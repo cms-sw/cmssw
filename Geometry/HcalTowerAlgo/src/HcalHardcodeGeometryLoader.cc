@@ -105,6 +105,10 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   if(subdet == HcalForward) {
     eta1 = theHFEtaBounds[etaRing-theTopology.firstHFRing()];
     eta2 = theHFEtaBounds[etaRing-theTopology.firstHFRing()+1];
+  } else if (etaRing==28 && detId.depth()==3) {
+    // double-width in eta at depth 3 in ieta=28
+    eta1 = theHBHEEtaBounds[etaRing-1];
+    eta2 = theHBHEEtaBounds[etaRing+1];
   } else {
     eta1 = theHBHEEtaBounds[etaRing-1];
     eta2 = theHBHEEtaBounds[etaRing];
@@ -169,7 +173,10 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
 	thickness = theHEZPos[3] - z;
       } else if (nDepthBins==2 && depth==2) {
 	z = theHEZPos[depth - 1];
-	thickness = theHEZPos[3] - z;
+	if (etaRing==29) // special case for tower 29
+	  thickness = theHEZPos[depth] - z;
+	else
+	  thickness = theHEZPos[3] - z;
       } else {
 	z = theHEZPos[depth - 1];
 	thickness = theHEZPos[depth] - z;
