@@ -1,4 +1,3 @@
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 
 ParticleTable*

@@ -5,7 +5,6 @@
 #include "CLHEP/HepMC/GenParticle.h"
 
 // CMSSW Sim headers
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 

@@ -9,7 +9,7 @@
 
 // CLHEP Headers
 #include "CLHEP/Vector/LorentzVector.h"
-#include <CLHEP/HepPDT/DefaultConfig.hh>
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include <map>
 #include <vector>
@@ -24,7 +24,6 @@ class FSimEvent;
 class FSimTrack;
 class FSimVertex;
 class RawParticle;
-class ParticleDataTable;
 class KineParticleFilter;
 
 class SimTrack;

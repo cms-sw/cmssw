@@ -2,9 +2,7 @@
 #define FastSimulation_Particle_ParticleTable_H
 
 // CLHEP header
-#include <CLHEP/HepPDT/DefaultConfig.hh>
-
-class ParticleDataTable;
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 class ParticleTable {
 

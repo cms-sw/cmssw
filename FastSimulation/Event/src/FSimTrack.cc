@@ -5,8 +5,6 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
 //C++ Headers
 #include <iomanip>
 #include <fstream>

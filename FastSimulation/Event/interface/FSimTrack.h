@@ -3,7 +3,7 @@
 
 // CLHEP Headers
 #include "CLHEP/Vector/LorentzVector.h"
-#include <CLHEP/HepPDT/DefaultConfig.hh>
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 // CMSSW Headers
 #include "SimDataFormats/Track/interface/SimTrack.h"
@@ -15,7 +15,6 @@
 
 class FSimVertex;
 class FBaseSimEvent;
-class ParticleData;
 
 namespace HepMC {
   class GenParticle;
