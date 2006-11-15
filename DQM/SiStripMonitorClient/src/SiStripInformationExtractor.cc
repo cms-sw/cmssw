@@ -39,7 +39,7 @@ SiStripInformationExtractor::~SiStripInformationExtractor() {
 void SiStripInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * mui, vector<string>& modules, vector<string>& histos) {
   string currDir = mui->pwd();
   if (currDir.find("module_") != string::npos)  {
-    string mId = currDir.substr(currDir.find("module")+7, 9);
+    string mId = currDir.substr(currDir.find("module_")+7, 9);
     modules.push_back(mId);
     if (histos.size() == 0) {
       vector<string> contents = mui->getMEs();    
@@ -114,7 +114,7 @@ void SiStripInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
     return;
   }
   str_val << "<ul>" << endl;
-  if (dname.find("module") != string::npos) {
+  if (dname.find("module_") != string::npos) {
     if (meVec.size() > 0) {
       for (vector<string>::const_iterator it = meVec.begin();
 	   it != meVec.end(); it++) {
@@ -216,7 +216,9 @@ void SiStripInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui
 void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map, 
 			   vector<MonitorElement*> me_list){
   if (me_list.size() == 0) return;
-  TCanvas canvas("TestCanvas", "Test Canvas",600, 600);
+  int width = 600;
+  int height = 600;
+  TCanvas canvas("TestCanvas", "Test Canvas");
   canvas.Clear();
   int ncol, nrow;
  
@@ -232,6 +234,13 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
     ncol = atoi(getItemValue(req_map, "cols").c_str());
     nrow = atoi(getItemValue(req_map, "rows").c_str());
   }
+
+  if (hasItem(req_map,"width")) 
+              width = atoi(getItemValue(req_map, "width").c_str());    
+  if (hasItem(req_map,"height"))
+              height = atoi(getItemValue(req_map, "height").c_str());
+
+  canvas.SetWindowSize(width,height);
   canvas.Divide(ncol, nrow);
   int i=0;
   for (vector<MonitorElement*>::const_iterator it = me_list.begin();

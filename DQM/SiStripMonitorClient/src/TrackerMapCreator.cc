@@ -39,7 +39,7 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
     int nval = SiStripUtility::getMEList((*it), contents);
     if (nval == 0) continue;
     // get module id
-    string det_id = ((*it).substr((*it).find("module_")+7)).c_str();
+    string det_id = ((*it).substr((*it).find("module_")+7, 9)).c_str();
     
     map<int, MonitorElement*> local_mes;
     int gstat = 0;
