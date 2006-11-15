@@ -18,14 +18,21 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+// RPC Digi
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+
+///Log messages
+#include <FWCore/ServiceRegistry/interface/Service.h>
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <vector>
 #include <ctime>
 
 using namespace std;
 using namespace edm;
+
+// Detector overview historam booking routines
 
 MonitorElement *RPCMonitorSync::barrelOffsetHist( char *name, char *title ) {
   char htit[128];
@@ -60,14 +67,17 @@ MonitorElement *RPCMonitorSync::endcapWidthHist( char *name, char *title ) {
 } 
 
 
+// Class constructor and destructor
+
 RPCMonitorSync::RPCMonitorSync( const edm::ParameterSet& pset )
 {
+  counter=0;
+
   nameInLog = pset.getUntrackedParameter<std::string>("moduleLogName", "RPC_DQM");
 
   saveRootFile  = pset.getUntrackedParameter<bool>("SyncDQMSaveRootFile", false); 
   saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("SyncEventsInterval", 10000); 
   RootFileName  = pset.getUntrackedParameter<std::string>("RootFileNameSync", "RPCMonitorSync.root"); 
-  
   /// get hold of back-end interface
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   
@@ -82,12 +92,14 @@ RPCMonitorSync::~RPCMonitorSync(){
 }
 
 
+// Histogram for individual DetUnit - booking routine
+
 std::map<std::string, MonitorElement*> RPCMonitorSync::bookDetUnitME(RPCDetId & detId) {
 
   std::map<std::string, MonitorElement*> meMap;
- 
   std::string regionName;
   std::string ringType;
+
   if(detId.region() ==  0) {
     regionName="Barrel";
     ringType="Wheel";
@@ -97,13 +109,13 @@ std::map<std::string, MonitorElement*> RPCMonitorSync::bookDetUnitME(RPCDetId & 
     if(detId.region() ==  1) regionName="Encap+";
   }
  
-  char  folder[120];
+  char folder[120];
   sprintf(folder,"%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
  				detId.ring(),detId.station(),detId.sector());
  
   dbe->setCurrentFolder(folder);
 
-  /// Name components common to current RPDDetId  
+  // Name components common to current RPDDetId  
   char detUnitLabel[128];
   char layerLabel[128];
   sprintf(detUnitLabel ,"%d",detId());
@@ -112,19 +124,20 @@ std::map<std::string, MonitorElement*> RPCMonitorSync::bookDetUnitME(RPCDetId & 
   char meId [128];
   char meTitle [128];
   
-  /// BEgin booking
   sprintf(meId,"Sync_%s",detUnitLabel);
-  sprintf(meTitle,"BX_Sychronization_for_%s",layerLabel);
+  sprintf(meTitle,"Sychronization_for_%s",layerLabel);
   meMap[meId] = dbe->book1D(meId, meTitle, 9, -4.5, 4.5);
   
   return meMap;
 }
 
+
+// Fill histograms and save data
+
 void RPCMonitorSync::endJob(void)
 {
-  cout << "====== RPCMonitorSync::endJob" << endl;
-  cout << "  synchroMap.size(): "<<synchroMap.size()<<endl;
-
+  int station_map[8]={1,2,3,4,5,0,6,0}; // map RPC layer numbers to histogram bins
+    
   MonitorElement *hOffsetMBp1 = barrelOffsetHist("hOffsetMBp1","Barrell Wheel +1");
   MonitorElement *hOffsetMBp2 = barrelOffsetHist("hOffsetMBp2","Barrell Wheel +2");
   MonitorElement *hOffsetMB0  = barrelOffsetHist("hOffsetMB0" ,"Barrell Wheel 0");
@@ -149,12 +162,12 @@ void RPCMonitorSync::endJob(void)
   MonitorElement *hWidthMEm2 = endcapWidthHist("hWidthMEm2","Endcap Disk -2");
   MonitorElement *hWidthMEm3 = endcapWidthHist("hWidthMEm3","Endcap Disk -3");
  
-  map <int,timing>::const_iterator ci;
+  map <uint32_t,timing>::const_iterator ci;
   float offset,width;
   float xf=0,yf=0;
 
   for(ci=synchroMap.begin();ci!=synchroMap.end();ci++){
-    int id = ci->first;
+    uint32_t id = ci->first;
     RPCDetId detId(id);
     
     offset = ci->second.offset();
@@ -162,15 +175,16 @@ void RPCMonitorSync::endJob(void)
 
     RPCDetId *tempDetId=new RPCDetId(ci->first); 
         
-    cout<< "id: " << ci->first << "    " << *tempDetId << "    offset: " << offset << "    width: " << width << endl;	
-    
-    int station_map[8]={1,2,3,4,5,0,6,0};
+    cout << "id: " << ci->first << "    " << *tempDetId << "    offset: " << offset
+         << "    width: " << width << endl;	
     
     if( detId.region()==0 ) {
+      // Fill barrel histogram
       xf=station_map[detId.station()*2+detId.layer()-3]+((float)(detId.roll()-0.5)/3.);
-      yf=detId.sector() +((float)(detId.subsector()-0.5)/2.);
+      yf=detId.sector()+((float)(detId.subsector()-0.5)/2.);
       if ((detId.sector()==4) && (detId.station()==4)) 
-        yf=detId.sector() +((float)(detId.subsector()-0.5)/4.);
+        yf=detId.sector()+((float)(detId.subsector()-0.5)/4.);
+
       if (detId.ring()==1) hOffsetMBp1->Fill(xf,yf,offset);
       if (detId.ring()==2) hOffsetMBp2->Fill(xf,yf,offset);
       if (detId.ring()==-1) hOffsetMBm1->Fill(xf,yf,offset);
@@ -182,8 +196,10 @@ void RPCMonitorSync::endJob(void)
       if (detId.ring()==-2) hWidthMBm2->Fill(xf,yf,width);
       if (detId.ring()==0) hWidthMB0->Fill(xf,yf,width);
     } else {
+      // Fill endcap histogram
       xf=detId.ring()  +((float)(detId.roll()-0.5)/4.);
       yf=detId.sector()+((float)(detId.subsector()-0.5)/6.);
+
       if (detId.region()==1) {
         if (detId.station()==1) hOffsetMEp1->Fill(xf,yf,offset);
         if (detId.station()==2) hOffsetMEp2->Fill(xf,yf,offset);
@@ -200,9 +216,11 @@ void RPCMonitorSync::endJob(void)
         if (detId.station()==2) hWidthMEm2->Fill(xf,yf,width);
         if (detId.station()==3) hWidthMEm3->Fill(xf,yf,width);
       }
-    }
+    } // end histogram filling
+
 //    cout << "xf= "<<xf<<"   yf= "<<yf<<endl;  
-  }
+
+  } // end loop over synchroMap
 
   if(saveRootFile) 
     dbe->save(RootFileName);
@@ -210,23 +228,27 @@ void RPCMonitorSync::endJob(void)
 }
 
 
+// Loop over Digis and read synchronization information
+
 void RPCMonitorSync::readRPCDAQStrips(const edm::Event& iEvent) {
 
   timing aTiming;
-  aTiming.early = 0;
   aTiming.inTime = 0;
-  aTiming.late = 0;
+  for (int i=0;i<4;i++) {
+    aTiming.early_all[i] = 0;
+    aTiming.late_all[i] = 0;
+  }
 
   char detUnitLabel[128];
   char layerLabel[128];
   char meId [128];
 
-
   edm::Handle<RPCDigiCollection> rpcDigis;
+//  LogInfo (nameInLog) << "   RPC Digis: " << rpcDigis->size() << endl;
   iEvent.getByType(rpcDigis);
   RPCDigiCollection::DigiRangeIterator rpcDigiCI;
   for(rpcDigiCI = rpcDigis->begin();rpcDigiCI!=rpcDigis->end();rpcDigiCI++){
-    cout<<(*rpcDigiCI).first<<endl;
+    cout << (*rpcDigiCI).first << endl;
     RPCDetId detId=(*rpcDigiCI).first; 
     uint32_t id=detId(); 
 
@@ -239,33 +261,38 @@ void RPCMonitorSync::readRPCDAQStrips(const edm::Event& iEvent) {
     }
     std::map<std::string, MonitorElement*> meMap=meCollection[id];
 
-    if(synchroMap.find(id)==synchroMap.end()) synchroMap[id] = aTiming;
-//    cout << "synchroMap.size(): "<<synchroMap.size()<<endl;
-    const RPCDigiCollection::Range& range = (*rpcDigiCI).second;
-    int aBX=2;    
-    for (RPCDigiCollection::const_iterator digiIt = range.first;
-         digiIt!=range.second;++digiIt){
-      if( digiIt->bx()<aBX) aBX= digiIt->bx();
+    if(synchroMap.find(id)==synchroMap.end()) { 
+      synchroMap[id] = aTiming;
     }
-    if(aBX==-1) synchroMap[id].early++;
-    if(aBX==0) synchroMap[id].inTime++;
-    if(aBX==1) synchroMap[id].late++;
+    const RPCDigiCollection::Range& range = (*rpcDigiCI).second;
+    int aBX=4;    
+    for (RPCDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
+      if( digiIt->bx()<aBX) aBX=digiIt->bx();
+    }
+    if (abs(aBX)<4) {
+      if(aBX<0) synchroMap[id].early_all[-aBX]++;
+      if(aBX==0) synchroMap[id].inTime++;
+      if(aBX>0) synchroMap[id].late_all[aBX]++;
+    }
     sprintf(meId,"Sync_%s",detUnitLabel);
     meMap[meId]->Fill(aBX);
   }
   if((!(counter%saveRootFileEventsInterval))&&(saveRootFile) ) dbe->save(RootFileName);
 }
 
-void RPCMonitorSync::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
-   std::cout << "====== RPCMonitorSync" << std::endl;
+// Process event
+
+void RPCMonitorSync::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
+  
+   LogInfo (nameInLog) << "Beginning analyzing event " << counter++;
+   cout << "=== RPCMonitorSync" << endl;
    cout << "--- Run: " << iEvent.id().run()
 	<< " Event: " << iEvent.id().event() 
 	<< " time: "<<iEvent.time().value();
    time_t aTime = iEvent.time().value();
    cout<<" "<<ctime(&aTime)<<endl;
    
-   cout<<"RPC digis: "<<endl;
    readRPCDAQStrips(iEvent);
 
    return;

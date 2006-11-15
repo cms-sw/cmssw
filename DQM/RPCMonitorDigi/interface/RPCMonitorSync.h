@@ -5,7 +5,7 @@
  *
  * RPC Synchronization Monitoring Class
  *
- *  $Date: 2006/10/27 07:57:31 $
+ *  $Date: 2006/10/20 07:57:31 $
  *  $Revision: 0.1 $
  *
  * \author Piotr Traczyk (SINS)
@@ -28,32 +28,56 @@
 
 struct timing{
 
-  int early;
+  int early_all[4];
   int inTime;
-  int late;
+  int late_all[4];
+
+  int early() const {
+    return (early_all[0]+early_all[1]+early_all[2]+early_all[3]);
+  }
+
+  int late() const {
+    return (late_all[0]+late_all[1]+late_all[2]+late_all[3]);
+  }
+
+  int early_w() const {
+    return (early_all[0]+2*early_all[1]+3*early_all[2]+4*early_all[3]);
+  }
+
+  int late_w() const {
+    return (late_all[0]+2*late_all[1]+3*late_all[2]+4*late_all[3]);
+  }
+
+  int early_w2() const {
+    return (early_all[0]+4*early_all[1]+9*early_all[2]+16*early_all[3]);
+  }
+
+  int late_w2() const {
+    return (late_all[0]+4*late_all[1]+9*late_all[2]+16*late_all[3]);
+  }
 
   float earlyFraction() const{ 
-    return (float)early/(early+inTime+late);  
+    return (float)early()/(early()+inTime+late());  
   }
 
   float inTimeFraction() const { 
-    return (float)inTime/(early+inTime+late);  
+    return (float)inTime/(early()+inTime+late());  
   }
 
   float lateFraction() const { 
-    return (float)late/(early+inTime+late);  
+    return (float)late()/(early()+inTime+late());  
   }
 
   float outOfTimeFraction() const { 
-    return (float)(early+late)/(early+inTime+late);  
+    return (float)(early()+late())/(early()+inTime+late());  
   }
   
   float offset() const {
-    return (float)(late-early)/(early+inTime+late);  
+    return (float)(late_w()-early_w())/(early()+inTime+late());  
   }
 
   float width() const {
-    return (float)(late+early)/(early+inTime+late);  
+    return (float)sqrt((float)(late_w2()+early_w2())/(early()+inTime+late()));  
   }
 
 };
@@ -81,7 +105,7 @@ class RPCMonitorSync : public edm::EDAnalyzer {
     MonitorElement *barrelWidthHist( char *name, char *title );
     MonitorElement *endcapWidthHist( char *name, char *title );
 
-    std::map<int,timing> synchroMap;
+    std::map<uint32_t,timing> synchroMap;
     int counter;
 	/// back-end interface
     DaqMonitorBEInterface * dbe;
