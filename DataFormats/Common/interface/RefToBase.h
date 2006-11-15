@@ -28,7 +28,7 @@ within the edm::Event where those objects are only related by a base class, T.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.8 2006/11/14 10:08:04 llista Exp $
+// $Id: RefToBase.h,v 1.9 2006/11/15 10:11:04 llista Exp $
 //
 
 // system include files
@@ -122,7 +122,7 @@ namespace edm {
     bool operator!() const { return isNull(); }
     
     bool operator==( const RefToBase<T> & rhs ) const {
-      return holder_.isEqualTo( rhs.holder_ );
+      return holder_->isEqualTo( * rhs.holder_ );
     }
     
     bool operator!=( const RefToBase<T> & rhs ) const {
