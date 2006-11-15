@@ -3,8 +3,8 @@
 
 //CLHECP headers
 #include "CLHEP/Random/RandGaussQ.h"
-
 #include <iostream>
+#include "math.h"
 
 #include <iomanip>
 RadialInterval::RadialInterval(double RC,unsigned nSpots,double energy)
