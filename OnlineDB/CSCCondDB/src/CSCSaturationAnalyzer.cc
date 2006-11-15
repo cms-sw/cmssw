@@ -340,9 +340,6 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		  cn->obj[layer_id][k].resize(3);
 		}//number_plotted
 
-		//for (int jj=0; jj<NUMBERPLOTTED_sat;jj++){
-		//  std::cout <<"Strip "<<k<<" Charge "<<myCharge[jj]<<" ADC "<<mySatADC[jj]<<std::endl;
-		//}
 		SaturationFit s(NUMBERPLOTTED_sat,myCharge,mySatADC);
 		      
 	      }//strip
