@@ -1,7 +1,7 @@
 
 //This class header
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
-
+#include "math.h"
 PreshowerLayer2Properties::PreshowerLayer2Properties(const edm::ParameterSet& fastDet) : PreshowerProperties()
 {
        // Preshower : mumber of Mips / GeV 

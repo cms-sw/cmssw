@@ -1,6 +1,6 @@
 //This class header
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer1Properties.h"
-
+#include "math.h"
 PreshowerLayer1Properties::PreshowerLayer1Properties(const edm::ParameterSet& fastDet) 
   : PreshowerProperties()
 {
