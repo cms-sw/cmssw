@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2006/11/07 10:43:23 $
- * $Revision: 1.2 $
+ * $Date: 2006/11/14 08:29:05 $
+ * $Revision: 1.3 $
  * (last update by $Author: flucke $)
  */
 
@@ -30,7 +30,7 @@ class PedeSteerer
 {
  public:
   PedeSteerer(AlignableTracker *tracker, AlignmentParameterStore *store,
-	      const edm::ParameterSet &config);
+	      const edm::ParameterSet &config, const char *fileDir = 0);
   /** non-virtual destructor: do not inherit from this class */
   ~PedeSteerer();
     

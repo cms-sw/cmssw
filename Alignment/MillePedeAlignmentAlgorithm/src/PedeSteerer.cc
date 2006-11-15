@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.3 $
- *  $Date: 2006/11/07 17:46:41 $
+ *  $Revision: 1.4 $
+ *  $Date: 2006/11/14 08:29:05 $
  *  (last update by $Author: flucke $)
  */
 
@@ -31,10 +31,12 @@ const unsigned int PedeSteerer::theMinLabel = 1; // must be > 0
 //___________________________________________________________________________
 
 PedeSteerer::PedeSteerer(AlignableTracker *alignableTracker, AlignmentParameterStore *store,
-			 const edm::ParameterSet &config) : 
-  mySteerFile(config.getParameter<std::string>("steerFile").c_str(), std::ios::out)
+			 const edm::ParameterSet &config, const char *fileDir) 
 {
   // opens steerFileName as text output file
+  std::string dir(fileDir);
+  if (!dir.empty()) dir += '/';
+  mySteerFile.open((dir + config.getParameter<std::string>("steerFile")).c_str(), std::ios::out);
 
   if (!mySteerFile.is_open()) {
     edm::LogError("Alignment") << "@SUB=PedeSteerer::PedeSteerer"
