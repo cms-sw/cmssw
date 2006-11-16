@@ -19,6 +19,14 @@
  <class name="EcalMGPAGainRatio"/>
  <class name="EcalIntercalibConstants"/>
 
+ <class name="EcalDCUTemperatures"/>
+ <class name="EcalPTMTemperatures"/>
+
+ <class name="EcalChannelStatus"/>
+ <class name="EcalChannelStatusCode"/>
+
+ <class name="EcalMonitoringCorrections"/>
+
  <class pattern="*pair*"/>
  <class pattern="*map*"/>
 </lcgdict>

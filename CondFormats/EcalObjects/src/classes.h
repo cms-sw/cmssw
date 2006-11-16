@@ -60,3 +60,36 @@ namespace {
     std::map<uint32_t, EcalIntercalibConstants::EcalIntercalibConstant> intermap;
   }
 }
+
+#include "CondFormats/EcalObjects/interface/EcalDCUTemperatures.h"
+namespace {
+  namespace {
+    EcalDCUTemperatures dcuTemperatures;
+    std::map<uint32_t, float> dcuTempMap;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalPTMTemperatures.h"
+namespace {
+  namespace {
+    EcalPTMTemperatures ptmTemperatures;
+    std::map<uint32_t, float> ptmTempMap;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
+namespace {
+  namespace {
+    EcalChannelStatus channelStatus;
+    std::map<uint32_t, EcalChannelStatusCode> statusMap;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalMonitoringCorrections.h"
+namespace {
+  namespace {
+    EcalMonitoringCorrections monitorCorrections;
+    std::map<uint32_t, EcalMonitoringCorrections::EcalMonitoringCorrection> monCorrectionMap;
+  }
+}
