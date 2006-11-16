@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date:$
- * $Revision:$
+ * $Date: 2006/09/08 15:41:11 $
+ * $Revision: 1.11 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.10 2006/09/06 14:06:09 teren Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.11 2006/09/08 15:41:11 teren Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -100,7 +100,7 @@ void testCSCDigis::fillCSCWireDigi(CSCWireDigiCollection & collection){
        std::vector<CSCWireDigi> digivec;
        for (int i=10; i<11; ++i){
            int wire=i;
-           int tbin=104; /// (Time bins 3,5,6 - Bits 3,5,6 ON)
+           int tbin=104; // Time bins 3,5,6 - Bits 3,5,6 ON i.e. 64+32+8 = 1101000 in binary
            CSCWireDigi digi(wire,tbin);
            digivec.push_back(digi);
         }
@@ -124,7 +124,7 @@ void testCSCDigis::fillCSCComparatorDigi(CSCComparatorDigiCollection & collectio
        for (int i=10; i<11; ++i){
            int aStrip = i;
            int aComparator = 2;
-	   int aTbin = 1;
+	   int aTbin = 6; // time bin word 0...110 (16-bits) bits 1 and 2 ON
 	   CSCComparatorDigi digi(aStrip, aComparator, aTbin);
            digivec.push_back(digi);
         }
@@ -419,6 +419,8 @@ void testCSCDigis::readCSCComparatorDigi(CSCComparatorDigiCollection & collectio
       count++;
       CPPUNIT_ASSERT((*digiIt).getComparator()==2);
       CPPUNIT_ASSERT((*digiIt).getStrip()==10);
+      CPPUNIT_ASSERT((*digiIt).getTimeBin()==1); // time bin word=6 means bits 1 & 2 (counting from 0) should be set
+      CPPUNIT_ASSERT((*digiIt).getTimeBin()==2);
       printf("CSC Comparator - endcap station ring csc plane strip comparator: %3d %3d %3d %3d %3d %3d  %3d\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).getStrip(),(*digiIt).getComparator());
  
     }// for digis in layer
