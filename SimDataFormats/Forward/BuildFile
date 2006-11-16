@@ -1,0 +1,9 @@
+<export>
+ <lib name=SimDataFormatsForward>
+ <use name=DataFormats/Common>
+ <use name=FWCore/MessageLogger>
+ <use name=boost>
+</export>
+<use name=DataFormats/Common>
+<use name=FWCore/MessageLogger>
+<use name=boost>
