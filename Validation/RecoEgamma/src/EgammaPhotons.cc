@@ -79,19 +79,8 @@ void EgammaPhotons::beginJob(edm::EventSetup const&)
   hist_Photon_deltaR_			 				      = dbe_->book1D("hist_Photon_deltaR_","delta R of Photons",hist_bins_deltaR_,hist_min_deltaR_,hist_max_deltaR_);
 }
 
-
 void EgammaPhotons::analyze( const edm::Event& evt, const edm::EventSetup& es )
 {
- 	edm::Handle<edm::HepMCProduct> pMCTruth ;
-  try
-	{
-		evt.getByLabel(MCTruthCollection_, pMCTruth);
-  }
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaPhotons") << "Error! can't get collection with label " << MCTruthCollection_.label();
-  }
-
   edm::Handle<reco::PhotonCollection> pPhotons;
   try
 	{
@@ -107,46 +96,62 @@ void EgammaPhotons::analyze( const edm::Event& evt, const edm::EventSetup& es )
 
   for(reco::PhotonCollection::const_iterator aClus = Photons->begin(); aClus != Photons->end(); aClus++)
 	{
-		double etaFound, etaTrue = 0;
-		double phiFound, phiTrue = 0;
-		double etFound,  etTrue  = 0;
+    hist_Photon_ET_ 			  				->Fill(aClus->et());
+		hist_Photon_Eta_		  					->Fill(aClus->eta());
+		hist_Photon_Phi_		 			  		->Fill(aClus->phi());
+  }
 
-		double closestParticleDistance = 999; 
+  edm::Handle<edm::HepMCProduct> pMCTruth ;
+  try
+	{
+		evt.getByLabel(MCTruthCollection_, pMCTruth);
+  }
+	catch ( cms::Exception& ex )
+	{
+		edm::LogError("EgammaPhotons") << "Error! can't get collection with label " << MCTruthCollection_.label();
+  }
 
-		etFound  = aClus->et();
-		etaFound = aClus->eta();
-		phiFound = aClus->phi();
+	const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
+  for( HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); currentParticle != genEvent->particles_end(); currentParticle++ )
+  {
+	  if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1) 
+		{
+			double etaTrue = (*currentParticle)->momentum().eta();
+			double phiTrue = (*currentParticle)->momentum().phi();
+			double etTrue  = (*currentParticle)->momentum().et();
 
-    hist_Photon_ET_ 			  				->Fill(etFound);
-		hist_Photon_Eta_		  					->Fill(etaFound);
-		hist_Photon_Phi_		 			  		->Fill(phiFound);
+			double etaCurrent, etaFound = 0;
+			double phiCurrent, phiFound = 0;
+			double etCurrent,  etFound  = 0;
 
-		const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
-	  for( HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); currentParticle != genEvent->particles_end(); currentParticle++ )
-	  {
-		  if ( abs((*currentParticle)->pdg_id())==22 && (*currentParticle)->status()==1 ) 
+			double closestParticleDistance = 999; 
+		
+	    for(reco::PhotonCollection::const_iterator aClus = Photons->begin(); aClus != Photons->end(); aClus++)
 			{
-			  float et = (*currentParticle)->momentum().et();
-			  float eta = (*currentParticle)->momentum().eta();
-			  float phi = (*currentParticle)->momentum().phi();
-
-				float deltaR = std::sqrt(std::pow(eta-etaFound,2)+std::pow(phi-phiFound,2)); 
+				etaCurrent = 	aClus->eta();
+				phiCurrent = 	aClus->phi();
+				etCurrent  =  aClus->et();
+									
+				double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2));
 
 				if(deltaR < closestParticleDistance)
 				{
-					etTrue  = et;
-					etaTrue = eta;
-					phiTrue = phi;
+					etFound  = etCurrent;
+					etaFound = etaCurrent;
+					phiFound = phiCurrent;
 					closestParticleDistance = deltaR;
 				}
-		  }
+			}
+			
+			if(closestParticleDistance < 0.3)
+			{
+				hist_Photon_EToverTruth_ 				->Fill(etFound/etTrue);
+				hist_Photon_deltaEta_		 				->Fill(etaFound-etaTrue);
+				hist_Photon_deltaPhi_		 	  		->Fill(phiFound-phiTrue);
+				hist_Photon_deltaR_				      ->Fill(closestParticleDistance);
+			}
 		}
-		
-		hist_Photon_EToverTruth_ 				->Fill(etFound/etTrue);
-		hist_Photon_deltaEta_		 				->Fill(etaFound-etaTrue);
-		hist_Photon_deltaPhi_		 	  		->Fill(phiFound-phiTrue);
-		hist_Photon_deltaR_				      ->Fill(closestParticleDistance);
-  }
+	}
 }
 
 void EgammaPhotons::endJob()

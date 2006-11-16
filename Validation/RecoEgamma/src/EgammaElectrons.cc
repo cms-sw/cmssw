@@ -93,16 +93,6 @@ void EgammaElectrons::beginJob(edm::EventSetup const&)
 
 void EgammaElectrons::analyze( const edm::Event& evt, const edm::EventSetup& es )
 {
-  edm::Handle<edm::HepMCProduct> pMCTruth ;
-  try
-	{
-		evt.getByLabel(MCTruthCollection_, pMCTruth);
-  }
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaElectrons") << "Error! can't get collection with label " << MCTruthCollection_.label();
-  }
-
   edm::Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
   try
 	{
@@ -118,48 +108,64 @@ void EgammaElectrons::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
   for(reco::PixelMatchGsfElectronCollection::const_iterator aClus = Electrons->begin(); aClus != Electrons->end(); aClus++)
 	{
-		double etaFound, etaTrue = 0;
-		double phiFound, phiTrue = 0;
-		double etFound,  etTrue  = 0;
-
-		double closestParticleDistance = 999; 
-
-		etFound  = aClus->et();
-		etaFound = aClus->eta();
-		phiFound = aClus->phi();
-
-    hist_Electron_ET_ 			  				->Fill(etFound);
-		hist_Electron_Eta_		  					->Fill(etaFound);
-		hist_Electron_Phi_		 			  		->Fill(phiFound);
+    hist_Electron_ET_ 			  				->Fill(aClus->et());
+		hist_Electron_Eta_		  					->Fill(aClus->eta());
+		hist_Electron_Phi_		 			  		->Fill(aClus->phi());
 		hist_Electron_EoverP_						  ->Fill(aClus->eSuperClusterOverP());
 		hist_Electron_deltaEtaSCtoTrack_	->Fill(aClus->deltaEtaSuperClusterTrackAtVtx());
+  }
 
-		const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
-	  for( HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); currentParticle != genEvent->particles_end(); currentParticle++ )
-	  {
-		  if ( abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1 ) 
+  edm::Handle<edm::HepMCProduct> pMCTruth ;
+  try
+	{
+		evt.getByLabel(MCTruthCollection_, pMCTruth);
+  }
+	catch ( cms::Exception& ex )
+	{
+		edm::LogError("EgammaElectrons") << "Error! can't get collection with label " << MCTruthCollection_.label();
+  }
+
+	const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
+  for( HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); currentParticle != genEvent->particles_end(); currentParticle++ )
+  {
+	  if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1) 
+		{
+			double etaTrue = (*currentParticle)->momentum().eta();
+			double phiTrue = (*currentParticle)->momentum().phi();
+			double etTrue  = (*currentParticle)->momentum().et();
+
+			double etaCurrent, etaFound = 0;
+			double phiCurrent, phiFound = 0;
+			double etCurrent,  etFound  = 0;
+
+			double closestParticleDistance = 999; 
+		
+		  for(reco::PixelMatchGsfElectronCollection::const_iterator aClus = Electrons->begin(); aClus != Electrons->end(); aClus++)
 			{
-			  float et = (*currentParticle)->momentum().et();
-			  float eta = (*currentParticle)->momentum().eta();
-			  float phi = (*currentParticle)->momentum().phi();
-
-				float deltaR = std::sqrt(std::pow(eta-etaFound,2)+std::pow(phi-phiFound,2)); 
+				etaCurrent = 	aClus->eta();
+				phiCurrent = 	aClus->phi();
+				etCurrent  =  aClus->et();
+									
+				double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2));
 
 				if(deltaR < closestParticleDistance)
 				{
-					etTrue  = et;
-					etaTrue = eta;
-					phiTrue = phi;
+					etFound  = etCurrent;
+					etaFound = etaCurrent;
+					phiFound = phiCurrent;
 					closestParticleDistance = deltaR;
 				}
-		  }
+			}
+			
+			if(closestParticleDistance < 0.3)
+			{
+				hist_Electron_EToverTruth_ 				->Fill(etFound/etTrue);
+				hist_Electron_deltaEta_		 				->Fill(etaFound-etaTrue);
+				hist_Electron_deltaPhi_		 	  		->Fill(phiFound-phiTrue);
+				hist_Electron_deltaR_				      ->Fill(closestParticleDistance);
+			}
 		}
-		
-		hist_Electron_EToverTruth_ 				->Fill(etFound/etTrue);
-		hist_Electron_deltaEta_		 				->Fill(etaFound-etaTrue);
-		hist_Electron_deltaPhi_		 	  		->Fill(phiFound-phiTrue);
-		hist_Electron_deltaR_				      ->Fill(closestParticleDistance);
-  }
+	}
 }
 
 void EgammaElectrons::endJob()
