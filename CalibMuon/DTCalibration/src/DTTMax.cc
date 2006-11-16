@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/22 17:39:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/07 10:23:34 $
+ *  $Revision: 1.2 $
  *  \author Marina Giunta
  */
 
@@ -348,7 +348,7 @@ vector<const DTTMax::TMax*> DTTMax::getTMax(const DTWireId & idWire) {
     v.push_back(getTMax(c234));
   }
   return v;
-};
+}
 
 
 
@@ -360,7 +360,7 @@ vector<const DTTMax::TMax*> DTTMax::getTMax(const DTSuperLayerId & isl) {
   if((int)getTMax(c134) != 0) v.push_back(getTMax(c134));
   if((int)getTMax(c234) != 0) v.push_back(getTMax(c234));  
   return v;
-};
+}
 
 
 const DTTMax::TMax* DTTMax::getTMax(TMaxCells cCase){

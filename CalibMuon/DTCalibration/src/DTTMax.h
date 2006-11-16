@@ -5,8 +5,8 @@
  *  Class to calculate the different TMax values according to
  *  the track path
  *
- *  $Date: 2006/06/22 17:39:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/07 10:23:34 $
+ *  $Revision: 1.2 $
 
  *  \author Marina Giunta
  */
@@ -28,7 +28,7 @@ namespace dttmaxenums{
   enum TMaxCells {c123, c124, c134, c234, notInit};
   enum SigmaFactor{r32, r72, r78, noR};
   enum SegDir {L, R};
-};
+}
 
 
 class DTTMax {
