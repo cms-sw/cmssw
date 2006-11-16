@@ -65,7 +65,7 @@ public:
 
   /// returns an index in the valid range
   virtual int binIndex( int i) const {
-    return min( max( i, 0), theNbins-1);
+    return std::min( std::max( i, 0), theNbins-1);
   }
    
   /// the middle of the bin.

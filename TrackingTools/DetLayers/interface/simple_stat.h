@@ -28,7 +28,7 @@ double stat_RMS( const CONT & cont) {
       sum  += *i;
       sum2 += (*i) * (*i); 
     }
-    return sqrt( max( 0., (sum2 - sum*sum/N) / (N-1))) ;
+    return sqrt( std::max( 0., (sum2 - sum*sum/N) / (N-1))) ;
   }
   else return 0.;
 }
