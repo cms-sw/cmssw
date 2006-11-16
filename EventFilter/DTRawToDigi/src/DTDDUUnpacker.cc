@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/01 17:54:36 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/09/19 14:09:11 $
+ *  $Revision: 1.15 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 060906
  */
@@ -54,7 +54,7 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   const int wordSize_64 = 8;
 
   int numberOf32Words = datasize/wordSize_32;
-  int numberOf64Words = datasize/wordSize_64;
+//  int numberOf64Words = datasize/wordSize_64;
 
   const unsigned char* index8 = reinterpret_cast<const unsigned char*>(index32);
 

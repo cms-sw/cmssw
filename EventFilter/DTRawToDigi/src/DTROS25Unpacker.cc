@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/01 17:59:50 $
- *  $Revision: 1.25 $
+ *  $Date: 2006/10/17 21:04:17 $
+ *  $Revision: 1.27 $
  *  \author  M. Zanetti - INFN Padova
  * FRC 060906 
  */
@@ -286,7 +286,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 // actual loop on SC time slots
 
                 int stationGroup=0; 
-		uint16_t thetaBits;
+//		uint16_t thetaBits;
 		do {
 		  wordCounter++; word = index[swap(wordCounter)];
                   int SCstation=0;

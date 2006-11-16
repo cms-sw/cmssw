@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/09 11:31:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/15 17:45:36 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN TO
  */
 
@@ -151,6 +151,7 @@ bool FilterByLTC::filter(Event & event, const EventSetup& eventSetup){
   return selectThisEvent;
 }
 
-DEFINE_FWK_MODULE(FilterByLTC)
+DEFINE_FWK_MODULE(FilterByLTC);
+
 
   
