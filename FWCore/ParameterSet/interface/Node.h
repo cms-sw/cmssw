@@ -44,6 +44,10 @@ namespace edm {
       virtual Node* getParent() const { return parent_; }
       /// leaf nodes won't do anything
       virtual void setAsChildrensParent() {}
+      /// finds a first-level subnode with this name
+      /// leaf nodes will return false
+      virtual bool findChild(const std::string & child, boost::shared_ptr<Node> & result) {return false;}
+
 
       /// shows a dot-delimited path of all modules & PSets including this Node
       virtual void dotDelimitedPath(std::string & path) const;
