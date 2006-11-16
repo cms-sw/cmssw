@@ -3,8 +3,8 @@
  * Digi for CSC anode wires.
  * Based on modified DTDigi.
  *
- * $Date: 2006/09/03 15:41:03 $
- * $Revision: 1.4 $
+ * $Date: 2006/09/04 09:20:51 $
+ * $Revision: 1.5 $
  *
  * \author N. Terentiev, CMU
  */
@@ -30,17 +30,10 @@ CSCWireDigi::CSCWireDigi (){
 
   /// return tbin number (obsolete, use getTimeBin() instead)
 int CSCWireDigi::getBeamCrossingTag() const {
-  uint16_t tbit=1;
-  int tbin=-1;
-  for(int i=0;i<16;i++) {
-    if(tbit & tbinb_) tbin=i;
-    if(tbin>-1) break;
-    tbit=tbit<<1;
-  }
-  return tbin;
+  return getTimeBin();
 }
   /// return first tbin ON number
-int CSCWireDigi::getTimeBin()         const {
+int CSCWireDigi::getTimeBin() const {
   uint16_t tbit=1;
   int tbin=-1;
   for(int i=0;i<16;i++) {
