@@ -277,7 +277,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   event.put(tVC,"VertexTruth");
 
 // Testing code  
-  cout << "---EVENT---" << endl;
+/*  cout << "---EVENT---" << endl;
   for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin(); itP !=  trackCollection->end(); ++itP){
     int t = itP -> trackId();
     cout << "Track: " << t << " B " << itP.bunch() << " T " << itP.getTrigger()
@@ -287,7 +287,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     int t = hit -> trackId();
     cout << "Hit:   " << t << " B " << hit.bunch() << " T " << hit.getTrigger() << endl;
   }      
-    
+*/    
 }
 
 int TrackingTruthProducer::LayerFromDetid(const unsigned int& detid )
