@@ -2,7 +2,8 @@
 #define L1GCTWHEELENERGYFPGA_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTwosComplement.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctUnsignedInt.h"
 
 #include <vector>
 

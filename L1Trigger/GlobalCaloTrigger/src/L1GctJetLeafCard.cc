@@ -214,13 +214,13 @@ void L1GctJetLeafCard::process() {
 // Given a strip Et sum, perform rotations by sine and cosine
 // factors to find the corresponding Ex and Ey
 
-L1GctEtComponent
+L1GctTwosComplement<12>
 L1GctJetLeafCard::exComponent(const L1GctScalarEtVal etStrip, const unsigned jphi) const {
   unsigned fact = (2*jphi+10) % 36;
   return rotateEtValue(etStrip, fact);
 }
 
-L1GctEtComponent
+L1GctTwosComplement<12>
 L1GctJetLeafCard::eyComponent(const L1GctScalarEtVal etStrip, const unsigned jphi) const {
   unsigned fact = (2*jphi+19) % 36;
   return rotateEtValue(etStrip, fact);
@@ -229,7 +229,7 @@ L1GctJetLeafCard::eyComponent(const L1GctScalarEtVal etStrip, const unsigned jph
 // Here is where the rotations are actually done
 // Procedure suitable for implementation in hardware, using
 // integer multiplication and bit shifting operations
-L1GctEtComponent
+L1GctTwosComplement<12>
 L1GctJetLeafCard::rotateEtValue(const L1GctScalarEtVal etStrip, const unsigned fact) const {
   // These factors correspond to the sine of angles from -90 degrees to
   // 90 degrees in 10 degree steps, multiplied by 256 and written in 20 bits
@@ -259,7 +259,7 @@ L1GctJetLeafCard::rotateEtValue(const L1GctScalarEtVal etStrip, const unsigned f
     myValue = myValue - maxEt;
   }
 
-  L1GctEtComponent temp(myValue);
+  L1GctTwosComplement<12> temp(myValue);
   temp.setOverFlow(temp.overFlow() || etStrip.overFlow());
 
   return temp;

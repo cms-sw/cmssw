@@ -1,3 +1,7 @@
+#ifndef L1GCTUNSIGNEDINT_H
+#define L1GCTUNSIGNEDINT_H
+
+
 /* unsigned integer representations */
 
 template <int nBits>
@@ -140,11 +144,13 @@ L1GctUnsignedInt<nBits>& L1GctUnsignedInt<nBits>::operator= (int value) {
 
 
 /// typedef for the data type used for Ex and Ey in the energy sum calculations
-typedef L1GctTwosComplement<12> L1GctEtComponent;
+//typedef L1GctTwosComplement<12> L1GctEtComponent;
 /// typedef for the data type used for Et and Ht, and missing Et magnitude, in the energy sum calculations
-typedef L1GctUnsignedInt<12>    L1GctScalarEtVal;
+//typedef L1GctUnsignedInt<12>    L1GctScalarEtVal;
 /// typedef for the data type used for missing Et phi bin in the energy sum calculations
-typedef L1GctUnsignedInt<7>     L1GctEtAngleBin;
+//typedef L1GctUnsignedInt<7>     L1GctEtAngleBin;
 
 
+
+#endif
 

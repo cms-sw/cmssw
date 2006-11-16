@@ -1,3 +1,8 @@
+#ifndef L1GCTJETCOUNT_H
+#define L1GCTJETCOUNT_H
+
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
+
 /// Jet counts
 template <int nBits>
 class L1GctJetCount : public L1GctUnsignedInt<nBits> {
@@ -162,3 +167,4 @@ typedef L1GctJetCount<5>        L1GctJcFinalType;
 typedef L1GctJetCount<3>        L1GctJcWheelType;
 
 
+#endif
