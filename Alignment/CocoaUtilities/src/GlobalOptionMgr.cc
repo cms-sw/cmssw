@@ -77,7 +77,8 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("MaxDeviDerivative") ] = 1.E-6;
 
   theGlobalOptions[ ALIstring("stopAfter1stIteration") ] = 0;
-  theGlobalOptions[ ALIstring("calParamInyfMatrix") ] = 0;
+  theGlobalOptions[ ALIstring("calParamInyfMatrix") ] = 1;
+  theGlobalOptions[ ALIstring("dumpOptOGlobalInReport") ] = 0;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

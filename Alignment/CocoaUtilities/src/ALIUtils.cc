@@ -59,11 +59,11 @@ int ALIUtils::IsNumber( const ALIstring& str)
 //@@ Dump a Hep3DVector with the chosen precision
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #include "CLHEP/Units/SystemOfUnits.h"
-void ALIUtils::dump3v( const Hep3Vector& vec, const std::string& msg) 
+void ALIUtils::dump3v( const Hep3Vector& vec, const std::string& msg, std::ostream& out) 
 {
   //  double phicyl = atan( vec.y()/vec.x() );
-  std::cout << msg << std::setprecision(8) << vec;
-  std::cout << std::endl;
+  out << msg << std::setprecision(8) << vec;
+  out << std::endl;
   //  std::cout << " " << vec.theta()/deg << " " << vec.phi()/deg << " " << vec.perp() << " " << phicyl/deg << std::endl; 
   //  setw(10);
   //  std::cout << msg << " x=" << std::setprecision(8) << vec.x() << " y=" << setprecision(8) <<vec.y() << " z=" << std::setprecision(8) << vec.z() << std::endl;

@@ -66,18 +66,34 @@ std::vector<OpticalObject*> OpticalObjectMgr::findOptOs( const ALIstring& name, 
 }
 
 
+
 //-----------------------------------------------------------------------
-void OpticalObjectMgr::dumpOptOs( std::ostream& out ) const
+void OpticalObjectMgr::dumpCentreOptOs( std::ostream& out ) const
 {
-  std::cout << "OPTICALOBJECT list size " << theOptODict.size() << std::endl;
+  out << "OPTICALOBJECT list size " << theOptODict.size() << std::endl;
   std::vector< OpticalObject* >::const_iterator vocite;
   for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); vocite++ ) {
     ALIstring name = (*vocite)->name();
-    ALIUtils::dump3v( (*vocite)->centreGlobal(), (name + " CENTRE GLOBAL: ").c_str() );
-    if( (*vocite)->parent() != 0 ) ALIUtils::dump3v( (*vocite)->centreLocal(),  (name + "  CENTRE LOCAL: ").c_str() ); //not for the 'system'
+    ALIUtils::dump3v( (*vocite)->centreGlobal(), (name + " CENTRE GLOBAL: ").c_str(), out );
+    if( (*vocite)->parent() != 0 ) ALIUtils::dump3v( (*vocite)->centreLocal(),  (name + "  CENTRE LOCAL: ").c_str(), out ); //not for the 'system'
   }
 
 }
+
+//-----------------------------------------------------------------------
+void OpticalObjectMgr::dumpOptOsGlobal( std::ostream& out ) const
+{
+  out << "OPTICALOBJECT list size " << theOptODict.size() << std::endl;
+  std::vector< OpticalObject* >::const_iterator vocite;
+  for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); vocite++ ) {
+    ALIstring name = (*vocite)->name();
+    ALIUtils::dump3v( (*vocite)->centreGlobal(), (name + " CENTRE GLOBAL: ").c_str(), out );
+    ALIUtils::dumprm( (*vocite)->rmGlob(), (name + " ROT_MATRIX GLOBAL: ").c_str(), out );
+
+  }
+
+}
+
 
 
 //-----------------------------------------------------------------------

@@ -27,7 +27,7 @@ public:
   ~ALIUtils(){};
 
   static int IsNumber( const ALIstring& str);
-  static void dump3v( const Hep3Vector& vec, const std::string& msg);
+  static void dump3v( const Hep3Vector& vec, const std::string& msg, std::ostream& out = std::cout );
   static void dumprm( const HepRotation& rm, const std::string& msg, std::ostream& out = std::cout );
 
  // public static DATA MEMBERS 

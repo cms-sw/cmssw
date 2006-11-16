@@ -36,7 +36,8 @@ class OpticalObjectMgr
   // find a list of OpticalObject's by name 
   std::vector<OpticalObject*> findOptOs( const ALIstring& name, bool exists = 0 ) const;  
 
-  void dumpOptOs( std::ostream& out= std::cout ) const;
+  void dumpCentreOptOs( std::ostream& out= std::cout ) const;
+  void dumpOptOsGlobal( std::ostream& out= std::cout ) const;
 
   uint32_t buildCmsSwID();
 
