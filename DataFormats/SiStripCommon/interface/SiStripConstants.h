@@ -237,18 +237,18 @@ namespace sistrip {
   static const std::string vpspScanApv1_ = "VpspScanApv1";
 
   // summary histo names (pedestals)
-  static const std::string sistrip::pedestalsAllStrips_ = "Pedestals_AllStrips";
-  static const std::string sistrip::pedestalsMean_ = "Pedestals_Mean";
-  static const std::string sistrip::pedestalsSpread_ = "Pedestals_Spread";
-  static const std::string sistrip::pedestalsMax_ = "Pedestals_Max";
-  static const std::string sistrip::pedestalsMin_ = "Pedestals_Min";
-  static const std::string sistrip::noiseAllStrips_ = "Noise_AllStrips";
-  static const std::string sistrip::noiseMean_ = "Noise_Mean";
-  static const std::string sistrip::noiseSpread_ = "Noise_Spread";
-  static const std::string sistrip::noiseMax_ = "Noise_Max";
-  static const std::string sistrip::noiseMin_ = "Noise_Min";
-  static const std::string sistrip::numOfDead_ = "NumOfDead_Strips";
-  static const std::string sistrip::numOfNoisy_ = "NumOfNoisy_Strips";
+  static const std::string pedestalsAllStrips_ = "Pedestals_AllStrips";
+  static const std::string pedestalsMean_ = "Pedestals_Mean";
+  static const std::string pedestalsSpread_ = "Pedestals_Spread";
+  static const std::string pedestalsMax_ = "Pedestals_Max";
+  static const std::string pedestalsMin_ = "Pedestals_Min";
+  static const std::string noiseAllStrips_ = "Noise_AllStrips";
+  static const std::string noiseMean_ = "Noise_Mean";
+  static const std::string noiseSpread_ = "Noise_Spread";
+  static const std::string noiseMax_ = "Noise_Max";
+  static const std::string noiseMin_ = "Noise_Min";
+  static const std::string numOfDead_ = "NumOfDead_Strips";
+  static const std::string numOfNoisy_ = "NumOfNoisy_Strips";
   
 }
   

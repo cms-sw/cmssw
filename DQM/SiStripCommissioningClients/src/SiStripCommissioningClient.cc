@@ -19,8 +19,7 @@
 #include "cgicc/HTMLClasses.h"
 
 // This line is necessary
-XDAQ_INSTANTIATOR_IMPL(SiStripCommissioningClient);
-
+XDAQ_INSTANTIATOR_IMPL(SiStripCommissioningClient)
 
 using namespace std;
 using namespace sistrip;

@@ -5,6 +5,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+#include <math.h>
 
 using namespace std;
 using namespace sistrip;

@@ -1,5 +1,10 @@
 <lcgdict>
 
+  <class name="SiStripFedCabling"/>
+  <class name="FedChannelConnection"/>
+  <class name="std::vector<FedChannelConnection>"/>
+  <class name="std::vector< std::vector<FedChannelConnection> >"/>
+
   <class name="SiStripPedestals"/>
   <class name="SiStripPedestals::DetRegistry"/>
   <class name="std::vector<SiStripPedestals::DetRegistry>"/>
@@ -9,12 +14,8 @@
   <class name="SiStripNoises::DetRegistry"/>
   <class name="std::vector<SiStripNoises::DetRegistry>"/>
 
-  <class name="SiStripFedCabling"/>
-  <class name="FedChannelConnection"/>
-  <class name="std::vector<unsigned short>"/>
-  <class name="std::vector<FedChannelConnection>"/>
-  <class name="std::vector< std::vector<FedChannelConnection> >"/>
-
   <class pattern="*iterator*"/>
+  <class pattern="*vector*"/>
+  <class pattern="*map*"/>
 
 </lcgdict>   
