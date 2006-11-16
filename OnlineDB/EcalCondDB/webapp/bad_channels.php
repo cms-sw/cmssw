@@ -64,6 +64,7 @@ if ( $taskcode == 'CS' || $taskcode == 'BC' || $taskcode == 'BH' || $taskcode ==
 foreach ($tables[$taskcode] as $table) {
   $data = fetch_mon_dataset_data($table, $iov_id, " task_status = :ts", array(':ts' => "0"));
   $headers = fetch_mon_dataset_headers($table);
+  $headers = reorder_columns($table, $headers);
   $nrows = count($data['RUN']);
   $ncols = count($headers);
     
@@ -121,6 +122,26 @@ function add_xtal_columns($xtal) {
   $phi = ($xtal -1) % 20;
 
   echo "<td>$eta</td><td>$phi</td>";
+}
+
+function reorder_columns($table, $col_headers) {
+  $order = array_keys($col_headers);
+
+  // Preferred column order based on table name
+  if ($table == 'MON_PEDESTALS_DAT') {
+    $order = array('RUN', 'ID1', 'ID2', 
+		   'PED_MEAN_G12', 'PED_RMS_G12', 
+		   'PED_MEAN_G6', 'PED_RMS_G6', 
+		   'PED_MEAN_G1', 'PED_RMS_G1',
+		   'TASK_STATUS');
+  }
+  
+  $new_headers = array();
+  foreach ($order as $code) {
+    $new_headers[$code] = $col_headers[$code];
+  }
+
+  return ($new_headers);
 }
 
 ?>
