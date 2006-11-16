@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/LinearFit.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/Utilities.h"
 #include "TProfile.h"
 #include <iostream>
 #include <sstream>
@@ -315,9 +315,9 @@ void OptoScanAnalysis::analyse() {
     above_zero_light.resize(3,true);
     
     // Linear fits to top of peak and base curves and one to bottom of base curve
-    LinearFit peak_high;
-    LinearFit base_high;
-    LinearFit base_low;
+    sistrip::LinearFit peak_high;
+    sistrip::LinearFit base_high;
+    sistrip::LinearFit base_low;
 
 //     cout << " lower: " << min + 0.2*range
 // 	 << " upper: " << min + 0.8*range
@@ -380,8 +380,8 @@ void OptoScanAnalysis::analyse() {
 
     // Extract width between two curves at midpoint within range
     float mid = min + 0.5*range;
-    LinearFit::Params peak_params;
-    LinearFit::Params base_params;
+    sistrip::LinearFit::Params peak_params;
+    sistrip::LinearFit::Params base_params;
     peak_high.fit( peak_params );
     base_high.fit( base_params );
     float peak_pos = ( mid - peak_params.a_ ) / peak_params.b_;
@@ -403,7 +403,7 @@ void OptoScanAnalysis::analyse() {
 // 	 << endl;
 
     // Extrapolate to zero light to find "lift off"
-    LinearFit::Params low_params;
+    sistrip::LinearFit::Params low_params;
     base_low.fit( low_params );
     float lift_off = ( zero_light_level - low_params.a_ ) / low_params.b_;
     

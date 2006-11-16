@@ -1,7 +1,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedCablingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/MeanAndStdDev.h"
 #include "TProfile.h"
 #include <iostream>
 #include <sstream>
