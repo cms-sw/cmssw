@@ -4,11 +4,11 @@ using namespace reco;
 
 MuIsoDeposit::MuIsoDeposit() :
 eta_(0), phi_(0), depositFromMuon(0)
-{};
+{}
 
 MuIsoDeposit::MuIsoDeposit(const std::string type, double eta, double phi) : 
 type_(type), eta_(eta), phi_(phi), depositFromMuon(0)
-{};
+{}
 
 void MuIsoDeposit::addDeposit(double dr, double value){
   deposits.insert(std::pair<double,double>(dr,value));
