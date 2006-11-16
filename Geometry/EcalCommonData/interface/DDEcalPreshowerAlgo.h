@@ -2,9 +2,9 @@
 #define DDEcalPreshowerAlgo_h
 
 #include <vector>
+#include <string>
 
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
-#include "DetectorDescription/Core/interface/DDD.h"
 
 class DDEcalPreshowerAlgo : public DDAlgorithm
 {
