@@ -152,6 +152,7 @@ namespace edm {
       virtual Node * clone() const { return new OperatorNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost, PrintOptions options) const;
+      virtual bool findChild(const std::string & childName, NodePtr & result);
       NodePtr & left() {return left_;}
       NodePtr & right() {return right_;}
       const NodePtr & left() const {return left_;}
@@ -178,7 +179,7 @@ namespace edm {
       virtual Node * clone() const { return new OperandNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost, PrintOptions options) const;
-  
+ 
       virtual void accept(Visitor& v) const;
 
     private:
