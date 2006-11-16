@@ -113,16 +113,6 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
 
 void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup& es )
 {
- 	edm::Handle<edm::HepMCProduct> pMCTruth ;
-  try
-	{
-		evt.getByLabel(MCTruthCollection_, pMCTruth);
-  }
-	catch ( cms::Exception& ex )
-	{
-		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " << MCTruthCollection_.label();
-  }
-
   edm::Handle<reco::SuperClusterCollection> pHybridBarrelSuperClusters;
   try
 	{
@@ -186,67 +176,116 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
 		hist_IslandEE_SC_Phi_				->Fill(aClus->position().phi());
   }
 
+ 	edm::Handle<edm::HepMCProduct> pMCTruth ;
+  try
+	{
+		evt.getByLabel(MCTruthCollection_, pMCTruth);
+  }
+	catch ( cms::Exception& ex )
+	{
+		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " << MCTruthCollection_.label();
+  }
+
 	const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
   for( HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); currentParticle != genEvent->particles_end(); currentParticle++ )
   {
 	  if((*currentParticle)->status()==1) 
 		{
-			double etaCurrent, etaFound = 0, etaTrue = (*currentParticle)->momentum().eta();
-			double phiCurrent,               phiTrue = (*currentParticle)->momentum().phi();;
-			double etCurrent,  etFound  = 0, etTrue  = (*currentParticle)->momentum().et();
+			double etaTrue = (*currentParticle)->momentum().eta();
+			double phiTrue = (*currentParticle)->momentum().phi();
+			double etTrue  = (*currentParticle)->momentum().et();
 
-			double closestParticleDistance = 999; 
-
-		  for(reco::SuperClusterCollection::const_iterator aClus = hybridBarrelSuperClusters->begin(); aClus != hybridBarrelSuperClusters->end(); aClus++)
+			if(std::fabs(etaTrue) < 1.479)
 			{
-				etaCurrent = 	aClus->position().eta();
-				phiCurrent = 	aClus->position().phi();
-				etCurrent  =  aClus->energy()*aClus->position().theta();
-
-				double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2)); 
-
-				if(deltaR < closestParticleDistance)
 				{
-					etFound  = etCurrent;
-					etaFound = etaCurrent;
-					closestParticleDistance = deltaR;
+					double etaCurrent, etaFound = 0;
+					double phiCurrent;
+					double etCurrent,  etFound  = 0;
+
+					double closestParticleDistance = 999; 
+				
+				  for(reco::SuperClusterCollection::const_iterator aClus = hybridBarrelSuperClusters->begin(); aClus != hybridBarrelSuperClusters->end(); aClus++)
+					{
+						etaCurrent = 	aClus->position().eta();
+						phiCurrent = 	aClus->position().phi();
+						etCurrent  =  aClus->energy()/std::cosh(etaCurrent);
+											
+						double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2));
+
+						if(deltaR < closestParticleDistance)
+						{
+							etFound  = etCurrent;
+							etaFound = etaCurrent;
+							closestParticleDistance = deltaR;
+						}
+					}
+					
+					if(closestParticleDistance < 0.3)
+					{
+						hist_HybridEB_SC_EToverTruth_->Fill(etFound/etTrue);
+						hist_HybridEB_SC_deltaEta_->Fill(etaFound-etaTrue);
+					}
+				}
+				{
+					double etaCurrent, etaFound = 0;
+					double phiCurrent;
+					double etCurrent,  etFound  = 0;
+
+					double closestParticleDistance = 999; 
+				
+				  for(reco::SuperClusterCollection::const_iterator aClus = islandBarrelSuperClusters->begin(); aClus != islandBarrelSuperClusters->end(); aClus++)
+					{
+						etaCurrent = 	aClus->position().eta();
+						phiCurrent = 	aClus->position().phi();
+						etCurrent  =  aClus->energy()/std::cosh(etaCurrent);
+
+						double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2)); 
+
+						if(deltaR < closestParticleDistance)
+						{
+							etFound  = etCurrent;
+							etaFound = etaCurrent;
+							closestParticleDistance = deltaR;
+						}
+					}
+					
+					if(closestParticleDistance < 0.3)
+					{
+						hist_IslandEB_SC_EToverTruth_->Fill(etFound/etTrue);
+						hist_IslandEB_SC_deltaEta_->Fill(etaFound-etaTrue);
+					}
 				}
 			}
-	
-		  for(reco::SuperClusterCollection::const_iterator aClus = islandBarrelSuperClusters->begin(); aClus != islandBarrelSuperClusters->end(); aClus++)
+			else
 			{
-				etaCurrent = 	aClus->position().eta();
-				phiCurrent = 	aClus->position().phi();
-				etCurrent  =  aClus->energy()*aClus->position().theta();
+				double etaCurrent, etaFound = 0;
+				double phiCurrent;
+				double etCurrent,  etFound  = 0;
 
-				double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2)); ; 
+				double closestParticleDistance = 999; 
 
-				if(deltaR < closestParticleDistance)
+			  for(reco::SuperClusterCollection::const_iterator aClus = islandEndcapSuperClusters->begin(); aClus != islandEndcapSuperClusters->end(); aClus++)
 				{
-					etFound  = etCurrent;
-					etaFound = etaCurrent;
-					closestParticleDistance = deltaR;
+					etaCurrent = 	aClus->position().eta();
+					phiCurrent = 	aClus->position().phi();
+					etCurrent  =  aClus->energy()/std::cosh(etaCurrent);
+
+					double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2)); 
+
+					if(deltaR < closestParticleDistance)
+					{
+						etFound  = etCurrent;
+						etaFound = etaCurrent;
+						closestParticleDistance = deltaR;
+					}
+				}
+				
+				if(closestParticleDistance < 0.3)
+				{
+					hist_IslandEE_SC_EToverTruth_->Fill(etFound/etTrue);
+					hist_IslandEE_SC_deltaEta_->Fill(etaFound-etaTrue);
 				}
 			}
-
-		  for(reco::SuperClusterCollection::const_iterator aClus = islandEndcapSuperClusters->begin(); aClus != islandEndcapSuperClusters->end(); aClus++)
-			{
-				etaCurrent = 	aClus->position().eta();
-				phiCurrent = 	aClus->position().phi();
-				etCurrent  =  aClus->energy()*aClus->position().theta();
-
-				double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2)); 
-
-				if(deltaR < closestParticleDistance)
-				{
-					etFound  = etCurrent;
-					etaFound = etaCurrent;
-					closestParticleDistance = deltaR;
-				}
-			}
-			
-			hist_HybridEB_SC_EToverTruth_->Fill(etFound/etTrue);
-			hist_IslandEE_SC_deltaEta_->Fill(etaFound-etaTrue);
 		}
 	}
 }
