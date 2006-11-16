@@ -10,8 +10,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Handle.h"
-
+#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
+
 class L2TauJetsProvider: public edm::EDProducer {
  public:
   explicit L2TauJetsProvider(const edm::ParameterSet&);
@@ -20,6 +22,7 @@ class L2TauJetsProvider: public edm::EDProducer {
 
  private:
   edm::InputTag jetSrc;
+  edm::InputTag l1ParticleMap;
   //TO BE REPLACE WITH L1 TRIGGER BIT
   float mEt_SingleTau;
   float mEt_DoubleTau;
