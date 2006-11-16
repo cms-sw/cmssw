@@ -4,8 +4,8 @@
 /** \class GeneralBinFinderInR
  *  A R binfinder for a non-periodic group of detectors.
  *
- *  $Date: 2002/05/25 16:39:12 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/16 10:39:03 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -37,8 +37,8 @@ public:
   {
     std::vector<Det*> dets(first,last);
     RBorderFinder bf(dets);
-    theBorders=bf.phiBorders();
-    theBins=bf.phiBins();
+    theBorders=bf.RBorders();
+    theBins=bf.RBins();
     theNbins=theBins.size();
   }
 
@@ -57,7 +57,7 @@ public:
 
   /// Returns an index in the valid range
   virtual int binIndex( int i) const {
-    return min( max( i, 0), theNbins-1);
+    return std::min( std::max( i, 0), theNbins-1);
   }
    
   /// The middle of the bin
