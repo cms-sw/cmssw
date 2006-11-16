@@ -155,6 +155,21 @@ namespace edm {
     }
 
 
+    bool OperatorNode::findChild(const std::string & childName, NodePtr & result)
+    {
+      bool foundLeft  = left()->findChild(childName, result);
+      bool foundRight = right()->findChild(childName, result);
+
+      if(foundLeft && foundRight)
+      {
+        throw edm::Exception(errors::Configuration)
+         << "A child named " << childName 
+         << " was found on both sides of an operator";
+      }
+      return (foundLeft || foundRight);
+    }
+        
+
     void OperatorNode::accept(Visitor& v) const
     {
       v.visitOperator(*this);
