@@ -47,7 +47,7 @@ TrackingVertex::tp_iterator TrackingVertex::sourceTracks_end()     const { retur
 
 // Accessors for whole vectors
 
-const std::vector<SimVertex>    TrackingVertex::g4Vertices()     const { return  g4Vertices_;     };
-const GenVertexRefVector        TrackingVertex::genVertices()    const { return  genVertices_;    };
-const TrackingParticleRefVector TrackingVertex::sourceTracks()   const { return  sourceTracks_;   };
-const TrackingParticleRefVector TrackingVertex::daughterTracks() const { return  daughterTracks_; };
+const std::vector<SimVertex>    TrackingVertex::g4Vertices()     const { return  g4Vertices_;     }
+const GenVertexRefVector        TrackingVertex::genVertices()    const { return  genVertices_;    }
+const TrackingParticleRefVector TrackingVertex::sourceTracks()   const { return  sourceTracks_;   }
+const TrackingParticleRefVector TrackingVertex::daughterTracks() const { return  daughterTracks_; }
