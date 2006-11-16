@@ -7,8 +7,8 @@
  * and store relative information. It must be transformed into a DTSegment
  * for further use.
  *
- * $Date: 2006/04/28 15:21:52 $
- * $Revision: 1.4 $
+ * $Date: 2006/05/04 09:18:50 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -121,6 +121,13 @@ class DTSegmentCand{
     /// convert this DTSegmentCand into a DTChamberRecSegment2D
     operator DTChamberRecSegment2D*() const;
 
+
+    struct AssPointLessZ : 
+      public std::binary_function<const AssPoint&, const AssPoint&, bool> {
+        public:
+          bool operator()(const AssPoint& pt1, 
+                          const AssPoint& pt2) const ; 
+      };
   protected:
 
   private:
@@ -134,12 +141,6 @@ class DTSegmentCand{
     /// mat[1][2]=cov(dx/dz,x)
     AlgebraicSymMatrix theCovMatrix; // the covariance matrix
 
-    struct AssPointLessZ : 
-      public std::binary_function<const AssPoint&, const AssPoint&, bool> {
-        public:
-          bool operator()(const AssPoint& pt1, 
-                          const AssPoint& pt2) const ; 
-      };
 
     AssPointCont theHits; // the used hits
 
