@@ -4,8 +4,8 @@
  *  A regional muon trigger candidate as received by the GMT
 */
 //
-//   $Date: 2006/05/15 13:51:42 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:26:08 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin                    HEPHY Vienna
@@ -45,7 +45,7 @@ float L1MuRegionalCand::phiValue() const {
   L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
   return theTriggerScales->getPhiScale()->getLowEdge( phi_packed() );
   
-};
+}
     
 /// get eta-value of muon candidate
 float L1MuRegionalCand::etaValue() const {
@@ -53,7 +53,7 @@ float L1MuRegionalCand::etaValue() const {
   L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
   return theTriggerScales->getRegionalEtaScale( type_idx() )->getCenter( eta_packed() );
 
-};
+}
     
 /// get pt-value of muon candidate in GeV
 float L1MuRegionalCand::ptValue() const {
@@ -61,7 +61,7 @@ float L1MuRegionalCand::ptValue() const {
   L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
   return theTriggerScales->getPtScale()->getLowEdge( pt_packed() );
   
-};
+}
 
 
 /// Set Phi Value
@@ -73,7 +73,7 @@ void L1MuRegionalCand::setPhiValue(float phiVal) {
   unsigned phi = theTriggerScales->getPhiScale()->getPacked( phiVal + eps );
 
   writeDataField (PHI_START, PHI_LENGTH, phi); 
-};
+}
 
 /// Set Pt Value
 void L1MuRegionalCand::setPtValue(float ptVal) { 
@@ -84,7 +84,7 @@ void L1MuRegionalCand::setPtValue(float ptVal) {
   unsigned pt = theTriggerScales->getPtScale()->getPacked( ptVal + eps );
 
   writeDataField (PT_START, PT_LENGTH, pt); 
-};
+}
 
 /// Set Eta Value (need to set type, first)
 void L1MuRegionalCand::setEtaValue(float etaVal) { 
@@ -93,7 +93,7 @@ void L1MuRegionalCand::setEtaValue(float etaVal) {
   unsigned eta = theTriggerScales->getRegionalEtaScale(type_idx())->getPacked( etaVal );
 
   writeDataField (ETA_START, ETA_LENGTH, eta); 
-}; 
+}
 
 void L1MuRegionalCand::print() const {
   if ( !empty() ) {
@@ -109,7 +109,7 @@ void L1MuRegionalCand::print() const {
 	 << "bx = " << setw(3) << bx() << "  " 
 	 << "type_idx = " << setw(1) << type_idx() << endl;
   }
-};
+}
 
 
 unsigned L1MuRegionalCand::readDataField(unsigned start, unsigned count) const {

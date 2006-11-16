@@ -8,8 +8,8 @@
  *  for one bunch crossing.
 */
 //
-//   $Date: 2006/08/17 16:11:28 $
-//   $Revision: 1.2 $
+//   $Date: 2006/10/18 16:23:20 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin                  HEPHY Vienna
@@ -52,18 +52,18 @@
 
 L1MuGMTReadoutRecord::L1MuGMTReadoutRecord() {
   reset();
-};
+}
  
 L1MuGMTReadoutRecord::L1MuGMTReadoutRecord(int bxie) {
   reset();
   m_BxInEvent = bxie;
-};
+}
  
 //--------------
 // Destructor --
 //--------------
 L1MuGMTReadoutRecord::~L1MuGMTReadoutRecord() {
-};
+}
 
 //--------------
 // Operations --
@@ -196,7 +196,7 @@ void L1MuGMTReadoutRecord::setGMTBrlCand(int nr, L1MuGMTExtendedCand const& cand
     m_BarrelCands[nr] = cand.getDataWord();
     setBrlRank(nr, cand.rank());
   }
-};
+}
 
 /// set GMT barrel candidate
 void L1MuGMTReadoutRecord::setGMTBrlCand(int nr, unsigned data, unsigned rank) {
@@ -204,7 +204,7 @@ void L1MuGMTReadoutRecord::setGMTBrlCand(int nr, unsigned data, unsigned rank) {
     m_BarrelCands[nr] = data;
     setBrlRank(nr, rank);
   }
-};
+}
 
 /// set GMT forward candidate
 void L1MuGMTReadoutRecord::setGMTFwdCand(int nr, L1MuGMTExtendedCand const& cand) {
@@ -212,7 +212,7 @@ void L1MuGMTReadoutRecord::setGMTFwdCand(int nr, L1MuGMTExtendedCand const& cand
     m_ForwardCands[nr] = cand.getDataWord();
     setFwdRank(nr, cand.rank());
   }
-};
+}
 
 /// set GMT forward candidate
 void L1MuGMTReadoutRecord::setGMTFwdCand(int nr, unsigned data, unsigned rank) {
@@ -220,21 +220,21 @@ void L1MuGMTReadoutRecord::setGMTFwdCand(int nr, unsigned data, unsigned rank) {
     m_ForwardCands[nr] = data;
     setFwdRank(nr, rank);
   }
-};
+}
 
 /// set GMT candidate
 void L1MuGMTReadoutRecord::setGMTCand(int nr, L1MuGMTExtendedCand const& cand) {
   if (nr>=0 && nr<4) {
     m_GMTCands[nr] = cand.getDataWord();
   }
-};
+}
 
 /// set GMT candidate
 void L1MuGMTReadoutRecord::setGMTCand(int nr, unsigned data) {
   if (nr>=0 && nr<4) {
     m_GMTCands[nr] = data;
   }
-};
+}
 
 
 
@@ -244,7 +244,7 @@ unsigned L1MuGMTReadoutRecord::getBrlRank(int i) const {
   unsigned mask = ( (1 << 8)-1 ) << (i*8);
   return (m_BrlSortRanks & mask) >> (i*8);
 
-};
+}
 
 
 /// get rank of fwd cand i
@@ -253,7 +253,7 @@ unsigned L1MuGMTReadoutRecord::getFwdRank(int i) const {
   unsigned mask = ( (1 << 8)-1 ) << (i*8);
   return (m_FwdSortRanks & mask) >> (i*8);
 
-};
+}
 
 /// set rank of brl cand i
 void L1MuGMTReadoutRecord::setBrlRank(int i, unsigned value) {
@@ -262,7 +262,7 @@ void L1MuGMTReadoutRecord::setBrlRank(int i, unsigned value) {
   m_BrlSortRanks &= ~mask;
   m_BrlSortRanks |= value << (i*8);
 
-};
+}
 
 
 /// set rank of fwd cand i
@@ -272,7 +272,7 @@ void L1MuGMTReadoutRecord::setFwdRank(int i, unsigned value) {
   m_FwdSortRanks &= ~mask;
   m_FwdSortRanks |= value << (i*8);
 
-};
+}
 
 
 

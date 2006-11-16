@@ -6,8 +6,8 @@
  *
 */
 //
-//   $Date: 2006/05/15 13:51:42 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:26:07 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -56,7 +56,7 @@ class L1MuUnsignedPacking : public L1MuPacking{
   virtual unsigned packedFromIdx(int idx) const { 
     if (idx >= (1 << Bits) ) edm::LogWarning("ScaleRangeViolation") 
                   << "L1MuUnignedPacking::packedFromIdx: warning value " << idx 
-		  << "exceeds " << Bits << "-bit range !!!" << endl;        
+		  << "exceeds " << Bits << "-bit range !!!";        
     return (unsigned) idx;
   };
 };
@@ -80,7 +80,7 @@ class L1MuSignedPacking : public L1MuPacking {
     unsigned maxabs = 1 << (Bits-1) ;
     if (idx < -(int)maxabs && idx >= (int)maxabs) edm::LogWarning("ScaleRangeViolation") 
                                                        << "L1MuSignedPacking::packedFromIdx: warning value " << idx 
-						       << "exceeds " << Bits << "-bit range !!!" << endl;    
+						       << "exceeds " << Bits << "-bit range !!!";    
     return  ~(~0 << Bits) & (idx < 0 ? (1 << Bits) + idx : idx);
   };
 };
@@ -93,40 +93,44 @@ class L1MuSignedPacking : public L1MuPacking {
  * There is a -0 and a +0 in the pseudo-signed scale
 */
 
-template<unsigned int Bits>
 class L1MuPseudoSignedPacking : public L1MuPacking {
  public:
+  L1MuPseudoSignedPacking(unsigned int nbits) : m_nbits(nbits) {};
+
   /// get the (pseudo-)sign from the packed notation (0=positive, 1=negative)
-  virtual int signFromPacked(unsigned packed) const { return ( packed & (1 << (Bits-1)) ) ? 1 : 0;};
+  virtual int signFromPacked(unsigned packed) const { return ( packed & (1 << (m_nbits-1)) ) ? 1 : 0;};
 
   /// get the value from the packed notation (+/-)
   virtual int idxFromPacked(unsigned packed) const {
-    unsigned mask = (1 << (Bits-1)) - 1; // for lower bits
+    unsigned mask = (1 << (m_nbits-1)) - 1; // for lower bits
     int absidx = (int) ( packed & mask );
-    unsigned psmask = (1 << (Bits-1) );
+    unsigned psmask = (1 << (m_nbits-1) );
     return absidx * ( ( (packed & psmask) == psmask ) ? -1 : 1 ); // pseudo sign==1 is negative
   };  
   /// get the packed notation of a value, check range
   virtual unsigned packedFromIdx(int idx) const {
     unsigned packed = abs(idx);
-    unsigned maxabs = (1 << (Bits-1)) -1;
+    unsigned maxabs = (1 << (m_nbits-1)) -1;
     if (packed > maxabs) edm::LogWarning("ScaleRangeViolation") 
                               << "L1MuPseudoSignedPacking::packedFromIdx: warning value " << idx 
-			      << "exceeds " << Bits << "-bit range !!!" << endl;
-    if (idx < 0) packed |= 1 << (Bits-1);
+			      << "exceeds " << m_nbits << "-bit range !!!";
+    if (idx < 0) packed |= 1 << (m_nbits-1);
     return  packed;
   }
 
   /// get the packed notation of a value, check range; sets the sign separately, 1 is neg. sign(!)
   virtual unsigned packedFromIdx(int idx, int sig) const {
     unsigned packed = abs(idx);
-    unsigned maxabs = (1 << (Bits-1)) -1;
+    unsigned maxabs = (1 << (m_nbits-1)) -1;
     if (packed > maxabs) edm::LogWarning("ScaleRangeViolation") 
                               << "L1MuPseudoSignedPacking::packedFromIdx: warning value " << idx 
-			      << "exceeds " << Bits << "-bit range !!!" << endl;
-    if (sig==1) packed |= 1 << (Bits-1); // sig==1 is negative
+			      << "exceeds " << m_nbits << "-bit range !!!";
+    if (sig==1) packed |= 1 << (m_nbits-1); // sig==1 is negative
     return  packed;
   }
+
+ private:
+  unsigned int m_nbits;
 };
 
 #endif

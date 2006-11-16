@@ -8,8 +8,8 @@
  *                  to the Global Trigger
 */                  
 //                
-//   $Date: 2006/05/15 13:51:42 $
-//   $Revision: 1.1 $ 
+//   $Date: 2006/08/21 14:26:07 $
+//   $Revision: 1.2 $ 
 //
 //   Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -44,15 +44,15 @@ class L1MuTriggerScales {
        0.83,  0.93,  1.04,  1.14,  1.24,  1.36,
        1.48,  1.61,  1.73,  1.85,  1.97,  2.10};
     
-    m_RegionalEtaScale[0] = new L1MuBinnedScale<L1MuSignedPacking<6> > (64, -1.2, 1.2, 32); // DT
+    m_RegionalEtaScale[0] = new L1MuBinnedScale ( new L1MuSignedPacking<6>, 64, -1.2, 1.2, 32); // DT
 
     // RPC index -16 .. 16
-    m_RegionalEtaScale[1] = new L1MuBinnedScale<L1MuSignedPacking<6> > (33, rpcetabins, 16); // brl RPC
+    m_RegionalEtaScale[1] = new L1MuBinnedScale (new L1MuSignedPacking<6>, 33, rpcetabins, 16); // brl RPC
 
-    m_RegionalEtaScale[2] = new L1MuSymmetricBinnedScale<6> (32, 0.9, 2.5);    // CSC
+    m_RegionalEtaScale[2] = new L1MuSymmetricBinnedScale ( 6, 32, 0.9, 2.5);    // CSC
 
     // RPC index -16 .. 16
-    m_RegionalEtaScale[3] = new L1MuBinnedScale<L1MuSignedPacking<6> > (33, rpcetabins, 16); // fwd RPC
+    m_RegionalEtaScale[3] = new L1MuBinnedScale (new L1MuSignedPacking<6>, 33, rpcetabins, 16); // fwd RPC
 
     //
     // Eta scale at GMT output
@@ -64,13 +64,13 @@ class L1MuTriggerScales {
             1.70,  1.75,  1.80,  1.85,  1.90,  1.95,  2.00,  2.05,
             2.10,  2.15,  2.20,  2.25,  2.30,  2.35,  2.40 };
 
-    m_GMTEtaScale = new L1MuSymmetricBinnedScale<6> (31, gmt_outputetascale);
+    m_GMTEtaScale = new L1MuSymmetricBinnedScale (6, 31, gmt_outputetascale);
 
     //
     // Phi Scale. Common to all Regioanl Muon Triggers and GMT
     // 
 
-    m_PhiScale = new L1MuBinnedScale<L1MuUnsignedPacking<8> >(144, 0., 2. * M_PI);
+    m_PhiScale = new L1MuBinnedScale (new L1MuUnsignedPacking<8>, 144, 0., 2. * M_PI);
 
     //
     // Pt Scale. Common to all Regioanl Muon Triggers and GMT
@@ -84,7 +84,7 @@ class L1MuTriggerScales {
       16.0,  18.0,  20.0,  25.0,  30.0,  35.0,  40.0,  45.0, 
       50.0,  60.0,  70.0,  80.0,  90.0, 100.0, 120.0, 140.0, 1.E6 };
 
-    m_PtScale = new L1MuBinnedScale<L1MuUnsignedPacking<5> >(32, ptscale) ;
+    m_PtScale = new L1MuBinnedScale ( new L1MuUnsignedPacking<5>, 32, ptscale) ;
     
   };
 

@@ -8,8 +8,8 @@
  *   An automatic check is done for the calo eta scales.
 */                  
 //                
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $ 
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $ 
 //
 //   Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -46,7 +46,7 @@ class L1MuGMTScales {
     };
     
     for (int i=0; i<4; i++) 
-      m_ReducedEtaScale[i] = new L1MuSymmetricBinnedScale<4>(8, reducedetabins[i]);
+      m_ReducedEtaScale[i] = new L1MuSymmetricBinnedScale(4, 8, reducedetabins[i]);
 
   
     //
@@ -55,15 +55,15 @@ class L1MuGMTScales {
     float deta_unit = 0.04;
     float deta_min = -7.5 * deta_unit;
     float deta_max = 7.5 * deta_unit;
-    m_DeltaEtaScale[0] = new L1MuBinnedScale<L1MuSignedPacking<4> > (15, deta_min, deta_max, 7); // DT-RPC
-    m_DeltaEtaScale[1] = new L1MuBinnedScale<L1MuSignedPacking<4> > (15, deta_min, deta_max, 7); // CSC-RPC
-    m_DeltaEtaScale[2] = new L1MuBinnedScale<L1MuSignedPacking<4> > (15, deta_min, deta_max, 7); // DT-CSC
-    m_DeltaEtaScale[3] = new L1MuBinnedScale<L1MuSignedPacking<4> > (15, deta_min, deta_max, 7); // CSC-DT
-    m_DeltaEtaScale[4] = new L1MuBinnedScale<L1MuSignedPacking<4> > (15, deta_min, deta_max, 7); // CSC-bRPC
-    m_DeltaEtaScale[5] = new L1MuBinnedScale<L1MuSignedPacking<4> > (15, deta_min, deta_max, 7); // DT-fRPC
+    m_DeltaEtaScale[0] = new L1MuBinnedScale (new L1MuSignedPacking<4>, 15, deta_min, deta_max, 7); // DT-RPC
+    m_DeltaEtaScale[1] = new L1MuBinnedScale (new L1MuSignedPacking<4>, 15, deta_min, deta_max, 7); // CSC-RPC
+    m_DeltaEtaScale[2] = new L1MuBinnedScale (new L1MuSignedPacking<4>, 15, deta_min, deta_max, 7); // DT-CSC
+    m_DeltaEtaScale[3] = new L1MuBinnedScale (new L1MuSignedPacking<4>, 15, deta_min, deta_max, 7); // CSC-DT
+    m_DeltaEtaScale[4] = new L1MuBinnedScale (new L1MuSignedPacking<4>, 15, deta_min, deta_max, 7); // CSC-bRPC
+    m_DeltaEtaScale[5] = new L1MuBinnedScale (new L1MuSignedPacking<4>, 15, deta_min, deta_max, 7); // DT-fRPC
 
     // delta phi scale
-    m_DeltaPhiScale = new L1MuBinnedScale<L1MuSignedPacking<3> > (8, -11.25 * M_PI/180., 8.75 * M_PI/180.0, 4); 
+    m_DeltaPhiScale = new L1MuBinnedScale (new L1MuSignedPacking<3>, 8, -11.25 * M_PI/180., 8.75 * M_PI/180.0, 4); 
 
     //
     // reduced eta scale for matching in the overlap region
@@ -74,20 +74,20 @@ class L1MuGMTScales {
       0.72,  0.83,  0.93,  1.04,  1.14,  1.24,  1.36, 1.48 };  
 
 
-    m_OvlEtaScale[0] = new L1MuSymmetricBinnedScale<4> (7, 1.3 * 18./32. , 1.3); // DT
+    m_OvlEtaScale[0] = new L1MuSymmetricBinnedScale (4, 7, 1.3 * 18./32. , 1.3); // DT
     // FIXME **** dt scale: two original bins in one new bin
     // one-to-one mapping should be possible with new eta scale
 
-    m_OvlEtaScale[1] = new L1MuSymmetricBinnedScale<4> (7, RpcOvlEtaBins) ; // bRPC
-    m_OvlEtaScale[2] = new L1MuSymmetricBinnedScale<4> (7, 0.9, 1.25);    // CSC
-    m_OvlEtaScale[3] = new L1MuSymmetricBinnedScale<4> (7, RpcOvlEtaBins) ; // fRPC
+    m_OvlEtaScale[1] = new L1MuSymmetricBinnedScale (4, 7, RpcOvlEtaBins) ; // bRPC
+    m_OvlEtaScale[2] = new L1MuSymmetricBinnedScale (4, 7, 0.9, 1.25);    // CSC
+    m_OvlEtaScale[3] = new L1MuSymmetricBinnedScale (4, 7, RpcOvlEtaBins) ; // fRPC
 
     //
     float caloEtaBounds[15] = { 
       -3.000, -2.172, -1.740, -1.392, -1.044, -0.696, -0.348, 0.,
       0.348,  0.696, 1.044,  1.392,  1.740,  2.172,  3.000 };
          
-    m_CaloEtaScale =  new L1MuBinnedScale<L1MuUnsignedPacking<4> > (14, caloEtaBounds);
+    m_CaloEtaScale =  new L1MuBinnedScale (new L1MuUnsignedPacking<4>, 14, caloEtaBounds);
   };
 
   /// destructor
