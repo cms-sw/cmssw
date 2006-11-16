@@ -452,19 +452,11 @@ namespace edm {
       ++it;
       while(it != end)
       {
-        Node * currentNode = currentPtr.get();
-        CompositeNode * compositeNode = dynamic_cast<CompositeNode*>(currentNode);
-        if(compositeNode == 0)
-        {
-          throw edm::Exception(errors::Configuration,"No such element") 
-             << "Not a composite node: " << currentNode->name() << " in " << path;
-        }
-        if(compositeNode->findChild(*it, currentPtr) == false)
+        if(currentPtr->findChild(*it, currentPtr) == false)
         {
           throw edm::Exception(errors::Configuration,"No such element")
-             << "Could not find: " << *it << " in " << currentNode->name();
+             << "Could not find: " << *it << " in " << currentPtr->name();
         }
-
 
         ++it; 
       }

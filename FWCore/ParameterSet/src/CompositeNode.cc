@@ -111,9 +111,7 @@ namespace edm {
          // IncludeNodes are transparent to this
          if((**i).type() == "include") 
          {
-           CompositeNode * includeNode = dynamic_cast<CompositeNode *>((*i).get());
-           assert(includeNode != 0);
-           if(includeNode->findChild(child, result))
+           if((*i)->findChild(child, result))
            {
              return true;
            }
