@@ -19,7 +19,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
 #include <vector>
 
