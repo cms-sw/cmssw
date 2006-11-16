@@ -122,6 +122,7 @@ void CrossingFrame::addPileupTracks(const int bcr, const SimTrackContainer *simt
     else {
       SimTrack track((*simtracks)[i].type(),(*simtracks)[i].momentum(),(*simtracks)[i].vertIndex()+vertexoffset, (*simtracks)[i].genpartIndex());
       track.setEventId(id);
+      track.setTrackId((*simtracks)[i].trackId());
       pileupTracks_[bcr-firstCrossing_].push_back(track);
     }
 }
