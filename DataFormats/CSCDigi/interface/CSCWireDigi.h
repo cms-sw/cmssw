@@ -39,7 +39,7 @@ public:
 
 
 private:
-  friend class testCSCDigis; //@@ Do we really want friend access for a test?
+  //  friend class testCSCDigis; //@@ Do we really want friend access for a test?
   uint16_t wire_;
   uint16_t tbinb_;
 
