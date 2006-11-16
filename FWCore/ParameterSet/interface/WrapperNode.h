@@ -22,6 +22,8 @@ namespace edm {
       virtual std::string type() const;
       NodePtr & wrapped() {return wrapped_;}
       const NodePtr & wrapped() const {return wrapped_;}
+      
+      virtual bool findChild(const std::string & childName, NodePtr & result);
 
       virtual void print(std::ostream& ost, PrintOptions options) const;
 

@@ -17,6 +17,25 @@ namespace edm {
 
     string WrapperNode::type() const { return type_; }
 
+
+    bool WrapperNode::findChild(const std::string & childName, NodePtr & result)
+    {
+      bool found = false;
+      // first check the wrapped node
+      if(wrapped()->name() == childName)
+      {
+        result = wrapped();
+        found = true;
+      }
+      // be transparent.
+      else 
+      { 
+        found = wrapped()->findChild(childName, result);
+      }
+      return found;
+    }
+
+
     void WrapperNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       ost << type() << " " << name() << " = {\n"
