@@ -75,7 +75,6 @@ public:
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
   // ----------member data ---------------------------
-  static const double density_units = 6.24151e+18;
 };
 
 //
@@ -85,6 +84,7 @@ private:
 //
 // static data member definitions
 //
+  static const double density_units = 6.24151e+18;
 
 //
 // constructors and destructor

@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.6 2006/07/19 08:12:28 fambrogl Exp $
+// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.7 2006/10/24 11:35:01 fambrogl Exp $
 //
 //
 
@@ -117,13 +117,13 @@ TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
 
    for(TrackingGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
        if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
-	BoundPlane& p = (dynamic_cast<PixelGeomDetUnit*>((*it)))->specificSurface();
+	const BoundPlane& p = (dynamic_cast<PixelGeomDetUnit*>((*it)))->specificSurface();
 	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" RadLeng Pixel "<<p.mediumProperties()->radLen();
 	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" Xi Pixel "<<p.mediumProperties()->xi();
        } 
 
        if(dynamic_cast<StripGeomDetUnit*>((*it))!=0){
-	BoundPlane& s = (dynamic_cast<StripGeomDetUnit*>((*it)))->specificSurface();
+	const BoundPlane& s = (dynamic_cast<StripGeomDetUnit*>((*it)))->specificSurface();
 	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" RadLeng Strip "<<s.mediumProperties()->radLen();
 	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" Xi Strip "<<s.mediumProperties()->xi();
        }
@@ -135,12 +135,12 @@ TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
    for (TrackingGeometry::DetTypeContainer::const_iterator it = pDD->detTypes().begin(); it != pDD->detTypes().end(); it ++){
      if (dynamic_cast<PixelGeomDetType*>((*it))!=0){
        edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" PIXEL Det";
-       PixelTopology& p = (dynamic_cast<PixelGeomDetType*>((*it)))->specificTopology();
+       const PixelTopology& p = (dynamic_cast<PixelGeomDetType*>((*it)))->specificTopology();
        edm::LogInfo("TrackerDigiGeometryAnalyzer")<<"    Rows    "<<p.nrows();
        edm::LogInfo("TrackerDigiGeometryAnalyzer")<<"    Columns "<<p.ncolumns();
      }else{
        edm::LogInfo("TrackerDigiGeometryAnalyzer") <<" STRIP Det";
-       StripTopology& p = (dynamic_cast<StripGeomDetType*>((*it)))->specificTopology();
+       const StripTopology& p = (dynamic_cast<StripGeomDetType*>((*it)))->specificTopology();
        edm::LogInfo("TrackerDigiGeometryAnalyzer")<<"    Strips    "<<p.nstrips();
      }
    }
