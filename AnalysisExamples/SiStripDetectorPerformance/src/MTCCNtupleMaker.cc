@@ -343,8 +343,6 @@ for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){
     			yaxis = histos[Iditer->rawId()]->GetYaxis();
     			yaxis->SetTitle("number of strips");
 			} 
-	} else {
-	  std::cout << "I am gadostj" << std::endl;
 	}
   } 
   
