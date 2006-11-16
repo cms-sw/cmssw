@@ -21,8 +21,8 @@
 // ********************************************************************
 //
 //
-// $Id: CocoaUnitsTable.cc,v 1.2 2006/02/28 10:13:06 arce Exp $
-// GEANT4 tag $Name:  $
+// $Id: CocoaUnitsTable.cc,v 1.3 2006/04/11 20:03:40 argiro Exp $
+// GEANT4 tag $Name: V00-00-07 $
 // 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.... 
 //
