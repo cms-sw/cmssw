@@ -9,7 +9,6 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
-#undef debug
 
 enum ntzdcs_elements {
   ntzdcs_evt, ntzdcs_trackid, ntzdcs_charge, ntzdcs_pdgcode, ntzdcs_x, ntzdcs_y, ntzdcs_z, ntzdcs_stepl,
@@ -118,7 +117,7 @@ void ZdcTestAnalysis::update(const G4Step * aStep) {
 
   if (doNTzdcstep) {
     G4StepPoint * preStepPoint = aStep->GetPreStepPoint();
-    G4StepPoint * postStepPoint= aStep->GetPostStepPoint();
+    // G4StepPoint * postStepPoint= aStep->GetPostStepPoint();
     G4double stepL = aStep->GetStepLength();
     G4double stepE = aStep->GetTotalEnergyDeposit();
     
@@ -150,13 +149,13 @@ void ZdcTestAnalysis::update(const G4Step * aStep) {
     int historyDepth = touch->GetHistoryDepth();
 
     if (historyDepth > 0) {
-      int theReplicaNumbers[historyDepth];
-      G4VPhysicalVolume* thePhysicalVolumes[historyDepth];
-      G4String thePVnames[historyDepth];
-      G4LogicalVolume * theLogicalVolumes[historyDepth];
-      G4String theLVnames[historyDepth];
-      G4Material * theMaterials[historyDepth];
-      G4String theMaterialNames[historyDepth];
+      std::vector<int>                theReplicaNumbers(historyDepth);
+      std::vector<G4VPhysicalVolume*> thePhysicalVolumes(historyDepth);
+      std::vector<G4String>           thePVnames(historyDepth);
+      std::vector<G4LogicalVolume*>   theLogicalVolumes(historyDepth);
+      std::vector<G4String>           theLVnames(historyDepth);
+      std::vector<G4Material*>        theMaterials(historyDepth);
+      std::vector<G4String>           theMaterialNames(historyDepth);
       
       for (int jj = 0; jj < historyDepth; jj++) {
 	theReplicaNumbers[jj] = touch->GetReplicaNumber(jj);
@@ -215,8 +214,8 @@ void ZdcTestAnalysis::update(const G4Step * aStep) {
       std::cout << " hd<0:  hd=" << historyDepth << std::endl;
     }
 
-
-  double NCherPhot = -1;
+    
+    double NCherPhot = -1;
     zdcsteparray[ntzdcs_evt] = (float)eventIndex;
     zdcsteparray[ntzdcs_trackid] = (float)theTrackID;
     zdcsteparray[ntzdcs_charge] = theCharge;

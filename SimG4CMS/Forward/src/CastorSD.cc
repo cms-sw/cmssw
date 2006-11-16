@@ -145,7 +145,7 @@ C3TF, C4TF - for third release of CASTOR
       float bThreshold = 0.67;
       float nMedium = 1.4925;
   //  float photEnSpectrDL = (1./400.nm-1./700.nm)*10000000.cm/nm; /* cm-1  */
-      float photEnSpectrDL = 10714.285714;
+  //  float photEnSpectrDL = 10714.285714;
 
       float photEnSpectrDE = 1.24;    /* see below   */
   /* E = 2pi*(1./137.)*(eV*cm/370.)/lambda  =     */
@@ -162,6 +162,7 @@ C3TF, C4TF - for third release of CASTOR
 	effPMTandTransport = 0.15;
 
       float thFullRefl = 23.;  /* 23.dergee */
+      float thFullReflRad = thFullRefl*pi/180.;
 
 /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
       float thFibDir = 45.;  /* .dergee */
@@ -170,13 +171,12 @@ C3TF, C4TF - for third release of CASTOR
 	 nameVolume == "GR2Q" || nameVolume == "GRNQ")
 	thFibDir = 0.0; /* .dergee */
 /*   */
-      float thFullReflRad = thFullRefl*pi/180.;
       float thFibDirRad = thFibDir*pi/180.;
 /*   */
 /*   */
 
   // at which theta the point is located:
-      float th1    = hitPoint.theta();
+  //  float th1    = hitPoint.theta();
 
   // theta of charged particle in LabRF(hit momentum direction):
       float costh =hit_mom.z()/sqrt(hit_mom.x()*hit_mom.x()+

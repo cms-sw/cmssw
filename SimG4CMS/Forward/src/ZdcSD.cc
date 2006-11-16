@@ -5,6 +5,7 @@
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -18,8 +19,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Random/Randomize.h"
 
-#undef debug
-
 ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
 	     edm::ParameterSet const & p,const SimTrackManager* manager) : 
   CaloSD(name, cpv, p, manager), numberingScheme(0) {
@@ -29,23 +28,22 @@ ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
   verbosity %= 10;
   setNumberingScheme(new ZdcNumberingScheme(verbn));
 
-  if (verbosity > 0)
-    cout<< "***************************************************" <<std::endl
-	<< "*                                                 *" <<std::endl
-	<< "* Constructing a ZdcSD  with name " << name          <<std::endl
-	<< "*                                                 *" <<std::endl
-	<< "***************************************************" <<std::endl;
+  edm::LogInfo("ForwardSim")
+    << "***************************************************\n"
+    << "*                                                 *\n"
+    << "* Constructing a ZdcSD  with name " << name << "\n"
+    << "*                                                 *\n"
+    << "***************************************************";
 }
 
 ZdcSD::~ZdcSD() {}
 
 double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 
-  std::cout<< "  getEnergyDeposit: ";
   float NCherPhot = 0.;
 
   if (aStep == NULL) {
-    std::cout<< "aStep is NULL!" << std::endl;
+    LogDebug("ForwardSim") << "ZdcSD::  getEnergyDeposit: aStep is NULL!";
     return 0;
   }
   else {
@@ -92,18 +90,20 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 
     // Get the total energy deposit
     double stepE   = aStep->GetTotalEnergyDeposit();
-    cout<<"*****************HHHHHHHHHHHHHHHHHHHHHHHHHHLLLLLLLLLlllllllllll&&&&&&&&&&"<<endl;
-    std::cout<< "  preStepPoint: "
-	<< nameVolume << "," << stepL << "," << stepE << "," << beta << "," << charge;
-    std::cout<< "  postStepPoint: "
-	<< postnameVolume << "," << costheta << "," << theta << "," << eta << "," << phi << ","
-	<< particleType << "," << primaryID;
+    LogDebug("ForwardSim") 
+      << "ZdcSD::  getEnergyDeposit: "
+      <<"*****************HHHHHHHHHHHHHHHHHHHHHHHHHHLLLLLLLLLlllllllllll&&&&&&&&&&\n"
+      << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE 
+      << "," << beta << "," << charge << "\n"
+      << "  postStepPoint: " << postnameVolume << "," << costheta << "," 
+      << theta << "," << eta << "," << phi << "," << particleType << "," 
+      << primaryID;
 
     float bThreshold = 0.67;
     int status = 0;
     if ((beta > bThreshold) && (charge != 0) && (nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber")) {
       status = 1;
-      std::cout<< " pass "; 
+      LogDebug("ForwardSim") << "ZdcSD::  getEnergyDeposit:  pass "; 
 
       float nMedium = 1.4925;
       // float photEnSpectrDL = 10714.285714;
@@ -199,7 +199,7 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 	}
       }
 
-      std::cout<< std::endl;
+      //  std::cout<< std::endl;
       double meanNCherPhot = 0.;
       G4int poissNCherPhot = 0;
       if (d_qz > 0) {
@@ -217,58 +217,58 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 	NCherPhot = poissNCherPhot * effPMTandTransport * d_qz;
       }
 
-      #ifdef debug
-      std::cout << "  gED: "
-		   << stepE
-		   << "," << costh
-		   << "," << th
-		   << "," << costhcher
-		   << "," << thcher
-		   << "," << DelFibPart
-		   << "," << d
-		   << "," << a
-		   << "," << r
-		   << "," << hitPoint
-		   << "," << hit_mom
-		   << "," << stepControlFlag
-		   << "," << entot
-		   << "," << vert_mom
-		   << "," << localPoint
-		   << "," << charge
-		   << "," << beta
-		   << "," << stepL
-		   << "," << d_qz
-		   << "," << variant
-		   << "," << meanNCherPhot
-		   << "," << poissNCherPhot
-		   << "," << NCherPhot << std::endl;
-		// --constants-----------------
-		// << "," << photEnSpectrDE
-		// << "," << nMedium
-		// << "," << bThreshold
-		// << "," << thFibDirRad
-		// << "," << thFullReflRad
-		// << "," << effPMTandTransport
-		// --other variables-----------
-		// << "," << curprocess
-		// << "," << nameProcess
-		// << "," << name
-		// << "," << rad
-		// << "," << mat
-      #endif 
+      LogDebug("ForwardSim") 
+	<< "ZdcSD::  getEnergyDeposit:  gED: "
+	<< stepE
+	<< "," << costh
+	<< "," << th
+	<< "," << costhcher
+	<< "," << thcher
+	<< "," << DelFibPart
+	<< "," << d
+	<< "," << a
+	<< "," << r
+	<< "," << hitPoint
+	<< "," << hit_mom
+	<< "," << stepControlFlag
+	<< "," << entot
+	<< "," << vert_mom
+	<< "," << localPoint
+	<< "," << charge
+	<< "," << beta
+	<< "," << stepL
+	<< "," << d_qz
+	<< "," << variant
+	<< "," << meanNCherPhot
+	<< "," << poissNCherPhot
+	<< "," << NCherPhot;
+      // --constants-----------------
+      // << "," << photEnSpectrDE
+      // << "," << nMedium
+      // << "," << bThreshold
+      // << "," << thFibDirRad
+      // << "," << thFullReflRad
+      // << "," << effPMTandTransport
+      // --other variables-----------
+      // << "," << curprocess
+      // << "," << nameProcess
+      // << "," << name
+      // << "," << rad
+      // << "," << mat
 
     }
     else {
       // determine failure mode: beta, charge, and/or nameVolume
       status = 0;
-      std::cout<< " fail";
       if (beta <= bThreshold)
-        std::cout<< " beta=" << beta;
+        LogDebug("ForwardSim") 
+	  << "ZdcSD::  getEnergyDeposit: fail beta=" << beta;
       if (charge == 0)
-        std::cout<< " charge=0";
+        LogDebug("ForwardSim") 
+	  << "ZdcSD::  getEnergyDeposit: fail charge=0";
       if ( !(nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber") )
-        std::cout<< " nv=" << nameVolume;
-      std::cout<< std::endl;
+        LogDebug("ForwardSim") 
+	  << "ZdcSD::  getEnergyDeposit: fail nv=" << nameVolume;
     }
 
 
@@ -277,8 +277,7 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 }
 
 uint32_t ZdcSD::setDetUnitId(G4Step* aStep) {
-  uint32_t returnNumber;
-  if(numberingScheme == 0)returnNumber = 0;
+  uint32_t returnNumber = 0;
   if(numberingScheme != 0)returnNumber = numberingScheme->getUnitID(aStep);
   // edm: return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
   return returnNumber;
@@ -286,8 +285,8 @@ uint32_t ZdcSD::setDetUnitId(G4Step* aStep) {
 
 void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
   if (scheme != 0) {
-    std::cout << "ZdcSD: updates numbering scheme for " << GetName() 
-              << std::endl;
+    edm::LogInfo("ForwardSim") << "ZdcSD: updates numbering scheme for " 
+			       << GetName();
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;
   }

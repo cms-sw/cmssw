@@ -6,6 +6,7 @@
 <use name=SimG4CMS/Calo>
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/Forward>
 <use name=DetectorDescription/Core>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -13,8 +14,6 @@
 <use name=boost>
 <use name=geant4>
 <use name=root>
-<use name=DataSvc>
-<use name=rootrflx>
 
 <export>
  <lib name=SimG4CMSForward>
