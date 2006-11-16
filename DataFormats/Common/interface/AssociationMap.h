@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.26 2006/10/25 21:56:29 wmtan Exp $
+ * $Id: AssociationMap.h,v 1.27 2006/10/30 23:07:52 wmtan Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -109,7 +109,8 @@ namespace edm {
     /// post insert action
     void post_insert() { Tag::sort( map_ ); }
 
-  private:
+    // Find should be private!  However, generated reflex dictionaries do not compile
+    //  with gcc 3.4.5 if Find is private.  Reflex should fix this!!
     /// find helper
     struct Find :
       public std::binary_function<const self&, size_type, const value_type *> {
@@ -119,6 +120,7 @@ namespace edm {
 	return & ( * c.find( i ) );
       }
     };
+  private:
     /// reference set
     ref_type ref_;
     /// index map
