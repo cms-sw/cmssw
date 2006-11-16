@@ -5,66 +5,72 @@
  *
  * Digi for CSC Comparators.
  *  
- *  $Date: 2006/04/06 11:18:25 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/16 15:22:57 $
+ *  $Revision: 1.6 $
  *
  * \author M. Schmitt, Northwestern
  *
  */
 #include <boost/cstdint.hpp>
+#include <iosfwd>
+#include <vector>
 
 class CSCComparatorDigi{
 
 public:
 
-  // Construct from the strip number and the ADC readings.
-  CSCComparatorDigi (int strip, int comparator, int timeBin);
+  /// Construct from the strip number and the ADC readings.
+  CSCComparatorDigi (int strip, int comparator, int timeBinWord);
 
 
-  // Default construction.
+  /// Default construction.
   CSCComparatorDigi ();
 
 
-  // Digis are equal if they are on the same strip and have same Comparator data
+  /// Digis are equal if they are on the same strip and have same Comparator data
   bool operator==(const CSCComparatorDigi& digi) const;
 
-  // sort by time first, then by strip
+  /// sort by time first, then by strip
   bool operator<(const CSCComparatorDigi& digi) const;
 
-  // Get the strip number
-  int getStrip() const;
+  /// Get the strip number
+    int getStrip() const { return strip_; }
 
-  // Get Comparator readings
-  int getComparator() const;
+  /// Get Comparator readings
+  int getComparator() const { return comparator_; }
 
+  /// Return the word with each bit corresponding to a time bin
+  int getTimeBinWord() const { return timeBinWord_; }
+
+  /// Return bin number of first time bin which is ON. Counts from 0.
   int getTimeBin() const;
 
-  // Set the strip number
+  /** Return vector of the bin numbers for which time bins are ON.
+   * e.g. if bits 0 and 13 fired, then this vector will contain the values 0 and 13
+   */
+  std::vector<int> getTimeBinsOn() const;
+
+  /// Set the strip number
   void setStrip(int strip);
 
-  // Set Comparator data
+  /// Set Comparator data
   void setComparator (int comparator);
 
-  // Print content of digi
+  /// Print content of digi
   void print() const;
 
 
 private:
-  friend class testCSCComparatorDigis;
 
-  uint16_t strip;
-  uint16_t comparator;
-  uint16_t timeBin;
+  uint16_t strip_;
+  uint16_t comparator_;
+  uint16_t timeBinWord_;
 
 };
 
-#include<iostream>
-// needed by COBRA
-inline std::ostream & operator<<(std::ostream & o, const CSCComparatorDigi& digi) {
-  return o << " " << digi.getStrip()
-	   << " " << digi.getComparator()
-	   << " " << digi.getTimeBin();
-}  
+/// Output operator
+std::ostream & operator<<(std::ostream & o, const CSCComparatorDigi& digi);
+
 #endif
 
 
