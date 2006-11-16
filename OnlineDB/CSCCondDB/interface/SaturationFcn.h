@@ -24,13 +24,13 @@ class SaturationFcn : public FCNBase{
      y[i]=adc_ptr[i];
      datx[i]=x[i];
      daty[i]=y[i];
-     printf("%d  datx daty %f %f \n",i,datx[i],daty[i]);
+     //printf("%d  datx daty %f %f \n",i,datx[i],daty[i]);
    }
    x3start=(y[4]*x[1]-y[1]*x[4])/(x[1]-x[4]);
    x0start=daty[13]-x3start;
    x1start=(y[4]-y[1])/(x[4]-x[1])/x0start;
    x2start=20.;
-   printf(" x0-2start %f %f %f %f\n",x0start,x1start,x2start,x3start);
+   //printf(" x0-2start %f %f %f %f\n",x0start,x1start,x2start,x3start);
  }
  
  virtual double Up() const {return 1.;}
@@ -43,10 +43,10 @@ class SaturationFcn : public FCNBase{
     double val2=1.0/x[2];
     val=x[0]*x[1]*datx[i]/pow(val,val2);
     double tmp=(daty[i]-x[3]-val);
-    printf(" dat: %d %f %f %f %f \n",i,datx[i],daty[i]-x[3],val,tmp);
+    //printf(" dat: %d %f %f %f %f \n",i,datx[i],daty[i]-x[3],val,tmp);
     chisq=chisq+tmp*tmp;
   }
-  printf("x0-3 %f %f %f %fchisq %f \n",x[0],x[1],x[2],x[3],chisq);
+  //printf("x0-3 %f %f %f %f chisq %f \n",x[0],x[1],x[2],x[3],chisq);
   return chisq; 
  }
 
@@ -58,7 +58,6 @@ class SaturationFcn : public FCNBase{
  private:
  
  double datx[24],daty[24];
-
 }; 
 
 #endif
