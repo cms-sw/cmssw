@@ -8,7 +8,7 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Sun May 14 10:25:44 CEST 2006
-// $Id: PHcalTB04Info.cc,v 1.1 2006/05/15 10:18:48 sunanda Exp $
+// $Id: PHcalTB04Info.cc,v 1.2 2006/11/13 10:04:36 sunanda Exp $
 //
 
 // system include files
@@ -208,7 +208,7 @@ void PHcalTB04Info::setVtxPrim(int evNum, int type, double x, double y,
 
   v1EvNum = evNum;
   v1Type  = type;
-  double r= std::sqrt(x*x+y*y+z*z);
+  double r= sqrt(x*x+y*y+z*z);
   v1X     = (float)(x);
   v1Y     = (float)(y);
   v1Z     = (float)(z);
