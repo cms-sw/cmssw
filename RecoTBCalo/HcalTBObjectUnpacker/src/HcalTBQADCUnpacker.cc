@@ -53,13 +53,12 @@ static const int bVH1              = 30;  // beam halo right from particle view
 
 namespace hcaltb {
 
-HcalTBQADCUnpacker::HcalTBQADCUnpacker(){}; 
+HcalTBQADCUnpacker::HcalTBQADCUnpacker(){}
 
 struct ClassicQADCDataFormat {
   unsigned int cdfHeader0,cdfHeader1,cdfHeader2,cdfHeader3;
   unsigned short data[N_QADCS_ALLOWED*32];
   unsigned int cdfTrailer0,cdfTrailer1;
-
 };
 
  struct CombinedTDCQDCDataFormat {
