@@ -4,6 +4,7 @@
 #include "DataFormats/TrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/GsfTrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackSeedAssociation.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 // #include "DataFormats/TrackReco/interface/GsfComponent5D.h"
 #include <vector>
 
@@ -41,6 +42,9 @@ namespace {
     reco::TrackSeedAssociationRefProd rp5;
     reco::TrackSeedAssociationRefVector rv5;
     
+    edm::helpers::Key< edm::RefProd < std::vector < reco::Track > > > rpt1;
+    edm::AssociationMap<edm::OneToValue< std::vector<reco::Track>, double, unsigned int > > am1;
+
 //     reco::GsfComponent5D s5;
   }
 }
