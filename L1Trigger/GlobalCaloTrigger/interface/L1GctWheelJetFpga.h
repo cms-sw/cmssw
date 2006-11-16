@@ -72,7 +72,7 @@ public:
   JetVector getInputJets() const { return m_inputJets; }
     
   /// get the input Ht
-  L1GctScalarEtVal inputHt(unsigned leafnum) const { return m_inputHt.at(leafnum); }
+  L1GctUnsignedInt<12> inputHt(unsigned leafnum) const { return m_inputHt.at(leafnum); }
     
   /// get the output jets
   JetVector getCentralJets() const { return m_centralJets; }
@@ -84,10 +84,10 @@ public:
   JetVector getTauJets() const { return m_tauJets; }
     
   /// get the output Ht
-  L1GctScalarEtVal getOutputHt() const { return m_outputHt; }
+  L1GctUnsignedInt<12> getOutputHt() const { return m_outputHt; }
 
   /// get the output jet counts
-  L1GctJcWheelType getOutputJc(unsigned jcnum) const { return m_outputJc.at(jcnum); }
+  L1GctJetCount<3> getOutputJc(unsigned jcnum) const { return m_outputJc.at(jcnum); }
 
   /// Get the jet counters
   L1GctJetCounter* getJetCounter(unsigned jcnum) const { return m_jetCounters.at(jcnum); }
@@ -117,7 +117,7 @@ private:
   JetVector m_rawTauJets; 
 
   // input Ht sums from each leaf card
-  std::vector<L1GctScalarEtVal> m_inputHt;
+  std::vector< L1GctUnsignedInt<12> > m_inputHt;
 
   // output data
   JetVector m_centralJets;
@@ -125,8 +125,8 @@ private:
   JetVector m_tauJets;
     
   // data sent to GlobalEnergyAlgos
-  L1GctScalarEtVal m_outputHt;
-  std::vector<L1GctJcWheelType> m_outputJc;
+  L1GctUnsignedInt<12> m_outputHt;
+  std::vector< L1GctJetCount<3> > m_outputJc;
       
   //PRIVATE METHODS
   /// Check the setup, independently of how we have been constructed

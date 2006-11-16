@@ -2,8 +2,8 @@
 #define L1GCTWHEELENERGYFPGA_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTwosComplement.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 
 #include <vector>
 
@@ -53,18 +53,18 @@ public:
 	L1GctJetLeafCard* getinputLeafCard(unsigned leafnum) const { return m_inputLeafCards.at(leafnum); }
 
 	/// get input Ex value from a Leaf card (0-2)
-	inline L1GctEtComponent getInputEx(unsigned leafnum) const { return m_inputEx.at(leafnum); }
+	inline L1GctTwosComplement<12> getInputEx(unsigned leafnum) const { return m_inputEx.at(leafnum); }
 	/// get input Ey value from a Leaf card (0-2)
-	inline L1GctEtComponent getInputEy(unsigned leafnum) const { return m_inputEy.at(leafnum); }
+	inline L1GctTwosComplement<12> getInputEy(unsigned leafnum) const { return m_inputEy.at(leafnum); }
 	/// get input Et value from a Leaf card (0-2)
-	inline L1GctScalarEtVal getInputEt(unsigned leafnum) const { return m_inputEt.at(leafnum); }
+	inline L1GctUnsignedInt<12> getInputEt(unsigned leafnum) const { return m_inputEt.at(leafnum); }
 
 	/// get output Ex value
-	inline L1GctEtComponent getOutputEx() const { return m_outputEx; }
+	inline L1GctTwosComplement<12> getOutputEx() const { return m_outputEx; }
 	/// get output Ey value
-	inline L1GctEtComponent getOutputEy() const { return m_outputEy; }
+	inline L1GctTwosComplement<12> getOutputEy() const { return m_outputEy; }
 	/// get output Et value
-	inline L1GctScalarEtVal getOutputEt() const { return m_outputEt; }
+	inline L1GctUnsignedInt<12> getOutputEt() const { return m_outputEt; }
 
 private:
 
@@ -76,14 +76,14 @@ private:
 	std::vector<L1GctJetLeafCard*> m_inputLeafCards;
 	///
 	/// the input components from each input card
-	std::vector<L1GctEtComponent> m_inputEx;
-	std::vector<L1GctEtComponent> m_inputEy;
-	std::vector<L1GctScalarEtVal> m_inputEt;
+	std::vector< L1GctTwosComplement<12> > m_inputEx;
+	std::vector< L1GctTwosComplement<12> > m_inputEy;
+	std::vector< L1GctUnsignedInt<12> > m_inputEt;
 	///
 	/// output data
-	L1GctEtComponent m_outputEx;
-	L1GctEtComponent m_outputEy;
-	L1GctScalarEtVal m_outputEt;
+	L1GctTwosComplement<12> m_outputEx;
+	L1GctTwosComplement<12> m_outputEy;
+	L1GctUnsignedInt<12> m_outputEt;
 	
 	
 };

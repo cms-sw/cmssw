@@ -173,8 +173,8 @@ void L1GctGlobalEnergyAlgos::process()
   // Add the jet counts.
   for (int i=0; i<12; i++) {
     m_outputJetCounts.at(i) =
-      L1GctJcFinalType(m_jcValPlusWheel.at(i)) +
-      L1GctJcFinalType(m_jcVlMinusWheel.at(i));
+      L1GctJetCount<5>(m_jcValPlusWheel.at(i)) +
+      L1GctJetCount<5>(m_jcVlMinusWheel.at(i));
   }
 }
 

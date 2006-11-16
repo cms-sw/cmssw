@@ -5,7 +5,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include <vector>
@@ -69,14 +70,14 @@ public:
   std::vector<L1GctJet> getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
     
   /// get the Ex output
-  L1GctEtComponent getOutputEx() const { return m_exSum; }
+  L1GctTwosComplement<12> getOutputEx() const { return m_exSum; }
    
   /// get the Ey output
-  L1GctEtComponent getOutputEy() const { return m_eySum; }
+  L1GctTwosComplement<12> getOutputEy() const { return m_eySum; }
     
   /// get the Et output
-  L1GctScalarEtVal getOutputEt() const { return m_etSum; }
-  L1GctScalarEtVal getOutputHt() const { return m_htSum; }
+  L1GctUnsignedInt<12> getOutputEt() const { return m_etSum; }
+  L1GctUnsignedInt<12> getOutputHt() const { return m_htSum; }
    
 private:
 
@@ -101,18 +102,18 @@ private:
 
   int phiPosition;
 
-  L1GctEtComponent m_exSum;
-  L1GctEtComponent m_eySum;
-  L1GctScalarEtVal m_etSum;
-  L1GctScalarEtVal m_htSum;
+  L1GctTwosComplement<12> m_exSum;
+  L1GctTwosComplement<12> m_eySum;
+  L1GctUnsignedInt<12> m_etSum;
+  L1GctUnsignedInt<12> m_htSum;
 
   // PRIVATE MEMBER FUNCTIONS
   // Given a strip Et sum, perform rotations by sine and cosine
   // factors to find the corresponding Ex and Ey
-  L1GctEtComponent exComponent(const L1GctScalarEtVal etStrip, const unsigned jphi) const;
-  L1GctEtComponent eyComponent(const L1GctScalarEtVal etStrip, const unsigned jphi) const;
+  L1GctTwosComplement<12> exComponent(const L1GctUnsignedInt<12> etStrip, const unsigned jphi) const;
+  L1GctTwosComplement<12> eyComponent(const L1GctUnsignedInt<12> etStrip, const unsigned jphi) const;
   // Here is where the rotations are actually done
-  L1GctEtComponent rotateEtValue(const L1GctScalarEtVal etStrip, const unsigned fact) const;
+  L1GctTwosComplement<12> rotateEtValue(const L1GctUnsignedInt<12> etStrip, const unsigned fact) const;
 
 };
 

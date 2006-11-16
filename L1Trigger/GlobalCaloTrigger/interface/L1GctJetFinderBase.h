@@ -6,7 +6,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include <boost/cstdint.hpp> //for uint16_t
@@ -100,9 +100,9 @@ public:
   L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
 
   JetVector getJets() const { return m_outputJets; } ///< Get the located jets. 
-  L1GctScalarEtVal getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
-  L1GctScalarEtVal getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
-  L1GctScalarEtVal getHt() const { return m_outputHt; }              ///< Get the total calibrated energy in jets (Ht) found by this jet finder
+  L1GctUnsignedInt<12> getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
+  L1GctUnsignedInt<12> getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
+  L1GctUnsignedInt<12> getHt() const { return m_outputHt; }              ///< Get the total calibrated energy in jets (Ht) found by this jet finder
 
  protected:
 
@@ -135,9 +135,9 @@ public:
   JetVector m_outputJets;
 
   /// output Et strip sums and Ht
-  L1GctScalarEtVal m_outputEtStrip0;
-  L1GctScalarEtVal m_outputEtStrip1;
-  L1GctScalarEtVal m_outputHt;
+  L1GctUnsignedInt<12> m_outputEtStrip0;
+  L1GctUnsignedInt<12> m_outputEtStrip1;
+  L1GctUnsignedInt<12> m_outputHt;
     
   //PROTECTED METHODS
   // Return the values of constants that might be changed by different jetFinders.
@@ -165,10 +165,10 @@ public:
   void fetchNeighbourScInput(L1GctSourceCard* sourceCard, int col0);
 
   /// Calculates total (raw) energy in a phi strip
-  L1GctScalarEtVal calcEtStrip(const UShort strip) const;
+  L1GctUnsignedInt<12> calcEtStrip(const UShort strip) const;
 
   /// Calculates total calibrated energy in jets (Ht) sum
-  L1GctScalarEtVal calcHt() const;
+  L1GctUnsignedInt<12> calcHt() const;
   
  private:
 

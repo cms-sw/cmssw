@@ -1,6 +1,9 @@
 
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
+
 
 #include <iostream>
 

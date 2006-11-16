@@ -4,7 +4,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
 
 #include <boost/cstdint.hpp> //for uint16_t
@@ -68,7 +68,7 @@ public:
   JetVector getJets() const { return m_jets; }
 
   /// get the value of the counter, for input into the jet count sums
-  L1GctJcWheelType getValue() const { return m_value;}
+  L1GctJetCount<3> getValue() const { return m_value;}
 
 private:
 
@@ -87,7 +87,7 @@ private:
   JetVector m_jets;
     
   /// The value of the counter
-  L1GctJcWheelType m_value;
+  L1GctJetCount<3> m_value;
 
   //PRIVATE METHODS
   

@@ -1,8 +1,11 @@
 #ifndef L1GCTUNSIGNEDINT_H
 #define L1GCTUNSIGNEDINT_H
 
+#include <boost/cstdint.hpp>
+#include <ostream>
 
 /* unsigned integer representations */
+
 
 template <int nBits>
 class L1GctUnsignedInt {
@@ -17,8 +20,7 @@ class L1GctUnsignedInt {
   ~L1GctUnsignedInt();
 
   /// Copy contructor to move data between representations with different numbers of bits
-  template <int mBits>
-  L1GctUnsignedInt(const L1GctUnsignedInt<mBits>& rhs);
+  template <int mBits> L1GctUnsignedInt(const L1GctUnsignedInt<mBits>& rhs);
 
   /// reset value and overflow to zero
   void reset() { m_value = static_cast<unsigned>(0); m_overFlow = false; }
@@ -141,7 +143,7 @@ L1GctUnsignedInt<nBits>& L1GctUnsignedInt<nBits>::operator= (int value) {
 }
 
 
-
+// removed typedefs for slc4 compilation
 
 /// typedef for the data type used for Ex and Ey in the energy sum calculations
 //typedef L1GctTwosComplement<12> L1GctEtComponent;

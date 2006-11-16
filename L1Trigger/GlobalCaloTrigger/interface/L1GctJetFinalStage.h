@@ -4,7 +4,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
+//#include "L1Trigger/GlobalCaloTrigger/src/L1Gct.h"
 
 #include <vector>
 

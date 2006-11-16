@@ -330,23 +330,23 @@ vector<L1GctJet> L1GlobalCaloTrigger::getTauJets() const {
 }
 
 // total Et output
-L1GctScalarEtVal L1GlobalCaloTrigger::getEtSum() const {
+L1GctUnsignedInt<12> L1GlobalCaloTrigger::getEtSum() const {
   return theEnergyFinalStage->getEtSum();
 }
 
-L1GctScalarEtVal L1GlobalCaloTrigger::getEtHad() const {
+L1GctUnsignedInt<12> L1GlobalCaloTrigger::getEtHad() const {
   return theEnergyFinalStage->getEtHad();
 }
 
-L1GctScalarEtVal L1GlobalCaloTrigger::getEtMiss() const {
+L1GctUnsignedInt<12> L1GlobalCaloTrigger::getEtMiss() const {
   return theEnergyFinalStage->getEtMiss();
 }
 
-L1GctEtAngleBin L1GlobalCaloTrigger::getEtMissPhi() const {
+L1GctUnsignedInt<7> L1GlobalCaloTrigger::getEtMissPhi() const {
   return theEnergyFinalStage->getEtMissPhi();
 }
 
-L1GctJcFinalType L1GlobalCaloTrigger::getJetCount(unsigned jcnum) const {
+L1GctJetCount<5> L1GlobalCaloTrigger::getJetCount(unsigned jcnum) const {
   return theEnergyFinalStage->getJetCount(jcnum);
 }
 

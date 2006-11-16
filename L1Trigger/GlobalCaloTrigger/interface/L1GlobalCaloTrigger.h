@@ -8,7 +8,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 //#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCounts.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
@@ -105,19 +105,19 @@ public:
   std::vector<L1GctJet> getTauJets() const;
   
   /// Total Et output to GT
-  L1GctScalarEtVal getEtSum() const;
+  L1GctUnsignedInt<12> getEtSum() const;
   
   /// Total hadronic Et output to GT
-  L1GctScalarEtVal getEtHad() const;
+  L1GctUnsignedInt<12> getEtHad() const;
 
   /// Etmiss output to GT
-  L1GctScalarEtVal getEtMiss() const;
+  L1GctUnsignedInt<12> getEtMiss() const;
   
   /// Etmiss phi output to GT
-  L1GctEtAngleBin getEtMissPhi() const;
+  L1GctUnsignedInt<7> getEtMissPhi() const;
 
   // Jet Count output to GT
-  L1GctJcFinalType getJetCount(unsigned jcnum) const;
+  L1GctJetCount<5> getJetCount(unsigned jcnum) const;
 
   /// get the Source cards
   std::vector<L1GctSourceCard*> getSourceCards() const { return theSourceCards; }

@@ -2,6 +2,10 @@
 #define L1GCTJETCOUNT_H
 
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
+
+#include <boost/cstdint.hpp>
+#include <ostream>
 
 /// Jet counts
 template <int nBits>
@@ -52,7 +56,7 @@ L1GctJetCount<nBits>::~L1GctJetCount() {}
 template <int nBits>
 template <int mBits>
 L1GctJetCount<nBits>::L1GctJetCount(const L1GctJetCount<mBits>& rhs) {
-  m_nBits = nBits>0 && nBits<MAX_NBITS ? nBits : 16 ;
+  this->m_nBits = nBits>0 && nBits<this->MAX_NBITS ? nBits : 16 ;
   this->setValue( rhs.value() );
   this->setOverFlow( this->overFlow() || rhs.overFlow() );
 }
@@ -61,11 +65,11 @@ template <int nBits>
 void L1GctJetCount<nBits>::setValue(unsigned value)
 {
   // check for overflow
-  if (value >= (static_cast<unsigned>((1<<m_nBits) - 1)) ) {
-    m_overFlow = true;
-    m_value = ((1<<m_nBits) - 1);
+  if (value >= (static_cast<unsigned>((1<<this->m_nBits) - 1)) ) {
+    this->m_overFlow = true;
+    this->m_value = ((1<<this->m_nBits) - 1);
   } else {
-    m_value = value;
+    this->m_value = value;
   }
 
 }
@@ -73,8 +77,8 @@ void L1GctJetCount<nBits>::setValue(unsigned value)
 template <int nBits>
 void L1GctJetCount<nBits>::setOverFlow(bool oflow)
 {
-  m_overFlow = oflow;
-  if (oflow) { m_value = ((1<<m_nBits) - 1); }
+  this->m_overFlow = oflow;
+  if (oflow) { this->m_value = ((1<<this->m_nBits) - 1); }
 }
 
 // increment operators
@@ -82,7 +86,7 @@ template <int nBits>
 L1GctJetCount<nBits>&
 L1GctJetCount<nBits>::operator++ () {
 
-  this->setValue(m_value+1);
+  this->setValue(this->m_value+1);
   return *this;
 }
 
@@ -90,9 +94,9 @@ template <int nBits>
 L1GctJetCount<nBits>
 L1GctJetCount<nBits>::operator++ (int) {
 
-  L1GctJetCount<nBits> temp(m_value);
-  temp.setOverFlow(m_overFlow);
-  this->setValue(m_value+1);
+  L1GctJetCount<nBits> temp(this->m_value);
+  temp.setOverFlow(this->m_overFlow);
+  this->setValue(this->m_value+1);
   return temp;
 }
 
@@ -160,11 +164,12 @@ std::ostream& operator<<(std::ostream& s, const L1GctJetCount<nBits>& data) {
 
 }
 
+// removed typedefs for slc4 compilation
 
 /// typedef for the data type used for final output jet counts
-typedef L1GctJetCount<5>        L1GctJcFinalType;
+//typedef L1GctJetCount<5>        L1GctJcFinalType;
 /// typedef for the data type used for Wheel card jet counts
-typedef L1GctJetCount<3>        L1GctJcWheelType;
+//typedef L1GctJetCount<3>        L1GctJcWheelType;
 
 
 #endif

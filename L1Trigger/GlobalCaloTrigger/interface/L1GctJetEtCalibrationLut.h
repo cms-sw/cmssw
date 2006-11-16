@@ -53,7 +53,7 @@ public:
 private:
 
   /// the output scale - converts linear Et to rank
-  L1CaloEtScale* m_outputEtScale;
+  const L1CaloEtScale* m_outputEtScale;
 
   /// the calibration function
   std::vector< std::vector<float> > m_calibFunc;
