@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/11/02 05:55:04 $
- *  $Revision: 1.31 $
+ *  $Date: 2006/11/08 18:23:52 $
+ *  $Revision: 1.32 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -118,16 +118,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     // fill the TrackCollection
     trackCollection->push_back(track);
 
-    if ( !theTrajectoryFlag ) { //!! can not delete them if put into event
-      // clean the memory. FIXME: check this!
-      Trajectory::DataContainer dataContainer = (*trajectory)->measurements();
-      for (Trajectory::DataContainer::iterator datum = dataContainer.begin(); 
-          datum != dataContainer.end(); ++datum) 
-        delete datum->recHit();
-    
-      // delete the trajectory
-      delete *trajectory;
-    }
+    // We don't need the original trakectory anymore.
+    // It has been copied by value in the trajectoryCollection, if 
+    // it is required to put it into the event.
+     delete *trajectory;
   }
   
   // Put the Collections in the event
