@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.4 2006/11/07 18:42:42 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.5 2006/11/14 21:12:01 fwyzard Exp $
 //
 
 
@@ -135,4 +135,4 @@ SoftLepton::endJob(void) {
 }
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(SoftLepton)
+DEFINE_FWK_MODULE(SoftLepton);
