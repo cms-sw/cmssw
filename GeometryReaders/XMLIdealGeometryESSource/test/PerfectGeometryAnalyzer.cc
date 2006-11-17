@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.9 2006/11/08 08:29:47 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.10 2006/11/11 13:12:15 chrjones Exp $
 //
 //
 
@@ -34,11 +34,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 
 #include "DataSvc/RefException.h"
 #include "CoralBase/Exception.h"
@@ -99,71 +96,11 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
    using namespace edm;
 
    std::cout << "Here I am " << std::endl;
-   //
-   // get the DDCompactView
-   //
    edm::ESHandle<DDCompactView> pDD;
    iSetup.get<IdealGeometryRecord>().get(label_, pDD );
-
-   try {
-      DDExpandedView epv(*pDD);
-      std::cout << " without firstchild or next... epv.logicalPart() =" << epv.logicalPart() << std::endl;
-      if ( dumpHistory_ || dumpPosInfo_) {
-	if ( dumpPosInfo_ ) {
-	  std::cout << "After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33" << std::endl;
-	}
-	typedef DDExpandedView::nav_type nav_type;
-	typedef std::map<nav_type,int> id_type;
-	id_type idMap;
-	int id=0;
-	std::ofstream dump("dumpGeoHistoryOnRead");
-	do {
-	  nav_type pos = epv.navPos();
-	  idMap[pos]=id;
-	  dump << id << " - " << epv.geoHistory();
-	  if ( dumpPosInfo_ ) {
-	    dump << epv.translation().x() << "," << epv.translation().y() << "," << epv.translation().z() << ",";
-            dump << epv.rotation().xx() << "," << epv.rotation().xy() << "," << epv.rotation().xz() << ",";
-            dump << epv.rotation().yx() << "," << epv.rotation().yy() << "," << epv.rotation().yz() << ",";
-            dump << epv.rotation().zx() << "," << epv.rotation().zy() << "," << epv.rotation().zz();
-	  }
-	  dump << std::endl;;
-	  ++id;
-	} while (epv.next());
-	dump.close();
-      }
-      if ( dumpSpecs_ ) {
-	DDSpecifics::iterator<DDSpecifics> spit(DDSpecifics::begin()), spend(DDSpecifics::end());
-	// ======= For each DDSpecific...
-	std::ofstream dump("dumpSpecsOnRead");
-	for (; spit != spend; ++spit) {
-	  if ( !spit->isDefined().second ) continue;  
-	  const DDSpecifics & sp = *spit;
-	  dump << sp << std::endl;
-	}
-	dump.close();
-      }
-      std::cout << "finished" << std::endl;
-     
-   }catch(const DDLogicalPart& iException){
-      throw cms::Exception("Geometry")
-	<<"DDORAReader::readDB caught a DDLogicalPart exception: \""<<iException<<"\"";
-   } catch (const coral::Exception& e) {
-      throw cms::Exception("Geometry")
-	<<"DDORAReader::readDB caught coral::Exception: \""<<e.what()<<"\"";
-   } catch( const pool::RefException& er){
-      throw cms::Exception("Geometry")
-	<<"DDORAReader::readDB caught pool::RefException: \""<<er.what()<<"\"";
-   } catch ( pool::Exception& e ) {
-     throw cms::Exception("Geometry")
-       << "DDORAReader::readDB caught pool::Exception: \"" << e.what() << "\"";
-   } catch ( std::exception& e ) {
-     throw cms::Exception("Geometry")
-       <<  "DDORAReader::readDB caught std::exception: \"" << e.what() << "\"";
-   } catch ( ... ) {
-     throw cms::Exception("Geometry")
-       <<  "DDORAReader::readDB caught UNKNOWN!!! exception." << std::endl;
-   }
+   GeometryInfoDump gidump;
+   gidump.dumpInfo( dumpHistory_, dumpSpecs_, dumpPosInfo_, *pDD );
+   std::cout << "finished" << std::endl;
 }
 
 
