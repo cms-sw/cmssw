@@ -137,6 +137,7 @@ void SummaryHistogramFactory<OptoScanAnalysis>::fill( TH1& summary_histo ) {
   }
   
   // Histogram formatting
+  generator_->format( histo_, type_, view_, level_, summary_histo );
   if ( histo_ == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { 
   } else if ( histo_ == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) {
   } else if ( histo_ == sistrip::OPTO_SCAN_MEASURED_GAIN ) { 
@@ -150,8 +151,8 @@ void SummaryHistogramFactory<OptoScanAnalysis>::fill( TH1& summary_histo ) {
 	 << " Unexpected SummaryHisto value:"
 	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
 	 << endl;
+    return; 
   } 
-  generator_->format( sistrip::OPTO_SCAN, histo_, type_, view_, level_, gran_, summary_histo );
 
 }
 

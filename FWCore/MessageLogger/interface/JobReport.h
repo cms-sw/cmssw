@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.2 2006/05/19 15:13:38 evansde Exp $
+// $Id: JobReport.h,v 1.4 2006/10/02 21:45:31 evansde Exp $
 //
 
 #include <cstddef>
@@ -194,6 +194,19 @@ namespace edm {
       /// been closed. An exception will be thrown if the given Token
       /// was not obtained from outputFileOpened.
       void outputFileClosed(Token fileToken);
+
+      ///
+      /// For use by fast merge: Since the event by event counter cant
+      /// be used for fast merges, use this method to forcibly set the
+      /// events written count for an output file before reporting it 
+      /// closed
+      void overrideEventsWritten(Token fileToken, const int eventsWritten);
+      ///
+      /// For use by fast merge: Since the event by event counter cant
+      /// be used for fast merges, use this method to forcibly set the
+      /// events read count for an input file before reporting it 
+      /// closed
+      void overrideEventsRead(Token fileToken, const int eventsRead);
 
       void reportSkippedEvent(edm::EventID const& id);
 

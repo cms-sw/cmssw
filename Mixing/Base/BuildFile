@@ -8,6 +8,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=Foundation/PluginManager>
+<use name=FWCore/ServiceRegistry>
 <export>
  <use name=boost>
  <use name=clhep>
@@ -20,4 +21,5 @@
  <use name=FWCore/Framework>
  <use name=FWCore/Utilities>
  <use name=Foundation/PluginManager>
+ <use name=FWCore/ServiceRegistry>
 </export>

@@ -1,9 +1,8 @@
 /** \file
  *
- *  $Date: 2006/06/14 09:22:55 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/05/30 08:29:32 $
+ *  $Revision: 1.13 $
  *  \author  M. Zanetti - INFN Padova 
- * FRC 140906
  */
 
 #include <EventFilter/DTRawToDigi/src/DTROS8Unpacker.h>
@@ -26,7 +25,6 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				      int dduID,
 				      edm::ESHandle<DTReadOutMapping>& mapping, 
 				      std::auto_ptr<DTDigiCollection>& product,
-                                      std::auto_ptr<DTLocalTriggerCollection>& product2,
 				      uint16_t rosList) {
  
 

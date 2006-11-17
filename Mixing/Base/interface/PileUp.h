@@ -5,16 +5,19 @@
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/VectorInputSource.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandPoisson.h"
-#include "CLHEP/Random/TripleRand.h"
+
+namespace CLHEP {
+  class TripleRand;
+  class RandPoisson;
+  class RandFlat;
+}
 
 namespace edm {
   class PileUp {
   public:
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
     explicit PileUp(ParameterSet const& pset);
-    ~PileUp() {}
+    ~PileUp();
 
     void readPileUp(std::vector<EventPrincipalVector> & result);
 
@@ -35,11 +38,11 @@ namespace edm {
     bool const fixed_;
     bool const none_;
     unsigned int const maxEventsToSkip_;
-    long const seed_;
+    long seed_;
     VectorInputSource * const input_;
-    TripleRand eng_;
-    RandPoisson poissonDistribution_;
-    RandFlat flatDistribution_;
+    CLHEP::TripleRand *eng_;
+    CLHEP::RandPoisson *poissonDistribution_;
+    CLHEP::RandFlat *flatDistribution_;
   };
 }
 

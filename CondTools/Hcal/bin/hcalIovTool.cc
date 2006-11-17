@@ -8,10 +8,10 @@
 #include <string>
 
 #include "CondCore/IOVService/interface/IOV.h"
-#include "CondTools/Hcal/interface/HcalDbTool.h"
+#include "CondTools/Hcal/interface/HcalDbPool.h"
 
 namespace {
-  typedef HcalDbTool::IOVRun IOVRun;
+  typedef HcalDbPool::IOVRun IOVRun;
   typedef std::map<IOVRun,std::string> IOVCollection;
   typedef std::pair<IOVRun,IOVRun> IntervalOV;
 
@@ -60,7 +60,7 @@ void printHelp (const Args& args) {
 }
 
 void printTags (const std::string& fDb, bool fVerbose) {
-  HcalDbTool poolDb (fDb, fVerbose);
+  HcalDbPool poolDb (fDb, fVerbose);
   std::vector<std::string> allTags = poolDb.metadataAllTags ();
   std::cout << "Tags available in CMS POOL DB instance: " << fDb << std::endl;
   for (unsigned i = 0; i < allTags.size(); i++) {
@@ -69,7 +69,7 @@ void printTags (const std::string& fDb, bool fVerbose) {
 }
 
 void printRuns (const std::string& fDb, const std::string fTag, bool fVerbose) {
-  HcalDbTool poolDb (fDb, fVerbose);
+  HcalDbPool poolDb (fDb, fVerbose);
   cond::IOV iov;
   if (poolDb.getObject (&iov, fTag)) {
     std::vector <IntervalOV> allIOVs = allIOV (iov);

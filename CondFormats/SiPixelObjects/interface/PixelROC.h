@@ -1,8 +1,8 @@
-#ifndef SiPixelObjects_PixelROC_H
-#define SiPixelObjects_PixelROC_H
+#ifndef PixelROC_H
+#define PixelROC_H
 
 #include <boost/cstdint.hpp>
-#include <string>
+class PixelFEDLink;
 
 /** \class PixelROC
  * Represents ReadOut Chip of DetUnit. 
@@ -11,33 +11,29 @@
  * The Global coordinates are row and column in DetUnit.
  */
 
-
-namespace sipixelobjects {
-
-class FrameConversion;
-
 class PixelROC {
 public:
 
-  /// dummy
-  PixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0), 
-               theRowOffset(0),theRowSlopeSign(0), theColOffset(0), theColSlopeSign(0) 
-  { }
 
-  /// ctor with DetUnit id, 
-  /// ROC number in DU (given by token passage), 
-  /// ROC number in Link (given by token passage),
-  /// conversion of this  ROC do DetUnit 
-  PixelROC( uint32_t du, int idInDU, int idLk, const FrameConversion & frame);
+  /// ctor with offsets in DU (units of ROC)
+  PixelROC( 
+      uint32_t du, PixelFEDLink * lk, 
+      int idDU, int idLk, 
+      int rocInX, int rocInY); 
 
-  /// return the DetUnit to which this ROC belongs to.
-  uint32_t rawId() const { return theDetUnit; }
 
-  /// id of this ROC in DetUnit etermined by token path 
+  /// id of this ROC in DetUnit (representing pixel module) according 
+  /// to PixelDatabase. 
   int idInDetUnit() const { return theIdDU; }
 
   /// id of this ROC in parent Link.
   int idInLink() const { return theIdLk; }
+
+  /// the parent link 
+  PixelFEDLink * link() const {return theLink;}
+
+  /// return the DetUnit to which this ROC belongs to.
+  uint32_t rawId() const { return theDetUnit; }
 
   /// local coordinates in this ROC (double column, pixelid in double column) 
   struct LocalPixel { int dcol, pxid; };
@@ -51,7 +47,21 @@ public:
 
   /// converts LocalPixel in ROC to DU coordinates. 
   /// LocalPixel must be inside ROC. Otherwise result is meaningless
-  GlobalPixel toGlobal(const LocalPixel & loc) const;
+  GlobalPixel toGlobal(const LocalPixel & loc) const {
+    int icol, irow;
+    if (loc.pxid < theNRows) {
+      icol = 0;
+      irow = loc.pxid;
+    }
+    else {
+      icol = 1;
+      irow = 2*theNRows - loc.pxid-1;
+    }
+    GlobalPixel res;
+    res.row = theNRows*theRocInY + irow;
+    res.col = theNCols*theRocInX + loc.dcol * 2 + icol;
+    return res;
+  }
 
   /// check if position is inside this ROC
   bool inside(const LocalPixel & lp) const;
@@ -59,8 +69,7 @@ public:
   /// check if position inside this ROC
   bool inside(const GlobalPixel & gp) const { return inside(toLocal(gp)); }
 
-  /// printout for debug
-  std::string print(int depth = 0) const;
+
 
   /// number of rows in ROC
   static int rows() { return theNRows; }
@@ -69,13 +78,10 @@ public:
 
 private:
   uint32_t theDetUnit;
+  PixelFEDLink * theLink;
   int theIdDU, theIdLk;
-  int theRowOffset, theRowSlopeSign; 
-  int theColOffset, theColSlopeSign; 
-
+  int theRocInX, theRocInY; // offsets in DU (in units of ROC);
   static int theNRows, theNCols; 
 };
-
-}
 
 #endif

@@ -5,12 +5,11 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include <vector>
-#include <map>
 
 /** \class CaloTowerConstituentsMap
   *  
-  * $Date: 2006/07/14 18:06:25 $
-  * $Revision: 1.2 $
+  * $Date: 2006/05/11 20:44:48 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class CaloTowerConstituentsMap {
@@ -56,7 +55,6 @@ private:
   };
 
   edm::SortedCollection<MapItem> m_items;
-  mutable std::multimap<CaloTowerDetId,DetId> m_reverseItems;
 };
 
 #endif

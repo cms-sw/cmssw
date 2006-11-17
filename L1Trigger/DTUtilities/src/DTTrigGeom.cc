@@ -40,11 +40,9 @@ using namespace std;
 #include "Geometry/Vector/interface/GlobalVector.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
-
 //----------------
 // Constructors --
 //----------------
-
 DTTrigGeom::DTTrigGeom(DTChamber* stat, DTConfig* conf) : 
   _stat(stat), _config(conf) {
 
@@ -53,13 +51,10 @@ DTTrigGeom::DTTrigGeom(DTChamber* stat, DTConfig* conf) :
 
 }
 
-
 //--------------
 // Destructor --
 //--------------
-
 DTTrigGeom::~DTTrigGeom() {}
-
 
 //--------------
 // Operations --
@@ -71,8 +66,8 @@ DTTrigGeom::phiSLOffset(){
   float x1 = tubePosInCh(1,1,1).x();
   float x3 = tubePosInCh(3,1,1).x();
   float offset = x1-x3;
-  //   if(posFE(1)==1)        // Obsolete in
-  //     offset = - offset;   // CMSSW
+//   if(posFE(1)==1)
+//     offset = - offset;
   
   return offset;
 }

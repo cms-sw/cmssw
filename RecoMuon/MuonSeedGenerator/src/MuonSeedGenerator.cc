@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/08/28 16:14:25 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/08/01 15:53:04 $
+ *  $Revision: 1.10 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -522,27 +522,16 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( MB2 ) delete [] MB2;
   if ( MB1 ) delete [] MB1;
 
-  
-  if(theSeeds.size() <= 1)
-    output->push_back(theSeeds.front());
-  
-  else{
-    for(vector<TrajectorySeed>::iterator seed = theSeeds.begin();
-	seed != theSeeds.end(); ++seed){
-      int counter =0;
-      for(vector<TrajectorySeed>::iterator seed2 = seed;
-	  seed2 != theSeeds.end(); ++seed2) 
-	if( seed->startingState().parameters().vector() ==
-	    seed2->startingState().parameters().vector() )
-	  ++counter;
-      
-      if( counter > 1 ) theSeeds.erase(seed--);
-      else output->push_back(*seed);
-    }
-  }
+  //>> NEW
+
+  // what is the id??
+  //  output->put(chamberId, theSeeds.begin(),theSeeds.end());
+  for(vector<TrajectorySeed>::iterator seed = theSeeds.begin();
+      seed != theSeeds.end(); ++seed)
+    output->push_back(*seed);
   
   event.put(output);
-  
+  //<<
 }
 
 

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/09/12 18:46:31 $
- * $Revision: 1.26 $
+ * $Date: 2006/08/07 17:35:16 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -234,6 +234,20 @@ void EBBeamHodoClient::cleanup(void) {
 }
 
 void EBBeamHodoClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+
+  EcalLogicID ecid;
+  MonOccupancyDat o;
+  map<EcalLogicID, MonOccupancyDat> dataset;
+
+  if ( econn ) {
+    try {
+      cout << "Inserting MonOccupancyDat ..." << flush;
+      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
 
 }
 
@@ -742,7 +756,11 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       cP->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
-      gPad->SetLogy(0);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
       obj1f->GetXaxis()->SetTitle("hits per event");
       obj1f->GetXaxis()->SetTitleColor(1);
       obj1f->Draw();
@@ -1019,7 +1037,11 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       cP->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
-      gPad->SetLogy(0);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
       obj1f->GetXaxis()->SetTitle("scan step number");
       obj1f->GetXaxis()->SetTitleColor(1);
       obj1f->Draw();

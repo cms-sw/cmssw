@@ -39,7 +39,7 @@
 #include "toolbox/mem/Pool.h"
 
 // for performance measurements
-#include "xdata/UnsignedLong.h"
+#include "xdata/UnsignedInteger32.h"
 #include "xdata/Double.h"
 
 #include "xcept/tools.h"
@@ -62,11 +62,11 @@ extern xdaq::ApplicationDescriptor* getMyXDAQDest(unsigned int);
 
 // for performance measurements
 extern void addMyXDAQMeasurement(unsigned long size);
-extern xdata::UnsignedLong getMyXDAQsamples();
+extern xdata::UnsignedInteger32 getMyXDAQsamples();
 extern xdata::Double getMyXDAQdatabw();
 extern xdata::Double getMyXDAQdatarate();
 extern xdata::Double getMyXDAQdatalatency();
-extern xdata::UnsignedLong getMyXDAQtotalsamples();
+extern xdata::UnsignedInteger32 getMyXDAQtotalsamples();
 extern xdata::Double getMyXDAQduration();
 extern xdata::Double getMyXDAQmeandatabw();
 extern xdata::Double getMyXDAQmeandatarate();

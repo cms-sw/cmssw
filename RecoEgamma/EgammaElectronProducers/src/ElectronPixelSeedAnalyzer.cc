@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.3 2006/07/03 09:45:42 uberthon Exp $
+// $Id: ElectronPixelSeedAnalyzer.cc,v 1.4 2006/07/12 14:35:58 charlot Exp $
 //
 //
 
@@ -32,7 +32,6 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"

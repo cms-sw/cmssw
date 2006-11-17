@@ -25,7 +25,7 @@ L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso, std::vector<L1Gc
     }else{
       throw cms::Exception("L1GctSetupError")
 	<<"L1GctElectronSorter::L1GctElectronSorter() : Pointer to Source Card "<<i<<" is zero";
-    }
+    }  
   }
 }
 
@@ -71,7 +71,7 @@ void L1GctElectronSorter::process() {
 
 //Convert from caloEmCand to gctEmCand and make temporary copy of data
   std::vector<L1GctEmCand> data = this->convertCaloToGct(m_inputCands);
-
+ 
 //Then sort it
     sort(data.begin(),data.end(),rank_gt());
 
@@ -79,6 +79,7 @@ void L1GctElectronSorter::process() {
     for(int i = 0; i<4; i++){
       m_outputCands[i] = data[i];
     }
+
 }
 
 void L1GctElectronSorter::setInputEmCand(int i, L1CaloEmCand cand){
@@ -99,20 +100,20 @@ std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& ems) {
 
 std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1CaloEmCand> cand){
   std::vector<L1GctEmCand> gctCand(cand.size());
+
   for(unsigned int i = 0;i!=cand.size();i++){
     unsigned rank = cand[i].rank();
     unsigned card = cand[i].rctCard();
     unsigned region = cand[i].rctRegion();
-    unsigned crate = cand[i].rctCrate(); 
+    // unsigned crate = cand[i].rctCrate(); for now
     //bool sign = (crate<9?1:0); for now
     bool isolation = cand[i].isolated();
-    unsigned eta = 0; //initialisation values
-    unsigned phiRegion = 0;
-    unsigned phi = 0;
-
+    unsigned eta = 10; //initialisation value, outside eta range
+    unsigned phi = 50;
+    
     switch(card){
     case 0:
-      phiRegion = 1;
+      phi = 1;
       if(region == 0){
 	eta = 0;
       }else{
@@ -120,7 +121,7 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }
       break;
     case 1:
-      phiRegion = 1;
+      phi = 1;
       if(region == 0){
 	eta = 2;
       }else{
@@ -128,7 +129,7 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }	
       break;
     case 2:
-      phiRegion = 1;
+      phi = 1;
       if(region == 0){
 	eta = 4;
       }else{
@@ -136,7 +137,7 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }	
       break;
     case 3:
-      phiRegion = 0;
+      phi = 0;
       if(region == 0){
 	eta = 0;
       }else{
@@ -144,7 +145,7 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }	
       break;
     case 4:
-      phiRegion = 0;
+      phi = 0;
       if(region == 0){
 	eta = 2;
       }else{
@@ -152,7 +153,7 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
       }	
       break;
     case 5:
-      phiRegion = 0;
+      phi = 0;
       if(region == 0){
 	eta = 4;
       }else{
@@ -162,19 +163,15 @@ std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1Cal
     case 6:
       if(region == 0){
 	eta = 6;
-	phiRegion = 1;
+	phi = 1;
       }else{
 	eta = 6;
-	phiRegion = 0;
+	phi = 0;
       }	
       break;
     }
-    if(crate<9){
-      phi = 2*crate + phiRegion;
-    }else{
-      phi = 2*(crate-9) + phiRegion;
-    }
-    L1GctEmCand gctTemp(rank,eta,phi,isolation);
+
+    L1GctEmCand gctTemp(rank,phi,eta,isolation);
     gctCand[i] = gctTemp;
   }
   return gctCand;

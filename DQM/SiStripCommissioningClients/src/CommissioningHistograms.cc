@@ -6,12 +6,10 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
-						  const sistrip::Task& task ) 
+CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui ) 
   : mui_(mui),
     collations_(),
-    action_(sistrip::NO_ACTION),
-    task_(task)
+    action_(sistrip::NO_ACTION)
 {
   cout << "[" << __PRETTY_FUNCTION__ << "]"
        << " Created base object!" << endl;
@@ -156,7 +154,7 @@ TH1* CommissioningHistograms::histogram( const sistrip::SummaryHisto& histo,
 					 const string& directory,
 					 const uint32_t& xbins ) {
   
-  string name = SummaryGenerator::name( task_, histo, type, view, directory );
+  string name = SummaryGenerator::name( histo, type, view, directory );
   mui()->setCurrentFolder( directory );
   MonitorElement* me = mui()->get( mui()->pwd() + "/" + name );
   if ( !me ) { 

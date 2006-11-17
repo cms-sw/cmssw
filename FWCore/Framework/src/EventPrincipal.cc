@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.50 2006/08/31 23:26:24 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.51 2006/09/27 14:54:14 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -188,7 +188,7 @@ namespace edm {
     this->addGroup(g);
   }
 
-  EventPrincipal::SharedGroupPtr const
+  EventPrincipal::SharedConstGroupPtr const
   EventPrincipal::getGroup(ProductID const& oid, bool resolve) const {
     ProductDict::const_iterator i = productDict_.find(oid);
     if (i == productDict_.end()) {
@@ -197,23 +197,23 @@ namespace edm {
     unsigned long slotNumber = i->second;
     assert(slotNumber < groups_.size());
 
-    SharedGroupPtr const& g = groups_[slotNumber];
+    SharedConstGroupPtr const& g = groups_[slotNumber];
     if (resolve && g->provenance().isPresent()) {
       this->resolve_(*g, true);
     }
     return g;
   }
 
-  EventPrincipal::SharedGroupPtr const
+  EventPrincipal::SharedConstGroupPtr const
   EventPrincipal::getInactiveGroup(ProductID const& oid) const {
     ProductDict::const_iterator i = inactiveProductDict_.find(oid);
     if (i == inactiveProductDict_.end()) {
-	return SharedGroupPtr();
+	return SharedConstGroupPtr();
     }
     unsigned long slotNumber = i->second;
     assert(slotNumber < inactiveGroups_.size());
 
-    SharedGroupPtr const& g = inactiveGroups_[slotNumber];
+    SharedConstGroupPtr const& g = inactiveGroups_[slotNumber];
     return g;
   }
 
@@ -231,7 +231,7 @@ namespace edm {
     unsigned long slotNumber = i->second;
     assert(slotNumber < groups_.size());
 
-    SharedGroupPtr const& g = groups_[slotNumber];
+    SharedConstGroupPtr const& g = groups_[slotNumber];
     this->resolve_(*g);
     return BasicHandle(g->product(), &g->provenance());
   }
@@ -336,7 +336,7 @@ namespace edm {
 	    // We found what we want.
             assert(i->second >= 0);
             assert(unsigned(i->second) < groups_.size());
-	    SharedGroupPtr group = groups_[i->second];
+	    SharedConstGroupPtr group = groups_[i->second];
 	    this->resolve_(*group);
             group->product(); group->provenance();
 	    return BasicHandle(group->product(), &group->provenance());    
@@ -378,9 +378,9 @@ namespace edm {
 
     vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
     while(ib != ie) {
-	SharedGroupPtr const& g = groups_[*ib];
-       EventProvenanceFiller* filler=0;
-       ProvenanceAccess provAccess( (&g->provenance()), filler);
+      SharedGroupPtr const& g = groups_[*ib];
+      EventProvenanceFiller* filler=0;
+      ProvenanceAccess provAccess( (&g->provenance()), filler);
 	if(sel.match(provAccess)) {
 	    this->resolve_(*g);
 	    results.push_back(BasicHandle(g->product(), &g->provenance()));
@@ -415,7 +415,7 @@ namespace edm {
         << tid;
     }
 
-    SharedGroupPtr const& g = groups_[vint[0]];
+    SharedConstGroupPtr const& g = groups_[vint[0]];
     this->resolve_(*g);
     return BasicHandle(g->product(), &g->provenance());
   }
@@ -446,7 +446,7 @@ namespace edm {
 
     vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
     while(ib != ie) {
-      SharedGroupPtr const& g = groups_[*ib];
+      SharedConstGroupPtr const& g = groups_[*ib];
       this->resolve_(*g);
       results.push_back(BasicHandle(g->product(), &g->provenance()));
       ++ib;
@@ -468,7 +468,7 @@ namespace edm {
     unsigned long slotNumber = i->second;
     assert(slotNumber < groups_.size());
 
-    SharedGroupPtr const& g = groups_[slotNumber];
+    SharedConstGroupPtr const& g = groups_[slotNumber];
     return g->provenance();
   }
 

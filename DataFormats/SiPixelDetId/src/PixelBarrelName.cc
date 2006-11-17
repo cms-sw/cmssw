@@ -1,13 +1,11 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
 #include <sstream>
-#include <iostream>
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
 using namespace std;
-
 
 PixelBarrelName::PixelBarrelName(const DetId & id) 
   : PixelModuleName(true)
@@ -16,124 +14,51 @@ PixelBarrelName::PixelBarrelName(const DetId & id)
 //  uint32_t rawId = id.rawId(); 
   PXBDetId cmssw_numbering(id);
 
-
   theLayer = cmssw_numbering.layer();
-
-  int oldModule = cmssw_numbering.module() -4; if (oldModule<=0) oldModule--;
-
-  int oldLadder = cmssw_numbering.ladder();
+  theModule = cmssw_numbering.module() -4; if (theModule<=0) theModule--;
+  theLadder = cmssw_numbering.ladder();
   if (theLayer == 1) {
-    if (oldLadder <= 5) oldLadder = 6-oldLadder;
-    else if (oldLadder >= 6 && oldLadder <= 15 ) oldLadder = 5-oldLadder;
-    else if (oldLadder >= 16) oldLadder = 26-oldLadder;
+    if (theLadder <= 5) theLadder -=6;
+    else if (theLadder >= 6 && theLadder <= 15 ) theLadder -= 5;
+    else if (theLadder >= 16) theLadder -= 26;
   } 
   else if (theLayer == 2) {
-    if (oldLadder <= 8) oldLadder = 9-oldLadder;
-    else if (oldLadder >= 9 && oldLadder <= 24) oldLadder = 8-oldLadder;
-    else if (oldLadder >= 25) oldLadder = 41-oldLadder; 
+    if (theLadder <= 8) theLadder -= 9;
+    else if (theLadder >= 9 && theLadder <= 24) theLadder -= 8;
+    else if (theLadder >= 25) theLadder -= 41; 
   } 
   else if (theLayer == 3) {
-    if (oldLadder <= 11) oldLadder = 12-oldLadder;
-    else if (oldLadder >= 12 && oldLadder <= 33) oldLadder = 11-oldLadder;
-    else if (oldLadder >= 34) oldLadder = 56-oldLadder;
+    if (theLadder <= 11) theLadder -= 12;
+    else if (theLadder >= 12 && theLadder <= 33) theLadder -= 11;
+    else if (theLadder >= 34) theLadder -= 56;
+  } else {
+//    cout << " PROBLEM, no such layer " << endl;
   } 
-
-  //
-  // part
-  //
-  if      (oldModule < 0 && oldLadder < 0) thePart = mO; 
-  else if (oldModule > 0 && oldLadder < 0) thePart = pO;
-  else if (oldModule < 0 && oldLadder > 0) thePart = mI;
-  else if (oldModule > 0 && oldLadder > 0) thePart = pI;
-  
-
-  //
-  // ladder
-  //
-  theLadder = abs(oldLadder);
-
-  //
-  // module
-  //
-  theModule = abs(oldModule);
- 
-  //
-  // half or full - this is a question...
-  //
-
-  halfModule = false; 
-  if (theLadder == 1) halfModule = true;
-  if (theLayer == 1 && theLadder == 10) halfModule = true;
-  if (theLayer == 2 && theLadder == 16) halfModule = true;
-  if (theLayer == 3 && theLadder == 22) halfModule = true;
-
-  //
-  // sector
-  //
-  theSector = 0;   // temporary
-  if (theLayer==1) {
-    switch (theLadder) {
-    case 1 : case 2: {theSector = 1; break;}
-    case 3 :         {theSector = 2; break;}
-    case 4 :         {theSector = 3; break;}
-    case 5 :         {theSector = 4; break;}
-    case 6 :         {theSector = 5; break;}
-    case 7 :         {theSector = 6; break;}
-    case 8 :         {theSector = 7; break;}
-    case 9 : case 10:{theSector = 8; break;}
-    default: ;
-    };
-  } else if (theLayer==2) {
-    switch (theLadder) {
-    case  1 : case  2: {theSector = 1; break;}
-    case  3 : case  4: {theSector = 2; break;}
-    case  5 : case  6: {theSector = 3; break;}
-    case  7 : case  8: {theSector = 4; break;}
-    case  9 : case 10: {theSector = 5; break;}
-    case 11 : case 12: {theSector = 6; break;}
-    case 13 : case 14: {theSector = 7; break;}
-    case 15 : case 16: {theSector = 8; break;}
-    default: ;
-    };
-  } else if (theLayer==3) {
-    switch (theLadder) {
-    case  1 : case  2: case  3: {theSector = 1; break;}
-    case  4 : case  5: case  6: {theSector = 2; break;}
-    case  7 : case  8: case  9: {theSector = 3; break;}
-    case 10 : case 11:          {theSector = 4; break;}
-    case 12 : case 13:          {theSector = 5; break;}
-    case 14 : case 15: case 16: {theSector = 6; break;}
-    case 17 : case 18: case 19: {theSector = 7; break;}
-    case 20 : case 21: case 22: {theSector = 8; break;}
-    default: ;
-    };
-  }
 }
 
-PixelModuleName::ModuleType  PixelBarrelName::moduleType() const 
+bool PixelBarrelName::isFullModule() const
 {
-  return isHalfModule() ? PixelBarrelName::v1x8 : PixelBarrelName::v2x8;
+  bool result = true;
+  if (abs(theLadder) == 1) result = false;
+  if (theLayer == 1 && abs(theLadder) == 10) result = false;
+  if (theLayer == 2 && abs(theLadder) == 16) result = false;
+  if (theLayer == 3 && abs(theLadder) == 22) result = false;
+  return result;
 }
-
+  
 string PixelBarrelName::name() const 
 {
    std::ostringstream stm;
-   
-   stm<<"BPix_B"<<thePart<<"_SEC"<<theSector<<"_LYR"<<theLayer<<"_LDR"<<theLadder;
-   if (halfModule) stm <<"H"; else stm <<"F";
-   stm << "_MOD" << theModule;
+
+   stm << "L" << theLayer;
+
+   if ( theLadder < 0) stm << "-"; else stm <<"+";
+   stm << abs(theLadder); 
+   if (isFullModule() ) stm <<"F"; else stm <<"H";
+
+   stm << "Z";
+   if ( theLadder < 0) stm <<"-"; else stm <<"+";
+   stm << abs(theModule);
 
    return stm.str();
-}
-
-std::ostream & operator<<( std::ostream& out, const PixelBarrelName::Shell& t)
-{
-  switch (t) {
-    case(PixelBarrelName::pI) : {out << "pI"; break;}
-    case(PixelBarrelName::pO) : {out << "pO"; break;}
-    case(PixelBarrelName::mI) : {out << "mI"; break;}
-    case(PixelBarrelName::mO) : {out << "mO"; break;}
-    default: out << "unknown";
-  };
-  return out;
 }

@@ -85,8 +85,13 @@ void VpspScanAnalysis::extract( const vector<TProfile*>& histos ) {
     }
     
     // Extract APV number
-    uint16_t apv = ( title.granularity_ == sistrip::APV ) ? (title.channel_-32)%2 : sistrip::invalid_; 
-
+    uint16_t apv = sistrip::invalid_; 
+    if ( title.extraInfo_.find(sistrip::apv_) != string::npos ) {
+      stringstream ss;
+      ss << title.extraInfo_.substr( title.extraInfo_.find(sistrip::apv_) + sistrip::apv_.size(), 1 );
+      ss >> dec >> apv;
+    }
+    
     // Store vpsp scan histos
     if ( apv == 0 ) { 
       hVpsp0_.first = *ihis; 
@@ -192,8 +197,8 @@ void VpspScanAnalysis::anal( const vector<const TProfile*>& histos,
 
     // Find "plateau edges"...using maximum/minimum
     
-    if (second_deriv[plateau_edges.first] > second_deriv[k - 1]) {plateau_edges.first = k;}
-    if (second_deriv[plateau_edges.second] < second_deriv[k - 1]) {plateau_edges.second = k;}
+    if (second_deriv[plateau_edges.first] > second_deriv[k - 1]) {plateau_edges.first = k - 1;}
+    if (second_deriv[plateau_edges.second] < second_deriv[k - 1]) {plateau_edges.second = k - 1;}
 
   }
 
@@ -218,7 +223,7 @@ void VpspScanAnalysis::anal( const vector<const TProfile*>& histos,
  float mean2_2D_noise = 0.;
  unsigned short count = 0;
 
- for (int k=5;k<55;k++) {
+for (int k=5;k<55;k++) {
   if ((second_deriv[k - 1] < (median_2D_90pc)) && (second_deriv[k - 1] > (median_2D_10pc))) { mean_2D_noise +=second_deriv[k - 1]; mean2_2D_noise += (second_deriv[k - 1] * second_deriv[k - 1]); count++;}
 }
 
@@ -243,16 +248,22 @@ float sigma_2D_noise = sqrt(fabs(mean_2D_noise * mean_2D_noise - mean2_2D_noise)
  while ((second_deriv[plateau_edges.second] > (mean_2D_noise + 2*sigma_2D_noise)) && (plateau_edges.first < 55)) { plateau_edges.second++;}
 
 // locate optimum VPSP value
-  float top_mean = 0., bottom_mean = 0.;
-  for ( unsigned short m = 5; m < plateau_edges.first; m++ ) {
-    top_mean = (top_mean*(m - 5) + histo->GetBinContent(m))/ (m - 4);}
-  
-  for ( unsigned short m = plateau_edges.second; m < 56; m++ ) { 
-    bottom_mean = ((bottom_mean* (m - plateau_edges.second) ) + histo->GetBinContent(m))/ (m - plateau_edges.second+1);}
-  float optimum = bottom_mean + (top_mean - bottom_mean) * 1./3.;
 
-  /////// or alternative method ..
-  /*
+  float top_mean = 0, bottom_mean = 0;
+  for ( unsigned short m = 4; m < (plateau_edges.first +1); m++ ) {
+    top_mean = (top_mean*(m - 4) + (int)histo->GetBinContent(m + 1))/ (m - 3);}
+  
+  for ( unsigned short m = plateau_edges.second; m < 55; m++ ) { 
+    bottom_mean = ((bottom_mean* (m - plateau_edges.second) ) + (int)histo->GetBinContent(m + 1))/ (m - plateau_edges.second + 1);}
+
+  float optimum = bottom_mean + (top_mean - bottom_mean) * 1./3.;
+  float gradient = (float)((int)histo->GetBinContent(plateau_edges.second + 1) - (int)histo->GetBinContent(plateau_edges.first + 1)) / (float)(plateau_edges.second - plateau_edges.first);
+  
+  unsigned short vpsp = (unsigned short)((optimum - (unsigned short)histo->GetBinContent(plateau_edges.first + 1)) / gradient) + plateau_edges.first;
+  
+
+  /////// or alternative method ...
+ 
   float top=0.;
   float bottom=1025.;
   for (int k=5;k<55;k++)
@@ -265,11 +276,10 @@ float sigma_2D_noise = sqrt(fabs(mean_2D_noise * mean_2D_noise - mean2_2D_noise)
       
     }
   float opt = bottom+1./3.*(top-bottom);
-  cout << opt << ";" << optimum << endl;
-  */
 
-  unsigned short vpsp;
-  for (vpsp=plateau_edges.first; vpsp<plateau_edges.second; vpsp++) { if (histo->GetBinContent(vpsp)<optimum) break; }
+  unsigned short k2;
+  for (k2=5; k2<55; k2++) { if (histo->GetBinContent(k2)<opt) break; }
+  vpsp = k2 -1;//Added by M.W.
   
 //set monitorables
   monitorables.clear();

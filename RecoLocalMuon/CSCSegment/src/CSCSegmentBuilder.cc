@@ -1,8 +1,8 @@
 
 /** \file CSCSegmentBuilder.cc
  *
- * $Date: 2006/05/17 14:38:44 $
- * $Revision: 1.7 $
+ * $Date: 2006/05/26 15:53:35 $
+ * $Revision: 1.8 $
  * \author M. Sani
  *
  *
@@ -75,24 +75,20 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
                 insert = false;
 	
         if (insert)
-            chambers.push_back((*it2).cscDetId());
+            chambers.push_back((*it2).cscDetId().chamberId());
     }
 
     for(chIt=chambers.begin(); chIt != chambers.end(); ++chIt) {
 
-        std::vector<const CSCRecHit2D*> cscRecHits;
+        std::vector<CSCRecHit2D> cscRecHits;
         const CSCChamber* chamber = geom_->chamber(*chIt);
         
         CSCRangeMapAccessor acc;
         CSCRecHit2DCollection::range range = recHits->get(acc.cscChamber(*chIt));
-        
-        std::vector<int> hitPerLayer(6);
-        for(CSCRecHit2DCollection::const_iterator rechit = range.first; rechit != range.second; rechit++) {
-            
-            hitPerLayer[(*rechit).cscDetId().layer()-1]++;
-            cscRecHits.push_back(&(*rechit));
-        }    
-        
+
+        for(CSCRecHit2DCollection::const_iterator rechit = range.first; rechit != range.second; rechit++)
+            cscRecHits.push_back(*rechit);
+
         LogDebug("CSC") << "found " << cscRecHits.size() << " rechit in this chamber.";
             
         // given the chamber select the right algo...

@@ -12,14 +12,15 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+//#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "CommonTools/Statistics/interface/LinearFit.h"
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
 
+#include "Measurement1D.h"
 #include "ConformalMappingFit.h"
+#include "LinearFit.h"
 #include "PixelTrackBuilder.h"
 
 template <class T> T sqr( T t) {return t*t;}
@@ -31,7 +32,7 @@ PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine()
 }
 
 
-reco::Track* PixelFitterByConformalMappingAndLine::run(
+const reco::Track* PixelFitterByConformalMappingAndLine::run(
     const edm::EventSetup& es,
     const std::vector<const TrackingRecHit * > & hits,
     const TrackingRegion & region) const
@@ -42,9 +43,6 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
   vector<float> z,r, errZ;
   typedef ConformalMappingFit::PointXY PointXY;
   vector<PointXY> xy;
-
-  //temporary check!!!
-//  xy.push_back( PointXY(0.0001, 0.0001) );
 
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);

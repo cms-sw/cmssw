@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/09/12 15:35:35 $
- * $Revision: 1.177 $
+ * $Date: 2006/08/07 21:42:49 $
+ * $Revision: 1.175 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -166,16 +166,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableQT switch is ON" << endl;
   } else {
     cout << " enableQT switch is OFF" << endl;
-  }
-
-  // enableTCC switch
-
-  enableTCC_ = ps.getUntrackedParameter<bool>("enableTCC", false);
-
-  if ( enableTCC_ ) {
-    cout << " enableTCC switch is ON" << endl;
-  } else {
-    cout << " enableTCC switch is OFF" << endl;
   }
 
   // enableExit switch
@@ -355,19 +345,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clientNames_.push_back( "BeamHodo" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-
-  if ( enableTCC_ ) {
-    clients_.push_back( new EBTriggerTowerClient(ps) );
-    clientNames_.push_back( "TriggerTower" );
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
-  }
 
   cout << endl;
 

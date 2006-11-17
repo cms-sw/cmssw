@@ -1,5 +1,6 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionBarrelEstimator.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
 
 // Field
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -184,19 +185,22 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 
       thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
      
-      std::cout << " InwardConversionSeedGenerator::startSeed propagationDirection  " << int(thePropagatorWithMaterial_.propagationDirection() ) << std::endl;       
+      std::cout << " OutInSeedFinder::startSeed propagationDirection  " << int(thePropagatorWithMaterial_.propagationDirection() ) << std::endl;       
  
       TSOS tsos(fts, layer->surface() );
 
+      std::cout << " OutInSeedFinder::startSeed  after  TSOS tsos(fts, layer->surface() ) " << std::endl;
+
       theFirstMeasurements_ = theLayerMeasurements_->measurements( *layer, tsos, thePropagatorWithMaterial_, *newEstimator);
 
+      std::cout << " OutInSeedFinder::startSeed  after  theFirstMeasurements_   " << std::endl;
 
       if(theFirstMeasurements_.size() > 1) // always a dummy returned, too
 	std::cout <<  " Found " << theFirstMeasurements_.size()-1 << " 1st hits in seed" << std::endl;
       
       delete newEstimator;
       
-      std::cout << " OutInSeedGenerator::startSeed Layer " << ilayer << " theFirstMeasurements_.size " << theFirstMeasurements_.size() << endl;
+      std::cout << " OutInSeedFinder::startSeed Layer " << ilayer << " theFirstMeasurements_.size " << theFirstMeasurements_.size() << endl;
       
       for(unsigned int i = 0; i < theFirstMeasurements_.size(); ++i) {
 	TrajectoryMeasurement m1 = theFirstMeasurements_[i];
@@ -210,7 +214,7 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 	  FreeTrajectoryState newfts = trackStateFromClusters(fts.charge(), hitPoint, alongMomentum, 0.8);
 	  
 	  thePropagatorWithMaterial_.setPropagationDirection(oppositeToMomentum);  
-	  std::cout << " InwardConversionSeedGenerator::startSeed propagationDirection  after switching " << int(thePropagatorWithMaterial_.propagationDirection() ) << std::endl;               
+	  std::cout << " OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorWithMaterial_.propagationDirection() ) << std::endl;               
 	  completeSeed(m1, newfts, &thePropagatorWithMaterial_, ilayer-1);
 	  // skip a layer, if you haven't already skipped the first layer
 	  if(ilayer == myLayers.size()-1) {
@@ -250,12 +254,12 @@ MeasurementEstimator * OutInConversionSeedFinder::makeEstimator(const DetLayer *
    
     const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
     std::cout << " OutInConversionSeedFinder::makeEstimator Endcap r = " << forwardLayer->specificSurface().innerRadius() << " R " << forwardLayer->specificSurface().outerRadius()  <<  " Z " << forwardLayer->specificSurface().position().z() << std::endl;  
-    // cout << "  InwardConversionSeedGenerator::makeEstimator Endcap  2 " << endl;
+    // cout << "  InwardConversionSeedFinder::makeEstimator Endcap  2 " << endl;
    float zc = fabs(theBCPosition_.z());
    float z =  fabs(forwardLayer->surface().position().z());
-   //cout << "  InwardConversionSeedGenerator::makeEstimator Endcap  3 " << endl;
+   //cout << "  InwardConversionSeedFinder::makeEstimator Endcap  3 " << endl;
    float rrange = 15. * theBCPosition_.perp() * (zc - z) / (zc*zc - 15.*zc);
-   //    newEstimator = new ConversionForwardEstimator(-dphi, dphi, rrange);
+   newEstimator = new ConversionForwardEstimator(-dphi, dphi, rrange);
   }
 
 
@@ -285,23 +289,25 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
       new ConversionBarrelEstimator(-the2ndHitdphi_, the2ndHitdphi_, -dz, dz);
   }
   else {
-    // cout << " EndCap ConversionSeedGenerator::completeSeed " << the2ndHitdznSigma << " " << the2ndHitdzConst << " " << the2ndHitdphi << endl;
+    std::cout << " EndCap OutInConversionSeedFinder::completeSeed " << the2ndHitdznSigma_ << " " << the2ndHitdzConst_ << " " << the2ndHitdphi_ << std::endl;
     // z error for 2nd hit is 2sigma quadded with 5 cm
     //float m1dr = m1.recHit().globalPositionError().rerr(m1.recHit().globalPosition());
     float m1dr = sqrt(m1.recHit()->localPositionError().yy());
     float dr = sqrt(the2ndHitdznSigma_*the2ndHitdznSigma_*m1dr*m1dr 
                   + the2ndHitdzConst_*the2ndHitdznSigma_);
     //cout << "second hit forward dr " << dr << " this hit " << m1dr << endl;
-    // to fill in    newEstimator =
-    // new ConversionForwardEstimator(-the2ndHitdphi, the2ndHitdphi, dr);
+    newEstimator =
+      new ConversionForwardEstimator(-the2ndHitdphi_, the2ndHitdphi_, dr);
   }
 
-  std::cout << " OutInConversionSeedGenerator::completeSeed  ilayer " << ilayer <<  std::endl; 
+  std::cout << " OutInConversionSeedFinder::completeSeed  ilayer " << ilayer <<  std::endl; 
   
   // Get the measurements consistent with the FTS and the Estimator
   TSOS tsos(fts, layer->surface() );
-  vector<TrajectoryMeasurement> measurements = theLayerMeasurements_->measurements( *layer, tsos, thePropagatorWithMaterial_, *newEstimator);
-  std::cout << " OutInConversionSeedGenerator::completeSeed Found " << measurements.size() << " second hits " << endl;
+  std::cout << " OutInConversionSeedFinder::completeSeed propagationDirection  " << int(propagator->propagationDirection() ) << std::endl;               
+  std::cout << " OutInConversionSeedFinder::completeSeed pointer to estimator " << newEstimator << std::endl;
+  vector<TrajectoryMeasurement> measurements = theLayerMeasurements_->measurements( *layer, tsos, *propagator, *newEstimator);
+  std::cout << " OutInConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " << endl;
   delete newEstimator;
 
   for(unsigned int i = 0; i < measurements.size(); ++i) {
@@ -328,7 +334,7 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
   std::cout << " OutInConversionSeedFinder::createSeed First point errors " <<m1.recHit()->parametersError() << std::endl;
   //cout << "original cluster FTS " << fts << endl;
 
-  std::cout << " OutInConversionSeedGenerator::createSeed propagation dir " << int( thePropagatorWithMaterial_.propagationDirection() ) << std::endl; 
+  std::cout << " OutInConversionSeedFinder::createSeed propagation dir " << int( thePropagatorWithMaterial_.propagationDirection() ) << std::endl; 
   TrajectoryStateOnSurface state1 = thePropagatorWithMaterial_.propagate(fts,  m1.recHit()->det()->surface());
 
   //cout << "hit surface " << h1.det().surface().position() << endl;
@@ -360,7 +366,7 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 	std::cout << " OutInConversionSeedFinder::createSeed new seed " << std::endl;
 		
 	//	InwardSeed * seed = new InwardSeed(measurements, theBasicCluster, oppositeToMomentum);
-	//  cout << " InwardConversionSeedGenerator seed direction " << seed->direction() << endl;
+	//  cout << " InwardConversionSeedFinder seed direction " << seed->direction() << endl;
 	TrajectoryStateTransform tsTransform;
 
 	PTrajectoryStateOnDet* ptsod= tsTransform.persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );

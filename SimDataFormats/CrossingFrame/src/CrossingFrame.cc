@@ -122,31 +122,23 @@ void CrossingFrame::addPileupTracks(const int bcr, const SimTrackContainer *simt
     else {
       SimTrack track((*simtracks)[i].type(),(*simtracks)[i].momentum(),(*simtracks)[i].vertIndex()+vertexoffset, (*simtracks)[i].genpartIndex());
       track.setEventId(id);
+      track.setTrackId((*simtracks)[i].trackId());
       pileupTracks_[bcr-firstCrossing_].push_back(track);
     }
 }
 
-void CrossingFrame::addPileupVertices(const int bcr, const SimVertexContainer *simvertices, int evtId,  int trackoffset) { 
+void CrossingFrame::addPileupVertices(const int bcr, const SimVertexContainer *simvertices, int evtId) { 
     for (unsigned int i=0;i<simvertices->size();++i) 
-    if ((*simvertices)[i].noParent()) {
+      if ((*simvertices)[i].noParent()) {  // means there is no track associated
       SimVertex vertex((*simvertices)[i]);
       vertex.setEventId(EncodedEventId(bcr,evtId));
       pileupVertices_[bcr-firstCrossing_].push_back(vertex);
     }
     else {
-      SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex()+trackoffset);
+      SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex());
       vertex.setEventId(EncodedEventId(bcr,evtId));
       pileupVertices_[bcr-firstCrossing_].push_back(vertex);
     }
-}
-
-// version without shift
-void CrossingFrame::addPileupVertices(const int bcr, const SimVertexContainer *simvertices, int evtId) { 
-  for (unsigned int i=0;i<simvertices->size();++i){ 
-      SimVertex vertex((*simvertices)[i]);
-      vertex.setEventId(EncodedEventId(bcr,evtId));
-      pileupVertices_[bcr-firstCrossing_].push_back(vertex);
-  }
 }
 
 void CrossingFrame::print(int level) const {
@@ -261,8 +253,48 @@ void CrossingFrame::print(int level) const {
 //     // 	  }
 }
 
+unsigned int CrossingFrame::getNrSignalSimHits(const std::string subdet) const { std::map <std::string, edm::PSimHitContainer>::const_iterator it=signalSimHits_.find(subdet);
+      if (it==signalSimHits_.end()){
+	  LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
+	  return 0;
+      } else  return ((*it).second).size();}
 
-std::ostream &operator<<(std::ostream& o, const CrossingFrame &cf)
+unsigned int CrossingFrame::getNrSignalCaloHits(const std::string subdet) const { std::map <std::string, edm::PCaloHitContainer>::const_iterator it=signalCaloHits_.find(subdet);
+ if (it==signalCaloHits_.end()){
+   LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
+   return 0;
+ } else  return ((*it).second).size();}
+
+
+unsigned int CrossingFrame::getNrPileupSimHits(const std::string subdet, const int bcr) const { 
+  if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
+    LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
+    return 0;}
+  else {
+    std::map <std::string, std::vector<edm::PSimHitContainer> >::const_iterator it=pileupSimHits_.find(subdet);
+    if (it==pileupSimHits_.end()){
+      LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
+      return 0;
+    }
+    return ((*it).second)[bcr-firstCrossing_].size();}
+}
+
+unsigned int CrossingFrame::getNrPileupCaloHits(const std::string subdet, const int bcr) const {  
+  if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
+    LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
+    return 0;}
+  else {
+    std::map <std::string, std::vector<edm::PCaloHitContainer> >::const_iterator it=pileupCaloHits_.find(subdet);
+    if (it==pileupCaloHits_.end()){
+      LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
+      return 0;
+    }
+    return ((*it).second)[bcr-firstCrossing_].size();
+  }
+}
+
+ 
+  std::ostream &operator<<(std::ostream& o, const CrossingFrame &cf)
 {
   std::pair<int,int> range=cf.getBunchRange();
   o <<"\nCrossingFrame for "<<cf.getEventID()<<",  bunchrange = "<<range.first<<","<<range.second

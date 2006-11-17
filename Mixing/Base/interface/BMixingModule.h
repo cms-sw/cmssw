@@ -60,7 +60,6 @@ namespace edm {
 
     protected:
       int bunchSpace_;
-      static int trackoffset;
       static int vertexoffset;
       bool checktof_;
 

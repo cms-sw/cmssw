@@ -36,11 +36,10 @@
 #include <vector>
 #include <map>
 
+class PixelDigi;
+class PixelROC;
+class PixelFEDCabling;
 class FEDRawData;
-
-
-class SiPixelFedCablingMap;
-class SiPixelFrameConverter;
 
 class PixelDataFormatter {
 
@@ -50,34 +49,24 @@ public:
   typedef std::map<uint32_t, DetDigis> Digis;
   typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range;
 
-  PixelDataFormatter(const SiPixelFedCablingMap * map);
+  PixelDataFormatter();
 
-  int nDigis() const { return theDigiCounter; }
-  int nWords() const { return theWordCounter; }
+  void interpretRawData( 
+      const PixelFEDCabling & fed, const FEDRawData & data, Digis & digis);
 
-  void interpretRawData(int fedId,  const FEDRawData & data, Digis & digis);
-
-  FEDRawData * formatData( int fedId, const Digis & digis);
+  FEDRawData * formatData( PixelFEDCabling & fed, const Digis & digis);
 
 private:
-  mutable int theDigiCounter;
-  mutable int theWordCounter;
-
-  const SiPixelFedCablingMap * theCablingMap;
 
   typedef unsigned int Word32;
   typedef long long Word64;
 
-  void digi2word( const SiPixelFrameConverter& converter,
-                  uint32_t detId, const PixelDigi& digi,
-                  std::vector<Word32> & words) const;
-
-  void word2digi( const SiPixelFrameConverter& converter, 
-                    const Word32& data, 
-                    Digis & digis) const;
-
-  std::string print(const PixelDigi & digi) const;
-  std::string print(const Word64    & word) const;
+  void roc2words( PixelROC &, 
+                  const Range & range, 
+                  std::vector<Word32> &) const;
+  void word2digi(const PixelFEDCabling& fed, 
+                 const Word32& data, 
+                 Digis & digis) const;
 
   static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits;
   static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift;

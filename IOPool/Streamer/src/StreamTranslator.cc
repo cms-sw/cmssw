@@ -104,7 +104,7 @@ namespace edm
         throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
           << "StreamTranslator::serializeEvent: invalid ProductID supplied in productRegistry\n";
       }
-      EventPrincipal::SharedGroupPtr const group = eventPrincipal.getGroup(id);
+      EventPrincipal::SharedConstGroupPtr const group = eventPrincipal.getGroup(id);
       if (group.get() == 0) {
         std::string const& name = desc.className();
         std::string const className = wrappedClassName(name);

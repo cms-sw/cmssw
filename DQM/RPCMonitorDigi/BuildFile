@@ -17,6 +17,7 @@
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
 <use name=Geometry/RPCGeometry>
+<use name=RecoMuon/DetLayers>
 <export>
 <lib name=DQMRPCMonitorDigi>
 <use name=FWCore/Framework>
@@ -37,5 +38,6 @@
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
 <use name=Geometry/RPCGeometry>
+<use name=RecoMuon/DetLayers>
 </export>
 

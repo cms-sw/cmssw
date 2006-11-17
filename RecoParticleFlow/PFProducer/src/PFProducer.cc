@@ -1,8 +1,5 @@
 #include "RecoParticleFlow/PFProducer/interface/PFProducer.h"
-
-#include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
-// #include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
 
 // #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
@@ -20,8 +17,6 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-// #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -34,12 +29,12 @@
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/TkRotation.h"
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-#include "Geometry/Surface/interface/SimpleDiskBounds.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
-// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -52,8 +47,6 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 
-#include <set>
-
 using namespace std;
 using namespace edm;
 
@@ -63,49 +56,29 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
   
   processRecTracks_ = 
     iConfig.getUntrackedParameter<bool>("process_RecTracks",true);
-
   processParticles_ = 
     iConfig.getUntrackedParameter<bool>("process_Particles",true);
-  
-  doParticleFlow_ = 
-    iConfig.getUntrackedParameter<bool>("do_ParticleFlow",true);
-    
-  
+
 
   // use configuration file to setup input/output collection names
   recTrackModuleLabel_ 
     = iConfig.getUntrackedParameter<string>
-    ("RecTrackModuleLabel","ckfTrackCandidates");
-
-  pfClusterModuleLabel_ 
-    = iConfig.getUntrackedParameter<string>
-    ("PFClusterModuleLabel","particleFlowCluster");  
-
-  pfClusterECALInstanceName_ 
-    = iConfig.getUntrackedParameter<string>
-    ("PFClusterECALInstanceName","ECAL");  
-
-  pfClusterHCALInstanceName_ 
-    = iConfig.getUntrackedParameter<string>
-    ("PFClusterHCALInstanceName","HCAL");  
-
-  pfClusterPSInstanceName_ 
-    = iConfig.getUntrackedParameter<string>
-    ("PFClusterPSInstanceName","PS");  
-
+    ("TrackCandidateCollection","ckfTrackCandidates");
   simModuleLabel_ 
     = iConfig.getUntrackedParameter<string>
     ("SimModuleLabel","g4SimHits");
+  pfRecTrackCollection_ 
+    = iConfig.getUntrackedParameter<string>
+    ("PFRecTrackCollection","PFRecTrackCollection");
+  pfParticleCollection_ 
+    = iConfig.getUntrackedParameter<string>
+    ("PFParticleCollection","PFParticleCollection");
 
+  // register your products
+  produces<reco::PFParticleCollection>(pfParticleCollection_);
+  produces<reco::PFRecTrackCollection>(pfRecTrackCollection_);
 
-
-  // register products
-  produces<reco::PFParticleCollection>();
-  produces<reco::PFRecTrackCollection>();
-  produces<reco::CandidateCollection>();
-  
-
-  // initialize track reconstruction ------------------------------
+  // set algorithms used for track reconstruction
   fitterName_ = iConfig.getParameter<string>("Fitter");   
   propagatorName_ = iConfig.getParameter<string>("Propagator");
   builderName_ = iConfig.getParameter<string>("TTRHBuilder");   
@@ -115,72 +88,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
   particleFilter_ = iConfig.getParameter<ParameterSet>
     ( "ParticleFilter" );   
 
+  mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
+
   // initialize geometry parameters
   PFGeometry pfGeometry;
-  
-  
-  // particle flow parameters  -----------------------------------
-  pfReconMethod_ = iConfig.getParameter<int>("pf_recon_method");  
-
-  string map_ECAL_eta 
-    = iConfig.getParameter<string>("pf_resolution_map_ECAL_eta");  
-  string map_ECAL_phi 
-    = iConfig.getParameter<string>("pf_resolution_map_ECAL_phi");  
-  //   will be necessary when preshower is used:
-  //   string map_ECALec_x 
-  //     = iConfig.getParameter<string>("pf_resolution_map_ECALec_x");  
-  //   string map_ECALec_y 
-  //     = iConfig.getParameter<string>("pf_resolution_map_ECALec_y");  
-  string map_HCAL_eta 
-    = iConfig.getParameter<string>("pf_resolution_map_HCAL_eta");  
-  string map_HCAL_phi 
-    = iConfig.getParameter<string>("pf_resolution_map_HCAL_phi");  
-
-  
-  try {
-    PFBlock::setResMaps(map_ECAL_eta,
-			map_ECAL_phi, 
-			"",
-			"",
-			map_HCAL_eta,
-			map_HCAL_phi);
-  }
-  catch( const string& err ) {
-    LogError("PFProducer")<<" "<<err<<" -> PARTICLE FLOW DISABLED"<<endl;
-    doParticleFlow_ = false;
-  }
-  
-
-  double chi2_ECAL_HCAL 
-    = iConfig.getParameter<double>("pf_chi2_ECAL_HCAL");  
-  double chi2_ECAL_PS 
-    = iConfig.getParameter<double>("pf_chi2_ECAL_PS");  
-  double chi2_HCAL_PS 
-    = iConfig.getParameter<double>("pf_chi2_HCAL_PS");  
-  double chi2_ECAL_Track 
-    = iConfig.getParameter<double>("pf_chi2_ECAL_Track");  
-  double chi2_HCAL_Track 
-    = iConfig.getParameter<double>("pf_chi2_HCAL_Track");  
-  double chi2_PS_Track 
-    = iConfig.getParameter<double>("pf_chi2_PS_Track");  
-
-  PFBlock::setMaxChi2(chi2_ECAL_HCAL,
-		      chi2_ECAL_PS,
-		      chi2_HCAL_PS,
-		      chi2_ECAL_Track,
-		      chi2_HCAL_Track,
-		      chi2_PS_Track );
-  double nsigma 
-    = iConfig.getParameter<double>("pf_nsigma_neutral");  
-  PFBlock::setNsigmaNeutral(nsigma);
-
-  double ecalibP0
-    = iConfig.getParameter<double>("pf_ECAL_calib_p0");  
-  double ecalibP1
-    = iConfig.getParameter<double>("pf_ECAL_calib_p1");  
-  PFBlock::setEcalib(ecalibP0, ecalibP1);
-  
-  mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
 }
 
 
@@ -198,44 +109,44 @@ PFProducer::beginJob(const edm::EventSetup & es)
 
 
   // initialize simple geometry
-//   beamPipe_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 				TkRotation<float>(), 
-// 				SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::BeamPipe), 
-// 						     PFGeometry::innerRadius(PFGeometry::BeamPipe), 
-// 						     -1.*PFGeometry::outerZ(PFGeometry::BeamPipe), 
-// 						     PFGeometry::outerZ(PFGeometry::BeamPipe)));
+  beamPipe_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
+				TkRotation<float>(), 
+				SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::BeamPipe), 
+						     PFGeometry::innerRadius(PFGeometry::BeamPipe), 
+						     -1.*PFGeometry::outerZ(PFGeometry::BeamPipe), 
+						     PFGeometry::outerZ(PFGeometry::BeamPipe)));
   
   
 	  
-//   ecalInnerWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 				     TkRotation<float>(), 
-// 				     SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 							  PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 							  -1.*PFGeometry::innerZ(PFGeometry::ECALEndcap), 
-// 							  PFGeometry::innerZ(PFGeometry::ECALEndcap)));
+  ecalInnerWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
+				     TkRotation<float>(), 
+				     SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+							  PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+							  -1.*PFGeometry::innerZ(PFGeometry::ECALEndcap), 
+							  PFGeometry::innerZ(PFGeometry::ECALEndcap)));
   
 
-//   ps1Wall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 			       TkRotation<float>(), 
-// 			       SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 						    PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 						    -1.*PFGeometry::innerZ(PFGeometry::PS1), 
-// 						    PFGeometry::innerZ(PFGeometry::PS1)));
+  ps1Wall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
+			       TkRotation<float>(), 
+			       SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+						    PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+						    -1.*PFGeometry::innerZ(PFGeometry::PS1), 
+						    PFGeometry::innerZ(PFGeometry::PS1)));
   
   
-//   ps2Wall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 			       TkRotation<float>(), 
-// 			       SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 						    PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 						    -1.*PFGeometry::innerZ(PFGeometry::PS2), 
-// 						    PFGeometry::innerZ(PFGeometry::PS2)));
+  ps2Wall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
+			       TkRotation<float>(), 
+			       SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+						    PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+						    -1.*PFGeometry::innerZ(PFGeometry::PS2), 
+						    PFGeometry::innerZ(PFGeometry::PS2)));
   
-//   hcalInnerWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 				     TkRotation<float>(), 
-// 				     SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
-// 							  PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
-// 							  -1.*PFGeometry::innerZ(PFGeometry::HCALEndcap), 
-// 							  PFGeometry::innerZ(PFGeometry::HCALEndcap)));
+  hcalInnerWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
+				     TkRotation<float>(), 
+				     SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
+							  PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
+							  -1.*PFGeometry::innerZ(PFGeometry::HCALEndcap), 
+							  PFGeometry::innerZ(PFGeometry::HCALEndcap)));
   
   
 //   hcalOuterWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
@@ -251,26 +162,22 @@ PFProducer::beginJob(const edm::EventSetup & es)
 void PFProducer::produce(Event& iEvent, 
 			 const EventSetup& iSetup) 
 {
-  
   LogDebug("PFProducer")<<"Produce event: "<<iEvent.id().event()
 			<<" in run "<<iEvent.id().run()<<endl;
-  
-  
-  set< PFBlockElement* > allElements; 
-  
-  // output collection for rectracks. will be used for particle flow
-  auto_ptr< reco::PFRecTrackCollection > 
-    pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
-  auto_ptr< reco::PFParticleCollection > 
-    pOutputPFParticleCollection(new reco::PFParticleCollection ); 
-  auto_ptr< reco::CandidateCollection > 
-    pOutputCandidateCollection(new reco::CandidateCollection ); 
-  
+
 
   // deal with RecTracks
+  
   if(processRecTracks_) {
+    //
+    // Create empty output collections
+    //
+    auto_ptr< reco::PFRecTrackCollection > 
+      pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
    
+    //
     // Declare and get stuff to be retrieved from event setup
+    //
     LogDebug("PFProducer")<<"get tracker geometry"<<endl;
     ESHandle<TrackerGeometry> theG;
     iSetup.get<TrackerDigiGeometryRecord>().get(theG);
@@ -300,6 +207,60 @@ void PFProducer::produce(Event& iEvent,
     AnalyticalPropagator fwdPropagator(magField, alongMomentum);
 
     AnalyticalPropagator bkwdPropagator(magField, oppositeToMomentum);
+//     ReferenceCountingPointer<Surface> 
+//       beamPipe_(new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 				 TkRotation<float>(), 
+// 				 SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::BeamPipe), 
+// 						      PFGeometry::innerRadius(PFGeometry::BeamPipe), 
+// 						      -1.*PFGeometry::outerZ(PFGeometry::BeamPipe), 
+// 						      PFGeometry::outerZ(PFGeometry::BeamPipe))));
+
+    // COLIN: the following should be data members. Right now there is even
+    // a mem leak !!
+  
+
+//     ReferenceCountingPointer<Surface> 
+//       ecalInnerWall(new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 				      TkRotation<float>(), 
+// 				      SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 							   PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 							   -1.*PFGeometry::innerZ(PFGeometry::ECALEndcap), 
+// 							   PFGeometry::innerZ(PFGeometry::ECALEndcap))));
+
+
+//     ReferenceCountingPointer<Surface> 
+//       ps1Wall(new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 				TkRotation<float>(), 
+// 				SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 						     PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 						     -1.*PFGeometry::innerZ(PFGeometry::PS1), PFGeometry::innerZ(PFGeometry::PS1))));
+
+
+//     ReferenceCountingPointer<Surface> 
+//       ps2Wall(new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 				TkRotation<float>(), 
+// 				SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 						     PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
+// 						     -1.*PFGeometry::innerZ(PFGeometry::PS2), 
+// 						     PFGeometry::innerZ(PFGeometry::PS2))));
+
+//     ReferenceCountingPointer<Surface> 
+//       hcalInnerWall(new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 				      TkRotation<float>(), 
+// 				      SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
+// 							   PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
+// 							   -1.*PFGeometry::innerZ(PFGeometry::HCALEndcap), 
+// 							   PFGeometry::innerZ(PFGeometry::HCALEndcap))));
+
+
+//     ReferenceCountingPointer<Surface> 
+//       hcalOuterWall(new BoundCylinder(GlobalPoint(0.,0.,0.), 
+// 				      TkRotation<float>(), 
+// 				      SimpleCylinderBounds(PFGeometry::outerRadius(PFGeometry::HCALBarrel), 
+// 							   PFGeometry::outerRadius(PFGeometry::HCALBarrel), 
+// 							   -1.*PFGeometry::outerZ(PFGeometry::HCALEndcap), 
+// 							   PFGeometry::outerZ(PFGeometry::HCALEndcap))));
+
 
 
     // Get track candidates and create smoothed tracks
@@ -317,7 +278,7 @@ void PFProducer::produce(Event& iEvent,
       LogDebug("PFProducer")<<"run the tracking algorithm"<<endl;
       trackAlgo_.runWithCandidate(theG.product(), theMF.product(), 
 				  *theTCCollection,
-				  theFitter.product(), thePropagator.product(),
+				  theFitter.product(), thePropagator.product(), 
 				  theBuilder.product(), algoResults);
     } catch (cms::Exception& e) { 
       LogError("PFProducer")<<"cms::Exception caught : " 
@@ -336,14 +297,13 @@ void PFProducer::produce(Event& iEvent,
       // 			   reco::PFRecTrack::KF);
       reco::PFRecTrack track(theTrack->charge(), 
 			     reco::PFRecTrack::KF);
-      int side = 100;
 
       // Closest approach of the beamline
       math::XYZPoint posClosest(theTrack->x(), theTrack->y(), theTrack->z());
       math::XYZTLorentzVector momClosest(theTrack->px(), theTrack->py(), 
 					 theTrack->pz(), theTrack->p());
       reco::PFTrajectoryPoint 
-	closestPt(-1, 
+	closestPt(0, 
 		  reco::PFTrajectoryPoint::ClosestApproach,
 		  posClosest, momClosest);
       track.addPoint(closestPt);
@@ -359,21 +319,14 @@ void PFProducer::produce(Event& iEvent,
 	  innerTSOS = measurements[measurements.size() - 1].updatedState();
 
 	TrajectoryStateOnSurface beamPipeTSOS = 
-	  getStateOnSurface(PFGeometry::BeamPipeWall, innerTSOS, 
-			    bkwdPropagator, side);
-	  //	  bkwdPropagator.propagate(innerTSOS, *beamPipe_);
+	  bkwdPropagator.propagate(innerTSOS, *beamPipe_);
 
 	GlobalPoint vBeamPipe  = beamPipeTSOS.globalParameters().position();
 	GlobalVector pBeamPipe = beamPipeTSOS.globalParameters().momentum();
-	math::XYZPoint posBeamPipe(vBeamPipe.x(), 
-				   vBeamPipe.y(), 
-				   vBeamPipe.z());
-	math::XYZTLorentzVector momBeamPipe(pBeamPipe.x(), 
-					    pBeamPipe.y(), 
-					    pBeamPipe.z(), 
-					    pBeamPipe.mag());
-	reco::PFTrajectoryPoint beamPipePt(-1, 
-					   reco::PFTrajectoryPoint::BeamPipe, 
+	math::XYZPoint posBeamPipe(vBeamPipe.x(), vBeamPipe.y(), vBeamPipe.z());
+	math::XYZTLorentzVector momBeamPipe(pBeamPipe.x(), pBeamPipe.y(), 
+					    pBeamPipe.z(), pBeamPipe.mag());
+	reco::PFTrajectoryPoint beamPipePt(0, reco::PFTrajectoryPoint::BeamPipe, 
 					   posBeamPipe, momBeamPipe);
 
 	track.addPoint(beamPipePt);
@@ -400,7 +353,8 @@ void PFProducer::produce(Event& iEvent,
 	math::XYZTLorentzVector mom(p.x(), p.y(), p.z(), p.mag());
 	unsigned int detId = 
 	  measurements[iTraj].recHit()->det()->geographicalId().rawId();
-	reco::PFTrajectoryPoint trajPt(detId, -1, 
+	reco::PFTrajectoryPoint trajPt(detId, 
+				       reco::PFTrajectoryPoint::NLayers, 
 				       pos, mom);
 	track.addPoint(trajPt);
 	LogDebug("PFProducer")<<"add measuremnt "<<iTraj<<" "<<trajPt<<endl;
@@ -412,25 +366,20 @@ void PFProducer::produce(Event& iEvent,
 	outerTSOS = measurements[measurements.size() - 1].updatedState();
       else
 	outerTSOS = measurements[0].updatedState();
-      int ecalSide = 100;
       TrajectoryStateOnSurface ecalTSOS = 
-	getStateOnSurface(PFGeometry::ECALInnerWall, outerTSOS, 
-			  fwdPropagator, ecalSide);
-      //fwdPropagator.propagate(outerTSOS, *ecalInnerWall_);
+	fwdPropagator.propagate(outerTSOS, *ecalInnerWall_);
       GlobalPoint vECAL  = ecalTSOS.globalParameters().position();
       GlobalVector pECAL = ecalTSOS.globalParameters().momentum();
       math::XYZPoint posECAL(vECAL.x(), vECAL.y(), vECAL.z());       
       math::XYZTLorentzVector momECAL(pECAL.x(), pECAL.y(), pECAL.z(), 
 				      pECAL.mag());
-      reco::PFTrajectoryPoint ecalPt(-1, reco::PFTrajectoryPoint::ECALEntrance, 
+      reco::PFTrajectoryPoint ecalPt(0, reco::PFTrajectoryPoint::ECALEntrance, 
 				     posECAL, momECAL);
       bool isBelowPS = false;
       if (posECAL.Rho() < PFGeometry::innerRadius(PFGeometry::ECALBarrel)) {
 	// Propagate track to preshower layer1
 	TrajectoryStateOnSurface ps1TSOS = 
-	  getStateOnSurface(PFGeometry::PS1Wall, outerTSOS, 
-			    fwdPropagator, side);
-	//  fwdPropagator.propagate(outerTSOS, *ps1Wall_);
+	  fwdPropagator.propagate(outerTSOS, *ps1Wall_);
 	GlobalPoint vPS1  = ps1TSOS.globalParameters().position();
 	GlobalVector pPS1 = ps1TSOS.globalParameters().momentum();
 	math::XYZPoint posPS1(vPS1.x(), vPS1.y(), vPS1.z());
@@ -439,7 +388,7 @@ void PFProducer::produce(Event& iEvent,
 	  isBelowPS = true;
 	  math::XYZTLorentzVector momPS1(pPS1.x(), pPS1.y(), pPS1.z(), 
 					 pPS1.mag());
-	  reco::PFTrajectoryPoint ps1Pt(-1, reco::PFTrajectoryPoint::PS1, 
+	  reco::PFTrajectoryPoint ps1Pt(0, reco::PFTrajectoryPoint::PS1, 
 					posPS1, momPS1);
 	  track.addPoint(ps1Pt);
 	  LogDebug("PFProducer")<<"ps1 point "<<ps1Pt<<endl;
@@ -450,9 +399,7 @@ void PFProducer::produce(Event& iEvent,
 
 	// Propagate track to preshower layer2
 	TrajectoryStateOnSurface ps2TSOS = 
-	  getStateOnSurface(PFGeometry::PS2Wall, outerTSOS, 
-			    fwdPropagator, side);
-	//  fwdPropagator.propagate(outerTSOS, *ps2Wall_);
+	  fwdPropagator.propagate(outerTSOS, *ps2Wall_);
 	GlobalPoint vPS2  = ps2TSOS.globalParameters().position();
 	GlobalVector pPS2 = ps2TSOS.globalParameters().momentum();
 	math::XYZPoint posPS2(vPS2.x(), vPS2.y(), vPS2.z());
@@ -461,7 +408,7 @@ void PFProducer::produce(Event& iEvent,
 	  isBelowPS = true;
 	  math::XYZTLorentzVector momPS2(pPS2.x(), pPS2.y(), pPS2.z(), 
 					 pPS2.mag());
-	  reco::PFTrajectoryPoint ps2Pt(-1, reco::PFTrajectoryPoint::PS2, 
+	  reco::PFTrajectoryPoint ps2Pt(0, reco::PFTrajectoryPoint::PS2, 
 					posPS2, momPS2);
 	  track.addPoint(ps2Pt);
 	  LogDebug("PFProducer")<<"ps2 point "<<ps2Pt<<endl;
@@ -481,32 +428,18 @@ void PFProducer::produce(Event& iEvent,
 
       // Propage track to ECAL shower max TODO
       // Be careful : the following formula are only valid for electrons !
-      double ecalShowerDepth 
-	= reco::PFCluster::getDepthCorrection(momECAL.E(), 
-					      isBelowPS, 
-					      false);
+      double ecalShowerDepth = reco::PFCluster::getDepthCorrection(momECAL.E(), 
+								   isBelowPS, 
+								   false);
       math::XYZPoint showerDirection(momECAL.Px(), momECAL.Py(), momECAL.Pz());
       showerDirection *= ecalShowerDepth/showerDirection.R();
       double rCyl = PFGeometry::innerRadius(PFGeometry::ECALBarrel) + 
 	showerDirection.Rho();
       double zCyl = PFGeometry::innerZ(PFGeometry::ECALEndcap) + 
 	fabs(showerDirection.Z());
-      ReferenceCountingPointer<Surface> showerMaxWall;
-      const float epsilon = 0.001; // should not matter at all
-      switch (side) {
-      case 0: 
-	showerMaxWall 
-	  = ReferenceCountingPointer<Surface>( new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(rCyl, rCyl, -zCyl, zCyl))); 
-	break;
-      case +1: 
-	showerMaxWall 
-	  = ReferenceCountingPointer<Surface>( new BoundPlane(Surface::PositionType(0,0,zCyl), TkRotation<float>(), SimpleDiskBounds(0., rCyl, -epsilon, epsilon))); 
-	break;
-      case -1: 
-	showerMaxWall 
-	  = ReferenceCountingPointer<Surface>(new BoundPlane(Surface::PositionType(0,0,-zCyl), TkRotation<float>(), SimpleDiskBounds(0., rCyl, -epsilon, epsilon))); 
-	break;
-      }
+      ReferenceCountingPointer<Surface> showerMaxWall(new BoundCylinder(GlobalPoint(0.,0.,0.), 
+									TkRotation<float>(), 
+									SimpleCylinderBounds(rCyl, rCyl, -1.*zCyl, zCyl)));
       TrajectoryStateOnSurface showerMaxTSOS = 
 	fwdPropagator.propagate(ecalTSOS, *showerMaxWall);
       GlobalPoint vShowerMax  = showerMaxTSOS.globalParameters().position();
@@ -515,27 +448,23 @@ void PFProducer::produce(Event& iEvent,
 				  vShowerMax.z());
       math::XYZTLorentzVector momShowerMax(pShowerMax.x(), pShowerMax.y(), 
 					   pShowerMax.z(), pShowerMax.mag());
-      reco::PFTrajectoryPoint eSMaxPt(-1, 
-				      reco::PFTrajectoryPoint::ECALShowerMax, 
-				      posShowerMax, momShowerMax);
-      track.addPoint(eSMaxPt);
-      LogDebug("PFProducer")<<"ecal shower maximum point "<<eSMaxPt 
+      reco::PFTrajectoryPoint ecalShowerMaxPt(0, reco::PFTrajectoryPoint::ECALShowerMax, 
+					      posShowerMax, momShowerMax);
+      track.addPoint(ecalShowerMaxPt);
+      LogDebug("PFProducer")<<"ecal shower maximum point "<<ecalShowerMaxPt 
 			    <<endl;    
     
       // Propagate track to HCAL entrance
 
       try {
 	TrajectoryStateOnSurface hcalTSOS = 
-	  getStateOnSurface(PFGeometry::HCALInnerWall, ecalTSOS, 
-			    fwdPropagator, side);
-	//  fwdPropagator.propagate(ecalTSOS, *hcalInnerWall_);
+	  fwdPropagator.propagate(ecalTSOS, *hcalInnerWall_);
 	GlobalPoint vHCAL  = hcalTSOS.globalParameters().position();
 	GlobalVector pHCAL = hcalTSOS.globalParameters().momentum();
 	math::XYZPoint posHCAL(vHCAL.x(), vHCAL.y(), vHCAL.z());       
 	math::XYZTLorentzVector momHCAL(pHCAL.x(), pHCAL.y(), pHCAL.z(), 
 					pHCAL.mag());
-	reco::PFTrajectoryPoint hcalPt(-1, 
-				       reco::PFTrajectoryPoint::HCALEntrance, 
+	reco::PFTrajectoryPoint hcalPt(0, reco::PFTrajectoryPoint::HCALEntrance, 
 				       posHCAL, momHCAL);
 	track.addPoint(hcalPt);
 	LogDebug("PFProducer")<<"hcal point "<<hcalPt<<endl;    
@@ -559,13 +488,14 @@ void PFProducer::produce(Event& iEvent,
       }
 
 
-      pOutputPFRecTrackCollection->push_back(track);
-      LogDebug("PFProducer")<<"PFRecTrack added to event"<<track<<endl;
-    }
-    
-    // iEvent.put(pOutputPFRecTrackCollection);
-  }
 
+      pOutputPFRecTrackCollection->push_back(track);
+   
+      LogDebug("PFProducer")<<"Add a new PFRecTrack "<<track<<endl;
+    }
+
+    iEvent.put(pOutputPFRecTrackCollection, pfRecTrackCollection_);
+  }
   
   // deal with true particles 
   if( processParticles_) {
@@ -574,16 +504,20 @@ void PFProducer::produce(Event& iEvent,
     Handle<vector<SimVertex> > simVertices;
     iEvent.getByLabel(simModuleLabel_,simVertices);
 
-//     for(unsigned it = 0; it<simTracks->size(); it++ ) {
-//       cout<<"\t track "<< (*simTracks)[it]<<" "
-// 	  <<(*simTracks)[it].momentum().vect().perp()<<" "
-// 	  <<(*simTracks)[it].momentum().e()<<endl;
-//     }
+    auto_ptr< reco::PFParticleCollection > 
+      pOutputPFParticleCollection(new reco::PFParticleCollection ); 
+
+
+    for(unsigned it = 0; it<simTracks->size(); it++ ) {
+      cout<<"\t track "<< (*simTracks)[it]<<" "
+	  <<(*simTracks)[it].momentum().vect().perp()<<" "
+	  <<(*simTracks)[it].momentum().e()<<endl;
+    }
 
     mySimEvent->fill( *simTracks, *simVertices );
     mySimEvent->print();
-//     cout<<"ntracks   = "<<mySimEvent->nTracks()<<endl;
-//     cout<<"ngenparts = "<<mySimEvent->nGenParts()<<endl;
+    cout<<"ntracks   = "<<mySimEvent->nTracks()<<endl;
+    cout<<"ngenparts = "<<mySimEvent->nGenParts()<<endl;
 
     const std::vector<FSimTrack>& fsimTracks = *(mySimEvent->tracks() );
     for(unsigned i=0; i<fsimTracks.size(); i++) {
@@ -600,42 +534,47 @@ void PFProducer::produce(Event& iEvent,
 				  motherId,
 				  fst.daughters() );
 
+      cout<<"particle "<<particle<<endl;
 
       const FSimVertex& originVtx = fst.vertex();
 
       math::XYZPoint          posOrig( originVtx.position().x(), 
 				       originVtx.position().y(), 
 				       originVtx.position().z() );
+      cout<<"origin : "
+	  <<originVtx.position().x()<<" "
+	  <<originVtx.position().y()<<endl;
 
       math::XYZTLorentzVector momOrig( fst.momentum().px(), 
 				       fst.momentum().py(), 
 				       fst.momentum().pz(), 
 				       fst.momentum().e() );
       reco::PFTrajectoryPoint 
-	pointOrig(-1, 
+	pointOrig(0, 
 		  reco::PFTrajectoryPoint::ClosestApproach,
 		  posOrig, momOrig);
       particle.addPoint(pointOrig);
     
 
-      if( ! fst.noEndVertex() ) {
-	const FSimVertex& endVtx = fst.endVertex();
-	
-	math::XYZPoint          posEnd( endVtx.position().x(), 
-					endVtx.position().y(), 
-					endVtx.position().z() );
-	//       cout<<"end vertex : "
-	// 	  <<endVtx.position().x()<<" "
-	// 	  <<endVtx.position().y()<<endl;
-	
-	math::XYZTLorentzVector momEnd;
-	
-	reco::PFTrajectoryPoint 
-	  pointEnd( 1, -1,
-		    posEnd, momEnd);
-	
-	particle.addPoint(pointEnd);
-      }
+      const FSimVertex& endVtx = fst.endVertex();
+
+      math::XYZPoint          posEnd( endVtx.position().x(), 
+				      endVtx.position().y(), 
+				      endVtx.position().z() );
+
+      cout<<"end vertex : "
+	  <<endVtx.position().x()<<" "
+	  <<endVtx.position().y()<<endl;
+
+      
+      math::XYZTLorentzVector momEnd;
+
+      reco::PFTrajectoryPoint 
+	pointEnd( 1, reco::PFTrajectoryPoint::NLayers,
+		 posEnd, momEnd);
+	       
+      particle.addPoint(pointEnd);
+    
 
 
       if( fst.onLayer1() ) { // PS layer1
@@ -643,7 +582,7 @@ void PFProducer::produce(Event& iEvent,
       
 	math::XYZPoint posLayer1( rp.x(), rp.y(), rp.z() );
 	math::XYZTLorentzVector momLayer1( rp.px(), rp.py(), rp.pz(), rp.e() );
-	reco::PFTrajectoryPoint layer1Pt(-1, reco::PFTrajectoryPoint::PS1, 
+	reco::PFTrajectoryPoint layer1Pt(0, reco::PFTrajectoryPoint::PS1, 
 					 posLayer1, momLayer1);
 	
 	particle.addPoint( layer1Pt ); 
@@ -655,7 +594,7 @@ void PFProducer::produce(Event& iEvent,
       
 	math::XYZPoint posLayer2( rp.x(), rp.y(), rp.z() );
 	math::XYZTLorentzVector momLayer2( rp.px(), rp.py(), rp.pz(), rp.e() );
-	reco::PFTrajectoryPoint layer2Pt(-1, reco::PFTrajectoryPoint::PS2, 
+	reco::PFTrajectoryPoint layer2Pt(0, reco::PFTrajectoryPoint::PS2, 
 					 posLayer2, momLayer2);
 	
 	particle.addPoint( layer2Pt ); 
@@ -667,7 +606,7 @@ void PFProducer::produce(Event& iEvent,
 	
 	math::XYZPoint posECAL( rp.x(), rp.y(), rp.z() );
 	math::XYZTLorentzVector momECAL( rp.px(), rp.py(), rp.pz(), rp.e() );
-	reco::PFTrajectoryPoint ecalPt(-1, 
+	reco::PFTrajectoryPoint ecalPt(0, 
 				       reco::PFTrajectoryPoint::ECALEntrance, 
 				       posECAL, momECAL);
 	
@@ -682,7 +621,7 @@ void PFProducer::produce(Event& iEvent,
 	math::XYZPoint posHCALin( rpin.x(), rpin.y(), rpin.z() );
 	math::XYZTLorentzVector momHCALin( rpin.px(), rpin.py(), rpin.pz(), 
 					   rpin.e() );
-	reco::PFTrajectoryPoint hcalPtin(-1, 
+	reco::PFTrajectoryPoint hcalPtin(0, 
 					 reco::PFTrajectoryPoint::HCALEntrance,
 					 posHCALin, momHCALin);
 	
@@ -700,208 +639,16 @@ void PFProducer::produce(Event& iEvent,
 	
 // 	particle.addPoint( hcalPtout ); 	
       }
-          
+    
+      cout<<"particle with traj points "<<particle<<endl;
+      
       pOutputPFParticleCollection->push_back( particle );
     }
 
-//     iEvent.put(pOutputPFParticleCollection);
+    iEvent.put(pOutputPFParticleCollection, pfParticleCollection_);
   }
-  
-  
-  if(doParticleFlow_) {
-    
-    LogDebug("PFProducer")<<"particle flow is starting"<<endl;
-  
-    // get ECAL, HCAL and PS clusters
-    // add all clusters to set of particle flow elements
-
-    Handle< vector<reco::PFCluster> > clustersECAL;
-    try{      
-      LogDebug("PFProducer")<<"get ECAL clusters"<<endl;
-      iEvent.getByLabel(pfClusterModuleLabel_, pfClusterECALInstanceName_, 
-			clustersECAL);
-
-      for(unsigned i=0; i<clustersECAL->size(); i++) {
-	if( (*clustersECAL)[i].type() != reco::PFCluster::TYPE_PF ) continue;
-	
-	reco::PFCluster *ncclust 
-	  = const_cast<reco::PFCluster *> (& (*clustersECAL)[i] );
-	
-	allElements.insert( new PFBlockElementECAL( ncclust ) );
-      }
-      
-    } catch (cms::Exception& err) { 
-      LogError("PFProducer")<<err
-			    <<" cannot get collection "
-			    <<pfClusterModuleLabel_<<":"
-			    <<pfClusterECALInstanceName_
-			    <<endl;
-      throw err;
-    }
-    
-  
-    Handle< vector<reco::PFCluster> > clustersHCAL;
-    try{      
-      LogDebug("PFProducer")<<"get HCAL clusters"<<endl;
-      iEvent.getByLabel(pfClusterModuleLabel_, pfClusterHCALInstanceName_, 
-			clustersHCAL);
-      
-      for(unsigned i=0; i<clustersHCAL->size(); i++) {
-	if( (*clustersHCAL)[i].type() != reco::PFCluster::TYPE_PF ) continue;
-
-	reco::PFCluster *ncclust 
-	  = const_cast<reco::PFCluster *> (& (*clustersHCAL)[i] );
-
-	allElements.insert( new PFBlockElementHCAL( ncclust ) );
-      }
-      
-    } catch (cms::Exception& err) { 
-      LogError("PFProducer")<<err
-			    <<" cannot get collection "
-			    <<pfClusterModuleLabel_<<":"
-			    <<pfClusterECALInstanceName_
-			    <<endl;
-      throw err;
-    }
-    
-
-    Handle< vector<reco::PFCluster> > clustersPS;
-    try{      
-      LogDebug("PFProducer")<<"get PS clusters"<<endl;
-      iEvent.getByLabel(pfClusterModuleLabel_, pfClusterPSInstanceName_, 
-			clustersPS);
-
-      for(unsigned i=0; i<clustersPS->size(); i++) {
-	if( (*clustersPS)[i].type() != reco::PFCluster::TYPE_PF ) continue;
-	
-	reco::PFCluster *ncclust 
-	  = const_cast<reco::PFCluster *> (& (*clustersPS)[i] );
-
-	allElements.insert( new PFBlockElementPS( ncclust ) );
-      }
-      
-    } catch (cms::Exception& err) { 
-      LogError("PFProducer")<<err
-			    <<" cannot get collection "
-			    <<pfClusterModuleLabel_<<":"
-			    <<pfClusterECALInstanceName_
-			    <<endl;
-      throw err;
-    }
-    
-    
-    // add all tracks to set of particle flow elements
-    
-    for(unsigned i=0; i<pOutputPFRecTrackCollection->size(); i++) {
-      reco::PFRecTrack* track = & (*pOutputPFRecTrackCollection)[i];
-      allElements.insert( new PFBlockElementTrack(track) );  
-    }       
-
-
-    PFBlock::setAllElements( allElements );
-    vector< PFBlock > allPFBs;
-    
-    for(PFBlock::IT iele = allElements.begin(); 
-	iele != allElements.end(); iele++) {
-      
-      if( (*iele)->block() ) continue; // already associated
-      
-      allPFBs.push_back( PFBlock() );
-      allPFBs.back().associate( 0, *iele );
-            
-      int efbcolor = 1;
-      allPFBs.back().finalize(efbcolor, pfReconMethod_); 
-    }
-
-
-    ostringstream  str;
-    str<<"Reconstructed particles : "<<endl;
-    
-    for(unsigned iefb = 0; iefb<allPFBs.size(); iefb++) {
-      
-      switch(pfReconMethod_) {
-      case 1:
-	allPFBs[iefb].reconstructParticles1();
-	break;
-      case 2:
-	allPFBs[iefb].reconstructParticles2();
-	break;
-      case 3:
-	allPFBs[iefb].reconstructParticles3();
-	break;
-      default:
-	break;
-      }    
-      LogDebug("PFProducer")<<(allPFBs[iefb])<<endl;
-
-      // for each reconstructed particle, 
-      // create a particle candidate
-      std::vector< PFBlockParticle >& recparts = allPFBs[iefb].particles();
-      for(unsigned ip=0; ip<recparts.size(); ip++) {
-	char charge = static_cast<char> ( recparts[ip].charge() );
-	const math::XYZTLorentzVector& mom = recparts[ip].momentum();
-	
-	reco::LeafCandidate* candidate 
-	  = new reco::LeafCandidate( charge, mom );
-	pOutputCandidateCollection->push_back( candidate ); 
-
-	str<<recparts[ip]<<endl;
-      } 
-
-    }
-    LogInfo("PFProducer") << str.str()<<endl;
-
-    LogDebug("PFProducer")<<"particle flow done"<<endl;
-  }
-   
-  for(PFBlock::IT iele = allElements.begin(); 
-      iele != allElements.end(); iele++) {
-    delete *iele;
-  }
-  
-  iEvent.put(pOutputPFRecTrackCollection);
-  iEvent.put(pOutputPFParticleCollection);
-  iEvent.put(pOutputCandidateCollection);
 }
 
-
-TrajectoryStateOnSurface 
-PFProducer::getStateOnSurface( PFGeometry::Surface_t iSurf, 
-			       const TrajectoryStateOnSurface& tsos, 
-			       const Propagator& propagator, int& side) {
-
-  GlobalVector p = tsos.globalParameters().momentum();
-  TrajectoryStateOnSurface finalTSOS;
-  side = -100;
-  if (fabs(p.perp()/p.z()) > PFGeometry::tanTh(iSurf)) {
-    finalTSOS = propagator.propagate(tsos, PFGeometry::barrelBound(iSurf));
-    side = 0;
-    if (!finalTSOS.isValid()) {
-      if (p.z() > 0.) {
-	finalTSOS = propagator.propagate(tsos, PFGeometry::positiveEndcapDisk(iSurf));
-	side = 1;
-      } else {
-	finalTSOS = propagator.propagate(tsos, PFGeometry::negativeEndcapDisk(iSurf));
-	side = -1;
-      }
-    }
-  } else if (p.z() > 0.) {
-    finalTSOS = propagator.propagate(tsos, PFGeometry::positiveEndcapDisk(iSurf));
-    side = 1;
-    if (!finalTSOS.isValid()) {
-      finalTSOS = propagator.propagate(tsos, PFGeometry::barrelBound(iSurf));
-      side = 0;
-    }
-  } else {
-    finalTSOS = propagator.propagate(tsos, PFGeometry::negativeEndcapDisk(iSurf));
-    side = -1;
-    if (!finalTSOS.isValid()) {
-      finalTSOS = propagator.propagate(tsos, PFGeometry::barrelBound(iSurf));
-      side = 0;
-    }
-  }
-  return finalTSOS;
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PFProducer)

@@ -11,7 +11,7 @@ class PixelFitterByConformalMappingAndLine : public PixelFitter {
 public:
   PixelFitterByConformalMappingAndLine();
   virtual ~PixelFitterByConformalMappingAndLine() { }
-  virtual reco::Track* run( 
+  virtual const reco::Track* run( 
       const edm::EventSetup& es,
       const std::vector<const TrackingRecHit *>& hits, 
       const TrackingRegion& region) const;

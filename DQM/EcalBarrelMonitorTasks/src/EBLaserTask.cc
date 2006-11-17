@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/09/13 07:31:40 $
- * $Revision: 1.56 $
+ * $Date: 2006/07/08 07:22:02 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -352,7 +352,7 @@ void EBLaserTask::endJob(void){
 
   LogInfo("EBLaserTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  this->cleanup();
 
 }
 
@@ -421,6 +421,8 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       if ( dccMap[ism-1].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2_[ism-1];
       if ( dccMap[ism-1].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3_[ism-1];
       if ( dccMap[ism-1].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4_[ism-1];
+
+      int ic = (ip-1) + 20*(ie-1) + 1;
 
       float xval = float(adc) * gain;
 

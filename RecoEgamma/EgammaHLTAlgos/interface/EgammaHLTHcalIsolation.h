@@ -16,7 +16,7 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:18:35 CEST 2006
-// $Id$
+// $Id: EgammaHLTHcalIsolation.h,v 1.1 2006/06/20 11:27:40 monicava Exp $
 //
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -31,58 +31,39 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 class EgammaHLTHcalIsolation
 {
 
  public:
   
-  EgammaHLTHcalIsolation(float egHcalIso_Electron_PtMin = 0., 
-			float egHcalIso_Electron_ConeSize = 0.15,
-			float egHcalIso_Photon_PtMin = 0.,
-			float egHcalIso_Photon_ConeSize = 0.3){
-    
-    
-    ptMin     = egHcalIso_Electron_PtMin;
-    conesize  = egHcalIso_Electron_ConeSize;
-    ptMinG    = egHcalIso_Photon_PtMin;
-    conesizeG = egHcalIso_Photon_ConeSize;
-    
-    /* 
-    edm::LogInfo ("category") << "EgammaHLTHcalIsolation instance:"
-	      << " ptMin=" << ptMin << "|" << ptMinG
-	      << " conesize="<< conesize << "|" << conesizeG
-	      << std::endl;
-    */
-  }
-
-  virtual ~EgammaHLTHcalIsolation();
+  EgammaHLTHcalIsolation(double egHcalIso_PtMin, double egHcalIso_ConeSize) :
+    ptMin(egHcalIso_PtMin),conesize(egHcalIso_ConeSize){
+      /* 
+	 std::cout << "EgammaHLTHcalIsolation instance:"
+	 << " ptMin=" << ptMin << "|" << ptMinG
+	 << " conesize="<< conesize << "|" << conesizeG
+	 << std::endl;
+      */
+    }
 
 
-  float electronPtSum(const reco::Electron *electron, const HBHERecHitCollection& hbhe, const HFRecHitCollection& hf, const CaloGeometry& geometry);
-  float photonPtSum(const reco::Photon *photon, const HBHERecHitCollection& hbhe, const HFRecHitCollection& hf, const CaloGeometry& geometry);
+  float isolPtSum(const reco::RecoCandidate* recocandidate, const HBHERecHitCollection* hbhe, const HFRecHitCollection* hf, const CaloGeometry* geometry);
 
 
   /// Get pt cut for hcal hits
-  float getptMin(bool getE=true) { 
-    if(getE) return ptMin; 
-    else return ptMinG; }
+  float getptMin() { return ptMin; }
   /// Get isolation cone size. 
-  float getConeSize(bool getE=true) { 
-    if(getE) return conesize; 
-    else return conesizeG; }
+  float getConeSize() { return conesize; }
+
   
  private:
 
   // ---------- member data --------------------------------
    // Parameters of isolation cone geometry. 
-  // I Electron case
   float ptMin;
   float conesize;
-  // II Photon case
-  float ptMinG;
-  float conesizeG;
   
 };
 

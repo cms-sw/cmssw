@@ -115,7 +115,7 @@ namespace stor
   void JobController::join()
   {
     // invoked from a different thread - block until "me_" is done
-    me_->join();
+    if(me_) me_->join();
   }
 
   void JobController::processCommands()

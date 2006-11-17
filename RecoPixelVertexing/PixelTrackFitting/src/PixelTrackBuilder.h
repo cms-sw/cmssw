@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+#include "Measurement1D.h"
 class TrackingRecHit;
 class MagneticField;
 

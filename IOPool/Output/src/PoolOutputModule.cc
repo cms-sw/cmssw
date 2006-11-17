@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.41 2006/08/15 18:51:10 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.45 2006/10/03 19:11:54 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -32,6 +32,7 @@
 
 #include "TTree.h"
 #include "TFile.h"
+#include "Rtypes.h"
 
 #include <map>
 #include <vector>
@@ -104,6 +105,7 @@ namespace edm {
       runBlockPlacement_(),
       luminosityBlockPlacement_(),
       om_(om) {
+    TTree::SetMaxTreeSize(kMaxLong64);
     std::string suffix(".root");
     std::string::size_type offset = om_->fileName_.rfind(suffix);
     bool ext = (offset == om_->fileName_.size() - suffix.size());
@@ -231,10 +233,10 @@ namespace edm {
       }
 
       EDProduct const* product = 0;
-      EventPrincipal::SharedGroupPtr const g = e.getGroup(id, i->selected_);
+      EventPrincipal::SharedConstGroupPtr const g = e.getGroup(id, i->selected_);
       if (g.get() == 0) {
 	// No Group with this ID is in the event.
-	// Create the provenance.
+	// Create and write the provenance.
 	if (i->branchDescription_->produced_) {
           BranchEntryDescription event;
 	  event.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
@@ -244,19 +246,27 @@ namespace edm {
 	  event.cid_ = 0;
 	  
 	  dummyProvenances.push_front(event); 
-	  pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
-	  refp.markWrite(i->provenancePlacement_);
+          pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
+          refp.markWrite(i->provenancePlacement_);
 	} else {
 	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
 	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
 	      << "No group in event " << aux.id_ << "\nfor branch" << i->branchDescription_->branchName_ << '\n';
 	}
       } else {
-	if (!i->selected_ || !g->product()  || !g->product()->isPresent()) {
-	  g->provenance().event.isPresent_ = false;
+	// There is a Group with this ID is in the event.  Write the provenance.
+	bool present = i->selected_ && g->product() && g->product()->isPresent();
+	if (present == (g->product() && g->product()->isPresent())) {
+	  // The provenance can be written out as is, saving a copy. 
+          pool::Ref<BranchEntryDescription const> refp(context(), &g->provenance().event);
+          refp.markWrite(i->provenancePlacement_);
+	} else {
+	  // We need to make a private copy of the provenance so we can set isPresent_ correctly.
+	  dummyProvenances.push_front(g->provenance().event);
+	  dummyProvenances.begin()->isPresent_ = present;
+          pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
+          refp.markWrite(i->provenancePlacement_);
 	}
-	pool::Ref<BranchEntryDescription const> refp(context(), &g->provenance().event);
-	refp.markWrite(i->provenancePlacement_);
 	product = g->product();
       }
       if (i->selected_) {

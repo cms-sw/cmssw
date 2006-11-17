@@ -77,13 +77,13 @@ void StreamerInputIndexFile::readStartMessage() {
   //Read magic+reserved fileds at the start of file 
   //ist_->clear();
   ist_->read((char*)&headerBuf_[0], sizeof(StartIndexRecordHeader));
-  if (ist_->eof() || ist_->gcount() < sizeof(StartIndexRecordHeader) )
+  if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(StartIndexRecordHeader) )
      {
         return;
      }  
   //Read Header from the start of init message to find the size
   ist_->read((char*)&headerBuf_[sizeof(StartIndexRecordHeader)], sizeof(HeaderView));
-  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView)  )
+  if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(HeaderView)  )
   {
         throw cms::Exception("readStartMessage","StreamerInputFile")
               << "Empty file encountered\n";
@@ -133,7 +133,7 @@ int StreamerInputIndexFile::readEventMessage()  {
   //ist_->clear();
   ist_->read((char*)&eventBuf_[bufPtr], sizeof(HeaderView));
 
-  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView)  )
+  if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(HeaderView)  )
   {      
 	eof_ = true;
 	return 0;

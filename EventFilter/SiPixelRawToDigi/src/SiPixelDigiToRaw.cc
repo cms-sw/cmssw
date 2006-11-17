@@ -1,7 +1,8 @@
+using namespace std;
+
 #include "EventFilter/SiPixelRawToDigi/interface/SiPixelDigiToRaw.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -9,13 +10,12 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CalibTracker/SiPixelConnectivity/interface/SiPixelFedCablingMapBuilder.h"
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
-using namespace std;
 
 SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
   eventCounter_(0),
@@ -44,52 +44,46 @@ void SiPixelDigiToRaw::beginJob(const edm::EventSetup& setup)
 void SiPixelDigiToRaw::produce( edm::Event& ev,
                               const edm::EventSetup& es)
 {
-  using namespace sipixelobjects;
-
   eventCounter_++;
   edm::LogInfo("SiPixelDigiToRaw") << "[SiPixelDigiToRaw::produce] "
                         << "event number: "
                         << eventCounter_;
+
+
+  PixelDataFormatter formatter;
 
   edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
   ev.getByLabel( src_ , digiCollection);
 
   PixelDataFormatter::Digis digis;
   typedef vector< edm::DetSet<PixelDigi> >::const_iterator DI;
-
-  static int allDigiCounter = 0;  
-  static int allWordCounter = 0;
-         int digiCounter = 0; 
+  
   for (DI di=digiCollection->begin(); di != digiCollection->end(); di++) {
-    digiCounter += (di->data).size(); 
     digis[ di->id] = di->data;
   }
-  allDigiCounter += digiCounter;
 
-  cout << " -- event:" << eventCounter_ << endl;
-  edm::ESHandle<SiPixelFedCablingMap> map;
-  es.get<SiPixelFedCablingMapRcd>().get( map );
-  cout << map->version() << endl;
+  if( !fedCablingMap_) {
+    fedCablingMap_ = SiPixelFedCablingMapBuilder().produce(es); 
+  }
+
+//  edm::ESHandle<SiPixelFedCabling> cabling;
+//  es.get<SiPixelFedCablingRcd>().get( cabling );
+//  cabling->myprintout();
   
-  PixelDataFormatter formatter(map.product());
 
   // create product (raw data)
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
-  const vector<const PixelFEDCabling *>  cabling = map->fedList();
+  vector<PixelFEDCabling *> cabling = fedCablingMap_->cabling();
 
-  typedef vector<const PixelFEDCabling *>::const_iterator FI;
+  typedef vector<PixelFEDCabling *>::iterator FI;
   for (FI it = cabling.begin(); it != cabling.end(); it++) {
     LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (**it).id();
-    FEDRawData * rawData = formatter.formatData( (**it).id(), digis);
+    FEDRawData * rawData = formatter.formatData( (**it), digis);
     FEDRawData& fedRawData = buffers->FEDData( (**it).id() ); 
     fedRawData = *rawData;
     LogDebug("SiPixelDigiToRaw")<<"size of data in fedRawData: "<<fedRawData.size();
   }
-  allWordCounter += formatter.nWords();
-  cout << "Words/Digis this ev: "<<digiCounter<<"(fm:"<<formatter.nDigis()<<")/"
-        <<formatter.nWords()
-       <<"  all: "<< allDigiCounter <<"/"<<allWordCounter<<endl;
   
   ev.put( buffers );
   
