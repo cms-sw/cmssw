@@ -60,4 +60,4 @@ void SiStripClusterizerAlgorithm::run(const edm::DetSetVector<SiStripDigi>& inpu
     }
     edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizerAlgorithm] execution in mode " << clusterMode_ << " generating " << number_localstriprechits << " SiStripClusters in " << number_detunits << " DetUnits.";
   }
-};
+}
