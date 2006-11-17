@@ -14,13 +14,13 @@ extern "C" {
   extern int   rfio_fseek(FILE *fp, long offset, int whence);
   extern int   rfio_feof(FILE *fp);
   extern long  rfio_ftell(FILE *fp);
-};
+}
                                                                                 
-RawFile::RawFile() : inputFile(0), rfioFlag(false) {};
+RawFile::RawFile() : inputFile(0), rfioFlag(false) {}
 
 RawFile::RawFile(const char* path) : inputFile(0), rfioFlag(false) {
   open(path);
-};
+}
 
 RawFile* RawFile::open(const char* path) {
 
@@ -67,13 +67,13 @@ int RawFile::close() {
 
 RawFile::~RawFile(){close();}
 
-FILE* RawFile::GetPointer(){ return inputFile;};
+FILE* RawFile::GetPointer(){ return inputFile;}
 
-bool RawFile::ok(){ return (inputFile!=0);};
+bool RawFile::ok(){ return (inputFile!=0);}
 
-bool RawFile::fail(){ return !ok();};
+bool RawFile::fail(){ return !ok();}
 
-bool RawFile::isRFIO() { return rfioFlag;};
+bool RawFile::isRFIO() { return rfioFlag;}
 
 int RawFile::read(void* data, size_t nbytes) {
       if (rfioFlag) {
@@ -91,7 +91,7 @@ int RawFile::seek(long offset, int whence) {
       }
 }
 
-int RawFile::ignore(long offset) { return seek(offset, SEEK_CUR);};
+int RawFile::ignore(long offset) { return seek(offset, SEEK_CUR);}
 
 int RawFile::eof() {
   if (rfioFlag) {
