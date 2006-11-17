@@ -12,7 +12,7 @@ L2TauJetsProvider::L2TauJetsProvider(const edm::ParameterSet& iConfig)
 {
   jetSrc = iConfig.getParameter<InputTag>("JetSrc");
   l1ParticleMap = iConfig.getParameter<InputTag>("L1ParticleMap");
-
+  mEt_ExtraTau = iConfig.getParameter<double>("EtExtraTau");
 
   produces<CaloJetCollection>("SingleTau");
   produces<CaloJetCollection>("DoubleTau");
@@ -64,8 +64,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   L1JetParticleVectorRef::const_iterator myTau2 = myL1DoubleTaus.begin();
   L1JetParticleCollection::const_iterator tauItr = tauColl->begin();
 
-  //FIXME to be put in the cfg file
-  mEt_CombTau = 50.;
+
   double deltaR;
   double matchingR = 0.3;
   for(;iJet!=jets->end();iJet++)
@@ -97,7 +96,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	  //	  cout <<"LeptonTau "<<tauItr->pt() << " "<<tauItr->eta() << " " << tauItr->phi() <<endl;
 	  deltaR = ROOT::Math::VectorUtil::DeltaR(iJet->p4().Vect(), tauItr->p4().Vect());
 	  if(deltaR < matchingR){
-	    if((!doubleTauFired) && tauItr->pt() > mEt_CombTau ){
+	    if((!doubleTauFired) && tauItr->pt() > mEt_ExtraTau ){
 	      doubleTauTmp->push_back(*(iJet));
 	    }else{
 	      leptonTauTmp->push_back(*(iJet));

@@ -24,9 +24,7 @@ class L2TauJetsProvider: public edm::EDProducer {
   edm::InputTag jetSrc;
   edm::InputTag l1ParticleMap;
   //TO BE REPLACE WITH L1 TRIGGER BIT
-  float mEt_SingleTau;
-  float mEt_DoubleTau;
-  float mEt_CombTau;
+  double mEt_ExtraTau;
 
 };
 #endif
