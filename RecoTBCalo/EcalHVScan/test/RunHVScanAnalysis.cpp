@@ -18,7 +18,7 @@ namespace hvscan {
 
   };
 
-};
+}
 
 int main(int argc, char *argv[]) {
 

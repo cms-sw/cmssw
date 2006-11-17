@@ -8,7 +8,7 @@
      <Notes on implementation>
 */
 //
-// $Id$
+// $Id: EcalHVScanAnalyzer.h,v 1.1 2006/01/02 14:43:57 rahatlou Exp $
 //
 
 
@@ -88,7 +88,7 @@ class EcalHVScanAnalyzer : public edm::EDAnalyzer {
       // tree with output info
       TTree* tree_;
       int  tnXtal;
-      const int kMaxXtals;
+      //const int kMaxXtals; Shr 20061117: what is this??
       float tAmpl[85][20],tJitter[85][20],tChi2[85][20], tAmplPN1[85][20],
             tAmplPN2[85][20];
       int   tiEta[85][20],tiPhi[85][20],tiTT[85][20], tiC[85][20];

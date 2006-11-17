@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram RAHATLOU
 //         Created:  Tue Aug  2 16:15:01 CEST 2005
-// $Id: EcalHVScanAnalyzer.cc,v 1.1 2006/01/02 14:43:57 rahatlou Exp $
+// $Id: EcalHVScanAnalyzer.cc,v 1.2 2006/01/10 13:37:37 rahatlou Exp $
 //
 //
 #include "RecoTBCalo/EcalHVScan/src/EcalHVScanAnalyzer.h"
@@ -256,7 +256,7 @@ EcalHVScanAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
    }
 
    // reset tree variables
-   for(int i=0;i<kMaxXtals;++i) {
+   for(int i=0;i<85;++i) {
      for(int j=0;j<20;++j) {
        tAmpl[i][j] = 0.;
        tJitter[i][j] = 0.;
