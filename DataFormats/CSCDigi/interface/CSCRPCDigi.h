@@ -5,8 +5,8 @@
  *
  * Digi for RPC data coming thru RAT-ALCT-DDU. 
  *
- * $Date: 2006/04/06 11:18:25 $
- * $Revision: 1.4 $
+ * $Date: 2006/05/16 15:22:57 $
+ * $Revision: 1.5 $
  *
  * \author N. Terentiev, CMU
  */
@@ -37,7 +37,7 @@ public:
 
 
 private:
-  friend class testCSCDigis;
+
   uint16_t rpc_;
   uint16_t pad_;
   uint16_t bxn_;

@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2006/05/16 15:08:41 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/05/16 15:22:57 $
+ *  $Revision: 1.12 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -56,7 +56,6 @@ public:
   void print() const;
 
 private:
-  friend class testCSCStripDigis;
   
   uint16_t strip;
   std::vector<int> ADCCounts;

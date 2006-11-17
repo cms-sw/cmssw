@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2006/06/01 07:48:09 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/23 14:29:57 $
+ * $Revision: 1.8 $
  *
  * \author L. Gray, UF
  */
@@ -76,7 +76,6 @@ class CSCCorrelatedLCTDigi
 
  private:
 
-  friend class testCSCDigis;
   uint16_t valid;
   uint16_t quality;
   uint16_t keywire;

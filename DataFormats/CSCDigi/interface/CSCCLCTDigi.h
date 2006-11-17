@@ -5,8 +5,8 @@
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date: 2006/06/01 07:45:44 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/20 10:26:42 $
+ * $Revision: 1.8 $
  *
  * \author N. Terentiev, CMU
  */
@@ -89,7 +89,7 @@ class CSCCLCTDigi {
   void print() const;
 
  private:
-  friend class testCSCDigis;
+
   uint16_t valid_      ;
   uint16_t quality_    ;
   uint16_t pattern_    ;
