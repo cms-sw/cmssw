@@ -9,6 +9,7 @@
 #include <xercesc/util/XMLString.hpp>
 #include <string>
 #include <list>
+#include <iostream>
 
 #include "CalibrationXML.h"
 
@@ -106,7 +107,7 @@ AlgorithmCalibration<T,CO>::AlgorithmCalibration(const string & filename) : m_fi
 template <class T,class CO> 
 AlgorithmCalibration<T,CO>::~AlgorithmCalibration()
 {
- cout << "Algorithm calibration destructor" <<endl;
+ std::cout << "Algorithm calibration destructor" <<endl;
    for(typename vector<pair<T*,CO*> >::iterator it = m_categoriesWithObjects.begin();it!=m_categoriesWithObjects.end();it++)
    {
     delete (*it).first;
@@ -164,7 +165,7 @@ pair<T *,CO*>  AlgorithmCalibration<T,CO>::searchCategory(const typename T::Inpu
     
       if((*it).first->match(calibrationInput))
       {
-        if(categoryWithObject.first!=0) cout << "WARNING: OVERLAP in categories, using latest one" << endl;
+        if(categoryWithObject.first!=0) std::cout << "WARNING: OVERLAP in categories, using latest one" << endl;
         categoryWithObject=*it;
       }
    }
@@ -194,7 +195,7 @@ void AlgorithmCalibration<T,CO>::updateCalibration(const typename T::Input & cal
 						const CI & inputForCalibration)
 {
   pair<T *,CO*>categoryWithObject= searchCategory(calibrationInputForCategory); 
-  if(categoryWithObject.first==0) cout << "No category found for this input" << endl;
+  if(categoryWithObject.first==0) std::cout << "No category found for this input" << endl;
    else
   categoryWithObject.second->updateCalibration(inputForCalibration);
 }
