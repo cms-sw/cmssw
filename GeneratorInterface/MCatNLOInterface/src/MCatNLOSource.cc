@@ -1128,11 +1128,11 @@ MCatNLOSource::hwgive(const std::string& ParameterString) {
     hwdist.PLTCUT = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);  
   else if(!strncmp(ParameterString.c_str(),"VTOCDK(",7)){
     // we find the index ...
-    int ind = atoi(&ParameterString[8]);  
+    int ind = atoi(&ParameterString[7]);  
     hwprop.VTOCDK[ind] = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);}
   else if(!strncmp(ParameterString.c_str(),"VTORDK(",7)){
     // we find the index ...
-    int ind = atoi(&ParameterString[8]);  
+    int ind = atoi(&ParameterString[7]);  
     hwprop.VTORDK[ind] = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);}
   else if(!strncmp(ParameterString.c_str(),"PIPSMR",6))
     hwdist.PIPSMR = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);  
@@ -1177,7 +1177,7 @@ MCatNLOSource::hwgive(const std::string& ParameterString) {
   else if(!strncmp(ParameterString.c_str(),"WZRFR",5))
     hw6202.WZRFR = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
   else if(!strncmp(ParameterString.c_str(),"MODBOS(",7)) {
-    int ind = atoi(&ParameterString[8]);
+    int ind = atoi(&ParameterString[7]);
     hwbosc.MODBOS[ind-1] = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"RMASS(201)",10))
     hwprop.RMASS[201] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
@@ -1186,7 +1186,7 @@ MCatNLOSource::hwgive(const std::string& ParameterString) {
   else if(!strncmp(ParameterString.c_str(),"GAMMAX",6))
     hwbosc.GAMMAX = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
   else if(!strncmp(ParameterString.c_str(),"ENHANC(",7)) {
-    int ind = atoi(&ParameterString[8]);
+    int ind = atoi(&ParameterString[7]);
     hwbosc.ENHANC[ind-1] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"RMASS(209)",10))
     hwprop.RMASS[209] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
@@ -1197,103 +1197,103 @@ MCatNLOSource::hwgive(const std::string& ParameterString) {
   else if(!strncmp(ParameterString.c_str(),"SWEIN",5))
     hwpram.SWEIN = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
   else if(!strncmp(ParameterString.c_str(),"QFCH(",5)){
-    int ind = atoi(&ParameterString[6]);
+    int ind = atoi(&ParameterString[5]);
     hwpram.QFCH[ind-1] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(1,",7)){
-    int ind = atoi(&ParameterString[8]); if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]); if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][0] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(2,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][1] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(3,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][2] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(4,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][3] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(5,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][4] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(6,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][5] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(7,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][6] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(8,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][7] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(9,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][8] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(10,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][9] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(11,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][10] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(12,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][11] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(13,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][12] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(14,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][13] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(15,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][14] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"AFCH(16,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.AFCH[ind-1][15] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(1,",7)){
-    int ind = atoi(&ParameterString[8]); if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]); if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][0] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(2,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][1] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(3,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][2] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(4,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][3] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(5,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][4] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(6,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][5] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(7,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][6] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(8,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][7] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(9,",7)){
-    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[7]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][8] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(10,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][9] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(11,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][10] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(12,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][11] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(13,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][12] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(14,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][13] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(15,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][14] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"VFCH(16,",8)){
-    int ind = atoi(&ParameterString[9]);if(ind<1||ind>2) return 0;
+    int ind = atoi(&ParameterString[8]);if(ind<1||ind>2) return 0;
     hwpram.VFCH[ind-1][15] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"ZPRIME",6))
     hwpram.ZPRIME = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
@@ -1302,19 +1302,19 @@ MCatNLOSource::hwgive(const std::string& ParameterString) {
   else if(!strncmp(ParameterString.c_str(),"GAMZP",5))
     hwpram.GAMZP = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
   else if(!strncmp(ParameterString.c_str(),"VCKM(",5)) {
-    int ind1 = atoi(&ParameterString[6]);
+    int ind1 = atoi(&ParameterString[5]);
     if(ind1<1||ind1>3) return 0;
-    int ind2 = atoi(&ParameterString[8]);
+    int ind2 = atoi(&ParameterString[7]);
     if(ind2<1||ind2>3) return 0;
     hwpram.VCKM[ind2][ind1] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"SCABI",5))
     hwpram.SCABI = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
   else if(!strncmp(ParameterString.c_str(),"EPOLN(",6)) {
-    int ind = atoi(&ParameterString[7]);
+    int ind = atoi(&ParameterString[6]);
     if(ind<1||ind>3) return 0;
     hwhard.EPOLN[ind-1] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"PPOLN(",6)) {
-    int ind = atoi(&ParameterString[7]);
+    int ind = atoi(&ParameterString[6]);
     if(ind<1||ind>3) return 0;
     hwhard.PPOLN[ind-1] = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); }
   else if(!strncmp(ParameterString.c_str(),"QLIM",4))
