@@ -154,7 +154,7 @@ public:
     } catch (...) {
       cout << "testTable FAILED:  unknown exception" << endl;
     }
-  };
+  }
 
 
 
