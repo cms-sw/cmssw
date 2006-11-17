@@ -111,4 +111,4 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
     edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::run] execution in mode " << ZeroSuppressionMode_ << " generating " << number_localstripdigis << " StripDigi in " << number_detunits << " DetUnits." << endl; 
   }
   
-};
+}
