@@ -22,8 +22,10 @@ using namespace std;
 
 // Generator modifications
 // ***********************
-#include "CLHEP/HepMC/include/HerwigWrapper6_4.h"
-#include "CLHEP/HepMC/ConvertHerwig.h"
+
+#include "HEPEVT_Wrapper.h"
+#include "HerwigWrapper6_4.h"
+#include "IO_HERWIG.h"
 
 //-------------------------------------------------------------------------------
 // COMMON block stuff, that doesn't come with the HerwigWrapper6_4.h ....
@@ -243,7 +245,7 @@ extern struct {
 
 //-------------------------------------------------------------------------------
 
-HepMC::ConvertHerwig conv;
+HepMC::IO_HERWIG conv;
 // ***********************
 
 
@@ -669,7 +671,8 @@ bool MCatNLOSource::produce(Event & e) {
   // finish event
   hwufne();
 
-  HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
+  HepMC::GenEvent* evt = new HepMC::GenEvent();
+  bool done = conv.fill_next_event( evt );
   evt->set_signal_process_id(hwproc.IPROC);  
   evt->weights().push_back(hwevnt.EVWGT);
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);

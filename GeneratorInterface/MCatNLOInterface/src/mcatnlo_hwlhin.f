@@ -327,6 +327,7 @@ C---Colour flows for heavy quark pair production
      & 12,34,14,30,02, 12,31,42,30,04/
       IF (IERROR.NE.0) RETURN
 C---READ AN EVENT
+
       IF(NQQ.GE.MQQ)CALL HWWARN('UPEVNT',201,*999)
       READ(IUNIT,901) I1HPRO,IC,NP
       READ(IUNIT,902) (IDUP(I),I=1,NP)
