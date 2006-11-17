@@ -69,11 +69,20 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
 
     DDRotation::iterator<DDRotation> rit(DDRotation::begin()), red(DDRotation::end());
     PRotation* pr;
+    DDRotation rotn(DDName("IDENTITYDB","generatedForDB"));
+    if ( !rotn.isDefined().second ) {
+      DDRotationMatrix* rotID = new DDRotationMatrix();
+      DDRotation mydr = DDrot (DDName("IDENTITYDB","generatedForDB"), rotID);
+      pr = DDDToPersFactory::rotation ( mydr );
+      pgeom->pRotations.push_back ( *pr );
+    }
     for (; rit != red; ++rit) {
-      if (! rit->isDefined().second) continue;  
+      if (! rit->isDefined().second) continue;
+      if ( rit->matrix()->isIdentity() ) continue;
       pr = DDDToPersFactory::rotation( *rit );
       pgeom->pRotations.push_back ( *pr );
     } 
+
 
     DDSolid::iterator<DDSolid> sit(DDSolid::begin()), sed(DDSolid::end());
     PSolid* ps;
@@ -116,8 +125,11 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
 	      {
 		const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
 		ppp = DDDToPersFactory::position ( ddLP, ddcurLP, gra.edgeData(cit->second), *pgeom );
+// 		std::cout << "okay after the factory..." << std::endl;
 		pgeom->pPosParts.push_back( *ppp );
+// 		std::cout << "okay after the push_back" << std::endl;
 		delete ppp;
+// 		std::cout << "okay after the delete..." << std::endl;
 	      } // iterate over children
 	  } // if (children)
       } // iterate over graph nodes  
