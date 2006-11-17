@@ -1,5 +1,0 @@
-#ifndef DQM_SiStripCommissioningAnalysis_MeanAndStdDev_H
-#define DQM_SiStripCommissioningAnalysis_MeanAndStdDev_H
-
-#endif // DQM_SiStripCommissioningAnalysis_MeanAndStdDev_H
-
