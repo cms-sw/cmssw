@@ -11,7 +11,7 @@
 //
 //
 // Original Author:  Ursula Berthon, Claude Charlotk
-// close addaptation from TrackProducer from Giuseppe Cerati, just adding associationmap
+// adaptation from TrackProducer from Giuseppe Cerati, just adding associationmap
 //         Created:  Thu Nov  9 17:29:31 CET 2006
 //
 
@@ -35,7 +35,7 @@ private:
   std::string assocModule_;
   edm::OrphanHandle<reco::TrackCollection> rTracks_;
   bool myTrajectoryInEvent_;
-  //  std::string assocProduct_;
+
   //we had to copy this from TrackProducerBase to get the OrphanHandle
   //ugly temporary solution!!
   void putInEvt(edm::Event& evt,

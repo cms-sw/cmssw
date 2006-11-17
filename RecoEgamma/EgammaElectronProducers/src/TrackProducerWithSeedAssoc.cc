@@ -62,92 +62,89 @@ void TrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::EventS
   //
   //declare and get TrackColection to be retrieved from the event
   //
-    edm::Handle<TrackCandidateCollection> theTCCollection;
-    edm::Handle<reco::TrackCandidateSeedAssociationCollection> assocTCSeedH;
-    theEvent.getByLabel(assocModule_,"",assocTCSeedH);
-    reco::TrackCandidateSeedAssociationCollection assocTCSeed=*assocTCSeedH;
-    std::vector<int> tccLocations;
-    AlgoProductCollection algoResults;
-    try{  
-      getFromEvt(theEvent,theTCCollection);
+  edm::Handle<TrackCandidateCollection> theTCCollection;
+  edm::Handle<reco::TrackCandidateSeedAssociationCollection> assocTCSeedH;
+  theEvent.getByLabel(assocModule_,"",assocTCSeedH);
+  reco::TrackCandidateSeedAssociationCollection assocTCSeed=*assocTCSeedH;
+  std::vector<int> tccLocations;
+  AlgoProductCollection algoResults;
+  try{  
+    getFromEvt(theEvent,theTCCollection);
     
-      //
-      //run the algorithm  
-      //
-      LogDebug("TrackProducerWithSeedAssoc") << "run the algorithm" << "\n";
-      //    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-      //			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
-      // we have to copy this method from the algo in order to get the association track-seed
-      // this is ugly temporary code that should be replaced!!!!!
-      // start of copied code ======================================================
-      edm::LogInfo("TrackProducer") << "Number of TrackCandidates: " << theTCCollection->size() << "\n";
+    //
+    //run the algorithm  
+    //
+    LogDebug("TrackProducerWithSeedAssoc") << "run the algorithm" << "\n";
+    //    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
+    //			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
+    // we have to copy this method from the algo in order to get the association track-seed
+    // this is ugly temporary code that should be replaced!!!!!
+    // start of copied code ======================================================
+    edm::LogInfo("TrackProducer") << "Number of TrackCandidates: " << theTCCollection->size() << "\n";
 
-      int cont = 0;
-      int tcc=0;
-      for (TrackCandidateCollection::const_iterator i=theTCCollection->begin(); i!=theTCCollection->end();i++)
-	{
+    int cont = 0;
+    int tcc=0;
+    for (TrackCandidateCollection::const_iterator i=theTCCollection->begin(); i!=theTCCollection->end();i++)
+      {
       
-	  const TrackCandidate * theTC = &(*i);
-	  PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
-	  const TrackCandidate::range& recHitVec=theTC->recHits();
-	  const TrajectorySeed& seed = theTC->seed();
+	const TrackCandidate * theTC = &(*i);
+	PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
+	const TrackCandidate::range& recHitVec=theTC->recHits();
+	const TrajectorySeed& seed = theTC->seed();
 
-	  //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
-	  TrajectoryStateTransform transformer;
+	//convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
+	TrajectoryStateTransform transformer;
   
-	  DetId  detId(state.detId());
-	  TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
-									 &(theG.product()->idToDet(detId)->surface()), 
-									 theMF.product());
+	DetId  detId(state.detId());
+	TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
+								       &(theG.product()->idToDet(detId)->surface()), 
+								       theMF.product());
 
-	  LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
+	LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
       
-	  //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
-	  //meanwhile computes the number of degrees of freedom
-      TransientTrackingRecHit::RecHitContainer hits;
+	//convert the TrackingRecHit vector to a TransientTrackingRecHit vector
+	//meanwhile computes the number of degrees of freedom
+	TransientTrackingRecHit::RecHitContainer hits;
       
-      float ndof=0;
+	float ndof=0;
       
-      for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
-	   i!=recHitVec.second; i++){
-	hits.push_back(theBuilder.product()->build(&(*i) ));
-	if ((*i).isValid()){
-	  ndof = ndof + (i->dimension())*(i->weight());
+	for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
+	     i!=recHitVec.second; i++){
+	  hits.push_back(theBuilder.product()->build(&(*i) ));
+	  if ((*i).isValid()){
+	    ndof = ndof + (i->dimension())*(i->weight());
+	  }
 	}
+      
+	ndof = ndof - 5;
+      
+	//build Track
+	LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
+	bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof);
+	LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
+	if(ok) {
+	  cont++;
+	  tccLocations.push_back(tcc);
+	}
+	tcc++;
       }
-      
-      
-      ndof = ndof - 5;
-      
-      //build Track
-      LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
-      bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof);
-      LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
-      if(ok) {
-	// edm::Ref<reco::TrackCollection> trackRef(rTracks,cont);
-         cont++;
-       	tccLocations.push_back(tcc);
-      }
-           tcc++;
-    }
-  edm::LogInfo("TrackProducerWithSeedAssoc") << "Number of Tracks found: " << cont << "\n";
-  printf("################# TrackProducerWithSeedAssoc, nr of tracks %d\n",cont);
-  // end of copied code ======================================================
+    edm::LogInfo("TrackProducerWithSeedAssoc") << "Number of Tracks found: " << cont << "\n";
+    // end of copied code ======================================================
 
   } catch (cms::Exception &e){ edm::LogInfo("TrackProducerWithSeedAssoc") << "cms::Exception caught!!!" << "\n" << e << "\n";}
   //
   //put everything in the event
   // we copy putInEvt to get OrphanHandle filled...
-   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
 
   // now construct associationmap and put it into event
   int itrack=0;
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     edm::Ref<reco::TrackCollection> trackRef(rTracks_,itrack);
     edm::Ref<TrackCandidateCollection> trackCRef(theTCCollection,tccLocations[itrack]);
-   edm::Ref<TrajectorySeedCollection> seedRef= assocTCSeed[trackCRef];
+    edm::Ref<TrajectorySeedCollection> seedRef= assocTCSeed[trackCRef];
     outputTSAssCollection->insert(trackRef,seedRef);
-   itrack++;
+    itrack++;
   }
   theEvent.put(outputTSAssCollection);
 
