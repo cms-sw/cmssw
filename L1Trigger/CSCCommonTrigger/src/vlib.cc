@@ -56,11 +56,11 @@ rval rval::op (rval arg) \
 	return t; \
 }
 
-arithmop (operator+,+);
-arithmop (operator-,-);
-arithmop (operator*,*);
-arithmop (operator/,/);
-arithmop (operator%,%);
+arithmop (operator+,+)
+arithmop (operator-,-)
+arithmop (operator*,*)
+arithmop (operator/,/)
+arithmop (operator%,%)
 
 
 #define bitwiseop(op,cop) \
@@ -72,9 +72,9 @@ rval rval::op (rval arg) \
 	return t; \
 }
 
-bitwiseop (operator&,&);
-bitwiseop (operator|,|);
-bitwiseop (operator^,^);
+bitwiseop (operator&,&)
+bitwiseop (operator|,|)
+bitwiseop (operator^,^)
 
 
 #define logicop(op,cop) \
@@ -83,8 +83,8 @@ bool rval::op (rval arg) \
 	return *this != 0 cop arg != 0; \
 }
 
-logicop(operator&&,&&);
-logicop(operator||,||);
+logicop(operator&&,&&)
+logicop(operator||,||)
 
 #define comparop(op,cop) \
 bool rval::op (rval arg) \
@@ -92,10 +92,10 @@ bool rval::op (rval arg) \
 	return r[0] cop arg.r[0]; \
 }
 
-comparop(operator<,<);
-comparop(operator>,>);
-comparop(operator<=,<=);
-comparop(operator>=,>=);
+comparop(operator<,<)
+comparop(operator>,>)
+comparop(operator<=,<=)
+comparop(operator>=,>=)
 
 
 bool rval::operator==(rval arg)
@@ -224,7 +224,7 @@ void Signal::create()
 	alwaysn = 0;
 	mode = mnone;
 	hostl = -1;
-};
+}
 
 Signal::Signal()
 {
@@ -480,7 +480,7 @@ void Signal::init (int high, int low, const char* rname)
 		inited = 1;
 	}
 	source = this;
-};
+}
 
 void Signal::init(Signal* shost, int high, int low, const char* rname)
 {
@@ -545,8 +545,8 @@ Signal Signal::op () \
 }
 #endif
 
-unop (operator!,!);
-unop (operator~,~);
+unop (operator!,!)
+unop (operator~,~)
 
 Signal* Signal::operator&  ()
 {
@@ -581,17 +581,17 @@ Signal Signal::op (Signal arg) \
 }
 #endif
 
-binop (operator+,+);
-binop (operator-,-);
-binop (operator*,*);
-binop (operator/,/);
-binop (operator%,%);
-binop (operator^,^);
-binop (operator<<,<<);
-binop (operator>>,>>);
-binop (operator&,&);
-binop (operator&&,&&);
-binop (operator|,|);
+binop (operator+,+)
+binop (operator-,-)
+binop (operator*,*)
+binop (operator/,/)
+binop (operator%,%)
+binop (operator^,^)
+binop (operator<<,<<)
+binop (operator>>,>>)
+binop (operator&,&)
+binop (operator&&,&&)
+binop (operator|,|)
 
 
 Signal Signal::operator|| (Signal arg)
@@ -609,7 +609,7 @@ Signal Signal::operator|| (Signal arg)
 	t.r = t.mask & (getval() || arg.getval());
 	t.change = change || arg.change;
 	return t;
-};
+}
 
 Signal Signal::operator,(Signal arg)
 {
@@ -629,7 +629,7 @@ Signal Signal::operator,(Signal arg)
 //	t.makemask(t.h, t.l);
 	t.r = (((getval() << (arg.h - arg.l + 1)) & (~(arg.mask))) | arg.getval()) & t.mask;
 	return t;
-};
+}
 
 // comparison operators ---------------------------------------------------
 
@@ -654,12 +654,12 @@ Signal Signal::op (Signal arg) \
 }
 #endif
 
-compop (operator>,>);
-compop (operator<,<);
-compop (operator<=,<=);
-compop (operator>=,>=);
-compop (operator==,==);
-compop (operator!=,!=);
+compop (operator>,>)
+compop (operator<,<)
+compop (operator<=,<=)
+compop (operator>=,>=)
+compop (operator==,==)
+compop (operator!=,!=)
 
 // reduction operators --------------------------------------------------------------
 Signal ror (Signal arg)
@@ -765,7 +765,7 @@ Signal Signal::operator=(Signal other)
 #endif
 	return asgn(other);
 
-};
+}
 
 Signal Signal::set(Signal other)
 {
@@ -1084,7 +1084,7 @@ parameter::parameter (const char* rname, Signal arg) : Signal()
 #endif
 	init(Sizeofrval * 8 - 1, 0, rname); 
 	operator=(arg);
-};
+}
 
 
 void parameter::init (int h, int l, const char* rname)
@@ -1103,7 +1103,7 @@ void parameter::operator= (Signal arg)
 #ifdef VGEN
 	cout << " = " << arg.getname() << ";\n";
 #endif
-};
+}
 
 
 
@@ -1487,7 +1487,7 @@ globcontrol::globcontrol()
 	alwayscnt = -1; 
 	alwaysn = 1;
 	change = 0;
-};
+}
 
 #ifdef VGEN
 void globcontrol::Print()
@@ -1556,5 +1556,5 @@ void globcontrol::AddIO(string ln)
 void globcontrol::setchange(int i)
 {
 	change = i;
-};
+}
 
