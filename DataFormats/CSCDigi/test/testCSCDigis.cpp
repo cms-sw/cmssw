@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/09/08 15:41:11 $
- * $Revision: 1.11 $
+ * $Date: 2006/11/16 16:55:12 $
+ * $Revision: 1.12 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.11 2006/09/08 15:41:11 teren Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.12 2006/11/16 16:55:12 ptc Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -378,28 +378,26 @@ void testCSCDigis::readCSCWireDigi(CSCWireDigiCollection & collection){
 
         int count=0;
         CSCWireDigiCollection::DigiRangeIterator detUnitIt;
-        for (detUnitIt=collection.begin();
-             detUnitIt!=collection.end();
-           ++detUnitIt){
+        for (detUnitIt=collection.begin(); detUnitIt!=collection.end(); ++detUnitIt) {
   
-           const CSCDetId& id = (*detUnitIt).first;
+          const CSCDetId& id = (*detUnitIt).first;
+          const CSCWireDigiCollection::Range& range =(*detUnitIt).second;
+ 
+          for (CSCWireDigiCollection::const_iterator digiIt=range.first; digiIt!=range.second; ++digiIt) {
   
-           const CSCWireDigiCollection::Range& range =(*detUnitIt).second;
-           for (CSCWireDigiCollection::const_iterator digiIt =
-                range.first; digiIt!=range.second;
-              ++digiIt){
-  
-              count++;
-              CPPUNIT_ASSERT((*digiIt).getWireGroup()==10);
-              CPPUNIT_ASSERT((*digiIt).getTimeBin()==3);
- printf("CSC Wire - endcap station ring csc plane wire tbin: %3d %3d %3d %3d %3d %3d  %3d\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).getWireGroup(),(*digiIt).getTimeBin());
-std::cout << " CSC Time Bins On ";
-std::vector<int> tbins=(*digiIt).getTimeBinsOn();
-for(unsigned int i=0; i<tbins.size();i++) std::cout<<tbins[i]<<" ";
-std::cout<<std::endl; 
-  
-    }// for digis in layer
-   }// end of for (detUnitIt=...
+            count++;
+            CPPUNIT_ASSERT((*digiIt).getWireGroup()==10);
+            CPPUNIT_ASSERT((*digiIt).getTimeBin()==3);
+            printf("CSC Wire - endcap station ring csc layer wire tbin: %3d %3d %3d %3d %3d %3d  %3d\n",
+               id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),
+               (*digiIt).getWireGroup(),(*digiIt).getTimeBin());
+            std::cout << " CSC Time Bins On ";
+            std::vector<int> tbins=(*digiIt).getTimeBinsOn();
+            for(unsigned int i=0; i<tbins.size();++i) std::cout<<tbins[i]<<" ";
+            std::cout<<std::endl; 
+          }// for digis in layer
+        }// end of for (detUnitIt=...
+
     printf("CSC Wire count:  %3d \n", count);
 } 
 
@@ -407,26 +405,28 @@ void testCSCDigis::readCSCComparatorDigi(CSCComparatorDigiCollection & collectio
 
   int count=0;
   CSCComparatorDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt=collection.begin();
-       detUnitIt!=collection.end();
-       ++detUnitIt){
+  for (detUnitIt=collection.begin(); detUnitIt!=collection.end(); ++detUnitIt) {
  
     const CSCDetId& id = (*detUnitIt).first;
-
     const CSCComparatorDigiCollection::Range& range = (*detUnitIt).second;
-    for (CSCComparatorDigiCollection::const_iterator digiIt =
-           range.first; digiIt!=range.second; ++digiIt){
+
+    for (CSCComparatorDigiCollection::const_iterator digiIt=range.first; digiIt!=range.second; ++digiIt) {
       count++;
       CPPUNIT_ASSERT((*digiIt).getComparator()==2);
       CPPUNIT_ASSERT((*digiIt).getStrip()==10);
-      CPPUNIT_ASSERT((*digiIt).getTimeBin()==1); // time bin word=6 means bits 1 & 2 (counting from 0) should be set
-      CPPUNIT_ASSERT((*digiIt).getTimeBin()==2);
-      printf("CSC Comparator - endcap station ring csc plane strip comparator: %3d %3d %3d %3d %3d %3d  %3d\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).getStrip(),(*digiIt).getComparator());
- 
+      CPPUNIT_ASSERT((*digiIt).getTimeBin()==1); // time bin word=6 means bit 1 should be first!
+      printf("CSCComparatorDigi - endcap station ring csc layer strip comparator: %3d %3d %3d %3d %3d %3d %3d %3d\n",
+         id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),
+	     (*digiIt).getStrip(), (*digiIt).getComparator(), (*digiIt).getTimeBin());
+      std::cout << " CSCComparatorDigi - time bins ON: ";
+      std::vector<int> tbins=(*digiIt).getTimeBinsOn();
+      for(unsigned int i=0; i<tbins.size();++i) std::cout<<tbins[i]<<" ";
+      std::cout<<std::endl; 
+
     }// for digis in layer
   }// end of for (detUnitIt=...
    
-  printf("CSC Comparator count:  %3d \n", count);
+  printf("CSCComparatorDigi count:  %3d \n", count);
  
 }
 
@@ -446,7 +446,7 @@ void testCSCDigis::readCSCStripDigi(CSCStripDigiCollection & collection){
            range.first; digiIt!=range.second; ++digiIt){
       count++;
       CPPUNIT_ASSERT((*digiIt).getStrip()==10);
-      printf("CSC Strip - endcap station ring csc plane: %3d %3d %3d %3d %3d strip: %3d  ADC: %4d %4d %4d %4d %4d %4d %4d %4d\n",
+      printf("CSC Strip - endcap station ring csc layer: %3d %3d %3d %3d %3d strip: %3d  ADC: %4d %4d %4d %4d %4d %4d %4d %4d\n",
              id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),
              (*digiIt).getStrip(),
              (*digiIt).getADCCounts()[0],
@@ -483,7 +483,7 @@ void testCSCDigis::readCSCRPCDigi(CSCRPCDigiCollection & collection){
               CPPUNIT_ASSERT((*digiIt).getRpc()==5);
               CPPUNIT_ASSERT((*digiIt).getBXN()==1);
 
-	      printf("RPC digi - endcap station ring csc plane: %3d %3d %3d %3d %3d %3d  %4d \n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).getRpc(),(*digiIt).getBXN());
+	      printf("RPC digi - endcap station ring csc layer: %3d %3d %3d %3d %3d %3d  %4d \n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).getRpc(),(*digiIt).getBXN());
    
     }// for digis in layer
    }// end of for (detUnitIt=...
@@ -515,7 +515,7 @@ void testCSCDigis::readCSCALCTDigi(CSCALCTDigiCollection & collection){
               CPPUNIT_ASSERT((*digiIt).getBX()==4);
               CPPUNIT_ASSERT((*digiIt).getTrknmb()==1);
 
- printf("CSC ALCT - endcap station ring csc plane valid quality accel pattern wire bx track: %3d %3d %3d %3d %3d %3d  %3d %3d %3d %3d %3d %3d\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).isValid(),(*digiIt).getQuality(),(*digiIt).getAccelerator(),(*digiIt).getCollisionB(),(*digiIt).getKeyWG(),(*digiIt).getBX(),(*digiIt).getTrknmb());
+ printf("CSC ALCT - endcap station ring csc layer valid quality accel pattern wire bx track: %3d %3d %3d %3d %3d %3d  %3d %3d %3d %3d %3d %3d\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).isValid(),(*digiIt).getQuality(),(*digiIt).getAccelerator(),(*digiIt).getCollisionB(),(*digiIt).getKeyWG(),(*digiIt).getBX(),(*digiIt).getTrknmb());
     }// for digis in layer
    }// end of for (detUnitIt=...
     printf("CSC ALCT count:  %3d \n", count);
@@ -547,7 +547,7 @@ void testCSCDigis::readCSCCLCTDigi(CSCCLCTDigiCollection & collection){
               CPPUNIT_ASSERT((*digiIt).getBX()==3);
               CPPUNIT_ASSERT((*digiIt).getTrknmb()==1);
 
- printf("CSC CLCT - endcap station ring csc plane valid quality pattern striptype bend strip cfeb bx tracknmb %3d %3d %3d %3d %3d %3d  %3d %3d %3d %3d %3d %3d %3d %3d\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).isValid(),(*digiIt).getQuality(),(*digiIt).getPattern(),(*digiIt).getStripType(),(*digiIt).getBend(),(*digiIt).getStrip(),(*digiIt).getCFEB(),(*digiIt).getBX(), (*digiIt).getTrknmb());
+ printf("CSC CLCT - endcap station ring csc layer valid quality pattern striptype bend strip cfeb bx tracknmb %3d %3d %3d %3d %3d %3d  %3d %3d %3d %3d %3d %3d %3d %3d\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).isValid(),(*digiIt).getQuality(),(*digiIt).getPattern(),(*digiIt).getStripType(),(*digiIt).getBend(),(*digiIt).getStrip(),(*digiIt).getCFEB(),(*digiIt).getBX(), (*digiIt).getTrknmb());
     
     }// for digis in layer
    }// end of for (detUnitIt=...
