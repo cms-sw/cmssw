@@ -86,6 +86,15 @@ namespace edm {
     {
       clear();
       
+      // make sure it has a well-defined top
+      if(nodes_->size() > 1)
+      {
+         NodePtr contentsNode(new ContentsNode(nodes_));
+         NodePtrListPtr newTop(new NodePtrList);
+         newTop->push_back(contentsNode); 
+         nodes_ = newTop;
+      }
+
       CompositeNode * topLevelNode = top();
 
       // make whatever backwards link you can now.  Include Nodes
