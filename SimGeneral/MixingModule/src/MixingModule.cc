@@ -201,13 +201,12 @@ namespace edm
     for (int ii=0;ii<sv;ii++) {
       edm::BranchDescription desc = result_v[ii].provenance()->product;
       LogDebug("addPileups") <<result_v[ii].product()->size()<<" Simvertices added";
-      if (result_v[ii].isValid()) simcf_->addPileupVertices(bcr,result_v[ii].product(),eventId,trackoffset);
+      if (result_v[ii].isValid()) simcf_->addPileupVertices(bcr,result_v[ii].product(),eventId);
       else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
     }
 
     // increment offsets
     vertexoffset+=result_v[0].product()->size();
-    trackoffset+=result_t[0].product()->size();
   }
  
   void MixingModule::put(edm::Event &e) {
