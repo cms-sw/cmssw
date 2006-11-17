@@ -30,7 +30,7 @@ to use such a selector, it is best to initialize it directly upon
 construction of the module, rather than creating a new Selector instance
 for every event.
 
-$Id: Selector.h,v 1.13 2006/10/23 23:50:34 chrjones Exp $
+$Id: Selector.h,v 1.14 2006/11/15 00:19:13 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -96,24 +96,32 @@ namespace edm
   //
   /// Class ProcessNameSelector.
   /// Selects EDProducts based upon process name.
-  //
+  ///
+  /// As a special case, a ProcessNameSelector created with the
+  /// string "*" matches *any* process (and so is rather like having
+  /// no ProcessNameSelector at all).
   //------------------------------------------------------------------
 
   class ProcessNameSelector : public SelectorBase 
   {
   public:
     ProcessNameSelector(const std::string& pn) :
-      pn_(pn)
-    { }
+    pn_(pn.empty() ? std::string("*") : pn)
+      { }
     
     virtual bool doMatch(Provenance const& p) const 
     {
-      return p.processName() == pn_;
+      return (pn_=="*") || (p.processName() == pn_);
     }
 
     virtual ProcessNameSelector* clone() const
     {
       return new ProcessNameSelector(*this);
+    }
+
+    std::string const& name() const
+    {
+      return pn_;
     }
 
   private:

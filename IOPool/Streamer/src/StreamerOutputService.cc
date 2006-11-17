@@ -1,4 +1,4 @@
-// $Id: StreamerOutputService.cc,v 1.15 2006/10/11 15:03:52 klute Exp $
+// $Id: StreamerOutputService.cc,v 1.16 2006/10/14 12:22:07 klute Exp $
 
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
@@ -35,17 +35,30 @@ std::string itoa(int i){
 
 /* No one will use this CTOR anyways, we can remove it in future */
 StreamerOutputService::StreamerOutputService():
- maxFileSize_(1073741824),
- maxFileEventCount_(50),
- currentFileSize_(0),
- totalEventCount_(0),
- eventsInFile_(0),
- fileNameCounter_(0),
- highWaterMark_(0.9), diskUsage_(0.0)
-
+  maxFileSize_(1024*1024*1024),
+  maxFileEventCount_(50),
+  currentFileSize_(0),
+  totalEventCount_(0),
+  eventsInFile_(0),
+  fileNameCounter_(0),
+  files_(),
+  filen_(),  
+  highWaterMark_(0.9),
+  path_(),
+  mpath_(),
+  diskUsage_(0.0),
+  closedFiles_(),
+  catalog_(),
+  nLogicalDisk_(0),
+  saved_initmsg_(),
+  fileName_(),
+  lockFileName_(),
+  streamNindex_writer_(),
+  requestParamSet_(),
+  eventSelector_(),
+  statistics_()
   {
     saved_initmsg_[0] = '\0';
-    requestParamSet_ = edm::ParameterSet();
   }
 
  StreamerOutputService::StreamerOutputService(edm::ParameterSet const& ps):
@@ -53,15 +66,28 @@ StreamerOutputService::StreamerOutputService():
  //maxFileEventCount_(ps.template getParameter<int>("maxFileEventCount")),
  // defaulting - need numbers from Emilio
  //StreamerOutputService::StreamerOutputService():
- maxFileSize_(1073741824),
- maxFileEventCount_(50),
- currentFileSize_(0),
- totalEventCount_(0),
- eventsInFile_(0),
- fileNameCounter_(0),
- highWaterMark_(0.9), diskUsage_(0.0),
- requestParamSet_(ps)
-   
+  maxFileSize_(1024*1024*1024),
+  maxFileEventCount_(50),
+  currentFileSize_(0),
+  totalEventCount_(0),
+  eventsInFile_(0),
+  fileNameCounter_(0),
+  files_(),
+  filen_(),  
+  highWaterMark_(0.9),
+  path_(),
+  mpath_(),
+  diskUsage_(0.0),
+  closedFiles_(),
+  catalog_(),
+  nLogicalDisk_(0),
+  saved_initmsg_(),
+  fileName_(),
+  lockFileName_(),
+  streamNindex_writer_(),
+  requestParamSet_(ps),
+  eventSelector_(),
+  statistics_()
   {
     saved_initmsg_[0] = '\0';
   }
@@ -135,7 +161,7 @@ void StreamerOutputService::initializeSelection(InitMsgView const& initView)
   /* */
 
   // create our event selector
-  eventSelector_.reset(new EventSelector(requestParamSet_, processName,
+  eventSelector_.reset(new EventSelector(requestParamSet_.getUntrackedParameter("SelectEvents", ParameterSet()),
                                          triggerNameList));
   }
 

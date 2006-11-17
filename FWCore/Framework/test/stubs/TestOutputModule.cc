@@ -95,7 +95,7 @@ namespace edmtest
   {
     assert(currentContext() != 0);
 
-    const Trig& prod = getTrigMask(e);
+    const Trig& prod = getTriggerResults(e);
 
     if (!prod.isValid()) 
     {

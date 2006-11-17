@@ -9,10 +9,10 @@ F3=${LOCAL_TEST_DIR}/testTrigBits2.cfg
 F4=${LOCAL_TEST_DIR}/testTrigBits3.cfg  
 F5=${LOCAL_TEST_DIR}/testTrigBits4.cfg
 
-(cmsRun $F1 ) || die 'Failure using $F1' $?
-(cmsRun $F2 ) || die 'Failure using $F2' $?
-(cmsRun $F3 ) || die 'Failure using $F3' $?
-(cmsRun $F4 ) || die 'Failure using $F4' $?
-(cmsRun $F5 ) || die 'Failure using $F5' $?
+(cmsRun $F1 ) || die "Failure using $F1" $?
+(cmsRun $F2 ) || die "Failure using $F2" $?
+(cmsRun $F3 ) || die "Failure using $F3" $?
+(cmsRun $F4 ) || die "Failure using $F4" $?
+(cmsRun $F5 ) || die "Failure using $F5" $?
 
 

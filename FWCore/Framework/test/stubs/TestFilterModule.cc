@@ -116,8 +116,8 @@ namespace edmtest
 
     if(prod.size() == 0) return;
     if(prod.size() > 1) {
-	cerr << "More than one trigger result in the event, using first one"
-	     << endl;
+      cerr << "More than one trigger result in the event, using first one"
+	   << endl;
     }
 
     if (prod[0]->accept()) ++passed_; else ++failed_;
@@ -126,9 +126,10 @@ namespace edmtest
 
     unsigned int numbits = numbits_;
     if(numbits != prod[0]->size()) {
-	cerr << "should have " << numbits
-	     << ", got " << prod[0]->size() << " in TriggerResults\n";
-	abort();
+      cerr << "TestResultAnalyzer named: " << name_
+	   << " should have " << numbits
+	   << ", got " << prod[0]->size() << " in TriggerResults\n";
+      abort();
     }
   }
 
@@ -156,9 +157,9 @@ namespace edmtest
     ++count_;
     assert( currentContext() != 0 );
     if(onlyOne_)
-      return count_%accept_rate_ ==0 ? true : false;
+      return count_ % accept_rate_ ==0;
     else
-      return count_%100 <= accept_rate_ ? true : false;
+      return count_ % 100 <= accept_rate_;
   }
 
   void TestFilterModule::endJob()

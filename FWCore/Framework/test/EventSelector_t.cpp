@@ -46,11 +46,11 @@ void testone(const Strings& paths,
 	     const Bools& mask,
 	     bool answer)
 {
-  ParameterSet pset, parent;
+  ParameterSet pset; //, parent;
   pset.addParameter<Strings>("SelectEvents",pattern);
-  parent.addUntrackedParameter<ParameterSet>("SelectEvents",pset);
+  //parent.addUntrackedParameter<ParameterSet>("SelectEvents",pset);
 
-  EventSelector select(parent, "HLT", paths);
+  EventSelector select(pset, paths);
   HLTGlobalStatus bm(mask.size());
   const HLTPathStatus pass=HLTPathStatus(edm::hlt::Pass);
   const HLTPathStatus fail=HLTPathStatus(edm::hlt::Fail);

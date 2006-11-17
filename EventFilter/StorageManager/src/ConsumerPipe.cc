@@ -91,11 +91,11 @@ void ConsumerPipe::initializeSelection(InitMsgView const& initView)
     std::cout<< ">>>>>>>>>>>  name = " << triggerNameList[i] << std::endl;
   */
   // create our event selector
-  eventSelector_.reset(new EventSelector(*requestParamSet_, processName,
-                                         triggerNameList));
-
+  eventSelector_.reset(new EventSelector(requestParamSet_->getUntrackedParameter("SelectEvents", ParameterSet()),
+					 triggerNameList));
   // indicate that initialization is complete
   initializationDone = true;
+
 }
 
 /**

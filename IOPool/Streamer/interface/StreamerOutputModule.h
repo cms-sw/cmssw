@@ -244,7 +244,7 @@ void StreamerOutputModule<Consumer>::setHltMask(EventPrincipal const& e)
 
     hltbits_.clear();  // If there was something left over from last event
 
-    const edm::Handle<edm::TriggerResults>& prod = getTrigMask(e);
+    const edm::Handle<edm::TriggerResults>& prod = getTriggerResults(e);
     //const Trig& prod = getTrigMask(e);
     std::vector<unsigned char> vHltState; 
     

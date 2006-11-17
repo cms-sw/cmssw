@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.24 2006/11/07 18:06:53 wmtan Exp $
+
+$Id: OutputModule.cc,v 1.25 2006/11/09 21:49:58 paterno Exp $
 ----------------------------------------------------------------------*/
 
-#include <vector>
 #include <iostream>
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -10,14 +10,20 @@ $Id: OutputModule.cc,v 1.24 2006/11/07 18:06:53 wmtan Exp $
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/Framework/src/CPCSentry.h"
+
+
+using std::vector;
+using std::string;
+
 
 namespace edm
 {
@@ -26,36 +32,151 @@ namespace edm
   // OutputModule's initialization list, rather than in the body of
   // the constructor.
 
-  std::vector<edm::BranchDescription const*>
+  vector<edm::BranchDescription const*>
   getAllBranchDescriptions()
   {
     edm::Service<edm::ConstProductRegistry> reg;
     return reg->allBranchDescriptions();
   }
 
-  std::vector<std::string> const& getAllTriggerNames()
+  vector<string> const& getAllTriggerNames()
   {
     edm::Service<edm::service::TriggerNamesService> tns;
     return tns->getTrigPaths();
   }
+}
 
-//}
+
+namespace
+{
+  //--------------------------------------------------------
+  // Remove whitespace (spaces and tabs) from a string.
+  void remove_whitespace(string& s)
+  {
+    s.erase(remove(s.begin(), s.end(), ' '), s.end());
+    s.erase(remove(s.begin(), s.end(), '\t'), s.end());
+  }
+
+  void test_remove_whitespace()
+  {
+    string a("noblanks");
+    string b("\t   no   blanks    \t");
+
+    remove_whitespace(b);
+    assert( a == b);
+  }
+
+  //--------------------------------------------------------
+  // Given a path-spec (string of the form "a:b", where the ":b" is
+  // optional), return a parsed_path_spec_t containing "a" and "b".
+
+  typedef std::pair<string,string> parsed_path_spec_t;
+  void parse_path_spec(string const& path_spec, 
+		       parsed_path_spec_t& output)
+  {
+    string trimmed_path_spec(path_spec);
+    remove_whitespace(trimmed_path_spec);
+    
+    string::size_type colon = trimmed_path_spec.find(":");
+    if (colon == string::npos)
+      {
+	output.first = trimmed_path_spec;
+      }
+    else
+      {
+	output.first  = trimmed_path_spec.substr(0, colon);
+	output.second = trimmed_path_spec.substr(colon+1, 
+						 trimmed_path_spec.size());
+      }
+  }
+
+  void test_parse_path_spec()
+  {
+    vector<string> paths;
+    paths.push_back("a:p1");
+    paths.push_back("b:p2");
+    paths.push_back("  c");
+    paths.push_back("ddd\t:p3");
+    paths.push_back("eee:  p4  ");
+    
+    vector<parsed_path_spec_t> parsed(paths.size());
+    for (size_t i = 0; i < paths.size(); ++i)
+      parse_path_spec(paths[i], parsed[i]);
+
+    assert( parsed[0].first  == "a" );
+    assert( parsed[0].second == "p1" );
+    assert( parsed[1].first  == "b" );
+    assert( parsed[1].second == "p2" );
+    assert( parsed[2].first  == "c" );
+    assert( parsed[2].second == "" );
+    assert( parsed[3].first  == "ddd" );
+    assert( parsed[3].second == "p3" );
+    assert( parsed[4].first  == "eee" );
+    assert( parsed[4].second == "p4" );
+  }
+}
 
 
-//namespace edm {
+namespace edm
+{
+  namespace test
+  {
+    void run_all_output_module_tests()
+    {
+      test_remove_whitespace();
+      test_parse_path_spec();
+    }
+  }
+
+
+  // -------------------------------------------------------
   OutputModule::OutputModule(ParameterSet const& pset) : 
     nextID_(),
     descVec_(),
     droppedVec_(),
-    process_name_(Service<service::TriggerNamesService>()->getProcessName()),
+    process_name_(),
     groupSelector_(pset),
-    eventSelector_(pset,process_name_,
-		   getAllTriggerNames()),
-    // use this temporarily - can only apply event selection to current
-    // process name
-    selectResult_(eventSelector_.getProcessName()),
-    current_context_(0)
+    //eventSelectors_(),
+    //selectResult_("*"),  // use the most recent process name
+    current_context_(0),
+    //prods_(),
+    prodsValid_(false),
+    current_md_(0),
+    wantAllEvents_(false),
+    selectors_()
   {
+    ParameterSet selectevents =
+      pset.getUntrackedParameter("SelectEvents", ParameterSet());
+
+
+    // If selectevents is an emtpy ParameterSet, then we are to write
+    // all events, or one which contains a vstrig 'SelectEvents' that
+    // is empty, we are to write all events. We have no need for any
+    // EventSelectors.
+    if (selectevents.empty())
+      {
+	wantAllEvents_ = true;
+	selectors_.setupDefault(getAllTriggerNames());
+	return;
+      }
+
+    vector<string> path_specs = 
+      selectevents.getParameter<vector<string> >("SelectEvents");
+
+    if (path_specs.empty())
+      {
+	wantAllEvents_ = true;
+	selectors_.setupDefault(getAllTriggerNames());
+	return;
+      }
+
+    // If we get here, we have the possibility of having to deal with
+    // path_specs that look at more than one process.
+    vector<parsed_path_spec_t> parsed_paths(path_specs.size());
+    for (size_t i = 0; i < path_specs.size(); ++i)
+      parse_path_spec(path_specs[i], parsed_paths[i]);
+
+    selectors_.setup(parsed_paths, getAllTriggerNames());
   }
 
   void OutputModule::selectProducts() {
@@ -76,23 +197,23 @@ namespace edm
     for ( ; it != end; ++it) {
       BranchDescription const& desc = it->second;
       if(!desc.provenancePresent() & !desc.produced()) {
-        // If the branch containing the provenance has been previously dropped,
-        // and the product has not been produced again, output nothing
-        continue;
+	// If the branch containing the provenance has been previously dropped,
+	// and the product has not been produced again, output nothing
+	continue;
       } else if(desc.transient()) {
-        // else if the class of the branch is marked transient, drop the product branch
-        droppedVec_[desc.branchType()].push_back(&desc);
-        continue;
+	// else if the class of the branch is marked transient, drop the product branch
+	droppedVec_[desc.branchType()].push_back(&desc);
+	continue;
       } else if(!desc.present() & !desc.produced()) {
-        // else if the branch containing the product has been previously dropped,
-        // and the product has not been produced again, drop the product branch again.
-        droppedVec_[desc.branchType()].push_back(&desc);
+	// else if the branch containing the product has been previously dropped,
+	// and the product has not been produced again, drop the product branch again.
+	droppedVec_[desc.branchType()].push_back(&desc);
       } else if (selected(desc)) {
-        // else if the branch has been selected, put it in the list of selected branches
-        descVec_[desc.branchType()].push_back(&desc);
+	// else if the branch has been selected, put it in the list of selected branches
+	descVec_[desc.branchType()].push_back(&desc);
       } else {
-        // otherwise, drop the product branch.
-        droppedVec_[desc.branchType()].push_back(&desc);
+	// otherwise, drop the product branch.
+	droppedVec_[desc.branchType()].push_back(&desc);
       }
     }
   }
@@ -107,60 +228,102 @@ namespace edm
     endJob();
   }
 
-  Trig const& OutputModule::getTrigMask(EventPrincipal const& ep) const
+
+  Trig OutputModule::getTriggerResults(Event const& ev) const
   {
-    if (! prod_.isValid())
-    {
-      // use module description and const_cast unless interface to
-      // event is changed to just take a const EventPrincipal
-      Event e(const_cast<EventPrincipal&>(ep), *current_md_);
-      try {
-         e.get(selectResult_, prod_);
-      } catch(cms::Exception& e){
-         FDEBUG(2) << e.what();
-         //prod_ stays empty
-      }
-    }
-    return  prod_;
+    return selectors_.getOneTriggerResults(ev);
   }
+
+  Trig OutputModule::getTriggerResults(EventPrincipal const& ep) const
+  {
+    // This is bad, because we're returning handles into an Event that
+    // is destructed before the return. It might not fail, because the
+    // actual EventPrincipal is not destroyed, but it still needs to
+    // be cleaned up.
+    Event ev(const_cast<EventPrincipal&>(ep), 
+	     *current_context_->moduleDescription());
+    return getTriggerResults(ev);
+  }
+
+  size_t OutputModule::getManyTriggerResults(EventPrincipal const& ep) const
+  {
+     assert(current_md_ == current_context_->moduleDescription());
+     size_t numFound = 0;
+
+     // Fill in selectors_ if it has not already been done for this event...
+     if (! prodsValid_)
+       {
+ 	// use module description and const_cast unless interface to
+ 	// event is changed to just take a const EventPrincipal
+ 	Event e(const_cast<EventPrincipal&>(ep), *current_md_);
+	numFound = selectors_.fill(e);
+       }
+     prodsValid_ = true;
+     return  numFound;
+  }
+
+   namespace {
+     class  PVSentry
+     {
+     public:
+       PVSentry (detail::CachedProducts& prods, bool& valid) : p(prods), v(valid) {}
+       ~PVSentry() { p.clear(); v=false; }
+     private:
+       detail::CachedProducts& p;
+       bool&           v;
+
+       PVSentry(PVSentry const& );  // not implemented
+       PVSentry& operator=(PVSentry const&); // not implemented
+     };
+   }
 
   void OutputModule::writeEvent(EventPrincipal const& ep,
-                                ModuleDescription const& md,
-                                CurrentProcessingContext const* c)
+				ModuleDescription const& md,
+				CurrentProcessingContext const* c)
   {
     detail::CPCSentry sentry(current_context_, c);
+    PVSentry          products_sentry(selectors_, prodsValid_);
+
     //Save the current Mod Desc
     current_md_ = &md;
-    assert (current_md_ == c->moduleDescription());
+    assert( current_md_ == c->moduleDescription());
+
     FDEBUG(2) << "writeEvent called\n";
-    if(eventSelector_.wantAll() || wantEvent(ep)) {
-         write(ep);
-    }
-    //Clean up the TriggerResult handle immediately
-    // for next event should get it empty (inValid() returning true)
-    prod_ = edm::Handle<edm::TriggerResults>();
+
+    // This ugly little bit is here to prevent making the Event if
+    // don't need it.
+    if (wantAllEvents_) 
+      {
+	write(ep); 
+      }
+    else 
+      {
+	// use module description and const_cast unless interface to
+	// event is changed to just take a const EventPrincipal
+	Event e(const_cast<EventPrincipal&>(ep), *c->moduleDescription());
+	if (selectors_.wantEvent(e) ) write(ep);
+      }
   }
 
-  bool OutputModule::wantEvent(EventPrincipal const& ep)
-  {
-    // this implementation cannot deal with doing event selection
-    // based on any previous TriggerResults.  It can only select
-    // based on a TriggerResult made in the current process.
+//   bool OutputModule::wantEvent(Event const& ev)
+//   {
+//     getTriggerResults(ev);
+//     bool eventAccepted = false;
 
-    // use module description and const_cast unless interface to
-    // event is changed to just take a const EventPrincipal
+//     typedef vector<NamedEventSelector>::const_iterator iter;
+//     for (iter i = selectResult_.begin(), e = selectResult_.end();
+// 	 !eventAccepted && i!=e; ++i) 
+//       {
+// 	eventAccepted = i->acceptEvent(*prods_);
+//       }
 
-    getTrigMask(ep);
-
-    bool rc = eventSelector_.acceptEvent(*prod_);
-    FDEBUG(2) << "Accept event " << ep.id() << " " << rc << "\n";
-    FDEBUG(2) << "Mask: " << *prod_ << "\n";
-    return rc;
-  }
+//     FDEBUG(2) << "Accept event " << ep.id() << " " << eventAccepted << "\n";
+//     return eventAccepted;
+//   }
 
   void OutputModule::doBeginRun(RunPrincipal const& rp,
-                                ModuleDescription const& md,
-                                CurrentProcessingContext const* c)
+				ModuleDescription const& md,
+				CurrentProcessingContext const* c)
   {
     detail::CPCSentry sentry(current_context_, c);
     //Save the current Mod Desc
@@ -171,8 +334,8 @@ namespace edm
   }
 
   void OutputModule::doEndRun(RunPrincipal const& rp,
-                                ModuleDescription const& md,
-                                CurrentProcessingContext const* c)
+			      ModuleDescription const& md,
+			      CurrentProcessingContext const* c)
   {
     detail::CPCSentry sentry(current_context_, c);
     //Save the current Mod Desc
@@ -183,8 +346,8 @@ namespace edm
   }
 
   void OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                ModuleDescription const& md,
-                                CurrentProcessingContext const* c)
+					    ModuleDescription const& md,
+					    CurrentProcessingContext const* c)
   {
     detail::CPCSentry sentry(current_context_, c);
     //Save the current Mod Desc
@@ -195,8 +358,8 @@ namespace edm
   }
 
   void OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                ModuleDescription const& md,
-                                CurrentProcessingContext const* c)
+					  ModuleDescription const& md,
+					  CurrentProcessingContext const* c)
   {
     detail::CPCSentry sentry(current_context_, c);
     //Save the current Mod Desc

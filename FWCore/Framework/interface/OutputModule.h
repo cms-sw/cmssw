@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.29 2006/11/03 17:57:51 wmtan Exp $
+$Id: OutputModule.h,v 1.30 2006/11/07 18:06:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,7 @@ $Id: OutputModule.h,v 1.29 2006/11/03 17:57:51 wmtan Exp $
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/Provenance.h"
 
+#include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
@@ -27,9 +28,11 @@ $Id: OutputModule.h,v 1.29 2006/11/03 17:57:51 wmtan Exp $
 #include "FWCore/Framework/interface/Handle.h"
 
 namespace edm {
+
+  typedef edm::detail::CachedProducts::handle_t Trig;
    
-  typedef edm::Handle<edm::TriggerResults> Trig;
   std::vector<std::string> const& getAllTriggerNames();
+
 
   class OutputModule {
   public:
@@ -56,14 +59,24 @@ namespace edm {
     unsigned long nextID() const;
     void selectProducts();
 
-    const Trig& getTrigMask(EventPrincipal const& ep) const;
 
   protected:
+    //const Trig& getTriggerResults(Event const& ep) const;
+    Trig getTriggerResults(Event const& ep) const;
+
+    // This function is needed for compatibility with older code. We
+    // need to clean up the use of Event and EventPrincipal, to avoid
+    // creation of multiple Event objects when handling a single
+    // event.
+    Trig getTriggerResults(EventPrincipal const& ep) const;
+
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('write').
     CurrentProcessingContext const* currentContext() const;
 
   private:
+    size_t getManyTriggerResults(EventPrincipal const& ep) const;
+
     unsigned long             nextID_;
     // TODO: Make these data members private, and give OutputModule
     // an interface (protected?) that supplies client code with the
@@ -88,21 +101,8 @@ namespace edm {
     SelectionsArray droppedVec_;
 
   private:
-//     class ResultsSelector : public edm::Selector
-//     {
-//     public:
-//       explicit ResultsSelector(const std::string& proc_name):
-// 	name_(proc_name) {}
-      
-//       virtual bool doMatch(const edm::ProvenanceAccess& p) const {
-// 	return p.provenance().processName()==name_;
-//       }
-//     private:
-//       std::string name_;
-//     };
-
     virtual void write(EventPrincipal const& e) = 0;
-    bool wantEvent(EventPrincipal const& e);
+    //bool wantEvent(Event const& e);
     virtual void beginJob(EventSetup const&){}
     virtual void endJob(){}
     virtual void beginRun(RunPrincipal const& r){}
@@ -112,21 +112,23 @@ namespace edm {
 
     std::string process_name_;
     GroupSelector groupSelector_;
-    EventSelector eventSelector_;
-    //ResultsSelector selectResult_;
-    ProcessNameSelector selectResult_;
-
+    //std::vector<NamedEventSelector> eventSelectors_;
+    //ProcessNameSelector selectResult_;
+    
     // We do not own the pointed-to CurrentProcessingContext.
     CurrentProcessingContext const* current_context_;
 
-    //This var will store Trigger Bit mask
-    mutable Trig prod_;
+    //This will store TriggerResults objects for the current event.
+    // mutable std::vector<Trig> prods_;
+    mutable bool prodsValid_;
 
     //Store the current Module Desc
     //  *** This should be superfluous, because current_context_->moduleDescription()
     // returns a pointer to the current ModuleDescription.
     ModuleDescription const* current_md_;  
 
+    bool wantAllEvents_;
+    mutable detail::CachedProducts selectors_;
   };
 }
 
