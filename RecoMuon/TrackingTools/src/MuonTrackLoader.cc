@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/11/08 18:23:52 $
- *  $Revision: 1.32 $
+ *  $Date: 2006/11/16 16:13:37 $
+ *  $Revision: 1.33 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -148,8 +148,11 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   if ( muonCands.empty() ) {
     std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
     std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
+    std::auto_ptr<reco::TrackCollection> trackCollection( new reco::TrackCollection() );
+
     event.put(recHitCollection);
     event.put(trackExtraCollection);
+    event.put(trackCollection);
     return event.put(muonCollection);
   }
   
