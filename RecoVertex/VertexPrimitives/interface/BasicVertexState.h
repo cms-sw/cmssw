@@ -26,8 +26,11 @@ public:
   typedef ReferenceCountingPointer<BasicVertexState>    		  RCPtr;
 
 private:
-  friend class Proxy;
-  friend class RCPtr;
+  //
+  // HELP !  new G++ refuses friend class Proxy;
+  //
+  friend class   ProxyBase< BasicVertexState, CopyUsingClone<BasicVertexState> >;
+  friend  class ReferenceCountingPointer<BasicVertexState>    		  ;
 
 public:
 
