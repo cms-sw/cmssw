@@ -32,11 +32,12 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.26 2006/08/31 23:26:24 wmtan Exp $
+$Id: EventProcessor.h,v 1.27 2006/10/13 01:47:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <string>
+#include <vector>
 
 #include "sigc++/signal.h"
 #include "boost/shared_ptr.hpp"
@@ -110,13 +111,28 @@ class EDLooperHelper;
     /// explicit EventProcessor(const std::string& config);
 
 
-    // The input string contains the entire contents of a
-    // configuration file.  Same as previous constructor, except allow
-    // attachement of pre-existing services.
-    explicit EventProcessor(const std::string& config,
-			    const ServiceToken& = ServiceToken(),
+    // The input string 'config' contains the entire contents of a  configuration file.
+    // Also allows the attachement of pre-existing services specified  by 'token', and
+    // the specification of services by name only (defaultServices and forcedServices).
+    // 'defaultServices' are overridden by 'config'.
+    // 'forcedServices' cause an exception if the same service is specified in 'config'.
+    explicit EventProcessor(std::string const& config,
+			    ServiceToken const& token = ServiceToken(),
 			    serviceregistry::ServiceLegacy =
-			    serviceregistry::kOverlapIsError);
+			      serviceregistry::kOverlapIsError,
+			    std::vector<std::string> const& defaultServices =
+			      std::vector<std::string>(),
+			    std::vector<std::string> const& forcedServices =
+			      std::vector<std::string>());
+
+    // Same as previous constructor, but without a 'token'.  Token will be defaulted.
+
+    explicit EventProcessor(std::string const& config,
+			    std::vector<std::string> const& defaultServices,
+			    std::vector<std::string> const& forcedServices =
+			    std::vector<std::string>());
+    
+
 
     ~EventProcessor();
 
@@ -132,9 +148,9 @@ class EDLooperHelper;
     void endJob();
 
 
-    const char* currentStateName() const;
-    const char* stateName(event_processor::State s) const;
-    const char* msgName(event_processor::Msg m) const;
+    char const* currentStateName() const;
+    char const* stateName(event_processor::State s) const;
+    char const* msgName(event_processor::Msg m) const;
     event_processor::State getState() const;
     void runAsync();
     StatusCode statusAsync() const;
@@ -157,7 +173,7 @@ class EDLooperHelper;
     StatusCode run();
 
     // Process one event with the given EventID
-    StatusCode run(const EventID& id);
+    StatusCode run(EventID const& id);
 
     // Skip the specified number of events, and then process the next event.
     // If numberToSkip is negative, we will back up.
@@ -249,6 +265,12 @@ class EDLooperHelper;
     ServiceToken getToken();
 
   private:
+    // init() is used by only by constructors
+    void init(std::string const& config,
+		ServiceToken const& token,
+		serviceregistry::ServiceLegacy,
+		std::vector<std::string> const& defaultServices,
+		std::vector<std::string> const& forcedServices);
   
     StatusCode run_p(unsigned long numberToProcess,
 		     event_processor::Msg m);

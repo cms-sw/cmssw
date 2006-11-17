@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.19 2006/10/04 18:32:48 chrjones Exp $
+$Id: cmsRun.cpp,v 1.20 2006/10/27 15:03:01 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -90,6 +90,23 @@ int main(int argc, char* argv[])
   edm::ServiceToken jobReportToken = 
            edm::ServiceRegistry::createContaining(jobRep);
   
+  //
+  // Specify default services to be enabled with their default parameters.
+  // 
+  // The parameters for these can be overridden from the configuration files.
+  std::vector<std::string> defaultServices;
+  defaultServices.reserve(4);
+  defaultServices.push_back("AdaptorConfig");
+  defaultServices.push_back("InitRootHandlers");
+  defaultServices.push_back("MessageLogger");
+  defaultServices.push_back("LoadAllDictionaries");
+  
+  // These cannot be overridden from the configuration files.
+  // An exception will be thrown if any of these is specified there.
+  std::vector<std::string> forcedServices;
+  forcedServices.reserve(2);
+  forcedServices.push_back("JobReportService");
+  forcedServices.push_back("SiteLocalConfigService");
 
   std::string descString(argv[0]);
   descString += " [options] [--";
@@ -182,7 +199,8 @@ int main(int argc, char* argv[])
       auto_ptr<EventProcessor> 
 	procP(new 
 	      EventProcessor(configstring, jobReportToken, 
-			     edm::serviceregistry::kTokenOverrides));
+			     edm::serviceregistry::kTokenOverrides,
+			     defaultServices, forcedServices));
       EventProcessorWithSentry procTmp(procP);
       proc = procTmp;
       proc->beginJob();

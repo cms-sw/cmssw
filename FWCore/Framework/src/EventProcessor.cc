@@ -84,7 +84,7 @@ namespace edm {
     // the next two tables must be kept in sync with the state and
     // message enums from the header
 
-    const char* stateNames[] = {
+    char const* stateNames[] = {
       "Init",
       "JobReady",
       "RunGiven",
@@ -98,7 +98,7 @@ namespace edm {
       "Invalid"
     };
 
-    const char* msgNames[] = {
+    char const* msgNames[] = {
       "SetRun",
       "Skip",
       "RunAsync",
@@ -301,7 +301,7 @@ namespace edm {
   // ---------------------------------------------------------------
   shared_ptr<InputSource> 
   makeInput(ParameterSet const& params,
-	    const EventProcessor::CommonParams& common,
+	    EventProcessor::CommonParams const& common,
 	    ProductRegistry& preg,
             ActivityRegistry& areg)
   {
@@ -332,7 +332,7 @@ namespace edm {
       
       return input;
     } 
-    catch(const edm::Exception& iException) 
+    catch(edm::Exception const& iException) 
       {
  	if(sourceSpecified == false && 
 	   errors::Configuration == iException.categoryCode()) 
@@ -412,7 +412,7 @@ namespace edm {
 						 std::make_pair(datumName,
 								labelName)));
 	    }
-	  } catch(const cms::Exception& iException) {
+	  } catch(cms::Exception const& iException) {
 	    cms::Exception theError("ESPreferConfigurationError");
 	    theError << "While parsing the es_prefer statement for type="
 		     << preferPSet.getParameter<std::string>("@module_type")
@@ -435,7 +435,7 @@ namespace edm {
   void 
   fillEventSetupProvider(edm::eventsetup::EventSetupProvider& cp,
 			 ParameterSet const& params,
-			 const EventProcessor::CommonParams& common)
+			 EventProcessor::CommonParams const& common)
   {
     using namespace std;
     using namespace edm::eventsetup;
@@ -477,9 +477,9 @@ namespace edm {
   {
     struct ESRefWrapper 
     {
-      EventSetup const & es_;
-      ESRefWrapper(EventSetup const &iES) : es_(iES) {}
-      operator const EventSetup&() { return es_; }
+      EventSetup const& es_;
+      ESRefWrapper(EventSetup const& iES) : es_(iES) {}
+      operator EventSetup const&() { return es_; }
     };
   }
 
@@ -530,7 +530,7 @@ namespace edm {
   boost::shared_ptr<edm::EDLooper> 
   fillLooper(edm::eventsetup::EventSetupProvider& cp,
 			 ParameterSet const& params,
-			 const EventProcessor::CommonParams& common)
+			 EventProcessor::CommonParams const& common)
   {
     using namespace std;
     using namespace edm::eventsetup;
@@ -564,9 +564,11 @@ namespace edm {
 
   // ---------------------------------------------------------------
 
-  EventProcessor::EventProcessor(const string& config,
-				const ServiceToken& iToken, 
-				serviceregistry::ServiceLegacy iLegacy) :
+  EventProcessor::EventProcessor(string const& config,
+				ServiceToken const& iToken, 
+				serviceregistry::ServiceLegacy iLegacy,
+			        vector<string> const& defaultServices,
+				vector<string> const& forcedServices) :
     preProcessEventSignal(),
     postProcessEventSignal(),
     plug_init_(),
@@ -591,8 +593,47 @@ namespace edm {
     event_loop_id_(),
     my_sig_num_(getSigNum()),
     looper_()
-
   {
+    init(config, iToken, iLegacy, defaultServices, forcedServices);
+  }
+
+  EventProcessor::EventProcessor(string const& config,
+			        vector<string> const& defaultServices,
+				vector<string> const& forcedServices) :
+    preProcessEventSignal(),
+    postProcessEventSignal(),
+    plug_init_(),
+    common_(),
+    actReg_(new ActivityRegistry),
+    wreg_(actReg_),
+    preg_(),
+    serviceToken_(),
+    input_(),
+    schedule_(),
+    esp_(),
+    act_table_(),
+    state_(sInit),
+    event_loop_(),
+    state_lock_(),
+    stop_lock_(),
+    stopper_(),
+    stop_count_(),
+    last_rc_(epSuccess),
+    last_error_text_(),
+    id_set_(false),
+    event_loop_id_(),
+    my_sig_num_(getSigNum()),
+    looper_()
+  {
+    init(config, ServiceToken(), serviceregistry::kOverlapIsError, defaultServices, forcedServices);
+  }
+
+  void
+  EventProcessor::init(string const& config,
+			ServiceToken const& iToken, 
+			serviceregistry::ServiceLegacy iLegacy,
+		        vector<string> const& defaultServices,
+			vector<string> const& forcedServices) {
     // TODO: Fix const-correctness. The ParameterSets that are
     // returned here should be const, so that we can be sure they are
     // not modified.
@@ -600,16 +641,17 @@ namespace edm {
     shared_ptr<vector<ParameterSet> > pServiceSets;
     shared_ptr<ParameterSet> processParamsPtr; // change this name!
     makeParameterSets(config, processParamsPtr, pServiceSets);
-    adjustForDefaultService(*(pServiceSets.get()), "InitRootHandlers");
-    adjustForDefaultService(*(pServiceSets.get()), "MessageLogger");
-    adjustForDefaultService(*(pServiceSets.get()), "LoadAllDictionaries");
-    adjustForDefaultService(*(pServiceSets.get()), "AdaptorConfig");
-    adjustForService(*(pServiceSets.get()), "JobReportService");
-    adjustForService(*(pServiceSets.get()), "SiteLocalConfigService");
-
+    for(vector<string>::const_iterator i = defaultServices.begin();
+	 i != defaultServices.end(); ++i) {
+      adjustForDefaultService(*(pServiceSets.get()), *i);
+    }
+    for(vector<string>::const_iterator j = forcedServices.begin();
+	 j != forcedServices.end(); ++j) {
+      adjustForService(*(pServiceSets.get()), *j);
+    }
 
     //create the services
-    ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets,iToken,iLegacy));
+    ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, iToken, iLegacy));
 
     //using copySlotsTo rather than just connectTo allows a performance improvement
     // since slots are called directly rather than indirectly through another ActivityRegistry
@@ -838,7 +880,7 @@ namespace edm {
   }
   
   EventProcessor::StatusCode
-  EventProcessor::run(const EventID& id)
+  EventProcessor::run(EventID const& id)
   {
     beginJob(); //make sure this was called
     changeState(mRunID);
@@ -1039,17 +1081,17 @@ namespace edm {
     schedule_->getTriggerReport(rep);
   }
 
-  const char* EventProcessor::currentStateName() const
+  char const* EventProcessor::currentStateName() const
   {
     return stateName(getState());
   }
 
-  const char* EventProcessor::stateName(State s) const
+  char const* EventProcessor::stateName(State s) const
   {
     return stateNames[s];
   }
 
-  const char* EventProcessor::msgName(Msg m) const
+  char const* EventProcessor::msgName(Msg m) const
   {
     return msgNames[m];
   }
