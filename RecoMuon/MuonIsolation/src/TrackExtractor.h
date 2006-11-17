@@ -36,7 +36,7 @@ private:
   double theDR_Veto;                   // Veto cone angle
 
   // Vector of Trks to veto
-  std::vector<const reco::Track*> theVetoCollection;
+  const reco::TrackCollection* theVetoCollection;
                                                                                 
 };
 
