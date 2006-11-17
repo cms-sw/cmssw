@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFPhiProLUT
 //
 // 
-//   $Date: 2004/02/11 14:01:37 $
-//   $Revision: 1.5 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -44,7 +44,7 @@
 void L1MuGMTLFPhiProLUT::InitParameters() {
   m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
   //  m_theGMTScales = Singleton<L1MuGMTScales>::instance();
-};
+}
 
 //------------------------
 // The Lookup Function  --
@@ -86,7 +86,7 @@ unsigned L1MuGMTLFPhiProLUT::TheLookupFunction (int idx, unsigned eta, unsigned 
     
   L1MuSignedPacking<9> PhiPacking;
   return PhiPacking.packedFromIdx(dphi_int);
-}; 
+}
 
 
 

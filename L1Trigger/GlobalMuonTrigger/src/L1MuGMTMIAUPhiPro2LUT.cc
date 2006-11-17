@@ -3,7 +3,7 @@
 //   Class: L1MuGMTMIAUPhiPro2LUT
 //
 // 
-//   $Date: 2003/12/17 08:23:19 $
+//   $Date: 2006/05/15 13:56:02 $
 //   $Revision: 1.1 $
 //
 //   Author :
@@ -36,7 +36,7 @@
 
 void L1MuGMTMIAUPhiPro2LUT::InitParameters() {
   m_IsolationCellSizePhi = L1MuGMTConfig::getIsolationCellSizePhi();
-};
+}
 
 //--------------------------------------------------------------------------------
 // Phi Projection LUT 2:  Set phi-select-bits based on start calo region(5bit), offset(3bit),

@@ -3,7 +3,7 @@
 //   Class: L1MuGMTLFOvlEtaConvLUT
 //
 // 
-//   $Date: 2004/11/24 14:05:29 $
+//   $Date: 2006/05/15 13:56:02 $
 //   $Revision: 1.1 $
 //
 //   Author :
@@ -40,7 +40,7 @@
 void L1MuGMTLFOvlEtaConvLUT::InitParameters() {
   m_theGMTScales = Singleton<L1MuGMTScales>::instance();
   m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 
 //--------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ unsigned L1MuGMTLFOvlEtaConvLUT::TheLookupFunction (int idx, unsigned eta6) cons
   }
 
   return eta4bit;
-}; 
+}
 
 
 

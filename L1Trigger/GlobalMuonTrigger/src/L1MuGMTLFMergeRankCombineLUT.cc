@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMergeRankCombineLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.2 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -37,7 +37,7 @@
 
 void L1MuGMTLFMergeRankCombineLUT::InitParameters() {
 //  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 //------------------------
 // The Lookup Function  --
@@ -49,7 +49,7 @@ unsigned L1MuGMTLFMergeRankCombineLUT::TheLookupFunction (int idx, unsigned rank
   // OUTPUTS: merge_rank(8) 
 
   return rank_etaq + 128*rank_etaphi;
-}; 
+}
 
 
 

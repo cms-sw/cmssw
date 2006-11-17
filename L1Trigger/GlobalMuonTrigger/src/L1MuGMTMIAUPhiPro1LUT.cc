@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUPhiPro1LUT
 //
 // 
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -43,7 +43,7 @@ void L1MuGMTMIAUPhiPro1LUT::InitParameters() {
   m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
   //  m_theGMTScales = Singleton<L1MuGMTScales>::instance();
   m_calo_align = 0.; //***FIXME: read from DB or .orcarc
-};
+}
 
 //--------------------------------------------------------------------------------
 // Phi Projection LUT 1: project in phi based on eta(4bit), pt and charge
@@ -156,7 +156,7 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction (int idx, unsigned phi_fine, u
   }
 
   return (  (cphi_fine << 3) + cphi_ofs  );
-}; 
+}
 
 
 

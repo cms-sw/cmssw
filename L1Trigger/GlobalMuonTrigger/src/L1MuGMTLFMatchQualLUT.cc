@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMatchQualLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -53,7 +53,7 @@ void L1MuGMTLFMatchQualLUT::InitParameters() {
     m_PhiWeights[i]=L1MuGMTConfig::getPhiWeightCOU();
     m_EtaPhiThresholds[i]=L1MuGMTConfig::getEtaPhiThresholdCOU();
   }
-};
+}
 
 //------------------------
 // The Lookup Function  --
@@ -106,7 +106,7 @@ unsigned L1MuGMTLFMatchQualLUT::TheLookupFunction (int idx, unsigned delta_eta, 
 
   if (matchqual > 63) matchqual = 63;
   return matchqual;  
-}; 
+}
 
 
 

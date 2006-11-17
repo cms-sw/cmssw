@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFSortRankPtQLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.2 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -37,7 +37,7 @@
 
 void L1MuGMTLFSortRankPtQLUT::InitParameters() {
 //  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 //--------------------------------------------------------------------------------
 // Sort Rank LUT, Pt-q part
@@ -68,7 +68,7 @@ unsigned L1MuGMTLFSortRankPtQLUT::TheLookupFunction (int idx, unsigned q, unsign
 
   if (rank_ptq > 127) rank_ptq = 127;
   return rank_ptq;
-}; 
+}
 
 
 

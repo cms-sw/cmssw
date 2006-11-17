@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMergeRankEtaQLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -37,7 +37,7 @@
 
 void L1MuGMTLFMergeRankEtaQLUT::InitParameters() {
   m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 //------------------------
 // The Lookup Function  --
@@ -74,7 +74,7 @@ unsigned L1MuGMTLFMergeRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, un
   unsigned rank_etaq = 0;
 
   return flag << 7 | rank_etaq;
-}; 
+}
 
 
 

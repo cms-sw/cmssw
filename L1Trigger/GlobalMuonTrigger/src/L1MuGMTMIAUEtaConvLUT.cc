@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUEtaConvLUT
 //
 // 
-//   $Date: 2006/07/07 16:57:06 $
-//   $Revision: 1.2 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -40,7 +40,7 @@
 void L1MuGMTMIAUEtaConvLUT::InitParameters() {
   m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
   m_theGMTScales = Singleton<L1MuGMTScales>::instance();
-};
+}
 
 //--------------------------------------------------------------------------------
 // Eta conversion LUT: converts 6-bit input eta to 4 bits
@@ -80,7 +80,7 @@ unsigned L1MuGMTMIAUEtaConvLUT::TheLookupFunction (int idx, unsigned eta_in) con
   //  cout << "etaValue  = " << etaValue << "   eta4bit= " << eta4bit << endl;
 
   return eta4bit;
-}; 
+}
 
 
 

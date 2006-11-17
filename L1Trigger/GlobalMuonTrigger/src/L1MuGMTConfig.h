@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/07 16:57:06 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -193,7 +193,7 @@ class L1MuGMTConfig {
     
     static bool m_DoOvlRpcAnd;
 
-    static bool m_PropagatePhi;;
+    static bool m_PropagatePhi;
 
     // Register pointers
     static L1MuGMTRegCDLConfig* m_RegCDLConfig;

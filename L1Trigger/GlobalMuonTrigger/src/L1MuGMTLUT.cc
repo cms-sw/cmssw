@@ -7,8 +7,8 @@
  * 
 */ 
 //
-//   $Date: 2006/07/07 16:57:06 $
-//   $Revision: 1.2 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -40,7 +40,7 @@ L1MuGMTLUT::~L1MuGMTLUT() {
     //   m_Contents[i].clear();
     // m_Contents.clear();
   }
-};
+}
 
 void L1MuGMTLUT::Init(const char* name, const vector<string>& instances, 
 		      const vector<port>& in_widths, const vector<port>& out_widths, 
@@ -68,7 +68,7 @@ void L1MuGMTLUT::Init(const char* name, const vector<string>& instances,
   }
 
   m_initialized = true; 
-};
+}
 
 
 void L1MuGMTLUT::Save(const char* path) {
@@ -151,7 +151,7 @@ void L1MuGMTLUT::Save(const char* path) {
 
   m_saveFlag = false;
 
-};
+}
 
 
 // Rules for file

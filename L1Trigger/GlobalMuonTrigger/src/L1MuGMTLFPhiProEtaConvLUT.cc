@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFPhiProEtaConvLUT
 //
 // 
-//   $Date: 2006/07/07 16:57:06 $
-//   $Revision: 1.2 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -42,7 +42,7 @@
 void L1MuGMTLFPhiProEtaConvLUT::InitParameters() {
   m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
   m_theGMTScales = Singleton<L1MuGMTScales>::instance();
-};
+}
 
 //------------------------
 // The Lookup Function  --
@@ -72,7 +72,7 @@ unsigned L1MuGMTLFPhiProEtaConvLUT::TheLookupFunction (int idx, unsigned eta_in)
     eta4bit = m_theGMTScales->getReducedEtaScale(idx)->getPacked( etaValue );
 
   return eta4bit;
-}; 
+}
 
 
 

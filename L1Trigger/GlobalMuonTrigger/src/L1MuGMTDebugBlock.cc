@@ -3,8 +3,8 @@
 //   Class: L1MuGMTDebugBlock
 //
 //
-//   $Date: 2006/08/17 16:09:57 $
-//   $Revision: 1.2 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin                HEPHY Vienna
@@ -47,7 +47,7 @@ L1MuGMTDebugBlock::L1MuGMTDebugBlock(int minbx, int maxbx) :
 {
   if (maxbx < minbx) edm::LogWarning("BxRangeMismatch") << "*** error in L1MuGMTDebugBlock::L1MuGMTDebugBlock(): minbx > maxbx" << endl; 
   reset(); 
-};
+}
 
 
 //--------------
@@ -112,7 +112,7 @@ void L1MuGMTDebugBlock::reset () {
       _fwdmuons[bx][i].reset();
     }
   }
-};
+}
 
 
 

@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFEtaConvLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -38,7 +38,7 @@
 
 void L1MuGMTLFEtaConvLUT::InitParameters() {
   m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 //----------------------------------------------------------------
 // Main eta conversion LUT
@@ -68,7 +68,7 @@ unsigned L1MuGMTLFEtaConvLUT::TheLookupFunction (int idx, unsigned eta_regional)
   unsigned eta_gmt = m_theTriggerScales->getGMTEtaScale()->getPacked( etaValue );
 
   return eta_gmt;
-}; 
+}
 
 
 

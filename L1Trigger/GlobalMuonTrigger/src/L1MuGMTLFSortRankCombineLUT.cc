@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFSortRankCombineLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.2 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -37,7 +37,7 @@
 
 void L1MuGMTLFSortRankCombineLUT::InitParameters() {
 //  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 //--------------------------------------------------------------------------------
 // Sort Rank Combination LUT
@@ -65,7 +65,7 @@ unsigned L1MuGMTLFSortRankCombineLUT::TheLookupFunction (int idx, unsigned rank_
   if (rank_etaphi == 3) rank_combined = 0;
  
   return rank_combined;
-}; 
+}
 
 
 

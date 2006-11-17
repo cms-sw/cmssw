@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFSortRankEtaQLUT
 //
 // 
-//   $Date: 2004/03/17 16:42:46 $
-//   $Revision: 1.5 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -38,7 +38,7 @@
 
 void L1MuGMTLFSortRankEtaQLUT::InitParameters() {
   m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 //------------------------------------------------------------------------------------
 // Sort Rank LUT, Eta-Quality part 
@@ -118,7 +118,7 @@ unsigned L1MuGMTLFSortRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, uns
   unsigned rank_etaq = 3;
 
   return (vlq << 2)  | rank_etaq;
-}; 
+}
 
 
 

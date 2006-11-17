@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMergeRankPtQLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.2 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -37,7 +37,7 @@
 
 void L1MuGMTLFMergeRankPtQLUT::InitParameters() {
 //  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 //------------------------
 // The Lookup Function  --
@@ -51,7 +51,7 @@ unsigned L1MuGMTLFMergeRankPtQLUT::TheLookupFunction (int idx, unsigned q, unsig
 
   // a dependence of the merge rank on pt an quality can be defined, here
   return 0;
-}; 
+}
 
 
 

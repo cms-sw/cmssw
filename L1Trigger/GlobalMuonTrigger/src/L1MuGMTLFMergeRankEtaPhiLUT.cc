@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMergeRankEtaPhiLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.2 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -37,7 +37,7 @@
 
 void L1MuGMTLFMergeRankEtaPhiLUT::InitParameters() {
 //  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 //------------------------
 // The Lookup Function  --
@@ -50,7 +50,7 @@ unsigned L1MuGMTLFMergeRankEtaPhiLUT::TheLookupFunction (int idx, unsigned eta, 
 
   // return zero to reduce merge rank for a certain region
   return 1;
-}; 
+}
 
 
 

@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFCOUDeltaEtaLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -38,7 +38,7 @@
 
 void L1MuGMTLFCOUDeltaEtaLUT::InitParameters() {
   m_theGMTScales = Singleton<L1MuGMTScales>::instance();
-};
+}
 
 //---------------------------------------------------------------------------
 // Cancel-Out-Unit Delta-Eta LUT
@@ -88,7 +88,7 @@ unsigned L1MuGMTLFCOUDeltaEtaLUT::TheLookupFunction (int idx, unsigned eta1, uns
   }
     
   return delta_eta_4bit;
-}; 
+}
 
 
 

@@ -6,8 +6,8 @@
  *  general matrix
 */
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -251,8 +251,6 @@ L1MuGMTMatrix<T>& L1MuGMTMatrix<T>::operator+=(const L1MuGMTMatrix& m) {
 //
 template<class T>
 L1MuGMTMatrix<T>& L1MuGMTMatrix<T>::operator+=(const T& s) {
-
-   assert(m.c_size == c_size && m.r_size == r_size);
 
    for (int r = 0; r < r_size; r++) {
      for (int c = 0; c < c_size; c++) p[r][c] += s;

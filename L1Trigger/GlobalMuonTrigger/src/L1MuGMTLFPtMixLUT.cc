@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFPtMixLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.2 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -37,7 +37,7 @@
 
 void L1MuGMTLFPtMixLUT::InitParameters() {
 //  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 //------------------------
 // The Lookup Function  --
@@ -52,7 +52,7 @@ unsigned L1MuGMTLFPtMixLUT::TheLookupFunction (int idx, unsigned pt_dtcsc, unsig
   // implement minimum by default
   
   return pt_dtcsc > pt_rpc ? pt_rpc : pt_dtcsc;
-}; 
+}
 
 
 

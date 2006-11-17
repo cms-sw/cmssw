@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUEtaProLUT
 //
 // 
-//   $Date: 2006/07/07 16:57:06 $
-//   $Revision: 1.2 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -45,7 +45,7 @@ void L1MuGMTMIAUEtaProLUT::InitParameters() {
   m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
   m_theGMTScales = Singleton<L1MuGMTScales>::instance();
   m_IsolationCellSizeEta = L1MuGMTConfig::getIsolationCellSizeEta();
-};
+}
 
 //--------------------------------------------------------------------------------
 // Eta Projection LUT: Based on eta(6), pt(5) and charge(1), project in eta and directly 

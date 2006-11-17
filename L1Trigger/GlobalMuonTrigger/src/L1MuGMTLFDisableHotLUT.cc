@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFDisableHotLUT
 //
 // 
-//   $Date: 2004/11/29 18:24:57 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -38,7 +38,7 @@
 
 void L1MuGMTLFDisableHotLUT::InitParameters() {
 //  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-};
+}
 
 //------------------------
 // The Lookup Function  --
@@ -63,7 +63,7 @@ unsigned L1MuGMTLFDisableHotLUT::TheLookupFunction (int idx, unsigned eta, unsig
   // TBD: implementation of reading disable-hot configuration
 
   return 0;
-}; 
+}
 
 
 
