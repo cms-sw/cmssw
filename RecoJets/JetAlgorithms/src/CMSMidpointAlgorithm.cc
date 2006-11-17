@@ -127,7 +127,7 @@ void CMSMidpointAlgorithm::run(const InputCollection& fInput, OutputCollection* 
   // Make the CaloJets from the final protojets
   //  MakeCaloJet(*theCtcp, finalJets, caloJets);
 
-};
+}
 
 
 

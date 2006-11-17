@@ -3,7 +3,7 @@
 
 // Various simple tools
 // F.Ratnikov, UMd
-// $Id: JetAlgoHelper.h,v 1.1 2006/05/23 01:19:41 fedor Exp $
+// $Id: JetAlgoHelper.h,v 1.2 2006/10/02 22:54:31 fedor Exp $
 
 #include<limits>
 #include <iostream>
@@ -56,7 +56,7 @@ T deltaR2 (T eta1, T phi1, T eta2, T phi2) {
   T deta = eta1 - eta2;
   T dphi = deltaphi (phi1, phi2);
   return deta*deta + dphi*dphi;
-};
+}
 
 template <class T>
 T deltaR (T eta1, T phi1, T eta2, T phi2) {return sqrt (deltaR2 (eta1, phi1, eta2, phi2));}
