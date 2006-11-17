@@ -28,7 +28,7 @@ template <class T> T hsm_1d ( vector<T> values )
     itors = hsm_1d_returning_iterators ( values );
   T ret = ( (T) (*(itors.first)) + (T) (*(itors.second)) ) / (T) 2.;
   return ret;
-};
+}
 
 template <class T> pair < typename vector<T>::iterator, typename vector<T>::iterator >
     hsm_1d_returning_iterators ( vector<T> & values )
@@ -66,6 +66,6 @@ template <class T> pair < typename vector<T>::iterator, typename vector<T>::iter
   pair < typename vector<T>::iterator, typename vector<T>::iterator > ret
     ( begin, end );
   return ret;
-};
+}
 
 #endif
