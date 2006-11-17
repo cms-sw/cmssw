@@ -2,7 +2,6 @@
  <class name="EcalPedestals"/>
  <class name="EcalPedestals::Item"/>
 
- <class name="EcalWeightRecAlgoWeights"/>
  <class name="EcalWeightSet"/>
  <class name="EcalWeight"/>
  <class name="std::vector< EcalWeight >"/>

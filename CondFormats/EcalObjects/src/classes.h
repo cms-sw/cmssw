@@ -9,14 +9,6 @@ namespace {
   std::map< uint32_t, EcalPedestals::Item > pedmap;
 }
 
-#include "CondFormats/EcalObjects/interface/EcalWeightRecAlgoWeights.h"
-#include "CondFormats/EcalObjects/interface/EcalWeight.h"
-namespace {
-  namespace {
-    std::vector< std::vector<EcalWeight> > vecOfVec0;
-    std::vector<EcalWeight>  vec0;
-  }
-}
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 namespace {
