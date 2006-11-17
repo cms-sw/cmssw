@@ -34,5 +34,5 @@ template <class T> T median ( vector<T> values )
     ret= ( values[half-1] + values[half] ) / 2.;
   };
   return ret;
-};
+}
 #endif

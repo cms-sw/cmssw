@@ -3,10 +3,10 @@
 #include "CommonTools/Statistics/interface/SequentialPartitionGenerator.h"
 
 SequentialPartitionGenerator::SequentialPartitionGenerator( int n, int k, int pmin ) :
-  the_n(n), the_k(k), the_pmin(pmin), the_pmax(n) {};
+  the_n(n), the_k(k), the_pmin(pmin), the_pmax(n) {}
 
 SequentialPartitionGenerator::SequentialPartitionGenerator(int n, int k, int pmin, int pmax) :
-  the_n(n), the_k(k), the_pmin(pmin), the_pmax(pmax) {};
+  the_n(n), the_k(k), the_pmin(pmin), the_pmax(pmax) {}
 
 SequentialPartitionGenerator::Partition SequentialPartitionGenerator::next_partition()
 {
@@ -17,7 +17,7 @@ SequentialPartitionGenerator::Partition SequentialPartitionGenerator::next_parti
   };
   SequentialPartitionGenerator::Partition empty;
   return empty;
-};
+}
 
 bool SequentialPartitionGenerator::first_part(
     SequentialPartitionGenerator::Partition & p, int k, int n, int pmin, int pmax ) const
@@ -43,7 +43,7 @@ bool SequentialPartitionGenerator::first_part(
     }
   }
   return done;
-};
+}
 
 bool SequentialPartitionGenerator::next_part( 
     SequentialPartitionGenerator::Partition & p ) const
@@ -73,4 +73,4 @@ bool SequentialPartitionGenerator::next_part(
       return done;
   };
   return done;
-};
+}

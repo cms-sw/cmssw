@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <numeric>
 #include <functional>
+#include <iostream>
 
 using namespace std;
 
