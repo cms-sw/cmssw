@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.6 2006/11/02 19:23:48 dutta Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.7 2006/11/14 11:35:26 dutta Exp $
 //
 
 // system include files
@@ -42,7 +42,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 //
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
 
@@ -106,7 +105,7 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
        int  theEventInitNumber_; 
        int theEventIterNumber_;
        int NumCMstripsInGroup_;
-       string outPutFileName;
+       std::string outPutFileName;
 };
 
 #endif
