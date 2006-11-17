@@ -11,6 +11,9 @@ namespace edm {
       boost::shared_ptr<edm::ParameterSet> 
       makePSet(const std::string & s);
 
+      boost::shared_ptr<edm::ParameterSet>
+      makeDefaultPSet(const edm::FileInPath & fip);
+
    }
 }
 #endif
