@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.12 2006/08/09 17:36:40 rahatlou Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.13 2006/08/10 12:14:16 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -1081,6 +1081,7 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 
   while (fgets (line,255,inpFile)) 
     {
+      ii++;
       int dmy_num = 0 ;
       float dmy_calib = 0. ;
       float dmy_RMS = 0. ;
