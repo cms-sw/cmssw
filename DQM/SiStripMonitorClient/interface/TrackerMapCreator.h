@@ -26,7 +26,7 @@ class TrackerMapCreator {
   int getStatus(MonitorElement* me);
 
 
-  void drawMEs(int det_id, std::map<int, MonitorElement*>& me_map);
+  void drawMEs(int det_id, std::map<MonitorElement*, int>& me_map);
 
   TrackerMap* trackerMap;
 };

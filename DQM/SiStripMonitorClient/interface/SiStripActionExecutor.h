@@ -31,12 +31,13 @@ class SiStripActionExecutor {
  bool getCollationFlag(){return collationDone;}
 
  private:
- MonitorElement* getSummaryME(MonitorUserInterface* mui, std::string& name, int nval);
+ MonitorElement* getSummaryME(MonitorUserInterface* mui, std::string& name);
   void fillSummary(MonitorUserInterface* mui);
 
   void fillGrandSummaryHistos(MonitorUserInterface* mui);
   void fillSummaryHistos(MonitorUserInterface* mui);
-
+  void fillHistos(int ival, int istep, MonitorElement* me_src, 
+	                                 	  MonitorElement* me);
   SiStripConfigParser* configParser_;
   SiStripConfigWriter* configWriter_;
   std::vector<std::string> summaryMENames;

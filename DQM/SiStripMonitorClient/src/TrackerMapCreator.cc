@@ -41,7 +41,7 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
     // get module id
     string det_id = ((*it).substr((*it).find("module_")+7, 9)).c_str();
     
-    map<int, MonitorElement*> local_mes;
+    map<MonitorElement*,int> local_mes;
     int gstat = 0;
     //  browse through monitorable; check  if required MEs exist    
     for (vector<string>::const_iterator ic = contents.begin();
@@ -54,9 +54,8 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
         MonitorElement * me = mui->get((*ic));
         if (!me) continue;
         istat =  getStatus(me); 
-        local_mes.insert(pair<int, MonitorElement*>(istat, me));
-	
-        if (istat > gstat) gstat = istat;
+        local_mes.insert(pair<MonitorElement*, int>(me, istat));
+	if (istat > gstat) gstat = istat;
         MonitorElement* tkmap_me = getTkMapMe(mui,me_name,ndet);
 	if (tkmap_me){
           tkmap_me->Fill(ibin, istat);
@@ -75,7 +74,7 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
 //
 // -- Draw Monitor Elements
 //
-void TrackerMapCreator::drawMEs(int det_id, map<int, MonitorElement*>& me_map) {
+void TrackerMapCreator::drawMEs(int det_id, map<MonitorElement*, int>& me_map) {
 
   TCanvas canvas("display");
   canvas.Clear();
@@ -92,18 +91,18 @@ void TrackerMapCreator::drawMEs(int det_id, map<int, MonitorElement*>& me_map) {
 
   MonitorElement* me;
   int i = 0;
-
-  for (map<int, MonitorElement*>::const_iterator it = me_map.begin(); 
+ 
+  for (map<MonitorElement*,int>::const_iterator it = me_map.begin(); 
               it != me_map.end(); it++) {
     i++;
-    me = it->second;
+    me = it->first;
     if (!me) continue;
     float mean = me->getMean();
     comment <<   mean <<  " : " ;
     // global status 
-    if (it->first > gstatus ) gstatus = it->first;
+    if (it->second > gstatus ) gstatus = it->second;
 
-    getStatusColor(it->first, icol, tag);
+    getStatusColor(it->second, icol, tag);
    
     // Access the Root object and plot
     MonitorElementT<TNamed>* ob = 

@@ -131,33 +131,33 @@ void SiStripActionExecutor::fillGrandSummaryHistos(MonitorUserInterface* mui) {
       (dir_name.find("FU") == 0) ) return;
   vector<string> subdirs = mui->getSubdirs();
   if (subdirs.size() == 0) return;;
-  int binStep =0;
-  for (vector<string>::const_iterator it = subdirs.begin();
-       it != subdirs.end(); it++) {
-    mui->cd(*it);
-    vector<string> contents = mui->getMEs();
-    mui->goUp();
-    for (vector<string>::const_iterator isum = summaryMENames.begin();
-	   isum != summaryMENames.end(); isum++) {
-      string name = (*isum);
+  int ival = 0;
+  for (vector<string>::const_iterator isum = summaryMENames.begin();
+       isum != summaryMENames.end(); isum++) {
+    string name = (*isum);
+    int binStep =0;
+    for (vector<string>::const_iterator it = subdirs.begin();
+	 it != subdirs.end(); it++) {
+      ival++;
+      mui->cd(*it);
+      vector<string> contents = mui->getMEs();
+      mui->goUp();
       for (vector<string>::const_iterator im = contents.begin();
 	   im != contents.end(); im++) {
 	if ((*im).find((name)) != string::npos) {
 	  string full_path = currDir + "/" + (*it) + "/" +(*im);
 	  MonitorElement * me_i = mui->get(full_path);
 	  if (!me_i) continue;
- 
+          
           map<string, MonitorElement*>::iterator iPos = MEMap.find(name); 
           MonitorElement* me; 
           if (iPos == MEMap.end()) {
-	    me = getSummaryME(mui, name, 1);
+	    me = getSummaryME(mui, name);
 	    MEMap.insert(pair<string, MonitorElement*>(name, me));
           } else  me =  iPos->second;
-          int nbins = me_i->getNbinsX();
-	  for (int k = 1; k < nbins+1; k++) {
-	    me->setBinContent(k+binStep, me_i->getBinContent(k));
-	  }
-          binStep += nbins;
+          fillHistos(ival, binStep, me_i, me);
+          binStep += me_i->getNbinsX();
+          break;
 	}
       }
     }
@@ -167,7 +167,7 @@ void SiStripActionExecutor::fillGrandSummaryHistos(MonitorUserInterface* mui) {
 // -- Get Summary ME
 //
 MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui, 
-                         string& name, int nval) {
+                         string& name) {
   MonitorElement* me = 0;
   string currDir = mui->pwd();
   string sum_name = "Summary_" + name + "_in_" 
@@ -184,9 +184,9 @@ MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
 	if (hist1) {
           hist1->Reset();
           hist1->LabelsOption("uv");
+          return me;
 	}
       }
-      break;
     }
   }
   if (!me) {
@@ -194,8 +194,11 @@ MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
     int nBins = 0;
     vector<string> subdirs = mui->getSubdirs();
     map<int, string> tags;
-    if (nval == 0) nBins = subdirs.size();
-    else {
+    if (name.find("Noise") != string::npos && 
+        name.find("NoisyStrip") != string::npos &&
+        name.find("PedesPerStrip") != string::npos) {
+      nBins = subdirs.size();
+    } else {
       for (vector<string>::const_iterator it = subdirs.begin();
 	   it != subdirs.end(); it++) {
         mui->cd(*it);
@@ -209,7 +212,7 @@ MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
 	  if (s_me) {
             int ibin = s_me->getNbinsX();
 	    nBins += ibin;
-            tags.insert(pair<int,string>(nBins-nval/2, (*it)));        
+            tags.insert(pair<int,string>(nBins-ibin/2, (*it)));        
 	    break;
 	  }
 	}
@@ -402,17 +405,17 @@ void SiStripActionExecutor::fillSummaryHistos(MonitorUserInterface* mui) {
   if (subdirs.size() ==0) return;
   
   int ndet = 0;
-  int nval = 1;
-  for (vector<string>::const_iterator it = subdirs.begin();
+  for (vector<string>::const_iterator isum = summaryMENames.begin();
+       isum != summaryMENames.end(); isum++) {    
+    string name = (*isum);
+    int iBinStep = 0;
+    for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-    if ( (*it).find("module_") == string::npos) continue;
-    mui->cd(*it);
-    ndet++;
-    vector<string> contents = mui->getMEs();    
-    mui->goUp();
-    for (vector<string>::const_iterator isum = summaryMENames.begin();
-	   isum != summaryMENames.end(); isum++) {
-      string name = (*isum);
+      if ( (*it).find("module_") == string::npos) continue;
+      mui->cd(*it);
+      ndet++;
+      vector<string> contents = mui->getMEs();    
+      mui->goUp();
       for (vector<string>::const_iterator im = contents.begin();
 	   im != contents.end(); im++) {
         if ((*im).find(name) != string::npos) {
@@ -422,22 +425,45 @@ void SiStripActionExecutor::fillSummaryHistos(MonitorUserInterface* mui) {
           map<string, MonitorElement*>::iterator iPos = MEMap.find(name); 
           MonitorElement* me;
           if (iPos == MEMap.end()) {
-            if (name.find("Noise") != string::npos)   {
-	      nval = 1;
-            }
-            me = getSummaryME(mui, name, nval);
+            me = getSummaryME(mui, name);
             MEMap.insert(pair<string, MonitorElement*>(name, me));
           } else  me =  iPos->second;
-         
-	  if (name.find("Noise") != string::npos) {
-            int nbins = me_i->getNbinsX();
-	    for (int k=1; k<nbins+1; k++) {
-	      me->setBinContent((k+(ndet-1)*nbins),me_i->getBinContent(k));
-	    }
-	  } else me->Fill(ndet*1.0, me_i->getMean());
+          fillHistos(ndet, iBinStep, me_i, me);
+          iBinStep += me_i->getNbinsX();
           break;
         }
       }
     }
   }
+}
+//
+//
+//
+void SiStripActionExecutor::fillHistos(int ival, int istep, 
+                       MonitorElement* me_src, MonitorElement* me) {
+  string name = me->getName();
+  if (name.find("Noise") == string::npos && 
+      name.find("NoisyStrips") == string::npos &&
+      name.find("PedsPerStrip") == string::npos) {
+    if (ival == 1) cout << name  << me_src->getMean() << endl;
+    me->Fill(ival, me_src->getMean());
+  } else {
+    int nbins = me_src->getNbinsX();
+    
+    TProfile* prof = ExtractTObject<TProfile>().extract( me_src );
+    TH1F* hist1 = ExtractTObject<TH1F>().extract( me_src );
+    TH2F* hist2 = ExtractTObject<TH2F>().extract( me_src );   
+    for (int k=1; k<nbins+1; k++) {
+      if ( hist2 &&  name.find("NoisyStrips") != string::npos) { 
+        float noisy = me_src->getBinContent(k,3);
+        float dead = me_src->getBinContent(k,2);
+        float good = me_src->getBinContent(k,1);
+        if (noisy > good) {
+          me->setBinContent(istep+k,2.0); 
+        } else if (dead > good) {
+          me->setBinContent(istep+k,1.0);
+        } else me->setBinContent(istep+k,0.0);
+      } else me->setBinContent(istep+k,me_src->getBinContent(k));
+    }
+  }  
 }
