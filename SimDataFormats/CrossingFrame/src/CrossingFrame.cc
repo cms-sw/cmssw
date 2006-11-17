@@ -262,8 +262,48 @@ void CrossingFrame::print(int level) const {
 //     // 	  }
 }
 
+unsigned int CrossingFrame::getNrSignalSimHits(const std::string subdet) const { std::map <std::string, edm::PSimHitContainer>::const_iterator it=signalSimHits_.find(subdet);
+      if (it==signalSimHits_.end()){
+	  LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
+	  return 0;
+      } else  return ((*it).second).size();}
 
-std::ostream &operator<<(std::ostream& o, const CrossingFrame &cf)
+unsigned int CrossingFrame::getNrSignalCaloHits(const std::string subdet) const { std::map <std::string, edm::PCaloHitContainer>::const_iterator it=signalCaloHits_.find(subdet);
+ if (it==signalCaloHits_.end()){
+   LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
+   return 0;
+ } else  return ((*it).second).size();}
+
+
+unsigned int CrossingFrame::getNrPileupSimHits(const std::string subdet, const int bcr) const { 
+  if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
+    LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
+    return 0;}
+  else {
+    std::map <std::string, std::vector<edm::PSimHitContainer> >::const_iterator it=pileupSimHits_.find(subdet);
+    if (it==pileupSimHits_.end()){
+      LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
+      return 0;
+    }
+    return ((*it).second)[bcr-firstCrossing_].size();}
+}
+
+unsigned int CrossingFrame::getNrPileupCaloHits(const std::string subdet, const int bcr) const {  
+  if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
+    LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
+    return 0;}
+  else {
+    std::map <std::string, std::vector<edm::PCaloHitContainer> >::const_iterator it=pileupCaloHits_.find(subdet);
+    if (it==pileupCaloHits_.end()){
+      LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
+      return 0;
+    }
+    return ((*it).second)[bcr-firstCrossing_].size();
+  }
+}
+
+ 
+  std::ostream &operator<<(std::ostream& o, const CrossingFrame &cf)
 {
   std::pair<int,int> range=cf.getBunchRange();
   o <<"\nCrossingFrame for "<<cf.getEventID()<<",  bunchrange = "<<range.first<<","<<range.second

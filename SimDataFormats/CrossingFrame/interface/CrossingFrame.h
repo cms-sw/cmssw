@@ -19,6 +19,7 @@
 
 #include "DataFormats/Common/interface/EventID.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <string>
@@ -77,13 +78,30 @@ using namespace edm;
       void getPileups(const std::string subdet, std::vector<std::vector<SimTrack> > * &v) { v=&pileupTracks_;}
       void getPileups(const std::string subdet, std::vector<std::vector<SimVertex> > * &v) { v=&pileupVertices_;}
 
+      // getters for nr of objects - mind that objects are stored in vectors from 0 on!
+      unsigned int getNrSignalTracks() const { return signalTracks_.size();}
+      unsigned int getNrPileupTracks(const int bcr) const {if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
+	LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
+	return 0;}
+      else return pileupTracks_[bcr-firstCrossing_].size();}
+      unsigned int getNrSignalVerticess() const { return signalVertices_.size();}
+      unsigned int getNrPileupVertices(int bcr) const {if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
+	LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
+	return 0;}
+      else return pileupVertices_[bcr-firstCrossing_].size();}
+      
+      unsigned int getNrSignalSimHits(const std::string subdet) const;
+      unsigned int getNrSignalCaloHits(const std::string subdet) const ;
+      unsigned int getNrPileupSimHits(const std::string subdet, const int bcr) const ;
+      unsigned int getNrPileupCaloHits(const std::string subdet, const int bcr) const ;
+
       // limits for tof to be considered for trackers
       static const int lowTrackTof; //nsec
       static const int highTrackTof;
       static const int minLowTof;
       static const int limHighLowTof;
 					    
-      private:
+    private:
       void clear();
 
       edm::EventID id_;

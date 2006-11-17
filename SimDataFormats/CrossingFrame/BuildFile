@@ -1,14 +1,16 @@
 <export>
+ <use name=FWCore/MessageLogger>
  <lib name=SimDataFormatsCrossingFrame>
  <use name=DataFormats/Common>
  <use name=SimDataFormats/TrackingHit>
  <use name=SimDataFormats/CaloHit>
  <use name=SimDataFormats/Track>
  <use name=SimDataFormats/Vertex>
-<use name=DataFormats/HcalDetId>
+ <use name=DataFormats/HcalDetId>
  <use name=clhep>
 </export>
 
+<use name=FWCore/MessageLogger>
 <use name=DataFormats/Common>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/CaloHit>
