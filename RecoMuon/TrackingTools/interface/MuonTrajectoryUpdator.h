@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/09/04 17:13:13 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/10/19 13:53:08 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -143,6 +143,11 @@ class MuonTrajectoryUpdator {
   // propagation direction embeeded in the propagator (i.e. when it is used in the "anyDirection" mode)
   // This data member is not set via parameter set since it must be consistent with the RefitterParameter.
   recoMuon::FitDirection theFitDirection;
+
+  // Parameters for the error rescaling
+  bool theFirstTSOSFlag;
+  bool theRescaleErrorFlag;
+  double theRescaleFactor;
 };
 #endif
 

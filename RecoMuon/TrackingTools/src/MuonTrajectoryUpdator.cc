@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/09/04 13:29:16 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/09/04 17:13:12 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -49,6 +49,16 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par,
 
   // The granularity
   theGranularity = par.getParameter<int>("Granularity");
+
+  // Rescale the error of the first state?
+  theRescaleErrorFlag =  par.getParameter<bool>("RescaleError");
+
+  if(theRescaleErrorFlag)
+    // The rescale factor
+    theRescaleFactor =  par.getParameter<double>("RescaleErrorFactor");
+  
+  // Flag needed for the rescaling
+  theFirstTSOSFlag = true;
 }
 
 MuonTrajectoryUpdator::MuonTrajectoryUpdator( recoMuon::FitDirection fitDirection,
@@ -182,6 +192,11 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
           LogDebug(metname) << "  Meas. Position : " << (**recHit).globalPosition() << "\n"
 			    << "  Pred. Position : " << propagatedTSOS.globalPosition()
 			    << "  Pred Direction : " << propagatedTSOS.globalDirection()<< endl;
+
+	  if(theRescaleErrorFlag && theFirstTSOSFlag){
+	    propagatedTSOS.rescaleError(theRescaleFactor);
+	    theFirstTSOSFlag = false;
+	  }
 
           lastUpdatedTSOS = measurementUpdator()->update(propagatedTSOS,*((*recHit).get()));
 
