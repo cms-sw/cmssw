@@ -672,7 +672,9 @@ bool MCatNLOSource::produce(Event & e) {
   hwufne();
 
   HepMC::GenEvent* evt = new HepMC::GenEvent();
-  bool done = conv.fill_next_event( evt );
+  bool ok = conv.fill_next_event( evt );
+  if(!ok) throw cms::Exception("HerwigError")
+    <<" Conversion problems in event nr."<<numberEventsInRun() - remainingEvents() - 1<<".";  
   evt->set_signal_process_id(hwproc.IPROC);  
   evt->weights().push_back(hwevnt.EVWGT);
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
