@@ -3,16 +3,18 @@
 
 /** \class CSCDigiToRaw
  *
- *  $Date: 2005/11/09 11:35:25 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/11/09 22:29:58 $
+ *  $Revision: 1.1 $
  *  \author A. Tumanov - Rice
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
+#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 
 class FEDRawDataCollection;
-
+class CSCReadoutMappingFromFile;
+class CSCEventData;
 class CSCDigiToRaw {
  public:
   /// Constructor
@@ -22,8 +24,14 @@ class CSCDigiToRaw {
   virtual ~CSCDigiToRaw();
 
   /// Take a vector of digis and fill the FEDRawDataCollection
-  void createFedBuffers(const CSCStripDigiCollection& digis, 
-			FEDRawDataCollection& fed_buffers);
+  void createFedBuffers(const CSCStripDigiCollection& stripDigis,
+			const CSCWireDigiCollection& wireDigis, 
+			FEDRawDataCollection& fed_buffers,
+			const CSCReadoutMappingFromFile& theMapping);
+
+  std::map <CSCDetId, CSCEventData> fillChamberDataMap(const CSCStripDigiCollection& stripDigis,
+					    const CSCWireDigiCollection& wireDigis,
+					    const CSCReadoutMappingFromFile& theMapping);
 
  private:
 

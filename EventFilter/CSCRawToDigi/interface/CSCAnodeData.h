@@ -2,9 +2,7 @@
 #define CSCAnodeData_h
 #include <vector>
 #include <cassert>
-#ifndef UNPCK_ONLY
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
-#endif
 class CSCALCTHeader;
 
 #include <iostream> // get rid of when debug is gone
@@ -68,11 +66,9 @@ public:
   /** turns on/off debug flag for this class */
   static void setDebug(bool value) {debug = value;};
 
-#ifndef UNPCK_ONLY
   /// input layer is from 1 to 6
   std::vector<CSCWireDigi> wireDigis(int layer) const;
   std::vector<std::vector<CSCWireDigi> > wireDigis() const;
-#endif
 
   const CSCAnodeDataFrame & rawHit(int afeb, int tbin, int layer, int halfLayer) const {
     return (const CSCAnodeDataFrame &)(theDataFrames[index(afeb, tbin, layer)+halfLayer]);
@@ -83,10 +79,7 @@ public:
     return (CSCAnodeDataFrame &)(theDataFrames[index(afeb, tbin, layer)+halfLayer]); 
   }
 
-
-#ifndef UNPCK_ONLY
   void add(const CSCWireDigi &, int layer);
-#endif
 
   static bool selfTest();
 

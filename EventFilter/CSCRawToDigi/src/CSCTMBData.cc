@@ -16,6 +16,7 @@
 #include <iostream>
 #include <bitset>
 #include <cstdio>
+#include <boost/dynamic_bitset.hpp>
 
 bool CSCTMBData::debug =false;
 
@@ -234,3 +235,15 @@ std::bitset<22> CSCTMBData::nextCRC22_D16(const std::bitset<16>& D,
   return NewCRC;
 }
 
+
+boost::dynamic_bitset<> CSCTMBData::pack() {
+  boost::dynamic_bitset<> result(theTMBHeader.sizeInWords()*16,*(const unsigned*)&theTMBHeader);
+  boost::dynamic_bitset<> clctData(theCLCTData.sizeInWords()*16, (const unsigned)*theCLCTData.data());
+  result &= clctData;
+  int finalSize = result.size()*2 + theTMBTrailer.sizeInWords(); //size() returns # of unsigned long words 
+                                                                 //each 4 bytes long
+  theTMBTrailer.setWordCount(finalSize);
+  boost::dynamic_bitset<> tmbTrailer( theTMBTrailer.sizeInWords()*16, *(const unsigned*)&theTMBTrailer);
+  result &= tmbTrailer;
+  return result;
+}

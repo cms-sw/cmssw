@@ -13,6 +13,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdio>
+#include <boost/dynamic_bitset.hpp>
 
 bool CSCDCCEventData::debug = false;
 
@@ -90,4 +91,18 @@ bool CSCDCCEventData::check() const {
   return  theDCCHeader.check() && theDCCTrailer.check();
 }
 
+boost::dynamic_bitset<> CSCDCCEventData::pack() {
+
+  boost::dynamic_bitset<> result; 
+  boost::dynamic_bitset<> dccHeader( theDCCHeader.sizeInWords()*16, *(const unsigned int *)&theDCCHeader);
+  result = dccHeader;
+
+  for(size_t i = 0; i < theDDUData.size(); ++i) {
+    result &= theDDUData[i].pack();
+  }
+  boost::dynamic_bitset<> dccTrailer( theDCCTrailer.sizeInWords()*16, *(const unsigned *)&theDCCTrailer);
+  result &= dccTrailer;
+
+  return result;
+}
 

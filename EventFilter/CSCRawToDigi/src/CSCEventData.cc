@@ -301,6 +301,29 @@ void CSCEventData::createALCTClasses() {
 
 }
 
+void CSCEventData::add(const CSCStripDigi & digi, int layer) {
+  //@@ need special logic here for ME11
+  unsigned cfeb = (digi.getStrip()-1)/16;
+  bool sixteenSamples = false;
+  if (digi.getADCCounts().size()==16) sixteenSamples = true;  
+  if(theCFEBData[cfeb] == 0) {
+    theCFEBData[cfeb] = new CSCCFEBData(cfeb, sixteenSamples);
+    theDMBHeader.addCFEB(cfeb);
+  }
+  theCFEBData[cfeb]->add(digi, layer);
+}
+
+
+void CSCEventData::add(const CSCWireDigi & digi, int layer) {
+  if(theAnodeData == NULL) {
+    createALCTClasses();
+  }
+  theAnodeData->add(digi, layer);
+}
+
+
+
+
 std::ostream & operator<<(std::ostream & os, const CSCEventData & evt) {
   for(int ilayer = 1; ilayer <= 6; ++ilayer) {
 
@@ -311,5 +334,41 @@ std::ostream & operator<<(std::ostream & os, const CSCEventData & evt) {
     //copy(wireDigis.begin(), wireDigis.end(), std::ostream_iterator<CSCWireDigi>(os, "\n"));
   }
   return os;
+}
+
+boost::dynamic_bitset<> CSCEventData::pack() {
+
+  boost::dynamic_bitset<> result;
+  boost::dynamic_bitset<> dmbHeader( theDMBHeader.sizeInWords()*16, *(const unsigned *)&theDMBHeader);
+  result = dmbHeader;
+
+  if(theALCTHeader != NULL) {
+    boost::dynamic_bitset<> alctHeader(theALCTHeader->sizeInWords()*16,  *theALCTHeader->data());
+    result &=alctHeader;
+  }
+  if(theAnodeData != NULL) {
+    boost::dynamic_bitset<> anodeData(theAnodeData->sizeInWords()*16,  *theAnodeData->data());
+    result &= anodeData;
+  }
+  if(theALCTTrailer != NULL) {
+    boost::dynamic_bitset<> alctTrailer(theALCTTrailer->sizeInWords()*16,  *theALCTTrailer->data());
+    result &= alctTrailer;
+  }
+
+  if(theTMBData != NULL) {
+    result &= theTMBData->pack();
+  }
+
+  for(int icfeb = 0;  icfeb < 5;  ++icfeb) {
+    if(theCFEBData[icfeb] != NULL) {
+      boost::dynamic_bitset<> cfebData( theCFEBData[icfeb]->sizeInWords()*16,  *theCFEBData[icfeb]->data());
+      result &= cfebData;
+    }
+  }
+
+  boost::dynamic_bitset<> dmbTrailer( theDMBTrailer.sizeInWords()*16, *(const unsigned*)&theDMBTrailer);
+  result &= dmbTrailer;
+
+  return result;
 }
 

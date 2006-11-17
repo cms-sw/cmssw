@@ -71,6 +71,17 @@ CSCCFEBData::CSCCFEBData(unsigned number, bool sixteenSamples)
   theSize = theNumberOfSamples*100;
 }
 
+void CSCCFEBData::add(const CSCStripDigi & digi, int layer) {
+  for(unsigned itime = 0; itime < theNumberOfSamples; ++itime) {
+    unsigned channel = (digi.getStrip()-1) % 16 + 1;
+    std::vector<int> scaCounts =  digi.getADCCounts(); 
+    unsigned value = scaCounts[itime] & 0xFFF; // 12-bit
+    // assume it's good, since we're working with simulation
+    const CSCCFEBTimeSlice * slice = timeSlice(itime);
+    assert(slice != 0);
+    slice->timeSample(layer, channel)->adcCounts = value;
+  }
+}
 
 const CSCCFEBTimeSlice * CSCCFEBData::timeSlice(unsigned i) const {
   const CSCCFEBTimeSlice * result;

@@ -4,11 +4,10 @@
 #define CSCDCCEventData_h
 
 #include <vector>
+#include <boost/dynamic_bitset.hpp>
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
-
-class BitVector;
 
 class CSCDCCEventData {
 public:
@@ -38,7 +37,7 @@ public:
   /// from the header or trailer
   int sizeInWords() const {return theSizeInWords;}
 
-  BitVector pack();  
+  boost::dynamic_bitset<> pack();  
 
   static bool debug;
 

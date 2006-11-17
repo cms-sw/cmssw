@@ -3,13 +3,14 @@
 
 /** \class CSCDigiToRawModule
  *
- *  $Date: 2006/11/09 11:35:25 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/11/09 22:29:58 $
+ *  $Revision: 1.1 $
  *  \author A. Tumanov - Rice
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
 
+class CSCReadoutMappingFromFile;
 class CSCDigiToRaw;
 
 class CSCDigiToRawModule : public edm::EDProducer {
@@ -25,6 +26,7 @@ class CSCDigiToRawModule : public edm::EDProducer {
 
  private:
   CSCDigiToRaw * packer;
+  CSCReadoutMappingFromFile theMapping;
 
 };
 #endif

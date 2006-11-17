@@ -89,4 +89,31 @@ std::vector < std::vector<CSCWireDigi> > CSCAnodeData::wireDigis() const {
   return result;
 }
 
+void CSCAnodeData::add(const CSCWireDigi & digi, int layer) {
+
+  int wireGroup = digi.getWireGroup();
+  int bxn=digi.getBeamCrossingTag(); 
+  int alctBoard  = (wireGroup-1) / 16;
+  int localGroup = (wireGroup-1) % 16;
+
+  // crash if there's a bad strip number, but don't freak out
+  // if a time bin is out of range 
+  //  assert(alctBoard < nAFEBs_);
+  if(alctBoard > nAFEBs_) {
+    edm::LogError("CSCAnodeData") << "Bad Wire Number for this digi.";
+    return;
+  }
+
+  if(bxn >= 0 && bxn < nTimeBins_) {
+    // 12 16-bit words per time bin, two per layer
+    // wiregroups 0-7 go on the first line, 8-15 go on the 2nd.
+    unsigned halfLayer = (localGroup > 7);
+    unsigned bitNumber = localGroup % 8;
+    // and pack it in the 8 bits allocated
+    rawHit(alctBoard, bxn, layer, halfLayer).addHit(bitNumber);
+  } else {
+    edm::LogWarning("CSCAnodeData")<< "warning: not saving anode data in bx " << bxn 
+				   << ": out of range ";
+  }
+}
 

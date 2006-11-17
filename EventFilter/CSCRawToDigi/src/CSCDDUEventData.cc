@@ -218,3 +218,18 @@ bool CSCDDUEventData::check() const {
   return theDDUHeader.check() && theDDUTrailer.check();
 }
 
+boost::dynamic_bitset<> CSCDDUEventData::pack() {
+  
+  boost::dynamic_bitset<> result;
+  boost::dynamic_bitset<> dduHeader( theDDUHeader.sizeInWords()*16, *(const unsigned*)&theDDUHeader);
+  result = dduHeader;
+    
+  for(unsigned int i = 0; i < theData.size(); ++i) {
+    result &= theData[i].pack();
+  }
+  
+  boost::dynamic_bitset<> dduTrailer( theDDUTrailer.sizeInWords()*16, *(const unsigned*)&theDDUTrailer);
+  result &= dduTrailer;
+
+  return result;
+}
