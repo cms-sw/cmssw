@@ -119,18 +119,40 @@ void DDLPosPart::processElement (const std::string& type, const std::string& nms
 
   DCOUT_V('P', "DDLPosPart::processElement:  Final Translation info x=" << x << " y=" << y << " z=" << z);
 
-  DDRotation myDDRotation; // is initialize by DD to identity rotation matrix.
-  try {
-    myDDRotation = DDRotation(rotn);
+  // Mike Case: 2006-11-14 HOWTO do rotations
+  // if there is no rotation whatsoever, then use a DEFAULT
+  // identity rotation.
+  // if there is a named rotation, whether defined or not, do
+  // use that one.
+  DDRotation* myDDRotation;
+  if ( rotn.name() != "" && rotn.ns() != "" ) {
+    std::cout << "rotn is NOT blank = " << rotn << std::endl;
+//     try {
+    myDDRotation = new DDRotation(rotn);
+//     }
+//     catch (DDException & e) {
+//       // ignore it ... I think this is what I want to do...
+//     }
+  } else {
+    std::cout << "rotn is blank." << std::endl;
+    static DDRotationMatrix* dmr = new DDRotationMatrix;
+    std::cout << dmr <<  " address of dmr." << std::endl;
+    //    static DDRotationMatrix* dmr = new DDRotationMatrix(DDRotationMatrix::IDENTITY);
+    myDDRotation = new DDRotation(DDName("identity","generatedForDDD"));
+    if ( !myDDRotation->isValid() ) {
+      std::cout << "MAKING generatedForDDD !!! rotation!!!" << std::endl;
+      DDrot(DDName("identity","generatedForDDD"), dmr );
+    }
+    //90*deg, 0*deg, 90*deg, 90*deg, 0*deg, 0*deg);
+    //    myDDRotation = DDrot(DDName("generated","identity"), dmr);
   }
-  catch (DDException & e) {
-    // ignore it ... I think this is what I want to do...
-  }
+
+  //  std::cout << myDDRotation << std::endl;
 
   DDTranslation myDDTranslation(x, y, z);
 
   DCOUT_V('P', "about to make a PosPart ...");
-  DCOUT_V('p', "  myDDRotation    : " << myDDRotation);
+  DCOUT_V('p', "  myDDRotation    : " << *myDDRotation);
   DCOUT_V('p', "  myDDTranslation : " << myDDTranslation);
   DCOUT_V('p', "  parentDDName    : " << myParent->getDDName(nmspace));
   DCOUT_V('p', "  selfDDName      : " << myChild->getDDName(nmspace));
@@ -147,7 +169,7 @@ void DDLPosPart::processElement (const std::string& type, const std::string& nms
 	    , DDLogicalPart(myParent->getDDName(nmspace))
 	    , copyno
 	    , myDDTranslation
-	    , myDDRotation);
+	    , *myDDRotation);
     } catch (DDException & e) {
       std::string msg(e.what());
       msg += "\nDDLPosPart failed to make a DDPosPart.";
