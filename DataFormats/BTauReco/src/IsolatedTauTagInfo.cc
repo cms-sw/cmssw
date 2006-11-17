@@ -85,7 +85,7 @@ const  RefVector<TrackCollection>  sTracks = tracksInCone(myVector, rm_cone, pt_
   return leadTk;
 }
 
-double IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing=0) const
+double IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const
 {
   double myDiscriminator = 0.;
   const TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);

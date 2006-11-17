@@ -41,7 +41,7 @@ namespace reco {
     std::string typeOfParton ( PartonType );
     std::string typeOfVariable ( TaggingVariable );
 
-  };
-};
+  }
+}
 
 #endif
