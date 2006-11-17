@@ -22,10 +22,10 @@ namespace reco {
 
     int sharedTracks(const reco::Vertex &v1,
 		     const reco::Vertex &v2) const;
-
+    
   private:
-
+    
   }; // class
-}; // namespace
+} // namespace
 
 #endif

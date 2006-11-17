@@ -51,7 +51,7 @@ inline unsigned int sum ( unsigned int nr )
     for ( int i=1; i<= nr ; i++ )
     {
       ret+=i;
-    };
+    }
     return ret;
     */
     return ( nr * ( nr + 1 ) ) / 2;
@@ -77,7 +77,7 @@ void graphicsDebug ( const vector < PointAndDistance > & input )
             attrs["comment"]="Input for CrossingPtBasedLinearizationPointFinder";
             PrimitivesHarvester( fname )
             .save ( i->first, attrs );
-        };
+        }
         map < string, MultiType > attrs;
         attrs["name"]="The Mode(*theAlgo)";
         attrs["color"]="green";
@@ -96,7 +96,7 @@ void graphicsDebug ( const vector < PointAndDistance > & input )
         attrs["name"]="The Mode(LMS)";
         attrs["color"]="gold";
         PrimitivesHarvester( fname ).save ( lms, attrs );
-    };
+    }
 }
 #endif
 }
@@ -174,12 +174,12 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
             catch (...)
             {}
             ; // If sth goes wrong, we just dont add. Who cares?
-        };
-    };
+        }
+    }
     if (! vgp.size() )
     {
         return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
-    };
+    }
     return find ( vgp );
 }
 
@@ -199,12 +199,12 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useFullMatrix(
             PointAndDistance v ( theMatrix->crossingPoint ( *x , *y ),
                                  theMatrix->distance ( *x, *y ) );
             vgp.push_back ( v );
-        };
-    };
+        }
+    }
     if (! vgp.size() )
     {
         return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
-    };
+    }
     return find ( vgp );
 }
 
@@ -247,8 +247,8 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
             else
             {
                 return useAllTracks ( tracks );
-            };
-        };
+            }
+        }
 
         if ( sum ( tracks.size() - 1 ) < ((unsigned int) (theNPairs)) )
         {
@@ -259,7 +259,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
             // in the quota.
             // so we exploit all tracks pairs.
             return useAllTracks ( tracks );
-        };
+        }
 
         std::vector <reco::TransientTrack> goodtracks = getBestTracks ( tracks );
 
@@ -308,8 +308,8 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
                 catch (...)
                 { // If sth goes wrong, we just dont add. Who cares?
                     //        cout << "[CrossingPtBasedLinearizationPointFinder] ttmd failed?" << endl;
-                };
-            };
+                }
+            }
             if ( ( t_first + t_interval ) < lim )
             {
                 t_first++;
@@ -323,7 +323,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
                     /* cout << "[CrossingPtBasedLinearizationPointFinder] t_interval=0. break."
                          << endl;*/
                     break;
-                };
+                }
             }
             else
             {
@@ -336,18 +336,17 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
                          << endl; */
                     dir=true;
                     t_interval =  goodtracks.size() / 2 - 1;
-                };
-            };
-        };
+                }
+            }
+        }
         if (! vgp.size() )
         {
             // no crossing points? Fallback to a crossingpoint-less lin pt finder!
             return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
-        };
+        }
         return find ( vgp );
     }
-    catch (...)
-    {}
-    ;
+    catch (...){}
+    
     return GlobalPoint(0.,0.,0.); // if nothing else, then return 0,0,0
 }

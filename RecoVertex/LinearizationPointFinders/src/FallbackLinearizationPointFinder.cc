@@ -4,13 +4,13 @@
 #include "RecoVertex/VertexTools/interface/FsmwModeFinder3d.h"
 
 FallbackLinearizationPointFinder::FallbackLinearizationPointFinder ( 
-    const ModeFinder3d & m ) : theModeFinder ( m.clone() ) {};
+    const ModeFinder3d & m ) : theModeFinder ( m.clone() ) {}
 
 GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
     const vector<FreeTrajectoryState> & tracks ) const
 {
   return GlobalPoint(0.,0.,0.);
-};
+}
 
 GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
     const vector<reco::TransientTrack> & tracks ) const
@@ -33,11 +33,11 @@ GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
             pair < GlobalPoint, float > tmp ( 
                 i->impactPointState().globalPosition(), 1. );
             wtracks.push_back ( tmp );
-          } catch (...) {};
-        };
+          } catch (...) {}
+        }
         return (*theModeFinder) ( wtracks );
-      };
-    };
-  } catch ( ... ) {};
+      }
+    }
+  } catch ( ... ) {}
   return GlobalPoint ( 0.,0.,0. );
 }
