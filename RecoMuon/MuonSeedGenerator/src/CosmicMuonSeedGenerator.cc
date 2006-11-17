@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/11/08 17:42:17 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/11/14 19:13:32 $
+ *  $Revision: 1.15 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -63,7 +63,7 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
 }
 
 // Destructor
-CosmicMuonSeedGenerator::~CosmicMuonSeedGenerator(){};
+CosmicMuonSeedGenerator::~CosmicMuonSeedGenerator(){}
 
 
 // reconstruct muon's seeds
