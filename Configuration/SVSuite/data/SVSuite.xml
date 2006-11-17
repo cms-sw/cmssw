@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<SVSuite>
+<ReleaseValidation>
 
           <Validate Version="Default-Fast">
 	     <Test Events="5000" Name="SVSuiteRecoEgamma-ElePt10">
@@ -20,7 +20,7 @@
 	     <Test Events="5000" Name="SVSuiteRecoEgamma-PhoE50">
 	           RecoEgamma_pho_E50.cfg
 	     </Test>
-          </Validation>
+          </Validate>
 
           <Validate Version="Default-Slow">
 	     <Test Events="5000" Name="SVSuiteRecoEGamma-ElePt100">
@@ -43,7 +43,7 @@
 	     </Test>
 	     <Test Events="1000" Name="SVsuiteRecoMET-ZjetsDimuons">
 	        RecoMET_Zjets_Dimuons_300-380.cfg
-	     <Test>
-          </Validation>
+	     </Test>
+          </Validate>
 
-</SVSuite>
+</ReleaseValidation>
