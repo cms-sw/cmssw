@@ -146,7 +146,7 @@ PixelCPETemplateReco::measurementPosition( const SiPixelCluster& cluster,
   }
 
   int ierr;  //!< return status
-  int ID = 201;    // &&& ??????????????????
+  int ID = 2;    // &&& ??????????????????
   bool fpix;  //!< barrel(false) or forward(true)
   if (thePart == GeomDetEnumerators::PixelBarrel)   
     fpix = false;    // no, it's not forward -- it's barrel
@@ -154,12 +154,12 @@ PixelCPETemplateReco::measurementPosition( const SiPixelCluster& cluster,
     fpix = true;     // yes, it's forward
 
   // Make cot(alpha) and cot(beta)... cot(x) = tan(pi/2 - x);
-  float cotalpha = tan(HALFPI - alpha_);  // &&& check the definition!
-  float cotbeta  = tan(HALFPI - beta_);   // &&& check the definition!
+  float cotalpha = tan(HALFPI - alpha_);  
+  float cotbeta  = tan(HALFPI - beta_);   
 
   // Make from cluster (a SiPixelCluster) a boost multi_array_2d called 
   // clust_array_2d.
-  boost::multi_array<float, 2> clust_array_2d;
+  boost::multi_array<float, 2> clust_array_2d(boost::extents[7][21]);
 
   // Copy clust's pixels (calibrated in electrons) into clust_array_2d;
 
@@ -213,6 +213,9 @@ PixelCPETemplateReco::measurementPosition( const SiPixelCluster& cluster,
 		    templXrec_, templSigmaX_);
   // ******************************************************************
 
+  // &&& need a class const
+  static const micronsToCm = 1e-4;
+
   // Check exit status
   if (ierr != 0) {
     printf("reconstruction failed with error %d \n", ierr);
@@ -220,7 +223,7 @@ PixelCPETemplateReco::measurementPosition( const SiPixelCluster& cluster,
     return MeasurementPoint( nonsense, nonsense );
   }
   else 
-    return MeasurementPoint( templXrec_ , templYrec_ );
+    return MeasurementPoint( templXrec_*micronsToCm , templYrec_*micronsToCm );
 
 }
 
