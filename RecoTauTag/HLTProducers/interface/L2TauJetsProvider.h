@@ -21,10 +21,12 @@ class L2TauJetsProvider: public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
-  edm::InputTag jetSrc;
+  typedef std::vector<edm::InputTag> vtag;
+  vtag jetSrc;
   edm::InputTag l1ParticleMap;
-  //TO BE REPLACE WITH L1 TRIGGER BIT
   double mEt_ExtraTau;
+  double mEt_LeptonTau;
+  map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets
 
 };
 #endif
