@@ -85,13 +85,13 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       map<int, const reco::CaloJet>::const_iterator myL2itr = myL2L1JetsMap.find(iJet);
       if(myL2itr!=myL2L1JetsMap.end()){
 	L1JetParticleVectorRef::const_iterator myTau1 = myL1SingleTaus.begin();
-	cout <<"*** Loop over L1 SingleTau "<<endl; 
+	//	cout <<"*** Loop over L1 SingleTau "<<endl; 
 	for(;myTau1 != myL1SingleTaus.end();myTau1++)
 	  {
 	    //Calculate the DeltaR between L1TauCandidate and L1Tau which fired the trigger
 	    deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (*myTau1)->p4().Vect());
-	    cout <<"SingleTau "<<(*myTau1)->pt() << " "<<(*myTau1)->eta() << " " << (*myTau1)->phi() <<endl;
-	    cout <<"deltaR "<<deltaR<<endl;
+	    //	    cout <<"SingleTau "<<(*myTau1)->pt() << " "<<(*myTau1)->eta() << " " << (*myTau1)->phi() <<endl;
+	    //	    cout <<"deltaR "<<deltaR<<endl;
 	    if(deltaR < matchingR) {
 	      //Getting back from the map the L2TauJet
 	      const CaloJet myL2TauJet = myL2itr->second;
@@ -103,12 +103,12 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	
 	if(alreadyMatched) continue;
 	L1JetParticleVectorRef::const_iterator myTau2 = myL1DoubleTaus.begin();
-	cout <<"*** Loop over L1 DoubleTau "<<endl; 
+	//	cout <<"*** Loop over L1 DoubleTau "<<endl; 
 	for(;myTau2 != myL1DoubleTaus.end();myTau2++)
 	  {
-	    cout <<"DoubleTau "<<(*myTau2)->pt() << " "<<(*myTau2)->eta() << " " << (*myTau2)->phi() <<endl;
+	    //	    cout <<"DoubleTau "<<(*myTau2)->pt() << " "<<(*myTau2)->eta() << " " << (*myTau2)->phi() <<endl;
 	    deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (*myTau2)->p4().Vect());
-	    cout <<"detaR "<<deltaR<<endl;
+	    //	    cout <<"detaR "<<deltaR<<endl;
 	    if(deltaR < matchingR) {
 	      const CaloJet myL2TauJet = myL2itr->second;
 	      doubleTauTmp->push_back(myL2TauJet);
