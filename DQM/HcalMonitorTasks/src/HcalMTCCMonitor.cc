@@ -125,7 +125,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  capid=digi[maxI-1].capid();
 	  m1 = (tool[maxI-1]-calibs_.pedestal(capid))*calibs_.gain(capid);
 	}
-	capid=digi[maxI-1].capid();
+	capid=digi[maxI].capid();
 	z = (tool[maxI]-calibs_.pedestal(capid))*calibs_.gain(capid);
 	
 	if(maxI!=(tool.size()-1)){
