@@ -97,6 +97,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	      const CaloJet myL2TauJet = myL2itr->second;
 	      singleTauTmp->push_back(myL2TauJet);
 	      alreadyMatched = true;
+	      break;
 	    }
 	  }  
 	
@@ -112,6 +113,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	      const CaloJet myL2TauJet = myL2itr->second;
 	      doubleTauTmp->push_back(myL2TauJet);
 	      alreadyMatched = true;
+	      break;
 	    }
 	  }  
 	if(alreadyMatched) continue;
