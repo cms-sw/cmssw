@@ -43,6 +43,10 @@ public:
 
   //for debugging
   EcalSelectiveReadout* getEcalSelectiveReadout(){return ecalSelectiveReadout;}
+  /// three methods I don't know how to implement
+  int accumulate(const EcalDataFrame & frame,  bool & gain12saturated);
+  double energy(const EcalDataFrame & frame);
+
   
  private:
 
@@ -67,10 +71,6 @@ public:
 			  double barrelHighInterest, double endcapHighInterest);
 
 
-  /// three methods I don't know how to implement
-  double energy(const EBDataFrame & barrelDigi) const;
-  double energy(const EEDataFrame & endcapDigi) const;
-  double Et(const EcalTriggerPrimitiveDigi & trigPrim) const;
 
   /** Gets the integer weights used by the zero suppression
    * FIR filter.
