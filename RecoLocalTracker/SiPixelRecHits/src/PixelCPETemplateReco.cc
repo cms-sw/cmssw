@@ -29,15 +29,13 @@ using namespace SiPixelTemplateReco ;
 
 
 //-----------------------------------------------------------------------------
-//  A fairly boring constructor.  All quantities are DetUnit-dependent, and
-//  will be initialized in setTheDet().
+//  Constructor.  All detUnit-dependent quantities will be initialized later,
+//  in setTheDet().  Here we only load the templates into the template store templ_ .
 //-----------------------------------------------------------------------------
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
 				     const MagneticField *mag) 
   : PixelCPEBase(conf,mag)
 {
-  // &&& initialize the templates, etc.
-
   // Initialize template store, CMSSW simulation as thePixelTemp[0]
   templ_.pushfile(201);
 
@@ -97,17 +95,19 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster, const GeomDetUn
   if (edgex && edgey) {
     //--- Both axes on the edge, no point in calling PixelErrorParameterization,
     //--- just return the max errors on both.
-    // return LocalError(xerr*xerr, 0,yerr*yerr);
+    cout << "PixelCPETemplateReco::localError: edge hit, returning sqrt(12)." 
+	 << endl;
+    return LocalError(xerr*xerr, 0,yerr*yerr);
   }
   else {
-    // &&& Do it right here!
+    // &&& need a class const
+    static const float micronsToCm = 1e-4;
 
-    //pair<float,float> errPair = 
-    //  pixelErrorParametrization_->getError(thePart, 
-    //				   cluster.sizeX(), cluster.sizeY(), 
-    //					   alpha_         , beta_);
-    // if (!edgex) xerr = errPair.first;
-    // if (!edgey) yerr = errPair.second;
+    xerr = templSigmaX_ * micronsToCm;
+    yerr = templSigmaY_ * micronsToCm;
+
+    // &&& should also check ierr (saved as class variable) and return
+    // &&& nonsense (another class static) if the template fit failed.
   }       
 
   if (theVerboseLevel > 9) {
@@ -145,8 +145,8 @@ PixelCPETemplateReco::measurementPosition( const SiPixelCluster& cluster,
       " Y-pos = " << ypos(cluster);
   }
 
-  int ierr;  //!< return status
-  int ID = 2;    // &&& ??????????????????
+  int ierr;   //!< return status
+  int ID = 2; //!< picks the third entry from the template store, namely 401
   bool fpix;  //!< barrel(false) or forward(true)
   if (thePart == GeomDetEnumerators::PixelBarrel)   
     fpix = false;    // no, it's not forward -- it's barrel
@@ -214,7 +214,7 @@ PixelCPETemplateReco::measurementPosition( const SiPixelCluster& cluster,
   // ******************************************************************
 
   // &&& need a class const
-  static const micronsToCm = 1e-4;
+  static const float micronsToCm = 1e-4;
 
   // Check exit status
   if (ierr != 0) {
