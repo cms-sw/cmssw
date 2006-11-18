@@ -126,7 +126,7 @@ void DDLPosPart::processElement (const std::string& type, const std::string& nms
   // use that one.
   DDRotation* myDDRotation;
   if ( rotn.name() != "" && rotn.ns() != "" ) {
-    std::cout << "rotn is NOT blank = " << rotn << std::endl;
+    //    std::cout << "rotn is NOT blank = " << rotn << std::endl;
 //     try {
     myDDRotation = new DDRotation(rotn);
 //     }
@@ -134,13 +134,13 @@ void DDLPosPart::processElement (const std::string& type, const std::string& nms
 //       // ignore it ... I think this is what I want to do...
 //     }
   } else {
-    std::cout << "rotn is blank." << std::endl;
+    //    std::cout << "rotn is blank." << std::endl;
     static DDRotationMatrix* dmr = new DDRotationMatrix;
-    std::cout << dmr <<  " address of dmr." << std::endl;
+    //    std::cout << dmr <<  " address of dmr." << std::endl;
     //    static DDRotationMatrix* dmr = new DDRotationMatrix(DDRotationMatrix::IDENTITY);
     myDDRotation = new DDRotation(DDName("identity","generatedForDDD"));
     if ( !myDDRotation->isValid() ) {
-      std::cout << "MAKING generatedForDDD !!! rotation!!!" << std::endl;
+      //      std::cout << "MAKING generatedForDDD !!! rotation!!!" << std::endl;
       DDrot(DDName("identity","generatedForDDD"), dmr );
     }
     //90*deg, 0*deg, 90*deg, 90*deg, 0*deg, 0*deg);
