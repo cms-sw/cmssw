@@ -11,8 +11,6 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
 <use name=DQM/SiStripCommon>  
-<use name=oracle>
-<use name=clhep>
 <use name=DQMServices/Core>
 <use name=DataFormats/SiStripDigi>
 <use name=CalibFormats/SiStripObjects>
@@ -25,10 +23,6 @@
 <use name=DataFormats/FEDRawData>
 <use name=CondFormats/DataRecord>
 <use name=CondCore/DBOutputService>
-
-
-
-
 
 <flags SEAL_PLUGIN_NAME="DQMSiStripMonitorPedestals">
 
@@ -44,8 +38,6 @@
    <use name=DataFormats/SiStripDigi>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/SiStripObjects>
-   <use name=oracle>
-   <use name=clhep>
 <use name=CalibTracker/SiStripPedestals>
 
 </export>
