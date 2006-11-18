@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.8 2006/08/10 12:14:15 rahatlou Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.9 2006/11/13 17:29:45 fabiocos Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -34,9 +34,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalWeightRecAlgoWeights.h"
-#include "CondFormats/DataRecord/interface/EcalWeightRecAlgoWeightsRcd.h"
 
 #include "CondCore/IOVService/interface/IOV.h"
 

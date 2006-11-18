@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.17 2006/07/17 14:36:04 meridian Exp $
-  *  $Date: 2006/07/17 14:36:04 $
-  *  $Revision: 1.17 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.18 2006/08/23 15:47:01 meridian Exp $
+  *  $Date: 2006/08/23 15:47:01 $
+  *  $Revision: 1.18 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -25,9 +25,6 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-#include "CondFormats/EcalObjects/interface/EcalWeightRecAlgoWeights.h"
-#include "CondFormats/DataRecord/interface/EcalWeightRecAlgoWeightsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -188,10 +185,10 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 
 	 // EcalWeightMatrix is vec<vec:double>>
 	 LogDebug("EcalUncalibRecHitDebug") << "accessing matrices of weights...";
-	 const EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
-	 const EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
-	 const EcalWeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
-	 const EcalWeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
 	 LogDebug("EcalUncalibRecHitDebug") << "done." ;
 
 	 // build CLHEP weight matrices
@@ -291,10 +288,10 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 
 	 // EcalWeightMatrix is vec<vec:double>>
 	 LogDebug("EcalUncalibRecHitDebug") << "accessing matrices of weights...";
-	 const EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
-	 const EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
-	 const EcalWeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
-	 const EcalWeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
 	 LogDebug("EcalUncalibRecHitDebug") << "done." ;
 
 	 // build CLHEP weight matrices

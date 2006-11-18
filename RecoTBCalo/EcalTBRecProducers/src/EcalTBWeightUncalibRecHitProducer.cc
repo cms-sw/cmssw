@@ -1,13 +1,13 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.4 2006/07/25 11:26:54 azabi Exp $
-  *  $Date: 2006/07/25 11:26:54 $
-  *  $Revision: 1.4 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.5 2006/09/07 18:34:31 meridian Exp $
+  *  $Date: 2006/09/07 18:34:31 $
+  *  $Revision: 1.5 $
   *
   *  $Alex Zabi$
-  *  $Date: 2006/07/25 11:26:54 $
-  *  $Revision: 1.4 $
+  *  $Date: 2006/09/07 18:34:31 $
+  *  $Revision: 1.5 $
   *  Modification to detect first sample to switch gain.
   *  used for amplitude recontruction at high energy
   *  Add TDC convention option (P. Meridiani)
@@ -31,9 +31,6 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-#include "CondFormats/EcalObjects/interface/EcalWeightRecAlgoWeights.h"
-#include "CondFormats/DataRecord/interface/EcalWeightRecAlgoWeightsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -251,8 +248,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 
      // EcalWeightMatrix is vec<vec:double>>
      LogDebug("EcalUncalibRecHitDebug") << "accessing matrices of weights...";
-     const EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
-     const EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
+     const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
+     const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
      //Using dummy matrices for chi2
      //      const EcalWeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
      //      const EcalWeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
