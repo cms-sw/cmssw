@@ -1,3 +1,4 @@
+#include <string>
 
 #include "RecoBTag/BTagTools/interface/SignedDecayLength3D.h"
 
@@ -12,13 +13,11 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Matrix/Vector.h"
-#include <string>
 
 using namespace std;
 using namespace reco;
 
-
-static pair<bool,Measurement1D> SignedDecayLength3D::apply(const TransientTrack & transientTrack,
+pair<bool,Measurement1D> SignedDecayLength3D::apply(const TransientTrack & transientTrack,
                  const GlobalVector & direction, const  Vertex & vertex)  {
 
   double theError=0.;
@@ -66,7 +65,7 @@ static pair<bool,Measurement1D> SignedDecayLength3D::apply(const TransientTrack 
 }// end constructor declaration
 
 
-static TrajectoryStateOnSurface SignedDecayLength3D::closestApproachToJet(const FreeTrajectoryState & aFTS,const Vertex & vertex, const GlobalVector& aJetDirection,const MagneticField * field) {
+TrajectoryStateOnSurface SignedDecayLength3D::closestApproachToJet(const FreeTrajectoryState & aFTS,const Vertex & vertex, const GlobalVector& aJetDirection,const MagneticField * field) {
 
   GlobalVector J =aJetDirection.unit();
 
@@ -78,23 +77,3 @@ static TrajectoryStateOnSurface SignedDecayLength3D::closestApproachToJet(const 
 
   return TETL.extrapolate(aFTS, Jet);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

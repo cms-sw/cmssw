@@ -1,4 +1,3 @@
-
 #include "Geometry/Surface/interface/Line.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -84,7 +83,7 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & t
 
 
 
-static TrajectoryStateOnSurface SignedImpactParameter3D::closestApproachToJet(const FreeTrajectoryState & aFTS,const Vertex & vertex, const GlobalVector& aJetDirection,const MagneticField * field) {
+TrajectoryStateOnSurface SignedImpactParameter3D::closestApproachToJet(const FreeTrajectoryState & aFTS,const Vertex & vertex, const GlobalVector& aJetDirection,const MagneticField * field) {
   
   GlobalVector J =aJetDirection.unit();
   
@@ -97,7 +96,7 @@ static TrajectoryStateOnSurface SignedImpactParameter3D::closestApproachToJet(co
   return TETL.extrapolate(aFTS, Jet);
 }
 
-static GlobalVector SignedImpactParameter3D::distance(const TrajectoryStateOnSurface & aTSOS, const Vertex & vertex, const GlobalVector & aJetDirection)  {
+GlobalVector SignedImpactParameter3D::distance(const TrajectoryStateOnSurface & aTSOS, const Vertex & vertex, const GlobalVector & aJetDirection)  {
 
   Line::PositionType pos2(aTSOS.globalPosition());
   Line::DirectionType dir2((aTSOS.globalMomentum()).unit());
@@ -110,7 +109,7 @@ static GlobalVector SignedImpactParameter3D::distance(const TrajectoryStateOnSur
   return D;
 }
 
-static pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const TransientTrack & track, const GlobalVector & direction, const Vertex & vertex) {
+pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const TransientTrack & track, const GlobalVector & direction, const Vertex & vertex) {
   double theDistanceAlongJetAxis(0.);
   double theDistanceToJetAxis(0.);
   double  theLDist_err(0.);
@@ -195,7 +194,3 @@ static pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(c
   
   return pair<double,Measurement1D> (theDistanceAlongJetAxis,DTJA);
 }
-
-
-
-

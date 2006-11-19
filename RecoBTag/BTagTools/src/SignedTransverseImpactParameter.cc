@@ -123,12 +123,3 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::zImpactParameter ( con
   
   return pair<bool,Measurement1D> ( true , Measurement1D( deltaZ , errZ ) ) ;
 }
-
-
-
-
-
-
-
-
-
