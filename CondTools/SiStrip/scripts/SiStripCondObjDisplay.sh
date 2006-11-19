@@ -94,7 +94,7 @@ templatefile=${CMSSW_BASE}/src/CondTools/SiStrip/scripts/template_SiStripCondObj
 [ ! -e $templatefile ] && templatefile=${CMSSW_RELEASE_BASE}/src/CondTools/SiStrip/scripts/template_SiStripCondObjDisplay.cfg
 [ ! -e $templatefile ] && echo "ERROR: expected template file doesn't exist both in your working area and in release area. Please fix it." && exit
 
-cat $templatefile | sed -e -e "s@#${geometry}@@g" "s#insert_DBfile#$DBfile#" -e "s#insert_DBcatalog#$DBcatalog#" -e "s#insert_output_filename#${output_file_name}#" -e "s#insert_ps_filename#${ps_file_name}#" -e "s#insert_runNb#${run}#" -e "s#insert_tagPN#${tagPN}#g"  -e "s#insert_tagCab#${tagCab}#g" > ${cfg_file}
+cat $templatefile | sed -e "s@#${geometry}@@g" -e "s#insert_DBfile#$DBfile#" -e "s#insert_DBcatalog#$DBcatalog#" -e "s#insert_output_filename#${output_file_name}#" -e "s#insert_ps_filename#${ps_file_name}#" -e "s#insert_runNb#${run}#" -e "s#insert_tagPN#${tagPN}#g"  -e "s#insert_tagCab#${tagCab}#g" > ${cfg_file}
 echo "cmsRun ${cfg_file}"
 cmsRun ${cfg_file} > ${test_area}/out_diplay_${run}
 
