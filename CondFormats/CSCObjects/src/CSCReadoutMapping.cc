@@ -67,3 +67,16 @@ int CSCReadoutMapping::swId( int endcap, int station, int ring, int chamber ) co
   // Software id is just CSCDetId for the chamber - but no distinction within ME11
   return CSCDetId::rawIdMaker( endcap, station, ring, chamber, 0 ); // usual detid for chamber, i.e. layer=0
 }
+
+int CSCReadoutMapping::crate(const CSCDetId & id) const {
+  return 1;//dummy
+}
+int CSCReadoutMapping::dmbId(const CSCDetId & id) const {
+  return 1;//dummy
+}
+int CSCReadoutMapping::DDU(const CSCDetId & id) const {
+  return 1;//dummy
+}
+int CSCReadoutMapping::DCC(const CSCDetId & id) const {
+  return 1;//dummy
+}

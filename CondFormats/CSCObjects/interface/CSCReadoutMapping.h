@@ -73,6 +73,17 @@ class CSCReadoutMapping {
     */
   virtual void fill( const edm::ParameterSet& ) = 0;
 
+
+  ///returns vmecrate given CSCDetId
+  int crate(const CSCDetId&) const;
+  ///returns dmbId given CSCDetId
+  int dmbId(const CSCDetId&) const;
+  ///returns DCC# given CSCDetId
+  int DCC(const CSCDetId&) const;
+  ///returns DDU# given CSCDetId
+  int DDU(const CSCDetId&) const;
+
+
    /**
     * Add one record of info to mapping
     */
