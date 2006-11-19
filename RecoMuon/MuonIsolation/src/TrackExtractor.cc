@@ -27,17 +27,9 @@ void TrackExtractor::fillVetos (const edm::Event & ev, const edm::EventSetup & e
   static std::string metname = "RecoMuon/TrackExtractor";
 
   theVetoCollection = &muons;
+  /*
   for (unsigned int i=0; i<theVetoCollection->size(); i++) {
     Track mu = theVetoCollection->at(i);
-    LogTrace(metname) << "Track to veto: pt= " << mu.pt() << ", eta= " 
-        << mu.eta() <<", phi= "<<mu.phi0();
-  }
-
-  /*
-  theVetoCollection.clear();
-  for (unsigned int i=0; i<muons.size(); i++) {
-    Track mu = muons[i];
-    theVetoCollection.push_back(mu);
     LogTrace(metname) << "Track to veto: pt= " << mu.pt() << ", eta= " 
         << mu.eta() <<", phi= "<<mu.phi0();
   }
