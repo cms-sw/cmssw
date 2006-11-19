@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.51 2006/11/07 18:06:55 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.52 2006/11/09 00:09:33 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -385,7 +385,8 @@ namespace edm {
   // We do this after POOL has closed the file.
   void
   PoolOutputModule::PoolFile::setBranchAliases() const {
-    TFile f(file_.c_str(), "update");
+    std::auto_ptr<TFile> pf(TFile::Open(file_.c_str(), "update"));
+    TFile &f = *pf;
     TTree *t = dynamic_cast<TTree *>(f.Get(poolNames::eventTreeName().c_str()));
     if (t) {
       t->BuildIndex("id_.run_", "id_.event_");
