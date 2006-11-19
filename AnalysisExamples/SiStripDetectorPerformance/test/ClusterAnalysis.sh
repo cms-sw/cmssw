@@ -11,22 +11,22 @@ function usage(){
     echo -e " -sqliteDb=<dbfile> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db)"
     echo -e " -sqliteCatalog=<dbcatalog> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db )"
     echo -e " -castor=<file name, or regular-expression> (to get input files from castor)"
-
+    echo -e " -geometry=<TAC>, <MTCC> (default is MTCC)"
     
     echo -e "\nEXAMPLES:"
     echo -e "\n\tSingle Local File access"
-    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/data/giordano/ClusterAnalysis/data/2501/reco_full_2501.root -Flag=Run2501" 
+    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -geometry=MTCC -InputFilePath=/data/giordano/ClusterAnalysis/data/2501/reco_full_2501.root -Flag=Run2501" 
 
     echo -e "\n\tMultiple Local Files access"
-    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/data/giordano/ClusterAnalysis/data/25[0-4]\*/\*full\* -Flag=Runs2501-2549" 
+    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -geometry=MTCC -InputFilePath=/data/giordano/ClusterAnalysis/data/25[0-4]\*/\*full\* -Flag=Runs2501-2549" 
 
     echo -e "\n\tSingle Castor File access"
-    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2 -castor=2501_reco_full.root -Flag=Run2501" 
+    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -geometry=MTCC -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2 -castor=2501_reco_full.root -Flag=Run2501" 
 
     echo -e "\n\tMultiple Castor Files access (using regular expressions)"
-    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2 -castor='26\(\(3[7-9]\)\|\(4[0-2]\)\)_reco_full.root' -Flag=Runs2637-2642"  
+    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -geometry=MTCC -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2 -castor='26\(\(3[7-9]\)\|\(4[0-2]\)\)_reco_full.root' -Flag=Runs2637-2642"  
 
-    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2_with_alignment -castor='26\(\(3[7-9]\)\|\(4[0-2]\)\)_reco_full.root' -Flag=Runs2637-2642_Align"  
+    echo -e "\n\t\t./ClusterAnalysis.sh -CondDb=orcoff -geometry=MTCC -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2_with_alignment -castor='26\(\(3[7-9]\)\|\(4[0-2]\)\)_reco_full.root' -Flag=Runs2637-2642_Align"  
     
     echo
     exit
@@ -70,13 +70,17 @@ function getRunList(){
 
 function getParameter(){
     what=$1
-    eval $what=\$$#
     shift
     where=$@
     if [ `echo $where | grep -c "\-$what="` = 1 ]; then
         eval $what=`echo $where | awk -F"${what}=" '{print $2}' | awk '{print $1}'`
     elif [ `echo $where | grep -c "\-$what"` = 1 ]; then
         eval $what=1
+	eval $what=\$$#
+    else
+	let c=$#-1
+	shift $c
+	eval $what=$1
     fi
 }
 
@@ -95,6 +99,7 @@ getParameter CondDb        $@ orcoff
 getParameter sqliteDb      $@ ${TestArea}/dummy_${run}.db
 getParameter sqliteCatalog $@ ${TestArea}/dummy_${run}.xml
 getParameter castor        $@ 0
+getParameter geometry      $@ MTCC
 
 [ ! -e ${TestArea} ] && mkdir -p ${TestArea}
 
@@ -119,6 +124,7 @@ fi
 echo -e "\n -InputFilePath=$InputFilePath"
 echo -e " -TestArea=$TestArea"
 echo -e " -Flag=$Flag"
+echo -e " -geometry=$geometry"
 echo -e " -castor=$castor"
 echo -e " -CondDb=$CondDb"
 if [ "$CondDb" = "sqlite" ]; then
@@ -141,7 +147,7 @@ inputfilelist=`getRunList`
 
 [ "$inputfilelist" == "" ] && echo "No file exists for the specified path" && exit
 
-cat template_ClusterAnalysis.cfg | sed -e "s#insert_DBfile#$DBfile#" -e "s#insert_DBcatalog#$DBcatalog#" -e "s#insert_root_filename#${root_filename}#" -e "s#insert_ps_filename#${ps_filename}#" -e "s#insert_input_file_list#$inputfilelist#" > ${cfg_file}
+cat template_ClusterAnalysis.cfg | sed -e "s@#${geometry}@@g" -e "s#insert_DBfile#$DBfile#" -e "s#insert_DBcatalog#$DBcatalog#" -e "s#insert_root_filename#${root_filename}#" -e "s#insert_ps_filename#${ps_filename}#" -e "s#insert_input_file_list#$inputfilelist#" > ${cfg_file}
 echo "cmsRun ${cfg_file}"
 cmsRun ${cfg_file} > ${TestArea}/ClusterAnalysis_${Flag}.out
 
