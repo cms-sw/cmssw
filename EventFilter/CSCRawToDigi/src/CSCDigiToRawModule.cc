@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/09 22:29:58 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/17 22:30:47 $
+ *  $Revision: 1.2 $
  *  \author A. Tumanov - Rice
  */
 
@@ -36,7 +36,7 @@ void CSCDigiToRawModule::produce(Event & e, const EventSetup& c){
   // Take digis from the event
   Handle<CSCStripDigiCollection> stripDigis;
   e.getByLabel("MuonCSCStripDigi", stripDigis);
-  Handle<CSCStripDigiCollection> wireDigis;
+  Handle<CSCWireDigiCollection> wireDigis;
   e.getByLabel("MuonCSCWireDigis", wireDigis);
 
 

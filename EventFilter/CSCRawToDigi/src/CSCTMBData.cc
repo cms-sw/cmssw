@@ -240,8 +240,8 @@ boost::dynamic_bitset<> CSCTMBData::pack() {
   boost::dynamic_bitset<> result(theTMBHeader.sizeInWords()*16,*(const unsigned*)&theTMBHeader);
   boost::dynamic_bitset<> clctData(theCLCTData.sizeInWords()*16, (const unsigned)*theCLCTData.data());
   result &= clctData;
-  int finalSize = result.size()*2 + theTMBTrailer.sizeInWords(); //size() returns # of unsigned long words 
-                                                                 //each 4 bytes long
+  int finalSize = result.size()/16 + theTMBTrailer.sizeInWords(); //size() returns # of bits 
+                                                                
   theTMBTrailer.setWordCount(finalSize);
   boost::dynamic_bitset<> tmbTrailer( theTMBTrailer.sizeInWords()*16, *(const unsigned*)&theTMBTrailer);
   result &= tmbTrailer;

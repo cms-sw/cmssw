@@ -3,8 +3,8 @@
 
 /** \class CSCDigiToRaw
  *
- *  $Date: 2006/11/09 22:29:58 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/17 22:30:47 $
+ *  $Revision: 1.2 $
  *  \author A. Tumanov - Rice
  */
 
@@ -27,11 +27,11 @@ class CSCDigiToRaw {
   void createFedBuffers(const CSCStripDigiCollection& stripDigis,
 			const CSCWireDigiCollection& wireDigis, 
 			FEDRawDataCollection& fed_buffers,
-			const CSCReadoutMappingFromFile& theMapping);
+		        CSCReadoutMappingFromFile& theMapping);
 
   std::map <CSCDetId, CSCEventData> fillChamberDataMap(const CSCStripDigiCollection& stripDigis,
-					    const CSCWireDigiCollection& wireDigis,
-					    const CSCReadoutMappingFromFile& theMapping);
+						       const CSCWireDigiCollection& wireDigis,
+						       CSCReadoutMappingFromFile& theMapping);
 
  private:
 

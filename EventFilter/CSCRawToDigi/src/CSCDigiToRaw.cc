@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/09 22:29:58 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/17 22:30:47 $
+ *  $Revision: 1.2 $
  *  \author A. Tumanov - Rice
  */
 
@@ -28,7 +28,7 @@ CSCDigiToRaw::~CSCDigiToRaw(){}
 map<CSCDetId, CSCEventData> 
 CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis, 
 				 const CSCWireDigiCollection & wireDigis, 
-				 const CSCReadoutMappingFromFile & mapping) {
+				 CSCReadoutMappingFromFile & mapping) {
  
   map<CSCDetId, CSCEventData> chamberMap;
   ///iterate over chambers with strip digis in them
@@ -98,7 +98,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
 void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 				    const CSCWireDigiCollection& wireDigis,
 				    FEDRawDataCollection& fed_buffers,
-				    const CSCReadoutMappingFromFile& mapping){
+				    CSCReadoutMappingFromFile& mapping){
 
   ///bits of code from ORCA/Muon/METBFormatter - thanks, Rick:)!
  
@@ -129,7 +129,18 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
       if (idcc==indexDCC) { ///fill the right dcc 
 	int indexDDU = mapping.DDU(chamberItr->first); ///get ddu index based on ChamberId
 	dccEvent.dduData()[indexDDU].add(chamberItr->second);
-	FEDRawData * rawData = (FEDRawData*) dccEvent.pack();
+	FEDRawData * rawData = new FEDRawData(dccEvent.pack().size());
+	unsigned char * data = rawData->data();
+	for (unsigned int i=0;i<dccEvent.pack().size();i++) {
+	  data[8*i] = ((dccEvent.pack())[8*i]<<7)&&
+	    ((dccEvent.pack())[8*i+1]<<6)&&
+	    ((dccEvent.pack())[8*i+2]<<5)&&
+	    ((dccEvent.pack())[8*i+3]<<4)&&
+	    ((dccEvent.pack())[8*i+4]<<3)&&
+	    ((dccEvent.pack())[8*i+5]<<2)&&
+	    ((dccEvent.pack())[8*i+6]<<2)&&
+	    ((dccEvent.pack())[8*i+7]);
+	}
 	FEDRawData& fedRawData = fed_buffers.FEDData(startingFED+idcc); 
 	fedRawData = *rawData;
       }
