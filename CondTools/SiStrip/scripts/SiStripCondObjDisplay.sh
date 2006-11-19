@@ -15,13 +15,16 @@ function usage(){
 
 function getParameter(){
     what=$1
-    eval $what=\$$#
     shift
     where=$@
     if [ `echo $where | grep -c "\-$what="` = 1 ]; then
         eval $what=`echo $where | awk -F"${what}=" '{print $2}' | awk '{print $1}'`
     elif [ `echo $where | grep -c "\-$what"` = 1 ]; then
 	eval $what=1
+    else
+	let c=$#-1
+	shift $c
+	eval $what=$1
     fi
 }
 
