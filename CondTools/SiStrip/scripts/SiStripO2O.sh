@@ -14,6 +14,8 @@ function usage () {
     echo -e " -sqliteDb=<path_name> (default is /tmp/$USER/o2o/dummy_<IOV>.db)"
     echo -e " -sqliteCatalog=<path_name> (default is /tmp/$USER/o2o/dummy_<IOV>.xml)"
     echo -e " -firstUpload (otherwise works in append mode) "
+    echo -e " -geometry=<TAC>, <MTCC> (default is MTCC)"
+    echo -e " -Debug (switch on printout for debug)"
 
 
     echo -e "\n\nPlease set your CORAL_AUTH_PATH environment variable, otherwise it will be defined as /afs/cern.ch/cms/DB/conddb\n"
@@ -50,6 +52,7 @@ function settings (){
     default_ConfigDbPartition="MTCC_DEMO"
     default_CondDb="sqlite"
     default_firstUpload=0
+    default_Debug=0
     
     getParameter help $@ 0
     [ "$help" = 1 ] && usage
@@ -70,6 +73,8 @@ function settings (){
     getParameter tagCab               $@ ${default_tagCab}
     getParameter CondDb               $@ ${default_CondDb}
     getParameter firstUpload          $@ ${default_firstUpload} 
+    getParameter geometry             $@ MTCC
+    getParameter Debug                $@ ${default_Debug}
 
     default_sqliteDb=${test_area}/dummy_${IOV}.db
     default_sqliteCatalog=${test_area}/dummy_${IOV}.xml
@@ -96,6 +101,7 @@ function settings (){
     echo -e " -CondDb=$CondDb"
     echo -e " -tagPN=$tagPN"
     echo -e " -tagCab=$tagCab"
+    echo -e " -geometry=$geometry"
     echo -e " -firstUpload $firstUpload"
     echo -e " -doPedNoiseTransfer $doPedNoiseTransfer"
     echo -e " -doFedCablingTransfer $doFedCablingTransfer"
@@ -103,6 +109,7 @@ function settings (){
 	echo -e " -sqliteDb=${sqliteDb}"
 	echo -e " -sqliteCatalog=${sqliteCatalog}"
     fi
+    echo -e " -Debug $Debug"
     echo " "
 }
 
@@ -163,14 +170,19 @@ cfg_file=${test_area}/SiStripO2O_IOV_${IOV}.cfg
 echo DBfile $DBfile
 echo DBcatalog $DBcatalog
 
+boolDebug=false
+[ "$Debug" == "1" ] && boolDebug=true
+
+[ "$IOV" > "1" ] && let prevIOV=$IOV-1
+
 templatefile=${CMSSW_BASE}/src/CondTools/SiStrip/scripts/template_SiStripO2O.cfg 
 [ ! -e $templatefile ] && templatefile=${CMSSW_RELEASE_BASE}/src/CondTools/SiStrip/scripts/template_SiStripO2O.cfg 
 [ ! -e $templatefile ] && echo "ERROR: expected template file doesn't exist both in your working area and in release area. Please fix it." && exit
 
-cat $templatefile | sed -e "s#insert_DBfile#$DBfile#g" -e "s#insert_DBcatalog#$DBcatalog#g"  -e "s#insert_IOV#${IOV}#" -e "s#insert_appendflag#${append}#g" -e "s@#appendMode_${append}@@g" \
--e "s#insert_ConfigDbFull#${ConfigDbUser}/${ConfigDbPasswd}@${ConfigDbPath}#" -e "s#insert_ConfigDbUser#${ConfigDbUser}#" -e "s#insert_ConfigDbPasswd#${ConfigDbPasswd}#" -e "s#insert_ConfigDbPath#${ConfigDbPath}#"	-e "s#insert_ConfigDbPartition#${ConfigDbPartition}#" -e "s#insert_ConfigDbMajorVersion#${ConfigDbMajorVersion}#" -e "s#insert_ConfigDbMinorVersion#${ConfigDbMinorVersion}#" \
- -e "s#insert_tagPN#${tagPN}#g"  -e "s#insert_tagCab#${tagCab}#g" \
--e "s#insert_doPedNoiseTransfer#$doPedNoiseTransfer#" -e "s#insert_doFedCablingTransfer#$doFedCablingTransfer#" -e "s@${o2otrans}@@"> ${cfg_file}
+cat $templatefile | sed -e "s@#${geometry}@@g" -e "s#insert_DBfile#$DBfile#g" -e "s#insert_DBcatalog#$DBcatalog#g"  -e "s#insert_IOV#${prevIOV}#" -e "s#insert_appendflag#${append}#g" -e "s@#appendMode_${append}@@g" \
+-e "s#insert_ConfigDbFull#${ConfigDbUser}/${ConfigDbPasswd}@${ConfigDbPath}#" -e "s#insert_ConfigDbUser#${ConfigDbUser}#g" -e "s#insert_ConfigDbPasswd#${ConfigDbPasswd}#g" -e "s#insert_ConfigDbPath#${ConfigDbPath}#g"	-e "s#insert_ConfigDbPartition#${ConfigDbPartition}#g" -e "s#insert_ConfigDbMajorVersion#${ConfigDbMajorVersion}#g" -e "s#insert_ConfigDbMinorVersion#${ConfigDbMinorVersion}#g" \
+-e "s#insert_tagPN#${tagPN}#g"  -e "s#insert_tagCab#${tagCab}#g" \
+-e "s#insert_doPedNoiseTransfer#$doPedNoiseTransfer#" -e "s#insert_doFedCablingTransfer#$doFedCablingTransfer#" -e "s#insert_Debug#$Debug#" -e "s@${o2otrans}@@"> ${cfg_file}
 
 
 
