@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/11/05 10:29:32 $
- * $Revision: 1.184 $
+ * $Date: 2006/11/11 13:14:37 $
+ * $Revision: 1.185 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -375,10 +375,12 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
   }
 
+#if 0
   clients_.push_back(  new EBClusterClient(ps) );
   clientNames_.push_back( "Cluster" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+#endif
 
   cout << endl;
 
