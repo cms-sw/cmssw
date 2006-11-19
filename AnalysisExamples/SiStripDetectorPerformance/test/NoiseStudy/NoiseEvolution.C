@@ -1,6 +1,6 @@
 /*
-* $Date: $
-* $Revision:  $
+* $Date: 2006/11/06 13:26:13 $
+* $Revision: 1.1 $
 *
 * \author: D. Giordano, domenico.giordano@cern.ch
 */
@@ -23,11 +23,15 @@ gROOT->Reset();
 //User Defined Variables
 
 char outFile[128]="NoiseEvolution";
-char path[128]="/castor/cern.ch/user/g/giordano/MTCC/Display/Display_PedNoise_RunNb";
+char path[128]; //="/castor/cern.ch/user/g/giordano/MTCC/Display/Display_PedNoise_RunNb";
 //char path[128]="/data/giordano/Display/Display_PedNoise_RunNb";
+
 int histoBins=60;
 float histoMin=-1.;
 float histoMax= 1.;
+
+int minIov=100000000;
+int maxIov=0;
 
 //End User Defined Variables
 //---------------------------------
@@ -42,11 +46,14 @@ TH1F *inH, *refH, *outH;
 
 TCanvas * C;
 
-int iov[11]={2354,2371,2440,2459,2475,2500,2515,2554,2601,2644,10000};
-int iovDim = 11;
+//int iov[11]={2354,2371,2440,2459,2475,2500,2515,2554,2601,2644,10000};
+//int iovDim = 11;
+int *iov;
+int iovDim;
 
 char *SubDet[4]={"TIB","TID","TOB","TEC"};
 
+char *SubNamePtr;
 std::vector<string> vHistoNames;
 std::vector<int> vHistoNBinsX;
 std::vector<string> vLayerName;
@@ -54,6 +61,39 @@ std::vector<string> vLayerName;
 TObjArray Hlist(0);
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+void GetRuns(char* path_,char* RunsList_){
+  strcat(path,path_);
+    
+  char tmp[1024];
+  strcat(tmp,RunsList_);
+  
+  char* pch = strtok (tmp," ");
+  iovDim=0;
+  while (pch != NULL){
+    pch = strtok (NULL, " ");
+    iovDim++;
+  }
+
+  cout << "iovDim " << iovDim << endl;
+  iov = new int[iovDim];
+  char* pch = strtok (RunsList_," ");
+  int i=0;
+  cout << " RunList " << endl;
+  while (pch != NULL){
+    iov[i] = atoi(pch);
+    pch = strtok (NULL, " ");
+    cout << iov[i] << endl;
+
+    if (iov[i]>maxIov)
+      maxIov=iov[i];
+    if (iov[i]<minIov)
+      minIov=iov[i];
+
+    i++;
+  }
+  cout << endl;
+}
 
 void book(){
   cout << "\n[book]\n" << endl;
@@ -65,6 +105,7 @@ void book(){
   for (int i=1;i<iovDim;i++){
     char dirName[128];
     sprintf(dirName,"IOV_%d",iov[i]);
+    cout << dirName << endl;
     outFile_->mkdir(dirName);
     outFile_->cd(dirName);
     
@@ -75,33 +116,32 @@ void book(){
     gDirectory->cd("DetId");
     //Make Histos for each detector
     for (int j=0;j<vHistoNames.size();j++){
-      //      cout << vHistoNames[j] << endl;
+      //cout << "vHistoName " << vHistoNames[j] << endl;
       char newName[128];
-      sprintf(newName,"NoiseVariationProfile_%s",&((vHistoNames[j].c_str())[23]));
-      //cout << newName << endl;
-      //cout << "h " << h << endl;
+      SubNamePtr=((strstr(vHistoNames[j].c_str(),":"))+1);
+      sprintf(newName,"NoiseVariationProfile_%s_%s",SubNamePtr,dirName);
+      //cout << "newName " << newName << endl;
       Hlist.Add(new TH1F(newName,newName,vHistoNBinsX[j],-0.5,vHistoNBinsX[j]-0.5));
-      sprintf(newName,"NoiseVariation_%s",&vHistoNames[j][23]);
+      sprintf(newName,"NoiseVariation_%s_%s",SubNamePtr,dirName);
       Hlist.Add(new TH1F(newName,newName,histoBins,histoMin,histoMax));      
-
     }
 
     gDirectory->cd("../Layer");
     //Make Histos for each layer
     for (int j=0;j<vLayerName.size();j++){
       char newName[128];
-      sprintf(newName,"NoiseVariation_%s",vLayerName[j].c_str());
+      sprintf(newName,"NoiseVariation_%s_%s",vLayerName[j].c_str(),dirName);
       Hlist.Add(new TH1F(newName,newName,histoBins,histoMin,histoMax));      
-      sprintf(newName,"NoiseComparison_%s",vLayerName[j].c_str());
+      sprintf(newName,"NoiseComparison_%s_%s",vLayerName[j].c_str(),dirName);
       Hlist.Add(new TH2F(newName,newName,histoBins,0,10,histoBins,0,10));      
     }
 
     gDirectory->cd("../SubDet");
     //Make Histos hor each SubDet
-    Hlist.Add(new TH1F("NoiseVariation_TIB","NoiseVariation_TIB",histoBins,histoMin,histoMax));      
-    Hlist.Add(new TH1F("NoiseVariation_TOB","NoiseVariation_TOB",histoBins,histoMin,histoMax));      
-    Hlist.Add(new TH1F("NoiseVariation_TEC","NoiseVariation_TEC",histoBins,histoMin,histoMax));      
-    Hlist.Add(new TH1F("NoiseVariation_TID","NoiseVariation_TID",histoBins,histoMin,histoMax));      
+    Hlist.Add(new TH1F("NoiseVariation_TIB_"+TString(dirName),"NoiseVariation_TIB_"+TString(dirName),histoBins,histoMin,histoMax));      
+    Hlist.Add(new TH1F("NoiseVariation_TOB_"+TString(dirName),"NoiseVariation_TOB_"+TString(dirName),histoBins,histoMin,histoMax));      
+    Hlist.Add(new TH1F("NoiseVariation_TEC_"+TString(dirName),"NoiseVariation_TEC_"+TString(dirName),histoBins,histoMin,histoMax));      
+    Hlist.Add(new TH1F("NoiseVariation_TID_"+TString(dirName),"NoiseVariation_TID_"+TString(dirName),histoBins,histoMin,histoMax));      
   }
   
   gDirectory->cd("../..");
@@ -109,13 +149,13 @@ void book(){
   for (int j=0;j<vLayerName.size();j++){
     char newName[128];
     sprintf(newName,"pNoiseVariation_%s",vLayerName[j].c_str());
-    Hlist.Add(new TProfile(newName,newName,100,iov[1],2800,histoMin,histoMax));
+    Hlist.Add(new TProfile(newName,newName,iovDim,minIov,maxIov,histoMin,histoMax));
   }
   
-  Hlist.Add(new TProfile("pNoiseVariation_TIB","pNoiseVariation_TIB",10,iov[1],2800,histoMin,histoMax));
-  Hlist.Add(new TProfile("pNoiseVariation_TID","pNoiseVariation_TID",10,iov[1],2800,histoMin,histoMax));
-  Hlist.Add(new TProfile("pNoiseVariation_TOB","pNoiseVariation_TOB",10,iov[1],2800,histoMin,histoMax));
-  Hlist.Add(new TProfile("pNoiseVariation_TEC","pNoiseVariation_TEC",10,iov[1],2800,histoMin,histoMax));
+  Hlist.Add(new TProfile("pNoiseVariation_TIB","pNoiseVariation_TIB",iovDim,minIov,maxIov,histoMin,histoMax));
+  Hlist.Add(new TProfile("pNoiseVariation_TID","pNoiseVariation_TID",iovDim,minIov,maxIov,histoMin,histoMax));
+  Hlist.Add(new TProfile("pNoiseVariation_TOB","pNoiseVariation_TOB",iovDim,minIov,maxIov,histoMin,histoMax));
+  Hlist.Add(new TProfile("pNoiseVariation_TEC","pNoiseVariation_TEC",iovDim,minIov,maxIov,histoMin,histoMax));
   
   outFile_->cd();
 }     
@@ -132,14 +172,14 @@ void LayerName(char* input,char* output){
       sprintf(output,"%s_",SubDet[i]);
       char *qch = strstr(input,"Rphi");
       if ( qch != NULL){
-	if (SubDet[i]!="TEC")
+	if (SubDet[i]!="TEC" && SubDet[i]!="TID")
 	  strncat(output,qch,5);
 	else
 	  strncat(output,--qch,5);
       }else{
 	qch = strstr(input,"Ster");
 	if (qch != NULL ){
-	  if (SubDet[i]!="TEC")
+	  if (SubDet[i]!="TEC"  && SubDet[i]!="TID")
 	    strncat(output,qch,5);
 	  else
 	    strncat(output,--qch,5);
@@ -178,7 +218,7 @@ void save(){
     for (int j=0;j<vLayerName.size();j++){
       char newName[128];
       myCanvas.SetLogy(1);;
-      sprintf(newName,"IOV_%d/Layer/NoiseVariation_%s",iov[i],vLayerName[j].c_str());
+      sprintf(newName,"IOV_%d/Layer/NoiseVariation_%s_IOV_%d",iov[i],vLayerName[j].c_str(),iov[i]);
       if (((TH1F*) outFile_->Get(newName))->GetEntries()){
 	((TH1F*) outFile_->Get(newName))->Draw();
 	myCanvas.Update();
@@ -186,7 +226,7 @@ void save(){
       }
       
       myCanvas.SetLogy(0);
-      sprintf(newName,"IOV_%d/Layer/NoiseComparison_%s",iov[i],vLayerName[j].c_str());
+      sprintf(newName,"IOV_%d/Layer/NoiseComparison_%s_IOV_%d",iov[i],vLayerName[j].c_str(),iov[i]);
       if (((TH2F*) outFile_->Get(newName))->GetEntries()){
 	((TH2F*) outFile_->Get(newName))->Draw();
 	myCanvas.Update();
@@ -196,7 +236,7 @@ void save(){
 
     myCanvas.SetLogy(1);
     for (int j=0;j<4;j++){
-      sprintf(newName,"IOV_%d/SubDet/NoiseVariation_%s",iov[i],SubDet[j]);
+      sprintf(newName,"IOV_%d/SubDet/NoiseVariation_%s_IOV_%d",iov[i],SubDet[j],iov[i]);
       if (((TH1F*) outFile_->Get(newName))->GetEntries()){
 	((TH1F*) outFile_->Get(newName))->Draw();
 	myCanvas.Update();
@@ -251,18 +291,19 @@ void variation(TH1F* in, TH1F* ref, int iov){
   TProfile* outP[2];
 
   strcpy(inName,in->GetTitle());
-  sprintf(outName,"IOV_%d/DetId/NoiseVariationProfile_%s",iov,&(inName[23]));
+  SubNamePtr=((strstr(inName,":"))+1);
+  sprintf(outName,"IOV_%d/DetId/NoiseVariationProfile_%s_IOV_%d",iov,SubNamePtr,iov);
   outH1[0] = (TH1F*)  outFile_->Get(outName);
 
-  sprintf(outName,"IOV_%d/DetId/NoiseVariation_%s",iov,&(inName[23]));
+  sprintf(outName,"IOV_%d/DetId/NoiseVariation_%s_IOV_%d",iov,SubNamePtr,iov);
   outH1[1] = (TH1F*)  outFile_->Get(outName);
 
   char tmp[128];
   LayerName(inName,tmp);
-  sprintf(outName,"IOV_%d/Layer/NoiseVariation_%s",iov,tmp);
+  sprintf(outName,"IOV_%d/Layer/NoiseVariation_%s_IOV_%d",iov,tmp,iov);
   outH1[2] = (TH1F*)  outFile_->Get(outName);
 
-  sprintf(outName,"IOV_%d/Layer/NoiseComparison_%s",iov,tmp);
+  sprintf(outName,"IOV_%d/Layer/NoiseComparison_%s_IOV_%d",iov,tmp,iov);
   outH2 = (TH2F*)  outFile_->Get(outName);
 
   sprintf(outName,"pNoiseVariation_%s",tmp);
@@ -272,7 +313,7 @@ void variation(TH1F* in, TH1F* ref, int iov){
   det[3]='\0';
   strncpy(det,tmp,3);
 
-  sprintf(outName,"IOV_%d/SubDet/NoiseVariation_%s",iov,det);
+  sprintf(outName,"IOV_%d/SubDet/NoiseVariation_%s_IOV_%d",iov,det,iov);
   //  cout << outName << endl;
   outH1[3] = (TH1F*)  outFile_->Get(outName);
   
@@ -295,7 +336,7 @@ void variation(TH1F* in, TH1F* ref, int iov){
 
     outH2->Fill(ref->GetBinContent(i),in->GetBinContent(i));
 
-    int iov_= iov==10000 ? 2700 : iov;
+    int iov_= iov;//==10000 ? 2700 : iov;
     for (int j=0;j<2;j++)
       outP[j]->Fill(iov_,delta);
 
@@ -318,10 +359,13 @@ void loop(int iov){
   }  
 }
 
-NoiseEvolution(){
+NoiseEvolution(char* path_, char* RunsList_){
+
+
+  GetRuns(path_,RunsList_);
 
   //Open Reference File
-  sprintf(refFile,"%s_%d.root",path,iov[0]);
+  sprintf(refFile,"%s/Display_PedNoise_RunNb_%d.root",path,iov[0]);
   cout << "\nReference File " << refFile << endl;
   refFile_= new TRFIOFile(refFile);
 
@@ -332,7 +376,7 @@ NoiseEvolution(){
   while (key = (TKey*)nextkey()) {    
     const char * title;
     title=key->GetTitle();
-    if (strncmp(title,"Noises_Field",12)==0){
+    if (strncmp(title,"Noises_",6)==0 && strstr(title,"Cumulative")== NULL){
       vHistoNames.push_back(string(title));
       vHistoNBinsX.push_back(((TH1F*)key->ReadObj())->GetNbinsX());
       
@@ -351,7 +395,7 @@ NoiseEvolution(){
   
   for (int i=1;i<iovDim;i++){
 
-    sprintf(inFile,"%s_%d.root",path,iov[i]);
+    sprintf(inFile,"%s/Display_PedNoise_RunNb_%d.root",path,iov[i]);
     cout << "\nAnalyzing File " << inFile << endl;
     inFile_= new TRFIOFile(inFile);
   
