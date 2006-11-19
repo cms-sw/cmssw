@@ -2,7 +2,9 @@
 
 function usage () {
     echo -e "\n[usage]\n SiStripO2O.sh [options]"
-    echo -e " -IOV=<runNb> (default is $default_IOV )"
+    echo -e " -IOV=<runNb> (default is ${default_IOV} )"
+    echo -e " -tagPN=<tag for PedNoise> (default is ${default_tagPN} )"
+    echo -e " -tagCab=<tag for cabling> (default is ${default_tagCab} )"
     echo -e " -ConfigDb=<user/passwd@path> (default is ${default_ConfigDb} )"
     echo -e " -ConfigDbVersion=<Major.Minor> (default is ${default_ConfigDb} )"
     echo -e " -ConfigDbPartition=<partitionName> (default is ${default_ConfigDbPartition} )"
@@ -21,13 +23,16 @@ function usage () {
 
 function getParameter(){
     what=$1
-    eval $what=\$$#
     shift
     where=$@
     if [ `echo $where | grep -c "\-$what="` = 1 ]; then
         eval $what=`echo $where | awk -F"${what}=" '{print $2}' | awk '{print $1}'`
     elif [ `echo $where | grep -c "\-$what "` = 1 ]; then
 	eval $what=1
+    else
+	let c=$#-1
+	shift $c
+	eval $what=$1
     fi
 }
 
@@ -36,6 +41,8 @@ function settings (){
     export test_area=/tmp/$USER/o2o
 
     default_IOV=1
+    default_tagPN=SiStripPedNoise_v1
+    default_tagCab=SiStripCabling_v1
     default_doPedNoiseTransfer=0
     default_doFedCablingTransfer=0
     default_ConfigDb=cms_mtcc_sitracker/cms_mtcc@omds
@@ -59,6 +66,8 @@ function settings (){
     getParameter ConfigDbVersion      $@ ${default_ConfigDbVersion}
     getParameter ConfigDbPartition    $@ ${default_ConfigDbPartition}
     getParameter IOV                  $@ ${default_IOV}
+    getParameter tagPN                $@ ${default_tagPN}
+    getParameter tagCab               $@ ${default_tagCab}
     getParameter CondDb               $@ ${default_CondDb}
     getParameter firstUpload          $@ ${default_firstUpload} 
 
@@ -85,6 +94,8 @@ function settings (){
     echo -e " -ConfigDbVersion=${ConfigDbVersion}"
     echo -e " -ConfigDbPartition=${ConfigDbPartition}"
     echo -e " -CondDb=$CondDb"
+    echo -e " -tagPN=$tagPN"
+    echo -e " -tagCab=$tagCab"
     echo -e " -firstUpload $firstUpload"
     echo -e " -doPedNoiseTransfer $doPedNoiseTransfer"
     echo -e " -doFedCablingTransfer $doFedCablingTransfer"
@@ -157,7 +168,8 @@ templatefile=${CMSSW_BASE}/src/CondTools/SiStrip/scripts/template_SiStripO2O.cfg
 [ ! -e $templatefile ] && echo "ERROR: expected template file doesn't exist both in your working area and in release area. Please fix it." && exit
 
 cat $templatefile | sed -e "s#insert_DBfile#$DBfile#g" -e "s#insert_DBcatalog#$DBcatalog#g"  -e "s#insert_IOV#${IOV}#" -e "s#insert_appendflag#${append}#g" -e "s@#appendMode_${append}@@g" \
--e "s#insert_ConfigDbUser#${ConfigDbUser}#" -e "s#insert_ConfigDbPasswd#${ConfigDbPasswd}#" -e "s#insert_ConfigDbPath#${ConfigDbPath}#"	-e "s#insert_ConfigDbPartition#${ConfigDbPartition}#" -e "s#insert_ConfigDbMajorVersion#${ConfigDbMajorVersion}#" -e "s#insert_ConfigDbMinorVersion#${ConfigDbMinorVersion}#" \
+-e "s#insert_ConfigDbFull#${ConfigDbUser}/${ConfigDbPasswd}@${ConfigDbPath}#" -e "s#insert_ConfigDbUser#${ConfigDbUser}#" -e "s#insert_ConfigDbPasswd#${ConfigDbPasswd}#" -e "s#insert_ConfigDbPath#${ConfigDbPath}#"	-e "s#insert_ConfigDbPartition#${ConfigDbPartition}#" -e "s#insert_ConfigDbMajorVersion#${ConfigDbMajorVersion}#" -e "s#insert_ConfigDbMinorVersion#${ConfigDbMinorVersion}#" \
+ -e "s#insert_tagPN#${tagPN}#g"  -e "s#insert_tagCab#${tagCab}#g" \
 -e "s#insert_doPedNoiseTransfer#$doPedNoiseTransfer#" -e "s#insert_doFedCablingTransfer#$doFedCablingTransfer#" -e "s@${o2otrans}@@"> ${cfg_file}
 
 

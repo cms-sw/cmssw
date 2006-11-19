@@ -4,9 +4,12 @@ function usage(){
     echo -e "\n[usage] SiStripCondObjDisplay.sh [options]"
     echo -e " -help  this message"
     echo -e " -run=<runNb>"
+    echo -e " -tagPN=<tag for PedNoise> (default is ${default_tagPN} )"
+    echo -e " -tagCab=<tag for cabling> (default is ${default_tagCab} )"
     echo -e " -CondDb=<sqlite>, <devdb10>, <orcon>, <orcoff> (default is sqlite)"
     echo -e " -sqliteDb=<dbfile> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db)"
     echo -e " -sqliteCatalog=<dbcatalog> (needed for CondDb=sqlite - default is /tmp/$USER/dummy_<runNb>.db )"
+    echo -e " -geometry=<TAC>, <MTCC> (default is MTCC)"
     exit
 }
 
@@ -26,15 +29,21 @@ function getParameter(){
 ## MAIN
 #################
 
+default_tagPN=SiStripPedNoise_v1
+default_tagCab=SiStripCabling_v1
+
 [ `echo $@ | grep -c "\-help"` = 1 ] && usage;
 
 test_area=/tmp/$USER/Display
 [ ! -e ${test_area} ] && mkdir -p ${test_area}
 
-getParameter run       $@ -1
-getParameter CondDb    $@ sqlite
-getParameter sqliteDb    $@ ${test_area}/dummy_${run}.db
-getParameter sqliteCatalog $@ ${test_area}/dummy_${run}.xml
+getParameter run            $@ -1
+getParameter tagPN          $@ ${default_tagPN}
+getParameter tagCab         $@ ${default_tagCab}
+getParameter CondDb         $@ sqlite
+getParameter sqliteDb       $@ ${test_area}/dummy_${run}.db
+getParameter sqliteCatalog  $@ ${test_area}/dummy_${run}.xml
+getParameter geometry       $@ MTCC
 
 [ "$run" == "-1" ] && echo -e "\nWORNING: please specify a run number" && usage
 
@@ -56,13 +65,16 @@ else
     usage
 fi
 
-    echo -e " -run=$run"
-    echo -e " -CondDb=$CondDb"
-    if [ "$CondDb" = "sqlite" ]; then
-	echo -e " -sqliteDb=${sqliteDb}"
-	echo -e " -sqliteCatalog=${sqliteCatalog}"
-    fi
-    echo " "
+echo -e " -run=$run"
+echo -e " -tagPN=$tagPN"
+echo -e " -tagCab=$tagCab"
+echo -e " -geometry=$geometry"
+echo -e " -CondDb=$CondDb"
+if [ "$CondDb" = "sqlite" ]; then
+    echo -e " -sqliteDb=${sqliteDb}"
+    echo -e " -sqliteCatalog=${sqliteCatalog}"
+fi
+echo " "
 
 output_file_name=${test_area}/Display_PedNoise_RunNb_${run}.root 
 ps_file_name=${test_area}/Display_PedNoise_RunNb_${run}.ps 
@@ -79,7 +91,7 @@ templatefile=${CMSSW_BASE}/src/CondTools/SiStrip/scripts/template_SiStripCondObj
 [ ! -e $templatefile ] && templatefile=${CMSSW_RELEASE_BASE}/src/CondTools/SiStrip/scripts/template_SiStripCondObjDisplay.cfg
 [ ! -e $templatefile ] && echo "ERROR: expected template file doesn't exist both in your working area and in release area. Please fix it." && exit
 
-cat $templatefile | sed -e "s#insert_DBfile#$DBfile#" -e "s#insert_DBcatalog#$DBcatalog#" -e "s#insert_output_filename#${output_file_name}#" -e "s#insert_ps_filename#${ps_file_name}#" -e "s#insert_runNb#${run}#" > ${cfg_file}
+cat $templatefile | sed -e -e "s@#${geometry}@@g" "s#insert_DBfile#$DBfile#" -e "s#insert_DBcatalog#$DBcatalog#" -e "s#insert_output_filename#${output_file_name}#" -e "s#insert_ps_filename#${ps_file_name}#" -e "s#insert_runNb#${run}#" -e "s#insert_tagPN#${tagPN}#g"  -e "s#insert_tagCab#${tagCab}#g" > ${cfg_file}
 echo "cmsRun ${cfg_file}"
 cmsRun ${cfg_file} > ${test_area}/out_diplay_${run}
 
