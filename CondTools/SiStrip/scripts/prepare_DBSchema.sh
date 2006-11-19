@@ -40,9 +40,9 @@ if [ "$CondDb" != "devdb10" ] && [ "$CondDb" != "orcon" ];
     usage
 fi
 eval `scramv1 runtime -sh`
+export TNS_ADMIN=/afs/cern.ch/project/oracle/admin
 
+echo cmscond_bootstrap_detector.pl --offline_connect oracle://$CondDb/CMS_COND_STRIP --auth $auth STRIP
 
-echo $CMSSW_BASE/src/CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect oracle://$CondDb/CMS_COND_STRIP --auth $auth STRIP
-
-$CMSSW_BASE/src/CondTools/OracleDBA/scripts/cmscond_bootstrap_detector.pl --offline_connect oracle://$CondDb/CMS_COND_STRIP --auth $auth STRIP
+cmscond_bootstrap_detector.pl --offline_connect oracle://$CondDb/CMS_COND_STRIP --auth $auth STRIP
 
