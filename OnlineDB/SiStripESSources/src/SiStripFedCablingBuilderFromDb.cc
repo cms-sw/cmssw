@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.25 2006/11/03 11:17:52 bainbrid Exp $
-// Latest tag:  $Name: TIF_031106 $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.26 2006/11/08 16:15:45 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -456,7 +456,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
     SiStripConfigDb::DeviceAddress addr = db->deviceAddress(**idcu);
     dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
     if ( !dcu ) { continue; }
-    if ( dcu->getDcuType() != "FEH" ) { continue; }
+    //if ( dcu->getDcuType() != "FEH" ) { continue; }
     FedChannelConnection conn( addr.fecCrate_, 
 			       addr.fecSlot_, 
 			       addr.fecRing_, 
