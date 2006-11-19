@@ -15,22 +15,23 @@ Float_t Sbin,S2bin,Mean,Mean2,stddev,diff;
 char filename[128];
 
 TFile *f, *g;
-
+TPostScript *ps;
 TCanvas *C;
 
 
 
 ///comparing new and old badstrips
 
-void compare(TH1F *h1, TH1F *h2){
+void compare(TH1F *h1, TH1F *h2, TH1F *h){
   int difbad=0;
-  
+
+
   for(int i=1; i<=h1->GetNbinsX(); i++){ 	 
     if ((h1->GetBinContent(i))!=(h2->GetBinContent(i))){
       //cout<<" badstrip number "<< i << " of " << h2->GetName() <<" is different!!!! "<< endl;
       difbad++;
     }	
-  }
+   }
   if (difbad!=0){
     cout<<" the number of different badstrips in module " << h1->GetTitle() << " is "<< difbad <<"\n"<< endl;
     char title[128];
@@ -40,9 +41,13 @@ void compare(TH1F *h1, TH1F *h2){
     h2->SetFillColor(kRed);
     stack->Add(h1);
     stack->Add(h2);
+    C->cd(1);
     stack->Draw();
-    C->Update();
+    C->cd(2);
+    h->Draw();
     C->Draw();
+    C->Update();
+    ps->NewPage();   
   }else{
     cout<< "every badstrip is the same"<< endl;
   }
@@ -80,8 +85,11 @@ void apvStudy(int iApv, TH1F *histo, TH1F *histo1){
 	  histo1->SetBinContent(i+1,1.);
 	  Nbads++;
       }
+ if(Nbads > 20&&i==ibinStop-1) std::cout<< "&&&&&&  Module " << histo->GetTitle() <<"has "<<Nbads<< " bad strips "<< std::endl;
     }
-  
+ 
+
+
   if(Nbads==0){
     //    cout<< "     All strips are good! "<<endl;
   }
@@ -102,8 +110,14 @@ BadStrips(char *inputfilename, char  *outputfilename, float LowTh_=3, float High
   f=new TFile(inputfilename); 
   g=new TFile(outputfilename,"RECREATE"); 
   g->mkdir("NewBadStrips");
- 
-  C= new TCanvas() ;
+  g->mkdir("Noises");
+
+  C= new TCanvas();
+  C->Divide(1,2);
+
+
+
+
 
   char psfilename[128];
   char * pch;
@@ -111,7 +125,7 @@ BadStrips(char *inputfilename, char  *outputfilename, float LowTh_=3, float High
   pch = strstr(psfilename,".root");
   strncpy (pch,".ps\0",4);
   cout << "psfilename " << psfilename << endl; 
-  TPostScript ps(psfilename,121);
+  ps = new TPostScript(psfilename,121);
 
 
   f->cd("Noises");
@@ -127,10 +141,10 @@ BadStrips(char *inputfilename, char  *outputfilename, float LowTh_=3, float High
       continue;
     char mybadTitle[200];
     sprintf(mybadTitle,"BadStrips_%s",&titolo[7]);
-    
    
-    g->cd("NewBadStrips");
+
     TH1F *h1  = new TH1F(mybadTitle,mybadTitle,h->GetNbinsX(),-0.5,h->GetNbinsX()-0.5);
+
 
     for (int iApv=0;iApv<(Int_t)((h->GetNbinsX())/128); iApv++){
       // std::cout << "\n\nAPV i= " << iApv << "  of  "<< (Int_t)((h->GetNbinsX())/128) << " APVs in module" << &titolo[23] << "\n\n" << std::endl;
@@ -142,16 +156,18 @@ BadStrips(char *inputfilename, char  *outputfilename, float LowTh_=3, float High
       diff=0;
       apvStudy(iApv,h,h1);
     }  
-
+    g->cd("NewBadStrips");
     h1->Write();
-   
+    g->cd("Noises");
+    h->Write();
+
     char badstripTitle[128];
     sprintf(badstripTitle,"BadStrips/");
     strcat(badstripTitle,h1->GetTitle());
 
     TH1F* h2 = (TH1F*) f->Get(badstripTitle);///////h2 is in BadStrips /////h is in NewBadStrips
     
-    compare(h1,h2);
+    compare(h1,h2,h);
     f->cd("Noises");
    
   }
@@ -160,7 +176,7 @@ BadStrips(char *inputfilename, char  *outputfilename, float LowTh_=3, float High
 
   f->Close();     
   g->Close();
-  ps.Close();
+  ps->Close();
 }
 
 
