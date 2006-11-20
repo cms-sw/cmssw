@@ -8,8 +8,8 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2006/04/13 07:23:16 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/18 16:24:25 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -97,6 +97,47 @@ class DTSegmentUpdator{
              LocalVector& dir,
              AlgebraicSymMatrix& covMat,
              double& chi2);
+
+   bool fitT0_seg(DTSegmentCand* seg);
+   
+   void fitT0_seg(DTRecSegment2D* seg,float& t0_cor );
+   
+   void fitT0_seg(DTRecSegment4D* seg);
+	     
+    /// interface to LinearFit
+    void fitT0(
+            const std::vector<float>& xfit,
+            const std::vector<float>& yfit,
+            const std::vector<float>& sigy,
+            const std::vector<int>& lfit,
+            int& nptfit,
+            int& nppar,
+            LocalPoint& pos,
+            LocalVector& dir,
+           float& aminf,
+           float& bminf,
+           float& cminf,
+           double& chi2fit);
+	     
+	   
+ 
+    void Fit4Var(
+            const std::vector<float>& xfit,
+            const std::vector<float>& yfit,
+            const std::vector<float>& sigy,
+            const std::vector<int>& lfit,
+	    const std::vector<double>& tfit,
+            int& nptfit,
+            int& nppar,
+           float& aminf,
+           float& bminf,
+           float& cminf,
+	   double& vminf,
+       	   double& chi2fit,
+	   bool debug);
+
+  bool T0_seg;
+  bool T0_seg_debug;
 
 };
 #endif // DTSegment_DTSegmentUpdator_h
