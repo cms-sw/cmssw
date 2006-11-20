@@ -15,7 +15,7 @@ EgammaPhotons::EgammaPhotons( const edm::ParameterSet& ps )
 	outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
 	CMSSW_Version_ = ps.getUntrackedParameter<std::string>("CMSSW_Version", "");
 
-  verboseDBE_ = ps.getUntrackedParameter<bool>("verboseDBE", false);
+	verboseDBE_ = ps.getUntrackedParameter<bool>("verboseDBE", false);
 
 	hist_min_Size_  = ps.getParameter<double>("hist_min_Size");
 	hist_max_Size_  = ps.getParameter<double>("hist_max_Size");
@@ -72,96 +72,96 @@ void EgammaPhotons::beginJob(edm::EventSetup const&)
 	hist_Photon_Size_ 
 		= dbe_->book1D("hist_Photon_Size_","# Photons",
 			hist_bins_Size_,hist_min_Size_,hist_max_Size_);
-  hist_Photon_Barrel_ET_ 
+  	hist_Photon_Barrel_ET_ 
 		= dbe_->book1D("hist_Photon_Barrel_ET_","ET of Photons in Barrel",
 			hist_bins_ET_,hist_min_ET_,hist_max_ET_);
-  hist_Photon_Endcap_ET_ 
+  	hist_Photon_Endcap_ET_ 
 		= dbe_->book1D("hist_Photon_Endcap_ET_","ET of Photons in Endcap",
 			hist_bins_ET_,hist_min_ET_,hist_max_ET_);
-  hist_Photon_Barrel_Eta_ 
+  	hist_Photon_Barrel_Eta_ 
 		= dbe_->book1D("hist_Photon_Barrel_Eta_","Eta of Photons in Barrel",
 			hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
-  hist_Photon_Endcap_Eta_ 
+  	hist_Photon_Endcap_Eta_ 
 		= dbe_->book1D("hist_Photon_Endcap_Eta_","Eta of Photons in Endcap",
 			hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
-  hist_Photon_Barrel_Phi_ 
+	hist_Photon_Barrel_Phi_ 
 		= dbe_->book1D("hist_Photon_Barrel_Phi_","Phi of Photons in Barrel",
 			hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
-  hist_Photon_Endcap_Phi_ 
+  	hist_Photon_Endcap_Phi_ 
 		= dbe_->book1D("hist_Photon_Endcap_Phi_","Phi of Photons in Endcap",
 			hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
-  hist_Photon_Barrel_EToverTruth_ 
+  	hist_Photon_Barrel_EToverTruth_ 
 		= dbe_->book1D("hist_Photon_Barrel_EToverTruth_","ET/True ET of Photons in Barrel",
 			hist_bins_EToverTruth_,hist_min_EToverTruth_,hist_max_EToverTruth_);
-  hist_Photon_Endcap_EToverTruth_ 
+  	hist_Photon_Endcap_EToverTruth_ 
 		= dbe_->book1D("hist_Photon_Endcap_EToverTruth_","ET/True ET of Photons in Endcap",
 			hist_bins_EToverTruth_,hist_min_EToverTruth_,hist_max_EToverTruth_);
-  hist_Photon_Barrel_deltaEta_ 
+  	hist_Photon_Barrel_deltaEta_ 
 		= dbe_->book1D("hist_Photon_Barrel_deltaEta_","Eta-True Eta of Photons in Barrel",
 			hist_bins_deltaEta_,hist_min_deltaEta_,hist_max_deltaEta_);
 	hist_Photon_Endcap_deltaEta_ 
 		= dbe_->book1D("hist_Photon_Endcap_deltaEta_","Eta-True Eta of Photons in Endcap",
 			hist_bins_deltaEta_,hist_min_deltaEta_,hist_max_deltaEta_);
-  hist_Photon_Barrel_deltaPhi_ 
+  	hist_Photon_Barrel_deltaPhi_ 
 		= dbe_->book1D("hist_Photon_Barrel_deltaPhi_","Phi-True Phi of Photons in Barrel",
 			hist_bins_deltaPhi_,hist_min_deltaPhi_,hist_max_deltaPhi_);
-  hist_Photon_Endcap_deltaPhi_ 
+  	hist_Photon_Endcap_deltaPhi_ 
 		= dbe_->book1D("hist_Photon_Endcap_deltaPhi_","Phi-True Phi of Photons in Endcap",
 			hist_bins_deltaPhi_,hist_min_deltaPhi_,hist_max_deltaPhi_);
-  hist_Photon_Barrel_deltaR_ 
+  	hist_Photon_Barrel_deltaR_ 
 		= dbe_->book1D("hist_Photon_Barrel_deltaR_","delta R of Photons in Barrel",
 			hist_bins_deltaR_,hist_min_deltaR_,hist_max_deltaR_);
-  hist_Photon_Endcap_deltaR_ 
+  	hist_Photon_Endcap_deltaR_ 
 		= dbe_->book1D("hist_Photon_Endcap_deltaR_","delta R of Photons in Endcap",
 			hist_bins_deltaR_,hist_min_deltaR_,hist_max_deltaR_);
 }
 
 void EgammaPhotons::analyze( const edm::Event& evt, const edm::EventSetup& es )
 {
-  edm::Handle<reco::PhotonCollection> pPhotons;
-  try
+  	edm::Handle<reco::PhotonCollection> pPhotons;
+  	try
 	{
 		evt.getByLabel(PhotonCollection_, pPhotons);
-  }
+  	}
 	catch ( cms::Exception& ex )
 	{
 		edm::LogError("EgammaPhotons") << "Error! can't get collection with label " << PhotonCollection_.label();
-  }
+  	}
 
-  const reco::PhotonCollection* Photons = pPhotons.product();
-  hist_Photon_Size_->Fill(Photons->size());
+  	const reco::PhotonCollection* Photons = pPhotons.product();
+  	hist_Photon_Size_->Fill(Photons->size());
 
-  for(reco::PhotonCollection::const_iterator aClus = Photons->begin(); aClus != Photons->end(); aClus++)
+  	for(reco::PhotonCollection::const_iterator aClus = Photons->begin(); aClus != Photons->end(); aClus++)
 	{
 		if(std::fabs(aClus->eta()) <= 1.479)
 		{
-	    hist_Photon_Barrel_ET_->Fill(aClus->et());
+			hist_Photon_Barrel_ET_->Fill(aClus->et());
 			hist_Photon_Barrel_Eta_->Fill(aClus->eta());
 			hist_Photon_Barrel_Phi_->Fill(aClus->phi());
 		}
 		else
 		{
-	    hist_Photon_Endcap_ET_->Fill(aClus->et());
+	    		hist_Photon_Endcap_ET_->Fill(aClus->et());
 			hist_Photon_Endcap_Eta_->Fill(aClus->eta());
 			hist_Photon_Endcap_Phi_->Fill(aClus->phi());
 		}
-  }
+  	}
 
-  edm::Handle<edm::HepMCProduct> pMCTruth ;
-  try
+  	edm::Handle<edm::HepMCProduct> pMCTruth ;
+  	try
 	{
 		evt.getByLabel(MCTruthCollection_, pMCTruth);
-  }
+  	}
 	catch ( cms::Exception& ex )
 	{
 		edm::LogError("EgammaPhotons") << "Error! can't get collection with label " << MCTruthCollection_.label();
-  }
+  	}
 
 	const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
-  for(HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); 
-				currentParticle != genEvent->particles_end(); currentParticle++ )
-  {
-	  if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1) 
+  	for(HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); 
+		currentParticle != genEvent->particles_end(); currentParticle++ )
+  	{
+		if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1) 
 		{
 			double etaTrue = (*currentParticle)->momentum().eta();
 			double phiTrue = (*currentParticle)->momentum().phi();
@@ -173,7 +173,7 @@ void EgammaPhotons::analyze( const edm::Event& evt, const edm::EventSetup& es )
 
 			double closestParticleDistance = 999; 
 		
-	    for(reco::PhotonCollection::const_iterator aClus = Photons->begin(); aClus != Photons->end(); aClus++)
+	    	for(reco::PhotonCollection::const_iterator aClus = Photons->begin(); aClus != Photons->end(); aClus++)
 			{
 				etaCurrent = 	aClus->eta();
 				phiCurrent = 	aClus->phi();
