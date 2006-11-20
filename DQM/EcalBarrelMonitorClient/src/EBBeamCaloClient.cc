@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/09/28 13:27:32 $
- * $Revision: 1.29 $
+ * $Date: 2006/10/18 16:57:52 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -839,7 +839,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   const int csize = 250;
   //  const double histMax = 1.e15;
 
-  int pCol3[3] = { 2, 3, 5 };
+  int pCol3[4] = { 2, 3, 5, 1 };
   
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
@@ -904,7 +904,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       
     can->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(3, pCol3);
+    gStyle->SetPalette(4, pCol3);
     obj2f->GetXaxis()->SetNdivisions(17);
     obj2f->GetYaxis()->SetNdivisions(4);
     can->SetGridx();
@@ -939,7 +939,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       
     can->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(3, pCol3);
+    gStyle->SetPalette(4, pCol3);
     obj2f->GetXaxis()->SetNdivisions(0);
     obj2f->GetYaxis()->SetNdivisions(0);
     obj2f->SetMinimum(-0.00000001);
@@ -978,7 +978,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       
     can->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(3, pCol3);
+    gStyle->SetPalette(4, pCol3);
     obj2f->GetXaxis()->SetNdivisions(86);
     obj2f->GetYaxis()->SetNdivisions(0);
     //obj2f->SetTitle("");

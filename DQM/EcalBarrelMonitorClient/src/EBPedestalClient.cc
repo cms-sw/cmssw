@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/10/18 16:57:52 $
- * $Revision: 1.90 $
+ * $Date: 2006/11/11 08:09:15 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -564,7 +564,6 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
           val = false;
         }
         p.setTaskStatus(val);
-        status = status && val;
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -576,6 +575,8 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
             cerr << e.what() << endl;
           }
         }
+
+        status = status && val;
 
       }
 
@@ -653,7 +654,6 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
         val = false;
       }
       pn.setTaskStatus(val);
-      status = status && val;
 
       if ( econn ) {
         try {
@@ -663,6 +663,8 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
           cerr << e.what() << endl;
         }
       }
+
+      status = status && val;
 
     }
 
@@ -1367,7 +1369,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const double histMax = 1.e15;
 
-  int pCol3[3] = { 2, 3, 5 };
+  int pCol3[4] = { 2, 3, 5, 1 };
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
@@ -1437,7 +1439,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cQual->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(3, pCol3);
+        gStyle->SetPalette(4, pCol3);
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
         cQual->SetGridx();

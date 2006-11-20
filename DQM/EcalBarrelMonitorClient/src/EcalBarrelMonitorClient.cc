@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/11/11 13:14:37 $
- * $Revision: 1.185 $
+ * $Date: 2006/11/19 09:49:06 $
+ * $Revision: 1.186 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -124,14 +124,28 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
 
   if ( dbName_.size() != 0 ) {
-    cout << " DB output will go to"
+    cout << " Using Ecal Cond DB, "
          << " dbName = '" << dbName_ << "'"
          << " dbHostName = '" << dbHostName_ << "'"
          << " dbHostPort = '" << dbHostPort_ << "'"
          << " dbUserName = '" << dbUserName_ << "'" << endl;
   } else {
-    cout << " DB output is disabled" << endl;
+    cout << " Ecal Cond DB is not enabled" << endl;
   }
+
+  // Mask file
+
+  if ( dbName_.size() == 0 ) {
+
+    maskFile_ = ps.getUntrackedParameter<string>("maskFile", "");
+
+    if ( maskFile_.size() != 0 ) {
+      cout << " Using maskFile = '" << maskFile_ << "'" << endl;
+    }
+
+  }
+
+  // enableSubRun switch
 
   enableSubRun_ = ps.getUntrackedParameter<bool>("enableSubRun", false);
 
@@ -147,7 +161,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " HTML output will go to"
          << " baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
   } else {
-    cout << " HTML output is disabled" << endl;
+    cout << " HTML output is not enabled" << endl;
   }
 
   // collateSources switch
