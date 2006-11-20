@@ -147,16 +147,23 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 		 timebin         = comp[i].getTimeBin() ;
 		 compstrip       = comp[i].getStrip();
 
-		 std::cout<<"compstrip "<<compstrip<<std::endl;
-		 int this_comparator[4] = {4, 5, 6, 7};
-		 
+		 //was for di-strip logic
+		 //int this_comparator[4] = {4, 5, 6, 7};
+		 // for (int iii=0; iii<40; iii++){
+		 // 		   if ((compstrip == iii) && (comparator == this_comparator[0] || comparator == this_comparator[1])) {
+		 // 		     mycompstrip = 0 + iii*2;
+		 // 		   } else if ((compstrip == iii) && (comparator == this_comparator[2] || comparator == this_comparator[3])) {
+		 // 		     mycompstrip = 1 + iii*2;
+		 // 		   }
+		 // 		 }
+
+		 //is now for left=0,for right=1 halfstrip 
 		 for (int iii=0; iii<40; iii++){
-		   if ((compstrip == iii) && (comparator == this_comparator[0] || comparator == this_comparator[1])) {
+		   if ((compstrip == iii) && (comparator == 0)) {
 		     mycompstrip = 0 + iii*2;
-		   } else if ((compstrip == iii) && (comparator == this_comparator[2] || comparator == this_comparator[3])) {
+		   } else if ((compstrip == iii) && (comparator == 1)) {
 		     mycompstrip = 1 + iii*2;
 		   }
-		   
 		 }
 		 
 		 mean[i_chamber][i_layer-1][mycompstrip] = comparator/5.;
@@ -166,9 +173,8 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	       
 	       meanTot[i_chamber][i_layer-1][mycompstrip] +=mean[i_chamber][i_layer-1][mycompstrip]/25.;
 	       
-	       //std::cout<<" meanTot "<<meanTot[i_chamber][i_layer-1][mycompstrip]<<std::endl;
 	       // On the 25th event and per CFEB
-	       if (evt%25 == 0 && (mycompstrip)%5 == (evt-1)/NUMMOD_ct){
+	       if (evt%25 == 0 && (mycompstrip)%16 == (evt-1)/NUMMOD_ct){
 		 int tmp = int((evt-1)/25)% NUMBERPLOTTED_ct ;
 		 std::cout<<" THIS IS tmp "<<tmp<<std::endl;
 		 meanmod[tmp][i_chamber][i_layer-1][mycompstrip] = meanTot[i_chamber][i_layer-1][mycompstrip];
