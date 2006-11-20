@@ -1,3 +1,8 @@
+#ifndef _StreamerOutSrvcManager_h
+#define _StreamerOutSrvcManager_h
+
+// $Id:$
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 
@@ -6,14 +11,9 @@
 
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <vector>
-#include <map>
-#include <stdexcept>
-#include <iostream>
-#include <algorithm>
-#include <iterator>
+#include <list>
+#include <string>
 
 namespace edm {
 
@@ -53,3 +53,4 @@ namespace edm {
 
 }//edm-namespace
 
+#endif

@@ -1,20 +1,18 @@
-// $Id: StreamerOutSrvcManager.cc,v 1.7 2006/10/11 15:03:52 klute Exp $
+// $Id: StreamerOutSrvcManager.cc,v 1.8 2006/11/02 00:29:47 hcheung Exp $
 #include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
 
 #include <iomanip>
 
 using namespace std;
-
-namespace edm {
+using namespace edm;
 
 StreamerOutSrvcManager::StreamerOutSrvcManager(const std::string& config):
   outModPSets_(0),
   managedOutputs_(0)
-   {
-      //cout << "CONFIG RECEIVED IS: "<<config<<endl;
-      collectStreamerPSets(config);
-   } 
+{
+  collectStreamerPSets(config);
+} 
 
 StreamerOutSrvcManager::~StreamerOutSrvcManager()
 {
@@ -104,8 +102,11 @@ void StreamerOutSrvcManager::collectStreamerPSets(const std::string& config)
      }
 }
 
-void StreamerOutSrvcManager::manageInitMsg(std::string fileName, uint32 runNum, unsigned long maxFileSize, double highWaterMark,
-		std::string path, std::string mpath, std::string catalog, uint32 disks, InitMsgView& init_message)
+void StreamerOutSrvcManager::manageInitMsg(std::string fileName, uint32 runNum, 
+					   unsigned long maxFileSize, double highWaterMark,
+					   std::string path, std::string mpath, 
+					   std::string catalog, uint32 disks, 
+					   InitMsgView& init_message)
      {
 
       //received file name is ignored for now, and later we can remove it, not understood if its required
@@ -196,5 +197,3 @@ std::list<std::string>& StreamerOutSrvcManager::get_currfiles()
         }
       return currfiles_;  
     }
-} //emd-namespace
-
