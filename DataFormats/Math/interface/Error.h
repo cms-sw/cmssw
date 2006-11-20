@@ -1,12 +1,12 @@
 #ifndef TrackReco_Error_h
 #define TrackReco_Error_h
-// $Id: Error.h,v 1.8 2006/06/14 08:21:40 llista Exp $
+// $Id: Error.h,v 1.9 2006/06/26 08:56:09 llista Exp $
 //
-// very simple persistent error matrix with minumal functionalities
+// Symmetric matrix
 //
-#include <Rtypes.h>
-#include <Math/SMatrix.h>
-#include <Math/BinaryOperators.h>
+#include "Rtypes.h"
+#include "Math/SMatrix.h"
+#include "Math/BinaryOperators.h"
 
 #include <vector>
 
