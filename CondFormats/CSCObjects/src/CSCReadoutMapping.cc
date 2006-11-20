@@ -48,9 +48,9 @@ CSCDetId CSCReadoutMapping::detId( int endcap, int station, int vme, int dmb, in
 }
 
 void CSCReadoutMapping::addRecord( int endcap, int station, int ring, int chamber, 
-           int vmecrate, int dmb, int tmb, int tsector, int cscid ) {
+           int vmecrate, int dmb, int tmb, int tsector, int cscid, int ddu, int dcc ) {
 
-  CSCLabel newRecord( endcap, station, ring, chamber, vmecrate, dmb, tmb, tsector, cscid );
+  CSCLabel newRecord( endcap, station, ring, chamber, vmecrate, dmb, tmb, tsector, cscid, ddu, dcc );
   mapping_.push_back( newRecord );
   int hid = hwId( endcap, station, vmecrate, dmb, tmb );
   int sid = swId( endcap, station, ring, chamber);
@@ -61,6 +61,9 @@ void CSCReadoutMapping::addRecord( int endcap, int station, int ring, int chambe
   else {
     edm::LogError("CSC") << " already have key = " << hid;
   }
+  ///reverse mapping for software -> hadrware labels
+  sw2hw_.insert( std::make_pair(sid, newRecord) );
+
 } 
 
 int CSCReadoutMapping::swId( int endcap, int station, int ring, int chamber ) const {
@@ -68,15 +71,35 @@ int CSCReadoutMapping::swId( int endcap, int station, int ring, int chamber ) co
   return CSCDetId::rawIdMaker( endcap, station, ring, chamber, 0 ); // usual detid for chamber, i.e. layer=0
 }
 
+CSCReadoutMapping::CSCLabel CSCReadoutMapping::findHardwareId(const CSCDetId & id) const{
+  CSCLabel hid;
+  int sid=CSCDetId::rawIdMaker(id.endcap(), id.station(), id.ring(), id.chamber(), 0 );  
+  /// Search for that sw id in mapping
+  std::map<int,CSCLabel>::const_iterator it = sw2hw_.find( sid );
+  if ( it != sw2hw_.end() ) {
+    hid = it->second;
+    //    std::cout << "hwid = " << hid << ", swid = " << cid << std::endl;
+    //    LogDebug("CSC") << " for requested hw id = " << hid << ", found sw id = " << cid;
+  }
+  else {
+    edm::LogError("CSC") << " cannot find requested sw id = " << id << " in mapping.";
+  }
+  return hid;
+}
+
 int CSCReadoutMapping::crate(const CSCDetId & id) const {
-  return 1;//dummy
+  CSCLabel hid = findHardwareId(id);
+  return hid.vmecrate_;
 }
 int CSCReadoutMapping::dmbId(const CSCDetId & id) const {
-  return 1;//dummy
+  CSCLabel hid = findHardwareId(id);
+  return hid.dmb_;
 }
-int CSCReadoutMapping::DDU(const CSCDetId & id) const {
-  return 1;//dummy
+int CSCReadoutMapping::dduId(const CSCDetId & id) const {
+  CSCLabel hid = findHardwareId(id);
+  return hid.ddu_;
 }
-int CSCReadoutMapping::DCC(const CSCDetId & id) const {
-  return 1;//dummy
+int CSCReadoutMapping::dccId(const CSCDetId & id) const {
+  CSCLabel hid = findHardwareId(id);
+  return hid.dcc_;
 }

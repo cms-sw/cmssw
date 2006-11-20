@@ -36,10 +36,10 @@ class CSCReadoutMapping {
   struct CSCLabel{
     CSCLabel(){}
     CSCLabel( int endcap, int station, int ring, int chamber,  
-	      int vmecrate, int dmb, int tmb, int tsector, int cscid )
+	      int vmecrate, int dmb, int tmb, int tsector, int cscid, int ddu, int dcc )
       : endcap_( endcap ), station_( station ), ring_( ring ), chamber_( chamber ),
          vmecrate_( vmecrate ), dmb_( dmb ), tmb_( tmb ), 
-	 tsector_( tsector ), cscid_( cscid ) {}
+	 tsector_( tsector ), cscid_( cscid ), ddu_(ddu), dcc_(dcc) {}
     ~CSCLabel(){}
 
     int endcap_;
@@ -51,6 +51,8 @@ class CSCReadoutMapping {
     int tmb_;
     int tsector_;
     int cscid_;
+    int ddu_;
+    int dcc_;
   };
 
    /**
@@ -73,22 +75,23 @@ class CSCReadoutMapping {
     */
   virtual void fill( const edm::ParameterSet& ) = 0;
 
-
+  ///returns hardware ids given chamber id
+  CSCLabel findHardwareId(const CSCDetId&) const;
   ///returns vmecrate given CSCDetId
   int crate(const CSCDetId&) const;
   ///returns dmbId given CSCDetId
   int dmbId(const CSCDetId&) const;
   ///returns DCC# given CSCDetId
-  int DCC(const CSCDetId&) const;
+  int dccId(const CSCDetId&) const;
   ///returns DDU# given CSCDetId
-  int DDU(const CSCDetId&) const;
+  int dduId(const CSCDetId&) const;
 
 
    /**
     * Add one record of info to mapping
     */
     void addRecord( int endcap, int station, int ring, int chamber, 
-		    int vmecrate, int dmb, int tmb, int tsector, int cscid ); 
+		    int vmecrate, int dmb, int tmb, int tsector, int cscid, int ddu, int dcc ); 
 
     /**
      * Set debug printout flag
@@ -126,6 +129,8 @@ class CSCReadoutMapping {
     bool debugV_;
     std::vector< CSCLabel > mapping_;
     std::map< int, int > hw2sw_;
+    std::map< int, CSCLabel > sw2hw_;
+
 };
 
 #endif
