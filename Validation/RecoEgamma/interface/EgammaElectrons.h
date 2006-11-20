@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaElectrons.h,v 1.2 2006/11/14 15:40:34 mabalazs Exp $
+// $Id: EgammaElectrons.h,v 1.3 2006/11/14 21:35:45 mabalazs Exp $
 //
 #include <string>
 
@@ -48,56 +48,65 @@ class EgammaElectrons : public edm::EDAnalyzer
       double hist_max_Size_;
       int    hist_bins_Size_;
 
-      MonitorElement* hist_Electron_ET_;
+      MonitorElement* hist_Electron_Barrel_ET_;
+      MonitorElement* hist_Electron_Endcap_ET_;
 
       double hist_min_ET_;
       double hist_max_ET_;
       int    hist_bins_ET_;
 
-      MonitorElement* hist_Electron_Eta_;
+      MonitorElement* hist_Electron_Barrel_Eta_;
+      MonitorElement* hist_Electron_Endcap_Eta_;
 
       double hist_min_Eta_;
       double hist_max_Eta_;
       int    hist_bins_Eta_;
 
-      MonitorElement* hist_Electron_Phi_;
+      MonitorElement* hist_Electron_Barrel_Phi_;
+      MonitorElement* hist_Electron_Endcap_Phi_;
 
       double hist_min_Phi_;
       double hist_max_Phi_;
       int    hist_bins_Phi_;
 
-      MonitorElement* hist_Electron_EoverP_;
+      MonitorElement* hist_Electron_Barrel_EoverP_;
+      MonitorElement* hist_Electron_Endcap_EoverP_;
 
       double hist_min_EoverP_;
       double hist_max_EoverP_;
       int    hist_bins_EoverP_;
 
-      MonitorElement* hist_Electron_deltaEtaSCtoTrack_;
+      MonitorElement* hist_Electron_Barrel_deltaEtaSCtoTrack_;
+      MonitorElement* hist_Electron_Endcap_deltaEtaSCtoTrack_;
 
       double hist_min_deltaEtaSCtoTrack_;
       double hist_max_deltaEtaSCtoTrack_;
       int    hist_bins_deltaEtaSCtoTrack_;
 
 
-      MonitorElement* hist_Electron_EToverTruth_;
+      MonitorElement* hist_Electron_Barrel_EToverTruth_;
+      MonitorElement* hist_Electron_Endcap_EToverTruth_;
 
       double hist_min_EToverTruth_;
       double hist_max_EToverTruth_;
       int    hist_bins_EToverTruth_;
 
-      MonitorElement* hist_Electron_deltaEta_;
+      MonitorElement* hist_Electron_Barrel_deltaEta_;
+      MonitorElement* hist_Electron_Endcap_deltaEta_;
 
       double hist_min_deltaEta_;
       double hist_max_deltaEta_;
       int    hist_bins_deltaEta_;
 
-      MonitorElement* hist_Electron_deltaPhi_;
+      MonitorElement* hist_Electron_Barrel_deltaPhi_;
+      MonitorElement* hist_Electron_Endcap_deltaPhi_;
 
       double hist_min_deltaPhi_;
       double hist_max_deltaPhi_;
       int    hist_bins_deltaPhi_;
 
-      MonitorElement* hist_Electron_deltaR_;
+      MonitorElement* hist_Electron_Barrel_deltaR_;
+      MonitorElement* hist_Electron_Endcap_deltaR_;
 
       double hist_min_deltaR_;
       double hist_max_deltaR_;

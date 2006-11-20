@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaPhotons.h,v 1.1 2006/11/14 15:40:34 mabalazs Exp $
+// $Id: EgammaPhotons.h,v 1.2 2006/11/14 21:35:45 mabalazs Exp $
 //
 #include <string>
 
@@ -41,50 +41,57 @@ class EgammaPhotons : public edm::EDAnalyzer
 
       edm::InputTag MCTruthCollection_;
       edm::InputTag PhotonCollection_;
- 
+
       MonitorElement* hist_Photon_Size_;
 
       double hist_min_Size_;
       double hist_max_Size_;
       int    hist_bins_Size_;
 
-      MonitorElement* hist_Photon_ET_;
+      MonitorElement* hist_Photon_Barrel_ET_;
+      MonitorElement* hist_Photon_Endcap_ET_;
 
       double hist_min_ET_;
       double hist_max_ET_;
       int    hist_bins_ET_;
 
-      MonitorElement* hist_Photon_Eta_;
+      MonitorElement* hist_Photon_Barrel_Eta_;
+      MonitorElement* hist_Photon_Endcap_Eta_;
 
       double hist_min_Eta_;
       double hist_max_Eta_;
       int    hist_bins_Eta_;
 
-      MonitorElement* hist_Photon_Phi_;
+      MonitorElement* hist_Photon_Barrel_Phi_;
+      MonitorElement* hist_Photon_Endcap_Phi_;
 
       double hist_min_Phi_;
       double hist_max_Phi_;
       int    hist_bins_Phi_;
 
-      MonitorElement* hist_Photon_EToverTruth_;
+      MonitorElement* hist_Photon_Barrel_EToverTruth_;
+      MonitorElement* hist_Photon_Endcap_EToverTruth_;
 
       double hist_min_EToverTruth_;
       double hist_max_EToverTruth_;
       int    hist_bins_EToverTruth_;
 
-      MonitorElement* hist_Photon_deltaEta_;
+      MonitorElement* hist_Photon_Barrel_deltaEta_;
+      MonitorElement* hist_Photon_Endcap_deltaEta_;
 
       double hist_min_deltaEta_;
       double hist_max_deltaEta_;
       int    hist_bins_deltaEta_;
 
-      MonitorElement* hist_Photon_deltaPhi_;
+      MonitorElement* hist_Photon_Barrel_deltaPhi_;
+      MonitorElement* hist_Photon_Endcap_deltaPhi_;
 
       double hist_min_deltaPhi_;
       double hist_max_deltaPhi_;
       int    hist_bins_deltaPhi_;
 
-      MonitorElement* hist_Photon_deltaR_;
+      MonitorElement* hist_Photon_Barrel_deltaR_;
+      MonitorElement* hist_Photon_Endcap_deltaR_;
 
       double hist_min_deltaR_;
       double hist_max_deltaR_;
