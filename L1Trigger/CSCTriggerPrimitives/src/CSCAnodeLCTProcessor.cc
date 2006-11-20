@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/10/26 12:54:37 $
-//   $Revision: 1.9 $
+//   $Date: 2006/11/13 10:56:16 $
+//   $Revision: 1.10 $
 //
 //   Modifications: 
 //
@@ -744,6 +744,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     }
 
     // Skip ALCTs found too late relative to L1Accept.
+#ifndef TB
     int late_tbins = l1a_window + early_tbins;
     if (plct->getBX() >= late_tbins) {
       if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
@@ -752,6 +753,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
 	<< "allowed bx is " << late_tbins;
       continue;
     }
+#endif
 
     // Select two collision and two accelerator ALCTs with the highest
     // best quality.  The search for best ALCTs is done in parallel
