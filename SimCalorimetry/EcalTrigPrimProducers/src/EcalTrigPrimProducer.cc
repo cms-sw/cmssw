@@ -31,6 +31,7 @@
 #include "TFile.h"
 #include "TTree.h"
 
+const int EcalTrigPrimProducer::nrSamples_=5;
 
 EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig)
 {

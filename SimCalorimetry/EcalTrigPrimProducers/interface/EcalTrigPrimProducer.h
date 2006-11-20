@@ -55,7 +55,7 @@ class EcalTrigPrimProducer : public edm::EDProducer
   double ttfThreshHigh_;
   int binOfMaximum_;
   //  enum {nrSamples_= 5}; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class
-  static const int nrSamples_= 5; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class
+  static const int nrSamples_; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class
 };
   
 #endif
