@@ -128,17 +128,12 @@ void CrossingFrame::addPileupTracks(const int bcr, const SimTrackContainer *simt
 }
 
 void CrossingFrame::addPileupVertices(const int bcr, const SimVertexContainer *simvertices, int evtId) { 
-    for (unsigned int i=0;i<simvertices->size();++i) 
-      if ((*simvertices)[i].noParent()) {  // means there is no track associated
-      SimVertex vertex((*simvertices)[i]);
-      vertex.setEventId(EncodedEventId(bcr,evtId));
-      pileupVertices_[bcr-firstCrossing_].push_back(vertex);
-    }
-    else {
-      SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex());
-      vertex.setEventId(EncodedEventId(bcr,evtId));
-      pileupVertices_[bcr-firstCrossing_].push_back(vertex);
-    }
+  // change with respect to incoming: shift ToF, add encodedEventId
+  for (unsigned int i=0;i<simvertices->size();++i) {
+    SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex());
+    vertex.setEventId(EncodedEventId(bcr,evtId));
+    pileupVertices_[bcr-firstCrossing_].push_back(vertex);
+  }
 }
 
 void CrossingFrame::print(int level) const {
