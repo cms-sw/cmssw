@@ -11,9 +11,6 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalWeightRecAlgoWeights.h"
-#include "CondFormats/DataRecord/interface/EcalWeightRecAlgoWeightsRcd.h"
-
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 
@@ -31,7 +28,6 @@
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalPedestals);
-REGISTER_PLUGIN(EcalWeightRecAlgoWeightsRcd,EcalWeightRecAlgoWeights);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd,EcalWeightXtalGroups);
 REGISTER_PLUGIN(EcalTBWeightsRcd,EcalTBWeights);
 REGISTER_PLUGIN(EcalGainRatiosRcd,EcalGainRatios);
