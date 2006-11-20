@@ -17,8 +17,8 @@
 
 /** \class HcalMtccmonitor2
   *  
-  * $Date: 2006/09/28 22:19:07 $
-  * $Revision: 1.4 $
+  * $Date: 2006/10/23 19:31:56 $
+  * $Revision: 1.5 $
   * \author W. Fisher - FNAL
   */
 class HcalMTCCMonitor: public HcalBaseMonitor {
@@ -37,12 +37,18 @@ class HcalMTCCMonitor: public HcalBaseMonitor {
 
 private: 
 
+  void dumpDigi(const HBHEDigiCollection& hbhe, const HODigiCollection& ho, const HcalDbService& cond);
+
   int ievt_;
   double occThresh_;
   double etaMax_, etaMin_, phiMax_, phiMin_;
   int etaBins_, phiBins_;
   const HcalQIEShape* shape_;
   HcalCalibrations calibs_;
+
+  double dumpThresh_;
+  double dumpEtaLo_, dumpEtaHi_;
+  double dumpPhiLo_, dumpPhiHi_;
 
 private:  ///Monitoring elements
 
