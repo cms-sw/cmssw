@@ -8,6 +8,8 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
+#include "Geometry/Vector/interface/Pi.h"
+
 EgammaSuperClusters::EgammaSuperClusters( const edm::ParameterSet& ps )
 {
 	outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
@@ -129,7 +131,7 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
   	hist_IslandEB_SC_S1toS9_ 
 		= dbe_->book1D("hist_IslandEB_SC_S1toS9_","S1/S9 of Super Clusters with Island in Barrel",
 			hist_bins_S1toS9_,hist_min_S1toS9_,hist_max_S1toS9_);
- 	hist_IslandEE_SC_S1toS9_ 
+  	hist_IslandEE_SC_S1toS9_ 
 		= dbe_->book1D("hist_IslandEE_SC_S1toS9_","S1/S9 of Super Clusters with Island in Endcap",
 			hist_bins_S1toS9_,hist_min_S1toS9_,hist_max_S1toS9_);
 
@@ -253,9 +255,10 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
   	{
 	  	if((*currentParticle)->status()==1) 
 		{
-			double etaTrue = (*currentParticle)->momentum().eta();
+			HepLorentzVector vtx = (*currentParticle)->production_vertex()->position();
 			double phiTrue = (*currentParticle)->momentum().phi();
-			double etTrue  = (*currentParticle)->momentum().et();
+			double etaTrue = ecalEta((*currentParticle)->momentum().eta(), vtx.z()/10., vtx.perp()/10.);
+			double etTrue  = (*currentParticle)->momentum().e()/cosh(etaTrue);
 
 			if(std::fabs(etaTrue) < 1.479)
 			{
@@ -358,4 +361,40 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
 void EgammaSuperClusters::endJob()
 {
 	if (outputFile_.size() != 0 && dbe_) dbe_->save(outputFile_);
+}
+
+float EgammaSuperClusters::ecalEta(float EtaParticle , float Zvertex, float plane_Radius)
+{  
+	const float R_ECAL           = 136.5;
+	const float Z_Endcap         = 328.0;
+	const float etaBarrelEndcap  = 1.479;
+
+	if(EtaParticle != 0.)
+	{
+		float Theta = 0.0  ;
+		float ZEcal = (R_ECAL-plane_Radius)*sinh(EtaParticle)+Zvertex;
+
+		if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
+		if(Theta<0.0) Theta = Theta+Geom::pi() ;
+
+		float ETA = - log(tan(0.5*Theta));
+
+		if( fabs(ETA) > etaBarrelEndcap )
+		{
+			float Zend = Z_Endcap ;
+			if(EtaParticle<0.0 )  Zend = -Zend ;
+			float Zlen = Zend - Zvertex ;
+			float RR = Zlen/sinh(EtaParticle);
+			Theta = atan((RR+plane_Radius)/Zend);
+			if(Theta<0.0) Theta = Theta+Geom::pi() ;
+			ETA = - log(tan(0.5*Theta));
+		}
+		
+		return ETA;
+	}
+	else
+	{
+		edm::LogWarning("")  << "[EgammaSuperClusters::ecalEta] Warning: Eta equals to zero, not correcting" ;
+		return EtaParticle;
+	}
 }
