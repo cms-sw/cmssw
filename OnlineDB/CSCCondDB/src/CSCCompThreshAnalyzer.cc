@@ -1,8 +1,6 @@
 /** 
  * Analyzer for reading CSC comapartor thresholds.
- * author O.Boeriu 9/05/06 
- * ripped from Jeremy's and Rick's analyzers
- *   
+ * author O.Boeriu 17/11/06  
  */
 #include <iostream>
 #include <fstream>
@@ -20,6 +18,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -32,11 +32,24 @@
 
 CSCCompThreshAnalyzer::CSCCompThreshAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
-  eventNumber = 0;
+  eventNumber = 0,compadc=0;
   evt = 0,Nddu=0,misMatch=0,event=0;
   i_chamber=0,i_layer=0,reportedChambers =0;
   length = 1, NChambers=0;
+  meanThresh=0.0;
   timebin=-999,mycompstrip=-999,comparator=0,compstrip=0;
+
+  adc_vs_charge  = TH2F("CFEB Comparator"   ,"ADC_vs_charge", 100,0,300,100,0,2);
+
+   for (int i=0; i<NUMBERPLOTTED_ct; i++){
+    for (int j=0; j<CHAMBERS_ct; j++){
+      for (int k=0; k<LAYERS_ct; k++){
+	for (int l=0; l<STRIPS_ct; l++){
+	  meanmod[i][j][k][l] = 0.0;
+	}
+      }
+    }
+  }
 
   for(int i=0;i<CHAMBERS_ct;i++){
     for(int j=0; j<LAYERS_ct; j++){
@@ -48,6 +61,7 @@ CSCCompThreshAnalyzer::CSCCompThreshAnalyzer(edm::ParameterSet const& conf) {
       }
     }
   }
+
 
   for (int i=0; i<CHAMBERS_ct; i++){
     size[i]  = 0;
@@ -61,6 +75,7 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
   // to retrieve from event "e".
   //
    edm::Handle<CSCStripDigiCollection> strips;
+   edm::Handle<CSCComparatorDigiCollection> comparators;
    
   // Pass the handle to the method "getByType", which is used to retrieve
   // one and only one instance of the type in question out of event "e". If
@@ -68,6 +83,17 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
   //
 
    e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
+   e.getByLabel("cscunpacker","MuonCSCComparatorDigi",comparators);
+
+   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); j!=comparators->end(); j++) {
+     std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
+     std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
+     for( ; digiItr != last; ++digiItr) {
+       //digiItr->print();
+       std::cout<<"This is comp "<<digiItr->getStrip()<<std::endl;
+     }
+   }
+
 
    edm::Handle<FEDRawDataCollection> rawdata;
    e.getByType(rawdata);
@@ -82,7 +108,7 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
        
        ///get a pointer to data and pass it to constructor for unpacking
        CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
-       
+              
        const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
        evt++;
        
@@ -105,7 +131,6 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	   }
 	   CSCCLCTData & clctData = cscData[i_chamber].clctData();
 	   for(i_layer = 1; i_layer <= 6; ++i_layer) {//loop over all layers in chambers
-	     //std::vector<CSCStripDigi> digis = cscData[i_chamber].stripDigis(i_layer) ;
 	     std::vector<CSCComparatorDigi> comp = clctData.comparatorDigis(i_layer);
 	     
 	     const CSCDMBHeader &thisDMBheader = cscData[i_chamber].dmbHeader();
@@ -114,13 +139,15 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	       
 	       dmbID[i_chamber]   = cscData[i_chamber].dmbHeader().dmbID(); //get DMB ID
 	       crateID[i_chamber] = cscData[i_chamber].dmbHeader().crateID(); //get crate ID
-	       if(crateID[i_chamber] == 255) continue; //255 is reserved for old crate, present only 0 and 1
-	       
+	       if(crateID[i_chamber] == 255) continue; //255 is reserved for old crate
+	      
 	       for (unsigned int i=0; i<comp.size(); i++){//loop over CFEB comparator digis
 		 size[i_chamber] = comp.size();
-		 comparator = comp[i].getComparator();
-		 timebin = comp[i].getTimeBin() ;
-		 compstrip =  comp[i].getStrip();
+		 comparator      = comp[i].getComparator();
+		 timebin         = comp[i].getTimeBin() ;
+		 compstrip       = comp[i].getStrip();
+
+		 std::cout<<"compstrip "<<compstrip<<std::endl;
 		 int this_comparator[4] = {4, 5, 6, 7};
 		 
 		 for (int iii=0; iii<40; iii++){
@@ -129,24 +156,31 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 		   } else if ((compstrip == iii) && (comparator == this_comparator[2] || comparator == this_comparator[3])) {
 		     mycompstrip = 1 + iii*2;
 		   }
+		   
 		 }
 		 
-		 mean[i_chamber][i_layer-1][mycompstrip] = comparator/5;
+		 mean[i_chamber][i_layer-1][mycompstrip] = comparator/5.;
+		 std::cout<<" mean "<<mean[i_chamber][i_layer-1][mycompstrip]<<" compstrip "<<mycompstrip<<std::endl;
 		 
 	       }//end comp loop
 	       
 	       meanTot[i_chamber][i_layer-1][mycompstrip] +=mean[i_chamber][i_layer-1][mycompstrip]/25.;
 	       
-	       // On the 25th event
-	       if (evt%25 == 0&&(mycompstrip)%16==(evt-1)/875){
-		 int tmp = int((evt-1)/25)%35 ;
+	       //std::cout<<" meanTot "<<meanTot[i_chamber][i_layer-1][mycompstrip]<<std::endl;
+	       // On the 25th event and per CFEB
+	       if (evt%25 == 0 && (mycompstrip)%5 == (evt-1)/NUMMOD_ct){
+		 int tmp = int((evt-1)/25)% NUMBERPLOTTED_ct ;
+		 std::cout<<" THIS IS tmp "<<tmp<<std::endl;
 		 meanmod[tmp][i_chamber][i_layer-1][mycompstrip] = meanTot[i_chamber][i_layer-1][mycompstrip];
+
+		 std::cout<<" meanval 25th event "<<meanmod[tmp][i_chamber][i_layer-1][mycompstrip]<<std::endl;
 	       }
 	     }//end if cfeb.available loop
 	   }//end layer loop
 	 }//end chamber loop
 
 	 if((evt-1)%25==0){
+	   //for(int iii=0;iii<DDU_sat;iii++){
 	   for(int ii=0;ii<CHAMBERS_ct;ii++){
 	     for(int jj=0;jj<LAYERS_ct;jj++){
 	       for(int kk=0;kk<STRIPS_ct;kk++){
@@ -156,7 +190,8 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	     }
 	   }
 	 }
-	 
+	 //}
+
 	 eventNumber++;
 	 edm::LogInfo ("CSCCompThreshAnalyzer")  << "end of event number " << eventNumber;
 	 
@@ -181,12 +216,12 @@ CSCCompThreshAnalyzer::~CSCCompThreshAnalyzer(){
     }
   }
   string::size_type runNameStart = name.find("\"",0);
-  string::size_type runNameEnd   = name.find("bin",0);
+  string::size_type runNameEnd   = name.find("raw",0);
   string::size_type rootStart    = name.find("CFEBComparator",0);
-  int nameSize = runNameEnd+3-runNameStart;
-  int myRootSize = rootStart-runNameStart+8;
-  std::string myname= name.substr(runNameStart,nameSize);
-  std::string myRootName= name.substr(runNameStart,myRootSize);
+  int nameSize = runNameEnd+2-runNameStart;
+  int myRootSize = rootStart-runNameStart+13;
+  std::string myname= name.substr(runNameStart+1,nameSize);
+  std::string myRootName= name.substr(runNameStart+1,myRootSize);
   std::string myRootEnd = ".root";
   std::string runFile= myRootName;
   std::string myRootFileName = runFile+myRootEnd;
@@ -200,20 +235,77 @@ CSCCompThreshAnalyzer::~CSCCompThreshAnalyzer(){
   
   //DB object and map
   CSCobject *cn = new CSCobject();
-  cscmap *map = new cscmap();
-  condbon *dbon = new condbon();
-  
-  for(int myChamber=0; myChamber<NChambers; myChamber++){
+  //cscmap *map = new cscmap();
+  //condbon *dbon = new condbon();
+ 
+ //root ntuple information
+  TCalibComparatorEvt calib_evt;
+  TFile calibfile(myNewName, "RECREATE");
+  TTree calibtree("Calibration","CFEB Comparator");
+  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:id/I");
 
-    for (int i=0; i<NChambers; i++){
-      if (myChamber !=i) continue;
-      
-      for (int j=0; j<LAYERS_ct; j++){
-	for (int k=0; k<size[i]; k++){
-	  float meanThresh= meanTot[i][j][k];
-	  std::cout<<"Ch "<<i<<" Layer "<<j<<" strip "<<k<<" comparator threshold "<<meanThresh<<std::endl;	 	 
-	}
-      }
-    }
-  }
+ 
+  for (int dduiter=0;dduiter<Nddu;dduiter++){
+    for(int chamberiter=0; chamberiter<NChambers; chamberiter++){
+      for (int cham=0;cham<NChambers;cham++){
+	if (cham !=chamberiter) continue;
+
+	//get chamber ID from DB mapping        
+	int new_crateID = crateID[cham];
+	int new_dmbID   = dmbID[cham];
+	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
+	//map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+	//std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+	
+	calib_evt.id=chamber_num;
+	
+	for (int layeriter=0; layeriter<LAYERS_ct; layeriter++){
+	  for (int stripiter=0; stripiter<STRIPS_ct; stripiter++){
+
+	    for (int j=0; j<LAYERS_ct; j++){//layer
+	      if (j != layeriter) continue;
+
+	      int layer_id=chamber_num+j+1;
+	      if(sector==-100)continue;
+	      cn->obj[layer_id].resize(size[cham]);
+	      
+	      for (int k=0; k<size[cham]; k++){//strip
+		if (k != stripiter) continue;
+		
+		for (int st=0;st<NUMBERPLOTTED_ct;st++){
+		  myCharge[st]  =0.0;
+		  myCompProb[st]=0.0;
+		}
+		
+		for(int ii=0; ii<NUMBERPLOTTED_ct; ii++){//numbers   
+		  //start at 13mV,35 steps of 3mV;
+		  myCharge[ii] = 13 +(3*ii);
+		  myCompProb[ii] = meanmod[ii][cham][j][k];
+		  adc_vs_charge.Fill(myCharge[ii],meanmod[ii][cham][j][k]);
+		  meanThresh= meanmod[ii][cham][j][k];
+		  std::cout<<"Ch "<<cham<<" Layer "<<j<<" strip "<<k<<" comparator threshold "<<meanThresh<<std::endl;	 
+		}//numberplotted
+
+		calib_evt.strip = k;
+		calib_evt.layer = j;
+		calib_evt.cham  = cham;
+
+		calibtree.Fill();
+	      }//strip
+	    }//j loop
+	  }//stripiter
+	}//layeriter
+      }//cham
+    }//chamberiter
+  }//dduiter
+
+  //send data to DB
+  //dbon->cdbon_last_record("comparator",&record);
+  //std::cout<<"Last comparator record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
+  //if(debug) dbon->cdbon_write(cn,"comparator",11,myTime);
+
+  //write histograms 
+  adc_vs_charge.Write();
+  calibfile.Write();
+  calibfile.Close();
 }
