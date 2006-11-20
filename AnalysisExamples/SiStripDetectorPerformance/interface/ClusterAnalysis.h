@@ -81,7 +81,7 @@ namespace cms{
       void book();
       void AllClusters();
       void trackStudy();
-      void clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag);	
+      bool clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag);	
       const SiStripClusterInfo* MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid);	
       std::pair<std::string,uint32_t> GetSubDetAndLayer(const uint32_t& detid);
 
@@ -118,6 +118,8 @@ namespace cms{
       edm::InputTag Track_src_;
       edm::InputTag ClusterInfo_src_;
       edm::InputTag Cluster_src_;
+
+      std::vector<uint32_t> ModulesToBeExcluded_;
  
       bool not_the_first_event;
 

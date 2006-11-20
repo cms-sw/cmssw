@@ -1,6 +1,6 @@
 /*
-* $Date: 2006/11/06 13:24:50 $
-* $Revision: 1.2 $
+* $Date: 2006/11/13 21:13:33 $
+* $Revision: 1.3 $
 *
 * \author: D. Giordano, domenico.giordano@cern.ch
 */
@@ -30,6 +30,7 @@ namespace cms{
     Track_src_( conf.getParameter<edm::InputTag>( "Track_src" ) ),
     ClusterInfo_src_( conf.getParameter<edm::InputTag>( "ClusterInfo_src" ) ),
     Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) ),
+    ModulesToBeExcluded_(conf.getParameter< std::vector<uint32_t> >("ModulesToBeExcluded")),
     tracksCollection_in_EventTree(true),
     ltcdigisCollection_in_EventTree(true)
   {};
@@ -261,10 +262,10 @@ namespace cms{
       unsigned int nstrips = _StripGeomDetUnit->specificTopology().nstrips();
 
       //std::cout << "Confronto " << _StripGeomDetUnit->specificType().subDetector() << " " << DetId(detid).subdetId() << std::endl;
-   
+      
+      edm::LogError("ClusterAnalysis") << " Detid " << detid << " SubDet " << GetSubDetAndLayer(detid).first << " Layer " << GetSubDetAndLayer(detid).second << std::endl;   
       if (DetectedLayers.find(GetSubDetAndLayer(detid)) == DetectedLayers.end()){
 	DetectedLayers[GetSubDetAndLayer(detid)]=true;
-	//std::cout << "pushed " << GetSubDetAndLayer(detid).first << " " << GetSubDetAndLayer(detid).second << std::endl;
       }
       //       sprintf(name,"Pedestals_%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
       //       fFile->cd();fFile->cd("Pedestals");
@@ -272,12 +273,18 @@ namespace cms{
       
       char cdetid[128];
       sprintf(cdetid,"%d",detid);
-      
-      
+           
       fFile->cd();
       fFile->mkdir(cdetid);    
       fFile->cd(cdetid);    
-      TString appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+"_"+cdetid;
+      char aname[128];
+      sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
+      char SubStr[128];
+      //      char * ptr = strchr(aname,":");
+      sprintf(SubStr,"%s",strstr(aname,":"));
+      //TString appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+"_"+cdetid;
+      //TString appString=TString(aname);//+"_"+cdetid;
+      TString appString=TString(SubStr);//+"_"+cdetid;
       
       //Cluster Noise
       name="cNoise"+appString;
@@ -432,8 +439,9 @@ namespace cms{
     //Get input 
     e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
     e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
+    
     e.getByLabel( Filter_src_, filterWord);
-  
+    
     try{
       e.getByType(ltcdigis);
     } catch ( cms::Exception& er ) {
@@ -443,7 +451,7 @@ namespace cms{
       LogTrace("ClusterAnalysis")<< " funny error " <<std::endl;
       ltcdigisCollection_in_EventTree=false;
     }
-
+    
     try{
       e.getByLabel(Track_src_, trackCollection);
     } catch ( cms::Exception& er ) {
@@ -467,16 +475,19 @@ namespace cms{
       if( *(filterWord.product()) >> i & 0x1u )
 	HFilt->Fill(i);
     }
-
+    
     //Trigger bits
-    TH1F * Htrig = (TH1F*) Hlist->FindObject("TriggerBits");
-    for (std::vector<LTCDigi>::const_iterator ltc_it =
-	   ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
-      for (int i=0;i<6;i++)
-	if ((*ltc_it).HasTriggered(i))
-	  Htrig->Fill(i);
-      
+    if (ltcdigisCollection_in_EventTree){
+      TH1F * Htrig = (TH1F*) Hlist->FindObject("TriggerBits");
+      for (std::vector<LTCDigi>::const_iterator ltc_it =
+	     ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
+	for (int i=0;i<6;i++)
+	  if ((*ltc_it).HasTriggered(i))
+	    Htrig->Fill(i);
+      }
     }
+
+    
     //Perform track study
     if (tracksCollection_in_EventTree)
       trackStudy();
@@ -504,7 +515,7 @@ namespace cms{
       }
       ((TH1F*) Hlist->FindObject("nClusters"+flags[j]))->Fill(nTot);
     }
-  }
+ }
 
   //------------------------------------------------------------------------
   
@@ -543,6 +554,9 @@ namespace cms{
 	const TrackingRecHit* trh = &(**it);
 	const uint32_t& detid = trh->geographicalId().rawId();
 
+	if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end())
+	  continue;
+
 	if (trh->isValid()){
 	  LogTrace("ClusterAnalysis")
 	    <<"\n\t\tRecHit on det "<<trh->geographicalId().rawId()
@@ -557,9 +571,10 @@ namespace cms{
 	    const SiStripCluster* SiStripCluster_ = &*(hit->cluster());
 	    
 	    const SiStripClusterInfo* SiStripClusterInfo_ = MatchClusterInfo(SiStripCluster_,detid);
-	    clusterInfos(SiStripClusterInfo_,detid,"_onTrack");
-	    vPSiStripCluster.push_back(SiStripCluster_);
-	    countOn++;
+	    if ( clusterInfos(SiStripClusterInfo_,detid,"_onTrack") ){
+	      vPSiStripCluster.push_back(SiStripCluster_);
+	      countOn++;
+	    }
 	  }else{
 	    LogTrace("ClusterAnalysis") << "NULL hit" << std::endl;
 	  }
@@ -581,6 +596,9 @@ namespace cms{
     for (; DSViter!=dsv_SiStripCluster->end();DSViter++){
       uint32_t detid=DSViter->id;
 
+      if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end())
+	continue;
+      
       //Loop on Clusters
       LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] \n on detid "<< detid << " N Cluster= " << DSViter->data.size() <<std::endl;
       
@@ -588,15 +606,16 @@ namespace cms{
       for(; ClusIter!=DSViter->data.end(); ClusIter++) {
 
 	const SiStripClusterInfo* SiStripClusterInfo_=MatchClusterInfo(&*ClusIter,detid);
-	clusterInfos(SiStripClusterInfo_, detid,"_All");
-	countAll++;
+	if ( clusterInfos(SiStripClusterInfo_, detid,"_All") ){
+	  countAll++;
 
 	//LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] ClusIter " << &*ClusIter << 
 	//  "\t " << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin() << std::endl;
 
-	if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
-	  clusterInfos(SiStripClusterInfo_,detid,"_offTrack");
-	  countOff++;
+	  if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
+	    if ( clusterInfos(SiStripClusterInfo_,detid,"_offTrack") )
+	      countOff++;
+	  }
 	}
       }       
     }
@@ -621,15 +640,30 @@ namespace cms{
 
   //------------------------------------------------------------------------
 
-  void ClusterAnalysis::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag){
+  bool ClusterAnalysis::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag){
+    
+    const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
+    if  ( ps.getParameter<bool>("On") 
+	 &&
+	 ( 
+	  cluster->charge()/cluster->noise() < ps.getParameter<double>("minStoN") 
+	  ||
+	  cluster->charge()/cluster->noise() > ps.getParameter<double>("maxStoN") 
+	  ||
+	  cluster->width() < ps.getParameter<double>("minWidth") 
+	  ||
+	  cluster->width() > ps.getParameter<double>("maxWidth") 
+	  )
+	 )
+      return false;
 
     const StripGeomDetUnit*_StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
 
     //GeomDetEnumerators::SubDetector SubDet_enum=_StripGeomDetUnit->specificType().subDetector();
     int SubDet_enum=_StripGeomDetUnit->specificType().subDetector() -2;
 
-    char cdetid[128];
-    sprintf(cdetid,"_%d",detid);
+    //char cdetid[128];
+    //sprintf(cdetid,"_%d",detid);
     
     int iflag;
     if (flag=="_onTrack")
@@ -698,8 +732,10 @@ namespace cms{
     if(flag=="_All"){
       //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
       //Detector Detail Plots
-
-      appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+cdetid;
+      char aname[128];
+      sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
+      TString appString=TString(strstr(aname,":"));
+      //appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+cdetid;
 
       ((TH1F*) Hlist->FindObject("cSignal"+appString))
 	->Fill(cluster->charge());
@@ -743,8 +779,9 @@ namespace cms{
       ((TH1F*) Hlist->FindObject("cPos" +appString))
 	->Fill(cluster->position());
     }      
+    return true;
   }
-
+  
   //--------------------------------------------------------------------------------
   std::pair<std::string,uint32_t> ClusterAnalysis::GetSubDetAndLayer(const uint32_t& detid){
     
