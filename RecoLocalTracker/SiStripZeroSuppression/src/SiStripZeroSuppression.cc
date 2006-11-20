@@ -32,22 +32,25 @@ namespace cms
   
   //Get at the beginning Calibration data (pedestals)
   void SiStripZeroSuppression::beginJob( const edm::EventSetup& es ) {
-    edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppression::beginJob]";
-    
+    LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppression::beginJob]";
     SiStripZeroSuppressionAlgorithm_.configure(&SiStripPedestalsService_,&SiStripNoiseService_);
   }
 
   // Functions that gets called by framework every event
   void SiStripZeroSuppression::produce(edm::Event& e, const edm::EventSetup& es)
   {
-    edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppression::produce] Analysing " << e.id();
+    LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppression::produce] Analysing " << e.id();
    
+    // Step A: Get ESObject 
+    SiStripPedestalsService_.setESObjects(es);
+    SiStripNoiseService_.setESObjects(es);
+
     edm::Handle< edm::DetSetVector<SiStripRawDigi> >  input;
 
     Parameters::iterator itRawDigiProducersList = RawDigiProducersList.begin();
     for(; itRawDigiProducersList != RawDigiProducersList.end(); ++itRawDigiProducersList ) {
 
-      // Step A: Get Inputs   
+      // Step B: Get Inputs   
       std::string rawdigiProducer = itRawDigiProducersList->getParameter<std::string>("RawDigiProducer");
       std::string rawdigiLabel = itRawDigiProducersList->getParameter<std::string>("RawDigiLabel");
       e.getByLabel(rawdigiProducer,rawdigiLabel,input);  //FIXME: fix this label	
@@ -55,9 +58,10 @@ namespace cms
       // Step B: produce output product
       std::vector< edm::DetSet<SiStripDigi> > vSiStripDigi;
       vSiStripDigi.reserve(10000);
-      if (input->size())
+      if (input->size()){
+	LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppression::produce] Analysing " << rawdigiProducer << " " << rawdigiLabel << std::endl;
 	SiStripZeroSuppressionAlgorithm_.run(rawdigiLabel,*input,vSiStripDigi);
-    
+      }
       // Step C: create and fill output collection
       std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(vSiStripDigi) );
 
