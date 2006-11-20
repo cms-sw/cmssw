@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.11 $
+ * \version $Revision: 1.12 $
  *
- * $Id: TrackSelector.h,v 1.11 2006/09/08 09:38:31 llista Exp $
+ * $Id: TrackSelector.h,v 1.12 2006/09/22 10:46:43 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -61,7 +61,7 @@ namespace helper {
   class TrackSelectorBase : public edm::EDFilter {
   public:
     TrackSelectorBase( const edm::ParameterSet & cfg ) {
-      std::string alias( cfg.template getParameter<std::string>( "@module_label" ) );
+      std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
       produces<reco::TrackCollection>().setBranchAlias( alias + "Tracks" );
       produces<reco::TrackExtraCollection>().setBranchAlias( alias + "TrackExtras" );
       produces<TrackingRecHitCollection>().setBranchAlias( alias + "RecHits" );
