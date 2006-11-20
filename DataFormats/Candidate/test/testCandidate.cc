@@ -1,7 +1,8 @@
-// $Id: testCandidate.cc,v 1.2 2006/07/27 07:13:41 llista Exp $
+// $Id: testCandidate.cc,v 1.3 2006/11/13 15:01:33 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateWithRef.h"
 #include <memory>
 
 class testCandidate : public CppUnit::TestFixture {
@@ -43,6 +44,13 @@ namespace test {
     DummyComponent2 cc[2];
   };
 
+  struct DummyRef {
+    bool isNull() const    { return true; }
+    bool isNonnull() const { return false; }
+    bool operator==( const DummyRef & ref ) const { return true; }
+    bool operator!=( const DummyRef & ref ) const { return false; }
+  };
+
 }
 
 namespace reco {
@@ -62,4 +70,8 @@ void testCandidate::checkAll() {
   CPPUNIT_ASSERT( c->numberOf<test::DummyComponent2>() == 2 );
   CPPUNIT_ASSERT( c->get<test::DummyComponent2>( 0 ).x == y0 );
   CPPUNIT_ASSERT( c->get<test::DummyComponent2>( 1 ).x == y1 );
+
+  reco::CandidateWithRef<test::DummyRef> cwr;
+  test::DummyRef dr;
+  cwr.setRef( dr );
 }
