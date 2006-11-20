@@ -157,7 +157,7 @@ EBDetId ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection> &  phits
 }
 
 //=================================================================================
-EBDetId  ElectronCalibration::findMaxHit2(std::vector<DetId> & v1,const EBRecHitCollection* hits) {
+EBDetId  ElectronCalibration::findMaxHit2(const std::vector<DetId> & v1,const EBRecHitCollection* hits) {
 //=================================================================================
 
 	double currEnergy = 0.;
@@ -285,7 +285,7 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
        const reco::SuperCluster & sc = *(highPtElectron.superCluster()) ;
 	
-       std::vector<DetId> & v1 = sc.getHitsByDetId();
+       const std::vector<DetId> & v1 = sc.getHitsByDetId();
        EBDetId maxHitId;
       
        maxHitId = findMaxHit2(v1,hits); 
