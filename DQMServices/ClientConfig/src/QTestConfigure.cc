@@ -2,12 +2,11 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2006/05/09 21:28:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/20 16:04:59 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
-#include "DQMServices/ClientConfig/interface/QTestNames.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std::string> > tests,MonitorUserInterface * mui){
@@ -20,13 +19,13 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 		std::map<std::string, std::string> params= itr->second;
 		
 		std::string testName = itr->first; 
-		std::string testType = params[dqm::qtest_config::type]; 
+		std::string testType = params["type"]; 
 
-		if(!std::strcmp(testType.c_str(),dqm::qtest_config::XRangeContent.c_str())) this->EnableXRangeTest(testName, params,mui);       
-		if(!std::strcmp(testType.c_str(),dqm::qtest_config::YRangeContent.c_str())) this->EnableYRangeTest(testName, params,mui);       
-		if(!std::strcmp(testType.c_str(),dqm::qtest_config::DeadChannel.c_str()))   this->EnableDeadChannelTest(testName, params,mui);       
-		if(!std::strcmp(testType.c_str(),dqm::qtest_config::NoisyChannel.c_str()))  this->EnableNoisyChannelTest(testName, params,mui);       
-		if(!std::strcmp(testType.c_str(),dqm::qtest_config::MeanInExpectedValue.c_str()))  this->EnableMeanWithinExpectedTest(testName, params,mui);       
+		if(!std::strcmp(testType.c_str(),ContentsXRangeROOT::getAlgoName().c_str())) this->EnableXRangeTest(testName, params,mui);       
+		if(!std::strcmp(testType.c_str(),ContentsYRangeROOT::getAlgoName().c_str())) this->EnableYRangeTest(testName, params,mui);       
+		if(!std::strcmp(testType.c_str(),DeadChannelROOT::getAlgoName().c_str()))   this->EnableDeadChannelTest(testName, params,mui);       
+		if(!std::strcmp(testType.c_str(),NoisyChannelROOT::getAlgoName().c_str()))  this->EnableNoisyChannelTest(testName, params,mui);       
+		if(!std::strcmp(testType.c_str(),MeanWithinExpectedROOT::getAlgoName().c_str()))  this->EnableMeanWithinExpectedTest(testName, params,mui);       
 	}
 	
 	return false;	

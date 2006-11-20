@@ -2,23 +2,23 @@
  *
  *  Implementation of QTestParameterNames 
  *
- *  $Date: 2006/05/04 10:27:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/09 21:28:37 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
  
 #include<iostream>
 
 #include "DQMServices/ClientConfig/interface/QTestParameterNames.h"
-#include "DQMServices/ClientConfig/interface/QTestNames.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 QTestParameterNames::QTestParameterNames(){
 	
-	this->constructMap(dqm::qtest_config::XRangeContent, "xmin", "xmax");
-	this->constructMap(dqm::qtest_config::YRangeContent, "ymin", "ymax");
-	this->constructMap(dqm::qtest_config::DeadChannel,   "threshold");
-	this->constructMap(dqm::qtest_config::NoisyChannel,  "tolerance", "neighbours");
-	this->constructMap(dqm::qtest_config::MeanInExpectedValue, "mean","useRMS","useSigma","useRange","xmin","xmax");
+	this->constructMap(ContentsXRangeROOT::getAlgoName(), "xmin", "xmax");
+	this->constructMap(ContentsYRangeROOT::getAlgoName(), "ymin", "ymax");
+	this->constructMap(DeadChannelROOT::getAlgoName(),   "threshold");
+	this->constructMap(NoisyChannelROOT::getAlgoName(),  "tolerance", "neighbours");
+	this->constructMap(MeanWithinExpectedROOT::getAlgoName(), "mean","useRMS","useSigma","useRange","xmin","xmax");
 
 }
   
