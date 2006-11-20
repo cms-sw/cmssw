@@ -3,16 +3,13 @@
 
  <class name="L1MuDTChambPhDigi"/>
  <class name="L1MuDTChambThDigi"/>
- <class name="L1MuRegionalCand"/>
 
  <class name="L1MuDTChambPhContainer"/>
  <class name="L1MuDTChambThContainer"/>
  <class name="L1MuDTTrackContainer"/>
- <class name="std::vector<L1MuRegionalCand>"/>
 
  <class name="edm::Wrapper<L1MuDTChambPhContainer>"/>
  <class name="edm::Wrapper<L1MuDTChambThContainer>"/>
  <class name="edm::Wrapper<L1MuDTTrackContainer>"/>
- <class name="edm::Wrapper<std::vector<L1MuRegionalCand>>"/>
 
 </lcgdict>

@@ -21,7 +21,7 @@
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
-#include <DataFormats/L1DTTrackFinder/interface/L1MuRegionalCand.h>
+#include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 
 using namespace edm;
 using namespace std;

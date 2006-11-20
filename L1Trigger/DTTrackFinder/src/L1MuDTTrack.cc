@@ -35,8 +35,8 @@ using namespace std;
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegEta.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuTriggerScales.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuPacking.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
 
 // --------------------------------
 //       class L1MuDTTrack

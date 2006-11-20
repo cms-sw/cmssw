@@ -15,7 +15,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "DataFormats/L1DTTrackFinder/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
 //----------------------
 // Base Class Headers --

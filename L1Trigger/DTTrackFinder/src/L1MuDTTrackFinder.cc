@@ -40,7 +40,7 @@ using namespace std;
 #include "L1Trigger/DTTrackFinder/src/L1MuDTWedgeSorter.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTMuonSorter.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
 //---------------------------------
 //       class L1MuDTTrackFinder

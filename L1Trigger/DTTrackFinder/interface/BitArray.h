@@ -68,7 +68,7 @@ class BitArray {
     operator int() const { return ((*_word)&getPosMask(_pos))!=0; }
 
     refToBit& flip() {
-      *_word^=getPosMask(val);
+      *_word^=getPosMask();
       return *this;
     }
     
