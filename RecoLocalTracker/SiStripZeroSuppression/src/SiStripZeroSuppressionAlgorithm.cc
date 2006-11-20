@@ -12,6 +12,7 @@
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripMedianCommonModeNoiseSubtraction.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripTT6CommonModeNoiseSubtraction.h"
 
+#include "sstream"
 
 using namespace std;
 
@@ -20,9 +21,10 @@ SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm(const edm::Para
   ZeroSuppressionMode_(conf.getParameter<string>("ZeroSuppressionMode")),
   CMNSubtractionMode_(conf.getParameter<string>("CommonModeNoiseSubtractionMode")){
     
-  edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm] Constructing object...";
-  edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm] ZeroSuppressionMode: " << ZeroSuppressionMode_;
-  edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm] CMNSubtractionMode: " << CMNSubtractionMode_;
+  edm::LogInfo("SiStripZeroSuppression") 
+    << "[SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm] Constructing object..."
+    << " ZeroSuppressionMode: " << ZeroSuppressionMode_
+    << "[SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm] CMNSubtractionMode: " << CMNSubtractionMode_;
 
   //------------------------
   if ( ZeroSuppressionMode_ == "SiStripFedZeroSuppression" ) {
@@ -81,15 +83,18 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
     edm::DetSetVector<SiStripRawDigi>::const_iterator DSViter=input.begin();
     for (; DSViter!=input.end();DSViter++){
       ++number_detunits;
-      LogDebug("SiStripZeroSuppression")  << "[SiStripZeroSuppressionAlgorithm::run] DetID " << DSViter->id;
-    
+     
       //Create a new DetSet<SiStripDigi>
       edm::DetSet<SiStripDigi> ssd(DSViter->id);
       
       //Create a temporary edm::DetSet<SiStripRawDigi> 
       std::vector<int16_t> vssRd((*DSViter).data.size());
 
-      LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::run] RawDigiType: " << RawDigiType ;
+//       LogDebug("SiStripZeroSuppression")  
+// 	<< "[SiStripZeroSuppressionAlgorithm::run] \n\t\tDetID " 
+// 	<< DSViter->id 
+// 	<< " RawDigiType: " << RawDigiType ;
+
       if ( RawDigiType == "VirginRaw" ) {
 	SiStripPedestalsSubtractor_->subtract(*DSViter,vssRd);
 	SiStripCommonModeNoiseSubtractor_->subtract(DSViter->id,vssRd);
@@ -108,7 +113,7 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
 	output.push_back(ssd);  // insert the DetSet<SiStripDigi> in the  DetSetVec<SiStripDigi> only if there is at least a digi
     }
 
-    edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::run] execution in mode " << ZeroSuppressionMode_ << " generating " << number_localstripdigis << " StripDigi in " << number_detunits << " DetUnits." << endl; 
-  }
-  
+    //LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::run] execution in mode " << ZeroSuppressionMode_ << " generating " << number_localstripdigis << " StripDigi in " << number_detunits << " DetUnits." << endl; 
+  } 
 }
+
