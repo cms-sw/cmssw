@@ -1,14 +1,11 @@
 #ifndef CSCZSensors_H
 #define CSCZSensors_H
-
 /* #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h" */
-
 #include <vector>
-#include <iostream>
 #include <string>
 
 /**
-  easy output...
+   easy output...
 **/
 
 /* class CSCZSensors; */
@@ -17,12 +14,13 @@
 
 class CSCZSensorData {
  public:
-  int sensorNo_;
-  std::string meLayer_;
-  std::string logicalAlignmentName_;
-  std::string cernDesignator_;
-  long long cernBarcode_;
-  float absSlope_;
+  std::string sensorType_; 	 
+  int sensorNo_;	   
+  std::string meLayer_;	   
+  std::string logicalAlignmentName_;	  
+  std::string cernDesignator_;	  
+  std::string cernBarcode_; 	 
+  float absSlope_;	  
   float absSlopeError_;
   float normSlope_;
   float normSlopeError_;
@@ -35,7 +33,7 @@ class CSCZSensorData {
 
 /**
    Description: Class for CSCZSensors for use as calibration.
- **/
+**/
 class CSCZSensors {
  public:
   CSCZSensors() {}
