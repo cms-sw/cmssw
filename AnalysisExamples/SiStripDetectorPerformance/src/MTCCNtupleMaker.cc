@@ -41,6 +41,9 @@ using namespace std;
 MTCCNtupleMaker::MTCCNtupleMaker(edm::ParameterSet const& conf) : 
   conf_(conf), 
   filename_(conf.getParameter<std::string>("fileName")),
+  oSiStripDigisLabel_( conf.getUntrackedParameter<std::string>( "oSiStripDigisLabel")),
+  oSiStripDigisProdInstName_( conf.getUntrackedParameter<std::string>( "oSiStripDigisProdInstName")),
+  bUseLTCDigis_( conf.getUntrackedParameter<bool>( "bUseLTCDigis")),
   bTriggerDT( false),
   bTriggerCSC( false),
   bTriggerRBC1( false),
@@ -605,26 +608,28 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
   e.getByLabel( conf_.getParameter<std::string>( "TracksLabel"), trackCollection);
   //e.getByType(trackCollection);
 
-  // Extract Trigger Bits
-  edm::Handle<LTCDigiCollection> oLTCDigis;
-  e.getByType( oLTCDigis);
+  if( bUseLTCDigis_) {
+    // Extract Trigger Bits
+    edm::Handle<LTCDigiCollection> oLTCDigis;
+    e.getByType( oLTCDigis);
 
-  // Now loop over all 6 triggers and save their values in corresponding
-  // boolean variables :)
-  if( 1 > oLTCDigis->size()) {
-    LogDebug( "MTCCNtupleMaker::analyze")
-      << "[warning] More than one LTCDigis object stored in LTCDigiCollection";
-  }
+    // Now loop over all 6 triggers and save their values in corresponding
+    // boolean variables :)
+    if( 1 > oLTCDigis->size()) {
+      LogDebug( "MTCCNtupleMaker::analyze")
+	<< "[warning] More than one LTCDigis object stored in LTCDigiCollection";
+    }
 
-  for( LTCDigiCollection::const_iterator oITER = oLTCDigis->begin();
-       oITER != oLTCDigis->end();
-       ++oITER) {
+    for( LTCDigiCollection::const_iterator oITER = oLTCDigis->begin();
+	 oITER != oLTCDigis->end();
+	 ++oITER) {
 
-    bTriggerDT   |= oITER->HasTriggered( 0);
-    bTriggerCSC  |= oITER->HasTriggered( 1);
-    bTriggerRBC1 |= oITER->HasTriggered( 2);
-    bTriggerRBC2 |= oITER->HasTriggered( 3);
-    bTriggerRPC  |= oITER->HasTriggered( 4);
+      bTriggerDT   |= oITER->HasTriggered( 0);
+      bTriggerCSC  |= oITER->HasTriggered( 1);
+      bTriggerRBC1 |= oITER->HasTriggered( 2);
+      bTriggerRBC2 |= oITER->HasTriggered( 3);
+      bTriggerRPC  |= oITER->HasTriggered( 4);
+    }
   }
     
   const reco::TrackCollection *tracks=trackCollection.product();
@@ -704,13 +709,13 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
   edm::Handle<edm::DetSetVector<SiStripClusterInfo> > oDSVClusterInfos;
   e.getByLabel( "siStripClusterInfoProducer", oDSVClusterInfos);
 
-  // Get Trigger Bits
-  edm::Handle<std::vector<LTCDigi> > oLTCDigis;
-  e.getByType( oLTCDigis);
-
   // Get SiStripDigis
   edm::Handle<edm::DetSetVector<SiStripDigi> > oDSVDigis;
-  e.getByLabel( "SiStripDigis", "ZeroSuppressed", oDSVDigis);
+  if( oSiStripDigisProdInstName_.size()) {
+    e.getByLabel( oSiStripDigisLabel_.c_str(), oDSVDigis);
+  } else {
+    e.getByLabel( oSiStripDigisLabel_.c_str(), oSiStripDigisProdInstName_.c_str(), oDSVDigis);
+  }
       
   std::map<uint32_t, int> oProcessedClusters;
 

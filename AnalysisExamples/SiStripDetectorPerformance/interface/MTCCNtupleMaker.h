@@ -98,6 +98,9 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
     
   edm::ParameterSet conf_;
   std::string filename_;
+  std::string oSiStripDigisLabel_;
+  std::string oSiStripDigisProdInstName_;
+  bool bUseLTCDigis_;
   //SiStripNoiseService m_oSiStripNoiseService; 
   
   std::vector<DetId> Detvector;
