@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/17 22:30:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/19 20:15:25 $
+ *  $Revision: 1.3 $
  *  \author A. Tumanov - Rice
  */
 
@@ -9,13 +9,14 @@
 #include "EventFilter/CSCRawToDigi/src/CSCDigiToRaw.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
-
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
+#include <boost/dynamic_bitset.hpp>
+
 
 using namespace edm;
 using namespace std;
@@ -125,21 +126,23 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
     /// for every chamber with data, add to a DDU in this DCC Event
     for(map<CSCDetId, CSCEventData>::iterator chamberItr = chamberDataMap.begin();
 	chamberItr != chamberDataMap.end(); ++chamberItr)  {
-      int indexDCC = mapping.DCC(chamberItr->first);
+      int indexDCC = mapping.dccId(chamberItr->first);
       if (idcc==indexDCC) { ///fill the right dcc 
-	int indexDDU = mapping.DDU(chamberItr->first); ///get ddu index based on ChamberId
+	int indexDDU = mapping.dduId(chamberItr->first); ///get ddu index based on ChamberId
 	dccEvent.dduData()[indexDDU].add(chamberItr->second);
-	FEDRawData * rawData = new FEDRawData(dccEvent.pack().size());
+	boost::dynamic_bitset<> dccbits=dccEvent.pack();	
+	FEDRawData * rawData = new FEDRawData(dccbits.size());
 	unsigned char * data = rawData->data();
-	for (unsigned int i=0;i<dccEvent.pack().size();i++) {
-	  data[8*i] = ((dccEvent.pack())[8*i]<<7)&&
-	    ((dccEvent.pack())[8*i+1]<<6)&&
-	    ((dccEvent.pack())[8*i+2]<<5)&&
-	    ((dccEvent.pack())[8*i+3]<<4)&&
-	    ((dccEvent.pack())[8*i+4]<<3)&&
-	    ((dccEvent.pack())[8*i+5]<<2)&&
-	    ((dccEvent.pack())[8*i+6]<<2)&&
-	    ((dccEvent.pack())[8*i+7]);
+	for (unsigned int i=0;i<dccbits.size();i++) {//fill char data words bit by bit
+	  data[i/8] = (dccbits[i]<<7)+
+	              (dccbits[i+1]<<6)+
+	              (dccbits[i+2]<<5)+
+	              (dccbits[i+3]<<4)+
+	              (dccbits[i+4]<<3)+
+	              (dccbits[i+5]<<2)+
+	              (dccbits[i+6]<<2)+
+	              dccbits[i+7];
+	  i+=7; ///jump by 8
 	}
 	FEDRawData& fedRawData = fed_buffers.FEDData(startingFED+idcc); 
 	fedRawData = *rawData;

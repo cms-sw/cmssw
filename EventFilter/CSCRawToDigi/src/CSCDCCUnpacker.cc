@@ -261,7 +261,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  ((layer.ring()==1)&&(layer.station()==3))||
 	          ((layer.ring()==1)&&(layer.station()==4)))
 		{
-		for (int i=0; i<wireDigis.size(); ++i) {
+		for (int unsigned i=0; i<wireDigis.size(); ++i) {
 		  int wiregroup = wireDigis[i].getWireGroup();
 		  if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker") <<
 					 "Wire group is out of range!";
