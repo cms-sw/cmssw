@@ -1,6 +1,6 @@
 /** \file HouseholderDecomposition.cc
  *
- * $Date: 2006/08/25 $
+ * $Date: 2006/08/25 08:53:13 $
  * $Revision: 1.2 $
  *
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
@@ -8,6 +8,7 @@
 
 #include "Calibration/Tools/interface/HouseholderDecomposition.h"
 #include <cfloat>
+#include <cmath>
 
 
 HouseholderDecomposition::HouseholderDecomposition(bool normalise)
