@@ -5,7 +5,6 @@ function usage () {
     echo -e " -InputFilePath=<path>"
     echo -e " -castor=<file name, or regular-expression> (to get input files from castor)"
     echo -e " -TestArea=<path>"
-    echo -e " -Flag=<a flag>"
     echo -e " -StartIOV=<runNb> (default is ${default_StartIOV} )"
     echo -e " -tagPN=<tag for PedNoise> (default is ${default_tagPN} )"
     echo -e " -tagCab=<tag for cabling> (default is ${default_tagCab} )"
@@ -21,13 +20,13 @@ function usage () {
 
     echo -e "\nEXAMPLES:"
     echo -e "\n\tSingle Local File access"
-    echo -e "\n\t\t./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -CondDb=devdb10 -geometry=TAC -InputFilePath=/storage/TIB/run/RU0000518_000.root -Flag=Run518 -StartIOV=100"
+    echo -e "\n\t\t./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -CondDb=devdb10 -geometry=TAC -InputFilePath=/storage/TIB/run/RU0000518_000.root  -StartIOV=100"
 
     echo -e "\n\tMultiple Local Files access"
-    echo -e "\n\t\t./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -CondDb=devdb10 -geometry=TAC -InputFilePath=/storage/TIB/run/RU000052[0-4]\* -Flag=Runs520-524 -StartIOV=100" 
+    echo -e "\n\t\t./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -CondDb=devdb10 -geometry=TAC -InputFilePath=/storage/TIB/run/RU000052[0-4]\*  -StartIOV=100" 
 
     echo -e "\n\tSingle Castor File access"
-    echo -e "\n\t\t./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -CondDb=devdb10 -geometry=TAC -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2 -castor=2501_reco_full.root -Flag=Run2501 -StartIOV=100" 
+    echo -e "\n\t\t./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -CondDb=devdb10 -geometry=TAC -InputFilePath=/castor/cern.ch/cms/testbeam/tkmtcc/P5_data/tracker_reprocessing/pass2 -castor=2501_reco_full.root -StartIOV=100" 
 
     echo
     exit
@@ -69,7 +68,6 @@ function settings (){
 
     getParameter InputFilePath        $@ .
     getParameter TestArea             $@ ${default_TestArea}
-    getParameter Flag                 $@ ""
     getParameter StartIOV             $@ ${default_StartIOV}
     getParameter tagPN                $@ ${default_tagPN}
     getParameter tagCab               $@ ${default_tagCab}
@@ -92,7 +90,6 @@ function settings (){
     export append
     echo -e "\n -InputFilePath=$InputFilePath"
     echo -e " -TestArea=$TestArea"
-    echo -e " -Flag=$Flag"
     echo -e " -castor=$castor"    
     echo -e " -StartIOV=$StartIOV"
     echo -e " -CondDb=$CondDb"
@@ -220,5 +217,5 @@ cat $templatefile | sed  -e "s@#${geometry}@@g" -e "s#insert_DBfile#$DBfile#g" -
 echo -e "\ncmsRun ${cfg_file}"
 cmsRun ${cfg_file} > ${TestArea}/out_${StartIOV}
 
-echo -e "\nlog file " ${TestArea}/out_${Flag}.out
+echo -e "\nlog file " ${TestArea}/out_${StartIOV}.out
 
