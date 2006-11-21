@@ -2,13 +2,16 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
 
 PositionCalc::PositionCalc(std::map<std::string,double> providedParameters)
 {
   param_LogWeighted_ = providedParameters.find("LogWeighted")->second;
-  param_X0_ = providedParameters.find("X0")->second;
-  param_T0_ = providedParameters.find("T0")->second; 
+  param_T0_barl_ = providedParameters.find("T0_barl")->second; 
+  param_T0_endc_ = providedParameters.find("T0_endc")->second; 
+  param_T0_endcPresh_ = providedParameters.find("T0_endcPresh")->second; 
   param_W0_ = providedParameters.find("W0")->second;
+  param_X0_ = providedParameters.find("X0")->second;
 
   //storedRecHitsMap_ = passedRecHitsMap;
   //storedSubdetectorGeometry_ = passedGeometry;
@@ -16,15 +19,18 @@ PositionCalc::PositionCalc(std::map<std::string,double> providedParameters)
 
 const PositionCalc& PositionCalc::operator=(const PositionCalc& rhs) {
   param_LogWeighted_ = rhs.param_LogWeighted_;
-  param_X0_ = rhs.param_X0_;
-  param_T0_ = rhs.param_T0_;
+  param_T0_barl_ = rhs.param_T0_barl_;
+  param_T0_endc_ = rhs.param_T0_endc_;
+  param_T0_endcPresh_ = rhs.param_T0_endcPresh_;
   param_W0_ = rhs.param_W0_;
+  param_X0_ = rhs.param_X0_;
   return *this;
 }
 
 math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds,
                                                 EcalRecHitCollection const * storedRecHitsMap_,
-                                                const CaloSubdetectorGeometry * storedSubdetectorGeometry_)
+                                                const CaloSubdetectorGeometry * storedSubdetectorGeometry_,
+						const CaloSubdetectorGeometry * storedESGeometry_)
 {
 
   // Throw an error if the cluster was not initialized properly
@@ -72,18 +78,37 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds,
     eTot += e_i;
   }
   
+  //Select the correct value of the T0 parameter depending on subdetector
+  float T0;
+  const CaloCellGeometry* center_cell = storedSubdetectorGeometry_->getGeometry(maxId_);
+  GlobalPoint p = center_cell->getPosition();
+  if (fabs(p.eta())<1.479) {
+    //barrel
+    T0 = param_T0_barl_;
+  } else {
+    DetId preshDet;
+    if (storedESGeometry_) {
+      preshDet = (dynamic_cast<const EcalPreshowerGeometry*>(storedESGeometry_))->getClosestCell(p);
+    }
+    if (preshDet.null()) {
+      //endcap, not behind preshower
+      T0 = param_T0_endc_;
+    } else {
+      //endcap, behind preshower
+      T0 = param_T0_endcPresh_;
+    }
+  }
+
   // Calculate shower depth
   float depth = 0.;
   if(eTot<=0.) {
     edm::LogError("NegativeClusterEnergy") << "cluster with negative energy: " << eTot
                                       << " setting depth to 0.";
   } else {
-    depth = param_X0_ * (param_T0_ + log(eTot));
+    depth = param_X0_ * (T0 + log(eTot));
   }
 
   // Get position of center cell from shower depth
-  const CaloCellGeometry* center_cell = 
-    storedSubdetectorGeometry_->getGeometry(maxId_);
   GlobalPoint center_pos = 
     (dynamic_cast<const TruncatedPyramid*>(center_cell))->getPosition(depth);
   
