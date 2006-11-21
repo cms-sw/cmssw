@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.27 2006/09/25 21:55:08 mansj Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.28 2006/10/18 23:34:05 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -219,19 +219,26 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 	continue;
       }
       DetId id = getId (items);
-      HcalQIECoder coder (id.rawId ());
-      int index = 4;
-      for (unsigned capid = 0; capid < 4; capid++) {
-	for (unsigned range = 0; range < 4; range++) {
-	  coder.setOffset (capid, range, atof (items [index++].c_str ()));
-	}
+      fObject->sort ();
+      try {
+	fObject->getCoder (id);
+	edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
       }
-      for (unsigned capid = 0; capid < 4; capid++) {
-	for (unsigned range = 0; range < 4; range++) {
-	  coder.setSlope (capid, range, atof (items [index++].c_str ()));
+      catch (cms::Exception& e) {
+	HcalQIECoder coder (id.rawId ());
+	int index = 4;
+	for (unsigned capid = 0; capid < 4; capid++) {
+	  for (unsigned range = 0; range < 4; range++) {
+	    coder.setOffset (capid, range, atof (items [index++].c_str ()));
+	  }
 	}
+	for (unsigned capid = 0; capid < 4; capid++) {
+	  for (unsigned range = 0; range < 4; range++) {
+	    coder.setSlope (capid, range, atof (items [index++].c_str ()));
+	  }
+	}
+	fObject->addCoder (id, coder);
       }
-      fObject->addCoder (id, coder);
     }
   }
   fObject->sort ();
@@ -261,22 +268,20 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
        channel !=  channels.end ();
        channel++) {
     const HcalQIECoder* coder = fObject.getCoder (*channel);
-    if (coder) {
-      dumpId (fOutput, *channel);
-      for (unsigned capid = 0; capid < 4; capid++) {
-	for (unsigned range = 0; range < 4; range++) {
-	  sprintf (buffer, " %8.5f", coder->offset (capid, range));
-	  fOutput << buffer;
-	}
+    dumpId (fOutput, *channel);
+    for (unsigned capid = 0; capid < 4; capid++) {
+      for (unsigned range = 0; range < 4; range++) {
+	sprintf (buffer, " %8.5f", coder->offset (capid, range));
+	fOutput << buffer;
       }
-      for (unsigned capid = 0; capid < 4; capid++) {
-	for (unsigned range = 0; range < 4; range++) {
-	  sprintf (buffer, " %8.5f", coder->slope (capid, range));
-	  fOutput << buffer;
-	}
-      }
-      fOutput << std::endl;
     }
+    for (unsigned capid = 0; capid < 4; capid++) {
+      for (unsigned range = 0; range < 4; range++) {
+	sprintf (buffer, " %8.5f", coder->slope (capid, range));
+	fOutput << buffer;
+      }
+    }
+    fOutput << std::endl;
   }
   return true;
 }
@@ -291,14 +296,21 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fOb
       continue;
     }
     DetId id = getId (items);
-    HcalCalibrationQIECoder coder (id.rawId ());
-    int index = 4;
-    float values [32];
-    for (unsigned bin = 0; bin < 32; bin++) {
-      values[bin] = atof (items [index++].c_str ());
+    fObject->sort ();
+    try {
+      fObject->getCoder (id);
+      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
     }
-    coder.setMinCharges (values);
-    fObject->addCoder (id, coder);
+    catch (cms::Exception& e) {
+      HcalCalibrationQIECoder coder (id.rawId ());
+      int index = 4;
+      float values [32];
+      for (unsigned bin = 0; bin < 32; bin++) {
+	values[bin] = atof (items [index++].c_str ());
+      }
+      coder.setMinCharges (values);
+      fObject->addCoder (id, coder);
+    }
   }
   fObject->sort ();
   return true;
