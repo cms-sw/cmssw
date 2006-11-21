@@ -47,6 +47,8 @@ namespace edm {
       /// finds a first-level subnode with this name
       /// leaf nodes will return false
       virtual bool findChild(const std::string & child, boost::shared_ptr<Node> & result) {return false;}
+      /// throw an exception if your contents aren't valid
+      virtual void validate() const {}
 
 
       /// shows a dot-delimited path of all modules & PSets including this Node
