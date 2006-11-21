@@ -14,9 +14,7 @@ Common utilities to manipulate and analyze particle candidates
 - AddFourMomenta: set up a composite reco::Candidate adding its daughters four-momenta and electric charge.
 - Booster: boost a reco::Candidate by a specified boost vector. 
 - ApplyEnergyCorrection: scale particle 4-momentum by a specified correction factor.
-- TwoBodyCombiner: produces all possible candidate pairs specifying a configurable selection criteria, checking 
-  for overlaps, and avoiding double-counting.
-- ThreeBodyCombiner: produces all possible candidate combinations specifying a configurable selection criteria, checking 
+- NBodyCombiner: produces all possible candidate pairs specifying a configurable selection criteria, checking 
   for overlaps, and avoiding double-counting.
 - CenterOfMassBooster: boost a reco::Candidate to its center-of-mass reference frame.
 - Thrust: utility to compute thrust value and axis of a collection of reco::Candidates.
