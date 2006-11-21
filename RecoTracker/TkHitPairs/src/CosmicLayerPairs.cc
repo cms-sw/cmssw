@@ -38,7 +38,13 @@ vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()()
 //    result.push_back( LayerPair(lh3,lh1));
 //    result.push_back( LayerPair(lh3,lh2));
   }
-
+  if (_geometry=="TIBD+"){
+ 
+    result.push_back( LayerPair(lh2,lh1));
+    result.push_back( LayerPair(lh3,lh4));
+    result.push_back( LayerPair(lh1,lh1));
+    result.push_back( LayerPair(lh2,lh2));
+  }
   return result;
 }
 CosmicLayerPairs::~CosmicLayerPairs()
@@ -86,7 +92,7 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
     lh3=new  LayerWithHits(bl3,rphi_range3);   allLayersWithHits.push_back(lh3);
   }
   if(_geometry=="MTCC"){ 
-
+  
     const TIBLayer*  bl1=dynamic_cast<TIBLayer*>(bl[0]);
     const TIBLayer*  bl2=dynamic_cast<TIBLayer*>(bl[1]);
     const TOBLayer*  bl3=dynamic_cast<TOBLayer*>(bl[2]);
@@ -121,4 +127,21 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
     lh3=new  LayerWithHits(bl3,match_range3);
     
   }
+  if (_geometry=="TIBD+"){
+  
+    const TIBLayer*  bl1=dynamic_cast<TIBLayer*>(bl[3]);
+    const TIBLayer*  bl2=dynamic_cast<TIBLayer*>(bl[4]);
+    const TIBLayer*  bl3=dynamic_cast<TIBLayer*>(bl[5]);
+    const TIBLayer*  bl4=dynamic_cast<TIBLayer*>(bl[6]);
+    rphi_range1=collrphi.get(acc.stripTIBLayer(1));
+    rphi_range2=collrphi.get(acc.stripTIBLayer(2));
+    rphi_range3=collrphi.get(acc.stripTIBLayer(3));
+    rphi_range4=collrphi.get(acc.stripTIBLayer(4));
+    lh1=new  LayerWithHits(bl1,rphi_range1); allLayersWithHits.push_back(lh1);
+    lh2=new  LayerWithHits(bl2,rphi_range2); allLayersWithHits.push_back(lh2);
+    lh3=new  LayerWithHits(bl3,rphi_range3); allLayersWithHits.push_back(lh3);
+    lh4=new  LayerWithHits(bl4,rphi_range4); allLayersWithHits.push_back(lh4);
+
+  }
+
 }
