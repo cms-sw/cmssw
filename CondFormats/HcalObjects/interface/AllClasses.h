@@ -4,6 +4,7 @@
 class HcalPedestals;
 class HcalPedestalWidths;
 class HcalGains;
+class HcalRawGains;
 class HcalGainWidths;
 class HcalQIEShape;
 class HcalQIEData;

@@ -4,6 +4,7 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
+#include "CondFormats/HcalObjects/interface/HcalRawGains.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
