@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/17 22:30:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/19 20:15:25 $
+ *  $Revision: 1.3 $
  *  \author A. Tumanov - Rice
  */
 
@@ -35,9 +35,9 @@ void CSCDigiToRawModule::produce(Event & e, const EventSetup& c){
   auto_ptr<FEDRawDataCollection> fed_buffers(new FEDRawDataCollection);
   // Take digis from the event
   Handle<CSCStripDigiCollection> stripDigis;
-  e.getByLabel("MuonCSCStripDigi", stripDigis);
+  e.getByLabel("cscunpacker","MuonCSCStripDigi", stripDigis);
   Handle<CSCWireDigiCollection> wireDigis;
-  e.getByLabel("MuonCSCWireDigis", wireDigis);
+  e.getByLabel("cscunpacker","MuonCSCWireDigi", wireDigis);
 
 
   // Create the packed data

@@ -158,7 +158,8 @@ void CSCDDUEventData::unpack_data(unsigned short *buf) {
     edm::LogInfo ("CSCDDUEventData") << "sizeof(DDUHeader) = " << sizeof(theDDUHeader);
   }
   buf += theDDUHeader.sizeInWords();
-  
+
+  std::cout << "sandrik dduID =" << theDDUHeader.source_id() << std::endl; 
   
   int i=-1;
  

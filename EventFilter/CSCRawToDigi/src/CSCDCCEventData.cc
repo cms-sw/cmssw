@@ -48,6 +48,8 @@ void CSCDCCEventData::unpack_data(unsigned short *buf) {
   memcpy(&theDCCHeader, buf, theDCCHeader.sizeInWords()*2);
   //theDCCHeader = CSCDCCHeader(buf); // direct unpacking instead of bitfields
   buf += theDCCHeader.sizeInWords();
+
+  std::cout <<"Sandrik DCC Id = " << theDCCHeader.getCDFSourceId()  << std::endl;
  
   ///loop over DDUEventDatas
   while ( (buf[7]==0x8000)&&(buf[6]==0x0001)&&(buf[5]==0x8000))

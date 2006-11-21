@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/19 20:15:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/11/20 22:59:34 $
+ *  $Revision: 1.4 $
  *  \author A. Tumanov - Rice
  */
 
@@ -112,7 +112,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   int l1a=1; ///need to add increments or get it from lct digis 
   int bx = 0;///same as above
   int startingFED = FEDNumbering::getCSCFEDIds().first;
- 
+
   for (int idcc=FEDNumbering::getCSCFEDIds().first-startingFED;
        idcc<=FEDNumbering::getCSCFEDIds().second-startingFED;idcc++) {
     ///idcc goes from 0 to 7
@@ -122,13 +122,15 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
     ///          ? 5 : 4; 
     ///@@ WARNING some DCCs only have 4 DDUs, but I'm giving them all 5, for now
     int nDDUs = 5;
+    int indexDDU=0;
+    int oldDDUNumber = mapping.dduId(chamberDataMap.begin()->first);///initialize to first DDU
+
     CSCDCCEventData dccEvent(idcc, nDDUs, bx, l1a);
     /// for every chamber with data, add to a DDU in this DCC Event
     for(map<CSCDetId, CSCEventData>::iterator chamberItr = chamberDataMap.begin();
 	chamberItr != chamberDataMap.end(); ++chamberItr)  {
       int indexDCC = mapping.dccId(chamberItr->first);
       if (idcc==indexDCC) { ///fill the right dcc 
-	int indexDDU = mapping.dduId(chamberItr->first); ///get ddu index based on ChamberId
 	dccEvent.dduData()[indexDDU].add(chamberItr->second);
 	boost::dynamic_bitset<> dccbits=dccEvent.pack();	
 	FEDRawData * rawData = new FEDRawData(dccbits.size());
@@ -143,6 +145,11 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 	              (dccbits[i+6]<<2)+
 	              dccbits[i+7];
 	  i+=7; ///jump by 8
+	}
+	int dduId = mapping.dduId(chamberItr->first); ///get ddu id based on ChamberId form mapping
+	if (oldDDUNumber!=dduId) { //if new ddu increment indexDDU counter
+	  indexDDU++;
+	  oldDDUNumber = dduId;
 	}
 	FEDRawData& fedRawData = fed_buffers.FEDData(startingFED+idcc); 
 	fedRawData = *rawData;
