@@ -78,6 +78,7 @@ methods, except the kinematics, that is copied, are delegated to the master clon
 - reco::CandidateRefProd: reference to a reco::Candidate collection
 - reco::CandidateRefVector: vector of references to reco::Candidate objects in the same collection
 - reco::candidate_iterator: iterator over a vector of references to reco::Candidate objects in the same collection
+- reco::CandMatchMap: one-to-one candidate association map by reference
 
 \subsection modules Modules
 None.
