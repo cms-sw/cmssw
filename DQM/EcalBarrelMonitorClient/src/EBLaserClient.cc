@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/11/21 08:45:13 $
- * $Revision: 1.93 $
+ * $Date: 2006/11/21 09:47:22 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  *
 */
@@ -465,10 +465,6 @@ void EBLaserClient::cleanup(void) {
     meaopn04_[ism-1] = 0;
 
   }
-
-}
-
-void EBLaserClient::beginRunDb(void){
 
 }
 
@@ -1245,10 +1241,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
 
 }
 
-void EBLaserClient::endRunDb(void){
-
-}
-
 void EBLaserClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBLaserClient: subscribe" << endl;
@@ -1752,6 +1744,10 @@ void EBLaserClient::unsubscribe(void){
     mui_->unsubscribe(histo);
 
   }
+
+}
+
+void EBLaserClient::softReset(void){
 
 }
 

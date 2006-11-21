@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/11/21 08:45:13 $
- * $Revision: 1.113 $
+ * $Date: 2006/11/21 09:47:22 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -336,10 +336,6 @@ void EBIntegrityClient::cleanup(void) {
     meg02_[ism-1] = 0;
 
   }
-
-}
-
-void EBIntegrityClient::beginRunDb(void){
 
 }
 
@@ -959,10 +955,6 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
 }
 
-void EBIntegrityClient::endRunDb(void){
-
-}
-
 void EBIntegrityClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBIntegrityClient: subscribe" << endl;
@@ -1263,6 +1255,10 @@ void EBIntegrityClient::unsubscribe(void){
     mui_->unsubscribe(histo);
 
   }
+
+}
+
+void EBIntegrityClient::softReset(void){
 
 }
 

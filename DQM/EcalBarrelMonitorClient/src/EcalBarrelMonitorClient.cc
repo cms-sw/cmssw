@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/11/21 08:25:46 $
- * $Revision: 1.188 $
+ * $Date: 2006/11/21 09:47:22 $
+ * $Revision: 1.189 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -544,6 +544,8 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
+  if ( subrun_ != -1 ) this->softReset();
+
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool ended; ended = false;
     for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
@@ -712,13 +714,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       econn = 0;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
-    }
-  }
-
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool ended; ended = false;
-    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !ended ) { ended = true; clients_[i]->beginRunDb(); }
     }
   }
 
@@ -940,13 +935,6 @@ void EcalBarrelMonitorClient::endRunDb(void) {
     }
   }
 
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool ended; ended = false;
-    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !ended ) { ended = true; clients_[i]->endRunDb(); }
-    }
-  }
-
 }
 
 void EcalBarrelMonitorClient::subscribe(void){
@@ -1005,6 +993,17 @@ void EcalBarrelMonitorClient::unsubscribe(void) {
   mui_->unsubscribe("*/EcalBarrel/EcalInfo/EVT");
   mui_->unsubscribe("*/EcalBarrel/EcalInfo/EVTTYPE");
   mui_->unsubscribe("*/EcalBarrel/EcalInfo/RUNTYPE");
+
+}
+
+void EcalBarrelMonitorClient::softReset(void) {
+
+  for ( int i=0; i<int(clients_.size()); i++ ) {
+    bool done; done = false;
+    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+      if ( runtype_ != -1 && runtype_ == (*j).second && !done ) { done = true; clients_[i]->softReset(); }
+    }
+  }
 
 }
 

@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.5 2006/10/18 16:57:51 dellaric Exp $
+// $Id: EBClient.h,v 1.6 2006/11/21 09:46:21 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2006/10/18 16:57:51 $
+  \version $Revision: 1.6 $
+  \date $Date: 2006/11/21 09:46:21 $
 */
 
 
@@ -36,6 +36,11 @@ class EBClient {
     \brief Unsubscribe to Monitoring Elements 
   */
   virtual void unsubscribe(void)  = 0;
+
+  /*! \fn virtual void unsubscribe(void)
+    \brief softReset Monitoring Elements
+  */
+  virtual void softReset(void)  = 0;
 
   /*! \fn virtual void analyze(void) 
     \brief analyze method
@@ -81,11 +86,6 @@ class EBClient {
   */
   virtual void htmlOutput(int run, string htmlDir, string htmlName) = 0;
 
-  /*! \fn virtual void beginRunDb(void)
-    \brief beginRunDb method
-  */
-  virtual void beginRunDb(void)   = 0;
-
   /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
     \brief Write data to DataBase
     \param econn DB interface
@@ -93,11 +93,6 @@ class EBClient {
     \param ism Supermodule id
   */
   virtual bool writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) = 0;
-
-  /*! \fn virtual void endRunDb(void)
-    \brief endRunDb method
-  */
-  virtual void endRunDb(void)     = 0;
 
   /*! \fn virtual int getEvtPerJob( void );
     \brief Returns the total number of processed events

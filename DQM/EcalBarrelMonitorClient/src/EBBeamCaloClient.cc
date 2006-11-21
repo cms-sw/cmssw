@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/11/21 08:45:13 $
- * $Revision: 1.33 $
+ * $Date: 2006/11/21 09:47:22 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -245,10 +245,6 @@ void EBBeamCaloClient::cleanup(void) {
   meEBBCaloRedGreenSteps_ = 0;
 }
 
-void EBBeamCaloClient::beginRunDb(void){
-
-}
-
 bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
   bool status = true;
@@ -336,10 +332,6 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
   }
 
   return status;
-
-}
-
-void EBBeamCaloClient::endRunDb(void){
 
 }
 
@@ -564,6 +556,10 @@ void EBBeamCaloClient::unsubscribe(void){
     if ( verbose_ ) cout << "EBBeamCaloClient: uncollate" << endl;
 
   }
+
+}
+
+void EBBeamCaloClient::softReset(void){
 
 }
 

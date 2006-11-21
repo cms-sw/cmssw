@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/11/21 08:46:34 $
- * $Revision: 1.60 $
+ * $Date: 2006/11/21 09:47:22 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -148,10 +148,6 @@ void EBCosmicClient::cleanup(void) {
 
 }
 
-void EBCosmicClient::beginRunDb(void){
-
-}
-
 bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
   bool status = true;
@@ -239,20 +235,6 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int 
   }
 
   return status;
-
-}
-
-void EBCosmicClient::endRunDb(void){
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
-    if ( meh02_[ism-1] ) mui_->softReset(meh02_[ism-1]);
-    if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
-
-  }
 
 }
 
@@ -359,6 +341,20 @@ void EBCosmicClient::unsubscribe(void){
     mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
     mui_->unsubscribe(histo);
+
+  }
+
+}
+
+void EBCosmicClient::softReset(void){
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
+    if ( meh02_[ism-1] ) mui_->softReset(meh02_[ism-1]);
+    if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
 
   }
 

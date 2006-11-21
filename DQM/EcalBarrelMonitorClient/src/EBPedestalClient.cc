@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/11/21 08:45:13 $
- * $Revision: 1.94 $
+ * $Date: 2006/11/21 09:47:22 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -408,10 +408,6 @@ void EBPedestalClient::cleanup(void) {
 
 }
 
-void EBPedestalClient::beginRunDb(void){
-
-}
-
 bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
   bool status = true;
@@ -692,10 +688,6 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
 
 }
 
-void EBPedestalClient::endRunDb(void){
-
-}
-
 void EBPedestalClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBPedestalClient: subscribe" << endl;
@@ -940,6 +932,10 @@ void EBPedestalClient::unsubscribe(void){
     mui_->unsubscribe(histo);
 
   }
+
+}
+
+void EBPedestalClient::softReset(void){
 
 }
 

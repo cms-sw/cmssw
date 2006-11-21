@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/10/18 16:57:51 $
- * $Revision: 1.39 $
+ * $Date: 2006/11/21 09:46:21 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -47,6 +47,9 @@ void subscribe(void);
 void subscribeNew(void);
 void unsubscribe(void);
 
+/// softReset
+void softReset(void);
+
 /// Analyze
 void analyze(void);
 
@@ -71,14 +74,8 @@ void cleanup(void);
 /// HtmlOutput
 void htmlOutput(int run, string htmlDir, string htmlName);
 
-/// BeginRunDB
-void beginRunDb(void);
-
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
-
-/// EndRunDb
-void endRunDb(void);
 
 /// Get Functions
  inline int getEvtPerJob() { return ievt_; }

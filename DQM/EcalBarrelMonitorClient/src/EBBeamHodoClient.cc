@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/10/18 16:57:52 $
- * $Revision: 1.28 $
+ * $Date: 2006/11/21 09:47:22 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -233,19 +233,11 @@ void EBBeamHodoClient::cleanup(void) {
 
 }
 
-void EBBeamHodoClient::beginRunDb(void){
-
-}
-
 bool EBBeamHodoClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
   bool status = true;
 
   return status;
-
-}
-
-void EBBeamHodoClient::endRunDb(void){
 
 }
 
@@ -484,6 +476,10 @@ void EBBeamHodoClient::unsubscribe(void){
     if ( verbose_ ) cout << "EBBeamHodoClient: uncollate" << endl;
 
   }
+
+}
+
+void EBBeamHodoClient::softReset(void){
 
 }
 

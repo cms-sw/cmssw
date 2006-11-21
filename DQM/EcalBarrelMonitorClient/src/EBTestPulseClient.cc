@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/11/21 08:45:13 $
- * $Revision: 1.93 $
+ * $Date: 2006/11/21 09:47:22 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -315,10 +315,6 @@ void EBTestPulseClient::cleanup(void) {
     mea03_[ism-1] = 0;
 
   }
-
-}
-
-void EBTestPulseClient::beginRunDb(void){
 
 }
 
@@ -688,10 +684,6 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
 }
 
-void EBTestPulseClient::endRunDb(void){
-
-}
-
 void EBTestPulseClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBTestPulseClient: subscribe" << endl;
@@ -954,6 +946,10 @@ void EBTestPulseClient::unsubscribe(void){
     mui_->unsubscribe(histo);
  
   }
+
+}
+
+void EBTestPulseClient::softReset(void){
 
 }
 
