@@ -86,6 +86,9 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ievt_++;
   meEVT_->Fill(ievt_);
 
+  // get conditions
+  if(!shape_) shape_ = cond.getHcalShape(); // this one is generic  
+
   dumpDigi(hbhe, ho, cond);
 
   if(ltc.size()<1) return;
@@ -94,9 +97,6 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
   LTCDigiCollection::const_iterator digiItr = ltc.begin();
   trig = *digiItr;
   
-  // get conditions
-  if(!shape_) shape_ = cond.getHcalShape(); // this one is generic  
-
   if ( m_dbe !=NULL ) {
     
     for(int t = 0; t<6; t++){
@@ -240,11 +240,17 @@ void HcalMTCCMonitor::dumpDigi(const HBHEDigiCollection& hbhe, const HODigiColle
   if(dumpThresh_<0) return;
 
   float fc_ampl = 0;
-  float ta = 0;
+  float ta = 0;  
+  int myPhi = -1;
   try{      
-    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
+    bool done = false;
+    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end() && !done; j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
-      
+      if(digi.id().ieta()>dumpEtaHi_) continue;
+      if(digi.id().iphi()>dumpPhiHi_) continue;
+      if(digi.id().ieta()<dumpEtaLo_) continue;
+      if(digi.id().iphi()<dumpPhiLo_) continue;
+
       cond.makeHcalCalibration(digi.id(), &calibs_);
       const HcalQIECoder* channelCoder = cond.getHcalCoder(digi.id());
       HcalCoderDb coder(*channelCoder, *shape_);
@@ -257,7 +263,7 @@ void HcalMTCCMonitor::dumpDigi(const HBHEDigiCollection& hbhe, const HODigiColle
 	ta = (tool[i]-calibs_.pedestal(capid)); // pedestal subtraction
 	fc_ampl+=ta; 
       }
-      if(fc_ampl>dumpThresh_) break;
+      if(fc_ampl>dumpThresh_){done = true; myPhi = digi.id().iphi(); }
     }
   }catch (...) {
     printf("HcalMTCCMonitor::processEvent  No HBHE Digis.\n");
@@ -265,31 +271,27 @@ void HcalMTCCMonitor::dumpDigi(const HBHEDigiCollection& hbhe, const HODigiColle
 
   if(fc_ampl>dumpThresh_){
     try{      
-      int lo = dumpPhiLo_; int hi = dumpPhiLo_;
-      if(dumpPhiHi_>0) hi = dumpPhiHi_;
-      for(int iphi = lo; iphi<=hi; iphi++){
       for(int ieta = dumpEtaLo_; ieta<=dumpEtaHi_; ieta++){
 	for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
 	  const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
 	  if(digi.id().ieta()!=ieta) continue;
-	  if(digi.id().iphi()!=iphi) continue;
-
+	  if(digi.id().iphi()!=myPhi) continue;
+	  
 	  cond.makeHcalCalibration(digi.id(), &calibs_);
 	  const HcalQIECoder* channelCoder = cond.getHcalCoder(digi.id());
 	  HcalCoderDb coder(*channelCoder, *shape_);
 	  CaloSamples tool;
 	  coder.adc2fC(digi,tool);
 	  
-	  printf("iPhi: %d, iEta: %d, BX ampl:",iphi,ieta);
+	  printf("iPhi: %d, iEta: %d, BX ampl:",myPhi,ieta);
 	  for (int i=0; i<tool.size(); i++) {
 	    int capid=digi[i].capid();
 	    ta = (tool[i]-calibs_.pedestal(capid)); // pedestal subtraction
-	    printf(" %.3f",ta);
+	    printf(" %.3f,",ta);
 	  }
 	  printf("\n");
 	}
-      }
-      }
+      }      
     }catch (...) {
       printf("HcalMTCCMonitor::processEvent  No HBHE Digis.\n");
     }
