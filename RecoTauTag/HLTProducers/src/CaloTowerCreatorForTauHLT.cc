@@ -77,8 +77,8 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
 		RecoCaloTowerCandidate * c = 
 		  new RecoCaloTowerCandidate( 0, Candidate::LorentzVector( p ) );
 		c->setCaloTower (CaloTowerRef( caloTowers, idx) );
+		Sum08 += c->et(); 
 		cands->push_back( c );
-		Sum08 += cal->et(); 
 		if (mVerbose == 3) std::cout << "accepted: pT/eta/phi:" 
 					     << cal->et() << '/' 
 					     << cal->eta() <<  '/' 
