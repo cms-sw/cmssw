@@ -1,3 +1,6 @@
+#ifdef  _ECALRECHITRECALIB_H
+#define _ECALRECHITRECALIB_H
+
 // -*- C++ -*-
 //
 // Package:    EcalRecHitRecalib
@@ -12,8 +15,8 @@
 */
 //
 // Original Author:  Luca Malgeri
-//         Created:  $Date: 2006/09/11 12:50:11 $
-// $Id: EcalRecHitRecalib.h,v 1.1 2006/09/11 12:50:11 malgeri Exp $
+//         Created:  $Date: 2006/11/06 14:51:18 $
+// $Id: EcalRecHitRecalib.h,v 1.1 2006/11/06 14:51:18 malgeri Exp $
 //
 //
 
@@ -50,3 +53,5 @@ class EcalRecHitRecalib : public edm::EDProducer {
  std::string RecalibBarrelHits_;
  std::string RecalibEndcapHits_;
 };
+
+#endif

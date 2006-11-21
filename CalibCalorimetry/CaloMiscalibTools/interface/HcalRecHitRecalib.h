@@ -1,3 +1,6 @@
+#ifdef _HCALRECHITRECALIB_H
+#define _HCALRECHITRECALIB_H
+
 // -*- C++ -*-
 //
 // Package:    HcalRecHitRecalib
@@ -12,8 +15,8 @@
 */
 //
 // Original Author:  Luca Malgeri
-//         Created:  $Date: 2006/10/02 12:50:11 $
-// $Id: HcalRecHitRecalib.h,v 1.1 2006/10/02 12:50:11 malgeri Exp $
+//         Created:  $Date: 2006/11/06 14:51:18 $
+// $Id: HcalRecHitRecalib.h,v 1.1 2006/11/06 14:51:18 malgeri Exp $
 //
 //
 
@@ -64,3 +67,4 @@ class HcalRecHitRecalib : public edm::EDProducer {
   CaloMiscalibMapHcal mapHcal_;
 
 };
+#endif
