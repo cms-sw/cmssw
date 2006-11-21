@@ -8,12 +8,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
-#include "Math/GenVector/PxPyPzE4D.h"
+//#include "Math/GenVector/PxPyPzE4D.h"
+#include <cmath>
 
 using namespace edm;
 using namespace reco;
@@ -58,7 +58,7 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
 	  double Sum08 = 0.;
 	  
 	  if (mVerbose == 3) {
-	    std::cout <<" Generated jet et = " << (*myL1Jet).et()
+	    std::cout <<" L1 jet et = " << (*myL1Jet).et()
 		      <<" eta = " << myL1Jet->eta()
 		      <<" phi = " << myL1Jet->phi() << endl;
 	  }
@@ -70,23 +70,19 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
 			<< cal->et() << '/' << cal->eta() << '/' << cal->phi() << '/' << cal->energy() << " is...";
 	    }
 	    if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold ) {
-	      
 	      math::PtEtaPhiELorentzVector p( cal->et(), cal->eta(), cal->phi(), cal->energy() );
-  
-	      
-	      double delta  = ROOT::Math::VectorUtil::DeltaR((*myL1Jet).p4().Vect(), p);
+  	      double delta  = ROOT::Math::VectorUtil::DeltaR((*myL1Jet).p4().Vect(), p);
 	      
 	      if(delta < mCone) {
-		
 		RecoCaloTowerCandidate * c = 
 		  new RecoCaloTowerCandidate( 0, Candidate::LorentzVector( p ) );
 		c->setCaloTower (CaloTowerRef( caloTowers, idx) );
 		cands->push_back( c );
-		Sum08 += c->pt(); 
+		Sum08 += cal->et(); 
 		if (mVerbose == 3) std::cout << "accepted: pT/eta/phi:" 
-					     << c->pt() << '/' 
-					     << c->eta() <<  '/' 
-					     << c->phi()
+					     << cal->et() << '/' 
+					     << cal->eta() <<  '/' 
+					     << cal->phi()
 					     <<" emEt()= " << (*caloTowers)[idx].emEt() 
 					     <<" ehEt()= " << (*caloTowers)[idx].hadEt() 
 					     <<" deltar= " << delta 
@@ -98,13 +94,14 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
 	    }
 	  }
 	  if (mVerbose == 3) {
-	    std::cout << "CaloTowerCreatorForTauHLT::produce-> " << cands->size () << " candidates created" << std::endl;
-	    std::cout << " Sum08 = " << Sum08 << endl;
+	  std::cout << "CaloTowerCreatorForTauHLT::produce-> " << cands->size () << " candidates created" << std::endl;
+	  std::cout << " Sum08 = " << Sum08 << std::endl;
 	  }
 	}
       idTau++;
     }
-  
+
+  cout <<"Ma crasha qui? 2"<<endl;
   evt.put( cands );
   
 }
