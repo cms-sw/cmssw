@@ -36,7 +36,8 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
   _clustered.clear();
   //clear set of used detids
   useddetids.clear();
-
+  //clear vector of seed clusters
+  _seedClus.clear();
   //Pass in a pointer to the collection.
   recHits_ = recColl;
   
@@ -99,7 +100,6 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
 }
 
 
-
 void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry*geometry)
 {
  
@@ -122,7 +122,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 
     if (seed_in_rechits_it != useddetids.end()) continue;
     //If this seed is already used, then don't use it again.
-    
+
     // output some info on the hit:
     if ( debugLevel_ == pDEBUG ){
       std::cout << "*****************************************************" << std::endl;
@@ -276,6 +276,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 
     //Make the basic clusters:
     for (int i=0;i<int(PeakIndex.size());++i){
+      bool HasSeedCrystal = false;
       //One cluster for each peak.
       std::vector<EcalRecHit> recHits;
       std::vector<DetId> dets;
@@ -285,6 +286,8 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 	  std::vector <EcalRecHit> temp = dominoCells[j];
 	  for (int k=0;k<int(temp.size());++k){
             dets.push_back(temp[k].id());
+	    if (temp[k].id()==itID)
+	      HasSeedCrystal = true;
 	    recHits.push_back(temp[k]);
 	    nhits++;
 	  }
@@ -312,6 +315,8 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 	totChi2/=totE;
       
       thisseedClusters.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2,usedHits));
+      if (HasSeedCrystal)
+	_seedClus.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2,usedHits));
     }
     //Make association so that superclusters can be made later.
     _clustered.insert(std::make_pair(clustercounter, thisseedClusters));    
@@ -351,7 +356,12 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
 	reco::BasicCluster cluster_p = *clustersCollection[j];
 	if (thisclus== cluster_p){ //Comparison based on energy right now.
 	  thissc.push_back(clustersCollection[j]);
-	  if (i==0) seed = clustersCollection[j];
+	  bool isSeed = false;
+	  for (int qu=0;qu<int(_seedClus.size());++qu){
+	    if (cluster_p == _seedClus[qu])
+	      isSeed = true;
+	  }
+	  if (isSeed) seed = clustersCollection[j];
 
 	  ClusterE += cluster_p.energy();
 	  posX += cluster_p.energy() * cluster_p.position().X();
