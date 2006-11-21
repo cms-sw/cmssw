@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/11/21 13:16:52 $
- * $Revision: 1.50 $
+ * $Date: 2006/11/21 15:02:13 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -357,7 +357,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
           }
         } else {
 
-#if 1
+#if 0
           // FIX: this should be done when reading the mask from file
 
           pair<EcalLogicID, MonCrystalStatusDat> d;
