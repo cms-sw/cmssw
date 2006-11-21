@@ -12,7 +12,7 @@
 /**
    \brief IO for XML instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbXml.h,v 1.1 2006/09/15 19:57:56 fedor Exp $
+   $Id: HcalDbXml.h,v 1.2 2006/10/04 17:01:00 fedor Exp $
    
 */
 namespace HcalDbXml {
@@ -31,6 +31,9 @@ namespace HcalDbXml {
   bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalGains& fObject);
+  bool dumpObject (std::ostream& fOutput, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
+		   const HcalRawGains& fObject);
   bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 		   const HcalGainWidths& fObject) {return false;}

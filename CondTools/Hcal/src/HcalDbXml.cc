@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.4 2006/10/04 17:01:01 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.5 2006/10/07 01:17:08 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -45,10 +45,12 @@ namespace {
 
   std::string kind (const HcalPedestals& fObject) { return "HCAL_PEDESTALS_V2";}
   std::string kind (const HcalGains& fObject) { return "HCAL Gains";}
+  std::string kind (const HcalRawGains& fObject) { return "HCAL Raw Gains";}
 
   std::string extensionTableName (const std::string& fKind) {
     if (fKind == "HCAL_PEDESTALS_V2") return "HCAL_PEDESTALS_V2";
     if (fKind == "HCAL Gains") return "HCAL_GAIN_PEDSTL_CALIBRATIONS";
+    if (fKind == "HCAL Raw Gains") return "HCAL_RAW_GAINS";
     return "UNKNOWN";
   }
 }
@@ -88,6 +90,7 @@ public:
   void addData (DOMElement* fData, const HcalPedestal& fItem);
   void addData (DOMElement* fData, const HcalPedestalWidth& fItem);
   void addData (DOMElement* fData, const HcalGain& fItem);
+  void addData (DOMElement* fData, const HcalRawGain& fItem);
   void addData (DOMElement* fData, const HcalGainWidth& fItem);
 
 private:
@@ -256,6 +259,13 @@ private:
     newValue (fData, "CAPACITOR_3_VALUE", fItem.getValue (3));
   }
 
+  void XMLDocument::addData (DOMElement* fData, const HcalRawGain& fItem) {
+    newValue (fData, "VALUE", fItem.getValue ());
+    newValue (fData, "ERROR", fItem.getError ());
+    newValue (fData, "VOLTAGE", fItem.getVoltage ());
+    newValue (fData, "STATUS", fItem.strStatus ());
+  }
+
  void XMLDocument::addData (DOMElement* fData, const HcalGainWidth& fItem) {
     newValue (fData, "CAPACITOR_0_ERROR", fItem.getValue (0));
     newValue (fData, "CAPACITOR_1_ERROR", fItem.getValue (1));
@@ -380,4 +390,10 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
   }
   widths.sort ();
   return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fObject, widths);
+}
+
+bool HcalDbXml::dumpObject (std::ostream& fOutput, 
+			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
+			    const HcalRawGains& fObject) {
+  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, &fObject, (const HcalGainWidths*)0);
 }

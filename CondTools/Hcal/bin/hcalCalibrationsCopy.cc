@@ -33,6 +33,9 @@
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
 
+// CMSSW Message service
+#include "FWCore/MessageService/interface/MessageServicePresence.h"
+
 //using namespace cms;
 
 
@@ -417,6 +420,8 @@ template <class T> bool copyObject (T* fObject,
 }
 
 int main (int argn, char* argv []) {
+  // start message service
+  edm::service::MessageServicePresence my_message_service;
 
   Args args;
   args.defineParameter ("-input", "DB connection string, POOL format, or .txt file, or defaults");
