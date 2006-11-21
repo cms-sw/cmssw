@@ -1,5 +1,5 @@
-//#ifndef HCALDIGITESTER_H
-//#define HCALDIGITESTER_H
+#ifndef HCALDIGITESTER_H
+#define HCALDIGITESTER_H
 
 // user include files
 
@@ -40,4 +40,6 @@ public:
 
   std::map<std::string, HcalSubdetDigiMonitor*> monitors_;
 };
+
+#endif
 
