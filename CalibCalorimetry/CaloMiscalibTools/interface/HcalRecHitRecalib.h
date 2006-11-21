@@ -1,4 +1,4 @@
-#ifdef _HCALRECHITRECALIB_H
+#ifndef _HCALRECHITRECALIB_H
 #define _HCALRECHITRECALIB_H
 
 // -*- C++ -*-

@@ -1,5 +1,5 @@
-#ifdef  _ECALRECHITRECALIB_H
-#define _ECALRECHITRECALIB_H
+#ifndef  _ECALRECHITRECALIB_H
+#define  _ECALRECHITRECALIB_H
 
 // -*- C++ -*-
 //
