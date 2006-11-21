@@ -1,6 +1,6 @@
 #include "RecoPixelVZero/PixelVZeroFinding/interface/PixelVZeroFinder.h"
 
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 /*****************************************************************************/
 PixelVZeroFinder::PixelVZeroFinder
