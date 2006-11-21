@@ -18,8 +18,8 @@
  *
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- * $Date: 2006/05/17 14:38:12 $
- * $Revision: 1.3 $
+ * $Date: 2006/09/26 09:00:21 $
+ * $Revision: 1.4 $
  * \author M. Sani
  * 
  */
@@ -121,8 +121,10 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
   /**
    * Return true if segment is good.
    * In this algorithm, this means it shares no hits with any other segment.
+   * If "SegmentSort=2" also require a minimal chi2 probability of "chi2ndfProbMin".
    */
   bool isSegmentGood(std::vector<ChamberHitContainer>::iterator is, 
+		     std::vector<double>::iterator ichi,
 		     const ChamberHitContainer& rechitsInChamber,  
 		     BoolContainer& used) const;
   
@@ -168,6 +170,11 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
    */
   float chi2Max;
   
+  /** min segment chi squared probability.
+   *  Used ONLY if SegmentSorting is chosen to be 2 
+   */
+  float chi2ndfProbMin;
+
   /** max hit deviation in r-phi from the segment axis.
    *  Function hitNearSegment requires rxy*abs(deltaphi) < dRPhiFineMax.
    */
@@ -191,6 +198,14 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
    */
   int minLayersApart;
   
+  /** Select which segment sorting to use (the higher the segment 
+   *  is in the list, the better the segment is supposed to be): 
+   *  if value is ==1: Sort segments by Chi2/(#hits on segment)
+   *  if value is ==2: Sort segments first by #hits on segment,
+   *  then by Chi2Probability(Chi2/ndf)
+   */
+  int SegmentSorting;
+
   /** Name of this class
    */
   const std::string myName;

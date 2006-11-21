@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoTC.cc
  *
- * $Date: 2006/05/17 14:38:12 $
- * $Revision: 1.6 $
+ * $Date: 2006/09/26 09:00:25 $
+ * $Revision: 1.7 $
  * \author M. Sani
  * 
  */
@@ -21,6 +21,8 @@
 #include <iostream>
 #include <string>
 
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+
 CSCSegAlgoTC::CSCSegAlgoTC(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps),
 							  myName("CSCSegAlgoTC") {
   
@@ -31,7 +33,9 @@ CSCSegAlgoTC::CSCSegAlgoTC(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   dRPhiFineMax   = ps.getParameter<double>("dRPhiFineMax");
   dPhiFineMax    = ps.getParameter<double>("dPhiFineMax");
   chi2Max        = ps.getParameter<double>("chi2Max");
+  chi2ndfProbMin = ps.getParameter<double>("chi2ndfProbMin");
   minLayersApart = ps.getParameter<int>("minLayersApart");
+  SegmentSorting = ps.getParameter<int>("SegmentSorting");
   
   LogDebug("CSC") << myName << " has algorithm cuts set to: \n"
 		  << "--------------------------------------------------------------------\n"
@@ -40,7 +44,9 @@ CSCSegAlgoTC::CSCSegAlgoTC(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
 		  << "dRPhiFineMax = " << dRPhiFineMax << '\n'
 		  << "dPhiFineMax  = " << dPhiFineMax << '\n'
 		  << "chi2Max      = " << chi2Max << '\n'
-		  << "minLayersApart = " << minLayersApart << std::endl;
+		  << "chi2ndfProbMin = " << chi2ndfProbMin << '\n'
+		  << "minLayersApart = " << minLayersApart << '\n'
+		  << "SegmentSorting = " << SegmentSorting << std::endl;
 }
 
 std::vector<CSCSegment> CSCSegAlgoTC::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
@@ -706,7 +712,7 @@ void CSCSegAlgoTC::dumpHits(const ChamberHitContainer& rechits) const {
 }
 
 
-bool CSCSegAlgoTC::isSegmentGood(std::vector<ChamberHitContainer>::iterator seg, 
+bool CSCSegAlgoTC::isSegmentGood(std::vector<ChamberHitContainer>::iterator seg, std::vector<double>::iterator chi2,
 				 const ChamberHitContainer& rechitsInChamber, BoolContainer& used) const {
   
   // Apply any selection cuts to segment
@@ -722,6 +728,21 @@ bool CSCSegAlgoTC::isSegmentGood(std::vector<ChamberHitContainer>::iterator seg,
   if (seg->size() < 3 + iadd)
     return false;
   
+  // Additional part of alternative segment selection scheme: reject
+  // segments with a chi2 probability of less than chi2ndfProbMin. Relies on list 
+  // being sorted with "SegmentSorting == 2", that is first by nrechits and then 
+  // by chi2prob in subgroups of same nr of rechits.
+
+  if( SegmentSorting == 2 ){
+    if( (*chi2) != 0 && ((2*seg->size())-4) >0 )  {
+      if ( ChiSquaredProbability((*chi2),(double)(2*seg->size()-4)) < chi2ndfProbMin ) { 
+	return false;
+      }
+    }
+    if((*chi2) == 0 ) return false;
+  }
+  
+
   for(unsigned int ish = 0; ish < seg->size(); ++ish) {
     
     ChamberHitContainerCIt ib = rechitsInChamber.begin();
@@ -777,7 +798,7 @@ void CSCSegAlgoTC::pruneTheSegments(const ChamberHitContainer& rechitsInChamber)
 
   for (is = candidates.begin();  is !=  candidates.end(); ) {
     
-    bool goodSegment = isSegmentGood(is, rechitsInChamber, used);
+    bool goodSegment = isSegmentGood(is, ichi, rechitsInChamber, used);
     
     if (goodSegment) {
       LogDebug("CSC") << "Accepting segment: ";
@@ -814,27 +835,80 @@ void CSCSegAlgoTC::segmentSort() {
       
       int n1 = candidates[i].size();
       int n2 = candidates[j].size();
-      if ((chi2s[i]/n1) > (chi2s[j]/n2)) {
-        
-        ChamberHitContainer temp = candidates[j];
-        candidates[j] = candidates[i];
-        candidates[i] = temp;
-        
-        double temp1 = chi2s[j];
-        chi2s[j] = chi2s[i];
-        chi2s[i] = temp1;
-        
-        AlgebraicSymMatrix temp2 = errors[j];
-        errors[j] = errors[i];
-        errors[i] = temp2;
-        
-        LocalPoint temp3 = origins[j];
-        origins[j] = origins[i];
-        origins[i] = temp3;
-        
-        LocalVector temp4 = directions[j];
-        directions[j] = directions[i];
-        directions[i] = temp4;
+      
+      if( SegmentSorting == 2 ){ // Sort criterion: first sort by Nr of rechits, then in groups of rechits by chi2prob:
+	if ( n2 > n1 ) { // sort by nr of rechits
+	  ChamberHitContainer temp = candidates[j];
+	  candidates[j] = candidates[i];
+	  candidates[i] = temp;
+	  
+	  double temp1 = chi2s[j];
+	  chi2s[j] = chi2s[i];
+	  chi2s[i] = temp1;
+	  
+	  AlgebraicSymMatrix temp2 = errors[j];
+	  errors[j] = errors[i];
+	  errors[i] = temp2;
+	  
+	  LocalPoint temp3 = origins[j];
+	  origins[j] = origins[i];
+	  origins[i] = temp3;
+	  
+	  LocalVector temp4 = directions[j];
+	  directions[j] = directions[i];
+	  directions[i] = temp4;
+	}
+	// sort by chi2 probability in subgroups with equal nr of rechits
+	if(chi2s[i] != 0. && 2*n2-4 > 0 ) {
+	  if( n2 == n1 && (ChiSquaredProbability( chi2s[i],(double)(2*n1-4)) < ChiSquaredProbability(chi2s[j],(double)(2*n2-4))) ){
+	  ChamberHitContainer temp = candidates[j];
+	  candidates[j] = candidates[i];
+	  candidates[i] = temp;
+	  
+	  double temp1 = chi2s[j];
+	  chi2s[j] = chi2s[i];
+	  chi2s[i] = temp1;
+	  
+	  AlgebraicSymMatrix temp2 = errors[j];
+	  errors[j] = errors[i];
+	  errors[i] = temp2;
+	  
+	  LocalPoint temp3 = origins[j];
+	  origins[j] = origins[i];
+	  origins[i] = temp3;
+	  
+	  LocalVector temp4 = directions[j];
+	  directions[j] = directions[i];
+	  directions[i] = temp4;
+	  }
+	}
+      }
+      else if( SegmentSorting == 1 ){
+	if ((chi2s[i]/n1) > (chi2s[j]/n2)) {
+	  
+	  ChamberHitContainer temp = candidates[j];
+	  candidates[j] = candidates[i];
+	  candidates[i] = temp;
+	  
+	  double temp1 = chi2s[j];
+	  chi2s[j] = chi2s[i];
+	  chi2s[i] = temp1;
+	  
+	  AlgebraicSymMatrix temp2 = errors[j];
+	  errors[j] = errors[i];
+	  errors[i] = temp2;
+	  
+	  LocalPoint temp3 = origins[j];
+	  origins[j] = origins[i];
+	  origins[i] = temp3;
+	  
+	  LocalVector temp4 = directions[j];
+	  directions[j] = directions[i];
+	  directions[i] = temp4;
+	}
+      }
+      else{
+          LogDebug("CSC") << "No valid segment sorting specified - BAD !!!\n";
       }
     }
   }     
