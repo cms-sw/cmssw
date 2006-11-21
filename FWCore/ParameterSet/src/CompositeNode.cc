@@ -253,7 +253,7 @@ namespace edm {
       {
         // let unnamed node go, because they might be in the process
         if((**i).name() != "" && (**i).name() != "nameless" 
-           && (**i).type() != "includeRenamed")
+           && (**i).type() != "includeRenamed" && (**i).type() != "es_prefer")
         {
           if(std::find(nodeNames.begin(), nodeNames.end(), (**i).name())
              == nodeNames.end())
