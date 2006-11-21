@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/11/20 09:04:14 $
- * $Revision: 1.92 $
+ * $Date: 2006/11/21 07:54:09 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -543,6 +543,8 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
           cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
           cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
 
+          cout << endl;
+
         }
 
         p.setPedMeanG1(mean01);
@@ -637,6 +639,8 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
 
         cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
         cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
+
+        cout << endl;
 
       }
 

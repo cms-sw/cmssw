@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/11/20 09:04:14 $
- * $Revision: 1.45 $
+ * $Date: 2006/11/21 08:30:20 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -304,6 +304,8 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
           cout << "Preparing dataset for SM=" << ism << endl;
 
           cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+
+          cout << endl;
 
         }
 

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/11/20 09:04:14 $
- * $Revision: 1.111 $
+ * $Date: 2006/11/21 07:54:09 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -647,6 +647,8 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
           cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
 
+          cout << endl;
+
         }
 
         c1.setProcessedEvents(int(numTot));
@@ -729,6 +731,8 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
           cout << "(" << iet << "," << ipt << ") " << num00 << " " << num05 << " " << num06 << endl;
 
+          cout << endl;
+
         }
 
         c2.setProcessedEvents(int(numTot));
@@ -804,6 +808,8 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
           cout << "Preparing dataset for mem of SM=" << ism << endl;
 
           cout << "(" << ie << "," << ip << ") " << num07 << " " << num08 << endl;
+
+          cout << endl;
 
         }
 
@@ -885,6 +891,8 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
         cout << "Preparing dataset for SM=" << ism << endl;
 
         cout << "(" << iet <<  ") " << num09 << " " << num10 << endl;
+
+        cout << endl;
 
       }
 

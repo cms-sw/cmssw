@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/11/20 09:04:14 $
- * $Revision: 1.91 $
+ * $Date: 2006/11/21 07:54:09 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -460,6 +460,8 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
           cout << "G06 (" << ie << "," << ip << ") " << num02 << " " << mean02 << " " << rms02 << endl;
           cout << "G12 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
 
+          cout << endl;
+
         }
 
         adc.setADCMeanG1(mean01);
@@ -627,6 +629,8 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
         cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
         cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;
+
+        cout << endl;
 
       }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/11/20 09:04:14 $
- * $Revision: 1.31 $
+ * $Date: 2006/11/21 07:54:09 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -298,6 +298,8 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
           cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
           cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
 	  cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
+
+          cout << endl;
 
         }
 

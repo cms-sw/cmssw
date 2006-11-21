@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/11/20 09:04:14 $
- * $Revision: 1.91 $
+ * $Date: 2006/11/21 07:54:09 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  *
 */
@@ -679,6 +679,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
 
           cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
+          cout << endl;
+
         }
 
         apd_bl.setAPDMean(mean01);
@@ -718,6 +720,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
           cout << "Preparing dataset for SM=" << ism << endl;
 
           cout << "L2 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+
+          cout << endl;
 
         }
 
@@ -759,6 +763,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
 
           cout << "L3 (" << ie << "," << ip << ") " << num05 << " " << mean05 << " " << rms05 << endl;
 
+          cout << endl;
+
         }
 
         apd_gr.setAPDMean(mean05);
@@ -798,6 +804,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
           cout << "Preparing dataset for SM=" << ism << endl;
 
           cout << "L4 (" << ie << "," << ip << ") " << num07 << " " << mean07 << " " << rms07 << endl;
+
+          cout << endl;
 
         }
 
@@ -1035,6 +1043,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
         cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
         cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
 
+        cout << endl;
+
       }
 
       pn_bl.setADCMeanG1(mean01);
@@ -1079,6 +1089,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
 
         cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
         cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
+
+        cout << endl;
 
       }
 
@@ -1125,6 +1137,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
         cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << endl;
         cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << endl;
 
+        cout << endl;
+
       }
 
       pn_gr.setADCMeanG1(mean03);
@@ -1169,6 +1183,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
 
         cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << endl;
         cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << endl;
+
+        cout << endl;
 
       }
 

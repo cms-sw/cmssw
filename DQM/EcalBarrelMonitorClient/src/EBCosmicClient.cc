@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/07/23 07:23:09 $
- * $Revision: 1.58 $
+ * $Date: 2006/10/18 16:57:52 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -198,6 +198,8 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int 
 
           cout << "Sel (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
           cout << "Cut (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+
+          cout << endl;
 
         }
 
