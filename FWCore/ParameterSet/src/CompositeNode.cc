@@ -251,23 +251,30 @@ namespace edm {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
       for(;i!=e;++i)
       {
-        if(std::find(nodeNames.begin(), nodeNames.end(), (**i).name())
-           == nodeNames.end())
+        // let unnamed node go, because they might be in the process
+        if((**i).name() != "" && (**i).name() != "nameless" 
+           && (**i).type() != "includeRenamed")
         {
-          nodeNames.push_back((**i).name());
-        }
-        else
-        {
-          std::ostringstream errorMessage, trace;
-          errorMessage << "Duplicate node name: parameter " << (**i).name() 
-            << " in " << name();
-          printTrace(trace);
-          if(!trace.str().empty())
+          if(std::find(nodeNames.begin(), nodeNames.end(), (**i).name())
+             == nodeNames.end())
           {
-            errorMessage << " from: " << trace.str();
-          } 
-
-          throw edm::Exception(errors::Configuration,"") << errorMessage.str();
+            nodeNames.push_back((**i).name());
+            // have the child validate itself
+            (**i).validate();
+          }
+          else
+          {
+            std::ostringstream errorMessage, trace;
+            errorMessage << "Duplicate node name: parameter " << (**i).name() 
+              << " in " << name();
+            printTrace(trace);
+            if(!trace.str().empty())
+            {
+              errorMessage << " from: " << trace.str();
+            } 
+ 
+            throw edm::Exception(errors::Configuration,"") << errorMessage.str();
+          }
         }
       }
  

@@ -544,14 +544,15 @@ namespace edm {
    
     void ParseTree::validate() const
     {
-      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin();
-          moduleMapItr != modulesAndSources_.end(); ++moduleMapItr)
-      {
-        CompositeNode * compositeNode
-          = dynamic_cast<CompositeNode*>(moduleMapItr->second.get());
-        assert(compositeNode != 0);
-        compositeNode->validate();
-      }
+//      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin();
+//          moduleMapItr != modulesAndSources_.end(); ++moduleMapItr)
+//      {
+//        CompositeNode * compositeNode
+//          = dynamic_cast<CompositeNode*>(moduleMapItr->second.get());
+//        assert(compositeNode != 0);
+//        compositeNode->validate();
+//      }
+      top()->validate();
     }
 
   }  // pset namespace
