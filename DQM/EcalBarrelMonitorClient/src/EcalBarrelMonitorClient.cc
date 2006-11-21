@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/11/21 09:47:22 $
- * $Revision: 1.189 $
+ * $Date: 2006/11/21 13:16:52 $
+ * $Revision: 1.190 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -794,8 +794,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
           if ( clients_[j]->writeDb(econn, &moniov_, ism) ) {
             tasko |= 0x1 << j;
           } else {
-            tasko |= 0x1 << j;
-//            tasko |= 0x0 << j;
+            tasko |= 0x0 << j;
           }
         }
       }
