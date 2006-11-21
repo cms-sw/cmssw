@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/11/20 09:04:14 $
- * $Revision: 1.187 $
+ * $Date: 2006/11/21 08:25:46 $
+ * $Revision: 1.188 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -535,14 +535,14 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( outputFile_.size() != 0 ) mui_->save(outputFile_);
 
-  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
-
   if ( subrun_ != -1 ) {
 
     this->writeDb();
     this->endRunDb();
 
   }
+
+  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool ended; ended = false;
@@ -712,6 +712,13 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       econn = 0;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
+    }
+  }
+
+  for ( int i=0; i<int(clients_.size()); i++ ) {
+    bool ended; ended = false;
+    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+      if ( runtype_ != -1 && runtype_ == (*j).second && !ended ) { ended = true; clients_[i]->beginRunDb(); }
     }
   }
 
@@ -930,6 +937,13 @@ void EcalBarrelMonitorClient::endRunDb(void) {
       econn = 0;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
+    }
+  }
+
+  for ( int i=0; i<int(clients_.size()); i++ ) {
+    bool ended; ended = false;
+    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+      if ( runtype_ != -1 && runtype_ == (*j).second && !ended ) { ended = true; clients_[i]->endRunDb(); }
     }
   }
 

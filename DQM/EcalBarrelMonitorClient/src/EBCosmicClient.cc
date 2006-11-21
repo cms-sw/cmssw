@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/10/18 16:57:52 $
- * $Revision: 1.59 $
+ * $Date: 2006/11/21 08:46:34 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -148,6 +148,10 @@ void EBCosmicClient::cleanup(void) {
 
 }
 
+void EBCosmicClient::beginRunDb(void){
+
+}
+
 bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
   bool status = true;
@@ -224,10 +228,6 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int 
     }
   }
 
-  if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
-  if ( meh02_[ism-1] ) mui_->softReset(meh02_[ism-1]);
-  if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
-
   if ( econn ) {
     try {
       cout << "Inserting MonOccupancyDat ... " << flush;
@@ -239,6 +239,20 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int 
   }
 
   return status;
+
+}
+
+void EBCosmicClient::endRunDb(void){
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
+    if ( meh02_[ism-1] ) mui_->softReset(meh02_[ism-1]);
+    if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
+
+  }
 
 }
 

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/11/21 07:54:09 $
- * $Revision: 1.112 $
+ * $Date: 2006/11/21 08:45:13 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -336,6 +336,10 @@ void EBIntegrityClient::cleanup(void) {
     meg02_[ism-1] = 0;
 
   }
+
+}
+
+void EBIntegrityClient::beginRunDb(void){
 
 }
 
@@ -952,6 +956,10 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
   }
 
   return status;
+
+}
+
+void EBIntegrityClient::endRunDb(void){
 
 }
 

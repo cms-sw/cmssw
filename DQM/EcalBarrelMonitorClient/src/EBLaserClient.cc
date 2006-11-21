@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/11/21 07:54:09 $
- * $Revision: 1.92 $
+ * $Date: 2006/11/21 08:45:13 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  *
 */
@@ -465,6 +465,10 @@ void EBLaserClient::cleanup(void) {
     meaopn04_[ism-1] = 0;
 
   }
+
+}
+
+void EBLaserClient::beginRunDb(void){
 
 }
 
@@ -1238,6 +1242,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
   }
 
   return status;
+
+}
+
+void EBLaserClient::endRunDb(void){
 
 }
 
