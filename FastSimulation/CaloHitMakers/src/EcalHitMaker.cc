@@ -47,7 +47,7 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   totalL0_ = 0.;
   outsideWindowEnergy_ = 0.;
   rearleakage_ = 0.;
-
+  bfactor_ = 1.; 
   ncrystals_ = 0;
 
   doreorg_ = !showertype;
