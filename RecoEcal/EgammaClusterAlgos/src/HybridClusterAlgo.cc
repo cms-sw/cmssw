@@ -337,6 +337,10 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
                                                                //SuperCluster
 
     double ClusterE =0; //Sum of cluster energies for supercluster.
+    //Holders for position of this supercluster.
+    double posX=0;
+    double posY=0;
+    double posZ=0;
 
     //Loop over this set of basic clusters, find their references, and add them to the
     //supercluster.  This could be somehow more efficient.
@@ -348,11 +352,19 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
 	if (thisclus== cluster_p){ //Comparison based on energy right now.
 	  thissc.push_back(clustersCollection[j]);
 	  if (i==0) seed = clustersCollection[j];
+
 	  ClusterE += cluster_p.energy();
+	  posX += cluster_p.energy() * cluster_p.position().X();
+	  posY += cluster_p.energy() * cluster_p.position().Y();
+	  posZ += cluster_p.energy() * cluster_p.position().Z();
+								     
 	}
       }//End loop over finding references.
     }//End loop over clusters.
-    reco::SuperCluster suCl(ClusterE, (*seed).position(), seed, thissc);
+    posX /= ClusterE;
+    posY /= ClusterE;
+    posZ /= ClusterE;
+    reco::SuperCluster suCl(ClusterE, math::XYZPoint(posX, posY, posZ), seed, thissc);
     SCcoll.push_back(suCl);
 
     if ( debugLevel_ == pDEBUG ){
