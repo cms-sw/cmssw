@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/11/21 08:45:51 $
- * $Revision: 1.47 $
+ * $Date: 2006/11/21 09:48:49 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -27,6 +27,8 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
+
+#include "OnlineDB/EcalCondDB/interface/MonCrystalStatusDat.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
@@ -276,6 +278,16 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
   MonPedestalsOnlineDat p;
   map<EcalLogicID, MonPedestalsOnlineDat> dataset;
 
+  map<EcalLogicID, MonCrystalStatusDat> mask;
+
+  if ( econn ) {
+    try {
+      econn->fetchDataSet(&mask, moniov); // FIX: need to use run-number
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
 
@@ -331,9 +343,29 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset[ecid] = p;
+
+            if ( mask.size() != 0 ) {
+              map<EcalLogicID, MonCrystalStatusDat>::const_iterator m = mask.find(ecid);
+              if ( m != mask.end() ) {
+// FIX          if ( (m->second).getStatusG12().fetchID() & PEDESTAL_ONLINE_WRONG ) {
+                if ( (m->second).getStatusG12().fetchID() != 0 ) {
+                  if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
+                  val = true;
+                }
+              }
+            }
+
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
+        } else {
+
+// FIX
+//        if ( (ie == 54 && ip == 3) || (ie == 61 && ip == 17) ) {
+//          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
+//          val = true;
+//        }
+
         }
 
         status = status && val;
