@@ -55,10 +55,10 @@ class HybridClusterAlgo
   std::vector<EcalRecHit> seeds;
 
   //The vector of seed clusters:
-  std::vector<reco::BasicCluster> _seedClus;
+  std::vector<reco::BasicCluster> seedClus_;
 
   //Map of basicclusters and what supercluster they will belong to.
-  std::map<int, std::vector<reco::BasicCluster> > _clustered;
+  std::map<int, std::vector<reco::BasicCluster> > clustered_;
 
   //Control the verbosity.
   int debugLevel_;
