@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/20 22:59:34 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/11/21 16:52:17 $
+ *  $Revision: 1.5 $
  *  \author A. Tumanov - Rice
  */
 
@@ -30,7 +30,6 @@ map<CSCDetId, CSCEventData>
 CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis, 
 				 const CSCWireDigiCollection & wireDigis, 
 				 CSCReadoutMappingFromFile & mapping) {
- 
   map<CSCDetId, CSCEventData> chamberMap;
   ///iterate over chambers with strip digis in them
   for (CSCStripDigiCollection::DigiRangeIterator j=stripDigis.begin(); j!=stripDigis.end(); j++) {

@@ -8,7 +8,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -172,6 +171,7 @@ void CSCEventData::copy(const CSCEventData & data) {
   nclct_ = data.nclct_;
   size_  = data.size_;
   theChamberType = data.theChamberType;
+
 }
 
 
@@ -344,31 +344,46 @@ boost::dynamic_bitset<> CSCEventData::pack() {
 
   if(theALCTHeader != NULL) {
     boost::dynamic_bitset<> alctHeader(theALCTHeader->sizeInWords()*16,  *theALCTHeader->data());
-    result &=alctHeader;
+    result = append(result, alctHeader);
   }
   if(theAnodeData != NULL) {
     boost::dynamic_bitset<> anodeData(theAnodeData->sizeInWords()*16,  *theAnodeData->data());
-    result &= anodeData;
+    result = append(result, anodeData);
   }
   if(theALCTTrailer != NULL) {
     boost::dynamic_bitset<> alctTrailer(theALCTTrailer->sizeInWords()*16,  *theALCTTrailer->data());
-    result &= alctTrailer;
+    result = append(result, alctTrailer);
   }
 
   if(theTMBData != NULL) {
-    result &= theTMBData->pack();
+    result  = append(result, theTMBData->pack());
   }
 
   for(int icfeb = 0;  icfeb < 5;  ++icfeb) {
     if(theCFEBData[icfeb] != NULL) {
       boost::dynamic_bitset<> cfebData( theCFEBData[icfeb]->sizeInWords()*16,  *theCFEBData[icfeb]->data());
-      result &= cfebData;
+      result = append(result, cfebData);
     }
   }
 
   boost::dynamic_bitset<> dmbTrailer( theDMBTrailer.sizeInWords()*16, *(const unsigned*)&theDMBTrailer);
-  result &= dmbTrailer;
+  result = append(result, dmbTrailer);
 
   return result;
 }
 
+boost::dynamic_bitset<> 
+CSCEventData::append(const boost::dynamic_bitset<> & bs1, const boost::dynamic_bitset<> & bs2)
+{
+  boost::dynamic_bitset<> result(bs1.size()+bs2.size());
+  unsigned size1 = bs1.size();
+  for(unsigned i = 0; i < size1; ++i)
+    {
+      result[i] = bs1[i];
+    }
+  for(unsigned i = 0; i < bs2.size(); ++i)
+    {
+      result[size1+i] = bs2[i];
+    }
+  return result;
+}

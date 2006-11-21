@@ -55,7 +55,8 @@ public:
 
   /// returns the binary event data
   boost::dynamic_bitset<> pack();
-
+  boost::dynamic_bitset<> 
+    append(const boost::dynamic_bitset<> & bs1, const boost::dynamic_bitset<> & bs2);
   
   static bool debug;
   static unsigned int errMask;

@@ -10,9 +10,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
-
-//#include "Utilities/GenUtil/interface/BitVector.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -226,11 +223,27 @@ boost::dynamic_bitset<> CSCDDUEventData::pack() {
   result = dduHeader;
     
   for(unsigned int i = 0; i < theData.size(); ++i) {
-    result &= theData[i].pack();
+    result = append(result,theData[i].pack());
   }
   
   boost::dynamic_bitset<> dduTrailer( theDDUTrailer.sizeInWords()*16, *(const unsigned*)&theDDUTrailer);
-  result &= dduTrailer;
+  result = append(result,dduTrailer);
 
+  return result;
+}
+
+boost::dynamic_bitset<> 
+CSCDDUEventData::append(const boost::dynamic_bitset<> & bs1, const boost::dynamic_bitset<> & bs2)
+{
+  boost::dynamic_bitset<> result(bs1.size()+bs2.size());
+  unsigned size1 = bs1.size();
+  for(unsigned i = 0; i < size1; ++i)
+    {
+      result[i] = bs1[i];
+    }
+  for(unsigned i = 0; i < bs2.size(); ++i)
+    {
+      result[size1+i] = bs2[i];
+    }
   return result;
 }
