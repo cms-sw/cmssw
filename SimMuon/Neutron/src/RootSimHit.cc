@@ -1,5 +1,5 @@
 #include "SimMuon/Neutron/src/RootSimHit.h"
-ClassImp(RootSimHit);
+ClassImp(RootSimHit)
 
 
 RootSimHit::RootSimHit(const PSimHit & hit)
