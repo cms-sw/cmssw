@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/10 17:23:27 $
- *  $Revision: 1.55 $
+ *  $Date: 2006/11/13 17:11:40 $
+ *  $Revision: 1.56 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -95,12 +95,8 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
   theLayerMeasurements = new MuonDetLayerMeasurements();
   
-  tkSeedFlag = false;
+  tkSeedFlag = par.getParameter<bool>("RegionalSeedFlag");
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");  
-  if (theTkTrackLabel == "") {
-    LogInfo(metname) << "TkTrackCollectionLabel unspecified" ;  
-    tkSeedFlag = true;
-  }
 
   theTrackConverter = new MuonTrackConverter(par,theService);
   theTrackMatcher = new GlobalMuonTrackMatcher(par,theService);
@@ -184,7 +180,7 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 // reconstruct trajectories
 //
 MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
-
+  
   std::string metname = "GLBTrajBuilder::trajectories";
   // cut on muons with low momenta
   if ( (staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut || (staCandIn).second->innerMomentum().R() < 2.5 ) return CandidateContainer();
@@ -192,28 +188,27 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand = TrackCand(staCandIn);
   addTraj(staCand);
-
+  
   vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
   LogInfo(metname) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
   
   // match tracker tracks to muon track
   vector<TrackCand> trackerTracks = theTrackMatcher->match(staCand, regionalTkTracks);
   LogInfo(metname) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
-
+  
   // build a combined tracker-muon MuonCandidate
   CandidateContainer result = build(staCand, trackerTracks);
   LogInfo(metname) << "Found "<< result.size() << " GLBMuons from one STACand";
-
+  
   // free memory
-  if ( staCand.first != 0) {
-    if ( staCand.first ) delete staCand.first;
-  }
+  if ( staCandIn.first != 0) delete staCand.first;
+
   for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
     if ( (*is).first ) delete (*is).first;
   }
-
+  
   return result;
-
+  
 }
 
 
@@ -908,7 +903,7 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
 void GlobalMuonTrajectoryBuilder::addTraj(TrackCand& candIn) const {
 
   std::string metname = "GLBTrajBuilder::addTraj";
-  if( candIn.first == 0 || !(candIn.first->isValid()) ) {
+  if( candIn.first == 0 ) {
     if( candIn.first ) delete candIn.first;
     LogDebug(metname) << "Making new trajectory from TrackRef";
     TC staTrajs = theTrackConverter->convert(candIn.second);
