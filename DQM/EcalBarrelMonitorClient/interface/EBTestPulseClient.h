@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2006/07/10 12:40:04 $
- * $Revision: 1.35 $
+ * $Date: 2006/10/18 16:57:51 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -72,8 +72,14 @@ void cleanup(void);
 /// HtmlOutput
 void htmlOutput(int run, string htmlDir, string htmlName);
 
+/// BeginRunDB
+void beginRunDb(void);
+
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
+
+/// EndRunDb
+void endRunDb(void);
 
 /// Get Functions
  inline int getEvtPerJob() { return ievt_; }

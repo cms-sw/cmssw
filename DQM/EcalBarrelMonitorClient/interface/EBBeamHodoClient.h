@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoClient.h
  *
- * $Date: 2006/08/06 16:08:37 $
- * $Revision: 1.8 $
+ * $Date: 2006/10/18 16:57:51 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -72,8 +72,14 @@ void cleanup(void);
 /// HtmlOutput
 void htmlOutput(int run, string htmlDir, string htmlName);
 
+/// BeginRunDB
+void beginRunDb(void);
+
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
+
+/// EndRunDb
+void endRunDb(void);
 
 /// Get Functions
  inline int getEvtPerJob() { return ievt_; }
