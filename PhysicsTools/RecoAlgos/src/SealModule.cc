@@ -5,12 +5,9 @@
 #include "PhysicsTools/RecoAlgos/src/ObjectSelectors.h"
 #include "PhysicsTools/RecoAlgos/src/ObjectUtilities.h"
 
-namespace reco {
-  namespace modules {
+DEFINE_SEAL_MODULE();
 
-DEFINE_SEAL_MODULE()
-
-    // filters
+ // filters
 DEFINE_ANOTHER_FWK_MODULE( TrackCountFilter )
 DEFINE_ANOTHER_FWK_MODULE( ElectronCountFilter )
 DEFINE_ANOTHER_FWK_MODULE( PhotonCountFilter )
@@ -39,13 +36,10 @@ DEFINE_ANOTHER_FWK_MODULE( LargestEtCaloJetShallowCloneSelector )
 DEFINE_ANOTHER_FWK_MODULE( MassWindowTrackSelector )
 DEFINE_ANOTHER_FWK_MODULE( ConfigTrackSelector )
 
-    // other utilities
+ // other utilities
 DEFINE_ANOTHER_FWK_MODULE( TrackMerger )
 DEFINE_ANOTHER_FWK_MODULE( MuonMerger )
 DEFINE_ANOTHER_FWK_MODULE( ElectronMerger )
 DEFINE_ANOTHER_FWK_MODULE( PhotonMerger )
 DEFINE_ANOTHER_FWK_MODULE( CaloJetMerger )
 DEFINE_ANOTHER_FWK_MODULE( TrackRecoverer )
-
-  }
-}
