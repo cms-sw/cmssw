@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/11/21 10:09:25 $
- * $Revision: 1.49 $
+ * $Date: 2006/11/21 13:16:52 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -282,6 +282,8 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
+  } else {
+    // FIX: read the mask from file or cache
   }
 
   const float n_min_tot = 1000.;
@@ -343,8 +345,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
             if ( mask.size() != 0 ) {
               map<EcalLogicID, MonCrystalStatusDat>::const_iterator m = mask.find(ecid);
               if ( m != mask.end() ) {
-// FIX          if ( (m->second).getStatusG12().fetchID() & PEDESTAL_ONLINE_WRONG ) {
-                if ( (m->second).getStatusG12().fetchID() != 0 ) {
+                if ( (m->second).getStatusG12().getShortDesc() == "PEDESTAL_ONLINE_WRONG" ) {
                   if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
                   val = true;
                 }
@@ -356,12 +357,36 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
           }
         } else {
 
-// FIX
-//        if ( (ie == 54 && ip == 3) || (ie == 61 && ip == 17) ) {
-//          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
-//          val = true;
-//        }
+#if 1
+          // FIX: this should be done when reading the mask from file
 
+          pair<EcalLogicID, MonCrystalStatusDat> d;
+
+          MonCrystalStatusDef b;
+          b.setShortDesc("PEDESTAL_ONLINE_WRONG");
+
+          MonCrystalStatusDat s;
+          s.setStatusG12(b);
+
+          d.first = EcalLogicID("local", 10000*(ism-1) + ((3-1) + 20*(54-1) + 1));
+          d.second = s;
+          mask.insert(d);
+
+          d.first = EcalLogicID("local", 10000*(ism-1) + ((17-1) + 20*(61-1) + 1));
+          d.second = s;
+          mask.insert(d);
+#endif
+          ecid = EcalLogicID("local", 10000*(ism-1) + ((ip-1) + 20*(ie-1) + 1));
+
+          if ( mask.size() != 0 ) {
+            map<EcalLogicID, MonCrystalStatusDat>::const_iterator m = mask.find(ecid);
+            if ( m != mask.end() ) {
+              if ( (m->second).getStatusG12().getShortDesc() == "PEDESTAL_ONLINE_WRONG" ) {
+                if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
+                val = true;
+              }
+            }
+          }
         }
 
         status = status && val;
