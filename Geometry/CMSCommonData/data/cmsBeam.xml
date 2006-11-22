@@ -7,17 +7,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 
-<PosPartSection label="cmsMuonMagnetBeam.xml">
-
-<!-- mec : NOTE: these positioning instructions allow the sub-detectors,
-like tracker.xml file to be independent of the whole CMS detector.  
--->
- <PosPart copyNumber="1">
-   <rParent name="cms:CMSE"/>
-   <rChild name="muonBase:MUON"/>
-  <rRotation name="rotations:000D"/>
- </PosPart>
-
+<PosPartSection label="cmsBeam.xml">
  <PosPart copyNumber="1">
    <rParent name="cms:CMSE"/>
    <rChild name="beampipe:BEAM"/>
@@ -28,14 +18,6 @@ like tracker.xml file to be independent of the whole CMS detector.
    <rChild name="beampipe:BEAM"/>
   <rRotation name="rotations:180D"/>
  </PosPart>
-
- <PosPart copyNumber="1">
-   <rParent name="muonBase:MUON"/>
-   <rChild name="mgnt:MGNT"/>
-  <rRotation name="rotations:000D"/>
- </PosPart>
-
-
 </PosPartSection>
 
 </DDDefinition>
