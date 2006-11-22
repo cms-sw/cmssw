@@ -39,17 +39,17 @@ echo "...done"
 
 # Run all the Tracker scripts and rename files as 'new'
 echo "Run all the scripts to produce the 'new' files..."
-#cmsRun runP_TkStrct.cfg     > TkStrct.txt
-#cmsRun runP_PixBar.cfg      > PixBar.txt
-#cmsRun runP_PixFwdPlus.cfg  > PixFwdPlus.txt
-#cmsRun runP_PixFwdMinus.cfg > PixFwdMinus.txt
-#cmsRun runP_TIB.cfg         > TIB.txt
-#cmsRun runP_TIDF.cfg        > TIDF.txt
-#cmsRun runP_TIDB.cfg        > TIDB.txt
-#cmsRun runP_TOB.cfg         > TOB.txt
-#cmsRun runP_TEC.cfg         > TEC.txt
-#cmsRun runP_Tracker.cfg     > Tracker.txt
-#cmsRun runP_BeamPipe.cfg    > BeamPipe.txt
+cmsRun runP_TkStrct.cfg     > TkStrct.txt
+cmsRun runP_PixBar.cfg      > PixBar.txt
+cmsRun runP_PixFwdPlus.cfg  > PixFwdPlus.txt
+cmsRun runP_PixFwdMinus.cfg > PixFwdMinus.txt
+cmsRun runP_TIB.cfg         > TIB.txt
+cmsRun runP_TIDF.cfg        > TIDF.txt
+cmsRun runP_TIDB.cfg        > TIDB.txt
+cmsRun runP_TOB.cfg         > TOB.txt
+cmsRun runP_TEC.cfg         > TEC.txt
+cmsRun runP_Tracker.cfg     > Tracker.txt
+cmsRun runP_BeamPipe.cfg    > BeamPipe.txt
 #
 cp matbdg_TkStrct.root     matbdg_TkStrct_new.root 
 cp matbdg_PixBar.root      matbdg_PixBar_new.root 
