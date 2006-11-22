@@ -74,7 +74,7 @@ BU::BU(xdaq::ApplicationStub *s)
   , sumOfSquares_(0)
   , sumOfSizes_(0)
   , i2oPool_(0)
-  , bSem_(BSem::FULL)
+  , lock_(BSem::FULL)
 {
   // initialize application info
   url_     =
@@ -147,7 +147,7 @@ BU::~BU()
 void BU::timeExpired(toolbox::task::TimerEvent& e)
 {
   
-  bSem_.take();
+  lock();
   gui_->lockInfoSpaces();
 
   nbMeasurements_++;
@@ -162,7 +162,7 @@ void BU::timeExpired(toolbox::task::TimerEvent& e)
   nbEventsPerSecAvg_=nbEvents_/nbMeasurements_;
 
   // throughput measurements
-  nbMBPerSec_=9.53674e-07*(nbBytes_);
+  nbMBPerSec_=9.53674e-07*nbBytes_;
   nbBytes_=0;
   nbMBTot_.value_+=nbMBPerSec_;
   if (nbMBPerSec_.value_>0.0) {
@@ -186,7 +186,41 @@ void BU::timeExpired(toolbox::task::TimerEvent& e)
   sumOfSizes_=0;
 
   gui_->unlockInfoSpaces();
-  bSem_.give();
+  unlock();
+}
+
+
+//______________________________________________________________________________
+void BU::initTimer()
+{
+  toolbox::task::getTimerFactory()->createTimer(sourceId_);
+  toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  if (0!=timer) timer->stop();
+}
+
+
+//______________________________________________________________________________
+void BU::startTimer()
+{
+  toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  if (0!=timer) {
+    toolbox::TimeInterval oneSec(1.);
+    toolbox::TimeVal      startTime=toolbox::TimeVal::gettimeofday();
+    timer->start();
+    timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->appInfoSpace(),sourceId_);
+  }
+  else {
+    LOG4CPLUS_WARN(log_,"Failed to start timer.");
+  }
+  
+}
+
+
+//______________________________________________________________________________
+void BU::stopTimer()
+{
+  toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  if (0!=timer) timer->stop();
 }
 
 
@@ -225,11 +259,9 @@ void BU::configureAction(toolbox::Event::Reference e)
   sumOfSquares_     =0;
   sumOfSizes_       =0;
 
-  // initialze timer for nbEventsPerSec / throughput measurements
-  toolbox::task::getTimerFactory()->createTimer(sourceId_);
-  toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  timer->stop();
-  
+  // intialize timer for performance measurements
+  initTimer();
+
   LOG4CPLUS_INFO(log_,"BU -> CONFIGURED <-");
 }
 
@@ -238,18 +270,6 @@ void BU::configureAction(toolbox::Event::Reference e)
 void BU::enableAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
-  // start timer for nbEventsPerSec / nbMBPerSec measurements
-  toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  if (0!=timer) {
-    toolbox::TimeInterval oneSec(1.);
-    toolbox::TimeVal      startTime=toolbox::TimeVal::gettimeofday();
-    timer->start();
-    timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->appInfoSpace(),sourceId_);
-  }
-  else {
-    LOG4CPLUS_WARN(log_,"could't start timer for nbEventsPerSec measurement");
-  }
-  
   LOG4CPLUS_INFO(log_,"BU -> ENABLED <-");
 }
 
@@ -258,7 +278,7 @@ void BU::enableAction(toolbox::Event::Reference e)
 void BU::suspendAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
-  bSem_.take();
+  lock();
   LOG4CPLUS_INFO(log_,"BU -> SUSPENDED <-");
 }
 
@@ -267,7 +287,7 @@ void BU::suspendAction(toolbox::Event::Reference e)
 void BU::resumeAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
-  bSem_.give();
+  unlock();
   LOG4CPLUS_INFO(log_,"BU -> RESUMED <-");
 }
 
@@ -276,9 +296,9 @@ void BU::resumeAction(toolbox::Event::Reference e)
 void BU::haltAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
-  toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  if (0!=timer) timer->stop();
-  
+  // stop timer
+  stopTimer();
+
   LOG4CPLUS_INFO(log_,"BU -> HALTED <-");
 }
 
@@ -334,6 +354,9 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     bufRef->release();
     return;
   }
+
+  // start timer for performance measurements upon receiving first request
+  if (nbEvents_.value_==0) startTimer();
   
   
   // process message
@@ -413,9 +436,11 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
       
       unsigned int msgSizeInBytes=frame->PvtMessageFrame.StdMessageFrame.MessageSize<<2;
       superFrag->setDataSize(msgSizeInBytes);
+      lock();
       nbBytes_      +=msgSizeInBytes;
       evtSizeInBytes+=msgSizeInBytes;
-
+      unlock();
+      
       xdaq::ApplicationDescriptor *buAppDesc=
 	getApplicationDescriptor();
       
@@ -427,9 +452,11 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     
     if (0!=event) delete event;
     
+    lock();
     nbEvents_.value_++;
     sumOfSquares_+=evtSizeInBytes*evtSizeInBytes;
     sumOfSizes_  +=evtSizeInBytes;
+    unlock();
   }
 
   // Free the request message from the FU
@@ -944,6 +971,19 @@ int BU::estimateNBlocks(unsigned int iSuperFrag,unsigned int fullBlockPayload)
   return result;
 }
 
+
+//______________________________________________________________________________
+void BU::lock()
+{
+  lock_.take();
+}
+
+
+//______________________________________________________________________________
+void BU::unlock()
+{
+  lock_.give();
+}
 
 
 //______________________________________________________________________________

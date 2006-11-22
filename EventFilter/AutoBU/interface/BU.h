@@ -69,6 +69,9 @@ namespace evf {
 
     // toolbox::task::TimerListener callback
     void timeExpired(toolbox::task::TimerEvent& e);
+    void initTimer();
+    void startTimer();
+    void stopTimer();
 
     // xdata::ActionListener callback
     void actionPerformed(xdata::Event& e);
@@ -126,6 +129,10 @@ namespace evf {
 					     const U32&     iSuperFrag,
 					     const U32&     nSuperFrag);
     
+    // synchronization operations
+    void lock();
+    void unlock();
+
     // debug functionality
     void debug(toolbox::mem::Reference* ref);
     int  check_event_data(unsigned long* blocks_adrs,int nmb_blocks);
@@ -194,7 +201,7 @@ namespace evf {
     toolbox::mem::Pool*       i2oPool_;
 
     // binary semaphore
-    BSem                      bSem_;
+    BSem                      lock_;
   
   
     //

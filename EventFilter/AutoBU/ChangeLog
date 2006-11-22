@@ -1,3 +1,13 @@
+2006-11-22  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-02-06
+	* add initTimer()/startTimer()/stopTimer
+	methods. start The timer upon receiving the first request, not
+	when enabling.
+	* lock the thread when manipulating the variables used in the
+	performance measurements, like nbBytes_.
+	* rename bSem_ -> lock_. Add lock()/unlock() methods.
+
 2006-11-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-02-05
