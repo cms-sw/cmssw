@@ -1,6 +1,6 @@
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
 
-void EcalBaseNumber::addLevel(std::string name,int copyNumber)
+void EcalBaseNumber::addLevel(const std::string& name,int copyNumber)
 {
   _sortedBaseNumber.push_back(std::pair<std::string,int>(name,copyNumber));
 }
@@ -15,7 +15,7 @@ int EcalBaseNumber::getCopyNumber(int level) const
   return _sortedBaseNumber[level].second;
 }
 
-int EcalBaseNumber::getCopyNumber(std::string levelName) const
+int EcalBaseNumber::getCopyNumber(const std::string& levelName) const
 {
   basenumber_type::const_iterator cur=_sortedBaseNumber.begin();
   basenumber_type::const_iterator end=_sortedBaseNumber.end();
