@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/13 17:11:40 $
- *  $Revision: 1.56 $
+ *  $Date: 2006/11/21 23:24:20 $
+ *  $Revision: 1.57 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -114,7 +114,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theVertexErr = GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09);
 
   convert = true;
-  tkTrajsAvailable = false;
+  tkTrajsAvailable = par.getParameter<bool>("TkTrajectoryAvailable");
   first = true;
   
   std::string ckfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
@@ -151,18 +151,12 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
       << " tracker Tracks with label "<< theTkTrackLabel;
   }  
   edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
-  try
-    {
-      event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
-      tkTrajsAvailable = true;
-      allTrackerTrajs = &*handleTrackerTrajs;         
-      if( first ) LogInfo(metname) << "Tk Trajectories Found! ";
-    }
-  catch (...)
-    {
-      if( first ) LogInfo(metname) << "No Tk Trajectories Found! ";
-      tkTrajsAvailable = false;
-    }
+  
+  if(tkTrajsAvailable) {
+    event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
+    allTrackerTrajs = &*handleTrackerTrajs;         
+    if( first ) LogInfo(metname) << "Tk Trajectories Found! ";
+  }
   
   theLayerMeasurements->setEvent(event);  
   theTkSeedGenerator->setEvent(event);
@@ -201,7 +195,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   LogInfo(metname) << "Found "<< result.size() << " GLBMuons from one STACand";
   
   // free memory
-  if ( staCandIn.first != 0) delete staCand.first;
+  if ( staCandIn.first == 0) delete staCand.first;
 
   for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
     if ( (*is).first ) delete (*is).first;
