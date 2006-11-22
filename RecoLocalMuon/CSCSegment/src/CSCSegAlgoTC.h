@@ -18,8 +18,8 @@
  *
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- * $Date: 2006/09/26 09:00:21 $
- * $Revision: 1.4 $
+ * $Date: 2006/11/21 23:22:13 $
+ * $Revision: 1.5 $
  * \author M. Sani
  * 
  */
@@ -85,6 +85,7 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
   AlgebraicSymMatrix calculateError() const;
   HepMatrix derivativeMatrix() const;
   AlgebraicSymMatrix weightMatrix() const;
+  void flipErrors(AlgebraicSymMatrix&) const;
   
   /**
    * Return true if the difference in (local) x of two hits is < dRPhiMax

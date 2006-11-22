@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoTC.cc
  *
- * $Date: 2006/09/26 09:00:25 $
- * $Revision: 1.7 $
+ * $Date: 2006/11/21 23:22:13 $
+ * $Revision: 1.8 $
  * \author M. Sani
  * 
  */
@@ -163,7 +163,11 @@ std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits)
           
           // calculate error matrix	  	  
           AlgebraicSymMatrix error_matrix = calculateError();	
-          
+
+          // but reorder components to match what's required by TrackingRecHit interface
+          // i.e. slopes first, then positions          
+          flipErrors( error_matrix );
+
           candidates.push_back(proto_segment);
           origins.push_back(theOrigin);
           directions.push_back(theDirection);
@@ -975,3 +979,26 @@ AlgebraicSymMatrix CSCSegAlgoTC::weightMatrix() const {
   matrix.invert(ierr);
   return matrix;
 }
+
+void CSCSegAlgoTC::flipErrors( AlgebraicSymMatrix& a ) const { 
+    
+ // The CSCSegment needs the error matrix re-arranged 
+   
+ AlgebraicSymMatrix hold( a ); 
+    
+ // errors on slopes into upper left 
+ a(1,1) = hold(3,3); 
+ a(1,2) = hold(3,4); 
+ a(2,1) = hold(4,3); 
+ a(2,2) = hold(4,4); 
+    
+ // errors on positions into lower right 
+ a(3,3) = hold(1,1); 
+ a(3,4) = hold(1,2); 
+ a(4,3) = hold(2,1); 
+ a(4,4) = hold(2,2); 
+    
+ // off-diagonal elements remain unchanged 
+    
+} 
+

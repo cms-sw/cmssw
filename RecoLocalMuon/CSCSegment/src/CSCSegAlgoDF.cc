@@ -133,6 +133,10 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
           // calculate error matrix
           AlgebraicSymMatrix protoErrors = calculateError();     
 
+          // but reorder components to match what's required by TrackingRecHit interface 
+          // i.e. slopes first, then positions 
+          flipErrors( protoErrors ); 
+
           CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2); 
               
           segmentInChamber.push_back(temp); 
@@ -657,4 +661,27 @@ AlgebraicSymMatrix CSCSegAlgoDF::calculateError() const {
   // blithely assuming the inverting never fails...
   return result;
 }
+
+
+void CSCSegAlgoDF::flipErrors( AlgebraicSymMatrix& a ) const { 
+    
+  // The CSCSegment needs the error matrix re-arranged 
+    
+  AlgebraicSymMatrix hold( a ); 
+    
+  // errors on slopes into upper left 
+  a(1,1) = hold(3,3); 
+  a(1,2) = hold(3,4); 
+  a(2,1) = hold(4,3); 
+  a(2,2) = hold(4,4); 
+    
+  // errors on positions into lower right 
+  a(3,3) = hold(1,1); 
+  a(3,4) = hold(1,2); 
+  a(4,3) = hold(2,1); 
+  a(4,4) = hold(2,2); 
+    
+  // off-diagonal elements remain unchanged 
+    
+} 
 
