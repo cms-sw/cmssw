@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.6 2006/11/02 11:57:11 dlange Exp $
+// $Id: EdmFileUtil.cpp,v 1.1 2006/11/03 16:17:38 dlange Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -43,9 +43,13 @@ int main(int argc, char* argv[]) {
     ("print,P", "Print all")
     ("uuid,u", "Print uuid")
     ("verbose,v","Verbose printout")
+    ("printBranchDetails,b","Call Print()sc for all branches")
     ("allowRecovery","Allow root to auto-recover corrupted files") 
     ("events,e",boost::program_options::value<std::string>(), 
-     "Show event ids for events within a range or set of ranges , e.g., 5-13,30,60-90 ");
+     "Show event ids for events within a range or set of ranges , e.g., 5-13,30,60-90 ")
+//     ("entries,i",boost::program_options::value<std::string>(), 
+//      "Show entries per branch for each event within a range or set of ranges , e.g., 5-13,30,60-90 ")   
+    ;
 
   // What trees do we require for this to be a valid collection?
   std::vector<std::string> expectedTrees;
@@ -178,76 +182,30 @@ int main(int argc, char* argv[]) {
       edm::printBranchNames(eventsTree);
     }
 
+    if ( vm.count("printBranchDetails") ) {
+      TTree *printTree=(TTree*)tfile->Get("Events");
+      edm::longBranchPrint(printTree);
+    }
+
     if ( vm.count("uuid") ) {
       TTree *paramsTree=(TTree*)tfile->Get("##Params");
-
-      char uuidCA[1024];
-      paramsTree->SetBranchAddress("db_string",uuidCA);
-      paramsTree->GetEntry(0);
-
-      // Then pick out relevent piece of this string
-      // 9A440868-8058-DB11-85E3-00304885AB94 from
-      // [NAME=FID][VALUE=9A440868-8058-DB11-85E3-00304885AB94]
-
-      std::string uuidStr(uuidCA);
-      std::string::size_type start=uuidStr.find("VALUE=");
-      if ( start == std::string::npos ) {
-	std::cout << "Seemingly invalid db_string entry in ##Params tree?\n";
-	std::cout << uuidStr << std::endl;
-      }
-      else{
-	std::string::size_type stop=uuidStr.find("]",start);
-	if ( stop == std::string::npos ) {
-	  std::cout << "Seemingly invalid db_string entry in ##Params tree?\n";
-	  std::cout << uuidStr << std::endl;
-	}
-	else{
-	  //Everything is Ok - just proceed...
-	  std::string result=uuidStr.substr(start+6,stop-start-6);
-	  std::cout << "UUID: " << result << std::endl;
-	}
-      }
+      edm::printUuids(paramsTree);
     }
-    
+        
     // Print out event lists 
     if ( vm.count("events") ) {
-      bool keepgoing=true;  
+      bool listentries=false;  
       std::string remainingStr=vm["events"].as<std::string>();
-      while ( keepgoing ) {
-	long int iLow(-1),iHigh(-2);
-	// split by commas
-	std::string::size_type pos= remainingStr.find_first_of(",");
-	std::string evtstr=remainingStr;
-	
-	if ( pos == std::string::npos ) {
-	  keepgoing=false;
-	}
-	else{
-	  evtstr=remainingStr.substr(0,pos);
-	  remainingStr=remainingStr.substr(pos+1);
-	}
-	
-	pos= evtstr.find_first_of("-");
-	if ( pos == std::string::npos ) {
-	  iLow= (int)atof(evtstr.c_str());
-	  iHigh= iLow;
-	} else {
-	  iLow= (int)atof(evtstr.substr(0,pos).c_str());
-	  iHigh= (int)atof(evtstr.substr(pos+1).c_str());
-	}
-	
-	//    edm::showEvents(tfile,"Events",vm["events"].as<std::string>());
-	if ( iLow < 1 ) iLow=1;
-	if ( iHigh > nevts ) iHigh=nevts;
-	
-	// shift by one.. C++ starts at 0
-	iLow--;
-	iHigh--;
-	edm::showEvents(tfile,"Events",iLow,iHigh);
-      }
+      edm::printEventLists(remainingStr, nevts, tfile, listentries);
     }
     
+//     if ( vm.count("entries") ) {
+//       bool listentries=true;  
+//       std::string remainingStr=vm["entries"].as<std::string>();
+//       edm::printEventLists(remainingStr, nevts, tfile, listentries);   
+//     }
   }
+
   catch (cms::Exception& e) {
     std::cout << "cms::Exception caught in "
               <<"EdmFileUtil"
