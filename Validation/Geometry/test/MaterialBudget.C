@@ -61,7 +61,7 @@ MaterialBudget(TString detector) {
     theDetectorFileName = "matbdg_TIB.root";
   }
   if(theDetector == "Pixel") {
-    iFirst = 6;
+    iFirst = 7;
     iLast  = 8;
     theDetectorFileName = "matbdg_PixBar.root";
   }
@@ -99,7 +99,7 @@ MaterialBudget(TString detector) {
   TH1D* hist_x0_OTH   = (TH1D*)prof_x0_det_OTH->ProjectionX();
   TH1D* hist_x0_AIR   = (TH1D*)prof_x0_det_AIR->ProjectionX();
   //
-  if(theDetector=="TrackerSum") {
+  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip") {
     TString subDetector = "TIB";
     for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
       switch(i_detector) {

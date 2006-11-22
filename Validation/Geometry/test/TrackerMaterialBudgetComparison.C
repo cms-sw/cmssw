@@ -80,7 +80,7 @@ TrackerMaterialBudgetComparison(TString detector) {
     theDetectorFileName_new = "matbdg_TIB_new.root";
   }
   if(theDetector == "Pixel") {
-    iFirst = 6;
+    iFirst = 7;
     iLast  = 8;
     theDetectorFileName_old = "matbdg_PixBar_old.root";
     theDetectorFileName_new = "matbdg_PixBar_new.root";
@@ -142,7 +142,7 @@ TrackerMaterialBudgetComparison(TString detector) {
   TH1D* hist_x0_AIR_new   = (TH1D*)prof_x0_det_AIR_new->ProjectionX();
   //
   
-  if(theDetector=="TrackerSum") {
+  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip") {
     TString subDetector = "TIB";
     for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
       switch(i_detector) {
