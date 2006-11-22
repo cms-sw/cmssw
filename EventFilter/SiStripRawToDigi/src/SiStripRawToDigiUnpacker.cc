@@ -181,7 +181,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     if ( fedBufferDumpFreq_ && !(event_%fedBufferDumpFreq_) ) {
       stringstream ss;
       dumpRawData( *ifed, input, ss );
-      LogTrace(mlRawToDigi_) << ss.str();
+      edm::LogVerbatim(mlRawToDigi_) << ss.str();
     }
     
     // Locate start of FED buffer within raw data
@@ -224,9 +224,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     if ( fedEventDumpFreq_ && !(event_%fedEventDumpFreq_) ) {
       stringstream ss;
       fedEvent_->dump( ss );
-      LogTrace(mlRawToDigi_) << ss.str();
+      edm::LogVerbatim(mlRawToDigi_) << ss.str();
     }
-
+    
     // Iterate through FED channels, extract payload and create Digis
     Fed9U::Fed9UAddress addr;
     for ( uint16_t channel = 0; channel < 96; channel++ ) {
