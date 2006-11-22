@@ -176,6 +176,7 @@ double ECalSD::crystalLength(G4String name) {
 EcalBaseNumber ECalSD::getBaseNumber(const G4Step* aStep) const {
 
   EcalBaseNumber aBaseNumber;
+  aBaseNumber.setSize(touch->GetHistoryDepth()+1);
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   //Get name and copy numbers
   if (touch->GetHistoryDepth() > 0) {
