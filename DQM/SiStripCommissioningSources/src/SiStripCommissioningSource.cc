@@ -266,8 +266,8 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 //
 void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* const summary,
 						    const edm::DetSetVector<SiStripRawDigi>& raw ) {
-  LogTrace(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]" 
-
+  LogTrace(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]";
+    
   // Create FEC key using DCU id and LLD channel from SiStripEventSummary
   const SiStripModule& module = fecCabling_->module( summary->dcuId() );
   SiStripFecKey::Path fec_path = module.path();
