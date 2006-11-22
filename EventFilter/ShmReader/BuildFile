@@ -1,0 +1,11 @@
+<use name=DataFormats/FEDRawData>
+<use name=IORawData/DaqSource>
+<use name=EventFilter/ResourceBroker>
+
+<flags SEAL_PLUGIN_NAME="EventFilterShmReader">
+
+<export>
+  <lib name=EventFilterShmReader>
+</export>
+
+
