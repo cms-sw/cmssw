@@ -74,8 +74,6 @@ void OptoScanTask::book() {
 */
 void OptoScanTask::fill( const SiStripEventSummary& summary,
 			 const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogTrace(mlDqmSource_)
-    << "[OptoScanTask::" << __func__ << "]";
 
   //@@ if scope mode length is in trigger fed, then 
   //@@ can add check here on number of digis
@@ -130,16 +128,10 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void OptoScanTask::update() {
-  LogTrace(mlDqmSource_) << "[OptoScanTask::" << __func__ << "]";
   
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
     for ( uint16_t ilevel = 0; ilevel < opto_[igain].size(); ilevel++ ) { 
       updateHistoSet( opto_[igain][ilevel] );
-//       for ( uint16_t ibin = 0; ibin < opto_[igain][ilevel].vNumOfEntries_.size(); ibin++ ) {
-// 	opto_[igain][ilevel].meSumOfSquares_->setBinContent( ibin+1, opto_[igain][ilevel].vSumOfSquares_[ibin]*1. );
-// 	opto_[igain][ilevel].meSumOfContents_->setBinContent( ibin+1, opto_[igain][ilevel].vSumOfContents_[ibin]*1. );
-// 	opto_[igain][ilevel].meNumOfEntries_->setBinContent( ibin+1, opto_[igain][ilevel].vNumOfEntries_[ibin]*1. );
-//       }
     }
   }
 

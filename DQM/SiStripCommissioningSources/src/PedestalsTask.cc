@@ -91,7 +91,6 @@ void PedestalsTask::book() {
 //
 void PedestalsTask::fill( const SiStripEventSummary& summary,
 			  const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogTrace(mlDqmSource_) << "[PedestalsTask::" << __func__ << "]";
   
   if ( digis.data.size() != peds_[0].vNumOfEntries_.size() ) {
     edm::LogWarning(mlDqmSource_)
@@ -115,33 +114,16 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
     for ( uint16_t ibin = 0; ibin < 128; ibin++ ) { 
       if ( (iapv*128)+ibin < nbins ) { 
 	adc.push_back( digis.data[(iapv*128)+ibin].adc() ); 
-	// 	cout << "ibin: " << ibin 
-	// 	     << " str: " << (iapv*128)+ibin 
-	// 	     << " size: " << adc.size()
-	// 	     << " adc: " << digis.data[(iapv*128)+ibin].adc() 
-	// 	     << " back: " << adc.back() << endl;
       }
     }
     sort( adc.begin(), adc.end() ); 
     uint16_t index = adc.size()%2 ? adc.size()/2 : adc.size()/2-1;
     if ( !adc.empty() ) { cm[iapv] = adc[index]; }
-    //     cout << adc.empty() << " " 
-    // 	 << adc.size() << " " << index << " " 
-    // 	 << adc[index] << " " 
-    // 	 << iapv << " " << cm[iapv] << endl;
   }
   
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
     updateHistoSet( peds_[0], ibin, digis.data[ibin].adc() ); // peds
     updateHistoSet( peds_[1], ibin, (digis.data[ibin].adc()-cm[ibin/128]) ); // noise
-    //     if ( digis.data[ibin].adc()-cm[ibin/128] < 0 ) {
-    //       cout << "bin/apv/digi/cm/result: " 
-    // 	   << ibin << " " << ibin/128 << " " 
-    // 	   << digis.data[ibin].adc() << " " 
-    // 	   << cm[ibin/128] << " " 
-    // 	   << digis.data[ibin].adc()-cm[ibin/128]
-    // 	   << endl;
-    //     }
   }
   
   if ( cm.size() < cm_.size() ) {
@@ -150,18 +132,14 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
       << " Fewer CM values than expected!";
   }
   
-  updateHistoSet( cm_[0], cm[0], 1 ); // (value is ignored)
-  updateHistoSet( cm_[1], cm[1], 1 ); // (value is ignored)
+  updateHistoSet( cm_[0], cm[0] );
+  updateHistoSet( cm_[1], cm[1] );
   
 }
 
 // -----------------------------------------------------------------------------
 //
 void PedestalsTask::update() {
-  LogTrace(mlDqmSource_)
-    << "[PedestalsTask::" << __func__ << "]"
-    << " Updating pedestal histograms for FEC key "
-    << hex << setw(8) << setfill('0') << fecKey();
   
   // Pedestals and noise
   updateHistoSet( peds_[0] );

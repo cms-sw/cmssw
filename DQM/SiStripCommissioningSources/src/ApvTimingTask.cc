@@ -28,12 +28,11 @@ ApvTimingTask::~ApvTimingTask() {
 //
 void ApvTimingTask::book() {
 
-  string title;
-  title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::APV_TIMING, 
-							    sistrip::FED_KEY, 
-							    fedKey(),
-							    sistrip::LLD_CHAN, 
-							    connection().lldChannel() ) );
+  string title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::APV_TIMING, 
+								   sistrip::FED_KEY, 
+								   fedKey(),
+								   sistrip::LLD_CHAN, 
+								   connection().lldChannel() ) );
   
   float min_time_ns = static_cast<float>(nBins_) - 0.5;
   float max_time_ns = (25./static_cast<float>(nFineDelays_)) * static_cast<float>(nBins_) - 0.5;
@@ -60,7 +59,7 @@ void ApvTimingTask::book() {
 void ApvTimingTask::fill( const SiStripEventSummary& summary,
 			  const edm::DetSet<SiStripRawDigi>& digis ) {
   
-  if ( digis.data.size() < nBins_ ) { // check = scope mode length? 
+  if ( digis.data.size() < nBins_ ) { //@@ check scope mode length?
     edm::LogWarning(mlDqmSource_)
       << "[ApvTimingTask::" << __func__ << "]"
       << " Unexpected number of digis! " 
