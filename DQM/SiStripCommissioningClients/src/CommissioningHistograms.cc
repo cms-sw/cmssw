@@ -46,8 +46,8 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
     string collector_dir = idir->substr( 0, idir->find(":") );
     SiStripFecKey::Path path = SiStripHistoNamingScheme::controlPath( collector_dir );
     string client_dir = SiStripHistoNamingScheme::controlPath( path );
-    //    client_dir = "Client" + client_dir;
-
+    // client_dir = "Client" + client_dir;
+    
     if ( path.fecCrate_ == sistrip::invalid_ ||
 	 path.fecSlot_ == sistrip::invalid_ ||
 	 path.fecRing_ == sistrip::invalid_ ||
@@ -70,9 +70,8 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       if ( prof ) { prof->SetErrorOption("s"); } //@@ is this necessary? (until bug fix applied to dqm)...
       
       // Retrieve granularity from histogram title (necessary?)
-      static HistoTitle title;
-      title = SiStripHistoNamingScheme::histoTitle( *ime );
-      //cout << title << endl;
+      HistoTitle title = SiStripHistoNamingScheme::histoTitle( *ime );
+      cout << title << endl;
       uint16_t channel = sistrip::invalid_;
       if ( title.granularity_ == sistrip::APV ) {
 	channel = (title.channel_-32)/2;
