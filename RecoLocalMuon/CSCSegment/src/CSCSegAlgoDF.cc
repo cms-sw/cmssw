@@ -175,7 +175,7 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
     
     for ( ChamberHitContainerCIt i = ib; i != ie; ++i ) {
       
-      if ( usedHits[i-ib] > 1) continue;   // Don't use hits already part of a segment.
+      if ( usedHits[i-ib] ) continue;   // Don't use hits already part of a segment.
       
       if (pass < 2) if (i == i1 || i == i2 ) continue;  // For first 2 pass, don't try changing endpoints (seeds).
 
