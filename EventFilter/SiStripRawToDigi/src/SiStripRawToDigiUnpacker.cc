@@ -269,14 +269,12 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert( key );
 	vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum for scope mode length
-	vector<uint16_t> samples1; samples1.reserve( 1024 ); // theoretical maximum for scope mode length
 	try { 
 	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
-	  samples1 = fedEvent_->channel( chan ).getSamples();
 	} catch(...) { 
 	  stringstream sss;
-	  sss << "Problem accessing SCOPE_MODE data for FED id/ch: " 
-	      << *ifed << "/" << ichan;
+	  sss << "Problem accessing SCOPE_MODE data for FedId/FeUnit/FeChan: " 
+	      << *ifed << "/" << iunit << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
 	if ( !samples.empty() ) { 
@@ -284,19 +282,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    sm.data[i] = SiStripRawDigi( samples[i] ); 
 	  }
-	  LogTrace(mlRawToDigi_)
-	    << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	    << " SAMPLE for FedId " << *ifed
-	    << " and FedCh " << ichan
-	    << " with value " << samples[0];
 	}
-	if ( !samples1.empty() ) { 
-	  LogTrace(mlRawToDigi_)
-	    << "##### SAMPLE1 for FedId " << *ifed
-	    << " and FedCh " << chan
-	    << " with value " << samples1[0];
-	}
-	
       } else if ( mode == sistrip::VIRGIN_RAW ) {
 
 	edm::DetSet<SiStripRawDigi>& vr = virgin_raw.find_or_insert( key );
