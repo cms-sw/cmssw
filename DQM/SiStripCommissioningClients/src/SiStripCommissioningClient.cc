@@ -52,6 +52,7 @@ SiStripCommissioningClient::~SiStripCommissioningClient() {
 void SiStripCommissioningClient::configure() {
   cout << endl // LogTrace(mlDqmClient_)
        << "[SiStripCommissioningClient::" << __func__ << "]";
+  // mui_->setVerbose(0);
   web_ = new SiStripCommissioningWebClient( this,
 					    getContextURL(),
 					    getApplicationURL(), 
@@ -94,7 +95,7 @@ void SiStripCommissioningClient::onUpdate() const {
   cout << endl // LogTrace(mlDqmClient_)
        << "[SiStripCommissioningClient::" << __func__ << "]"
        << " Number of updates: " << mui_->getNumUpdates();
-  
+
   // Retrieve a list of all subscribed histograms
   //if ( first_ ) { mui_->subscribe( "*" ); first_ = false; }
   vector<string> contents;
@@ -106,13 +107,13 @@ void SiStripCommissioningClient::onUpdate() const {
 	 << " Request for 'Contents': vector is empty!";
     return; 
   }
-  
+
   // Extract commissioning task from added contents
   if ( task_ == sistrip::UNKNOWN_TASK ) { task_ = extractTask( contents ); }
   
   // Create histograms for given commissioning task
   createHistograms( task_ );
-  
+ 
   // Create collation histograms based on added contents
   if ( histos_ ) { histos_->createCollations( contents ); }
   

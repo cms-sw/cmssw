@@ -35,7 +35,7 @@ CommissioningHistograms::~CommissioningHistograms() {
 void CommissioningHistograms::createCollations( const vector<string>& contents ) {
   cout << endl // LogTrace(mlDqmClient_)
        << "[CommissioningHistograms::" << __func__ << "]"
-       << "Creating CollateMonitorElements...";
+       << " Creating CollateMonitorElements...";
 
   if ( contents.empty() ) { return; }
   
@@ -46,17 +46,19 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
     string collector_dir = idir->substr( 0, idir->find(":") );
     SiStripFecKey::Path path = SiStripHistoNamingScheme::controlPath( collector_dir );
     string client_dir = SiStripHistoNamingScheme::controlPath( path );
-    
+    //    client_dir = "Client" + client_dir;
+
     if ( path.fecCrate_ == sistrip::invalid_ ||
 	 path.fecSlot_ == sistrip::invalid_ ||
 	 path.fecRing_ == sistrip::invalid_ ||
 	 path.ccuAddr_ == sistrip::invalid_ ||
 	 path.ccuChan_ == sistrip::invalid_ ) { continue; } 
-    
+
     // Retrieve MonitorElements from pwd directory
     mui()->setCurrentFolder( collector_dir );
     vector<string> me_list = mui()->getMEs();
-    
+
+    // Iterate through MEs and create CMEs
     CollateMonitorElement* cme = 0;
     vector<string>::iterator ime = me_list.begin(); 
     for ( ; ime != me_list.end(); ime++ ) {
@@ -66,10 +68,11 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       TProfile* prof = ExtractTObject<TProfile>().extract( me );
       TH1F* his = ExtractTObject<TH1F>().extract( me );
       if ( prof ) { prof->SetErrorOption("s"); } //@@ is this necessary? (until bug fix applied to dqm)...
-
+      
+      // Retrieve granularity from histogram title (necessary?)
       static HistoTitle title;
       title = SiStripHistoNamingScheme::histoTitle( *ime );
-      
+      //cout << title << endl;
       uint16_t channel = sistrip::invalid_;
       if ( title.granularity_ == sistrip::APV ) {
 	channel = (title.channel_-32)/2;
@@ -81,20 +84,22 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 	     << " Unexpected histogram granularity: "
 	     << title.granularity_;
       }
+
+      // Build FEC key and fill FED-FEC map
       uint32_t key = SiStripFecKey::key( sistrip::invalid_, //@@ WARNING: only good for one partition only!!!
 					 path.fecSlot_,
 					 path.fecRing_,
 					 path.ccuAddr_,
 					 path.ccuChan_,
 					 channel );
-      
-      // Fill map linking FED key to FEC key
       mapping_[title.keyValue_] = key;
       
+      //cout << "Checking for CME..." << endl;
       // Create collation MEs
       CollationsMap::iterator iter = collations_.find( key );
       if ( iter == collations_.end() ) {
-	if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); }
+	cout << "Found new channel (control key)" << endl;
+	if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); cout << "GOT HERE!!!" << endl; }
 	else if ( his ) { cme = mui()->collate1D( *ime, *ime, client_dir ); }
 	else { 
 	  cme = 0; 
@@ -103,12 +108,27 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 	       << " NULL pointers to histos!"; 
 	}
 	if ( cme ) {
-	  mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
+
+	  cout << "Booked new CME and adding MEs" << endl;
+	  cout << " client: ptr/dir/name: " << cme << " " << client_dir << " " << (*ime) << endl;
+	  cout << " collector: ptr/dir/name: " << cme << " " << collector_dir << " " << (*ime) << endl;
+	  cout << " pwd: ptr/dir/name: " << cme << " " << mui()->pwd() << " " << (*ime) << endl;
+	  //cout << " coll: " << collector_dir << " cli: " << client_dir << endl;
+
+	  MonitorElement* cme1 = mui()->get( client_dir + "/" + (*ime) );
+	  cout << " CME: ptr/dir/name: " << cme1 << " " << client_dir << " " << (*ime) << endl;
+
+	  mui()->add( cme, collector_dir+"/"+(*ime) ); // note search pattern
+	  //mui()->add( cme, "*"+client_dir+(*ime) ); // note search pattern
+	  cout << "ME added to new CME" << endl;
 	  if ( collations_[key].capacity() != 10 ) { collations_[key].reserve(10); }
 	  collations_[key].push_back( client_dir+(*ime) ); // store "path + name"
+	  cout << "New CME stored in map" << endl;
 	}
       } else {
+	//cout << "Found some existing CMEs for this channel" << endl;
 	if ( find( iter->second.begin(), iter->second.end(), client_dir+(*ime) ) == iter->second.end() ) {
+	  cout << "Did not find CME in existing channel" << endl;
 	  if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); }
 	  else if ( his ) { cme = mui()->collate1D( *ime, *ime, client_dir ); }
 	  else { 
@@ -118,12 +138,20 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 		 << " NULL pointers to histos!"; 
 	  }
 	  if ( cme ) {
-	    mui()->add( cme, "*/"+client_dir+(*ime) ); // note search pattern
+	    cout << "Booked new CME in existing channel and adding MEs" << endl;
+	    
+	    mui()->add( cme, collector_dir+"/"+(*ime) ); // note search pattern
+	    //mui()->add( cme, "*"+client_dir+(*ime) ); // note search pattern
+	    cout << "Added ME to CME in existing channel" << endl;
 	    if ( collations_[key].capacity() != 10 ) { collations_[key].reserve(10); }
 	    collations_[key].push_back( client_dir+(*ime) ); // store "path + name"
+	    cout << "CME in existing channel stored in map" << endl;
 	  }
+	} else {
+	  //cout << "CME already exists" << endl;
 	}
       }
+      //cout << "End of checking" << endl;
     }
   }
   
@@ -191,3 +219,4 @@ TH1* CommissioningHistograms::histogram( const sistrip::SummaryHisto& histo,
   TH1F* summary = ExtractTObject<TH1F>().extract( me ); 
   return summary;
 }
+

@@ -36,7 +36,7 @@ using namespace cgicc;
 /** */
 HistogramDisplayHandler::HistogramDisplayHandler( MonitorUserInterface* mui,BSem* b )
 {
- mui_=mui;
+  mui_=mui;
   fCanvas = new TCanvas("TestCanvas", "Test Canvas",1000, 1000);
 
   //   // Service allows use of MessageLogger
