@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.22 2006/11/07 10:24:04 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.23 2006/11/08 16:00:28 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
@@ -414,25 +414,7 @@ DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const 
 // -----------------------------------------------------------------------------
 //
 void SiStripConfigDb::usingDatabase() {
-
-  // Retrieve db connection parameters
-  if ( user_ == "" || passwd_ == "" || path_ == "" ) {
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " NULL database connection parameter(s): user/passwd@path: " 
-      << user_ << "/" << passwd_ << "@" << path_ 
-      << " Attempting to retrieve parameters from CONFDB env var...";
-    DbAccess::getDbConfiguration( user_, passwd_, path_ );
-    if ( user_ == "" || passwd_ == "" || path_ == "" ) {
-      edm::LogError(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " NULL data connection parameter(s) from CONFDB env var: user/passwd@path: " 
-	<< user_ << "/" << passwd_ << "@" << path_ 
-	<< " Aborting connection to database...";
-      return;
-    }
-  }
-
+  
   // Check TNS_ADMIN env var
   string tns_admin = "TNS_ADMIN";
   string env_var = "/afs/cern.ch/project/oracle/admin";
@@ -457,29 +439,61 @@ void SiStripConfigDb::usingDatabase() {
     setenv(tns_admin.c_str(),env_var.c_str(),1); 
   }
   
-  // Retrieve partition name
-  string partition = "ENV_CMS_TK_PARTITION";
-  if ( partition_.name_ == "" ) {
+  // Retrieve connection params from CONFDB env. var. and overwrite .cfg values 
+  string user = "";
+  string passwd = "";
+  string path = "";
+  DbAccess::getDbConfiguration( user, passwd, path );
+  if ( user != "" && passwd != "" && path != "" ) {
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Overwriting 'user/passwd@path' connection params retrieved from cfg file (\""  
+      << user_ << "/" << passwd_ << "@" << path_ 
+      << "\") with values retrieved from 'CONFDB' env. var. (\""
+      << user << "/" << passwd << "@" << path << "\")";
+    user_ = user;
+    passwd_ = passwd;
+    path_ = path;
+  } else if ( user_ != "" && passwd_ != "" && path_ != "" ) { 
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Using 'user/passwd@path' connection params retrieved from cfg file (\"" 
+      << user_ << "/" << passwd_ << "@" << path_ 
+      << "\").";
+  } else {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
-      << " Database partition name not specified!"
-      << " Attempting to read 'ENV_CMS_TK_PARTITION' env. var...";
-    if ( getenv(partition.c_str()) != NULL ) { 
-      partition_.name_ = getenv(partition.c_str()); 
-      LogTrace(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Database partition name set using '"
-	<< partition << "' env. var: "
-	<< partition_.name_;
-    } 
-    else { 
-      edm::LogError(mlConfigDb_) 
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Unable to retrieve database partition name!"
-	<< " '" << partition << "' env var not specified!"
-	<< " Aborting connection to database...";
-      return;
-    } 
+      << " Unable to retrieve 'user/passwd@path' connection params"
+      << " from 'CONFDB' env. var. or cfg file (\"" 
+      << user_ << "/" << passwd_ << "@" << path_ 
+      << "\"). Aborting connection to database...";
+    return;
+  }
+  
+  // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and overwrite .cfg value
+  string partition = "ENV_CMS_TK_PARTITION";
+  if ( getenv(partition.c_str()) != NULL ) { 
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Overwriting 'partition' param retrieved from cfg file (\""
+      << partition_.name_
+      << "\") with value retrieved from 'ENV_CMS_TK_PARTITION' env. var. (\""
+      << getenv( partition.c_str() ) << "\")";
+    partition_.name_ = getenv( partition.c_str() ); 
+  } else if ( partition_.name_ != "" ) {
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Using 'partition' value retrieved from cfg file (\"" 
+      << partition_.name_
+      << "\").";
+  } else { 
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Unable to retrieve 'partition' param"
+      << " from 'CONFDB' env. var. or cfg file (\"" 
+      << partition_.name_
+      << "\"). Aborting connection to database...";
+    return;
   } 
   
   // Create device factory object
