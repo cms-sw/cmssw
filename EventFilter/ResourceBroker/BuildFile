@@ -1,0 +1,10 @@
+<export>
+  <lib name=EventFilterResourceBroker>
+  <use name=EventFilter/Utilities>
+  <use name=DataFormats/FEDRawData>
+  <use name=xdaq>
+</export>
+
+<use name=EventFilter/Utilities>
+<use name=DataFormats/FEDRawData>
+<use name=xdaq>
