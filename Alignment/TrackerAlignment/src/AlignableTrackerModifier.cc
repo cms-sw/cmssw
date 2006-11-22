@@ -41,9 +41,9 @@ void AlignableTrackerModifier::init_( void )
   phiX_         = 0.;        // Rotation angle around X [rad]
   phiY_         = 0.;        // Rotation angle around Y [rad]
   phiZ_         = 0.;        // Rotation angle around Z [rad]
-  localX_       = 0.;        // Local rotation angle around X [rad]
-  localY_       = 0.;        // Local rotation angle around Y [rad]
-  localZ_       = 0.;        // Local rotation angle around Z [rad]
+  phiXlocal_    = 0.;        // Local rotation angle around X [rad]
+  phiYlocal_    = 0.;        // Local rotation angle around Y [rad]
+  phiZlocal_    = 0.;        // Local rotation angle around Z [rad]
   dX_           = 0.;        // X displacement [cm]
   dY_           = 0.;        // Y displacement [cm]
   dZ_           = 0.;        // Z displacement [cm]
@@ -84,6 +84,8 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
 
   // Initialize parameters
   this->init_();
+  int rotX_=0, rotY_=0, rotZ_=0; // To check correct backward compatibility
+
 
   // Reset counter
   m_modified = 0;
@@ -100,26 +102,34 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
 	  else if ( (*iParam) == "setTranslations") setTranslations_ = pSet.getParameter<bool>( *iParam );
 	  else if ( (*iParam) == "scale" )    scale_ = pSet.getParameter<double>( *iParam );
 	  else if ( (*iParam) == "scaleError" ) scaleError_ = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "phiX" )     phiX_     = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "phiY" )     phiY_     = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "phiZ" )     phiZ_     = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "localX" )   localX_   = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "localY" )   localY_   = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "localZ" )   localZ_   = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "dX" )       dX_       = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "dY" )       dY_       = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "dZ" )       dZ_       = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "dXlocal" )  dXlocal_  = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "dYlocal" )  dYlocal_  = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "dZlocal" )  dZlocal_  = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "twist" )    twist_    = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "shear" )    shear_    = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "phiX" )    phiX_     = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "phiY" )    phiY_     = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "phiZ" )    phiZ_     = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dX" )      dX_       = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dY" )      dY_       = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dZ" )      dZ_       = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dXlocal" ) dXlocal_  = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dYlocal" ) dYlocal_  = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dZlocal" ) dZlocal_  = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "twist" )   twist_    = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "shear" )   shear_    = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "localX" ) { phiXlocal_=pSet.getParameter<double>( *iParam ); rotX_++; }
+      else if ( (*iParam) == "localY" ) { phiYlocal_=pSet.getParameter<double>( *iParam ); rotY_++; }
+      else if ( (*iParam) == "localZ" ) { phiZlocal_=pSet.getParameter<double>( *iParam ); rotZ_++; }
+	  else if ( (*iParam) == "phiXlocal" ) { phiXlocal_=pSet.getParameter<double>( *iParam ); rotX_++; }
+      else if ( (*iParam) == "phiYlocal" ) { phiYlocal_=pSet.getParameter<double>( *iParam ); rotY_++; }
+      else if ( (*iParam) == "phiZlocal" ) { phiZlocal_=pSet.getParameter<double>( *iParam ); rotZ_++; }
 	  else if ( pSet.retrieve( *iParam ).typeCode() != 'P' )
 		{ // Add unknown parameter to list
 		  if ( !error.str().length() ) error << "Unknown parameter name(s): ";
 		  error << " " << *iParam;
 		}
 	}
+
+  // Check if both 'localN' and 'phiNlocal' have been used
+  if ( rotX_==2 ) throw cms::Exception("BadConfig") << "Found both localX and phiXlocal";
+  if ( rotY_==2 ) throw cms::Exception("BadConfig") << "Found both localY and phiYlocal";
+  if ( rotZ_==2 ) throw cms::Exception("BadConfig") << "Found both localZ and phiZlocal";
 
   // Check error
   if ( error.str().length() )
@@ -142,9 +152,9 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
 	this->rotateAlignable( alignable, random_, gaussian_, scale_*phiX_, scale_*phiY_, scale_*phiZ_ );
 
   // Apply local rotations
-  if ( fabs(localX_) + fabs(localY_) + fabs(localZ_) > 0 && setRotations_ )
+  if ( fabs(phiXlocal_) + fabs(phiYlocal_) + fabs(phiZlocal_) > 0 && setRotations_ )
 	this->rotateAlignableLocal( alignable, random_, gaussian_, 
-								scale_*localX_, scale_*localY_, scale_*localZ_ );
+								scale_*phiXlocal_, scale_*phiYlocal_, scale_*phiZlocal_ );
 
   // Apply twist
   if ( fabs(twist_) > 0 )
@@ -181,10 +191,11 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
 													 scaleError_*phiZ_ );
 
 	  // Error on local rotations
-	  if ( fabs(localX_) + fabs(localY_) + fabs(localZ_) > 0 && setRotations_ )
+	  if ( fabs(phiXlocal_) + fabs(phiYlocal_) + fabs(phiZlocal_) > 0 && setRotations_ )
 		this->addAlignmentPositionErrorFromLocalRotation( alignable, 
-														  scaleError_*localX_, scaleError_*localY_, 
-														  scaleError_*localZ_ );
+														  scaleError_*phiXlocal_, 
+                                                          scaleError_*phiYlocal_, 
+														  scaleError_*phiZlocal_ );
 	}
 
   return ( m_modified > 0 );
@@ -388,7 +399,7 @@ AlignableTrackerModifier::rotateAlignableLocal( Alignable* alignable, bool rando
   
   LogDebug("PrintArgs") << message.str(); // Arguments
   
-  LogDebug("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
+  LogDebug("PrintMovement") << "applied local rotation angles: " << rotV; // Actual movements
   if ( fabs(sigmaPhiX) ) alignable->rotateAroundLocalX( rotV.x() );
   if ( fabs(sigmaPhiY) ) alignable->rotateAroundLocalY( rotV.y() );
   if ( fabs(sigmaPhiZ) ) alignable->rotateAroundLocalZ( rotV.z() );

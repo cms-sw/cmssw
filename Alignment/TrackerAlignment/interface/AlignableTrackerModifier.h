@@ -103,7 +103,7 @@ private:
   long   seed_;
   double scaleError_,scale_;
   double phiX_, phiY_, phiZ_;
-  double localX_, localY_, localZ_;
+  double phiXlocal_, phiYlocal_, phiZlocal_;
   double dX_, dY_, dZ_;
   double dXlocal_, dYlocal_, dZlocal_;
   double twist_, shear_;

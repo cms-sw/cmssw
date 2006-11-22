@@ -86,8 +86,7 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 {
 
   // Get name from first element
-  AlignableObjectId alignableObjectId;
-  std::string levelName = alignableObjectId.typeToName( alignables.front()->alignableObjectId() );
+  std::string levelName = theAlignableObjectId.typeToName( alignables.front()->alignableObjectId() );
   this->decodeMovements_( pSet, alignables, levelName );
 
 }
@@ -182,7 +181,7 @@ void MisalignmentScenarioBuilder::mergeParameters_( edm::ParameterSet& localSet,
 			  this->mergeParameters_( subLocalSet, globalSet.getParameter<edm::ParameterSet>(*iter) );
 			  localSet.addParameter<edm::ParameterSet>( (*iter), subLocalSet );
 			}
-		} 
+		}
 	  else
 		{
 		  localSet.insert( false, (*iter), globalSet.retrieve(*iter) );
@@ -216,27 +215,36 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
   if ( pSet.getParameterSetNames( pSetNames, true ) > 0 )
 	for ( std::vector<std::string>::const_iterator it = pSetNames.begin();
 		  it != pSetNames.end(); it++ )
-	  if ( (*it).compare( 0, (*it).length()-1, 
-						  globalName.substr(0,globalName.length()-1) ) == 0 )
-		{
-		  // Parameter for this level: skip
-		  LogDebug("PropagateParameters") << indent << " - skipping PSet " << (*it) << std::endl;
-		}
-	  else if ( this->isTopLevel_(*it) )
-		{
-		  // Top-level parameters should not be propagated
-		  LogDebug("PropagateParameters") << indent 
-										  << " - skipping top-level PSet " << (*it) << std::endl;
-		}
-	  else
-		{
-		  // Pass down any other: in order to merge PSets, create dummy PSet
-		  // only containing this PSet and merge it recursively.
-		  LogDebug("PropagateParameters") << indent << " - adding PSet " << (*it) << std::endl;
-		  edm::ParameterSet m_subSet;
-		  m_subSet.addParameter<edm::ParameterSet>( (*it), pSet.getParameter<edm::ParameterSet>(*it) );
-		  this->mergeParameters_( subSet, m_subSet );
-		}  
+      {
+        std::string rootName = this->rootName_( *it );
+        if ( (*it).compare( 0, (*it).length()-1, 
+                            this->rootName_(globalName) ) == 0 )
+          {
+            // Parameter for this level: skip
+            LogDebug("PropagateParameters") << indent << " - skipping PSet " << (*it) << std::endl;
+          }
+        else if ( this->isTopLevel_(*it) )
+          {
+            // Top-level parameters should not be propagated
+            LogDebug("PropagateParameters") << indent 
+                                            << " - skipping top-level PSet " << (*it) << std::endl;
+          }
+        else if ( theAlignableObjectId.nameToType( rootName ) == AlignableObjectId::invalid )
+          {
+            // Parameter is not known!
+            throw cms::Exception("BadConfig") << "Unknown parameter set name " << rootName;
+          }
+        else
+          {
+            // Pass down any other: in order to merge PSets, create dummy PSet
+            // only containing this PSet and merge it recursively.
+            LogDebug("PropagateParameters") << indent << " - adding PSet " << (*it) << std::endl;
+            edm::ParameterSet m_subSet;
+            m_subSet.addParameter<edm::ParameterSet>( (*it), 
+                                                      pSet.getParameter<edm::ParameterSet>(*it) );
+            this->mergeParameters_( subSet, m_subSet );
+          }  
+      }
 
 }
 
@@ -294,7 +302,7 @@ const bool MisalignmentScenarioBuilder::isTopLevel_( const std::string& paramete
 {
 
   // Get root name (strip last character)
-  std::string root = parameterSetName.substr(0, parameterSetName.length()-1 );
+  std::string root = this->rootName_( parameterSetName );
   if      ( root == "TOB" ) return true;
   else if ( root == "TIB" ) return true;
   else if ( root == "TPB" ) return true;
@@ -303,5 +311,29 @@ const bool MisalignmentScenarioBuilder::isTopLevel_( const std::string& paramete
   else if ( root == "TPE" ) return true;
 
   return false;
+
+}
+
+//__________________________________________________________________________________________________
+// Get root name of parameter set (e.g. return 'Rod' from 'Rods' or 'Rod1')
+const std::string 
+MisalignmentScenarioBuilder::rootName_( const std::string& parameterSetName ) const
+{
+
+  std::string result = parameterSetName; // Initialise to full string
+  
+  // String ends with 's'
+  const int lastChar = parameterSetName.length()-1;
+  if ( parameterSetName[lastChar] == 's' ) 
+    result =  parameterSetName.substr( 0, lastChar );
+  else
+    // Otherwise, look for numbers (assumes names have no numbers...)
+    for ( unsigned int ichar = 0; ichar<parameterSetName.length(); ichar++ )
+      if ( isdigit(parameterSetName[ichar]) )
+        result = parameterSetName.substr( 0, ichar );
+
+  LogDebug("PrintParameters") << "Name was " << parameterSetName << ", root is " << result;
+
+  return result;
 
 }

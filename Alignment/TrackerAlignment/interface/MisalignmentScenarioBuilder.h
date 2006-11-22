@@ -56,6 +56,9 @@ private: // Methods
 
   /// Check if given parameter is for a top-level structure
   const bool isTopLevel_( const std::string& parameterSetName ) const; 
+
+  /// Get root name of a parameter set (e.g. 'Rod' in 'Rods' or 'Rod1')
+  const std::string rootName_( const std::string& parameterSetName ) const;
   
 
 private: // Members
@@ -63,6 +66,7 @@ private: // Members
   AlignableTracker* theTracker;                 ///< Pointer to alignable tracker object
   edm::ParameterSet theScenario;                ///< Misalignment scenario to apply (from config file)
   AlignableTrackerModifier theTrackerModifier;  ///< Helper class for random movements
+  AlignableObjectId theAlignableObjectId;       ///< Type to name converter
   
   int theModifierCounter;                       ///< Counter for applied modification
 
