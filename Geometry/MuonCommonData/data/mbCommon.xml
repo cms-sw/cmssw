@@ -412,41 +412,6 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
 
 <PosPartSection label="mbCommon.xml">
 
- <PosPart copyNumber="1">
-   <rParent name="muonBase:MUON"/>
-   <rChild name="muonBase:MB"/>
-  <rRotation name="rotations:000D"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="muonBase:MB"/>
-   <rChild name="muonBase:MBWheel_2N"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="-5.342*m" />
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="muonBase:MB"/>
-   <rChild name="muonBase:MBWheel_1N"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="-2.686*m" />
- </PosPart>
-<PosPart copyNumber="3">
-   <rParent name="muonBase:MB"/>
-   <rChild name="muonBase:MBWheel_0"/>
-  <rRotation name="rotations:000D"/>
- </PosPart>
- <PosPart copyNumber="4">
-   <rParent name="muonBase:MB"/>
-   <rChild name="muonBase:MBWheel_1P"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="2.686*m" />
- </PosPart>
- <PosPart copyNumber="5">
-   <rParent name="muonBase:MB"/>
-   <rChild name="muonBase:MBWheel_2P"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="5.342*m" />
- </PosPart>
-
 <!--%%%%%%%%%%%  Cables inside wheels -->
 
  <PosPart copyNumber="1">
