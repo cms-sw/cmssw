@@ -6,6 +6,7 @@
 #include <boost/cstdint.hpp>
 #include <sstream>
 #include <vector>
+#include <map>
 
 class TProfile;
 
@@ -17,19 +18,23 @@ class TProfile;
 class FedCablingAnalysis : public CommissioningAnalysis {
   
  public:
-  
+
+  typedef std::map<uint32_t,uint16_t> Candidates;
+
   FedCablingAnalysis( const uint32_t& key );
   FedCablingAnalysis();
   virtual ~FedCablingAnalysis() {;}
-  
+
+  // Connection info
   inline const uint16_t& fedId() const;
   inline const uint16_t& fedCh() const; 
-  inline const float& level() const;
-  inline const uint16_t& num() const; 
-
+  const uint16_t& signalLevel() const;
+  inline const Candidates& candidates() const;
+  
   inline const Histo& hFedId() const;
   inline const Histo& hFedCh() const;
-  
+
+  // Debug
   void print( std::stringstream&, uint32_t not_used = 0 );
   
  private:
@@ -44,10 +49,8 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   uint16_t fedId_;
   /** FED channel */
   uint16_t fedCh_;
-  /** Signal level [adc] */
-  float    level_;
   /** Number of candidates for connection */
-  uint16_t num_;
+  Candidates candidates_;
   
   /** Histo containing FED id */
   Histo hFedId_;
@@ -58,8 +61,7 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   
 const uint16_t& FedCablingAnalysis::fedId() const { return fedId_; }
 const uint16_t& FedCablingAnalysis::fedCh() const { return fedCh_; } 
-const float& FedCablingAnalysis::level() const { return level_; }
-const uint16_t& FedCablingAnalysis::num() const { return num_; } 
+const FedCablingAnalysis::Candidates& FedCablingAnalysis::candidates() const { return candidates_; } 
 
 const FedCablingAnalysis::Histo& FedCablingAnalysis::hFedId() const { return hFedId_; }
 const FedCablingAnalysis::Histo& FedCablingAnalysis::hFedCh() const { return hFedCh_; }

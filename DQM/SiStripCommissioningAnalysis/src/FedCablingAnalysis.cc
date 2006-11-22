@@ -15,11 +15,12 @@ FedCablingAnalysis::FedCablingAnalysis( const uint32_t& key )
   : CommissioningAnalysis(key),
     fedId_(sistrip::invalid_), 
     fedCh_(sistrip::invalid_),
-    level_(sistrip::invalid_),
-    num_(sistrip::invalid_),
+    candidates_(),
     hFedId_(0,""),
     hFedCh_(0,"")
-{;}
+{
+  reset(); 
+}
 
 // ----------------------------------------------------------------------------
 // 
@@ -27,20 +28,32 @@ FedCablingAnalysis::FedCablingAnalysis()
   : CommissioningAnalysis(),
     fedId_(sistrip::invalid_), 
     fedCh_(sistrip::invalid_),
-    level_(sistrip::invalid_),
-    num_(sistrip::invalid_),
+    candidates_(),
     hFedId_(0,""),
-    hFedCh_(0,"")
-{;}
+    hFedCh_(0,"") 
+{ 
+  reset(); 
+}
+
+// ----------------------------------------------------------------------------
+// 
+void FedCablingAnalysis::reset() {
+    fedId_ = sistrip::invalid_; 
+    fedCh_ = sistrip::invalid_;
+    candidates_.clear();
+    hFedId_ = Histo(0,"");
+    hFedCh_ = Histo(0,"");
+}
 
 // ----------------------------------------------------------------------------
 // 
 void FedCablingAnalysis::print( stringstream& ss, uint32_t not_used ) { 
+  ss << "[FedCablingAnalysis::" << __func__ << "]";
   if ( key() ) {
-    ss << "FED CABLING monitorables for channel key 0x"
+    ss << " FED CABLING monitorables for channel key 0x"
        << hex << setw(8) << setfill('0') << key() << dec << endl;
   } else {
-    ss << "FED CABLING monitorables" << endl;
+    ss << " FED CABLING monitorables" << endl;
   }
   if ( key() ) {
     SiStripFecKey::Path path = SiStripFecKey::path( key() );
@@ -53,21 +66,17 @@ void FedCablingAnalysis::print( stringstream& ss, uint32_t not_used ) {
        << path.channel_ 
        << endl;
   }
-  ss << " FED id              : " << fedId_ << endl 
-     << " FED channel         : " << fedCh_ << endl
-     << " Signal level [adc]  : " << level_ << endl
-     << " Number of candidates: " << num_ << endl;
-}
-
-// ----------------------------------------------------------------------------
-// 
-void FedCablingAnalysis::reset() {
-    fedId_ = sistrip::invalid_; 
-    fedCh_ = sistrip::invalid_;
-    level_ = sistrip::invalid_;
-    num_   = sistrip::invalid_;
-    hFedId_ = Histo(0,"");
-    hFedCh_ = Histo(0,"");
+  ss << " nCandidates           : " << candidates_.size() << endl
+     << " Candidates (id/ch/adc): ";
+  Candidates::const_iterator iter;
+  for ( iter = candidates_.begin(); iter != candidates_.end(); iter++ ) { 
+    SiStripFedKey::Path path = SiStripFedKey::path( iter->first );
+    ss << path.fedId_ << "/" << path.fedCh_ << "/" << iter->second << " ";
+  }
+  ss << endl
+     << " Connected FED id      : " << fedId_ << endl 
+     << " Connected FED channel : " << fedCh_ << endl
+     << " Signal level [adc]    : " << signalLevel() << endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -76,10 +85,15 @@ void FedCablingAnalysis::extract( const vector<TProfile*>& histos ) {
 
   // Check
   if ( histos.size() != 2 ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+    cerr << endl // edm::LogWarning(mlDqmAnalysis_)
+	 << "[FedCablingAnalysis::" << __func__ << "]"
 	 << " Unexpected number of histograms: " 
-	 << histos.size()
-	 << endl;
+	 << histos.size();
+    vector<TProfile*>::const_iterator ihis = histos.begin();
+    for ( ; ihis != histos.end(); ihis++ ) {
+      cout << "[FedCablingAnalysis::" << __func__ << "]"
+	   << " Histogram name: " << (*ihis)->GetName() << endl;
+    }
   }
   
   // Extract
@@ -88,23 +102,23 @@ void FedCablingAnalysis::extract( const vector<TProfile*>& histos ) {
     
     // Check pointer
     if ( !(*ihis) ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to histogram!" << endl;
+      cerr << endl // edm::LogWarning(mlDqmAnalysis_)
+	<< "[FedCablingAnalysis::" << __func__ << "]"
+	<< " NULL pointer to histogram!";
       continue;
     }
-    
+
     // Check name
     static HistoTitle title;
     title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
     if ( title.task_ != sistrip::FED_CABLING ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected commissioning task!"
-	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
-	   << endl;
+      cerr << endl // edm::LogWarning(mlDqmAnalysis_)
+	<< "[FedCablingAnalysis::" << __func__ << "]"
+	<< " Unexpected commissioning task!"
+	<< "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")";
       continue;
     }
-    
-      
+
     // Extract FED id and channel histos
     if ( title.extraInfo_.find(sistrip::fedId_) != string::npos ) {
       hFedId_.first = *ihis;
@@ -113,8 +127,9 @@ void FedCablingAnalysis::extract( const vector<TProfile*>& histos ) {
       hFedCh_.first = *ihis;
       hFedCh_.second = (*ihis)->GetName();
     } else { 
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected 'extra info': " << title.extraInfo_ << endl;
+      cerr << endl // edm::LogWarning(mlDqmAnalysis_)
+	<< "[FedCablingAnalysis::" << __func__ << "]"
+	<< " Unexpected 'extra info': " << title.extraInfo_;
     }
     
   }
@@ -128,48 +143,62 @@ void FedCablingAnalysis::analyse() {
   
   // Check for valid pointers to histograms
   if ( !hFedId_.first ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to 'FED id' histogram" << endl;
+    cerr << endl // edm::LogWarning(mlDqmAnalysis_)
+      << "[FedCablingAnalysis::" << __func__ << "]"
+      << " NULL pointer to 'FED id' histogram";
     return;
   }
   if ( !hFedCh_.first ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to 'FED channel' histogram" << endl;
+    cerr << endl // edm::LogWarning(mlDqmAnalysis_)
+      << "[FedCablingAnalysis::" << __func__ << "]"
+      << " NULL pointer to 'FED channel' histogram";
     return;
   }
 
-  // FED id
-  uint16_t id_num = 0;
+  // Some initialization
+  candidates_.clear();
+  float max = -1.*sistrip::invalid_;
   uint16_t id_val = sistrip::invalid_;
-  float    id_max = -1.*sistrip::invalid_;
-  for ( uint16_t ibin = 0; ibin < hFedId_.first->GetNbinsX(); ibin++ ) {
-    if ( hFedId_.first->GetBinEntries(ibin+1) ) {
-      id_num++;
-      if ( hFedId_.first->GetBinContent(ibin+1) > id_max ) {
-	id_max = hFedId_.first->GetBinContent(ibin+1);
-	id_val = ibin;
-      }
-    }
-  }
-
-  // FED channel
-  uint16_t ch_num = 0;
   uint16_t ch_val = sistrip::invalid_;
-  float    ch_max = -1.*sistrip::invalid_;
-  for ( uint16_t ibin = 0; ibin < hFedCh_.first->GetNbinsX(); ibin++ ) {
-    if ( hFedCh_.first->GetBinEntries(ibin+1) ) {
-      ch_num++;
-      if ( hFedCh_.first->GetBinContent(ibin+1) > ch_max ) {
-	ch_max = hFedCh_.first->GetBinContent(ibin+1);
-	ch_val = ibin;
+
+  // FED id
+  for ( uint16_t ifed = 0; ifed < hFedId_.first->GetNbinsX(); ifed++ ) {
+    if ( hFedId_.first->GetBinEntries(ifed+1) ) {
+      // FED channel
+      for ( uint16_t ichan = 0; ichan < hFedCh_.first->GetNbinsX(); ichan++ ) {
+	if ( hFedCh_.first->GetBinEntries(ichan+1) ) {
+	  // Build FED key
+	  SiStripFedKey::Path path( ifed, ichan );
+	  uint32_t key = SiStripFedKey::key( path );
+	  // Calc weighted bin contents from FED id and ch histos
+	  float weight = 
+	    hFedId_.first->GetBinContent(ifed+1) * hFedId_.first->GetBinEntries(ifed+1) + 
+	    hFedCh_.first->GetBinContent(ichan+1) * hFedCh_.first->GetBinEntries(ichan+1);
+	  weight /= ( hFedId_.first->GetBinEntries(ifed+1) + hFedCh_.first->GetBinEntries(ichan+1) );
+	  // Record candidates and "best" candidate
+	  candidates_[key] = static_cast<uint16_t>(weight);
+	  if ( candidates_[key] > max ) {
+	    max = candidates_[key];
+	    id_val = ifed;
+	    ch_val = ichan;
+	  }
+	}
       }
     }
-  }
+  } 
 
-  // Set monitorables
+  // Set "best" candidate
   fedId_ = id_val;
   fedCh_ = ch_val;
-  level_ = ch_max;
-  num_   = ch_num;
   
+}
+
+// -----------------------------------------------------------------------------
+//
+const uint16_t& FedCablingAnalysis::signalLevel() const { 
+  static uint16_t temp = 0; 
+  uint32_t key = SiStripFedKey::key( SiStripFedKey::Path(fedId_,fedCh_) );
+  Candidates::const_iterator iter = candidates_.find( key );
+  if ( iter != candidates_.end() ) { return iter->second; }
+  else { return temp; }
 }
