@@ -34,76 +34,52 @@ MuonAlignment::MuonAlignment(const edm::EventSetup& setup  ){
   setup.get<MuonGeometryRecord>().get( cscGeometry );
 
   theAlignableMuon = new AlignableMuon( &(*dtGeometry) , &(*cscGeometry) );
+
+  theAlignableNavigator = new AlignableNavigator( theAlignableMuon );
   
 }
 
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::moveAlignableDTChamber( int rawid , std::vector<float> local_displacements,  std::vector<float> local_rotations  ){
+void MuonAlignment::moveAlignableLocalCoord( DetId& detid, std::vector<float>& displacements, std::vector<float>& rotations ){
 
-  // Displace and rotate DT chambers
-  std::vector<Alignable*> theDTAlignables = theAlignableMuon->DTChambers();
+  // Displace and rotate DT an Alignable associated to a GeomDet or GeomDetUnit
+  Alignable* theAlignable = theAlignableNavigator->alignableFromDetId( detid );
+ 
+  // Convert local to global diplacements
+  LocalVector lvector( displacements.at(0), displacements.at(1), displacements.at(2)); 
+  GlobalVector gvector = ( theAlignable->surface()).toGlobal( lvector );
 
-  for ( std::vector<Alignable*>::iterator iter = theDTAlignables.begin();
-        iter != theDTAlignables.end(); iter++ ){ 
+  // global displacement of the chamber
+  theAlignable->move( gvector );
 
-    // Get the raw ID of the associated GeomDet
-    int id = (*iter)->geomDetId().rawId();
-
-    // Select the given chamber
-    if ( id == rawid ){
-
-      // Convert local to global diplacements
-      LocalVector lvector( local_displacements.at(0), local_displacements.at(1), local_displacements.at(2)); 
-      GlobalVector gvector = ((*iter)->surface()).toGlobal( lvector );
-
-      // global displacement of the chamber
-      (*iter)->move( gvector );
-
-      // local rotation of the chamber
-      (*iter)->rotateAroundLocalX( local_rotations.at(0) ); // Local X axis rotation
-      (*iter)->rotateAroundLocalY( local_rotations.at(1) ); // Local Y axis rotation
-      (*iter)->rotateAroundLocalZ( local_rotations.at(2) ); // Local Z axis rotation
-
-    }
-   
-  }
+  // local rotation of the chamber
+  theAlignable->rotateAroundLocalX( rotations.at(0) ); // Local X axis rotation
+  theAlignable->rotateAroundLocalY( rotations.at(1) ); // Local Y axis rotation
+  theAlignable->rotateAroundLocalZ( rotations.at(2) ); // Local Z axis rotation
 
 }
+
 //____________________________________________________________________________________
 //
-void MuonAlignment::moveAlignableCSCChamber( int rawid , std::vector<float> local_displacements, std::vector<float> local_rotations  ){
+void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, std::vector<float>& displacements, std::vector<float>& rotations ){
 
-  // Displace and rotate CSC chambers
-  std::vector<Alignable*> theCSCAlignables = theAlignableMuon->CSCChambers();
-  for ( std::vector<Alignable*>::iterator iter = theCSCAlignables.begin();
-	iter != theCSCAlignables.end(); iter++ ){ 
+  // Displace and rotate DT an Alignable associated to a GeomDet or GeomDetUnit
+  Alignable* theAlignable = theAlignableNavigator->alignableFromDetId( detid );
+ 
+  // Convert std::vector to GlobalVector
+  GlobalVector gvector( displacements.at(0), displacements.at(1), displacements.at(2)); 
 
-    // Get the raw ID of the associated GeomDet
-    int id = (*iter)->geomDetId().rawId();
+  // global displacement of the chamber
+  theAlignable->move( gvector );
 
-    // Select the given chamber
-    if ( id == rawid ){
-
-      // Convert local to global diplacements
-      LocalVector lvector( local_displacements.at(0), local_displacements.at(1), local_displacements.at(2));
-      GlobalVector gvector = ((*iter)->surface()).toGlobal( lvector );
-
-      // global diplacement of the chamber
-      (*iter)->move( gvector );
-
-      // local rotation of the chamber
-      (*iter)->rotateAroundLocalX( local_rotations.at(0) ); // Local X axis rotation
-      (*iter)->rotateAroundLocalY( local_rotations.at(1) ); // Local Y axis rotation
-      (*iter)->rotateAroundLocalZ( local_rotations.at(2) ); // Local Z axis rotation
-
-    }
-
-  }  
+  // local rotation of the chamber
+  theAlignable->rotateAroundGlobalX( rotations.at(0) ); // Global X axis rotation
+  theAlignable->rotateAroundGlobalY( rotations.at(1) ); // Global Y axis rotation
+  theAlignable->rotateAroundGlobalZ( rotations.at(2) ); // Global Z axis rotation
 
 }
-
 
 //____________________________________________________________________________________
 // Code needed to store alignments to DB

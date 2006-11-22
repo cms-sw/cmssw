@@ -111,8 +111,8 @@ TestAlign::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	  std::cout << "Initial ori: x=" << dir_i.xx() << ",  y=" << dir_i.yy() << ",  z=" << dir_i.zz() << std::endl; 
 
           // Move DT chamber
-	  int id = (*iter)->geomDetId().rawId();
-	  align.moveAlignableDTChamber( id , displacement , rotation );
+	  DetId detid = (*iter)->geomDetId();
+	  align.moveAlignableGlobalCoord( detid , displacement , rotation );
 
           // Print final position/orientation
           GlobalPoint  pos_f  = (*iter)->globalPosition();
