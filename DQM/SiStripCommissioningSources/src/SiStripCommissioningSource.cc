@@ -11,12 +11,13 @@
 // dqm
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiStripCommissioningSources/interface/Averages.h"
-#include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
-#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
 #include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
+#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
+#include "DQM/SiStripCommissioningSources/interface/DaqScopeModeTask.h"
 // conditions
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -230,7 +231,8 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   if ( task_ == sistrip::FED_CABLING ||
        task_ == sistrip::APV_TIMING ||
        task_ == sistrip::FED_TIMING ||
-       task_ == sistrip::OPTO_SCAN ) { 
+       task_ == sistrip::OPTO_SCAN ||
+       task_ == sistrip::DAQ_SCOPE_MODE ) { 
     event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
   } else if ( task_ == sistrip::VPSP_SCAN ||
 	      task_ == sistrip::PEDESTALS ) {
@@ -709,12 +711,13 @@ void SiStripCommissioningSource::createTasks() {
       dqm()->setCurrentFolder( dir );
       
       // Create commissioning task objects
-      if ( !tasks_[iconn->fedId()][iconn->fedCh()] ) {
-	if      ( task_ == sistrip::APV_TIMING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new ApvTimingTask( dqm(), *iconn ); } 
+      if ( !tasks_[iconn->fedId()][iconn->fedCh()] ) { 
+	if ( task_ == sistrip::APV_TIMING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new ApvTimingTask( dqm(), *iconn ); } 
 	else if ( task_ == sistrip::FED_TIMING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FedTimingTask( dqm(), *iconn ); }
-	else if ( task_ == sistrip::OPTO_SCAN )  { tasks_[iconn->fedId()][iconn->fedCh()] = new OptoScanTask( dqm(), *iconn ); }
-	else if ( task_ == sistrip::VPSP_SCAN )  { tasks_[iconn->fedId()][iconn->fedCh()] = new VpspScanTask( dqm(), *iconn ); }
-	else if ( task_ == sistrip::PEDESTALS )  { tasks_[iconn->fedId()][iconn->fedCh()] = new PedestalsTask( dqm(), *iconn ); }
+	else if ( task_ == sistrip::OPTO_SCAN ) { tasks_[iconn->fedId()][iconn->fedCh()] = new OptoScanTask( dqm(), *iconn ); }
+	else if ( task_ == sistrip::VPSP_SCAN ) { tasks_[iconn->fedId()][iconn->fedCh()] = new VpspScanTask( dqm(), *iconn ); }
+	else if ( task_ == sistrip::PEDESTALS ) { tasks_[iconn->fedId()][iconn->fedCh()] = new PedestalsTask( dqm(), *iconn ); }
+	else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::UNDEFINED_TASK ) { 
 	  edm::LogWarning(mlDqmSource_)  
 	    << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -726,7 +729,7 @@ void SiStripCommissioningSource::createTasks() {
 	    << " Unknown CommissioningTask" 
 	    << " Unable to create CommissioningTask object!";
 	}
-		
+	
 	// Check if fed_key is found and, if so, book histos and set update freq
 	if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
 	  tasks_[iconn->fedId()][iconn->fedCh()]->bookHistograms(); 
