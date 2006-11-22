@@ -53,10 +53,9 @@ public:
   int sizeInWords() const {return theSizeInWords;}
   int size() const {return theSizeInWords*16;} ///Alex check this 16 or 64
 
-  /// returns the binary event data
+  /// returns packed event data
   boost::dynamic_bitset<> pack();
-  boost::dynamic_bitset<> 
-    append(const boost::dynamic_bitset<> & bs1, const boost::dynamic_bitset<> & bs2);
+
   
   static bool debug;
   static unsigned int errMask;

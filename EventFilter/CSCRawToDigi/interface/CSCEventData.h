@@ -108,8 +108,7 @@ class CSCEventData {
 
   /// returns the packed event data. 
   boost::dynamic_bitset<> pack();
-  boost::dynamic_bitset<> 
-    append(const boost::dynamic_bitset<> & bs1, const boost::dynamic_bitset<> & bs2);
+
   /// adds an empty ALCTHeader, trailer, and anode data
   void addALCTStructures();
 

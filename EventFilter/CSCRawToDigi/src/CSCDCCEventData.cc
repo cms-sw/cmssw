@@ -2,7 +2,6 @@
 /// 01/20/05 
 /// A.Tumanov
 
-
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
@@ -12,6 +11,7 @@
 #include <vector>
 #include <cstdio>
 #include <boost/dynamic_bitset.hpp>
+#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
 bool CSCDCCEventData::debug = false;
 
@@ -98,26 +98,11 @@ boost::dynamic_bitset<> CSCDCCEventData::pack() {
   result = dccHeader;
 
   for(size_t i = 0; i < theDDUData.size(); ++i) {
-    result =  append(result,theDDUData[i].pack());
+    result = bitset_utilities::append(result,theDDUData[i].pack());
   }
   boost::dynamic_bitset<> dccTrailer( theDCCTrailer.sizeInWords()*16, *(const unsigned *)&theDCCTrailer);
-  result = append(result,dccTrailer);
+  result = bitset_utilities::append(result,dccTrailer);
 
   return result;
 }
 
-boost::dynamic_bitset<> 
-CSCDCCEventData::append(const boost::dynamic_bitset<> & bs1, const boost::dynamic_bitset<> & bs2)
-{
-  boost::dynamic_bitset<> result(bs1.size()+bs2.size());
-  unsigned size1 = bs1.size();
-  for(unsigned i = 0; i < size1; ++i)
-    {
-      result[i] = bs1[i];
-    }
-  for(unsigned i = 0; i < bs2.size(); ++i)
-    {
-      result[size1+i] = bs2[i];
-    }
-  return result;
-}

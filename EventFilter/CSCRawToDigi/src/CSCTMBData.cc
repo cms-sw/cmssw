@@ -17,6 +17,7 @@
 #include <bitset>
 #include <cstdio>
 #include <boost/dynamic_bitset.hpp>
+#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
 bool CSCTMBData::debug =false;
 
@@ -239,27 +240,12 @@ std::bitset<22> CSCTMBData::nextCRC22_D16(const std::bitset<16>& D,
 boost::dynamic_bitset<> CSCTMBData::pack() {
   boost::dynamic_bitset<> result(theTMBHeader.sizeInWords()*16,*(const unsigned*)&theTMBHeader);
   boost::dynamic_bitset<> clctData(theCLCTData.sizeInWords()*16, (const unsigned)*theCLCTData.data());
-  result = append(result,clctData);
+  result = bitset_utilities::append(result,clctData);
   int finalSize = result.size()/16 + theTMBTrailer.sizeInWords(); //size() returns # of bits 
                                                                 
   theTMBTrailer.setWordCount(finalSize);
   boost::dynamic_bitset<> tmbTrailer( theTMBTrailer.sizeInWords()*16, *(const unsigned*)&theTMBTrailer);
-  result = append(result,tmbTrailer);
+  result = bitset_utilities::append(result,tmbTrailer);
   return result;
 }
 
-boost::dynamic_bitset<> 
-CSCTMBData::append(const boost::dynamic_bitset<> & bs1, const boost::dynamic_bitset<> & bs2)
-{
-  boost::dynamic_bitset<> result(bs1.size()+bs2.size());
-  unsigned size1 = bs1.size();
-  for(unsigned i = 0; i < size1; ++i)
-    {
-      result[i] = bs1[i];
-    }
-  for(unsigned i = 0; i < bs2.size(); ++i)
-    {
-      result[size1+i] = bs2[i];
-    }
-  return result;
-}

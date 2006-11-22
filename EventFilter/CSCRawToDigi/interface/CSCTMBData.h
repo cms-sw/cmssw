@@ -43,10 +43,10 @@ class CSCTMBData {
   CSCRPCData & rpcData()       {return theRPCData;}
 
   /// not const because it sets size int TMBTrailer
-  /// these methods are for digi2raw
+
+  /// this method is for digi2raw
   boost::dynamic_bitset<> pack();
-  boost::dynamic_bitset<> 
-    append(const boost::dynamic_bitset<> & bs1, const boost::dynamic_bitset<> & bs2);
+
 
   std::bitset<22> calCRC22(const std::vector< std::bitset<16> >& datain);
   std::bitset<22> nextCRC22_D16(const std::bitset<16>& D, const std::bitset<22>& C);

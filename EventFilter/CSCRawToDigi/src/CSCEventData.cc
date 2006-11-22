@@ -12,6 +12,8 @@
 
 #include <iostream>
 #include <iterator>
+#include <boost/dynamic_bitset.hpp>
+#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
 
 bool CSCEventData::debug = false;
@@ -344,46 +346,31 @@ boost::dynamic_bitset<> CSCEventData::pack() {
 
   if(theALCTHeader != NULL) {
     boost::dynamic_bitset<> alctHeader(theALCTHeader->sizeInWords()*16,  *theALCTHeader->data());
-    result = append(result, alctHeader);
+    result = bitset_utilities::append(result, alctHeader);
   }
   if(theAnodeData != NULL) {
     boost::dynamic_bitset<> anodeData(theAnodeData->sizeInWords()*16,  *theAnodeData->data());
-    result = append(result, anodeData);
+    result = bitset_utilities::append(result, anodeData);
   }
   if(theALCTTrailer != NULL) {
     boost::dynamic_bitset<> alctTrailer(theALCTTrailer->sizeInWords()*16,  *theALCTTrailer->data());
-    result = append(result, alctTrailer);
+    result = bitset_utilities::append(result, alctTrailer);
   }
 
   if(theTMBData != NULL) {
-    result  = append(result, theTMBData->pack());
+    result  = bitset_utilities::append(result, theTMBData->pack());
   }
 
   for(int icfeb = 0;  icfeb < 5;  ++icfeb) {
     if(theCFEBData[icfeb] != NULL) {
       boost::dynamic_bitset<> cfebData( theCFEBData[icfeb]->sizeInWords()*16,  *theCFEBData[icfeb]->data());
-      result = append(result, cfebData);
+      result = bitset_utilities::append(result, cfebData);
     }
   }
 
   boost::dynamic_bitset<> dmbTrailer( theDMBTrailer.sizeInWords()*16, *(const unsigned*)&theDMBTrailer);
-  result = append(result, dmbTrailer);
+  result = bitset_utilities::append(result, dmbTrailer);
 
   return result;
 }
 
-boost::dynamic_bitset<> 
-CSCEventData::append(const boost::dynamic_bitset<> & bs1, const boost::dynamic_bitset<> & bs2)
-{
-  boost::dynamic_bitset<> result(bs1.size()+bs2.size());
-  unsigned size1 = bs1.size();
-  for(unsigned i = 0; i < size1; ++i)
-    {
-      result[i] = bs1[i];
-    }
-  for(unsigned i = 0; i < bs2.size(); ++i)
-    {
-      result[size1+i] = bs2[i];
-    }
-  return result;
-}
