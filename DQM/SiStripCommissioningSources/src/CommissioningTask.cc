@@ -164,6 +164,14 @@ void CommissioningTask::updateHistograms() {
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::updateHistoSet( HistoSet& histo_set, 
+					const uint32_t& bin ) {
+  float value = 1.;
+  updateHistoSet( histo_set, bin, value );
+}
+
+// -----------------------------------------------------------------------------
+//
+void CommissioningTask::updateHistoSet( HistoSet& histo_set, 
 					const uint32_t& bin,
 					const float& value ) {
   
@@ -208,24 +216,25 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
     return;
   }
 
-  // Utility class that allows to update bin contents of TProfile histo
-  static UpdateTProfile profile;
-  
-  // Extract TProfile object
-  TProfile* prof = ExtractTObject<TProfile>().extract( histo_set.histo_ );
-  // if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
-  
-  // Update TProfile histo
-  for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
-    if ( histo_set.isProfile_ ) {
+  if ( histo_set.isProfile_ ) {
+
+    TProfile* prof = ExtractTObject<TProfile>().extract( histo_set.histo_ );
+    // if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
+    static UpdateTProfile profile;
+    for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
       profile.setBinContents( prof,
 			      ibin+1, 
 			      histo_set.vNumOfEntries_[ibin],
 			      histo_set.vSumOfContents_[ibin],
 			      histo_set.vSumOfSquares_[ibin] );
-    } else {
-      histo_set.histo_->setBinContent( ibin+1, histo_set.vNumOfEntries_[ibin]*1. );
     }
+
+  } else {
+
+    for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
+      histo_set.histo_->setBinContent( ibin+1, histo_set.vNumOfEntries_[ibin] );
+    }
+
   }
   
 }

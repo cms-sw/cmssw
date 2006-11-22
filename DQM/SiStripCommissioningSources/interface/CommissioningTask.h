@@ -19,7 +19,9 @@ class MonitorElement;
 */
 class CommissioningTask {
 
- public: // ----- public interface -----
+ public: 
+  
+  // ---------- Constructors, destructors ----------
 
   /** Constructor. */ 
   CommissioningTask( DaqMonitorBEInterface*, 
@@ -27,6 +29,8 @@ class CommissioningTask {
 		     const std::string& my_name );
   virtual ~CommissioningTask();
 
+  // ---------- Classes, structs ----------
+  
   /** Simple container class holding pointer to root histogram, and
       vectors in which data are cached and used to update histo. */
   class HistoSet {
@@ -45,6 +49,11 @@ class CommissioningTask {
     bool isProfile_;
   };
   
+
+
+
+  // ---------- Public methods ----------
+  
   void bookHistograms();
   void fillHistograms( const SiStripEventSummary&, 
 		       const edm::DetSet<SiStripRawDigi>& );
@@ -60,10 +69,14 @@ class CommissioningTask {
   /** Returns the name of this commissioning task. */
   const std::string& myName() const { return myName_; }
   
- protected: // ----- protected methods -----
+ protected: 
+  
+  // ---------- Protected methods ----------
   
   /** Updates the vectors of HistoSet. */
   void updateHistoSet( HistoSet&, const uint32_t& bin, const float& value );
+  /** Updates the vectors of HistoSet. */
+  void updateHistoSet( HistoSet&, const uint32_t& bin );
   /** Updates the MonitorElements of HistoSet. */
   void updateHistoSet( HistoSet& );
   
@@ -78,8 +91,10 @@ class CommissioningTask {
   /** Returns FED key. */
   inline const uint32_t& fedKey() const;
   
- private: // ----- private methods -----
+ private: 
   
+  // ---------- Private methods ----------
+
   CommissioningTask() {;}
   
   virtual void book();
@@ -90,7 +105,7 @@ class CommissioningTask {
 		     const std::map<uint16_t,float>& fed_ch );
   virtual void update();
   
- private: // ----- private data members -----
+  // ---------- Private member data ----------
 
   DaqMonitorBEInterface* dqm_;
   uint32_t updateFreq_;
