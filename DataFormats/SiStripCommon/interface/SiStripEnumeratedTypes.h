@@ -25,7 +25,7 @@ namespace sistrip {
    * relative apv synchronisation using fed delays (TIMING_FED = 12), 
    * connection of apv pairs to fed channels (BARE_CONNECTION = 13), 
    * apv baseline scan (VPSPSCAN = 14), 
-   * scope mode readout (SCOPE = 15), 
+   * DAQ scope mode readout (SCOPE = 15), 
    */
   enum Task { UNKNOWN_TASK = sistrip::unknown_,
 	      UNDEFINED_TASK = sistrip::invalid_,
@@ -36,7 +36,8 @@ namespace sistrip {
 	      VPSP_SCAN = 14,
 	      PEDESTALS = 2,
 	      APV_LATENCY = 6,
-	      PHYSICS = 1 
+	      DAQ_SCOPE_MODE = 15,
+	      PHYSICS = 1
   };
 
 }

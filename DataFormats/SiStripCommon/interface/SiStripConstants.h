@@ -129,6 +129,8 @@ namespace sistrip {
   static const std::string vpspScan_ = "VpspScan";
   static const std::string pedestals_ = "Pedestals";
   static const std::string apvLatency_ = "ApvLatency";
+  static const std::string daqScopeMode_ = "DaqScopeMode";
+  static const std::string physics_ = "Physics";
   static const std::string undefinedTask_ = "UndefinedTask";
   static const std::string unknownTask_ = "UnknownTask";
 

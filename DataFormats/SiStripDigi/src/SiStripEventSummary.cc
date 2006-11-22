@@ -52,6 +52,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
   else if ( buffer[10] == 14 ) { task_ = sistrip::VPSP_SCAN; }
   else if ( buffer[10] ==  2 ) { task_ = sistrip::PEDESTALS; }
   else if ( buffer[10] ==  6 ) { task_ = sistrip::APV_LATENCY; }
+  else if ( buffer[10] == 15 ) { task_ = sistrip::DAQ_SCOPE_MODE; } //@@ use task()
   else if ( buffer[10] ==  1 ) { task_ = sistrip::PHYSICS; }
   else if ( buffer[10] ==  0 ) { task_ = sistrip::UNDEFINED_TASK; }
   else {
@@ -114,6 +115,10 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
   } else if ( buffer[10] == 14 ) { // VPSP scan
 
     param0_ = buffer[11]; // vpsp
+
+  } else if ( buffer[10] == 15 ) { // DAQ scope mode readout
+
+    // nothing interesting!
 
   } else if (  buffer[10] == 1 ||
 	       buffer[10] == 2 ) { // Physics and pedestals

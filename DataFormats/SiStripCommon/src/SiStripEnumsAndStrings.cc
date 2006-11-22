@@ -37,6 +37,8 @@ string SiStripHistoNamingScheme::task( const sistrip::Task& task ) {
   else if ( task == sistrip::VPSP_SCAN ) { return sistrip::vpspScan_; }
   else if ( task == sistrip::PEDESTALS ) { return sistrip::pedestals_; }
   else if ( task == sistrip::APV_LATENCY ){ return sistrip::apvLatency_; }
+  else if ( task == sistrip::DAQ_SCOPE_MODE ){ return sistrip::daqScopeMode_; }
+  else if ( task == sistrip::PHYSICS ){ return sistrip::physics_; }
   else if ( task == sistrip::UNDEFINED_TASK ) { return sistrip::undefinedTask_; }
   else { return sistrip::unknownTask_; }
 }
@@ -58,6 +60,10 @@ sistrip::Task SiStripHistoNamingScheme::task( const string& task ) {
 	    task.find( sistrip::pedestals_ ) != string::npos ) { return sistrip::PEDESTALS; }
   else if ( task == "APV_LATENCY" || 
 	    task.find( sistrip::apvLatency_ ) != string::npos ) { return sistrip::APV_LATENCY; }
+  else if ( task == "DAQ_SCOPE_MODE" || 
+	    task.find( sistrip::daqScopeMode_ ) != string::npos ) { return sistrip::DAQ_SCOPE_MODE; }
+  else if ( task == "PHYSICS" || 
+	    task.find( sistrip::physics_ ) != string::npos ) { return sistrip::PHYSICS; }
   else if ( task == "UNDEFINED" || 
 	    task.find( sistrip::undefinedTask_ ) != string::npos ) { return sistrip::UNDEFINED_TASK; }
   else { return sistrip::UNKNOWN_TASK; }
