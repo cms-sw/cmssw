@@ -36,11 +36,13 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
     << " Constructing object...";
   
   int16_t appended_bytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
-  int16_t dump_frequency = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
+  int16_t fed_buffer_dump_freq = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
+  int16_t fed_event_dump_freq = pset.getUntrackedParameter<int>("FedEventDumpFreq",0);
   int16_t trigger_fed_id = pset.getUntrackedParameter<int>("TriggerFedId",0);
   bool    using_fed_key  = pset.getUntrackedParameter<bool>("UseFedKey",false);
   rawToDigi_ = new SiStripRawToDigiUnpacker( appended_bytes, 
-					     dump_frequency,
+					     fed_buffer_dump_freq,
+					     fed_event_dump_freq,
 					     trigger_fed_id,
 					     using_fed_key );
   
@@ -73,11 +75,11 @@ SiStripRawToDigiModule::~SiStripRawToDigiModule() {
 */
 void SiStripRawToDigiModule::produce( edm::Event& event, 
 				      const edm::EventSetup& setup ) {
-  LogTrace(mlRawToDigi_) 
-    << "[SiStripRawToDigiModule::" << __func__ << "]"
-    << " Analyzing run/event "
-    << event.id().run() << "/"
-    << event.id().event();
+  //   LogTrace(mlRawToDigi_) 
+  //     << "[SiStripRawToDigiModule::" << __func__ << "]"
+  //     << " Analyzing run/event "
+  //     << event.id().run() << "/"
+  //     << event.id().event();
   
   // Retrieve FED cabling
   edm::ESHandle<SiStripFedCabling> cabling;
@@ -85,7 +87,8 @@ void SiStripRawToDigiModule::produce( edm::Event& event,
 
   // Retrieve FED raw data ("source" label is now fixed by fwk)
   edm::Handle<FEDRawDataCollection> buffers;
-  event.getByType( buffers ); 
+  //event.getByType( buffers ); 
+  event.getByLabel( "source", buffers ); 
   
   // Populate SiStripEventSummary object with "trigger FED" info
   auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
