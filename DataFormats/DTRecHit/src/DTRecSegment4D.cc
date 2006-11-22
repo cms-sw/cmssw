@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/15 09:25:00 $
- * $Revision: 1.8 $
+ * $Date: 2006/07/03 15:12:46 $
+ * $Revision: 1.9 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -103,7 +103,7 @@ DTRecSegment4D::~DTRecSegment4D() {}
 
 AlgebraicVector DTRecSegment4D::parameters() const {
   if (dimension()==4) {
-    // (x,y,dx/dz,dy/dz)
+    // (dx/dz,dy/dz,x,y)
     AlgebraicVector result(4);
     result[2] = thePosition.x();
     result[3] = thePosition.y();
@@ -114,11 +114,11 @@ AlgebraicVector DTRecSegment4D::parameters() const {
 
   AlgebraicVector result(2);
   if (theProjection==phi) {
-    // (x,dx/dz)  
+    // (dx/dz,x)  
     result[1] = thePosition.x();
     result[0] = theDirection.x()/theDirection.z();
   } else if (theProjection==Z) {
-    // (y,dy/dz) (note we are in the chamber r.f.)
+    // (dy/dz,y) (note we are in the chamber r.f.)
     result[1] = thePosition.y();
     result[0] = theDirection.y()/theDirection.z();
   }

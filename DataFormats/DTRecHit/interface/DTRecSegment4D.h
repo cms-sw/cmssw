@@ -5,8 +5,8 @@
  *
  * 4-parameter RecHits for MuonBarrel DT (x,y, dx/dz, dy/dz)
  *
- * $Date: 2006/06/29 17:18:27 $
- * $Revision: 1.7 $
+ * $Date: 2006/07/03 15:12:46 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -46,9 +46,9 @@ class DTRecSegment4D : public RecSegment {
   virtual DTRecSegment4D* clone() const { return new DTRecSegment4D(*this);}
 
   /// Parameters of the segment, for the track fit. 
-  /// For a 4D segment: (x,y,dx/dy,dy/dz)
-  /// For a 2D, phi-only segment: (x,dx/dz)
-  /// For a 2D, Z-only segment: (y,dy/dz)
+  /// For a 4D segment: (dx/dy,dy/dz,x,y)
+  /// For a 2D, phi-only segment: (dx/dz,x)
+  /// For a 2D, Z-only segment: (dy/dz,y)
   AlgebraicVector parameters() const ;
 
   /// Covariance matrix fo parameters()

@@ -18,8 +18,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2006/06/29 17:18:27 $
- * $Revision: 1.7 $
+ * $Date: 2006/11/10 11:10:41 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -69,12 +69,12 @@ class DTRecSegment2D : public RecSegment{
   virtual DTRecSegment2D* clone() const { return new DTRecSegment2D(*this);}
 
 
-  /// the vector of parameters
+  /// the vector of parameters (dx/dz,x)
   virtual AlgebraicVector parameters() const {
     return param( localPosition(), localDirection());
   }
 
-  // The parameter error matrix
+  // The parameter error matrix 
   virtual AlgebraicSymMatrix parametersError() const {
     return parError( localPositionError(), localDirectionError());
   }
