@@ -109,7 +109,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
         // Clear proto segment so it can be (re)-filled 
 	protoSegment.clear();
 
-	if ( usedHits[i1-ib] ) continue;   // Hit has been used already
+	if ( usedHits[i2-ib] ) continue;   // Hit has been used already
 
         const CSCRecHit2D* h2 = *i2;	
         int layer2 = layerIndex[i2-ib];
