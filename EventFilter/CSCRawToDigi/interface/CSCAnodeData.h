@@ -32,7 +32,6 @@ public:
   /// three, so it's the lowest bit, plus the OR of the next two.
   unsigned chip() const {return chip_;}
   unsigned short data() const {return data_;}
-
 private:
   unsigned short data_ : 8;
   unsigned short tbin_ : 5;

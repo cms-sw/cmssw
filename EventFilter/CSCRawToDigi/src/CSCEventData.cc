@@ -340,20 +340,22 @@ std::ostream & operator<<(std::ostream & os, const CSCEventData & evt) {
 
 boost::dynamic_bitset<> CSCEventData::pack() {
 
-  boost::dynamic_bitset<> result;
-  boost::dynamic_bitset<> dmbHeader( theDMBHeader.sizeInWords()*16, *(const unsigned *)&theDMBHeader);
-  result = dmbHeader;
-
+  boost::dynamic_bitset<> result = bitset_utilities::ushortToBitset( theDMBHeader.sizeInWords()*16, 
+								     theDMBHeader.data());
+ 
   if(theALCTHeader != NULL) {
-    boost::dynamic_bitset<> alctHeader(theALCTHeader->sizeInWords()*16,  *theALCTHeader->data());
+    boost::dynamic_bitset<> alctHeader = bitset_utilities::ushortToBitset(theALCTHeader->sizeInWords()*16,
+									  theALCTHeader->data());
     result = bitset_utilities::append(result, alctHeader);
   }
   if(theAnodeData != NULL) {
-    boost::dynamic_bitset<> anodeData(theAnodeData->sizeInWords()*16,  *theAnodeData->data());
+    boost::dynamic_bitset<> anodeData = bitset_utilities::ushortToBitset (theAnodeData->sizeInWords()*16,
+									  theAnodeData->data());
     result = bitset_utilities::append(result, anodeData);
   }
   if(theALCTTrailer != NULL) {
-    boost::dynamic_bitset<> alctTrailer(theALCTTrailer->sizeInWords()*16,  *theALCTTrailer->data());
+    boost::dynamic_bitset<> alctTrailer =bitset_utilities::ushortToBitset(theALCTTrailer->sizeInWords()*16,
+									  theALCTTrailer->data());
     result = bitset_utilities::append(result, alctTrailer);
   }
 
@@ -363,12 +365,14 @@ boost::dynamic_bitset<> CSCEventData::pack() {
 
   for(int icfeb = 0;  icfeb < 5;  ++icfeb) {
     if(theCFEBData[icfeb] != NULL) {
-      boost::dynamic_bitset<> cfebData( theCFEBData[icfeb]->sizeInWords()*16,  *theCFEBData[icfeb]->data());
+      boost::dynamic_bitset<> cfebData = bitset_utilities::ushortToBitset(theCFEBData[icfeb]->sizeInWords()*16,
+									  theCFEBData[icfeb]->data());
       result = bitset_utilities::append(result, cfebData);
     }
   }
 
-  boost::dynamic_bitset<> dmbTrailer( theDMBTrailer.sizeInWords()*16, *(const unsigned*)&theDMBTrailer);
+  boost::dynamic_bitset<> dmbTrailer = bitset_utilities::ushortToBitset( theDMBTrailer.sizeInWords()*16,
+									 theDMBTrailer.data());
   result = bitset_utilities::append(result, dmbTrailer);
 
   return result;

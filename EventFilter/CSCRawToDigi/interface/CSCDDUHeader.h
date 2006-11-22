@@ -22,7 +22,7 @@ class CSCDDUHeader {
   int live_cscs() const {return live_cscs_;}
   static unsigned sizeInWords() {return 12;}
   void setSourceId(unsigned sourceId) {source_id_ = sourceId;}
-
+  unsigned short * data() {return (unsigned short *) this;}
   bool check() const;
 
   // gets some data filled by the event data

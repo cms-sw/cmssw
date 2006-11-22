@@ -11,7 +11,6 @@ CSCDCCHeader::CSCDCCHeader(int bx, int l1a, int sourceId) {
 }
 
 
-
 CSCDCCHeader::CSCDCCHeader() {
   bzero(this, sizeInWords()*2);
   dcc_code1 = 0xD9;
@@ -41,3 +40,4 @@ std::ostream & operator<<(std::ostream & os, const CSCDCCHeader & hdr) {
   os << "DCC Header" << std::endl;
   return os;
 }
+

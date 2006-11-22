@@ -120,6 +120,8 @@ class CSCTMBHeader {
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
   unsigned short int sizeInWords() const     {return nHeaderFrames+1;}
+  
+  unsigned short * data() {return (unsigned short *) this;}
 
 //  void SetCWordCnt(const unsigned short value) {cWordCnt = value;}
 

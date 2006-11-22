@@ -18,9 +18,8 @@ class CSCDCCHeader {
   int getCDFFOV() const;
   int getCDFEventType() const;
   int getCDFBunchCounter() const; 
- 
   bool check() const { return dcc_code1==0xD9 && dcc_code2==0x97;}
-
+  unsigned short * data() {return (unsigned short *) this;}
   static unsigned sizeInWords() {return 8;}
 
   // gets some data filled by the event data

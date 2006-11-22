@@ -5,6 +5,9 @@
 
 #include <iostream>
 #include <string.h> // bzero
+
+
+
 /** documented at  http://www.physics.ohio-state.edu/~cms/ddu/ddu2.html
  */
 
@@ -36,5 +39,7 @@ struct CSCDCCTrailer {
 
   static unsigned sizeInWords() {return 8;}
   bool check() const {return dcc_trail1 == 0xEF;}
+  unsigned short * data() {return (unsigned short *) this;}
+
 };
 #endif

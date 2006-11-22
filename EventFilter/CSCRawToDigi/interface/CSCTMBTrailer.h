@@ -24,6 +24,7 @@ public:
   bool check() const {return theData[0]==0x6e0c && theData[3+thePadding] == 0xde0f;}
   /// in 16-bit frames
   int sizeInWords() const {return 5+thePadding;}
+  unsigned short * data() {return theData;}
 
   int wordCount() const;
   void setWordCount(int words);

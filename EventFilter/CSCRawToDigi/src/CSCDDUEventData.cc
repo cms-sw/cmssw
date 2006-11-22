@@ -221,15 +221,16 @@ bool CSCDDUEventData::check() const {
 
 boost::dynamic_bitset<> CSCDDUEventData::pack() {
   
-  boost::dynamic_bitset<> result;
-  boost::dynamic_bitset<> dduHeader( theDDUHeader.sizeInWords()*16, *(const unsigned*)&theDDUHeader);
-  result = dduHeader;
+  boost::dynamic_bitset<> result = bitset_utilities::ushortToBitset( theDDUHeader.sizeInWords()*16,
+								     theDDUHeader.data());
+ 
     
   for(unsigned int i = 0; i < theData.size(); ++i) {
     result = bitset_utilities::append(result,theData[i].pack());
   }
   
-  boost::dynamic_bitset<> dduTrailer( theDDUTrailer.sizeInWords()*16, *(const unsigned*)&theDDUTrailer);
+  boost::dynamic_bitset<> dduTrailer = bitset_utilities::ushortToBitset ( theDDUTrailer.sizeInWords()*16, 
+									  theDDUTrailer.data());
   result =  bitset_utilities::append(result,dduTrailer);
 
   return result;

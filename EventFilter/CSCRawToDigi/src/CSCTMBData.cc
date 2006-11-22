@@ -238,13 +238,16 @@ std::bitset<22> CSCTMBData::nextCRC22_D16(const std::bitset<16>& D,
 
 
 boost::dynamic_bitset<> CSCTMBData::pack() {
-  boost::dynamic_bitset<> result(theTMBHeader.sizeInWords()*16,*(const unsigned*)&theTMBHeader);
-  boost::dynamic_bitset<> clctData(theCLCTData.sizeInWords()*16, (const unsigned)*theCLCTData.data());
+  boost::dynamic_bitset<> result = bitset_utilities::ushortToBitset(theTMBHeader.sizeInWords()*16,
+								    theTMBHeader.data());
+  boost::dynamic_bitset<> clctData =  bitset_utilities::ushortToBitset(theCLCTData.sizeInWords()*16,
+								       theCLCTData.data());
   result = bitset_utilities::append(result,clctData);
   int finalSize = result.size()/16 + theTMBTrailer.sizeInWords(); //size() returns # of bits 
                                                                 
   theTMBTrailer.setWordCount(finalSize);
-  boost::dynamic_bitset<> tmbTrailer( theTMBTrailer.sizeInWords()*16, *(const unsigned*)&theTMBTrailer);
+  boost::dynamic_bitset<> tmbTrailer =  bitset_utilities::ushortToBitset( theTMBTrailer.sizeInWords()*16,
+									  theTMBTrailer.data());
   result = bitset_utilities::append(result,tmbTrailer);
   return result;
 }

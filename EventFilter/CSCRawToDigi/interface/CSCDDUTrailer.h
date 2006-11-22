@@ -26,6 +26,8 @@ class CSCDDUTrailer {
     //      << trailer2_4 << std:: dec << std::endl;
     return trailer2_1 == 0x8000 && trailer2_2 == 0x8000
                    && trailer2_3 == 0xFFFF && trailer2_4 == 0x8000;}
+
+  unsigned short * data() {return (unsigned short *) this;}
   
   //These are accessors to use for calling private members    
   
@@ -33,6 +35,7 @@ class CSCDDUTrailer {
   unsigned wordcount() const { return word_count_; }  
   unsigned dmb_warn() const { return dmb_warn_; }  
   unsigned dmb_full() const { return dmb_full_; } 
+
   
   
  private:

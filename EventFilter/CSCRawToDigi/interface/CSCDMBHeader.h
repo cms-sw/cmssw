@@ -37,6 +37,7 @@ public:
  
   bool check() const;
 
+  unsigned short * data() {return (unsigned short *) this;}
   //ostream & operator<<(ostream &, const CSCDMBHeader &);
 
  private:

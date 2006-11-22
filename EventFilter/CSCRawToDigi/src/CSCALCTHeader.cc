@@ -29,6 +29,7 @@ CSCALCTHeader::CSCALCTHeader(int chamberType) {
 CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
   memcpy(this, buf, sizeInWords()*2);
   //printf("%04x %04x %04x %04x\n",buf[4],buf[5],buf[6],buf[7]);
+
 }
 
 void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) {

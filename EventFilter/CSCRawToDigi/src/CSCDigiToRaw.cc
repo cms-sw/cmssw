@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/21 16:52:17 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/11/21 21:21:00 $
+ *  $Revision: 1.6 $
  *  \author A. Tumanov - Rice
  */
 
@@ -16,7 +16,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
 #include <boost/dynamic_bitset.hpp>
-
+#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
 using namespace edm;
 using namespace std;
@@ -131,20 +131,11 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
       int indexDCC = mapping.dccId(chamberItr->first);
       if (idcc==indexDCC) { ///fill the right dcc 
 	dccEvent.dduData()[indexDDU].add(chamberItr->second);
-	boost::dynamic_bitset<> dccbits=dccEvent.pack();	
-	FEDRawData * rawData = new FEDRawData(dccbits.size());
+	boost::dynamic_bitset<> dccBits = dccEvent.pack();
+	FEDRawData * rawData = new FEDRawData(dccBits.size());
 	unsigned char * data = rawData->data();
-	for (unsigned int i=0;i<dccbits.size();i++) {//fill char data words bit by bit
-	  data[i/8] = (dccbits[i]<<7)+
-	              (dccbits[i+1]<<6)+
-	              (dccbits[i+2]<<5)+
-	              (dccbits[i+3]<<4)+
-	              (dccbits[i+4]<<3)+
-	              (dccbits[i+5]<<2)+
-	              (dccbits[i+6]<<2)+
-	              dccbits[i+7];
-	  i+=7; ///jump by 8
-	}
+	///fill data with dccEvent
+	bitset_utilities::bitsetToChar(dccBits, data);
 	int dduId = mapping.dduId(chamberItr->first); ///get ddu id based on ChamberId form mapping
 	if (oldDDUNumber!=dduId) { //if new ddu increment indexDDU counter
 	  indexDDU++;
