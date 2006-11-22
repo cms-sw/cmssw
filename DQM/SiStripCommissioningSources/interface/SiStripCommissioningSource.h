@@ -23,7 +23,7 @@ class SiStripEventSummary;
 */
 class SiStripCommissioningSource : public edm::EDAnalyzer {
   
- public: // ----- public interface -----
+ public: // ---------- Public interface ----------
   
   /** Map of task objects, identified through FedChanelId */
   typedef std::map<unsigned int, CommissioningTask*> TaskMap;
@@ -37,32 +37,37 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob();
   
- private: // ----- private methods -----
+ private: // ---------- Private methods ----------
 
   /** Private default constructor. */
   SiStripCommissioningSource();
   
   /** */
+  DaqMonitorBEInterface* const dqm( std::string method = "" ) const;
+  
+  /** */
   void createTask( const SiStripEventSummary* const );
   
   /** */
-  DaqMonitorBEInterface* const dqm( std::string method = "" ) const;
-  
- private: // ----- methods -----
-
   void createCablingTasks();
+
+  /** */
   void createTasks();
-
+  
+  /** */
   void clearCablingTasks();
-  void clearTasks();
 
+  /** */
+  void clearTasks();
+  
+  /** */
   void fillCablingHistos( const SiStripEventSummary* const,
 			  const edm::DetSetVector<SiStripRawDigi>& );
+
+  /** */
   void fillHistos( const SiStripEventSummary* const,
 		   const edm::DetSetVector<SiStripRawDigi>& );
   
- private:
-
   // ---------- DQM fwk and cabling ----------
 
   /** Interface to Data Quality Monitoring framework. */

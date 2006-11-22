@@ -7,14 +7,14 @@
    @class ApvTimingTask
 */
 class ApvTimingTask : public CommissioningTask {
-
+  
  public:
   
   ApvTimingTask( DaqMonitorBEInterface*, const FedChannelConnection& );
   virtual ~ApvTimingTask();
   
  private:
-
+  
   virtual void book();
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
