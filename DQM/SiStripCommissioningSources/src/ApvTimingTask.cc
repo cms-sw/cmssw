@@ -9,49 +9,41 @@ using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
-//
+//@@ nBins_ should be number of scope mode samples from trigger fed data???
 ApvTimingTask::ApvTimingTask( DaqMonitorBEInterface* dqm,
 			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "ApvTimingTask" ),
   timing_(),
-  nBins_(40) //@@ this should be from number of scope mode samples (mean booking in event loop and putting scope mode length in trigger fed)
-{
-  LogTrace(mlDqmSource_) 
-    << "[ApvTimingTask::" << __func__ << "]"
-    << " Constructing object...";
-}
+  nSamples_(40),
+  nFineDelays_(24), // 24 fine delays per "coarse" sample
+  nBins_(nSamples_*nFineDelays_) 
+{}
 
 // -----------------------------------------------------------------------------
 //
 ApvTimingTask::~ApvTimingTask() {
-  LogTrace(mlDqmSource_)
-    << "[ApvTimingTask::" << __func__ << "]"
-    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 void ApvTimingTask::book() {
-  LogTrace(mlDqmSource_) << "[CommissioningTask::" << __func__ << "]";
-
-  uint16_t nbins = 24 * nBins_; // 24 "fine" pll skews possible
 
   string title;
-  
-  ;
   title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::APV_TIMING, 
 							    sistrip::FED_KEY, 
 							    fedKey(),
 							    sistrip::LLD_CHAN, 
 							    connection().lldChannel() ) );
   
+  float min_time_ns = static_cast<float>(nBins_) - 0.5;
+  float max_time_ns = (25./static_cast<float>(nFineDelays_)) * static_cast<float>(nBins_) - 0.5;
   timing_.histo_ = dqm()->bookProfile( title, title, 
-				       nbins, -0.5, nBins_*25.-0.5,
-				       1025, 0., 1025. );
+				       nBins_, min_time_ns, max_time_ns,
+				       sistrip::maximum_, 0., sistrip::maximum_*1. );
   
-  timing_.vNumOfEntries_.resize(nbins,0);
-  timing_.vSumOfContents_.resize(nbins,0);
-  timing_.vSumOfSquares_.resize(nbins,0);
+  timing_.vNumOfEntries_.resize(nBins_,0);
+  timing_.vSumOfContents_.resize(nBins_,0);
+  timing_.vSumOfSquares_.resize(nBins_,0);
   
 }
 
@@ -67,29 +59,26 @@ void ApvTimingTask::book() {
 */
 void ApvTimingTask::fill( const SiStripEventSummary& summary,
 			  const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogTrace(mlDqmSource_) << "[ApvTimingTask::" << __func__ << "]";
-
-  //@@ if scope mode length is in trigger fed, then 
-  //@@ can add check here on number of digis
-  if ( digis.data.size() < nBins_ ) {
+  
+  if ( digis.data.size() < nBins_ ) { // check = scope mode length? 
     edm::LogWarning(mlDqmSource_)
       << "[ApvTimingTask::" << __func__ << "]"
       << " Unexpected number of digis! " 
       << digis.data.size(); 
-  } else {
-    pair<uint32_t,uint32_t> skews = const_cast<SiStripEventSummary&>(summary).pll();
-    for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
-      uint16_t fine = (coarse+1)*24 - (skews.second+1);
-      updateHistoSet( timing_, fine, digis.data[coarse].adc() );
-    }
+    return;
   }
 
+  pair<uint32_t,uint32_t> skews = const_cast<SiStripEventSummary&>(summary).pll();
+  for ( uint16_t coarse = 0; coarse < nSamples_/*digis.data.size()*/; coarse++ ) {
+    uint16_t fine = (coarse+1)*nFineDelays_ - (skews.second+1);
+    updateHistoSet( timing_, fine, digis.data[coarse].adc() );
+  }
+  
 }
 
 // -----------------------------------------------------------------------------
 //
 void ApvTimingTask::update() {
-  LogTrace(mlDqmSource_) << "[ApvTimingTask::" << __func__ << "]";
   updateHistoSet( timing_ );
 }
 

@@ -17,24 +17,16 @@ FedCablingTask::FedCablingTask( DaqMonitorBEInterface* dqm,
 				const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "FedCablingTask" ),
   cabling_()
-{
-  LogTrace(mlDqmSource_)
-    << "[FedCablingTask::" << __func__ << "]"
-    << " Constructing object...";
-}
+{}
 
 // -----------------------------------------------------------------------------
 //
 FedCablingTask::~FedCablingTask() {
-  LogTrace(mlDqmSource_)
-    << "[FedCablingTask::" << __func__ << "]"
-    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 void FedCablingTask::book() {
-  LogTrace(mlDqmSource_) << "[CommissioningTask::" << __func__ << "]";
 
   cabling_.resize(2);
   
@@ -66,7 +58,7 @@ void FedCablingTask::book() {
     cabling_[iter].vNumOfEntries_.resize(nbins,0);
     cabling_[iter].vSumOfContents_.resize(nbins,0);
     cabling_[iter].vSumOfSquares_.resize(nbins,0);
-    //cabling_[iter].isProfile_ = false; //@@ using simple 1D histos
+    //cabling_[iter].isProfile_ = false;
     
   }
   
@@ -77,7 +69,6 @@ void FedCablingTask::book() {
 void FedCablingTask::fill( const SiStripEventSummary& summary,
 			   const uint16_t& fed_id,
 			   const map<uint16_t,float>& fed_ch ) {
-  LogTrace(mlDqmSource_) << "[FedCablingTask::" << __func__ << "]";
 
   if ( fed_ch.empty() ) { 
     edm::LogWarning(mlDqmSource_)  
@@ -86,27 +77,10 @@ void FedCablingTask::fill( const SiStripEventSummary& summary,
     return; 
   }
   
-  // Fill FED id and channel histogram
   map<uint16_t,float>::const_iterator ichan = fed_ch.begin();
   for ( ; ichan != fed_ch.end(); ichan++ ) {
     updateHistoSet( cabling_[0], fed_id, ichan->second );
     updateHistoSet( cabling_[1], ichan->first, ichan->second );
-    LogTrace(mlDqmSource_)
-      << "[FedCablingTask::" << __func__ << "]"
-      << " Found possible connection between device 0x"
-      << setfill('0') << setw(8) << hex << summary.deviceId() << dec
-      << " with Crate/FEC/Ring/CCU/Module/LLDchannel: " 
-      << connection().fecCrate() << "/"
-      << connection().fecSlot() << "/"
-      << connection().fecRing() << "/"
-      << connection().ccuAddr() << "/"
-      << connection().ccuChan() << "/"
-      << connection().lldChannel()
-      << " and FedId/Ch: "
-      << fed_id << "/" << ichan->first
-      << " with signal " << ichan->second 
-      << " [adc] over background " << "XXX +/- YYY [adc]" 
-      << " (S/N = " << "ZZZ" << ")";
   } 
   
 }
@@ -114,7 +88,6 @@ void FedCablingTask::fill( const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void FedCablingTask::update() {
-  LogTrace(mlDqmSource_) << "[FedCablingTask::" << __func__ << "]";
   for ( uint32_t iter = 0; iter < cabling_.size(); iter++ ) {
     updateHistoSet( cabling_[iter] );
   }

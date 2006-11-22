@@ -7,15 +7,8 @@
 /**
    @class FedCablingTask
 
-   
-
-   When this CommissioningTask object is created by the
-   CommissioningSource "steering , it is stored in map using FEC key created
-   using the 32-bit device id found within the "trigger FED"
-   buffer. (This is different to the method of using the FED key to
-   identify the CommissioningTask object
-
-
+   This object is stored in the TaskMap using FecKey as the key,
+   rather than FedKey as for the other commissioning tasks.
 */
 class FedCablingTask : public CommissioningTask {
 
@@ -25,7 +18,6 @@ class FedCablingTask : public CommissioningTask {
   virtual ~FedCablingTask();
   
  private:
-  
   
   virtual void book();
   virtual void fill( const SiStripEventSummary&, 

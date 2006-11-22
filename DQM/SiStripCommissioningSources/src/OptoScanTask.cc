@@ -16,24 +16,16 @@ OptoScanTask::OptoScanTask( DaqMonitorBEInterface* dqm,
 			    const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "OptoScanTask" ),
   opto_()
-{
-  LogTrace(mlDqmSource_) 
-    << "[OptoScanTask::" << __func__ << "]"
-    << " Constructing object...";
-}
+{}
 
 // -----------------------------------------------------------------------------
 //
 OptoScanTask::~OptoScanTask() {
-  LogTrace(mlDqmSource_)
-    << "[OptoScanTask::" << __func__ << "]"
-    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 void OptoScanTask::book() {
-  LogTrace(mlDqmSource_) << "[OptoScanTask::" << __func__ << "]";
 
   uint16_t nbins = 51; //@@ correct?
   uint16_t gains = 4;

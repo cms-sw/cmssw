@@ -22,8 +22,10 @@ class ApvTimingTask : public CommissioningTask {
   
   HistoSet timing_;
 
+  uint16_t nSamples_;
+  uint16_t nFineDelays_;
   uint16_t nBins_;
-
+  
 };
 
 #endif // DQM_SiStripCommissioningSources_ApvTimingTask_h

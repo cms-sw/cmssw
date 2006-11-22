@@ -168,11 +168,11 @@ void SiStripCommissioningSource::endJob() {
   // ---------- Delete histograms ----------
   
   // Remove all MonitorElements in "SiStrip" dir and below
-  //dqm()->rmdir(sistrip::root_);
+  dqm()->rmdir(sistrip::root_);
 
   // Delete histogram objects
-  //clearCablingTasks();
-  //clearTasks();
+  clearCablingTasks();
+  clearTasks();
   
   // ---------- Delete cabling ----------
 
@@ -185,11 +185,11 @@ void SiStripCommissioningSource::endJob() {
 //
 void SiStripCommissioningSource::analyze( const edm::Event& event, 
 					  const edm::EventSetup& setup ) {
-  LogTrace(mlDqmSource_) 
-    << "[SiStripCommissioningSource::" << __func__ << "]"
-    << " Analyzing run/event "
-    << event.id().run() << "/"
-    << event.id().event();
+   LogTrace(mlDqmSource_) 
+     << "[SiStripCommissioningSource::" << __func__ << "]"
+     << " Analyzing run/event "
+     << event.id().run() << "/"
+     << event.id().event();
 
   // Retrieve commissioning information from "event summary" 
   edm::Handle<SiStripEventSummary> summary;
@@ -264,6 +264,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 //
 void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* const summary,
 						    const edm::DetSetVector<SiStripRawDigi>& raw ) {
+  LogTrace(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]" 
 
   // Create FEC key using DCU id and LLD channel from SiStripEventSummary
   const SiStripModule& module = fecCabling_->module( summary->dcuId() );
@@ -306,18 +307,19 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
   vector<uint16_t>::const_iterator ifed = fedCabling_->feds().begin(); 
   for ( ; ifed != fedCabling_->feds().end(); ifed++ ) {
     LogTrace(mlDqmSource_) << " FedId: " << *ifed;
+
+    // Check if FedId is non-zero
+    if ( !(*ifed) ) { continue; }
     
     // Container to hold median signal level for FED cabling task
     map<uint16_t,float> medians; medians.clear(); 
     
     // Iterate through FED channels
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
-      
-      // Create FED key and check if non-zero
-      uint32_t fed_key = SiStripFedKey::key( *ifed, ichan );
-      if ( !(*ifed) ) { continue; }
+      LogTrace(mlDqmSource_) << " FedCh: " << ichan;
       
       // Retrieve digis for given FED key
+      uint32_t fed_key = SiStripFedKey::key( *ifed, ichan );
       vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key );
       if ( digis != raw.end() ) { 
 	if ( !digis->data.size() ) { continue; }
@@ -338,17 +340,17 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
 	ave.calc(params);
 	medians[ichan] = params.median_; // Store median signal level
 	      
-	// 	stringstream ss;
-	// 	ss << "Channel Averages:" << endl
-	// 	   << "  nDigis: " << digis->data.size() << endl
-	// 	   << "  num/mean/MEDIAN/rms/max/min: "
-	// 	   << params.num_ << "/"
-	// 	   << params.mean_ << "/"
-	// 	   << params.median_ << "/"
-	// 	   << params.rms_ << "/"
-	// 	   << params.max_ << "/"
-	// 	   << params.min_ << endl;
-	// 	LogTrace(mlDqmSource_) << ss.str();
+		stringstream ss;
+		ss << "Channel Averages:" << endl
+		   << "  nDigis: " << digis->data.size() << endl
+		   << "  num/mean/MEDIAN/rms/max/min: "
+		   << params.num_ << "/"
+		   << params.mean_ << "/"
+		   << params.median_ << "/"
+		   << params.rms_ << "/"
+		   << params.max_ << "/"
+		   << params.min_ << endl;
+		LogTrace(mlDqmSource_) << ss.str();
 
       }
       
@@ -403,19 +405,37 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     map<uint16_t,float> channels;
     map<uint16_t,float>::const_iterator ichan = medians.begin();
     for ( ; ichan != medians.end(); ichan++ ) { 
-      //       cout << " mean: " << params.mean_
-      // 	   << " rms: " << params.rms_
-      // 	   << " thresh: " << params.mean_ + 5.*params.rms_
-      // 	   << " value: " << ichan->second
-      // 	   << " strip: " << ichan->first << endl;
+            cout << " mean: " << params.mean_
+      	   << " rms: " << params.rms_
+      	   << " thresh: " << params.mean_ + 5.*params.rms_
+      	   << " value: " << ichan->second
+      	   << " strip: " << ichan->first << endl;
       if ( ichan->second > params.mean_ + 5.*params.rms_ ) { 
-	channels[ichan->first] = ichan->second;
-	ss2 << ichan->first << "/" << ichan->second << " ";
+ 	channels[ichan->first] = ichan->second;
+ 	ss2 << ichan->first << "/" << ichan->second << " ";
       }
     }
     ss2 << endl;
     LogTrace(mlDqmSource_) << ss2.str();
-      
+
+//     LogTrace(mlDqmSource_)
+//       << "[FedCablingTask::" << __func__ << "]"
+//       << " Found candidate connection between device: 0x"
+//       << setfill('0') << setw(8) << hex << summary.deviceId() << dec
+//       << " with Crate/FEC/Ring/CCU/Module/LLDchannel: " 
+//       << connection().fecCrate() << "/"
+//       << connection().fecSlot() << "/"
+//       << connection().fecRing() << "/"
+//       << connection().ccuAddr() << "/"
+//       << connection().ccuChan() << "/"
+//       << connection().lldChannel()
+//       << " and FedId/Ch: "
+//       << fed_id << "/" << ichan->first
+//       << " with signal " << ichan->second 
+//       << " [adc] over background " << "XXX +/- YYY [adc]" 
+//       << " (S/N = " << "ZZZ" << ")";
+
+    
     // Fill cabling histograms
     if ( cablingTasks_.find(fec_key) != cablingTasks_.end() ) { 
       cablingTasks_[fec_key]->fillHistograms( *summary, *ifed, channels );
