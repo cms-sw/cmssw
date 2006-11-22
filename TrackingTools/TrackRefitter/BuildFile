@@ -1,0 +1,18 @@
+<use name=FWCore/Framework>
+
+<use name=TrackingTools/TransientTrackingRecHit>
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/TrackFitters>
+
+<use name=CLHEP>
+<use name=root>
+
+<flags SEAL_PLUGIN_NAME="TrackingToolsTrackRefitter"> 
+
+<export>
+   <lib name=TrackingToolsTrackRefitter>
+
+   <use name=TrackingTools/TransientTrackingRecHit>
+   <use name=TrackingTools/TransientTrack>
+   <use name=TrackingTools/TrackFitters>
+</Export>
