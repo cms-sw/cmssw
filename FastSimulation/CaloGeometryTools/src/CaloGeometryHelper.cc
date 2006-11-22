@@ -21,6 +21,7 @@
 
 CaloGeometryHelper::CaloGeometryHelper():Calorimeter()
 {
+  neighbourmapcalculated_= false;
   psLayer1Z_ = 303;
   psLayer2Z_ = 307;
 }
@@ -129,6 +130,10 @@ void CaloGeometryHelper::buildCrystal(const DetId & cell,Crystal& xtal) const
 // Build the array of (max)8 neighbors
 void CaloGeometryHelper::buildNeighbourArray()
 {
+
+  static const CaloDirection orderedDir[8]={SOUTHWEST,SOUTH,SOUTHEAST,WEST,EAST,NORTHWEST,NORTH,
+					    NORTHEAST};
+
   const unsigned nbarrel = 62000;
   // Barrel first. The hashed index runs from 0 to 61199
   barrelNeighbours_.resize(nbarrel);
@@ -141,17 +146,45 @@ void CaloGeometryHelper::buildNeighbourArray()
     {
       // We get the 9 cells in a square. 
       std::vector<DetId> neighbours(EcalBarrelTopology_->getWindow(vec[ic],3,3));
+      //      std::cout << " Cell " << EBDetId(vec[ic]) << std::endl;
       unsigned nneighbours=neighbours.size();
-      // remove the centre
+
       unsigned hashedindex=EBDetId(vec[ic]).hashedIndex();
       if(hashedindex>=nbarrel)
 	{
 	  LogDebug("CaloCaloGeometryTools")  << " Array overflow " << std::endl;
 	}
-      for(unsigned in=0;in<nneighbours;++in)
+
+
+      // If there are 9 cells, it is easy, and this order is know:
+//      6  7  8
+//      3  4  5 
+//      0  1  2   (0 = SOUTHWEST)
+
+      if(nneighbours==9)
 	{
-	  if(neighbours[in]!=vec[ic]) 
-	    barrelNeighbours_[hashedindex].push_back(neighbours[in]);
+	  barrelNeighbours_[hashedindex].reserve(8);
+	  for(unsigned in=0;in<nneighbours;++in)
+	    {
+	      // remove the centre
+	      if(neighbours[in]!=vec[ic]) 
+		{
+		  barrelNeighbours_[hashedindex].push_back(neighbours[in]);
+		  //	      std::cout << " Neighbour " << in << " " << EBDetId(neighbours[in]) << std::endl;
+		}
+	    }
+	}
+      else
+	{
+	  DetId central(vec[ic]);
+	  barrelNeighbours_[hashedindex].resize(8,DetId(0));
+	  for(unsigned idir=0;idir<8;++idir)
+	    {
+	      DetId testid=central;
+	      bool status=move(testid,orderedDir[idir],false);
+	      if(status) barrelNeighbours_[hashedindex][idir]=testid;
+	    }
+
 	}
     }
 
@@ -175,21 +208,39 @@ void CaloGeometryHelper::buildNeighbourArray()
       unsigned nneighbours=neighbours.size();
       // remove the centre
       unsigned hashedindex=EEDetId(vec[ic]).hashedIndex();
+      
       if(hashedindex>=nendcap)
 	{
 	  LogDebug("CaloCaloGeometryTools")  << " Array overflow " << std::endl;
 	}
 
-      for(unsigned in=0;in<nneighbours;++in)
-	{	  
-	  if(neighbours[in]!=vec[ic]) 
-	    {
-	      endcapNeighbours_[hashedindex].push_back(neighbours[in]);
+      if(nneighbours==9)
+	{
+	  endcapNeighbours_[hashedindex].reserve(8);
+	  for(unsigned in=0;in<nneighbours;++in)
+	    {	  
+	      // remove the centre
+	      if(neighbours[in]!=vec[ic]) 
+		{
+		  endcapNeighbours_[hashedindex].push_back(neighbours[in]);
+		}
 	    }
-	  
+	}
+      else
+	{
+	  DetId central(vec[ic]);
+	  endcapNeighbours_[hashedindex].resize(8,DetId(0));
+	  for(unsigned idir=0;idir<8;++idir)
+	    {
+	      DetId testid=central;
+	      bool status=move(testid,orderedDir[idir],false);
+	      if(status) endcapNeighbours_[hashedindex][idir]=testid;
+	    }
+
 	}
     }
   std::cout << " done " << size <<std::endl;
+  neighbourmapcalculated_ = true;
 }
 
 const std::vector<DetId>& CaloGeometryHelper::getNeighbours(const DetId& detid) const
@@ -198,8 +249,26 @@ const std::vector<DetId>& CaloGeometryHelper::getNeighbours(const DetId& detid) 
     endcapNeighbours_[EEDetId(detid).hashedIndex()];
 }
 
-bool CaloGeometryHelper::move(DetId& cell, const CaloDirection&dir) const
-{
+bool CaloGeometryHelper::move(DetId& cell, const CaloDirection&dir,bool fast) const
+{  
+  DetId originalcell = cell; 
+  if(dir==NONE || cell==DetId(0)) return false;
+
+  // Conversion CaloDirection and index in the table
+  // CaloDirection :NONE,SOUTH,SOUTHEAST,SOUTHWEST,EAST,WEST, NORTHEAST,NORTHWEST,NORTH
+  // Table : SOUTHWEST,SOUTH,SOUTHEAST,WEST,EAST,NORTHWEST,NORTH, NORTHEAST
+  static const int calodirections[9]={-1,1,2,0,4,3,7,5,6};
+    
+  if(fast&&neighbourmapcalculated_)
+    {
+      DetId result = (originalcell.subdetId()==EcalBarrel) ? 
+	barrelNeighbours_[EBDetId(originalcell).hashedIndex()][calodirections[dir]]:
+	endcapNeighbours_[EEDetId(originalcell).hashedIndex()][calodirections[dir]];
+      bool status =  !result.null();
+      cell = result;
+      return status; 
+    }
+  
   if(dir==NORTH || dir ==SOUTH || dir==EAST || dir==WEST)
     {
       return simplemove(cell,dir);
@@ -209,6 +278,7 @@ bool CaloGeometryHelper::move(DetId& cell, const CaloDirection&dir) const
       if(dir == NORTHEAST || dir==NORTHWEST || dir==SOUTHEAST || dir==SOUTHWEST)
 	return diagonalmove(cell,dir);
     }
+  
   cell = DetId(0);
   return false;
 }

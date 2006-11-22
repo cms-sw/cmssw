@@ -44,7 +44,7 @@ class CaloGeometryHelper:public Calorimeter
   // temporary. Requires a missing geometry tool 
   bool borderCrossing(const DetId&, const DetId&) const { return false; }
 
-  bool move(DetId& cell, const CaloDirection& dir) const;
+  bool move(DetId& cell, const CaloDirection& dir,bool fast=true) const;
 
  private:
   void buildNeighbourArray();
@@ -58,7 +58,8 @@ class CaloGeometryHelper:public Calorimeter
   // array of neighbours the hashed index is used for the first vector
   std::vector<std::vector<DetId> > barrelNeighbours_;
   std::vector<std::vector<DetId> > endcapNeighbours_;
-
+  bool neighbourmapcalculated_;
+  
   //mag field at 0,0,0
   double bfield_;
 };
