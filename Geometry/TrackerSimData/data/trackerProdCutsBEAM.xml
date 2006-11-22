@@ -3,7 +3,7 @@
   
 <SpecParSection label="trackerProdCuts.xml" eval="true">
   <SpecPar name="BeamPipe">
-    <PartSelector path="//BEAM" />
+    <PartSelector path="//BeamTube1" />
     <Parameter name="CMSCutsRegion" value="BeamPipe" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
@@ -13,9 +13,9 @@
   <SpecPar name="BeamPipeNotBeryllium">
     <PartSelector path="//BEAM" />
     <Parameter name="CMSCutsRegion" value="BeamPipeInternal" eval="false"/>
-    <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
-    <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
-    <Parameter name="ProdCutsForGamma" value="10000*mm"/>
+    <Parameter name="ProdCutsForElectrons" value="100*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="100*mm"/>
+    <Parameter name="ProdCutsForGamma" value="100*mm"/>
   </SpecPar>
 
 </SpecParSection>
