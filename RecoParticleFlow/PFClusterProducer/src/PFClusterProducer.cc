@@ -35,6 +35,12 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
+// #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+// #include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
+#include "RecoCaloTools/Navigation/interface/CaloTowerNavigator.h"
 
 
 using namespace std;
@@ -55,6 +61,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     iConfig.getUntrackedParameter<bool>("clustering_Ecal",true);
   clusteringHcal_ = 
     iConfig.getUntrackedParameter<bool>("clustering_Hcal",true);
+  clusteringHcalCaloTowers_ = 
+    iConfig.getUntrackedParameter<bool>("clustering_Hcal_CaloTowers",true);
   clusteringPS_ = 
     iConfig.getUntrackedParameter<bool>("clustering_PS",true);
     
@@ -142,6 +150,13 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 					  "hbhereco");
   hcalRecHitsHBHEProductInstanceName_ = 
     iConfig.getUntrackedParameter<string>("hcalRecHitsHBHEProductInstanceName",
+					  "");
+    
+  caloTowersModuleLabel_ = 
+    iConfig.getUntrackedParameter<string>("caloTowersModuleLabel",
+					  "towerMaker");
+  caloTowersProductInstanceName_ = 
+    iConfig.getUntrackedParameter<string>("caloTowersProductInstanceName",
 					  "");
     
 //   produceClusters_ = 
@@ -417,78 +432,112 @@ void PFClusterProducer::produce(edm::Event& iEvent,
     // get the hcalBarrel geometry
     const CaloSubdetectorGeometry *hcalBarrelGeometry = 
       geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-    
-    // get the hcal topology
-    HcalTopology hcalTopology;
-    
+
     // get the endcap geometry
     const CaloSubdetectorGeometry *hcalEndcapGeometry = 
       geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
-    // HCAL rechits 
-    vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
-    try {
-//       iEvent.getByLabel(hcalRecHitsHBHEModuleLabel_,
-// 			hcalRecHitsHBHEProductInstanceName_,
-// 			hcalHandles);
-      iEvent.getManyByType(hcalHandles);
+
+
+    if( clusteringHcalCaloTowers_ ) {
       
-    
-      for(unsigned ih=0; ih<hcalHandles.size(); ih++) {
-	const edm::Handle<HBHERecHitCollection>& handle = hcalHandles[ih];
-      
-	for(unsigned irechit=0; irechit<handle->size(); irechit++) {
-	  const HBHERecHit& hit = (*handle)[irechit];
-	
-	  double energy = hit.energy();
-	
-	  reco::PFRecHit* pfrechit = 0;
+      edm::Handle<CaloTowerCollection> caloTowers; 
+      CaloTowerTopology caloTowerTopology; 
+      const CaloSubdetectorGeometry *caloTowerGeometry = 0; 
+      // = geometry_->getSubdetectorGeometry(id)
+
+      try {
+	// get calotowers
+	iEvent.getByLabel(caloTowersModuleLabel_,
+			  caloTowersProductInstanceName_,
+			  caloTowers);
+
+	// create rechits
+	typedef CaloTowerCollection::const_iterator ICT;
+
+	for(ICT ict=caloTowers->begin(); ict!=caloTowers->end();ict++) {
+	  // cout<<"CaloTower "<<(*ict)<<endl;
 	  
-	  const HcalDetId& detid = hit.detid();
+
+	  cout<<"new tower ---------------"<<endl;
+	  const CaloTower& ct = (*ict);
+
+	
+	  if(!caloTowerGeometry) 
+	    caloTowerGeometry = geoHandle->getSubdetectorGeometry(ct.id());
+	  
+	  // get the hadronic energy.
+	  double energy = ct.hadEnergy();
+	  if( energy < 1e-9 ) continue;  
+	 
+	  // the layer will be taken from the first constituent. 
+	  // all thresholds for ECAL must be set to very high values !!!
+	  assert( ct.constituentsSize() );	  
+	  const HcalDetId& detid = ct.constituent(0);
+	  
+	  int layer = 0; 
+
 	  switch( detid.subdet() ) {
 	  case HcalBarrel:
-	    if(energy > threshHcalBarrel_){
-	      pfrechit = createHcalRecHit(detid, 
-					  energy, 
-					  PFLayer::HCAL_BARREL1, 
-					  hcalBarrelGeometry );
-	    }
+	    if(energy > threshHcalBarrel_)
+	      layer = PFLayer::HCAL_BARREL1;
 	    break;
 	  case HcalEndcap:
-	    if(energy > threshHcalEndcap_){
-	      pfrechit = createHcalRecHit(detid, 
-					  energy, 
-					  PFLayer::HCAL_ENDCAP, 
-					  hcalEndcapGeometry );
-	    }
+	    if(energy > threshHcalEndcap_)
+	      layer = PFLayer::HCAL_ENDCAP;
 	    break;
 	  default:
 	    LogError("PFClusterProducer")
-	      <<"HCAL rechit: unknown layer : "<<detid.subdet()<<endl;
+	      <<"CaloTower constituent: unknown layer : "
+	      <<detid.subdet()<<endl;
 	    continue;
 	  } 
+	  
+	  assert(layer);
 
-	  if(pfrechit) {
+	  // get the geometry 
 
-	    //	  const math::XYZPoint& cpos = pfrechit->positionXYZ();
-	    // if( fabs(cpos.Eta() )< 0.06  )
-	    
-	    
-	    hcalrechits.insert( make_pair(detid.rawId(), pfrechit) ); 
+	  const CaloCellGeometry* geom = geoHandle->getGeometry( ct.id() );
+	  if(!geom) {
+	    edm::LogError("PFClusterProducer")
+	      <<"warning CaloTower detid "
+	      <<ct.id().rawId()<<" not found in CaloGeometry"<<endl;
+	    continue;
 	  }
+
+	  const GlobalPoint& position = geom->getPosition();
+
+
+	  reco::PFRecHit* pfrechit 
+	    = new reco::PFRecHit( ct.id().rawId(), layer, energy, 
+				  position.x(), position.y(), position.z(), 
+				  0,0,0 );
+
+	  cout<<"rechit : "<<*pfrechit<<endl;
+	  // note that the key is the CaloTower detid, 
+	  // not the constituent detid. 
+
+	  
+	  hcalrechits.insert( make_pair(ct.id().rawId(), pfrechit) ); 
+
+	  cout<<"CT : "<<ct<<endl;
 	}
-  
+
+
+	// do navigation 
 	for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
 	     ih != hcalrechits.end(); ih++) {
-	  findRecHitNeighbours( ih->second, hcalrechits, 
-				hcalTopology, 
-				*hcalBarrelGeometry, 
-				hcalTopology,
-				*hcalEndcapGeometry);
+	  findRecHitNeighbours( ih->second, 
+				hcalrechits, 
+				caloTowerTopology, 
+				*caloTowerGeometry, 
+				caloTowerTopology,
+				*caloTowerGeometry);
 	}
-
+	// do clustering 
+	
 	if(clusteringHcal_) {
-
+	  
 	  PFClusterAlgo clusteralgo; 
 	  
 	  clusteralgo.setThreshHcalBarrel( threshHcalBarrel_ );
@@ -496,10 +545,10 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  
 	  clusteralgo.setThreshHcalEndcap( threshHcalEndcap_ );
 	  clusteralgo.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
-    
+	  
 	  clusteralgo.init( hcalrechits ); 
 	  clusteralgo.doClustering();
-	
+	    
 	  LogInfo("PFClusterProducer")
 	    <<" HCAL clusters --------------------------------- "<<endl
 	    <<clusteralgo<<endl;
@@ -515,20 +564,20 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	// and pass them to the event.
 	if(produceRecHits_) {
 
-// 	  const map<unsigned, reco::PFRecHit* >& 
-// 	    algohits = clusteralgo.idRecHits();
+	  // 	  const map<unsigned, reco::PFRecHit* >& 
+	  // 	    algohits = clusteralgo.idRecHits();
 	  
 	  auto_ptr< vector<reco::PFRecHit> > 
 	    recHits( new vector<reco::PFRecHit> ); 
 	  recHits->reserve( hcalrechits.size() );
 	  
-// 	  for(PFClusterAlgo::IDH ih=algohits.begin(); 
-// 	      ih!=algohits.end(); ih++) {
-// 	    recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
-// 	  }
+	  // 	  for(PFClusterAlgo::IDH ih=algohits.begin(); 
+	  // 	      ih!=algohits.end(); ih++) {
+	  // 	    recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+	  // 	  }
 	  for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
 	       ih != hcalrechits.end(); ih++) {
- 	    recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+	    recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
 	  }
 	  
 	  iEvent.put( recHits, "HCAL" );
@@ -541,10 +590,151 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	
 	  delete ih->second;
 	}
-      }      
-    } catch (...) {
-      LogError("PFClusterProducer")
-	<<"could not get handles on HBHERecHits!"<< endl;
+      }
+      catch ( cms::Exception& ex ) {
+	edm::LogError("PFClusterProducerError")
+	  <<"Error! can't get the CaloTowers "<<ex.what()<<endl;
+      }
+    }
+    else {
+      
+      // map<unsigned,  reco::PFRecHit* > hcalrechits;
+      
+//       edm::ESHandle<CaloGeometry> geoHandle;
+//       iSetup.get<IdealGeometryRecord>().get(geoHandle);
+    
+//       // get the hcalBarrel geometry
+//       const CaloSubdetectorGeometry *hcalBarrelGeometry = 
+// 	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+    
+      // get the hcal topology
+      HcalTopology hcalTopology;
+    
+//       // get the endcap geometry
+//       const CaloSubdetectorGeometry *hcalEndcapGeometry = 
+// 	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
+
+      // HCAL rechits 
+      vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
+      try {
+	//       iEvent.getByLabel(hcalRecHitsHBHEModuleLabel_,
+	// 			hcalRecHitsHBHEProductInstanceName_,
+	// 			hcalHandles);
+	iEvent.getManyByType(hcalHandles);
+      
+    
+	for(unsigned ih=0; ih<hcalHandles.size(); ih++) {
+	  const edm::Handle<HBHERecHitCollection>& handle = hcalHandles[ih];
+      
+	  for(unsigned irechit=0; irechit<handle->size(); irechit++) {
+	    const HBHERecHit& hit = (*handle)[irechit];
+	
+	    double energy = hit.energy();
+	
+	    reco::PFRecHit* pfrechit = 0;
+	  
+	    const HcalDetId& detid = hit.detid();
+	    switch( detid.subdet() ) {
+	    case HcalBarrel:
+	      if(energy > threshHcalBarrel_){
+		pfrechit = createHcalRecHit(detid, 
+					    energy, 
+					    PFLayer::HCAL_BARREL1, 
+					    hcalBarrelGeometry );
+	      }
+	      break;
+	    case HcalEndcap:
+	      if(energy > threshHcalEndcap_){
+		pfrechit = createHcalRecHit(detid, 
+					    energy, 
+					    PFLayer::HCAL_ENDCAP, 
+					    hcalEndcapGeometry );
+	      }
+	      break;
+	    default:
+	      LogError("PFClusterProducer")
+		<<"HCAL rechit: unknown layer : "<<detid.subdet()<<endl;
+	      continue;
+	    } 
+
+	    if(pfrechit) {
+
+	      //	  const math::XYZPoint& cpos = pfrechit->positionXYZ();
+	      // if( fabs(cpos.Eta() )< 0.06  )
+	    
+	    
+	      hcalrechits.insert( make_pair(detid.rawId(), pfrechit) ); 
+	    }
+	  }
+  
+	  for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
+	       ih != hcalrechits.end(); ih++) {
+	    findRecHitNeighbours( ih->second, hcalrechits, 
+				  hcalTopology, 
+				  *hcalBarrelGeometry, 
+				  hcalTopology,
+				  *hcalEndcapGeometry);
+	  }
+
+	  if(clusteringHcal_) {
+
+	    PFClusterAlgo clusteralgo; 
+	  
+	    clusteralgo.setThreshHcalBarrel( threshHcalBarrel_ );
+	    clusteralgo.setThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
+	  
+	    clusteralgo.setThreshHcalEndcap( threshHcalEndcap_ );
+	    clusteralgo.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
+    
+	    clusteralgo.init( hcalrechits ); 
+	    clusteralgo.doClustering();
+	
+	    LogInfo("PFClusterProducer")
+	      <<" HCAL clusters --------------------------------- "<<endl
+	      <<clusteralgo<<endl;
+	
+	    auto_ptr< vector<reco::PFCluster> > 
+	      outClustersHCAL( clusteralgo.clusters() ); 
+	    // 	outClustersHCAL = clusteralgo.clusters();
+	    iEvent.put( outClustersHCAL, "HCAL");
+	  
+	  }
+
+	  // if requested, get rechits passing the threshold from algo, 
+	  // and pass them to the event.
+	  if(produceRecHits_) {
+
+	    // 	  const map<unsigned, reco::PFRecHit* >& 
+	    // 	    algohits = clusteralgo.idRecHits();
+	  
+	    auto_ptr< vector<reco::PFRecHit> > 
+	      recHits( new vector<reco::PFRecHit> ); 
+	    recHits->reserve( hcalrechits.size() );
+	  
+	    // 	  for(PFClusterAlgo::IDH ih=algohits.begin(); 
+	    // 	      ih!=algohits.end(); ih++) {
+	    // 	    recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+	    // 	  }
+	    for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
+		 ih != hcalrechits.end(); ih++) {
+	      recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+	    }
+	  
+	    iEvent.put( recHits, "HCAL" );
+	  }
+
+	
+	  // clear all 
+	  for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
+	       ih != hcalrechits.end(); ih++) {
+	
+	    delete ih->second;
+	  }
+	}      
+      } catch (...) {
+	LogError("PFClusterProducer")
+	  <<"could not get handles on HBHERecHits!"<< endl;
+      }
     }
   } // process HCAL
 
@@ -725,8 +915,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 void 
 PFClusterProducer::findRecHitNeighbours
 ( reco::PFRecHit* rh, 
-  const map<unsigned,  
-  reco::PFRecHit* >& rechits, 
+  const map<unsigned, reco::PFRecHit* >& rechits, 
   const CaloSubdetectorTopology& barrelTopology, 
   const CaloSubdetectorGeometry& barrelGeometry, 
   const CaloSubdetectorTopology& endcapTopology, 

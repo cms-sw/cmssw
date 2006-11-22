@@ -74,6 +74,9 @@ class PFClusterProducer : public edm::EDProducer {
   /// clustering Hcal ? 
   bool   clusteringHcal_;  
 
+  /// clustering Hcal: use CaloTowers for navigation ? 
+  bool   clusteringHcalCaloTowers_;  
+
   /// clustering preshower ? 
   bool   clusteringPS_;  
 
@@ -125,6 +128,8 @@ class PFClusterProducer : public edm::EDProducer {
   std::string ecalRecHitsESProductInstanceName_;
   std::string hcalRecHitsHBHEModuleLabel_;
   std::string hcalRecHitsHBHEProductInstanceName_;
+  std::string caloTowersModuleLabel_;
+  std::string caloTowersProductInstanceName_;
   
 
 };
