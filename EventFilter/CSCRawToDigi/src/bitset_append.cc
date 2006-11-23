@@ -3,7 +3,7 @@
 
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h" 
 #include <boost/dynamic_bitset.hpp>
-
+#include <iostream>
 
 
 namespace bitset_utilities {
@@ -30,9 +30,11 @@ namespace bitset_utilities {
 					 unsigned short * buf)
   {
     boost::dynamic_bitset<> result(numberOfBits);
+    std::cout<<"ushort to bitset number of bits =" <<std::dec<<numberOfBits <<std::endl;
+    std::cout<<"ushort to bitset result size =" <<std::dec<< result.size() <<std::endl;
     for(unsigned i = 0; i < result.size(); ++i)
       {
-        result[i] = (buf[i/16]>>(i%16))&&0x0001;
+        result[i] = (buf[i/16]>>(i%16)) & 0x1;
       }
     return result;
   }
@@ -41,6 +43,7 @@ namespace bitset_utilities {
   ///this method takes bitset obj and returns char * array 
   void bitsetToChar(const boost::dynamic_bitset<> & bs, unsigned char * result)
   {
+    std::cout<<"bitset to char size =" << std::dec<<bs.size() <<std::endl;
     for(unsigned i = 0; i < bs.size(); ++i)
       {
         result[i/8] =  (bs[i+7]<<7)+
@@ -52,10 +55,17 @@ namespace bitset_utilities {
 	  (bs[i+1]<<1)+
 	  bs[i];
 	i+=7;
-
       }
   }
 
-
-
+  void printWords(const boost::dynamic_bitset<> & bs) 
+  {
+    unsigned char words[60000];
+    bitsetToChar(bs, words);
+    unsigned short * buf= (unsigned short *) words;
+    for (int unsigned i=0;i<bs.size()/16;i++) {
+      printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
+      i+=3;
+    }
+  }
 }

@@ -97,24 +97,29 @@ bool CSCDCCEventData::check() const {
 boost::dynamic_bitset<> CSCDCCEventData::pack() {
   boost::dynamic_bitset<> result( theDCCHeader.sizeInWords()*16);
   result = bitset_utilities::ushortToBitset(theDCCHeader.sizeInWords()*16, theDCCHeader.data());
-  /*std::cout <<"SANDRIK DCC size of header  in words"<< theDCCHeader.sizeInWords()*16 <<std::endl;  
+
+
+
+
+  std::cout <<"SANDRIK DCC size of header  in words"<< theDCCHeader.sizeInWords()*16 <<std::endl;  
   std::cout <<"SANDRIK DCC size of header in bits"<< result.size()<<std::endl;
   for(size_t i = 0; i < result.size(); ++i) {
     std::cout<<result[i];
-    if ((i%32)==0) std::cout<<std::endl;
+    if (((i+1)%32)==0) std::cout<<std::endl;
   }
-  */
+  
   for(size_t i = 0; i < theDDUData.size(); ++i) {
     result = bitset_utilities::append(result,theDDUData[i].pack());
-    //std::cout <<"SANDRIK here is ddu data";
-    //theDDUData[i].header().check();
-    //std::cout <<std::endl;
+    std::cout <<"SANDRIK here is ddu data check ";
+    theDDUData[i].header().check();
+    std::cout <<std::endl;
+    bitset_utilities::printWords(result);
   }
 
   std::cout <<"SANDRIK packed dcc size is "<<result.size()<<std::endl;
   for(size_t i = 0; i < result.size(); ++i) {
     std::cout<<result[i];
-    if ((i%32)==0) std::cout<<std::endl;
+    if (((i+1)%32)==0) std::cout<<std::endl;
   }
 
 

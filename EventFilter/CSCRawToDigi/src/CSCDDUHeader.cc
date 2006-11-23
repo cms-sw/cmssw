@@ -21,8 +21,8 @@ CSCDDUHeader::CSCDDUHeader(unsigned bx, unsigned l1num, unsigned sourceId)
 
 void CSCDDUHeader::init() {
   bit64_ = 5;
-  header2_3_ = 0x0001;
-  header2_1_ = header2_2_ = 0x8000;
+  header2_2_ = 0x0001;
+  header2_1_ = header2_3_ = 0x8000;
 }
 
 

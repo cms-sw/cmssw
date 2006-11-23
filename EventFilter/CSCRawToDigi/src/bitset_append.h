@@ -10,6 +10,9 @@ namespace bitset_utilities {
 					  unsigned short * buf);
    void bitsetToChar(const boost::dynamic_bitset<> & bs, unsigned char * result);
 
+   void printWords(const boost::dynamic_bitset<> & bs);
+
+
 }
  
 #endif
