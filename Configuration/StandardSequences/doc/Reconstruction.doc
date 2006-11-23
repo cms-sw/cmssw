@@ -15,12 +15,28 @@
 
 \section desc ConfigurationStandardSequences Package which contains the Standard Simulation and Reconstruction Sequences
 
-\subsection files Configuration Fragment
+\subsection files Configuration Fragments
 
 - \b Reconstruction.cff : Standard configuration fragment for Reconstruction
 - \b Simulation.cff : Standard configuration fragment for Simulation
 
+\subsection additional Additional Files
+
+- \b Vertex includes: in order to allow an easy configuration of the Vertex Smearing, 4 Configuration Fragments are provided. The user is supposed to include one and only one among:
+-- VtxSmearedNoSmear.cff: disables vertex smearing. Actually, it smears, but by fractions of a micron.
+-- VtxSmearedGauss.cff: vertex smearing as in ORCA. On the transverse plane, 15 um gaussian smearing. Longitudinally (z), 5.3 cm gaussian smearing. This is the \b ADVICED option
+-- VtxSmearedFlat.cff: flat vertex smearing. On the transverse plane, 15 um flat smearing. Longitudinally (z), 5.3 cm flat smearing.
+-- VtxSmearedBeamProfile.cff: vertex smearing which resembles beam profile.
+
+- \b Mixing includes: three options are given to the user, who has to choose one and only one among:
+-- MixingNoPileUp.cff: no pile up at all.
+-- MixingLowLumiPileUp.cff: piles up 5.0 events on average (Poisson statistics), in bunches from -5 to +3. 
+-- MixingHighLumiPileUp.cff: piles up 25.0 events on average (Poisson statistics), in bunches from -5 to +3. 
+
 \subsection seq Simulation Sequences
+
+(to be filled)
+
 \subsection seq Reconstruction Sequences
 
 - \b reconstruction : this is the only default for CMSSW Reconstruction. Changes with time and is defined looking at the various needs wrt algorithms, space on disk, time available for reconstruction. At the moment, the standard \b reconstruction sequence is composed of (please note that at least the distinction between global/highlevel reconstruction does not really reflect functional aspects)
