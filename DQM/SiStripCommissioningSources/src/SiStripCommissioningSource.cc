@@ -186,11 +186,6 @@ void SiStripCommissioningSource::endJob() {
 //
 void SiStripCommissioningSource::analyze( const edm::Event& event, 
 					  const edm::EventSetup& setup ) {
-   LogTrace(mlDqmSource_) 
-     << "[SiStripCommissioningSource::" << __func__ << "]"
-     << " Analyzing run/event "
-     << event.id().run() << "/"
-     << event.id().event();
 
   // Retrieve commissioning information from "event summary" 
   edm::Handle<SiStripEventSummary> summary;
@@ -202,29 +197,18 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 
   // Coarse event rate counter
   if ( !(event.id().event()%updateFreq_) ) {
-    float rate = 
-      static_cast<float>( updateFreq_ ) / 
-      static_cast<float>( time(NULL) - time_ );
-    rate = static_cast<int>( 10 * rate );
-    rate /= 10.;
     stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]"
-       << " Last " << updateFreq_ 
-       << " events processed at a rate of "
-       << rate << " Hz";
+       << " The last " << updateFreq_ 
+       << " events were processed at a rate of ";
+    if ( time(NULL) == time_ ) { ss << ">" << updateFreq_ << " Hz"; }
+    else { ss << (updateFreq_/(time(NULL)-time_)) << " Hz"; }
     edm::LogVerbatim(mlDqmSource_) << ss.str();
     time_ = time(NULL);
   }
   
   // Create commissioning task objects 
   if ( !tasksExist_ ) { createTask( summary.product() ); }
-  
-  stringstream ss;
-  ss << "[SiStripCommissioningSource::" << __func__ << "]"
-     << " CommissioningTask: "
-     << SiStripHistoNamingScheme::task( summary->task() )
-     << " cablingTask_: " << cablingTask_;
-  LogTrace(mlDqmSource_) << ss.str();
   
   // Retrieve raw digis
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
@@ -551,6 +535,12 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
   // Check if commissioning task is FED cabling 
   if ( task_ == sistrip::FED_CABLING ) { cablingTask_ = true; }
   else { cablingTask_ = false; }
+
+  stringstream ss;
+  ss << "[SiStripCommissioningSource::" << __func__ << "]"
+     << " CommissioningTask: "
+     << SiStripHistoNamingScheme::task( summary->task() );
+  LogTrace(mlDqmSource_) << ss.str();
 
   if ( !cablingTask_ ) { createTasks(); }
   else { createCablingTasks(); }

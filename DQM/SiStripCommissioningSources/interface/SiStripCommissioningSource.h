@@ -91,7 +91,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   uint32_t run_;
 
   /** Record of time used to calculate event rate. */
-  uint32_t time_;
+  int32_t time_;
 
   // ---------- Histogram-related ----------
 
