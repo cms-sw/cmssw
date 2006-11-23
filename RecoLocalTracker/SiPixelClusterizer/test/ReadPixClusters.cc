@@ -327,8 +327,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
       int minPixelRow = clustIt->minPixelRow();
       
       unsigned int geoId = clustIt->geographicalId();
-      bool edgeHitX = clustIt->edgeHitX();
-      bool edgeHitY = clustIt->edgeHitY();
+      bool edgeHitX = false; // clustIt->edgeHitX(); // edge method moved 
+      bool edgeHitY = false; //clustIt->edgeHitY(); // to topologu class
       
       //const vector<Pixel>  = clustIt->pixels();
       
