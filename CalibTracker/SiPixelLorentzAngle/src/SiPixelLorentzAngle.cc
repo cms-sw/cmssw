@@ -61,6 +61,9 @@ SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf) :
 	event_counter_ = 0;
 }
 
+// Virtual destructor needed.
+SiPixelLorentzAngle::~SiPixelLorentzAngle() {  }  
+
 void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 {
   hFile_ = new TFile (filename_.c_str(), "RECREATE" );
@@ -117,14 +120,13 @@ void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
   tracker=&(* estracker);
 }
 
-// Virtual destructor needed.
-SiPixelLorentzAngle::~SiPixelLorentzAngle() {  }  
 
 // Functions that gets called by framework every event
 void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
 {  
 	event_counter_++;
 	if(event_counter_ % 500 == 0) cout << "event number " << event_counter_ << endl;
+// 	cout << "event number " << event_counter_ << endl;
 	TrackerHitAssociator associate(e); 
   
 	// restet values
@@ -166,17 +168,14 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 			ndof_ = tciter->ndof();
 			
 			// reconstuct the track again (to get position and angles on the pixel)
-			std::vector<std::pair<const TrackingRecHit *,TrackLocalAngle::Trackhit> > tmptrackhit=anglefinder_->findPixelParameters(*tciter);
-			
-			std::vector<std::pair<const TrackingRecHit *,TrackLocalAngle::Trackhit> >::iterator tmpiter;
+			std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> > tmptrackhit=anglefinder_->findPixelParameters(*tciter);
+			std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> >::iterator tmpiter;
 			std::vector<PSimHit> matched;
 			
 			// iterate over track hits
 			for(tmpiter=tmptrackhit.begin();tmpiter!=tmptrackhit.end();tmpiter++){
-
 				DetId detIdObj((tmpiter->first)->geographicalId());
 				unsigned int subid = detIdObj.subdetId();
-					
 				// "Pixel Barrel only"
 				if (subid == 1) {
 					
@@ -187,16 +186,16 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 					layer_ = pxbdetIdObj.layer();
 					ladder_ = pxbdetIdObj.ladder();
 					module_ = pxbdetIdObj.module();
-          // Flipped modules
+			          // Flipped modules
 					float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
 					float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
-          if ( tmp2<tmp1 ) isflipped_ = 1;
+          			if ( tmp2<tmp1 ) isflipped_ = 1;
 					else isflipped_ = 0;
 
-					const SiPixelRecHit * rechit = dynamic_cast<const SiPixelRecHit *>(tmpiter->first);
-					edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& cluster = (rechit)->cluster();				
-					rechit_.x  = rechit->localPosition().x();
-					rechit_.y  = rechit->localPosition().y();
+					SiPixelRecHit rechit = (*tmpiter->first);
+					edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& cluster = rechit.cluster();				
+					rechit_.x  = rechit.localPosition().x();
+					rechit_.y  = rechit.localPosition().y();
 					// fill entries in clust_
 					clust_.x = (cluster)->x();
 					clust_.y = (cluster)->y();
@@ -215,7 +214,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 					
 					// fill entries in simhit_:
 					matched.clear();        
-					matched = associate.associateHit(*(tmpiter->first));	
+					matched = associate.associateHit((*tmpiter->first));	
 					float dr_start=9999.;
 					for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim){
 						DetId simdetIdObj((*isim).detUnitId());
@@ -230,8 +229,8 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 							float sim_py = (*isim).momentumAtEntry().y();
 							float sim_pz = (*isim).momentumAtEntry().z();
                 
-							float dr = (sim_xpos-rechit->localPosition().x())*(sim_xpos-rechit->localPosition().x()) +
-									(sim_ypos-rechit->localPosition().y())*(sim_ypos-rechit->localPosition().y());
+							float dr = (sim_xpos-(rechit.localPosition().x()))*(sim_xpos-rechit.localPosition().x()) +
+									(sim_ypos-rechit.localPosition().y())*(sim_ypos-rechit.localPosition().y());
 							if(dr<dr_start) {
 								simhit_.x     = sim_xpos;
 								simhit_.y     = sim_ypos;
@@ -267,8 +266,9 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 							_h_drift_depth_noadc_[module_ + (layer_ -1) * 8]->Fill(drift, depth);						
 						} // end iteration over pixels in hit
 					} // end "good hit?"
-					 
 				} // end "Pixel Barrel only"
+				// delete pointer ro rechit created in TrackLocalAngle::findPixelParameters
+				delete tmpiter->first;
 			} // end iteration over track hits
 		} // end iteration over tracks
 	} // end of "are there tracks"
@@ -335,6 +335,7 @@ void SiPixelLorentzAngle::findMean(int i, int i_ring)
 	double nentries = 0;
 	
 	h_drift_depth_adc_slice_->Reset("ICE");
+	
 	// determine sigma and sigma^2 of the adc counts and average adc counts
 		//loop over bins in drift width
 	for( int j = 1; j<= hist_drift_; j++){
