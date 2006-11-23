@@ -35,6 +35,13 @@
 #include <TF1.h>
 #include "TROOT.h"
 
+/**
+* 
+* Class to determine the lorentz angle in the barrel pixel detector 
+* returns a txt file with the fit for every of the 8 rings in the 3 layers
+* 
+*/
+
 class SiPixelLorentzAngle : public edm::EDAnalyzer
 {
  public:
@@ -45,37 +52,30 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
   virtual void beginJob(const edm::EventSetup& c);
   virtual void endJob(); 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void findtrackangle(const TrajectorySeed& seed,
-				       const TrackingRecHitCollection &hits,
-				       const edm::Event& e, 
-					const edm::EventSetup& es);
-  TrajectoryStateOnSurface startingTSOS(const TrajectorySeed& seed)const;
-// 	void fit_chi2_fcn(int &npar, double *gin, double &chi2, double* par, int iflag);
 	
  private:
 	 
-// 	void fit_chi2_fcn(int &npar, double *gin, double &chi2, double* par, int iflag);
 	void fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol);
 	void findMean(int i, int i_ring);
 	
-  edm::ParameterSet conf_;
-  std::string filename_;
+	edm::ParameterSet conf_;
+	std::string filename_;
 	std::string filenameFit_;
 	int event_counter_;
-  TrackLocalAngle *anglefinder_;
+  	TrackLocalAngle *anglefinder_;
 	
-  int run_;
-  int event_;
-  int module_;
+  	int run_;
+  	int event_;
+  	int module_;
 	int ladder_;
-  int layer_;
+  	int layer_;
 	int isflipped_;
 	float pt_;
 	float eta_;
 	float phi_;
 	double chi2_;
 	double ndof_;
-  int eventcounter_, eventnumber_, trackcounter_;
+  	int eventcounter_, eventnumber_, trackcounter_;
 	
 	TrackLocalAngle::Trackhit trackhit_;
 	
@@ -87,7 +87,7 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 		float row[maxpix];
 		float col[maxpix];
 		float adc[maxpix];
-  	float x[maxpix];
+  		float x[maxpix];
 		float y[maxpix];
 	} pixinfo_;
 	
@@ -117,8 +117,8 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	} rechit_;
 	
 	
-  TFile* hFile_;
-  TTree* SiPixelLorentzAngleTree_;
+  	TFile* hFile_;
+  	TTree* SiPixelLorentzAngleTree_;
 	
 	int hist_x_;
 	int hist_y_;
@@ -146,16 +146,16 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	std::map<int, TH1F*> _h_mean_;
 	
 	bool seed_plus_;
-  PropagatorWithMaterial  *thePropagator;
-  PropagatorWithMaterial  *thePropagatorOp;
-  KFUpdator *theUpdator;
-  Chi2MeasurementEstimator *theEstimator;
-  const TransientTrackingRecHitBuilder *RHBuilder;
-  const KFTrajectorySmoother * theSmoother;
-  const KFTrajectoryFitter * theFitter;
-  const TrackerGeometry * tracker;
-  const MagneticField * magfield;
-  TrajectoryStateTransform tsTransform;
+  	PropagatorWithMaterial  *thePropagator;
+  	PropagatorWithMaterial  *thePropagatorOp;
+  	KFUpdator *theUpdator;
+  	Chi2MeasurementEstimator *theEstimator;
+  	const TransientTrackingRecHitBuilder *RHBuilder;
+  	const KFTrajectorySmoother * theSmoother;
+  	const KFTrajectoryFitter * theFitter;
+  	const TrackerGeometry * tracker;
+  	const MagneticField * magfield;
+  	TrajectoryStateTransform tsTransform;
   
 };
 
