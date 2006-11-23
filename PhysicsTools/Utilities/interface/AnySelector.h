@@ -4,14 +4,14 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AnySelector.h,v 1.1 2006/07/21 14:11:26 llista Exp $
+ * $Id: AnySelector.h,v 1.1 2006/07/25 09:02:56 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 template<typename T>
 struct AnySelector {
   AnySelector( const edm::ParameterSet & ) { }
-  bool operator()( const T & ) { return true; }
+  bool operator()( const T & ) const { return true; }
 };
 
 #endif
