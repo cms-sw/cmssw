@@ -44,47 +44,54 @@ string SiStripHistoNamingScheme::histoTitle( const HistoTitle& title ) {
 HistoTitle SiStripHistoNamingScheme::histoTitle( const string& histo_title ) {
   
   HistoTitle title;
-  uint32_t position = 0;
+  string::size_type length = histo_title.length();
+  string::size_type position = 0;
+  string::size_type pos = 0;
+  string::size_type siz = 0;
   
   // Extract Task
-  title.task_ = SiStripHistoNamingScheme::task( histo_title.substr(position,histo_title.find(sistrip::sep_)) );
+  siz = histo_title.find(sistrip::sep_,position) - position;
+  title.task_ = SiStripHistoNamingScheme::task( histo_title.substr(position,siz) );
   string task = SiStripHistoNamingScheme::task( title.task_ );
-  position += histo_title.substr(position).find( task ) + task.size();
-  if ( position == string::npos ) { return title; }
+  position += histo_title.substr(position).find( task ) + task.size() + sistrip::sep_.size();
+  if ( position >= length ) { return title; }
   
   // Extract KeyType
-  title.keyType_ = SiStripHistoNamingScheme::keyType( histo_title.substr(position,histo_title.find(sistrip::sep_)) );
+  siz = histo_title.find(sistrip::sep_,position) - position;
+  title.keyType_ = SiStripHistoNamingScheme::keyType( histo_title.substr(position,siz) );
   string key_type = SiStripHistoNamingScheme::keyType( title.keyType_ );
-  position += histo_title.substr(position).find( key_type ) + key_type.size();
-  if ( position == string::npos ) { return title; }
+  position += histo_title.substr(position).find( key_type ) + key_type.size() + sistrip::hex_.size();
+  if ( position >= length ) { return title; }
   
   // Extract KeyValue
-  uint16_t key_size = 8;
-  position += sistrip::hex_.size();
-  stringstream key; key << histo_title.substr( position, key_size );
+  siz = 8;
+  stringstream key; 
+  key << histo_title.substr(position,siz);
   key >> hex >> title.keyValue_;
-  position += key_size;
-  if ( position == string::npos ) { return title; }
+  position += siz + sistrip::sep_.size();
+  if ( position >= length ) { return title; }
   
   // Extract Granularity
-  title.granularity_ = SiStripHistoNamingScheme::granularity( histo_title.substr(position,histo_title.find(sistrip::sep_)) );
+  pos = histo_title.find(sistrip::sep_,position);
+  if ( pos == string::npos || pos < position ) { siz = string::npos - position; }
+  else { siz = pos - position; }
+  title.granularity_ = SiStripHistoNamingScheme::granularity( histo_title.substr(position,siz) );
   string gran = SiStripHistoNamingScheme::granularity( title.granularity_ );
   position += histo_title.substr(position).find( gran ) + gran.size();
-  if ( position == string::npos ) { return title; }
+  if ( position >= length ) { return title; }
 
   // Extract Channel 
-  uint32_t chan_size = histo_title.find( sistrip::sep_, position ) - position;
+  pos = histo_title.find(sistrip::sep_,position);
+  if ( pos == string::npos || pos < position ) { siz = string::npos - position; }
+  else { siz = pos - position; }
   stringstream chan; 
-  chan << histo_title.substr( position, chan_size );
+  chan << histo_title.substr(position,siz);
   chan >> dec >> title.channel_;
-  position += chan_size;
-  if ( position == string::npos ) { return title; }
+  position += siz + sistrip::sep_.size();
+  if ( position >= length ) { return title; }
   
   // Extract ExtraInfo
-  uint32_t pos = histo_title.find( sistrip::sep_, position );
-  if ( pos != string::npos ) { 
-    title.extraInfo_ = histo_title.substr( pos+1, string::npos ); 
-  }
+  title.extraInfo_ = histo_title.substr( position, string::npos - position ); 
   
   // Return HistoTitle object
   return title;
