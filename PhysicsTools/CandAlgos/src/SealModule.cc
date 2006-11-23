@@ -51,12 +51,12 @@ namespace reco {
               >
            > MassRangeAndChargeCandCombiner;
 
-DEFINE_ANOTHER_FWK_MODULE( CandSelector )
-DEFINE_ANOTHER_FWK_MODULE( PtMinCandSelector )
-DEFINE_ANOTHER_FWK_MODULE( MassRangeAndChargeCandCombiner )
-DEFINE_ANOTHER_FWK_MODULE( CandCombiner )
-DEFINE_ANOTHER_FWK_MODULE( CandReducer )
-DEFINE_ANOTHER_FWK_MODULE( CandMerger )
-DEFINE_ANOTHER_FWK_MODULE( DeltaRMatcher )
+DEFINE_ANOTHER_FWK_MODULE( CandSelector );
+DEFINE_ANOTHER_FWK_MODULE( PtMinCandSelector );
+DEFINE_ANOTHER_FWK_MODULE( MassRangeAndChargeCandCombiner );
+DEFINE_ANOTHER_FWK_MODULE( CandCombiner );
+DEFINE_ANOTHER_FWK_MODULE( CandReducer );
+DEFINE_ANOTHER_FWK_MODULE( CandMerger );
+DEFINE_ANOTHER_FWK_MODULE( DeltaRMatcher );
   }
 }
