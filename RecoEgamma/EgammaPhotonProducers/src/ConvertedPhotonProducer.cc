@@ -101,47 +101,46 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
   edm::LogInfo("ConvertedPhotonProducer") << "get the OutInSeedFinder" << "\n";
   theOutInSeedFinder_ = new OutInConversionSeedFinder (   &(*theMF_) ,  theMeasurementTracker_ );
   
-    // get the Out In Track Finder
+  // get the Out In Track Finder
   edm::LogInfo("ConvertedPhotonProducer") << "get the OutInTrackFinder" << "\n";
   theOutInTrackFinder_ = new OutInConversionTrackFinder ( theEventSetup, conf_, &(*theMF_),  theMeasurementTracker_  );
   
   
-
-
-    // get the In Out Seed Finder  
-    edm::LogInfo("ConvertedPhotonProducer") << "get the InOutSeedFinder" << "\n";
-    theInOutSeedFinder_ = new InOutConversionSeedFinder (  &(*theMF_) ,  theMeasurementTracker_  );
-
-
-
-    // get the In Out Track Finder
-    edm::LogInfo("ConvertedPhotonProducer") << "get the InOutTrackFinder" << "\n";
-    theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_, &(*theMF_),  theMeasurementTracker_  );
-
-
+  
+  
+  // get the In Out Seed Finder  
+  edm::LogInfo("ConvertedPhotonProducer") << "get the InOutSeedFinder" << "\n";
+  theInOutSeedFinder_ = new InOutConversionSeedFinder (  &(*theMF_) ,  theMeasurementTracker_  );
+  
+  
+  
+  // get the In Out Track Finder
+  edm::LogInfo("ConvertedPhotonProducer") << "get the InOutTrackFinder" << "\n";
+  theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_, &(*theMF_),  theMeasurementTracker_  );
+  
+  
 }
 
 
 void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
-
+  
   using namespace edm;
-
+  
   edm::LogInfo("ConvertedPhotonProducer") << "Analyzing event number: " << theEvent.id() << "\n";
   std::cout << "ConvertedPhotonProducer:Analyzing event number " <<   theEvent.id() << std::endl;
-
+  
   // Update MeasurementTracker
-    theMeasurementTracker_->update(theEvent);
-
-
-
+  theMeasurementTracker_->update(theEvent);
+  
+  
+  
   //
   // create empty output collections
   //
-  std::auto_ptr< reco::ConvertedPhotonCollection > outputConvPhotonCollection(new reco::ConvertedPhotonCollection);
+  reco::ConvertedPhotonCollection outputConvPhotonCollection;
+  std::auto_ptr< reco::ConvertedPhotonCollection > outputConvPhotonCollection_p(new reco::ConvertedPhotonCollection);
   std::cout << " Created empty ConvertedPhotonCollection size " <<   std::endl;
-
-
-
+  
   // Get the basic cluster collection in the Barrel 
   edm::Handle<reco::BasicClusterCollection> bcBarrelHandle;
   theEvent.getByLabel(bcProducer_, bcBarrelCollection_, bcBarrelHandle);
@@ -151,7 +150,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
 
 
-  // Get the basic cluster collection in the endcap 
+  // Get the basic cluster collection in the Endcap 
   edm::Handle<reco::BasicClusterCollection> bcEndcapHandle;
   theEvent.getByLabel(bcProducer_, bcEndcapCollection_, bcEndcapHandle);
   std::cout << " Trying to access basic cluster collection in the Endcap from my Producer " << std::endl;
@@ -167,7 +166,6 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   std::cout << "barrel  SC collection size  " << scBarrelCollection.size() << std::endl;
 
   // Get the Super Cluster collection in the Endcap
-
   Handle<reco::SuperClusterCollection> scEndcapHandle;
   theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
   std::cout << " Trying to access " <<scIslandEndcapCollection_.c_str() << "  from my Producer " << std::endl;
@@ -177,35 +175,31 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   reco::ConvertedPhotonCollection myConvPhotons;
   const std::vector<TrajectorySeed> theOutInSeeds;
 
+
+
   //  Loop over SC in the barrel and reconstruct converted photons
   int myCands=0;
+  int iSC=0; // index in photon collection
+  int lSC=0; // local index on barrel
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
   
-    if ( abs( aClus->eta() ) > 0.9 ) return; 
+    //    if ( abs( aClus->eta() ) > 0.9 ) return; 
     std::cout << "  ConvertedPhotonProducer SC eta " <<  aClus->eta() << " phi " <<  aClus->phi() << std::endl;
 
     theOutInSeedFinder_->setCandidate(*aClus);
-    //theOutInSeedFinder_->makeSeeds( bcBarrelHandle.product()  );
     theOutInSeedFinder_->makeSeeds(  clusterCollectionBarrel );
-    
-
-    // std::vector<const Trajectory*> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
+  
     std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
 
 
     theInOutSeedFinder_->setCandidate(*aClus);
     theInOutSeedFinder_->setTracks(  theOutInTracks );   
-    //  theInOutSeedFinder_->makeSeeds(  bcBarrelHandle.product() );
     theInOutSeedFinder_->makeSeeds(  clusterCollectionBarrel );
-  
 
- 
-    //    std::vector<const TrajectoryMeasurement*> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
     std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
 
     // Define candidates with tracks
-
     std::cout << "  ConvertedPhotonProducer theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() << std::endl;
 
     for (std::vector<Trajectory>::const_iterator it = theOutInTracks.begin(); it !=  theOutInTracks.end(); it++) {
@@ -232,23 +226,85 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
       reco::ConvertedPhoton  newCandidate(0, p4, vtx);
      
-      outputConvPhotonCollection->push_back(newCandidate);
+      outputConvPhotonCollection.push_back(newCandidate);
+
+      reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, lSC));
+      outputConvPhotonCollection[iSC].setSuperCluster(scRef);
+      lSC++;
+      iSC++;      
       myCands++;
+      std::cout << " Put the ConvertedPhotonCollection a candidate in the Barrel " << std::endl;
 
     }
 
   }
 
 
-  //  Loop over SC in the endcap and reconstruct converted photons
+  //  Loop over SC in the Endcap and reconstruct converted photons
+ 
+  lSC=0; // reset local index for endcap
+  for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
+  
+    //    if ( abs( aClus->eta() ) > 0.9 ) return; 
+    std::cout << "  ConvertedPhotonProducer SC eta " <<  aClus->eta() << " phi " <<  aClus->phi() << std::endl;
 
-  ///  ............... Remember to do that !
+    theOutInSeedFinder_->setCandidate(*aClus);
+    theOutInSeedFinder_->makeSeeds(  clusterCollectionEndcap );
+  
+    std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
 
+
+    theInOutSeedFinder_->setCandidate(*aClus);
+    theInOutSeedFinder_->setTracks(  theOutInTracks );   
+    theInOutSeedFinder_->makeSeeds(  clusterCollectionEndcap );
+
+    std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
+
+    // Define candidates with tracks
+    std::cout << "  ConvertedPhotonProducer theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() << std::endl;
+
+    for (std::vector<Trajectory>::const_iterator it = theOutInTracks.begin(); it !=  theOutInTracks.end(); it++) {
+      std::cout << " ConvertedPhotonProducer OutIn Tracks Number of hits " << (*it).foundHits() << std::endl; 
+    }
+
+    for (std::vector<Trajectory>::const_iterator it = theInOutTracks.begin(); it !=  theInOutTracks.end(); it++) {
+      std::cout << " ConvertedPhotonProducer InOut Tracks Number of hits " << (*it).foundHits() << std::endl; 
+    }
+
+    if ( theOutInTracks.size() ||  theOutInTracks.size() ) {
+
+      // Track cleaning
+      // Track pairing
+      // vertex finding
+      // final candidate 
+      const reco::Particle::Point  vtx( 0, 0, 0 );
+      // Possibly correct the vertex position from the tracks
+      math::XYZVector direction =aClus->position() - vtx;
+      math::XYZVector momentum = direction.unit() * aClus->energy();
+      // Possibly compute the momentum from the tracks
+
+      const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
+
+      reco::ConvertedPhoton  newCandidate(0, p4, vtx);
+     
+      outputConvPhotonCollection.push_back(newCandidate);
+
+      reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, lSC));
+      outputConvPhotonCollection[iSC].setSuperCluster(scRef);
+      lSC++;
+      iSC++;      
+      myCands++;
+      std::cout << " Put the ConvertedPhotonCollection a candidate in the Endcap  " << std::endl;
+
+    }
+
+  }
 
 
 
   // put the product in the event
   std::cout << " Put the ConvertedPhotonCollection " << myCands << "  candidates " << std::endl;
-  theEvent.put( outputConvPhotonCollection, ConvertedPhotonCollection_);
+  outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(),outputConvPhotonCollection.end());
+  theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
 
 }
