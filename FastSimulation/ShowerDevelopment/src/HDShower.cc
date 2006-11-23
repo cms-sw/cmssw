@@ -47,15 +47,15 @@ HDShower::HDShower(HDShowerParametrization* myParam,
   //  FASTCalorimeter * myCalorimeter= FASTCalorimeter::instance();
 
   // Values taken from FamosGeneric/FamosCalorimeter/src/FASTCalorimeter.cc
-  lossesOpt      = 0;//myCalorimeter->getHDlossesOpt();
-  nDepthSteps    = 10;//myCalorimeter->getHDnDepthSteps();
-  nTRsteps       = 40;//myCalorimeter->getHDnTRsteps();
-  transParam     = 102;//myCalorimeter->getHDtransParam();
-  eSpotSize      = 0.2;//myCalorimeter->getHDeSpotSize();
-  depthStep      = 0.5;//myCalorimeter->getHDdepthStep();
-  criticalEnergy = 3.0;//myCalorimeter->getHDcriticalEnergy();
-  maxTRfactor    = 4;//myCalorimeter->getHDmaxTRfactor();
-  balanceEH      = 0.9;//myCalorimeter->getHDbalanceEH();
+  lossesOpt      = myParam->hsParameters()->getHDlossesOpt();
+  nDepthSteps    = myParam->hsParameters()->getHDnDepthSteps();
+  nTRsteps       = myParam->hsParameters()->getHDnTRsteps();
+  transParam     = myParam->hsParameters()->getHDtransParam();
+  eSpotSize      = myParam->hsParameters()->getHDeSpotSize();
+  depthStep      = myParam->hsParameters()->getHDdepthStep();
+  criticalEnergy = myParam->hsParameters()->getHDcriticalEnergy();
+  maxTRfactor    = myParam->hsParameters()->getHDmaxTRfactor();
+  balanceEH      = myParam->hsParameters()->getHDbalanceEH();
 
   // Special tr.size fluctuations 
   transParam *= (1. + RandFlat::shoot());

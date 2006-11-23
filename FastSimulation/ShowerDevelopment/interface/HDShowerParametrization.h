@@ -3,7 +3,7 @@
 
 #include "FastSimulation/CalorimeterProperties/interface/ECALProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
-
+#include "FastSimulation/ShowerDevelopment/interface/HSParameters.h"
 /** 
  * Hadronic Shower parametrization utilities according to 
  * G. Grindhammer et al. in a way implemeted in CMSJET
@@ -17,9 +17,11 @@ class HDShowerParametrization
  public:
 
   HDShowerParametrization(const ECALProperties* ecal,
-			  const HCALProperties* hcal):
+			  const HCALProperties* hcal,
+			  const HSParameters * hadronshower):
     theECAL(ecal),  
-    theHCAL(hcal){}
+    theHCAL(hcal),
+    theHSParameters(hadronshower){}
 
   virtual ~HDShowerParametrization() { }
 
@@ -29,6 +31,10 @@ class HDShowerParametrization
 
   const HCALProperties* hcalProperties() const { 
     return theHCAL; 
+  }
+
+  const HSParameters * hsParameters() const{
+    return theHSParameters;
   }
 
   // to distinguish between low- and high-energy case
@@ -64,6 +70,7 @@ class HDShowerParametrization
   
   const ECALProperties* theECAL;
   const HCALProperties* theHCAL;
+  const HSParameters * theHSParameters;
 
   int theCase;
 };
