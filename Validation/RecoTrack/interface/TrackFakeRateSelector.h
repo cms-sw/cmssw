@@ -19,8 +19,8 @@ public:
     maxRapidity_( cfg.getParameter<double>( "maxRapidity" ) ),
     tip_( cfg.getParameter<double>( "tip" ) ),
     lip_( cfg.getParameter<double>( "lip" ) ),
-    minHit_( cfg.getParameter<int>( "minHit" ) ), 
-    maxChi2_( cfg.getParameter<double>( "maxChi2" ) )
+    minHit_( cfg.getParameter<int>( "minHit" ) ) //, 
+    //    maxChi2_( cfg.getParameter<double>( "maxChi2" ) )
   { }
   
   bool operator()( const reco::Track & t ) { 
@@ -29,8 +29,8 @@ public:
 	    fabs(t.pt()) >= ptMin_ && 
 	    fabs(t.eta()) >= minRapidity_ && fabs(t.eta()) <= maxRapidity_ && 
 	    fabs(t.d0()) <= tip_ &&
-	    fabs(t.dz()) <= lip_ &&
-	    t.normalizedChi2() <= maxChi2_
+	    fabs(t.dz()) <= lip_ 
+	    //&& t.normalizedChi2() <= maxChi2_
 	    );
   }
 
@@ -41,7 +41,7 @@ private:
   double tip_;
   double lip_;
   int    minHit_;
-  double maxChi2_;
+  //double maxChi2_;
 
 };
 
