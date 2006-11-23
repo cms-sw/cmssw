@@ -2,9 +2,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/Common/interface/OneToOne.h"
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include <Math/VectorUtil.h>
 #include <vector>
 
@@ -12,8 +10,6 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace ROOT::Math::VectorUtil;
-
-typedef AssociationMap<OneToOne<CandidateCollection, CandidateCollection> > MatchMap;
 
 namespace helper {
   typedef pair<size_t, double> MatchPair;
@@ -29,7 +25,7 @@ DeltaRMatcher::DeltaRMatcher( const ParameterSet & cfg ) :
   src_( cfg.getParameter<InputTag>( "src" ) ),
   matched_( cfg.getParameter<InputTag>( "matched" ) ), 
   drMin_( cfg.getParameter<double>( "drMin" ) ) {
-  produces<MatchMap>();
+  produces<CandMatchMap>();
 }
 
 DeltaRMatcher::~DeltaRMatcher() {
@@ -41,14 +37,16 @@ void DeltaRMatcher::produce( Event& evt, const EventSetup& ) {
   Handle<CandidateCollection> cands;  
   evt.getByLabel( src_, cands ) ;
 
-  auto_ptr<MatchMap> matchMap( new MatchMap );
+  auto_ptr<CandMatchMap> matchMap( new CandMatchMap );
   for( size_t c = 0; c != cands->size(); ++ c ) {
     const Candidate & cand = (*cands)[ c ];
     vector<helper::MatchPair> v;
     for( size_t m = 0; m != matched->size(); ++ m ) {
       const Candidate & match = (*matched)[ m ];
-      double dR = DeltaR( cand.p4(), match.p4() );
-      if ( dR < drMin_ ) v.push_back( make_pair( m, dR ) );
+      if ( select( match ) ){
+	double dR = matchDistance( cand, match );
+	if ( dR < drMin_ ) v.push_back( make_pair( m, dR ) );
+      }
     }
     size_t mMin = min_element( v.begin(), v.end(), helper::SortBySecond() )->first;
     matchMap->insert( CandidateRef( cands, c ), CandidateRef( matched, mMin ) );
@@ -57,3 +55,10 @@ void DeltaRMatcher::produce( Event& evt, const EventSetup& ) {
   evt.put( matchMap );
 }
 
+double DeltaRMatcher::matchDistance( const reco::Candidate& c1, const reco::Candidate& c2 ) const {
+  return DeltaR( c1.p4(), c2.p4() );
+}
+
+bool DeltaRMatcher::select( const reco::Candidate & c ) const {
+  return true;
+}
