@@ -8,6 +8,7 @@
 using namespace edm;
 using namespace std;
 using namespace reco;
+using namespace reco::modules;
 
 namespace helper {
   typedef pair<size_t, double> MatchPair;
@@ -22,7 +23,7 @@ namespace helper {
 CandMatcherBase::CandMatcherBase( const ParameterSet & cfg ) :
   src_( cfg.getParameter<InputTag>( "src" ) ),
   matched_( cfg.getParameter<InputTag>( "matched" ) ), 
-  drMin_( cfg.getParameter<double>( "drMin" ) ) {
+  distMin_( cfg.getParameter<double>( "distMin" ) ) {
   produces<CandMatchMap>();
 }
 
@@ -42,8 +43,8 @@ void CandMatcherBase::produce( Event& evt, const EventSetup& ) {
     for( size_t m = 0; m != matched->size(); ++ m ) {
       const Candidate & match = (*matched)[ m ];
       if ( select( match ) ){
-	double dR = matchDistance( cand, match );
-	if ( dR < drMin_ ) v.push_back( make_pair( m, dR ) );
+	double dist = matchDistance( cand, match );
+	if ( dist < distMin_ ) v.push_back( make_pair( m, dist ) );
       }
     }
     size_t mMin = min_element( v.begin(), v.end(), helper::SortBySecond() )->first;

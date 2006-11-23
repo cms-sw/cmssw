@@ -9,6 +9,6 @@
 #include "PhysicsTools/CandAlgos/interface/CandMatcher.h"
 #include "PhysicsTools/Utilities/interface/AnySelector.h"
 
-typedef CandMatcher<AnySelector<reco::Candidate> > TrivialDeltaRMatcher;
+typedef reco::modules::CandMatcher<AnySelector<reco::Candidate> > TrivialDeltaRMatcher;
 
 #endif
