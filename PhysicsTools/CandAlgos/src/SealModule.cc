@@ -12,35 +12,35 @@
 #include "PhysicsTools/CandAlgos/src/CandReducer.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
-#include "PhysicsTools/CandAlgos/src/DeltaRMatcher.h"
+#include "PhysicsTools/CandAlgos/src/TrivialDeltaRMatcher.h"
 
 DEFINE_SEAL_MODULE();
 
 namespace reco {
   namespace modules {
 
-    /// merge an arbitrary number of candidate collections  
+    /// merge an arbitrary number of candidate collections
     typedef Merger<reco::CandidateCollection> CandMerger;
-    
+
     /// configurable candidate selector
     typedef ObjectSelector<
               SingleElementCollectionSelector<
-                reco::CandidateCollection, 
-                SingleObjectSelector<reco::Candidate> 
+                reco::CandidateCollection,
+                SingleObjectSelector<reco::Candidate>
               >
             > CandSelector;
 
     /// pt min candidate selector
     typedef ObjectSelector<
               SingleElementCollectionSelector<
-                reco::CandidateCollection, 
-                PtMinSelector<reco::Candidate> 
+                reco::CandidateCollection,
+                PtMinSelector<reco::Candidate>
               >
             > PtMinCandSelector;
 
     /// configurable candidate combiner
     typedef ::CandCombiner<
-              SingleObjectSelector<reco::Candidate> 
+              SingleObjectSelector<reco::Candidate>
             > CandCombiner;
 
     /// mass range and charge candidate selector
@@ -57,6 +57,7 @@ DEFINE_ANOTHER_FWK_MODULE( MassRangeAndChargeCandCombiner );
 DEFINE_ANOTHER_FWK_MODULE( CandCombiner );
 DEFINE_ANOTHER_FWK_MODULE( CandReducer );
 DEFINE_ANOTHER_FWK_MODULE( CandMerger );
-DEFINE_ANOTHER_FWK_MODULE( DeltaRMatcher );
+DEFINE_ANOTHER_FWK_MODULE( TrivialDeltaRMatcher );
+
   }
 }

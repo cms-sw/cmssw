@@ -1,15 +1,13 @@
-#include "PhysicsTools/CandAlgos/src/DeltaRMatcher.h"
+#include "PhysicsTools/CandAlgos/interface/CandMatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include <Math/VectorUtil.h>
 #include <vector>
 
 using namespace edm;
 using namespace std;
 using namespace reco;
-using namespace ROOT::Math::VectorUtil;
 
 namespace helper {
   typedef pair<size_t, double> MatchPair;
@@ -21,17 +19,17 @@ namespace helper {
   };
 }
 
-DeltaRMatcher::DeltaRMatcher( const ParameterSet & cfg ) :
+CandMatcherBase::CandMatcherBase( const ParameterSet & cfg ) :
   src_( cfg.getParameter<InputTag>( "src" ) ),
   matched_( cfg.getParameter<InputTag>( "matched" ) ), 
   drMin_( cfg.getParameter<double>( "drMin" ) ) {
   produces<CandMatchMap>();
 }
 
-DeltaRMatcher::~DeltaRMatcher() {
+CandMatcherBase::~CandMatcherBase() {
 }
 
-void DeltaRMatcher::produce( Event& evt, const EventSetup& ) {
+void CandMatcherBase::produce( Event& evt, const EventSetup& ) {
   Handle<CandidateCollection> matched;  
   evt.getByLabel( matched_, matched ) ;
   Handle<CandidateCollection> cands;  
@@ -53,12 +51,4 @@ void DeltaRMatcher::produce( Event& evt, const EventSetup& ) {
   }
 
   evt.put( matchMap );
-}
-
-double DeltaRMatcher::matchDistance( const reco::Candidate& c1, const reco::Candidate& c2 ) const {
-  return DeltaR( c1.p4(), c2.p4() );
-}
-
-bool DeltaRMatcher::select( const reco::Candidate & c ) const {
-  return true;
 }
