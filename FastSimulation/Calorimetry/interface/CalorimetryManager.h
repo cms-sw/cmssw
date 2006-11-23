@@ -21,7 +21,7 @@ class FSimTrack;
 class RawParticle;
 class CaloGeometryHelper;
 class Histos;
-
+class HSParameters;
 
 class CalorimetryManager{
 
@@ -74,6 +74,7 @@ class CalorimetryManager{
   Histos * myHistos;
 
   HCALResponse* myHDResponse_;
+  HSParameters * myHSParameters_;
 
   std::map<unsigned,float> EBMapping_;
   std::map<unsigned,float> EEMapping_;

@@ -7,6 +7,7 @@
 #include "FastSimulation/ShowerDevelopment/interface/HDShowerParametrization.h"
 #include "FastSimulation/ShowerDevelopment/interface/HDShower.h"
 #include "FastSimulation/ShowerDevelopment/interface/HDRShower.h"
+#include "FastSimulation/ShowerDevelopment/interface/HSParameters.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
@@ -60,6 +61,7 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent, const edm::Paramet
 #endif
   myCalorimeter_ = new CaloGeometryHelper(fastCalo);
   myHDResponse_ = new HCALResponse(fastCalo.getParameter<edm::ParameterSet>("HCALResponse"));
+  myHSParameters_ = new HSParameters(fastCalo.getParameter<edm::ParameterSet>("HSParameters"));
 }
 
 CalorimetryManager::~CalorimetryManager()
@@ -452,7 +454,8 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
     // ECAL and HCAL properties to get
     HDShowerParametrization 
       theHDShowerparam(myCalorimeter_->ecalProperties(onECAL),
-		       myCalorimeter_->hcalProperties(onHCAL));
+		       myCalorimeter_->hcalProperties(onHCAL),
+		       myHSParameters_);
     
     //Making ECAL Grid (and segments calculation)
     HepPoint3D caloentrance;
