@@ -15,8 +15,8 @@ ApvTimingTask::ApvTimingTask( DaqMonitorBEInterface* dqm,
   CommissioningTask( dqm, conn, "ApvTimingTask" ),
   timing_(),
   nSamples_(40),
-  nFineDelays_(24), // 24 fine delays per "coarse" sample
-  nBins_(nSamples_*nFineDelays_) 
+  nFineDelays_(24),
+  nBins_(40) 
 {}
 
 // -----------------------------------------------------------------------------
@@ -27,22 +27,28 @@ ApvTimingTask::~ApvTimingTask() {
 // -----------------------------------------------------------------------------
 //
 void ApvTimingTask::book() {
-
+  
+  uint16_t nbins = 24 * nBins_;
+  
   string title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::APV_TIMING, 
 								   sistrip::FED_KEY, 
 								   fedKey(),
 								   sistrip::LLD_CHAN, 
 								   connection().lldChannel() ) );
   
-  float min_time_ns = static_cast<float>(nBins_) - 0.5;
-  float max_time_ns = (25./static_cast<float>(nFineDelays_)) * static_cast<float>(nBins_) - 0.5;
   timing_.histo_ = dqm()->bookProfile( title, title, 
-				       nBins_, min_time_ns, max_time_ns,
-				       sistrip::maximum_, 0., sistrip::maximum_*1. );
+				       nbins, -0.5, nBins_*25.-0.5, 
+				       1025, 0., 1025. );
   
-  timing_.vNumOfEntries_.resize(nBins_,0);
-  timing_.vSumOfContents_.resize(nBins_,0);
-  timing_.vSumOfSquares_.resize(nBins_,0);
+//   float min_time_ns = static_cast<float>(nBins_) - 0.5;
+//   float max_time_ns = (25./static_cast<float>(nFineDelays_)) * static_cast<float>(nBins_) - 0.5;
+//   timing_.histo_ = dqm()->bookProfile( title, title, 
+// 				       nBins_, min_time_ns, max_time_ns,
+// 				       sistrip::maximum_, 0., sistrip::maximum_*1. );
+  
+  timing_.vNumOfEntries_.resize(nbins,0);
+  timing_.vSumOfContents_.resize(nbins,0);
+  timing_.vSumOfSquares_.resize(nbins,0);
   
 }
 
@@ -68,8 +74,8 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
   }
 
   pair<uint32_t,uint32_t> skews = const_cast<SiStripEventSummary&>(summary).pll();
-  for ( uint16_t coarse = 0; coarse < nSamples_/*digis.data.size()*/; coarse++ ) {
-    uint16_t fine = (coarse+1)*nFineDelays_ - (skews.second+1);
+  for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
+    uint16_t fine = (coarse+1)*24 - (skews.second+1);
     updateHistoSet( timing_, fine, digis.data[coarse].adc() );
   }
   
